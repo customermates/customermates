@@ -8,6 +8,7 @@ import { getRoutinesAction } from "../actions";
 import { Resource } from "@/generated/prisma";
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
+import { actionData } from "@/core/utils/action-data";
 
 export class RoutinesStore extends BaseDataViewStore<RoutineDto> {
   constructor(rootStore: RootStore) {
@@ -27,6 +28,6 @@ export class RoutinesStore extends BaseDataViewStore<RoutineDto> {
   }
 
   protected async refreshAction(params?: GetQueryParams) {
-    return getRoutinesAction(params);
+    return actionData(getRoutinesAction(params));
   }
 }

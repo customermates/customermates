@@ -5,6 +5,7 @@ import type { ResolveUserOptionsInput } from "@/features/user/get/resolve-user-o
 import type { AdminUpdateUserDetailsData } from "@/features/user/upsert/admin-update-user-details.interactor";
 import type { GetUserByIdData } from "@/features/user/get/get-user-by-id.interactor";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
+import type { InteractorOutcome } from "@/core/validation/validation.utils";
 import type { SendFeedbackData } from "@/features/feedback/send-feedback.schema";
 import type { DeleteRoleData } from "@/features/role/delete-role.interactor";
 import type { UpsertRoleData } from "@/features/role/upsert-role.interactor";
@@ -45,16 +46,21 @@ import {
   getGetMemberRemovalInteractor,
   getRenameWorkspaceInteractor,
 } from "@/core/di";
-import { serializeResult, serializeTypedResult } from "@/core/utils/action-result";
+import {
+  serializeActionFailure,
+  serializeResult,
+  serializeTypedData,
+  serializeTypedResult,
+  settleOutcome,
+} from "@/core/utils/action-result";
 import { isRedirect } from "@/features/auth/auth-outcome";
-import { unwrapValidated } from "@/core/validation/validation.utils";
 import { activeUsersQuery } from "@/features/user/get/active-users-query";
 
 export async function createCheckoutSessionAction(data: CreateCheckoutSessionData) {
-  const result = await getCreateCheckoutSessionInteractor().invoke(data);
+  const result = await settleOutcome(getCreateCheckoutSessionInteractor().invoke(data));
   if (isRedirect(result)) return { ok: true as const, data: { checkout: "started" as const, url: result.redirect } };
   if (result.ok) return result;
-  return { ok: false as const, error: z.treeifyError(result.error) };
+  return serializeActionFailure(result.error);
 }
 
 export async function abandonCheckoutAction() {
@@ -70,9 +76,9 @@ export async function getSubscriptionAction() {
 }
 
 export async function getBillingPortalUrlAction() {
-  const result = await getGetBillingPortalUrlInteractor().invoke();
+  const result = await settleOutcome(getGetBillingPortalUrlInteractor().invoke());
   if (isRedirect(result)) return { ok: true as const, data: { url: result.redirect } };
-  return { ok: false as const, error: z.treeifyError(result.error) };
+  return serializeActionFailure(result.error);
 }
 
 export async function sendFeedbackAction(data: SendFeedbackData) {
@@ -96,8 +102,7 @@ export async function renameWorkspaceAction(data: RenameWorkspaceData) {
 }
 
 export async function getOrCreateInviteTokenAction() {
-  const result = await getGetOrCreateInviteTokenInteractor().invoke();
-  return result.data;
+  return serializeTypedResult(getGetOrCreateInviteTokenInteractor().invoke());
 }
 
 export async function inviteUsersByEmailAction(data: InviteUsersByEmailData) {
@@ -105,7 +110,7 @@ export async function inviteUsersByEmailAction(data: InviteUsersByEmailData) {
 }
 
 export async function getRolesAction(params?: GetQueryParams) {
-  return unwrapValidated(getGetRolesInteractor().invoke(params));
+  return serializeTypedResult(getGetRolesInteractor().invoke(params));
 }
 
 export async function getRoleEditorAction(data: { id?: string }) {
@@ -121,16 +126,15 @@ export async function deleteRoleAction(data: DeleteRoleData) {
 }
 
 export async function getUsersAction(params?: GetQueryParams) {
-  return unwrapValidated(getGetUsersInteractor().invoke(params));
+  return serializeTypedResult(getGetUsersInteractor().invoke(params));
 }
 
 export async function getActiveUsersAction(params?: GetQueryParams) {
-  return unwrapValidated(getGetUsersInteractor().invoke(activeUsersQuery(params)));
+  return serializeTypedResult(getGetUsersInteractor().invoke(activeUsersQuery(params)));
 }
 
 export async function getUserByIdAction(data: GetUserByIdData) {
-  const result = await getGetUserByIdInteractor().invoke(data);
-  return result.ok ? result.data : { user: null };
+  return serializeTypedResult(getGetUserByIdInteractor().invoke(data));
 }
 
 export async function upsertWebhookAction(data: UpsertWebhookData) {
@@ -142,7 +146,7 @@ export async function deleteWebhookAction(data: DeleteWebhookData) {
 }
 
 export async function getWebhooksAction(params?: GetQueryParams) {
-  return unwrapValidated(getGetWebhooksInteractor().invoke(params));
+  return serializeTypedResult(getGetWebhooksInteractor().invoke(params));
 }
 
 export async function resolveWebhookOptionsAction(ids: string[]) {
@@ -150,22 +154,26 @@ export async function resolveWebhookOptionsAction(ids: string[]) {
     .array(z.uuid())
     .max(100)
     .parse([...new Set(ids)]);
-  const results = await Promise.all(selected.map((id) => getGetWebhookByIdInteractor().invoke({ id })));
-  return results.flatMap((result) =>
-    result.ok
-      ? [
-          {
-            id: result.data.id,
-            url: result.data.url,
-            description: result.data.description,
-          },
-        ]
-      : [],
+  const results = Promise.all(selected.map((id) => getGetWebhookByIdInteractor().invoke({ id })));
+  return serializeTypedData(
+    results.then((data): InteractorOutcome<typeof data> => ({ ok: true, data })),
+    (settled) =>
+      settled.flatMap((result) =>
+        result.ok
+          ? [
+              {
+                id: result.data.id,
+                url: result.data.url,
+                description: result.data.description,
+              },
+            ]
+          : [],
+      ),
   );
 }
 
 export async function getWebhookDeliveriesAction(params?: GetQueryParams) {
-  return unwrapValidated(getGetWebhookDeliveriesInteractor().invoke(params));
+  return serializeTypedResult(getGetWebhookDeliveriesInteractor().invoke(params));
 }
 
 export async function resendWebhookDeliveryAction(data: ResendWebhookDeliveryData) {
@@ -173,5 +181,5 @@ export async function resendWebhookDeliveryAction(data: ResendWebhookDeliveryDat
 }
 
 export async function resolveUserOptionsAction(input: ResolveUserOptionsInput) {
-  return unwrapValidated(getResolveUserOptionsInteractor().invoke(input));
+  return serializeTypedResult(getResolveUserOptionsInteractor().invoke(input));
 }

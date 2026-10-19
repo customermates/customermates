@@ -21,8 +21,7 @@ import {
   getUpsertRecordActivityWidgetInteractor,
   getUpsertRecordWidgetInteractor,
 } from "@/core/di";
-import { serializeResult } from "@/core/utils/action-result";
-import { unwrapValidated } from "@/core/validation/validation.utils";
+import { serializeResult, serializeTypedData, serializeTypedResult } from "@/core/utils/action-result";
 
 export async function deleteWidgetAction(data: DeleteWidgetData) {
   return serializeResult(getDeleteWidgetInteractor().invoke(data));
@@ -33,8 +32,7 @@ export async function getCompanyWidgetsAction() {
 }
 
 export async function getWidgetByIdAction(data: GetWidgetByIdData) {
-  const result = await getGetWidgetByIdInteractor().invoke(data);
-  return result.ok ? result.data : null;
+  return serializeTypedResult(getGetWidgetByIdInteractor().invoke(data));
 }
 
 export async function updateWidgetLayoutsAction(data: UpdateWidgetLayoutsData) {
@@ -42,7 +40,7 @@ export async function updateWidgetLayoutsAction(data: UpdateWidgetLayoutsData) {
 }
 
 export async function refreshWidgetsAction(viewId?: string) {
-  return unwrapValidated(getGetWidgetsInteractor().invoke({ viewId }));
+  return serializeTypedResult(getGetWidgetsInteractor().invoke({ viewId }));
 }
 
 export async function updatePreferencesAction(data: UpdateUserDetailsData) {
@@ -54,20 +52,20 @@ export async function upsertRecordWidgetAction(input: RecordWidgetInput) {
 }
 
 export async function discoverWidgetRecordTypesAction(params: { searchTerm?: string }) {
-  const data = await unwrapValidated(
+  return serializeTypedData(
     getDiscoverRecordTypesInteractor().invoke({
       search: params.searchTerm,
       includeEmbedded: true,
       page: 1,
       pageSize: 100,
     }),
+    (data) => ({
+      items: data.types.filter((type) =>
+        type.permittedActions.some((action) => action === "readOwn" || action === "readAll"),
+      ),
+      total: data.total,
+    }),
   );
-  return {
-    items: data.types.filter((type) =>
-      type.permittedActions.some((action) => action === "readOwn" || action === "readAll"),
-    ),
-    total: data.total,
-  };
 }
 
 export async function previewRecordWidgetAction(measure: RecordMeasure) {

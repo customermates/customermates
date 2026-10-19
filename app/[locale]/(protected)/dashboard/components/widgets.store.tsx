@@ -24,6 +24,7 @@ import { Breakpoint } from "@/core/types/breakpoint";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { actionData } from "@/core/utils/action-data";
 
 type MutableLayouts = Record<string, LayoutItem[]>;
 
@@ -302,12 +303,12 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
   }
 
   protected async refreshAction(params?: GetQueryParams) {
-    return refreshWidgetsAction(params?.viewId);
+    return actionData(refreshWidgetsAction(params?.viewId));
   }
 
   async widgetNamesOfView(viewId: string): Promise<string[]> {
     if (this.activeViewKey === viewId) return this.items.map((widget) => widget.name);
-    const dashboard = await refreshWidgetsAction(viewId);
+    const dashboard = await actionData(refreshWidgetsAction(viewId));
     return dashboard.activeViewKey === viewId ? dashboard.items.map((widget) => widget.name) : [];
   }
 

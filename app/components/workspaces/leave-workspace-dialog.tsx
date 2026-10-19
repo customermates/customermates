@@ -6,10 +6,9 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
 import { ConfirmDialog } from "@/components/modal/confirm-dialog";
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { cn } from "@/core/utils/cn";
+
+import { BlockableWorkspaceButton, BlockableWorkspaceReason } from "./blockable-workspace-action";
 
 type Props = {
   anchorScope: string;
@@ -39,60 +38,22 @@ function useLeaveBlocker(refusal: WorkspaceLeaveRefusal | null): string | null {
   return null;
 }
 
-function leaveReasonId(id: string): string {
-  return `${id}-reason`;
-}
-
 export function LeaveWorkspaceReason({ className, id, refusal }: ReasonProps) {
-  const blocker = useLeaveBlocker(refusal);
-  if (!blocker) return null;
-
   return (
-    <p
-      className={cn("hidden text-xs text-subdued max-sm:block pointer-coarse:block", className)}
-      data-slot="leave-workspace-reason"
-      id={leaveReasonId(id)}
-    >
-      {blocker}
-    </p>
+    <BlockableWorkspaceReason blocker={useLeaveBlocker(refusal)} className={className} id={id} slot="leave-workspace" />
   );
 }
 
 export function LeaveWorkspaceButton({ className, id, label, refusal, onClick }: ButtonProps) {
-  const blocker = useLeaveBlocker(refusal);
-  const button = (
-    <Button
-      className={className}
-      disabled={blocker !== null}
-      id={id}
-      size="sm"
-      type="button"
-      variant="secondary"
-      onClick={onClick}
-    >
-      {label}
-    </Button>
-  );
-  if (!blocker) return button;
-
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <span
-          aria-describedby={leaveReasonId(id)}
-          aria-disabled="true"
-          aria-label={label}
-          className="inline-flex w-fit"
-          data-slot="leave-workspace-blocked"
-          role="button"
-          tabIndex={0}
-        >
-          {button}
-        </span>
-      </TooltipTrigger>
-
-      <TooltipContent>{blocker}</TooltipContent>
-    </Tooltip>
+    <BlockableWorkspaceButton
+      blocker={useLeaveBlocker(refusal)}
+      className={className}
+      id={id}
+      label={label}
+      slot="leave-workspace"
+      onClick={onClick}
+    />
   );
 }
 

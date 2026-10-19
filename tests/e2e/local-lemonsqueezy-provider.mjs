@@ -114,6 +114,20 @@ export function localSubscriptionResource(subscription) {
   };
 }
 
+function listLocalSubscriptions(providerDirectory, url) {
+  const storeId = url.searchParams.get("filter[store_id]");
+  const email = url.searchParams.get("filter[user_email]")?.toLowerCase();
+  if (storeId !== localLemonSqueezyStoreId || !email)
+    return jsonApi(422, { errors: [{ status: "422", title: "Unsupported subscription filter" }] });
+  const directory = storeDirectory(providerDirectory, "subscriptions");
+  const data = readdirSync(directory)
+    .filter((name) => name.endsWith(".json"))
+    .map((name) => readJson(join(directory, name)))
+    .filter((subscription) => subscription.attributes.user_email?.toLowerCase() === email)
+    .map(localSubscriptionResource);
+  return jsonApi(200, { meta: { page: { currentPage: 1, lastPage: 1, total: data.length } }, data });
+}
+
 function subscriptionByItem(providerDirectory, itemId) {
   const directory = storeDirectory(providerDirectory, "subscriptions");
   return readdirSync(directory)
@@ -149,6 +163,8 @@ export function localLemonSqueezyRequest(input, init) {
   const providerDirectory = process.env.CRM_E2E_PROVIDER_DIRECTORY;
   if (request.method === "POST" && url.pathname === "/v1/checkouts" && !url.search)
     return createCheckout(request, providerDirectory);
+  if (request.method === "GET" && url.pathname === "/v1/subscriptions")
+    return listLocalSubscriptions(providerDirectory, url);
   const subscription = url.pathname.match(/^\/v1\/subscriptions\/([1-9]\d{0,15})$/);
   if (request.method === "GET" && subscription && !url.search) {
     const stored = readLocalSubscription(providerDirectory, subscription[1]);

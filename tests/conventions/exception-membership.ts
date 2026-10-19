@@ -143,8 +143,8 @@ export const REVIEWED_EXCEPTION_ALLOWLIST: Readonly<Record<string, string>> = {
     "unresolved C06: platform-wide hosted AI spend admission sums every workspace's reservations under the global admission lock",
   "raw-sql-tenancy.test.ts#ALLOWLIST: ee/agent-chat/prisma-agent-chat.repository.ts:PrismaAgentChatRepo.releaseStaleRetrievalReservations on AgentUsageEvent":
     "unresolved C06: the stale retrieval sweep releases expired reservations of every workspace when no companyId is given",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/operator/prisma-operator.repository.ts:PrismaOperatorRepo.deleteWorkspaceUnscoped on workflow.${table}, workflow.workflow_runs":
-    "unresolved C06: operator workspace deletion removes workflow engine runs whose input names the deleted companyId",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: features/company/prisma-company.repository.ts:PrismaCompanyRepo.deleteWorkflowRunsUnscoped on workflow.${table}, workflow.workflow_runs":
+    "unresolved C06: workspace deletion removes workflow engine runs whose input names the deleted companyId",
   "raw-sql-tenancy.test.ts#ALLOWLIST: ee/operator/prisma-operator.repository.ts:PrismaOperatorRepo.getUserSummaryUnscoped on AuthUser, User":
     "unresolved C06: operator console platform summary counts verified members across all workspaces",
   "raw-sql-tenancy.test.ts#ALLOWLIST: ee/operator/prisma-operator.repository.ts:PrismaOperatorRepo.listWorkspaceTagsUnscoped on Company":
@@ -171,6 +171,8 @@ export const REVIEWED_EXCEPTION_ALLOWLIST: Readonly<Record<string, string>> = {
     "unresolved C09: valid cognate identical to English (policy conflict)",
   "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: fr:EntityTimeline.types.configuration":
     "unresolved C09: valid cognate identical to English (policy conflict)",
+  "runtime-console.test.ts#ALLOWED_CALLS: core/utils/audit-log.ts [info]":
+    "unresolved C12: non-error audit events such as a workspace deletion need a structured server log, and the codebase has no logger for them",
   "rest-openapi-coverage.test.ts#SPEC_EXEMPT_PATHS: /v1/mcp/w/{workspaceId}":
     "unresolved C11: a workspace's MCP URL serves the MCP JSON-RPC transport of /v1/mcp, not a REST operation",
 };

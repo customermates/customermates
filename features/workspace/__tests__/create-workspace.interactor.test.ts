@@ -87,6 +87,7 @@ describe("CreateWorkspaceInteractor", () => {
       }),
       findAuthUserCompanyIdForUpdateUnscoped: track("lockLogin", "company-old"),
       countCreatedWorkspacesUnscoped: track("countCreated", 1),
+      hasConsumedTrialUnscoped: track("checkTrialConsumed", false),
       hasCreatedWorkspaceUnscoped: track("evaluateTrial", true),
       setLastUsedCompanyUnscoped: track("rememberLastUsed", undefined),
     };
@@ -104,6 +105,7 @@ describe("CreateWorkspaceInteractor", () => {
       "begin",
       "lockLogin",
       "countCreated",
+      "checkTrialConsumed",
       "evaluateTrial",
       "createCompany",
       "rememberLastUsed",

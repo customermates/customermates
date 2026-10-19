@@ -45,7 +45,18 @@ Open [General](app:settings/general) under **Workspace** in Settings and click *
 - pauses your routines in it,
 - on Cloud, removes your seat from that workspace's billing.
 
-Pages of that workspace still open in another tab or on another device stop saving and ask you to reload, which opens your last used workspace. Your account and your other workspaces stay untouched. The last active member with the **Admin** role cannot leave: both buttons are disabled, and pointing at one shows "You are the only admin of this workspace. Make another active member an admin before you leave." Make another active member an admin first. Customermates platform operators cannot leave a workspace. To come back, open an invitation link of the workspace and ask to join again; someone with **Edit** on **Users & Roles** has to approve the request. The app offers no way to delete a workspace.
+Pages of that workspace still open in another tab or on another device stop saving and ask you to reload, which opens your last used workspace. Your account and your other workspaces stay untouched. The last active member with the **Admin** role cannot leave: both buttons are disabled, and pointing at one shows "You are the only admin of this workspace. Make another active member an admin before you leave." Make another active member an admin first. Customermates platform operators cannot leave a workspace. To come back, open an invitation link of the workspace and ask to join again; someone with **Edit** on **Users & Roles** has to approve the request. To remove the workspace for everyone instead, see [How do I delete a workspace?](/docs/app-workspaces#how-do-i-delete-a-workspace).
+
+## How do I delete a workspace? [#how-do-i-delete-a-workspace]
+
+Open [General](app:settings/general) under **Workspace** in Settings, click **Delete workspace** in the **Danger zone** and type the workspace name to confirm. On Customermates Cloud, a workspace without a plan, or whose plan has ended, also offers **Delete workspace** on its **Choose a plan for …** screen. Deleting is permanent and cannot be undone:
+
+- all records, the Knowledge Base, routines, webhooks, dashboards, roles and the trash of the workspace are deleted,
+- every member loses access, and all API keys and MCP connections for the workspace stop working,
+- the mailboxes and LinkedIn accounts connected in it are disconnected,
+- pages of the workspace still open in a tab or on another device, yours or another member's, stop saving and ask to reload, which opens another workspace of that person.
+
+You land in another of your workspaces, or on the screen to create one if none is left. On Customermates Cloud, only the admin who created the workspace can delete it, and only while no subscription of it can still be billed or resumed: cancel a paid plan on [Billing](app:settings/billing) and delete the workspace once its paid period has ended, or contact support for a workspace on an invoiced Enterprise plan. A workspace in its free trial without a payment can be deleted at any time, but deleting it does not give you a new trial. A workspace with a Customermates platform operator as a member cannot be deleted here. When you cannot delete a workspace, the button is disabled, and pointing at it, or the text below it on a phone, shows why. When you self-host, any member with the **Admin** role can delete a workspace.
 
 ## What happens when someone removes me from a workspace? [#what-happens-when-removed]
 
@@ -65,15 +76,15 @@ On Customermates Cloud, each workspace has its own plan, subscription, invoices 
 
 ### Which workspace gets the free trial? [#which-workspace-gets-the-free-trial]
 
-Only the first workspace a login creates gets the free trial of [[commercial.trial.days]] days. Every additional workspace starts without a trial: its admin chooses a plan on the **Choose a plan for …** screen before the workspace can be used (the Workspaces list shows **No plan** until then), and until then its API keys and MCP connections are refused as well, see [What happens when the trial ends?](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails). Joining someone else's workspace neither uses up nor grants a trial.
+Only the first workspace a login creates gets the free trial of [[commercial.trial.days]] days. Every additional workspace starts without a trial: its admin chooses a plan on the **Choose a plan for …** screen before the workspace can be used (the Workspaces list shows **No plan** until then), and until then its API keys and MCP connections are refused as well, see [What happens when the trial ends?](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails). Joining someone else's workspace neither uses up nor grants a trial. Deleting the workspace that had the trial does not grant another one.
 
 ## How do workspaces work when you self-host? [#how-do-workspaces-work-when-self-hosting]
 
-When you run Customermates yourself, it holds any number of workspaces, with no billing and no trial: every workspace starts active. Any registered user can create additional workspaces, and the app offers no way to delete a workspace. See [Who can sign up on my instance?](/docs/self-hosting#who-can-sign-up-on-my-instance).
+When you run Customermates yourself, it holds any number of workspaces, with no billing and no trial: every workspace starts active. Any registered user can create additional workspaces, and any member with the **Admin** role can delete one, see [How do I delete a workspace?](/docs/app-workspaces#how-do-i-delete-a-workspace). See [Who can sign up on my instance?](/docs/self-hosting#who-can-sign-up-on-my-instance).
 
 ## For agents [#for-agents]
 
-Every MCP and REST call acts in exactly one workspace: the one the API key was created in or the OAuth connection was approved for. `get_workspace_context` returns that workspace as `company` (its id and name), and an id from another workspace answers `not_found`. No MCP tool or REST endpoint lists, creates, switches, renames or leaves workspaces; send the user to the workspace menu. To remove another member, use `manage_team` with `remove_member` or `POST /api/v1/members/remove`. To act in another workspace, the user connects a separate key or connection there.
+Every MCP and REST call acts in exactly one workspace: the one the API key was created in or the OAuth connection was approved for. `get_workspace_context` returns that workspace as `company` (its id and name), and an id from another workspace answers `not_found`. No MCP tool or REST endpoint lists, creates, switches, renames, leaves or deletes workspaces; send the user to the workspace menu. To remove another member, use `manage_team` with `remove_member` or `POST /api/v1/members/remove`. To act in another workspace, the user connects a separate key or connection there.
 
 ## Related [#related]
 

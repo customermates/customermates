@@ -275,16 +275,22 @@ describe("saved-view Assistant round trip", () => {
     MOCK_ZOD_MODULE.getZodParseContext.mockResolvedValue(undefined);
     harness.getAgentConfigAction.mockResolvedValue({ ok: true, data: CONFIG });
     harness.listAgentConversationsAction.mockResolvedValue({
-      active: { conversations: [], nextCursor: null },
-      archived: { conversations: [], nextCursor: null },
+      ok: true,
+      data: {
+        active: { conversations: [], nextCursor: null },
+        archived: { conversations: [], nextCursor: null },
+      },
     });
     harness.getAgentConversationAction.mockImplementation(() =>
       Promise.resolve({
-        id: CONVERSATION_ID,
-        title: "Update this view",
-        activeTurn: false,
-        messages: storedMessages,
-        nextCursor: null,
+        ok: true,
+        data: {
+          id: CONVERSATION_ID,
+          title: "Update this view",
+          activeTurn: false,
+          messages: storedMessages,
+          nextCursor: null,
+        },
       }),
     );
     harness.manageDataViewsInvoke.mockResolvedValue({

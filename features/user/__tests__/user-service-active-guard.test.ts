@@ -35,7 +35,7 @@ function serviceFor(status: Status, options: { apiKey?: boolean; role?: TestRole
 
   plans.canUseIntegrations.mockResolvedValue(options.planUsable ?? true);
 
-  return new UserService(authService, repo, { resolveMembership: () => Promise.resolve(user) } as never, plans);
+  return new UserService(authService, repo, { requireMembership: () => Promise.resolve(user) } as never, plans);
 }
 
 describe("UserService.getActiveUserOrThrow", () => {

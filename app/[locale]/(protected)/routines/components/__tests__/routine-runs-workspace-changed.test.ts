@@ -91,10 +91,19 @@ afterEach(() => {
 describe("RoutineModalStore in a tab whose workspace changed", () => {
   it("stops polling the runs at the first refusal and reports nothing", async () => {
     vi.useFakeTimers();
-    routineActions.getRoutineFilterFieldsAction.mockResolvedValue({ recordModel: createCrmPreset(ROUTINE_ID) });
+    routineActions.getRoutineFilterFieldsAction.mockResolvedValue({
+      ok: true,
+      data: { recordModel: createCrmPreset(ROUTINE_ID) },
+    });
     routineActions.getRoutineRunsAction
-      .mockResolvedValueOnce({ runs: [activeRun], nextCursor: null })
-      .mockRejectedValue(Object.assign(new Error("redacted"), { digest: "CUSTOMERMATES_WORKSPACE_CHANGED" }));
+      .mockResolvedValueOnce({ ok: true, data: { runs: [activeRun], nextCursor: null } })
+      .mockResolvedValue({
+        ok: false,
+        failure: {
+          kind: "conflict",
+          issues: [{ code: "custom", path: [], message: "redacted", customCode: "workspaceChanged" }],
+        },
+      });
     const showDialog = vi.fn();
     const reported = vi.fn();
     const unregisterDialog = registerWorkspaceChangedHandler(showDialog);

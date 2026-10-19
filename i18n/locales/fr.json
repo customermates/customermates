@@ -18,7 +18,8 @@
     "ownerInactive": "Propriétaire désactivé",
     "planDowngrade": "Forfait rétrogradé",
     "subscriptionLapsed": "Abonnement expiré",
-    "trialExpired": "Essai terminé"
+    "trialExpired": "Essai terminé",
+    "workspaceDeleted": "Espace de travail supprimé"
   },
   "AccountsRemovedNotice": {
     "body": "Votre formule est passée à {plan}, j'ai donc supprimé le ou les comptes connectés suivants afin de respecter la limite de votre formule : {accounts}. Vos messages et vos contacts sont toujours là. Vous pouvez reconnecter ces comptes à tout moment depuis la page de vos comptes connectés.",
@@ -1266,6 +1267,14 @@
       "wikiWhenToUseRequired": "Une procédure doit indiquer brièvement quand l'utiliser.",
       "workspaceChanged": "Votre espace de travail a changé dans un autre onglet ou sur un autre appareil. Rechargez la page avant de continuer.",
       "workspaceCreationUnavailable": "Impossible de créer de nouveaux espaces de travail ici.",
+      "workspaceDeleteAdminRequired": "Seul un administrateur peut supprimer cet espace de travail.",
+      "workspaceDeleteBillingActive": "Cet espace de travail a encore un abonnement qui peut être facturé ou repris. Résiliez-le et attendez qu'il prenne fin, ou contactez le support.",
+      "workspaceDeleteBillingUnverified": "Nous n'avons pas pu vérifier la facturation de cet espace de travail auprès de Lemon Squeezy, rien n'a donc été supprimé. Réessayez dans quelques minutes.",
+      "workspaceDeleteChannelsFailed": "Les comptes connectés de l'espace de travail n'ont pas pu être déconnectés, rien n'a donc été supprimé. Réessayez dans un instant.",
+      "workspaceDeleteCheckoutPending": "Un paiement est en cours pour cet espace de travail. Annulez-le ou attendez qu'il se termine, puis supprimez l'espace de travail.",
+      "workspaceDeleteInvoiced": "Les espaces de travail avec un forfait facturé sont fermés par le support. Contactez le support pour supprimer cet espace de travail.",
+      "workspaceDeleteNotCreator": "Seul l'administrateur qui a créé cet espace de travail peut le supprimer.",
+      "workspaceDeletePlatformOperator": "Supprimer cet espace de travail ne laisserait aucun opérateur de la plateforme avec un compte actif. Donnez d’abord l’accès opérateur à un autre identifiant.",
       "workspaceInvitationInvalid": "Ce lien d'invitation n'est pas valide ou a expiré. Demandez un nouveau lien.",
       "workspaceLastAdmin": "Vous êtes le seul administrateur de cet espace de travail. Nommez un autre membre actif administrateur avant de partir.",
       "workspaceLimitReached": "Vous pouvez créer jusqu'à {limit} espaces de travail. Contactez le support si vous avez besoin de plus.",
@@ -4731,6 +4740,18 @@
     "createDescription": "Un nouvel espace de travail démarre vide, avec ses propres fiches, sa base de connaissances, ses membres et ses connexions.",
     "current": "Actuel",
     "dangerZone": "Zone de danger",
+    "delete": "Supprimer l'espace de travail",
+    "deleteBlocked": {
+      "billingActive": "Cet espace de travail a encore un abonnement qui peut être facturé ou repris. Résiliez-le et attendez qu'il prenne fin, ou contactez le support.",
+      "checkoutPending": "Un paiement est en cours pour cet espace de travail. Annulez-le ou attendez qu'il se termine, puis supprimez l'espace de travail.",
+      "invoiced": "Les espaces de travail avec un forfait facturé sont fermés par le support. Contactez le support pour supprimer cet espace de travail.",
+      "notAdmin": "Seul un administrateur peut supprimer cet espace de travail.",
+      "notCreator": "Seul l'administrateur qui a créé cet espace de travail peut le supprimer.",
+      "platformOperator": "Supprimer cet espace de travail ne laisserait aucun opérateur de la plateforme avec un compte actif. Donnez d’abord l’accès opérateur à un autre identifiant."
+    },
+    "deleteConfirmDescription": "Ses fiches, sa base de connaissances, ses routines, ses webhooks et ses comptes connectés sont supprimés définitivement. Tous les membres perdent l'accès, et leurs clés API et connexions MCP associées cessent de fonctionner. Cette action est irréversible.",
+    "deleteConfirmTitle": "Supprimer {name} ?",
+    "deleteDescription": "Supprimez définitivement cet espace de travail et tout son contenu pour tous les membres.",
     "fallbackName": "Espace de travail",
     "firstPlan": {
       "description": "{name} n'a pas encore d'offre. L'essai gratuit ne concerne que votre premier espace de travail : choisissez une offre pour commencer ici.",
@@ -4752,10 +4773,16 @@
       "reload": "Recharger",
       "title": "Vous avez changé d'espace de travail dans un autre onglet",
       "titleChanged": "Votre espace de travail a changé",
+      "titleDeleted": "Cet espace de travail a été supprimé",
       "titleNamed": "Vous avez basculé vers {name} dans un autre onglet"
     },
     "renameReadOnly": "Seuls les membres autorisés à gérer l'espace de travail peuvent modifier son nom.",
     "switch": "Changer",
-    "switchTo": "Passer à {name}"
+    "switchTo": "Passer à {name}",
+    "unnamedCreated": "{name} (créé le {date})",
+    "unnamedPrompt": {
+      "description": "Il n'a pas encore de nom, le menu des espaces de travail n'affiche donc que « Espace de travail ». Un nom aide chaque membre à distinguer vos espaces de travail.",
+      "title": "Donnez un nom à cet espace de travail"
+    }
   }
 }

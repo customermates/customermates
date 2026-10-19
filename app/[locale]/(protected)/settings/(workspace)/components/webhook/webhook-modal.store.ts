@@ -16,6 +16,7 @@ import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { parseWebhookHeaderLines } from "@/features/webhook/webhook-headers";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
 import { omit } from "lodash";
+import { actionData } from "@/core/utils/action-data";
 
 type WebhookFormData = Omit<UpsertWebhookData, "headers" | "events"> & {
   headers?: string;
@@ -128,7 +129,7 @@ export class WebhookModalStore extends BaseModalStore<WebhookFormData> {
     this.modelLoading = true;
     this.modelLoadFailed = false;
     try {
-      const model = await getRecordModelAction();
+      const model = await actionData(getRecordModelAction());
       if (request !== this.modelRequest) return;
       runInAction(() => {
         this.recordModel = model;

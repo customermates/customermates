@@ -42,22 +42,28 @@ describe("paged filter options", () => {
   it("resolves a selected webhook by id beyond the initial option page", async () => {
     const ids = Array.from({ length: 105 }, (_, index) => `hook-${index}`);
     getWebhooksAction.mockResolvedValue({
-      items: ids
-        .slice(-25)
-        .reverse()
-        .map((id) => ({
-          id,
-          url: `https://example.test/${id}`,
-          description: null,
-        })),
-    });
-    resolveWebhookOptionsAction.mockResolvedValue([
-      {
-        id: ids[0],
-        url: "https://example.test/old",
-        description: "Older subscription",
+      ok: true,
+      data: {
+        items: ids
+          .slice(-25)
+          .reverse()
+          .map((id) => ({
+            id,
+            url: `https://example.test/${id}`,
+            description: null,
+          })),
       },
-    ]);
+    });
+    resolveWebhookOptionsAction.mockResolvedValue({
+      ok: true,
+      data: [
+        {
+          id: ids[0],
+          url: "https://example.test/old",
+          description: "Older subscription",
+        },
+      ],
+    });
     const translate = ((key: string) => key) as unknown as Parameters<typeof filterOptionSources>[0];
     const source = filterOptionSources(translate, { current: null } as never)[FilterFieldKey.webhookId];
     expect(source && "getItems" in source && "resolveItems" in source).toBe(true);

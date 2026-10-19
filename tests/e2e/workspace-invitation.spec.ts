@@ -78,15 +78,12 @@ test("an existing login joins another workspace by invitation, waits for approva
       await admin.page.goto("/en/settings/members");
       await clickHydrated(admin.page.locator('[data-slot="data-row-open"]').filter({ hasText: "Jonas Keller" }));
       const member = admin.page.getByRole("dialog", { name: "User", exact: true });
+      await expect(member.locator("#member-modal-role")).toContainText("Admin");
       await member.locator("#member-modal-status").click();
       await admin.page.getByRole("option", { name: "Active", exact: true }).click();
       await member.getByRole("button", { name: "Save", exact: true }).click();
-      await expect(member.locator("#member-modal-role-error")).toHaveText(englishMessages.Common.errors.mustNotBeBlank);
-      await expect.poll(async () => (await joined())[0]?.status).toBe("pendingAuthorization");
-      await member.locator("#member-modal-role").click();
-      await admin.page.getByRole("option", { name: "Admin", exact: true }).click();
-      await member.getByRole("button", { name: "Save", exact: true }).click();
       await expect(member).not.toBeVisible();
+      await expect(admin.page.locator("#member-modal-role-error")).toHaveCount(0);
       await expect.poll(async () => (await joined())[0]?.status).toBe("active");
       expect(admin.errors).toEqual([]);
     } finally {

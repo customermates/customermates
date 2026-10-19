@@ -38,6 +38,7 @@ import { WidgetPreviewFrame } from "./widget-preview-frame";
 import { cn } from "@/core/utils/cn";
 import { widgetRelationshipChoices } from "./record-widget-filters";
 import { isRecordMeasureGroupField } from "@/features/records/record-measure-validation";
+import { actionData } from "@/core/utils/action-data";
 
 const AUTO_PREVIEW_DELAY_MS = 600;
 
@@ -191,7 +192,7 @@ export const RecordWidgetEditor = observer(
     const dataContent = (
       <div className="space-y-4">
         <FormAutocomplete<{ id: string; pluralLabel: string }>
-          getItems={discoverWidgetRecordTypesAction}
+          getItems={(params) => actionData(discoverWidgetRecordTypesAction(params))}
           id="measure.source.typeId"
           items={sourceType ? [{ id: sourceType.id, pluralLabel: sourceType.pluralLabel }] : []}
           label={t("RecordWidgets.source")}

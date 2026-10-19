@@ -31,6 +31,7 @@ import {
   localTimeZone,
   scheduleFromCron,
 } from "@/ee/routines/routine-schedule-preset";
+import { actionData } from "@/core/utils/action-data";
 
 export const ROUTINE_RUN_POLL_INTERVAL_MS = 2_000;
 export const ROUTINE_RUN_POLL_GRACE_MS = 30_000;
@@ -355,7 +356,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     const key = `${generation}:${routineId}`;
     if (this.firstPageRequest?.key === key) return this.firstPageRequest.promise;
 
-    const promise = getRoutineRunsAction({ id: routineId });
+    const promise = actionData(getRoutineRunsAction({ id: routineId }));
     this.firstPageRequest = { key, promise };
 
     try {
@@ -440,10 +441,12 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     this.isLoadingMoreRuns = true;
 
     try {
-      const page = await getRoutineRunsAction({
-        id: routineId,
-        cursor,
-      });
+      const page = await actionData(
+        getRoutineRunsAction({
+          id: routineId,
+          cursor,
+        }),
+      );
       if (!this.ownsRunsSession(generation, routineId) || this.runsNextCursor !== cursor) return;
 
       runInAction(() => {
@@ -645,7 +648,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
   loadFilterFields = async () => {
     if (this.filterFieldsLoadPromise) return this.filterFieldsLoadPromise;
 
-    const promise = getRoutineFilterFieldsAction().then(({ recordModel }) => {
+    const promise = actionData(getRoutineFilterFieldsAction()).then(({ recordModel }) => {
       runInAction(() => {
         this.recordModel = recordModel ?? null;
       });

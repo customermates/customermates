@@ -20,6 +20,7 @@ import {
 import { activityViewFilters } from "@/ee/messaging/activities/record-activity-view";
 import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { activityEntryKey } from "./activity-entry-key";
+import { actionData } from "@/core/utils/action-data";
 
 export class RecordActivityViewsStore extends BaseDataViewStore<ActivityEntryDto> {
   columns: ColumnPresentation[] = [];
@@ -86,11 +87,13 @@ export class RecordActivityViewsStore extends BaseDataViewStore<ActivityEntryDto
   }
   protected override async refreshAction(params?: GetQueryParams) {
     this.generation += 1;
-    return getRecordActivityPresentationAction({
-      record: this.record,
-      params: { ...params, viewId: params?.viewId ?? this.initialView },
-      includeTrashed: this.includeTrashed,
-    });
+    return actionData(
+      getRecordActivityPresentationAction({
+        record: this.record,
+        params: { ...params, viewId: params?.viewId ?? this.initialView },
+        includeTrashed: this.includeTrashed,
+      }),
+    );
   }
   load = async (older = false) => {
     if (older && (this.loading || !this.cursor)) return;

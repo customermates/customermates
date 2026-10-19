@@ -18,5 +18,5 @@ export function checkoutPendingSince(now: Date): Date {
 }
 
 export function checkoutExpiresAt(startedAt: Date): Date {
-  return new Date(startedAt.getTime() + CHECKOUT_OVERDUE_MS);
+  return new Date(startedAt.getTime() + CHECKOUT_PENDING_MS);
 }

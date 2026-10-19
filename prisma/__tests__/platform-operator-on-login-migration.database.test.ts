@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
-const MIGRATION = "20261019120000_platform_operator_on_login";
+const MIGRATION = "20261019130000_platform_operator_on_login";
 const migrationsRoot = join(process.cwd(), "prisma/migrations");
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;

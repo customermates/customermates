@@ -16,11 +16,10 @@ import {
   getRunRoutineNowInteractor,
   getUpsertRoutineInteractor,
 } from "@/core/di";
-import { serializeResult } from "@/core/utils/action-result";
-import { unwrapValidated } from "@/core/validation/validation.utils";
+import { serializeResult, serializeTypedData, serializeTypedResult } from "@/core/utils/action-result";
 
 export async function getRoutinesAction(params?: GetQueryParams) {
-  return unwrapValidated(getGetRoutinesInteractor().invoke(params));
+  return serializeTypedResult(getGetRoutinesInteractor().invoke(params));
 }
 
 export async function upsertRoutineAction(data: UpsertRoutineData) {
@@ -40,9 +39,9 @@ export async function pauseRoutineAction(data: PauseRoutineData) {
 }
 
 export async function getRoutineRunsAction(data: GetRoutineRunsData) {
-  return unwrapValidated(getGetRoutineRunsInteractor().invoke(data));
+  return serializeTypedResult(getGetRoutineRunsInteractor().invoke(data));
 }
 
 export async function getRoutineFilterFieldsAction() {
-  return { recordModel: await unwrapValidated(getGetRecordModelInteractor().invoke({})) };
+  return serializeTypedData(getGetRecordModelInteractor().invoke({}), (recordModel) => ({ recordModel }));
 }

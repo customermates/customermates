@@ -81,6 +81,24 @@ describe("onboarding workspace UI", () => {
     expect(classTokens(groupTag(markup))).toEqual(classTokens(groupTag(claudeMarkup)));
   });
 
+  it("offers the free trial only to a login that can still start one", () => {
+    const eligible = renderToStaticMarkup(
+      createElement(OnboardingChoiceCard, {
+        email: "person@example.com",
+        trialDays: 7,
+      }),
+    );
+    const consumed = renderToStaticMarkup(
+      createElement(OnboardingChoiceCard, {
+        email: "person@example.com",
+        trialDays: null,
+      }),
+    );
+
+    expect(buttonContaining(eligible, "OnboardingChoice.create.title")).toContain("OnboardingChoice.create.note");
+    expect(buttonContaining(consumed, "OnboardingChoice.create.title")).not.toContain("OnboardingChoice.create.note");
+  });
+
   it("uses the shared Markdown process steps for joining", () => {
     const markup = renderToStaticMarkup(createElement(JoinWorkspaceCard, { email: "person@example.com" }));
 

@@ -46,7 +46,11 @@ describe("PrismaCompanyRepo subscription synchronization", () => {
     expect(prismaMock.prisma.$transaction).toHaveBeenCalledTimes(1);
     expect(prismaMock.transactionClient.$executeRaw).toHaveBeenCalledWith(expect.any(Array), companyId);
     expect(prismaMock.transactionClient.subscription.updateMany).toHaveBeenCalledWith({
-      where: { companyId, lemonSqueezyId: null },
+      where: {
+        companyId,
+        lemonSqueezyId: null,
+        company: { OR: [{ deletingAt: null }, { deletingAt: { lte: expect.any(Date) } }] },
+      },
       data: {
         lemonSqueezyId: "subscription-1",
         lemonSqueezyVariantId: "variant-1",
@@ -76,7 +80,11 @@ describe("PrismaCompanyRepo subscription synchronization", () => {
     expect(written).toBe(false);
     expect(prismaMock.transactionClient.subscription.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { companyId, lemonSqueezyId: "subscription-old" },
+        where: {
+          companyId,
+          lemonSqueezyId: "subscription-old",
+          company: { OR: [{ deletingAt: null }, { deletingAt: { lte: expect.any(Date) } }] },
+        },
       }),
     );
     expect(prismaMock.transactionClient.adAttribution.count).not.toHaveBeenCalled();

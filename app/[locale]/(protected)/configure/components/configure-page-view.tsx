@@ -35,6 +35,7 @@ import { RelationshipModal, RelationshipModalStore } from "./relationship-modal"
 import { TypeModal, TypeModalStore } from "./type-modal";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 import { useApplyOnChange } from "@/hooks/use-apply-on-change";
+import { actionData } from "@/core/utils/action-data";
 
 const ConfigureGraph = dynamic(() => import("./configure-graph").then((module) => module.ConfigureGraph), {
   ssr: false,
@@ -96,7 +97,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
           await refresh();
           const id = preview.references.find((reference) => reference.reference === "$type")?.id;
           if (id && isCurrentSession()) {
-            const discovered = await discoverRecordTypesAction([id]);
+            const discovered = await actionData(discoverRecordTypesAction([id]));
             if (!isCurrentSession()) return;
             const created = discovered.types.find((type) => type.id === id);
             const readable = created?.permittedActions.some((action) => action === "readOwn" || action === "readAll");

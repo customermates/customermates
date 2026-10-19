@@ -17,6 +17,7 @@ import {
   getRecordModelAction,
   previewRecordConfigurationAction,
 } from "../../records/actions";
+import { actionData } from "@/core/utils/action-data";
 
 export abstract class ModelChangeStore<Form extends object> extends BaseModalStore<Form> {
   model: RecordModelView;
@@ -253,7 +254,7 @@ export abstract class ModelChangeStore<Form extends object> extends BaseModalSto
       this.refreshFailed = false;
     });
     try {
-      const latest = await getRecordModelAction();
+      const latest = await actionData(getRecordModelAction());
       if (session !== this.sessionGeneration || !this.isOpen) return;
       if (latest.revision < this.model.revision) throw new Error("Data model refresh returned an older revision");
       runInAction(() => {

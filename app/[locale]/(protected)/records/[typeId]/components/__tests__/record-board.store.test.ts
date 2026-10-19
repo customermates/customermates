@@ -70,7 +70,7 @@ const params = {
 function store() {
   const store = new RecordsStore(root, presentation);
   store.setItems(presentation.result);
-  mocks.getRecordPresentationAction.mockResolvedValue({ ...presentation, result: { items: [] } });
+  mocks.getRecordPresentationAction.mockResolvedValue({ ok: true, data: { ...presentation, result: { items: [] } } });
   mocks.invalidate.mockImplementation(() => store.refresh());
   store.groupingResult = {
     grouping: { field: id("deal.stage") },
@@ -164,8 +164,11 @@ describe("generic selection persistence", () => {
     state.toggleItemSelection(item.id);
     expect(state.selectionTargets).toEqual([{ ref: item.ref, expectedVersion: 3 }]);
     mocks.getRecordPresentationAction.mockResolvedValue({
-      ...presentation,
-      result: { items: [{ ...item, version: 4 }] },
+      ok: true,
+      data: {
+        ...presentation,
+        result: { items: [{ ...item, version: 4 }] },
+      },
     });
     await state.refresh();
     expect(state.selectedIds.has(item.id)).toBe(true);
@@ -224,7 +227,7 @@ describe("generic selection persistence", () => {
     const state = store();
     state.items = [item];
     state.toggleItemSelection(item.id);
-    const refresh = Promise.withResolvers<RecordPresentationResult>();
+    const refresh = Promise.withResolvers<{ ok: true; data: RecordPresentationResult }>();
     mocks.getRecordPresentationAction.mockReturnValue(refresh.promise);
     mocks.mutateRecordAction.mockResolvedValue({
       ok: true,
@@ -239,7 +242,7 @@ describe("generic selection persistence", () => {
     expect(state.isItemSelectable(item)).toBe(false);
     expect(state.selectedCount).toBe(1);
     expect(state.selectionTargets).toEqual([{ ref: item.ref, expectedVersion: 3 }]);
-    refresh.resolve({ ...presentation, result: { items: [{ ...item, version: 4 }] } });
+    refresh.resolve({ ok: true, data: { ...presentation, result: { items: [{ ...item, version: 4 }] } } });
     await saving;
     expect(state.isBulkMutating).toBe(false);
     expect(state.selectedCount).toBe(0);
@@ -262,8 +265,11 @@ describe("generic selection persistence", () => {
     await state.bulkUpdateField(id("deal.stage"), null);
     expect(mocks.mutateRecordAction).toHaveBeenCalledOnce();
     mocks.getRecordPresentationAction.mockResolvedValue({
-      ...presentation,
-      result: { items: [{ ...item, version: 4 }] },
+      ok: true,
+      data: {
+        ...presentation,
+        result: { items: [{ ...item, version: 4 }] },
+      },
     });
     await state.retryBulkRefresh();
     expect(state.isBulkMutating).toBe(false);
@@ -277,18 +283,18 @@ describe("generic selection persistence", () => {
     const state = store();
     state.items = [item];
     state.toggleItemSelection(item.id);
-    const first = Promise.withResolvers<RecordPresentationResult>();
-    const next = Promise.withResolvers<RecordPresentationResult>();
+    const first = Promise.withResolvers<{ ok: true; data: RecordPresentationResult }>();
+    const next = Promise.withResolvers<{ ok: true; data: RecordPresentationResult }>();
     mocks.getRecordPresentationAction.mockReturnValueOnce(first.promise).mockReturnValue(next.promise);
     mocks.mutateRecordAction.mockResolvedValue({ ok: true, data: { status: "completed", refs: [item.ref] } });
     const saving = state.bulkUpdateField(id("deal.stage"), null);
     await vi.waitFor(() => expect(mocks.getRecordPresentationAction).toHaveBeenCalledOnce());
     const newer = state.refresh();
-    first.resolve({ ...presentation, result: { items: [{ ...item, version: 4 }] } });
+    first.resolve({ ok: true, data: { ...presentation, result: { items: [{ ...item, version: 4 }] } } });
     await vi.waitFor(() => expect(mocks.getRecordPresentationAction).toHaveBeenCalledTimes(3));
     expect(state.isBulkMutating).toBe(true);
     expect(state.items[0].version).toBe(3);
-    next.resolve({ ...presentation, result: { items: [{ ...item, version: 5 }] } });
+    next.resolve({ ok: true, data: { ...presentation, result: { items: [{ ...item, version: 5 }] } } });
     await Promise.all([saving, newer]);
     expect(state.isBulkMutating).toBe(false);
     expect(state.selectedCount).toBe(0);
@@ -300,7 +306,7 @@ describe("generic selection persistence", () => {
     const state = store();
     state.items = [item];
     state.toggleItemSelection(item.id);
-    const earlier = Promise.withResolvers<RecordPresentationResult>();
+    const earlier = Promise.withResolvers<{ ok: true; data: RecordPresentationResult }>();
     mocks.getRecordPresentationAction.mockReturnValueOnce(earlier.promise);
     const refreshing = state.refresh();
     const invalidating = Promise.withResolvers<undefined>();
@@ -308,13 +314,16 @@ describe("generic selection persistence", () => {
     mocks.mutateRecordAction.mockResolvedValue({ ok: true, data: { status: "completed", refs: [item.ref] } });
     const saving = state.bulkUpdateField(id("deal.stage"), null);
     await vi.waitFor(() => expect(mocks.invalidate).toHaveBeenCalledOnce());
-    earlier.resolve({ ...presentation, result: { items: [item] } });
+    earlier.resolve({ ok: true, data: { ...presentation, result: { items: [item] } } });
     await refreshing;
     expect(state.isBulkMutating).toBe(true);
     expect(state.selectedCount).toBe(1);
     mocks.getRecordPresentationAction.mockResolvedValue({
-      ...presentation,
-      result: { items: [{ ...item, version: 4 }] },
+      ok: true,
+      data: {
+        ...presentation,
+        result: { items: [{ ...item, version: 4 }] },
+      },
     });
     invalidating.resolve(undefined);
     await saving;
@@ -329,20 +338,23 @@ describe("generic selection persistence", () => {
     state.toggleItemSelection(item.id);
     mocks.invalidate.mockResolvedValue(undefined);
     mocks.mutateRecordAction.mockResolvedValue({ ok: true, data: { status: "completed", refs: [item.ref] } });
-    const fresh = Promise.withResolvers<RecordPresentationResult>();
+    const fresh = Promise.withResolvers<{ ok: true; data: RecordPresentationResult }>();
     mocks.getRecordPresentationAction.mockReturnValueOnce(fresh.promise);
     const saving = state.bulkUpdateField(id("deal.stage"), null);
     await vi.waitFor(() => expect(mocks.getRecordPresentationAction).toHaveBeenCalledOnce());
     state.setItems({ items: [item] });
-    fresh.resolve({ ...presentation, result: { items: [{ ...item, version: 4 }] } });
+    fresh.resolve({ ok: true, data: { ...presentation, result: { items: [{ ...item, version: 4 }] } } });
     await saving;
     expect(state.dataRequest.status).toBe("ready");
     expect(state.isBulkMutating).toBe(true);
     expect(state.canRetryBulkRefresh).toBe(true);
     expect(state.isItemSelectable(item)).toBe(false);
     mocks.getRecordPresentationAction.mockResolvedValue({
-      ...presentation,
-      result: { items: [{ ...item, version: 4 }] },
+      ok: true,
+      data: {
+        ...presentation,
+        result: { items: [{ ...item, version: 4 }] },
+      },
     });
     await state.retryBulkRefresh();
     expect(state.canRetryBulkRefresh).toBe(false);

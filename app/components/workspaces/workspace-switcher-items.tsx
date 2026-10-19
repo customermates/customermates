@@ -8,7 +8,7 @@ import { DropdownMenuItem, DropdownMenuLabel } from "@/components/ui/dropdown-me
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { WorkspaceAvatar } from "./workspace-avatar";
-import { workspaceDisplayName } from "./workspace-identity";
+import { workspaceListName } from "./workspace-identity";
 import { WorkspaceStatusChip } from "./workspace-status-chip";
 
 type Props = {
@@ -28,7 +28,9 @@ export const WorkspaceSwitcherItems = observer(({ onSwitch, onCreate }: Props) =
       </DropdownMenuLabel>
 
       {workspacesStore.items.map((workspace) => {
-        const name = workspaceDisplayName(workspace.name, fallback);
+        const name = workspaceListName(workspace, workspacesStore.items, fallback, (date) =>
+          t("Workspaces.unnamedCreated", { name: fallback, date }),
+        );
 
         return (
           <DropdownMenuItem
