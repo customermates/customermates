@@ -26,7 +26,7 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
   const tenant = createMockUser({ id: userId, companyId });
   const asTenant = <T>(run: () => Promise<T>) => runWithTenant(tenant, run);
 
-  async function retryTerminatedAttempt() {
+  async function retryTerminatedAttempt(wikiCatalogSnapshot?: string) {
     const prior = await seed(false);
     const stored = await client.query('SELECT "userMessageId" FROM "AgentTurnRequest" WHERE id = $1', [
       prior.turnRequestId,
@@ -68,6 +68,7 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
         modelSpec: "openai/gpt-5-nano",
         servingProvider: "openai",
         recentMessageLimit: 10,
+        ...(wikiCatalogSnapshot !== undefined ? { wikiCatalogSnapshot } : {}),
         turn: {
           kind: "retry",
           turnRequestId: prior.turnRequestId,
@@ -177,6 +178,21 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
   afterAll(async () => {
     await client.query('DELETE FROM "Company" WHERE "id" = $1', [companyId]);
     await client.end();
+  });
+
+  it("fills a legacy empty Knowledge Base snapshot once and never replaces a captured one", async () => {
+    const stored = async () =>
+      (await client.query('SELECT "wikiCatalogSnapshot" FROM "AgentConversation" WHERE id = $1', [conversationId]))
+        .rows[0].wikiCatalogSnapshot;
+    await client.query('UPDATE "AgentConversation" SET "wikiCatalogSnapshot" = \'\' WHERE id = $1', [conversationId]);
+    await retryTerminatedAttempt("first catalog");
+    expect(await stored()).toBe("first catalog");
+    await client.query('DELETE FROM "AgentMessage" WHERE "companyId" = $1', [companyId]);
+    await client.query('DELETE FROM "AgentUsageEvent" WHERE "companyId" = $1', [companyId]);
+    await client.query('DELETE FROM "AgentRunLease" WHERE "companyId" = $1', [companyId]);
+    await retryTerminatedAttempt("second catalog");
+    expect(await stored()).toBe("first catalog");
+    await client.query('UPDATE "AgentConversation" SET "wikiCatalogSnapshot" = NULL WHERE id = $1', [conversationId]);
   });
 
   it("releases only a provably pre-provider reservation without requiring a tenant session", async () => {

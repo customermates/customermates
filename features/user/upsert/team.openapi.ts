@@ -20,7 +20,7 @@ export const updateUserProfileOperation: ZodOpenApiOperationObject = {
   operationId: "updateUserProfile",
   summary: "Update own user profile",
   description:
-    "Partially updates the authenticated user's own profile, the same fields as the account settings page: firstName, lastName, country, avatarUrl (an http or https URL, or '' or null to clear), theme, displayLanguage and formattingLocale. Omitted fields keep their values. Returns the saved profile. Requires: an active workspace membership; no further permission.",
+    "Partially updates the authenticated user's own profile, the same fields as the account settings page: firstName, lastName, avatarUrl (an http or https URL, or '' or null to clear), theme, displayLanguage and formattingLocale. Omitted fields keep their values. Returns the saved profile. Requires: an active workspace membership; no further permission.",
   tags: ["users"],
   security: [{ apiKeyAuth: [] }],
   requestBody: {
@@ -28,7 +28,7 @@ export const updateUserProfileOperation: ZodOpenApiOperationObject = {
     content: {
       "application/json": {
         schema: UpdateUserDetailsSchema,
-        examples: { default: { value: { firstName: "Ada", lastName: "Lovelace", country: "gb", theme: "dark" } } },
+        examples: { default: { value: { firstName: "Ada", lastName: "Lovelace", theme: "dark" } } },
       },
     },
   },

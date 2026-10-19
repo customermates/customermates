@@ -70,6 +70,7 @@ describe("widget series helpers", () => {
     ]);
     expect(orderFunnelSteps(steps, order, false).map((step) => step.optionId)).toEqual(["new", "proposal", "removed"]);
     expect(funnelConversions([10, 5, 0, 3])).toEqual([null, 0.5, 0, null]);
+    expect(funnelConversions([1, 1, 3])).toEqual([null, 1, null]);
   });
 
   it("ranks by value with unavailable values last and computes shares of a positive total", () => {

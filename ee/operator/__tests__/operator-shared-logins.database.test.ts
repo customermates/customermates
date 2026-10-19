@@ -405,7 +405,7 @@ describeDatabase("operator console with logins in several workspaces", { timeout
       platformOperators: 1,
       verifiedAuthUsers: 3,
       byStatus: { active: 3, inactive: 1, pendingAuthorization: 1 },
-      byPlan: { starter: 0, pro: 3, business: 3, enterprise: 0, missing: 1 },
+      byPlan: { starter: 0, pro: 3, business: 3, max: 0, enterprise: 0, missing: 1 },
       bySubscriptionStatus: {
         trial: 3,
         active: 3,

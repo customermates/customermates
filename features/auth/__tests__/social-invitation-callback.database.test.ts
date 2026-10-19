@@ -130,7 +130,7 @@ describeDatabase("Google sign-in from an invitation link on PostgreSQL", { timeo
       [members.invitedAdmin, `admin-${randomUUID()}@example.invalid`, companies.invited, roles.invited],
     ]) {
       await client.query(
-        'INSERT INTO "User" ("id","email","firstName","lastName","country","companyId","roleId","status","lastActiveAt","onboardingWizardCompletedAt","updatedAt") VALUES ($1,$2,\'Ben\',\'Joiner\',\'de\',$3,$4,\'active\',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)',
+        'INSERT INTO "User" ("id","email","firstName","lastName","companyId","roleId","status","lastActiveAt","onboardingWizardCompletedAt","updatedAt") VALUES ($1,$2,\'Ben\',\'Joiner\',$3,$4,\'active\',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)',
         [userId, email, companyId, roleId],
       );
     }
@@ -140,15 +140,14 @@ describeDatabase("Google sign-in from an invitation link on PostgreSQL", { timeo
     );
 
     const { runWithTenant } = await import("@/core/decorators/tenant-context");
-    const { InitializeRecordModelService } = await import("@/features/records/initialize-record-model.service");
-    const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
+    const { initializeStarterRecordModel } = await import("@/tests/helpers/record-repository");
     const { createMockUser } = await import("@/tests/helpers/mock-user");
     for (const [companyId, userId, roleId] of [
       [companies.own, members.own, roles.own],
       [companies.invited, members.invitedAdmin, roles.invited],
     ]) {
       const owner = createMockUser({ id: userId, companyId, roleId });
-      await runWithTenant(owner, () => new InitializeRecordModelService(createTestRecordRepo()).initialize());
+      await runWithTenant(owner, () => initializeStarterRecordModel());
     }
 
     const inviteToken = randomUUID().replaceAll("-", "");
@@ -220,7 +219,6 @@ describeDatabase("Google sign-in from an invitation link on PostgreSQL", { timeo
       email: newEmail,
       firstName: "Lea",
       lastName: "Brandt",
-      country: "de",
       avatarUrl: null,
       agreeToTerms: true,
       onboardingIntent: intent,

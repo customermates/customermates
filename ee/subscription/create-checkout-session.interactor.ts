@@ -15,7 +15,7 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { resolveRequestOrigin } from "@/core/config/environment";
 import { redirectTo } from "@/features/auth/auth-outcome";
 import { env } from "@/env";
-import { getCommercialOfferOrThrow } from "@/core/commercial/plan-catalog";
+import { getCommercialOfferOrThrow, PURCHASABLE_PLAN_IDS } from "@/core/commercial/plan-catalog";
 import { failConflict, failUnavailable } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { CreateCheckoutCompanyRepo } from "./create-checkout-session.repo";
@@ -27,7 +27,7 @@ import { buildLocalePath } from "@/i18n/locale-registry";
 import { getRequestAppLocale } from "@/i18n/request-app-locale";
 
 const Schema = z.object({
-  plan: z.enum([SubscriptionPlan.starter, SubscriptionPlan.pro, SubscriptionPlan.business]),
+  plan: z.enum(PURCHASABLE_PLAN_IDS),
   cadence: z.literal("monthly"),
 });
 export type CreateCheckoutSessionData = Data<typeof Schema>;

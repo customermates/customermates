@@ -226,6 +226,23 @@ describe("board column order and labels", () => {
     expect(card?.getAttribute("aria-disabled")).not.toBe("true");
   });
 
+  it("insets a collapsed column from the top and the bottom edge by the expanded column header's padding", () => {
+    const host = renderBoard(boardStore({ isBoardStrip: (groupKey: string) => groupKey === "won" }));
+    const track = host.querySelector<HTMLElement>('[data-slot="kanban-root"] > div');
+    const strip = host.querySelector<HTMLElement>('[data-kanban-strip][data-group-key="won"]');
+    const header = host.querySelector<HTMLElement>(
+      '[data-group-key="new"]:not([data-kanban-strip])',
+    )?.firstElementChild;
+    const inset = [...(header?.classList ?? [])].find((token) => token.startsWith("py-"))?.slice(3);
+    const spacing = (element: Element | null | undefined, prefix: RegExp) =>
+      [...(element?.classList ?? [])].filter((token) => prefix.test(token));
+
+    expect(inset).toBeDefined();
+    expect(strip?.classList).toContain("border-dashed");
+    expect(spacing(strip, /^-?m[tby]?-/)).toEqual([`mt-${inset}`]);
+    expect(spacing(track, /^p[tby]?-/)).toEqual([`pb-${inset}`]);
+  });
+
   it("keeps an empty no-value column on the board so a card can be dragged back out of every group", () => {
     const host = renderBoard(
       boardStore({

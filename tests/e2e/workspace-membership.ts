@@ -146,13 +146,18 @@ function refusesChangedWorkspace(body: string) {
   return body.includes(WORKSPACE_CHANGED_DIGEST) || body.includes(`"${CustomErrorCode.workspaceChanged}"`);
 }
 
-export function expectRefusedPageAction(page: Page, path: string) {
+export async function expectRefusedPageAction(page: Page, path: string) {
   const refusals: Array<{ status: number; workspaceChanged: boolean }> = [];
-  page.on("response", async (response) => {
-    if (new URL(response.url()).pathname !== path || response.request().method() !== "POST") return;
-    const body = await response.text().catch(() => "");
-    refusals.push({ status: response.status(), workspaceChanged: refusesChangedWorkspace(body) });
-  });
+  await page.route(
+    (url) => url.pathname === path,
+    async (route) => {
+      if (route.request().method() !== "POST") return route.fallback();
+      const response = await route.fetch();
+      const body = await response.text();
+      refusals.push({ status: response.status(), workspaceChanged: refusesChangedWorkspace(body) });
+      await route.fulfill({ response, body });
+    },
+  );
   return refusals;
 }
 

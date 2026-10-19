@@ -19,7 +19,7 @@ test("the members row menu removes another member from the workspace after a con
 
   const pendingId = randomUUID();
   await database.query(
-    'INSERT INTO "User" (id,"companyId",email,"firstName","lastName",status,country,"updatedAt") VALUES ($1,$2,$3,\'Invited\',\'Member\',\'pendingAuthorization\',\'de\',NOW())',
+    'INSERT INTO "User" (id,"companyId",email,"firstName","lastName",status,"updatedAt") VALUES ($1,$2,$3,\'Invited\',\'Member\',\'pendingAuthorization\',NOW())',
     [pendingId, workspace.companyId, `pending-${pendingId}@example.test`],
   );
 

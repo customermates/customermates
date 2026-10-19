@@ -36,6 +36,11 @@ const harness = vi.hoisted(() => ({
   routerPush: vi.fn(),
   searchParams: { current: "" },
   upsertDataViewAction: vi.fn(),
+  viewPicker: {
+    surface: null as { options: () => readonly { id: string }[]; select: (viewKey: string) => void } | null,
+    register: vi.fn(),
+    unregister: vi.fn(),
+  },
 }));
 
 vi.mock("mobx-react-lite", () => ({ observer: <T>(component: T) => component }));
@@ -52,7 +57,11 @@ vi.mock("next-intl", () => ({
     values ? `${key}(${Object.values(values).join(",")})` : key,
 }));
 vi.mock("@/core/stores/root-store.provider", () => ({
-  useRootStore: () => ({ appMode: harness.appMode.current, agentChatStore: harness.agent }),
+  useRootStore: () => ({
+    appMode: harness.appMode.current,
+    agentChatStore: harness.agent,
+    viewPickerStore: harness.viewPicker,
+  }),
 }));
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 vi.mock("@/app/actions", () => ({
@@ -309,6 +318,13 @@ beforeEach(() => {
   harness.routerPush.mockReset();
   harness.searchParams.current = "";
   harness.upsertDataViewAction.mockReset().mockResolvedValue({ data: view({ id: "v-new", name: "Hot" }), ok: true });
+  harness.viewPicker.surface = null;
+  harness.viewPicker.register.mockReset().mockImplementation((surface) => {
+    harness.viewPicker.surface = surface;
+  });
+  harness.viewPicker.unregister.mockReset().mockImplementation((surface) => {
+    if (harness.viewPicker.surface === surface) harness.viewPicker.surface = null;
+  });
   window.history.replaceState(null, "", "/en/records/10000000-0000-4000-8000-000000000103");
   document.addEventListener("click", swallowNavigation);
   vi.stubGlobal(
@@ -378,7 +394,7 @@ describe("data view rail interaction", () => {
     expect(harness.agent.viewContext.register).toHaveBeenCalledTimes(2);
   });
 
-  it("attaches All without replacing an unrelated composer draft", () => {
+  it("attaches the list without a view, without replacing an unrelated composer draft", () => {
     const host = render(store());
     harness.agent.composerDraft = "Keep my unfinished request";
     act(() => host.querySelector<HTMLButtonElement>("#global-data-views-ai")?.click());
@@ -496,10 +512,10 @@ describe("data view rail interaction", () => {
   });
 
   it("moves focus across the tabs with the arrow keys and keeps one tab stop", () => {
-    const host = render(store({ activeViewKey: "v-a" }));
+    const host = render(store({ activeViewKey: "v-b" }));
     const links = chips(host);
 
-    expect(links).toHaveLength(4);
+    expect(links).toHaveLength(3);
     expect(host.querySelectorAll('[tabindex="0"]')).toHaveLength(1);
     expect(links[1].getAttribute("tabindex")).toBe("0");
 
@@ -511,9 +527,9 @@ describe("data view rail interaction", () => {
     expect(document.activeElement).toBe(links[1]);
 
     press(links[1], "End");
-    expect(document.activeElement).toBe(links[3]);
+    expect(document.activeElement).toBe(links[2]);
 
-    press(links[3], "Home");
+    press(links[2], "Home");
     expect(document.activeElement).toBe(links[0]);
 
     press(links[0], "ArrowLeft");
@@ -521,11 +537,21 @@ describe("data view rail interaction", () => {
     expect(host.querySelectorAll('[tabindex="0"]')).toHaveLength(1);
   });
 
+  it("keeps the first view as the tab stop while no view is active", () => {
+    const host = render(store());
+    const links = chips(host);
+
+    expect(links.map((link) => link.textContent)).toEqual(["Ada", "Open deals", "Closing"]);
+    expect(host.querySelector("#global-data-views-all")).toBeNull();
+    expect(host.querySelector('[aria-current="page"]')).toBeNull();
+    expect(links.map((link) => link.getAttribute("tabindex"))).toEqual(["0", "-1", "-1"]);
+  });
+
   it("applies a view on a plain click and pushes the url afterwards, and defers to the browser otherwise", () => {
     const value = store();
     const host = render(value);
     const pushState = vi.spyOn(window.history, "pushState");
-    const target = chips(host)[1];
+    const target = chips(host)[0];
 
     act(() => target.click());
 
@@ -553,7 +579,7 @@ describe("data view rail interaction", () => {
     const host = render(value, "threadId");
     const pushState = vi.spyOn(window.history, "pushState");
 
-    act(() => chips(host)[1].click());
+    act(() => chips(host)[0].click());
 
     expect(harness.routerPush).toHaveBeenCalledExactlyOnceWith(
       "/records/10000000-0000-4000-8000-000000000103?view=v-a",
@@ -567,10 +593,79 @@ describe("data view rail interaction", () => {
     const value = store();
     const host = render(value, "threadId");
 
-    act(() => chips(host)[1].click());
+    act(() => chips(host)[0].click());
 
     expect(harness.routerPush).not.toHaveBeenCalled();
     expect(value.applyView).toHaveBeenCalledExactlyOnceWith("v-a");
+  });
+
+  it("returns to the list without a view when the active tab is selected again, and defers to the browser otherwise", () => {
+    const value = store({ activeViewKey: OPEN.id });
+    const host = render(value);
+    const pushState = vi.spyOn(window.history, "pushState");
+    const active = chips(host)[1];
+
+    expect(active.getAttribute("aria-current")).toBe("page");
+    expect(active.getAttribute("href")).toBe(`/en/records/10000000-0000-4000-8000-000000000103?view=${OPEN.id}`);
+
+    act(() => {
+      active.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, ctrlKey: true }));
+    });
+    expect(value.applyView).not.toHaveBeenCalled();
+
+    act(() => active.click());
+
+    expect(value.applyView).toHaveBeenCalledExactlyOnceWith(ALL_VIEW_KEY);
+    expect(pushState).toHaveBeenCalledExactlyOnceWith(null, "", "/en/records/10000000-0000-4000-8000-000000000103");
+  });
+
+  it("closes an open detail onto the active view instead of leaving it", () => {
+    harness.searchParams.current = "threadId=t-1";
+    const value = store({ activeViewKey: OPEN.id });
+    const host = render(value, "threadId");
+
+    act(() => chips(host)[1].click());
+
+    expect(harness.routerPush).toHaveBeenCalledExactlyOnceWith(
+      `/records/10000000-0000-4000-8000-000000000103?view=${OPEN.id}`,
+    );
+    expect(value.applyView).not.toHaveBeenCalled();
+  });
+
+  it("selects a tab that only looks inactive behind a proposed new view instead of leaving it", () => {
+    const value = store({
+      activeViewKey: OPEN.id,
+      isViewModified: true,
+      proposal: { isNew: true, name: "Assigned to me" },
+    } as unknown as Partial<BaseDataViewStore<Item>>);
+    const host = render(value);
+
+    expect(host.querySelector("#global-data-views-proposed")?.textContent).toContain("Assigned to me");
+    expect(chips(host)[1].getAttribute("aria-current")).toBeNull();
+
+    act(() => chips(host)[1].click());
+
+    expect(value.applyView).toHaveBeenCalledExactlyOnceWith(OPEN.id);
+  });
+
+  it("offers Switch view only once views exist, lists just them and clears the active view when it is chosen again", () => {
+    const empty = store({ views: [] });
+    render(empty);
+    act(() => root?.render(createElement(DataViewViewsRail<Item>, { joinsTopBar: true, store: empty })));
+    expect(harness.viewPicker.register).not.toHaveBeenCalled();
+
+    const value = store({ activeViewKey: OPEN.id });
+    act(() => root?.render(createElement(DataViewViewsRail<Item>, { joinsTopBar: true, store: value })));
+    expect(harness.viewPicker.register).toHaveBeenCalledOnce();
+    expect(harness.viewPicker.surface?.options().map((option) => option.id)).toEqual([ADA.id, OPEN.id, CLOSING.id]);
+
+    act(() => harness.viewPicker.surface?.select(OPEN.id));
+    expect(value.applyView).toHaveBeenLastCalledWith(ALL_VIEW_KEY);
+    act(() => harness.viewPicker.surface?.select(ADA.id));
+    expect(value.applyView).toHaveBeenLastCalledWith(ADA.id);
+
+    act(() => root?.render(createElement(DataViewViewsRail<Item>, { joinsTopBar: true, store: empty })));
+    expect(harness.viewPicker.surface).toBeNull();
   });
 
   it("shows a draft tab while creating, then saves the current query as a view and activates it", async () => {
@@ -599,7 +694,7 @@ describe("data view rail interaction", () => {
     expect(draft?.className).not.toContain("bg-secondary");
     expect(draft?.className).toContain("shadow-none");
     expect(draft?.className).not.toContain("rounded-md");
-    expect(chips(host)).toHaveLength(4);
+    expect(chips(host)).toHaveLength(3);
 
     const input = host.querySelector<HTMLInputElement>("#view-editor-name");
     expect(input).not.toBeNull();
@@ -692,57 +787,45 @@ describe("data view rail interaction", () => {
     expect(menuLabels(host)).not.toContain("Common.actions.save");
   });
 
-  it("offers Ask AI, duplicate and copy link on the All tab", () => {
+  it("offers only Ask AI while no view is active and nothing waits to be saved", () => {
     const host = render(store());
 
-    expect(menuLabels(host)).toEqual(["DataView.views.askAi", "DataView.views.duplicate", "DataView.views.copyLink"]);
-    for (const absent of [
-      "DataView.views.editTitle",
-      "DataView.views.delete",
-      "DataView.views.moveLeft",
-      "DataView.views.moveRight",
-    ])
-      expect(menuLabels(host), absent).not.toContain(absent);
+    expect(menuLabels(host)).toEqual(["DataView.views.askAi"]);
+    expect(host.querySelector("#global-data-views-menu")?.hasAttribute("data-view-modified")).toBe(false);
+    expect(host.querySelector("[data-view-menu] hr")).toBeNull();
   });
 
-  it("duplicates the All tab into a new view built from the current state", async () => {
-    const value = store({ filters: [{ field: "stage", operator: "in", value: ["open"] }] } as unknown as Partial<
-      BaseDataViewStore<Item>
-    >);
+  it("marks the view menu while the list without a view has unsaved changes and offers Save and Reset changes", () => {
+    const value = store({ isViewModified: true } as Partial<BaseDataViewStore<Item>>);
     const host = render(value);
+    const menu = host.querySelector<HTMLButtonElement>("#global-data-views-menu");
+    const describedBy = menu?.getAttribute("aria-describedby");
 
-    chooseFromMenu(host, "DataView.views.duplicate");
+    expect(menu?.hasAttribute("data-view-modified")).toBe(true);
+    expect(describedBy).toBeTruthy();
+    expect(document.getElementById(describedBy ?? "")?.textContent).toBe("DataView.views.modified");
+    expect(host.querySelectorAll("[data-view-modified]")).toHaveLength(1);
+    expect(menuLabels(host)).toEqual(["DataView.views.askAi", "Common.actions.save", "DataView.views.resetChanges"]);
+    expect(host.querySelector("[data-view-menu] hr")).toBeNull();
 
-    const input = host.querySelector<HTMLInputElement>("#view-editor-name");
-    expect(input?.value).toBe("DataView.views.duplicateName(DataView.views.all)");
-    expect(host.querySelector("[data-view-draft]")?.textContent).toBe("DataView.views.createTitle");
+    act(() => byText(host, "Common.actions.save").click());
+    expect(value.saveViewChanges).toHaveBeenCalledOnce();
 
-    await submitMetaForm(host);
+    act(() => byText(host, "DataView.views.resetChanges").click());
+    expect(value.resetViewChanges).toHaveBeenCalledOnce();
+  });
 
-    expect(harness.upsertDataViewAction).toHaveBeenCalledExactlyOnceWith({
-      name: "DataView.views.duplicateName(DataView.views.all)",
-      state: {
-        columnOrder: [],
-        columnWidths: {},
-        filters: [{ field: "stage", operator: "in", value: ["open"] }],
-        grouping: null,
-        hiddenColumns: [],
-        pageSize: 25,
-        searchTerm: "",
-        sortDescriptor: null,
-        viewMode: "table",
-      },
-      surfaceKey: "records:10000000-0000-4000-8000-000000000103",
-    });
-    expect(harness.upsertDataViewAction.mock.calls[0][0]).not.toHaveProperty("id");
-    expect(harness.calls).toEqual(["upsertDataViewAction", "refresh", "applyView"]);
-    expect(harness.deleteDataViewAction).not.toHaveBeenCalled();
-    expect(value.applyView).toHaveBeenCalledExactlyOnceWith("v-new");
-    expect(host.querySelector("[data-view-draft]")).toBeNull();
+  it("hides the view menu when no view is active, nothing waits to be saved and hosted chat is disabled", () => {
+    harness.agent.enabled = false;
+    const host = render(store());
+
+    expect(host.querySelector("#global-data-views-menu")).toBeNull();
+    expect(host.querySelector("#global-data-views-new")).not.toBeNull();
+    expect(chips(host)).toHaveLength(3);
   });
 
   it("opens the overlay only once the menu has closed, so the closing menu cannot dismiss it, and focuses the name", () => {
-    const host = render(store());
+    const host = render(store({ activeViewKey: OPEN.id }));
 
     act(() => byText(host, "DataView.views.duplicate").click());
 
@@ -838,7 +921,7 @@ describe("data view rail interaction", () => {
     });
   });
 
-  it("deletes through the shared confirmation, falls back to All and returns focus to it", async () => {
+  it("deletes through the shared confirmation, falls back to no view and returns focus to New view", async () => {
     const value = store({ activeViewKey: "v-a" });
     const host = render(value);
 
@@ -858,11 +941,11 @@ describe("data view rail interaction", () => {
     expect(harness.deleteDataViewAction).toHaveBeenCalledExactlyOnceWith({ id: "v-a" });
     expect(value.applyView).toHaveBeenCalledExactlyOnceWith(ALL_VIEW_KEY);
     expect(value.refresh).not.toHaveBeenCalled();
-    const all = host.querySelector<HTMLAnchorElement>("#global-data-views-all");
-    if (!all) throw new Error("Expected All chip");
-    vi.spyOn(all, "getClientRects").mockReturnValue([{}] as unknown as DOMRectList);
+    const create = host.querySelector<HTMLButtonElement>("#global-data-views-new");
+    if (!create) throw new Error("Expected the New view control");
+    vi.spyOn(create, "getClientRects").mockReturnValue([{}] as unknown as DOMRectList);
     expect(harness.confirmations[0].focusAfterConfirm?.()).toBe(true);
-    expect(document.activeElement).toBe(host.querySelector("#global-data-views-all"));
+    expect(document.activeElement).toBe(create);
   });
 
   it.each([true, false])("restores deletion focus only to its usable owning rail (usable=%s)", async (usable) => {
@@ -894,15 +977,15 @@ describe("data view rail interaction", () => {
     });
     expect(child.applyView).toHaveBeenCalledExactlyOnceWith(ALL_VIEW_KEY);
     expect(parent.applyView).not.toHaveBeenCalled();
-    const all = owningRail.querySelector<HTMLAnchorElement>("#global-data-views-all");
-    if (!all) throw new Error("Expected owning All chip");
-    vi.spyOn(all, "getClientRects").mockReturnValue((usable ? [{}] : []) as unknown as DOMRectList);
-    const parentAll = host.querySelector<HTMLAnchorElement>("[data-parent-rail] #global-data-views-all");
-    if (!parentAll) throw new Error("Expected visible parent All chip");
-    vi.spyOn(parentAll, "getClientRects").mockReturnValue([{}] as unknown as DOMRectList);
+    const create = owningRail.querySelector<HTMLButtonElement>("#global-data-views-new");
+    if (!create) throw new Error("Expected the owning New view control");
+    vi.spyOn(create, "getClientRects").mockReturnValue((usable ? [{}] : []) as unknown as DOMRectList);
+    const parentCreate = host.querySelector<HTMLButtonElement>("[data-parent-rail] #global-data-views-new");
+    if (!parentCreate) throw new Error("Expected the visible parent New view control");
+    vi.spyOn(parentCreate, "getClientRects").mockReturnValue([{}] as unknown as DOMRectList);
     expect(harness.confirmations[0].focusAfterConfirm?.()).toBe(usable);
-    if (usable) expect(document.activeElement).toBe(all);
-    else expect(document.activeElement).not.toBe(parentAll);
+    if (usable) expect(document.activeElement).toBe(create);
+    else expect(document.activeElement).not.toBe(parentCreate);
   });
 
   it("does not move deletion focus into a replacement store on the same mounted rail", async () => {
@@ -922,15 +1005,15 @@ describe("data view rail interaction", () => {
     const pending = harness.confirmations[0].onConfirm();
     const replacement = store({ p13nId: SURFACE.entityTimeline, viewSyncToUrl: false });
     act(() => root?.render(createElement(DataViewViewsRail<Item>, { store: replacement })));
-    const all = host.querySelector<HTMLAnchorElement>("#global-data-views-all");
-    if (!all) throw new Error("Expected replacement All chip");
-    vi.spyOn(all, "getClientRects").mockReturnValue([{}] as unknown as DOMRectList);
+    const create = host.querySelector<HTMLButtonElement>("#global-data-views-new");
+    if (!create) throw new Error("Expected the replacement New view control");
+    vi.spyOn(create, "getClientRects").mockReturnValue([{}] as unknown as DOMRectList);
     await act(async () => {
       finish({ ok: true, data: { id: "v-a", trashBatchId: TRASH_BATCH_ID } });
       expect(await pending).toEqual({ trashBatchId: TRASH_BATCH_ID });
     });
     expect(harness.confirmations[0].focusAfterConfirm?.()).toBe(false);
-    expect(document.activeElement).not.toBe(all);
+    expect(document.activeElement).not.toBe(create);
     expect(replacement.applyView).not.toHaveBeenCalled();
   });
 

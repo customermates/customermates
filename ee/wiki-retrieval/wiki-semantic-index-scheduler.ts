@@ -7,8 +7,7 @@ import * as Sentry from "@sentry/node";
 
 import { UserAccessor } from "@/core/base/user-accessor";
 
-const WIKI_SEARCH_SCHEDULE_INTERVAL_MS = 60_000;
-const lastSearchSchedule = new Map<string, number>();
+const WIKI_SEARCH_SCHEDULE_INTERVAL_SECONDS = 60;
 
 export class WikiSemanticIndexDispatcher extends UserAccessor implements WikiSemanticIndexScheduler {
   constructor(
@@ -21,17 +20,14 @@ export class WikiSemanticIndexDispatcher extends UserAccessor implements WikiSem
   }
 
   async schedule(): Promise<void> {
-    const now = Date.now();
-    if (
-      this.trigger === "search" &&
-      now - (lastSearchSchedule.get(this.companyId) ?? 0) < WIKI_SEARCH_SCHEDULE_INTERVAL_MS
-    )
-      return;
     try {
       if (!(await this.repo.semanticIndexAvailable())) return;
       if (!(await this.embeddings.authorizeIndexing(this.companyId))) return;
-      if (this.trigger === "search") lastSearchSchedule.set(this.companyId, now);
-      await this.backgroundTaskService.dispatch("index-wiki-pages", { userId: this.userId });
+      if (this.trigger === "search" && !(await this.repo.claimIndexSchedule(WIKI_SEARCH_SCHEDULE_INTERVAL_SECONDS)))
+        return;
+      await this.backgroundTaskService.dispatch("index-wiki-pages", {
+        userId: this.userId,
+      });
     } catch (error) {
       Sentry.captureException(error);
     }

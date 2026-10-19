@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-  requireAgentEntitlement: vi.fn(),
-  getWikiHomepageSetupState: vi.fn(),
+  getSetupStatus: vi.fn(),
   requireAccountState: vi.fn(),
   resolveOnboardingIntent: vi.fn(),
   getProgress: vi.fn(),
+  listWorkspaces: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -20,13 +20,10 @@ vi.mock("@/features/auth/next/require", () => ({
   requireAccountState: mocks.requireAccountState,
 }));
 vi.mock("@/core/di", () => ({
-  getEntitlementService: () => ({ require: mocks.requireAgentEntitlement }),
   getGetOnboardingWizardProgressInteractor: () => ({ invoke: mocks.getProgress }),
-  getGetWikiHomepageSetupStateInteractor: () => ({
-    invoke: mocks.getWikiHomepageSetupState,
-  }),
+  getGetWorkspaceSetupStatusInteractor: () => ({ invoke: mocks.getSetupStatus }),
+  getListMyWorkspacesInteractor: () => ({ invoke: mocks.listWorkspaces }),
 }));
-vi.mock("@/env", () => ({ env: { APP_MODE: "cloud" } }));
 vi.mock("@/features/company/next/onboarding-intent", () => ({
   resolveOnboardingIntent: mocks.resolveOnboardingIntent,
 }));
@@ -36,22 +33,16 @@ vi.mock("@/components/shared/centered-card-page", () => ({
 vi.mock("../components/onboarding-wizard", () => ({
   OnboardingWizard: "onboarding-wizard",
 }));
+vi.mock("../components/linked-workspace-card", () => ({
+  LinkedWorkspaceCard: "linked-workspace-card",
+}));
 
 import OnboardingWizardPage from "../page";
 
 describe("OnboardingWizardPage authentication detours", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.getWikiHomepageSetupState.mockResolvedValue({
-      ok: true,
-      data: {
-        status: "idle",
-        homepage: null,
-        domain: null,
-        pages: [],
-      },
-    });
-    mocks.requireAgentEntitlement.mockResolvedValue(null);
+    mocks.getSetupStatus.mockResolvedValue({ ok: true, data: { available: true, setup: null } });
     mocks.getProgress.mockResolvedValue({ ok: true, data: { step: "invite", inviteTab: "link" } });
   });
 
@@ -144,7 +135,7 @@ describe("OnboardingWizardPage authentication detours", () => {
     });
 
     expect(page.props.children.props).toMatchObject({
-      canSetupWithMate: Boolean(user?.role?.isSystemRole),
+      setupStatus: user?.role?.isSystemRole ? { available: true, setup: null } : undefined,
       isInvited,
       profileCompleted: Boolean(user),
     });
@@ -173,88 +164,51 @@ describe("OnboardingWizardPage authentication detours", () => {
     });
   });
 
-  it("skips the Wiki step only after the owner explicitly completed it", async () => {
+  function registeredOwner(onboardingWikiStepCompletedAt: Date | null) {
     mocks.resolveOnboardingIntent.mockResolvedValue({ status: "absent" });
     mocks.requireAccountState.mockResolvedValue({
-      sessionUser: {
-        id: "user-a",
-        email: "owner@example.com",
-        companyId: "company-a",
-      },
-      user: {
-        companyId: "company-a",
-        role: { isSystemRole: true },
-        onboardingWikiStepCompletedAt: new Date("2026-01-01T00:00:00.000Z"),
-      },
+      sessionUser: { id: "user-a", email: "owner@example.com", companyId: "company-a" },
+      user: { companyId: "company-a", role: { isSystemRole: true }, onboardingWikiStepCompletedAt },
     });
+  }
 
-    const page = await OnboardingWizardPage({
-      searchParams: Promise.resolve({}),
-    });
+  it("skips the setup step only after the owner completed it", async () => {
+    registeredOwner(new Date("2026-01-01T00:00:00.000Z"));
+
+    const page = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
+
+    expect(page.props.children.props).toMatchObject({ profileCompleted: true, setupStepCompleted: true });
+  });
+
+  it.each(["selfHosted", "configured"])(
+    "never waits on the setup step where it is unavailable (%s)",
+    async (reason) => {
+      registeredOwner(null);
+      const unavailable = { available: false, reason, setup: null };
+      mocks.getSetupStatus.mockResolvedValue({ ok: true, data: unavailable });
+
+      const page = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
+
+      expect(page.props.children.props).toMatchObject({
+        profileCompleted: true,
+        setupStatus: unavailable,
+        setupStepCompleted: true,
+      });
+    },
+  );
+
+  it("restores a running setup from its persisted status after a refresh", async () => {
+    registeredOwner(null);
+    const building = { available: true, setup: { id: "setup-a", status: "building" } };
+    mocks.getSetupStatus.mockResolvedValue({ ok: true, data: building });
+
+    const page = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
 
     expect(page.props.children.props).toMatchObject({
       profileCompleted: true,
-      wikiStepCompleted: true,
+      setupStepCompleted: false,
+      setupStatus: building,
     });
-  });
-
-  it("restores an accepted setup turn on the Wiki step after refresh", async () => {
-    mocks.resolveOnboardingIntent.mockResolvedValue({ status: "absent" });
-    mocks.requireAccountState.mockResolvedValue({
-      sessionUser: {
-        id: "user-a",
-        email: "owner@example.com",
-        companyId: "company-a",
-      },
-      user: {
-        companyId: "company-a",
-        role: { isSystemRole: true },
-        onboardingWikiStepCompletedAt: null,
-      },
-    });
-    const working = {
-      status: "working",
-      homepage: "https://example.com/",
-      domain: "example.com",
-      pages: [],
-    };
-    mocks.getWikiHomepageSetupState.mockResolvedValue({
-      ok: true,
-      data: working,
-    });
-
-    const page = await OnboardingWizardPage({
-      searchParams: Promise.resolve({}),
-    });
-
-    expect(page.props.children.props).toMatchObject({
-      profileCompleted: true,
-      wikiStepCompleted: false,
-      wikiSetupState: working,
-    });
-  });
-
-  it("does not offer setup when the owner's Agent entitlement is unavailable", async () => {
-    mocks.resolveOnboardingIntent.mockResolvedValue({ status: "absent" });
-    mocks.requireAccountState.mockResolvedValue({
-      sessionUser: {
-        id: "user-a",
-        email: "owner@example.com",
-        companyId: "company-a",
-      },
-      user: {
-        companyId: "company-a",
-        role: { isSystemRole: true },
-        onboardingWikiStepCompletedAt: null,
-      },
-    });
-    mocks.requireAgentEntitlement.mockResolvedValue({ ok: false });
-
-    const page = await OnboardingWizardPage({
-      searchParams: Promise.resolve({}),
-    });
-
-    expect(page.props.children.props.canSetupWithMate).toBe(false);
   });
 
   it("preserves an invitation when a cached session loses its identity", async () => {
@@ -283,6 +237,49 @@ describe("OnboardingWizardPage authentication detours", () => {
       expect.objectContaining({
         unauthenticated: "/auth/signin?intent=signed.intent",
       }),
+    );
+  });
+
+  function memberOf(...workspaces: Array<{ companyId: string; isCurrent: boolean; status?: string }>) {
+    mocks.listWorkspaces.mockResolvedValue({
+      ok: true,
+      data: workspaces.map((workspace) => ({
+        name: `Workspace ${workspace.companyId}`,
+        status: "active",
+        ...workspace,
+      })),
+    });
+  }
+
+  it("asks before switching to the workspace a setup email names, instead of switching while the page loads", async () => {
+    memberOf({ companyId: "company-a", isCurrent: true }, { companyId: "company-b", isCurrent: false });
+
+    const page = await OnboardingWizardPage({ searchParams: Promise.resolve({ workspace: "company-b" }) });
+
+    expect(page.props.children.type).toBe("linked-workspace-card");
+    expect(page.props.children.props).toEqual({ companyId: "company-b", name: "Workspace company-b" });
+    expect(mocks.requireAccountState).not.toHaveBeenCalled();
+  });
+
+  it("drops the workspace from the link when it already names the active workspace", async () => {
+    memberOf({ companyId: "company-a", isCurrent: true });
+
+    await expect(OnboardingWizardPage({ searchParams: Promise.resolve({ workspace: "company-a" }) })).rejects.toThrow(
+      "REDIRECT:/en/onboarding/wizard",
+    );
+  });
+
+  it.each([
+    { name: "no longer belongs to", workspaces: [{ companyId: "company-a", isCurrent: true }] },
+    {
+      name: "only asked to join",
+      workspaces: [{ companyId: "company-b", isCurrent: false, status: "pendingAuthorization" }],
+    },
+  ])("sends someone who $name the linked workspace home instead of into another setup", async ({ workspaces }) => {
+    memberOf(...workspaces);
+
+    await expect(OnboardingWizardPage({ searchParams: Promise.resolve({ workspace: "company-b" }) })).rejects.toThrow(
+      /^REDIRECT:\/en\/?$/u,
     );
   });
 });

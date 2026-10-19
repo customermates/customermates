@@ -227,6 +227,23 @@
             "running": "Aggiornamento del profilo"
           }
         },
+        "proposals": {
+          "create": {
+            "done": "{count, plural, one {Nuova pagina proposta} other {# nuove pagine proposte}}",
+            "error": "{count, plural, one {Impossibile proporre una nuova pagina} other {Impossibile proporre # nuove pagine}}",
+            "running": "{count, plural, one {Proposta di una nuova pagina in corso} other {Proposta di # nuove pagine in corso}}"
+          },
+          "delete": {
+            "done": "Eliminazione della pagina proposta",
+            "error": "Impossibile proporre l’eliminazione della pagina",
+            "running": "Proposta di eliminazione della pagina in corso"
+          },
+          "update": {
+            "done": "Modifica della pagina proposta",
+            "error": "Impossibile proporre la modifica della pagina",
+            "running": "Proposta di modifica della pagina in corso"
+          }
+        },
         "records": {
           "analyze": {
             "done": "Analisi di {resource} completata",
@@ -438,16 +455,16 @@
     "credits": {
       "blocked": {
         "configuration_unavailable": "L’Assistente ospitato non è al momento disponibile. La cronologia resta accessibile.",
-        "credits_exhausted": "I crediti AI in hosting di questo mese sono esauriti. Le nuove richieste riprenderanno il {resetAt}; la cronologia resta accessibile.",
+        "credits_exhausted": "L'utilizzo di Mate di questo mese è esaurito. Le nuove richieste riprenderanno il {resetAt}; la cronologia resta accessibile.",
         "self_hosted": "L’Assistente ospitato è disponibile solo nel cloud. Le aree di lavoro self-hosted possono continuare a usare client MCP esterni con il proprio provider di IA.",
         "subscription_unavailable": "Per nuove richieste all’Assistente in hosting è necessario un abbonamento cloud attivo. La cronologia resta accessibile."
       },
       "contact": "Contattaci",
-      "planAndReset": "Piano {plan} · azzeramento {resetAt}",
-      "recentTurn": "{credits, plural, one {Ultima richiesta: {amount} credito} other {Ultima richiesta: {amount} crediti}}",
-      "remaining": "{credits, plural, one {{remaining} di {limit} crediti rimanenti} other {{remaining} di {limit} crediti rimanenti}}",
-      "resetShort": "Azzeramento {resetAt}",
-      "usage": "Utilizzato il {pct}% dei crediti AI mensili in hosting",
+      "plan": "Piano {plan}",
+      "planWithMultiplier": "Piano {plan} · utilizzo di Mate {multiplier}x",
+      "recentTurn": "Ultima richiesta: {used}",
+      "usage": "Utilizzato il {used} dell'utilizzo mensile di Mate",
+      "usedOfMonthly": "Utilizzato il {used} dell'utilizzo mensile di Mate · azzeramento {resetAt}",
       "viewPlans": "Vedi i piani"
     },
     "errors": {
@@ -476,8 +493,8 @@
       "interruptedTurn": "Il turno si è fermato prima che potessi confermarne l'esito. Controlla le attività qui sopra e i dati attuali prima di riprovare.",
       "policyBreach": "Il fornitore di IA ha superato il budget di crediti riservato, quindi l’esecuzione è stata interrotta. Non è stato avviato altro lavoro del provider.",
       "providerError": "Il fornitore di IA ha restituito un errore prima che potessi finire. Non è stato modificato altro. Riprova.",
-      "runCreditLimit": "Ho completato una parte di questa esecuzione della routine, ma mi sono fermato al suo limite di {credits, number} crediti per esecuzione. Il lavoro completato resta valido.",
-      "runCreditLimitNoWrite": "Mi sono fermato prima di apportare modifiche perché questa esecuzione della routine ha raggiunto il suo limite di {credits, number} crediti per esecuzione. Non è stato creato, aggiornato o inviato nulla.",
+      "runCreditLimit": "Ho completato una parte di questa esecuzione della routine, ma mi sono fermato al suo limite di {share, number, percent} di una dotazione Starter per esecuzione. Il lavoro completato resta valido.",
+      "runCreditLimitNoWrite": "Mi sono fermato prima di apportare modifiche perché questa esecuzione della routine ha raggiunto il suo limite di {share, number, percent} di una dotazione Starter per esecuzione. Non è stato creato, aggiornato o inviato nulla.",
       "sourcesHeading": "Fonti",
       "streamInterrupted": "Ho dovuto fermarmi perché la risposta del modello si è interrotta. Non sono state eseguite altre azioni; controlla le attività qui sopra prima di riprovare.",
       "turnError": "Non sono riuscito a completare la richiesta. Riprova.",
@@ -549,13 +566,13 @@
         },
         "default": {
           "data": {
-            "default-contact-count": {
-              "label": "Quanti contatti abbiamo?",
-              "prompt": "Dimmi quanti contatti abbiamo e come è cambiato questo numero nel tempo."
+            "default-needs-attention": {
+              "label": "Che cosa richiede la mia attenzione?",
+              "prompt": "Riepiloga i record aperti che richiedono la mia attenzione in questo momento e a che punto si trova ciascuno."
             },
-            "default-open-deals": {
-              "label": "Quali trattative sono aperte?",
-              "prompt": "Riepiloga le trattative attualmente aperte e a che punto si trova ciascuna."
+            "default-record-overview": {
+              "label": "Che cosa c'è nel mio spazio di lavoro?",
+              "prompt": "Dimmi quali liste ha il mio spazio di lavoro, quanti record contiene ciascuna e come è cambiato questo numero nel tempo."
             },
             "default-tour": {
               "label": "Fammi fare un giro dell'app",
@@ -568,8 +585,8 @@
               "prompt": "Spiegami che cosa puoi fare per me in Customermates e dove sei più utile."
             },
             "default-import": {
-              "label": "Come importo i miei contatti?",
-              "prompt": "Guidami nell'importazione dei contatti che ho già in Customermates."
+              "label": "Come importo i miei dati?",
+              "prompt": "Guidami nell'importazione in Customermates dei record che ho già, per esempio da un foglio di calcolo."
             },
             "default-setup": {
               "label": "Aiutami a configurare il mio CRM",
@@ -916,7 +933,6 @@
         },
         "profile": {
           "avatarUrl": "immagine del profilo, foto, immagine",
-          "country": "posizione, regione",
           "displayLanguage": "lingua, lingua dell'interfaccia, traduzione",
           "firstName": "nome di battesimo",
           "formattingLocale": "formato data, formato numeri, regione",
@@ -1064,6 +1080,7 @@
       "clearFilters": "Cancella filtri",
       "cta": "Aggiungi la tua prima voce «{singular}»",
       "dashboardBody": "I widget appariranno qui man mano che aggiungi dati.",
+      "dashboardNoListsBody": "Il tuo spazio di lavoro non ha ancora liste. Crea una lista per iniziare ad aggiungere record e widget.",
       "dashboardTitle": "Ancora niente da mostrare",
       "filteredBody": "Nessuna voce «{plural}» corrisponde ai tuoi filtri.",
       "filteredTitle": "Nessuna corrispondenza",
@@ -1264,6 +1281,9 @@
       "wikiPagePinned": "La guida operativa resta al primo posto. Sposta un’altra pagina.",
       "wikiPageUpdateEmpty": "Specifica almeno un campo per aggiornare la pagina.",
       "wikiProcedureNeedsSteps": "Una procedura richiede passaggi numerati.",
+      "wikiProposalNotFound": "Questa proposta non esiste più.",
+      "wikiProposalReviewed": "Questa proposta è già stata rivista.",
+      "wikiProposalStale": "La pagina è cambiata dopo la proposta di Mate. Rifiuta la proposta o chiedi a Mate di proporre di nuovo la modifica.",
       "wikiWhenToUseRequired": "Una procedura richiede una breve descrizione di quando usarla.",
       "workspaceChanged": "Il tuo spazio di lavoro è cambiato in un'altra scheda o su un altro dispositivo. Ricarica la pagina prima di continuare.",
       "workspaceCreationUnavailable": "Qui non è possibile creare nuovi spazi di lavoro.",
@@ -1283,7 +1303,11 @@
       "workspaceMemberPlatformOperator": "Questo è l’unico account attivo dell’ultimo operatore della piattaforma Customermates, quindi non può uscire né essere rimosso qui. Contatta il supporto Customermates.",
       "workspaceMemberRemoveSelf": "Non puoi rimuovere te stesso da uno spazio di lavoro. Esci invece dallo spazio di lavoro.",
       "workspaceNotFound": "Questo spazio di lavoro non è stato trovato o non ne fai parte.",
-      "workspacePlanRequired": "Le chiavi API e le connessioni MCP richiedono un piano attivo per questo spazio di lavoro. Scegli un piano per usarle."
+      "workspacePlanRequired": "Le chiavi API e le connessioni MCP richiedono un piano attivo per questo spazio di lavoro. Scegli un piano per usarle.",
+      "workspaceSetupAnswerInvalid": "Questa risposta non corrisponde alla domanda. Controllala e riprova.",
+      "workspaceSetupConflict": "La configurazione dello spazio di lavoro è occupata con un altro passaggio. Ricaricala e riprova.",
+      "workspaceSetupNotFound": "Nessuna configurazione trovata per questo spazio di lavoro.",
+      "workspaceSetupUnavailable": "La configurazione dello spazio di lavoro con l'IA non è disponibile qui."
     },
     "events": {
       "connected_account": {
@@ -1520,7 +1544,8 @@
       "triggerFilters": "Filtri sui record",
       "triggerKind": "Attivazione",
       "unavailableSelection": "Selezione non disponibile",
-      "url": "URL"
+      "url": "URL",
+      "websiteUrl": "Sito web aziendale"
     },
     "language": "Lingua",
     "legacyEvents": {
@@ -2897,7 +2922,7 @@
   },
   "OnboardingChoice": {
     "create": {
-      "description": "Configura uno spazio di lavoro separato per un'azienda che possiedi o gestisci.",
+      "description": "Configura un nuovo spazio di lavoro per la tua attività, un progetto o il tuo lavoro.",
       "note": "Gratis per {days} giorni",
       "title": "Crea un nuovo spazio di lavoro"
     },
@@ -2908,8 +2933,8 @@
       "title": "Entra in uno spazio di lavoro esistente"
     },
     "optionsLabel": "Opzioni di configurazione dello spazio di lavoro",
-    "signedInAs": "Accesso effettuato come {email}",
-    "subtitle": "Crea uno spazio di lavoro per la tua azienda o entra in un team che usa già Customermates.",
+    "signedInAs": "Accesso effettuato come",
+    "subtitle": "Crea uno spazio di lavoro per la tua attività, un progetto o il tuo lavoro, oppure entra in un team che usa già Customermates.",
     "title": "Come vuoi iniziare?"
   },
   "OnboardingForm": {
@@ -3030,18 +3055,27 @@
         "link": "Condividi il link"
       }
     },
+    "linkedWorkspace": {
+      "description": "Questo link apre la configurazione di {workspace}. Al momento stai lavorando in un altro spazio di lavoro; il cambio vale per tutte le schede aperte.",
+      "switch": "Cambia spazio di lavoro",
+      "title": "Continua in {workspace}"
+    },
     "milestones": {
       "ai": "Strumenti IA",
       "invite": "Team",
       "profile": "Tu",
-      "wiki": "Conoscenza"
+      "setup": "Spazio di lavoro"
     },
     "next": "Avanti",
+    "profile": {
+      "websiteDescription": "Facoltativo. Leggiamo il tuo sito pubblico per suggerire le risposte durante la configurazione del tuo spazio di lavoro.",
+      "websitePlaceholder": "esempio.it"
+    },
     "progress": "Passaggio {current} di {total}",
     "progressLabel": "Avanzamento della configurazione iniziale",
     "steps": {
       "ai": {
-        "subtitle": "Scegli uno strumento di IA da collegare al tuo spazio di lavoro e alle conoscenze aziendali. Collegane uno ora, aggiungine altri più avanti oppure salta questo passaggio.",
+        "subtitle": "Scegli uno strumento di IA da collegare al tuo spazio di lavoro e alle sue conoscenze. Collegane uno ora, aggiungine altri più avanti oppure salta questo passaggio.",
         "title": "Collega l’IA che usi già"
       },
       "invite": {
@@ -3051,16 +3085,15 @@
       "profile": {
         "invitedSubtitle": "Completa il profilo per richiedere l’accesso allo spazio di lavoro a cui sei stato invitato.",
         "invitedSubtitleNamed": "Completa il profilo per richiedere l’accesso a {workspace}.",
-        "subtitle": "Aggiungi il tuo nome e il paese per farti riconoscere dal team. Questi dati faranno parte del tuo profilo e potrai modificarli in seguito.",
+        "subtitle": "Aggiungi il tuo nome per farti riconoscere dal team e scegli la lingua che vuoi usare. Potrai modificarli entrambi in seguito nel tuo profilo.",
         "title": "Rendi tuo questo spazio di lavoro"
       },
-      "wiki": {
-        "subtitle": "Inizia dal sito della tua azienda. Mate trasforma le informazioni verificabili in pagine condivise e modificabili della base di conoscenza, con fonti e aspetti da chiarire.",
-        "title": "Condividi con Mate le conoscenze della tua azienda"
+      "setup": {
+        "planningSubtitle": "Le tue risposte sono salvate. Mate le trasforma in un piano per il tuo spazio di lavoro, che controlli prima che venga creato qualcosa.",
+        "subtitle": "Alcune brevi domande sull'uso di questo spazio di lavoro. Quello che abbiamo potuto leggere sul tuo sito è già compilato: per lo più devi solo confermare.",
+        "title": "Configura il tuo spazio di lavoro",
+        "withoutWebsiteSubtitle": "Alcune brevi domande sull'uso di questo spazio di lavoro. Quasi tutte si risolvono con una scelta rapida: bastano pochi minuti."
       }
-    },
-    "wiki": {
-      "skip": "Non ora"
     }
   },
   "OperatorAudit": {
@@ -3277,15 +3310,12 @@
     "stats": {
       "assistantConversations": "Chat dell'assistente",
       "connectedAccounts": "Account collegati",
-      "contacts": "Contatti",
-      "deals": "Trattative",
       "lastActive": "Ultimo accesso",
       "lastActivity": "Ultima modifica registrata",
+      "lists": "Liste",
       "messages": "Messaggi",
       "never": "Mai",
-      "organizations": "Organizzazioni",
-      "services": "Servizi",
-      "tasks": "Attività",
+      "records": "Record",
       "threads": "Conversazioni",
       "title": "Statistiche dello spazio"
     },
@@ -4084,8 +4114,6 @@
     "title": "Controlli di amministrazione"
   },
   "RoutineDetail": {
-    "credits": "Crediti",
-    "creditsAmount": "Crediti: {amount}",
     "empty": {
       "event": {
         "actions": {
@@ -4132,6 +4160,7 @@
     "ownerUnavailableReadOnly": "Questa routine non ha più un proprietario disponibile, quindi resta sospesa e di sola lettura. Un amministratore aziendale può eliminarla.",
     "ranAs": "Eseguita come {owner}",
     "readOnlyTitle": "Accesso in sola lettura",
+    "reviewWikiProposals": "Rivedi",
     "runDetails": "Dettagli dell'esecuzione",
     "runNoTranscript": "Non è disponibile alcuna trascrizione per questa esecuzione.",
     "runQueued": "Questa esecuzione è in coda. La trascrizione apparirà quando l'assistente inizierà.",
@@ -4150,7 +4179,9 @@
     "triggerChangedFields": "Campi modificati",
     "triggerChangedFieldsMore": "e altri",
     "triggerRecord": "Record",
-    "triggerThread": "Conversazione"
+    "triggerThread": "Conversazione",
+    "usageShare": "{used} dell'utilizzo mensile di Mate",
+    "wikiProposals": "{count, plural, one {Proposta # modifica alla base di conoscenza da rivedere} other {Proposte # modifiche alla base di conoscenza da rivedere}}"
   },
   "RoutineModal": {
     "at": "alle",
@@ -4205,7 +4236,7 @@
     "hostedAiUnavailable": "L'IA ospitata non era più disponibile prima che l'esecuzione potesse terminare.",
     "policyBreach": "Il provider IA ha superato il budget di crediti riservato, quindi l'esecuzione è stata interrotta.",
     "providerError": "Il provider IA ha restituito un errore prima che l'esecuzione potesse terminare.",
-    "runCreditLimit": "L'esecuzione si è fermata al suo limite di {credits, number} crediti per esecuzione.",
+    "runCreditLimit": "L'esecuzione si è fermata al suo limite di {share, number, percent} di una dotazione Starter per esecuzione.",
     "turnError": "L'assistente non è riuscito a completare questa esecuzione."
   },
   "RoutinesCard": {
@@ -4341,20 +4372,22 @@
     "picker": {
       "choose": "Scegli {plan}",
       "connectedAccountsPerUser": "{accounts, plural, one {# account collegato per utente} other {# account collegati per utente}}",
-      "creditNote": "I crediti IA in hosting si rinnovano ogni mese; i crediti non utilizzati non vengono trasferiti al mese successivo. Ogni richiesta viene addebitata al suo costo esatto presso il provider e mostrata con un decimale. I client MCP esterni fatturano i modelli tramite il tuo provider di IA. Le ricerche semantiche lato server possono consumare crediti IA in hosting.",
+      "creditNote": "L'utilizzo di Mate è espresso come multiplo della dotazione Starter (Starter 1x, Pro 3x, Business 10x, Max 20x) e si rinnova ogni mese; l'utilizzo non consumato non viene trasferito al mese successivo. Ogni richiesta conta il suo costo esatto presso il provider. I client MCP esterni fatturano i modelli tramite il tuo provider di IA. Le ricerche semantiche lato server possono contare nell'utilizzo di Mate.",
       "features": {
         "business": ["Tutto ciò che c'è in Pro", "Account condivisi e assistenza prioritaria"],
+        "max": ["Tutto ciò che c'è in Business", "Accesso anticipato alle funzionalità beta"],
         "pro": ["Tutto ciò che c'è in Starter", "Posta in arrivo unificata"],
         "starter": [
-          "CRM completo: contatti, trattative, organizzazioni, attività",
+          "Liste, campi, relazioni e pipeline tutti tuoi, oppure lascia che Mate configuri il tuo spazio di lavoro",
+          "Dashboard, viste e knowledge base",
           "Registro di controllo",
           "Accesso completo alle API",
           "Accesso al server MCP"
         ]
       },
-      "hostedAiCredits": "{credits, number} crediti IA in hosting per utente attivo / mese",
-      "mostPopular": "Il più scelto",
+      "hostedAiUsage": "Utilizzo di Mate {multiplier}x per utente attivo / mese",
       "perUserMonth": "per utente / mese",
+      "recommended": "Consigliato",
       "routinesPerUser": "{routines, plural, one {# routine per utente} other {# routine per utente}}",
       "unlimitedRoutinesPerUser": "Routine illimitate per utente"
     },
@@ -4362,6 +4395,7 @@
     "planNames": {
       "business": "Business",
       "enterprise": "Enterprise",
+      "max": "Max",
       "pro": "Pro",
       "starter": "Starter"
     },
@@ -4608,6 +4642,33 @@
     "pagesLabel": "Pagine della base di conoscenza",
     "pageTitle": "Titolo della pagina",
     "previous": "Indietro",
+    "proposals": {
+      "action": {
+        "create": "Nuova pagina",
+        "delete": "Eliminazione",
+        "update": "Modifica"
+      },
+      "approve": "Approva",
+      "approved": "Proposta approvata",
+      "back": "Tutte le proposte",
+      "current": "Attuale",
+      "deleteNotice": "Approvandola, questa pagina verrà eliminata definitivamente.",
+      "description": "Modifiche suggerite da Mate durante l’esecuzione delle routine. La base di conoscenza cambia solo quando ne approvi una.",
+      "empty": "Nessuna proposta in attesa di revisione.",
+      "entry": "Proposte",
+      "fromRoutine": "Da {routine}",
+      "fromRoutineDeleted": "Da una routine eliminata",
+      "loadFailed": "Impossibile caricare le proposte.",
+      "needsPermission": "Il tuo ruolo non può applicare questa modifica.",
+      "notYetCreated": "Questa pagina non esiste ancora.",
+      "pageMissing": "Questa pagina non esiste più.",
+      "proposed": "Proposta",
+      "reject": "Rifiuta",
+      "rejected": "Proposta rifiutata",
+      "stale": "Questa pagina è cambiata dopo la proposta di Mate. Rifiutala o chiedi a Mate di proporre di nuovo la modifica.",
+      "staleShort": "Pagina modificata",
+      "title": "Proposte"
+    },
     "reload": "Ricarica pagina",
     "search": "Cerca pagine…",
     "unavailableBody": "Questa pagina è stata eliminata oppure non hai accesso. Scegli un’altra pagina.",
@@ -4623,8 +4684,6 @@
     }
   },
   "WikiSetup": {
-    "continue": "Continua",
-    "continueBackground": "Continua mentre Mate lavora",
     "crawlProgress": {
       "created": "Creata",
       "discovering": "Ricerca delle pagine del sito",
@@ -4634,7 +4693,9 @@
       "read": "Letta",
       "reading": "Lettura in corso",
       "readingCount": "Lettura delle pagine · {fetched}/{total}",
+      "readingStep": "Lettura delle pagine del sito",
       "skipped": {
+        "aiUnavailable": "Mate temporaneamente non disponibile",
         "credits": "Crediti IA esauriti",
         "error": "Non scritta",
         "evidence": "Fonti insufficienti",
@@ -4650,6 +4711,20 @@
       "writingStep": "Scrittura delle pagine della knowledge base"
     },
     "generated": {
+      "address": {
+        "formal": "Ai clienti si dà del Lei: cognome e tono cortese e professionale.",
+        "heading": "Forma di cortesia",
+        "informal": "Ai clienti si dà del tu: nome di battesimo e tono cordiale e diretto.",
+        "source": "Impostato dal titolare durante la configurazione dello spazio di lavoro."
+      },
+      "answersSource": "Risposte date durante la configurazione dello spazio di lavoro ({date})",
+      "competitor": {
+        "heading": "Da completare dal tuo team",
+        "losses": "Quando {competitor} è la scelta migliore",
+        "offer": "Cosa offre {competitor} e a quale prezzo",
+        "response": "Come rispondere quando un potenziale cliente cita {competitor}",
+        "wins": "Perché i clienti scelgono noi invece di {competitor}"
+      },
       "gapsHeading": "Aspetti da confermare",
       "pagesHeading": "Pagine della knowledge base",
       "roles": {
@@ -4659,31 +4734,25 @@
         "sales_messaging": "Messaggi di vendita e FAQ",
         "voice_and_tone": "Voce e tono"
       },
+      "setupPages": {
+        "competitor": "Confronto con {competitor}",
+        "faq": "Domande frequenti",
+        "processes": "Processi",
+        "productsPricing": "Prodotti e prezzi"
+      },
       "sourcesHeading": "Fonti"
     },
-    "homepageLabel": "Sito web dell’azienda",
-    "homepagePlaceholder": "https://esempio.it",
-    "languageDescription": "Per impostazione predefinita viene usata la lingua del browser. Se la base di conoscenza contiene già pagine, la loro lingua determina la scelta.",
-    "languageLabel": "Lingua della base di conoscenza",
-    "start": "Crea la mia base di conoscenza",
     "status": {
-      "completedBodyOnboarding": "Mate ha creato le tue pagine iniziali con fatti supportati dal sito web. Potrai controllarle in seguito nella base di conoscenza e confermare ciò che è segnato come da confermare.",
-      "completedExistingBody": "La base di conoscenza contiene già delle pagine. Continua l’onboarding o controlla i contenuti esistenti.",
-      "completedTitle": "La tua base di conoscenza iniziale è pronta",
+      "backgroundBanner": "Mate sta ancora creando pagine della base di conoscenza in background. Le nuove pagine compaiono qui non appena sono pronte.",
       "failedBody": "La configurazione si è interrotta prima che tutte le pagine fossero pronte. Le pagine già create restano disponibili. Puoi continuare e rivederle nella base di conoscenza.",
       "failedBodyBlocked": "{domain} non consente la lettura automatica nel suo robots.txt, quindi non è stato importato nulla. Puoi creare le pagine tu stesso.",
       "failedBodySynthesis": "Il sito web è stato letto, ma Mate non è riuscito a scrivere le pagine. Riprova. Le pagine già create restano disponibili.",
       "failedBodyUnavailable": "Mate non è riuscito a leggere {domain}. Controlla l'indirizzo oppure continua e aggiungi le pagine più tardi.",
       "failedTitle": "Configurazione non completata",
-      "noContentBody": "Mate non ha trovato informazioni utilizzabili per le pagine della knowledge base. Puoi provare un altro sito web oppure continuare e aggiungere pagine in seguito.",
-      "noContentTitle": "Non è stata creata alcuna pagina della base di conoscenza",
-      "readingBody": "Mate ha letto {fetched} di {total} pagine di {domain}.",
-      "workingBody": "Mate sta leggendo {domain} e trasferendo nella tua base di conoscenza le informazioni raccolte dalle fonti. Puoi passare al passaggio successivo mentre lavora.",
+      "workingBodyAnswers": "Mate sta scrivendo le pagine della tua base di conoscenza a partire dalle risposte della configurazione. Ogni pagina compare qui appena è pronta.",
       "workingBodyWiki": "Mate sta leggendo {domain} e creando la base di conoscenza. Puoi tornare più tardi per vedere le pagine completate.",
       "workingTitle": "Mate sta conoscendo la tua azienda"
-    },
-    "tryAnother": "Prova un altro sito",
-    "unavailable": "La configurazione con Mate non è disponibile al momento. Potrai creare pagine in seguito dalla base di conoscenza."
+    }
   },
   "WorkspaceInvitation": {
     "inactive": {
@@ -4783,6 +4852,434 @@
     "unnamedPrompt": {
       "description": "Non ha ancora un nome, quindi il menu degli spazi di lavoro mostra solo «Spazio di lavoro». Un nome aiuta ogni membro a distinguere i tuoi spazi di lavoro.",
       "title": "Dai un nome a questo spazio di lavoro"
+    }
+  },
+  "WorkspaceSetup": {
+    "actions": {
+      "addOwn": "Aggiungi una voce",
+      "continueAnyway": "Continua comunque",
+      "fromWebsite": "Suggerito dal tuo sito web",
+      "looksRight": "Va bene così",
+      "upload": "Carica un foglio di calcolo",
+      "winChance": "Probabilità di chiusura"
+    },
+    "anchors": {
+      "price": "Prezzo",
+      "value": "Valore"
+    },
+    "build": {
+      "actions": {
+        "dashboard": "Creazione della dashboard",
+        "dataModel": "Creazione di liste e campi",
+        "importing": "Importazione di {fileName}",
+        "knowledgeBase": "Scrittura delle pagine della knowledge base ({written} di {planned})",
+        "pipeline": "Creazione della pipeline {list}: {stages}",
+        "preparing": "Preparazione della parte successiva",
+        "readingWebsite": "Lettura di {website}",
+        "records": "Aggiunta di record di esempio",
+        "views": "Organizzazione delle liste"
+      },
+      "completedBody": "È tutto pronto. Ora invita il tuo team.",
+      "completedTitle": "Il tuo spazio di lavoro è pronto",
+      "continue": "Continua con gli inviti",
+      "failedBody": "Tutto ciò che è finito resta. Riprova la parte non completata per finire il tuo spazio di lavoro.",
+      "failedTitle": "Una parte della configurazione non è stata completata",
+      "frameTitle": "Il tuo spazio di lavoro",
+      "keepsRunning": "Continua anche se chiudi la scheda. Ti invieremo un’email quando il tuo spazio di lavoro sarà pronto.",
+      "nameColumn": "Nome",
+      "phases": {
+        "dashboard": "Dashboard",
+        "dataModel": "Liste e campi",
+        "knowledgeBase": "Knowledge base",
+        "records": "Record",
+        "views": "Viste delle liste"
+      },
+      "phasesLabel": "Avanzamento della configurazione",
+      "previewLabel": "Anteprima del tuo spazio di lavoro",
+      "records": "Record",
+      "retry": "Riprova",
+      "sidebarLabel": "Anteprima della navigazione",
+      "states": {
+        "active": "In corso",
+        "background": "Continua in background",
+        "done": "Fatto",
+        "failed": "Non completato",
+        "skipped": "Saltato",
+        "waiting": "In attesa"
+      },
+      "summaries": {
+        "dashboard": "{count, plural, =0 {Nessun widget aggiunto} one {# widget aggiunto} other {# widget aggiunti}}",
+        "dataModel": "{count, plural, =0 {Nessuna lista creata} one {# lista pronta} other {# liste pronte}}",
+        "knowledgeBase": "{count, plural, =0 {Nessuna pagina scritta} one {# pagina scritta} other {# pagine scritte}}",
+        "records": "{count, plural, =0 {Nessun record aggiunto} one {# record aggiunto} other {# record aggiunti}}",
+        "views": "{count, plural, =0 {Nessuna vista organizzata} one {# vista organizzata} other {# viste organizzate}}"
+      },
+      "title": "Stiamo configurando il tuo spazio di lavoro"
+    },
+    "failures": {
+      "aiUnavailable": "Il servizio di IA non è disponibile al momento. Riprova tra qualche minuto.",
+      "contactSupport": "Contatta il supporto",
+      "crawlFailed": "Non è stato possibile leggere il tuo sito web.",
+      "dependency": "Questa parte attende una parte precedente che non è stata completata.",
+      "error": "Qualcosa è andato storto in questa parte.",
+      "generation": "Questa volta l’IA non è riuscita a produrre un risultato utilizzabile.",
+      "invalidPlan": "Il piano non era adatto al tuo spazio di lavoro.",
+      "permission": "Il tuo ruolo non consente questa modifica.",
+      "schemaChanged": "Il tuo spazio di lavoro è cambiato mentre questa parte era in corso.",
+      "spendCap": "Il budget di configurazione di questo spazio di lavoro è esaurito, quindi questa parte si è fermata. Tutto ciò che è già finito resta. Scrivici e ti aiuteremo a completare la configurazione.",
+      "spreadsheet": "Non è stato possibile importare il foglio di calcolo.",
+      "supportSubject": "Budget di configurazione dello spazio di lavoro"
+    },
+    "interview": {
+      "addEntry": "Aggiungi una voce",
+      "adjusting": "Modifica le risposte che vuoi, poi conferma l’ultima schermata per creare un nuovo piano.",
+      "customPlaceholder": "La tua risposta",
+      "days": "giorni",
+      "entryLabel": "Voce {index}",
+      "followUpsSubtitle": "Alcune risposte si possono intendere in più modi. Queste domande lo chiariscono.",
+      "followUpsTitle": "Ancora qualche dettaglio",
+      "moveDown": "Sposta giù",
+      "moveUp": "Sposta su",
+      "optionalPlaceholder": "Lascia vuoto se non ti viene in mente nulla",
+      "prefillFailed": "Non siamo riusciti a leggere il tuo sito, quindi nulla è precompilato. Le domande richiedono comunque solo pochi minuti.",
+      "rangeFrom": "Da",
+      "rangeTo": "Fino a",
+      "rankedHint": "{count} di {max} scelti, in ordine di importanza",
+      "rankedOption": "Posizione {rank}: {label}",
+      "stepProgress": "Parte {current} di {total}",
+      "stepsLabel": "Domande di configurazione",
+      "uploadChoose": "Scegli file",
+      "uploadFailures": {
+        "cellTooLong": "Una cella contiene più di {maxCharacters, number} caratteri.",
+        "fileTooLarge": "Supera i {maxMegabytes} MB.",
+        "macroWorkbook": "Contiene macro. Salvalo come cartella di lavoro Excel senza macro (.xlsx) e sceglilo di nuovo.",
+        "noHeader": "Non contiene dati. La prima riga riporta i nomi delle colonne, le righe successive i record.",
+        "sheetNotFound": "La cartella di lavoro non contiene fogli da importare.",
+        "tooManyColumns": "Ha più di {maxColumns, number} colonne.",
+        "tooManyRows": "Ha più di {maxRows, number} righe.",
+        "unreadableFile": "Impossibile leggere il file. Potrebbe essere danneggiato.",
+        "unsupportedFormat": "Salvalo come CSV o come cartella di lavoro Excel (.xlsx) e sceglilo di nuovo."
+      },
+      "uploadHint": "CSV o Excel, fino a {maxMegabytes} MB e {maxRows, number} righe.",
+      "uploadKept": "La configurazione continua a usare {fileName}.",
+      "uploadReady": "Pronto per l’importazione nelle tue nuove liste.",
+      "uploadRejected": "Impossibile importare {fileName}. {reason}",
+      "uploadReplace": "Scegli un altro file",
+      "winChanceFor": "Probabilità di chiusura della voce {index}"
+    },
+    "options": {
+      "addressForm": {
+        "formal": "Formale (Lei)",
+        "informal": "Informale (tu)"
+      },
+      "afterSale": {
+        "appointments": "Appuntamenti",
+        "contractsRenewals": "Contratti e rinnovi",
+        "nothing": "Nient'altro",
+        "ordersInvoices": "Ordini e fatture",
+        "projects": "Progetti",
+        "supportTickets": "Ticket di assistenza"
+      },
+      "customerKind": {
+        "both": "Entrambi",
+        "businesses": "Aziende",
+        "consumers": "Privati"
+      },
+      "customerSize": {
+        "large": "Grandi imprese",
+        "medium": "Medie imprese",
+        "mixed": "Dimensioni miste",
+        "small": "Piccole aziende"
+      },
+      "dashboardAudience": {
+        "management": "Direzione",
+        "me": "Solo io",
+        "team": "Tutto il team"
+      },
+      "dealDetails": {
+        "budget": "Budget",
+        "closeDate": "Data di chiusura prevista",
+        "contractEnd": "Fine del contratto",
+        "decisionMaker": "Decisore",
+        "lostReason": "Motivo della perdita",
+        "nextStep": "Prossimo passo",
+        "vatId": "Partita IVA"
+      },
+      "existingData": {
+        "empty": "Inizia da zero",
+        "sampleData": "Inizia con dati di esempio",
+        "spreadsheet": "Importa un foglio di calcolo"
+      },
+      "knowledgePages": {
+        "faq": "Domande frequenti",
+        "idealCustomer": "Cliente ideale",
+        "overview": "Panoramica",
+        "processes": "Processi",
+        "productsPricing": "Prodotti e prezzi",
+        "salesPlaybook": "Guida alla vendita e obiezioni"
+      },
+      "leadSources": {
+        "ads": "Pubblicità",
+        "events": "Eventi e fiere",
+        "outbound": "Contatto diretto",
+        "partners": "Partner",
+        "referrals": "Passaparola",
+        "socialMedia": "Social network",
+        "website": "Sito web"
+      },
+      "offeringKinds": {
+        "products": "Prodotti",
+        "projects": "Progetti",
+        "services": "Servizi",
+        "subscriptions": "Abbonamenti"
+      },
+      "purpose": {
+        "clients": "Clienti e vendite",
+        "finances": "Finanze e tasse",
+        "hiring": "Selezione del personale",
+        "marketing": "Marketing e contenuti",
+        "projects": "Progetti",
+        "support": "Assistenza clienti"
+      },
+      "renewalPeriod": {
+        "monthly": "Mensile",
+        "multiYear": "Ogni qualche anno",
+        "quarterly": "Trimestrale",
+        "yearly": "Annuale"
+      },
+      "revenueModel": {
+        "both": "Entrambi",
+        "oneOff": "Pagamenti una tantum",
+        "recurring": "Pagamenti ricorrenti"
+      },
+      "taskOrganisation": {
+        "perCustomer": "Per cliente",
+        "perDeal": "Per trattativa",
+        "perProject": "Per progetto",
+        "recurring": "Attività ricorrenti"
+      },
+      "teamRoles": {
+        "accountManagement": "Gestione clienti",
+        "delivery": "Erogazione",
+        "finance": "Finanza",
+        "sales": "Vendite",
+        "support": "Assistenza"
+      },
+      "teamSize": {
+        "large": "Più di 20 persone",
+        "medium": "Da 6 a 20 persone",
+        "small": "Da 2 a 5 persone",
+        "solo": "Solo io"
+      },
+      "weeklyNumbers": {
+        "conversionByStage": "Conversione per fase",
+        "forecast": "Previsione",
+        "newLeads": "Nuovi contatti",
+        "openTickets": "Ticket aperti",
+        "overdueTasks": "Attività scadute",
+        "pipelineValue": "Valore della pipeline",
+        "recurringRevenue": "Ricavi ricorrenti",
+        "renewalsDue": "Rinnovi in scadenza",
+        "wonThisMonth": "Vinto questo mese"
+      }
+    },
+    "plan": {
+      "adjust": "Modifica le risposte",
+      "build": "Costruisci il mio spazio di lavoro",
+      "dashboard": "Dashboard",
+      "failedTitle": "Non è stato possibile preparare il piano",
+      "importSummary": "Importa {fileName} in {list}.",
+      "keyFields": "Campi principali in {list}",
+      "knowledgeBase": "Knowledge base",
+      "lists": "Liste",
+      "morePages": "{count, plural, one {e # altra pagina} other {e altre # pagine}}",
+      "noDashboard": "Non sono previsti widget per la dashboard.",
+      "noPages": "Non sono previste pagine della knowledge base.",
+      "noPipeline": "Non è prevista alcuna pipeline.",
+      "pipeline": "Pipeline",
+      "planningTitle": "Stiamo preparando il tuo piano",
+      "progress": {
+        "label": "Avanzamento del piano",
+        "leave": "Puoi chiudere questa pagina. Scriveremo a <strong>{email}</strong> appena il tuo piano sarà pronto.",
+        "leaveWithoutEmail": "Puoi chiudere questa pagina. Ti invieremo un’email appena il tuo piano sarà pronto.",
+        "minutesLeft": "{minutes, plural, one {Manca circa # minuto} other {Mancano circa # minuti}}",
+        "overdue": "Ci vuole un po’ più del solito. Quasi fatto.",
+        "steps": {
+          "answers": "Lettura delle tue risposte",
+          "knowledge": "Struttura delle pagine della knowledge base",
+          "model": "Progettazione di liste, campi e pipeline",
+          "views": "Pianificazione di viste, dashboard e record di esempio"
+        },
+        "stepsLabel": "A cosa sta lavorando Mate",
+        "typical": "Mate sta progettando il tuo spazio di lavoro dalle tue risposte. Di solito servono 1 o 2 minuti.",
+        "underMinute": "Manca meno di un minuto"
+      },
+      "sampleSummary": "{count, plural, one {Aggiunge # record di esempio per provare subito.} other {Aggiunge # record di esempio per provare subito.}}",
+      "subtitle": "Ecco cosa costruiremo non appena confermi.",
+      "title": "Il piano del tuo spazio di lavoro",
+      "tryAgain": "Riprova",
+      "winChanceValue": "{value} %"
+    },
+    "questions": {
+      "addressForm": {
+        "label": "Come ti rivolgi alle persone per iscritto?"
+      },
+      "afterSale": {
+        "label": "Che cosa segue a una trattativa vinta?"
+      },
+      "anythingMissed": {
+        "label": "Abbiamo dimenticato qualcosa?"
+      },
+      "appointmentTypes": {
+        "label": "I tuoi tipi di appuntamento"
+      },
+      "companyName": {
+        "label": "Nome della tua attività o del progetto"
+      },
+      "competitors": {
+        "label": "I tuoi principali concorrenti"
+      },
+      "country": {
+        "label": "Paese"
+      },
+      "currency": {
+        "label": "Valuta"
+      },
+      "customerKind": {
+        "label": "Chi sono i tuoi clienti?"
+      },
+      "customerSize": {
+        "label": "Quanto sono grandi i tuoi clienti?"
+      },
+      "dashboardAudience": {
+        "label": "Chi guarda la dashboard?"
+      },
+      "dealDetails": {
+        "label": "Che cosa devi sapere di una trattativa o di un cliente?"
+      },
+      "dealSize": {
+        "label": "Valore tipico di una trattativa"
+      },
+      "existingData": {
+        "label": "Come vuoi iniziare?"
+      },
+      "industries": {
+        "label": "In quali settori operano?"
+      },
+      "knowledgePages": {
+        "label": "Quali pagine della base di conoscenza dobbiamo scrivere?"
+      },
+      "language": {
+        "label": "Lingua"
+      },
+      "leadSources": {
+        "label": "Da dove arrivano i tuoi contatti?"
+      },
+      "offeringKinds": {
+        "label": "Che cosa vendi?"
+      },
+      "offerings": {
+        "label": "Le tue offerte"
+      },
+      "orderStatuses": {
+        "label": "Le fasi dei tuoi ordini"
+      },
+      "projectPhases": {
+        "label": "Le fasi dei tuoi progetti"
+      },
+      "purpose": {
+        "label": "Per cosa userai questo spazio di lavoro?"
+      },
+      "purposeDetails": {
+        "label": "Descrivilo in una frase",
+        "placeholder": "Per esempio: i miei clienti da freelance, le fatture e le scadenze fiscali"
+      },
+      "renewalPeriod": {
+        "label": "Ogni quanto si rinnovano i contratti?"
+      },
+      "revenueModel": {
+        "label": "I clienti pagano una volta o regolarmente?"
+      },
+      "salesCycle": {
+        "label": "Ciclo di vendita tipico in giorni"
+      },
+      "salesSteps": {
+        "label": "Quali sono le tue fasi di vendita?"
+      },
+      "taskOrganisation": {
+        "label": "Come sono organizzate le tue attività?"
+      },
+      "teamRoles": {
+        "label": "Chi fa cosa nel tuo team?"
+      },
+      "teamSize": {
+        "label": "Quanto è grande il tuo team?"
+      },
+      "ticketPriorities": {
+        "label": "Le priorità dei tuoi ticket"
+      },
+      "weeklyNumbers": {
+        "label": "Quali numeri controlli ogni settimana? Scegline fino a tre."
+      }
+    },
+    "screens": {
+      "afterSale": "Dopo la vendita",
+      "dashboard": "La tua dashboard",
+      "data": "I tuoi dati",
+      "knowledge": "Conoscenza",
+      "winning": "Acquisire clienti",
+      "workspace": "Su questo spazio di lavoro"
+    },
+    "start": {
+      "start": "Avvia la configurazione",
+      "withoutWebsite": "Continua senza sito web"
+    },
+    "website": {
+      "change": "Modifica",
+      "eta": "Di solito servono 1 o 2 minuti. Nel frattempo puoi iniziare a rispondere.",
+      "finding": "Cerchiamo le pagine su {website}",
+      "hint": "Facoltativo. Leggiamo il tuo sito web pubblico e suggeriamo le risposte, così ti basta confermarle.",
+      "read": "Leggi il sito web",
+      "reading": "Leggiamo {website}: {read} di {total} pagine",
+      "suggestedHint": "Controlla le risposte contrassegnate e cambia ciò che non va.",
+      "suggesting": "Suggeriamo le risposte da {website}",
+      "title": "Compila le risposte dal tuo sito web"
+    }
+  },
+  "WorkspaceSetupNotice": {
+    "fallback": "Se il pulsante non funziona, copia e incolla questo link nel tuo browser: ",
+    "greeting": "Ciao {firstName},",
+    "planFailed": {
+      "body": "Mate non è riuscito a completare il piano del tuo spazio di lavoro. Le tue risposte sono salvate: apri la configurazione per riprovare o modificarle.",
+      "bodyNamed": "Mate non è riuscito a completare il piano per {workspace}. Le tue risposte sono salvate: apri la configurazione per riprovare o modificarle.",
+      "cta": "Apri la configurazione",
+      "subject": "Il piano del tuo spazio di lavoro richiede un nuovo tentativo",
+      "subjectNamed": "Il tuo piano per {workspace} va riprovato",
+      "title": "Il tuo piano richiede un nuovo tentativo"
+    },
+    "planReady": {
+      "body": "Mate ha preparato liste, pipeline, dashboard e pagine della knowledge base per il tuo spazio di lavoro. Controlla il piano e crea il tuo spazio di lavoro in un solo passaggio.",
+      "bodyNamed": "Mate ha preparato le liste, la pipeline, la dashboard e le pagine della knowledge base per {workspace}. Controlla il piano e crea lo spazio di lavoro in un solo passaggio.",
+      "cta": "Controlla il piano",
+      "subject": "Il piano del tuo spazio di lavoro è pronto",
+      "subjectNamed": "Il tuo piano per {workspace} è pronto",
+      "title": "Il tuo piano è pronto"
+    },
+    "workspaceFailed": {
+      "body": "Mate ha creato gran parte del tuo spazio di lavoro, ma alcune parti non sono state completate. Apri la configurazione per riprovarle.",
+      "bodyNamed": "Mate ha creato gran parte di {workspace}, ma alcune parti non sono state completate. Apri la configurazione per riprovarle.",
+      "cta": "Apri la configurazione",
+      "subject": "La configurazione del tuo spazio di lavoro richiede attenzione",
+      "subjectNamed": "La configurazione di {workspace} richiede un controllo",
+      "title": "Alcune parti richiedono attenzione"
+    },
+    "workspaceReady": {
+      "body": "Mate ha creato il tuo spazio di lavoro. Liste, viste e dashboard ti aspettano, e le pagine della knowledge base arrivano a breve.",
+      "bodyNamed": "Mate ha creato {workspace}. Le tue liste, viste e dashboard ti aspettano, e le pagine della knowledge base arrivano a breve.",
+      "cta": "Apri il tuo spazio di lavoro",
+      "subject": "Il tuo spazio di lavoro è pronto",
+      "subjectNamed": "{workspace} è pronto",
+      "title": "Il tuo spazio di lavoro è pronto"
     }
   }
 }

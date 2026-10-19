@@ -1,6 +1,6 @@
 import type { TenantUser } from "@/features/user/user.schema";
 
-import { Status, CountryCode, Locale, Theme, type Resource, type Action } from "@/generated/prisma";
+import { Status, Locale, Theme, type Resource, type Action } from "@/generated/prisma";
 
 const MOCK_ROLE = {
   id: "test-role-id",
@@ -23,7 +23,6 @@ const BASE_MOCK_USER = {
   displayLanguage: Locale.en,
   formattingLocale: Locale.en,
   theme: Theme.system,
-  country: CountryCode.de,
   avatarUrl: null,
   agreeToTerms: true,
   lastActiveAt: new Date(0),

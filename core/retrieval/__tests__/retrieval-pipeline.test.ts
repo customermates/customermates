@@ -12,6 +12,9 @@ import {
   rerankSections,
   RETRIEVAL_EMBEDDING_WAIT_MS,
   RETRIEVAL_RELEVANCE_FLOOR,
+  RETRIEVAL_RERANK_EXCERPT_CHARS,
+  RETRIEVAL_RERANK_TAIL_CHARS,
+  rerankEvidenceAllowances,
 } from "../retrieval-pipeline";
 import { QueryEmbeddingWait } from "@/core/retrieval/query-embedding-wait";
 import { RetrievalStopwatch } from "@/core/retrieval/retrieval-stopwatch";
@@ -22,7 +25,11 @@ afterEach(() => {
 
 const candidate = (id: number): RankableSection => ({
   id,
-  section: { pageTitle: `Page ${id}`, headingPath: [`Section ${id}`], text: `Text ${id}` },
+  section: {
+    pageTitle: `Page ${id}`,
+    headingPath: [`Section ${id}`],
+    text: `Text ${id}`,
+  },
 });
 
 describe("reciprocal-rank fusion", () => {
@@ -72,12 +79,18 @@ describe("full-text and semantic retrieval", () => {
     });
     const embed = vi.fn(() => {
       started.push("embed");
-      return Promise.resolve({ vector: [1, 0], model: "test" });
+      return Promise.resolve({ vector: [1, 0], version: "test" });
     });
     const semantic = vi.fn(() => Promise.resolve({ keys: ["b", "c"], similarity: 0.8 }));
     const { value, timings } = await collectRetrievalTimings(async () => {
       const stopwatch = new RetrievalStopwatch("docs");
-      const pending = fuseFullTextAndSemantic({ query: "q", stopwatch, fullText, embed, semantic });
+      const pending = fuseFullTextAndSemantic({
+        query: "q",
+        stopwatch,
+        fullText,
+        embed,
+        semantic,
+      });
       await Promise.resolve();
       expect(started.toSorted()).toEqual(["embed", "fullText"]);
       releaseFullText({ keys: ["a", "b"], coverage: 1 });
@@ -87,7 +100,7 @@ describe("full-text and semantic retrieval", () => {
     });
 
     expect(value.ranked).toEqual(["b", "a", "c"]);
-    expect(value.vector).toEqual({ vector: [1, 0], model: "test" });
+    expect(value.vector).toEqual({ vector: [1, 0], version: "test" });
     expect(timings).toEqual([expect.objectContaining({ corpus: "docs", embedding: "used" })]);
   });
 
@@ -125,7 +138,7 @@ describe("full-text and semantic retrieval", () => {
       query: "q",
       stopwatch: noIndex,
       fullText,
-      embed: () => Promise.resolve({ vector: [1], model: "m" }),
+      embed: () => Promise.resolve({ vector: [1], version: "m" }),
       semantic: () => Promise.resolve(null),
     });
     expect(withoutIndex).toMatchObject({ ranked: ["a", "b"], vector: null });
@@ -133,7 +146,15 @@ describe("full-text and semantic retrieval", () => {
 
     const none = new RetrievalStopwatch("docs");
     expect(
-      (await fuseFullTextAndSemantic({ query: "q", stopwatch: none, fullText, embed: null, semantic })).ranked,
+      (
+        await fuseFullTextAndSemantic({
+          query: "q",
+          stopwatch: none,
+          fullText,
+          embed: null,
+          semantic,
+        })
+      ).ranked,
     ).toEqual(["a", "b"]);
     expect(none.embedding).toBe("none");
     expect(semantic).not.toHaveBeenCalled();
@@ -147,9 +168,9 @@ describe("query embedding wait", () => {
     const semantic = vi.fn(() => Promise.resolve({ keys: ["z"], similarity: 0.8 }));
     const claims: boolean[] = [];
     const embedAfter = (claimAt: number, resolveAt: number) => (_query: string, wait?: QueryEmbeddingWait) =>
-      new Promise<{ vector: number[]; model: string }>((resolve) => {
+      new Promise<{ vector: number[]; version: string }>((resolve) => {
         setTimeout(() => claims.push(wait?.claim() ?? true), claimAt);
-        setTimeout(() => resolve({ vector: [1], model: "m" }), resolveAt);
+        setTimeout(() => resolve({ vector: [1], version: "m" }), resolveAt);
       });
 
     const late = new RetrievalStopwatch("wiki");
@@ -162,7 +183,10 @@ describe("query embedding wait", () => {
       embeddingWaitMs: 50,
     });
     await vi.advanceTimersByTimeAsync(120);
-    await expect(lateRun).resolves.toMatchObject({ ranked: ["a", "b"], vector: null });
+    await expect(lateRun).resolves.toMatchObject({
+      ranked: ["a", "b"],
+      vector: null,
+    });
     expect(late.embedding).toBe("timeout");
 
     const claimed = new RetrievalStopwatch("wiki");
@@ -175,7 +199,10 @@ describe("query embedding wait", () => {
       embeddingWaitMs: 50,
     });
     await vi.advanceTimersByTimeAsync(100);
-    await expect(claimedRun).resolves.toMatchObject({ ranked: ["a", "z", "b"], vector: { vector: [1], model: "m" } });
+    await expect(claimedRun).resolves.toMatchObject({
+      ranked: ["a", "z", "b"],
+      vector: { vector: [1], version: "m" },
+    });
     expect(claimed.embedding).toBe("used");
     expect(claims).toEqual([false, true]);
   });
@@ -185,8 +212,8 @@ describe("query embedding wait", () => {
     const fullText = () => Promise.resolve({ keys: ["a", "b"], coverage: 1 });
     const semantic = () => Promise.resolve({ keys: ["z"], similarity: 0.8 });
     const arriving = (ms: number) => () =>
-      new Promise<{ vector: number[]; model: string }>((resolve) => {
-        setTimeout(() => resolve({ vector: [1], model: "m" }), ms);
+      new Promise<{ vector: number[]; version: string }>((resolve) => {
+        setTimeout(() => resolve({ vector: [1], version: "m" }), ms);
       });
 
     expect(RETRIEVAL_EMBEDDING_WAIT_MS).toBe(1_100);
@@ -211,7 +238,10 @@ describe("query embedding wait", () => {
       semantic,
     });
     await vi.advanceTimersByTimeAsync(1_250);
-    await expect(lateRun).resolves.toMatchObject({ ranked: ["a", "b"], vector: null });
+    await expect(lateRun).resolves.toMatchObject({
+      ranked: ["a", "b"],
+      vector: null,
+    });
     expect(late.embedding).toBe("timeout");
   });
 
@@ -232,7 +262,10 @@ describe("relevance floor", () => {
   const evidence = (coverage: number, similarity: number | null, pinned = 0) => ({ pinned, coverage, similarity });
 
   it("judges relevance only when the query embedding arrived", () => {
-    expect(RETRIEVAL_RELEVANCE_FLOOR).toEqual({ coverage: 0.9, similarity: 0.6 });
+    expect(RETRIEVAL_RELEVANCE_FLOOR).toEqual({
+      coverage: 0.9,
+      similarity: 0.6,
+    });
     expect(relevanceVerdict(evidence(0.1, null))).toBe("kept");
     expect(relevanceVerdict(evidence(0.1, 0.55))).toBe("dropped");
     expect(relevanceVerdict(evidence(0.1, 0.55), null)).toBe("kept");
@@ -256,13 +289,22 @@ describe("relevance floor", () => {
         query: "q",
         stopwatch: new RetrievalStopwatch("wiki"),
         fullText: () => Promise.resolve({ keys: ["a"], pinned, coverage }),
-        embed: () => Promise.resolve({ vector: [1], model: "m" }),
+        embed: () => Promise.resolve({ vector: [1], version: "m" }),
         semantic: () => Promise.resolve({ keys: ["b"], similarity }),
       });
 
-    await expect(run(0.2, 0.55)).resolves.toMatchObject({ ranked: [], relevance: "dropped" });
-    await expect(run(0.2, 0.55, ["p"])).resolves.toMatchObject({ ranked: ["p", "a", "b"], relevance: "kept" });
-    await expect(run(0.2, 0.7)).resolves.toMatchObject({ ranked: ["a", "b"], relevance: "rerank" });
+    await expect(run(0.2, 0.55)).resolves.toMatchObject({
+      ranked: [],
+      relevance: "dropped",
+    });
+    await expect(run(0.2, 0.55, ["p"])).resolves.toMatchObject({
+      ranked: ["p", "a", "b"],
+      relevance: "kept",
+    });
+    await expect(run(0.2, 0.7)).resolves.toMatchObject({
+      ranked: ["a", "b"],
+      relevance: "rerank",
+    });
   });
 });
 
@@ -313,12 +355,28 @@ describe("section re-rank", () => {
 
   it("judges one candidate only when the relevance floor needs a decision and never calls with none", async () => {
     const ranker = vi.fn(() => Promise.resolve({ order: [1], abstained: true }));
-    const args = { query: "q", stopwatch: new RetrievalStopwatch("wiki"), ranker };
+    const args = {
+      query: "q",
+      stopwatch: new RetrievalStopwatch("wiki"),
+      ranker,
+    };
 
     expect(await rerankSections({ ...args, candidates: [], relevance: "rerank" })).toBeNull();
-    expect(await rerankSections({ ...args, candidates: [candidate(1)], relevance: "kept" })).toBeNull();
+    expect(
+      await rerankSections({
+        ...args,
+        candidates: [candidate(1)],
+        relevance: "kept",
+      }),
+    ).toBeNull();
     expect(ranker).not.toHaveBeenCalled();
-    expect(await rerankSections({ ...args, candidates: [candidate(1)], relevance: "rerank" })).toEqual({
+    expect(
+      await rerankSections({
+        ...args,
+        candidates: [candidate(1)],
+        relevance: "rerank",
+      }),
+    ).toEqual({
       order: [1],
       abstained: true,
     });
@@ -346,10 +404,22 @@ describe("section re-rank", () => {
         ranker: () => Promise.resolve({ order: [2], abstained: true }),
       }),
     ).toEqual({ order: [2], abstained: true });
-    expect(await rerankSections({ query: "q", stopwatch, candidates, ranker: undefined })).toBeNull();
+    expect(
+      await rerankSections({
+        query: "q",
+        stopwatch,
+        candidates,
+        ranker: undefined,
+      }),
+    ).toBeNull();
     expect(stopwatch.rerank).toBe("unavailable");
     expect(
-      await rerankSections({ query: "q", stopwatch, candidates, ranker: () => Promise.reject(new Error("504")) }),
+      await rerankSections({
+        query: "q",
+        stopwatch,
+        candidates,
+        ranker: () => Promise.reject(new Error("504")),
+      }),
     ).toBeNull();
     expect(stopwatch.rerank).toBe("failed");
     expect(
@@ -407,7 +477,11 @@ describe("typo candidates", () => {
 
 describe("alphabetic compound search queries", () => {
   it("allows a hyphenated word to match its separate component words in the same query unit", () => {
-    const sql = fullTextUnitsCte({ units: fullTextUnits("Policies-Seite"), configs: ["german"], stopConfig: "german" });
+    const sql = fullTextUnitsCte({
+      units: fullTextUnits("Policies-Seite"),
+      configs: ["german"],
+      stopConfig: "german",
+    });
     expect(sql.values).toContain("policies-seite");
     expect(sql.values).toContain("policies seite");
     expect(fullTextUnits("Policies-Seite")).toHaveLength(1);
@@ -416,18 +490,59 @@ describe("alphabetic compound search queries", () => {
   it("keeps the existing strict quoted-unit precedence for a repeated mixed compound", () => {
     for (const query of ['"support-response" support-response', 'support-response "support-response"']) {
       const units = fullTextUnits(query);
-      expect(units).toEqual([{ text: "support-response", phrase: false, prefix: false, substring: false }]);
-      const sql = fullTextUnitsCte({ units, configs: ["english"], stopConfig: "english" });
+      expect(units).toEqual([
+        {
+          text: "support-response",
+          phrase: false,
+          prefix: false,
+          substring: false,
+        },
+      ]);
+      const sql = fullTextUnitsCte({
+        units,
+        configs: ["english"],
+        stopConfig: "english",
+      });
       expect(sql.values).not.toContain("support response");
     }
   });
 
   it("preserves quoted phrases and numeric or underscored identifiers", () => {
     for (const query of ['"Account Policies-Seite"', "OPS-1182", "list_records"]) {
-      const sql = fullTextUnitsCte({ units: fullTextUnits(query), configs: ["english"], stopConfig: "english" });
+      const sql = fullTextUnitsCte({
+        units: fullTextUnits(query),
+        configs: ["english"],
+        stopConfig: "english",
+      });
       expect(sql.values).not.toContain("policies seite");
       expect(sql.values).not.toContain("ops 1182");
       expect(sql.values).not.toContain("list records");
     }
+  });
+});
+
+describe("whole-section re-rank evidence budget", () => {
+  it("gives whole sections in rank order while the budget lasts and short excerpts to the rest", () => {
+    const allowances = rerankEvidenceAllowances([5_000, 5_000, 5_000, 5_000, 5_000, 300, 300], 20_000);
+    expect(allowances.slice(0, 3)).toEqual(["whole", "whole", "whole"]);
+    expect(allowances[3]).toBe(RETRIEVAL_RERANK_EXCERPT_CHARS);
+    expect(allowances.filter((allowance) => allowance === "whole")).toHaveLength(5);
+    expect(allowances[5]).toBe("whole");
+    expect(allowances[6]).toBe("whole");
+    const spent = allowances.reduce<number>(
+      (total, allowance, index) =>
+        total + (allowance === "whole" ? [5_000, 5_000, 5_000, 5_000, 5_000, 300, 300][index] : allowance),
+      0,
+    );
+    expect(spent).toBeLessThanOrEqual(20_000 + RETRIEVAL_RERANK_TAIL_CHARS);
+  });
+
+  it("reserves a short excerpt for every candidate behind an oversized one", () => {
+    const allowances = rerankEvidenceAllowances(Array.from({ length: 120 }, () => 900));
+    expect(allowances.every((allowance) => allowance === "whole" || allowance >= RETRIEVAL_RERANK_TAIL_CHARS)).toBe(
+      true,
+    );
+    expect(allowances.at(-1)).toBe(RETRIEVAL_RERANK_TAIL_CHARS);
+    expect(allowances[0]).toBe("whole");
   });
 });

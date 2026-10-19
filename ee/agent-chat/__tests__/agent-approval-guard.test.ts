@@ -34,6 +34,21 @@ describe("agent destructive approval guard", () => {
     ).toContain('"Lowell renewal 2026" was not found');
   });
 
+  it("reads the target name from the user's words, not from the page or selected context markup", () => {
+    const page = '<page_context route="/en/records/10000000-0000-4000-8000-000000000011"/>\n';
+    const selected = '<selected_context kind="record" typeId="10000000-0000-4000-8000-000000000011"/>\n';
+
+    expect(
+      approvalTargetRefusal(request, activity, ["Lowell renewal"], new Set(), `${page}Purge the trashed deal.`),
+    ).toBeNull();
+    expect(
+      approvalTargetRefusal(request, activity, ["Lowell renewal"], new Set(), `${page}${selected}Purge it.`),
+    ).toBeNull();
+    expect(
+      approvalTargetRefusal(request, activity, ["Lowell renewal"], new Set(), `${page}Purge "Lowell renewal 2026".`),
+    ).toContain('"Lowell renewal 2026" was not found');
+  });
+
   it("opens only one approval for repeat calls against the same target", () => {
     const seen = new Set<string>();
     expect(

@@ -13,28 +13,8 @@ const pin = (
 ) => ({ modelId, providerNativeModelId, provider, inferenceRegion });
 
 const PINNED = [
-  pin("google/gemini-3.5-flash-lite", "vertex", "eu"),
-  pin("google/gemini-3.5-flash", "vertex", "eu"),
-  pin("google/gemini-3.6-flash", "vertex", "eu"),
-  pin("google/gemini-3.8-flash", "vertex", "eu"),
-  pin("google/gemini-3.1-flash-lite", "vertex", "eu"),
-  pin("openai/gpt-5.6-luna", "azure", null),
-  pin("openai/gpt-5.6-terra", "azure", null),
-  pin("openai/gpt-5.6-sol", "azure", null),
-  pin("openai/gpt-5-nano", "azure", null),
-  pin("openai/gpt-5-mini", "azure", null),
-  pin("openai/gpt-5.4-mini", "azure", null),
-  pin("openai/gpt-5.4-nano", "azure", null),
-  pin("anthropic/claude-haiku-4.5", "bedrock", "eu"),
-  pin("anthropic/claude-sonnet-5", "bedrock", "eu"),
-  pin("anthropic/claude-opus-5", "bedrock", "eu"),
-  pin("deepseek/deepseek-v4-flash", "azure", null),
-  pin("deepseek/deepseek-v4-pro", "azure", null),
-  pin("zai/glm-5.3-flash", "baseten", null),
-  pin("zai/glm-5.3", "baseten", null),
-  pin("moonshotai/kimi-k2.7-code", "baseten", null),
-  pin("mistral/mistral-large-3", "mistral", null),
-  pin("alibaba/qwen3-coder-next", "bedrock", null),
+  pin("anthropic/claude-haiku-5.5", "vertexAnthropic", "eu"),
+  pin("anthropic/claude-sonnet-5.5", "vertexAnthropic", "eu"),
   pin("typesafe-ai/jev", "digitalocean", null),
 ];
 
@@ -47,6 +27,9 @@ type CatalogModel = {
 };
 
 const UNBILLED_WHEN_ABSENT = new Set(["input_cache_write"]);
+const ONE_HOUR_CACHE_WRITE_INPUT_MULTIPLE = 2n;
+
+type EndpointTier = { costUsdPerToken: string; minPromptTokens?: number; maxPromptTokens?: number };
 
 function tiers(pricing: CatalogPricing, baseKey: string, tierKey: string) {
   const tiered = pricing[tierKey];
@@ -64,6 +47,22 @@ function tiers(pricing: CatalogPricing, baseKey: string, tierKey: string) {
   if (baseKey === "input_cache_read") return tiers(pricing, "prompt", "prompt_tiers");
 
   throw new Error(`Model is unpriceable: missing ${baseKey}`);
+}
+
+function multipliedRate(rate: string, multiple: bigint) {
+  const [whole, fraction = ""] = rate.split(".");
+  const digits = (BigInt(`${whole}${fraction}`) * multiple).toString().padStart(fraction.length + 1, "0");
+  const decimals = digits.slice(digits.length - fraction.length).replace(/0+$/, "");
+  const integer = digits.slice(0, digits.length - fraction.length);
+  return decimals ? `${integer}.${decimals}` : integer;
+}
+
+function oneHourCacheWriteTiers(prompt: EndpointTier[], cacheWrite: EndpointTier[]) {
+  if (cacheWrite.every((tier) => Number(tier.costUsdPerToken) === 0)) return cacheWrite;
+  return prompt.map((tier) => ({
+    ...tier,
+    costUsdPerToken: multipliedRate(tier.costUsdPerToken, ONE_HOUR_CACHE_WRITE_INPUT_MULTIPLE),
+  }));
 }
 
 function pricingForRegion(pricing: CatalogModel["pricing"], region: string | null): CatalogPricing {
@@ -113,6 +112,8 @@ async function main() {
       ? pricingForRegion(catalogModel.pricing, pin.inferenceRegion)
       : (served.pricing as CatalogPricing);
 
+    const prompt = tiers(pricing, "prompt", "prompt_tiers");
+    const inputCacheWrite = tiers(pricing, "input_cache_write", "input_cache_write_tiers");
     endpoints.push({
       modelId: pin.modelId,
       providerNativeModelId: pin.providerNativeModelId,
@@ -122,10 +123,11 @@ async function main() {
       maxCompletionTokens: (served.max_completion_tokens as number | null) || null,
       requestUsd: (pricing.request as string) ?? "0",
       webSearchUsdPerThousandCalls: (pricing.web_search as string) ?? "0",
-      prompt: tiers(pricing, "prompt", "prompt_tiers"),
+      prompt,
       completion: tiers(pricing, "completion", "completion_tiers"),
       inputCacheRead: tiers(pricing, "input_cache_read", "input_cache_read_tiers"),
-      inputCacheWrite: tiers(pricing, "input_cache_write", "input_cache_write_tiers"),
+      inputCacheWrite,
+      inputCacheWrite1h: oneHourCacheWriteTiers(prompt, inputCacheWrite),
     });
   }
 

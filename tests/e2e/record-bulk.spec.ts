@@ -269,7 +269,7 @@ test("retains off-view selections, keeps visible rows, clears selection and clea
   }
   await expect(row("Other C").getByRole("cell").nth(discountColumn)).toHaveText("3.75");
   await expect(page).toHaveURL((url) => !url.searchParams.has("searchTerm"));
-  await expect(page.locator("#global-data-views-all")).not.toHaveAttribute("data-view-modified");
+  await expect(page.locator("#global-data-views-menu[data-view-modified]")).toHaveCount(0);
   await page.screenshot({ path: testInfo.outputPath("bulk-clear-off-view.png"), animations: "disabled" });
   await page.reload();
   await expect(page.getByRole("link", { name: "Selected A", exact: true })).toBeVisible();

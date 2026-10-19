@@ -6,7 +6,7 @@ import type { Locale, Theme } from "@/generated/prisma";
 
 import { makeObservable } from "mobx";
 import { action, observable } from "mobx";
-import { Action, CountryCode, Resource } from "@/generated/prisma";
+import { Action, Resource } from "@/generated/prisma";
 
 import { updatePreferencesAction } from "@/app/[locale]/(protected)/dashboard/actions";
 import { resendVerificationEmailFromAppAction } from "../actions";
@@ -105,7 +105,6 @@ export class UserStore extends BaseStore {
       this.rootStore.profileSettingsStore.onInitOrRefresh({
         firstName: normalizedUser.firstName,
         lastName: normalizedUser.lastName,
-        country: normalizedUser.country ?? CountryCode.de,
         avatarUrl: normalizedUser.avatarUrl,
         theme: normalizedUser.theme,
         displayLanguage: normalizedUser.displayLanguage,

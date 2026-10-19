@@ -1,5 +1,4 @@
 import { PermissionService } from "@/core/base/permission.service";
-import { InitializeRecordModelService } from "@/features/records/initialize-record-model.service";
 import { randomUUID } from "node:crypto";
 
 import { afterAll, describe, expect, it, vi } from "vitest";
@@ -123,13 +122,12 @@ const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
 
 describeDatabase("registration against a real database", () => {
-  it("creates membership infrastructure before the record template is initialized", async () => {
+  it("creates the company and its owner without a record model", async () => {
     const user = await runWithoutTenant(() =>
       createTestWorkspaceRegistration().createCompanyAndUser({
         email,
         firstName: "Real",
         lastName: "Check",
-        country: "de",
         agreeToTerms: true,
         avatarUrl: null,
       }),
@@ -149,6 +147,9 @@ describeDatabase("registration against a real database", () => {
     );
 
     expect(persistedUser).toEqual({ agreeToTerms: true });
+    expect(await runWithoutTenant(() => prisma.user.findUniqueOrThrow({ where: { id: user.id } }))).not.toHaveProperty(
+      "country",
+    );
   });
 
   it("stores one attribution row per provider transactionally and deletes them at each provider's expiry", async () => {
@@ -162,7 +163,6 @@ describeDatabase("registration against a real database", () => {
         email: `ad-click-${Date.now()}@example.com`,
         firstName: "Ad",
         lastName: "Click",
-        country: "de",
         agreeToTerms: true,
         avatarUrl: null,
         adAttribution: [
@@ -287,7 +287,6 @@ describeDatabase("registration against a real database", () => {
       eventService,
       unregisteredRouteGuardService(authUserId, registrationEmail) as never,
       new PrismaCompanyRepo(new PrismaBillingUsageRepo()),
-      new InitializeRecordModelService(createTestRecordRepo()),
       createTestWorkspaceRegistration(),
     );
 
@@ -296,7 +295,6 @@ describeDatabase("registration against a real database", () => {
         email: registrationEmail,
         firstName: "Legal",
         lastName: "Evidence",
-        country: "de",
         agreeToTerms: true,
         avatarUrl: null,
       },
@@ -316,18 +314,18 @@ describeDatabase("registration against a real database", () => {
     if (!tenantUser) throw new Error("The newly registered workspace owner is missing.");
     await runWithTenant(tenantUser, async () => {
       const records = createTestRecordRepo();
-      const seeded = await records.getModel();
-      expect(seeded.revision).toBe(1);
-      expect(seeded.types.filter((type) => !type.embedded)).toHaveLength(5);
-      expect(seeded.types.filter((type) => type.embedded)).toHaveLength(1);
-      expect(await records.countRecordsCompanyWide(seeded.types.map((type) => type.id))).toBe(0);
-      const edited = { ...seeded, revision: 2 };
-      edited.types[0].label = "Person";
-      edited.types[0].pluralLabel = "People";
-      await runInTransaction(() => records.saveModel(edited, user.id));
-      await new InitializeRecordModelService(records).initialize();
-      expect(await records.getModel()).toEqual(edited);
+      expect(await records.getState()).toBeNull();
+      expect(await records.getModel()).toMatchObject({
+        revision: 0,
+        types: [],
+        fields: [],
+        relationships: [],
+        capabilities: [],
+      });
     });
+    expect(
+      await runWithoutTenant(() => prisma.recordSchemaRevision.count({ where: { companyId: user.companyId } })),
+    ).toBe(0);
     expect(
       await runWithoutTenant(() =>
         prisma.authUser.findUniqueOrThrow({
@@ -419,7 +417,6 @@ describeDatabase("registration against a real database", () => {
         email: `invite-admin-${suffix}@example.com`,
         firstName: "Invite",
         lastName: "Admin",
-        country: "de",
         agreeToTerms: true,
         avatarUrl: null,
       }),
@@ -454,7 +451,6 @@ describeDatabase("registration against a real database", () => {
       eventService,
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(new PrismaBillingUsageRepo()),
-      new InitializeRecordModelService(createTestRecordRepo()),
       createTestWorkspaceRegistration(),
     );
 
@@ -463,7 +459,6 @@ describeDatabase("registration against a real database", () => {
         email: "forged-invited-email@example.com",
         firstName: "Invited",
         lastName: "Member",
-        country: "de",
         agreeToTerms: true,
         avatarUrl: null,
       },
@@ -502,7 +497,6 @@ describeDatabase("registration against a real database", () => {
         email: `cookie-admin-${suffix}@example.com`,
         firstName: "Cookie",
         lastName: "Admin",
-        country: "de",
         agreeToTerms: true,
         avatarUrl: null,
       }),
@@ -531,7 +525,6 @@ describeDatabase("registration against a real database", () => {
       newEventService(),
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(new PrismaBillingUsageRepo()),
-      new InitializeRecordModelService(createTestRecordRepo()),
       createTestWorkspaceRegistration(),
     );
 
@@ -540,7 +533,6 @@ describeDatabase("registration against a real database", () => {
         email: invitedEmail,
         firstName: "Cookie",
         lastName: "Member",
-        country: "de",
         agreeToTerms: true,
         avatarUrl: null,
       },
@@ -586,7 +578,6 @@ describeDatabase("registration against a real database", () => {
         email: `stale-admin-${suffix}@example.com`,
         firstName: "Stale",
         lastName: "Admin",
-        country: "de",
         agreeToTerms: true,
         avatarUrl: null,
       }),
@@ -624,7 +615,6 @@ describeDatabase("registration against a real database", () => {
       newEventService(),
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(new PrismaBillingUsageRepo()),
-      new InitializeRecordModelService(createTestRecordRepo()),
       createTestWorkspaceRegistration(),
     );
 
@@ -633,7 +623,6 @@ describeDatabase("registration against a real database", () => {
         email: invitedEmail,
         firstName: "Stale",
         lastName: "Member",
-        country: "de",
         agreeToTerms: true,
         avatarUrl: null,
       },
@@ -684,7 +673,6 @@ describeDatabase("registration against a real database", () => {
       newEventService(),
       unregisteredRouteGuardService(authUserId, registrationEmail) as never,
       new PrismaCompanyRepo(new PrismaBillingUsageRepo()),
-      new InitializeRecordModelService(createTestRecordRepo()),
       createTestWorkspaceRegistration(),
     );
 
@@ -694,7 +682,6 @@ describeDatabase("registration against a real database", () => {
           email: registrationEmail,
           firstName: "Deleted",
           lastName: "Invite",
-          country: "de",
           agreeToTerms: true,
           avatarUrl: null,
         },
@@ -736,7 +723,6 @@ describeDatabase("registration against a real database", () => {
       newEventService(),
       unregisteredRouteGuardService(authUserId, registrationEmail) as never,
       new PrismaCompanyRepo(new PrismaBillingUsageRepo()),
-      new InitializeRecordModelService(createTestRecordRepo()),
       createTestWorkspaceRegistration(),
     );
 
@@ -745,7 +731,6 @@ describeDatabase("registration against a real database", () => {
         email: registrationEmail,
         firstName: "No",
         lastName: "Decision",
-        country: "de",
         agreeToTerms: true,
         avatarUrl: null,
       },
@@ -764,7 +749,6 @@ describeDatabase("registration against a real database", () => {
         email: `deleted-identity-admin-${suffix}@example.com`,
         firstName: "Deleted Identity",
         lastName: "Admin",
-        country: "de",
         agreeToTerms: true,
         avatarUrl: null,
       }),
@@ -781,7 +765,6 @@ describeDatabase("registration against a real database", () => {
       newEventService(),
       unregisteredRouteGuardService(missingAuthUserId, registrationEmail) as never,
       new PrismaCompanyRepo(new PrismaBillingUsageRepo()),
-      new InitializeRecordModelService(createTestRecordRepo()),
       createTestWorkspaceRegistration(),
     );
 
@@ -790,7 +773,6 @@ describeDatabase("registration against a real database", () => {
         email: registrationEmail,
         firstName: "Deleted",
         lastName: "Identity",
-        country: "de",
         agreeToTerms: true,
         avatarUrl: null,
       },
@@ -809,7 +791,6 @@ describeDatabase("registration against a real database", () => {
         email: `older-admin-${suffix}@example.com`,
         firstName: "Older",
         lastName: "Admin",
-        country: "de",
         agreeToTerms: true,
         avatarUrl: null,
       }),
@@ -819,7 +800,6 @@ describeDatabase("registration against a real database", () => {
         email: `current-admin-${suffix}@example.com`,
         firstName: "Current",
         lastName: "Admin",
-        country: "de",
         agreeToTerms: true,
         avatarUrl: null,
       }),
@@ -848,7 +828,6 @@ describeDatabase("registration against a real database", () => {
       newEventService(),
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(new PrismaBillingUsageRepo()),
-      new InitializeRecordModelService(createTestRecordRepo()),
       createTestWorkspaceRegistration(),
     );
 
@@ -857,7 +836,6 @@ describeDatabase("registration against a real database", () => {
         email: invitedEmail,
         firstName: "Precedence",
         lastName: "Member",
-        country: "de",
         agreeToTerms: true,
         avatarUrl: null,
       },
@@ -936,7 +914,6 @@ describeDatabase("registration against a real database", () => {
       email: invitedEmail,
       firstName: "Duplicate",
       lastName: "Member",
-      country: "de" as const,
       agreeToTerms: true,
       avatarUrl: null,
     };
@@ -950,7 +927,6 @@ describeDatabase("registration against a real database", () => {
       newEventService(),
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(new PrismaBillingUsageRepo()),
-      new InitializeRecordModelService(createTestRecordRepo()),
       createTestWorkspaceRegistration(),
     ).invoke(registrationData, registrationTarget);
 
@@ -961,7 +937,6 @@ describeDatabase("registration against a real database", () => {
       newEventService(),
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(new PrismaBillingUsageRepo()),
-      new InitializeRecordModelService(createTestRecordRepo()),
       createTestWorkspaceRegistration(),
     ).invoke(registrationData, registrationTarget);
 
@@ -1004,7 +979,6 @@ describeDatabase("registration against a real database", () => {
         email: `race-source-${suffix}@race-source.invalid`,
         firstName: "Race",
         lastName: "Source",
-        country: "de",
         agreeToTerms: true,
         avatarUrl: null,
       }),
@@ -1014,7 +988,6 @@ describeDatabase("registration against a real database", () => {
         email: `race-target-${suffix}@race-target.invalid`,
         firstName: "Race",
         lastName: "Target",
-        country: "de",
         agreeToTerms: true,
         avatarUrl: null,
       }),
@@ -1068,14 +1041,12 @@ describeDatabase("registration against a real database", () => {
       newEventService(),
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(new PrismaBillingUsageRepo()),
-      new InitializeRecordModelService(createTestRecordRepo()),
       createTestWorkspaceRegistration(),
     ).invoke(
       {
         email: invitedEmail,
         firstName: "Race",
         lastName: "Member",
-        country: "de",
         agreeToTerms: true,
         avatarUrl: null,
       },
@@ -1149,7 +1120,6 @@ describeDatabase("registration against a real database", () => {
         email: `legal-admin-${suffix}@example.com`,
         firstName: "Legal",
         lastName: "Admin",
-        country: "de",
         agreeToTerms: true,
         avatarUrl: null,
       }),
@@ -1160,7 +1130,6 @@ describeDatabase("registration against a real database", () => {
         email: `legal-member-${suffix}@example.com`,
         firstName: "Legal",
         lastName: "Member",
-        country: "de",
         agreeToTerms: false,
         avatarUrl: null,
         companyId: admin.companyId,
@@ -1285,7 +1254,6 @@ describeDatabase("registration against a real database", () => {
       eventService,
       unregisteredRouteGuardService(authUserId, rollbackEmail) as never,
       new PrismaCompanyRepo(new PrismaBillingUsageRepo()),
-      new InitializeRecordModelService(createTestRecordRepo()),
       createTestWorkspaceRegistration(),
     );
 
@@ -1295,7 +1263,6 @@ describeDatabase("registration against a real database", () => {
           email: rollbackEmail,
           firstName: "Rollback",
           lastName: "Check",
-          country: "de",
           agreeToTerms: true,
           avatarUrl: null,
         },
@@ -1349,14 +1316,12 @@ describeDatabase("registration against a real database", () => {
       newEventService(),
       unregisteredRouteGuardService(authUserId, ownerEmail) as never,
       new PrismaCompanyRepo(new PrismaBillingUsageRepo()),
-      new InitializeRecordModelService(createTestRecordRepo()),
       createTestWorkspaceRegistration(),
     );
     const profile = {
       email: ownerEmail,
       firstName: "Named",
       lastName: "Owner",
-      country: "de" as const,
       agreeToTerms: true,
       avatarUrl: null,
     };

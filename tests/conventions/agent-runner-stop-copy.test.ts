@@ -49,7 +49,7 @@ describe("agent runner stop copy", () => {
     for (const locale of APP_LOCALES) {
       const copy = runnerCopy(locale);
       for (const key of ["runCreditLimit", "runCreditLimitNoWrite"]) {
-        expect(copy[key], `${locale}.${key}`).toContain("{credits, number}");
+        expect(copy[key], `${locale}.${key}`).toContain("{share, number, percent}");
         expect(copy[key], `${locale}.${key}`).not.toMatch(periodCredits);
       }
     }

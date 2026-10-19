@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import type { SectionRanker, SectionRanking } from "@/core/retrieval/retrieval-context";
 import type { DocsLocale, DocsSource } from "./docs-manifest";
 
-const DOCS_RANKING_CACHE_SIZE = 64;
+export const DOCS_RANKING_CACHE_SIZE = 256;
 const rankings = new WeakMap<SectionRanker, Map<string, SectionRanking>>();
 
 export function stableDocsRanker(args: {

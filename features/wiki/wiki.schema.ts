@@ -15,7 +15,11 @@ export type WikiPageKind = Data<typeof WikiPageKindSchema>;
 
 export function wikiPageKindFields(page: { kind?: WikiPageKind; whenToUse?: string | null; markdown: string }) {
   const kind = page.kind ?? "knowledge";
-  return { kind, whenToUse: kind === "procedure" ? (page.whenToUse ?? null) : null, markdown: page.markdown };
+  return {
+    kind,
+    whenToUse: kind === "procedure" ? (page.whenToUse ?? null) : null,
+    markdown: page.markdown,
+  };
 }
 
 const WIKI_PROCEDURE_STEP = /^[ \t]*\d+[.)][ \t]/mu;
@@ -85,6 +89,7 @@ const WikiCatalogItemSchema = WikiPageSummarySchema.pick({
   updatedAt: true,
 }).extend({
   excerpt: z.string().max(200),
+  summary: z.string().max(160).optional(),
   url: z.string(),
 });
 export const WIKI_GUIDE_CONTEXT_MAX_BYTES = 2_400;
@@ -101,6 +106,7 @@ const WikiCatalogProcedureSchema = z.object({
   title: z.string(),
   url: z.string(),
   whenToUse: z.string(),
+  summary: z.string().max(160).optional(),
 });
 export const WikiCatalogSchema = z.object({
   guide: WikiCatalogGuideSchema.nullable().optional(),
@@ -155,7 +161,9 @@ const WikiPagePaginationSchema = z.object({
   pageSize: z.union([z.literal(5), z.literal(10), z.literal(25), z.literal(100)]).default(25),
 });
 
-export const WikiPageListSchema = WikiPagePaginationSchema.extend({ kind: WikiPageKindSchema.optional() });
+export const WikiPageListSchema = WikiPagePaginationSchema.extend({
+  kind: WikiPageKindSchema.optional(),
+});
 export type WikiPageListData = Data<typeof WikiPageListSchema>;
 
 export const WikiPageSearchSchema = WikiPagePaginationSchema.extend({
@@ -180,5 +188,20 @@ export const WikiPageSearchResultSchema = z.object({
   pageSize: z.number().int().min(1),
   didYouMean: z.array(z.string()).optional(),
   retrieval: z.enum(["semantic", "keyword"]).optional(),
+  abstained: z.boolean().optional(),
+  incomplete: z.boolean().optional(),
 });
 export type WikiPageSearchResult = Data<typeof WikiPageSearchResultSchema>;
+
+export const WikiKnowledgeGapSchema = z.object({
+  query: z.string().min(1).max(200),
+  count: z.number().int().min(1),
+  firstSeenAt: z.date(),
+  lastSeenAt: z.date(),
+});
+export type WikiKnowledgeGap = Data<typeof WikiKnowledgeGapSchema>;
+
+export const WikiKnowledgeGapListSchema = z.object({
+  items: z.array(WikiKnowledgeGapSchema),
+});
+export type WikiKnowledgeGapList = Data<typeof WikiKnowledgeGapListSchema>;

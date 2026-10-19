@@ -743,7 +743,7 @@ describe("the transform on the wire", () => {
     expect(source).toContain("surface,");
     expect(source).toContain("servingProvider,");
     expect(source).toContain("...options,");
-    expect(source).toContain("loadAgentToolShells(surface, payload.turnBudget.servingProvider, {");
+    expect(source).toContain("agentToolShells(surface, payload.turnBudget.servingProvider, options)");
     expect(source).not.toContain("getAgentAiToolDefinitions()");
 
     const admission = readFileSync(join(REPO_ROOT, "ee", "agent-chat", "send-agent-message.interactor.ts"), "utf8");

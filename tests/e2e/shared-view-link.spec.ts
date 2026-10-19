@@ -56,7 +56,8 @@ async function openAsUnsavedChanges(page: Page, link: URL, name: string) {
   const proposed = page.locator("#global-data-views-proposed");
   await expect(proposed).toHaveText(new RegExp(name));
   await expect(proposed).toHaveAttribute("data-view-modified", "");
-  await expect(page.locator("#global-data-views-all")).not.toHaveAttribute("aria-current", "page");
+  await expect(proposed).toHaveAttribute("aria-current", "page");
+  await expect(page.locator('#global-data-views [data-focus-target^="view:"][aria-current="page"]')).toHaveCount(0);
   await expect(page).toHaveURL((url) => !url.searchParams.has("viewShare") && !url.searchParams.has("view"));
   await expect(page).toHaveURL((url) => url.searchParams.get("searchTerm") === "Shared");
   await expect(page).toHaveURL((url) => url.searchParams.get("pageSize") === "10");

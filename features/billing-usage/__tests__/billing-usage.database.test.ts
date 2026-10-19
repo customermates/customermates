@@ -368,7 +368,6 @@ describeDatabase("billing usage ledger", { timeout: 120_000 }, () => {
         lastName: "Probe",
         status: "inactive",
         avatarUrl: null,
-        country: "de",
         roleId,
       }),
     );

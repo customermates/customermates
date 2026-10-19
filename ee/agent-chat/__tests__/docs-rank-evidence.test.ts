@@ -173,7 +173,9 @@ describe("bounded classifier evidence", () => {
       locale: "en",
     });
     expect(excerpt).toContain("Stage and status are Single choice fields.");
-    expect(excerpt).toContain("To edit the stages or their probabilities, open the field in Configure for Deals");
+    expect(excerpt).toContain(
+      "To edit the stages or their probabilities, open the field on the configure page of the list in Configure",
+    );
     expect(excerpt.length).toBeLessThanOrEqual(374);
   });
 
@@ -583,7 +585,7 @@ describe("bounded classifier evidence", () => {
       "app-onboarding",
       "what-are-the-three-steps",
       "link to the onboarding wizard",
-      "has four steps, shown as You, Knowledge, Team and AI tools.",
+      "has four steps, shown as You, Workspace, Team and AI tools.",
     ],
     [
       "webhooks",

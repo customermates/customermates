@@ -18,7 +18,7 @@ test("resolves a protected task through member approval and rejects ordinary rec
     companyId,
   ]);
   await database.query(
-    'INSERT INTO "User" (id,"companyId","roleId",email,"firstName","lastName",status,country,"updatedAt") VALUES ($1,$2,$3,$4,\'Invited\',\'Member\',\'pendingAuthorization\',\'de\',NOW())',
+    'INSERT INTO "User" (id,"companyId","roleId",email,"firstName","lastName",status,"updatedAt") VALUES ($1,$2,$3,$4,\'Invited\',\'Member\',\'pendingAuthorization\',NOW())',
     [memberId, companyId, roleId, `${memberId}@example.test`],
   );
   await database.query(

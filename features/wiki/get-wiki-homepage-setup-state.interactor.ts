@@ -1,6 +1,7 @@
 import type { GetWikiWebsiteCrawlStateRepo } from "./get-wiki-website-crawl-state.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { GetWikiPagesRepo } from "@/features/wiki/get-wiki-pages.repo";
+import type { GetSetupKnowledgeProgressRepo } from "./get-setup-knowledge-progress.repo";
 import type { WikiCrawlTargetProgress, WikiSynthesisTopicProgress } from "./wiki-crawl-progress.schema";
 
 import { z } from "zod";
@@ -14,7 +15,7 @@ import { WikiPageSummarySchema } from "./wiki.schema";
 import { WikiCrawlTargetProgressSchema, WikiSynthesisTopicProgressSchema } from "./wiki-crawl-progress.schema";
 
 const WikiCrawlPhaseSchema = z.enum(["queued", "discovering", "fetching", "importing", "synthesizing"]);
-const WikiSetupFailureReasonSchema = z.enum(["blocked", "unavailable", "credits", "synthesis"]);
+const WikiSetupFailureReasonSchema = z.enum(["blocked", "unavailable", "credits", "aiUnavailable", "synthesis"]);
 export type WikiSetupFailureReason = Data<typeof WikiSetupFailureReasonSchema>;
 
 export const WikiHomepageSetupStateSchema = z.object({
@@ -85,16 +86,32 @@ export class GetWikiHomepageSetupStateInteractor extends AuthenticatedInteractor
   constructor(
     private pageRepo: GetWikiPagesRepo,
     private crawlRepo: GetWikiWebsiteCrawlStateRepo,
+    private setupKnowledge: GetSetupKnowledgeProgressRepo,
   ) {
     super();
   }
 
   @ValidateOutput(WikiHomepageSetupStateSchema)
   async invoke(): Validated<WikiHomepageSetupState> {
-    const [crawl, { items: pages, total: pageCount }] = await Promise.all([
+    const [crawl, { items: pages, total: pageCount }, setupTopics] = await Promise.all([
       this.crawlRepo.findLatestCrawl(),
       this.pageRepo.listPages({ page: 1, pageSize: 5 }),
+      this.setupKnowledge.findSetupKnowledgeProgress(),
     ]);
+    if (setupTopics) {
+      return {
+        ok: true as const,
+        data: {
+          status: "working",
+          crawlPhase: "synthesizing",
+          homepage: null,
+          domain: null,
+          pages,
+          pageCount,
+          progress: { fetched: 0, total: 0, topics: setupTopics },
+        },
+      };
+    }
     if (!crawl) {
       return {
         ok: true as const,

@@ -283,6 +283,7 @@ describe("GlobalSearchModal highlighted hit", () => {
       companyId: "30000000-0000-4000-8000-000000000009",
       schemaRevision: 1,
       canManageSchema: false,
+      hasLists: true,
       types: [{ id: deals, label: "Deal", pluralLabel: "Deals", icon: "handshake", canCreate: false, hasAuthorizationTasks: false }],
     };
     const store = await openWith([]);
@@ -315,6 +316,7 @@ describe("GlobalSearchModal highlighted hit", () => {
       companyId: "30000000-0000-4000-8000-000000000009",
       schemaRevision: 1,
       canManageSchema: false,
+      hasLists: false,
       types: [],
     };
     const store = await openWith([]);

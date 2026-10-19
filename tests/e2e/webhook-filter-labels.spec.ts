@@ -29,11 +29,11 @@ test("saved webhook delivery filters resolve subscriptions beyond the first opti
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/en/settings/webhook-deliveries");
   await choosePaletteValue(page, "settings-webhook-deliveries-filter", "webhookId", urls[0]);
-  await expect(page.locator("#global-data-views-all")).toHaveAttribute("data-view-modified", "");
+  await expect(page.locator("#global-data-views-menu")).toHaveAttribute("data-view-modified", "");
   await page.locator("#settings-webhook-deliveries-filter").click();
   await page.locator("#settings-webhook-deliveries-filter-save").click();
   await page.keyboard.press("Escape");
-  await expect(page.locator("#global-data-views-all")).not.toHaveAttribute("data-view-modified");
+  await expect(page.locator("#global-data-views-menu[data-view-modified]")).toHaveCount(0);
 
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 });

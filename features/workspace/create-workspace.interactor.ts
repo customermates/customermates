@@ -2,7 +2,6 @@ import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { AuthService } from "@/features/auth/auth.service";
 import type { EventService } from "@/features/event/event.service";
 import type { RouteGuardService } from "@/features/auth/route-guard.service";
-import type { InitializeRecordModelService } from "@/features/records/initialize-record-model.service";
 import type { WorkspaceRegistrationService } from "@/features/user/register/workspace-registration.service";
 import type { MembershipProfile, WorkspaceMembershipRepo } from "./workspace-membership.repo";
 
@@ -45,7 +44,6 @@ export class CreateWorkspaceInteractor {
     private readonly routeGuardService: RouteGuardService,
     private readonly repo: WorkspaceMembershipRepo,
     private readonly registration: Pick<WorkspaceRegistrationService, "createCompanyAndUser">,
-    private readonly recordModel: Pick<InitializeRecordModelService, "initialize">,
     private readonly eventService: EventService,
   ) {}
 
@@ -90,7 +88,6 @@ export class CreateWorkspaceInteractor {
       email: login.email,
       firstName: profile.firstName,
       lastName: profile.lastName,
-      country: profile.country,
       avatarUrl: profile.avatarUrl,
       agreeToTerms: data.agreeToTerms,
       workspace: { name: data.name, createdByAuthUserId: login.authUserId, trial },
@@ -103,7 +100,6 @@ export class CreateWorkspaceInteractor {
     await this.repo.setLastUsedCompanyUnscoped(login.authUserId, owner.companyId);
 
     await runWithTenant(owner, async () => {
-      await this.recordModel.initialize();
       if (env.APP_MODE === "cloud") {
         await this.eventService.publish(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, {
           entityId: owner.companyId,
@@ -120,7 +116,6 @@ export class CreateWorkspaceInteractor {
           email: owner.email,
           firstName: owner.firstName,
           lastName: owner.lastName,
-          country: owner.country,
           status: owner.status,
           avatarUrl: owner.avatarUrl,
           roleId: owner.roleId,
