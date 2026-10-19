@@ -9,14 +9,12 @@ import { FormLabel } from "./form-label";
 import { cn } from "@/core/utils/cn";
 
 import { useAppForm } from "./form-context";
-import { FormFieldError } from "./form-field-error";
 import { useFormFieldErrors } from "./use-form-field";
 
 type Props = {
   id: string;
   inputId?: string;
   label?: ReactNode;
-  errorMessage?: ReactNode;
   required?: boolean;
   disabled?: boolean;
   className?: string;
@@ -24,7 +22,7 @@ type Props = {
 };
 
 export const FormCheckbox = observer(
-  ({ id, inputId, label, errorMessage, required, disabled, className, containerClassName }: Props) => {
+  ({ id, inputId, label, required, disabled, className, containerClassName }: Props) => {
     const store = useAppForm();
     const checked = Boolean(store?.getValue(id));
     const { message, hasError } = useFormFieldErrors(id);
@@ -32,7 +30,6 @@ export const FormCheckbox = observer(
     const isReadOnly = !isDisabled && (store?.isReadOnly ?? false);
     const errorId = `${id}-error`;
     const domId = inputId ?? id;
-    const resolvedErrorMessage = errorMessage ?? message;
 
     return (
       <div className={cn("space-y-1.5", containerClassName)}>
@@ -60,7 +57,11 @@ export const FormCheckbox = observer(
           )}
         </div>
 
-        {hasError && resolvedErrorMessage ? <FormFieldError id={errorId}>{resolvedErrorMessage}</FormFieldError> : null}
+        {hasError && message ? (
+          <span className="sr-only" id={errorId}>
+            {message}
+          </span>
+        ) : null}
       </div>
     );
   },
