@@ -850,6 +850,7 @@ describeDatabase("contact details migration", { timeout: 240000 }, () => {
         fields.billing = emailField(id("organization"), "Billing email", 40);
         fields.dealEmail = emailField(id("deal"), "Contact email", 40);
         fields.oldEmail = emailField(id("task"), "Old email", 40, { archived: true });
+        fields.notifyEmail = emailField(id("service"), "Notify email", 40);
         model.fields.push(...Object.values(fields));
       },
       { language: "de", channelsLabel: "Kanäle" },
@@ -867,6 +868,16 @@ describeDatabase("contact details migration", { timeout: 240000 }, () => {
     await a.record(id("organization"), { [fields.billing.id]: "billing at acme" });
     await a.record(id("organization"), { [fields.billing.id]: "billing@acme.test" });
     await a.record(id("task"), { [fields.oldEmail.id]: "old@example.test" });
+    await a.record(id("service"), { [fields.notifyEmail.id]: "notify@example.test" });
+    await client.query(
+      'INSERT INTO "Webhook" (id, url, "companyId", "bodyTemplate", "updatedAt") VALUES ($1, $2, $3, $4, now())',
+      [
+        randomUUID(),
+        "https://hooks.example.invalid/notify",
+        companyId,
+        `{"to":"{{data.fields.${fields.notifyEmail.id}}}"}`,
+      ],
+    );
 
     const gmail = randomUUID();
     await client.query(
@@ -937,6 +948,7 @@ describeDatabase("contact details migration", { timeout: 240000 }, () => {
             [fields.billing, "values that are not email addresses", 2],
             [fields.dealEmail, null, 1],
             [fields.oldEmail, "field in Trash", 1],
+            [fields.notifyEmail, "used by a routine or webhook", 1],
           ] as const
         ).map(([field, reason, count]) => ({
           company_id: companyId,
@@ -952,7 +964,7 @@ describeDatabase("contact details migration", { timeout: 240000 }, () => {
       `Email field ${fields.billing.id} of list ${fields.billing.typeId} in workspace ${companyId} stays a text field: values that are not email addresses`,
     );
     expect(notices).toContain(
-      "Email fields: 3 moved into contact details with 4 addresses on 4 records, 2 kept as text",
+      "Email fields: 3 moved into contact details with 4 addresses on 4 records, 3 kept as text",
     );
     expect(notices).toContain("Contact details fields: 1 new, 1 renamed from a former default name");
 
@@ -966,7 +978,7 @@ describeDatabase("contact details migration", { timeout: 240000 }, () => {
       expect(model.fields.some((field) => field.id === moved.id)).toBe(false);
       expect(await rows(client, 'SELECT 1 FROM "RecordValue" WHERE "fieldId" = $1', [moved.id])).toEqual([]);
     }
-    for (const kept of [fields.billing, fields.oldEmail])
+    for (const kept of [fields.billing, fields.oldEmail, fields.notifyEmail])
       expect(model.fields.find((field) => field.id === kept.id)).toMatchObject({ valueType: "text" });
     expect(
       (

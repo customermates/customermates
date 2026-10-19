@@ -78,7 +78,7 @@ its click action. The reason is the first that applies:
 | name field of the list | It names the list's records. |
 | used by a calculation | A calculation (also one in Trash) or a snapshot trigger uses it. |
 | used by a binding | A capability binding uses it. |
-| used by a routine or webhook | A record trigger of a routine or webhook uses it. |
+| used by a routine or webhook | A record trigger of a routine or webhook uses it, or a webhook's body template names its id. |
 | contact details field in Trash | The list's contact details field is in Trash, and a list has at most one. |
 | values that are not phone numbers | A stored value of a phone field is not an E.164 number. |
 | values that are not email addresses | A stored value of an email field is not an email address the app accepts. |
@@ -159,6 +159,10 @@ SELECT contact.company_id, contact.field ->> 'typeId' AS list_id, contact.field 
       SELECT 1 FROM "Routine" routine
       WHERE routine."companyId" = contact.company_id
         AND routine."triggerFilters"::text LIKE '%' || (contact.field ->> 'id') || '%'
+    ) OR EXISTS (
+      SELECT 1 FROM "Webhook" webhook
+      WHERE webhook."companyId" = contact.company_id
+        AND webhook."bodyTemplate" LIKE '%' || (contact.field ->> 'id') || '%'
     ) THEN 'used by a routine or webhook'
     WHEN EXISTS (
       SELECT 1 FROM jsonb_array_elements(contact.snapshot -> 'fields') AS other(value)

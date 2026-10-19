@@ -616,6 +616,9 @@ BEGIN
         SELECT 1 FROM "Routine" routine
         WHERE routine."companyId" = v_company
           AND pg_temp.contact_details_mentions(routine."triggerFilters", ARRAY[field.value ->> 'id'])
+      ) OR EXISTS (
+        SELECT 1 FROM "Webhook" webhook
+        WHERE webhook."companyId" = v_company AND webhook."bodyTemplate" LIKE '%' || (field.value ->> 'id') || '%'
       ) THEN 'used by a routine or webhook'
       WHEN EXISTS (
         SELECT 1 FROM jsonb_array_elements(v_model -> 'fields') AS other(value)
