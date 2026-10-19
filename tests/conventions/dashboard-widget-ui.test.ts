@@ -84,6 +84,9 @@ describe("generic dashboard widget UI", () => {
     const panel = read("features/messaging/activities/record-activities-panel.tsx");
     expect(card).toContain("<ActivityTimelineSkeleton />");
     expect(card).toContain("<ActivityTimelineSkeleton animated={false}");
+    // The card header already names the widget, so the empty state's heading says why there is nothing to show.
+    expect(card).toContain("title={t(`Dashboard.activityWidget.${state}`)}");
+    expect(card).not.toContain("title={widget.name}");
     expect(panel).toContain("ActivityTimelineSkeleton");
     expect(panel).toContain("TimelineEmptyState");
     expect(panel).toContain('t("ErrorCard.retry")');

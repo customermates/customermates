@@ -106,10 +106,9 @@ export const RecordActivityWidgetCard = observer(
             <PageState
               background={<ActivityTimelineSkeleton animated={false} rows={4} />}
               className="min-h-40"
-              description={t(`Dashboard.activityWidget.${state}`)}
               icon={Clock}
               state="empty"
-              title={widget.name}
+              title={t(`Dashboard.activityWidget.${state}`)}
             />
           )}
         </AppCardBody>

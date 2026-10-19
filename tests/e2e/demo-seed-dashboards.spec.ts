@@ -16,7 +16,11 @@ type SeededWidget = {
   kind: string;
   displayType: string | null;
   calendarLayout: string | null;
+  activitySources: string[];
 };
+
+/** Messages, meetings and calendar events come from connected accounts, which only the cloud service offers. */
+const ACCOUNT_ACTIVITY_KINDS = new Set(["message", "activity", "calendar_event"]);
 
 for (const dashboard of DEMO_DASHBOARDS) {
   test(`the ${dashboard.name} dashboard renders every seeded widget with data`, async ({
@@ -26,7 +30,9 @@ for (const dashboard of DEMO_DASHBOARDS) {
   }, testInfo) => {
     const { rows: widgets } = await database.query<SeededWidget>(
       `SELECT id, name, kind::text AS kind, "displayOptions"->>'displayType' AS "displayType",
-       "calendarQuery"->>'layout' AS "calendarLayout" FROM "Widget"
+       "calendarQuery"->>'layout' AS "calendarLayout",
+       ARRAY(SELECT jsonb_array_elements_text(f->'values') FROM jsonb_array_elements("activityQuery"->'filters') f
+       WHERE f->>'kind' = 'source') AS "activitySources" FROM "Widget"
        WHERE "companyId"=$1 AND "userId"=$2 AND id LIKE '15000000-%' AND "viewId" IS NOT DISTINCT FROM $3
        AND "deletedAt" IS NULL ORDER BY id`,
       [DEMO_COMPANY_ID, DEMO_MEMBERS.maxBergmann.userId, dashboard.id],
@@ -58,6 +64,16 @@ for (const dashboard of DEMO_DASHBOARDS) {
         ),
       ).toHaveCount(0);
       await expect(card.locator('[data-slot="widget-empty"]')).toHaveCount(0);
+      if (
+        widget.kind === "activityTimeline" &&
+        process.env.APP_MODE === "self-hosted" &&
+        widget.activitySources.length > 0 &&
+        widget.activitySources.every((kind) => ACCOUNT_ACTIVITY_KINDS.has(kind))
+      ) {
+        // Self-hosted installations have no messaging, so a timeline of only account activity stays empty.
+        await expect(card.getByRole("heading", { name: /You do not have access to any activity/ })).toBeVisible();
+        continue;
+      }
       if (widget.kind === "activityTimeline") {
         // The count reads "0 activities" until the timeline loaded.
         await expect(
