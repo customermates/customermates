@@ -4,7 +4,6 @@ import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 
 import { chooseWorkspaceAction } from "./actions";
-import { SignedInIdentity } from "./signed-in-identity";
 
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -44,11 +43,10 @@ function WorkspaceChoice({ choice, description, isPending, note, title }: Choice
 }
 
 type Props = {
-  email: string;
   trialDays: number | null;
 };
 
-export function OnboardingChoiceCard({ email, trialDays }: Props) {
+export function OnboardingChoiceCard({ trialDays }: Props) {
   const t = useTranslations();
   const { appMode } = useRootStore();
   const [, formAction, isPending] = useActionState(chooseWorkspaceAction, null);
@@ -58,8 +56,6 @@ export function OnboardingChoiceCard({ email, trialDays }: Props) {
       <CardHeroHeader alt="" subtitle={t("OnboardingChoice.subtitle")} title={t("OnboardingChoice.title")} />
 
       <AppCardBody className="gap-5 pt-2">
-        <SignedInIdentity className="mx-auto w-fit max-w-full" email={email} />
-
         <form action={formAction} aria-busy={isPending}>
           <div
             aria-label={t("OnboardingChoice.optionsLabel")}
