@@ -251,7 +251,9 @@ export interface RecordRepo {
   reassignTrashedRecordsCompanyWide(refs: RecordRef[], trashItemId: string): Promise<void>;
   restoreRecords(refs: RecordRef[]): Promise<void>;
   restoreLink(relationId: string, id: string): Promise<void>;
+  restoreLinks(links: Array<{ relationId: string; id: string }>): Promise<void>;
   dropTrashedLink(relationId: string, id: string): Promise<void>;
+  dropTrashedLinks(links: Array<{ relationId: string; id: string }>): Promise<void>;
   removeTrashItems(ids: string[]): Promise<void>;
   purgeTrashItems(ids: string[]): Promise<RecordRef[]>;
   countTrashedRecordsCompanyWide(

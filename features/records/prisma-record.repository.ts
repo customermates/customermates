@@ -1526,6 +1526,24 @@ export class PrismaRecordRepo
     });
   }
 
+  async restoreLinks(links: Array<{ relationId: string; id: string }>): Promise<void> {
+    for (let offset = 0; offset < links.length; offset += BULK_WRITE_CHUNK) {
+      const chunk = links.slice(offset, offset + BULK_WRITE_CHUNK);
+      await this.prisma.$executeRaw(Prisma.sql`UPDATE "RecordLink" link SET "deletedAt" = NULL
+        WHERE link."companyId" = ${this.companyId}
+          AND (link."relationId", link.id) IN (SELECT * FROM unnest(${chunk.map((entry) => entry.relationId)}::text[], ${chunk.map((entry) => entry.id)}::text[]))`);
+    }
+  }
+
+  async dropTrashedLinks(links: Array<{ relationId: string; id: string }>): Promise<void> {
+    for (let offset = 0; offset < links.length; offset += BULK_WRITE_CHUNK) {
+      const chunk = links.slice(offset, offset + BULK_WRITE_CHUNK);
+      await this.prisma.$executeRaw(Prisma.sql`DELETE FROM "RecordLink" link
+        WHERE link."companyId" = ${this.companyId} AND link."deletedAt" IS NOT NULL
+          AND (link."relationId", link.id) IN (SELECT * FROM unnest(${chunk.map((entry) => entry.relationId)}::text[], ${chunk.map((entry) => entry.id)}::text[]))`);
+    }
+  }
+
   async removeTrashItems(ids: string[]): Promise<void> {
     await this.owners.trash.removeItemsCompanyWide(this.companyId, ids);
   }
