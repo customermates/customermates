@@ -11,7 +11,7 @@ import type { RecordMutation } from "../record-query.schema";
 import type { RecordRepo } from "../record.repo";
 import type { TenantUser } from "@/features/user/user.schema";
 
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { afterAll, describe, expect, it, vi } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
@@ -193,6 +193,7 @@ function extendModel(model: RecordModel, id: (key: string) => string) {
 
 async function fixture(companyId?: string) {
   const seed = await runWithoutTenant(async () => {
+    if (companyId) await prisma.company.deleteMany({ where: { id: companyId } });
     const company = await prisma.company.create({ data: companyId ? { id: companyId } : {} });
     companies.push(company.id);
     const adminRole = await prisma.userRole.create({
@@ -1730,56 +1731,45 @@ async function calculationSnapshot(f: Fixture) {
   };
 }
 
-type CalculationSnapshot = Awaited<ReturnType<typeof calculationSnapshot>>;
+const READABLE_VALUES = [
+  ".organization.pipeline ",
+  ".organization.quantity ",
+  ".organization.dealSum ",
+  ".service.quantitySold ",
+];
 
-async function compareWithReference(
+async function calculationSteps(
+  companyId: string,
   scenario: (f: Fixture, step: (label: string, task: () => Promise<unknown>) => Promise<void>) => Promise<void>,
 ) {
-  const timings: Record<string, Record<string, number>> = {};
-  const typeOrder = (companyId: string) =>
-    createCrmPreset(companyId)
-      .types.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
-      .map((type) => type.label)
-      .join();
-  const referenceId = randomUUID();
-  let batchedId = randomUUID();
-  while (typeOrder(batchedId) !== typeOrder(referenceId)) batchedId = randomUUID();
-  const run = async (batching: boolean) => {
-    const mode = batching ? "batched" : "one record at a time";
-    timings[mode] = {};
-    const snapshots: Array<[string, CalculationSnapshot]> = [];
-    const f = await fixture(batching ? batchedId : referenceId);
-    await scenario(f, async (label, task) => {
-      RecordCalculationService.batching = batching;
-      const started = performance.now();
-      try {
-        await task();
-      } finally {
-        timings[mode][label] = Math.round(performance.now() - started);
-        RecordCalculationService.batching = true;
-      }
-      snapshots.push([label, await calculationSnapshot(f)]);
+  const digest = (rows: string[]) =>
+    `${rows.length} ${createHash("sha256").update(rows.join("\n")).digest("hex").slice(0, 16)}`;
+  const steps: Array<{
+    label: string;
+    records: string;
+    values: string;
+    dependencies: string;
+    events: string;
+    readable: string[];
+  }> = [];
+  const f = await fixture(companyId);
+  await scenario(f, async (label, task) => {
+    await task();
+    const snapshot = await calculationSnapshot(f);
+    steps.push({
+      label,
+      records: digest(snapshot.records),
+      values: digest(snapshot.values),
+      dependencies: digest(snapshot.dependencies),
+      events: digest(snapshot.events),
+      readable: snapshot.values.filter(
+        (row) =>
+          /^[^/]+\/(Acme|Service A|Service B) /.test(row) && READABLE_VALUES.some((field) => row.includes(field)),
+      ),
     });
-    expect(await f.inconsistencies()).toEqual([]);
-    return snapshots;
-  };
-  try {
-    if (process.env.CRM_CALCULATION_BATCHED_ONLY) return (await run(true)).at(-1)?.[1];
-    const reference = await run(false);
-    const batched = await run(true);
-    expect(batched.map(([label]) => label)).toEqual(reference.map(([label]) => label));
-    for (const [index, [label, snapshot]] of batched.entries()) {
-      const expected = reference[index][1];
-      for (const part of ["records", "values", "dependencies", "events"] as const)
-        expect({ label, part, rows: snapshot[part] }).toEqual({ label, part, rows: expected[part] });
-    }
-    return reference.at(-1)?.[1];
-  } finally {
-    RecordCalculationService.batching = true;
-    console.log(`[calculation timings ms] ${JSON.stringify(timings)}`);
-    const out = process.env.CRM_CALCULATION_BENCHMARK_OUT;
-    if (out) (await import("node:fs")).appendFileSync(out, `${JSON.stringify(timings)}\n`);
-  }
+  });
+  expect(await f.inconsistencies()).toEqual([]);
+  return steps;
 }
 
 async function settle(f: Fixture, mutation: RecordMutation) {
@@ -1806,12 +1796,176 @@ async function services(f: Fixture) {
   return [await create("Service A", "100"), await create("Service B", "40.5")];
 }
 
+const GOLDEN_BULK_UPDATE = [
+  {
+    label: "price of the service of 2,160 of 2,400 line items, rounded",
+    records: "2603 e9cdc3a28fa6cef5",
+    values: "14217 7180667bf50c489b",
+    dependencies: "142402 be52f95b9ca8bd0d",
+    events: "2365 1b9be2629bd77e00",
+    readable: [
+      'Organization/Acme Organization.organization.dealSum r1 {"state":"value","value":{"kind":"decimal","value":"7930","currency":null}}',
+      'Organization/Acme Organization.organization.pipeline r1 {"state":"value","value":{"kind":"decimal","value":"1105452.9","currency":"EUR"}}',
+      'Organization/Acme Organization.organization.quantity r1 {"state":"value","value":{"kind":"decimal","value":"9597","currency":null}}',
+      'Service/Service A Service.service.quantitySold r1 {"state":"value","value":{"kind":"decimal","value":"8640","currency":null}}',
+      'Service/Service B Service.service.quantitySold r1 {"state":"value","value":{"kind":"decimal","value":"957","currency":null}}',
+    ],
+  },
+];
+const GOLDEN_CHAINED = [
+  {
+    label: "quantity of one line item, chained up to the organization",
+    records: "143 afddf115da33174b",
+    values: "837 2a1155c605b84690",
+    dependencies: "2466 9eeb0803d103a0a5",
+    events: "7 73929d25d2448b8d",
+    readable: [
+      'Organization/Acme Organization.organization.dealSum r1 {"state":"value","value":{"kind":"decimal","value":"730","currency":null}}',
+      'Organization/Acme Organization.organization.pipeline r1 {"state":"value","value":{"kind":"decimal","value":"44717.8","currency":"EUR"}}',
+      'Organization/Acme Organization.organization.quantity r1 {"state":"value","value":{"kind":"decimal","value":"476.333","currency":null}}',
+      'Service/Service A Service.service.quantitySold r1 {"state":"value","value":{"kind":"decimal","value":"427.333","currency":null}}',
+      'Service/Service B Service.service.quantitySold r1 {"state":"value","value":{"kind":"decimal","value":"49","currency":null}}',
+    ],
+  },
+  {
+    label: "amount of a deal cleared, chained through lookups and a division",
+    records: "143 e6572548162b1c94",
+    values: "837 5aaabb12a83f14ac",
+    dependencies: "2466 9eeb0803d103a0a5",
+    events: "28 67a77579fd40ca03",
+    readable: [
+      'Organization/Acme Organization.organization.dealSum r1 {"state":"value","value":{"kind":"decimal","value":"700","currency":null}}',
+      'Organization/Acme Organization.organization.pipeline r1 {"state":"value","value":{"kind":"decimal","value":"44717.8","currency":"EUR"}}',
+      'Organization/Acme Organization.organization.quantity r1 {"state":"value","value":{"kind":"decimal","value":"476.333","currency":null}}',
+      'Service/Service A Service.service.quantitySold r1 {"state":"value","value":{"kind":"decimal","value":"427.333","currency":null}}',
+      'Service/Service B Service.service.quantitySold r1 {"state":"value","value":{"kind":"decimal","value":"49","currency":null}}',
+    ],
+  },
+  {
+    label: "a service of 12 line items moved to Trash",
+    records: "143 5fed9736beb83724",
+    values: "837 4a98ccde49083f7d",
+    dependencies: "2381 7741280d5626206c",
+    events: "54 ca5135a031f22d76",
+    readable: [
+      'Organization/Acme Organization.organization.dealSum r1 {"state":"value","value":{"kind":"decimal","value":"700","currency":null}}',
+      'Organization/Acme Organization.organization.pipeline r1 {"state":"value","value":{"kind":"decimal","value":"42733.3","currency":"EUR"}}',
+      'Organization/Acme Organization.organization.quantity r1 {"state":"value","value":{"kind":"decimal","value":"427.333","currency":null}}',
+      'Service/Service A Service.service.quantitySold r1 {"state":"value","value":{"kind":"decimal","value":"427.333","currency":null}}',
+      'Service/Service B Service.service.quantitySold r1 {"state":"value","value":{"kind":"decimal","value":"49","currency":null}}',
+    ],
+  },
+  {
+    label: "that service restored from Trash",
+    records: "143 4aa840d702474392",
+    values: "837 5aaabb12a83f14ac",
+    dependencies: "2466 9eeb0803d103a0a5",
+    events: "80 6dd237302f744b09",
+    readable: [
+      'Organization/Acme Organization.organization.dealSum r1 {"state":"value","value":{"kind":"decimal","value":"700","currency":null}}',
+      'Organization/Acme Organization.organization.pipeline r1 {"state":"value","value":{"kind":"decimal","value":"44717.8","currency":"EUR"}}',
+      'Organization/Acme Organization.organization.quantity r1 {"state":"value","value":{"kind":"decimal","value":"476.333","currency":null}}',
+      'Service/Service A Service.service.quantitySold r1 {"state":"value","value":{"kind":"decimal","value":"427.333","currency":null}}',
+      'Service/Service B Service.service.quantitySold r1 {"state":"value","value":{"kind":"decimal","value":"49","currency":null}}',
+    ],
+  },
+];
+const GOLDEN_RESTORE = [
+  {
+    label: "the deal and its 520 line items moved to Trash",
+    records: "540 e65a69b3d33de551",
+    values: "2735 e7e685c3d6b5e604",
+    dependencies: "2830 d2e29317a3fdbb03",
+    events: "537 8d11b284a1ec7056",
+    readable: [
+      'Organization/Acme Organization.organization.dealSum r1 {"state":"value","value":{"kind":"decimal","value":"60","currency":null}}',
+      'Organization/Acme Organization.organization.pipeline r1 {"state":"value","value":{"kind":"decimal","value":"4002.5","currency":"EUR"}}',
+      'Organization/Acme Organization.organization.quantity r1 {"state":"value","value":{"kind":"decimal","value":"43","currency":null}}',
+      'Service/Service A Service.service.quantitySold r1 {"state":"value","value":{"kind":"decimal","value":"38","currency":null}}',
+      'Service/Service B Service.service.quantitySold r1 {"state":"value","value":{"kind":"decimal","value":"5","currency":null}}',
+    ],
+  },
+  {
+    label: "the service of 104 of them deleted permanently meanwhile",
+    records: "537 6c0c1a69d7bd3b37",
+    values: "2721 57161ff0c70912cd",
+    dependencies: "2809 4bd2cbd86c27a485",
+    events: "546 654c7b5d7da42b21",
+    readable: [
+      'Organization/Acme Organization.organization.dealSum r1 {"state":"value","value":{"kind":"decimal","value":"60","currency":null}}',
+      'Organization/Acme Organization.organization.pipeline r1 {"state":"value","value":{"kind":"decimal","value":"3800","currency":"EUR"}}',
+      'Organization/Acme Organization.organization.quantity r1 {"state":"value","value":{"kind":"decimal","value":"38","currency":null}}',
+      'Service/Service A Service.service.quantitySold r1 {"state":"value","value":{"kind":"decimal","value":"38","currency":null}}',
+    ],
+  },
+  {
+    label: "the 521 records restored from Trash",
+    records: "537 f922eb37cb6ca054",
+    values: "2721 5f71d1c9eeb22663",
+    dependencies: "4074 51c8324ab8fe55fd",
+    events: "1475 4e2616c3ade9cb3b",
+    readable: [
+      'Organization/Acme Organization.organization.dealSum r1 {"state":"value","value":{"kind":"decimal","value":"65","currency":null}}',
+      'Organization/Acme Organization.organization.pipeline r1 {"state":"value","value":{"kind":"decimal","value":"45400","currency":"EUR"}}',
+      'Organization/Acme Organization.organization.quantity r1 {"state":"value","value":{"kind":"decimal","value":"558","currency":null}}',
+      'Service/Service A Service.service.quantitySold r1 {"state":"value","value":{"kind":"decimal","value":"454","currency":null}}',
+    ],
+  },
+  {
+    label: "price of the remaining service, rounded",
+    records: "537 177afbff01e3069d",
+    values: "2721 4e499ad9e86a88d7",
+    dependencies: "4074 51c8324ab8fe55fd",
+    events: "1476 6e022dab4124e649",
+    readable: [
+      'Organization/Acme Organization.organization.dealSum r1 {"state":"value","value":{"kind":"decimal","value":"65","currency":null}}',
+      'Organization/Acme Organization.organization.pipeline r1 {"state":"value","value":{"kind":"decimal","value":"45400","currency":"EUR"}}',
+      'Organization/Acme Organization.organization.quantity r1 {"state":"value","value":{"kind":"decimal","value":"558","currency":null}}',
+      'Service/Service A Service.service.quantitySold r1 {"state":"value","value":{"kind":"decimal","value":"454","currency":null}}',
+    ],
+  },
+];
+
 describeDatabase("batched recalculation", () => {
   const update = async (f: Fixture, ref: RecordRef, fieldId: string, value: RecordScalar | null) =>
     settle(f, { action: "update", ref, expectedVersion: await f.version(ref), fields: [{ fieldId, value }] });
 
+  it("retries a background calculation page that outlives its transaction with fewer records until it completes", async () => {
+    const f = await fixture();
+    const account = await organization(f, "Acme");
+    const [serviceA, serviceB] = await services(f);
+    const pipeline = await seedPipeline(f, account, [serviceA, serviceB], 50, 12);
+    const calculateFields = Object.getOwnPropertyDescriptor(RecordCalculationService.prototype, "calculateFields")
+      ?.value as InstanceType<typeof RecordCalculationService>["calculateFields"];
+    const pages: number[] = [];
+    const spy = vi.spyOn(RecordCalculationService.prototype, "calculateFields").mockImplementation(function (
+      this: InstanceType<typeof RecordCalculationService>,
+      ...args
+    ) {
+      pages.push(args[1].length);
+      if (args[1].length > 200)
+        return Promise.reject(Object.assign(new Error("Transaction already closed"), { code: "P2028" }));
+      return calculateFields.apply(this, args);
+    });
+    try {
+      const updated = await settle(f, {
+        action: "update",
+        ref: serviceA,
+        expectedVersion: await f.version(serviceA),
+        fields: [{ fieldId: f.id("service.amount"), value: euro("123.456") }],
+      });
+      expect(updated.operation).toMatchObject({ state: "completed" });
+    } finally {
+      spy.mockRestore();
+    }
+    const timedOut = pages.findIndex((size) => size > 200);
+    expect(pages.slice(timedOut, timedOut + 3)).toEqual([500, 250, 125]);
+    expect(await f.value(pipeline.items[1], "lineItem.effectivePrice")).toBe(123.46);
+    expect(await f.inconsistencies()).toEqual([]);
+  }, 600_000);
+
   it("stores what one record at a time stores for a bulk update of thousands of line items", async () => {
-    const final = await compareWithReference(async (f, step) => {
+    const steps = await calculationSteps("74b6a8f9-d261-4056-96ff-5ff5b660599b", async (f, step) => {
       const account = await organization(f, "Acme");
       const [serviceA, serviceB] = await services(f);
       await seedPipeline(f, account, [serviceA, serviceB], 200, 12);
@@ -1819,11 +1973,11 @@ describeDatabase("batched recalculation", () => {
         update(f, serviceA, f.id("service.amount"), euro("123.456")),
       );
     });
-    expect(final?.records.filter((record) => record.includes("/00000000-0000-4000-8102-"))).toHaveLength(2400);
+    expect(steps).toEqual(GOLDEN_BULK_UPDATE);
   }, 1_800_000);
 
   it("stores what one record at a time stores for chained lookups, rollups and formulas across Trash", async () => {
-    await compareWithReference(async (f, step) => {
+    const steps = await calculationSteps("3e40c40d-0fda-439a-95e4-173c2702d844", async (f, step) => {
       const account = await organization(f, "Acme");
       const [serviceA, serviceB] = await services(f);
       const pipeline = await seedPipeline(f, account, [serviceA, serviceB], 20, 6);
@@ -1851,10 +2005,11 @@ describeDatabase("batched recalculation", () => {
           expect(await f.drain(restored.data.operationId)).toMatchObject({ state: "completed" });
       });
     });
+    expect(steps).toEqual(GOLDEN_CHAINED);
   }, 1_800_000);
 
   it("stores what one record at a time stores when more than 500 line items leave Trash without a deleted service", async () => {
-    await compareWithReference(async (f, step) => {
+    const steps = await calculationSteps("d023d287-adb5-4c29-a2b2-f6e6d2bbbd30", async (f, step) => {
       const account = await organization(f, "Acme");
       const [serviceA, serviceB] = await services(f);
       await seedPipeline(f, account, [serviceA, serviceB], 4, 3);
@@ -1894,5 +2049,6 @@ describeDatabase("batched recalculation", () => {
         update(f, serviceA, f.id("service.amount"), euro("99.995")),
       );
     });
+    expect(steps).toEqual(GOLDEN_RESTORE);
   }, 1_800_000);
 });

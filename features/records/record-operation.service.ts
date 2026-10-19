@@ -9,6 +9,7 @@ import { UserAccessor } from "@/core/base/user-accessor";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { failureUnwindCause, unwindFailure } from "@/core/validation/failure-unwind";
+import { isTransactionEndedError } from "@/core/errors/prisma-client-error";
 import { RecordRefSchema } from "./record-model.schema";
 import { ConfigurationChangeSchema } from "./configuration.schema";
 import type { RecordConfigurationService } from "./configuration.service";
@@ -16,7 +17,8 @@ import type { RecordConfigurationWriter } from "./record-configuration-writer";
 import { purgeTrashOfDeletedLists } from "./record-configuration-writer";
 import { MutateRecordSchema } from "./record-query.schema";
 import type { RecordWriteService } from "./record-write.service";
-import { RecordCalculationService, calculationSources, recordKey } from "./record-calculation.service";
+import type { RecordCalculationService } from "./record-calculation.service";
+import { calculationSources, recordKey } from "./record-calculation.service";
 import { createRecordStagingRepo } from "./record-staging.repository";
 import { validateRecordModel } from "./record-model-validation";
 import { deterministicId } from "./crm-preset";
@@ -37,6 +39,7 @@ const CursorSchema = z.union([
     phase: z.enum(["source", "values", "calculations", "events", "publish"]),
     index: z.number().int().nonnegative(),
     afterId: z.string().optional(),
+    pageSize: z.number().int().positive().optional(),
   }),
   DeletionCursorSchema,
 ]);
@@ -285,7 +288,7 @@ export class RecordOperationService extends UserAccessor {
             const total =
               operation.total ||
               operation.processed + (await this.remainingUnits(staged, [], fields.slice(cursor.index)));
-            const pageSize = RecordCalculationService.batching ? CALCULATION_PAGE_SIZE : BATCH_SIZE;
+            const pageSize = cursor.pageSize ?? CALCULATION_PAGE_SIZE;
             const refs = await staged.getRecordRefsCompanyWide(field.typeId, cursor.afterId, pageSize);
             const calculated = refs.filter(
               (ref) =>
@@ -317,7 +320,7 @@ export class RecordOperationService extends UserAccessor {
               },
             );
             const request = z.object({ idempotencyKey: z.string() }).parse(operation.request);
-            const pageSize = RecordCalculationService.batching ? EVENT_PAGE_SIZE : BATCH_SIZE;
+            const pageSize = cursor.pageSize ?? EVENT_PAGE_SIZE;
             const page = await journal.flushPage(
               model,
               operator.eventActorId,
@@ -329,7 +332,7 @@ export class RecordOperationService extends UserAccessor {
             await this.records.updateOperation(operationId, {
               cursor:
                 page.count === pageSize
-                  ? { phase: "events", index: cursor.index + 1, afterId: page.afterKey }
+                  ? { phase: "events", index: cursor.index + 1, afterId: page.afterKey, pageSize: cursor.pageSize }
                   : { phase: "publish", index: 0 },
             });
             return { done: false };
@@ -396,11 +399,29 @@ export class RecordOperationService extends UserAccessor {
         { timeout: 60000, companyId: this.systemCompanyId },
       );
     } catch (error) {
+      if (isTransactionEndedError(error) && (await this.shrinkPage(operationId))) return { done: false };
       const cause = failureUnwindCause(error);
       if (!cause) throw error;
       await this.fail(operationId, cause.code);
       return { done: true };
     }
+  }
+
+  private shrinkPage(operationId: string): Promise<boolean> {
+    return runInTransaction(
+      async () => {
+        const operation = await this.records.getOperation(operationId);
+        if (!operation || operation.userId !== this.operator.userId) return false;
+        if (["completed", "cancelled", "failed"].includes(operation.state)) return false;
+        const cursor = CursorSchema.parse(operation.cursor ?? { phase: "source", index: 0 });
+        if (!("phase" in cursor) || (cursor.phase !== "calculations" && cursor.phase !== "events")) return false;
+        const pageSize = cursor.pageSize ?? (cursor.phase === "calculations" ? CALCULATION_PAGE_SIZE : EVENT_PAGE_SIZE);
+        if (pageSize === 1) return false;
+        await this.records.updateOperation(operationId, { cursor: { ...cursor, pageSize: Math.ceil(pageSize / 2) } });
+        return true;
+      },
+      { companyId: this.systemCompanyId },
+    );
   }
 
   private calculatedFields(model: RecordModel, typeIds: string[]) {

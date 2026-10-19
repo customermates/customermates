@@ -69,7 +69,19 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
     const schema = await base.getStageRow(operationId, "schema", "model");
     return schema ? RecordModelSchema.parse(schema) : base.getModel();
   };
+  let fieldIdsByType: Promise<Map<string, string[]>> | null = null;
+  const fieldKeys = async (refs: RecordRef[]) => {
+    fieldIdsByType ??= Promise.all([base.getModel(), staged.getModel()]).then((models) => {
+      const fieldIds = new Map<string, Set<string>>();
+      for (const field of models.flatMap((model) => model.fields))
+        fieldIds.set(field.typeId, (fieldIds.get(field.typeId) ?? new Set()).add(field.id));
+      return new Map([...fieldIds].map(([typeId, ids]) => [typeId, [...ids]]));
+    });
+    const fieldIds = await fieldIdsByType;
+    return refs.flatMap((ref) => (fieldIds.get(ref.typeId) ?? []).map((fieldId) => `${recordKey(ref)}:${fieldId}`));
+  };
   overrides.saveModel = async (model, _actorId, change) => {
+    fieldIdsByType = null;
     await base.stageRow(operationId, "schema", "model", model);
     if (change) await base.stageRow(operationId, "schema", "change", change);
   };
@@ -80,6 +92,24 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
     return row
       ? z.object({ identities: z.array(RecordIdentitySchema) }).parse(row).identities
       : base.getIdentitiesCompanyWide(ref);
+  };
+  overrides.getRecordIdentitiesCompanyWide = async (typeId, recordIds) => {
+    const key = (recordId: string) => recordKey({ typeId, recordId });
+    const stagedRows = new Map(
+      (await base.getStageRowsByKeys(operationId, "identity", recordIds.map(key))).map((row) => [
+        row.key,
+        z.object({ identities: z.array(RecordIdentitySchema) }).parse(row.payload).identities,
+      ]),
+    );
+    const identities = await base.getRecordIdentitiesCompanyWide(
+      typeId,
+      recordIds.filter((recordId) => !stagedRows.has(key(recordId))),
+    );
+    for (const recordId of recordIds) {
+      const stagedIdentities = stagedRows.get(key(recordId));
+      if (stagedIdentities) identities.set(recordId, stagedIdentities);
+    }
+    return identities;
   };
   overrides.getIdentityChannelsCompanyWide = async (keys) => {
     const found = new Map((await base.getIdentityChannelsCompanyWide(keys)).map((row) => [row.id, row]));
@@ -160,7 +190,7 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
     const [records, overlays, values] = await Promise.all([
       base.getRecordsCompanyWide(unique, { includeTrash: true }),
       base.getStageRowsByKeys(operationId, "record", unique.map(recordKey)),
-      base.getStageRowsByRecords(operationId, "value", unique),
+      fieldKeys(unique).then((keys) => base.getStageRowsByKeys(operationId, "value", keys)),
     ]);
     const stored = new Map(
       records.map((record) => [recordKey({ typeId: record.typeId, recordId: record.id }), record]),
@@ -302,7 +332,7 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
     const unique = [...new Map(refs.map((ref) => [recordKey(ref), ref])).values()];
     const [stored, stagedRows] = await Promise.all([
       base.getRecordDependenciesManyCompanyWide(unique),
-      base.getStageRowsByRecords(operationId, "dependency", unique),
+      fieldKeys(unique).then((keys) => base.getStageRowsByKeys(operationId, "dependency", keys)),
     ]);
     const merged = new Map(
       stored.map((entry) => [

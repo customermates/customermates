@@ -50,3 +50,7 @@ export function prismaClientError(source: unknown): PrismaClientFailure | null {
 export function isBusyDatabaseError(source: unknown): boolean {
   return prismaClientError(source) === BUSY;
 }
+
+export function isTransactionEndedError(source: unknown): boolean {
+  return prismaClientError(source) === TRANSACTION_ENDED;
+}
