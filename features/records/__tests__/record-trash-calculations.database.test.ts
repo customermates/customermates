@@ -191,9 +191,9 @@ function extendModel(model: RecordModel, id: (key: string) => string) {
   });
 }
 
-async function fixture() {
+async function fixture(companyId?: string) {
   const seed = await runWithoutTenant(async () => {
-    const company = await prisma.company.create({ data: {} });
+    const company = await prisma.company.create({ data: companyId ? { id: companyId } : {} });
     companies.push(company.id);
     const adminRole = await prisma.userRole.create({
       data: { companyId: company.id, name: "Administrator", isSystemRole: true },
@@ -1736,11 +1736,19 @@ async function compareWithReference(
   scenario: (f: Fixture, step: (label: string, task: () => Promise<unknown>) => Promise<void>) => Promise<void>,
 ) {
   const timings: Record<string, Record<string, number>> = {};
+  const typeOrder = (companyId: string) =>
+    createCrmPreset(companyId)
+      .types.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
+      .map((type) => type.label)
+      .join();
+  const referenceId = randomUUID();
+  let batchedId = randomUUID();
+  while (typeOrder(batchedId) !== typeOrder(referenceId)) batchedId = randomUUID();
   const run = async (batching: boolean) => {
     const mode = batching ? "batched" : "one record at a time";
     timings[mode] = {};
     const snapshots: Array<[string, CalculationSnapshot]> = [];
-    const f = await fixture();
+    const f = await fixture(batching ? batchedId : referenceId);
     await scenario(f, async (label, task) => {
       RecordCalculationService.batching = batching;
       const started = performance.now();
