@@ -63,10 +63,7 @@ export function configurationInputValue(
       : before || field.behavior.kind !== "input"
         ? null
         : (field.behavior.defaultValue ?? null);
-  return normalizeRecordScalar(
-    convertScalar(scalar, before, field),
-    row.protectedKind === "membershipAuthorization" ? { ...field, required: false } : field,
-  );
+  return normalizeRecordScalar(convertScalar(scalar, before, field), field);
 }
 
 export function configurationValueExample(row: StoredRecord, before: RecordField | undefined): string | null {

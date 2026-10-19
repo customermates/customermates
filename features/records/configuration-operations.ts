@@ -176,15 +176,7 @@ export async function applyConfigurationOperations(
       const binding = resolveDefinition(operation.capability) as RecordModel["capabilities"][number];
       const existing = current.capabilities.find((candidate) => candidate.id === binding.id);
       if (!policy.isAdmin) throw unwindFailure(CustomErrorCode.permissionDenied, "authorization");
-      const protectedKind = (kind: string) => kind === "membershipAuthorization";
-      const anotherProtected = model.capabilities.some(
-        (candidate) => candidate.id !== binding.id && protectedKind(candidate.kind),
-      );
-      if (
-        (existing && (existing.typeId !== binding.typeId || existing.kind !== binding.kind)) ||
-        (existing && protectedKind(existing.kind) && JSON.stringify(existing) !== JSON.stringify(binding)) ||
-        (!existing && protectedKind(binding.kind) && anotherProtected)
-      )
+      if (existing && (existing.typeId !== binding.typeId || existing.kind !== binding.kind))
         throw unwindFailure(CustomErrorCode.recordProtected, "authorization");
       upsert(model.capabilities, binding);
     }

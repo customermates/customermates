@@ -40,7 +40,7 @@ export function recordSearchHit(row: RecordSearchRow, model: RecordModel, canEdi
     typePluralLabel: type.pluralLabel,
     icon: type.icon,
     pictureUrl: row.pictureUrl,
-    canEdit: canEdit && !row.protectedKind,
+    canEdit,
   };
 }
 

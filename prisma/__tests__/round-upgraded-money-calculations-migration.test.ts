@@ -10,7 +10,7 @@ import {
   readMigration,
 } from "@/tests/helpers/legacy-migration-database";
 
-const MIGRATION = "20261019180000_draft_sends_activity_log_and_money_rounding";
+const MIGRATION = "20261019180000_draft_sends_activity_log_money_rounding_and_membership_tasks";
 
 async function migrationCurrencies() {
   const sql = await readFile(resolve("prisma/migrations", MIGRATION, "migration.sql"), "utf8");

@@ -181,7 +181,7 @@ export class ProviderAvatarService {
           );
           if (!field || field.behavior.kind !== "input") continue;
           const record = await this.records.getRecordUnscoped(this.companyId, ref);
-          if (!record || record.protectedKind) continue;
+          if (!record) continue;
           const previous = decodeRecordValue(
             record.values.find((value) => value.fieldId === field.id),
             field,
@@ -316,7 +316,7 @@ export class ProviderAvatarService {
               );
               if (!field || field.behavior.kind !== "input") continue;
               const record = await this.records.getRecordUnscoped(this.companyId, ref);
-              if (!record || record.protectedKind) continue;
+              if (!record) continue;
               const previous = decodeRecordValue(
                 record.values.find((value) => value.fieldId === field.id),
                 field,

@@ -19,6 +19,7 @@ import {
 } from "./configure";
 import { expect, test } from "./fixtures";
 import { readModel } from "./api";
+import { presetId } from "../../features/records/crm-preset";
 
 
 async function addRecord(page: Page, name: string, value: string) {
@@ -192,4 +193,28 @@ test("deletes, restores and permanently deletes a relationship and a list", asyn
     [companyId, typeId],
   );
   expect(remaining.rows[0]).toEqual({ types: 0, records: 0 });
+});
+
+test("deletes the starter Tasks list like any other list and restores it with its tasks from Trash", async ({
+  page,
+  database,
+  companyId,
+}) => {
+  test.setTimeout(240000);
+  const typeId = presetId(companyId, "task");
+  await page.goto(`/en/records/${typeId}`);
+  await addRecord(page, "Name", "Call the customer back");
+  await expect(page.getByText("Call the customer back", { exact: true }).first()).toBeVisible();
+
+  await openConfigure(page);
+  await selectConfigureList(page, "Tasks");
+  await deleteSelectedList(page);
+  expect((await readModel(database, companyId)).types.find((type) => type.id === typeId)?.archived).toBe(true);
+  await openTrash(page, { configuration: true });
+  await expect(trashRow(page, "Tasks")).toBeVisible();
+
+  await restoreFromTrash(page, "Tasks");
+  expect((await readModel(database, companyId)).types.find((type) => type.id === typeId)?.archived).toBe(false);
+  await page.goto(`/en/records/${typeId}`);
+  await expect(page.getByText("Call the customer back", { exact: true }).first()).toBeVisible();
 });

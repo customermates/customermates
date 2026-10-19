@@ -234,26 +234,6 @@ function dependencyBlockers(
       });
     }
   }
-  for (const binding of model.capabilities) {
-    if (removed.typeIds.has(binding.typeId)) {
-      if (binding.kind === "membershipAuthorization") {
-        blockers.push({
-          reason: "protected",
-          source: reference({ kind: "type", id: binding.typeId }),
-          target: reference({ kind: "type", id: binding.typeId }),
-        });
-      }
-      continue;
-    }
-    const field = binding.fields.find((entry) => removed.fieldIds.has(entry.fieldId));
-    if (field && live(binding.typeId) && binding.kind === "membershipAuthorization") {
-      blockers.push({
-        reason: "binding",
-        source: reference({ kind: "type", id: binding.typeId }),
-        target: reference({ kind: "field", id: field.fieldId }),
-      });
-    }
-  }
   return blockers;
 }
 
@@ -267,7 +247,7 @@ function dropBindingFields(
   const cleaned: DeletionCleanup[] = [];
   const dropped: DroppedBinding[] = [];
   model.capabilities = model.capabilities.map((binding) => {
-    if (binding.kind === "membershipAuthorization" || removed.typeIds.has(binding.typeId)) return binding;
+    if (removed.typeIds.has(binding.typeId)) return binding;
     const entries = binding.fields.filter((entry) => removed.fieldIds.has(entry.fieldId));
     for (const entry of entries) {
       dropped.push({ bindingId: binding.id, role: entry.role, fieldId: entry.fieldId });

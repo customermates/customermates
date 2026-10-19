@@ -146,9 +146,9 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
     return result.rows[0]?.activeCompanyId ?? null;
   }
 
-  async function approvalTasks(person: Person) {
+  async function pendingRequests(person: Person) {
     const result = await client.query<{ count: number }>(
-      'SELECT COUNT(*)::integer AS count FROM "CrmRecord" WHERE "companyId" = $1 AND "protectedKind" = \'membershipAuthorization\' AND "systemData"->>\'relatedUserId\' = $2 AND "deletedAt" IS NULL',
+      'SELECT COUNT(*)::integer AS count FROM "User" WHERE "companyId" = $1 AND id = $2 AND status = \'pendingAuthorization\' AND "leftAt" IS NULL',
       [companies.team, people[person].teamMemberId],
     );
     return result.rows[0].count;
@@ -325,11 +325,6 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
     Object.assign(benSessions.other, await session(people.ben.loginId, companies.team));
     Object.assign(cleoSession, await session(people.cleo.loginId, companies.team));
 
-    const { getMembershipTaskService } = await import("@/core/di");
-    await runWithTenant(await membershipOf("cleo"), () =>
-      getMembershipTaskService().registered(people.cleo.teamMemberId),
-    );
-
     const inviteToken = randomUUID().replaceAll("-", "");
     const inviteExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
     await client.query(
@@ -423,8 +418,8 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
     expect(own.body).toMatchObject({ id: ownMemberships.ben });
   });
 
-  it("declines a pending request and removes its approval task without touching the seats", async () => {
-    expect(await approvalTasks("cleo")).toBe(1);
+  it("declines a pending request and drops it from the pending members without touching the seats", async () => {
+    expect(await pendingRequests("cleo")).toBe(1);
 
     expect(await removeAs("ada", { email: people.cleo.email })).toMatchObject({
       ok: true,
@@ -436,7 +431,7 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
       left: true,
       roleId: null,
     });
-    expect(await approvalTasks("cleo")).toBe(0);
+    expect(await pendingRequests("cleo")).toBe(0);
     expect(await lastUsed("cleo")).toBe(companies.cleosOwn);
     expect(seats.updates).toHaveLength(1);
     expect(mails.sent).toHaveLength(1);
@@ -517,7 +512,7 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
       left: false,
       roleId: null,
     });
-    expect(await approvalTasks("ben")).toBe(1);
+    expect(await pendingRequests("ben")).toBe(1);
 
     expect(await removeAs("ada", { userId: people.ben.teamMemberId })).toMatchObject({
       ok: true,
@@ -527,12 +522,12 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
       status: "inactive",
       left: true,
     });
-    expect(await approvalTasks("ben")).toBe(0);
+    expect(await pendingRequests("ben")).toBe(0);
     expect(await lastUsed("ben")).toBe(companies.bensOwn);
     expect(mails.sent).toHaveLength(2);
   });
 
-  it("removes the approval task when the person withdraws the request", async () => {
+  it("drops the pending request when the person withdraws it", async () => {
     const { getJoinWorkspaceInteractor, getWithdrawWorkspaceRequestInteractor } = await import("@/core/di");
     as(cleoSession);
     expect(
@@ -544,7 +539,7 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
       ok: true,
       data: { status: "pendingAuthorization" },
     });
-    expect(await approvalTasks("cleo")).toBe(1);
+    expect(await pendingRequests("cleo")).toBe(1);
 
     as(cleoSession, SERVER_ACTION);
     expect(
@@ -560,7 +555,7 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
       status: "inactive",
       left: true,
     });
-    expect(await approvalTasks("cleo")).toBe(0);
+    expect(await pendingRequests("cleo")).toBe(0);
     expect(await lastUsed("cleo")).toBe(companies.cleosOwn);
     expect(mails.sent).toHaveLength(2);
   });

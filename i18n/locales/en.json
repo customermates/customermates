@@ -1632,11 +1632,6 @@
       "manual": "Manual"
     },
     "stageProbability": "Stage probability",
-    "systemTasks": {
-      "userPendingAuthorization": {
-        "alert": "This is a system task that cannot be manually deleted. Please approve the user in <link>Members</link> to resolve this task."
-      }
-    },
     "table": {
       "columns": {
         "action": "Action",
@@ -3576,10 +3571,8 @@
     "configurationDeletion": {
       "blockedMessage": "{name} can't be deleted while other parts of your setup still use it.",
       "blockers": {
-        "binding": "{target} controls workspace access for {source} and can't be deleted.",
         "calculation": "{source} calculates from {target}.",
         "parentAccess": "{source} gets its access through {target}.",
-        "protected": "{source} controls workspace access and can't be deleted.",
         "requiresRestore": "Restore {target} first, {source} belongs to it.",
         "routine": "The routine {source} reacts to {target}.",
         "snapshotTrigger": "{source} saves its value when {target} changes.",
@@ -4813,7 +4806,8 @@
   },
   "WorkspaceMenu": {
     "inviteMembers": "Invite members",
-    "label": "Workspace menu"
+    "label": "Workspace menu",
+    "pendingMembers": "{count, plural, one {# member waiting for approval} other {# members waiting for approval}}"
   },
   "WorkspaceOnboarding": {
     "workspaceNameDescription": "Optional. Helps you tell your workspaces apart; you can change it later.",

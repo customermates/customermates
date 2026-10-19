@@ -87,20 +87,22 @@ export async function membershipIn(database: Client, companyId: string, email: s
   return result.rows[0] ?? null;
 }
 
-export async function approvalTaskCount(database: Client, companyId: string, email: string) {
+/** Open requests of this login to join the workspace: the members Settings > Members asks an admin to approve. */
+export async function pendingRequestCount(database: Client, companyId: string, email: string) {
   const result = await database.query<{ count: number }>(
-    'SELECT COUNT(*)::integer AS count FROM "CrmRecord" r JOIN "User" u ON u."companyId"=r."companyId" AND u.id=r."systemData"->>\'relatedUserId\' WHERE r."companyId"=$1 AND r."protectedKind"=\'membershipAuthorization\' AND r."deletedAt" IS NULL AND u.email=$2',
+    'SELECT COUNT(*)::integer AS count FROM "User" WHERE "companyId"=$1 AND email=$2 AND status=\'pendingAuthorization\' AND "leftAt" IS NULL',
     [companyId, email],
   );
   return result.rows[0].count;
 }
 
-export function organizationList(companyId: string) {
-  return `/en/records/${presetId(companyId, "organization")}`;
+/** The workspace menu announces members waiting for approval to those who may approve them. */
+export function workspaceMenu(page: Page) {
+  return page.locator("#nav-workspace-menu");
 }
 
-export function taskList(companyId: string) {
-  return `/en/records/${presetId(companyId, "task")}`;
+export function organizationList(companyId: string) {
+  return `/en/records/${presetId(companyId, "organization")}`;
 }
 
 export function memberItem(page: Page, name: string) {

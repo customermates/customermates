@@ -290,12 +290,6 @@ export function createCrmPreset(companyId: string): RecordModel {
         typeId: id("contact"),
         fields: [{ role: "image", fieldId: id("contact.avatarUrl") }],
       },
-      {
-        id: id("capability.membership"),
-        kind: "membershipAuthorization",
-        typeId: id("task"),
-        fields: [],
-      },
     ],
   };
 }

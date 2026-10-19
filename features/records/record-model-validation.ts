@@ -371,10 +371,7 @@ export function validateRecordModel(model: RecordModel): {
 
   for (const binding of model.capabilities) {
     const type = types.get(binding.typeId);
-    if (!type || (type.archived && binding.kind === "membershipAuthorization"))
-      issues.push({ code: "capability_requires_type", typeId: binding.typeId });
-    if (binding.kind === "membershipAuthorization" && type?.embedded)
-      issues.push({ code: "capability_requires_type", typeId: binding.typeId });
+    if (!type) issues.push({ code: "capability_requires_type", typeId: binding.typeId });
     if (new Set(binding.fields.map((field) => field.role)).size !== binding.fields.length) {
       issues.push({
         code: "duplicate_capability_role",
@@ -383,7 +380,7 @@ export function validateRecordModel(model: RecordModel): {
     }
     for (const reference of binding.fields) {
       const field = fields.get(reference.fieldId);
-      const expectedType = binding.kind === "avatar" ? "url" : binding.kind === "calendar" ? "dateTimeRange" : "text";
+      const expectedType = binding.kind === "avatar" ? "url" : "dateTimeRange";
       if (!field || field.archived || field.typeId !== binding.typeId || field.valueType !== expectedType) {
         issues.push({
           code: "capability_requires_field",

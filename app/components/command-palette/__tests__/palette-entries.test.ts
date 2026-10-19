@@ -95,7 +95,6 @@ describe("workspace palette entries", () => {
             pluralLabel: "Deals",
             icon: "handshake",
             canCreate: true,
-            hasAuthorizationTasks: false,
           },
           {
             id: CONTACTS,
@@ -103,7 +102,6 @@ describe("workspace palette entries", () => {
             pluralLabel: "Contacts",
             icon: "user",
             canCreate: false,
-            hasAuthorizationTasks: false,
           },
         ],
       },

@@ -9,7 +9,7 @@ import { SearchChannelCandidatesInteractor } from "@/ee/messaging/inbox/search-c
 import { RoutineAdmission } from "@/ee/routines/routine-admission";
 import { ManageDataViewsInteractor } from "@/features/data-view/manage-data-views.interactor";
 import { ResetDataViewStateInteractor } from "@/features/data-view/reset-data-view-state.interactor";
-import { CountSystemTasksInteractor } from "@/features/records/count-system-tasks.interactor";
+import { CountPendingMembersInteractor } from "@/features/user/count-pending-members.interactor";
 import { CheckRecordIdentityInteractor } from "@/features/records/check-record-identity.interactor";
 import { GetIdentityRecordChoicesInteractor } from "@/features/records/get-identity-record-choices.interactor";
 import { GetRecordNavigationInteractor } from "@/features/records/get-record-navigation.interactor";
@@ -111,10 +111,8 @@ import { DiscoverRecordTypesInteractor } from "@/features/records/discover-recor
 import { GetRecordChoicesInteractor } from "@/features/records/get-record-choices.interactor";
 import { GetRecordEditorInteractor } from "@/features/records/get-record-editor.interactor";
 import { EmbeddedSublistReader } from "@/features/records/embedded-sublist-reader";
-import { MembershipTaskService } from "@/features/records/membership-task.service";
 import { MutateRecordInteractor } from "@/features/records/mutate-record.interactor";
 import { PreviewRecordDeletionInteractor } from "@/features/records/preview-record-deletion.interactor";
-import { PrismaMembershipTaskRepo } from "@/features/records/prisma-membership-task.repository";
 import { PrismaRecordRepo } from "@/features/records/prisma-record.repository";
 import type { RecordRepo } from "@/features/records/record.repo";
 import type { RecordRepoOwners } from "@/features/records/record.repo";
@@ -189,7 +187,6 @@ import { ActiveWorkspaceService } from "@/features/workspace/active-workspace.se
 import { WorkspaceDepartureService } from "@/features/workspace/workspace-departure.service";
 // Task Listeners
 import { DomainEvent } from "@/features/event/domain-events";
-import { UserPendingAuthorizationTaskListener } from "@/features/records/membership-task.listener";
 // Contacts interactors
 // Data transfer interactors
 import { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
@@ -874,7 +871,6 @@ export const getAgentChatRepo = (): PrismaAgentChatRepo =>
 export const getOperatorRepo = () =>
   new PrismaOperatorRepo(getAgentChatRepo(), {
     users: getUserRepo(),
-    records: getRecordRepo(),
     companies: getCompanyRepo(),
     identities: getAuthService(),
     inboundEvents: getUnipileWebhookRepo(),
@@ -902,17 +898,7 @@ export const getBackgroundTaskService = () => new BackgroundTaskService();
 export const getInviteTokenCookieRepo = () => new NextInviteTokenCookieRepo();
 export const getOnboardingIntentService = () =>
   new OnboardingIntentService(getInviteTokenValidationInteractor(), env.BETTER_AUTH_SECRET);
-export const getMembershipTaskRepo = () => new PrismaMembershipTaskRepo(getUserRepo());
-export const getMembershipTaskService = () =>
-  new MembershipTaskService(
-    getRecordRepo(),
-    getMembershipTaskRepo(),
-    getRecordAccessPolicy(),
-    getRecordCalculationService(),
-  );
-export const getCountSystemTasksInteractor = () => new CountSystemTasksInteractor(getMembershipTaskService());
-export const getUserPendingAuthorizationTaskListener = () =>
-  new UserPendingAuthorizationTaskListener(getMembershipTaskService());
+export const getCountPendingMembersInteractor = () => new CountPendingMembersInteractor(getUserRepo());
 export const getWikiEmbeddingService = () => new WikiEmbeddingService(getAgentUsageService());
 export const getWikiSummaryService = () => new WikiSummaryService(getAgentUsageService());
 export const getWikiSemanticIndexService = () =>
@@ -958,10 +944,6 @@ const getWikiSemanticRetrieval = () => ({
 });
 
 const EXPECTED_EVENT_LISTENERS = [
-  {
-    factory: getUserPendingAuthorizationTaskListener,
-    events: [DomainEvent.USER_REGISTERED, DomainEvent.USER_UPDATED],
-  },
   {
     factory: getWikiSemanticIndexListener,
     events: [DomainEvent.WIKI_PAGE_CREATED, DomainEvent.WIKI_PAGE_UPDATED],

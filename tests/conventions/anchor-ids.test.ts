@@ -121,7 +121,6 @@ describe("interface anchor id fidelity", () => {
           pluralLabel: "Projects",
           icon: "Folder",
           canCreate: true,
-          hasAuthorizationTasks: false,
         },
       ],
     });

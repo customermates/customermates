@@ -1632,11 +1632,6 @@
       "manual": "Manuale"
     },
     "stageProbability": "Probabilità della fase",
-    "systemTasks": {
-      "userPendingAuthorization": {
-        "alert": "Questa è un'attività di sistema che non può essere eliminata manualmente. Approva l'utente nelle <link>impostazioni dell'azienda</link> per risolverla."
-      }
-    },
     "table": {
       "columns": {
         "action": "Azione",
@@ -3576,10 +3571,8 @@
     "configurationDeletion": {
       "blockedMessage": "{name} non può essere eliminato finché altre parti della tua configurazione lo usano.",
       "blockers": {
-        "binding": "{target} controlla l’accesso all’area di lavoro per {source} e non può essere eliminato.",
         "calculation": "{source} viene calcolato da {target}.",
         "parentAccess": "{source} ottiene l’accesso tramite {target}.",
-        "protected": "{source} controlla l’accesso all’area di lavoro e non può essere eliminato.",
         "requiresRestore": "Ripristina prima {target}, {source} ne fa parte.",
         "routine": "La routine {source} reagisce a {target}.",
         "snapshotTrigger": "{source} salva il suo valore quando {target} cambia.",
@@ -4813,7 +4806,8 @@
   },
   "WorkspaceMenu": {
     "inviteMembers": "Invita membri",
-    "label": "Menu dello spazio di lavoro"
+    "label": "Menu dello spazio di lavoro",
+    "pendingMembers": "{count, plural, one {# membro in attesa di approvazione} other {# membri in attesa di approvazione}}"
   },
   "WorkspaceOnboarding": {
     "workspaceNameDescription": "Facoltativo. Ti aiuta a distinguere i tuoi spazi di lavoro; puoi cambiarlo in seguito.",

@@ -18,7 +18,6 @@ const navigation = {
       pluralLabel: "Projects",
       icon: "folder",
       canCreate: true,
-      hasAuthorizationTasks: false,
     },
   ],
 };

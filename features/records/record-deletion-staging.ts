@@ -86,7 +86,6 @@ export class RecordDeletionStaging {
           if (!row || !(await policy.canRead(row))) throw unwindFailure(CustomErrorCode.recordNotFound, "not_found");
           if (!policy.allowed(ref.typeId, "delete"))
             throw unwindFailure(CustomErrorCode.permissionDenied, "authorization");
-          if (row.protectedKind) throw unwindFailure(CustomErrorCode.recordProtected, "authorization");
           await this.records.stageRow(this.operationId, "delete-plan", key, {
             ref,
             version: row.version,

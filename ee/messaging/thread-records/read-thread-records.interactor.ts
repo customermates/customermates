@@ -51,9 +51,6 @@ export class ReadThreadRecordsInteractor extends AuthenticatedInteractor<
         const model = await this.records.getModel();
         const refs = await this.links.listLinks(input.threadId, 101);
         if (refs.length > 100) return failConflict(CustomErrorCode.recordCalculationBudget);
-        const protectedRefs = new Set(
-          refs.filter((ref) => ref.protected).map((ref) => `${ref.typeId}:${ref.recordId}`),
-        );
         const rows = refs.length
           ? await this.records.searchRecords(
               { refs },
@@ -72,10 +69,7 @@ export class ReadThreadRecordsInteractor extends AuthenticatedInteractor<
           data: {
             records: rows.map((row) => ({
               ...recordSearchHit(row, model),
-              canUnlink:
-                canEditThread &&
-                policy.allowed(row.typeId, "update") &&
-                !protectedRefs.has(`${row.typeId}:${row.recordId}`),
+              canUnlink: canEditThread && policy.allowed(row.typeId, "update"),
             })),
             schemaRevision: model.revision,
             canManage,

@@ -308,7 +308,7 @@ export class PrismaRecordRepo
         companyId: this.companyId,
         identityId,
         typeId: { in: typeIds },
-        record: { is: { companyId: this.companyId, protectedKind: null, deletedAt: null } },
+        record: { is: { companyId: this.companyId, deletedAt: null } },
         ...(after
           ? {
               OR: [{ typeId: { gt: after.typeId } }, { typeId: after.typeId, recordId: { gt: after.recordId } }],
@@ -1916,7 +1916,7 @@ export class PrismaRecordRepo
           AND stage.kind = 'record' AND (stage.payload->>'deleted')::boolean
           AND NOT EXISTS (SELECT 1 FROM "CrmRecord" ${root}
             WHERE ${root}."companyId" = ${this.companyId} AND ${root}."typeId" = stage.payload->'ref'->>'typeId'
-              AND ${root}.id = stage.payload->'ref'->>'recordId' AND ${root}."protectedKind" IS NULL
+              AND ${root}.id = stage.payload->'ref'->>'recordId'
               AND ${root}.version = (stage.payload->>'version')::integer
               AND EXISTS (SELECT 1 FROM "RecordStageRow" planned
                 WHERE planned."companyId" = ${this.companyId} AND planned."operationId" = ${operationId}
@@ -2071,16 +2071,6 @@ export class PrismaRecordRepo
     if (!published.length) return;
     await this.captureRecordEventMatches(this.companyId, { eventIds: published });
     await this.wakeRecordEvents();
-  }
-
-  async deleteMembershipAuthorizationTasksCompanyWide(companyId: string, relatedUserId: string): Promise<void> {
-    await this.prisma.crmRecord.deleteMany({
-      where: {
-        companyId,
-        protectedKind: "membershipAuthorization",
-        systemData: { path: ["relatedUserId"], equals: relatedUserId },
-      },
-    });
   }
 
   @BypassTenantGuard
@@ -2376,8 +2366,8 @@ export class PrismaRecordRepo
       Prisma.sql`UPDATE "RecordLink" link SET "deletedAt" = NOW() FROM "RecordStageRow" stage WHERE ${stage("record")} AND (stage.payload->>'deleted')::boolean AND stage.payload->>'trashItemId' IS NOT NULL AND link."companyId" = ${companyId} AND link."deletedAt" IS NULL AND ((link."sourceTypeId" = stage.payload->'ref'->>'typeId' AND link."sourceId" = stage.payload->'ref'->>'recordId') OR (link."targetTypeId" = stage.payload->'ref'->>'typeId' AND link."targetId" = stage.payload->'ref'->>'recordId'))`,
     );
     await this.prisma
-      .$executeRaw(Prisma.sql`INSERT INTO "CrmRecord" ("companyId", "typeId", id, version, "protectedKind", "systemData", "createdAt", "updatedAt")
-      SELECT ${companyId}, stage.payload->'ref'->>'typeId', stage.payload->'ref'->>'recordId', (stage.payload->>'version')::integer, stage.payload->>'protectedKind', NULLIF(stage.payload->'systemData', 'null'::jsonb), (stage.payload->>'createdAt')::timestamp, (stage.payload->>'updatedAt')::timestamp FROM "RecordStageRow" stage WHERE ${stage("record")} AND NOT (stage.payload->>'deleted')::boolean
+      .$executeRaw(Prisma.sql`INSERT INTO "CrmRecord" ("companyId", "typeId", id, version, "systemData", "createdAt", "updatedAt")
+      SELECT ${companyId}, stage.payload->'ref'->>'typeId', stage.payload->'ref'->>'recordId', (stage.payload->>'version')::integer, NULLIF(stage.payload->'systemData', 'null'::jsonb), (stage.payload->>'createdAt')::timestamp, (stage.payload->>'updatedAt')::timestamp FROM "RecordStageRow" stage WHERE ${stage("record")} AND NOT (stage.payload->>'deleted')::boolean
       ON CONFLICT ("companyId", "typeId", id) DO UPDATE SET version = EXCLUDED.version, "updatedAt" = EXCLUDED."updatedAt"`);
     const collisions = await this.prisma.$queryRaw<Array<{ collision: boolean }>>(Prisma.sql`
       SELECT EXISTS (
@@ -2462,16 +2452,6 @@ export class PrismaRecordRepo
       operationId,
     });
     await this.wakeRecordEvents();
-  }
-
-  async protectMembershipTask(ref: RecordRef, userId: string): Promise<void> {
-    await this.prisma.crmRecord.update({
-      where: {
-        companyId: this.companyId,
-        companyId_typeId_id: { companyId: this.companyId, typeId: ref.typeId, id: ref.recordId },
-      },
-      data: { protectedKind: "membershipAuthorization", systemData: { relatedUserId: userId } },
-    });
   }
 
   async clearOperationLock(id: string): Promise<void> {

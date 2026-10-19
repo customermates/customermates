@@ -7,6 +7,7 @@ import { ChevronDown, Loader2, Plus, Search, Sparkles } from "lucide-react";
 import { ActiveShortcutKeys } from "@/app/components/keyboard-shortcuts/active-shortcut-keys";
 import { WorkspaceAvatar } from "@/app/components/workspaces/workspace-avatar";
 import { AppImage } from "@/components/shared/app-image";
+import { NavBadge } from "@/app/components/navigation/nav-main";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 
@@ -15,6 +16,7 @@ type Props = {
   quickActions: boolean;
   workspaceMenu: ReactNode | null;
   workspaceMenuLabel: string;
+  workspaceMenuBadge?: { count: number; label: string };
   workspace: { companyId: string; name: string } | null;
   onWorkspaceMenuOpen?: () => void;
   brandName: string;
@@ -34,6 +36,7 @@ export function NavHeader({
   quickActions,
   workspaceMenu,
   workspaceMenuLabel,
+  workspaceMenuBadge,
   workspace,
   onWorkspaceMenuOpen,
   brandName,
@@ -80,12 +83,16 @@ export function NavHeader({
             >
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
-                  aria-label={`${label}, ${workspaceMenuLabel}`}
+                  aria-label={[label, workspaceMenuLabel, workspaceMenuBadge?.count ? workspaceMenuBadge.label : null]
+                    .filter(Boolean)
+                    .join(", ")}
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                   id="nav-workspace-menu"
                   tooltip={label}
                 >
                   {brand}
+
+                  <NavBadge count={workspaceMenuBadge?.count ?? 0} />
 
                   <ChevronDown className="ml-auto size-4 opacity-60" />
                 </SidebarMenuButton>

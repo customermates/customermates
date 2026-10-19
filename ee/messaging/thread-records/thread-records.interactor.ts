@@ -56,7 +56,6 @@ export class MutateThreadRecordsInteractor extends AuthenticatedInteractor<
         return failNotFound(CustomErrorCode.threadNotFound, ["threadId"]);
       const row = await this.records.getRecordCompanyWide(input.ref);
       if (!row || !(await policy.canRead(row))) return failNotFound(CustomErrorCode.recordNotFound, ["ref"]);
-      if (row.protectedKind) return failAuthorization(CustomErrorCode.recordProtected, ["ref"]);
       const hash = recordRequestHash({ kind: "thread-record", input });
       const receipt = await this.records.receipt(input.idempotencyKey, this.userId);
       if (receipt) {

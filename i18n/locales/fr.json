@@ -1632,11 +1632,6 @@
       "manual": "Manuel"
     },
     "stageProbability": "Probabilité de l'étape",
-    "systemTasks": {
-      "userPendingAuthorization": {
-        "alert": "Il s'agit d'une tâche système qui ne peut pas être supprimée manuellement. Approuvez l'utilisateur dans les <link>paramètres de l'entreprise</link> pour résoudre cette tâche."
-      }
-    },
     "table": {
       "columns": {
         "action": "Action",
@@ -3576,10 +3571,8 @@
     "configurationDeletion": {
       "blockedMessage": "{name} ne peut pas être supprimé tant que d’autres éléments de votre configuration l’utilisent.",
       "blockers": {
-        "binding": "{target} contrôle l’accès à l’espace de travail pour {source} et ne peut pas être supprimé.",
         "calculation": "{source} est calculé à partir de {target}.",
         "parentAccess": "{source} obtient son accès via {target}.",
-        "protected": "{source} contrôle l’accès à l’espace de travail et ne peut pas être supprimé.",
         "requiresRestore": "Restaurez d’abord {target}, {source} en fait partie.",
         "routine": "La routine {source} réagit à {target}.",
         "snapshotTrigger": "{source} enregistre sa valeur quand {target} change.",
@@ -4813,7 +4806,8 @@
   },
   "WorkspaceMenu": {
     "inviteMembers": "Inviter des membres",
-    "label": "Menu de l'espace de travail"
+    "label": "Menu de l'espace de travail",
+    "pendingMembers": "{count, plural, one {# membre en attente d'approbation} other {# membres en attente d'approbation}}"
   },
   "WorkspaceOnboarding": {
     "workspaceNameDescription": "Facultatif. Il vous aide à distinguer vos espaces de travail ; vous pourrez le modifier plus tard.",

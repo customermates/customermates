@@ -1632,11 +1632,6 @@
       "manual": "Manuell"
     },
     "stageProbability": "Phasenwahrscheinlichkeit",
-    "systemTasks": {
-      "userPendingAuthorization": {
-        "alert": "Dies ist eine Systemaufgabe, die nicht manuell gelöscht werden kann. Genehmige den Benutzer unter <link>Mitglieder</link>, um diese Aufgabe zu erledigen."
-      }
-    },
     "table": {
       "columns": {
         "action": "Aktion",
@@ -3576,10 +3571,8 @@
     "configurationDeletion": {
       "blockedMessage": "{name} kann nicht gelöscht werden, solange andere Teile deiner Einrichtung es noch verwenden.",
       "blockers": {
-        "binding": "{target} steuert den Workspace-Zugriff für {source} und kann nicht gelöscht werden.",
         "calculation": "{source} berechnet sich aus {target}.",
         "parentAccess": "{source} erhält seinen Zugriff über {target}.",
-        "protected": "{source} steuert den Zugriff auf den Arbeitsbereich und kann nicht gelöscht werden.",
         "requiresRestore": "Stelle zuerst {target} wieder her, {source} gehört dazu.",
         "routine": "Die Routine {source} reagiert auf {target}.",
         "snapshotTrigger": "{source} speichert seinen Wert, wenn sich {target} ändert.",
@@ -4813,7 +4806,8 @@
   },
   "WorkspaceMenu": {
     "inviteMembers": "Mitglieder einladen",
-    "label": "Workspace-Menü"
+    "label": "Workspace-Menü",
+    "pendingMembers": "{count, plural, one {# Mitglied wartet auf Genehmigung} other {# Mitglieder warten auf Genehmigung}}"
   },
   "WorkspaceOnboarding": {
     "workspaceNameDescription": "Optional. Damit unterscheidest du deine Workspaces; du kannst ihn später ändern.",

@@ -334,29 +334,24 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     expect(
       await rows(
         client,
-        'SELECT "createdAt","updatedAt","protectedKind","systemData" FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 AND id=$3',
+        'SELECT "createdAt","updatedAt","systemData" FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 AND id=$3',
         [f.companyId, id("deal"), f.shared],
       ),
     ).toEqual([
       {
         createdAt: LEGACY_TIMESTAMPS.createdAt,
         updatedAt: LEGACY_TIMESTAMPS.updatedAt,
-        protectedKind: null,
         systemData: null,
       },
     ]);
+    // The pending member's authorization task of the upgrade is removed by 20261019180000; the member stays pending.
     expect(
-      await rows(
-        client,
-        'SELECT "protectedKind","systemData" FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 AND id=$3',
-        [f.companyId, id("task"), f.tasks.protected],
-      ),
-    ).toEqual([
-      {
-        protectedKind: "membershipAuthorization",
-        systemData: { relatedUserId: f.member.id },
-      },
-    ]);
+      await rows(client, 'SELECT id FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 AND id=$3', [
+        f.companyId,
+        id("task"),
+        f.tasks.protected,
+      ]),
+    ).toEqual([]);
 
     // Line items and rollups: 2 x 1000 + 3 x 200 = 2600 over quantity 5; 60% weights 1560.
     expect(await decimal(client, f, "lineItem", f.lines.weightedA, "lineItem.amount")).toEqual({

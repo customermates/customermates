@@ -24,7 +24,6 @@ const recordNavigationHarness = vi.hoisted(() => ({
     pluralLabel: string;
     icon: string;
     canCreate: boolean;
-    hasAuthorizationTasks: boolean;
   }>,
   canManageSchema: false,
 }));
@@ -1143,7 +1142,6 @@ describe("agent tools", () => {
         pluralLabel: "Projects",
         icon: "folder",
         canCreate: false,
-        hasAuthorizationTasks: false,
       },
     ];
     try {
@@ -1208,7 +1206,6 @@ describe("agent tools", () => {
         pluralLabel: "Deals",
         icon: "briefcase",
         canCreate: true,
-        hasAuthorizationTasks: false,
       },
     ];
     const layout = String(
@@ -1276,7 +1273,6 @@ describe("agent tools", () => {
         pluralLabel: "Contacts",
         icon: "user",
         canCreate: true,
-        hasAuthorizationTasks: false,
       },
       {
         id: dealId,
@@ -1284,7 +1280,6 @@ describe("agent tools", () => {
         pluralLabel: "Deals",
         icon: "briefcase",
         canCreate: true,
-        hasAuthorizationTasks: false,
       },
     ];
     const tools = getAgentAiTools(deps({ resultMaxChars: 4096 }));
@@ -1321,7 +1316,6 @@ describe("agent tools", () => {
         pluralLabel: "Aufgaben",
         icon: "check",
         canCreate: true,
-        hasAuthorizationTasks: false,
       },
     ];
     const tools = getAgentAiTools(deps({ resultMaxChars: 6000 }));
@@ -1377,7 +1371,6 @@ describe("agent tools", () => {
         pluralLabel: query,
         icon: "folder",
         canCreate: true,
-        hasAuthorizationTasks: false,
       },
     ];
     const tools = getAgentAiTools(deps({ resultMaxChars: 6000 }));
@@ -1430,7 +1423,6 @@ describe("agent tools", () => {
         pluralLabel: "Deals",
         icon: "briefcase",
         canCreate: true,
-        hasAuthorizationTasks: false,
       },
     ];
     const layout = String(

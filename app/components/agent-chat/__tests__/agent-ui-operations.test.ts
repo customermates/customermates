@@ -95,7 +95,6 @@ describe("AgentUiControlStore.navigate", () => {
             pluralLabel: "Projects",
             icon: "folder",
             canCreate: false,
-            hasAuthorizationTasks: false,
           },
         ],
       },

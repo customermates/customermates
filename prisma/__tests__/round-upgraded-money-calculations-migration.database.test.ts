@@ -33,7 +33,7 @@ const { runInTransaction } = await import("@/core/decorators/transaction-runner"
 const { RecordCalculationService } = await import("@/features/records/record-calculation.service");
 const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
 
-const MIGRATION = "20261019180000_draft_sends_activity_log_and_money_rounding";
+const MIGRATION = "20261019180000_draft_sends_activity_log_money_rounding_and_membership_tasks";
 const MONEY_FIELDS = [
   ["lineItem", "lineItem.effectivePrice"],
   ["lineItem", "lineItem.amount"],
@@ -116,6 +116,13 @@ async function recalculateWithEngine(source: Client, companyId: string) {
   await destination.connect();
   try {
     await copyGenericWorkspace(source, destination, companyId);
+    // A source upgraded without this migration still holds the membership capability that its part 4 removes.
+    await destination.query(
+      `UPDATE "RecordSchemaRevision" SET snapshot = jsonb_set(snapshot, '{capabilities}', COALESCE((
+        SELECT jsonb_agg(capability) FROM jsonb_array_elements(snapshot -> 'capabilities') capability
+        WHERE capability ->> 'kind' <> 'membershipAuthorization'), '[]'::jsonb)) WHERE "companyId" = $1`,
+      [companyId],
+    );
     copiedCompanies.push(companyId);
     const repo = createTestRecordRepo(companyId);
     const refs = await runWithoutTenant(() =>

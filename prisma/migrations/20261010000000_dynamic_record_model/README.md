@@ -41,7 +41,7 @@ An empty database (a new installation) has nothing to convert and ends with exac
 | Legacy data | Result |
 | --- | --- |
 | Contacts, organizations, deals, services, tasks | Records of the five starter types with their IDs, `createdAt` and `updatedAt`. One ID may exist in several types. |
-| Pending membership authorisation tasks | Protected tasks (`protectedKind = membershipAuthorization`) that keep their related member |
+| Pending membership authorisation tasks | Protected tasks (`protectedKind = membershipAuthorization`) that keep their related member; 20261019180000 removes them and the column |
 | Names, contact name parts, avatars, notes, service prices | Typed values; notes keep their document, prices their exact decimal |
 | Custom columns and their values | Fields of their type with the same IDs, trimmed labels, options, default option, format and currency; values with exact decimals, dates with their lexical form and ranges with both endpoints |
 | Links between records | Record links with their IDs and timestamps |

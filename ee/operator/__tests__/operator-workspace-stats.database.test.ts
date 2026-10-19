@@ -81,7 +81,6 @@ describeDatabase("operator workspace statistics", { timeout: 120_000 }, () => {
           { companyId, typeId: projects },
           { companyId, typeId: positions },
           { companyId, typeId: projects, deletedAt: new Date() },
-          { companyId, typeId: projects, protectedKind: "membershipAuthorization" },
           { companyId, typeId: retired },
         ],
       });

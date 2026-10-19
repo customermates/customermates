@@ -12,9 +12,6 @@ export type OperatorWriteOwners = {
     deleteAuthIdentitiesUnscoped(identityIds: string[]): Promise<void>;
     detachAuthIdentitiesFromCompanyUnscoped(companyId: string): Promise<number>;
   };
-  records: {
-    deleteMembershipAuthorizationTasksCompanyWide(companyId: string, relatedUserId: string): Promise<void>;
-  };
   companies: {
     correctSubscriptionSnapshotUnscoped(
       companyId: string,

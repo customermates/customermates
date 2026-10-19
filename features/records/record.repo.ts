@@ -144,7 +144,6 @@ export interface RecordRepo {
     input: Pick<RecordIdentityInput, "messagingId" | "displayName" | "profileUrl">,
   ): Promise<void>;
   setIdentities(ref: RecordRef, inputs: RecordIdentityInput[]): Promise<void>;
-  protectMembershipTask(ref: RecordRef, userId: string): Promise<void>;
   getModel(): Promise<RecordModel>;
   searchRecords(request: RecordSearchRequest, model: RecordModel, access: RecordAccessMap): Promise<RecordSearchRow[]>;
   getViewStatesCompanyWide(

@@ -48,7 +48,7 @@ type NavigationSwitchProps = {
   userDisplayLanguage: unknown;
   subscription: SubscriptionDto | null;
   trialDaysLeft: number | null;
-  systemTaskCount: number;
+  pendingMemberCount: number;
   unreadThreadCount: number;
   channelsNeedingActionCount: number;
   emailVerified: boolean | null;
@@ -70,7 +70,7 @@ export function NavigationSwitch({
   userDisplayLanguage,
   subscription,
   trialDaysLeft,
-  systemTaskCount,
+  pendingMemberCount,
   unreadThreadCount,
   channelsNeedingActionCount,
   emailVerified,
@@ -192,8 +192,8 @@ export function NavigationSwitch({
           legalStatus={legalStatus}
           mode="full"
           operatorConsoleVisible={operatorConsoleVisible}
+          pendingMemberCount={pendingMemberCount}
           subscription={subscription}
-          systemTaskCount={systemTaskCount}
           trialDaysLeft={trialDaysLeft}
           unreadThreadCount={unreadThreadCount}
           user={sidebarUser}

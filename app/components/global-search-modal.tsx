@@ -142,9 +142,7 @@ export const GlobalSearchModal = observer(() => {
           relationships: editor.presentation.model.relationships,
           typeLabels: new Map((navigation?.types ?? []).map((type) => [type.id, type.label])),
           canDelete: editor.presentation.permittedActions.includes("delete"),
-          canAssign:
-            !editor.record.protectedKind &&
-            !editor.presentation.model.types.find((type) => type.id === editor.presentation.typeId)?.embedded,
+          canAssign: !editor.presentation.model.types.find((type) => type.id === editor.presentation.typeId)?.embedded,
         }
       : null;
   const contextEntries = recordEntries(translate, recordContext);

@@ -33,7 +33,7 @@ export class StartChatRecordChannelRepo extends TenantRepository implements Star
 
   async isRecordEditableCompanyWide(ref: RecordRef): Promise<boolean> {
     const record = await this.records.getRecordCompanyWide(ref);
-    return Boolean(record && !record.protectedKind);
+    return Boolean(record);
   }
 
   setIdentityResolutionCompanyWide(

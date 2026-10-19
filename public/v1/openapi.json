@@ -9541,10 +9541,6 @@
                             "exclusiveMinimum": 0,
                             "maximum": 9007199254740991
                           },
-                          "protectedKind": {
-                            "type": "string",
-                            "const": "membershipAuthorization"
-                          },
                           "schemaRevision": {
                             "type": "integer",
                             "minimum": -9007199254740991,
@@ -11142,10 +11138,6 @@
                               "type": "integer",
                               "exclusiveMinimum": 0,
                               "maximum": 9007199254740991
-                            },
-                            "protectedKind": {
-                              "type": "string",
-                              "const": "membershipAuthorization"
                             },
                             "schemaRevision": {
                               "type": "integer",
@@ -34628,7 +34620,6 @@
                                 "kind": {
                                   "type": "string",
                                   "enum": [
-                                    "membershipAuthorization",
                                     "avatar",
                                     "calendar"
                                   ]
@@ -35012,8 +35003,6 @@
                                   "calculation",
                                   "snapshotTrigger",
                                   "parentAccess",
-                                  "binding",
-                                  "protected",
                                   "routine",
                                   "webhook",
                                   "widget",
@@ -36545,7 +36534,6 @@
                                 "kind": {
                                   "type": "string",
                                   "enum": [
-                                    "membershipAuthorization",
                                     "avatar",
                                     "calendar"
                                   ]
@@ -37466,10 +37454,6 @@
                       "type": "integer",
                       "exclusiveMinimum": 0,
                       "maximum": 9007199254740991
-                    },
-                    "protectedKind": {
-                      "type": "string",
-                      "const": "membershipAuthorization"
                     },
                     "schemaRevision": {
                       "type": "integer",
@@ -39898,10 +39882,6 @@
                             "type": "integer",
                             "exclusiveMinimum": 0,
                             "maximum": 9007199254740991
-                          },
-                          "protectedKind": {
-                            "type": "string",
-                            "const": "membershipAuthorization"
                           },
                           "schemaRevision": {
                             "type": "integer",
@@ -52652,7 +52632,6 @@
                           "kind": {
                             "type": "string",
                             "enum": [
-                              "membershipAuthorization",
                               "avatar",
                               "calendar"
                             ]
@@ -77852,10 +77831,6 @@
                               "exclusiveMinimum": 0,
                               "maximum": 9007199254740991
                             },
-                            "protectedKind": {
-                              "type": "string",
-                              "const": "membershipAuthorization"
-                            },
                             "schemaRevision": {
                               "type": "integer",
                               "minimum": -9007199254740991,
@@ -80731,7 +80706,6 @@
                               "kind": {
                                 "type": "string",
                                 "enum": [
-                                  "membershipAuthorization",
                                   "avatar",
                                   "calendar"
                                 ]
@@ -80792,14 +80766,6 @@
                         "type": "string"
                       },
                       "description": "Always empty: a record in Trash is read only."
-                    },
-                    "systemActions": {
-                      "maxItems": 0,
-                      "type": "array",
-                      "items": {
-                        "type": "string",
-                        "const": "manageMembership"
-                      }
                     },
                     "canManageSchema": {
                       "type": "boolean"

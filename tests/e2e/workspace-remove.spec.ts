@@ -11,7 +11,7 @@ import { removeBrowserWorkspace } from "./workspace";
 import {
   addMembership,
   apiKeyRequest,
-  approvalTaskCount,
+  pendingRequestCount,
   createNamedLogin,
   expectRefusedPageAction,
   inviteToken,
@@ -108,7 +108,7 @@ test("the member dialog never offers removing yourself and explains why the last
   expect(errors).toEqual([]);
 });
 
-test("removing a member who waits for approval declines the request and clears the approval task", async ({
+test("removing a member who waits for approval declines the request", async ({
   browser,
   page,
   database,
@@ -125,7 +125,7 @@ test("removing a member who waits for approval declines the request and clears t
       await requester.page.goto(`/en/invitation/${token}`);
       await joinFromInvitation(requester.page);
       await expect(requester.page).toHaveURL(/\/en\/auth\/pending$/);
-      await expect.poll(() => approvalTaskCount(database, workspace.companyId, email)).toBe(1);
+      await expect.poll(() => pendingRequestCount(database, workspace.companyId, email)).toBe(1);
 
       await page.goto("/en/settings/members");
       const row = memberItem(page, "Petra Wolf");
@@ -142,7 +142,7 @@ test("removing a member who waits for approval declines the request and clears t
         status: "inactive",
         left: true,
       });
-      expect(await approvalTaskCount(database, workspace.companyId, email)).toBe(0);
+      expect(await pendingRequestCount(database, workspace.companyId, email)).toBe(0);
       expect(sentEmailsTo(email)).toEqual([]);
 
       await clickHydrated(
