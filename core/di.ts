@@ -1315,6 +1315,7 @@ export const getDeleteWorkspaceInteractor = () =>
     getDeleteAccountForBillingService(),
     getUnipileWebhookRepo(),
     getUnrecordedSubscriptionCheck(),
+    getBackgroundTaskService(),
   );
 
 export const getUnrecordedSubscriptionCheck = () =>
