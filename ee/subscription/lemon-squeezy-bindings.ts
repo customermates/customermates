@@ -9,9 +9,6 @@ import {
   type LemonSqueezyBindingEnvironment,
 } from "./lemon-squeezy-binding-contract";
 
-export { LEMON_SQUEEZY_VARIANT_ENV_KEYS } from "./lemon-squeezy-binding-contract";
-export type { LemonSqueezyBindingEnvironment, LemonSqueezyBindings } from "./lemon-squeezy-binding-contract";
-
 function runtimeBindingEnvironment(): LemonSqueezyBindingEnvironment {
   const supportedKeys = new Set(Object.values(LEMON_SQUEEZY_VARIANT_ENV_KEYS));
   return {

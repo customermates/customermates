@@ -4703,7 +4703,6 @@
       "pending": "En espera",
       "read": "Leída",
       "reading": "Leyendo",
-      "readingCount": "Leyendo páginas · {fetched}/{total}",
       "readingStep": "Leyendo páginas del sitio",
       "skipped": {
         "aiUnavailable": "Mate no disponible temporalmente",

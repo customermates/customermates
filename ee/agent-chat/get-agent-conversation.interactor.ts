@@ -20,7 +20,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 
 const Schema = AgentMessagePageSchema;
 
-export type GetAgentConversationData = AgentMessagePageData;
+type GetAgentConversationData = AgentMessagePageData;
 
 const OutputSchema = z.object({
   id: z.string(),

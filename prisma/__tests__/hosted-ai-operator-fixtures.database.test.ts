@@ -84,7 +84,7 @@ describeDatabase("hosted AI operator user-table fixtures", { timeout: 120_000 },
         await expect(seedUserLogin(prisma, context.ids.user)).resolves.toMatchObject({ isPlatformOperator: true });
         await expect(
           prisma.authUser.count({ where: { id: { in: tableIds }, isPlatformOperator: true } }),
-        ).resolves.toBe(4);
+        ).resolves.toBe(5);
 
         await seedIdentity(context);
         await seedHostedAiOperatorUserTableFixtures(context);
@@ -145,15 +145,15 @@ describeDatabase("hosted AI operator user-table fixtures", { timeout: 120_000 },
 
         await seedHostedAiOperatorUserTableFixtures(context, { includeLocalOperatorAccess: true });
 
-        await expect(prisma.user.count({ where: { id: { in: ids } } })).resolves.toBe(32);
-        await expect(prisma.authUser.count({ where: { id: { in: ids } } })).resolves.toBe(32);
+        await expect(prisma.user.count({ where: { id: { in: ids } } })).resolves.toBe(38);
+        await expect(prisma.authUser.count({ where: { id: { in: ids } } })).resolves.toBe(38);
         await expect(
           prisma.subscription.count({
             where: {
               companyId: { in: SYNTHETIC_HOSTED_AI_OPERATOR_USER_DEFINITIONS.map(({ companyId }) => companyId) },
             },
           }),
-        ).resolves.toBe(28);
+        ).resolves.toBe(34);
 
         const rows = await prisma.user.findMany({
           where: { id: { in: ids } },
@@ -166,12 +166,12 @@ describeDatabase("hosted AI operator user-table fixtures", { timeout: 120_000 },
           new Set(["active", "inactive", "pendingAuthorization"]),
         );
         expect(new Set(rows.map(({ company }) => company.subscription?.plan ?? null))).toEqual(
-          new Set(["starter", "pro", "business", "enterprise", null]),
+          new Set(["starter", "pro", "business", "max", "enterprise", null]),
         );
         expect(new Set(rows.map(({ company }) => company.subscription?.status ?? null))).toEqual(
           new Set(["trial", "active", "cancelled", "expired", "pastDue", "unPaid", null]),
         );
-        expect(authUsers.filter(({ isPlatformOperator }) => isPlatformOperator)).toHaveLength(4);
+        expect(authUsers.filter(({ isPlatformOperator }) => isPlatformOperator)).toHaveLength(5);
         expect(authUsers.some(({ emailVerified }) => !emailVerified)).toBe(true);
         expect(rows.every(({ email }) => email.endsWith("@example.invalid"))).toBe(true);
         expect(rows.find(({ id }) => id === noSubscription.id)?.company.subscription).toBeNull();
@@ -204,7 +204,7 @@ describeDatabase("hosted AI operator user-table fixtures", { timeout: 120_000 },
 
         for (const status of ["active", "inactive", "pendingAuthorization"] as const)
           await expect(prisma.user.count({ where: { id: { in: ids }, status } })).resolves.toBeGreaterThan(0);
-        for (const plan of ["starter", "pro", "business", "enterprise"] as const) {
+        for (const plan of ["starter", "pro", "business", "max", "enterprise"] as const) {
           await expect(
             prisma.user.count({ where: { id: { in: ids }, company: { subscription: { plan } } } }),
           ).resolves.toBeGreaterThan(0);
@@ -217,9 +217,9 @@ describeDatabase("hosted AI operator user-table fixtures", { timeout: 120_000 },
         await expect(
           prisma.user.count({ where: { id: { in: ids }, company: { subscription: { is: null } } } }),
         ).resolves.toBe(4);
-        await expect(prisma.authUser.count({ where: { id: { in: ids }, isPlatformOperator: true } })).resolves.toBe(4);
+        await expect(prisma.authUser.count({ where: { id: { in: ids }, isPlatformOperator: true } })).resolves.toBe(5);
         await expect(prisma.authUser.count({ where: { id: { in: ids }, isPlatformOperator: false } })).resolves.toBe(
-          28,
+          33,
         );
 
         const firstPage = await prisma.user.findMany({
@@ -240,8 +240,8 @@ describeDatabase("hosted AI operator user-table fixtures", { timeout: 120_000 },
         });
 
         expect(firstPage).toHaveLength(25);
-        expect(secondPage).toHaveLength(7);
-        expect(new Set([...firstPage, ...secondPage].map(({ id }) => id)).size).toBe(32);
+        expect(secondPage).toHaveLength(13);
+        expect(new Set([...firstPage, ...secondPage].map(({ id }) => id)).size).toBe(38);
         expect([...firstPage, ...secondPage].map(({ id }) => id)).toEqual(rows.map(({ id }) => id));
       } finally {
         await prisma.$disconnect();

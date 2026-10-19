@@ -1,6 +1,6 @@
 import type { StoredUserProfileData, UpdateUserDetailsData } from "./update-user-details.interactor";
 
-export type OtherMembershipProfile = {
+type OtherMembershipProfile = {
   id: string;
   companyId: string;
   firstName: string;

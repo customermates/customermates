@@ -14,8 +14,6 @@ import { WorkspacePlanRequiredError } from "@/core/auth/workspace-plan-required-
 import { MCP_ENDPOINT_PATH, mcpProtectedResourceMetadataUrl } from "@/features/auth/mcp-resource";
 import type { SerializedInteractorFailure } from "@/core/validation/validation.utils";
 
-export type { McpTool, McpToolResult } from "@/features/mcp-tools/mcp-tool";
-
 const UNEXPECTED_FAILURE_MESSAGE = "The operation could not be completed because of an unexpected server error.";
 const FOREIGN_TOKEN_MESSAGE = "The access token belongs to another workspace. Connect again through this MCP URL.";
 const FOREIGN_API_KEY_MESSAGE =

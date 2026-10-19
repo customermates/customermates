@@ -51,7 +51,7 @@ function docsSectionLabel(section: DocsSection): string {
   return retrievalSectionLabel(section.pageTitle, section.headingPath);
 }
 
-export function docsSectionSearchBody(section: DocsSection): string {
+function docsSectionSearchBody(section: DocsSection): string {
   return section.text.replace(/\]\([^)\n]*\)/gu, "]").trim();
 }
 

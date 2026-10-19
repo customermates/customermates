@@ -51,7 +51,7 @@ export type SetupModelLabels = {
   savedPriceMode: string;
 };
 
-export type SetupModelContext = {
+type SetupModelContext = {
   setupId: string;
   model: RecordModel;
   labels: SetupModelLabels;

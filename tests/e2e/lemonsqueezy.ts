@@ -31,9 +31,9 @@ import {
   writeLocalSubscription,
 } from "./local-lemonsqueezy-provider.mjs";
 
-export type ProviderPlan = keyof typeof localLemonSqueezyVariants;
+type ProviderPlan = keyof typeof localLemonSqueezyVariants;
 
-export type ProviderSubscription = {
+type ProviderSubscription = {
   id: string;
   itemId: number;
   companyId: string;
@@ -42,9 +42,9 @@ export type ProviderSubscription = {
   attributes: LemonSqueezySubscriptionAttributes;
 };
 
-export type ProviderCustomer = { name: string; email: string };
+type ProviderCustomer = { name: string; email: string };
 
-export type LocalCheckout = {
+type LocalCheckout = {
   id: string;
   createdAt: string;
   storeId: string;
@@ -131,7 +131,7 @@ export function changeProviderSubscription(
   return next;
 }
 
-export function webhookSecret() {
+function webhookSecret() {
   return localLemonSqueezyWebhookSecret(process.env.BETTER_AUTH_SECRET);
 }
 

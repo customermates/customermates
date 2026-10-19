@@ -6,12 +6,14 @@ import type { Data } from "@/core/validation/validation.utils";
 import { assertValidDate } from "@/core/utils/date";
 
 import { agentCreditsToMicrocents } from "@/core/commercial/agent-credits";
-import { CLOUD_TRIAL_HOSTED_AI_USAGE_MULTIPLIER } from "@/core/commercial/plan-catalog";
-import { getEntitlements, TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER } from "@/ee/subscription/entitlements";
+import {
+  CLOUD_TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER,
+  CLOUD_TRIAL_HOSTED_AI_USAGE_MULTIPLIER,
+} from "@/core/commercial/plan-catalog";
+import { getEntitlements } from "@/ee/subscription/entitlements";
 
 export {
   AGENT_CREDIT_MICROCENTS,
-  AGENT_MICROCENTS_PER_USD,
   agentCreditsToMicrocents,
   agentMicrocentsToCredits,
 } from "@/core/commercial/agent-credits";
@@ -174,7 +176,7 @@ export function workspaceAgentCreditRate(input: {
   const usableTrial =
     input.status === SubscriptionStatus.trial &&
     (input.trialEndDate === null || input.trialEndDate.getTime() >= input.now.getTime());
-  if (usableTrial) return TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER;
+  if (usableTrial) return CLOUD_TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER;
   if (input.status !== SubscriptionStatus.active) return null;
 
   return paidPlanAllowance(input.plan, input.enterpriseCreditsPerUser);
@@ -228,7 +230,7 @@ export function resolveAgentCreditEntitlement(input: AgentCreditEntitlementInput
       ...period,
       plan: input.plan,
       limitMicrocents: adjustedAllowance(
-        agentCreditsToMicrocents(TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER),
+        agentCreditsToMicrocents(CLOUD_TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER),
         input.adjustmentMicrocents,
       ),
       blockedReason: null,

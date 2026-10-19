@@ -16,7 +16,7 @@ export const SPREADSHEET_SAMPLE_CELL_LENGTH = 200;
 export const SPREADSHEET_MAX_DISTINCT_VALUES = 20;
 export const SPREADSHEET_MAX_ROW_ERRORS = 500;
 
-export const SpreadsheetLocaleSchema = z.enum([...FORMATTING_LOCALES] as [FormattingLocale, ...FormattingLocale[]]);
+const SpreadsheetLocaleSchema = z.enum([...FORMATTING_LOCALES] as [FormattingLocale, ...FormattingLocale[]]);
 export type SpreadsheetLocale = FormattingLocale;
 
 export const SpreadsheetCellSchema = z
@@ -24,13 +24,12 @@ export const SpreadsheetCellSchema = z
   .nullable();
 export type SpreadsheetCell = z.infer<typeof SpreadsheetCellSchema>;
 
-export const SpreadsheetRowSchema = z
+const SpreadsheetRowSchema = z
   .object({
     rowNumber: z.number().int().positive(),
     cells: z.array(SpreadsheetCellSchema).max(SPREADSHEET_MAX_COLUMNS),
   })
   .strict();
-export type SpreadsheetRow = z.infer<typeof SpreadsheetRowSchema>;
 
 export const SpreadsheetTableSchema = z
   .object({
@@ -105,7 +104,7 @@ export type SpreadsheetPreview = {
 export const SpreadsheetDateOrderSchema = z.enum(["dmy", "mdy", "ymd"]);
 export type SpreadsheetDateOrder = z.infer<typeof SpreadsheetDateOrderSchema>;
 
-export const SpreadsheetNamePartSchema = z.enum(["first", "last"]);
+const SpreadsheetNamePartSchema = z.enum(["first", "last"]);
 
 export const SpreadsheetColumnMappingSchema = z
   .object({
@@ -121,13 +120,12 @@ export const SpreadsheetColumnMappingSchema = z
   .strict();
 export type SpreadsheetColumnMapping = z.infer<typeof SpreadsheetColumnMappingSchema>;
 
-export const SpreadsheetRelationshipMappingSchema = z
+const SpreadsheetRelationshipMappingSchema = z
   .object({
     column: z.string().trim().min(1).max(SPREADSHEET_MAX_HEADER_LENGTH),
     relationId: z.uuid(),
   })
   .strict();
-export type SpreadsheetRelationshipMapping = z.infer<typeof SpreadsheetRelationshipMappingSchema>;
 
 export const SpreadsheetMappingSchema = z
   .object({

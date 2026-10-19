@@ -3,12 +3,12 @@ import { isAbsolute, resolve } from "node:path";
 import { requireSingleLocalDatabase } from "../local-database-safety";
 
 export const DEFAULT_CAP_USD = 0.3;
-export const DEFAULT_PORT = 4000;
+const DEFAULT_PORT = 4000;
 export const WORKFLOW_DATA_DIR = ".next/agent-e2e-workflow-data";
 
 export type AgentE2eFlags = { capUsd: number; port: number; build: boolean; cases: string[] | null };
 
-export type AgentE2eEnvironment = {
+type AgentE2eEnvironment = {
   appUrl: string;
   databaseUrl: string;
   workflowDataDir: string;

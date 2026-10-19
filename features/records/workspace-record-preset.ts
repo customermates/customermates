@@ -5,8 +5,6 @@ import { recordInvariant } from "./record-invariant";
 
 export const RECORD_PRESET_KEYS = ["contact", "organization", "deal", "service", "task"] as const;
 
-export type RecordPresetKey = (typeof RECORD_PRESET_KEYS)[number];
-
 export function createWorkspaceRecordPreset(companyId: string, t: (key: string) => string) {
   const model = createCrmPreset(companyId);
   const id = (key: string) => presetId(companyId, key);

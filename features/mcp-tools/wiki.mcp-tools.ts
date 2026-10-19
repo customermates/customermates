@@ -39,10 +39,10 @@ import {
 const WIKI_MCP_TEXT_TARGET_LENGTH = 5_500;
 const WIKI_MCP_PAGE_SIZE = 5;
 const WIKI_MCP_ANCHOR_HINTS = 30;
-export const WIKI_NO_ADEQUATE_SECTION =
+const WIKI_NO_ADEQUATE_SECTION =
   "No Knowledge Base section adequately answers this query. Do not guess: say the Knowledge Base does not cover it, or ask for details.";
 
-export const WIKI_INDEX_REBUILDING =
+const WIKI_INDEX_REBUILDING =
   "The Knowledge Base search index is still being rebuilt, so some pages were not searched yet. Do not conclude the Knowledge Base lacks this: list pages or search again shortly.";
 
 const MarkdownInputSchema = z

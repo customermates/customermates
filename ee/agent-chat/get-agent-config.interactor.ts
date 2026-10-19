@@ -29,7 +29,7 @@ const OutputSchema = z.discriminatedUnion("enabled", [
   }),
 ]);
 
-export type AgentConfig = Data<typeof OutputSchema>;
+type AgentConfig = Data<typeof OutputSchema>;
 
 @AllowInDemoMode
 @TenantInteractor()

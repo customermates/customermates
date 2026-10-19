@@ -53,7 +53,7 @@ export function setupWidgetCreationOrder<T extends { layout?: { x: number; y: nu
   );
 }
 
-export type SetupDashboardContext = {
+type SetupDashboardContext = {
   setupId: string;
   expectedRevision: number;
   brandChart?: ChartColor | null;

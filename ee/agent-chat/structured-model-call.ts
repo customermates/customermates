@@ -60,7 +60,7 @@ const PROVIDER_WIDE_REJECTIONS = new Set([
 ]);
 const PROVIDER_WIDE_STATUSES = new Set([401, 403, 404, 429]);
 
-export type WikiSynthesisFailureScope = "request" | "provider";
+type WikiSynthesisFailureScope = "request" | "provider";
 
 function failureScope(error: unknown): WikiSynthesisFailureScope {
   if (NoObjectGeneratedError.isInstance(error)) return "request";
@@ -83,7 +83,7 @@ function callFailure(label: string, model: string, error: unknown): string {
 }
 
 export const STRUCTURED_OUTPUT_MAX_UNION_TYPES = 16;
-export const STRUCTURED_OUTPUT_REASONING = "none";
+const STRUCTURED_OUTPUT_REASONING = "none";
 
 export function structuredOutputUnionTypes(schema: z.ZodType): number {
   let unions = 0;
@@ -174,7 +174,7 @@ function parsedText(text: string, salvage: boolean): unknown {
   }
 }
 
-export type UnconstrainedOutput<T> = { output: T } | { rejection: string } | null;
+type UnconstrainedOutput<T> = { output: T } | { rejection: string } | null;
 
 export function readUnconstrainedOutput<T>(
   error: unknown,

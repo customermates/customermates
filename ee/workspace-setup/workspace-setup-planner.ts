@@ -73,7 +73,7 @@ export function emptySetupPlanPart(revision: number): SetupPlanPartState {
   return { revision, attempts: 0, value: null, repair: [], failure: null };
 }
 
-export type SetupPlanIssue = { path: string; message: string; value?: string | number | boolean | null };
+type SetupPlanIssue = { path: string; message: string; value?: string | number | boolean | null };
 export type SetupPlanOutcome = { ok: true; plan: SetupPlan } | { ok: false; failure: WorkspaceSetupFailure };
 type SetupPlanDrafts = { model: PlanModelWire | null; knowledge: PlanKnowledgeWire | null };
 

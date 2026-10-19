@@ -9,18 +9,18 @@ const SESSION_LIFETIME_MS = 6 * 60 * 60 * 1000;
 const FIXTURE_TAG = "agent-e2e";
 const CREDIT_ANCHOR = new Date("2020-01-01T00:00:00.000Z");
 
-export const STAGES = ["Lead", "Qualified", "Proposal", "Negotiation", "Won", "Lost"] as const;
+const STAGES = ["Lead", "Qualified", "Proposal", "Negotiation", "Won", "Lost"] as const;
 export type Stage = (typeof STAGES)[number];
 
 export const SEEDED_ORGANIZATIONS = ["Nordlicht GmbH", "Atlas Robotics AG", "Brightwave Ltd"] as const;
 
-export const SEEDED_CONTACTS = [
+const SEEDED_CONTACTS = [
   { key: "maria", firstName: "Maria", lastName: "Okafor", email: "maria.okafor@atlas.example" },
   { key: "lukas", firstName: "Lukas", lastName: "Brandt", email: "lukas.brandt@nordlicht.example" },
   { key: "ines", firstName: "Ines", lastName: "Haller", email: "ines.haller@brightwave.example" },
 ] as const;
 
-export const SEEDED_DEALS: readonly { key: string; name: string; value: number; stage: Stage }[] = [
+const SEEDED_DEALS: readonly { key: string; name: string; value: number; stage: Stage }[] = [
   { key: "atlas-renewal", name: "Atlas Robotics renewal", value: 18_000, stage: "Negotiation" },
   { key: "atlas-expansion", name: "Atlas Robotics expansion", value: 42_000, stage: "Negotiation" },
   { key: "nordlicht-pilot", name: "Nordlicht pilot", value: 9_500, stage: "Negotiation" },

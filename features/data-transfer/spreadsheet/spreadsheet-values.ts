@@ -55,7 +55,7 @@ export function cellText(cell: SpreadsheetCell): string {
   return String(cell).trim();
 }
 
-export function canonicalDecimal(sign: string, integer: string, fraction: string): string | null {
+function canonicalDecimal(sign: string, integer: string, fraction: string): string | null {
   if (!/^\d+$/.test(integer) || (fraction && !/^\d+$/.test(fraction))) return null;
   const whole = integer.replace(/^0+(?=\d)/, "");
   const value = fraction ? `${whole}.${fraction}` : whole;
@@ -71,7 +71,7 @@ export function numberToDecimal(value: number): string | null {
   return match ? canonicalDecimal(match[1], match[2], match[3] ?? "") : null;
 }
 
-export function numberConvention(locale: SpreadsheetLocale): { decimal: string; grouping: string } {
+function numberConvention(locale: SpreadsheetLocale): { decimal: string; grouping: string } {
   const parts = new Intl.NumberFormat(formattingTagFor(locale)).formatToParts(1234567.5);
   const decimal = parts.find((part) => part.type === "decimal")?.value ?? ".";
   const group = parts.find((part) => part.type === "group")?.value ?? "";
@@ -224,9 +224,7 @@ function wallClockInstant(date: string, hour: number, minute: number, second: nu
   const wall = new Date(Date.UTC(2000, month - 1, day, hour, minute, second));
   wall.setUTCFullYear(year);
   const guess = wall.getTime();
-  let offset = zoneOffsetMinutes(guess, timeZone);
-  const corrected = zoneOffsetMinutes(guess - offset * 60000, timeZone);
-  if (corrected !== offset) offset = corrected;
+  const offset = zoneOffsetMinutes(guess - zoneOffsetMinutes(guess, timeZone) * 60000, timeZone);
   const clock = [hour, minute, second].map((part) => String(part).padStart(2, "0")).join(":");
   return `${date}T${clock}${formatOffset(offset)}`;
 }

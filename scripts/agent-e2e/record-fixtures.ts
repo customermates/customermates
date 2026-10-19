@@ -28,9 +28,9 @@ type FixtureDelegate = {
   create<T extends Record<string, unknown>>(args: { data: T }): Promise<T & { id: string }>;
   createMany(args: { data: Record<string, unknown>[] }): Promise<{ count: number }>;
 };
-export type E2eFixtureWriter = Prisma.TransactionClient & Record<string, FixtureDelegate>;
+type E2eFixtureWriter = Prisma.TransactionClient & Record<string, FixtureDelegate>;
 
-export type E2eRecordSnapshot = {
+type E2eRecordSnapshot = {
   contact: Array<{ id: string; firstName: string | null; lastName: string | null }>;
   organization: Array<{ id: string; name: string | null }>;
   deal: Array<{ id: string; name: string | null }>;

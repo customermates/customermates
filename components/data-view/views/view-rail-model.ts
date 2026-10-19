@@ -1,6 +1,6 @@
 import type { DataViewChipDto } from "@/core/data-view/data-view-state.schema";
 
-export type RailChip = { view: DataViewChipDto; isActive: boolean };
+type RailChip = { view: DataViewChipDto; isActive: boolean };
 
 export type ViewMenuItemId = "copyLink" | "delete" | "duplicate" | "edit" | "moveLeft" | "moveRight";
 
@@ -10,7 +10,7 @@ export type ViewMenuItem = {
   isDisabled: boolean;
 };
 
-export type ViewMenuContext = {
+type ViewMenuContext = {
   index: number;
   total: number;
 };

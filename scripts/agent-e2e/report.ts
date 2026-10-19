@@ -11,7 +11,7 @@ export type CaseRow = {
   totalMs: number;
 };
 
-export const MIN_CASE_RESERVE_USD = 0.03;
+const MIN_CASE_RESERVE_USD = 0.03;
 
 export function microcentsToUsd(microcents: number) {
   return microcents / AGENT_MICROCENTS_PER_USD;

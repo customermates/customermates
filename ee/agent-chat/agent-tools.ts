@@ -48,7 +48,6 @@ import { AgentTourSchema } from "./agent-tours";
 import { AGENT_UI_TOOL_NAMES, toAgentUiCommandInput } from "./agent-ui-command";
 import { isReadOnlyTool, requiresApprovalOnSurface } from "./gated-tools";
 import { importWebsiteTool } from "@/ee/wiki-crawl/wiki-import-tool";
-import { providerWireInputSchema } from "./provider-safe-json-schema";
 import { recordToolRisk } from "./record-tool-risk";
 import { internalToolIdentity, WIKI_WEBSITE_IMPORT_TOOL_NAME } from "./tool-identity";
 import { NavigateInputSchema } from "./ui-operations";
@@ -79,7 +78,7 @@ export type AgentToolOptions = {
   surface?: AgentSurface;
 };
 
-export { isAgentToolCancellation, type AgentToolCancellation } from "./agent-tool-cancellation";
+export { isAgentToolCancellation } from "./agent-tool-cancellation";
 
 export type ApprovalDecision = "approve" | "reject" | "timeout";
 export type AgentUiCommandOutcome = { ok: boolean; result: string };
@@ -773,13 +772,13 @@ function loadToolsetTool() {
   });
 }
 
-export function hostedMcpTools() {
+function hostedMcpTools() {
   return ALL_MCP_TOOLS.filter((mcp) => mcp.name !== "request_support" && !isDeepResearchTool(mcp.name)).map((mcp) =>
     mcp.name === "get_workspace_context" ? hostedWorkspaceContextTool() : mcp,
   );
 }
 
-export function isWikiWebsiteSetupTurn(options: Pick<AgentToolOptions, "wikiWebsiteSetup" | "surface">) {
+function isWikiWebsiteSetupTurn(options: Pick<AgentToolOptions, "wikiWebsiteSetup" | "surface">) {
   return Boolean(options.wikiWebsiteSetup && options.surface === "chat");
 }
 
@@ -840,7 +839,7 @@ export type AgentAiToolDefinition = {
   inputSchema: unknown;
 };
 
-export function describeAgentAiTools(tools: ToolSet, servingProvider?: string): AgentAiToolDefinition[] {
+export function describeAgentAiTools(tools: ToolSet): AgentAiToolDefinition[] {
   return Object.entries(tools).map(([name, agentTool]) => ({
     name,
     ...(agentTool.type === "provider"
@@ -854,10 +853,7 @@ export function describeAgentAiTools(tools: ToolSet, servingProvider?: string): 
       : {}),
     description:
       "description" in agentTool && typeof agentTool.description === "string" ? agentTool.description : undefined,
-    inputSchema:
-      "inputSchema" in agentTool
-        ? providerWireInputSchema(asSchema(agentTool.inputSchema).jsonSchema, servingProvider)
-        : undefined,
+    inputSchema: "inputSchema" in agentTool ? asSchema(agentTool.inputSchema).jsonSchema : undefined,
   }));
 }
 
@@ -871,19 +867,15 @@ const TOOL_DEFINITION_DEPS: AgentToolDeps = {
   resultMaxChars: 1,
 };
 
-export function getAgentAiToolDefinitions(
-  servingProvider?: string,
-  options: AgentToolOptions = {},
-): AgentAiToolDefinition[] {
-  return describeAgentAiTools(getAgentAiTools(TOOL_DEFINITION_DEPS, options), servingProvider);
+export function getAgentAiToolDefinitions(options: AgentToolOptions = {}): AgentAiToolDefinition[] {
+  return describeAgentAiTools(getAgentAiTools(TOOL_DEFINITION_DEPS, options));
 }
 
-export type AgentTurnToolDefinition = AgentAiToolDefinition & {
+type AgentTurnToolDefinition = AgentAiToolDefinition & {
   toolset: string | null;
 };
 
 export function agentToolDefinitionsForTurn(args: {
-  servingProvider: string;
   surface: AgentSurface;
   locale?: string;
   webSearchEnabled?: boolean;
@@ -892,7 +884,7 @@ export function agentToolDefinitionsForTurn(args: {
   const panelToolNames = new Set<string>(AGENT_UI_TOOL_NAMES);
   const unattended = isUnattendedSurface(args.surface);
   return orderAgentToolsForCache(
-    getAgentAiToolDefinitions(args.servingProvider, args)
+    getAgentAiToolDefinitions(args)
       .filter((definition) => !unattended || !panelToolNames.has(definition.name))
       .map((definition) => ({
         ...definition,

@@ -264,7 +264,6 @@ async function firstRoutineRound(owner: SeedRoutine["owner"], text: string, inde
   const initialToolsets = payload.toolsets ?? [];
   const shells = agentToolDefinitionsForTurn({
     surface,
-    servingProvider: payload.turnBudget.servingProvider,
     locale: payload.locale,
     wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
     webSearchEnabled: payload.webSearchEnabled,

@@ -1,13 +1,13 @@
 import { readAgentProviderCharge, readGatewayCostMicrocents } from "./gateway-cost";
 
-export type AgentProviderErrorCharge = {
+type AgentProviderErrorCharge = {
   costMicrocents: number;
   measured: boolean;
   unreadableReason?: string;
   providerFailure?: boolean;
 };
 
-export type AgentProviderRoundCharge = AgentProviderErrorCharge & {
+type AgentProviderRoundCharge = AgentProviderErrorCharge & {
   currentAttemptOutcome: "measured" | "notBilled" | "unreadable";
 };
 
@@ -220,7 +220,7 @@ export function readAgentProviderRoundCharge(
   return readProviderReceiptEnvelope(envelope, expectedProvider);
 }
 
-export type AgentProviderRateLimit = { retryAfterMs: number | null };
+type AgentProviderRateLimit = { retryAfterMs: number | null };
 
 export function readAgentProviderRateLimit(error: unknown): AgentProviderRateLimit | null {
   const envelope = providerFailureEnvelope(error);

@@ -7,7 +7,7 @@ export type WikiFullTextSections = {
   coverage: number;
   corrected?: string;
 };
-export type WikiSemanticSections = {
+type WikiSemanticSections = {
   hits: Array<WikiSectionMatch & { similarity: number }>;
   complete: boolean;
   stale: boolean;

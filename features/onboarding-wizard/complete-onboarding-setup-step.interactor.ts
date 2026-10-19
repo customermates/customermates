@@ -1,4 +1,4 @@
-import type { CompleteOnboardingWikiStepRepo } from "./complete-onboarding-wiki-step.repo";
+import type { CompleteOnboardingSetupStepRepo } from "./complete-onboarding-setup-step.repo";
 import type { RouteGuardService } from "@/features/auth/route-guard.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
 
@@ -8,9 +8,9 @@ import { accountStateRedirect } from "@/features/auth/account-state";
 import { redirectTo } from "@/features/auth/auth-outcome";
 
 @SystemInteractor
-export class CompleteOnboardingWikiStepInteractor {
+export class CompleteOnboardingSetupStepInteractor {
   constructor(
-    private repo: CompleteOnboardingWikiStepRepo,
+    private repo: CompleteOnboardingSetupStepRepo,
     private routeGuardService: RouteGuardService,
   ) {}
 
@@ -22,7 +22,7 @@ export class CompleteOnboardingWikiStepInteractor {
     if (!user.role?.isSystemRole) return redirectTo("/");
 
     return runWithTenant(user, async () => {
-      await this.repo.markOnboardingWikiStepCompleted({ userId: user.id });
+      await this.repo.markOnboardingSetupStepCompleted({ userId: user.id });
       return { ok: true as const, data: { completed: true as const } };
     });
   }
