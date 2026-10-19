@@ -105,6 +105,14 @@ export interface RecordActorRepo {
 
 export type StoredValueWrite = { ref: RecordRef; fieldId: string; result: CalculatedValue; revision: number };
 export type StoredDependencyWrite = { ref: RecordRef; fieldId: string; sources: RecordRef[] };
+export type RecordEventAppend = {
+  ref: RecordRef;
+  actorId: string | null;
+  causeId: string;
+  kind: string;
+  payload: unknown;
+  publish: boolean;
+};
 
 export type RecordPlacement = { afterRecordId?: string; beforeRecordId?: string };
 
@@ -328,6 +336,8 @@ export interface RecordRepo {
     beforeDeletion?: boolean,
     publish?: boolean,
   ): Promise<void>;
+  /** `appendEvent` for each event, in order. */
+  appendEvents(events: RecordEventAppend[]): Promise<void>;
   createOperation(request: {
     id: string;
     userId: string;

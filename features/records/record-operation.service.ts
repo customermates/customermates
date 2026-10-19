@@ -63,6 +63,8 @@ function progress(operation: { processed: number; total: number }, units: number
 const BATCH_SIZE = 50;
 /** Records of one field recalculated per step: their reads and writes are batched, so a step stays a few seconds. */
 const CALCULATION_PAGE_SIZE = 500;
+/** Journal entries turned into events per step; their snapshots are read together. */
+const EVENT_PAGE_SIZE = 250;
 const RESTORE_PAGE_SIZE = 200;
 
 export class RecordOperationService extends UserAccessor {
@@ -317,17 +319,18 @@ export class RecordOperationService extends UserAccessor {
               },
             );
             const request = z.object({ idempotencyKey: z.string() }).parse(operation.request);
+            const pageSize = RecordCalculationService.batching ? EVENT_PAGE_SIZE : BATCH_SIZE;
             const page = await journal.flushPage(
               model,
               operator.eventActorId,
               request.idempotencyKey,
               cause,
               cursor.afterId,
-              BATCH_SIZE,
+              pageSize,
             );
             await this.records.updateOperation(operationId, {
               cursor:
-                page.count === BATCH_SIZE
+                page.count === pageSize
                   ? { phase: "events", index: cursor.index + 1, afterId: page.afterKey }
                   : { phase: "publish", index: 0 },
             });

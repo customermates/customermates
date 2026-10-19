@@ -28,6 +28,7 @@ import type {
   RecordPlacement,
   RecordRepo,
   RecordRepoOwners,
+  RecordEventAppend,
   RecordTrashItemInput,
   StoredDependencyWrite,
   StoredValueWrite,
@@ -2043,6 +2044,11 @@ export class PrismaRecordRepo
       await this.captureRecordEventMatches(this.companyId, { eventId: id }, beforeDeletion);
       await this.wakeRecordEvents();
     }
+  }
+
+  async appendEvents(events: RecordEventAppend[]): Promise<void> {
+    for (const event of events)
+      await this.appendEvent(event.ref, event.actorId, event.causeId, event.kind, event.payload, false, event.publish);
   }
 
   async deleteMembershipAuthorizationTasksCompanyWide(companyId: string, relatedUserId: string): Promise<void> {

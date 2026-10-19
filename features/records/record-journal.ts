@@ -1,6 +1,6 @@
 import { unwindFailure } from "@/core/validation/failure-unwind";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import type { RecordRepo } from "./record.repo";
+import type { RecordEventAppend, RecordRepo } from "./record.repo";
 import { recordChannelsField } from "./record-channels";
 import type { RecordField, RecordModel, RecordRef } from "./record-model.schema";
 import type { RecordEventPayload, RecordHistorySnapshot, RecordJournalEntry } from "./record-event.schema";
@@ -398,7 +398,7 @@ export class RecordJournal {
     causeId: string,
     cause: RecordEventPayload["cause"],
   ): Promise<void> {
-    for (const entry of this.entries.values()) await this.emit(entry, model, actorId, causeId, cause);
+    await this.emitAll([...this.entries.values()], model, actorId, causeId, cause);
   }
 
   async flushPage(
@@ -411,34 +411,52 @@ export class RecordJournal {
   ): Promise<{ count: number; afterKey: string | undefined }> {
     if (!this.staging) throw new Error("A paginated journal requires a staged operation");
     const rows = await this.staging.base.getStageRowsPage(this.staging.operationId, "journal", afterKey, take);
-    for (const row of rows)
-      await this.emit(RecordJournalEntrySchema.parse(row.payload), model, actorId, causeId, cause);
-
+    await this.emitAll(
+      rows.map((row) => RecordJournalEntrySchema.parse(row.payload)),
+      model,
+      actorId,
+      causeId,
+      cause,
+    );
     return { count: rows.length, afterKey: rows.at(-1)?.key };
   }
 
-  private async emit(
-    entry: RecordJournalEntry,
+  /** The events of the entries, in order, from their current snapshots read together, written together. */
+  private async emitAll(
+    entries: RecordJournalEntry[],
     model: RecordModel,
     actorId: string | null,
     causeId: string,
     cause: RecordEventPayload["cause"],
   ): Promise<void> {
-    if (this.emittedDeletions.has(recordKey(entry.ref))) return;
-    const after = await snapshot(this.records, entry.ref, model);
-    const event = recordEventChanges(entry, after, model, cause);
-    if (!event) return;
-    if (event.kind === "record.created" && this.restored.has(recordKey(entry.ref))) event.kind = "record.restored";
-    if (this.staging && entry.before && after && after.version <= entry.before.version)
-      event.payload.afterVersion = entry.before.version + 1;
-    await this.records.appendEvent(
-      entry.ref,
-      actorId,
-      causeId,
-      event.kind,
-      event.payload,
-      false,
-      event.kind !== "record.updated" || cause.kind !== "configuration",
-    );
+    const pending = entries.filter((entry) => !this.emittedDeletions.has(recordKey(entry.ref)));
+    const after =
+      pending.length > 1
+        ? await snapshots(
+            this.records,
+            pending.map((entry) => entry.ref),
+            model,
+          )
+        : null;
+    const events: RecordEventAppend[] = [];
+    for (const entry of pending) {
+      const snapshotAfter = after
+        ? (after.get(recordKey(entry.ref)) ?? null)
+        : await snapshot(this.records, entry.ref, model);
+      const event = recordEventChanges(entry, snapshotAfter, model, cause);
+      if (!event) continue;
+      if (event.kind === "record.created" && this.restored.has(recordKey(entry.ref))) event.kind = "record.restored";
+      if (this.staging && entry.before && snapshotAfter && snapshotAfter.version <= entry.before.version)
+        event.payload.afterVersion = entry.before.version + 1;
+      events.push({
+        ref: entry.ref,
+        actorId,
+        causeId,
+        kind: event.kind,
+        payload: event.payload,
+        publish: event.kind !== "record.updated" || cause.kind !== "configuration",
+      });
+    }
+    if (events.length) await this.records.appendEvents(events);
   }
 }
