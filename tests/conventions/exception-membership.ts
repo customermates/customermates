@@ -8,7 +8,7 @@ import { REPO_ROOT } from "./walk";
 
 const CONVENTIONS = "tests/conventions";
 
-export type Registry = RegistryShape & { name: string; base?: { file: string; name: string } };
+type Registry = RegistryShape & { name: string; base?: { file: string; name: string } };
 
 const registries = (...names: string[]): Registry[] => names.map((name) => ({ name }));
 
@@ -81,7 +81,7 @@ export const REGISTRY_FILES: Readonly<Record<string, readonly Registry[]>> = {
   "tenant-write-scoping.test.ts": registries("GUARD_EXEMPT_MODELS"),
 };
 
-export const RULE_PARAMETER_CONSTANTS: Readonly<Record<string, string>> = {
+const RULE_PARAMETER_CONSTANTS: Readonly<Record<string, string>> = {
   "design-system.test.ts#TITLE_EXEMPT_TAGS":
     "applicability: iframe, svg and its title element need a title attribute or element, it is not a tooltip",
   "exception-membership.ts#REVIEWED_EXCEPTION_ALLOWLIST":
@@ -92,7 +92,7 @@ export const RULE_PARAMETER_CONSTANTS: Readonly<Record<string, string>> = {
   "walk.ts#SKIPPED_DIRECTORIES": "dependencies, build output and run artifacts that are not repository sources",
 };
 
-export const REVIEWED_EXCEPTION_ALLOWLIST: Readonly<Record<string, string>> = {
+const REVIEWED_EXCEPTION_ALLOWLIST: Readonly<Record<string, string>> = {
   "design-system.test.ts#COLOR_EXEMPTIONS: components/ai-connection/ai-client-logo.tsx":
     "unresolved C01: third-party brand mark in its own brand colors",
   "design-system.test.ts#COLOR_EXEMPTIONS: ee/messaging/email-settings.ts":
@@ -242,7 +242,7 @@ export function registrySourceAdditions(
   return membershipAdditions(head, base).map((member) => `${file}#${registry.name}: ${member}`);
 }
 
-export function registryAdditions(file: string): string[] {
+function registryAdditions(file: string): string[] {
   const registriesOfFile = REGISTRY_FILES[file];
   if (!registriesOfFile) throw new Error(`${file} has no exception registries configured in exception-membership.ts`);
   const source = headSource(file);

@@ -13,7 +13,7 @@ import {
 } from "@/features/data-transfer/spreadsheet/spreadsheet-conversion";
 import { looksLikePhone, normalizeEmail } from "@/features/data-transfer/spreadsheet/spreadsheet-values";
 
-export type SetupLinkTargetImport = {
+type SetupLinkTargetImport = {
   typeId: string;
   table: SpreadsheetTable;
   mapping: SpreadsheetMapping;

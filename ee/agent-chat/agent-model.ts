@@ -6,7 +6,7 @@ export const AGENT_MIN_BYTES_PER_PROVIDER_TOKEN = 2;
 
 export const AGENT_REASONING_EFFORTS = ["none", "minimal", "low", "medium", "high", "xhigh"] as const;
 
-export type AgentReasoningEffort = (typeof AGENT_REASONING_EFFORTS)[number];
+type AgentReasoningEffort = (typeof AGENT_REASONING_EFFORTS)[number];
 
 export type AgentModelEntry = {
   modelId: string;

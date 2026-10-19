@@ -12,7 +12,7 @@ import { NORTHWIND_COMPANY_NAME } from "./northwind-model";
 import { seedRoles } from "./roles";
 import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
 
-export const SYNTHETIC_COMPANY = {
+const SYNTHETIC_COMPANY = {
   ...SYNTHETIC_SEED_TIMELINE.company,
   createdByAuthUserId: SEED_IDS.user,
   name: NORTHWIND_COMPANY_NAME,
@@ -25,7 +25,7 @@ export const SYNTHETIC_SUBSCRIPTION = {
   status: "active",
 } as const;
 
-export type SyntheticAuthIdentityDefinition = Readonly<{
+type SyntheticAuthIdentityDefinition = Readonly<{
   avatarPath: string;
   credentialAccountId: string;
   email: string;

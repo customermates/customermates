@@ -116,7 +116,7 @@ export const GetOperatorWorkspaceStatsSchema = z.object({ companyId: z.uuid() })
 const WORKSPACE_TAG_MAX_LENGTH = 60;
 const WORKSPACE_TAG_MAX_COUNT = 25;
 
-export const WorkspaceTagSchema = z.string().trim().min(1).max(WORKSPACE_TAG_MAX_LENGTH);
+const WorkspaceTagSchema = z.string().trim().min(1).max(WORKSPACE_TAG_MAX_LENGTH);
 
 export const UpdateOperatorWorkspaceTagsSchema = z
   .object({

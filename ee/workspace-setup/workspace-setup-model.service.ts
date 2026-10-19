@@ -12,7 +12,7 @@ export type SetupModelOutcome<T> =
   | { ok: true; value: T }
   | { ok: false; failure: WorkspaceSetupFailure; rejection?: string };
 
-export type SetupModelCall<T> = {
+type SetupModelCall<T> = {
   label: string;
   purpose: "setupDrafting" | "setupPlanning";
   schema: z.ZodType<T>;

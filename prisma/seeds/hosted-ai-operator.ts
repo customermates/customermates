@@ -16,7 +16,7 @@ const OPERATOR_TABLE_CREATED_AT = new Date("2026-08-10T08:00:00.000Z");
 const OPERATOR_TABLE_CREDIT_ANCHOR = new Date("2026-08-01T08:00:00.000Z");
 const OPERATOR_TABLE_CURRENT_PERIOD_END = new Date("2026-09-01T08:00:00.000Z");
 
-const OPERATOR_TABLE_PLANS = ["starter", "pro", "business", "enterprise"] as const;
+const OPERATOR_TABLE_PLANS = ["starter", "pro", "business", "max", "enterprise"] as const;
 const OPERATOR_TABLE_SUBSCRIPTION_STATUSES = ["trial", "active", "cancelled", "expired", "pastDue", "unPaid"] as const;
 const OPERATOR_TABLE_USER_STATUSES = ["active", "inactive", "pendingAuthorization"] as const;
 const OPERATOR_TABLE_COMBINATION_COUNT = OPERATOR_TABLE_PLANS.length * OPERATOR_TABLE_SUBSCRIPTION_STATUSES.length;
@@ -39,7 +39,7 @@ type SyntheticHostedAiOperatorSubscriptionDefinition = Readonly<{
   updatedAt: Date;
 }>;
 
-export type SyntheticHostedAiOperatorUserDefinition = Readonly<{
+type SyntheticHostedAiOperatorUserDefinition = Readonly<{
   authEmailVerified: boolean;
   companyId: string;
   createdAt: Date;

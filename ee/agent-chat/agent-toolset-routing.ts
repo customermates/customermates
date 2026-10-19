@@ -215,7 +215,7 @@ export function isAgentOnDemandToolset(value: unknown): value is AgentOnDemandTo
   return typeof value === "string" && (AGENT_ON_DEMAND_TOOLSETS as readonly string[]).includes(value);
 }
 
-export type AgentToolsetLookup = (toolName: string) => AgentOnDemandToolset | null;
+type AgentToolsetLookup = (toolName: string) => AgentOnDemandToolset | null;
 
 function normalizeText(value: string): string {
   return value.toLocaleLowerCase("en-US").normalize("NFKC");

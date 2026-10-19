@@ -85,7 +85,7 @@ export const AGENT_ACTIVITY_RESOURCES = ["widgets", "messages", "wiki"] as const
 export type AgentActivityResource = (typeof AGENT_ACTIVITY_RESOURCES)[number];
 export type AgentActivityRisk = "read" | "write" | "sensitive";
 
-export const AGENT_CONSEQUENCE_ACTIONS = [
+const AGENT_CONSEQUENCE_ACTIONS = [
   "email.send",
   "chat.send",
   "draft.save",

@@ -24,7 +24,8 @@ import { RecordRefSchema, type RecordRef } from "@/features/records/record-model
 import { recordDisplayName } from "@/features/records/record-display-name";
 import { extractWikiPageLinks, externalizeWikiPageLinks } from "@/features/wiki/wiki-markdown-links";
 import { parseWikiPageReference, wikiPageFetchId, wikiPageUrl } from "@/features/wiki/wiki-links";
-import { boundedWikiChunk, WIKI_CHUNK_SIZE_FAILURE, wikiCodePointBoundary } from "@/features/wiki/wiki-page-chunk";
+import { boundedWikiChunk, WIKI_CHUNK_SIZE_FAILURE } from "@/features/wiki/wiki-page-chunk";
+import { codePointBoundary } from "@/core/retrieval/retrieval-sections";
 import { wikiOutline } from "@/features/wiki/wiki-markdown-sections";
 import { boundedRecordFileText } from "@/features/record-file-index/record-file-text-chunk";
 
@@ -330,7 +331,7 @@ async function searchFiles(query: string) {
 }
 
 async function searchWiki(query: string) {
-  const wikiQuery = query.slice(0, wikiCodePointBoundary(query, WIKI_SEARCH_QUERY_MAX_LENGTH));
+  const wikiQuery = query.slice(0, codePointBoundary(query, WIKI_SEARCH_QUERY_MAX_LENGTH));
   try {
     const result = await getSearchExternalizedWikiPagesInteractor().invoke({
       query: wikiQuery,
@@ -383,7 +384,7 @@ export const searchTool = {
   }),
   outputSchema: SearchOutputSchema,
   execute: async ({ query }: { query: string }) => {
-    const recordQuery = query.slice(0, wikiCodePointBoundary(query, WIKI_SEARCH_QUERY_MAX_LENGTH));
+    const recordQuery = query.slice(0, codePointBoundary(query, WIKI_SEARCH_QUERY_MAX_LENGTH));
     const [recordResults, wiki, files, docHits] = await Promise.all([
       getSearchRecordsInteractor()
         .invoke({ searchTerm: recordQuery, limit: 15, cursor: null })

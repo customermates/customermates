@@ -207,6 +207,7 @@
   "scripts": {
     "address-metadata:generate": "tsx scripts/generate-address-metadata.ts",
     "agent:e2e": "tsx --import ./scripts/lib/register-server-only-shim.mjs scripts/agent-e2e/bootstrap.ts",
+    "agent:refresh-pricing": "tsx scripts/refresh-agent-model-pricing.ts",
     "basemap:generate": "node scripts/generate-basemap.mjs",
     "billing:verify-catalog": "tsx scripts/verify-billing-catalog.ts",
     "build": "prisma generate && yarn openapi:generate && yarn raw-docs:generate && NODE_OPTIONS=\"${NODE_OPTIONS:-} --max-old-space-size=6144\" next build",

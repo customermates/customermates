@@ -1,7 +1,7 @@
 import type { RecordFileParsed, RecordFileParserLimits, RecordFileSheet } from "./record-file-parser";
 
 import { xlsxCellText, xlsxCellValue } from "@/features/data-transfer/import/xlsx/xlsx-workbook";
-import { wikiCodePointBoundary } from "@/features/wiki/wiki-page-chunk";
+import { codePointBoundary } from "@/core/retrieval/retrieval-sections";
 
 import { parseRecordFile } from "./record-file-parser";
 import { checkRecordFileZip } from "./record-file-zip";
@@ -82,14 +82,14 @@ function cleanText(text: string): string {
 }
 
 function capped(text: string, truncated = false): RecordFileText {
-  const raw = text.length > RAW_TEXT_MAX_CHARS ? text.slice(0, wikiCodePointBoundary(text, RAW_TEXT_MAX_CHARS)) : text;
+  const raw = text.length > RAW_TEXT_MAX_CHARS ? text.slice(0, codePointBoundary(text, RAW_TEXT_MAX_CHARS)) : text;
   const clean = cleanText(raw);
   if (!clean) return { status: "noText" };
   if (clean.length <= RECORD_FILE_TEXT_MAX_CHARS)
     return { status: "done", text: clean, truncated: truncated || raw.length < text.length };
   return {
     status: "done",
-    text: clean.slice(0, wikiCodePointBoundary(clean, RECORD_FILE_TEXT_MAX_CHARS)).trimEnd(),
+    text: clean.slice(0, codePointBoundary(clean, RECORD_FILE_TEXT_MAX_CHARS)).trimEnd(),
     truncated: true,
   };
 }

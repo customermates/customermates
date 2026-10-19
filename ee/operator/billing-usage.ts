@@ -39,7 +39,7 @@ export type BillingUsageWorkspaceRow = {
   subscription: WorkspaceSubscriptionDto | null;
 };
 
-export type BillingUsageWindow = { month: string; from: Date; to: Date };
+type BillingUsageWindow = { month: string; from: Date; to: Date };
 
 export function billingUsageWindow(month: string): BillingUsageWindow {
   if (!BILLING_USAGE_MONTH_PATTERN.test(month)) throw new Error(`Invalid billing usage month: ${month}`);
@@ -72,10 +72,7 @@ export function billingUsageMonthsBetween(first: Date, last: Date): string[] {
   return months.reverse();
 }
 
-export function overlapsWindow(
-  interval: Pick<BillingUsageIntervalRow, "startedAt" | "endedAt">,
-  window: BillingUsageWindow,
-) {
+function overlapsWindow(interval: Pick<BillingUsageIntervalRow, "startedAt" | "endedAt">, window: BillingUsageWindow) {
   return interval.startedAt < window.to && (interval.endedAt === null || interval.endedAt > window.from);
 }
 
@@ -168,7 +165,7 @@ export function peakChannels(
   return { peak, peakAt: peakAt === null ? null : new Date(peakAt) };
 }
 
-export function billedChannels(
+function billedChannels(
   intervals: readonly BillingUsageIntervalRow[],
   window: BillingUsageWindow,
 ): BillingUsageChannelDto[] {

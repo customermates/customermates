@@ -2,7 +2,7 @@ export const RETRIEVAL_SECTION_MAX_LENGTH = 1_800;
 
 const FENCE_LINE = /^ {0,3}(`{3,}|~{3,})/u;
 
-function codePointBoundary(value: string, offset: number): number {
+export function codePointBoundary(value: string, offset: number): number {
   if (offset <= 0 || offset >= value.length) return offset;
   const low = value.charCodeAt(offset);
   const high = value.charCodeAt(offset - 1);

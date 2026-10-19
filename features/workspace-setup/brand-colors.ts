@@ -2,10 +2,10 @@ import type { ChipColor } from "@/constants/chip-colors";
 import { colorPalettes } from "@/styles/color-palettes";
 import type { ChartColor } from "@/features/widget/widget-display.schema";
 
-export type BrandColorSource = "themeColor" | "manifest" | "customProperty" | "button";
-export type BrandColorCandidate = { hex: string; source: BrandColorSource; score: number };
-export type BrandColorInput = { html: string; stylesheets?: string[]; manifest?: string | null };
-export type BrandColorMapping = { hex: string; chip: ChipColor; chart: ChartColor };
+type BrandColorSource = "themeColor" | "manifest" | "customProperty" | "button";
+type BrandColorCandidate = { hex: string; source: BrandColorSource; score: number };
+type BrandColorInput = { html: string; stylesheets?: string[]; manifest?: string | null };
+type BrandColorMapping = { hex: string; chip: ChipColor; chart: ChartColor };
 
 type Rgb = { r: number; g: number; b: number };
 type Lab = { l: number; a: number; b: number };

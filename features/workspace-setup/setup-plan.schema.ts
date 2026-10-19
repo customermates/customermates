@@ -25,9 +25,9 @@ export const SETUP_PLAN_LIMITS = {
   expressionDepth: 6,
 } as const;
 
-export const SetupKeySchema = z.string().regex(/^[a-z][a-zA-Z0-9]{0,23}$/);
+const SetupKeySchema = z.string().regex(/^[a-z][a-zA-Z0-9]{0,23}$/);
 export const SetupFieldKeySchema = z.string().regex(/^[a-z][a-zA-Z0-9]{0,23}\.[a-z][a-zA-Z0-9]{0,23}$/);
-export const SetupSystemColumnSchema = z.enum(["system:createdAt", "system:updatedAt", "system:assignedTo"]);
+const SetupSystemColumnSchema = z.enum(["system:createdAt", "system:updatedAt", "system:assignedTo"]);
 const LabelSchema = z.string().trim().min(1).max(80);
 const DescriptionSchema = z.string().trim().max(500);
 const IconSchema = z.string().regex(/^[a-z][a-zA-Z]{0,39}$/);
@@ -80,7 +80,7 @@ export type SetupExpression =
       reducer: "one" | "sum" | "count" | "average" | "min" | "max";
     };
 
-export const SetupExpressionSchema: z.ZodType<SetupExpression> = z.lazy(() =>
+const SetupExpressionSchema: z.ZodType<SetupExpression> = z.lazy(() =>
   z.discriminatedUnion("op", [
     z.object({ op: z.literal("field"), field: SetupFieldKeySchema }).strict(),
     z
@@ -134,7 +134,7 @@ const BoundedExpressionSchema = z
 
 const FieldOrSystemSchema = z.union([SetupFieldKeySchema, SetupSystemColumnSchema]);
 
-export const SetupWidgetFilterSchema = z.discriminatedUnion("operator", [
+const SetupWidgetFilterSchema = z.discriminatedUnion("operator", [
   z
     .object({
       operator: z.enum(["in", "notIn"]),
@@ -180,7 +180,7 @@ export const SetupWidgetSchema = z
   });
 export type SetupWidget = z.infer<typeof SetupWidgetSchema>;
 
-export const SetupListDefaultSchema = z
+const SetupListDefaultSchema = z
   .object({
     list: SetupKeySchema,
     name: LabelSchema,
@@ -203,7 +203,7 @@ export const SetupListDefaultSchema = z
       context.addIssue({ code: "custom", path: ["summaries"], message: "Totals need a grouping." });
   });
 
-export const SetupNewListSchema = z
+const SetupNewListSchema = z
   .object({
     key: SetupKeySchema,
     label: LabelSchema,
@@ -233,7 +233,7 @@ export const SetupNewFieldSchema = z
   });
 export type SetupNewField = z.infer<typeof SetupNewFieldSchema>;
 
-export const SetupNewRelationshipSchema = z
+const SetupNewRelationshipSchema = z
   .object({
     key: SetupKeySchema,
     source: SetupKeySchema,
@@ -245,7 +245,7 @@ export const SetupNewRelationshipSchema = z
   })
   .strict();
 
-export const SetupCalculationSchema = z
+const SetupCalculationSchema = z
   .object({
     key: SetupFieldKeySchema,
     label: LabelSchema,

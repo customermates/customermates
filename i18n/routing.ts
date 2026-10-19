@@ -40,7 +40,7 @@ export const PUBLIC_ROUTES_SEO = [
   "/docs/:slug",
 ] as const;
 
-export type PublicSeoRoute = (typeof PUBLIC_ROUTES_SEO)[number];
+type PublicSeoRoute = (typeof PUBLIC_ROUTES_SEO)[number];
 
 const NOINDEX_ROUTE_SET: ReadonlySet<string> = new Set<string>([...NOINDEX_PUBLIC_ROUTES, "/docs/openapi/:slug"]);
 
@@ -113,7 +113,7 @@ export const PROTECTED_ROUTES = [
   "/wiki",
 ] as const;
 
-export const CONTENT_ROUTES = [
+const CONTENT_ROUTES = [
   ...PUBLIC_ROUTES_SEO.filter((route) => !route.startsWith("/auth/")),
   ...HUB_PAGE_ROUTES,
   "/docs/openapi/:slug",
@@ -174,7 +174,7 @@ export function isProtectedPage(req: NextRequest) {
   return isProtectedPathname(req.nextUrl.pathname);
 }
 
-export function isProtectedPathname(pathname: string) {
+function isProtectedPathname(pathname: string) {
   const decoded = decodePathname(pathname);
   if (decoded === null) return true;
 

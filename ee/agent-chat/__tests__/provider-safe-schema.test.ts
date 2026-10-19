@@ -40,7 +40,7 @@ import {
   getAgentAiTools,
   type AgentToolDeps,
 } from "../agent-tools";
-import { inlineSchemaDefinitions } from "../provider-safe-json-schema";
+import { inlineSchemaDefinitions } from "../shared-subschemas";
 
 type JsonRecord = Record<string, unknown>;
 

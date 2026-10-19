@@ -2,7 +2,7 @@ import { Prisma } from "@/generated/prisma";
 
 import { WIKI_SECTION_MAX_EMBEDDED_ROWS } from "./wiki-sections";
 
-export const WIKI_INDEX_CLAIM_SECONDS = 300;
+const WIKI_INDEX_CLAIM_SECONDS = 300;
 
 const WIKI_CONTENT_HASH = Prisma.sql`encode(sha256(convert_to(p."title" || E'\\n' || p."markdown", 'UTF8')), 'hex')`;
 const UNTOUCHED_IMPORT = Prisma.sql`(p."sourceImportedUpdatedAt" IS NOT NULL AND p."sourceImportedUpdatedAt" = p."updatedAt")`;

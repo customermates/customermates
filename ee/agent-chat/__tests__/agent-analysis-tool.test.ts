@@ -60,14 +60,12 @@ beforeEach(() => {
 
 describe("analyze_records on the hosted surface", () => {
   it("is always offered once with its read-only analysis schema", () => {
-    const offered = getAgentAiToolDefinitions("vertex").find((definition) => definition.name === "analyze_records");
+    const offered = getAgentAiToolDefinitions().find((definition) => definition.name === "analyze_records");
     expect(offered?.description).toMatch(/median/);
     expect(JSON.stringify(offered?.inputSchema)).toContain('"reads"');
     expect(JSON.stringify(offered?.inputSchema)).toContain('"code"');
 
-    expect(
-      getAgentAiToolDefinitions("vertex").filter((definition) => definition.name === "analyze_records"),
-    ).toHaveLength(1);
+    expect(getAgentAiToolDefinitions().filter((definition) => definition.name === "analyze_records")).toHaveLength(1);
   });
 
   it("hands the turn's tool-result limit to the analysis, which refuses an oversized result whole", async () => {
@@ -116,42 +114,31 @@ describe("analyze_records on the hosted surface", () => {
     }
   });
 
-  it("declares a read's input as an object or a string on every wire, and each wire accepts both", () => {
+  it("declares a read's input as an object or a string, and the wire schema accepts both", () => {
     type Wire = { properties: { reads: { items: { properties: { input: unknown }; required: string[] } } } };
-    const schemaFor = (provider: string) =>
-      getAgentAiToolDefinitions(provider).find((definition) => definition.name === "analyze_records")
-        ?.inputSchema as Wire;
+    const schema = getAgentAiToolDefinitions().find((definition) => definition.name === "analyze_records")
+      ?.inputSchema as Wire;
     const description = AnalyzeRecordsSchema.shape.reads.element.shape.input.description;
 
     expect(description).toContain("input as a JSON object (a JSON string is also accepted)");
     expect(description).toContain("Paging is handled for you: omit page and pageSize.");
-    expect(schemaFor("vertex").properties.reads.items.properties.input).toEqual({
+    expect(schema.properties.reads.items.properties.input).toEqual({
       description,
-      anyOf: [{ type: "object" }, { type: "string" }],
+      anyOf: [{ type: "object", propertyNames: { type: "string" }, additionalProperties: {} }, { type: "string" }],
     });
-    for (const provider of ["azure", "bedrock"]) {
-      expect(schemaFor(provider).properties.reads.items.properties.input, provider).toEqual({
-        description,
-        anyOf: [{ type: "object", propertyNames: { type: "string" }, additionalProperties: {} }, { type: "string" }],
-      });
-    }
+    expect(schema.properties.reads.items.required).toEqual(["tool"]);
 
-    for (const provider of ["vertex", "azure"]) {
-      expect(schemaFor(provider).properties.reads.items.required, provider).toEqual(["tool"]);
-      const validate = new Ajv().compile(schemaFor(provider) as never);
-      const accepts = (input: unknown) =>
-        validate({
-          reads: [{ tool: "query_crm_records", ...(input === undefined ? {} : { input }) }],
-          code: "(data) => data",
-        });
-      expect(
-        [{ entity: "deal" }, '{"entity":"deal"}', undefined].map((input) => accepts(input)),
-        provider,
-      ).toEqual([true, true, true]);
-      expect(
-        [[{ entity: "deal" }], 42, null].map((input) => accepts(input)),
-        provider,
-      ).toEqual([false, false, false]);
-    }
+    const validate = new Ajv().compile(schema as never);
+    const accepts = (input: unknown) =>
+      validate({
+        reads: [{ tool: "query_crm_records", ...(input === undefined ? {} : { input }) }],
+        code: "(data) => data",
+      });
+    expect([{ entity: "deal" }, '{"entity":"deal"}', undefined].map((input) => accepts(input))).toEqual([
+      true,
+      true,
+      true,
+    ]);
+    expect([[{ entity: "deal" }], 42, null].map((input) => accepts(input))).toEqual([false, false, false]);
   });
 });

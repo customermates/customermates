@@ -9,7 +9,7 @@ import { isWikiProposalAction } from "./agent-wiki-proposal-policy";
 
 type ManageWikiPagesInput = z.infer<typeof manageWikiPagesTool.inputSchema>;
 
-export const WIKI_PROPOSAL_RESULT_NOTE =
+const WIKI_PROPOSAL_RESULT_NOTE =
   "Nothing in the Knowledge Base changed yet. A manager reviews this proposal in the Knowledge Base and approves or rejects it. Tell the user it is proposed and awaiting review, not done.";
 
 const ROUTINE_WIKI_DESCRIPTION_SUFFIX =

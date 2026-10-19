@@ -106,13 +106,13 @@ type HostedAiGlobalCommitment = {
   platformReservedMicrocents: bigint;
 };
 
-export type AgentTurnReplay = {
+type AgentTurnReplay = {
   snapshot: AgentTurnRequestSnapshot;
   userMessageParts: unknown;
   assistantMessage: { id: string; parts: unknown; createdAt: Date } | null;
 };
 
-export type FinalizedAgentTurn = {
+type FinalizedAgentTurn = {
   assistantMessage: { id: string; parts: unknown; createdAt: Date };
   terminalCode: AgentTurnTerminalCode;
   stopReason: AgentTurnStopReason | null;
@@ -224,7 +224,7 @@ function sumAdjustmentMicrocents(rows: Array<{ deltaMicrocents: bigint }>): numb
   return total;
 }
 
-export type AgentUsageReservationExtension =
+type AgentUsageReservationExtension =
   | { disposition: "extended"; reservedMicrocents: number }
   | { disposition: "credit_limit" }
   | { disposition: "run_credit_limit"; ceilingMicrocents: number }

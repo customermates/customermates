@@ -48,10 +48,10 @@ const DocsSearchOutputSchema = z.object({
 
 export type DocsSearchHit = z.infer<typeof DocsSearchHitSchema>;
 
-export const DOCS_NO_ADEQUATE_SECTION =
+const DOCS_NO_ADEQUATE_SECTION =
   "no_adequate_section: No documentation section adequately answers this query. Do not guess an answer: say the documentation does not cover it, or search again with different terms.";
 
-function compactDocsSearchText(results: DocsSearchHit[], total: number, abstained = false): string {
+function compactDocsSearchText(results: DocsSearchHit[], total: number, abstained: boolean): string {
   if (results.length === 0 && abstained) return `matches: none\ntotal=0\n${DOCS_NO_ADEQUATE_SECTION}`;
   if (results.length === 0) return "matches: none\ntotal=0\nhint: Try broader terms or source=all.";
 
@@ -66,12 +66,7 @@ export const DOCS_RERANK_EXCERPT_CHARS = 1_400;
 
 type SearchDocsInput = { query: string; locale: DocsLocale; source: "docs" | "api" | "all" };
 
-function docsRerankExcerpt(
-  section: DocsSection,
-  chars = DOCS_RERANK_EXCERPT_CHARS,
-  query = "",
-  locale: DocsLocale = DEFAULT_LOCALE,
-): string {
+function docsRerankExcerpt(section: DocsSection, chars: number, query: string, locale: DocsLocale): string {
   return retrievalExcerpt({
     heading: `## ${section.headingPath.join(" > ")}`,
     markdown: section.text,

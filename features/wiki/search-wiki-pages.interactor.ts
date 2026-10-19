@@ -24,15 +24,13 @@ import { fuseFullTextAndSemantic, keepsResults, rerankSections } from "@/core/re
 import { RetrievalStopwatch } from "@/core/retrieval/retrieval-stopwatch";
 
 import { externalizeWikiPageLinks } from "./wiki-markdown-links";
-import { wikiSectionOffsetIn } from "./wiki-markdown-sections";
+import { boundedWikiSectionLabel, wikiSectionOffsetIn } from "./wiki-markdown-sections";
 import { WIKI_EXCERPT_MAX_LENGTH, wikiExcerpt } from "./wiki-content";
-import { wikiCodePointBoundary } from "./wiki-page-chunk";
 import { WikiPageSearchResultSchema, WikiPageSearchSchema } from "./wiki.schema";
 
 const WIKI_RERANK_CANDIDATES = 10;
 const WIKI_SEMANTIC_CANDIDATES = 30;
 const WIKI_SEARCH_ORDER_TTL_MS = 5 * 60 * 1000;
-const WIKI_SECTION_LABEL_MAX_LENGTH = 160;
 export const WIKI_SEARCH_ORDER_LIMIT = 500;
 
 export type WikiSearchOrder = {
@@ -49,17 +47,12 @@ export type WikiSearchOrder = {
 
 export const sharedWikiSearchOrders = new WikiSearchOrders();
 
-export type WikiSemanticRetrieval = {
+type WikiSemanticRetrieval = {
   embedder: WikiQueryEmbedder;
   scheduler: WikiSemanticIndexScheduler;
   gaps?: WikiKnowledgeGapRecorder;
   relevanceFloor?: RelevanceFloor | null;
 };
-
-function boundedLabel(value: string): string {
-  if (value.length <= WIKI_SECTION_LABEL_MAX_LENGTH) return value;
-  return `${value.slice(0, wikiCodePointBoundary(value, WIKI_SECTION_LABEL_MAX_LENGTH - 1)).trimEnd()}…`;
-}
 
 export function wikiSectionSnippet(text: string, query: string): string {
   const excerpt = retrievalExcerpt({
@@ -283,7 +276,7 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
       offset,
       ...(section && section.headingPath.length > 0
         ? {
-            section: boundedLabel(section.headingPath.join(" > ")),
+            section: boundedWikiSectionLabel(section.headingPath.join(" > ")),
             ...(section.anchor ? { anchor: section.anchor } : {}),
           }
         : {}),

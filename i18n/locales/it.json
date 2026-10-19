@@ -4916,7 +4916,6 @@
       "pending": "In attesa",
       "read": "Letta",
       "reading": "Lettura in corso",
-      "readingCount": "Lettura delle pagine · {fetched}/{total}",
       "readingStep": "Lettura delle pagine del sito",
       "skipped": {
         "aiUnavailable": "Mate temporaneamente non disponibile",

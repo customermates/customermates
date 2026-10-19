@@ -322,7 +322,6 @@ describe("Workspace Wiki admission bootstrap", () => {
     expect(execution.system).toBe(agentWikiSystemPrompt(systemPrompt, payload.wikiCatalog));
     expect(execution.messages).toEqual([{ role: "user", content: input.text }]);
     expect(definitions).toHaveBeenCalledWith({
-      servingProvider: admission.model.servingProvider,
       locale: "en",
       surface,
       wikiWebsiteSetup: false,
@@ -549,7 +548,6 @@ describe("Workspace Wiki admission bootstrap", () => {
       });
       const admission = state.usage.prepareTurn.mock.calls[0][2];
       expect(definitions).toHaveBeenCalledWith({
-        servingProvider: admission.model.servingProvider,
         locale: "en",
         surface: "chat",
         wikiWebsiteSetup: true,

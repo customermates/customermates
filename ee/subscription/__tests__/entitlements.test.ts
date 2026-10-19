@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
+import { CLOUD_TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER } from "@/core/commercial/plan-catalog";
 
 import {
   getEffectiveEntitlements,
@@ -8,7 +9,6 @@ import {
   isAwaitingFirstPlan,
   isSubscriptionExpired,
   isSubscriptionUsable,
-  TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER,
 } from "../entitlements";
 
 const PAST = new Date(Date.now() - 24 * 60 * 60 * 1000);
@@ -29,7 +29,7 @@ describe("hosted AI plan entitlements", () => {
     expect(getEntitlements(SubscriptionPlan.business).hostedAiUsageMultiplier).toBe(10);
     expect(getEntitlements(SubscriptionPlan.max).hostedAiUsageMultiplier).toBe(20);
     expect(getEntitlements(SubscriptionPlan.enterprise).hostedAiUsageMultiplier).toBe("contract");
-    expect(TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER).toBe(300);
+    expect(CLOUD_TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER).toBe(300);
   });
 
   it("gives Max everything Business has plus more connected accounts", () => {

@@ -13,8 +13,8 @@ import { AGENT_SYSTEM_PROMPT_SEPARATOR } from "./agent-wiki-context";
 import { AGENT_MICROCENTS_PER_USD } from "@/core/commercial/agent-credits";
 
 export const AGENT_RESERVATION_ROUNDS_AHEAD = 2;
-export const AGENT_MAX_TOOL_RESULT_CHARS = 6000;
-export const AGENT_MIN_CONTEXT_TOKENS_PER_STEP = 8_000;
+const AGENT_MAX_TOOL_RESULT_CHARS = 6000;
+const AGENT_MIN_CONTEXT_TOKENS_PER_STEP = 8_000;
 export const AGENT_MAX_SERIALIZED_BYTES_PER_CHAR = 6;
 export const AGENT_TOOL_RESULT_ENVELOPE_BYTES = 4_096;
 
@@ -33,7 +33,7 @@ export type AgentTurnBudget = {
   reasoningEffort?: AgentModelEntry["reasoningEffort"];
 };
 
-export function agentContextBytesToTokens(bytes: number) {
+function agentContextBytesToTokens(bytes: number) {
   return Math.ceil(bytes / AGENT_CONTEXT_BYTES_PER_TOKEN);
 }
 

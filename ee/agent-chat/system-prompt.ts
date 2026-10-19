@@ -12,7 +12,7 @@ import { toolsetIndexSentence } from "./agent-toolset-routing";
 import { agentWebSearchCallLimit } from "./agent-web-search";
 import { WIKI_WEBSITE_IMPORT_TOOL_NAME } from "./tool-identity";
 
-export type SystemPromptContext = {
+type SystemPromptContext = {
   userName: string;
   locale: string;
   surface: AgentSurface;

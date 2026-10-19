@@ -17,7 +17,7 @@ import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
 
 const timeline = SYNTHETIC_SEED_TIMELINE.secondWorkspace;
 
-export const SYNTHETIC_SECOND_WORKSPACE = {
+const SYNTHETIC_SECOND_WORKSPACE = {
   company: {
     id: SEED_IDS.secondWorkspaceCompany,
     createdByAuthUserId: SEED_IDS.user,

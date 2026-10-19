@@ -17,7 +17,7 @@ import { RetrievalStopwatch } from "@/core/retrieval/retrieval-stopwatch";
 import { unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { recordSearchHit } from "@/features/records/search-records.interactor";
 import { wikiPlainText } from "@/features/wiki/wiki-content";
-import { wikiCodePointBoundary } from "@/features/wiki/wiki-page-chunk";
+import { codePointBoundary } from "@/core/retrieval/retrieval-sections";
 import { wikiSectionSnippet } from "@/features/wiki/search-wiki-pages.interactor";
 import { env } from "@/env";
 
@@ -39,7 +39,7 @@ function sectionBody(section: RecordFileSection): string {
 
 function sectionLabel(heading: string): string {
   if (heading.length <= RECORD_FILE_SECTION_MAX_LENGTH) return heading;
-  return `${heading.slice(0, wikiCodePointBoundary(heading, RECORD_FILE_SECTION_MAX_LENGTH - 1)).trimEnd()}…`;
+  return `${heading.slice(0, codePointBoundary(heading, RECORD_FILE_SECTION_MAX_LENGTH - 1)).trimEnd()}…`;
 }
 
 @AllowInDemoMode

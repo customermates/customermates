@@ -39,7 +39,7 @@ const RANK_INSTRUCTIONS: Record<RetrievalCorpus, string> = {
   wiki: "The user wrote `latest_user_message` (in any language) and the assistant searched the Knowledge Base with `agent_query`. Which Knowledge Base section best answers what the user needs? If none answers it fully, pick the closest one; choose none only if no section answers it at all.",
 };
 
-export function docsRankExcerpt(
+function docsRankExcerpt(
   markdown: string,
   query: string,
   maxChars = DOCS_RERANK_OPTION_CHARS,

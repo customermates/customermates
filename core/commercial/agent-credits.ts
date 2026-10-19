@@ -1,6 +1,6 @@
 export const AGENT_CREDIT_MICROCENTS = 1_000_000;
 export const AGENT_MICROCENTS_PER_USD = 100 * AGENT_CREDIT_MICROCENTS;
-export const AGENT_CREDIT_TENTH_MICROCENTS = AGENT_CREDIT_MICROCENTS / 10;
+const AGENT_CREDIT_TENTH_MICROCENTS = AGENT_CREDIT_MICROCENTS / 10;
 
 export function agentCreditsToMicrocents(credits: number): number {
   const microcents = Math.round(credits * 10) * AGENT_CREDIT_TENTH_MICROCENTS;

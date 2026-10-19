@@ -491,7 +491,7 @@ describe("agent tools", () => {
     const model = AGENT_MODELS.chat;
     const contextLimitBytes = agentContextTokensToBytes(model.maxContextTokens);
     const systemPrompt = buildAgentSystemPrompt({ userName: "Ada Lovelace", locale: "en", surface: "chat" });
-    const turnTools = agentToolDefinitionsForTurn({ servingProvider: model.servingProvider, surface: "chat" });
+    const turnTools = agentToolDefinitionsForTurn({ surface: "chat" });
     const requests = [
       ...AGENT_ON_DEMAND_TOOLSETS.map((toolset) => ({ label: toolset, toolsets: [toolset], route: "/en/records" })),
       ...[
@@ -528,7 +528,6 @@ describe("agent tools", () => {
     expect(definitions).toEqual(describeAgentAiTools(getAgentAiTools(deps())));
     const toolDefinitions = agentToolDefinitionsForToolsets(
       agentToolDefinitionsForTurn({
-        servingProvider: model.servingProvider,
         surface: "chat",
       }),
       [
@@ -623,7 +622,6 @@ describe("agent tools", () => {
     ];
     const definitions = agentToolDefinitionsForToolsets(
       agentToolDefinitionsForTurn({
-        servingProvider: AGENT_MODELS.routine.servingProvider,
         surface: "routine",
         webSearchEnabled: true,
       }),
@@ -658,7 +656,6 @@ describe("agent tools", () => {
     expect(budget - (bytes ?? budget)).toBeGreaterThan(60_000);
     const modelTools = agentToolDefinitionsForToolsets(
       agentToolDefinitionsForTurn({
-        servingProvider: AGENT_MODELS.routine.servingProvider,
         surface: "routine",
         webSearchEnabled: true,
       }),
@@ -720,7 +717,7 @@ describe("agent tools", () => {
       for (const model of [AGENT_MODELS.chat]) {
         for (const { wikiCatalog, wikiWebsiteSetup } of states) {
           const label = `${model.modelId} catalog=${Boolean(wikiCatalog)} website=${wikiWebsiteSetup}`;
-          const toolDefinitions = getAgentAiToolDefinitions(model.servingProvider, {
+          const toolDefinitions = getAgentAiToolDefinitions({
             surface,
             webSearchEnabled,
             wikiWebsiteSetup,
@@ -742,7 +739,6 @@ describe("agent tools", () => {
             pageRoute: null,
             toolDefinitions: agentToolDefinitionsForToolsets(
               agentToolDefinitionsForTurn({
-                servingProvider: model.servingProvider,
                 surface,
                 webSearchEnabled,
                 wikiWebsiteSetup,

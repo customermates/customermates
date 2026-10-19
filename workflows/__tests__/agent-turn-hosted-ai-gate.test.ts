@@ -980,7 +980,6 @@ describe("agent-turn hosted-AI provider gates", () => {
         disallowPromptTraining: true,
         caching: "auto",
       },
-      openai: { parallelToolCalls: false, store: false },
     });
     expect(state.finalize).toHaveBeenCalledWith(
       expect.objectContaining({

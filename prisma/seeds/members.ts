@@ -9,7 +9,7 @@ import { SYNTHETIC_AVATAR_URLS } from "./avatars";
 import { northwindAt, northwindMemberJoinedMs } from "./northwind-data";
 import { NORTHWIND_MEMBER_IDS, NORTHWIND_MEMBER_ROLES } from "./northwind-model";
 
-export type SyntheticCompanyMemberDefinition = Readonly<{
+type SyntheticCompanyMemberDefinition = Readonly<{
   agreeToTerms: boolean;
   avatarPath: string;
   email: string;

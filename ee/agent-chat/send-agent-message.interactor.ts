@@ -418,13 +418,9 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       currentText: data.text,
       contexts: admittedContexts,
       pageRoute,
-      toolDefinitions: agentToolDefinitionsForToolsets(
-        agentToolDefinitionsForTurn({
-          servingProvider: turnModel.servingProvider,
-          ...toolOptions,
-        }),
-        [...requestedToolsets],
-      ),
+      toolDefinitions: agentToolDefinitionsForToolsets(agentToolDefinitionsForTurn(toolOptions), [
+        ...requestedToolsets,
+      ]),
       wikiCatalog,
     });
     if (requiredContextBytes === null) throw new Error("The Assistant request context could not be measured safely.");

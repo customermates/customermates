@@ -1,18 +1,17 @@
 import { createHash } from "node:crypto";
 
-import { boundedWikiText, wikiMarkdownSections } from "@/features/wiki/wiki-markdown-sections";
+import { codePointBoundary } from "@/core/retrieval/retrieval-sections";
+import { wikiMarkdownSections } from "@/features/wiki/wiki-markdown-sections";
+
+function boundedText(value: string, maxLength: number): string {
+  if (value.length <= maxLength) return value;
+  return `${value.slice(0, codePointBoundary(value, maxLength - 1)).trimEnd()}…`;
+}
 
 export const RETRIEVAL_CHUNK_MAX_LENGTH = 1_800;
 const RETRIEVAL_CHUNK_OVERLAP = 200;
 
 export type RetrievalWindow = { offset: number; text: string };
-
-function codePointBoundary(value: string, offset: number): number {
-  if (offset <= 0 || offset >= value.length) return offset;
-  const low = value.charCodeAt(offset);
-  const high = value.charCodeAt(offset - 1);
-  return low >= 0xdc00 && low <= 0xdfff && high >= 0xd800 && high <= 0xdbff ? offset - 1 : offset;
-}
 
 export function retrievalWindows(text: string): RetrievalWindow[] {
   if (text.length <= RETRIEVAL_CHUNK_MAX_LENGTH) return [{ offset: 0, text }];
@@ -80,7 +79,7 @@ export function markdownTextChunks(
     const path =
       maxHeadingLength === undefined
         ? section.path
-        : section.path.map((heading) => boundedWikiText(heading, maxHeadingLength));
+        : section.path.map((heading) => boundedText(heading, maxHeadingLength));
     const body = markdown.slice(section.offset, section.end);
     const newline = body.indexOf("\n");
     const content = withoutLinkTargets(section.level === 0 ? body : newline < 0 ? "" : body.slice(newline + 1)).trim();

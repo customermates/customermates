@@ -5,7 +5,7 @@ export type SetupListRole = (typeof SETUP_LIST_ROLES)[number];
 
 export const SETUP_REQUIRED_LIST_ROLES: readonly SetupListRole[] = ["people", "tasks"];
 
-export const SETUP_ROLE_FIELDS: Readonly<Record<SetupListRole, readonly string[]>> = {
+const SETUP_ROLE_FIELDS: Readonly<Record<SetupListRole, readonly string[]>> = {
   people: ["channels", "avatar"],
   tasks: [],
   deals: ["value"],

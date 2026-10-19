@@ -36,7 +36,7 @@ const SnapshotSchema = z.object({
 
 const SNAPSHOT = SnapshotSchema.parse(MODEL_PRICING_SNAPSHOT);
 
-export type ModelPricing = {
+type ModelPricing = {
   inputPerMTok: number;
   outputPerMTok: number;
   cacheReadPerMTok: number;
@@ -164,7 +164,7 @@ export function pinnedModelEndpoints() {
   }));
 }
 
-export function assertValidTokenCounts(tokens: TokenCounts) {
+function assertValidTokenCounts(tokens: TokenCounts) {
   for (const [name, value] of Object.entries(tokens))
     if (!Number.isSafeInteger(value) || value < 0) throw new Error(`Invalid ${name} reported by the AI provider.`);
 }
