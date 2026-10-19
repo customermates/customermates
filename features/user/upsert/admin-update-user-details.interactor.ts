@@ -81,7 +81,7 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
     const data: AdminUpdateUserDetailsData = { ...next, status: next.status };
 
     const leavingActive = targetUser.status === Status.active && data.status !== Status.active;
-    if (leavingActive && (await this.userRepo.isPlatformOperatorCompanyWide(targetUserId)))
+    if (leavingActive && (await this.userRepo.strandsLastPlatformOperatorCompanyWide(targetUserId)))
       return failAuthorization(CustomErrorCode.userPlatformOperatorStatusForbidden, ["status"]);
 
     const targetIsSystem = targetUser.role?.isSystemRole ?? false;

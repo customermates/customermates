@@ -1,3 +1,4 @@
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 import { PermissionService } from "@/core/base/permission.service";
 import type { ConfigurationChange, ConfigurationTarget } from "../configuration.schema";
 import type { CalculationExpression, RecordField, RecordRef, RecordScalar } from "../record-model.schema";
@@ -112,7 +113,10 @@ async function fixture() {
   const member = tenant("member");
   const schemaManager = tenant("schema");
   const repo = createTestRecordRepo();
-  const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
+  const policy = new RecordAccessPolicy(
+    new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+    repo,
+  );
   const configurations = new RecordConfigurationService(repo);
   const apply = new ApplyRecordConfigurationInteractor(
     repo,
@@ -132,7 +136,10 @@ async function fixture() {
   const worker = createTestRecordOperationService(repo, policy, configurations, noWebhooks);
   const handlers = () => {
     const scoped = createTestRecordRepo(companyId);
-    const scopedPolicy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), scoped);
+    const scopedPolicy = new RecordAccessPolicy(
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+      scoped,
+    );
     const scopedConfigurations = new RecordConfigurationService(scoped);
     const writer = new RecordConfigurationWriter(scoped, new RecordCalculationService(scoped), noWebhooks);
     return [
@@ -158,7 +165,12 @@ async function fixture() {
   };
   const trashRepo = new PrismaTrashRepo();
   const trash = {
-    query: new QueryTrashInteractor(trashRepo, repo, handlers(), new PrismaUserRepo(new PermissionService())),
+    query: new QueryTrashInteractor(
+      trashRepo,
+      repo,
+      handlers(),
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+    ),
     restore: new RestoreTrashInteractor(trashRepo, handlers()),
     preview: new PreviewTrashDeletionInteractor(trashRepo, handlers()),
     remove: new DeleteTrashPermanentlyInteractor(trashRepo, handlers()),

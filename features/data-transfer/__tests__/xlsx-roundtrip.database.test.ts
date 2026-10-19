@@ -10,6 +10,7 @@ import englishMessages from "@/i18n/locales/en.json";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { plainTextDocument } from "@/features/data-transfer/import/xlsx/xlsx-values";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 vi.mock("@/env", () => ({
   env: {
@@ -97,7 +98,10 @@ describeRoundTrip("XLSX export and import round trip", () => {
     });
     const admin = createMockUser({ ...seed.owner, role: { ...seed.role, permissions: [] } });
     const repo = createTestRecordRepo();
-    const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
+    const policy = new RecordAccessPolicy(
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+      repo,
+    );
     const writer = new RecordWriteService(repo, policy, new RecordCalculationService(repo));
     const mutate = new MutateRecordInteractor(
       repo,

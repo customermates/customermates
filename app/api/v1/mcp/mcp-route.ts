@@ -1,4 +1,4 @@
-import { MCP_ALWAYS_ON_TOOLS, mcpToolGroupsForAppMode } from "@/features/mcp-tools/tool-registry";
+import { MCP_ALWAYS_ON_TOOLS, MCP_OPERATOR_TOOLS, mcpToolGroupsForAppMode } from "@/features/mcp-tools/tool-registry";
 import { MCP_ENDPOINT_PATH } from "@/features/auth/mcp-resource";
 import { env } from "@/env";
 
@@ -10,4 +10,5 @@ export const mcpRoute = createMcpRoute(
   MCP_ALWAYS_ON_TOOLS,
   MCP_ENDPOINT_PATH,
   registerWikiMcpResources,
+  MCP_OPERATOR_TOOLS,
 );

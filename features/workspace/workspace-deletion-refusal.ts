@@ -38,7 +38,7 @@ export type WorkspaceDeletionSubject = {
   createdByAuthUserId: string | null;
   deletingAt: Date | null;
   earliestAdminEmail: string | null;
-  hasActivePlatformOperator: boolean;
+  strandsLastPlatformOperator: boolean;
   subscription: WorkspaceDeletionBilling | null;
 };
 
@@ -83,7 +83,7 @@ export function workspaceDeleteRefusal(input: {
   now?: Date;
 }): WorkspaceDeleteRefusal | null {
   if (!input.isAdmin) return "notAdmin";
-  if (input.subject.hasActivePlatformOperator) return "platformOperator";
+  if (input.subject.strandsLastPlatformOperator) return "platformOperator";
   if (input.appMode !== "cloud") return null;
   if (!isWorkspaceCreator(input.subject, input.login)) return "notCreator";
 

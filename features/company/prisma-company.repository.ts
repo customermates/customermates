@@ -11,6 +11,7 @@ import type { GetSubscriptionRepo } from "@/ee/subscription/get-subscription.rep
 import type { RefreshSubscriptionRepo } from "@/ee/subscription/refresh-subscription.repo";
 import type { SubscriptionRepo } from "@/ee/subscription/subscription.repo";
 import type { ProcessLemonSqueezyWebhookRepo } from "@/ee/subscription/process-lemon-squeezy-webhook.repo";
+import type { BillingUsageRepo } from "@/features/billing-usage/billing-usage.repo";
 import type { RouteGuardCompanyRepo } from "@/features/auth/route-guard-company.repo";
 import type { InviteTokenRepo } from "@/features/company/invite-token-validation.repo";
 import type { RegisterUserCompanyRepo } from "@/features/user/register/register-user-company.repo";
@@ -20,7 +21,7 @@ import type { RenameWorkspaceRepo } from "@/features/workspace/rename-workspace.
 import type { WorkspaceDeletionRepo } from "@/features/workspace/workspace-deletion.repo";
 import type { GetOrCreateInviteTokenRepo } from "./get-or-create-invite-token.repo";
 
-import { ConversionEventType, Status, SubscriptionStatus, type Prisma, type Subscription } from "@/generated/prisma";
+import { ConversionEventType, SubscriptionStatus, type Prisma, type Subscription } from "@/generated/prisma";
 
 import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
 import { workspaceDeletionMarkerCutoff } from "@/features/workspace/workspace-deletion-marker";
@@ -29,6 +30,7 @@ import { env } from "@/env";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
+import { strandsLastPlatformOperator } from "@/features/user/platform-operator-logins";
 
 const WORKFLOW_RUN_CHILD_TABLES = [
   "workflow_event_slots",
@@ -62,6 +64,10 @@ export class PrismaCompanyRepo
     RegisterUserCompanyRepo,
     WorkspaceDeletionRepo
 {
+  constructor(private readonly billingUsage: BillingUsageRepo) {
+    super();
+  }
+
   async findCompanyOrThrow() {
     const { companyId } = this.user;
     return await this.prisma.company.findUniqueOrThrow({
@@ -72,7 +78,10 @@ export class PrismaCompanyRepo
 
   async renameCompany(name: string) {
     const { companyId } = this.user;
-    await this.prisma.company.update({ where: { id: companyId }, data: { name } });
+    await this.prisma.company.update({
+      where: { id: companyId },
+      data: { name },
+    });
   }
 
   @Transaction
@@ -138,7 +147,9 @@ export class PrismaCompanyRepo
 
       if (fields.status !== SubscriptionStatus.active) return true;
 
-      const attributed = await this.prisma.adAttribution.count({ where: { companyId } });
+      const attributed = await this.prisma.adAttribution.count({
+        where: { companyId },
+      });
       if (attributed === 0) return true;
 
       await this.prisma.conversionEvent.createMany({
@@ -242,7 +253,13 @@ export class PrismaCompanyRepo
   async findWorkspacePlanUnscoped(companyId: string) {
     return this.prisma.subscription.findUnique({
       where: { companyId },
-      select: { status: true, plan: true, lemonSqueezyId: true, trialEndDate: true, currentPeriodEnd: true },
+      select: {
+        status: true,
+        plan: true,
+        lemonSqueezyId: true,
+        trialEndDate: true,
+        currentPeriodEnd: true,
+      },
     });
   }
 
@@ -274,7 +291,11 @@ export class PrismaCompanyRepo
   @BypassTenantGuard
   async setSubscriptionTermsUnscoped(
     companyId: string,
-    terms: { trialEndDate: Date | null; lemonSqueezyId: string | null; status?: SubscriptionStatus },
+    terms: {
+      trialEndDate: Date | null;
+      lemonSqueezyId: string | null;
+      status?: SubscriptionStatus;
+    },
   ): Promise<void> {
     await this.prisma.subscription.update({
       where: { companyId },
@@ -289,16 +310,22 @@ export class PrismaCompanyRepo
 
   @BypassTenantGuard
   async setWorkspaceTagsUnscoped(companyId: string, tags: string[]): Promise<void> {
-    await this.prisma.company.update({ where: { id: companyId }, data: { tags } });
+    await this.prisma.company.update({
+      where: { id: companyId },
+      data: { tags },
+    });
   }
 
   @BypassTenantGuard
   async deleteInviteTokensByCreatorsUnscoped(creatorIds: string[]): Promise<void> {
-    await this.prisma.inviteToken.deleteMany({ where: { createdById: { in: creatorIds } } });
+    await this.prisma.inviteToken.deleteMany({
+      where: { createdById: { in: creatorIds } },
+    });
   }
 
   @BypassTenantGuard
   async deleteCompanyUnscoped(companyId: string): Promise<void> {
+    await this.billingUsage.recordWorkspaceDeleted(companyId, "deleted");
     await this.prisma.company.delete({ where: { id: companyId } });
   }
 
@@ -326,7 +353,6 @@ export class PrismaCompanyRepo
           take: 1,
           select: { email: true },
         },
-        _count: { select: { users: { where: { isPlatformOperator: true, status: Status.active } } } },
       },
     });
     if (!company) return null;
@@ -336,7 +362,7 @@ export class PrismaCompanyRepo
       createdByAuthUserId: company.createdByAuthUserId,
       deletingAt: company.deletingAt,
       earliestAdminEmail: company.users[0]?.email ?? null,
-      hasActivePlatformOperator: company._count.users > 0,
+      strandsLastPlatformOperator: await strandsLastPlatformOperator(this.prisma, { companyId }),
       subscription: company.subscription,
     };
   }
@@ -380,8 +406,12 @@ export class PrismaCompanyRepo
 
   async createRegisteredCompany(setup: WorkspaceSetup = {}) {
     const company = await this.prisma.company.create({
-      data: { name: setup.name ?? null, createdByAuthUserId: setup.createdByAuthUserId ?? null },
+      data: {
+        name: setup.name ?? null,
+        createdByAuthUserId: setup.createdByAuthUserId ?? null,
+      },
     });
+    await this.billingUsage.recordWorkspaceCreated(company.id);
 
     const trialEndDate = new Date();
     trialEndDate.setDate(trialEndDate.getDate() + CLOUD_TRIAL.days);

@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { afterAll, describe, expect, it, vi } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 vi.mock("@/env", () => ({
   env: {
@@ -65,14 +66,22 @@ async function workspace(args: {
 }
 
 function repo() {
-  return new PrismaUserRepo(new PermissionService());
+  return new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo());
 }
 
 describeDatabase("lifecycle email queries with several memberships per login on PostgreSQL", () => {
   it("welcomes a login once, claiming all of its new memberships together", async () => {
     const email = `welcome-${randomUUID()}@example.invalid`;
-    const first = await workspace({ name: "First", subscription: { status: "trial" }, members: [{ email }] });
-    const second = await workspace({ name: "Second", subscription: { status: "trial" }, members: [{ email }] });
+    const first = await workspace({
+      name: "First",
+      subscription: { status: "trial" },
+      members: [{ email }],
+    });
+    const second = await workspace({
+      name: "Second",
+      subscription: { status: "trial" },
+      members: [{ email }],
+    });
     const userIds = [...first.memberIds, ...second.memberIds];
 
     const sentAt = new Date();
@@ -80,11 +89,20 @@ describeDatabase("lifecycle email queries with several memberships per login on 
       runWithoutTenant(() => repo().claimWelcomeEmailForLoginUnscoped({ email, userIds, sentAt })),
     ).resolves.toBe(true);
     await expect(
-      runWithoutTenant(() => repo().claimWelcomeEmailForLoginUnscoped({ email, userIds, sentAt: new Date() })),
+      runWithoutTenant(() =>
+        repo().claimWelcomeEmailForLoginUnscoped({
+          email,
+          userIds,
+          sentAt: new Date(),
+        }),
+      ),
     ).resolves.toBe(false);
 
     const rows = await runWithoutTenant(() =>
-      prisma.user.findMany({ where: { id: { in: userIds } }, select: { welcomeEmailSentAt: true } }),
+      prisma.user.findMany({
+        where: { id: { in: userIds } },
+        select: { welcomeEmailSentAt: true },
+      }),
     );
     expect(rows.map((row) => row.welcomeEmailSentAt?.getTime())).toEqual([sentAt.getTime(), sentAt.getTime()]);
   });
@@ -113,7 +131,10 @@ describeDatabase("lifecycle email queries with several memberships per login on 
     ).resolves.toBe(false);
 
     const row = await runWithoutTenant(() =>
-      prisma.user.findUniqueOrThrow({ where: { id: joined.memberIds[0] }, select: { welcomeEmailSentAt: true } }),
+      prisma.user.findUniqueOrThrow({
+        where: { id: joined.memberIds[0] },
+        select: { welcomeEmailSentAt: true },
+      }),
     );
     expect(row.welcomeEmailSentAt).not.toBeNull();
   });
@@ -122,12 +143,18 @@ describeDatabase("lifecycle email queries with several memberships per login on 
     const email = `trial-${randomUUID()}@example.invalid`;
     const named = await workspace({
       name: "Bergmann Steuern",
-      subscription: { status: "trial", trialEndDate: new Date(Date.now() - 12 * 60 * 60 * 1000) },
+      subscription: {
+        status: "trial",
+        trialEndDate: new Date(Date.now() - 12 * 60 * 60 * 1000),
+      },
       members: [{ email }],
     });
     const unnamed = await workspace({
       name: null,
-      subscription: { status: "trial", trialEndDate: new Date(Date.now() - 6.5 * DAY) },
+      subscription: {
+        status: "trial",
+        trialEndDate: new Date(Date.now() - 6.5 * DAY),
+      },
       members: [{ email }],
     });
 
@@ -144,7 +171,12 @@ describeDatabase("lifecycle email queries with several memberships per login on 
     const fiveDaysAgo = new Date(Date.now() - 5 * DAY);
     const awaitingPlan = await workspace({
       name: "Second workspace",
-      subscription: { status: "expired", plan: "pro", trialEndDate: null, updatedAt: fiveDaysAgo },
+      subscription: {
+        status: "expired",
+        plan: "pro",
+        trialEndDate: null,
+        updatedAt: fiveDaysAgo,
+      },
       members: [{ email }],
     });
     const lapsed = await workspace({
@@ -164,7 +196,11 @@ describeDatabase("lifecycle email queries with several memberships per login on 
     });
     const enterprise = await workspace({
       name: "Enterprise",
-      subscription: { status: "expired", plan: "enterprise", updatedAt: fiveDaysAgo },
+      subscription: {
+        status: "expired",
+        plan: "enterprise",
+        updatedAt: fiveDaysAgo,
+      },
       members: [{ email }],
     });
 
@@ -179,12 +215,28 @@ describeDatabase("lifecycle email queries with several memberships per login on 
 
   it("names each membership's workspace for legal notices", async () => {
     const email = `legal-${randomUUID()}@example.invalid`;
-    const named = await workspace({ name: "Acme", subscription: { status: "active" }, members: [{ email }] });
-    const unnamed = await workspace({ name: null, subscription: { status: "active" }, members: [{ email }] });
+    const named = await workspace({
+      name: "Acme",
+      subscription: { status: "active" },
+      members: [{ email }],
+    });
+    const unnamed = await workspace({
+      name: null,
+      subscription: { status: "active" },
+      members: [{ email }],
+    });
 
     const recipients = await runWithoutTenant(() => repo().findActiveLegalNoticeRecipientsUnscoped());
     const byId = new Map(recipients.map((recipient) => [recipient.id, recipient]));
-    expect(byId.get(named.memberIds[0])).toMatchObject({ email, companyId: named.companyId, companyName: "Acme" });
-    expect(byId.get(unnamed.memberIds[0])).toMatchObject({ email, companyId: unnamed.companyId, companyName: null });
+    expect(byId.get(named.memberIds[0])).toMatchObject({
+      email,
+      companyId: named.companyId,
+      companyName: "Acme",
+    });
+    expect(byId.get(unnamed.memberIds[0])).toMatchObject({
+      email,
+      companyId: unnamed.companyId,
+      companyName: null,
+    });
   });
 });

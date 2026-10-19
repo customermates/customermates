@@ -1,3 +1,4 @@
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 import type { TenantUser } from "@/features/user/user.schema";
 import type { MessagingService } from "../../messaging.service";
 
@@ -55,7 +56,12 @@ describeDatabase("pruning draft send records", () => {
   const otherOwnerId = randomUUID();
   const otherAccountId = randomUUID();
 
-  const accounts = () => new PrismaConnectedAccountRepo(new PermissionService(), new PrismaUnipileWebhookRepo());
+  const accounts = () =>
+    new PrismaConnectedAccountRepo(
+      new PermissionService(),
+      new PrismaUnipileWebhookRepo(),
+      new PrismaBillingUsageRepo(),
+    );
   const prune = () => new PruneDraftSendsInteractor(createTestMessagingRepo()).invoke();
 
   function emailProvider(outcome: "accept" | "unknown" = "accept") {

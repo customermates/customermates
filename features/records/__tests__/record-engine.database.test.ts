@@ -23,6 +23,7 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { interactorFailureStatus } from "@/core/validation/validation.utils";
 import { recordChannelsEnabled, recordChannelsField } from "../record-channels";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 const afterResponseTasks = vi.hoisted(() => [] as (() => Promise<unknown>)[]);
 
@@ -234,7 +235,10 @@ async function fixture() {
     role: { ...seed.memberRole, permissions: [] },
   });
   const repo = createTestRecordRepo();
-  const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
+  const policy = new RecordAccessPolicy(
+    new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+    repo,
+  );
   const calculations = new RecordCalculationService(repo);
   const background = { dispatch: () => Promise.resolve() };
   const mutate = new MutateRecordInteractor(
@@ -267,7 +271,11 @@ async function fixture() {
   const choices = new GetRecordChoicesInteractor(repo, policy, query);
   const measure = new QueryRecordMeasureInteractor(repo, policy);
   const widgets = new PrismaWidgetRepo();
-  const widgetReader = new RecordWidgetReader(repo, measure, new PrismaUserRepo(new PermissionService()));
+  const widgetReader = new RecordWidgetReader(
+    repo,
+    measure,
+    new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+  );
   const writeWidget = new UpsertRecordWidgetInteractor(
     widgets,
     repo,
@@ -5344,7 +5352,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const events = getEventService();
     vi.spyOn(events, "publish").mockRejectedValue(new Error("Simulated audit failure"));
     const service = new RoleManagementService(
-      new PrismaRoleRepo(),
+      new PrismaRoleRepo(new PrismaBillingUsageRepo()),
       f.repo,
       f.policy,
       new RecordConfigurationService(f.repo),
@@ -5546,7 +5554,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     afterResponseTasks.length = 0;
     const register = new RegisterUserInteractor(
       { sendNewUserNotificationEmail: notify } as never,
-      new PrismaUserRepo(new PermissionService()),
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
       getEventService(),
       {
         resolveAccountState: () =>
@@ -5555,7 +5563,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
             sessionUser: { id: authUser.id, email },
           }),
       } as never,
-      new PrismaCompanyRepo(),
+      new PrismaCompanyRepo(new PrismaBillingUsageRepo()),
       new InitializeRecordModelService(f.repo),
       createTestWorkspaceRegistration(),
     );
@@ -7796,7 +7804,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const ref = recordInvariant(result.data.refs[0]);
     const checker = new CheckRecordIdentityInteractor(
       f.repo,
-      new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), f.repo),
+      new RecordAccessPolicy(new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()), f.repo),
     );
     const input = {
       typeId: f.id("contact"),
@@ -7836,7 +7844,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     if (!result.ok || result.data.status !== "completed") throw new Error("Fixture person failed");
     const ref = recordInvariant(result.data.refs[0]);
-    const resolverPolicy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), f.repo);
+    const resolverPolicy = new RecordAccessPolicy(
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+      f.repo,
+    );
     const resolver = new ResolveRecordIdentitiesInteractor(
       resolverPolicy,
       new RecordIdentityReader(f.repo, resolverPolicy),
@@ -7985,7 +7996,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     const lookup = new GetIdentityRecordChoicesInteractor(
       f.repo,
-      new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), f.repo),
+      new RecordAccessPolicy(new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()), f.repo),
     );
     const filter = (operator: "allSet" | "hasUnset"): GetQueryParams => ({
       filters: [{ field: "participants", operator: FilterOperatorKey[operator] }],

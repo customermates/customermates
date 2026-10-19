@@ -4,6 +4,7 @@ import { afterAll, describe, expect, it, vi } from "vitest";
 
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 vi.mock("@/env", () => ({ env: { APP_MODE: "cloud", DATABASE_URL: process.env.DATABASE_URL, NODE_ENV: "test" } }));
 
@@ -222,7 +223,11 @@ describeDatabase("owner write ports", () => {
 
   it("records an unusable provider item through the inbound event owner inside the caller's transaction", async () => {
     const [first, second] = [await company(), await company()];
-    const accounts = new PrismaConnectedAccountRepo(new PermissionService(), new PrismaUnipileWebhookRepo());
+    const accounts = new PrismaConnectedAccountRepo(
+      new PermissionService(),
+      new PrismaUnipileWebhookRepo(),
+      new PrismaBillingUsageRepo(),
+    );
     const item = (companyId: string, unipileMessageId: string) => ({
       companyId,
       connectedAccountId: null as unknown as string,

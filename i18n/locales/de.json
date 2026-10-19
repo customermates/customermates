@@ -1240,7 +1240,7 @@
       "unipileUnknown": "Zwischen Customermates und dem Anbieter ist etwas schiefgelaufen. Unverändert erneut versuchen hilft wahrscheinlich nicht; wende dich an den Support, wenn es wieder passiert.",
       "userInactive": "Dein Benutzerkonto ist inaktiv. Wende dich an einen Workspace-Administrator.",
       "userNotFound": "Benutzer-ID nicht gefunden oder nicht zugänglich.",
-      "userPlatformOperatorStatusForbidden": "Dieses Konto gehört einem Plattform-Operator und kann hier nicht deaktiviert werden. Nutze die Operator-Konsole.",
+      "userPlatformOperatorStatusForbidden": "Das ist das einzige aktive Konto des letzten Customermates-Plattform-Operators und kann deshalb hier nicht deaktiviert werden. Wende dich an den Customermates-Support.",
       "userRoleRequired": "Dieses Mitglied hat noch keine Rolle. Wähle zusammen mit der Änderung eine Rolle aus.",
       "userSelfAdminUpdateForbidden": "Du kannst dein eigenes Konto nicht über die Teamverwaltung aktualisieren.",
       "userStatusRequired": "Dieses Mitglied wartet auf Freigabe. Wähle zusammen mit der Änderung aktiv oder inaktiv.",
@@ -1282,13 +1282,13 @@
       "workspaceDeleteCheckoutPending": "Für diesen Workspace läuft gerade ein Bezahlvorgang. Brich ihn ab oder warte, bis er abgeschlossen ist, und lösche den Workspace dann.",
       "workspaceDeleteInvoiced": "Workspaces mit einem Tarif auf Rechnung schließt der Support. Wende dich an den Support, um diesen Workspace zu löschen.",
       "workspaceDeleteNotCreator": "Nur der Admin, der diesen Workspace erstellt hat, kann ihn löschen.",
-      "workspaceDeletePlatformOperator": "Zu diesem Workspace gehört ein Plattformbetreiber, deshalb kann er hier nicht gelöscht werden.",
+      "workspaceDeletePlatformOperator": "Nach dem Löschen dieses Workspace hätte kein Customermates-Plattform-Operator mehr ein aktives Konto, deshalb kann er hier nicht gelöscht werden. Wende dich an den Customermates-Support.",
       "workspaceInvitationInvalid": "Dieser Einladungslink ist ungültig oder abgelaufen. Bitte um einen neuen Link.",
       "workspaceLastAdmin": "Du bist der einzige Admin dieses Workspaces. Mach vor dem Verlassen ein anderes aktives Mitglied zum Admin.",
       "workspaceLimitReached": "Du kannst bis zu {limit} Workspaces erstellen. Wende dich an den Support, wenn du mehr brauchst.",
       "workspaceMemberLastAdmin": "Dieses Mitglied ist der einzige aktive Admin dieses Workspaces. Mach vor dem Entfernen ein anderes aktives Mitglied zum Admin.",
       "workspaceMemberLeft": "Dieses Mitglied hat den Workspace verlassen. Über einen Einladungslink kann es erneut den Beitritt anfragen, und ein Admin muss die Anfrage genehmigen.",
-      "workspaceMemberPlatformOperator": "Dieses Konto gehört einem Plattform-Operator und kann hier nicht entfernt werden. Nutze die Operator-Konsole.",
+      "workspaceMemberPlatformOperator": "Das ist das einzige aktive Konto des letzten Customermates-Plattform-Operators und kann deshalb den Workspace nicht verlassen oder daraus entfernt werden. Wende dich an den Customermates-Support.",
       "workspaceMemberRemoveSelf": "Du kannst dich nicht selbst aus einem Workspace entfernen. Verlass ihn stattdessen.",
       "workspaceNotFound": "Dieser Workspace wurde nicht gefunden oder du bist kein Mitglied.",
       "workspacePlanRequired": "API-Schlüssel und MCP-Verbindungen brauchen einen aktiven Tarif für diesen Workspace. Wähle einen Tarif, um sie zu nutzen."
@@ -2815,7 +2815,7 @@
     "action": "Aus Workspace entfernen",
     "blocked": {
       "lastAdmin": "{name} ist der einzige aktive Admin dieses Workspaces. Mach zuerst ein anderes aktives Mitglied zum Admin.",
-      "platformOperator": "Plattform-Operatoren kannst du hier nicht entfernen. Nutze die Operator-Konsole."
+      "platformOperator": "Das ist das einzige aktive Konto des letzten Customermates-Plattform-Operators und kann deshalb den Workspace nicht verlassen oder daraus entfernt werden. Wende dich an den Customermates-Support."
     },
     "confirmDescription": "{name} verliert auf allen Geräten den Zugriff auf diesen Workspace.",
     "confirmTitle": "{name} aus {workspace} entfernen?",
@@ -3169,6 +3169,56 @@
       "label": "Workspaces"
     }
   },
+  "OperatorUsage": {
+    "billing": {
+      "lemonSqueezy": "Abrechnung über Lemon Squeezy",
+      "manual": "Manuelle Abrechnung"
+    },
+    "channels": {
+      "none": "In diesem Monat war kein Kanal verbunden.",
+      "peak": "{count} am {date}",
+      "title": "Kanäle"
+    },
+    "columns": {
+      "added": "Hinzugefügt",
+      "channel": "Kanal",
+      "connected": "Verbunden",
+      "currentChannels": "Jetzt verbundene Kanäle",
+      "currentSeats": "Jetzt aktive Nutzerplätze",
+      "deactivated": "Deaktiviert",
+      "disconnected": "Getrennt",
+      "peakAt": "Höchstwert erreicht",
+      "peakChannels": "Höchstzahl Kanäle",
+      "seats": "Nutzerplätze"
+    },
+    "coverage": {
+      "channelsInexactTimes": "Einige Verbindungs- oder Trennzeitpunkte sind geschätzt, daher kann dieser Höchstwert vom tatsächlichen Wert abweichen.",
+      "channelsRecordedFrom": "Kanaländerungen werden seit {date} erfasst. Vorher entfernte Kanäle fehlen, daher kann dieser Höchstwert zu niedrig sein.",
+      "footnote": "* Unvollständige Historie für diesen Monat. Öffne den Workspace unter Workspaces, um den Grund zu sehen.",
+      "incomplete": "Unvollständiger Verlauf",
+      "seatsInexactTimes": "Einige Aktivierungs- oder Deaktivierungszeitpunkte sind geschätzt, daher kann diese Zahl vom tatsächlichen Wert abweichen.",
+      "seatsRecordedFrom": "Änderungen an Nutzerplätzen werden seit {date} erfasst. Frühere Aktivierungen und Deaktivierungen sind rekonstruiert oder fehlen, daher kann diese Zahl vom tatsächlichen Wert abweichen."
+    },
+    "deleted": "Gelöscht am {date}",
+    "deletedBeforeRecording": "Workspaces, die vor dem {date} gelöscht wurden, fehlen; ihr Verlauf wurde nicht erfasst.",
+    "description": "Pro Kalendermonat in UTC. Jeder Nutzer, der im Monat zu irgendeinem Zeitpunkt aktiv war, zählt für den ganzen Monat als ein Nutzerplatz. Kanäle werden nach der höchsten Zahl gleichzeitig verbundener Kanäle gezählt.",
+    "empty": "In diesem Monat gab es keinen Workspace.",
+    "estimated": "Geschätzt",
+    "export": "CSV-Datei",
+    "month": "Monat",
+    "monthInProgress": "Dieser Monat läuft noch, die Zahlen können also noch steigen.",
+    "navigation": "Nutzung",
+    "seats": {
+      "none": "In diesem Monat war kein Nutzer aktiv.",
+      "title": "Nutzerplätze"
+    },
+    "stillActive": "Noch aktiv",
+    "stillConnected": "Noch verbunden",
+    "subscriptions": {
+      "summary": "{paying} von {total} Workspaces mit Abo zahlen derzeit: {lemonSqueezy} über Lemon Squeezy, {manual} mit manueller Abrechnung. Tarif und Abo zeigen den heutigen Stand."
+    },
+    "title": "Abrechnungsrelevante Nutzung"
+  },
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Vorzeichenbehaftete Credit-Korrektur",
@@ -3176,7 +3226,7 @@
       "expiresAt": "Diese Korrektur gilt nur für die aktuelle Periode und verfällt am {date}."
     },
     "confirm": {
-      "operator": "Den Plattform-Operator-Zugriff für {name} auf {value} setzen?",
+      "operator": "Den Plattform-Operator-Zugriff für {name} auf {value} setzen? Das gilt für diesen Login in jedem Workspace.",
       "reset": "Das Guthaben von {name} zurücksetzen: {value}?",
       "status": "Den Kontostatus von {name} auf {value} setzen?"
     },
@@ -3226,19 +3276,11 @@
       "title": "Enterprise-Kontingent",
       "warningDescription": "Das Kontingent gilt pro Benutzer im gesamten Workspace und wirkt sich auf die aktuelle Periode aus."
     },
-    "channels": {
-      "approximate": "Mindestens ein Trennzeitpunkt ist geschätzt, daher kann dieser Höchstwert leicht zu hoch sein.",
-      "description": "Höchstzahl gleichzeitig verbundener Kanäle pro Monat, rekonstruiert aus dem Audit-Verlauf des Workspace.",
-      "monthLabel": "Monat",
-      "monthOption": "{month} · {count} im Maximum",
-      "none": "Es waren nie Kanäle verbunden.",
-      "title": "Verbundene Kanäle"
-    },
     "delete": {
       "action": "Workspace löschen",
       "confirmTitle": "Diesen Workspace dauerhaft löschen",
       "reasonLabel": "Grund",
-      "warningDescription": "Beim Löschen von {name} werden der Workspace und {members, plural, =1 {sein einziges Mitgliedskonto} other {alle # Mitgliedskonten}} dauerhaft entfernt, samt Kontakten, Deals, Nachrichten, Anmeldedaten und Abrechnungsdaten. Dies kann nicht rückgängig gemacht werden."
+      "warningDescription": "Beim Löschen von {name} werden der Workspace und {members, plural, =1 {sein einziges Mitgliedskonto} other {alle # Mitgliedskonten}} dauerhaft entfernt, samt Kontakten, Deals, Nachrichten, Anmeldedaten und Abrechnungsdaten. Die monatlichen Nutzungszahlen bleiben für die Abrechnung erhalten, ohne Namen, E-Mail-Adressen oder Kontokennungen. Dies kann nicht rückgängig gemacht werden."
     },
     "emptyBody": "Passe Suche oder Filter an, um die Liste zu erweitern.",
     "emptyTitle": "Keine Workspaces passen zu diesen Filtern",
@@ -4732,7 +4774,7 @@
       "invoiced": "Workspaces mit einem Tarif auf Rechnung schließt der Support. Wende dich an den Support, um diesen Workspace zu löschen.",
       "notAdmin": "Nur ein Admin kann diesen Workspace löschen.",
       "notCreator": "Nur der Admin, der diesen Workspace erstellt hat, kann ihn löschen.",
-      "platformOperator": "Zu diesem Workspace gehört ein Plattformbetreiber, deshalb kann er hier nicht gelöscht werden."
+      "platformOperator": "Nach dem Löschen dieses Workspace hätte kein Customermates-Plattform-Operator mehr ein aktives Konto, deshalb kann er hier nicht gelöscht werden. Wende dich an den Customermates-Support."
     },
     "deleteConfirmDescription": "Damit werden seine Datensätze, die Wissensdatenbank, Routinen, Webhooks und verbundenen Konten endgültig gelöscht. Alle Mitglieder verlieren den Zugriff, und ihre API-Schlüssel und MCP-Verbindungen dafür funktionieren nicht mehr. Das lässt sich nicht rückgängig machen.",
     "deleteConfirmTitle": "{name} löschen?",

@@ -12,6 +12,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { PrismaUserRepo } from "@/features/user/prisma-user.repository";
 import { getUserService } from "@/core/di";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -84,10 +85,10 @@ describeDatabase("background tenant context on PostgreSQL", () => {
 
   it("scopes a tenant repository to the background tenant's company", async () => {
     const own = await runAsBackgroundTenant(activeUserId, () =>
-      new PrismaUserRepo(new PermissionService()).getUserById(activeUserId),
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()).getUserById(activeUserId),
     );
     const foreign = await runAsBackgroundTenant(activeUserId, () =>
-      new PrismaUserRepo(new PermissionService()).getUserById(outsiderId),
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()).getUserById(outsiderId),
     );
 
     expect(own?.id).toBe(activeUserId);

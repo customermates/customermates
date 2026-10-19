@@ -19,6 +19,13 @@ import { env } from "@/env";
 import type { AgentUsageRepo } from "@/ee/agent-chat/agent-usage.repo";
 import { isAwaitingFirstPlan } from "@/ee/subscription/entitlements";
 
+import {
+  holdsPlatformOperatorsOnlyMembership,
+  isPlatformOperatorEmail,
+  otherPlatformOperatorCanAct,
+  strandsLastPlatformOperator,
+} from "@/features/user/platform-operator-logins";
+
 import { normalizeOperatorEmail } from "./operator-access.service";
 import type { OperatorRefusal, OperatorRepo } from "./operator.repo";
 import {
@@ -45,20 +52,7 @@ import {
   type UpdateOperatorUserStatusData,
   type UpdateOperatorWorkspaceTagsData,
 } from "./operator.schema";
-
-function workspaceLabelFor(company: { id: string; name: string | null }, members: { email: string }[]): string {
-  if (company.name) return company.name;
-
-  const counts = new Map<string, number>();
-  for (const member of members) {
-    const domain = member.email.split("@")[1];
-    if (domain) counts.set(domain, (counts.get(domain) ?? 0) + 1);
-  }
-
-  const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
-
-  return ranked[0]?.[0] ?? company.id.slice(0, 8);
-}
+import { workspaceLabelFor } from "./workspace-label";
 
 function normalizeWorkspaceTags(tags: string[]): string[] {
   const byComparisonKey = new Map<string, string>();
@@ -86,7 +80,6 @@ const operatorUserDetailSelect = {
   firstName: true,
   lastName: true,
   status: true,
-  isPlatformOperator: true,
   createdAt: true,
   updatedAt: true,
   lastActiveAt: true,
@@ -206,8 +199,6 @@ function toUsageTotals(input: {
   };
 }
 
-const PLATFORM_OPERATOR_INVARIANT_LOCK = "customermates:platform-operator-invariant";
-
 export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo {
   constructor(
     private readonly agentRepo: AgentUsageRepo,
@@ -296,7 +287,9 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
             where: { accrualMonth: month.start },
             _sum: { costMicrocents: true },
           }),
-          this.prisma.hostedAiPlatformReservation.aggregate({ _sum: { reservedMicrocents: true } }),
+          this.prisma.hostedAiPlatformReservation.aggregate({
+            _sum: { reservedMicrocents: true },
+          }),
         ]);
 
     return toUsageTotals({
@@ -346,16 +339,16 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
     };
   }
 
-  private async authVerificationByUserId(
+  private async authIdentityByUserId(
     users: Array<{ id: string; companyId: string; email: string }>,
-  ): Promise<Map<string, boolean>> {
+  ): Promise<Map<string, { emailVerified: boolean; isPlatformOperator: boolean }>> {
     if (users.length === 0) return new Map();
 
     const authUsers = await this.prisma.authUser.findMany({
       where: {
         email: { in: users.map((user) => user.email), mode: "insensitive" },
       },
-      select: { email: true, emailVerified: true, companyId: true },
+      select: { email: true, emailVerified: true, isPlatformOperator: true, companyId: true },
     });
     const byEmail = new Map<string, typeof authUsers>();
     for (const authUser of authUsers) {
@@ -366,13 +359,19 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
     return new Map(
       users.map((user) => {
         const matches = byEmail.get(normalizeOperatorEmail(user.email)) ?? [];
-        const verified = matches.length === 1 && matches[0].emailVerified;
-        return [user.id, verified];
+        const single = matches.length === 1 ? matches[0] : null;
+        return [
+          user.id,
+          { emailVerified: single?.emailVerified ?? false, isPlatformOperator: single?.isPlatformOperator ?? false },
+        ];
       }),
     );
   }
 
-  private mapUserBase(user: OperatorUserRecord, authEmailVerified: boolean) {
+  private mapUserBase(
+    user: OperatorUserRecord,
+    identity: { emailVerified: boolean; isPlatformOperator: boolean } | undefined,
+  ) {
     const subscription = user.company.subscription;
     return {
       userId: user.id,
@@ -380,8 +379,8 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
       email: user.email,
       displayName: `${user.firstName} ${user.lastName}`.trim(),
       status: user.status,
-      isPlatformOperator: user.isPlatformOperator,
-      authEmailVerified,
+      isPlatformOperator: identity?.isPlatformOperator ?? false,
+      authEmailVerified: identity?.emailVerified ?? false,
       createdAt: user.createdAt,
       lastActiveAt: user.lastActiveAt,
       role: user.role,
@@ -473,17 +472,17 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
     });
     if (!user) return null;
 
-    const [verification, creditPeriod] = await Promise.all([
-      this.authVerificationByUserId([user]),
+    const [identities, creditPeriod] = await Promise.all([
+      this.authIdentityByUserId([user]),
       this.userCreditPeriod(user, now),
     ]);
     const subscription = user.company.subscription;
     const statusRequiresProviderSeatSync = Boolean(subscription?.lemonSqueezyId);
     return {
-      ...this.mapUserBase(user, verification.get(user.id) ?? false),
+      ...this.mapUserBase(user, identities.get(user.id)),
       updatedAt: user.updatedAt,
       agentCreditActivatedAt: user.agentCreditActivatedAt,
-      isCurrentOperator: getOperatorActor().userId === user.id,
+      isCurrentOperator: getOperatorActor().email === normalizeOperatorEmail(user.email),
       statusMutation: {
         allowed: !statusRequiresProviderSeatSync,
         blockedReason: statusRequiresProviderSeatSync ? "provider_managed_seat_sync_required" : null,
@@ -572,7 +571,7 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
           COUNT(DISTINCT lower(member."email")) FILTER (WHERE member."status"::text = 'inactive')::bigint AS "inactive",
           COUNT(DISTINCT lower(member."email"))
             FILTER (WHERE member."status"::text = 'pendingAuthorization')::bigint AS "pendingAuthorization",
-          COUNT(DISTINCT lower(member."email")) FILTER (WHERE member."isPlatformOperator")::bigint AS "platformOperators"
+          (SELECT COUNT(*) FROM "AuthUser" AS login WHERE login."isPlatformOperator" AND login."emailVerified")::bigint AS "platformOperators"
         FROM "User" AS member
       `,
       this.prisma.$queryRaw<Array<{ count: bigint }>>`
@@ -590,8 +589,13 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
             WHERE lower(candidate."email") = lower(login."email")
           ) = 1
       `,
-      this.prisma.subscription.findMany({ select: { companyId: true, plan: true, status: true } }),
-      this.prisma.company.findMany({ where: { subscription: { is: null } }, select: { id: true } }),
+      this.prisma.subscription.findMany({
+        select: { companyId: true, plan: true, status: true },
+      }),
+      this.prisma.company.findMany({
+        where: { subscription: { is: null } },
+        select: { id: true },
+      }),
       this.prisma.company.count(),
     ]);
     const buckets = [
@@ -599,7 +603,10 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
         { companyId, key: `plan:${plan}` },
         { companyId, key: `status:${status}` },
       ]),
-      ...companiesWithoutSubscription.map((company) => ({ companyId: company.id, key: "missing" })),
+      ...companiesWithoutSubscription.map((company) => ({
+        companyId: company.id,
+        key: "missing",
+      })),
     ];
     const bucketRows =
       buckets.length === 0
@@ -628,6 +635,7 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
     for (const plan of Object.values(SubscriptionPlan)) summary.byPlan[plan] = loginsByBucket.get(`plan:${plan}`) ?? 0;
     for (const status of Object.values(SubscriptionStatus))
       summary.bySubscriptionStatus[status] = loginsByBucket.get(`status:${status}`) ?? 0;
+
     summary.byPlan.missing = loginsByBucket.get("missing") ?? 0;
     summary.bySubscriptionStatus.missing = loginsByBucket.get("missing") ?? 0;
 
@@ -637,21 +645,6 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
   @BypassTenantGuard
   async getUserDetailUnscoped(userId: string, now = new Date()): Promise<OperatorUserDetailDto | OperatorRefusal> {
     return (await this.userDetail(userId, now)) ?? "notFound";
-  }
-
-  private async lockPlatformOperatorInvariant() {
-    await this.prisma
-      .$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${PLATFORM_OPERATOR_INVARIANT_LOCK}, 0))`;
-  }
-
-  private async otherActiveOperatorCount(excludedUserId: string) {
-    return this.prisma.user.count({
-      where: {
-        id: { not: excludedUserId },
-        isPlatformOperator: true,
-        status: Status.active,
-      },
-    });
   }
 
   @BypassTenantGuard
@@ -670,7 +663,6 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
           select: {
             status: true,
             leftAt: true,
-            isPlatformOperator: true,
             role: { select: { isSystemRole: true } },
             company: {
               select: {
@@ -691,10 +683,7 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
         if (statusChanged && subscription?.lemonSqueezyId) return "conflict";
 
         const leavingActive = target.status === Status.active && data.status !== Status.active;
-        if (leavingActive && target.isPlatformOperator) {
-          await this.lockPlatformOperatorInvariant();
-          if ((await this.otherActiveOperatorCount(data.userId)) === 0) return "conflict";
-        }
+        if (leavingActive && (await strandsLastPlatformOperator(this.prisma, { id: data.userId }))) return "conflict";
         if (leavingActive && target.role?.isSystemRole) {
           const otherActiveSystemUsers = await this.prisma.user.count({
             where: {
@@ -722,7 +711,10 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
           : [];
         if (protectedTasks.length) {
           const [state, linked] = await Promise.all([
-            this.prisma.recordSchemaState.findUnique({ where: { companyId }, select: { activeOperationId: true } }),
+            this.prisma.recordSchemaState.findUnique({
+              where: { companyId },
+              select: { activeOperationId: true },
+            }),
             this.prisma.recordLink.findFirst({
               where: {
                 companyId,
@@ -747,6 +739,7 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
         );
         if (leavingPending && protectedTasks.length)
           await this.owners.records.deleteMembershipAuthorizationTasksCompanyWide(companyId, data.userId);
+
         await this.createAudit({
           action: OPERATOR_AUDIT_ACTION.userStatusUpdate,
           targetCompanyId: companyId,
@@ -781,17 +774,17 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
             email: true,
             status: true,
             updatedAt: true,
-            isPlatformOperator: true,
           },
         });
         if (!target) return "notFound";
 
-        if (actor.userId === data.userId) return "conflict";
+        const email = normalizeOperatorEmail(target.email);
+        if (actor.email === email) return "conflict";
+        const previousIsPlatformOperator = await isPlatformOperatorEmail(this.prisma, email);
 
         if (data.isPlatformOperator) {
           if (target.status !== Status.active) return "conflict";
 
-          const email = normalizeOperatorEmail(target.email);
           const resolvedMember = await this.prisma.user.findFirst({
             where: { email, id: data.userId, leftAt: null },
             select: { id: true },
@@ -803,19 +796,17 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
             select: { emailVerified: true },
           });
           if (!identity?.emailVerified) return "conflict";
-        } else if (target.isPlatformOperator) {
-          await this.lockPlatformOperatorInvariant();
-          if ((await this.otherActiveOperatorCount(data.userId)) === 0) return "conflict";
-        }
+        } else if (previousIsPlatformOperator && !(await otherPlatformOperatorCanAct(this.prisma, email)))
+          return "conflict";
 
-        await this.owners.users.setPlatformOperatorCompanyWide(companyId, data.userId, data.isPlatformOperator);
+        await this.owners.users.setPlatformOperatorUnscoped(email, data.isPlatformOperator);
         await this.createAudit({
           action: OPERATOR_AUDIT_ACTION.userPlatformAccessUpdate,
           targetCompanyId: companyId,
           targetUserId: data.userId,
           reason,
           metadata: {
-            previousIsPlatformOperator: target.isPlatformOperator,
+            previousIsPlatformOperator,
             nextIsPlatformOperator: data.isPlatformOperator,
           },
         });
@@ -1141,7 +1132,6 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
                 id: true,
                 email: true,
                 status: true,
-                isPlatformOperator: true,
               },
             },
             subscription: {
@@ -1153,8 +1143,7 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
 
         const workspaceLabel = workspaceLabelFor(company, company.users);
         if (data.confirmWorkspaceLabel !== workspaceLabel) return "conflict";
-        if (company.users.some((member) => member.isPlatformOperator && member.status === Status.active))
-          return "conflict";
+        if (await holdsPlatformOperatorsOnlyMembership(this.prisma, data.companyId)) return "conflict";
 
         const liveConnectedAccounts = await this.prisma.connectedAccount.count({
           where: {
@@ -1170,7 +1159,10 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
         await this.owners.companies.deleteInviteTokensByCreatorsUnscoped(memberIds);
 
         const membershipsElsewhere = await this.prisma.user.findMany({
-          where: { email: { in: memberEmails, mode: "insensitive" }, companyId: { not: data.companyId } },
+          where: {
+            email: { in: memberEmails, mode: "insensitive" },
+            companyId: { not: data.companyId },
+          },
           select: { email: true },
         });
         const sharedEmails = new Set(membershipsElsewhere.map((member) => member.email.toLowerCase()));
@@ -1314,9 +1306,7 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
     const row = rows[0];
     if (!row) throw new Error("Workspace statistics could not be read.");
 
-    const channelMonths = await this.channelMonthsUnscoped(data.companyId);
-
-    return { companyId: data.companyId, ...row, channelMonths };
+    return { companyId: data.companyId, ...row };
   }
 
   @BypassTenantGuard
@@ -1362,79 +1352,5 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
     `;
 
     return rows.map((row) => row.tag);
-  }
-
-  @BypassTenantGuard
-  private async channelMonthsUnscoped(companyId: string): Promise<
-    Array<{
-      month: string;
-      peakConcurrent: number;
-      approximate: boolean;
-      channels: Array<{ provider: string; identifier: string }>;
-    }>
-  > {
-    const rows = await this.prisma.$queryRaw<
-      Array<{
-        month: string;
-        peakConcurrent: number;
-        approximate: boolean;
-        channels: Array<{ provider: string; identifier: string }> | null;
-      }>
-    >`
-      WITH ev AS (
-        SELECT "subjectId" AS acct,
-               payload->>'provider' AS provider,
-               COALESCE(payload->>'emailAddress', payload->>'displayName') AS ident,
-               kind AS name,
-               "createdAt"
-        FROM "EventLog"
-        WHERE "companyId" = ${companyId} AND "subjectKind" = 'connected_account'
-      ),
-      iv AS (
-        SELECT e.acct,
-               MIN(e.provider) FILTER (WHERE e.provider IS NOT NULL) AS provider,
-               MIN(e.ident) FILTER (WHERE e.ident IS NOT NULL) AS ident,
-               MIN(e."createdAt") FILTER (WHERE e.name = 'connected_account.created') AS started,
-               COALESCE(
-                 MAX(e."createdAt") FILTER (WHERE e.name = 'connected_account.deleted'),
-                 CASE WHEN c."id" IS NULL THEN MAX(e."createdAt")
-                      WHEN c."status" = 'deleted' THEN c."updatedAt" END
-               ) AS ended,
-               (MAX(e."createdAt") FILTER (WHERE e.name = 'connected_account.deleted')) IS NULL
-                 AND (c."id" IS NULL OR c."status" = 'deleted') AS approx
-        FROM ev e LEFT JOIN "ConnectedAccount" c ON c."id" = e.acct AND c."companyId" = ${companyId}
-        GROUP BY e.acct, c."id", c."status", c."updatedAt"
-      ),
-      bounded AS (SELECT * FROM iv WHERE started IS NOT NULL),
-      months AS (
-        SELECT generate_series(
-          date_trunc('month', (SELECT MIN(started) FROM bounded)),
-          date_trunc('month', NOW()),
-          interval '1 month'
-        ) AS m
-      ),
-      active AS (
-        SELECT m.m, i.*
-        FROM months m JOIN bounded i
-          ON i.started < m.m + interval '1 month' AND (i.ended IS NULL OR i.ended >= m.m)
-      ),
-      peak AS (
-        SELECT a.m,
-               MAX((SELECT COUNT(*) FROM bounded i WHERE i.started <= p.t AND (i.ended IS NULL OR i.ended >= p.t))) AS pk
-        FROM active a CROSS JOIN LATERAL (SELECT unnest(ARRAY[a.m, a.started]) AS t) p
-        WHERE p.t >= a.m AND p.t < a.m + interval '1 month'
-        GROUP BY a.m
-      )
-      SELECT to_char(a.m, 'YYYY-MM') AS "month",
-             COALESCE(MAX(p.pk), 0)::int AS "peakConcurrent",
-             bool_or(a.approx) AS "approximate",
-             jsonb_agg(DISTINCT jsonb_build_object('provider', a.provider, 'identifier', COALESCE(a.ident, '-')))
-               AS "channels"
-      FROM active a LEFT JOIN peak p ON p.m = a.m
-      GROUP BY a.m
-      ORDER BY a.m DESC
-    `;
-
-    return rows.map((row) => ({ ...row, channels: row.channels ?? [] }));
   }
 }

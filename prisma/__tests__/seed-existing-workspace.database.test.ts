@@ -47,12 +47,14 @@ function seed(fixture: Fixture) {
   );
 }
 
+const BILLING_USAGE_LEDGER_TABLES = new Set(["BillingUsageInterval", "BillingUsageWorkspace"]);
+
 async function tenantTables(client: ClientBase) {
   const { rows } = await client.query<{ table: string }>(
     `SELECT table_name AS table FROM information_schema.columns
      WHERE table_schema = current_schema() AND column_name = 'companyId' ORDER BY table_name`,
   );
-  return rows.map((row) => row.table);
+  return rows.map((row) => row.table).filter((table) => !BILLING_USAGE_LEDGER_TABLES.has(table));
 }
 
 /** Row counts of every tenant table for one company, plus the stored record model and the record ids. */

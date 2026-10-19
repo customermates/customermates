@@ -105,18 +105,23 @@ async function seedWorkspace(args: {
     });
     for (const [index, member] of args.members.entries()) {
       const userId = randomUUID();
+      const email = `member-${index}-${randomUUID()}@${args.domain}`;
       userIds.push(userId);
       await prisma.user.create({
         data: {
           id: userId,
           companyId,
-          email: `member-${index}-${randomUUID()}@${args.domain}`,
+          email,
           firstName: "Member",
           lastName: `${index}`,
           status: member.status ?? "active",
-          isPlatformOperator: member.isPlatformOperator ?? false,
         },
       });
+      if (member.isPlatformOperator) {
+        await prisma.authUser.create({
+          data: { id: userId, email, name: "Member Operator", emailVerified: true, isPlatformOperator: true },
+        });
+      }
 
       if (!member.adProvider || !member.adIdentifierKind || !member.adIdentifierValue) continue;
 
@@ -144,6 +149,8 @@ async function seedWorkspace(args: {
 afterAll(async () => {
   await runWithoutTenant(async () => {
     for (const companyId of companyIds) {
+      const members = await prisma.user.findMany({ where: { companyId }, select: { id: true } });
+      await prisma.authUser.deleteMany({ where: { id: { in: members.map((member) => member.id) } } });
       await prisma.user.deleteMany({ where: { companyId } });
       await prisma.userRole.deleteMany({ where: { companyId } });
       await prisma.subscription.deleteMany({ where: { companyId } });

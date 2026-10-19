@@ -5,7 +5,7 @@ import { ForbiddenError, isExpectedError, appErrorResponse } from "@/core/errors
 import { ApiKeyAccessDeniedError } from "@/core/auth/api-key-access-denied-error";
 import { EmailVerificationRequiredError } from "@/core/auth/email-verification-required-error";
 import { WorkspacePlanRequiredError } from "@/core/auth/workspace-plan-required-error";
-import { UserService } from "../user.service";
+import { LAST_ACTIVE_RESOLUTION_MS, UserService } from "../user.service";
 import type { FindUserRepo } from "../find-user.repo";
 import type { AuthService } from "@/features/auth/auth.service";
 import type { TenantUser } from "../user.schema";
@@ -19,6 +19,7 @@ const OVERDUE = { emailVerified: false, createdAt: new Date(Date.now() - 25 * 60
 
 const plans = { canUseIntegrations: vi.fn() };
 const workspaces = { requireMembership: vi.fn() };
+const touchLastActiveUnscoped = vi.fn();
 
 function serviceFor(
   status: Status,
@@ -28,6 +29,7 @@ function serviceFor(
     planUsable?: boolean;
     verification?: { emailVerified: boolean; createdAt: Date };
     storedVerified?: boolean;
+    lastActiveAt?: Date | null;
   } = {},
 ) {
   const user = {
@@ -36,6 +38,8 @@ function serviceFor(
     companyId: "company-1",
     status,
     role: options.role ?? NO_API_ROLE,
+    lastActiveAt: options.lastActiveAt === undefined ? new Date() : options.lastActiveAt,
+    updatedAt: new Date("2026-10-01T00:00:00.000Z"),
   } as unknown as TenantUser;
   const verification = options.verification ?? { emailVerified: true, createdAt: new Date() };
   const authService = {
@@ -51,6 +55,7 @@ function serviceFor(
       ),
     findCurrentUserUnscoped: () => Promise.resolve(user),
     findCurrentUserOrThrowUnscoped: () => Promise.resolve(user),
+    touchLastActiveUnscoped,
   } as unknown as FindUserRepo;
 
   plans.canUseIntegrations.mockResolvedValue(options.planUsable ?? true);
@@ -152,5 +157,53 @@ describe("UserService.getActiveUserOrThrow", () => {
         verification: { emailVerified: false, createdAt: new Date() },
       }).getActiveUserOrThrow(),
     ).resolves.toMatchObject({ id: "user-1" });
+  });
+});
+
+describe("UserService last activity", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    touchLastActiveUnscoped.mockResolvedValue(undefined);
+  });
+
+  it("records activity of a member whose last activity is older than the resolution", async () => {
+    const before = Date.now();
+    await serviceFor(Status.active, {
+      lastActiveAt: new Date(before - LAST_ACTIVE_RESOLUTION_MS - 1),
+    }).getActiveUserOrThrow();
+
+    expect(touchLastActiveUnscoped).toHaveBeenCalledTimes(1);
+    const [member, staleBefore] = touchLastActiveUnscoped.mock.calls[0] as [{ id: string }, Date];
+    expect(member).toMatchObject({ id: "user-1", companyId: "company-1" });
+    expect(staleBefore.getTime()).toBeGreaterThanOrEqual(before - LAST_ACTIVE_RESOLUTION_MS);
+  });
+
+  it("records the first activity of a member who never had one", async () => {
+    await serviceFor(Status.active, { lastActiveAt: null }).getActiveUserOrThrow();
+
+    expect(touchLastActiveUnscoped).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not count requests of an API key or MCP connection as the member's activity", async () => {
+    await serviceFor(Status.active, { lastActiveAt: null, apiKey: true, role: API_READER }).getActiveUserOrThrow();
+
+    expect(touchLastActiveUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("writes nothing while the last activity is recent or the request is refused", async () => {
+    await serviceFor(Status.active, { lastActiveAt: new Date() }).getActiveUserOrThrow();
+    await serviceFor(Status.inactive, { lastActiveAt: null })
+      .getActiveUserOrThrow()
+      .catch(() => undefined);
+
+    expect(touchLastActiveUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("still serves the request when recording the activity fails", async () => {
+    touchLastActiveUnscoped.mockRejectedValue(new Error("database unavailable"));
+
+    await expect(serviceFor(Status.active, { lastActiveAt: null }).getActiveUserOrThrow()).resolves.toMatchObject({
+      id: "user-1",
+    });
   });
 });

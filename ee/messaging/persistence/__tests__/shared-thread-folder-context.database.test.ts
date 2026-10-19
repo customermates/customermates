@@ -11,6 +11,7 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 import { PrismaConnectedAccountRepo } from "../prisma-connected-account.repository";
 import { PrismaUnipileWebhookRepo } from "../prisma-unipile-webhook.repository";
 import { createTestMessagingRepo } from "@/tests/helpers/messaging-repository";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -109,6 +110,7 @@ describeDatabase("shared-thread folder context on PostgreSQL", () => {
       new PrismaConnectedAccountRepo(
         new PermissionService(),
         new PrismaUnipileWebhookRepo(),
+        new PrismaBillingUsageRepo(),
       ).findSharedThreadFolderContext(sharedThreadId, ["archive", "hidden"]),
     );
 
@@ -128,9 +130,11 @@ describeDatabase("shared-thread folder context on PostgreSQL", () => {
   it("keeps the whole-account catalog private from a colleague", async () => {
     expect(
       await runWithTenant(colleague, () =>
-        new PrismaConnectedAccountRepo(new PermissionService(), new PrismaUnipileWebhookRepo()).findFolderContextById(
-          accountId,
-        ),
+        new PrismaConnectedAccountRepo(
+          new PermissionService(),
+          new PrismaUnipileWebhookRepo(),
+          new PrismaBillingUsageRepo(),
+        ).findFolderContextById(accountId),
       ),
     ).toBeNull();
   });
@@ -141,6 +145,7 @@ describeDatabase("shared-thread folder context on PostgreSQL", () => {
         new PrismaConnectedAccountRepo(
           new PermissionService(),
           new PrismaUnipileWebhookRepo(),
+          new PrismaBillingUsageRepo(),
         ).findSharedThreadFolderContext(privateThreadId, ["inbox"]),
       ),
     ).toBeNull();
@@ -152,6 +157,7 @@ describeDatabase("shared-thread folder context on PostgreSQL", () => {
         new PrismaConnectedAccountRepo(
           new PermissionService(),
           new PrismaUnipileWebhookRepo(),
+          new PrismaBillingUsageRepo(),
         ).findSharedThreadFolderContext(sharedThreadId, ["inbox"]),
       ),
     ).toBeNull();

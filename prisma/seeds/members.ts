@@ -16,7 +16,6 @@ export type SyntheticCompanyMemberDefinition = Readonly<{
   email: string;
   firstName: string;
   id: string;
-  isPlatformOperator: boolean;
   lastName: string;
   roleId: string | null;
   status: Status;
@@ -36,7 +35,6 @@ const member = (
   country,
   email,
   firstName,
-  isPlatformOperator: false,
   lastName,
   roleId: NORTHWIND_MEMBER_ROLES[key],
   status: "active" as Status,

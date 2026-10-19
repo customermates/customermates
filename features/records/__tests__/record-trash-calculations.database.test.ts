@@ -1,3 +1,4 @@
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 import { PermissionService } from "@/core/base/permission.service";
 import type {
   CalculatedValue,
@@ -218,7 +219,10 @@ async function fixture(companyId?: string) {
   const admin = createMockUser({ ...seed.admin, role: { ...seed.adminRole, permissions: [] } });
   const member = createMockUser({ ...seed.member, role: { ...seed.memberRole, permissions: [] } });
   const repo = createTestRecordRepo();
-  const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
+  const policy = new RecordAccessPolicy(
+    new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+    repo,
+  );
   const writer = new RecordWriteService(repo, policy, new RecordCalculationService(repo));
   const mutate = new MutateRecordInteractor(
     repo,
@@ -246,7 +250,12 @@ async function fixture(companyId?: string) {
     ),
   );
   const trash = {
-    query: new QueryTrashInteractor(trashRepo, repo, handlers, new PrismaUserRepo(new PermissionService())),
+    query: new QueryTrashInteractor(
+      trashRepo,
+      repo,
+      handlers,
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+    ),
     restore: new RestoreTrashInteractor(trashRepo, handlers),
     preview: new PreviewTrashDeletionInteractor(trashRepo, handlers),
     remove: new DeleteTrashPermanentlyInteractor(trashRepo, handlers),

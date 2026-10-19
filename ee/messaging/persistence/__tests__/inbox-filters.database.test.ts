@@ -16,6 +16,7 @@ import { PrismaConnectedAccountRepo } from "../prisma-connected-account.reposito
 import { PrismaUnipileWebhookRepo } from "../prisma-unipile-webhook.repository";
 import { getConnectedAccountRepo, getRecordAccessPolicy, getRecordIdentityReader, getRecordRepo } from "@/core/di";
 import { PrismaMessagingRepo } from "../prisma-messaging.repository";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -343,7 +344,11 @@ describeDatabase("inbox filters on PostgreSQL", () => {
 
   it("scopes options to caller access and only exposes placements of individually shared threads", async () => {
     const options = await runWithTenant(tenant, () =>
-      new PrismaConnectedAccountRepo(new PermissionService(), new PrismaUnipileWebhookRepo()).listInboxFilterOptions(),
+      new PrismaConnectedAccountRepo(
+        new PermissionService(),
+        new PrismaUnipileWebhookRepo(),
+        new PrismaBillingUsageRepo(),
+      ).listInboxFilterOptions(),
     );
     expect(options.accounts.map((option) => option.value).sort()).toEqual(
       [account.a, account.b, account.shared, account.individual, account.chat].sort(),
@@ -394,7 +399,11 @@ describeDatabase("inbox filters on PostgreSQL", () => {
     });
     expect(await query([filter(FilterFieldKey.lastMessageDirection, ["outbound"])], foreign)).toEqual(ids(["foreign"]));
     const options = await runWithTenant(foreign, () =>
-      new PrismaConnectedAccountRepo(new PermissionService(), new PrismaUnipileWebhookRepo()).listInboxFilterOptions(),
+      new PrismaConnectedAccountRepo(
+        new PermissionService(),
+        new PrismaUnipileWebhookRepo(),
+        new PrismaBillingUsageRepo(),
+      ).listInboxFilterOptions(),
     );
     expect(options.accounts.map((option) => option.value)).toEqual([account.foreign]);
     expect(options.folders.map((option) => option.value)).toContain(folder("foreign"));

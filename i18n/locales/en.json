@@ -1240,7 +1240,7 @@
       "unipileUnknown": "Something went wrong between Customermates and the provider. Retrying unchanged probably won't help; contact support if it keeps happening.",
       "userInactive": "Your user account is inactive. Contact a workspace administrator.",
       "userNotFound": "User ID not found or not accessible.",
-      "userPlatformOperatorStatusForbidden": "This account belongs to a platform operator and cannot be deactivated here. Use the operator console.",
+      "userPlatformOperatorStatusForbidden": "This is the only active account of the last Customermates platform operator, so it cannot be deactivated here. Contact Customermates support.",
       "userRoleRequired": "This member has no role yet. Choose a role together with the change.",
       "userSelfAdminUpdateForbidden": "You cannot update your own account through team administration.",
       "userStatusRequired": "This member is waiting for approval. Choose active or inactive together with the change.",
@@ -1282,13 +1282,13 @@
       "workspaceDeleteCheckoutPending": "A checkout for this workspace is in progress. Cancel it or wait until it finishes, then delete the workspace.",
       "workspaceDeleteInvoiced": "Workspaces on an invoiced plan are closed through support. Contact support to delete this workspace.",
       "workspaceDeleteNotCreator": "Only the admin who created this workspace can delete it.",
-      "workspaceDeletePlatformOperator": "This workspace has a platform operator as a member and cannot be deleted here.",
+      "workspaceDeletePlatformOperator": "Deleting this workspace would leave no Customermates platform operator with an active account, so it cannot be deleted here. Contact Customermates support.",
       "workspaceInvitationInvalid": "This invitation link is invalid or has expired. Ask for a new link.",
       "workspaceLastAdmin": "You are the only admin of this workspace. Make another active member an admin before you leave.",
       "workspaceLimitReached": "You can create up to {limit} workspaces. Contact support if you need more.",
       "workspaceMemberLastAdmin": "This member is the only active admin of this workspace. Make another active member an admin before you remove them.",
       "workspaceMemberLeft": "This member left the workspace. They can ask to join again with an invitation link, and an admin has to approve the request.",
-      "workspaceMemberPlatformOperator": "This account belongs to a platform operator and cannot be removed here. Use the operator console.",
+      "workspaceMemberPlatformOperator": "This is the only active account of the last Customermates platform operator, so it cannot leave or be removed here. Contact Customermates support.",
       "workspaceMemberRemoveSelf": "You cannot remove yourself from a workspace. Leave it instead.",
       "workspaceNotFound": "This workspace was not found or you are not a member.",
       "workspacePlanRequired": "API keys and MCP connections need an active plan for this workspace. Choose a plan to use them."
@@ -2815,7 +2815,7 @@
     "action": "Remove from workspace",
     "blocked": {
       "lastAdmin": "{name} is the only active admin of this workspace. Make another active member an admin first.",
-      "platformOperator": "Platform operators cannot be removed here. Use the operator console."
+      "platformOperator": "This is the only active account of the last Customermates platform operator, so it cannot leave or be removed here. Contact Customermates support."
     },
     "confirmDescription": "{name} loses access to this workspace on every device.",
     "confirmTitle": "Remove {name} from {workspace}?",
@@ -3169,6 +3169,56 @@
       "label": "Workspaces"
     }
   },
+  "OperatorUsage": {
+    "billing": {
+      "lemonSqueezy": "Billed through Lemon Squeezy",
+      "manual": "Billed manually"
+    },
+    "channels": {
+      "none": "No channel was connected in this month.",
+      "peak": "{count} at {date}",
+      "title": "Channels"
+    },
+    "columns": {
+      "added": "Added",
+      "channel": "Channel",
+      "connected": "Connected",
+      "currentChannels": "Connected channels now",
+      "currentSeats": "Active seats now",
+      "deactivated": "Deactivated",
+      "disconnected": "Disconnected",
+      "peakAt": "Peak reached",
+      "peakChannels": "Peak channels",
+      "seats": "Seats"
+    },
+    "coverage": {
+      "channelsInexactTimes": "Some connect or disconnect times are estimated, so this peak can differ from the true number.",
+      "channelsRecordedFrom": "Channel changes are recorded from {date}. Channels removed before then are missing, so this peak may be too low.",
+      "footnote": "* Incomplete history for this month. Open the workspace under Workspaces to see why.",
+      "incomplete": "Incomplete history",
+      "seatsInexactTimes": "Some activation or deactivation times are estimated, so this count can differ from the true number.",
+      "seatsRecordedFrom": "Seat changes are recorded from {date}. Earlier activations and deactivations are reconstructed or missing, so this count can differ from the true number."
+    },
+    "deleted": "Deleted {date}",
+    "deletedBeforeRecording": "Workspaces deleted before {date} are not included; their history was not recorded.",
+    "description": "Per calendar month in UTC. Every user who was active at any time in the month counts as one seat for the whole month. Channels are counted at the highest number connected at the same time.",
+    "empty": "No workspace existed in this month.",
+    "estimated": "Estimated",
+    "export": "CSV file",
+    "month": "Month",
+    "monthInProgress": "This month is still running, so the numbers can still rise.",
+    "navigation": "Usage",
+    "seats": {
+      "none": "No user was active in this month.",
+      "title": "Seats"
+    },
+    "stillActive": "Still active",
+    "stillConnected": "Still connected",
+    "subscriptions": {
+      "summary": "{paying} of {total} workspaces with a subscription pay right now: {lemonSqueezy} through Lemon Squeezy, {manual} billed manually. Plan and subscription show today's state."
+    },
+    "title": "Billing usage"
+  },
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Signed credit correction",
@@ -3176,7 +3226,7 @@
       "expiresAt": "This correction applies to the current period only and lapses on {date}."
     },
     "confirm": {
-      "operator": "Set platform operator access for {name} to {value}?",
+      "operator": "Set platform operator access for {name} to {value}? It applies to this login in every workspace.",
       "reset": "Reset the credits of {name}: {value}?",
       "status": "Set the account status of {name} to {value}?"
     },
@@ -3226,19 +3276,11 @@
       "title": "Enterprise allowance",
       "warningDescription": "The allowance is granted per user across the whole workspace and takes effect on the current period."
     },
-    "channels": {
-      "approximate": "One or more disconnect times are estimated, so this peak may be slightly high.",
-      "description": "Peak simultaneously connected channels per month, reconstructed from the workspace audit trail.",
-      "monthLabel": "Month",
-      "monthOption": "{month} · {count} at peak",
-      "none": "No channels have ever been connected.",
-      "title": "Connected channels"
-    },
     "delete": {
       "action": "Delete workspace",
       "confirmTitle": "Delete this workspace permanently",
       "reasonLabel": "Reason",
-      "warningDescription": "Deleting {name} permanently removes the workspace and {members, plural, =1 {its one member account} other {all # member accounts}}, together with their contacts, deals, messages, sign-in credentials and billing records. This cannot be undone."
+      "warningDescription": "Deleting {name} permanently removes the workspace and {members, plural, =1 {its one member account} other {all # member accounts}}, together with their contacts, deals, messages, sign-in credentials and billing records. Monthly usage counts are kept for billing, without names, email addresses or account identifiers. This cannot be undone."
     },
     "emptyBody": "Adjust the search or filters to widen the list.",
     "emptyTitle": "No workspaces match these filters",
@@ -4732,7 +4774,7 @@
       "invoiced": "Workspaces on an invoiced plan are closed through support. Contact support to delete this workspace.",
       "notAdmin": "Only an admin can delete this workspace.",
       "notCreator": "Only the admin who created this workspace can delete it.",
-      "platformOperator": "This workspace has a platform operator as a member and cannot be deleted here."
+      "platformOperator": "Deleting this workspace would leave no Customermates platform operator with an active account, so it cannot be deleted here. Contact Customermates support."
     },
     "deleteConfirmDescription": "This permanently deletes its records, Knowledge Base, routines, webhooks and connected accounts. Every member loses access, and their API keys and MCP connections for it stop working. This can't be undone.",
     "deleteConfirmTitle": "Delete {name}?",

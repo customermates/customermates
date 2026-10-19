@@ -32,7 +32,7 @@ function subject(overrides: Partial<WorkspaceDeletionSubject> = {}): WorkspaceDe
     createdByAuthUserId: creator.id,
     deletingAt: null,
     earliestAdminEmail: creator.email,
-    hasActivePlatformOperator: false,
+    strandsLastPlatformOperator: false,
     subscription: billing(),
     ...overrides,
   };
@@ -131,8 +131,8 @@ describe("workspaceDeleteRefusal", () => {
     expect(workspaceDeleteRefusal({ ...allowed, login: otherAdmin })).toBe("notCreator");
   });
 
-  it("refuses a workspace with an active platform operator", () => {
-    expect(workspaceDeleteRefusal({ ...allowed, subject: subject({ hasActivePlatformOperator: true }) })).toBe(
+  it("refuses a workspace whose deletion would leave no platform operator able to act", () => {
+    expect(workspaceDeleteRefusal({ ...allowed, subject: subject({ strandsLastPlatformOperator: true }) })).toBe(
       "platformOperator",
     );
   });

@@ -1240,7 +1240,7 @@
       "unipileUnknown": "Un problème est survenu entre Customermates et le fournisseur. Réessayer tel quel ne devrait pas aider ; contactez le support si cela se reproduit.",
       "userInactive": "Votre compte utilisateur est inactif. Contactez un administrateur de l’espace de travail.",
       "userNotFound": "ID d'utilisateur introuvable ou inaccessible.",
-      "userPlatformOperatorStatusForbidden": "Ce compte appartient à un opérateur de la plateforme et ne peut pas être désactivé ici. Utilisez la console opérateur.",
+      "userPlatformOperatorStatusForbidden": "C’est le seul compte actif du dernier opérateur de la plateforme Customermates : il ne peut donc pas être désactivé ici. Contactez le support Customermates.",
       "userRoleRequired": "Ce membre n’a pas encore de rôle. Choisissez un rôle avec la modification.",
       "userSelfAdminUpdateForbidden": "Vous ne pouvez pas mettre à jour votre propre compte depuis l’administration de l’équipe.",
       "userStatusRequired": "Ce membre attend une approbation. Choisissez actif ou inactif avec la modification.",
@@ -1282,13 +1282,13 @@
       "workspaceDeleteCheckoutPending": "Un paiement est en cours pour cet espace de travail. Annulez-le ou attendez qu'il se termine, puis supprimez l'espace de travail.",
       "workspaceDeleteInvoiced": "Les espaces de travail avec un forfait facturé sont fermés par le support. Contactez le support pour supprimer cet espace de travail.",
       "workspaceDeleteNotCreator": "Seul l'administrateur qui a créé cet espace de travail peut le supprimer.",
-      "workspaceDeletePlatformOperator": "Un opérateur de la plateforme est membre de cet espace de travail, il ne peut donc pas être supprimé ici.",
+      "workspaceDeletePlatformOperator": "Supprimer cet espace de travail ne laisserait aucun opérateur de la plateforme Customermates avec un compte actif : il ne peut donc pas être supprimé ici. Contactez le support Customermates.",
       "workspaceInvitationInvalid": "Ce lien d'invitation n'est pas valide ou a expiré. Demandez un nouveau lien.",
       "workspaceLastAdmin": "Vous êtes le seul administrateur de cet espace de travail. Nommez un autre membre actif administrateur avant de partir.",
       "workspaceLimitReached": "Vous pouvez créer jusqu'à {limit} espaces de travail. Contactez le support si vous avez besoin de plus.",
       "workspaceMemberLastAdmin": "Ce membre est le seul administrateur actif de cet espace de travail. Nommez un autre membre actif administrateur avant de le retirer.",
       "workspaceMemberLeft": "Ce membre a quitté l'espace de travail. Il peut redemander à le rejoindre avec un lien d'invitation, et un administrateur doit approuver la demande.",
-      "workspaceMemberPlatformOperator": "Ce compte appartient à un opérateur de la plateforme et ne peut pas être retiré ici. Utilisez la console opérateur.",
+      "workspaceMemberPlatformOperator": "C’est le seul compte actif du dernier opérateur de la plateforme Customermates : il ne peut donc pas quitter l’espace ni en être retiré ici. Contactez le support Customermates.",
       "workspaceMemberRemoveSelf": "Vous ne pouvez pas vous retirer vous-même d'un espace de travail. Quittez-le plutôt.",
       "workspaceNotFound": "Cet espace de travail est introuvable ou vous n'en êtes pas membre.",
       "workspacePlanRequired": "Les clés API et les connexions MCP nécessitent une offre active pour cet espace de travail. Choisissez une offre pour les utiliser."
@@ -2815,7 +2815,7 @@
     "action": "Retirer de l'espace de travail",
     "blocked": {
       "lastAdmin": "{name} est le seul administrateur actif de cet espace de travail. Nommez d'abord un autre membre actif administrateur.",
-      "platformOperator": "Les opérateurs de la plateforme ne peuvent pas être retirés ici. Utilisez la console opérateur."
+      "platformOperator": "C’est le seul compte actif du dernier opérateur de la plateforme Customermates : il ne peut donc pas quitter l’espace ni en être retiré ici. Contactez le support Customermates."
     },
     "confirmDescription": "{name} perd l'accès à cet espace de travail sur tous ses appareils.",
     "confirmTitle": "Retirer {name} de {workspace} ?",
@@ -3169,6 +3169,56 @@
       "label": "Espaces de travail"
     }
   },
+  "OperatorUsage": {
+    "billing": {
+      "lemonSqueezy": "Facturation via Lemon Squeezy",
+      "manual": "Facturation manuelle"
+    },
+    "channels": {
+      "none": "Aucun canal n'était connecté ce mois-ci.",
+      "peak": "{count} le {date}",
+      "title": "Canaux"
+    },
+    "columns": {
+      "added": "Ajouté",
+      "channel": "Canal",
+      "connected": "Connecté",
+      "currentChannels": "Canaux connectés maintenant",
+      "currentSeats": "Sièges actifs maintenant",
+      "deactivated": "Désactivé",
+      "disconnected": "Déconnecté",
+      "peakAt": "Maximum atteint",
+      "peakChannels": "Maximum de canaux",
+      "seats": "Sièges"
+    },
+    "coverage": {
+      "channelsInexactTimes": "Certaines heures de connexion ou de déconnexion sont estimées, ce maximum peut donc différer du nombre réel.",
+      "channelsRecordedFrom": "Les changements de canaux sont enregistrés depuis le {date}. Les canaux retirés avant cette date manquent, ce maximum peut donc être trop bas.",
+      "footnote": "* Historique incomplet pour ce mois. Ouvrez l’espace de travail dans Espaces de travail pour en voir la raison.",
+      "incomplete": "Historique incomplet",
+      "seatsInexactTimes": "Certaines heures d'activation ou de désactivation sont estimées, ce nombre peut donc différer du nombre réel.",
+      "seatsRecordedFrom": "Les changements de sièges sont enregistrés depuis le {date}. Les activations et désactivations antérieures sont reconstituées ou manquantes, ce nombre peut donc différer du nombre réel."
+    },
+    "deleted": "Supprimé le {date}",
+    "deletedBeforeRecording": "Les espaces de travail supprimés avant le {date} ne sont pas inclus ; leur historique n'a pas été enregistré.",
+    "description": "Par mois civil en UTC. Chaque utilisateur actif à un moment quelconque du mois compte comme un siège pour tout le mois. Les canaux sont comptés selon le nombre maximal connecté simultanément.",
+    "empty": "Aucun espace de travail n'existait ce mois-ci.",
+    "estimated": "Estimé",
+    "export": "Fichier CSV",
+    "month": "Mois",
+    "monthInProgress": "Ce mois est en cours, les chiffres peuvent donc encore augmenter.",
+    "navigation": "Utilisation",
+    "seats": {
+      "none": "Aucun utilisateur n'était actif ce mois-ci.",
+      "title": "Sièges"
+    },
+    "stillActive": "Toujours actif",
+    "stillConnected": "Toujours connecté",
+    "subscriptions": {
+      "summary": "{paying} espaces de travail sur {total} avec un abonnement paient actuellement : {lemonSqueezy} via Lemon Squeezy, {manual} en facturation manuelle. L’offre et l’abonnement indiquent l’état actuel."
+    },
+    "title": "Utilisation facturable"
+  },
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Correction de crédits signée",
@@ -3176,7 +3226,7 @@
       "expiresAt": "Cette correction ne vaut que pour la période en cours et expire le {date}."
     },
     "confirm": {
-      "operator": "Définir l’accès opérateur de plateforme de {name} sur {value} ?",
+      "operator": "Définir l’accès opérateur de plateforme de {name} sur {value} ? Cela s’applique à cet identifiant dans tous les espaces de travail.",
       "reset": "Réinitialiser les crédits de {name} : {value} ?",
       "status": "Définir le statut du compte de {name} sur {value} ?"
     },
@@ -3226,19 +3276,11 @@
       "title": "Allocation Enterprise",
       "warningDescription": "L’allocation est accordée par utilisateur sur tout l’espace et prend effet sur la période en cours."
     },
-    "channels": {
-      "approximate": "Au moins une heure de déconnexion est estimée, ce maximum peut donc être légèrement élevé.",
-      "description": "Nombre maximal de canaux connectés simultanément par mois, reconstitué à partir du journal d'audit de l'espace de travail.",
-      "monthLabel": "Mois",
-      "monthOption": "{month} · {count} au maximum",
-      "none": "Aucun canal n'a jamais été connecté.",
-      "title": "Canaux connectés"
-    },
     "delete": {
       "action": "Supprimer l'espace de travail",
       "confirmTitle": "Supprimer définitivement cet espace de travail",
       "reasonLabel": "Motif",
-      "warningDescription": "La suppression de {name} retire définitivement l'espace de travail et {members, plural, =1 {son unique compte membre} other {ses # comptes membres}}, ainsi que leurs contacts, affaires, messages, identifiants de connexion et données de facturation. Cette action est irréversible."
+      "warningDescription": "La suppression de {name} retire définitivement l'espace de travail et {members, plural, =1 {son unique compte membre} other {ses # comptes membres}}, ainsi que leurs contacts, affaires, messages, identifiants de connexion et données de facturation. Les chiffres d'utilisation mensuels sont conservés pour la facturation, sans noms, adresses e-mail ni identifiants de compte. Cette action est irréversible."
     },
     "emptyBody": "Ajustez la recherche ou les filtres pour élargir la liste.",
     "emptyTitle": "Aucun espace ne correspond à ces filtres",
@@ -4732,7 +4774,7 @@
       "invoiced": "Les espaces de travail avec un forfait facturé sont fermés par le support. Contactez le support pour supprimer cet espace de travail.",
       "notAdmin": "Seul un administrateur peut supprimer cet espace de travail.",
       "notCreator": "Seul l'administrateur qui a créé cet espace de travail peut le supprimer.",
-      "platformOperator": "Un opérateur de la plateforme est membre de cet espace de travail, il ne peut donc pas être supprimé ici."
+      "platformOperator": "Supprimer cet espace de travail ne laisserait aucun opérateur de la plateforme Customermates avec un compte actif : il ne peut donc pas être supprimé ici. Contactez le support Customermates."
     },
     "deleteConfirmDescription": "Ses fiches, sa base de connaissances, ses routines, ses webhooks et ses comptes connectés sont supprimés définitivement. Tous les membres perdent l'accès, et leurs clés API et connexions MCP associées cessent de fonctionner. Cette action est irréversible.",
     "deleteConfirmTitle": "Supprimer {name} ?",

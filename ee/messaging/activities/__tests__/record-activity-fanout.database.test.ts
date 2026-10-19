@@ -11,6 +11,7 @@ import type { RecordActivityIndexRow } from "@/ee/messaging/activities/record-ac
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 vi.mock("@/env", () => ({
   env: {
@@ -194,7 +195,10 @@ async function boundedQuery<T extends object>(query: Prisma.Sql) {
 async function queryActivity(user: TenantUser) {
   const context = await runWithTenant(user, () =>
     runInTransaction(async () => {
-      const policy = await new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), workspace.repo).load();
+      const policy = await new RecordAccessPolicy(
+        new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+        workspace.repo,
+      ).load();
       const model = await workspace.repo.getModel();
       const available: ActivityKind[] = [];
       if (policy.allowedSystem("activityLog", "readAll")) available.push("record", "audit", "configuration");

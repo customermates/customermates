@@ -7,6 +7,7 @@ import type { ProcessEventInteractor as ProcessEventInteractorType } from "@/fea
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 vi.mock("@/env", () => ({
   env: {
@@ -140,7 +141,10 @@ async function fixture(background: { dispatch: (id: string, payload: Dispatched)
   });
   const admin = createMockUser({ ...seed.admin, role: { ...seed.role, permissions: [] } });
   const repo = createTestRecordRepo(undefined, background as never);
-  const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
+  const policy = new RecordAccessPolicy(
+    new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+    repo,
+  );
   const mutate = new MutateRecordInteractor(
     repo,
     policy,

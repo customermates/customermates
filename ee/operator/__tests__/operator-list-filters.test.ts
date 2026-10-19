@@ -127,6 +127,7 @@ describe("partitionOperatorUserFilters with a group scope on an intercepted fiel
   it("intersects an own negated plan filter with the group's positive plan filter", () => {
     const { baseWhere, passthrough } = partitionOperatorUserFilters(
       scopedFilters([notStarter], scope(plan, "starter")),
+      [],
     );
 
     expect(passthrough).toEqual([]);
@@ -136,7 +137,10 @@ describe("partitionOperatorUserFilters with a group scope on an intercepted fiel
   });
 
   it("keeps the no-subscription branch when both the own filter and the no-value scope are negated", () => {
-    const { baseWhere } = partitionOperatorUserFilters(scopedFilters([notStarter], scope(plan, NO_VALUE_GROUP_KEY)));
+    const { baseWhere } = partitionOperatorUserFilters(
+      scopedFilters([notStarter], scope(plan, NO_VALUE_GROUP_KEY)),
+      [],
+    );
 
     const is = { AND: [{ plan: { notIn: ["starter"] } }, { plan: { notIn: ALL_PLANS } }] };
     expect(baseWhere).toEqual({
@@ -145,7 +149,7 @@ describe("partitionOperatorUserFilters with a group scope on an intercepted fiel
   });
 
   it("drops the no-subscription branch when an own positive filter meets the no-value scope", () => {
-    const { baseWhere } = partitionOperatorUserFilters(scopedFilters([onlyPro], scope(plan, NO_VALUE_GROUP_KEY)));
+    const { baseWhere } = partitionOperatorUserFilters(scopedFilters([onlyPro], scope(plan, NO_VALUE_GROUP_KEY)), []);
 
     expect(baseWhere).toEqual({
       company: { subscription: { is: { AND: [{ plan: { in: ["pro"] } }, { plan: { notIn: ALL_PLANS } }] } } },
@@ -153,13 +157,13 @@ describe("partitionOperatorUserFilters with a group scope on an intercepted fiel
   });
 
   it("keeps the flat shape for a single condition and combines different subscription fields", () => {
-    expect(partitionOperatorUserFilters([notStarter]).baseWhere).toEqual({
+    expect(partitionOperatorUserFilters([notStarter], []).baseWhere).toEqual({
       OR: [
         { company: { subscription: { is: { plan: { notIn: ["starter"] } } } } },
         { company: { subscription: { is: null } } },
       ],
     });
-    expect(partitionOperatorUserFilters([onlyPro, notTrial]).baseWhere).toEqual({
+    expect(partitionOperatorUserFilters([onlyPro, notTrial], []).baseWhere).toEqual({
       company: { subscription: { is: { AND: [{ plan: { in: ["pro"] } }, { status: { notIn: ["trial"] } }] } } },
     });
   });
@@ -250,5 +254,24 @@ describe("operatorCollator", () => {
 
     expect(["b", "a", "c"].sort(compare)).toEqual(["a", "b", "c"]);
     expect(compare("a", "a")).toBe(0);
+  });
+});
+
+describe("partitionOperatorUserFilters on the platform operator flag", () => {
+  const operators = ["ops@example.invalid"];
+  const operatorFilter = (values: string[], operator = FilterOperatorKey.in) =>
+    ({ field: "isPlatformOperator", operator, value: values }) as Filter;
+
+  it("matches the memberships of operator logins by e-mail, case-insensitively", () => {
+    expect(partitionOperatorUserFilters([operatorFilter(["true"])], operators).baseWhere).toEqual({
+      email: { in: operators, mode: "insensitive" },
+    });
+    expect(partitionOperatorUserFilters([operatorFilter(["false"])], operators).baseWhere).toEqual({
+      email: { notIn: operators, mode: "insensitive" },
+    });
+  });
+
+  it("ignores a filter that selects both values", () => {
+    expect(partitionOperatorUserFilters([operatorFilter(["true", "false"])], operators).baseWhere).toEqual({});
   });
 });

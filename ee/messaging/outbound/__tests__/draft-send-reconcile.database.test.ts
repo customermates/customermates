@@ -1,3 +1,4 @@
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 import type { TenantUser } from "@/features/user/user.schema";
 import type { MessagingService } from "../../messaging.service";
 
@@ -86,7 +87,12 @@ describeDatabase("settling an unknown draft send from its synced sent copy", () 
   const tenant = createMockUser({ id: ownerId, companyId, email: ownerEmail }) satisfies TenantUser;
   const address = (label: string) => `${label}-${randomUUID()}@example.invalid`;
 
-  const accounts = () => new PrismaConnectedAccountRepo(new PermissionService(), new PrismaUnipileWebhookRepo());
+  const accounts = () =>
+    new PrismaConnectedAccountRepo(
+      new PermissionService(),
+      new PrismaUnipileWebhookRepo(),
+      new PrismaBillingUsageRepo(),
+    );
   const save = async (data: SaveDraftData) => {
     const result = await runWithTenant(tenant, () =>
       new SaveDraftInteractor(createTestMessagingRepo(), accounts(), mockEntitlementService()).invoke(data),

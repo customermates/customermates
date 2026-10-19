@@ -7,6 +7,7 @@ import { afterAll, describe, expect, it, vi } from "vitest";
 import { DomainEvent } from "@/features/event/domain-events";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 vi.mock("@/env", () => ({
   env: {
@@ -111,7 +112,10 @@ describeDatabase("workspace activity subjects", () => {
     await runWithTenant(admin, () =>
       runInTransaction(() => repo.saveModel(createCrmPreset(seed.company.id), admin.id), { timeout: 30000 }),
     );
-    const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
+    const policy = new RecordAccessPolicy(
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+      repo,
+    );
     const activities = new GetRecordActivitiesInteractor(
       new PrismaRecordActivitiesRepo(new PermissionService()),
       repo,

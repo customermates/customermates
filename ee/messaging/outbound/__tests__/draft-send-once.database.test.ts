@@ -1,3 +1,4 @@
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 import type { TenantUser } from "@/features/user/user.schema";
 import type { MessagingService } from "../../messaging.service";
 
@@ -79,7 +80,12 @@ describeDatabase("sending a saved draft revision at most once", () => {
   const address = (label: string) => `${label}-${randomUUID()}@example.invalid`;
   const phone = () => `+49176${String(Math.floor(Math.random() * 1e8)).padStart(8, "0")}`;
 
-  const accounts = () => new PrismaConnectedAccountRepo(new PermissionService(), new PrismaUnipileWebhookRepo());
+  const accounts = () =>
+    new PrismaConnectedAccountRepo(
+      new PermissionService(),
+      new PrismaUnipileWebhookRepo(),
+      new PrismaBillingUsageRepo(),
+    );
   const save = async (data: SaveDraftData) => {
     const result = await runWithTenant(tenant, () =>
       new SaveDraftInteractor(createTestMessagingRepo(), accounts(), mockEntitlementService()).invoke(data),
