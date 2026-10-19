@@ -178,7 +178,7 @@ const RETIRED_APP_ROUTE_ALIASES = {
   "/profile/settings": "/settings/profile",
 } as const satisfies Record<string, string>;
 
-const RETIRED_RECORD_LIST_PRESETS = {
+export const RETIRED_RECORD_LIST_PRESETS = {
   "/contacts": "contact",
   "/organizations": "organization",
   "/deals": "deal",

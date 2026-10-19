@@ -11,8 +11,6 @@ const PRESET_FILES = new Set([
   "features/records/crm-preset.ts",
   "features/records/crm-preset-options.ts",
   "features/records/workspace-record-preset.ts",
-  // Resolves pre-upgrade URLs (/contacts, /deals/<id>) of converted workspaces; it builds no data.
-  "features/records/retired-starter-list.ts",
 ]);
 
 function isTestPath(path: string) {
