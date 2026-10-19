@@ -21,6 +21,7 @@ import { CalculationBatch } from "./record-calculation-batch";
 export type { CalculationRecordRepo } from "./record-calculation-batch";
 
 export const SYNCHRONOUS_RECORD_LIMIT = 500;
+const CONCURRENT_RECORDS = 500;
 export const recordKey = (ref: RecordRef) => `${ref.typeId}:${ref.recordId}`;
 
 export function isCalculationBudgetExceeded(error: unknown): boolean {
@@ -98,8 +99,6 @@ function storedResult(definition: RecordField, evaluated: CalculatedValue): Calc
 }
 
 export class RecordCalculationService {
-  static batching = true;
-
   constructor(private records: CalculationRecordRepo) {}
 
   withRepository(records: CalculationRecordRepo): RecordCalculationService {
@@ -107,21 +106,15 @@ export class RecordCalculationService {
   }
 
   private run(): Run {
-    if (!RecordCalculationService.batching) {
-      return {
-        records: this.records,
-        each: async (items, compute, apply) => {
-          for (const item of items) await apply(await compute(item), item);
-        },
-        flush: () => Promise.resolve(),
-      };
-    }
     const batch = new CalculationBatch(this.records);
     return {
       records: batch,
       each: async (items, compute, apply) => {
-        const results = await settled(items.map((item) => compute(item)));
-        for (const [index, result] of results.entries()) await apply(result, items[index]);
+        for (let offset = 0; offset < items.length; offset += CONCURRENT_RECORDS) {
+          const chunk = items.slice(offset, offset + CONCURRENT_RECORDS);
+          const results = await settled(chunk.map((item) => compute(item)));
+          for (const [index, result] of results.entries()) await apply(result, chunk[index]);
+        }
       },
       flush: () => batch.flush(),
     };
@@ -378,10 +371,6 @@ export class RecordCalculationService {
   private async store(records: CalculationRecordRepo, model: RecordModel, plan: StorePlan): Promise<void> {
     if (plan.value) await records.setValue(plan.ref, plan.fieldId, plan.result, model.revision);
     if (plan.sources) await records.setValueDependencies(plan.ref, plan.fieldId, plan.sources);
-  }
-
-  async calculateField(model: RecordModel, ref: RecordRef, fieldId: string, limit: number): Promise<void> {
-    await this.calculateFields(model, [ref], fieldId, limit);
   }
 
   async calculateFields(model: RecordModel, refs: RecordRef[], fieldId: string, limit: number): Promise<void> {

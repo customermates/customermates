@@ -8,7 +8,8 @@ import type { RecordJournal } from "./record-journal";
 import type { RecordEventPayload } from "./record-event.schema";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { RecordCalculationService, recordKey, SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
+import type { RecordCalculationService } from "./record-calculation.service";
+import { recordKey, SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
 import { recordInvariant } from "./record-invariant";
 
 type Policy = Awaited<ReturnType<RecordAccessPolicy["load"]>>;
@@ -178,11 +179,9 @@ export class RecordTrashService {
     const seeds = new Map(refs.map((ref) => [recordKey(ref), ref]));
     const links = await records.getTrashedLinksCompanyWide(refs, limit * 4 + 1);
     if (links.length > limit * 4) throw unwindFailure(CustomErrorCode.recordCalculationBudget, "conflict");
-    const restoring = RecordCalculationService.batching
-      ? await this.restorableLinks(records, model, links, restored)
-      : await this.restorableLinksOneByOne(records, model, links, restored);
+    const restoring = await this.restorableLinks(records, model, links, restored);
+    await journal.restoreLinks(restoring.restored);
     for (const link of restoring.restored) {
-      await journal.restoreLink(link);
       seeds.set(recordKey(link.source), link.source);
       seeds.set(recordKey(link.target), link.target);
       if (seeds.size > limit) throw unwindFailure(CustomErrorCode.recordCalculationBudget, "conflict");
@@ -259,42 +258,6 @@ export class RecordTrashService {
     if (dropped.length) await records.dropTrashedLinks(dropped);
     if (result.length) await records.restoreLinks(result);
     return { restored: result, dropped: dropped.length };
-  }
-
-  private async restorableLinksOneByOne(
-    records: RecordRepo,
-    model: RecordModel,
-    links: TrashedLink[],
-    restored: ReadonlySet<string>,
-  ): Promise<{ restored: TrashedLink[]; dropped: number }> {
-    const live = new Map<string, boolean>();
-    const isLive = async (ref: RecordRef) => {
-      const key = recordKey(ref);
-      if (restored.has(key)) return true;
-      if (!live.has(key)) live.set(key, (await records.getRecordCompanyWide(ref)) !== null);
-      return recordInvariant(live.get(key));
-    };
-    const result: TrashedLink[] = [];
-    let dropped = 0;
-    for (const link of links) {
-      if (!(await isLive(link.source)) || !(await isLive(link.target))) continue;
-      const relation = model.relationships.find((candidate) => candidate.id === link.relationId);
-      const conflicting =
-        relation &&
-        !relation.archived &&
-        ((relation.sourceCardinality === "one" &&
-          (await records.linkedRecordsCompanyWide(link.source, link.relationId, "outgoing", 1)).length > 0) ||
-          (relation.targetCardinality === "one" &&
-            (await records.linkedRecordsCompanyWide(link.target, link.relationId, "incoming", 1)).length > 0));
-      if (conflicting) {
-        await records.dropTrashedLink(link.relationId, link.id);
-        dropped++;
-        continue;
-      }
-      await records.restoreLink(link.relationId, link.id);
-      result.push(link);
-    }
-    return { restored: result, dropped };
   }
 
   purgedAlong(itemIds: string[], model: RecordModel): Promise<{ itemIds: string[]; refs: RecordRef[] }> {

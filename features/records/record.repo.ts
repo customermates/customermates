@@ -250,9 +250,7 @@ export interface RecordRepo {
   ): Promise<Array<{ ref: RecordRef; parent: { ref: RecordRef; trashItemId: string | null } | null }>>;
   reassignTrashedRecordsCompanyWide(refs: RecordRef[], trashItemId: string): Promise<void>;
   restoreRecords(refs: RecordRef[]): Promise<void>;
-  restoreLink(relationId: string, id: string): Promise<void>;
   restoreLinks(links: Array<{ relationId: string; id: string }>): Promise<void>;
-  dropTrashedLink(relationId: string, id: string): Promise<void>;
   dropTrashedLinks(links: Array<{ relationId: string; id: string }>): Promise<void>;
   removeTrashItems(ids: string[]): Promise<void>;
   purgeTrashItems(ids: string[]): Promise<RecordRef[]>;
@@ -377,11 +375,6 @@ export interface RecordRepo {
     operationId: string,
     kind: string,
     keys: string[],
-  ): Promise<Array<{ key: string; payload: Prisma.JsonValue }>>;
-  getStageRowsByRecords(
-    operationId: string,
-    kind: string,
-    refs: RecordRef[],
   ): Promise<Array<{ key: string; payload: Prisma.JsonValue }>>;
   getStageRecordRefsCompanyWide(
     operationId: string,

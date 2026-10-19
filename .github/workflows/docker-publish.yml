@@ -79,9 +79,11 @@ jobs:
 
       - name: Export digest
         if: github.event_name != 'pull_request'
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
         run: |
           mkdir -p "${RUNNER_TEMP}/digests"
-          digest="${{ steps.build.outputs.digest }}"
+          digest="$DIGEST"
           touch "${RUNNER_TEMP}/digests/${digest#sha256:}"
 
       - if: github.event_name != 'pull_request'
@@ -139,4 +141,6 @@ jobs:
             $(printf "${IMAGE}@sha256:%s " *)
 
       - name: Inspect
-        run: docker buildx imagetools inspect "${IMAGE}:${{ steps.meta.outputs.version }}"
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
+        run: docker buildx imagetools inspect "${IMAGE}:${VERSION}"

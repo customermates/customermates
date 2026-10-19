@@ -107,9 +107,6 @@ test("keeps complete application reads, History and a blocked form draft while a
     await database.query("ROLLBACK");
     throw error;
   }
-  // Autovacuum analyzes rows inserted in bulk only a minute or more later; until then PostgreSQL plans the reads of
-  // this workspace as if it were empty.
-  await database.query('ANALYZE "CrmRecord", "RecordValue", "RecordValueDependency", "RecordLink"');
   const snapshot = async () =>
     (
       await database.query(

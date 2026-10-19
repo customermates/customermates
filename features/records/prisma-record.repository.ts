@@ -83,6 +83,7 @@ const VIEW_KEY = "view:";
 
 const BULK_READ_CHUNK = 1000;
 const BULK_WRITE_CHUNK = 500;
+const STAGE_KEY_CHUNK = 10000;
 
 const recordKey = (ref: RecordRef) => `${ref.typeId}:${ref.recordId}`;
 
@@ -1513,19 +1514,6 @@ export class PrismaRecordRepo
     });
   }
 
-  async restoreLink(relationId: string, id: string): Promise<void> {
-    await this.prisma.recordLink.updateMany({
-      where: { companyId: this.companyId, relationId, id },
-      data: { deletedAt: null },
-    });
-  }
-
-  async dropTrashedLink(relationId: string, id: string): Promise<void> {
-    await this.prisma.recordLink.deleteMany({
-      where: { companyId: this.companyId, relationId, id, deletedAt: { not: null } },
-    });
-  }
-
   async restoreLinks(links: Array<{ relationId: string; id: string }>): Promise<void> {
     for (let offset = 0; offset < links.length; offset += BULK_WRITE_CHUNK) {
       const chunk = links.slice(offset, offset + BULK_WRITE_CHUNK);
@@ -2059,14 +2047,30 @@ export class PrismaRecordRepo
       payload: recordJson(payload),
     });
     if (publish) {
-      await this.captureRecordEventMatches(this.companyId, { eventId: id }, beforeDeletion);
+      await this.captureRecordEventMatches(this.companyId, { eventIds: [id] }, beforeDeletion);
       await this.wakeRecordEvents();
     }
   }
 
   async appendEvents(events: RecordEventAppend[]): Promise<void> {
-    for (const event of events)
-      await this.appendEvent(event.ref, event.actorId, event.causeId, event.kind, event.payload, false, event.publish);
+    const written = events.map((event) => ({ ...event, id: randomUUID() }));
+    for (let offset = 0; offset < written.length; offset += BULK_WRITE_CHUNK) {
+      await this.owners.events.appendRecordEventsCompanyWide(
+        this.companyId,
+        written.slice(offset, offset + BULK_WRITE_CHUNK).map((event) => ({
+          id: event.id,
+          ref: event.ref,
+          actorId: event.actorId,
+          causeId: event.causeId,
+          kind: event.kind,
+          payload: recordJson(event.payload),
+        })),
+      );
+    }
+    const published = written.filter((event) => event.publish).map((event) => event.id);
+    if (!published.length) return;
+    await this.captureRecordEventMatches(this.companyId, { eventIds: published });
+    await this.wakeRecordEvents();
   }
 
   async deleteMembershipAuthorizationTasksCompanyWide(companyId: string, relatedUserId: string): Promise<void> {
@@ -2228,35 +2232,13 @@ export class PrismaRecordRepo
   async getStageRowsByKeys(operationId: string, kind: string, keys: string[]) {
     const unique = [...new Set(keys)];
     const rows: Array<{ key: string; payload: Prisma.JsonValue }> = [];
-    for (let offset = 0; offset < unique.length; offset += BULK_READ_CHUNK) {
-      rows.push(
-        ...(await this.prisma.recordStageRow.findMany({
-          where: {
-            companyId: this.companyId,
-            operationId,
-            kind,
-            key: { in: unique.slice(offset, offset + BULK_READ_CHUNK) },
-          },
-          select: { key: true, payload: true },
-        })),
-      );
-    }
-    return rows;
-  }
-
-  async getStageRowsByRecords(operationId: string, kind: string, refs: RecordRef[]) {
-    const unique = uniqueRefs(refs);
-    const rows: Array<{ key: string; payload: Prisma.JsonValue }> = [];
-    for (let offset = 0; offset < unique.length; offset += BULK_READ_CHUNK) {
-      const chunk = unique.slice(offset, offset + BULK_READ_CHUNK);
+    for (let offset = 0; offset < unique.length; offset += STAGE_KEY_CHUNK) {
       rows.push(
         ...(await this.prisma.$queryRaw<
           Array<{ key: string; payload: Prisma.JsonValue }>
-        >(Prisma.sql`SELECT stage.key, stage.payload
-          FROM "RecordStageRow" stage
-          JOIN unnest(${chunk.map((ref) => ref.typeId)}::text[], ${chunk.map((ref) => ref.recordId)}::text[]) AS wanted("typeId", "recordId")
-            ON split_part(stage.key, ':', 1) = wanted."typeId" AND split_part(stage.key, ':', 2) = wanted."recordId"
-          WHERE stage."companyId" = ${this.companyId} AND stage."operationId" = ${operationId} AND stage.kind = ${kind}`)),
+        >(Prisma.sql`SELECT key, payload
+          FROM "RecordStageRow" WHERE "companyId" = ${this.companyId} AND "operationId" = ${operationId} AND kind = ${kind}
+            AND key = ANY(${unique.slice(offset, offset + STAGE_KEY_CHUNK)}::text[])`)),
       );
     }
     return rows;
@@ -2579,7 +2561,7 @@ export class PrismaRecordRepo
 
   private async capturedEventTypes(
     companyId: string,
-    selection: { eventId: string } | { operationId: string },
+    selection: { eventIds: string[] } | { operationId: string },
   ): Promise<Array<{ typeId: string }>> {
     const typeIds = new Set<string>();
     const collect = async (eventIds: string[]) => {
@@ -2591,8 +2573,10 @@ export class PrismaRecordRepo
       });
       for (const row of rows) if (row.subjectTypeId !== null) typeIds.add(row.subjectTypeId);
     };
-    if ("eventId" in selection) await collect([selection.eventId]);
-    else {
+    if ("eventIds" in selection) {
+      for (let offset = 0; offset < selection.eventIds.length; offset += BULK_READ_CHUNK)
+        await collect(selection.eventIds.slice(offset, offset + BULK_READ_CHUNK));
+    } else {
       let afterKey: string | undefined;
       for (;;) {
         const staged = await this.prisma.recordStageRow.findMany({
@@ -2621,7 +2605,7 @@ export class PrismaRecordRepo
 
   private async captureRecordEventMatches(
     companyId: string,
-    selection: { eventId: string } | { operationId: string },
+    selection: { eventIds: string[] } | { operationId: string },
     beforeDeletion = false,
   ): Promise<void> {
     const rows = await this.prisma.recordEventSubscription.findMany({
@@ -2645,8 +2629,8 @@ export class PrismaRecordRepo
     });
     if (!rows.length) return;
     const selected =
-      "eventId" in selection
-        ? Prisma.sql`event.id = ${selection.eventId}`
+      "eventIds" in selection
+        ? Prisma.sql`event.id = ANY(${selection.eventIds}::text[])`
         : Prisma.sql`EXISTS (SELECT 1 FROM "RecordStageRow" stage
           WHERE stage."companyId" = ${companyId} AND stage."operationId" = ${selection.operationId}
             AND stage.kind = 'event' AND stage.payload->>'id' = event.id

@@ -109,13 +109,26 @@ async function snapshots(
       new Map(entry.dependencies.map((dependency) => [dependency.fieldId, dependency.sources])),
     ]),
   );
+  const identities = new Map<string, Awaited<ReturnType<RecordRepo["getIdentitiesCompanyWide"]>>>();
+  for (const typeId of new Set(live.map((ref) => ref.typeId))) {
+    if (!recordChannelsField(model, typeId)) continue;
+    const recordIds = live.filter((ref) => ref.typeId === typeId).map((ref) => ref.recordId);
+    for (let offset = 0; offset < recordIds.length; offset += SNAPSHOT_CHUNK) {
+      const found = await records.getRecordIdentitiesCompanyWide(
+        typeId,
+        recordIds.slice(offset, offset + SNAPSHOT_CHUNK),
+      );
+      for (const [recordId, entries] of found) identities.set(recordKey({ typeId, recordId }), entries);
+    }
+  }
   const result = new Map<string, RecordHistorySnapshot | null>();
   for (const ref of refs) {
     const row = rows.get(recordKey(ref));
-    const identities = row && recordChannelsField(model, ref.typeId) ? await records.getIdentitiesCompanyWide(ref) : [];
     result.set(
       recordKey(ref),
-      row ? snapshotOf(row, dependencies.get(recordKey(ref)) ?? new Map(), identities, model) : null,
+      row
+        ? snapshotOf(row, dependencies.get(recordKey(ref)) ?? new Map(), identities.get(recordKey(ref)) ?? [], model)
+        : null,
     );
   }
   return result;
@@ -284,8 +297,9 @@ export class RecordJournal {
     for (const ref of refs) this.restored.add(recordKey(ref));
   }
 
-  async restoreLink(link: { relationId: string; source: RecordRef; target: RecordRef }): Promise<void> {
-    await this.linkChange(link.relationId, link.source, link.target, true, false);
+  async restoreLinks(links: Array<{ relationId: string; source: RecordRef; target: RecordRef }>): Promise<void> {
+    await this.captureMany(links.flatMap((link) => [link.source, link.target]));
+    for (const link of links) await this.linkChange(link.relationId, link.source, link.target, true, false);
   }
 
   async stageDeletedLink(link: { relationId: string; source: RecordRef; target: RecordRef }): Promise<void> {

@@ -35,7 +35,9 @@ export type ExpectedDiagnosticRule = {
 export type ExpectedDiagnostic = { readonly events: readonly BrowserDiagnostic[] };
 
 const LOOPBACK_HOSTS = ["127.0.0.1", "localhost", "[::1]"];
-const HTTP_ERROR_REPORT = /^Failed to load resource: the server responded with a status of \d{3}\b/;
+/** How long an HTTP error of the app waits for its request to finish or fail before it counts anyway. */
+const HTTP_ERROR_GRACE_MS = 2000;
+const HTTP_ERROR_REPORT = /^Failed to load resource: the server responded with a status of (\d{3})\b/;
 
 function sourceUrl(source: string) {
   try {
@@ -108,9 +110,27 @@ export function httpErrorDiagnostic(
   };
 }
 
-/** The browser's own console copy of an HTTP error of the app, which `httpErrorDiagnostic` already reported. */
+/** The browser's own console copy of an HTTP error of the app, which `httpErrorDiagnostic` may report as well. */
 export function isHttpErrorReport(diagnostic: Pick<BrowserDiagnostic, "kind" | "text" | "source">) {
   return diagnostic.kind === "console" && HTTP_ERROR_REPORT.test(diagnostic.text) && isLoopbackHttp(diagnostic.source);
+}
+
+function httpErrorKey(status: number | string, url: string) {
+  return `${status} ${url}`;
+}
+
+/**
+ * Chromium logs a failed load only once it completed: not for a request that was aborted, nor once its frame was
+ * detached, its page closed or its page had started a navigation away from the document that made it.
+ */
+function isAbandonedRequest(request: Request, page: Page | null, navigatedAway: boolean) {
+  if (page?.isClosed()) return true;
+  try {
+    if (request.frame().isDetached()) return true;
+  } catch {
+    return false;
+  }
+  return navigatedAway && !request.isNavigationRequest();
 }
 
 const byTest = new WeakMap<TestInfo, BrowserDiagnostics>();
@@ -143,6 +163,15 @@ export class BrowserDiagnostics {
   private readonly abortedLoads = new Set<Page>();
   private readonly navigations = new Map<Page, { requested: Set<string>; loadedAt?: number }>();
   private readonly sinceLoad = new Map<Page, BrowserDiagnostic[]>();
+  private readonly generations = new Map<Page, number>();
+  private readonly requestGenerations = new WeakMap<Request, number>();
+  private readonly pendingErrors = new Map<
+    Request,
+    { diagnostic: BrowserDiagnostic; timer: ReturnType<typeof setTimeout> }
+  >();
+  private readonly settledRequests = new WeakMap<Request, { failed: boolean }>();
+  private readonly answeredErrors = new Map<string, Request[]>();
+  private readonly consoleErrors = new Map<string, BrowserDiagnostic[]>();
 
   watch(context: BrowserContext) {
     if (byContext.get(context) === this) return this;
@@ -160,14 +189,14 @@ export class BrowserDiagnostics {
         source: message.location().url,
         page: message.page(),
       };
-      if (!isHttpErrorReport(diagnostic)) this.record(diagnostic);
+      if (isHttpErrorReport(diagnostic)) this.noteHttpErrorReport(diagnostic);
+      else this.record(diagnostic);
     });
     context.on("request", (request: Request) => this.noteRequest(request));
-    context.on("response", (response: Response) => {
-      const diagnostic = httpErrorDiagnostic(response);
-      if (diagnostic) this.record(diagnostic);
-    });
+    context.on("response", (response: Response) => this.noteResponse(response));
+    context.on("requestfinished", (request: Request) => this.settleHttpError(request, false));
     context.on("requestfailed", (request: Request) => {
+      this.settleHttpError(request, true);
       this.noteCancelledChunk(request);
       this.noteAbortedLoad(request);
     });
@@ -198,6 +227,7 @@ export class BrowserDiagnostics {
   }
 
   async verify(testInfo: TestInfo) {
+    for (const request of [...this.pendingErrors.keys()]) this.confirmHttpError(request);
     const expected = this.rules.flatMap(({ events }) => events);
     if (this.unexpected.length > 0 || expected.length > 0)
       await testInfo.attach("browser-diagnostics", {
@@ -241,9 +271,13 @@ export class BrowserDiagnostics {
     const page = requestPage(request);
     if (!page) return;
     if (request.isNavigationRequest() && request.frame() === page.mainFrame()) {
-      if (!request.redirectedFrom()) this.navigations.set(page, { requested: new Set() });
+      if (!request.redirectedFrom()) {
+        this.navigations.set(page, { requested: new Set() });
+        this.generations.set(page, (this.generations.get(page) ?? 0) + 1);
+      }
       return;
     }
+    this.requestGenerations.set(request, this.generations.get(page) ?? 0);
     const { pathname } = new URL(request.url());
     if (pathname.startsWith("/_next/static/chunks/")) this.navigations.get(page)?.requested.add(pathname);
   }
@@ -259,6 +293,89 @@ export class BrowserDiagnostics {
     if (!chunk || !navigation) return false;
     if (navigation.loadedAt !== undefined && Date.now() - navigation.loadedAt >= 3000) return false;
     return !navigation.requested.has(chunk);
+  }
+
+  /**
+   * An HTTP error of the app counts once the browser confirms it: by its console copy (Chromium and WebKit log one as
+   * the response arrives, even for a script they then report as failed), by the request finishing, or after
+   * HTTP_ERROR_GRACE_MS. A request that fails before is dropped, as is one whose page closed, frame was detached or
+   * page navigated away from the document that sent it. A console copy that arrived first is withdrawn in favour of
+   * the response, which knows whether it was a document.
+   */
+  private noteResponse(response: Response) {
+    const diagnostic = httpErrorDiagnostic(response);
+    if (!diagnostic) return;
+    const request = response.request();
+    const key = httpErrorKey(response.status(), response.url());
+    const copy = this.consoleErrors.get(key)?.shift();
+    if (!copy) this.answeredErrors.set(key, [...(this.answeredErrors.get(key) ?? []), request]);
+    this.pendingErrors.set(request, {
+      diagnostic,
+      timer: setTimeout(() => this.confirmHttpError(request), HTTP_ERROR_GRACE_MS),
+    });
+    if (copy) {
+      this.forget(new Set([copy]));
+      this.confirmHttpError(request);
+      return;
+    }
+    const settled = this.settledRequests.get(request);
+    if (settled) this.settleHttpError(request, settled.failed);
+  }
+
+  /** Chromium can report a request as finished or failed before its response, so either order settles the error. */
+  private settleHttpError(request: Request, failed: boolean) {
+    if (!this.pendingErrors.has(request)) {
+      this.settledRequests.set(request, { failed });
+      return;
+    }
+    if (failed) this.dropHttpError(request);
+    else this.confirmHttpError(request);
+  }
+
+  private dropHttpError(request: Request) {
+    const pending = this.pendingErrors.get(request);
+    if (!pending) return null;
+    clearTimeout(pending.timer);
+    this.pendingErrors.delete(request);
+    return pending.diagnostic;
+  }
+
+  private confirmHttpError(request: Request) {
+    const diagnostic = this.dropHttpError(request);
+    if (!diagnostic) return;
+    const page = diagnostic.page;
+    const generation = this.requestGenerations.get(request);
+    const navigatedAway = page !== null && generation !== undefined && (this.generations.get(page) ?? 0) > generation;
+    if (!isAbandonedRequest(request, page, navigatedAway)) this.record(diagnostic);
+  }
+
+  /** A console report of an HTTP error stands for a request without a response event, unless one answered it. */
+  private noteHttpErrorReport(diagnostic: BrowserDiagnostic) {
+    const key = httpErrorKey(HTTP_ERROR_REPORT.exec(diagnostic.text)?.[1] ?? "", diagnostic.source);
+    const request = this.answeredErrors.get(key)?.shift();
+    if (request) {
+      this.confirmHttpError(request);
+      return;
+    }
+    this.consoleErrors.set(key, [...(this.consoleErrors.get(key) ?? []), diagnostic]);
+    this.record(diagnostic);
+  }
+
+  /** Withdraws diagnostics recorded earlier, from the unexpected ones, the expected events and the pages' views. */
+  private forget(diagnostics: Set<BrowserDiagnostic>) {
+    const kept = this.unexpected.filter((diagnostic) => !diagnostics.has(diagnostic));
+    this.unexpected.splice(0, this.unexpected.length, ...kept);
+    for (const { events } of this.rules)
+      events.splice(0, events.length, ...events.filter((event) => !diagnostics.has(event)));
+    for (const diagnostic of diagnostics) {
+      if (!diagnostic.page) continue;
+      const since = this.sinceLoad.get(diagnostic.page);
+      if (since) this.sinceLoad.set(diagnostic.page, since.filter((entry) => entry !== diagnostic));
+      for (const texts of this.views.get(diagnostic.page) ?? []) {
+        const index = texts.lastIndexOf(diagnostic.text);
+        if (index >= 0) texts.splice(index, 1);
+      }
+    }
   }
 
   private noteCancelledChunk(request: Request) {
@@ -277,14 +394,7 @@ export class BrowserDiagnostics {
   private dropAbortedLoadReports(page: Page) {
     if (!this.abortedLoads.delete(page)) return;
     const reports = new Set((this.sinceLoad.get(page) ?? []).filter(isAbortedLoadReport));
-    if (reports.size === 0) return;
-    const kept = this.unexpected.filter((diagnostic) => !reports.has(diagnostic));
-    this.unexpected.splice(0, this.unexpected.length, ...kept);
-    for (const texts of this.views.get(page) ?? [])
-      for (const { text } of reports) {
-        const index = texts.lastIndexOf(text);
-        if (index >= 0) texts.splice(index, 1);
-      }
+    if (reports.size > 0) this.forget(reports);
   }
 
   /** WebKit cancels chunk loads when a page navigates away; their ChunkLoadError is gone once the next page loads. */
