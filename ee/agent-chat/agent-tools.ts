@@ -376,28 +376,28 @@ function providerSafeSchema<TSchema extends z.ZodType>(inputSchema: TSchema) {
   return jsonSchema<z.infer<TSchema>>(
     shareRepeatedSubschemas(
       z.toJSONSchema(inputSchema as never, {
-      io: "input",
-      target: "draft-07",
-      override: (ctx) => {
-        const schema = ctx.jsonSchema as {
-          pattern?: string;
-          format?: string;
-          const?: unknown;
-          title?: unknown;
-        };
-        if (schema.const !== undefined && schema.title === String(schema.const)) delete schema.title;
-        if (typeof schema.pattern === "string" && UNSUPPORTED_PATTERN.test(schema.pattern)) delete schema.pattern;
-        if (typeof schema.pattern === "string" && schema.pattern.includes(CANONICAL_UUID_PATTERN_MARK))
-          schema.pattern = AGENT_WIRE_UUID_PATTERN;
+        io: "input",
+        target: "draft-07",
+        override: (ctx) => {
+          const schema = ctx.jsonSchema as {
+            pattern?: string;
+            format?: string;
+            const?: unknown;
+            title?: unknown;
+          };
+          if (schema.const !== undefined && schema.title === String(schema.const)) delete schema.title;
+          if (typeof schema.pattern === "string" && UNSUPPORTED_PATTERN.test(schema.pattern)) delete schema.pattern;
+          if (typeof schema.pattern === "string" && schema.pattern.includes(CANONICAL_UUID_PATTERN_MARK))
+            schema.pattern = AGENT_WIRE_UUID_PATTERN;
 
-        const format = schema.format;
-        delete schema.format;
-        if (format === "date" || format === "date-time") schema.pattern = PROVIDER_SAFE_FORMAT_PATTERNS[format];
-        if (schema.pattern === undefined && format !== undefined) {
-          const fallback = PROVIDER_SAFE_FORMAT_PATTERNS[format];
-          if (fallback) schema.pattern = fallback;
-        }
-      },
+          const format = schema.format;
+          delete schema.format;
+          if (format === "date" || format === "date-time") schema.pattern = PROVIDER_SAFE_FORMAT_PATTERNS[format];
+          if (schema.pattern === undefined && format !== undefined) {
+            const fallback = PROVIDER_SAFE_FORMAT_PATTERNS[format];
+            if (fallback) schema.pattern = fallback;
+          }
+        },
       }),
     ) as never,
     {

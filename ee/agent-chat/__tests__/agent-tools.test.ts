@@ -496,7 +496,10 @@ describe("agent tools", () => {
       ...AGENT_ON_DEMAND_TOOLSETS.map((toolset) => ({ label: toolset, toolsets: [toolset], route: "/en/records" })),
       ...[
         ["/en/dashboard", "hi"],
-        ["/en/records/10000000-0000-4000-8000-000000000102", "Add the email address ada@example.test to her contact details."],
+        [
+          "/en/records/10000000-0000-4000-8000-000000000102",
+          "Add the email address ada@example.test to her contact details.",
+        ],
         ["/en/dashboard", "What is the email address of Ada and the address of her organization?"],
       ].map(([route, text]) => ({
         label: `${route} ${text}`,
