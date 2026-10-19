@@ -180,7 +180,7 @@ Jede Datensatzreferenz enthält `typeId` und `recordId`. `query_crm_records` lie
 
 `query_crm_records` nimmt eine `pageSize` von 1 bis 500 und liefert genau so viele Datensätze pro Seite. Die übrigen seitenweisen Tools wie `list_users`, `get_messaging_threads` und `get_calendars` begrenzen die Größe auf 100: `pageSize` akzeptiert jede ganze Zahl von 1 bis 100 und liefert genau so viele Datensätze pro Seite, nur die letzte kann weniger enthalten; `page` zählt in dieser Größe, Seite 2 bei `pageSize` 50 enthält also die Datensätze 51 bis 100, und das Ergebnis nennt beide.
 
-`read_crm_record` liefert die aktuelle Datensatzversion und Schemarevision. Eingabefelder über typisierte Zuweisungen in `mutate_crm_record` ändern, Beziehungen über dessen link- und unlink-Aktionen. Um einem Feld vom Typ Formatierter Text oder Text etwas hinzuzufügen, ohne es neu zu schreiben, in einer Änderung `{ fieldId, append }` senden: Der Text kommt mit einer Leerzeile nach dem aktuellen Wert, und eine Änderung, die nur anhängt, kollidiert nie mit einer neueren Änderung anderer. Jede Liste kann ein Feld Kanäle haben; seine E-Mails, Telefonnummern und Profile sind indexierte Identitätsverknüpfungen, während ein normales E-Mail-Feld nie zum Zuordnungsschlüssel wird. Ein übergebenes `identities`-Array behält nur die darin enthaltenen Kanäle; ohne dieses Feld bleiben sie unverändert.
+`read_crm_record` liefert die aktuelle Datensatzversion und Schemarevision. Eingabefelder über typisierte Zuweisungen in `mutate_crm_record` ändern, Beziehungen über dessen link- und unlink-Aktionen. Um einem Feld vom Typ Formatierter Text oder Text etwas hinzuzufügen, ohne es neu zu schreiben, in einer Änderung `{ fieldId, append }` senden: Der Text kommt mit einer Leerzeile nach dem aktuellen Wert, und eine Änderung, die nur anhängt, kollidiert nie mit einer neueren Änderung anderer. Jede Liste kann ein Feld Kontaktdaten (Werttyp `channels`) haben; seine E-Mail-Adressen, Telefonnummern und Profile sind indexierte Identitätsverknüpfungen und die einzigen Zuordnungsschlüssel. Einen Feldtyp `email` oder `phone` gibt es nicht: Ein solcher Werttyp wird mit einem Hinweis auf das Feld Kontaktdaten abgelehnt. Ein übergebenes `identities`-Array behält nur die darin enthaltenen Kennungen; ohne dieses Feld bleiben sie unverändert.
 
 {/* mcp-catalog:records */}
 #### `discover_record_types`
@@ -209,7 +209,7 @@ Zugängliche konfigurierte Typen durchsuchen, einschließlich selbst angelegter 
 
 #### `resolve_record_identifiers`
 
-Bis zu 1.000 exakte E-Mail-, Telefon- oder unterstützte Profilkennungen über das indizierte Kanalregister auflösen. Jede Eingabe liefert alle zugänglichen verknüpften Datensätze mit Typbezeichnung und aktueller Version, dazu die schemaRevision des Workspace, sodass Treffer direkt in updateMany einfließen. typeIds begrenzt die Listen. Ein leeres records-Array bedeutet keinen zugänglichen Treffer; über mehrere Kennungen gefundene Datensätze deduplizieren und Mehrdeutigkeit vor Änderungen klären.
+Bis zu 1.000 exakte E-Mail-, Telefon- oder unterstützte Profilkennungen über die indizierten Kontaktdaten auflösen. Jede Eingabe liefert alle zugänglichen verknüpften Datensätze mit Typbezeichnung und aktueller Version, dazu die schemaRevision des Workspace, sodass Treffer direkt in updateMany einfließen. typeIds begrenzt die Listen. Ein leeres records-Array bedeutet keinen zugänglichen Treffer; über mehrere Kennungen gefundene Datensätze deduplizieren und Mehrdeutigkeit vor Änderungen klären.
 
 **Nur lesend.** Pflicht: `identifiers`. Optional: `typeIds`.
 
@@ -227,7 +227,7 @@ Adressteile vor dem Schreiben offline prüfen: liefert die Teile so, wie ein Sch
 
 #### `read_crm_record`
 
-Einen Datensatz über typeId und recordId lesen, einschließlich typisierter Werte, formatierter Texte, Beziehungsübersichten und aktueller Datensatz- und Konfigurationsversionen. Kennungen erscheinen bei Listen mit einem Feld Kanäle. Mehrere Datensätze können dieselbe indizierte Kennung teilen.
+Einen Datensatz über typeId und recordId lesen, einschließlich typisierter Werte, formatierter Texte, Beziehungsübersichten und aktueller Datensatz- und Konfigurationsversionen. Kennungen erscheinen bei Listen mit einem Feld Kontaktdaten. Mehrere Datensätze können dieselbe indizierte Kennung teilen.
 
 **Nur lesend.** Pflicht: `typeId`, `recordId`. Optional: `includeRelationships`, `includePaths`.
 
@@ -281,7 +281,7 @@ Elemente aus dem Papierkorb wiederherstellen (oder alle Elemente eines Löschvor
 
 #### `export_crm_records`
 
-Exportiert eine Liste als JSON-Dokument wie Als JSON exportieren auf der Listenseite: alle lesbaren Datensätze, die zu Suche, Filtern und Sortierung passen, mit Unterlisten-Zeilen, Zuweisungen, Kanal-Identitäten und Verknüpfungen, bis 5.000 Datensätze. Formatierter Text kommt zwischen Markern für nicht vertrauenswürdige Inhalte. Der Excel-Export bleibt ein REST-Download.
+Exportiert eine Liste als JSON-Dokument wie Als JSON exportieren auf der Listenseite: alle lesbaren Datensätze, die zu Suche, Filtern und Sortierung passen, mit Unterlisten-Zeilen, Zuweisungen, Kontaktdaten und Verknüpfungen, bis 5.000 Datensätze. Formatierter Text kommt zwischen Markern für nicht vertrauenswürdige Inhalte. Der Excel-Export bleibt ein REST-Download.
 
 **Nur lesend.** Pflicht: `typeId`. Optional: `search`, `filters`, `relatedFilters`, `relationships`, `sort`.
 
@@ -483,7 +483,7 @@ Pflicht: `threadId`, `folderId`. Optional: `messageId`.
 
 #### `manage_conversation_records`
 
-Datensätze einer zugänglichen Inbox-Konversation lesen, verknüpfen oder lösen. Die Verknüpfung gilt nur für diesen Thread, nicht für andere Konversationen oder globale Kanalkennungen. Verknüpfen und Lösen erfordern expectedRevision, idempotencyKey, Inbox-Verwaltung und Änderungsrecht am Datensatz.
+Datensätze einer zugänglichen Inbox-Konversation lesen, verknüpfen oder lösen. Die Verknüpfung gilt nur für diesen Thread, nicht für andere Konversationen oder die Kontaktdaten des Absenders an Datensätzen. Verknüpfen und Lösen erfordern expectedRevision, idempotencyKey, Inbox-Verwaltung und Änderungsrecht am Datensatz.
 
 Pflicht: `action`, `threadId`. Optional: `ref`, `expectedRevision`, `idempotencyKey`.
 
@@ -621,7 +621,7 @@ Lädt einen Treffer aus `search` über seine unveränderte ID: `wiki:<uuid>` ode
 
 Listen, Felder, Beziehungen und Berechnungen über ein Konfigurationspaket anlegen oder ändern. **Datenmodell** **Bearbeiten** ist von **Bearbeiten** bei einer Liste getrennt. Neue Listen sind zunächst nur für Administratoren zugänglich; delegierte Schema-Verwalter können eine Zugriffsvorlage, die auch ihre eigene Rolle enthalten darf, nur beim Anlegen einer Liste anwenden, ohne Rollen verwalten zu dürfen.
 
-Das relevante Modell lesen, das Paket prüfen, Abhängigkeiten und Rechtefolgen ansehen und dann dasselbe Paket mit erwarteter Revision und Idempotenzschlüssel anwenden. Temporäre `$client`-Referenzen verbinden neue Definitionen innerhalb des Pakets. Formeln bestehen aus typisierten Knoten in Abhängigkeitsreihenfolge und einem Wurzelknoten; sie führen weder JavaScript noch SQL aus. Das Backend lehnt Zyklen, ungültige Typen, unzulässige Währungskombinationen und inkompatible Abhängigkeiten ab. `format.onClick` eines Felds (`open`, Standard, oder `copy`) legt fest, was ein Klick auf den Wert tut, und ist nur bei E-Mail-, Telefon- und URL-Feldern erlaubt; bei jedem anderen Typ wird das Paket abgelehnt.
+Das relevante Modell lesen, das Paket prüfen, Abhängigkeiten und Rechtefolgen ansehen und dann dasselbe Paket mit erwarteter Revision und Idempotenzschlüssel anwenden. Temporäre `$client`-Referenzen verbinden neue Definitionen innerhalb des Pakets. Formeln bestehen aus typisierten Knoten in Abhängigkeitsreihenfolge und einem Wurzelknoten; sie führen weder JavaScript noch SQL aus. Das Backend lehnt Zyklen, ungültige Typen, unzulässige Währungskombinationen und inkompatible Abhängigkeiten ab. `format.onClick` eines Felds (`open`, Standard, oder `copy`) legt fest, was ein Klick auf den Wert tut, und ist nur bei URL-, Adress- und Kontaktdaten-Feldern (`channels`) erlaubt; bei jedem anderen Typ wird das Paket abgelehnt.
 
 Ein ausstehendes Ergebnis liefert eine Vorgangs-ID. Den Fortschritt bis zum Abschluss abfragen; während CRM-Schreibzugriffe pausieren, bleibt der letzte vollständige Stand lesbar, und fehlgeschlagene oder abgebrochene Vorgänge veröffentlichen keine Teilwerte. Bei veralteter Revision die Konfiguration neu lesen und erneut prüfen.
 

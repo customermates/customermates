@@ -180,7 +180,7 @@ Every record reference carries both `typeId` and `recordId`. `query_crm_records`
 
 `query_crm_records` takes a `pageSize` from 1 to 500 and returns exactly that many records per page. The other paged tools, such as `list_users`, `get_messaging_threads` and `get_calendars`, cap the size at 100: `pageSize` accepts any whole number from 1 to 100 and returns exactly that many records per page, fewer only on the last; `page` counts in that size, so page 2 at `pageSize` 50 holds records 51 to 100, and the result reports both.
 
-`read_crm_record` returns the current record version and schema revision. Change input fields through typed assignments in `mutate_crm_record` and relationships through its link and unlink actions. To add to a Formatted text or Text field without rewriting it, send `{ fieldId, append }` in an update: the text goes after the current value with a blank line in between, and an update that only appends never conflicts with someone else's newer change. Any list can have a Channels field; its emails, phones and profiles are indexed identity associations, while an ordinary email field never becomes a matching key. Replacing `identities` keeps only the channels in the array; omitting it leaves them unchanged.
+`read_crm_record` returns the current record version and schema revision. Change input fields through typed assignments in `mutate_crm_record` and relationships through its link and unlink actions. To add to a Formatted text or Text field without rewriting it, send `{ fieldId, append }` in an update: the text goes after the current value with a blank line in between, and an update that only appends never conflicts with someone else's newer change. Any list can have one contact details field (value type `channels`); its email addresses, phone numbers and profiles are indexed identity associations and the only matching keys. There is no `email` or `phone` field type: such a value type is refused with a message that points to the contact details field. Replacing `identities` keeps only the identities in the array; omitting it leaves them unchanged.
 
 {/* mcp-catalog:records */}
 #### `discover_record_types`
@@ -209,7 +209,7 @@ Search accessible configured types, including customer-created types. includeEmb
 
 #### `resolve_record_identifiers`
 
-Resolve up to 1,000 exact email, phone or supported profile identifiers through the indexed channel registry. Each input returns every accessible linked record with its type label and current version, plus the workspace schemaRevision, so matches feed updateMany directly. Optional typeIds limit the lists. Empty records arrays mean no accessible match; deduplicate records matched through several identifiers and clarify ambiguity before changing a record.
+Resolve up to 1,000 exact email, phone or supported profile identifiers through the indexed contact details. Each input returns every accessible linked record with its type label and current version, plus the workspace schemaRevision, so matches feed updateMany directly. Optional typeIds limit the lists. Empty records arrays mean no accessible match; deduplicate records matched through several identifiers and clarify ambiguity before changing a record.
 
 **Read-only.** Required: `identifiers`. Optional: `typeIds`.
 
@@ -227,7 +227,7 @@ Check address parts offline before writing them: returns the parts as a write st
 
 #### `read_crm_record`
 
-Read one record by typeId and recordId, including typed values, formatted text, relationship summaries and current record/configuration versions. Identities appear on lists with a Channels field; identifiers can match several accessible records.
+Read one record by typeId and recordId, including typed values, formatted text, relationship summaries and current record/configuration versions. Identities appear on lists with a contact details field; identifiers can match several accessible records.
 
 **Read-only.** Required: `typeId`, `recordId`. Optional: `includeRelationships`, `includePaths`.
 
@@ -281,7 +281,7 @@ Restore Trash items (or every item of one delete by its batchId), preview exactl
 
 #### `export_crm_records`
 
-Export one list as the JSON document of the list page's Export as JSON: every readable record matching the search, filters and sort, with sub-list rows, assignments, channel identities and links, up to 5,000 records. Formatted text arrives between untrusted-content markers. Excel export stays a REST download.
+Export one list as the JSON document of the list page's Export as JSON: every readable record matching the search, filters and sort, with sub-list rows, assignments, contact details identities and links, up to 5,000 records. Formatted text arrives between untrusted-content markers. Excel export stays a REST download.
 
 **Read-only.** Required: `typeId`. Optional: `search`, `filters`, `relatedFilters`, `relationships`, `sort`.
 
@@ -483,7 +483,7 @@ Required: `threadId`, `folderId`. Optional: `messageId`.
 
 #### `manage_conversation_records`
 
-Read, link or unlink records for one accessible inbox conversation. These links affect only that thread, never other conversations or the sender’s global channel associations. Link and unlink need expectedRevision, idempotencyKey, Inbox management and permission to update the record.
+Read, link or unlink records for one accessible inbox conversation. These links affect only that thread, never other conversations or the sender’s contact details on records. Link and unlink need expectedRevision, idempotencyKey, Inbox management and permission to update the record.
 
 Required: `action`, `threadId`. Optional: `ref`, `expectedRevision`, `idempotencyKey`.
 
@@ -621,7 +621,7 @@ Read a result from `search` by its unchanged id: `wiki:<uuid>` or the exact retu
 
 Create or update lists, fields, relationships and calculations through one configuration bundle. **Data model** **Edit** is separate from **Edit** on a list. New lists default to administrator-only access; delegated schema managers can apply an access preset, which may include their own role, only when creating a list, without gaining role-administration rights.
 
-Read the relevant model, preview the bundle, inspect dependencies and permission effects, then apply the same bundle with its expected revision and idempotency key. `$client` references let new definitions refer to one another inside the bundle. Formula programs are typed nodes ordered before their dependents plus a root node; they cannot run JavaScript or SQL. The backend rejects cycles, invalid types, unsafe currency combinations and incompatible dependencies. A field's `format.onClick` (`open`, the default, or `copy`) sets what clicking a value does and is accepted only on email, phone and url fields; on any other type the bundle is rejected.
+Read the relevant model, preview the bundle, inspect dependencies and permission effects, then apply the same bundle with its expected revision and idempotency key. `$client` references let new definitions refer to one another inside the bundle. Formula programs are typed nodes ordered before their dependents plus a root node; they cannot run JavaScript or SQL. The backend rejects cycles, invalid types, unsafe currency combinations and incompatible dependencies. A field's `format.onClick` (`open`, the default, or `copy`) sets what clicking a value does and is accepted only on url, address and contact details (`channels`) fields; on any other type the bundle is rejected.
 
 A pending result returns an operation id. Read its progress until it completes; the last complete state stays readable while CRM writes pause, and failed or cancelled work publishes no partial values. After a stale revision, read the current configuration and preview again.
 

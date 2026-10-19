@@ -43,13 +43,13 @@ These records and links work on every plan, self-hosted included. The conversati
 | | Contact | Organization |
 |---|---|---|
 | Built-in fields | Name, notes | Name, notes |
-| Channels | Email addresses, phone numbers, LinkedIn, Instagram and Telegram handles | None at first; a Channels field can be added |
+| Contact details | Email addresses, phone numbers, LinkedIn, Instagram and Telegram handles | None at first; a Contact details field can be added |
 | Links | Organizations (several allowed), deals, tasks, assigned users | Contacts, deals, tasks, assigned users |
 | Your own fields | Custom fields of any type | Custom fields of any type |
 
-The field types are Text, Formatted text, Number, Money, Yes or no, Date, Date and time, Date range, Date and time range, Single choice, Multiple choice, Email, Web address, Member, Address, File and Channels. Phone numbers, landline or mobile, go into the Channels field; a number there can be called and also matches WhatsApp chats from the same number. An Address field holds one postal address: Customermates checks it against the address format of its country, suggests city and region for the postal code and opens the address in maps on click; a File field holds up to 20 files of up to 25 MB each. Notes are a Formatted text field and can hold tables and images.
+The field types are Text, Formatted text, Number, Money, Yes or no, Date, Date and time, Date range, Date and time range, Single choice, Multiple choice, Web address, Member, Address, File and Phone, email & social. Phone numbers, landline or mobile, and email addresses go into the Contact details field; a number there can be called and also matches WhatsApp chats from the same number. An Address field holds one postal address: Customermates checks it against the address format of its country, suggests city and region for the postal code and opens the address in maps on click; a File field holds up to 20 files of up to 25 MB each. Notes are a Formatted text field and can hold tables and images.
 
-One email address or handle can belong to several records, for example a contact and an organization. Global search (Cmd/Ctrl+K) finds contacts by name, channel value or linked organization; custom fields are reached through filters.
+One email address or handle can belong to several records, for example a contact and an organization. Global search (Cmd/Ctrl+K) finds contacts by name, contact details or linked organization; custom fields are reached through filters.
 
 ## Organizations as accounts
 
@@ -75,7 +75,7 @@ An account setup needs three pieces. A Single choice field **Role** on contacts 
   <Step title="Export and convert">Outlook and Google Contacts deliver their download as a comma-separated text file (Google also as vCard). Open it in Excel and save it as an .xlsx workbook, because Customermates does not import CSV files.</Step>
   <Step title="Clean up first">Remove duplicate rows and split the list into one workbook for organizations and one for contacts. An import cannot be undone.</Step>
   <Step title="Import organizations">On **Organizations**, open **More actions › Add from file**, choose the workbook, map the columns and import.</Step>
-  <Step title="Import contacts">Map the name, the email and phone columns to the **Channels** field, the company column to **Organizations** and the rest to your fields. Failed rows are listed with their reason.</Step>
+  <Step title="Import contacts">Map the name, the email and phone columns to the **Contact details** field, the company column to **Organizations** and the rest to your fields. Failed rows are listed with their reason.</Step>
   <Step title="Correct in bulk">Export the list, edit it in Excel and import it again as **Existing records**, so it updates them instead of adding new ones.</Step>
 </Steps>
 
@@ -83,7 +83,7 @@ One file currently takes up to 10,000 rows and 10 MB. The import adds channels t
 
 ## Conversations on the contact (Pro and higher)
 
-In Customermates Cloud on Pro or higher, you connect Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram or Telegram, and conversations are matched to contacts through their channels. When an unknown address writes in, click **Link** on that participant in the inbox and pick or create the contact. Every conversation with that address, not only this one, then shows on the contact's timeline.
+In Customermates Cloud on Pro or higher, you connect Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram or Telegram, and conversations are matched to contacts through their contact details. When an unknown address writes in, click **Link** on that participant in the inbox and pick or create the contact. Every conversation with that address, not only this one, then shows on the contact's timeline.
 
 You see conversations from your own channels and those teammates share with the CRM. On Business a whole channel can be shared, so several colleagues' conversations with one client sit on one timeline. On Starter and when self-hosting, channels are stored and searchable, but there is no inbox.
 

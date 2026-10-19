@@ -109,7 +109,7 @@ Here is the same design in Customermates, set up the way the product works today
 
 **Lists.** In Configure, open Contacts and change **Name** and **Plural name** under **General** to Client and Clients, then rename Deals to Projects the same way. Any name works. Organizations, Services and Tasks keep their names.
 
-**Fields.** Each field has a type: Text, Formatted text, Number, Money, Yes or no, Date, Date and time, Date range, Date and time range, Single choice, Multiple choice, Email, Web address, Member, Address, File or Channels.
+**Fields.** Each field has a type: Text, Formatted text, Number, Money, Yes or no, Date, Date and time, Date range, Date and time range, Single choice, Multiple choice, Web address, Member, Address, File or Phone, email & social.
 
 | List | Field | Type |
 |---|---|---|
@@ -124,7 +124,7 @@ Here is the same design in Customermates, set up the way the product works today
 
 **Stages.** A new workspace starts with a Stage field (Prospecting, Qualification, Demo, Proposal, Negotiation, Won, Lost) whose win probabilities you set per stage in Configure. The weighted pipeline is the plain arithmetic of those percentages, not a prediction.
 
-**Unique key.** Email addresses go into the client's Channels field, which matches incoming messages to the record. One address can belong to several records, so remove duplicates before you import. Global search (Cmd/Ctrl+K) finds a client by name or by any email address or phone number in their Channels.
+**Unique key.** Email addresses go into the client's Contact details field, which matches incoming messages to the record. One address can belong to several records, so remove duplicates before you import. Global search (Cmd/Ctrl+K) finds a client by name or by any email address or phone number in their contact details.
 
 **Import.** Use More actions › Add from file with an .xlsx workbook, one list at a time, in the order organizations, clients, projects. Link columns are matched by record name. CSV files are not accepted, so save them as .xlsx first. The [records documentation](/docs/app-records) has the full import rules.
 

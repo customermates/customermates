@@ -174,7 +174,7 @@ export const DOCS_EMBEDDING_HELDOUT: readonly DocsHeldoutItem[] = [
     slug: "concepts",
     anchors: ["concepts#what-are-custom-columns"],
     alternatives: ["concepts#how-do-i-add-change-or-delete-a-custom-column"],
-    fact: "Seventeen field types: Text, Formatted text, Number, Money, Yes or no, Date, Date and time, Date range, Date and time range, Single choice, Multiple choice, Email, Web address, Member, Address, File and Channels; a dropdown is a Single choice field, and phone numbers go into Channels.",
+    fact: "Sixteen field types: Text, Formatted text, Number, Money, Yes or no, Date, Date and time, Date range, Date and time range, Single choice, Multiple choice, Web address, Member, Address, File and Phone, email & social; a dropdown is a Single choice field, and phone numbers and email addresses go into the Contact details field.",
   },
   {
     id: "de-de-06",
@@ -415,7 +415,7 @@ export const DOCS_EMBEDDING_HELDOUT: readonly DocsHeldoutItem[] = [
     slug: "app-inbox",
     anchors: ["app-inbox#how-do-i-start-a-new-conversation"],
     alternatives: [],
-    fact: "The Inbox has no new-conversation button: start from the contact's Channels block with the New message icon next to the email address or handle.",
+    fact: "The Inbox has no new-conversation button: start from the contact's contact details with the New message icon next to the email address or handle.",
   },
   {
     id: "de-fr-06",

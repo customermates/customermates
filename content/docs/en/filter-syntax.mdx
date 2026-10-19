@@ -55,7 +55,7 @@ Date and date-time fields support appropriate ordered comparisons and `between`.
 
 ### Which operators work on text fields?
 
-Text, email, and URL fields support the text operators appropriate to their value type. Phone numbers live in a list's Channels field; the list search also looks through its channels, so searching for a number finds its record. A field that stores multiple values is searched element by element. Search terms treat percent signs and underscores as literal characters, not SQL wildcards.
+Text and URL fields support the text operators appropriate to their value type. Phone numbers and email addresses live in a list's contact details field (value type `channels`, **Phone, email & social** in the app), which supports `contains`, `startsWith`, `empty` and `notEmpty` on its identifiers but cannot be sorted or grouped by; the list search also looks through it, so searching for a number or address finds its record. A field that stores multiple values is searched element by element. Search terms treat percent signs and underscores as literal characters, not SQL wildcards.
 
 ### Which relationship operators exist, for example to find contacts without an organization? [#which-relationship-operators-exist]
 
@@ -90,7 +90,7 @@ Records with no accessible link through that relationship use `"operator":"none"
 
 ## Should I use searchTerm (free-text search) or a filter? [#free-text-search-or-a-filter]
 
-Use `search` when any readable searchable text field may contain the phrase. The current record query calls this property `search`; older entity APIs called it `searchTerm`. Use `filters` when the exact field or comparison matters. Search and filters are combined with AND. Identity channels can participate in search only for a type with the protected person-identity capability and with the reader's applicable access; they are not ordinary email fields.
+Use `search` when any readable searchable text field may contain the phrase. The current record query calls this property `search`; older entity APIs called it `searchTerm`. Use `filters` when the exact field or comparison matters. Search and filters are combined with AND. Contact details can participate in search only for a type with the protected person-identity capability and with the reader's applicable access.
 
 ## Next
 

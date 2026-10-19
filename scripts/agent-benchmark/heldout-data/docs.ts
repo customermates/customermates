@@ -79,7 +79,7 @@ export const DOCS_HELDOUT: readonly DocsHeldoutItem[] = [
     slug: "app-records",
     anchors: ["app-records#what-is-special-about-each-record-type"],
     alternatives: ["concepts#which-five-record-types-exist"],
-    fact: "On the contact: phone numbers go into the contact's Channels field next to email addresses and social accounts, and a WhatsApp chat from the same number then appears on the contact by itself.",
+    fact: "On the contact: phone numbers go into the contact's Contact details field next to email addresses and social profiles, and a WhatsApp chat from the same number then appears on the contact by itself.",
   },
   {
     id: "dh-en-06",
