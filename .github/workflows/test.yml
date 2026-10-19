@@ -112,7 +112,9 @@ jobs:
       # Migrates and seeds a template database twice (the synthetic seed must converge), then runs this shard's files
       # against its own copy. Files are balanced by tests/vitest-durations.json; a retried test is reported as flaky.
       - name: Vitest shard with database tests
-        run: node scripts/verify/vitest.mjs --shards 4 --shard-index ${{ matrix.shard }} --max-workers 4 --retry 1 --run-id ci
+        env:
+          SHARD: ${{ matrix.shard }}
+        run: node scripts/verify/vitest.mjs --shards 4 --shard-index "$SHARD" --max-workers 4 --retry 1 --run-id ci
       - name: Keep the shard report
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
