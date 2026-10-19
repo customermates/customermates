@@ -37,7 +37,6 @@ export const SYNTHETIC_SECOND_WORKSPACE = {
     agentCreditActivatedAt: timeline.owner.createdAt,
     agreeToTerms: true,
     companyId: SEED_IDS.secondWorkspaceCompany,
-    isPlatformOperator: false,
     leftAt: null,
     onboardingWizardCompletedAt: new Date(timeline.owner.updatedAt.getTime() + 5 * 60_000),
     roleId: SEED_IDS.secondWorkspaceRole,

@@ -158,7 +158,10 @@ class SubscriptionConditions {
   }
 }
 
-export function partitionOperatorUserFilters(filters: Filter[] | undefined): {
+export function partitionOperatorUserFilters(
+  filters: Filter[] | undefined,
+  platformOperatorEmails: readonly string[] = [],
+): {
   baseWhere: Prisma.UserWhereInput;
   passthrough: Filter[];
 } {
@@ -180,7 +183,10 @@ export function partitionOperatorUserFilters(filters: Filter[] | undefined): {
       const wanted = values.includes("true");
       const both = values.includes("true") && values.includes("false");
       if (both) continue;
-      baseWhere.isPlatformOperator = negated(filter) ? !wanted : wanted;
+      const emails = [...platformOperatorEmails];
+      baseWhere.email = (negated(filter) ? !wanted : wanted)
+        ? { in: emails, mode: "insensitive" }
+        : { notIn: emails, mode: "insensitive" };
       continue;
     }
 

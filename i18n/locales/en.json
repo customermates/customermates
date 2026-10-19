@@ -1231,7 +1231,7 @@
       "unipileUnknown": "Something went wrong between Customermates and the provider. Retrying unchanged probably won't help; contact support if it keeps happening.",
       "userInactive": "Your user account is inactive. Contact a workspace administrator.",
       "userNotFound": "User ID not found or not accessible.",
-      "userPlatformOperatorStatusForbidden": "This account belongs to a platform operator and cannot be deactivated here. Use the operator console.",
+      "userPlatformOperatorStatusForbidden": "This is the last platform operator's only active account, so it cannot be deactivated. Give another login operator access first.",
       "userRoleRequired": "This member has no role yet. Choose a role together with the change.",
       "userSelfAdminUpdateForbidden": "You cannot update your own account through team administration.",
       "userStatusRequired": "This member is waiting for approval. Choose active or inactive together with the change.",
@@ -1271,7 +1271,7 @@
       "workspaceLimitReached": "You can create up to {limit} workspaces. Contact support if you need more.",
       "workspaceMemberLastAdmin": "This member is the only active admin of this workspace. Make another active member an admin before you remove them.",
       "workspaceMemberLeft": "This member left the workspace. They can ask to join again with an invitation link, and an admin has to approve the request.",
-      "workspaceMemberPlatformOperator": "This account belongs to a platform operator and cannot be removed here. Use the operator console.",
+      "workspaceMemberPlatformOperator": "This is the last platform operator's only active account, so it cannot be removed. Give another login operator access first.",
       "workspaceMemberRemoveSelf": "You cannot remove yourself from a workspace. Leave it instead.",
       "workspaceNotFound": "This workspace was not found or you are not a member.",
       "workspacePlanRequired": "API keys and MCP connections need an active plan for this workspace. Choose a plan to use them."
@@ -2793,7 +2793,7 @@
     "action": "Remove from workspace",
     "blocked": {
       "lastAdmin": "{name} is the only active admin of this workspace. Make another active member an admin first.",
-      "platformOperator": "Platform operators cannot be removed here. Use the operator console."
+      "platformOperator": "This is the last platform operator's only active account. Give another login operator access first."
     },
     "confirmDescription": "{name} loses access to this workspace on every device.",
     "confirmTitle": "Remove {name} from {workspace}?",
@@ -3201,7 +3201,7 @@
       "expiresAt": "This correction applies to the current period only and lapses on {date}."
     },
     "confirm": {
-      "operator": "Set platform operator access for {name} to {value}?",
+      "operator": "Set platform operator access for {name} to {value}? It applies to this login in every workspace.",
       "reset": "Reset the credits of {name}: {value}?",
       "status": "Set the account status of {name} to {value}?"
     },

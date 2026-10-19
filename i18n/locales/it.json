@@ -1231,7 +1231,7 @@
       "unipileUnknown": "Qualcosa è andato storto tra Customermates e il provider. Riprovare senza modifiche probabilmente non servirà; contatta il supporto se succede di nuovo.",
       "userInactive": "Il tuo account utente è inattivo. Contatta un amministratore dello spazio di lavoro.",
       "userNotFound": "ID utente non trovato o non accessibile.",
-      "userPlatformOperatorStatusForbidden": "Questo account appartiene a un operatore della piattaforma e non può essere disattivato qui. Usa la console operatore.",
+      "userPlatformOperatorStatusForbidden": "Questo è l’unico account attivo dell’ultimo operatore della piattaforma, quindi non può essere disattivato. Prima concedi l’accesso da operatore a un altro login.",
       "userRoleRequired": "Questo membro non ha ancora un ruolo. Scegli un ruolo insieme alla modifica.",
       "userSelfAdminUpdateForbidden": "Non puoi aggiornare il tuo account dall’amministrazione del team.",
       "userStatusRequired": "Questo membro è in attesa di approvazione. Scegli attivo o inattivo insieme alla modifica.",
@@ -1271,7 +1271,7 @@
       "workspaceLimitReached": "Puoi creare fino a {limit} spazi di lavoro. Contatta l'assistenza se te ne servono di più.",
       "workspaceMemberLastAdmin": "Questo membro è l'unico amministratore attivo di questo spazio di lavoro. Rendi amministratore un altro membro attivo prima di rimuoverlo.",
       "workspaceMemberLeft": "Questo membro ha lasciato lo spazio di lavoro. Può chiedere di nuovo di unirsi con un link di invito e un amministratore deve approvare la richiesta.",
-      "workspaceMemberPlatformOperator": "Questo account appartiene a un operatore della piattaforma e non può essere rimosso qui. Usa la console operatore.",
+      "workspaceMemberPlatformOperator": "Questo è l’unico account attivo dell’ultimo operatore della piattaforma, quindi non può essere rimosso. Prima concedi l’accesso da operatore a un altro login.",
       "workspaceMemberRemoveSelf": "Non puoi rimuovere te stesso da uno spazio di lavoro. Esci invece dallo spazio di lavoro.",
       "workspaceNotFound": "Questo spazio di lavoro non è stato trovato o non ne fai parte.",
       "workspacePlanRequired": "Le chiavi API e le connessioni MCP richiedono un piano attivo per questo spazio di lavoro. Scegli un piano per usarle."
@@ -2793,7 +2793,7 @@
     "action": "Rimuovi dallo spazio di lavoro",
     "blocked": {
       "lastAdmin": "{name} è l'unico amministratore attivo di questo spazio di lavoro. Rendi prima amministratore un altro membro attivo.",
-      "platformOperator": "Gli operatori della piattaforma non possono essere rimossi qui. Usa la console operatore."
+      "platformOperator": "Questo è l’unico account attivo dell’ultimo operatore della piattaforma. Prima concedi l’accesso da operatore a un altro login."
     },
     "confirmDescription": "{name} perde l'accesso a questo spazio di lavoro su tutti i dispositivi.",
     "confirmTitle": "Rimuovere {name} da {workspace}?",
@@ -3201,7 +3201,7 @@
       "expiresAt": "Questa correzione vale solo per il periodo corrente e decade il {date}."
     },
     "confirm": {
-      "operator": "Impostare l’accesso operatore di piattaforma di {name} su {value}?",
+      "operator": "Impostare l’accesso operatore di piattaforma di {name} su {value}? Vale per questo login in tutti gli spazi di lavoro.",
       "reset": "Azzerare i crediti di {name}: {value}?",
       "status": "Impostare lo stato dell’account di {name} su {value}?"
     },

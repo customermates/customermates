@@ -187,6 +187,7 @@ export async function seedHostedAiOperatorFixtures(context: SeedContext, now = n
     email: SYNTHETIC_HOSTED_AI_ORDINARY_USER.email,
     emailVerified: true,
     image: null,
+    isPlatformOperator: false,
     name: SYNTHETIC_HOSTED_AI_ORDINARY_USER.name,
   };
   await prisma.authUser.upsert({
@@ -207,7 +208,6 @@ export async function seedHostedAiOperatorFixtures(context: SeedContext, now = n
     createdAt: FIXTURE_CREATED_AT,
     email: SYNTHETIC_HOSTED_AI_ORDINARY_USER.email,
     firstName: SYNTHETIC_HOSTED_AI_ORDINARY_USER.firstName,
-    isPlatformOperator: false,
     lastName: SYNTHETIC_HOSTED_AI_ORDINARY_USER.lastName,
     onboardingWizardCompletedAt: FIXTURE_CREATED_AT,
     roleId: fixtureRole.id,
@@ -307,8 +307,12 @@ export async function seedHostedAiOperatorFixtures(context: SeedContext, now = n
 }
 
 export async function seedLocalHostedAiOperatorAccess(context: SeedContext): Promise<void> {
-  await context.prisma.user.update({
+  const member = await context.prisma.user.findUniqueOrThrow({
     where: { id: context.ids.user },
+    select: { email: true },
+  });
+  await context.prisma.authUser.update({
+    where: { email: member.email },
     data: { isPlatformOperator: true },
   });
 }
@@ -337,6 +341,7 @@ export async function seedHostedAiOperatorUserTableFixtures(
       email: definition.email,
       emailVerified: definition.authEmailVerified,
       image: null,
+      isPlatformOperator: options.includeLocalOperatorAccess ? definition.isPlatformOperator : false,
       name: `${definition.firstName} ${definition.lastName}`,
       updatedAt: definition.createdAt,
     };
@@ -355,7 +360,6 @@ export async function seedHostedAiOperatorUserTableFixtures(
       createdAt: definition.createdAt,
       email: definition.email,
       firstName: definition.firstName,
-      isPlatformOperator: options.includeLocalOperatorAccess ? definition.isPlatformOperator : false,
       lastName: definition.lastName,
       onboardingWizardCompletedAt: definition.status === "pendingAuthorization" ? null : definition.createdAt,
       roleId: null,

@@ -22,6 +22,7 @@ import {
 import { env } from "@/env";
 import type { AgentUsageRepo } from "@/ee/agent-chat/agent-usage.repo";
 import { Status } from "@/generated/prisma";
+import { platformOperatorEmails } from "@/features/user/platform-operator-logins";
 
 import {
   applyGroupScopeAsFilters,
@@ -31,6 +32,7 @@ import {
   resolveWorkspaceLabels,
   resolveWorkspaceOwners,
 } from "./operator-list-filters";
+import { normalizeOperatorEmail } from "./operator-access.service";
 
 const OPERATOR_USER_SELECT = {
   id: true,
@@ -38,7 +40,6 @@ const OPERATOR_USER_SELECT = {
   lastName: true,
   email: true,
   status: true,
-  isPlatformOperator: true,
   lastActiveAt: true,
   createdAt: true,
   updatedAt: true,
@@ -149,7 +150,8 @@ export class PrismaOperatorUsersRepo extends QueryRepository<Prisma.UserWhereInp
     const params = applyGroupScopeAsFilters(scoped);
     if (!params) return [];
 
-    const { baseWhere, passthrough } = partitionOperatorUserFilters(params.filters);
+    const operatorEmails = await platformOperatorEmails(this.prisma);
+    const { baseWhere, passthrough } = partitionOperatorUserFilters(params.filters, operatorEmails);
 
     const users = await this.list({
       model: "user",
@@ -165,6 +167,7 @@ export class PrismaOperatorUsersRepo extends QueryRepository<Prisma.UserWhereInp
       resolveWorkspaceOwners(this.prisma, companyIds),
     ]);
     const credits = await this.creditPositionsUnscoped(users, now);
+    const operators = new Set(operatorEmails.map(normalizeOperatorEmail));
 
     return users.map((user) => ({
       id: user.id,
@@ -172,7 +175,7 @@ export class PrismaOperatorUsersRepo extends QueryRepository<Prisma.UserWhereInp
       lastName: user.lastName,
       email: user.email,
       status: user.status,
-      isPlatformOperator: user.isPlatformOperator,
+      isPlatformOperator: operators.has(normalizeOperatorEmail(user.email)),
       lastActiveAt: user.lastActiveAt,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
@@ -390,7 +393,10 @@ export class PrismaOperatorUsersRepo extends QueryRepository<Prisma.UserWhereInp
     const params = applyGroupScopeAsFilters(scoped);
     if (!params) return 0;
 
-    const { baseWhere, passthrough } = partitionOperatorUserFilters(params.filters);
+    const { baseWhere, passthrough } = partitionOperatorUserFilters(
+      params.filters,
+      await platformOperatorEmails(this.prisma),
+    );
     const { where } = await this.buildQueryArgs({ ...params, filters: passthrough }, baseWhere);
 
     return this.prisma.user.count({ where });

@@ -83,11 +83,17 @@ async function createWorkspace(args: { domain: string; members: number; platform
           firstName: "Member",
           lastName: "One",
           status: "active",
-          isPlatformOperator: index === 0 ? Boolean(args.platformOperator) : false,
         },
       });
       await prisma.authUser.create({
-        data: { id: authUserId, companyId, email, name: "Member One", emailVerified: true },
+        data: {
+          id: authUserId,
+          companyId,
+          email,
+          name: "Member One",
+          emailVerified: true,
+          isPlatformOperator: index === 0 && Boolean(args.platformOperator),
+        },
       });
       await prisma.authSession.create({
         data: {
@@ -342,7 +348,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
     });
   });
 
-  it("refuses a workspace that still holds an active platform operator", async () => {
+  it("refuses a workspace that holds a platform operator's only active membership", async () => {
     const repo = createTestOperatorRepo();
     const { companyId } = await createWorkspace({
       domain: "staff.invalid",
@@ -361,6 +367,48 @@ describeDatabase("operator workspace deletion against a real database", { timeou
     expect(result).toBe("conflict");
     await runWithoutTenant(async () => {
       expect(await prisma.company.count({ where: { id: companyId } })).toBe(1);
+    });
+  });
+
+  it("deletes a workspace whose platform operator stays active in another workspace", async () => {
+    const repo = createTestOperatorRepo();
+    const { companyId, members } = await createWorkspace({
+      domain: "staff-elsewhere.invalid",
+      members: 1,
+      platformOperator: true,
+    });
+    const otherCompanyId = randomUUID();
+    companyIds.push(otherCompanyId);
+    await runWithoutTenant(async () => {
+      await prisma.company.create({ data: { id: otherCompanyId } });
+      await prisma.user.create({
+        data: {
+          companyId: otherCompanyId,
+          email: members[0].email,
+          firstName: "Member",
+          lastName: "One",
+          status: "active",
+        },
+      });
+    });
+
+    const result = await runWithOperator(operatorActor(), () =>
+      repo.deleteWorkspaceUnscoped({
+        companyId,
+        confirmWorkspaceLabel: "staff-elsewhere.invalid",
+        reason: "Cleanup",
+      }),
+    );
+
+    expect(result).not.toBe("conflict");
+    await runWithoutTenant(async () => {
+      expect(await prisma.company.count({ where: { id: companyId } })).toBe(0);
+      expect(
+        await prisma.authUser.findUnique({
+          where: { id: members[0].authUserId },
+          select: { isPlatformOperator: true },
+        }),
+      ).toEqual({ isPlatformOperator: true });
     });
   });
 

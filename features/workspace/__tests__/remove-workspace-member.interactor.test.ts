@@ -55,7 +55,7 @@ describe("RemoveWorkspaceMemberInteractor", () => {
   let member: RemovableWorkspaceMember;
   let repo: {
     findMemberCompanyWide: ReturnType<typeof vi.fn>;
-    isPlatformOperatorCompanyWide: ReturnType<typeof vi.fn>;
+    strandsLastPlatformOperatorCompanyWide: ReturnType<typeof vi.fn>;
     leaveCompanyWide: ReturnType<typeof vi.fn>;
   };
   let roleRepo: { hasAnotherActiveSystemRoleUser: ReturnType<typeof vi.fn> };
@@ -114,7 +114,7 @@ describe("RemoveWorkspaceMemberInteractor", () => {
     member = memberRow();
     repo = {
       findMemberCompanyWide: vi.fn(() => Promise.resolve(member)),
-      isPlatformOperatorCompanyWide: vi.fn().mockResolvedValue(false),
+      strandsLastPlatformOperatorCompanyWide: vi.fn().mockResolvedValue(false),
       leaveCompanyWide: track("left", true),
     };
     roleRepo = { hasAnotherActiveSystemRoleUser: vi.fn().mockResolvedValue(true) };
@@ -283,8 +283,8 @@ describe("RemoveWorkspaceMemberInteractor", () => {
     expect(order).toEqual([]);
   });
 
-  it("refuses to remove a platform operator", async () => {
-    repo.isPlatformOperatorCompanyWide.mockResolvedValue(true);
+  it("refuses to remove the last platform operator's only active membership", async () => {
+    repo.strandsLastPlatformOperatorCompanyWide.mockResolvedValue(true);
 
     const result = await removeAs();
 

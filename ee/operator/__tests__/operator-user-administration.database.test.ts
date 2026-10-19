@@ -121,7 +121,6 @@ async function createUser(args: {
         lastName: args.lastName ?? "Target",
         status: args.status ?? "active",
         roleId: args.roleId,
-        isPlatformOperator: args.isPlatformOperator ?? false,
         agentCreditActivatedAt: args.status && args.status !== "active" ? null : periodStart,
         createdAt: args.createdAt,
       },
@@ -133,6 +132,7 @@ async function createUser(args: {
         email: args.email,
         name: `${args.firstName ?? "Operator"} ${args.lastName ?? "Target"}`,
         emailVerified: args.emailVerified ?? true,
+        isPlatformOperator: args.isPlatformOperator ?? false,
       },
     });
   });

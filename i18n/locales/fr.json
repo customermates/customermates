@@ -1231,7 +1231,7 @@
       "unipileUnknown": "Un problème est survenu entre Customermates et le fournisseur. Réessayer tel quel ne devrait pas aider ; contactez le support si cela se reproduit.",
       "userInactive": "Votre compte utilisateur est inactif. Contactez un administrateur de l’espace de travail.",
       "userNotFound": "ID d'utilisateur introuvable ou inaccessible.",
-      "userPlatformOperatorStatusForbidden": "Ce compte appartient à un opérateur de la plateforme et ne peut pas être désactivé ici. Utilisez la console opérateur.",
+      "userPlatformOperatorStatusForbidden": "C’est le seul compte actif du dernier opérateur de la plateforme : il ne peut donc pas être désactivé. Donnez d’abord l’accès opérateur à un autre identifiant.",
       "userRoleRequired": "Ce membre n’a pas encore de rôle. Choisissez un rôle avec la modification.",
       "userSelfAdminUpdateForbidden": "Vous ne pouvez pas mettre à jour votre propre compte depuis l’administration de l’équipe.",
       "userStatusRequired": "Ce membre attend une approbation. Choisissez actif ou inactif avec la modification.",
@@ -1271,7 +1271,7 @@
       "workspaceLimitReached": "Vous pouvez créer jusqu'à {limit} espaces de travail. Contactez le support si vous avez besoin de plus.",
       "workspaceMemberLastAdmin": "Ce membre est le seul administrateur actif de cet espace de travail. Nommez un autre membre actif administrateur avant de le retirer.",
       "workspaceMemberLeft": "Ce membre a quitté l'espace de travail. Il peut redemander à le rejoindre avec un lien d'invitation, et un administrateur doit approuver la demande.",
-      "workspaceMemberPlatformOperator": "Ce compte appartient à un opérateur de la plateforme et ne peut pas être retiré ici. Utilisez la console opérateur.",
+      "workspaceMemberPlatformOperator": "C’est le seul compte actif du dernier opérateur de la plateforme : il ne peut donc pas être retiré. Donnez d’abord l’accès opérateur à un autre identifiant.",
       "workspaceMemberRemoveSelf": "Vous ne pouvez pas vous retirer vous-même d'un espace de travail. Quittez-le plutôt.",
       "workspaceNotFound": "Cet espace de travail est introuvable ou vous n'en êtes pas membre.",
       "workspacePlanRequired": "Les clés API et les connexions MCP nécessitent une offre active pour cet espace de travail. Choisissez une offre pour les utiliser."
@@ -2793,7 +2793,7 @@
     "action": "Retirer de l'espace de travail",
     "blocked": {
       "lastAdmin": "{name} est le seul administrateur actif de cet espace de travail. Nommez d'abord un autre membre actif administrateur.",
-      "platformOperator": "Les opérateurs de la plateforme ne peuvent pas être retirés ici. Utilisez la console opérateur."
+      "platformOperator": "C’est le seul compte actif du dernier opérateur de la plateforme. Donnez d’abord l’accès opérateur à un autre identifiant."
     },
     "confirmDescription": "{name} perd l'accès à cet espace de travail sur tous ses appareils.",
     "confirmTitle": "Retirer {name} de {workspace} ?",
@@ -3201,7 +3201,7 @@
       "expiresAt": "Cette correction ne vaut que pour la période en cours et expire le {date}."
     },
     "confirm": {
-      "operator": "Définir l’accès opérateur de plateforme de {name} sur {value} ?",
+      "operator": "Définir l’accès opérateur de plateforme de {name} sur {value} ? Cela s’applique à cet identifiant dans tous les espaces de travail.",
       "reset": "Réinitialiser les crédits de {name} : {value} ?",
       "status": "Définir le statut du compte de {name} sur {value} ?"
     },

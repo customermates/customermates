@@ -9,19 +9,21 @@ datasource db {
 }
 
 model AuthUser {
-  id                String             @id
-  name              String
-  email             String
-  emailVerified     Boolean            @default(false)
-  image             String?
-  companyId         String?
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @default(now()) @updatedAt
-  authsessions      AuthSession[]
-  authaccounts      AuthAccount[]
-  oauthapplications OauthApplication[]
-  oauthaccesstokens OauthAccessToken[]
-  oauthconsents     OauthConsent[]
+  id                 String             @id
+  name               String
+  email              String
+  emailVerified      Boolean            @default(false)
+  image              String?
+  companyId          String?
+  /// Platform operator access belongs to the login, not to one of its workspace memberships.
+  isPlatformOperator Boolean            @default(false)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @default(now()) @updatedAt
+  authsessions       AuthSession[]
+  authaccounts       AuthAccount[]
+  oauthapplications  OauthApplication[]
+  oauthaccesstokens  OauthAccessToken[]
+  oauthconsents      OauthConsent[]
 
   @@unique([email])
   @@index([email])
@@ -187,7 +189,6 @@ model User {
   onboardingWizardProgress        Json?
   onboardingWikiStepCompletedAt   DateTime?
   agentCreditActivatedAt          DateTime?
-  isPlatformOperator              Boolean                   @default(false)
   leftAt                          DateTime?
   createdAt                       DateTime                  @default(now())
   updatedAt                       DateTime                  @updatedAt

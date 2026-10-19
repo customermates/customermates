@@ -1231,7 +1231,7 @@
       "unipileUnknown": "Algo falló entre Customermates y el proveedor. Reintentarlo sin cambios probablemente no ayudará; contacta con soporte si vuelve a ocurrir.",
       "userInactive": "Tu cuenta de usuario está inactiva. Contacta con un administrador del espacio de trabajo.",
       "userNotFound": "ID de usuario no encontrado o no accesible.",
-      "userPlatformOperatorStatusForbidden": "Esta cuenta pertenece a un operador de plataforma y no se puede desactivar aquí. Usa la consola de operador.",
+      "userPlatformOperatorStatusForbidden": "Esta es la única cuenta activa del último operador de plataforma, así que no se puede desactivar. Da primero acceso de operador a otro inicio de sesión.",
       "userRoleRequired": "Este miembro aún no tiene un rol. Elige un rol junto con el cambio.",
       "userSelfAdminUpdateForbidden": "No puedes actualizar tu propia cuenta desde la administración del equipo.",
       "userStatusRequired": "Este miembro está pendiente de aprobación. Elige activo o inactivo junto con el cambio.",
@@ -1271,7 +1271,7 @@
       "workspaceLimitReached": "Puedes crear hasta {limit} espacios de trabajo. Contacta con soporte si necesitas más.",
       "workspaceMemberLastAdmin": "Este miembro es el único administrador activo de este espacio de trabajo. Nombra administrador a otro miembro activo antes de quitarlo.",
       "workspaceMemberLeft": "Este miembro salió del espacio de trabajo. Puede pedir unirse de nuevo con un enlace de invitación y un administrador tiene que aprobar la solicitud.",
-      "workspaceMemberPlatformOperator": "Esta cuenta pertenece a un operador de plataforma y no se puede quitar aquí. Usa la consola de operador.",
+      "workspaceMemberPlatformOperator": "Esta es la única cuenta activa del último operador de plataforma, así que no se puede quitar. Da primero acceso de operador a otro inicio de sesión.",
       "workspaceMemberRemoveSelf": "No puedes quitarte a ti mismo de un espacio de trabajo. Sal de él en su lugar.",
       "workspaceNotFound": "No se encontró este espacio de trabajo o no eres miembro.",
       "workspacePlanRequired": "Las claves de API y las conexiones MCP necesitan un plan activo para este espacio de trabajo. Elige un plan para usarlas."
@@ -2793,7 +2793,7 @@
     "action": "Quitar del espacio de trabajo",
     "blocked": {
       "lastAdmin": "{name} es el único administrador activo de este espacio de trabajo. Nombra primero administrador a otro miembro activo.",
-      "platformOperator": "Los operadores de plataforma no se pueden quitar aquí. Usa la consola de operador."
+      "platformOperator": "Esta es la única cuenta activa del último operador de plataforma. Da primero acceso de operador a otro inicio de sesión."
     },
     "confirmDescription": "{name} pierde el acceso a este espacio de trabajo en todos sus dispositivos.",
     "confirmTitle": "¿Quitar a {name} de {workspace}?",
@@ -3201,7 +3201,7 @@
       "expiresAt": "Esta corrección se aplica solo al periodo actual y caduca el {date}."
     },
     "confirm": {
-      "operator": "¿Establecer el acceso de operador de plataforma de {name} en {value}?",
+      "operator": "¿Establecer el acceso de operador de plataforma de {name} en {value}? Se aplica a este inicio de sesión en todos los espacios de trabajo.",
       "reset": "¿Restablecer los créditos de {name}: {value}?",
       "status": "¿Establecer el estado de la cuenta de {name} en {value}?"
     },

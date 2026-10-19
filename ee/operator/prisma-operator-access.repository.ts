@@ -32,16 +32,16 @@ export class PrismaOperatorAccessRepo extends TenantRepository implements Operat
   private async operatorActorForUnscoped(session: InteractiveSession): Promise<OperatorActor | null> {
     const authUser = await this.prisma.authUser.findUnique({
       where: { id: session.user.id },
-      select: { id: true, email: true, emailVerified: true },
+      select: { id: true, email: true, emailVerified: true, isPlatformOperator: true },
     });
-    if (!authUser?.emailVerified) return null;
+    if (!authUser?.emailVerified || !authUser.isPlatformOperator) return null;
 
     const sessionEmail = normalizeOperatorEmail(session.user.email);
     const freshAuthEmail = normalizeOperatorEmail(authUser.email);
     if (sessionEmail !== freshAuthEmail) return null;
 
     const user = await this.prisma.user.findFirst({
-      where: { email: freshAuthEmail, isPlatformOperator: true, status: Status.active, leftAt: null },
+      where: { email: freshAuthEmail, status: Status.active, leftAt: null },
       orderBy: [{ lastActiveAt: { sort: "desc", nulls: "last" } }, { createdAt: "asc" }],
       select: { id: true, companyId: true },
     });

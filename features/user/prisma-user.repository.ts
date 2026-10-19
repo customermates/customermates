@@ -44,6 +44,7 @@ import { Transaction } from "@/core/decorators/transaction.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import { seatChange } from "@/features/billing-usage/billing-usage-changes";
+import { strandsLastPlatformOperator } from "@/features/user/platform-operator-logins";
 
 function recordActorSelect(companyId: string) {
   return {
@@ -123,9 +124,10 @@ export class PrismaUserRepo
     await this.billingUsage.recordSeats(companyId, seatChange(userId, before?.status, status));
   }
 
-  async setPlatformOperatorCompanyWide(companyId: string, userId: string, isPlatformOperator: boolean): Promise<void> {
-    await this.prisma.user.update({
-      where: { id: userId, companyId },
+  @BypassTenantGuard
+  async setPlatformOperatorUnscoped(email: string, isPlatformOperator: boolean): Promise<void> {
+    await this.prisma.authUser.updateMany({
+      where: { email: { in: [email], mode: "insensitive" } },
       data: { isPlatformOperator },
     });
   }
@@ -551,15 +553,13 @@ export class PrismaUserRepo
     return tenantUser;
   }
 
-  async isPlatformOperatorCompanyWide(userId: string) {
-    const { companyId } = this.user;
+  async strandsLastPlatformOperatorCompanyWide(userId: string) {
+    return this.strandsLastPlatformOperatorUnscoped({ id: userId, companyId: this.user.companyId });
+  }
 
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId, companyId },
-      select: { isPlatformOperator: true },
-    });
-
-    return user?.isPlatformOperator ?? false;
+  @BypassTenantGuard
+  private async strandsLastPlatformOperatorUnscoped(ending: { id: string; companyId: string }) {
+    return strandsLastPlatformOperator(this.prisma, ending);
   }
 
   async findUserSummaries(userIds: string[]) {

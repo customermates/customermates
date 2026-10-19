@@ -443,17 +443,8 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
     expect(mails.sent).toHaveLength(1);
   });
 
-  it("refuses a platform operator, then removes an inactive member over REST", async () => {
-    const { CustomErrorCode } = await import("@/core/validation/validation.types");
-    await client.query('UPDATE "User" SET "isPlatformOperator" = TRUE WHERE id = $1', [people.dana.teamMemberId]);
-    expect(await failureCodes(await removeAs("ada", { userId: people.dana.teamMemberId }))).toEqual([
-      CustomErrorCode.workspaceMemberPlatformOperator,
-    ]);
-    expect(await teamMembership("dana")).toMatchObject({
-      status: "inactive",
-      left: false,
-    });
-    await client.query('UPDATE "User" SET "isPlatformOperator" = FALSE WHERE id = $1', [people.dana.teamMemberId]);
+  it("removes an inactive member over REST, even one whose login is a platform operator", async () => {
+    await client.query('UPDATE "AuthUser" SET "isPlatformOperator" = TRUE WHERE id = $1', [people.dana.loginId]);
 
     const removed = await withApiKey(keys.adaTeam.value, removeMember, {
       email: people.dana.email,
