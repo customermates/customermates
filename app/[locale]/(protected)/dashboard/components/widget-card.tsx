@@ -9,6 +9,7 @@ import { useTranslations } from "next-intl";
 import { openWidgetEditor } from "./widget-interaction";
 
 import { runUserAction } from "@/core/errors/report-application-error";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import {
   isRecordActivityWidget,
@@ -28,6 +29,7 @@ type Props = {
 
 async function readCalendarWindow(id: string, window: CalendarWidgetWindow) {
   const result = await readCalendarWidgetWindowAction(id, window);
+  if (!result.ok) notifyIfWorkspaceChanged(result);
   if (!result.ok || !isRecordCalendarWidget(result.data) || !result.data.data)
     throw new Error("Calendar widget window unavailable");
   return { data: result.data.data, fields: result.data.fields };

@@ -18,6 +18,7 @@ import { RecordQueryFilters } from "@/components/records/record-query-filters";
 import { Button } from "@/components/ui/button";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { cn } from "@/core/utils/cn";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { CALENDAR_WIDGET_MAX_DAYS, CalendarWidgetQuerySchema } from "@/features/widget/record-calendar-widget.schema";
@@ -42,7 +43,10 @@ const DAY_CHOICES = [7, 14, 30, 60, CALENDAR_WIDGET_MAX_DAYS];
 
 async function loadPreviewWindow(query: CalendarWidgetQuery, window: CalendarWidgetWindow) {
   const result = await previewCalendarWidgetAction(query, window);
-  if (!result.ok) throw new Error("Calendar preview window unavailable");
+  if (!result.ok) {
+    notifyIfWorkspaceChanged(result);
+    throw new Error("Calendar preview window unavailable");
+  }
   return result.data;
 }
 

@@ -373,6 +373,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
       const result = await this.runPreview(call);
       if (!result || !isCurrent()) return;
       if (!result.ok) {
+        if (notifyIfWorkspaceChanged(result)) return;
         runInAction(() => {
           this.recordPreviewFailed = true;
         });
