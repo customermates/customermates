@@ -3047,7 +3047,6 @@
         }
       }
     },
-    "continue": "Continue",
     "finish": "Finish",
     "invite": {
       "emailCount": "{current} of {max} emails · separate with a comma or press Enter",
@@ -4878,7 +4877,6 @@
       "addOwn": "Add your own",
       "continueAnyway": "Continue anyway",
       "fromWebsite": "Suggested from your website",
-      "looksRight": "Looks right",
       "upload": "Upload a spreadsheet",
       "winChance": "Win chance"
     },
@@ -4934,6 +4932,12 @@
         "views": "{count, plural, =0 {No views arranged} one {# view arranged} other {# views arranged}}"
       },
       "title": "Setting up your workspace"
+    },
+    "empty": {
+      "action": "Start with an empty workspace",
+      "confirm": "Start empty",
+      "description": "You skip the guided setup. No lists, pipeline, dashboard or Knowledge Base pages are created, so you build everything yourself. We recommend the guided setup.",
+      "title": "Start with an empty workspace?"
     },
     "failures": {
       "aiUnavailable": "The AI service is not available right now. Try again in a few minutes.",

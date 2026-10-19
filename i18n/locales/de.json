@@ -3047,7 +3047,6 @@
         }
       }
     },
-    "continue": "Weiter",
     "finish": "Fertig",
     "invite": {
       "emailCount": "{current} von {max} E-Mails · mit Komma oder Enter trennen",
@@ -4878,7 +4877,6 @@
       "addOwn": "Eigenen Eintrag hinzufügen",
       "continueAnyway": "Trotzdem weiter",
       "fromWebsite": "Von deiner Website vorgeschlagen",
-      "looksRight": "Passt so",
       "upload": "Tabelle hochladen",
       "winChance": "Abschlusschance"
     },
@@ -4934,6 +4932,12 @@
         "views": "{count, plural, =0 {Keine Ansichten angeordnet} one {# Ansicht angeordnet} other {# Ansichten angeordnet}}"
       },
       "title": "Wir richten deinen Workspace ein"
+    },
+    "empty": {
+      "action": "Mit einem leeren Workspace starten",
+      "confirm": "Leer starten",
+      "description": "Du überspringst die geführte Einrichtung. Es werden keine Listen, keine Pipeline, kein Dashboard und keine Wissensdatenbank-Seiten angelegt, du baust alles selbst auf. Wir empfehlen die geführte Einrichtung.",
+      "title": "Mit einem leeren Workspace starten?"
     },
     "failures": {
       "aiUnavailable": "Der KI-Dienst ist gerade nicht erreichbar. Versuch es in ein paar Minuten noch einmal.",

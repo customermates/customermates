@@ -3047,7 +3047,6 @@
         }
       }
     },
-    "continue": "Continuar",
     "finish": "Finalizar",
     "invite": {
       "emailCount": "{current} de {max} correos · sepáralos con una coma o pulsa Intro",
@@ -4878,7 +4877,6 @@
       "addOwn": "Añadir otro",
       "continueAnyway": "Continuar de todos modos",
       "fromWebsite": "Sugerido a partir de tu sitio web",
-      "looksRight": "Es correcto",
       "upload": "Subir una hoja de cálculo",
       "winChance": "Probabilidad de cierre"
     },
@@ -4934,6 +4932,12 @@
         "views": "{count, plural, =0 {No se organizaron vistas} one {# vista organizada} other {# vistas organizadas}}"
       },
       "title": "Configurando tu espacio de trabajo"
+    },
+    "empty": {
+      "action": "Empezar con un espacio de trabajo vacío",
+      "confirm": "Empezar vacío",
+      "description": "Te saltas la configuración guiada. No se crean listas, embudo, panel ni páginas de la base de conocimiento, así que lo construyes todo tú. Recomendamos la configuración guiada.",
+      "title": "¿Empezar con un espacio de trabajo vacío?"
     },
     "failures": {
       "aiUnavailable": "El servicio de IA no está disponible ahora mismo. Vuelve a intentarlo en unos minutos.",

@@ -147,10 +147,10 @@ export function answerComplete(
   return !answerIsEmpty(value);
 }
 
-export function screenComplete(screen: SetupScreen, answers: SetupAnswers, locale: string): boolean {
-  return visibleScreenParts(screen, answers).every((part) =>
-    answerComplete(part, displayedAnswerValue(part, answers, locale), { requireChoice: true }),
-  );
+export function missingScreenParts(screen: SetupScreen, answers: SetupAnswers, locale: string): string[] {
+  return visibleScreenParts(screen, answers)
+    .filter((part) => !answerComplete(part, displayedAnswerValue(part, answers, locale), { requireChoice: true }))
+    .map((part) => part.id);
 }
 
 export function screenAnswersPayload(

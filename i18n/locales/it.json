@@ -3047,7 +3047,6 @@
         }
       }
     },
-    "continue": "Continua",
     "finish": "Fine",
     "invite": {
       "emailCount": "{current} di {max} e-mail · separale con una virgola o premi Invio",
@@ -4878,7 +4877,6 @@
       "addOwn": "Aggiungi una voce",
       "continueAnyway": "Continua comunque",
       "fromWebsite": "Suggerito dal tuo sito web",
-      "looksRight": "Va bene così",
       "upload": "Carica un foglio di calcolo",
       "winChance": "Probabilità di chiusura"
     },
@@ -4934,6 +4932,12 @@
         "views": "{count, plural, =0 {Nessuna vista organizzata} one {# vista organizzata} other {# viste organizzate}}"
       },
       "title": "Stiamo configurando il tuo spazio di lavoro"
+    },
+    "empty": {
+      "action": "Inizia con un workspace vuoto",
+      "confirm": "Inizia vuoto",
+      "description": "Salti la configurazione guidata. Non vengono create liste, pipeline, dashboard né pagine della knowledge base, quindi costruisci tutto da solo. Ti consigliamo la configurazione guidata.",
+      "title": "Iniziare con un workspace vuoto?"
     },
     "failures": {
       "aiUnavailable": "Il servizio di IA non è disponibile al momento. Riprova tra qualche minuto.",

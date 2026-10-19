@@ -369,7 +369,7 @@ test("a member removed from their only workspace starts over on onboarding and c
         path: testInfo.outputPath(`ws-remove-only-workspace-onboarding-${testInfo.project.name}.png`),
       });
       await clickHydrated(
-        removed.page.getByRole("button", { name: englishMessages.OnboardingWizard.continue, exact: true }),
+        removed.page.getByRole("button", { name: englishMessages.OnboardingWizard.next, exact: true }),
       );
 
       await expect(removed.page).toHaveURL(/\/onboarding\/wizard$/);

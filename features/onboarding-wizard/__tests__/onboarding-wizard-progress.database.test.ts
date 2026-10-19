@@ -9,6 +9,8 @@ import { PermissionService } from "@/core/base/permission.service";
 import { PrismaUserRepo } from "@/features/user/prisma-user.repository";
 import { readOnboardingWizardProgress } from "../onboarding-wizard-progress.schema";
 import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
+import { CompleteOnboardingSetupStepInteractor } from "../complete-onboarding-setup-step.interactor";
+import { CompleteOnboardingWizardInteractor } from "../complete-onboarding-wizard.interactor";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -129,5 +131,35 @@ describeDatabase("durable onboarding progress on PostgreSQL", () => {
     );
     expect(rows[0].onboardingWizardCompletedAt).toBeInstanceOf(Date);
     expect(rows[0].onboardingWizardProgress.step).toBe("invite");
+  });
+
+  it("starts an empty workspace when the owner skips the guided setup", async () => {
+    const owner = createMockUser({
+      id: outsiderId,
+      companyId: otherCompanyId,
+      onboardingWikiStepCompletedAt: null,
+      onboardingWizardCompletedAt: null,
+    });
+    const repo = new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo());
+    const routeGuardService = { resolveAccountState: () => Promise.resolve({ state: "onboarding", user: owner }) };
+
+    await expect(new CompleteOnboardingSetupStepInteractor(repo, routeGuardService as never).invoke()).resolves.toEqual(
+      { ok: true, data: { completed: true } },
+    );
+    await expect(new CompleteOnboardingWizardInteractor(repo, routeGuardService as never).invoke()).resolves.toEqual({
+      ok: true,
+      data: { redirectTo: "/" },
+    });
+
+    const member = await client.query(
+      'SELECT "onboardingWikiStepCompletedAt", "onboardingWizardCompletedAt" FROM "User" WHERE "id" = $1',
+      [outsiderId],
+    );
+    expect(member.rows[0].onboardingWikiStepCompletedAt).toBeInstanceOf(Date);
+    expect(member.rows[0].onboardingWizardCompletedAt).toBeInstanceOf(Date);
+    const lists = await client.query('SELECT 1 FROM "RecordTypeDefinition" WHERE "companyId" = $1', [otherCompanyId]);
+    const setups = await client.query('SELECT 1 FROM "WorkspaceSetup" WHERE "companyId" = $1', [otherCompanyId]);
+    expect(lists.rowCount).toBe(0);
+    expect(setups.rowCount).toBe(0);
   });
 });

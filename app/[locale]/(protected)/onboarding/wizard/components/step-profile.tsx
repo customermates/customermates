@@ -128,7 +128,7 @@ export const StepProfile = observer(
           <Button className="self-end mt-2" disabled={isLoading} type="submit">
             {isLoading && <Loader2 className="size-4 animate-spin" />}
 
-            {t("OnboardingWizard.continue")}
+            {t("OnboardingWizard.next")}
           </Button>
         </div>
       </AppForm>

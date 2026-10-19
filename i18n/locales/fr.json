@@ -3047,7 +3047,6 @@
         }
       }
     },
-    "continue": "Continuer",
     "finish": "Terminer",
     "invite": {
       "emailCount": "{current} sur {max} adresses · séparez-les par une virgule ou appuyez sur Entrée",
@@ -4878,7 +4877,6 @@
       "addOwn": "Ajouter le vôtre",
       "continueAnyway": "Continuer quand même",
       "fromWebsite": "Suggéré d'après votre site web",
-      "looksRight": "C'est correct",
       "upload": "Importer un tableur",
       "winChance": "Probabilité de gain"
     },
@@ -4934,6 +4932,12 @@
         "views": "{count, plural, =0 {Aucune vue organisée} one {# vue organisée} other {# vues organisées}}"
       },
       "title": "Configuration de votre espace de travail"
+    },
+    "empty": {
+      "action": "Commencer avec un espace de travail vide",
+      "confirm": "Commencer à vide",
+      "description": "Vous ignorez la configuration guidée. Aucune liste, aucun pipeline, aucun tableau de bord ni aucune page de base de connaissances ne sont créés : vous construisez tout vous-même. Nous recommandons la configuration guidée.",
+      "title": "Commencer avec un espace de travail vide ?"
     },
     "failures": {
       "aiUnavailable": "Le service d’IA n’est pas disponible pour le moment. Réessayez dans quelques minutes.",
