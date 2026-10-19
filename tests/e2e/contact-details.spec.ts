@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import ExcelJS from "exceljs";
 
 import { presetId } from "../../features/records/crm-preset";
@@ -95,6 +97,58 @@ test("keeps an email address, a phone number and a social profile in contact det
     "https://www.linkedin.com/in/ada-details",
   );
   expect(errors).toEqual([]);
+});
+
+test.describe("on a phone", () => {
+  test.use({ viewport: { width: 390, height: 664 }, hasTouch: true });
+
+  test("keeps the add phone, email or profile menu fully on screen", async ({
+    page,
+    database,
+    companyId,
+    workspace,
+  }) => {
+    test.skip(process.env.APP_MODE === "self-hosted", "Messaging is part of the cloud service only");
+    test.setTimeout(180000);
+    const errors = collectPageErrors(page);
+    const accountId = randomUUID();
+    const threadId = randomUUID();
+    await database.query(
+      'INSERT INTO "ConnectedAccount" (id,"companyId","userId","unipileAccountId",provider,status,"hasMessaging","updatedAt") VALUES ($1,$2,$3,$4,\'mail\',\'ok\',true,NOW())',
+      [accountId, companyId, workspace.userId, randomUUID()],
+    );
+    await database.query(
+      'INSERT INTO "MessagingThread" (id,"companyId","connectedAccountId","unipileThreadId",provider,state,"lastMessageAt","updatedAt") VALUES ($1,$2,$3,$4,\'mail\',\'open\',NOW(),NOW())',
+      [threadId, companyId, accountId, randomUUID()],
+    );
+    const names = ["Crew Anna", "Crew Bert", "Crew Cleo", "Crew Dana"];
+    for (const name of names) {
+      const email = `${name.toLowerCase().replace(" ", ".")}@example.test`;
+      await database.query(
+        'INSERT INTO "MessagingThreadParticipant" (id,"companyId","messagingThreadId",provider,"providerUserId",identifier,"identityLookupValue","displayName","updatedAt") VALUES ($1,$2,$3,\'mail\',$4,$4,$4,$5,NOW())',
+        [randomUUID(), companyId, threadId, email, name],
+      );
+    }
+
+    await page.goto(`/en/records/${presetId(companyId, "contact")}`);
+    await page.locator("#records-add").click();
+    const drawer = page.getByRole("dialog", { name: "Contact", exact: true });
+    const add = drawer.getByRole("combobox", { name: "Add phone, email or profile", exact: true });
+    await add.fill("crew");
+    const options = page.getByRole("option");
+    await expect(options).toHaveCount(names.length);
+    const menu = page.locator('[data-slot="popover-content"]');
+    const box = await menu.boundingBox();
+    const viewport = page.viewportSize();
+    expect(box).not.toBeNull();
+    expect(viewport).not.toBeNull();
+    expect(box!.y).toBeGreaterThanOrEqual(0);
+    expect(box!.y + box!.height).toBeLessThanOrEqual(viewport!.height);
+    expect(box!.x).toBeGreaterThanOrEqual(0);
+    expect(box!.x + box!.width).toBeLessThanOrEqual(viewport!.width);
+    for (const name of names) await expect(options.filter({ hasText: name })).toBeInViewport({ ratio: 1 });
+    expect(errors).toEqual([]);
+  });
 });
 
 test("imports the email and phone columns of an Excel file into contact details", async ({

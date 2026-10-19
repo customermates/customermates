@@ -244,7 +244,8 @@ test("shows the data model graph and edits lists, fields and relationships from 
     );
     await expect(deals.locator(`[data-configure-graph-field="${id("deal.name")}"]`)).toContainText("Name");
     await expect(graph.locator(`[data-configure-node="${id("lineItem")}"]`)).toContainText("Sub-list of Deals");
-    await expect(graph.locator("[data-configure-source]")).toHaveCount(1);
+    // Connected accounts and messaging are part of the cloud service only, so self-hosted shows no source node.
+    await expect(graph.locator("[data-configure-source]")).toHaveCount(process.env.APP_MODE === "self-hosted" ? 0 : 1);
     await fitView();
     for (const node of await graph.locator("[data-configure-node]").all()) await expect(node).toBeInViewport();
   });

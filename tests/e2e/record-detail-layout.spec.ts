@@ -148,9 +148,14 @@ test("persists personal detail pins, visibility and keyboard order without losin
     [companyId, nameId],
   );
   expect(source.rows).toEqual([{ textValue: "Example organization" }, { textValue: "Layout company" }]);
-  await drawer.getByRole("button", { name: "Ask Mate", exact: true }).click();
-  await expect(drawer.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Draft stays here");
-  await page.getByTestId("agent-panel").getByRole("button", { name: "Close", exact: true }).click();
+  if (process.env.APP_MODE === "self-hosted") {
+    // Mate is part of the cloud service only, so the drawer offers no Ask Mate button.
+    await expect(drawer.getByRole("button", { name: "Ask Mate", exact: true })).toHaveCount(0);
+  } else {
+    await drawer.getByRole("button", { name: "Ask Mate", exact: true }).click();
+    await expect(drawer.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Draft stays here");
+    await page.getByTestId("agent-panel").getByRole("button", { name: "Close", exact: true }).click();
+  }
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer).not.toBeVisible();
   await page.reload();

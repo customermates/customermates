@@ -105,10 +105,46 @@ const upgraded = test.extend({
   },
 });
 
-upgraded("shows the values of former phone and email fields in contact details", async ({ page, database, companyId }) => {
+upgraded("shows the values of former phone and email fields in contact details", async ({
+  page,
+  database,
+  companyId,
+  workspace,
+}) => {
   test.setTimeout(240000);
   const errors = collectPageErrors(page);
   const contact = presetId(companyId, "contact");
+  const messaging = process.env.APP_MODE !== "self-hosted";
+  if (messaging) {
+    // An email conversation with the former Email field's address, in another case, appears on the record.
+    const accountId = randomUUID();
+    const threadId = randomUUID();
+    const address = "synthetic.person@example.test";
+    await database.query(
+      'INSERT INTO "ConnectedAccount" (id,"companyId","userId","unipileAccountId",provider,status,"hasMessaging","updatedAt") VALUES ($1,$2,$3,$4,\'mail\',\'ok\',true,NOW())',
+      [accountId, companyId, workspace.userId, randomUUID()],
+    );
+    await database.query(
+      'INSERT INTO "MessagingThread" (id,"companyId","connectedAccountId","unipileThreadId",provider,state,"lastMessageAt","updatedAt") VALUES ($1,$2,$3,$4,\'mail\',\'open\',NOW(),NOW())',
+      [threadId, companyId, accountId, randomUUID()],
+    );
+    await database.query(
+      'INSERT INTO "MessagingThreadParticipant" (id,"companyId","messagingThreadId",provider,"providerUserId",identifier,"identityLookupValue","displayName","updatedAt") VALUES ($1,$2,$3,\'mail\',$4,$5,$4,\'Synthetic Person\',NOW())',
+      [randomUUID(), companyId, threadId, address, "Synthetic.Person@Example.test"],
+    );
+    await database.query(
+      'INSERT INTO "MessagingMessage" (id,"companyId","messagingThreadId","connectedAccountId","unipileMessageId",provider,direction,origin,sender,recipients,"bodyText","sentAt","updatedAt") VALUES ($1,$2,$3,$4,$5,\'mail\',\'inbound\',\'unipile\',$6,$7,\'Conversation after the upgrade\',NOW(),NOW())',
+      [
+        randomUUID(),
+        companyId,
+        threadId,
+        accountId,
+        randomUUID(),
+        JSON.stringify({ attendeeId: address, identifier: address, displayName: "Synthetic Person" }),
+        JSON.stringify({ to: [], cc: [], bcc: [] }),
+      ],
+    );
+  }
   const labels = (
     await database.query(
       'SELECT definition ->> \'label\' AS label FROM "RecordFieldDefinition" WHERE "companyId" = $1 AND "typeId" = $2',
@@ -130,5 +166,9 @@ upgraded("shows the values of former phone and email fields in contact details",
   ).toHaveAttribute("href", "mailto:synthetic.person@example.test");
   await expect(drawer.getByRole("textbox", { name: "Phone", exact: true })).toHaveCount(0);
   await expect(drawer.getByRole("textbox", { name: "Email", exact: true })).toHaveCount(0);
+  if (messaging) {
+    await drawer.getByRole("tab", { name: "Activities", exact: true }).click();
+    await expect(drawer.getByText("Conversation after the upgrade", { exact: true })).toBeVisible();
+  }
   expect(errors).toEqual([]);
 });

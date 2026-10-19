@@ -8,6 +8,7 @@ test("creates, unlinks and relinks a generic person from the inbox", async ({
   companyId,
   workspace,
 }, testInfo) => {
+  test.skip(process.env.APP_MODE === "self-hosted", "Messaging is part of the cloud service only");
   test.setTimeout(180000);
   const errors = collectPageErrors(page);
   const accountId = randomUUID();

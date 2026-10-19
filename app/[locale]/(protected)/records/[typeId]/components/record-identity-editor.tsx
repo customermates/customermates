@@ -104,9 +104,11 @@ export const RecordChannelPopover = observer(({ editor }: { editor: RecordEditor
       <Popover open={showList} onOpenChange={(next) => store.setOpen(next)}>
         <AddChannelSearchField disabled={editor.isDisabled} expanded={showList} store={store} />
 
+        {/* Capped by the viewport rather than the room below the field, so a list that doesn't fit below
+            (a phone drawer, the keyboard) flips above the field instead of shrinking off-screen. */}
         <PopoverContent
           align="start"
-          className="w-(--radix-popover-trigger-width) overflow-hidden p-0"
+          className="max-h-(--overlay-block-budget) w-(--radix-popover-trigger-width) overflow-hidden p-0"
           onOpenAutoFocus={(event) => event.preventDefault()}
         >
           <CommandList aria-busy={busy || store.isAdding || undefined}>
