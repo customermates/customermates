@@ -15,7 +15,7 @@ test("edits identity channels in the generic drawer and searches persisted chann
   const dialog = page.getByRole("dialog", { name: "Contact", exact: true });
   await dialog.getByRole("textbox", { name: "First name", exact: false }).fill("Identity");
   await dialog.getByRole("textbox", { name: "Last name", exact: false }).fill("Person");
-  const channel = dialog.getByRole("combobox", { name: "Add channel", exact: true });
+  const channel = dialog.getByRole("combobox", { name: "Add phone, email or profile", exact: true });
   await channel.fill("Person@Example.test");
   await page.getByRole("option").filter({ hasText: "Person@Example.test" }).click();
   await expect(dialog.getByText("person@example.test", { exact: true })).toBeVisible();
@@ -30,7 +30,7 @@ test("edits identity channels in the generic drawer and searches persisted chann
   const recordId = stored.rows[0].recordId;
   await page.reload();
   if (!test.info().project.use.isMobile) {
-    await expect(page.getByRole("columnheader", { name: /^Channels / })).toBeVisible();
+    await expect(page.getByRole("columnheader", { name: /^Contact details / })).toBeVisible();
     await page.getByRole("button", { name: "Email", exact: true }).click();
     await expect(page.getByRole("menu").getByText("person@example.test", { exact: true })).toBeVisible();
     await page.keyboard.press("Escape");

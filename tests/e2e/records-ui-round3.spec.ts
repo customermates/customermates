@@ -43,8 +43,8 @@ async function createLabList(page: Page, contactTypeId: string) {
       }),
       field("$member", "Owner", "member", 7),
       field("$bool", "Done", "boolean", 8),
-      field("$email", "Email", "email", 9),
-      field("$emails", "Emails", "email", 11, { multiple: true }),
+      field("$website", "Website", "url", 9),
+      field("$websites", "Websites", "url", 11, { multiple: true }),
       field("$double", "Double", "number", 10, {
         behavior: {
           kind: "formula",
@@ -321,19 +321,19 @@ test("edits every field type inline in rows and on board cards, with validation,
   await expect(inPlace).toHaveCount(0);
   await expect(row.getByRole("button", { name: "Edit Text", exact: true })).toBeFocused();
 
-  const emailInput = await openInPlace("Email");
-  await emailInput.fill("ada at example");
-  await emailInput.press("Enter");
+  const websiteInput = await openInPlace("Website");
+  await websiteInput.fill("ada at example");
+  await websiteInput.press("Enter");
   await expect(inPlace).toBeVisible();
-  await expect(emailInput).toHaveAttribute("aria-invalid", "true");
-  await expect(page.getByText("Enter a valid email address.", { exact: false }).first()).toBeVisible();
-  const emailToasts = page.locator("[data-sonner-toast]").filter({ hasText: "valid email address" });
-  await expect(emailToasts.first()).toBeVisible();
-  expect(await emailToasts.count()).toBe(1);
-  await emailInput.fill("ada@example.test");
-  await emailInput.press("Enter");
+  await expect(websiteInput).toHaveAttribute("aria-invalid", "true");
+  await expect(page.getByText("Enter a valid URL.", { exact: false }).first()).toBeVisible();
+  const websiteToasts = page.locator("[data-sonner-toast]").filter({ hasText: "valid URL" });
+  await expect(websiteToasts.first()).toBeVisible();
+  expect(await websiteToasts.count()).toBe(1);
+  await websiteInput.fill("https://ada.example.test");
+  await websiteInput.press("Enter");
   await expect(inPlace).toHaveCount(0);
-  await expect(row).toContainText("ada@example.test");
+  await expect(row).toContainText("ada.example.test");
 
   const cancelled = await openInPlace("Text");
   await cancelled.fill("Never saved");
@@ -432,7 +432,7 @@ test("board cards show one chip row with icons, hide empty and grouped values an
   await expect(chip("Number")).toContainText("Number");
   await expect(chip("Double")).toContainText("Double");
   await expect(chip("Choice")).toHaveCount(0);
-  for (const empty of ["Text", "Date", "Owner", "Email"]) await expect(chip(empty)).toHaveCount(0);
+  for (const empty of ["Text", "Date", "Owner", "Website"]) await expect(chip(empty)).toHaveCount(0);
   await expect(card).not.toContainText("Money");
 
   await chip("Money").hover();
@@ -454,7 +454,7 @@ test("board cards show one chip row with icons, hide empty and grouped values an
   const add = card.getByRole("button", { name: "Add property", exact: true });
   await expect(add).toBeVisible();
   await add.click();
-  await expect(page.getByRole("menuitem")).toHaveText(["Text", "Date", "Owner", "Done", "Email", "Emails", "Contacts"]);
+  await expect(page.getByRole("menuitem")).toHaveText(["Text", "Date", "Owner", "Done", "Website", "Websites", "Contacts"]);
   await page.getByRole("menuitem", { name: "Text", exact: true }).click();
   await expect(editor).toContainText("Text");
   await editor.locator("input").first().fill("Card text");
@@ -465,7 +465,7 @@ test("board cards show one chip row with icons, hide empty and grouped values an
   expect(errors).toEqual([]);
 });
 
-test("rows keep the row click on calculated values, toggle in selection mode and edit multi-value contacts from blank space", async ({
+test("rows keep the row click on calculated values, toggle in selection mode and edit multi-value links from blank space", async ({
   page,
   companyId,
   isMobile,
@@ -501,17 +501,17 @@ test("rows keep the row click on calculated values, toggle in selection mode and
   await expect(selectAll).toHaveAttribute("data-state", "unchecked");
 
   await row("Lab one").hover();
-  await row("Lab one").getByRole("button", { name: "Edit Emails", exact: true }).click();
+  await row("Lab one").getByRole("button", { name: "Edit Websites", exact: true }).click();
   const editor = page.locator('[data-slot="popover-content"][data-state="open"]');
-  await editor.locator("textarea").fill("first@example.test\nsecond@example.test");
+  await editor.locator("textarea").fill("https://first.example.test\nhttps://second.example.test");
   await editor.getByRole("button", { name: "Save", exact: true }).click();
   await expect(editor).toHaveCount(0);
-  const space = row("Lab one").locator("[data-inline-edit-space]").filter({ hasText: "first@example.test" });
+  const space = row("Lab one").locator("[data-inline-edit-space]").filter({ hasText: "first.example.test" });
   await space.scrollIntoViewIfNeeded();
   const box = await space.boundingBox();
-  if (!box) throw new Error("The emails cell is not rendered");
+  if (!box) throw new Error("The websites cell is not rendered");
   await page.mouse.click(box.x + 4, box.y + box.height / 2);
-  await expect(editor.locator("textarea")).toHaveValue("first@example.test\nsecond@example.test");
+  await expect(editor.locator("textarea")).toHaveValue("https://first.example.test\nhttps://second.example.test");
   await page.keyboard.press("Escape");
   await expect(editor).toHaveCount(0);
   await expect(page).toHaveURL(new RegExp(`/records/${typeId}(\\?|$)`));
