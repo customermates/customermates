@@ -213,8 +213,6 @@ export class DeleteWorkspaceInteractor extends AuthenticatedInteractor<DeleteWor
     return null;
   }
 
-  // The database rows of record and chat files went with the workspace; their bytes in blob or S3 storage live
-  // outside the transaction, so a background job removes the workspace's storage prefix afterwards.
   private async purgeStoredFiles(): Promise<void> {
     try {
       await this.background.dispatch("purge-company-files", { companyId: this.companyId });
