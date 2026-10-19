@@ -18,6 +18,8 @@ import { FilterFieldKey } from "@/core/types/filter-field-key";
 
 import { OPERATOR_AUDIT_SOURCE } from "./operator-lists.schema";
 
+export { operatorCollator } from "./operator-collator";
+
 const INTERCEPTED_FIELDS = new Set<string>([
   FilterFieldKey.plan,
   FilterFieldKey.subscriptionStatus,
@@ -30,8 +32,6 @@ const INTERCEPTED_FIELDS = new Set<string>([
 function unsupportedGrouping(spec: GroupableFieldSpec): never {
   throw new Error(`Operator lists cannot group by ${spec.kind} (${spec.model}.${spec.field})`);
 }
-
-export { operatorCollator } from "./operator-collator";
 
 export function groupScopeToFilters(scope: GroupScope): Filter[] | undefined {
   const { spec, key } = scope;

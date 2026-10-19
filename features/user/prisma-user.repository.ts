@@ -34,7 +34,7 @@ import type { RemoveWorkspaceMemberRepo } from "@/features/workspace/remove-work
 
 import { Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
-import { type MemberDto } from "./user.schema";
+import { type MemberDto, type TenantUser } from "./user.schema";
 
 import { type GetQueryParams } from "@/core/base/base-get.schema";
 import { QueryRepository } from "@/core/base/query-repository";
@@ -149,10 +149,18 @@ export class PrismaUserRepo
   }
 
   @BypassTenantGuard
-  async touchLastActiveUnscoped(userId: string, staleBefore: Date): Promise<void> {
+  async touchLastActiveUnscoped(
+    member: Pick<TenantUser, "id" | "companyId" | "updatedAt">,
+    staleBefore: Date,
+  ): Promise<void> {
     await this.prisma.user.updateMany({
-      where: { id: userId, OR: [{ lastActiveAt: null }, { lastActiveAt: { lt: staleBefore } }] },
-      data: { lastActiveAt: new Date() },
+      where: {
+        id: member.id,
+        companyId: member.companyId,
+        updatedAt: member.updatedAt,
+        OR: [{ lastActiveAt: null }, { lastActiveAt: { lt: staleBefore } }],
+      },
+      data: { lastActiveAt: new Date(), updatedAt: member.updatedAt },
     });
   }
 

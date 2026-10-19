@@ -47,22 +47,24 @@ export class UserService {
 
     if (user.status !== Status.active) throw new ForbiddenError("User is not active", AppErrorCode.inactiveUser);
 
-    if (await this.authService.isIntegrationCredentialRequest()) {
-      if (!canUseApiKeys(user.role)) throw new ApiKeyAccessDeniedError();
-      if (!(await this.plans.canUseIntegrations(user.companyId))) throw new WorkspacePlanRequiredError();
+    if (!(await this.authService.isIntegrationCredentialRequest())) {
+      await this.recordActivity(user);
+      return user;
     }
 
-    await this.recordActivity(user);
+    if (!canUseApiKeys(user.role)) throw new ApiKeyAccessDeniedError();
+    if (!(await this.plans.canUseIntegrations(user.companyId))) throw new WorkspacePlanRequiredError();
+
     return user;
   }
 
-  private async recordActivity(user: TenantUser, now = new Date()) {
+  private async recordActivity(user: TenantUser) {
     if (env.APP_MODE === "demo") return;
-    const staleBefore = new Date(now.getTime() - LAST_ACTIVE_RESOLUTION_MS);
+    const staleBefore = new Date(Date.now() - LAST_ACTIVE_RESOLUTION_MS);
     if (user.lastActiveAt && user.lastActiveAt >= staleBefore) return;
 
     try {
-      await this.repo.touchLastActiveUnscoped(user.id, staleBefore);
+      await this.repo.touchLastActiveUnscoped(user, staleBefore);
     } catch (error) {
       Sentry.captureException(error, { tags: { kind: "last-active" } });
     }

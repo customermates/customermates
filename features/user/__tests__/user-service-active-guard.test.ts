@@ -29,6 +29,7 @@ function serviceFor(
     status,
     role: options.role ?? NO_API_ROLE,
     lastActiveAt: options.lastActiveAt === undefined ? new Date() : options.lastActiveAt,
+    updatedAt: new Date("2026-10-01T00:00:00.000Z"),
   } as unknown as TenantUser;
   const authService = {
     getSession: () => Promise.resolve({ user: { email: user.email } }),
@@ -113,15 +114,21 @@ describe("UserService last activity", () => {
     }).getActiveUserOrThrow();
 
     expect(touchLastActiveUnscoped).toHaveBeenCalledTimes(1);
-    const [userId, staleBefore] = touchLastActiveUnscoped.mock.calls[0] as [string, Date];
-    expect(userId).toBe("user-1");
+    const [member, staleBefore] = touchLastActiveUnscoped.mock.calls[0] as [{ id: string }, Date];
+    expect(member).toMatchObject({ id: "user-1", companyId: "company-1" });
     expect(staleBefore.getTime()).toBeGreaterThanOrEqual(before - LAST_ACTIVE_RESOLUTION_MS);
   });
 
-  it("records the first activity of a member who never had one, also through an API key", async () => {
-    await serviceFor(Status.active, { lastActiveAt: null, apiKey: true, role: API_READER }).getActiveUserOrThrow();
+  it("records the first activity of a member who never had one", async () => {
+    await serviceFor(Status.active, { lastActiveAt: null }).getActiveUserOrThrow();
 
     expect(touchLastActiveUnscoped).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not count requests of an API key or MCP connection as the member's activity", async () => {
+    await serviceFor(Status.active, { lastActiveAt: null, apiKey: true, role: API_READER }).getActiveUserOrThrow();
+
+    expect(touchLastActiveUnscoped).not.toHaveBeenCalled();
   });
 
   it("writes nothing while the last activity is recent or the request is refused", async () => {

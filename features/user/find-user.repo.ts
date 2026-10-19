@@ -18,5 +18,8 @@ export abstract class FindUserRepo {
   abstract listMembershipsUnscoped(email: string): Promise<MembershipSummary[]>;
   abstract hasLeftMembershipUnscoped(email: string, companyId: string): Promise<boolean>;
   abstract findUserByIdOrThrowUnscoped(userId: string): Promise<TenantUser>;
-  abstract touchLastActiveUnscoped(userId: string, staleBefore: Date): Promise<void>;
+  abstract touchLastActiveUnscoped(
+    member: Pick<TenantUser, "id" | "companyId" | "updatedAt">,
+    staleBefore: Date,
+  ): Promise<void>;
 }

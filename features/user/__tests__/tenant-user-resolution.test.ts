@@ -15,6 +15,7 @@ function service(overrides: Partial<FindUserRepo> = {}) {
     findCurrentUserUnscoped: vi.fn(),
     findCurrentUserOrThrowUnscoped: vi.fn().mockResolvedValue(sessionUser),
     findUserByIdOrThrowUnscoped: vi.fn().mockResolvedValue(tenantUser),
+    touchLastActiveUnscoped: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   } as unknown as FindUserRepo;
   const authService = {

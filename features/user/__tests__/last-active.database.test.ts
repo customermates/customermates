@@ -38,11 +38,17 @@ async function member(lastActiveAt: Date | null) {
   return userId;
 }
 
-async function lastActive(userId: string) {
-  return runWithoutTenant(
-    async () =>
-      (await prisma.user.findUniqueOrThrow({ where: { id: userId }, select: { lastActiveAt: true } })).lastActiveAt,
+async function row(userId: string) {
+  return runWithoutTenant(() =>
+    prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+      select: { id: true, companyId: true, updatedAt: true, lastActiveAt: true },
+    }),
   );
+}
+
+async function lastActive(userId: string) {
+  return (await row(userId)).lastActiveAt;
 }
 
 afterAll(async () => {
@@ -60,10 +66,22 @@ describeDatabase("recording a member's last activity", () => {
     const recentAt = new Date(Date.now() - 60_000);
     const recent = await member(recentAt);
 
-    for (const userId of [stale, missing, recent]) await repo.touchLastActiveUnscoped(userId, staleBefore);
+    const before = await row(stale);
+    for (const userId of [stale, missing, recent]) await repo.touchLastActiveUnscoped(await row(userId), staleBefore);
 
     expect((await lastActive(stale))?.getTime()).toBeGreaterThan(staleBefore.getTime());
+    expect((await row(stale)).updatedAt).toEqual(before.updatedAt);
     expect((await lastActive(missing))?.getTime()).toBeGreaterThan(staleBefore.getTime());
     expect(await lastActive(recent)).toEqual(recentAt);
+  });
+
+  it("leaves a member alone whose profile changed since it was loaded", async () => {
+    const userId = await member(null);
+    const loaded = await row(userId);
+    await runWithoutTenant(() => prisma.user.update({ where: { id: userId }, data: { firstName: "Changed" } }));
+
+    await repo.touchLastActiveUnscoped(loaded, new Date());
+
+    expect(await lastActive(userId)).toBeNull();
   });
 });

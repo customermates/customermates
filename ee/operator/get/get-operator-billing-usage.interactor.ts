@@ -8,7 +8,7 @@ import { OperatorReadInteractor } from "@/core/decorators/operator-interactor.de
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { billingUsageWindow, subscriptionSummary, workspaceBillingUsage, workspaceExistsIn } from "../billing-usage";
-import { operatorCollator } from "../operator-list-filters";
+import { operatorCollator } from "../operator-collator";
 import { GetOperatorBillingUsageSchema, OperatorBillingUsageDtoSchema } from "../billing-usage.schema";
 
 @OperatorReadInteractor
