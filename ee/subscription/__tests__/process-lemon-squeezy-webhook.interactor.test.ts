@@ -22,6 +22,7 @@ type Workspace = {
   status: string;
   plan: string;
   lemonSqueezyId: string | null;
+  deletingAt?: Date | null;
 };
 
 const HOUR_MS = 60 * 60 * 1000;
@@ -644,5 +645,66 @@ describe("a successful payment", () => {
     expect(deleteAccountsForPlan.invoke).not.toHaveBeenCalled();
     expect(mails()).toEqual([]);
     expect(Sentry.captureMessage).not.toHaveBeenCalled();
+  });
+});
+
+describe("an event that meets a workspace deletion", () => {
+  const workspace = { companyId: "company-1", name: "Atlas", status: "trial", plan: "pro", lemonSqueezyId: null };
+
+  it("asks Lemon Squeezy to retry while the workspace is being deleted, without changing its billing", async () => {
+    const { interactor, subscriptionService, mails } = setup({
+      workspaces: [{ ...workspace, deletingAt: new Date() }],
+      provider: [providerSubscription("sub-1", "active", "2026-10-18T12:00:00.000Z")],
+    });
+
+    expect(await interactor.invoke(event("sub-1", signed("company-1")))).toBe("deferred");
+
+    expect(subscriptionService.syncSubscription).not.toHaveBeenCalled();
+    expect(mails()).toEqual([]);
+  });
+
+  it("applies the event once a deletion marker has gone stale", async () => {
+    const { interactor, subscriptionService } = setup({
+      workspaces: [{ ...workspace, deletingAt: new Date(Date.now() - 60 * 60 * 1000) }],
+      provider: [providerSubscription("sub-1", "active", "2026-10-18T12:00:00.000Z")],
+    });
+
+    expect(await interactor.invoke(event("sub-1", signed("company-1")))).toBe("applied");
+    expect(subscriptionService.syncSubscription).toHaveBeenCalledOnce();
+  });
+
+  it("acknowledges a new subscription whose workspace a deletion removed meanwhile and tells the operator", async () => {
+    const { interactor, repo, mails } = setup({
+      workspaces: [workspace],
+      provider: [providerSubscription("sub-1", "active", "2026-10-18T12:00:00.000Z")],
+      synced: null,
+    });
+    repo.findWorkspaceBillingUnscoped.mockResolvedValueOnce(workspace as never).mockResolvedValueOnce(null);
+
+    expect(await interactor.invoke(event("sub-1", signed("company-1")))).toBe("ignored");
+
+    expect(mails()).toEqual([
+      expect.objectContaining({
+        to: "operator@example.invalid",
+        props: expect.objectContaining({
+          reason: "workspaceMissing",
+          workspaceId: "company-1",
+          subscriptionId: "sub-1",
+        }),
+      }),
+    ]);
+  });
+
+  it("asks for a retry when a deletion started while the event was being applied", async () => {
+    const { interactor, repo } = setup({
+      workspaces: [workspace],
+      provider: [providerSubscription("sub-1", "active", "2026-10-18T12:00:00.000Z")],
+      synced: null,
+    });
+    repo.findWorkspaceBillingUnscoped
+      .mockResolvedValueOnce(workspace as never)
+      .mockResolvedValueOnce({ ...workspace, deletingAt: new Date() } as never);
+
+    expect(await interactor.invoke(event("sub-1", signed("company-1")))).toBe("deferred");
   });
 });

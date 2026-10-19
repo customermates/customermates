@@ -27,7 +27,7 @@ function service(overrides: Partial<FindUserRepo> = {}) {
     authService as never,
     repo,
     {
-      resolveMembership: () =>
+      requireMembership: () =>
         (
           repo as unknown as { findCurrentUserOrThrowUnscoped: () => Promise<unknown> }
         ).findCurrentUserOrThrowUnscoped(),

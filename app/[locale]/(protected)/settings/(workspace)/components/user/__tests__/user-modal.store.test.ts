@@ -53,8 +53,8 @@ const makeRootStore = ({
   }) as unknown as RootStore;
 
 const loadUserInto = async (store: UserModalStore, id: string) => {
-  actions.getUserByIdAction.mockResolvedValue({ user: userRecord(id) });
-  actions.getRolesAction.mockResolvedValue([]);
+  actions.getUserByIdAction.mockResolvedValue({ ok: true, data: { user: userRecord(id) } });
+  actions.getRolesAction.mockResolvedValue({ ok: true, data: [] });
   await store.loadById(id);
 };
 
@@ -123,7 +123,7 @@ describe("UserModalStore own-profile read-only contract", () => {
     const store = new UserModalStore(makeRootStore({ signedInUserId: SIGNED_IN_USER_ID, canManage: true }));
 
     await loadUserInto(store, SIGNED_IN_USER_ID);
-    actions.getUserByIdAction.mockResolvedValue({ user: null });
+    actions.getUserByIdAction.mockResolvedValue({ ok: true, data: { user: null } });
     await store.loadById(OTHER_USER_ID);
 
     expect(store.loadedUserId).toBeNull();
@@ -133,8 +133,8 @@ describe("UserModalStore own-profile read-only contract", () => {
   it("remembers that the loaded member left the workspace until another record loads", async () => {
     const store = new UserModalStore(makeRootStore({ signedInUserId: SIGNED_IN_USER_ID, canManage: true }));
     const leftAt = new Date("2026-10-01T00:00:00.000Z");
-    actions.getUserByIdAction.mockResolvedValue({ user: { ...userRecord(OTHER_USER_ID), leftAt } });
-    actions.getRolesAction.mockResolvedValue([]);
+    actions.getUserByIdAction.mockResolvedValue({ ok: true, data: { user: { ...userRecord(OTHER_USER_ID), leftAt } } });
+    actions.getRolesAction.mockResolvedValue({ ok: true, data: [] });
 
     await store.loadById(OTHER_USER_ID);
     expect(store.loadedLeftAt).toEqual(leftAt);
@@ -178,8 +178,11 @@ describe("UserModalStore own-profile read-only contract", () => {
 
 describe("UserModalStore removal from the workspace", () => {
   const loadOther = async (store: UserModalStore, user: Record<string, unknown> = {}) => {
-    actions.getUserByIdAction.mockResolvedValue({ user: { ...userRecord(OTHER_USER_ID), leftAt: null, ...user } });
-    actions.getRolesAction.mockResolvedValue([]);
+    actions.getUserByIdAction.mockResolvedValue({
+      ok: true,
+      data: { user: { ...userRecord(OTHER_USER_ID), leftAt: null, ...user } },
+    });
+    actions.getRolesAction.mockResolvedValue({ ok: true, data: [] });
     await store.loadById(OTHER_USER_ID);
   };
 
@@ -255,5 +258,50 @@ describe("UserModalStore removal from the workspace", () => {
     expect(toasts.toastZodErrorTree).toHaveBeenCalledWith(error);
     expect(root.usersStore.refresh).not.toHaveBeenCalled();
     expect(store.isOpen).toBe(true);
+  });
+
+  describe("approving a pending member", () => {
+    const ADMIN_ROLE = { id: "40000000-0000-4000-8000-000000000001", name: "Admin", isSystemRole: true };
+    const SALES_ROLE = { id: "40000000-0000-4000-8000-000000000002", name: "Sales", isSystemRole: false };
+
+    async function loadPending(roles: { items: unknown[]; pagination?: { total: number } }) {
+      const store = new UserModalStore(makeRootStore({ signedInUserId: SIGNED_IN_USER_ID, canManage: true }));
+      actions.getUserByIdAction.mockResolvedValue({
+        ok: true,
+        data: {
+          user: { ...userRecord(OTHER_USER_ID), roleId: null, status: Status.pendingAuthorization },
+        },
+      });
+      actions.getRolesAction.mockResolvedValue({ ok: true, data: roles });
+      actions.getMemberRemovalAction.mockResolvedValue({ ok: true, data: { refusal: null } });
+      await store.loadById(OTHER_USER_ID);
+      return store;
+    }
+
+    it("preselects the only role of the workspace", async () => {
+      const store = await loadPending({ items: [ADMIN_ROLE], pagination: { total: 1 } });
+
+      expect(store.form.roleId).toBe(ADMIN_ROLE.id);
+      expect(store.hasUnsavedChanges).toBe(false);
+    });
+
+    it("leaves the role empty when there is more than one to choose from", async () => {
+      expect((await loadPending({ items: [ADMIN_ROLE, SALES_ROLE], pagination: { total: 2 } })).form.roleId).toBe("");
+      expect((await loadPending({ items: [ADMIN_ROLE], pagination: { total: 3 } })).form.roleId).toBe("");
+    });
+
+    it("keeps the role an approved member already has", async () => {
+      const store = new UserModalStore(makeRootStore({ signedInUserId: SIGNED_IN_USER_ID, canManage: true }));
+      actions.getUserByIdAction.mockResolvedValue({
+        ok: true,
+        data: { user: { ...userRecord(OTHER_USER_ID), roleId: SALES_ROLE.id } },
+      });
+      actions.getRolesAction.mockResolvedValue({ ok: true, data: { items: [ADMIN_ROLE], pagination: { total: 1 } } });
+      actions.getMemberRemovalAction.mockResolvedValue({ ok: true, data: { refusal: null } });
+
+      await store.loadById(OTHER_USER_ID);
+
+      expect(store.form.roleId).toBe(SALES_ROLE.id);
+    });
   });
 });

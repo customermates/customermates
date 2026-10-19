@@ -210,9 +210,7 @@ describeDatabase("a pending checkout of a workspace on PostgreSQL", { timeout: 1
     const recorded = await startedAt("first");
     expect(recorded?.getTime()).toBeGreaterThanOrEqual(before - 1000);
     expect(recorded?.getTime()).toBeLessThanOrEqual(Date.now());
-    expect(checkoutsOf("first")[0].expiresAt).toBe(
-      new Date((recorded?.getTime() ?? 0) + 24 * 60 * MINUTE_MS).toISOString(),
-    );
+    expect(checkoutsOf("first")[0].expiresAt).toBe(new Date((recorded?.getTime() ?? 0) + 15 * MINUTE_MS).toISOString());
     expect(await checkoutState("owner")).toBe("pending");
   });
 

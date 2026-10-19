@@ -31,6 +31,7 @@ import {
 } from "../actions";
 
 import { trashKindLabelKey } from "./trash-page-model";
+import { actionData } from "@/core/utils/action-data";
 
 const RESTORE_BLOCKED_KEYS: Record<TrashRestoreBlocker["reason"], string> = {
   listDeleted: "Trash.restoreBlocked.listDeleted",
@@ -102,7 +103,7 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
   }
 
   protected async refreshAction(params?: GetQueryParams) {
-    return getTrashAction(params);
+    return actionData(getTrashAction(params));
   }
 
   private setMutating(value: boolean) {

@@ -3,7 +3,7 @@ import "server-only";
 import type { $ZodErrorTree } from "zod/v4/core";
 import type { Validated } from "../validation/validation.utils";
 import type { Redirect } from "@/features/auth/auth-outcome";
-import type { SerializedInteractorFailure } from "../validation/validation.utils";
+import type { InteractorFailure, SerializedInteractorFailure } from "../validation/validation.utils";
 
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -23,15 +23,20 @@ import {
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { interactorFailureCodes, isRetryableFailure, serializeInteractorFailure } from "../validation/validation.utils";
 
-type ActionResult<T> =
-  | { ok: true; data: T }
-  | { ok: false; error: $ZodErrorTree<unknown>; code?: string; retryable?: boolean };
+type ActionFailure = { ok: false; error: $ZodErrorTree<unknown>; code?: string; retryable?: boolean };
 
-type TypedActionResult<T> = { ok: true; data: T } | { ok: false; failure: SerializedInteractorFailure };
+type ActionResult<T> = { ok: true; data: T } | ActionFailure;
+
+export type TypedActionResult<T> = { ok: true; data: T } | { ok: false; failure: SerializedInteractorFailure };
 
 type ActionInput<T> = Validated<T> | Awaited<Validated<T>> | Promise<Awaited<Validated<T>> | Redirect> | Redirect;
 
 export async function settleActionResult<T>(result: ActionInput<T>): Promise<Awaited<Validated<T>> | Redirect> {
+  return settleOutcome<Awaited<Validated<T>> | Redirect>(result);
+}
+
+/** The outcome, or the failure an expected error stands for; a held unverified login is sent to verify its email. */
+export async function settleOutcome<R>(result: R | Promise<R>): Promise<R | InteractorFailure | Redirect> {
   try {
     return await result;
   } catch (error) {
@@ -54,17 +59,27 @@ export async function serializeTypedResult<T>(result: ActionInput<T>): Promise<T
   return resolved.ok ? resolved : { ok: false, failure: serializeInteractorFailure(resolved.error) };
 }
 
-export async function serializeResult<T>(result: ActionInput<T>): Promise<ActionResult<T>> {
-  const resolved = await settleActionResult(result);
-  if (isRedirect(resolved)) redirect(resolved.redirect);
-  if (resolved.ok) return resolved;
+export async function serializeTypedData<T, U>(
+  result: ActionInput<T>,
+  map: (data: T) => U | Promise<U>,
+): Promise<TypedActionResult<U>> {
+  const serialized = await serializeTypedResult(result);
+  return serialized.ok ? { ok: true, data: await map(serialized.data) } : serialized;
+}
 
-  const [code] = interactorFailureCodes(resolved.error);
-  const error = z.treeifyError(resolved.error);
+export function serializeActionFailure(failure: z.ZodError): ActionFailure {
+  const [code] = interactorFailureCodes(failure);
+  const error = z.treeifyError(failure);
   return {
     ok: false,
     error: isWorkspaceChangedCode(code) ? markWorkspaceChanged(error) : error,
     ...(code ? { code } : {}),
-    ...(isRetryableFailure(resolved.error) ? { retryable: true } : {}),
+    ...(isRetryableFailure(failure) ? { retryable: true } : {}),
   };
+}
+
+export async function serializeResult<T>(result: ActionInput<T>): Promise<ActionResult<T>> {
+  const resolved = await settleActionResult(result);
+  if (isRedirect(resolved)) redirect(resolved.redirect);
+  return resolved.ok ? resolved : serializeActionFailure(resolved.error);
 }

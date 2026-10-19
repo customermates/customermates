@@ -15,7 +15,13 @@ import { WORKSPACE_CHANGED_DIGEST } from "@/core/errors/workspace-changed";
 import { WorkspaceChangedError } from "@/core/errors/workspace-changed-error";
 import { createZodError, serializeInteractorFailure } from "@/core/validation/validation.utils";
 
-import { serializeResult, serializeTypedResult } from "../action-result";
+import {
+  serializeActionFailure,
+  serializeResult,
+  serializeTypedData,
+  serializeTypedResult,
+  settleOutcome,
+} from "../action-result";
 
 function failure(code: CustomErrorCode) {
   return { ok: false as const, error: createZodError("Provider failure", [], { error: code }) };
@@ -142,6 +148,49 @@ describe("serializeResult", () => {
 
     expect(result).not.toHaveProperty("code");
     expect(result).not.toHaveProperty("retryable");
+  });
+});
+
+describe("serializeTypedData", () => {
+  it("maps the data of a successful result and leaves a failure untouched", async () => {
+    expect(await serializeTypedData({ ok: true, data: 2 }, (value) => value * 3)).toEqual({ ok: true, data: 6 });
+    const map = vi.fn();
+    expect(await serializeTypedData(Promise.reject(new WorkspaceChangedError()), map)).toMatchObject({
+      ok: false,
+      failure: { kind: "conflict", issues: [{ customCode: CustomErrorCode.workspaceChanged }] },
+    });
+    expect(map).not.toHaveBeenCalled();
+  });
+});
+
+describe("serializeActionFailure", () => {
+  it("builds the same failure as serializeResult, with the digest for a changed workspace", async () => {
+    const changed = failure(CustomErrorCode.workspaceChanged);
+
+    expect(serializeActionFailure(changed.error)).toEqual(await serializeResult(changed));
+    expect(serializeActionFailure(changed.error)).toMatchObject({
+      ok: false,
+      code: CustomErrorCode.workspaceChanged,
+      error: { digest: WORKSPACE_CHANGED_DIGEST },
+    });
+  });
+});
+
+describe("settleOutcome", () => {
+  it("keeps a custom outcome shape and settles a changed workspace into a failure", async () => {
+    expect(await settleOutcome(Promise.resolve({ redirect: "/billing" }))).toEqual({ redirect: "/billing" });
+    const settled = await settleOutcome<{ redirect: string }>(Promise.reject(new WorkspaceChangedError()));
+    expect(settled).toMatchObject({ ok: false });
+    expect("error" in settled && serializeActionFailure(settled.error)).toMatchObject({
+      code: CustomErrorCode.workspaceChanged,
+    });
+    await expect(settleOutcome(Promise.reject(new Error("unexpected")))).rejects.toThrow("unexpected");
+  });
+
+  it("sends a login held for email verification to verify it, as the other action results do", async () => {
+    expect(await settleOutcome(Promise.reject(new EmailVerificationRequiredError()))).toEqual({
+      redirect: "/auth/verify-email",
+    });
   });
 });
 

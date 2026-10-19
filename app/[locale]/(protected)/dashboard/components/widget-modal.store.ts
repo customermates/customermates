@@ -32,6 +32,7 @@ import { reportApplicationError } from "@/core/errors/report-application-error";
 import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
+import { actionData, actionDataOrNull } from "@/core/utils/action-data";
 
 type WidgetModalSection = "config" | "filters" | "activityFilters" | "display";
 type WidgetCreationStep = "choose" | "configure";
@@ -186,7 +187,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     const request = ++this.recordModelRequest;
     this.recordModel = undefined;
     try {
-      const model = await getRecordModelAction();
+      const model = await actionData(getRecordModelAction());
       runInAction(() => {
         if (request === this.recordModelRequest) this.recordModel = model;
       });
@@ -397,7 +398,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     this.creationStep = "configure";
 
     try {
-      const widget = await getWidgetByIdAction({ id });
+      const widget = await actionDataOrNull(getWidgetByIdAction({ id }));
 
       if (generation !== this.loadGeneration || !this.isOpen) return;
 
@@ -425,7 +426,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     });
 
     try {
-      const widget = await getWidgetByIdAction({ id: widgetId });
+      const widget = await actionDataOrNull(getWidgetByIdAction({ id: widgetId }));
 
       if (generation !== this.loadGeneration || !this.isOpen) return false;
       if (!widget || !this.availableKinds.includes(widget.kind)) return false;

@@ -183,7 +183,7 @@ describe("TrashStore", () => {
       ok: true,
       data: { deletedItemIds: [ITEM_ID], pendingItemIds: [], failedItemIds: [] },
     });
-    trashActions.getTrashAction.mockResolvedValue({ items: [] });
+    trashActions.getTrashAction.mockResolvedValue({ ok: true, data: { items: [] } });
 
     await store.requestPermanentDelete([ITEM_ID], "Acme");
 
@@ -278,7 +278,7 @@ describe("TrashStore", () => {
       ok: true,
       data: { deletedItemIds: [], pendingItemIds: [ITEM_ID], failedItemIds: [] },
     });
-    trashActions.getTrashAction.mockResolvedValue({ items: [] });
+    trashActions.getTrashAction.mockResolvedValue({ ok: true, data: { items: [] } });
 
     await store.requestPermanentDelete([ITEM_ID], "Projects");
 

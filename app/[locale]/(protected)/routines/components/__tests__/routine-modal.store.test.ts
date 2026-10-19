@@ -12,8 +12,11 @@ const routineActions = vi.hoisted(() => ({
   deleteRoutineAction: vi.fn(),
   getRoutineFilterFieldsAction: vi.fn(),
   getRoutineRunsAction: vi.fn<
-    (input: { id: string; cursor?: string }) => Promise<{ runs: RoutineRunDto[]; nextCursor: string | null }>
-  >(() => Promise.resolve({ runs: [], nextCursor: null })),
+    (input: {
+      id: string;
+      cursor?: string;
+    }) => Promise<{ ok: true; data: { runs: RoutineRunDto[]; nextCursor: string | null } }>
+  >(() => Promise.resolve({ ok: true, data: { runs: [], nextCursor: null } })),
   pauseRoutineAction: vi.fn(),
   runRoutineNowAction: vi.fn(),
   upsertRoutineAction: vi.fn(),
@@ -193,11 +196,17 @@ describe("RoutineModalStore", () => {
     vi.useRealTimers();
     vi.resetAllMocks();
     routineActions.getRoutineFilterFieldsAction.mockResolvedValue({
-      recordModel: createCrmPreset("30000000-0000-4000-8000-000000000040"),
+      ok: true,
+      data: {
+        recordModel: createCrmPreset("30000000-0000-4000-8000-000000000040"),
+      },
     });
     routineActions.getRoutineRunsAction.mockResolvedValue({
-      runs: [],
-      nextCursor: null,
+      ok: true,
+      data: {
+        runs: [],
+        nextCursor: null,
+      },
     });
   });
 
@@ -428,7 +437,7 @@ describe("RoutineModalStore", () => {
     const revised = createCrmPreset("30000000-0000-4000-8000-000000000040");
     revised.revision = 9;
     revised.fields[0].label = "Renamed field";
-    routineActions.getRoutineFilterFieldsAction.mockResolvedValue({ recordModel: revised });
+    routineActions.getRoutineFilterFieldsAction.mockResolvedValue({ ok: true, data: { recordModel: revised } });
     await store.openForCreate();
     expect(routineActions.getRoutineFilterFieldsAction).toHaveBeenCalledTimes(2);
     expect(store.recordModel?.fields[0].label).toBe("Renamed field");
@@ -760,12 +769,18 @@ describe("RoutineModalStore", () => {
 
   it("rejects a stale first page after switching routines", async () => {
     const first = deferred<{
-      runs: RoutineRunDto[];
-      nextCursor: string | null;
+      ok: true;
+      data: {
+        runs: RoutineRunDto[];
+        nextCursor: string | null;
+      };
     }>();
     const second = deferred<{
-      runs: RoutineRunDto[];
-      nextCursor: string | null;
+      ok: true;
+      data: {
+        runs: RoutineRunDto[];
+        nextCursor: string | null;
+      };
     }>();
     const firstRoutine = makeRoutine();
     const secondRoutine = makeRoutine({
@@ -784,9 +799,9 @@ describe("RoutineModalStore", () => {
 
     await store.openForEdit(firstRoutine);
     await store.openForEdit(secondRoutine);
-    second.resolve({ runs: [secondRun], nextCursor: null });
+    second.resolve({ ok: true, data: { runs: [secondRun], nextCursor: null } });
     await settlePromises();
-    first.resolve({ runs: [firstRun], nextCursor: null });
+    first.resolve({ ok: true, data: { runs: [firstRun], nextCursor: null } });
     await settlePromises();
 
     expect(store.form.id).toBe(secondRoutine.id);
@@ -795,8 +810,11 @@ describe("RoutineModalStore", () => {
 
   it("coalesces duplicate first-page loads for one routine", async () => {
     const page = deferred<{
-      runs: RoutineRunDto[];
-      nextCursor: string | null;
+      ok: true;
+      data: {
+        runs: RoutineRunDto[];
+        nextCursor: string | null;
+      };
     }>();
     routineActions.getRoutineRunsAction.mockReturnValue(page.promise);
     const store = makeStore();
@@ -807,7 +825,7 @@ describe("RoutineModalStore", () => {
     const duplicateB = store.loadRuns(routine.id, true);
 
     expect(routineActions.getRoutineRunsAction).toHaveBeenCalledTimes(1);
-    page.resolve({ runs: [], nextCursor: null });
+    page.resolve({ ok: true, data: { runs: [], nextCursor: null } });
     await Promise.all([duplicateA, duplicateB]);
     expect(store.runsRequestState).toBe("ready");
   });
@@ -817,12 +835,18 @@ describe("RoutineModalStore", () => {
     const secondRun = makeRun({ id: "50000000-0000-4000-8000-000000000002" });
     routineActions.getRoutineRunsAction
       .mockResolvedValueOnce({
-        runs: [firstRun, firstRun],
-        nextCursor: "page-2",
+        ok: true,
+        data: {
+          runs: [firstRun, firstRun],
+          nextCursor: "page-2",
+        },
       })
       .mockResolvedValueOnce({
-        runs: [firstRun, secondRun],
-        nextCursor: "page-2",
+        ok: true,
+        data: {
+          runs: [firstRun, secondRun],
+          nextCursor: "page-2",
+        },
       });
     const store = makeStore();
 
@@ -836,8 +860,11 @@ describe("RoutineModalStore", () => {
     expect(store.runsNextCursor).toBeNull();
 
     routineActions.getRoutineRunsAction.mockResolvedValueOnce({
-      runs: [],
-      nextCursor: "x".repeat(501),
+      ok: true,
+      data: {
+        runs: [],
+        nextCursor: "x".repeat(501),
+      },
     });
     await store.openForEdit(makeRoutine({ id: "30000000-0000-4000-8000-000000000003" }));
     await settlePromises();
@@ -847,7 +874,7 @@ describe("RoutineModalStore", () => {
   it("shows an initial load error and recovers through retry", async () => {
     routineActions.getRoutineRunsAction
       .mockRejectedValueOnce(new Error("offline"))
-      .mockResolvedValueOnce({ runs: [makeRun()], nextCursor: null });
+      .mockResolvedValueOnce({ ok: true, data: { runs: [makeRun()], nextCursor: null } });
     const store = makeStore();
 
     await store.openForEdit(makeRoutine());
@@ -868,10 +895,10 @@ describe("RoutineModalStore", () => {
       finishedAt: null,
     });
     routineActions.getRoutineRunsAction
-      .mockResolvedValueOnce({ runs: [active], nextCursor: null })
+      .mockResolvedValueOnce({ ok: true, data: { runs: [active], nextCursor: null } })
       .mockRejectedValueOnce(new Error("first"))
       .mockRejectedValueOnce(new Error("second"))
-      .mockResolvedValueOnce({ runs: [active], nextCursor: null })
+      .mockResolvedValueOnce({ ok: true, data: { runs: [active], nextCursor: null } })
       .mockRejectedValueOnce(new Error("third"));
     const errors = vi.fn();
     const unregister = registerApplicationErrorHandler(errors);
@@ -903,7 +930,7 @@ describe("RoutineModalStore", () => {
       data: "queued-run",
     });
     routineActions.getRoutineRunsAction
-      .mockResolvedValueOnce({ runs: [], nextCursor: null })
+      .mockResolvedValueOnce({ ok: true, data: { runs: [], nextCursor: null } })
       .mockRejectedValueOnce(new Error("refresh offline"))
       .mockRejectedValueOnce(new Error("poll offline"));
     const errors = vi.fn();
@@ -930,8 +957,11 @@ describe("RoutineModalStore", () => {
       data: "queued-run",
     });
     routineActions.getRoutineRunsAction.mockResolvedValue({
-      runs: [],
-      nextCursor: null,
+      ok: true,
+      data: {
+        runs: [],
+        nextCursor: null,
+      },
     });
     const store = makeStore();
 
@@ -957,8 +987,11 @@ describe("RoutineModalStore", () => {
       finishedAt: null,
     });
     routineActions.getRoutineRunsAction.mockResolvedValue({
-      runs: [active],
-      nextCursor: null,
+      ok: true,
+      data: {
+        runs: [active],
+        nextCursor: null,
+      },
     });
     const store = makeStore();
 
@@ -982,8 +1015,8 @@ describe("RoutineModalStore", () => {
     });
     const finished = makeRun();
     routineActions.getRoutineRunsAction
-      .mockResolvedValueOnce({ runs: [active], nextCursor: null })
-      .mockResolvedValueOnce({ runs: [finished], nextCursor: null });
+      .mockResolvedValueOnce({ ok: true, data: { runs: [active], nextCursor: null } })
+      .mockResolvedValueOnce({ ok: true, data: { runs: [finished], nextCursor: null } });
     const store = makeStore();
 
     await store.openForEdit(makeRoutine());

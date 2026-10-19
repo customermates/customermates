@@ -2,6 +2,7 @@ import { action, makeObservable, observable, runInAction } from "mobx";
 import type { RecordModelView } from "@/features/records/record-model.schema";
 import { getRecordModelAction } from "../../records/actions";
 import { reportApplicationError } from "@/core/errors/report-application-error";
+import { actionData } from "@/core/utils/action-data";
 
 export class DataModelStore {
   model: RecordModelView;
@@ -27,7 +28,7 @@ export class DataModelStore {
       this.refreshFailed = false;
     });
     try {
-      const model = await getRecordModelAction();
+      const model = await actionData(getRecordModelAction());
       if (sequence === this.sequence) this.hydrate(model);
     } catch (error) {
       if (sequence === this.sequence) {

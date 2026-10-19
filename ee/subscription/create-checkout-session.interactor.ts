@@ -16,13 +16,15 @@ import { resolveRequestOrigin } from "@/core/config/environment";
 import { redirectTo } from "@/features/auth/auth-outcome";
 import { env } from "@/env";
 import { getCommercialOfferOrThrow } from "@/core/commercial/plan-catalog";
-import { failUnavailable } from "@/core/validation/interactor-failure-server";
+import { failConflict, failUnavailable } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { CreateCheckoutCompanyRepo } from "./create-checkout-session.repo";
 import { checkoutExpiresAt, checkoutPendingSince } from "./checkout-state";
 import { hasLiveSubscription, isSubscriptionExpired } from "./entitlements";
 import { signCheckoutWorkspace } from "./checkout-workspace-signature";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
+import { buildLocalePath } from "@/i18n/locale-registry";
+import { getRequestAppLocale } from "@/i18n/request-app-locale";
 
 const Schema = z.object({
   plan: z.enum([SubscriptionPlan.starter, SubscriptionPlan.pro, SubscriptionPlan.business]),
@@ -62,8 +64,10 @@ export class CreateCheckoutSessionInteractor extends UserAccessor {
       startedAt,
       pendingSince: checkoutPendingSince(startedAt),
       lemonSqueezyId: subscription.lemonSqueezyId,
+      email: this.user.email,
     });
-    if (!claimed) return CHECKOUT_PENDING;
+    if (claimed === "deleting") return failConflict(CustomErrorCode.workspaceChanged);
+    if (claimed === "pending") return CHECKOUT_PENDING;
 
     try {
       const activeUsersCount = await this.userRepo.countActiveUsers();
@@ -71,7 +75,7 @@ export class CreateCheckoutSessionInteractor extends UserAccessor {
 
       const requestOrigin = (await headers()).get("origin") ?? env.BASE_URL;
       const baseUrl = resolveRequestOrigin(requestOrigin, env.AUTH_ALLOWED_HOSTS, env.BASE_URL);
-      const redirectUrl = `${baseUrl}${settingsHref("billing")}`;
+      const redirectUrl = `${baseUrl}${buildLocalePath(await getRequestAppLocale(), settingsHref("billing"))}`;
       const checkout = await this.lemonSqueezyService.createCheckoutOrThrow({
         offer,
         quantity: activeUsersCount,

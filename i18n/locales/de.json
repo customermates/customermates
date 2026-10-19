@@ -18,7 +18,8 @@
     "ownerInactive": "Eigentümer deaktiviert",
     "planDowngrade": "Tarif herabgestuft",
     "subscriptionLapsed": "Abo abgelaufen",
-    "trialExpired": "Testphase beendet"
+    "trialExpired": "Testphase beendet",
+    "workspaceDeleted": "Workspace gelöscht"
   },
   "AccountsRemovedNotice": {
     "body": "Dein Plan wurde auf {plan} umgestellt. Um das Limit deines Plans einzuhalten, habe ich die erforderliche Anzahl verbundener Konten entfernt: {accounts}. Deine Nachrichten und Kontakte sind weiterhin vorhanden. Du kannst die Konten jederzeit auf der Seite „Verbundene Konten“ erneut verbinden.",
@@ -1274,6 +1275,14 @@
       "wikiWhenToUseRequired": "Ein Verfahren braucht eine kurze Beschreibung, wann es gilt.",
       "workspaceChanged": "Dein Workspace hat sich in einem anderen Tab oder auf einem anderen Gerät geändert. Lade die Seite neu, bevor du weitermachst.",
       "workspaceCreationUnavailable": "Hier können keine neuen Workspaces erstellt werden.",
+      "workspaceDeleteAdminRequired": "Nur ein Admin kann diesen Workspace löschen.",
+      "workspaceDeleteBillingActive": "Dieser Workspace hat noch ein Abo, das abgerechnet oder fortgesetzt werden kann. Kündige es und warte, bis es endet, oder wende dich an den Support.",
+      "workspaceDeleteBillingUnverified": "Die Abrechnung dieses Workspace konnte bei Lemon Squeezy nicht geprüft werden, daher wurde nichts gelöscht. Versuche es in ein paar Minuten noch einmal.",
+      "workspaceDeleteChannelsFailed": "Die verbundenen Konten des Workspaces konnten nicht getrennt werden, deshalb wurde nichts gelöscht. Versuch es gleich noch einmal.",
+      "workspaceDeleteCheckoutPending": "Für diesen Workspace läuft gerade ein Bezahlvorgang. Brich ihn ab oder warte, bis er abgeschlossen ist, und lösche den Workspace dann.",
+      "workspaceDeleteInvoiced": "Workspaces mit einem Tarif auf Rechnung schließt der Support. Wende dich an den Support, um diesen Workspace zu löschen.",
+      "workspaceDeleteNotCreator": "Nur der Admin, der diesen Workspace erstellt hat, kann ihn löschen.",
+      "workspaceDeletePlatformOperator": "Zu diesem Workspace gehört ein Plattformbetreiber, deshalb kann er hier nicht gelöscht werden.",
       "workspaceInvitationInvalid": "Dieser Einladungslink ist ungültig oder abgelaufen. Bitte um einen neuen Link.",
       "workspaceLastAdmin": "Du bist der einzige Admin dieses Workspaces. Mach vor dem Verlassen ein anderes aktives Mitglied zum Admin.",
       "workspaceLimitReached": "Du kannst bis zu {limit} Workspaces erstellen. Wende dich an den Support, wenn du mehr brauchst.",
@@ -4716,6 +4725,18 @@
     "createDescription": "Ein neuer Workspace startet leer, mit eigenen Datensätzen, eigener Wissensdatenbank, eigenen Mitgliedern und Verbindungen.",
     "current": "Aktuell",
     "dangerZone": "Gefahrenbereich",
+    "delete": "Workspace löschen",
+    "deleteBlocked": {
+      "billingActive": "Dieser Workspace hat noch ein Abo, das abgerechnet oder fortgesetzt werden kann. Kündige es und warte, bis es endet, oder wende dich an den Support.",
+      "checkoutPending": "Für diesen Workspace läuft gerade ein Bezahlvorgang. Brich ihn ab oder warte, bis er abgeschlossen ist, und lösche den Workspace dann.",
+      "invoiced": "Workspaces mit einem Tarif auf Rechnung schließt der Support. Wende dich an den Support, um diesen Workspace zu löschen.",
+      "notAdmin": "Nur ein Admin kann diesen Workspace löschen.",
+      "notCreator": "Nur der Admin, der diesen Workspace erstellt hat, kann ihn löschen.",
+      "platformOperator": "Zu diesem Workspace gehört ein Plattformbetreiber, deshalb kann er hier nicht gelöscht werden."
+    },
+    "deleteConfirmDescription": "Damit werden seine Datensätze, die Wissensdatenbank, Routinen, Webhooks und verbundenen Konten endgültig gelöscht. Alle Mitglieder verlieren den Zugriff, und ihre API-Schlüssel und MCP-Verbindungen dafür funktionieren nicht mehr. Das lässt sich nicht rückgängig machen.",
+    "deleteConfirmTitle": "{name} löschen?",
+    "deleteDescription": "Lösche diesen Workspace und alles darin endgültig, für alle Mitglieder.",
     "fallbackName": "Workspace",
     "firstPlan": {
       "description": "{name} hat noch keinen Tarif. Die kostenlose Testphase gilt nur für deinen ersten Workspace, wähle also einen Tarif, um hier loszulegen.",
@@ -4737,10 +4758,16 @@
       "reload": "Neu laden",
       "title": "Du hast in einem anderen Tab den Workspace gewechselt",
       "titleChanged": "Dein Workspace hat sich geändert",
+      "titleDeleted": "Dieser Workspace wurde gelöscht",
       "titleNamed": "Du hast in einem anderen Tab zu {name} gewechselt"
     },
     "renameReadOnly": "Nur Mitglieder, die den Workspace verwalten dürfen, können den Namen ändern.",
     "switch": "Wechseln",
-    "switchTo": "Zu {name} wechseln"
+    "switchTo": "Zu {name} wechseln",
+    "unnamedCreated": "{name} (erstellt am {date})",
+    "unnamedPrompt": {
+      "description": "Er hat noch keinen Namen, deshalb zeigt das Workspace-Menü nur „Workspace“. Mit einem Namen können alle Mitglieder deine Workspaces auseinanderhalten.",
+      "title": "Gib diesem Workspace einen Namen"
+    }
   }
 }

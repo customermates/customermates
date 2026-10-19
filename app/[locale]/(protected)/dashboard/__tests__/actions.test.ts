@@ -27,8 +27,8 @@ describe("discoverWidgetRecordTypesAction", () => {
     });
 
     await expect(discoverWidgetRecordTypesAction({ searchTerm: "deal" })).resolves.toEqual({
-      items: [type("own", ["readOwn"]), type("all", ["readAll", "update"])],
-      total: 3,
+      ok: true,
+      data: { items: [type("own", ["readOwn"]), type("all", ["readAll", "update"])], total: 3 },
     });
     expect(mocks.discover).toHaveBeenCalledExactlyOnceWith({
       search: "deal",
@@ -41,13 +41,16 @@ describe("discoverWidgetRecordTypesAction", () => {
   it("keeps a genuinely empty result empty", async () => {
     mocks.discover.mockResolvedValue({ ok: true, data: { types: [], total: 0 } });
 
-    await expect(discoverWidgetRecordTypesAction({})).resolves.toEqual({ items: [], total: 0 });
+    await expect(discoverWidgetRecordTypesAction({})).resolves.toEqual({ ok: true, data: { items: [], total: 0 } });
   });
 
-  it("rejects a validation failure instead of reporting no record types", async () => {
+  it("returns a validation failure instead of reporting no record types", async () => {
     const error = createZodError("Too long", ["search"]);
     mocks.discover.mockResolvedValue({ ok: false, error });
 
-    await expect(discoverWidgetRecordTypesAction({ searchTerm: "x".repeat(201) })).rejects.toBe(error);
+    await expect(discoverWidgetRecordTypesAction({ searchTerm: "x".repeat(201) })).resolves.toMatchObject({
+      ok: false,
+      failure: { issues: [{ path: ["search"], message: "Too long" }] },
+    });
   });
 });

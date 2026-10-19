@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toLocalIso } from "@/components/forms/iso-date-values";
 import { toChipColor } from "@/constants/chip-colors";
 import { getUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
+import { actionData } from "@/core/utils/action-data";
 
 const Editor = dynamic(() => import("@/components/editor/editor").then((module) => module.Editor), { ssr: false });
 
@@ -207,7 +208,7 @@ export const CalculationLiteralInput = observer(function CalculationLiteralInput
       {value?.kind === "member" && (
         <FormAutocompleteAvatar
           disabled={disabled}
-          getItems={getUsersAction}
+          getItems={(params) => actionData(getUsersAction(params))}
           id={`${id}.value.value`}
           label={t("RecordModel.member")}
           value={value.value}

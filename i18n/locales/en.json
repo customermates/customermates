@@ -18,7 +18,8 @@
     "ownerInactive": "Owner deactivated",
     "planDowngrade": "Plan downgrade",
     "subscriptionLapsed": "Subscription lapsed",
-    "trialExpired": "Trial ended"
+    "trialExpired": "Trial ended",
+    "workspaceDeleted": "Workspace deleted"
   },
   "AccountsRemovedNotice": {
     "body": "Your plan changed to {plan}, so I removed the following connected account(s) to stay within your plan's limit: {accounts}. Your messages and contacts are all still there. Reconnect anytime from your connected accounts page.",
@@ -1274,6 +1275,14 @@
       "wikiWhenToUseRequired": "A procedure needs a short description of when to use it.",
       "workspaceChanged": "Your workspace changed in another tab or on another device. Reload the page before you continue.",
       "workspaceCreationUnavailable": "New workspaces cannot be created here.",
+      "workspaceDeleteAdminRequired": "Only an admin can delete this workspace.",
+      "workspaceDeleteBillingActive": "This workspace still has a subscription that can be billed or resumed. Cancel it and wait until it ends, or contact support.",
+      "workspaceDeleteBillingUnverified": "We couldn't verify this workspace's billing with Lemon Squeezy, so nothing was deleted. Try again in a few minutes.",
+      "workspaceDeleteChannelsFailed": "The workspace's connected accounts could not be disconnected, so nothing was deleted. Try again in a moment.",
+      "workspaceDeleteCheckoutPending": "A checkout for this workspace is in progress. Cancel it or wait until it finishes, then delete the workspace.",
+      "workspaceDeleteInvoiced": "Workspaces on an invoiced plan are closed through support. Contact support to delete this workspace.",
+      "workspaceDeleteNotCreator": "Only the admin who created this workspace can delete it.",
+      "workspaceDeletePlatformOperator": "This workspace has a platform operator as a member and cannot be deleted here.",
       "workspaceInvitationInvalid": "This invitation link is invalid or has expired. Ask for a new link.",
       "workspaceLastAdmin": "You are the only admin of this workspace. Make another active member an admin before you leave.",
       "workspaceLimitReached": "You can create up to {limit} workspaces. Contact support if you need more.",
@@ -4716,6 +4725,18 @@
     "createDescription": "A new workspace starts empty, with its own records, Knowledge Base, members and connections.",
     "current": "Current",
     "dangerZone": "Danger zone",
+    "delete": "Delete workspace",
+    "deleteBlocked": {
+      "billingActive": "This workspace still has a subscription that can be billed or resumed. Cancel it and wait until it ends, or contact support.",
+      "checkoutPending": "A checkout for this workspace is in progress. Cancel it or wait until it finishes, then delete the workspace.",
+      "invoiced": "Workspaces on an invoiced plan are closed through support. Contact support to delete this workspace.",
+      "notAdmin": "Only an admin can delete this workspace.",
+      "notCreator": "Only the admin who created this workspace can delete it.",
+      "platformOperator": "This workspace has a platform operator as a member and cannot be deleted here."
+    },
+    "deleteConfirmDescription": "This permanently deletes its records, Knowledge Base, routines, webhooks and connected accounts. Every member loses access, and their API keys and MCP connections for it stop working. This can't be undone.",
+    "deleteConfirmTitle": "Delete {name}?",
+    "deleteDescription": "Permanently delete this workspace and everything in it for every member.",
     "fallbackName": "Workspace",
     "firstPlan": {
       "description": "{name} doesn't have a plan yet. The free trial comes with your first workspace only, so choose a plan to start working here.",
@@ -4737,10 +4758,16 @@
       "reload": "Reload",
       "title": "You switched workspaces in another tab",
       "titleChanged": "Your workspace changed",
+      "titleDeleted": "This workspace was deleted",
       "titleNamed": "You switched to {name} in another tab"
     },
     "renameReadOnly": "Only members who can manage the workspace can change its name.",
     "switch": "Switch",
-    "switchTo": "Switch to {name}"
+    "switchTo": "Switch to {name}",
+    "unnamedCreated": "{name} (created {date})",
+    "unnamedPrompt": {
+      "description": "It has no name yet, so the workspace menu only shows \"Workspace\". A name helps every member tell your workspaces apart.",
+      "title": "Give this workspace a name"
+    }
   }
 }

@@ -12,7 +12,7 @@ import {
   getRespondToUiCommandInteractor,
   getRestoreAgentConversationInteractor,
 } from "@/core/di";
-import { serializeResult } from "@/core/utils/action-result";
+import { serializeResult, serializeTypedResult } from "@/core/utils/action-result";
 
 import type { CancelAgentTurnData } from "@/ee/agent-chat/cancel-agent-turn.interactor";
 import type { DraftCalculationInput } from "@/ee/calculation-draft/draft-calculation.interactor";
@@ -27,13 +27,11 @@ export async function getAgentConfigAction() {
 }
 
 export async function getAgentConversationAction(conversationId: string, before?: string | null) {
-  const result = await getGetAgentConversationInteractor().invoke({ conversationId, before });
-  return result.ok ? result.data : null;
+  return serializeTypedResult(getGetAgentConversationInteractor().invoke({ conversationId, before }));
 }
 
 export async function listAgentConversationsAction(data: ListAgentConversationsData = { kind: "both" }) {
-  const result = await getListAgentConversationsInteractor().invoke(data);
-  return result.ok ? result.data : null;
+  return serializeTypedResult(getListAgentConversationsInteractor().invoke(data));
 }
 
 export async function deleteAgentConversationAction(data: DeleteAgentConversationData) {

@@ -14,6 +14,7 @@ vi.mock("next-intl", () => ({
     values ? `${key}:${Object.values(values).join(",")}` : key,
 }));
 vi.mock("@/app/[locale]/(protected)/settings/(account)/workspaces/actions", () => ({
+  getWorkspaceTabStateAction: vi.fn().mockResolvedValue({ ok: true, data: { state: "current" } }),
   leaveWorkspaceAction: vi.fn(),
   listMyWorkspacesAction: vi.fn(),
   switchWorkspaceAction: vi.fn(),
@@ -38,6 +39,7 @@ function workspace(companyId: string, name: string | null, isCurrent: boolean): 
     activeMemberCount: 1,
     subscription: null,
     joinedAt: new Date("2026-01-01T00:00:00.000Z"),
+    createdAt: new Date("2026-01-01T00:00:00.000Z"),
   };
 }
 
@@ -116,6 +118,22 @@ describe("WorkspaceTabGuard", () => {
 
     await vi.waitFor(() => expect(dialog()?.textContent).toContain("Workspaces.otherTab.titleChanged"));
     expect(dialog()?.textContent).not.toContain("titleNamed");
+  });
+
+  it("says the workspace was deleted when another tab deleted the one this page shows", async () => {
+    mount();
+
+    act(() =>
+      new WorkspaceTabChannel().post({
+        companyId: null,
+        name: null,
+        deletedCompanyId: "company-a",
+      }),
+    );
+
+    await vi.waitFor(() => expect(dialog()?.textContent).toContain("Workspaces.otherTab.titleDeleted"));
+    act(() => document.getElementById("workspace-other-tab")?.click());
+    expect(navigateDocument).toHaveBeenCalledWith("/de/dashboard");
   });
 
   it("blocks the page when the server refuses an action because this session's workspace changed", async () => {

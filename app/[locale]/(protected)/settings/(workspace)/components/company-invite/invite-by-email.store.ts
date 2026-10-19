@@ -8,6 +8,7 @@ import { Resource } from "@/generated/prisma";
 import { getOrCreateInviteTokenAction, inviteUsersByEmailAction } from "../../actions";
 
 import { BaseFormStore } from "@/core/base/base-form.store";
+import { actionData } from "@/core/utils/action-data";
 
 export const MAX_INVITE_EMAILS = 20;
 
@@ -28,7 +29,7 @@ export class InviteByEmailStore extends BaseFormStore<InviteUsersByEmailData> {
 
   loadInviteToken = async (): Promise<void> => {
     try {
-      const res = await getOrCreateInviteTokenAction();
+      const res = await actionData(getOrCreateInviteTokenAction());
       runInAction(() => {
         this.inviteToken = res.token;
       });

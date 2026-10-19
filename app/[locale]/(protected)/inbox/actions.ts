@@ -31,7 +31,6 @@ import {
   getMutateThreadRecordsInteractor,
 } from "@/core/di";
 import { serializeResult, serializeTypedResult } from "@/core/utils/action-result";
-import { unwrapValidated } from "@/core/validation/validation.utils";
 
 export async function getMessagingThreadsAction(params?: GetQueryParams) {
   return serializeTypedResult(getGetMessagingThreadsInteractor().invoke(params));
@@ -50,7 +49,7 @@ export async function refreshInboxAction() {
 }
 
 export async function getIdentityRecordChoicesAction(search: string, refs?: Array<RecordRef | string>) {
-  return unwrapValidated(
+  return serializeTypedResult(
     getGetIdentityRecordChoicesInteractor().invoke({
       search,
       ...(refs ? { refs } : {}),

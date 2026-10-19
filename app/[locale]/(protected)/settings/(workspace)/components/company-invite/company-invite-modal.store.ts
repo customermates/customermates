@@ -6,6 +6,7 @@ import { Resource } from "@/generated/prisma";
 import { getOrCreateInviteTokenAction } from "../../actions";
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
+import { actionData } from "@/core/utils/action-data";
 
 export class CompanyInviteModalStore extends BaseModalStore<{
   inviteLink: string;
@@ -30,7 +31,7 @@ export class CompanyInviteModalStore extends BaseModalStore<{
     this.setIsLoading(true);
 
     try {
-      const res = await getOrCreateInviteTokenAction();
+      const res = await actionData(getOrCreateInviteTokenAction());
       this.onInitOrRefresh({
         inviteLink: `${window.location.origin}/invitation/${res.token}`,
         expiresAt: new Date(res.expiresAt),

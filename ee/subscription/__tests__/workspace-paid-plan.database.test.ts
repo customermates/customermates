@@ -299,7 +299,7 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
       custom: signed(companies.paid),
       variantQuantities: [{ variant_id: Number(localLemonSqueezyVariants.pro), quantity: 2 }],
       productName: "Paid plan paid",
-      redirectUrl: `${env.BASE_URL}/settings/billing`,
+      redirectUrl: `${env.BASE_URL}/en/settings/billing`,
       skipTrial: true,
     });
     expect(await storedSubscription("paid")).toMatchObject({ status: "expired", lemonSqueezyId: null });

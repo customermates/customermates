@@ -40,7 +40,7 @@ export class UserService {
     if (mustVerifyEmail({ createdAt: session.user.createdAt, emailVerified: account.emailVerified }))
       throw new EmailVerificationRequiredError();
 
-    const user = await this.workspaces.resolveMembership(session);
+    const user = await this.workspaces.requireMembership(session);
     if (!user) throw new AuthError();
 
     return user;

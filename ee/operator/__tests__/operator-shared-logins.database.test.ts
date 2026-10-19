@@ -349,12 +349,14 @@ describeDatabase("operator console with logins in several workspaces", { timeout
       const sessions = await prisma.authSession.findMany({
         where: { id: { in: [credentials.doomedSession, credentials.keptSession] } },
         select: { id: true, activeCompanyId: true },
-        orderBy: { activeCompanyId: { sort: "asc", nulls: "first" } },
       });
-      expect(sessions).toEqual([
-        { id: credentials.doomedSession, activeCompanyId: null },
-        { id: credentials.keptSession, activeCompanyId: fixture.kept },
-      ]);
+      expect(sessions).toEqual(
+        expect.arrayContaining([
+          { id: credentials.doomedSession, activeCompanyId: fixture.doomed },
+          { id: credentials.keptSession, activeCompanyId: fixture.kept },
+        ]),
+      );
+      expect(sessions).toHaveLength(2);
 
       expect(await prisma.oauthConsent.count({ where: { userId: fixture.shared, clientId } })).toBe(1);
       expect(await prisma.authVerification.count({ where: { identifier: sharedEmail } })).toBe(1);

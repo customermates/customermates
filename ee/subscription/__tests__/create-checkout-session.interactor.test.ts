@@ -25,7 +25,9 @@ vi.mock("@/env", () => ({
   },
 }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
+const locale = vi.hoisted(() => ({ value: "en" }));
 vi.mock("next-intl/server", () => ({
+  getLocale: () => Promise.resolve(locale.value),
   getTranslations: () => Promise.resolve({ raw: (key: string) => key }),
 }));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
@@ -47,7 +49,7 @@ function makeCheckoutRepo(
 ) {
   return {
     getSubscriptionOrThrow: vi.fn().mockResolvedValue({ plan, checkoutStartedAt, trialEndDate: null, ...binding }),
-    claimCheckoutStart: vi.fn().mockResolvedValue(true),
+    claimCheckoutStart: vi.fn().mockResolvedValue("claimed"),
     releaseCheckoutStart: vi.fn().mockResolvedValue(undefined),
   };
 }
@@ -105,7 +107,7 @@ describe("CreateCheckoutSessionInteractor", () => {
       email: mockUser.email,
       productName: "Bergmann Steuern",
       custom: { company_id: COMPANY_ID, company_signature: expect.stringMatching(/^[0-9a-f]{64}$/) },
-      redirectUrl: "https://feat-inbox.customermates.com/settings/billing",
+      redirectUrl: "https://feat-inbox.customermates.com/en/settings/billing",
       expiresAt: expect.any(Date),
     });
   });
@@ -155,7 +157,7 @@ describe("CreateCheckoutSessionInteractor", () => {
 
     const [{ startedAt }] = repo.claimCheckoutStart.mock.calls[0] as [{ startedAt: Date }];
     const { expiresAt } = subscriptionService.createCheckoutOrThrow.mock.calls[0][0] as { expiresAt: Date };
-    expect(expiresAt.getTime() - startedAt.getTime()).toBe(24 * 60 * 60 * 1000);
+    expect(expiresAt.getTime() - startedAt.getTime()).toBe(15 * 60 * 1000);
   });
 
   it("signs the workspace id it puts into the checkout with the server secret", async () => {
@@ -193,7 +195,28 @@ describe("CreateCheckoutSessionInteractor", () => {
     await interactor.invoke({ plan: "business", cadence: "monthly" } as never);
 
     expect(subscriptionService.createCheckoutOrThrow.mock.calls[0][0].redirectUrl).toBe(
-      "https://customermates-git-feat-inbox-customermates.vercel.app/settings/billing",
+      "https://customermates-git-feat-inbox-customermates.vercel.app/en/settings/billing",
+    );
+  });
+
+  it("returns the payer to the billing page in the locale the checkout was started from", async () => {
+    locale.value = "de";
+    const subscriptionService = makeSubscriptionService();
+    const interactor = new CreateCheckoutSessionInteractor(
+      subscriptionService as never,
+      makeCheckoutRepo() as never,
+      makeUserRepo() as never,
+      makeCompanyRepo() as never,
+    );
+
+    try {
+      await interactor.invoke({ plan: "business", cadence: "monthly" } as never);
+    } finally {
+      locale.value = "en";
+    }
+
+    expect(subscriptionService.createCheckoutOrThrow.mock.calls[0][0].redirectUrl).toBe(
+      "https://feat-inbox.customermates.com/de/settings/billing",
     );
   });
 
@@ -256,13 +279,14 @@ describe("CreateCheckoutSessionInteractor", () => {
     expect(startedAt.getTime()).toBeGreaterThanOrEqual(before);
     expect(startedAt.getTime()).toBeLessThanOrEqual(Date.now());
     expect(startedAt.getTime() - pendingSince.getTime()).toBe(15 * 60 * 1000);
+    expect(repo.claimCheckoutStart.mock.calls[0][0]).toMatchObject({ email: expect.stringContaining("@") });
     expect(repo.claimCheckoutStart).toHaveBeenCalledBefore(subscriptionService.createCheckoutOrThrow);
     expect(repo.releaseCheckoutStart).not.toHaveBeenCalled();
   });
 
   it("returns the pending state instead of a second checkout while a payment is being processed", async () => {
     const repo = makeCheckoutRepo("pro", new Date(Date.now() - 60_000));
-    repo.claimCheckoutStart.mockResolvedValue(false);
+    repo.claimCheckoutStart.mockResolvedValue("pending");
     const subscriptionService = makeSubscriptionService();
     const userRepo = makeUserRepo();
     const interactor = new CreateCheckoutSessionInteractor(
@@ -277,6 +301,24 @@ describe("CreateCheckoutSessionInteractor", () => {
     expect(result).toEqual({ ok: true, data: { checkout: "pending" } });
     expect(subscriptionService.createCheckoutOrThrow).not.toHaveBeenCalled();
     expect(userRepo.countActiveUsers).not.toHaveBeenCalled();
+    expect(repo.releaseCheckoutStart).not.toHaveBeenCalled();
+  });
+
+  it("refuses a checkout while the workspace is being deleted", async () => {
+    const repo = makeCheckoutRepo("pro", null);
+    repo.claimCheckoutStart.mockResolvedValue("deleting");
+    const subscriptionService = makeSubscriptionService();
+    const interactor = new CreateCheckoutSessionInteractor(
+      subscriptionService as never,
+      repo as never,
+      makeUserRepo() as never,
+      makeCompanyRepo() as never,
+    );
+
+    const result = await interactor.invoke({ plan: "pro", cadence: "monthly" } as never);
+
+    expect(result).toMatchObject({ ok: false });
+    expect(subscriptionService.createCheckoutOrThrow).not.toHaveBeenCalled();
     expect(repo.releaseCheckoutStart).not.toHaveBeenCalled();
   });
 

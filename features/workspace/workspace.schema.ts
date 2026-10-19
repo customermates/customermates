@@ -23,6 +23,7 @@ export const WorkspaceSummarySchema = z.object({
     })
     .nullable(),
   joinedAt: z.date(),
+  createdAt: z.date(),
 });
 
 export type WorkspaceSummary = Data<typeof WorkspaceSummarySchema>;

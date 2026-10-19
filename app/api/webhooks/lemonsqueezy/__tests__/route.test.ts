@@ -241,6 +241,19 @@ describe("LemonSqueezy webhook route", () => {
     expect(await response.json()).toEqual({ refused: true });
   });
 
+  it("asks the provider to retry an event that waits for a workspace deletion to finish", async () => {
+    mockProcess.mockResolvedValueOnce("deferred");
+    const request = makeRequest({
+      meta: { event_name: "subscription_created", custom_data: { company_id: "company-1" } },
+      data: { id: "sub-1", attributes: {} },
+    });
+
+    const response = await POST(request);
+
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({ deferred: true });
+  });
+
   it("reads the subscription id, creation time and workspace from a real-shaped subscription_created event", async () => {
     const attributes = lemonSqueezySubscriptionAttributes({
       subscriptionId: "123456789",

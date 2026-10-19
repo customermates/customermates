@@ -18,7 +18,7 @@ const NO_API_ROLE: TestRole = { isSystemRole: false, permissions: [] };
 const OVERDUE = { emailVerified: false, createdAt: new Date(Date.now() - 25 * 60 * 60 * 1000) };
 
 const plans = { canUseIntegrations: vi.fn() };
-const workspaces = { resolveMembership: vi.fn() };
+const workspaces = { requireMembership: vi.fn() };
 
 function serviceFor(
   status: Status,
@@ -55,7 +55,7 @@ function serviceFor(
 
   plans.canUseIntegrations.mockResolvedValue(options.planUsable ?? true);
 
-  workspaces.resolveMembership.mockResolvedValue(user);
+  workspaces.requireMembership.mockResolvedValue(user);
 
   return new UserService(authService, repo, workspaces as never, plans);
 }
@@ -126,7 +126,7 @@ describe("UserService.getActiveUserOrThrow", () => {
     expect(error).toBeInstanceOf(ForbiddenError);
     expect(appErrorResponse(error)?.statusCode).toBe(403);
     expect(isExpectedError(error)).toBe(true);
-    expect(workspaces.resolveMembership).not.toHaveBeenCalled();
+    expect(workspaces.requireMembership).not.toHaveBeenCalled();
   });
 
   it("lets an account through once it is verified although its cached session still says unverified", async () => {

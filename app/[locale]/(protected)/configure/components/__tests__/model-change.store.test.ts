@@ -174,7 +174,7 @@ describe("configuration editor request ownership", () => {
     const latest = structuredClone(model);
     latest.revision = 2;
     latest.types[0].label = "First definition";
-    actions.getRecordModelAction.mockResolvedValueOnce(latest);
+    actions.getRecordModelAction.mockResolvedValueOnce({ ok: true, data: latest });
     await store.refreshModel();
     expect(store.refreshRequired).toBe(false);
     expect(store.conflicts).toEqual([]);
@@ -224,7 +224,7 @@ describe("configuration editor request ownership", () => {
     const latest = structuredClone(model);
     latest.revision = 2;
     latest.types[0].label = "First definition";
-    actions.getRecordModelAction.mockResolvedValueOnce(latest);
+    actions.getRecordModelAction.mockResolvedValueOnce({ ok: true, data: latest });
     await store.refreshModel();
     actions.previewRecordConfigurationAction.mockResolvedValueOnce({
       ok: true,
@@ -240,7 +240,7 @@ describe("configuration editor request ownership", () => {
     const latest = structuredClone(model);
     latest.revision = 2;
     latest.types[0].label = "Remote";
-    actions.getRecordModelAction.mockResolvedValueOnce(latest);
+    actions.getRecordModelAction.mockResolvedValueOnce({ ok: true, data: latest });
     await store.refreshModel();
     expect(store.conflicts).toEqual(["name"]);
     expect(store.form.name).toBe("My draft");
@@ -252,12 +252,12 @@ describe("configuration editor request ownership", () => {
   });
   it("ignores a model refresh that completes after a new editor opens", async () => {
     const { store } = fixture();
-    const pending = Promise.withResolvers<typeof model>();
+    const pending = Promise.withResolvers<{ ok: true; data: typeof model }>();
     actions.getRecordModelAction.mockReturnValueOnce(pending.promise);
     const old = store.refreshModel();
     store.close();
     store.edit("New draft");
-    pending.resolve({ ...model, revision: 3 });
+    pending.resolve({ ok: true, data: { ...model, revision: 3 } });
     await old;
     expect(store.form.name).toBe("New draft");
     expect(store.model.revision).toBe(1);
@@ -270,7 +270,7 @@ describe("configuration editor request ownership", () => {
     await store.refreshModel();
     expect(store.refreshFailed).toBe(true);
     expect(store.form.name).toBe("My draft");
-    actions.getRecordModelAction.mockResolvedValueOnce({ ...model, revision: 2 });
+    actions.getRecordModelAction.mockResolvedValueOnce({ ok: true, data: { ...model, revision: 2 } });
     await store.refreshModel();
     expect(store.refreshFailed).toBe(false);
     expect(store.model.revision).toBe(2);

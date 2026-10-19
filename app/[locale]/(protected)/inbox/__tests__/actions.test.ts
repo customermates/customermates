@@ -8,7 +8,7 @@ describe("inbox identity choice adapter", () => {
   it("passes the search to the authorized capability lookup", async () => {
     const data = { records: [], createTypes: [], schemaRevision: 2, canManage: false };
     lookup.mockResolvedValue({ ok: true, data });
-    await expect(getIdentityRecordChoicesAction("Ada")).resolves.toEqual(data);
+    await expect(getIdentityRecordChoicesAction("Ada")).resolves.toEqual({ ok: true, data });
     expect(lookup).toHaveBeenCalledExactlyOnceWith({ search: "Ada" });
   });
 });

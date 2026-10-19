@@ -160,7 +160,7 @@ describe("WebhookModalStore record triggers", () => {
     };
     store.openWith({ ...SAVED_WEBHOOK, events: ["record.updated"], recordTrigger: trigger });
     store.onChange("description", "Unsaved text");
-    companyActions.getRecordModelAction.mockResolvedValue(model);
+    companyActions.getRecordModelAction.mockResolvedValue({ ok: true, data: model });
     await store.loadRecordModel();
     await store.onSubmit();
     expect(submittedPayload()).toMatchObject({
@@ -180,7 +180,7 @@ describe("WebhookModalStore record triggers", () => {
     expect(companyActions.upsertWebhookAction).not.toHaveBeenCalled();
     expect(store.modelLoadFailed).toBe(true);
     expect(store.form.description).toBe("Keep this draft");
-    companyActions.getRecordModelAction.mockResolvedValue(model);
+    companyActions.getRecordModelAction.mockResolvedValue({ ok: true, data: model });
     await store.loadRecordModel();
     await store.onSubmit();
     expect(submittedPayload()).toMatchObject({
@@ -192,7 +192,7 @@ describe("WebhookModalStore record triggers", () => {
 
   it("ignores an obsolete model request and clears fields when switching sources", async () => {
     const store = makeStore();
-    let resolveOld!: (value: typeof model) => void;
+    let resolveOld!: (value: { ok: true; data: typeof model }) => void;
     companyActions.getRecordModelAction.mockReturnValueOnce(
       new Promise((resolve) => {
         resolveOld = resolve;
@@ -200,9 +200,9 @@ describe("WebhookModalStore record triggers", () => {
     );
     const old = store.loadRecordModel();
     store.cancelModelLoad();
-    companyActions.getRecordModelAction.mockResolvedValue({ ...model, revision: 2 });
+    companyActions.getRecordModelAction.mockResolvedValue({ ok: true, data: { ...model, revision: 2 } });
     await store.loadRecordModel();
-    resolveOld(model);
+    resolveOld({ ok: true, data: model });
     await old;
     expect(store.recordModel?.revision).toBe(2);
     store.openWith({

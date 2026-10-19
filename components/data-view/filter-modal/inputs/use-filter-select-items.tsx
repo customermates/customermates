@@ -65,6 +65,7 @@ import { AD_PROVIDER_ORDER, adProviderDisplayName } from "@/features/acquisition
 import { DomainEvent } from "@/features/event/domain-events";
 import { useActivityQuery } from "@/features/messaging/activities/activity-query-context";
 import { eventLabel } from "@/features/event/event-label";
+import { actionData } from "@/core/utils/action-data";
 
 export type FilterSelectItem = {
   key: string;
@@ -144,7 +145,7 @@ export function filterOptionSources(
   return {
     [FilterFieldKey.ownerUserId]: {
       getItems: (params) =>
-        getUsersAction(params).then((res) => ({
+        actionData(getUsersAction(params)).then((res) => ({
           items: res.items.map((user) => {
             const name = `${user.firstName} ${user.lastName}`.trim();
             return {
@@ -156,9 +157,11 @@ export function filterOptionSources(
           }),
         })),
       resolveItems: async (ids) => {
-        const result = await resolveUserOptionsAction({
-          ids: [...new Set(ids)],
-        });
+        const result = await actionData(
+          resolveUserOptionsAction({
+            ids: [...new Set(ids)],
+          }),
+        );
         return result.users.map((user) => {
           const name = `${user.firstName} ${user.lastName}`.trim();
           return {
@@ -172,7 +175,7 @@ export function filterOptionSources(
     },
     [FilterFieldKey.participantContactId]: {
       getItems: async (params) => {
-        const result = await getIdentityRecordChoicesAction(params.searchTerm ?? "");
+        const result = await actionData(getIdentityRecordChoicesAction(params.searchTerm ?? ""));
         return {
           items: result.records.map((record) => ({
             key: recordReferenceKey(record.ref),
@@ -224,7 +227,7 @@ export function filterOptionSources(
     [FilterFieldKey.url]: NO_FILTER_OPTIONS,
     [FilterFieldKey.webhookId]: {
       getItems: async (params) => {
-        const result = await getWebhooksAction(params);
+        const result = await actionData(getWebhooksAction(params));
         return {
           ...result,
           items: result.items.map((webhook) => ({
@@ -235,7 +238,7 @@ export function filterOptionSources(
         };
       },
       resolveItems: async (ids) => {
-        const webhooks = await resolveWebhookOptionsAction([...ids]);
+        const webhooks = await actionData(resolveWebhookOptionsAction([...ids]));
         return webhooks.map((webhook) => ({
           key: webhook.id,
           value: webhook.id,
@@ -276,7 +279,7 @@ export function filterOptionSources(
     },
     [FilterFieldKey.connectedAccountId]: {
       getItems: () =>
-        getConnectedAccountsAction().then((accounts) => ({
+        actionData(getConnectedAccountsAction()).then((accounts) => ({
           items: accounts
             .filter((account) => account.status !== ConnectedAccountStatus.deleted)
             .map((account) => {
@@ -294,7 +297,7 @@ export function filterOptionSources(
     },
     [FilterFieldKey.emailFolder]: {
       getItems: () =>
-        getMessagingFilterOptionsAction().then((options) => ({
+        actionData(getMessagingFilterOptionsAction()).then((options) => ({
           items: scopedOptionItems(options.folders, FilterFieldKey.emailFolder, t),
         })),
     },
@@ -310,7 +313,7 @@ export function filterOptionSources(
     [FilterFieldKey.lastMessageAt]: NO_FILTER_OPTIONS,
     [FilterFieldKey.calendarId]: {
       getItems: (params) =>
-        getCalendarsAction(params).then((res) => ({
+        actionData(getCalendarsAction(params)).then((res) => ({
           items: res.items.map((calendar) => {
             const { provider } = calendar;
             return {
@@ -322,7 +325,7 @@ export function filterOptionSources(
           }),
         })),
       resolveItems: async (ids) => {
-        const calendars = await resolveCalendarOptionsAction([...ids]);
+        const calendars = await actionData(resolveCalendarOptionsAction([...ids]));
         return calendars.map((calendar) => {
           const { provider } = calendar;
           return {
@@ -417,7 +420,7 @@ export function filterOptionSources(
     },
     [FilterFieldKey.trashList]: {
       getItems: () =>
-        getRecordNavigationAction().then((navigation) => ({
+        actionData(getRecordNavigationAction()).then((navigation) => ({
           items: navigation.types.map((type) => {
             const Icon = recordTypeIcon(type.icon);
             return {
@@ -549,7 +552,7 @@ export function useFilterSelectItems(
           const ref = parseRecordReferenceKey(id);
           return ref ? [ref] : z.uuid().safeParse(id).success ? [id] : [];
         });
-        const result = await getIdentityRecordChoicesAction("", refs);
+        const result = await actionData(getIdentityRecordChoicesAction("", refs));
         return result.records.map((record) => {
           const key = ids.includes(record.ref.recordId) ? record.ref.recordId : recordReferenceKey(record.ref);
           return {
