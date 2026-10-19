@@ -1,4 +1,4 @@
-import type { CountryCode, Prisma, Status } from "@/generated/prisma";
+import type { Prisma, Status } from "@/generated/prisma";
 
 import { SYNTHETIC_COMPANY_USERS } from "@/core/config/synthetic-seed-user";
 
@@ -12,11 +12,9 @@ import { NORTHWIND_MEMBER_IDS, NORTHWIND_MEMBER_ROLES } from "./northwind-model"
 export type SyntheticCompanyMemberDefinition = Readonly<{
   agreeToTerms: boolean;
   avatarPath: string;
-  country: CountryCode;
   email: string;
   firstName: string;
   id: string;
-  isPlatformOperator: boolean;
   lastName: string;
   roleId: string | null;
   status: Status;
@@ -28,15 +26,12 @@ const member = (
   lastName: string,
   email: string,
   avatarPath: string,
-  country: CountryCode,
 ) => ({
   id: NORTHWIND_MEMBER_IDS[key],
   agreeToTerms: false,
   avatarPath,
-  country,
   email,
   firstName,
-  isPlatformOperator: false,
   lastName,
   roleId: NORTHWIND_MEMBER_ROLES[key],
   status: "active" as Status,
@@ -50,7 +45,6 @@ export const SYNTHETIC_COMPANY_MEMBER_DEFINITIONS = [
     SYNTHETIC_COMPANY_USERS.maxBergmann.lastName,
     SYNTHETIC_COMPANY_USERS.maxBergmann.email,
     SYNTHETIC_AVATAR_URLS.maxBergmann,
-    "de",
   ),
   member(
     "sofiaRossi",
@@ -58,7 +52,6 @@ export const SYNTHETIC_COMPANY_MEMBER_DEFINITIONS = [
     SYNTHETIC_COMPANY_USERS.sofiaRossi.lastName,
     SYNTHETIC_COMPANY_USERS.sofiaRossi.email,
     SYNTHETIC_AVATAR_URLS.sofiaRossi,
-    "it",
   ),
   member(
     "elenaHoffmann",
@@ -66,26 +59,11 @@ export const SYNTHETIC_COMPANY_MEMBER_DEFINITIONS = [
     SYNTHETIC_COMPANY_USERS.elenaHoffmann.lastName,
     SYNTHETIC_COMPANY_USERS.elenaHoffmann.email,
     SYNTHETIC_AVATAR_URLS.elenaHoffmann,
-    "de",
   ),
-  member(
-    "claraNeumann",
-    "Clara",
-    "Neumann",
-    "clara.neumann@customermates.com",
-    SYNTHETIC_AVATAR_URLS.claraNeumann,
-    "de",
-  ),
-  member("marcoSilva", "Marco", "Silva", "marco.silva@customermates.com", SYNTHETIC_AVATAR_URLS.marcoSilva, "pt"),
-  member("kianRahimi", "Kian", "Rahimi", "kian.rahimi@customermates.com", SYNTHETIC_AVATAR_URLS.kianRahimi, "de"),
-  member(
-    "lauraFischer",
-    "Laura",
-    "Fischer",
-    "laura.fischer@customermates.com",
-    SYNTHETIC_AVATAR_URLS.lauraFischer,
-    "de",
-  ),
+  member("claraNeumann", "Clara", "Neumann", "clara.neumann@customermates.com", SYNTHETIC_AVATAR_URLS.claraNeumann),
+  member("marcoSilva", "Marco", "Silva", "marco.silva@customermates.com", SYNTHETIC_AVATAR_URLS.marcoSilva),
+  member("kianRahimi", "Kian", "Rahimi", "kian.rahimi@customermates.com", SYNTHETIC_AVATAR_URLS.kianRahimi),
+  member("lauraFischer", "Laura", "Fischer", "laura.fischer@customermates.com", SYNTHETIC_AVATAR_URLS.lauraFischer),
 ] satisfies readonly SyntheticCompanyMemberDefinition[];
 
 async function reconcileMemberId(

@@ -208,9 +208,10 @@ describeDatabase("hosted AI operator migration", { timeout: 120_000 }, () => {
           prisma.agentUsageEvent.findMany({ orderBy: { id: "asc" } }),
         ]);
 
-        expect(operator.isPlatformOperator).toBe(true);
-        expect(ordinary).toMatchObject({ isPlatformOperator: false, status: "active" });
-        expect(ordinaryAuth).toMatchObject({ emailVerified: true });
+        const operatorAuth = await prisma.authUser.findUniqueOrThrow({ where: { email: operator.email } });
+        expect(operatorAuth.isPlatformOperator).toBe(true);
+        expect(ordinary).toMatchObject({ status: "active" });
+        expect(ordinaryAuth).toMatchObject({ emailVerified: true, isPlatformOperator: false });
         expect(ordinaryAuth.email).toMatch(/@example\.invalid$/u);
         expect(enterprise).toMatchObject({ enterpriseAgentCreditsPerUser: null, plan: "enterprise" });
         expect(usage.map(({ state }) => state)).toEqual(["settled", "reserved", "released"]);

@@ -20,6 +20,7 @@ import { RECORD_IMPORT_LIMIT, RECORD_IMPORT_LINK_LIMIT } from "@/features/data-t
 import { channelClass } from "@/ee/messaging/provider";
 import { addressDisplayText, cleanAddressPart, UNVERIFIED_ADDRESS } from "@/features/records/record-address-value";
 import { REGISTERED_LOCALES } from "@/i18n/locale-registry";
+import { requiredNamePart, splitPersonName } from "@/features/data-transfer/spreadsheet/spreadsheet-values";
 
 import {
   normalizeXlsxHeader,
@@ -38,6 +39,7 @@ import {
   parseXlsxRecordId,
   parseXlsxRelationshipCell,
 } from "./xlsx-values";
+import { xlsxCellText } from "./xlsx-workbook";
 
 export type XlsxImportMode = "create" | "update";
 
@@ -211,6 +213,21 @@ export function parseXlsxRows(input: XlsxPlanInput, rows: XlsxRow[] = input.rows
           return;
         }
         addresses.set(target.fieldId, { ...addresses.get(target.fieldId), [target.part]: result.value });
+      } else if (target.kind === "nameParts") {
+        const name = splitPersonName(
+          xlsxCellText(cell),
+          requiredNamePart(fields.get(target.firstFieldId), fields.get(target.lastFieldId)),
+        );
+        for (const [fieldId, part] of [
+          [target.firstFieldId, name.first],
+          [target.lastFieldId, name.last],
+        ] as const) {
+          const field = fields.get(fieldId);
+          if (!field) continue;
+          const result = parseXlsxFieldCell(part || null, field, input.lookups.members);
+          if (result.ok) parsed.values.set(field.id, result.value);
+          else report(result.code, result.value);
+        }
       } else if (target.kind === "relationship") {
         const result = parseXlsxRelationshipCell(cell, input.lookups.relations.get(target.relationId) ?? null);
         if (result.ok) {

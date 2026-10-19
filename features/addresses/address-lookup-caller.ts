@@ -9,6 +9,6 @@ export async function addressLookupCaller(user: Readonly<TenantUser>): Promise<A
     companyId: user.companyId,
     userId: user.id,
     locale: isAppLocale(user.displayLanguage) ? user.displayLanguage : await getRequestAppLocale(),
-    country: user.country,
+    country: user.country ?? null,
   };
 }

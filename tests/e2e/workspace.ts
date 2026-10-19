@@ -4,28 +4,8 @@ import { createCrmPreset, presetId } from "../../features/records/crm-preset";
 
 export type BrowserWorkspace = Awaited<ReturnType<typeof createBrowserWorkspace>>;
 
-async function insertWorkspace(
-  database: Client,
-  workspace: { companyId: string; name: string; authUserId: string; userId: string },
-  insertMember: (roleId: string) => Promise<unknown>,
-) {
-  const { companyId, userId } = workspace;
-  const roleId = randomUUID();
+export async function insertStarterModel(database: Client, companyId: string, actorId: string) {
   const model = createCrmPreset(companyId);
-  await database.query('INSERT INTO "Company" (id,name,"createdByAuthUserId","updatedAt") VALUES ($1,$2,$3,NOW())', [
-    companyId,
-    workspace.name,
-    workspace.authUserId,
-  ]);
-  await database.query(
-    'INSERT INTO "UserRole" (id,"companyId",name,"isSystemRole","updatedAt") VALUES ($1,$2,\'Administrator\',true,NOW())',
-    [roleId, companyId],
-  );
-  await insertMember(roleId);
-  await database.query(
-    'INSERT INTO "Subscription" (id,"companyId",status,"updatedAt") VALUES ($1,$2,\'active\',NOW())',
-    [randomUUID(), companyId],
-  );
   for (const type of model.types) {
     await database.query(
       'INSERT INTO "RecordTypeDefinition" ("companyId",id,label,"pluralLabel",embedded,position,definition,"updatedAt") VALUES ($1,$2,$3,$4,$5,$6,$7,NOW())',
@@ -44,14 +24,41 @@ async function insertWorkspace(
       [companyId, relation.id, relation.sourceTypeId, relation.targetTypeId, JSON.stringify(relation)],
     );
   }
-  await database.query('INSERT INTO "RecordSchemaState" ("companyId",revision) VALUES ($1,$2)', [
+  await database.query(
+    'INSERT INTO "RecordSchemaState" ("companyId",revision) VALUES ($1,$2) ON CONFLICT ("companyId") DO UPDATE SET revision=EXCLUDED.revision',
+    [
     companyId,
     model.revision,
   ]);
   await database.query(
-    'INSERT INTO "RecordSchemaRevision" ("companyId",revision,"actorId",snapshot) VALUES ($1,$2,$3,$4)',
-    [companyId, model.revision, userId, JSON.stringify(model)],
+    'INSERT INTO "RecordSchemaRevision" ("companyId",revision,"actorId",snapshot) VALUES ($1,$2,$3,$4) ON CONFLICT DO NOTHING',
+    [companyId, model.revision, actorId, JSON.stringify(model)],
   );
+  return model;
+}
+
+async function insertWorkspace(
+  database: Client,
+  workspace: { companyId: string; name: string; authUserId: string; userId: string },
+  insertMember: (roleId: string) => Promise<unknown>,
+) {
+  const { companyId, userId } = workspace;
+  const roleId = randomUUID();
+  await database.query('INSERT INTO "Company" (id,name,"createdByAuthUserId","updatedAt") VALUES ($1,$2,$3,NOW())', [
+    companyId,
+    workspace.name,
+    workspace.authUserId,
+  ]);
+  await database.query(
+    'INSERT INTO "UserRole" (id,"companyId",name,"isSystemRole","updatedAt") VALUES ($1,$2,\'Administrator\',true,NOW())',
+    [roleId, companyId],
+  );
+  await insertMember(roleId);
+  await database.query(
+    'INSERT INTO "Subscription" (id,"companyId",status,"updatedAt") VALUES ($1,$2,\'active\',NOW())',
+    [randomUUID(), companyId],
+  );
+  const model = await insertStarterModel(database, companyId, userId);
   const organizationId = randomUUID();
   const organizationTypeId = presetId(companyId, "organization");
   await database.query('INSERT INTO "CrmRecord" ("companyId","typeId",id,"updatedAt") VALUES ($1,$2,$3,NOW())', [

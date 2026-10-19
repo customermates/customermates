@@ -30,6 +30,7 @@ const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
+const { PrismaBillingUsageRepo } = await import("@/features/billing-usage/prisma-billing-usage.repository");
 const { RecordAccessPolicy } = await import("@/features/records/record-access");
 const { RecordCalculationService } = await import("@/features/records/record-calculation.service");
 const { RecordWriteService } = await import("@/features/records/record-write.service");
@@ -88,7 +89,10 @@ async function fixture() {
   const admin = createMockUser({ ...seed.admin, role: { ...seed.role, permissions: [] } });
   const member = createMockUser({ ...seed.member, role: { ...seed.memberRole, permissions: [] } });
   const repo = createTestRecordRepo();
-  const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
+  const policy = new RecordAccessPolicy(
+    new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+    repo,
+  );
   const calculations = new RecordCalculationService(repo);
   const mutate = new MutateRecordInteractor(
     repo,
@@ -107,7 +111,7 @@ async function fixture() {
   const saveMap = new UpsertRecordMapWidgetInteractor(widgets, repo, policy, mapReader, views);
   const readWidget = new GetRecordWidgetInteractor(
     widgets,
-    new RecordWidgetReader(repo, measure, new PrismaUserRepo(new PermissionService())),
+    new RecordWidgetReader(repo, measure, new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo())),
     policy,
     new RecordActivityWidgetReader(repo, { invoke: () => Promise.reject(new Error("unused")) } as never),
     calendarReader,

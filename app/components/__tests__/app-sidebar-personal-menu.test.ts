@@ -130,7 +130,6 @@ describe("sidebar personal menu", () => {
       data: {
         firstName: "Augusta",
         lastName: "King",
-        country: signedIn.country,
         avatarUrl: "https://example.test/augusta.png",
         theme: signedIn.theme,
         displayLanguage: "en",

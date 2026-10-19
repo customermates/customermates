@@ -8,7 +8,11 @@ vi.mock("next-intl", () => ({
   useLocale: () => "en",
   useTranslations: () => {
     const t = (key: string, values?: Record<string, unknown>) =>
-      key === "Subscription.picker.connectedAccountsPerUser" ? `${String(values?.accounts)} connected accounts` : key;
+      key === "Subscription.picker.connectedAccountsPerUser"
+        ? `${String(values?.accounts)} connected accounts`
+        : key === "Subscription.picker.hostedAiUsage"
+          ? `${String(values?.multiplier)}x Mate usage`
+          : key;
     t.raw = () => ["catalog feature"];
     return t;
   },
@@ -69,7 +73,7 @@ const { HomepagePricing } = await import("@/app/[locale]/(static)/components/hom
 
 type PlanAction = { onClick: () => void; type?: string; variant?: string; children?: ReactNode };
 
-const pricingCards = ["starter", "pro", "business", "enterprise"].map((plan) => ({
+const pricingCards = ["starter", "pro", "business", "max", "enterprise"].map((plan) => ({
   plan,
   title: plan,
   description: plan,
@@ -96,6 +100,7 @@ describe("catalog-backed pricing rendering", () => {
     expect(html).toContain('data-plan="starter" data-price="€12"');
     expect(html).toContain('data-plan="pro" data-price="€29"');
     expect(html).toContain('data-plan="business" data-price="€69"');
+    expect(html).toContain('data-plan="max" data-price="€149"');
     expect(html).toContain('data-plan="enterprise" data-price="Custom"');
     expect(html).toContain('data-subtext="/month total for 1 user"');
 
@@ -120,7 +125,7 @@ describe("catalog-backed pricing rendering", () => {
 
   it("renders comparison prices and account allowances from the catalog", () => {
     const plans = Object.fromEntries(
-      ["starter", "pro", "business", "enterprise"].map((plan) => [
+      ["starter", "pro", "business", "max", "enterprise"].map((plan) => [
         plan,
         { name: plan, button: "Select", buttonHref: "/auth/signup" },
       ]),
@@ -135,6 +140,7 @@ describe("catalog-backed pricing rendering", () => {
           rows: [
             { label: "Price", catalogFact: "monthlyPrice" },
             { label: "Accounts", catalogFact: "includedAccountsPerUser" },
+            { label: "Mate usage", catalogFact: "hostedAiUsage" },
             { label: "Storage", catalogFact: "fileStoragePerActiveUser" },
           ],
         },
@@ -143,9 +149,10 @@ describe("catalog-backed pricing rendering", () => {
     });
 
     expect(presentation.sections[0].rows).toEqual([
-      { label: "Price", values: ["€12", "€29", "€69", "Custom"] },
-      { label: "Accounts", values: ["0", "1", "3", "Unlimited"] },
-      { label: "Storage", values: ["1 GB", "5 GB", "20 GB", "Custom"] },
+      { label: "Price", values: ["€12", "€29", "€69", "€149", "Custom"] },
+      { label: "Accounts", values: ["0", "1", "3", "10", "Unlimited"] },
+      { label: "Mate usage", values: ["1x", "3x", "10x", "20x", "Custom"] },
+      { label: "Storage", values: ["1 GB", "5 GB", "20 GB", "50 GB", "Custom"] },
     ]);
   });
 
@@ -168,11 +175,15 @@ describe("catalog-backed pricing rendering", () => {
     expect(html).toMatch(/12(?:&nbsp;|\u00a0| )€/);
     expect(html).toMatch(/29(?:&nbsp;|\u00a0| )€/);
     expect(html).toMatch(/69(?:&nbsp;|\u00a0| )€/);
+    expect(html).toMatch(/149(?:&nbsp;|\u00a0| )€/);
+    expect(html).toContain("20x Mate usage");
+    expect(html).not.toMatch(/\b(?:300|1,000|2,000)\b/);
     expect(html).not.toContain('role="button"');
     expect(actions.map(({ plan, type, variant, children }) => ({ plan, type, variant, children }))).toEqual([
       { plan: "starter", type: "button", variant: "secondary", children: "Subscription.picker.choose" },
       { plan: "pro", type: "button", variant: "secondary", children: "Subscription.picker.choose" },
       { plan: "business", type: "button", variant: "default", children: "Subscription.picker.choose" },
+      { plan: "max", type: "button", variant: "secondary", children: "Subscription.picker.choose" },
     ]);
 
     actions[2]?.onClick();
@@ -180,5 +191,39 @@ describe("catalog-backed pricing rendering", () => {
       plan: "business",
       cadence: "monthly",
     });
+  });
+
+  it("recommends Business and keeps every plan's checkout enabled", () => {
+    const onSelect = vi.fn();
+    const element = (PlanPicker as unknown as (props: ComponentProps<typeof PlanPicker>) => ReactElement)({
+      onSelect,
+    });
+    const cards = (
+      Children.toArray(element.props.children).filter(isValidElement) as ReactElement<{
+        children: ReactNode;
+        "data-plan"?: string;
+      }>[]
+    ).filter((card) => card.props["data-plan"] !== undefined);
+    const actions = cards.flatMap((card) =>
+      (
+        Children.toArray(card.props.children).filter(isValidElement) as ReactElement<
+          PlanAction & { disabled?: boolean }
+        >[]
+      )
+        .filter((child) => typeof child.props.onClick === "function")
+        .map((child) => [card.props["data-plan"], Boolean(child.props.disabled)]),
+    );
+    const html = renderToStaticMarkup(element);
+
+    expect(actions).toEqual([
+      ["starter", false],
+      ["pro", false],
+      ["business", false],
+      ["max", false],
+    ]);
+    expect(html.match(/Subscription\.picker\.recommended/g)).toHaveLength(1);
+    expect(html).not.toContain("mostPopular");
+    expect(html.indexOf("Subscription.picker.recommended")).toBeLessThan(html.indexOf('data-plan="max"'));
+    expect(html.indexOf('data-plan="business"')).toBeLessThan(html.indexOf("Subscription.picker.recommended"));
   });
 });

@@ -6,6 +6,10 @@
       "schedule": "0 9 * * *"
     },
     {
+      "path": "/api/cron/billing-usage",
+      "schedule": "30 3 * * *"
+    },
+    {
       "path": "/api/cron/reprocess-webhook-events",
       "schedule": "*/5 * * * *"
     },
@@ -35,5 +39,6 @@
       ],
       "source": "/.well-known/microsoft-identity-association.json"
     }
-  ]
+  ],
+  "regions": ["fra1"]
 }

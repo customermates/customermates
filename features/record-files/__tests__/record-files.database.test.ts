@@ -27,6 +27,7 @@ const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
+const { PrismaBillingUsageRepo } = await import("@/features/billing-usage/prisma-billing-usage.repository");
 const { RecordAccessPolicy } = await import("@/features/records/record-access");
 const { RecordCalculationService } = await import("@/features/records/record-calculation.service");
 const { RecordWriteService } = await import("@/features/records/record-write.service");
@@ -142,7 +143,10 @@ async function workspace() {
   const guest = createMockUser({ ...seed.guest, role: { ...seed.reader, permissions: [] } });
   const users = new Map([admin, colleague, guest].map((user) => [user.id, user]));
   const repo = createTestRecordRepo();
-  const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
+  const policy = new RecordAccessPolicy(
+    new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+    repo,
+  );
   const files = new PrismaRecordFileRepo();
   const driver = new DatabaseFileStorageDriver(new PrismaFileContentRepo(), "http://127.0.0.1:4000", 1024);
   const drivers = () => driver;

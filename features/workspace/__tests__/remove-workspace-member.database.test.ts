@@ -10,12 +10,19 @@ import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
 const requestContext = vi.hoisted(() => ({ headers: new Headers() }));
 const seats = vi.hoisted(() => ({ updates: [] as Array<[string, number]> }));
-const mails = vi.hoisted(() => ({ sent: [] as Array<{ to: string; subject: string }> }));
+const mails = vi.hoisted(() => ({
+  sent: [] as Array<{ to: string; subject: string }>,
+}));
 
 vi.mock("next/headers", () => ({
   headers: () => Promise.resolve(requestContext.headers),
   cookies: () =>
-    Promise.resolve({ get: () => undefined, getAll: () => [], set: () => undefined, delete: () => undefined }),
+    Promise.resolve({
+      get: () => undefined,
+      getAll: () => [],
+      set: () => undefined,
+      delete: () => undefined,
+    }),
 }));
 vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
@@ -45,18 +52,30 @@ vi.mock("@/ee/subscription/subscription.service", () => ({
 
 import { GET as me } from "@/app/api/v1/users/me/route";
 import { POST as removeMember } from "@/app/api/v1/members/remove/route";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
 
-const SERVER_ACTION = { "next-action": "7f00c0ffee", "sec-fetch-mode": "cors", "sec-fetch-dest": "empty" };
-const PAGE_LOAD = { "sec-fetch-mode": "navigate", "sec-fetch-dest": "document" };
+const SERVER_ACTION = {
+  "next-action": "7f00c0ffee",
+  "sec-fetch-mode": "cors",
+  "sec-fetch-dest": "empty",
+};
+const PAGE_LOAD = {
+  "sec-fetch-mode": "navigate",
+  "sec-fetch-dest": "document",
+};
 
 type Person = "ada" | "ben" | "cleo" | "dana" | "max";
 
 describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () => {
   const client = new Client({ connectionString: databaseUrl ?? undefined });
-  const companies = { team: randomUUID(), bensOwn: randomUUID(), cleosOwn: randomUUID() };
+  const companies = {
+    team: randomUUID(),
+    bensOwn: randomUUID(),
+    cleosOwn: randomUUID(),
+  };
   const roles = {
     teamAdmin: randomUUID(),
     teamMember: randomUUID(),
@@ -73,11 +92,23 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
   };
   const ownMemberships = { ben: randomUUID(), cleo: randomUUID() };
   const keys = {
-    adaTeam: { id: randomUUID(), value: randomUUID().replaceAll("-", "").repeat(2) },
-    benTeam: { id: randomUUID(), value: randomUUID().replaceAll("-", "").repeat(2) },
-    benOwn: { id: randomUUID(), value: randomUUID().replaceAll("-", "").repeat(2) },
+    adaTeam: {
+      id: randomUUID(),
+      value: randomUUID().replaceAll("-", "").repeat(2),
+    },
+    benTeam: {
+      id: randomUUID(),
+      value: randomUUID().replaceAll("-", "").repeat(2),
+    },
+    benOwn: {
+      id: randomUUID(),
+      value: randomUUID().replaceAll("-", "").repeat(2),
+    },
   };
-  const benSessions = { stale: { id: randomUUID(), cookie: "" }, other: { id: randomUUID(), cookie: "" } };
+  const benSessions = {
+    stale: { id: randomUUID(), cookie: "" },
+    other: { id: randomUUID(), cookie: "" },
+  };
   const cleoSession = { id: randomUUID(), cookie: "" };
   const lemonSqueezyId = `ls-${randomUUID()}`;
   const clientId = `client-${randomUUID()}`;
@@ -88,7 +119,11 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
   }
 
   async function teamMembership(person: Person) {
-    const result = await client.query<{ status: string; left: boolean; roleId: string | null }>(
+    const result = await client.query<{
+      status: string;
+      left: boolean;
+      roleId: string | null;
+    }>(
       'SELECT status::text, "leftAt" IS NOT NULL AS left, "roleId" FROM "User" WHERE "companyId" = $1 AND email = $2',
       [companies.team, people[person].email],
     );
@@ -122,10 +157,10 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
   async function membershipOf(person: Person) {
     const { PermissionService } = await import("@/core/base/permission.service");
     const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
-    const membership = await new PrismaUserRepo(new PermissionService()).findMembershipUnscoped(
-      people[person].email,
-      companies.team,
-    );
+    const membership = await new PrismaUserRepo(
+      new PermissionService(),
+      new PrismaBillingUsageRepo(),
+    ).findMembershipUnscoped(people[person].email, companies.team);
     if (!membership) throw new Error(`The team membership of ${person} is missing.`);
     return membership;
   }
@@ -151,7 +186,10 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
   }
 
   async function withApiKey(key: string, handler: (request: NextRequest) => Promise<Response>, body?: unknown) {
-    const headers = new Headers({ "content-type": "application/json", "x-api-key": key });
+    const headers = new Headers({
+      "content-type": "application/json",
+      "x-api-key": key,
+    });
     requestContext.headers = headers;
     const response = await handler(
       new NextRequest("http://localhost:4000/api/v1/members/remove", {
@@ -160,7 +198,10 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
         ...(body === undefined ? {} : { body: JSON.stringify(body) }),
       }),
     );
-    return { status: response.status, body: (await response.json()) as Record<string, unknown> };
+    return {
+      status: response.status,
+      body: (await response.json()) as Record<string, unknown>,
+    };
   }
 
   async function session(loginId: string, activeCompany: string | null) {
@@ -172,7 +213,10 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
       'INSERT INTO "AuthSession" ("id", "token", "userId", "expiresAt", "activeCompanyId", "updatedAt") VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)',
       [id, token, loginId, new Date(Date.now() + 60 * 60 * 1000), activeCompany],
     );
-    return { id, cookie: (await serializeSignedCookie("app.session_token", token, secret)).split(";")[0] };
+    return {
+      id,
+      cookie: (await serializeSignedCookie("app.session_token", token, secret)).split(";")[0],
+    };
   }
 
   beforeAll(async () => {
@@ -237,8 +281,7 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
     }
 
     const { runWithTenant } = await import("@/core/decorators/tenant-context");
-    const { InitializeRecordModelService } = await import("@/features/records/initialize-record-model.service");
-    const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
+    const { initializeStarterRecordModel } = await import("@/tests/helpers/record-repository");
     const { createMockUser } = await import("@/tests/helpers/mock-user");
     for (const [companyId, userId, roleId] of [
       [companies.team, people.ada.teamMemberId, roles.teamAdmin],
@@ -246,7 +289,7 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
       [companies.cleosOwn, ownMemberships.cleo, roles.cleosOwnAdmin],
     ]) {
       const owner = createMockUser({ id: userId, companyId, roleId });
-      await runWithTenant(owner, () => new InitializeRecordModelService(createTestRecordRepo()).initialize());
+      await runWithTenant(owner, () => initializeStarterRecordModel());
     }
 
     for (const [key, owner, companyId] of [
@@ -311,17 +354,31 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
       ok: true,
       data: { userId: people.ben.teamMemberId, refusal: null },
     });
-    expect(await removalAs("ada", people.ada.teamMemberId)).toMatchObject({ ok: true, data: { refusal: "self" } });
-    expect(await removalAs("max", people.ada.teamMemberId)).toMatchObject({ ok: true, data: { refusal: "lastAdmin" } });
+    expect(await removalAs("ada", people.ada.teamMemberId)).toMatchObject({
+      ok: true,
+      data: { refusal: "self" },
+    });
+    expect(await removalAs("max", people.ada.teamMemberId)).toMatchObject({
+      ok: true,
+      data: { refusal: "lastAdmin" },
+    });
   });
 
   it("removes an active member, revokes the login's credentials for this workspace only and frees the seat", async () => {
     expect(await removeAs("ada", { userId: people.ben.teamMemberId })).toEqual({
       ok: true,
-      data: { userId: people.ben.teamMemberId, email: people.ben.email, previousStatus: "active" },
+      data: {
+        userId: people.ben.teamMemberId,
+        email: people.ben.email,
+        previousStatus: "active",
+      },
     });
 
-    expect(await teamMembership("ben")).toEqual({ status: "inactive", left: true, roleId: roles.teamMember });
+    expect(await teamMembership("ben")).toEqual({
+      status: "inactive",
+      left: true,
+      roleId: roles.teamMember,
+    });
     const remainingKeys = await client.query<{ id: string }>(
       'SELECT id FROM "Apikey" WHERE "referenceId" = $1 ORDER BY id',
       [people.ben.loginId],
@@ -334,7 +391,12 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
     expect(remainingTokens.rows).toEqual([{ companyId: companies.bensOwn }]);
     expect(await lastUsed("ben")).toBe(companies.bensOwn);
     expect(seats.updates).toEqual([[lemonSqueezyId, 2]]);
-    expect(mails.sent).toEqual([{ to: people.ben.email, subject: "Du wurdest aus „Hoffmann Consulting“ entfernt" }]);
+    expect(mails.sent).toEqual([
+      {
+        to: people.ben.email,
+        subject: "Du wurdest aus „Hoffmann Consulting“ entfernt",
+      },
+    ]);
   });
 
   it("refuses the removed login's open pages and opens its own workspace on the next page load", async () => {
@@ -369,32 +431,42 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
       data: { previousStatus: "pendingAuthorization" },
     });
 
-    expect(await teamMembership("cleo")).toEqual({ status: "inactive", left: true, roleId: null });
+    expect(await teamMembership("cleo")).toEqual({
+      status: "inactive",
+      left: true,
+      roleId: null,
+    });
     expect(await approvalTasks("cleo")).toBe(0);
     expect(await lastUsed("cleo")).toBe(companies.cleosOwn);
     expect(seats.updates).toHaveLength(1);
     expect(mails.sent).toHaveLength(1);
   });
 
-  it("refuses a platform operator, then removes an inactive member over REST", async () => {
-    const { CustomErrorCode } = await import("@/core/validation/validation.types");
-    await client.query('UPDATE "User" SET "isPlatformOperator" = TRUE WHERE id = $1', [people.dana.teamMemberId]);
-    expect(await failureCodes(await removeAs("ada", { userId: people.dana.teamMemberId }))).toEqual([
-      CustomErrorCode.workspaceMemberPlatformOperator,
-    ]);
-    expect(await teamMembership("dana")).toMatchObject({ status: "inactive", left: false });
-    await client.query('UPDATE "User" SET "isPlatformOperator" = FALSE WHERE id = $1', [people.dana.teamMemberId]);
+  it("removes an inactive member over REST, even one whose login is a platform operator", async () => {
+    await client.query('UPDATE "AuthUser" SET "isPlatformOperator" = TRUE WHERE id = $1', [people.dana.loginId]);
 
-    const removed = await withApiKey(keys.adaTeam.value, removeMember, { email: people.dana.email });
+    const removed = await withApiKey(keys.adaTeam.value, removeMember, {
+      email: people.dana.email,
+    });
 
     expect(removed).toEqual({
       status: 200,
-      body: { userId: people.dana.teamMemberId, email: people.dana.email, previousStatus: "inactive" },
+      body: {
+        userId: people.dana.teamMemberId,
+        email: people.dana.email,
+        previousStatus: "inactive",
+      },
     });
-    expect(await teamMembership("dana")).toMatchObject({ status: "inactive", left: true });
+    expect(await teamMembership("dana")).toMatchObject({
+      status: "inactive",
+      left: true,
+    });
     expect(seats.updates).toHaveLength(1);
     expect(mails.sent.slice(1)).toEqual([
-      { to: people.dana.email, subject: "You were removed from “Hoffmann Consulting”" },
+      {
+        to: people.dana.email,
+        subject: "You were removed from “Hoffmann Consulting”",
+      },
     ]);
   });
 
@@ -410,7 +482,9 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
     expect(await failureCodes(await removeAs("ada", { userId: people.ben.teamMemberId }))).toEqual([
       CustomErrorCode.workspaceMemberLeft,
     ]);
-    const self = await withApiKey(keys.adaTeam.value, removeMember, { userId: people.ada.teamMemberId });
+    const self = await withApiKey(keys.adaTeam.value, removeMember, {
+      userId: people.ada.teamMemberId,
+    });
     expect(self.status).toBe(403);
 
     const admin = await client.query<{ status: string; left: boolean }>(
@@ -425,18 +499,34 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
     const { getJoinWorkspaceInteractor } = await import("@/core/di");
     as(benSessions.stale);
 
-    expect(await getJoinWorkspaceInteractor().invoke({ intent, agreeToTerms: true })).toEqual({
+    expect(
+      await getJoinWorkspaceInteractor().invoke({
+        intent,
+        agreeToTerms: true,
+      }),
+    ).toEqual({
       ok: true,
-      data: { companyId: companies.team, status: "pendingAuthorization", alreadyMember: false },
+      data: {
+        companyId: companies.team,
+        status: "pendingAuthorization",
+        alreadyMember: false,
+      },
     });
-    expect(await teamMembership("ben")).toEqual({ status: "pendingAuthorization", left: false, roleId: null });
+    expect(await teamMembership("ben")).toEqual({
+      status: "pendingAuthorization",
+      left: false,
+      roleId: null,
+    });
     expect(await approvalTasks("ben")).toBe(1);
 
     expect(await removeAs("ada", { userId: people.ben.teamMemberId })).toMatchObject({
       ok: true,
       data: { previousStatus: "pendingAuthorization" },
     });
-    expect(await teamMembership("ben")).toMatchObject({ status: "inactive", left: true });
+    expect(await teamMembership("ben")).toMatchObject({
+      status: "inactive",
+      left: true,
+    });
     expect(await approvalTasks("ben")).toBe(0);
     expect(await lastUsed("ben")).toBe(companies.bensOwn);
     expect(mails.sent).toHaveLength(2);
@@ -445,19 +535,31 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
   it("removes the approval task when the person withdraws the request", async () => {
     const { getJoinWorkspaceInteractor, getWithdrawWorkspaceRequestInteractor } = await import("@/core/di");
     as(cleoSession);
-    expect(await getJoinWorkspaceInteractor().invoke({ intent, agreeToTerms: true })).toMatchObject({
+    expect(
+      await getJoinWorkspaceInteractor().invoke({
+        intent,
+        agreeToTerms: true,
+      }),
+    ).toMatchObject({
       ok: true,
       data: { status: "pendingAuthorization" },
     });
     expect(await approvalTasks("cleo")).toBe(1);
 
     as(cleoSession, SERVER_ACTION);
-    expect(await getWithdrawWorkspaceRequestInteractor().invoke({ companyId: companies.team })).toEqual({
+    expect(
+      await getWithdrawWorkspaceRequestInteractor().invoke({
+        companyId: companies.team,
+      }),
+    ).toEqual({
       ok: true,
       data: { companyId: companies.team },
     });
 
-    expect(await teamMembership("cleo")).toMatchObject({ status: "inactive", left: true });
+    expect(await teamMembership("cleo")).toMatchObject({
+      status: "inactive",
+      left: true,
+    });
     expect(await approvalTasks("cleo")).toBe(0);
     expect(await lastUsed("cleo")).toBe(companies.cleosOwn);
     expect(mails.sent).toHaveLength(2);

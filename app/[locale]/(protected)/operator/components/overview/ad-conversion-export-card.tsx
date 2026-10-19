@@ -11,12 +11,9 @@ import { Button } from "@/components/ui/button";
 import { IconContainer } from "@/components/shared/icon-container";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { getAdConversionExportAction } from "../../actions";
+import { operatorCsvHref } from "../operator-csv-href";
 
 type ExportState = { googleAdsCsv: string; rowCount: number; withoutColumnCount: number };
-
-function csvHref(content: string): string {
-  return `data:text/csv;charset=utf-8,${encodeURIComponent(content)}`;
-}
 
 export function AdConversionExportCard() {
   const t = useTranslations();
@@ -56,7 +53,7 @@ export function AdConversionExportCard() {
           {exported ? (
             <>
               <Button asChild variant="secondary">
-                <a download="google-ads-conversions.csv" href={csvHref(exported.googleAdsCsv)}>
+                <a download="google-ads-conversions.csv" href={operatorCsvHref(exported.googleAdsCsv)}>
                   <Download aria-hidden="true" className="size-4" />
 
                   {t("OperatorOverview.adConversions.googleAds")}

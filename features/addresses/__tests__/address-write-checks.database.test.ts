@@ -27,6 +27,7 @@ const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
+const { PrismaBillingUsageRepo } = await import("@/features/billing-usage/prisma-billing-usage.repository");
 const { RecordAccessPolicy } = await import("@/features/records/record-access");
 const { RecordCalculationService } = await import("@/features/records/record-calculation.service");
 const { RecordWriteService } = await import("@/features/records/record-write.service");
@@ -144,7 +145,10 @@ async function fixture() {
   const companyId = seed.company.id;
   const admin = createMockUser({ ...seed.user, role: { ...seed.role, permissions: [] } });
   const repo = createTestRecordRepo();
-  const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
+  const policy = new RecordAccessPolicy(
+    new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+    repo,
+  );
   const mutate = new MutateRecordInteractor(
     repo,
     policy,

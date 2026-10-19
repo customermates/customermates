@@ -5,7 +5,7 @@ import type { RecordFileSemanticIndexRepo } from "./record-file-semantic-index.r
 import {
   embeddingVectorLiteral,
   WIKI_EMBEDDING_BATCH_SIZE,
-  WIKI_EMBEDDING_MODEL,
+  WIKI_EMBEDDING_VERSION,
 } from "@/ee/wiki-retrieval/wiki-embedding-model";
 
 export const RECORD_FILE_SEMANTIC_BATCH_FILES = 8;
@@ -24,7 +24,7 @@ export class RecordFileSemanticIndexService implements RecordFileSemanticIndexer
     if (!(await this.repo.semanticIndexAvailable())) return { embedded: 0, remaining: false };
     if (!(await this.embeddings.authorizeIndexing(this.companyId, "fileIndexing")))
       return { embedded: 0, remaining: false };
-    const files = await this.repo.claimUnembeddedFiles(WIKI_EMBEDDING_MODEL, RECORD_FILE_SEMANTIC_BATCH_FILES);
+    const files = await this.repo.claimUnembeddedFiles(WIKI_EMBEDDING_VERSION, RECORD_FILE_SEMANTIC_BATCH_FILES);
     let calls = 0;
     let embedded = 0;
     let unfinished = false;
@@ -51,8 +51,8 @@ export class RecordFileSemanticIndexService implements RecordFileSemanticIndexer
     const grant = await this.embeddings.authorizeIndexing(this.companyId, "fileIndexing");
     if (!grant) return { calls: 0, complete: false, paused: true };
     const limit = maxCalls * WIKI_EMBEDDING_BATCH_SIZE;
-    const chunks = await this.repo.unembeddedChunks(fileId, WIKI_EMBEDDING_MODEL, limit);
-    const known = await this.repo.embeddingsByHash(WIKI_EMBEDDING_MODEL, [
+    const chunks = await this.repo.unembeddedChunks(fileId, WIKI_EMBEDDING_VERSION, limit);
+    const known = await this.repo.embeddingsByHash(WIKI_EMBEDDING_VERSION, [
       ...new Set(chunks.map((chunk) => chunk.contentHash)),
     ]);
     const missing = [
@@ -77,13 +77,13 @@ export class RecordFileSemanticIndexService implements RecordFileSemanticIndexer
       batch.forEach((chunk, index) => known.set(chunk.contentHash, embeddingVectorLiteral(vectors[index])));
     }
     await this.repo.storeChunkEmbeddings(
-      WIKI_EMBEDDING_MODEL,
+      WIKI_EMBEDDING_VERSION,
       chunks.flatMap((chunk) => {
         const embedding = known.get(chunk.contentHash);
         return embedding ? [{ id: chunk.id, embedding }] : [];
       }),
     );
-    const complete = !paused && (await this.repo.markFileEmbedded(fileId, WIKI_EMBEDDING_MODEL));
+    const complete = !paused && (await this.repo.markFileEmbedded(fileId, WIKI_EMBEDDING_VERSION));
     return { calls, complete, paused };
   }
 }

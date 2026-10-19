@@ -183,7 +183,7 @@ describeDatabase("a pending checkout of a workspace on PostgreSQL", { timeout: 1
     }
     for (const member of Object.values(members)) {
       await client.query(
-        'INSERT INTO "User" ("id","email","firstName","lastName","country","companyId","roleId","status","updatedAt") VALUES ($1,$2,\'Pending\',\'Admin\',\'de\',$3,$4,\'active\',CURRENT_TIMESTAMP)',
+        'INSERT INTO "User" ("id","email","firstName","lastName","companyId","roleId","status","updatedAt") VALUES ($1,$2,\'Pending\',\'Admin\',$3,$4,\'active\',CURRENT_TIMESTAMP)',
         [member.id, `pending-${member.id}@example.invalid`, member.companyId, member.roleId],
       );
     }

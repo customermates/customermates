@@ -4,18 +4,23 @@ import type { ReactNode } from "react";
 
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 
 import { FormCheckbox } from "@/components/forms/form-checkbox";
 import { AppForm } from "@/components/forms/form-context";
-import { FormAutocompleteCountry } from "@/components/forms/form-autocomplete-country";
+import { FormSelect } from "@/components/forms/form-select";
 import { FormInput } from "@/components/forms/form-input";
 import { AppLink } from "@/components/shared/app-link";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { Alert } from "@/components/shared/alert";
 import { WORKSPACE_NAME_MAX_LENGTH } from "@/features/workspace/workspace.schema";
+import { Locale } from "@/generated/prisma";
+import { DISPLAY_LANGUAGE_VALUES } from "@/i18n/user-locale";
+import { appLocaleOrDefault } from "@/i18n/locale-registry";
+
+import { SignedInIdentity } from "../../signed-in-identity";
 
 type Props = {
   email: string;
@@ -40,17 +45,23 @@ export const StepProfile = observer(
     canNameWorkspace = false,
   }: Props) => {
     const t = useTranslations();
+    const displayLanguage = appLocaleOrDefault(useLocale());
     const { stepProfileStore: store, appMode } = useRootStore();
     useState(() => {
-      store.onInitOrRefresh({ email, firstName, lastName, avatarUrl, onboardingIntent });
+      store.onInitOrRefresh({ email, firstName, lastName, avatarUrl, onboardingIntent, displayLanguage });
       store.setWithUnsavedChangesGuard(false);
     });
     const { isLoading } = store;
 
     useEffect(
-      () => store.onInitOrRefresh({ email, firstName, lastName, avatarUrl, onboardingIntent }),
-      [avatarUrl, email, firstName, lastName, onboardingIntent, store],
+      () => store.onInitOrRefresh({ email, firstName, lastName, avatarUrl, onboardingIntent, displayLanguage }),
+      [avatarUrl, displayLanguage, email, firstName, lastName, onboardingIntent, store],
     );
+
+    const displayLanguageItems = DISPLAY_LANGUAGE_VALUES.map((key) => ({
+      value: key,
+      label: key === Locale.system ? t("Common.locales.system") : t(`Common.locales.${key}`),
+    }));
 
     const legalDocumentLinks = {
       dataPrivacyLink: (chunks: ReactNode) => (
@@ -79,7 +90,7 @@ export const StepProfile = observer(
             </Alert>
           ) : null}
 
-          <FormInput readOnly autoComplete="email" id="email" name="email" type="email" />
+          <SignedInIdentity avatarUrl={avatarUrl} email={email} />
 
           <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
             <FormInput required autoComplete="given-name" id="firstName" name="given-name" />
@@ -87,7 +98,13 @@ export const StepProfile = observer(
             <FormInput required autoComplete="family-name" id="lastName" name="family-name" />
           </div>
 
-          <FormAutocompleteCountry required id="country" />
+          <FormSelect
+            required
+            description={t("UserSettingsForm.displayLanguageHint")}
+            id="displayLanguage"
+            items={displayLanguageItems}
+            label={t("Common.inputs.displayLanguage")}
+          />
 
           {canNameWorkspace ? (
             <FormInput

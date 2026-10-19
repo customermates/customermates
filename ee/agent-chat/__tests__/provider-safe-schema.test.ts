@@ -40,6 +40,7 @@ import {
   getAgentAiTools,
   type AgentToolDeps,
 } from "../agent-tools";
+import { inlineSchemaDefinitions } from "../provider-safe-json-schema";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -173,7 +174,7 @@ describe("provider-safe tool schemas", () => {
           .filter(Boolean)
           .reduce<unknown>(
             (current, segment) => (current as JsonRecord | undefined)?.[segment.replace(/\]$/, "")],
-            shipped?.schema,
+            inlineSchemaDefinitions(shipped?.schema),
           ) as JsonRecord | undefined;
 
         expect(node, `${mcp.name} ${path} disappeared`).toBeDefined();

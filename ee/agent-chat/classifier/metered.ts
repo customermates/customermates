@@ -1,4 +1,5 @@
 import type { ClassifierModel, ClassifierResult, ClassifierSpec, ClassifierState } from "./spec";
+import type { ClassifierFailure } from "./jev-runner";
 import type { ClassifyOptions } from "./index";
 
 import { AsyncLocalStorage } from "node:async_hooks";
@@ -56,7 +57,7 @@ export async function classifyMetered(
   state: ClassifierState,
   model: ClassifierModel,
   options: ClassifyOptions = {},
-): Promise<{ result: ClassifierResult | null; charge: ClassifierCharge | null }> {
+): Promise<{ result: ClassifierResult | null; charge: ClassifierCharge | null; failure?: ClassifierFailure }> {
   const attempt = await classifyAttempt(spec, state, options);
   if (!attempt.requested) return { result: null, charge: null };
   const measured = attempt.result?.costMicrocents ?? null;
@@ -68,5 +69,5 @@ export async function classifyMetered(
     answered: attempt.result !== null,
   };
   collector.getStore()?.push(charge);
-  return { result: attempt.result, charge };
+  return { result: attempt.result, charge, ...(attempt.failure ? { failure: attempt.failure } : {}) };
 }

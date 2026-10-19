@@ -27,6 +27,7 @@ import { ThreadParticipantsStore } from "@/app/[locale]/(protected)/inbox/compon
 import { LegalUpdateStore } from "@/app/[locale]/(protected)/legal-update/components/legal-update.store";
 import { OnboardingWizardStore } from "@/app/[locale]/(protected)/onboarding/wizard/components/onboarding-wizard.store";
 import { StepProfileStore } from "@/app/[locale]/(protected)/onboarding/wizard/components/step-profile.store";
+import { WorkspaceSetupStore } from "@/app/[locale]/(protected)/onboarding/wizard/components/setup/workspace-setup.store";
 import { OperatorAuditStore } from "@/app/[locale]/(protected)/operator/components/audit/operator-audit.store";
 import { OperatorUsersStore } from "@/app/[locale]/(protected)/operator/components/users/operator-users.store";
 import { OperatorWorkspacesStore } from "@/app/[locale]/(protected)/operator/components/workspaces/operator-workspaces.store";
@@ -103,6 +104,7 @@ export class RootStore {
   private _stepAiStore?: AiConnectionStore;
   private _stepProfileStore?: StepProfileStore;
   private _onboardingWizardStore?: OnboardingWizardStore;
+  private _workspaceSetupStore?: WorkspaceSetupStore;
   private _resetPasswordStore?: ResetPasswordStore;
   private _errorTestStore?: ErrorTestStore;
   private _wikiPageStore?: WikiPageStore;
@@ -254,6 +256,10 @@ export class RootStore {
     return (this._onboardingWizardStore ??= new OnboardingWizardStore(this));
   }
 
+  get workspaceSetupStore() {
+    return (this._workspaceSetupStore ??= new WorkspaceSetupStore(this));
+  }
+
   get errorTestStore() {
     return (this._errorTestStore ??= new ErrorTestStore(this));
   }
@@ -344,6 +350,7 @@ export class RootStore {
   get routineRunChatStore() {
     return (this._routineRunChatStore ??= new AgentChatStore(this, {
       persistOpenState: false,
+      surface: "routine",
     }));
   }
 

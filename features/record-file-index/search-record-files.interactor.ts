@@ -3,7 +3,6 @@ import type { Validated } from "@/core/validation/validation.utils";
 import type { RecordAccessPolicy } from "@/features/records/record-access";
 import type { RecordRepo } from "@/features/records/record.repo";
 import type { RecordSearchHit } from "@/features/records/record-search.schema";
-import type { SearchWikiPagesRepo } from "@/features/wiki/search-wiki-pages.repo";
 import type { WikiQueryEmbedder } from "@/features/wiki/wiki-query-embedder";
 import type { RecordFileIndexScheduler } from "./record-file-index-scheduler";
 import type { RecordFileSearch, RecordFileSearchHit, RecordFileSearchResult } from "./record-file-index.schema";
@@ -19,7 +18,7 @@ import { unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { recordSearchHit } from "@/features/records/search-records.interactor";
 import { wikiPlainText } from "@/features/wiki/wiki-content";
 import { wikiCodePointBoundary } from "@/features/wiki/wiki-page-chunk";
-import { wikiSnippet } from "@/features/wiki/wiki-section-location";
+import { wikiSectionSnippet } from "@/features/wiki/search-wiki-pages.interactor";
 import { env } from "@/env";
 
 import { RecordFileSearchSchema } from "./record-file-index.schema";
@@ -50,7 +49,6 @@ export class SearchRecordFilesInteractor extends AuthenticatedInteractor<RecordF
     private records: RecordRepo,
     private policy: RecordAccessPolicy,
     private files: SearchRecordFilesRepo,
-    private headlines: Pick<SearchWikiPagesRepo, "sectionHeadlines">,
     private semantic: RecordFileSemanticRetrieval | null = null,
   ) {
     super();
@@ -92,10 +90,10 @@ export class SearchRecordFilesInteractor extends AuthenticatedInteractor<RecordF
         return found;
       },
       embed: semantic ? (query, wait) => semantic.embedder.embedQuery(query, wait) : null,
-      semantic: async ({ vector, model: embeddingModel }) => {
+      semantic: async ({ vector, version: embeddingVersion }) => {
         const found = await this.files.semanticFileCandidates(
           vector,
-          embeddingModel,
+          embeddingVersion,
           scope,
           RECORD_FILE_SEARCH_CANDIDATES,
         );
@@ -130,11 +128,7 @@ export class SearchRecordFilesInteractor extends AuthenticatedInteractor<RecordF
         recordSearchHit(row, model, policy.allowed(row.typeId, "update")),
       ]),
     );
-    const headlines = await this.headlines.sectionHeadlines(
-      corrected ?? data.query,
-      chosen.map(({ section }) => wikiPlainText(sectionBody(section))),
-    );
-    const items = chosen.flatMap(({ target, section }, index): RecordFileSearchHit[] => {
+    const items = chosen.flatMap(({ target, section }): RecordFileSearchHit[] => {
       const record = records.get(`${target.typeId}:${target.recordId}`);
       if (!record) return [];
       return [
@@ -144,7 +138,7 @@ export class SearchRecordFilesInteractor extends AuthenticatedInteractor<RecordF
           mimeType: target.mimeType,
           fieldId: target.fieldId,
           record,
-          snippet: wikiSnippet(headlines[index] ?? ""),
+          snippet: wikiSectionSnippet(wikiPlainText(sectionBody(section)), corrected ?? data.query),
           ...(section.heading ? { section: sectionLabel(section.heading) } : {}),
           offset: section.offset,
         },

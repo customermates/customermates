@@ -18,6 +18,8 @@ import { FilterFieldKey } from "@/core/types/filter-field-key";
 
 import { OPERATOR_AUDIT_SOURCE } from "./operator-lists.schema";
 
+export { operatorCollator } from "./operator-collator";
+
 const INTERCEPTED_FIELDS = new Set<string>([
   FilterFieldKey.plan,
   FilterFieldKey.subscriptionStatus,
@@ -29,10 +31,6 @@ const INTERCEPTED_FIELDS = new Set<string>([
 
 function unsupportedGrouping(spec: GroupableFieldSpec): never {
   throw new Error(`Operator lists cannot group by ${spec.kind} (${spec.model}.${spec.field})`);
-}
-
-export function operatorCollator(): Pick<Intl.Collator, "compare"> {
-  return { compare: (left, right) => (left < right ? -1 : left > right ? 1 : 0) };
 }
 
 export function groupScopeToFilters(scope: GroupScope): Filter[] | undefined {
@@ -158,7 +156,10 @@ class SubscriptionConditions {
   }
 }
 
-export function partitionOperatorUserFilters(filters: Filter[] | undefined): {
+export function partitionOperatorUserFilters(
+  filters: Filter[] | undefined,
+  platformOperatorEmails: readonly string[],
+): {
   baseWhere: Prisma.UserWhereInput;
   passthrough: Filter[];
 } {
@@ -180,7 +181,10 @@ export function partitionOperatorUserFilters(filters: Filter[] | undefined): {
       const wanted = values.includes("true");
       const both = values.includes("true") && values.includes("false");
       if (both) continue;
-      baseWhere.isPlatformOperator = negated(filter) ? !wanted : wanted;
+      const emails = [...platformOperatorEmails];
+      baseWhere.email = (negated(filter) ? !wanted : wanted)
+        ? { in: emails, mode: "insensitive" }
+        : { notIn: emails, mode: "insensitive" };
       continue;
     }
 

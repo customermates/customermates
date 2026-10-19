@@ -10,6 +10,7 @@ import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 import { DisplayType } from "@/features/widget/widget-display.schema";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 vi.mock("@/env", () => ({
   env: {
@@ -74,7 +75,10 @@ async function fixture(preset: Preset = "crm") {
   const admin = createMockUser({ ...seed.admin, role: { ...seed.role, permissions: [] } });
   const member = createMockUser({ ...seed.member, role: { ...seed.memberRole, permissions: [] } });
   const repo = createTestRecordRepo();
-  const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
+  const policy = new RecordAccessPolicy(
+    new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+    repo,
+  );
   const mutate = new MutateRecordInteractor(
     repo,
     policy,
@@ -83,7 +87,11 @@ async function fixture(preset: Preset = "crm") {
     new RecordTrashService(repo, new RecordCalculationService(repo)),
   );
   const measure = new QueryRecordMeasureInteractor(repo, policy);
-  const reader = new RecordWidgetReader(repo, measure, new PrismaUserRepo(new PermissionService()));
+  const reader = new RecordWidgetReader(
+    repo,
+    measure,
+    new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+  );
   const widgets = new UpsertRecordWidgetInteractor(
     new PrismaWidgetRepo(),
     repo,
@@ -570,10 +578,16 @@ describeDatabase("time-bucketed record measures", () => {
     const service = await restricted.run(async () => {
       const result = await new MutateRecordInteractor(
         restricted.repo,
-        new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), restricted.repo),
+        new RecordAccessPolicy(
+          new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+          restricted.repo,
+        ),
         new RecordWriteService(
           restricted.repo,
-          new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), restricted.repo),
+          new RecordAccessPolicy(
+            new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+            restricted.repo,
+          ),
           new RecordCalculationService(restricted.repo),
         ),
         { dispatch: () => Promise.resolve() },
@@ -595,10 +609,16 @@ describeDatabase("time-bucketed record measures", () => {
       if (!created) throw new Error("Service missing");
       const line = await new MutateRecordInteractor(
         restricted.repo,
-        new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), restricted.repo),
+        new RecordAccessPolicy(
+          new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+          restricted.repo,
+        ),
         new RecordWriteService(
           restricted.repo,
-          new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), restricted.repo),
+          new RecordAccessPolicy(
+            new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+            restricted.repo,
+          ),
           new RecordCalculationService(restricted.repo),
         ),
         { dispatch: () => Promise.resolve() },

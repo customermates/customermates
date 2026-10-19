@@ -39,7 +39,9 @@ import {
   GOOGLE_SCHEMA_KEYS,
   GOOGLE_SCHEMA_TYPES,
   googleSafeJsonSchema,
+  inlineSchemaDefinitions,
   isGoogleServingProvider,
+  shareRepeatedSubschemas,
   providerWireInputSchema,
   summarizeGoogleSchemaChanges,
 } from "../provider-safe-json-schema";
@@ -233,8 +235,38 @@ function googleNodes() {
 }
 
 function changesForShippedCatalog() {
-  return declaredTools.flatMap(({ inputSchema }) => googleSafeJsonSchema(inputSchema).changes);
+  return declaredTools.flatMap(({ inputSchema }) => googleSafeJsonSchema(inlineSchemaDefinitions(inputSchema)).changes);
 }
+
+describe("shared sub-schemas", () => {
+  const source = {
+    type: "object",
+    description: "x".repeat(1_200),
+    properties: { typeId: { type: "string" } },
+    required: ["typeId"],
+  };
+  const document = {
+    type: "object",
+    properties: { measure: { type: "object", properties: { source } }, calendarQuery: source, mapQuery: source },
+  };
+
+  it("sends a large repeated sub-schema once and references it, and puts it back for wires without references", () => {
+    const shared = shareRepeatedSubschemas(document) as JsonRecord;
+    expect(shared.definitions).toEqual({ shared1: source });
+    expect((shared.properties as JsonRecord).mapQuery).toEqual({ $ref: "#/definitions/shared1" });
+    expect(JSON.stringify(shared).length).toBeLessThan(JSON.stringify(document).length);
+    expect(inlineSchemaDefinitions(shared)).toEqual(document);
+    expect(new Ajv({ strict: false }).validate(shared, { measure: { source: { typeId: "a" } }, mapQuery: {} })).toBe(
+      false,
+    );
+  });
+
+  it("keeps small repeats and property names inline", () => {
+    const small = { type: "string", pattern: "^x$" };
+    const plain = { type: "object", properties: { a: small, b: small, properties: { type: "string" } } };
+    expect(shareRepeatedSubschemas(plain)).toBe(plain);
+  });
+});
 
 describe("the Google function-declaration dialect", () => {
   it("drops the draft-07 preamble and every keyword Google has no field for", () => {
@@ -743,7 +775,7 @@ describe("the transform on the wire", () => {
     expect(source).toContain("surface,");
     expect(source).toContain("servingProvider,");
     expect(source).toContain("...options,");
-    expect(source).toContain("loadAgentToolShells(surface, payload.turnBudget.servingProvider, {");
+    expect(source).toContain("agentToolShells(surface, payload.turnBudget.servingProvider, options)");
     expect(source).not.toContain("getAgentAiToolDefinitions()");
 
     const admission = readFileSync(join(REPO_ROOT, "ee", "agent-chat", "send-agent-message.interactor.ts"), "utf8");

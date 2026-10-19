@@ -17,6 +17,7 @@ const calls = vi.hoisted(() => ({
   accounts: vi.fn(),
   startImport: vi.fn(),
   latestCrawl: vi.fn(),
+  propose: vi.fn(),
 }));
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
@@ -27,6 +28,7 @@ vi.mock("@/core/di", () => ({
   getCreateWikiPagesInteractor: () => ({ invoke: calls.create }),
   getUpdateWikiPageInteractor: () => ({ invoke: calls.update }),
   getDeleteWikiPageInteractor: () => ({ invoke: calls.delete }),
+  getProposeWikiPageChangesInteractor: () => ({ invoke: calls.propose }),
   getGetWikiCatalogInteractor: () => ({ invoke: calls.catalog }),
   getGetUserDetailsInteractor: () => ({
     invoke: () => Promise.resolve({ ok: true, data: { id: "user" } }),
@@ -79,6 +81,8 @@ import {
 } from "@/ee/agent-chat/agent-tools";
 
 const PAGE_ID = "00000000-0000-4000-8000-000000000001";
+const PROPOSAL_ID = "00000000-0000-4000-8000-000000000002";
+const CONVERSATION_ID = "00000000-0000-4000-8000-000000000003";
 const page = {
   id: PAGE_ID,
   title: "Voice",
@@ -296,7 +300,7 @@ describe("managed Wiki retrieval tools", () => {
     },
   );
 
-  it.each(["chat", "routine"] as const)(
+  it.each(["chat"] as const)(
     "keeps hostile Wiki text inert and enforces authorization and destructive approval on %s",
     async (surface) => {
       const hostileMarkdown = [
@@ -350,6 +354,114 @@ describe("managed Wiki retrieval tools", () => {
       expect(calls.delete).not.toHaveBeenCalled();
     },
   );
+
+  it("runs chat writes the user asked for at once and keeps delete behind approval", async () => {
+    const deps = dependencies();
+    const tools = getAgentAiTools({ ...deps, conversationId: CONVERSATION_ID }, { surface: "chat" });
+
+    const created = await execute(tools.manage_wiki_pages, {
+      action: "create",
+      pages: [{ title: "Voice", markdown: "Created page" }],
+    });
+    const updated = await execute(tools.manage_wiki_pages, {
+      action: "update",
+      id: PAGE_ID,
+      expectedUpdatedAt: page.updatedAt.toISOString(),
+      markdown: "Updated page",
+    });
+    const deleted = await execute(tools.manage_wiki_pages, {
+      action: "delete",
+      id: PAGE_ID,
+      expectedUpdatedAt: page.updatedAt.toISOString(),
+    });
+
+    expect([created.ok, updated.ok, deleted.ok]).toEqual([true, true, true]);
+    expect(calls.create).toHaveBeenCalledOnce();
+    expect(calls.update).toHaveBeenCalledOnce();
+    expect(calls.delete).toHaveBeenCalledOnce();
+    expect(calls.propose).not.toHaveBeenCalled();
+    expect(deps.requestApproval).toHaveBeenCalledOnce();
+    expect(deps.requestApproval).toHaveBeenCalledWith(
+      "wiki-test-call",
+      "manage_wiki_pages",
+      expect.objectContaining({ action: "delete" }),
+    );
+  });
+
+  it("turns routine creates, updates and deletes into proposals without touching pages or asking for approval", async () => {
+    calls.propose.mockImplementation((input: { action: string; id?: string }) =>
+      Promise.resolve({
+        ok: true,
+        data: [
+          {
+            id: PROPOSAL_ID,
+            action: input.action,
+            pageId: input.id ?? null,
+            title: input.action === "create" ? "Voice" : null,
+          },
+        ],
+      }),
+    );
+    const deps = dependencies();
+    const tools = getAgentAiTools({ ...deps, conversationId: CONVERSATION_ID }, { surface: "routine" });
+    const description = (tools.manage_wiki_pages as { description?: string }).description ?? "";
+
+    const outcomes = [
+      await execute(tools.manage_wiki_pages, {
+        action: "create",
+        pages: [{ title: "Voice", markdown: "Proposed page" }],
+      }),
+      await execute(tools.manage_wiki_pages, {
+        action: "update",
+        id: PAGE_ID,
+        expectedUpdatedAt: page.updatedAt.toISOString(),
+        markdown: "Proposed edit",
+      }),
+      await execute(tools.manage_wiki_pages, {
+        action: "delete",
+        id: PAGE_ID,
+        expectedUpdatedAt: page.updatedAt.toISOString(),
+      }),
+    ];
+
+    expect(description).toContain("proposal that a manager reviews");
+    for (const outcome of outcomes) {
+      expect(outcome.ok).toBe(true);
+      expect(decode(outcome.result)).toMatchObject({
+        status: "pending_review",
+        proposals: [{ proposalId: PROPOSAL_ID }],
+        note: expect.stringContaining("not done"),
+      });
+    }
+    expect(calls.propose.mock.calls.map(([input]) => [input.action, input.conversationId])).toEqual([
+      ["create", CONVERSATION_ID],
+      ["update", CONVERSATION_ID],
+      ["delete", CONVERSATION_ID],
+    ]);
+    expect(calls.create).not.toHaveBeenCalled();
+    expect(calls.update).not.toHaveBeenCalled();
+    expect(calls.delete).not.toHaveBeenCalled();
+    expect(deps.requestApproval).not.toHaveBeenCalled();
+    expect(deps.runExactlyOnce).toHaveBeenCalledTimes(3);
+
+    const read = await execute(tools.manage_wiki_pages, { action: "get", id: PAGE_ID, offset: 0 });
+    expect(read.ok).toBe(true);
+    expect(calls.get).toHaveBeenCalledOnce();
+  });
+
+  it("refuses a routine proposal that has no conversation to attach to", async () => {
+    const tools = getAgentAiTools(dependencies(), { surface: "routine" });
+
+    const outcome = await execute(tools.manage_wiki_pages, {
+      action: "delete",
+      id: PAGE_ID,
+      expectedUpdatedAt: page.updatedAt.toISOString(),
+    });
+
+    expect(outcome.ok).toBe(false);
+    expect(calls.propose).not.toHaveBeenCalled();
+    expect(calls.delete).not.toHaveBeenCalled();
+  });
 
   it("uses the runtime-v2 hosted Wiki tools and keeps the public deep-research pair external", () => {
     const options = { surface: "chat" as const, webSearchEnabled: false };

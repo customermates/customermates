@@ -1,3 +1,5 @@
+import * as Sentry from "@sentry/nextjs";
+
 import {
   getDeactivateTrialUsersAndSendNoticeInteractor,
   getDeactivateUsersAfterSubscriptionGracePeriodInteractor,
@@ -13,6 +15,8 @@ import {
   getPurgeExpiredTrashInteractor,
   getPurgeExpiredRecordFilesInteractor,
   getNormalizePhoneIdentitiesInteractor,
+  getPruneWikiKnowledgeGapsInteractor,
+  getSyncStaleWikiSectionsInteractor,
 } from "@/core/di";
 import { env } from "@/env";
 
@@ -41,6 +45,12 @@ export async function GET(req: Request) {
     getPurgeExpiredTrashInteractor().invoke(),
     getPurgeExpiredRecordFilesInteractor().invoke(),
     getNormalizePhoneIdentitiesInteractor().invoke(),
+    getPruneWikiKnowledgeGapsInteractor().invoke(),
+    getSyncStaleWikiSectionsInteractor()
+      .invoke()
+      .catch((error: unknown) => {
+        Sentry.captureException(error, { tags: { kind: "wiki-section-cron-sync" } });
+      }),
   ]);
 
   await getDeleteOrphanedUnipileAccountsInteractor().invoke();

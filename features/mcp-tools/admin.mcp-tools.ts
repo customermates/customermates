@@ -18,7 +18,6 @@ const UpdateMyProfileSchema = z
   .object({
     firstName: UpdateUserDetailsSchema.shape.firstName.describe("Omit to keep existing"),
     lastName: UpdateUserDetailsSchema.shape.lastName.describe("Omit to keep existing"),
-    country: UpdateUserDetailsSchema.shape.country.describe("ISO country code. Omit to keep existing."),
     avatarUrl: UpdateUserDetailsSchema.shape.avatarUrl.describe(
       "HTTPS avatar URL, or '' / null to clear. Omit to keep existing.",
     ),
@@ -37,15 +36,7 @@ const ChangedProfileSchema = UpdateMyProfileSchema.refine(
   { message: "Profile settings need at least one changed field." },
 );
 
-const PROFILE_FIELDS = [
-  "firstName",
-  "lastName",
-  "country",
-  "avatarUrl",
-  "theme",
-  "displayLanguage",
-  "formattingLocale",
-] as const;
+const PROFILE_FIELDS = ["firstName", "lastName", "avatarUrl", "theme", "displayLanguage", "formattingLocale"] as const;
 
 const UpdateMyProfileOutputSchema = z.looseObject({ message: z.string() });
 const ManageTeamOutputSchema = z
@@ -69,7 +60,7 @@ export const updateMyProfileTool = {
   title: "Update my profile",
   description:
     "Use this when updating the current user's own profile and preferences. " +
-    "It is a partial update of firstName, lastName, country, avatarUrl, theme, displayLanguage and formattingLocale; omitted fields keep their current values. " +
+    "It is a partial update of firstName, lastName, avatarUrl, theme, displayLanguage and formattingLocale; omitted fields keep their current values. " +
     "It never changes other members or workspace configuration.",
   annotations: {
     readOnlyHint: false,
@@ -137,7 +128,7 @@ export const manageTeamTool = {
     "action invite_link returns the workspace invitation link and its expiresAt, as the Invite modal shows it, creating one valid for 7 days when none is active; anyone who opens it can request to join, so hand it only to the people the user names. " +
     "action update_member changes an existing member's role or status: identify the member by userId from list_users.items[].id or email (both must match if supplied), plus roleId from get_workspace_context.roles[].id and/or status; omitted fields keep their current values; " +
     "a member who has no role assigned yet (e.g. a still pending invite) has no role to keep, so you must pass roleId together with the change or the call is rejected. " +
-    "action remove_member removes another member from this workspace (userId or email, both must match if supplied): their status becomes inactive and they show as left (a declined request leaves the list instead), it permanently revokes their API keys and MCP connections for this workspace, disconnects the mailboxes and LinkedIn accounts they connected here, pauses their routines and frees an active member's seat; for a member waiting for approval it declines the request. It SENDS A REAL EMAIL telling the removed member that their access ended (none for a declined request). Records they own stay. To return they ask to join again with an invitation link, and an admin has to approve the request; you cannot remove yourself, a platform operator, a member who already left or the last active admin. " +
+    "action remove_member removes another member from this workspace (userId or email, both must match if supplied): their status becomes inactive and they show as left (a declined request leaves the list instead), it permanently revokes their API keys and MCP connections for this workspace, disconnects the mailboxes and LinkedIn accounts they connected here, pauses their routines and frees an active member's seat; for a member waiting for approval it declines the request. It SENDS A REAL EMAIL telling the removed member that their access ended (none for a declined request). Records they own stay. To return they ask to join again with an invitation link, and an admin has to approve the request; you cannot remove yourself, the only active membership of the last Customermates platform operator, a member who already left or the last active admin. " +
     "last-admin protection is enforced server-side, the workspace can never lose its last active admin. " +
     "invite requires create permission on users, as does invite_link; update_member requires update permission on users (Edit on Users & Roles), the same check as REST POST /v1/members/update, and remove_member requires the same permission as REST POST /v1/members/remove.",
   annotations: {

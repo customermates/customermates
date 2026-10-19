@@ -82,7 +82,7 @@ async function createWorkspace(
 async function createLogin(
   client: AppPrismaClient,
   email: string,
-  args: { lastUsedCompanyId?: string | null; emailVerified?: boolean } = {},
+  args: { lastUsedCompanyId?: string | null; emailVerified?: boolean; isPlatformOperator?: boolean } = {},
 ) {
   const authUserId = randomUUID();
   authUserIds.push(authUserId);
@@ -93,6 +93,7 @@ async function createLogin(
       email,
       name: "Shared Login",
       emailVerified: args.emailVerified ?? true,
+      isPlatformOperator: args.isPlatformOperator ?? false,
     },
   });
   return authUserId;
@@ -102,7 +103,7 @@ async function createMembership(
   client: AppPrismaClient,
   companyId: string,
   email: string,
-  args: { status?: MemberStatus; isPlatformOperator?: boolean; lastActiveAt?: Date; leftAt?: Date } = {},
+  args: { status?: MemberStatus; lastActiveAt?: Date; leftAt?: Date } = {},
 ) {
   const user = await client.user.create({
     data: {
@@ -111,7 +112,6 @@ async function createMembership(
       firstName: "Shared",
       lastName: "Login",
       status: args.status ?? "active",
-      isPlatformOperator: args.isPlatformOperator ?? false,
       lastActiveAt: args.lastActiveAt ?? null,
       leftAt: args.leftAt ?? null,
     },
@@ -219,21 +219,23 @@ afterAll(async () => {
 });
 
 describeDatabase("operator console with logins in several workspaces", { timeout: 120_000 }, () => {
-  it("authorizes the operator membership of a login, not its more recently used ordinary membership", async () => {
+  it("authorizes an operator login from its most recently used active membership in any workspace", async () => {
     const email = `multi-operator-${randomUUID()}@example.invalid`;
-    const { operatorWorkspace, ordinaryWorkspace, authUserId, operatorMembership, ordinaryMembership } =
+    const { operatorWorkspace, ordinaryWorkspace, authUserId, olderMembership, recentMembership } =
       await runWithoutTenant(async () => {
         const operatorWorkspace = await createWorkspace(prisma, { name: "Customermates Staff" });
         const ordinaryWorkspace = await createWorkspace(prisma, { name: "Bergmann Steuern" });
-        const authUserId = await createLogin(prisma, email, { lastUsedCompanyId: ordinaryWorkspace });
-        const operatorMembership = await createMembership(prisma, operatorWorkspace, email, {
+        const authUserId = await createLogin(prisma, email, {
+          lastUsedCompanyId: ordinaryWorkspace,
           isPlatformOperator: true,
+        });
+        const olderMembership = await createMembership(prisma, operatorWorkspace, email, {
           lastActiveAt: new Date(Date.now() - 3 * DAY),
         });
-        const ordinaryMembership = await createMembership(prisma, ordinaryWorkspace, email, {
+        const recentMembership = await createMembership(prisma, ordinaryWorkspace, email, {
           lastActiveAt: new Date(),
         });
-        return { operatorWorkspace, ordinaryWorkspace, authUserId, operatorMembership, ordinaryMembership };
+        return { operatorWorkspace, ordinaryWorkspace, authUserId, olderMembership, recentMembership };
       });
     const sessionId = await createSession(authUserId, ordinaryWorkspace);
     const session = { session: { id: sessionId }, user: { id: authUserId, email } } as InteractiveSession;
@@ -241,23 +243,29 @@ describeDatabase("operator console with logins in several workspaces", { timeout
 
     await expect(repo.findAuthorizedActorUnscoped(session)).resolves.toEqual({
       authUserId,
-      userId: operatorMembership,
-      companyId: operatorWorkspace,
+      userId: recentMembership,
+      companyId: ordinaryWorkspace,
       email,
     });
 
     await runWithoutTenant(() =>
-      prisma.user.update({ where: { id: operatorMembership }, data: { status: "inactive", leftAt: new Date() } }),
+      prisma.user.update({ where: { id: recentMembership }, data: { status: "inactive", leftAt: new Date() } }),
+    );
+    await expect(repo.findAuthorizedActorUnscoped(session)).resolves.toMatchObject({
+      userId: olderMembership,
+      companyId: operatorWorkspace,
+    });
+
+    await runWithoutTenant(() =>
+      prisma.authUser.update({ where: { id: authUserId }, data: { isPlatformOperator: false } }),
     );
     await expect(repo.findAuthorizedActorUnscoped(session)).resolves.toBeNull();
 
-    await runWithoutTenant(() =>
-      prisma.user.update({ where: { id: ordinaryMembership }, data: { isPlatformOperator: true } }),
-    );
-    await expect(repo.findAuthorizedActorUnscoped(session)).resolves.toMatchObject({
-      userId: ordinaryMembership,
-      companyId: ordinaryWorkspace,
+    await runWithoutTenant(async () => {
+      await prisma.authUser.update({ where: { id: authUserId }, data: { isPlatformOperator: true } });
+      await prisma.user.update({ where: { id: olderMembership }, data: { status: "inactive" } });
     });
+    await expect(repo.findAuthorizedActorUnscoped(session)).resolves.toBeNull();
   });
 
   it("deletes a workspace but keeps a shared login with its other memberships and the credentials bound to them", async () => {
@@ -379,13 +387,13 @@ describeDatabase("operator console with logins in several workspaces", { timeout
       await createLogin(client, emails[0], { lastUsedCompanyId: pro });
       await createLogin(client, emails[1], { lastUsedCompanyId: business });
       await createLogin(client, emails[2], { emailVerified: false });
-      await createLogin(client, emails[3]);
+      await createLogin(client, emails[3], { isPlatformOperator: true });
       await createMembership(client, pro, emails[0]);
       await createMembership(client, pro, emails[1]);
       await createMembership(client, pro, emails[2], { status: "pendingAuthorization" });
       await createMembership(client, business, emails[0]);
       await createMembership(client, business, emails[1].toUpperCase(), { status: "inactive", leftAt: new Date() });
-      await createMembership(client, business, emails[3], { isPlatformOperator: true });
+      await createMembership(client, business, emails[3]);
       await createMembership(client, unsubscribed, emails[0]);
 
       delta = summaryDelta(before, await repo.getUserSummaryUnscoped());
@@ -397,7 +405,7 @@ describeDatabase("operator console with logins in several workspaces", { timeout
       platformOperators: 1,
       verifiedAuthUsers: 3,
       byStatus: { active: 3, inactive: 1, pendingAuthorization: 1 },
-      byPlan: { starter: 0, pro: 3, business: 3, enterprise: 0, missing: 1 },
+      byPlan: { starter: 0, pro: 3, business: 3, max: 0, enterprise: 0, missing: 1 },
       bySubscriptionStatus: {
         trial: 3,
         active: 3,

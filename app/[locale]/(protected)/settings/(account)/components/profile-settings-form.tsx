@@ -13,7 +13,6 @@ import { VerifyEmailAction } from "./verify-email-action";
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { FormSelect } from "@/components/forms/form-select";
-import { FormAutocompleteCountry } from "@/components/forms/form-autocomplete-country";
 import { UnsavedChangesBar, unsavedChangesMode } from "@/components/forms/unsaved-changes-bar";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
@@ -57,7 +56,6 @@ const ProfileSettingsFormContent = observer(({ userDetails, emailVerified }: Pro
     store.onInitOrRefresh({
       firstName: userDetails.firstName,
       lastName: userDetails.lastName,
-      country: userDetails.country,
       avatarUrl: userDetails.avatarUrl ?? "",
       theme: userDetails.theme,
       displayLanguage: userDetails.displayLanguage,
@@ -69,7 +67,6 @@ const ProfileSettingsFormContent = observer(({ userDetails, emailVerified }: Pro
     store.onInitOrRefresh({
       firstName: userDetails.firstName,
       lastName: userDetails.lastName,
-      country: userDetails.country,
       avatarUrl: userDetails.avatarUrl ?? "",
       theme: userDetails.theme,
       displayLanguage: userDetails.displayLanguage,
@@ -136,8 +133,6 @@ const ProfileSettingsFormContent = observer(({ userDetails, emailVerified }: Pro
 
             <FormInput required id="lastName" inputId="settings-profile-last-name" />
           </div>
-
-          <FormAutocompleteCountry required id="country" inputId="settings-profile-country" />
 
           <FormInput id="avatarUrl" inputId="settings-profile-avatar-url" />
 

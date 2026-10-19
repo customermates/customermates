@@ -79,7 +79,7 @@ async function seedWorkspaceWithoutSubscription(domain: string) {
 
 async function seedWorkspace(args: {
   domain: string;
-  plan: "starter" | "pro" | "business" | "enterprise";
+  plan: "starter" | "pro" | "business" | "max" | "enterprise";
   status: "trial" | "active" | "cancelled" | "expired" | "pastDue" | "unPaid";
   members: Array<{
     status?: "active" | "inactive";
@@ -105,18 +105,23 @@ async function seedWorkspace(args: {
     });
     for (const [index, member] of args.members.entries()) {
       const userId = randomUUID();
+      const email = `member-${index}-${randomUUID()}@${args.domain}`;
       userIds.push(userId);
       await prisma.user.create({
         data: {
           id: userId,
           companyId,
-          email: `member-${index}-${randomUUID()}@${args.domain}`,
+          email,
           firstName: "Member",
           lastName: `${index}`,
           status: member.status ?? "active",
-          isPlatformOperator: member.isPlatformOperator ?? false,
         },
       });
+      if (member.isPlatformOperator) {
+        await prisma.authUser.create({
+          data: { id: userId, email, name: "Member Operator", emailVerified: true, isPlatformOperator: true },
+        });
+      }
 
       if (!member.adProvider || !member.adIdentifierKind || !member.adIdentifierValue) continue;
 
@@ -144,6 +149,8 @@ async function seedWorkspace(args: {
 afterAll(async () => {
   await runWithoutTenant(async () => {
     for (const companyId of companyIds) {
+      const members = await prisma.user.findMany({ where: { companyId }, select: { id: true } });
+      await prisma.authUser.deleteMany({ where: { id: { in: members.map((member) => member.id) } } });
       await prisma.user.deleteMany({ where: { companyId } });
       await prisma.userRole.deleteMany({ where: { companyId } });
       await prisma.subscription.deleteMany({ where: { companyId } });
@@ -264,7 +271,14 @@ describeDatabase("operator user list against a real database", { timeout: 120_00
     const byPlan = await runWithoutTenant(async () =>
       repo.countByGroup({ spec: await groupableSpec(repo, "plan"), params }),
     );
-    expect(countsByKey(byPlan)).toEqual({ starter: 1, pro: 0, business: 0, enterprise: 3, [NO_VALUE_GROUP_KEY]: 1 });
+    expect(countsByKey(byPlan)).toEqual({
+      starter: 1,
+      pro: 0,
+      business: 0,
+      max: 0,
+      enterprise: 3,
+      [NO_VALUE_GROUP_KEY]: 1,
+    });
 
     const bySubscription = await runWithoutTenant(async () =>
       repo.countByGroup({ spec: await groupableSpec(repo, "subscriptionStatus"), params }),
@@ -287,6 +301,7 @@ describeDatabase("operator user list against a real database", { timeout: 120_00
       starter: 0,
       pro: 0,
       business: 0,
+      max: 0,
       enterprise: 3,
       [NO_VALUE_GROUP_KEY]: 1,
     });
@@ -467,6 +482,7 @@ describeDatabase("operator workspace list against a real database", { timeout: 1
       starter: 1,
       pro: 0,
       business: 1,
+      max: 0,
       enterprise: 0,
       [NO_VALUE_GROUP_KEY]: 1,
     });

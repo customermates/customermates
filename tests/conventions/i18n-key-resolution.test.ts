@@ -17,10 +17,11 @@ import { AGENT_ACTIVITY_COPY_KINDS, AGENT_APPROVAL_COPY_KINDS } from "@/ee/agent
 import { ACCOUNT_REMOVAL_REASONS } from "@/ee/messaging/connect/account-removal-reason";
 import { CHANNEL_GROUPS } from "@/ee/messaging/provider";
 import { SignatureTemplate } from "@/ee/messaging/email-settings";
+import { BILLING_SOURCES } from "@/ee/operator/billing-usage.schema";
 import { OPERATOR_AUDIT_ACTION } from "@/ee/operator/operator.schema";
 import { ROUTINE_RUN_REASONS } from "@/ee/routines/routine-run-outcome";
 import { ROUTINE_SCHEDULE_PRESETS } from "@/ee/routines/routine-schedule-preset";
-import { RECORD_PRESET_KEYS } from "@/features/records/record-navigation.schema";
+import { RECORD_PRESET_KEYS } from "@/features/records/workspace-record-preset";
 import { DomainEvent } from "@/features/event/domain-events";
 import { LEGACY_DOMAIN_EVENTS } from "@/features/event/event-label";
 import { FeedbackType } from "@/features/feedback/send-feedback.schema";
@@ -319,6 +320,7 @@ const SIGNATURE_TEMPLATE_KEYS = Object.values(SignatureTemplate).map(
 );
 const SUBSCRIPTION_PLAN_KEYS = Object.values(SubscriptionPlan).map((plan) => `Subscription.planNames.${plan}`);
 const SUBSCRIPTION_STATUS_KEYS = Object.values(SubscriptionStatus).map((status) => `Subscription.status.${status}`);
+const BILLING_SOURCE_KEYS = BILLING_SOURCES.map((billing) => `OperatorUsage.billing.${billing}`);
 const SELECTABLE_SUBSCRIPTION_PLANS = Object.values(SubscriptionPlan).filter(
   (plan) => plan !== SubscriptionPlan.enterprise,
 );
@@ -379,10 +381,10 @@ const DEFAULT_DATA_OPTION_KEYS = [
   "Common.defaultData.task.options.onHold",
   "Common.defaultData.task.options.open",
 ] as const;
-const ONBOARDING_STEP_TITLE_KEYS = ["profile", "wiki", "invite", "ai"].map(
+const ONBOARDING_STEP_TITLE_KEYS = ["profile", "setup", "invite", "ai"].map(
   (step) => `OnboardingWizard.steps.${step}.title`,
 );
-const ONBOARDING_STEP_SUBTITLE_KEYS = ["profile", "wiki", "invite", "ai"].map(
+const ONBOARDING_STEP_SUBTITLE_KEYS = ["profile", "setup", "invite", "ai"].map(
   (step) => `OnboardingWizard.steps.${step}.subtitle`,
 );
 const ONBOARDING_CHOICE_KEYS = [
@@ -446,8 +448,8 @@ const AGENT_SUGGESTION_KEYS = [
   "AgentChat.suggestions.pages.dashboard.empty.capabilities",
   "AgentChat.suggestions.pages.dashboard.empty.setup",
   "AgentChat.suggestions.pages.dashboard.empty.tour",
-  "AgentChat.suggestions.pages.default.data.default-contact-count",
-  "AgentChat.suggestions.pages.default.data.default-open-deals",
+  "AgentChat.suggestions.pages.default.data.default-record-overview",
+  "AgentChat.suggestions.pages.default.data.default-needs-attention",
   "AgentChat.suggestions.pages.default.data.default-tour",
   "AgentChat.suggestions.pages.default.empty.default-capabilities",
   "AgentChat.suggestions.pages.default.empty.default-import",
@@ -600,11 +602,16 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["OnboardingWizard.ai.openai.methods.${*}.title", onboardingOpenAiMethodKeys("title")],
   ["OnboardingWizard.steps.${*}.subtitle", ONBOARDING_STEP_SUBTITLE_KEYS],
   ["OnboardingWizard.steps.${*}.title", ONBOARDING_STEP_TITLE_KEYS],
+  [
+    "WorkspaceSetup.website.${*}",
+    ["WorkspaceSetup.website.finding", "WorkspaceSetup.website.reading", "WorkspaceSetup.website.suggesting"],
+  ],
   ["RoleModal.resources.${*}", ROLE_RESOURCE_KEYS],
   ["Wiki.kind.${*}", WIKI_PAGE_KIND_KEYS],
   ["Subscription.picker.features.${*}", SUBSCRIPTION_FEATURE_KEYS],
   ["Subscription.planNames.${*}", SUBSCRIPTION_PLAN_KEYS],
   ["Subscription.status.${*}", SUBSCRIPTION_STATUS_KEYS],
+  ["OperatorUsage.billing.${*}", BILLING_SOURCE_KEYS],
   ["WebhookDeliveryModal.deliveryStatus.${*}", WEBHOOK_DELIVERY_STATUS_KEYS],
   ["documents.${*}", LEGAL_DOCUMENT_KEYS],
   ["AgentChat.activity.resource.${*}", AGENT_ACTIVITY_RESOURCE_KEYS],
@@ -620,7 +627,35 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["AgentChat.suggestions.readOnly.${*}.prompt", AGENT_READ_ONLY_SUGGESTION_KEYS.map((key) => `${key}.prompt`)],
 ]);
 
+const WORKSPACE_SETUP_NOTICES = ["planReady", "planFailed", "workspaceReady", "workspaceFailed"] as const;
+const workspaceSetupNoticeKeys = (field: string) =>
+  WORKSPACE_SETUP_NOTICES.map((notice) => `WorkspaceSetupNotice.${notice}.${field}`);
+
 const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
+  [
+    "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.subject",
+    workspaceSetupNoticeKeys("subject"),
+  ],
+  [
+    "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.subjectNamed",
+    workspaceSetupNoticeKeys("subjectNamed"),
+  ],
+  [
+    "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.title",
+    workspaceSetupNoticeKeys("title"),
+  ],
+  [
+    "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.body",
+    workspaceSetupNoticeKeys("body"),
+  ],
+  [
+    "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.bodyNamed",
+    workspaceSetupNoticeKeys("bodyNamed"),
+  ],
+  [
+    "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.cta",
+    workspaceSetupNoticeKeys("cta"),
+  ],
   [
     "app/[locale]/(protected)/settings/(workspace)/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.description",
     FEEDBACK_DESCRIPTION_KEYS,
@@ -646,6 +681,12 @@ const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
 const ENFORCED = true;
 
 export const DYNAMIC_KEY_SITES = [
+  "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.subject",
+  "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.subjectNamed",
+  "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.title",
+  "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.body",
+  "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.bodyNamed",
+  "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.cta",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Trash.kinds.${kind}",
   "app/[locale]/(protected)/trash/components/use-trash-columns.tsx :: t :: Trash.kinds.${trashKindLabelKey(item)}",
   "app/[locale]/(protected)/configure/components/calculation-flow-editor.tsx :: t :: RecordModel.cardinality.${cardinality}",
@@ -711,7 +752,10 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/operator/components/users/use-operator-user-columns.tsx :: t :: Common.userStatuses.${row.original.status}",
   "app/[locale]/(protected)/operator/components/users/use-operator-user-columns.tsx :: t :: Subscription.planNames.${row.original.plan}",
   "app/[locale]/(protected)/operator/components/users/use-operator-user-columns.tsx :: t :: Subscription.status.${row.original.subscriptionStatus}",
-  "app/[locale]/(protected)/operator/components/workspaces/operator-workspace-modal.tsx :: t :: Common.providers.${channel.provider}",
+  "app/[locale]/(protected)/operator/components/usage/operator-usage-page-view.tsx :: t :: OperatorUsage.billing.${workspace.subscription.billing}",
+  "app/[locale]/(protected)/operator/components/usage/operator-usage-page-view.tsx :: t :: Subscription.planNames.${workspace.subscription.plan}",
+  "app/[locale]/(protected)/operator/components/usage/operator-usage-page-view.tsx :: t :: Subscription.status.${workspace.subscription.status}",
+  "app/[locale]/(protected)/operator/components/usage/operator-workspace-usage-section.tsx :: t :: Common.providers.${channel.provider}",
   "app/[locale]/(protected)/operator/components/workspaces/operator-workspace-modal.tsx :: t :: Subscription.planNames.${workspace.plan}",
   "app/[locale]/(protected)/operator/components/workspaces/use-operator-workspace-columns.tsx :: t :: Subscription.planNames.${row.original.plan}",
   "app/[locale]/(protected)/operator/components/workspaces/use-operator-workspace-columns.tsx :: t :: Subscription.status.${row.original.subscriptionStatus}",
@@ -722,6 +766,7 @@ export const DYNAMIC_KEY_SITES = [
   "app/components/app-sidebar.tsx :: t :: Common.locales.${value}",
   "app/[locale]/(protected)/settings/(account)/components/profile-settings-form.tsx :: t :: Common.locales.${detectBrowserUiLocale()}",
   "app/[locale]/(protected)/settings/(account)/components/profile-settings-form.tsx :: t :: Common.locales.${key}",
+  "app/[locale]/(protected)/onboarding/wizard/components/step-profile.tsx :: t :: Common.locales.${key}",
   "app/[locale]/(protected)/settings/(account)/components/profile-settings-form.tsx :: t :: Common.themes.${key}",
   "app/[locale]/(protected)/settings/(account)/components/profile-settings-form.tsx :: t :: Common.themes.${systemTheme}",
   "app/[locale]/(protected)/settings/(account)/components/signature-template-picker.tsx :: t :: ConnectedAccountsCard.signatureTemplates.${template}",
@@ -810,7 +855,9 @@ export const DYNAMIC_KEY_SITES = [
   "components/shared/channel-icon-stack.tsx :: t :: Common.providers.${channelLabelKey(provider)}",
   "components/shared/locale-menu.tsx :: t :: Common.locales.${currentLocale}",
   "components/shared/locale-menu.tsx :: t :: Common.locales.${locale}",
-  "components/wiki/wiki-homepage-setup.tsx :: t :: Common.locales.${locale}",
+  "app/[locale]/(protected)/onboarding/wizard/components/setup/setup-question-field.tsx :: t :: Common.locales.${locale}",
+  "app/[locale]/(protected)/onboarding/wizard/components/setup/setup-interview.tsx :: t :: WorkspaceSetup.website.${progress.stage}",
+  "app/[locale]/(protected)/onboarding/wizard/components/setup/setup-screen-summary.ts :: t :: Common.locales.${value.value}",
   "core/validation/zod-error-map-server.ts :: t.raw :: Common.errors.${code}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.approval.${copyKind}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.label.${name}",
@@ -853,6 +900,10 @@ export const DYNAMIC_KEY_SITES = [
 ];
 
 const NONLITERAL_T_CALL_SITES = new Map<string, number>([
+  ["app/[locale]/(protected)/onboarding/wizard/components/setup/setup-interview.tsx :: t :: screen.titleKey", 1],
+  ["app/[locale]/(protected)/onboarding/wizard/components/setup/setup-question-descriptor.ts :: t :: option.labelKey", 1],
+  ["app/[locale]/(protected)/onboarding/wizard/components/setup/setup-question-descriptor.ts :: t :: part.labelKey", 1],
+  ["app/[locale]/(protected)/onboarding/wizard/components/setup/setup-question-descriptor.ts :: t :: part.placeholderKey", 1],
   ["ee/command-resolver/resolve-command.interactor.ts :: t :: command.labelKey", 1],
   ["ee/command-resolver/resolve-command.interactor.ts :: t :: parent.labelKey", 1],
   ["app/components/global-search-modal.tsx :: t :: key", 1],
@@ -926,6 +977,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ["core/validation/interactor-failure-server.ts :: t.raw :: code", 1],
   ["ee/agent-chat/agent-tools.ts :: t :: labelKey", 1],
   ["ee/messaging/connect/create-auth-link.interactor.ts :: t :: denial.key", 1],
+  ["ee/workspace-setup/workspace-setup-prompts.ts :: t :: key as never", 1],
   ["features/mcp-tools/mcp-tool.ts :: t.raw :: customCode", 1],
   ["features/mcp-tools/utils.ts :: t.raw :: code", 1],
   ["features/messaging/activities/activities-detail-modal.tsx :: t :: responseKey as never", 1],
@@ -1142,7 +1194,7 @@ const NAMESPACE_PATTERN = /(?:useTranslations|getTranslations)\(\s*"([^"]+)"\s*\
 const TRANSLATOR_NAMESPACE_PATTERN = /getTranslator\(\s*[^,)]+,\s*"([^"]+)"\s*\)/g;
 const STRING_LITERAL_PATTERN = /"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)'|`((?:[^`\\]|\\.)*)`/g;
 const INDIRECT_TRANSLATION_KEY_PATTERN =
-  /(?:alertTranslationKey|descriptionKey|i18nKey|labelKey|nameTranslationKey|primaryButtonLabel|successKey|titleKey|translationKey)\s*(?::|=)\s*("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g;
+  /(?:alertTranslationKey|descriptionKey|i18nKey|labelKey|nameTranslationKey|placeholderKey|primaryButtonLabel|successKey|titleKey|translationKey)\s*(?::|=)\s*("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g;
 const TOAST_CALL_PATTERN = /toast(?:Success|Error)\(([\s\S]*?)\);/g;
 
 function loadCatalogPaths(): {

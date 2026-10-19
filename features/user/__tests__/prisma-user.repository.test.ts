@@ -28,6 +28,13 @@ const prismaMock = {
   subscription: { create: vi.fn().mockResolvedValue({ id: "subscription-1" }) },
 };
 
+const billingUsage = {
+  recordSeats: vi.fn().mockResolvedValue(undefined),
+  recordChannels: vi.fn().mockResolvedValue(undefined),
+  recordWorkspaceCreated: vi.fn().mockResolvedValue(undefined),
+  recordWorkspaceDeleted: vi.fn().mockResolvedValue(undefined),
+};
+
 vi.mock("@/prisma/db", () => ({ prisma: prismaMock }));
 vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve((key: string) => key),
@@ -50,16 +57,15 @@ const { WorkspaceRegistrationService } = await import("../register/workspace-reg
 
 const registration = () =>
   new WorkspaceRegistrationService(
-    new PrismaCompanyRepo(),
-    new PrismaRoleRepo(),
-    new PrismaUserRepo(new PermissionService()),
+    new PrismaCompanyRepo(billingUsage),
+    new PrismaRoleRepo(billingUsage),
+    new PrismaUserRepo(new PermissionService(), billingUsage),
   );
 
 const registerArgs = {
   email: "owner@example.com",
   firstName: "Owner",
   lastName: "Example",
-  country: "de",
   agreeToTerms: true,
   avatarUrl: null,
 } as Parameters<InstanceType<typeof WorkspaceRegistrationService>["createCompanyAndUser"]>[0];
@@ -78,6 +84,7 @@ describe("WorkspaceRegistrationService.createCompanyAndUser", () => {
     expect(prismaMock.userRole.create).toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ isSystemRole: true }) }),
     );
+    expect(billingUsage.recordWorkspaceCreated).toHaveBeenCalledWith("company-1");
   });
 
   it("stores one consented ad attribution row per provider on the initial owner", async () => {
@@ -134,7 +141,9 @@ describe("WorkspaceRegistrationService.createCompanyAndUser", () => {
     const now = new Date("2026-11-29T10:00:00.000Z");
     prismaMock.adAttribution.deleteMany.mockResolvedValueOnce({ count: 3 });
 
-    await expect(new PrismaUserRepo(new PermissionService()).expireAdAttributionUnscoped(now)).resolves.toBe(3);
+    await expect(
+      new PrismaUserRepo(new PermissionService(), billingUsage).expireAdAttributionUnscoped(now),
+    ).resolves.toBe(3);
 
     expect(prismaMock.adAttribution.deleteMany).toHaveBeenCalledWith({ where: { expiresAt: { lte: now } } });
     expect(prismaMock.user.updateMany).not.toHaveBeenCalled();
@@ -146,7 +155,9 @@ describe("WorkspaceRegistrationService.createCompanyAndUser", () => {
 
     await expect(
       runWithTenant(user, () =>
-        new PrismaUserRepo(new PermissionService()).clearAdAttributionForUser({ userId: user.id }),
+        new PrismaUserRepo(new PermissionService(), billingUsage).clearAdAttributionForUser({
+          userId: user.id,
+        }),
       ),
     ).resolves.toBe(false);
 
@@ -187,7 +198,7 @@ describe("PrismaUserRepo.findActiveLegalNoticeRecipientsUnscoped", () => {
     ]);
 
     await expect(
-      new PrismaUserRepo(new PermissionService()).findActiveLegalNoticeRecipientsUnscoped(),
+      new PrismaUserRepo(new PermissionService(), billingUsage).findActiveLegalNoticeRecipientsUnscoped(),
     ).resolves.toEqual([
       expect.objectContaining({
         id: "user-1",

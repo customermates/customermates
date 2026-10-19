@@ -3,7 +3,7 @@ import type { RecordFileSemanticIndexRepo, UnembeddedRecordFileChunk } from "../
 
 import { describe, expect, it, vi } from "vitest";
 
-import { WIKI_EMBEDDING_BATCH_SIZE, WIKI_EMBEDDING_MODEL } from "@/ee/wiki-retrieval/wiki-embedding-model";
+import { WIKI_EMBEDDING_BATCH_SIZE, WIKI_EMBEDDING_VERSION } from "@/ee/wiki-retrieval/wiki-embedding-model";
 
 import {
   RECORD_FILE_SEMANTIC_BATCH_FILES,
@@ -79,7 +79,7 @@ describe("record file semantic indexing", () => {
     await expect(f.service.embedPending()).resolves.toEqual({ embedded: 1, remaining: false });
     expect(f.authorizeIndexing).toHaveBeenCalledWith("company-1", "fileIndexing");
     expect(f.embedTexts).toHaveBeenCalledWith(GRANT, ["text a-0", "text a-1", "text a-2"], "document");
-    expect(f.repo.claimUnembeddedFiles).toHaveBeenCalledWith(WIKI_EMBEDDING_MODEL, RECORD_FILE_SEMANTIC_BATCH_FILES);
+    expect(f.repo.claimUnembeddedFiles).toHaveBeenCalledWith(WIKI_EMBEDDING_VERSION, RECORD_FILE_SEMANTIC_BATCH_FILES);
     expect(f.stored.map(({ id }) => id)).toEqual(["a-chunk-0", "a-chunk-1", "a-chunk-2"]);
     expect(f.stored[0].embedding).toBe("[0,1,0]");
     expect(f.repo.releaseFileClaims).toHaveBeenCalledWith(["a"]);

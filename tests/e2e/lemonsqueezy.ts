@@ -59,7 +59,7 @@ export type LocalCheckout = {
   url: string;
 };
 
-const PLAN_NAMES: Record<ProviderPlan, string> = { starter: "Starter", pro: "Pro", business: "Business" };
+const PLAN_NAMES: Record<ProviderPlan, string> = { starter: "Starter", pro: "Pro", business: "Business", max: "Max" };
 const SYNTHETIC_CUSTOMER: ProviderCustomer = { name: "Browser Administrator", email: "billing@example.test" };
 
 function providerDirectory() {

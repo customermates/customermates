@@ -105,7 +105,7 @@ export function funnelConversions(values: number[]): Array<number | null> {
   return values.map((value, index) => {
     if (index === 0) return null;
     const previous = values[index - 1];
-    return previous > 0 ? value / previous : null;
+    return previous > 0 && value <= previous ? value / previous : null;
   });
 }
 

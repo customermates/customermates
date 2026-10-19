@@ -212,7 +212,7 @@ describe("agent interface targets", () => {
       expect(prerequisiteOf(id), id).toBe("api-key-option-standard");
     for (const id of ["connected-account-signature", "connected-account-email-save"])
       expect(prerequisiteOf(id), id).toBe("connected-account-tab-email");
-    for (const control of ["email", "first-name", "last-name", "country", "role", "avatar-url", "status"])
+    for (const control of ["email", "first-name", "last-name", "role", "avatar-url", "status"])
       expect(prerequisiteOf(`member-modal-${control}`), control).toBe("a member row");
   });
 

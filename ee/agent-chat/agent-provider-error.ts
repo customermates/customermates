@@ -219,3 +219,16 @@ export function readAgentProviderRoundCharge(
   if (envelope?.kind !== "ai-sdk-workflow-provider-error" || envelope.version !== 1) return null;
   return readProviderReceiptEnvelope(envelope, expectedProvider);
 }
+
+export type AgentProviderRateLimit = { retryAfterMs: number | null };
+
+export function readAgentProviderRateLimit(error: unknown): AgentProviderRateLimit | null {
+  const envelope = providerFailureEnvelope(error);
+  if (!envelope || envelope.statusCode !== 429 || "currentAttempt" in envelope) return null;
+  if (!Array.isArray(envelope.attempts) || envelope.attempts.length !== 1) return null;
+  const retryAfterMs = envelope.retryAfterMs;
+  return {
+    retryAfterMs:
+      typeof retryAfterMs === "number" && Number.isSafeInteger(retryAfterMs) && retryAfterMs >= 0 ? retryAfterMs : null,
+  };
+}

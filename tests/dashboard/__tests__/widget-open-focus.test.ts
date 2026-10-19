@@ -28,6 +28,7 @@ vi.mock("next/dynamic", () => ({
 vi.mock("@/app/components/topbar-actions-context", () => ({ useSetTopBarActions: vi.fn() }));
 vi.mock("@/app/components/agent-chat/suggested-questions", () => ({ AgentStarterActions: () => null }));
 vi.mock("@/hooks/use-touch-input", () => ({ useTouchInput: () => false }));
+vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 vi.mock("@/app/[locale]/(protected)/dashboard/components/chart-widget-card", () => ({
   ChartWidgetCard: ({ widget }: { widget: WidgetDto }) =>
     createElement("div", { "data-chart": widget.id }, widget.name),

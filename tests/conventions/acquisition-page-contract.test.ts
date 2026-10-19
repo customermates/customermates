@@ -297,15 +297,17 @@ describe("approved acquisition page contract", () => {
 
   it("binds deal-pipeline proof to configurable stages and the rendered Kanban board", () => {
     const sources = ACQUISITION_FACT_SOURCES["product:deal-pipelines"];
-    expect(sources).toContain("features/records/crm-preset.ts");
+    expect(sources).toContain("features/records/record-model.schema.ts");
+    expect(sources).toContain("features/workspace-setup/setup-plan.schema.ts");
     expect(sources).toContain("components/data-view/data-kanban-view.tsx");
+    expect(sources).not.toContain("features/records/crm-preset.ts");
 
     expect(
       readFileSync(
-        join(REPO_ROOT, "features/records/crm-preset.ts"),
+        join(REPO_ROOT, "features/records/record-model.schema.ts"),
         "utf8",
       ),
-    ).toContain('addField("deal", "deal.stage", "Stage", "select")');
+    ).toContain('kind: z.literal("optionAttribute")');
     expect(
       readFileSync(
         join(REPO_ROOT, "components/data-view/data-kanban-view.tsx"),
@@ -340,10 +342,11 @@ describe("approved acquisition page contract", () => {
     expect(coreRecordSources).toEqual(
       expect.arrayContaining([
         "features/mcp-tools/record-model.mcp-tools.ts",
-        "features/records/crm-preset.ts",
         "features/records/record-model.schema.ts",
+        "features/workspace-setup/setup-plan.schema.ts",
       ]),
     );
+    expect(coreRecordSources).not.toContain("features/records/crm-preset.ts");
 
     const pages = CONTENT_LOCALES.map((locale) => ({
       locale,

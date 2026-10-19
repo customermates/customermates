@@ -17,13 +17,16 @@ import {
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
+import { getTransactionClient } from "@/core/decorators/transaction-context";
 import { env } from "@/env";
 
 import type {
   AgentRetrievalCharge,
   AgentRetrievalGrant,
   AgentRetrievalPayer,
+  AgentTurnCreditState,
   AgentWorkspaceCreditPool,
+  WorkspacePlatformReservation,
 } from "./agent-usage.service";
 import type { AgentUsageRepo } from "@/ee/agent-chat/agent-usage.repo";
 import type { GetWikiSuggestionSignalRepo } from "@/features/wiki/get-wiki-suggestion-signal.repo";
@@ -33,6 +36,7 @@ import { AGENT_CONVERSATION_PAGE_SIZE, AGENT_MESSAGE_PAGE_SIZE, type AgentConver
 import { AGENT_MAX_CONCURRENT_RUNS_PER_USER } from "./agent-run-limits";
 import { clientSafeAgentMessageParts, hasRenderableAgentMessageParts, partsToText } from "./agent-chat.schema";
 import type { AgentContextAttachment } from "./agent-context";
+import type { AgentSurface } from "./agent-surface-policy";
 import {
   isPendingAgentApprovalToolName,
   parsePendingAgentApprovalToolName,
@@ -126,6 +130,8 @@ type AgentTurnAdmissionArgs = {
   servingProvider: string;
   recentMessageLimit: number;
   routineRunId?: string;
+  wikiCatalogSnapshot?: string;
+  claimedInTransaction?: true;
   turn:
     | {
         kind: "create";
@@ -494,40 +500,48 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
     };
   }
 
+  private async verifyAgentTurnClaimBeforeAdmission(args: AgentTurnAdmissionArgs, admittedAt: Date) {
+    const companyId = this.companyId;
+    const userId = this.userId;
+    const activeUser = await this.prisma.user.count({
+      where: { id: userId, companyId, status: Status.active },
+    });
+    if (activeUser !== 1) throw new Error("Agent user is inactive before admission.");
+
+    const renewedLease = await this.prisma.agentRunLease.updateMany({
+      where: {
+        companyId,
+        userId,
+        runId: args.runId,
+        expiresAt: { gt: admittedAt },
+      },
+      data: {
+        expiresAt: new Date(admittedAt.getTime() + AGENT_RUN_LEASE_MS),
+      },
+    });
+    if (renewedLease.count !== 1) throw new Error("Agent run lease expired before admission.");
+
+    const reservation = await this.prisma.agentUsageEvent.findFirst({
+      where: {
+        id: args.reservationId,
+        companyId,
+        userId,
+        state: "reserved",
+        providerStartedAt: null,
+      },
+      select: { id: true },
+    });
+    if (!reservation) throw new Error("Agent usage reservation is missing before admission.");
+  }
+
   async admitAgentTurnOrThrow(args: AgentTurnAdmissionArgs) {
     const companyId = this.companyId;
     const userId = this.userId;
+    if (args.claimedInTransaction && !getTransactionClient())
+      throw new Error("A claimed agent turn must be admitted inside the transaction that claimed it.");
     return this.withCompanyTransaction(companyId, async () => {
       const admittedAt = new Date();
-      const activeUser = await this.prisma.user.count({
-        where: { id: userId, companyId, status: Status.active },
-      });
-      if (activeUser !== 1) throw new Error("Agent user is inactive before admission.");
-
-      const renewedLease = await this.prisma.agentRunLease.updateMany({
-        where: {
-          companyId,
-          userId,
-          runId: args.runId,
-          expiresAt: { gt: admittedAt },
-        },
-        data: {
-          expiresAt: new Date(admittedAt.getTime() + AGENT_RUN_LEASE_MS),
-        },
-      });
-      if (renewedLease.count !== 1) throw new Error("Agent run lease expired before admission.");
-
-      const reservation = await this.prisma.agentUsageEvent.findFirst({
-        where: {
-          id: args.reservationId,
-          companyId,
-          userId,
-          state: "reserved",
-          providerStartedAt: null,
-        },
-        select: { id: true },
-      });
-      if (!reservation) throw new Error("Agent usage reservation is missing before admission.");
+      if (!args.claimedInTransaction) await this.verifyAgentTurnClaimBeforeAdmission(args, admittedAt);
 
       const conversationId = args.conversationId;
       const conversation = await this.prisma.agentConversation.findFirst({
@@ -535,6 +549,18 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
         select: { id: true, origin: true },
       });
       if (!conversation) throw new Error("Conversation not found.");
+
+      if (args.wikiCatalogSnapshot !== undefined) {
+        await this.prisma.agentConversation.updateMany({
+          where: {
+            id: conversationId,
+            companyId,
+            userId,
+            OR: [{ wikiCatalogSnapshot: null }, { wikiCatalogSnapshot: "" }],
+          },
+          data: { wikiCatalogSnapshot: args.wikiCatalogSnapshot },
+        });
+      }
 
       if (args.routineRunId) {
         if (conversation.origin !== AgentConversationOrigin.routine || args.turn.kind !== "create")
@@ -1719,6 +1745,19 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
     return turn?.externalRunId ?? null;
   }
 
+  async findAgentTurnSurface(externalRunId: string): Promise<AgentSurface> {
+    const turn = await this.prisma.agentTurnRequest.findFirst({
+      where: { externalRunId, companyId: this.companyId, userId: this.userId },
+      select: { id: true },
+    });
+    if (!turn) return "chat";
+    const routineRun = await this.prisma.routineRun.findFirst({
+      where: { turnRequestId: turn.id, companyId: this.companyId },
+      select: { id: true },
+    });
+    return routineRun ? "routine" : "chat";
+  }
+
   @BypassTenantGuard
   async extendAgentRunLeaseForSuspensionUnscoped(args: {
     companyId: string;
@@ -2427,8 +2466,10 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
     periodStart: Date;
     periodEnd: Date;
     now: Date;
+    pool?: AgentWorkspaceCreditPool | null;
   }): Promise<boolean> {
-    const pool = await this.getWorkspaceCreditPoolUnscoped(args.companyId, args.now);
+    const pool =
+      args.pool === undefined ? await this.getWorkspaceCreditPoolUnscoped(args.companyId, args.now) : args.pool;
     if (
       !pool ||
       pool.periodStart.getTime() !== args.periodStart.getTime() ||
@@ -2495,12 +2536,112 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
       where: { id: args.reservationId },
     });
     if (released.count !== 1) throw new Error("Platform AI reservation changed before settlement.");
+    const hold = await this.releaseWorkspaceHold(args.reservationId);
     if (!args.charge) return;
     if (reservation.model !== args.charge.model) throw new Error("Platform AI settlement model does not match.");
     await this.accruePlatformUsageUnscoped({
       purpose: reservation.purpose,
       charge: args.charge,
       now: args.now,
+    });
+    if (hold) await this.accrueWorkspacePlatformUsage(hold, args.charge, args.now);
+  }
+
+  @BypassTenantGuard
+  @Transaction
+  async reserveWorkspacePlatformUsageUnscoped(args: {
+    companyId: string;
+    purpose: string;
+    model: string;
+    reservedMicrocents: number;
+    capMicrocents: number;
+    now: Date;
+  }): Promise<WorkspacePlatformReservation> {
+    if (!Number.isSafeInteger(args.reservedMicrocents) || args.reservedMicrocents < 1)
+      throw new Error("Platform AI reservation is invalid.");
+    if (!Number.isSafeInteger(args.capMicrocents) || args.capMicrocents < 0)
+      throw new Error("Platform AI workspace cap is invalid.");
+    await this.prisma
+      .$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`customermates:workspace-platform-spend:${args.companyId}`}, 0))`;
+    const committed = await this.workspacePlatformCommitment(args.companyId, args.purpose);
+    if (committed.usedMicrocents + committed.heldMicrocents + args.reservedMicrocents > args.capMicrocents)
+      return { status: "cap" };
+    const id = await this.reservePlatformUsageUnscoped({
+      purpose: args.purpose,
+      model: args.model,
+      reservedMicrocents: args.reservedMicrocents,
+      now: args.now,
+    });
+    if (!id) return { status: "unavailable" };
+    await this.prisma.hostedAiPlatformWorkspaceHold.create({
+      data: {
+        reservationId: id,
+        companyId: args.companyId,
+        purpose: args.purpose,
+        reservedMicrocents: BigInt(args.reservedMicrocents),
+        createdAt: args.now,
+      },
+      select: { reservationId: true },
+    });
+    return { status: "reserved", id };
+  }
+
+  @BypassTenantGuard
+  async getWorkspacePlatformSpendUnscoped(args: {
+    companyId: string;
+    purpose: string;
+  }): Promise<{ usedMicrocents: number; heldMicrocents: number }> {
+    return this.workspacePlatformCommitment(args.companyId, args.purpose);
+  }
+
+  private async workspacePlatformCommitment(companyId: string, purpose: string) {
+    const [usage, holds] = await Promise.all([
+      this.prisma.hostedAiPlatformWorkspaceUsage.findUnique({
+        where: { companyId_purpose: { companyId, purpose } },
+        select: { costMicrocents: true },
+      }),
+      this.prisma.hostedAiPlatformWorkspaceHold.aggregate({
+        where: { companyId, purpose },
+        _sum: { reservedMicrocents: true },
+      }),
+    ]);
+    return {
+      usedMicrocents: agentMicrocentsFromStorage(usage?.costMicrocents ?? 0n, "Platform AI workspace usage"),
+      heldMicrocents: agentMicrocentsFromStorage(holds._sum.reservedMicrocents ?? 0n, "Platform AI workspace holds"),
+    };
+  }
+
+  private async releaseWorkspaceHold(reservationId: string) {
+    const hold = await this.prisma.hostedAiPlatformWorkspaceHold.findUnique({
+      where: { reservationId },
+      select: { companyId: true, purpose: true },
+    });
+    if (!hold) return null;
+    await this.prisma.hostedAiPlatformWorkspaceHold.deleteMany({ where: { reservationId } });
+    return hold;
+  }
+
+  private async accrueWorkspacePlatformUsage(
+    hold: { companyId: string; purpose: string },
+    charge: AgentRetrievalCharge,
+    now: Date,
+  ) {
+    await this.prisma.hostedAiPlatformWorkspaceUsage.upsert({
+      where: { companyId_purpose: { companyId: hold.companyId, purpose: hold.purpose } },
+      create: {
+        companyId: hold.companyId,
+        purpose: hold.purpose,
+        inputTokens: charge.inputTokens,
+        costMicrocents: BigInt(charge.costMicrocents),
+        createdAt: now,
+        updatedAt: now,
+      },
+      update: {
+        inputTokens: { increment: charge.inputTokens },
+        costMicrocents: { increment: BigInt(charge.costMicrocents) },
+        updatedAt: now,
+      },
+      select: { companyId: true },
     });
   }
 
@@ -2534,16 +2675,15 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
       throw new Error("Platform AI reservations changed before stale settlement.");
 
     for (const reservation of reservations) {
-      await this.accruePlatformUsageUnscoped({
-        purpose: reservation.purpose,
-        charge: {
-          model: reservation.model,
-          inputTokens: 0,
-          costMicrocents: agentMicrocentsFromStorage(reservation.reservedMicrocents, "Platform AI reservation"),
-          costSource: "estimated",
-        },
-        now: reservation.createdAt,
-      });
+      const charge: AgentRetrievalCharge = {
+        model: reservation.model,
+        inputTokens: 0,
+        costMicrocents: agentMicrocentsFromStorage(reservation.reservedMicrocents, "Platform AI reservation"),
+        costSource: "estimated",
+      };
+      await this.accruePlatformUsageUnscoped({ purpose: reservation.purpose, charge, now: reservation.createdAt });
+      const hold = await this.releaseWorkspaceHold(reservation.id);
+      if (hold) await this.accrueWorkspacePlatformUsage(hold, charge, args.now);
     }
     return reservations.length;
   }
@@ -2767,43 +2907,65 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
     return released.length;
   }
 
+  private async currentTurnCreditState(companyId: string, userId: string, now: Date) {
+    const user = await this.findUserForUsageUnscoped(userId);
+    if (!user || user.companyId !== companyId || user.status !== Status.active || !user.subscription)
+      throw new Error("Agent credit seat is unavailable.");
+
+    const entitlement = await this.resolveCurrentAgentCreditEntitlement(user, now);
+    if (!entitlement) throw new Error("Agent credit entitlement is unavailable.");
+
+    const existing = await this.prisma.agentUsageEvent.findMany({
+      where: {
+        companyId,
+        userId,
+        periodStart: entitlement.start,
+        periodEnd: entitlement.resetAt,
+        state: { in: ["reserved", "settled", "retained"] },
+      },
+      select: committedUsageSelect,
+    });
+    return {
+      user,
+      entitlement,
+      ownCommittedMicrocents: sumCommittedAgentMicrocents(existing),
+    };
+  }
+
   @BypassTenantGuard
-  async reserveUsageEventUnscoped(event: {
-    id: string;
-    companyId: string;
-    userId: string;
-    sessionId: string;
-    reservedMicrocents: number;
-    planSnapshot: SubscriptionPlan;
-    subscriptionStatusSnapshot: SubscriptionStatus;
-    allowanceMicrocentsSnapshot: number;
-    periodStart: Date;
-    periodEnd: Date;
-  }) {
+  async reserveUsageEventUnscoped(
+    event: {
+      id: string;
+      companyId: string;
+      userId: string;
+      sessionId: string;
+      reservedMicrocents: number;
+      planSnapshot: SubscriptionPlan;
+      subscriptionStatusSnapshot: SubscriptionStatus;
+      allowanceMicrocentsSnapshot: number;
+      periodStart: Date;
+      periodEnd: Date;
+    },
+    creditState?: AgentTurnCreditState,
+  ) {
     if (!Number.isSafeInteger(event.reservedMicrocents) || event.reservedMicrocents < 1)
       throw new Error("Agent credit reservation is invalid.");
 
     return this.withCompanyTransaction(event.companyId, async () => {
       const reservedAt = new Date();
-      const user = await this.findUserForUsageUnscoped(event.userId);
-      if (!user || user.companyId !== event.companyId || user.status !== Status.active || !user.subscription)
+      const preloaded =
+        creditState && creditState.readIn !== null && creditState.readIn === getTransactionClient()
+          ? creditState
+          : null;
+      const {
+        user,
+        entitlement,
+        ownCommittedMicrocents: used,
+      } = preloaded ?? (await this.currentTurnCreditState(event.companyId, event.userId, reservedAt));
+      if (user.companyId !== event.companyId || user.status !== Status.active || !user.subscription)
         throw new Error("Agent credit seat is unavailable.");
-
-      const entitlement = await this.resolveCurrentAgentCreditEntitlement(user, reservedAt);
-      if (!entitlement) throw new Error("Agent credit entitlement is unavailable.");
       if (entitlement.blockedReason) throw new Error(`Agent credits are blocked: ${entitlement.blockedReason}.`);
 
-      const existing = await this.prisma.agentUsageEvent.findMany({
-        where: {
-          companyId: event.companyId,
-          userId: event.userId,
-          periodStart: entitlement.start,
-          periodEnd: entitlement.resetAt,
-          state: { in: ["reserved", "settled", "retained"] },
-        },
-        select: committedUsageSelect,
-      });
-      const used = sumCommittedAgentMicrocents(existing);
       if (
         used + event.reservedMicrocents > entitlement.limitMicrocents ||
         !(await this.admitsMemberCreditCommitment({
@@ -2816,6 +2978,7 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
           periodStart: entitlement.start,
           periodEnd: entitlement.resetAt,
           now: reservedAt,
+          ...(preloaded ? { pool: preloaded.pool } : {}),
         }))
       )
         throw new Error("Agent credit reservation exceeds the current allowance.");

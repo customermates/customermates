@@ -1,11 +1,17 @@
+import type { AgentSurface } from "./agent-surface-policy";
+
 import { getRun } from "workflow/api";
 
 import { AgentDurableStreamReader } from "./agent-durable-stream";
 import { sse } from "./agent-stream-utils";
 
-export function agentTurnSseStream(externalRunId: string, startIndex = 0): ReadableStream<Uint8Array> {
+export function agentTurnSseStream(
+  externalRunId: string,
+  startIndex = 0,
+  surface: AgentSurface = "chat",
+): ReadableStream<Uint8Array> {
   const reader = getRun(externalRunId).getReadable({ startIndex }).getReader();
-  const events = new AgentDurableStreamReader();
+  const events = new AgentDurableStreamReader(surface);
   let chunkIndex = startIndex - 1;
 
   return new ReadableStream<Uint8Array>({

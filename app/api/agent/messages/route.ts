@@ -25,12 +25,6 @@ const SSE_HEADERS = {
   "x-accel-buffering": "no",
 };
 
-function addLocalBenchmarkSourceHeader(headers: Headers) {
-  if (process.env.LOCAL_AGENT_BENCHMARK !== "true") return;
-  const buildSource = process.env.AGENT_BENCHMARK_BUILD_SOURCE?.trim();
-  if (buildSource) headers.set("x-agent-benchmark-source-commit", buildSource);
-}
-
 function completedReplayStream(data: Extract<SendAgentMessageResult, { disposition: "completedReplay" }>) {
   const replayParts = clientSafeAgentMessageParts(data.assistantMessage.parts);
   return new ReadableStream<Uint8Array>({
@@ -55,7 +49,6 @@ function completedReplayStream(data: Extract<SendAgentMessageResult, { dispositi
           assistantMessageId: data.assistantMessage.id,
           affectedResources: data.affectedResources,
           hasSuccessfulMutation: hasSuccessfulAgentMutation(replayParts),
-          creditsUsed: 0,
           numTurns: 0,
           errorMessage: null,
           replayed: true,
@@ -109,7 +102,6 @@ export async function POST(request: NextRequest) {
       "x-user-message-id": result.data.userMessageId,
       "x-client-request-id": result.data.clientRequestId,
     });
-    addLocalBenchmarkSourceHeader(headers);
     return new Response(stream, { status: 200, headers });
   } catch (error) {
     return handleError(error);

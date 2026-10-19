@@ -1,7 +1,7 @@
-export const PLAN_IDS = ["starter", "pro", "business", "enterprise"] as const;
+export const PLAN_IDS = ["starter", "pro", "business", "max", "enterprise"] as const;
 type PlanId = (typeof PLAN_IDS)[number];
 
-export const PURCHASABLE_PLAN_IDS = ["starter", "pro", "business"] as const;
+export const PURCHASABLE_PLAN_IDS = ["starter", "pro", "business", "max"] as const;
 export type PurchasablePlanId = (typeof PURCHASABLE_PLAN_IDS)[number];
 
 export const BILLING_CADENCES = ["monthly", "annual"] as const;
@@ -18,11 +18,20 @@ export type PlanEntitlements = {
   includedAccountsPerUser: number | "unlimited";
   includedRoutinesPerUser: number | "unlimited";
   sharedAccounts: boolean;
+  hostedAiUsageMultiplier: number | "contract" | null;
   hostedAiCreditsPerActiveUser: number | "contract" | null;
   fileStorageBytesPerActiveUser: number | "contract" | null;
 };
 
 const GIB = 1024 ** 3;
+export const HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER = 100;
+
+function hostedAiUsage<const Multiplier extends number>(multiplier: Multiplier) {
+  return {
+    hostedAiUsageMultiplier: multiplier,
+    hostedAiCreditsPerActiveUser: HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER * multiplier,
+  };
+}
 
 export type CommercialOffer = {
   id: OfferId;
@@ -75,7 +84,7 @@ export const PLAN_CATALOG = {
       includedAccountsPerUser: 0,
       includedRoutinesPerUser: 1,
       sharedAccounts: false,
-      hostedAiCreditsPerActiveUser: 200,
+      ...hostedAiUsage(1),
       fileStorageBytesPerActiveUser: Number(GIB),
     },
     offers: {
@@ -100,7 +109,7 @@ export const PLAN_CATALOG = {
       includedAccountsPerUser: 1,
       includedRoutinesPerUser: 5,
       sharedAccounts: false,
-      hostedAiCreditsPerActiveUser: 500,
+      ...hostedAiUsage(3),
       fileStorageBytesPerActiveUser: 5 * GIB,
     },
     offers: {
@@ -125,7 +134,7 @@ export const PLAN_CATALOG = {
       includedAccountsPerUser: 3,
       includedRoutinesPerUser: "unlimited",
       sharedAccounts: true,
-      hostedAiCreditsPerActiveUser: 1_200,
+      ...hostedAiUsage(10),
       fileStorageBytesPerActiveUser: 20 * GIB,
     },
     offers: {
@@ -141,6 +150,31 @@ export const PLAN_CATALOG = {
       },
     },
   },
+  max: {
+    plan: "max",
+    availability: "self-serve",
+    entitlements: {
+      agentChat: true,
+      messaging: true,
+      includedAccountsPerUser: 10,
+      includedRoutinesPerUser: "unlimited",
+      sharedAccounts: true,
+      ...hostedAiUsage(20),
+      fileStorageBytesPerActiveUser: 50 * GIB,
+    },
+    offers: {
+      monthly: {
+        id: "max:monthly",
+        plan: "max",
+        cadence: "monthly",
+        currency: "EUR",
+        unitPriceMinor: 14_900,
+        intervalUnit: "month",
+        intervalQuantity: 1,
+        billingModel: "per-seat",
+      },
+    },
+  },
   enterprise: {
     plan: "enterprise",
     availability: "sales-led",
@@ -150,12 +184,21 @@ export const PLAN_CATALOG = {
       includedAccountsPerUser: "unlimited",
       includedRoutinesPerUser: "unlimited",
       sharedAccounts: true,
+      hostedAiUsageMultiplier: "contract",
       hostedAiCreditsPerActiveUser: "contract",
       fileStorageBytesPerActiveUser: "contract",
     },
     offers: {},
   },
 } as const satisfies Record<PlanId, PlanDefinition>;
+
+export const RECOMMENDED_PLAN_ID = "business" satisfies PurchasablePlanId;
+
+export const CLOUD_TRIAL_HOSTED_AI_USAGE_MULTIPLIER =
+  PLAN_CATALOG[CLOUD_TRIAL.plan].entitlements.hostedAiUsageMultiplier;
+
+export const CLOUD_TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER =
+  HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER * CLOUD_TRIAL_HOSTED_AI_USAGE_MULTIPLIER;
 
 export const COMMERCIAL_OFFERS = PURCHASABLE_PLAN_IDS.map((plan) => PLAN_CATALOG[plan].offers.monthly);
 

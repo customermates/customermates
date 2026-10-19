@@ -19,7 +19,7 @@ export const MEMBER_REMOVAL_REFUSAL_CODES = {
 } as const satisfies Record<MemberRemovalRefusal, CustomErrorCode>;
 
 type RefusalChecks = {
-  members: Pick<RemoveWorkspaceMemberRepo, "isPlatformOperatorCompanyWide">;
+  members: Pick<RemoveWorkspaceMemberRepo, "strandsLastPlatformOperatorCompanyWide">;
   roles: Pick<UpdateUserRoleRepo, "hasAnotherActiveSystemRoleUser">;
 };
 
@@ -27,7 +27,7 @@ export async function workspaceLeaveRefusal(
   member: Pick<RemovableWorkspaceMember, "id" | "status" | "role">,
   checks: RefusalChecks,
 ): Promise<WorkspaceLeaveRefusal | null> {
-  if (await checks.members.isPlatformOperatorCompanyWide(member.id)) return "platformOperator";
+  if (await checks.members.strandsLastPlatformOperatorCompanyWide(member.id)) return "platformOperator";
   if (
     member.status === Status.active &&
     member.role?.isSystemRole &&

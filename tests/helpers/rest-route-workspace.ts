@@ -10,6 +10,7 @@ import { NextRequest } from "next/server";
 
 import { createMockUser } from "./mock-user";
 import { assertPublishedResponse } from "./openapi-validator";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 type RouteHandler = (request: NextRequest) => Promise<Response>;
 
@@ -22,38 +23,18 @@ export type RouteResult = { status: number; body: any };
  */
 export async function createRestRouteWorkspace() {
   const { prisma } = await import("@/prisma/db");
-  const { runWithTenant, runWithoutTenant } = await import(
-    "@/core/decorators/tenant-context"
-  );
-  const { runInTransaction } = await import(
-    "@/core/decorators/transaction-runner"
-  );
+  const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
+  const { runInTransaction } = await import("@/core/decorators/transaction-runner");
   const { PermissionService } = await import("@/core/base/permission.service");
   const { createTestRecordRepo } = await import("./record-repository");
-  const { PrismaUserRepo } = await import(
-    "@/features/user/prisma-user.repository"
-  );
-  const { RecordAccessPolicy } = await import(
-    "@/features/records/record-access"
-  );
-  const { RecordCalculationService } = await import(
-    "@/features/records/record-calculation.service"
-  );
-  const { RecordWriteService } = await import(
-    "@/features/records/record-write.service"
-  );
-  const { MutateRecordInteractor } = await import(
-    "@/features/records/mutate-record.interactor"
-  );
-  const { RecordTrashService } = await import(
-    "@/features/records/record-trash.service"
-  );
-  const { GetRecordInteractor } = await import(
-    "@/features/records/get-record.interactor"
-  );
-  const { createCrmPreset, presetId } = await import(
-    "@/features/records/crm-preset"
-  );
+  const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
+  const { RecordAccessPolicy } = await import("@/features/records/record-access");
+  const { RecordCalculationService } = await import("@/features/records/record-calculation.service");
+  const { RecordWriteService } = await import("@/features/records/record-write.service");
+  const { MutateRecordInteractor } = await import("@/features/records/mutate-record.interactor");
+  const { RecordTrashService } = await import("@/features/records/record-trash.service");
+  const { GetRecordInteractor } = await import("@/features/records/get-record.interactor");
+  const { createCrmPreset, presetId } = await import("@/features/records/crm-preset");
 
   const seed = await runWithoutTenant(async () => {
     const company = await prisma.company.create({ data: {} });
@@ -94,7 +75,7 @@ export async function createRestRouteWorkspace() {
   });
   const repo = createTestRecordRepo();
   const policy = new RecordAccessPolicy(
-    new PrismaUserRepo(new PermissionService()),
+    new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
     repo,
   );
   const mutate = new MutateRecordInteractor(
@@ -108,20 +89,16 @@ export async function createRestRouteWorkspace() {
   );
   const read = new GetRecordInteractor(repo, policy);
   const id = (key: string) => presetId(companyId, key);
-  const as = <T>(user: TenantUser, fn: () => Promise<T>) =>
-    runWithTenant(user, fn);
+  const as = <T>(user: TenantUser, fn: () => Promise<T>) => runWithTenant(user, fn);
 
   await as(admin, () =>
-    runInTransaction(
-      () => repo.saveModel(createCrmPreset(companyId), admin.id),
-      { timeout: 30000 },
-    ),
+    runInTransaction(() => repo.saveModel(createCrmPreset(companyId), admin.id), { timeout: 30000 }),
   );
 
   const revision = () =>
-    runWithoutTenant(() =>
-      prisma.recordSchemaState.findUniqueOrThrow({ where: { companyId } }),
-    ).then((state) => state.revision);
+    runWithoutTenant(() => prisma.recordSchemaState.findUniqueOrThrow({ where: { companyId } })).then(
+      (state) => state.revision,
+    );
   const mutation = async (value: RecordMutation, user: TenantUser = admin) => {
     const expectedRevision = await revision();
     const result = await as(user, () =>
@@ -131,8 +108,7 @@ export async function createRestRouteWorkspace() {
         idempotencyKey: randomUUID(),
       }),
     );
-    if (!result.ok || result.data.status !== "completed")
-      throw new Error(JSON.stringify(result));
+    if (!result.ok || result.data.status !== "completed") throw new Error(JSON.stringify(result));
     return result.data;
   };
 
@@ -145,22 +121,11 @@ export async function createRestRouteWorkspace() {
     revision,
     grant: (typeKey: string, actions: Action[]) =>
       as(admin, () =>
-        runInTransaction(
-          () =>
-            repo.setGrants(id(typeKey), [
-              { roleId: seed.memberRole.id, actions },
-            ]),
-          {
-            timeout: 30000,
-          },
-        ),
+        runInTransaction(() => repo.setGrants(id(typeKey), [{ roleId: seed.memberRole.id, actions }]), {
+          timeout: 30000,
+        }),
       ),
-    create: async (
-      typeKey: string,
-      fieldKey: string,
-      value: string,
-      user: TenantUser = admin,
-    ) => {
+    create: async (typeKey: string, fieldKey: string, value: string, user: TenantUser = admin) => {
       const result = await mutation(
         {
           action: "create",
@@ -175,21 +140,13 @@ export async function createRestRouteWorkspace() {
     remove: async (ref: RecordRef, user: TenantUser = admin) => {
       const current = await as(user, () => read.invoke(ref));
       if (!current.ok) throw new Error("Record could not be read");
-      return mutation(
-        { action: "delete", ref, expectedVersion: current.data.version },
-        user,
-      );
+      return mutation({ action: "delete", ref, expectedVersion: current.data.version }, user);
     },
-    cleanup: () =>
-      runWithoutTenant(() =>
-        prisma.company.deleteMany({ where: { id: companyId } }),
-      ),
+    cleanup: () => runWithoutTenant(() => prisma.company.deleteMany({ where: { id: companyId } })),
   };
 }
 
-export type RestRouteWorkspace = Awaited<
-  ReturnType<typeof createRestRouteWorkspace>
->;
+export type RestRouteWorkspace = Awaited<ReturnType<typeof createRestRouteWorkspace>>;
 
 const routePaths = new WeakMap<RouteHandler, string>();
 

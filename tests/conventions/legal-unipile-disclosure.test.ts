@@ -187,8 +187,11 @@ describe("legal documents describe only what the product does", () => {
 
     expect(text).toMatch(/Mate/);
     expect(text).toMatch(/Vercel AI Gateway/);
-    expect(text).toMatch(/Microsoft Azure/);
-    expect(text).toMatch(/OpenAI/);
+    expect(text).toMatch(/Anthropic/);
+    expect(text).toMatch(/Exa Labs, Inc\./);
+    expect(text).toMatch(/TypeSafe AI/);
+    expect(`${privacy}\n${dpa}\n${terms}`).not.toMatch(/Azure/);
+    expect(subprocessors).not.toMatch(/^\| \*\*Microsoft Azure\*\*/m);
     expect(privacy).toMatch(
       name === "en"
         ? /active in the managed service since 29 August 2026/
@@ -266,8 +269,8 @@ describe("legal documents describe only what the product does", () => {
     );
     expect(subprocessors).toMatch(
       name === "en"
-        ? /Microsoft Azure.*Active downstream inference provider.*OpenAI-created models/is
-        : /Microsoft Azure.*Aktiver nachgelagerter Inferenzanbieter.*von OpenAI entwickelten Modelle/is,
+        ? /Google Cloud \(Vertex AI\).*Active downstream inference provider.*Anthropic-created Claude models.*text-embedding model.*United States region/is
+        : /Google Cloud \(Vertex AI\).*Aktiver nachgelagerter Inferenzanbieter.*von Anthropic entwickelten Claude-Modelle.*Text-Embedding-Modell.*Region in den Vereinigten Staaten/is,
     );
     expect(privacy).toMatch(
       name === "en"
@@ -281,8 +284,8 @@ describe("legal documents describe only what the product does", () => {
     );
     expect(subprocessors).toMatch(
       name === "en"
-        ? /does not identify the exact Microsoft legal entity or the regional inference location/is
-        : /weder die genaue Microsoft-Rechtseinheit noch den regionalen Inferenzstandort/is,
+        ? /Zero Data Retention provider list does not include Exa.*does not identify the exact legal entity or the inference location/is
+        : /Zero-Data-Retention-Anbieterliste von Vercel enthält Exa nicht.*weder die genaue Rechtseinheit noch den Inferenzstandort/is,
     );
     expect(text).not.toMatch(
       name === "en"

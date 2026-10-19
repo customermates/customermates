@@ -1,4 +1,4 @@
-import { wikiSemanticChunks } from "@/features/wiki/wiki-chunks";
+import { markdownTextChunks } from "@/features/record-file-index/record-file-text-chunks";
 import { WIKI_SECTION_MAX_LENGTH } from "@/features/wiki/wiki-markdown-sections";
 
 export const RECORD_FILE_MAX_CHUNKS = 1_000;
@@ -30,7 +30,7 @@ function windowStart(text: string, from: number, body: string): number {
 export function recordFileChunks(name: string, text: string): RecordFileChunkDraft[] {
   let section = -1;
   let cursor = 0;
-  return wikiSemanticChunks(name, text, {
+  return markdownTextChunks(name, text, {
     maxChunks: RECORD_FILE_MAX_CHUNKS,
     maxHeadingLength: WIKI_SECTION_MAX_LENGTH,
   }).map((chunk) => {

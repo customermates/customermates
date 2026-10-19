@@ -3,7 +3,7 @@ title: "Filter syntax for CRM record queries"
 description: "Typed field and relationship filters for the configurable record model, with examples for MCP and REST."
 ---
 
-CRM lists, saved views, widgets, REST queries, and the `query_crm_records` MCP tool use the same record query model. Discover the type with `discover_record_types` and read its stable field and relationship IDs with `get_record_model`. The five starting types and customer-created types use the same query shape. Messaging tools have separate filters.
+CRM lists, saved views, widgets, REST queries, and the `query_crm_records` MCP tool use the same record query model. Discover the type with `discover_record_types` and read its stable field and relationship IDs with `get_record_model`. Every list uses the same query shape, whether the AI workspace setup or a person created it. Messaging tools have separate filters.
 
 ## Where do filters apply?
 
@@ -11,7 +11,7 @@ A record query identifies one `typeId`. Its `filters` test fields on that type; 
 
 ## How do I filter a list in the app?
 
-Open the list, for example [Deals](app:records/deal), and click [Filters](app:records/deal?focus=filter). Pick a field under **Filter by** or type its name in **Add filter…**; linked lists such as Organizations are listed there too. Choose the condition, then the values, and the list updates right away. Active filters appear as chips at the top; remove one with its ×, or remove all with **Clear**. **Ask Mate** in the same popover turns a description in your own words into filters. Lists you create yourself work the same way, and a saved view shows the same records rather than copying them.
+Open the list, for example your deals list, and click **Filters** in its toolbar. Pick a field under **Filter by** or type its name in **Add filter…**; linked lists, such as an organizations list, are listed there too. Choose the condition, then the values, and the list updates right away. Active filters appear as chips at the top; remove one with its ×, or remove all with **Clear**. **Ask Mate** in the same popover turns a description in your own words into filters. Every list works the same way, and a saved view shows the same records rather than copying them.
 
 ## What does a filter rule look like, and can I combine rules with OR? [#what-does-a-filter-rule-look-like]
 
@@ -63,7 +63,7 @@ Relationship filters are separate from field filters. Specify `relationId`, `dir
 
 ### How do I filter by a custom field, and which operators work on it? [#which-operators-work-on-custom-columns]
 
-Use the field's ID from `get_record_model`, never its editable label. An input, formula, lookup, or rollup field can be filtered when its value type supports the operator and the reader may access the value. Select filters use stable option IDs. A multiple choice field takes `in` (has any of the options), `all` (has all of them), `notIn` (has none of them, including records without a value), `empty`, and `notEmpty`; it cannot be sorted. The same rule applies to seeded fields and fields on customer-created types.
+Use the field's ID from `get_record_model`, never its editable label. An input, formula, lookup, or rollup field can be filtered when its value type supports the operator and the reader may access the value. Select filters use stable option IDs. A multiple choice field takes `in` (has any of the options), `all` (has all of them), `notIn` (has none of them, including records without a value), `empty`, and `notEmpty`; it cannot be sorted. The same rule applies to the fields of every list.
 
 ## Which field names can I use?
 

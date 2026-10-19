@@ -5,10 +5,13 @@ import { Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma
 
 import { env } from "@/env";
 import type { Data } from "@/core/validation/validation.utils";
+import { getTransactionClient } from "@/core/decorators/transaction-context";
 
 import {
   AGENT_RETRIEVAL_RESERVATION_TTL_MS,
+  type AgentCreditEntitlement,
   agentMicrocentsToCredits,
+  agentUsageMultiplier,
   memberCreditHeadroomMicrocents,
   resolveAgentCreditEntitlement,
   workspaceIndexingShareMicrocents,
@@ -29,6 +32,8 @@ export type AgentWorkspaceCreditPool = {
   memberLimitMicrocents: Record<string, number>;
   usable: boolean;
 };
+
+export type AgentRetrievalRefusal = "credits" | "unavailable";
 
 export type AgentRetrievalReservation = {
   id: string;
@@ -51,6 +56,8 @@ export type AgentRetrievalGrant = {
 };
 
 export type PlatformRetrievalPurpose = "docsIndexing" | "commandCatalogIndexing";
+export type PlatformWorkspacePurpose = "workspaceSetup" | "workspaceSetupBuild" | "wikiReindex";
+export type WorkspacePlatformReservation = { status: "reserved"; id: string } | { status: "cap" | "unavailable" };
 
 export type AgentRetrievalCharge = {
   model: string;
@@ -75,10 +82,45 @@ export const AgentUsageSummarySchema = z.object({
   periodStart: z.date(),
   resetAt: z.date(),
   recentTurnCredits: z.number().nullable(),
+  usageMultiplier: z.number().nullable(),
   blockedReason: AgentUsageBlockedReasonSchema.nullable(),
 });
 
 export type AgentUsageSummary = Data<typeof AgentUsageSummarySchema>;
+
+export const AgentUsageViewSchema = z.object({
+  hasAllowance: z.boolean(),
+  usedPct: z.number(),
+  multiplier: z.number().nullable(),
+  plan: z.enum(SubscriptionPlan).nullable(),
+  resetAt: z.date(),
+  recentTurnPct: z.number().nullable(),
+  blockedReason: AgentUsageBlockedReasonSchema.nullable(),
+});
+
+export type AgentUsageView = Data<typeof AgentUsageViewSchema>;
+
+function allowanceSharePct(part: number, whole: number): number {
+  if (whole <= 0 || part <= 0) return 0;
+  const pct = Math.min(100, (part / whole) * 100);
+  return Math.max(0.01, Math.round(pct * 100) / 100);
+}
+
+export function toAgentUsageView(summary: AgentUsageSummary): AgentUsageView {
+  const hasAllowance = summary.creditsLimit > 0;
+  return {
+    hasAllowance,
+    usedPct: allowanceSharePct(summary.creditsUsed, summary.creditsLimit),
+    multiplier: summary.usageMultiplier,
+    plan: summary.plan,
+    resetAt: summary.resetAt,
+    recentTurnPct:
+      summary.recentTurnCredits === null || !hasAllowance
+        ? null
+        : allowanceSharePct(summary.recentTurnCredits, summary.creditsLimit),
+    blockedReason: summary.blockedReason,
+  };
+}
 
 export type AgentTurnCreditReservation = {
   reservedMicrocents: number;
@@ -90,11 +132,22 @@ export type AgentTurnCreditReservation = {
   budget: AgentTurnBudget;
 };
 
+type AgentUsageUser = NonNullable<Awaited<ReturnType<AgentUsageRepo["findUserForUsageUnscoped"]>>>;
+
+export type AgentTurnCreditState = {
+  readIn: unknown;
+  user: AgentUsageUser;
+  entitlement: AgentCreditEntitlement;
+  ownCommittedMicrocents: number;
+  pool: AgentWorkspaceCreditPool | null;
+};
+
 type ResolvedUsageState = {
-  user: NonNullable<Awaited<ReturnType<AgentUsageRepo["findUserForUsageUnscoped"]>>>;
+  user: AgentUsageUser;
   summary: AgentUsageSummary;
   remainingMicrocents: number;
   limitMicrocents: number;
+  creditState: AgentTurnCreditState | null;
 };
 
 function usagePct(used: number, limit: number) {
@@ -133,6 +186,7 @@ export class AgentUsageService {
         user,
         remainingMicrocents: 0,
         limitMicrocents: 0,
+        creditState: null,
         summary: {
           creditsUsed: 0,
           creditsRemaining: 0,
@@ -142,6 +196,7 @@ export class AgentUsageService {
           periodStart: period.start,
           resetAt: period.resetAt,
           recentTurnCredits: null,
+          usageMultiplier: null,
           blockedReason: "subscription_unavailable",
         },
       };
@@ -201,6 +256,13 @@ export class AgentUsageService {
       user,
       remainingMicrocents,
       limitMicrocents,
+      creditState: {
+        readIn: getTransactionClient() ?? null,
+        user,
+        entitlement,
+        ownCommittedMicrocents: usage.usedMicrocents,
+        pool,
+      },
       summary: {
         creditsUsed: agentMicrocentsToCredits(usedMicrocents),
         creditsRemaining: agentMicrocentsToCredits(remainingMicrocents),
@@ -211,6 +273,7 @@ export class AgentUsageService {
         resetAt: entitlement.resetAt,
         recentTurnCredits:
           usage.recentTurnMicrocents === null ? null : agentMicrocentsToCredits(usage.recentTurnMicrocents),
+        usageMultiplier: agentUsageMultiplier(entitlementInput),
         blockedReason,
       },
     };
@@ -232,6 +295,7 @@ export class AgentUsageService {
   ): Promise<{
     summary: AgentUsageSummary;
     reservation: AgentTurnCreditReservation | null;
+    creditState?: AgentTurnCreditState;
   }> {
     const state = await this.resolveUsageState(userId, now);
     if (state.summary.blockedReason) return { summary: state.summary, reservation: null };
@@ -278,6 +342,7 @@ export class AgentUsageService {
         periodEnd: state.summary.resetAt,
         budget,
       },
+      ...(state.creditState ? { creditState: state.creditState } : {}),
     };
   }
 
@@ -299,6 +364,18 @@ export class AgentUsageService {
       periodStart: state.summary.periodStart,
       periodEnd: state.summary.resetAt,
     };
+  }
+
+  async retrievalRefusal(
+    userId: string,
+    worstCaseMicrocents: number,
+    now = new Date(),
+  ): Promise<AgentRetrievalRefusal> {
+    const state = await this.resolveUsageState(userId, now);
+    if (state.summary.blockedReason === "credits_exhausted") return "credits";
+    if (state.summary.blockedReason || !state.user.subscription || !state.summary.plan) return "unavailable";
+    if (!(await this.repo.admitsHostedAiRetrievalUnscoped(now))) return "unavailable";
+    return state.remainingMicrocents < Math.max(1, worstCaseMicrocents) ? "credits" : "unavailable";
   }
 
   async prepareWorkspaceIndexing(companyId: string, now = new Date()): Promise<AgentRetrievalGrant | null> {
@@ -351,6 +428,33 @@ export class AgentUsageService {
       reservedMicrocents: Math.max(1, args.worstCaseMicrocents),
       now: args.now ?? new Date(),
     });
+  }
+
+  async reserveWorkspacePlatform(args: {
+    companyId: string;
+    purpose: PlatformWorkspacePurpose;
+    model: string;
+    worstCaseMicrocents: number;
+    capMicrocents: number;
+    now?: Date;
+  }): Promise<WorkspacePlatformReservation> {
+    assertMicrocentCount(args.worstCaseMicrocents, "Platform AI reservation");
+    if (env.APP_MODE === "self-hosted" || env.APP_MODE === "demo") return { status: "unavailable" };
+    return this.repo.reserveWorkspacePlatformUsageUnscoped({
+      companyId: args.companyId,
+      purpose: args.purpose,
+      model: args.model,
+      reservedMicrocents: Math.max(1, args.worstCaseMicrocents),
+      capMicrocents: args.capMicrocents,
+      now: args.now ?? new Date(),
+    });
+  }
+
+  async workspacePlatformSpend(args: {
+    companyId: string;
+    purpose: PlatformWorkspacePurpose;
+  }): Promise<{ usedMicrocents: number; heldMicrocents: number }> {
+    return this.repo.getWorkspacePlatformSpendUnscoped(args);
   }
 
   async settlePlatformRetrieval(args: {
@@ -428,8 +532,9 @@ export class AgentUsageService {
     companyId: string;
     userId: string;
     reservation: AgentTurnCreditReservation;
+    creditState?: AgentTurnCreditState;
   }): Promise<boolean> {
-    return this.repo.reserveUsageEventUnscoped({
+    const event = {
       id: args.reservationId,
       companyId: args.companyId,
       userId: args.userId,
@@ -440,7 +545,10 @@ export class AgentUsageService {
       allowanceMicrocentsSnapshot: args.reservation.allowanceMicrocentsSnapshot,
       periodStart: args.reservation.periodStart,
       periodEnd: args.reservation.periodEnd,
-    });
+    };
+    return args.creditState
+      ? this.repo.reserveUsageEventUnscoped(event, args.creditState)
+      : this.repo.reserveUsageEventUnscoped(event);
   }
 
   async releaseReservation(args: { reservationId: string; companyId: string; userId: string; now?: Date }) {

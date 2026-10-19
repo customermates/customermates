@@ -164,6 +164,7 @@ describe("synthetic Better Auth identities", () => {
         emailVerified: true,
         id: identity.userId,
         image: identity.avatarPath,
+        isPlatformOperator: false,
         name: identity.name,
       })),
     );
@@ -184,7 +185,6 @@ describe("synthetic Better Auth identities", () => {
       SYNTHETIC_COMPANY_MEMBER_DEFINITIONS.map(({ email, id, roleId }) => ({
         email,
         id,
-        isPlatformOperator: false,
         roleId,
         status: "active",
       })),

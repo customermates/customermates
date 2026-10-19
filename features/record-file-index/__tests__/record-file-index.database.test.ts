@@ -35,6 +35,7 @@ const { runInTransaction } = await import("@/core/decorators/transaction-runner"
 const { DatabaseFileStorageDriver } = await import("@/core/storage/database-file-storage.driver");
 const { PrismaFileContentRepo } = await import("@/core/storage/prisma-file-content.repository");
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
+const { PrismaBillingUsageRepo } = await import("@/features/billing-usage/prisma-billing-usage.repository");
 const { RecordAccessPolicy } = await import("@/features/records/record-access");
 const { RecordCalculationService } = await import("@/features/records/record-calculation.service");
 const { RecordWriteService } = await import("@/features/records/record-write.service");
@@ -46,7 +47,6 @@ const { RecordQuerySchema } = await import("@/features/records/record-query.sche
 const { RecordFileAttachmentService } = await import("@/features/records/record-file-attachment.service");
 const { PrismaRecordFileRepo } = await import("@/features/records/prisma-record-file.repository");
 const { createCrmPreset, presetId } = await import("@/features/records/crm-preset");
-const { PrismaWikiPageRepo } = await import("@/features/wiki/prisma-wiki-page.repository");
 const { PrismaAgentChatRepo } = await import("@/ee/agent-chat/prisma-agent-chat.repository");
 const { AgentUsageService } = await import("@/ee/agent-chat/agent-usage.service");
 const { WikiEmbeddingService } = await import("@/ee/wiki-retrieval/wiki-embedding.service");
@@ -159,7 +159,10 @@ async function workspace(options: { subscription?: boolean } = {}) {
       ],
     });
   });
-  const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
+  const policy = new RecordAccessPolicy(
+    new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+    repo,
+  );
   const mutate = new MutateRecordInteractor(
     repo,
     policy,
@@ -260,7 +263,6 @@ async function workspace(options: { subscription?: boolean } = {}) {
         repo,
         policy,
         new PrismaRecordFileSearchRepo(),
-        new PrismaWikiPageRepo(new PermissionService()),
         semantic ? { embedder: new WikiSemanticQueryEmbedder(service), scheduler: { schedule } } : null,
       ).invoke({ query, limit: 5 });
       if (!result.ok) throw new Error(JSON.stringify(result));

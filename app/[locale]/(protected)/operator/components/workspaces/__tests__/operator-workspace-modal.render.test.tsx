@@ -40,7 +40,10 @@ vi.mock("../../use-operator-chip-options", () => ({
   useOperatorChipOptions: () => ({ plan: [], subscription: [] }),
 }));
 vi.mock("../../operator-chip-select", () => ({ OperatorChipSelect: () => null }));
-vi.mock("../../../workspaces/actions", () => ({ getOperatorWorkspaceStatsAction: () => new Promise(() => {}) }));
+vi.mock("../../../workspaces/actions", () => ({
+  getOperatorWorkspaceStatsAction: () => new Promise(() => {}),
+  getOperatorBillingUsageAction: () => new Promise(() => {}),
+}));
 vi.mock("../../../actions", () => ({ getOperatorWorkspaceTagsAction: () => new Promise(() => {}) }));
 vi.mock("@/components/modal", () => ({ AppModal: harness.passThrough }));
 vi.mock("@/components/modal/confirm-dialog", () => ({ ConfirmDialog: () => null }));

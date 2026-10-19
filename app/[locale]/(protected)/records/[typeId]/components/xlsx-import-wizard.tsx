@@ -216,7 +216,7 @@ const XlsxMappingStep = observer(function XlsxMappingStep({ store }: { store: Xl
   const sheet = store.sheet;
   if (!sheet) return null;
   const fields = store.options.filter((option) =>
-    ["field", "rangePart", "addressPart", "channels"].includes(option.target.kind),
+    ["field", "nameParts", "rangePart", "addressPart", "channels"].includes(option.target.kind),
   );
   const relationships = store.options.filter((option) => option.target.kind === "relationship");
   const other = store.options.filter(

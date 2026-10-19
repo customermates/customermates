@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const EXPLICITLY_CLEARED = new Set(["AuthUser", "MessagingInboundEvent"]);
+const RETAINED_WITHOUT_IDENTITIES = new Set(["BillingUsageInterval", "BillingUsageWorkspace"]);
 
 type Relation = { target: string; required: boolean; onDelete: string | null };
 type Model = { name: string; scalars: Set<string>; relations: Relation[] };
@@ -54,7 +55,12 @@ describe("workspace deletion reaches every company-scoped model", () => {
 
   it("removes every company-scoped row through a required cascade from Company or an explicit cleanup", () => {
     const uncovered = scoped
-      .filter((model) => !cascadesFromCompany(model) && !EXPLICITLY_CLEARED.has(model.name))
+      .filter(
+        (model) =>
+          !cascadesFromCompany(model) &&
+          !EXPLICITLY_CLEARED.has(model.name) &&
+          !RETAINED_WITHOUT_IDENTITIES.has(model.name),
+      )
       .map((model) => model.name);
 
     expect(uncovered).toEqual([]);

@@ -9,7 +9,6 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 import { recordRoutinePrompt } from "@/prisma/seeds/record-routine-prompts";
 import { composeRoutinePrompt } from "@/ee/routines/routine-prompt";
 import { runWithTenant } from "@/core/decorators/tenant-context";
-import { presetId } from "@/features/records/crm-preset";
 import { resolvePublicAppLinks } from "@/features/docs/app-links";
 import {
   createMockDiModule,
@@ -78,10 +77,10 @@ import {
 } from "../agent-budget-policy";
 import { SendAgentMessageSchema } from "../agent-chat.schema";
 import { buildAgentProviderContext, conservativeAgentInitialContextBytes } from "../agent-provider-context";
-import { toolsetsForRequest } from "../agent-toolset-routing";
+import { AGENT_ON_DEMAND_TOOLSETS, toolsetsForRequest } from "../agent-toolset-routing";
 import { ANALYZE_RECORDS_TOOL_NAME } from "../agent-toolset-routing";
 import { WIKI_REFERENCE_MAX_BYTES, agentWikiReferenceBytes, serializeAgentWikiCatalog } from "../agent-wiki-context";
-import { SHIPPED_AGENT_MODEL } from "../model-catalog";
+import { AGENT_MODELS } from "../model-catalog";
 import { buildAgentSystemPrompt } from "../system-prompt";
 import { AGENT_UI_TARGETS, unopenedUiPrerequisite } from "../ui-targets";
 import {
@@ -488,8 +487,37 @@ describe("agent tools", () => {
     expect(result.finishReason).toBe("stop");
   });
 
+  it("admits a turn with any one on-demand toolset, and with contact details wording on a record or the dashboard", () => {
+    const model = AGENT_MODELS.chat;
+    const contextLimitBytes = agentContextTokensToBytes(model.maxContextTokens);
+    const systemPrompt = buildAgentSystemPrompt({ userName: "Ada Lovelace", locale: "en", surface: "chat" });
+    const turnTools = agentToolDefinitionsForTurn({ servingProvider: model.servingProvider, surface: "chat" });
+    const requests = [
+      ...AGENT_ON_DEMAND_TOOLSETS.map((toolset) => ({ label: toolset, toolsets: [toolset], route: "/en/records" })),
+      ...[
+        ["/en/dashboard", "hi"],
+        ["/en/records/10000000-0000-4000-8000-000000000102", "Add the email address ada@example.test to her contact details."],
+        ["/en/dashboard", "What is the email address of Ada and the address of her organization?"],
+      ].map(([route, text]) => ({
+        label: `${route} ${text}`,
+        toolsets: [...toolsetsForRequest({ text, pageRoute: route, contexts: [], surface: "chat" })],
+        route,
+      })),
+    ];
+    for (const { label, toolsets, route } of requests) {
+      const required = conservativeAgentInitialContextBytes({
+        systemPrompt,
+        currentText: label,
+        pageRoute: route,
+        toolDefinitions: agentToolDefinitionsForToolsets(turnTools, toolsets),
+      });
+      expect(required, label).not.toBeNull();
+      expect(required ?? Number.POSITIVE_INFINITY, label).toBeLessThan(contextLimitBytes);
+    }
+  });
+
   it("keeps the request's initially active tools inside the conservative provider envelope", () => {
-    const model = SHIPPED_AGENT_MODEL;
+    const model = AGENT_MODELS.chat;
     const contextLimitBytes = agentContextTokensToBytes(model.maxContextTokens);
     const systemPrompt = buildAgentSystemPrompt({
       userName: "Ada Lovelace",
@@ -595,7 +623,7 @@ describe("agent tools", () => {
     ];
     const definitions = agentToolDefinitionsForToolsets(
       agentToolDefinitionsForTurn({
-        servingProvider: SHIPPED_AGENT_MODEL.servingProvider,
+        servingProvider: AGENT_MODELS.routine.servingProvider,
         surface: "routine",
         webSearchEnabled: true,
       }),
@@ -617,8 +645,8 @@ describe("agent tools", () => {
       toolDefinitions: definitions,
     });
     const funded = resolveAgentTurnBudget({
-      model: SHIPPED_AGENT_MODEL,
-      availableMicrocents: agentRoundWorstCaseMicrocents(SHIPPED_AGENT_MODEL),
+      model: AGENT_MODELS.routine,
+      availableMicrocents: agentRoundWorstCaseMicrocents(AGENT_MODELS.routine),
       requiredContextBytes: requiredContextBytes ?? undefined,
     });
     const budget = funded?.maxContextBytes ?? 0;
@@ -630,7 +658,7 @@ describe("agent tools", () => {
     expect(budget - (bytes ?? budget)).toBeGreaterThan(60_000);
     const modelTools = agentToolDefinitionsForToolsets(
       agentToolDefinitionsForTurn({
-        servingProvider: SHIPPED_AGENT_MODEL.servingProvider,
+        servingProvider: AGENT_MODELS.routine.servingProvider,
         surface: "routine",
         webSearchEnabled: true,
       }),
@@ -689,7 +717,7 @@ describe("agent tools", () => {
         { wikiCatalog: catalog, wikiWebsiteSetup: false },
         { wikiCatalog: null, wikiWebsiteSetup: true },
       ];
-      for (const model of [SHIPPED_AGENT_MODEL]) {
+      for (const model of [AGENT_MODELS.chat]) {
         for (const { wikiCatalog, wikiWebsiteSetup } of states) {
           const label = `${model.modelId} catalog=${Boolean(wikiCatalog)} website=${wikiWebsiteSetup}`;
           const toolDefinitions = getAgentAiToolDefinitions(model.servingProvider, {
@@ -1729,25 +1757,24 @@ describe("agent tools", () => {
     expect(pageResult.result).toContain("WhatsApp");
   });
 
-  it("hands Mate docs app links as paths into the reader's own workspace", async () => {
+  it("hands Mate docs app links as relative paths into the app", async () => {
     const tools = getAgentAiTools(deps({ runInCallerContext: (run) => runWithTenant(mockUser, run) }));
     const markdown = resolvePublicAppLinks(
-      "To add a contact, open [Contacts](app:records/contact) and click [Add](app:records/contact?focus=add).",
+      "To add a role, open [Roles](app:settings/roles) and click [Add](app:settings/roles?focus=add).",
       "http://localhost:4000",
     );
     vi.spyOn(getDocsPageTool, "execute").mockResolvedValueOnce({
       text: markdown,
       structuredContent: {
-        title: "Records",
-        url: "http://localhost:4000/en/docs/app-records",
+        title: "Workspace settings",
+        url: "http://localhost:4000/en/docs/app-company",
         markdown,
         excerpt: true,
       },
     });
-    const contacts = presetId(mockUser.companyId, "contact");
 
     const result = (await execute(tools.get_docs_page, {
-      slug: "app-records",
+      slug: "app-company",
       locale: "en",
       source: "docs",
     })) as {
@@ -1756,7 +1783,7 @@ describe("agent tools", () => {
     };
 
     expect(result.result).toBe(
-      `To add a contact, open [Contacts](/records/${contacts}) and click [Add](/records/${contacts}?focus=control%3Arecords%3A${contacts}%3Aadd).`,
+      "To add a role, open [Roles](/settings/roles) and click [Add](/settings/roles?focus=control%3Asettings-roles-add).",
     );
   });
 

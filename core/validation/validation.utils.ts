@@ -93,6 +93,7 @@ const NOT_FOUND_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.webhookNotFound,
   CustomErrorCode.wikiPageNotFound,
   CustomErrorCode.widgetNotFound,
+  CustomErrorCode.workspaceSetupNotFound,
 ]);
 const CONFLICT_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.channelAlreadyLinked,
@@ -111,6 +112,7 @@ const CONFLICT_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.wikiGuideExists,
   CustomErrorCode.wikiNotEmpty,
   CustomErrorCode.wikiPageConflict,
+  CustomErrorCode.workspaceSetupConflict,
 ]);
 const RATE_LIMIT_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.serviceBusy,

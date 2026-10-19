@@ -21,6 +21,7 @@ import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser, createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import { Action, Resource } from "@/generated/prisma";
 import messages from "@/i18n/locales/en.json";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
@@ -34,6 +35,7 @@ import { GetWikiPagesInteractor } from "../get-wiki-pages.interactor";
 import { GetWikiCatalogInteractor } from "../get-wiki-catalog.interactor";
 import { GetWikiHomepageSetupStateInteractor } from "../get-wiki-homepage-setup-state.interactor";
 import { PrismaWikiPageRepo } from "../prisma-wiki-page.repository";
+import { createTestWikiSectionRepo } from "@/tests/helpers/wiki-section-repository";
 import { SearchWikiPagesInteractor } from "../search-wiki-pages.interactor";
 import { StartWikiHomepageSetupInteractor } from "../start-wiki-homepage-setup.interactor";
 import { UpdateWikiPageInteractor } from "../update-wiki-page.interactor";
@@ -137,7 +139,7 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
           page: 1,
           pageSize: 25,
         }),
-        new SearchWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService()), "stored").invoke({
+        new SearchWikiPagesInteractor(createTestWikiSectionRepo(), "stored").invoke({
           query: "foreign",
           page: 1,
           pageSize: 25,
@@ -181,7 +183,7 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     if (!local.ok) throw new Error("Wiki fixtures were not created.");
     const search = (query: string, page = 1) =>
       runWithTenant(user, () =>
-        new SearchWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService()), "stored").invoke({
+        new SearchWikiPagesInteractor(createTestWikiSectionRepo(), "stored").invoke({
           query,
           page,
           pageSize: 5,
@@ -193,7 +195,11 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     expect(new Set(result.data.items.slice(0, 2).map((item) => item.id))).toEqual(
       new Set([local.data[1].id, local.data[2].id]),
     );
-    expect(result.data.items[2]).toMatchObject({ id: local.data[0].id, snippet: "Our **voice** is clear.", offset: 0 });
+    expect(result.data.items[2]).toMatchObject({
+      id: local.data[0].id,
+      snippet: "Our voice is clear.",
+      offset: 0,
+    });
     expect(await search("voice support", 2)).toMatchObject({
       ok: true,
       data: { total: 3, items: [] },
@@ -222,28 +228,35 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
         title: "Returns",
         markdown: `${"General background. ".repeat(80)}\n\nRefund policy requires manager approval.`,
       },
-      { title: "Customer onboarding", markdown: "Start every onboarding with a kickoff call." },
+      {
+        title: "Customer onboarding",
+        markdown: "Start every onboarding with a kickoff call.",
+      },
     ]);
     if (!created.ok) throw new Error("Wiki fixtures were not created.");
     const search = (query: string) =>
       runWithTenant(user, () =>
-        new SearchWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService()), "stored").invoke({
-          query,
-          page: 1,
-          pageSize: 5,
-        }),
+        new SearchWikiPagesInteractor(createTestWikiSectionRepo(), "stored").invoke({ query, page: 1, pageSize: 5 }),
       );
 
     const refund = await search("What is our refund policy?");
-    expect(refund).toMatchObject({ ok: true, data: { total: 1, items: [{ id: created.data[3].id }] } });
+    expect(refund).toMatchObject({
+      ok: true,
+      data: { total: 1, items: [{ id: created.data[3].id }] },
+    });
     if (!refund.ok) throw new Error("Wiki search failed.");
-    expect(refund.data.items[0].snippet).toContain("**Refund** **policy** requires manager approval");
+    expect(refund.data.items[0].snippet).toContain("Refund policy requires manager approval");
 
     expect(await search("how do i onboard a customer")).toMatchObject({
       ok: true,
       data: {
         total: 1,
-        items: [{ id: created.data[4].id, snippet: "Start every **onboarding** with a kickoff call." }],
+        items: [
+          {
+            id: created.data[4].id,
+            snippet: "Start every onboarding with a kickoff call.",
+          },
+        ],
       },
     });
   });
@@ -259,7 +272,7 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     const page = created.data[0];
     const search = (query: string) =>
       runWithTenant(user, () =>
-        new SearchWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService()), "stored").invoke({
+        new SearchWikiPagesInteractor(createTestWikiSectionRepo(), "stored").invoke({
           query,
           page: 1,
           pageSize: 5,
@@ -322,7 +335,7 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     const page = created.data[0];
 
     const searched = await runWithTenant(user, () =>
-      new SearchWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService()), "stored").invoke({
+      new SearchWikiPagesInteractor(createTestWikiSectionRepo(), "stored").invoke({
         query: "支持",
         page: 1,
         pageSize: 5,
@@ -334,18 +347,21 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     });
 
     const question = await runWithTenant(user, () =>
-      new SearchWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService()), "stored").invoke({
+      new SearchWikiPagesInteractor(createTestWikiSectionRepo(), "stored").invoke({
         query: "如何处理支持请求？",
         page: 1,
         pageSize: 5,
       }),
     );
-    expect(question).toMatchObject({ ok: true, data: { total: 1, items: [{ id: page.id }] } });
+    expect(question).toMatchObject({
+      ok: true,
+      data: { total: 1, items: [{ id: page.id }] },
+    });
     expect(JSON.stringify(question)).not.toContain("其他租户");
 
     expect(
       await runWithTenant(user, () =>
-        new SearchWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService()), "stored").invoke({
+        new SearchWikiPagesInteractor(createTestWikiSectionRepo(), "stored").invoke({
           query: "지원절차",
           page: 1,
           pageSize: 5,
@@ -413,7 +429,7 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     const longQuery = `${Array.from({ length: 40 }, (_, index) => `a${index}`).join(" ")} zephyr escalation`;
 
     const searched = await runWithTenant(user, () =>
-      new SearchWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService()), "stored").invoke({
+      new SearchWikiPagesInteractor(createTestWikiSectionRepo(), "stored").invoke({
         query: longQuery,
         page: 1,
         pageSize: 5,
@@ -425,7 +441,11 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
       data: {
         total: 1,
         items: [
-          { id: entry.data[0].id, title: "Escalations", snippet: "The **zephyr** **escalation** requires a manager." },
+          {
+            id: entry.data[0].id,
+            title: "Escalations",
+            snippet: "The zephyr escalation requires a manager.",
+          },
         ],
       },
     });
@@ -571,6 +591,7 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
         new GetWikiHomepageSetupStateInteractor(
           new PrismaWikiPageRepo(new PermissionService()),
           new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo(new PermissionService())),
+          { findSetupKnowledgeProgress: () => Promise.resolve(null) },
         ).invoke(),
       );
     const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
@@ -580,7 +601,11 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
           new PrismaWikiPageRepo(new PermissionService()),
           new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo(new PermissionService())),
           background as never,
-        ).invoke({ homepage: "example.org", clientRequestId: randomUUID(), locale: "en" }),
+        ).invoke({
+          homepage: "example.org",
+          clientRequestId: randomUUID(),
+          locale: "en",
+        }),
       );
     await client.query(
       `INSERT INTO "WikiWebsiteCrawl" ("id", "companyId", "userId", "clientRequestId", "homepageUrl", "registrableDomain", "locale", "status", "extraHosts", "pendingHosts", "targets", "discovered", "updatedAt")
@@ -597,7 +622,11 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     try {
       expect(await setupState(foreignUser)).toMatchObject({
         ok: true,
-        data: { status: "working", domain: "example.com", progress: { fetched: 0, total: 1, failed: 0 } },
+        data: {
+          status: "working",
+          domain: "example.com",
+          progress: { fetched: 0, total: 1, failed: 0 },
+        },
       });
       await client.query('UPDATE "WikiWebsiteCrawl" SET "status" = \'completed\' WHERE "companyId" = $1', [
         foreignCompanyId,
@@ -625,7 +654,10 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
         ).rows[0].count,
       ).toBe(1);
       expect(background.dispatch).toHaveBeenLastCalledWith("crawl-wiki-website", expect.objectContaining({ userId }));
-      expect(await setupState(user)).toMatchObject({ ok: true, data: { status: "working", domain: "example.org" } });
+      expect(await setupState(user)).toMatchObject({
+        ok: true,
+        data: { status: "working", domain: "example.org" },
+      });
       expect(await create(user, [{ title: "Local page", markdown: "Local body" }], true)).toMatchObject({ ok: true });
     } finally {
       await client.query('DELETE FROM "WikiWebsiteCrawl" WHERE "companyId" = ANY($1)', [[companyId, foreignCompanyId]]);
@@ -679,7 +711,7 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
   });
 
   it("persists Wiki manage actions with Read, supports Read-only, partial manage and revocation", async () => {
-    const repo = new PrismaRoleRepo();
+    const repo = new PrismaRoleRepo(new PrismaBillingUsageRepo());
     const roleName = `Wiki permissions ${randomUUID()}`;
     const save = (id: string | undefined, wiki: UpsertRoleData["permissions"][number]["actions"]) =>
       runWithTenant(user, () =>

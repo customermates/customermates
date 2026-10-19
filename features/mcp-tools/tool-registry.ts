@@ -26,6 +26,7 @@ import { manageWebhooksTool } from "@/features/mcp-tools/webhook.mcp-tools";
 import { manageWidgetsTool } from "@/features/mcp-tools/widget.mcp-tools";
 import { manageRoutinesTool } from "@/features/mcp-tools/routine.mcp-tools";
 import { requestSupportTool } from "@/features/mcp-tools/support.mcp-tools";
+import { getOperatorUsageTool } from "@/features/mcp-tools/operator.mcp-tools";
 import { manageWikiPagesTool } from "@/features/mcp-tools/wiki.mcp-tools";
 import { exportCrmRecordsTool, importCrmRecordsTool } from "@/features/mcp-tools/data-transfer.mcp-tools";
 import { manageRecordFilesTool } from "@/features/mcp-tools/record-file.mcp-tools";
@@ -118,7 +119,11 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
 
 export const MCP_ALWAYS_ON_TOOLS: McpTool[] = [searchTool, fetchTool];
 
+export const MCP_OPERATOR_TOOLS: McpTool[] = [getOperatorUsageTool];
+
 export const ALL_MCP_TOOLS = [...Object.values(MCP_TOOL_GROUPS).flat(), ...MCP_ALWAYS_ON_TOOLS];
+
+export const ALL_MCP_TOOLS_WITH_OPERATOR = [...ALL_MCP_TOOLS, ...MCP_OPERATOR_TOOLS];
 
 export function countMcpTools(tools: readonly Pick<McpTool, "name">[] = ALL_MCP_TOOLS): number {
   const names = tools.map((tool) => tool.name);

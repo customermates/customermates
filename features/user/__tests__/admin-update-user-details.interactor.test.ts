@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { Action, CountryCode, Resource, Status, SubscriptionPlan } from "@/generated/prisma";
+import { Action, Resource, Status, SubscriptionPlan } from "@/generated/prisma";
 import { DomainEvent } from "@/features/event/domain-events";
 import { createMockUser, createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import {
@@ -42,7 +42,7 @@ const MEMBER_ROLE = {
 
 function harness(previousStatus: Status) {
   const userRepo = {
-    isPlatformOperatorCompanyWide: vi.fn().mockResolvedValue(false),
+    strandsLastPlatformOperatorCompanyWide: vi.fn().mockResolvedValue(false),
     findMemberCompanyWide: vi.fn().mockResolvedValue(
       createMockUser({
         id: TARGET_USER_ID,
@@ -83,7 +83,6 @@ function harness(previousStatus: Status) {
       email: TARGET_EMAIL,
       firstName: "Team",
       lastName: "Mate",
-      country: CountryCode.de,
       status,
       avatarUrl: null,
       roleId: TARGET_ROLE_ID,
@@ -166,9 +165,9 @@ describe("AdminUpdateUserDetailsInteractor agent credit activation", () => {
     expectProfileUpdateBefore(userRepo.adminUpdateDetailsOrThrow, userRepo.clearAgentCreditActivatedOrThrow);
   });
 
-  it("refuses a tenant-side status change on a platform operator account", async () => {
+  it("refuses deactivating the last platform operator's only active membership", async () => {
     const { userRepo, invoke } = harness(Status.active);
-    userRepo.isPlatformOperatorCompanyWide.mockResolvedValue(true);
+    userRepo.strandsLastPlatformOperatorCompanyWide.mockResolvedValue(true);
 
     const result = await invoke("inactive");
 
@@ -177,9 +176,9 @@ describe("AdminUpdateUserDetailsInteractor agent credit activation", () => {
     expect(userRepo.clearAgentCreditActivatedOrThrow).not.toHaveBeenCalled();
   });
 
-  it("still allows reactivating a platform operator, so a cron deactivation stays recoverable", async () => {
+  it("still allows reactivating that membership, so a cron deactivation stays recoverable", async () => {
     const { userRepo, invoke } = harness(Status.inactive);
-    userRepo.isPlatformOperatorCompanyWide.mockResolvedValue(true);
+    userRepo.strandsLastPlatformOperatorCompanyWide.mockResolvedValue(true);
 
     const result = await invoke("active");
 
@@ -189,7 +188,7 @@ describe("AdminUpdateUserDetailsInteractor agent credit activation", () => {
 
   it("still allows a tenant-side status change on an ordinary account", async () => {
     const { userRepo, invoke } = harness(Status.active);
-    userRepo.isPlatformOperatorCompanyWide.mockResolvedValue(false);
+    userRepo.strandsLastPlatformOperatorCompanyWide.mockResolvedValue(false);
 
     const result = await invoke("inactive");
 
@@ -217,7 +216,6 @@ describe("AdminUpdateUserDetailsInteractor partial member update", () => {
       email: TARGET_EMAIL,
       firstName: "Test",
       lastName: "User",
-      country: CountryCode.de,
       avatarUrl: null,
       roleId: MEMBER_ROLE.id,
       status: Status.inactive,

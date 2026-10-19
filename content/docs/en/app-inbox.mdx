@@ -12,7 +12,7 @@ The [Inbox](app:inbox) is unified messaging on Customermates Cloud: email, Linke
 All four conditions must hold:
 
 - **Customermates Cloud.** Self-hosted installations have no Inbox: the sidebar entry is hidden and opening it leads to the Dashboard.
-- **A plan with messaging:** Pro, Business, Enterprise or a trial. On Starter the Inbox stays in the sidebar but shows **Upgrade to unlock messaging**, and **Upgrade your plan** opens [Billing](app:settings/billing).
+- **A plan with messaging:** Pro, Business, Max, Enterprise or a trial. On Starter the Inbox stays in the sidebar but shows **Upgrade to unlock messaging**, and **Upgrade your plan** opens [Billing](app:settings/billing).
 - **A usable subscription:** status **Active** or a trial that has not ended. While the status is **Past Due** or **Cancelled**, the Inbox is locked the same way.
 - **Your role:** **Inbox messages** with **Read access** set to **All**. With **None** the sidebar entry is hidden and opening the Inbox leads to the Dashboard. The **Admin** role always has access.
 
@@ -54,7 +54,7 @@ The top bar of the [Inbox](app:inbox) holds:
 
 **Email folder** groups folders under their account, so folders with the same name stay apart; **in** finds conversations with a visible message in any selected folder, **not in** excludes them. **Last message** and **Last message date** use the latest real sent or received message; drafts, deleted messages and system events do not count. For mail from three to seven days ago, add two **Last message date** conditions: **Older than…** 3 days and **7 days**. **Last activity** includes saved drafts. All filters respect account sharing and the enabled folders.
 
-The views row offers **All** and your personal saved views. The list shows 25 conversations per page (5, 10, 25 or 100). The sidebar entry shows how many conversations you can see are **Unread**.
+The views row shows your personal saved views; click the selected one again to show the inbox without a view. The list shows 25 conversations per page (5, 10, 25 or 100). The sidebar entry shows how many conversations you can see are **Unread**.
 
 ## How do I open a specific conversation? [#how-do-i-open-a-specific-conversation]
 
@@ -99,7 +99,7 @@ You can keep working while the move runs. Messages moved into a folder that is s
 
 Click **Private Thread** or **Shared Thread** in the header to open **Thread settings**. Under **Visibility Settings**, the switch shares just this conversation with everyone whose role can read the Inbox (**Shared to CRM**); switching it off shows **Conversation is now private**. Only the channel owner can use it, on a plan with messaging and with **Edit**. Teammates can then read the conversation, change its state and resync it, but not move it, and only you can reply while the channel itself is private.
 
-To share every conversation of a channel, switch on **Visibility** on the channel's **Details** tab on [Channels](app:settings/channels) (Business or Enterprise). The per-conversation switch then stays on and locked.
+To share every conversation of a channel, switch on **Visibility** on the channel's **Details** tab on [Channels](app:settings/channels) (Business, Max or Enterprise). The per-conversation switch then stays on and locked.
 
 ## How do I link participants and records? [#how-do-i-link-a-participant]
 
@@ -115,7 +115,7 @@ If sending fails, **Retry** appears only when trying again can help (rate limit,
 
 ## How do I start a new conversation or write a new email to a contact? [#how-do-i-start-a-new-conversation]
 
-The Inbox has no button for a new conversation. Open the contact in [Contacts](app:records/contact) and click the **New message** icon next to an email address or handle in its contact details. When several of your channels can send, pick one under **From**; for LinkedIn with Sales Navigator or Recruiter, **Send as** chooses **Classic**, **Sales Navigator InMail** or **Recruiter InMail**. After **Send** the message goes out in the background (**Sending message**, then **Message sent.**). This needs Customermates Cloud and **Create** on **Inbox messages**.
+The Inbox has no button for a new conversation. Open the person's record, for example in your contacts list, and click the **New message** icon next to an email address or handle in its contact details. When several of your channels can send, pick one under **From**; for LinkedIn with Sales Navigator or Recruiter, **Send as** chooses **Classic**, **Sales Navigator InMail** or **Recruiter InMail**. After **Send** the message goes out in the background (**Sending message**, then **Message sent.**). This needs Customermates Cloud and **Create** on **Inbox messages**.
 
 ## How do drafts and attachments work? [#how-do-drafts-and-attachments-work]
 

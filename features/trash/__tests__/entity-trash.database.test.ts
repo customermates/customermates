@@ -7,6 +7,7 @@ import { afterAll, describe, expect, it, vi } from "vitest";
 import { PermissionService } from "@/core/base/permission.service";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 vi.mock("@/env", () => ({
   env: {
@@ -43,6 +44,7 @@ const { WidgetTrashBlockers } = await import("@/features/widget/widget-trash-blo
 const { DeleteWidgetInteractor } = await import("@/features/widget/delete-widget.interactor");
 const { ValidateWidgetIdsInteractor } = await import("@/core/validation/validators/validate-widget-ids.interactor");
 const { PrismaWikiPageRepo } = await import("@/features/wiki/prisma-wiki-page.repository");
+const { createTestWikiSectionRepo } = await import("@/tests/helpers/wiki-section-repository");
 const { DeleteWikiPageInteractor } = await import("@/features/wiki/delete-wiki-page.interactor");
 const { getRoutineRepo, getTrashKindHandlers } = await import("@/core/di");
 const { DeleteRoutineInteractor } = await import("@/ee/routines/delete-routine.interactor");
@@ -111,7 +113,7 @@ async function fixture() {
       trashRepo,
       createTestRecordRepo(),
       handlers,
-      new PrismaUserRepo(new PermissionService()),
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
     ),
     restore: new RestoreTrashInteractor(trashRepo, handlers),
     preview: new PreviewTrashDeletionInteractor(trashRepo, handlers),
@@ -401,8 +403,8 @@ describeDatabase("views, widgets, routines and knowledge base pages in Trash", (
 
     const listed = await runWithTenant(f.admin, () => f.wiki.listPages({ page: 1, pageSize: 25 }));
     expect(listed.total).toBe(0);
-    const found = await runWithTenant(f.admin, () => f.wiki.fullTextPageCandidates("refunds", 10));
-    expect(found.keys).toEqual([]);
+    const found = await runWithTenant(f.admin, () => createTestWikiSectionRepo().fullTextSections("refunds", 10));
+    expect(found.hits).toEqual([]);
     expect(await runWithTenant(f.admin, () => f.wiki.getPage(page.id))).toBeNull();
 
     await runWithoutTenant(() =>

@@ -193,6 +193,7 @@
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e",
   "private": true,
   "resolutions": {
+    "@ai-sdk/gateway": "4.0.80",
     "@modelcontextprotocol/sdk/zod": "4.3.6",
     "@types/react-dom/@types/react": "18.3.3",
     "ai": "7.0.94",
@@ -205,8 +206,7 @@
   },
   "scripts": {
     "address-metadata:generate": "tsx scripts/generate-address-metadata.ts",
-    "agent:benchmark": "RUN_AGENT_BENCHMARK=true tsx --import ./scripts/lib/register-server-only-shim.mjs scripts/agent-benchmark/bootstrap.ts",
-    "agent:web-search-smoke": "tsx scripts/smoke-agent-web-search-provider.ts",
+    "agent:e2e": "tsx --import ./scripts/lib/register-server-only-shim.mjs scripts/agent-e2e/bootstrap.ts",
     "basemap:generate": "node scripts/generate-basemap.mjs",
     "billing:verify-catalog": "tsx scripts/verify-billing-catalog.ts",
     "build": "prisma generate && yarn openapi:generate && yarn raw-docs:generate && NODE_OPTIONS=\"${NODE_OPTIONS:-} --max-old-space-size=6144\" next build",

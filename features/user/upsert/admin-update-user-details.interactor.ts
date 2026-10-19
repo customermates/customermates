@@ -9,7 +9,7 @@ import type { CountActiveUsersRepo } from "@/features/user/count-active-users.re
 import { calculateChanges } from "@/core/utils/calculate-changes";
 
 import { z } from "zod";
-import { CountryCode, Status, Resource, SubscriptionPlan } from "@/generated/prisma";
+import { Status, Resource, SubscriptionPlan } from "@/generated/prisma";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -23,7 +23,6 @@ export const AdminUpdateUserDetailsSchema = z.object({
   email: z.email(),
   firstName: z.string().min(1),
   lastName: z.string().min(1),
-  country: z.enum(CountryCode),
   status: z.enum([Status.active, Status.inactive]),
   avatarUrl: zx.secureUrl().or(z.literal("")).nullable(),
   roleId: z.uuid(),
@@ -70,7 +69,6 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
       email: targetUser.email,
       firstName: change.firstName ?? targetUser.firstName,
       lastName: change.lastName ?? targetUser.lastName,
-      country: change.country ?? targetUser.country,
       avatarUrl: change.avatarUrl === undefined ? targetUser.avatarUrl : change.avatarUrl,
       roleId,
       status: change.status ?? targetUser.status,
@@ -81,7 +79,7 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
     const data: AdminUpdateUserDetailsData = { ...next, status: next.status };
 
     const leavingActive = targetUser.status === Status.active && data.status !== Status.active;
-    if (leavingActive && (await this.userRepo.isPlatformOperatorCompanyWide(targetUserId)))
+    if (leavingActive && (await this.userRepo.strandsLastPlatformOperatorCompanyWide(targetUserId)))
       return failAuthorization(CustomErrorCode.userPlatformOperatorStatusForbidden, ["status"]);
 
     const targetIsSystem = targetUser.role?.isSystemRole ?? false;
@@ -114,14 +112,12 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
       {
         firstName: targetUser.firstName,
         lastName: targetUser.lastName,
-        country: targetUser.country,
         status: targetUser.status,
         role: targetUser.role?.name ?? null,
       },
       {
         firstName: data.firstName,
         lastName: data.lastName,
-        country: data.country,
         status: data.status,
         role: role.name,
       },

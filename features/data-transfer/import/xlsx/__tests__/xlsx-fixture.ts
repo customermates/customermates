@@ -132,3 +132,35 @@ export const labels = {
 };
 
 export const addressField = field("Office", "address");
+export const PERSON = "10000000-0000-4000-8000-000000000004";
+
+export const personFields = {
+  name: field("Name", "text", {
+    typeId: PERSON,
+    behavior: { kind: "formula", expression: { kind: "literal", value: null } },
+  }),
+  first: field("First name", "text", { typeId: PERSON }),
+  last: field("Last name", "text", { typeId: PERSON }),
+  email: field("Email", "text", { typeId: PERSON }),
+};
+
+export const personModel: RecordModelView = {
+  ...model,
+  types: [
+    ...model.types,
+    {
+      id: PERSON,
+      label: "Person",
+      pluralLabel: "People",
+      description: "",
+      icon: "user",
+      primaryFieldId: personFields.name.id,
+      parentRelationshipId: null,
+      embedded: false,
+      navigationVisible: true,
+      archived: false,
+      position: 2,
+    },
+  ],
+  fields: [...model.fields, ...Object.values(personFields)],
+};

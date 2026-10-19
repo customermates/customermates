@@ -1,7 +1,7 @@
 import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
-import { Status, CountryCode, Locale, Theme } from "@/generated/prisma";
+import { CountryCode, Status, Locale, Theme } from "@/generated/prisma";
 
 import { RoleDtoSchema } from "@/features/role/role.schema";
 
@@ -12,7 +12,6 @@ export const UserDtoSchema = z.object({
   lastName: z.string(),
   roleId: z.uuid().nullable(),
   status: z.enum(Status),
-  country: z.enum(CountryCode),
   avatarUrl: z.string().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -32,6 +31,8 @@ export const UserByIdResponseSchema = z.object({
 
 export const TenantUserSchema = UserDtoSchema.extend({
   companyId: z.string(),
+  // No longer editable; phone numbers typed without a country code are read in it when it is loaded.
+  country: z.enum(CountryCode).optional(),
   displayLanguage: z.enum(Locale),
   formattingLocale: z.enum(Locale),
   theme: z.enum(Theme),

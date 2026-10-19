@@ -37,6 +37,10 @@ export function pricingComparisonPresentation({
             const offer = getCommercialOffer(plan, "monthly");
             return offer ? formatCommercialAmount(offer.unitPriceMinor, locale, offer.currency) : customValue;
           }
+          case "hostedAiUsage": {
+            const multiplier = definition.entitlements.hostedAiUsageMultiplier;
+            return typeof multiplier === "number" ? `${multiplier}x` : customValue;
+          }
           case "messaging":
             return definition.entitlements.messaging;
           case "includedAccountsPerUser": {

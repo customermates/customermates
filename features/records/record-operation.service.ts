@@ -20,7 +20,7 @@ import type { RecordCalculationService } from "./record-calculation.service";
 import { calculationSources, recordKey } from "./record-calculation.service";
 import { createRecordStagingRepo } from "./record-staging.repository";
 import { validateRecordModel } from "./record-model-validation";
-import { deterministicId } from "./crm-preset";
+import { deterministicId } from "./deterministic-id";
 import { RecordJournal } from "./record-journal";
 import { RecordEventPayloadSchema } from "./record-event.schema";
 import { DeletionCursorSchema, RecordDeletionStaging } from "./record-deletion-staging";

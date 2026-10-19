@@ -11,8 +11,6 @@ import { withWorkflow } from "workflow/next";
 
 import { env } from "@/env";
 import { permanentAliasRedirects } from "@/core/seo/route-aliases";
-import { resolveBenchmarkBuildSource } from "@/scripts/agent-benchmark/build-source";
-import { configureBenchmarkWorkflowWorld } from "@/scripts/agent-benchmark/workflow-world";
 import { recordFileParserPackages } from "@/features/record-file-index/record-file-parser-packages";
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
@@ -57,15 +55,11 @@ function packageTrees(names: string[], skipped: Record<string, string[]>, root =
 
 const recordFileParserTrees = packageTrees(recordFileParserPackages(), { exceljs: ["dist"] });
 
-const agentBenchmarkBuildSource = resolveBenchmarkBuildSource();
-if (process.env.LOCAL_AGENT_BENCHMARK === "true") configureBenchmarkWorkflowWorld();
-
 const nextConfig: NextConfig = {
   serverExternalPackages: ["@prisma/client-runtime-utils"],
 
   env: {
     NEXT_INTL_CONFIG_PATH: "i18n/request.ts",
-    AGENT_BENCHMARK_BUILD_SOURCE: agentBenchmarkBuildSource,
   },
 
   htmlLimitedBots: /.*/,

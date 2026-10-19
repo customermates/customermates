@@ -5,13 +5,19 @@ import { Client } from "pg";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 const requestContext = vi.hoisted(() => ({ headers: new Headers() }));
 
 vi.mock("next/headers", () => ({
   headers: () => Promise.resolve(requestContext.headers),
   cookies: () =>
-    Promise.resolve({ get: () => undefined, getAll: () => [], set: () => undefined, delete: () => undefined }),
+    Promise.resolve({
+      get: () => undefined,
+      getAll: () => [],
+      set: () => undefined,
+      delete: () => undefined,
+    }),
 }));
 vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
@@ -86,7 +92,10 @@ describeDatabase("creating workspaces under one login on PostgreSQL", { timeout:
   async function create(name: string) {
     const { getCreateWorkspaceInteractor } = await import("@/core/di");
     requestContext.headers = new Headers({ cookie });
-    return getCreateWorkspaceInteractor().invoke({ name, agreeToTerms: true });
+    return getCreateWorkspaceInteractor().invoke({
+      name,
+      agreeToTerms: true,
+    });
   }
 
   async function state() {
@@ -98,7 +107,10 @@ describeDatabase("creating workspaces under one login on PostgreSQL", { timeout:
       'SELECT "activeCompanyId" FROM "AuthSession" WHERE "userId" = $1',
       [authUserId],
     );
-    return { created: created.rows[0].count, activeCompanyId: session.rows[0].activeCompanyId };
+    return {
+      created: created.rows[0].count,
+      activeCompanyId: session.rows[0].activeCompanyId,
+    };
   }
 
   async function createdSubscriptions() {
@@ -141,7 +153,7 @@ describeDatabase("creating workspaces under one login on PostgreSQL", { timeout:
   it("counts a workspace the old deployment created without a creator for its earliest administrator only", async () => {
     const { PermissionService } = await import("@/core/base/permission.service");
     const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
-    const repo = new PrismaUserRepo(new PermissionService());
+    const repo = new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo());
     const legacyCompanyId = randomUUID();
     const roleId = randomUUID();
     const logins = { founder: randomUUID(), laterAdmin: randomUUID() };

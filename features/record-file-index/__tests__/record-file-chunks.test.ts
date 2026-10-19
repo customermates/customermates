@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { RETRIEVAL_CHUNK_MAX_LENGTH } from "@/core/retrieval/retrieval-chunks";
-import { wikiSemanticChunks } from "@/features/wiki/wiki-chunks";
+import { RETRIEVAL_CHUNK_MAX_LENGTH } from "@/features/record-file-index/record-file-text-chunks";
+import { markdownTextChunks } from "@/features/record-file-index/record-file-text-chunks";
 import { WIKI_SECTION_MAX_LENGTH } from "@/features/wiki/wiki-markdown-sections";
 
 import { RECORD_FILE_MAX_CHUNKS, recordFileChunks } from "../record-file-chunks";
@@ -13,7 +13,7 @@ describe("record file chunks", () => {
     const chunks = recordFileChunks("Contract.pdf", text);
 
     expect(chunks).toEqual(
-      wikiSemanticChunks("Contract.pdf", text).map((chunk) => ({
+      markdownTextChunks("Contract.pdf", text).map((chunk) => ({
         ordinal: chunk.ordinal,
         offset: chunk.offset,
         heading: chunk.section,
@@ -84,6 +84,6 @@ describe("record file chunks", () => {
         `notes.md > \n\n`.length + WIKI_SECTION_MAX_LENGTH + RETRIEVAL_CHUNK_MAX_LENGTH,
       );
     }
-    expect(wikiSemanticChunks("notes.md", text)[0].section).toBe(heading);
+    expect(markdownTextChunks("notes.md", text)[0].section).toBe(heading);
   });
 });

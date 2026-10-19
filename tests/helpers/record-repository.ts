@@ -1,4 +1,5 @@
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
+import type { AppLocale } from "@/i18n/locale-registry";
 import type { RecordRepo, RecordRepoOwners } from "@/features/records/record.repo";
 import { RecordAccessPolicy } from "@/features/records/record-access";
 import type { RecordConfigurationService } from "@/features/records/configuration.service";
@@ -29,6 +30,12 @@ import { RecordConfigurationWriter } from "@/features/records/record-configurati
 import { RecordOperationService } from "@/features/records/record-operation.service";
 import { RecordTrashService } from "@/features/records/record-trash.service";
 import { RecordWriteService } from "@/features/records/record-write.service";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
+import { UserAccessor } from "@/core/base/user-accessor";
+import { runInTransaction } from "@/core/decorators/transaction-runner";
+import { createWorkspaceRecordPreset } from "@/features/records/workspace-record-preset";
+import { validateRecordModel } from "@/features/records/record-model-validation";
+import { getTranslator } from "@/i18n/get-translator";
 
 const idleBackground: Pick<BackgroundTaskService, "dispatch"> = { dispatch: () => Promise.resolve() };
 
@@ -62,7 +69,7 @@ export const createTestDataViewRepo = (companyId?: string) =>
 
 export const createTestRecordEventSubscriptionRepo = (companyId?: string) => {
   const records = createTestRecordRepo(companyId);
-  const users = new PrismaUserRepo(new PermissionService());
+  const users = new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo());
   return new PrismaRecordEventSubscriptionRepo(records, new RecordAccessPolicy(users, records), users, companyId);
 };
 
@@ -70,7 +77,7 @@ export function createTestRecordRepoOwners(): RecordRepoOwners {
   const subscriptions = createTestRecordEventSubscriptionRepo();
   const reader = new RecordRecipientReader(
     (companyId) => createTestRecordRepo(companyId),
-    new PrismaRecordRecipientRepo(new PrismaUserRepo(new PermissionService())),
+    new PrismaRecordRecipientRepo(new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo())),
   );
   const routines: PrismaRoutineRepo = new PrismaRoutineRepo(
     new PrismaRoutineEventAccess(reader),
@@ -86,8 +93,8 @@ export function createTestRecordRepoOwners(): RecordRepoOwners {
     events: new PrismaEventLogRepo(idleBackground),
     webhooks: new PrismaWebhookRepo(subscriptions, new PermissionService(), new PrismaWebhookDeliveryRepo(reader)),
     routines,
-    members: new PrismaUserRepo(new PermissionService()),
-    roles: new PrismaRoleRepo(),
+    members: new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+    roles: new PrismaRoleRepo(new PrismaBillingUsageRepo()),
     subscriptions,
     files: new PrismaRecordFileRepo(),
   };
@@ -112,3 +119,24 @@ export const createTestRecordOperationService = (
     new RecordTrashService(records, new RecordCalculationService(records)),
     systemCompanyId,
   );
+
+export async function initializeStarterRecordModel(
+  records: RecordRepo = createTestRecordRepo(),
+  locale: AppLocale = "en",
+): Promise<void> {
+  const tenant = new UserAccessor();
+  const translate = await getTranslator(locale);
+  await runInTransaction(async () => {
+    if ((await records.getState())?.revision) return;
+    const model = createWorkspaceRecordPreset(tenant.companyId, translate);
+    if (validateRecordModel(model).issues.length) throw new Error("The workspace record preset is invalid.");
+    await records.saveModel(model, tenant.userId, {
+      version: 1,
+      source: { kind: "initialization" },
+      causeId: "workspace-record-preset",
+      expectedRevision: 0,
+      references: [],
+      grants: [],
+    });
+  });
+}

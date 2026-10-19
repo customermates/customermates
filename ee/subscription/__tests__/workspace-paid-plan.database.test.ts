@@ -224,7 +224,7 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
       [pendingId, companies.paid, null, pendingEmail, "pendingAuthorization"],
     ] as const) {
       await client.query(
-        'INSERT INTO "User" ("id","email","firstName","lastName","country","companyId","roleId","status","lastActiveAt","onboardingWizardCompletedAt","updatedAt") VALUES ($1,$2,\'Paid\',\'Member\',\'de\',$3,$4,$5::"Status",CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)',
+        'INSERT INTO "User" ("id","email","firstName","lastName","companyId","roleId","status","lastActiveAt","onboardingWizardCompletedAt","updatedAt") VALUES ($1,$2,\'Paid\',\'Member\',$3,$4,$5::"Status",CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)',
         [id, memberEmail, companyId, roleId, status],
       );
     }
@@ -234,8 +234,7 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
     );
 
     const { runWithTenant } = await import("@/core/decorators/tenant-context");
-    const { InitializeRecordModelService } = await import("@/features/records/initialize-record-model.service");
-    const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
+    const { initializeStarterRecordModel } = await import("@/tests/helpers/record-repository");
     const { createMockUser } = await import("@/tests/helpers/mock-user");
     for (const workspace of ["first", "paid"] as const) {
       const owner = createMockUser({
@@ -243,7 +242,7 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
         companyId: companies[workspace],
         roleId: roles[workspace],
       });
-      await runWithTenant(owner, () => new InitializeRecordModelService(createTestRecordRepo()).initialize());
+      await runWithTenant(owner, () => initializeStarterRecordModel());
     }
 
     await client.query(

@@ -10,7 +10,8 @@ const environment = vi.hoisted(() => ({
 vi.mock("@/env", () => ({ env: environment }));
 
 import { AuthError, ForbiddenError } from "@/core/errors/app-errors";
-import { normalizeOperatorEmail, OperatorAccessService, type OperatorAccessRepo } from "../operator-access.service";
+import type { OperatorAccessRepo } from "../operator-access.repo";
+import { normalizeOperatorEmail, OperatorAccessService } from "../operator-access.service";
 
 const session = {
   session: { id: "session-id" },
@@ -25,15 +26,22 @@ const actor: OperatorActor = {
 
 describe("OperatorAccessService", () => {
   const getInteractiveSession = vi.fn<() => Promise<InteractiveSession | null>>();
+  const getSession = vi.fn<() => Promise<InteractiveSession | null>>();
+  const isIntegrationCredentialRequest = vi.fn<() => Promise<boolean>>();
   const findAuthorizedActorUnscoped = vi.fn<OperatorAccessRepo["findAuthorizedActorUnscoped"]>();
-  const service = new OperatorAccessService({ getInteractiveSession } as unknown as AuthService, {
-    findAuthorizedActorUnscoped,
-  });
+  const findAuthorizedIntegrationActorUnscoped = vi.fn<OperatorAccessRepo["findAuthorizedIntegrationActorUnscoped"]>();
+  const service = new OperatorAccessService(
+    { getInteractiveSession, getSession, isIntegrationCredentialRequest } as unknown as AuthService,
+    { findAuthorizedActorUnscoped, findAuthorizedIntegrationActorUnscoped },
+  );
 
   beforeEach(() => {
     environment.APP_MODE = "cloud";
     getInteractiveSession.mockReset().mockResolvedValue(session);
+    getSession.mockReset().mockResolvedValue(session);
+    isIntegrationCredentialRequest.mockReset().mockResolvedValue(false);
     findAuthorizedActorUnscoped.mockReset().mockResolvedValue(actor);
+    findAuthorizedIntegrationActorUnscoped.mockReset().mockResolvedValue(actor);
   });
 
   it("normalizes candidate identifiers without making them authorization", () => {
@@ -73,5 +81,41 @@ describe("OperatorAccessService", () => {
     findAuthorizedActorUnscoped.mockRejectedValueOnce(new Error("database unavailable"));
 
     await expect(service.isEligible()).rejects.toThrow("database unavailable");
+  });
+
+  it("never lets authorizeFresh accept integration credentials", async () => {
+    isIntegrationCredentialRequest.mockResolvedValue(true);
+    getInteractiveSession.mockResolvedValueOnce(null);
+
+    await expect(service.authorizeFresh()).rejects.toBeInstanceOf(AuthError);
+    expect(findAuthorizedIntegrationActorUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("authorizes a read from a browser session through the interactive check", async () => {
+    await expect(service.authorizeRead()).resolves.toEqual(actor);
+    expect(findAuthorizedActorUnscoped).toHaveBeenCalledWith(session);
+    expect(findAuthorizedIntegrationActorUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("authorizes a read from an API key or OAuth token only for a verified active flagged operator", async () => {
+    isIntegrationCredentialRequest.mockResolvedValue(true);
+
+    await expect(service.authorizeRead()).resolves.toEqual(actor);
+    expect(findAuthorizedIntegrationActorUnscoped).toHaveBeenCalledWith(session);
+
+    findAuthorizedIntegrationActorUnscoped.mockResolvedValueOnce(null);
+    await expect(service.authorizeRead()).rejects.toBeInstanceOf(ForbiddenError);
+    findAuthorizedIntegrationActorUnscoped.mockResolvedValueOnce(null);
+    await expect(service.isReadEligible()).resolves.toBe(false);
+  });
+
+  it("rejects integration reads without a resolvable credential or outside the cloud", async () => {
+    isIntegrationCredentialRequest.mockResolvedValue(true);
+    getSession.mockResolvedValueOnce(null);
+    await expect(service.authorizeRead()).rejects.toBeInstanceOf(AuthError);
+
+    environment.APP_MODE = "self-hosted";
+    await expect(service.authorizeRead()).rejects.toBeInstanceOf(ForbiddenError);
+    await expect(service.isReadEligible()).resolves.toBe(false);
   });
 });

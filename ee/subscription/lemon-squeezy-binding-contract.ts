@@ -6,6 +6,7 @@ export const LEMON_SQUEEZY_VARIANT_ENV_KEYS = {
   "starter:monthly": "LEMONSQUEEZY_VARIANT_ID_STARTER",
   "pro:monthly": "LEMONSQUEEZY_VARIANT_ID_PRO",
   "business:monthly": "LEMONSQUEEZY_VARIANT_ID_BUSINESS",
+  "max:monthly": "LEMONSQUEEZY_VARIANT_ID_MAX",
 } as const satisfies Record<OfferId, string>;
 
 export type LemonSqueezyBindingEnvironment = Record<

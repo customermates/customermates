@@ -19,16 +19,16 @@ export const UsageRing = observer(function UsageRing() {
   const [open, setOpen] = useState(false);
   if (!store.usage) return null;
   const usage = store.usage;
-  if (usage.creditsLimit <= 0) return null;
+  if (!usage.hasAllowance) return null;
   const pct = usage.usedPct;
-  const remaining = intlStore.formatAgentCredits(usage.creditsRemaining);
+  const used = intlStore.formatAllowanceShare(pct);
   const resetAt = intlStore.formatDayMonth(new Date(usage.resetAt));
   const circumference = 2 * Math.PI * 7;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
-        aria-label={t("AgentChat.credits.usage", { pct })}
+        aria-label={t("AgentChat.credits.usage", { used })}
         className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
         data-testid="agent-usage"
         id={uiTargets.usageId}
@@ -58,24 +58,24 @@ export const UsageRing = observer(function UsageRing() {
         onMouseLeave={() => setOpen(false)}
       >
         <p className="font-medium text-foreground tabular-nums">
-          {t("AgentChat.credits.remaining", {
-            remaining: remaining.amount,
-            credits: remaining.credits,
-            limit: intlStore.formatAgentCredits(usage.creditsLimit).amount,
-          })}
+          {t("AgentChat.credits.usedOfMonthly", { used, resetAt })}
         </p>
 
-        <p>
-          {usage.plan
-            ? t("AgentChat.credits.planAndReset", {
-                plan: t(`Subscription.planNames.${usage.plan}`),
-                resetAt,
-              })
-            : t("AgentChat.credits.resetShort", { resetAt })}
-        </p>
+        {usage.plan && (
+          <p>
+            {usage.multiplier === null
+              ? t("AgentChat.credits.plan", { plan: t(`Subscription.planNames.${usage.plan}`) })
+              : t("AgentChat.credits.planWithMultiplier", {
+                  plan: t(`Subscription.planNames.${usage.plan}`),
+                  multiplier: usage.multiplier,
+                })}
+          </p>
+        )}
 
-        {usage.recentTurnCredits !== null && (
-          <p>{t("AgentChat.credits.recentTurn", intlStore.formatAgentCredits(usage.recentTurnCredits))}</p>
+        {usage.recentTurnPct !== null && (
+          <p className="tabular-nums">
+            {t("AgentChat.credits.recentTurn", { used: intlStore.formatAllowanceShare(usage.recentTurnPct) })}
+          </p>
         )}
       </PopoverContent>
     </Popover>

@@ -79,8 +79,10 @@ async function legacySnapshot(client: Client) {
 
 const OPTIONAL_VECTOR_COLUMNS = [
   'ALTER TABLE "DocsChunk" ADD COLUMN     "embedding" vector(768);',
+  'ALTER TABLE "DocsSection" ADD COLUMN     "embedding" vector(768);',
   'ALTER TABLE "SearchCatalogEntry" ADD COLUMN     "embedding" vector(768);',
   'ALTER TABLE "WikiPageChunk" ADD COLUMN     "embedding" vector(768);',
+  'ALTER TABLE "WikiPageSection" ADD COLUMN     "embedding" vector(768);',
 ];
 
 async function schemaDrift(url: string) {
@@ -882,7 +884,9 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
 
     expect(await mateState()).toEqual({
       ...before,
-      pages: before.pages.map((page) => ({ row: { ...(page.row as Record<string, unknown>), deletedAt: null } })),
+      pages: before.pages.map((page) => ({
+        row: { ...(page.row as Record<string, unknown>), deletedAt: null, summary: null, summaryContentHash: null },
+      })),
     });
     expect(await rows(client, 'SELECT count(*)::int AS count FROM "EventLog" WHERE "subjectId"=$1', [pageId])).toEqual([
       { count: 0 },

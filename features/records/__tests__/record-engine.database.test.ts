@@ -22,6 +22,7 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { interactorFailureStatus } from "@/core/validation/validation.utils";
 import { recordChannelsEnabled, recordChannelsField } from "../record-channels";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 vi.mock("@/env", () => ({
   env: {
@@ -151,7 +152,6 @@ const { PrismaRoleRepo } = await import("@/features/role/prisma-role.repository"
 const { UpsertRoleSchema } = await import("@/features/role/role-management.schema");
 const { RegisterUserInteractor } = await import("@/features/user/register/register-user.interactor");
 const { PrismaCompanyRepo } = await import("@/features/company/prisma-company.repository");
-const { InitializeRecordModelService } = await import("../initialize-record-model.service");
 const { DomainEvent } = await import("@/features/event/domain-events");
 const { PrismaWidgetRepo } = await import("@/features/widget/prisma-widget.repository");
 const { SaveWidgetInteractor } = await import("@/features/widget/save-widget.interactor");
@@ -225,7 +225,10 @@ async function fixture() {
     role: { ...seed.memberRole, permissions: [] },
   });
   const repo = createTestRecordRepo();
-  const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
+  const policy = new RecordAccessPolicy(
+    new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+    repo,
+  );
   const calculations = new RecordCalculationService(repo);
   const background = { dispatch: () => Promise.resolve() };
   const mutate = new MutateRecordInteractor(
@@ -258,7 +261,11 @@ async function fixture() {
   const choices = new GetRecordChoicesInteractor(repo, policy, query);
   const measure = new QueryRecordMeasureInteractor(repo, policy);
   const widgets = new PrismaWidgetRepo();
-  const widgetReader = new RecordWidgetReader(repo, measure, new PrismaUserRepo(new PermissionService()));
+  const widgetReader = new RecordWidgetReader(
+    repo,
+    measure,
+    new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+  );
   const writeWidget = new UpsertRecordWidgetInteractor(
     widgets,
     repo,
@@ -5335,7 +5342,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const events = getEventService();
     vi.spyOn(events, "publish").mockRejectedValue(new Error("Simulated audit failure"));
     const service = new RoleManagementService(
-      new PrismaRoleRepo(),
+      new PrismaRoleRepo(new PrismaBillingUsageRepo()),
       f.repo,
       f.policy,
       new RecordConfigurationService(f.repo),
@@ -5536,7 +5543,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const notify = vi.fn().mockResolvedValue(undefined);
     const register = new RegisterUserInteractor(
       { sendNewUserNotificationEmail: notify } as never,
-      new PrismaUserRepo(new PermissionService()),
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
       getEventService(),
       {
         resolveAccountState: () =>
@@ -5545,15 +5552,13 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
             sessionUser: { id: authUser.id, email },
           }),
       } as never,
-      new PrismaCompanyRepo(),
-      new InitializeRecordModelService(f.repo),
+      new PrismaCompanyRepo(new PrismaBillingUsageRepo()),
       createTestWorkspaceRegistration(),
     );
     const data = {
       email,
       firstName: "Invited",
       lastName: "Member",
-      country: "de" as const,
       agreeToTerms: true,
       avatarUrl: null,
     };
@@ -5664,7 +5669,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         email: f.member.email,
         firstName: f.member.firstName,
         lastName: f.member.lastName,
-        country: "de",
         avatarUrl: null,
         status: "active",
         roleId: f.memberRole.id,
@@ -5724,7 +5728,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           email: f.member.email,
           firstName: f.member.firstName,
           lastName: f.member.lastName,
-          country: "de",
           avatarUrl: null,
           status: "active",
           roleId: f.memberRole.id,
@@ -5893,7 +5896,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           email: "ignored@example.test",
           firstName: "Member",
           lastName: "Test",
-          country: "de",
           status: "active",
           avatarUrl: null,
           roleId: f.memberRole.id,
@@ -7783,7 +7785,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const ref = recordInvariant(result.data.refs[0]);
     const checker = new CheckRecordIdentityInteractor(
       f.repo,
-      new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), f.repo),
+      new RecordAccessPolicy(new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()), f.repo),
     );
     const input = {
       typeId: f.id("contact"),
@@ -7823,7 +7825,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     if (!result.ok || result.data.status !== "completed") throw new Error("Fixture person failed");
     const ref = recordInvariant(result.data.refs[0]);
-    const resolverPolicy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), f.repo);
+    const resolverPolicy = new RecordAccessPolicy(
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+      f.repo,
+    );
     const resolver = new ResolveRecordIdentitiesInteractor(
       resolverPolicy,
       new RecordIdentityReader(f.repo, resolverPolicy),
@@ -7972,7 +7977,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     const lookup = new GetIdentityRecordChoicesInteractor(
       f.repo,
-      new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), f.repo),
+      new RecordAccessPolicy(new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()), f.repo),
     );
     const filter = (operator: "allSet" | "hasUnset"): GetQueryParams => ({
       filters: [{ field: "participants", operator: FilterOperatorKey[operator] }],
@@ -8040,6 +8045,85 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     expect((await f.run(read, f.member)).messages).toEqual([]);
     expect(await f.run(() => inbox.getCount({}), f.member)).toBe(0);
+  });
+
+  it("expands a legacy bare record ID across every Channels list for identity choices and the inbox filter", async () => {
+    const { PrismaMessagingRepo } = await import("@/ee/messaging/persistence/prisma-messaging.repository");
+    const { GetIdentityRecordChoicesInteractor } = await import("../get-identity-record-choices.interactor");
+    const { FilterOperatorKey } = await import("@/core/base/base-query-builder");
+    const f = await fixture();
+    expect(
+      await f.run(() =>
+        f.configure.invoke({
+          expectedRevision: f.model.revision,
+          idempotencyKey: randomUUID(),
+          operations: [channelsFieldOperation(f.id("organization"))],
+        }),
+      ),
+    ).toMatchObject({ ok: true });
+    const created = await f.mutation(
+      {
+        action: "create",
+        typeId: f.id("organization"),
+        fields: [{ fieldId: f.id("organization.name"), value: textValue("Legacy Supplier") }],
+        identities: [{ provider: "google", value: "supplier@example.test" }],
+      },
+      f.admin,
+      randomUUID(),
+      f.model.revision + 1,
+    );
+    if (!created.ok || created.data.status !== "completed") throw new Error("Organization fixture failed");
+    const ref = recordInvariant(created.data.refs.find((candidate) => candidate.typeId === f.id("organization")));
+    const account = await f.run(() =>
+      prisma.connectedAccount.create({
+        data: {
+          companyId: f.company.id,
+          userId: f.admin.id,
+          unipileAccountId: randomUUID(),
+          provider: "outlook",
+          status: "ok",
+          shared: true,
+        },
+      }),
+    );
+    const thread = await f.run(() =>
+      prisma.messagingThread.create({
+        data: {
+          companyId: f.company.id,
+          connectedAccountId: account.id,
+          provider: "outlook",
+          unipileThreadId: randomUUID(),
+          lastMessageAt: new Date(),
+          participants: {
+            create: {
+              companyId: f.company.id,
+              provider: "outlook",
+              providerUserId: "supplier@example.test",
+              identifier: "supplier@example.test",
+              identityLookupValue: "supplier@example.test",
+              displayName: "Supplier",
+            },
+          },
+        },
+      }),
+    );
+    const lookup = new GetIdentityRecordChoicesInteractor(f.repo, f.policy);
+    expect(await f.run(() => lookup.invoke({ search: "", refs: [ref.recordId] }))).toMatchObject({
+      ok: true,
+      data: { records: [{ ref }] },
+    });
+    const inbox = new PrismaMessagingRepo(
+      getRecordRepo(),
+      getRecordAccessPolicy(),
+      getRecordIdentityReader(),
+      getConnectedAccountRepo(),
+    );
+    const params: GetQueryParams = {
+      filters: [{ field: "participantContactId", operator: FilterOperatorKey.in, value: [ref.recordId] }],
+      pagination: { page: 1, pageSize: 5 as const },
+    };
+    expect(await f.run(() => inbox.getCount(params))).toBe(1);
+    expect((await f.run(() => inbox.getItems(params))).map((row) => row.id)).toEqual([thread.id]);
   });
 
   it("resolves every selected Channels record while keeping search results bounded and unreadable refs absent", async () => {
@@ -8628,7 +8712,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     expect(await f.run(() => f.navigation.invoke(), f.member)).toMatchObject({
       ok: true,
-      data: { types: [], canManageSchema: true },
+      data: { types: [], canManageSchema: true, hasLists: true },
     });
     expect(
       await f.run(() =>
@@ -8646,6 +8730,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     ).toMatchObject({ ok: true });
     const hidden = await f.run(() => f.navigation.invoke());
     expect(hidden.ok && hidden.data.types.some((type) => type.id === service.id)).toBe(false);
+    expect(hidden.ok && hidden.data.hasLists).toBe(true);
     expect(await f.run(() => f.editor.invoke({ typeId: service.id }))).toMatchObject({ ok: true });
   });
 
