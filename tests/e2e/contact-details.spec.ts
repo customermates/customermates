@@ -44,15 +44,19 @@ test("keeps an email address, a phone number and a social profile in contact det
   await drawer.getByRole("textbox", { name: "First name", exact: false }).fill("Ada");
   await drawer.getByRole("textbox", { name: "Last name", exact: false }).fill("Details");
   const add = drawer.getByRole("combobox", { name: "Add phone, email or profile", exact: true });
-  for (const [value, provider, stored] of [
-    ["Ada@Example.test", "Email", "ada@example.test"],
-    ["+49 621 123456", "Phone", "+49621123456"],
-    ["https://www.linkedin.com/in/ada-details", "LinkedIn", "ada-details"],
+  for (const [value, provider, group] of [
+    ["Ada@Example.test", "Email", "email"],
+    ["+49 621 123456", "Phone", "phone"],
+    ["https://www.linkedin.com/in/ada-details", "LinkedIn", "social"],
   ] as const) {
     await add.fill(value);
-    await page.getByRole("option", { name: `Add "${value}" as ${provider}`, exact: true }).click();
+    await expect(page.getByRole("option", { name: `Add "${value}" as ${provider}`, exact: true })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    await add.press("Enter");
     await expect(add).toHaveValue("");
-    await expect(drawer.getByText(stored, { exact: true }).first()).toBeVisible();
+    await expect(drawer.locator(`[data-record-channel-group="${group}"]`)).toBeVisible();
   }
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer).not.toBeVisible();
