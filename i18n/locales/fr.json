@@ -4962,8 +4962,6 @@
       "entryLabel": "Entrée {index}",
       "followUpsSubtitle": "Certaines réponses peuvent se comprendre de plusieurs façons. Ces questions lèvent le doute.",
       "followUpsTitle": "Quelques précisions",
-      "moveDown": "Descendre",
-      "moveUp": "Monter",
       "optionalPlaceholder": "Laissez vide si rien ne vous vient à l’esprit",
       "prefillFailed": "Nous n’avons pas pu lire votre site, rien n’est donc prérempli. Les questions ne prennent que quelques minutes.",
       "rangeFrom": "De",

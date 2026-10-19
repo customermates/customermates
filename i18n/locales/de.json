@@ -4962,8 +4962,6 @@
       "entryLabel": "Eintrag {index}",
       "followUpsSubtitle": "Manche Antworten lassen sich unterschiedlich verstehen. Diese Fragen klären das.",
       "followUpsTitle": "Noch ein paar Details",
-      "moveDown": "Nach unten",
-      "moveUp": "Nach oben",
       "optionalPlaceholder": "Leer lassen, wenn dir nichts einfällt",
       "prefillFailed": "Wir konnten deine Website nicht lesen, deshalb ist nichts ausgefüllt. Die Fragen dauern trotzdem nur wenige Minuten.",
       "rangeFrom": "Von",

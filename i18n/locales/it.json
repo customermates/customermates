@@ -4935,10 +4935,10 @@
       "title": "Stiamo configurando il tuo spazio di lavoro"
     },
     "empty": {
-      "action": "Inizia con un workspace vuoto",
+      "action": "Inizia con uno spazio di lavoro vuoto",
       "confirm": "Inizia vuoto",
       "description": "Salti la configurazione guidata. Non vengono create liste, pipeline, dashboard né pagine della knowledge base, quindi costruisci tutto da solo. Ti consigliamo la configurazione guidata.",
-      "title": "Iniziare con un workspace vuoto?"
+      "title": "Iniziare con uno spazio di lavoro vuoto?"
     },
     "failures": {
       "aiUnavailable": "Il servizio di IA non è disponibile al momento. Riprova tra qualche minuto.",
@@ -4962,8 +4962,6 @@
       "entryLabel": "Voce {index}",
       "followUpsSubtitle": "Alcune risposte si possono intendere in più modi. Queste domande lo chiariscono.",
       "followUpsTitle": "Ancora qualche dettaglio",
-      "moveDown": "Sposta giù",
-      "moveUp": "Sposta su",
       "optionalPlaceholder": "Lascia vuoto se non ti viene in mente nulla",
       "prefillFailed": "Non siamo riusciti a leggere il tuo sito, quindi nulla è precompilato. Le domande richiedono comunque solo pochi minuti.",
       "rangeFrom": "Da",

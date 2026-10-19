@@ -4962,8 +4962,6 @@
       "entryLabel": "Entry {index}",
       "followUpsSubtitle": "Some answers could mean more than one thing. These questions settle it.",
       "followUpsTitle": "A few more details",
-      "moveDown": "Move down",
-      "moveUp": "Move up",
       "optionalPlaceholder": "Leave empty if nothing comes to mind",
       "prefillFailed": "We could not read your website, so nothing is filled in. The questions still take only a few minutes.",
       "rangeFrom": "From",
