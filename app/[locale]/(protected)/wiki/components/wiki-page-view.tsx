@@ -286,10 +286,10 @@ const WikiPageViewContent = observer(function WikiPageView({
       documentBody = (
         <AppForm id={formId} store={store}>
           <div
-            className="mx-auto grid w-full max-w-6xl flex-1 items-start gap-12 px-6 py-8 md:px-10 md:py-10 @min-[68rem]/wiki:grid-cols-[minmax(0,48rem)_12rem] @min-[68rem]/wiki:justify-center"
+            className="mx-auto grid w-full max-w-6xl flex-1 items-start gap-6 px-6 py-8 md:px-10 md:py-10 @min-[58rem]/wiki:grid-cols-[minmax(0,48rem)_12rem] @min-[58rem]/wiki:justify-center"
             data-wiki-document-layout=""
           >
-            <div className="mx-auto w-full max-w-3xl min-w-0 space-y-6 @min-[68rem]/wiki:mx-0">
+            <div className="mx-auto w-full max-w-3xl min-w-0 space-y-6 @min-[58rem]/wiki:mx-0">
               {store.conflict && (
                 <Alert color="warning">
                   <div className="flex flex-wrap items-center justify-between gap-3">

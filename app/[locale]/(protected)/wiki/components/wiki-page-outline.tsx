@@ -78,7 +78,7 @@ export function WikiPageOutline({ document }: { document: object }) {
   return (
     <nav
       aria-label={t("Wiki.onThisPage")}
-      className="sticky top-8 hidden max-h-[calc(100dvh-4rem)] flex-col self-start @min-[68rem]/wiki:flex"
+      className="sticky top-8 hidden max-h-[calc(100dvh-4rem)] flex-col self-start @min-[58rem]/wiki:flex"
     >
       <TocItems items={items} />
     </nav>

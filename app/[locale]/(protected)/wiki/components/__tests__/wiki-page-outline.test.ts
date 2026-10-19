@@ -123,7 +123,7 @@ describe("Wiki page outline", () => {
 
     expect(outline?.className).toContain("sticky");
     expect(outline?.className).toContain("hidden");
-    expect(outline?.className).toContain("@min-[68rem]/wiki:flex");
+    expect(outline?.className).toContain("@min-[58rem]/wiki:flex");
     expect(links.map((link) => link.textContent)).toEqual(["Overview", "Products", "Support process"]);
     expect(links.map((link) => link.getAttribute("href"))).toEqual([
       "#wiki-heading-0",
