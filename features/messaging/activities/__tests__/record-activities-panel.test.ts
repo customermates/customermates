@@ -151,8 +151,11 @@ const refresh = () =>
 describe("generic record activity requests", () => {
   it("keeps older activity reachable when the first projected page is empty", async () => {
     mocked.presentation.mockResolvedValueOnce({
-      ...presentation("hidden", true),
-      items: [],
+      ok: true,
+      data: {
+        ...presentation("hidden", true),
+        items: [],
+      },
     });
     mocked.action.mockResolvedValueOnce(result("older"));
     await mount();
@@ -165,9 +168,9 @@ describe("generic record activity requests", () => {
 
   it("keeps the last complete page during refresh failures and recovers on retry", async () => {
     mocked.presentation
-      .mockResolvedValueOnce(presentation("saved"))
+      .mockResolvedValueOnce({ ok: true, data: presentation("saved") })
       .mockRejectedValueOnce(new Error("Offline"))
-      .mockResolvedValueOnce(presentation("recovered"));
+      .mockResolvedValueOnce({ ok: true, data: presentation("recovered") });
     await mount();
     expect(container.textContent).toContain("saved");
     await refresh();
@@ -184,7 +187,9 @@ describe("generic record activity requests", () => {
   it("ignores an older-page response after a newer invalidation refresh", async () => {
     const old = deferred();
     const fresh = deferred();
-    mocked.presentation.mockResolvedValueOnce(presentation("initial", true)).mockReturnValueOnce(fresh.promise);
+    mocked.presentation
+      .mockResolvedValueOnce({ ok: true, data: presentation("initial", true) })
+      .mockReturnValueOnce(fresh.promise);
     mocked.action.mockReturnValueOnce(old.promise);
     await mount();
     const older = [...container.querySelectorAll("button")].find((button) => button.textContent === "Older");
@@ -195,7 +200,7 @@ describe("generic record activity requests", () => {
     expect(mocked.action).toHaveBeenCalledTimes(1);
     expect(mocked.action.mock.calls[0][0].cursor).toEqual(result("initial", true).data.nextCursor);
     await refresh();
-    await settle(() => fresh.resolve(presentation("latest")));
+    await settle(() => fresh.resolve({ ok: true, data: presentation("latest") }));
     await settle(() => old.resolve(result("stale")));
     expect(container.textContent).toContain("latest");
     expect(container.textContent).not.toContain("stale");
@@ -204,7 +209,9 @@ describe("generic record activity requests", () => {
 
   it("does not reuse a previous record's page after the owning drawer changes", async () => {
     const pending = deferred();
-    mocked.presentation.mockReturnValueOnce(pending.promise).mockResolvedValueOnce(presentation("replacement"));
+    mocked.presentation
+      .mockReturnValueOnce(pending.promise)
+      .mockResolvedValueOnce({ ok: true, data: presentation("replacement") });
     await mount();
     const next = {
       ...record,
@@ -218,7 +225,7 @@ describe("generic record activity requests", () => {
         }),
       ),
     );
-    await settle(() => pending.resolve(presentation("closed")));
+    await settle(() => pending.resolve({ ok: true, data: presentation("closed") }));
     expect(container.textContent).toContain("replacement");
     expect(container.textContent).not.toContain("closed");
     expect(mocked.listeners.size).toBe(1);
@@ -240,14 +247,20 @@ describe("record activity view selection from the URL", () => {
     });
     mocked.presentation
       .mockResolvedValueOnce({
-        ...presentation("saved"),
-        views,
-        activeViewKey: "first",
+        ok: true,
+        data: {
+          ...presentation("saved"),
+          views,
+          activeViewKey: "first",
+        },
       })
       .mockResolvedValueOnce({
-        ...presentation("second-view"),
-        views,
-        activeViewKey: "second",
+        ok: true,
+        data: {
+          ...presentation("second-view"),
+          views,
+          activeViewKey: "second",
+        },
       });
     await settle(() => root.render(createElement(RecordActivitiesPanel, { record, viewSyncToUrl: true })));
     expect(mocked.presentation).toHaveBeenCalledTimes(1);

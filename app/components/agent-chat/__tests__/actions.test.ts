@@ -75,8 +75,14 @@ describe("agent server actions", () => {
       data: { resolved: true, resumed: true },
     });
 
-    await expect(getAgentConversationAction(conversationId, "cursor-1")).resolves.toEqual({ messages: [] });
-    await expect(listAgentConversationsAction()).resolves.toEqual({ conversations: [], nextCursor: null });
+    await expect(getAgentConversationAction(conversationId, "cursor-1")).resolves.toEqual({
+      ok: true,
+      data: { messages: [] },
+    });
+    await expect(listAgentConversationsAction()).resolves.toEqual({
+      ok: true,
+      data: { conversations: [], nextCursor: null },
+    });
     await expect(deleteAgentConversationAction({ conversationId })).resolves.toEqual({
       ok: true,
       data: { deleted: true },

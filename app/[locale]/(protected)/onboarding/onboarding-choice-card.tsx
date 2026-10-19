@@ -44,7 +44,7 @@ function WorkspaceChoice({ choice, description, isPending, note, title }: Choice
 
 type Props = {
   email: string;
-  trialDays: number;
+  trialDays: number | null;
 };
 
 export function OnboardingChoiceCard({ email, trialDays }: Props) {
@@ -71,7 +71,11 @@ export function OnboardingChoiceCard({ email, trialDays }: Props) {
               choice="create"
               description={t("OnboardingChoice.create.description")}
               isPending={isPending}
-              note={appMode === "cloud" ? t("OnboardingChoice.create.note", { days: trialDays }) : undefined}
+              note={
+                appMode === "cloud" && trialDays !== null
+                  ? t("OnboardingChoice.create.note", { days: trialDays })
+                  : undefined
+              }
               title={t("OnboardingChoice.create.title")}
             />
 

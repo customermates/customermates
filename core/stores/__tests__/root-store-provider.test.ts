@@ -115,6 +115,7 @@ const initialState: RootStoreInitialState = {
       activeMemberCount: 1,
       subscription: null,
       joinedAt: new Date("2025-01-01T00:00:00.000Z"),
+      createdAt: new Date("2025-01-01T00:00:00.000Z"),
     },
   ],
 };

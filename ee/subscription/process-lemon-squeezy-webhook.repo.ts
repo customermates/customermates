@@ -6,6 +6,7 @@ export type WorkspaceBilling = {
   status: SubscriptionStatus;
   plan: SubscriptionPlan;
   lemonSqueezyId: string | null;
+  deletingAt: Date | null;
 };
 
 export abstract class ProcessLemonSqueezyWebhookRepo {

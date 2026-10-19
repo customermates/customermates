@@ -46,6 +46,7 @@ import { RecordChannelPopover } from "./record-identity-editor";
 import { focusFirstControl, RecordLinkPicker } from "./record-inline-field";
 import { RecordInputField } from "./record-input-field";
 import { useRecordChoices } from "@/components/records/use-record-choices";
+import { actionData } from "@/core/utils/action-data";
 
 type LinkColumn = Extract<RecordChipColumn, { kind: "relationship" | "relationshipPath" }>;
 
@@ -272,7 +273,7 @@ const AssigneeEditor = observer(function AssigneeEditor({ store, label }: { stor
   return (
     <FormAutocompleteAvatar
       ariaLabel={label}
-      getItems={getActiveUsersAction}
+      getItems={(params) => actionData(getActiveUsersAction(params))}
       id="assignedUserIds"
       inputId={inputId}
       items={store.record?.assignedUsers ?? (store.rootStore.userStore.user ? [store.rootStore.userStore.user] : [])}

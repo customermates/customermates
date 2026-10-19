@@ -23,6 +23,7 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppLocalePreferenceSync } from "@/components/shared/app-locale-preference-sync";
+import { reportApplicationError } from "@/core/errors/report-application-error";
 
 import { ProtectedEnhancementsProvider } from "./protected-enhancements-context";
 import { accountStateForPath } from "./account-state-for-path";
@@ -100,7 +101,7 @@ export function NavigationSwitch({
     isRegistered,
   });
   const rootStore = useRootStore();
-  const { userStore, subscriptionStore, navigationGuard } = rootStore;
+  const { userStore, subscriptionStore, navigationGuard, workspacesStore } = rootStore;
   const accountAllowed = currentAccountState === "allowed";
   const protectedEnhancementsAllowed = accountAllowed && shellMode === "app";
   const identifiedUser = accountAllowed ? appUser : null;
@@ -114,7 +115,13 @@ export function NavigationSwitch({
     const handleVisibilityChange = () => {
       if (document.visibilityState !== "visible") return;
       navigationGuard.requestRouteRefreshWhenSafe(() => {
-        if (active && document.visibilityState === "visible") router.refresh();
+        if (!active || document.visibilityState !== "visible") return;
+        void workspacesStore
+          .verifyCurrent()
+          .then((unchanged) => {
+            if (unchanged && active && document.visibilityState === "visible") router.refresh();
+          })
+          .catch(reportApplicationError);
       });
     };
 
@@ -123,7 +130,7 @@ export function NavigationSwitch({
       active = false;
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [navigationGuard, router]);
+  }, [navigationGuard, router, workspacesStore]);
 
   useLayoutEffect(() => {
     Sentry.setUser(identifiedUser ? { id: identifiedUser.id } : null);
@@ -134,7 +141,7 @@ export function NavigationSwitch({
     rootStore.sidebarLayoutStore.setLayout(accountAllowed ? sidebarLayout : null);
     rootStore.keyboardShortcutsStore.setPreferences(accountAllowed ? keyboardPreferences : null);
     subscriptionStore.setSubscription(accountAllowed ? subscription : null);
-    rootStore.workspacesStore.setWorkspaces(workspaces);
+    workspacesStore.setWorkspaces(workspaces);
 
     if (!protectedEnhancementsAllowed) rootStore.closeAllModals();
   }, [
@@ -147,6 +154,7 @@ export function NavigationSwitch({
     sidebarLayout,
     keyboardPreferences,
     workspaces,
+    workspacesStore,
   ]);
 
   let shell: React.ReactNode;

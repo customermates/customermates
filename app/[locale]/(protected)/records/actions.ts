@@ -42,10 +42,10 @@ import {
   getSearchChannelCandidatesInteractor,
   getImportRecordsInteractor,
 } from "@/core/di";
-import { serializeResult, settleActionResult } from "@/core/utils/action-result";
+import { serializeResult, serializeTypedResult, settleActionResult } from "@/core/utils/action-result";
 import { redirect } from "next/navigation";
 import { isRedirect, type Redirect } from "@/features/auth/auth-outcome";
-import { serializeInteractorFailure, unwrapValidated, type Validated } from "@/core/validation/validation.utils";
+import { serializeInteractorFailure, type Validated } from "@/core/validation/validation.utils";
 
 export async function checkRecordIdentityAction(input: CheckRecordIdentityInput) {
   return serializeResult(getCheckRecordIdentityInteractor().invoke(input));
@@ -62,7 +62,7 @@ export async function saveRecordDetailLayoutAction(input: SaveRecordDetailLayout
 }
 
 export async function getRecordActivityPresentationAction(input: RecordActivityPresentationInput) {
-  return unwrapValidated(getGetRecordActivityPresentationInteractor().invoke(input));
+  return serializeTypedResult(getGetRecordActivityPresentationInteractor().invoke(input));
 }
 
 export async function getRecordActivitiesAction(input: RecordActivitiesInput) {
@@ -77,18 +77,18 @@ export async function resetRecordViewAction(input: ResetDataViewStateInput) {
   return serializeResult(getResetDataViewStateInteractor().invoke(input));
 }
 export async function discoverRecordTypesAction(typeIds?: string[]) {
-  return unwrapValidated(
+  return serializeTypedResult(
     getDiscoverRecordTypesInteractor().invoke({ typeIds, includeEmbedded: false, page: 1, pageSize: 100 }),
   );
 }
 export async function getRecordNavigationAction() {
-  return unwrapValidated(getGetRecordNavigationInteractor().invoke());
+  return serializeTypedResult(getGetRecordNavigationInteractor().invoke());
 }
 export async function getRecordPresentationAction(typeId: string, params: GetQueryParams = {}) {
-  return unwrapValidated(getGetRecordPresentationInteractor().invoke({ typeId, params }));
+  return serializeTypedResult(getGetRecordPresentationInteractor().invoke({ typeId, params }));
 }
 export async function getRecordModelAction(typeIds?: string[]) {
-  return unwrapValidated(getGetRecordModelInteractor().invoke({ typeIds }));
+  return serializeTypedResult(getGetRecordModelInteractor().invoke({ typeIds }));
 }
 async function serializeResultWithFailure<T>(result: Validated<T> | Promise<Awaited<Validated<T>> | Redirect>) {
   const resolved = await settleActionResult(result);

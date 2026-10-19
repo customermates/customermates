@@ -69,9 +69,13 @@ describe("RecordInputField member values", () => {
     expect(render()).toEqual(["Viola Viewer"]);
   });
 
-  it("loads new choices from active members only and does not offer members of other fields", () => {
+  it("loads new choices from active members only and does not offer members of other fields", async () => {
     expect(render([OWNER])).toEqual(["Viola Viewer"]);
-    expect(picker.getItems).toBe(getActiveUsersAction);
+    const page = { items: [VIEWER], totalCount: 1 };
+    vi.mocked(getActiveUsersAction).mockResolvedValueOnce({ ok: true, data: page } as never);
+    const getItems = picker.getItems as (params: { searchTerm?: string }) => Promise<unknown>;
+    await expect(getItems({ searchTerm: "Vio" })).resolves.toEqual(page);
+    expect(getActiveUsersAction).toHaveBeenCalledExactlyOnceWith({ searchTerm: "Vio" });
   });
 
   it("lists a member once when the record references the viewer", () => {

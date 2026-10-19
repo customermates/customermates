@@ -3,8 +3,6 @@
 import type { ConnectChannel } from "@/ee/messaging/connect/connect-channels";
 import type { EmailSettings } from "@/ee/messaging/email-settings";
 
-import { z } from "zod";
-
 import {
   getCreateAuthLinkInteractor,
   getDeleteConnectedAccountInteractor,
@@ -15,17 +13,19 @@ import {
   getSetConnectedAccountVisibilityInteractor,
   getSetSelectedFoldersInteractor,
 } from "@/core/di";
-import { serializeResult, serializeTypedResult } from "@/core/utils/action-result";
+import {
+  serializeActionFailure,
+  serializeResult,
+  serializeTypedResult,
+  settleOutcome,
+} from "@/core/utils/action-result";
 import { isRedirect } from "@/features/auth/auth-outcome";
 
 export async function startConnectAccountAction(channel: ConnectChannel) {
-  const result = await getCreateAuthLinkInteractor().invoke({ channel });
+  const result = await settleOutcome(getCreateAuthLinkInteractor().invoke({ channel }));
   if (isRedirect(result)) return { ok: true as const, data: { url: result.redirect } };
-  return {
-    ok: false as const,
-    error: z.treeifyError(result.error),
-    code: result.code,
-  };
+  const failure = serializeActionFailure(result.error);
+  return "code" in result && result.code ? { ...failure, code: result.code } : failure;
 }
 
 export async function disconnectConnectedAccountAction(id: string) {
@@ -55,9 +55,9 @@ export async function setSelectedFoldersAction(id: string, selectedFolderIds: st
 }
 
 export async function startReconnectAccountAction(id: string) {
-  const result = await getReconnectConnectedAccountInteractor().invoke({ id });
+  const result = await settleOutcome(getReconnectConnectedAccountInteractor().invoke({ id }));
   if (isRedirect(result)) return { ok: true as const, data: { url: result.redirect } };
-  return { ok: false as const, error: z.treeifyError(result.error) };
+  return serializeActionFailure(result.error);
 }
 
 export async function refreshConnectedAccountsAction() {

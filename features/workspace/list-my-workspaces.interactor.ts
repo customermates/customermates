@@ -40,6 +40,7 @@ export class ListMyWorkspacesInteractor {
           activeMemberCount: member ? row.company._count.users : null,
           subscription: member ? row.company.subscription : null,
           joinedAt: row.createdAt,
+          createdAt: row.company.createdAt,
         };
       }),
     };

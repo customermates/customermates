@@ -2,10 +2,11 @@
 
 import type { SubscriptionRecoveryPath } from "@/features/auth/subscription-recovery";
 import type { CheckoutState } from "@/ee/subscription/checkout-state";
+import type { WorkspaceDeleteRefusal } from "@/features/workspace/workspace-deletion-refusal";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { useEffect, useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { AppCard } from "@/components/card/app-card";
@@ -21,20 +22,36 @@ import { startBackgroundPoll } from "@/core/utils/background-poll";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 import { CHECKOUT_POLL_INTERVAL_MS } from "@/ee/subscription/checkout-state";
 import { workspaceDisplayName } from "@/app/components/workspaces/workspace-identity";
+import {
+  DeleteWorkspaceButton,
+  DeleteWorkspaceDialog,
+  DeleteWorkspaceReason,
+} from "@/app/components/workspaces/delete-workspace-dialog";
 
 type Props = {
   recoveryPath: SubscriptionRecoveryPath;
   firstPlan: boolean;
   checkout: CheckoutState;
+  deleteRefusal?: WorkspaceDeleteRefusal | null;
 };
 
-const SubscriptionExpiredViewContent = observer(({ recoveryPath, firstPlan, checkout }: Props) => {
+function currentDeleteRefusal(
+  refusal: WorkspaceDeleteRefusal | null,
+  checkout: CheckoutState,
+): WorkspaceDeleteRefusal | null {
+  if (refusal !== null && refusal !== "checkoutPending") return refusal;
+  return checkout === "pending" ? "checkoutPending" : null;
+}
+
+const SubscriptionExpiredViewContent = observer(({ recoveryPath, firstPlan, checkout, deleteRefusal }: Props) => {
   const t = useTranslations();
   const { subscriptionExpiredStore, loadingOverlayStore, workspacesStore } = useRootStore();
   const workspaceName = workspaceDisplayName(workspacesStore.current?.name, t("Workspaces.fallbackName"));
   const selfServiceCheckout = recoveryPath === "selfServiceCheckout";
   const choosingFirstPlan = firstPlan && selfServiceCheckout;
   const checkoutState = subscriptionExpiredStore.checkout ?? checkout;
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const deletion = deleteRefusal === undefined ? undefined : currentDeleteRefusal(deleteRefusal, checkoutState);
   const awaitingPayment = selfServiceCheckout && checkoutState === "pending" && !subscriptionExpiredStore.activated;
   const description = selfServiceCheckout
     ? choosingFirstPlan
@@ -96,7 +113,31 @@ const SubscriptionExpiredViewContent = observer(({ recoveryPath, firstPlan, chec
         >
           {t("SubscriptionExpiredView.contactSupportCta")}
         </Button>
+
+        {deletion === undefined ? null : (
+          <div className="flex w-full flex-col items-center">
+            <DeleteWorkspaceButton
+              fullWidth
+              id="subscription-expired-delete"
+              refusal={deletion}
+              size="default"
+              variant="ghostDestructive"
+              onClick={() => setConfirmingDelete(true)}
+            />
+
+            <DeleteWorkspaceReason className="mt-1 text-center" id="subscription-expired-delete" refusal={deletion} />
+          </div>
+        )}
       </AppCardFooter>
+
+      {deletion === undefined ? null : (
+        <DeleteWorkspaceDialog
+          anchorScope="subscription-expired-delete-confirm"
+          name={workspaceName}
+          open={confirmingDelete}
+          onClose={() => setConfirmingDelete(false)}
+        />
+      )}
     </AppCard>
   );
 });

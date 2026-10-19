@@ -5,7 +5,8 @@ export type BillingWebhookAlertReason =
   | "workspaceMissing"
   | "duplicate"
   | "olderLive"
-  | "replaced";
+  | "replaced"
+  | "deletionBlocked";
 
 type AlertCopy = { subject: string; summary: string; action: string; subscription: string; other: string };
 
@@ -71,5 +72,14 @@ export const BILLING_WEBHOOK_ALERT_COPY: Record<BillingWebhookAlertReason, Alert
     action: "Cancel the previous subscription in Lemon Squeezy and refund it. Nothing was cancelled automatically.",
     subscription: "New subscription, now bound",
     other: "Previous subscription to cancel or refund",
+  },
+  deletionBlocked: {
+    subject: "Workspace deletion blocked by an unrecorded subscription",
+    summary:
+      "An administrator tried to delete a workspace that started a checkout, and Lemon Squeezy holds a subscription created after that checkout, for one of the workspace's e-mail addresses, that no workspace records. The deletion was refused and nothing was attached.",
+    action:
+      "Check in Lemon Squeezy whether the subscription belongs to this workspace. If it does, wait for or replay its webhook; otherwise tell the administrator they can delete the workspace again.",
+    subscription: "Unrecorded subscription",
+    other: "Further unrecorded subscription",
   },
 };

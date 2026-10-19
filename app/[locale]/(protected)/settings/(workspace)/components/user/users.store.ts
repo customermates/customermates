@@ -7,6 +7,7 @@ import { Resource } from "@/generated/prisma";
 import { getUsersAction } from "../../actions";
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
+import { actionData } from "@/core/utils/action-data";
 
 export class UsersStore extends BaseDataViewStore<MemberDto> {
   constructor(rootStore: RootStore) {
@@ -25,6 +26,6 @@ export class UsersStore extends BaseDataViewStore<MemberDto> {
   }
 
   protected async refreshAction(params?: GetQueryParams) {
-    return await getUsersAction(params);
+    return await actionData(getUsersAction(params));
   }
 }

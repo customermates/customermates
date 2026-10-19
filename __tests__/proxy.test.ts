@@ -172,7 +172,7 @@ describe("automatic demo authentication proxy", () => {
     const response = await proxy(request("/en?agentChat=closed", "app.session_token=existing-synthetic-token"));
 
     expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toBe("http://localhost:4000/dashboard?agentChat=closed");
+    expect(response.headers.get("location")).toBe("http://localhost:4000/en/dashboard?agentChat=closed");
   });
 
   it("replaces a non-demo session and forwards both the sign-out and sign-in cookies", async () => {
@@ -367,6 +367,34 @@ describe("automatic demo authentication proxy", () => {
 
     expect(response.status).toBe(307);
     expect(response.headers.get("location")).toBe("http://localhost:4000/de/dashboard");
+  });
+
+  it.each([
+    ["/de", "http://localhost:4000/de/dashboard"],
+    ["/fr?welcome=1", "http://localhost:4000/fr/dashboard?welcome=1"],
+  ])("sends a signed-in reader from the %s root straight to the localized dashboard", async (path, location) => {
+    mockEnv.APP_MODE = "cloud";
+    mocks.getSession.mockResolvedValue({
+      session: { expiresAt: new Date(Date.now() + 60_000) },
+      user: { email: "member@example.com" },
+    });
+
+    const response = await proxy(request(path, "app.session_token=member"));
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(location);
+  });
+
+  it("prefers the signed-in reader's saved locale over the root they finished onboarding on", async () => {
+    mockEnv.APP_MODE = "cloud";
+    mocks.getSession.mockResolvedValue({
+      session: { expiresAt: new Date(Date.now() + 60_000) },
+      user: { email: "member@example.com" },
+    });
+
+    const response = await proxy(request("/en", "app.session_token=member; APP_LOCALE=it"));
+
+    expect(response.headers.get("location")).toBe("http://localhost:4000/it/dashboard");
   });
 
   it("falls back to the configured deployment origin for an untrusted request host", async () => {

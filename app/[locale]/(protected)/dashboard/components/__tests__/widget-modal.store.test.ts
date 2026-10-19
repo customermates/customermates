@@ -96,7 +96,10 @@ function start(store: WidgetModalStore) {
 beforeEach(() => {
   vi.clearAllMocks();
   mocks.getCompanyWidgetsAction.mockResolvedValue({ ok: true, data: { widgets: [] } });
-  mocks.getWidgetByIdAction.mockResolvedValue(null);
+  mocks.getWidgetByIdAction.mockResolvedValue({
+    ok: false,
+    failure: { kind: "not_found", issues: [{ code: "custom", path: [], message: "unavailable" }] },
+  });
 });
 
 describe("generic widget modal", () => {
@@ -171,13 +174,13 @@ describe("generic widget modal", () => {
   it("opens cached content immediately while refreshing its saved version", async () => {
     const { store, items } = setup(),
       old = chart("Cached"),
-      wait = deferred<WidgetDto>();
+      wait = deferred<{ ok: true; data: WidgetDto }>();
     items.push(old);
     mocks.getWidgetByIdAction.mockReturnValueOnce(wait.promise);
     const load = store.loadById(old.id);
     expect(store.form.name).toBe("Cached");
     expect(store.isHydrating).toBe(true);
-    wait.resolve({ ...old, name: "Persisted", version: 3 });
+    wait.resolve({ ok: true, data: { ...old, name: "Persisted", version: 3 } });
     await load;
     expect(store.form).toMatchObject({ name: "Persisted", expectedVersion: 3 });
     expect(store.isHydrating).toBe(false);
@@ -186,22 +189,22 @@ describe("generic widget modal", () => {
     const { store } = setup(),
       a = chart("Older"),
       b = chart("Newest"),
-      wait = deferred<WidgetDto>();
-    mocks.getWidgetByIdAction.mockReturnValueOnce(wait.promise).mockResolvedValueOnce(b);
+      wait = deferred<{ ok: true; data: WidgetDto }>();
+    mocks.getWidgetByIdAction.mockReturnValueOnce(wait.promise).mockResolvedValueOnce({ ok: true, data: b });
     const load = store.loadById(a.id);
     await store.loadById(b.id);
-    wait.resolve(a);
+    wait.resolve({ ok: true, data: a });
     await load;
     expect(store.form.name).toBe("Newest");
   });
   it("discards a pending edit when the modal closes", async () => {
     const { store } = setup(),
       old = chart(),
-      wait = deferred<WidgetDto>();
+      wait = deferred<{ ok: true; data: WidgetDto }>();
     mocks.getWidgetByIdAction.mockReturnValueOnce(wait.promise);
     const load = store.loadById(old.id);
     store.close();
-    wait.resolve(old);
+    wait.resolve({ ok: true, data: old });
     await load;
     expect(store.isOpen).toBe(false);
     expect(store.form.id).toBeUndefined();
@@ -209,11 +212,11 @@ describe("generic widget modal", () => {
   it("does not overwrite a new draft with an earlier load", async () => {
     const { store } = setup(),
       old = chart(),
-      wait = deferred<WidgetDto>();
+      wait = deferred<{ ok: true; data: WidgetDto }>();
     mocks.getWidgetByIdAction.mockReturnValueOnce(wait.promise);
     const load = store.loadById(old.id);
     start(store);
-    wait.resolve(old);
+    wait.resolve({ ok: true, data: old });
     await load;
     expect(store.form.name).toBe("Pipeline");
     expect(store.form.id).toBeUndefined();
@@ -222,7 +225,7 @@ describe("generic widget modal", () => {
     const { store } = setup(),
       old = chart();
     start(store);
-    mocks.getWidgetByIdAction.mockResolvedValueOnce({ ...old, isTemplate: true });
+    mocks.getWidgetByIdAction.mockResolvedValueOnce({ ok: true, data: { ...old, isTemplate: true } });
     expect(await store.loadTemplate(old.id)).toBe(true);
     expect(store.form).toMatchObject({ name: "Value", isTemplate: false });
     expect(store.form.id).toBeUndefined();
@@ -231,7 +234,7 @@ describe("generic widget modal", () => {
   it("retains a requested editor section while hydrating", async () => {
     const { store } = setup(),
       old = chart();
-    mocks.getWidgetByIdAction.mockResolvedValueOnce(old);
+    mocks.getWidgetByIdAction.mockResolvedValueOnce({ ok: true, data: old });
     await store.openWithFilter(old.id, "filters");
     expect(store.expandedSection).toBe("filters");
   });
@@ -336,7 +339,7 @@ describe("generic widget modal", () => {
     const { store, removeItem } = setup();
     const old = chart("Earlier saved widget");
     const response = deferred<{ ok: true; data: { id: string; trashBatchId: string } }>();
-    mocks.getWidgetByIdAction.mockResolvedValueOnce(old);
+    mocks.getWidgetByIdAction.mockResolvedValueOnce({ ok: true, data: old });
     await store.loadById(old.id);
     mocks.deleteWidgetAction.mockReturnValueOnce(response.promise);
     const deletion = store.delete();
@@ -353,7 +356,7 @@ describe("generic widget modal", () => {
   it("deletes through the saved id and refreshes the owned collection", async () => {
     const { store, removeItem } = setup(),
       old = chart();
-    mocks.getWidgetByIdAction.mockResolvedValueOnce(old);
+    mocks.getWidgetByIdAction.mockResolvedValueOnce({ ok: true, data: old });
     await store.loadById(old.id);
     mocks.deleteWidgetAction.mockResolvedValueOnce({
       ok: true,

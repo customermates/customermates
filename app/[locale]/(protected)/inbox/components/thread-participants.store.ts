@@ -17,6 +17,7 @@ import { reportApplicationError } from "@/core/errors/report-application-error";
 import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { Debouncer } from "@/core/utils/debounce";
 import { isHandleProvider } from "@/ee/messaging/provider";
+import { actionData } from "@/core/utils/action-data";
 
 type ActionOutcome = { ok: boolean; pending?: boolean };
 
@@ -267,7 +268,7 @@ export class ThreadParticipantsStore extends BaseStore {
   private async loadCapabilities(threadId: string) {
     const binding = this.bindingGeneration;
     try {
-      const result = await getIdentityRecordChoicesAction("");
+      const result = await actionData(getIdentityRecordChoicesAction(""));
       runInAction(() => {
         if (this.threadId === threadId && binding === this.bindingGeneration) this.canManageRecords = result.canManage;
       });
@@ -378,7 +379,7 @@ export class ThreadParticipantsStore extends BaseStore {
     });
 
     try {
-      const result = await getIdentityRecordChoicesAction(requestedQuery);
+      const result = await actionData(getIdentityRecordChoicesAction(requestedQuery));
       runInAction(() => {
         if (!isCurrent()) return;
         const linked =

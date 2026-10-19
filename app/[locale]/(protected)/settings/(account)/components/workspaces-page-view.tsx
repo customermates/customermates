@@ -15,7 +15,7 @@ import {
   LeaveWorkspaceReason,
 } from "@/app/components/workspaces/leave-workspace-dialog";
 import { WorkspaceAvatar } from "@/app/components/workspaces/workspace-avatar";
-import { workspaceDisplayName } from "@/app/components/workspaces/workspace-identity";
+import { workspaceDisplayName, workspaceListName } from "@/app/components/workspaces/workspace-identity";
 import { workspacePlanChip } from "@/app/components/workspaces/workspace-plan-chip";
 import { WorkspaceStatusChip } from "@/app/components/workspaces/workspace-status-chip";
 import { AppCard } from "@/components/card/app-card";
@@ -65,7 +65,9 @@ const WorkspacesPageViewContent = observer(({ leaveRefusal, workspaces }: Props)
           <SectionRows asChild>
             <ul className="flex flex-col">
               {workspaces.map((workspace) => {
-                const name = workspaceDisplayName(workspace.name, fallback);
+                const name = workspaceListName(workspace, workspaces, fallback, (date) =>
+                  t("Workspaces.unnamedCreated", { name: fallback, date }),
+                );
                 const role =
                   workspace.roleName === null
                     ? null

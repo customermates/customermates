@@ -44,9 +44,12 @@ describe("inbox identity controls", () => {
     expect(store.searchError).toBe(true);
     expect(store.showCreate).toBe(false);
     actions.getIdentityRecordChoicesAction.mockResolvedValueOnce({
-      records: [],
-      createTypes: [createType],
-      schemaRevision: 3,
+      ok: true,
+      data: {
+        records: [],
+        createTypes: [createType],
+        schemaRevision: 3,
+      },
     });
     await store.retrySearch();
     expect(store.isLoading).toBe(false);
@@ -171,10 +174,13 @@ function deferred<T>() {
 describe("participant mutation ownership", () => {
   beforeEach(() => {
     actions.getIdentityRecordChoicesAction.mockResolvedValue({
-      canManage: true,
-      records: [],
-      createTypes: [],
-      schemaRevision: 3,
+      ok: true,
+      data: {
+        canManage: true,
+        records: [],
+        createTypes: [],
+        schemaRevision: 3,
+      },
     });
     actions.getRecordAction.mockResolvedValue({
       ok: true,

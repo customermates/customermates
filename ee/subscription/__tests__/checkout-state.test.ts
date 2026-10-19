@@ -48,11 +48,11 @@ describe("checkoutPendingSince", () => {
 });
 
 describe("checkoutExpiresAt", () => {
-  it("lets the checkout link expire a day after the start, when the contact hint disappears", () => {
+  it("lets the checkout link expire when the pending window ends, so a payable link always blocks deleting", () => {
     const expiresAt = checkoutExpiresAt(NOW);
 
-    expect(expiresAt).toEqual(new Date("2026-10-17T12:00:00.000Z"));
-    expect(checkoutStateOf(NOW, new Date(expiresAt.getTime() - 1))).toBe("overdue");
-    expect(checkoutStateOf(NOW, expiresAt)).toBe("none");
+    expect(expiresAt.getTime() - NOW.getTime()).toBe(CHECKOUT_PENDING_MS);
+    expect(checkoutStateOf(NOW, new Date(expiresAt.getTime() - 1))).toBe("pending");
+    expect(checkoutStateOf(NOW, expiresAt)).toBe("overdue");
   });
 });

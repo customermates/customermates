@@ -14,7 +14,7 @@ import {
   getSearchCommandCatalogInteractor,
   getSearchRecordsInteractor,
 } from "@/core/di";
-import { serializeResult } from "@/core/utils/action-result";
+import { serializeResult, settleOutcome } from "@/core/utils/action-result";
 
 export async function globalSearchAction(data: RecordSearch) {
   return serializeResult(getSearchRecordsInteractor().invoke(data));
@@ -37,14 +37,18 @@ const NO_RECORDS: RecordSearchResult = { results: [], schemaRevision: 0, nextCur
 export async function commandSearchAction(input: CommandSearchInput) {
   const searchesRecords = input.scope === null || input.scope === "records";
   const records = searchesRecords
-    ? await getSearchRecordsInteractor().invoke({ searchTerm: input.searchTerm, limit: 40, cursor: null })
+    ? await settleOutcome(
+        getSearchRecordsInteractor().invoke({ searchTerm: input.searchTerm, limit: 40, cursor: null }),
+      )
     : null;
   if (records && !records.ok) return serializeResult<CommandSearchResult>(records);
   const recordMatched = (records?.data.results.length ?? 0) > 0;
-  const catalog = await getSearchCommandCatalogInteractor().invoke({
-    ...input,
-    semantic: input.semantic && !recordMatched,
-  });
+  const catalog = await settleOutcome(
+    getSearchCommandCatalogInteractor().invoke({
+      ...input,
+      semantic: input.semantic && !recordMatched,
+    }),
+  );
   if (!catalog.ok) return serializeResult<CommandSearchResult>(catalog);
   const result: CommandSearchResult = { ...catalog.data, records: records?.data ?? NO_RECORDS };
   return serializeResult<CommandSearchResult>({ ok: true as const, data: result });

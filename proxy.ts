@@ -252,10 +252,8 @@ async function routePageRequest(
   }
 
   if (isAuthenticated && isLocaleRootPage) {
-    const preferredLocale = preferredAppLocale(req);
-    const target = preferredLocale
-      ? new URL(buildLocalePath(preferredLocale, "/dashboard"), base)
-      : new URL("/dashboard", base);
+    const appLocale = preferredAppLocale(req) ?? (isAppLocale(currentLocale) ? currentLocale : DEFAULT_LOCALE);
+    const target = new URL(buildLocalePath(appLocale, "/dashboard"), base);
     target.search = req.nextUrl.search;
     return NextResponse.redirect(target);
   }

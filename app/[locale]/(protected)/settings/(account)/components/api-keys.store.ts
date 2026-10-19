@@ -10,6 +10,7 @@ import { deleteApiKeyAction, refreshApiKeysAction } from "../actions";
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { actionData } from "@/core/utils/action-data";
 
 export class ApiKeysStore extends BaseDataViewStore<ApiKey> {
   constructor(rootStore: RootStore) {
@@ -38,7 +39,7 @@ export class ApiKeysStore extends BaseDataViewStore<ApiKey> {
   };
 
   protected async refreshAction(_params?: GetQueryParams) {
-    const apiKeys = await refreshApiKeysAction();
+    const apiKeys = await actionData(refreshApiKeysAction());
 
     return { items: apiKeys };
   }
