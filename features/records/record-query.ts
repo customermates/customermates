@@ -233,7 +233,7 @@ export function compileRecordQuery(
   let searchSource = Prisma.empty;
   if (query.search) {
     const searchable = [...fields.values()].filter((field) =>
-      ["text", "email", "url", "address"].includes(field.valueType),
+      ["text", "url", "address"].includes(field.valueType),
     );
     const search = `%${query.search.replace(/[\\%_]/g, "\\$&")}%`;
     const matches: Prisma.Sql[] = [];
@@ -332,6 +332,17 @@ export function compileRecordQuery(
     if (!field) throw new Error("Query field must be validated before compilation");
     conditions.push(fieldReadPredicate(companyId, field, model, access, record));
     const expression = scalar(field);
+    if (field.valueType === "channels") {
+      const linked = (match: Prisma.Sql) =>
+        Prisma.sql`EXISTS (SELECT 1 FROM "RecordIdentityLink" association JOIN "RecordIdentity" identity ON identity."companyId" = ${companyId} AND identity.id = association."identityId" WHERE association."companyId" = ${companyId} AND association."typeId" = ${query.typeId} AND association."recordId" = ${record}.id ${match})`;
+      if (filter.operator === "empty") conditions.push(Prisma.sql`NOT ${linked(Prisma.empty)}`);
+      else if (filter.operator === "notEmpty") conditions.push(linked(Prisma.empty));
+      else if ((filter.operator === "contains" || filter.operator === "startsWith") && filter.value?.kind === "text") {
+        const pattern = `${filter.operator === "contains" ? "%" : ""}${filter.value.value.replace(/[\\%_]/g, "\\$&")}%`;
+        conditions.push(linked(Prisma.sql`AND identity.value ILIKE ${pattern}`));
+      } else throw new Error("Contact details query must be validated before compilation");
+      continue;
+    }
     if (filter.operator === "empty" || filter.operator === "notEmpty") {
       const valueState = Prisma.sql`(SELECT value.state FROM "RecordValue" value WHERE value."companyId" = ${companyId} AND value."typeId" = ${query.typeId} AND value."recordId" = ${record}.id AND value."fieldId" = ${field.id})`;
       conditions.push(
@@ -511,7 +522,7 @@ export function compileRecordQuery(
     }
     const field = fields.get(sort.fieldId);
     if (!field) throw new Error("Sort field must be validated before compilation");
-    const collation = ["text", "email", "url", "select", "member", "address"].includes(field.valueType)
+    const collation = ["text", "url", "select", "member", "address"].includes(field.valueType)
       ? Prisma.sql`COLLATE ${recordCollation(query.locale)}`
       : Prisma.empty;
     const visibleMember =

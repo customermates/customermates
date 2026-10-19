@@ -51,7 +51,7 @@ const window: RecordField = {
 const extended = { ...model, fields: [...model.fields, window] };
 
 describe("generic record presentation filters", () => {
-  it("shows Channels as a field column of its own list and keeps it out of filters, sorting and grouping", () => {
+  it("shows contact details as a field column of its own list with text filters, but no sorting or grouping", () => {
     const channels = id("capability.identity");
     expect(recordColumns(id("contact"), model)).toContainEqual(
       expect.objectContaining({ kind: "field", id: channels, sortable: false }),
@@ -62,10 +62,15 @@ describe("generic record presentation filters", () => {
     expect(recordViewStateIsValid(id("contact"), { columnOrder: [channels] }, model)).toBe(true);
     expect(recordViewStateIsValid(id("organization"), { columnOrder: [channels] }, model)).toBe(false);
     expect(
-      recordFilterableFields(model.fields.filter((field) => field.typeId === id("contact"))).some(
+      recordFilterableFields(model.fields.filter((field) => field.typeId === id("contact"))).find(
         (field) => field.field === channels,
-      ),
-    ).toBe(false);
+      )?.operators,
+    ).toEqual([
+      Operator.contains,
+      Operator.startsWith,
+      Operator.isNull,
+      Operator.isNotNull,
+    ]);
   });
   it("reports an invalid filter as recordValueInvalid at the index of that filter", () => {
     const failure = (filters: Filter[]) => {

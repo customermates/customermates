@@ -4,7 +4,7 @@ import type { RecordQuery } from "./record-query.schema";
 export function recordFilterOperators(
   field: Pick<RecordField, "valueType" | "multiple">,
 ): RecordQuery["filters"][number]["operator"][] {
-  if (field.valueType === "channels") return [];
+  if (field.valueType === "channels") return ["contains", "startsWith", "empty", "notEmpty"];
   if (field.valueType === "file") return ["empty", "notEmpty"];
   if (field.valueType === "address") return ["contains", "startsWith", "empty", "notEmpty"];
   if (field.valueType === "richText") return ["contains", "empty", "notEmpty"];
@@ -26,7 +26,7 @@ export function recordFilterOperators(
   }
   const operators: RecordQuery["filters"][number]["operator"][] = ["eq", "ne", "empty", "notEmpty"];
   if (!field.multiple) operators.push("in", "notIn");
-  if (["text", "email", "url"].includes(field.valueType)) operators.push("contains", "startsWith");
+  if (["text", "url"].includes(field.valueType)) operators.push("contains", "startsWith");
   if (!field.multiple && ["number", "currency", "date", "dateTime"].includes(field.valueType))
     operators.push("gt", "gte", "lt", "lte");
   if (["date", "dateTime"].includes(field.valueType))
