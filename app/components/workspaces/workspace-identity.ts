@@ -19,16 +19,28 @@ export function workspaceDisplayName(name: string | null | undefined, fallback: 
   return name?.trim() || fallback;
 }
 
-type ListedWorkspace = { name: string | null; createdAt: Date };
+type ListedWorkspace = { companyId: string; name: string | null; createdAt: Date };
 
 export function workspaceListName(
   workspace: ListedWorkspace,
-  workspaces: readonly Pick<ListedWorkspace, "name">[],
+  workspaces: readonly ListedWorkspace[],
   fallback: string,
   withCreationDate: (date: string) => string,
 ): string {
   if (workspace.name?.trim()) return workspace.name.trim();
-  if (workspaces.filter((candidate) => !candidate.name?.trim()).length < 2) return fallback;
+  const unnamed = workspaces.filter((candidate) => !candidate.name?.trim());
+  if (unnamed.length < 2) return fallback;
 
-  return withCreationDate(workspace.createdAt.toISOString().slice(0, 10));
+  const day = creationDay(workspace);
+  const sameDay = unnamed
+    .filter((candidate) => creationDay(candidate) === day)
+    .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime() || a.companyId.localeCompare(b.companyId));
+  const position = sameDay.findIndex((candidate) => candidate.companyId === workspace.companyId);
+  const label = withCreationDate(day);
+
+  return position > 0 ? `${label} ${position + 1}` : label;
+}
+
+function creationDay(workspace: Pick<ListedWorkspace, "createdAt">): string {
+  return workspace.createdAt.toISOString().slice(0, 10);
 }

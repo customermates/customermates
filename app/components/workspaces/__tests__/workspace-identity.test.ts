@@ -35,14 +35,29 @@ describe("workspace identity", () => {
 
   it("adds the creation day only when several listed workspaces have no name", () => {
     const dated = (date: string) => `Workspace (created ${date})`;
-    const unnamed = { name: null, createdAt: new Date("2026-03-04T23:30:00.000Z") };
-    const named = { name: " Taxes ", createdAt: new Date("2026-01-01T00:00:00.000Z") };
+    const unnamed = { companyId: "b", name: null, createdAt: new Date("2026-03-04T23:30:00.000Z") };
+    const named = { companyId: "a", name: " Taxes ", createdAt: new Date("2026-01-01T00:00:00.000Z") };
+    const blank = { companyId: "c", name: "", createdAt: new Date("2026-02-01T00:00:00.000Z") };
 
     expect(workspaceListName(named, [named, unnamed], "Workspace", dated)).toBe("Taxes");
     expect(workspaceListName(unnamed, [named, unnamed], "Workspace", dated)).toBe("Workspace");
-    expect(workspaceListName(unnamed, [unnamed, { name: "" }], "Workspace", dated)).toBe(
+    expect(workspaceListName(unnamed, [unnamed, blank], "Workspace", dated)).toBe("Workspace (created 2026-03-04)");
+  });
+
+  it("numbers unnamed workspaces created on the same day in creation order", () => {
+    const dated = (date: string) => `Workspace (created ${date})`;
+    const first = { companyId: "z", name: null, createdAt: new Date("2026-03-04T08:00:00.000Z") };
+    const second = { companyId: "y", name: " ", createdAt: new Date("2026-03-04T09:00:00.000Z") };
+    const tied = { companyId: "x", name: null, createdAt: new Date("2026-03-04T09:00:00.000Z") };
+    const otherDay = { companyId: "w", name: null, createdAt: new Date("2026-03-05T09:00:00.000Z") };
+    const workspaces = [tied, otherDay, second, first];
+
+    expect(workspaces.map((workspace) => workspaceListName(workspace, workspaces, "Workspace", dated))).toEqual([
+      "Workspace (created 2026-03-04) 2",
+      "Workspace (created 2026-03-05)",
+      "Workspace (created 2026-03-04) 3",
       "Workspace (created 2026-03-04)",
-    );
+    ]);
   });
 });
 
