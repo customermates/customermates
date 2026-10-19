@@ -383,7 +383,7 @@ export class ProviderAvatarService {
             const refs = await journal.repository.getRecordRefsCompanyWide(field.typeId, cursor.afterId, BATCH);
             if (field.behavior.kind !== "snapshot") {
               const calculator = this.calculations.withRepository(journal.repository);
-              for (const ref of refs) await calculator.calculateField(model, ref, field.id, LIMIT);
+              await calculator.calculateFields(model, refs, field.id, LIMIT);
             }
             await journal.persist();
             await this.records.updateOperationUnscoped(this.companyId, operationId, {

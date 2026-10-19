@@ -103,6 +103,9 @@ export interface RecordActorRepo {
   findRecordAssigneesCompanyWide(ids: string[]): Promise<string[]>;
 }
 
+export type StoredValueWrite = { ref: RecordRef; fieldId: string; result: CalculatedValue; revision: number };
+export type StoredDependencyWrite = { ref: RecordRef; fieldId: string; sources: RecordRef[] };
+
 export type RecordPlacement = { afterRecordId?: string; beforeRecordId?: string };
 
 export interface RecordRepo {
@@ -250,9 +253,20 @@ export interface RecordRepo {
   setAssignments(ref: RecordRef, userIds: string[]): Promise<void>;
   getMembersCompanyWide(userIds: string[]): Promise<RecordMember[]>;
   setValue(ref: RecordRef, fieldId: string, result: CalculatedValue, revision: number): Promise<void>;
+  /** `setValue` for many values in a few statements; a later entry for the same record and field wins. */
+  setValues(values: StoredValueWrite[]): Promise<void>;
   setValueDependencies(ref: RecordRef, fieldId: string, sources: RecordRef[]): Promise<void>;
+  /** `setValueDependencies` for many values in a few statements; a later entry for the same value wins. */
+  setValueDependenciesMany(dependencies: StoredDependencyWrite[]): Promise<void>;
   getValueDependencies(ref: RecordRef, fieldId: string): Promise<RecordRef[]>;
+  getValueDependenciesManyCompanyWide(
+    refs: RecordRef[],
+    fieldIds: string[],
+  ): Promise<Array<{ ref: RecordRef; fieldId: string; sources: RecordRef[] }>>;
   getRecordDependenciesCompanyWide(ref: RecordRef): Promise<Array<{ fieldId: string; sources: RecordRef[] }>>;
+  getRecordDependenciesManyCompanyWide(
+    refs: RecordRef[],
+  ): Promise<Array<{ ref: RecordRef; dependencies: Array<{ fieldId: string; sources: RecordRef[] }> }>>;
   getLinksCompanyWide(
     ref: RecordRef,
     take?: number,
@@ -295,6 +309,12 @@ export interface RecordRepo {
     direction: "outgoing" | "incoming",
     take?: number,
   ): Promise<RecordRef[]>;
+  linkedRecordsManyCompanyWide(
+    refs: RecordRef[],
+    relationId: string,
+    direction: "outgoing" | "incoming",
+    take?: number,
+  ): Promise<Array<{ ref: RecordRef; linked: RecordRef[] }>>;
   link(relationId: string, source: RecordRef, target: RecordRef): Promise<void>;
   unlink(relationId: string, source: RecordRef, target: RecordRef): Promise<void>;
   receipt(key: string, userId: string): Promise<{ requestHash: string; result: Prisma.JsonValue } | null>;
@@ -343,6 +363,17 @@ export interface RecordRepo {
     kind: string,
     prefix: string,
   ): Promise<Array<{ key: string; payload: Prisma.JsonValue }>>;
+  stageRows(operationId: string, kind: string, rows: Array<{ key: string; payload: unknown }>): Promise<void>;
+  getStageRowsByKeys(
+    operationId: string,
+    kind: string,
+    keys: string[],
+  ): Promise<Array<{ key: string; payload: Prisma.JsonValue }>>;
+  getStageRowsByRecords(
+    operationId: string,
+    kind: string,
+    refs: RecordRef[],
+  ): Promise<Array<{ key: string; payload: Prisma.JsonValue }>>;
   getStageRecordRefsCompanyWide(
     operationId: string,
     typeId: string,
@@ -357,6 +388,13 @@ export interface RecordRepo {
     direction: "outgoing" | "incoming",
     take?: number,
   ): Promise<RecordRef[]>;
+  linkedStageRecordsManyCompanyWide(
+    operationId: string,
+    refs: RecordRef[],
+    relationId: string,
+    direction: "outgoing" | "incoming",
+    take?: number,
+  ): Promise<Array<{ ref: RecordRef; linked: RecordRef[] }>>;
   publishStage(operationId: string, revision: number): Promise<void>;
   clearOperationLock(id: string): Promise<void>;
   failOperationUnscoped(input: { companyId: string; userId: string; operationId: string }): Promise<void>;

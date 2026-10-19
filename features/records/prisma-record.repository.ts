@@ -29,6 +29,8 @@ import type {
   RecordRepo,
   RecordRepoOwners,
   RecordTrashItemInput,
+  StoredDependencyWrite,
+  StoredValueWrite,
   TrashReadOptions,
 } from "./record.repo";
 import { CONFIGURATION_CONSUMER_PAGE } from "./record.repo";
@@ -77,6 +79,15 @@ const CONFIGURATION_DELETION_PAGE = 200;
 const STAGED_EVENT_PAGE = 1000;
 const PERSONALIZATION_KEY = "personalization:";
 const VIEW_KEY = "view:";
+
+const BULK_READ_CHUNK = 1000;
+const BULK_WRITE_CHUNK = 500;
+
+const recordKey = (ref: RecordRef) => `${ref.typeId}:${ref.recordId}`;
+
+function uniqueRefs(refs: RecordRef[]): RecordRef[] {
+  return [...new Map(refs.map((ref) => [recordKey(ref), ref])).values()];
+}
 
 export class PrismaRecordRepo
   extends TenantRepository
@@ -1600,32 +1611,42 @@ export class PrismaRecordRepo
   }
 
   async setValue(ref: RecordRef, fieldId: string, result: CalculatedValue, revision: number): Promise<void> {
+    await this.setValues([{ ref, fieldId, result, revision }]);
+  }
+
+  async setValues(values: StoredValueWrite[]): Promise<void> {
     const companyId = this.companyId;
-    const data = encodeRecordValue(result);
-    const json = data.jsonValue === null ? null : JSON.stringify(data.jsonValue);
-    const range = result.state === "value" && result.value.kind === "range" ? result.value : null;
-    await this.prisma.$executeRaw(Prisma.sql`
-      INSERT INTO "RecordValue" (
-        "companyId", "typeId", "recordId", "fieldId", "state", "textValue",
-        "textListValue", "decimalValue", "currency", "booleanValue", "instantValue",
-        "lexicalValue", "jsonValue", "errorCode", "schemaRevision", "updatedAt", "rangeStart", "rangeEnd"
-      ) VALUES (
-        ${companyId}, ${ref.typeId}, ${ref.recordId}, ${fieldId}, ${data.state}, ${data.textValue},
-        ARRAY(SELECT jsonb_array_elements_text(${JSON.stringify(data.textListValue)}::jsonb)),
-        ${data.decimalValue?.toFixed() ?? null}::numeric, ${data.currency}, ${data.booleanValue},
-        ${data.lexicalValue}::timestamptz AT TIME ZONE 'UTC', ${data.lexicalValue},
-        ${json}::jsonb, ${data.errorCode}, ${revision}, CURRENT_TIMESTAMP,
-        ${range?.start ?? null}::timestamptz AT TIME ZONE 'UTC', ${range?.end ?? null}::timestamptz AT TIME ZONE 'UTC'
-      )
-      ON CONFLICT ("companyId", "typeId", "recordId", "fieldId") DO UPDATE SET
-        "state" = EXCLUDED."state", "textValue" = EXCLUDED."textValue",
-        "textListValue" = EXCLUDED."textListValue", "decimalValue" = EXCLUDED."decimalValue",
-        "currency" = EXCLUDED."currency", "booleanValue" = EXCLUDED."booleanValue",
-        "instantValue" = EXCLUDED."instantValue", "lexicalValue" = EXCLUDED."lexicalValue",
-        "jsonValue" = EXCLUDED."jsonValue", "errorCode" = EXCLUDED."errorCode",
-        "rangeStart" = EXCLUDED."rangeStart", "rangeEnd" = EXCLUDED."rangeEnd",
-        "schemaRevision" = EXCLUDED."schemaRevision", "updatedAt" = EXCLUDED."updatedAt"
-    `);
+    const unique = [...new Map(values.map((entry) => [`${recordKey(entry.ref)}:${entry.fieldId}`, entry])).values()];
+    for (let offset = 0; offset < unique.length; offset += BULK_WRITE_CHUNK) {
+      const rows = unique.slice(offset, offset + BULK_WRITE_CHUNK).map(({ ref, fieldId, result, revision }) => {
+        const data = encodeRecordValue(result);
+        const json = data.jsonValue === null ? null : JSON.stringify(data.jsonValue);
+        const range = result.state === "value" && result.value.kind === "range" ? result.value : null;
+        return Prisma.sql`(
+          ${companyId}, ${ref.typeId}, ${ref.recordId}, ${fieldId}, ${data.state}, ${data.textValue},
+          ARRAY(SELECT jsonb_array_elements_text(${JSON.stringify(data.textListValue)}::jsonb)),
+          ${data.decimalValue?.toFixed() ?? null}::numeric, ${data.currency}, ${data.booleanValue}::boolean,
+          ${data.lexicalValue}::timestamptz AT TIME ZONE 'UTC', ${data.lexicalValue},
+          ${json}::jsonb, ${data.errorCode}, ${revision}::integer, CURRENT_TIMESTAMP,
+          ${range?.start ?? null}::timestamptz AT TIME ZONE 'UTC', ${range?.end ?? null}::timestamptz AT TIME ZONE 'UTC'
+        )`;
+      });
+      await this.prisma.$executeRaw(Prisma.sql`
+        INSERT INTO "RecordValue" (
+          "companyId", "typeId", "recordId", "fieldId", "state", "textValue",
+          "textListValue", "decimalValue", "currency", "booleanValue", "instantValue",
+          "lexicalValue", "jsonValue", "errorCode", "schemaRevision", "updatedAt", "rangeStart", "rangeEnd"
+        ) VALUES ${Prisma.join(rows)}
+        ON CONFLICT ("companyId", "typeId", "recordId", "fieldId") DO UPDATE SET
+          "state" = EXCLUDED."state", "textValue" = EXCLUDED."textValue",
+          "textListValue" = EXCLUDED."textListValue", "decimalValue" = EXCLUDED."decimalValue",
+          "currency" = EXCLUDED."currency", "booleanValue" = EXCLUDED."booleanValue",
+          "instantValue" = EXCLUDED."instantValue", "lexicalValue" = EXCLUDED."lexicalValue",
+          "jsonValue" = EXCLUDED."jsonValue", "errorCode" = EXCLUDED."errorCode",
+          "rangeStart" = EXCLUDED."rangeStart", "rangeEnd" = EXCLUDED."rangeEnd",
+          "schemaRevision" = EXCLUDED."schemaRevision", "updatedAt" = EXCLUDED."updatedAt"
+      `);
+    }
   }
 
   async setValueDependencies(ref: RecordRef, fieldId: string, sources: RecordRef[]): Promise<void> {
@@ -1648,6 +1669,31 @@ export class PrismaRecordRepo
     }
   }
 
+  async setValueDependenciesMany(dependencies: StoredDependencyWrite[]): Promise<void> {
+    const unique = [
+      ...new Map(dependencies.map((entry) => [`${recordKey(entry.ref)}:${entry.fieldId}`, entry])).values(),
+    ];
+    for (let offset = 0; offset < unique.length; offset += BULK_WRITE_CHUNK) {
+      const chunk = unique.slice(offset, offset + BULK_WRITE_CHUNK);
+      await this.prisma.$executeRaw(Prisma.sql`DELETE FROM "RecordValueDependency" dependency
+        USING unnest(${chunk.map((entry) => entry.ref.typeId)}::text[], ${chunk.map((entry) => entry.ref.recordId)}::text[], ${chunk.map((entry) => entry.fieldId)}::text[])
+          AS owner("typeId", "recordId", "fieldId")
+        WHERE dependency."companyId" = ${this.companyId} AND dependency."typeId" = owner."typeId"
+          AND dependency."recordId" = owner."recordId" AND dependency."fieldId" = owner."fieldId"`);
+      const rows = chunk.flatMap((entry) => entry.sources.map((source) => ({ ...entry, source })));
+      for (let start = 0; start < rows.length; start += BULK_WRITE_CHUNK * 4) {
+        const part = rows.slice(start, start + BULK_WRITE_CHUNK * 4);
+        await this.prisma.$executeRaw(Prisma.sql`INSERT INTO "RecordValueDependency"
+          ("companyId", "typeId", "recordId", "fieldId", "sourceTypeId", "sourceId")
+          SELECT ${this.companyId}, * FROM unnest(
+            ${part.map((row) => row.ref.typeId)}::text[], ${part.map((row) => row.ref.recordId)}::text[],
+            ${part.map((row) => row.fieldId)}::text[], ${part.map((row) => row.source.typeId)}::text[],
+            ${part.map((row) => row.source.recordId)}::text[]
+          ) ON CONFLICT DO NOTHING`);
+      }
+    }
+  }
+
   async getValueDependencies(ref: RecordRef, fieldId: string): Promise<RecordRef[]> {
     const rows = await this.prisma.recordValueDependency.findMany({
       where: {
@@ -1662,6 +1708,29 @@ export class PrismaRecordRepo
       typeId: row.sourceTypeId,
       recordId: row.sourceId,
     }));
+  }
+
+  async getValueDependenciesManyCompanyWide(refs: RecordRef[], fieldIds: string[]) {
+    const owners = uniqueRefs(refs);
+    const fields = [...new Set(fieldIds)];
+    const found = new Map<string, RecordRef[]>();
+    for (let offset = 0; offset < owners.length && fields.length; offset += BULK_READ_CHUNK) {
+      const chunk = owners.slice(offset, offset + BULK_READ_CHUNK);
+      const rows = await this.prisma.$queryRaw<
+        Array<{ typeId: string; recordId: string; fieldId: string; sourceTypeId: string; sourceId: string }>
+      >(Prisma.sql`SELECT dependency."typeId", dependency."recordId", dependency."fieldId", dependency."sourceTypeId", dependency."sourceId"
+        FROM "RecordValueDependency" dependency
+        WHERE dependency."companyId" = ${this.companyId}
+          AND (dependency."typeId", dependency."recordId") IN (SELECT * FROM unnest(${chunk.map((ref) => ref.typeId)}::text[], ${chunk.map((ref) => ref.recordId)}::text[]))
+          AND dependency."fieldId" = ANY(${fields}::text[])`);
+      for (const row of rows) {
+        const key = `${row.typeId}:${row.recordId}:${row.fieldId}`;
+        found.set(key, [...(found.get(key) ?? []), { typeId: row.sourceTypeId, recordId: row.sourceId }]);
+      }
+    }
+    return owners.flatMap((ref) =>
+      fields.map((fieldId) => ({ ref, fieldId, sources: found.get(`${ref.typeId}:${ref.recordId}:${fieldId}`) ?? [] })),
+    );
   }
 
   async getRecordDependenciesCompanyWide(ref: RecordRef) {
@@ -1681,6 +1750,37 @@ export class PrismaRecordRepo
       fields.set(row.fieldId, sources);
     }
     return [...fields].map(([fieldId, sources]) => ({ fieldId, sources }));
+  }
+
+  async getRecordDependenciesManyCompanyWide(refs: RecordRef[]) {
+    const owners = uniqueRefs(refs);
+    const found = new Map<string, Map<string, RecordRef[]>>();
+    for (let offset = 0; offset < owners.length; offset += BULK_READ_CHUNK) {
+      const chunk = owners.slice(offset, offset + BULK_READ_CHUNK);
+      const rows = await this.prisma.$queryRaw<
+        Array<{ typeId: string; recordId: string; fieldId: string; sourceTypeId: string; sourceId: string }>
+      >(Prisma.sql`SELECT dependency."typeId", dependency."recordId", dependency."fieldId", dependency."sourceTypeId", dependency."sourceId"
+        FROM "RecordValueDependency" dependency
+        WHERE dependency."companyId" = ${this.companyId}
+          AND (dependency."typeId", dependency."recordId") IN (SELECT * FROM unnest(${chunk.map((ref) => ref.typeId)}::text[], ${chunk.map((ref) => ref.recordId)}::text[]))
+        ORDER BY dependency."fieldId", dependency."sourceTypeId", dependency."sourceId"`);
+      for (const row of rows) {
+        const key = `${row.typeId}:${row.recordId}`;
+        const fields = found.get(key) ?? new Map<string, RecordRef[]>();
+        fields.set(row.fieldId, [
+          ...(fields.get(row.fieldId) ?? []),
+          { typeId: row.sourceTypeId, recordId: row.sourceId },
+        ]);
+        found.set(key, fields);
+      }
+    }
+    return owners.map((ref) => ({
+      ref,
+      dependencies: [...(found.get(recordKey(ref)) ?? new Map<string, RecordRef[]>())].map(([fieldId, sources]) => ({
+        fieldId,
+        sources,
+      })),
+    }));
   }
 
   async getLinksCompanyWide(ref: RecordRef, take?: number) {
@@ -2040,6 +2140,18 @@ export class PrismaRecordRepo
     });
   }
 
+  async stageRows(operationId: string, kind: string, rows: Array<{ key: string; payload: unknown }>): Promise<void> {
+    const unique = [...new Map(rows.map((row) => [row.key, row])).values()];
+    for (let offset = 0; offset < unique.length; offset += BULK_WRITE_CHUNK) {
+      const chunk = unique.slice(offset, offset + BULK_WRITE_CHUNK);
+      await this.prisma
+        .$executeRaw(Prisma.sql`INSERT INTO "RecordStageRow" ("companyId", "operationId", kind, key, payload)
+        SELECT ${this.companyId}, ${operationId}, ${kind}, staged.key, staged.payload
+        FROM unnest(${chunk.map((row) => row.key)}::text[], ${chunk.map((row) => JSON.stringify(recordJson(row.payload)))}::jsonb[]) AS staged(key, payload)
+        ON CONFLICT ("companyId", "operationId", kind, key) DO UPDATE SET payload = EXCLUDED.payload`);
+    }
+  }
+
   async getStageRows(operationId: string, kind: string) {
     return this.prisma.recordStageRow.findMany({
       where: { companyId: this.companyId, operationId, kind },
@@ -2089,6 +2201,44 @@ export class PrismaRecordRepo
     });
   }
 
+  async getStageRowsByKeys(operationId: string, kind: string, keys: string[]) {
+    const unique = [...new Set(keys)];
+    const rows: Array<{ key: string; payload: Prisma.JsonValue }> = [];
+    for (let offset = 0; offset < unique.length; offset += BULK_READ_CHUNK) {
+      rows.push(
+        ...(await this.prisma.recordStageRow.findMany({
+          where: {
+            companyId: this.companyId,
+            operationId,
+            kind,
+            key: { in: unique.slice(offset, offset + BULK_READ_CHUNK) },
+          },
+          select: { key: true, payload: true },
+        })),
+      );
+    }
+    return rows;
+  }
+
+  /** The stage rows of `kind` whose key starts with the key of one of `refs` ("typeId:recordId:..."). */
+  async getStageRowsByRecords(operationId: string, kind: string, refs: RecordRef[]) {
+    const unique = uniqueRefs(refs);
+    const rows: Array<{ key: string; payload: Prisma.JsonValue }> = [];
+    for (let offset = 0; offset < unique.length; offset += BULK_READ_CHUNK) {
+      const chunk = unique.slice(offset, offset + BULK_READ_CHUNK);
+      rows.push(
+        ...(await this.prisma.$queryRaw<
+          Array<{ key: string; payload: Prisma.JsonValue }>
+        >(Prisma.sql`SELECT stage.key, stage.payload
+          FROM "RecordStageRow" stage
+          JOIN unnest(${chunk.map((ref) => ref.typeId)}::text[], ${chunk.map((ref) => ref.recordId)}::text[]) AS wanted("typeId", "recordId")
+            ON split_part(stage.key, ':', 1) = wanted."typeId" AND split_part(stage.key, ':', 2) = wanted."recordId"
+          WHERE stage."companyId" = ${this.companyId} AND stage."operationId" = ${operationId} AND stage.kind = ${kind}`)),
+      );
+    }
+    return rows;
+  }
+
   async getStageRecordRefsCompanyWide(
     operationId: string,
     typeId: string,
@@ -2103,6 +2253,74 @@ export class PrismaRecordRepo
       UNION SELECT stage.payload->'ref'->>'recordId' FROM "RecordStageRow" stage WHERE stage."companyId" = ${this.companyId} AND stage."operationId" = ${operationId} AND stage.kind = 'record' AND stage.payload->'ref'->>'typeId' = ${typeId} AND NOT (stage.payload->>'deleted')::boolean
     ) SELECT id FROM candidates WHERE ${afterId ? Prisma.sql`id > ${afterId}` : Prisma.sql`TRUE`} ORDER BY id LIMIT ${take}`);
     return rows.map((row) => ({ typeId, recordId: row.id }));
+  }
+
+  async linkedRecordsManyCompanyWide(
+    refs: RecordRef[],
+    relationId: string,
+    direction: "outgoing" | "incoming",
+    take = 1000000,
+  ): Promise<Array<{ ref: RecordRef; linked: RecordRef[] }>> {
+    const outgoing = direction === "outgoing";
+    const fromType = Prisma.raw(outgoing ? 'link."sourceTypeId"' : 'link."targetTypeId"');
+    const fromId = Prisma.raw(outgoing ? 'link."sourceId"' : 'link."targetId"');
+    const toType = Prisma.raw(outgoing ? 'link."targetTypeId"' : 'link."sourceTypeId"');
+    const toId = Prisma.raw(outgoing ? 'link."targetId"' : 'link."sourceId"');
+    const owners = uniqueRefs(refs);
+    const found = new Map<string, RecordRef[]>();
+    for (let offset = 0; offset < owners.length; offset += BULK_READ_CHUNK) {
+      const chunk = owners.slice(offset, offset + BULK_READ_CHUNK);
+      const rows = await this.prisma.$queryRaw<
+        Array<{ fromTypeId: string; fromId: string; typeId: string; recordId: string }>
+      >(Prisma.sql`SELECT "fromTypeId", "fromId", "typeId", "recordId" FROM (
+          SELECT ${fromType} AS "fromTypeId", ${fromId} AS "fromId", ${toType} AS "typeId", ${toId} AS "recordId",
+            row_number() OVER (PARTITION BY ${fromType}, ${fromId}) AS position
+          FROM "RecordLink" link
+          WHERE link."companyId" = ${this.companyId} AND link."relationId" = ${relationId} AND link."deletedAt" IS NULL
+            AND (${fromType}, ${fromId}) IN (SELECT * FROM unnest(${chunk.map((ref) => ref.typeId)}::text[], ${chunk.map((ref) => ref.recordId)}::text[]))
+        ) ranked WHERE position <= ${take}`);
+      for (const row of rows) {
+        const key = `${row.fromTypeId}:${row.fromId}`;
+        found.set(key, [...(found.get(key) ?? []), { typeId: row.typeId, recordId: row.recordId }]);
+      }
+    }
+    return owners.map((ref) => ({ ref, linked: found.get(`${ref.typeId}:${ref.recordId}`) ?? [] }));
+  }
+
+  async linkedStageRecordsManyCompanyWide(
+    operationId: string,
+    refs: RecordRef[],
+    relationId: string,
+    direction: "outgoing" | "incoming",
+    take = 1000000,
+  ): Promise<Array<{ ref: RecordRef; linked: RecordRef[] }>> {
+    const outgoing = direction === "outgoing";
+    const sourceId = Prisma.raw(outgoing ? 'link."sourceId"' : 'link."targetId"');
+    const typeColumn = Prisma.raw(outgoing ? 'link."targetTypeId"' : 'link."sourceTypeId"');
+    const idColumn = Prisma.raw(outgoing ? 'link."targetId"' : 'link."sourceId"');
+    const sourceKey = outgoing ? "source" : "target";
+    const targetKey = outgoing ? "target" : "source";
+    const owners = uniqueRefs(refs);
+    const found = new Map<string, RecordRef[]>();
+    for (let offset = 0; offset < owners.length; offset += BULK_READ_CHUNK) {
+      const chunk = owners.slice(offset, offset + BULK_READ_CHUNK);
+      const ids = chunk.map((ref) => ref.recordId);
+      const rows = await this.prisma.$queryRaw<
+        Array<{ fromId: string; typeId: string; recordId: string }>
+      >(Prisma.sql`WITH candidates AS (
+        SELECT ${sourceId} AS "fromId", ${typeColumn} AS "typeId", ${idColumn} AS "recordId" FROM "RecordLink" link
+          WHERE link."companyId" = ${this.companyId} AND link."relationId" = ${relationId} AND link."deletedAt" IS NULL AND ${sourceId} = ANY(${ids}::text[])
+          AND NOT EXISTS (SELECT 1 FROM "RecordStageRow" stage WHERE stage."companyId" = ${this.companyId} AND stage."operationId" = ${operationId} AND stage.kind = 'link' AND stage.key = link."relationId" || ':' || link."sourceId" || ':' || link."targetId")
+        UNION SELECT stage.payload->${sourceKey}->>'recordId', stage.payload->${targetKey}->>'typeId', stage.payload->${targetKey}->>'recordId' FROM "RecordStageRow" stage
+          WHERE stage."companyId" = ${this.companyId} AND stage."operationId" = ${operationId} AND stage.kind = 'link' AND stage.payload->>'relationId' = ${relationId} AND stage.payload->${sourceKey}->>'recordId' = ANY(${ids}::text[]) AND NOT (stage.payload->>'deleted')::boolean
+      ), live AS (
+        SELECT candidates.*, row_number() OVER (PARTITION BY candidates."fromId" ORDER BY candidates."typeId", candidates."recordId") AS position
+        FROM candidates WHERE NOT EXISTS (SELECT 1 FROM "RecordStageRow" stage WHERE stage."companyId" = ${this.companyId} AND stage."operationId" = ${operationId} AND stage.kind = 'record' AND stage.key = candidates."typeId" || ':' || candidates."recordId" AND (stage.payload->>'deleted')::boolean)
+      ) SELECT "fromId", "typeId", "recordId" FROM live WHERE position <= ${take} ORDER BY "fromId", "typeId", "recordId"`);
+      for (const row of rows)
+        found.set(row.fromId, [...(found.get(row.fromId) ?? []), { typeId: row.typeId, recordId: row.recordId }]);
+    }
+    return owners.map((ref) => ({ ref, linked: found.get(ref.recordId) ?? [] }));
   }
 
   async linkedStageRecordsCompanyWide(

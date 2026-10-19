@@ -16,8 +16,7 @@ import type { RecordConfigurationWriter } from "./record-configuration-writer";
 import { purgeTrashOfDeletedLists } from "./record-configuration-writer";
 import { MutateRecordSchema } from "./record-query.schema";
 import type { RecordWriteService } from "./record-write.service";
-import type { RecordCalculationService } from "./record-calculation.service";
-import { calculationSources, recordKey } from "./record-calculation.service";
+import { RecordCalculationService, calculationSources, recordKey } from "./record-calculation.service";
 import { createRecordStagingRepo } from "./record-staging.repository";
 import { validateRecordModel } from "./record-model-validation";
 import { deterministicId } from "./crm-preset";
@@ -62,6 +61,8 @@ function progress(operation: { processed: number; total: number }, units: number
   return { processed, total: Math.max(operation.total, processed) };
 }
 const BATCH_SIZE = 50;
+/** Records of one field recalculated per step: their reads and writes are batched, so a step stays a few seconds. */
+const CALCULATION_PAGE_SIZE = 500;
 const RESTORE_PAGE_SIZE = 200;
 
 export class RecordOperationService extends UserAccessor {
@@ -284,22 +285,21 @@ export class RecordOperationService extends UserAccessor {
             const total =
               operation.total ||
               operation.processed + (await this.remainingUnits(staged, [], fields.slice(cursor.index)));
-            const refs = await staged.getRecordRefsCompanyWide(field.typeId, cursor.afterId, BATCH_SIZE);
-            for (const ref of refs) {
-              if (
-                field.behavior.kind === "snapshot" &&
-                !sources.captures.some(
+            const pageSize = RecordCalculationService.batching ? CALCULATION_PAGE_SIZE : BATCH_SIZE;
+            const refs = await staged.getRecordRefsCompanyWide(field.typeId, cursor.afterId, pageSize);
+            const calculated = refs.filter(
+              (ref) =>
+                field.behavior.kind !== "snapshot" ||
+                sources.captures.some(
                   (capture) => recordKey(capture.ref) === recordKey(ref) && capture.fieldIds.includes(field.id),
-                )
-              )
-                continue;
-              await calculations.calculateField(model, ref, field.id, BACKGROUND_FANOUT_LIMIT);
-            }
+                ),
+            );
+            await calculations.calculateFields(model, calculated, field.id, BACKGROUND_FANOUT_LIMIT);
             await journal.persist();
             await this.records.updateOperation(operationId, {
               ...progress({ ...operation, total }, refs.length),
               cursor:
-                refs.length === BATCH_SIZE
+                refs.length === pageSize
                   ? {
                       ...cursor,
                       afterId: recordInvariant(refs.at(-1)).recordId,

@@ -36,22 +36,17 @@ export function historyPublications(field: RecordField, model: RecordModel) {
   return [...publications.values()].sort((a, b) => compareRecordKey(a.fieldId, b.fieldId));
 }
 
-async function snapshot(
-  records: RecordRepo,
-  ref: RecordRef,
+function snapshotOf(
+  row: NonNullable<Awaited<ReturnType<RecordRepo["getRecordCompanyWide"]>>>,
+  dependencies: Map<string, RecordRef[]>,
+  identities: Awaited<ReturnType<RecordRepo["getIdentitiesCompanyWide"]>>,
   model: RecordModel,
-): Promise<RecordHistorySnapshot | null> {
-  const row = await records.getRecordCompanyWide(ref);
-  if (!row) return null;
-  const dependencies = new Map(
-    (await records.getRecordDependenciesCompanyWide(ref)).map((entry) => [entry.fieldId, entry.sources]),
-  );
-  const identities = recordChannelsField(model, ref.typeId) ? await records.getIdentitiesCompanyWide(ref) : [];
+): RecordHistorySnapshot {
   return {
     version: row.version,
     assignedUserIds: row.assignments.map((assignment) => assignment.userId).sort(),
     values: model.fields
-      .filter((field) => field.typeId === ref.typeId && row.values.some((value) => value.fieldId === field.id))
+      .filter((field) => field.typeId === row.typeId && row.values.some((value) => value.fieldId === field.id))
       .sort((a, b) => compareRecordKey(a.id, b.id))
       .map((field) => ({
         fieldId: field.id,
@@ -79,6 +74,52 @@ async function snapshot(
       }))
       .sort((a, b) => compareRecordKey(a.id, b.id)),
   };
+}
+
+async function snapshot(
+  records: RecordRepo,
+  ref: RecordRef,
+  model: RecordModel,
+): Promise<RecordHistorySnapshot | null> {
+  const row = await records.getRecordCompanyWide(ref);
+  if (!row) return null;
+  const dependencies = new Map(
+    (await records.getRecordDependenciesCompanyWide(ref)).map((entry) => [entry.fieldId, entry.sources]),
+  );
+  const identities = recordChannelsField(model, ref.typeId) ? await records.getIdentitiesCompanyWide(ref) : [];
+  return snapshotOf(row, dependencies, identities, model);
+}
+
+const SNAPSHOT_CHUNK = 500;
+
+/** `snapshot` of many records with one read of their rows and one of their value dependencies per chunk. */
+async function snapshots(
+  records: RecordRepo,
+  refs: RecordRef[],
+  model: RecordModel,
+): Promise<Map<string, RecordHistorySnapshot | null>> {
+  const rows = new Map<string, NonNullable<Awaited<ReturnType<RecordRepo["getRecordCompanyWide"]>>>>();
+  for (let offset = 0; offset < refs.length; offset += SNAPSHOT_CHUNK) {
+    for (const row of await records.getRecordsCompanyWide(refs.slice(offset, offset + SNAPSHOT_CHUNK)))
+      rows.set(recordKey({ typeId: row.typeId, recordId: row.id }), row);
+  }
+  const live = refs.filter((ref) => rows.has(recordKey(ref)));
+  const dependencies = new Map(
+    (live.length ? await records.getRecordDependenciesManyCompanyWide(live) : []).map((entry) => [
+      recordKey(entry.ref),
+      new Map(entry.dependencies.map((dependency) => [dependency.fieldId, dependency.sources])),
+    ]),
+  );
+  const result = new Map<string, RecordHistorySnapshot | null>();
+  for (const ref of refs) {
+    const row = rows.get(recordKey(ref));
+    const identities = row && recordChannelsField(model, ref.typeId) ? await records.getIdentitiesCompanyWide(ref) : [];
+    result.set(
+      recordKey(ref),
+      row ? snapshotOf(row, dependencies.get(recordKey(ref)) ?? new Map(), identities, model) : null,
+    );
+  }
+  return result;
 }
 
 export function recordEventChanges(
@@ -166,9 +207,17 @@ export class RecordJournal {
         await this.capture(ref);
         await records.setValue(ref, fieldId, result, revision);
       },
+      setValues: async (values) => {
+        await this.captureMany(values.map((value) => value.ref));
+        await records.setValues(values);
+      },
       setValueDependencies: async (ref, fieldId, sources) => {
         await this.capture(ref);
         await records.setValueDependencies(ref, fieldId, sources);
+      },
+      setValueDependenciesMany: async (dependencies) => {
+        await this.captureMany(dependencies.map((dependency) => dependency.ref));
+        await records.setValueDependenciesMany(dependencies);
       },
       setAssignments: async (ref, userIds) => {
         await this.capture(ref);
@@ -217,14 +266,11 @@ export class RecordJournal {
 
   async persist(): Promise<void> {
     if (!this.staging) return;
-    for (const key of this.dirty) {
-      await this.staging.base.stageRow(
-        this.staging.operationId,
-        "journal",
-        key,
-        recordInvariant(this.entries.get(key)),
-      );
-    }
+    await this.staging.base.stageRows(
+      this.staging.operationId,
+      "journal",
+      [...this.dirty].map((key) => ({ key, payload: recordInvariant(this.entries.get(key)) })),
+    );
     this.dirty.clear();
   }
 
@@ -235,10 +281,8 @@ export class RecordJournal {
   }
 
   async prepareRestore(refs: RecordRef[]): Promise<void> {
-    for (const ref of refs) {
-      await this.capture(ref);
-      this.restored.add(recordKey(ref));
-    }
+    await this.captureMany(refs);
+    for (const ref of refs) this.restored.add(recordKey(ref));
   }
 
   async restoreLink(link: { relationId: string; source: RecordRef; target: RecordRef }): Promise<void> {
@@ -266,6 +310,36 @@ export class RecordJournal {
     this.entries.set(key, entry);
     if (!saved) this.markDirty(entry);
     return entry;
+  }
+
+  /** `capture` of many records, in their order, reading the snapshots of the new ones together. */
+  private async captureMany(refs: RecordRef[]): Promise<void> {
+    const pending = [...new Map(refs.map((ref) => [recordKey(ref), ref])).values()].filter(
+      (ref) => !this.entries.has(recordKey(ref)),
+    );
+    if (pending.length <= 1) {
+      for (const ref of pending) await this.capture(ref);
+      return;
+    }
+    const saved = this.staging
+      ? new Map(
+          (await this.staging.base.getStageRowsByKeys(this.staging.operationId, "journal", pending.map(recordKey))).map(
+            (row) => [row.key, row.payload],
+          ),
+        )
+      : new Map<string, unknown>();
+    const fresh = pending.filter((ref) => !saved.has(recordKey(ref)));
+    const before = fresh.length ? await snapshots(this.records, fresh, this.previous) : new Map();
+    for (const ref of pending) {
+      const key = recordKey(ref);
+      if (this.entries.size >= this.limit) throw unwindFailure(CustomErrorCode.recordCalculationBudget, "conflict");
+      const stored = saved.get(key);
+      const entry = stored
+        ? RecordJournalEntrySchema.parse(stored)
+        : { ref, before: before.get(key) ?? null, links: [] };
+      this.entries.set(key, entry);
+      if (!stored) this.markDirty(entry);
+    }
   }
 
   private async linkChange(
