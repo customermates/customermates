@@ -328,7 +328,7 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
               })
               .strict()
               .describe(
-                "Move a list, field (including a Channels field) or relationship to Trash, where it can be restored for 30 days. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion.",
+                "Move a list, field (including a contact details field) or relationship to Trash, where it can be restored for 30 days. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion.",
               ),
             ...(trashOperations
               ? ([

@@ -1097,7 +1097,7 @@
       "billingPortalUnavailable": "El portal de facturación no está disponible para este espacio de trabajo. Contacta con soporte para hacer cambios.",
       "calendarEventNotFound": "ID de evento de calendario no encontrado o no accesible.",
       "calendarNotFound": "ID de calendario no encontrado o no accesible.",
-      "channelAlreadyLinked": "Este canal ya está vinculado a otro contacto.",
+      "channelAlreadyLinked": "Este número de teléfono, dirección de correo o perfil ya está vinculado a otro registro.",
       "chatThreadRequired": "Este es un hilo de correo. Responde con un correo en lugar de un mensaje de chat.",
       "connectedAccountEmailChangeRequired": "Indica una firma, la configuración de correo o ambas.",
       "connectedAccountNotFound": "ID de canal no encontrado o no accesible.",
@@ -1634,7 +1634,7 @@
         "allowance": "Asignación",
         "amount": "Importe",
         "avatarUrl": "Avatar",
-        "channels": "Canales",
+        "channels": "Datos de contacto",
         "createdAt": "Creado el",
         "credits": "Créditos",
         "description": "Descripción",
@@ -2112,7 +2112,6 @@
         "invalidBoolean": "«{value}» no es sí ni no.",
         "invalidChannel": "«{value}» no es una dirección de correo electrónico, un número de teléfono ni un enlace de perfil.",
         "invalidDate": "«{value}» no es una fecha.",
-        "invalidEmail": "«{value}» no es una dirección de correo electrónico.",
         "invalidNumber": "«{value}» no es un número.",
         "invalidRecordId": "«{value}» no es un ID de registro.",
         "invalidUrl": "«{value}» no es una dirección web que empiece por http:// o https://.",
@@ -2372,14 +2371,14 @@
       "searchPlaceholder": "Busca o pega un correo, un número de teléfono o una cuenta social…",
       "sourceConversations": "De tus conversaciones",
       "sourceLookup": "Encontrado por búsqueda",
-      "trigger": "Añadir canal"
+      "trigger": "Añadir teléfono, correo o perfil"
     },
     "ariaStartThread": "Redactar un mensaje de {provider}",
-    "ariaUnlink": "Desvincular el canal de {provider}",
+    "ariaUnlink": "Desvincular {provider}",
     "compose": {
       "noAccount": "No hay ninguna cuenta de {provider} utilizable conectada. Conecta una en Mi perfil."
     },
-    "emptyHint": "Aún no hay canales. Direcciones de correo, números de teléfono y cuentas sociales que asocian los mensajes con este registro.",
+    "emptyHint": "Aún no hay datos de contacto. Números de teléfono, direcciones de correo y perfiles sociales que asocian los mensajes con este registro.",
     "groups": {
       "email": "Correo electrónico",
       "phone": "Teléfono",
@@ -2387,7 +2386,7 @@
     },
     "tooltipOpenInbox": "Ir a la bandeja de entrada",
     "tooltipStartNewThread": "Mensaje nuevo",
-    "tooltipUnlinkChannel": "Desvincular el canal",
+    "tooltipUnlinkChannel": "Desvincular",
     "tooltipUnverified": "Este perfil aún no se ha confirmado. Se comprueba automáticamente cuando envías tu primer mensaje.",
     "unverified": "Sin verificar"
   },
@@ -3450,7 +3449,7 @@
     "addInput": "Añadir entrada",
     "addMenu": {
       "calculation": "Campo calculado",
-      "channels": "Canales",
+      "channels": "Datos de contacto",
       "field": "Campo",
       "list": "Lista",
       "relationship": "Relación",
@@ -3669,7 +3668,7 @@
       "oneToOne": "Uno a uno"
     },
     "changeBlocked": "Este cambio todavía no se puede aplicar",
-    "channelsHelp": "Direcciones de correo, números de teléfono y cuentas sociales que asocian los mensajes con este registro. Un número de teléfono también asocia los chats de WhatsApp del mismo número. Un identificador puede vincularse con varios registros.",
+    "channelsHelp": "Números de teléfono, direcciones de correo y perfiles sociales que asocian los mensajes con este registro. Un número de teléfono también asocia los chats de WhatsApp del mismo número. Cada dato puede vincularse con varios registros.",
     "chooseOption": "Elige una de las opciones del campo.",
     "clickAction": "Al hacer clic",
     "clickActions": {
@@ -3936,7 +3935,7 @@
       "wrench": "Mantenimiento"
     },
     "iconSearch": "Buscar iconos",
-    "identityChannels": "Canales",
+    "identityChannels": "Datos de contacto",
     "invalidConfiguration": "Este cambio requiere revisión antes de aplicarlo.",
     "lineFields": {
       "amount": "Importe",
@@ -4035,7 +4034,7 @@
       "cardinality": "Cuántos registros se vinculan",
       "labelRequired": "Introduce una etiqueta.",
       "listRequired": "Elige una lista para vincular.",
-      "messagesHelp": "Los mensajes proceden de registros vinculados con canales o de conversaciones vinculadas. Los permisos de registros y mensajes siguen aplicándose.",
+      "messagesHelp": "Los mensajes proceden de registros vinculados con datos de contacto o de conversaciones vinculadas. Los permisos de registros y mensajes siguen aplicándose.",
       "onDelete": "Al eliminar",
       "otherList": "la lista vinculada",
       "pathRequired": "Añade al menos un paso de relación.",
@@ -4110,20 +4109,19 @@
     "triggerValue": "A este valor",
     "typeHints": {
       "address": "Direcciones postales con país",
-      "channels": "Direcciones de correo, números de teléfono y cuentas sociales",
+      "channels": "Números de teléfono, direcciones de correo y perfiles sociales",
       "file": "Documentos, imágenes, contratos",
       "richText": "Notas, descripciones, resúmenes"
     },
     "types": {
       "address": "Dirección",
       "boolean": "Sí o no",
-      "channels": "Canales",
+      "channels": "Teléfono, correo y redes sociales",
       "currency": "Importe",
       "date": "Fecha",
       "dateRange": "Intervalo de fechas",
       "dateTime": "Fecha y hora",
       "dateTimeRange": "Intervalo de fechas y horas",
-      "email": "Correo electrónico",
       "file": "Archivo",
       "member": "Miembro",
       "multiSelect": "Opción múltiple",
@@ -4138,7 +4136,7 @@
     "unlinkRecord": "Desvincular {name}",
     "untitledRecord": "{singular} sin nombre",
     "updatedAt": "Actualizado el",
-    "useChannelAvatar": "Usar la foto de perfil del canal",
+    "useChannelAvatar": "Usar la foto de un perfil social",
     "usedBy": {
       "blocking": "Impediría la eliminación",
       "blockingCount": "{count, plural, one {# impediría la eliminación} other {# impedirían la eliminación}}",

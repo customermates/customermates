@@ -1097,7 +1097,7 @@
       "billingPortalUnavailable": "Il portale di fatturazione non è disponibile per questo spazio di lavoro. Contatta l’assistenza per apportare modifiche.",
       "calendarEventNotFound": "ID evento del calendario non trovato o non accessibile.",
       "calendarNotFound": "ID del calendario non trovato o non accessibile.",
-      "channelAlreadyLinked": "Questo canale è già collegato a un altro contatto.",
+      "channelAlreadyLinked": "Questo numero di telefono, indirizzo e-mail o profilo è già collegato a un altro record.",
       "chatThreadRequired": "Questo è un thread email. Rispondi con un'email invece che con un messaggio di chat.",
       "connectedAccountEmailChangeRequired": "Indica una firma, le impostazioni email o entrambe.",
       "connectedAccountNotFound": "ID canale non trovato o non accessibile.",
@@ -1634,7 +1634,7 @@
         "allowance": "Dotazione",
         "amount": "Importo",
         "avatarUrl": "Avatar",
-        "channels": "Canali",
+        "channels": "Recapiti",
         "createdAt": "Creato il",
         "credits": "Crediti",
         "description": "Descrizione",
@@ -2112,7 +2112,6 @@
         "invalidBoolean": "«{value}» non è né sì né no.",
         "invalidChannel": "«{value}» non è un indirizzo email, un numero di telefono né un link a un profilo.",
         "invalidDate": "«{value}» non è una data.",
-        "invalidEmail": "«{value}» non è un indirizzo email.",
         "invalidNumber": "«{value}» non è un numero.",
         "invalidRecordId": "«{value}» non è un ID record.",
         "invalidUrl": "«{value}» non è un indirizzo web che inizia con http:// o https://.",
@@ -2372,14 +2371,14 @@
       "searchPlaceholder": "Cerca o incolla un'e-mail, un numero di telefono o un account social…",
       "sourceConversations": "Dalle tue conversazioni",
       "sourceLookup": "Trovato tramite ricerca",
-      "trigger": "Aggiungi canale"
+      "trigger": "Aggiungi telefono, e-mail o profilo"
     },
     "ariaStartThread": "Scrivi un messaggio {provider}",
-    "ariaUnlink": "Scollega il canale {provider}",
+    "ariaUnlink": "Scollega {provider}",
     "compose": {
       "noAccount": "Nessun account {provider} utilizzabile è collegato. Collegane uno nella sezione Il mio profilo."
     },
-    "emptyHint": "Ancora nessun canale. Indirizzi e-mail, numeri di telefono e account social che associano i messaggi a questo record.",
+    "emptyHint": "Ancora nessun recapito. Numeri di telefono, indirizzi e-mail e profili social che associano i messaggi a questo record.",
     "groups": {
       "email": "E-mail",
       "phone": "Telefono",
@@ -2387,7 +2386,7 @@
     },
     "tooltipOpenInbox": "Vai alla posta in arrivo",
     "tooltipStartNewThread": "Nuovo messaggio",
-    "tooltipUnlinkChannel": "Scollega il canale",
+    "tooltipUnlinkChannel": "Scollega",
     "tooltipUnverified": "Questo profilo non è ancora stato confermato. Viene verificato automaticamente quando invii il primo messaggio.",
     "unverified": "Non verificato"
   },
@@ -3450,7 +3449,7 @@
     "addInput": "Aggiungi input",
     "addMenu": {
       "calculation": "Campo calcolato",
-      "channels": "Canali",
+      "channels": "Recapiti",
       "field": "Campo",
       "list": "Lista",
       "relationship": "Relazione",
@@ -3669,7 +3668,7 @@
       "oneToOne": "Uno a uno"
     },
     "changeBlocked": "Questa modifica non può ancora essere applicata",
-    "channelsHelp": "Indirizzi e-mail, numeri di telefono e account social che associano i messaggi a questo record. Un numero di telefono associa anche le chat WhatsApp dello stesso numero. Un identificatore può essere collegato a più record.",
+    "channelsHelp": "Numeri di telefono, indirizzi e-mail e profili social che associano i messaggi a questo record. Un numero di telefono associa anche le chat WhatsApp dello stesso numero. Ogni recapito può essere collegato a più record.",
     "chooseOption": "Scegli una delle opzioni del campo.",
     "clickAction": "Al clic",
     "clickActions": {
@@ -3936,7 +3935,7 @@
       "wrench": "Manutenzione"
     },
     "iconSearch": "Cerca icone",
-    "identityChannels": "Canali",
+    "identityChannels": "Recapiti",
     "invalidConfiguration": "Questa modifica deve essere verificata prima di applicarla.",
     "lineFields": {
       "amount": "Importo",
@@ -4035,7 +4034,7 @@
       "cardinality": "Quanti record sono collegati",
       "labelRequired": "Inserisci un’etichetta.",
       "listRequired": "Scegli una lista da collegare.",
-      "messagesHelp": "I messaggi provengono da record collegati con canali o da conversazioni collegate. I permessi su record e messaggi restano validi.",
+      "messagesHelp": "I messaggi provengono da record collegati con recapiti o da conversazioni collegate. I permessi su record e messaggi restano validi.",
       "onDelete": "All'eliminazione",
       "otherList": "la lista collegata",
       "pathRequired": "Aggiungi almeno un passaggio di relazione.",
@@ -4110,20 +4109,19 @@
     "triggerValue": "A questo valore",
     "typeHints": {
       "address": "Indirizzi postali con paese",
-      "channels": "Indirizzi e-mail, numeri di telefono e account social",
+      "channels": "Numeri di telefono, indirizzi e-mail e profili social",
       "file": "Documenti, immagini, contratti",
       "richText": "Note, descrizioni, riepiloghi"
     },
     "types": {
       "address": "Indirizzo",
       "boolean": "Sì o no",
-      "channels": "Canali",
+      "channels": "Telefono, e-mail e social",
       "currency": "Importo",
       "date": "Data",
       "dateRange": "Intervallo di date",
       "dateTime": "Data e ora",
       "dateTimeRange": "Intervallo di date e ore",
-      "email": "Email",
       "file": "File",
       "member": "Membro",
       "multiSelect": "Scelta multipla",
@@ -4138,7 +4136,7 @@
     "unlinkRecord": "Scollega {name}",
     "untitledRecord": "{singular} senza nome",
     "updatedAt": "Aggiornato il",
-    "useChannelAvatar": "Usa l’immagine del profilo del canale",
+    "useChannelAvatar": "Usa la foto di un profilo social",
     "usedBy": {
       "blocking": "Bloccherebbe l'eliminazione",
       "blockingCount": "{count, plural, one {# bloccherebbe l'eliminazione} other {# bloccherebbero l'eliminazione}}",

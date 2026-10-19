@@ -239,7 +239,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
       if (kind === "relationship") relationModal.edit(model, typeId);
       if (kind === "sublist") typeModal.editSublist(model, typeId);
       if (kind === "channels")
-        fieldModal.edit(model, typeId, null, { valueType: "channels", label: t("RecordModel.types.channels") });
+        fieldModal.edit(model, typeId, null, { valueType: "channels", label: t("Common.table.columns.channels") });
     },
     [fieldModal, model, relationModal, t, typeModal],
   );

@@ -1097,7 +1097,7 @@
       "billingPortalUnavailable": "Das Abrechnungsportal ist für diesen Workspace nicht verfügbar. Wende dich für Änderungen an den Support.",
       "calendarEventNotFound": "Kalenderereignis-ID nicht gefunden oder nicht zugänglich.",
       "calendarNotFound": "Kalender-ID nicht gefunden oder nicht zugänglich.",
-      "channelAlreadyLinked": "Dieser Kanal ist bereits mit einem anderen Kontakt verknüpft.",
+      "channelAlreadyLinked": "Diese Telefonnummer, E-Mail-Adresse oder dieses Profil ist bereits mit einem anderen Datensatz verknüpft.",
       "chatThreadRequired": "Dies ist ein E-Mail-Verlauf. Antworte darauf mit einer E-Mail statt mit einer Chatnachricht.",
       "connectedAccountEmailChangeRequired": "Übergeben Sie eine Signatur, E-Mail-Einstellungen oder beides.",
       "connectedAccountNotFound": "Kanal-ID nicht gefunden oder nicht zugänglich.",
@@ -1634,7 +1634,7 @@
         "allowance": "Kontingent",
         "amount": "Betrag",
         "avatarUrl": "Avatar",
-        "channels": "Kanäle",
+        "channels": "Kontaktdaten",
         "createdAt": "Erstellt am",
         "credits": "Guthaben",
         "description": "Beschreibung",
@@ -2112,7 +2112,6 @@
         "invalidBoolean": "„{value}“ ist weder Ja noch Nein.",
         "invalidChannel": "„{value}“ ist keine E-Mail-Adresse, keine Telefonnummer und kein Profil-Link.",
         "invalidDate": "„{value}“ ist kein Datum.",
-        "invalidEmail": "„{value}“ ist keine E-Mail-Adresse.",
         "invalidNumber": "„{value}“ ist keine Zahl.",
         "invalidRecordId": "„{value}“ ist keine Datensatz-ID.",
         "invalidUrl": "„{value}“ ist keine Webadresse mit http:// oder https://.",
@@ -2372,14 +2371,14 @@
       "searchPlaceholder": "Suchen oder E-Mail, Telefonnummer oder Social-Media-Konto einfügen…",
       "sourceConversations": "Aus deinen Konversationen",
       "sourceLookup": "Per Suche gefunden",
-      "trigger": "Kanal hinzufügen"
+      "trigger": "Telefon, E-Mail oder Profil hinzufügen"
     },
     "ariaStartThread": "{provider} Nachricht verfassen",
-    "ariaUnlink": "{provider}-Kanal entfernen",
+    "ariaUnlink": "{provider} entfernen",
     "compose": {
       "noAccount": "Kein nutzbares {provider} Konto verbunden. Verbinde eines unter Einstellungen › Kanäle."
     },
-    "emptyHint": "Noch keine Kanäle. E-Mail-Adressen, Telefonnummern und Social-Media-Konten, über die Nachrichten diesem Datensatz zugeordnet werden.",
+    "emptyHint": "Noch keine Kontaktdaten. Telefonnummern, E-Mail-Adressen und Social-Media-Profile, über die Nachrichten diesem Datensatz zugeordnet werden.",
     "groups": {
       "email": "E-Mail",
       "phone": "Telefon",
@@ -2387,7 +2386,7 @@
     },
     "tooltipOpenInbox": "Zum Posteingang",
     "tooltipStartNewThread": "Neue Nachricht",
-    "tooltipUnlinkChannel": "Kanal entfernen",
+    "tooltipUnlinkChannel": "Entfernen",
     "tooltipUnverified": "Dieses Profil wurde noch nicht bestätigt. Es wird automatisch geprüft, sobald du die erste Nachricht sendest.",
     "unverified": "Unbestätigt"
   },
@@ -3450,7 +3449,7 @@
     "addInput": "Eingabe hinzufügen",
     "addMenu": {
       "calculation": "Berechnetes Feld",
-      "channels": "Kanäle",
+      "channels": "Kontaktdaten",
       "field": "Feld",
       "list": "Liste",
       "relationship": "Beziehung",
@@ -3669,7 +3668,7 @@
       "oneToOne": "Eins zu eins"
     },
     "changeBlocked": "Diese Änderung kann noch nicht übernommen werden",
-    "channelsHelp": "E-Mail-Adressen, Telefonnummern und Social-Media-Konten, über die Nachrichten diesem Datensatz zugeordnet werden. Eine Telefonnummer ordnet auch WhatsApp-Chats derselben Nummer zu. Eine Kennung kann mit mehreren Datensätzen verknüpft sein.",
+    "channelsHelp": "Telefonnummern, E-Mail-Adressen und Social-Media-Profile, über die Nachrichten diesem Datensatz zugeordnet werden. Eine Telefonnummer ordnet auch WhatsApp-Chats derselben Nummer zu. Jede Angabe kann zu mehreren Datensätzen gehören.",
     "chooseOption": "Wähle eine der Optionen des Felds.",
     "clickAction": "Beim Klicken",
     "clickActions": {
@@ -3936,7 +3935,7 @@
       "wrench": "Wartung"
     },
     "iconSearch": "Symbole suchen",
-    "identityChannels": "Kanäle",
+    "identityChannels": "Kontaktdaten",
     "invalidConfiguration": "Diese Änderung muss vor dem Anwenden überprüft werden.",
     "lineFields": {
       "amount": "Betrag",
@@ -4035,7 +4034,7 @@
       "cardinality": "Wie viele Datensätze verknüpft sind",
       "labelRequired": "Gib eine Bezeichnung ein.",
       "listRequired": "Wähle eine Liste zum Verknüpfen aus.",
-      "messagesHelp": "Nachrichten stammen von verknüpften Datensätzen mit Kanälen oder verknüpften Unterhaltungen. Berechtigungen für Datensätze und Nachrichten gelten weiterhin.",
+      "messagesHelp": "Nachrichten stammen von verknüpften Datensätzen mit Kontaktdaten oder verknüpften Unterhaltungen. Berechtigungen für Datensätze und Nachrichten gelten weiterhin.",
       "onDelete": "Beim Löschen",
       "otherList": "der verknüpften Liste",
       "pathRequired": "Füge mindestens einen Beziehungsschritt hinzu.",
@@ -4110,20 +4109,19 @@
     "triggerValue": "Auf diesen Wert",
     "typeHints": {
       "address": "Postanschriften mit Land",
-      "channels": "E-Mail-Adressen, Telefonnummern und Social-Media-Konten",
+      "channels": "Telefonnummern, E-Mail-Adressen und Social-Media-Profile",
       "file": "Dokumente, Bilder, Verträge",
       "richText": "Notizen, Beschreibungen, Zusammenfassungen"
     },
     "types": {
       "address": "Adresse",
       "boolean": "Ja oder nein",
-      "channels": "Kanäle",
+      "channels": "Telefon, E-Mail & Social Media",
       "currency": "Geldbetrag",
       "date": "Datum",
       "dateRange": "Datumsbereich",
       "dateTime": "Datum und Uhrzeit",
       "dateTimeRange": "Datums- und Zeitbereich",
-      "email": "E-Mail",
       "file": "Datei",
       "member": "Mitglied",
       "multiSelect": "Mehrfachauswahl",
@@ -4138,7 +4136,7 @@
     "unlinkRecord": "Verknüpfung mit {name} entfernen",
     "untitledRecord": "{singular} ohne Namen",
     "updatedAt": "Aktualisiert am",
-    "useChannelAvatar": "Profilbild des Kanals verwenden",
+    "useChannelAvatar": "Profilbild eines Social-Media-Profils verwenden",
     "usedBy": {
       "blocking": "Würde das Löschen verhindern",
       "blockingCount": "{count, plural, one {# verhindert das Löschen} other {# verhindern das Löschen}}",

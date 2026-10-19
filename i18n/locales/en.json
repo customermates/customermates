@@ -1097,7 +1097,7 @@
       "billingPortalUnavailable": "The billing portal is not available for this workspace. Contact support to make changes.",
       "calendarEventNotFound": "Calendar event ID not found or not accessible.",
       "calendarNotFound": "Calendar ID not found or not accessible.",
-      "channelAlreadyLinked": "This channel is already linked to another contact.",
+      "channelAlreadyLinked": "This phone number, email address or profile is already linked to another record.",
       "chatThreadRequired": "This is an email thread. Send an email to reply to it instead of a chat message.",
       "connectedAccountEmailChangeRequired": "Pass a signature, email settings or both.",
       "connectedAccountNotFound": "Channel ID not found or not accessible.",
@@ -1634,7 +1634,7 @@
         "allowance": "Allowance",
         "amount": "Amount",
         "avatarUrl": "Avatar",
-        "channels": "Channels",
+        "channels": "Contact details",
         "createdAt": "Created at",
         "credits": "Credits",
         "description": "Description",
@@ -2112,7 +2112,6 @@
         "invalidBoolean": "“{value}” is not yes or no.",
         "invalidChannel": "“{value}” is not an email address, phone number or profile link.",
         "invalidDate": "“{value}” is not a date.",
-        "invalidEmail": "“{value}” is not an email address.",
         "invalidNumber": "“{value}” is not a number.",
         "invalidRecordId": "“{value}” is not a record ID.",
         "invalidUrl": "“{value}” is not a web address starting with http:// or https://.",
@@ -2372,14 +2371,14 @@
       "searchPlaceholder": "Search or paste an email, phone number or social account…",
       "sourceConversations": "From your conversations",
       "sourceLookup": "Found by lookup",
-      "trigger": "Add channel"
+      "trigger": "Add phone, email or profile"
     },
     "ariaStartThread": "Compose {provider} message",
-    "ariaUnlink": "Unlink {provider} channel",
+    "ariaUnlink": "Unlink {provider}",
     "compose": {
       "noAccount": "No usable {provider} account is connected. Connect one under Settings › Channels."
     },
-    "emptyHint": "No channels yet. Email addresses, phone numbers and social accounts that match messages to this record.",
+    "emptyHint": "No contact details yet. Phone numbers, email addresses and social profiles that match messages to this record.",
     "groups": {
       "email": "Email",
       "phone": "Phone",
@@ -2387,7 +2386,7 @@
     },
     "tooltipOpenInbox": "Go to inbox",
     "tooltipStartNewThread": "New message",
-    "tooltipUnlinkChannel": "Unlink channel",
+    "tooltipUnlinkChannel": "Unlink",
     "tooltipUnverified": "This profile hasn't been confirmed yet. It's checked automatically when you send your first message.",
     "unverified": "Unverified"
   },
@@ -3450,7 +3449,7 @@
     "addInput": "Add input",
     "addMenu": {
       "calculation": "Calculated field",
-      "channels": "Channels",
+      "channels": "Contact details",
       "field": "Field",
       "list": "List",
       "relationship": "Relationship",
@@ -3669,7 +3668,7 @@
       "oneToOne": "One to one"
     },
     "changeBlocked": "This change can't be applied yet",
-    "channelsHelp": "Email addresses, phone numbers and social accounts that match messages to this record. A phone number also matches WhatsApp chats from the same number. An identifier can link to several records.",
+    "channelsHelp": "Phone numbers, email addresses and social profiles that match messages to this record. A phone number also matches WhatsApp chats from the same number. Each of them can belong to several records.",
     "chooseOption": "Choose one of the field's options.",
     "clickAction": "On click",
     "clickActions": {
@@ -3936,7 +3935,7 @@
       "wrench": "Maintenance"
     },
     "iconSearch": "Search icons",
-    "identityChannels": "Channels",
+    "identityChannels": "Contact details",
     "invalidConfiguration": "This change needs attention before it can be applied.",
     "lineFields": {
       "amount": "Amount",
@@ -4035,7 +4034,7 @@
       "cardinality": "How many records link",
       "labelRequired": "Enter a label.",
       "listRequired": "Choose a list to link to.",
-      "messagesHelp": "Messages come from linked records with Channels or linked conversations. Record and message permissions still apply.",
+      "messagesHelp": "Messages come from linked records with contact details or linked conversations. Record and message permissions still apply.",
       "onDelete": "When deleted",
       "otherList": "the linked list",
       "pathRequired": "Add at least one relationship step.",
@@ -4110,20 +4109,19 @@
     "triggerValue": "To this value",
     "typeHints": {
       "address": "Postal addresses with country",
-      "channels": "Email addresses, phone numbers and social accounts",
+      "channels": "Phone numbers, email addresses and social profiles",
       "file": "Documents, images, contracts",
       "richText": "Notes, descriptions, summaries"
     },
     "types": {
       "address": "Address",
       "boolean": "Yes or no",
-      "channels": "Channels",
+      "channels": "Phone, email & social",
       "currency": "Money",
       "date": "Date",
       "dateRange": "Date range",
       "dateTime": "Date and time",
       "dateTimeRange": "Date and time range",
-      "email": "Email",
       "file": "File",
       "member": "Member",
       "multiSelect": "Multiple choice",
@@ -4138,7 +4136,7 @@
     "unlinkRecord": "Unlink {name}",
     "untitledRecord": "Untitled {singular}",
     "updatedAt": "Updated at",
-    "useChannelAvatar": "Use channel profile picture",
+    "useChannelAvatar": "Use a social profile's picture",
     "usedBy": {
       "blocking": "Would block deletion",
       "blockingCount": "{count, plural, one {# would block deletion} other {# would block deletion}}",

@@ -1097,7 +1097,7 @@
       "billingPortalUnavailable": "Le portail de facturation n’est pas disponible pour cet espace de travail. Contactez l’assistance pour effectuer des modifications.",
       "calendarEventNotFound": "ID d'évènement d'agenda introuvable ou inaccessible.",
       "calendarNotFound": "ID d'agenda introuvable ou inaccessible.",
-      "channelAlreadyLinked": "Ce canal est déjà lié à un autre contact.",
+      "channelAlreadyLinked": "Ce numéro de téléphone, cette adresse e-mail ou ce profil est déjà lié à une autre fiche.",
       "chatThreadRequired": "Ceci est un fil d'e-mails. Répondez par e-mail plutôt que par un message de chat.",
       "connectedAccountEmailChangeRequired": "Indiquez une signature, des paramètres d'e-mail ou les deux.",
       "connectedAccountNotFound": "ID de canal introuvable ou inaccessible.",
@@ -1634,7 +1634,7 @@
         "allowance": "Allocation",
         "amount": "Montant",
         "avatarUrl": "Avatar",
-        "channels": "Canaux",
+        "channels": "Coordonnées",
         "createdAt": "Créé le",
         "credits": "Crédits",
         "description": "Description",
@@ -2112,7 +2112,6 @@
         "invalidBoolean": "« {value} » n’est ni oui ni non.",
         "invalidChannel": "« {value} » n’est ni une adresse e-mail, ni un numéro de téléphone, ni un lien de profil.",
         "invalidDate": "« {value} » n’est pas une date.",
-        "invalidEmail": "« {value} » n’est pas une adresse e-mail.",
         "invalidNumber": "« {value} » n’est pas un nombre.",
         "invalidRecordId": "« {value} » n’est pas un ID de fiche.",
         "invalidUrl": "« {value} » n’est pas une adresse web commençant par http:// ou https://.",
@@ -2372,14 +2371,14 @@
       "searchPlaceholder": "Rechercher ou coller un e-mail, un numéro de téléphone ou un compte social…",
       "sourceConversations": "Depuis vos conversations",
       "sourceLookup": "Trouvé par recherche",
-      "trigger": "Ajouter un canal"
+      "trigger": "Ajouter un téléphone, un e-mail ou un profil"
     },
     "ariaStartThread": "Rédiger un message {provider}",
-    "ariaUnlink": "Dissocier le canal {provider}",
+    "ariaUnlink": "Dissocier {provider}",
     "compose": {
       "noAccount": "Aucun compte {provider} utilisable n'est connecté. Connectez-en un dans Mon profil."
     },
-    "emptyHint": "Aucun canal pour le moment. Adresses e-mail, numéros de téléphone et comptes sociaux qui associent les messages à cette fiche.",
+    "emptyHint": "Aucune coordonnée pour le moment. Numéros de téléphone, adresses e-mail et profils sociaux qui associent les messages à cette fiche.",
     "groups": {
       "email": "E-mail",
       "phone": "Téléphone",
@@ -2387,7 +2386,7 @@
     },
     "tooltipOpenInbox": "Aller à la boîte de réception",
     "tooltipStartNewThread": "Nouveau message",
-    "tooltipUnlinkChannel": "Dissocier le canal",
+    "tooltipUnlinkChannel": "Dissocier",
     "tooltipUnverified": "Ce profil n'a pas encore été confirmé. Il est vérifié automatiquement lors de l'envoi de votre premier message.",
     "unverified": "Non vérifié"
   },
@@ -3450,7 +3449,7 @@
     "addInput": "Ajouter une entrée",
     "addMenu": {
       "calculation": "Champ calculé",
-      "channels": "Canaux",
+      "channels": "Coordonnées",
       "field": "Champ",
       "list": "Liste",
       "relationship": "Relation",
@@ -3669,7 +3668,7 @@
       "oneToOne": "Un à un"
     },
     "changeBlocked": "Cette modification ne peut pas encore être appliquée",
-    "channelsHelp": "Adresses e-mail, numéros de téléphone et comptes sociaux qui associent les messages à cette fiche. Un numéro de téléphone associe aussi les discussions WhatsApp du même numéro. Un identifiant peut être lié à plusieurs fiches.",
+    "channelsHelp": "Numéros de téléphone, adresses e-mail et profils sociaux qui associent les messages à cette fiche. Un numéro de téléphone associe aussi les discussions WhatsApp du même numéro. Chaque coordonnée peut être liée à plusieurs fiches.",
     "chooseOption": "Choisissez l’une des options du champ.",
     "clickAction": "Au clic",
     "clickActions": {
@@ -3936,7 +3935,7 @@
       "wrench": "Maintenance"
     },
     "iconSearch": "Rechercher des icônes",
-    "identityChannels": "Canaux",
+    "identityChannels": "Coordonnées",
     "invalidConfiguration": "Cette modification doit être vérifiée avant son application.",
     "lineFields": {
       "amount": "Montant",
@@ -4035,7 +4034,7 @@
       "cardinality": "Nombre d’enregistrements liés",
       "labelRequired": "Saisissez un libellé.",
       "listRequired": "Choisissez une liste à lier.",
-      "messagesHelp": "Les messages proviennent d’éléments liés avec des canaux ou de conversations liées. Les droits sur les éléments et les messages s’appliquent toujours.",
+      "messagesHelp": "Les messages proviennent d’éléments liés avec des coordonnées ou de conversations liées. Les droits sur les éléments et les messages s’appliquent toujours.",
       "onDelete": "À la suppression",
       "otherList": "la liste liée",
       "pathRequired": "Ajoutez au moins une étape de relation.",
@@ -4110,20 +4109,19 @@
     "triggerValue": "À cette valeur",
     "typeHints": {
       "address": "Adresses postales avec pays",
-      "channels": "Adresses e-mail, numéros de téléphone et comptes sociaux",
+      "channels": "Numéros de téléphone, adresses e-mail et profils sociaux",
       "file": "Documents, images, contrats",
       "richText": "Notes, descriptions, résumés"
     },
     "types": {
       "address": "Adresse",
       "boolean": "Oui ou non",
-      "channels": "Canaux",
+      "channels": "Téléphone, e-mail et réseaux sociaux",
       "currency": "Montant",
       "date": "Date",
       "dateRange": "Période",
       "dateTime": "Date et heure",
       "dateTimeRange": "Période avec heures",
-      "email": "E-mail",
       "file": "Fichier",
       "member": "Membre",
       "multiSelect": "Choix multiple",
@@ -4138,7 +4136,7 @@
     "unlinkRecord": "Dissocier {name}",
     "untitledRecord": "{singular} sans nom",
     "updatedAt": "Mis à jour le",
-    "useChannelAvatar": "Utiliser la photo de profil du canal",
+    "useChannelAvatar": "Utiliser la photo d’un profil social",
     "usedBy": {
       "blocking": "Bloquerait la suppression",
       "blockingCount": "{count, plural, one {# bloquerait la suppression} other {# bloqueraient la suppression}}",
