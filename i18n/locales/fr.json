@@ -1232,7 +1232,7 @@
       "unipileUnknown": "Un problème est survenu entre Customermates et le fournisseur. Réessayer tel quel ne devrait pas aider ; contactez le support si cela se reproduit.",
       "userInactive": "Votre compte utilisateur est inactif. Contactez un administrateur de l’espace de travail.",
       "userNotFound": "ID d'utilisateur introuvable ou inaccessible.",
-      "userPlatformOperatorStatusForbidden": "C’est le seul compte actif du dernier opérateur de la plateforme : il ne peut donc pas être désactivé. Donnez d’abord l’accès opérateur à un autre identifiant.",
+      "userPlatformOperatorStatusForbidden": "C’est le seul compte actif du dernier opérateur de la plateforme Customermates : il ne peut donc pas être désactivé ici. Contactez le support Customermates.",
       "userRoleRequired": "Ce membre n’a pas encore de rôle. Choisissez un rôle avec la modification.",
       "userSelfAdminUpdateForbidden": "Vous ne pouvez pas mettre à jour votre propre compte depuis l’administration de l’équipe.",
       "userStatusRequired": "Ce membre attend une approbation. Choisissez actif ou inactif avec la modification.",
@@ -1274,13 +1274,13 @@
       "workspaceDeleteCheckoutPending": "Un paiement est en cours pour cet espace de travail. Annulez-le ou attendez qu'il se termine, puis supprimez l'espace de travail.",
       "workspaceDeleteInvoiced": "Les espaces de travail avec un forfait facturé sont fermés par le support. Contactez le support pour supprimer cet espace de travail.",
       "workspaceDeleteNotCreator": "Seul l'administrateur qui a créé cet espace de travail peut le supprimer.",
-      "workspaceDeletePlatformOperator": "Supprimer cet espace de travail ne laisserait aucun opérateur de la plateforme avec un compte actif. Donnez d’abord l’accès opérateur à un autre identifiant.",
+      "workspaceDeletePlatformOperator": "Supprimer cet espace de travail ne laisserait aucun opérateur de la plateforme Customermates avec un compte actif : il ne peut donc pas être supprimé ici. Contactez le support Customermates.",
       "workspaceInvitationInvalid": "Ce lien d'invitation n'est pas valide ou a expiré. Demandez un nouveau lien.",
       "workspaceLastAdmin": "Vous êtes le seul administrateur de cet espace de travail. Nommez un autre membre actif administrateur avant de partir.",
       "workspaceLimitReached": "Vous pouvez créer jusqu'à {limit} espaces de travail. Contactez le support si vous avez besoin de plus.",
       "workspaceMemberLastAdmin": "Ce membre est le seul administrateur actif de cet espace de travail. Nommez un autre membre actif administrateur avant de le retirer.",
       "workspaceMemberLeft": "Ce membre a quitté l'espace de travail. Il peut redemander à le rejoindre avec un lien d'invitation, et un administrateur doit approuver la demande.",
-      "workspaceMemberPlatformOperator": "C’est le seul compte actif du dernier opérateur de la plateforme : il ne peut donc pas être retiré. Donnez d’abord l’accès opérateur à un autre identifiant.",
+      "workspaceMemberPlatformOperator": "C’est le seul compte actif du dernier opérateur de la plateforme Customermates : il ne peut donc pas quitter l’espace ni en être retiré ici. Contactez le support Customermates.",
       "workspaceMemberRemoveSelf": "Vous ne pouvez pas vous retirer vous-même d'un espace de travail. Quittez-le plutôt.",
       "workspaceNotFound": "Cet espace de travail est introuvable ou vous n'en êtes pas membre.",
       "workspacePlanRequired": "Les clés API et les connexions MCP nécessitent une offre active pour cet espace de travail. Choisissez une offre pour les utiliser."
@@ -2802,7 +2802,7 @@
     "action": "Retirer de l'espace de travail",
     "blocked": {
       "lastAdmin": "{name} est le seul administrateur actif de cet espace de travail. Nommez d'abord un autre membre actif administrateur.",
-      "platformOperator": "C’est le seul compte actif du dernier opérateur de la plateforme. Donnez d’abord l’accès opérateur à un autre identifiant."
+      "platformOperator": "C’est le seul compte actif du dernier opérateur de la plateforme Customermates : il ne peut donc pas quitter l’espace ni en être retiré ici. Contactez le support Customermates."
     },
     "confirmDescription": "{name} perd l'accès à cet espace de travail sur tous ses appareils.",
     "confirmTitle": "Retirer {name} de {workspace} ?",
@@ -3178,7 +3178,7 @@
     "coverage": {
       "channelsInexactTimes": "Certaines heures de connexion ou de déconnexion sont estimées, ce maximum peut donc différer du nombre réel.",
       "channelsRecordedFrom": "Les changements de canaux sont enregistrés depuis le {date}. Les canaux retirés avant cette date manquent, ce maximum peut donc être trop bas.",
-      "footnote": "* Historique incomplet pour ce mois. Ouvrez l'espace de travail pour les détails.",
+      "footnote": "* Historique incomplet pour ce mois. Ouvrez l’espace de travail dans Espaces de travail pour en voir la raison.",
       "incomplete": "Historique incomplet",
       "seatsInexactTimes": "Certaines heures d'activation ou de désactivation sont estimées, ce nombre peut donc différer du nombre réel.",
       "seatsRecordedFrom": "Les changements de sièges sont enregistrés depuis le {date}. Les activations et désactivations antérieures sont reconstituées ou manquantes, ce nombre peut donc différer du nombre réel."
@@ -4747,7 +4747,7 @@
       "invoiced": "Les espaces de travail avec un forfait facturé sont fermés par le support. Contactez le support pour supprimer cet espace de travail.",
       "notAdmin": "Seul un administrateur peut supprimer cet espace de travail.",
       "notCreator": "Seul l'administrateur qui a créé cet espace de travail peut le supprimer.",
-      "platformOperator": "Supprimer cet espace de travail ne laisserait aucun opérateur de la plateforme avec un compte actif. Donnez d’abord l’accès opérateur à un autre identifiant."
+      "platformOperator": "Supprimer cet espace de travail ne laisserait aucun opérateur de la plateforme Customermates avec un compte actif : il ne peut donc pas être supprimé ici. Contactez le support Customermates."
     },
     "deleteConfirmDescription": "Ses fiches, sa base de connaissances, ses routines, ses webhooks et ses comptes connectés sont supprimés définitivement. Tous les membres perdent l'accès, et leurs clés API et connexions MCP associées cessent de fonctionner. Cette action est irréversible.",
     "deleteConfirmTitle": "Supprimer {name} ?",

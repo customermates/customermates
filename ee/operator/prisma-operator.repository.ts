@@ -20,8 +20,9 @@ import type { AgentUsageRepo } from "@/ee/agent-chat/agent-usage.repo";
 import { isAwaitingFirstPlan } from "@/ee/subscription/entitlements";
 
 import {
+  holdsPlatformOperatorsOnlyMembership,
   isPlatformOperatorEmail,
-  platformOperatorEmails,
+  otherPlatformOperatorCanAct,
   strandsLastPlatformOperator,
 } from "@/features/user/platform-operator-logins";
 
@@ -197,8 +198,6 @@ function toUsageTotals(input: {
     chargedMicrocents: charged.toString(),
   };
 }
-
-const PLATFORM_OPERATOR_INVARIANT_LOCK = "customermates:platform-operator-invariant";
 
 export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo {
   constructor(
@@ -572,7 +571,7 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
           COUNT(DISTINCT lower(member."email")) FILTER (WHERE member."status"::text = 'inactive')::bigint AS "inactive",
           COUNT(DISTINCT lower(member."email"))
             FILTER (WHERE member."status"::text = 'pendingAuthorization')::bigint AS "pendingAuthorization",
-          (SELECT COUNT(*) FROM "AuthUser" AS login WHERE login."isPlatformOperator")::bigint AS "platformOperators"
+          (SELECT COUNT(*) FROM "AuthUser" AS login WHERE login."isPlatformOperator" AND login."emailVerified")::bigint AS "platformOperators"
         FROM "User" AS member
       `,
       this.prisma.$queryRaw<Array<{ count: bigint }>>`
@@ -648,47 +647,6 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
     return (await this.userDetail(userId, now)) ?? "notFound";
   }
 
-  private async lockPlatformOperatorInvariant() {
-    await this.prisma
-      .$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${PLATFORM_OPERATOR_INVARIANT_LOCK}, 0))`;
-  }
-
-  private async removesOperatorsLastMembership(companyId: string) {
-    const emails = await platformOperatorEmails(this.prisma);
-    if (emails.length === 0) return false;
-
-    const operatorMembers = await this.prisma.user.findMany({
-      where: { companyId, email: { in: emails, mode: "insensitive" }, status: Status.active, leftAt: null },
-      select: { email: true },
-    });
-    for (const member of operatorMembers) {
-      const elsewhere = await this.prisma.user.findFirst({
-        where: {
-          companyId: { not: companyId },
-          email: { in: [member.email], mode: "insensitive" },
-          status: Status.active,
-          leftAt: null,
-        },
-        select: { id: true },
-      });
-      if (!elsewhere) return true;
-    }
-    return false;
-  }
-
-  private async otherOperatorLoginCanAct(excludedEmail: string) {
-    const emails = (await platformOperatorEmails(this.prisma)).filter(
-      (email) => normalizeOperatorEmail(email) !== excludedEmail,
-    );
-    if (emails.length === 0) return false;
-
-    const membership = await this.prisma.user.findFirst({
-      where: { email: { in: emails, mode: "insensitive" }, status: Status.active, leftAt: null },
-      select: { id: true },
-    });
-    return membership !== null;
-  }
-
   @BypassTenantGuard
   async updateUserStatusUnscoped(
     data: UpdateOperatorUserStatusData,
@@ -725,10 +683,7 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
         if (statusChanged && subscription?.lemonSqueezyId) return "conflict";
 
         const leavingActive = target.status === Status.active && data.status !== Status.active;
-        if (leavingActive) {
-          await this.lockPlatformOperatorInvariant();
-          if (await strandsLastPlatformOperator(this.prisma, { id: data.userId })) return "conflict";
-        }
+        if (leavingActive && (await strandsLastPlatformOperator(this.prisma, { id: data.userId }))) return "conflict";
         if (leavingActive && target.role?.isSystemRole) {
           const otherActiveSystemUsers = await this.prisma.user.count({
             where: {
@@ -841,10 +796,8 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
             select: { emailVerified: true },
           });
           if (!identity?.emailVerified) return "conflict";
-        } else if (previousIsPlatformOperator) {
-          await this.lockPlatformOperatorInvariant();
-          if (!(await this.otherOperatorLoginCanAct(email))) return "conflict";
-        }
+        } else if (previousIsPlatformOperator && !(await otherPlatformOperatorCanAct(this.prisma, email)))
+          return "conflict";
 
         await this.owners.users.setPlatformOperatorUnscoped(email, data.isPlatformOperator);
         await this.createAudit({
@@ -1190,8 +1143,7 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
 
         const workspaceLabel = workspaceLabelFor(company, company.users);
         if (data.confirmWorkspaceLabel !== workspaceLabel) return "conflict";
-        await this.lockPlatformOperatorInvariant();
-        if (await this.removesOperatorsLastMembership(data.companyId)) return "conflict";
+        if (await holdsPlatformOperatorsOnlyMembership(this.prisma, data.companyId)) return "conflict";
 
         const liveConnectedAccounts = await this.prisma.connectedAccount.count({
           where: {

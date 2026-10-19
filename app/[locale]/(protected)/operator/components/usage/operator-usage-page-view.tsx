@@ -6,6 +6,8 @@ import { useTranslations } from "next-intl";
 import { useMemo, useTransition } from "react";
 import { Download, Receipt } from "lucide-react";
 
+import { SubscriptionStatus } from "@/generated/prisma";
+
 import { SUBSCRIPTION_STATUS_COLOR_MAP } from "@/app/[locale]/(protected)/settings/(workspace)/components/subscription/subscription-panel";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -47,11 +49,11 @@ export function OperatorUsagePageView({ months, usage }: Props) {
 
   const payingBy = (billing: "lemonSqueezy" | "manual") =>
     usage.subscriptions.groups
-      .filter((group) => group.billing === billing && group.status === "active")
+      .filter((group) => group.billing === billing && group.status === SubscriptionStatus.active)
       .reduce((sum, group) => sum + group.workspaces, 0);
 
   const selectMonth = (month: string) =>
-    startTransition(() => router.replace(`${pathname}?month=${encodeURIComponent(month)}`));
+    startTransition(() => router.replace(`${pathname}?month=${encodeURIComponent(month)}`, { scroll: false }));
 
   return (
     <AppCard data-operator-usage-page>

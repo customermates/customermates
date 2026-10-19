@@ -125,25 +125,13 @@ function foreignTokenChallenge(resourceMetadataUrl: string) {
 }
 
 function foreignApiKey() {
-  return new Response(
-    JSON.stringify({
-      error: "workspace_mismatch",
-      message: FOREIGN_API_KEY_MESSAGE,
-    }),
-    {
-      status: 403,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-    },
-  );
+  return new Response(JSON.stringify({ error: "workspace_mismatch", message: FOREIGN_API_KEY_MESSAGE }), {
+    status: 403,
+    headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+  });
 }
 
-function credentialHeaders(request: Request): {
-  apiKey: boolean;
-  bearer: boolean;
-} {
+function credentialHeaders(request: Request): { apiKey: boolean; bearer: boolean } {
   return {
     apiKey: request.headers.has("x-api-key"),
     bearer: (request.headers.get("authorization") ?? "").toLowerCase().startsWith("bearer "),
@@ -187,10 +175,7 @@ function insufficientPermissions() {
     }),
     {
       status: 403,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
     },
   );
 }
@@ -198,20 +183,14 @@ function insufficientPermissions() {
 function planRequired(message: string) {
   return new Response(JSON.stringify({ error: "plan_required", message }), {
     status: 403,
-    headers: {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-    },
+    headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
   });
 }
 
 function inactiveUser(message: string) {
   return new Response(JSON.stringify({ error: "inactive_user", message }), {
     status: 403,
-    headers: {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-    },
+    headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
   });
 }
 
@@ -262,10 +241,7 @@ function unknownToolsets(unknown: string[], knownKeys: string[]) {
     }),
     {
       status: 400,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
     },
   );
 }
@@ -300,10 +276,7 @@ export function createMcpRoute(
 
     const activeKeys = toolsetKey === "" ? knownKeys : toolsetKey.split(",");
     const tools = [...mcpToolsForToolsets(toolGroups, activeKeys, alwaysOn), ...(operator ? operatorTools : [])];
-    const toolset = {
-      tools,
-      instructions: buildMcpServerInstructions(tools.map((tool) => tool.name)),
-    };
+    const toolset = { tools, instructions: buildMcpServerInstructions(tools.map((tool) => tool.name)) };
     toolsets.set(cacheKey, toolset);
     return toolset;
   }

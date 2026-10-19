@@ -134,6 +134,7 @@ export class DeleteWorkspaceInteractor extends AuthenticatedInteractor<DeleteWor
         const current = await this.repo.findDeletionSubjectUnscoped(companyId);
         if (!current || current.deletingAt?.getTime() !== markedAt.getTime())
           return failConflict(CustomErrorCode.workspaceChanged, ["companyId"]);
+        if (current.strandsLastPlatformOperator) return fail(WORKSPACE_DELETE_REFUSAL_CODES.platformOperator);
         const billing = env.APP_MODE === "cloud" ? workspaceBillingRefusal(current.subscription) : null;
         if (billing) return fail(WORKSPACE_DELETE_REFUSAL_CODES[billing]);
         if ((await this.accounts.listActiveAccountsForCompanyUnscoped(companyId)).length > 0)

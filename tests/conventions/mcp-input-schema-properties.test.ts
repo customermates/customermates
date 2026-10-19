@@ -23,12 +23,17 @@ describe("MCP tool input schemas", () => {
   it.each(ALL_MCP_TOOLS_WITH_OPERATOR.map((tool) => [tool.name, tool] as const))(
     "%s advertises its inputs to schema-driven clients",
     (name, tool) => {
-      const properties = Object.keys(advertisedInputSchema(tool.inputSchema).properties ?? {});
+      const properties = Object.keys(
+        advertisedInputSchema(tool.inputSchema).properties ?? {},
+      );
       if (NO_INPUT_TOOLS.has(name)) {
         expect(properties).toEqual([]);
         return;
       }
-      expect(properties.length, `${name} exports an input schema without properties`).toBeGreaterThan(0);
+      expect(
+        properties.length,
+        `${name} exports an input schema without properties`,
+      ).toBeGreaterThan(0);
     },
   );
 });

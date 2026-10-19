@@ -458,9 +458,9 @@ describeDatabase("billing usage ledger", { timeout: 120_000 }, () => {
     });
 
     const repo = new PrismaBillingUsageRepo();
-    const recorded = await repo.findRecordedWorkspacesUnscoped(null, 10_000);
+    const recorded = await repo.findWorkspacesToReconcileUnscoped(null, 10_000);
     expect(recorded).toEqual(expect.arrayContaining([kept.companyId, vanished.companyId]));
-    expect(await repo.findRecordedWorkspacesUnscoped(kept.companyId, 10_000)).not.toContain(kept.companyId);
+    expect(await repo.findWorkspacesToReconcileUnscoped(kept.companyId, 10_000)).not.toContain(kept.companyId);
     await repo.reconcileWorkspaceUnscoped(kept.companyId);
     await repo.reconcileWorkspaceUnscoped(vanished.companyId);
 
@@ -469,6 +469,18 @@ describeDatabase("billing usage ledger", { timeout: 120_000 }, () => {
     expect((await ledgerWorkspace(kept.companyId))?.deletedAt).toBeNull();
     expect(await intervals(vanished.companyId)).toMatchObject([{ endExact: false, email: null }]);
     expect((await ledgerWorkspace(vanished.companyId))?.deletedAt).toBeInstanceOf(Date);
-    expect(await repo.findRecordedWorkspacesUnscoped(null, 10_000)).not.toContain(vanished.companyId);
+    expect(await repo.findWorkspacesToReconcileUnscoped(null, 10_000)).not.toContain(vanished.companyId);
+  });
+
+  it("lets the daily sweep pick up a workspace that has no ledger row yet", async () => {
+    const unrecorded = await workspace();
+    expect(await ledgerWorkspace(unrecorded.companyId)).toBeNull();
+
+    const repo = new PrismaBillingUsageRepo();
+    expect(await repo.findWorkspacesToReconcileUnscoped(null, 10_000)).toContain(unrecorded.companyId);
+    await repo.reconcileWorkspaceUnscoped(unrecorded.companyId);
+
+    expect(await ledgerWorkspace(unrecorded.companyId)).toMatchObject({ deletedAt: null });
+    expect(await intervals(unrecorded.companyId)).toMatchObject([{ subjectId: unrecorded.userId, startExact: false }]);
   });
 });

@@ -58,13 +58,16 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
     const scope = args.companyId ? { companyId: args.companyId } : {};
     const [recorded, companies, intervals, recording] = await Promise.all([
       this.prisma.billingUsageWorkspace.findMany({
-        where: args.companyId ? { companyId: args.companyId } : { workspaceCreatedAt: { lt: args.before } },
+        where: args.companyId
+          ? { companyId: args.companyId }
+          : { workspaceCreatedAt: { lt: args.before }, OR: [{ deletedAt: null }, { deletedAt: { gt: args.from } }] },
         select: {
           companyId: true,
           workspaceCreatedAt: true,
           deletedAt: true,
           seatsRecordedFrom: true,
           channelsRecordedFrom: true,
+          workspaceLabel: true,
         },
       }),
       this.prisma.company.findMany({
@@ -121,7 +124,7 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
     const recordedIds = new Set(recorded.map((workspace) => workspace.companyId));
     const observedAt = new Date();
     const workspaces = [
-      ...recorded.map(({ workspaceCreatedAt, ...workspace }) => ({
+      ...recorded.map(({ workspaceCreatedAt, workspaceLabel: _label, ...workspace }) => ({
         ...workspace,
         createdAt: workspaceCreatedAt,
       })),
@@ -143,11 +146,21 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
       .filter((workspace) => workspace.deletedAt !== null)
       .map((workspace) => workspace.companyId);
 
+    const companyNames = new Map(companies.map((company) => [company.id, company.name]));
+    const unnamedIds = liveIds.filter((companyId) => !companyNames.get(companyId));
+    const recordedLabels = new Map(
+      recorded.flatMap((workspace) =>
+        workspace.workspaceLabel ? [[workspace.companyId, workspace.workspaceLabel]] : [],
+      ),
+    );
+    const unlabeledDeletedIds = deletedIds.filter((companyId) => !recordedLabels.has(companyId));
     const [members, activeSeats, connectedChannels, deletions] = await Promise.all([
-      this.prisma.user.findMany({
-        where: { companyId: { in: liveIds } },
-        select: { companyId: true, email: true },
-      }),
+      unnamedIds.length === 0
+        ? Promise.resolve([])
+        : this.prisma.user.findMany({
+            where: { companyId: { in: unnamedIds } },
+            select: { companyId: true, email: true },
+          }),
       this.prisma.user.groupBy({
         by: ["companyId"],
         where: {
@@ -165,12 +178,12 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
         },
         _count: { _all: true },
       }),
-      deletedIds.length === 0
+      unlabeledDeletedIds.length === 0
         ? Promise.resolve([])
         : this.prisma.operatorAuditEvent.findMany({
             where: {
               action: OPERATOR_AUDIT_ACTION.workspaceDelete,
-              targetCompanyId: { in: deletedIds },
+              targetCompanyId: { in: unlabeledDeletedIds },
             },
             select: { targetCompanyId: true, metadata: true },
             orderBy: { createdAt: "desc" },
@@ -183,7 +196,6 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
       list.push(member);
       membersByCompany.set(member.companyId, list);
     }
-    const companyNames = new Map(companies.map((company) => [company.id, company.name]));
     const subscriptions = new Map(
       companies.map((company) => [
         company.id,
@@ -211,7 +223,9 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
                 },
                 membersByCompany.get(workspace.companyId) ?? [],
               )
-            : (deletedLabels.get(workspace.companyId) ?? workspace.companyId.slice(0, 8)),
+            : (recordedLabels.get(workspace.companyId) ??
+              deletedLabels.get(workspace.companyId) ??
+              workspace.companyId.slice(0, 8)),
         createdAt: workspace.createdAt,
         deletedAt: workspace.deletedAt,
         seatsRecordedFrom: workspace.seatsRecordedFrom,

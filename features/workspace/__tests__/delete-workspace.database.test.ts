@@ -318,7 +318,19 @@ describeDatabase("deleting a workspace on PostgreSQL", { timeout: 240_000 }, () 
     expect(providerDelete).toHaveBeenCalledWith({ accountId: owned.unipileAccountId });
     expect(await exists(doomed.companyId)).toBe(false);
     const after = await companyScopedCounts(doomed.companyId);
-    expect(Object.entries(after).filter(([, count]) => count > 0)).toEqual([]);
+    expect(
+      Object.entries(after).filter(
+        ([model, count]) => count > 0 && model !== "BillingUsageInterval" && model !== "BillingUsageWorkspace",
+      ),
+    ).toEqual([]);
+    const usage = await client.query<{ deleted: boolean; label: string | null; identities: number }>(
+      `SELECT w."deletedAt" IS NOT NULL AS deleted, w."workspaceLabel" AS label,
+              (SELECT count(*)::int FROM "BillingUsageInterval" i
+               WHERE i."companyId" = w."companyId" AND (i."email" IS NOT NULL OR i."endedAt" IS NULL)) AS identities
+       FROM "BillingUsageWorkspace" w WHERE w."companyId" = $1`,
+      [doomed.companyId],
+    );
+    expect(usage.rows).toEqual([{ deleted: true, label: "Doomed", identities: 0 }]);
     expect(Object.keys(after).length).toBeGreaterThan(50);
     if (owned.workflowRunId) {
       const runs = await client.query('SELECT 1 FROM "workflow"."workflow_runs" WHERE "id" = $1', [

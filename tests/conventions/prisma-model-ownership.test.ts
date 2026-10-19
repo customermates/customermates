@@ -168,10 +168,9 @@ describe("Prisma model ownership", () => {
       const used = new Set(sites.map((site) => `${site.model} ${site.file}`));
       const stale = Object.keys(ALLOWLIST).filter((entry) => !used.has(entry));
       expect(stale, "The allowlist only shrinks: remove entries whose write moved to the owner").toEqual([]);
-      expect(
-        Object.keys(ALLOWLIST).length,
-        "The allowlist only shrinks: lower the ceiling with it",
-      ).toBeLessThanOrEqual(ALLOWLIST_CEILING);
+      expect(Object.keys(ALLOWLIST).length, "The allowlist only shrinks: lower the ceiling with it").toBeLessThanOrEqual(
+        ALLOWLIST_CEILING,
+      );
       for (const [entry, reason] of Object.entries(ALLOWLIST)) expect(reason.length, entry).toBeGreaterThan(40);
 
       const known = new Set(models());

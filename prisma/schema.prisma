@@ -737,6 +737,7 @@ model BillingUsageWorkspace {
   deletedAt            DateTime?
   seatsRecordedFrom    DateTime?
   channelsRecordedFrom DateTime?
+  workspaceLabel       String?
   createdAt            DateTime  @default(now())
 }
 

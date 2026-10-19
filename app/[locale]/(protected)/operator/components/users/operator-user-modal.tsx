@@ -238,6 +238,7 @@ export const OperatorUserModal = observer(function OperatorUserModal({ user, onC
                   confirmTitle={t("OperatorConsole.confirm.title")}
                   emptyLabel="-"
                   options={options.platformAccess}
+                  readOnly={detail?.isCurrentOperator ?? true}
                   value={String(user.isPlatformOperator)}
                   onCommit={(value) =>
                     operatorUsersStore.updatePlatformAccess({

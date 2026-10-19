@@ -1232,7 +1232,7 @@
       "unipileUnknown": "Something went wrong between Customermates and the provider. Retrying unchanged probably won't help; contact support if it keeps happening.",
       "userInactive": "Your user account is inactive. Contact a workspace administrator.",
       "userNotFound": "User ID not found or not accessible.",
-      "userPlatformOperatorStatusForbidden": "This is the last platform operator's only active account, so it cannot be deactivated. Give another login operator access first.",
+      "userPlatformOperatorStatusForbidden": "This is the only active account of the last Customermates platform operator, so it cannot be deactivated here. Contact Customermates support.",
       "userRoleRequired": "This member has no role yet. Choose a role together with the change.",
       "userSelfAdminUpdateForbidden": "You cannot update your own account through team administration.",
       "userStatusRequired": "This member is waiting for approval. Choose active or inactive together with the change.",
@@ -1274,13 +1274,13 @@
       "workspaceDeleteCheckoutPending": "A checkout for this workspace is in progress. Cancel it or wait until it finishes, then delete the workspace.",
       "workspaceDeleteInvoiced": "Workspaces on an invoiced plan are closed through support. Contact support to delete this workspace.",
       "workspaceDeleteNotCreator": "Only the admin who created this workspace can delete it.",
-      "workspaceDeletePlatformOperator": "Deleting this workspace would leave no platform operator with an active account. Give another login operator access first.",
+      "workspaceDeletePlatformOperator": "Deleting this workspace would leave no Customermates platform operator with an active account, so it cannot be deleted here. Contact Customermates support.",
       "workspaceInvitationInvalid": "This invitation link is invalid or has expired. Ask for a new link.",
       "workspaceLastAdmin": "You are the only admin of this workspace. Make another active member an admin before you leave.",
       "workspaceLimitReached": "You can create up to {limit} workspaces. Contact support if you need more.",
       "workspaceMemberLastAdmin": "This member is the only active admin of this workspace. Make another active member an admin before you remove them.",
       "workspaceMemberLeft": "This member left the workspace. They can ask to join again with an invitation link, and an admin has to approve the request.",
-      "workspaceMemberPlatformOperator": "This is the last platform operator's only active account, so it cannot be removed. Give another login operator access first.",
+      "workspaceMemberPlatformOperator": "This is the only active account of the last Customermates platform operator, so it cannot leave or be removed here. Contact Customermates support.",
       "workspaceMemberRemoveSelf": "You cannot remove yourself from a workspace. Leave it instead.",
       "workspaceNotFound": "This workspace was not found or you are not a member.",
       "workspacePlanRequired": "API keys and MCP connections need an active plan for this workspace. Choose a plan to use them."
@@ -2802,7 +2802,7 @@
     "action": "Remove from workspace",
     "blocked": {
       "lastAdmin": "{name} is the only active admin of this workspace. Make another active member an admin first.",
-      "platformOperator": "This is the last platform operator's only active account. Give another login operator access first."
+      "platformOperator": "This is the only active account of the last Customermates platform operator, so it cannot leave or be removed here. Contact Customermates support."
     },
     "confirmDescription": "{name} loses access to this workspace on every device.",
     "confirmTitle": "Remove {name} from {workspace}?",
@@ -3178,7 +3178,7 @@
     "coverage": {
       "channelsInexactTimes": "Some connect or disconnect times are estimated, so this peak can differ from the true number.",
       "channelsRecordedFrom": "Channel changes are recorded from {date}. Channels removed before then are missing, so this peak may be too low.",
-      "footnote": "* Incomplete history for this month. Open the workspace for details.",
+      "footnote": "* Incomplete history for this month. Open the workspace under Workspaces to see why.",
       "incomplete": "Incomplete history",
       "seatsInexactTimes": "Some activation or deactivation times are estimated, so this count can differ from the true number.",
       "seatsRecordedFrom": "Seat changes are recorded from {date}. Earlier activations and deactivations are reconstructed or missing, so this count can differ from the true number."
@@ -4747,7 +4747,7 @@
       "invoiced": "Workspaces on an invoiced plan are closed through support. Contact support to delete this workspace.",
       "notAdmin": "Only an admin can delete this workspace.",
       "notCreator": "Only the admin who created this workspace can delete it.",
-      "platformOperator": "Deleting this workspace would leave no platform operator with an active account. Give another login operator access first."
+      "platformOperator": "Deleting this workspace would leave no Customermates platform operator with an active account, so it cannot be deleted here. Contact Customermates support."
     },
     "deleteConfirmDescription": "This permanently deletes its records, Knowledge Base, routines, webhooks and connected accounts. Every member loses access, and their API keys and MCP connections for it stop working. This can't be undone.",
     "deleteConfirmTitle": "Delete {name}?",

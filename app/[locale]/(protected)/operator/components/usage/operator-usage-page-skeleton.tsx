@@ -3,7 +3,7 @@ import { cn } from "@/core/utils/cn";
 
 type Props = { animated?: boolean };
 
-const COLUMNS = ["w-40", "w-12", "w-12", "w-24", "w-12", "w-12"];
+const COLUMNS = ["w-40", "w-16", "w-16", "w-12", "w-12", "w-24", "w-12", "w-12"];
 const ROWS = Array.from({ length: 8 }, (_, index) => index);
 
 export function OperatorUsagePageSkeleton({ animated = true }: Props) {

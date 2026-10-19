@@ -16,7 +16,10 @@ import { requiresApproval } from "@/ee/agent-chat/gated-tools";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
 import { ALL_MCP_TOOLS, ALL_MCP_TOOLS_WITH_OPERATOR } from "@/features/mcp-tools/tool-registry";
 import { CONTENT_LOCALES } from "@/i18n/locale-registry";
-import { UNTRUSTED_RECORD_TEXT_CLOSE, UNTRUSTED_RECORD_TEXT_OPEN } from "@/features/mcp-tools/untrusted-record-content";
+import {
+  UNTRUSTED_RECORD_TEXT_CLOSE,
+  UNTRUSTED_RECORD_TEXT_OPEN,
+} from "@/features/mcp-tools/untrusted-record-content";
 
 const MCP_SERVER_INSTRUCTIONS = buildMcpServerInstructions(ALL_MCP_TOOLS.map(({ name }) => name));
 const EXTERNAL_TEXTS = { MCP_SERVER_INSTRUCTIONS, GET_STARTED_PROMPT };

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const invoke = vi.hoisted(() => vi.fn());
 const mockEnv = vi.hoisted(() => ({
-  APP_MODE: "cloud" as "cloud" | "demo",
+  APP_MODE: "cloud" as "cloud" | "demo" | "self-hosted",
   CRON_SECRET: "test-cron-secret" as string | undefined,
   VERCEL_ENV: "production" as "production" | "preview",
 }));
@@ -34,9 +34,11 @@ describe("billing usage cron", () => {
     expect(invoke).not.toHaveBeenCalled();
   });
 
-  it("skips demo and preview environments", async () => {
+  it("skips demo, self-hosted and preview environments", async () => {
     mockEnv.APP_MODE = "demo";
     await expect((await GET(request("Bearer test-cron-secret"))).json()).resolves.toEqual({ skipped: "demo-mode" });
+    mockEnv.APP_MODE = "self-hosted";
+    await expect((await GET(request("Bearer test-cron-secret"))).json()).resolves.toEqual({ skipped: "self-hosted" });
     mockEnv.APP_MODE = "cloud";
     mockEnv.VERCEL_ENV = "preview";
     await expect((await GET(request("Bearer test-cron-secret"))).json()).resolves.toEqual({

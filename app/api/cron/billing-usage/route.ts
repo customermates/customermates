@@ -10,6 +10,7 @@ export async function GET(req: Request) {
     return new Response("Unauthorized", { status: 401 });
 
   if (env.APP_MODE === "demo") return Response.json({ skipped: "demo-mode" });
+  if (env.APP_MODE === "self-hosted") return Response.json({ skipped: "self-hosted" });
   if (env.VERCEL_ENV === "preview") return Response.json({ skipped: "preview-environment" });
 
   return Response.json({

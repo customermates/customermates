@@ -37,10 +37,10 @@ async function inRolledBackTransaction(fn: (tx: AppPrismaClient) => Promise<void
   }
 }
 
-async function login(tx: AppPrismaClient, isPlatformOperator: boolean) {
+async function login(tx: AppPrismaClient, isPlatformOperator: boolean, emailVerified = true) {
   const email = `operator-login-${randomUUID()}@example.invalid`;
   await tx.authUser.create({
-    data: { id: randomUUID(), email, name: "Login", emailVerified: true, isPlatformOperator },
+    data: { id: randomUUID(), email, name: "Login", emailVerified, isPlatformOperator },
   });
   return email;
 }
@@ -94,5 +94,28 @@ describeDatabase("strandsLastPlatformOperator", { timeout: 120_000 }, () => {
       bothWithPeer: false,
       bothWithInactivePeer: true,
     });
+  });
+
+  it("does not count a membership that cannot act: one in a workspace being deleted or of an unverified login", async () => {
+    let observed: Record<string, boolean> | null = null;
+
+    await inRolledBackTransaction(async (tx) => {
+      const operator = await login(tx, true);
+      const kept = await membership(tx, operator);
+      const elsewhere = await membership(tx, operator);
+      const beforeDeletion = await strandsLastPlatformOperator(tx, { id: kept.userId });
+      await tx.company.update({ where: { id: elsewhere.companyId }, data: { deletingAt: new Date() } });
+      const whileDeleting = await strandsLastPlatformOperator(tx, { id: kept.userId });
+      await tx.company.update({ where: { id: elsewhere.companyId }, data: { deletingAt: null } });
+
+      const unverified = await login(tx, true, false);
+      await membership(tx, unverified);
+      await tx.user.update({ where: { id: elsewhere.userId }, data: { status: "inactive" } });
+      const withUnverifiedPeer = await strandsLastPlatformOperator(tx, { id: kept.userId });
+
+      observed = { beforeDeletion, whileDeleting, withUnverifiedPeer };
+    });
+
+    expect(observed).toEqual({ beforeDeletion: false, whileDeleting: true, withUnverifiedPeer: true });
   });
 });

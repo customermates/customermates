@@ -4,6 +4,7 @@ import type { ReconcileBillingUsageRepo } from "./reconcile-billing-usage.repo";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { BillingUsageKind, ConnectedAccountStatus, Status } from "@/generated/prisma";
+import { workspaceLabelFor } from "@/ee/operator/workspace-label";
 
 type Snapshot = {
   firstName: string | null;
@@ -28,18 +29,25 @@ function sameIdentity(a: Snapshot, b: Snapshot): boolean {
 
 export class PrismaBillingUsageRepo extends TenantRepository implements BillingUsageRepo, ReconcileBillingUsageRepo {
   @BypassTenantGuard
-  async findRecordedWorkspacesUnscoped(after: string | null, limit: number): Promise<string[]> {
-    const workspaces = await this.prisma.billingUsageWorkspace.findMany({
-      where: {
-        deletedAt: null,
-        ...(after ? { companyId: { gt: after } } : {}),
-      },
-      orderBy: { companyId: "asc" },
-      take: limit,
-      select: { companyId: true },
-    });
+  async findWorkspacesToReconcileUnscoped(after: string | null, limit: number): Promise<string[]> {
+    const [recorded, companies] = await Promise.all([
+      this.prisma.billingUsageWorkspace.findMany({
+        where: { deletedAt: null, ...(after ? { companyId: { gt: after } } : {}) },
+        orderBy: { companyId: "asc" },
+        take: limit,
+        select: { companyId: true },
+      }),
+      this.prisma.company.findMany({
+        where: after ? { id: { gt: after } } : {},
+        orderBy: { id: "asc" },
+        take: limit,
+        select: { id: true },
+      }),
+    ]);
 
-    return workspaces.map((workspace) => workspace.companyId);
+    return [...new Set([...recorded.map((row) => row.companyId), ...companies.map((company) => company.id)])]
+      .sort()
+      .slice(0, limit);
   }
 
   @BypassTenantGuard
@@ -132,6 +140,16 @@ export class PrismaBillingUsageRepo extends TenantRepository implements BillingU
     }
     const now = new Date();
     await this.ensureWorkspace(companyId, now);
+    const company = await this.prisma.company.findFirst({
+      where: { id: companyId },
+      select: { id: true, name: true, users: { select: { email: true } } },
+    });
+    if (company) {
+      await this.prisma.billingUsageWorkspace.updateMany({
+        where: { companyId, deletedAt: null },
+        data: { workspaceLabel: workspaceLabelFor(company, company.users) },
+      });
+    }
 
     await this.prisma.billingUsageInterval.updateMany({
       where: { companyId, endedAt: null },

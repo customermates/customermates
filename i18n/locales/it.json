@@ -1232,7 +1232,7 @@
       "unipileUnknown": "Qualcosa è andato storto tra Customermates e il provider. Riprovare senza modifiche probabilmente non servirà; contatta il supporto se succede di nuovo.",
       "userInactive": "Il tuo account utente è inattivo. Contatta un amministratore dello spazio di lavoro.",
       "userNotFound": "ID utente non trovato o non accessibile.",
-      "userPlatformOperatorStatusForbidden": "Questo è l’unico account attivo dell’ultimo operatore della piattaforma, quindi non può essere disattivato. Prima concedi l’accesso da operatore a un altro login.",
+      "userPlatformOperatorStatusForbidden": "Questo è l’unico account attivo dell’ultimo operatore della piattaforma Customermates, quindi non può essere disattivato qui. Contatta il supporto Customermates.",
       "userRoleRequired": "Questo membro non ha ancora un ruolo. Scegli un ruolo insieme alla modifica.",
       "userSelfAdminUpdateForbidden": "Non puoi aggiornare il tuo account dall’amministrazione del team.",
       "userStatusRequired": "Questo membro è in attesa di approvazione. Scegli attivo o inattivo insieme alla modifica.",
@@ -1274,13 +1274,13 @@
       "workspaceDeleteCheckoutPending": "È in corso un pagamento per questo spazio di lavoro. Annullalo o attendi che finisca, poi elimina lo spazio di lavoro.",
       "workspaceDeleteInvoiced": "Gli spazi di lavoro con un piano fatturato vengono chiusi dall'assistenza. Contatta l'assistenza per eliminare questo spazio di lavoro.",
       "workspaceDeleteNotCreator": "Solo l'amministratore che ha creato questo spazio di lavoro può eliminarlo.",
-      "workspaceDeletePlatformOperator": "Eliminando questo spazio di lavoro nessun operatore della piattaforma avrebbe più un account attivo. Prima concedi l’accesso da operatore a un altro login.",
+      "workspaceDeletePlatformOperator": "Eliminando questo spazio di lavoro nessun operatore della piattaforma Customermates avrebbe più un account attivo, quindi non può essere eliminato qui. Contatta il supporto Customermates.",
       "workspaceInvitationInvalid": "Questo link di invito non è valido o è scaduto. Chiedi un nuovo link.",
       "workspaceLastAdmin": "Sei l'unico amministratore di questo spazio di lavoro. Rendi amministratore un altro membro attivo prima di uscire.",
       "workspaceLimitReached": "Puoi creare fino a {limit} spazi di lavoro. Contatta l'assistenza se te ne servono di più.",
       "workspaceMemberLastAdmin": "Questo membro è l'unico amministratore attivo di questo spazio di lavoro. Rendi amministratore un altro membro attivo prima di rimuoverlo.",
       "workspaceMemberLeft": "Questo membro ha lasciato lo spazio di lavoro. Può chiedere di nuovo di unirsi con un link di invito e un amministratore deve approvare la richiesta.",
-      "workspaceMemberPlatformOperator": "Questo è l’unico account attivo dell’ultimo operatore della piattaforma, quindi non può essere rimosso. Prima concedi l’accesso da operatore a un altro login.",
+      "workspaceMemberPlatformOperator": "Questo è l’unico account attivo dell’ultimo operatore della piattaforma Customermates, quindi non può uscire né essere rimosso qui. Contatta il supporto Customermates.",
       "workspaceMemberRemoveSelf": "Non puoi rimuovere te stesso da uno spazio di lavoro. Esci invece dallo spazio di lavoro.",
       "workspaceNotFound": "Questo spazio di lavoro non è stato trovato o non ne fai parte.",
       "workspacePlanRequired": "Le chiavi API e le connessioni MCP richiedono un piano attivo per questo spazio di lavoro. Scegli un piano per usarle."
@@ -2802,7 +2802,7 @@
     "action": "Rimuovi dallo spazio di lavoro",
     "blocked": {
       "lastAdmin": "{name} è l'unico amministratore attivo di questo spazio di lavoro. Rendi prima amministratore un altro membro attivo.",
-      "platformOperator": "Questo è l’unico account attivo dell’ultimo operatore della piattaforma. Prima concedi l’accesso da operatore a un altro login."
+      "platformOperator": "Questo è l’unico account attivo dell’ultimo operatore della piattaforma Customermates, quindi non può uscire né essere rimosso qui. Contatta il supporto Customermates."
     },
     "confirmDescription": "{name} perde l'accesso a questo spazio di lavoro su tutti i dispositivi.",
     "confirmTitle": "Rimuovere {name} da {workspace}?",
@@ -3178,7 +3178,7 @@
     "coverage": {
       "channelsInexactTimes": "Alcuni orari di collegamento o scollegamento sono stimati, quindi questo picco può differire da quello reale.",
       "channelsRecordedFrom": "Le modifiche ai canali sono registrate dal {date}. Mancano i canali rimossi prima, quindi questo picco potrebbe essere troppo basso.",
-      "footnote": "* Cronologia incompleta per questo mese. Apri lo spazio di lavoro per i dettagli.",
+      "footnote": "* Cronologia incompleta per questo mese. Apri lo spazio di lavoro nella sezione Aree di lavoro per vederne il motivo.",
       "incomplete": "Cronologia incompleta",
       "seatsInexactTimes": "Alcuni orari di attivazione o disattivazione sono stimati, quindi questo numero può differire da quello reale.",
       "seatsRecordedFrom": "Le modifiche alle postazioni sono registrate dal {date}. Attivazioni e disattivazioni precedenti sono ricostruite o mancanti, quindi questo numero può differire da quello reale."
@@ -4747,7 +4747,7 @@
       "invoiced": "Gli spazi di lavoro con un piano fatturato vengono chiusi dall'assistenza. Contatta l'assistenza per eliminare questo spazio di lavoro.",
       "notAdmin": "Solo un amministratore può eliminare questo spazio di lavoro.",
       "notCreator": "Solo l'amministratore che ha creato questo spazio di lavoro può eliminarlo.",
-      "platformOperator": "Eliminando questo spazio di lavoro nessun operatore della piattaforma avrebbe più un account attivo. Prima concedi l’accesso da operatore a un altro login."
+      "platformOperator": "Eliminando questo spazio di lavoro nessun operatore della piattaforma Customermates avrebbe più un account attivo, quindi non può essere eliminato qui. Contatta il supporto Customermates."
     },
     "deleteConfirmDescription": "Vengono eliminati definitivamente i suoi record, la base di conoscenza, le routine, i webhook e gli account collegati. Tutti i membri perdono l'accesso e le loro chiavi API e connessioni MCP associate smettono di funzionare. L'operazione non si può annullare.",
     "deleteConfirmTitle": "Eliminare {name}?",

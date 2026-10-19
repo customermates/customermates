@@ -1,4 +1,4 @@
-import { operatorCollator } from "./operator-list-filters";
+import { operatorCollator } from "./operator-collator";
 
 export function workspaceLabelFor(
   company: { id: string; name: string | null },

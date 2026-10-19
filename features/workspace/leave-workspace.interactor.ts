@@ -50,8 +50,7 @@ export class LeaveWorkspaceInteractor extends AuthenticatedInteractor<LeaveWorks
           return failConflict(CustomErrorCode.workspaceChanged, ["companyId"]);
 
         const blocked = await workspaceLeaveRefusal(member, { members: this.repo, roles: this.roleRepo });
-        if (blocked === "platformOperator")
-          return failAuthorization(CustomErrorCode.userPlatformOperatorStatusForbidden);
+        if (blocked === "platformOperator") return failAuthorization(CustomErrorCode.workspaceMemberPlatformOperator);
         if (blocked === "lastAdmin") return fail(CustomErrorCode.workspaceLastAdmin);
 
         if (!(await this.repo.leaveCompanyWide(userId)))

@@ -1,3 +1,5 @@
+import type { WorkspaceSubscriptionDto } from "../billing-usage.schema";
+
 import { describe, expect, it } from "vitest";
 
 import {
@@ -11,8 +13,6 @@ import {
   type BillingUsageIntervalRow,
   type BillingUsageWorkspaceRow,
 } from "../billing-usage";
-import type { WorkspaceSubscriptionDto } from "../billing-usage.schema";
-
 import { billingUsageSummaryCsv } from "../billing-usage-csv";
 
 const SEPTEMBER = billingUsageWindow("2026-09");

@@ -31,9 +31,7 @@ function unsupportedGrouping(spec: GroupableFieldSpec): never {
   throw new Error(`Operator lists cannot group by ${spec.kind} (${spec.model}.${spec.field})`);
 }
 
-export function operatorCollator(): Pick<Intl.Collator, "compare"> {
-  return { compare: (left, right) => (left < right ? -1 : left > right ? 1 : 0) };
-}
+export { operatorCollator } from "./operator-collator";
 
 export function groupScopeToFilters(scope: GroupScope): Filter[] | undefined {
   const { spec, key } = scope;
@@ -160,7 +158,7 @@ class SubscriptionConditions {
 
 export function partitionOperatorUserFilters(
   filters: Filter[] | undefined,
-  platformOperatorEmails: readonly string[] = [],
+  platformOperatorEmails: readonly string[],
 ): {
   baseWhere: Prisma.UserWhereInput;
   passthrough: Filter[];

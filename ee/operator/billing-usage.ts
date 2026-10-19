@@ -10,7 +10,7 @@ import type {
 import { SubscriptionStatus } from "@/generated/prisma";
 
 import { BILLING_USAGE_MONTH_PATTERN } from "./billing-usage.schema";
-import { operatorCollator } from "./operator-list-filters";
+import { operatorCollator } from "./operator-collator";
 
 export type BillingUsageIntervalRow = {
   kind: "seat" | "channel";

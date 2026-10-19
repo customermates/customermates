@@ -29,6 +29,7 @@ CREATE TABLE "BillingUsageWorkspace" (
     "deletedAt" TIMESTAMP(3),
     "seatsRecordedFrom" TIMESTAMP(3),
     "channelsRecordedFrom" TIMESTAMP(3),
+    "workspaceLabel" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "BillingUsageWorkspace_pkey" PRIMARY KEY ("companyId")
@@ -49,11 +50,13 @@ CREATE UNIQUE INDEX "BillingUsageInterval_open_subject_key" ON "BillingUsageInte
 
 -- Backfill the workspaces that exist now. Their earlier seat changes are unknown. The
 -- activity log holds the connected-account history since the messaging migration cleared
--- all earlier accounts, so channel changes are known from its first entry.
+-- all earlier accounts, so channel changes are known from its first connected-account entry.
 INSERT INTO "BillingUsageWorkspace" ("companyId", "workspaceCreatedAt", "seatsRecordedFrom", "channelsRecordedFrom")
 SELECT c."id", c."createdAt", CURRENT_TIMESTAMP, CASE WHEN c."createdAt" < h."startedAt" THEN h."startedAt" END
 FROM "Company" c
-CROSS JOIN (SELECT COALESCE(MIN("createdAt"), CURRENT_TIMESTAMP) AS "startedAt" FROM "EventLog") h;
+CROSS JOIN (
+    SELECT COALESCE(MIN("createdAt"), CURRENT_TIMESTAMP) AS "startedAt" FROM "EventLog" WHERE "subjectKind" = 'connected_account'
+) h;
 
 -- Users active now count from their latest activation; that start is inferred.
 INSERT INTO "BillingUsageInterval" (

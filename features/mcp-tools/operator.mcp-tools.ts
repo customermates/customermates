@@ -39,7 +39,7 @@ export const getOperatorUsageTool = {
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: GetOperatorUsageSchema,
   outputSchema: GetOperatorUsageOutputSchema,
-  execute: (params: z.input<typeof GetOperatorUsageSchema>) =>
+  execute: (params: z.infer<typeof GetOperatorUsageSchema>) =>
     runInteractor(getGetOperatorBillingUsageInteractor().invoke(params), (data) =>
       toonResult(formatDatesInResponse(data)),
     ),

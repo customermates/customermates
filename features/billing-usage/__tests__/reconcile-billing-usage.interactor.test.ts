@@ -11,18 +11,18 @@ const second = "1b0f8f0e-41a4-4a8f-9c1e-7d3c56f4e002";
 describe("billing usage reconciliation", () => {
   it("pages through every recorded workspace and starts one reconciliation per workspace", async () => {
     const companies = Array.from({ length: 200 }, (_, index) => `${index}`.padStart(3, "0"));
-    const findRecordedWorkspacesUnscoped = vi
+    const findWorkspacesToReconcileUnscoped = vi
       .fn()
       .mockResolvedValueOnce(companies)
       .mockResolvedValueOnce([first, second]);
     const dispatch = vi.fn().mockResolvedValue(undefined);
     const sweep = new ReconcileBillingUsageInteractor(
-      { findRecordedWorkspacesUnscoped, reconcileWorkspaceUnscoped: vi.fn() },
+      { findWorkspacesToReconcileUnscoped, reconcileWorkspaceUnscoped: vi.fn() },
       { dispatch },
     );
 
     await expect(sweep.invoke()).resolves.toEqual({ dispatched: 202 });
-    expect(findRecordedWorkspacesUnscoped.mock.calls).toEqual([
+    expect(findWorkspacesToReconcileUnscoped.mock.calls).toEqual([
       [null, 200],
       ["199", 200],
     ]);
@@ -32,7 +32,7 @@ describe("billing usage reconciliation", () => {
   it("reconciles one workspace and rejects an invalid workspace id", async () => {
     const reconcileWorkspaceUnscoped = vi.fn().mockResolvedValue(undefined);
     const reconcile = new ReconcileWorkspaceBillingUsageInteractor({
-      findRecordedWorkspacesUnscoped: vi.fn(),
+      findWorkspacesToReconcileUnscoped: vi.fn(),
       reconcileWorkspaceUnscoped,
     });
 
