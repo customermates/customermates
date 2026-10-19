@@ -107,6 +107,7 @@ test("shows contact messages on organizations and applies provider, channel, con
   companyId,
   workspace,
 }, testInfo) => {
+  test.skip(process.env.APP_MODE === "self-hosted", "Messaging is part of the cloud service only");
   test.setTimeout(300000);
   const errors = collectPageErrors(page);
   const organizationTypeId = presetId(companyId, "organization");
