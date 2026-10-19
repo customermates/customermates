@@ -6,6 +6,7 @@ import type { BrowserWorkspace } from "./workspace";
 
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { collectPageErrors, expect, test } from "./fixtures";
+import { moveWithKeyboard } from "./keyboard-drag";
 import { uniqueWorkspaceName } from "./workspace-names";
 import { clickHydrated, e2eAppMode } from "./workspace-switching";
 
@@ -79,10 +80,7 @@ test("Next marks the missing setup answers and list answers reorder by dragging"
   await page.mouse.up();
   await expect.poll(() => entries(page)).toEqual(["Retainer", "Audit"]);
 
-  await handles.nth(0).focus();
-  await page.keyboard.press("Space");
-  await page.keyboard.press("ArrowDown");
-  await page.keyboard.press("Space");
+  await moveWithKeyboard(page, handles.nth(0), "ArrowDown");
   await expect.poll(() => entries(page)).toEqual(["Audit", "Retainer"]);
   await page.screenshot({ path: testInfo.outputPath("setup-drag-reorder.png"), fullPage: true });
   expect(errors).toEqual([]);
