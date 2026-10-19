@@ -481,11 +481,21 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
       start: "2026-09-28T10:34:56.123456",
       end: "2026-09-28T14:34:56.654321",
     });
-    expect(await custom(f.contacts.solo, f.columns.emails)).toMatchObject({
-      textListValue: ["one@example.test", " two@example.test"],
-    });
-    // The later phone channels migration moves the legacy phone column into the contacts' Channels field.
+    // The later contact details migration moves the legacy email and phone columns into the contacts' contact details.
+    expect(await custom(f.contacts.solo, f.columns.emails)).toBeUndefined();
     expect(await custom(f.contacts.solo, f.columns.phone)).toBeUndefined();
+    expect(
+      (
+        await rows<{ value: string; provider: string }>(
+          client,
+          'SELECT identity.value, identity.provider::text AS provider FROM "RecordIdentityLink" link JOIN "RecordIdentity" identity ON identity."companyId" = link."companyId" AND identity.id = link."identityId" WHERE link."companyId" = $1 AND link."recordId" = $2 AND identity."channelClass" = $3',
+          [f.companyId, f.contacts.solo, "email"],
+        )
+      ).sort((left, right) => left.value.localeCompare(right.value)),
+    ).toEqual([
+      { value: "one@example.test", provider: "mail" },
+      { value: "two@example.test", provider: "mail" },
+    ]);
     expect(await custom(f.services.a, f.columns.note)).toMatchObject({
       textValue: "with, comma",
     });
@@ -600,7 +610,7 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
       ),
     ).toEqual([
       { revision: 1, actorId: "system:configurable-records-upgrade" },
-      { revision: 2, actorId: "system:phone-channels-upgrade" },
+      { revision: 2, actorId: "system:contact-details-upgrade" },
     ]);
     expect(
       await rows(client, 'SELECT revision, "activeOperationId" FROM "RecordSchemaState" WHERE "companyId"=$1', [
@@ -802,7 +812,10 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
         cronExpression: "0 9 * * *",
       },
     ]);
-    for (const columnId of Object.values(empty.columns)) {
+    expect(
+      await rows(client, 'SELECT 1 FROM "RecordFieldDefinition" WHERE id=$1', [empty.columns.jsonNullOptions]),
+    ).toEqual([]);
+    for (const columnId of Object.values(empty.columns).filter((id) => id !== empty.columns.jsonNullOptions)) {
       expect(
         (
           await rows<{

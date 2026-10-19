@@ -98,8 +98,8 @@ describeDatabase("channels field migration", { timeout: 240000 }, () => {
     await applyConfigurableRecordsMigration(client);
 
     for (const [workspace, label] of [
-      [starter, "Channels"],
-      [clashing, "Channels (2)"],
+      [starter, "Contact details"],
+      [clashing, "Contact details"],
     ] as const) {
       const model = await current(client, workspace.companyId);
       const contact = presetId(workspace.companyId, "contact");
@@ -181,7 +181,8 @@ describeDatabase("channels field migration", { timeout: 240000 }, () => {
       byId(
         await rows<{ id: string }>(
           client,
-          'SELECT identity.id, identity."companyId", link."recordId" AS "contactId", identity.provider, identity."channelClass", identity.value FROM "RecordIdentity" identity JOIN "RecordIdentityLink" link ON link."companyId" = identity."companyId" AND link."identityId" = identity.id',
+          'SELECT identity.id, identity."companyId", link."recordId" AS "contactId", identity.provider, identity."channelClass", identity.value FROM "RecordIdentity" identity JOIN "RecordIdentityLink" link ON link."companyId" = identity."companyId" AND link."identityId" = identity.id WHERE identity.id = ANY($1)',
+          [identities.map((identity) => identity.id)],
         ),
       ),
     ).toEqual(byId(identities));
