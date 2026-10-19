@@ -107,13 +107,13 @@ export async function countOperatorGroups(
   return keys.map((key, index) => ({ key, count: counts[index] }));
 }
 
-export function filterValues(filter: Filter): string[] {
+function filterValues(filter: Filter): string[] {
   const value = (filter as { value?: unknown }).value;
   if (Array.isArray(value)) return value.filter((entry): entry is string => typeof entry === "string");
   return typeof value === "string" ? [value] : [];
 }
 
-export function negated(filter: Filter): boolean {
+function negated(filter: Filter): boolean {
   return filter.operator === FilterOperatorKey.notIn;
 }
 

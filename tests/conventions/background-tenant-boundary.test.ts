@@ -17,7 +17,7 @@ const AUTHENTICATED_TENANT_ENTRYPOINTS = [
   "core/decorators/background-tenant.ts",
   "core/decorators/tenant-interactor.decorator.ts",
   "features/acquisition/withdraw-ad-attribution.interactor.ts",
-  "features/onboarding-wizard/complete-onboarding-wiki-step.interactor.ts",
+  "features/onboarding-wizard/complete-onboarding-setup-step.interactor.ts",
   "features/onboarding-wizard/complete-onboarding-wizard.interactor.ts",
   "features/onboarding-wizard/get-onboarding-wizard-progress.interactor.ts",
   "features/onboarding-wizard/save-onboarding-wizard-progress.interactor.ts",

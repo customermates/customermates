@@ -14,7 +14,7 @@ import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 
 const Schema = z.object({ conversationId: z.uuid() }).strict();
 
-export type GetAgentRunStreamData = Data<typeof Schema>;
+type GetAgentRunStreamData = Data<typeof Schema>;
 
 const OutputSchema = z.object({ externalRunId: z.string(), surface: z.enum(["chat", "routine"]) });
 

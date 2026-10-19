@@ -11,7 +11,7 @@ import { readSpreadsheet } from "@/features/data-transfer/spreadsheet/read-sprea
 import { profileSpreadsheet, spreadsheetPreview } from "@/features/data-transfer/spreadsheet/spreadsheet-profile";
 import { isFormattingLocale, appLocaleOrDefault, DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
-export type SetupDataChoice = "sampleData" | "spreadsheet" | "empty";
+type SetupDataChoice = "sampleData" | "spreadsheet" | "empty";
 
 export function setupLanguage(answers: SetupAnswers, fallback: string | null = null): AppLocale {
   const value = answers.language?.value;

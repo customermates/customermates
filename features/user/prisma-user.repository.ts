@@ -3,7 +3,7 @@ import type { RecordMemberRepo } from "./record-member.repo";
 import type { RepoArgs } from "@/core/utils/types";
 import type { GetOnboardingWizardProgressRepo } from "@/features/onboarding-wizard/get-onboarding-wizard-progress.repo";
 import type { SaveOnboardingWizardProgressRepo } from "@/features/onboarding-wizard/save-onboarding-wizard-progress.repo";
-import type { CompleteOnboardingWikiStepRepo } from "@/features/onboarding-wizard/complete-onboarding-wiki-step.repo";
+import type { CompleteOnboardingSetupStepRepo } from "@/features/onboarding-wizard/complete-onboarding-setup-step.repo";
 import type { DeactivateTrialUsersAndSendNoticeRepo } from "@/ee/lifecycle/deactivate-trial-users-and-send-notice.repo";
 import type { DeactivateUsersAfterSubscriptionGracePeriodRepo } from "@/ee/lifecycle/deactivate-users-after-subscription-grace-period.repo";
 import type { ExpireAdAttributionRepo } from "@/ee/lifecycle/expire-ad-attribution.interactor";
@@ -86,7 +86,7 @@ export class PrismaUserRepo
     CompleteOnboardingWizardRepo,
     GetOnboardingWizardProgressRepo,
     SaveOnboardingWizardProgressRepo,
-    CompleteOnboardingWikiStepRepo,
+    CompleteOnboardingSetupStepRepo,
     WebhookUserRepo,
     SendLegalDocumentNoticesRepo,
     ExpireAdAttributionRepo,
@@ -421,8 +421,8 @@ export class PrismaUserRepo
     return result.count === 1;
   }
 
-  async markOnboardingWikiStepCompleted(
-    args: RepoArgs<CompleteOnboardingWikiStepRepo, "markOnboardingWikiStepCompleted">,
+  async markOnboardingSetupStepCompleted(
+    args: RepoArgs<CompleteOnboardingSetupStepRepo, "markOnboardingSetupStepCompleted">,
   ) {
     const { companyId } = this.user;
     await this.prisma.user.updateMany({

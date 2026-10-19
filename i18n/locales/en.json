@@ -4692,7 +4692,6 @@
       "pending": "Waiting",
       "read": "Read",
       "reading": "Reading",
-      "readingCount": "Reading pages · {fetched}/{total}",
       "readingStep": "Reading website pages",
       "skipped": {
         "aiUnavailable": "Mate temporarily unavailable",

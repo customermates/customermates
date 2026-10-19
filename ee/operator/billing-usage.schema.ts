@@ -46,7 +46,6 @@ export const BillingUsageChannelDtoSchema = z.object({
 export type BillingUsageChannelDto = z.infer<typeof BillingUsageChannelDtoSchema>;
 
 export const BILLING_SOURCES = ["lemonSqueezy", "manual"] as const;
-export type BillingSource = (typeof BILLING_SOURCES)[number];
 
 export const WorkspaceSubscriptionDtoSchema = z.object({
   plan: z.enum(SubscriptionPlan),

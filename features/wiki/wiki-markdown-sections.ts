@@ -1,4 +1,4 @@
-import { wikiCodePointBoundary } from "./wiki-page-chunk";
+import { codePointBoundary } from "@/core/retrieval/retrieval-sections";
 
 const WIKI_OUTLINE_MAX_ENTRIES = 30;
 const WIKI_SECTION_MAX_LENGTH = 160;
@@ -14,9 +14,9 @@ type WikiMarkdownSection = {
 
 export type WikiOutlineEntry = { level: number; heading: string; offset: number };
 
-function boundedText(value: string, maxLength: number): string {
-  if (value.length <= maxLength) return value;
-  return `${value.slice(0, wikiCodePointBoundary(value, maxLength - 1)).trimEnd()}…`;
+export function boundedWikiSectionLabel(value: string): string {
+  if (value.length <= WIKI_SECTION_MAX_LENGTH) return value;
+  return `${value.slice(0, codePointBoundary(value, WIKI_SECTION_MAX_LENGTH - 1)).trimEnd()}…`;
 }
 
 function headingText(raw: string): string {
@@ -57,7 +57,7 @@ export function wikiOutline(markdown: string): WikiOutlineEntry[] {
     .slice(0, WIKI_OUTLINE_MAX_ENTRIES)
     .map((section) => ({
       level: section.level,
-      heading: boundedText(section.path.at(-1) ?? "", WIKI_SECTION_MAX_LENGTH),
+      heading: boundedWikiSectionLabel(section.path.at(-1) ?? ""),
       offset: section.offset,
     }));
 }

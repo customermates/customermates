@@ -14,7 +14,7 @@ import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-
 
 type RouteHandler = (request: NextRequest) => Promise<Response>;
 
-export type RouteResult = { status: number; body: any };
+type RouteResult = { status: number; body: any };
 
 /**
  * A disposable workspace for database tests that call REST route handlers as a tenant: an administrator with the

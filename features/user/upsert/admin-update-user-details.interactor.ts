@@ -30,7 +30,7 @@ export const AdminUpdateUserDetailsSchema = z.object({
 export type AdminUpdateUserDetailsData = Data<typeof AdminUpdateUserDetailsSchema>;
 
 export const UpdateMemberSchema = AdminUpdateUserDetailsSchema.partial().extend({ userId: z.uuid().optional() });
-export type UpdateMemberData = Data<typeof UpdateMemberSchema>;
+type UpdateMemberData = Data<typeof UpdateMemberSchema>;
 
 @TenantInteractor({ resource: Resource.users, manage: "update" })
 export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<

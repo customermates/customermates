@@ -12,7 +12,6 @@ describe("Agent provider options", () => {
         disallowPromptTraining: true,
         caching: "auto",
       },
-      openai: { parallelToolCalls: false, store: false },
     });
   });
 

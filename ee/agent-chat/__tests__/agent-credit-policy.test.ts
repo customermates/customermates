@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
-import { TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER } from "@/ee/subscription/entitlements";
+import { CLOUD_TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER } from "@/core/commercial/plan-catalog";
 
 import {
   agentCreditPeriodForAnchor,
@@ -82,7 +82,7 @@ describe("agent credit entitlements", () => {
       activeSeatAt: new Date("2026-08-06T11:59:00.000Z"),
     });
 
-    expect(result.limitMicrocents).toBe(TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER * CREDIT);
+    expect(result.limitMicrocents).toBe(CLOUD_TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER * CREDIT);
     expect(result.blockedReason).toBeNull();
   });
 
@@ -200,9 +200,9 @@ describe("workspace credit rate", () => {
 
   it("reports the trial rate whatever the plan says, until the trial ends", () => {
     const live = { status: SubscriptionStatus.trial, trialEndDate: new Date("2026-08-20T12:00:00.000Z") };
-    expect(rate({ ...live, plan: SubscriptionPlan.starter })).toBe(TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER);
-    expect(rate({ ...live, plan: SubscriptionPlan.business })).toBe(TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER);
-    expect(rate({ ...live, plan: SubscriptionPlan.enterprise })).toBe(TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER);
+    expect(rate({ ...live, plan: SubscriptionPlan.starter })).toBe(CLOUD_TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER);
+    expect(rate({ ...live, plan: SubscriptionPlan.business })).toBe(CLOUD_TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER);
+    expect(rate({ ...live, plan: SubscriptionPlan.enterprise })).toBe(CLOUD_TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER);
   });
 
   it("reports nothing once the trial has lapsed or the subscription is not usable", () => {

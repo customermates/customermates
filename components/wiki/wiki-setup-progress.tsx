@@ -49,12 +49,7 @@ function StatusIcon({ status }: { status: ProgressStatus }) {
   );
 }
 
-type Props = {
-  state: WikiHomepageSetupState;
-  hideReadCount?: boolean;
-};
-
-export function WikiSetupProgress({ state, hideReadCount = false }: Props) {
+export function WikiSetupProgress({ state }: { state: WikiHomepageSetupState }) {
   const t = useTranslations();
   const progress = state.progress;
   const pages = progress?.pages ?? [];
@@ -115,9 +110,7 @@ export function WikiSetupProgress({ state, hideReadCount = false }: Props) {
     persistence: t("WikiSetup.crawlProgress.skipped.persistence"),
     error: t("WikiSetup.crawlProgress.skipped.error"),
   };
-  const readingLabel = hideReadCount
-    ? t("WikiSetup.crawlProgress.readingStep")
-    : t("WikiSetup.crawlProgress.readingCount", { fetched: progress?.fetched ?? 0, total: progress?.total ?? 0 });
+  const readingLabel = t("WikiSetup.crawlProgress.readingStep");
   const summary = discovering
     ? t("WikiSetup.crawlProgress.discovering")
     : reading
@@ -196,10 +189,6 @@ export function WikiSetupProgress({ state, hideReadCount = false }: Props) {
 
                   <span>{readingLabel}</span>
                 </div>
-
-                {!hideReadCount && reading && progress?.currentUrl ? (
-                  <p className="pl-[1.375rem] text-foreground [overflow-wrap:anywhere]">{progress.currentUrl}</p>
-                ) : null}
 
                 {pages.length > 0 ? (
                   <ul className="max-h-32 space-y-1.5 overflow-y-auto pl-[1.375rem]">

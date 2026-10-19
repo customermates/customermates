@@ -183,16 +183,6 @@ function CommandGroup({ className, ...props }: React.ComponentProps<typeof Comma
   );
 }
 
-function CommandSeparator({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Separator>) {
-  return (
-    <CommandPrimitive.Separator
-      className={cn("-mx-1 h-px bg-border", className)}
-      data-slot="command-separator"
-      {...props}
-    />
-  );
-}
-
 function CommandItem({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Item>) {
   return (
     <CommandPrimitive.Item
@@ -201,16 +191,6 @@ function CommandItem({ className, ...props }: React.ComponentProps<typeof Comman
         className,
       )}
       data-slot="command-item"
-      {...props}
-    />
-  );
-}
-
-function CommandShortcut({ className, ...props }: React.ComponentProps<"span">) {
-  return (
-    <span
-      className={cn("ml-auto text-xs tracking-widest text-muted-foreground", className)}
-      data-slot="command-shortcut"
       {...props}
     />
   );
@@ -225,8 +205,6 @@ export {
   CommandEmpty,
   CommandGroup,
   CommandItem,
-  CommandShortcut,
-  CommandSeparator,
   useCommandInputAria,
   commandScore,
 };

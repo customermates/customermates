@@ -32,7 +32,7 @@ const Schema = z.object({
 });
 export type CreateCheckoutSessionData = Data<typeof Schema>;
 
-export type CheckoutNotStarted = { ok: true; data: { checkout: "pending" | "active" } };
+type CheckoutNotStarted = { ok: true; data: { checkout: "pending" | "active" } };
 
 const CHECKOUT_PENDING: CheckoutNotStarted = { ok: true, data: { checkout: "pending" } };
 const SUBSCRIPTION_ACTIVE: CheckoutNotStarted = { ok: true, data: { checkout: "active" } };

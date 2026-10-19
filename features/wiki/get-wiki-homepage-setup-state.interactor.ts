@@ -30,7 +30,6 @@ export const WikiHomepageSetupStateSchema = z.object({
       fetched: z.number().int().min(0),
       total: z.number().int().min(0),
       failed: z.number().int().min(0).optional(),
-      currentUrl: z.string().nullable().optional(),
       pages: z.array(WikiCrawlTargetProgressSchema).optional(),
       topics: z.array(WikiSynthesisTopicProgressSchema).optional(),
     })
@@ -67,13 +66,7 @@ function progressOf(crawl: WikiWebsiteCrawlState) {
     fetched: crawl.fetched,
     total: crawl.discovered,
     failed: crawl.failed,
-    ...(pages
-      ? {
-          pages,
-          currentUrl:
-            crawl.status === "fetching" ? (pages.find((page) => page.status === "reading")?.url ?? null) : null,
-        }
-      : {}),
+    ...(pages ? { pages } : {}),
     ...(crawl.topics
       ? { topics: crawl.topics.map(({ title, status, skipReason }) => ({ title, status, skipReason })) }
       : {}),

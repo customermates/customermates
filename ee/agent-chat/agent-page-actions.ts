@@ -1,7 +1,7 @@
 import type { AgentDataCounts, SuggestionPageId } from "./agent-chat.schema";
 import type { AgentTranslator } from "./agent-activity";
 
-export type AgentPageAction = {
+type AgentPageAction = {
   id: string;
   label: string;
   prompt: string;
@@ -87,12 +87,7 @@ function readOnlyAgentPageActions(page: SupportedPage, t: AgentTranslator): Agen
   }));
 }
 
-export function agentActionPageFromPathname(pathname: string) {
+export function agentActionPageFromPathname(pathname: string): SupportedPage | null {
   const segments = pathname.split(/[?#]/, 1)[0]?.split("/").filter(Boolean);
-  const page = segments?.find((segment) => isAgentActionPage(segment as SuggestionPageId));
-  return page && isAgentActionPage(page as SuggestionPageId) ? (page as SupportedPage) : null;
-}
-
-export function isAgentActionPage(page: SuggestionPageId): page is SupportedPage {
-  return page === "dashboard";
+  return segments?.includes("dashboard") ? "dashboard" : null;
 }

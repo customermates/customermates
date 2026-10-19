@@ -1,12 +1,12 @@
 import type { TenantUser } from "./user.schema";
 import type { Status } from "@/generated/prisma";
 
-export type AuthUserAccountState = {
+type AuthUserAccountState = {
   companyId: string | null;
   emailVerified: boolean;
 };
 
-export type MembershipSummary = {
+type MembershipSummary = {
   companyId: string;
   status: Status;
 };

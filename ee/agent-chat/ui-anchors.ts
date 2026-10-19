@@ -438,7 +438,7 @@ export const CONTROL_PAGES: ControlPage[] = [
   },
 ];
 
-export type PrimaryNavPage = {
+type PrimaryNavPage = {
   key: string;
   route: string;
   description: string;
@@ -526,7 +526,7 @@ export const SETTINGS_NAV_DESCRIPTIONS: Record<SettingsSlug, string> = {
   "webhook-deliveries": "Settings link to Deliveries, the sent webhook deliveries, directly below Webhooks",
 };
 
-export function settingsNavKeys(section: SettingsSection): string[] {
+function settingsNavKeys(section: SettingsSection): string[] {
   return SETTINGS_SECTIONS[section].map((subroute) => `settings-${subroute.slug}`);
 }
 

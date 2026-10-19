@@ -2,7 +2,7 @@ const DELIMITER_CANDIDATES = [",", ";", "\t", "|"] as const;
 const SNIFF_RECORDS = 50;
 const SNIFF_CHARACTERS = 64 * 1024;
 
-export function decodeSpreadsheetText(bytes: Uint8Array): string | null {
+function decodeSpreadsheetText(bytes: Uint8Array): string | null {
   let text: string;
   if (bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf)
     text = new TextDecoder("utf-8").decode(bytes.subarray(3));
@@ -19,7 +19,7 @@ export function decodeSpreadsheetText(bytes: Uint8Array): string | null {
   return text.replace(/^﻿/, "");
 }
 
-export function parseCsvRecords(text: string, delimiter: string, limit = Number.POSITIVE_INFINITY): string[][] {
+function parseCsvRecords(text: string, delimiter: string, limit = Number.POSITIVE_INFINITY): string[][] {
   const records: string[][] = [];
   let record: string[] = [];
   let field = "";
@@ -72,7 +72,7 @@ export function parseCsvRecords(text: string, delimiter: string, limit = Number.
   return records;
 }
 
-export function detectCsvDelimiter(text: string): string {
+function detectCsvDelimiter(text: string): string {
   const sample = text.slice(0, SNIFF_CHARACTERS);
   let best: { delimiter: string; consistency: number; width: number } = { delimiter: ",", consistency: 0, width: 1 };
   for (const delimiter of DELIMITER_CANDIDATES) {

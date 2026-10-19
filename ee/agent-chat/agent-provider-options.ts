@@ -18,10 +18,6 @@ export function getAgentProviderOptions(
       ...gatewayRouting(servingProvider, inferenceRegion),
       caching: "auto" as const,
     },
-    openai: {
-      parallelToolCalls: false,
-      store: false,
-    },
   };
 }
 

@@ -78,13 +78,13 @@ beforeEach(() => {
 
 describe("hosted AI operator synthetic fixtures", () => {
   it("defines more than one operator page across every user, plan and subscription status filter", () => {
-    expect(SYNTHETIC_HOSTED_AI_OPERATOR_USER_DEFINITIONS).toHaveLength(32);
+    expect(SYNTHETIC_HOSTED_AI_OPERATOR_USER_DEFINITIONS).toHaveLength(38);
     expect(new Set(SYNTHETIC_HOSTED_AI_OPERATOR_USER_DEFINITIONS.map(({ status }) => status))).toEqual(
       new Set(["active", "inactive", "pendingAuthorization"]),
     );
     expect(
       new Set(SYNTHETIC_HOSTED_AI_OPERATOR_USER_DEFINITIONS.map(({ subscription }) => subscription?.plan ?? null)),
-    ).toEqual(new Set(["starter", "pro", "business", "enterprise", null]));
+    ).toEqual(new Set(["starter", "pro", "business", "max", "enterprise", null]));
     expect(
       new Set(SYNTHETIC_HOSTED_AI_OPERATOR_USER_DEFINITIONS.map(({ subscription }) => subscription?.status ?? null)),
     ).toEqual(new Set(["trial", "active", "cancelled", "expired", "pastDue", "unPaid", null]));
@@ -125,8 +125,8 @@ describe("hosted AI operator synthetic fixtures", () => {
     expect(activeEnterprise).toContain(null);
     expect(activeEnterprise.some((allowance) => typeof allowance === "number" && allowance > 0)).toBe(true);
 
-    expect(new Set(SYNTHETIC_HOSTED_AI_OPERATOR_USER_DEFINITIONS.map(({ id }) => id)).size).toBe(32);
-    expect(new Set(SYNTHETIC_HOSTED_AI_OPERATOR_USER_DEFINITIONS.map(({ email }) => email)).size).toBe(32);
+    expect(new Set(SYNTHETIC_HOSTED_AI_OPERATOR_USER_DEFINITIONS.map(({ id }) => id)).size).toBe(38);
+    expect(new Set(SYNTHETIC_HOSTED_AI_OPERATOR_USER_DEFINITIONS.map(({ email }) => email)).size).toBe(38);
     expect(SYNTHETIC_HOSTED_AI_OPERATOR_USER_DEFINITIONS.every(({ email }) => email.endsWith("@example.invalid"))).toBe(
       true,
     );
@@ -199,7 +199,7 @@ describe("hosted AI operator synthetic fixtures", () => {
     await seedHostedAiOperatorUserTableFixtures(context(prisma));
 
     const logins = calls.authUserUpsert.mock.calls.map(([input]) => input.create);
-    expect(logins).toHaveLength(32);
+    expect(logins).toHaveLength(38);
     expect(logins.every(({ isPlatformOperator }) => isPlatformOperator === false)).toBe(true);
   });
 
@@ -238,15 +238,15 @@ describe("hosted AI operator synthetic fixtures", () => {
     await seedHostedAiOperatorUserTableFixtures(context(prisma), { includeLocalOperatorAccess: true });
     await seedHostedAiOperatorUserTableFixtures(context(prisma), { includeLocalOperatorAccess: true });
 
-    expect(calls.companyUpsert).toHaveBeenCalledTimes(64);
-    expect(calls.authUserUpsert).toHaveBeenCalledTimes(64);
-    expect(calls.userUpsert).toHaveBeenCalledTimes(64);
-    expect(calls.subscriptionUpsert).toHaveBeenCalledTimes(56);
+    expect(calls.companyUpsert).toHaveBeenCalledTimes(76);
+    expect(calls.authUserUpsert).toHaveBeenCalledTimes(76);
+    expect(calls.userUpsert).toHaveBeenCalledTimes(76);
+    expect(calls.subscriptionUpsert).toHaveBeenCalledTimes(68);
     expect(calls.subscriptionDeleteMany).toHaveBeenCalledTimes(8);
     expect(hashPasswordMock).not.toHaveBeenCalled();
 
-    const firstUsers = calls.userUpsert.mock.calls.slice(0, 32).map(([input]) => input.create);
-    const secondUsers = calls.userUpsert.mock.calls.slice(32).map(([input]) => input.update);
+    const firstUsers = calls.userUpsert.mock.calls.slice(0, 38).map(([input]) => input.create);
+    const secondUsers = calls.userUpsert.mock.calls.slice(38).map(([input]) => input.update);
     expect(secondUsers).toEqual(firstUsers.map(({ id: _id, ...user }) => user));
 
     for (const [index, definition] of SYNTHETIC_HOSTED_AI_OPERATOR_USER_DEFINITIONS.entries()) {

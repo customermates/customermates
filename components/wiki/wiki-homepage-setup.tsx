@@ -34,7 +34,7 @@ export function useWikiSetupFailureBody(state: WikiHomepageSetupState) {
   return state.failureReason ? failedBodies[state.failureReason] : t("WikiSetup.status.failedBody");
 }
 
-export function wikiSetupRouteSignature(state: WikiHomepageSetupState) {
+function wikiSetupRouteSignature(state: WikiHomepageSetupState) {
   return JSON.stringify([state.status, state.pageCount ?? state.pages.length, state.pages.map(({ id }) => id)]);
 }
 

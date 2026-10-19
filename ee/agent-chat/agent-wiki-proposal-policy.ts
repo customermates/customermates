@@ -3,7 +3,7 @@ import type { AgentToolIdentity } from "./tool-identity";
 import { isInternalToolIdentity } from "./tool-identity";
 import { isUnattendedSurface, type AgentSurface } from "./agent-surface-policy";
 
-export const WIKI_PROPOSAL_TOOL_NAME = "manage_wiki_pages";
+const WIKI_PROPOSAL_TOOL_NAME = "manage_wiki_pages";
 
 const WIKI_PROPOSAL_ACTIONS: ReadonlySet<string> = new Set(["create", "update", "delete"]);
 

@@ -160,7 +160,6 @@ describe("WorkflowAgent native web search contract", () => {
           zeroDataRetention: true,
           disallowPromptTraining: true,
         },
-        openai: { parallelToolCalls: false, store: false },
       },
     });
     expect(result.steps).toHaveLength(1);

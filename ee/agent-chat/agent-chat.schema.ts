@@ -18,12 +18,12 @@ import type { AgentSurface } from "./agent-surface-policy";
 import { internalToolIdentity } from "./tool-identity";
 import { agentViewRequestTarget } from "./agent-page-context";
 
-export const AgentPageContextSchema = z.object({
+const AgentPageContextSchema = z.object({
   route: z.string().max(500),
 });
 
 const [firstAppLocale, ...otherAppLocales] = APP_LOCALES;
-export const AgentAppLocaleSchema = z.enum([firstAppLocale, ...otherAppLocales]);
+const AgentAppLocaleSchema = z.enum([firstAppLocale, ...otherAppLocales]);
 
 const SendAgentMessageObjectSchema = z.object({
   conversationId: z.uuid().optional(),

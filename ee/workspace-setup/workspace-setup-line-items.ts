@@ -8,7 +8,7 @@ import { setupIdempotencyKey } from "@/features/workspace-setup/setup-references
 const GOLDEN_STEP = 0.618034;
 const MAX_QUANTITY = 1_000;
 
-export type SetupLineItemPlan = {
+type SetupLineItemPlan = {
   deal: RecordRef;
   name: string | null;
   quantity: number;

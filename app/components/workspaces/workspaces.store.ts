@@ -24,7 +24,7 @@ import { WorkspaceTabChannel } from "./workspace-tab-channel";
 
 type WorkspaceEntry = "/" | "/dashboard" | "/auth/pending" | "/onboarding/wizard";
 
-export type ForeignWorkspaceNotice = { companyId: string | null; name: string | null; deleted?: true };
+type ForeignWorkspaceNotice = { companyId: string | null; name: string | null; deleted?: true };
 
 export class WorkspacesStore extends BaseStore {
   items: WorkspaceSummary[] = [];

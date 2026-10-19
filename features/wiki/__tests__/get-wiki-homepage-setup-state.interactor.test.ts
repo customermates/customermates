@@ -104,15 +104,14 @@ describe("GetWikiHomepageSetupStateInteractor", () => {
     },
   );
 
-  it("exposes per-page reading statuses and only a real current reading URL", async () => {
+  it("exposes per-page reading statuses", async () => {
     const targets = [
       { url: "https://example.com/", status: "read" as const },
       { url: "https://example.com/about", status: "reading" as const },
     ];
     const reading = await state({ ...CRAWL, targets });
-    expect(reading).toMatchObject({ ok: true, data: { progress: { pages: targets, currentUrl: targets[1].url } } });
-    const importing = await state({ ...CRAWL, status: "importing", targets });
-    expect(importing).toMatchObject({ ok: true, data: { progress: { currentUrl: null } } });
+    expect(reading).toMatchObject({ ok: true, data: { progress: { pages: targets } } });
+    expect(reading.ok && reading.data.progress).not.toHaveProperty("currentUrl");
   });
 
   it("reports each planned page with its stored status and skip reason", async () => {

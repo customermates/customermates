@@ -289,7 +289,7 @@ export type WikiEvalCategory =
   | "cjk"
   | "no-match";
 
-export type WikiEvalQuery = {
+type WikiEvalQuery = {
   category: WikiEvalCategory;
   query: string;
   expect: string[];

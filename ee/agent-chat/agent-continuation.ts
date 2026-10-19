@@ -26,9 +26,9 @@ export type AgentContinuationStep = {
   response: { messages: readonly ModelMessage[] };
 };
 
-export type AgentContinuationActivityStatus = "done" | "error" | "cancelled" | "pending";
+type AgentContinuationActivityStatus = "done" | "error" | "cancelled" | "pending";
 
-export type AgentContinuationActivitySummary = {
+type AgentContinuationActivitySummary = {
   toolName: string;
   kind: AgentActivityKind;
   status: AgentContinuationActivityStatus;
@@ -40,7 +40,7 @@ export type AgentContinuationActivitySummary = {
   resultDigest?: string;
 };
 
-export const AGENT_CONTINUATION_DIGEST_MAX_CHARS = 200;
+const AGENT_CONTINUATION_DIGEST_MAX_CHARS = 200;
 export const AGENT_CONTINUATION_DIGEST_CHECKPOINT_MAX_BYTES = 8 * 1024;
 
 const DIGEST_SCALARS = ["total", "page", "pageSize", "requested", "found", "failed", "updated", "deleted"] as const;
@@ -69,7 +69,7 @@ export function digestAgentToolResult(output: unknown): string | null {
   return facts.length > 0 ? facts.join(" ").slice(0, AGENT_CONTINUATION_DIGEST_MAX_CHARS) : null;
 }
 
-export type AgentContinuationCheckpoint = {
+type AgentContinuationCheckpoint = {
   version: 1;
   detailPolicy: "progress_only";
   completedSteps: number;
@@ -82,13 +82,13 @@ export type AgentContinuationCheckpoint = {
   activities: AgentContinuationActivitySummary[];
 };
 
-export type SerializedAgentContinuationCheckpoint = {
+type SerializedAgentContinuationCheckpoint = {
   checkpoint: AgentContinuationCheckpoint;
   text: string;
   bytes: number;
 };
 
-export type AgentContinuationContext = {
+type AgentContinuationContext = {
   system: string;
   messages: ModelMessage[];
   checkpoint: AgentContinuationCheckpoint | null;
@@ -96,15 +96,15 @@ export type AgentContinuationContext = {
   retainedResponseSteps: number;
 };
 
-export type AgentContinuationErrorReason = "content_filter" | "provider_error";
+type AgentContinuationErrorReason = "content_filter" | "provider_error";
 
-export type AgentContinuationDecision =
+type AgentContinuationDecision =
   | { action: "continue" }
   | { action: "complete" }
   | { action: "pause"; reason: "approval" }
   | { action: "error"; reason: AgentContinuationErrorReason };
 
-export type AgentContinuationRun = {
+type AgentContinuationRun = {
   steps: readonly AgentContinuationStep[];
   pendingApproval?: boolean;
 };
@@ -152,7 +152,7 @@ function projectActivity(
   };
 }
 
-export type AgentContinuationSummaryOptions = { resultDigest?: boolean; surface?: AgentSurface };
+type AgentContinuationSummaryOptions = { resultDigest?: boolean; surface?: AgentSurface };
 
 export function summarizeAgentContinuationStep(
   step: AgentContinuationStep,

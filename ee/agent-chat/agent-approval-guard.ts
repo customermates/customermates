@@ -1,12 +1,12 @@
 import type { AgentActivityDescriptor } from "./agent-activity";
 
-export type ApprovalTargetRequest = { toolName: string; input: unknown };
+type ApprovalTargetRequest = { toolName: string; input: unknown };
 
 function object(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
 }
 
-export function requiresResolvedApprovalTarget(request: ApprovalTargetRequest): boolean {
+function requiresResolvedApprovalTarget(request: ApprovalTargetRequest): boolean {
   const input = object(request.input);
   if (request.toolName === "manage_data_views") return input.action === "delete";
   if (request.toolName === "manage_trash") return input.action === "delete_permanently" || input.action === "empty";

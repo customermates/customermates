@@ -67,7 +67,7 @@ export const createTestRecordEventSubscriptionRepo = (companyId?: string) => {
   return new PrismaRecordEventSubscriptionRepo(records, new RecordAccessPolicy(users, records), users, companyId);
 };
 
-export function createTestRecordRepoOwners(): RecordRepoOwners {
+function createTestRecordRepoOwners(): RecordRepoOwners {
   const subscriptions = createTestRecordEventSubscriptionRepo();
   const reader = new RecordRecipientReader(
     (companyId) => createTestRecordRepo(companyId),

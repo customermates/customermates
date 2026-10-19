@@ -114,8 +114,8 @@ import { reportFailure, reportWarning, toWorkflowFailure, type WorkflowFailure }
 
 const WORKFLOW_NAME = "agent-turn";
 
-export const AGENT_UI_COMMAND_WINDOW_MS = 30 * 1000;
-export const AGENT_SEGMENT_ROUNDS = 32;
+const AGENT_UI_COMMAND_WINDOW_MS = 30 * 1000;
+const AGENT_SEGMENT_ROUNDS = 32;
 const AGENT_MODEL_DEFAULT_MAX_RETRIES = 2;
 
 const AGENT_OUTPUT_CONTINUATION_PROMPT =
@@ -388,7 +388,7 @@ async function startAgentTurn(
   });
   if (!providerStarted) return { providerStarted: false };
   const [shells, wikiCatalog, cancelled] = await Promise.all([
-    agentToolShells(surface, payload.turnBudget.servingProvider, options),
+    agentToolShells(surface, options),
     authorizeWikiCatalog(payload),
     isTurnCancellationRequested(payload),
   ]);
@@ -408,18 +408,13 @@ async function canStartNextHostedAiProviderRound(payload: AgentTurnWorkflowPaylo
 }
 canStartNextHostedAiProviderRound.maxRetries = 0;
 
-async function agentToolShells(
-  surface: AgentTurnSurface,
-  servingProvider: string,
-  options: AgentToolOptions,
-): Promise<AgentToolShell[]> {
+async function agentToolShells(surface: AgentTurnSurface, options: AgentToolOptions): Promise<AgentToolShell[]> {
   const { AGENT_HOSTED_TOOL_ANNOTATIONS, agentToolDefinitionsForTurn } = await import("@/ee/agent-chat/agent-tools");
   const { ALL_MCP_TOOLS } = await import("@/features/mcp-tools/tool-registry");
   const gatedByName = new Map(ALL_MCP_TOOLS.map((mcp) => [mcp.name, mcp.annotations]));
 
   return agentToolDefinitionsForTurn({
     surface,
-    servingProvider,
     ...options,
   }).map((definition) => ({
     ...definition,
@@ -743,12 +738,12 @@ async function readCancellation(payload: AgentTurnWorkflowPayload): Promise<bool
   return isTurnCancellationRequested(payload);
 }
 
-export const AGENT_RESOLVED_PROVIDER_ERROR_RETRIES = 2;
-export const AGENT_RATE_LIMIT_RETRIES = 2;
+const AGENT_RESOLVED_PROVIDER_ERROR_RETRIES = 2;
+const AGENT_RATE_LIMIT_RETRIES = 2;
 const AGENT_RATE_LIMIT_BACKOFF_MS = 2_000;
-export const AGENT_RATE_LIMIT_MAX_WAIT_MS = 10_000;
+const AGENT_RATE_LIMIT_MAX_WAIT_MS = 10_000;
 
-export function agentRateLimitRetryDelayMs(retry: number, retryAfterMs: number | null): number {
+function agentRateLimitRetryDelayMs(retry: number, retryAfterMs: number | null): number {
   return Math.min(AGENT_RATE_LIMIT_MAX_WAIT_MS, retryAfterMs ?? AGENT_RATE_LIMIT_BACKOFF_MS * 2 ** (retry - 1));
 }
 

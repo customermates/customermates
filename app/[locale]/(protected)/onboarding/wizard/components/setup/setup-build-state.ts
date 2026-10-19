@@ -6,7 +6,7 @@ import { setupRoleList } from "@/features/workspace-setup/setup-anchors";
 
 import { previewLists } from "./setup-plan-summary";
 
-export type BuildOutcome = "running" | "completed" | "failed";
+type BuildOutcome = "running" | "completed" | "failed";
 
 export type BuildPhaseState = "waiting" | "active" | "done" | "failed" | "skipped";
 

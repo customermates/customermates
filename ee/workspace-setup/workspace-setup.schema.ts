@@ -131,7 +131,7 @@ export const SetupFollowUpQuestionSchema = z.discriminatedUnion("format", [
 ]);
 export type SetupFollowUpQuestion = z.infer<typeof SetupFollowUpQuestionSchema>;
 
-export const SetupFollowUpAnswerSchema = z.object({ id: z.enum(SETUP_FOLLOW_UP_IDS), value: SetupAnswerValueSchema });
+const SetupFollowUpAnswerSchema = z.object({ id: z.enum(SETUP_FOLLOW_UP_IDS), value: SetupAnswerValueSchema });
 
 const GenerationStateSchema = z.enum(["idle", "queued", "running", "completed", "failed", "skipped"]);
 export type SetupGenerationState = z.infer<typeof GenerationStateSchema>;
@@ -176,7 +176,7 @@ export const StoredSetupCreatedSchema = z.object({
 });
 export type StoredSetupCreated = z.infer<typeof StoredSetupCreatedSchema>;
 
-export const SetupResultListSchema = z.object({
+const SetupResultListSchema = z.object({
   id: z.uuid(),
   key: z.string(),
   name: z.string(),

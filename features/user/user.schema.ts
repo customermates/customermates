@@ -17,8 +17,6 @@ export const UserDtoSchema = z.object({
   updatedAt: z.date(),
 });
 
-export type UserDto = Data<typeof UserDtoSchema>;
-
 export const MemberDtoSchema = UserDtoSchema.extend({
   leftAt: z.date().nullable(),
 });

@@ -11,7 +11,7 @@ export type WikiSummaryState = {
   sourceImportedUpdatedAt: Date | null;
 };
 
-export function isUntouchedWikiImport(page: Pick<WikiSummaryState, "updatedAt" | "sourceImportedUpdatedAt">): boolean {
+function isUntouchedWikiImport(page: Pick<WikiSummaryState, "updatedAt" | "sourceImportedUpdatedAt">): boolean {
   return page.sourceImportedUpdatedAt !== null && page.updatedAt.getTime() === page.sourceImportedUpdatedAt.getTime();
 }
 
