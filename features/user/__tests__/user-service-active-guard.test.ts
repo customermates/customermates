@@ -4,7 +4,7 @@ import { Action, Resource, Status } from "@/generated/prisma";
 import { ForbiddenError, isExpectedError, appErrorResponse } from "@/core/errors/app-errors";
 import { ApiKeyAccessDeniedError } from "@/core/auth/api-key-access-denied-error";
 import { WorkspacePlanRequiredError } from "@/core/auth/workspace-plan-required-error";
-import { UserService } from "../user.service";
+import { LAST_ACTIVE_RESOLUTION_MS, UserService } from "../user.service";
 import type { FindUserRepo } from "../find-user.repo";
 import type { AuthService } from "@/features/auth/auth.service";
 import type { TenantUser } from "../user.schema";
@@ -16,13 +16,19 @@ const NO_API_ROLE: TestRole = { isSystemRole: false, permissions: [] };
 
 const plans = { canUseIntegrations: vi.fn() };
 
-function serviceFor(status: Status, options: { apiKey?: boolean; role?: TestRole; planUsable?: boolean } = {}) {
+const touchLastActiveUnscoped = vi.fn();
+
+function serviceFor(
+  status: Status,
+  options: { apiKey?: boolean; role?: TestRole; planUsable?: boolean; lastActiveAt?: Date | null } = {},
+) {
   const user = {
     id: "user-1",
     email: "someone@example.com",
     companyId: "company-1",
     status,
     role: options.role ?? NO_API_ROLE,
+    lastActiveAt: options.lastActiveAt === undefined ? new Date() : options.lastActiveAt,
   } as unknown as TenantUser;
   const authService = {
     getSession: () => Promise.resolve({ user: { email: user.email } }),
@@ -31,6 +37,7 @@ function serviceFor(status: Status, options: { apiKey?: boolean; role?: TestRole
   const repo = {
     findCurrentUserUnscoped: () => Promise.resolve(user),
     findCurrentUserOrThrowUnscoped: () => Promise.resolve(user),
+    touchLastActiveUnscoped,
   } as unknown as FindUserRepo;
 
   plans.canUseIntegrations.mockResolvedValue(options.planUsable ?? true);
@@ -90,5 +97,47 @@ describe("UserService.getActiveUserOrThrow", () => {
 
   it("keeps session requests working without the API permission", async () => {
     await expect(serviceFor(Status.active).getActiveUserOrThrow()).resolves.toMatchObject({ id: "user-1" });
+  });
+});
+
+describe("UserService last activity", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    touchLastActiveUnscoped.mockResolvedValue(undefined);
+  });
+
+  it("records activity of a member whose last activity is older than the resolution", async () => {
+    const before = Date.now();
+    await serviceFor(Status.active, {
+      lastActiveAt: new Date(before - LAST_ACTIVE_RESOLUTION_MS - 1),
+    }).getActiveUserOrThrow();
+
+    expect(touchLastActiveUnscoped).toHaveBeenCalledTimes(1);
+    const [userId, staleBefore] = touchLastActiveUnscoped.mock.calls[0] as [string, Date];
+    expect(userId).toBe("user-1");
+    expect(staleBefore.getTime()).toBeGreaterThanOrEqual(before - LAST_ACTIVE_RESOLUTION_MS);
+  });
+
+  it("records the first activity of a member who never had one, also through an API key", async () => {
+    await serviceFor(Status.active, { lastActiveAt: null, apiKey: true, role: API_READER }).getActiveUserOrThrow();
+
+    expect(touchLastActiveUnscoped).toHaveBeenCalledTimes(1);
+  });
+
+  it("writes nothing while the last activity is recent or the request is refused", async () => {
+    await serviceFor(Status.active, { lastActiveAt: new Date() }).getActiveUserOrThrow();
+    await serviceFor(Status.inactive, { lastActiveAt: null })
+      .getActiveUserOrThrow()
+      .catch(() => undefined);
+
+    expect(touchLastActiveUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("still serves the request when recording the activity fails", async () => {
+    touchLastActiveUnscoped.mockRejectedValue(new Error("database unavailable"));
+
+    await expect(serviceFor(Status.active, { lastActiveAt: null }).getActiveUserOrThrow()).resolves.toMatchObject({
+      id: "user-1",
+    });
   });
 });

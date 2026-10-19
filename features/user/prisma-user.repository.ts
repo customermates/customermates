@@ -149,6 +149,14 @@ export class PrismaUserRepo
   }
 
   @BypassTenantGuard
+  async touchLastActiveUnscoped(userId: string, staleBefore: Date): Promise<void> {
+    await this.prisma.user.updateMany({
+      where: { id: userId, OR: [{ lastActiveAt: null }, { lastActiveAt: { lt: staleBefore } }] },
+      data: { lastActiveAt: new Date() },
+    });
+  }
+
+  @BypassTenantGuard
   async markMembershipActiveUnscoped(email: string, companyId: string): Promise<void> {
     await this.prisma.user.updateMany({
       where: { email, companyId, leftAt: null },

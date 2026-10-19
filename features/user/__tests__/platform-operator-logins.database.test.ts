@@ -14,7 +14,7 @@ vi.mock("@/env", () => ({
 }));
 
 const { prisma } = await import("@/prisma/db");
-const { strandsLastPlatformOperator } = await import("../platform-operator-logins");
+const { lockPlatformOperatorInvariant, strandsLastPlatformOperator } = await import("../platform-operator-logins");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 
@@ -26,7 +26,7 @@ async function inRolledBackTransaction(fn: (tx: AppPrismaClient) => Promise<void
       runInTransaction(async () => {
         const tx = getTransactionClient<AppPrismaClient>();
         if (!tx) throw new Error("Expected a transaction client.");
-        await tx.$executeRaw`LOCK TABLE "User" IN SHARE ROW EXCLUSIVE MODE`;
+        await lockPlatformOperatorInvariant(tx);
         await tx.authUser.updateMany({ where: { isPlatformOperator: true }, data: { isPlatformOperator: false } });
         await fn(tx);
         throw new Rollback();
