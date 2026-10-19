@@ -1,4 +1,4 @@
-import type { Locator } from "@playwright/test";
+import type { Locator, Request } from "@playwright/test";
 
 import { z } from "zod";
 
@@ -71,6 +71,18 @@ test("edits fenced code blocks in a Knowledge Base page and keeps them as fenced
     await page.keyboard.type("console.log(1)");
     await expect(document.locator("pre code")).toHaveText(["yarn install\nyarn dev", "console.log(1)"]);
 
+    // Saving refreshes the route; Firefox aborts that refresh on reload and Next then navigates again, aborting the reload.
+    const refreshes: Request[] = [];
+    const pending = new Set<Request>();
+    page.on("request", (request) => {
+      const headers = request.headers();
+      if (headers["rsc"] !== "1" || headers["next-router-prefetch"] || new URL(request.url()).pathname !== "/en/wiki")
+        return;
+      refreshes.push(request);
+      pending.add(request);
+    });
+    page.on("requestfinished", (request) => pending.delete(request));
+    page.on("requestfailed", (request) => pending.delete(request));
     await page.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).first().click();
     await expect
       .poll(async () => {
@@ -81,6 +93,7 @@ test("edits fenced code blocks in a Knowledge Base page and keeps them as fenced
         "# Setup\n\nInstall first.\n\n```bash\nyarn install\nyarn dev\n```\n\n## Run\n\nStart the server.\n\n```js\nconsole.log(1)\n```",
       );
 
+    await expect.poll(() => refreshes.length > 0 && pending.size === 0).toBe(true);
     await page.reload();
     await expect(page.locator(".tiptap pre code")).toHaveText(["yarn install\nyarn dev", "console.log(1)"]);
   } finally {
