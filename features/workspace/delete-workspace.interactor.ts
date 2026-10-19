@@ -92,14 +92,13 @@ export class DeleteWorkspaceInteractor extends AuthenticatedInteractor<DeleteWor
     ).catch(unwoundFailure);
     if (!marked.ok) return marked;
 
-    const deleted = await this.deleteMarked(login, marked.data, markedAt).catch(async (error: unknown) => {
-      await this.repo.clearDeletingUnscoped(companyId, markedAt);
-      throw error;
-    });
-    if (!deleted.ok) {
-      await this.repo.clearDeletingUnscoped(companyId, markedAt);
-      return deleted;
+    let deleted: Awaited<ReturnType<DeleteWorkspaceInteractor["deleteMarked"]>> | undefined;
+    try {
+      deleted = await this.deleteMarked(login, marked.data, markedAt);
+    } finally {
+      if (!deleted?.ok) await this.repo.clearDeletingUnscoped(companyId, markedAt);
     }
+    if (!deleted.ok) return deleted;
 
     await this.authService.setSessionActiveCompany(session.session.id, deleted.data.nextCompanyId);
     logAuditEvent("workspace-deleted", {
