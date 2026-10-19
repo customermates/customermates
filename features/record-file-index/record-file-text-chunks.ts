@@ -2,10 +2,6 @@ import { createHash } from "node:crypto";
 
 import { boundedWikiText, wikiMarkdownSections } from "@/features/wiki/wiki-markdown-sections";
 
-/**
- * Splits file text into search chunks along its Markdown sections, in windows of at most
- * RETRIEVAL_CHUNK_MAX_LENGTH characters that overlap a little.
- */
 export const RETRIEVAL_CHUNK_MAX_LENGTH = 1_800;
 const RETRIEVAL_CHUNK_OVERLAP = 200;
 

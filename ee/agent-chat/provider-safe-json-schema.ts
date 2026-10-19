@@ -463,11 +463,6 @@ export function googleSafeJsonSchema(document: unknown): GoogleSafeSchemaResult 
 const SHARED_SUBSCHEMA_MIN_CHARS = 1_000;
 const SHARED_DEFINITION_PREFIX = "#/definitions/";
 
-/**
- * Moves every sub-schema of at least SHARED_SUBSCHEMA_MIN_CHARS characters that appears more than once
- * (a record source, its filters) into definitions and references it, so a tool that repeats one shape
- * for several of its parts costs its context once. Smaller repeats stay inline.
- */
 export function shareRepeatedSubschemas<T>(document: T): T {
   if (!isSchemaNode(document) || "definitions" in document || "$defs" in document) return document;
   const counts = new Map<string, number>();
@@ -475,8 +470,10 @@ export function shareRepeatedSubschemas<T>(document: T): T {
     if (!isSchemaNode(schema)) return;
     onSchema(schema, () => {
       for (const [key, value] of Object.entries(schema)) {
-        if (SCHEMA_MAP_KEYWORDS.has(key) && isSchemaNode(value)) Object.values(value).forEach((child) => visit(child, onSchema));
-        else if (SCHEMA_LIST_KEYWORDS.has(key) && Array.isArray(value)) value.forEach((child) => visit(child, onSchema));
+        if (SCHEMA_MAP_KEYWORDS.has(key) && isSchemaNode(value))
+          Object.values(value).forEach((child) => visit(child, onSchema));
+        else if (SCHEMA_LIST_KEYWORDS.has(key) && Array.isArray(value))
+          value.forEach((child) => visit(child, onSchema));
         else if (SCHEMA_KEYWORDS.has(key)) visit(value, onSchema);
       }
     });
@@ -506,7 +503,8 @@ export function shareRepeatedSubschemas<T>(document: T): T {
       Object.entries(schema).map(([key, value]) => {
         if (SCHEMA_MAP_KEYWORDS.has(key) && isSchemaNode(value))
           return [key, Object.fromEntries(Object.entries(value).map(([name, child]) => [name, rewrite(child, true)]))];
-        if (SCHEMA_LIST_KEYWORDS.has(key) && Array.isArray(value)) return [key, value.map((child) => rewrite(child, true))];
+        if (SCHEMA_LIST_KEYWORDS.has(key) && Array.isArray(value))
+          return [key, value.map((child) => rewrite(child, true))];
         if (SCHEMA_KEYWORDS.has(key)) return [key, rewrite(value, true)];
         return [key, value];
       }),
@@ -529,7 +527,6 @@ function schemaChildren(schema: SchemaNode): unknown[] {
   });
 }
 
-/** Puts the definitions shareRepeatedSubschemas created back in place, for wires that cannot follow references. */
 export function inlineSchemaDefinitions(document: unknown): unknown {
   if (!isSchemaNode(document) || !isSchemaNode(document.definitions)) return document;
   const definitions = document.definitions as Record<string, unknown>;

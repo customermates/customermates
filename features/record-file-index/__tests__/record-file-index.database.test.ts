@@ -51,7 +51,9 @@ const { PrismaAgentChatRepo } = await import("@/ee/agent-chat/prisma-agent-chat.
 const { AgentUsageService } = await import("@/ee/agent-chat/agent-usage.service");
 const { WikiEmbeddingService } = await import("@/ee/wiki-retrieval/wiki-embedding.service");
 const { WikiSemanticQueryEmbedder } = await import("@/ee/wiki-retrieval/wiki-query-embedder");
-const { WIKI_EMBEDDING_DIMENSIONS, WIKI_EMBEDDING_MODEL } = await import("@/ee/wiki-retrieval/wiki-embedding-model");
+const { WIKI_EMBEDDING_DIMENSIONS, WIKI_EMBEDDING_MODEL, WIKI_EMBEDDING_VERSION } = await import(
+  "@/ee/wiki-retrieval/wiki-embedding-model"
+);
 const { RecordFileSemanticIndexService } = await import("@/ee/record-file-index/record-file-semantic-index.service");
 const { PrismaRecordFileSearchRepo } = await import("../prisma-record-file-search.repository");
 const { RecordFileIndexService } = await import("../record-file-index.service");
@@ -375,7 +377,7 @@ describeDatabase("record file contents indexed like the Knowledge Base", () => {
       section: "Page 2",
       record: { ref: deal, title: { state: "value", value: { kind: "text", value: "Mercury" } } },
     });
-    expect(hit.snippet).toContain("**renews**");
+    expect(hit.snippet).toContain("renews every twelve months");
 
     const content = await w.read(w.admin, pdf);
     if (!content.ok) throw new Error(JSON.stringify(content));
@@ -656,13 +658,13 @@ describeDatabase("record file contents indexed like the Knowledge Base", () => {
       model: WIKI_EMBEDDING_MODEL,
       values: ["Terms.txt\n\nCustomers get their money back within 30 days."],
     });
-    expect(await w.fileRow(policyFile)).toMatchObject({ embeddedModel: WIKI_EMBEDDING_MODEL });
+    expect(await w.fileRow(policyFile)).toMatchObject({ embeddedModel: WIKI_EMBEDDING_VERSION });
     const stored = await runWithoutTenant(
       () =>
         prisma.$queryRaw<Array<{ model: string; dims: number }>>`
         SELECT "model", vector_dims("embedding") AS "dims" FROM "RecordFileChunk" WHERE "fileId" = ${policyFile}`,
     );
-    expect(stored).toEqual([{ model: WIKI_EMBEDDING_MODEL, dims: WIKI_EMBEDDING_DIMENSIONS }]);
+    expect(stored).toEqual([{ model: WIKI_EMBEDDING_VERSION, dims: WIKI_EMBEDDING_DIMENSIONS }]);
     const usage = await runWithoutTenant(() =>
       prisma.agentUsageEvent.findMany({
         where: { companyId: w.companyId },
@@ -727,7 +729,7 @@ describeDatabase("record file contents indexed like the Knowledge Base", () => {
     await w.searchFiles(w.admin, "holiday rules", true);
     expect(w.schedule).toHaveBeenCalledTimes(1);
     expect(await w.index()).toEqual({ extracted: 0, embedded: 1 });
-    expect(await w.fileRow(holiday)).toMatchObject({ embeddedModel: WIKI_EMBEDDING_MODEL });
+    expect(await w.fileRow(holiday)).toMatchObject({ embeddedModel: WIKI_EMBEDDING_VERSION });
     const resumed = await w.searchFiles(w.admin, "holiday rules", true);
     expect(resumed.items.map((item) => item.id)).toEqual([holiday]);
     const purposes = await runWithoutTenant(() =>

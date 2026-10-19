@@ -223,7 +223,6 @@ function normalizeText(value: string): string {
 
 const WORD_CHARACTER = /[\p{L}\p{N}]/u;
 
-// A short term must also end its word, or be followed by a plural s, so "post" matches "posts" but not "postal".
 const SHORT_TERM_LENGTH = 4;
 
 function endsWordAt(text: string, end: number): boolean {
@@ -232,12 +231,13 @@ function endsWordAt(text: string, end: number): boolean {
 }
 
 function startsWordIn(text: string, term: string): boolean {
-  for (let index = text.indexOf(term); index !== -1; index = text.indexOf(term, index + 1))
+  for (let index = text.indexOf(term); index !== -1; index = text.indexOf(term, index + 1)) {
     if (
       !WORD_CHARACTER.test(text.charAt(index - 1)) &&
       (term.length > SHORT_TERM_LENGTH || endsWordAt(text, index + term.length))
     )
       return true;
+  }
   return false;
 }
 

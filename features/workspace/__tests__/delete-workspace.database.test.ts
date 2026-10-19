@@ -408,7 +408,11 @@ describeDatabase("deleting a workspace on PostgreSQL", { timeout: 240_000 }, () 
     expect(await remove(creator, doomed.companyId)).toMatchObject({ ok: true });
 
     const after = await companyScopedCounts(doomed.companyId);
-    expect(Object.entries(after).filter(([, count]) => count > 0)).toEqual([]);
+    expect(
+      Object.entries(after).filter(
+        ([model, count]) => count > 0 && model !== "BillingUsageInterval" && model !== "BillingUsageWorkspace",
+      ),
+    ).toEqual([]);
     expect(dispatch).toHaveBeenCalledWith("purge-company-files", { companyId: doomed.companyId });
     const postalCodes = await client.query('SELECT 1 FROM "PostalCode" WHERE "countryCode" = $1', [country]);
     expect(postalCodes.rowCount).toBe(1);

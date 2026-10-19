@@ -31,7 +31,6 @@ export const UserByIdResponseSchema = z.object({
 
 export const TenantUserSchema = UserDtoSchema.extend({
   companyId: z.string(),
-  // No longer editable; phone numbers typed without a country code are read in it when it is loaded.
   country: z.enum(CountryCode).optional(),
   displayLanguage: z.enum(Locale),
   formattingLocale: z.enum(Locale),
