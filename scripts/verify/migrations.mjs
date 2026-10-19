@@ -10,7 +10,8 @@
  *   node scripts/verify/migrations.mjs [--from origin/main] [--skip-pg16] [--skip-upgrade]
  */
 import { existsSync, mkdirSync, readdirSync, readFileSync } from "node:fs";
-import { relative, resolve } from "node:path";
+import { homedir } from "node:os";
+import { basename, relative, resolve } from "node:path";
 
 import { databaseEnvironment, prepareDatabase } from "./lib/database.mjs";
 import { ensureCluster, recreateDatabase, serverVersion } from "./lib/postgres.mjs";
@@ -65,7 +66,8 @@ async function upgrade() {
   const name = `upgrade-from-${options.from.replace(/^origin\//, "")}`;
   const log = resolve(directory, `${name}.log`);
   const started = Date.now();
-  const snapshot = resolve(REPO_ROOT, ".runs/verify/snapshot");
+  // Outside the worktree, so test runners and file scans of the worktree never pick up the snapshot's files.
+  const snapshot = resolve(homedir(), ".cache/customermates-verify", `${basename(REPO_ROOT)}-migration-snapshot`);
   const sha = await capture("git", ["rev-parse", "--short", options.from]);
   if (existsSync(snapshot)) await run("git", ["worktree", "remove", "--force", snapshot], { log });
   await run("git", ["worktree", "prune"], { log });

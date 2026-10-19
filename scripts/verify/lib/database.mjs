@@ -21,5 +21,18 @@ export async function prepareDatabase(url, { seedTimes = 1, log, mode = "self-ho
     total += result.seconds;
     if (result.code !== 0) return { ok: false, failedStep: name, seconds: total };
   }
-  return { ok: true, seconds: total };
+  // A freshly seeded database has no planner statistics until autovacuum gets to it, and copies made from it inherit
+  // that. The first heavy reads (dashboard measures of the demo workspace) then took seconds on CI runners.
+  const startedAt = Date.now();
+  const { Client } = await import("pg");
+  const client = new Client({ connectionString: url });
+  try {
+    await client.connect();
+    await client.query("ANALYZE");
+  } catch {
+    return { ok: false, failedStep: "analyze", seconds: total };
+  } finally {
+    await client.end().catch(() => undefined);
+  }
+  return { ok: true, seconds: total + (Date.now() - startedAt) / 1000 };
 }

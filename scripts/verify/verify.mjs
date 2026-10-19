@@ -90,21 +90,32 @@ const vitestLane = async () => {
   await stage(full ? "vitest (all)" : "vitest (affected)", "node", ["scripts/verify/vitest.mjs", "--run-id", `${runId}-vitest`, ...(full ? [] : ["--changed", mergeBase])], { echo: true });
 };
 
-const e2eLane = async () => {
-  if (!options.e2e) return;
-  const targets = full ? "all" : "cloud-chromium,self-hosted-chromium";
-  await stage(`playwright (${full ? "5 targets" : "chromium + self-hosted"})`, "node", [
-    "scripts/verify/e2e.mjs",
-    "--targets",
-    targets,
-    "--run-id",
-    `${runId}-e2e`,
-    ...(offloadTargets ? ["--offload", offloadTargets] : []),
-    "--shards",
-    options.shards || "4",
-    // Vitest runs beside the browsers on this machine; leave it room.
-    ...(options.vitest ? ["--parallel", "6"] : []),
-  ], { echo: true });
+const allTargets = full ? ["cloud-chromium", "cloud-firefox", "self-hosted-chromium", "cloud-webkit", "cloud-mobile"] : ["cloud-chromium", "self-hosted-chromium"];
+const offloaded = offloadTargets ? offloadTargets.split(",").filter((target) => allTargets.includes(target)) : [];
+const localTargets = allTargets.filter((target) => !offloaded.includes(target));
+
+function playwrightStage(name, targets, extra = []) {
+  return stage(
+    name,
+    "node",
+    ["scripts/verify/e2e.mjs", "--targets", targets.join(","), "--run-id", `${runId}-${name.replace(/[^a-z0-9]+/gi, "-")}`, "--shards", options.shards || "4", ...extra],
+    { echo: true },
+  );
+}
+
+// Browsers on this machine first; the database suite then runs on its own here, because load is what makes its long
+// transactions time out. The offloaded targets run on ws-test meanwhile.
+let localBrowsersDone = Promise.resolve();
+const e2eLanes = () => {
+  if (!options.e2e) return [];
+  const lanes = [];
+  if (localTargets.length) {
+    const local = playwrightStage(`playwright ${localTargets.join(" + ")}`, localTargets);
+    if (full) localBrowsersDone = local;
+    lanes.push(local);
+  }
+  if (offloaded.length) lanes.push(playwrightStage(`playwright ${offloaded.join(" + ")} (ws-test)`, offloaded, ["--offload", offloaded.join(",")]));
+  return lanes;
 };
 
 const extraLane = async () => {
@@ -112,7 +123,16 @@ const extraLane = async () => {
   if (runLive) await stage("live draft-send", "node", ["scripts/verify/live-checks.mjs", "--run-id", `${runId}-live`], { echo: true });
 };
 
-await Promise.all([(async () => { await staticLane(); await vitestLane(); })(), e2eLane(), extraLane()]);
+const browserLanes = e2eLanes();
+await Promise.all([
+  (async () => {
+    await staticLane();
+    await localBrowsersDone;
+    await vitestLane();
+  })(),
+  ...browserLanes,
+  extraLane(),
+]);
 
 const order = ["generated files", "typecheck", "lint", "i18n audit"];
 results.sort((a, b) => (order.indexOf(a.stage) + 1 || 99) - (order.indexOf(b.stage) + 1 || 99));

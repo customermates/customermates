@@ -32,8 +32,13 @@ test("an expected 404 document and sandboxed requests leave unrelated API and ch
     await page.evaluate(async () => {
       const api = await fetch("/api/v1/diagnostics-probe-missing", { method: "POST", body: "{}" });
       if (api.status !== 404) throw new Error(`The missing API answered ${api.status}`);
+      // WebKit fires no error event for a load the sandbox route aborts, so a load settles on error, load or 10 s.
       const settled = (element: HTMLScriptElement | HTMLImageElement) =>
-        new Promise((resolve) => element.addEventListener("error", resolve, { once: true }));
+        new Promise((resolve) => {
+          element.addEventListener("error", resolve, { once: true });
+          element.addEventListener("load", resolve, { once: true });
+          setTimeout(resolve, 10000);
+        });
       const script = document.createElement("script");
       script.src = "/_next/static/chunks/diagnostics-probe-missing.js";
       const scriptFailed = settled(script);

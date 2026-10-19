@@ -2,7 +2,9 @@ import type { Page } from "@playwright/test";
 import type { Client } from "pg";
 
 import { randomUUID } from "node:crypto";
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 import { expect, test } from "../fixtures";
 import { isTestInbox, TEST_ACCOUNT_IDS } from "./live-allowlist.mjs";
@@ -45,21 +47,19 @@ async function connectSender(database: Client, workspace: { companyId: string; u
   return id;
 }
 
-async function receiverCopies(marker: string) {
-  const response = await fetch(`https://api.unipile.com/v2/${RECEIVER_ACCOUNT}/emails?limit=50`, {
-    headers: { "X-API-KEY": process.env.UNIPILE_API_KEY ?? "", accept: "application/json" },
-  });
-  if (!response.ok) throw new Error(`Listing the receiver inbox answered ${response.status}`);
-  const body = (await response.json()) as { data?: Array<{ subject?: string }>; items?: Array<{ subject?: string }> };
-  return (body.data ?? body.items ?? []).filter((email) => String(email.subject ?? "").includes(marker)).length;
+/** Distinct copies in the receiver test inbox, counted read-only over IMAP (the provider's listing can lag minutes). */
+function receiverCopies(marker: string) {
+  const output = execFileSync("python3", ["-I", resolve("tests/e2e/live/imap-count.py"), marker], { encoding: "utf8" });
+  const result = JSON.parse(output) as { count?: number; error?: string };
+  if (typeof result.count !== "number") throw new Error(`Counting the receiver inbox failed: ${result.error ?? "no count"}`);
+  return result.count;
 }
 
 /** Waits until the receiver inbox has the marked email, then checks that it arrived exactly once. */
 async function expectDeliveredOnce(marker: string) {
-  await expect.poll(() => receiverCopies(marker), { timeout: 420000, intervals: [5000, 10000, 15000] }).toBeGreaterThanOrEqual(1);
-  // The provider lists a delivered email up to a few minutes late; wait a little more before counting copies.
+  await expect.poll(() => receiverCopies(marker), { timeout: 240000, intervals: [5000, 10000, 15000] }).toBeGreaterThanOrEqual(1);
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 20000));
-  expect(await receiverCopies(marker)).toBe(1);
+  expect(receiverCopies(marker)).toBe(1);
 }
 
 async function saveDraft(page: Page, connectedAccountId: string, subject: string, body: string) {

@@ -144,7 +144,7 @@ export default defineConfig({
     maxWorkers: 4,
     environment: "node",
     include: nodeTestInclude,
-    exclude: ["node_modules", ".next", "generated"],
+    exclude: ["node_modules", ".next", "generated", "**/.runs/**"],
     projects: [
       {
         resolve: { alias: aliases },
@@ -155,7 +155,7 @@ export default defineConfig({
           environment: "node",
           env: testEnvironment,
           include: nodeTestInclude,
-          exclude: ["node_modules", ".next", "generated", ...domTestFiles],
+          exclude: ["node_modules", ".next", "generated", "**/.runs/**", ...domTestFiles],
           server: { deps: { inline: [/next-intl/] } },
         },
       },
@@ -169,7 +169,7 @@ export default defineConfig({
           env: testEnvironment,
           server: { deps: { inline: [/next-intl/] } },
           include: domTestFiles,
-          exclude: ["node_modules", ".next", "generated"],
+          exclude: ["node_modules", ".next", "generated", "**/.runs/**"],
         },
       },
     ],

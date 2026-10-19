@@ -25,7 +25,7 @@ if (process.argv.includes("--help") || process.argv.includes("-h")) {
   process.exit(0);
 }
 
-const SECRETS = ["UNIPILE_API_KEY", "UNIPILE_TEST_SENDER_EMAIL", "UNIPILE_TEST_RECEIVER_EMAIL"];
+const SECRETS = ["UNIPILE_API_KEY", "UNIPILE_TEST_SENDER_EMAIL", "UNIPILE_TEST_RECEIVER_EMAIL", "UNIPILE_TEST_MAIL_PASSWORD"];
 const options = parseArguments(process.argv.slice(2), { runId: "", rebuild: false, grep: "", preflight: false });
 
 if (SECRETS.some((name) => !process.env[name])) {
