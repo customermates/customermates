@@ -1,4 +1,4 @@
-import type { BrowserContext, ConsoleMessage, Page, Request, TestInfo } from "@playwright/test";
+import type { BrowserContext, ConsoleMessage, Page, Request, Response, TestInfo } from "@playwright/test";
 
 import {
   chunkLoadErrorChunk,
@@ -67,6 +67,28 @@ function requestPage(request: Request) {
   }
 }
 
+/** The diagnostic Chromium logs for a loopback load answered with an HTTP error, built from the response itself. */
+export function failedResponseDiagnostic(
+  response: Pick<Response, "status" | "statusText" | "url" | "frame">,
+): BrowserDiagnostic | null {
+  if (response.status() < 400) return null;
+  const url = sourceUrl(response.url());
+  if (!url || !["http:", "https:"].includes(url.protocol) || !LOOPBACK_HOSTS.includes(url.hostname)) return null;
+  let page: Page | null = null;
+  try {
+    page = response.frame().page();
+  } catch {
+    page = null;
+  }
+  const statusText = response.statusText();
+  return {
+    kind: "console",
+    text: `Failed to load resource: the server responded with a status of ${response.status()}${statusText ? ` (${statusText})` : ""}`,
+    source: response.url(),
+    page,
+  };
+}
+
 const byTest = new WeakMap<TestInfo, BrowserDiagnostics>();
 const byContext = new WeakMap<BrowserContext, BrowserDiagnostics>();
 
@@ -111,6 +133,14 @@ export class BrowserDiagnostics {
         this.record({ kind: "console", text: message.text(), source: message.location().url, page: message.page() });
     });
     context.on("request", (request: Request) => this.noteRequest(request));
+    // Chromium and WebKit log every loopback load answered with an HTTP error as "Failed to load resource"; Firefox
+    // logs nothing for a failed fetch or document and only a warning for a failed script. Record the same diagnostic
+    // from the response there, so an unexpected 4xx or 5xx fails a Firefox test too.
+    if (context.browser?.()?.browserType().name() === "firefox")
+      context.on("response", (response: Response) => {
+        const diagnostic = failedResponseDiagnostic(response);
+        if (diagnostic) this.record(diagnostic);
+      });
     context.on("requestfailed", (request: Request) => {
       this.noteCancelledChunk(request);
       this.noteAbortedLoad(request);

@@ -5,10 +5,12 @@ import { recordInvariant } from "./record-invariant";
 import type { CalculationContext } from "./calculation";
 import type { CalculatedValue, CalculationExpression, RecordModel, RecordRef } from "./record-model.schema";
 import type { RecordRepo } from "./record.repo";
+import type { CalculationReaderRepo } from "./record-calculation-reader";
 
 import { evaluateCalculation, fieldPrecisionResult, valueResult } from "./calculation";
 import { scalarMatchesType, validateRecordModel } from "./record-model-validation";
 import { decodeRecordValue } from "./record-storage";
+import { CalculationReader } from "./record-calculation-reader";
 
 export const SYNCHRONOUS_RECORD_LIMIT = 500;
 export const recordKey = (ref: RecordRef) => `${ref.typeId}:${ref.recordId}`;
@@ -22,10 +24,7 @@ type PathStep = { relationId: string; direction: "outgoing" | "incoming" };
 type Source = { typeId: string; fieldId: string | null; path: PathStep[] };
 export type CalculationLinkChange = { relationId: string; source: RecordRef; target: RecordRef };
 export type CalculationSeeds = { links?: CalculationLinkChange[]; unchanged?: ReadonlySet<string> };
-export type CalculationRecordRepo = Pick<
-  RecordRepo,
-  "getRecordCompanyWide" | "getValueDependencies" | "linkedRecordsCompanyWide" | "setValue" | "setValueDependencies"
->;
+export type CalculationRecordRepo = CalculationReaderRepo;
 
 export function calculationSources(
   expression: CalculationExpression,
@@ -49,10 +48,20 @@ export function calculationSources(
 }
 
 export class RecordCalculationService {
-  constructor(private records: CalculationRecordRepo) {}
+  static batching = true;
+
+  constructor(
+    private records: CalculationRecordRepo,
+    private readonly scopedRun = false,
+  ) {}
 
   withRepository(records: CalculationRecordRepo): RecordCalculationService {
     return new RecordCalculationService(records);
+  }
+
+  private scoped(): RecordCalculationService {
+    if (this.scopedRun || !RecordCalculationService.batching) return this;
+    return new RecordCalculationService(new CalculationReader(this.records), true);
   }
 
   async recalculate(
@@ -63,7 +72,7 @@ export class RecordCalculationService {
     changes: CalculationSeeds = {},
   ): Promise<{ complete: boolean; changed: RecordRef[] }> {
     try {
-      return await this.calculate(model, seeds, capture, limit, changes);
+      return await this.scoped().calculate(model, seeds, capture, limit, changes);
     } catch (error) {
       if (isCalculationBudgetExceeded(error)) return { complete: false, changed: [] };
       throw error;
@@ -100,15 +109,13 @@ export class RecordCalculationService {
         let frontier = start;
         for (const step of [...path].reverse()) {
           const next = new Map<string, RecordRef>();
-          for (const ref of frontier) {
-            const parents = await context.related(
-              ref,
-              step.relationId,
-              step.direction === "outgoing" ? "incoming" : "outgoing",
-            );
-            for (const parent of parents) next.set(recordKey(parent), parent);
-            if (next.size > limit) return null;
-          }
+          const parentsOf = await Promise.all(
+            frontier.map((ref) =>
+              context.related(ref, step.relationId, step.direction === "outgoing" ? "incoming" : "outgoing"),
+            ),
+          );
+          for (const parents of parentsOf) for (const parent of parents) next.set(recordKey(parent), parent);
+          if (next.size > limit) return null;
           frontier = [...next.values()];
         }
         return frontier;
@@ -129,6 +136,7 @@ export class RecordCalculationService {
         }
       }
       if (new Set([...targets.keys(), ...changed.keys()]).size > limit) return { complete: false, changed: [] };
+      await this.prefetch(model, [...targets.values()], definition, limit);
       for (const [key, ref] of targets) {
         const stored = await row(ref);
         if (!stored) continue;
@@ -175,7 +183,7 @@ export class RecordCalculationService {
     limit = SYNCHRONOUS_RECORD_LIMIT,
   ): Promise<CalculatedValue | null> {
     try {
-      return await evaluateCalculation(expression, ref, this.context(model, limit).context);
+      return await evaluateCalculation(expression, ref, this.scoped().context(model, limit).context);
     } catch (error) {
       if (isCalculationBudgetExceeded(error)) return null;
       throw error;
@@ -222,11 +230,20 @@ export class RecordCalculationService {
     return { context, values, row };
   }
 
-  async provenance(
+  provenance(
     model: RecordModel,
     ref: RecordRef,
     expression: CalculationExpression,
     limit = SYNCHRONOUS_RECORD_LIMIT,
+  ): Promise<RecordRef[]> {
+    return this.scoped().traceProvenance(model, ref, expression, limit);
+  }
+
+  private async traceProvenance(
+    model: RecordModel,
+    ref: RecordRef,
+    expression: CalculationExpression,
+    limit: number,
   ): Promise<RecordRef[]> {
     const dependencies = new Map<string, RecordRef>();
     const add = (source: RecordRef) => {
@@ -236,7 +253,7 @@ export class RecordCalculationService {
     const visit = async (node: CalculationExpression, current: RecordRef): Promise<void> => {
       if (node.kind === "literal") return;
       if (node.kind === "operation") {
-        for (const argument of node.arguments) await visit(argument, current);
+        await Promise.all(node.arguments.map((argument) => visit(argument, current)));
         return;
       }
       if (node.kind === "related") {
@@ -247,10 +264,8 @@ export class RecordCalculationService {
           limit + 1,
         );
         if (related.length > limit) throw unwindFailure(CustomErrorCode.recordCalculationBudget, "conflict");
-        for (const source of related) {
-          add(source);
-          await visit(node.expression, source);
-        }
+        for (const source of related) add(source);
+        await Promise.all(related.map((source) => visit(node.expression, source)));
         return;
       }
       const field = model.fields.find(
@@ -277,7 +292,7 @@ export class RecordCalculationService {
     const field = recordInvariant(model.fields.find((candidate) => candidate.id === fieldId));
     if (field.behavior.kind === "input") throw new Error("Only calculated fields have calculation provenance");
     const previousSources = await this.records.getValueDependencies(ref, fieldId);
-    const sources = await this.provenance(model, ref, field.behavior.expression, limit);
+    const sources = await this.traceProvenance(model, ref, field.behavior.expression, limit);
     const keys = (refs: RecordRef[]) => refs.map(recordKey).sort();
     const dependenciesChanged = JSON.stringify(keys(previousSources)) !== JSON.stringify(keys(sources));
     const valueChanged = JSON.stringify(previous) !== JSON.stringify(result);
@@ -288,6 +303,58 @@ export class RecordCalculationService {
   }
 
   async calculateField(model: RecordModel, ref: RecordRef, fieldId: string, limit: number): Promise<void> {
+    await this.scoped().calculateOne(model, ref, fieldId, limit);
+  }
+
+  async calculateFields(model: RecordModel, refs: RecordRef[], fieldId: string, limit: number): Promise<void> {
+    const scoped = this.scoped();
+    const definition = model.fields.find((field) => field.id === fieldId);
+    if (definition) await scoped.prefetch(model, refs, definition, limit);
+    for (const ref of refs) await scoped.calculateOne(model, ref, fieldId, limit);
+  }
+
+  private async prefetch(model: RecordModel, refs: RecordRef[], definition: RecordModel["fields"][number], limit: number) {
+    if (!this.scopedRun || !refs.length || definition.behavior.kind === "input") return;
+    await Promise.all([
+      ...refs.map((ref) => this.records.getRecordCompanyWide(ref)),
+      ...refs.map((ref) => this.records.getValueDependencies(ref, definition.id)),
+      this.prefetchExpression(model, definition.behavior.expression, refs, limit, new Set([definition.id])),
+    ]);
+  }
+
+  private async prefetchExpression(
+    model: RecordModel,
+    expression: CalculationExpression,
+    refs: RecordRef[],
+    limit: number,
+    visited: Set<string>,
+  ): Promise<void> {
+    if (!refs.length || refs.length > limit) return;
+    if (expression.kind === "literal") return;
+    if (expression.kind === "operation") {
+      await Promise.all(expression.arguments.map((argument) => this.prefetchExpression(model, argument, refs, limit, visited)));
+      return;
+    }
+    if (expression.kind === "related") {
+      const linked = await Promise.all(
+        refs.map((ref) => this.records.linkedRecordsCompanyWide(ref, expression.relationId, expression.direction, limit + 1)),
+      );
+      if (linked.some((targets) => targets.length > limit)) return;
+      const targets = [...new Map(linked.flat().map((target) => [recordKey(target), target])).values()];
+      await Promise.all([
+        ...targets.map((target) => this.records.getRecordCompanyWide(target)),
+        this.prefetchExpression(model, expression.expression, targets, limit, visited),
+      ]);
+      return;
+    }
+    const field = model.fields.find((candidate) => candidate.id === expression.fieldId);
+    if (!field || field.publishedSummary) return;
+    await Promise.all(refs.map((ref) => this.records.getValueDependencies(ref, field.id)));
+    if (field.behavior.kind === "input" || field.behavior.kind === "snapshot" || visited.has(field.id)) return;
+    await this.prefetchExpression(model, field.behavior.expression, refs, limit, new Set([...visited, field.id]));
+  }
+
+  private async calculateOne(model: RecordModel, ref: RecordRef, fieldId: string, limit: number): Promise<void> {
     const definition = model.fields.find((field) => field.id === fieldId && field.typeId === ref.typeId);
     if (!definition || definition.behavior.kind === "input" || definition.archived) return;
     const rows = new Map<string, Awaited<ReturnType<RecordRepo["getRecordCompanyWide"]>>>();

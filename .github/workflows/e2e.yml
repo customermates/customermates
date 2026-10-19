@@ -99,7 +99,7 @@ jobs:
         run: |
           docker run -d --name postgres -p 127.0.0.1:5432:5432 -e POSTGRES_PASSWORD=postgres --shm-size=1g \
             pgvector/pgvector:0.8.1-pg17-bookworm \
-            -c max_connections=500 -c fsync=off -c synchronous_commit=off -c full_page_writes=off
+            -c max_connections=500
       - uses: ./.github/actions/setup
       - name: Select mode and browser
         id: target

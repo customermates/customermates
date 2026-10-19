@@ -14,12 +14,16 @@ function fakeEmitter() {
   };
 }
 
-function fakeBrowser() {
+function fakeBrowser(browserName = "chromium") {
   const contextEvents = fakeEmitter();
   const pageEvents = fakeEmitter();
   const mainFrame = { page: () => page };
   const page = { on: pageEvents.on, context: () => context, mainFrame: () => mainFrame } as unknown as Page;
-  const context = { on: contextEvents.on, pages: () => [page] } as unknown as BrowserContext;
+  const context = {
+    on: contextEvents.on,
+    pages: () => [page],
+    browser: () => ({ browserType: () => ({ name: () => browserName }) }),
+  } as unknown as BrowserContext;
   return {
     context,
     page,
@@ -56,6 +60,13 @@ function fakeBrowser() {
     requested: (url: string) =>
       contextEvents.emit("request", { url: () => url, isNavigationRequest: () => false, frame: () => mainFrame }),
     loaded: () => pageEvents.emit("domcontentloaded"),
+    response: (url: string, status: number, statusText = "") =>
+      contextEvents.emit("response", {
+        url: () => url,
+        status: () => status,
+        statusText: () => statusText,
+        frame: () => ({ page: () => page }),
+      }),
   };
 }
 
@@ -69,6 +80,25 @@ const NOT_FOUND = "Failed to load resource: the server responded with a status o
 const BASE = "http://127.0.0.1:4464";
 
 describe("browser diagnostics", () => {
+  it("records loopback loads answered with an HTTP error on Firefox, which logs nothing for them", () => {
+    const firefox = fakeBrowser("firefox");
+    const diagnostics = new BrowserDiagnostics().watch(firefox.context);
+    firefox.response(`${BASE}/api/v1/records/query`, 500, "Internal Server Error");
+    firefox.response(`${BASE}/en/dashboard`, 200, "OK");
+    firefox.response("https://flagcdn.com/w40/de.png", 404, "Not Found");
+    expect(diagnostics.unexpected.map(({ text, source }) => [text, source])).toEqual([
+      [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        `${BASE}/api/v1/records/query`,
+      ],
+    ]);
+
+    const chromium = fakeBrowser("chromium");
+    const other = new BrowserDiagnostics().watch(chromium.context);
+    chromium.response(`${BASE}/api/v1/records/query`, 500, "Internal Server Error");
+    expect(other.unexpected).toEqual([]);
+  });
+
   it("drops only failed loads of other origins, which the sign-in sandbox blocks", () => {
     const failed = (source: string, text = "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT") =>
       isSandboxedResourceFailure({ kind: "console", text, source });

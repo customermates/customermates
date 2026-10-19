@@ -285,16 +285,14 @@ export class RecordOperationService extends UserAccessor {
               operation.total ||
               operation.processed + (await this.remainingUnits(staged, [], fields.slice(cursor.index)));
             const refs = await staged.getRecordRefsCompanyWide(field.typeId, cursor.afterId, BATCH_SIZE);
-            for (const ref of refs) {
-              if (
-                field.behavior.kind === "snapshot" &&
-                !sources.captures.some(
+            const calculated = refs.filter(
+              (ref) =>
+                field.behavior.kind !== "snapshot" ||
+                sources.captures.some(
                   (capture) => recordKey(capture.ref) === recordKey(ref) && capture.fieldIds.includes(field.id),
-                )
-              )
-                continue;
-              await calculations.calculateField(model, ref, field.id, BACKGROUND_FANOUT_LIMIT);
-            }
+                ),
+            );
+            await calculations.calculateFields(model, calculated, field.id, BACKGROUND_FANOUT_LIMIT);
             await journal.persist();
             await this.records.updateOperation(operationId, {
               ...progress({ ...operation, total }, refs.length),

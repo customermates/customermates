@@ -13,8 +13,7 @@ test("keeps complete application reads, History and a blocked form draft while a
   companyId,
   diagnostics,
 }, testInfo) => {
-  // The publish below may take up to 420s on a loaded machine (see its poll); the rest of the test takes about 90s.
-  test.setTimeout(600000);
+  test.setTimeout(300000);
   const id = (key: string) => presetId(companyId, key);
   await page.goto(`/en/records/${id("service")}`);
   await page.locator("#records-add").click();
@@ -309,12 +308,7 @@ test("keeps complete application reads, History and a blocked form draft while a
           });
           return true;
         },
-        // The update recalculates 6 calculated fields x 600 records = 3600 units, one record and field at a time with
-        // about 30 queries each (features/records/record-operation.service.ts, calculations phase), so its duration
-        // follows machine load: 204-211s with the CPU 2x oversubscribed, and 2250 of 3600 units after 180s (about
-        // 290s in total) with 8 shards on one machine. 420s keeps ~40% headroom over the slowest; shrink it once the
-        // calculation phase reads and writes in batches.
-        { timeout: 420000, intervals: [100, 250, 500, 1000] },
+        { timeout: 180000, intervals: [100, 250, 500, 1000] },
       )
       .toBe(true);
     expect(completeReads).toBeGreaterThan(0);

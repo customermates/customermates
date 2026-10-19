@@ -557,7 +557,7 @@ async function recalculateAll(f: Fixture, model: RecordModel) {
     const definition = model.fields.find((candidate) => candidate.id === fieldId);
     if (!definition || definition.behavior.kind === "snapshot") continue;
     const refs = await f.repo.getRecordRefsCompanyWide(definition.typeId, undefined, 5000);
-    for (const ref of refs) await calculations.calculateField(model, ref, fieldId, 5000);
+    await calculations.calculateFields(model, refs, fieldId, 5000);
   }
 }
 
@@ -1539,4 +1539,211 @@ describeDatabase("record trash calculations", () => {
     expect((await f.rows(theirRow))?.deletedAt).not.toBeNull();
     expect(await f.inconsistencies()).toEqual([]);
   }, 180_000);
+});
+
+async function seedBulkPipeline(f: Fixture, account: RecordRef, services: RecordRef[], deals: number, itemsPerDeal: number) {
+  const companyId = f.seed.company.id;
+  const fixedId = (group: number, index: number) =>
+    `00000000-0000-4000-${String(8100 + group)}-${String(index + 1).padStart(12, "0")}`;
+  const dealRefs = Array.from({ length: deals }, (_, index) => ({ typeId: f.id("deal"), recordId: fixedId(1, index) }));
+  const items = dealRefs.flatMap((parent, dealIndex) =>
+    Array.from({ length: itemsPerDeal }, (_, index) => {
+      const position = dealIndex * itemsPerDeal + index;
+      return {
+        parent,
+        service: services[position % 10 === 0 ? 1 : 0],
+        quantity: String((position % 7) + 1),
+        ref: { typeId: f.id("lineItem"), recordId: fixedId(2, position) },
+      };
+    }),
+  );
+  await runWithoutTenant(async () => {
+    await prisma.crmRecord.createMany({
+      data: [...dealRefs, ...items.map((item) => item.ref)].map((ref) => ({ companyId, typeId: ref.typeId, id: ref.recordId })),
+    });
+    await prisma.recordLink.createMany({
+      data: [
+        ...dealRefs.map((ref) => ({ relationId: f.id("deal.account"), source: ref, target: account })),
+        ...items.flatMap((item) => [
+          { relationId: f.id("lineItem.deal"), source: item.ref, target: item.parent },
+          { relationId: f.id("lineItem.service"), source: item.ref, target: item.service },
+        ]),
+      ].map((link) => ({
+        companyId,
+        relationId: link.relationId,
+        sourceTypeId: link.source.typeId,
+        sourceId: link.source.recordId,
+        targetTypeId: link.target.typeId,
+        targetId: link.target.recordId,
+      })),
+    });
+  });
+  await runWithTenant(f.admin, () =>
+    runInTransaction(
+      async () => {
+        const model = await f.repo.getModel();
+        for (const [index, ref] of dealRefs.entries()) {
+          await f.repo.setValue(ref, f.id("deal.name"), { state: "value", value: text(`Pipeline ${index}`) }, model.revision);
+          await f.repo.setValue(ref, f.id("deal.amount"), { state: "value", value: decimal(String((index % 9) * 10)) }, model.revision);
+        }
+        for (const item of items) {
+          await f.repo.setValue(item.ref, f.id("lineItem.name"), { state: "value", value: text("Row") }, model.revision);
+          await f.repo.setValue(item.ref, f.id("lineItem.quantity"), { state: "value", value: decimal(item.quantity) }, model.revision);
+          await f.repo.setValue(item.ref, f.id("lineItem.pricingMode"), { state: "value", value: { kind: "select", value: "live" } }, model.revision);
+        }
+        await recalculateAll(f, model);
+      },
+      { timeout: 600000 },
+    ),
+  );
+  return { deals: dealRefs, items: items.map((item) => item.ref) };
+}
+
+/** Every stored value and value dependency of the workspace, with workspace-specific ids replaced by stable names. */
+async function calculationSnapshot(f: Fixture) {
+  const companyId = f.seed.company.id;
+  const model = await runWithTenant(f.admin, () => runInTransaction(() => f.repo.getModel()));
+  const typeKeys = new Map(model.types.map((type) => [type.id, type.label]));
+  const fieldKeys = new Map(model.fields.map((field) => [field.id, `${typeKeys.get(field.typeId)}.${field.label}`]));
+  const { values, dependencies, records } = await runWithoutTenant(async () => ({
+    values: await prisma.recordValue.findMany({ where: { companyId } }),
+    dependencies: await prisma.recordValueDependency.findMany({ where: { companyId } }),
+    records: await prisma.crmRecord.findMany({ where: { companyId }, select: { typeId: true, id: true, deletedAt: true } }),
+  }));
+  const names = new Map(
+    values
+      .filter((value) => ["organization.name", "service.name", "contact.name", "deal.name"].some((key) => value.fieldId === f.id(key)))
+      .map((value) => [`${value.typeId}:${value.recordId}`, value.textValue]),
+  );
+  const recordName = (typeId: string, recordId: string) =>
+    `${typeKeys.get(typeId) ?? typeId}/${recordId.startsWith("00000000-") ? recordId : (names.get(`${typeId}:${recordId}`) ?? recordId)}`;
+  const definitions = new Map(model.fields.map((field) => [field.id, field]));
+  return {
+    records: records.map((record) => `${recordName(record.typeId, record.id)}:${record.deletedAt ? "trashed" : "live"}`).sort(),
+    values: values
+      .map((value) => {
+        const definition = definitions.get(value.fieldId);
+        return `${recordName(value.typeId, value.recordId)}|${fieldKeys.get(value.fieldId) ?? value.fieldId}|${
+          definition ? JSON.stringify(decodeRecordValue(value, definition)) : value.state
+        }`;
+      })
+      .sort(),
+    dependencies: dependencies
+      .map(
+        (dependency) =>
+          `${recordName(dependency.typeId, dependency.recordId)}|${fieldKeys.get(dependency.fieldId) ?? dependency.fieldId}|${recordName(dependency.sourceTypeId, dependency.sourceId)}`,
+      )
+      .sort(),
+  };
+}
+
+describeDatabase("batched recalculation", () => {
+  it("gives the same values and dependencies as one record at a time on bulk updates, big restores and chains", async () => {
+    const timings: Record<string, Record<string, number>> = {};
+    const scenario = async (batching: boolean) => {
+      RecordCalculationService.batching = batching;
+      const mode = batching ? "batched" : "one at a time";
+      timings[mode] = {};
+      const timed = async <T>(label: string, task: () => Promise<T>) => {
+        const started = performance.now();
+        const result = await task();
+        timings[mode][label] = Math.round(performance.now() - started);
+        return result;
+      };
+      const f = await fixture();
+      const account = await organization(f, "Acme");
+      const services = [
+        await f.created({
+          action: "create",
+          typeId: f.id("service"),
+          fields: [
+            { fieldId: f.id("service.name"), value: text("Service A") },
+            { fieldId: f.id("service.amount"), value: euro("100") },
+          ],
+        }),
+        await f.created({
+          action: "create",
+          typeId: f.id("service"),
+          fields: [
+            { fieldId: f.id("service.name"), value: text("Service B") },
+            { fieldId: f.id("service.amount"), value: euro("40.5") },
+          ],
+        }),
+      ];
+      const pipeline = await timed("seed 60 deals x 12 line items", () => seedBulkPipeline(f, account, services, 60, 12));
+      const snapshots = [await calculationSnapshot(f)];
+
+      const priceChange = await timed("bulk price change (background)", async () => {
+        const result = await f.mutation({
+          action: "update",
+          ref: services[0],
+          expectedVersion: await f.version(services[0]),
+          fields: [{ fieldId: f.id("service.amount"), value: euro("123.456") }],
+        });
+        if (!result.ok) throw new Error(JSON.stringify(result));
+        return result.data.status === "pending" ? f.drain(result.data.operationId) : result.data;
+      });
+      expect(priceChange).toMatchObject({ state: "completed" });
+      snapshots.push(await calculationSnapshot(f));
+
+      const parent = await deal(f, "Big order", "5");
+      await timed("seed 520 line items on one deal", () =>
+        seedLineItemsSharingLinkIds(f, parent, (index) => services[index % 5 === 0 ? 1 : 0], 520),
+      );
+      const expectedVersion = await f.version(parent);
+      const preview = await runWithTenant(f.admin, async () =>
+        new PreviewRecordDeletionInteractor(
+          f.repo,
+          f.policy,
+          new RecordWriteService(f.repo, f.policy, new RecordCalculationService(f.repo)),
+        ).invoke({ ref: parent, expectedVersion, expectedRevision: (await f.repo.getState())?.revision ?? 0 }),
+      );
+      if (!preview.ok) throw new Error(JSON.stringify(preview));
+      const deleted = await timed("delete the deal with 520 line items (background)", async () => {
+        const result = await f.mutation({ action: "delete", ref: parent, expectedVersion, expectedImpactHash: preview.data.impactHash });
+        if (!result.ok || result.data.status !== "pending") throw new Error(JSON.stringify(result));
+        await f.drain(result.data.operationId);
+        return result.data.operationId;
+      });
+      snapshots.push(await calculationSnapshot(f));
+      await timed("restore the 521 records from Trash (background)", async () => {
+        const restored = await f.restore({ batchId: deleted });
+        if (!restored.ok || restored.data.status !== "pending") throw new Error(JSON.stringify(restored));
+        expect(await f.drain(restored.data.operationId)).toMatchObject({ state: "completed" });
+      });
+      snapshots.push(await calculationSnapshot(f));
+
+      const change = async (ref: RecordRef, fieldId: string, value: RecordScalar | null) => {
+        const result = await f.mutation({ action: "update", ref, expectedVersion: await f.version(ref), fields: [{ fieldId, value }] });
+        if (!result.ok) throw new Error(JSON.stringify(result));
+        if (result.data.status === "pending") expect(await f.drain(result.data.operationId)).toMatchObject({ state: "completed" });
+      };
+      await timed("price change of the second service (176 line items)", () =>
+        change(services[1], f.id("service.amount"), euro("41.005")),
+      );
+      await timed("quantity change on one line item", () =>
+        change(pipeline.items[7], f.id("lineItem.quantity"), decimal("0.333")),
+      );
+      await timed("deal amount cleared (chained lookups)", () => change(pipeline.deals[3], f.id("deal.amount"), null));
+      snapshots.push(await calculationSnapshot(f));
+      expect(await f.inconsistencies()).toEqual([]);
+      return snapshots;
+    };
+    try {
+      const reference = await scenario(false);
+      const batched = await scenario(true);
+      expect(batched.length).toBe(reference.length);
+      for (const [index, snapshot] of batched.entries()) {
+        expect(snapshot.records).toEqual(reference[index].records);
+        expect(snapshot.values).toEqual(reference[index].values);
+        expect(snapshot.dependencies).toEqual(reference[index].dependencies);
+      }
+      expect(reference.at(-1)?.values.length).toBeGreaterThan(5000);
+    } finally {
+      RecordCalculationService.batching = true;
+      console.log(`[calculation timings ms] ${JSON.stringify(timings)}`);
+      if (process.env.CRM_CALCULATION_BENCHMARK_OUT)
+        (await import("node:fs")).writeFileSync(process.env.CRM_CALCULATION_BENCHMARK_OUT, JSON.stringify(timings, null, 2));
+    }
+  }, 1_800_000);
 });

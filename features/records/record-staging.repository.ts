@@ -97,12 +97,13 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
     await base.stageIdentityChannelsCompanyWide(operationId, identities);
     await base.stageRow(operationId, "identity", recordKey(ref), { ref, identities });
   };
-  overrides.getRecordCompanyWide = async (ref, options = {}) => {
-    const [record, overlay, values] = await Promise.all([
-      base.getRecordCompanyWide(ref, { includeTrash: true }),
-      base.getStageRow(operationId, "record", recordKey(ref)),
-      base.getStageRowsByPrefix(operationId, "value", `${recordKey(ref)}:`),
-    ]);
+  const mergeStaged = (
+    ref: RecordRef,
+    record: StoredRecord | null,
+    overlay: Prisma.JsonValue | null,
+    values: Array<{ payload: Prisma.JsonValue }>,
+    options: { includeTrash?: boolean },
+  ): StoredRecord | null => {
     const row = overlay ? StagedRecordSchema.parse(overlay) : null;
     if (row?.deleted || (!record && !row)) return null;
     if (record?.deletedAt && !options.includeTrash) return null;
@@ -145,14 +146,51 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
     }
     return { ...result, values: [...merged.values()] };
   };
-  overrides.getRecordsCompanyWide = async (refs, options) =>
-    (await Promise.all(refs.map((ref) => staged.getRecordCompanyWide(ref, options)))).filter(
-      (record): record is StoredRecord => record !== null,
-    );
+  overrides.getRecordCompanyWide = async (ref, options = {}) => {
+    const [record, overlay, values] = await Promise.all([
+      base.getRecordCompanyWide(ref, { includeTrash: true }),
+      base.getStageRow(operationId, "record", recordKey(ref)),
+      base.getStageRowsByPrefix(operationId, "value", `${recordKey(ref)}:`),
+    ]);
+    return mergeStaged(ref, record, overlay, values, options);
+  };
+  overrides.getRecordsCompanyWide = async (refs, options = {}) => {
+    if (!refs.length) return [];
+    const unique = [...new Map(refs.map((ref) => [recordKey(ref), ref])).values()];
+    const [records, overlays, values] = await Promise.all([
+      base.getRecordsCompanyWide(unique, { includeTrash: true }),
+      base.getStageRowsByKeys(operationId, "record", unique.map(recordKey)),
+      base.getStageRowsByPrefixes(
+        operationId,
+        "value",
+        unique.map((ref) => `${recordKey(ref)}:`),
+      ),
+    ]);
+    const stored = new Map(records.map((record) => [recordKey({ typeId: record.typeId, recordId: record.id }), record]));
+    const overlay = new Map(overlays.map((row) => [row.key, row.payload]));
+    const valuesOf = new Map<string, Array<{ payload: Prisma.JsonValue }>>();
+    for (const row of values) {
+      const key = row.key.slice(0, row.key.lastIndexOf(":"));
+      valuesOf.set(key, [...(valuesOf.get(key) ?? []), row]);
+    }
+    return unique
+      .map((ref) =>
+        mergeStaged(
+          ref,
+          stored.get(recordKey(ref)) ?? null,
+          overlay.get(recordKey(ref)) ?? null,
+          valuesOf.get(recordKey(ref)) ?? [],
+          options,
+        ),
+      )
+      .filter((record): record is StoredRecord => record !== null);
+  };
   overrides.getRecordRefsCompanyWide = (typeId, afterId, take, options) =>
     base.getStageRecordRefsCompanyWide(operationId, typeId, afterId, take, options);
   overrides.linkedRecordsCompanyWide = (ref, relationId, direction, take) =>
     base.linkedStageRecordsCompanyWide(operationId, ref, relationId, direction, take);
+  overrides.linkedRecordsManyCompanyWide = (refs, relationId, direction, take) =>
+    base.linkedStageRecordsManyCompanyWide(operationId, refs, relationId, direction, take);
   overrides.create = async (ref, assignedUserIds) => {
     const now = new Date();
     await stageRecord({
@@ -219,6 +257,20 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
     return row
       ? z.object({ sources: z.array(RecordRefSchema) }).parse(row).sources
       : base.getValueDependencies(ref, fieldId);
+  };
+  overrides.getValueDependenciesManyCompanyWide = async (refs, fieldIds) => {
+    const keys = refs.flatMap((ref) => fieldIds.map((fieldId) => `${recordKey(ref)}:${fieldId}`));
+    const stagedRows = new Map(
+      (await base.getStageRowsByKeys(operationId, "dependency", keys)).map((row) => [
+        row.key,
+        z.object({ sources: z.array(RecordRefSchema) }).parse(row.payload).sources,
+      ]),
+    );
+    const unstaged = await base.getValueDependenciesManyCompanyWide(refs, fieldIds);
+    return unstaged.map((entry) => ({
+      ...entry,
+      sources: stagedRows.get(`${recordKey(entry.ref)}:${entry.fieldId}`) ?? entry.sources,
+    }));
   };
   overrides.getRecordDependenciesCompanyWide = async (ref) => {
     const merged = new Map(

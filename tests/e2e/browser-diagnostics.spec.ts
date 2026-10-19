@@ -50,23 +50,45 @@ test("an expected 404 document and sandboxed requests leave unrelated API and ch
       await Promise.all([scriptFailed, flagFailed]);
     });
 
-    if (testInfo.project.name === "firefox") {
-      // Chromium and WebKit log a fetch or script answered with an HTTP error status as "Failed to load resource".
-      // Firefox writes no console message for a failed fetch or document and only a warning for a failed script, so
-      // none of these loads reaches the diagnostics there.
-      expect(diagnostics.unexpected).toEqual([]);
-      expect(errors).toEqual([]);
-      expect(notFound.events).toEqual([]);
-      await expect(diagnostics.verify(testInfo)).resolves.toBeUndefined();
-      return;
-    }
     await expect
       .poll(() => diagnostics.unexpected.map(({ source }) => new URL(source).pathname).sort())
       .toEqual(["/_next/static/chunks/diagnostics-probe-missing.js", "/api/v1/diagnostics-probe-missing"]);
     expect(errors).toHaveLength(2);
     expect(diagnostics.unexpected.every(({ text }) => text.startsWith("Failed to load resource"))).toBe(true);
-    if (testInfo.project.name === "chromium") expect(notFound.events).toHaveLength(1);
+    if (["chromium", "firefox"].includes(testInfo.project.name)) expect(notFound.events).toHaveLength(1);
     await expect(diagnostics.verify(testInfo)).rejects.toThrow("/api/v1/diagnostics-probe-missing");
+  } finally {
+    await probe.close();
+  }
+});
+
+test("an unexpected server error behind a page fails the test on every browser", async ({ browser }, testInfo) => {
+  const probe = await browser.newContext({
+    baseURL: localE2eEnvironment().baseUrl,
+    viewport: testInfo.project.use.viewport,
+    isMobile: testInfo.project.use.isMobile,
+    hasTouch: testInfo.project.use.hasTouch,
+    userAgent: testInfo.project.use.userAgent,
+    locale: "en-GB",
+  });
+  await probe.route("**/api/v1/diagnostics-probe-error", (route) =>
+    route.fulfill({ status: 500, contentType: "application/json", body: '{"error":"injected"}' }),
+  );
+  const diagnostics = new BrowserDiagnostics().watch(probe);
+  try {
+    const page = await probe.newPage();
+    await page.goto("/en/auth/signin");
+    await page.evaluate(async () => {
+      const answer = await fetch("/api/v1/diagnostics-probe-error", { method: "POST", body: "{}" });
+      if (answer.status !== 500) throw new Error(`The injected error answered ${answer.status}`);
+    });
+    await expect
+      .poll(() => diagnostics.unexpected.map(({ source }) => new URL(source).pathname))
+      .toContain("/api/v1/diagnostics-probe-error");
+    expect(
+      diagnostics.unexpected.find(({ source }) => source.endsWith("/api/v1/diagnostics-probe-error"))?.text,
+    ).toMatch(/^Failed to load resource: the server responded with a status of 500/);
+    await expect(diagnostics.verify(testInfo)).rejects.toThrow("/api/v1/diagnostics-probe-error");
   } finally {
     await probe.close();
   }
