@@ -356,9 +356,22 @@ async function fixture() {
                   return Promise.resolve();
                 };
               }
+              if (property === "setValues") {
+                return (values: Array<{ ref: RecordRef; fieldId: string; result: CalculatedValue }>) => {
+                  for (const value of values) writes.set(`${recordKey(value.ref)}:${value.fieldId}`, value.result);
+                  return Promise.resolve();
+                };
+              }
               if (property === "setValueDependencies") {
                 return (ref: RecordRef, fieldId: string, sources: RecordRef[]) => {
                   dependencies.set(`${recordKey(ref)}:${fieldId}`, sources.map(recordKey).sort());
+                  return Promise.resolve();
+                };
+              }
+              if (property === "setValueDependenciesMany") {
+                return (entries: Array<{ ref: RecordRef; fieldId: string; sources: RecordRef[] }>) => {
+                  for (const entry of entries)
+                    dependencies.set(`${recordKey(entry.ref)}:${entry.fieldId}`, entry.sources.map(recordKey).sort());
                   return Promise.resolve();
                 };
               }
@@ -370,22 +383,27 @@ async function fixture() {
           const problems: string[] = [];
           for (const type of model.types) {
             const refs = await repo.getRecordRefsCompanyWide(type.id, undefined, 5000);
-            for (const ref of refs) {
-              const stored = await repo.getRecordCompanyWide(ref);
-              for (const definition of model.fields) {
-                if (
-                  definition.typeId !== type.id ||
-                  definition.archived ||
-                  definition.behavior.kind === "input" ||
-                  definition.behavior.kind === "snapshot"
-                )
-                  continue;
+            const stored = new Map<string, Awaited<ReturnType<RecordRepo["getRecordCompanyWide"]>>>();
+            for (let offset = 0; offset < refs.length; offset += 500) {
+              for (const row of await repo.getRecordsCompanyWide(refs.slice(offset, offset + 500)))
+                stored.set(recordKey({ typeId: row.typeId, recordId: row.id }), row);
+            }
+            for (const definition of model.fields) {
+              if (
+                definition.typeId !== type.id ||
+                definition.archived ||
+                definition.behavior.kind === "input" ||
+                definition.behavior.kind === "snapshot"
+              )
+                continue;
+              writes.clear();
+              dependencies.clear();
+              // Recalculates the field of every record from what is stored, as a full recalculation does.
+              await calculations.calculateFields(model, refs, definition.id, 5000);
+              for (const ref of refs) {
                 const key = `${recordKey(ref)}:${definition.id}`;
-                writes.delete(key);
-                dependencies.delete(key);
-                await calculations.calculateField(model, ref, definition.id, 5000);
                 const current = decodeRecordValue(
-                  stored?.values.find((candidate) => candidate.fieldId === definition.id),
+                  stored.get(recordKey(ref))?.values.find((candidate) => candidate.fieldId === definition.id),
                   definition,
                 );
                 const fresh = writes.get(key);
@@ -504,6 +522,7 @@ async function seedDeals(f: Fixture, account: RecordRef, count: number, itemsPer
       })),
     });
   });
+  await analyze();
   await runWithTenant(f.admin, () =>
     runInTransaction(
       async () => {
@@ -547,7 +566,18 @@ async function seedDeals(f: Fixture, account: RecordRef, count: number, itemsPer
       { timeout: 600000 },
     ),
   );
+  await analyze();
   return deals;
+}
+
+/**
+ * Planner statistics for rows a test inserted in bulk. Autovacuum analyzes them only a minute or more later; until then
+ * PostgreSQL takes the new workspace for empty and reads a record's values and dependencies by scanning all of them.
+ */
+async function analyze() {
+  await runWithoutTenant(() =>
+    prisma.$executeRawUnsafe('ANALYZE "CrmRecord", "RecordValue", "RecordValueDependency", "RecordLink"'),
+  );
 }
 
 async function recalculateAll(f: Fixture, model: RecordModel) {
@@ -557,7 +587,7 @@ async function recalculateAll(f: Fixture, model: RecordModel) {
     const definition = model.fields.find((candidate) => candidate.id === fieldId);
     if (!definition || definition.behavior.kind === "snapshot") continue;
     const refs = await f.repo.getRecordRefsCompanyWide(definition.typeId, undefined, 5000);
-    for (const ref of refs) await calculations.calculateField(model, ref, fieldId, 5000);
+    await calculations.calculateFields(model, refs, fieldId, 5000);
   }
 }
 
@@ -601,6 +631,7 @@ async function seedLineItemsSharingLinkIds(
       })),
     });
   });
+  await analyze();
   await runWithTenant(f.admin, () =>
     runInTransaction(
       async () => {
@@ -625,6 +656,7 @@ async function seedLineItemsSharingLinkIds(
       { timeout: 600000 },
     ),
   );
+  await analyze();
   return rows;
 }
 
@@ -1539,4 +1571,341 @@ describeDatabase("record trash calculations", () => {
     expect((await f.rows(theirRow))?.deletedAt).not.toBeNull();
     expect(await f.inconsistencies()).toEqual([]);
   }, 180_000);
+});
+
+/**
+ * `deals` deals of `account` with `itemsPerDeal` live-priced line items each, every tenth on the second service, with
+ * fixed record ids so that two workspaces seeded alike can be compared record by record.
+ */
+async function seedPipeline(
+  f: Fixture,
+  account: RecordRef,
+  services: RecordRef[],
+  deals: number,
+  itemsPerDeal: number,
+) {
+  const companyId = f.seed.company.id;
+  const fixedId = (group: number, index: number) =>
+    `00000000-0000-4000-${String(8100 + group)}-${String(index + 1).padStart(12, "0")}`;
+  const dealRefs = Array.from({ length: deals }, (_, index) => ({ typeId: f.id("deal"), recordId: fixedId(1, index) }));
+  const items = dealRefs.flatMap((parent, dealIndex) =>
+    Array.from({ length: itemsPerDeal }, (_, index) => {
+      const position = dealIndex * itemsPerDeal + index;
+      return {
+        parent,
+        service: services[position % 10 === 0 ? 1 : 0],
+        quantity: String((position % 7) + 1),
+        ref: { typeId: f.id("lineItem"), recordId: fixedId(2, position) },
+      };
+    }),
+  );
+  await runWithoutTenant(async () => {
+    await prisma.crmRecord.createMany({
+      data: [...dealRefs, ...items.map((item) => item.ref)].map((ref) => ({
+        companyId,
+        typeId: ref.typeId,
+        id: ref.recordId,
+      })),
+    });
+    await prisma.recordLink.createMany({
+      data: [
+        ...dealRefs.map((ref) => ({ relationId: f.id("deal.account"), source: ref, target: account })),
+        ...items.flatMap((item) => [
+          { relationId: f.id("lineItem.deal"), source: item.ref, target: item.parent },
+          { relationId: f.id("lineItem.service"), source: item.ref, target: item.service },
+        ]),
+      ].map((link) => ({
+        companyId,
+        relationId: link.relationId,
+        sourceTypeId: link.source.typeId,
+        sourceId: link.source.recordId,
+        targetTypeId: link.target.typeId,
+        targetId: link.target.recordId,
+      })),
+    });
+  });
+  await analyze();
+  await runWithTenant(f.admin, () =>
+    runInTransaction(
+      async () => {
+        const model = await f.repo.getModel();
+        const value = (ref: RecordRef, key: string, scalar: RecordScalar) => ({
+          ref,
+          fieldId: f.id(key),
+          result: { state: "value" as const, value: scalar },
+          revision: model.revision,
+        });
+        await f.repo.setValues([
+          ...dealRefs.flatMap((ref, index) => [
+            value(ref, "deal.name", text(`Pipeline ${index}`)),
+            value(ref, "deal.amount", decimal(String((index % 9) * 10))),
+          ]),
+          ...items.flatMap((item) => [
+            value(item.ref, "lineItem.name", text("Row")),
+            value(item.ref, "lineItem.quantity", decimal(item.quantity)),
+            value(item.ref, "lineItem.pricingMode", { kind: "select", value: "live" }),
+          ]),
+        ]);
+        await recalculateAll(f, model);
+      },
+      { timeout: 600000 },
+    ),
+  );
+  await analyze();
+  return { deals: dealRefs, items: items.map((item) => item.ref) };
+}
+
+const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g;
+
+/**
+ * Every stored value, value dependency, record version and record event of the workspace, with the ids that differ
+ * between two workspaces (types, fields, options, relations, created records, users, operations) replaced by names.
+ */
+async function calculationSnapshot(f: Fixture) {
+  const companyId = f.seed.company.id;
+  const model = await runWithTenant(f.admin, () => runInTransaction(() => f.repo.getModel()));
+  const { values, dependencies, records, events, operations } = await runWithoutTenant(async () => ({
+    values: await prisma.recordValue.findMany({ where: { companyId } }),
+    dependencies: await prisma.recordValueDependency.findMany({ where: { companyId } }),
+    records: await prisma.crmRecord.findMany({
+      where: { companyId },
+      select: { typeId: true, id: true, deletedAt: true, version: true },
+    }),
+    events: await prisma.eventLog.findMany({
+      where: { companyId, kind: { startsWith: "record." } },
+      select: { kind: true, subjectId: true, actorId: true, payload: true },
+    }),
+    operations: await prisma.recordOperation.findMany({
+      where: { companyId },
+      select: { id: true },
+      orderBy: { createdAt: "asc" },
+    }),
+  }));
+  const names = new Map<string, string>([
+    [companyId, "company"],
+    [f.admin.id, "admin"],
+    [f.member.id, "member"],
+    ...model.types.map((type) => [type.id, type.label] as const),
+    ...model.relationships.map((relation) => [relation.id, relation.sourceLabel] as const),
+    ...model.fields.flatMap((field) => [
+      [field.id, `${model.types.find((type) => type.id === field.typeId)?.label}.${field.label}`] as const,
+      ...field.options.map((option) => [option.id, `${field.label}:${option.label}`] as const),
+    ]),
+    ...operations.map((operation, index) => [operation.id, `operation ${index + 1}`] as const),
+  ]);
+  for (const value of values) {
+    if (["organization.name", "service.name", "contact.name", "deal.name"].some((key) => value.fieldId === f.id(key)))
+      if (!value.recordId.startsWith("00000000-")) names.set(value.recordId, `${value.textValue}`);
+  }
+  const named = (text: string) =>
+    text.replace(UUID, (id) => (id.startsWith("00000000-") ? id : (names.get(id) ?? "unnamed")));
+  const definitions = new Map(model.fields.map((field) => [field.id, field]));
+  // Ids are renamed before ordering: arrays the product orders by id (sources, links, history values) are compared as
+  // sets, because ids, and with them that order, differ between two workspaces.
+  const canonical = (entry: unknown): unknown => {
+    if (typeof entry === "string") return named(entry);
+    if (Array.isArray(entry)) {
+      const items = entry.map(canonical);
+      const order = (item: unknown) => JSON.stringify(item);
+      return items.every((item) => item !== null && typeof item === "object")
+        ? items.sort((a, b) => (order(a) < order(b) ? -1 : order(a) > order(b) ? 1 : 0))
+        : items;
+    }
+    if (entry === null || typeof entry !== "object") return entry;
+    return Object.fromEntries(
+      Object.entries(entry)
+        .filter(([key]) => key !== "dependencyHash")
+        .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+        .map(([key, value]) => [key, canonical(value)]),
+    );
+  };
+  return {
+    records: records
+      .map((record) => named(`${record.typeId}/${record.id} v${record.version}${record.deletedAt ? " trashed" : ""}`))
+      .sort(),
+    values: values
+      .map((value) => {
+        const definition = definitions.get(value.fieldId);
+        const decoded = definition ? JSON.stringify(decodeRecordValue(value, definition)) : value.state;
+        return named(`${value.typeId}/${value.recordId} ${value.fieldId} r${value.schemaRevision} ${decoded}`);
+      })
+      .sort(),
+    dependencies: dependencies
+      .map((dependency) =>
+        named(
+          `${dependency.typeId}/${dependency.recordId} ${dependency.fieldId} <- ${dependency.sourceTypeId}/${dependency.sourceId}`,
+        ),
+      )
+      .sort(),
+    events: events
+      .map((event) =>
+        named(`${event.kind} ${event.subjectId} by ${event.actorId} ${JSON.stringify(canonical(event.payload))}`),
+      )
+      .sort(),
+  };
+}
+
+type CalculationSnapshot = Awaited<ReturnType<typeof calculationSnapshot>>;
+
+/**
+ * Runs `scenario` twice, each time in a new workspace: one record at a time (the reference, as before batching) and
+ * batched. Both must store the same values, dependencies, versions and events after every step; the steps are timed.
+ */
+async function compareWithReference(
+  scenario: (f: Fixture, step: (label: string, task: () => Promise<unknown>) => Promise<void>) => Promise<void>,
+) {
+  const timings: Record<string, Record<string, number>> = {};
+  const run = async (batching: boolean) => {
+    const mode = batching ? "batched" : "one record at a time";
+    timings[mode] = {};
+    const snapshots: Array<[string, CalculationSnapshot]> = [];
+    const f = await fixture();
+    await scenario(f, async (label, task) => {
+      RecordCalculationService.batching = batching;
+      const started = performance.now();
+      try {
+        await task();
+      } finally {
+        timings[mode][label] = Math.round(performance.now() - started);
+        RecordCalculationService.batching = true;
+      }
+      snapshots.push([label, await calculationSnapshot(f)]);
+    });
+    expect(await f.inconsistencies()).toEqual([]);
+    return snapshots;
+  };
+  try {
+    // CRM_CALCULATION_BATCHED_ONLY times the batched run alone, to profile it.
+    if (process.env.CRM_CALCULATION_BATCHED_ONLY) return (await run(true)).at(-1)?.[1];
+    const reference = await run(false);
+    const batched = await run(true);
+    expect(batched.map(([label]) => label)).toEqual(reference.map(([label]) => label));
+    for (const [index, [label, snapshot]] of batched.entries()) {
+      const expected = reference[index][1];
+      for (const part of ["records", "values", "dependencies", "events"] as const)
+        expect({ label, part, rows: snapshot[part] }).toEqual({ label, part, rows: expected[part] });
+    }
+    return reference.at(-1)?.[1];
+  } finally {
+    RecordCalculationService.batching = true;
+    console.log(`[calculation timings ms] ${JSON.stringify(timings)}`);
+    const out = process.env.CRM_CALCULATION_BENCHMARK_OUT;
+    if (out) (await import("node:fs")).appendFileSync(out, `${JSON.stringify(timings)}\n`);
+  }
+}
+
+/** Applies a mutation and, when it was moved to the background, runs its operation to the end. */
+async function settle(f: Fixture, mutation: RecordMutation) {
+  const result = await f.mutation(mutation);
+  if (!result.ok) throw new Error(JSON.stringify(result));
+  if (result.data.status === "pending") {
+    const operation = await f.drain(result.data.operationId);
+    if (operation.state !== "completed") throw new Error(JSON.stringify(operation));
+    return { ...result.data, operation };
+  }
+  return { ...result.data, operation: null };
+}
+
+async function services(f: Fixture) {
+  const create = (name: string, amount: string) =>
+    f.created({
+      action: "create",
+      typeId: f.id("service"),
+      fields: [
+        { fieldId: f.id("service.name"), value: text(name) },
+        { fieldId: f.id("service.amount"), value: euro(amount) },
+      ],
+    });
+  return [await create("Service A", "100"), await create("Service B", "40.5")];
+}
+
+describeDatabase("batched recalculation", () => {
+  const update = async (f: Fixture, ref: RecordRef, fieldId: string, value: RecordScalar | null) =>
+    settle(f, { action: "update", ref, expectedVersion: await f.version(ref), fields: [{ fieldId, value }] });
+
+  it("stores what one record at a time stores for a bulk update of thousands of line items", async () => {
+    const final = await compareWithReference(async (f, step) => {
+      const account = await organization(f, "Acme");
+      const [serviceA, serviceB] = await services(f);
+      await seedPipeline(f, account, [serviceA, serviceB], 200, 12);
+      await step("price of the service of 2,160 of 2,400 line items, rounded", () =>
+        update(f, serviceA, f.id("service.amount"), euro("123.456")),
+      );
+    });
+    expect(final?.records.filter((record) => record.includes("/00000000-0000-4000-8102-"))).toHaveLength(2400);
+  }, 1_800_000);
+
+  it("stores what one record at a time stores for chained lookups, rollups and formulas across Trash", async () => {
+    await compareWithReference(async (f, step) => {
+      const account = await organization(f, "Acme");
+      const [serviceA, serviceB] = await services(f);
+      const pipeline = await seedPipeline(f, account, [serviceA, serviceB], 20, 6);
+      await step("quantity of one line item, chained up to the organization", () =>
+        update(f, pipeline.items[7], f.id("lineItem.quantity"), decimal("0.333")),
+      );
+      await step("amount of a deal cleared, chained through lookups and a division", () =>
+        update(f, pipeline.deals[3], f.id("deal.amount"), null),
+      );
+      let batchId = "";
+      await step("a service of 12 line items moved to Trash", async () => {
+        const removed = await settle(f, {
+          action: "delete",
+          ref: serviceB,
+          expectedVersion: await f.version(serviceB),
+        });
+        batchId = removed.operation
+          ? (removed as { operationId: string }).operationId
+          : (removed.trashBatchId as string);
+      });
+      await step("that service restored from Trash", async () => {
+        const restored = await f.restore({ batchId });
+        if (!restored.ok) throw new Error(JSON.stringify(restored));
+        if (restored.data.status === "pending")
+          expect(await f.drain(restored.data.operationId)).toMatchObject({ state: "completed" });
+      });
+    });
+  }, 1_800_000);
+
+  it("stores what one record at a time stores when more than 500 line items leave Trash without a deleted service", async () => {
+    await compareWithReference(async (f, step) => {
+      const account = await organization(f, "Acme");
+      const [serviceA, serviceB] = await services(f);
+      await seedPipeline(f, account, [serviceA, serviceB], 4, 3);
+      const parent = await deal(f, "Big order", "5", account);
+      await seedLineItemsSharingLinkIds(f, parent, (index) => (index % 5 === 0 ? serviceB : serviceA), 520);
+      let batchId = "";
+      await step("the deal and its 520 line items moved to Trash", async () => {
+        const expectedVersion = await f.version(parent);
+        const preview = await runWithTenant(f.admin, async () =>
+          new PreviewRecordDeletionInteractor(
+            f.repo,
+            f.policy,
+            new RecordWriteService(f.repo, f.policy, new RecordCalculationService(f.repo)),
+          ).invoke({ ref: parent, expectedVersion, expectedRevision: (await f.repo.getState())?.revision ?? 0 }),
+        );
+        if (!preview.ok) throw new Error(JSON.stringify(preview));
+        const deleted = await settle(f, {
+          action: "delete",
+          ref: parent,
+          expectedVersion,
+          expectedImpactHash: preview.data.impactHash,
+        });
+        batchId = deleted.operation
+          ? (deleted as { operationId: string }).operationId
+          : (deleted.trashBatchId as string);
+      });
+      await step("the service of 104 of them deleted permanently meanwhile", () => f.remove(serviceB, f.admin, true));
+      await step("the 521 records restored from Trash", async () => {
+        const restored = await f.restore({ batchId });
+        if (!restored.ok || restored.data.status !== "pending") throw new Error(JSON.stringify(restored));
+        expect(await f.drain(restored.data.operationId)).toMatchObject({
+          state: "completed",
+          result: { restore: { restoredRecords: 521, blocked: [] } },
+        });
+      });
+      await step("price of the remaining service, rounded", () =>
+        update(f, serviceA, f.id("service.amount"), euro("99.995")),
+      );
+    });
+  }, 1_800_000);
 });
