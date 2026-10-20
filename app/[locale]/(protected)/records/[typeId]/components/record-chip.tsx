@@ -135,7 +135,7 @@ function ChipLabel({ name, children }: { name?: string; children: ReactNode }) {
   return (
     <span className="inline-flex max-w-full min-w-0 items-baseline gap-1">
       {name && (
-        <span className="max-w-20 truncate font-normal text-muted-foreground" data-chip-part="">
+        <span className="max-w-20 shrink-0 truncate font-normal text-muted-foreground" data-chip-part="">
           {name}
         </span>
       )}
