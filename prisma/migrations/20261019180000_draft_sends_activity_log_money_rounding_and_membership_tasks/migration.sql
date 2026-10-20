@@ -322,22 +322,22 @@ DROP FUNCTION pg_temp.money_preset_id(text, text);
 -- 'membershipAuthorization', "systemData" {"relatedUserId"}) in the list a 'membershipAuthorization' capability of the
 -- record model named, and that capability made the list undeletable. Members waiting for approval are listed and
 -- approved in Settings > Members, so neither the tasks nor the capability exist any more: the members themselves are
--- untouched, every protected task is removed as the engine removes a record for good and the capability leaves every
--- stored record model. The "protectedKind" column stays, unused, for a later migration to drop.
+-- untouched, every protected task is removed as the engine removes a record for good, the capability leaves every
+-- record model and configuration the application reads back and the "protectedKind" column is dropped. The staged
+-- schema of an operation and its staged revision change are only written, never read, so they are left as they are.
 --
 -- Stored models are edited in place, without a new configuration revision: the capability changes no list, field,
 -- relationship or value, so record values keep their schema revision and clients holding the revision stay valid.
 -- Records whose calculations read a removed task (only possible after a user linked one) keep their stored values
 -- until their next recalculation. No record events are written, as in parts 1 to 3.
 --
--- It runs after part 3 under its 5-second lock_timeout. The tables it changes are locked against writes first, so no
--- protected task or model with the capability can be written while it runs. The previous deployment keeps working on
--- the result: without the capability it creates no task, and its other uses of the capability only iterate over it.
+-- It runs after part 3 under its 5-second lock_timeout. "CrmRecord" is locked against writes first, so no protected
+-- task can be written between reading the tasks and dropping the column.
 -- ---------------------------------------------------------------------------------------------
 
-LOCK TABLE "CrmRecord", "RecordSchemaRevision", "RecordOperation", "RecordStageRow" IN SHARE ROW EXCLUSIVE MODE;
+LOCK TABLE "CrmRecord" IN SHARE ROW EXCLUSIVE MODE;
 
--- A record model (a revision snapshot, a staged model or a staged schema) without the capability.
+-- A record model (a revision snapshot or a staged model) without the capability.
 CREATE FUNCTION pg_temp.without_membership_capability(model jsonb) RETURNS jsonb
 LANGUAGE sql IMMUTABLE AS $$
   SELECT CASE WHEN jsonb_typeof(model -> 'capabilities') = 'array'
@@ -371,10 +371,6 @@ WHERE jsonb_path_exists(change,
   '$.configuration.operations[*] ? (@.operation == "putCapability" && @.capability.kind == "membershipAuthorization")');
 
 UPDATE "RecordOperation"
-SET "stagedSchema" = pg_temp.without_membership_capability("stagedSchema")
-WHERE jsonb_path_exists("stagedSchema", '$.capabilities[*] ? (@.kind == "membershipAuthorization")');
-
-UPDATE "RecordOperation"
 SET request = pg_temp.without_membership_operations(request, '{operations}')
 WHERE jsonb_path_exists(request,
   '$.operations[*] ? (@.operation == "putCapability" && @.capability.kind == "membershipAuthorization")');
@@ -383,12 +379,6 @@ UPDATE "RecordStageRow"
 SET payload = pg_temp.without_membership_capability(payload)
 WHERE kind = 'schema' AND key = 'model'
   AND jsonb_path_exists(payload, '$.capabilities[*] ? (@.kind == "membershipAuthorization")');
-
-UPDATE "RecordStageRow"
-SET payload = pg_temp.without_membership_operations(payload, '{configuration,operations}')
-WHERE kind = 'schema' AND key = 'change'
-  AND jsonb_path_exists(payload,
-    '$.configuration.operations[*] ? (@.operation == "putCapability" && @.capability.kind == "membershipAuthorization")');
 
 -- The protected tasks and the channel identities only they hold.
 CREATE TEMP TABLE crm_membership_task ON COMMIT DROP AS
@@ -406,13 +396,8 @@ USING crm_membership_task task
 WHERE dependency."companyId" = task.company_id AND dependency."sourceTypeId" = task.type_id
   AND dependency."sourceId" = task.id;
 
--- The tasks' history and webhook queue: their record events, with the deliveries and routine matches of those events.
-DELETE FROM "EventLog" event
-USING crm_membership_task task
-WHERE event."companyId" = task.company_id AND event."subjectKind" = 'record'
-  AND event."subjectTypeId" = task.type_id AND event."subjectId" = task.id;
-
--- The tasks with their values and value dependencies, links, assignments, channel and conversation links.
+-- The tasks with their values and value dependencies, links, assignments, channel and conversation links. Their
+-- record events stay, as when the engine deletes a record.
 DELETE FROM "CrmRecord" record
 USING crm_membership_task task
 WHERE record."companyId" = task.company_id AND record."typeId" = task.type_id AND record.id = task.id;
@@ -426,5 +411,4 @@ WHERE stale."companyId" = orphan.company_id AND stale.id = orphan.identity_id
 DROP FUNCTION pg_temp.without_membership_operations(jsonb, text[]);
 DROP FUNCTION pg_temp.without_membership_capability(jsonb);
 
--- "protectedKind" stays until a later migration drops it: the deployment still serving while this one builds selects
--- the column on every record read. The application no longer reads or writes it.
+ALTER TABLE "CrmRecord" DROP COLUMN "protectedKind";

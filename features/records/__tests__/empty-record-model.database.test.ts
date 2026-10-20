@@ -26,7 +26,6 @@ vi.mock("@/env", () => ({
 
 const {
   getAdminUpdateUserDetailsInteractor,
-  getApplyRecordConfigurationInteractor,
   getCountPendingMembersInteractor,
   getEventService,
   getUpdateUserDetailsInteractor,
@@ -194,33 +193,5 @@ describeDatabase("a workspace without a record model", { timeout: 120_000 }, () 
     expect(created, JSON.stringify(created)).toMatchObject({ ok: true, data: { schemaRevision: 1 } });
     expect(await state()).toMatchObject({ revision: 1 });
     expect(await asOwner(() => createTestRecordRepo().getModel())).toMatchObject({ revision: 1, types: [] });
-  });
-
-  it("refuses the retired membership authorization capability", async () => {
-    const created = await asOwner(() =>
-      getApplyRecordConfigurationInteractor().invoke({
-        expectedRevision: 1,
-        idempotencyKey: randomUUID(),
-        operations: [
-          {
-            operation: "createType",
-            reference: "$list.todo",
-            label: "To-do",
-            pluralLabel: "To-dos",
-            description: "",
-            icon: "list",
-            embedded: false,
-            accessPresetId: null,
-          },
-          {
-            operation: "putCapability",
-            capability: { id: randomUUID(), kind: "membershipAuthorization", typeId: "$list.todo", fields: [] },
-          },
-        ],
-      } as never),
-    );
-    expect(created).toMatchObject({ ok: false });
-    expect(await state()).toMatchObject({ revision: 1 });
-    expect(await records()).toBe(0);
   });
 });

@@ -2018,26 +2018,24 @@ model RecordRelationshipDefinition {
 }
 
 model CrmRecord {
-  companyId     String
-  typeId        String
-  id            String                      @default(uuid())
-  version       Int                         @default(1)
-  /// Retired with the membership authorization tasks; no code reads or writes it. A later migration drops it.
-  protectedKind String?                     @ignore
-  systemData    Json?
-  rank          String?
-  deletedAt     DateTime?
-  trashItemId   String?
-  createdAt     DateTime                    @default(now())
-  updatedAt     DateTime                    @updatedAt
-  company       Company                     @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  type          RecordTypeDefinition        @relation(fields: [companyId, typeId], references: [companyId, id], onDelete: Cascade)
-  values        RecordValue[]
-  outgoing      RecordLink[]                @relation("RecordLinkSource")
-  incoming      RecordLink[]                @relation("RecordLinkTarget")
-  assignments   RecordAssignment[]
-  identities    RecordIdentityLink[]
-  threads       MessagingThreadRecordLink[]
+  companyId   String
+  typeId      String
+  id          String                      @default(uuid())
+  version     Int                         @default(1)
+  systemData  Json?
+  rank        String?
+  deletedAt   DateTime?
+  trashItemId String?
+  createdAt   DateTime                    @default(now())
+  updatedAt   DateTime                    @updatedAt
+  company     Company                     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  type        RecordTypeDefinition        @relation(fields: [companyId, typeId], references: [companyId, id], onDelete: Cascade)
+  values      RecordValue[]
+  outgoing    RecordLink[]                @relation("RecordLinkSource")
+  incoming    RecordLink[]                @relation("RecordLinkTarget")
+  assignments RecordAssignment[]
+  identities  RecordIdentityLink[]
+  threads     MessagingThreadRecordLink[]
 
   @@id([companyId, typeId, id])
   @@index([companyId, typeId, createdAt, id])

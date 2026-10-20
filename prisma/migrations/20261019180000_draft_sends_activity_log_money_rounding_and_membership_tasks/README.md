@@ -31,24 +31,22 @@ impossible to delete. Pending members are listed and approved in Settings > Memb
 
 - Every record with `"protectedKind" = 'membershipAuthorization'` is deleted for good, as the engine deletes a record:
   its values, value dependencies, links, assignments, channel and conversation links go with it (foreign keys), and
-  part 4 also deletes the value dependencies that name it as a source, its record events (with their webhook
-  deliveries and routine matches) and channel identities that no other record holds. The members are not changed.
-- The capability leaves every stored record model: each revision snapshot, the configuration operations recorded in
-  revision changes, and the requests, staged schemas and staged models of record operations. The models are edited in
-  place, without a new revision: the capability changes no list, field, relationship or value.
-- The `"protectedKind"` column of `"CrmRecord"` stays in the database, marked `@ignore` in `schema.prisma`: the
-  application neither reads nor writes it. The deployment that still serves while this one builds selects the column
-  on every record read, so dropping it here would fail those reads for minutes. A later migration drops it, after
-  deleting any protected task that deployment created in the meantime. `"systemData"` stays; the record scale tools
-  use it.
+  part 4 also deletes the value dependencies that name it as a source and channel identities that no other record
+  holds. Its record events stay, as they do for any deleted record. The members are not changed.
+- The capability leaves every stored record model and configuration the application reads: each revision snapshot,
+  the configuration operations recorded in revision changes, the requests of record operations and their staged
+  models. The models are edited in place, without a new revision: the capability changes no list, field, relationship
+  or value.
+- The `"protectedKind"` column of `"CrmRecord"` is dropped. `"systemData"` stays; trash staging and the record scale
+  tools use it.
 
 A record whose calculation read a removed task, which needs a user to have linked one, keeps its stored value until
 its next recalculation. Part 4 writes no record events.
 
-Part 4 locks `CrmRecord`, `RecordSchemaRevision`, `RecordOperation` and `RecordStageRow` against writes; the locks
-wait at most the 5 seconds of part 3's `lock_timeout`. The previous deployment keeps serving on the result: without
-the capability it creates no task, and its other uses of the capability only iterate over it. A model it writes in
-that window with the capability (only a workspace setup it builds does) is read without it by this release.
+Part 4 locks `CrmRecord` against writes and finally drops the column, which takes an exclusive lock on `CrmRecord`;
+both wait at most the 5 seconds of part 3's `lock_timeout`. The previous deployment still selects the dropped column,
+so its record reads fail from the moment the migration commits until the new deployment serves; deploy when a short
+interruption is acceptable.
 
 ## Recovery
 

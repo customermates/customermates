@@ -40,7 +40,7 @@ describeDatabase("membership task removal migration", { timeout: 240000 }, () =>
     for (const database of databases) await database.close();
   });
 
-  it("removes the protected tasks with everything that refers to them and the capability from every stored model", async () => {
+  it("removes the protected tasks as the engine deletes a record, the capability from every model read back and the column", async () => {
     const database = await createLegacyMigrationDatabase(databaseUrl);
     databases.push(database);
     const { client } = database;
@@ -89,14 +89,13 @@ describeDatabase("membership task removal migration", { timeout: 240000 }, () =>
     await client.query('UPDATE "RecordSchemaState" SET revision = 2 WHERE "companyId"=$1', [companyId]);
     const operationId = randomUUID();
     await client.query(
-      `INSERT INTO "RecordOperation" ("companyId", id, "userId", kind, state, "expectedRevision", request, "stagedSchema", "updatedAt")
-       VALUES ($1, $2, $3, 'configuration', 'failed', 2, $4, $5, NOW())`,
+      `INSERT INTO "RecordOperation" ("companyId", id, "userId", kind, state, "expectedRevision", request, "updatedAt")
+       VALUES ($1, $2, $3, 'configuration', 'failed', 2, $4, NOW())`,
       [
         companyId,
         operationId,
         f.admin.id,
         { expectedRevision: 2, idempotencyKey: randomUUID(), operations: [putMembership] },
-        { ...upgraded.snapshot, revision: 3 },
       ],
     );
     await client.query(
@@ -170,7 +169,7 @@ describeDatabase("membership task removal migration", { timeout: 240000 }, () =>
       await count(client, '"RecordAssignment" WHERE "companyId"=$1 AND "recordId"=$2', [companyId, task.recordId]),
     ).toBe(0);
     expect(await count(client, '"RecordIdentity" WHERE "companyId"=$1 AND id=$2', [companyId, identityId])).toBe(0);
-    expect(await count(client, '"EventLog" WHERE "companyId"=$1 AND id=$2', [companyId, eventId])).toBe(0);
+    expect(await count(client, '"EventLog" WHERE "companyId"=$1 AND id=$2', [companyId, eventId])).toBe(1);
     expect(
       await count(client, '"RecordValueDependency" WHERE "companyId"=$1 AND "sourceId"=$2', [companyId, task.recordId]),
     ).toBe(0);
@@ -190,8 +189,7 @@ describeDatabase("membership task removal migration", { timeout: 240000 }, () =>
         client,
         `SELECT column_name FROM information_schema.columns WHERE table_name = 'CrmRecord' AND column_name = 'protectedKind'`,
       ),
-    ).toEqual([{ column_name: "protectedKind" }]);
-    expect(await count(client, '"CrmRecord" WHERE "protectedKind" IS NOT NULL')).toBe(0);
+    ).toEqual([]);
 
     const revisions = await rows<{
       revision: number;
@@ -207,15 +205,12 @@ describeDatabase("membership task removal migration", { timeout: 240000 }, () =>
       expect(validateRecordModel(model).issues).toEqual([]);
     }
     expect(revisions[1].change?.configuration?.operations).toEqual([renamed]);
-    const [operation] = await rows<{ request: { operations: unknown[] }; stagedSchema: Snapshot }>(
+    const [operation] = await rows<{ request: { operations: unknown[] } }>(
       client,
-      'SELECT request, "stagedSchema" FROM "RecordOperation" WHERE "companyId"=$1 AND id=$2',
+      'SELECT request FROM "RecordOperation" WHERE "companyId"=$1 AND id=$2',
       [companyId, operationId],
     );
     expect(operation.request.operations).toEqual([]);
-    expect(RecordModelSchema.parse(operation.stagedSchema).capabilities.map((capability) => capability.kind)).toEqual([
-      "avatar",
-    ]);
     const [staged] = await rows<{ payload: Snapshot }>(
       client,
       `SELECT payload FROM "RecordStageRow" WHERE "companyId"=$1 AND "operationId"=$2 AND kind='schema' AND key='model'`,
