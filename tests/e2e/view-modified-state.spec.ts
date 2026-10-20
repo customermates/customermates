@@ -29,7 +29,7 @@ test("keeps filter changes temporary until saved to the view, resets them and ke
     await expect(target.locator('#global-data-views [data-focus-target^="view:"][aria-current="page"]')).toHaveCount(0);
     await expect(target.locator("#global-data-views-menu[data-view-modified]")).toHaveCount(0);
   };
-  const reset = page.locator("#records-filter-reset");
+  const cancel = page.locator("#records-filter-cancel");
   const save = page.locator("#records-filter-save");
   const applyAssignee = async () => {
     await page.locator("#records-filter").click();
@@ -45,13 +45,18 @@ test("keeps filter changes temporary until saved to the view, resets them and ke
   await expect(viewsMenu).toHaveAttribute("data-view-modified", "");
   await expect(viewsMenu.locator('span[aria-hidden="true"]')).toBeInViewport({ ratio: 1 });
   await expect(save).toBeVisible();
+  const filterBar = page.locator('[role="dialog"] [data-slot="unsaved-changes-bar"]');
+  await expect(filterBar).toBeVisible();
+  await expect(filterBar.getByRole("button", { name: "Save", exact: true })).toBeInViewport({ ratio: 1 });
+  await expect(filterBar.getByRole("button", { name: "Cancel", exact: true })).toBeInViewport({ ratio: 1 });
+  await expect(page.locator('[role="dialog"] [data-view-changes-notice]')).toHaveCount(0);
   await page.screenshot({ path: testInfo.outputPath("view-modified-light.png"), animations: "disabled" });
   await page.emulateMedia({ colorScheme: "dark" });
   await page.screenshot({ path: testInfo.outputPath("view-modified-dark.png"), animations: "disabled" });
   await page.emulateMedia({ colorScheme: "light" });
-  await reset.click();
+  await cancel.click();
   await expect(unsavedWithoutView).toHaveCount(0);
-  await expect(reset).toHaveCount(0);
+  await expect(cancel).toHaveCount(0);
   await expect(save).toHaveCount(0);
   await expect(page.locator("[data-palette-active-filters]")).toHaveCount(0);
   await page.keyboard.press("Escape");
@@ -311,7 +316,7 @@ test("keeps appearance changes temporary with the shared bottom save bar and the
   const appearanceCancel = page.locator("#records-display-options-view-cancel");
   const appearanceBar = page.locator('[role="dialog"] [data-slot="unsaved-changes-bar"]');
   const filterSave = page.locator("#records-filter-save");
-  const filterReset = page.locator("#records-filter-reset");
+  const filterCancel = page.locator("#records-filter-cancel");
   const openAppearance = async () => {
     await page.locator("#records-display-options").click();
     await expect(groupBy).toBeVisible();
@@ -363,7 +368,7 @@ test("keeps appearance changes temporary with the shared bottom save bar and the
   await closeAppearance();
   await page.locator("#records-filter").click();
   await expect(filterSave).toBeVisible();
-  await expect(filterReset).toBeVisible();
+  await expect(filterCancel).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("filters-appearance-modified.png"), animations: "disabled" });
   await page.keyboard.press("Escape");
   await expect(filterSave).toHaveCount(0);
