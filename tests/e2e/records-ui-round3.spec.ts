@@ -776,6 +776,14 @@ test("short chips stay readable and long chips truncate across table, card and p
         expect(clipped, `${label} should fit without truncation at ${mode}/${width}`).toBe(false);
       }
       const target = page.locator(`[data-inline-edit="${choice.id}"]:visible`).filter({ hasText: longLabel }).first();
+      if (mode === "row" && width >= 820) {
+        const resize = page.getByRole("button", { name: /^Resize Choice column\./ });
+        await resize.press("Home");
+        for (let step = 0; step < 3; step++) await resize.press("Shift+ArrowRight");
+        await expect
+          .poll(async () => resize.evaluate((element) => element.closest("th")!.getBoundingClientRect().width))
+          .toBe(170);
+      }
       const chip = target.locator('[data-slot="badge"]:visible').filter({ hasText: longLabel }).first();
       await expect(chip).toBeVisible();
       await expect.poll(async () => (await chip.boundingBox())?.width ?? 0).toBeGreaterThan(0);
