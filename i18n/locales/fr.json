@@ -2206,8 +2206,7 @@
       "pickerTitle": "Changer de vue",
       "railLabel": "Vues enregistrées",
       "recordCount": "{count, plural, one {# enregistrement} other {# enregistrements}}",
-      "resetChanges": "Réinitialiser les modifications",
-      "unsavedChangesNotice": "Modifications non enregistrées de cette vue"
+      "resetChanges": "Réinitialiser les modifications"
     }
   },
   "Diagrams": {

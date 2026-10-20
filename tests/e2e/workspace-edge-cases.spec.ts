@@ -199,6 +199,8 @@ test("switching from the command palette over a record dialog with an unsaved dr
   expect((await activeWorkspaceOf(database, workspace)).session).toBe(workspace.companyId);
 
   await page.keyboard.press("ControlOrMeta+k");
+  await expect(search).toBeVisible();
+  await expect(palette).toHaveCSS("opacity", "1");
   await search.fill("Switch workspace");
   await palette.getByRole("option").filter({ hasText: "Switch workspace…" }).click();
   await palette.getByRole("option").filter({ hasText: "Bergmann Steuern" }).click();

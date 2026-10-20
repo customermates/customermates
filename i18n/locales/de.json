@@ -2206,8 +2206,7 @@
       "pickerTitle": "Ansicht wechseln",
       "railLabel": "Gespeicherte Ansichten",
       "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}",
-      "resetChanges": "Änderungen zurücksetzen",
-      "unsavedChangesNotice": "Ungespeicherte Änderungen an dieser Ansicht"
+      "resetChanges": "Änderungen zurücksetzen"
     }
   },
   "Diagrams": {

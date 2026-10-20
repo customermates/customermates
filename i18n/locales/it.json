@@ -2206,8 +2206,7 @@
       "pickerTitle": "Cambia vista",
       "railLabel": "Viste salvate",
       "recordCount": "{count, plural, one {# record} other {# record}}",
-      "resetChanges": "Ripristina modifiche",
-      "unsavedChangesNotice": "Modifiche non salvate a questa vista"
+      "resetChanges": "Ripristina modifiche"
     }
   },
   "Diagrams": {

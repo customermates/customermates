@@ -16,6 +16,7 @@ import { recordDisplayName } from "@/features/records/record-display-name";
 import { recordPanelsP13nId } from "./record-panels-personalization";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 import { useApplyOnChange } from "@/hooks/use-apply-on-change";
+import { useNavigationGuard } from "@/components/modal/use-navigation-guard";
 
 const RecordDetailPageContent = observer(function RecordDetailPage({
   initial,
@@ -47,6 +48,7 @@ const RecordDetailPageContent = observer(function RecordDetailPage({
     if (handoff.draft && initial.record) editor.restoreDraft(handoff.draft, initial, initial.record);
     return { store: editor, handoff: handoff.queued };
   });
+  useNavigationGuard(store);
   useEffect(() => root.recordWorkspaceStore.acknowledgeDraftHandoff(handoff), [root, handoff]);
   useEffect(
     () => root.recordWorkspaceStore.registerPageEditor(store),
