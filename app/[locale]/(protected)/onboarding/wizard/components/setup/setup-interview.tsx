@@ -20,6 +20,7 @@ import { cn } from "@/core/utils/cn";
 import { SETUP_SCREEN_DEFINITIONS, SETUP_SCREENS } from "@/features/workspace-setup/setup-interview";
 
 import { answerFromWebsite, displayedAnswerValue, partVisible, screenQuestions } from "./setup-interview-state";
+import { SetupActionBar } from "./setup-plan-preview";
 import { partDescriptor } from "./setup-question-descriptor";
 import { SetupQuestionField } from "./setup-question-field";
 import { screenSummary } from "./setup-screen-summary";
@@ -258,14 +259,17 @@ export const SetupInterview = observer(function SetupInterview() {
                   <SetupQuestionBlock key={question.id} question={question} />
                 ))}
 
-                <div className="flex flex-wrap items-center justify-between gap-2">
+                <SetupActionBar
+                  hint={t("WorkspaceSetup.interview.stepProgress", {
+                    current: order + 1,
+                    total: visibleScreens.length,
+                  })}
+                >
                   {position > 0 || store.adjusting ? (
                     <Button disabled={store.isBusy} type="button" variant="secondary" onClick={store.previousScreen}>
                       {t("Common.actions.back")}
                     </Button>
-                  ) : (
-                    <span />
-                  )}
+                  ) : null}
 
                   <Button
                     disabled={store.isBusy}
@@ -280,7 +284,7 @@ export const SetupInterview = observer(function SetupInterview() {
 
                     {t("OnboardingWizard.next")}
                   </Button>
-                </div>
+                </SetupActionBar>
               </AccordionContent>
             </AccordionItem>
           );

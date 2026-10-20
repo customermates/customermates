@@ -156,13 +156,18 @@ describe("SetupInterview", () => {
       candidate.textContent?.includes("OnboardingWizard.next"),
     );
     expect(next?.disabled).toBe(false);
+    const bar = next?.closest<HTMLElement>('[data-slot="setup-action-bar"]');
+    expect(bar?.className.split(" ")).toEqual(
+      expect.arrayContaining(["sticky", "bottom-[calc(0.625rem+var(--safe-bottom))]"]),
+    );
+    expect(bar?.textContent).toContain("WorkspaceSetup.interview.stepProgress");
     expect(container.querySelector('[data-invalid="true"]')).toBeNull();
 
     act(() => next?.click());
 
     expect(toast).toHaveBeenCalledWith({ errors: ["Common.errors.mustNotBeBlank"] });
     expect(container.querySelector('[data-invalid="true"]')).not.toBeNull();
-    expect(container.textContent).toContain("Common.errors.mustNotBeBlank");
+    expect(container.textContent).not.toContain("Common.errors.mustNotBeBlank");
     await new Promise((resolve) => requestAnimationFrame(resolve));
     expect(document.activeElement?.closest('[data-invalid="true"]')).not.toBeNull();
   });

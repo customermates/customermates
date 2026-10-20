@@ -2702,6 +2702,7 @@
       "goList": "Listas según su posición en tu barra lateral",
       "goRoutines": "Rutinas",
       "goSettings": "Ajustes",
+      "goWorkspaces": "Cambiar de espacio de trabajo",
       "openFilters": "Abrir los filtros de una lista",
       "save": "Guardar el formulario abierto",
       "search": "Buscar",
@@ -5134,6 +5135,7 @@
         "typical": "Mate está diseñando tu espacio de trabajo a partir de tus respuestas. Suele tardar entre 1 y 2 minutos.",
         "underMinute": "Queda menos de un minuto"
       },
+      "reviewHint": "Revisa el plan y luego crea tu espacio de trabajo.",
       "sampleSummary": "{count, plural, one {Añade # registro de ejemplo para que puedas probar enseguida.} other {Añade # registros de ejemplo para que puedas probar enseguida.}}",
       "subtitle": "Esto es lo que construiremos en cuanto confirmes.",
       "title": "El plan de tu espacio de trabajo",

@@ -73,10 +73,12 @@ describe("static palette entries", () => {
       otherWorkspaces: true,
       can: () => true,
     });
-    expect(entries.find((entry) => entry.key === "cmd:action.switchWorkspace")?.run).toEqual({
+    const switchWorkspace = entries.find((entry) => entry.key === "cmd:action.switchWorkspace");
+    expect(switchWorkspace?.run).toEqual({
       kind: "level",
       level: { kind: "workspaces", label: "CommandPalette.labels.switchWorkspace" },
     });
+    expect(switchWorkspace?.shortcut).toBe("goWorkspaces");
   });
 });
 

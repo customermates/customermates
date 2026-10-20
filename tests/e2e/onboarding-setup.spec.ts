@@ -56,7 +56,12 @@ test("Next marks the missing setup answers and list answers reorder by dragging"
   await next.click();
   const purpose = question(page, "purpose");
   await expect(purpose).toHaveAttribute("data-invalid", "true");
-  await expect(purpose.getByText(englishMessages.Common.errors.mustNotBeBlank, { exact: true })).toBeVisible();
+  await expect(page.getByText(englishMessages.Common.errors.mustNotBeBlank, { exact: true })).toHaveCount(1);
+  await expect(purpose.getByText(englishMessages.Common.errors.mustNotBeBlank, { exact: true })).toHaveCount(0);
+  await expect(purpose.getByRole("checkbox", { name: "Clients and sales", exact: true })).toHaveAttribute(
+    "aria-invalid",
+    "true",
+  );
   await expect(page.locator('[data-invalid="true"] button, [data-invalid="true"] input').first()).toBeFocused();
   await page.screenshot({ path: testInfo.outputPath("setup-next-validation.png"), fullPage: true });
   await purpose.getByRole("checkbox", { name: "Clients and sales", exact: true }).click();
@@ -68,6 +73,9 @@ test("Next marks the missing setup answers and list answers reorder by dragging"
   await offerings.getByRole("textbox", { name: "Entry 1", exact: true }).fill("Audit");
   await offerings.getByRole("textbox", { name: "Entry 2", exact: true }).fill("Retainer");
   await expect(offerings.getByRole("button", { name: /^Move (up|down)/ })).toHaveCount(0);
+  await expect(offerings.locator("ol > li").first().locator(":scope > :last-child")).toHaveAccessibleName(
+    /^Drag to reorder/,
+  );
 
   const handles = offerings.getByRole("button", { name: /^Drag to reorder/ });
   const from = await handles.nth(1).boundingBox();

@@ -337,6 +337,8 @@ describe("SetupBuildView", () => {
       }),
     );
 
+    const list = container.querySelector('ol[aria-label="WorkspaceSetup.build.phasesLabel"]');
+    expect(list?.className.split(" ")).toEqual(expect.arrayContaining(["lg:sticky", "lg:top-4", "lg:self-start"]));
     const rows = container.querySelectorAll('ol[aria-label="WorkspaceSetup.build.phasesLabel"] > li');
     expect(rows).toHaveLength(5);
     for (const row of rows) {

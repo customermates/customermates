@@ -21,7 +21,6 @@ import { useLocale, useTranslations } from "next-intl";
 import { FormAutocompleteCountry } from "@/components/forms/form-autocomplete-country";
 import { FormAutocompleteCurrency } from "@/components/forms/form-autocomplete-currency";
 import { FormControlRow } from "@/components/forms/form-control-row";
-import { FormFieldError } from "@/components/forms/form-field-error";
 import { FormLabel } from "@/components/forms/form-label";
 import { DragHandle } from "@/components/shared/drag-handle";
 import { Button } from "@/components/ui/button";
@@ -49,7 +48,13 @@ type FieldProps<F extends SetupQuestionDescriptor["format"]> = {
   disabled?: boolean;
 };
 
-function SingleChoiceField({ descriptor, value, onChange, disabled }: FieldProps<"singleChoice">) {
+function SingleChoiceField({
+  descriptor,
+  value,
+  onChange,
+  disabled,
+  invalid,
+}: FieldProps<"singleChoice"> & { invalid?: boolean }) {
   const t = useTranslations();
   const select = (id: string) => onChange({ format: "singleChoice", value: id });
 
@@ -91,7 +96,7 @@ function SingleChoiceField({ descriptor, value, onChange, disabled }: FieldProps
   return (
     <SetupChoiceGroup disabled={disabled} label={descriptor.label} value={value?.value ?? null} onValueChange={select}>
       {options.map((option) => (
-        <SetupRadioChip key={option.id} checked={value?.value === option.id} value={option.id}>
+        <SetupRadioChip key={option.id} checked={value?.value === option.id} invalid={invalid} value={option.id}>
           {option.label}
         </SetupRadioChip>
       ))}
@@ -99,7 +104,13 @@ function SingleChoiceField({ descriptor, value, onChange, disabled }: FieldProps
   );
 }
 
-function MultipleChoiceField({ descriptor, value, onChange, disabled }: FieldProps<"multipleChoice">) {
+function MultipleChoiceField({
+  descriptor,
+  value,
+  onChange,
+  disabled,
+  invalid,
+}: FieldProps<"multipleChoice"> & { invalid?: boolean }) {
   const values = value?.values ?? [];
   const custom = value?.custom ?? [];
   const update = (next: { values?: string[]; custom?: string[] }) =>
@@ -112,6 +123,7 @@ function MultipleChoiceField({ descriptor, value, onChange, disabled }: FieldPro
           key={option.id}
           checked={values.includes(option.id)}
           disabled={disabled}
+          invalid={invalid}
           onCheckedChange={(checked) =>
             update({ values: checked ? [...values, option.id] : values.filter((id) => id !== option.id) })
           }
@@ -181,18 +193,6 @@ function OrderedListRow({
       )}
       style={{ transform: CSS.Translate.toString(sortable.transform), transition: sortable.transition }}
     >
-      <DragHandle
-        attributes={sortable.attributes}
-        className={cn(disabled && "invisible")}
-        label={t("DataView.dragToReorderNamed", { name })}
-        listeners={sortable.listeners}
-        setActivatorNodeRef={sortable.setActivatorNodeRef}
-      />
-
-      <span aria-hidden className="text-right text-xs text-muted-foreground tabular-nums">
-        {index + 1}
-      </span>
-
       <Input
         aria-invalid={invalid && !item.label.trim() ? true : undefined}
         aria-label={t("WorkspaceSetup.interview.entryLabel", { index: index + 1 })}
@@ -231,6 +231,14 @@ function OrderedListRow({
       ) : null}
 
       <IconButton fieldAction disabled={disabled} icon={X} label={t("Common.actions.remove")} onClick={onRemove} />
+
+      <DragHandle
+        attributes={sortable.attributes}
+        className={cn(disabled && "invisible")}
+        label={t("DataView.dragToReorderNamed", { name })}
+        listeners={sortable.listeners}
+        setActivatorNodeRef={sortable.setActivatorNodeRef}
+      />
     </li>
   );
 }
@@ -265,15 +273,15 @@ function OrderedListField({
     update(arrayMove(items, from, to), arrayMove(keys, from, to));
   };
   const rowGrid = descriptor.winChance
-    ? "grid-cols-[1.75rem_1rem_minmax(0,1fr)_6rem_auto]"
-    : "grid-cols-[1.75rem_1rem_minmax(0,1fr)_auto]";
+    ? "grid-cols-[minmax(0,1fr)_6rem_auto_auto]"
+    : "grid-cols-[minmax(0,1fr)_auto_auto]";
 
   return (
     <div className="flex flex-col gap-2">
       <div className={cn("grid items-center gap-x-2", rowGrid)}>
         {descriptor.winChance && items.length > 0 ? (
           <div aria-hidden className="col-span-full grid grid-cols-subgrid pb-1">
-            <span className="col-start-4 truncate text-right text-xs font-medium text-muted-foreground">
+            <span className="col-start-2 truncate text-right text-xs font-medium text-muted-foreground">
               {t("WorkspaceSetup.actions.winChance")}
             </span>
           </div>
@@ -327,7 +335,13 @@ function OrderedListField({
   );
 }
 
-function RankedPickField({ descriptor, value, onChange, disabled }: FieldProps<"rankedPick">) {
+function RankedPickField({
+  descriptor,
+  value,
+  onChange,
+  disabled,
+  invalid,
+}: FieldProps<"rankedPick"> & { invalid?: boolean }) {
   const t = useTranslations();
   const picks = value?.values ?? [];
   const full = picks.length >= descriptor.maxPicks;
@@ -341,6 +355,7 @@ function RankedPickField({ descriptor, value, onChange, disabled }: FieldProps<"
           return (
             <Toggle
               key={option.id}
+              aria-invalid={invalid && !picked ? true : undefined}
               aria-label={
                 picked ? t("WorkspaceSetup.interview.rankedOption", { rank: rank + 1, label: option.label }) : undefined
               }
@@ -514,6 +529,7 @@ function FieldBody({ descriptor, value, onChange, disabled, currency, invalid }:
         <SingleChoiceField
           descriptor={descriptor}
           disabled={disabled}
+          invalid={invalid}
           value={value?.format === "singleChoice" ? value : null}
           onChange={onChange}
         />
@@ -523,6 +539,7 @@ function FieldBody({ descriptor, value, onChange, disabled, currency, invalid }:
         <MultipleChoiceField
           descriptor={descriptor}
           disabled={disabled}
+          invalid={invalid}
           value={value?.format === "multipleChoice" ? value : null}
           onChange={onChange}
         />
@@ -542,6 +559,7 @@ function FieldBody({ descriptor, value, onChange, disabled, currency, invalid }:
         <RankedPickField
           descriptor={descriptor}
           disabled={disabled}
+          invalid={invalid}
           value={value?.format === "rankedPick" ? value : null}
           onChange={onChange}
         />
@@ -572,10 +590,8 @@ function FieldBody({ descriptor, value, onChange, disabled, currency, invalid }:
 export function SetupQuestionField({ descriptor, fromWebsite = false, ...props }: Props) {
   const t = useTranslations();
   const labelId = `setup-question-${descriptor.id}`;
-  const errorId = `${labelId}-error`;
   return (
     <div
-      aria-describedby={props.invalid ? errorId : undefined}
       aria-labelledby={labelId}
       className="flex flex-col gap-1.5"
       data-invalid={props.invalid || undefined}
@@ -604,8 +620,6 @@ export function SetupQuestionField({ descriptor, fromWebsite = false, ...props }
       </div>
 
       <FieldBody descriptor={descriptor} {...props} />
-
-      {props.invalid ? <FormFieldError id={errorId}>{t("Common.errors.mustNotBeBlank")}</FormFieldError> : null}
     </div>
   );
 }

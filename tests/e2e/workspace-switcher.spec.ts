@@ -98,7 +98,47 @@ test("the command palette switches to another workspace", async ({ page, databas
   await page.locator("#nav-search").click();
   const dialog = page.getByRole("dialog");
   await page.locator("#global-search-input input").fill("Switch workspace");
-  await dialog.getByRole("option", { name: "Switch workspace…", exact: true }).click();
+  await dialog.getByRole("option").filter({ hasText: "Switch workspace…" }).click();
+  const workspaces = dialog.getByRole("option");
+  await expect(workspaces).toHaveText([/Bergmann Steuern/]);
+  await workspaces.first().click();
+
+  await expect(page).toHaveURL(/\/en\/dashboard$/);
+  await expectCurrentWorkspace(page, "Bergmann Steuern");
+  expect((await activeWorkspaceOf(database, workspace)).session).toBe(second.companyId);
+  expect(errors).toEqual([]);
+});
+
+test("G then W opens the other workspaces in search, which also suggests switching", async ({
+  page,
+  database,
+  workspace,
+}, testInfo) => {
+  test.skip(testInfo.project.name === "mobile", "Desktop keyboard journey");
+  const errors = collectPageErrors(page);
+  const second = await addBrowserWorkspace(database, workspace, "Bergmann Steuern");
+  await page.goto("/en/dashboard");
+  await openSidebar(page);
+  await page.waitForLoadState("networkidle");
+
+  const dialog = page.getByRole("dialog");
+  await clickHydrated(page.locator("#nav-search"));
+  const suggestion = dialog.getByRole("option").filter({ hasText: "Switch workspace…" });
+  await expect(suggestion).toBeVisible();
+  await expect(suggestion.locator('[data-shortcut="goWorkspaces"] kbd')).toHaveText(["G", "W"]);
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+
+  await page.keyboard.press("?");
+  const shortcuts = page.getByRole("dialog", { name: "Keyboard shortcuts" });
+  await expect(shortcuts.locator("[data-shortcut-row=goWorkspaces]")).toContainText("Switch workspace");
+  await expect(shortcuts.locator("[data-shortcut-row=goWorkspaces] kbd")).toHaveText(["G", "W"]);
+  await page.keyboard.press("Escape");
+  await expect(shortcuts).toBeHidden();
+
+  await page.keyboard.press("g");
+  await page.keyboard.press("w");
+  await expect(dialog.getByText("Switch workspace…", { exact: true })).toBeVisible();
   const workspaces = dialog.getByRole("option");
   await expect(workspaces).toHaveText([/Bergmann Steuern/]);
   await workspaces.first().click();

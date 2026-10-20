@@ -2702,6 +2702,7 @@
       "goList": "Listen nach ihrer Position in deiner Seitenleiste",
       "goRoutines": "Routinen",
       "goSettings": "Einstellungen",
+      "goWorkspaces": "Workspace wechseln",
       "openFilters": "Filter einer Liste öffnen",
       "save": "Offenes Formular speichern",
       "search": "Suchen",
@@ -5134,6 +5135,7 @@
         "typical": "Mate entwirft deinen Workspace aus deinen Antworten. Das dauert meist 1 bis 2 Minuten.",
         "underMinute": "Noch weniger als eine Minute"
       },
+      "reviewHint": "Prüfe den Plan und baue dann deinen Workspace.",
       "sampleSummary": "{count, plural, one {Legt # Beispieldatensatz an, damit du gleich loslegen kannst.} other {Legt # Beispieldatensätze an, damit du gleich loslegen kannst.}}",
       "subtitle": "Das bauen wir für dich, sobald du bestätigst.",
       "title": "Dein Plan für den Workspace",

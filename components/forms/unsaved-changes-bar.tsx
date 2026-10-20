@@ -1,5 +1,7 @@
 "use client";
 
+import type { RefObject } from "react";
+
 import { useLayoutEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 
@@ -25,6 +27,30 @@ export function unsavedChangesMode({
   if (!editable) return "none";
   if (creating) return "footer";
   return dirty ? "bar" : "none";
+}
+
+export function useBottomBarClearance(ref: RefObject<HTMLElement | null>) {
+  useLayoutEffect(() => {
+    const bar = ref.current;
+    if (!bar) return;
+    const root = document.documentElement;
+    const update = () => {
+      const { top, bottom } = bar.getBoundingClientRect();
+      const clearance = top < window.innerHeight && bottom > window.innerHeight / 2 ? window.innerHeight - top : 0;
+      root.style.setProperty(UNSAVED_CHANGES_BAR_CLEARANCE, `${Math.max(0, Math.ceil(clearance))}px`);
+    };
+    update();
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(update);
+    observer?.observe(bar);
+    window.addEventListener("resize", update);
+    window.addEventListener("scroll", update, true);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", update, true);
+      root.style.removeProperty(UNSAVED_CHANGES_BAR_CLEARANCE);
+    };
+  }, [ref]);
 }
 
 type Props = {
@@ -56,27 +82,7 @@ export function UnsavedChangesBar({ formId, anchorScope, saving = false, placeme
     };
   }, [placement]);
 
-  useLayoutEffect(() => {
-    const bar = containerRef.current;
-    if (!bar) return;
-    const root = document.documentElement;
-    const update = () => {
-      const { top, bottom } = bar.getBoundingClientRect();
-      const clearance = top < window.innerHeight && bottom > window.innerHeight / 2 ? window.innerHeight - top : 0;
-      root.style.setProperty(UNSAVED_CHANGES_BAR_CLEARANCE, `${Math.max(0, Math.ceil(clearance))}px`);
-    };
-    update();
-    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(update);
-    observer?.observe(bar);
-    window.addEventListener("resize", update);
-    window.addEventListener("scroll", update, true);
-    return () => {
-      observer?.disconnect();
-      window.removeEventListener("resize", update);
-      window.removeEventListener("scroll", update, true);
-      root.style.removeProperty(UNSAVED_CHANGES_BAR_CLEARANCE);
-    };
-  }, []);
+  useBottomBarClearance(containerRef);
 
   return (
     <div

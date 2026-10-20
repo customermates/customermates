@@ -38,6 +38,7 @@ export function GlobalKeyboardShortcuts() {
       addPickerStore,
       viewPickerStore,
       navigationGuard,
+      workspacesStore,
     } = rootStore;
     const platform = detectKeyboardPlatform(navigator);
     let goTimer: ReturnType<typeof setTimeout> | undefined;
@@ -67,9 +68,8 @@ export function GlobalKeyboardShortcuts() {
       );
     }
 
-    function goTargetHref(event: KeyboardEvent) {
-      const target = goSequenceTarget(event, platform);
-      if (!target) return undefined;
+    function goTargetHref(target: ReturnType<typeof goSequenceTarget>) {
+      if (!target || "level" in target) return undefined;
       return "destination" in target
         ? store.destinations.pages[target.destination]
         : store.destinations.lists[target.listPosition];
@@ -106,7 +106,15 @@ export function GlobalKeyboardShortcuts() {
       if (!routeReady() || singleKeyShortcutBlocked(event, document)) return;
 
       if (continuesGo) {
-        const href = goTargetHref(event);
+        const target = goSequenceTarget(event, platform);
+        if (target && "level" in target) {
+          if (workspacesStore.others.length === 0) return;
+          event.preventDefault();
+          globalSearchModalStore.openFrom(focusOrigin());
+          globalSearchModalStore.pushLevel({ kind: target.level, label: t("CommandPalette.labels.switchWorkspace") });
+          return;
+        }
+        const href = goTargetHref(target);
         if (!href) return;
         event.preventDefault();
         navigationGuard.tryNavigate(() => router.push(href));
