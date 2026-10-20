@@ -14,7 +14,7 @@ import { SegmentedControl, SegmentedControlPanel } from "@/components/ui/segment
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { AppModal, type AppModalActionProps, type AppModalActions } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
-import { UnsavedChangesBar, unsavedChangesMode } from "@/components/forms/unsaved-changes-bar";
+import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -264,20 +264,13 @@ export const ConnectedAccountModal = observer(() => {
           </SegmentedControl>
         </AppCardBody>
 
-        {showEmailTab &&
-          activeTab === "email" &&
-          unsavedChangesMode({
-            dirty: connectedAccountModalStore.signatureStore.hasUnsavedChanges,
-            editable: canUpdate && !connectedAccountModalStore.signatureStore.isReadOnly,
-          }) === "bar" && (
-            <UnsavedChangesBar
-              anchorScope="connected-account-email"
-              formId={ACCOUNT_EMAIL_FORM_ID}
-              saving={connectedAccountModalStore.signatureStore.isLoading}
-              store={connectedAccountModalStore.signatureStore}
-              onCancel={connectedAccountModalStore.signatureStore.resetForm}
-            />
-          )}
+        {showEmailTab && activeTab === "email" && (
+          <UnsavedChangesBar
+            anchorScope="connected-account-email"
+            formId={ACCOUNT_EMAIL_FORM_ID}
+            store={connectedAccountModalStore.signatureStore}
+          />
+        )}
       </AppCard>
     </AppModal>
   );

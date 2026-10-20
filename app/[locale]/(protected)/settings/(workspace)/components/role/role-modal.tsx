@@ -19,8 +19,7 @@ import { AppModal } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
-import { FormFooterActions } from "@/components/forms/form-footer-actions";
-import { UnsavedChangesBar, unsavedChangesMode } from "@/components/forms/unsaved-changes-bar";
+import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { SectionRows } from "@/components/ui/section-rows";
 import { AppForm } from "@/components/forms/form-context";
@@ -57,11 +56,6 @@ const CLOUD_RESOURCES = new Set<Resource>([Resource.inboxMessages, Resource.rout
 export const RoleModal = observer(({ store }: Props) => {
   const t = useTranslations();
   const { form, isLoading, canDeleteRole, isSystemRole, isOwnRole, canManage } = store;
-  const footerMode = unsavedChangesMode({
-    creating: !form.id,
-    dirty: store.hasUnsavedChanges,
-    editable: store.canManage && !store.isReadOnly,
-  });
   const { showDeleteConfirmation } = useDeleteConfirmation();
 
   const manageLabels = {
@@ -259,17 +253,7 @@ export const RoleModal = observer(({ store }: Props) => {
             </CollapsibleSection>
           </AppCardBody>
 
-          {footerMode === "footer" && <FormFooterActions anchorScope="role-modal" store={store} />}
-
-          {footerMode === "bar" && (
-            <UnsavedChangesBar
-              anchorScope="role-modal"
-              saving={store.isLoading}
-              store={store}
-              onCancel={store.resetForm}
-              onSave={store.onSubmit}
-            />
-          )}
+          <UnsavedChangesBar anchorScope="role-modal" creating={!form.id} store={store} onSave={store.onSubmit} />
         </AppCard>
       </AppForm>
     </AppModal>

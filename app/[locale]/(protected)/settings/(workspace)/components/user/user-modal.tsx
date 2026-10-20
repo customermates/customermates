@@ -17,7 +17,7 @@ import { AppModal } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppCardBody } from "@/components/card/app-card-body";
-import { UnsavedChangesBar, unsavedChangesMode } from "@/components/forms/unsaved-changes-bar";
+import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { USER_STATUS_OPTIONS } from "@/constants/user-statuses";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppLink } from "@/components/shared/app-link";
@@ -190,16 +190,7 @@ export const CompanyUserModal = observer(() => {
             />
           </AppCardBody>
 
-          {unsavedChangesMode({ dirty: store.hasUnsavedChanges, editable: store.canManage && !store.isReadOnly }) ===
-            "bar" && (
-            <UnsavedChangesBar
-              anchorScope="member-modal"
-              saving={isLoading}
-              store={store}
-              onCancel={store.resetForm}
-              onSave={store.onSubmit}
-            />
-          )}
+          <UnsavedChangesBar anchorScope="member-modal" store={store} onSave={store.onSubmit} />
         </AppCard>
       </AppForm>
     </AppModal>

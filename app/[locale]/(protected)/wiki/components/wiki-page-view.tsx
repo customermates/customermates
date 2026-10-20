@@ -15,8 +15,7 @@ import { useTranslations } from "next-intl";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { AgentStarterActions } from "@/app/components/agent-chat/suggested-questions";
 import { AppForm } from "@/components/forms/form-context";
-import { FormFooterActions } from "@/components/forms/form-footer-actions";
-import { UnsavedChangesBar, unsavedChangesMode } from "@/components/forms/unsaved-changes-bar";
+import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormTextarea } from "@/components/forms/form-textarea";
 import { Editor } from "@/components/editor/editor";
@@ -118,11 +117,6 @@ const WikiPageViewContent = observer(function WikiPageView({
   });
   const initialPanelSizes = readStoredPanelSizes(columnWidths, WIKI_PANEL_LAYOUT_ID, WIKI_PANEL_IDS, false);
   const canManage = store.canManage;
-  const footerMode = unsavedChangesMode({
-    creating: store.creating,
-    dirty: store.hasUnsavedChanges,
-    editable: canManage && !store.isReadOnly,
-  });
   const setupState = useLiveWikiSetupState(initialSetupState);
   const importRunning = setupState.status === "working";
   const hasPages =
@@ -460,17 +454,13 @@ const WikiPageViewContent = observer(function WikiPageView({
             {documentBody}
           </div>
 
-          {hasDocument && footerMode === "footer" && (
-            <FormFooterActions anchorScope="wiki-page" formId={formId} store={store} onCancel={cancelCreate} />
-          )}
-
-          {hasDocument && footerMode === "bar" && (
+          {hasDocument && (
             <UnsavedChangesBar
               anchorScope="wiki-page"
+              creating={store.creating}
               formId={formId}
-              saving={store.isLoading}
               store={store}
-              onCancel={store.resetDocument}
+              onCancel={store.creating ? cancelCreate : store.resetDocument}
             />
           )}
 

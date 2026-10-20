@@ -11,8 +11,7 @@ import { observer } from "mobx-react-lite";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
-import { FormFooterActions } from "@/components/forms/form-footer-actions";
-import { UnsavedChangesBar, unsavedChangesMode } from "@/components/forms/unsaved-changes-bar";
+import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { AppModal, AppModalTitle } from "@/components/modal";
 import { usePreviewBlockers } from "./use-preview-blockers";
 
@@ -39,11 +38,6 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
   children: ReactNode;
 }) {
   usePreviewBlockers(store.isOpen ? store.preview : null, store.model);
-  const mode = unsavedChangesMode({
-    creating,
-    dirty: store.hasUnsavedChanges || store.previewReady,
-    editable: !store.isReadOnly,
-  });
   return (
     <AppModal
       sheet
@@ -62,21 +56,20 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
           {children}
         </AppCardBody>
 
-        {mode === "footer" && (
-          <FormFooterActions dirty editable saving={store.isLoading} store={store} onSave={store.onSubmit} />
-        )}
-
-        {mode === "bar" && (
-          <UnsavedChangesBar
-            saving={store.isLoading}
-            store={store}
-            onCancel={() => {
-              store.resetForm();
-              store.setPreview(null);
-            }}
-            onSave={store.onSubmit}
-          />
-        )}
+        <UnsavedChangesBar
+          creating={creating}
+          dirty={store.hasUnsavedChanges || store.previewReady}
+          store={store}
+          onCancel={
+            creating
+              ? undefined
+              : () => {
+                  store.resetForm();
+                  store.setPreview(null);
+                }
+          }
+          onSave={store.onSubmit}
+        />
       </AppCard>
     </AppModal>
   );

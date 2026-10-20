@@ -30,6 +30,7 @@ type FormFooterReset = {
 type Props = {
   store?: BaseFormStore | null;
   editable?: boolean;
+  creating?: boolean;
   dirty?: boolean;
   saving?: boolean;
   formId?: string;
@@ -46,6 +47,7 @@ export const FormFooterActions = observer(
   ({
     store: storeProp,
     editable,
+    creating = false,
     dirty: dirtyProp,
     saving: savingProp,
     formId,
@@ -64,7 +66,7 @@ export const FormFooterActions = observer(
     const containerRef = useRef<HTMLDivElement>(null);
     const saveButtonRef = useRef<HTMLButtonElement>(null);
     const [confirmingDiscard, setConfirmingDiscard] = useState(false);
-    const store = storeProp ?? contextStore;
+    const store = storeProp === undefined ? contextStore : storeProp;
 
     const isEditable = editable ?? (store ? store.canManage && !store.isReadOnly : true);
     const dirty = dirtyProp ?? store?.hasUnsavedChanges ?? false;
@@ -153,13 +155,13 @@ export const FormFooterActions = observer(
           </Button>
         )}
 
-        {(!isTopBar || dirty || saving) && (
+        {(!isTopBar || creating || dirty || saving) && (
           <Button
             ref={saveButtonRef}
             aria-busy={saving || undefined}
             aria-label={isTopBar ? (saveLabel ?? t("Common.actions.save")) : undefined}
             className={buttonClassName}
-            disabled={!dirty || saving}
+            disabled={(!creating && !dirty) || saving}
             form={onSave ? undefined : formId}
             id={anchor("save")}
             size={buttonSize}

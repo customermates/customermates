@@ -14,8 +14,7 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AgentChatStoreProvider } from "@/app/components/agent-chat/agent-chat-store-context";
 import { AgentRouteReloadBridge } from "@/app/components/agent-chat/agent-route-reload";
-import { FormFooterActions } from "@/components/forms/form-footer-actions";
-import { UnsavedChangesBar, unsavedChangesMode } from "@/components/forms/unsaved-changes-bar";
+import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { AppForm } from "@/components/forms/form-context";
 import { AppModal } from "@/components/modal";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
@@ -38,11 +37,6 @@ export const RoutineModal = observer(() => {
   const [isRefreshPending, startRefreshTransition] = useTransition();
   const wide = useIsWiderThan("lg");
   const isExistingRoutine = Boolean(form.id);
-  const footerMode = unsavedChangesMode({
-    creating: !isExistingRoutine,
-    dirty: routineModalStore.hasUnsavedChanges,
-    editable: routineModalStore.canManage && !routineModalStore.isReadOnly,
-  });
   const openRun = routineModalStore.openRun_;
   const eventTriggered = form.triggerKind === RoutineTriggerKind.event;
   const testTooltip = eventTriggered
@@ -207,16 +201,11 @@ export const RoutineModal = observer(() => {
               </AppCardBody>
             )}
 
-            {!openRun && footerMode === "footer" && (
-              <FormFooterActions anchorScope="routine-modal" store={routineModalStore} />
-            )}
-
-            {!openRun && footerMode === "bar" && (
+            {!openRun && (
               <UnsavedChangesBar
                 anchorScope="routine-modal"
-                saving={routineModalStore.isLoading}
+                creating={!isExistingRoutine}
                 store={routineModalStore}
-                onCancel={routineModalStore.resetForm}
                 onSave={routineModalStore.onSubmit}
               />
             )}

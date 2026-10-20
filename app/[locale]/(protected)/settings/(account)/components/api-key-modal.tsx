@@ -12,7 +12,7 @@ import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppForm } from "@/components/forms/form-context";
-import { FormFooterActions } from "@/components/forms/form-footer-actions";
+import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { FormInput } from "@/components/forms/form-input";
 import { Calendar, focusCalendarDay } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -217,12 +217,12 @@ export const ApiKeyModal = observer(() => {
       title={title}
     >
       <AppForm store={apiKeyModalStore}>
-        <AppCard>
+        <AppCard className="relative">
           <AppCardHeader>
             <h2 className="truncate text-x-lg">{title}</h2>
           </AppCardHeader>
 
-          <AppCardBody>
+          <AppCardBody className="pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]">
             {isView && viewingKey ? (
               <div className="flex flex-col gap-2">
                 <InfoRow label={t("Common.table.columns.createdAt")}>
@@ -268,7 +268,9 @@ export const ApiKeyModal = observer(() => {
             ) : null}
           </AppCardBody>
 
-          {isPlain && !createdKey ? <FormFooterActions anchorScope="api-key" /> : null}
+          {isPlain && !createdKey ? (
+            <UnsavedChangesBar creating anchorScope="api-key" store={apiKeyModalStore} />
+          ) : null}
         </AppCard>
       </AppForm>
     </AppModal>

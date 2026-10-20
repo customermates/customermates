@@ -97,6 +97,7 @@ test("adds and edits definitions in a side drawer and reorders fields with drag 
   const errors = collectPageErrors(page);
   const id = (key: string) => presetId(companyId, key);
   const dialog = configureDrawer(page);
+  const bar = dialog.locator('[data-slot="unsaved-changes-bar"]');
   await openConfigure(page, id("deal"));
 
   await configureTopBar(page).getByRole("button", { name: "Add", exact: true }).click();
@@ -113,6 +114,9 @@ test("adds and edits definitions in a side drawer and reorders fields with drag 
   await addFromConfigure(page, "Calculated field");
   await expect(dialog.getByText("Add field", { exact: true })).toBeVisible();
   await expect(dialog.getByRole("combobox", { name: "Value source", exact: true })).toContainText("Calculated");
+  await expect(bar).toBeVisible();
+  await expect(bar).not.toContainText("Unsaved changes");
+  await expect(bar.getByRole("button", { name: "Save", exact: true })).toBeEnabled();
   await expect(dialog.getByRole("button", { name: "Save", exact: true })).toHaveCount(1);
   await expect(dialog.getByRole("button", { name: "Cancel", exact: true })).toHaveCount(1);
   await expect(dialog.locator("[data-slot='sheet-header']").getByRole("button", { name: "Save" })).toHaveCount(0);
@@ -128,7 +132,22 @@ test("adds and edits definitions in a side drawer and reorders fields with drag 
   ] as const) {
     await addFromConfigure(page, item);
     await expect(dialog.getByText(title, { exact: true }).first()).toBeVisible();
-    await dialog.getByRole("button", { name: "Cancel", exact: true }).first().click();
+    await expect(bar).toBeVisible();
+    await expect(bar).not.toContainText("Unsaved changes");
+    await expect(bar.getByRole("button", { name: "Save", exact: true })).toBeEnabled();
+    if (item === "Field") {
+      await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Discarded new field");
+      await expect(bar).toContainText("Unsaved changes");
+      await bar.getByRole("button", { name: "Cancel", exact: true }).click();
+      const confirmation = page.getByRole("alertdialog");
+      await expect(confirmation).toBeVisible();
+      await confirmation.getByRole("button", { name: "Cancel", exact: true }).click();
+      await expect(confirmation).not.toBeVisible();
+      await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Discarded new field");
+      await bar.getByRole("button", { name: "Cancel", exact: true }).click();
+      await confirmation.getByRole("button", { name: "Discard", exact: true }).click();
+      await expect(confirmation).not.toBeVisible();
+    } else await bar.getByRole("button", { name: "Cancel", exact: true }).click();
     await expect(dialog).not.toBeVisible();
   }
 
@@ -139,7 +158,6 @@ test("adds and edits definitions in a side drawer and reorders fields with drag 
   await openConfigureRow(page, "Fields", "Notes");
   await expect(dialog.getByText("Edit field", { exact: true })).toBeVisible();
   await expect(page.locator("[data-configure-list-pane]")).toBeAttached();
-  const bar = dialog.locator('[data-slot="unsaved-changes-bar"]');
   await expect(bar).toHaveCount(0);
   await expect(dialog).toHaveCSS("border-left-width", "1px");
   await expect(dialog.locator('[data-uid="app-card"]')).toHaveCSS("border-left-width", "0px");

@@ -18,6 +18,7 @@ vi.mock("@/components/modal/use-navigation-guard", () => ({ useNavigationGuard: 
 
 import { AppForm } from "../form-context";
 import { FormFooterActions } from "../form-footer-actions";
+import { UnsavedChangesBar } from "../unsaved-changes-bar";
 import { AppModalCloseContext } from "@/components/modal/app-modal-close-context";
 import { OverlayDismissGuardContext, type OverlayDismissGuard } from "@/components/modal/overlay-dismiss-guard";
 
@@ -234,5 +235,107 @@ describe("FormFooterActions (design rule 31)", () => {
     render(createElement(FormFooterActions, { anchorScope: "f", dirty: false, onCancel, onSave: vi.fn() }));
     act(() => button("f-cancel")?.click());
     expect(onCancel).toHaveBeenCalledOnce();
+  });
+
+  it("offers creation and its shortcut on an untouched form without claiming unsaved changes", async () => {
+    const store = fakeStore();
+    const close = vi.fn();
+    const host = render(
+      inForm(
+        store,
+        createElement(UnsavedChangesBar, {
+          creating: true,
+          anchorScope: "f",
+          store: store as unknown as BaseFormStore,
+        }),
+        close,
+      ),
+    );
+    expect(host.querySelector('[data-slot="unsaved-changes-bar"]')).not.toBeNull();
+    expect(host.textContent).not.toContain("Common.unsavedChanges");
+    expect(button("f-save")?.disabled).toBe(false);
+    act(() => {
+      document
+        .getElementById("test-input")
+        ?.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", ctrlKey: true, bubbles: true }));
+    });
+    await vi.waitFor(() => expect(store.onSubmit).toHaveBeenCalledOnce());
+    markDirty(store);
+    expect(host.textContent).toContain("Common.unsavedChanges");
+    act(() => button("f-cancel")?.click());
+    expect(close).toHaveBeenCalledOnce();
+    expect(store.resetForm).not.toHaveBeenCalled();
+  });
+
+  it("reacts to edit state and restores the draft and scroll clearance when cancelled", () => {
+    const store = fakeStore();
+    vi.mocked(store.resetForm).mockImplementation(() =>
+      runInAction(() => {
+        store.hasUnsavedChanges = false;
+      }),
+    );
+    const close = vi.fn();
+    const host = render(
+      inForm(
+        store,
+        createElement(UnsavedChangesBar, { anchorScope: "f", store: store as unknown as BaseFormStore }),
+        close,
+      ),
+    );
+    const form = host.querySelector("form");
+    const space = () => form?.style.getPropertyValue("--unsaved-changes-bar-space");
+    expect(host.querySelector('[data-slot="unsaved-changes-bar"]')).toBeNull();
+    markDirty(store);
+    expect(space()).not.toBe("");
+    act(() => button("f-cancel")?.click());
+    expect(store.resetForm).toHaveBeenCalledOnce();
+    expect(close).not.toHaveBeenCalled();
+    expect(host.querySelector('[data-slot="unsaved-changes-bar"]')).toBeNull();
+    expect(space()).toBe("");
+    markDirty(store);
+    expect(host.querySelector('[data-slot="unsaved-changes-bar"]')).not.toBeNull();
+    expect(space()).not.toBe("");
+  });
+
+  it("keeps a new nested form independent of its surrounding form's unsaved state", () => {
+    const surrounding = fakeStore({ hasUnsavedChanges: true, isReadOnly: true });
+    const onCancel = vi.fn();
+    const host = render(
+      inForm(
+        surrounding,
+        createElement(UnsavedChangesBar, {
+          creating: true,
+          dirty: false,
+          anchorScope: "f",
+          onCancel,
+          onSave: vi.fn(),
+        }),
+      ),
+    );
+    expect(button("f-save")?.disabled).toBe(false);
+    expect(host.textContent).not.toContain("Common.unsavedChanges");
+    act(() => button("f-cancel")?.click());
+    expect(onCancel).toHaveBeenCalledOnce();
+    expect(harness.tryNavigate).not.toHaveBeenCalled();
+    expect(surrounding.resetForm).not.toHaveBeenCalled();
+  });
+
+  it("guards a dirty new form with its own local state before discarding it", () => {
+    const onCancel = vi.fn();
+    render(
+      createElement(UnsavedChangesBar, { creating: true, dirty: true, anchorScope: "f", onCancel, onSave: vi.fn() }),
+    );
+    act(() => button("f-cancel")?.click());
+    expect(onCancel).not.toHaveBeenCalled();
+    act(() => button("discard-changes")?.click());
+    expect(onCancel).toHaveBeenCalledOnce();
+  });
+
+  it("keeps a read-only create form free of floating actions", () => {
+    const store = fakeStore({ isReadOnly: true });
+    const host = render(
+      inForm(store, createElement(UnsavedChangesBar, { creating: true, store: store as unknown as BaseFormStore })),
+    );
+    expect(host.querySelector('[data-slot="unsaved-changes-bar"]')).toBeNull();
   });
 });

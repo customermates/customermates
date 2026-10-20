@@ -474,6 +474,24 @@ describe("data view rail interaction", () => {
     expect(host.querySelector("#view-editor-ai")).toBeNull();
   });
 
+  it("lets an untouched duplicate cancel cleanly or save its preset name", async () => {
+    const host = render(store({ activeViewKey: OPEN.id }));
+    chooseFromMenu(host, "DataView.views.duplicate");
+    expect(host.querySelector('[data-slot="unsaved-changes-bar"]')?.textContent).not.toContain("Common.unsavedChanges");
+    expect(host.querySelector<HTMLButtonElement>("#view-editor-save")?.disabled).toBe(false);
+    act(() => host.querySelector<HTMLButtonElement>("#view-editor-cancel")?.click());
+    expect(host.querySelector("#view-editor-name")).toBeNull();
+    expect(document.querySelector('[role="alertdialog"]')).toBeNull();
+    expect(harness.upsertDataViewAction).not.toHaveBeenCalled();
+
+    chooseFromMenu(host, "DataView.views.duplicate");
+    await submitMetaForm(host);
+    expect(harness.upsertDataViewAction).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ name: "DataView.views.duplicateName(Open deals)" }),
+    );
+    expect(host.querySelector("#view-editor-name")).toBeNull();
+  });
+
   it("asks about the saved view while editing without applying an unfinished rename", () => {
     const value = store({ activeViewKey: OPEN.id });
     const host = render(value);

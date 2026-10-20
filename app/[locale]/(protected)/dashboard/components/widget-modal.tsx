@@ -12,8 +12,7 @@ import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppForm } from "@/components/forms/form-context";
-import { FormFooterActions } from "@/components/forms/form-footer-actions";
-import { UnsavedChangesBar, unsavedChangesMode } from "@/components/forms/unsaved-changes-bar";
+import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { FormLabel } from "@/components/forms/form-label";
 import { FormInput } from "@/components/forms/form-input";
 import { FormSwitch } from "@/components/forms/form-switch";
@@ -79,11 +78,6 @@ export const WidgetModal = observer(() => {
   const chartColors = getChartColors();
   const isCreate = !form.id;
   const canDeleteWidget = !isCreate && canManage && Boolean(form.id);
-  const footerMode = unsavedChangesMode({
-    creating: isCreate,
-    dirty: widgetModalStore.hasUnsavedChanges,
-    editable: widgetModalStore.canManage && !widgetModalStore.isReadOnly,
-  });
   const isChooseStep = isCreate && widgetModalStore.creationStep === "choose";
   const dialogTitle = isChooseStep
     ? t("Dashboard.widgetEditor.kind.title")
@@ -380,16 +374,11 @@ export const WidgetModal = observer(() => {
             )}
           </AppCardBody>
 
-          {!isChooseStep && footerMode === "footer" && (
-            <FormFooterActions dirty anchorScope="widget-modal" store={widgetModalStore} />
-          )}
-
-          {!isChooseStep && footerMode === "bar" && (
+          {!isChooseStep && (
             <UnsavedChangesBar
               anchorScope="widget-modal"
-              saving={widgetModalStore.isLoading}
+              creating={isCreate}
               store={widgetModalStore}
-              onCancel={widgetModalStore.resetForm}
               onSave={widgetModalStore.onSubmit}
             />
           )}
