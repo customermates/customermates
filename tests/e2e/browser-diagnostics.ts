@@ -161,6 +161,7 @@ export class BrowserDiagnostics {
   private readonly cancelledChunks = new Map<Page, Set<string>>();
   private readonly settledChunks = new Map<Page, { chunks: Set<string>; at: number }>();
   private readonly abortedLoads = new Set<Page>();
+  private readonly abortedRscLoads = new Map<Page, Map<string, number>>();
   private readonly navigations = new Map<Page, { requested: Set<string>; loadedAt?: number }>();
   private readonly sinceLoad = new Map<Page, BrowserDiagnostic[]>();
   private readonly generations = new Map<Page, number>();
@@ -387,13 +388,31 @@ export class BrowserDiagnostics {
 
   private noteAbortedLoad(request: Request) {
     const page = isAbortedPageLoad(request) ? requestPage(request) : null;
-    if (page) this.abortedLoads.add(page);
+    if (!page) return;
+    this.abortedLoads.add(page);
+    const generation = this.requestGenerations.get(request);
+    if (
+      generation !== undefined &&
+      request.resourceType() === "fetch" &&
+      request.method() === "GET" &&
+      request.headers().rsc === "1"
+    ) {
+      const loads = this.abortedRscLoads.get(page) ?? new Map<string, number>();
+      loads.set(request.url(), generation);
+      this.abortedRscLoads.set(page, loads);
+    }
   }
 
   /** A load the browser cancelled for a document navigation is reported before the next page loads; forget it then. */
   private dropAbortedLoadReports(page: Page) {
     if (!this.abortedLoads.delete(page)) return;
-    const reports = new Set((this.sinceLoad.get(page) ?? []).filter(isAbortedLoadReport));
+    const cancelledRscUrls = new Set<string>();
+    for (const [url, generation] of this.abortedRscLoads.get(page) ?? [])
+      if ((this.generations.get(page) ?? 0) > generation) cancelledRscUrls.add(url);
+    this.abortedRscLoads.delete(page);
+    const reports = new Set(
+      (this.sinceLoad.get(page) ?? []).filter((diagnostic) => isAbortedLoadReport(diagnostic, cancelledRscUrls)),
+    );
     if (reports.size > 0) this.forget(reports);
   }
 

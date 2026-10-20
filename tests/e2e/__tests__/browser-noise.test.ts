@@ -1,10 +1,29 @@
 import { describe, expect, it } from "vitest";
 
-import { chunkLoadErrorChunk, isAppConsoleError, isBenignPageError, webkitCancelledChunk } from "../browser-noise";
+import { chunkLoadErrorChunk, isAbortedLoadReport, isAppConsoleError, isBenignPageError, webkitCancelledChunk } from "../browser-noise";
 
 const message = (type: string, text: string) => ({ type: () => type, text: () => text }) as Parameters<typeof isAppConsoleError>[0];
 
 describe("browser engine noise filters", () => {
+  it("matches an RSC cancellation only to its exact loopback URL and framework origin", () => {
+    const base = "http://127.0.0.1:4464";
+    const diagnostic = {
+      kind: "console",
+      text: `Failed to fetch RSC payload for ${base}/en/auth/pending?view=one. Falling back to browser navigation. TypeError: Load failed`,
+      source: `${base}/_next/static/chunks/runtime.js`,
+    };
+    const cancelled = new Set([`${base}/en/auth/pending?view=one&_rsc=abc`]);
+    expect(isAbortedLoadReport(diagnostic, cancelled)).toBe(true);
+    expect(isAbortedLoadReport(diagnostic)).toBe(false);
+    expect(isAbortedLoadReport(diagnostic, new Set([`${base}/en/auth/pending?view=two&_rsc=abc`]))).toBe(false);
+    expect(isAbortedLoadReport({ ...diagnostic, kind: "pageerror" }, cancelled)).toBe(false);
+    expect(isAbortedLoadReport({ ...diagnostic, source: `${base}/en/auth/pending` }, cancelled)).toBe(false);
+    expect(isAbortedLoadReport({ ...diagnostic, source: "http://127.0.0.1:9999/_next/static/chunks/runtime.js" }, cancelled)).toBe(false);
+    expect(isAbortedLoadReport({ ...diagnostic, source: "https://example.test/_next/static/chunks/runtime.js" }, cancelled)).toBe(false);
+    expect(isAbortedLoadReport({ ...diagnostic, text: diagnostic.text.replaceAll(base, "https://example.test") }, new Set(["https://example.test/en/auth/pending?view=one&_rsc=abc"]))).toBe(false);
+    expect(isAbortedLoadReport({ ...diagnostic, text: diagnostic.text.replace("TypeError: Load failed", "Error: HTTP 500") }, cancelled)).toBe(false);
+  });
+
   it("ignores only WebKit's notice about the deliberate interactive-widget viewport key", () => {
     expect(isAppConsoleError(message("error", 'Viewport argument key "interactive-widget" not recognized and ignored.'))).toBe(false);
     expect(isAppConsoleError(message("error", 'Viewport argument key "width" not recognized and ignored.'))).toBe(true);
