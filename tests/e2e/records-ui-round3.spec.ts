@@ -679,7 +679,7 @@ test("board columns keep a one-line header, one fixed width and collapse into st
 });
 
 
-test("long chips truncate within content-sized edit targets across table, card and phone widths", async ({
+test("short chips stay readable and long chips truncate across table, card and phone widths", async ({
   page,
   companyId,
   database,
@@ -689,7 +689,9 @@ test("long chips truncate within content-sized edit targets across table, card a
   const model = await readModel(page);
   const choice = model.fields.find((field) => field.typeId === typeId && field.label === "Choice");
   const text = model.fields.find((field) => field.typeId === typeId && field.label === "Text");
-  if (!choice || !text) throw new Error("The lab fields are missing");
+  const date = model.fields.find((field) => field.typeId === typeId && field.label === "Date");
+  const type = model.types.find((type) => type.id === typeId);
+  if (!choice || !text || !date || !type) throw new Error("The lab fields are missing");
   const { publishedSummary, ...choiceDefinition } = choice;
   expect(publishedSummary).toBe(false);
   const groupId = randomUUID();
@@ -702,7 +704,10 @@ test("long chips truncate within content-sized edit targets across table, card a
         operation: "putField",
         field: {
           ...choiceDefinition,
-          options: choice.options.map((option) => (option.id === "alpha" ? { ...option, label: longLabel } : option)),
+          options: choice.options.map((option) => ({
+            ...option,
+            label: option.id === "alpha" ? longLabel : "Internal",
+          })),
         },
       },
       {
@@ -738,12 +743,39 @@ test("long chips truncate within content-sized edit targets across table, card a
       ],
     },
   });
+  await postOk(page, "/api/v1/records/mutate", {
+    expectedRevision: (await readModel(page)).revision,
+    idempotencyKey: randomUUID(),
+    mutation: {
+      action: "create",
+      typeId,
+      fields: [
+        { fieldId: type.primaryFieldId, value: { kind: "text", value: "Lab short chips" } },
+        { fieldId: choice.id, value: { kind: "select", value: "beta" } },
+        { fieldId: text.id, value: { kind: "text", value: "Short text" } },
+        { fieldId: date.id, value: { kind: "date", value: "2026-10-27" } },
+        { fieldId: groupId, value: { kind: "select", value: "group" } },
+      ],
+    },
+  });
   const errors = collectPageErrors(page);
   for (const mode of ["row", "card"]) {
     for (const width of [390, 820, 1280]) {
       await page.setViewportSize({ width, height: 900 });
       await page.goto(`/en/records/${typeId}?viewMode=${mode}${mode === "card" ? `&groupBy=${groupId}` : ""}`);
-      const target = page.locator(`[data-inline-edit="${choice.id}"]:visible`).first();
+      const shortRecord = page.locator("[data-row-id], [data-item-id]").filter({ hasText: "Lab short chips" }).first();
+      for (const label of ["Choice", "Text", "Date"]) {
+        const short = shortRecord.getByRole("button", { name: `Edit ${label}`, exact: true });
+        await expect(short).toBeVisible();
+        if (label === "Date") await expect(short.locator("time")).toHaveText(/2026/);
+        const clipped = await short.evaluate((element) =>
+          [...element.querySelectorAll(".truncate")].some(
+            (label) => label.clientWidth > 0 && label.scrollWidth > label.clientWidth + 1,
+          ),
+        );
+        expect(clipped, `${label} should fit without truncation at ${mode}/${width}`).toBe(false);
+      }
+      const target = page.locator(`[data-inline-edit="${choice.id}"]:visible`).filter({ hasText: longLabel }).first();
       const chip = target.locator('[data-slot="badge"]:visible').filter({ hasText: longLabel }).first();
       await expect(chip).toBeVisible();
       await expect.poll(async () => (await chip.boundingBox())?.width ?? 0).toBeGreaterThan(0);
@@ -763,6 +795,7 @@ test("long chips truncate within content-sized edit targets across table, card a
           parentLeft: parent?.left,
           parentRight: parent?.right,
           padding: target ? target.height - chip.height : 0,
+          fillsCard: element.closest("[data-chip-column]") ? Math.abs(chip.width - (parent?.width ?? 0)) < 1 : true,
           truncated,
         };
       });
@@ -770,12 +803,14 @@ test("long chips truncate within content-sized edit targets across table, card a
       expect(bounds.left).toBeGreaterThanOrEqual((bounds.parentLeft ?? 0) - 1);
       expect(bounds.right).toBeLessThanOrEqual((bounds.parentRight ?? 0) + 1);
       expect(bounds.padding).toBeGreaterThanOrEqual(7);
+      expect(bounds.fillsCard).toBe(true);
       expect(bounds.truncated).toBe(true);
       await page.screenshot({ path: testInfo.outputPath(`chips-${mode}-${width}.png`), animations: "disabled" });
       if (mode === "row" && width >= 820) {
         const cell = page
           .locator("tbody td")
-          .filter({ has: page.getByRole("button", { name: "Edit Text", exact: true }) });
+          .filter({ has: page.getByRole("button", { name: "Edit Text", exact: true }) })
+          .filter({ hasText: longLabel });
         const edit = cell.getByRole("button", { name: "Edit Text", exact: true });
         const cellBox = await cell.boundingBox();
         const editBox = await edit.boundingBox();
