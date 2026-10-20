@@ -59,7 +59,7 @@ import { isEmptyResult } from "./record-chip-row-model";
 
 const EDIT_TARGET_SELECTOR = "[data-edit-target]";
 const EDIT_SURFACE_CLASS =
-  "gap-2 rounded-md px-1.5 -mx-1.5 transition-colors hover:bg-background hover:ring-1 hover:ring-inset hover:ring-border focus-within:bg-background";
+  "gap-2 rounded-md px-1.5 py-1 -mx-1.5 transition-colors hover:bg-background hover:ring-1 hover:ring-inset hover:ring-border focus-within:bg-background";
 const EDIT_TARGET_CLASS = cn(
   EDIT_SURFACE_CLASS,
   "inline-flex min-h-6 max-w-full min-w-0 cursor-pointer items-center text-left outline-none focus-visible:ring-2 focus-visible:ring-ring/70 disabled:cursor-default",
@@ -216,7 +216,9 @@ const InlineFieldForm = observer(function InlineFieldForm({
   onDone: () => void;
 }) {
   const store = useFieldValueStore(records, record, field, onDone);
-  return <RecordFieldValueEditor saveOnDatePick members={record.memberUsers} store={store} onCancel={onDone} />;
+  return (
+    <RecordFieldValueEditor saveOnDatePick label={null} members={record.memberUsers} store={store} onCancel={onDone} />
+  );
 });
 
 const InPlaceFieldInput = observer(function InPlaceFieldInput({
@@ -395,7 +397,7 @@ const InPlaceField = observer(function InPlaceField({
   }, [editing]);
   if (editing) {
     return (
-      <span ref={anchor} className="flex min-w-0 flex-1">
+      <span ref={anchor} className="flex min-w-0 max-w-xs">
         <InPlaceFieldInput
           field={field}
           record={record}
@@ -441,10 +443,10 @@ const InPlaceField = observer(function InPlaceField({
     );
   }
   return (
-    <span ref={anchor} className="flex w-full min-w-0">
+    <span ref={anchor} className="flex max-w-full min-w-0">
       <button
         aria-label={label}
-        className={cn(EDIT_TARGET_CLASS, "w-full")}
+        className={EDIT_TARGET_CLASS}
         data-edit-in-place=""
         data-edit-target=""
         data-inline-edit={field.id}

@@ -67,6 +67,7 @@ export type ConfigurationConsumerCleanup =
   | { kind: "view" | "personalLayout"; id: string; state: DataViewState }
   | { kind: "detailLayout"; id: string; layout: RecordDetailLayout }
   | { kind: "widget"; id: string; measure: RecordMeasure }
+  | { kind: "trashWidget"; id: string }
   | { kind: "webhookSubscription"; subscription: RecordEventSubscriptionDefinition; paused: boolean };
 
 export type RecordTrashItem = {
@@ -165,7 +166,10 @@ export interface RecordRepo {
   ): Promise<Array<{ id: string; name: string; measure: RecordMeasure; trashed: boolean }>>;
   getConfigurationDeletions(targets?: ConfigurationTarget[]): Promise<Map<string, ConfigurationDeletionRecord>>;
   getConfigurationTrashTargetIds(): Promise<Set<string>>;
-  applyConsumerCleanups(cleanups: ConfigurationConsumerCleanup[]): Promise<{ pausedWebhookIds: string[] }>;
+  applyConsumerCleanups(
+    cleanups: ConfigurationConsumerCleanup[],
+    trash: { causeId: string; deletedById: string | null },
+  ): Promise<{ pausedWebhookIds: string[] }>;
   getState(): Promise<RecordSchemaState | null>;
   getGrants(): Promise<RecordTypeGrant[]>;
   countRecordsCompanyWide(typeIds: string[]): Promise<number>;

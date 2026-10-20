@@ -3590,7 +3590,8 @@
         "webhookPaused": "{count, plural, one {Der Webhook {consumers} wird pausiert, weil {target} sein einziger Auslöser war. Wähle einen neuen Auslöser, bevor du ihn wieder einschaltest.} other {# Webhooks werden pausiert, weil {target} ihr einziger Auslöser war: {consumers}. Wähle einen neuen Auslöser, bevor du sie wieder einschaltest.}}",
         "webhookTrigger": "{count, plural, one {{target} wird aus dem Auslöser des Webhooks {consumers} entfernt.} other {{target} wird aus dem Auslöser von # Webhooks entfernt: {consumers}.}}",
         "widget": "{count, plural, one {{target} wird aus den Filtern oder der Gruppierung des Widgets {consumers} entfernt.} other {{target} wird aus den Filtern oder der Gruppierung von # Widgets entfernt: {consumers}.}}",
-        "widgetCount": "{count, plural, one {Das Widget {consumers} zählt Datensätze, statt {target} auszuwerten.} other {# Widgets zählen Datensätze, statt {target} auszuwerten: {consumers}.}}"
+        "widgetCount": "{count, plural, one {Das Widget {consumers} zählt Datensätze, statt {target} auszuwerten.} other {# Widgets zählen Datensätze, statt {target} auszuwerten: {consumers}.}}",
+        "widgetTrashed": "{count, plural, one {Das Widget {consumers} wird zusammen mit {target} in den Papierkorb verschoben.} other {# Widgets werden zusammen mit {target} in den Papierkorb verschoben: {consumers}.}}"
       },
       "configureActions": "Aktionen für Konfigurieren",
       "deleteColumn": "Spalte löschen",

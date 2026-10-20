@@ -520,7 +520,10 @@ export class PrismaRecordRepo
     return new Set(items.map((item) => item.targetId));
   }
 
-  async applyConsumerCleanups(cleanups: ConfigurationConsumerCleanup[]): Promise<{ pausedWebhookIds: string[] }> {
+  async applyConsumerCleanups(
+    cleanups: ConfigurationConsumerCleanup[],
+    trash: { causeId: string; deletedById: string | null },
+  ): Promise<{ pausedWebhookIds: string[] }> {
     const companyId = this.companyId;
     const pausedWebhookIds: string[] = [];
     for (const cleanup of cleanups) {
@@ -536,6 +539,22 @@ export class PrismaRecordRepo
           cleanup.id,
           cleanup.measure as Prisma.InputJsonValue,
         );
+      } else if (cleanup.kind === "trashWidget") {
+        const widget = await this.owners.widgets.trashCompanyWide(companyId, cleanup.id);
+        if (widget) {
+          await this.owners.trash.addItemsCompanyWide(companyId, [
+            {
+              id: randomUUID(),
+              kind: "widget",
+              targetId: cleanup.id,
+              typeId: null,
+              ownerUserId: widget.userId,
+              label: widget.name,
+              batchId: configurationTrashBatchId(companyId, trash.causeId),
+              deletedById: trash.deletedById,
+            },
+          ]);
+        }
       } else if (cleanup.kind === "webhookSubscription") {
         const { id, events } = cleanup.subscription;
         await this.owners.subscriptions.rewriteCompanyWide(companyId, cleanup.subscription);

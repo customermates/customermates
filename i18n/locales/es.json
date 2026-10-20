@@ -3590,7 +3590,8 @@
         "webhookPaused": "{count, plural, one {El webhook {consumers} queda en pausa porque {target} era su único disparador. Elige un nuevo disparador antes de volver a activarlo.} other {# webhooks quedan en pausa porque {target} era su único disparador: {consumers}. Elige un nuevo disparador antes de volver a activarlos.}}",
         "webhookTrigger": "{count, plural, one {{target} se quita del disparador del webhook {consumers}.} other {{target} se quita del disparador de # webhooks: {consumers}.}}",
         "widget": "{count, plural, one {{target} se quita de los filtros o la agrupación del widget {consumers}.} other {{target} se quita de los filtros o la agrupación de # widgets: {consumers}.}}",
-        "widgetCount": "{count, plural, one {El widget {consumers} cuenta registros en lugar de medir {target}.} other {# widgets cuentan registros en lugar de medir {target}: {consumers}.}}"
+        "widgetCount": "{count, plural, one {El widget {consumers} cuenta registros en lugar de medir {target}.} other {# widgets cuentan registros en lugar de medir {target}: {consumers}.}}",
+        "widgetTrashed": "{count, plural, one {El widget {consumers} se mueve a la papelera junto con {target}.} other {# widgets se mueven a la papelera junto con {target}: {consumers}.}}"
       },
       "configureActions": "Acciones de Configurar",
       "deleteColumn": "Eliminar columna",

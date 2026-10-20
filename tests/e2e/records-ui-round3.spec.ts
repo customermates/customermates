@@ -369,7 +369,10 @@ test("edits every field type inline in rows and on board cards, with validation,
   await expect(row.locator('[data-slot="badge"], [data-slot="app-chip"]').first()).toBeVisible();
 
   const owner = await openEditor("Owner");
-  await owner.getByRole("combobox").click();
+  const ownerLabels = owner.locator("label").filter({ hasText: "Owner" });
+  await expect(ownerLabels).toHaveCount(1);
+  await expect(ownerLabels).toHaveClass(/sr-only/);
+  await owner.getByRole("combobox", { name: "Owner", exact: true }).click();
   await page.getByRole("option").first().click();
   await owner.getByRole("button", { name: "Save", exact: true }).click();
   await expect(owner).not.toBeVisible();
@@ -655,4 +658,117 @@ test("board columns keep a one-line header, one fixed width and collapse into st
   await strip.click();
   await expect(strip).toHaveCount(0);
   await expect(lanes).toHaveCount(laneCount);
+});
+
+
+test("long chips truncate within content-sized edit targets across table, card and phone widths", async ({
+  page,
+  companyId,
+  database,
+}, testInfo) => {
+  await page.goto(`/en/records/${presetId(companyId, "contact")}`);
+  const typeId = await createLabList(page, presetId(companyId, "contact"));
+  const model = await readModel(page);
+  const choice = model.fields.find((field) => field.typeId === typeId && field.label === "Choice");
+  const text = model.fields.find((field) => field.typeId === typeId && field.label === "Text");
+  if (!choice || !text) throw new Error("The lab fields are missing");
+  const { publishedSummary, ...choiceDefinition } = choice;
+  expect(publishedSummary).toBe(false);
+  const groupId = randomUUID();
+  const longLabel = "Priority requiring a thorough conversation with the customer and the delivery team";
+  await postOk(page, "/api/v1/model/apply", {
+    expectedRevision: model.revision,
+    idempotencyKey: randomUUID(),
+    operations: [
+      {
+        operation: "putField",
+        field: {
+          ...choiceDefinition,
+          options: choice.options.map((option) => (option.id === "alpha" ? { ...option, label: longLabel } : option)),
+        },
+      },
+      {
+        operation: "putField",
+        field: {
+          id: groupId,
+          typeId,
+          label: "Board group",
+          valueType: "select",
+          position: 13,
+          required: false,
+          archived: false,
+          options: [{ id: "group", label: "Group", color: null, attributes: [] }],
+          behavior: { kind: "input" },
+        },
+      },
+    ],
+  });
+  const record = (
+    await database.query('SELECT id,version FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2', [companyId, typeId])
+  ).rows[0];
+  await postOk(page, "/api/v1/records/mutate", {
+    expectedRevision: (await readModel(page)).revision,
+    idempotencyKey: randomUUID(),
+    mutation: {
+      action: "update",
+      ref: { typeId, recordId: record.id },
+      expectedVersion: record.version,
+      fields: [
+        { fieldId: choice.id, value: { kind: "select", value: "alpha" } },
+        { fieldId: text.id, value: { kind: "text", value: longLabel } },
+        { fieldId: groupId, value: { kind: "select", value: "group" } },
+      ],
+    },
+  });
+  const errors = collectPageErrors(page);
+  for (const mode of ["row", "card"]) {
+    for (const width of [390, 820, 1280]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(`/en/records/${typeId}?viewMode=${mode}${mode === "card" ? `&groupBy=${groupId}` : ""}`);
+      const target = page.locator(`[data-inline-edit="${choice.id}"]:visible`).first();
+      const chip = target.locator('[data-slot="badge"]:visible').filter({ hasText: longLabel }).first();
+      await expect(chip).toBeVisible();
+      await expect.poll(async () => (await chip.boundingBox())?.width ?? 0).toBeGreaterThan(0);
+      const bounds = await chip.evaluate((element) => {
+        const chip = element.getBoundingClientRect();
+        const parent = element.closest("td, [data-chip-column]")?.getBoundingClientRect();
+        const target = element.closest("[data-edit-target]")?.getBoundingClientRect();
+        const truncated = [...element.querySelectorAll(".truncate")].some(
+          (label) =>
+            label.clientWidth > 0 &&
+            label.scrollWidth > label.clientWidth &&
+            getComputedStyle(label).textOverflow === "ellipsis",
+        );
+        return {
+          left: chip.left,
+          right: chip.right,
+          parentLeft: parent?.left,
+          parentRight: parent?.right,
+          padding: target ? target.height - chip.height : 0,
+          truncated,
+        };
+      });
+      expect(bounds.parentRight).toBeDefined();
+      expect(bounds.left).toBeGreaterThanOrEqual((bounds.parentLeft ?? 0) - 1);
+      expect(bounds.right).toBeLessThanOrEqual((bounds.parentRight ?? 0) + 1);
+      expect(bounds.padding).toBeGreaterThanOrEqual(7);
+      expect(bounds.truncated).toBe(true);
+      await page.screenshot({ path: testInfo.outputPath(`chips-${mode}-${width}.png`), animations: "disabled" });
+      if (mode === "row" && width >= 820) {
+        const cell = page
+          .locator("tbody td")
+          .filter({ has: page.getByRole("button", { name: "Edit Text", exact: true }) });
+        const edit = cell.getByRole("button", { name: "Edit Text", exact: true });
+        const cellBox = await cell.boundingBox();
+        const editBox = await edit.boundingBox();
+        if (!cellBox || !editBox) throw new Error("The editable cell is missing");
+        expect(editBox.width).toBeLessThan(cellBox.width);
+        await cell.click({ position: { x: cellBox.width - 4, y: cellBox.height / 2 } });
+        await expect(page.getByRole("dialog")).toBeVisible();
+        await page.keyboard.press("Escape");
+        await expect(page.getByRole("dialog")).not.toBeVisible();
+      }
+    }
+  }
+  expect(errors).toEqual([]);
 });

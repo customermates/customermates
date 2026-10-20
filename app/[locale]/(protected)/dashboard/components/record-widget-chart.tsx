@@ -18,7 +18,7 @@ import { RankedTable } from "./ranked-table";
 import { WidgetChart } from "./widget-chart";
 import { WidgetNumber } from "./widget-number";
 import { formatWidgetNumber, inlineListLabel, widgetNumberAverage } from "./widget-number-format";
-import { WidgetSubtitle } from "./widget-subtitle";
+import { WidgetNotes, WidgetSubtitle } from "./widget-subtitle";
 import { WIDGET_CARD_BODY_CLASS, WIDGET_CARD_HEADER_CLASS, WIDGET_CARD_TITLE_CLASS } from "./widget-card-frame";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { TruncatedText } from "@/components/shared/truncated-text";
@@ -129,11 +129,15 @@ export function RecordWidgetChart({
   const frame = (body: ReactNode, subtitle: string | null = null, bodyClassName?: string, reserve = true) => (
     <>
       <AppCardHeader className={WIDGET_CARD_HEADER_CLASS}>
-        <h2 className={WIDGET_CARD_TITLE_CLASS}>
-          <TruncatedText>{name}</TruncatedText>
-        </h2>
+        <div className="flex w-full min-w-0 items-center gap-1.5">
+          <h2 className={cn(WIDGET_CARD_TITLE_CLASS, "min-w-0 flex-1")}>
+            <TruncatedText>{name}</TruncatedText>
+          </h2>
 
-        <WidgetSubtitle notes={infoNotes} reserve={reserve} text={subtitle} />
+          <WidgetNotes notes={infoNotes} />
+        </div>
+
+        <WidgetSubtitle reserve={reserve} text={subtitle} />
       </AppCardHeader>
 
       <AppCardBody className={cn(WIDGET_CARD_BODY_CLASS, "overflow-visible recharts-no-focus-outline", bodyClassName)}>
@@ -168,7 +172,9 @@ export function RecordWidgetChart({
     const average = measure.aggregation === "sum" && numeric !== null ? widgetNumberAverage(numeric, count) : null;
     const context =
       measure.aggregation === "count"
-        ? null
+        ? listLabels
+          ? inlineListLabel(listLabels.pluralLabel, language)
+          : t("RecordWidgets.numberRecords", { count: 2 })
         : average === null
           ? `${valueFormat.decimal(count, { maximumFractionDigits: 0 })} ${label}`
           : t("RecordWidgets.numberContextAverage", {
@@ -184,7 +190,6 @@ export function RecordWidgetChart({
       />,
       context,
       "justify-end pt-1",
-      false,
     );
   }
 

@@ -34757,7 +34757,7 @@
                             "target"
                           ],
                           "additionalProperties": false,
-                          "description": "Move a list, field (including a Channels field) or relationship to Trash, where it can be restored for 30 days. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion."
+                          "description": "Move a list, field (including a Channels field) or relationship to Trash, where it can be restored for 30 days. Harmless references in views, layouts and widgets are removed. Deleting a list moves widgets that measure it or show its activity to the same Trash batch; calculations, parent access, bindings, routines and webhooks that use it block the deletion."
                         },
                         {
                           "type": "object",
@@ -35212,10 +35212,11 @@
                                 ]
                               },
                               "effect": {
-                                "description": "How the consumer changed: a widget now counts records, a webhook trigger lost the field or was removed, or the field left the avatar or calendar setting.",
+                                "description": "How the consumer changed: a widget now counts records or moves to Trash with its list, a webhook trigger lost the field or was removed, or the field left the avatar or calendar setting.",
                                 "type": "string",
                                 "enum": [
                                   "countsRecords",
+                                  "widgetTrashed",
                                   "triggerChanged",
                                   "webhookPaused",
                                   "avatar",
@@ -36671,7 +36672,7 @@
                             "target"
                           ],
                           "additionalProperties": false,
-                          "description": "Move a list, field (including a Channels field) or relationship to Trash, where it can be restored for 30 days. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion."
+                          "description": "Move a list, field (including a Channels field) or relationship to Trash, where it can be restored for 30 days. Harmless references in views, layouts and widgets are removed. Deleting a list moves widgets that measure it or show its activity to the same Trash batch; calculations, parent access, bindings, routines and webhooks that use it block the deletion."
                         },
                         {
                           "type": "object",
@@ -36960,10 +36961,11 @@
                                 ]
                               },
                               "effect": {
-                                "description": "How the consumer changed: a widget now counts records, a webhook trigger lost the field or was removed, or the field left the avatar or calendar setting.",
+                                "description": "How the consumer changed: a widget now counts records or moves to Trash with its list, a webhook trigger lost the field or was removed, or the field left the avatar or calendar setting.",
                                 "type": "string",
                                 "enum": [
                                   "countsRecords",
+                                  "widgetTrashed",
                                   "triggerChanged",
                                   "webhookPaused",
                                   "avatar",
@@ -37207,10 +37209,11 @@
                                 ]
                               },
                               "effect": {
-                                "description": "How the consumer changed: a widget now counts records, a webhook trigger lost the field or was removed, or the field left the avatar or calendar setting.",
+                                "description": "How the consumer changed: a widget now counts records or moves to Trash with its list, a webhook trigger lost the field or was removed, or the field left the avatar or calendar setting.",
                                 "type": "string",
                                 "enum": [
                                   "countsRecords",
+                                  "widgetTrashed",
                                   "triggerChanged",
                                   "webhookPaused",
                                   "avatar",
@@ -43307,10 +43310,11 @@
                                 ]
                               },
                               "effect": {
-                                "description": "How the consumer changed: a widget now counts records, a webhook trigger lost the field or was removed, or the field left the avatar or calendar setting.",
+                                "description": "How the consumer changed: a widget now counts records or moves to Trash with its list, a webhook trigger lost the field or was removed, or the field left the avatar or calendar setting.",
                                 "type": "string",
                                 "enum": [
                                   "countsRecords",
+                                  "widgetTrashed",
                                   "triggerChanged",
                                   "webhookPaused",
                                   "avatar",
@@ -43554,10 +43558,11 @@
                                 ]
                               },
                               "effect": {
-                                "description": "How the consumer changed: a widget now counts records, a webhook trigger lost the field or was removed, or the field left the avatar or calendar setting.",
+                                "description": "How the consumer changed: a widget now counts records or moves to Trash with its list, a webhook trigger lost the field or was removed, or the field left the avatar or calendar setting.",
                                 "type": "string",
                                 "enum": [
                                   "countsRecords",
+                                  "widgetTrashed",
                                   "triggerChanged",
                                   "webhookPaused",
                                   "avatar",
@@ -48010,10 +48015,11 @@
                                         ]
                                       },
                                       "effect": {
-                                        "description": "How the consumer changed: a widget now counts records, a webhook trigger lost the field or was removed, or the field left the avatar or calendar setting.",
+                                        "description": "How the consumer changed: a widget now counts records or moves to Trash with its list, a webhook trigger lost the field or was removed, or the field left the avatar or calendar setting.",
                                         "type": "string",
                                         "enum": [
                                           "countsRecords",
+                                          "widgetTrashed",
                                           "triggerChanged",
                                           "webhookPaused",
                                           "avatar",
@@ -48257,10 +48263,11 @@
                                         ]
                                       },
                                       "effect": {
-                                        "description": "How the consumer changed: a widget now counts records, a webhook trigger lost the field or was removed, or the field left the avatar or calendar setting.",
+                                        "description": "How the consumer changed: a widget now counts records or moves to Trash with its list, a webhook trigger lost the field or was removed, or the field left the avatar or calendar setting.",
                                         "type": "string",
                                         "enum": [
                                           "countsRecords",
+                                          "widgetTrashed",
                                           "triggerChanged",
                                           "webhookPaused",
                                           "avatar",

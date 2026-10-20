@@ -12,4 +12,5 @@ export abstract class RecordWidgetConfigurationRepo {
   abstract getActivityQueriesCompanyWide(companyId: string, afterId?: string): Promise<RecordWidgetConfigurationRow[]>;
   abstract getMeasuresCompanyWide(companyId: string, afterId?: string): Promise<RecordWidgetConfigurationRow[]>;
   abstract rewriteMeasureCompanyWide(companyId: string, id: string, measure: Prisma.InputJsonValue): Promise<void>;
+  abstract trashCompanyWide(companyId: string, id: string): Promise<{ name: string; userId: string } | null>;
 }

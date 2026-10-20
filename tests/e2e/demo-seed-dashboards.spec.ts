@@ -97,7 +97,11 @@ for (const dashboard of DEMO_DASHBOARDS) {
           `${widget.name} value`,
         ).not.toBe(0);
         const context = card.locator('[data-slot="card-header"] [data-slot="widget-subtitle"]');
-        if (widget.aggregation === "count") await expect(context).toHaveCount(0);
+        if (widget.aggregation === "count") {
+          await expect(context).toBeVisible();
+          await expect(context).not.toHaveText("");
+          expect(await context.innerText()).not.toMatch(/^\d[\d,.]*\s/u);
+        }
         else expect(
           displayedNumber((await context.innerText()).split(" ")[0] ?? ""),
           `${widget.name} records`,

@@ -168,7 +168,7 @@ describe("record widget display types", () => {
       data: result({ count: 12345, result: plain("12345") }, []),
     });
     expect(view.querySelector('[data-slot="widget-number-value"]')?.textContent).toBe("12,345");
-    expect(context(view)).toBeUndefined();
+    expect(context(view)).toBe("open deals");
     render({
       displayOptions: number,
       measure: measure(null, "average"),

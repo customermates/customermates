@@ -10,6 +10,8 @@ import { invokesServerAction, serverActionIds } from "./server-actions";
 import { extractWikiSourceDocument } from "../../ee/wiki-crawl/website-source-extract";
 import { mintApiKey } from "./api-key";
 import { localE2eEnvironment } from "./local-environment";
+import { createConfiguredList, openConfigure, configureTopBar } from "./configure";
+import { restoreFromTrash } from "./trash";
 
 test("resizing one stacked metric persists without moving untouched metrics or writing on responsive reloads", async ({
   page,
@@ -46,7 +48,7 @@ test("resizing one stacked metric persists without moving untouched metrics or w
   await page.goto("/en/dashboard");
   const first = page.locator(`[data-focus-target="widget:${ids[0]}"]`);
   await expect(first.locator('[data-slot="widget-number-value"]')).toHaveText("0");
-  await expect(first.locator('[data-slot="widget-subtitle"]')).toHaveCount(0);
+  await expect(first.locator('[data-slot="widget-subtitle"]')).not.toContainText("0");
   const writes: string[] = [];
   const save = serverActionIds("app/[locale]/(protected)/dashboard/actions.ts", "updateWidgetLayoutsAction");
   page.on("request", (request) => {
@@ -151,6 +153,12 @@ test("record names and ordinary rows open the drawer while direct cell editing s
   if (!isMobile) {
     const row = page.locator("tbody tr").filter({ hasText: "Drawer test service" });
     const edit = row.getByRole("button", { name: "Edit Price", exact: true });
+    const cell = row.locator("td").filter({ has: page.getByRole("button", { name: "Edit Price", exact: true }) });
+    const cellBox = await cell.boundingBox();
+    const editBox = await edit.boundingBox();
+    if (!cellBox || !editBox) throw new Error("The price edit target is missing");
+    expect(editBox.width).toBeLessThan(cellBox.width);
+    expect(cellBox.x + cellBox.width - editBox.x - editBox.width).toBeLessThanOrEqual(20);
     const idleShadow = await edit.evaluate((element) => getComputedStyle(element).boxShadow);
     await edit.hover();
     await expect.poll(() => edit.evaluate((element) => getComputedStyle(element).boxShadow)).not.toBe(idleShadow);
@@ -267,4 +275,91 @@ test("website headings stay clean when a new workspace reads, edits and saves it
   } finally {
     await api.dispose();
   }
+});
+
+
+test("widgets delete independently and deleting a measured list moves its charts and activity to the same Trash batch", async ({
+  page,
+  database,
+  companyId,
+  workspace,
+}) => {
+  const errors = collectPageErrors(page);
+  const typeId = await createConfiguredList(page, "Measured items");
+  const ids = [randomUUID(), randomUUID(), randomUUID()];
+  const measure = {
+    source: { typeId, filters: [], relationships: [] },
+    aggregation: "count",
+    valueFieldId: null,
+    groupBy: null,
+    groupLimit: 100,
+  };
+  for (const [index, id] of ids.entries())
+    await database.query(
+      'INSERT INTO "Widget" (id,"companyId","userId",name,kind,measure,"activityQuery","displayOptions",layout,"updatedAt") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW())',
+      [
+        id,
+        companyId,
+        workspace.userId,
+        ["Independent count", "Dependent count", "Dependent activity"][index],
+        index === 2 ? "activityTimeline" : "chart",
+        index === 2 ? null : JSON.stringify(measure),
+        index === 2
+          ? JSON.stringify({ scope: { typeIds: [typeId], records: [] }, kinds: ["record"], filters: [] })
+          : null,
+        JSON.stringify(index === 2 ? { showFilters: true } : { displayType: "number" }),
+        JSON.stringify({ lg: { i: id, x: 0, y: index * 2, w: 12, h: index === 2 ? 4 : 2 } }),
+      ],
+    );
+  await page.goto("/en/dashboard");
+  const dialog = page.getByRole("dialog");
+  const edit = page.getByRole("button", { name: "Edit Independent count", exact: true });
+  await edit.focus();
+  await edit.press("Enter");
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole("button", { name: "Delete widget Independent count", exact: true }).click();
+  const confirm = page.getByRole("alertdialog");
+  await confirm.getByRole("button", { name: "Delete", exact: true }).click();
+  await expect(confirm).not.toBeVisible();
+  await expect(dialog).not.toBeVisible();
+  expect(
+    (
+      await database.query('SELECT archived FROM "RecordTypeDefinition" WHERE id=$1 AND "companyId"=$2', [
+        typeId,
+        companyId,
+      ])
+    ).rows[0].archived,
+  ).toBe(false);
+  await page.reload();
+  await expect(page.locator(`[data-focus-target="widget:${ids[0]}"]`)).toHaveCount(0);
+  await expect(page.locator(`[data-focus-target="widget:${ids[1]}"]`)).toBeVisible();
+  await openConfigure(page, typeId);
+  await configureTopBar(page).getByRole("button", { name: "List actions", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Delete list", exact: true }).click();
+  await expect(confirm).toContainText("Dependent count");
+  await expect(confirm).toContainText("Dependent activity");
+  await expect(confirm).toContainText("move to Trash");
+  await confirm.getByRole("button", { name: "Delete", exact: true }).click();
+  await expect(confirm).not.toBeVisible();
+  const trashed = (
+    await database.query('SELECT kind,"targetId","batchId" FROM "TrashItem" WHERE "companyId"=$1', [companyId])
+  ).rows;
+  const list = trashed.find((item) => item.kind === "list" && item.targetId === typeId);
+  expect(list).toBeTruthy();
+  for (const id of ids.slice(1)) expect(trashed.find((item) => item.targetId === id)?.batchId).toBe(list.batchId);
+  expect(
+    (await database.query('SELECT id FROM "Widget" WHERE "companyId"=$1 AND "deletedAt" IS NULL', [companyId]))
+      .rowCount,
+  ).toBe(0);
+  await page.goto("/en/dashboard");
+  await expect(page.locator('[data-focus-target^="widget:"]')).toHaveCount(0);
+  await restoreFromTrash(page, "Measured items");
+  await restoreFromTrash(page, "Dependent count", { configuration: false });
+  await restoreFromTrash(page, "Dependent activity", { configuration: false });
+  await page.goto("/en/dashboard");
+  await expect(page.locator(`[data-focus-target="widget:${ids[1]}"]`)).toBeVisible();
+  await expect(page.locator(`[data-focus-target="widget:${ids[2]}"]`)).toBeVisible();
+  await expect(page.locator(`[data-focus-target="widget:${ids[0]}"]`)).toHaveCount(0);
+  await expect(page.locator('[data-sonner-toast][data-type="error"]')).toHaveCount(0);
+  expect(errors).toEqual([]);
 });
