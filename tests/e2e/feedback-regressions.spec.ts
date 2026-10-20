@@ -67,11 +67,12 @@ test("resizing one stacked metric persists without moving untouched metrics or w
   expect(writes).toEqual([]);
   if (!isMobile) {
     const handle = first.locator(".react-resizable-handle-e");
+    await handle.hover();
     const bounds = await handle.boundingBox();
     if (!bounds) throw new Error("The metric resize handle is missing");
-    const x = bounds.x + 2;
+    const x = bounds.x + bounds.width / 2;
     const y = bounds.y + bounds.height / 2;
-    await handle.hover({ position: { x: 2, y: bounds.height / 2 } });
+    await page.mouse.move(x, y);
     await page.mouse.down();
     await page.mouse.move(x - 180, y, { steps: 10 });
     await expect(first).toHaveClass(/\bresizing\b/);
