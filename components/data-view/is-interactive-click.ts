@@ -24,7 +24,6 @@ const INTERACTIVE_SELECTOR = [
   "[data-slot='select-content']",
   "[data-slot='popover-trigger']",
   "[data-slot='popover-content']",
-  "[data-slot='tooltip-trigger']",
 ].join(",");
 
 export function isInteractiveClick(e: ReactMouseEvent<HTMLElement>): boolean {

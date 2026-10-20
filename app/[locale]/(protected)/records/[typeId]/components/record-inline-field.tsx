@@ -15,7 +15,7 @@ import type { RecordsStore } from "./records.store";
 import { useEffect, useId, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Check, Plus, UserRound } from "lucide-react";
+import { Check, Pencil, Plus, UserRound } from "lucide-react";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { EmptyValue } from "@/components/shared/empty-value";
@@ -58,11 +58,24 @@ import { useRecordChoices } from "@/components/records/use-record-choices";
 import { isEmptyResult } from "./record-chip-row-model";
 
 const EDIT_TARGET_SELECTOR = "[data-edit-target]";
-const EDIT_TARGET_CLASS =
-  "group/edit inline-flex min-h-6 max-w-full min-w-0 cursor-pointer items-center rounded-md text-left outline-none focus-visible:ring-2 focus-visible:ring-ring/70 disabled:cursor-default";
+const EDIT_SURFACE_CLASS =
+  "group/edit gap-2 rounded-md px-1.5 -mx-1.5 transition-colors hover:bg-background hover:ring-1 hover:ring-inset hover:ring-border focus-within:bg-background";
+const EDIT_TARGET_CLASS = cn(
+  EDIT_SURFACE_CLASS,
+  "inline-flex min-h-6 max-w-full min-w-0 cursor-pointer items-center text-left outline-none focus-visible:ring-2 focus-visible:ring-ring/70 disabled:cursor-default",
+);
 const EDIT_SPACE_BUTTON_CLASS =
-  "sr-only focus-visible:not-sr-only focus-visible:ml-1 focus-visible:rounded-md focus-visible:px-1 focus-visible:text-xs focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:outline-none";
+  "ml-auto !w-auto shrink-0 rounded-sm px-1 text-xs text-muted-foreground opacity-0 group-hover/edit:opacity-100 group-focus-within/edit:opacity-100 focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:outline-none [@media(hover:none)]:opacity-100";
 const IN_PLACE_VALUE_TYPES: RecordFieldView["valueType"][] = ["text", "number", "currency", ...CONTACT_VALUE_TYPES];
+
+function InlineEditHint() {
+  return (
+    <Pencil
+      aria-hidden
+      className="ml-auto size-3 shrink-0 text-muted-foreground opacity-0 group-hover/edit:opacity-100 group-focus-within/edit:opacity-100"
+    />
+  );
+}
 
 export function focusFirstControl(event: Event) {
   if (!(event.currentTarget instanceof HTMLElement)) return;
@@ -304,6 +317,8 @@ const InlineSelect = observer(function InlineSelect({
           {...selectionHandlers(records, record)}
         >
           {current === null ? <EmptyValueTarget /> : children}
+
+          <InlineEditHint />
         </button>
       </DropdownMenuTrigger>
 
@@ -409,7 +424,7 @@ const InPlaceField = observer(function InPlaceField({
     return (
       <span
         ref={anchor}
-        className="-mx-3 -my-2 flex min-w-0 cursor-text items-center px-3 py-2"
+        className={cn(EDIT_SURFACE_CLASS, "flex min-h-6 min-w-0 cursor-text items-center")}
         data-inline-edit-space={field.id}
         role="presentation"
         onClick={(event: MouseEvent<HTMLSpanElement>) => {
@@ -446,6 +461,8 @@ const InPlaceField = observer(function InPlaceField({
         {...selectionHandlers(records, record, () => setEditing(true))}
       >
         {empty ? <EmptyValueTarget /> : <span className="min-w-0 truncate">{children}</span>}
+
+        <InlineEditHint />
       </button>
     </span>
   );
@@ -478,6 +495,8 @@ const PopoverField = observer(function PopoverField({
       {...selectionHandlers(records, record)}
     >
       {contact ? t("RecordModel.edit") : empty ? <EmptyValueTarget member={field.valueType === "member"} /> : children}
+
+      {!contact && <InlineEditHint />}
     </button>
   );
   return (
@@ -486,7 +505,11 @@ const PopoverField = observer(function PopoverField({
         contact
           ? (editTrigger) => (
               <span
-                className={cn("flex min-w-0 items-center", layout === "row" && "-mx-3 -my-2 cursor-text px-3 py-2")}
+                className={cn(
+                  EDIT_SURFACE_CLASS,
+                  "flex min-h-6 min-w-0 items-center",
+                  layout === "row" && "cursor-text",
+                )}
                 data-inline-edit-space={layout === "row" ? field.id : undefined}
                 role="presentation"
                 onClick={(event: MouseEvent<HTMLSpanElement>) => {
@@ -838,6 +861,8 @@ export const RecordInlineRelationship = observer(function RecordInlineRelationsh
           })}
         >
           {empty ? <EmptyValueTarget /> : children}
+
+          <InlineEditHint />
         </button>
       </PopoverTrigger>
 

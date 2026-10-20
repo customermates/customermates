@@ -395,7 +395,7 @@ async function readWidget(database: Client, companyId: string, name: string) {
   return rows.rows[0] as {
     id: string;
     measure: Record<string, unknown>;
-    displayOptions: { displayType: string };
+    displayOptions: { displayType: string; barColors?: string[] };
     version: number;
   };
 }
@@ -544,8 +544,12 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
     await expect(
       dialog.locator('[data-slot="widget-number-value"]'),
     ).toHaveText(compactMoney(total));
+    await dialog.getByRole("button", { name: "Colors", exact: true }).click();
+    await page.getByRole("menuitemcheckbox", { name: "Color 4", exact: true }).check();
+    await page.keyboard.press("Escape");
     await save(page);
     const saved = await readWidget(database, companyId, "Pipeline total");
+    expect(saved.displayOptions.barColors).toEqual(["success1"]);
     expect(saved.displayOptions.displayType).toBe("number");
     expect(saved.measure).toMatchObject({
       source: { typeId: id("deal") },
@@ -558,20 +562,13 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
     await expect(headline).toHaveText(compactMoney(total));
     if (total >= 10_000)
       await expect(headline).toHaveAttribute("aria-label", money(total));
-    const context = widget.locator('[data-slot="widget-number-context"]');
+    const context = widget.locator('[data-slot="card-header"] [data-slot="widget-subtitle"]');
     await expect(context).toHaveText(
       `${DEALS.length} deals · avg ${compactMoney(total / DEALS.length)}`,
     );
-    const [cardBox, contextBox] = [
-      await widget.boundingBox(),
-      await context.boundingBox(),
-    ];
-    expect(cardBox && contextBox && contextBox.height).toBeGreaterThan(0);
-    expect(
-      cardBox &&
-        contextBox &&
-        cardBox.y + cardBox.height - (contextBox.y + contextBox.height),
-    ).toBeGreaterThan(8);
+    const contextBox = await context.boundingBox();
+    const headlineBox = await headline.boundingBox();
+    expect(contextBox && headlineBox && contextBox.y + contextBox.height).toBeLessThan(headlineBox?.y ?? 0);
   });
 
   await test.step("bucket deals by close month, fill empty months and switch to quarters", async () => {

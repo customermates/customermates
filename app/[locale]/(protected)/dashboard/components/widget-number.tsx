@@ -5,10 +5,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 type Props = {
   value: string;
   exact: string;
-  context: string;
+  color: string;
 };
 
-export function WidgetNumber({ value, exact, context }: Props) {
+export function WidgetNumber({ value, exact, color }: Props) {
   const compacted = value !== exact;
   const headline = compacted ? (
     <button
@@ -26,7 +26,7 @@ export function WidgetNumber({ value, exact, context }: Props) {
     <div className="@container flex min-h-0 min-w-0 flex-col gap-1" data-slot="widget-number">
       <p
         className="min-h-[1em] max-w-full truncate font-medium leading-tight tracking-tight tabular-nums"
-        style={{ fontSize: `min(2rem, ${(150 / Math.max(value.length, 1)).toFixed(2)}cqw)` }}
+        style={{ color, fontSize: `min(2rem, ${(150 / Math.max(value.length, 1)).toFixed(2)}cqw)` }}
       >
         {compacted ? (
           <Tooltip>
@@ -39,10 +39,6 @@ export function WidgetNumber({ value, exact, context }: Props) {
         ) : (
           headline
         )}
-      </p>
-
-      <p className="truncate text-xs text-muted-foreground tabular-nums" data-slot="widget-number-context">
-        {context}
       </p>
     </div>
   );

@@ -227,6 +227,10 @@ describe("DashboardPageView", () => {
     const html = renderDashboard("ready", { touch, withItem: true });
     const props = harness.gridProps.mock.lastCall?.[0] as {
       isDraggable: boolean;
+      onDragStart: (layout: Array<{ i: string; x: number; y: number; w: number; h: number }>) => void;
+      onResizeStart: (layout: Array<{ i: string; x: number; y: number; w: number; h: number }>) => void;
+      onDragStop: (layout: Array<{ i: string; x: number; y: number; w: number; h: number }>) => void;
+      onResizeStop: (layout: Array<{ i: string; x: number; y: number; w: number; h: number }>) => void;
       onLayoutChange: (layout: unknown[], layouts: Record<string, unknown>) => void;
     };
 
@@ -235,6 +239,28 @@ describe("DashboardPageView", () => {
     expect(html).toContain('data-widget-modal="true"');
     expect(props.isDraggable).toBe(draggable);
     props.onLayoutChange([], {});
-    expect(harness.onLayoutChange).toHaveBeenCalledWith([], {});
+    expect(harness.onLayoutChange).not.toHaveBeenCalled();
+    const before = [
+      { i: "first", x: 0, y: 0, w: 3, h: 2 },
+      { i: "sibling", x: 0, y: 2, w: 3, h: 2 },
+    ];
+    props.onDragStart(before);
+    props.onDragStop(before);
+    props.onLayoutChange([], {});
+    expect(harness.onLayoutChange).not.toHaveBeenCalled();
+    props.onDragStart(before);
+    props.onDragStop([{ ...before[0], x: 3 }, before[1]]);
+    props.onLayoutChange([], {});
+    expect(harness.onLayoutChange).toHaveBeenCalledExactlyOnceWith([], {});
+    props.onLayoutChange([], {});
+    expect(harness.onLayoutChange).toHaveBeenCalledTimes(1);
+    props.onResizeStart(before);
+    props.onResizeStop([{ ...before[0], w: 4 }, before[1]]);
+    props.onLayoutChange([], {});
+    expect(harness.onLayoutChange).toHaveBeenCalledTimes(2);
+    props.onDragStart(before);
+    props.onDragStop([before[0], { ...before[1], x: 3, y: 0 }]);
+    props.onLayoutChange([], {});
+    expect(harness.onLayoutChange).toHaveBeenCalledTimes(3);
   });
 });

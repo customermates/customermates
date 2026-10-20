@@ -151,6 +151,8 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
           exact: true,
         }),
       );
+      await expect(page.getByRole("dialog")).toBeVisible();
+      await page.getByRole("dialog").getByRole("link", { name: "Open page", exact: true }).click();
       await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}/${records[index].recordId}$`));
     }
     await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");

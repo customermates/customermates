@@ -106,7 +106,7 @@ async function createLabList(page: Page, contactTypeId: string) {
   return type.id;
 }
 
-test("rows and cards open the record page and keep only Open details and Delete as row actions", async ({
+test("rows and cards open the record drawer and keep the existing row actions", async ({
   page,
   companyId,
 }) => {
@@ -130,8 +130,10 @@ test("rows and cards open the record page and keep only Open details and Delete 
   await expect(page.getByRole("dialog")).not.toBeVisible();
 
   await openRecordLink(row.getByRole("link", { name, exact: true }));
-  await expect(page).toHaveURL(new RegExp(`/records/${typeId}/[0-9a-f-]{36}$`));
-  await expect(page.getByRole("heading", { name }).or(page.getByText(name).first())).toBeVisible();
+  await expect(page).toHaveURL(new RegExp(`/records/${typeId}(\\?|$)`));
+  await expect(drawer).toBeVisible();
+  await expect(drawer.getByRole("textbox", { name: "Name", exact: false })).toHaveValue(name);
+  await expect(drawer.getByRole("heading", { name, exact: true })).toBeVisible();
   expect(errors).toEqual([]);
 });
 
@@ -293,7 +295,10 @@ test("edits every field type inline in rows and on board cards, with validation,
     await expect(row).toContainText(shown);
   };
 
-  await expect(row.locator("[data-inline-edit] svg.lucide-pencil, [data-read-only-field]")).toHaveCount(0);
+  const textEdit = row.getByRole("button", { name: "Edit Text", exact: true });
+  await textEdit.hover();
+  await expect(textEdit.locator("svg.lucide-pencil")).toHaveCSS("opacity", "1");
+  await expect(row.locator("[data-read-only-field]")).toHaveCount(0);
   await enterValue("Text", "Inline text", "Inline text");
   await enterValue("Number", "12.5", "12.5");
   await enterValue("Money", "99.95", "€99.95");
@@ -521,7 +526,8 @@ test("rows keep the row click on calculated values, toggle in selection mode and
   await row("Lab one").locator("[data-in-place-editor] input").press("Enter");
   await expect(row("Lab one").locator("[data-calculated-field]")).toHaveText("6");
   await row("Lab one").locator("[data-calculated-field]").click();
-  await expect(page).toHaveURL(new RegExp(`/records/${typeId}/[0-9a-f-]{36}$`), { timeout: 30000 });
+  await expect(page).toHaveURL(new RegExp(`/records/${typeId}(\\?|$)`));
+  await expect(page.getByRole("dialog")).toBeVisible();
   expect(errors).toEqual([]);
 });
 
@@ -593,7 +599,8 @@ test("phone rows show the title and the card chip row instead of table columns",
   await expect(item.locator(`[data-chip-column="${money.id}"]`)).toHaveText("€342K");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await item.getByRole("link", { name: "Lab phone", exact: true }).click({ position: { x: 12, y: 12 } });
-  await expect(page).toHaveURL(new RegExp(`/records/${typeId}/[0-9a-f-]{36}$`), { timeout: 30000 });
+  await expect(page).toHaveURL(new RegExp(`/records/${typeId}(\\?|$)`));
+  await expect(page.getByRole("dialog")).toBeVisible();
 });
 
 test("board columns keep a one-line header, one fixed width and collapse into strips", async ({

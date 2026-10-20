@@ -8,7 +8,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { ChartNoAxesColumn } from "lucide-react";
 import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
 import { toChipColor } from "@/constants/chip-colors";
-import { getChartRankShades } from "@/constants/chart-colors";
+import { getChartTextColors, getChartRankShades } from "@/constants/chart-colors";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { useRecordValueFormat } from "@/components/records/record-value";
 import { hasRecordMeasureGroupFilter } from "@/features/records/record-measure.schema";
@@ -166,25 +166,28 @@ export function RecordWidgetChart({
       ? inlineListLabel(count === 1 ? listLabels.label : listLabels.pluralLabel, language)
       : t("RecordWidgets.numberRecords", { count });
     const average = measure.aggregation === "sum" && numeric !== null ? widgetNumberAverage(numeric, count) : null;
+    const context =
+      measure.aggregation === "count"
+        ? null
+        : average === null
+          ? `${valueFormat.decimal(count, { maximumFractionDigits: 0 })} ${label}`
+          : t("RecordWidgets.numberContextAverage", {
+              count,
+              label,
+              average: formatWidgetNumber(average, options, valueFormat.decimal).display,
+            });
     return frame(
       <WidgetNumber
-        context={
-          average === null
-            ? `${valueFormat.decimal(count, { maximumFractionDigits: 0 })} ${label}`
-            : t("RecordWidgets.numberContextAverage", {
-                count,
-                label,
-                average: formatWidgetNumber(average, options, valueFormat.decimal).display,
-              })
-        }
+        color={getChartTextColors()[displayOptions.barColors?.[0] ?? ChartColor.primary1]}
         exact={headline.exact}
         value={headline.display}
       />,
-      null,
+      context,
       "justify-end pt-1",
       false,
     );
   }
+
   const overall = displayOptions.showFilters !== false ? t("RecordWidgets.overall", { value: format(total) }) : null;
   if (data.total.count === 0) {
     return frame(

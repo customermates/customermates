@@ -16,6 +16,7 @@ type SeededWidget = {
   name: string;
   kind: string;
   displayType: string | null;
+  aggregation: string | null;
   sources: string[] | null;
 };
 
@@ -29,7 +30,7 @@ for (const dashboard of DEMO_DASHBOARDS) {
     errors,
   }, testInfo) => {
     const { rows: widgets } = await database.query<SeededWidget>(
-      `SELECT id, name, kind::text AS kind, "displayOptions"->>'displayType' AS "displayType",
+      `SELECT id, name, kind::text AS kind, "displayOptions"->>'displayType' AS "displayType", measure->>'aggregation' AS aggregation,
        (SELECT array_agg(source) FROM jsonb_array_elements("activityQuery"->'filters') AS f,
          jsonb_array_elements_text(f->'values') AS source WHERE f->>'kind' = 'source') AS sources FROM "Widget"
        WHERE "companyId"=$1 AND "userId"=$2 AND id LIKE '15000000-%' AND "viewId" IS NOT DISTINCT FROM $3
@@ -95,11 +96,10 @@ for (const dashboard of DEMO_DASHBOARDS) {
           displayedNumber(await value.innerText()),
           `${widget.name} value`,
         ).not.toBe(0);
-        const context = await number
-          .locator('[data-slot="widget-number-context"]')
-          .innerText();
-        expect(
-          displayedNumber(context.split(" ")[0] ?? ""),
+        const context = card.locator('[data-slot="card-header"] [data-slot="widget-subtitle"]');
+        if (widget.aggregation === "count") await expect(context).toHaveCount(0);
+        else expect(
+          displayedNumber((await context.innerText()).split(" ")[0] ?? ""),
           `${widget.name} records`,
         ).toBeGreaterThan(0);
         continue;
@@ -239,7 +239,7 @@ for (const width of [1440, 390]) {
       ).toBe(1);
       const clipped = await page
         .locator(
-          '[data-slot="widget-number"] :is([data-slot="widget-number-value"], [data-slot="widget-number-context"]), .react-grid-item:has([data-slot="widget-number"]) [data-slot="card"]',
+          '[data-slot="widget-number-value"], .react-grid-item:has([data-slot="widget-number"]) :is([data-slot="widget-subtitle"], [data-slot="card"])',
         )
         .evaluateAll((elements) =>
           elements.flatMap((element) => {
