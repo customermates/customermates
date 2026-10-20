@@ -25,6 +25,14 @@ import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuItem,
+  sidebarMenuButtonVariants,
+} from "@/components/ui/sidebar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { RecordTypeGlyph } from "@/components/records/record-type-glyph";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -99,164 +107,177 @@ const SetupAppFrame = observer(function SetupAppFrame({ setup, lists, board }: F
   const plannedPages = Math.max(plan?.knowledgeBase.pages.length ?? 0, setup.knowledgeBase.pagesPlanned);
   const recordsSettled = phaseSettled(setup, "records");
 
+  const menuItem = (active = false) =>
+    sidebarMenuButtonVariants({ className: cn("pointer-events-none", active && "font-medium") });
+
   return (
     <div
       aria-label={t("WorkspaceSetup.build.previewLabel")}
-      className="min-w-0 overflow-hidden rounded-xl border border-border bg-sidebar shadow-xl shadow-primary/5"
+      className="flex min-h-[26rem] min-w-0 overflow-hidden rounded-xl border border-border bg-sidebar text-sidebar-foreground shadow-xl shadow-primary/5"
       role="group"
     >
-      <div className="flex items-center gap-2 border-b border-border px-3 py-2">
-        <span className="min-w-0 text-xs font-medium [overflow-wrap:anywhere]">
-          {companyName?.format === "shortText" && companyName.value
-            ? companyName.value
-            : t("WorkspaceSetup.build.frameTitle")}
-        </span>
-      </div>
-
-      <div className="flex min-h-[26rem]">
-        <nav
-          aria-label={t("WorkspaceSetup.build.sidebarLabel")}
-          className="hidden w-44 shrink-0 flex-col gap-0.5 border-r border-border p-2 text-xs sm:flex"
-        >
-          <span className="flex items-center gap-2 rounded-md bg-selected px-2 py-1.5 font-medium">
-            <LayoutDashboard aria-hidden className="size-3.5" />
-
-            {t("WorkspaceSetup.plan.dashboard")}
+      <nav aria-label={t("WorkspaceSetup.build.sidebarLabel")} className="hidden w-48 shrink-0 flex-col sm:flex">
+        <SidebarHeader>
+          <span className="truncate px-2 py-1.5 text-sm font-semibold">
+            {companyName?.format === "shortText" && companyName.value
+              ? companyName.value
+              : t("WorkspaceSetup.build.frameTitle")}
           </span>
+        </SidebarHeader>
 
-          <span className="px-2 pt-3 pb-1 text-muted-foreground">{t("WorkspaceSetup.plan.lists")}</span>
+        <SidebarGroup>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <span data-active className={menuItem(true)}>
+                <LayoutDashboard aria-hidden />
 
-          {lists.map((list) =>
-            list.ready || modelReady ? (
-              <span
-                key={list.key}
-                className="flex animate-page-result-in items-center gap-2 rounded-md px-2 py-1.5 motion-reduce:animate-none"
-              >
-                <RecordTypeGlyph className="size-3.5" icon={list.icon} />
-
-                <span className="truncate">{listLabel(list)}</span>
+                <span>{t("WorkspaceSetup.plan.dashboard")}</span>
               </span>
-            ) : (
-              <span key={list.key} className="flex items-center gap-2 p-2">
-                <PlaceholderLine className="size-3.5 rounded-sm" pulse={phaseActive(setup, "dataModel")} />
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
 
-                <PlaceholderLine className="w-20" pulse={phaseActive(setup, "dataModel")} />
+        <SidebarGroup>
+          <SidebarGroupLabel>{t("WorkspaceSetup.plan.lists")}</SidebarGroupLabel>
+
+          <SidebarMenu>
+            {lists.map((list) => (
+              <SidebarMenuItem key={list.key}>
+                {list.ready || modelReady ? (
+                  <span className={cn(menuItem(), "animate-page-result-in motion-reduce:animate-none")}>
+                    <RecordTypeGlyph className="size-4" icon={list.icon} />
+
+                    <span>{listLabel(list)}</span>
+                  </span>
+                ) : (
+                  <span className={menuItem()}>
+                    <PlaceholderLine className="size-4 rounded-sm" pulse={phaseActive(setup, "dataModel")} />
+
+                    <PlaceholderLine className="w-20" pulse={phaseActive(setup, "dataModel")} />
+                  </span>
+                )}
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <span className={menuItem()}>
+                <BookOpen aria-hidden />
+
+                <span>{t("WorkspaceSetup.plan.knowledgeBase")}</span>
               </span>
-            ),
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
+      </nav>
+
+      <div className="m-2 flex min-w-0 flex-1 flex-col gap-3 rounded-xl border border-border bg-background p-3 shadow-sm sm:ml-0">
+        {board ? (
+          <FramePanel icon={Kanban} title={listLabel(board.list)}>
+            <PipelineBoard
+              placeholders={!recordsSettled}
+              pulse={phaseActive(setup, "dataModel")}
+              records={board.records}
+              stages={board.list.stages.map((label) => ({
+                label,
+                color: boardColors.find((stage) => stage.label === label)?.color ?? null,
+              }))}
+            />
+          </FramePanel>
+        ) : null}
+
+        <FramePanel icon={Rows3} title={table ? listLabel(table.list) : t("WorkspaceSetup.build.records")}>
+          {!table && recordsSettled ? (
+            <p className="text-xs text-muted-foreground">
+              {t("WorkspaceSetup.build.summaries.records", { count: buildRecordCount(setup) })}
+            </p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("WorkspaceSetup.build.nameColumn")}</TableHead>
+                </TableRow>
+              </TableHeader>
+
+              <TableBody>
+                {table
+                  ? table.titles.slice(0, 5).map((title, index) => (
+                      <TableRow key={index} className="animate-page-result-in motion-reduce:animate-none">
+                        <TableCell className="whitespace-normal [overflow-wrap:anywhere]">{title}</TableCell>
+                      </TableRow>
+                    ))
+                  : [0, 1, 2].map((row) => (
+                      <TableRow key={row}>
+                        <TableCell>
+                          <PlaceholderLine
+                            className={row === 1 ? "w-1/2" : "w-2/3"}
+                            pulse={phaseActive(setup, "records")}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+              </TableBody>
+            </Table>
           )}
+        </FramePanel>
 
-          <span className="mt-3 flex items-center gap-2 rounded-md px-2 py-1.5">
-            <BookOpen aria-hidden className="size-3.5" />
+        <FramePanel icon={LayoutDashboard} title={t("WorkspaceSetup.plan.dashboard")}>
+          {widgets.length ? (
+            <DashboardSketch
+              tiles={widgets.map((widget) => ({ key: widget.id, title: widget.title, display: widget.display }))}
+            />
+          ) : phaseSettled(setup, "dashboard") ? (
+            <p className="text-xs text-muted-foreground">
+              {t("WorkspaceSetup.build.summaries.dashboard", { count: 0 })}
+            </p>
+          ) : (
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {Array.from({ length: Math.min(Math.max(plannedWidgets, 2), 4) }, (_, tile) => (
+                <div
+                  key={tile}
+                  className="flex min-h-28 flex-col justify-end gap-2 rounded-lg border border-border p-3"
+                >
+                  <PlaceholderLine className="w-2/3" pulse={phaseActive(setup, "dashboard")} />
 
-            {t("WorkspaceSetup.plan.knowledgeBase")}
-          </span>
-        </nav>
-
-        <div className="flex min-w-0 flex-1 flex-col gap-3 bg-background p-3">
-          {board ? (
-            <FramePanel icon={Kanban} title={listLabel(board.list)}>
-              <PipelineBoard
-                placeholders={!recordsSettled}
-                pulse={phaseActive(setup, "dataModel")}
-                records={board.records}
-                stages={board.list.stages.map((label) => ({
-                  label,
-                  color: boardColors.find((stage) => stage.label === label)?.color ?? null,
-                }))}
-              />
-            </FramePanel>
-          ) : null}
-
-          <FramePanel icon={Rows3} title={table ? listLabel(table.list) : t("WorkspaceSetup.build.records")}>
-            {!table && recordsSettled ? (
-              <p className="text-xs text-muted-foreground">
-                {t("WorkspaceSetup.build.summaries.records", { count: buildRecordCount(setup) })}
-              </p>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{t("WorkspaceSetup.build.nameColumn")}</TableHead>
-                  </TableRow>
-                </TableHeader>
-
-                <TableBody>
-                  {table
-                    ? table.titles.slice(0, 5).map((title, index) => (
-                        <TableRow key={index} className="animate-page-result-in motion-reduce:animate-none">
-                          <TableCell className="whitespace-normal [overflow-wrap:anywhere]">{title}</TableCell>
-                        </TableRow>
-                      ))
-                    : [0, 1, 2].map((row) => (
-                        <TableRow key={row}>
-                          <TableCell>
-                            <PlaceholderLine
-                              className={row === 1 ? "w-1/2" : "w-2/3"}
-                              pulse={phaseActive(setup, "records")}
-                            />
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                </TableBody>
-              </Table>
-            )}
-          </FramePanel>
-
-          <FramePanel icon={LayoutDashboard} title={t("WorkspaceSetup.plan.dashboard")}>
-            {widgets.length ? (
-              <DashboardSketch
-                tiles={widgets.map((widget) => ({ key: widget.id, title: widget.title, display: widget.display }))}
-              />
-            ) : phaseSettled(setup, "dashboard") ? (
-              <p className="text-xs text-muted-foreground">
-                {t("WorkspaceSetup.build.summaries.dashboard", { count: 0 })}
-              </p>
-            ) : (
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                {Array.from({ length: Math.min(Math.max(plannedWidgets, 2), 4) }, (_, tile) => (
-                  <div
-                    key={tile}
-                    className="flex min-h-28 flex-col justify-end gap-2 rounded-lg border border-border p-3"
-                  >
-                    <PlaceholderLine className="w-2/3" pulse={phaseActive(setup, "dashboard")} />
-
-                    <PlaceholderLine className="w-1/3" pulse={phaseActive(setup, "dashboard")} />
-                  </div>
-                ))}
-              </div>
-            )}
-          </FramePanel>
-
-          <FramePanel icon={BookOpen} title={t("WorkspaceSetup.plan.knowledgeBase")}>
-            {pages.length ? (
-              <KnowledgePageList titles={pages.map((page) => page.title)} />
-            ) : phaseSettled(setup, "knowledgeBase") ? (
-              <p className="text-xs text-muted-foreground">
-                {t("WorkspaceSetup.build.summaries.knowledgeBase", { count: setup.knowledgeBase.pagesWritten })}
-              </p>
-            ) : (
-              <div className="grid gap-x-3 gap-y-2 sm:grid-cols-2">
-                {Array.from({ length: Math.min(Math.max(plannedPages, 2), 6) }, (_, row) => (
-                  <div key={row} className="flex items-center gap-2">
-                    <FileText aria-hidden className="size-4 shrink-0 text-muted-foreground" />
-
-                    <PlaceholderLine className="w-3/4" pulse={phaseActive(setup, "knowledgeBase")} />
-                  </div>
-                ))}
-              </div>
-            )}
-          </FramePanel>
-
-          {lists.some((list) => list.color) && modelReady ? (
-            <div className="flex flex-wrap gap-1.5">
-              {lists
-                .filter((list) => list.color)
-                .map((list) => (
-                  <PreviewListChip key={list.key} color={list.color} icon={list.icon} label={listLabel(list)} />
-                ))}
+                  <PlaceholderLine className="w-1/3" pulse={phaseActive(setup, "dashboard")} />
+                </div>
+              ))}
             </div>
-          ) : null}
-        </div>
+          )}
+        </FramePanel>
+
+        <FramePanel icon={BookOpen} title={t("WorkspaceSetup.plan.knowledgeBase")}>
+          {pages.length ? (
+            <KnowledgePageList titles={pages.map((page) => page.title)} />
+          ) : phaseSettled(setup, "knowledgeBase") ? (
+            <p className="text-xs text-muted-foreground">
+              {t("WorkspaceSetup.build.summaries.knowledgeBase", { count: setup.knowledgeBase.pagesWritten })}
+            </p>
+          ) : (
+            <div className="grid gap-x-3 gap-y-2 sm:grid-cols-2">
+              {Array.from({ length: Math.min(Math.max(plannedPages, 2), 6) }, (_, row) => (
+                <div key={row} className="flex items-center gap-2">
+                  <FileText aria-hidden className="size-4 shrink-0 text-muted-foreground" />
+
+                  <PlaceholderLine className="w-3/4" pulse={phaseActive(setup, "knowledgeBase")} />
+                </div>
+              ))}
+            </div>
+          )}
+        </FramePanel>
+
+        {lists.some((list) => list.color) && modelReady ? (
+          <div className="flex flex-wrap gap-1.5">
+            {lists
+              .filter((list) => list.color)
+              .map((list) => (
+                <PreviewListChip key={list.key} color={list.color} icon={list.icon} label={listLabel(list)} />
+              ))}
+          </div>
+        ) : null}
       </div>
     </div>
   );
@@ -413,7 +434,10 @@ export const SetupBuildView = observer(function SetupBuildView({ onContinue, con
       </header>
 
       <div className="grid gap-4 lg:grid-cols-[17rem_minmax(0,1fr)]">
-        <ol aria-label={t("WorkspaceSetup.build.phasesLabel")} className="flex flex-col gap-2">
+        <ol
+          aria-label={t("WorkspaceSetup.build.phasesLabel")}
+          className="flex flex-col gap-2 lg:sticky lg:top-4 lg:self-start"
+        >
           {setup.phases.map((phase) => {
             const state = buildPhaseState(phase);
             const background =

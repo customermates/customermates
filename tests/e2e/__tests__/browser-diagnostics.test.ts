@@ -17,9 +17,33 @@ function fakeEmitter() {
 function fakeBrowser() {
   const contextEvents = fakeEmitter();
   const pageEvents = fakeEmitter();
-  const page = { on: pageEvents.on, context: () => context } as unknown as Page;
+  const state = { closed: false, detached: false };
+  const mainFrame = { page: () => page, isDetached: () => state.detached };
+  const page = {
+    on: pageEvents.on,
+    context: () => context,
+    mainFrame: () => mainFrame,
+    isClosed: () => state.closed,
+  } as unknown as Page;
   const context = { on: contextEvents.on, pages: () => [page] } as unknown as BrowserContext;
+  const request = (url: string, isDocument = false) => ({
+    url: () => url,
+    isNavigationRequest: () => isDocument,
+    redirectedFrom: () => null,
+    frame: () => mainFrame,
+    failure: () => ({ errorText: "net::ERR_ABORTED" }),
+    resourceType: () => (isDocument ? "document" : "fetch"),
+  });
+  const respond = (sent: ReturnType<typeof request>, status: number, statusText = "") =>
+    contextEvents.emit("response", {
+      url: sent.url,
+      status: () => status,
+      statusText: () => statusText,
+      frame: () => mainFrame,
+      request: () => sent,
+    });
   return {
+    state,
     context,
     page,
     console: (text: string, source = "") =>
@@ -45,7 +69,30 @@ function fakeBrowser() {
         resourceType: () => resourceType,
         frame: () => ({ page: () => page }),
       }),
+    navigation: (url: string) =>
+      contextEvents.emit("request", {
+        url: () => url,
+        isNavigationRequest: () => true,
+        redirectedFrom: () => null,
+        frame: () => mainFrame,
+      }),
+    requested: (url: string) =>
+      contextEvents.emit("request", { url: () => url, isNavigationRequest: () => false, frame: () => mainFrame }),
     loaded: () => pageEvents.emit("domcontentloaded"),
+    response: (url: string, status: number, statusText = "", isDocument = false) => {
+      const sent = request(url, isDocument);
+      respond(sent, status, statusText);
+      contextEvents.emit("requestfinished", sent);
+    },
+    /** A request the page sends, answered with `respond` and completed with `finish` or `fail`. */
+    send: (url: string, isDocument = false) => {
+      const sent = request(url, isDocument);
+      contextEvents.emit("request", sent);
+      return sent;
+    },
+    respond,
+    finish: (sent: ReturnType<typeof request>) => contextEvents.emit("requestfinished", sent),
+    fail: (sent: ReturnType<typeof request>) => contextEvents.emit("requestfailed", sent),
   };
 }
 
@@ -59,6 +106,120 @@ const NOT_FOUND = "Failed to load resource: the server responded with a status o
 const BASE = "http://127.0.0.1:4464";
 
 describe("browser diagnostics", () => {
+  it("reports each load of the app answered with an HTTP error once, from the response, on every browser", () => {
+    const browser = fakeBrowser();
+    const diagnostics = new BrowserDiagnostics().watch(browser.context);
+    browser.response(`${BASE}/api/v1/records/query`, 500, "Internal Server Error");
+    // Chromium and WebKit log their own copy; Firefox logs nothing. Either way the response above is the one report.
+    browser.console(
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      `${BASE}/api/v1/records/query`,
+    );
+    browser.response(`${BASE}/api/v1/records/mutate`, 422);
+    browser.response(`${BASE}/en/dashboard`, 200, "OK");
+    browser.response(`${BASE}/en/settings`, 308, "Permanent Redirect");
+    browser.response("https://flagcdn.com/w40/de.png", 404, "Not Found");
+    browser.console("Failed to load resource: net::ERR_FAILED", `${BASE}/api/v1/records/query`);
+    expect(diagnostics.unexpected.map(({ text, source, document }) => [text, source, document])).toEqual([
+      [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        `${BASE}/api/v1/records/query`,
+        false,
+      ],
+      ["Failed to load resource: the server responded with a status of 422", `${BASE}/api/v1/records/mutate`, false],
+      ["Failed to load resource: net::ERR_FAILED", `${BASE}/api/v1/records/query`, undefined],
+    ]);
+  });
+
+  it("ignores an HTTP error of a request aborted or of a page that navigated away, closed or lost its frame", () => {
+    const browser = fakeBrowser();
+    const diagnostics = new BrowserDiagnostics().watch(browser.context);
+    const aborted = browser.send(`${BASE}/api/v1/records/aborted`);
+    browser.respond(aborted, 500);
+    expect(diagnostics.unexpected).toEqual([]);
+    browser.fail(aborted);
+    browser.finish(aborted);
+
+    const stale = browser.send(`${BASE}/api/v1/records/stale`);
+    const document = browser.send(`${BASE}/en/records/unknown`, true);
+    browser.respond(stale, 500);
+    browser.respond(document, 404, "Not Found");
+    browser.finish(stale);
+    browser.finish(document);
+
+    const current = browser.send(`${BASE}/api/v1/records/current`);
+    browser.respond(current, 500);
+    browser.finish(current);
+    // Chromium can report a request as finished or failed before its response.
+    const early = browser.send(`${BASE}/api/v1/records/early`);
+    browser.finish(early);
+    browser.respond(early, 500);
+    const earlyAborted = browser.send(`${BASE}/api/v1/records/early-aborted`);
+    browser.fail(earlyAborted);
+    browser.respond(earlyAborted, 500);
+
+    browser.state.detached = true;
+    browser.response(`${BASE}/api/v1/records/detached`, 500);
+    browser.state.detached = false;
+    browser.state.closed = true;
+    browser.response(`${BASE}/api/v1/records/closed`, 500);
+    expect(diagnostics.unexpected.map(({ source }) => source)).toEqual([
+      `${BASE}/en/records/unknown`,
+      `${BASE}/api/v1/records/current`,
+      `${BASE}/api/v1/records/early`,
+    ]);
+  });
+
+  it("counts an HTTP error once the browser logs it, the request finishes or a grace period passes", () => {
+    vi.useFakeTimers();
+    try {
+      const browser = fakeBrowser();
+      const diagnostics = new BrowserDiagnostics().watch(browser.context);
+      // Chromium logs a missing script as the response arrives and then reports the request as failed.
+      const script = browser.send(`${BASE}/_next/static/chunks/missing.js`);
+      browser.respond(script, 404, "Not Found");
+      browser.console(NOT_FOUND, `${BASE}/_next/static/chunks/missing.js`);
+      browser.fail(script);
+      // A fetch whose body the page never reads may neither finish nor fail.
+      const unread = browser.send(`${BASE}/api/v1/records/unread`);
+      browser.respond(unread, 500);
+      expect(diagnostics.unexpected.map(({ source }) => source)).toEqual([`${BASE}/_next/static/chunks/missing.js`]);
+      vi.advanceTimersByTime(2000);
+      browser.finish(unread);
+      expect(diagnostics.unexpected.map(({ source }) => source)).toEqual([
+        `${BASE}/_next/static/chunks/missing.js`,
+        `${BASE}/api/v1/records/unread`,
+      ]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("reports a console copy only for a failure without a response, each failure once in either order", async () => {
+    const browser = fakeBrowser();
+    const diagnostics = new BrowserDiagnostics().watch(browser.context);
+    const view = diagnostics.view(browser.page);
+    const report = (status: string) => `Failed to load resource: the server responded with a status of ${status}`;
+    browser.console(report("503 (Service Unavailable)"), `${BASE}/api/v1/records/no-response`);
+    browser.response(`${BASE}/api/v1/records/after`, 500);
+    browser.console(report("500 (Internal Server Error)"), `${BASE}/api/v1/records/after`);
+    browser.console(report("404 (Not Found)"), `${BASE}/en/records/before`);
+    expect(view).toHaveLength(3);
+    browser.response(`${BASE}/en/records/before`, 404, "Not Found", true);
+    browser.console(report("500 (Internal Server Error)"), `${BASE}/api/v1/records/after`);
+    const pending = browser.send(`${BASE}/api/v1/records/pending`);
+    browser.respond(pending, 502);
+    await expect(diagnostics.verify(fakeTestInfo("failed"))).resolves.toBeUndefined();
+    expect(diagnostics.unexpected.map(({ text, source, document }) => [text, source, document])).toEqual([
+      [report("503 (Service Unavailable)"), `${BASE}/api/v1/records/no-response`, undefined],
+      [report("500"), `${BASE}/api/v1/records/after`, false],
+      [report("404 (Not Found)"), `${BASE}/en/records/before`, true],
+      [report("500 (Internal Server Error)"), `${BASE}/api/v1/records/after`, undefined],
+      [report("502"), `${BASE}/api/v1/records/pending`, false],
+    ]);
+    expect(view).toEqual(diagnostics.unexpected.map(({ text }) => text));
+  });
+
   it("drops only failed loads of other origins, which the sign-in sandbox blocks", () => {
     const failed = (source: string, text = "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT") =>
       isSandboxedResourceFailure({ kind: "console", text, source });
@@ -84,17 +245,20 @@ describe("browser diagnostics", () => {
       source: (url) => url.pathname === "/en/records/unknown",
       page: browser.page,
     });
-    browser.console(NOT_FOUND, `${BASE}/en/records/unknown`);
-    browser.console(NOT_FOUND, `${BASE}/api/v1/records/query`);
-    browser.console(NOT_FOUND, `${BASE}/en/records/unknown`);
+    const documents = diagnostics.expect({ kind: "console", text: /status of 404/, document: true, page: browser.page });
+    browser.response(`${BASE}/en/records/unknown`, 404, "Not Found", true);
+    browser.response(`${BASE}/api/v1/records/query`, 404, "Not Found");
+    browser.response(`${BASE}/en/records/unknown`, 404, "Not Found", true);
+    browser.response(`${BASE}/en/records/elsewhere`, 404, "Not Found", true);
     browser.pageError("ChunkLoadError: Failed to load chunk /_next/static/chunks/app.js from module 7");
     browser.console("Failed to load resource: net::ERR_BLOCKED_BY_CLIENT", "https://flagcdn.com/w40/de.png");
     browser.pageError("ResizeObserver loop completed with undelivered notifications.");
 
     expect(notFound.events.map(({ source }) => source)).toEqual([`${BASE}/en/records/unknown`]);
+    expect(documents.events.map(({ source }) => source)).toEqual([`${BASE}/en/records/unknown`]);
     expect(diagnostics.unexpected.map(({ kind, source }) => [kind, source])).toEqual([
       ["console", `${BASE}/api/v1/records/query`],
-      ["console", `${BASE}/en/records/unknown`],
+      ["console", `${BASE}/en/records/elsewhere`],
       ["pageerror", ""],
     ]);
     expect(view).toEqual([
@@ -109,10 +273,7 @@ describe("browser diagnostics", () => {
     const other = fakeBrowser();
     const diagnostics = new BrowserDiagnostics().watch(browser.context).watch(other.context);
     diagnostics.expect({ kind: "console", text: /status of 422/, page: browser.page, limit: Number.POSITIVE_INFINITY });
-    other.console(
-      "Failed to load resource: the server responded with a status of 422 ()",
-      `${BASE}/api/agent/messages`,
-    );
+    other.response(`${BASE}/api/agent/messages`, 422);
     browser.pageError("Failed to load resource: the server responded with a status of 422 ()");
     expect(diagnostics.unexpected.map(({ kind }) => kind)).toEqual(["console", "pageerror"]);
   });
@@ -128,6 +289,56 @@ describe("browser diagnostics", () => {
     expect(diagnostics.unexpected).toHaveLength(2);
     browser.loaded();
     expect(diagnostics.unexpected.map(({ text }) => text)).toEqual([missing]);
+  });
+
+  it("also forgets the cancelled chunk's error when WebKit reports it just after the next page loaded, not later", () => {
+    vi.useFakeTimers();
+    try {
+      const browser = fakeBrowser();
+      const diagnostics = new BrowserDiagnostics().watch(browser.context);
+      const cancelled = "ChunkLoadError: Failed to load chunk /_next/static/chunks/a1.js from module 1";
+      browser.cancelledChunk(`${BASE}/_next/static/chunks/a1.js`);
+      browser.loaded();
+      browser.pageError(cancelled);
+      browser.pageError("ChunkLoadError: Failed to load chunk /_next/static/chunks/b2.js from module 2");
+      expect(diagnostics.unexpected.map(({ text }) => text)).toEqual([
+        "ChunkLoadError: Failed to load chunk /_next/static/chunks/b2.js from module 2",
+      ]);
+      vi.advanceTimersByTime(5000);
+      browser.pageError(cancelled);
+      expect(diagnostics.unexpected).toHaveLength(2);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("forgets the error of a chunk WebKit refused to request because the page was navigating, but no other", () => {
+    vi.useFakeTimers();
+    try {
+      const browser = fakeBrowser();
+      const diagnostics = new BrowserDiagnostics().watch(browser.context);
+      const chunkError = (name: string) => `ChunkLoadError: Failed to load chunk /_next/static/chunks/${name}.js from module 1`;
+      browser.navigation(`${BASE}/en/settings/webhooks`);
+      browser.loaded();
+      vi.advanceTimersByTime(5000);
+      // Without a pending navigation a chunk error is the page's own, requested or not.
+      browser.console(chunkError("idle"), `${BASE}/_next/static/chunks/runtime.js`);
+      browser.navigation(`${BASE}/en/settings/webhook-deliveries`);
+      browser.console(chunkError("refused"), `${BASE}/_next/static/chunks/runtime.js`);
+      browser.requested(`${BASE}/_next/static/chunks/missing.js`);
+      browser.console(chunkError("missing"), `${BASE}/_next/static/chunks/runtime.js`);
+      browser.loaded();
+      browser.console(chunkError("late"), `${BASE}/_next/static/chunks/runtime.js`);
+      vi.advanceTimersByTime(5000);
+      browser.console(chunkError("later"), `${BASE}/_next/static/chunks/runtime.js`);
+      expect(diagnostics.unexpected.map(({ text }) => text)).toEqual([
+        chunkError("idle"),
+        chunkError("missing"),
+        chunkError("later"),
+      ]);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("forgets a framework report of a fetch or chunk the browser cancelled only once the next page loaded", () => {
@@ -158,7 +369,7 @@ describe("browser diagnostics", () => {
   it("fails a passing test on unexpected diagnostics and only attaches them to a failed, expected-to-fail or skipped one", async () => {
     const browser = fakeBrowser();
     const diagnostics = new BrowserDiagnostics().watch(browser.context);
-    browser.console(NOT_FOUND, `${BASE}/api/v1/records/query`);
+    browser.response(`${BASE}/api/v1/records/query`, 404, "Not Found");
 
     await expect(diagnostics.verify(fakeTestInfo("passed"))).rejects.toThrow(
       `console: ${NOT_FOUND} (${BASE}/api/v1/records/query)`,

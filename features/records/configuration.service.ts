@@ -148,6 +148,9 @@ export class RecordConfigurationService extends UserAccessor {
           await this.records.getConfigurationDeletions(
             input.operations.flatMap((operation) => (isLifecycleOperation(operation) ? [operation.target] : [])),
           ),
+          input.operations.some((operation) => operation.operation === "restore")
+            ? await this.records.getConfigurationTrashTargetIds()
+            : undefined,
         )
       : null;
     if (lifecycle?.removed?.typeIds.length && !policy.canManageRoles)

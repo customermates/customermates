@@ -1,11 +1,10 @@
 "use client";
 
-import type { RefObject } from "react";
-
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
-import { cn } from "@/core/utils/cn";
+import { headingAnchorId } from "@/components/editor/heading-anchor-extension";
+import { TocItems } from "@/components/shared/toc";
 
 type WikiDocumentNode = {
   attrs?: {
@@ -47,55 +46,41 @@ export function wikiDocumentHeadings(document: object): WikiDocumentHeading[] {
   return headings;
 }
 
-type Props = {
-  containerRef: RefObject<HTMLElement | null>;
-  document: object;
-};
+export const WIKI_HEADING_ID_PREFIX = "wiki-heading";
 
-export function WikiPageOutline({ containerRef, document }: Props) {
+export function WikiPageOutline({ document }: { document: object }) {
   const t = useTranslations();
-  const headings = useMemo(() => wikiDocumentHeadings(document), [document]);
+  const items = useMemo(
+    () =>
+      wikiDocumentHeadings(document).map((heading) => ({
+        title: heading.text,
+        url: `#${headingAnchorId(WIKI_HEADING_ID_PREFIX, heading.index)}`,
+        depth: heading.level + 1,
+      })),
+    [document],
+  );
+  const firstAnchor = items[0]?.url.slice(1);
+  const [renderedAnchor, setRenderedAnchor] = useState<string | null>(null);
 
-  if (headings.length < 2) return null;
+  useEffect(() => {
+    if (!firstAnchor || renderedAnchor === firstAnchor) return;
+    let frame = 0;
+    const waitForHeadings = () => {
+      if (window.document.getElementById(firstAnchor)) setRenderedAnchor(firstAnchor);
+      else frame = window.requestAnimationFrame(waitForHeadings);
+    };
+    waitForHeadings();
+    return () => window.cancelAnimationFrame(frame);
+  }, [firstAnchor, renderedAnchor]);
 
-  const goToHeading = (index: number) => {
-    const heading = containerRef.current?.querySelectorAll<HTMLElement>(".tiptap h1, .tiptap h2, .tiptap h3")[index];
-    if (!heading) return;
-
-    const reduceMotion =
-      typeof window !== "undefined" &&
-      typeof window.matchMedia === "function" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    heading.scrollIntoView({
-      behavior: reduceMotion ? "auto" : "smooth",
-      block: "start",
-    });
-  };
+  if (items.length < 2 || renderedAnchor !== firstAnchor) return null;
 
   return (
     <nav
       aria-label={t("Wiki.onThisPage")}
-      className="sticky top-8 hidden max-h-[calc(100dvh-4rem)] self-start overflow-y-auto border-l border-border pl-4 @min-[68rem]/wiki:block"
+      className="sticky top-8 hidden max-h-[calc(100dvh-4rem)] flex-col self-start @min-[58rem]/wiki:flex"
     >
-      <p className="mb-2 text-xs font-medium text-foreground">{t("Wiki.onThisPage")}</p>
-
-      <ol className="space-y-1">
-        {headings.map((heading) => (
-          <li key={`${heading.index}-${heading.text}`}>
-            <button
-              className={cn(
-                "min-w-0 w-full rounded-sm py-1 text-left text-xs leading-5 text-muted-foreground [overflow-wrap:anywhere] transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                heading.level === 2 && "pl-3",
-                heading.level === 3 && "pl-6",
-              )}
-              type="button"
-              onClick={() => goToHeading(heading.index)}
-            >
-              {heading.text}
-            </button>
-          </li>
-        ))}
-      </ol>
+      <TocItems items={items} />
     </nav>
   );
 }

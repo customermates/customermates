@@ -150,7 +150,7 @@ describe("sidebar personal menu", () => {
         emailVerified: true,
         legalStatus: null,
         operatorConsoleVisible: false,
-        systemTaskCount: 0,
+        pendingMemberCount: 0,
         unreadThreadCount: 0,
         channelsNeedingActionCount: 0,
       }),

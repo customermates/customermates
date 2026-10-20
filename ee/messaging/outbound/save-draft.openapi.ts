@@ -4,13 +4,13 @@ import { z } from "zod";
 
 import { SaveNewThreadDraftSchema, SaveReplyDraftBodySchema } from "@/ee/messaging/outbound/save-draft.interactor";
 import { MessagingMessageDtoSchema } from "@/ee/messaging/inbox/inbox.schema";
-import { CommonApiResponses, NotFoundApiResponse } from "@/core/api/structured-interactor-handler";
+import { CommonApiResponses, ConflictApiResponse, NotFoundApiResponse } from "@/core/api/structured-interactor-handler";
 
 export const saveDraftOperation: ZodOpenApiOperationObject = {
   operationId: "saveDraft",
   summary: "Save a message draft",
   description:
-    "Saves or updates the draft reply on a thread for the current user to review and send from the inbox. Local only; nothing is delivered. subject, cc, and bcc apply to email threads. An explicit recipients array overrides To; use [] for Cc-only or Bcc-only email. Omit recipients to retain the thread-derived primary recipients. There is one draft per thread; saving again replaces it.",
+    "Saves or updates the draft reply on a thread for the current user to review and send from the inbox. Local only; nothing is delivered. subject, cc, and bcc apply to email threads. An explicit recipients array overrides To; use [] for Cc-only or Bcc-only email. Omit recipients to retain the thread-derived primary recipients. There is one draft per thread; saving again replaces it. While that draft is being sent, saving answers 409 with customCode draftSendInProgress and changes nothing.",
   tags: ["messaging"],
   security: [{ apiKeyAuth: [] }],
   requestParams: {
@@ -35,6 +35,7 @@ export const saveDraftOperation: ZodOpenApiOperationObject = {
     },
     ...CommonApiResponses,
     ...NotFoundApiResponse,
+    ...ConflictApiResponse,
   },
 };
 
@@ -42,7 +43,7 @@ export const saveNewThreadDraftOperation: ZodOpenApiOperationObject = {
   operationId: "saveNewThreadDraft",
   summary: "Save a draft for a new conversation",
   description:
-    "Saves a draft for a conversation that does not exist yet, so it can be reviewed and sent from the inbox. Provide connectedAccountId and recipients; a local draft thread is created and appears in the inbox with the draft filter. Local only; nothing is delivered, and the provider conversation is created when the draft is sent. subject, cc, and bcc apply to email accounts. Email needs at least one recipient across recipients, cc and bcc; use recipients: [] for Cc-only or Bcc-only email. Hidden Bcc recipients are never public thread participants. Reusing the same account and primary recipient set updates the existing draft; drafts without primary recipients also distinguish Cc and Bcc recipient groups.",
+    "Saves a draft for a conversation that does not exist yet, so it can be reviewed and sent from the inbox. Provide connectedAccountId and recipients; a local draft thread is created and appears in the inbox with the draft filter. Local only; nothing is delivered, and the provider conversation is created when the draft is sent. subject, cc, and bcc apply to email accounts. Email needs at least one recipient across recipients, cc and bcc; use recipients: [] for Cc-only or Bcc-only email. Hidden Bcc recipients are never public thread participants. Every call creates a new draft conversation, also for recipients that already have one; to change a saved draft, save it again on its returned thread with `POST /v1/messaging/threads/{id}/drafts`.",
   tags: ["messaging"],
   security: [{ apiKeyAuth: [] }],
   requestBody: {

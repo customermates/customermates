@@ -42,7 +42,7 @@ function AccordionTrigger({ className, children, ...props }: React.ComponentProp
 function AccordionContent({ className, children, ...props }: React.ComponentProps<typeof AccordionPrimitive.Content>) {
   return (
     <AccordionPrimitive.Content
-      className="overflow-x-clip overflow-y-hidden [overflow-clip-margin:8px] text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+      className="overflow-clip [overflow-clip-margin:8px] text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
       data-slot="accordion-content"
       {...props}
     >

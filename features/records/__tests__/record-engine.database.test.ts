@@ -9,6 +9,7 @@ import { omit } from "lodash";
 
 import { afterAll, describe, expect, it, vi } from "vitest";
 
+import type * as NextServer from "next/server";
 import type { RecordActivitiesInput } from "@/ee/messaging/activities/record-activities.schema";
 import type { ConfigurationChange } from "../configuration.schema";
 import type { RecordEventSubscriptionDefinition } from "../record-event-subscription.schema";
@@ -24,6 +25,8 @@ import { interactorFailureStatus } from "@/core/validation/validation.utils";
 import { recordChannelsEnabled, recordChannelsField } from "../record-channels";
 import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
+const afterResponseTasks = vi.hoisted(() => [] as (() => Promise<unknown>)[]);
+
 vi.mock("@/env", () => ({
   env: {
     APP_MODE: "cloud",
@@ -35,6 +38,12 @@ vi.mock("@/env", () => ({
 vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
   getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
+}));
+vi.mock("next/server", async (importOriginal) => ({
+  ...(await importOriginal<typeof NextServer>()),
+  after: (task: () => Promise<unknown>) => {
+    afterResponseTasks.push(task);
+  },
 }));
 
 const failureStatus = (result: { ok: true } | { ok: false; error: Parameters<typeof interactorFailureStatus>[0] }) =>
@@ -67,6 +76,7 @@ const { RecordAccessPolicy } = await import("../record-access");
 const { RecordCalculationService } = await import("../record-calculation.service");
 const { RecordWriteService } = await import("../record-write.service");
 const { unwindFailure } = await import("@/core/validation/failure-unwind");
+const { ForbiddenError } = await import("@/core/errors/app-errors");
 const { CancelRecordOperationInteractor } = await import("../cancel-record-operation.interactor");
 const { GetRecordOperationInteractor } = await import("../get-record-operation.interactor");
 const { MutateRecordInteractor } = await import("../mutate-record.interactor");
@@ -121,8 +131,7 @@ const { RecordActivitiesInputSchema } = await import("@/ee/messaging/activities/
 
 const {
   getGetRecordPresentationInteractor,
-  getMembershipTaskService,
-  getUserPendingAuthorizationTaskListener,
+  getCountPendingMembersInteractor,
   getAdminUpdateUserDetailsInteractor,
   getEventService,
   getWebhookPauseNotifier,
@@ -152,7 +161,6 @@ const { PrismaRoleRepo } = await import("@/features/role/prisma-role.repository"
 const { UpsertRoleSchema } = await import("@/features/role/role-management.schema");
 const { RegisterUserInteractor } = await import("@/features/user/register/register-user.interactor");
 const { PrismaCompanyRepo } = await import("@/features/company/prisma-company.repository");
-const { DomainEvent } = await import("@/features/event/domain-events");
 const { PrismaWidgetRepo } = await import("@/features/widget/prisma-widget.repository");
 const { SaveWidgetInteractor } = await import("@/features/widget/save-widget.interactor");
 const { UpdateWidgetLayoutsInteractor } = await import("@/features/widget/update-widget-layouts.interactor");
@@ -3345,11 +3353,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
               },
             ],
             capabilities: [
-              ...f.model.capabilities.map((binding) =>
-                binding.kind === "membershipAuthorization"
-                  ? { ...binding, fields: [{ role: "title", fieldId: f.id("task.name") }] }
-                  : binding,
-              ),
+              ...f.model.capabilities,
               {
                 id: randomUUID(),
                 kind: "avatar" as const,
@@ -3378,7 +3382,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       return (preview.data.deletion?.blockers ?? []).map((blocker) => blocker.reason);
     };
     expect(await blockers(remove("field", codeId, 2))).toContain("snapshotTrigger");
-    expect(await blockers(remove("field", f.id("task.name"), 2))).toContain("binding");
+    expect(await blockers(remove("field", f.id("task.name"), 2))).toEqual([]);
     expect(await blockers(remove("relationship", f.id("lineItem.deal"), 2))).toContain("parentAccess");
 
     const avatar = () =>
@@ -3941,9 +3945,9 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         }
         if (scenario === "resume") {
           const cursor = (await state())?.cursor;
-          const original = f.repo.stageRow.bind(f.repo);
+          const original = f.repo.stageRows.bind(f.repo);
           let interrupted = false;
-          const injection = vi.spyOn(f.repo, "stageRow").mockImplementation(async (...args) => {
+          const injection = vi.spyOn(f.repo, "stageRows").mockImplementation(async (...args) => {
             await original(...args);
             if (args[1] === "journal" && !interrupted) {
               interrupted = true;
@@ -4071,7 +4075,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         { resource: "dataModel", actions: [] },
         { resource: "api", actions: [] },
         { resource: "inboxMessages", actions: [] },
-        { resource: "auditLog", actions: [] },
+        { resource: "activityLog", actions: [] },
         { resource: "routines", actions: [] },
       ],
       ...overrides,
@@ -5417,122 +5421,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     ).toBe(1);
   });
 
-  it("creates membership tasks once under the bound renamed type and keeps ordinary writes protected", async () => {
-    const f = await fixture();
-    const model = structuredClone(f.model);
-    recordInvariant(model.types.find((type) => type.id === f.id("task"))).label = "Action";
-    model.revision++;
-    model.fields.push({
-      ...recordInvariant(model.fields.find((field) => field.id === f.id("task.name"))),
-      id: randomUUID(),
-      label: "Customer-required input",
-    });
-    await f.run(() => runInTransaction(() => f.repo.saveModel(model, f.admin.id)));
-    await f.run(() =>
-      prisma.user.update({
-        where: { companyId: f.company.id, id: f.member.id },
-        data: { status: "pendingAuthorization" },
-      }),
-    );
-    const service = getMembershipTaskService();
-    const pending = createMockUser({
-      ...f.member,
-      status: "pendingAuthorization",
-    });
-    await Promise.all([
-      f.run(() => service.registered(f.member.id), pending),
-      f.run(() => service.registered(f.member.id), pending),
-    ]);
-    const rows = await f.run(() =>
-      prisma.crmRecord.findMany({
-        where: { companyId: f.company.id, typeId: f.id("task") },
-      }),
-    );
-    expect(rows).toHaveLength(1);
-    const ref = { typeId: f.id("task"), recordId: recordInvariant(rows[0]).id };
-    expect(rows[0]).toMatchObject({
-      protectedKind: "membershipAuthorization",
-      systemData: { relatedUserId: f.member.id },
-    });
-    const editor = await f.run(() => f.editor.invoke(ref));
-    expect(editor).toMatchObject({
-      ok: true,
-      data: {
-        systemActions: ["manageMembership"],
-        permittedActions: ["readOwn", "readAll"],
-        record: { protectedKind: "membershipAuthorization" },
-      },
-    });
-    expect(await f.run(() => service.getSystemTasksCount())).toBe(1);
-    const events = await f.run(() => prisma.eventLog.findMany({ where: { companyId: f.company.id } }));
-    expect(events).toHaveLength(1);
-    expect(RecordEventPayloadSchema.parse(recordInvariant(events[0]).payload).cause.kind).toBe("system");
-    const request = { ref, expectedVersion: 1 };
-    for (const action of ["update", "delete"] as const) {
-      expect(
-        await f.mutation(
-          action === "update" ? { action, ...request, fields: [] } : { action, ...request },
-          f.admin,
-          randomUUID(),
-          model.revision,
-        ),
-      ).toMatchObject({
-        ok: false,
-        error: {
-          issues: [
-            expect.objectContaining({
-              params: expect.objectContaining({ error: "recordProtected" }),
-            }),
-          ],
-        },
-      });
-    }
-    expect(
-      await f.run(() =>
-        f.previewDeletion.invoke({
-          ref,
-          expectedVersion: 1,
-          expectedRevision: model.revision,
-        }),
-      ),
-    ).toMatchObject({ ok: false });
-    await f.run(() => service.updated(f.member.id));
-    expect(await f.run(() => service.getSystemTasksCount())).toBe(1);
-    const anotherRequiredField = {
-      id: randomUUID(),
-      typeId: f.id("task"),
-      label: "Required ordinary task detail",
-      valueType: "text" as const,
-      behavior: { kind: "input" as const },
-      required: true,
-      archived: false,
-      position: 20,
-      options: [],
-    };
-    expect(
-      await f.run(() =>
-        f.configure.invoke({
-          expectedRevision: model.revision,
-          idempotencyKey: randomUUID(),
-          operations: [{ operation: "putField", field: anotherRequiredField }],
-        }),
-      ),
-    ).toMatchObject({ ok: true });
-    expect(
-      await f.mutation(
-        {
-          action: "create",
-          typeId: f.id("task"),
-          fields: [{ fieldId: f.id("task.name"), value: textValue("Ordinary task") }],
-        },
-        f.admin,
-        randomUUID(),
-        model.revision + 1,
-      ),
-    ).toMatchObject({ ok: false });
-  });
-
-  it("rolls back invited registration while CRM writes are paused and retries with one protected membership task", async () => {
+  it("registers an invited member as pending without writing a record, even while CRM writes are paused", async () => {
     const f = await fixture();
     const email = `${randomUUID()}@example.test`;
     const authUser = await runWithoutTenant(() =>
@@ -5541,6 +5430,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       }),
     );
     const notify = vi.fn().mockResolvedValue(undefined);
+    afterResponseTasks.length = 0;
     const register = new RegisterUserInteractor(
       { sendNewUserNotificationEmail: notify } as never,
       new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
@@ -5555,16 +5445,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       new PrismaCompanyRepo(new PrismaBillingUsageRepo()),
       createTestWorkspaceRegistration(),
     );
-    const data = {
-      email,
-      firstName: "Invited",
-      lastName: "Member",
-      agreeToTerms: true,
-      avatarUrl: null,
-    };
-    const target = {
-      target: { type: "invitation" as const, companyId: f.company.id },
-    };
+    const records = () => f.run(() => prisma.crmRecord.count({ where: { companyId: f.company.id } }));
+    const before = await records();
     try {
       await f.run(() =>
         prisma.recordSchemaState.update({
@@ -5572,411 +5454,111 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           data: { activeOperationId: randomUUID() },
         }),
       );
-      expect(await register.invoke(data, target)).toMatchObject({
-        ok: false,
-        error: {
-          issues: [
-            expect.objectContaining({
-              params: expect.objectContaining({ error: "recordWritePaused" }),
-            }),
-          ],
-        },
+      expect(
+        await register.invoke(
+          { email, firstName: "Invited", lastName: "Member", agreeToTerms: true, avatarUrl: null },
+          { target: { type: "invitation", companyId: f.company.id } },
+        ),
+      ).toEqual({ ok: true, data: { redirectTo: "/auth/pending" } });
+      for (const task of afterResponseTasks.splice(0)) await task();
+      expect(notify).toHaveBeenCalledTimes(1);
+      expect(await runWithoutTenant(() => prisma.user.findFirstOrThrow({ where: { email } }))).toMatchObject({
+        companyId: f.company.id,
+        status: "pendingAuthorization",
       });
-      expect(await runWithoutTenant(() => prisma.user.count({ where: { email } }))).toBe(0);
-      expect(await runWithoutTenant(() => prisma.authUser.findUnique({ where: { id: authUser.id } }))).toMatchObject({
-        companyId: null,
-      });
-      expect(notify).not.toHaveBeenCalled();
+      expect(await records()).toBe(before);
+    } finally {
       await f.run(() =>
         prisma.recordSchemaState.update({
           where: { companyId: f.company.id },
           data: { activeOperationId: null },
         }),
       );
-      expect(await register.invoke(data, target)).toEqual({
-        ok: true,
-        data: { redirectTo: "/auth/pending" },
-      });
-      expect(await register.invoke(data, target)).toEqual({
-        redirect: "/auth/pending",
-      });
-      expect(notify).toHaveBeenCalledTimes(1);
-      const member = await runWithoutTenant(() => prisma.user.findFirstOrThrow({ where: { email } }));
-      expect(
-        await f.run(() =>
-          prisma.crmRecord.findMany({
-            where: {
-              companyId: f.company.id,
-              protectedKind: "membershipAuthorization",
-            },
-          }),
-        ),
-      ).toEqual([
-        expect.objectContaining({
-          typeId: f.id("task"),
-          systemData: { relatedUserId: member.id },
-        }),
-      ]);
-    } finally {
       await runWithoutTenant(() => prisma.authUser.delete({ where: { id: authUser.id } }));
     }
   });
 
-  it("resolves membership tasks atomically through the real member update and supports repeated events", async () => {
+  it("counts members waiting for approval only for those who may approve them", async () => {
     const f = await fixture();
     await f.run(() =>
       prisma.subscription.create({
         data: { companyId: f.company.id, plan: "enterprise", status: "active" },
       }),
     );
-    await f.run(() =>
-      prisma.user.update({
-        where: { companyId: f.company.id, id: f.member.id },
-        data: { status: "pendingAuthorization" },
-      }),
-    );
-    await f.run(() => getMembershipTaskService().registered(f.member.id));
-    const task = recordInvariant(
-      await f.run(() =>
-        prisma.crmRecord.findFirst({
-          where: {
-            companyId: f.company.id,
-            protectedKind: "membershipAuthorization",
-          },
-        }),
-      ),
-    );
-    const organization = await f.create("organization", "Existing link");
-    const relation = recordInvariant(
-      f.model.relationships.find(
-        (relation) =>
-          (relation.sourceTypeId === f.id("task") && relation.targetTypeId === f.id("organization")) ||
-          (relation.targetTypeId === f.id("task") && relation.sourceTypeId === f.id("organization")),
-      ),
-    );
-    const taskRef = { typeId: task.typeId, recordId: task.id };
-    await f.run(() =>
-      runInTransaction(() =>
-        f.repo.link(
-          relation.id,
-          relation.sourceTypeId === task.typeId ? taskRef : organization,
-          relation.targetTypeId === task.typeId ? taskRef : organization,
-        ),
-      ),
-    );
-    const result = await f.run(() =>
-      getAdminUpdateUserDetailsInteractor().invoke({
-        email: f.member.email,
-        firstName: f.member.firstName,
-        lastName: f.member.lastName,
-        avatarUrl: null,
-        status: "active",
-        roleId: f.memberRole.id,
-      }),
-    );
-    expect(result).toMatchObject({ ok: true });
-    expect(
-      await f.run(() =>
-        prisma.user.findUnique({
-          where: { companyId: f.company.id, id: f.member.id },
-        }),
-      ),
-    ).toMatchObject({
-      status: "active",
-    });
-    expect(await f.run(() => f.repo.getRecordCompanyWide(taskRef))).toBeNull();
-    expect(await f.run(() => f.repo.getLinksCompanyWide(organization))).toEqual([]);
-    expect(await f.run(() => getMembershipTaskService().getSystemTasksCount())).toBe(0);
-    await f.run(() => getMembershipTaskService().updated(f.member.id));
-    expect(
-      await f.run(() =>
-        prisma.eventLog.count({
-          where: {
-            companyId: f.company.id,
-            subjectId: task.id,
-            kind: "record.deleted",
-          },
-        }),
-      ),
-    ).toBe(1);
-    expect(
-      await f.run(() =>
-        prisma.eventLog.count({
-          where: { companyId: f.company.id, kind: "user.updated" },
-        }),
-      ),
-    ).toBe(1);
-  });
-
-  it("rolls back membership changes during a workspace pause and after membership authority is revoked", async () => {
-    const f = await fixture();
-    await f.run(() =>
-      prisma.subscription.create({
-        data: { companyId: f.company.id, plan: "enterprise", status: "active" },
-      }),
-    );
-    await f.run(() =>
-      prisma.user.update({
-        where: { companyId: f.company.id, id: f.member.id },
-        data: { status: "pendingAuthorization" },
-      }),
-    );
-    await f.run(() => getMembershipTaskService().registered(f.member.id));
-    const approve = () =>
+    const applicant = (status: "pendingAuthorization" | "inactive") =>
       f.run(() =>
-        getAdminUpdateUserDetailsInteractor().invoke({
-          email: f.member.email,
-          firstName: f.member.firstName,
-          lastName: f.member.lastName,
-          avatarUrl: null,
-          status: "active",
-          roleId: f.memberRole.id,
+        prisma.user.create({
+          data: {
+            companyId: f.company.id,
+            roleId: status === "pendingAuthorization" ? f.memberRole.id : null,
+            firstName: "Pending",
+            lastName: "Applicant",
+            email: `${randomUUID()}@example.test`,
+            status,
+            ...(status === "inactive" ? { leftAt: new Date() } : {}),
+          },
         }),
       );
-    await f.run(() =>
-      prisma.recordSchemaState.update({
-        where: { companyId: f.company.id },
-        data: { activeOperationId: randomUUID() },
-      }),
-    );
-    expect(await approve()).toMatchObject({
-      ok: false,
-      error: {
-        issues: [
-          expect.objectContaining({
-            params: expect.objectContaining({ error: "recordWritePaused" }),
-          }),
+    const pending = await applicant("pendingAuthorization");
+    await applicant("inactive");
+    const count = (as: typeof f.admin) => f.run(() => getCountPendingMembersInteractor().invoke(), as);
+    const approver = createMockUser({
+      ...f.member,
+      role: {
+        ...f.memberRole,
+        permissions: [
+          { id: randomUUID(), resource: "users", action: "readAll" },
+          { id: randomUUID(), resource: "users", action: "update" },
         ],
       },
     });
+
+    expect(await count(f.admin)).toEqual({ ok: true, data: 1 });
+    expect(await count(approver)).toEqual({ ok: true, data: 1 });
+    await expect(count(f.member)).rejects.toBeInstanceOf(ForbiddenError);
     expect(
       await f.run(() =>
-        prisma.user.findUnique({
-          where: { companyId: f.company.id, id: f.member.id },
+        getAdminUpdateUserDetailsInteractor().invoke({ userId: pending.id, status: "active", roleId: f.memberRole.id }),
+      ),
+    ).toMatchObject({ ok: true, data: { status: "active" } });
+    expect(await count(f.admin)).toEqual({ ok: true, data: 0 });
+    expect(await f.run(() => prisma.crmRecord.count({ where: { companyId: f.company.id } }))).toBe(0);
+  });
+
+  it("deletes the Tasks list like any other list and restores it with its records from Trash", async () => {
+    const f = await fixture();
+    const task = await f.create("task", "Call the customer back");
+    expect(
+      await f.run(() =>
+        f.configure.invoke({
+          expectedRevision: 1,
+          idempotencyKey: randomUUID(),
+          operations: [{ operation: "delete", target: { kind: "type", id: f.id("task") } }],
         }),
       ),
-    ).toMatchObject({
-      status: "pendingAuthorization",
-      agentCreditActivatedAt: null,
+    ).toMatchObject({ ok: true, data: { status: "completed" } });
+    const deleted = await f.run(() => f.repo.getModel());
+    expect(deleted.types.find((type) => type.id === f.id("task"))?.archived).toBe(true);
+    expect(await f.run(() => f.query.invoke(RecordQuerySchema.parse({ typeId: f.id("task") })))).toMatchObject({
+      ok: false,
     });
-    expect(await f.run(() => getMembershipTaskService().getSystemTasksCount())).toBe(1);
+    const items = await f.run(() =>
+      prisma.trashItem.findMany({ where: { companyId: f.company.id, kind: "list", targetId: f.id("task") } }),
+    );
+    expect(items).toHaveLength(1);
+
+    expect(
+      await f.run(() => getRestoreTrashInteractor().invoke({ itemIds: [recordInvariant(items[0]).id] })),
+    ).toMatchObject({ ok: true });
+    const restored = await f.run(() => f.repo.getModel());
+    expect(restored.revision).toBeGreaterThan(deleted.revision);
+    expect(restored.types.find((type) => type.id === f.id("task"))?.archived).toBe(false);
+    expect(await f.value(task, "task.name")).toEqual({ state: "value", value: textValue("Call the customer back") });
     expect(
       await f.run(() =>
-        prisma.eventLog.count({
-          where: { companyId: f.company.id, kind: "user.updated" },
-        }),
+        prisma.trashItem.count({ where: { companyId: f.company.id, kind: "list", targetId: f.id("task") } }),
       ),
     ).toBe(0);
-    await f.run(() =>
-      prisma.recordSchemaState.update({
-        where: { companyId: f.company.id },
-        data: { activeOperationId: null },
-      }),
-    );
-    await f.run(() =>
-      prisma.userRole.update({
-        where: { companyId: f.company.id, id: f.role.id },
-        data: { isSystemRole: false },
-      }),
-    );
-    expect(await approve()).toMatchObject({
-      ok: false,
-      error: {
-        issues: [
-          expect.objectContaining({
-            params: expect.objectContaining({ error: "permissionDenied" }),
-          }),
-        ],
-      },
-    });
-    expect(
-      await f.run(() =>
-        prisma.user.findUnique({
-          where: { companyId: f.company.id, id: f.member.id },
-        }),
-      ),
-    ).toMatchObject({
-      status: "pendingAuthorization",
-    });
-    expect(
-      await f.run(() =>
-        prisma.crmRecord.count({
-          where: {
-            companyId: f.company.id,
-            protectedKind: "membershipAuthorization",
-          },
-        }),
-      ),
-    ).toBe(1);
-  });
-
-  it("scopes membership task badges and actions to current grants without granting record editing", async () => {
-    const f = await fixture();
-    const foreign = await fixture();
-    await f.run(() =>
-      prisma.user.update({
-        where: { companyId: f.company.id, id: f.member.id },
-        data: { status: "pendingAuthorization" },
-      }),
-    );
-    await f.run(() => getMembershipTaskService().registered(f.member.id));
-    await f.run(() =>
-      prisma.user.update({
-        where: { companyId: f.company.id, id: f.member.id },
-        data: { status: "active" },
-      }),
-    );
-    const task = recordInvariant(
-      await f.run(() =>
-        prisma.crmRecord.findFirst({
-          where: {
-            companyId: f.company.id,
-            protectedKind: "membershipAuthorization",
-          },
-        }),
-      ),
-    );
-    const ref = { typeId: task.typeId, recordId: task.id };
-    await f.run(() =>
-      runInTransaction(() =>
-        f.repo.setGrants(task.typeId, [{ roleId: f.memberRole.id, actions: ["readOwn", "update", "delete"] }]),
-      ),
-    );
-    await f.run(() =>
-      prisma.rolePermission.createMany({
-        data: (["update", "readAll"] as const).map((action) => ({
-          companyId: f.company.id,
-          roleId: f.memberRole.id,
-          resource: "users" as const,
-          action,
-        })),
-      }),
-    );
-    expect(await f.run(() => getMembershipTaskService().getSystemTasksCount(), f.member)).toBe(0);
-    await f.run(() => runInTransaction(() => f.repo.setAssignments(ref, [f.member.id])));
-    expect(await f.run(() => getMembershipTaskService().getSystemTasksCount(), f.member)).toBe(1);
-    expect(await f.run(() => f.editor.invoke(ref), f.member)).toMatchObject({
-      ok: true,
-      data: {
-        systemActions: ["manageMembership"],
-        permittedActions: ["readOwn"],
-      },
-    });
-    await f.run(() =>
-      prisma.rolePermission.deleteMany({
-        where: {
-          companyId: f.company.id,
-          roleId: f.memberRole.id,
-          action: "update",
-        },
-      }),
-    );
-    expect(await f.run(() => getMembershipTaskService().getSystemTasksCount(), f.member)).toBe(0);
-    expect(await f.run(() => f.editor.invoke(ref), f.member)).toMatchObject({ ok: false });
-    await expect(f.run(() => getMembershipTaskService().registered(foreign.member.id))).rejects.toMatchObject({
-      cause: { code: "userNotFound", failureKind: "not_found" },
-    });
-  });
-
-  it("uses the registered member identity and verifies current membership status instead of trusting event fields", async () => {
-    const f = await fixture();
-    await f.run(() =>
-      prisma.user.update({
-        where: { companyId: f.company.id, id: f.member.id },
-        data: { status: "pendingAuthorization" },
-      }),
-    );
-    const listener = getUserPendingAuthorizationTaskListener();
-    await f.run(() =>
-      listener.handle(DomainEvent.USER_REGISTERED, {
-        companyId: f.company.id,
-        userId: f.admin.id,
-        entityId: f.member.id,
-        payload: {
-          email: "ignored@example.test",
-          firstName: "Member",
-          lastName: "Test",
-          status: "active",
-          avatarUrl: null,
-          roleId: f.memberRole.id,
-          isNewCompany: false,
-        },
-      }),
-    );
-    const task = recordInvariant(
-      await f.run(() =>
-        prisma.crmRecord.findFirst({
-          where: {
-            companyId: f.company.id,
-            protectedKind: "membershipAuthorization",
-          },
-        }),
-      ),
-    );
-    expect(task.systemData).toEqual({ relatedUserId: f.member.id });
-    expect(await f.value({ typeId: task.typeId, recordId: task.id }, "task.name")).toMatchObject({
-      state: "value",
-      value: {
-        kind: "text",
-        value: `User Pending Authorization (${f.member.email})`,
-      },
-    });
-    await f.run(() =>
-      listener.handle(DomainEvent.USER_UPDATED, {
-        companyId: f.company.id,
-        userId: f.admin.id,
-        entityId: f.member.id,
-        payload: { changes: { status: { previous: "pendingAuthorization", current: "active" } } },
-      }),
-    );
-    expect(await f.run(() => getMembershipTaskService().getSystemTasksCount())).toBe(1);
-  });
-
-  it("shows the membership approval task only to members who can manage members", async () => {
-    const f = await fixture();
-    const pending = await f.run(() =>
-      prisma.user.create({
-        data: {
-          companyId: f.company.id,
-          roleId: f.memberRole.id,
-          firstName: "Pending",
-          lastName: "Applicant",
-          email: `${randomUUID()}@example.test`,
-          status: "pendingAuthorization",
-        },
-      }),
-    );
-    await f.run(() => getMembershipTaskService().registered(pending.id));
-    const task = recordInvariant(
-      await f.run(() =>
-        prisma.crmRecord.findFirst({ where: { companyId: f.company.id, protectedKind: "membershipAuthorization" } }),
-      ),
-    );
-    await f.run(() =>
-      runInTransaction(() => f.repo.setGrants(task.typeId, [{ roleId: f.memberRole.id, actions: ["readAll"] }])),
-    );
-    const listed = async (as: typeof f.admin) => {
-      const result = await f.run(() => f.query.invoke(RecordQuerySchema.parse({ typeId: task.typeId })), as);
-      if (!result.ok) throw new Error("The task list was refused");
-      return result.data.records.some((record) => record.ref.recordId === task.id);
-    };
-    const readable = (as: typeof f.admin) =>
-      f.run(async () => {
-        const stored = recordInvariant(await f.repo.getRecordCompanyWide({ typeId: task.typeId, recordId: task.id }));
-        return (await getRecordAccessPolicy().load()).canRead(stored);
-      }, as);
-
-    expect(await listed(f.admin)).toBe(true);
-    expect(await listed(f.member)).toBe(false);
-    expect(await readable(f.member)).toBe(false);
-
-    await f.run(() =>
-      prisma.rolePermission.create({
-        data: { companyId: f.company.id, roleId: f.memberRole.id, resource: "users", action: "update" },
-      }),
-    );
-    expect(await listed(f.member)).toBe(true);
-    expect(await readable(f.member)).toBe(true);
   });
 
   it("journals committed field, assignment and identity changes without duplicate or no-op events", async () => {
@@ -6155,7 +5737,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           data: {
             companyId: f.company.id,
             roleId: f.memberRole.id,
-            resource: "auditLog",
+            resource: "activityLog",
             action: "readAll",
           },
         });
@@ -6342,7 +5924,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         data: {
           companyId: f.company.id,
           roleId: f.memberRole.id,
-          resource: "auditLog",
+          resource: "activityLog",
           action: "readAll",
         },
       }),
@@ -6994,9 +6576,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect((await resolve())[0].records[0]?.ref).toEqual(ref);
     expect((await f.readRecord(ref)).identities?.[0]?.id).toBe(identityId);
     expect(recordChannelsEnabled(await f.run(() => f.repo.getModel()), typeId)).toBe(true);
-    const membership = recordInvariant(
-      f.model.capabilities.find((binding) => binding.kind === "membershipAuthorization"),
-    );
+    const avatar = recordInvariant(f.model.capabilities.find((binding) => binding.kind === "avatar"));
     expect(
       await f.run(
         () =>
@@ -7006,7 +6586,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
             operations: [
               {
                 operation: "putCapability",
-                capability: { ...membership, fields: [] },
+                capability: { ...avatar, fields: [] },
               },
             ],
           }),
@@ -13466,7 +13046,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
   });
 
-  it("preserves protected capabilities when types are renamed and blocks invalid field changes", async () => {
+  it("keeps capabilities when types are renamed, lets the Tasks list be deleted and blocks invalid field changes", async () => {
     const f = await fixture();
     const contact = recordInvariant(f.model.types.find((type) => type.id === f.id("contact")));
     expect(
@@ -13491,17 +13071,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           operations: [{ operation: "delete", target: { kind: "type", id: f.id("task") } }],
         }),
       ),
-    ).toMatchObject({
-      ok: true,
-      data: {
-        valid: false,
-        deletion: {
-          blockers: [
-            expect.objectContaining({ reason: "protected", source: expect.objectContaining({ id: f.id("task") }) }),
-          ],
-        },
-      },
-    });
+    ).toMatchObject({ ok: true, data: { valid: true, deletion: { blockers: [] } } });
     const field = recordInvariant(f.model.fields.find((field) => field.id === f.id("contact.firstName")));
     const { publishedSummary, ...editable } = field;
     expect(publishedSummary).toBe(false);
@@ -13557,23 +13127,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(await f.run(() => f.editor.invoke(deal), f.member)).toMatchObject({
       ok: false,
     });
-    const task = await f.create("task", "Authorization task");
-    await f.run(() =>
-      prisma.crmRecord.update({
-        where: {
-          companyId: f.company.id,
-          companyId_typeId_id: {
-            companyId: f.company.id,
-            typeId: task.typeId,
-            id: task.recordId,
-          },
-        },
-        data: { protectedKind: "membershipAuthorization" },
-      }),
-    );
+    const task = await f.create("task", "Ordinary task");
     expect(await f.run(() => f.editor.invoke(task))).toMatchObject({
       ok: true,
-      data: { permittedActions: ["readOwn", "readAll"] },
+      data: { permittedActions: ["create", "readOwn", "readAll", "update", "delete"] },
     });
   });
 
@@ -15041,7 +14598,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         data: {
           companyId: f.company.id,
           roleId: f.memberRole.id,
-          resource: "auditLog",
+          resource: "activityLog",
           action: "readAll",
         },
       }),
@@ -15085,7 +14642,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         where: {
           companyId: f.company.id,
           roleId: f.memberRole.id,
-          resource: "auditLog",
+          resource: "activityLog",
         },
       }),
     );
@@ -16681,7 +16238,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     expect(await names(f.id("deal"), { fieldId: closedAt, operator: "eq", value: instant })).toEqual(["Won"]);
   });
-  it("round-trips exports with embedded rows, protected rows and captured values through an update import", async () => {
+  it("round-trips exports with embedded rows, ordinary tasks and captured values through an update import", async () => {
     const f = await fixture();
     const importer = new ImportRecordsInteractor(
       f.repo,
@@ -16720,47 +16277,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(dealResult, JSON.stringify(dealResult)).toMatchObject({ ok: true, data: { updated: 2, linked: 0 } });
     expect(await f.value(deal, "deal.totalValue")).toEqual({ state: "value", value: decimal("100") });
 
-    await f.run(() =>
-      prisma.user.update({
-        where: { companyId: f.company.id, id: f.member.id },
-        data: { status: "pendingAuthorization" },
-      }),
-    );
-    await f.run(
-      () => getMembershipTaskService().registered(f.member.id),
-      createMockUser({ ...f.member, status: "pendingAuthorization" }),
-    );
     const ordinary = await f.create("task", "Ordinary task");
-    const tasks = await exportAll("task");
-    const protectedRow = recordInvariant(tasks.records.find((row) => row.protectedKind === "membershipAuthorization"));
-    const protectedVersion = protectedRow.version;
-    const taskResult = await reimport(tasks);
+    const taskResult = await reimport(await exportAll("task"));
     expect(taskResult, JSON.stringify(taskResult)).toMatchObject({ ok: true, data: { updated: 1 } });
-    expect((await f.run(() => f.repo.getRecordCompanyWide(protectedRow.ref)))?.version).toBe(protectedVersion);
     expect((await f.run(() => f.repo.getRecordCompanyWide(ordinary)))?.version).toBeGreaterThan(1);
-    const renamedTasks = await exportAll("task");
-    const changed = await reimport({
-      ...renamedTasks,
-      records: renamedTasks.records.map((row) =>
-        row.protectedKind
-          ? {
-              ...row,
-              fields: row.fields.map((field) =>
-                field.fieldId === f.id("task.name")
-                  ? { ...field, result: { state: "value" as const, value: textValue("Changed protected task") } }
-                  : field,
-              ),
-            }
-          : row,
-      ),
-    });
-    expect(changed).toMatchObject({
-      ok: false,
-      error: { issues: [expect.objectContaining({ params: expect.objectContaining({ error: "recordProtected" }) })] },
-    });
-    expect(await f.value(protectedRow.ref, "task.name")).toEqual(
-      recordInvariant(protectedRow.fields.find((field) => field.fieldId === f.id("task.name"))).result,
-    );
 
     const captured = randomUUID();
     await f.run(() =>
@@ -16829,7 +16349,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       value: textValue("Captured name"),
     });
   });
-  it("answers update imports of unreadable protected records as not found, revealing no stored values", async () => {
+  it("answers update imports of unreadable records as not found, revealing no stored values", async () => {
     const f = await fixture();
     const importer = new ImportRecordsInteractor(
       f.repo,
@@ -16844,21 +16364,9 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       if (!exported.ok) throw exported.error;
       return exported.data;
     };
-    const pending = await f.run(() =>
-      prisma.user.create({
-        data: {
-          companyId: f.company.id,
-          roleId: f.memberRole.id,
-          firstName: "Pending",
-          lastName: "Member",
-          email: `${randomUUID()}@example.test`,
-          status: "pendingAuthorization",
-        },
-      }),
-    );
-    await f.run(() => getMembershipTaskService().registered(pending.id));
+    const hidden = await f.create("task", "Unassigned task");
     const tasks = await exportAll("task");
-    const protectedRow = recordInvariant(tasks.records.find((row) => row.protectedKind === "membershipAuthorization"));
+    const hiddenRow = recordInvariant(tasks.records.find((row) => row.ref.recordId === hidden.recordId));
     await f.run(() =>
       runInTransaction(async () => {
         await f.repo.setGrants(f.id("task"), [{ roleId: f.memberRole.id, actions: ["readOwn", "update"] }]);
@@ -16870,11 +16378,11 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ok: false,
       error: { issues: [expect.objectContaining({ params: expect.objectContaining({ error: "recordNotFound" }) })] },
     };
-    expect(await asMember({ ...tasks, records: [protectedRow], links: [] })).toMatchObject(notFound);
+    expect(await asMember({ ...tasks, records: [hiddenRow], links: [] })).toMatchObject(notFound);
     expect(
       await asMember({
         ...tasks,
-        records: [{ ...protectedRow, assignedUserIds: [f.member.id] }],
+        records: [{ ...hiddenRow, assignedUserIds: [f.member.id] }],
         links: [],
       }),
     ).toMatchObject(notFound);
@@ -17748,35 +17256,6 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
     expect(
       await f.run(() => prisma.recordOperation.count({ where: { companyId: f.company.id, kind: "provider-avatar" } })),
     ).toBe(0);
-    const protectedPerson = { typeId: person.typeId, recordId: randomUUID() };
-    await f.run(() =>
-      runInTransaction(async () => {
-        const tx = transactionStorage.getStore()?.client as typeof prisma;
-        const identity = recordInvariant((await f.repo.getIdentitiesCompanyWide(organization))[0]);
-        await tx.crmRecord.create({
-          data: {
-            companyId: f.company.id,
-            typeId: protectedPerson.typeId,
-            id: protectedPerson.recordId,
-            protectedKind: "system:test",
-          },
-        });
-        await tx.recordIdentityLink.create({
-          data: {
-            companyId: f.company.id,
-            identityId: identity.id,
-            typeId: protectedPerson.typeId,
-            recordId: protectedPerson.recordId,
-          },
-        });
-      }),
-    );
-    expect(
-      await f.run(async () => {
-        const identity = recordInvariant((await f.repo.getIdentitiesCompanyWide(organization))[0]);
-        return f.repo.getIdentityOwnerRefsPageUnscoped(f.company.id, identity.id, undefined, 1001, [person.typeId]);
-      }),
-    ).toEqual([]);
     await runWithoutTenant(() =>
       service.synchronize("google", "filtered-avatar@example.test", "https://example.test/updated.png"),
     );

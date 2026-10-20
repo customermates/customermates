@@ -16,6 +16,8 @@ import { AppErrorCode, AuthError, ForbiddenError } from "@/core/errors/app-error
 import { tenantStorage } from "@/core/decorators/tenant-context";
 import { canUseApiKeys } from "@/core/auth/api-key-route-guard";
 import { ApiKeyAccessDeniedError } from "@/core/auth/api-key-access-denied-error";
+import { EmailVerificationRequiredError } from "@/core/auth/email-verification-required-error";
+import { mustVerifyEmail } from "@/features/auth/email-verification-grace";
 import { WorkspacePlanRequiredError } from "@/core/auth/workspace-plan-required-error";
 
 export const LAST_ACTIVE_RESOLUTION_MS = 15 * 60 * 1000;
@@ -35,6 +37,13 @@ export class UserService {
     const session = await this.authService.getSession();
 
     if (!session?.user?.email) throw new AuthError();
+
+    const account = await this.repo.findAuthUserAccountStateUnscoped(session.user.id);
+
+    if (!account) throw new AuthError();
+
+    if (mustVerifyEmail({ createdAt: session.user.createdAt, emailVerified: account.emailVerified }))
+      throw new EmailVerificationRequiredError();
 
     const user = await this.workspaces.requireMembership(session);
     if (!user) throw new AuthError();

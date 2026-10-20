@@ -56,6 +56,7 @@ import {
 } from "@/features/mcp-tools/sales-navigator.mcp-tools";
 
 import type { McpTool } from "@/features/mcp-tools/mcp-tool";
+import type { AppMode } from "@/core/config/environment";
 
 export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
   records: [
@@ -115,6 +116,23 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
 export const MCP_ALWAYS_ON_TOOLS: McpTool[] = [searchTool, fetchTool];
 
 export const MCP_OPERATOR_TOOLS: McpTool[] = [getOperatorUsageTool];
+
+const CLOUD_ONLY_MCP_TOOLS: ReadonlySet<McpTool> = new Set([
+  ...MCP_TOOL_GROUPS.messaging.filter((tool) => tool !== getActivitiesTool),
+  ...MCP_TOOL_GROUPS.social,
+  ...MCP_TOOL_GROUPS.routines,
+]);
+
+export function mcpToolGroupsForAppMode(appMode: AppMode): Record<string, McpTool[]> {
+  if (appMode !== "self-hosted") return MCP_TOOL_GROUPS;
+
+  return Object.fromEntries(
+    Object.entries(MCP_TOOL_GROUPS).map(([key, tools]) => [
+      key,
+      tools.filter((tool) => !CLOUD_ONLY_MCP_TOOLS.has(tool)),
+    ]),
+  );
+}
 
 export const ALL_MCP_TOOLS = [...Object.values(MCP_TOOL_GROUPS).flat(), ...MCP_ALWAYS_ON_TOOLS];
 

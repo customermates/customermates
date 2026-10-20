@@ -37,6 +37,41 @@
     "privacyLink": "Privacy details",
     "title": "Help us learn what works"
   },
+  "ActivityDetail": {
+    "eventAt": "{event} at {date}",
+    "fields": {
+      "acceptanceType": "Acceptance type",
+      "acceptingEmail": "Accepted by",
+      "changedDocuments": "Changed documents",
+      "country": "Country",
+      "createType": "New type",
+      "cronExpression": "Schedule",
+      "debounceSeconds": "Debounce",
+      "delete": "Moved to Trash",
+      "deletePermanently": "Permanently deleted",
+      "disabledReason": "Disabled reason",
+      "effectiveAt": "Effective from",
+      "isNewCompany": "First user in the workspace",
+      "markdown": "Markdown",
+      "prompt": "Instructions",
+      "publishSummary": "Published summary",
+      "putAccessPreset": "Access preset",
+      "putCapability": "Capability",
+      "putField": "Field",
+      "putRelationship": "Relationship",
+      "putType": "Type",
+      "recipientEmail": "Sent to",
+      "removalReason": "Removal reason",
+      "restore": "Restored",
+      "timezone": "Time zone",
+      "triggerEvents": "Trigger events",
+      "triggerFilters": "Trigger filters",
+      "triggerKind": "Trigger",
+      "versions": "Document versions",
+      "visibility": "Visibility"
+    },
+    "unchangedLines": "{count, plural, one {# unchanged line} other {# unchanged lines}}"
+  },
   "AgentChat": {
     "activity": {
       "approval": {
@@ -789,41 +824,6 @@
   "ApiKeysCard": {
     "unnamed": "Unnamed"
   },
-  "AuditLogModal": {
-    "eventAt": "{event} at {date}",
-    "fields": {
-      "acceptanceType": "Acceptance type",
-      "acceptingEmail": "Accepted by",
-      "changedDocuments": "Changed documents",
-      "country": "Country",
-      "createType": "New type",
-      "cronExpression": "Schedule",
-      "debounceSeconds": "Debounce",
-      "delete": "Moved to Trash",
-      "deletePermanently": "Permanently deleted",
-      "disabledReason": "Disabled reason",
-      "effectiveAt": "Effective from",
-      "isNewCompany": "First user in the workspace",
-      "markdown": "Markdown",
-      "prompt": "Instructions",
-      "publishSummary": "Published summary",
-      "putAccessPreset": "Access preset",
-      "putCapability": "Capability",
-      "putField": "Field",
-      "putRelationship": "Relationship",
-      "putType": "Type",
-      "recipientEmail": "Sent to",
-      "removalReason": "Removal reason",
-      "restore": "Restored",
-      "timezone": "Time zone",
-      "triggerEvents": "Trigger events",
-      "triggerFilters": "Trigger filters",
-      "triggerKind": "Trigger",
-      "versions": "Document versions",
-      "visibility": "Visibility"
-    },
-    "unchangedLines": "{count, plural, one {# unchanged line} other {# unchanged lines}}"
-  },
   "AuthSocialErrors": {
     "accessDenied": "The sign-in was cancelled at the provider.",
     "accountAlreadyLinkedToDifferentUser": "This social account is already linked to a different user.",
@@ -1114,8 +1114,14 @@
       "dataViewNotFound": "This saved view was not found.",
       "dataViewUpdateEmpty": "Provide a name or at least one view setting to update.",
       "demoMode": "This action is not available in demo mode. Sign in to access all features.",
+      "draftAlreadySent": "This draft was already sent.",
+      "draftChanged": "This draft changed after you opened it.",
       "draftMessageNotFound": "That draft could not be found. It may have already been sent or discarded.",
-      "draftThreadNotSent": "This draft has no conversation yet. Send it from the inbox.",
+      "draftRecipientsChanged": "These recipients don't match the saved draft. A new message keeps its To recipients, and Bcc recipients can't move to To or Cc.",
+      "draftSendInProgress": "This draft is already being sent. Check the conversation in a moment.",
+      "draftSendOutcomeUnknown": "This draft may already have been sent, but that couldn't be confirmed. Check the conversation and your Sent folder. To send it anyway, edit and update the draft first.",
+      "draftTargetMismatch": "This draft belongs to another conversation or channel.",
+      "draftThreadNotSent": "This conversation exists only as a saved draft. Send it with its draftMessageId and draftRevision.",
       "draftToRecipientsLocked": "A saved new message keeps its To recipients. Discard the draft and start a new message to address someone else.",
       "duplicateOutboundSuppressed": "An identical message was sent to this thread moments ago. Change the text or wait a minute before retrying.",
       "duplicateWebhookEvents": "Duplicate events are not allowed.",
@@ -1128,6 +1134,7 @@
       "emailMismatch": "Email addresses must match.",
       "emailNotVerified": "Email not verified.",
       "emailRecipientsRequired": "Add at least one recipient in To, Cc or Bcc.",
+      "emailVerificationRequired": "Verify your email address to keep using this account. Sign in to the app and request a new verification link.",
       "enterpriseCheckoutUnavailable": "Enterprise workspaces are billed manually and cannot start self-service checkout.",
       "filterBetweenInvalidArrayLength": "The 'between' operator requires an array with exactly 2 elements.",
       "generic": "An error occurred.",
@@ -1220,6 +1227,7 @@
       "routineScheduleInvalid": "That schedule is not a valid cron expression.",
       "routineScheduleRequired": "Choose a schedule or a one-off date for this routine.",
       "routineScheduleTooFrequent": "This schedule runs too often. Routines can run at most once every 15 minutes.",
+      "routinesRequireCloud": "Routines run on Customermates Cloud. A self-hosted instance cannot run them.",
       "routineTestRequiresEnabled": "Activate the routine before testing it.",
       "routineTimeZoneInvalid": "That time zone is not supported.",
       "routineTriggerEventsRequired": "Select at least one event for this routine.",
@@ -1624,11 +1632,6 @@
       "manual": "Manual"
     },
     "stageProbability": "Stage probability",
-    "systemTasks": {
-      "userPendingAuthorization": {
-        "alert": "This is a system task that cannot be manually deleted. Please approve the user in <link>Members</link> to resolve this task."
-      }
-    },
     "table": {
       "columns": {
         "action": "Action",
@@ -2275,6 +2278,7 @@
     "bold": "Bold",
     "bulletList": "Bullet List",
     "code": "Code",
+    "codeBlock": "Code Block",
     "confirm": "Apply Link",
     "divider": "Divider",
     "formatting": "Formatting",
@@ -2522,17 +2526,21 @@
       "ccLabel": "Cc",
       "createContact": "Create \"{query}\"",
       "draftAttachmentsUnsupported": "Remove attachments before saving this draft.",
+      "draftChangedNotice": "This draft changed after you opened it. Your text is still here: load the latest version or send yours.",
       "draftDiscardFailed": "Couldn't discard the draft",
       "draftEdit": "Edit",
       "draftSaved": "Draft saved. Find it in the inbox.",
       "draftSendNow": "Send draft",
+      "draftSentEarlier": "This draft was already sent. Nothing was sent again.",
       "emailContent": "Email content",
       "emojiPicker": "Insert emoji",
       "from": "From",
       "inmailSignaturePlaceholder": "Signature",
       "inmailSubjectPlaceholder": "InMail subject",
+      "loadLatestDraft": "Load latest version",
       "loadRemoteImages": "Load remote images",
       "messageSent": "Message sent.",
+      "messageSentPendingSync": "Message sent. It appears in the inbox once your mailbox syncs it.",
       "moreSendOptions": "More send options",
       "noContacts": "No records.",
       "retry": "Retry",
@@ -2540,6 +2548,7 @@
       "send": "Send",
       "sendAs": "Send as",
       "sendInBackground": "You can keep working. We’ll notify you when it’s sent.",
+      "sendMyDraft": "Send mine",
       "sendOutcomeUnknown": "It may have been sent. Check the conversation before sending it again.",
       "sendStarted": "Sending message",
       "subjectPlaceholder": "Subject",
@@ -2693,6 +2702,7 @@
       "goList": "Lists by their position in your sidebar",
       "goRoutines": "Routines",
       "goSettings": "Settings",
+      "goWorkspaces": "Switch workspace",
       "openFilters": "Open filters on a list",
       "save": "Save the open form",
       "search": "Search",
@@ -2933,7 +2943,6 @@
       "title": "Join an existing workspace"
     },
     "optionsLabel": "Workspace setup choices",
-    "signedInAs": "Signed in as",
     "subtitle": "Create a workspace for your business, a project or your own work, or join a team that already uses Customermates.",
     "title": "Choose how to get started"
   },
@@ -3040,7 +3049,6 @@
         }
       }
     },
-    "continue": "Continue",
     "finish": "Finish",
     "invite": {
       "emailCount": "{current} of {max} emails · separate with a comma or press Enter",
@@ -3049,6 +3057,9 @@
       "linkFailed": "Could not create the invite link.",
       "loadingLink": "Generating link…",
       "send": "Send invitations",
+      "sendFailed": "{failed, plural, one {The invitation could not be sent.} other {The # invitations could not be sent.}}",
+      "sendFailedDescription": "The email service did not accept them. Share the invitation link instead.",
+      "sendPartlyFailed": "{sent, plural, one {Sent # invitation} other {Sent # invitations}}, {failed, plural, one {# could not be sent.} other {# could not be sent.}}",
       "sentSuccess": "{count, plural, one {Sent # invitation.} other {Sent # invitations.}}",
       "tabs": {
         "email": "Send emails",
@@ -3560,10 +3571,8 @@
     "configurationDeletion": {
       "blockedMessage": "{name} can't be deleted while other parts of your setup still use it.",
       "blockers": {
-        "binding": "{target} controls workspace access for {source} and can't be deleted.",
         "calculation": "{source} calculates from {target}.",
         "parentAccess": "{source} gets its access through {target}.",
-        "protected": "{source} controls workspace access and can't be deleted.",
         "requiresRestore": "Restore {target} first, {source} belongs to it.",
         "routine": "The routine {source} reacts to {target}.",
         "snapshotTrigger": "{source} saves its value when {target} changes.",
@@ -4087,8 +4096,8 @@
     "recordTypesHint": "New types start without access. Embedded items inherit access from their parent record.",
     "resourceHeader": "Resource",
     "resources": {
+      "activityLog": "Activity log",
       "api": "API & Webhooks",
-      "auditLog": "Audit Log",
       "company": "Company",
       "dataModel": "Data model",
       "inboxMessages": "Inbox messages",
@@ -4478,9 +4487,11 @@
     "permanentViewWidgets": "For a dashboard view, its widgets are also deleted permanently.",
     "restore": "Restore",
     "restoreBlocked": {
+      "incompatible": "{count, plural, one {# item stays} other {# items stay}} in Trash because they no longer fit the current setup or data.",
       "listDeleted": "{count, plural, one {# item stays} other {# items stay}} in Trash because their list is in Trash. Restore the list first.",
       "nameTaken": "{count, plural, one {# item stays} other {# items stay}} in Trash because another item now uses their name or place.",
       "notFound": "{count, plural, one {# item} other {# items}} no longer exist and left Trash.",
+      "operationPending": "{count, plural, one {# item stays} other {# items stay}} in Trash while the restore finishes in the background. Restore them again when it is done.",
       "parentDeleted": "{count, plural, one {# item stays} other {# items stay}} in Trash because what they belong to is in Trash. Restore that first.",
       "requiresRestore": "{count, plural, one {# item stays} other {# items stay}} in Trash because something they need is in Trash. Restore that first.",
       "routineLimitReached": "{count, plural, one {# routine stays} other {# routines stay}} in Trash because the owner already has all the routines their plan includes."
@@ -4753,6 +4764,15 @@
       "workingTitle": "Mate is learning about your company"
     }
   },
+  "WithoutErrorReporting": {
+    "ErrorCard": {
+      "contactSupport": "Please try again. If the problem continues, contact the person who runs this Customermates instance.",
+      "unexpectedError": "An unexpected error occurred. Please try again."
+    },
+    "NotFoundPage": {
+      "body": "This page does not exist or has moved. Check the address or go back to the start page."
+    }
+  },
   "WorkspaceInvitation": {
     "inactive": {
       "body": "An administrator deactivated your access to this workspace. Ask them to reactivate it.",
@@ -4785,7 +4805,8 @@
   },
   "WorkspaceMenu": {
     "inviteMembers": "Invite members",
-    "label": "Workspace menu"
+    "label": "Workspace menu",
+    "pendingMembers": "{count, plural, one {# member waiting for approval} other {# members waiting for approval}}"
   },
   "WorkspaceOnboarding": {
     "workspaceNameDescription": "Optional. Helps you tell your workspaces apart; you can change it later.",
@@ -4858,7 +4879,6 @@
       "addOwn": "Add your own",
       "continueAnyway": "Continue anyway",
       "fromWebsite": "Suggested from your website",
-      "looksRight": "Looks right",
       "upload": "Upload a spreadsheet",
       "winChance": "Win chance"
     },
@@ -4884,7 +4904,7 @@
       "failedBody": "Everything that finished is kept. Retry the part that did not finish to complete your workspace.",
       "failedTitle": "Part of the setup did not finish",
       "frameTitle": "Your workspace",
-      "keepsRunning": "This keeps running if you close the tab. We will email you when your workspace is ready.",
+      "keepsRunning": "This keeps running if you close the tab.",
       "nameColumn": "Name",
       "phases": {
         "dashboard": "Dashboard",
@@ -4915,6 +4935,12 @@
       },
       "title": "Setting up your workspace"
     },
+    "empty": {
+      "action": "Start with an empty workspace",
+      "confirm": "Start empty",
+      "description": "You skip the guided setup. No lists, pipeline, dashboard or Knowledge Base pages are created, so you build everything yourself. We recommend the guided setup.",
+      "title": "Start with an empty workspace?"
+    },
     "failures": {
       "aiUnavailable": "The AI service is not available right now. Try again in a few minutes.",
       "contactSupport": "Contact support",
@@ -4937,8 +4963,6 @@
       "entryLabel": "Entry {index}",
       "followUpsSubtitle": "Some answers could mean more than one thing. These questions settle it.",
       "followUpsTitle": "A few more details",
-      "moveDown": "Move down",
-      "moveUp": "Move up",
       "optionalPlaceholder": "Leave empty if nothing comes to mind",
       "prefillFailed": "We could not read your website, so nothing is filled in. The questions still take only a few minutes.",
       "rangeFrom": "From",
@@ -5099,8 +5123,6 @@
       "planningTitle": "Drafting your plan",
       "progress": {
         "label": "Plan progress",
-        "leave": "You can close this page. We will email <strong>{email}</strong> as soon as your plan is ready.",
-        "leaveWithoutEmail": "You can close this page. We will email you as soon as your plan is ready.",
         "minutesLeft": "{minutes, plural, one {About # minute left} other {About # minutes left}}",
         "overdue": "Taking a little longer than usual. Almost there.",
         "steps": {
@@ -5113,6 +5135,7 @@
         "typical": "Mate is designing your workspace from your answers. This usually takes 1 to 2 minutes.",
         "underMinute": "Less than a minute left"
       },
+      "reviewHint": "Review the plan, then build your workspace.",
       "sampleSummary": "{count, plural, one {Adds # sample record so you can try things out right away.} other {Adds # sample records so you can try things out right away.}}",
       "subtitle": "This is what we will build once you confirm.",
       "title": "Your workspace plan",
@@ -5243,42 +5266,6 @@
       "suggestedHint": "Check the marked answers and change anything that's off.",
       "suggesting": "Suggesting answers from {website}",
       "title": "Fill in answers from your website"
-    }
-  },
-  "WorkspaceSetupNotice": {
-    "fallback": "If the button does not work, copy and paste this link into your browser: ",
-    "greeting": "Hi {firstName},",
-    "planFailed": {
-      "body": "Mate could not finish the plan for your workspace. Your answers are saved: open the setup to try again or adjust them.",
-      "bodyNamed": "Mate could not finish the plan for {workspace}. Your answers are saved: open the setup to try again or adjust them.",
-      "cta": "Open the setup",
-      "subject": "Your workspace plan needs another try",
-      "subjectNamed": "Your plan for {workspace} needs another try",
-      "title": "Your plan needs another try"
-    },
-    "planReady": {
-      "body": "Mate has drafted the lists, pipeline, dashboard and Knowledge Base pages for your workspace. Review the plan and build your workspace in one step.",
-      "bodyNamed": "Mate has drafted the lists, pipeline, dashboard and Knowledge Base pages for {workspace}. Review the plan and build the workspace in one step.",
-      "cta": "Review your plan",
-      "subject": "Your workspace plan is ready",
-      "subjectNamed": "Your plan for {workspace} is ready",
-      "title": "Your plan is ready"
-    },
-    "workspaceFailed": {
-      "body": "Mate built most of your workspace, but some parts could not be finished. Open the setup to try them again.",
-      "bodyNamed": "Mate built most of {workspace}, but some parts could not be finished. Open the setup to try them again.",
-      "cta": "Open the setup",
-      "subject": "Your workspace setup needs a look",
-      "subjectNamed": "The setup of {workspace} needs a look",
-      "title": "Some parts need a look"
-    },
-    "workspaceReady": {
-      "body": "Mate has built your workspace. Your lists, views and dashboard are waiting for you, and the Knowledge Base pages follow shortly.",
-      "bodyNamed": "Mate has built {workspace}. Your lists, views and dashboard are waiting for you, and the Knowledge Base pages follow shortly.",
-      "cta": "Open your workspace",
-      "subject": "Your workspace is ready",
-      "subjectNamed": "{workspace} is ready",
-      "title": "Your workspace is ready"
     }
   }
 }

@@ -15,6 +15,7 @@ import {
   getSearchRecordsInteractor,
 } from "@/core/di";
 import { serializeResult, settleOutcome } from "@/core/utils/action-result";
+import { isRedirect } from "@/features/auth/auth-outcome";
 
 export async function globalSearchAction(data: RecordSearch) {
   return serializeResult(getSearchRecordsInteractor().invoke(data));
@@ -41,7 +42,7 @@ export async function commandSearchAction(input: CommandSearchInput) {
         getSearchRecordsInteractor().invoke({ searchTerm: input.searchTerm, limit: 40, cursor: null }),
       )
     : null;
-  if (records && !records.ok) return serializeResult<CommandSearchResult>(records);
+  if (records && (isRedirect(records) || !records.ok)) return serializeResult<CommandSearchResult>(records);
   const recordMatched = (records?.data.results.length ?? 0) > 0;
   const catalog = await settleOutcome(
     getSearchCommandCatalogInteractor().invoke({
@@ -49,7 +50,7 @@ export async function commandSearchAction(input: CommandSearchInput) {
       semantic: input.semantic && !recordMatched,
     }),
   );
-  if (!catalog.ok) return serializeResult<CommandSearchResult>(catalog);
+  if (isRedirect(catalog) || !catalog.ok) return serializeResult<CommandSearchResult>(catalog);
   const result: CommandSearchResult = { ...catalog.data, records: records?.data ?? NO_RECORDS };
   return serializeResult<CommandSearchResult>({ ok: true as const, data: result });
 }

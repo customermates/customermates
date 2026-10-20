@@ -5,6 +5,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { addFromConfigure, backToConfigureGraph, openConfigureTab, configureDrawer, configureListCard, configureRow, configureTopBar, createConfiguredList, deleteSelectedList, openConfigure, openConfigureRow, saveDrawer, saveGeneral } from "./configure";
 import { expect, test, collectPageErrors } from "./fixtures";
 import { readModel } from "./api";
+import { e2eAppMode } from "./workspace-switching";
 
 const typeIdInUrl = (page: Page) => new URL(page.url()).searchParams.get("typeId");
 
@@ -244,7 +245,8 @@ test("shows the data model graph and edits lists, fields and relationships from 
     );
     await expect(deals.locator(`[data-configure-graph-field="${id("deal.name")}"]`)).toContainText("Name");
     await expect(graph.locator(`[data-configure-node="${id("lineItem")}"]`)).toContainText("Sub-list of Deals");
-    await expect(graph.locator("[data-configure-source]")).toHaveCount(1);
+    // Connected accounts (messaging) are cloud-only, so self-hosted shows no accounts card or connect prompt.
+    await expect(graph.locator("[data-configure-source]")).toHaveCount(e2eAppMode() === "self-hosted" ? 0 : 1);
     await fitView();
     for (const node of await graph.locator("[data-configure-node]").all()) await expect(node).toBeInViewport();
   });

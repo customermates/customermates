@@ -1,6 +1,9 @@
 import { hasLocale } from "next-intl";
 import { getRequestConfig } from "next-intl/server";
 
+import { env } from "@/env";
+
+import { messagesForErrorReporting } from "./error-reporting-messages";
 import { routing } from "./routing";
 
 export default getRequestConfig(async ({ requestLocale }) => {
@@ -9,6 +12,9 @@ export default getRequestConfig(async ({ requestLocale }) => {
 
   return {
     locale,
-    messages: (await import(`./locales/${locale}.json`)).default,
+    messages: messagesForErrorReporting(
+      (await import(`./locales/${locale}.json`)).default,
+      Boolean(env.NEXT_PUBLIC_SENTRY_DSN),
+    ),
   };
 });

@@ -53,7 +53,6 @@ export class CheckRecordIdentityInteractor extends AuthenticatedInteractor<
           const record = await this.records.getRecordCompanyWide(ref);
           if (!record) return failNotFound(CustomErrorCode.recordNotFound);
           if (!(await policy.canRead(record))) return failAuthorization(CustomErrorCode.permissionDenied);
-          if (record.protectedKind) return failAuthorization(CustomErrorCode.recordProtected);
         }
         const normalized = normalizedIdentity(input.identity);
         const lookup = normalized ?? input.identity;

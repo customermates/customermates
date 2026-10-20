@@ -219,7 +219,6 @@ export class RecordWriteService {
       const row = await this.records.getRecordCompanyWide(ref);
       if (!row || !(await policy.canRead(row))) reject(CustomErrorCode.recordNotFound, "not_found");
       if (!policy.allowed(ref.typeId, "delete")) reject(CustomErrorCode.permissionDenied, "authorization");
-      if (row.protectedKind) reject(CustomErrorCode.recordProtected, "authorization");
       deleted.set(key, row);
       add(ref);
       for (const edge of await this.records.getLinksCompanyWide(ref, limit * 4 + 1)) {
@@ -288,7 +287,6 @@ export class RecordWriteService {
     const current = ref ? await this.records.getRecordCompanyWide(ref) : null;
     if (ref) {
       if (!current || !(await policy.canRead(current))) reject(CustomErrorCode.recordNotFound, "not_found");
-      if (current.protectedKind) reject(CustomErrorCode.recordProtected, "authorization");
       if (
         (mutation.action === "delete" ||
           (mutation.action === "update" && !isAppendOnlyUpdate(mutation) && !isOrderOnlyUpdate(mutation))) &&
@@ -302,7 +300,6 @@ export class RecordWriteService {
     if (mutation.action === "link" || mutation.action === "unlink") {
       const row = await this.records.getRecordCompanyWide(mutation.target);
       if (!row || !(await policy.canRead(row))) reject(CustomErrorCode.recordNotFound, "not_found");
-      if (row.protectedKind) reject(CustomErrorCode.recordProtected, "authorization");
     }
     if (mutation.action === "create" || mutation.action === "update") {
       const existing = mutation.action === "update" ? current : null;
@@ -467,7 +464,6 @@ export class RecordWriteService {
       const row = await this.records.getRecordCompanyWide(ref);
       if (!row || !(await policy.canRead(row))) reject(CustomErrorCode.recordNotFound, "not_found");
       if (!policy.allowed(ref.typeId, action)) reject(CustomErrorCode.permissionDenied, "authorization");
-      if (row.protectedKind) reject(CustomErrorCode.recordProtected, "authorization");
       return row;
     };
     const link = async (relationId: string, source: RecordRef, target: RecordRef, remove = false) => {
@@ -478,7 +474,6 @@ export class RecordWriteService {
       const targetRow = await this.records.getRecordCompanyWide(target);
       if (!targetRow || (!fresh.has(recordKey(target)) && !(await policy.canRead(targetRow))))
         reject(CustomErrorCode.recordNotFound, "not_found");
-      if (targetRow.protectedKind) reject(CustomErrorCode.recordProtected, "authorization");
       if (type(source.typeId).parentRelationshipId === relationId) {
         if (remove) reject(CustomErrorCode.recordRelationConflict, "conflict");
         await editable(target);

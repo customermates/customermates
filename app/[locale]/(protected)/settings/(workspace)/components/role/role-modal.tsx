@@ -47,7 +47,7 @@ const SYSTEM_RESOURCE_ORDER = [
   Resource.company,
   Resource.dataModel,
   Resource.wiki,
-  Resource.auditLog,
+  Resource.activityLog,
   Resource.inboxMessages,
   Resource.routines,
 ];

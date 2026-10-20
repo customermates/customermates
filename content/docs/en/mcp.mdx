@@ -78,7 +78,7 @@ Choose **New page**, enter a title and write in the visual editor, which uses th
 
 To link another page, use the editor's link control or **Copy page link** in **Page actions**. These are ordinary Markdown links, and renaming a page keeps its address; no separate index or linking metadata is needed.
 
-Permissions follow the **Knowledge Base** row of your role: read access lets you view pages, **Create**, **Edit** and **Delete** let you create, edit and reorder, or delete pages, and each includes read access. If someone else changes a page before you save, your stale save is refused and your edits stay visible so you can reconcile them. **Delete page** moves a page to [Trash](/docs/app-trash), where it can be restored for 30 days. Changes appear on [Activity](app:settings/activity); seeing their Knowledge Base content needs both **Audit Log** access and Knowledge Base read access. The activity log is not a restore feature.
+Permissions follow the **Knowledge Base** row of your role: read access lets you view pages, **Create**, **Edit** and **Delete** let you create, edit and reorder, or delete pages, and each includes read access. If someone else changes a page before you save, your stale save is refused and your edits stay visible so you can reconcile them. **Delete page** moves a page to [Trash](/docs/app-trash), where it can be restored for 30 days. Changes appear on [Activity](app:settings/activity); seeing their Knowledge Base content needs both **Activity log** access and Knowledge Base read access. The activity log is not a restore feature.
 
 ### Operating Guide, procedures, and knowledge [#page-types]
 
@@ -380,7 +380,7 @@ List, search, read, create, update, reorder (move before or after another page) 
 
 ### Messaging
 
-Messaging-backed tools need a plan with messaging: Pro or higher, cloud only; Starter and self-hosted instances refuse them. Without it, `get_activities` still returns audit-log changes when the caller's role has **Read access** **All** on the **Audit Log** row; its message, connected-account and calendar sources need **Read access** on the **Inbox messages** row plus a plan with messaging.
+Messaging-backed tools need a plan with messaging: Pro or higher, cloud only; Starter and self-hosted instances refuse them. Without it, `get_activities` still returns activity-log changes when the caller's role has **Read access** **All** on the **Activity log** row; its message, connected-account and calendar sources need **Read access** on the **Inbox messages** row plus a plan with messaging.
 
 `connect_messaging_account` also needs **Create** on **Inbox messages** and a free account slot: Pro allows [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, Business [[commercial.entitlement.business.includedAccountsPerUser]], Max [[commercial.entitlement.max.includedAccountsPerUser]] and Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]].
 
@@ -405,19 +405,19 @@ Three modes: list: "calendars" (default) lists the calendars of accessible conne
 
 #### `send_chat_message`
 
-Delivers immediately. With threadId replies in an existing chat; with connectedAccountId plus attendeeIdentifiers starts a new one (optional chatName names a group). To send a saved draft, pass both draftMessageId and draftRevision. New LinkedIn chats default to Classic; set linkedinProduct to sales_navigator or recruiter to send an InMail (needs inmailSubject), or inmail:true to InMail someone outside your network on Classic.
+Delivers immediately. With threadId replies in an existing chat or sends the draft of a conversation that exists only as a draft; with connectedAccountId plus attendeeIdentifiers starts a new one (optional chatName names a group). To send a saved draft, pass both draftMessageId and draftRevision; each draft revision is sent at most once, and repeating the call returns the first result with `repeated: true`. New LinkedIn chats default to Classic; set linkedinProduct to sales_navigator or recruiter to send an InMail (needs inmailSubject), or inmail:true to InMail someone outside your network on Classic.
 
 Required: `text`. Optional: `threadId`, `draftMessageId`, `draftRevision`, `connectedAccountId`, `attendeeIdentifiers`, `chatName`, `linkedinProduct`, `inmail`, `inmailSubject`, `inmailSignature`.
 
 #### `send_email`
 
-Delivers immediately. Send or reply from a connected email account; sending a saved draft requires both draftMessageId and draftRevision. The account's enabled signature is appended automatically, so never write a sign-off into the body.
+Delivers immediately. Send or reply from a connected email account; sending a saved draft requires both draftMessageId and draftRevision, and threadId may be the draft's own conversation. Each draft revision is sent at most once: repeating the call returns the first result with `repeated: true`, and a draft that changed or whose earlier send could not be confirmed is refused without sending. The account's enabled signature is appended automatically, so never write a sign-off into the body.
 
 Required: `to`, `subject`, `body`. Optional: `threadId`, `connectedAccountId`, `cc`, `bcc`, `bodyFormat`, `attachments`, `draftMessageId`, `draftRevision`.
 
 #### `save_message_draft`
 
-Prepare a message for review: the draft shows up in the inbox and the user sends it. With `threadId` it drafts a reply; with `connectedAccountId` plus `recipients` it prepares a brand-new conversation that exists only as a draft. Returns the message id and opaque revision token; saving again updates the thread's one draft. The signature is appended when the draft is sent, so never write a sign-off into the body.
+Prepare a message for review: the draft shows up in the inbox and the user sends it. With `threadId` it drafts a reply or updates that conversation's one draft; with `connectedAccountId` plus `recipients` every call prepares another brand-new conversation that exists only as a draft. Returns the message id, opaque revision token and thread id. The signature is appended when the draft is sent, so never write a sign-off into the body.
 
 Required: `body`. Optional: `threadId`, `connectedAccountId`, `recipients`, `subject`, `cc`, `bcc`.
 

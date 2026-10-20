@@ -90,7 +90,7 @@ async function createWorkspace() {
     });
     await fixtureClient().rolePermission.createMany({
       data: [
-        { companyId: company.id, roleId: memberRole.id, resource: "auditLog", action: "readAll" },
+        { companyId: company.id, roleId: memberRole.id, resource: "activityLog", action: "readAll" },
         { companyId: company.id, roleId: memberRole.id, resource: "inboxMessages", action: "readOwn" },
       ],
     });
@@ -201,7 +201,7 @@ async function queryActivity(user: TenantUser) {
       ).load();
       const model = await workspace.repo.getModel();
       const available: ActivityKind[] = [];
-      if (policy.allowedSystem("auditLog", "readAll")) available.push("record", "audit", "configuration");
+      if (policy.allowedSystem("activityLog", "readAll")) available.push("record", "audit", "configuration");
       if (policy.canReadSystem("inboxMessages")) available.push("message", "activity", "calendar_event");
       return { policy, model, available, access: policy.access(model.types.map((type) => type.id)) };
     }),

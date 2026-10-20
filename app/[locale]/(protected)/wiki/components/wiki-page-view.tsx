@@ -43,7 +43,7 @@ import { WikiPageActions } from "./wiki-page-actions";
 import { WikiProposals } from "./wiki-proposals";
 import { WikiProposalsEntry } from "./wiki-proposals-entry";
 import { WikiProposalsStore } from "./wiki-proposals.store";
-import { WikiPageOutline } from "./wiki-page-outline";
+import { WIKI_HEADING_ID_PREFIX, WikiPageOutline } from "./wiki-page-outline";
 import { WikiPageSkeleton } from "./wiki-page-skeleton";
 import { WikiLinkPicker } from "./wiki-link-picker";
 import { WikiPageRail } from "./wiki-page-rail";
@@ -89,7 +89,6 @@ const WikiPageViewContent = observer(function WikiPageView({
   useNavigationGuard(store);
   const formId = useId();
   const titleContainer = useRef<HTMLDivElement>(null);
-  const documentContainer = useRef<HTMLDivElement>(null);
   const pages = useWikiPages(listPage);
   const userStore = rootStore.userStore as typeof rootStore.userStore | undefined;
   const canReviewProposals = typeof userStore?.can === "function" && userStore.can(Resource.wiki, Action.update);
@@ -287,10 +286,10 @@ const WikiPageViewContent = observer(function WikiPageView({
       documentBody = (
         <AppForm id={formId} store={store}>
           <div
-            className="mx-auto grid w-full max-w-6xl flex-1 items-start gap-12 px-6 py-8 md:px-10 md:py-10 @min-[68rem]/wiki:grid-cols-[minmax(0,48rem)_12rem] @min-[68rem]/wiki:justify-center"
+            className="mx-auto grid w-full max-w-6xl flex-1 items-start gap-6 px-6 py-8 md:px-10 md:py-10 @min-[58rem]/wiki:grid-cols-[minmax(0,48rem)_12rem] @min-[58rem]/wiki:justify-center"
             data-wiki-document-layout=""
           >
-            <div ref={documentContainer} className="mx-auto w-full max-w-3xl min-w-0 space-y-6 @min-[68rem]/wiki:mx-0">
+            <div className="mx-auto w-full max-w-3xl min-w-0 space-y-6 @min-[58rem]/wiki:mx-0">
               {store.conflict && (
                 <Alert color="warning">
                   <div className="flex flex-wrap items-center justify-between gap-3">
@@ -369,13 +368,14 @@ const WikiPageViewContent = observer(function WikiPageView({
               <EditorLinkPickerContext.Provider value={WikiLinkPicker}>
                 <Editor
                   data={store.editorDocument}
+                  headingIdPrefix={WIKI_HEADING_ID_PREFIX}
                   readOnly={!canManage || store.isLoading}
                   onChange={store.onEditorChange}
                 />
               </EditorLinkPickerContext.Provider>
             </div>
 
-            <WikiPageOutline containerRef={documentContainer} document={store.editorDocument} />
+            <WikiPageOutline document={store.editorDocument} />
           </div>
         </AppForm>
       );

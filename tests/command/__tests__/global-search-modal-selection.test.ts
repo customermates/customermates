@@ -284,7 +284,7 @@ describe("GlobalSearchModal highlighted hit", () => {
       schemaRevision: 1,
       canManageSchema: false,
       hasLists: true,
-      types: [{ id: deals, label: "Deal", pluralLabel: "Deals", icon: "handshake", canCreate: false, hasAuthorizationTasks: false }],
+      types: [{ id: deals, label: "Deal", pluralLabel: "Deals", icon: "handshake", canCreate: false }],
     };
     const store = await openWith([]);
     await mutate(() => {

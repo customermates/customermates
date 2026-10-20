@@ -2,6 +2,9 @@ import { randomUUID } from "node:crypto";
 
 import { collectPageErrors, expect, test } from "./fixtures";
 import { invokesServerAction, serverActionIds } from "./server-actions";
+import { e2eAppMode } from "./workspace-switching";
+
+test.skip(e2eAppMode() === "self-hosted", "The Inbox and its subscription plans are available on Customermates Cloud only");
 
 test("a locked German phone Inbox stays quiet and recovers when the subscription resumes", async ({
   page,

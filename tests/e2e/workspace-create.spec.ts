@@ -63,7 +63,10 @@ test("an extra cloud workspace asks for a plan before its onboarding and the pla
   const dialog = await fillCreateWorkspace(page, name);
   await expect(dialog).toContainText(englishMessages.Workspaces.billingNote);
   await dialog.getByRole("button", { name: "Create workspace", exact: true }).click();
-  await expect(dialog).toContainText(englishMessages.Common.errors.termsNotAgreed);
+  await expect(
+    page.locator("[data-sonner-toast]").filter({ hasText: englishMessages.Common.errors.termsNotAgreed }),
+  ).toBeVisible();
+  await expect(dialog.locator("#create-workspace-terms")).toHaveAttribute("aria-invalid", "true");
   expect(await createdWorkspace(database, name)).toEqual([]);
   await page.screenshot({ path: testInfo.outputPath("ws-create-modal-terms.png") });
   await dialog.locator("#create-workspace-terms").click();

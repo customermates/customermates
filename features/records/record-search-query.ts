@@ -15,7 +15,6 @@ export type RecordSearchRow = {
   state: string;
   title: string | null;
   errorCode: string | null;
-  protectedKind?: string | null;
   pictureUrl: string | null;
 };
 
@@ -79,9 +78,9 @@ export function compileRecordSearch(
       ? Prisma.sql`(record."createdAt" < (${cursor.createdAt}::timestamptz AT TIME ZONE 'UTC') OR (record."createdAt" = (${cursor.createdAt}::timestamptz AT TIME ZONE 'UTC') AND (${type.id}, record.id) > (${cursor.ref.typeId}, ${cursor.ref.recordId})))`
       : Prisma.sql`TRUE`;
     const candidates = Prisma.sql`WITH matches AS MATERIALIZED (${matching})
-      SELECT record.id, record."typeId", record."createdAt", record.version, record."protectedKind" FROM matches matched
+      SELECT record.id, record."typeId", record."createdAt", record.version FROM matches matched
       JOIN LATERAL (
-        SELECT id, "companyId", "typeId", "createdAt", version, "protectedKind" FROM "CrmRecord"
+        SELECT id, "companyId", "typeId", "createdAt", version FROM "CrmRecord"
         WHERE "companyId" = ${companyId} AND "typeId" = ${type.id} AND id = matched.id AND "deletedAt" IS NULL
         OFFSET 0
       ) record ON TRUE
@@ -90,7 +89,7 @@ export function compileRecordSearch(
         ${similar !== null ? Prisma.sql`AND ${titleAccess}` : Prisma.empty}
       ORDER BY ${similar !== null ? Prisma.sql`matched.similarity DESC,` : Prisma.empty} record."createdAt" DESC, record.id ASC
       LIMIT ${pageLimit}`;
-    return Prisma.sql`SELECT record."typeId", record.id AS "recordId", record."createdAt", record.version, record."protectedKind",
+    return Prisma.sql`SELECT record."typeId", record.id AS "recordId", record."createdAt", record.version,
       CASE WHEN ${titleAccess} THEN COALESCE(title.state, 'missing') ELSE 'restricted' END AS state,
       CASE WHEN ${titleAccess} AND title.state = 'value' THEN title."textValue" ELSE NULL END AS title,
       CASE WHEN ${titleAccess} AND title.state = 'error' THEN title."errorCode" ELSE NULL END AS "errorCode",
@@ -103,7 +102,7 @@ export function compileRecordSearch(
   const after = cursor
     ? Prisma.sql`("createdAt" < (${cursor.createdAt}::timestamptz AT TIME ZONE 'UTC') OR ("createdAt" = (${cursor.createdAt}::timestamptz AT TIME ZONE 'UTC') AND ("typeId", "recordId") > (${cursor.ref.typeId}, ${cursor.ref.recordId})))`
     : Prisma.sql`TRUE`;
-  const sql = Prisma.sql`SELECT "typeId", "recordId", to_char("createdAt", 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "createdAt", version, state, title, "errorCode", "pictureUrl", "protectedKind"
+  const sql = Prisma.sql`SELECT "typeId", "recordId", to_char("createdAt", 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "createdAt", version, state, title, "errorCode", "pictureUrl"
     FROM (${Prisma.join(branches, " UNION ALL ")}) records WHERE ${after}
     ORDER BY ${similarTerm !== null ? Prisma.sql`COALESCE(word_similarity(${similarTerm}, title), 0) DESC,` : Prisma.empty} "createdAt" DESC, "typeId" ASC, "recordId" ASC LIMIT ${"search" in request ? request.search.limit + 1 : request.refs.length}`;
   if (sql.values.length > 12000 || sql.sql.length > 1500000)

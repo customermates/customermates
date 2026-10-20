@@ -80,7 +80,6 @@ function trashedRecord() {
     },
     model: { revision: 7, types: [], fields: [], relationships: [], accessPresets: [], capabilities: [] },
     permittedActions: [],
-    systemActions: [],
     canManageSchema: false,
     linkColors: {},
     linkIcons: {},

@@ -13,6 +13,9 @@ import type { RecordActivityQuery } from "../../ee/messaging/activities/record-a
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { test, expect, collectPageErrors } from "./fixtures";
 import { readModel } from "./api";
+import { e2eAppMode } from "./workspace-switching";
+
+test.skip(e2eAppMode() === "self-hosted", "Messaging (inbox messages in activity widgets) is cloud-only");
 
 async function mutation(page: Page, current: RecordModel, change: RecordMutation) {
   const response = await page.request.post("/api/v1/records/mutate", {

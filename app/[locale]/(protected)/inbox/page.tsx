@@ -31,7 +31,7 @@ type Props = {
 export default async function InboxPage({ searchParams }: Props) {
   await requireAccess({ resource: Resource.inboxMessages });
 
-  if (env.APP_MODE === "self-hosted") redirect("/dashboard");
+  if (env.APP_MODE === "self-hosted") redirect(buildLocalePath(await getLocale(), "/dashboard"));
 
   const messaging = await unwrapPage(getGetMessagingAccountsStateInteractor().invoke());
   const locked = messaging.state !== "available";

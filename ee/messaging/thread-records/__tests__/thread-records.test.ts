@@ -100,11 +100,9 @@ describe("conversation record authorization and atomic mutation", () => {
     expect(f.links.link).not.toHaveBeenCalled();
   });
 
-  it("blocks protected records, paused writes and stale configuration before mutation", async () => {
-    for (const mode of ["protected", "paused", "stale"]) {
+  it("blocks paused writes and stale configuration before mutation", async () => {
+    for (const mode of ["paused", "stale"]) {
       const f = fixture();
-      if (mode === "protected")
-        f.records.getRecordCompanyWide.mockResolvedValue({ protectedKind: "membershipAuthorization" });
       if (mode === "paused") f.records.getState.mockResolvedValue({ activeOperationId: threadId });
       const result = await f.mutate.invoke({
         ...input,

@@ -3,14 +3,26 @@
 import type { SetupAnswerValue } from "@/features/workspace-setup/setup-answers.schema";
 import type { SetupQuestionDescriptor } from "./setup-question-descriptor";
 
-import { ArrowDown, ArrowUp, Plus, Sparkles, X } from "lucide-react";
-import { useState } from "react";
+import type { DragEndEvent } from "@dnd-kit/core";
+
+import { closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { Plus, Sparkles, X } from "lucide-react";
+import { useId, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { FormAutocompleteCountry } from "@/components/forms/form-autocomplete-country";
 import { FormAutocompleteCurrency } from "@/components/forms/form-autocomplete-currency";
 import { FormControlRow } from "@/components/forms/form-control-row";
 import { FormLabel } from "@/components/forms/form-label";
+import { DragHandle } from "@/components/shared/drag-handle";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
@@ -36,7 +48,13 @@ type FieldProps<F extends SetupQuestionDescriptor["format"]> = {
   disabled?: boolean;
 };
 
-function SingleChoiceField({ descriptor, value, onChange, disabled }: FieldProps<"singleChoice">) {
+function SingleChoiceField({
+  descriptor,
+  value,
+  onChange,
+  disabled,
+  invalid,
+}: FieldProps<"singleChoice"> & { invalid?: boolean }) {
   const t = useTranslations();
   const select = (id: string) => onChange({ format: "singleChoice", value: id });
 
@@ -78,7 +96,7 @@ function SingleChoiceField({ descriptor, value, onChange, disabled }: FieldProps
   return (
     <SetupChoiceGroup disabled={disabled} label={descriptor.label} value={value?.value ?? null} onValueChange={select}>
       {options.map((option) => (
-        <SetupRadioChip key={option.id} checked={value?.value === option.id} value={option.id}>
+        <SetupRadioChip key={option.id} checked={value?.value === option.id} invalid={invalid} value={option.id}>
           {option.label}
         </SetupRadioChip>
       ))}
@@ -86,7 +104,13 @@ function SingleChoiceField({ descriptor, value, onChange, disabled }: FieldProps
   );
 }
 
-function MultipleChoiceField({ descriptor, value, onChange, disabled }: FieldProps<"multipleChoice">) {
+function MultipleChoiceField({
+  descriptor,
+  value,
+  onChange,
+  disabled,
+  invalid,
+}: FieldProps<"multipleChoice"> & { invalid?: boolean }) {
   const values = value?.values ?? [];
   const custom = value?.custom ?? [];
   const update = (next: { values?: string[]; custom?: string[] }) =>
@@ -99,6 +123,7 @@ function MultipleChoiceField({ descriptor, value, onChange, disabled }: FieldPro
           key={option.id}
           checked={values.includes(option.id)}
           disabled={disabled}
+          invalid={invalid}
           onCheckedChange={(checked) =>
             update({ values: checked ? [...values, option.id] : values.filter((id) => id !== option.id) })
           }
@@ -133,108 +158,164 @@ function MultipleChoiceField({ descriptor, value, onChange, disabled }: FieldPro
   );
 }
 
-function OrderedListField({ descriptor, value, onChange, disabled }: FieldProps<"orderedList">) {
+const nextOrderedRowKey = () => crypto.randomUUID();
+
+type OrderedItem = Extract<SetupAnswerValue, { format: "orderedList" }>["items"][number];
+
+function OrderedListRow({
+  rowKey,
+  item,
+  index,
+  winChance,
+  disabled,
+  invalid,
+  onChange,
+  onRemove,
+}: {
+  rowKey: string;
+  item: OrderedItem;
+  index: number;
+  winChance: boolean;
+  disabled?: boolean;
+  invalid?: boolean;
+  onChange: (item: OrderedItem) => void;
+  onRemove: () => void;
+}) {
   const t = useTranslations();
+  const sortable = useSortable({ id: rowKey, disabled });
+  const name = item.label.trim() || t("WorkspaceSetup.interview.entryLabel", { index: index + 1 });
+  return (
+    <li
+      ref={sortable.setNodeRef}
+      className={cn(
+        "col-span-full grid grid-cols-subgrid items-center rounded-md",
+        sortable.isDragging && "relative z-10 bg-card shadow-md",
+      )}
+      style={{ transform: CSS.Translate.toString(sortable.transform), transition: sortable.transition }}
+    >
+      <Input
+        aria-invalid={invalid && !item.label.trim() ? true : undefined}
+        aria-label={t("WorkspaceSetup.interview.entryLabel", { index: index + 1 })}
+        disabled={disabled}
+        maxLength={80}
+        value={item.label}
+        onChange={(event) => onChange({ ...item, label: event.target.value })}
+      />
+
+      {winChance ? (
+        <FormControlRow>
+          <Input
+            aria-label={t("WorkspaceSetup.interview.winChanceFor", { index: index + 1 })}
+            className="pr-7 text-right"
+            disabled={disabled}
+            inputMode="numeric"
+            max={100}
+            min={0}
+            type="number"
+            value={item.winChance ?? ""}
+            onChange={(event) => {
+              const raw = event.target.value;
+              const parsed = Math.round(Number(raw));
+              const next = raw === "" || Number.isNaN(parsed) ? undefined : Math.min(100, Math.max(0, parsed));
+              onChange({ label: item.label, winChance: next });
+            }}
+          />
+
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-muted-foreground"
+          >
+            %
+          </span>
+        </FormControlRow>
+      ) : null}
+
+      <IconButton fieldAction disabled={disabled} icon={X} label={t("Common.actions.remove")} onClick={onRemove} />
+
+      <DragHandle
+        attributes={sortable.attributes}
+        className={cn(disabled && "invisible")}
+        label={t("DataView.dragToReorderNamed", { name })}
+        listeners={sortable.listeners}
+        setActivatorNodeRef={sortable.setActivatorNodeRef}
+      />
+    </li>
+  );
+}
+
+function OrderedListField({
+  descriptor,
+  value,
+  onChange,
+  disabled,
+  invalid,
+}: FieldProps<"orderedList"> & { invalid?: boolean }) {
+  const t = useTranslations();
+  const dndId = useId();
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
   const items = value?.items ?? [];
-  const update = (next: typeof items) => onChange({ format: "orderedList", items: next });
-  const move = (index: number, offset: number) => {
-    const next = [...items];
-    const [item] = next.splice(index, 1);
-    next.splice(index + offset, 0, item);
-    update(next);
+  const [rowKeys, setRowKeys] = useState<string[]>(() => items.map(nextOrderedRowKey));
+  const keys =
+    rowKeys.length === items.length ? rowKeys : items.map((_, index) => rowKeys[index] ?? nextOrderedRowKey());
+  if (keys !== rowKeys) setRowKeys(keys);
+  const update = (next: OrderedItem[], nextKeys: string[]) => {
+    setRowKeys(nextKeys);
+    onChange({ format: "orderedList", items: next });
+  };
+  const handleDragEnd = ({ active, over }: DragEndEvent) => {
+    if (disabled || !over || active.id === over.id) return;
+    const from = keys.indexOf(String(active.id));
+    const to = keys.indexOf(String(over.id));
+    if (from === -1 || to === -1) return;
+    update(arrayMove(items, from, to), arrayMove(keys, from, to));
   };
   const rowGrid = descriptor.winChance
-    ? "grid-cols-[1.25rem_minmax(0,1fr)_6rem_auto]"
-    : "grid-cols-[1.25rem_minmax(0,1fr)_auto]";
+    ? "grid-cols-[minmax(0,1fr)_6rem_auto_auto]"
+    : "grid-cols-[minmax(0,1fr)_auto_auto]";
 
   return (
     <div className="flex flex-col gap-2">
-      <div className={cn("grid items-center gap-2", rowGrid)}>
+      <div className={cn("grid items-center gap-x-2", rowGrid)}>
         {descriptor.winChance && items.length > 0 ? (
-          <div aria-hidden className="col-span-full grid grid-cols-subgrid">
-            <span className="col-start-3 truncate text-right text-xs font-medium text-muted-foreground">
+          <div aria-hidden className="col-span-full grid grid-cols-subgrid pb-1">
+            <span className="col-start-2 truncate text-right text-xs font-medium text-muted-foreground">
               {t("WorkspaceSetup.actions.winChance")}
             </span>
           </div>
         ) : null}
 
-        <ol aria-label={descriptor.label} className="col-span-full grid grid-cols-subgrid gap-y-2">
-          {items.map((item, index) => (
-            <li
-              key={index}
-              className="col-span-full grid animate-page-result-in grid-cols-subgrid items-center motion-reduce:animate-none"
-            >
-              <span aria-hidden className="text-right text-xs text-muted-foreground tabular-nums">
-                {index + 1}
-              </span>
-
-              <Input
-                aria-label={t("WorkspaceSetup.interview.entryLabel", { index: index + 1 })}
-                disabled={disabled}
-                maxLength={80}
-                value={item.label}
-                onChange={(event) =>
-                  update(items.map((entry, at) => (at === index ? { ...entry, label: event.target.value } : entry)))
-                }
-              />
-
-              {descriptor.winChance ? (
-                <FormControlRow>
-                  <Input
-                    aria-label={t("WorkspaceSetup.interview.winChanceFor", { index: index + 1 })}
-                    className="pr-7 text-right"
-                    disabled={disabled}
-                    inputMode="numeric"
-                    max={100}
-                    min={0}
-                    type="number"
-                    value={item.winChance ?? ""}
-                    onChange={(event) => {
-                      const raw = event.target.value;
-                      const parsed = Math.round(Number(raw));
-                      const winChance =
-                        raw === "" || Number.isNaN(parsed) ? undefined : Math.min(100, Math.max(0, parsed));
-                      update(items.map((entry, at) => (at === index ? { label: entry.label, winChance } : entry)));
-                    }}
-                  />
-
-                  <span
-                    aria-hidden
-                    className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-muted-foreground"
-                  >
-                    %
-                  </span>
-                </FormControlRow>
-              ) : null}
-
-              <div className="flex items-center gap-1">
-                <IconButton
-                  fieldAction
-                  disabled={disabled || index === 0}
-                  icon={ArrowUp}
-                  label={t("WorkspaceSetup.interview.moveUp")}
-                  onClick={() => move(index, -1)}
-                />
-
-                <IconButton
-                  fieldAction
-                  disabled={disabled || index === items.length - 1}
-                  icon={ArrowDown}
-                  label={t("WorkspaceSetup.interview.moveDown")}
-                  onClick={() => move(index, 1)}
-                />
-
-                <IconButton
-                  fieldAction
+        <DndContext collisionDetection={closestCenter} id={dndId} sensors={sensors} onDragEnd={handleDragEnd}>
+          <SortableContext items={keys} strategy={verticalListSortingStrategy}>
+            <ol aria-label={descriptor.label} className="col-span-full grid grid-cols-subgrid gap-y-2">
+              {items.map((item, index) => (
+                <OrderedListRow
+                  key={keys[index]}
                   disabled={disabled}
-                  icon={X}
-                  label={t("Common.actions.remove")}
-                  onClick={() => update(items.filter((_, at) => at !== index))}
+                  index={index}
+                  invalid={invalid}
+                  item={item}
+                  rowKey={keys[index]}
+                  winChance={descriptor.winChance}
+                  onChange={(next) =>
+                    update(
+                      items.map((entry, at) => (at === index ? next : entry)),
+                      keys,
+                    )
+                  }
+                  onRemove={() =>
+                    update(
+                      items.filter((_, at) => at !== index),
+                      keys.filter((_, at) => at !== index),
+                    )
+                  }
                 />
-              </div>
-            </li>
-          ))}
-        </ol>
+              ))}
+            </ol>
+          </SortableContext>
+        </DndContext>
       </div>
 
       <div>
@@ -243,7 +324,7 @@ function OrderedListField({ descriptor, value, onChange, disabled }: FieldProps<
           size="sm"
           type="button"
           variant="secondary"
-          onClick={() => update([...items, { label: "" }])}
+          onClick={() => update([...items, { label: "" }], [...keys, nextOrderedRowKey()])}
         >
           <Plus aria-hidden />
 
@@ -254,7 +335,13 @@ function OrderedListField({ descriptor, value, onChange, disabled }: FieldProps<
   );
 }
 
-function RankedPickField({ descriptor, value, onChange, disabled }: FieldProps<"rankedPick">) {
+function RankedPickField({
+  descriptor,
+  value,
+  onChange,
+  disabled,
+  invalid,
+}: FieldProps<"rankedPick"> & { invalid?: boolean }) {
   const t = useTranslations();
   const picks = value?.values ?? [];
   const full = picks.length >= descriptor.maxPicks;
@@ -268,6 +355,7 @@ function RankedPickField({ descriptor, value, onChange, disabled }: FieldProps<"
           return (
             <Toggle
               key={option.id}
+              aria-invalid={invalid && !picked ? true : undefined}
               aria-label={
                 picked ? t("WorkspaceSetup.interview.rankedOption", { rank: rank + 1, label: option.label }) : undefined
               }
@@ -400,9 +488,16 @@ function RangeField({
   );
 }
 
-function ShortTextField({ descriptor, value, onChange, disabled }: FieldProps<"shortText">) {
+function ShortTextField({
+  descriptor,
+  value,
+  onChange,
+  disabled,
+  invalid,
+}: FieldProps<"shortText"> & { invalid?: boolean }) {
   const t = useTranslations();
   const props = {
+    "aria-invalid": invalid || undefined,
     "aria-label": descriptor.label,
     disabled,
     maxLength: descriptor.maxLength,
@@ -424,15 +519,17 @@ type Props = {
   disabled?: boolean;
   fromWebsite?: boolean;
   currency?: string | null;
+  invalid?: boolean;
 };
 
-function FieldBody({ descriptor, value, onChange, disabled, currency }: Omit<Props, "fromWebsite">) {
+function FieldBody({ descriptor, value, onChange, disabled, currency, invalid }: Omit<Props, "fromWebsite">) {
   switch (descriptor.format) {
     case "singleChoice":
       return (
         <SingleChoiceField
           descriptor={descriptor}
           disabled={disabled}
+          invalid={invalid}
           value={value?.format === "singleChoice" ? value : null}
           onChange={onChange}
         />
@@ -442,6 +539,7 @@ function FieldBody({ descriptor, value, onChange, disabled, currency }: Omit<Pro
         <MultipleChoiceField
           descriptor={descriptor}
           disabled={disabled}
+          invalid={invalid}
           value={value?.format === "multipleChoice" ? value : null}
           onChange={onChange}
         />
@@ -451,6 +549,7 @@ function FieldBody({ descriptor, value, onChange, disabled, currency }: Omit<Pro
         <OrderedListField
           descriptor={descriptor}
           disabled={disabled}
+          invalid={invalid}
           value={value?.format === "orderedList" ? value : null}
           onChange={onChange}
         />
@@ -460,6 +559,7 @@ function FieldBody({ descriptor, value, onChange, disabled, currency }: Omit<Pro
         <RankedPickField
           descriptor={descriptor}
           disabled={disabled}
+          invalid={invalid}
           value={value?.format === "rankedPick" ? value : null}
           onChange={onChange}
         />
@@ -479,6 +579,7 @@ function FieldBody({ descriptor, value, onChange, disabled, currency }: Omit<Pro
         <ShortTextField
           descriptor={descriptor}
           disabled={disabled}
+          invalid={invalid}
           value={value?.format === "shortText" ? value : null}
           onChange={onChange}
         />
@@ -490,9 +591,14 @@ export function SetupQuestionField({ descriptor, fromWebsite = false, ...props }
   const t = useTranslations();
   const labelId = `setup-question-${descriptor.id}`;
   return (
-    <div aria-labelledby={labelId} className="flex flex-col gap-1.5" role="group">
+    <div
+      aria-labelledby={labelId}
+      className="flex flex-col gap-1.5"
+      data-invalid={props.invalid || undefined}
+      role="group"
+    >
       <div className="flex flex-wrap items-center gap-1.5">
-        <FormLabel id={labelId}>
+        <FormLabel className={cn(props.invalid && "text-destructive")} id={labelId}>
           {descriptor.label}
 
           {descriptor.optional ? null : <span className="text-destructive"> *</span>}

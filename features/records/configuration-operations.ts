@@ -104,15 +104,21 @@ export async function applyConfigurationOperations(
     if (operation.operation === "putType") {
       const input = resolveDefinition(operation.type) as Omit<RecordModel["types"][number], "archived">;
       const existing = current.types.find((candidate) => candidate.id === input.id);
+      const archivedPaths = (existing?.relationshipPaths ?? []).filter(
+        (path) => path.archived && !input.relationshipPaths?.some((entry) => entry.id === path.id),
+      );
       const type = {
         ...input,
         archived: existing?.archived ?? false,
-        ...(input.relationshipPaths
+        ...(input.relationshipPaths || archivedPaths.length
           ? {
-              relationshipPaths: input.relationshipPaths.map((path) => ({
-                ...path,
-                archived: existing?.relationshipPaths?.find((before) => before.id === path.id)?.archived ?? false,
-              })),
+              relationshipPaths: [
+                ...(input.relationshipPaths ?? []).map((path) => ({
+                  ...path,
+                  archived: existing?.relationshipPaths?.find((before) => before.id === path.id)?.archived ?? false,
+                })),
+                ...archivedPaths,
+              ],
             }
           : {}),
       } as RecordModel["types"][number];
@@ -170,15 +176,7 @@ export async function applyConfigurationOperations(
       const binding = resolveDefinition(operation.capability) as RecordModel["capabilities"][number];
       const existing = current.capabilities.find((candidate) => candidate.id === binding.id);
       if (!policy.isAdmin) throw unwindFailure(CustomErrorCode.permissionDenied, "authorization");
-      const protectedKind = (kind: string) => kind === "membershipAuthorization";
-      const anotherProtected = model.capabilities.some(
-        (candidate) => candidate.id !== binding.id && protectedKind(candidate.kind),
-      );
-      if (
-        (existing && (existing.typeId !== binding.typeId || existing.kind !== binding.kind)) ||
-        (existing && protectedKind(existing.kind) && JSON.stringify(existing) !== JSON.stringify(binding)) ||
-        (!existing && protectedKind(binding.kind) && anotherProtected)
-      )
+      if (existing && (existing.typeId !== binding.typeId || existing.kind !== binding.kind))
         throw unwindFailure(CustomErrorCode.recordProtected, "authorization");
       upsert(model.capabilities, binding);
     }

@@ -159,7 +159,7 @@ function allowedProps(): Omit<NavigationSwitchProps, "children"> {
       role: { isSystemRole: true, permissions: [] },
     },
     subscription: null,
-    systemTaskCount: 0,
+    pendingMemberCount: 0,
     trialDaysLeft: null,
     unreadThreadCount: 0,
     userDisplayLanguage: "en",

@@ -147,6 +147,7 @@ test("global shortcuts, G navigation, the shortcuts dialog and the single-key pr
   await expect(dialog.locator("[data-shortcut-row=goDashboard] kbd")).toHaveText(["G", "D"]);
   await expect(dialog.locator("[data-shortcut-row=goDashboard]")).toContainText("then");
   await expect(dialog.locator("[data-shortcut-row=goList] kbd")).toHaveText(["G", "1–9"]);
+  await expect(dialog.locator("[data-shortcut-row=goWorkspaces]")).toHaveCount(0);
   await expect(dialog.locator("[data-shortcut-row=save] kbd")).toHaveText(mod.key === "Meta" ? "⌘↵" : "Ctrl+Enter");
   await dialog.getByRole("searchbox", { name: "Search shortcuts" }).fill("view");
   await expect(dialog.locator("[data-shortcut-row]")).toHaveCount(1);

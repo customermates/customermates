@@ -9,7 +9,7 @@ import {
   addMembership,
   addOrganization,
   apiKeyRequest,
-  approvalTaskCount,
+  pendingRequestCount,
   createNamedLogin,
   joinFromInvitation,
   loginEmail,
@@ -74,7 +74,7 @@ test("a member joins, withdraws, rejoins, works, leaves and is removed across th
       const link = await readInvitationLink(admin.page);
       await joinByLink(page, link);
       expect(await membership()).toMatchObject({ status: "pendingAuthorization", left: false });
-      await expect.poll(() => approvalTaskCount(database, hoffmann.companyId, email)).toBe(1);
+      await expect.poll(() => pendingRequestCount(database, hoffmann.companyId, email)).toBe(1);
       await shot(page, "pending");
 
       await clickHydrated(page.locator("#pending-withdraw"));
@@ -85,7 +85,7 @@ test("a member joins, withdraws, rejoins, works, leaves and is removed across th
       await expect(page).toHaveURL(/\/en\/dashboard$/);
       await expectCurrentWorkspace(page, "Browser workspace");
       expect(await membership()).toMatchObject({ status: "inactive", left: true });
-      expect(await approvalTaskCount(database, hoffmann.companyId, email)).toBe(0);
+      expect(await pendingRequestCount(database, hoffmann.companyId, email)).toBe(0);
 
       expect(await readInvitationLink(admin.page)).toBe(link);
       await expect(memberItem(admin.page, "Anna Hoffmann")).toBeVisible();
@@ -104,7 +104,7 @@ test("a member joins, withdraws, rejoins, works, leaves and is removed across th
       await member.getByRole("button", { name: "Save", exact: true }).click();
       await expect(member).not.toBeVisible();
       await expect.poll(async () => (await membership())?.status).toBe("active");
-      expect(await approvalTaskCount(database, hoffmann.companyId, email)).toBe(0);
+      expect(await pendingRequestCount(database, hoffmann.companyId, email)).toBe(0);
 
       await clickHydrated(page.getByRole("button", { name: englishMessages.Common.actions.refresh, exact: true }));
       await expect(page).toHaveURL(/\/en\/dashboard$/);
@@ -156,7 +156,7 @@ test("a member joins, withdraws, rejoins, works, leaves and is removed across th
 
       await joinByLink(page, await readInvitationLink(admin.page));
       expect(await membership()).toMatchObject({ status: "pendingAuthorization", left: false });
-      await expect.poll(() => approvalTaskCount(database, hoffmann.companyId, email)).toBe(1);
+      await expect.poll(() => pendingRequestCount(database, hoffmann.companyId, email)).toBe(1);
 
       await admin.page.goto("/en/settings/members");
       const row = memberItem(admin.page, MEMBER);
@@ -169,7 +169,7 @@ test("a member joins, withdraws, rejoins, works, leaves and is removed across th
       await expect(confirm).toHaveCount(0);
       await expect(row).toHaveCount(0);
       expect(await membership()).toMatchObject({ status: "inactive", left: true });
-      expect(await approvalTaskCount(database, hoffmann.companyId, email)).toBe(0);
+      expect(await pendingRequestCount(database, hoffmann.companyId, email)).toBe(0);
       await shot(admin.page, "removed-left");
 
       await expect(page.getByRole("heading", { level: 1, name: englishMessages.PendingCard.title })).toBeVisible();

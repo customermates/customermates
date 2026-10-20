@@ -5,6 +5,7 @@ import { openDrawerTab, addFromConfigure, configureTopBar, followConfigureLink, 
 import { calculationChip, calculationFlow, chooseValueSource, pickOption } from "./calculation-flow";
 import { expect, test, collectPageErrors } from "./fixtures";
 import { readModel } from "./api";
+import { e2eAppMode } from "./workspace-switching";
 import { openRecordDetails, openRecordLink } from "./record-rows";
 
 async function applyConfiguration(page: Page) {
@@ -20,7 +21,8 @@ async function openSidebarLink(page: Page, id: string) {
   await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
   const link = page.locator(`[id="${id}"]`);
   if (!(await link.isVisible())) await page.locator("#sidebar-trigger").click();
-  await expect(page.locator("#nav-assistant")).toBeVisible();
+  if (e2eAppMode() === "self-hosted") await expect(page.locator("#nav-assistant")).toHaveCount(0);
+  else await expect(page.locator("#nav-assistant")).toBeVisible();
   await link.click();
 }
 
@@ -170,6 +172,8 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
       await page.keyboard.press("Enter");
       const line = dialog.getByRole("region", { name: "Line items", exact: true }).getByRole("button", { name, exact: true });
       await expect(line).toBeVisible();
+      // A nested create reloads the parent; until that reload lands it is read-only (no Add row) and a row click is lost.
+      await expect(dialog.getByRole("button", { name: "Add Line item", exact: true })).toBeVisible();
       await openRecordLink(line);
       await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(2);
       const child = dialog.last();
@@ -181,6 +185,7 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
       await expect(dialog.getByRole("region", { name: "Line items", exact: true }).getByRole("button", { name, exact: true })).toBeVisible();
     }
     await expect.poll(catalogValues).toEqual({ "Calculated A/Catalog price": money("1000"), "Calculated B/Catalog price": money("200") });
+    await expect(dialog.getByRole("button", { name: "Add Line item", exact: true })).toBeVisible();
     await openRecordLink(dialog.getByRole("region", { name: "Line items", exact: true }).getByRole("button", { name: "Calculated A", exact: true }));
     await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(2);
     const catalog = dialog.last().locator(`[data-entity-field="${catalogPriceId}"]`);

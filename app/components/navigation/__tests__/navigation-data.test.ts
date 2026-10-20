@@ -37,7 +37,7 @@ function loaders(): NavigationDataLoaders {
       hasBillingPortal: false,
       hasActiveSubscription: true,
     }),
-    systemTaskCount: vi.fn().mockResolvedValue(2),
+    pendingMemberCount: vi.fn().mockResolvedValue(2),
     unreadThreadCount: vi.fn().mockResolvedValue(3),
     channelsNeedingActionCount: vi.fn().mockResolvedValue(4),
     workspaces: vi.fn().mockResolvedValue([WORKSPACE]),
@@ -50,7 +50,7 @@ const EMPTY_SHELL = {
   keyboardPreferences: null,
   subscription: null,
   trialDaysLeft: null,
-  systemTaskCount: 0,
+  pendingMemberCount: 0,
   unreadThreadCount: 0,
   channelsNeedingActionCount: 0,
 };
@@ -83,7 +83,7 @@ describe("loadNavigationData", () => {
     expect(result).toMatchObject({
       subscription: { status: "active", plan: "pro" },
       keyboardPreferences: { singleKeyShortcuts: false },
-      systemTaskCount: 2,
+      pendingMemberCount: 2,
       unreadThreadCount: 3,
       channelsNeedingActionCount: 4,
       workspaces: [WORKSPACE],

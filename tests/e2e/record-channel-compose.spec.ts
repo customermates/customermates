@@ -9,6 +9,7 @@ import { expectBlockedEmailScripts } from "./browser-diagnostics";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { postOk } from "./api";
 import { openRecordDetails, openRecordLink, recordItem } from "./record-rows";
+import { e2eAppMode } from "./workspace-switching";
 
 test("opens a list-qualified inbox and preserves, saves, edits and sends channel drafts locally", async ({
   page,
@@ -175,6 +176,14 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await expect(page.getByText(`${recipients[0]} copied to clipboard`, { exact: true })).toBeVisible();
   if (testInfo.project.name === "chromium")
     expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(recipients[0]);
+  if (e2eAppMode() === "self-hosted") {
+    // The Inbox and channel drafts are available on Customermates Cloud only: a channel offers no Inbox link and no compose.
+    await expect(channelRow()).toBeVisible();
+    await expect(channels.getByRole("link", { name: "Go to inbox", exact: true })).toHaveCount(0);
+    await expect(channelRow().getByRole("button", { name: "Compose Email message", exact: true })).toHaveCount(0);
+    expect(errors).toEqual([]);
+    return;
+  }
   // Inbox first preloads the visible connection-settings shortcut in two steps.
   // Accept the follow-up response headers before reload; body/cache completion is a separate router concern.
   const applicationOrigin = new URL(page.url()).origin;

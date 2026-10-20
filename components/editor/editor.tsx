@@ -11,6 +11,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { baseExtensions } from "./editor-extensions";
+import { headingAnchors } from "./heading-anchor-extension";
 import { findPastedImageUrl } from "./image-extension";
 import { hasMarkdownBlockStructure, parseMarkdownToJSON } from "./editor.utils";
 
@@ -35,6 +36,7 @@ type Props = {
   toolbarClassName?: string;
   contentClassName?: string;
   onToolbarActivate?: () => void;
+  headingIdPrefix?: string;
 };
 
 function findEnclosingTableStart($pos: ResolvedPos): number | null {
@@ -55,6 +57,7 @@ export function Editor({
   toolbarClassName,
   contentClassName,
   onToolbarActivate,
+  headingIdPrefix,
 }: Props) {
   const t = useTranslations();
   const [showSlashMenu, setShowSlashMenu] = useState(false);
@@ -82,6 +85,7 @@ export function Editor({
     editable: !readOnly,
     extensions: [
       ...baseExtensions,
+      ...(headingIdPrefix ? [headingAnchors(headingIdPrefix)] : []),
       Placeholder.configure({
         placeholder: t("Editor.placeholder"),
       }),

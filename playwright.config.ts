@@ -12,9 +12,11 @@ export default defineConfig({
   timeout: 120000,
   expect: { timeout: 15000 },
   fullyParallel: false,
-  workers: 1,
+  // One worker per server: scripts/verify/e2e.mjs and CI parallelise by shards, each with its own server and database.
+  workers: Number(process.env.CRM_E2E_WORKERS ?? 1),
   forbidOnly: true,
-  retries: 0,
+  // One retry in CI and the verification scripts; a test that passes only on the retry is reported as flaky.
+  retries: Number(process.env.CRM_E2E_RETRIES ?? (process.env.CI ? 1 : 0)),
   reporter: [
     ["list"],
     ["html", { outputFolder: `${evidenceDirectory}/report`, open: "never" }],

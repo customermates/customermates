@@ -128,82 +128,36 @@ describe("workspace setup compiler", () => {
     ["agency", agencyPlan, "contact", "task"],
     ["subscription business", saasPlan, "person", "todo"],
     ["field service", fieldServicePlan, "contact", "job"],
-  ])("always adds the %s anchors to the people and tasks lists", async (_name, input, people, tasks) => {
-    const { prepared, reference } = await build(input);
-    const peopleId = reference(`$list.${people}`);
-    const channels = prepared.model.fields.find((field) => field.id === reference(`$field.${people}.channels`));
-    expect(channels).toMatchObject({
-      typeId: peopleId,
-      label: "Channels",
-      valueType: "channels",
-      required: false,
-      behavior: { kind: "input" },
-      format: { onClick: "open", providerAvatar: true },
-    });
-    const avatar = prepared.model.fields.find((field) => field.id === reference(`$field.${people}.avatar`));
-    expect(avatar).toMatchObject({
-      typeId: peopleId,
-      label: "Avatar",
-      valueType: "url",
-    });
-    expect(prepared.model.capabilities).toEqual(
-      expect.arrayContaining([
+  ])(
+    "always adds the %s anchors to the people list and binds nothing to the tasks list",
+    async (_name, input, people, tasks) => {
+      const { prepared, reference } = await build(input);
+      const peopleId = reference(`$list.${people}`);
+      const channels = prepared.model.fields.find((field) => field.id === reference(`$field.${people}.channels`));
+      expect(channels).toMatchObject({
+        typeId: peopleId,
+        label: "Channels",
+        valueType: "channels",
+        required: false,
+        behavior: { kind: "input" },
+        format: { onClick: "open", providerAvatar: true },
+      });
+      const avatar = prepared.model.fields.find((field) => field.id === reference(`$field.${people}.avatar`));
+      expect(avatar).toMatchObject({
+        typeId: peopleId,
+        label: "Avatar",
+        valueType: "url",
+      });
+      expect(prepared.model.capabilities).toEqual([
         expect.objectContaining({
           kind: "avatar",
           typeId: peopleId,
           fields: [{ role: "image", fieldId: avatar?.id }],
         }),
-        expect.objectContaining({
-          kind: "membershipAuthorization",
-          typeId: reference(`$list.${tasks}`),
-          fields: [],
-        }),
-      ]),
-    );
-    expect(prepared.model.capabilities.filter((binding) => binding.kind === "membershipAuthorization")).toHaveLength(1);
-  });
-
-  it("leaves an existing membership list in place", () => {
-    const model: RecordModel = {
-      ...emptyWorkspaceModel(),
-      revision: 3,
-      types: [
-        {
-          id: "5f1d2c3b-4a59-4b6c-8d7e-9f0a1b2c3d4e",
-          label: "Approval",
-          pluralLabel: "Approvals",
-          description: "",
-          icon: "check",
-          primaryFieldId: null,
-          parentRelationshipId: null,
-          embedded: false,
-          navigationVisible: true,
-          archived: false,
-          position: 0,
-        },
-      ],
-      capabilities: [
-        {
-          id: "7a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d",
-          kind: "membershipAuthorization",
-          typeId: "5f1d2c3b-4a59-4b6c-8d7e-9f0a1b2c3d4e",
-          fields: [],
-        },
-      ],
-    };
-    const compiled = compileSetupRecordModel(SetupPlanSchema.parse(agencyPlan), {
-      setupId: SETUP_ID,
-      model,
-      labels: SETUP_LABELS,
-    });
-    if (!compiled.ok) throw new Error(JSON.stringify(compiled.issues));
-    expect(
-      compiled.data.operations.some(
-        (operation) =>
-          operation.operation === "putCapability" && operation.capability.kind === "membershipAuthorization",
-      ),
-    ).toBe(false);
-  });
+      ]);
+      expect(prepared.model.capabilities.some((binding) => binding.typeId === reference(`$list.${tasks}`))).toBe(false);
+    },
+  );
 
   it("shows the messages of people on the lists they are linked to", async () => {
     const { prepared, reference } = await build(agencyPlan);

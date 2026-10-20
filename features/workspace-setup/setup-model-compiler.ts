@@ -13,7 +13,6 @@ import {
   SETUP_LINE_ITEM_DEAL,
   SETUP_LINE_ITEM_LIST,
   SETUP_LINE_ITEM_OFFERING,
-  SETUP_MEMBERSHIP_CAPABILITY,
   SETUP_OFFERING_DEALS_PATH,
   setupAnchorFields,
   setupLineItemField,
@@ -124,7 +123,6 @@ export function compileSetupRecordModel(
   };
   const planLists = new Map(plan.recordModel.lists.map((list) => [list.key, list]));
   const people = setupRoleList(plan, "people");
-  const tasks = setupRoleList(plan, "tasks");
   const deals = setupRoleList(plan, "deals");
   const offerings = setupRoleList(plan, "offerings");
   const lineItems = setupLineItems(plan);
@@ -570,17 +568,6 @@ export function compileSetupRecordModel(
         kind: "avatar",
         typeId: setupListReference(people),
         fields: [{ role: "image", fieldId: setupFieldReference(`${people}.avatar`) }],
-      },
-    });
-  }
-  if (tasks && !model.capabilities.some((binding) => binding.kind === "membershipAuthorization")) {
-    operations.push({
-      operation: "putCapability",
-      capability: {
-        id: setupCapabilityReference(SETUP_MEMBERSHIP_CAPABILITY),
-        kind: "membershipAuthorization",
-        typeId: setupListReference(tasks),
-        fields: [],
       },
     });
   }

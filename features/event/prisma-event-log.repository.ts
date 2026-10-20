@@ -130,6 +130,23 @@ export class PrismaEventLogRepo
     });
   }
 
+  async appendRecordEventsCompanyWide(companyId: string, events: RecordEventWrite[]): Promise<void> {
+    if (!events.length) return;
+    await this.prisma.eventLog.createMany({
+      data: events.map((event) => ({
+        companyId,
+        id: event.id,
+        subjectKind: "record",
+        subjectTypeId: event.ref.typeId,
+        subjectId: event.ref.recordId,
+        actorId: event.actorId,
+        causeId: event.causeId,
+        kind: event.kind,
+        payload: event.payload,
+      })),
+    });
+  }
+
   async eraseTrashedRecordPayloadsCompanyWide(companyId: string, trashItemIds: string[]): Promise<void> {
     await this.prisma.$executeRaw(Prisma.sql`
       UPDATE "EventLog" event SET payload = jsonb_set(jsonb_set(event.payload, '{fields}', '[]'::jsonb), '{identities}', 'null'::jsonb)

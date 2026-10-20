@@ -1420,7 +1420,7 @@
                                     "users",
                                     "company",
                                     "api",
-                                    "auditLog",
+                                    "activityLog",
                                     "inboxMessages",
                                     "wiki",
                                     "routines"
@@ -1789,7 +1789,7 @@
                                       "users",
                                       "company",
                                       "api",
-                                      "auditLog",
+                                      "activityLog",
                                       "inboxMessages",
                                       "wiki",
                                       "routines"
@@ -2027,7 +2027,7 @@
                             "users",
                             "company",
                             "api",
-                            "auditLog",
+                            "activityLog",
                             "inboxMessages",
                             "wiki",
                             "routines"
@@ -2054,7 +2054,7 @@
                       ],
                       "additionalProperties": false
                     },
-                    "description": "Only listed resources change; each listed resource's actions replace its current actions and an empty actions array removes its access. Applicable actions per resource: api, users, wiki, inboxMessages and routines take create, update and delete; company and dataModel take update only; auditLog takes none. Read: readAll for every resource except company and dataModel, plus readOwn for users and routines. Any wiki manage action also grants readAll. Company and dataModel always keep their read rows, which make Settings and Subscription visible; readAll and readOwn returned by a read are accepted there and change nothing."
+                    "description": "Only listed resources change; each listed resource's actions replace its current actions and an empty actions array removes its access. Applicable actions per resource: api, users, wiki, inboxMessages and routines take create, update and delete; company and dataModel take update only; activityLog takes none. Read: readAll for every resource except company and dataModel, plus readOwn for users and routines. Any wiki manage action also grants readAll. Company and dataModel always keep their read rows, which make Settings and Subscription visible; readAll and readOwn returned by a read are accepted there and change nothing."
                   },
                   "recordGrants": {
                     "maxItems": 1000,
@@ -2171,7 +2171,7 @@
                                   "users",
                                   "company",
                                   "api",
-                                  "auditLog",
+                                  "activityLog",
                                   "inboxMessages",
                                   "wiki",
                                   "routines"
@@ -3252,7 +3252,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Reads change nothing and return only what the caller may read.\n\nRequires: read access to the record's list; change history also requires read access to the audit log.",
+        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Reads change nothing and return only what the caller may read.\n\nRequires: read access to the record's list; change history also requires read all on activityLog.",
         "requestBody": {
           "required": true,
           "content": {
@@ -3665,7 +3665,8 @@
                                 "enum": [
                                   "record.created",
                                   "record.updated",
-                                  "record.deleted"
+                                  "record.deleted",
+                                  "record.restored"
                                 ]
                               },
                               "changes": {
@@ -9540,10 +9541,6 @@
                             "exclusiveMinimum": 0,
                             "maximum": 9007199254740991
                           },
-                          "protectedKind": {
-                            "type": "string",
-                            "const": "membershipAuthorization"
-                          },
                           "schemaRevision": {
                             "type": "integer",
                             "minimum": -9007199254740991,
@@ -11141,10 +11138,6 @@
                               "type": "integer",
                               "exclusiveMinimum": 0,
                               "maximum": 9007199254740991
-                            },
-                            "protectedKind": {
-                              "type": "string",
-                              "const": "membershipAuthorization"
                             },
                             "schemaRevision": {
                               "type": "integer",
@@ -19601,7 +19594,8 @@
                                             "enum": [
                                               "record.created",
                                               "record.updated",
-                                              "record.deleted"
+                                              "record.deleted",
+                                              "record.restored"
                                             ]
                                           },
                                           "changes": {
@@ -29098,7 +29092,8 @@
                                             "enum": [
                                               "record.created",
                                               "record.updated",
-                                              "record.deleted"
+                                              "record.deleted",
+                                              "record.restored"
                                             ]
                                           },
                                           "changes": {
@@ -34625,7 +34620,6 @@
                                 "kind": {
                                   "type": "string",
                                   "enum": [
-                                    "membershipAuthorization",
                                     "avatar",
                                     "calendar"
                                   ]
@@ -35009,8 +35003,6 @@
                                   "calculation",
                                   "snapshotTrigger",
                                   "parentAccess",
-                                  "binding",
-                                  "protected",
                                   "routine",
                                   "webhook",
                                   "widget",
@@ -36542,7 +36534,6 @@
                                 "kind": {
                                   "type": "string",
                                   "enum": [
-                                    "membershipAuthorization",
                                     "avatar",
                                     "calendar"
                                   ]
@@ -37463,10 +37454,6 @@
                       "type": "integer",
                       "exclusiveMinimum": 0,
                       "maximum": 9007199254740991
-                    },
-                    "protectedKind": {
-                      "type": "string",
-                      "const": "membershipAuthorization"
                     },
                     "schemaRevision": {
                       "type": "integer",
@@ -39895,10 +39882,6 @@
                             "type": "integer",
                             "exclusiveMinimum": 0,
                             "maximum": 9007199254740991
-                          },
-                          "protectedKind": {
-                            "type": "string",
-                            "const": "membershipAuthorization"
                           },
                           "schemaRevision": {
                             "type": "integer",
@@ -44163,7 +44146,9 @@
                                   "notFound",
                                   "requiresRestore",
                                   "nameTaken",
-                                  "routineLimitReached"
+                                  "routineLimitReached",
+                                  "incompatible",
+                                  "operationPending"
                                 ]
                               },
                               "typeId": {
@@ -44281,6 +44266,77 @@
                           "type": "string",
                           "format": "uuid",
                           "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "blocked": {
+                          "description": "Items that stay in Trash; the rest are restored by the operation.",
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "itemId": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "reason": {
+                                "type": "string",
+                                "enum": [
+                                  "listDeleted",
+                                  "parentDeleted",
+                                  "notFound",
+                                  "requiresRestore",
+                                  "nameTaken",
+                                  "routineLimitReached",
+                                  "incompatible",
+                                  "operationPending"
+                                ]
+                              },
+                              "typeId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "parent": {
+                                "type": "object",
+                                "properties": {
+                                  "typeId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  "recordId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  }
+                                },
+                                "required": [
+                                  "typeId",
+                                  "recordId"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "limit": {
+                                "description": "routineLimitReached only: the routines per user the plan includes; the owner is at this limit.",
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "required": [
+                              "itemId",
+                              "reason",
+                              "typeId"
+                            ],
+                            "additionalProperties": false
+                          }
                         },
                         "droppedViewReferences": {
                           "type": "array",
@@ -50108,7 +50164,7 @@
       "post": {
         "operationId": "inviteMembers",
         "summary": "Invite members by email",
-        "description": "Sends a workspace invitation email with the workspace's invitation link to each address, 1 to 20 per call; duplicate addresses receive one email. An invited person joins with no role until an administrator assigns one through POST /v1/members/update. Returns how many emails were sent. Requires: Users & Roles Create.",
+        "description": "Sends a workspace invitation email with the workspace's invitation link to each address, 1 to 20 per call; duplicate addresses receive one email. An invited person joins with no role until an administrator assigns one through POST /v1/members/update. Returns how many emails were sent, how many the email service did not accept (failed) and their addresses (failedEmails); share the link from POST /v1/members/invite-link with those people instead. Sending the same invitation to an address again within 24 hours does not email it twice. Requires: Users & Roles Create.",
         "tags": [
           "members"
         ],
@@ -50153,7 +50209,7 @@
         },
         "responses": {
           "200": {
-            "description": "The invitations were sent.",
+            "description": "The invitations were handed to the email service; failed counts the ones it did not accept.",
             "content": {
               "application/json": {
                 "schema": {
@@ -50161,10 +50217,23 @@
                   "properties": {
                     "sent": {
                       "type": "number"
+                    },
+                    "failed": {
+                      "type": "number"
+                    },
+                    "failedEmails": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "email",
+                        "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                      }
                     }
                   },
                   "required": [
-                    "sent"
+                    "sent",
+                    "failed",
+                    "failedEmails"
                   ],
                   "additionalProperties": false
                 }
@@ -52563,7 +52632,6 @@
                           "kind": {
                             "type": "string",
                             "enum": [
-                              "membershipAuthorization",
                               "avatar",
                               "calendar"
                             ]
@@ -52708,7 +52776,7 @@
       "post": {
         "operationId": "listDataViewSurfaces",
         "summary": "List the pages that support saved views",
-        "description": "Returns every surface the caller may manage views on, with its label and app path. Surfaces are the record lists (`records:<typeId>`), the Members, Roles, Webhooks, Webhook deliveries, Inbox, Activity and Routines lists, record activity timelines and the dashboard (`dashboard`); operator-console surfaces are not available. Timeline views accept only filters and sortDescriptor. Send an empty object.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on auditLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
+        "description": "Returns every surface the caller may manage views on, with its label and app path. Surfaces are the record lists (`records:<typeId>`), the Members, Roles, Webhooks, Webhook deliveries, Inbox, Activity and Routines lists, record activity timelines and the dashboard (`dashboard`); operator-console surfaces are not available. Timeline views accept only filters and sortDescriptor. Send an empty object.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on activityLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
         "tags": [
           "data-views"
         ],
@@ -54215,7 +54283,7 @@
       "post": {
         "operationId": "readDataViewConfiguration",
         "summary": "Read what a surface's views can filter, sort, group and show",
-        "description": "Returns one section of a surface's view capabilities. overview (the default) reports totals, whether search is supported, the view modes and the writable state keys. filters lists filterable fields with their operators and valid values (select filters use stable option IDs), sorting the sortable fields, grouping the groupable fields, and appearance the columns available for columnOrder, columnWidths and hiddenColumns. Sections are paged with page and pageSize (1 to 25, default 10) and can be narrowed with query.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on auditLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
+        "description": "Returns one section of a surface's view capabilities. overview (the default) reports totals, whether search is supported, the view modes and the writable state keys. filters lists filterable fields with their operators and valid values (select filters use stable option IDs), sorting the sortable fields, grouping the groupable fields, and appearance the columns available for columnOrder, columnWidths and hiddenColumns. Sections are paged with page and pageSize (1 to 25, default 10) and can be narrowed with query.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on activityLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
         "tags": [
           "data-views"
         ],
@@ -55778,7 +55846,7 @@
       "post": {
         "operationId": "listDataViews",
         "summary": "List saved views of a surface",
-        "description": "Returns the caller's saved views of one surface as paged summaries (id, name, position) with the active view key. The All view (`__all__`) is the surface's own personalization and is not listed; read it with viewKey `__all__`. Narrow with query by view id or name.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on auditLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
+        "description": "Returns the caller's saved views of one surface as paged summaries (id, name, position) with the active view key. The All view (`__all__`) is the surface's own personalization and is not listed; read it with viewKey `__all__`. Narrow with query by view id or name.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on activityLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
         "tags": [
           "data-views"
         ],
@@ -57330,7 +57398,7 @@
       "post": {
         "operationId": "readDataView",
         "summary": "Read one saved view's state",
-        "description": "Returns one view with its complete state: filters, search term, sort, page size, view mode (table or card), grouping with its group summaries, column order, column widths and hidden columns. viewKey `__all__` reads the All view. Read immediately before an update.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on auditLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
+        "description": "Returns one view with its complete state: filters, search term, sort, page size, view mode (table or card), grouping with its group summaries, column order, column widths and hidden columns. viewKey `__all__` reads the All view. Read immediately before an update.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on activityLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
         "tags": [
           "data-views"
         ],
@@ -58880,7 +58948,7 @@
       "post": {
         "operationId": "createDataView",
         "summary": "Create a saved view",
-        "description": "Creates a named view with its initial state and selects it. The state is validated against the surface's configuration: fields, operators, sort and grouping keys and columns must come from /v1/data-views/config. Dashboard views hold no list state; create them with an empty state and place widgets on them with viewId.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on auditLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
+        "description": "Creates a named view with its initial state and selects it. The state is validated against the surface's configuration: fields, operators, sort and grouping keys and columns must come from /v1/data-views/config. Dashboard views hold no list state; create them with an empty state and place widgets on them with viewId.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on activityLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
         "tags": [
           "data-views"
         ],
@@ -60811,7 +60879,7 @@
       "post": {
         "operationId": "updateDataView",
         "summary": "Update a saved view",
-        "description": "Patches a view: send only the keys to change. Omitted state keys keep their value, arrays replace the previous value, an empty filters array clears filters, an empty searchTerm clears search, and null clears sortDescriptor or grouping. name renames a named view; the All view cannot be renamed. A request that changes nothing returns the current view unchanged.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on auditLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
+        "description": "Patches a view: send only the keys to change. Omitted state keys keep their value, arrays replace the previous value, an empty filters array clears filters, an empty searchTerm clears search, and null clears sortDescriptor or grouping. name renames a named view; the All view cannot be renamed. A request that changes nothing returns the current view unchanged.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on activityLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
         "tags": [
           "data-views"
         ],
@@ -62752,7 +62820,7 @@
       "post": {
         "operationId": "selectDataView",
         "summary": "Select a saved view",
-        "description": "Remembers the view as the caller's active view of the surface, as choosing it in the app does.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on auditLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
+        "description": "Remembers the view as the caller's active view of the surface, as choosing it in the app does.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on activityLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
         "tags": [
           "data-views"
         ],
@@ -64302,7 +64370,7 @@
       "post": {
         "operationId": "resetDataView",
         "summary": "Reset saved view settings",
-        "description": "Removes the caller's overrides for the given state keys so the list falls back to every field in its configured order, ungrouped and unsorted. Only `records:<typeId>` surfaces support reset.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on auditLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
+        "description": "Removes the caller's overrides for the given state keys so the list falls back to every field in its configured order, ungrouped and unsorted. Only `records:<typeId>` surfaces support reset.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on activityLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
         "tags": [
           "data-views"
         ],
@@ -65858,7 +65926,7 @@
       "post": {
         "operationId": "deleteDataView",
         "summary": "Delete a saved view",
-        "description": "Moves a named view to Trash; when it was the active view, the surface falls back to All. Deleting a dashboard view moves its widgets to Trash with it, and restoring the view brings them back. The view is deleted permanently after 30 days unless /v1/trash/restore restores it with the returned trashBatchId. Records are never deleted, and the All view cannot be deleted.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on auditLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
+        "description": "Moves a named view to Trash; when it was the active view, the surface falls back to All. Deleting a dashboard view moves its widgets to Trash with it, and restoring the view brings them back. The view is deleted permanently after 30 days unless /v1/trash/restore restores it with the returned trashBatchId. Records are never deleted, and the All view cannot be deleted.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on activityLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
         "tags": [
           "data-views"
         ],
@@ -72463,7 +72531,8 @@
                                                   "enum": [
                                                     "record.created",
                                                     "record.updated",
-                                                    "record.deleted"
+                                                    "record.deleted",
+                                                    "record.restored"
                                                   ]
                                                 },
                                                 "changes": {
@@ -77762,10 +77831,6 @@
                               "exclusiveMinimum": 0,
                               "maximum": 9007199254740991
                             },
-                            "protectedKind": {
-                              "type": "string",
-                              "const": "membershipAuthorization"
-                            },
                             "schemaRevision": {
                               "type": "integer",
                               "minimum": -9007199254740991,
@@ -80641,7 +80706,6 @@
                               "kind": {
                                 "type": "string",
                                 "enum": [
-                                  "membershipAuthorization",
                                   "avatar",
                                   "calendar"
                                 ]
@@ -80702,14 +80766,6 @@
                         "type": "string"
                       },
                       "description": "Always empty: a record in Trash is read only."
-                    },
-                    "systemActions": {
-                      "maxItems": 0,
-                      "type": "array",
-                      "items": {
-                        "type": "string",
-                        "const": "manageMembership"
-                      }
                     },
                     "canManageSchema": {
                       "type": "boolean"
@@ -94645,7 +94701,7 @@
       "post": {
         "operationId": "sendChatMessage",
         "summary": "Send a chat message",
-        "description": "Sends a real message into an existing chat thread (LinkedIn, WhatsApp, etc.). This delivers a real message as a side effect. When delivering a saved draft, pass both draftMessageId and its opaque draftRevision so a newer edit cannot be consumed.",
+        "description": "Sends a real message into an existing chat thread (LinkedIn, WhatsApp, etc.). This delivers a real message as a side effect. When delivering a saved draft, pass both draftMessageId and its opaque draftRevision so a newer edit cannot be consumed. The id may also be a conversation that exists only as a saved draft; the chat is then started with the draft's recipients. Each draft revision is sent at most once: repeating the request returns the first result with repeated true and sends nothing. A draft that cannot be sent answers 409 conflict, sends nothing and names the reason in customCode: draftChanged when the draft was saved again after this draftRevision; draftTargetMismatch when the draft belongs to another conversation or account; draftSendInProgress while an earlier send of this draft is still running, which counts as draftSendOutcomeUnknown after five minutes; draftSendOutcomeUnknown when an earlier send could not be confirmed and may have been delivered, so the draft is sent again only after an edit changes its content; draftAlreadySent when this draft was already sent and the request carries other content or another draftRevision. An unknown thread answers 404 not_found, and a draft that no longer exists and was never sent answers 404 with customCode draftMessageNotFound.",
         "tags": [
           "messaging"
         ],
@@ -94707,6 +94763,7 @@
                     }
                   },
                   "draftMessageId": {
+                    "description": "Saved draft to send. Each draft revision is sent at most once: repeating the call returns the first result",
                     "type": "string",
                     "format": "uuid",
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
@@ -94727,7 +94784,7 @@
         },
         "responses": {
           "201": {
-            "description": "The message was sent successfully. Returns the persisted message.",
+            "description": "The provider accepted the message and it is recorded. Returns the recorded message; repeated is true when an earlier send of this draft revision is answered.",
             "content": {
               "application/json": {
                 "schema": {
@@ -95567,6 +95624,10 @@
                           "type": "null"
                         }
                       ]
+                    },
+                    "repeated": {
+                      "type": "boolean",
+                      "description": "true when this answers an earlier accepted send of the same draft revision; nothing was sent again"
                     }
                   },
                   "required": [
@@ -95588,9 +95649,73 @@
                     "sentAt",
                     "editedAt",
                     "reactions",
-                    "draftRevision"
+                    "draftRevision",
+                    "repeated"
                   ],
                   "additionalProperties": false
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "The provider accepted the message, but it is not recorded yet. threadId is the chat when known. Also answered for a repeat while the message is still not recorded (repeated true).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "messageId": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "threadId": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "providerMessageId": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "repeated": {
+                      "type": "boolean",
+                      "description": "true when this answers an earlier accepted send of the same draft revision; nothing was sent again"
+                    },
+                    "sent": {
+                      "type": "boolean",
+                      "const": true
+                    }
+                  },
+                  "required": [
+                    "messageId",
+                    "threadId",
+                    "providerMessageId",
+                    "repeated",
+                    "sent"
+                  ],
+                  "additionalProperties": false,
+                  "description": "The provider accepted the message. messageId and threadId are null while the sent copy is not recorded yet."
                 }
               }
             }
@@ -98304,7 +98429,7 @@
       "post": {
         "operationId": "sendEmail",
         "summary": "Send an email",
-        "description": "Sends a real email (or reply) from a connected email account. Provide either threadId (reply; takes precedence if both are given) or connectedAccountId (new email). At least one recipient is required across to, cc and bcc; use to: [] for Cc-only or Bcc-only email. cc and bcc are plain email strings, unlike `to` which uses the `{ identifier }` object form. Never promote hidden Bcc recipients into To or Cc. The connected account's enabled signature is appended automatically, and its email appearance is applied to plain-text and Markdown bodies. Explicit HTML remains caller-controlled. Set bodyFormat when the body is explicitly plain text, Markdown, or HTML. When delivering a saved draft, pass both draftMessageId and its opaque draftRevision so a newer edit cannot be consumed.",
+        "description": "Sends a real email (or reply) from a connected email account. Provide either threadId (reply; takes precedence if both are given) or connectedAccountId (new email). At least one recipient is required across to, cc and bcc; use to: [] for Cc-only or Bcc-only email. cc and bcc are plain email strings, unlike `to` which uses the `{ identifier }` object form. Never promote hidden Bcc recipients into To or Cc. The connected account's enabled signature is appended automatically, and its email appearance is applied to plain-text and Markdown bodies. Explicit HTML remains caller-controlled. Set bodyFormat when the body is explicitly plain text, Markdown, or HTML. When delivering a saved draft, pass both draftMessageId and its opaque draftRevision so a newer edit cannot be consumed. threadId may also be the id of a conversation that exists only as a saved draft; it then sends that draft like connectedAccountId does. Each draft revision is sent at most once: repeating the request returns the first result with repeated true and sends nothing. A draft that cannot be sent answers 409 conflict, sends nothing and names the reason in customCode: draftChanged when the draft was saved again after this draftRevision; draftRecipientsChanged when To differs from the saved draft or a saved Bcc recipient was moved into To or Cc; draftTargetMismatch when the draft belongs to another conversation or account; draftSendInProgress while an earlier send of this draft is still running, which counts as draftSendOutcomeUnknown after five minutes; draftSendOutcomeUnknown when an earlier send could not be confirmed and may have been delivered, so the draft is sent again only after an edit changes its content, and once the sent copy of that send syncs from the mailbox the draft counts as sent; draftAlreadySent when this draft was already sent and the request carries other content or another draftRevision. A draft that no longer exists and was never sent answers 404 not_found with customCode draftMessageNotFound.",
         "tags": [
           "messaging"
         ],
@@ -98325,30 +98450,63 @@
         },
         "responses": {
           "200": {
-            "description": "The email was sent successfully. Returns the persisted message (including its thread id) when available, or null when the sent copy could not be resolved yet.",
+            "description": "The provider accepted the email and its sent copy is recorded. Returns the recorded message, including its thread id; repeated is true when an earlier send of this draft revision is answered.",
             "content": {
               "application/json": {
                 "schema": {
-                  "anyOf": [
-                    {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "messagingThreadId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "connectedAccountId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "providerMessageId": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "provider": {
+                      "type": "string",
+                      "enum": [
+                        "google",
+                        "outlook",
+                        "mail",
+                        "linkedin",
+                        "whatsapp",
+                        "instagram",
+                        "telegram"
+                      ]
+                    },
+                    "direction": {
+                      "type": "string",
+                      "enum": [
+                        "inbound",
+                        "outbound"
+                      ]
+                    },
+                    "sender": {
                       "type": "object",
                       "properties": {
-                        "id": {
-                          "type": "string",
-                          "format": "uuid",
-                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        "attendeeId": {
+                          "type": "string"
                         },
-                        "messagingThreadId": {
-                          "type": "string",
-                          "format": "uuid",
-                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                        },
-                        "connectedAccountId": {
-                          "type": "string",
-                          "format": "uuid",
-                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                        },
-                        "providerMessageId": {
+                        "displayName": {
                           "anyOf": [
                             {
                               "type": "string"
@@ -98358,631 +98516,93 @@
                             }
                           ]
                         },
-                        "provider": {
-                          "type": "string",
-                          "enum": [
-                            "google",
-                            "outlook",
-                            "mail",
-                            "linkedin",
-                            "whatsapp",
-                            "instagram",
-                            "telegram"
-                          ]
+                        "identifier": {
+                          "type": "string"
                         },
-                        "direction": {
-                          "type": "string",
-                          "enum": [
-                            "inbound",
-                            "outbound"
-                          ]
-                        },
-                        "sender": {
-                          "type": "object",
-                          "properties": {
-                            "attendeeId": {
+                        "pictureUrl": {
+                          "anyOf": [
+                            {
                               "type": "string"
                             },
-                            "displayName": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "identifier": {
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "profileUrl": {
+                          "anyOf": [
+                            {
                               "type": "string"
                             },
-                            "pictureUrl": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "headline": {
+                          "anyOf": [
+                            {
+                              "type": "string"
                             },
-                            "profileUrl": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "occupation": {
+                          "anyOf": [
+                            {
+                              "type": "string"
                             },
-                            "headline": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "occupation": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "isSelf": {
-                              "type": "boolean"
-                            },
-                            "records": {
-                              "default": [],
-                              "type": "array",
-                              "items": {
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "isSelf": {
+                          "type": "boolean"
+                        },
+                        "records": {
+                          "default": [],
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "ref": {
                                 "type": "object",
                                 "properties": {
-                                  "ref": {
-                                    "type": "object",
-                                    "properties": {
-                                      "typeId": {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                      },
-                                      "recordId": {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                      }
-                                    },
-                                    "required": [
-                                      "typeId",
-                                      "recordId"
-                                    ],
-                                    "additionalProperties": false
-                                  },
-                                  "identityId": {
+                                  "typeId": {
                                     "type": "string",
                                     "format": "uuid",
                                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                                   },
-                                  "typeLabel": {
-                                    "type": "string"
-                                  },
-                                  "typePluralLabel": {
-                                    "type": "string"
-                                  },
-                                  "title": {
-                                    "type": "string"
-                                  },
-                                  "avatarUrl": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "canEdit": {
-                                    "type": "boolean"
+                                  "recordId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                                   }
                                 },
                                 "required": [
-                                  "ref",
-                                  "typeLabel",
-                                  "typePluralLabel",
-                                  "title",
-                                  "avatarUrl",
-                                  "canEdit"
+                                  "typeId",
+                                  "recordId"
                                 ],
                                 "additionalProperties": false
-                              }
-                            }
-                          },
-                          "required": [
-                            "attendeeId",
-                            "displayName",
-                            "identifier",
-                            "records"
-                          ],
-                          "additionalProperties": false
-                        },
-                        "recipients": {
-                          "type": "object",
-                          "properties": {
-                            "to": {
-                              "default": [],
-                              "type": "array",
-                              "items": {
-                                "type": "object",
-                                "properties": {
-                                  "attendeeId": {
-                                    "type": "string"
-                                  },
-                                  "displayName": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "identifier": {
-                                    "type": "string"
-                                  },
-                                  "pictureUrl": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "profileUrl": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "headline": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "occupation": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "isSelf": {
-                                    "type": "boolean"
-                                  },
-                                  "records": {
-                                    "default": [],
-                                    "type": "array",
-                                    "items": {
-                                      "type": "object",
-                                      "properties": {
-                                        "ref": {
-                                          "type": "object",
-                                          "properties": {
-                                            "typeId": {
-                                              "type": "string",
-                                              "format": "uuid",
-                                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                            },
-                                            "recordId": {
-                                              "type": "string",
-                                              "format": "uuid",
-                                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                            }
-                                          },
-                                          "required": [
-                                            "typeId",
-                                            "recordId"
-                                          ],
-                                          "additionalProperties": false
-                                        },
-                                        "identityId": {
-                                          "type": "string",
-                                          "format": "uuid",
-                                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                        },
-                                        "typeLabel": {
-                                          "type": "string"
-                                        },
-                                        "typePluralLabel": {
-                                          "type": "string"
-                                        },
-                                        "title": {
-                                          "type": "string"
-                                        },
-                                        "avatarUrl": {
-                                          "anyOf": [
-                                            {
-                                              "type": "string"
-                                            },
-                                            {
-                                              "type": "null"
-                                            }
-                                          ]
-                                        },
-                                        "canEdit": {
-                                          "type": "boolean"
-                                        }
-                                      },
-                                      "required": [
-                                        "ref",
-                                        "typeLabel",
-                                        "typePluralLabel",
-                                        "title",
-                                        "avatarUrl",
-                                        "canEdit"
-                                      ],
-                                      "additionalProperties": false
-                                    }
-                                  }
-                                },
-                                "required": [
-                                  "attendeeId",
-                                  "displayName",
-                                  "identifier",
-                                  "records"
-                                ],
-                                "additionalProperties": false
-                              }
-                            },
-                            "cc": {
-                              "default": [],
-                              "type": "array",
-                              "items": {
-                                "type": "object",
-                                "properties": {
-                                  "attendeeId": {
-                                    "type": "string"
-                                  },
-                                  "displayName": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "identifier": {
-                                    "type": "string"
-                                  },
-                                  "pictureUrl": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "profileUrl": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "headline": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "occupation": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "isSelf": {
-                                    "type": "boolean"
-                                  },
-                                  "records": {
-                                    "default": [],
-                                    "type": "array",
-                                    "items": {
-                                      "type": "object",
-                                      "properties": {
-                                        "ref": {
-                                          "type": "object",
-                                          "properties": {
-                                            "typeId": {
-                                              "type": "string",
-                                              "format": "uuid",
-                                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                            },
-                                            "recordId": {
-                                              "type": "string",
-                                              "format": "uuid",
-                                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                            }
-                                          },
-                                          "required": [
-                                            "typeId",
-                                            "recordId"
-                                          ],
-                                          "additionalProperties": false
-                                        },
-                                        "identityId": {
-                                          "type": "string",
-                                          "format": "uuid",
-                                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                        },
-                                        "typeLabel": {
-                                          "type": "string"
-                                        },
-                                        "typePluralLabel": {
-                                          "type": "string"
-                                        },
-                                        "title": {
-                                          "type": "string"
-                                        },
-                                        "avatarUrl": {
-                                          "anyOf": [
-                                            {
-                                              "type": "string"
-                                            },
-                                            {
-                                              "type": "null"
-                                            }
-                                          ]
-                                        },
-                                        "canEdit": {
-                                          "type": "boolean"
-                                        }
-                                      },
-                                      "required": [
-                                        "ref",
-                                        "typeLabel",
-                                        "typePluralLabel",
-                                        "title",
-                                        "avatarUrl",
-                                        "canEdit"
-                                      ],
-                                      "additionalProperties": false
-                                    }
-                                  }
-                                },
-                                "required": [
-                                  "attendeeId",
-                                  "displayName",
-                                  "identifier",
-                                  "records"
-                                ],
-                                "additionalProperties": false
-                              }
-                            },
-                            "bcc": {
-                              "default": [],
-                              "type": "array",
-                              "items": {
-                                "type": "object",
-                                "properties": {
-                                  "attendeeId": {
-                                    "type": "string"
-                                  },
-                                  "displayName": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "identifier": {
-                                    "type": "string"
-                                  },
-                                  "pictureUrl": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "profileUrl": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "headline": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "occupation": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "isSelf": {
-                                    "type": "boolean"
-                                  },
-                                  "records": {
-                                    "default": [],
-                                    "type": "array",
-                                    "items": {
-                                      "type": "object",
-                                      "properties": {
-                                        "ref": {
-                                          "type": "object",
-                                          "properties": {
-                                            "typeId": {
-                                              "type": "string",
-                                              "format": "uuid",
-                                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                            },
-                                            "recordId": {
-                                              "type": "string",
-                                              "format": "uuid",
-                                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                            }
-                                          },
-                                          "required": [
-                                            "typeId",
-                                            "recordId"
-                                          ],
-                                          "additionalProperties": false
-                                        },
-                                        "identityId": {
-                                          "type": "string",
-                                          "format": "uuid",
-                                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                        },
-                                        "typeLabel": {
-                                          "type": "string"
-                                        },
-                                        "typePluralLabel": {
-                                          "type": "string"
-                                        },
-                                        "title": {
-                                          "type": "string"
-                                        },
-                                        "avatarUrl": {
-                                          "anyOf": [
-                                            {
-                                              "type": "string"
-                                            },
-                                            {
-                                              "type": "null"
-                                            }
-                                          ]
-                                        },
-                                        "canEdit": {
-                                          "type": "boolean"
-                                        }
-                                      },
-                                      "required": [
-                                        "ref",
-                                        "typeLabel",
-                                        "typePluralLabel",
-                                        "title",
-                                        "avatarUrl",
-                                        "canEdit"
-                                      ],
-                                      "additionalProperties": false
-                                    }
-                                  }
-                                },
-                                "required": [
-                                  "attendeeId",
-                                  "displayName",
-                                  "identifier",
-                                  "records"
-                                ],
-                                "additionalProperties": false
-                              }
-                            }
-                          },
-                          "required": [
-                            "to",
-                            "cc",
-                            "bcc"
-                          ],
-                          "additionalProperties": false
-                        },
-                        "subject": {
-                          "anyOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
-                        "bodyText": {
-                          "anyOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
-                        "bodyHtml": {
-                          "anyOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
-                        "attachmentsMeta": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "id": {
+                              },
+                              "identityId": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "typeLabel": {
                                 "type": "string"
                               },
-                              "name": {
+                              "typePluralLabel": {
+                                "type": "string"
+                              },
+                              "title": {
+                                "type": "string"
+                              },
+                              "avatarUrl": {
                                 "anyOf": [
                                   {
                                     "type": "string"
@@ -98992,210 +98612,776 @@
                                   }
                                 ]
                               },
-                              "fileName": {
-                                "anyOf": [
-                                  {
-                                    "type": "string"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "type": {
-                                "anyOf": [
-                                  {
-                                    "type": "string"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "mime": {
-                                "anyOf": [
-                                  {
-                                    "type": "string"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "size": {
-                                "anyOf": [
-                                  {
-                                    "type": "integer",
-                                    "minimum": 0,
-                                    "maximum": 9007199254740991
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "sticker": {
-                                "anyOf": [
-                                  {
-                                    "type": "boolean"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "voiceNote": {
-                                "anyOf": [
-                                  {
-                                    "type": "boolean"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "gif": {
-                                "anyOf": [
-                                  {
-                                    "type": "boolean"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "durationSeconds": {
-                                "anyOf": [
-                                  {
-                                    "type": "number",
-                                    "minimum": 0
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "unavailable": {
-                                "anyOf": [
-                                  {
-                                    "type": "boolean"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "linkUrl": {
-                                "anyOf": [
-                                  {
-                                    "type": "string"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
+                              "canEdit": {
+                                "type": "boolean"
                               }
                             },
                             "required": [
-                              "id",
-                              "name"
+                              "ref",
+                              "typeLabel",
+                              "typePluralLabel",
+                              "title",
+                              "avatarUrl",
+                              "canEdit"
                             ],
                             "additionalProperties": false
                           }
-                        },
-                        "isEvent": {
-                          "default": false,
-                          "type": "boolean"
-                        },
-                        "isDeleted": {
-                          "default": false,
-                          "type": "boolean"
-                        },
-                        "isHidden": {
-                          "default": false,
-                          "type": "boolean"
-                        },
-                        "isDraft": {
-                          "default": false,
-                          "type": "boolean"
-                        },
-                        "sentAt": {
-                          "type": "string"
-                        },
-                        "editedAt": {
-                          "anyOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
-                        "reactions": {
-                          "default": [],
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "value": {
-                                "type": "string"
-                              }
-                            },
-                            "required": [
-                              "value"
-                            ],
-                            "additionalProperties": false
-                          }
-                        },
-                        "folderIds": {
-                          "default": [],
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        },
-                        "draftRevision": {
-                          "anyOf": [
-                            {
-                              "type": "string",
-                              "format": "date-time",
-                              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
-                              "description": "Opaque revision returned with the saved draft; required whenever draftMessageId is provided"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
                         }
                       },
                       "required": [
-                        "id",
-                        "messagingThreadId",
-                        "connectedAccountId",
-                        "provider",
-                        "direction",
-                        "sender",
-                        "recipients",
-                        "subject",
-                        "bodyText",
-                        "bodyHtml",
-                        "attachmentsMeta",
-                        "isEvent",
-                        "isDeleted",
-                        "isHidden",
-                        "isDraft",
-                        "sentAt",
-                        "editedAt",
-                        "reactions",
-                        "draftRevision"
+                        "attendeeId",
+                        "displayName",
+                        "identifier",
+                        "records"
                       ],
                       "additionalProperties": false
                     },
-                    {
-                      "type": "null"
+                    "recipients": {
+                      "type": "object",
+                      "properties": {
+                        "to": {
+                          "default": [],
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "attendeeId": {
+                                "type": "string"
+                              },
+                              "displayName": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "identifier": {
+                                "type": "string"
+                              },
+                              "pictureUrl": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "profileUrl": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "headline": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "occupation": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "isSelf": {
+                                "type": "boolean"
+                              },
+                              "records": {
+                                "default": [],
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "ref": {
+                                      "type": "object",
+                                      "properties": {
+                                        "typeId": {
+                                          "type": "string",
+                                          "format": "uuid",
+                                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                        },
+                                        "recordId": {
+                                          "type": "string",
+                                          "format": "uuid",
+                                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                        }
+                                      },
+                                      "required": [
+                                        "typeId",
+                                        "recordId"
+                                      ],
+                                      "additionalProperties": false
+                                    },
+                                    "identityId": {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                    },
+                                    "typeLabel": {
+                                      "type": "string"
+                                    },
+                                    "typePluralLabel": {
+                                      "type": "string"
+                                    },
+                                    "title": {
+                                      "type": "string"
+                                    },
+                                    "avatarUrl": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string"
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "canEdit": {
+                                      "type": "boolean"
+                                    }
+                                  },
+                                  "required": [
+                                    "ref",
+                                    "typeLabel",
+                                    "typePluralLabel",
+                                    "title",
+                                    "avatarUrl",
+                                    "canEdit"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              }
+                            },
+                            "required": [
+                              "attendeeId",
+                              "displayName",
+                              "identifier",
+                              "records"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "cc": {
+                          "default": [],
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "attendeeId": {
+                                "type": "string"
+                              },
+                              "displayName": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "identifier": {
+                                "type": "string"
+                              },
+                              "pictureUrl": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "profileUrl": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "headline": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "occupation": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "isSelf": {
+                                "type": "boolean"
+                              },
+                              "records": {
+                                "default": [],
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "ref": {
+                                      "type": "object",
+                                      "properties": {
+                                        "typeId": {
+                                          "type": "string",
+                                          "format": "uuid",
+                                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                        },
+                                        "recordId": {
+                                          "type": "string",
+                                          "format": "uuid",
+                                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                        }
+                                      },
+                                      "required": [
+                                        "typeId",
+                                        "recordId"
+                                      ],
+                                      "additionalProperties": false
+                                    },
+                                    "identityId": {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                    },
+                                    "typeLabel": {
+                                      "type": "string"
+                                    },
+                                    "typePluralLabel": {
+                                      "type": "string"
+                                    },
+                                    "title": {
+                                      "type": "string"
+                                    },
+                                    "avatarUrl": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string"
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "canEdit": {
+                                      "type": "boolean"
+                                    }
+                                  },
+                                  "required": [
+                                    "ref",
+                                    "typeLabel",
+                                    "typePluralLabel",
+                                    "title",
+                                    "avatarUrl",
+                                    "canEdit"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              }
+                            },
+                            "required": [
+                              "attendeeId",
+                              "displayName",
+                              "identifier",
+                              "records"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "bcc": {
+                          "default": [],
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "attendeeId": {
+                                "type": "string"
+                              },
+                              "displayName": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "identifier": {
+                                "type": "string"
+                              },
+                              "pictureUrl": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "profileUrl": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "headline": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "occupation": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "isSelf": {
+                                "type": "boolean"
+                              },
+                              "records": {
+                                "default": [],
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "ref": {
+                                      "type": "object",
+                                      "properties": {
+                                        "typeId": {
+                                          "type": "string",
+                                          "format": "uuid",
+                                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                        },
+                                        "recordId": {
+                                          "type": "string",
+                                          "format": "uuid",
+                                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                        }
+                                      },
+                                      "required": [
+                                        "typeId",
+                                        "recordId"
+                                      ],
+                                      "additionalProperties": false
+                                    },
+                                    "identityId": {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                    },
+                                    "typeLabel": {
+                                      "type": "string"
+                                    },
+                                    "typePluralLabel": {
+                                      "type": "string"
+                                    },
+                                    "title": {
+                                      "type": "string"
+                                    },
+                                    "avatarUrl": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string"
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "canEdit": {
+                                      "type": "boolean"
+                                    }
+                                  },
+                                  "required": [
+                                    "ref",
+                                    "typeLabel",
+                                    "typePluralLabel",
+                                    "title",
+                                    "avatarUrl",
+                                    "canEdit"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              }
+                            },
+                            "required": [
+                              "attendeeId",
+                              "displayName",
+                              "identifier",
+                              "records"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "to",
+                        "cc",
+                        "bcc"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "subject": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "bodyText": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "bodyHtml": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "attachmentsMeta": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "fileName": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "type": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "mime": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "size": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "sticker": {
+                            "anyOf": [
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "voiceNote": {
+                            "anyOf": [
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "gif": {
+                            "anyOf": [
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "durationSeconds": {
+                            "anyOf": [
+                              {
+                                "type": "number",
+                                "minimum": 0
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "unavailable": {
+                            "anyOf": [
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "linkUrl": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "isEvent": {
+                      "default": false,
+                      "type": "boolean"
+                    },
+                    "isDeleted": {
+                      "default": false,
+                      "type": "boolean"
+                    },
+                    "isHidden": {
+                      "default": false,
+                      "type": "boolean"
+                    },
+                    "isDraft": {
+                      "default": false,
+                      "type": "boolean"
+                    },
+                    "sentAt": {
+                      "type": "string"
+                    },
+                    "editedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "reactions": {
+                      "default": [],
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "value": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "folderIds": {
+                      "default": [],
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "draftRevision": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                          "description": "Opaque revision returned with the saved draft; required whenever draftMessageId is provided"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "repeated": {
+                      "type": "boolean",
+                      "description": "true when this answers an earlier accepted send of the same draft revision; nothing was sent again"
                     }
-                  ]
+                  },
+                  "required": [
+                    "id",
+                    "messagingThreadId",
+                    "connectedAccountId",
+                    "provider",
+                    "direction",
+                    "sender",
+                    "recipients",
+                    "subject",
+                    "bodyText",
+                    "bodyHtml",
+                    "attachmentsMeta",
+                    "isEvent",
+                    "isDeleted",
+                    "isHidden",
+                    "isDraft",
+                    "sentAt",
+                    "editedAt",
+                    "reactions",
+                    "draftRevision",
+                    "repeated"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "The provider accepted the email, but its sent copy is not recorded yet; it appears in the inbox once the mailbox syncs it. Also answered for a repeat while that copy is still missing (repeated true).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "messageId": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "threadId": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "providerMessageId": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "repeated": {
+                      "type": "boolean",
+                      "description": "true when this answers an earlier accepted send of the same draft revision; nothing was sent again"
+                    },
+                    "sent": {
+                      "type": "boolean",
+                      "const": true
+                    }
+                  },
+                  "required": [
+                    "messageId",
+                    "threadId",
+                    "providerMessageId",
+                    "repeated",
+                    "sent"
+                  ],
+                  "additionalProperties": false,
+                  "description": "The provider accepted the message. messageId and threadId are null while the sent copy is not recorded yet."
                 }
               }
             }
@@ -99289,7 +99475,7 @@
       "post": {
         "operationId": "startChat",
         "summary": "Start a chat",
-        "description": "Starts a new chat thread (LinkedIn, WhatsApp, etc.) with one or more attendees from a connected account and sends the first message. This delivers a real message as a side effect. When delivering a saved draft, pass both draftMessageId and its opaque draftRevision so a newer edit cannot be consumed.",
+        "description": "Starts a new chat thread (LinkedIn, WhatsApp, etc.) with one or more attendees from a connected account and sends the first message. This delivers a real message as a side effect. When delivering a saved draft, pass both draftMessageId and its opaque draftRevision so a newer edit cannot be consumed. Each draft revision is sent at most once: repeating the request returns the first result with repeated true and sends nothing. A draft that cannot be sent answers 409 conflict, sends nothing and names the reason in customCode: draftChanged when the draft was saved again after this draftRevision; draftRecipientsChanged when attendeeIdentifiers differ from the saved draft's recipients; draftTargetMismatch when the draft belongs to another conversation or account; draftSendInProgress while an earlier send of this draft is still running, which counts as draftSendOutcomeUnknown after five minutes; draftSendOutcomeUnknown when an earlier send could not be confirmed and may have been delivered, so the draft is sent again only after an edit changes its content; draftAlreadySent when this draft was already sent and the request carries other content or another draftRevision. A draft that no longer exists and was never sent answers 404 not_found with customCode draftMessageNotFound.",
         "tags": [
           "messaging"
         ],
@@ -99310,12 +99496,24 @@
         },
         "responses": {
           "201": {
-            "description": "The chat was started and the first message was sent successfully. Returns the app thread id of the started chat, or null when it could not be resolved yet.",
+            "description": "The chat was started, the provider accepted the first message and it is recorded. Returns the app thread and message ids of the started chat; repeated is true when an earlier send of this draft revision is answered.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "messageId": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
                     "threadId": {
                       "anyOf": [
                         {
@@ -99327,12 +99525,98 @@
                           "type": "null"
                         }
                       ]
+                    },
+                    "providerMessageId": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "repeated": {
+                      "type": "boolean",
+                      "description": "true when this answers an earlier accepted send of the same draft revision; nothing was sent again"
+                    },
+                    "sent": {
+                      "type": "boolean",
+                      "const": true
                     }
                   },
                   "required": [
-                    "threadId"
+                    "messageId",
+                    "threadId",
+                    "providerMessageId",
+                    "repeated",
+                    "sent"
                   ],
-                  "additionalProperties": false
+                  "additionalProperties": false,
+                  "description": "The provider accepted the message. messageId and threadId are null while the sent copy is not recorded yet."
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "The provider accepted the first message, but the started chat is not recorded yet, so threadId and messageId are null. Also answered for a repeat while the chat is still not recorded (repeated true).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "messageId": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "threadId": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "providerMessageId": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "repeated": {
+                      "type": "boolean",
+                      "description": "true when this answers an earlier accepted send of the same draft revision; nothing was sent again"
+                    },
+                    "sent": {
+                      "type": "boolean",
+                      "const": true
+                    }
+                  },
+                  "required": [
+                    "messageId",
+                    "threadId",
+                    "providerMessageId",
+                    "repeated",
+                    "sent"
+                  ],
+                  "additionalProperties": false,
+                  "description": "The provider accepted the message. messageId and threadId are null while the sent copy is not recorded yet."
                 }
               }
             }
@@ -99426,7 +99710,7 @@
       "post": {
         "operationId": "saveDraft",
         "summary": "Save a message draft",
-        "description": "Saves or updates the draft reply on a thread for the current user to review and send from the inbox. Local only; nothing is delivered. subject, cc, and bcc apply to email threads. An explicit recipients array overrides To; use [] for Cc-only or Bcc-only email. Omit recipients to retain the thread-derived primary recipients. There is one draft per thread; saving again replaces it.",
+        "description": "Saves or updates the draft reply on a thread for the current user to review and send from the inbox. Local only; nothing is delivered. subject, cc, and bcc apply to email threads. An explicit recipients array overrides To; use [] for Cc-only or Bcc-only email. Omit recipients to retain the thread-derived primary recipients. There is one draft per thread; saving again replaces it. While that draft is being sent, saving answers 409 with customCode draftSendInProgress and changes nothing.",
         "tags": [
           "messaging"
         ],
@@ -100412,6 +100696,16 @@
               }
             }
           },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error. The body is not a structured failure."
           }
@@ -100422,7 +100716,7 @@
       "post": {
         "operationId": "saveNewThreadDraft",
         "summary": "Save a draft for a new conversation",
-        "description": "Saves a draft for a conversation that does not exist yet, so it can be reviewed and sent from the inbox. Provide connectedAccountId and recipients; a local draft thread is created and appears in the inbox with the draft filter. Local only; nothing is delivered, and the provider conversation is created when the draft is sent. subject, cc, and bcc apply to email accounts. Email needs at least one recipient across recipients, cc and bcc; use recipients: [] for Cc-only or Bcc-only email. Hidden Bcc recipients are never public thread participants. Reusing the same account and primary recipient set updates the existing draft; drafts without primary recipients also distinguish Cc and Bcc recipient groups.",
+        "description": "Saves a draft for a conversation that does not exist yet, so it can be reviewed and sent from the inbox. Provide connectedAccountId and recipients; a local draft thread is created and appears in the inbox with the draft filter. Local only; nothing is delivered, and the provider conversation is created when the draft is sent. subject, cc, and bcc apply to email accounts. Email needs at least one recipient across recipients, cc and bcc; use recipients: [] for Cc-only or Bcc-only email. Hidden Bcc recipients are never public thread participants. Every call creates a new draft conversation, also for recipients that already have one; to change a saved draft, save it again on its returned thread with `POST /v1/messaging/threads/{id}/drafts`.",
         "tags": [
           "messaging"
         ],
@@ -101412,7 +101706,7 @@
       "delete": {
         "operationId": "discardDraft",
         "summary": "Discard a message draft",
-        "description": "Deletes exactly the saved draft revision identified by id and draftRevision. A newer edit is never discarded; sent messages are unaffected. An id that holds no draft visible to the key (already discarded or sent, or not a draft) is a safe no-op that returns `threadId: null`. A draftRevision that no longer matches the saved draft answers 404 and deletes nothing.",
+        "description": "Deletes exactly the saved draft revision identified by id and draftRevision. A newer edit is never discarded; sent messages are unaffected. An id that holds no draft visible to the key (already discarded or sent, or not a draft) is a safe no-op that returns `threadId: null`. A draftRevision that no longer matches the saved draft answers 409 with customCode draftChanged, and a draft that is being sent answers 409 with customCode draftSendInProgress; both delete nothing.",
         "tags": [
           "messaging"
         ],
@@ -101504,8 +101798,8 @@
               }
             }
           },
-          "404": {
-            "description": "Not found",
+          "409": {
+            "description": "Conflict",
             "content": {
               "application/json": {
                 "schema": {
@@ -117032,7 +117326,7 @@
             }
           },
           "draftMessageId": {
-            "description": "Saved draft to convert or discard after this exact delivery succeeds",
+            "description": "Saved draft to send. Each draft revision is sent at most once: repeating the call returns the first result",
             "type": "string",
             "format": "uuid",
             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
@@ -117128,7 +117422,7 @@
             }
           },
           "draftMessageId": {
-            "description": "Saved new-conversation draft to reconcile after delivery",
+            "description": "Saved new-conversation draft to send. Each draft revision is sent at most once: repeating the call returns the first result",
             "type": "string",
             "format": "uuid",
             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
@@ -117236,6 +117530,7 @@
                         "agentTurnAlreadyRunning",
                         "notAuthenticated",
                         "userInactive",
+                        "emailVerificationRequired",
                         "permissionDenied",
                         "insufficientPermissions",
                         "demoMode",
@@ -117351,6 +117646,7 @@
                         "routineScheduleTooFrequent",
                         "routineTimeZoneInvalid",
                         "routineLimitReached",
+                        "routinesRequireCloud",
                         "routineTriggerEventsRequired",
                         "invalidFilterField",
                         "invalidGroupingField",
@@ -117379,6 +117675,12 @@
                         "emailRecipientsRequired",
                         "draftToRecipientsLocked",
                         "draftMessageNotFound",
+                        "draftChanged",
+                        "draftRecipientsChanged",
+                        "draftTargetMismatch",
+                        "draftSendInProgress",
+                        "draftSendOutcomeUnknown",
+                        "draftAlreadySent",
                         "draftThreadNotSent",
                         "subjectRequired",
                         "duplicateOutboundSuppressed",
@@ -126255,6 +126557,7 @@
             }
           },
           "draftMessageId": {
+            "description": "Saved draft to send. Each draft revision is sent at most once: repeating the call returns the first result",
             "type": "string",
             "format": "uuid",
             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"

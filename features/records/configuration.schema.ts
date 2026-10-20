@@ -40,8 +40,6 @@ export const DeletionBlockerSchema = z
       "calculation",
       "snapshotTrigger",
       "parentAccess",
-      "binding",
-      "protected",
       "routine",
       "webhook",
       "widget",

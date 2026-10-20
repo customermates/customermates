@@ -28,7 +28,10 @@ import type {
   RecordPlacement,
   RecordRepo,
   RecordRepoOwners,
+  RecordEventAppend,
   RecordTrashItemInput,
+  StoredDependencyWrite,
+  StoredValueWrite,
   TrashReadOptions,
 } from "./record.repo";
 import { CONFIGURATION_CONSUMER_PAGE } from "./record.repo";
@@ -77,6 +80,16 @@ const CONFIGURATION_DELETION_PAGE = 200;
 const STAGED_EVENT_PAGE = 1000;
 const PERSONALIZATION_KEY = "personalization:";
 const VIEW_KEY = "view:";
+
+const BULK_READ_CHUNK = 1000;
+const BULK_WRITE_CHUNK = 500;
+const STAGE_KEY_CHUNK = 10000;
+
+const recordKey = (ref: RecordRef) => `${ref.typeId}:${ref.recordId}`;
+
+function uniqueRefs(refs: RecordRef[]): RecordRef[] {
+  return [...new Map(refs.map((ref) => [recordKey(ref), ref])).values()];
+}
 
 export class PrismaRecordRepo
   extends TenantRepository
@@ -295,7 +308,7 @@ export class PrismaRecordRepo
         companyId: this.companyId,
         identityId,
         typeId: { in: typeIds },
-        record: { is: { companyId: this.companyId, protectedKind: null, deletedAt: null } },
+        record: { is: { companyId: this.companyId, deletedAt: null } },
         ...(after
           ? {
               OR: [{ typeId: { gt: after.typeId } }, { typeId: after.typeId, recordId: { gt: after.recordId } }],
@@ -473,7 +486,7 @@ export class PrismaRecordRepo
     const records = new Map<string, ConfigurationDeletionRecord>();
     if (wanted && !wanted.size) return records;
     const companyId = this.companyId;
-    const deletions = RecordRevisionChangeSchema.shape.deletions.unwrap();
+    const deletions = RecordRevisionChangeSchema.shape.deletions.unwrap().element.strip().array();
     let cursor: number | undefined;
     for (;;) {
       const rows = await this.prisma.recordSchemaRevision.findMany({
@@ -498,6 +511,13 @@ export class PrismaRecordRepo
       if (rows.length < CONFIGURATION_DELETION_PAGE) return records;
       cursor = rows.at(-1)?.revision;
     }
+  }
+
+  async getConfigurationTrashTargetIds(): Promise<Set<string>> {
+    const items = await this.owners.trash.findItemsCompanyWide(this.companyId, {
+      kinds: ["list", "field", "relationship"],
+    });
+    return new Set(items.map((item) => item.targetId));
   }
 
   async applyConsumerCleanups(cleanups: ConfigurationConsumerCleanup[]): Promise<{ pausedWebhookIds: string[] }> {
@@ -1403,6 +1423,89 @@ export class PrismaRecordRepo
     return link ? { typeId: link.targetTypeId, recordId: link.targetId } : null;
   }
 
+  async getTrashPurgedAlongCompanyWide(trashItemIds: string[], relationIds: string[]) {
+    if (!trashItemIds.length || !relationIds.length) return { itemIds: [], refs: [] };
+    const companyId = this.companyId;
+    const rows = await this.prisma.$queryRaw<
+      Array<{ typeId: string; id: string; trashItemId: string; whole: boolean }>
+    >(
+      Prisma.sql`
+      WITH RECURSIVE purged("typeId", id) AS (
+        SELECT record."typeId", record.id FROM "CrmRecord" record
+        WHERE record."companyId" = ${companyId} AND record."trashItemId" IN (${Prisma.join(trashItemIds)})
+          AND record."deletedAt" IS NOT NULL
+        UNION
+        SELECT next."typeId", next.id FROM purged CROSS JOIN LATERAL (
+          SELECT child."typeId", child.id FROM "RecordLink" link
+          JOIN "CrmRecord" child ON child."companyId" = link."companyId" AND child."typeId" = link."sourceTypeId"
+            AND child.id = link."sourceId" AND child."deletedAt" IS NOT NULL
+          WHERE link."companyId" = ${companyId} AND link."relationId" IN (${Prisma.join(relationIds)})
+            AND link."targetTypeId" = purged."typeId" AND link."targetId" = purged.id AND link."deletedAt" IS NOT NULL
+          UNION ALL
+          SELECT member."typeId", member.id FROM "TrashItem" item
+          JOIN "CrmRecord" member ON member."companyId" = item."companyId" AND member."trashItemId" = item.id
+            AND member."deletedAt" IS NOT NULL
+          WHERE item."companyId" = ${companyId} AND item.kind = 'record'
+            AND item."typeId" = purged."typeId" AND item."targetId" = purged.id
+        ) next
+      )
+      SELECT record."typeId", record.id, record."trashItemId",
+        EXISTS (SELECT 1 FROM "TrashItem" item JOIN purged root ON root."typeId" = item."typeId" AND root.id = item."targetId"
+          WHERE item."companyId" = ${companyId} AND item.id = record."trashItemId") AS whole
+      FROM purged JOIN "CrmRecord" record ON record."companyId" = ${companyId}
+        AND record."typeId" = purged."typeId" AND record.id = purged.id
+      WHERE record."trashItemId" NOT IN (${Prisma.join(trashItemIds)})
+      ORDER BY record."trashItemId", record."typeId", record.id`,
+    );
+    return {
+      itemIds: [...new Set(rows.filter((row) => row.whole).map((row) => row.trashItemId))],
+      refs: rows.filter((row) => !row.whole).map((row) => ({ typeId: row.typeId, recordId: row.id })),
+    };
+  }
+
+  async getTrashedSubListRowsCompanyWide(trashItemId: string, subLists: Array<{ typeId: string; relationId: string }>) {
+    if (!subLists.length) return [];
+    const rows = await this.prisma.$queryRaw<
+      Array<{
+        typeId: string;
+        id: string;
+        parentTypeId: string | null;
+        parentId: string | null;
+        parentItemId: string | null;
+      }>
+    >(Prisma.sql`
+      SELECT member."typeId", member.id, parent."typeId" AS "parentTypeId", parent.id AS "parentId",
+        parent."trashItemId" AS "parentItemId"
+      FROM "CrmRecord" member
+      JOIN (VALUES ${Prisma.join(subLists.map((entry) => Prisma.sql`(${entry.typeId}::text, ${entry.relationId}::text)`))})
+        AS sublist("typeId", "relationId") ON sublist."typeId" = member."typeId"
+      LEFT JOIN "RecordLink" link ON link."companyId" = member."companyId" AND link."relationId" = sublist."relationId"
+        AND link."sourceTypeId" = member."typeId" AND link."sourceId" = member.id
+      LEFT JOIN "CrmRecord" parent ON parent."companyId" = link."companyId" AND parent."typeId" = link."targetTypeId"
+        AND parent.id = link."targetId"
+      WHERE member."companyId" = ${this.companyId} AND member."trashItemId" = ${trashItemId}
+      ORDER BY member."typeId", member.id`);
+    return rows.map((row) => ({
+      ref: { typeId: row.typeId, recordId: row.id },
+      parent:
+        row.parentTypeId && row.parentId
+          ? { ref: { typeId: row.parentTypeId, recordId: row.parentId }, trashItemId: row.parentItemId }
+          : null,
+    }));
+  }
+
+  async reassignTrashedRecordsCompanyWide(refs: RecordRef[], trashItemId: string): Promise<void> {
+    if (!refs.length) return;
+    await this.prisma.crmRecord.updateMany({
+      where: {
+        companyId: this.companyId,
+        deletedAt: { not: null },
+        OR: refs.map((ref) => ({ typeId: ref.typeId, id: ref.recordId })),
+      },
+      data: { trashItemId },
+    });
+  }
+
   async restoreRecords(refs: RecordRef[]): Promise<void> {
     if (!refs.length) return;
     await this.prisma.crmRecord.updateMany({
@@ -1411,22 +1514,38 @@ export class PrismaRecordRepo
     });
   }
 
-  async restoreLink(id: string): Promise<void> {
-    await this.prisma.recordLink.updateMany({ where: { companyId: this.companyId, id }, data: { deletedAt: null } });
+  async restoreLinks(links: Array<{ relationId: string; id: string }>): Promise<void> {
+    for (let offset = 0; offset < links.length; offset += BULK_WRITE_CHUNK) {
+      const chunk = links.slice(offset, offset + BULK_WRITE_CHUNK);
+      await this.prisma.$executeRaw(Prisma.sql`UPDATE "RecordLink" link SET "deletedAt" = NULL
+        WHERE link."companyId" = ${this.companyId}
+          AND (link."relationId", link.id) IN (SELECT * FROM unnest(${chunk.map((entry) => entry.relationId)}::text[], ${chunk.map((entry) => entry.id)}::text[]))`);
+    }
   }
 
-  async dropTrashedLink(id: string): Promise<void> {
-    await this.prisma.recordLink.deleteMany({ where: { companyId: this.companyId, id, deletedAt: { not: null } } });
+  async dropTrashedLinks(links: Array<{ relationId: string; id: string }>): Promise<void> {
+    for (let offset = 0; offset < links.length; offset += BULK_WRITE_CHUNK) {
+      const chunk = links.slice(offset, offset + BULK_WRITE_CHUNK);
+      await this.prisma.$executeRaw(Prisma.sql`DELETE FROM "RecordLink" link
+        WHERE link."companyId" = ${this.companyId} AND link."deletedAt" IS NOT NULL
+          AND (link."relationId", link.id) IN (SELECT * FROM unnest(${chunk.map((entry) => entry.relationId)}::text[], ${chunk.map((entry) => entry.id)}::text[]))`);
+    }
   }
 
   async removeTrashItems(ids: string[]): Promise<void> {
     await this.owners.trash.removeItemsCompanyWide(this.companyId, ids);
   }
 
-  async countTrashedRecordsCompanyWide(trashItemIds: string[]) {
-    if (!trashItemIds.length) return { records: [], links: 0 };
+  async countTrashedRecordsCompanyWide(trashItemIds: string[], refs: RecordRef[] = []) {
+    if (!trashItemIds.length && !refs.length) return { records: [], links: 0 };
     const companyId = this.companyId;
-    const trashed = { companyId, trashItemId: { in: trashItemIds } };
+    const trashed = {
+      companyId,
+      OR: [
+        { trashItemId: { in: trashItemIds } },
+        ...refs.map((ref) => ({ typeId: ref.typeId, id: ref.recordId, deletedAt: { not: null } })),
+      ],
+    };
     const [groups, links] = await Promise.all([
       this.prisma.crmRecord.groupBy({
         by: ["typeId"],
@@ -1450,6 +1569,18 @@ export class PrismaRecordRepo
     });
     const refs = purged.map((row) => ({ typeId: row.typeId, recordId: row.id }));
     if (refs.length) {
+      const droppedLinks = await this.prisma.$queryRaw<Array<{ id: string; count: number }>>(Prisma.sql`
+        SELECT survivor."trashItemId" AS id, COUNT(*)::integer AS count FROM "CrmRecord" purged
+        JOIN "RecordLink" link ON link."companyId" = purged."companyId" AND link."deletedAt" IS NOT NULL
+          AND ((link."sourceTypeId" = purged."typeId" AND link."sourceId" = purged.id)
+            OR (link."targetTypeId" = purged."typeId" AND link."targetId" = purged.id))
+        JOIN "CrmRecord" survivor ON survivor."companyId" = link."companyId" AND survivor."deletedAt" IS NOT NULL
+          AND ((survivor."typeId" = link."sourceTypeId" AND survivor.id = link."sourceId")
+            OR (survivor."typeId" = link."targetTypeId" AND survivor.id = link."targetId"))
+        WHERE purged."companyId" = ${companyId} AND purged."deletedAt" IS NOT NULL
+          AND purged."trashItemId" IN (${Prisma.join(ids)}) AND survivor."trashItemId" NOT IN (${Prisma.join(ids)})
+        GROUP BY survivor."trashItemId"`);
+      await this.owners.trash.addDroppedLinksCompanyWide(companyId, droppedLinks);
       await this.owners.events.eraseTrashedRecordPayloadsCompanyWide(companyId, ids);
       const identities = await this.prisma.recordIdentityLink.findMany({
         where: { companyId, record: { is: { companyId, trashItemId: { in: ids }, deletedAt: { not: null } } } },
@@ -1487,32 +1618,42 @@ export class PrismaRecordRepo
   }
 
   async setValue(ref: RecordRef, fieldId: string, result: CalculatedValue, revision: number): Promise<void> {
+    await this.setValues([{ ref, fieldId, result, revision }]);
+  }
+
+  async setValues(values: StoredValueWrite[]): Promise<void> {
     const companyId = this.companyId;
-    const data = encodeRecordValue(result);
-    const json = data.jsonValue === null ? null : JSON.stringify(data.jsonValue);
-    const range = result.state === "value" && result.value.kind === "range" ? result.value : null;
-    await this.prisma.$executeRaw(Prisma.sql`
-      INSERT INTO "RecordValue" (
-        "companyId", "typeId", "recordId", "fieldId", "state", "textValue",
-        "textListValue", "decimalValue", "currency", "booleanValue", "instantValue",
-        "lexicalValue", "jsonValue", "errorCode", "schemaRevision", "updatedAt", "rangeStart", "rangeEnd"
-      ) VALUES (
-        ${companyId}, ${ref.typeId}, ${ref.recordId}, ${fieldId}, ${data.state}, ${data.textValue},
-        ARRAY(SELECT jsonb_array_elements_text(${JSON.stringify(data.textListValue)}::jsonb)),
-        ${data.decimalValue?.toFixed() ?? null}::numeric, ${data.currency}, ${data.booleanValue},
-        ${data.lexicalValue}::timestamptz AT TIME ZONE 'UTC', ${data.lexicalValue},
-        ${json}::jsonb, ${data.errorCode}, ${revision}, CURRENT_TIMESTAMP,
-        ${range?.start ?? null}::timestamptz AT TIME ZONE 'UTC', ${range?.end ?? null}::timestamptz AT TIME ZONE 'UTC'
-      )
-      ON CONFLICT ("companyId", "typeId", "recordId", "fieldId") DO UPDATE SET
-        "state" = EXCLUDED."state", "textValue" = EXCLUDED."textValue",
-        "textListValue" = EXCLUDED."textListValue", "decimalValue" = EXCLUDED."decimalValue",
-        "currency" = EXCLUDED."currency", "booleanValue" = EXCLUDED."booleanValue",
-        "instantValue" = EXCLUDED."instantValue", "lexicalValue" = EXCLUDED."lexicalValue",
-        "jsonValue" = EXCLUDED."jsonValue", "errorCode" = EXCLUDED."errorCode",
-        "rangeStart" = EXCLUDED."rangeStart", "rangeEnd" = EXCLUDED."rangeEnd",
-        "schemaRevision" = EXCLUDED."schemaRevision", "updatedAt" = EXCLUDED."updatedAt"
-    `);
+    const unique = [...new Map(values.map((entry) => [`${recordKey(entry.ref)}:${entry.fieldId}`, entry])).values()];
+    for (let offset = 0; offset < unique.length; offset += BULK_WRITE_CHUNK) {
+      const rows = unique.slice(offset, offset + BULK_WRITE_CHUNK).map(({ ref, fieldId, result, revision }) => {
+        const data = encodeRecordValue(result);
+        const json = data.jsonValue === null ? null : JSON.stringify(data.jsonValue);
+        const range = result.state === "value" && result.value.kind === "range" ? result.value : null;
+        return Prisma.sql`(
+          ${companyId}, ${ref.typeId}, ${ref.recordId}, ${fieldId}, ${data.state}, ${data.textValue},
+          ARRAY(SELECT jsonb_array_elements_text(${JSON.stringify(data.textListValue)}::jsonb)),
+          ${data.decimalValue?.toFixed() ?? null}::numeric, ${data.currency}, ${data.booleanValue}::boolean,
+          ${data.lexicalValue}::timestamptz AT TIME ZONE 'UTC', ${data.lexicalValue},
+          ${json}::jsonb, ${data.errorCode}, ${revision}::integer, CURRENT_TIMESTAMP,
+          ${range?.start ?? null}::timestamptz AT TIME ZONE 'UTC', ${range?.end ?? null}::timestamptz AT TIME ZONE 'UTC'
+        )`;
+      });
+      await this.prisma.$executeRaw(Prisma.sql`
+        INSERT INTO "RecordValue" (
+          "companyId", "typeId", "recordId", "fieldId", "state", "textValue",
+          "textListValue", "decimalValue", "currency", "booleanValue", "instantValue",
+          "lexicalValue", "jsonValue", "errorCode", "schemaRevision", "updatedAt", "rangeStart", "rangeEnd"
+        ) VALUES ${Prisma.join(rows)}
+        ON CONFLICT ("companyId", "typeId", "recordId", "fieldId") DO UPDATE SET
+          "state" = EXCLUDED."state", "textValue" = EXCLUDED."textValue",
+          "textListValue" = EXCLUDED."textListValue", "decimalValue" = EXCLUDED."decimalValue",
+          "currency" = EXCLUDED."currency", "booleanValue" = EXCLUDED."booleanValue",
+          "instantValue" = EXCLUDED."instantValue", "lexicalValue" = EXCLUDED."lexicalValue",
+          "jsonValue" = EXCLUDED."jsonValue", "errorCode" = EXCLUDED."errorCode",
+          "rangeStart" = EXCLUDED."rangeStart", "rangeEnd" = EXCLUDED."rangeEnd",
+          "schemaRevision" = EXCLUDED."schemaRevision", "updatedAt" = EXCLUDED."updatedAt"
+      `);
+    }
   }
 
   async setValueDependencies(ref: RecordRef, fieldId: string, sources: RecordRef[]): Promise<void> {
@@ -1535,6 +1676,31 @@ export class PrismaRecordRepo
     }
   }
 
+  async setValueDependenciesMany(dependencies: StoredDependencyWrite[]): Promise<void> {
+    const unique = [
+      ...new Map(dependencies.map((entry) => [`${recordKey(entry.ref)}:${entry.fieldId}`, entry])).values(),
+    ];
+    for (let offset = 0; offset < unique.length; offset += BULK_WRITE_CHUNK) {
+      const chunk = unique.slice(offset, offset + BULK_WRITE_CHUNK);
+      await this.prisma.$executeRaw(Prisma.sql`DELETE FROM "RecordValueDependency" dependency
+        USING unnest(${chunk.map((entry) => entry.ref.typeId)}::text[], ${chunk.map((entry) => entry.ref.recordId)}::text[], ${chunk.map((entry) => entry.fieldId)}::text[])
+          AS owner("typeId", "recordId", "fieldId")
+        WHERE dependency."companyId" = ${this.companyId} AND dependency."typeId" = owner."typeId"
+          AND dependency."recordId" = owner."recordId" AND dependency."fieldId" = owner."fieldId"`);
+      const rows = chunk.flatMap((entry) => entry.sources.map((source) => ({ ...entry, source })));
+      for (let start = 0; start < rows.length; start += BULK_WRITE_CHUNK * 4) {
+        const part = rows.slice(start, start + BULK_WRITE_CHUNK * 4);
+        await this.prisma.$executeRaw(Prisma.sql`INSERT INTO "RecordValueDependency"
+          ("companyId", "typeId", "recordId", "fieldId", "sourceTypeId", "sourceId")
+          SELECT ${this.companyId}, * FROM unnest(
+            ${part.map((row) => row.ref.typeId)}::text[], ${part.map((row) => row.ref.recordId)}::text[],
+            ${part.map((row) => row.fieldId)}::text[], ${part.map((row) => row.source.typeId)}::text[],
+            ${part.map((row) => row.source.recordId)}::text[]
+          ) ON CONFLICT DO NOTHING`);
+      }
+    }
+  }
+
   async getValueDependencies(ref: RecordRef, fieldId: string): Promise<RecordRef[]> {
     const rows = await this.prisma.recordValueDependency.findMany({
       where: {
@@ -1549,6 +1715,29 @@ export class PrismaRecordRepo
       typeId: row.sourceTypeId,
       recordId: row.sourceId,
     }));
+  }
+
+  async getValueDependenciesManyCompanyWide(refs: RecordRef[], fieldIds: string[]) {
+    const owners = uniqueRefs(refs);
+    const fields = [...new Set(fieldIds)];
+    const found = new Map<string, RecordRef[]>();
+    for (let offset = 0; offset < owners.length && fields.length; offset += BULK_READ_CHUNK) {
+      const chunk = owners.slice(offset, offset + BULK_READ_CHUNK);
+      const rows = await this.prisma.$queryRaw<
+        Array<{ typeId: string; recordId: string; fieldId: string; sourceTypeId: string; sourceId: string }>
+      >(Prisma.sql`SELECT dependency."typeId", dependency."recordId", dependency."fieldId", dependency."sourceTypeId", dependency."sourceId"
+        FROM "RecordValueDependency" dependency
+        WHERE dependency."companyId" = ${this.companyId}
+          AND (dependency."typeId", dependency."recordId") IN (SELECT * FROM unnest(${chunk.map((ref) => ref.typeId)}::text[], ${chunk.map((ref) => ref.recordId)}::text[]))
+          AND dependency."fieldId" = ANY(${fields}::text[])`);
+      for (const row of rows) {
+        const key = `${row.typeId}:${row.recordId}:${row.fieldId}`;
+        found.set(key, [...(found.get(key) ?? []), { typeId: row.sourceTypeId, recordId: row.sourceId }]);
+      }
+    }
+    return owners.flatMap((ref) =>
+      fields.map((fieldId) => ({ ref, fieldId, sources: found.get(`${ref.typeId}:${ref.recordId}:${fieldId}`) ?? [] })),
+    );
   }
 
   async getRecordDependenciesCompanyWide(ref: RecordRef) {
@@ -1568,6 +1757,37 @@ export class PrismaRecordRepo
       fields.set(row.fieldId, sources);
     }
     return [...fields].map(([fieldId, sources]) => ({ fieldId, sources }));
+  }
+
+  async getRecordDependenciesManyCompanyWide(refs: RecordRef[]) {
+    const owners = uniqueRefs(refs);
+    const found = new Map<string, Map<string, RecordRef[]>>();
+    for (let offset = 0; offset < owners.length; offset += BULK_READ_CHUNK) {
+      const chunk = owners.slice(offset, offset + BULK_READ_CHUNK);
+      const rows = await this.prisma.$queryRaw<
+        Array<{ typeId: string; recordId: string; fieldId: string; sourceTypeId: string; sourceId: string }>
+      >(Prisma.sql`SELECT dependency."typeId", dependency."recordId", dependency."fieldId", dependency."sourceTypeId", dependency."sourceId"
+        FROM "RecordValueDependency" dependency
+        WHERE dependency."companyId" = ${this.companyId}
+          AND (dependency."typeId", dependency."recordId") IN (SELECT * FROM unnest(${chunk.map((ref) => ref.typeId)}::text[], ${chunk.map((ref) => ref.recordId)}::text[]))
+        ORDER BY dependency."fieldId", dependency."sourceTypeId", dependency."sourceId"`);
+      for (const row of rows) {
+        const key = `${row.typeId}:${row.recordId}`;
+        const fields = found.get(key) ?? new Map<string, RecordRef[]>();
+        fields.set(row.fieldId, [
+          ...(fields.get(row.fieldId) ?? []),
+          { typeId: row.sourceTypeId, recordId: row.sourceId },
+        ]);
+        found.set(key, fields);
+      }
+    }
+    return owners.map((ref) => ({
+      ref,
+      dependencies: [...(found.get(recordKey(ref)) ?? new Map<string, RecordRef[]>())].map(([fieldId, sources]) => ({
+        fieldId,
+        sources,
+      })),
+    }));
   }
 
   async getLinksCompanyWide(ref: RecordRef, take?: number) {
@@ -1590,18 +1810,20 @@ export class PrismaRecordRepo
     }));
   }
 
-  async getLinksCompanyWidePage(ref: RecordRef, afterId: string | undefined, take: number) {
+  async getLinksCompanyWidePage(ref: RecordRef, after: { id: string; relationId: string } | undefined, take: number) {
     const rows = await this.prisma.recordLink.findMany({
       where: {
         companyId: this.companyId,
         deletedAt: null,
-        ...(afterId ? { id: { gt: afterId } } : {}),
+        ...(after
+          ? { AND: { OR: [{ id: { gt: after.id } }, { id: after.id, relationId: { gt: after.relationId } }] } }
+          : {}),
         OR: [
           { sourceTypeId: ref.typeId, sourceId: ref.recordId },
           { targetTypeId: ref.typeId, targetId: ref.recordId },
         ],
       },
-      orderBy: { id: "asc" },
+      orderBy: [{ id: "asc" }, { relationId: "asc" }],
       take,
     });
     return rows.map((row) => ({
@@ -1694,7 +1916,7 @@ export class PrismaRecordRepo
           AND stage.kind = 'record' AND (stage.payload->>'deleted')::boolean
           AND NOT EXISTS (SELECT 1 FROM "CrmRecord" ${root}
             WHERE ${root}."companyId" = ${this.companyId} AND ${root}."typeId" = stage.payload->'ref'->>'typeId'
-              AND ${root}.id = stage.payload->'ref'->>'recordId' AND ${root}."protectedKind" IS NULL
+              AND ${root}.id = stage.payload->'ref'->>'recordId'
               AND ${root}.version = (stage.payload->>'version')::integer
               AND EXISTS (SELECT 1 FROM "RecordStageRow" planned
                 WHERE planned."companyId" = ${this.companyId} AND planned."operationId" = ${operationId}
@@ -1825,19 +2047,30 @@ export class PrismaRecordRepo
       payload: recordJson(payload),
     });
     if (publish) {
-      await this.captureRecordEventMatches(this.companyId, { eventId: id }, beforeDeletion);
+      await this.captureRecordEventMatches(this.companyId, { eventIds: [id] }, beforeDeletion);
       await this.wakeRecordEvents();
     }
   }
 
-  async deleteMembershipAuthorizationTasksCompanyWide(companyId: string, relatedUserId: string): Promise<void> {
-    await this.prisma.crmRecord.deleteMany({
-      where: {
-        companyId,
-        protectedKind: "membershipAuthorization",
-        systemData: { path: ["relatedUserId"], equals: relatedUserId },
-      },
-    });
+  async appendEvents(events: RecordEventAppend[]): Promise<void> {
+    const written = events.map((event) => ({ ...event, id: randomUUID() }));
+    for (let offset = 0; offset < written.length; offset += BULK_WRITE_CHUNK) {
+      await this.owners.events.appendRecordEventsCompanyWide(
+        this.companyId,
+        written.slice(offset, offset + BULK_WRITE_CHUNK).map((event) => ({
+          id: event.id,
+          ref: event.ref,
+          actorId: event.actorId,
+          causeId: event.causeId,
+          kind: event.kind,
+          payload: recordJson(event.payload),
+        })),
+      );
+    }
+    const published = written.filter((event) => event.publish).map((event) => event.id);
+    if (!published.length) return;
+    await this.captureRecordEventMatches(this.companyId, { eventIds: published });
+    await this.wakeRecordEvents();
   }
 
   @BypassTenantGuard
@@ -1925,6 +2158,18 @@ export class PrismaRecordRepo
     });
   }
 
+  async stageRows(operationId: string, kind: string, rows: Array<{ key: string; payload: unknown }>): Promise<void> {
+    const unique = [...new Map(rows.map((row) => [row.key, row])).values()];
+    for (let offset = 0; offset < unique.length; offset += BULK_WRITE_CHUNK) {
+      const chunk = unique.slice(offset, offset + BULK_WRITE_CHUNK);
+      await this.prisma
+        .$executeRaw(Prisma.sql`INSERT INTO "RecordStageRow" ("companyId", "operationId", kind, key, payload)
+        SELECT ${this.companyId}, ${operationId}, ${kind}, staged.key, staged.payload
+        FROM unnest(${chunk.map((row) => row.key)}::text[], ${chunk.map((row) => JSON.stringify(recordJson(row.payload)))}::jsonb[]) AS staged(key, payload)
+        ON CONFLICT ("companyId", "operationId", kind, key) DO UPDATE SET payload = EXCLUDED.payload`);
+    }
+  }
+
   async getStageRows(operationId: string, kind: string) {
     return this.prisma.recordStageRow.findMany({
       where: { companyId: this.companyId, operationId, kind },
@@ -1974,6 +2219,21 @@ export class PrismaRecordRepo
     });
   }
 
+  async getStageRowsByKeys(operationId: string, kind: string, keys: string[]) {
+    const unique = [...new Set(keys)];
+    const rows: Array<{ key: string; payload: Prisma.JsonValue }> = [];
+    for (let offset = 0; offset < unique.length; offset += STAGE_KEY_CHUNK) {
+      rows.push(
+        ...(await this.prisma.$queryRaw<
+          Array<{ key: string; payload: Prisma.JsonValue }>
+        >(Prisma.sql`SELECT key, payload
+          FROM "RecordStageRow" WHERE "companyId" = ${this.companyId} AND "operationId" = ${operationId} AND kind = ${kind}
+            AND key = ANY(${unique.slice(offset, offset + STAGE_KEY_CHUNK)}::text[])`)),
+      );
+    }
+    return rows;
+  }
+
   async getStageRecordRefsCompanyWide(
     operationId: string,
     typeId: string,
@@ -1988,6 +2248,74 @@ export class PrismaRecordRepo
       UNION SELECT stage.payload->'ref'->>'recordId' FROM "RecordStageRow" stage WHERE stage."companyId" = ${this.companyId} AND stage."operationId" = ${operationId} AND stage.kind = 'record' AND stage.payload->'ref'->>'typeId' = ${typeId} AND NOT (stage.payload->>'deleted')::boolean
     ) SELECT id FROM candidates WHERE ${afterId ? Prisma.sql`id > ${afterId}` : Prisma.sql`TRUE`} ORDER BY id LIMIT ${take}`);
     return rows.map((row) => ({ typeId, recordId: row.id }));
+  }
+
+  async linkedRecordsManyCompanyWide(
+    refs: RecordRef[],
+    relationId: string,
+    direction: "outgoing" | "incoming",
+    take = 1000000,
+  ): Promise<Array<{ ref: RecordRef; linked: RecordRef[] }>> {
+    const outgoing = direction === "outgoing";
+    const fromType = Prisma.raw(outgoing ? 'link."sourceTypeId"' : 'link."targetTypeId"');
+    const fromId = Prisma.raw(outgoing ? 'link."sourceId"' : 'link."targetId"');
+    const toType = Prisma.raw(outgoing ? 'link."targetTypeId"' : 'link."sourceTypeId"');
+    const toId = Prisma.raw(outgoing ? 'link."targetId"' : 'link."sourceId"');
+    const owners = uniqueRefs(refs);
+    const found = new Map<string, RecordRef[]>();
+    for (let offset = 0; offset < owners.length; offset += BULK_READ_CHUNK) {
+      const chunk = owners.slice(offset, offset + BULK_READ_CHUNK);
+      const rows = await this.prisma.$queryRaw<
+        Array<{ fromTypeId: string; fromId: string; typeId: string; recordId: string }>
+      >(Prisma.sql`SELECT "fromTypeId", "fromId", "typeId", "recordId" FROM (
+          SELECT ${fromType} AS "fromTypeId", ${fromId} AS "fromId", ${toType} AS "typeId", ${toId} AS "recordId",
+            row_number() OVER (PARTITION BY ${fromType}, ${fromId}) AS position
+          FROM "RecordLink" link
+          WHERE link."companyId" = ${this.companyId} AND link."relationId" = ${relationId} AND link."deletedAt" IS NULL
+            AND (${fromType}, ${fromId}) IN (SELECT * FROM unnest(${chunk.map((ref) => ref.typeId)}::text[], ${chunk.map((ref) => ref.recordId)}::text[]))
+        ) ranked WHERE position <= ${take}`);
+      for (const row of rows) {
+        const key = `${row.fromTypeId}:${row.fromId}`;
+        found.set(key, [...(found.get(key) ?? []), { typeId: row.typeId, recordId: row.recordId }]);
+      }
+    }
+    return owners.map((ref) => ({ ref, linked: found.get(`${ref.typeId}:${ref.recordId}`) ?? [] }));
+  }
+
+  async linkedStageRecordsManyCompanyWide(
+    operationId: string,
+    refs: RecordRef[],
+    relationId: string,
+    direction: "outgoing" | "incoming",
+    take = 1000000,
+  ): Promise<Array<{ ref: RecordRef; linked: RecordRef[] }>> {
+    const outgoing = direction === "outgoing";
+    const sourceId = Prisma.raw(outgoing ? 'link."sourceId"' : 'link."targetId"');
+    const typeColumn = Prisma.raw(outgoing ? 'link."targetTypeId"' : 'link."sourceTypeId"');
+    const idColumn = Prisma.raw(outgoing ? 'link."targetId"' : 'link."sourceId"');
+    const sourceKey = outgoing ? "source" : "target";
+    const targetKey = outgoing ? "target" : "source";
+    const owners = uniqueRefs(refs);
+    const found = new Map<string, RecordRef[]>();
+    for (let offset = 0; offset < owners.length; offset += BULK_READ_CHUNK) {
+      const chunk = owners.slice(offset, offset + BULK_READ_CHUNK);
+      const ids = chunk.map((ref) => ref.recordId);
+      const rows = await this.prisma.$queryRaw<
+        Array<{ fromId: string; typeId: string; recordId: string }>
+      >(Prisma.sql`WITH candidates AS (
+        SELECT ${sourceId} AS "fromId", ${typeColumn} AS "typeId", ${idColumn} AS "recordId" FROM "RecordLink" link
+          WHERE link."companyId" = ${this.companyId} AND link."relationId" = ${relationId} AND link."deletedAt" IS NULL AND ${sourceId} = ANY(${ids}::text[])
+          AND NOT EXISTS (SELECT 1 FROM "RecordStageRow" stage WHERE stage."companyId" = ${this.companyId} AND stage."operationId" = ${operationId} AND stage.kind = 'link' AND stage.key = link."relationId" || ':' || link."sourceId" || ':' || link."targetId")
+        UNION SELECT stage.payload->${sourceKey}->>'recordId', stage.payload->${targetKey}->>'typeId', stage.payload->${targetKey}->>'recordId' FROM "RecordStageRow" stage
+          WHERE stage."companyId" = ${this.companyId} AND stage."operationId" = ${operationId} AND stage.kind = 'link' AND stage.payload->>'relationId' = ${relationId} AND stage.payload->${sourceKey}->>'recordId' = ANY(${ids}::text[]) AND NOT (stage.payload->>'deleted')::boolean
+      ), live AS (
+        SELECT candidates.*, row_number() OVER (PARTITION BY candidates."fromId" ORDER BY candidates."typeId", candidates."recordId") AS position
+        FROM candidates WHERE NOT EXISTS (SELECT 1 FROM "RecordStageRow" stage WHERE stage."companyId" = ${this.companyId} AND stage."operationId" = ${operationId} AND stage.kind = 'record' AND stage.key = candidates."typeId" || ':' || candidates."recordId" AND (stage.payload->>'deleted')::boolean)
+      ) SELECT "fromId", "typeId", "recordId" FROM live WHERE position <= ${take} ORDER BY "fromId", "typeId", "recordId"`);
+      for (const row of rows)
+        found.set(row.fromId, [...(found.get(row.fromId) ?? []), { typeId: row.typeId, recordId: row.recordId }]);
+    }
+    return owners.map((ref) => ({ ref, linked: found.get(ref.recordId) ?? [] }));
   }
 
   async linkedStageRecordsCompanyWide(
@@ -2038,8 +2366,8 @@ export class PrismaRecordRepo
       Prisma.sql`UPDATE "RecordLink" link SET "deletedAt" = NOW() FROM "RecordStageRow" stage WHERE ${stage("record")} AND (stage.payload->>'deleted')::boolean AND stage.payload->>'trashItemId' IS NOT NULL AND link."companyId" = ${companyId} AND link."deletedAt" IS NULL AND ((link."sourceTypeId" = stage.payload->'ref'->>'typeId' AND link."sourceId" = stage.payload->'ref'->>'recordId') OR (link."targetTypeId" = stage.payload->'ref'->>'typeId' AND link."targetId" = stage.payload->'ref'->>'recordId'))`,
     );
     await this.prisma
-      .$executeRaw(Prisma.sql`INSERT INTO "CrmRecord" ("companyId", "typeId", id, version, "protectedKind", "systemData", "createdAt", "updatedAt")
-      SELECT ${companyId}, stage.payload->'ref'->>'typeId', stage.payload->'ref'->>'recordId', (stage.payload->>'version')::integer, stage.payload->>'protectedKind', NULLIF(stage.payload->'systemData', 'null'::jsonb), (stage.payload->>'createdAt')::timestamp, (stage.payload->>'updatedAt')::timestamp FROM "RecordStageRow" stage WHERE ${stage("record")} AND NOT (stage.payload->>'deleted')::boolean
+      .$executeRaw(Prisma.sql`INSERT INTO "CrmRecord" ("companyId", "typeId", id, version, "systemData", "createdAt", "updatedAt")
+      SELECT ${companyId}, stage.payload->'ref'->>'typeId', stage.payload->'ref'->>'recordId', (stage.payload->>'version')::integer, NULLIF(stage.payload->'systemData', 'null'::jsonb), (stage.payload->>'createdAt')::timestamp, (stage.payload->>'updatedAt')::timestamp FROM "RecordStageRow" stage WHERE ${stage("record")} AND NOT (stage.payload->>'deleted')::boolean
       ON CONFLICT ("companyId", "typeId", id) DO UPDATE SET version = EXCLUDED.version, "updatedAt" = EXCLUDED."updatedAt"`);
     const collisions = await this.prisma.$queryRaw<Array<{ collision: boolean }>>(Prisma.sql`
       SELECT EXISTS (
@@ -2124,16 +2452,6 @@ export class PrismaRecordRepo
       operationId,
     });
     await this.wakeRecordEvents();
-  }
-
-  async protectMembershipTask(ref: RecordRef, userId: string): Promise<void> {
-    await this.prisma.crmRecord.update({
-      where: {
-        companyId: this.companyId,
-        companyId_typeId_id: { companyId: this.companyId, typeId: ref.typeId, id: ref.recordId },
-      },
-      data: { protectedKind: "membershipAuthorization", systemData: { relatedUserId: userId } },
-    });
   }
 
   async clearOperationLock(id: string): Promise<void> {
@@ -2223,7 +2541,7 @@ export class PrismaRecordRepo
 
   private async capturedEventTypes(
     companyId: string,
-    selection: { eventId: string } | { operationId: string },
+    selection: { eventIds: string[] } | { operationId: string },
   ): Promise<Array<{ typeId: string }>> {
     const typeIds = new Set<string>();
     const collect = async (eventIds: string[]) => {
@@ -2235,8 +2553,10 @@ export class PrismaRecordRepo
       });
       for (const row of rows) if (row.subjectTypeId !== null) typeIds.add(row.subjectTypeId);
     };
-    if ("eventId" in selection) await collect([selection.eventId]);
-    else {
+    if ("eventIds" in selection) {
+      for (let offset = 0; offset < selection.eventIds.length; offset += BULK_READ_CHUNK)
+        await collect(selection.eventIds.slice(offset, offset + BULK_READ_CHUNK));
+    } else {
       let afterKey: string | undefined;
       for (;;) {
         const staged = await this.prisma.recordStageRow.findMany({
@@ -2265,7 +2585,7 @@ export class PrismaRecordRepo
 
   private async captureRecordEventMatches(
     companyId: string,
-    selection: { eventId: string } | { operationId: string },
+    selection: { eventIds: string[] } | { operationId: string },
     beforeDeletion = false,
   ): Promise<void> {
     const rows = await this.prisma.recordEventSubscription.findMany({
@@ -2289,8 +2609,8 @@ export class PrismaRecordRepo
     });
     if (!rows.length) return;
     const selected =
-      "eventId" in selection
-        ? Prisma.sql`event.id = ${selection.eventId}`
+      "eventIds" in selection
+        ? Prisma.sql`event.id = ANY(${selection.eventIds}::text[])`
         : Prisma.sql`EXISTS (SELECT 1 FROM "RecordStageRow" stage
           WHERE stage."companyId" = ${companyId} AND stage."operationId" = ${selection.operationId}
             AND stage.kind = 'event' AND stage.payload->>'id' = event.id

@@ -6,6 +6,9 @@ import { setPaletteText, expectPaletteText } from "./filter-palette";
 import { addFromConfigure, openConfigure } from "./configure";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { openRecordDetails } from "./record-rows";
+import { e2eAppMode } from "./workspace-switching";
+
+test.skip(e2eAppMode() === "self-hosted", "Routines are cloud-only");
 
 test("persists a routine for a customer-created type and matches only its configured record changes", async ({
   page,

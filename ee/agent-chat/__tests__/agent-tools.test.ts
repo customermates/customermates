@@ -24,7 +24,6 @@ const recordNavigationHarness = vi.hoisted(() => ({
     pluralLabel: string;
     icon: string;
     canCreate: boolean;
-    hasAuthorizationTasks: boolean;
   }>,
   canManageSchema: false,
 }));
@@ -387,6 +386,12 @@ describe("agent tools", () => {
 
     for (const name of ["mutate_crm_record", "configure_record_model", "manage_widgets"])
       expect(hasNonTransactionalEffect(name), name).toBe(false);
+  });
+
+  it("keeps invitation emails out of the exactly-once transaction but not member updates", () => {
+    expect(hasNonTransactionalEffect("manage_team", { action: "invite", emails: ["new@example.com"] })).toBe(true);
+    expect(hasNonTransactionalEffect("manage_team", { action: "update_member", userId: "user-1" })).toBe(false);
+    expect(hasNonTransactionalEffect("manage_team", { action: "invite_link" })).toBe(false);
   });
 
   it("exposes the MCP registry without the deep-research pair, plus the interface tools, load_toolset and analyze_records", () => {
@@ -1133,7 +1138,6 @@ describe("agent tools", () => {
         pluralLabel: "Projects",
         icon: "folder",
         canCreate: false,
-        hasAuthorizationTasks: false,
       },
     ];
     try {
@@ -1198,7 +1202,6 @@ describe("agent tools", () => {
         pluralLabel: "Deals",
         icon: "briefcase",
         canCreate: true,
-        hasAuthorizationTasks: false,
       },
     ];
     const layout = String(
@@ -1266,7 +1269,6 @@ describe("agent tools", () => {
         pluralLabel: "Contacts",
         icon: "user",
         canCreate: true,
-        hasAuthorizationTasks: false,
       },
       {
         id: dealId,
@@ -1274,7 +1276,6 @@ describe("agent tools", () => {
         pluralLabel: "Deals",
         icon: "briefcase",
         canCreate: true,
-        hasAuthorizationTasks: false,
       },
     ];
     const tools = getAgentAiTools(deps({ resultMaxChars: 4096 }));
@@ -1311,7 +1312,6 @@ describe("agent tools", () => {
         pluralLabel: "Aufgaben",
         icon: "check",
         canCreate: true,
-        hasAuthorizationTasks: false,
       },
     ];
     const tools = getAgentAiTools(deps({ resultMaxChars: 6000 }));
@@ -1367,7 +1367,6 @@ describe("agent tools", () => {
         pluralLabel: query,
         icon: "folder",
         canCreate: true,
-        hasAuthorizationTasks: false,
       },
     ];
     const tools = getAgentAiTools(deps({ resultMaxChars: 6000 }));
@@ -1420,7 +1419,6 @@ describe("agent tools", () => {
         pluralLabel: "Deals",
         icon: "briefcase",
         canCreate: true,
-        hasAuthorizationTasks: false,
       },
     ];
     const layout = String(

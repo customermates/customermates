@@ -28,6 +28,7 @@ export default async function OnboardingPage({ searchParams }: Props) {
   const locale = await getLocale();
   if (onboardingIntent.status === "invalid" && onboardingIntent.source === "explicit")
     redirect(buildLocalePath(locale, `/auth/error?type=${onboardingIntent.errorMessage}`));
+
   const activeIntent = onboardingIntent.status === "valid" ? onboardingIntent : null;
   const resolution = await requireAccountState(
     "unregistered",
@@ -39,6 +40,7 @@ export default async function OnboardingPage({ searchParams }: Props) {
 
   if (activeIntent?.type === "createCompany" && activeIntent.authUserId !== sessionUser.id)
     redirect(buildLocalePath(locale, "/auth/error?type=invalidOnboardingIntent"));
+
   if (activeIntent)
     redirect(buildLocalePath(locale, pathWithOnboardingIntent("/onboarding/wizard", activeIntent.intent)));
   if (sessionUser.companyId) redirect(buildLocalePath(locale, "/onboarding/wizard"));
@@ -46,7 +48,7 @@ export default async function OnboardingPage({ searchParams }: Props) {
 
   return (
     <CenteredCardPage className="animate-page-result-in motion-reduce:animate-none">
-      <OnboardingChoiceCard email={sessionUser.email} trialDays={trial.data.eligible ? CLOUD_TRIAL.days : null} />
+      <OnboardingChoiceCard trialDays={trial.data.eligible ? CLOUD_TRIAL.days : null} />
     </CenteredCardPage>
   );
 }

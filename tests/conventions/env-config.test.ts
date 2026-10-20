@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { join, relative } from "node:path";
+import { basename, join, relative } from "node:path";
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -13,6 +13,7 @@ import {
   resolveStrictBoolean,
   resolveVercelBranchOrigin,
 } from "@/core/config/environment";
+import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 
 import { REPO_ROOT, walkFiles } from "./walk";
 
@@ -359,6 +360,46 @@ describe("self-hosted configuration", () => {
     expect(readFileSync(join(REPO_ROOT, "scripts", "selfhost-restart.sh"), "utf8")).toContain(
       "docker compose up -d --no-deps --force-recreate app",
     );
+  });
+
+  it("updates like the documented update: a database backup first, then every image pulled and recreated", () => {
+    const update = readFileSync(join(REPO_ROOT, "scripts", "selfhost-update.sh"), "utf8");
+    const backup = update.indexOf("pg_dump");
+
+    expect(backup).toBeGreaterThan(-1);
+    expect(update.indexOf("docker compose pull\n")).toBeGreaterThan(backup);
+    expect(update).toContain("docker compose up -d\n");
+    expect(update).not.toMatch(/docker compose (?:pull|run|up -d)\b[^\n]*\bapp\b/u);
+  });
+
+  it("keeps the update script's database backups out of Git and the Docker build context", () => {
+    const update = readFileSync(join(REPO_ROOT, "scripts", "selfhost-update.sh"), "utf8");
+    const directory = /^BACKUP="([\w-]+)\//mu.exec(update)?.[1];
+    const lines = (file: string) =>
+      readFileSync(join(REPO_ROOT, file), "utf8")
+        .split("\n")
+        .map((line) => line.trim());
+
+    expect(directory).toBe("backups");
+    expect(update.indexOf("umask 077\n")).toBeGreaterThan(-1);
+    expect(update.indexOf("umask 077\n")).toBeLessThan(update.indexOf("pg_dump"));
+    expect(update).toContain("chmod 700 backups\n");
+    expect(lines(".gitignore")).toContain(`/${directory}/`);
+    expect(lines(".dockerignore")).toContain(directory);
+  });
+
+  it("names every self-host helper script in the self-hosting docs", () => {
+    const scripts = walkFiles(join(REPO_ROOT, "scripts"), (path) => /selfhost-[\w-]+\.sh$/u.test(path)).map(
+      (path) => `scripts/${basename(path)}`,
+    );
+
+    for (const locale of CONTENT_LOCALES) {
+      const docs = readFileSync(join(REPO_ROOT, "content", "docs", locale, "self-hosting.mdx"), "utf8");
+      expect(
+        scripts.filter((script) => !docs.includes(`\`${script}\``)),
+        locale,
+      ).toEqual([]);
+    }
   });
 
   it("sends operators to sign-up and names the provider buttons each auth page shows", () => {

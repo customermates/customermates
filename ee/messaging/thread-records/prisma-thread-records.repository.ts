@@ -22,13 +22,9 @@ export class PrismaThreadRecordsRepo extends TenantRepository implements ThreadR
       where: { companyId: this.companyId, threadId, record: { is: { deletedAt: null } } },
       orderBy: [{ typeId: "asc" }, { recordId: "asc" }],
       take,
-      select: { typeId: true, recordId: true, record: { select: { protectedKind: true } } },
+      select: { typeId: true, recordId: true },
     });
-    return rows.map((row) => ({
-      typeId: row.typeId,
-      recordId: row.recordId,
-      protected: row.record.protectedKind !== null,
-    }));
+    return rows.map((row) => ({ typeId: row.typeId, recordId: row.recordId }));
   }
 
   async has(threadId: string, ref: RecordRef) {

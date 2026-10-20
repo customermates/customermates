@@ -140,16 +140,12 @@ describeDatabase("workspace setup plan against the record engine", () => {
       const resolver = createSetupResolver(plan, { model: applied, references: previewed.data.references });
       for (const list of plan.recordModel.lists) expect(resolver.list(list.key)).toBeDefined();
       const people = plan.recordModel.lists.find((list) => list.role === "people")?.key ?? "";
-      const tasks = plan.recordModel.lists.find((list) => list.role === "tasks")?.key ?? "";
       expect(applied.fields.find((field) => field.id === resolver.field(`${people}.channels`))?.format).toMatchObject({
         providerAvatar: true,
       });
-      expect(applied.capabilities.map((binding) => [binding.kind, binding.typeId]).sort()).toEqual(
-        [
-          ["avatar", resolver.list(people)],
-          ["membershipAuthorization", resolver.list(tasks)],
-        ].sort(),
-      );
+      expect(applied.capabilities.map((binding) => [binding.kind, binding.typeId])).toEqual([
+        ["avatar", resolver.list(people)],
+      ]);
 
       const views = compileSetupListDefaults(plan, resolver, applied);
       if (!views.ok) throw new Error(JSON.stringify(views.issues));

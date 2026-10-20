@@ -37,7 +37,7 @@ export function identityReference(
     typePluralLabel: type?.pluralLabel ?? "",
     title: row.state === "value" && row.title ? row.title : (type?.label ?? ""),
     avatarUrl: row.pictureUrl,
-    canEdit: canEdit && !row.protectedKind,
+    canEdit,
   };
 }
 

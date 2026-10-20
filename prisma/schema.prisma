@@ -239,6 +239,7 @@ model Company {
   messagingThreads            MessagingThread[]
   messagingMessages           MessagingMessage[]
   messagingThreadParticipants MessagingThreadParticipant[]
+  messagingDraftSends         MessagingDraftSend[]
   accountActivities           AccountActivity[]
   calendars                   Calendar[]
   calendarEvents              CalendarEvent[]
@@ -896,7 +897,7 @@ enum Resource {
   users
   company
   api
-  auditLog
+  activityLog
   inboxMessages
   wiki
   routines
@@ -1197,6 +1198,7 @@ model ConnectedAccount {
   calendarEvents     CalendarEvent[]
   inboundEvents      MessagingInboundEvent[]
   accountActivities  AccountActivity[]
+  draftSends         MessagingDraftSend[]
 
   @@index([companyId])
   @@index([userId])
@@ -1300,6 +1302,30 @@ model MessagingMessage {
   @@index([folderIds], type: Gin)
 }
 
+model MessagingDraftSend {
+  id                 String                  @id @default(uuid())
+  companyId          String
+  company            Company                 @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  connectedAccountId String
+  connectedAccount   ConnectedAccount        @relation(fields: [connectedAccountId], references: [id], onDelete: Cascade)
+  draftMessageId     String
+  draftRevision      DateTime
+  state              MessagingDraftSendState @default(sending)
+  unipileMessageId   String?
+  providerMessageId  String?
+  sentMessageId      String?
+  sentThreadId       String?
+  contentHash        String
+  matchHashes        String[]                @default([])
+  claimedAt          DateTime                @default(now())
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+
+  @@unique([companyId, draftMessageId])
+  @@index([connectedAccountId, claimedAt])
+  @@index([updatedAt])
+}
+
 model AccountActivity {
   id                 String              @id @default(uuid())
   companyId          String
@@ -1345,6 +1371,12 @@ enum MessagingMessageDirection {
 enum MessagingMessageOrigin {
   unipile
   external
+}
+
+enum MessagingDraftSendState {
+  sending
+  sent
+  unknown
 }
 
 enum AccountActivityKind {
@@ -1986,25 +2018,24 @@ model RecordRelationshipDefinition {
 }
 
 model CrmRecord {
-  companyId     String
-  typeId        String
-  id            String                      @default(uuid())
-  version       Int                         @default(1)
-  protectedKind String?
-  systemData    Json?
-  rank          String?
-  deletedAt     DateTime?
-  trashItemId   String?
-  createdAt     DateTime                    @default(now())
-  updatedAt     DateTime                    @updatedAt
-  company       Company                     @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  type          RecordTypeDefinition        @relation(fields: [companyId, typeId], references: [companyId, id], onDelete: Cascade)
-  values        RecordValue[]
-  outgoing      RecordLink[]                @relation("RecordLinkSource")
-  incoming      RecordLink[]                @relation("RecordLinkTarget")
-  assignments   RecordAssignment[]
-  identities    RecordIdentityLink[]
-  threads       MessagingThreadRecordLink[]
+  companyId   String
+  typeId      String
+  id          String                      @default(uuid())
+  version     Int                         @default(1)
+  systemData  Json?
+  rank        String?
+  deletedAt   DateTime?
+  trashItemId String?
+  createdAt   DateTime                    @default(now())
+  updatedAt   DateTime                    @updatedAt
+  company     Company                     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  type        RecordTypeDefinition        @relation(fields: [companyId, typeId], references: [companyId, id], onDelete: Cascade)
+  values      RecordValue[]
+  outgoing    RecordLink[]                @relation("RecordLinkSource")
+  incoming    RecordLink[]                @relation("RecordLinkTarget")
+  assignments RecordAssignment[]
+  identities  RecordIdentityLink[]
+  threads     MessagingThreadRecordLink[]
 
   @@id([companyId, typeId, id])
   @@index([companyId, typeId, createdAt, id])

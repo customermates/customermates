@@ -3,6 +3,7 @@ import { beforeEach, describe, it, expect, vi } from "vitest";
 import { Action, Resource, Status } from "@/generated/prisma";
 import { ForbiddenError, isExpectedError, appErrorResponse } from "@/core/errors/app-errors";
 import { ApiKeyAccessDeniedError } from "@/core/auth/api-key-access-denied-error";
+import { EmailVerificationRequiredError } from "@/core/auth/email-verification-required-error";
 import { WorkspacePlanRequiredError } from "@/core/auth/workspace-plan-required-error";
 import { LAST_ACTIVE_RESOLUTION_MS, UserService } from "../user.service";
 import type { FindUserRepo } from "../find-user.repo";
@@ -14,13 +15,22 @@ type TestRole = { isSystemRole: boolean; permissions: { resource: Resource; acti
 const API_READER: TestRole = { isSystemRole: false, permissions: [{ resource: Resource.api, action: Action.readAll }] };
 const NO_API_ROLE: TestRole = { isSystemRole: false, permissions: [] };
 
-const plans = { canUseIntegrations: vi.fn() };
+const OVERDUE = { emailVerified: false, createdAt: new Date(Date.now() - 25 * 60 * 60 * 1000) };
 
+const plans = { canUseIntegrations: vi.fn() };
+const workspaces = { requireMembership: vi.fn() };
 const touchLastActiveUnscoped = vi.fn();
 
 function serviceFor(
   status: Status,
-  options: { apiKey?: boolean; role?: TestRole; planUsable?: boolean; lastActiveAt?: Date | null } = {},
+  options: {
+    apiKey?: boolean;
+    role?: TestRole;
+    planUsable?: boolean;
+    verification?: { emailVerified: boolean; createdAt: Date };
+    storedVerified?: boolean;
+    lastActiveAt?: Date | null;
+  } = {},
 ) {
   const user = {
     id: "user-1",
@@ -31,11 +41,18 @@ function serviceFor(
     lastActiveAt: options.lastActiveAt === undefined ? new Date() : options.lastActiveAt,
     updatedAt: new Date("2026-10-01T00:00:00.000Z"),
   } as unknown as TenantUser;
+  const verification = options.verification ?? { emailVerified: true, createdAt: new Date() };
   const authService = {
-    getSession: () => Promise.resolve({ user: { email: user.email } }),
+    getSession: () => Promise.resolve({ user: { id: "auth-user-1", email: user.email, ...verification } }),
     isIntegrationCredentialRequest: () => Promise.resolve(options.apiKey ?? false),
   } as unknown as AuthService;
   const repo = {
+    findAuthUserAccountStateUnscoped: (id: string) =>
+      Promise.resolve(
+        id === "auth-user-1"
+          ? { companyId: null, emailVerified: options.storedVerified ?? verification.emailVerified }
+          : undefined,
+      ),
     findCurrentUserUnscoped: () => Promise.resolve(user),
     findCurrentUserOrThrowUnscoped: () => Promise.resolve(user),
     touchLastActiveUnscoped,
@@ -43,7 +60,9 @@ function serviceFor(
 
   plans.canUseIntegrations.mockResolvedValue(options.planUsable ?? true);
 
-  return new UserService(authService, repo, { requireMembership: () => Promise.resolve(user) } as never, plans);
+  workspaces.requireMembership.mockResolvedValue(user);
+
+  return new UserService(authService, repo, workspaces as never, plans);
 }
 
 describe("UserService.getActiveUserOrThrow", () => {
@@ -98,6 +117,46 @@ describe("UserService.getActiveUserOrThrow", () => {
 
   it("keeps session requests working without the API permission", async () => {
     await expect(serviceFor(Status.active).getActiveUserOrThrow()).resolves.toMatchObject({ id: "user-1" });
+  });
+
+  it.each([
+    ["a session", false],
+    ["an API key", true],
+  ])("holds %s of an account still unverified 24 hours after sign-up", async (_credential, apiKey) => {
+    const error = await serviceFor(Status.active, { apiKey, role: API_READER, verification: OVERDUE })
+      .getActiveUserOrThrow()
+      .catch((thrown: unknown) => thrown);
+
+    expect(error).toBeInstanceOf(EmailVerificationRequiredError);
+    expect(error).toBeInstanceOf(ForbiddenError);
+    expect(appErrorResponse(error)?.statusCode).toBe(403);
+    expect(isExpectedError(error)).toBe(true);
+    expect(workspaces.requireMembership).not.toHaveBeenCalled();
+  });
+
+  it("lets an account through once it is verified although its cached session still says unverified", async () => {
+    await expect(
+      serviceFor(Status.active, { verification: OVERDUE, storedVerified: true }).getActiveUserOrThrow(),
+    ).resolves.toMatchObject({ id: "user-1" });
+  });
+
+  it("holds an overdue account its stored state has unverified although its session says verified", async () => {
+    const error = await serviceFor(Status.active, {
+      verification: { ...OVERDUE, emailVerified: true },
+      storedVerified: false,
+    })
+      .getActiveUserOrThrow()
+      .catch((thrown: unknown) => thrown);
+
+    expect(error).toBeInstanceOf(EmailVerificationRequiredError);
+  });
+
+  it("lets an unverified account work inside the 24-hour grace period", async () => {
+    await expect(
+      serviceFor(Status.active, {
+        verification: { emailVerified: false, createdAt: new Date() },
+      }).getActiveUserOrThrow(),
+    ).resolves.toMatchObject({ id: "user-1" });
   });
 });
 

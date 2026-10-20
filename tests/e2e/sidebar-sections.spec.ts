@@ -130,6 +130,10 @@ test("the customize dialog reorders, renames and deletes sections with visible h
 
   if (!touch) {
     const handle = dialog.getByRole("button", { name: "Move Contacts", exact: true });
+    // The new section is appended below the dialog's fold; a user scrolls to it before dragging. Firefox drops mouse
+    // events outside the viewport, so a drag to an off-screen point never ends there.
+    await later.locator("ul").scrollIntoViewIfNeeded();
+    await expect(handle).toBeInViewport();
     const from = await handle.boundingBox();
     const to = await later.locator("ul").boundingBox();
     if (!from || !to) throw new Error("Drag source and target must be visible");

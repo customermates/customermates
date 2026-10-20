@@ -95,7 +95,6 @@ export function createMockDiModule(getMockUser: () => TenantUser) {
     getServiceRepo: () => ({ findIds: makeFindIds() }),
     getTaskRepo: () => ({
       findIds: makeFindIds(),
-      findSystemTaskIds: vi.fn().mockResolvedValue(new Set()),
     }),
     getWidgetRepo: () => ({ findIds: makeFindIds() }),
     getWebhookRepo: () => ({ findIds: makeFindIds() }),

@@ -2,6 +2,7 @@ import type { Locator } from "@playwright/test";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { openRecordDetails, editFormattedText } from "./record-rows";
 import { presetId } from "../../features/records/crm-preset";
+import { e2eAppMode } from "./workspace-switching";
 
 test("opens a stable record page, preserves its draft alongside the assistant, and saves notes", async ({
   page,
@@ -47,12 +48,16 @@ test("opens a stable record page, preserves its draft alongside the assistant, a
   await expect(dialogs).not.toBeVisible();
   const main = page.getByRole("main");
   await main.getByRole("textbox", { name: "Name", exact: false }).fill("Opportunity with notes");
-  await main.getByRole("button", { name: "Ask Mate", exact: true }).click();
-  await expect(
-    page.getByTestId("agent-composer-contexts").getByText("Local opportunity", { exact: true }),
-  ).toBeVisible();
-  await expect(main.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Opportunity with notes");
-  await page.getByRole("button", { name: "Close", exact: true }).click();
+  if (e2eAppMode() === "self-hosted") {
+    await expect(main.getByRole("button", { name: "Ask Mate", exact: true })).toHaveCount(0);
+  } else {
+    await main.getByRole("button", { name: "Ask Mate", exact: true }).click();
+    await expect(
+      page.getByTestId("agent-composer-contexts").getByText("Local opportunity", { exact: true }),
+    ).toBeVisible();
+    await expect(main.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Opportunity with notes");
+    await page.getByRole("button", { name: "Close", exact: true }).click();
+  }
   await editFormattedText(main, "Notes");
   await main.getByRole("textbox", { name: "Notes", exact: true }).fill("Saved quote reviewed locally.");
   await main.getByRole("button", { name: "Save", exact: true }).click();

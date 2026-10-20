@@ -11,7 +11,6 @@ import { Prisma } from "@/generated/prisma";
 import { WIKI_CRAWL_MAX_PAGES } from "@/ee/wiki-crawl/website-discovery";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
-import { isWorkspaceDeleting } from "@/features/workspace/workspace-deletion-marker";
 
 import { SetupAnswersSchema } from "@/features/workspace-setup/setup-answers.schema";
 import { SetupPlanSchema } from "@/features/workspace-setup/setup-plan.schema";
@@ -251,21 +250,6 @@ export class PrismaWorkspaceSetupRepo
       title,
       status: written.has(title) ? "created" : title === writing ? "writing" : "pending",
     }));
-  }
-
-  async markWatched(id: string, at: Date) {
-    await this.prisma.$executeRaw(Prisma.sql`
-      UPDATE "WorkspaceSetup" SET "interview" = jsonb_set("interview", '{watchedAt}', to_jsonb(${at.toISOString()}::text))
-      WHERE "id" = ${id} AND "companyId" = ${this.companyId}
-    `);
-  }
-
-  async workspaceDeleting() {
-    const company = await this.prisma.company.findFirst({
-      where: { id: this.companyId },
-      select: { deletingAt: true },
-    });
-    return !company || isWorkspaceDeleting(company.deletingAt);
   }
 
   async crawlSources(crawlId: string): Promise<SetupCrawlSource[]> {

@@ -19,7 +19,6 @@ export const SETUP_LINE_ITEM_FIELDS = ["quantity", "pricingMode", "savedPrice", 
 export const SETUP_DEAL_OFFERINGS_PATH = "dealOfferings";
 export const SETUP_OFFERING_DEALS_PATH = "offeringDeals";
 export const SETUP_AVATAR_CAPABILITY = "avatar";
-export const SETUP_MEMBERSHIP_CAPABILITY = "membership";
 
 type PlannedLists = Pick<SetupPlan, "recordModel">;
 

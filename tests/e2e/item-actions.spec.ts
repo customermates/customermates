@@ -94,8 +94,15 @@ test.describe("item menus on touch", () => {
   test("sidebar items, record rows and view chips show no trigger and still open their menu", async ({
     page,
     companyId,
+    database,
+    workspace,
   }) => {
     const errors = collectPageErrors(page);
+    // A list has no view chip until it has a saved view: the rail has no built-in "All" chip.
+    await database.query(
+      'INSERT INTO "DataView" (id, "companyId", "userId", "surfaceKey", name, position, "updatedAt") VALUES ($1, $2, $3, $4, $5, 0, NOW())',
+      [randomUUID(), companyId, workspace.userId, `records:${presetId(companyId, "organization")}`, "Key accounts"],
+    );
     await page.goto("/en/dashboard");
     const media = await page.evaluate(
       (queries) => Object.fromEntries(queries.map((query) => [query, window.matchMedia(query).matches])),

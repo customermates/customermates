@@ -1,17 +1,28 @@
+import { randomUUID } from "node:crypto";
+
 import { presetId } from "../../features/records/crm-preset";
 import { followConfigureLink, saveGeneral } from "./configure";
-import { expectNotFoundDocuments } from "./browser-diagnostics";
 import { expect, test, collectPageErrors } from "./fixtures";
+import { e2eAppMode } from "./workspace-switching";
 
-test("answers the removed fixed-entity routes with not found", async ({ page, companyId }) => {
-  const notFound = expectNotFoundDocuments(page);
+test("sends the removed fixed-entity routes to the pages of their type", async ({ page, companyId }) => {
   const errors = collectPageErrors(page);
-  for (const path of ["contacts", "organizations", "deals", "services", "tasks"]) {
-    const response = await page.goto(`/en/${path}/${presetId(companyId, "contact")}`);
-    expect(response?.status(), path).toBe(404);
+  const recordId = randomUUID();
+  for (const [path, preset] of [
+    ["contacts", "contact"],
+    ["organizations", "organization"],
+    ["deals", "deal"],
+    ["services", "service"],
+    ["tasks", "task"],
+  ] as const) {
+    const retiredRecord = await page.request.get(`/en/${path}/${recordId}`, { maxRedirects: 0 });
+    expect(retiredRecord.status(), path).toBe(308);
+    expect(retiredRecord.headers().location, path).toBe(`/en/open/records/${preset}/${recordId}`);
+    const response = await page.goto(`/en/${path}`);
+    expect(response?.status(), path).toBe(200);
+    await expect(page).toHaveURL(new RegExp(`/en/records/${presetId(companyId, preset)}$`));
   }
   expect(errors).toEqual([]);
-  if (test.info().project.name === "chromium") await expect.poll(() => notFound.events.length).toBe(5);
 });
 
 test("uses configured navigation, quick creation, rename-safe routes, and hidden types", async ({
@@ -84,7 +95,8 @@ test("uses configured navigation, quick creation, rename-safe routes, and hidden
   await page.goto(`/en/records/${typeId}`);
   await expect(page.locator("#records-add")).toBeVisible();
   await openSidebar();
-  await expect(page.locator("#nav-assistant")).toBeVisible();
+  if (e2eAppMode() === "self-hosted") await expect(page.locator("#nav-assistant")).toHaveCount(0);
+  else await expect(page.locator("#nav-assistant")).toBeVisible();
   await page.waitForLoadState("networkidle");
   await page.reload();
   await openSidebar();

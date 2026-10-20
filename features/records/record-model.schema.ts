@@ -416,7 +416,7 @@ export const RecordAccessPresetSchema = z
 export const RecordCapabilitySchema = z
   .object({
     id: z.uuid(),
-    kind: z.enum(["membershipAuthorization", "avatar", "calendar"]),
+    kind: z.enum(["avatar", "calendar"]),
     typeId: z.uuid(),
     fields: z.array(
       z
@@ -517,7 +517,6 @@ export const RecordDtoSchema = z
   .object({
     ref: RecordRefSchema,
     version: z.number().int().positive(),
-    protectedKind: z.literal("membershipAuthorization").optional(),
     schemaRevision: z.number().int(),
     createdAt: z.iso.datetime(),
     updatedAt: z.iso.datetime(),

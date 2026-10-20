@@ -149,6 +149,9 @@ describe("G sequences", () => {
     expect(goSequenceTarget(press("s", "KeyS"), "other")).toEqual({
       destination: "settings",
     });
+    expect(goSequenceTarget(press("w", "KeyW"), "other")).toEqual({
+      level: "workspaces",
+    });
     expect(goSequenceTarget(press("1", "Digit1"), "other")).toEqual({
       listPosition: 0,
     });
@@ -174,7 +177,7 @@ describe("G sequences", () => {
   });
 
   it("uses unique second keys", () => {
-    const seconds = SHORTCUTS.filter((entry) => entry.destination).map((entry) => entry.sequence[1].key);
+    const seconds = SHORTCUTS.filter((entry) => entry.destination || entry.level).map((entry) => entry.sequence[1].key);
     expect(new Set(seconds).size).toBe(seconds.length);
   });
 });
@@ -198,6 +201,7 @@ describe("labels", () => {
     expect(shortcutKeyLabels("save", "other")).toEqual(["Ctrl+Enter"]);
     expect(shortcutKeyLabels("close", "mac")).toEqual(["Esc"]);
     expect(shortcutKeyLabels("goDashboard", "other")).toEqual(["G", "D"]);
+    expect(shortcutKeyLabels("goWorkspaces", "mac")).toEqual(["G", "W"]);
     expect(shortcutKeyLabels("goList", "mac")).toEqual(["G", "1–9"]);
     expect(shortcutKeyLabels("shortcuts", "mac")).toEqual(["?"]);
     expect(chordLabel(shortcut("add").sequence[0], "mac")).toBe("C");

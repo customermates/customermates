@@ -27,7 +27,7 @@ import { mcpWorkspaceName, restPost } from "./workspace-credentials";
 import {
   addOrganization,
   apiKeyRequest,
-  approvalTaskCount,
+  pendingRequestCount,
   createNamedLogin,
   joinFromInvitation,
   loginEmail,
@@ -289,7 +289,7 @@ test("one person is invited, signs in, pays for a second workspace, keeps every 
 
       await joinByLink(page, link);
       expect(await membership()).toMatchObject({ status: "pendingAuthorization", left: false });
-      await expect.poll(() => approvalTaskCount(database, hoffmann.companyId, email)).toBe(1);
+      await expect.poll(() => pendingRequestCount(database, hoffmann.companyId, email)).toBe(1);
       await admin.page.goto("/en/settings/members");
       await expect(memberItem(admin.page, MEMBER)).toContainText(
         englishMessages.Common.userStatuses.pendingAuthorization,
@@ -303,7 +303,7 @@ test("one person is invited, signs in, pays for a second workspace, keeps every 
       await expect(page).toHaveURL(/\/en\/dashboard$/);
       await expectCurrentWorkspace(page, "Browser workspace");
       expect(await membership()).toMatchObject({ status: "inactive", left: true });
-      expect(await approvalTaskCount(database, hoffmann.companyId, email)).toBe(0);
+      expect(await pendingRequestCount(database, hoffmann.companyId, email)).toBe(0);
       await admin.page.goto("/en/settings/members");
       await expect(memberItem(admin.page, "Anna Hoffmann")).toBeVisible();
       await expect(memberItem(admin.page, MEMBER)).toHaveCount(0);
@@ -311,7 +311,7 @@ test("one person is invited, signs in, pays for a second workspace, keeps every 
       await joinByLink(page, link);
       await approve(admin.page, email);
       await expect.poll(async () => (await membership())?.status).toBe("active");
-      expect(await approvalTaskCount(database, hoffmann.companyId, email)).toBe(0);
+      expect(await pendingRequestCount(database, hoffmann.companyId, email)).toBe(0);
       await enterApprovedWorkspace(page);
       const guideText = "Neue Mandanten zuerst im Kanzleiprogramm anlegen.";
       const guide = await createWikiPage(playwright, (await mintApiKey(database, hoffmann, "Anna laptop")).key, {
@@ -412,7 +412,7 @@ test("one person is invited, signs in, pays for a second workspace, keeps every 
       const invitation = await readInvitationLink(admin.page);
       await joinByLink(page, invitation);
       expect(await membership()).toMatchObject({ status: "pendingAuthorization", left: false });
-      await expect.poll(() => approvalTaskCount(database, hoffmann.companyId, email)).toBe(1);
+      await expect.poll(() => pendingRequestCount(database, hoffmann.companyId, email)).toBe(1);
       await admin.page.goto("/en/settings/members");
       await expect(memberItem(admin.page, MEMBER)).toContainText(
         englishMessages.Common.userStatuses.pendingAuthorization,

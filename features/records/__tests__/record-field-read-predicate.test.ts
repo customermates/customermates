@@ -18,7 +18,7 @@ function trashedModel() {
   };
 }
 
-function access(model: ReturnType<typeof trashedModel>, deal: "all" | "own" = "all"): RecordAccessMap {
+function access(model: ReturnType<typeof createCrmPreset>, deal: "all" | "own" = "all"): RecordAccessMap {
   return new Map(
     model.types.map((type) => [
       type.id,
@@ -28,11 +28,18 @@ function access(model: ReturnType<typeof trashedModel>, deal: "all" | "own" = "a
 }
 
 describe("fieldReadPredicate", () => {
-  it("skips the dependency subqueries for a reader of every live list while a list is in Trash", () => {
-    const model = trashedModel();
+  it("skips the dependency subqueries for a reader of every list", () => {
+    const model = createCrmPreset(companyId);
     const field = model.fields.find((candidate) => candidate.typeId === id("deal"));
     if (!field) throw new Error("The preset has no deal field");
     expect(fieldReadPredicate(companyId, field, model, access(model)).sql).toBe("TRUE");
+  });
+
+  it("keeps the dependency check for a reader of every live list while a list is in Trash", () => {
+    const model = trashedModel();
+    const field = model.fields.find((candidate) => candidate.typeId === id("deal"));
+    if (!field) throw new Error("The preset has no deal field");
+    expect(fieldReadPredicate(companyId, field, model, access(model)).sql).not.toBe("TRUE");
   });
 
   it("keeps the dependency check when a live list is only partly readable", () => {

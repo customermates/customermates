@@ -1,10 +1,16 @@
 import type { HomepageStageTab } from "@/core/fumadocs/schemas/homepage";
+import type * as ReactDOM from "react-dom";
 
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, expect, it, vi } from "vitest";
 
 const motionState = vi.hoisted(() => ({ isInView: true, shouldAnimate: true, shouldReduceMotion: false }));
+const resourceHints = vi.hoisted(() => ({ preconnect: vi.fn() }));
+vi.mock("react-dom", async (importOriginal) => ({
+  ...(await importOriginal<typeof ReactDOM>()),
+  preconnect: resourceHints.preconnect,
+}));
 vi.mock("@/app/[locale]/(static)/components/homepage-motion", () => ({
   useHomepageMotion: () => ({ ref: { current: null }, ...motionState }),
 }));
@@ -57,9 +63,10 @@ afterEach(() => {
   motionState.isInView = true;
   motionState.shouldAnimate = true;
   motionState.shouldReduceMotion = false;
+  resourceHints.preconnect.mockReset();
 });
 
-function render(stageTabs: HomepageStageTab[] = tabs) {
+function render(stageTabs: HomepageStageTab[] = tabs, embed?: boolean) {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   const host = document.createElement("div");
   document.body.append(host);
@@ -68,6 +75,7 @@ function render(stageTabs: HomepageStageTab[] = tabs) {
     root?.render(
       createElement(HomepageProductStage, {
         demoBaseUrl: "https://demo.example",
+        embed,
         label: "Product areas",
         live: { prompt: "Try it live" },
         locale: "en",
@@ -291,6 +299,32 @@ it("goes live on a wide viewport right after the page loads, before the stage is
     "https://demo.example/en/inbox?threadId=latest&agentChat=closed",
   );
   expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("loading");
+  expect(resourceHints.preconnect).toHaveBeenCalledWith("https://demo.example");
+});
+
+it("keeps the static captures and never contacts the hosted demo on a self-hosted instance", () => {
+  vi.useFakeTimers();
+  stubWideViewport(true);
+  const host = render(tabs, false);
+  const linkHost = document.createElement("div");
+  document.body.append(linkHost);
+  const linkRoot = createRoot(linkHost);
+
+  act(() =>
+    linkRoot.render(
+      <HomepageStageLink area="routines" label="Try it live">
+        Routines capture
+      </HomepageStageLink>,
+    ),
+  );
+  act(() => linkHost.querySelector<HTMLAnchorElement>("a[data-homepage-stage-link]")?.click());
+  act(() => tabButtons(host)[2].click());
+
+  expect(selectedLabel(host)).toContain("Pipeline");
+  expect(host.querySelector("iframe")).toBeNull();
+  expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("idle");
+  expect(resourceHints.preconnect).not.toHaveBeenCalled();
+  act(() => linkRoot.unmount());
 });
 
 it("shows every tab as its own live iframe, keeps rotating and preloads the next area", () => {

@@ -26,7 +26,6 @@ const stored = {
   companyId: COMPANY,
   typeId: TYPE,
   version: 3,
-  protectedKind: null,
   deletedAt: null,
   values: [{ fieldId: OWNER_FIELD, state: "value", textValue: INACTIVE }],
   assignments: [{ userId: INACTIVE }],

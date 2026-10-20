@@ -22,6 +22,10 @@ function stripFrontmatter(content: string): string {
   return content.replace(/^---\n[\s\S]*?\n---\n?/, "");
 }
 
+function stripHeadingIds(markdown: string): string {
+  return markdown.replace(/^(#{1,6}\s.*?)\s*(?:\{#[^}]+\}|\[#[^\]]+\])[ \t]*$/gm, "$1");
+}
+
 function expandSnippet(tool: string): string {
   return getMcpInstallSnippet(tool as McpTool, DOCS_API_KEY_PLACEHOLDER, env.BASE_URL);
 }
@@ -112,7 +116,7 @@ export function getDocsPageRaw(
   const page = pages && Object.hasOwn(pages, normalized) ? pages[normalized] : undefined;
   if (!page) return null;
 
-  const markdown = pageMarkdown(source, locale, normalized, page);
+  const markdown = stripHeadingIds(pageMarkdown(source, locale, normalized, page));
 
   return {
     slug: normalized,

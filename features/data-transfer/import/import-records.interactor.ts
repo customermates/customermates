@@ -34,7 +34,6 @@ import { recordRequestHash } from "@/features/records/record-request-hash";
 import { RecordJournal } from "@/features/records/record-journal";
 import { decodeRecordValue } from "@/features/records/record-storage";
 import { sameRecordResult } from "@/features/records/record-write.service";
-import { valueResult } from "@/features/records/calculation";
 
 type ImportRow = ImportRecordsInput["document"]["records"][number];
 type MarkedImportRow = ImportMarkedRecordsInput["document"]["records"][number];
@@ -157,8 +156,6 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportMarke
             return fail(CustomErrorCode.recordValueInvalid, [...rowPath, "ref", "typeId"]);
           if (row.schemaRevision !== model.revision)
             return fail(CustomErrorCode.recordValueInvalid, [...rowPath, "schemaRevision"]);
-          if (row.protectedKind && input.mode === "create")
-            return fail(CustomErrorCode.recordValueInvalid, [...rowPath, "protectedKind"]);
           const key = recordKey(row.ref);
           if (assignments.has(key)) return fail(CustomErrorCode.recordValueInvalid, [...rowPath, "ref", "recordId"]);
           const fields = model.fields.filter((field) => field.typeId === row.ref.typeId && !field.archived);
@@ -203,7 +200,6 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportMarke
         );
         const journal = new RecordJournal(this.records, model);
         const writer = this.writer.withRepository(journal.repository);
-        let skipped = 0;
         const writes: RecordWrite[] = [];
         for (const row of orderedRows) {
           const existing = await this.records.getRecordCompanyWide(row.ref);
@@ -253,12 +249,6 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportMarke
               )
             )
               return fail(CustomErrorCode.recordReadOnlyField);
-            if (row.protectedKind || existing.protectedKind) {
-              if (!(await this.unchanged(row, existing, assignments.get(key) ?? [], model.fields)))
-                return failAuthorization(CustomErrorCode.recordProtected);
-              skipped += 1;
-              continue;
-            }
             const write = await writer.apply(
               {
                 action: "update",
@@ -300,7 +290,7 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportMarke
         });
         const data: ImportRecordsResult = {
           created: input.mode === "create" ? document.records.length : 0,
-          updated: input.mode === "update" ? document.records.length - skipped : 0,
+          updated: input.mode === "update" ? document.records.length : 0,
           linked,
           schemaRevision: model.revision,
         };
@@ -350,27 +340,5 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportMarke
       resolved.push({ ...row, fields, relationships: [], relationshipPaths: undefined });
     }
     return { ok: true, rows: resolved };
-  }
-
-  private async unchanged(
-    row: ImportRow,
-    existing: StoredRecord,
-    assignments: Assignment[],
-    fields: RecordField[],
-  ): Promise<boolean> {
-    const sorted = (values: string[]) => JSON.stringify([...values].sort());
-    if (sorted(row.assignedUserIds) !== sorted(existing.assignments.map((assignment) => assignment.userId)))
-      return false;
-    for (const assignment of assignments) {
-      const field = fields.find((candidate) => candidate.id === assignment.fieldId);
-      if (!field) return false;
-      if (!sameRecordResult(storedResult(existing, field), valueResult(assignment.value))) return false;
-    }
-    if (row.identities) {
-      const keys = (identities: Array<{ provider: string; value: string }>) =>
-        sorted(identities.map((identity) => `${identity.provider}:${identity.value}`));
-      if (keys(row.identities) !== keys(await this.records.getIdentitiesCompanyWide(row.ref))) return false;
-    }
-    return true;
   }
 }

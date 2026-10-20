@@ -4,6 +4,7 @@ import { openRecordDetails, editFormattedText } from "./record-rows";
 import { presetId } from "../../features/records/crm-preset";
 import { BrowserDiagnostics } from "./browser-diagnostics";
 import { invokesServerAction, serverActionIds } from "./server-actions";
+import { e2eAppMode, expectHydrated } from "./workspace-switching";
 
 for (const theme of ["light", "dark"] as const) {
   test(`German phone layout error stays inside the drawer in ${theme} mode`, async ({
@@ -29,6 +30,8 @@ for (const theme of ["light", "dark"] as const) {
     await page.setViewportSize({ width: 390, height: 1000 });
     await page.goto("/de/dashboard");
     await page.waitForLoadState("networkidle");
+    await expectHydrated(page.locator("#sidebar-trigger"));
+    await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
     await page.keyboard.press("Control+k");
     await page.locator("#global-search-input input").fill("Example organization");
     await page.locator(`[role="option"][data-value="${typeId}:${recordId}"]`).click();
@@ -148,9 +151,13 @@ test("persists personal detail pins, visibility and keyboard order without losin
     [companyId, nameId],
   );
   expect(source.rows).toEqual([{ textValue: "Example organization" }, { textValue: "Layout company" }]);
-  await drawer.getByRole("button", { name: "Ask Mate", exact: true }).click();
-  await expect(drawer.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Draft stays here");
-  await page.getByTestId("agent-panel").getByRole("button", { name: "Close", exact: true }).click();
+  if (e2eAppMode() === "self-hosted") {
+    await expect(drawer.getByRole("button", { name: "Ask Mate", exact: true })).toHaveCount(0);
+  } else {
+    await drawer.getByRole("button", { name: "Ask Mate", exact: true }).click();
+    await expect(drawer.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Draft stays here");
+    await page.getByTestId("agent-panel").getByRole("button", { name: "Close", exact: true }).click();
+  }
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer).not.toBeVisible();
   await page.reload();

@@ -103,6 +103,17 @@ export interface RecordActorRepo {
   findRecordAssigneesCompanyWide(ids: string[]): Promise<string[]>;
 }
 
+export type StoredValueWrite = { ref: RecordRef; fieldId: string; result: CalculatedValue; revision: number };
+export type StoredDependencyWrite = { ref: RecordRef; fieldId: string; sources: RecordRef[] };
+export type RecordEventAppend = {
+  ref: RecordRef;
+  actorId: string | null;
+  causeId: string;
+  kind: string;
+  payload: unknown;
+  publish: boolean;
+};
+
 export type RecordPlacement = { afterRecordId?: string; beforeRecordId?: string };
 
 export interface RecordRepo {
@@ -133,7 +144,6 @@ export interface RecordRepo {
     input: Pick<RecordIdentityInput, "messagingId" | "displayName" | "profileUrl">,
   ): Promise<void>;
   setIdentities(ref: RecordRef, inputs: RecordIdentityInput[]): Promise<void>;
-  protectMembershipTask(ref: RecordRef, userId: string): Promise<void>;
   getModel(): Promise<RecordModel>;
   searchRecords(request: RecordSearchRequest, model: RecordModel, access: RecordAccessMap): Promise<RecordSearchRow[]>;
   getViewStatesCompanyWide(
@@ -154,6 +164,7 @@ export interface RecordRepo {
     afterId?: string,
   ): Promise<Array<{ id: string; name: string; measure: RecordMeasure; trashed: boolean }>>;
   getConfigurationDeletions(targets?: ConfigurationTarget[]): Promise<Map<string, ConfigurationDeletionRecord>>;
+  getConfigurationTrashTargetIds(): Promise<Set<string>>;
   applyConsumerCleanups(cleanups: ConfigurationConsumerCleanup[]): Promise<{ pausedWebhookIds: string[] }>;
   getState(): Promise<RecordSchemaState | null>;
   getGrants(): Promise<RecordTypeGrant[]>;
@@ -228,27 +239,46 @@ export interface RecordRepo {
   getTrashedRecordRefsCompanyWide(trashItemIds: string[], take: number): Promise<RecordRef[]>;
   getTrashedLinksCompanyWide(refs: RecordRef[], take: number): Promise<TrashedRecordLink[]>;
   getTrashedParentCompanyWide(ref: RecordRef, relationId: string): Promise<RecordRef | null>;
+  getTrashPurgedAlongCompanyWide(
+    trashItemIds: string[],
+    relationIds: string[],
+  ): Promise<{ itemIds: string[]; refs: RecordRef[] }>;
+  getTrashedSubListRowsCompanyWide(
+    trashItemId: string,
+    subLists: Array<{ typeId: string; relationId: string }>,
+  ): Promise<Array<{ ref: RecordRef; parent: { ref: RecordRef; trashItemId: string | null } | null }>>;
+  reassignTrashedRecordsCompanyWide(refs: RecordRef[], trashItemId: string): Promise<void>;
   restoreRecords(refs: RecordRef[]): Promise<void>;
-  restoreLink(id: string): Promise<void>;
-  dropTrashedLink(id: string): Promise<void>;
+  restoreLinks(links: Array<{ relationId: string; id: string }>): Promise<void>;
+  dropTrashedLinks(links: Array<{ relationId: string; id: string }>): Promise<void>;
   removeTrashItems(ids: string[]): Promise<void>;
   purgeTrashItems(ids: string[]): Promise<RecordRef[]>;
   countTrashedRecordsCompanyWide(
     trashItemIds: string[],
+    refs?: RecordRef[],
   ): Promise<{ records: Array<{ typeId: string; count: number }>; links: number }>;
   setAssignments(ref: RecordRef, userIds: string[]): Promise<void>;
   getMembersCompanyWide(userIds: string[]): Promise<RecordMember[]>;
   setValue(ref: RecordRef, fieldId: string, result: CalculatedValue, revision: number): Promise<void>;
+  setValues(values: StoredValueWrite[]): Promise<void>;
   setValueDependencies(ref: RecordRef, fieldId: string, sources: RecordRef[]): Promise<void>;
+  setValueDependenciesMany(dependencies: StoredDependencyWrite[]): Promise<void>;
   getValueDependencies(ref: RecordRef, fieldId: string): Promise<RecordRef[]>;
+  getValueDependenciesManyCompanyWide(
+    refs: RecordRef[],
+    fieldIds: string[],
+  ): Promise<Array<{ ref: RecordRef; fieldId: string; sources: RecordRef[] }>>;
   getRecordDependenciesCompanyWide(ref: RecordRef): Promise<Array<{ fieldId: string; sources: RecordRef[] }>>;
+  getRecordDependenciesManyCompanyWide(
+    refs: RecordRef[],
+  ): Promise<Array<{ ref: RecordRef; dependencies: Array<{ fieldId: string; sources: RecordRef[] }> }>>;
   getLinksCompanyWide(
     ref: RecordRef,
     take?: number,
   ): Promise<Array<{ relationId: string; source: RecordRef; target: RecordRef }>>;
   getLinksCompanyWidePage(
     ref: RecordRef,
-    afterId: string | undefined,
+    after: { id: string; relationId: string } | undefined,
     take: number,
   ): Promise<
     Array<{
@@ -284,6 +314,12 @@ export interface RecordRepo {
     direction: "outgoing" | "incoming",
     take?: number,
   ): Promise<RecordRef[]>;
+  linkedRecordsManyCompanyWide(
+    refs: RecordRef[],
+    relationId: string,
+    direction: "outgoing" | "incoming",
+    take?: number,
+  ): Promise<Array<{ ref: RecordRef; linked: RecordRef[] }>>;
   link(relationId: string, source: RecordRef, target: RecordRef): Promise<void>;
   unlink(relationId: string, source: RecordRef, target: RecordRef): Promise<void>;
   receipt(key: string, userId: string): Promise<{ requestHash: string; result: Prisma.JsonValue } | null>;
@@ -297,6 +333,7 @@ export interface RecordRepo {
     beforeDeletion?: boolean,
     publish?: boolean,
   ): Promise<void>;
+  appendEvents(events: RecordEventAppend[]): Promise<void>;
   createOperation(request: {
     id: string;
     userId: string;
@@ -332,6 +369,12 @@ export interface RecordRepo {
     kind: string,
     prefix: string,
   ): Promise<Array<{ key: string; payload: Prisma.JsonValue }>>;
+  stageRows(operationId: string, kind: string, rows: Array<{ key: string; payload: unknown }>): Promise<void>;
+  getStageRowsByKeys(
+    operationId: string,
+    kind: string,
+    keys: string[],
+  ): Promise<Array<{ key: string; payload: Prisma.JsonValue }>>;
   getStageRecordRefsCompanyWide(
     operationId: string,
     typeId: string,
@@ -346,6 +389,13 @@ export interface RecordRepo {
     direction: "outgoing" | "incoming",
     take?: number,
   ): Promise<RecordRef[]>;
+  linkedStageRecordsManyCompanyWide(
+    operationId: string,
+    refs: RecordRef[],
+    relationId: string,
+    direction: "outgoing" | "incoming",
+    take?: number,
+  ): Promise<Array<{ ref: RecordRef; linked: RecordRef[] }>>;
   publishStage(operationId: string, revision: number): Promise<void>;
   clearOperationLock(id: string): Promise<void>;
   failOperationUnscoped(input: { companyId: string; userId: string; operationId: string }): Promise<void>;

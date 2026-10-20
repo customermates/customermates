@@ -34,11 +34,11 @@ import {
   displayedFollowUpValue,
   interviewAnswersPayload,
   mergeServerAnswers,
+  missingScreenParts,
   resolveSetupStage,
   resumeScreenIndex,
   sanitizeAnswerValue,
   screenAnswersPayload,
-  screenComplete,
   unansweredFollowUps,
   visibleScreenIndexes,
 } from "./setup-interview-state";
@@ -67,6 +67,7 @@ export class WorkspaceSetupStore {
   screenIndex = 0;
   furthestScreen = 0;
   adjusting = false;
+  missingShown = false;
   spreadsheetRejection: SpreadsheetRejection | null = null;
   pending: SetupCommand | null = null;
   private hydratedSetupId: string | null | undefined = undefined;
@@ -119,9 +120,19 @@ export class WorkspaceSetupStore {
     return value?.format === "singleChoice" && value.value === "spreadsheet" && !this.setup?.spreadsheet;
   }
 
+  get missingAnswers(): string[] {
+    const setup = this.setup;
+    if (this.stage === "followUps" && setup) {
+      return this.pendingFollowUps
+        .filter((question) => !answerComplete(question, displayedFollowUpValue(question, setup, this.followUpDrafts)))
+        .map((question) => question.id);
+    }
+    const missing = missingScreenParts(this.screen, this.answers, this.locale);
+    return this.screen === "data" && this.needsSpreadsheet ? [...missing, "existingData"] : missing;
+  }
+
   get canConfirmScreen(): boolean {
-    if (this.screen === "data" && this.needsSpreadsheet) return false;
-    return screenComplete(this.screen, this.answers, this.locale);
+    return this.missingAnswers.length === 0;
   }
 
   get pendingFollowUps() {
@@ -129,12 +140,16 @@ export class WorkspaceSetupStore {
   }
 
   get canConfirmFollowUps(): boolean {
-    const setup = this.setup;
-    if (!setup) return false;
-    return this.pendingFollowUps.every((question) =>
-      answerComplete(question, displayedFollowUpValue(question, setup, this.followUpDrafts)),
-    );
+    return Boolean(this.setup) && this.missingAnswers.length === 0;
   }
+
+  answerMissing = (id: string): boolean => this.missingShown && this.missingAnswers.includes(id);
+
+  showMissingAnswers = (message: string): boolean => {
+    this.missingShown = this.missingAnswers.length > 0;
+    if (this.missingShown) toastZodErrorTree({ errors: [message] });
+    return this.missingShown;
+  };
 
   get shouldPoll(): boolean {
     const setup = this.setup;
@@ -172,6 +187,7 @@ export class WorkspaceSetupStore {
       this.touched.clear();
       this.followUpDrafts = {};
       this.adjusting = false;
+      this.missingShown = false;
       this.spreadsheetRejection = null;
       this.screenIndex = resumeScreenIndex(this.answers, setup?.interview.confirmedScreens ?? 0);
       this.furthestScreen = this.screenIndex;
@@ -196,6 +212,7 @@ export class WorkspaceSetupStore {
       if (this.adjusting) this.discardAdjustment();
       return;
     }
+    this.missingShown = false;
     this.screenIndex = previous;
   };
 
@@ -208,6 +225,7 @@ export class WorkspaceSetupStore {
 
   goToScreen = (index: number) => {
     if (this.isBusy || index > this.furthestScreen || !this.visibleScreens.includes(index)) return;
+    this.missingShown = false;
     this.screenIndex = index;
   };
 
@@ -348,6 +366,7 @@ export class WorkspaceSetupStore {
   }
 
   private advanceScreen() {
+    this.missingShown = false;
     this.screenIndex = adjacentScreenIndex(this.screenIndex, this.answers, 1) ?? this.screenIndex;
     this.furthestScreen = Math.max(this.furthestScreen, this.screenIndex);
   }

@@ -9,13 +9,18 @@ import {
   paintedFrames,
   test,
 } from "./demo-seed";
+import { e2eAppMode } from "./workspace-switching";
 
 type SeededWidget = {
   id: string;
   name: string;
   kind: string;
   displayType: string | null;
+  sources: string[] | null;
 };
+
+/** Messages, logged activities and meetings come from connected accounts, which are available on Customermates Cloud only. */
+const CLOUD_ACTIVITY_SOURCES = new Set(["message", "activity", "calendar_event"]);
 
 for (const dashboard of DEMO_DASHBOARDS) {
   test(`the ${dashboard.name} dashboard renders every seeded widget with data`, async ({
@@ -24,7 +29,9 @@ for (const dashboard of DEMO_DASHBOARDS) {
     errors,
   }, testInfo) => {
     const { rows: widgets } = await database.query<SeededWidget>(
-      `SELECT id, name, kind::text AS kind, "displayOptions"->>'displayType' AS "displayType" FROM "Widget"
+      `SELECT id, name, kind::text AS kind, "displayOptions"->>'displayType' AS "displayType",
+       (SELECT array_agg(source) FROM jsonb_array_elements("activityQuery"->'filters') AS f,
+         jsonb_array_elements_text(f->'values') AS source WHERE f->>'kind' = 'source') AS sources FROM "Widget"
        WHERE "companyId"=$1 AND "userId"=$2 AND id LIKE '15000000-%' AND "viewId" IS NOT DISTINCT FROM $3
        AND "deletedAt" IS NULL ORDER BY id`,
       [DEMO_COMPANY_ID, DEMO_MEMBERS.maxBergmann.userId, dashboard.id],
@@ -48,7 +55,9 @@ for (const dashboard of DEMO_DASHBOARDS) {
       const card = page.locator(`[data-focus-target="widget:${widget.id}"]`);
       await card.scrollIntoViewIfNeeded();
       await expect(
-        card.getByRole("heading", { name: widget.name, exact: true }),
+        card
+          .locator('[data-slot="card-header"]')
+          .getByRole("heading", { name: widget.name, exact: true }),
       ).toBeVisible();
       await expect(
         card.getByText(
@@ -56,6 +65,17 @@ for (const dashboard of DEMO_DASHBOARDS) {
         ),
       ).toHaveCount(0);
       await expect(card.locator('[data-slot="widget-empty"]')).toHaveCount(0);
+      if (
+        widget.kind === "activityTimeline" &&
+        e2eAppMode() === "self-hosted" &&
+        widget.sources?.length &&
+        widget.sources.every((source) => CLOUD_ACTIVITY_SOURCES.has(source))
+      ) {
+        // Self-hosted reads no messaging or calendar activity, so the widget shows its empty state instead.
+        await expect(card.locator('[data-page-state="empty"]')).toBeVisible();
+        await expect(card.getByText("0 activities", { exact: true })).toBeVisible();
+        continue;
+      }
       if (widget.kind === "activityTimeline") {
         // The count reads "0 activities" until the timeline loaded.
         await expect(
