@@ -43,6 +43,7 @@ test("keeps filter changes temporary until saved to the view, resets them and ke
 
   await applyAssignee();
   await expect(viewsMenu).toHaveAttribute("data-view-modified", "");
+  await expect(viewsMenu.locator('span[aria-hidden="true"]')).toBeInViewport({ ratio: 1 });
   await expect(save).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("view-modified-light.png"), animations: "disabled" });
   await page.emulateMedia({ colorScheme: "dark" });
@@ -230,6 +231,7 @@ test("opens an assistant proposal in the modified state and saves it as an updat
   const proposed = page.locator("#global-data-views-proposed");
   await expect(proposed).toHaveText(/Assigned to me/);
   await expect(proposed).toHaveAttribute("data-view-modified", "");
+  await expect(proposed.locator('span[aria-hidden="true"]')).toBeInViewport({ ratio: 1 });
   await expect(proposed).toHaveAttribute("aria-current", "page");
   await expect(activeView).toHaveCount(0);
   await expect(page.locator("#global-data-views-menu[data-view-modified]")).toHaveCount(0);
@@ -270,6 +272,7 @@ test("opens an assistant proposal in the modified state and saves it as an updat
   const renamed = page.locator(`[data-focus-target="view:${createdId}"]`);
   await expect(renamed).toHaveText(/Assigned to me/);
   await expect(renamed).toHaveAttribute("data-view-modified", "");
+  await expect(renamed.locator('span[aria-hidden="true"]')).toBeInViewport({ ratio: 1 });
   await page.locator("#global-data-views-menu").click();
   await page.locator("#global-data-views-save").click();
   await expect(renamed).toHaveText(/^Mine$/);
