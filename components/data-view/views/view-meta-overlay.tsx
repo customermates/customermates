@@ -98,6 +98,7 @@ export function ViewMetaOverlay({
           setShowError(false);
         }
       }}
+      onDismiss={() => onOpenChange(false)}
     />
   );
 

@@ -18,7 +18,8 @@ test("shows and saves the per-direction message switches of a relationship", asy
   const onContacts = drawer.getByRole("switch", { name: "Show their messages on Contacts", exact: true });
   await expect(onDeals).toBeChecked();
   await expect(onContacts).not.toBeChecked();
-  await expect(drawer.getByRole("button", { name: "Save", exact: true })).toBeDisabled();
+  await expect(drawer.locator('[data-slot="unsaved-changes-bar"]')).toHaveCount(0);
+  await expect(drawer.getByRole("button", { name: "Save", exact: true })).toHaveCount(0);
 
   await onContacts.click();
   await expect(onContacts).toBeChecked();

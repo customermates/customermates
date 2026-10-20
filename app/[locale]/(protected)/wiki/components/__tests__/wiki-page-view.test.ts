@@ -963,8 +963,8 @@ describe("Wiki document view", () => {
     expect(save()?.disabled).toBe(false);
     expect(save()?.closest('[data-slot="unsaved-changes-bar"]')).not.toBeNull();
     expect(container.querySelector('header [data-slot="unsaved-changes-bar"]')).toBeNull();
-    expect(container.querySelector('header [aria-label="Wiki.newPage"]')).toBeNull();
-    expect(container.querySelector('header [aria-label="Wiki.pageActions"]')).toBeNull();
+    expect(container.querySelector('header [aria-label="Wiki.newPage"]')).not.toBeNull();
+    expect(container.querySelector('header [aria-label="Wiki.pageActions"]')).not.toBeNull();
     expect(container.querySelector("#wiki-page-cancel")?.getAttribute("data-variant")).toBe("secondary");
     expect(harness.topBar).toBe(settledToolbar);
 
@@ -1210,7 +1210,7 @@ describe("Wiki document view", () => {
     },
   );
 
-  it("hides New while dirty and guards conflict reload with the unsaved-changes boundary", async () => {
+  it("keeps New and page actions available while guarding unsaved draft navigation", async () => {
     configure(true, false);
     harness.store.form = page;
     harness.store.conflict = true;
@@ -1228,9 +1228,12 @@ describe("Wiki document view", () => {
     );
     const { container: topBar } = await mount(harness.topBar);
 
-    expect(topBar.querySelector('[aria-label="Wiki.newPage"]')).toBeNull();
-    expect(topBar.querySelector('[aria-label="Wiki.pageActions"]')).toBeNull();
+    expect(topBar.querySelector('[aria-label="Wiki.newPage"]')).not.toBeNull();
+    expect(topBar.querySelector('[aria-label="Wiki.pageActions"]')).not.toBeNull();
+    act(() => topBar.querySelector<HTMLButtonElement>('[aria-label="Wiki.newPage"]')?.click());
     expect(harness.store.startCreate).not.toHaveBeenCalled();
+    act(() => pending?.());
+    expect(harness.store.startCreate).toHaveBeenCalledOnce();
 
     act(() => container.querySelector<HTMLButtonElement>('[role="alert"] button')?.click());
     expect(harness.store.reload).not.toHaveBeenCalled();
@@ -1271,6 +1274,9 @@ describe("Wiki document view", () => {
         listPage: populatedList,
       }),
     );
+    const { container: topBar } = await mount(harness.topBar);
+    expect(topBar.querySelector('[aria-label="Wiki.newPage"]')).not.toBeNull();
+    expect(topBar.querySelector('[aria-label="Wiki.pageActions"]')).toBeNull();
     act(() => container.querySelector<HTMLButtonElement>("#wiki-page-cancel")?.click());
     expect(harness.store.load).not.toHaveBeenCalled();
     act(() => pending?.());
@@ -1878,7 +1884,7 @@ describe("Wiki route lifetime", () => {
       const toolbar = renderToStaticMarkup(harness.topBar);
       expect(toolbar).not.toContain("Common.actions.save");
       expect(container.querySelector('[data-slot="unsaved-changes-bar"]')).not.toBeNull();
-      expect(toolbar).not.toContain("Wiki.newPage");
+      expect(toolbar).toContain("Wiki.newPage");
       expect(fullReload).not.toHaveBeenCalled();
       if (settle === "reset") act(() => store.resetDocument());
       else {

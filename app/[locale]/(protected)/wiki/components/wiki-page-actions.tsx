@@ -34,7 +34,7 @@ export const WikiPageActions = observer((props: Props) => {
     <div className="flex items-center gap-1">
       {proposals}
 
-      {hasDocument && store.form.id && !store.hasUnsavedChanges && (
+      {hasDocument && store.form.id && (
         <TopBarMenuButton busy={store.isLoading} icon={MoreHorizontal} label={t("Wiki.pageActions")}>
           <DropdownMenuItem
             onSelect={() =>
@@ -73,7 +73,7 @@ export const WikiPageActions = observer((props: Props) => {
         </TopBarMenuButton>
       )}
 
-      {store.allows(Action.create) && canCreate && !store.creating && !store.hasUnsavedChanges && (
+      {store.allows(Action.create) && canCreate && (
         <TopBarPrimaryButton disabled={store.isLoading} label={t("Wiki.newPage")} onClick={onCreate} />
       )}
     </div>

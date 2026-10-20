@@ -16,6 +16,14 @@ type UnsavedChangesMode = "bar" | "none";
 
 const UNSAVED_CHANGES_BAR_SPACE = "--unsaved-changes-bar-space";
 const UNSAVED_CHANGES_BAR_CLEARANCE = "--unsaved-changes-bar-clearance";
+const bottomBarClearances = new Map<HTMLElement, number>();
+
+function updateBottomBarClearance() {
+  const root = document.documentElement;
+  if (bottomBarClearances.size)
+    root.style.setProperty(UNSAVED_CHANGES_BAR_CLEARANCE, `${Math.max(...bottomBarClearances.values())}px`);
+  else root.style.removeProperty(UNSAVED_CHANGES_BAR_CLEARANCE);
+}
 
 export function unsavedChangesMode({
   creating = false,
@@ -35,11 +43,11 @@ export function useBottomBarClearance(ref: RefObject<HTMLElement | null>, visibl
     if (!visible) return;
     const bar = ref.current;
     if (!bar) return;
-    const root = document.documentElement;
     const update = () => {
       const { top, bottom } = bar.getBoundingClientRect();
       const clearance = top < window.innerHeight && bottom > window.innerHeight / 2 ? window.innerHeight - top : 0;
-      root.style.setProperty(UNSAVED_CHANGES_BAR_CLEARANCE, `${Math.max(0, Math.ceil(clearance))}px`);
+      bottomBarClearances.set(bar, Math.max(0, Math.ceil(clearance)));
+      updateBottomBarClearance();
     };
     update();
     const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(update);
@@ -50,7 +58,8 @@ export function useBottomBarClearance(ref: RefObject<HTMLElement | null>, visibl
       observer?.disconnect();
       window.removeEventListener("resize", update);
       window.removeEventListener("scroll", update, true);
-      root.style.removeProperty(UNSAVED_CHANGES_BAR_CLEARANCE);
+      bottomBarClearances.delete(bar);
+      updateBottomBarClearance();
     };
   }, [ref, visible]);
 }
@@ -67,6 +76,7 @@ type Props = {
   saveLabel?: string;
   placement?: "overlay" | "sticky";
   onCancel?: () => void;
+  onDismiss?: () => void;
   onSave?: () => void | Promise<void>;
 };
 
@@ -82,6 +92,7 @@ export const UnsavedChangesBar = observer(function UnsavedChangesBar({
   saveLabel,
   placement = "overlay",
   onCancel,
+  onDismiss,
   onSave,
 }: Props) {
   const t = useTranslations();
@@ -155,7 +166,7 @@ export const UnsavedChangesBar = observer(function UnsavedChangesBar({
           saveLabel={saveLabel}
           saving={saving}
           store={store ?? null}
-          onCancel={creating ? onCancel : undefined}
+          onCancel={creating ? onCancel : onDismiss}
           onRevert={creating ? undefined : (onCancel ?? store?.resetForm)}
           onSave={onSave}
         />

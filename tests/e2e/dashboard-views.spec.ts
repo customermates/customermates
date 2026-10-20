@@ -256,6 +256,11 @@ test("names the widgets of a view that is not shown and renames it from its chip
   await expect(bar).toHaveCount(0);
   await name.fill("Discarded site");
   await expect(bar).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(confirm).toBeVisible();
+  await confirm.getByRole("button", { name: englishMessages.Common.actions.cancel, exact: true }).click();
+  await expect(confirm).toHaveCount(0);
+  await expect(name).toHaveValue("Discarded site");
   await bar.getByRole("button", { name: englishMessages.Common.actions.cancel, exact: true }).click();
   await expect(name).toHaveValue("Site Hamburg");
   await expect(bar).toHaveCount(0);

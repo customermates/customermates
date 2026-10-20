@@ -10,7 +10,8 @@ const sources = (dir: string) =>
 describe("generic dashboard widget UI", () => {
   it("retains shared form actions, deletion treatment and ordinary appearance switches", () => {
     const modal = component("widget-modal.tsx");
-    expect(modal).toContain("<FormFooterActions");
+    expect(modal).toContain("<UnsavedChangesBar");
+    expect(modal).toContain("creating={isCreate}");
     expect(modal).toContain('anchorScope="widget-modal"');
     expect(modal).toContain('id: "delete-widget"');
     expect(modal).toContain("icon: Trash2");

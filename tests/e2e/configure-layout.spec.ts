@@ -2,7 +2,7 @@ import type { Locator, Page } from "@playwright/test";
 import type { Client } from "pg";
 import { restoreFromTrash } from "./trash";
 import { presetId } from "../../features/records/crm-preset";
-import { addFromConfigure, backToConfigureGraph, openConfigureTab, configureDrawer, configureListCard, configureRow, configureTopBar, createConfiguredList, deleteSelectedList, openConfigure, openConfigureRow, saveDrawer, saveGeneral } from "./configure";
+import { addFromConfigure, backToConfigureGraph, openConfigureTab, configureDrawer, configureSaveBar, configureListCard, configureRow, configureTopBar, createConfiguredList, deleteSelectedList, openConfigure, openConfigureRow, saveDrawer, saveGeneral } from "./configure";
 import { expect, test, collectPageErrors } from "./fixtures";
 import { readModel } from "./api";
 import { e2eAppMode } from "./workspace-switching";
@@ -25,7 +25,7 @@ async function dragBetween(page: Page, from: { x: number; y: number }, to: { x: 
   await page.mouse.up();
 }
 
-test("edits General in place, guards unsaved edits and saves from the top bar only", async ({
+test("edits General in place, guards unsaved edits and saves from the shared bottom bar", async ({
   page,
   database,
   companyId,
@@ -34,6 +34,7 @@ test("edits General in place, guards unsaved edits and saves from the top bar on
   const id = (key: string) => presetId(companyId, key);
   await openConfigure(page, id("deal"));
   const pane = page.locator("[data-configure-list-pane]");
+  const bar = configureSaveBar(page);
   const general = page.getByRole("region", { name: "General", exact: true });
   await expect(pane).toContainText(/\d+ fields · \d+ relationships/);
   await expect(pane).not.toContainText("activity connection");
@@ -49,8 +50,10 @@ test("edits General in place, guards unsaved edits and saves from the top bar on
   await expect(configureTopBar(page).getByRole("button", { name: "Save", exact: true })).toHaveCount(0);
 
   await general.getByRole("textbox", { name: "Description", exact: true }).fill("Open opportunities");
-  await expect(configureTopBar(page).getByRole("button", { name: "Reset", exact: true })).toBeVisible();
-  await expect(configureTopBar(page).getByRole("button", { name: "Save", exact: true })).toBeVisible();
+  await expect(bar).toBeVisible();
+  await expect(bar.getByRole("button", { name: "Cancel", exact: true })).toBeVisible();
+  await expect(bar.getByRole("button", { name: "Save", exact: true })).toBeVisible();
+  await expect(configureTopBar(page).getByRole("button", { name: "Save", exact: true })).toHaveCount(0);
   await expect(pane.getByRole("button", { name: "Save", exact: true })).toHaveCount(0);
   await expect(pane.getByRole("button", { name: "Reset", exact: true })).toHaveCount(0);
   await expect(pane.locator("[data-slot='form-footer-actions']")).toHaveCount(0);
@@ -202,7 +205,7 @@ test("adds and edits definitions in a side drawer and reorders fields with drag 
   await expect
     .poll(() => fields.locator("[data-configure-field]").evaluateAll((rows) => rows.map((row) => row.getAttribute("data-configure-field"))))
     .toEqual([id("deal.notes"), id("deal.name"), ...before.slice(2)]);
-  await expect(configureTopBar(page).getByRole("button", { name: "Reset", exact: true })).toBeVisible();
+  await expect(configureSaveBar(page)).toBeVisible();
   await saveGeneral(page);
   await expect
     .poll(async () =>

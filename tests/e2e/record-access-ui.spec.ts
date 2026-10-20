@@ -3320,8 +3320,8 @@ test("publishes and withdraws a private-input summary through the field UI witho
         exact: true,
       })
       .first();
-    await expect(delegatedSave).toBeVisible();
-    await expect(delegatedSave).toBeDisabled();
+    await expect(delegated.locator('[data-slot="unsaved-changes-bar"]')).toHaveCount(0);
+    await expect(delegatedSave).toHaveCount(0);
     await openDrawerTab(member.page, "Calculation");
     await expect(
       delegated.getByRole("region", { name: "Calculation", exact: true }),
@@ -3413,9 +3413,9 @@ test("publishes and withdraws a private-input summary through the field UI witho
       })
       .first()
       .click();
-    await expect(delegatedSource.getByRole("status")).toContainText(
-      englishMessages.RecordModel.summaryApprovalRequired,
-    );
+    await expect(delegatedSource.getByRole("status").filter({
+      hasText: englishMessages.RecordModel.summaryApprovalRequired,
+    })).toBeVisible();
     await expect(
       delegatedSource.locator("#renew-published-summaries"),
     ).toHaveCount(0);
@@ -3450,9 +3450,9 @@ test("publishes and withdraws a private-input summary through the field UI witho
       })
       .first()
       .click();
-    await expect(sourceEditor.getByRole("status")).toContainText(
-      englishMessages.RecordModel.summaryApprovalRequired,
-    );
+    await expect(sourceEditor.getByRole("status").filter({
+      hasText: englishMessages.RecordModel.summaryApprovalRequired,
+    })).toBeVisible();
     await expect(
       sourceEditor.getByRole("checkbox", {
         name: englishMessages.RecordModel.renewPublishedSummaries,

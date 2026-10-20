@@ -320,6 +320,43 @@ describe("FormFooterActions (design rule 31)", () => {
     expect(surrounding.resetForm).not.toHaveBeenCalled();
   });
 
+  it("preserves toast clearance for a dirty parent after its nested Add form closes", () => {
+    const host = render(
+      createElement("div", null, [
+        createElement(UnsavedChangesBar, { key: "parent", dirty: true, anchorScope: "parent", onSave: vi.fn() }),
+        createElement(UnsavedChangesBar, { key: "child", creating: true, anchorScope: "child", onSave: vi.fn() }),
+      ]),
+    );
+    const bars = host.querySelectorAll<HTMLElement>('[data-slot="unsaved-changes-bar"]');
+    const viewportHeight = window.innerHeight;
+    const parentBounds = vi.spyOn(bars[0], "getBoundingClientRect").mockReturnValue({
+      top: viewportHeight - 88,
+      bottom: viewportHeight - 10,
+    } as DOMRect);
+    const childBounds = vi.spyOn(bars[1], "getBoundingClientRect").mockReturnValue({
+      top: viewportHeight - 120,
+      bottom: viewportHeight - 10,
+    } as DOMRect);
+    const clearance = () => document.documentElement.style.getPropertyValue("--unsaved-changes-bar-clearance");
+    act(() => {
+      window.dispatchEvent(new Event("resize"));
+    });
+    expect(clearance()).toBe("120px");
+
+    act(() =>
+      root?.render(
+        createElement("div", null, [
+          createElement(UnsavedChangesBar, { key: "parent", dirty: true, anchorScope: "parent", onSave: vi.fn() }),
+        ]),
+      ),
+    );
+    expect(clearance()).toBe("88px");
+    act(() => root?.render(null));
+    expect(clearance()).toBe("");
+    parentBounds.mockRestore();
+    childBounds.mockRestore();
+  });
+
   it("guards a dirty new form with its own local state before discarding it", () => {
     const onCancel = vi.fn();
     render(
@@ -329,6 +366,60 @@ describe("FormFooterActions (design rule 31)", () => {
     expect(onCancel).not.toHaveBeenCalled();
     act(() => button("discard-changes")?.click());
     expect(onCancel).toHaveBeenCalledOnce();
+  });
+
+  it("resets a local edit on Cancel and guards dismissing its overlay separately", () => {
+    const onReset = vi.fn();
+    const onDismiss = vi.fn();
+    const guard: OverlayDismissGuard = { current: null };
+    render(
+      createElement(
+        OverlayDismissGuardContext.Provider,
+        { value: guard },
+        createElement(
+          "div",
+          { "data-slot": "popover-content" },
+          createElement(UnsavedChangesBar, {
+            dirty: true,
+            anchorScope: "f",
+            onCancel: onReset,
+            onDismiss,
+            onSave: vi.fn(),
+          }),
+        ),
+      ),
+    );
+    act(() => button("f-cancel")?.click());
+    expect(onReset).toHaveBeenCalledOnce();
+    expect(onDismiss).not.toHaveBeenCalled();
+    let keptOpen = false;
+    act(() => {
+      keptOpen = guard.current?.() ?? false;
+    });
+    expect(keptOpen).toBe(true);
+    expect(onDismiss).not.toHaveBeenCalled();
+    act(() => button("discard-changes")?.click());
+    expect(onDismiss).toHaveBeenCalledOnce();
+    expect(onReset).toHaveBeenCalledOnce();
+  });
+
+  it("allows closing an Appearance panel that retains its draft without closing its parent modal", () => {
+    const closeParent = vi.fn();
+    const guard: OverlayDismissGuard = { current: null };
+    render(
+      createElement(
+        AppModalCloseContext.Provider,
+        { value: { requestClose: closeParent, guardsUnsavedChanges: false } },
+        createElement(
+          OverlayDismissGuardContext.Provider,
+          { value: guard },
+          createElement(UnsavedChangesBar, { dirty: true, onCancel: vi.fn(), onSave: vi.fn() }),
+        ),
+      ),
+    );
+    expect(guard.current?.()).toBe(false);
+    expect(closeParent).not.toHaveBeenCalled();
+    expect(button("discard-changes")).toBeNull();
   });
 
   it("keeps a read-only create form free of floating actions", () => {

@@ -73,8 +73,9 @@ export const FormFooterActions = observer(
     const saving = savingProp ?? store?.isLoading ?? false;
     const isTopBar = placement === "topbar";
     const cancel = onRevert ?? onCancelProp ?? (isTopBar ? undefined : modalClose?.requestClose);
+    const dismiss = onCancelProp ?? (onRevert ? undefined : cancel);
     const cancelIsGuarded = !onRevert && !onCancelProp && Boolean(modalClose?.guardsUnsavedChanges);
-    const confirmsLocally = Boolean(cancel) && !onRevert && !cancelIsGuarded && !store;
+    const confirmsLocally = Boolean(dismiss) && !cancelIsGuarded && !store;
     const reset =
       resetProp ?? (!cancel && store ? { differs: store.hasUnsavedChanges, onReset: store.resetForm } : undefined);
 
@@ -92,7 +93,13 @@ export const FormFooterActions = observer(
       saveButtonRef,
       formId,
       interceptDismiss: () => {
-        if (!cancel || onRevert || cancelIsGuarded || !dirty) return false;
+        if (!dirty || cancelIsGuarded) return false;
+        if (onRevert) {
+          if (!confirmsLocally) return false;
+          setConfirmingDiscard(true);
+          return true;
+        }
+        if (!cancel) return false;
         requestCancel();
         return true;
       },
@@ -179,13 +186,13 @@ export const FormFooterActions = observer(
           </Button>
         )}
 
-        {cancel && confirmsLocally && (
+        {dismiss && confirmsLocally && (
           <DiscardChangesDialog
             open={confirmingDiscard}
             onCancel={() => setConfirmingDiscard(false)}
             onConfirm={() => {
               setConfirmingDiscard(false);
-              cancel();
+              dismiss();
             }}
           />
         )}

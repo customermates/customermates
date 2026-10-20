@@ -441,6 +441,7 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
               setBillingId(workspace.lemonSqueezyId ?? "");
               setTags(workspace.tags);
             }}
+            onDismiss={onClose}
             onSave={save}
           />
         )}
