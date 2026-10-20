@@ -188,7 +188,7 @@ test("switching from the command palette over a record dialog with an unsaved dr
   await expect(palette).toHaveCSS("opacity", "1");
   await page.screenshot({ path: testInfo.outputPath("ws-palette-over-draft.png"), fullPage: true });
   await search.fill("Switch workspace");
-  await palette.getByRole("option", { name: "Switch workspace…", exact: true }).click();
+  await palette.getByRole("option").filter({ hasText: "Switch workspace…" }).click();
   await palette.getByRole("option").filter({ hasText: "Bergmann Steuern" }).click();
 
   const discard = page.getByRole("alertdialog", { name: englishMessages.Common.navigationGuard.title, exact: true });
@@ -200,7 +200,7 @@ test("switching from the command palette over a record dialog with an unsaved dr
 
   await page.keyboard.press("ControlOrMeta+k");
   await search.fill("Switch workspace");
-  await palette.getByRole("option", { name: "Switch workspace…", exact: true }).click();
+  await palette.getByRole("option").filter({ hasText: "Switch workspace…" }).click();
   await palette.getByRole("option").filter({ hasText: "Bergmann Steuern" }).click();
   await expect(discard).toBeVisible();
   await discard.getByRole("button", { name: englishMessages.Common.actions.discard, exact: true }).click();

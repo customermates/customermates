@@ -98,7 +98,7 @@ test("the command palette switches to another workspace", async ({ page, databas
   await page.locator("#nav-search").click();
   const dialog = page.getByRole("dialog");
   await page.locator("#global-search-input input").fill("Switch workspace");
-  await dialog.getByRole("option", { name: "Switch workspace…", exact: true }).click();
+  await dialog.getByRole("option").filter({ hasText: "Switch workspace…" }).click();
   const workspaces = dialog.getByRole("option");
   await expect(workspaces).toHaveText([/Bergmann Steuern/]);
   await workspaces.first().click();
@@ -123,7 +123,7 @@ test("G then W opens the other workspaces in search, which also suggests switchi
 
   const dialog = page.getByRole("dialog");
   await clickHydrated(page.locator("#nav-search"));
-  const suggestion = dialog.getByRole("option", { name: "Switch workspace…", exact: true });
+  const suggestion = dialog.getByRole("option").filter({ hasText: "Switch workspace…" });
   await expect(suggestion).toBeVisible();
   await expect(suggestion.locator('[data-shortcut="goWorkspaces"] kbd')).toHaveText(["G", "W"]);
   await page.keyboard.press("Escape");
