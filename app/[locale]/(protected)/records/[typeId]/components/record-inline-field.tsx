@@ -15,11 +15,10 @@ import type { RecordsStore } from "./records.store";
 import { useEffect, useId, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Check, Plus, UserRound } from "lucide-react";
+import { Check, Plus } from "lucide-react";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { EmptyValue } from "@/components/shared/empty-value";
-import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import {
@@ -59,7 +58,7 @@ import { isEmptyResult } from "./record-chip-row-model";
 
 const EDIT_TARGET_SELECTOR = "[data-edit-target]";
 const EDIT_SURFACE_CLASS =
-  "gap-2 rounded-md px-1.5 py-1 -mx-1.5 transition-colors hover:bg-background hover:ring-1 hover:ring-inset hover:ring-border focus-within:bg-background";
+  "gap-2 rounded-md px-2 py-1 -mx-2 transition-colors hover:bg-foreground/5 focus-within:bg-foreground/5 data-[state=open]:bg-foreground/5";
 const EDIT_TARGET_CLASS = cn(
   EDIT_SURFACE_CLASS,
   "inline-flex min-h-6 max-w-full min-w-0 cursor-pointer items-center text-left outline-none focus-visible:ring-2 focus-visible:ring-ring/70 disabled:cursor-default",
@@ -155,7 +154,7 @@ function nextEditTarget(from: HTMLElement | null, backwards: boolean) {
   };
 }
 
-function EmptyValueTarget({ member = false }: { member?: boolean }) {
+function EmptyValueTarget() {
   return (
     <span
       className={cn(
@@ -166,11 +165,7 @@ function EmptyValueTarget({ member = false }: { member?: boolean }) {
     >
       <EmptyValue />
 
-      {member ? (
-        <Avatar aria-hidden unlinked fallback={<UserRound className="size-3" />} size="sm" />
-      ) : (
-        <Plus aria-hidden className="size-3.5" />
-      )}
+      <Plus aria-hidden className="size-3.5" />
     </span>
   );
 }
@@ -305,7 +300,7 @@ const InlineSelect = observer(function InlineSelect({
       <DropdownMenuTrigger asChild disabled={busy}>
         <button
           aria-label={t("RecordModel.editValue", { field: field.label })}
-          className={cn(EDIT_TARGET_CLASS, "[&_[data-slot=badge]]:hover:brightness-95")}
+          className={EDIT_TARGET_CLASS}
           data-edit-target=""
           data-inline-edit={field.id}
           type="button"
@@ -485,7 +480,13 @@ const PopoverField = observer(function PopoverField({
       type="button"
       {...selectionHandlers(records, record)}
     >
-      {contact ? t("RecordModel.edit") : empty ? <EmptyValueTarget member={field.valueType === "member"} /> : children}
+      {contact ? (
+        t("RecordModel.edit")
+      ) : empty ? (
+        <EmptyValueTarget />
+      ) : (
+        <span className="min-w-0 truncate">{children}</span>
+      )}
     </button>
   );
   return (

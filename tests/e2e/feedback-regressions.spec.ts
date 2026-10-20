@@ -160,8 +160,10 @@ test("record names and ordinary rows open the drawer while direct cell editing s
     expect(editBox.width).toBeLessThan(cellBox.width);
     expect(cellBox.x + cellBox.width - editBox.x - editBox.width).toBeLessThanOrEqual(20);
     const idleShadow = await edit.evaluate((element) => getComputedStyle(element).boxShadow);
+    const idleBackground = await edit.evaluate((element) => getComputedStyle(element).backgroundColor);
     await edit.hover();
-    await expect.poll(() => edit.evaluate((element) => getComputedStyle(element).boxShadow)).not.toBe(idleShadow);
+    await expect.poll(() => edit.evaluate((element) => getComputedStyle(element).backgroundColor)).not.toBe(idleBackground);
+    expect(await edit.evaluate((element) => getComputedStyle(element).boxShadow)).toBe(idleShadow);
     await page.screenshot({ path: testInfo.outputPath("inline-cell-highlight.png"), animations: "disabled" });
     await edit.click();
     await expect(drawer).toHaveCount(0);

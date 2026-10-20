@@ -259,7 +259,7 @@ test("edits every field type inline in rows and on board cards, with validation,
   page,
   companyId,
   isMobile,
-}) => {
+}, testInfo) => {
   test.skip(isMobile, "Table cells edit in place on the desktop table; phone rows render no table cells");
   test.setTimeout(240000);
   await page.goto(`/en/records/${presetId(companyId, "contact")}`);
@@ -297,8 +297,10 @@ test("edits every field type inline in rows and on board cards, with validation,
 
   const textEdit = row.getByRole("button", { name: "Edit Text", exact: true });
   const idleShadow = await textEdit.evaluate((element) => getComputedStyle(element).boxShadow);
+  const idleBackground = await textEdit.evaluate((element) => getComputedStyle(element).backgroundColor);
   await textEdit.hover();
-  await expect.poll(() => textEdit.evaluate((element) => getComputedStyle(element).boxShadow)).not.toBe(idleShadow);
+  await expect.poll(() => textEdit.evaluate((element) => getComputedStyle(element).backgroundColor)).not.toBe(idleBackground);
+  expect(await textEdit.evaluate((element) => getComputedStyle(element).boxShadow)).toBe(idleShadow);
   await expect(row.locator("[data-inline-edit] svg.lucide-pencil")).toHaveCount(0);
   await expect(row.locator("[data-read-only-field]")).toHaveCount(0);
   await enterValue("Text", "Inline text", "Inline text");
@@ -362,12 +364,28 @@ test("edits every field type inline in rows and on board cards, with validation,
   await page.locator('[data-slot="popover-content"][data-state="open"]').last().getByRole("button", { name: "Today", exact: true }).click();
   await expect(page.locator('[data-slot="popover-content"][data-state="open"]')).toHaveCount(0);
   await expect(row.locator("time")).toHaveCount(times + 1);
+  const dateEdit = row.getByRole("button", { name: "Edit Date", exact: true });
+  await dateEdit.scrollIntoViewIfNeeded();
+  await dateEdit.hover();
+  const datePadding = await dateEdit.evaluate((element) => {
+    const target = element.getBoundingClientRect();
+    const value = element.querySelector("time")!.parentElement!.getBoundingClientRect();
+    return { left: value.left - target.left, right: target.right - value.right };
+  });
+  expect(datePadding.left).toBeGreaterThanOrEqual(8);
+  expect(datePadding.right).toBeGreaterThanOrEqual(8);
+  await page.screenshot({ path: testInfo.outputPath("inline-date-hover.png"), animations: "disabled" });
 
   const contacts = await openEditor("Contacts", false);
   await contacts.getByRole("option").first().click();
   await expect(contacts).not.toBeVisible();
   await expect(row.locator('[data-slot="badge"], [data-slot="app-chip"]').first()).toBeVisible();
 
+  const ownerEdit = row.getByRole("button", { name: "Edit Owner", exact: true });
+  await ownerEdit.hover();
+  await expect(ownerEdit.locator("[data-empty-target] svg.lucide-plus")).toBeVisible();
+  await expect(ownerEdit.locator('[data-slot="avatar"]')).toHaveCount(0);
+  await page.screenshot({ path: testInfo.outputPath("inline-empty-member-hover.png"), animations: "disabled" });
   const owner = await openEditor("Owner");
   const ownerLabels = owner.locator("label").filter({ hasText: "Owner" });
   await expect(ownerLabels).toHaveCount(1);
