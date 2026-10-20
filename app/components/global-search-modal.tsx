@@ -305,6 +305,7 @@ export const GlobalSearchModal = observer(() => {
       (key) => entryByKey.get(key) ?? [],
     ),
     ...(recordContext ? [] : [entryByKey.get("cmd:action.add")].filter((entry) => entry !== undefined)),
+    ...[entryByKey.get("cmd:action.switchWorkspace")].filter((entry) => entry !== undefined),
   ];
 
   const docsRows: PaletteRowData[] = globalSearchModalStore.docs

@@ -25,8 +25,14 @@ import { cn } from "@/core/utils/cn";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
-function shortcutAvailable(entry: Shortcut, store: KeyboardShortcutsStore, agentChatAvailable: boolean) {
+function shortcutAvailable(
+  entry: Shortcut,
+  store: KeyboardShortcutsStore,
+  agentChatAvailable: boolean,
+  otherWorkspaces: boolean,
+) {
   if (entry.id === "askMate") return agentChatAvailable;
+  if (entry.id === "goWorkspaces") return otherWorkspaces;
   if (entry.id === "goList") return store.destinations.lists.length > 0;
   if (entry.destination) return store.destinations.pages[entry.destination] !== undefined;
   return true;
@@ -59,7 +65,7 @@ const KeyboardShortcutsSingleKeySwitch = observer(({ id }: { id: string }) => {
 export const KeyboardShortcutsDialog = observer(() => {
   const t = useTranslations();
   const platform = useKeyboardPlatform();
-  const { keyboardShortcutsStore: store, agentChatEnabled, agentChatStore } = useRootStore();
+  const { keyboardShortcutsStore: store, agentChatEnabled, agentChatStore, workspacesStore } = useRootStore();
   const agentChatAvailable = agentChatEnabled && agentChatStore.enabled === true;
   const [query, setQuery] = useState("");
 
@@ -83,7 +89,7 @@ export const KeyboardShortcutsDialog = observer(() => {
       (entry) =>
         entry.group === group &&
         !entry.alternativeTo &&
-        shortcutAvailable(entry, store, agentChatAvailable) &&
+        shortcutAvailable(entry, store, agentChatAvailable, workspacesStore.others.length > 0) &&
         matches(entry),
     ),
   })).filter(({ entries }) => entries.length > 0);

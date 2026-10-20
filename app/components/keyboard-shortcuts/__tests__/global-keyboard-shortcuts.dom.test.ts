@@ -8,6 +8,8 @@ const state = vi.hoisted(() => ({
   singleKeyShortcutsEnabled: true,
   routeReady: true,
   openSearch: vi.fn(),
+  pushLevel: vi.fn(),
+  otherWorkspaces: [] as object[],
   toggleAgent: vi.fn(),
   openAdd: vi.fn(),
   openShortcuts: vi.fn(),
@@ -50,7 +52,12 @@ vi.mock("@/core/stores/root-store.provider", () => {
       return { enabled: state.agentConfigEnabled, toggle: state.toggleAgent };
     },
     recordWorkspaceStore: { routeReady: () => state.routeReady },
-    globalSearchModalStore: { openFrom: state.openSearch },
+    globalSearchModalStore: { openFrom: state.openSearch, pushLevel: state.pushLevel },
+    workspacesStore: {
+      get others() {
+        return state.otherWorkspaces;
+      },
+    },
     addPickerStore: { openFrom: state.openAdd },
     viewPickerStore: {
       get surface() {
@@ -92,9 +99,11 @@ beforeEach(() => {
     singleKeyShortcutsEnabled: true,
     routeReady: true,
     viewSurface: null,
+    otherWorkspaces: [],
   });
   for (const mock of [
     state.openSearch,
+    state.pushLevel,
     state.toggleAgent,
     state.openAdd,
     state.openShortcuts,
@@ -236,6 +245,22 @@ describe("global keyboard shortcuts", () => {
     press("Shift");
     press("s");
     expect(state.push).toHaveBeenLastCalledWith("/settings/profile");
+  });
+
+  it("opens search at the workspace list with G then W only when there is another workspace", () => {
+    press("g");
+    expect(press("w").defaultPrevented).toBe(false);
+    expect(state.openSearch).not.toHaveBeenCalled();
+
+    state.otherWorkspaces = [{ companyId: "company-b" }];
+    press("g");
+    expect(press("w").defaultPrevented).toBe(true);
+    expect(state.openSearch).toHaveBeenCalledOnce();
+    expect(state.pushLevel).toHaveBeenCalledWith({
+      kind: "workspaces",
+      label: "CommandPalette.labels.switchWorkspace",
+    });
+    expect(state.push).not.toHaveBeenCalled();
   });
 
   it("skips destinations the person cannot open and keys after the timeout", () => {

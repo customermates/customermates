@@ -434,7 +434,10 @@ export const SetupBuildView = observer(function SetupBuildView({ onContinue, con
       </header>
 
       <div className="grid gap-4 lg:grid-cols-[17rem_minmax(0,1fr)]">
-        <ol aria-label={t("WorkspaceSetup.build.phasesLabel")} className="flex flex-col gap-2">
+        <ol
+          aria-label={t("WorkspaceSetup.build.phasesLabel")}
+          className="flex flex-col gap-2 lg:sticky lg:top-4 lg:self-start"
+        >
           {setup.phases.map((phase) => {
             const state = buildPhaseState(phase);
             const background =

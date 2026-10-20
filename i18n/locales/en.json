@@ -2702,6 +2702,7 @@
       "goList": "Lists by their position in your sidebar",
       "goRoutines": "Routines",
       "goSettings": "Settings",
+      "goWorkspaces": "Switch workspace",
       "openFilters": "Open filters on a list",
       "save": "Save the open form",
       "search": "Search",
@@ -5134,6 +5135,7 @@
         "typical": "Mate is designing your workspace from your answers. This usually takes 1 to 2 minutes.",
         "underMinute": "Less than a minute left"
       },
+      "reviewHint": "Review the plan, then build your workspace.",
       "sampleSummary": "{count, plural, one {Adds # sample record so you can try things out right away.} other {Adds # sample records so you can try things out right away.}}",
       "subtitle": "This is what we will build once you confirm.",
       "title": "Your workspace plan",

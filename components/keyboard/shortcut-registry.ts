@@ -1,4 +1,5 @@
 import type { KeyChord, KeyPress, KeyboardPlatform } from "./key-matching";
+import type { CommandLevelId } from "./command-registry";
 
 import { chordLabel, chordMatches, detectKeyboardPlatform } from "./key-matching";
 
@@ -16,6 +17,7 @@ export type ShortcutId =
   | "goRoutines"
   | "goConfigure"
   | "goSettings"
+  | "goWorkspaces"
   | "add"
   | "goList"
   | "switchView"
@@ -30,6 +32,7 @@ export type Shortcut = {
   group: ShortcutGroup;
   sequence: readonly KeyChord[];
   destination?: ShortcutDestination;
+  level?: CommandLevelId;
   alternativeTo?: ShortcutId;
 };
 
@@ -62,6 +65,7 @@ export const SHORTCUTS: readonly Shortcut[] = [
   goTo("goRoutines", "r", "routines"),
   goTo("goConfigure", "c", "configure"),
   goTo("goSettings", "s", "settings"),
+  { id: "goWorkspaces", group: "navigation", sequence: [GO_PREFIX, letter("w")], level: "workspaces" },
   { id: "add", group: "create", sequence: [letter("c")] },
   { id: "goList", group: "listsAndViews", sequence: [GO_PREFIX, LIST_POSITION_CHORDS[0]] },
   { id: "switchView", group: "listsAndViews", sequence: [letter("v")] },
@@ -100,11 +104,15 @@ export function shortcutKeyLabels(id: ShortcutId, platform: KeyboardPlatform): s
 export function goSequenceTarget(
   event: KeyPress,
   platform: KeyboardPlatform,
-): { destination: ShortcutDestination } | { listPosition: number } | null {
+): { destination: ShortcutDestination } | { level: CommandLevelId } | { listPosition: number } | null {
   const fixed = SHORTCUTS.find(
-    (entry) => entry.destination && entry.sequence.length === 2 && chordMatches(event, entry.sequence[1], platform),
+    (entry) =>
+      (entry.destination || entry.level) &&
+      entry.sequence.length === 2 &&
+      chordMatches(event, entry.sequence[1], platform),
   );
   if (fixed?.destination) return { destination: fixed.destination };
+  if (fixed?.level) return { level: fixed.level };
   const position = LIST_POSITION_CHORDS.findIndex((chord) => chordMatches(event, chord, platform));
   return position >= 0 ? { listPosition: position } : null;
 }

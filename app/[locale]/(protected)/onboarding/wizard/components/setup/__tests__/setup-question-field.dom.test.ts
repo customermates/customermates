@@ -172,7 +172,10 @@ describe("SetupQuestionField", () => {
     });
 
     expect(container.querySelectorAll('input[type="number"]')).toHaveLength(2);
-    expect(container.querySelectorAll('button[aria-label^="DataView.dragToReorderNamed"]')).toHaveLength(2);
+    const handles = container.querySelectorAll('button[aria-label^="DataView.dragToReorderNamed"]');
+    expect(handles).toHaveLength(2);
+    expect([...handles].every((handle) => handle.parentElement?.lastElementChild === handle)).toBe(true);
+    expect(container.querySelector("ol li")?.textContent).not.toContain("1");
     expect(container.querySelector('button[aria-label^="WorkspaceSetup.interview.move"]')).toBeNull();
     const [lead, offer] = dndSpy.items;
     act(() => dndSpy.onDragEnd?.({ active: { id: offer }, over: { id: lead } } as DragEndEvent));
@@ -277,19 +280,34 @@ describe("SetupQuestionField", () => {
     expect(container.querySelector(".text-destructive")).toBeNull();
   });
 
-  it("marks a missing answer like other form fields: red label, invalid control and the required message", () => {
+  it("marks a missing answer like other form fields: red label and invalid control, the message only in the toast", () => {
     render(descriptorOf("companyName"), { format: "shortText", value: "" }, { invalid: true });
 
     const group = container.querySelector<HTMLElement>('[aria-labelledby="setup-question-companyName"]');
-    const error = container.querySelector("#setup-question-companyName-error");
-    expect(group?.getAttribute("aria-describedby")).toBe("setup-question-companyName-error");
+    expect(group?.hasAttribute("aria-describedby")).toBe(false);
     expect(group?.getAttribute("data-invalid")).toBe("true");
     expect(container.querySelector("#setup-question-companyName")?.className).toContain("text-destructive");
     expect(container.querySelector("input")?.getAttribute("aria-invalid")).toBe("true");
-    expect(error?.textContent).toBe("Common.errors.mustNotBeBlank");
+    expect(container.textContent).not.toContain("Common.errors.mustNotBeBlank");
 
     render(descriptorOf("companyName"), { format: "shortText", value: "Acme" });
-    expect(container.querySelector("#setup-question-companyName-error")).toBeNull();
+    expect(container.querySelector("input")?.hasAttribute("aria-invalid")).toBe(false);
+  });
+
+  it.each([
+    ["customerKind", '[role="radio"]'],
+    ["purpose", '[role="checkbox"]'],
+    ["weeklyNumbers", "button[aria-pressed]"],
+  ])("marks every unpicked chip of a missing %s answer invalid without an inline message", (id, chip) => {
+    render(descriptorOf(id), null, { invalid: true });
+
+    const chips = [...container.querySelectorAll(chip)];
+    expect(chips.length).toBeGreaterThan(0);
+    expect(chips.every((element) => element.getAttribute("aria-invalid") === "true")).toBe(true);
+    expect(container.textContent).not.toContain("Common.errors.mustNotBeBlank");
+
+    render(descriptorOf(id), null);
+    expect(container.querySelector('[aria-invalid="true"]')).toBeNull();
   });
 
   it("marks a required question with the form asterisk", () => {

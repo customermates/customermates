@@ -109,6 +109,7 @@ describe("command registry", () => {
     const createWorkspace = staticCommand("action.createWorkspace");
     if (!switchWorkspace || !createWorkspace) throw new Error("missing command");
     expect(switchWorkspace.target).toEqual({ level: "workspaces" });
+    expect(switchWorkspace.shortcut).toBe("goWorkspaces");
     expect(commandAvailable(switchWorkspace, everything)).toBe(true);
     expect(commandAvailable(switchWorkspace, { ...everything, otherWorkspaces: false })).toBe(false);
     expect(commandAvailable(createWorkspace, { ...everything, otherWorkspaces: false })).toBe(true);

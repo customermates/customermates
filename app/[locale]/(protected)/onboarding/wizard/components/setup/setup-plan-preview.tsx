@@ -3,6 +3,7 @@
 import type { WorkspaceSetupFailure } from "@/ee/workspace-setup/workspace-setup.schema";
 
 import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 import type { PlanStep, PlanStepState } from "./setup-plan-progress";
 
 import {
@@ -18,9 +19,10 @@ import {
   Sparkles,
 } from "lucide-react";
 import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
+import { useBottomBarClearance } from "@/components/forms/unsaved-changes-bar";
 import { Alert } from "@/components/shared/alert";
 import { IconContainer } from "@/components/shared/icon-container";
 import { WizardProgress } from "@/components/shared/wizard-progress";
@@ -74,6 +76,29 @@ export function SetupSupportButton({ size }: { size?: "xs" }) {
 
       {t("WorkspaceSetup.failures.contactSupport")}
     </Button>
+  );
+}
+
+export function SetupActionBar({ hint, children }: { hint: string; children: ReactNode }) {
+  const bar = useRef<HTMLDivElement>(null);
+  useBottomBarClearance(bar);
+
+  return (
+    <div
+      ref={bar}
+      className="sticky bottom-[calc(0.625rem+var(--safe-bottom))] z-20 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border bg-popover p-2 ps-3 text-popover-foreground shadow-lg"
+      data-slot="setup-action-bar"
+    >
+      <span className="flex min-w-0 flex-1 items-center gap-2 text-sm font-medium">
+        <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-primary" />
+
+        <span>{hint}</span>
+      </span>
+
+      <span className="flex items-center gap-2 max-sm:w-full max-sm:flex-wrap-reverse max-sm:[&_button]:flex-1">
+        {children}
+      </span>
+    </div>
   );
 }
 
@@ -329,7 +354,7 @@ export const SetupPlanPreview = observer(function SetupPlanPreview() {
         </p>
       ) : null}
 
-      <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-end">
+      <SetupActionBar hint={t("WorkspaceSetup.plan.reviewHint")}>
         <Button disabled={store.isBusy} type="button" variant="secondary" onClick={store.adjust}>
           {t("WorkspaceSetup.plan.adjust")}
         </Button>
@@ -339,7 +364,7 @@ export const SetupPlanPreview = observer(function SetupPlanPreview() {
 
           {t("WorkspaceSetup.plan.build")}
         </Button>
-      </div>
+      </SetupActionBar>
     </section>
   );
 });

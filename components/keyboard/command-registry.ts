@@ -49,7 +49,7 @@ export type CommandActionId =
   | "sendFeedback"
   | "signOut";
 
-type CommandLevelId = "workspaces";
+export type CommandLevelId = "workspaces";
 
 type CommandTarget = { href: string } | { control: string } | { action: CommandActionId } | { level: CommandLevelId };
 
@@ -274,6 +274,7 @@ export const STATIC_COMMANDS: readonly StaticCommand[] = [
     kind: "action",
     icon: ArrowLeftRight,
     target: { level: "workspaces" },
+    shortcut: "goWorkspaces",
     requires: { otherWorkspaces: true },
   },
   {

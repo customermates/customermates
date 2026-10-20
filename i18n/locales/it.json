@@ -2702,6 +2702,7 @@
       "goList": "Elenchi in base alla posizione nella barra laterale",
       "goRoutines": "Routine",
       "goSettings": "Impostazioni",
+      "goWorkspaces": "Cambia spazio di lavoro",
       "openFilters": "Apri i filtri di un elenco",
       "save": "Salva il modulo aperto",
       "search": "Cerca",
@@ -5134,6 +5135,7 @@
         "typical": "Mate sta progettando il tuo spazio di lavoro dalle tue risposte. Di solito servono 1 o 2 minuti.",
         "underMinute": "Manca meno di un minuto"
       },
+      "reviewHint": "Controlla il piano, poi crea il tuo spazio di lavoro.",
       "sampleSummary": "{count, plural, one {Aggiunge # record di esempio per provare subito.} other {Aggiunge # record di esempio per provare subito.}}",
       "subtitle": "Ecco cosa costruiremo non appena confermi.",
       "title": "Il piano del tuo spazio di lavoro",
