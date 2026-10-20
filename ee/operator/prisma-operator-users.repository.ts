@@ -30,7 +30,6 @@ import {
   operatorCollator,
   partitionOperatorUserFilters,
   resolveWorkspaceLabels,
-  resolveWorkspaceOwners,
 } from "./operator-list-filters";
 import { normalizeOperatorEmail } from "./operator-access.service";
 
@@ -162,10 +161,7 @@ export class PrismaOperatorUsersRepo extends QueryRepository<Prisma.UserWhereInp
     });
 
     const companyIds = [...new Set(users.map((user) => user.companyId))];
-    const [labels, owners] = await Promise.all([
-      resolveWorkspaceLabels(this.prisma, companyIds),
-      resolveWorkspaceOwners(this.prisma, companyIds),
-    ]);
+    const labels = await resolveWorkspaceLabels(this.prisma, companyIds);
     const credits = await this.creditPositionsUnscoped(users, now);
     const operators = new Set(operatorEmails.map(normalizeOperatorEmail));
 
@@ -181,7 +177,6 @@ export class PrismaOperatorUsersRepo extends QueryRepository<Prisma.UserWhereInp
       updatedAt: user.updatedAt,
       companyId: user.companyId,
       workspaceLabel: labels.get(user.companyId) ?? user.companyId.slice(0, 8),
-      workspaceOwnerEmail: owners.get(user.companyId) ?? null,
       workspaceTags: user.company.tags,
       plan: user.company.subscription?.plan ?? null,
       subscriptionStatus: user.company.subscription?.status ?? null,

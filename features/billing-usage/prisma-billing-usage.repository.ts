@@ -4,7 +4,7 @@ import type { ReconcileBillingUsageRepo } from "./reconcile-billing-usage.repo";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { BillingUsageKind, ConnectedAccountStatus, Status } from "@/generated/prisma";
-import { workspaceLabelFor } from "@/ee/operator/workspace-label";
+import { deletedWorkspaceLabelFor } from "@/ee/operator/workspace-label";
 
 type Snapshot = {
   firstName: string | null;
@@ -147,7 +147,7 @@ export class PrismaBillingUsageRepo extends TenantRepository implements BillingU
     if (company) {
       await this.prisma.billingUsageWorkspace.updateMany({
         where: { companyId, deletedAt: null },
-        data: { workspaceLabel: workspaceLabelFor(company, company.users) },
+        data: { workspaceLabel: deletedWorkspaceLabelFor(company, company.users) },
       });
     }
 

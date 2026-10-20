@@ -3313,7 +3313,6 @@
     "emptyBody": "Ajustez la recherche ou les filtres pour élargir la liste.",
     "emptyTitle": "Aucun espace ne correspond à ces filtres",
     "modal": {
-      "identity": "{domain} · {owner}",
       "subscription": "Abonnement",
       "workspaceId": "ID de l'espace de travail"
     },

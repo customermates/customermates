@@ -83,6 +83,7 @@ async function createWorkspace(args: { domain: string; members: number; platform
           firstName: "Member",
           lastName: "One",
           status: "active",
+          createdAt: new Date(Date.UTC(2026, 0, 1, 0, 0, index)),
         },
       });
       await prisma.authUser.create({
@@ -107,7 +108,7 @@ async function createWorkspace(args: { domain: string; members: number; platform
     }
   });
 
-  return { companyId, members };
+  return { companyId, members, label: `${members[0]?.email} · ${companyId.slice(0, 8)}` };
 }
 
 async function createRawBoundIdentity(companyId: string) {
@@ -159,7 +160,7 @@ afterAll(async () => {
 describeDatabase("operator workspace deletion against a real database", { timeout: 120_000 }, () => {
   it("removes the workspace, its members and their sign-in identities, and keeps the audit event", async () => {
     const repo = createTestOperatorRepo();
-    const { companyId, members } = await createWorkspace({ domain: "doomed.invalid", members: 2 });
+    const { companyId, members, label } = await createWorkspace({ domain: "doomed.invalid", members: 2 });
     const survivor = await createWorkspace({ domain: "safe.invalid", members: 1 });
     const rawBoundIdentity = await createRawBoundIdentity(companyId);
     const actor = operatorActor();
@@ -167,7 +168,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
     const result = await runWithOperator(actor, () =>
       repo.deleteWorkspaceUnscoped({
         companyId,
-        confirmWorkspaceLabel: "doomed.invalid",
+        confirmWorkspaceLabel: label,
         reason: "Spam signup",
       }),
     );
@@ -218,7 +219,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
 
   it("rolls every owner write back when a later deletion step fails", async () => {
     const repo = createTestOperatorRepo();
-    const { companyId, members } = await createWorkspace({ domain: "rollback.invalid", members: 1 });
+    const { companyId, members, label } = await createWorkspace({ domain: "rollback.invalid", members: 1 });
     const [owner] = members;
     await runWithoutTenant(async () => {
       await prisma.inviteToken.create({
@@ -257,7 +258,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
     try {
       await expect(
         runWithOperator(operatorActor(), () =>
-          repo.deleteWorkspaceUnscoped({ companyId, confirmWorkspaceLabel: "rollback.invalid", reason: "Rollback" }),
+          repo.deleteWorkspaceUnscoped({ companyId, confirmWorkspaceLabel: label, reason: "Rollback" }),
         ),
       ).rejects.toThrow("injected company deletion failure");
     } finally {
@@ -276,7 +277,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
 
   it("succeeds when a member created an invite token", async () => {
     const repo = createTestOperatorRepo();
-    const { companyId, members } = await createWorkspace({ domain: "invited.invalid", members: 1 });
+    const { companyId, members, label } = await createWorkspace({ domain: "invited.invalid", members: 1 });
 
     await runWithoutTenant(() =>
       prisma.inviteToken.create({
@@ -292,7 +293,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
     const result = await runWithOperator(operatorActor(), () =>
       repo.deleteWorkspaceUnscoped({
         companyId,
-        confirmWorkspaceLabel: "invited.invalid",
+        confirmWorkspaceLabel: label,
         reason: "Cleanup",
       }),
     );
@@ -330,14 +331,56 @@ describeDatabase("operator workspace deletion against a real database", { timeou
     });
   });
 
+  it("refuses the domain or another workspace's label of the same owner and deletes only the confirmed companyId", async () => {
+    const repo = createTestOperatorRepo();
+    const first = await createWorkspace({ domain: "shared-owner.invalid", members: 1 });
+    const second = await createWorkspace({ domain: "shared-owner.invalid", members: 0 });
+    await runWithoutTenant(() =>
+      prisma.user.create({
+        data: {
+          companyId: second.companyId,
+          email: first.members[0].email,
+          firstName: "Member",
+          lastName: "One",
+          status: "active",
+        },
+      }),
+    );
+    const secondLabel = `${first.members[0].email} · ${second.companyId.slice(0, 8)}`;
+    expect(secondLabel).not.toBe(first.label);
+
+    for (const confirmWorkspaceLabel of ["shared-owner.invalid", first.members[0].email, secondLabel]) {
+      const refused = await runWithOperator(operatorActor(), () =>
+        repo.deleteWorkspaceUnscoped({ companyId: first.companyId, confirmWorkspaceLabel, reason: "Cleanup" }),
+      );
+      expect(refused).toBe("conflict");
+    }
+
+    const result = await runWithOperator(operatorActor(), () =>
+      repo.deleteWorkspaceUnscoped({
+        companyId: first.companyId,
+        confirmWorkspaceLabel: first.label,
+        reason: "Cleanup",
+      }),
+    );
+    assertAdmitted(result);
+    expect(result.workspaceLabel).toBe("shared-owner.invalid");
+
+    await runWithoutTenant(async () => {
+      expect(await prisma.company.count({ where: { id: first.companyId } })).toBe(0);
+      expect(await prisma.company.count({ where: { id: second.companyId } })).toBe(1);
+      expect(await prisma.user.count({ where: { companyId: second.companyId } })).toBe(1);
+    });
+  });
+
   it("refuses to delete the acting operator's own workspace", async () => {
     const repo = createTestOperatorRepo();
-    const { companyId } = await createWorkspace({ domain: "mine.invalid", members: 1 });
+    const { companyId, label } = await createWorkspace({ domain: "mine.invalid", members: 1 });
 
     const result = await runWithOperator(operatorActor(companyId), () =>
       repo.deleteWorkspaceUnscoped({
         companyId,
-        confirmWorkspaceLabel: "mine.invalid",
+        confirmWorkspaceLabel: label,
         reason: "Cleanup",
       }),
     );
@@ -350,7 +393,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
 
   it("refuses a workspace that holds a platform operator's only active membership", async () => {
     const repo = createTestOperatorRepo();
-    const { companyId } = await createWorkspace({
+    const { companyId, label } = await createWorkspace({
       domain: "staff.invalid",
       members: 1,
       platformOperator: true,
@@ -359,7 +402,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
     const result = await runWithOperator(operatorActor(), () =>
       repo.deleteWorkspaceUnscoped({
         companyId,
-        confirmWorkspaceLabel: "staff.invalid",
+        confirmWorkspaceLabel: label,
         reason: "Cleanup",
       }),
     );
@@ -372,7 +415,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
 
   it("deletes a workspace whose platform operator stays active in another workspace", async () => {
     const repo = createTestOperatorRepo();
-    const { companyId, members } = await createWorkspace({
+    const { companyId, members, label } = await createWorkspace({
       domain: "staff-elsewhere.invalid",
       members: 1,
       platformOperator: true,
@@ -395,7 +438,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
     const result = await runWithOperator(operatorActor(), () =>
       repo.deleteWorkspaceUnscoped({
         companyId,
-        confirmWorkspaceLabel: "staff-elsewhere.invalid",
+        confirmWorkspaceLabel: label,
         reason: "Cleanup",
       }),
     );
@@ -414,12 +457,12 @@ describeDatabase("operator workspace deletion against a real database", { timeou
 
   it("reports notFound for an unknown workspace and for a repeated deletion", async () => {
     const repo = createTestOperatorRepo();
-    const { companyId } = await createWorkspace({ domain: "once.invalid", members: 1 });
+    const { companyId, label } = await createWorkspace({ domain: "once.invalid", members: 1 });
 
     const first = await runWithOperator(operatorActor(), () =>
       repo.deleteWorkspaceUnscoped({
         companyId,
-        confirmWorkspaceLabel: "once.invalid",
+        confirmWorkspaceLabel: label,
         reason: "Cleanup",
       }),
     );
@@ -428,7 +471,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
     const second = await runWithOperator(operatorActor(), () =>
       repo.deleteWorkspaceUnscoped({
         companyId,
-        confirmWorkspaceLabel: "once.invalid",
+        confirmWorkspaceLabel: label,
         reason: "Cleanup",
       }),
     );
@@ -446,7 +489,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
 
   it("leaves no row behind in any table that carries a companyId", async () => {
     const repo = createTestOperatorRepo();
-    const { companyId, members } = await createWorkspace({ domain: "sweep.invalid", members: 2 });
+    const { companyId, members, label } = await createWorkspace({ domain: "sweep.invalid", members: 2 });
 
     await runWithoutTenant(async () => {
       const owner = members[0];
@@ -503,7 +546,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
     const result = await runWithOperator(operatorActor(), () =>
       repo.deleteWorkspaceUnscoped({
         companyId,
-        confirmWorkspaceLabel: "sweep.invalid",
+        confirmWorkspaceLabel: label,
         reason: "Completeness sweep",
       }),
     );
@@ -546,7 +589,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
 
   it("refuses while the workspace still has a live connected messaging account", async () => {
     const repo = createTestOperatorRepo();
-    const { companyId, members } = await createWorkspace({ domain: "connected.invalid", members: 1 });
+    const { companyId, members, label } = await createWorkspace({ domain: "connected.invalid", members: 1 });
 
     const accountId = randomUUID();
     await runWithoutTenant(() =>
@@ -565,7 +608,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
     const refused = await runWithOperator(operatorActor(), () =>
       repo.deleteWorkspaceUnscoped({
         companyId,
-        confirmWorkspaceLabel: "connected.invalid",
+        confirmWorkspaceLabel: label,
         reason: "should refuse",
       }),
     );
@@ -579,7 +622,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
     const admitted = await runWithOperator(operatorActor(), () =>
       repo.deleteWorkspaceUnscoped({
         companyId,
-        confirmWorkspaceLabel: "connected.invalid",
+        confirmWorkspaceLabel: label,
         reason: "disconnected first",
       }),
     );
@@ -594,7 +637,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
     if (!(await workflowSchemaInstalled())) return context.skip();
 
     const repo = createTestOperatorRepo();
-    const { companyId } = await createWorkspace({ domain: "workflows.invalid", members: 1 });
+    const { companyId, label } = await createWorkspace({ domain: "workflows.invalid", members: 1 });
     const survivor = await createWorkspace({ domain: "keepruns.invalid", members: 1 });
     const doomedRun = `run-${randomUUID()}`;
     const doomedNestedRun = `run-${randomUUID()}`;
@@ -630,7 +673,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
     const result = await runWithOperator(operatorActor(), () =>
       repo.deleteWorkspaceUnscoped({
         companyId,
-        confirmWorkspaceLabel: "workflows.invalid",
+        confirmWorkspaceLabel: label,
         reason: "workflow purge",
       }),
     );

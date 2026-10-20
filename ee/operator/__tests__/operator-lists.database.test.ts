@@ -184,7 +184,9 @@ describeDatabase("operator user list against a real database", { timeout: 120_00
     expect(all).toHaveLength(4);
     await expect(runWithoutTenant(() => repo.getCount({ filters: [scoped] }))).resolves.toBe(4);
 
-    expect(all.find((row) => row.companyId === alpha.companyId)?.workspaceLabel).toBe(`alpha-${marker}.invalid`);
+    expect(all.find((row) => row.companyId === alpha.companyId)?.workspaceLabel).toContain(
+      `@alpha-${marker}.invalid · ${alpha.companyId.slice(0, 8)}`,
+    );
     expect(all.find((row) => row.companyId === beta.companyId)?.plan).toBe("starter");
     expect(all.find((row) => row.companyId === beta.companyId)?.subscriptionStatus).toBe("pastDue");
 
@@ -500,7 +502,9 @@ describeDatabase("operator workspace list against a real database", { timeout: 1
       repo.getItems({ ...params, groupScope: { spec: plan, key: NO_VALUE_GROUP_KEY }, take: 10, skip: 0 }),
     );
     expect(noSubscription.map((row) => row.id)).toEqual([orphan.companyId]);
-    expect(noSubscription[0]?.workspaceLabel).toBe(`ws-grp-orphan-${marker}.invalid`);
+    expect(noSubscription[0]?.workspaceLabel).toBe(
+      `${noSubscription[0]?.ownerEmail} · ${orphan.companyId.slice(0, 8)}`,
+    );
 
     const onTrial = await runWithoutTenant(() =>
       repo.getItems({ ...params, groupScope: { spec: subscriptionStatus, key: "trial" }, take: 10, skip: 0 }),
@@ -542,7 +546,7 @@ describeDatabase("operator workspace list against a real database", { timeout: 1
     await expect(runWithoutTenant(() => repo.getCount({ filters: [scoped] }))).resolves.toBe(2);
 
     const alphaRow = rows.find((row) => row.id === alpha.companyId);
-    expect(alphaRow?.workspaceLabel).toBe(`ws-alpha-${marker}.invalid`);
+    expect(alphaRow?.workspaceLabel).toBe(`${alphaRow?.ownerEmail} · ${alpha.companyId.slice(0, 8)}`);
     expect(alphaRow?.userCount).toBe(3);
     expect(alphaRow?.activeUserCount).toBe(2);
     expect(alphaRow?.plan).toBe("business");
@@ -688,7 +692,9 @@ describeDatabase("merged operator audit log against a real database", { timeout:
     expect(all.map((row) => row.createdAt.getTime())).toEqual(
       [...all.map((row) => row.createdAt.getTime())].sort((a, b) => b - a),
     );
-    expect(all.every((row) => row.workspaceLabel === `audit-${marker}.invalid`)).toBe(true);
+    expect(
+      all.every((row) => row.workspaceLabel?.endsWith(`@audit-${marker}.invalid · ${workspace.companyId.slice(0, 8)}`)),
+    ).toBe(true);
     expect(all.find((row) => row.source === "operator")?.reason).toBe("Exercise the merged audit log");
     expect(all.find((row) => row.source === "product")?.reason).toBeNull();
     expect(all.every((row) => row.actorLabel?.includes(`audit-${marker}.invalid`))).toBe(true);

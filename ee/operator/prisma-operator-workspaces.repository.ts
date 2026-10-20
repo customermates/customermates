@@ -21,12 +21,12 @@ import {
   operatorCollator,
   partitionOperatorWorkspaceFilters,
 } from "./operator-list-filters";
+import { workspaceLabelFor } from "./workspace-label";
 
 type WorkspaceAggregate = {
   companyId: string;
   total: number;
   active: number;
-  domain: string | null;
   owner: string | null;
   ownerId: string | null;
 };
@@ -90,14 +90,6 @@ export class PrismaOperatorWorkspacesRepo
         COUNT(u."id")::int AS "total",
         COUNT(u."id") FILTER (WHERE u."status"::text = 'active')::int AS "active",
         (
-          SELECT split_part(inner_user."email", '@', 2)
-          FROM "User" AS inner_user
-          WHERE inner_user."companyId" = c."id"
-          GROUP BY 1
-          ORDER BY COUNT(*) DESC, 1 ASC
-          LIMIT 1
-        ) AS "domain",
-        (
           SELECT owner_user."email"
           FROM "User" AS owner_user
           LEFT JOIN "UserRole" AS owner_role
@@ -106,7 +98,8 @@ export class PrismaOperatorWorkspacesRepo
           ORDER BY
             (owner_user."status"::text = 'active') DESC,
             (owner_role."isSystemRole" IS TRUE) DESC,
-            owner_user."createdAt" ASC
+            owner_user."createdAt" ASC,
+            owner_user."id" ASC
           LIMIT 1
         ) AS "owner",
         (
@@ -118,7 +111,8 @@ export class PrismaOperatorWorkspacesRepo
           ORDER BY
             (owner_user."status"::text = 'active') DESC,
             (owner_role."isSystemRole" IS TRUE) DESC,
-            owner_user."createdAt" ASC
+            owner_user."createdAt" ASC,
+            owner_user."id" ASC
           LIMIT 1
         ) AS "ownerId"
       FROM "Company" AS c
@@ -179,7 +173,7 @@ export class PrismaOperatorWorkspacesRepo
 
       return {
         id: company.id,
-        workspaceLabel: company.name ?? aggregate?.domain ?? company.id.slice(0, 8),
+        workspaceLabel: workspaceLabelFor(company, aggregate?.owner ?? null),
         ownerEmail: aggregate?.owner ?? null,
         ownerUserId: aggregate?.ownerId ?? null,
         userCount: aggregate?.total ?? 0,

@@ -112,9 +112,6 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
 
   if (!workspace) return null;
 
-  const identity = workspace.ownerEmail
-    ? t("OperatorWorkspaces.modal.identity", { domain: workspace.workspaceLabel, owner: workspace.ownerEmail })
-    : workspace.workspaceLabel;
   const isEnterprise = workspace.plan === SubscriptionPlanEnum.enterprise;
   const clearingBinding = Boolean(workspace.lemonSqueezyId) && billingId.trim().length === 0;
   const tagsDirty = tags.join("\u0000") !== workspace.tags.join("\u0000");
@@ -135,21 +132,21 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
       ...(tagsDirty
         ? [
             tags.length > 0
-              ? t("OperatorConsole.confirm.tags", { name: identity, value: tags.join(", ") })
-              : t("OperatorConsole.confirm.tagsCleared", { name: identity }),
+              ? t("OperatorConsole.confirm.tags", { name: workspace.workspaceLabel, value: tags.join(", ") })
+              : t("OperatorConsole.confirm.tagsCleared", { name: workspace.workspaceLabel }),
           ]
         : []),
       ...(termsDirty
         ? [
             clearingBinding
-              ? t("OperatorConsole.confirm.termsClearingBilling", { name: identity })
-              : t("OperatorConsole.confirm.terms", { name: identity }),
+              ? t("OperatorConsole.confirm.termsClearingBilling", { name: workspace.workspaceLabel })
+              : t("OperatorConsole.confirm.terms", { name: workspace.workspaceLabel }),
           ]
         : []),
       ...(allowanceDirty && creditsPerUser !== undefined
         ? [
             t("OperatorConsole.confirm.allowance", {
-              name: identity,
+              name: workspace.workspaceLabel,
               value: intlStore.formatNumber(creditsPerUser),
             }),
           ]
@@ -158,7 +155,8 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
 
     showConfirmation({
       title: t("OperatorConsole.confirm.title"),
-      message: details.length === 1 ? details[0] : t("OperatorConsole.confirm.changes", { name: identity }),
+      message:
+        details.length === 1 ? details[0] : t("OperatorConsole.confirm.changes", { name: workspace.workspaceLabel }),
       details: details.length === 1 ? undefined : details,
       confirmLabel: t("Common.actions.confirm"),
       confirmVariant: termsDirty && clearingBinding ? "destructive" : "default",
@@ -209,7 +207,7 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
       ]}
       open={workspace !== null}
       size="3xl"
-      title={identity}
+      title={workspace.workspaceLabel}
       onClose={onClose}
     >
       <AppCard>
@@ -286,7 +284,7 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
               <InfoRow label={t("Common.table.columns.plan")}>
                 <OperatorChipSelect
                   confirmMessage={(option) =>
-                    t("OperatorConsole.confirm.plan", { name: identity, value: option.label })
+                    t("OperatorConsole.confirm.plan", { name: workspace.workspaceLabel, value: option.label })
                   }
                   confirmTitle={t("OperatorConsole.confirm.title")}
                   emptyLabel={t("OperatorUsers.values.noSubscription")}
@@ -307,7 +305,7 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
               <InfoRow label={t("Common.table.columns.subscription")}>
                 <OperatorChipSelect
                   confirmMessage={(option) =>
-                    t("OperatorConsole.confirm.subscription", { name: identity, value: option.label })
+                    t("OperatorConsole.confirm.subscription", { name: workspace.workspaceLabel, value: option.label })
                   }
                   confirmTitle={t("OperatorConsole.confirm.title")}
                   emptyLabel={t("OperatorUsers.values.noSubscription")}
@@ -444,7 +442,7 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
         confirmLabel={t("Common.actions.delete")}
         confirmationText={workspace.workspaceLabel}
         description={t("OperatorWorkspaces.delete.warningDescription", {
-          name: identity,
+          name: workspace.workspaceLabel,
           members: workspace.userCount,
         })}
         open={deleting}

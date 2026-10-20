@@ -29,6 +29,7 @@ async function workspace() {
   const companyId = randomUUID();
   const userId = randomUUID();
   const roleId = randomUUID();
+  const email = `ledger-${randomUUID()}@ledger.example.invalid`;
   companyIds.push(companyId);
 
   await runWithoutTenant(async () => {
@@ -39,7 +40,7 @@ async function workspace() {
         id: userId,
         companyId,
         roleId,
-        email: `ledger-${randomUUID()}@ledger.example.invalid`,
+        email,
         firstName: "Ledger",
         lastName: "Probe",
         status: "active",
@@ -47,7 +48,7 @@ async function workspace() {
     });
   });
 
-  return { companyId, userId };
+  return { companyId, userId, email };
 }
 
 function readLedger(companyId: string) {
@@ -110,7 +111,7 @@ describeDatabase("operator billing usage read model", { timeout: 120_000 }, () =
   });
 
   it("reads live workspaces with their current seats, channels and subscription", async () => {
-    const { companyId, userId } = await workspace();
+    const { companyId, userId, email } = await workspace();
     await runWithoutTenant(() =>
       prisma.subscription.create({
         data: {
@@ -142,7 +143,8 @@ describeDatabase("operator billing usage read model", { timeout: 120_000 }, () =
     );
 
     expect((await readLedger(companyId)).workspaces[0]).toMatchObject({
-      workspaceLabel: "ledger.example.invalid",
+      workspaceLabel: `${email} · ${companyId.slice(0, 8)}`,
+      ownerEmail: email,
       deletedAt: null,
       activeSeats: 1,
       connectedChannels: 1,

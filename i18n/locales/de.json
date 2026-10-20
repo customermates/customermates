@@ -3313,7 +3313,6 @@
     "emptyBody": "Passe Suche oder Filter an, um die Liste zu erweitern.",
     "emptyTitle": "Keine Workspaces passen zu diesen Filtern",
     "modal": {
-      "identity": "{domain} · {owner}",
       "subscription": "Abonnement",
       "workspaceId": "Workspace-ID"
     },

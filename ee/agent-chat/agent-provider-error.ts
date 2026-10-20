@@ -195,6 +195,18 @@ function providerFailureEnvelope(error: unknown): Record<string, unknown> | null
   return null;
 }
 
+const NOT_BILLED_REJECTION_STATUS_CODES = new Set([401, 402, 403, 404, 413, 429]);
+
+function rejectedBeforeStream(envelope: Record<string, unknown>) {
+  return (
+    !("currentAttempt" in envelope) &&
+    Array.isArray(envelope.attempts) &&
+    envelope.attempts.length === 1 &&
+    typeof envelope.statusCode === "number" &&
+    NOT_BILLED_REJECTION_STATUS_CODES.has(envelope.statusCode)
+  );
+}
+
 export function readAgentProviderErrorCharge(
   error: unknown,
   expectedProvider: string,
@@ -202,6 +214,8 @@ export function readAgentProviderErrorCharge(
   const cause = providerFailureEnvelope(error);
   if (!cause) return null;
   const charge = readProviderReceiptEnvelope(cause, expectedProvider);
+  if (!charge.measured && charge.costMicrocents === 0 && rejectedBeforeStream(cause))
+    return { costMicrocents: 0, measured: true };
   return {
     costMicrocents: charge.costMicrocents,
     measured: charge.measured,

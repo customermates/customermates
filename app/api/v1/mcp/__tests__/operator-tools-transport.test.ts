@@ -122,6 +122,64 @@ describe("operator MCP tools", () => {
     expect(state.ledgerReads).toHaveBeenCalledOnce();
   });
 
+  it("tells workspaces of one owner apart by companyId, label and ownerEmail in the output schema and result", async () => {
+    state.integrationActor.mockResolvedValue(OPERATOR);
+    const owned = (companyId: string) => ({
+      companyId,
+      workspaceLabel: `owner@example.invalid · ${companyId.slice(0, 8)}`,
+      ownerEmail: "owner@example.invalid",
+      createdAt: new Date("2026-01-01T00:00:00.000Z"),
+      deletedAt: null,
+      seatsRecordedFrom: null,
+      channelsRecordedFrom: null,
+      activeSeats: 1,
+      connectedChannels: 0,
+      subscription: null,
+    });
+    state.ledgerReads.mockResolvedValue({
+      workspaces: [owned("10000000-0000-4000-8000-000000000001"), owned("20000000-0000-4000-8000-000000000002")],
+      intervals: [],
+      recordingStartedAt: null,
+    });
+    const route = handler();
+
+    const listed = await rpc(route, "tools/list");
+    const tool = (listed.data.result?.tools as Array<{ name: string; outputSchema?: unknown }>).find(
+      (entry) => entry.name === "get_operator_usage",
+    );
+    expect(tool?.outputSchema).toMatchObject({
+      properties: {
+        workspaces: {
+          items: {
+            properties: {
+              companyId: { type: "string" },
+              workspaceLabel: { type: "string" },
+              ownerEmail: { anyOf: [{ type: "string" }, { type: "null" }] },
+            },
+            required: expect.arrayContaining(["companyId", "workspaceLabel", "ownerEmail"]),
+          },
+        },
+      },
+    });
+
+    const called = await rpc(route, "tools/call", { name: "get_operator_usage", arguments: { month: "2026-09" } });
+    const workspaces = (called.data.result?.structuredContent as { workspaces: Record<string, unknown>[] }).workspaces;
+    expect(
+      workspaces.map(({ companyId, workspaceLabel, ownerEmail }) => ({ companyId, workspaceLabel, ownerEmail })),
+    ).toEqual([
+      {
+        companyId: "10000000-0000-4000-8000-000000000001",
+        workspaceLabel: "owner@example.invalid · 10000000",
+        ownerEmail: "owner@example.invalid",
+      },
+      {
+        companyId: "20000000-0000-4000-8000-000000000002",
+        workspaceLabel: "owner@example.invalid · 20000000",
+        ownerEmail: "owner@example.invalid",
+      },
+    ]);
+  });
+
   it("rejects the call server-side with the operator guard when access is revoked after listing", async () => {
     state.integrationActor.mockResolvedValueOnce(OPERATOR).mockResolvedValue(null);
     const route = handler();

@@ -790,6 +790,81 @@ describe("bounded provider failure charge reading", () => {
     expect(readAgentProviderErrorCharge(failure([receipt]), "vertex")?.measured).toBe(false);
   });
 
+  it.each([401, 403, 429])(
+    "does not charge a request the provider rejected with HTTP %i before any tokens",
+    async (status) => {
+      const { error, model, onStepEnd } = await rejectedAttempt([apiError(undefined, status)]);
+      expect(model.doStreamCalls).toHaveLength(1);
+      expect(onStepEnd).not.toHaveBeenCalled();
+      const revived = await roundTrip(error);
+      expect((revived as Error).cause).toEqual(expect.objectContaining({ statusCode: status, attempts: [null] }));
+      expect(readAgentProviderErrorCharge(revived, "vertex")).toEqual({ costMicrocents: 0, measured: true });
+    },
+  );
+
+  it.each([408, 500])("keeps the modelled charge for an unreadable HTTP %i rejection", async (status) => {
+    const { error } = await rejectedAttempt([apiError(undefined, status)]);
+    expect(readAgentProviderErrorCharge(await roundTrip(error), "vertex")).toEqual(
+      expect.objectContaining({ costMicrocents: 0, measured: false }),
+    );
+  });
+
+  it.each([401, 500])(
+    "keeps the modelled charge when a stream fails with HTTP %i after producing tokens",
+    async (status) => {
+      const model = new MockLanguageModelV4({
+        provider: "gateway",
+        modelId: "public-test-model",
+        doStream: () =>
+          Promise.resolve({
+            stream: new ReadableStream<MockStreamPart>({
+              start(controller) {
+                controller.enqueue({ type: "stream-start", warnings: [] });
+                controller.enqueue({ type: "text-start", id: "public-partial" });
+                controller.enqueue({ type: "text-delta", id: "public-partial", delta: "Public partial answer" });
+                controller.error(apiError(undefined, status));
+              },
+            }),
+          }),
+      });
+      const agent = new WorkflowAgent({ model, maxRetries: 0, stopWhen: isStepCount(1) });
+      const error = await agent.stream({ prompt: "Public partial-stream fixture" }).then(
+        () => {
+          throw new Error("Expected reader rejection");
+        },
+        (value: unknown) => value,
+      );
+      const revived = await roundTrip(error);
+      expect((revived as Error).cause).toEqual(expect.objectContaining({ currentAttempt: { errorAttempts: [null] } }));
+      expect(readAgentProviderErrorCharge(revived, "vertex")).toEqual(
+        expect.objectContaining({ costMicrocents: 0, measured: false }),
+      );
+    },
+  );
+
+  it("settles a round from its step receipt when a 429 error part follows produced tokens", async () => {
+    const model = new MockLanguageModelV4({
+      provider: "gateway",
+      modelId: "public-test-model",
+      doStream: () =>
+        Promise.resolve({
+          stream: convertArrayToReadableStream<MockStreamPart>([
+            { type: "stream-start", warnings: [] },
+            { type: "text-start", id: "public-partial" },
+            { type: "text-delta", id: "public-partial", delta: "Public partial answer" },
+            { type: "error", error: apiError(undefined, 429) },
+          ]),
+        }),
+    });
+    const onStepEnd = vi.fn();
+    const agent = new WorkflowAgent({ model, maxRetries: 0, stopWhen: isStepCount(1), onStepEnd });
+    const result = await agent.stream({ prompt: "Public partial rate-limit fixture" });
+    expect(onStepEnd).toHaveBeenCalledTimes(1);
+    expect(readAgentProviderRoundCharge(result.steps[0].providerMetadata, "vertex")).toEqual(
+      expect.objectContaining({ costMicrocents: 0, measured: false, currentAttemptOutcome: "unreadable" }),
+    );
+  });
+
   it("does not acquire a receipt from an oversized transport body or a cyclic unmarked cause", async () => {
     const oversized = apiError(metadata("0", false));
     Object.defineProperty(oversized, "responseBody", { value: " ".repeat(65_537) });

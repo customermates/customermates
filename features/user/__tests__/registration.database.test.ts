@@ -1124,7 +1124,7 @@ describeDatabase("registration against a real database", () => {
     const deletion = runWithOperator(actor, () =>
       createTestOperatorRepo().deleteWorkspaceUnscoped({
         companyId: deletedWorkspaceAdmin.companyId,
-        confirmWorkspaceLabel: "race-source.invalid",
+        confirmWorkspaceLabel: `race-source-${suffix}@race-source.invalid · ${deletedWorkspaceAdmin.companyId.slice(0, 8)}`,
         reason: "Concurrency regression",
       }),
     );

@@ -51,7 +51,8 @@ import {
   type UpdateOperatorUserStatusData,
   type UpdateOperatorWorkspaceTagsData,
 } from "./operator.schema";
-import { workspaceLabelFor } from "./workspace-label";
+import { resolveWorkspaceLabels } from "./operator-list-filters";
+import { deletedWorkspaceLabelFor } from "./workspace-label";
 
 function normalizeWorkspaceTags(tags: string[]): string[] {
   const byComparisonKey = new Map<string, string>();
@@ -1105,8 +1106,9 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
         });
         if (!company) return "notFound";
 
-        const workspaceLabel = workspaceLabelFor(company, company.users);
-        if (data.confirmWorkspaceLabel !== workspaceLabel) return "conflict";
+        const confirmationLabel = (await resolveWorkspaceLabels(this.prisma, [company.id])).get(company.id);
+        if (data.confirmWorkspaceLabel !== confirmationLabel) return "conflict";
+        const workspaceLabel = deletedWorkspaceLabelFor(company, company.users);
         if (await holdsPlatformOperatorsOnlyMembership(this.prisma, data.companyId)) return "conflict";
 
         const liveConnectedAccounts = await this.prisma.connectedAccount.count({

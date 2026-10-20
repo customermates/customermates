@@ -79,12 +79,6 @@ export const OperatorUserModal = observer(function OperatorUserModal({ user, onC
   if (!user) return null;
 
   const person = `${user.firstName} ${user.lastName}`.trim() || user.email;
-  const workspace = user.workspaceOwnerEmail
-    ? t("OperatorWorkspaces.modal.identity", {
-        domain: user.workspaceLabel,
-        owner: user.workspaceOwnerEmail,
-      })
-    : user.workspaceLabel;
   const identity = t("OperatorUsers.modal.identity", { person, email: user.email });
   const period = detail?.creditPeriod ?? null;
   const allowanceMissing = period?.blockedReason === "enterprise_allowance_missing";
@@ -200,7 +194,7 @@ export const OperatorUserModal = observer(function OperatorUserModal({ user, onC
           <div className="flex flex-col gap-1.5">
             <InfoRow label={t("Common.table.columns.email")}>{user.email}</InfoRow>
 
-            <InfoRow label={t("Common.table.columns.workspace")}>{workspace}</InfoRow>
+            <InfoRow label={t("Common.table.columns.workspace")}>{user.workspaceLabel}</InfoRow>
 
             <InfoRow label={t("Common.table.columns.lastActiveAt")}>
               {user.lastActiveAt ? intlStore.formatNumericalShortDateTime(user.lastActiveAt) : "-"}

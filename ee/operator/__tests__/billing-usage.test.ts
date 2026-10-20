@@ -84,6 +84,7 @@ function workspace(extra: Partial<BillingUsageWorkspaceRow> = {}): BillingUsageW
   return {
     companyId: "00000000-0000-4000-8000-000000000010",
     workspaceLabel: "example.invalid",
+    ownerEmail: null,
     createdAt: at("2026-01-01T00:00:00.000Z"),
     deletedAt: null,
     seatsRecordedFrom: null,
@@ -305,9 +306,20 @@ describe("workspace billing usage", () => {
         workspaceBillingUsage({
           workspace: workspace({
             workspaceLabel: "=cmd",
+            ownerEmail: "ada@example.invalid",
             subscription: subscription({ quantity: 3, currentPeriodEnd: at("2026-10-12T00:00:00.000Z") }),
           }),
           intervals: [seat("ada", "2026-05-01T00:00:00.000Z"), channel("a", "2026-09-03T00:00:00.000Z")],
+          window: SEPTEMBER,
+          includeDetails: false,
+        }),
+        workspaceBillingUsage({
+          workspace: workspace({
+            companyId: "00000000-0000-4000-8000-000000000011",
+            workspaceLabel: "ada@example.invalid · 00000000",
+            ownerEmail: "ada@example.invalid",
+          }),
+          intervals: [],
           window: SEPTEMBER,
           includeDetails: false,
         }),
@@ -315,8 +327,9 @@ describe("workspace billing usage", () => {
     });
 
     expect(csv.split("\n")).toEqual([
-      "month,workspace_id,workspace,workspace_deleted_at,seats,seats_complete,peak_channels,peak_channels_at,channels_complete,active_seats_now,connected_channels_now,recording_started_at,plan,subscription_status,billing,subscription_quantity,current_period_end",
-      "2026-09,00000000-0000-4000-8000-000000000010,'=cmd,,1,true,1,2026-09-03T00:00:00.000Z,true,3,2,,pro,active,lemonSqueezy,3,2026-10-12T00:00:00.000Z",
+      "month,workspace_id,workspace,workspace_deleted_at,seats,seats_complete,peak_channels,peak_channels_at,channels_complete,active_seats_now,connected_channels_now,recording_started_at,plan,subscription_status,billing,subscription_quantity,current_period_end,owner_email",
+      "2026-09,00000000-0000-4000-8000-000000000010,'=cmd,,1,true,1,2026-09-03T00:00:00.000Z,true,3,2,,pro,active,lemonSqueezy,3,2026-10-12T00:00:00.000Z,ada@example.invalid",
+      "2026-09,00000000-0000-4000-8000-000000000011,ada@example.invalid · 00000000,,0,true,0,,true,3,2,,,,,,,ada@example.invalid",
       "",
     ]);
   });

@@ -17,6 +17,7 @@ import { DEFAULT_DATE_BUCKET, NO_VALUE_GROUP_KEY } from "@/core/base/grouping/gr
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 
 import { OPERATOR_AUDIT_SOURCE } from "./operator-lists.schema";
+import { workspaceLabelFor } from "./workspace-label";
 
 export { operatorCollator } from "./operator-collator";
 
@@ -353,7 +354,8 @@ export async function resolveWorkspaceOwners(
       u."companyId" ASC,
       (u."status"::text = 'active') DESC,
       (r."isSystemRole" IS TRUE) DESC,
-      u."createdAt" ASC
+      u."createdAt" ASC,
+      u."id" ASC
   `;
 
   for (const row of rows) if (row.owner) owners.set(row.companyId, row.owner);
@@ -368,22 +370,12 @@ export async function resolveWorkspaceLabels(
   const labels = new Map<string, string>();
   if (companyIds.length === 0) return labels;
 
-  const [rows, named] = await Promise.all([
-    prisma.$queryRaw<Array<{ companyId: string; domain: string | null }>>`
-      SELECT DISTINCT ON ("companyId") "companyId", split_part("email", '@', 2) AS domain
-      FROM "User"
-      WHERE "companyId" = ANY(${companyIds}::text[])
-      GROUP BY "companyId", domain
-      ORDER BY "companyId" ASC, COUNT(*) DESC, domain ASC
-    `,
-    prisma.company.findMany({
-      where: { id: { in: companyIds }, name: { not: null } },
-      select: { id: true, name: true },
-    }),
+  const [owners, companies] = await Promise.all([
+    resolveWorkspaceOwners(prisma, companyIds),
+    prisma.company.findMany({ where: { id: { in: companyIds } }, select: { id: true, name: true } }),
   ]);
 
-  for (const row of rows) if (row.domain) labels.set(row.companyId, row.domain);
-  for (const company of named) if (company.name) labels.set(company.id, company.name);
+  for (const company of companies) labels.set(company.id, workspaceLabelFor(company, owners.get(company.id) ?? null));
 
   return labels;
 }
