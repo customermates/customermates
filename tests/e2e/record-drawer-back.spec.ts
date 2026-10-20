@@ -29,6 +29,15 @@ for (const { title, discard } of [
 
   const openPage = drawer.getByRole("link", { name: "Open page", exact: true });
   const detailPath = new URL((await openPage.getAttribute("href"))!, page.url()).pathname;
+  const assertSidebarGuard = async () => {
+    await openSidebar(page, ["sidebar-trigger"]);
+    await page.locator("#nav-dashboard").click();
+    await expect(guard).toBeVisible();
+    await guard.getByRole("button", { name: "Cancel", exact: true }).click();
+    await expect(guard).not.toBeVisible();
+    await expect(page).toHaveURL((url) => url.pathname === detailPath);
+    if (isMobile) await page.keyboard.press("Escape");
+  };
   const gate = Promise.withResolvers<void>();
   let heldScripts = 0;
   let holdScripts = true;
@@ -53,13 +62,8 @@ for (const { title, discard } of [
     if (discard) await expect(page).toHaveURL((url) => url.pathname === `/en/records/${typeId}`);
     else await expect(page).toHaveURL((url) => url.pathname === detailPath);
     if (!discard) {
-      await openSidebar(page, ["sidebar-trigger"]);
-      await page.locator("#nav-dashboard").click();
-      await expect(guard).toBeVisible();
-      await guard.getByRole("button", { name: "Cancel", exact: true }).click();
-      await expect(guard).not.toBeVisible();
-      await expect(page).toHaveURL((url) => url.pathname === detailPath);
-      if (isMobile) await page.keyboard.press("Escape");
+      if (isMobile) await expect(page.locator("#sidebar-trigger")).toBeDisabled();
+      else await assertSidebarGuard();
     }
     holdScripts = false;
     gate.resolve();
@@ -69,7 +73,14 @@ for (const { title, discard } of [
     await expect(name).toHaveValue(discard ? "Back guard service" : "Back guard draft");
     const bar = page.locator('[data-slot="unsaved-changes-bar"]');
     if (discard) await expect(bar).toHaveCount(0);
-    else await expect(bar).toBeVisible();
+    else {
+      await expect(bar).toBeVisible();
+      if (isMobile) {
+        await assertSidebarGuard();
+        await expect(name).toHaveValue("Back guard draft");
+        await expect(bar).toBeVisible();
+      }
+    }
   } finally {
     holdScripts = false;
     gate.resolve();
