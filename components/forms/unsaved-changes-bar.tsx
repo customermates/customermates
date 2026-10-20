@@ -1,6 +1,7 @@
 "use client";
 
 import type { RefObject } from "react";
+import type { BaseFormStore } from "@/core/base/base-form.store";
 
 import { useLayoutEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
@@ -54,6 +55,7 @@ export function useBottomBarClearance(ref: RefObject<HTMLElement | null>) {
 }
 
 type Props = {
+  store?: BaseFormStore;
   formId?: string;
   anchorScope?: string;
   compact?: boolean;
@@ -64,6 +66,7 @@ type Props = {
 };
 
 export function UnsavedChangesBar({
+  store,
   formId,
   anchorScope,
   compact = false,
@@ -130,6 +133,7 @@ export function UnsavedChangesBar({
           formId={formId}
           placement="overlay"
           saving={saving}
+          store={store}
           onRevert={onCancel}
           onSave={onSave}
         />

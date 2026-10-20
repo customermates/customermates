@@ -81,7 +81,7 @@ test("persists every chart style, appearance, a copied template, resizing and de
       if ((await firstColor.getAttribute("aria-checked")) === "true") await firstColor.click();
       await page.keyboard.press("Escape");
       const save = dialog.getByRole("button", { name: "Save", exact: true });
-      if (await save.isEnabled()) {
+      if ((await save.count()) > 0) {
         await save.click();
         await expect(dialog).not.toBeVisible();
       } else await page.keyboard.press("Escape");
@@ -190,6 +190,13 @@ test("persists every chart style, appearance, a copied template, resizing and de
   expect(copied.measure).toEqual(saved.measure);
   expect(copied.isTemplate).toBe(false);
   await edit("Independent copied chart");
+  const editBar = dialog.locator('[data-slot="unsaved-changes-bar"]');
+  await expect(editBar).toHaveCount(0);
+  await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Discarded chart name");
+  await editBar.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Independent copied chart");
+  await expect(editBar).toHaveCount(0);
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Edited copied chart");
   await dialog.getByRole("button", { name: "Save", exact: true }).click();
   await expect(dialog).not.toBeVisible();

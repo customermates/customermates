@@ -53,6 +53,15 @@ test("edits fenced code blocks in a Knowledge Base page and keeps them as fenced
     const fencedBlock = document.locator("pre code").first();
     await expect(fencedBlock).toHaveText("yarn install");
     await expect(document.locator("pre").first()).toHaveCSS("overflow-x", "auto");
+    const bar = page.locator('[data-slot="unsaved-changes-bar"]');
+    await expect(bar).toHaveCount(0);
+    const title = page.getByRole("textbox", { name: englishMessages.Wiki.pageTitle, exact: true });
+    await title.fill("Discarded title");
+    await expect(bar).toBeVisible();
+    await bar.getByRole("button", { name: englishMessages.Common.actions.cancel, exact: true }).click();
+    await expect(title).toHaveValue("Local setup");
+    await expect(bar).toHaveCount(0);
+    await expect(fencedBlock).toHaveText("yarn install");
 
     if (!isMobile) {
       const outline = page.getByRole("navigation", { name: englishMessages.Wiki.onThisPage });
@@ -83,7 +92,10 @@ test("edits fenced code blocks in a Knowledge Base page and keeps them as fenced
     });
     page.on("requestfinished", (request) => pending.delete(request));
     page.on("requestfailed", (request) => pending.delete(request));
-    await page.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).first().click();
+    await expect(bar).toBeVisible();
+    await expect(bar.getByRole("button", { name: englishMessages.Common.actions.cancel, exact: true })).toBeInViewport({ ratio: 1 });
+    await expect(bar.getByRole("button", { name: englishMessages.Common.actions.save, exact: true })).toBeInViewport({ ratio: 1 });
+    await bar.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).click();
     await expect
       .poll(async () => {
         const read = await api.post("/api/v1/wiki/read", { data: { id: wikiPage.id } });
@@ -93,6 +105,7 @@ test("edits fenced code blocks in a Knowledge Base page and keeps them as fenced
         "# Setup\n\nInstall first.\n\n```bash\nyarn install\nyarn dev\n```\n\n## Run\n\nStart the server.\n\n```js\nconsole.log(1)\n```",
       );
 
+    await expect(bar).toHaveCount(0);
     await expect.poll(() => refreshes.length > 0 && pending.size === 0).toBe(true);
     await page.reload();
     await expect(page.locator(".tiptap pre code")).toHaveText(["yarn install\nyarn dev", "console.log(1)"]);

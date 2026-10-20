@@ -418,7 +418,7 @@ describe("Wiki document view", () => {
 
       act(() => container.querySelector<HTMLButtonElement>('[aria-label="Wiki.newPage"]')?.click());
       expect(store.creating).toBe(true);
-      act(() => container.querySelector<HTMLButtonElement>('[aria-label="Common.actions.cancel"]')?.click());
+      act(() => container.querySelector<HTMLButtonElement>("#wiki-page-cancel")?.click());
       expect(store.creating).toBe(false);
       expect(store.form.kind).toBe(page.kind);
       expect(store.hasUnsavedChanges).toBe(false);
@@ -949,11 +949,11 @@ describe("Wiki document view", () => {
         }),
       ]),
     );
-    const save = () => container.querySelector<HTMLButtonElement>('header [aria-label="Common.actions.save"]');
+    const save = () => container.querySelector<HTMLButtonElement>("#wiki-page-save");
     expect(save()).toBeNull();
     expect(container.querySelector('header [aria-label="Wiki.newPage"]')?.getAttribute("data-variant")).toBe("default");
     expect(harness.toolbarRenders).toBeLessThan(10);
-    const settledRenders = harness.toolbarRenders;
+    const settledToolbar = harness.topBar;
 
     act(() =>
       runInAction(() => {
@@ -961,19 +961,12 @@ describe("Wiki document view", () => {
       }),
     );
     expect(save()?.disabled).toBe(false);
-    expect(
-      container
-        .querySelector("header")
-        ?.querySelectorAll("button")
-        .item((container.querySelector("header")?.querySelectorAll("button").length ?? 0) - 1),
-    ).toBe(save());
+    expect(save()?.closest('[data-slot="unsaved-changes-bar"]')).not.toBeNull();
+    expect(container.querySelector('header [data-slot="unsaved-changes-bar"]')).toBeNull();
     expect(container.querySelector('header [aria-label="Wiki.newPage"]')).toBeNull();
     expect(container.querySelector('header [aria-label="Wiki.pageActions"]')).toBeNull();
-    expect(container.querySelector('header [aria-label="Common.actions.reset"]')).not.toBeNull();
-    expect(container.querySelector('header [aria-label="Common.actions.reset"]')?.getAttribute("data-variant")).toBe(
-      "ghost",
-    );
-    expect(harness.toolbarRenders).toBe(settledRenders);
+    expect(container.querySelector("#wiki-page-cancel")?.getAttribute("data-variant")).toBe("secondary");
+    expect(harness.topBar).toBe(settledToolbar);
 
     act(() =>
       runInAction(() => {
@@ -984,7 +977,7 @@ describe("Wiki document view", () => {
     expect(harness.toolbarRenders).toBeLessThan(10);
   });
 
-  it("opens directly in the Notes editor with global Save and Reset associated with its form", async () => {
+  it("opens directly in the Notes editor with the shared Save and Cancel bar associated with its form", async () => {
     configure(true, false);
     harness.store.form = page;
     harness.store.hasUnsavedChanges = true;
@@ -996,7 +989,8 @@ describe("Wiki document view", () => {
     );
     const { container: topBar } = await mount(harness.topBar);
     const form = container.querySelector("form");
-    const save = topBar.querySelector<HTMLButtonElement>('[aria-label="Common.actions.save"]');
+    const save = container.querySelector<HTMLButtonElement>("#wiki-page-save");
+    expect(topBar.querySelector("#wiki-page-save")).toBeNull();
 
     expect(container.querySelector('[data-editor-readonly="false"]')).not.toBeNull();
     expect(harness.editorProps?.data).toBe(harness.store.editorDocument);
@@ -1007,7 +1001,7 @@ describe("Wiki document view", () => {
     expect(save?.getAttribute("type")).toBe("submit");
     expect(save?.getAttribute("form")).toBe(form?.id);
 
-    act(() => topBar.querySelector<HTMLButtonElement>('[aria-label="Common.actions.reset"]')?.click());
+    act(() => container.querySelector<HTMLButtonElement>("#wiki-page-cancel")?.click());
     expect(harness.store.resetDocument).toHaveBeenCalledOnce();
   });
 
@@ -1271,15 +1265,13 @@ describe("Wiki document view", () => {
       pending = navigate;
       return false;
     });
-    await mount(
+    const { container } = await mount(
       createElement(WikiPageView, {
         initialPage: page,
         listPage: populatedList,
       }),
     );
-    const { container: topBar } = await mount(harness.topBar);
-
-    act(() => topBar.querySelector<HTMLButtonElement>('[aria-label="Common.actions.cancel"]')?.click());
+    act(() => container.querySelector<HTMLButtonElement>("#wiki-page-cancel")?.click());
     expect(harness.store.load).not.toHaveBeenCalled();
     act(() => pending?.());
     expect(harness.store.load).toHaveBeenCalledExactlyOnceWith(page);
@@ -1832,7 +1824,7 @@ describe("Wiki route lifetime", () => {
       harness.rootStore.navigationGuard = guard;
       harness.rootStore.userStore = { can: () => true, user: { id: "user-1" } };
       const frame = (child: ReactNode) => createElement(WikiRouteScope, null, child);
-      const { root } = await mount(
+      const { container, root } = await mount(
         frame(createElement(WikiPageView, { key: "working", initialPage: page, listPage: populatedList })),
       );
       const store = harness.store as unknown as RealWikiPageStore;
@@ -1884,7 +1876,8 @@ describe("Wiki route lifetime", () => {
       expect(store.editorDocument).toBe(document);
       expect(store.hasUnsavedChanges).toBe(true);
       const toolbar = renderToStaticMarkup(harness.topBar);
-      expect(toolbar).toContain("Common.actions.save");
+      expect(toolbar).not.toContain("Common.actions.save");
+      expect(container.querySelector('[data-slot="unsaved-changes-bar"]')).not.toBeNull();
       expect(toolbar).not.toContain("Wiki.newPage");
       expect(fullReload).not.toHaveBeenCalled();
       if (settle === "reset") act(() => store.resetDocument());

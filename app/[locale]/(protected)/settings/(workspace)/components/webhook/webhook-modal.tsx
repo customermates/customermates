@@ -22,6 +22,7 @@ import { FormTextarea } from "@/components/forms/form-textarea";
 import { FormCheckbox } from "@/components/forms/form-checkbox";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
+import { UnsavedChangesBar, unsavedChangesMode } from "@/components/forms/unsaved-changes-bar";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
 import { AppChip } from "@/components/chip/app-chip";
@@ -40,6 +41,11 @@ export const WebhookModal = observer(() => {
   const t = useTranslations();
   const { webhookModalStore, userStore } = useRootStore();
   const { form, isDisabled } = webhookModalStore;
+  const footerMode = unsavedChangesMode({
+    creating: !form.id,
+    dirty: webhookModalStore.hasUnsavedChanges,
+    editable: webhookModalStore.canManage && !webhookModalStore.isReadOnly,
+  });
   const { showDeleteConfirmation } = useDeleteConfirmation();
   useEffect(() => {
     if (!webhookModalStore.isOpen) return;
@@ -68,12 +74,12 @@ export const WebhookModal = observer(() => {
       title={t("WebhookModal.title")}
     >
       <AppForm store={webhookModalStore}>
-        <AppCard>
+        <AppCard className="relative">
           <AppCardHeader>
             <h2 className="truncate text-x-lg">{t("WebhookModal.title")}</h2>
           </AppCardHeader>
 
-          <AppCardBody>
+          <AppCardBody className="pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]">
             {webhookModalStore.form.pausedReason === "triggerFieldDeleted" && (
               <Alert color="warning" data-webhook-paused="" description={t("WebhookModal.pausedTriggerFieldDeleted")} />
             )}
@@ -186,7 +192,17 @@ export const WebhookModal = observer(() => {
             <FormCheckbox id="enabled" inputId="webhook-modal-enabled" label={t("WebhookModal.enabled")} />
           </AppCardBody>
 
-          <FormFooterActions anchorScope="webhook-modal" store={webhookModalStore} />
+          {footerMode === "footer" && <FormFooterActions anchorScope="webhook-modal" store={webhookModalStore} />}
+
+          {footerMode === "bar" && (
+            <UnsavedChangesBar
+              anchorScope="webhook-modal"
+              saving={webhookModalStore.isLoading}
+              store={webhookModalStore}
+              onCancel={webhookModalStore.resetForm}
+              onSave={webhookModalStore.onSubmit}
+            />
+          )}
         </AppCard>
       </AppForm>
     </AppModal>

@@ -8,6 +8,7 @@ import { ArrowUpRight, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
+import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { focusFirstInvalidField } from "@/components/forms/focus-first-invalid-field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -82,16 +83,31 @@ export function ViewMetaOverlay({
     if (dirty) submit();
   }
 
-  const footer = (
-    <FormFooterActions
-      anchorScope="view-editor"
-      dirty={dirty}
-      formId={FORM_ID}
-      placement="overlay"
-      saving={isSubmitting}
-      onCancel={() => onOpenChange(false)}
-    />
-  );
+  const footer =
+    mode === "edit" ? (
+      dirty ? (
+        <UnsavedChangesBar
+          compact
+          anchorScope="view-editor"
+          formId={FORM_ID}
+          placement="sticky"
+          saving={isSubmitting}
+          onCancel={() => {
+            onChange({ name: baseline.name });
+            setShowError(false);
+          }}
+        />
+      ) : null
+    ) : (
+      <FormFooterActions
+        anchorScope="view-editor"
+        dirty={dirty}
+        formId={FORM_ID}
+        placement="overlay"
+        saving={isSubmitting}
+        onCancel={() => onOpenChange(false)}
+      />
+    );
 
   return (
     <ResponsiveOverlay

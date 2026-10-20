@@ -20,6 +20,7 @@ import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
+import { UnsavedChangesBar, unsavedChangesMode } from "@/components/forms/unsaved-changes-bar";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { SectionRows } from "@/components/ui/section-rows";
 import { AppForm } from "@/components/forms/form-context";
@@ -56,6 +57,11 @@ const CLOUD_RESOURCES = new Set<Resource>([Resource.inboxMessages, Resource.rout
 export const RoleModal = observer(({ store }: Props) => {
   const t = useTranslations();
   const { form, isLoading, canDeleteRole, isSystemRole, isOwnRole, canManage } = store;
+  const footerMode = unsavedChangesMode({
+    creating: !form.id,
+    dirty: store.hasUnsavedChanges,
+    editable: store.canManage && !store.isReadOnly,
+  });
   const { showDeleteConfirmation } = useDeleteConfirmation();
 
   const manageLabels = {
@@ -184,12 +190,12 @@ export const RoleModal = observer(({ store }: Props) => {
       title={t("RoleModal.title")}
     >
       <AppForm store={store}>
-        <AppCard>
+        <AppCard className="relative">
           <AppCardHeader className="items-start">
             <h2 className="grow truncate text-base font-semibold">{t("RoleModal.title")}</h2>
           </AppCardHeader>
 
-          <AppCardBody>
+          <AppCardBody className="pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]">
             {store.loadFailed && (
               <Alert color="danger" description={t("ErrorCard.title")}>
                 <Button size="sm" variant="secondary" onClick={() => runUserAction(store.loadContext)}>
@@ -253,7 +259,17 @@ export const RoleModal = observer(({ store }: Props) => {
             </CollapsibleSection>
           </AppCardBody>
 
-          <FormFooterActions anchorScope="role-modal" store={store} />
+          {footerMode === "footer" && <FormFooterActions anchorScope="role-modal" store={store} />}
+
+          {footerMode === "bar" && (
+            <UnsavedChangesBar
+              anchorScope="role-modal"
+              saving={store.isLoading}
+              store={store}
+              onCancel={store.resetForm}
+              onSave={store.onSubmit}
+            />
+          )}
         </AppCard>
       </AppForm>
     </AppModal>

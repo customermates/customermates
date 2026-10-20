@@ -13,6 +13,7 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppForm } from "@/components/forms/form-context";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
+import { UnsavedChangesBar, unsavedChangesMode } from "@/components/forms/unsaved-changes-bar";
 import { FormLabel } from "@/components/forms/form-label";
 import { FormInput } from "@/components/forms/form-input";
 import { FormSwitch } from "@/components/forms/form-switch";
@@ -78,6 +79,11 @@ export const WidgetModal = observer(() => {
   const chartColors = getChartColors();
   const isCreate = !form.id;
   const canDeleteWidget = !isCreate && canManage && Boolean(form.id);
+  const footerMode = unsavedChangesMode({
+    creating: isCreate,
+    dirty: widgetModalStore.hasUnsavedChanges,
+    editable: widgetModalStore.canManage && !widgetModalStore.isReadOnly,
+  });
   const isChooseStep = isCreate && widgetModalStore.creationStep === "choose";
   const dialogTitle = isChooseStep
     ? t("Dashboard.widgetEditor.kind.title")
@@ -341,12 +347,17 @@ export const WidgetModal = observer(() => {
       title={dialogTitle}
     >
       <AppForm store={widgetModalStore}>
-        <AppCard>
+        <AppCard className="relative">
           <AppCardHeader>
             <h2 className="min-w-0 break-words text-base font-semibold">{dialogTitle}</h2>
           </AppCardHeader>
 
-          <AppCardBody className={isChooseStep ? "md:flex-initial" : "md:min-h-96 [scrollbar-gutter:stable]"}>
+          <AppCardBody
+            className={cn(
+              "pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]",
+              isChooseStep ? "md:flex-initial" : "md:min-h-96 [scrollbar-gutter:stable]",
+            )}
+          >
             {widgetModalStore.isHydrating ? (
               <WidgetModalSkeleton />
             ) : isChooseStep ? (
@@ -369,16 +380,17 @@ export const WidgetModal = observer(() => {
             )}
           </AppCardBody>
 
-          {!isChooseStep && (
-            <FormFooterActions
+          {!isChooseStep && footerMode === "footer" && (
+            <FormFooterActions dirty anchorScope="widget-modal" store={widgetModalStore} />
+          )}
+
+          {!isChooseStep && footerMode === "bar" && (
+            <UnsavedChangesBar
               anchorScope="widget-modal"
-              dirty={isCreate ? true : undefined}
-              reset={
-                isCreate
-                  ? undefined
-                  : { differs: widgetModalStore.hasUnsavedChanges, onReset: widgetModalStore.resetForm }
-              }
+              saving={widgetModalStore.isLoading}
               store={widgetModalStore}
+              onCancel={widgetModalStore.resetForm}
+              onSave={widgetModalStore.onSubmit}
             />
           )}
         </AppCard>

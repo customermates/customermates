@@ -12,6 +12,7 @@ import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
+import { UnsavedChangesBar, unsavedChangesMode } from "@/components/forms/unsaved-changes-bar";
 import { AppModal, AppModalTitle } from "@/components/modal";
 import { usePreviewBlockers } from "./use-preview-blockers";
 
@@ -20,6 +21,7 @@ type SheetStore = BaseModalStore & {
   model: RecordModelView;
   isReadOnly: boolean;
   previewReady: boolean;
+  setPreview: (preview: ConfigurationPreview | null) => void;
   onSubmit: () => Promise<void>;
 };
 
@@ -37,6 +39,11 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
   children: ReactNode;
 }) {
   usePreviewBlockers(store.isOpen ? store.preview : null, store.model);
+  const mode = unsavedChangesMode({
+    creating,
+    dirty: store.hasUnsavedChanges || store.previewReady,
+    editable: !store.isReadOnly,
+  });
   return (
     <AppModal
       sheet
@@ -46,20 +53,30 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
       store={store}
       title={title}
     >
-      <AppCard>
+      <AppCard className="relative">
         <AppCardHeader>
           <AppModalTitle className="min-w-0 flex-1 truncate text-lg font-semibold">{title}</AppModalTitle>
         </AppCardHeader>
 
-        <AppCardBody>{children}</AppCardBody>
+        <AppCardBody className="pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]">
+          {children}
+        </AppCardBody>
 
-        <FormFooterActions
-          dirty={creating || store.hasUnsavedChanges || store.previewReady}
-          editable={!store.isReadOnly}
-          saving={store.isLoading}
-          store={store}
-          onSave={store.onSubmit}
-        />
+        {mode === "footer" && (
+          <FormFooterActions dirty editable saving={store.isLoading} store={store} onSave={store.onSubmit} />
+        )}
+
+        {mode === "bar" && (
+          <UnsavedChangesBar
+            saving={store.isLoading}
+            store={store}
+            onCancel={() => {
+              store.resetForm();
+              store.setPreview(null);
+            }}
+            onSave={store.onSubmit}
+          />
+        )}
       </AppCard>
     </AppModal>
   );

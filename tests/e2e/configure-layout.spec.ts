@@ -139,7 +139,30 @@ test("adds and edits definitions in a side drawer and reorders fields with drag 
   await openConfigureRow(page, "Fields", "Notes");
   await expect(dialog.getByText("Edit field", { exact: true })).toBeVisible();
   await expect(page.locator("[data-configure-list-pane]")).toBeAttached();
+  const bar = dialog.locator('[data-slot="unsaved-changes-bar"]');
+  await expect(bar).toHaveCount(0);
+  await expect(dialog).toHaveCSS("border-left-width", "1px");
+  await expect(dialog.locator('[data-uid="app-card"]')).toHaveCSS("border-left-width", "0px");
+  await expect(dialog.locator('[data-uid="app-card"]')).toHaveCSS("border-top-left-radius", "0px");
+  await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Discarded notes");
+  await expect(bar).toBeVisible();
+  await bar.getByRole("button", { name: "Save", exact: true }).click();
+  const preview = dialog.getByRole("status").filter({ hasText: "Ready to apply" });
+  await expect(preview).toBeVisible();
+  await bar.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Notes");
+  await expect(bar).toHaveCount(0);
+  await expect(preview).toHaveCount(0);
+  expect((await readModel(database, companyId)).fields.find((field) => field.id === id("deal.notes"))?.label).toBe(
+    "Notes",
+  );
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Deal notes");
+  await dialog.locator('[data-slot="card-content"]').evaluate((body) => {
+    body.scrollTop = body.scrollHeight;
+  });
+  await expect(bar.getByRole("button", { name: "Save", exact: true })).toBeInViewport({ ratio: 1 });
+  await expect(bar.getByRole("button", { name: "Cancel", exact: true })).toBeInViewport({ ratio: 1 });
   await saveDrawer(page);
   await expect(configureRow(page, "Fields", "Deal notes")).toBeVisible();
   expect((await readModel(database, companyId)).fields.find((field) => field.id === id("deal.notes"))?.label).toBe(
@@ -262,7 +285,7 @@ test("shows the data model graph and edits lists, fields and relationships from 
     await graph.locator(`[data-configure-graph-field="${id("deal.notes")}"]`).click();
     await expect(dialog.getByText("Edit field", { exact: true })).toBeVisible();
     await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Notes");
-    await dialog.getByRole("button", { name: "Cancel", exact: true }).first().click();
+    await dialog.getByRole("button", { name: "Close", exact: true }).click();
     await expect(dialog).not.toBeVisible();
   });
 
@@ -285,7 +308,7 @@ test("shows the data model graph and edits lists, fields and relationships from 
     await cardinality.click();
     await page.getByRole("option", { name: "One to one", exact: true }).click();
     await expect(cardinality).toContainText("One to one");
-    await dialog.getByRole("button", { name: "Cancel", exact: true }).first().click();
+    await dialog.getByRole("button", { name: "Close", exact: true }).click();
     await page.getByRole("alertdialog").getByRole("button", { name: "Discard", exact: true }).click();
     await expect(dialog).not.toBeVisible();
   });

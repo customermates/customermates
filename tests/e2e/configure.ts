@@ -53,7 +53,7 @@ export function configureRow(page: Page, section: ConfigureSection, label: strin
 
 export async function openDrawerTab(page: Page, name: string) {
   const drawer = configureDrawer(page);
-  await expect(drawer.getByRole("button", { name: "Save", exact: true }).first()).toBeVisible();
+  await expect(drawer).toBeVisible();
   const tab = drawer.getByRole("tab", { name, exact: true });
   if (await tab.count()) {
     if ((await tab.getAttribute("aria-selected")) !== "true") await tab.click();
@@ -100,7 +100,7 @@ export async function saveDrawer(page: Page) {
   const revision = await configureRevision(page);
   const dialog = configureDrawer(page);
   await dialog.getByRole("button", { name: "Save", exact: true }).first().click();
-  await expect(dialog.getByRole("status").last()).toContainText("Ready to apply");
+  await expect(dialog.getByRole("status").filter({ hasText: "Ready to apply" })).toBeVisible();
   await dialog.getByRole("button", { name: "Save", exact: true }).first().click();
   await expect(dialog).not.toBeVisible();
   await expectConfigureRevisionAfter(page, revision);
