@@ -57,7 +57,9 @@ const WIDGET_FOCUS_KINDS: FocusKind[] = ["widget"];
 
 function layoutGeometry(layout: Layout) {
   return JSON.stringify(
-    [...layout].sort((left, right) => left.i.localeCompare(right.i)).map(({ i, x, y, w, h }) => ({ i, x, y, w, h })),
+    [...layout]
+      .sort((left, right) => (left.i < right.i ? -1 : left.i > right.i ? 1 : 0))
+      .map(({ i, x, y, w, h }) => ({ i, x, y, w, h })),
   );
 }
 

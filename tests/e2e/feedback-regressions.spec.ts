@@ -151,8 +151,9 @@ test("record names and ordinary rows open the drawer while direct cell editing s
   if (!isMobile) {
     const row = page.locator("tbody tr").filter({ hasText: "Drawer test service" });
     const edit = row.getByRole("button", { name: "Edit Price", exact: true });
+    const idleShadow = await edit.evaluate((element) => getComputedStyle(element).boxShadow);
     await edit.hover();
-    await expect(edit.locator("svg")).toHaveCSS("opacity", "1");
+    await expect.poll(() => edit.evaluate((element) => getComputedStyle(element).boxShadow)).not.toBe(idleShadow);
     await page.screenshot({ path: testInfo.outputPath("inline-cell-highlight.png"), animations: "disabled" });
     await edit.click();
     await expect(drawer).toHaveCount(0);

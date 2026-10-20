@@ -296,8 +296,10 @@ test("edits every field type inline in rows and on board cards, with validation,
   };
 
   const textEdit = row.getByRole("button", { name: "Edit Text", exact: true });
+  const idleShadow = await textEdit.evaluate((element) => getComputedStyle(element).boxShadow);
   await textEdit.hover();
-  await expect(textEdit.locator("svg.lucide-pencil")).toHaveCSS("opacity", "1");
+  await expect.poll(() => textEdit.evaluate((element) => getComputedStyle(element).boxShadow)).not.toBe(idleShadow);
+  await expect(row.locator("[data-inline-edit] svg.lucide-pencil")).toHaveCount(0);
   await expect(row.locator("[data-read-only-field]")).toHaveCount(0);
   await enterValue("Text", "Inline text", "Inline text");
   await enterValue("Number", "12.5", "12.5");

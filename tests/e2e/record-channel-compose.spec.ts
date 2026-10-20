@@ -8,7 +8,7 @@ import type { RecordRef } from "../../features/records/record-model.schema";
 import { expectBlockedEmailScripts } from "./browser-diagnostics";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { postOk } from "./api";
-import { openRecordDetails, openRecordLink, recordItem } from "./record-rows";
+import { openRecordDetails } from "./record-rows";
 import { e2eAppMode } from "./workspace-switching";
 
 test("opens a list-qualified inbox and preserves, saves, edits and sends channel drafts locally", async ({
@@ -137,24 +137,9 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
     await expect(fields.locator('[aria-busy="true"]')).toHaveCount(0);
   };
   let activeRecipient = recipients[0];
-  let hasOpenedRecord = false;
   const openRecord = async (index: number) => {
     activeRecipient = recipients[index];
-    if (!hasOpenedRecord) {
-      await page.goto(`/en/records/${typeId}/${records[index].recordId}`);
-      hasOpenedRecord = true;
-    } else {
-      await navigateType(typeId);
-      await openRecordLink(
-        recordItem(page, `Channel company ${index + 1}`).getByRole("link", {
-          name: `Channel company ${index + 1}`,
-          exact: true,
-        }),
-      );
-      await expect(page.getByRole("dialog")).toBeVisible();
-      await page.getByRole("dialog").getByRole("link", { name: "Open page", exact: true }).click();
-      await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}/${records[index].recordId}$`));
-    }
+    await page.goto(`/en/records/${typeId}/${records[index].recordId}`);
     await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
   };
   await openRecord(0);

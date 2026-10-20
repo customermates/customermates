@@ -1,4 +1,3 @@
-/** Drop source-site heading anchors that the editor would otherwise display as text. */
 export function stripMarkdownHeadingIds(markdown: string): string {
   let fence: { marker: string; length: number } | null = null;
   return markdown
