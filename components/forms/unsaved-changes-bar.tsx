@@ -56,12 +56,22 @@ export function useBottomBarClearance(ref: RefObject<HTMLElement | null>) {
 type Props = {
   formId?: string;
   anchorScope?: string;
+  compact?: boolean;
   saving?: boolean;
   placement?: "overlay" | "sticky";
   onCancel: () => void;
+  onSave?: () => void | Promise<void>;
 };
 
-export function UnsavedChangesBar({ formId, anchorScope, saving = false, placement = "overlay", onCancel }: Props) {
+export function UnsavedChangesBar({
+  formId,
+  anchorScope,
+  compact = false,
+  saving = false,
+  placement = "overlay",
+  onCancel,
+  onSave,
+}: Props) {
   const t = useTranslations();
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -91,6 +101,7 @@ export function UnsavedChangesBar({ formId, anchorScope, saving = false, placeme
       className={cn(
         "z-20 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border bg-popover p-2 ps-3 text-popover-foreground shadow-lg",
         "animate-in fade-in-0 slide-in-from-bottom-2 motion-reduce:animate-none",
+        compact && "w-full",
         placement === "overlay"
           ? "absolute inset-x-2.5 bottom-[calc(0.625rem+var(--safe-bottom))]"
           : "sticky bottom-[calc(0.625rem+var(--safe-bottom))]",
@@ -98,7 +109,7 @@ export function UnsavedChangesBar({ formId, anchorScope, saving = false, placeme
       data-slot="unsaved-changes-bar"
       role="status"
     >
-      <span className="flex min-w-0 flex-1 items-center gap-2 text-sm font-medium">
+      <span className={cn("flex min-w-0 items-center gap-2 text-sm font-medium", compact ? "w-full" : "flex-1")}>
         <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-primary" />
 
         <span className="truncate">{t("Common.unsavedChanges")}</span>
@@ -106,7 +117,12 @@ export function UnsavedChangesBar({ formId, anchorScope, saving = false, placeme
         <ShortcutKeys className="ms-1" id="save" />
       </span>
 
-      <span className="flex items-center gap-2 max-sm:w-full max-sm:[&_button]:flex-1">
+      <span
+        className={cn(
+          "flex items-center gap-2",
+          compact ? "w-full [&_button]:flex-1" : "max-sm:w-full max-sm:[&_button]:flex-1",
+        )}
+      >
         <FormFooterActions
           dirty
           editable
@@ -115,6 +131,7 @@ export function UnsavedChangesBar({ formId, anchorScope, saving = false, placeme
           placement="overlay"
           saving={saving}
           onRevert={onCancel}
+          onSave={onSave}
         />
       </span>
     </div>
