@@ -69,16 +69,38 @@ vi.mock("../record-chip", () => ({
     </div>
   ),
 }));
-vi.mock("@/components/ui/dropdown-menu", () => ({
-  DropdownMenu: ({ children }: { children: ReactNode }) => children,
-  DropdownMenuTrigger: ({ children }: { children: ReactNode }) => children,
-  DropdownMenuContent: ({ children }: { children: ReactNode }) => children,
-  DropdownMenuItem: ({ children, onSelect }: { children: ReactNode; onSelect: () => void }) => (
-    <button data-add-assignees onClick={onSelect}>
-      {children}
-    </button>
-  ),
-}));
+vi.mock("@/components/ui/dropdown-menu", () => {
+  const CloseContext = createContext<() => void>(() => undefined);
+  return {
+    DropdownMenu: ({ children }: { children: ReactNode }) => children,
+    DropdownMenuTrigger: ({ children }: { children: ReactNode }) => children,
+    DropdownMenuContent: ({
+      children,
+      onCloseAutoFocus,
+    }: {
+      children: ReactNode;
+      onCloseAutoFocus?: (event: Event) => void;
+    }) => (
+      <CloseContext.Provider value={() => onCloseAutoFocus?.(new Event("closeAutoFocus"))}>
+        {children}
+      </CloseContext.Provider>
+    ),
+    DropdownMenuItem: ({ children, onSelect }: { children: ReactNode; onSelect: () => void }) => {
+      const close = useContext(CloseContext);
+      return (
+        <button
+          data-add-assignees
+          onClick={() => {
+            onSelect();
+            close();
+          }}
+        >
+          {children}
+        </button>
+      );
+    },
+  };
+});
 vi.mock("@/components/ui/popover", () => {
   const OpenContext = createContext(false);
   return {

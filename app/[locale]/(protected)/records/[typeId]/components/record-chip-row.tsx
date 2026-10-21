@@ -5,7 +5,7 @@ import type { RecordRef } from "@/features/records/record-model.schema";
 import type { RecordRow } from "@/features/records/record-presentation";
 import type { RecordsStore } from "./records.store";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
@@ -136,6 +136,7 @@ const AddPropertyChip = observer(function AddPropertyChip({
 }) {
   const t = useTranslations();
   const [editing, setEditing] = useState<RecordChipColumn | null>(null);
+  const pendingEditor = useRef<RecordChipColumn | null>(null);
   const dismissGuard = useOwnOverlayDismissGuard();
   const { linkIcons } = records.presentation;
   if (!columns.length && !editing) return null;
@@ -160,9 +161,24 @@ const AddPropertyChip = observer(function AddPropertyChip({
           </DropdownMenuTrigger>
         </PopoverAnchor>
 
-        <DropdownMenuContent align="start" className="max-h-72 overflow-y-auto">
+        <DropdownMenuContent
+          align="start"
+          className="max-h-72 overflow-y-auto"
+          onCloseAutoFocus={(event) => {
+            const column = pendingEditor.current;
+            if (!column) return;
+            event.preventDefault();
+            pendingEditor.current = null;
+            setEditing(column);
+          }}
+        >
           {columns.map((column) => (
-            <DropdownMenuItem key={column.id} onSelect={() => setEditing(column)}>
+            <DropdownMenuItem
+              key={column.id}
+              onSelect={() => {
+                pendingEditor.current = column;
+              }}
+            >
               <ChipColumnIcon column={column} icons={linkIcons} />
 
               {column.label}
