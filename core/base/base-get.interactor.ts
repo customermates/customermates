@@ -46,6 +46,7 @@ export interface GetResult<T> {
   columnOrder?: string[];
   columnWidths?: Record<string, number>;
   hiddenColumns?: string[];
+  showRecordPictures?: boolean;
   viewMode?: ViewMode;
   grouping?: GroupingResult;
   groupableFields?: GroupableFieldDto[];
@@ -235,7 +236,12 @@ export abstract class BaseGetInteractor<T> {
     if (!this.repo.countByGroup) throw new Error("This repository declares groupable fields but cannot count groups");
 
     const [rows, total] = await Promise.all([
-      this.repo.countByGroup({ spec, params: baseQuery, bucket: grouping.bucket, now }),
+      this.repo.countByGroup({
+        spec,
+        params: baseQuery,
+        bucket: grouping.bucket,
+        now,
+      }),
       this.repo.getCount({
         filters: baseQuery.filters,
         searchTerm: baseQuery.searchTerm,
@@ -383,6 +389,7 @@ function viewResult(resolved: ResolvedDataViewState, context: ViewContext) {
     columnOrder: resolved.columnOrder,
     columnWidths: resolved.columnWidths,
     hiddenColumns: resolved.hiddenColumns,
+    showRecordPictures: resolved.showRecordPictures,
     viewMode: resolved.viewMode,
     views: context.views,
     activeViewKey: context.activeViewKey,

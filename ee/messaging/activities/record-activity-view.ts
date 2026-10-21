@@ -39,8 +39,16 @@ export function activityViewFilters(filters: readonly Filter[]): RecordActivityF
         values: [...new Set(sources.flatMap((source) => [...SOURCES[source]]))],
       });
     }
-    const kind = { provider: "provider", connectedAccountId: "account", timelineThreadId: "thread" }[filter.field];
-    return RecordActivityFilterSchema.parse({ kind, operator: filter.operator, values });
+    const kind = {
+      provider: "provider",
+      connectedAccountId: "account",
+      timelineThreadId: "thread",
+    }[filter.field];
+    return RecordActivityFilterSchema.parse({
+      kind,
+      operator: filter.operator,
+      values,
+    });
   });
 }
 
@@ -51,6 +59,7 @@ export function activityViewStateValid(state: DataViewState) {
     state.grouping ||
     state.columnOrder?.length ||
     state.hiddenColumns?.length ||
+    state.showRecordPictures !== undefined ||
     Object.keys(state.columnWidths ?? {}).length ||
     (state.viewMode && state.viewMode !== ViewMode.table)
   )

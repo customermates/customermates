@@ -30,6 +30,7 @@ export interface P13nEntry {
   columnWidths?: Record<string, number>;
   columnOrder?: string[];
   hiddenColumns?: string[];
+  showRecordPictures?: boolean;
   viewMode?: ViewMode;
   grouping?: Grouping | null;
   detailOptions?: EntityDetailOptions;
@@ -58,7 +59,7 @@ function resetPersonalizationColumns(fields: StateField[]): Prisma.P13nUpdateMan
   for (const field of fields) {
     if (field === "pageSize") data.pagination = Prisma.DbNull;
     else if (field === "columnOrder" || field === "hiddenColumns") data[field] = [];
-    else if (field === "searchTerm" || field === "viewMode") data[field] = null;
+    else if (field === "searchTerm" || field === "viewMode" || field === "showRecordPictures") data[field] = null;
     else data[field] = Prisma.DbNull;
     if (field === "grouping") data.groupingColumnId = null;
   }
@@ -90,6 +91,7 @@ export class PrismaP13nRepo
       columnOrder,
       columnWidths,
       hiddenColumns,
+      showRecordPictures,
       viewMode,
       grouping,
       detailOptions,
@@ -106,6 +108,7 @@ export class PrismaP13nRepo
       columnWidths: (columnWidths as Record<string, number> | null) ?? undefined,
       columnOrder,
       hiddenColumns,
+      showRecordPictures: showRecordPictures ?? undefined,
       viewMode: (viewMode as ViewMode | null) ?? undefined,
       grouping: readStoredGrouping(grouping),
       detailOptions: normalizeDetailOptions(detailOptions),
@@ -123,7 +126,12 @@ export class PrismaP13nRepo
   }): Promise<boolean> {
     const { companyId, id: userId } = this.user;
     const affected = await this.prisma.p13n.updateMany({
-      where: { companyId, userId, p13nId, activeViewKey: expectedActiveViewKey },
+      where: {
+        companyId,
+        userId,
+        p13nId,
+        activeViewKey: expectedActiveViewKey,
+      },
       data: { activeViewKey: null },
     });
 
@@ -135,7 +143,10 @@ export class PrismaP13nRepo
 
     const current = p13nId.startsWith("records:")
       ? await this.prisma.p13n.findUnique({
-          where: { companyId, companyId_userId_p13nId: { companyId, userId, p13nId } },
+          where: {
+            companyId,
+            companyId_userId_p13nId: { companyId, userId, p13nId },
+          },
         })
       : null;
     const currentKeys = current
@@ -162,6 +173,7 @@ export class PrismaP13nRepo
       columnWidths: data.columnWidths ?? Prisma.JsonNull,
       columnOrder: data.columnOrder ?? [],
       hiddenColumns: data.hiddenColumns ?? [],
+      showRecordPictures: data.showRecordPictures ?? null,
       viewMode: data.viewMode ?? null,
       groupingColumnId: groupingShadowColumnId(data.grouping),
       grouping: data.grouping ?? Prisma.DbNull,
@@ -184,6 +196,7 @@ export class PrismaP13nRepo
     if (data.columnWidths !== undefined) updateData.columnWidths = data.columnWidths ?? Prisma.JsonNull;
     if (data.columnOrder !== undefined) updateData.columnOrder = data.columnOrder ?? [];
     if (data.hiddenColumns !== undefined) updateData.hiddenColumns = data.hiddenColumns ?? [];
+    if (data.showRecordPictures !== undefined) updateData.showRecordPictures = data.showRecordPictures;
     if (data.viewMode !== undefined) updateData.viewMode = data.viewMode ?? null;
     if (data.grouping !== undefined) {
       updateData.groupingColumnId = groupingShadowColumnId(data.grouping);
@@ -211,6 +224,7 @@ export class PrismaP13nRepo
       columnWidths: (row.columnWidths as Record<string, number> | null) ?? undefined,
       columnOrder: row.columnOrder,
       hiddenColumns: row.hiddenColumns,
+      showRecordPictures: row.showRecordPictures ?? undefined,
       viewMode: (row.viewMode as ViewMode | null) ?? undefined,
       grouping: readStoredGrouping(row.grouping),
       detailOptions: normalizeDetailOptions(row.detailOptions),
@@ -222,12 +236,18 @@ export class PrismaP13nRepo
     const cleared = Object.fromEntries(
       DATA_VIEW_STATE_FIELDS.map((key) => [key === "pageSize" ? "pagination" : key, undefined]),
     );
-    return { ...cleared, ...writePersonalizationState(readStoredPersonalizationState(row)) };
+    return {
+      ...cleared,
+      ...writePersonalizationState(readStoredPersonalizationState(row)),
+    };
   }
 
   async resetSurfaceState(companyId: string, userId: string, surfaceKey: string, fields: StateField[]) {
     const current = await this.prisma.p13n.findUnique({
-      where: { companyId, companyId_userId_p13nId: { companyId, userId, p13nId: surfaceKey } },
+      where: {
+        companyId,
+        companyId_userId_p13nId: { companyId, userId, p13nId: surfaceKey },
+      },
     });
     if (!current) return;
     const keys = Array.isArray(current.viewStateKeys)
@@ -236,7 +256,10 @@ export class PrismaP13nRepo
     const remaining = keys.filter((key) => typeof key === "string" && !fields.includes(key as StateField));
     await this.prisma.p13n.updateMany({
       where: { companyId, userId, p13nId: surfaceKey },
-      data: { ...resetPersonalizationColumns(fields), viewStateKeys: remaining as Prisma.InputJsonValue },
+      data: {
+        ...resetPersonalizationColumns(fields),
+        viewStateKeys: remaining as Prisma.InputJsonValue,
+      },
     });
   }
 
@@ -248,7 +271,12 @@ export class PrismaP13nRepo
         detailOptions: { not: Prisma.AnyNull },
         ...(afterId ? { id: { gt: afterId } } : {}),
       },
-      select: { id: true, p13nId: true, detailOptions: true, columnOrder: true },
+      select: {
+        id: true,
+        p13nId: true,
+        detailOptions: true,
+        columnOrder: true,
+      },
       orderBy: { id: "asc" },
       take: CONFIGURATION_CONSUMER_PAGE,
     });
@@ -256,18 +284,26 @@ export class PrismaP13nRepo
 
   async getPersonalizationsCompanyWide(companyId: string, p13nIds: string[], afterId: string, take: number) {
     return this.prisma.p13n.findMany({
-      where: { companyId, p13nId: { in: p13nIds }, ...(afterId ? { id: { gt: afterId } } : {}) },
+      where: {
+        companyId,
+        p13nId: { in: p13nIds },
+        ...(afterId ? { id: { gt: afterId } } : {}),
+      },
       orderBy: { id: "asc" },
       take,
     });
   }
 
   async countPersonalizationsCompanyWide(companyId: string, p13nIds: string[]) {
-    return this.prisma.p13n.count({ where: { companyId, p13nId: { in: p13nIds } } });
+    return this.prisma.p13n.count({
+      where: { companyId, p13nId: { in: p13nIds } },
+    });
   }
 
   async deletePersonalizationsCompanyWide(companyId: string, p13nIds: string[]): Promise<void> {
-    await this.prisma.p13n.deleteMany({ where: { companyId, p13nId: { in: p13nIds } } });
+    await this.prisma.p13n.deleteMany({
+      where: { companyId, p13nId: { in: p13nIds } },
+    });
   }
 
   async rewritePersonalizationStateCompanyWide(companyId: string, id: string, state: DataViewState): Promise<void> {
@@ -277,7 +313,9 @@ export class PrismaP13nRepo
       data: {
         ...(write.filters !== undefined ? { filters: write.filters as Prisma.InputJsonValue } : {}),
         ...(write.sortDescriptor !== undefined
-          ? { sortDescriptor: (write.sortDescriptor ?? {}) as Prisma.InputJsonValue }
+          ? {
+              sortDescriptor: (write.sortDescriptor ?? {}) as Prisma.InputJsonValue,
+            }
           : {}),
         ...(write.grouping !== undefined
           ? {
@@ -288,6 +326,7 @@ export class PrismaP13nRepo
         ...(write.columnOrder !== undefined ? { columnOrder: write.columnOrder } : {}),
         ...(write.columnWidths !== undefined ? { columnWidths: write.columnWidths } : {}),
         ...(write.hiddenColumns !== undefined ? { hiddenColumns: write.hiddenColumns } : {}),
+        ...(write.showRecordPictures !== undefined ? { showRecordPictures: write.showRecordPictures } : {}),
       },
     });
   }

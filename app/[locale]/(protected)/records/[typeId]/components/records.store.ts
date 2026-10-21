@@ -51,6 +51,7 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       presentation: observable.ref,
       fields: computed,
       type: computed,
+      recordPictureFieldId: computed,
       differsFromDefaultLayout: computed,
       recordColumns: computed,
       columnHeaders: computed({ equals: comparer.structural }),
@@ -77,6 +78,15 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   }
   override get supportsBoard() {
     return true;
+  }
+  override get supportsRecordPictures() {
+    return true;
+  }
+  override get recordPictureFieldId() {
+    const fieldId = this.presentation.model.capabilities
+      .find((binding) => binding.kind === "avatar" && binding.typeId === this.presentation.typeId)
+      ?.fields.find((field) => field.role === "image")?.fieldId;
+    return this.fields.find((field) => field.id === fieldId && field.valueType === "url" && !field.multiple)?.id;
   }
   override get supportsSelection() {
     return (
@@ -189,7 +199,10 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
     this.updateRecord(record, { fields: [], linkChanges });
   private updateRecord = async (
     record: RecordRow,
-    changes: { fields: { fieldId: string; value: RecordScalar | null }[]; linkChanges?: RecordLinkChange[] },
+    changes: {
+      fields: { fieldId: string; value: RecordScalar | null }[];
+      linkChanges?: RecordLinkChange[];
+    },
   ): Promise<RecordFieldSaveOutcome> => {
     if (!this.canUpdateRecord(record) || this.movingRecords.has(record.id)) return { saved: false };
     this.movingRecords.add(record.id);
@@ -205,8 +218,12 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
         },
       });
       if (!result.ok) {
-        if (result.failure?.kind === "validation")
-          return { saved: false, invalid: [...new Set(result.failure.issues.map((issue) => issue.message))] };
+        if (result.failure?.kind === "validation") {
+          return {
+            saved: false,
+            invalid: [...new Set(result.failure.issues.map((issue) => issue.message))],
+          };
+        }
         toastZodErrorTree(result.error);
         await this.refresh();
         return { saved: false };
@@ -254,7 +271,10 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
     const option = this.groupOption(groupKey);
     if (!field || !option || !this.canCreateInGroup(groupKey)) return;
     this.rootStore.recordWorkspaceStore.open(
-      { typeId: this.presentation.typeId, values: { [field.id]: { kind: "select", value: option.id } } },
+      {
+        typeId: this.presentation.typeId,
+        values: { [field.id]: { kind: "select", value: option.id } },
+      },
       returnFocusTo,
     );
   }
@@ -263,7 +283,11 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
     if (!this.presentation.canManageSchema || !field) return undefined;
     const option = this.groupOption(groupKey);
     if (!option) return undefined;
-    return focusHref({ kind: "option", id: `${field.id}.${option.id}`, typeId: this.presentation.typeId });
+    return focusHref({
+      kind: "option",
+      id: `${field.id}.${option.id}`,
+      typeId: this.presentation.typeId,
+    });
   }
   override async moveItemBetweenGroups(
     params: Parameters<BaseDataViewStore<RecordRow>["moveItemBetweenGroups"]>[0],
@@ -343,7 +367,15 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
     const result = await resetRecordViewAction({
       surfaceKey: recordSurfaceKey(this.presentation.typeId),
       viewKey: this.activeViewKey,
-      fields: ["columnOrder", "columnWidths", "hiddenColumns", "viewMode", "grouping", "sortDescriptor"],
+      fields: [
+        "columnOrder",
+        "columnWidths",
+        "hiddenColumns",
+        "viewMode",
+        "grouping",
+        "sortDescriptor",
+        "showRecordPictures",
+      ],
     });
     if (!result.ok) {
       toastZodErrorTree(result.error);
@@ -401,6 +433,7 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       !deepEqual(columns(this.columnOrder), columns(defaults.columnOrder)) ||
       !deepEqual(new Set(columns(this.hiddenColumns)), new Set(columns(defaults.hiddenColumns))) ||
       Object.keys(this.columnWidths).length > 0 ||
+      !this.showRecordPictures ||
       this.viewMode !== defaults.viewMode ||
       !deepEqual(grouping(this.grouping), grouping(defaults.grouping)) ||
       !deepEqual(sort(this.sortDescriptor), sort(defaults.sortDescriptor))
@@ -485,7 +518,10 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   protected async refreshAction(params?: GetQueryParams) {
     const bulkRefreshGeneration = this.bulkRefreshGeneration;
     const presentation = await actionData(getRecordPresentationAction(this.presentation.typeId, params));
-    this.loaded.set(presentation.result, { presentation, bulkRefreshGeneration });
+    this.loaded.set(presentation.result, {
+      presentation,
+      bulkRefreshGeneration,
+    });
     return presentation.result;
   }
 }

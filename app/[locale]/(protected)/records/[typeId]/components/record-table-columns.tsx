@@ -1,6 +1,6 @@
 "use client";
 
-import type { ColumnDef } from "@tanstack/react-table";
+import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import type { RecordRow } from "@/features/records/record-presentation";
 import type { RecordRef } from "@/features/records/record-model.schema";
 import type { RecordsStore } from "./records.store";
@@ -28,15 +28,19 @@ const EDIT_TARGET_CONTAINER_CLASS =
   "flex min-w-0 pr-3 in-data-[align=end]:justify-end in-data-[align=end]:pr-0 in-data-[align=end]:pl-3";
 
 function recordAvatarFieldId(store: RecordsStore) {
-  return store.presentation.model.capabilities
-    .find((binding) => binding.kind === "avatar" && binding.typeId === store.presentation.typeId)
-    ?.fields.find((field) => field.role === "image")?.fieldId;
+  return store.showRecordPictures ? store.recordPictureFieldId : undefined;
 }
 
 export function useRecordTableColumns(
   store: RecordsStore,
   openRelated: (ref: RecordRef) => void,
-  { markCalculated = false, openRecord }: { markCalculated?: boolean; openRecord?: (record: RecordRow) => void } = {},
+  {
+    markCalculated = false,
+    openRecord,
+  }: {
+    markCalculated?: boolean;
+    openRecord?: (record: RecordRow) => void;
+  } = {},
 ) {
   const t = useTranslations();
   const avatarFieldId = recordAvatarFieldId(store);
@@ -49,7 +53,17 @@ export function useRecordTableColumns(
             {
               id: UNTITLED_COLUMN_ID,
               header: untitledHeader,
-              cell: () => <span>{recordDisplayName(undefined, untitledHeader, t)}</span>,
+              cell: ({ row }: CellContext<RecordRow, unknown>) => (
+                <RecordCell
+                  avatarFieldId={avatarFieldId}
+                  fallbackTitle={recordDisplayName(undefined, untitledHeader, t)}
+                  linkColors={store.presentation.linkColors}
+                  linkIcons={store.presentation.linkIcons}
+                  linkLabels={store.presentation.linkLabels}
+                  record={row.original}
+                  onOpen={openRelated}
+                />
+              ),
             },
           ]
         : []),
@@ -150,19 +164,16 @@ export function useRecordCardRenderer(store: RecordsStore, openRelated: (ref: Re
           record={record}
           records={store}
           title={
-            primary ? (
-              <RecordCell
-                avatarFieldId={avatarFieldId}
-                column={primary}
-                linkColors={store.presentation.linkColors}
-                linkIcons={store.presentation.linkIcons}
-                linkLabels={store.presentation.linkLabels}
-                record={record}
-                onOpen={openRelated}
-              />
-            ) : (
-              <span className="truncate">{recordDisplayName(undefined, store.type?.label, t)}</span>
-            )
+            <RecordCell
+              avatarFieldId={avatarFieldId}
+              column={primary}
+              fallbackTitle={recordDisplayName(undefined, store.type?.label, t)}
+              linkColors={store.presentation.linkColors}
+              linkIcons={store.presentation.linkIcons}
+              linkLabels={store.presentation.linkLabels}
+              record={record}
+              onOpen={openRelated}
+            />
           }
           onOpenRecord={openRelated}
         />

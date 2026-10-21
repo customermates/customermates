@@ -72,5 +72,6 @@ export function scopeSharedViewState(state: DataViewState, scope: SharedViewScop
       Object.entries(state.columnWidths ?? {}).filter(([id]) => scope.columnIds.has(id)),
     ),
     hiddenColumns: columns(state.hiddenColumns),
+    ...(state.showRecordPictures !== undefined ? { showRecordPictures: state.showRecordPictures } : {}),
   };
 }

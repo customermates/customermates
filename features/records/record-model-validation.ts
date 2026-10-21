@@ -259,7 +259,10 @@ function inferExpressionType(
 export function calculationExpressionIssues(
   expression: CalculationExpression,
   typeId: string,
-  model: { fields: CalculationInputField[]; relationships: RecordModel["relationships"] },
+  model: {
+    fields: CalculationInputField[];
+    relationships: RecordModel["relationships"];
+  },
 ): { resultType: RecordValueType | null; issues: string[] } {
   const issues: string[] = [];
   const resultType = inferExpressionType(
@@ -275,7 +278,10 @@ export function calculationExpressionIssues(
 export function calculationResultType(
   expression: CalculationExpression,
   typeId: string,
-  model: { fields: CalculationInputField[]; relationships: RecordModel["relationships"] },
+  model: {
+    fields: CalculationInputField[];
+    relationships: RecordModel["relationships"];
+  },
 ): RecordValueType | null {
   return calculationExpressionIssues(expression, typeId, model).resultType;
 }
@@ -381,7 +387,13 @@ export function validateRecordModel(model: RecordModel): {
     for (const reference of binding.fields) {
       const field = fields.get(reference.fieldId);
       const expectedType = binding.kind === "avatar" ? "url" : "dateTimeRange";
-      if (!field || field.archived || field.typeId !== binding.typeId || field.valueType !== expectedType) {
+      if (
+        !field ||
+        field.archived ||
+        field.typeId !== binding.typeId ||
+        field.valueType !== expectedType ||
+        (binding.kind === "avatar" && field.multiple)
+      ) {
         issues.push({
           code: "capability_requires_field",
           fieldId: reference.fieldId,
@@ -392,8 +404,12 @@ export function validateRecordModel(model: RecordModel): {
   for (const field of model.fields) {
     if (field.multiple && !MULTIPLE_VALUE_TYPES.includes(field.valueType))
       issues.push({ code: "invalid_multiple_value_type", fieldId: field.id });
-    if (field.valueType === "select" && field.multiple && field.behavior.kind !== "input")
-      issues.push({ code: "multiple_choice_requires_input", fieldId: field.id });
+    if (field.valueType === "select" && field.multiple && field.behavior.kind !== "input") {
+      issues.push({
+        code: "multiple_choice_requires_input",
+        fieldId: field.id,
+      });
+    }
     if (!types.has(field.typeId)) issues.push({ code: "invalid_field_type", fieldId: field.id });
     if (new Set(field.options.map((option) => option.id)).size !== field.options.length)
       issues.push({ code: "duplicate_option_id", fieldId: field.id });
@@ -416,8 +432,13 @@ export function validateRecordModel(model: RecordModel): {
         model.fields.some(
           (other) => other.valueType === "channels" && other.typeId === field.typeId && other.id < field.id,
         )
-      )
-        issues.push({ code: "duplicate_channels_field", typeId: field.typeId, fieldId: field.id });
+      ) {
+        issues.push({
+          code: "duplicate_channels_field",
+          typeId: field.typeId,
+          fieldId: field.id,
+        });
+      }
     }
     if (field.behavior.kind === "input") {
       if (

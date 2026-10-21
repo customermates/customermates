@@ -48,7 +48,8 @@ type ResetField = ResetDataViewStateInput["fields"][number];
 function resetViewColumns(fields: ResetField[]): Prisma.DataViewUpdateManyMutationInput {
   const data: Prisma.DataViewUpdateManyMutationInput = {};
   for (const field of fields) {
-    if (field === "searchTerm" || field === "viewMode" || field === "pageSize") data[field] = null;
+    if (field === "searchTerm" || field === "viewMode" || field === "showRecordPictures" || field === "pageSize")
+      data[field] = null;
     else data[field] = Prisma.DbNull;
     if (field === "grouping") data.groupingColumnId = null;
   }
@@ -69,6 +70,7 @@ const VIEW_SELECT = {
   columnOrder: true,
   columnWidths: true,
   hiddenColumns: true,
+  showRecordPictures: true,
   pageSize: true,
 } satisfies Prisma.DataViewSelect;
 
@@ -85,6 +87,7 @@ const PERSONALIZATION_SELECT = {
   columnOrder: true,
   columnWidths: true,
   hiddenColumns: true,
+  showRecordPictures: true,
 } satisfies Prisma.P13nSelect;
 
 function toChip(row: StoredViewRow): DataViewChipDto {

@@ -30,8 +30,9 @@ export function RecordCell({
   inTrigger = false,
   relativeTimestamp = false,
   avatarFieldId,
+  fallbackTitle,
 }: {
-  column: RecordColumn<RecordFieldView>;
+  column?: RecordColumn<RecordFieldView>;
   linkColors: RecordLinkColors;
   linkIcons: RecordLinkIcons;
   linkLabels: RecordLinkLabels;
@@ -41,31 +42,38 @@ export function RecordCell({
   inTrigger?: boolean;
   relativeTimestamp?: boolean;
   avatarFieldId?: string;
+  fallbackTitle?: string;
 }) {
   const t = useTranslations();
   const intl = useHydratedIntlStore();
   const empty = <EmptyValue />;
-  if (column.kind === "field") {
-    const result = record.fields.find((value) => value.fieldId === column.field.id)?.result;
-    if (avatarFieldId && result?.state === "value" && result.value.kind === "text") {
-      const image = record.fields.find((field) => field.fieldId === avatarFieldId)?.result;
-      return (
-        <span className="flex min-w-0 items-center gap-2">
-          <Avatar
-            aria-hidden
-            name={result.value.value}
-            src={image?.state === "value" && image.value.kind === "text" ? image.value.value : null}
-          />
+  const field = column?.kind === "field" ? column.field : undefined;
+  const result = field ? record.fields.find((value) => value.fieldId === field.id)?.result : undefined;
+  if (!column || (avatarFieldId && result?.state === "value" && result.value.kind === "text")) {
+    const name =
+      result?.state === "value" && result.value.kind === "text"
+        ? result.value.value
+        : (fallbackTitle ?? recordDisplayName(undefined, undefined, t));
+    const content = field ? (
+      <RecordValue field={field} identities={record.identities} members={record.memberUsers} result={result} />
+    ) : (
+      <span className="truncate">{name}</span>
+    );
+    if (!avatarFieldId) return content;
+    const image = record.fields.find((value) => value.fieldId === avatarFieldId)?.result;
+    return (
+      <span className="flex min-w-0 items-center gap-2">
+        <Avatar
+          aria-hidden
+          name={name}
+          src={image?.state === "value" && image.value.kind === "text" ? image.value.value : null}
+        />
 
-          <RecordValue
-            field={column.field}
-            identities={record.identities}
-            members={record.memberUsers}
-            result={result}
-          />
-        </span>
-      );
-    }
+        {content}
+      </span>
+    );
+  }
+  if (column.kind === "field") {
     return (
       <RecordValue
         field={column.field}

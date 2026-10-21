@@ -30,6 +30,7 @@ const initialType = () => ({
   icon: "folder",
   accessPresetId: "private",
   navigationVisible: true,
+  pictureFieldId: "__none__",
   fieldOrder: [] as string[],
 });
 export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialType>> {
@@ -66,6 +67,10 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
             description: type.description,
             icon: type.icon,
             navigationVisible: type.navigationVisible,
+            pictureFieldId:
+              model.capabilities
+                .find((binding) => binding.kind === "avatar" && binding.typeId === type.id)
+                ?.fields.find((field) => field.role === "image")?.fieldId ?? "__none__",
             fieldOrder: configureFieldOrder(model, type.id),
           }
         : initialType(),
@@ -78,6 +83,14 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
   };
   get parentType() {
     return this.model.types.find((type) => type.id === this.parentTypeId);
+  }
+  get pictureFields() {
+    return this.model.fields.filter(
+      (field) => field.typeId === this.original?.id && !field.archived && field.valueType === "url" && !field.multiple,
+    );
+  }
+  get canEditRecordPicture() {
+    return this.rootStore.userStore?.user?.role?.isSystemRole === true;
   }
   protected override requiredFields() {
     return [{ id: "name" as const, message: this.t("RecordModel.nameRequired") }];
@@ -105,6 +118,11 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
   };
   operations(): ConfigurationChange["operations"] {
     if (this.original) {
+      const binding = this.model.capabilities.find(
+        (candidate) => candidate.kind === "avatar" && candidate.typeId === this.original?.id,
+      );
+      const previous = binding?.fields.find((field) => field.role === "image")?.fieldId ?? "";
+      const pictureFieldId = this.form.pictureFieldId === "__none__" ? "" : this.form.pictureFieldId;
       return [
         {
           operation: "putType",
@@ -118,6 +136,19 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
           },
         },
         ...reorderFieldOperations(this.model, this.original.id, this.form.fieldOrder),
+        ...(previous !== pictureFieldId
+          ? [
+              {
+                operation: "putCapability" as const,
+                capability: {
+                  id: binding?.id ?? "$avatar",
+                  kind: "avatar" as const,
+                  typeId: this.original.id,
+                  fields: pictureFieldId ? [{ role: "image", fieldId: pictureFieldId }] : [],
+                },
+              },
+            ]
+          : []),
       ];
     }
     const pluralLabel = this.form.pluralName.trim() || this.suggestPlural(this.form.name);
@@ -215,6 +246,23 @@ export const TypeSettingsFields = observer(function TypeSettingsFields({
       </div>
 
       <FormTextarea id="description" inputId={inputId("description")} label={t("RecordModel.description")} />
+
+      {store.original && (
+        <FormSelect
+          description={t("RecordModel.pictureFieldHelp")}
+          id="pictureFieldId"
+          inputId={inputId("pictureFieldId")}
+          items={[
+            { value: "__none__", label: t("Common.none") },
+            ...store.pictureFields.map((field) => ({
+              value: field.id,
+              label: field.label,
+            })),
+          ]}
+          label={t("RecordModel.pictureField")}
+          readOnly={!store.canEditRecordPicture}
+        />
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <FormRecordTypeIcon id="icon" inputId={inputId("icon")} label={t("RecordModel.icon")} />

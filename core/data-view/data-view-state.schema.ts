@@ -36,6 +36,9 @@ export const DataViewStateWireSchema = z
     columnOrder: z.array(z.string()),
     columnWidths: z.record(z.string(), z.number()),
     hiddenColumns: z.array(z.string()),
+    showRecordPictures: z
+      .boolean()
+      .describe("Show pictures beside record names in tables and boards; defaults to true."),
   })
   .partial()
   .strict();
@@ -54,6 +57,7 @@ export const DATA_VIEW_STATE_FIELDS = [
   "columnOrder",
   "columnWidths",
   "hiddenColumns",
+  "showRecordPictures",
 ] as const satisfies readonly (keyof DataViewState)[];
 
 export const DataViewChipDtoSchema = z.object({
