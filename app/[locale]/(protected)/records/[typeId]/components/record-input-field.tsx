@@ -130,6 +130,7 @@ export const RecordInputField = observer(function RecordInputField({
         ariaLabel={label ?? field.label}
         getItems={(params) => actionData(getActiveUsersAction(params))}
         items={knownMembers(members, root.userStore.user, store?.getValue(id))}
+        onOpenChange={onSelectOpenChange}
       />
     );
   }

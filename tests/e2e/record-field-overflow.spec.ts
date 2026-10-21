@@ -5,6 +5,98 @@ import { presetId } from "../../features/records/crm-preset";
 import { openRecordDetails } from "./record-rows";
 import { secondUser } from "./second-user";
 
+test("shows the full name of truncated direct and derived relationship chips on focus and hover", async ({
+  page,
+  database,
+  companyId,
+}, testInfo) => {
+  const errors = collectPageErrors(page);
+  const id = (key: string) => presetId(companyId, key);
+  const model = await readModel(database, companyId);
+  const type = model.types.find((candidate) => candidate.id === id("deal"));
+  if (!type) throw new Error("The deal fixture type is missing");
+  const pathId = randomUUID();
+  await postOk(page, "/api/v1/model/apply", {
+    expectedRevision: model.revision,
+    idempotencyKey: randomUUID(),
+    operations: [
+      {
+        operation: "putType",
+        type: {
+          ...type,
+          relationshipPaths: [
+            ...(type.relationshipPaths ?? []),
+            {
+              id: pathId,
+              label: "Related organizations",
+              archived: false,
+              path: [{ relationId: id("deal.organizations"), direction: "outgoing" }],
+            },
+          ],
+        },
+      },
+    ],
+  });
+  const name = "Sonnenhof Fire and Safety - Enterprise regional service and logistics operations";
+  const organization = await postOk(page, "/api/v1/records/mutate", {
+    expectedRevision: model.revision + 1,
+    idempotencyKey: randomUUID(),
+    mutation: {
+      action: "create",
+      typeId: id("organization"),
+      fields: [{ fieldId: id("organization.name"), value: { kind: "text", value: name } }],
+    },
+  });
+  const deal = await postOk(page, "/api/v1/records/mutate", {
+    expectedRevision: model.revision + 1,
+    idempotencyKey: randomUUID(),
+    mutation: {
+      action: "create",
+      typeId: id("deal"),
+      fields: [{ fieldId: id("deal.name"), value: { kind: "text", value: "Relationship tooltip parent" } }],
+      links: [
+        {
+          relationId: id("deal.organizations"),
+          direction: "outgoing",
+          record: { typeId: id("organization"), recordId: organization.refs[0].recordId },
+        },
+      ],
+    },
+  });
+  await page.setViewportSize({ width: 320, height: 844 });
+  await page.goto(`/en/records/${id("deal")}/${deal.refs[0].recordId}`);
+  const main = page.getByRole("main");
+  const fields = [
+    main.locator(`[data-entity-field="relationship:${id("deal.organizations")}:outgoing"]`),
+    main.locator(`[data-entity-field="path:${pathId}"]`),
+  ];
+  const tooltip = page.getByRole("tooltip", { name, exact: true });
+  for (const field of fields) {
+    const label = field.getByRole("button", { name: `Open ${name}`, exact: true });
+    await expect(label).toBeVisible();
+    expect(await label.evaluate((element) => element.scrollWidth > element.clientWidth + 1)).toBe(true);
+    await label.focus();
+    await expect(tooltip).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(tooltip).not.toBeVisible();
+    if (!testInfo.project.use.hasTouch) {
+      await page.mouse.move(1, 1);
+      await label.hover();
+      await expect(tooltip).toBeVisible();
+      await page.keyboard.press("Escape");
+      await expect(tooltip).not.toBeVisible();
+    }
+  }
+  await page.setViewportSize({ width: 1280, height: 900 });
+  for (const field of fields) {
+    const label = field.getByRole("button", { name: `Open ${name}`, exact: true });
+    await expect.poll(() => label.evaluate((element) => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
+    await label.focus();
+    await expect(tooltip).not.toBeVisible();
+  }
+  expect(errors).toEqual([]);
+});
+
 test("keeps 100 linked deals within three chip rows and searches, pages, opens and unlinks through the overflow", async ({
   page,
   database,

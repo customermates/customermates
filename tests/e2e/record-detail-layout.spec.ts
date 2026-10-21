@@ -313,31 +313,37 @@ test("closes pinned single-select editors after picking without saving the drawe
   page,
   database,
   companyId,
+  workspace,
 }) => {
   const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "organization");
   const stageId = randomUUID();
   const tagsId = randomUUID();
+  const memberId = randomUUID();
+  const dateId = randomUUID();
   const model = await readModel(database, companyId);
   await postOk(page, "/api/v1/model/apply", {
     expectedRevision: model.revision,
     idempotencyKey: randomUUID(),
     operations: [
-      { id: stageId, label: "Pinned stage", multiple: false },
-      { id: tagsId, label: "Pinned tags", multiple: true },
+      { id: stageId, label: "Pinned stage", valueType: "select", multiple: false },
+      { id: tagsId, label: "Pinned tags", valueType: "select", multiple: true },
+      { id: memberId, label: "Pinned reviewer", valueType: "member", multiple: false },
+      { id: dateId, label: "Pinned date", valueType: "date", multiple: false },
     ].map((definition, index) => ({
       operation: "putField",
       field: {
         ...definition,
         typeId,
-        valueType: "select",
         required: false,
         behavior: { kind: "input" },
         position: 100 + index,
-        options: [
-          { id: "alpha", label: "Alpha", color: null, attributes: [] },
-          { id: "beta", label: "Beta", color: null, attributes: [] },
-        ],
+        options: definition.valueType === "select"
+          ? [
+              { id: "alpha", label: "Alpha", color: null, attributes: [] },
+              { id: "beta", label: "Beta", color: null, attributes: [] },
+            ]
+          : [],
       },
     })),
   });
@@ -354,6 +360,8 @@ test("closes pinned single-select editors after picking without saving the drawe
           value: { kind: "text", value: "Pinned selection organization" },
         },
         { fieldId: stageId, value: { kind: "select", value: "alpha" } },
+        { fieldId: memberId, value: { kind: "member", value: workspace.userId } },
+        { fieldId: dateId, value: { kind: "date", value: "2026-10-21" } },
       ],
     },
   });
@@ -365,6 +373,11 @@ test("closes pinned single-select editors after picking without saving the drawe
         [companyId, recordId, stageId],
       )
     ).rows[0]?.textValue;
+  const savedDate = async () =>
+    (await database.query(
+      'SELECT "lexicalValue" FROM "RecordValue" WHERE "companyId"=$1 AND "recordId"=$2 AND "fieldId"=$3',
+      [companyId, recordId, dateId],
+    )).rows[0]?.lexicalValue;
   await page.goto(`/en/records/${typeId}`);
   await openRecordDetails(page, "Pinned selection organization");
   const drawer = page.getByRole("dialog", {
@@ -374,7 +387,7 @@ test("closes pinned single-select editors after picking without saving the drawe
   await drawer
     .getByRole("button", { name: "Pin or unpin fields", exact: true })
     .click();
-  for (const label of ["Pinned stage", "Pinned tags"]) {
+  for (const label of ["Pinned stage", "Pinned tags", "Pinned reviewer", "Pinned date"]) {
     const item = page.getByRole("menuitemcheckbox", {
       name: label,
       exact: true,
@@ -413,6 +426,24 @@ test("closes pinned single-select editors after picking without saving the drawe
     await expect(drawer).toBeVisible();
   }
 
+  const member = drawer.getByRole("button", { name: "Edit Pinned reviewer", exact: true });
+  await member.click();
+  const memberEditor = page.locator('[data-slot="popover-content"][data-state="open"]').filter({ hasText: "Pinned reviewer" });
+  await memberEditor.getByRole("combobox").click();
+  await page.getByRole("option", { name: "Browser Administrator", exact: true }).click();
+  await expect(memberEditor).not.toBeVisible();
+  await expect(member).toBeFocused();
+  await expect(drawer).toBeVisible();
+  const date = drawer.getByRole("button", { name: "Edit Pinned date", exact: true });
+  await date.click();
+  const dateEditor = page.locator('[data-slot="popover-content"][data-state="open"]').filter({ hasText: "Pinned date" });
+  await dateEditor.locator('button[aria-haspopup="dialog"]').click();
+  await page.locator('button[data-day="2026-10-22"]').click();
+  await expect(dateEditor).not.toBeVisible();
+  await expect(date).toBeFocused();
+  await expect(drawer).toBeVisible();
+  expect(await savedDate()).toBe("2026-10-21");
+
   await drawer
     .getByRole("button", { name: "Edit Pinned tags", exact: true })
     .click();
@@ -435,6 +466,7 @@ test("closes pinned single-select editors after picking without saving the drawe
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer).not.toBeVisible();
   expect(await savedStage()).toBe("beta");
+  expect(await savedDate()).toBe("2026-10-22");
   const savedTags = await database.query(
     'SELECT "textListValue" FROM "RecordValue" WHERE "companyId"=$1 AND "recordId"=$2 AND "fieldId"=$3',
     [companyId, recordId, tagsId],

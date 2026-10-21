@@ -54,6 +54,7 @@ type Props<T extends Identifiable> = {
   chipHref?: (key: string) => string | undefined;
   onSelectionDataChange?: (items: Array<{ key: string; data?: T }>) => void;
   onValueChange?: (value: string | string[] | undefined) => void;
+  onOpenChange?: (open: boolean) => void;
 };
 
 function keyOf<T extends Identifiable>(item: T): string {
@@ -99,6 +100,7 @@ export const FormAutocomplete = observer(
     chipHref,
     onSelectionDataChange,
     onValueChange,
+    onOpenChange,
   }: Props<T>) => {
     const store = useAppForm();
     const navigateToHref = useNavigateToHref();
@@ -220,6 +222,12 @@ export const FormAutocomplete = observer(
       setInput("");
     }
 
+    function changeOpen(next: boolean) {
+      if (!canEdit) return;
+      setOpen(next);
+      onOpenChange?.(next);
+    }
+
     function toggleKey(nextKey: string) {
       const all = [...itemsArray, ...fetchedItems];
       const found = all.find((it) => keyOf(it) === nextKey);
@@ -230,7 +238,7 @@ export const FormAutocomplete = observer(
         commit(exists ? selectedKeys.filter((k) => k !== nextKey) : [...selectedKeys, nextKey]);
       } else {
         commit(nextKey);
-        setOpen(false);
+        changeOpen(false);
       }
     }
 
@@ -422,7 +430,7 @@ export const FormAutocomplete = observer(
               </div>
             </Button>
           ) : (
-            <Popover modal open={popoverOpen} onOpenChange={canEdit ? setOpen : undefined}>
+            <Popover modal open={popoverOpen} onOpenChange={canEdit ? changeOpen : undefined}>
               <PopoverTrigger asChild>
                 <Button
                   aria-busy={isOptionsLoading || undefined}

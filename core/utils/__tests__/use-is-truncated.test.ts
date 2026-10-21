@@ -6,11 +6,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useIsTruncated } from "../use-is-truncated";
 
-function TruncationProbe() {
+function TruncationProbe({ nested = false }: { nested?: boolean }) {
   const ref = useRef<HTMLSpanElement | null>(null);
   const isTruncated = useIsTruncated(ref, "Long value");
 
-  return createElement("span", { ref, "data-is-truncated": isTruncated }, "Long value");
+  return createElement(
+    "span",
+    { ref, "data-is-truncated": isTruncated },
+    nested ? createElement("button", { type: "button" }, "Long value") : "Long value",
+  );
 }
 
 describe("useIsTruncated", () => {
@@ -27,6 +31,26 @@ describe("useIsTruncated", () => {
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
     vi.useRealTimers();
+  });
+
+  it("detects overflow hidden by a nested label control and clears it when the container grows", () => {
+    let width = 120;
+    vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockImplementation(() => width);
+    vi.spyOn(HTMLElement.prototype, "scrollWidth", "get").mockImplementation(function (this: HTMLElement) {
+      return this.tagName === "BUTTON" ? 240 : width;
+    });
+    vi.stubGlobal("ResizeObserver", undefined);
+    const container = document.createElement("div");
+    document.body.append(container);
+    root = createRoot(container);
+    act(() => root?.render(createElement(TruncationProbe, { nested: true })));
+    expect(container.querySelector("[data-is-truncated]")?.getAttribute("data-is-truncated")).toBe("true");
+
+    width = 260;
+    act(() => {
+      window.dispatchEvent(new Event("resize"));
+    });
+    expect(container.querySelector("[data-is-truncated]")?.getAttribute("data-is-truncated")).toBe("false");
   });
 
   it("remeasures after the first painted frame when ResizeObserver is unavailable", () => {
