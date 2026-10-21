@@ -6,9 +6,14 @@ import type { RecordEditorStore } from "../record-editor.store";
 import type { RecordRelationship, RecordRef } from "@/features/records/record-model.schema";
 import type { RecordChoice, RecordChoicesResult } from "@/features/records/get-record-choices.interactor";
 
+vi.mock("@/components/shared/use-navigate-to-href", () => ({ useNavigateToHref: () => vi.fn() }));
+
 const actions = vi.hoisted(() => ({ choices: vi.fn() }));
 vi.mock("../../../actions", () => ({ getRecordChoicesAction: (...args: unknown[]) => actions.choices(...args) }));
-vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string, values?: { count?: number }) =>
+    key === "RecordModel.moreRecords" ? `+${values?.count} more` : key,
+}));
 vi.mock("@/components/entity-detail/entity-detail-field-shell", () => ({
   EntityDetailFieldShell: ({ children }: { children: ReactNode }) =>
     createElement("div", { "data-field": "" }, children),
@@ -106,6 +111,7 @@ afterEach(() => {
   root = undefined;
   host = undefined;
   vi.unstubAllGlobals();
+  vi.restoreAllMocks();
 });
 
 describe("relationship loading presentation and response ownership", () => {
@@ -170,9 +176,16 @@ describe("relationship loading presentation and response ownership", () => {
     expect(field.textContent).not.toContain("Initial project");
     expect(field.querySelector<HTMLButtonElement>('[role="combobox"]')?.disabled).toBe(false);
   });
-  it("does not reuse the first-page summary while loading a later page", async () => {
+  it("keeps the compact preview while loading the overflow list and its later pages", async () => {
+    let overflow!: (result: { ok: true; data: RecordChoicesResult }) => void;
     let nextPage!: (result: { ok: true; data: RecordChoicesResult }) => void;
     actions.choices.mockResolvedValueOnce({ ok: true, data: { ...results([linked]), total: 26 } });
+    actions.choices.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          overflow = resolve;
+        }),
+    );
     actions.choices.mockImplementationOnce(
       () =>
         new Promise((resolve) => {
@@ -183,18 +196,32 @@ describe("relationship loading presentation and response ownership", () => {
     await act(async () => {
       await Promise.resolve();
     });
-    const next = Array.from(field.querySelectorAll("button")).find(
+    const more = Array.from(field.querySelectorAll("button")).find((button) =>
+      /^\+\d+ more$/.test(button.textContent ?? ""),
+    );
+    expect(more).toBeDefined();
+    act(() => more?.click());
+    expect(field.querySelector("[data-chip-id]")?.textContent).toContain("Initial project");
+    expect(document.querySelector("[data-linked-record-list]")?.textContent).not.toContain("Initial project");
+    await act(async () => {
+      overflow({ ok: true, data: { ...results([linked]), total: 26 } });
+      await Promise.resolve();
+    });
+    const next = Array.from(document.querySelectorAll("button")).find(
       (button) => button.textContent === "Common.table.nextPage",
     );
-    expect(next).toBeDefined();
     act(() => next?.click());
-    expect(field.textContent).not.toContain("Initial project");
-    expect(field.querySelector<HTMLButtonElement>('[role="combobox"]')?.disabled).toBe(true);
+    expect(field.querySelector("[data-chip-id]")?.textContent).toContain("Initial project");
+    expect(document.querySelector("[data-linked-record-list]")?.textContent).not.toContain("Initial project");
     await act(async () => {
       nextPage({ ok: true, data: { ...results([]), page: 2, total: 26 } });
       await Promise.resolve();
     });
-    expect(field.textContent).not.toContain("Initial project");
+    expect(document.querySelector("[data-linked-record-list]")?.textContent).not.toContain("Initial project");
+    expect(actions.choices.mock.calls.at(-1)?.[0]).toMatchObject({
+      page: 2,
+      linkedTo: { ref: first, relationId: relation.id },
+    });
   });
   it("retains restricted title presentation and does not offer writes in a read-only loading preview", async () => {
     let finish!: (result: { ok: true; data: RecordChoicesResult }) => void;
@@ -220,6 +247,39 @@ describe("relationship loading presentation and response ownership", () => {
 });
 
 describe("relationship unlink focus", () => {
+  it("returns to the current opener after switching from overflow to the Link picker", async () => {
+    vi.spyOn(HTMLElement.prototype, "getClientRects").mockReturnValue([
+      new DOMRect(0, 0, 80, 30),
+    ] as unknown as DOMRectList);
+    actions.choices.mockResolvedValue({ ok: true, data: { ...results([linked]), total: 30 } });
+    const field = render(editor());
+    await act(async () => {
+      await Promise.resolve();
+    });
+    const more = [...field.querySelectorAll("button")].find((button) => /^\+\d+ more$/.test(button.textContent ?? ""));
+    const close = async () => {
+      act(() => {
+        document.activeElement?.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+      });
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 60));
+      });
+    };
+    act(() => more?.click());
+    await act(async () => {
+      await Promise.resolve();
+    });
+    await close();
+    expect(document.activeElement).toBe(more);
+
+    const link = field.querySelector<HTMLButtonElement>('[role="combobox"]');
+    act(() => link?.click());
+    await act(async () => {
+      await Promise.resolve();
+    });
+    await close();
+    expect(document.activeElement).toBe(link);
+  });
   it("moves focus to the next linked record after unlinking, then to the Link control", async () => {
     const other: RecordChoice = {
       ref: { typeId: relation.targetTypeId, recordId: "10000000-0000-4000-8000-000000000007" },
@@ -237,7 +297,9 @@ describe("relationship unlink focus", () => {
     await act(async () => {
       await Promise.resolve();
     });
-    const unlinks = () => [...field.querySelectorAll<HTMLButtonElement>('[aria-label="RecordModel.unlinkRecord"]')];
+    const unlinks = () => [
+      ...field.querySelectorAll<HTMLButtonElement>('[data-chip-id] [aria-label="RecordModel.unlinkRecord"]'),
+    ];
     expect(unlinks()).toHaveLength(2);
     unlinks()[0].focus();
     act(() => unlinks()[0].click());
@@ -246,5 +308,79 @@ describe("relationship unlink focus", () => {
     act(() => unlinks()[0].click());
     expect(unlinks()).toHaveLength(0);
     expect(document.activeElement).toBe(field.querySelector('[role="combobox"]'));
+  });
+});
+
+describe("relationship overflow after staged edits", () => {
+  it("keeps a count-only opener when every record in the preview was unlinked", async () => {
+    const records = Array.from({ length: 25 }, (_, index) => ({
+      ...linked,
+      ref: { ...linked.ref, recordId: `project-${index}` },
+    }));
+    actions.choices.mockResolvedValue({ ok: true, data: { ...results(records), total: 30 } });
+    const store = Object.assign(editor(), {
+      form: {
+        linkChanges: records.map((record) => ({
+          action: "unlink",
+          relationId: relation.id,
+          direction: "outgoing",
+          record: record.ref,
+          title: record.title,
+        })),
+      },
+    }) as unknown as RecordEditorStore;
+    const field = render(store);
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(field.querySelector("[data-chip-id]")).toBeNull();
+    const more = [...field.querySelectorAll("button")].find((button) => button.textContent === "+5 more");
+    expect(more).toBeDefined();
+    act(() => more?.click());
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(document.querySelector("[data-linked-record-list]")).not.toBeNull();
+  });
+  it("paginates staged additions on an existing record before the persisted results", async () => {
+    vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(240);
+    vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockReturnValue(200);
+    const records = Array.from({ length: 30 }, (_, index) => ({
+      ref: { ...linked.ref, recordId: `project-${index}` },
+      title: { state: "value", value: { kind: "text", value: `New project ${index}` } },
+    }));
+    actions.choices.mockResolvedValue({ ok: true, data: results([]) });
+    const store = Object.assign(editor(), {
+      form: {
+        linkChanges: records.map((record) => ({
+          action: "link",
+          relationId: relation.id,
+          direction: "outgoing",
+          record: record.ref,
+          title: record.title,
+        })),
+      },
+    }) as unknown as RecordEditorStore;
+    const field = render(store);
+    await act(async () => {
+      await Promise.resolve();
+    });
+    const more = [...field.querySelectorAll("button")].find((button) => /^\+\d+ more$/.test(button.textContent ?? ""));
+    act(() => more?.click());
+    await act(async () => {
+      await Promise.resolve();
+    });
+    const visible = () =>
+      [...document.querySelectorAll("[data-linked-record-list] button")].filter((button) =>
+        button.textContent?.startsWith("New project"),
+      );
+    expect(visible()).toHaveLength(25);
+    const next = [...document.querySelectorAll("button")].find(
+      (button) => button.textContent === "Common.table.nextPage",
+    );
+    expect(next).toBeDefined();
+    act(() => next?.click());
+    expect(visible()).toHaveLength(5);
+    expect(visible()[0].textContent).toBe("New project 25");
   });
 });

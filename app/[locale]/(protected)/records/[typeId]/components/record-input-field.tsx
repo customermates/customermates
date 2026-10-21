@@ -22,7 +22,9 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { getActiveUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 import { actionData } from "@/core/utils/action-data";
 
-type KnownMember = Pick<RecordMember, "id" | "firstName" | "lastName"> & { avatarUrl?: string | null };
+type KnownMember = Pick<RecordMember, "id" | "firstName" | "lastName"> & {
+  avatarUrl?: string | null;
+};
 
 export function knownMembers(
   members: RecordMember[],
@@ -43,6 +45,7 @@ export const RecordInputField = observer(function RecordInputField({
   label = field.label,
   members = [],
   onDatePicked,
+  collapsibleText = false,
 }: {
   field: RecordFieldView;
   id: string;
@@ -50,6 +53,7 @@ export const RecordInputField = observer(function RecordInputField({
   label?: string | null;
   members?: RecordMember[];
   onDatePicked?: () => void;
+  collapsibleText?: boolean;
 }) {
   const t = useTranslations();
   const store = useAppForm();
@@ -132,7 +136,16 @@ export const RecordInputField = observer(function RecordInputField({
   if (field.valueType === "dateRange" || field.valueType === "dateTimeRange")
     return <FormIsoDateRangePicker {...shared} dateOnly={field.valueType === "dateRange"} />;
 
-  if (field.multiple) return <FormTextarea {...shared} placeholder={t("RecordModel.onePerLine")} />;
+  if (field.multiple) {
+    return (
+      <FormTextarea
+        {...shared}
+        ariaLabel={field.label}
+        collapsible={collapsibleText}
+        placeholder={t("RecordModel.onePerLine")}
+      />
+    );
+  }
   if (field.valueType === "number" || field.valueType === "currency") {
     return (
       <FormDecimalInput
@@ -143,6 +156,12 @@ export const RecordInputField = observer(function RecordInputField({
   }
   if (field.valueType === "email" || field.valueType === "phone" || field.valueType === "url") {
     const value = store?.getValue(id);
+    const endContent =
+      typeof value === "string" && value.trim() ? (
+        <ContactValueActions action={field.format?.onClick ?? "open"} kind={field.valueType} value={value} />
+      ) : undefined;
+    if (collapsibleText)
+      return <FormTextarea {...shared} collapsible ariaLabel={field.label} endContent={endContent} />;
     return (
       <FormInput
         {...shared}
@@ -155,5 +174,5 @@ export const RecordInputField = observer(function RecordInputField({
       />
     );
   }
-  return <FormInput {...shared} />;
+  return collapsibleText ? <FormTextarea {...shared} collapsible ariaLabel={field.label} /> : <FormInput {...shared} />;
 });

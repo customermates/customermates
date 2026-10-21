@@ -3820,6 +3820,7 @@
     "member": "Miembro",
     "missing": "Sin valor",
     "moreActions": "Más acciones para {name}",
+    "moreRecords": "+{count} más",
     "multipleValues": "Permitir varios valores",
     "name": "Nombre",
     "nameRequired": "Introduce un nombre.",

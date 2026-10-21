@@ -23,6 +23,8 @@ export const domTestFiles = [
   "components/data-view/filter-palette/__tests__/use-filter-palette.dom.test.ts",
   "components/ui/__tests__/segmented-control.dom.test.tsx",
   "components/forms/__tests__/form-footer-actions.dom.test.ts",
+  "components/forms/__tests__/form-textarea.dom.test.ts",
+  "components/chip/__tests__/app-chip-stack.dom.test.ts",
   "components/modal/__tests__/confirm-dialog.dom.test.ts",
   "components/modal/__tests__/confirmation-sentence.dom.test.ts",
   "app/**/records/**/components/__tests__/use-record-deletion.dom.test.ts",

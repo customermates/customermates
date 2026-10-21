@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type FocusEvent, type MouseEvent } from "react";
+import { useEffect, useId, useRef, useState, type FocusEvent, type MouseEvent } from "react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,7 @@ export function FormattedTextField({
   onChange?: (data: object) => void;
 }) {
   const t = useTranslations();
+  const contentId = useId();
   const [editing, setEditing] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [overflowing, setOverflowing] = useState(false);
@@ -113,16 +114,20 @@ export function FormattedTextField({
             "cursor-text has-[[data-edit-trigger]:focus-visible]:border-ring has-[[data-edit-trigger]:focus-visible]:ring-[2px] has-[[data-edit-trigger]:focus-visible]:ring-ring/30",
           isEditing && "border-ring ring-[2px] ring-ring/30",
         )}
+        id={contentId}
         role="presentation"
         onClick={startEditingOnClick}
+        onFocusCapture={(event) => {
+          if (collapsed && overflowing && event.target.closest("[data-editor-content]")) setExpanded(true);
+        }}
       >
         <Editor
           inline
           toolbar
           autoFocus={isEditing}
           contentClassName={cn(
-            "min-h-18",
-            collapsed && "max-h-48 overflow-hidden",
+            "min-h-18 wrap-anywhere",
+            collapsed && "max-h-24 overflow-hidden",
             collapsed && overflowing && "mask-b-from-75% mask-b-to-100%",
             showPrompt && "hidden",
           )}
@@ -154,7 +159,15 @@ export function FormattedTextField({
       </div>
 
       {!isEditing && (overflowing || expanded) && (
-        <Button className="h-auto px-0" size="sm" type="button" variant="link" onClick={() => setExpanded(!expanded)}>
+        <Button
+          aria-controls={contentId}
+          aria-expanded={expanded}
+          className="h-auto px-0"
+          size="sm"
+          type="button"
+          variant="link"
+          onClick={() => setExpanded(!expanded)}
+        >
           {expanded ? t("Common.actions.showLess") : t("Common.actions.showMore")}
         </Button>
       )}

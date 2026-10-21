@@ -24,7 +24,11 @@ import { CalculationFlowView } from "@/app/[locale]/(protected)/configure/compon
 import { recordDisplayName } from "@/features/records/record-display-name";
 import { runUserAction } from "@/core/errors/report-application-error";
 
-const DERIVATION_ICONS = { calculation: Sigma, lookup: Link2, saved: Camera } as const;
+const DERIVATION_ICONS = {
+  calculation: Sigma,
+  lookup: Link2,
+  saved: Camera,
+} as const;
 
 export const RecordEditorField = observer(function RecordEditorField({
   store,
@@ -109,7 +113,11 @@ export const RecordEditorField = observer(function RecordEditorField({
             <EntityDetailDerivation
               configureHref={
                 store.presentation.canManageSchema
-                  ? focusHref({ kind: "field", id: field.id, typeId: field.typeId })
+                  ? focusHref({
+                      kind: "field",
+                      id: field.id,
+                      typeId: field.typeId,
+                    })
                   : null
               }
               icon={DERIVATION_ICONS[source.kind]}
@@ -143,7 +151,14 @@ export const RecordEditorField = observer(function RecordEditorField({
       locked={permissionReadOnly}
       required={field.required}
     >
-      <RecordInputField field={field} id={id} inputId={inputId} label={null} members={store.record?.memberUsers} />
+      <RecordInputField
+        collapsibleText
+        field={field}
+        id={id}
+        inputId={inputId}
+        label={null}
+        members={store.record?.memberUsers}
+      />
     </EntityDetailFieldShell>
   );
 });
