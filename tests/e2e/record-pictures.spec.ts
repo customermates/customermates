@@ -20,7 +20,7 @@ async function contacts(page: Page, database: Client, companyId: string) {
   const model = await readModel(database, companyId);
   const avatar = model.fields.find((field) => field.id === id("contact.avatarUrl"));
   if (!avatar) throw new Error("The Contacts picture field is missing");
-  const { archived: _archived, ...definition } = avatar;
+  const { archived: _archived, publishedSummary: _publishedSummary, ...definition } = avatar;
   const portraitFieldId = randomUUID();
   const stageFieldId = randomUUID();
   await postOk(page, "/api/v1/model/apply", {
@@ -240,7 +240,7 @@ test("enables pictures on an unconfigured list using an existing URL field", asy
   const modelBefore = await readModel(database, companyId);
   const avatar = modelBefore.fields.find((field) => field.id === presetId(companyId, "contact.avatarUrl"));
   if (!avatar) throw new Error("Expected a URL field definition");
-  const { archived: _archived, ...definition } = avatar;
+  const { archived: _archived, publishedSummary: _publishedSummary, ...definition } = avatar;
   await postOk(page, "/api/v1/model/apply", {
     expectedRevision: modelBefore.revision,
     idempotencyKey: randomUUID(),

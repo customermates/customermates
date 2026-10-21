@@ -5,6 +5,7 @@ import type { DataViewDefaultsLayer, DataViewParamsLayer } from "../resolve-data
 import { describe, expect, it } from "vitest";
 
 import { FilterOperatorKey, ViewMode } from "@/core/base/base-query-builder";
+import { activityViewStateValid } from "@/ee/messaging/activities/record-activity-view";
 
 import { resolveDataViewState } from "../resolve-data-view-state";
 
@@ -50,6 +51,11 @@ const base: DataViewState = {
 };
 
 describe("resolveDataViewState three layer precedence", () => {
+  it("keeps default resolved appearance valid for Activities while rejecting record-only customizations", () => {
+    expect(activityViewStateValid(resolveDataViewState({}))).toBe(true);
+    expect(activityViewStateValid(resolveDataViewState({ base: { showRecordPictures: false } }))).toBe(false);
+  });
+
   it("keeps old views visible by default and resolves explicit picture visibility from the saved view", () => {
     expect(resolveDataViewState({}).showRecordPictures).toBe(true);
     expect(
