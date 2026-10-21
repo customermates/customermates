@@ -189,17 +189,22 @@ export class RecordChannelStore {
     if (!value) return;
     let identity: RecordIdentityInput = { provider, value };
     if (isHandleProvider(provider) && this.editor.rootStore.userStore.can("inboxMessages", "create")) {
-      const resolved = await this.resolve(provider, query);
-      if (notifyIfWorkspaceChanged(resolved) || !this.current(generation, query)) return;
-      if (resolved?.ok) {
-        identity = {
-          provider,
-          value: resolved.data.publicIdentifier ?? value,
-          messagingId: resolved.data.providerId,
-          displayName: resolved.data.displayName,
-          profileUrl: resolved.data.profileUrl,
-        };
+      try {
+        const resolved = await this.resolve(provider, query);
+        if (notifyIfWorkspaceChanged(resolved)) return;
+        if (resolved?.ok) {
+          identity = {
+            provider,
+            value: resolved.data.publicIdentifier ?? value,
+            messagingId: resolved.data.providerId,
+            displayName: resolved.data.displayName,
+            profileUrl: resolved.data.profileUrl,
+          };
+        }
+      } catch (error) {
+        if (notifyIfWorkspaceChanged(error)) return;
       }
+      if (!this.current(generation, query)) return;
     }
     await this.add(identity);
   };

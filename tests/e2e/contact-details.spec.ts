@@ -6,6 +6,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { addFromConfigure, configureDrawer, openConfigure } from "./configure";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { openRecordDetails } from "./record-rows";
+import { invokesServerAction, serverActionIds } from "./server-actions";
 
 async function workbook(rows: unknown[][]): Promise<Buffer> {
   const book = new ExcelJS.Workbook();
@@ -36,9 +37,31 @@ test("keeps an email address, a phone number and a social profile in contact det
   page,
   database,
   companyId,
+  workspace,
+  diagnostics,
 }) => {
   test.setTimeout(180000);
   const errors = collectPageErrors(page);
+  let unavailableLookups = 0;
+  if (process.env.APP_MODE !== "self-hosted") {
+    await database.query(
+      'INSERT INTO "ConnectedAccount" (id,"companyId","userId","unipileAccountId",provider,status,"hasMessaging","updatedAt") VALUES ($1,$2,$3,$4,\'linkedin\',\'ok\',true,NOW())',
+      [randomUUID(), companyId, workspace.userId, randomUUID()],
+    );
+    const lookupIds = serverActionIds("app/[locale]/(protected)/inbox/actions.ts", "resolveProviderProfileAction");
+    await page.route("**/*", async (route) => {
+      if (!invokesServerAction(route.request(), lookupIds)) return route.fallback();
+      unavailableLookups += 1;
+      const pathname = new URL(route.request().url()).pathname;
+      diagnostics.expect({
+        kind: "console",
+        text: /^Failed to load resource:.*ERR_FAILED/,
+        source: (url) => url.pathname === pathname,
+        page,
+      });
+      await route.abort("failed");
+    });
+  }
   const contact = presetId(companyId, "contact");
   await page.goto(`/en/records/${contact}`);
   await page.locator("#records-add").click();
@@ -60,6 +83,7 @@ test("keeps an email address, a phone number and a social profile in contact det
     await expect(add).toHaveValue("");
     await expect(drawer.locator(`[data-record-channel-group="${group}"]`)).toBeVisible();
   }
+  if (process.env.APP_MODE !== "self-hosted") expect(unavailableLookups).toBeGreaterThan(0);
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer).not.toBeVisible();
   await expect

@@ -2,6 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { makeAutoObservable } from "mobx";
 import type { RecordEditorStore } from "../record-editor.store";
 import { RecordChannelStore } from "../record-channel.store";
+import { registerWorkspaceChangedHandler } from "@/core/errors/workspace-changed-notice";
+import { WORKSPACE_CHANGED_DIGEST } from "@/core/errors/workspace-changed";
 
 const mocks = vi.hoisted(() => ({ search: vi.fn(), check: vi.fn(), resolve: vi.fn(), toast: vi.fn() }));
 vi.mock("@/app/[locale]/(protected)/records/actions", () => ({
@@ -89,6 +91,54 @@ describe("record channel suggestions", () => {
     expect(store.mergedCandidates).toEqual([]);
     store.setQuery("person@example.test");
     expect(store.addAsNewOptions).toEqual([]);
+  });
+  it("checks and adds a manual social profile when the provider lookup is unavailable", async () => {
+    const { store, changed } = fixture();
+    mocks.resolve.mockRejectedValue(new Error("Provider unavailable"));
+    store.setOpen(true);
+    store.setQuery("https://www.linkedin.com/in/person");
+    await store.addAsNew("linkedin");
+    expect(mocks.check).toHaveBeenCalledWith({
+      typeId: "type",
+      recordId: "record",
+      identity: { provider: "linkedin", value: "person" },
+    });
+    expect(changed).toHaveBeenCalledWith("identities", [{ provider: "linkedin", value: "person" }]);
+    expect(store.query).toBe("");
+  });
+  it("does not add a manual profile after closing during an unavailable provider lookup", async () => {
+    const { store, changed } = fixture();
+    const pending = deferred<unknown>();
+    mocks.resolve.mockReturnValue(pending.promise);
+    store.setOpen(true);
+    store.setQuery("https://www.linkedin.com/in/person");
+    const adding = store.addAsNew("linkedin");
+    await Promise.resolve();
+    store.setOpen(false);
+    pending.resolve({ ok: false });
+    await adding;
+    expect(mocks.check).not.toHaveBeenCalled();
+    expect(changed).not.toHaveBeenCalled();
+  });
+  it("refuses the manual fallback when the lookup reports a workspace change", async () => {
+    const { store, changed } = fixture();
+    const reload = vi.fn();
+    const unregister = registerWorkspaceChangedHandler(reload);
+    try {
+      mocks.resolve.mockRejectedValue(
+        Object.assign(new Error("Workspace changed"), {
+          digest: WORKSPACE_CHANGED_DIGEST,
+        }),
+      );
+      store.setOpen(true);
+      store.setQuery("https://www.linkedin.com/in/person");
+      await store.addAsNew("linkedin");
+      expect(reload).toHaveBeenCalledOnce();
+      expect(mocks.check).not.toHaveBeenCalled();
+      expect(changed).not.toHaveBeenCalled();
+    } finally {
+      unregister();
+    }
   });
   it("preserves provider profile identity when adding a resolved handle", async () => {
     const { store, changed } = fixture();
