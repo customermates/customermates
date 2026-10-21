@@ -790,7 +790,7 @@ describe("bounded provider failure charge reading", () => {
     expect(readAgentProviderErrorCharge(failure([receipt]), "vertex")?.measured).toBe(false);
   });
 
-  it.each([401, 403, 429])(
+  it.each([400, 401, 402, 403, 404, 405, 413, 415, 422, 429])(
     "does not charge a request the provider rejected with HTTP %i before any tokens",
     async (status) => {
       const { error, model, onStepEnd } = await rejectedAttempt([apiError(undefined, status)]);
@@ -809,20 +809,36 @@ describe("bounded provider failure charge reading", () => {
     );
   });
 
+  it.each([{ incompleteAttempts: true }, { incompleteAttempts: "invalid" }, { providerFailure: "invalid" }])(
+    "keeps conservative accounting when a rejection has incomplete or invalid attempt evidence %j",
+    (flags) => {
+      const error = new Error("Public incomplete rejection fixture", {
+        cause: { kind: "ai-sdk-workflow-provider-error", version: 1, statusCode: 401, attempts: [null], ...flags },
+      });
+      expect(readAgentProviderErrorCharge(error, "vertex")).toEqual(
+        expect.objectContaining({ costMicrocents: 0, measured: false }),
+      );
+    },
+  );
+
   it.each([401, 500])(
     "keeps the modelled charge when a stream fails with HTTP %i after producing tokens",
     async (status) => {
+      const parts: MockStreamPart[] = [
+        { type: "stream-start", warnings: [] },
+        { type: "text-start", id: "public-partial" },
+        { type: "text-delta", id: "public-partial", delta: "Public partial answer" },
+      ];
       const model = new MockLanguageModelV4({
         provider: "gateway",
         modelId: "public-test-model",
         doStream: () =>
           Promise.resolve({
             stream: new ReadableStream<MockStreamPart>({
-              start(controller) {
-                controller.enqueue({ type: "stream-start", warnings: [] });
-                controller.enqueue({ type: "text-start", id: "public-partial" });
-                controller.enqueue({ type: "text-delta", id: "public-partial", delta: "Public partial answer" });
-                controller.error(apiError(undefined, status));
+              pull(controller) {
+                const part = parts.shift();
+                if (part) controller.enqueue(part);
+                else controller.error(apiError(undefined, status));
               },
             }),
           }),
@@ -866,7 +882,7 @@ describe("bounded provider failure charge reading", () => {
   });
 
   it("does not acquire a receipt from an oversized transport body or a cyclic unmarked cause", async () => {
-    const oversized = apiError(metadata("0", false));
+    const oversized = apiError(metadata("0", false), 500);
     Object.defineProperty(oversized, "responseBody", { value: " ".repeat(65_537) });
     const { error } = await rejectedAttempt([oversized]);
     expect(readAgentProviderErrorCharge(error, "vertex")?.measured).toBe(false);

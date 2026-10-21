@@ -194,7 +194,9 @@ export const OperatorUserModal = observer(function OperatorUserModal({ user, onC
           <div className="flex flex-col gap-1.5">
             <InfoRow label={t("Common.table.columns.email")}>{user.email}</InfoRow>
 
-            <InfoRow label={t("Common.table.columns.workspace")}>{user.workspaceLabel}</InfoRow>
+            <InfoRow label={t("Common.table.columns.workspace")}>
+              <span className="block break-all whitespace-normal">{user.workspaceLabel}</span>
+            </InfoRow>
 
             <InfoRow label={t("Common.table.columns.lastActiveAt")}>
               {user.lastActiveAt ? intlStore.formatNumericalShortDateTime(user.lastActiveAt) : "-"}

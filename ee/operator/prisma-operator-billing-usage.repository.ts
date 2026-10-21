@@ -210,12 +210,12 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
                   id: workspace.companyId,
                   name: companyNames.get(workspace.companyId) ?? null,
                 },
-                owners.get(workspace.companyId) ?? null,
+                owners.get(workspace.companyId)?.email ?? null,
               )
             : (recordedLabels.get(workspace.companyId) ??
               deletedLabels.get(workspace.companyId) ??
               workspace.companyId.slice(0, 8)),
-        ownerEmail: workspace.deletedAt === null ? (owners.get(workspace.companyId) ?? null) : null,
+        ownerEmail: workspace.deletedAt === null ? (owners.get(workspace.companyId)?.email ?? null) : null,
         createdAt: workspace.createdAt,
         deletedAt: workspace.deletedAt,
         seatsRecordedFrom: workspace.seatsRecordedFrom,

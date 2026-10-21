@@ -174,7 +174,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
     );
     assertAdmitted(result);
 
-    expect(result.workspaceLabel).toBe("doomed.invalid");
+    expect(result.workspaceLabel).toBe(companyId.slice(0, 8));
     expect(result.deletedMemberCount).toBe(2);
     expect(result.deletedAuthIdentityCount).toBe(2);
 
@@ -212,7 +212,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
         },
       ).toMatchObject({
         clearedAuthIdentityCompanyCount: 1,
-        workspaceLabel: "doomed.invalid",
+        workspaceLabel: companyId.slice(0, 8),
       });
     });
   });
@@ -364,7 +364,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
       }),
     );
     assertAdmitted(result);
-    expect(result.workspaceLabel).toBe("shared-owner.invalid");
+    expect(result.workspaceLabel).toBe(first.companyId.slice(0, 8));
 
     await runWithoutTenant(async () => {
       expect(await prisma.company.count({ where: { id: first.companyId } })).toBe(0);

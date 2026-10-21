@@ -70,45 +70,63 @@ afterAll(async () => {
 });
 
 describeDatabase("operator billing usage read model", { timeout: 120_000 }, () => {
-  it("counts a deleted workspace's seats without identities and labels it from the deletion audit", async () => {
-    const { companyId, userId } = await workspace();
-    await runWithoutTenant(() => new PrismaBillingUsageRepo().recordSeats(companyId, []));
+  it.each(["current", "legacy recorded", "legacy audit"])(
+    "counts a deleted workspace's seats without identities and preserves its %s label",
+    async (labelSource) => {
+      const { companyId, userId } = await workspace();
+      await runWithoutTenant(() => new PrismaBillingUsageRepo().recordSeats(companyId, []));
 
-    await runWithoutTenant(async () => {
-      await new PrismaCompanyRepo(new PrismaBillingUsageRepo()).deleteCompanyUnscoped(companyId);
-      await prisma.operatorAuditEvent.create({
-        data: {
-          actorUserId: randomUUID(),
-          action: "operator.workspace.delete",
-          targetCompanyId: companyId,
-          metadata: { workspaceLabel: "ledger.example.invalid" },
-        },
+      await runWithoutTenant(async () => {
+        await new PrismaCompanyRepo(new PrismaBillingUsageRepo()).deleteCompanyUnscoped(companyId);
+        await prisma.operatorAuditEvent.create({
+          data: {
+            actorUserId: randomUUID(),
+            action: "operator.workspace.delete",
+            targetCompanyId: companyId,
+            metadata: { workspaceLabel: "ledger.example.invalid" },
+          },
+        });
+        if (labelSource !== "current") {
+          await prisma.billingUsageWorkspace.update({
+            where: { companyId },
+            data: { workspaceLabel: labelSource === "legacy recorded" ? "recorded.example.invalid" : null },
+          });
+        }
       });
-    });
 
-    const ledger = await readLedger(companyId);
+      const ledger = await readLedger(companyId);
 
-    expect(ledger.workspaces).toHaveLength(1);
-    expect(ledger.workspaces[0]).toMatchObject({ workspaceLabel: "ledger.example.invalid", activeSeats: 0 });
-    expect(ledger.workspaces[0].deletedAt).toBeInstanceOf(Date);
+      expect(ledger.workspaces).toHaveLength(1);
+      expect(ledger.workspaces[0]).toMatchObject({
+        workspaceLabel:
+          labelSource === "current"
+            ? companyId.slice(0, 8)
+            : labelSource === "legacy recorded"
+              ? "recorded.example.invalid"
+              : "ledger.example.invalid",
+        activeSeats: 0,
+        ownerEmail: null,
+      });
+      expect(ledger.workspaces[0].deletedAt).toBeInstanceOf(Date);
 
-    const usage = workspaceBillingUsage({
-      workspace: ledger.workspaces[0],
-      intervals: ledger.intervals,
-      window: billingUsageWindow(billingUsageMonthOf(new Date())),
-      includeDetails: true,
-    });
-    expect(usage.seats.count).toBe(1);
-    expect(usage.seats.users?.[0]).toMatchObject({
-      userId,
-      firstName: null,
-      lastName: null,
-      email: null,
-      roleName: "Member",
-    });
-    expect(usage.current).toEqual({ activeSeats: 0, connectedChannels: 0 });
-    expect(usage.subscription).toBeNull();
-  });
+      const usage = workspaceBillingUsage({
+        workspace: ledger.workspaces[0],
+        intervals: ledger.intervals,
+        window: billingUsageWindow(billingUsageMonthOf(new Date())),
+        includeDetails: true,
+      });
+      expect(usage.seats.count).toBe(1);
+      expect(usage.seats.users?.[0]).toMatchObject({
+        userId,
+        firstName: null,
+        lastName: null,
+        email: null,
+        roleName: "Member",
+      });
+      expect(usage.current).toEqual({ activeSeats: 0, connectedChannels: 0 });
+      expect(usage.subscription).toBeNull();
+    },
+  );
 
   it("reads live workspaces with their current seats, channels and subscription", async () => {
     const { companyId, userId, email } = await workspace();

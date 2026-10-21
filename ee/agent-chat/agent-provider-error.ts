@@ -195,13 +195,16 @@ function providerFailureEnvelope(error: unknown): Record<string, unknown> | null
   return null;
 }
 
-const NOT_BILLED_REJECTION_STATUS_CODES = new Set([401, 402, 403, 404, 413, 429]);
+const NOT_BILLED_REJECTION_STATUS_CODES = new Set([400, 401, 402, 403, 404, 405, 413, 415, 422, 429]);
 
 function rejectedBeforeStream(envelope: Record<string, unknown>) {
   return (
     !("currentAttempt" in envelope) &&
     Array.isArray(envelope.attempts) &&
     envelope.attempts.length === 1 &&
+    envelope.attempts[0] === null &&
+    (envelope.incompleteAttempts === undefined || envelope.incompleteAttempts === false) &&
+    (envelope.providerFailure === undefined || envelope.providerFailure === true) &&
     typeof envelope.statusCode === "number" &&
     NOT_BILLED_REJECTION_STATUS_CODES.has(envelope.statusCode)
   );

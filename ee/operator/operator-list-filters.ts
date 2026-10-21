@@ -339,14 +339,15 @@ export function planOperatorAuditFilters(filters: Filter[] | undefined): Operato
 export async function resolveWorkspaceOwners(
   prisma: AppPrismaClient,
   companyIds: string[],
-): Promise<Map<string, string>> {
-  const owners = new Map<string, string>();
+): Promise<Map<string, { id: string; email: string }>> {
+  const owners = new Map<string, { id: string; email: string }>();
   if (companyIds.length === 0) return owners;
 
-  const rows = await prisma.$queryRaw<Array<{ companyId: string; owner: string | null }>>`
+  const rows = await prisma.$queryRaw<Array<{ companyId: string; id: string; email: string }>>`
     SELECT DISTINCT ON (u."companyId")
       u."companyId" AS "companyId",
-      u."email" AS "owner"
+      u."id" AS "id",
+      u."email" AS "email"
     FROM "User" AS u
     LEFT JOIN "UserRole" AS r ON r."id" = u."roleId" AND r."companyId" = u."companyId"
     WHERE u."companyId" = ANY(${companyIds}::text[])
@@ -358,7 +359,7 @@ export async function resolveWorkspaceOwners(
       u."id" ASC
   `;
 
-  for (const row of rows) if (row.owner) owners.set(row.companyId, row.owner);
+  for (const row of rows) owners.set(row.companyId, { id: row.id, email: row.email });
 
   return owners;
 }
@@ -375,7 +376,8 @@ export async function resolveWorkspaceLabels(
     prisma.company.findMany({ where: { id: { in: companyIds } }, select: { id: true, name: true } }),
   ]);
 
-  for (const company of companies) labels.set(company.id, workspaceLabelFor(company, owners.get(company.id) ?? null));
+  for (const company of companies)
+    labels.set(company.id, workspaceLabelFor(company, owners.get(company.id)?.email ?? null));
 
   return labels;
 }

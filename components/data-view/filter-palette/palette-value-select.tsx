@@ -16,6 +16,7 @@ import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
 import { Button } from "@/components/ui/button";
 import { CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
+import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { cn } from "@/core/utils/cn";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { TruncatedText } from "@/components/shared/truncated-text";
@@ -154,7 +155,16 @@ export const PaletteValueSelect = observer(function PaletteValueSelect({
                     {item.color ? (
                       <AppChip variant={item.color}>{item.textValue}</AppChip>
                     ) : (
-                      <span className="truncate">{item.optionLabel ?? item.textValue}</span>
+                      <span
+                        className={cn(
+                          "min-w-0",
+                          filter.field === String(FilterFieldKey.workspaceId)
+                            ? "break-all whitespace-normal"
+                            : "truncate",
+                        )}
+                      >
+                        {item.optionLabel ?? item.textValue}
+                      </span>
                     )}
 
                     {isSelected && <CheckIcon className="ml-auto size-3.5" />}

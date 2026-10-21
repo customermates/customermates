@@ -20,6 +20,7 @@ import {
   countOperatorGroups,
   operatorCollator,
   partitionOperatorWorkspaceFilters,
+  resolveWorkspaceOwners,
 } from "./operator-list-filters";
 import { workspaceLabelFor } from "./workspace-label";
 
@@ -27,8 +28,6 @@ type WorkspaceAggregate = {
   companyId: string;
   total: number;
   active: number;
-  owner: string | null;
-  ownerId: string | null;
 };
 
 export class PrismaOperatorWorkspacesRepo
@@ -88,33 +87,7 @@ export class PrismaOperatorWorkspacesRepo
       SELECT
         c."id" AS "companyId",
         COUNT(u."id")::int AS "total",
-        COUNT(u."id") FILTER (WHERE u."status"::text = 'active')::int AS "active",
-        (
-          SELECT owner_user."email"
-          FROM "User" AS owner_user
-          LEFT JOIN "UserRole" AS owner_role
-            ON owner_role."id" = owner_user."roleId" AND owner_role."companyId" = owner_user."companyId"
-          WHERE owner_user."companyId" = c."id"
-          ORDER BY
-            (owner_user."status"::text = 'active') DESC,
-            (owner_role."isSystemRole" IS TRUE) DESC,
-            owner_user."createdAt" ASC,
-            owner_user."id" ASC
-          LIMIT 1
-        ) AS "owner",
-        (
-          SELECT owner_user."id"::text
-          FROM "User" AS owner_user
-          LEFT JOIN "UserRole" AS owner_role
-            ON owner_role."id" = owner_user."roleId" AND owner_role."companyId" = owner_user."companyId"
-          WHERE owner_user."companyId" = c."id"
-          ORDER BY
-            (owner_user."status"::text = 'active') DESC,
-            (owner_role."isSystemRole" IS TRUE) DESC,
-            owner_user."createdAt" ASC,
-            owner_user."id" ASC
-          LIMIT 1
-        ) AS "ownerId"
+        COUNT(u."id") FILTER (WHERE u."status"::text = 'active')::int AS "active"
       FROM "Company" AS c
       LEFT JOIN "User" AS u ON u."companyId" = c."id"
       WHERE c."id" = ANY(${companyIds}::text[])
@@ -164,18 +137,23 @@ export class PrismaOperatorWorkspacesRepo
       },
     });
 
-    const aggregates = await this.aggregatesUnscoped(companies.map((company) => company.id));
+    const companyIds = companies.map((company) => company.id);
+    const [aggregates, owners] = await Promise.all([
+      this.aggregatesUnscoped(companyIds),
+      resolveWorkspaceOwners(this.prisma, companyIds),
+    ]);
     const now = new Date();
 
     return companies.map((company) => {
       const aggregate = aggregates.get(company.id);
+      const owner = owners.get(company.id);
       const subscription = company.subscription;
 
       return {
         id: company.id,
-        workspaceLabel: workspaceLabelFor(company, aggregate?.owner ?? null),
-        ownerEmail: aggregate?.owner ?? null,
-        ownerUserId: aggregate?.ownerId ?? null,
+        workspaceLabel: workspaceLabelFor(company, owner?.email ?? null),
+        ownerEmail: owner?.email ?? null,
+        ownerUserId: owner?.id ?? null,
         userCount: aggregate?.total ?? 0,
         activeUserCount: aggregate?.active ?? 0,
         plan: company.subscription?.plan ?? null,

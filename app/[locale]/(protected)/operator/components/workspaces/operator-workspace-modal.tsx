@@ -213,7 +213,7 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
       <AppCard className="relative">
         <AppCardHeader>
           <div className="flex min-w-0 items-center gap-2">
-            <h2 className="grow truncate text-x-lg">{workspace.workspaceLabel}</h2>
+            <h2 className="min-w-0 grow break-all text-x-lg">{workspace.workspaceLabel}</h2>
 
             {workspace.plan ? (
               <AppChip size="sm" variant="secondary">
