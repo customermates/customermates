@@ -1,6 +1,7 @@
 import type { RootStore } from "@/core/stores/root.store";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { redirect } from "next/navigation";
 
 const authActions = vi.hoisted(() => ({
   signUpWithEmailAction: vi.fn(),
@@ -24,7 +25,7 @@ beforeEach(() => {
 
 describe("SignUpStore social continuation", () => {
   it("uses refreshed and cleared form intent for both provider callbacks", async () => {
-    authActions.continueWithMicrosoftAction.mockResolvedValue({ ok: true, data: { url: null } });
+    authActions.continueWithMicrosoftAction.mockResolvedValue({ ok: true, data: null });
     const store = new SignUpStore(rootStore);
     store.onInitOrRefresh({ onboardingIntent: "invite-a" });
     store.onInitOrRefresh({ onboardingIntent: "invite-b" });
@@ -77,7 +78,7 @@ describe("SignUpStore social continuation", () => {
   it("keeps the invitation in provider success and error callbacks", async () => {
     authActions.continueWithGoogleAction.mockResolvedValue({
       ok: true,
-      data: { url: "https://accounts.google.test/authorize" },
+      data: null,
     });
     const store = new SignUpStore(rootStore);
     store.onInitOrRefresh({ onboardingIntent: "signed.intent" });
@@ -90,18 +91,21 @@ describe("SignUpStore social continuation", () => {
     );
   });
 
-  it("keeps both providers locked after hard navigation starts", async () => {
-    authActions.continueWithGoogleAction.mockResolvedValue({
-      ok: true,
-      data: { url: "https://accounts.google.test/authorize" },
-    });
+  it("keeps both providers locked while Next handles the server redirect", async () => {
+    let signal: unknown;
+    try {
+      redirect("https://accounts.google.test/authorize");
+    } catch (error) {
+      signal = error;
+    }
+    authActions.continueWithGoogleAction.mockRejectedValue(signal);
     const store = new SignUpStore(rootStore);
 
     await store.continueWithProvider("google");
     await store.continueWithProvider("google");
 
     expect(authActions.continueWithGoogleAction).toHaveBeenCalledExactlyOnceWith("/onboarding", "/auth/signup");
-    expect(assign).toHaveBeenCalledExactlyOnceWith("https://accounts.google.test/authorize");
+    expect(assign).not.toHaveBeenCalled();
     expect(store.isLoading).toBe(true);
   });
 

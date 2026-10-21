@@ -10,8 +10,24 @@ import { expectedAuthorization, routeSocialProvider } from "./social-sign-in";
 import { createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
 import { inviteToken, joinFromInvitation } from "./workspace-membership";
 import { activeWorkspaceOf, clickHydrated, e2eAppMode, expectHydrated } from "./workspace-switching";
+import { invokesServerAction, serverActionIds } from "./server-actions";
+import { localOAuthAuthorizationEndpoints } from "./local-oauth-provider.mjs";
 
 test.skip(e2eAppMode() !== "cloud", "The local OAuth provider stands in for the cloud's Google and Microsoft clients");
+
+async function continueWithProvider(page: Page, provider: "Google" | "Microsoft") {
+  const actions = serverActionIds("app/[locale]/(public)/auth/actions.ts", `continueWith${provider}Action`);
+  const response = page.waitForResponse((candidate) => invokesServerAction(candidate.request(), actions));
+  await clickHydrated(page.getByRole("button", { name: `Continue with ${provider}`, exact: true }));
+  const redirected = await response;
+  // A native redirect avoids streaming a refresh of the old auth page while navigating to the provider.
+  expect(redirected.status()).toBe(200);
+  const location = redirected.headers()["x-action-redirect"]?.split(";")[0];
+  const destination = location ? new URL(location) : null;
+  expect(destination && `${destination.origin}${destination.pathname}`).toBe(
+    localOAuthAuthorizationEndpoints[provider === "Google" ? "google" : "microsoft"],
+  );
+}
 
 async function loginEmail(database: Client, authUserId: string) {
   const { rows } = await database.query<{ email: string }>('SELECT email FROM "AuthUser" WHERE id=$1', [authUserId]);
@@ -74,7 +90,7 @@ test("an existing login signs in with Google from an invitation, lands on the jo
         { exact: true },
       ),
     ).toBeVisible();
-    await clickHydrated(page.getByRole("button", { name: "Continue with Google", exact: true }));
+    await continueWithProvider(page, "Google");
 
     await expect(page).toHaveURL(/\/en\/auth\/invitation\?intent=/);
     await expect(page.getByRole("heading", { level: 1, name: "Join Hoffmann Consulting", exact: true })).toBeVisible();
@@ -138,7 +154,10 @@ test("a new Google login from an invitation gets the invitation flow and waits f
     await expect(page).toHaveURL(/\/en\/onboarding\/wizard\?intent=/);
     await expect(
       page.getByText(
-        englishMessages.OnboardingWizard.steps.profile.invitedSubtitleNamed.replace("{workspace}", "Hoffmann Consulting"),
+        englishMessages.OnboardingWizard.steps.profile.invitedSubtitleNamed.replace(
+          "{workspace}",
+          "Hoffmann Consulting",
+        ),
         { exact: true },
       ),
     ).toBeVisible();
@@ -187,7 +206,7 @@ test("a Google login with another e-mail than the invited person sees whom it is
     google.signInAs(providerIdentity(otherEmail, "Browser Administrator"));
 
     await openInvitationSignedOut(page, token, "signin");
-    await clickHydrated(page.getByRole("button", { name: "Continue with Google", exact: true }));
+    await continueWithProvider(page, "Google");
     await expect(page).toHaveURL(/\/en\/auth\/invitation\?intent=/);
     await expect(page.getByRole("heading", { level: 1, name: "Join Hoffmann Consulting", exact: true })).toBeVisible();
     await expect(page.getByText(`Signed in as ${otherEmail}`, { exact: false })).toBeVisible();
@@ -207,7 +226,7 @@ test("a Google login with another e-mail than the invited person sees whom it is
     google.signInAs(providerIdentity(invitedEmail, "Browser Administrator"));
     await page.getByRole("link", { name: "Sign in", exact: true }).click();
     await expect(page).toHaveURL(/\/en\/auth\/signin\?intent=/);
-    await clickHydrated(page.getByRole("button", { name: "Continue with Google", exact: true }));
+    await continueWithProvider(page, "Google");
     await expect(page).toHaveURL(/\/en\/auth\/invitation\?intent=/);
     await expect(page.getByText(`Signed in as ${invitedEmail}`, { exact: false })).toBeVisible();
     await joinFromInvitation(page);
@@ -241,7 +260,7 @@ test("an existing login signs in with Microsoft from an invitation and joins the
     microsoft.signInAs(identity);
 
     await openInvitationSignedOut(page, token, "signin");
-    await clickHydrated(page.getByRole("button", { name: "Continue with Microsoft", exact: true }));
+    await continueWithProvider(page, "Microsoft");
     await expect(page).toHaveURL(/\/en\/auth\/invitation\?intent=/);
     await expect(page.getByRole("heading", { level: 1, name: "Join Hoffmann Consulting", exact: true })).toBeVisible();
     expect(microsoft.authorizations).toEqual([

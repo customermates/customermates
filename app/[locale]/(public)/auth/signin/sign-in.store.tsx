@@ -3,6 +3,7 @@ import type { EmailSignInData } from "@/features/auth/sign-in-with-email.interac
 import type { RootStore } from "@/core/stores/root.store";
 
 import { action, makeObservable, observable, toJS } from "mobx";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 
 import { continueWithGoogleAction, continueWithMicrosoftAction, signInWithEmailAction } from "../actions";
 
@@ -62,10 +63,9 @@ export class SignInStore extends BaseFormStore<EmailSignInData> {
       const res = await action(this.form.callbackURL, errorCallbackURL);
 
       if (!res.ok) toastZodErrorTree(res.error);
-      else if (res.data.url) {
-        window.location.assign(res.data.url);
-        isNavigating = true;
-      }
+    } catch (error) {
+      if (!isRedirectError(error)) throw error;
+      isNavigating = true;
     } finally {
       if (!isNavigating) this.setIsLoading(false);
     }
