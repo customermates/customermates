@@ -815,7 +815,7 @@ test("edits built-in assignees across table, card, phone and pinned detail contr
   await remoteAssign([colleagueId]);
   await conflictEditor.getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.locator("[data-sonner-toast]").filter({ hasText: "This record changed. Refresh before saving again." }).first()).toBeVisible();
-  await expect(conflictItem.getByRole("button", { name: "Edit Assigned to", exact: true })).not.toContainText("Browser Administrator");
+  await expect(conflictItem.locator('[data-inline-edit="system:assignedTo"]')).not.toContainText("Browser Administrator");
   await expect(conflictEditor).toBeVisible();
   await expect(conflictEditor.getByRole("combobox", { name: "Assigned to", exact: true })).toContainText("Browser Administrator");
   await expect(conflictEditor.getByRole("combobox", { name: "Assigned to", exact: true })).toContainText("Assigned Colleague");
@@ -911,7 +911,12 @@ test("edits formatted notes inline with the shared editor in rows, cards and pho
   await phoneItem.getByRole("button", { name: "Edit Notes", exact: true }).click();
   const notesEditor = page.getByRole("dialog", { name: "Notes", exact: true });
   await notesEditor.getByRole("button", { name: "Edit Notes", exact: true }).press("Enter");
-  await notesEditor.getByRole("textbox", { name: "Notes", exact: true }).fill("");
+  const clearedNotes = notesEditor.getByRole("textbox", { name: "Notes", exact: true });
+  await expect(clearedNotes).toBeFocused();
+  await clearedNotes.press("ControlOrMeta+a");
+  await clearedNotes.press("Backspace");
+  await expect(clearedNotes).toHaveText("");
+  await expect(notesEditor.getByRole("button", { name: "Save", exact: true })).toBeEnabled();
   await notesEditor.getByRole("button", { name: "Save", exact: true }).click();
   await expect(notesEditor).not.toBeVisible();
   await expect(phoneItem.getByRole("button", { name: "Edit Notes", exact: true })).toHaveCount(0);
