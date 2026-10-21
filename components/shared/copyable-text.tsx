@@ -17,7 +17,7 @@ type Props = {
   buttonRef?: Ref<HTMLButtonElement>;
   ariaLabel?: string;
   copyLabel?: string;
-  link?: { href: string | null; external?: boolean; label: string };
+  link?: { href: string | null; external?: boolean };
   wrap?: boolean;
 };
 
@@ -64,11 +64,7 @@ export function CopyableText({ value, label, className, buttonRef, ariaLabel, co
         </button>
       </TooltipTrigger>
 
-      <TooltipContent className="max-w-xs">
-        <p className="wrap-anywhere">{value}</p>
-
-        <p className="text-xs opacity-70">{actionLabel}</p>
-      </TooltipContent>
+      <TooltipContent>{link ? actionLabel : value}</TooltipContent>
     </Tooltip>
   );
 
@@ -97,11 +93,7 @@ export function CopyableText({ value, label, className, buttonRef, ariaLabel, co
           )}
         </TooltipTrigger>
 
-        <TooltipContent className="max-w-xs">
-          <p className="wrap-anywhere">{value}</p>
-
-          {link.href && <p className="text-xs opacity-70">{link.label}</p>}
-        </TooltipContent>
+        <TooltipContent>{value}</TooltipContent>
       </Tooltip>
 
       {copyButton}

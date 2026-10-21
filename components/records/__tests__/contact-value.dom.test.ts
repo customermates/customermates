@@ -8,7 +8,8 @@ vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("@/components/ui/tooltip", () => ({
   Tooltip: ({ children }: { children: ReactNode }) => children,
   TooltipTrigger: ({ children }: { children: ReactNode }) => children,
-  TooltipContent: () => null,
+  TooltipContent: ({ children }: { children: ReactNode }) =>
+    createElement("span", { "data-test-tooltip": "" }, children),
 }));
 
 import { CopyableText } from "@/components/shared/copyable-text";
@@ -50,6 +51,7 @@ describe("shared copyable contact values", () => {
     expect(copy).toHaveBeenCalledExactlyOnceWith("reader@example.test");
     expect(clickRow).not.toHaveBeenCalled();
     expect(keyRow).not.toHaveBeenCalled();
+    expect(host.querySelector("[data-test-tooltip]")?.textContent).toBe("reader@example.test");
   });
 
   it.each([
@@ -72,6 +74,10 @@ describe("shared copyable contact values", () => {
     expect(copy).toHaveBeenCalledExactlyOnceWith(value);
     expect(clickRow).not.toHaveBeenCalled();
     expect(host.querySelector("button a, a button")).toBeNull();
+    expect([...host.querySelectorAll("[data-test-tooltip]")].map((tooltip) => tooltip.textContent)).toEqual([
+      value,
+      `RecordModel.clickActions.${kind}.copy`,
+    ]);
   });
 
   it("uses one whole-label copy action for a copy-configured field", () => {
@@ -83,6 +89,7 @@ describe("shared copyable contact values", () => {
     expect(button?.getAttribute("aria-label")).toBe(value);
     act(() => button?.click());
     expect(copy).toHaveBeenCalledExactlyOnceWith(value);
+    expect(host.querySelector("[data-test-tooltip]")?.textContent).toBe(value);
   });
 
   it("keeps an invalid link noninteractive while retaining the copy action", () => {

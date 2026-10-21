@@ -41,7 +41,6 @@ export function ContactValue({ value, kind, action = "open", label, className, w
             ? {
                 href: contactHref(kind, value),
                 external: kind === "url",
-                label: t(`RecordModel.clickActions.${kind}.open`),
               }
             : undefined
         }

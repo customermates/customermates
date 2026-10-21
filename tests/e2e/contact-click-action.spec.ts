@@ -184,11 +184,19 @@ test("contact chips reuse inline copy actions without reserved space across deta
               }),
             )
             .toBeGreaterThan(0.5);
-          await expect(page.getByRole("tooltip").filter({ hasText: field.value }).first()).toBeVisible();
+          const tooltip = page.getByRole("tooltip").filter({ hasText: field.value }).first();
+          await expect(tooltip).toBeVisible();
+          await expect(tooltip).toHaveText(field.value);
           const after = await value.boundingBox();
           expect(Math.abs(after!.width - before.width)).toBeLessThan(1);
         }
         const action = field.action === "copy" ? value : value.getByRole("button");
+        if (fineHover && field.action === "open") {
+          await action.hover();
+          await expect(page.getByRole("tooltip")).toHaveText(
+            field.valueType === "phone" ? "Copy number" : field.valueType === "url" ? "Copy link" : "Copy address",
+          );
+        }
         await action.focus();
         await page.keyboard.press("Enter");
         await expect
