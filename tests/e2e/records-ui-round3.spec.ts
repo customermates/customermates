@@ -6,6 +6,7 @@ import { RecordOperationResultSchema } from "../../features/records/record-query
 import { expect, test, collectPageErrors } from "./fixtures";
 import { postOk } from "./api";
 import { openItemMenu } from "./item-actions";
+import { openSidebar } from "./sidebar";
 import {
   openRecordDetails,
   openRecordLink,
@@ -781,7 +782,10 @@ test("edits built-in assignees across table, card, phone and pinned detail contr
       await expect(trigger).toContainText("Browser Administrator");
     }
   }
-  await page.goto(`/en/records/${typeId}?viewMode=row`);
+  await page.goto("/en/dashboard");
+  await openSidebar(page);
+  await page.locator(`[id="nav-records:${typeId}"]`).click();
+  await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}(\\?|$)`));
   await page.getByRole("button", { name: "Appearance", exact: true }).click();
   await page.getByRole("checkbox", { name: "Assigned to", exact: true }).check();
   await page.locator('[data-slot="drawer-close"]').click();
