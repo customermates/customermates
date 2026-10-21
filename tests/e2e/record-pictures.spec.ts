@@ -81,7 +81,7 @@ function pictureRecord(page: Page, name: string) {
 }
 
 function pictures(page: Page, name = "Picture Record") {
-  return pictureRecord(page, name).locator('[data-slot="avatar"]');
+  return pictureRecord(page, name).locator('[data-slot="avatar"][data-size="default"]');
 }
 
 async function choosePicture(page: Page, label: string) {
@@ -207,7 +207,18 @@ test("saves picture visibility per view, cancels drafts, and keeps it across tab
   await save().click();
   await expect(save()).toHaveCount(0);
   await closeAppearance(page, mobile);
-  await page.goto(`/en/records/${typeId}?view=__all__`);
+  await page.locator(`#global-data-views [data-focus-target="view:${viewKey}"][aria-current="page"]`).click();
+  await expect
+    .poll(
+      async () =>
+        (
+          await database.query('SELECT "activeViewKey" FROM "P13n" WHERE "companyId"=$1 AND "p13nId"=$2', [
+            companyId,
+            `records:${typeId}`,
+          ])
+        ).rows[0]?.activeViewKey,
+    )
+    .toBe("__all__");
   await expect(pictureRecord(page, "Picture Record")).toBeVisible();
   await expect(pictures(page)).toHaveCount(0);
   await page.locator("#records-display-options").click();
@@ -270,7 +281,7 @@ test("enables pictures on an unconfigured list using an existing URL field", asy
   expect(errors).toEqual([]);
 });
 
-test("keeps pictures beside fallback titles when the primary name field is removed", async ({
+test("keeps pictures beside fallback titles when the name fields are removed", async ({
   page,
   database,
   companyId,
@@ -279,13 +290,15 @@ test("keeps pictures beside fallback titles when the primary name field is remov
   const errors = collectPageErrors(page);
   const { typeId, stageFieldId, first } = await contacts(page, database, companyId);
   await openConfigure(page, typeId);
-  await openConfigureRow(page, "Fields", "Name");
-  await deleteFromDrawer(page, "Delete field");
+  for (const label of ["Name", "First name", "Last name"]) {
+    await openConfigureRow(page, "Fields", label);
+    await deleteFromDrawer(page, "Delete field");
+  }
   await page.goto(`/en/records/${typeId}`);
-  await expect(page.locator('main [data-slot="avatar"] img')).toHaveAttribute("src", first);
+  await expect(page.locator('main [data-slot="avatar"][data-size="default"] img')).toHaveAttribute("src", first);
   await expect(page.locator("main")).toContainText("Untitled Contact");
   await page.goto(`/en/records/${typeId}?viewMode=card&groupBy=${stageFieldId}`);
-  await expect(page.locator('[data-item-id] [data-slot="avatar"] img')).toHaveAttribute("src", first);
+  await expect(page.locator('[data-item-id] [data-slot="avatar"][data-size="default"] img')).toHaveAttribute("src", first);
   await expect(page.locator("[data-item-id]").first()).toContainText("Untitled Contact");
   expect(errors).toEqual([]);
 });
