@@ -11,14 +11,14 @@ test("marks invalid values on their field, keeps valid ones and keeps table swit
   test.setTimeout(300000);
   const typeId = presetId(companyId, "organization");
   const suffix = randomUUID().slice(0, 6);
-  const emailLabel = `Email ${suffix}`;
+  const referenceLabel = `Reference ${suffix}`;
   const siteLabel = `Site ${suffix}`;
   const activeLabel = `Active ${suffix}`;
   const name = `Feedback ${suffix}`;
 
   await openConfigure(page, typeId);
   for (const [label, type] of [
-    [emailLabel, "Email"],
+    [referenceLabel, "Text"],
     [siteLabel, "Web address"],
     [activeLabel, "Yes or no"],
   ] as const) {
@@ -35,13 +35,13 @@ test("marks invalid values on their field, keeps valid ones and keeps table swit
   await page.locator("#records-add").click();
   await recordDrawer.getByRole("textbox", { name: "Name", exact: false }).fill(name);
   const site = recordDrawer.getByRole("textbox", { name: siteLabel, exact: true });
-  const email = recordDrawer.getByRole("textbox", { name: emailLabel, exact: true });
+  const reference = recordDrawer.getByRole("textbox", { name: referenceLabel, exact: true });
   await site.fill("not a url");
-  await email.fill("ada@example.test");
+  await reference.fill(`REF-${suffix}`);
   await recordDrawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(site).toHaveAttribute("aria-invalid", "true");
   await expect(page.getByText("Enter a valid URL.", { exact: true })).toBeVisible();
-  await expect(email).not.toHaveAttribute("aria-invalid", "true");
+  await expect(reference).not.toHaveAttribute("aria-invalid", "true");
 
   await site.fill(`https://example.test/${suffix}`);
   await recordDrawer.getByRole("button", { name: "Save", exact: true }).click();
@@ -49,7 +49,7 @@ test("marks invalid values on their field, keeps valid ones and keeps table swit
 
   test.skip(Boolean(test.info().project.use.isMobile), "Phone rows have no table cells to measure");
   const row = page.getByRole("row").filter({ hasText: name });
-  await expect(row).toContainText("ada@example.test");
+  await expect(row).toContainText(`REF-${suffix}`);
   const toggle = row.getByRole("switch", { name: `Edit ${activeLabel}`, exact: true });
   await toggle.scrollIntoViewIfNeeded();
   const before = await toggle.boundingBox();

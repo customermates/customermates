@@ -31,7 +31,12 @@ async function openWidgetForEdit(page: Page, name: string, id: string) {
       response.request().method() === "POST" &&
       Boolean(response.request().postData()?.includes(id)),
   );
-  await page.getByRole("heading", { name, exact: true }).click();
+  const card = page.locator(`[data-focus-target="widget:${id}"]`);
+  await card.hover();
+  await card.locator("[data-widget-interactive]").getByRole("button", {
+    name: englishMessages.Dashboard.widgetEditor.editTitle.replace("{name}", name),
+    exact: true,
+  }).first().click();
   await widgetLoaded;
   await expect(page.locator("#name")).toBeEnabled();
   await expect(page.locator("#name")).toHaveValue(name);
