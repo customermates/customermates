@@ -61,6 +61,12 @@ export function RecordFileDocumentPreview({ file }: { file: File }) {
   if (state.kind === "error" || state.data.kind === "unavailable") {
     const reason =
       state.kind === "error" ? "unreadable" : state.data.kind === "unavailable" ? state.data.reason : "unreadable";
+    const descriptions = {
+      unsupported: t("RecordModel.filePreviewReason.unsupported"),
+      tooLarge: t("RecordModel.filePreviewReason.tooLarge"),
+      unreadable: t("RecordModel.filePreviewReason.unreadable"),
+      empty: t("RecordModel.filePreviewReason.empty"),
+    };
     return (
       <PageState
         action={
@@ -70,7 +76,7 @@ export function RecordFileDocumentPreview({ file }: { file: File }) {
             {t("RecordModel.fileDownload")}
           </Button>
         }
-        description={t(`RecordModel.filePreviewReason.${reason}`)}
+        description={descriptions[reason]}
         icon={FileText}
         state="empty"
         title={t("RecordModel.fileDocumentPreviewUnavailable")}
