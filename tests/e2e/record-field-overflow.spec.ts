@@ -4,6 +4,7 @@ import { postOk, readModel } from "./api";
 import { presetId } from "../../features/records/crm-preset";
 import { openRecordDetails } from "./record-rows";
 import { secondUser } from "./second-user";
+import { expectHydrated } from "./workspace-switching";
 
 test("shows the full name of truncated direct and derived relationship chips on focus and hover", async ({
   page,
@@ -71,12 +72,15 @@ test("shows the full name of truncated direct and derived relationship chips on 
     main.locator(`[data-entity-field="path:${pathId}"]`),
   ];
   const tooltip = page.getByRole("tooltip", { name, exact: true });
-  await page.keyboard.press("Tab");
   for (const field of fields) {
     const label = field.getByRole("button", { name: `Open ${name}`, exact: true });
     await expect(label).toBeVisible();
+    await expectHydrated(label);
     expect(await label.evaluate((element) => element.scrollWidth > element.clientWidth + 1)).toBe(true);
+    await page.keyboard.press("Tab");
     await label.focus();
+    await expect(label).toBeFocused();
+    await expect.poll(() => label.evaluate((element) => element.matches(":focus-visible"))).toBe(true);
     await expect(tooltip).toBeVisible();
     await page.keyboard.press("Escape");
     await expect(tooltip).not.toBeVisible();
