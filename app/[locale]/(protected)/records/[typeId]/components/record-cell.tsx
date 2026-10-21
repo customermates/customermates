@@ -62,7 +62,7 @@ export function RecordCell({
     if (!avatarFieldId) return content;
     const image = record.fields.find((value) => value.fieldId === avatarFieldId)?.result;
     return (
-      <span className="flex min-w-0 items-center gap-2">
+      <span className="flex min-w-0 items-center gap-2" data-slot="record-name">
         <Avatar
           aria-hidden
           name={name}
