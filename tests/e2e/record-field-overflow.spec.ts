@@ -183,6 +183,10 @@ test("keeps 100 linked deals within three chip rows and searches, pages, opens a
     expect((await chips().count()) + hidden).toBe(100);
     expect(await field.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
   }
+  const previewName = await chips()
+    .getByRole("button", { name: /^Open / })
+    .first()
+    .innerText();
   await more().scrollIntoViewIfNeeded();
   await more().click();
   const popover = page.getByRole("dialog", { name: "Deals", exact: true });
@@ -210,10 +214,6 @@ test("keeps 100 linked deals within three chip rows and searches, pages, opens a
   await more().click();
   await expect(list.getByRole("option", { name: /^Overflow deal/ })).toHaveCount(25);
   await expect(list.locator(".lucide-check")).toHaveCount(25);
-  const previewName = await chips()
-    .getByRole("button", { name: /^Open / })
-    .first()
-    .innerText();
   await expect(list.getByRole("option", { name: previewName, exact: true })).toBeVisible();
   const selected = list.getByRole("option").first();
   const selectedName = await selected.getAttribute("aria-label");
