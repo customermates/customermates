@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
@@ -870,6 +870,16 @@ test("edits formatted notes inline with the shared editor in rows, cards and pho
     [companyId, typeId, notesId],
   )).rows);
   const errors = collectPageErrors(page);
+  const selectAll = await page.evaluate(() =>
+    /Mac|iP(hone|[oa]d)/.test(navigator.platform) ? "Meta+a" : "Control+a",
+  );
+  const replaceNotes = async (textbox: Locator, value: string) => {
+    await expect(textbox).toBeFocused();
+    await textbox.press(selectAll);
+    await textbox.press("Backspace");
+    if (value) await textbox.pressSequentially(value);
+    await expect(textbox).toHaveText(value);
+  };
   let saved = "";
   for (const [mode, width] of [["row", 1280], ["card", 1280], ["row", 390]] as const) {
     await page.setViewportSize({ width, height: 900 });
@@ -886,7 +896,7 @@ test("edits formatted notes inline with the shared editor in rows, cards and pho
     await editor.getByRole("button", { name: "Edit Notes", exact: true }).press("Enter");
     const text = editor.getByRole("textbox", { name: "Notes", exact: true });
     const draft = `Formatted notes ${mode} ${width}`;
-    await text.fill(draft);
+    await replaceNotes(text, draft);
     await expect.poll(notesValue).not.toContain(draft);
     if (mode === "card") {
       await editor.getByRole("button", { name: "Cancel", exact: true }).click();
@@ -895,7 +905,7 @@ test("edits formatted notes inline with the shared editor in rows, cards and pho
       expect(await notesValue()).toContain(saved);
       await item.getByRole("button", { name: "Edit Notes", exact: true }).click();
       await editor.getByRole("button", { name: "Edit Notes", exact: true }).press("Enter");
-      await text.fill(draft);
+      await replaceNotes(text, draft);
     }
     await editor.getByRole("button", { name: "Save", exact: true }).click();
     await expect(editor).not.toBeVisible();
@@ -912,10 +922,7 @@ test("edits formatted notes inline with the shared editor in rows, cards and pho
   const notesEditor = page.getByRole("dialog", { name: "Notes", exact: true });
   await notesEditor.getByRole("button", { name: "Edit Notes", exact: true }).press("Enter");
   const clearedNotes = notesEditor.getByRole("textbox", { name: "Notes", exact: true });
-  await expect(clearedNotes).toBeFocused();
-  await clearedNotes.press("ControlOrMeta+a");
-  await clearedNotes.press("Backspace");
-  await expect(clearedNotes).toHaveText("");
+  await replaceNotes(clearedNotes, "");
   await expect(notesEditor.getByRole("button", { name: "Save", exact: true })).toBeEnabled();
   await notesEditor.getByRole("button", { name: "Save", exact: true }).click();
   await expect(notesEditor).not.toBeVisible();
@@ -924,7 +931,7 @@ test("edits formatted notes inline with the shared editor in rows, cards and pho
   await page.getByRole("menuitem", { name: "Notes", exact: true }).click();
   const emptyNotes = page.getByRole("dialog").filter({ has: page.locator("[data-formatted-text-field]") });
   await emptyNotes.getByRole("button", { name: "Edit Notes", exact: true }).press("Enter");
-  await emptyNotes.getByRole("textbox", { name: "Notes", exact: true }).fill("Notes added from the existing property menu");
+  await replaceNotes(emptyNotes.getByRole("textbox", { name: "Notes", exact: true }), "Notes added from the existing property menu");
   await emptyNotes.getByRole("button", { name: "Save", exact: true }).click();
   await expect(emptyNotes).not.toBeVisible();
   await expect.poll(notesValue).toContain("Notes added from the existing property menu");
