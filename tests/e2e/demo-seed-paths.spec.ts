@@ -1,7 +1,11 @@
 import { DEMO_COMPANY_ID, demoId, expect, test } from "./demo-seed";
 
 /** Sub-lists and relationship paths of the seeded workspace: deal line items, and the Deals path of a service. */
-test("a deal shows its line items with Max's curated line item columns", async ({ page, database, errors }, testInfo) => {
+test("a deal shows its line items with Max's curated line item columns", async ({
+  page,
+  database,
+  errors,
+}, testInfo) => {
   const { rows: deals } = await database.query<{ id: string; items: number }>(
     `SELECT l."targetId" AS id, count(*)::int AS items FROM "RecordLink" l
      JOIN "CrmRecord" r ON r."companyId"=l."companyId" AND r."typeId"=l."sourceTypeId" AND r.id=l."sourceId"
@@ -49,16 +53,16 @@ test("a service lists the deals that sell it and explains the full path in the i
   database,
   errors,
 }) => {
-  const { rows } = await database.query<{ serviceId: string; deal: string }>(
-    `SELECT s."targetId" AS "serviceId", v."textValue" AS deal FROM "RecordLink" s
+  const { rows } = await database.query<{ serviceId: string; dealId: string; deal: string }>(
+    `SELECT s."targetId" AS "serviceId", d."targetId" AS "dealId", v."textValue" AS deal FROM "RecordLink" s
      JOIN "RecordLink" d ON d."companyId"=s."companyId" AND d."relationId"=$3 AND d."sourceId"=s."sourceId"
      JOIN "RecordValue" v ON v."companyId"=d."companyId" AND v."recordId"=d."targetId" AND v."fieldId"=$4
      WHERE s."companyId"=$1 AND s."relationId"=$2 ORDER BY s."targetId", v."textValue"`,
     [DEMO_COMPANY_ID, demoId("lineItem.service"), demoId("lineItem.deal"), demoId("deal.name")],
   );
   const serviceId = rows[0].serviceId;
-  const deals = new Set(rows.filter((row) => row.serviceId === serviceId).map((row) => row.deal));
-  expect(deals.size).toBeGreaterThan(0);
+  const deals = new Map(rows.filter((row) => row.serviceId === serviceId).map((row) => [row.dealId, row.deal]));
+  expect(deals.size).toBeGreaterThan(25);
 
   await page.goto(`/en/records/${demoId("service")}/${serviceId}`);
   const main = page.getByRole("main");
@@ -66,12 +70,62 @@ test("a service lists the deals that sell it and explains the full path in the i
   if (await overview.isVisible()) await overview.click();
   const path = main.getByRole("region", { name: "Deals", exact: true });
   await expect(path).toBeVisible();
-  // The path lists the deals page by page; every deal shown sells this service.
-  const chips = path.getByRole("button", { name: /^Open / });
-  await expect(chips.first()).toBeVisible();
-  const shown = (await chips.allInnerTexts()).map((name) => name.trim());
-  expect(shown.length).toBe(Math.min(deals.size, 25));
-  for (const name of shown) expect([...deals], name).toContain(name);
+  const chips = path.locator("[data-chip-id]");
+  const more = path.getByRole("button", { name: /^\+\d+ more$/ });
+  await expect(more).toBeVisible();
+  await expect
+    .poll(async () => (await chips.count()) + Number((await more.innerText()).match(/\d+/)?.[0]))
+    .toBe(deals.size);
+  const shown = (await chips.getByRole("button", { name: /^Open / }).allInnerTexts()).map((name) => name.trim());
+  expect(shown.length).toBeGreaterThan(0);
+  for (const name of shown) expect([...deals.values()], name).toContain(name);
+  await expect
+    .poll(() =>
+      chips.evaluateAll((elements) => {
+        const parent = elements[0]?.parentElement;
+        if (!parent) throw new Error("The relationship chip stack is missing");
+        return new Set(
+          Array.from(parent.children)
+            .filter((element) => element.hasAttribute("data-chip-id") || element.tagName === "BUTTON")
+            .map((element) => Math.round(element.getBoundingClientRect().top)),
+        ).size;
+      }),
+    )
+    .toBe(3);
+  await more.click();
+  const picker = page.getByRole("dialog", { name: "Deals", exact: true });
+  const list = picker.locator("[data-linked-record-list]");
+  const options = list.getByRole("option");
+  const search = picker.getByRole("combobox", { name: "Search...", exact: true });
+  await expect(search).toBeFocused();
+  await expect(picker).toContainText(`${deals.size} linked records`);
+  await expect(picker.getByRole("button", { name: /^Unlink / })).toHaveCount(0);
+  const seen = new Set<string>();
+  for (let index = 0; index < Math.ceil(deals.size / 25); index++) {
+    await expect(options).toHaveCount(Math.min(25, deals.size - index * 25));
+    const records = await options.evaluateAll((elements) =>
+      elements.map((element) => ({
+        id: element.getAttribute("data-value") ?? "",
+        name: element.getAttribute("aria-label"),
+      })),
+    );
+    for (const record of records) {
+      expect(deals.get(record.id)).toBe(record.name);
+      expect(seen.has(record.id)).toBe(false);
+      seen.add(record.id);
+    }
+    if (seen.size < deals.size) {
+      await picker.getByRole("button", { name: "Next page", exact: true }).click();
+      await expect.poll(() => options.first().getAttribute("data-value")).not.toBe(records[0].id);
+    }
+  }
+  expect([...seen].sort()).toEqual([...deals.keys()].sort());
+  const [searchId, searchName] = [...deals.entries()][0];
+  await search.fill(searchName);
+  await expect(list.locator(`[role="option"][data-value="${searchId}"]`)).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(picker).not.toBeVisible();
+  await expect(more).toBeFocused();
   await path.getByRole("button", { name: "Where Deals comes from", exact: true }).click();
   const popover = page.getByRole("dialog", { name: "Where Deals comes from", exact: true });
   await expect(popover.locator("[data-field-derivation]")).toContainText("Through linked records · Line items → Deals");
