@@ -100,7 +100,7 @@ export const FormTextarea = observer(
               aria-hidden
               inert
               className={cn(
-                "pointer-events-none absolute inset-x-0 top-0 -z-10 px-3 py-1.5 text-base leading-5 opacity-0 md:text-sm",
+                "pointer-events-none absolute inset-x-0 top-0 -z-10 border border-transparent px-3 py-1.5 text-base leading-5 opacity-0 md:text-sm",
                 endContent && "pr-14",
               )}
             >
