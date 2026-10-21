@@ -353,6 +353,9 @@ const DetailChip = observer(function DetailChip({
         inputId={inputId}
         label={null}
         members={row.memberUsers}
+        onSelectOpenChange={(next) => {
+          if (!next) setOpen(false);
+        }}
       />
     </ChipPopover>
   );

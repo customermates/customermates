@@ -45,6 +45,7 @@ export const RecordInputField = observer(function RecordInputField({
   label = field.label,
   members = [],
   onDatePicked,
+  onSelectOpenChange,
   collapsibleText = false,
 }: {
   field: RecordFieldView;
@@ -53,6 +54,7 @@ export const RecordInputField = observer(function RecordInputField({
   label?: string | null;
   members?: RecordMember[];
   onDatePicked?: () => void;
+  onSelectOpenChange?: (open: boolean) => void;
   collapsibleText?: boolean;
 }) {
   const t = useTranslations();
@@ -116,6 +118,7 @@ export const RecordInputField = observer(function RecordInputField({
           label: option.label,
           color: toChipColor(option.color),
         }))}
+        onOpenChange={onSelectOpenChange}
       />
     );
   }
