@@ -14,7 +14,8 @@ import { useAppForm } from "@/components/forms/form-context";
 import { FormFieldError } from "@/components/forms/form-field-error";
 import { useFormFieldErrors } from "@/components/forms/use-form-field";
 import { useRecordFileSize } from "@/components/records/record-file-chips";
-import { openRecordFile, recordFileIcon } from "@/components/records/record-file-links";
+import { recordFileIcon } from "@/components/records/record-file-links";
+import { useRecordFilePreview } from "@/components/records/record-file-preview";
 import { AttachmentRow } from "@/app/[locale]/(protected)/inbox/components/attachment-row";
 import { MAX_RECORD_FILES } from "@/features/records/record-model.schema";
 import { cn } from "@/core/utils/cn";
@@ -52,6 +53,7 @@ export const RecordFileInput = observer(function RecordFileInput({
   const t = useTranslations();
   const store = useAppForm();
   const fileSize = useRecordFileSize();
+  const { openFile, preview } = useRecordFilePreview();
   const picker = useRef<HTMLInputElement>(null);
   const transfers = useRef(new Set<RecordFileTransfer>());
   const [uploads, setUploads] = useState<FileUpload[]>([]);
@@ -184,7 +186,7 @@ export const RecordFileInput = observer(function RecordFileInput({
                   name={file?.name ?? t("RecordModel.fileUnavailable")}
                   removeLabel={t("RecordModel.fileRemove", { name: file?.name ?? t("RecordModel.fileUnavailable") })}
                   subtitle={file ? fileSize(file.size) : null}
-                  onOpen={file ? () => openRecordFile(file) : undefined}
+                  onOpen={file ? () => openFile(file) : undefined}
                   onRemove={disabled ? undefined : () => remove(fileId)}
                 />
               </li>
@@ -278,6 +280,8 @@ export const RecordFileInput = observer(function RecordFileInput({
       )}
 
       {hasError && message && <FormFieldError id={errorId}>{message}</FormFieldError>}
+
+      {preview}
     </div>
   );
 });

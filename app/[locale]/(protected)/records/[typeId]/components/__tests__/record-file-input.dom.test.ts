@@ -45,8 +45,10 @@ vi.mock("@/components/records/record-file-chips", () => ({
   useRecordFileSize: () => (bytes: number) => `${bytes} bytes`,
 }));
 vi.mock("@/components/records/record-file-links", () => ({
-  openRecordFile: (file: unknown) => opened.push(file),
   recordFileIcon: () => () => null,
+}));
+vi.mock("@/components/records/record-file-preview", () => ({
+  useRecordFilePreview: () => ({ openFile: (file: unknown) => opened.push(file), preview: null }),
 }));
 vi.mock("@/core/errors/report-application-error", () => ({
   runUserAction: (action: () => unknown) => {

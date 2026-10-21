@@ -8,7 +8,8 @@ import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { storageSizeLabel } from "@/features/record-files/storage-size";
 
-import { openRecordFile, recordFileContentUrl, recordFileIcon } from "./record-file-links";
+import { recordFileContentUrl, recordFileIcon } from "./record-file-links";
+import { useRecordFilePreview } from "./record-file-preview";
 
 export function useRecordFileSize() {
   const intlStore = useHydratedIntlStore();
@@ -28,6 +29,7 @@ export function RecordFileChips({
 }) {
   const t = useTranslations();
   const fileSize = useRecordFileSize();
+  const { openFile, preview } = useRecordFilePreview();
   const items = fileIds.map((id) => {
     const file = files.find((entry) => entry.id === id);
     const Icon = recordFileIcon(file?.mimeType);
@@ -39,17 +41,21 @@ export function RecordFileChips({
     };
   });
   return (
-    <AppChipStack
-      chipHref={(item) => (item.file ? recordFileContentUrl(item.file.id) : undefined)}
-      chipLabel={(item) =>
-        item.file ? t("RecordModel.fileOpen", { name: item.file.name, size: fileSize(item.file.size) }) : item.label
-      }
-      fill={!compact}
-      items={items}
-      overflowMenu={overflowMenu}
-      onChipClick={(item) => {
-        if (item.file) openRecordFile(item.file);
-      }}
-    />
+    <>
+      <AppChipStack
+        chipHref={(item) => (item.file ? recordFileContentUrl(item.file.id) : undefined)}
+        chipLabel={(item) =>
+          item.file ? t("RecordModel.fileOpen", { name: item.file.name, size: fileSize(item.file.size) }) : item.label
+        }
+        fill={!compact}
+        items={items}
+        overflowMenu={overflowMenu}
+        onChipClick={(item, opener) => {
+          if (item.file) openFile(item.file, opener);
+        }}
+      />
+
+      {preview}
+    </>
   );
 }
