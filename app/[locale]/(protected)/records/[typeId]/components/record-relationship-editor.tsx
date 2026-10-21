@@ -252,6 +252,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
                   }))}
                   maxRows={3}
                   moreButtonProps={{
+                    id: `${id}-more`,
                     "aria-haspopup": "dialog",
                     "aria-expanded": mode === "linked",
                     "aria-controls": `${id}-options`,

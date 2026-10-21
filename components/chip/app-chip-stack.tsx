@@ -62,7 +62,10 @@ type Props<T extends ChipStackItem> = {
   maxRows?: number;
   renderChip?: (item: T, index: number) => ReactNode;
   moreLabel?: (count: number) => string;
-  moreButtonProps?: Pick<ComponentProps<"button">, "aria-label" | "aria-controls" | "aria-expanded" | "aria-haspopup">;
+  moreButtonProps?: Pick<
+    ComponentProps<"button">,
+    "id" | "aria-label" | "aria-controls" | "aria-expanded" | "aria-haspopup"
+  >;
 };
 
 const defaultMoreLabel = (count: number) => `+${count}`;

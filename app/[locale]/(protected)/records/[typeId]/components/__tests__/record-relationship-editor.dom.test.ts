@@ -305,6 +305,49 @@ describe("relationship loading presentation and response ownership", () => {
 });
 
 describe("relationship unlink focus", () => {
+  it("returns focus to a derived overflow opener replaced by a related-record refresh", async () => {
+    vi.stubGlobal("matchMedia", () => ({ matches: true, addEventListener() {}, removeEventListener() {} }));
+    vi.spyOn(HTMLElement.prototype, "getClientRects").mockReturnValue([
+      new DOMRect(0, 0, 80, 30),
+    ] as unknown as DOMRectList);
+    const data = { ...results([linked]), total: 40 };
+    actions.choices.mockResolvedValue({ ok: true, data });
+    const store = observable(editor());
+    store.presentation.model.relationships = [relation];
+    const field = render(store, true);
+    await act(async () => {
+      await Promise.resolve();
+    });
+    const more = () =>
+      [...field.querySelectorAll<HTMLButtonElement>("button")].find((button) =>
+        /^\+\d+ more$/.test(button.textContent ?? ""),
+      );
+    const original = more();
+    act(() => original?.click());
+    await act(async () => {
+      await Promise.resolve();
+    });
+    const pending: Array<(value: { ok: true; data: RecordChoicesResult }) => void> = [];
+    actions.choices.mockImplementation(() => new Promise((resolve) => pending.push(resolve)));
+    await act(async () => {
+      action(() => {
+        store.relatedRevision++;
+      })();
+      await Promise.resolve();
+    });
+    expect(original?.isConnected).toBe(false);
+    await act(async () => {
+      for (const resolve of pending) resolve({ ok: true, data });
+      await Promise.resolve();
+    });
+    const replacement = more();
+    expect(replacement).toBeDefined();
+    expect(replacement).not.toBe(original);
+    act(() => {
+      document.activeElement?.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    });
+    await vi.waitFor(() => expect(document.activeElement).toBe(replacement));
+  });
   it("opens the picker from blank input space and keeps chip actions independent", async () => {
     actions.choices.mockResolvedValue({ ok: true, data: results([linked]) });
     const store = editor();
