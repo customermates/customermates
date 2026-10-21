@@ -1,11 +1,13 @@
 import type { RecordColumn } from "@/features/records/record-columns";
 import type { CalculatedValue, RecordFieldView } from "@/features/records/record-model.schema";
 import type { RecordRow } from "@/features/records/record-presentation";
+import { formattedTextExcerpt } from "@/features/records/record-presentation";
 
 export function isEmptyResult(result: CalculatedValue | undefined) {
   if (!result || result.state === "missing") return true;
   if (result.state !== "value") return false;
   const value = result.value;
+  if (value.kind === "richText") return !formattedTextExcerpt(value.documentJson);
   return (value.kind === "selectList" || value.kind === "textList") && value.value.length === 0;
 }
 

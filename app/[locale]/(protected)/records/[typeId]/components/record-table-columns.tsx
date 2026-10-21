@@ -17,9 +17,11 @@ import { UNTITLED_COLUMN_ID } from "./records.store";
 import {
   RecordCalculatedValue,
   RecordInlineField,
+  RecordInlineAssignees,
   RecordInlineRelationship,
   CalculatedFieldText,
   canEditInline,
+  canEditAssignees,
   isCalculatedField,
   hasInlineRelationshipEditor,
 } from "./record-inline-field";
@@ -108,6 +110,15 @@ export function useRecordTableColumns(
                 onOpen={openRelated}
               />
             );
+            if (column.id === "system:assignedTo" && canEditAssignees(store, row.original)) {
+              return (
+                <div className={EDIT_TARGET_CONTAINER_CLASS}>
+                  <RecordInlineAssignees record={row.original} records={store}>
+                    {renderCell(true)}
+                  </RecordInlineAssignees>
+                </div>
+              );
+            }
             if (column.kind === "relationship" && hasInlineRelationshipEditor(store, row.original, column.relation)) {
               const summary = row.original.relationships.find(
                 (entry) => entry.relationId === column.relation.id && entry.direction === column.direction,

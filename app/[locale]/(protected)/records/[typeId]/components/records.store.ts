@@ -197,11 +197,14 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
     this.updateRecord(record, { fields: [{ fieldId, value }] });
   updateRecordLinks = (record: RecordRow, linkChanges: RecordLinkChange[]) =>
     this.updateRecord(record, { fields: [], linkChanges });
+  updateRecordAssignees = (record: RecordRow, assignedUserIds: string[]) =>
+    this.updateRecord(record, { fields: [], assignedUserIds });
   private updateRecord = async (
     record: RecordRow,
     changes: {
       fields: { fieldId: string; value: RecordScalar | null }[];
       linkChanges?: RecordLinkChange[];
+      assignedUserIds?: string[];
     },
   ): Promise<RecordFieldSaveOutcome> => {
     if (!this.canUpdateRecord(record) || this.movingRecords.has(record.id)) return { saved: false };

@@ -679,6 +679,246 @@ test("board columns keep a one-line header, one fixed width and collapse into st
 });
 
 
+test("edits built-in assignees across table, card, phone and pinned detail controls", async ({
+  page,
+  companyId,
+  database,
+  workspace,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto(`/en/records/${presetId(companyId, "contact")}`);
+  const typeId = await createLabList(page, presetId(companyId, "contact"));
+  const model = await readModel(page);
+  const choice = model.fields.find((field) => field.typeId === typeId && field.label === "Choice");
+  if (!choice) throw new Error("The lab choice field is missing");
+  const colleagueId = randomUUID();
+  await database.query(
+    'INSERT INTO "User" (id,"companyId","roleId",email,"firstName","lastName",status,"agreeToTerms","onboardingWizardCompletedAt","displayLanguage","formattingLocale","updatedAt") SELECT $1,"companyId","roleId",$2,\'Assigned\',\'Colleague\',\'active\',true,NOW(),\'en\',\'en\',NOW() FROM "User" WHERE "companyId"=$3 AND id=$4',
+    [colleagueId, `assigned-${colleagueId}@example.test`, companyId, workspace.userId],
+  );
+  const { rows } = await database.query<{ id: string }>(
+    'SELECT id FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2',
+    [companyId, typeId],
+  );
+  const recordId = rows[0].id;
+  const assignedIds = async () =>
+    (
+      await database.query<{ userId: string }>(
+        'SELECT "userId" FROM "RecordAssignment" WHERE "companyId"=$1 AND "typeId"=$2 AND "recordId"=$3 ORDER BY "userId"',
+        [companyId, typeId, recordId],
+      )
+    ).rows.map((row) => row.userId);
+  const errors = collectPageErrors(page);
+  for (const [mode, width] of [["row", 1280], ["card", 1280], ["row", 390]] as const) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(`/en/records/${typeId}?viewMode=${mode}${mode === "card" ? `&groupBy=${choice.id}` : ""}`);
+    await page.getByRole("button", { name: "Appearance", exact: true }).click();
+    await page.getByRole("checkbox", { name: "Assigned to", exact: true }).check();
+    if (width < 768) await page.locator('[data-slot="drawer-close"]').click();
+    else await page.keyboard.press("Escape");
+    const item = page.locator(`[data-row-id="${recordId}"], [data-item-id="${recordId}"]`).first();
+    const trigger = item.getByRole("button", { name: "Edit Assigned to", exact: true });
+    await expect(trigger).toBeVisible();
+    await trigger.click();
+    const editor = page.getByRole("dialog", { name: "Assigned to", exact: true });
+    await expect(editor).toBeVisible();
+    await expect(editor.getByRole("button", { name: "Save", exact: true })).toBeDisabled();
+    await editor.getByRole("combobox", { name: "Assigned to", exact: true }).press("Enter");
+    await page.getByRole("option").filter({ hasText: "Assigned Colleague" }).click();
+    await expect(page.getByRole("option").filter({ hasText: "Browser Administrator" })).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(editor).toBeVisible();
+    const before = await assignedIds();
+    expect(before).toContain(workspace.userId);
+    expect(before).not.toContain(colleagueId);
+    await editor.getByRole("button", { name: "Save", exact: true }).click();
+    await expect(editor).not.toBeVisible();
+    await expect.poll(assignedIds).toEqual([workspace.userId, colleagueId].sort());
+    await expect(trigger).toContainText("Assigned Colleague");
+    expect(new URL(page.url()).pathname).toBe(`/en/records/${typeId}`);
+    await trigger.click();
+    await editor.getByRole("combobox", { name: "Assigned to", exact: true }).press("Enter");
+    await page.getByRole("option").filter({ hasText: "Assigned Colleague" }).click();
+    await page.keyboard.press("Escape");
+    if (mode === "row" && width === 1280) {
+      await editor.getByRole("button", { name: "Cancel", exact: true }).click();
+      await page.getByRole("alertdialog").getByRole("button", { name: "Discard", exact: true }).click();
+      await expect(editor).not.toBeVisible();
+      await expect.poll(assignedIds).toEqual([workspace.userId, colleagueId].sort());
+      await trigger.click();
+      await editor.getByRole("combobox", { name: "Assigned to", exact: true }).press("Enter");
+      await page.getByRole("option").filter({ hasText: "Assigned Colleague" }).click();
+      await page.keyboard.press("Escape");
+    }
+    await editor.getByRole("button", { name: "Save", exact: true }).click();
+    await expect(editor).not.toBeVisible();
+    await expect.poll(assignedIds).toEqual([workspace.userId]);
+    if (mode === "card") {
+      await trigger.click();
+      await editor.getByRole("combobox", { name: "Assigned to", exact: true }).locator("[data-remove-selection]").click();
+      await editor.getByRole("button", { name: "Save", exact: true }).click();
+      await expect(editor).not.toBeVisible();
+      await expect.poll(assignedIds).toEqual([]);
+      await expect(trigger).toHaveCount(0);
+      await item.hover();
+      await item.getByRole("button", { name: "Add property", exact: true }).click();
+      await page.getByRole("menuitem", { name: "Assigned to", exact: true }).click();
+      const emptyEditor = page.getByRole("dialog").filter({
+        has: page.getByRole("combobox", { name: "Assigned to", exact: true }),
+      });
+      await emptyEditor.getByRole("combobox", { name: "Assigned to", exact: true }).press("Enter");
+      await page.getByRole("option").filter({ hasText: "Browser Administrator" }).click();
+      await page.keyboard.press("Escape");
+      await expect(page.getByRole("option")).toHaveCount(0);
+      await page.keyboard.press("Escape");
+      const discard = page.getByRole("alertdialog");
+      await expect(discard).toBeVisible();
+      await discard.getByRole("button", { name: "Cancel", exact: true }).click();
+      await expect(emptyEditor).toBeVisible();
+      await expect(emptyEditor.getByRole("combobox", { name: "Assigned to", exact: true })).toContainText("Browser Administrator");
+      await emptyEditor.getByRole("button", { name: "Save", exact: true }).click();
+      await expect.poll(assignedIds).toEqual([workspace.userId]);
+      await expect(trigger).toContainText("Browser Administrator");
+    }
+  }
+  await page.goto(`/en/records/${typeId}?viewMode=row`);
+  await page.getByRole("button", { name: "Appearance", exact: true }).click();
+  await page.getByRole("checkbox", { name: "Assigned to", exact: true }).check();
+  await page.locator('[data-slot="drawer-close"]').click();
+  const conflictItem = page.locator(`[data-row-id="${recordId}"], [data-item-id="${recordId}"]`).first();
+  await conflictItem.getByRole("button", { name: "Edit Assigned to", exact: true }).click();
+  const conflictEditor = page.getByRole("dialog", { name: "Assigned to", exact: true });
+  await conflictEditor.getByRole("combobox", { name: "Assigned to", exact: true }).press("Enter");
+  await page.getByRole("option").filter({ hasText: "Assigned Colleague" }).click();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("option")).toHaveCount(0);
+  expect(await page.evaluate(() => !window.dispatchEvent(new Event("beforeunload", { cancelable: true })))).toBe(true);
+  await page.evaluate(() => history.back());
+  const navigationDiscard = page.getByRole("alertdialog");
+  await expect(navigationDiscard).toBeVisible();
+  await navigationDiscard.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(conflictEditor).toBeVisible();
+  const remoteAssign = async (assignedUserIds: string[]) => {
+    const { rows: current } = await database.query<{ version: number }>(
+      'SELECT version FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 AND id=$3',
+      [companyId, typeId, recordId],
+    );
+    await postOk(page, "/api/v1/records/mutate", {
+      expectedRevision: model.revision, idempotencyKey: randomUUID(),
+      mutation: { action: "update", ref: { typeId, recordId }, expectedVersion: current[0].version, fields: [], assignedUserIds },
+    });
+  };
+  await remoteAssign([colleagueId]);
+  await conflictEditor.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(page.locator("[data-sonner-toast]").filter({ hasText: "This record changed. Refresh before saving again." }).first()).toBeVisible();
+  await expect(conflictEditor).toBeVisible();
+  await expect(conflictEditor.getByRole("combobox", { name: "Assigned to", exact: true })).toContainText("Browser Administrator");
+  expect(await assignedIds()).toEqual([colleagueId]);
+  await conflictEditor.getByRole("button", { name: "Cancel", exact: true }).click();
+  await page.getByRole("alertdialog").getByRole("button", { name: "Discard", exact: true }).click();
+  await remoteAssign([workspace.userId]);
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto(`/en/records/${typeId}`);
+  await openRecordDetails(page, "Lab one");
+  const drawer = page.getByRole("dialog", { name: "Lab item", exact: true });
+  await drawer.getByRole("button", { name: "Pin or unpin fields", exact: true }).click();
+  const pin = page.getByRole("menuitemcheckbox", { name: "Assigned to", exact: true });
+  if ((await pin.getAttribute("aria-checked")) !== "true") await pin.click();
+  await page.keyboard.press("Escape");
+  const pinned = drawer.locator("[data-record-chip-row]").getByRole("group", { name: "Assigned to", exact: true });
+  await pinned.getByRole("button").first().click();
+  const assignment = page.getByRole("combobox", { name: "Assigned to", exact: true }).filter({ visible: true }).last();
+  await assignment.press("Enter");
+  await page.getByRole("option").filter({ hasText: "Assigned Colleague" }).click();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("option")).toHaveCount(0);
+  await page.keyboard.press("Escape");
+  await expect(page.locator('[data-slot="popover-content"][data-state="open"]')).toHaveCount(0);
+  await expect(drawer).toBeVisible();
+  expect(await assignedIds()).toEqual([workspace.userId]);
+  await drawer.getByRole("button", { name: "Save", exact: true }).click();
+  await expect.poll(assignedIds).toEqual([workspace.userId, colleagueId].sort());
+  await page.reload();
+  expect(await assignedIds()).toEqual([workspace.userId, colleagueId].sort());
+  expect(errors).toEqual([]);
+});
+
+test("edits formatted notes inline with the shared editor in rows, cards and phone rows", async ({ page, companyId, database }, testInfo) => {
+  test.setTimeout(240000);
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto(`/en/records/${presetId(companyId, "contact")}`);
+  const typeId = await createLabList(page, presetId(companyId, "contact"));
+  const model = await readModel(page);
+  const notesId = randomUUID();
+  await postOk(page, "/api/v1/model/apply", {
+    expectedRevision: model.revision, idempotencyKey: randomUUID(),
+    operations: [{ operation: "putField", field: {
+      id: notesId, typeId, label: "Notes", valueType: "richText", position: 12,
+      required: false, archived: false, options: [], behavior: { kind: "input" },
+    } }],
+  });
+  const choice = model.fields.find((field) => field.typeId === typeId && field.label === "Choice")!;
+  const notesValue = async () => JSON.stringify((await database.query(
+    'SELECT "jsonValue" FROM "RecordValue" WHERE "companyId"=$1 AND "typeId"=$2 AND "fieldId"=$3',
+    [companyId, typeId, notesId],
+  )).rows);
+  const errors = collectPageErrors(page);
+  let saved = "";
+  for (const [mode, width] of [["row", 1280], ["card", 1280], ["row", 390]] as const) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(`/en/records/${typeId}?viewMode=${mode}${mode === "card" ? `&groupBy=${choice.id}` : ""}`);
+    await page.getByRole("button", { name: "Appearance", exact: true }).click();
+    await page.getByRole("checkbox", { name: "Notes", exact: true }).check();
+    if (width < 768) await page.locator('[data-slot="drawer-close"]').click();
+    else await page.keyboard.press("Escape");
+    const item = page.locator("[data-row-id], [data-item-id]").filter({ hasText: "Lab one" }).first();
+    await expect(item).toBeVisible();
+    await item.getByRole("button", { name: "Edit Notes", exact: true }).click();
+    const editor = page.getByRole("dialog", { name: "Notes", exact: true });
+    await expect(editor.locator("[data-formatted-text-field]")).toBeVisible();
+    await editor.getByRole("button", { name: "Edit Notes", exact: true }).press("Enter");
+    const text = editor.getByRole("textbox", { name: "Notes", exact: true });
+    const draft = `Formatted notes ${mode} ${width}`;
+    await text.fill(draft);
+    await expect.poll(notesValue).not.toContain(draft);
+    if (mode === "card") {
+      await editor.getByRole("button", { name: "Cancel", exact: true }).click();
+      await page.getByRole("alertdialog").getByRole("button", { name: "Discard", exact: true }).click();
+      await expect(editor).not.toBeVisible();
+      expect(await notesValue()).toContain(saved);
+      await item.getByRole("button", { name: "Edit Notes", exact: true }).click();
+      await editor.getByRole("button", { name: "Edit Notes", exact: true }).press("Enter");
+      await text.fill(draft);
+    }
+    await editor.getByRole("button", { name: "Save", exact: true }).click();
+    await expect(editor).not.toBeVisible();
+    await expect.poll(notesValue).toContain(draft);
+    saved = draft;
+    await expect(item).toContainText(saved);
+    expect(new URL(page.url()).pathname).toBe(`/en/records/${typeId}`);
+    await page.reload();
+    await expect(item).toContainText(saved);
+    await page.screenshot({ path: testInfo.outputPath(`inline-notes-${mode}-${width}.png`), animations: "disabled" });
+  }
+  const phoneItem = page.locator("[data-row-id], [data-item-id]").filter({ hasText: "Lab one" }).first();
+  await phoneItem.getByRole("button", { name: "Edit Notes", exact: true }).click();
+  const notesEditor = page.getByRole("dialog", { name: "Notes", exact: true });
+  await notesEditor.getByRole("button", { name: "Edit Notes", exact: true }).press("Enter");
+  await notesEditor.getByRole("textbox", { name: "Notes", exact: true }).fill("");
+  await notesEditor.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(notesEditor).not.toBeVisible();
+  await expect(phoneItem.getByRole("button", { name: "Edit Notes", exact: true })).toHaveCount(0);
+  await phoneItem.getByRole("button", { name: "Add property", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Notes", exact: true }).click();
+  const emptyNotes = page.getByRole("dialog").filter({ has: page.locator("[data-formatted-text-field]") });
+  await emptyNotes.getByRole("button", { name: "Edit Notes", exact: true }).press("Enter");
+  await emptyNotes.getByRole("textbox", { name: "Notes", exact: true }).fill("Notes added from the existing property menu");
+  await emptyNotes.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(emptyNotes).not.toBeVisible();
+  await expect.poll(notesValue).toContain("Notes added from the existing property menu");
+  expect(errors).toEqual([]);
+});
+
 test("short chips stay readable and long chips truncate across table, card and phone widths", async ({
   page,
   companyId,

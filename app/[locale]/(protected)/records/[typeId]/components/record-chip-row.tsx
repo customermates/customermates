@@ -17,15 +17,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
+import { OverlayDismissGuardContext, useOwnOverlayDismissGuard } from "@/components/modal/overlay-dismiss-guard";
 import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
 import { formattedTextExcerpt, RecordValue } from "@/components/records/record-value";
 import { ITEM_REVEAL_CLASS } from "@/components/ui/item-actions";
 import { cn } from "@/core/utils/cn";
 import {
   RecordInlineField,
+  RecordInlineAssignees,
   RecordInlineRelationship,
   RecordPropertyEditor,
   canEditInline,
+  canEditAssignees,
   focusFirstControl,
   hasInlineRelationshipEditor,
 } from "./record-inline-field";
@@ -43,21 +46,38 @@ const PropertyChip = observer(function PropertyChip({
   records,
   record,
   entry,
+  onEditingChange,
   onOpenRecord,
 }: {
   records: RecordsStore;
   record: RecordRow;
   entry: RecordChipEntry;
+  onEditingChange: (open: boolean) => void;
   onOpenRecord: (ref: RecordRef) => void;
 }) {
   const { column } = entry;
-  const chip = <RecordPropertyChipView entry={entry} presentation={records.presentation} record={record} />;
+  const assigneesEditable = column.id === "system:assignedTo" && canEditAssignees(records, record);
+  const chip = (
+    <RecordPropertyChipView
+      entry={entry}
+      inTrigger={assigneesEditable}
+      presentation={records.presentation}
+      record={record}
+    />
+  );
+  if (assigneesEditable) {
+    return (
+      <RecordInlineAssignees record={record} records={records} onOpenChange={onEditingChange}>
+        {chip}
+      </RecordInlineAssignees>
+    );
+  }
   if (column.kind === "field") {
     const field = column.field;
     if (!canEditInline(records, record, field) || field.valueType === "boolean") return chip;
     if (CONTACT_VALUE_TYPES.includes(field.valueType)) return chip;
     return (
-      <RecordInlineField field={field} record={record} records={records}>
+      <RecordInlineField field={field} record={record} records={records} onOpenChange={onEditingChange}>
         {chip}
       </RecordInlineField>
     );
@@ -88,6 +108,7 @@ function editableAddColumns(
 ) {
   const emptyIds = new Set(empty.map((column) => column.id));
   return columns.filter((column) => {
+    if (column.id === "system:assignedTo") return emptyIds.has(column.id) && canEditAssignees(records, record);
     if (column.kind === "field") {
       if (!canEditInline(records, record, column.field)) return false;
       return (
@@ -115,9 +136,15 @@ const AddPropertyChip = observer(function AddPropertyChip({
 }) {
   const t = useTranslations();
   const [editing, setEditing] = useState<RecordChipColumn | null>(null);
+  const dismissGuard = useOwnOverlayDismissGuard();
   const { linkIcons } = records.presentation;
+  if (!columns.length && !editing) return null;
   return (
-    <Popover modal open={editing !== null} onOpenChange={(open) => !open && setEditing(null)}>
+    <Popover
+      modal
+      open={editing !== null}
+      onOpenChange={(open) => !open && !dismissGuard.shouldKeepOpen() && setEditing(null)}
+    >
       <DropdownMenu>
         <PopoverAnchor asChild>
           <DropdownMenuTrigger asChild>
@@ -150,15 +177,17 @@ const AddPropertyChip = observer(function AddPropertyChip({
         onClick={(event) => event.stopPropagation()}
         onOpenAutoFocus={focusFirstControl}
       >
-        {editing && (
-          <RecordPropertyEditor
-            column={editing}
-            record={record}
-            records={records}
-            onDone={() => setEditing(null)}
-            onOpenRecord={onOpenRecord}
-          />
-        )}
+        <OverlayDismissGuardContext.Provider value={dismissGuard.guard}>
+          {editing && (
+            <RecordPropertyEditor
+              column={editing}
+              record={record}
+              records={records}
+              onDone={() => setEditing(null)}
+              onOpenRecord={onOpenRecord}
+            />
+          )}
+        </OverlayDismissGuardContext.Provider>
       </PopoverContent>
     </Popover>
   );
@@ -175,20 +204,26 @@ const RecordChipRow = observer(function RecordChipRow({
   columns: RecordChipColumn[];
   onOpenRecord: (ref: RecordRef) => void;
 }) {
-  const { entries, empty } = recordChipRowModel(columns, record);
+  const [editingColumn, setEditingColumn] = useState<string | null>(null);
+  const model = recordChipRowModel(columns, record, { keepEmpty: true });
+  const entries = model.entries.filter((entry) => !entry.empty || entry.column.id === editingColumn);
+  const empty = model.empty;
   const addable = editableAddColumns(records, record, columns, empty);
-  if (!entries.length && !addable.length) return null;
   return (
     <DataViewItemLayout.Provider value="card">
       <RecordChipList
         entries={entries}
         renderChip={(entry) => (
-          <PropertyChip entry={entry} record={record} records={records} onOpenRecord={onOpenRecord} />
+          <PropertyChip
+            entry={entry}
+            record={record}
+            records={records}
+            onEditingChange={(open) => setEditingColumn(open ? entry.column.id : null)}
+            onOpenRecord={onOpenRecord}
+          />
         )}
       >
-        {addable.length > 0 && (
-          <AddPropertyChip columns={addable} record={record} records={records} onOpenRecord={onOpenRecord} />
-        )}
+        <AddPropertyChip columns={addable} record={record} records={records} onOpenRecord={onOpenRecord} />
       </RecordChipList>
     </DataViewItemLayout.Provider>
   );
@@ -205,6 +240,7 @@ export const RecordCardContent = observer(function RecordCardContent({
   title: ReactNode;
   onOpenRecord: (ref: RecordRef) => void;
 }) {
+  const [editingExcerpt, setEditingExcerpt] = useState<string | null>(null);
   const byId = new Map(records.recordColumns.map((column) => [column.id, column]));
   const hidden = new Set([
     records.primaryColumnId,
@@ -220,8 +256,9 @@ export const RecordCardContent = observer(function RecordCardContent({
   const excerpts = columns.flatMap((column) => {
     if (column.kind !== "field" || !isFormattedText(column)) return [];
     const result = record.fields.find((value) => value.fieldId === column.field.id)?.result;
-    if (result?.state !== "value" || result.value.kind !== "richText") return [];
-    return formattedTextExcerpt(result.value.documentJson) ? [{ field: column.field, result }] : [];
+    const hasExcerpt =
+      result?.state === "value" && result.value.kind === "richText" && formattedTextExcerpt(result.value.documentJson);
+    return hasExcerpt || editingExcerpt === column.id ? [{ field: column.field, result }] : [];
   });
   return (
     <div className="space-y-2">
@@ -229,12 +266,25 @@ export const RecordCardContent = observer(function RecordCardContent({
 
       {excerpts.map(({ field, result }) => (
         <div key={field.id} className="text-xs" data-card-excerpt={field.id}>
-          <RecordValue wrap field={field} result={result} />
+          {canEditInline(records, record, field) ? (
+            <RecordInlineField
+              field={field}
+              record={record}
+              records={records}
+              onOpenChange={(open) => setEditingExcerpt(open ? field.id : null)}
+            >
+              <RecordValue wrap field={field} result={result} />
+            </RecordInlineField>
+          ) : (
+            <RecordValue wrap field={field} result={result} />
+          )}
         </div>
       ))}
 
       <RecordChipRow
-        columns={columns.filter((column) => !isFormattedText(column))}
+        columns={columns.filter(
+          (column) => !isFormattedText(column) || recordChipRowModel([column], record).empty.length > 0,
+        )}
         record={record}
         records={records}
         onOpenRecord={onOpenRecord}

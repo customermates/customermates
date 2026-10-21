@@ -3829,6 +3829,7 @@ test("lets a read-only member pin and unpin header fields with the pin menu", as
   const reader = await secondaryUser(browser, database, companyId, role.role.id, testInfo);
   try {
     await reader.page.goto(`/en/records/${contactTypeId}`);
+    await expect(reader.page.getByRole("button", { name: "Edit Assigned to", exact: true })).toHaveCount(0);
     await openRecordDetails(reader.page, `${firstName} Reader`);
     const drawer = reader.page.getByRole("dialog", { name: "Contact", exact: true });
     const menu = drawer.getByRole("button", { name: "Pin or unpin fields", exact: true });

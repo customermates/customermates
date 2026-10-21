@@ -315,7 +315,8 @@ const DetailChip = observer(function DetailChip({
     );
   }
   if (column.id === "system:assignedTo") {
-    if (!entry.empty) {
+    const canEdit = editable && !store.type?.embedded;
+    if (!entry.empty && !canEdit) {
       return (
         <AppChipStack
           items={row.assignedUsers.map((member) => ({
@@ -327,10 +328,14 @@ const DetailChip = observer(function DetailChip({
         />
       );
     }
-    const placeholder = <PlaceholderChip column={column} store={store} />;
-    if (!editable) return placeholder;
+    const chip = entry.empty ? (
+      <PlaceholderChip column={column} store={store} />
+    ) : (
+      <RecordPropertyChipView inTrigger entry={entry} presentation={store.presentation} record={row} />
+    );
+    if (!canEdit) return chip;
     return (
-      <ChipPopover chip={placeholder} label={column.label} open={open} onOpenChange={setOpen}>
+      <ChipPopover chip={chip} label={column.label} open={open} onOpenChange={setOpen}>
         <EditorHeading label={column.label} />
 
         <AssigneeEditor label={column.label} store={store} />

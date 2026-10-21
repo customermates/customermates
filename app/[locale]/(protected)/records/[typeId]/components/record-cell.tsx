@@ -95,6 +95,7 @@ export function RecordCell({
             startContent: <MemberAvatar member={member} />,
           }))}
           maxWidth={LINKED_CHIPS_MAX_WIDTH}
+          overflowMenu={!inTrigger}
         />
       ) : (
         empty

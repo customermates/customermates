@@ -33,7 +33,10 @@ import { ResponsiveOverlay } from "@/components/modal/responsive-overlay";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { AppFormProvider } from "@/components/forms/form-context";
+import { AppForm, AppFormProvider } from "@/components/forms/form-context";
+import { BaseFormStore } from "@/core/base/base-form.store";
+import { FormAutocompleteAvatar } from "@/components/forms/form-autocomplete-avatar";
+import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
 import { toChipColor } from "@/constants/chip-colors";
 import { isInteractiveClick } from "@/components/data-view/is-interactive-click";
@@ -43,6 +46,8 @@ import { cn } from "@/core/utils/cn";
 import { ITEM_REVEAL_CLASS } from "@/components/ui/item-actions";
 import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { actionData } from "@/core/utils/action-data";
+import { getActiveUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { useRecordValueFormat } from "@/components/records/record-value";
@@ -78,9 +83,13 @@ export function focusFirstControl(event: Event) {
 
 export function canEditInline(store: RecordsStore, record: RecordRow, field: RecordFieldView) {
   if (!store.canUpdateRecord(record) || !isRecordFieldWritable(field)) return false;
-  if (field.id === store.type?.primaryFieldId || field.valueType === "richText") return false;
+  if (field.id === store.type?.primaryFieldId) return false;
   const result = record.fields.find((value) => value.fieldId === field.id)?.result;
   return result?.state !== "restricted" && result?.state !== "error";
+}
+
+export function canEditAssignees(records: RecordsStore, record: RecordRow) {
+  return records.canUpdateRecord(record) && !records.type?.embedded;
 }
 
 export function isCalculatedField(store: RecordsStore, field: RecordFieldView) {
@@ -192,7 +201,7 @@ function useFieldValueStore(records: RecordsStore, record: RecordRow, field: Rec
       records.rootStore,
       field,
       recordDraftValue(result?.state === "value" ? result.value : null),
-      (value) => records.updateRecordField(latestRow(records, record), field.id, value),
+      (value) => records.updateRecordField(record, field.id, value),
       onDone,
     );
   });
@@ -213,6 +222,103 @@ const InlineFieldForm = observer(function InlineFieldForm({
   const store = useFieldValueStore(records, record, field, onDone);
   return (
     <RecordFieldValueEditor saveOnDatePick label={null} members={record.memberUsers} store={store} onCancel={onDone} />
+  );
+});
+
+class InlineAssigneesStore extends BaseFormStore<{ assignedUserIds: string[] }> {
+  constructor(
+    private readonly records: RecordsStore,
+    private readonly record: RecordRow,
+    private readonly onDone: () => void,
+  ) {
+    super(records.rootStore, { assignedUserIds: [...record.assignedUserIds] });
+  }
+  onSubmit = async () => {
+    if (this.isReadOnly || this.isLoading) return;
+    this.setIsLoading(true);
+    try {
+      const outcome = await this.records.updateRecordAssignees(this.record, [...this.form.assignedUserIds]);
+      if (outcome.saved) this.onDone();
+      else if (outcome.invalid?.length) this.setError({ errors: outcome.invalid });
+    } finally {
+      this.setIsLoading(false);
+    }
+  };
+}
+
+const InlineAssigneesForm = observer(function InlineAssigneesForm({
+  records,
+  record,
+  onDone,
+}: {
+  records: RecordsStore;
+  record: RecordRow;
+  onDone: () => void;
+}) {
+  const t = useTranslations();
+  const inputId = useId();
+  const [store] = useState(() => new InlineAssigneesStore(records, record, onDone));
+  return (
+    <AppForm store={store}>
+      <div className="space-y-3">
+        <FormAutocompleteAvatar
+          ariaLabel={t("RecordModel.assignedTo")}
+          getItems={(params) => actionData(getActiveUsersAction(params))}
+          id="assignedUserIds"
+          inputId={inputId}
+          items={record.assignedUsers}
+          label={null}
+          selectionMode="multiple"
+        />
+
+        <FormFooterActions placement="overlay" store={store} onCancel={onDone} onSave={store.onSubmit} />
+      </div>
+    </AppForm>
+  );
+});
+
+export const RecordInlineAssignees = observer(function RecordInlineAssignees({
+  records,
+  record,
+  children,
+  onOpenChange,
+}: {
+  records: RecordsStore;
+  record: RecordRow;
+  children: ReactNode;
+  onOpenChange?: (open: boolean) => void;
+}) {
+  const t = useTranslations();
+  const [open, setIsOpen] = useState(false);
+  const setOpen = (value: boolean) => {
+    setIsOpen(value);
+    onOpenChange?.(value);
+  };
+  const label = t("RecordModel.assignedTo");
+  return (
+    <ResponsiveOverlay
+      open={open}
+      popoverClassName="w-80"
+      title={label}
+      trigger={
+        <button
+          aria-label={t("RecordModel.editValue", { field: label })}
+          className={EDIT_TARGET_CLASS}
+          data-edit-target=""
+          data-inline-edit="system:assignedTo"
+          type="button"
+          {...selectionHandlers(records, record)}
+        >
+          {record.assignedUserIds.length ? children : <EmptyValueTarget />}
+        </button>
+      }
+      onOpenAutoFocus={focusFirstControl}
+      onOpenChange={setOpen}
+    >
+      <div className="space-y-2 px-3 pb-3 max-md:px-4">
+        {open && <InlineAssigneesForm record={record} records={records} onDone={() => setOpen(false)} />}
+      </div>
+    </ResponsiveOverlay>
   );
 });
 
@@ -459,28 +565,35 @@ const PopoverField = observer(function PopoverField({
   record,
   field,
   children,
+  onOpenChange,
 }: {
   records: RecordsStore;
   record: RecordRow;
   field: RecordFieldView;
   children: ReactNode;
+  onOpenChange?: (open: boolean) => void;
 }) {
   const t = useTranslations();
   const layout = useDataViewItemLayout();
-  const [open, setOpen] = useState(false);
+  const [open, setIsOpen] = useState(false);
+  const setOpen = (value: boolean) => {
+    setIsOpen(value);
+    onOpenChange?.(value);
+  };
   const empty = isEmptyResult(fieldResult(record, field));
   const contact = CONTACT_VALUE_TYPES.includes(field.valueType) && !empty;
+  const separateAction = contact || field.valueType === "richText";
   const label = t("RecordModel.editValue", { field: field.label });
   const trigger = (
     <button
       aria-label={label}
-      className={contact ? EDIT_SPACE_BUTTON_CLASS : EDIT_TARGET_CLASS}
+      className={separateAction ? EDIT_SPACE_BUTTON_CLASS : EDIT_TARGET_CLASS}
       data-edit-target=""
       data-inline-edit={field.id}
       type="button"
       {...selectionHandlers(records, record)}
     >
-      {contact ? (
+      {separateAction ? (
         t("RecordModel.edit")
       ) : empty ? (
         <EmptyValueTarget />
@@ -492,18 +605,18 @@ const PopoverField = observer(function PopoverField({
   return (
     <ResponsiveOverlay
       anchor={
-        contact
+        separateAction
           ? (editTrigger) => (
               <span
                 className={cn(
                   EDIT_SURFACE_CLASS,
                   "flex min-h-6 min-w-0 items-center",
-                  layout === "row" && "cursor-text",
+                  contact && layout === "row" && "cursor-text",
                 )}
-                data-inline-edit-space={layout === "row" ? field.id : undefined}
+                data-inline-edit-space={contact && layout === "row" ? field.id : undefined}
                 role="presentation"
                 onClick={(event: MouseEvent<HTMLSpanElement>) => {
-                  if (layout !== "row" || records.selectedIds.size > 0 || isInteractiveClick(event)) return;
+                  if (!contact || layout !== "row" || records.selectedIds.size > 0 || isInteractiveClick(event)) return;
                   event.stopPropagation();
                   setOpen(true);
                 }}
@@ -534,11 +647,13 @@ export const RecordInlineField = observer(function RecordInlineField({
   record,
   field,
   children,
+  onOpenChange,
 }: {
   records: RecordsStore;
   record: RecordRow;
   field: RecordFieldView;
   children: ReactNode;
+  onOpenChange?: (open: boolean) => void;
 }) {
   const layout = useDataViewItemLayout();
   if (field.valueType === "select" && !field.multiple) {
@@ -557,7 +672,7 @@ export const RecordInlineField = observer(function RecordInlineField({
     );
   }
   return (
-    <PopoverField field={field} record={record} records={records}>
+    <PopoverField field={field} record={record} records={records} onOpenChange={onOpenChange}>
       {children}
     </PopoverField>
   );
@@ -884,6 +999,9 @@ export const RecordPropertyEditor = observer(function RecordPropertyEditor({
   onDone: () => void;
   onOpenRecord: (ref: RecordRef) => void;
 }) {
+  if (column.id === "system:assignedTo")
+    return <InlineAssigneesForm record={record} records={records} onDone={onDone} />;
+
   if (column.kind === "relationship") {
     return (
       <InlineRelationshipPicker

@@ -136,3 +136,26 @@ describe("record chip row model", () => {
     ).toHaveLength(1);
   });
 });
+
+it("keeps blank formatted documents addable while showing nonempty formatted notes", () => {
+  const notes = field("notes", "Notes", "richText");
+  for (const text of ["", "   ", "A note"]) {
+    const record = row({
+      fields: [
+        {
+          fieldId: notes.id,
+          result: value({
+            kind: "richText",
+            documentJson: JSON.stringify({
+              type: "doc",
+              content: [{ type: "paragraph", content: text ? [{ type: "text", text }] : [] }],
+            }),
+          }),
+        },
+      ],
+    });
+    const model = recordChipRowModel([notes], record);
+    expect(model.empty.map((column) => column.id)).toEqual(text.trim() ? [] : [notes.id]);
+    expect(model.entries.map((entry) => entry.column.id)).toEqual(text.trim() ? [notes.id] : []);
+  }
+});

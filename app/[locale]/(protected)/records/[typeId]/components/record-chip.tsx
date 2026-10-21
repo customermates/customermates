@@ -154,10 +154,12 @@ export const RecordPropertyChipView = observer(function RecordPropertyChipView({
   presentation,
   record,
   entry,
+  inTrigger = false,
 }: {
   presentation: ChipPresentation;
   record: RecordRow;
   entry: RecordChipEntry;
+  inTrigger?: boolean;
 }) {
   const t = useTranslations();
   const intl = useHydratedIntlStore();
@@ -247,6 +249,7 @@ export const RecordPropertyChipView = observer(function RecordPropertyChipView({
             label: memberName(member),
             startContent: <MemberAvatar member={member} />,
           }))}
+          overflowMenu={!inTrigger}
         />
       </FieldTooltip>
     );

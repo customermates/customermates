@@ -356,3 +356,22 @@ export function recordLinkLabels(types: RecordType[], relationships: RecordRelat
 export function recordLinkColor(colors: RecordLinkColors, typeId: string) {
   return toChipColor(colors[typeId]);
 }
+
+type FormattedTextNode = { type?: string; text?: string; content?: FormattedTextNode[] };
+
+export function formattedTextExcerpt(documentJson: string) {
+  const blocks: string[] = [];
+  const visit = (node: FormattedTextNode) => {
+    if (node.content?.some((child) => child.type === "text")) {
+      blocks.push(node.content.map((child) => child.text ?? "").join(""));
+      return;
+    }
+    node.content?.forEach(visit);
+  };
+  visit(JSON.parse(documentJson) as FormattedTextNode);
+  return blocks
+    .map((block) => block.trim())
+    .filter(Boolean)
+    .join(" ")
+    .replace(/\s+/g, " ");
+}

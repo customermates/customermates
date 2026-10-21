@@ -84,6 +84,54 @@ function store() {
 }
 beforeEach(() => vi.resetAllMocks());
 
+describe("inline record assignments", () => {
+  it("uses the versioned record mutation and invalidates the workspace after assigning members", async () => {
+    const state = store();
+    const assignedUserIds = [randomUUID(), randomUUID()];
+    mocks.mutateRecordAction.mockResolvedValue({
+      ok: true,
+      data: { status: "completed", refs: [item.ref], schemaRevision: 1 },
+    });
+
+    expect(await state.updateRecordAssignees({ ...item, version: 7 }, assignedUserIds)).toEqual({ saved: true });
+
+    expect(mocks.mutateRecordAction).toHaveBeenCalledExactlyOnceWith({
+      expectedRevision: model.revision,
+      idempotencyKey: expect.any(String),
+      mutation: {
+        action: "update",
+        ref: item.ref,
+        expectedVersion: 7,
+        fields: [],
+        assignedUserIds,
+      },
+    });
+    expect(mocks.invalidate).toHaveBeenCalledOnce();
+  });
+
+  it("refuses assignment changes without update permission", async () => {
+    const state = store();
+    state.presentation = { ...presentation, permittedActions: ["readAll"] };
+
+    expect(await state.updateRecordAssignees(item, [])).toEqual({ saved: false });
+    expect(mocks.mutateRecordAction).not.toHaveBeenCalled();
+  });
+
+  it("keeps a rejected assignment unsaved and returns the server validation message", async () => {
+    const state = store();
+    mocks.mutateRecordAction.mockResolvedValue({
+      ok: false,
+      failure: { kind: "validation", issues: [{ message: "Choose an active workspace member." }] },
+    });
+
+    expect(await state.updateRecordAssignees(item, [randomUUID()])).toEqual({
+      saved: false,
+      invalid: ["Choose an active workspace member."],
+    });
+    expect(mocks.invalidate).not.toHaveBeenCalled();
+  });
+});
+
 describe("generic board persistence", () => {
   it("constructs the inherited MobX store and preserves a bound generic mutation handler", async () => {
     const state = store();
