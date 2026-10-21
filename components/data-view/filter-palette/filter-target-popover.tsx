@@ -127,31 +127,35 @@ export const FilterTargetPopover = observer(function FilterTargetPopover({
   );
 
   const footer = (
-    <>
-      {palette.isAtFilterLimit && (
-        <p aria-live="polite" className="mr-auto text-xs text-muted-foreground" role="status">
-          {t("Common.filters.palette.limitReached", {
-            count: palette.activeTarget?.maxFilters ?? MAX_APPLIED_FILTERS,
-          })}
-        </p>
-      )}
+    <div className="flex w-full flex-col gap-2">
+      <div className="flex items-center justify-end gap-2">
+        {palette.isAtFilterLimit && (
+          <p aria-live="polite" className="mr-auto text-xs text-muted-foreground" role="status">
+            {t("Common.filters.palette.limitReached", {
+              count: palette.activeTarget?.maxFilters ?? MAX_APPLIED_FILTERS,
+            })}
+          </p>
+        )}
 
-      <Button
-        className="h-8"
-        disabled={
-          palette.isDisabled ||
-          (palette.appliedFilters.length === 0 && !palette.activeTarget?.groups?.length && !search?.term)
-        }
-        size="sm"
-        type="button"
-        variant="secondary"
-        onClick={handleClear}
-      >
-        {t("Common.actions.clear")}
-      </Button>
+        <Button
+          className="h-8"
+          disabled={
+            palette.isDisabled ||
+            (palette.appliedFilters.length === 0 && !palette.activeTarget?.groups?.length && !search?.term)
+          }
+          size="sm"
+          type="button"
+          variant="secondary"
+          onClick={handleClear}
+        >
+          {t("Common.actions.clear")}
+        </Button>
 
-      {footerAction}
-    </>
+        {footerAction}
+      </div>
+
+      {page.kind === "root" && notice}
+    </div>
   );
 
   const overlay = (
@@ -168,8 +172,6 @@ export const FilterTargetPopover = observer(function FilterTargetPopover({
       onOpenChange={handleOpenChange}
     >
       <div ref={contentRef}>
-        {page.kind === "root" && notice}
-
         <FilterPalette palette={palette} search={search} store={store} />
       </div>
     </ResponsiveOverlay>

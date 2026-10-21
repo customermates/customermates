@@ -4,7 +4,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { collectPageErrors, expect, test } from "./fixtures";
 import { secondUser } from "./second-user";
 import { openMenu, openSidebar } from "./sidebar";
-import { e2eAppMode } from "./workspace-switching";
+import { e2eAppMode, expectHydrated } from "./workspace-switching";
 
 test("settings live in one area reached from the workspace menu, with Back to the work page", async ({
   page,
@@ -156,6 +156,7 @@ test("profile settings show the unsaved-changes bar only while edits are pending
   await page.goto("/en/settings/profile");
   await page.waitForLoadState("networkidle");
   const firstName = page.locator("#settings-profile-first-name");
+  await expectHydrated(firstName);
   const bar = page.locator("[data-slot='unsaved-changes-bar']");
   const original = await firstName.inputValue();
   const edited = `${original} edited`;
@@ -179,12 +180,11 @@ test("profile settings show the unsaved-changes bar only while edits are pending
   await expect(page.locator("#nav-personal-menu")).toContainText(edited);
   await page.reload();
   await page.waitForLoadState("networkidle");
+  await expectHydrated(firstName);
   await expect(firstName).toHaveValue(edited);
 
-  await expect(async () => {
-    await firstName.fill(original);
-    await expect(bar).toBeVisible({ timeout: 2_000 });
-  }).toPass();
+  await firstName.fill(original);
+  await expect(bar).toBeVisible();
   await page.locator("#settings-profile-save").click();
   await expect(bar).toHaveCount(0);
   expect(errors).toEqual([]);
@@ -215,6 +215,7 @@ test("a member whose role has no Users & Roles access opens and saves Profile & 
     await member.page.goto("/en/settings/profile");
     await member.page.waitForLoadState("networkidle");
     const firstName = member.page.locator("#settings-profile-first-name");
+    await expectHydrated(firstName);
     await expect(firstName).toHaveValue("Second");
 
     await firstName.fill("Renamed");

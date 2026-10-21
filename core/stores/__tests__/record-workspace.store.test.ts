@@ -26,7 +26,11 @@ function fixture() {
     userStore,
     registerModalStore: vi.fn(),
     unregisterModalStore: vi.fn(),
-    navigationGuard: { tryNavigate: vi.fn((work: () => void) => work()) },
+    navigationGuard: {
+      tryNavigate: vi.fn((work: () => void) => work()),
+      register: vi.fn(),
+      unregister: vi.fn(),
+    },
   } as unknown as RootStore;
   const store = new RecordWorkspaceStore(root);
   const navigation: RecordNavigation = {
@@ -440,6 +444,87 @@ describe("record draft handoff", () => {
     expect(f.store.peekDraftHandoff(f.ref).draft?.form.values[f.fieldId]).toBe("Drawer draft");
   });
 
+  it("guards a queued draft after its drawer closes and releases it once the destination owns the draft", () => {
+    const f = editors();
+    const guard = new NavigationGuardController();
+    Object.assign(f.root, { navigationGuard: guard });
+    f.store.setEditor(f.drawer);
+    f.drawer.onChange(`values.${f.fieldId}`, "Drawer draft");
+    guard.register(f.drawer);
+    f.store.handOffDraft(f.drawer);
+    const queued = f.store.peekDraftHandoff(f.ref).queued;
+    if (!queued) throw new Error("Expected a queued draft");
+    f.store.close();
+    guard.unregister(f.drawer);
+    const navigate = vi.fn();
+    expect(guard.tryNavigate(navigate)).toBe(false);
+    guard.cancel();
+    expect(navigate).not.toHaveBeenCalled();
+    expect(f.store.peekDraftHandoff(f.ref).queued).toBe(queued);
+    f.page.restoreDraft(queued.draft, f.context, f.record(1, "Saved"));
+    guard.register(f.page);
+    f.store.acknowledgeDraftHandoff(queued);
+    expect(guard.isGuarding).toBe(true);
+    expect(f.store.peekDraftHandoff(f.ref).queued).toBeNull();
+    guard.unregister(f.page);
+    expect(guard.isGuarding).toBe(false);
+  });
+
+  it.each([false, true])(
+    "discards a queued draft while its destination is loading (embedded source: %s)",
+    (embedded) => {
+      const f = editors();
+      const guard = new NavigationGuardController();
+      Object.assign(f.root, { navigationGuard: guard });
+      if (!embedded) f.store.setEditor(f.drawer);
+      f.drawer.onChange(`values.${f.fieldId}`, "Drawer draft");
+      f.store.handOffDraft(f.drawer);
+      f.drawer.close();
+      const navigate = vi.fn();
+      expect(guard.tryNavigate(navigate)).toBe(false);
+      guard.confirm();
+      expect(navigate).toHaveBeenCalledOnce();
+      expect(f.store.peekDraftHandoff(f.ref).queued).toBeNull();
+      expect(f.drawer.hasUnsavedChanges).toBe(false);
+      expect(guard.isGuarding).toBe(false);
+    },
+  );
+
+  it("releases the previous handoff guard on replacement and actor changes", () => {
+    const f = editors();
+    const guard = new NavigationGuardController();
+    Object.assign(f.root, { navigationGuard: guard });
+    f.drawer.onChange(`values.${f.fieldId}`, "Drawer draft");
+    f.store.handOffDraft(f.drawer);
+    f.page.onChange(`values.${f.fieldId}`, "Replacement draft");
+    f.store.handOffDraft(f.page);
+    f.store.clearDraftHandoff();
+    expect(guard.isGuarding).toBe(false);
+    f.store.handOffDraft(f.page);
+    expect(guard.isGuarding).toBe(true);
+    runInAction(() => {
+      f.userStore.user = { id: randomUUID(), companyId: randomUUID() };
+    });
+    expect(guard.isGuarding).toBe(false);
+    expect(f.store.peekDraftHandoff(f.ref).queued).toBeNull();
+  });
+
+  it("leaves a replacement handoff intact when an older confirmation completes", () => {
+    const f = editors();
+    const guard = new NavigationGuardController();
+    Object.assign(f.root, { navigationGuard: guard });
+    f.drawer.onChange(`values.${f.fieldId}`, "Drawer draft");
+    f.store.handOffDraft(f.drawer);
+    f.page.onChange(`values.${f.fieldId}`, "Replacement draft");
+    expect(guard.tryNavigate(() => f.store.handOffDraft(f.page))).toBe(false);
+    guard.confirm();
+    expect(f.store.peekDraftHandoff(f.ref).draft?.form.values[f.fieldId]).toBe("Replacement draft");
+    expect(f.page.hasUnsavedChanges).toBe(true);
+    expect(guard.isGuarding).toBe(true);
+    f.store.clearDraftHandoff();
+    expect(guard.isGuarding).toBe(false);
+  });
+
   it("keeps a queued drawer draft until the page that read it acknowledges it", () => {
     const f = fixture();
     const ref = { typeId: f.context.typeId, recordId: randomUUID() };
@@ -449,6 +534,8 @@ describe("record draft handoff", () => {
       hasUnsavedChanges: true,
       savedState: { values: { a: "saved" } },
       form: { values: { a: "draft" } },
+      resetForm: vi.fn(),
+      close: vi.fn(),
     } as unknown as RecordEditorStore;
     f.store.handOffDraft(editor);
     const wrongRef = f.store.peekDraftHandoff({ ...ref, recordId: randomUUID() });

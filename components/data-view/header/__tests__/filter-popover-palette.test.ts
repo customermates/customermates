@@ -37,7 +37,19 @@ vi.mock("@/components/modal", () => ({
     footer: ReactNode;
     title: ReactNode;
     trigger: ReactNode;
-  }) => createElement("div", null, trigger, createElement("h2", null, title), footer, children),
+  }) =>
+    createElement(
+      "div",
+      null,
+      trigger,
+      createElement("h2", null, title),
+      createElement("div", { "data-slot": "overlay-footer" }, footer),
+      createElement("div", { "data-slot": "overlay-body" }, children),
+    ),
+}));
+vi.mock("@/components/forms/unsaved-changes-bar", () => ({
+  UnsavedChangesBar: () =>
+    createElement("div", { "data-slot": "unsaved-changes-bar" }, "Common.actions.cancel", "Common.actions.save"),
 }));
 vi.mock("@/components/data-view/filter-palette/filter-palette", () => ({
   FilterPalette: () => null,
@@ -90,6 +102,18 @@ function render(store: BaseDataViewStore<{ id: string }>, page: { kind: string; 
 }
 
 describe("filter popover", () => {
+  it("pins saved-view changes in the shared footer only on the root filter page", () => {
+    const store = dataViewStore();
+    Object.assign(store, { isViewModified: true });
+    const root = render(store);
+    expect(root).toMatch(/data-slot="overlay-footer"[^]*data-slot="unsaved-changes-bar"[^]*data-slot="overlay-body"/);
+    expect(root).not.toContain("data-view-changes-notice");
+    expect(root).not.toContain("Common.actions.reset");
+    const value = render(store, { kind: "value", field: CUSTOM_COLUMN_ID });
+    expect(value).not.toContain("unsaved-changes-bar");
+    expect(value).toContain("Common.actions.clear");
+  });
+
   it("offers no apply and no save action while filters are applied automatically", () => {
     const markup = render(dataViewStore([{ field: "name", operator: FilterOperatorKey.contains, value: "acme" }]));
 

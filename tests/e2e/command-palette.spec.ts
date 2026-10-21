@@ -279,7 +279,7 @@ test.describe("Ask Mate fallback", () => {
     await expect(page.locator("#global-data-views-menu")).toHaveAttribute("data-view-modified", "");
     await page.locator("#records-filter").click();
     await expect(page.locator("#records-filter-save")).toBeVisible();
-    await expect(page.locator("#records-filter-reset")).toBeVisible();
+    await expect(page.locator("#records-filter-cancel")).toBeVisible();
     await page.keyboard.press("Escape");
 
     const again = await openPalette(page);

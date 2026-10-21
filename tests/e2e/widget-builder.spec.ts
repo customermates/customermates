@@ -224,7 +224,7 @@ for (const action of ["outside", "save", "cancel"] as const) {
     }
     if (action === "save") await page.locator("#widget-modal-save").click();
     if (action === "cancel") {
-      await page.locator("#widget-modal-cancel").click();
+      await page.getByRole("dialog").getByRole("button", { name: "Close", exact: true }).click();
       await page.locator("#discard-changes").click();
     }
     await expect(page.getByRole("dialog")).toHaveCount(0);
@@ -315,7 +315,7 @@ for (const valueKind of ["decimal", "dateTime"] as const) {
       await expect(page.locator("#name")).toHaveValue(name + " changed");
       if (action === "outside") await page.locator("#name").click();
       if (action === "cancel") {
-        await page.locator("#widget-modal-cancel").click();
+        await page.getByRole("dialog").getByRole("button", { name: "Close", exact: true }).click();
         await page.locator("#discard-changes").click();
       } else await page.locator("#widget-modal-save").click();
       await expect(page.getByRole("dialog")).toHaveCount(0);

@@ -53,7 +53,7 @@ const RULE_OWNERS: Record<Rule, ReadonlySet<string>> = {
   "legacy-footer": new Set(),
 };
 
-const RENDERS_SHARED_FOOTER = /<FormFooterActions\b/;
+const RENDERS_SHARED_FOOTER = /<(?:FormFooterActions|UnsavedChangesBar)\b/;
 
 const EDITOR_RULES = new Set<Rule>(["footer-primitive", "submit-button", "overlay-footer"]);
 const SAVE_LIKE_LABEL = /^(?:Save|Update|Apply)(?: \S+){0,2}$/;
@@ -191,11 +191,13 @@ describe("footer actions follow one shared component (design rules 30, 31, 35)",
     const guarded = 'const dirty = store.hasUnsavedChanges;\n<DialogFooter>{t("Filters.clear")}</DialogFooter>';
     const cancelling = '<SheetFooter><Button>{t("Common.actions.cancel")}</Button></SheetFooter>';
     const confirm = 'import { AlertDialog } from "@/components/ui/alert-dialog";';
+    const floating = 'const dirty = store.hasUnsavedChanges; <ResponsiveOverlay footer={<UnsavedChangesBar />} />';
     expect(violatedRules("card.tsx", card, messages)).toEqual([]);
     expect(violatedRules("editor.tsx", editor, messages)).toEqual(["footer-primitive", "submit-button"]);
     expect(violatedRules("guarded.tsx", guarded, messages)).toEqual(["footer-primitive"]);
     expect(violatedRules("cancelling.tsx", cancelling, messages)).toEqual(["cancel-label", "footer-primitive"]);
     expect(violatedRules("confirm.tsx", confirm, messages)).toEqual(["confirm-primitive"]);
+    expect(violatedRules("floating.tsx", floating, messages)).toEqual([]);
   });
 });
 

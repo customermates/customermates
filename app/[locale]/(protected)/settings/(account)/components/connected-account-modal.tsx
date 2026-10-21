@@ -14,7 +14,7 @@ import { SegmentedControl, SegmentedControlPanel } from "@/components/ui/segment
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { AppModal, type AppModalActionProps, type AppModalActions } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
-import { FormFooterActions } from "@/components/forms/form-footer-actions";
+import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -125,7 +125,7 @@ export const ConnectedAccountModal = observer(() => {
       store={connectedAccountModalStore}
       title={title}
     >
-      <AppCard>
+      <AppCard className="relative">
         <AppCardHeader>
           <div className="flex min-w-0 items-center gap-2">
             <ProviderIcon className="size-4 shrink-0" />
@@ -134,7 +134,7 @@ export const ConnectedAccountModal = observer(() => {
           </div>
         </AppCardHeader>
 
-        <AppCardBody>
+        <AppCardBody className="pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]">
           <SegmentedControl
             className="min-w-0 gap-0"
             idPrefix="connected-account"
@@ -265,7 +265,7 @@ export const ConnectedAccountModal = observer(() => {
         </AppCardBody>
 
         {showEmailTab && activeTab === "email" && (
-          <FormFooterActions
+          <UnsavedChangesBar
             anchorScope="connected-account-email"
             formId={ACCOUNT_EMAIL_FORM_ID}
             store={connectedAccountModalStore.signatureStore}

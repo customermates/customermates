@@ -55,6 +55,14 @@ type Props = {
 
 const WIDGET_FOCUS_KINDS: FocusKind[] = ["widget"];
 
+function layoutGeometry(layout: Layout) {
+  return JSON.stringify(
+    [...layout]
+      .sort((left, right) => (left.i < right.i ? -1 : left.i > right.i ? 1 : 0))
+      .map(({ i, x, y, w, h }) => ({ i, x, y, w, h })),
+  );
+}
+
 const DashboardPageViewContent = observer(function DashboardPageView({ dashboard, recordTypes }: Props) {
   const { widgetModalStore, widgetsStore, recordWorkspaceStore } = useRootStore();
   const { items, layouts } = widgetsStore;
@@ -79,6 +87,15 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
   useEffect(() => connectDataViewUrlSync(widgetsStore), [widgetsStore]);
 
   const gridHost = useRef<HTMLDivElement>(null);
+  const layoutEditStart = useRef<string | null>(null);
+  const layoutEdited = useRef(false);
+  const handleLayoutStart = useCallback((layout: Layout) => {
+    layoutEditStart.current = layoutGeometry(layout);
+  }, []);
+  const handleLayoutEdit = useCallback((layout: Layout) => {
+    layoutEdited.current = layoutEditStart.current !== null && layoutEditStart.current !== layoutGeometry(layout);
+    layoutEditStart.current = null;
+  }, []);
   useEffect(() => {
     const host = gridHost.current;
     if (!host || typeof ResizeObserver === "undefined") return;
@@ -233,9 +250,15 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
           margin={[DASHBOARD_GRID_MARGIN, DASHBOARD_GRID_MARGIN]}
           resizeHandles={["n", "s", "e", "w", "ne", "nw", "se", "sw"]}
           rowHeight={DASHBOARD_ROW_HEIGHT}
-          onLayoutChange={(layout: Layout, nextLayouts: ResponsiveLayouts) =>
-            widgetsStore.onLayoutChange(layout, nextLayouts)
-          }
+          onDragStart={handleLayoutStart}
+          onDragStop={handleLayoutEdit}
+          onLayoutChange={(layout: Layout, nextLayouts: ResponsiveLayouts) => {
+            if (!layoutEdited.current) return;
+            layoutEdited.current = false;
+            widgetsStore.onLayoutChange(layout, nextLayouts);
+          }}
+          onResizeStart={handleLayoutStart}
+          onResizeStop={handleLayoutEdit}
         >
           {items.map((widget) => (
             <div

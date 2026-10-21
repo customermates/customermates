@@ -26,6 +26,8 @@ test("keeps an Untitled title column that opens the record after the only name f
     await expect(title).toHaveText("Untitled Organization");
   }
   await openRecordLink(page.getByRole("link", { name: "Untitled Organization", exact: true }).first());
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await page.getByRole("dialog").getByRole("link", { name: "Open page", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/records/${typeId}/[0-9a-f-]{36}$`));
   await expect(page.getByRole("navigation", { name: "Breadcrumb" })).toContainText("Untitled Organization");
 });

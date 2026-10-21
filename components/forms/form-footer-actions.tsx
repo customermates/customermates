@@ -30,6 +30,7 @@ type FormFooterReset = {
 type Props = {
   store?: BaseFormStore | null;
   editable?: boolean;
+  creating?: boolean;
   dirty?: boolean;
   saving?: boolean;
   formId?: string;
@@ -46,6 +47,7 @@ export const FormFooterActions = observer(
   ({
     store: storeProp,
     editable,
+    creating = false,
     dirty: dirtyProp,
     saving: savingProp,
     formId,
@@ -64,15 +66,16 @@ export const FormFooterActions = observer(
     const containerRef = useRef<HTMLDivElement>(null);
     const saveButtonRef = useRef<HTMLButtonElement>(null);
     const [confirmingDiscard, setConfirmingDiscard] = useState(false);
-    const store = storeProp ?? contextStore;
+    const store = storeProp === undefined ? contextStore : storeProp;
 
     const isEditable = editable ?? (store ? store.canManage && !store.isReadOnly : true);
     const dirty = dirtyProp ?? store?.hasUnsavedChanges ?? false;
     const saving = savingProp ?? store?.isLoading ?? false;
     const isTopBar = placement === "topbar";
     const cancel = onRevert ?? onCancelProp ?? (isTopBar ? undefined : modalClose?.requestClose);
+    const dismiss = onCancelProp ?? (onRevert ? undefined : cancel);
     const cancelIsGuarded = !onRevert && !onCancelProp && Boolean(modalClose?.guardsUnsavedChanges);
-    const confirmsLocally = Boolean(cancel) && !onRevert && !cancelIsGuarded && !store;
+    const confirmsLocally = Boolean(dismiss) && !cancelIsGuarded && !store;
     const reset =
       resetProp ?? (!cancel && store ? { differs: store.hasUnsavedChanges, onReset: store.resetForm } : undefined);
 
@@ -90,7 +93,13 @@ export const FormFooterActions = observer(
       saveButtonRef,
       formId,
       interceptDismiss: () => {
-        if (!cancel || onRevert || cancelIsGuarded || !dirty) return false;
+        if (!dirty || cancelIsGuarded) return false;
+        if (onRevert) {
+          if (!confirmsLocally) return false;
+          setConfirmingDiscard(true);
+          return true;
+        }
+        if (!cancel) return false;
         requestCancel();
         return true;
       },
@@ -153,13 +162,13 @@ export const FormFooterActions = observer(
           </Button>
         )}
 
-        {(!isTopBar || dirty || saving) && (
+        {(!isTopBar || creating || dirty || saving) && (
           <Button
             ref={saveButtonRef}
             aria-busy={saving || undefined}
             aria-label={isTopBar ? (saveLabel ?? t("Common.actions.save")) : undefined}
             className={buttonClassName}
-            disabled={!dirty || saving}
+            disabled={(!creating && !dirty) || saving}
             form={onSave ? undefined : formId}
             id={anchor("save")}
             size={buttonSize}
@@ -177,13 +186,13 @@ export const FormFooterActions = observer(
           </Button>
         )}
 
-        {cancel && confirmsLocally && (
+        {dismiss && confirmsLocally && (
           <DiscardChangesDialog
             open={confirmingDiscard}
             onCancel={() => setConfirmingDiscard(false)}
             onConfirm={() => {
               setConfirmingDiscard(false);
-              cancel();
+              dismiss();
             }}
           />
         )}

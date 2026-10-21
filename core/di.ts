@@ -676,7 +676,7 @@ const entityTrashHandlers = (companyId?: string) => {
         kind: "widget",
         restoreOrder: 3,
         visibility: visibility.owned("widget"),
-        blockers: new WidgetTrashBlockers(widgets),
+        blockers: new WidgetTrashBlockers(widgets, createPrismaRecordRepo(companyId, getBackgroundTaskService())),
       },
       widgets,
       trash,

@@ -109,11 +109,13 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
   setTrash = (trash: TrashedRecordInfo | null) => {
     this.trash = trash;
   };
-  captureNavigationDiscard = () => () => {
-    if (this.rootStore.recordWorkspaceStore?.editor !== this) return;
-    this.rootStore.recordWorkspaceStore.clearDraftHandoff();
-    this.resetForm();
-    this.close();
+  captureNavigationDiscard = () => {
+    const session = this.sessionGeneration;
+    return () => {
+      if (session !== this.sessionGeneration || this.rootStore.recordWorkspaceStore?.editor !== this) return;
+      this.resetForm();
+      this.close();
+    };
   };
   get sessionKey() {
     return this.sessionGeneration;

@@ -1,5 +1,6 @@
 import { action, makeObservable, observable, reaction, runInAction, toJS } from "mobx";
 import type { RootStore } from "./root.store";
+import type { NavigationGuardState } from "./navigation-guard.controller";
 import type { RecordNavigation } from "@/features/records/record-navigation.schema";
 import type { RecordDto, RecordRef, RecordScalar } from "@/features/records/record-model.schema";
 import type { RecordEditorContext } from "@/features/records/get-record-editor.interactor";
@@ -38,6 +39,7 @@ export class RecordWorkspaceStore {
   private readyRoutes = observable.map<string, number>();
   private detailLayouts = new Map<string, RecordDetailLayoutStore>();
   private draftHandoff: QueuedRecordDraftHandoff | null = null;
+  private draftHandoffGuard: NavigationGuardState | null = null;
   private pageEditor: {
     editor: RecordEditorStore;
     actorScope: string | null;
@@ -64,7 +66,7 @@ export class RecordWorkspaceStore {
           this.root.navigationGuard.unregister(layout);
         }
         this.detailLayouts.clear();
-        this.draftHandoff = null;
+        this.clearDraftHandoff();
         this.pageEditor = null;
         this.close();
         this.setEditor(null);
@@ -196,10 +198,31 @@ export class RecordWorkspaceStore {
         page.resetForm();
         page.receiveLatest({ ...latest.presentation, record: latest.record });
       }
-      this.draftHandoff = null;
+      this.clearDraftHandoff();
       return true;
     }
+    this.clearDraftHandoff();
     this.draftHandoff = handoff;
+    if (handoff) {
+      const sourceForm = editor.form;
+      this.draftHandoffGuard = {
+        get withUnsavedChangesGuard() {
+          return editor.withUnsavedChangesGuard;
+        },
+        hasUnsavedChanges: true,
+        get isLoading() {
+          return editor.isLoading;
+        },
+        captureNavigationDiscard: () => () => {
+          if (this.draftHandoff !== handoff) return;
+          this.clearDraftHandoff();
+          if (editor.form !== sourceForm) return;
+          editor.resetForm();
+          editor.close();
+        },
+      };
+      this.root.navigationGuard.register(this.draftHandoffGuard);
+    }
     return true;
   };
 
@@ -212,13 +235,16 @@ export class RecordWorkspaceStore {
 
   clearDraftHandoff = () => {
     this.draftHandoff = null;
+    const guard = this.draftHandoffGuard;
+    this.draftHandoffGuard = null;
+    if (guard) this.root.navigationGuard.unregister(guard);
   };
 
   acknowledgeDraftHandoff = (queued: QueuedRecordDraftHandoff | null) => {
     if (queued && this.draftHandoff === queued && queued.actorScope === this.actorScope) {
-      this.draftHandoff = null;
-      this.editor?.resetForm();
-      this.close();
+      const releaseSource = this.draftHandoffGuard?.captureNavigationDiscard?.();
+      if (releaseSource) releaseSource();
+      else this.clearDraftHandoff();
     }
   };
 

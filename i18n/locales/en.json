@@ -2206,8 +2206,7 @@
       "pickerTitle": "Switch view",
       "railLabel": "Saved views",
       "recordCount": "{count, plural, one {# record} other {# records}}",
-      "resetChanges": "Reset changes",
-      "unsavedChangesNotice": "Unsaved changes to this view"
+      "resetChanges": "Reset changes"
     }
   },
   "Diagrams": {
@@ -3590,7 +3589,8 @@
         "webhookPaused": "{count, plural, one {The webhook {consumers} is paused, because {target} was its only trigger. Choose a new trigger before turning it back on.} other {# webhooks are paused, because {target} was their only trigger: {consumers}. Choose a new trigger before turning them back on.}}",
         "webhookTrigger": "{count, plural, one {{target} is removed from the trigger of the webhook {consumers}.} other {{target} is removed from the trigger of # webhooks: {consumers}.}}",
         "widget": "{count, plural, one {{target} is removed from the filters or grouping of the widget {consumers}.} other {{target} is removed from the filters or grouping of # widgets: {consumers}.}}",
-        "widgetCount": "{count, plural, one {The widget {consumers} counts records instead of measuring {target}.} other {# widgets count records instead of measuring {target}: {consumers}.}}"
+        "widgetCount": "{count, plural, one {The widget {consumers} counts records instead of measuring {target}.} other {# widgets count records instead of measuring {target}: {consumers}.}}",
+        "widgetTrashed": "{count, plural, one {The widget {consumers} moves to Trash with {target}.} other {# widgets move to Trash with {target}: {consumers}.}}"
       },
       "configureActions": "Configure actions",
       "deleteColumn": "Delete column",

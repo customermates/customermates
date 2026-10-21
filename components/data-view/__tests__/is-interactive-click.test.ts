@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { isInteractiveClick } from "../is-interactive-click";
+import { TruncatedText } from "@/components/shared/truncated-text";
 
 const TestChip = AppChip as ComponentType<{ children?: ReactNode; variant?: string }>;
 const TestClickableChip = ClickableChip as ComponentType<{ children?: ReactNode }>;
@@ -69,5 +70,13 @@ describe("isInteractiveClick", () => {
     const host = mount('<button type="button"><span>Save</span></button>');
 
     expect(clickOn(deepestElement(host))).toBe(true);
+  });
+
+  it("lets passive text tooltips open the row while tooltip buttons remain interactive", () => {
+    const text = mount(renderToStaticMarkup(createElement(TruncatedText, null, "Created today")));
+    expect(text.innerHTML).toContain('data-slot="tooltip-trigger"');
+    expect(clickOn(deepestElement(text))).toBe(false);
+    const button = mount('<button data-slot="tooltip-trigger"><span>Open menu</span></button>');
+    expect(clickOn(deepestElement(button))).toBe(true);
   });
 });

@@ -186,7 +186,7 @@ test("shows the calculation as a node flow in the Calculation section", async ({
   });
   await expect(relationshipOption.locator("svg").first()).toBeVisible();
   await page.keyboard.press("Escape");
-  await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
+  await dialog.getByRole("button", { name: "Close", exact: true }).click();
   await page
     .getByRole("alertdialog")
     .getByRole("button", { name: "Discard", exact: true })

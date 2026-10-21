@@ -95,7 +95,10 @@ export class RecordConfigurationWriter {
       await purgeTrashOfDeletedLists(this.records, prepared, userId);
       await this.records.deleteDefinitions(prepared.deletion);
     }
-    const { pausedWebhookIds } = await this.records.applyConsumerCleanups(prepared.cleanups);
+    const { pausedWebhookIds } = await this.records.applyConsumerCleanups(prepared.cleanups, {
+      causeId: prepared.change.causeId,
+      deletedById: userId,
+    });
     await this.webhooks.notify(pausedWebhookIds);
     const live: RecordRef[] = [];
     for (const ref of refs) if (!(await this.initializeRecord(ref, prepared, previous, limit)).trashed) live.push(ref);

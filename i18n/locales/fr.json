@@ -2206,8 +2206,7 @@
       "pickerTitle": "Changer de vue",
       "railLabel": "Vues enregistrées",
       "recordCount": "{count, plural, one {# enregistrement} other {# enregistrements}}",
-      "resetChanges": "Réinitialiser les modifications",
-      "unsavedChangesNotice": "Modifications non enregistrées de cette vue"
+      "resetChanges": "Réinitialiser les modifications"
     }
   },
   "Diagrams": {
@@ -3590,7 +3589,8 @@
         "webhookPaused": "{count, plural, one {Le webhook {consumers} est mis en pause, car {target} était son seul déclencheur. Choisissez un nouveau déclencheur avant de le réactiver.} other {# webhooks sont mis en pause, car {target} était leur seul déclencheur : {consumers}. Choisissez un nouveau déclencheur avant de les réactiver.}}",
         "webhookTrigger": "{count, plural, one {{target} est retiré du déclencheur du webhook {consumers}.} other {{target} est retiré du déclencheur de # webhooks : {consumers}.}}",
         "widget": "{count, plural, one {{target} est retiré des filtres ou du regroupement du widget {consumers}.} other {{target} est retiré des filtres ou du regroupement de # widgets : {consumers}.}}",
-        "widgetCount": "{count, plural, one {Le widget {consumers} compte les éléments au lieu de mesurer {target}.} other {# widgets comptent les éléments au lieu de mesurer {target} : {consumers}.}}"
+        "widgetCount": "{count, plural, one {Le widget {consumers} compte les éléments au lieu de mesurer {target}.} other {# widgets comptent les éléments au lieu de mesurer {target} : {consumers}.}}",
+        "widgetTrashed": "{count, plural, one {Le widget {consumers} est placé dans la corbeille avec {target}.} other {# widgets sont placés dans la corbeille avec {target} : {consumers}.}}"
       },
       "configureActions": "Actions de Configurer",
       "deleteColumn": "Supprimer la colonne",

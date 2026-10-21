@@ -186,6 +186,10 @@ describe("RoutineModal responsive rendering", () => {
     render();
 
     expect(container.querySelector("#routines-run-now")).not.toBeNull();
+    expect(container.querySelector("#routine-modal-save")).toBeNull();
+    harness.store.hasUnsavedChanges = true;
+    render();
+    expect(container.querySelector('[data-slot="unsaved-changes-bar"]')).not.toBeNull();
     expect(container.querySelector("#routine-modal-save")).not.toBeNull();
     expect(container.querySelector("#delete-routine")).toBeNull();
 
@@ -261,7 +265,7 @@ describe("RoutineModal responsive rendering", () => {
     expect(harness.store.openRun_).toBeNull();
     expect(harness.store.activeTab).toBe("runs");
     expect(container.querySelector("[data-runs-pane]")).not.toBeNull();
-    expect(container.querySelector("[data-form-actions]")).not.toBeNull();
+    expect(container.querySelector("[data-form-actions]")).toBeNull();
     expectUniqueIds();
   });
 });

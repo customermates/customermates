@@ -11,7 +11,9 @@ import { connectNavigationHistoryGuard } from "../navigation-history-guard";
 
 const state = vi.hoisted(() => ({
   controller: null as NavigationGuardController | null,
+  push: vi.fn(),
 }));
+vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ push: state.push }) }));
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({ navigationGuard: state.controller }),
 }));
@@ -47,6 +49,7 @@ function push(page: string) {
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   vi.useFakeTimers();
+  state.push.mockReset();
   state.controller = new NavigationGuardController();
   store = observable({
     hasUnsavedChanges: false,
@@ -71,6 +74,33 @@ afterEach(async () => {
 });
 
 describe("shared dirty history navigation", () => {
+  it("guards document links while only the global guard owner is mounted", () => {
+    dirty();
+    const link = document.createElement("a");
+    link.href = "/wiki?page=B";
+    document.body.append(link);
+    act(() => link.click());
+    expect(state.controller?.isPending).toBe(true);
+    expect(state.push).not.toHaveBeenCalled();
+    act(() => state.controller?.cancel());
+    expect(state.push).not.toHaveBeenCalled();
+    act(() => link.click());
+    act(() => state.controller?.confirm());
+    expect(state.push).toHaveBeenCalledExactlyOnceWith("/wiki?page=B");
+    link.remove();
+  });
+
+  it("guards browser unload while only the global guard owner is mounted", () => {
+    dirty();
+    const blocked = new Event("beforeunload", { cancelable: true });
+    window.dispatchEvent(blocked);
+    expect(blocked.defaultPrevented).toBe(true);
+    dirty(false);
+    const clean = new Event("beforeunload", { cancelable: true });
+    window.dispatchEvent(clean);
+    expect(clean.defaultPrevented).toBe(false);
+  });
+
   it("preserves a dirty Wiki document when Back is canceled", async () => {
     push("B");
     dirty();

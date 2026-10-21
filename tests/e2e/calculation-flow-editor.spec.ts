@@ -107,7 +107,8 @@ test("names what is missing and refuses to save an incomplete flow", async ({ pa
   await expect(page.getByText("Pick which value to add up.", { exact: true })).toHaveCount(1);
   await expect(flow.locator("[data-calculation-sentence]")).toHaveCount(0);
   await expect(page.locator("[data-sonner-toast]")).toHaveCount(0);
-  await expect(dialog.getByRole("status")).toHaveCount(0);
+  await expect(dialog.getByRole("status").filter({ hasText: "Ready to apply" })).toHaveCount(0);
+  await expect(dialog.locator('[data-slot="unsaved-changes-bar"]')).toBeVisible();
   await expect(dialog).toBeVisible();
   expect((await readModel(database, companyId)).fields.some((field) => field.label === "Open total")).toBe(false);
 
@@ -327,6 +328,7 @@ test("hides the composer and keeps the flow unchanged when drafting isn't availa
     await expect(composer).toHaveCount(0);
   }
   await expect(flow.locator("[data-calculation-sentence]")).toHaveText(sentence ?? "");
-  await expect(dialog.getByRole("button", { name: "Save", exact: true }).first()).toBeDisabled();
+  await expect(dialog.locator('[data-slot="unsaved-changes-bar"]')).toHaveCount(0);
+  await expect(dialog.getByRole("button", { name: "Save", exact: true })).toHaveCount(0);
   expect(errors).toEqual([]);
 });

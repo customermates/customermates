@@ -1255,7 +1255,7 @@ describe("agent tools", () => {
     expect(await lineOf("widget-modal-kind")).toBe("widget-modal-kind|/dashboard|nh|>dashboard-add-widget");
     expect(await lineOf("nav-settings-members")).toBe("nav-settings-members|/settings/members|nh");
     expect(await lineOf("nav-settings-api-keys")).toBe("nav-settings-api-keys|/settings/api-keys|nh");
-    expect(await lineOf("widget-modal-reset")).toContain("|>a widget card");
+    expect(await lineOf("widget-modal-cancel")).toBe("widget-modal-cancel|/dashboard|nh|>widget-modal-kind");
     expect(await lineOf("webhook-modal-url")).toContain("|>settings-webhooks-add");
   });
 

@@ -362,7 +362,8 @@ test("paginates and retries record and widget history, restores a personal timel
     name: widgetName,
     activityQuery: { scope: { typeIds: [typeId], records: [] } },
   });
-  await expect(dialog.locator("#widget-modal-save")).toBeDisabled();
+  await expect(dialog.locator('[data-slot="unsaved-changes-bar"]')).toHaveCount(0);
+  await expect(dialog.locator("#widget-modal-save")).toHaveCount(0);
   await dialog.getByRole("button", { name: "Close", exact: true }).click();
   await expect(dialog).toHaveCount(0);
   const dashboardError = page.locator('main [data-page-state="error"][role="alert"]');
@@ -1420,7 +1421,7 @@ test("retries relationship reads and accepted record, bulk and schema refreshes 
   const dialog = page.getByRole("dialog");
   await dialog.locator("#label").fill("Recovered price");
   await dialog.getByRole("button", { name: english.Common.actions.save, exact: true }).first().click();
-  await expect(dialog.getByRole("status")).toContainText("Ready to apply");
+  await expect(dialog.getByRole("status").filter({ hasText: "Ready to apply" })).toBeVisible();
   const beforeSchema = await receiptCount();
   modelFault = true;
   await dialog.getByRole("button", { name: english.Common.actions.save, exact: true }).first().click();

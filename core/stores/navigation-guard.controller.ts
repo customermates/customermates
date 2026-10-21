@@ -2,7 +2,10 @@ import { makeObservable, observable, computed, action, when, type IReactionDispo
 
 import type { BaseFormStore } from "../base/base-form.store";
 
-type NavigationGuardState = Pick<BaseFormStore, "withUnsavedChangesGuard" | "hasUnsavedChanges" | "isLoading"> & {
+export type NavigationGuardState = Pick<
+  BaseFormStore,
+  "withUnsavedChangesGuard" | "hasUnsavedChanges" | "isLoading"
+> & {
   captureNavigationDiscard?: () => (() => void) | undefined;
 };
 

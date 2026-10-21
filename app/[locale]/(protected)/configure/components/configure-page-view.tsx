@@ -20,6 +20,7 @@ import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { Alert } from "@/components/shared/alert";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { Button } from "@/components/ui/button";
+import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { useRecordRouteReady } from "@/components/records/use-record-route-ready";
 
 import { discoverRecordTypesAction } from "../../records/actions";
@@ -267,15 +268,13 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
         canAddSublist={canAddSublist}
         canManage={canManage}
         disabled={!interactive}
-        general={general}
-        generalFormId={generalFormId}
         model={model}
         selected={selected}
         onAdd={add}
         onDeleted={listDeleted}
       />
     ),
-    [add, canAddSublist, canManage, general, generalFormId, interactive, model, selected, listDeleted, t],
+    [add, canAddSublist, canManage, interactive, model, selected, listDeleted, t],
   );
   useSetTopBarActions(topBar);
 
@@ -296,19 +295,33 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
       )}
 
       {selected ? (
-        <section aria-label={selected.pluralLabel} className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto">
-          <ConfigureListPane
-            canManage={canManage}
-            general={general}
-            generalFormId={generalFormId}
-            interactive={interactive}
-            model={model}
-            selected={selected}
-            onAddRelationship={() => addTo(selected.id, "relationship")}
-            onEditField={(field) => fieldModal.edit(model, selected.id, field)}
-            onEditRelationship={(relation) => relationModal.edit(model, selected.id, relation)}
-            onEditRelationshipPath={(path) => relationModal.editPath(model, selected.id, path)}
-          />
+        <section aria-label={selected.pluralLabel} className="relative flex min-h-0 min-w-0 flex-1 flex-col">
+          <div className="min-h-0 flex-1 overflow-y-auto pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]">
+            <ConfigureListPane
+              canManage={canManage}
+              general={general}
+              generalFormId={generalFormId}
+              interactive={interactive}
+              model={model}
+              selected={selected}
+              onAddRelationship={() => addTo(selected.id, "relationship")}
+              onEditField={(field) => fieldModal.edit(model, selected.id, field)}
+              onEditRelationship={(relation) => relationModal.edit(model, selected.id, relation)}
+              onEditRelationshipPath={(path) => relationModal.editPath(model, selected.id, path)}
+            />
+          </div>
+
+          {canManage && general.original?.id === selected.id && (
+            <UnsavedChangesBar
+              formId={generalFormId}
+              store={general}
+              onCancel={() => {
+                general.resetForm();
+                general.setPreview(null);
+              }}
+              onSave={general.onSubmit}
+            />
+          )}
         </section>
       ) : typeId ? (
         <div className="w-full max-w-3xl space-y-4 p-4 md:p-6">

@@ -4,9 +4,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import {
-  FORM_PAGES,
   FORM_SCOPES,
-  formDiscardSuffix,
   NAV_KEYS,
   SCOPES_WITHOUT_FILTER,
   TOOLBAR_SCOPES_WITH_ADD,
@@ -24,7 +22,8 @@ const LITERAL_ID_PATTERN =
 const ANCHOR_SCOPE_PATTERN = /anchorScope=["']([a-z0-9-]+)["']/g;
 const SEGMENT_ID_PREFIX_PATTERN = /<SegmentedControl\b(?:=>|[^>])*?\sidPrefix=["']([a-z0-9-]+)["']/g;
 const SEGMENT_VALUE_PATTERN = /\{ value: "([a-z0-9-]+)", label:/g;
-const FOOTER_ANCHOR_SCOPE_PATTERN = /<FormFooterActions\b(?:=>|[^>])*?\sanchorScope=["']([a-z0-9-]+)["']/g;
+const FOOTER_ANCHOR_SCOPE_PATTERN =
+  /<(FormFooterActions|UnsavedChangesBar)\b(?:=>|[^>])*?\sanchorScope=["']([a-z0-9-]+)["']/g;
 
 function sourceFiles(): string[] {
   return [
@@ -40,9 +39,10 @@ function codeIds(): Set<string> {
     for (const match of text.matchAll(LITERAL_ID_PATTERN)) ids.add(match[1] ?? match[2]);
     for (const prefix of text.matchAll(SEGMENT_ID_PREFIX_PATTERN))
       for (const segment of text.matchAll(SEGMENT_VALUE_PATTERN)) ids.add(`${prefix[1]}-tab-${segment[1]}`);
-    for (const match of text.matchAll(FOOTER_ANCHOR_SCOPE_PATTERN))
-      if (!FORM_SCOPES.includes(match[1]))
-        for (const suffix of ["-save", "-cancel", "-reset"]) ids.add(`${match[1]}${suffix}`);
+    for (const match of text.matchAll(FOOTER_ANCHOR_SCOPE_PATTERN)) {
+      const suffixes = match[1] === "UnsavedChangesBar" ? ["-save", "-cancel"] : ["-save", "-cancel", "-reset"];
+      for (const suffix of suffixes) ids.add(`${match[2]}${suffix}`);
+    }
     for (const match of text.matchAll(ANCHOR_SCOPE_PATTERN)) {
       const scope = match[1];
       if (TOOLBAR_SCOPES_WITH_ADD.includes(scope) || TOOLBAR_SCOPES_WITHOUT_ADD.includes(scope)) {
@@ -51,11 +51,6 @@ function codeIds(): Set<string> {
         ids.add(`${scope}-layout-table`);
         ids.add(`${scope}-layout-board`);
         if (TOOLBAR_SCOPES_WITH_ADD.includes(scope)) ids.add(`${scope}-add`);
-      }
-      const formPage = FORM_PAGES.find((page) => page.scope === scope);
-      if (formPage) {
-        ids.add(`${scope}-save`);
-        ids.add(`${scope}${formDiscardSuffix(formPage)}`);
       }
     }
   }

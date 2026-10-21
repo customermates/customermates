@@ -62,13 +62,22 @@ function fakeBrowser() {
         resourceType: () => "script",
         frame: () => ({ page: () => page }),
       }),
-    abortedLoad: (url: string, errorText = "Load request cancelled", resourceType = "fetch") =>
-      contextEvents.emit("requestfailed", {
-        url: () => url,
+    abortedLoad: (
+      url: string,
+      errorText = "Load request cancelled",
+      resourceType = "fetch",
+      { method = "GET", rsc = false }: { method?: string; rsc?: boolean } = {},
+    ) => {
+      const sent = {
+        ...request(url),
         failure: () => ({ errorText }),
         resourceType: () => resourceType,
-        frame: () => ({ page: () => page }),
-      }),
+        method: () => method,
+        headers: () => (rsc ? { rsc: "1" } : {}),
+      };
+      contextEvents.emit("request", sent);
+      contextEvents.emit("requestfailed", sent);
+    },
     navigation: (url: string) =>
       contextEvents.emit("request", {
         url: () => url,
@@ -364,6 +373,67 @@ describe("browser diagnostics", () => {
       ]);
       expect(view).toEqual([report, report]);
     }
+  });
+
+  it("forgets Next's report of the same cancelled RSC GET only after a following document loads", () => {
+    const browser = fakeBrowser();
+    const diagnostics = new BrowserDiagnostics().watch(browser.context);
+    const view = diagnostics.view(browser.page);
+    const report = `Failed to fetch RSC payload for ${BASE}/en/auth/pending. Falling back to browser navigation. TypeError: Load failed`;
+    browser.abortedLoad(`${BASE}/en/auth/pending?_rsc=abc`, "Load request cancelled", "fetch", { rsc: true });
+    browser.console(report, `${BASE}/_next/static/chunks/runtime.js`);
+    expect(view).toEqual([report]);
+    browser.navigation(`${BASE}/en/dashboard`);
+    expect(view).toEqual([report]);
+    browser.loaded();
+    expect(view).toEqual([]);
+    expect(diagnostics.unexpected).toEqual([]);
+  });
+
+  it.each([
+    ["another URL", `${BASE}/en/dashboard`, "GET", true, true],
+    ["another query", `${BASE}/en/auth/pending?view=other`, "GET", true, true],
+    ["an action POST", `${BASE}/en/auth/pending`, "POST", true, true],
+    ["an ordinary GET", `${BASE}/en/auth/pending`, "GET", false, true],
+    ["a load event without a following navigation", `${BASE}/en/auth/pending`, "GET", true, false],
+    ["an external request", "https://example.test/en/auth/pending", "GET", true, true],
+  ] as const)("keeps an RSC error when the only cancellation is %s", (_label, url, method, rsc, navigate) => {
+    const browser = fakeBrowser();
+    const diagnostics = new BrowserDiagnostics().watch(browser.context);
+    const report = `Failed to fetch RSC payload for ${BASE}/en/auth/pending. Falling back to browser navigation. TypeError: Load failed`;
+    browser.abortedLoad(url, "Load request cancelled", "fetch", { method, rsc });
+    browser.console(report, `${BASE}/_next/static/chunks/runtime.js`);
+    if (navigate) browser.navigation(`${BASE}/en/dashboard`);
+    browser.loaded();
+    expect(diagnostics.unexpected.map(({ text }) => text)).toEqual([report]);
+  });
+
+  it("keeps failed RSC loads and HTTP errors without cancellation evidence", () => {
+    const browser = fakeBrowser();
+    const diagnostics = new BrowserDiagnostics().watch(browser.context);
+    const report = `Failed to fetch RSC payload for ${BASE}/en/auth/pending. Falling back to browser navigation. TypeError: Load failed`;
+    browser.response(`${BASE}/en/auth/pending?_rsc=abc`, 500, "Internal Server Error");
+    browser.console(report, `${BASE}/_next/static/chunks/runtime.js`);
+    browser.navigation(`${BASE}/en/dashboard`);
+    browser.loaded();
+    expect(diagnostics.unexpected.map(({ text }) => text)).toEqual([
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      report,
+    ]);
+  });
+
+  it("keeps the RSC error of another page", () => {
+    const browser = fakeBrowser();
+    const other = fakeBrowser();
+    const diagnostics = new BrowserDiagnostics().watch(browser.context).watch(other.context);
+    const report = `Failed to fetch RSC payload for ${BASE}/en/auth/pending. Falling back to browser navigation. TypeError: Load failed`;
+    browser.abortedLoad(`${BASE}/en/auth/pending?_rsc=abc`, "Load request cancelled", "fetch", { rsc: true });
+    other.console(report, `${BASE}/_next/static/chunks/runtime.js`);
+    browser.navigation(`${BASE}/en/dashboard`);
+    other.navigation(`${BASE}/en/dashboard`);
+    browser.loaded();
+    other.loaded();
+    expect(diagnostics.unexpected.map(({ text }) => text)).toEqual([report]);
   });
 
   it("fails a passing test on unexpected diagnostics and only attaches them to a failed, expected-to-fail or skipped one", async () => {

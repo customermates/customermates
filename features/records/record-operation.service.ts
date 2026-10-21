@@ -344,7 +344,10 @@ export class RecordOperationService extends UserAccessor {
               await purgeTrashOfDeletedLists(this.records, prepared, operator.eventActorId);
               await this.records.deleteDefinitions(prepared.deletion);
             }
-            const { pausedWebhookIds } = await this.records.applyConsumerCleanups(prepared.cleanups);
+            const { pausedWebhookIds } = await this.records.applyConsumerCleanups(prepared.cleanups, {
+              causeId: prepared.change.causeId,
+              deletedById: operator.eventActorId,
+            });
             await this.webhooks.notify(pausedWebhookIds);
             for (const grant of prepared.grants) await this.records.setGrants(grant.typeId, grant.grants);
           } else {
