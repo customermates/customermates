@@ -69,14 +69,15 @@ test("keeps 100 linked deals within three chip rows and searches, pages, opens a
     await page.setViewportSize({ width, height: 900 });
     await expect
       .poll(async () =>
-        chips().evaluateAll(
-          (elements) =>
-            new Set(
-              Array.from(elements[0].parentElement!.children)
-                .filter((element) => element.hasAttribute("data-chip-id") || element.tagName === "BUTTON")
-                .map((element) => Math.round(element.getBoundingClientRect().top)),
-            ).size,
-        ),
+        chips().evaluateAll((elements) => {
+          const parent = elements[0]?.parentElement;
+          if (!parent) throw new Error("The relationship chip stack is missing");
+          return new Set(
+            Array.from(parent.children)
+              .filter((element) => element.hasAttribute("data-chip-id") || element.tagName === "BUTTON")
+              .map((element) => Math.round(element.getBoundingClientRect().top)),
+          ).size;
+        }),
       )
       .toBe(3);
     const hidden = Number((await more().innerText()).match(/\d+/)?.[0]);
@@ -112,9 +113,10 @@ test("keeps 100 linked deals within three chip rows and searches, pages, opens a
   const unlink = list.getByRole("button", { name: /^Unlink / }).first();
   const selected = list.getByRole("option", { selected: true });
   const selectedName = await selected.getAttribute("aria-label");
+  if (!selectedName) throw new Error("The selected linked record has no accessible name");
   await unlink.focus();
   await page.keyboard.press("ArrowDown");
-  await expect(selected).toHaveAttribute("aria-label", selectedName!);
+  await expect(selected).toHaveAttribute("aria-label", selectedName);
   await expect(unlink).toBeFocused();
   await page.keyboard.press("Enter");
   await expect(nested).not.toBeVisible();
@@ -168,7 +170,7 @@ test("returns focus after resizing away a read-only relationship overflow opener
     },
   });
   const recordId = created.refs[0].recordId as string;
-  for (let index = 0; index < 4; index++)
+  for (let index = 0; index < 4; index++) {
     await postOk(page, "/api/v1/records/mutate", {
       expectedRevision: model.revision,
       idempotencyKey: randomUUID(),
@@ -187,6 +189,7 @@ test("returns focus after resizing away a read-only relationship overflow opener
         ],
       },
     });
+  }
   const role = await postOk(page, "/api/v1/roles/save", {
     name: "Overflow readers",
     description: "Read organizations and deals without writes",

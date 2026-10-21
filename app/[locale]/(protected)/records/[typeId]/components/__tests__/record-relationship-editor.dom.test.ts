@@ -98,11 +98,9 @@ beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   vi.stubGlobal(
     "ResizeObserver",
-    class {
-      observe() {}
-      unobserve() {}
-      disconnect() {}
-    },
+    vi.fn(function () {
+      return { observe() {}, unobserve() {}, disconnect() {} };
+    }),
   );
 });
 afterEach(() => {

@@ -58,7 +58,7 @@ test("returns to a valid relationship, path and embedded page after deleting its
   const deal = await create("deal", [
     { fieldId: id("deal.name"), value: { kind: "text", value: "Pagination parent" } },
   ]);
-  for (let index = 1; index <= 26; index += 1)
+  for (let index = 1; index <= 26; index += 1) {
     await create(
       "organization",
       [
@@ -69,11 +69,12 @@ test("returns to a valid relationship, path and embedded page after deleting its
       ],
       [{ relationId: id("deal.organizations"), direction: "incoming", record: deal }],
     );
+  }
   const service = await create("service", [
     { fieldId: id("service.name"), value: { kind: "text", value: "Paged service" } },
     { fieldId: id("service.amount"), value: { kind: "decimal", value: "2", currency: "EUR" } },
   ]);
-  for (let index = 1; index <= 11; index += 1)
+  for (let index = 1; index <= 11; index += 1) {
     await create(
       "lineItem",
       [
@@ -88,27 +89,42 @@ test("returns to a valid relationship, path and embedded page after deleting its
         { relationId: id("lineItem.service"), direction: "outgoing", record: service },
       ],
     );
+  }
   await page.goto(`/en/records/${deal.typeId}/${deal.recordId}`);
   const main = page.getByRole("main");
   const direct = main.locator(`[data-entity-field="relationship:${id("deal.organizations")}:outgoing"]`);
   const projected = main.locator(`[data-entity-field="path:${pathId}"]`);
-  await expect(direct.getByRole("button", { name: /^Open Linked organization/ })).toHaveCount(25);
+  const more = direct.getByRole("button", { name: /^\+\d+ more$/ });
+  const picker = page.getByRole("dialog", { name: "Organizations", exact: true });
+  const options = picker.getByRole("option", { name: /^Linked organization/ });
+  await expect(more).toBeVisible();
+  expect(
+    (await direct.getByRole("button", { name: /^Open Linked organization/ }).count()) +
+      Number((await more.innerText()).match(/\d+/)?.[0]),
+  ).toBe(26);
   await expect(projected.getByRole("button", { name: /^Open Linked organization/ })).toHaveCount(25);
-  await direct.getByRole("button", { name: "Next page", exact: true }).click();
   await projected.getByRole("button", { name: "Next page", exact: true }).click();
-  const last = direct.getByRole("button", { name: /^Open Linked organization/ });
+  await expect(projected.getByRole("button", { name: /^Open Linked organization/ })).toHaveCount(1);
+  await more.click();
+  await expect(options).toHaveCount(25);
+  await picker.getByRole("button", { name: "Next page", exact: true }).click();
+  const last = options;
   await expect(last).toHaveCount(1);
-  const title = (await last.getAttribute("aria-label"))?.replace(/^Open /, "");
-  expect(title).toBeTruthy();
+  const title = await last.getAttribute("aria-label");
+  if (!title) throw new Error("The last linked organization has no accessible name");
   await last.click();
   const editor = page.getByRole("dialog", { name: "Organization", exact: true });
-  await expect(editor.getByRole("textbox", { name: "Name", exact: false })).toHaveValue(title!);
+  await expect(editor.getByRole("textbox", { name: "Name", exact: false })).toHaveValue(title);
   await editor.getByRole("button", { name: "Delete", exact: true }).click();
   await page.getByRole("alertdialog").locator("#confirm-delete").click();
   await expect(editor).not.toBeVisible();
-  await expect(direct.getByRole("button", { name: /^Open Linked organization/ })).toHaveCount(25);
+  // The existing linked picker is revealed again when its child drawer closes.
+  await expect(picker).toBeVisible();
+  await expect(options).toHaveCount(25);
+  await expect(picker.getByRole("button", { name: "Next page", exact: true })).toHaveCount(0);
+  await page.keyboard.press("Escape");
+  await expect(picker).not.toBeVisible();
   await expect(projected.getByRole("button", { name: /^Open Linked organization/ })).toHaveCount(25);
-  await expect(direct.getByRole("button", { name: "Next page", exact: true })).toHaveCount(0);
   await expect(projected.getByRole("button", { name: "Next page", exact: true })).toHaveCount(0);
   expect(
     (
@@ -129,10 +145,10 @@ test("returns to a valid relationship, path and embedded page after deleting its
   await expect(embedded.getByRole("button", { name: "Next page", exact: true })).toHaveCount(0);
   expect(
     (
-      await database.query('SELECT COUNT(*)::integer AS count FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 AND "deletedAt" IS NULL', [
-        companyId,
-        id("lineItem"),
-      ])
+      await database.query(
+        'SELECT COUNT(*)::integer AS count FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 AND "deletedAt" IS NULL',
+        [companyId, id("lineItem")],
+      )
     ).rows,
   ).toEqual([{ count: 10 }]);
   expect(
@@ -148,7 +164,11 @@ test("returns to a valid relationship, path and embedded page after deleting its
     animations: "disabled",
   });
   await page.reload();
-  await expect(direct.getByRole("button", { name: /^Open Linked organization/ })).toHaveCount(25);
+  await more.click();
+  await expect(options).toHaveCount(25);
+  await expect(picker.getByRole("button", { name: "Next page", exact: true })).toHaveCount(0);
+  await page.keyboard.press("Escape");
+  await expect(picker).not.toBeVisible();
   await expect(projected.getByRole("button", { name: /^Open Linked organization/ })).toHaveCount(25);
   await expect(recordRows(embedded)).toHaveCount(10);
   expect(errors).toEqual([]);
