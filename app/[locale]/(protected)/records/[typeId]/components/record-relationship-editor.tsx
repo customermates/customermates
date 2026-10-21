@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Check, ChevronsUpDown, X } from "lucide-react";
 
 import type { RecordChoice } from "@/features/records/get-record-choices.interactor";
 import type { RecordRelationship } from "@/features/records/record-model.schema";
+import type { RecordRelationshipPath } from "@/features/records/record-relationship-path.schema";
 import type { RecordEditorStore } from "./record-editor.store";
 
 import { Button } from "@/components/ui/button";
@@ -25,21 +26,25 @@ import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { useRecordChoices } from "@/components/records/use-record-choices";
 import { EntityDetailFieldShell } from "@/components/entity-detail/entity-detail-field-shell";
 import { EmptyValue } from "@/components/shared/empty-value";
-import { relationshipColumnKey } from "@/features/records/record-column.schema";
+import { relationshipColumnKey, relationshipPathColumnKey } from "@/features/records/record-column.schema";
 
 export const RECORD_LINK_FRAME_CLASS =
   "flex min-h-9 w-full flex-wrap items-center gap-1 rounded-md border px-3 py-1.5 text-sm";
 export const RECORD_LINK_FRAME_READ_ONLY_CLASS = "border-input bg-input-background shadow-xs";
 
-export const RecordRelationshipEditor = observer(function RecordRelationshipEditor({
-  store,
-  relationship,
-  direction,
-}: {
+type Props = {
   store: RecordEditorStore;
-  relationship: RecordRelationship;
-  direction: "outgoing" | "incoming";
-}) {
+  endContent?: ReactNode;
+} & (
+  | { relationship: RecordRelationship; direction: "outgoing" | "incoming" }
+  | { path: RecordRelationshipPath; targetTypeId: string }
+);
+
+export const RecordRelationshipEditor = observer(function RecordRelationshipEditor(props: Props) {
+  const { store, endContent } = props;
+  const relationship = "relationship" in props ? props.relationship : null;
+  const direction = "direction" in props ? props.direction : "outgoing";
+  const readOnly = store.isReadOnly || "path" in props;
   const t = useTranslations();
   const [mode, setMode] = useState<"link" | "linked" | null>(null);
   const open = mode !== null;
@@ -53,36 +58,46 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
   const [attempt, setAttempt] = useState(0);
   const debounced = useDebouncedValue(search);
   const outgoing = direction === "outgoing";
-  const label = outgoing ? relationship.sourceLabel : relationship.targetLabel;
-  const typeId = outgoing ? relationship.targetTypeId : relationship.sourceTypeId;
-  const singular = (outgoing ? relationship.sourceCardinality : relationship.targetCardinality) === "one";
+  const label =
+    "path" in props ? props.path.label : outgoing ? props.relationship.sourceLabel : props.relationship.targetLabel;
+  const typeId =
+    "path" in props ? props.targetTypeId : outgoing ? props.relationship.targetTypeId : props.relationship.sourceTypeId;
+  const singular =
+    relationship !== null && (outgoing ? relationship.sourceCardinality : relationship.targetCardinality) === "one";
+  const fieldId =
+    "path" in props
+      ? relationshipPathColumnKey(props.path.id)
+      : relationshipColumnKey(props.relationship.id, direction);
+  const recordFilter = store.record
+    ? "path" in props
+      ? { throughPath: { ref: store.record.ref, pathId: props.path.id } }
+      : {
+          linkedTo: {
+            ref: store.record.ref,
+            relationId: props.relationship.id,
+            direction,
+          },
+        }
+    : {};
   const linked = useRecordChoices(
     {
       typeId,
       page: 1,
       pageSize: 25,
-      ...(store.record
-        ? {
-            linkedTo: {
-              ref: {
-                typeId: store.record.ref.typeId,
-                recordId: store.record.ref.recordId,
-              },
-              relationId: relationship.id,
-              direction,
-            },
-          }
-        : {}),
+      ...recordFilter,
     },
     store.isOpen && store.record !== null && !store.trash,
     attempt + store.relatedRevision,
   );
-  const changes = store.form.linkChanges.filter(
-    (change) => change.relationId === relationship.id && change.direction === direction,
-  );
-  const initialSummary = store.record?.relationships.find(
-    (entry) => entry.relationId === relationship.id && entry.direction === direction,
-  );
+  const changes = relationship
+    ? store.form.linkChanges.filter((change) => change.relationId === relationship.id && change.direction === direction)
+    : [];
+  const initialSummary =
+    "path" in props
+      ? store.record?.relationshipPaths?.find((entry) => entry.pathId === props.path.id)
+      : store.record?.relationships.find(
+          (entry) => entry.relationId === props.relationship.id && entry.direction === direction,
+        );
   const original = linked.data?.records ?? (linked.loading ? (initialSummary?.records ?? []) : []);
   const chosen = [
     ...original.filter(
@@ -98,9 +113,20 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
   ];
   const title = (record: RecordChoice) =>
     recordDisplayName(record.title, store.presentation.linkLabels[record.ref.typeId], t);
-  const editable = !store.isReadOnly && !store.isLoading && !linked.loading && !linked.failed;
-  const stage = (record: RecordChoice, action: "link" | "unlink") =>
-    store.stageLink({ action, relationId: relationship.id, direction, record: record.ref }, record.title);
+  const editable = !readOnly && !store.isLoading && !linked.loading && !linked.failed;
+  const stage = (record: RecordChoice, action: "link" | "unlink") => {
+    if (relationship) {
+      store.stageLink(
+        {
+          action,
+          relationId: relationship.id,
+          direction,
+          record: record.ref,
+        },
+        record.title,
+      );
+    }
+  };
   function select(record: RecordChoice) {
     if (!editable || chosen.some((entry) => entry.ref.recordId === record.ref.recordId)) return;
     if (singular) for (const previous of chosen) stage(previous, "unlink");
@@ -109,14 +135,13 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
     setSearch("");
     setPage(1);
   }
-  const id = `relationship-${relationship.id}-${direction}-${useId()}`;
+  const id = `relationship-${fieldId}-${useId()}`;
   const chips = useRef<HTMLDivElement>(null);
   const total = Math.max(
     0,
     (linked.data?.total ?? initialSummary?.readableCount ?? 0) +
       changes.reduce((sum, change) => sum + (change.action === "link" ? 1 : -1), 0),
   );
-  const linkedTo = store.record ? { ref: store.record.ref, relationId: relationship.id, direction } : undefined;
   const staged = changes
     .filter((change) => change.action === "link")
     .map((change) => ({ ref: change.record, title: change.title }))
@@ -128,7 +153,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
       page: Math.max(1, page - stagedPages),
       pageSize: 25,
       search: debounced,
-      ...(mode === "linked" ? { linkedTo } : {}),
+      ...(mode === "linked" ? recordFilter : {}),
     },
     open && store.isOpen && (mode === "link" || store.record !== null),
     attempt + store.relatedRevision,
@@ -163,12 +188,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
     </div>
   );
   return (
-    <EntityDetailFieldShell
-      fieldId={relationshipColumnKey(relationship.id, direction)}
-      inputId={id}
-      label={label}
-      locked={store.isPermissionReadOnly}
-    >
+    <EntityDetailFieldShell fieldId={fieldId} inputId={id} label={label} locked={store.isPermissionReadOnly}>
       {linked.failed ? (
         error(() => setAttempt((value) => value + 1))
       ) : (
@@ -180,7 +200,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
               const opener = document.getElementById(id);
               setFocusTarget(opener ? { opener, fallback: null } : null);
             }
-            setMode(value ? "link" : null);
+            setMode(value ? ("path" in props ? "linked" : "link") : null);
             setSearch("");
             setPage(1);
           }}
@@ -189,18 +209,20 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
             <div
               ref={chips}
               aria-busy={linked.loading || undefined}
-              aria-label={store.isReadOnly ? label : undefined}
+              aria-label={readOnly ? label : undefined}
               className={cn(
                 RECORD_LINK_FRAME_CLASS,
                 "flex-nowrap",
-                store.isReadOnly
+                endContent && "relative pr-9",
+                readOnly
                   ? RECORD_LINK_FRAME_READ_ONLY_CLASS
                   : "border-input bg-input-background shadow-xs focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50",
               )}
               data-relationship-field=""
+              data-relationship-path-field={"path" in props ? "" : undefined}
               id={`${id}-field`}
-              role={store.isReadOnly ? "group" : "presentation"}
-              tabIndex={store.isReadOnly ? -1 : undefined}
+              role={readOnly ? "group" : "presentation"}
+              tabIndex={readOnly ? -1 : undefined}
               onClick={(event) => {
                 if (!editable || (event.target as Element).closest("button, a, [role=button]")) return;
                 document.getElementById(id)?.click();
@@ -212,13 +234,13 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
                 document.getElementById(id)?.click();
               }}
             >
-              {linked.loading && store.isReadOnly && chosen.length === 0 && (
+              {linked.loading && readOnly && chosen.length === 0 && (
                 <span aria-label={t("Loading.text")} role="status">
                   <SelectionValueSkeleton />
                 </span>
               )}
 
-              {!linked.loading && store.isReadOnly && chosen.length === 0 && <EmptyValue />}
+              {!linked.loading && readOnly && chosen.length === 0 && <EmptyValue />}
 
               {(chosen.length > 0 || total > 0) && (
                 <AppChipStack
@@ -290,7 +312,13 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
                 />
               )}
 
-              {!store.isReadOnly && (
+              {endContent && (
+                <div className="absolute top-1/2 right-3 flex -translate-y-1/2 items-center" data-form-control-end="">
+                  {endContent}
+                </div>
+              )}
+
+              {!readOnly && (
                 <PopoverTrigger asChild>
                   <button
                     aria-busy={linked.loading || undefined}

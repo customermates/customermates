@@ -102,30 +102,67 @@ test("returns to a valid relationship, path and embedded page after deleting its
     (await direct.getByRole("button", { name: /^Open Linked organization/ }).count()) +
       Number((await more.innerText()).match(/\d+/)?.[0]),
   ).toBe(26);
-  await expect(projected.getByRole("button", { name: /^Open Linked organization/ })).toHaveCount(25);
-  await projected.getByRole("button", { name: "Next page", exact: true }).click();
-  await expect(projected.getByRole("button", { name: /^Open Linked organization/ })).toHaveCount(1);
+  const projectedMore = projected.getByRole("button", { name: /^\+\d+ more$/ });
+  await expect(projectedMore).toBeVisible();
+  for (const field of [direct, projected]) {
+    expect(
+      (await field.locator("[data-chip-id]").count()) +
+        Number((await field.getByRole("button", { name: /^\+\d+ more$/ }).innerText()).match(/\d+/)?.[0]),
+    ).toBe(26);
+    await expect(field.getByRole("button", { name: "Next page", exact: true })).toHaveCount(0);
+  }
   await more.click();
   await expect(options).toHaveCount(25);
   await picker.getByRole("button", { name: "Next page", exact: true }).click();
-  const last = options;
+  await expect(options).toHaveCount(1);
+  await page.keyboard.press("Escape");
+  await expect(picker).not.toBeVisible();
+  await projectedMore.click();
+  const projectedPicker = page.getByRole("dialog", {
+    name: "Connected organizations",
+    exact: true,
+  });
+  const projectedOptions = projectedPicker.getByRole("option", {
+    name: /^Linked organization/,
+  });
+  const search = projectedPicker.getByRole("combobox", {
+    name: "Search...",
+    exact: true,
+  });
+  await expect(search).toBeFocused();
+  await expect(projectedOptions).toHaveCount(25);
+  await expect(projectedPicker.getByRole("button", { name: /^Unlink / })).toHaveCount(0);
+  await search.fill("Linked organization 01");
+  await expect(projectedOptions).toHaveCount(1);
+  await search.fill("");
+  await expect(projectedOptions).toHaveCount(25);
+  await projectedPicker.getByRole("button", { name: "Next page", exact: true }).click();
+  const last = projectedOptions;
   await expect(last).toHaveCount(1);
   const title = await last.getAttribute("aria-label");
   if (!title) throw new Error("The last linked organization has no accessible name");
   await last.click();
-  const editor = page.getByRole("dialog", { name: "Organization", exact: true });
+  const editor = page.getByRole("dialog", {
+    name: "Organization",
+    exact: true,
+  });
   await expect(editor.getByRole("textbox", { name: "Name", exact: false })).toHaveValue(title);
   await editor.getByRole("button", { name: "Delete", exact: true }).click();
   await page.getByRole("alertdialog").locator("#confirm-delete").click();
   await expect(editor).not.toBeVisible();
   // The existing linked picker is revealed again when its child drawer closes.
-  await expect(picker).toBeVisible();
-  await expect(options).toHaveCount(25);
-  await expect(picker.getByRole("button", { name: "Next page", exact: true })).toHaveCount(0);
+  await expect(projectedPicker).toBeVisible();
+  await expect(projectedOptions).toHaveCount(25);
+  await expect(projectedPicker.getByRole("button", { name: "Next page", exact: true })).toHaveCount(0);
   await page.keyboard.press("Escape");
-  await expect(picker).not.toBeVisible();
-  await expect(projected.getByRole("button", { name: /^Open Linked organization/ })).toHaveCount(25);
-  await expect(projected.getByRole("button", { name: "Next page", exact: true })).toHaveCount(0);
+  await expect(projectedPicker).not.toBeVisible();
+  await expect(projectedMore).toBeFocused();
+  for (const field of [direct, projected]) {
+    expect(
+      (await field.locator("[data-chip-id]").count()) +
+        Number((await field.getByRole("button", { name: /^\+\d+ more$/ }).innerText()).match(/\d+/)?.[0]),
+    ).toBe(25);
+  }
   expect(
     (
       await database.query(
@@ -169,7 +206,15 @@ test("returns to a valid relationship, path and embedded page after deleting its
   await expect(picker.getByRole("button", { name: "Next page", exact: true })).toHaveCount(0);
   await page.keyboard.press("Escape");
   await expect(picker).not.toBeVisible();
-  await expect(projected.getByRole("button", { name: /^Open Linked organization/ })).toHaveCount(25);
+  expect(
+    (await projected.locator("[data-chip-id]").count()) +
+      Number((await projectedMore.innerText()).match(/\d+/)?.[0]),
+  ).toBe(25);
+  await projectedMore.click();
+  await expect(projectedOptions).toHaveCount(25);
+  await expect(projectedPicker.getByRole("button", { name: "Next page", exact: true })).toHaveCount(0);
+  await page.keyboard.press("Escape");
+  await expect(projectedPicker).not.toBeVisible();
   await expect(recordRows(embedded)).toHaveCount(10);
   expect(errors).toEqual([]);
 });

@@ -20,6 +20,7 @@ vi.mock("@/components/entity-detail/entity-detail-field-shell", () => ({
 }));
 
 import { RecordRelationshipEditor } from "../record-relationship-editor";
+import { RecordPathRecords } from "../record-path-records";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 const relation: RecordRelationship = {
@@ -76,7 +77,7 @@ function editor(ref = first, summaries: RecordChoice[] = [], isReadOnly = false)
 }
 let root: Root | undefined;
 let host: HTMLDivElement | undefined;
-function render(store: RecordEditorStore) {
+function render(store: RecordEditorStore, path = false) {
   if (!host) {
     host = document.createElement("div");
     document.body.append(host);
@@ -87,7 +88,22 @@ function render(store: RecordEditorStore) {
       createElement(
         TooltipProvider,
         null,
-        createElement(RecordRelationshipEditor, { store, relationship: relation, direction: "outgoing" }),
+        path
+          ? createElement(RecordPathRecords, {
+              store,
+              path: {
+                id: relation.id,
+                label: "Related projects",
+                archived: false,
+                path: [{ relationId: relation.id, direction: "outgoing" }],
+              },
+              targetTypeId: relation.targetTypeId,
+            })
+          : createElement(RecordRelationshipEditor, {
+              store,
+              relationship: relation,
+              direction: "outgoing",
+            }),
       ),
     ),
   );
@@ -113,6 +129,50 @@ afterEach(() => {
 });
 
 describe("relationship loading presentation and response ownership", () => {
+  it("limits derived relationships to three rows and browses them through the same read-only picker", async () => {
+    vi.stubGlobal("matchMedia", () => ({
+      matches: true,
+      addEventListener() {},
+      removeEventListener() {},
+    }));
+    vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(240);
+    vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockReturnValue(200);
+    const records = Array.from({ length: 25 }, (_, index) => ({
+      ...linked,
+      ref: { ...linked.ref, recordId: `project-${index}` },
+    }));
+    actions.choices.mockResolvedValue({
+      ok: true,
+      data: { ...results(records), total: 40 },
+    });
+    const store = editor();
+    store.presentation.model.relationships = [relation];
+    const field = render(store, true);
+    await act(async () => {
+      await Promise.resolve();
+    });
+    const more = [...field.querySelectorAll<HTMLButtonElement>("button")].find((button) =>
+      /^\+\d+ more$/.test(button.textContent ?? ""),
+    );
+    expect(more).toBeDefined();
+    expect(field.querySelectorAll("[data-chip-id]")).toHaveLength(2);
+    expect(more?.textContent).toBe("+38 more");
+    expect(field.querySelector('[role="combobox"]')).toBeNull();
+    expect(field.querySelector("[data-form-control-end]")).not.toBeNull();
+    act(() => more?.click());
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(document.querySelector('[role="dialog"]')?.getAttribute("aria-label")).toBe("Related projects");
+    expect(document.querySelector("[data-linked-record-list]")?.querySelectorAll('[role="option"]')).toHaveLength(25);
+    expect(document.querySelector('[data-slot="command-input"]')).toBe(document.activeElement);
+    expect(document.querySelector("[data-relationship-unlink]")).toBeNull();
+    expect(actions.choices.mock.calls.at(-1)?.[0]).toMatchObject({
+      throughPath: { ref: first, pathId: relation.id },
+    });
+    expect(actions.choices.mock.calls.at(-1)?.[0]).not.toHaveProperty("linkedTo");
+    expect(store.stageLink).not.toHaveBeenCalled();
+  });
   it("keeps an empty editable loading indicator inside the existing Link control", async () => {
     let finish!: (result: { ok: true; data: RecordChoicesResult }) => void;
     actions.choices.mockImplementationOnce(
