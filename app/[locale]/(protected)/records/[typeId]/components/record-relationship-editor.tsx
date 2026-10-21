@@ -15,7 +15,6 @@ import { SelectionOptionsSkeleton, SelectionValueSkeleton } from "@/components/f
 import { RecordChipIcon } from "@/components/records/record-chip-icon";
 import { AppChip } from "@/components/chip/app-chip";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
-import { Input } from "@/components/ui/input";
 import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 import { recordLinkColor } from "@/features/records/record-presentation";
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -198,6 +197,11 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
                   : "border-input bg-input-background shadow-xs focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50",
               )}
               data-relationship-field=""
+              role="presentation"
+              onClick={(event) => {
+                if (!editable || (event.target as Element).closest("button, a, [role=button]")) return;
+                document.getElementById(id)?.click();
+              }}
             >
               {linked.loading && store.isReadOnly && chosen.length === 0 && (
                 <span aria-label={t("Loading.text")} role="status">
@@ -209,7 +213,6 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
 
               {(chosen.length > 0 || total > 0) && (
                 <AppChipStack
-                  fill
                   extraCount={Math.max(0, total - chosen.length)}
                   items={chosen.map((record) => ({
                     ...record,
@@ -285,7 +288,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
                     aria-controls={`${id}-options`}
                     aria-expanded={open && editable}
                     aria-label={label}
-                    className="flex h-6 min-w-0 shrink-0 items-center justify-between gap-2 rounded-sm text-left text-muted-foreground outline-none disabled:cursor-default"
+                    className="flex h-6 min-w-16 flex-1 items-center justify-between gap-2 rounded-sm text-left text-muted-foreground outline-none disabled:cursor-default"
                     disabled={!editable}
                     id={id}
                     role="combobox"
@@ -317,113 +320,88 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
               document.getElementById(`${id}-options`)?.querySelector<HTMLInputElement>("input")?.focus();
             }}
           >
-            {mode === "linked" ? (
-              <div className="flex min-h-0 flex-1 flex-col p-3">
-                <p className="mb-2 text-xs text-muted-foreground">
-                  {t("RecordModel.linkedRecordCount", { count: total })}
-                </p>
+            <Command className="min-h-0" shouldFilter={false}>
+              <CommandInput
+                aria-label={t("Common.table.search")}
+                placeholder={t("Common.table.search")}
+                value={search}
+                onValueChange={(value) => {
+                  setSearch(value);
+                  setPage(1);
+                }}
+              />
 
-                <Input
-                  aria-label={t("Common.table.search")}
-                  placeholder={t("Common.table.search")}
-                  value={search}
-                  onChange={(event) => {
-                    setSearch(event.target.value);
-                    setPage(1);
-                  }}
-                />
+              <CommandList
+                aria-busy={options.loading || undefined}
+                className="min-h-0"
+                data-linked-record-list={mode === "linked" ? "" : undefined}
+              >
+                {options.loading || search !== debounced ? (
+                  <SelectionOptionsSkeleton label={t("Loading.text")} />
+                ) : options.failed ? (
+                  <div className="p-3">{error(() => setAttempt((value) => value + 1))}</div>
+                ) : (
+                  <>
+                    <CommandEmpty>{t("Common.inputs.emptyContent")}</CommandEmpty>
 
-                <div className="min-h-0 max-h-60 overflow-y-auto py-2" data-linked-record-list="">
-                  {(store.record && options.loading) || search !== debounced ? (
-                    <SelectionOptionsSkeleton label={t("Loading.text")} />
-                  ) : options.failed ? (
-                    error(() => setAttempt((value) => value + 1))
-                  ) : listed.length === 0 ? (
-                    <p className="py-2 text-sm text-muted-foreground">{t("Common.inputs.emptyContent")}</p>
-                  ) : (
-                    listed.map((record) => (
-                      <div key={record.ref.recordId} className="flex min-w-0 items-start gap-2 py-1">
-                        <Button
-                          className="h-auto min-w-0 flex-1 justify-start whitespace-normal text-left"
-                          type="button"
-                          variant="ghost"
-                          onClick={(event) =>
-                            store.rootStore.recordWorkspaceStore.open(
-                              record.ref,
-                              event.currentTarget,
-                              document.getElementById(id),
-                            )
-                          }
+                    <CommandGroup
+                      heading={mode === "linked" ? t("RecordModel.linkedRecordCount", { count: total }) : undefined}
+                    >
+                      {(mode === "linked" ? listed : (options.data?.records ?? [])).map((record) => (
+                        <CommandItem
+                          key={record.ref.recordId}
+                          aria-label={title(record)}
+                          value={record.ref.recordId}
+                          onSelect={() => {
+                            if (mode === "link") select(record);
+                            else {
+                              store.rootStore.recordWorkspaceStore.open(
+                                record.ref,
+                                document.activeElement instanceof HTMLElement ? document.activeElement : null,
+                                document.getElementById(id),
+                              );
+                            }
+                          }}
                         >
-                          <RecordChipIcon icons={store.presentation.linkIcons} typeId={record.ref.typeId} />
+                          {mode === "linked" && (
+                            <RecordChipIcon icons={store.presentation.linkIcons} typeId={record.ref.typeId} />
+                          )}
 
-                          <span className="min-w-0 wrap-anywhere">{title(record)}</span>
-                        </Button>
+                          <span className="min-w-0 flex-1 truncate">{title(record)}</span>
 
-                        {editable && (
-                          <Button
-                            aria-label={t("RecordModel.unlinkRecord", {
-                              name: title(record),
-                            })}
-                            size="icon-sm"
-                            type="button"
-                            variant="ghost"
-                            onClick={() => {
-                              stage(record, "unlink");
-                              document
-                                .getElementById(`${id}-options`)
-                                ?.querySelector<HTMLInputElement>("input")
-                                ?.focus();
-                            }}
-                          >
-                            <X className="size-3" />
-                          </Button>
-                        )}
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            ) : (
-              <Command shouldFilter={false}>
-                <CommandInput
-                  placeholder={t("Common.table.search")}
-                  value={search}
-                  onValueChange={(value) => {
-                    setSearch(value);
-                    setPage(1);
-                  }}
-                />
+                          {mode === "linked" && editable && (
+                            <Button
+                              aria-label={t("RecordModel.unlinkRecord", { name: title(record) })}
+                              className="-my-1"
+                              size="icon-xs"
+                              type="button"
+                              variant="ghost"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                stage(record, "unlink");
+                                document
+                                  .getElementById(`${id}-options`)
+                                  ?.querySelector<HTMLInputElement>("input")
+                                  ?.focus();
+                              }}
+                              onKeyDown={(event) => {
+                                if (event.key !== "Escape" && event.key !== "Tab") event.stopPropagation();
+                              }}
+                            >
+                              <X className="size-3" />
+                            </Button>
+                          )}
 
-                <CommandList aria-busy={options.loading || undefined}>
-                  {options.loading || search !== debounced ? (
-                    <SelectionOptionsSkeleton label={t("Loading.text")} />
-                  ) : options.failed ? (
-                    <div className="p-3">{error(() => setAttempt((value) => value + 1))}</div>
-                  ) : (
-                    <>
-                      <CommandEmpty>{t("Common.inputs.emptyContent")}</CommandEmpty>
-
-                      <CommandGroup>
-                        {options.data?.records.map((record) => (
-                          <CommandItem
-                            key={record.ref.recordId}
-                            value={record.ref.recordId}
-                            onSelect={() => select(record)}
-                          >
-                            <span className="flex-1 truncate">{title(record)}</span>
-
-                            {chosen.some((entry) => entry.ref.recordId === record.ref.recordId) && (
-                              <Check className="size-4" />
-                            )}
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </>
-                  )}
-                </CommandList>
-              </Command>
-            )}
+                          {mode === "link" && chosen.some((entry) => entry.ref.recordId === record.ref.recordId) && (
+                            <Check className="size-4" />
+                          )}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </>
+                )}
+              </CommandList>
+            </Command>
 
             {resultPages > 1 && (
               <div className="flex justify-between border-t p-1">

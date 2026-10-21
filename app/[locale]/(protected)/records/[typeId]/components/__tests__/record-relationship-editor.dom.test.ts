@@ -247,6 +247,79 @@ describe("relationship loading presentation and response ownership", () => {
 });
 
 describe("relationship unlink focus", () => {
+  it("opens the picker from blank input space and keeps chip actions independent", async () => {
+    actions.choices.mockResolvedValue({ ok: true, data: results([linked]) });
+    const store = editor();
+    const field = render(store);
+    await act(async () => {
+      await Promise.resolve();
+    });
+    const chip = field.querySelector<HTMLButtonElement>("[data-chip-id] button:not([data-relationship-unlink])");
+    act(() => chip?.click());
+    expect(store.rootStore.recordWorkspaceStore.open).toHaveBeenCalledOnce();
+    expect(document.querySelector('[role="dialog"]')).toBeNull();
+
+    act(() => field.querySelector<HTMLElement>("[data-relationship-field]")?.click());
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(document.querySelector('[role="dialog"] [data-slot="command-input"]')).toBe(document.activeElement);
+    expect(store.stageLink).not.toHaveBeenCalled();
+  });
+  it("does not open the picker from blank read-only input space", async () => {
+    actions.choices.mockResolvedValue({ ok: true, data: results([linked]) });
+    const field = render(editor(first, [linked], true));
+    await act(async () => {
+      await Promise.resolve();
+    });
+    act(() => field.querySelector<HTMLElement>("[data-relationship-field]")?.click());
+    expect(document.querySelector('[role="dialog"]')).toBeNull();
+  });
+  it("opens overflow records with Enter and keeps keyboard unlink separate", async () => {
+    const other: RecordChoice = {
+      ref: { ...linked.ref, recordId: "10000000-0000-4000-8000-000000000007" },
+      title: { state: "value", value: { kind: "text", value: "Second project" } },
+    };
+    actions.choices.mockResolvedValue({ ok: true, data: { ...results([linked, other]), total: 30 } });
+    const store = editor();
+    const field = render(store);
+    await act(async () => {
+      await Promise.resolve();
+    });
+    const more = [...field.querySelectorAll("button")].find((button) => /^\+\d+ more$/.test(button.textContent ?? ""));
+    act(() => more?.click());
+    await act(async () => {
+      await Promise.resolve();
+    });
+    const input = document.querySelector<HTMLInputElement>('[data-slot="command-input"]');
+    act(() => {
+      input?.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+    });
+    expect(store.rootStore.recordWorkspaceStore.open).toHaveBeenCalledWith(
+      linked.ref,
+      input,
+      field.querySelector('[role="combobox"]'),
+    );
+    const unlink = document.querySelector<HTMLButtonElement>("[data-linked-record-list] button");
+    const selected = document.querySelector('[cmdk-item][aria-selected="true"]');
+    act(() => {
+      unlink?.focus();
+      for (const key of ["ArrowDown", "ArrowUp", "End", "Home", "j"])
+        unlink?.dispatchEvent(new KeyboardEvent("keydown", { key, ctrlKey: key === "j", bubbles: true }));
+    });
+    expect(document.querySelector('[cmdk-item][aria-selected="true"]')).toBe(selected);
+    expect(document.activeElement).toBe(unlink);
+    act(() => {
+      unlink?.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+      unlink?.click();
+    });
+    expect(store.rootStore.recordWorkspaceStore.open).toHaveBeenCalledOnce();
+    expect(store.stageLink).toHaveBeenCalledWith(
+      { action: "unlink", relationId: relation.id, direction: "outgoing", record: linked.ref },
+      linked.title,
+    );
+    expect(document.activeElement).toBe(input);
+  });
   it("returns to the current opener after switching from overflow to the Link picker", async () => {
     vi.spyOn(HTMLElement.prototype, "getClientRects").mockReturnValue([
       new DOMRect(0, 0, 80, 30),
@@ -371,7 +444,7 @@ describe("relationship overflow after staged edits", () => {
       await Promise.resolve();
     });
     const visible = () =>
-      [...document.querySelectorAll("[data-linked-record-list] button")].filter((button) =>
+      [...document.querySelectorAll("[data-linked-record-list] [cmdk-item]")].filter((button) =>
         button.textContent?.startsWith("New project"),
       );
     expect(visible()).toHaveLength(25);
