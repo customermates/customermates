@@ -430,7 +430,7 @@ test("closes pinned single-select editors after picking without saving the drawe
   await member.click();
   const memberEditor = page.locator('[data-slot="popover-content"][data-state="open"]').filter({ hasText: "Pinned reviewer" });
   await memberEditor.getByRole("combobox").click();
-  await page.getByRole("option", { name: "Browser Administrator", exact: true }).click();
+  await page.getByRole("option").filter({ hasText: "Browser Administrator" }).click();
   await expect(memberEditor).not.toBeVisible();
   await expect(member).toBeFocused();
   await expect(drawer).toBeVisible();

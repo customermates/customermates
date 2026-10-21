@@ -6,7 +6,7 @@ import { Tooltip as TooltipPrimitive } from "radix-ui";
 import { cn } from "@/core/utils/cn";
 import { OVERLAY_COLLISION_PADDING } from "./overlay-contract";
 
-const pointerMovesClaimedByTooltip = new WeakSet<Event>();
+const eventsClaimedByTooltip = new WeakSet<Event>();
 
 function px(value: string) {
   return Number.parseFloat(value) || 0;
@@ -80,12 +80,14 @@ function TooltipTrigger({ onFocus, onPointerMove, ...props }: React.ComponentPro
     <TooltipPrimitive.Trigger
       data-slot="tooltip-trigger"
       onFocus={(event) => {
-        if (!event.currentTarget.matches(":focus-visible")) event.preventDefault();
+        if (!event.target.matches(":focus-visible") || eventsClaimedByTooltip.has(event.nativeEvent))
+          event.preventDefault();
+        if (hasContent) eventsClaimedByTooltip.add(event.nativeEvent);
         onFocus?.(event);
       }}
       onPointerMove={(event) => {
-        if (pointerMovesClaimedByTooltip.has(event.nativeEvent)) event.preventDefault();
-        if (hasContent) pointerMovesClaimedByTooltip.add(event.nativeEvent);
+        if (eventsClaimedByTooltip.has(event.nativeEvent)) event.preventDefault();
+        if (hasContent) eventsClaimedByTooltip.add(event.nativeEvent);
         onPointerMove?.(event);
       }}
       {...props}

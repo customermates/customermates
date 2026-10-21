@@ -71,6 +71,7 @@ test("shows the full name of truncated direct and derived relationship chips on 
     main.locator(`[data-entity-field="path:${pathId}"]`),
   ];
   const tooltip = page.getByRole("tooltip", { name, exact: true });
+  await page.keyboard.press("Tab");
   for (const field of fields) {
     const label = field.getByRole("button", { name: `Open ${name}`, exact: true });
     await expect(label).toBeVisible();
