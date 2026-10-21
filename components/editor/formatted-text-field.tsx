@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState, type FocusEvent, type MouseEvent } from "react";
 import { useTranslations } from "next-intl";
+import { ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/core/utils/cn";
@@ -162,13 +163,15 @@ export function FormattedTextField({
         <Button
           aria-controls={contentId}
           aria-expanded={expanded}
-          className="h-auto px-0"
-          size="sm"
+          className="gap-1 px-0 font-normal text-muted-foreground has-[>svg]:px-0 aria-expanded:[&_svg]:rotate-180"
+          size="xs"
           type="button"
-          variant="link"
+          variant="ghost"
           onClick={() => setExpanded(!expanded)}
         >
           {expanded ? t("Common.actions.showLess") : t("Common.actions.showMore")}
+
+          <ChevronDown aria-hidden className="size-3" />
         </Button>
       )}
     </div>

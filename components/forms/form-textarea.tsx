@@ -5,6 +5,7 @@ import type { ComponentProps, ReactNode } from "react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
+import { ChevronDown } from "lucide-react";
 
 import { Textarea, TEXTAREA_CLASS_NAME } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -172,13 +173,15 @@ export const FormTextarea = observer(
           <Button
             aria-controls={domId}
             aria-expanded={expanded}
-            className="h-auto px-0"
-            size="sm"
+            className="gap-1 px-0 font-normal text-muted-foreground has-[>svg]:px-0 aria-expanded:[&_svg]:rotate-180"
+            size="xs"
             type="button"
-            variant="link"
+            variant="ghost"
             onClick={() => setExpanded(!expanded)}
           >
             {expanded ? t("Common.actions.showLess") : t("Common.actions.showMore")}
+
+            <ChevronDown aria-hidden className="size-3" />
           </Button>
         )}
       </div>
