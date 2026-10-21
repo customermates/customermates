@@ -22,12 +22,16 @@ vi.mock("@/components/modal/responsive-overlay", () => ({
     ),
 }));
 vi.mock("@/components/forms/form-autocomplete-avatar", () => ({
-  FormAutocompleteAvatar: () => {
+  FormAutocompleteAvatar: ({ items }: { items: RecordRow["assignedUsers"] }) => {
     const store = useAppForm<{ assignedUserIds: string[] }>();
     return (
-      <button data-choose onClick={() => store?.onChange("assignedUserIds", [...store.form.assignedUserIds, "B"])}>
-        Add B
-      </button>
+      <>
+        <span data-assignee-labels>{items.map((user) => user.firstName).join(", ")}</span>
+
+        <button data-choose onClick={() => store?.onChange("assignedUserIds", [...store.form.assignedUserIds, "B"])}>
+          Add B
+        </button>
+      </>
     );
   },
 }));
@@ -134,7 +138,7 @@ it("retains the draft's original version and assignment baseline after a backgro
     ref: { typeId: "type", recordId: "record" },
     version: 1,
     assignedUserIds: ["A"],
-    assignedUsers: [],
+    assignedUsers: [{ id: "A", firstName: "Original", lastName: "Assignee" }],
   } as unknown as RecordRow;
   const updateRecordAssignees = vi.fn().mockResolvedValue({ saved: false });
   const records = { items: [initial], updateRecordAssignees } as unknown as RecordsStore;
@@ -153,10 +157,11 @@ it("retains the draft's original version and assignment baseline after a backgro
   act(() => host?.querySelector<HTMLButtonElement>("[data-open]")?.click());
   act(() => host?.querySelector<HTMLButtonElement>("[data-choose]")?.click());
 
-  const refreshed = { ...initial, version: 2, assignedUserIds: ["A", "B"] };
+  const refreshed = { ...initial, version: 2, assignedUserIds: ["B"], assignedUsers: [] };
   records.items = [refreshed];
   render(refreshed);
   expect(host.querySelector("[data-save]")?.getAttribute("data-dirty")).toBe("true");
+  expect(host.querySelector("[data-assignee-labels]")?.textContent).toBe("Original");
   expect(guard.use).toHaveBeenCalledWith(expect.objectContaining({ hasUnsavedChanges: true }));
   await act(async () => {
     host?.querySelector<HTMLButtonElement>("[data-save]")?.click();

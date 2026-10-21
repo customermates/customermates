@@ -258,6 +258,7 @@ const InlineAssigneesForm = observer(function InlineAssigneesForm({
   const t = useTranslations();
   const inputId = useId();
   const [store] = useState(() => new InlineAssigneesStore(records, record, onDone));
+  const [initialAssignedUsers] = useState(() => [...record.assignedUsers]);
   return (
     <AppForm store={store}>
       <div className="space-y-3">
@@ -266,7 +267,7 @@ const InlineAssigneesForm = observer(function InlineAssigneesForm({
           getItems={(params) => actionData(getActiveUsersAction(params))}
           id="assignedUserIds"
           inputId={inputId}
-          items={record.assignedUsers}
+          items={initialAssignedUsers}
           label={null}
           selectionMode="multiple"
         />

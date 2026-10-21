@@ -815,8 +815,11 @@ test("edits built-in assignees across table, card, phone and pinned detail contr
   await remoteAssign([colleagueId]);
   await conflictEditor.getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.locator("[data-sonner-toast]").filter({ hasText: "This record changed. Refresh before saving again." }).first()).toBeVisible();
+  await expect(conflictItem.getByRole("button", { name: "Edit Assigned to", exact: true })).not.toContainText("Browser Administrator");
   await expect(conflictEditor).toBeVisible();
   await expect(conflictEditor.getByRole("combobox", { name: "Assigned to", exact: true })).toContainText("Browser Administrator");
+  await expect(conflictEditor.getByRole("combobox", { name: "Assigned to", exact: true })).toContainText("Assigned Colleague");
+  await expect(conflictEditor).not.toContainText("Selection unavailable");
   expect(await assignedIds()).toEqual([colleagueId]);
   await conflictEditor.getByRole("button", { name: "Cancel", exact: true }).click();
   await page.getByRole("alertdialog").getByRole("button", { name: "Discard", exact: true }).click();
