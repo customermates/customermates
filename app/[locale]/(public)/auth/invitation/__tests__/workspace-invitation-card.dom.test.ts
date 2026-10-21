@@ -153,7 +153,7 @@ describe("WorkspaceInvitationCard", () => {
     expect(button("WorkspaceInvitation.join.action")?.disabled).toBe(false);
   });
 
-  it("shows the refusal under the unticked terms and joins nothing", async () => {
+  it("toasts the refusal, marks the unticked terms and joins nothing", async () => {
     const error = { errors: [], properties: { agreeToTerms: { errors: ["Common.errors.termsNotAgreed"] } } };
     harness.joinWorkspaceAction.mockResolvedValue({ ok: false, error, code: "termsNotAgreed" });
     render(null);
@@ -164,7 +164,7 @@ describe("WorkspaceInvitationCard", () => {
       intent: "signed-intent",
       agreeToTerms: false,
     });
-    expect(container.querySelector("#agreeToTerms-error")?.textContent).toBe("Common.errors.termsNotAgreed");
+    expect(harness.toastZodErrorTree).toHaveBeenCalledWith(error);
     expect(terms()?.getAttribute("aria-invalid")).toBe("true");
     expect(harness.enter).not.toHaveBeenCalled();
   });

@@ -43,9 +43,6 @@ export class GetRecordNavigationInteractor extends AuthenticatedInteractor<void,
                 pluralLabel: type.pluralLabel,
                 icon: type.icon,
                 canCreate: policy.allowed(type.id, "create"),
-                hasAuthorizationTasks: model.capabilities.some(
-                  (binding) => binding.typeId === type.id && binding.kind === "membershipAuthorization",
-                ),
               })),
           },
         };

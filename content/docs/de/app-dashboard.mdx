@@ -53,18 +53,18 @@ Ein Datensatz erscheint dort, wo sein Adressfeld eine Position speichert: in der
 
 | Zugriff | Sichtbarer Inhalt |
 | --- | --- |
-| Nur Audit-Log | Zulässige Änderungen |
+| Nur Aktivitätsprotokoll | Zulässige Änderungen |
 | Nur Inbox-Nachrichten, in einem Tarif mit Messaging | Zulässige Nachrichten, Kanalaktivitäten und Termine |
 | Beides | Ein zusammengeführter Verlauf |
 | Keines von beiden | Ein Hinweis, dass keine Aktivität verfügbar ist |
 
-Die beiden Berechtigungen sind die Zeilen **Audit-Log** und **Inbox-Nachrichten** der Rolle des Mitglieds unter [Rollen](app:settings/roles), jeweils mit **Lesen** auf **Alle**. Nachrichten, Kanalaktivitäten und Termine erfordern außerdem Customermates Cloud und einen Tarif mit Messaging (Pro und höher); Änderungen bleiben auch ohne ihn sichtbar. Ein gelöschter oder nicht mehr zugänglicher Filterwert liefert keine Treffer mehr und erscheint als **Filter nicht verfügbar** auf dem Chip und als **Auswahl nicht verfügbar** in der Auswahl, damit Sie ihn entfernen können.
+Die beiden Berechtigungen sind die Zeilen **Aktivitätsprotokoll** und **Inbox-Nachrichten** der Rolle des Mitglieds unter [Rollen](app:settings/roles), jeweils mit **Lesen** auf **Alle**. Nachrichten, Kanalaktivitäten und Termine erfordern außerdem Customermates Cloud und einen Tarif mit Messaging (Pro und höher); Änderungen bleiben auch ohne ihn sichtbar. Ein gelöschter oder nicht mehr zugänglicher Filterwert liefert keine Treffer mehr und erscheint als **Filter nicht verfügbar** auf dem Chip und als **Auswahl nicht verfügbar** in der Auswahl, damit Sie ihn entfernen können.
 
 ## Wie lege ich ein Diagramm- oder Aktivitätsverlauf-Widget im Widget-Editor an oder bearbeite es? [#how-does-the-widget-editor-work]
 
 Wählen Sie unter **Widget auswählen** einen Diagrammstil, **Aktivitätsverlauf**, **Anstehend**, **Monatsübersicht**, **Karte** oder eine Vorlage; alle öffnen denselben Editor. Geben Sie dem Widget einen Namen und wechseln Sie dann zwischen **Daten** und **Darstellung**. **Daten** enthält die Quelle und was gezählt wird; Filter und Gruppierung sind einklappbare Abschnitte darin und nutzen dieselbe durchsuchbare Filter-Palette wie eine Liste: Quelle und Gruppierung haben jeweils eine eigene, und verknüpfte Felder erscheinen als **Liste › Feld**. **Darstellung** enthält Diagrammstil, Farben, Legende, **Kennzahl und Filter anzeigen** und **Als Vorlage freigeben**. Die **Live-Vorschau** neben den Einstellungen (auf schmalen Bildschirmen darunter) zeigt das Widget mit echten Daten in seiner Dashboard-Größe und aktualisiert sich bei jeder Änderung. Klicken Sie in der Fußzeile auf **Speichern**.
 
-Um ein Widget zu ändern, klicken Sie es an oder klicken Sie auf einen seiner Filter-Chips, um den Editor bei diesem Filter zu öffnen. **Zurücksetzen** stellt nach einer Änderung die gespeicherten Werte wieder her, und das Papierkorb-Symbol in der Kopfzeile des Editors verschiebt das Widget nach einer Bestätigung in den [Papierkorb](/docs/app-trash). Ein neues Widget erhält den ersten freien Platz. Ziehen Sie ein Widget, um es zu verschieben, und ziehen Sie an einer Kante oder Ecke, um seine Größe zu ändern (Verschieben ist auf Touch-Geräten aus); die Anordnung wird nur für Sie gespeichert. Höhen rasten in Zeilen von 54 px ein; Diagramm- und **Zahl**-Widgets sind mindestens zwei Zeilen hoch, ein **Aktivitätsverlauf** mindestens sechs Zeilen hoch und zwei Spalten breit, ein Kalender-Widget mindestens fünf Zeilen hoch und zwei Spalten breit und eine **Karte** mindestens fünf Zeilen hoch und drei Spalten breit.
+Ein Klick auf ein Diagramm oder einen Balken öffnet den Daten-Drawer: oben bleibt das Diagramm, darunter stehen die beitragenden Datensätze mit den üblichen Listenfiltern und der Seitennavigation. Eine andere Gruppe ändert die Datensätze. **In Liste öffnen** öffnet die Übersicht mit derselben Auswahl und zusätzlichen Filtern; die Abfrage umfasst alle passenden Datensätze. Ein Klick auf eine Zeile öffnet den Datensatz. Zum Bearbeiten verwenden Sie den Stift bei Hover oder Tastaturfokus oder **Bearbeiten** im lokalen Menü, das auch per Rechtsklick erreichbar ist. Ein Filter-Chip öffnet den Editor bei diesem Filter. **Zurücksetzen** stellt nach einer Änderung die gespeicherten Werte wieder her, und das Papierkorb-Symbol in der Kopfzeile des Editors verschiebt das Widget nach einer Bestätigung in den [Papierkorb](/docs/app-trash). Ein neues Widget erhält den ersten freien Platz. Ziehen Sie ein Widget, um es zu verschieben, und ziehen Sie an einer Kante oder Ecke, um seine Größe zu ändern (Verschieben ist auf Touch-Geräten aus); die Anordnung wird nur für Sie gespeichert. Höhen rasten in Zeilen von 54 px ein; Diagramm- und **Zahl**-Widgets sind mindestens zwei Zeilen hoch, ein **Aktivitätsverlauf** mindestens sechs Zeilen hoch und zwei Spalten breit, ein Kalender-Widget mindestens fünf Zeilen hoch und zwei Spalten breit und eine **Karte** mindestens fünf Zeilen hoch und drei Spalten breit.
 
 ## Welche Controls bringt die Seitenleiste mit? [#which-controls-does-the-sidebar-add]
 
@@ -86,6 +86,7 @@ Drücken Sie ? oder wählen Sie **Tastenkürzel** im persönlichen Menü, um all
 | Allgemein | Cmd/Strg+\ | Seitenleiste ein- oder ausblenden |
 | Navigation | G dann D, I, K, R, C | Dashboard, Posteingang, Wissensdatenbank, Routinen, Konfigurieren |
 | Navigation | G dann S | Einstellungen |
+| Navigation | G dann W | Workspace wechseln, wenn Sie zu mehreren gehören |
 | Erstellen | C | Datensatz oder Liste hinzufügen |
 | Listen und Ansichten | G dann 1 bis 9 | Listen nach ihrer Position in Ihrer Seitenleiste; ausgeblendete Listen werden übersprungen |
 | Listen und Ansichten | V | Ansicht einer Liste oder des Dashboards wechseln |
@@ -93,7 +94,7 @@ Drücken Sie ? oder wählen Sie **Tastenkürzel** im persönlichen Menü, um all
 | Formulare | Cmd/Strg+Enter | Offenes Formular speichern |
 | Formulare | Esc | Obersten Dialog oder Drawer schließen |
 
-Nach G haben Sie etwa eine Sekunde für die zweite Taste; ein Hinweis zeigt, dass die App wartet. Kürzel für Seiten, die Ihre Rolle nicht öffnen darf, fehlen. Die Suche listet dieselben Befehle mit ihren Tasten: oben **Mate fragen**, dann die Ansichten der Liste, auf der Sie sind, die Seiten und **Hinzufügen**. Wenn Sie Spracheingabe nutzen oder versehentlich Tasten drücken, schalten Sie **Einzeltasten-Kürzel** unten im Kürzel-Dialog aus; Kürzel mit Cmd/Strg funktionieren weiter. Die Einstellung gilt nur für Sie und auf allen Geräten.
+Nach G haben Sie etwa eine Sekunde für die zweite Taste; ein Hinweis zeigt, dass die App wartet. Kürzel für Seiten, die Ihre Rolle nicht öffnen darf, fehlen. Die Suche listet dieselben Befehle mit ihren Tasten: oben **Mate fragen**, dann die Ansichten der Liste, auf der Sie sind, die Seiten, **Hinzufügen** und, mit mehreren Workspaces, **Workspace wechseln…**. Wenn Sie Spracheingabe nutzen oder versehentlich Tasten drücken, schalten Sie **Einzeltasten-Kürzel** unten im Kürzel-Dialog aus; Kürzel mit Cmd/Strg funktionieren weiter. Die Einstellung gilt nur für Sie und auf allen Geräten.
 
 ## Was passiert beim ersten Start? [#what-happens-on-first-run]
 

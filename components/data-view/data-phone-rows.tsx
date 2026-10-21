@@ -15,6 +15,7 @@ import { cn } from "@/core/utils/cn";
 
 import { DataViewItemLayout } from "./data-view-item-layout";
 import { useGroupLabel, visibleGroups } from "./group-label";
+import { isInteractiveClick } from "./is-interactive-click";
 
 type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
@@ -77,7 +78,17 @@ export const DataPhoneRows = observer(function DataPhoneRows<E extends HasId>({
             />
           )}
 
-          <div className="pointer-events-none relative [&_[data-add-property]]:pointer-events-auto [&_[data-chip-column]]:pointer-events-auto">
+          <div
+            className="pointer-events-none relative [&_[data-add-property]]:pointer-events-auto [&_[data-chip-column]]:pointer-events-auto"
+            role="presentation"
+            onClick={(event) => {
+              if (!event.currentTarget.contains(event.target as Node) || isInteractiveClick(event)) return;
+              event.currentTarget.parentElement
+                ?.querySelector<HTMLElement>(":scope > a, :scope > button")
+                ?.focus({ preventScroll: true });
+              open();
+            }}
+          >
             {renderCard(item)}
           </div>
 

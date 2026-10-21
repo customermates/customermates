@@ -24,4 +24,5 @@ export abstract class RecordWidgetConfigurationRepo {
     kind: RecordWidgetQueryKind,
     query: Prisma.InputJsonValue,
   ): Promise<void>;
+  abstract trashCompanyWide(companyId: string, id: string): Promise<{ name: string; userId: string } | null>;
 }

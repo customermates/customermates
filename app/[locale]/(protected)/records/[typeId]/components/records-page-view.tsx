@@ -132,7 +132,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
   const rowActions = useCallback(
     (record: RecordRow) => {
       const name = recordRowName(store, record, t);
-      const canDelete = store.presentation.permittedActions.includes("delete") && !record.protectedKind;
+      const canDelete = store.presentation.permittedActions.includes("delete");
       return (
         <RowActions
           name={name}
@@ -245,6 +245,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
           rowLabel={recordName}
           store={store}
           view={view}
+          onRowClick={openRecord}
         />
       );
       break;

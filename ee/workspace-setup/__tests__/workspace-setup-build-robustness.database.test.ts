@@ -35,7 +35,6 @@ const di = await import("@/core/di");
 const { agencyPlan } = await import("@/features/workspace-setup/__tests__/setup-plan-fixtures");
 const { SetupPlanSchema } = await import("@/features/workspace-setup/setup-plan.schema");
 const { emptySetupPhase } = await import("../workspace-setup-phases");
-const { notifyWorkspaceSetupOnce } = await import("../workspace-setup-notice-marker");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -152,19 +151,5 @@ describeDatabase("workspace setup build claims against the database", { timeout:
     expect(
       await other.run(() => di.getWorkspaceSetupRepo().findWikiPageCreatedSince("How we work", before)),
     ).toBeNull();
-  });
-
-  it("stores which notice was sent on the setup, so a repeated notify step sends nothing", async () => {
-    const ws = await workspace();
-    const setupId = await buildingSetup(ws);
-    await runWithoutTenant(() =>
-      prisma.workspaceSetup.update({ where: { id: setupId }, data: { status: "failed", finishedAt: new Date() } }),
-    );
-    const notifier = { send: vi.fn(() => Promise.resolve(true)) };
-    const repo = di.getWorkspaceSetupRepo();
-
-    expect(await ws.run(() => notifyWorkspaceSetupOnce(repo, notifier, setupId, "build"))).toBe("workspaceFailed");
-    expect(await ws.run(() => notifyWorkspaceSetupOnce(repo, notifier, setupId, "build"))).toBeNull();
-    expect(notifier.send).toHaveBeenCalledExactlyOnceWith("workspaceFailed");
   });
 });

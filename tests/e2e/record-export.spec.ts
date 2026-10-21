@@ -178,6 +178,8 @@ test("round-trips deal line items and their calculated total through the transfe
   await page.keyboard.press("Enter");
   const line = dialogs.getByRole("region", { name: "Line items" }).getByRole("button", { name: "Transfer line", exact: true });
   await expect(line).toBeVisible();
+  // A nested create reloads the parent; until that reload lands it is read-only (no Add row) and a row click is lost.
+  await expect(dialogs.getByRole("button", { name: "Add Line item", exact: true })).toBeVisible();
   await openRecordLink(line);
   await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(2);
   const child = dialogs.last();

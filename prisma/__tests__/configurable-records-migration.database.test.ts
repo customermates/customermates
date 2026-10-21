@@ -335,29 +335,24 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     expect(
       await rows(
         client,
-        'SELECT "createdAt","updatedAt","protectedKind","systemData" FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 AND id=$3',
+        'SELECT "createdAt","updatedAt","systemData" FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 AND id=$3',
         [f.companyId, id("deal"), f.shared],
       ),
     ).toEqual([
       {
         createdAt: LEGACY_TIMESTAMPS.createdAt,
         updatedAt: LEGACY_TIMESTAMPS.updatedAt,
-        protectedKind: null,
         systemData: null,
       },
     ]);
+    // The pending member's authorization task of the upgrade is removed by 20261019180000; the member stays pending.
     expect(
-      await rows(
-        client,
-        'SELECT "protectedKind","systemData" FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 AND id=$3',
-        [f.companyId, id("task"), f.tasks.protected],
-      ),
-    ).toEqual([
-      {
-        protectedKind: "membershipAuthorization",
-        systemData: { relatedUserId: f.member.id },
-      },
-    ]);
+      await rows(client, 'SELECT id FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 AND id=$3', [
+        f.companyId,
+        id("task"),
+        f.tasks.protected,
+      ]),
+    ).toEqual([]);
 
     // Line items and rollups: 2 x 1000 + 3 x 200 = 2600 over quantity 5; 60% weights 1560.
     expect(await decimal(client, f, "lineItem", f.lines.weightedA, "lineItem.amount")).toEqual({
@@ -417,7 +412,8 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
       value: "0",
       currency: null,
     });
-    // Exact decimals of binary legacy prices: 42.175 x 3 + 0.30000000000000004 x 10.
+    // Binary legacy prices keep their exact decimals; calculated money is rounded to the cent like the engine
+    // (20261019180000): 3 x 42.18 + 10 x 0.30 instead of 42.175 x 3 + 0.30000000000000004 x 10.
     expect(await decimal(client, f, "service", f.services.binary, "service.amount")).toEqual({
       state: "value",
       value: "0.30000000000000004",
@@ -425,7 +421,7 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     });
     expect(await decimal(client, f, "deal", f.deals.exact, "deal.totalValue")).toEqual({
       state: "value",
-      value: "129.5250000000000004",
+      value: "129.54",
       currency: "EUR",
     });
     expect(await decimal(client, f, "deal", f.deals.exact, "deal.totalQuantity")).toEqual({
@@ -913,7 +909,7 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     expect(await rows(client, "SELECT to_regclass('\"CrmRecord\"') AS table")).toEqual([{ table: null }]);
   });
 
-  it("weights deal values with fractional probabilities exactly", async () => {
+  it("weights deal values with fractional probabilities and stores them rounded to the cent", async () => {
     const { client } = await legacyDatabase();
     const f = await populateLegacyWorkspace(client);
     await client.query(
@@ -922,7 +918,8 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     );
     await client.query('UPDATE "Service" SET amount = 200.01 WHERE id = $1', [f.services.b]);
     await applyConfigurableRecordsMigration(client);
-    // (2 x 1000 + 3 x 200.01) x 33.333333333333336 / 100, without rounding (rounded division gives ...736).
+    // (2 x 1000 + 3 x 200.01) x 33.333333333333336 / 100 is exactly 866.6766666666667360008 (rounded division
+    // would give ...736); 20261019180000 stores it rounded to the cent, as the engine does.
     expect(await decimal(client, f, "deal", f.deals.weighted, "deal.totalValue")).toEqual({
       state: "value",
       value: "2600.03",
@@ -930,7 +927,7 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     });
     expect(await decimal(client, f, "deal", f.deals.weighted, "deal.weightedValue")).toEqual({
       state: "value",
-      value: "866.6766666666667360008",
+      value: "866.68",
       currency: "EUR",
     });
   });

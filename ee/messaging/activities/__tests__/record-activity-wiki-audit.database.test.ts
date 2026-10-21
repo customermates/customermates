@@ -62,7 +62,7 @@ describeDatabase("Knowledge Base audit entries in workspace activity", () => {
         ),
       );
       await prisma.rolePermission.create({
-        data: { companyId: company.id, roleId: auditRole.id, resource: Resource.auditLog, action: Action.readAll },
+        data: { companyId: company.id, roleId: auditRole.id, resource: Resource.activityLog, action: Action.readAll },
       });
       const wikiEntry = await prisma.eventLog.create({
         data: {
@@ -97,7 +97,7 @@ describeDatabase("Knowledge Base audit entries in workspace activity", () => {
         role: {
           ...seed.auditRole,
           permissions: [
-            { id: randomUUID(), resource: Resource.auditLog, action: Action.readAll },
+            { id: randomUUID(), resource: Resource.activityLog, action: Action.readAll },
             ...(wiki ? [{ id: randomUUID(), resource: Resource.wiki, action: Action.readAll }] : []),
           ],
         },

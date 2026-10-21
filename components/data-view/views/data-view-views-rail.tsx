@@ -181,7 +181,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
       }}
       aria-label={t("DataView.views.railLabel")}
       className={cn(
-        "flex shrink-0 gap-1.5",
+        "flex shrink-0 gap-1.5 pt-1",
         joinsTopBar
           ? "items-start border-b border-border bg-background px-4 ps-[calc(1rem+var(--safe-left,0px))] pe-[calc(1rem+var(--safe-right,0px))]"
           : "items-center",

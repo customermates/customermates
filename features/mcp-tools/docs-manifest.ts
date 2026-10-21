@@ -2,6 +2,8 @@ import type { ContentLocale } from "@/i18n/locale-registry";
 
 import rawManifest from "@/generated/raw-docs-manifest.json";
 
+import { stripMarkdownHeadingIds } from "@/core/utils/markdown-headings";
+
 import { env } from "@/env";
 import { generateOpenApiSpec } from "@/core/openapi/openapi-spec";
 import { resolvePublicAppLinks } from "@/features/docs/app-links";
@@ -112,7 +114,7 @@ export function getDocsPageRaw(
   const page = pages && Object.hasOwn(pages, normalized) ? pages[normalized] : undefined;
   if (!page) return null;
 
-  const markdown = pageMarkdown(source, locale, normalized, page);
+  const markdown = stripMarkdownHeadingIds(pageMarkdown(source, locale, normalized, page));
 
   return {
     slug: normalized,

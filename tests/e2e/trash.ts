@@ -11,8 +11,8 @@ export async function openTrash(page: Page, { configuration = false } = {}) {
 export const trashRow = (page: Page, label: string) =>
   page.getByRole("row").filter({ has: page.getByText(label, { exact: true }) });
 
-export async function restoreFromTrash(page: Page, label: string) {
-  await openTrash(page, { configuration: true });
+export async function restoreFromTrash(page: Page, label: string, { configuration = true } = {}) {
+  await openTrash(page, { configuration });
   await expect(trashRow(page, label)).toBeVisible();
   await runNamedRowAction(page, trashRow(page, label), label, "Restore");
   await expect(page.getByText(/^(1 item restored|Restored)/).first()).toBeVisible();

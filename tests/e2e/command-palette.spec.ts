@@ -4,6 +4,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { collectPageErrors, test, expect } from "./fixtures";
 import { invokesServerAction, serverActionIds } from "./server-actions";
+import { e2eAppMode } from "./workspace-switching";
 
 async function api(page: Page, path: string, data: unknown) {
   const response = await page.request.post(path, { data, timeout: 60000 });
@@ -207,6 +208,7 @@ async function answerResolver(route: Route, resolution: unknown) {
 }
 
 test.describe("Ask Mate fallback", () => {
+  test.skip(e2eAppMode() === "self-hosted", "The palette resolver and Ask Mate need the cloud-only assistant Mate");
   test("resolves a request with conditions to a filtered list and falls back to Ask Mate", async ({
     page,
     companyId,
@@ -277,7 +279,7 @@ test.describe("Ask Mate fallback", () => {
     await expect(page.locator("#global-data-views-menu")).toHaveAttribute("data-view-modified", "");
     await page.locator("#records-filter").click();
     await expect(page.locator("#records-filter-save")).toBeVisible();
-    await expect(page.locator("#records-filter-reset")).toBeVisible();
+    await expect(page.locator("#records-filter-cancel")).toBeVisible();
     await page.keyboard.press("Escape");
 
     const again = await openPalette(page);

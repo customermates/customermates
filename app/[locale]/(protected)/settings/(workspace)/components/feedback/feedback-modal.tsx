@@ -9,7 +9,7 @@ import { FormTextarea } from "@/components/forms/form-textarea";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppCardBody } from "@/components/card/app-card-body";
-import { FormFooterActions } from "@/components/forms/form-footer-actions";
+import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 export const FeedbackModal = observer(() => {
@@ -22,18 +22,18 @@ export const FeedbackModal = observer(() => {
   return (
     <AppModal store={store} title={t(`${translationKey}.title`)}>
       <AppForm store={store}>
-        <AppCard>
+        <AppCard className="relative">
           <AppCardHeader>
             <h2 className="text-x-lg">{t(`${translationKey}.title`)}</h2>
           </AppCardHeader>
 
-          <AppCardBody>
+          <AppCardBody className="pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]">
             <p className="text-x-sm">{t(`${translationKey}.description`)}</p>
 
             <FormTextarea required id="feedback" rows={6} />
           </AppCardBody>
 
-          <FormFooterActions anchorScope="feedback-modal" />
+          <UnsavedChangesBar creating anchorScope="feedback-modal" store={store} />
         </AppCard>
       </AppForm>
     </AppModal>

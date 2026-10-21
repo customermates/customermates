@@ -10,14 +10,18 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 
 export function useNavigationGuard(store: BaseFormStore, enabled = true): void {
   const { navigationGuard } = useRootStore();
-  const router = useRouter();
+  useNavigationGuardEvents(enabled);
 
   useEffect(() => {
     if (!enabled) return;
     navigationGuard.register(store);
     return () => navigationGuard.unregister(store);
   }, [store, navigationGuard, enabled]);
+}
 
+export function useNavigationGuardEvents(enabled = true): void {
+  const { navigationGuard } = useRootStore();
+  const router = useRouter();
   useEffect(() => {
     if (!enabled) return;
     function handleBeforeUnload(event: BeforeUnloadEvent) {

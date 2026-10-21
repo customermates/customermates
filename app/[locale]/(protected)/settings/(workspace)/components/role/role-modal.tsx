@@ -19,7 +19,7 @@ import { AppModal } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
-import { FormFooterActions } from "@/components/forms/form-footer-actions";
+import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { SectionRows } from "@/components/ui/section-rows";
 import { AppForm } from "@/components/forms/form-context";
@@ -47,7 +47,7 @@ const SYSTEM_RESOURCE_ORDER = [
   Resource.company,
   Resource.dataModel,
   Resource.wiki,
-  Resource.auditLog,
+  Resource.activityLog,
   Resource.inboxMessages,
   Resource.routines,
 ];
@@ -184,12 +184,12 @@ export const RoleModal = observer(({ store }: Props) => {
       title={t("RoleModal.title")}
     >
       <AppForm store={store}>
-        <AppCard>
+        <AppCard className="relative">
           <AppCardHeader className="items-start">
             <h2 className="grow truncate text-base font-semibold">{t("RoleModal.title")}</h2>
           </AppCardHeader>
 
-          <AppCardBody>
+          <AppCardBody className="pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]">
             {store.loadFailed && (
               <Alert color="danger" description={t("ErrorCard.title")}>
                 <Button size="sm" variant="secondary" onClick={() => runUserAction(store.loadContext)}>
@@ -253,7 +253,7 @@ export const RoleModal = observer(({ store }: Props) => {
             </CollapsibleSection>
           </AppCardBody>
 
-          <FormFooterActions anchorScope="role-modal" store={store} />
+          <UnsavedChangesBar anchorScope="role-modal" creating={!form.id} store={store} onSave={store.onSubmit} />
         </AppCard>
       </AppForm>
     </AppModal>

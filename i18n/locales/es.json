@@ -37,6 +37,41 @@
     "privacyLink": "Detalles de privacidad",
     "title": "Ayúdanos a saber qué funciona"
   },
+  "ActivityDetail": {
+    "eventAt": "{event} el {date}",
+    "fields": {
+      "acceptanceType": "Tipo de aceptación",
+      "acceptingEmail": "Aceptado por",
+      "changedDocuments": "Documentos modificados",
+      "country": "País",
+      "createType": "Nuevo tipo",
+      "cronExpression": "Programación",
+      "debounceSeconds": "Retardo",
+      "delete": "Movido a la papelera",
+      "deletePermanently": "Eliminado definitivamente",
+      "disabledReason": "Motivo de desactivación",
+      "effectiveAt": "Vigente desde",
+      "isNewCompany": "Primera persona del espacio",
+      "markdown": "Markdown",
+      "prompt": "Instrucciones",
+      "publishSummary": "Resumen publicado",
+      "putAccessPreset": "Plantilla de acceso",
+      "putCapability": "Funcionalidad",
+      "putField": "Campo",
+      "putRelationship": "Relación",
+      "putType": "Tipo",
+      "recipientEmail": "Enviado a",
+      "removalReason": "Motivo de eliminación",
+      "restore": "Restaurado",
+      "timezone": "Zona horaria",
+      "triggerEvents": "Eventos del disparador",
+      "triggerFilters": "Filtros del disparador",
+      "triggerKind": "Disparador",
+      "versions": "Versiones de documentos",
+      "visibility": "Visibilidad"
+    },
+    "unchangedLines": "{count, plural, one {# línea sin cambios} other {# líneas sin cambios}}"
+  },
   "AgentChat": {
     "activity": {
       "approval": {
@@ -796,41 +831,6 @@
   "ApiKeysCard": {
     "unnamed": "Sin nombre"
   },
-  "AuditLogModal": {
-    "eventAt": "{event} el {date}",
-    "fields": {
-      "acceptanceType": "Tipo de aceptación",
-      "acceptingEmail": "Aceptado por",
-      "changedDocuments": "Documentos modificados",
-      "country": "País",
-      "createType": "Nuevo tipo",
-      "cronExpression": "Programación",
-      "debounceSeconds": "Retardo",
-      "delete": "Movido a la papelera",
-      "deletePermanently": "Eliminado definitivamente",
-      "disabledReason": "Motivo de desactivación",
-      "effectiveAt": "Vigente desde",
-      "isNewCompany": "Primera persona del espacio",
-      "markdown": "Markdown",
-      "prompt": "Instrucciones",
-      "publishSummary": "Resumen publicado",
-      "putAccessPreset": "Plantilla de acceso",
-      "putCapability": "Funcionalidad",
-      "putField": "Campo",
-      "putRelationship": "Relación",
-      "putType": "Tipo",
-      "recipientEmail": "Enviado a",
-      "removalReason": "Motivo de eliminación",
-      "restore": "Restaurado",
-      "timezone": "Zona horaria",
-      "triggerEvents": "Eventos del disparador",
-      "triggerFilters": "Filtros del disparador",
-      "triggerKind": "Disparador",
-      "versions": "Versiones de documentos",
-      "visibility": "Visibilidad"
-    },
-    "unchangedLines": "{count, plural, one {# línea sin cambios} other {# líneas sin cambios}}"
-  },
   "AuthSocialErrors": {
     "accessDenied": "El inicio de sesión se canceló en el proveedor.",
     "accountAlreadyLinkedToDifferentUser": "Esta cuenta social ya está vinculada a otro usuario.",
@@ -1124,8 +1124,14 @@
       "dataViewNotFound": "No se encontró esta vista guardada.",
       "dataViewUpdateEmpty": "Indica un nombre o al menos un ajuste de vista para actualizar.",
       "demoMode": "Esta acción no está disponible en el modo de demostración. Inicia sesión para acceder a todas las funciones.",
+      "draftAlreadySent": "Este borrador ya se envió.",
+      "draftChanged": "Este borrador cambió después de que lo abrieras.",
       "draftMessageNotFound": "No se ha encontrado ese borrador. Puede que ya se haya enviado o descartado.",
-      "draftThreadNotSent": "Este borrador aún no tiene conversación. Envíalo desde la bandeja de entrada.",
+      "draftRecipientsChanged": "Estos destinatarios no coinciden con el borrador guardado. Un mensaje nuevo mantiene sus destinatarios en Para, y los destinatarios en Cco no pueden pasar a Para o Cc.",
+      "draftSendInProgress": "Este borrador ya se está enviando. Revisa la conversación en un momento.",
+      "draftSendOutcomeUnknown": "Puede que este borrador ya se haya enviado, pero no se pudo confirmar. Revisa la conversación y tu carpeta de enviados. Para enviarlo de todos modos, edita y actualiza antes el borrador.",
+      "draftTargetMismatch": "Este borrador pertenece a otra conversación o canal.",
+      "draftThreadNotSent": "Esta conversación solo existe como borrador guardado. Envíalo con su draftMessageId y su draftRevision.",
       "draftToRecipientsLocked": "Un mensaje nuevo guardado mantiene sus destinatarios en Para. Descarta el borrador y empieza un mensaje nuevo para escribir a otra persona.",
       "duplicateOutboundSuppressed": "Hace un momento se envió un mensaje idéntico a esta conversación. Cambia el texto o espera un minuto antes de reintentar.",
       "duplicateWebhookEvents": "No se permiten eventos duplicados.",
@@ -1138,6 +1144,7 @@
       "emailMismatch": "Las direcciones de correo deben coincidir.",
       "emailNotVerified": "Correo no verificado.",
       "emailRecipientsRequired": "Añade al menos un destinatario en Para, Cc o Cco.",
+      "emailVerificationRequired": "Verifica tu dirección de correo para seguir usando esta cuenta. Inicia sesión en la app y solicita un nuevo enlace de verificación.",
       "enterpriseCheckoutUnavailable": "Los espacios de trabajo Enterprise se facturan manualmente y no pueden iniciar el pago de autoservicio.",
       "filterBetweenInvalidArrayLength": "El operador 'between' requiere un array con exactamente 2 elementos.",
       "generic": "Se ha producido un error.",
@@ -1240,6 +1247,7 @@
       "routineScheduleInvalid": "Esa programación no es una expresión cron válida.",
       "routineScheduleRequired": "Elige una programación o una fecha única para esta rutina.",
       "routineScheduleTooFrequent": "Esta programación se ejecuta con demasiada frecuencia. Las rutinas pueden ejecutarse como máximo cada 15 minutos.",
+      "routinesRequireCloud": "Las rutinas se ejecutan en Customermates Cloud. Una instancia autoalojada no puede ejecutarlas.",
       "routineTestRequiresEnabled": "Activa la rutina antes de probarla.",
       "routineTimeZoneInvalid": "Esa zona horaria no es compatible.",
       "routineTriggerEventsRequired": "Selecciona al menos un evento para esta rutina.",
@@ -1646,11 +1654,6 @@
       "manual": "Manual"
     },
     "stageProbability": "Probabilidad de la etapa",
-    "systemTasks": {
-      "userPendingAuthorization": {
-        "alert": "Esta es una tarea del sistema que no se puede eliminar manualmente. Aprueba al usuario en la <link>configuración de la empresa</link> para resolverla."
-      }
-    },
     "table": {
       "columns": {
         "action": "Acción",
@@ -2276,8 +2279,7 @@
       "pickerTitle": "Cambiar de vista",
       "railLabel": "Vistas guardadas",
       "recordCount": "{count, plural, one {# registro} other {# registros}}",
-      "resetChanges": "Restablecer cambios",
-      "unsavedChangesNotice": "Cambios sin guardar en esta vista"
+      "resetChanges": "Restablecer cambios"
     }
   },
   "Diagrams": {
@@ -2313,6 +2315,7 @@
   "DocsSidebar": {
     "apiKeys": "Claves de API",
     "appAssistant": "Asistente",
+    "appCalendar": "Calendario",
     "appCompany": "Empresa",
     "appDashboard": "Panel",
     "appGuide": "Guía de la aplicación",
@@ -2348,6 +2351,7 @@
     "bold": "Negrita",
     "bulletList": "Lista con viñetas",
     "code": "Código",
+    "codeBlock": "Bloque de código",
     "confirm": "Aplicar el enlace",
     "divider": "Separador",
     "formatting": "Formato",
@@ -2600,17 +2604,21 @@
       "ccLabel": "Cc",
       "createContact": "Crear \"{query}\"",
       "draftAttachmentsUnsupported": "Elimina los archivos adjuntos antes de guardar este borrador.",
+      "draftChangedNotice": "Este borrador cambió después de que lo abrieras. Tu texto sigue aquí: carga la versión más reciente o envía la tuya.",
       "draftDiscardFailed": "No se pudo descartar el borrador",
       "draftEdit": "Editar",
       "draftSaved": "Borrador guardado. Lo encontrarás en la bandeja de entrada.",
       "draftSendNow": "Enviar el borrador",
+      "draftSentEarlier": "Este borrador ya se envió. No se ha vuelto a enviar nada.",
       "emailContent": "Contenido del correo",
       "emojiPicker": "Insertar un emoji",
       "from": "De",
       "inmailSignaturePlaceholder": "Firma",
       "inmailSubjectPlaceholder": "Asunto del InMail",
+      "loadLatestDraft": "Cargar la versión más reciente",
       "loadRemoteImages": "Cargar las imágenes remotas",
       "messageSent": "Mensaje enviado.",
+      "messageSentPendingSync": "Mensaje enviado. Aparecerá en la bandeja de entrada cuando tu buzón lo sincronice.",
       "moreSendOptions": "Más opciones de envío",
       "noContacts": "Sin registros.",
       "retry": "Reintentar",
@@ -2618,6 +2626,7 @@
       "send": "Enviar",
       "sendAs": "Enviar como",
       "sendInBackground": "Puedes seguir trabajando. Te avisaremos cuando se haya enviado el mensaje.",
+      "sendMyDraft": "Enviar la mía",
       "sendOutcomeUnknown": "Puede que se haya enviado. Revisa la conversación antes de volver a enviarlo.",
       "sendStarted": "Enviando mensaje",
       "subjectPlaceholder": "Asunto",
@@ -2771,6 +2780,7 @@
       "goList": "Listas según su posición en tu barra lateral",
       "goRoutines": "Rutinas",
       "goSettings": "Ajustes",
+      "goWorkspaces": "Cambiar de espacio de trabajo",
       "openFilters": "Abrir los filtros de una lista",
       "save": "Guardar el formulario abierto",
       "search": "Buscar",
@@ -3011,7 +3021,6 @@
       "title": "Unirte a un espacio de trabajo existente"
     },
     "optionsLabel": "Opciones de configuración del espacio de trabajo",
-    "signedInAs": "Sesión iniciada como",
     "subtitle": "Crea un espacio de trabajo para tu negocio, un proyecto o tu propio trabajo, o únete a un equipo que ya usa Customermates.",
     "title": "¿Cómo quieres empezar?"
   },
@@ -3118,7 +3127,6 @@
         }
       }
     },
-    "continue": "Continuar",
     "finish": "Finalizar",
     "invite": {
       "emailCount": "{current} de {max} correos · sepáralos con una coma o pulsa Intro",
@@ -3127,6 +3135,9 @@
       "linkFailed": "No se pudo crear el enlace de invitación.",
       "loadingLink": "Generando el enlace…",
       "send": "Enviar las invitaciones",
+      "sendFailed": "{failed, plural, one {No se pudo enviar la invitación.} other {No se pudieron enviar las # invitaciones.}}",
+      "sendFailedDescription": "El servicio de correo no las aceptó. Comparte el enlace de invitación en su lugar.",
+      "sendPartlyFailed": "{sent, plural, one {# invitación enviada} other {# invitaciones enviadas}}, {failed, plural, one {# no se pudo enviar.} other {# no se pudieron enviar.}}",
       "sentSuccess": "{count, plural, one {# invitación enviada.} other {# invitaciones enviadas.}}",
       "tabs": {
         "email": "Enviar correos",
@@ -3434,6 +3445,64 @@
     "withdrawConfirmDescription": "Los administradores ya no ven tu solicitud. Para unirte más tarde, puedes volver a solicitarlo con un enlace de invitación y un administrador tendrá que aprobar la solicitud.",
     "withdrawConfirmTitle": "¿Retirar tu solicitud para unirte a {name}?",
     "withdrawShort": "Retirar"
+  },
+  "Planner": {
+    "addSource": "Añadir fuente de fechas",
+    "calendarSync": "Exportar y suscribirse",
+    "colorField": "Color por",
+    "connectCalendar": "Conectar calendario",
+    "copyLink": "Copiar enlace",
+    "createSubscription": "Crear URL de suscripción",
+    "download": "Descargar .ics",
+    "editSource": "Editar {source}",
+    "endDate": "Fecha de fin",
+    "event": "Evento",
+    "filterCount": "{count, plural, one {# filtro} other {# filtros}}",
+    "filters": "Filtros",
+    "includePersonal": "Incluir eventos conectados seleccionados (puede duplicar un calendario existente).",
+    "list": "Lista",
+    "modes": {
+      "agenda": "Agenda",
+      "month": "Mes",
+      "quarter": "Trimestre",
+      "timeline": "Cronograma",
+      "week": "Semana"
+    },
+    "next": "Siguiente período",
+    "noEndDate": "Fecha única",
+    "noSources": "Selecciona fechas de tus listas para crear tu calendario.",
+    "openList": "Abrir en lista",
+    "openProvider": "Abrir calendario conectado",
+    "personalCalendars": "Mis calendarios conectados",
+    "previous": "Período anterior",
+    "privateUrl": "URL privada de suscripción",
+    "privateUrlDescription": "Cualquiera con este enlace podrá leer los eventos mientras tengas acceso. Cópialo ahora; solo se muestra una vez. Revócalo para detener las actualizaciones.",
+    "quarterLabel": "Trimestre {number} · {year}",
+    "readOnlyEvent": "Este evento procede de un calendario conectado. Edítalo en el calendario original.",
+    "removeSource": "Eliminar fuente de fechas",
+    "revokeSubscription": "Revocar suscripción",
+    "search": "Buscar en calendario…",
+    "snapshot": "Descargar instantánea",
+    "snapshotDescription": "Descarga el período mostrado y las fuentes activas. El archivo no se actualiza automáticamente.",
+    "sort": "Ordenar eventos",
+    "sorts": {
+      "date": "Por fecha",
+      "source": "Por fuente",
+      "title": "Por título"
+    },
+    "sourceColor": "Color de fuente",
+    "sources": "Fuentes de fechas",
+    "sourceSettings": "Configurar fuente de fechas",
+    "sourceUnavailable": "Una fuente no está disponible. Revisa sus campos, filtros y permisos.",
+    "startDate": "Inicio o intervalo",
+    "subscription": "Suscribirse a actualizaciones",
+    "subscriptionDescription": "Crea una URL privada para las fuentes y filtros activos. Incluye los últimos 30 días y los próximos 335. Tu aplicación decide la frecuencia de actualización. Los cambios posteriores requieren una nueva URL.",
+    "subscriptionNumber": "Suscripción {number}",
+    "syncDescription": "Usa este calendario en Apple Calendar, Outlook, Google Calendar u otra aplicación. Las actualizaciones van de Customermates a tu aplicación; edita los registros en Customermates.",
+    "timeZone": "Zona horaria",
+    "title": "Calendario",
+    "truncated": "Algunos eventos superan el límite. Reduce el período o filtra una fuente. Las exportaciones requieren resultados completos.",
+    "unavailableSource": "Fuente no disponible"
   },
   "ProfileSections": {
     "apiKeysDescription": "Claves de API de larga duración para el acceso programático."
@@ -3769,10 +3838,8 @@
     "configurationDeletion": {
       "blockedMessage": "{name} no se puede eliminar mientras otras partes de tu configuración lo sigan usando.",
       "blockers": {
-        "binding": "{target} controla el acceso al espacio de trabajo de {source} y no se puede eliminar.",
         "calculation": "{source} se calcula a partir de {target}.",
         "parentAccess": "{source} obtiene su acceso a través de {target}.",
-        "protected": "{source} controla el acceso al espacio de trabajo y no se puede eliminar.",
         "requiresRestore": "Restaura primero {target}, {source} pertenece a él.",
         "routine": "La rutina {source} reacciona a {target}.",
         "snapshotTrigger": "{source} guarda su valor cuando cambia {target}.",
@@ -3790,7 +3857,8 @@
         "webhookPaused": "{count, plural, one {El webhook {consumers} queda en pausa porque {target} era su único disparador. Elige un nuevo disparador antes de volver a activarlo.} other {# webhooks quedan en pausa porque {target} era su único disparador: {consumers}. Elige un nuevo disparador antes de volver a activarlos.}}",
         "webhookTrigger": "{count, plural, one {{target} se quita del disparador del webhook {consumers}.} other {{target} se quita del disparador de # webhooks: {consumers}.}}",
         "widget": "{count, plural, one {{target} se quita de los filtros o la agrupación del widget {consumers}.} other {{target} se quita de los filtros o la agrupación de # widgets: {consumers}.}}",
-        "widgetCount": "{count, plural, one {El widget {consumers} cuenta registros en lugar de medir {target}.} other {# widgets cuentan registros en lugar de medir {target}: {consumers}.}}"
+        "widgetCount": "{count, plural, one {El widget {consumers} cuenta registros en lugar de medir {target}.} other {# widgets cuentan registros en lugar de medir {target}: {consumers}.}}",
+        "widgetTrashed": "{count, plural, one {El widget {consumers} se mueve a la papelera junto con {target}.} other {# widgets se mueven a la papelera junto con {target}: {consumers}.}}"
       },
       "configureActions": "Acciones de Configurar",
       "deleteColumn": "Eliminar columna",
@@ -4233,6 +4301,9 @@
   },
   "RecordWidgets": {
     "attribution": "Un registro puede aparecer en varios grupos. La suma de los grupos puede superar el total.",
+    "contributingCount": "{count, plural, one {# registro subyacente} other {# registros subyacentes}}",
+    "contributingRecords": "Selección del gráfico",
+    "dataTitle": "Datos de {name}",
     "funnelClosedStage": "{label}: {value}, una etapa perdida que se muestra fuera del embudo.",
     "funnelTooltip": "{value} ({conversion} del paso anterior)",
     "group": "Agrupar por",
@@ -4256,6 +4327,7 @@
     "notes": "Sobre estas cifras",
     "numberContextAverage": "{count, number} {label} · media {average}",
     "numberRecords": "{count, plural, one {registro} other {registros}}",
+    "openInList": "Abrir en {list}",
     "overall": "Total: {value}",
     "previewFailed": "No se pudo cargar la vista previa. Inténtalo de nuevo.",
     "quarterLabel": "T{quarter} {year}",
@@ -4275,6 +4347,7 @@
     "unavailableMember": "Usuario no disponible",
     "unplacedGroups": "Algunos registros están restringidos o no se pudieron calcular y no se muestran.",
     "value": "Campo de valor",
+    "viewData": "Ver datos",
     "weekOf": "Semana del {date}",
     "weekShort": "Sem. {week} {year}",
     "withoutDate": "{count, plural, one {# registro no tiene fecha y no se muestra.} other {# registros no tienen fecha y no se muestran.}}",
@@ -4308,8 +4381,8 @@
     "recordTypesHint": "Los tipos nuevos empiezan sin acceso. Los elementos integrados heredan el acceso de su registro principal.",
     "resourceHeader": "Recurso",
     "resources": {
+      "activityLog": "Registro de actividad",
       "api": "API y webhooks",
-      "auditLog": "Registro de auditoría",
       "company": "Empresa",
       "dataModel": "Modelo de datos",
       "inboxMessages": "Mensajes de la bandeja de entrada",
@@ -4702,9 +4775,11 @@
     "permanentViewWidgets": "Para una vista del panel, sus widgets también se eliminan permanentemente.",
     "restore": "Restaurar",
     "restoreBlocked": {
+      "incompatible": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque ya no encajan con la configuración o los datos actuales.",
       "listDeleted": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque su lista está en la papelera. Restaura primero la lista.",
       "nameTaken": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque otro elemento usa ahora su nombre o lugar.",
       "notFound": "{count, plural, one {# elemento ya no existe y salió} other {# elementos ya no existen y salieron}} de la papelera.",
+      "operationPending": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera hasta que termine la restauración en segundo plano. Después, restáuralos de nuevo.",
       "parentDeleted": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque aquello a lo que pertenecen está en la papelera. Restáuralo primero.",
       "requiresRestore": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque algo que necesitan está en la papelera. Restáuralo primero.",
       "routineLimitReached": "{count, plural, one {# rutina sigue} other {# rutinas siguen}} en la papelera porque su propietario ya tiene todas las rutinas que incluye su plan."
@@ -4977,6 +5052,15 @@
       "workingTitle": "Mate está conociendo tu empresa"
     }
   },
+  "WithoutErrorReporting": {
+    "ErrorCard": {
+      "contactSupport": "Vuelve a intentarlo. Si el problema continúa, contacta con la persona que administra esta instancia de Customermates.",
+      "unexpectedError": "Se produjo un error inesperado. Vuelve a intentarlo."
+    },
+    "NotFoundPage": {
+      "body": "Esta página no existe o se ha movido. Revisa la dirección o vuelve a la página de inicio."
+    }
+  },
   "WorkspaceInvitation": {
     "inactive": {
       "body": "Un administrador desactivó tu acceso a este espacio de trabajo. Pídele que lo reactive.",
@@ -5009,7 +5093,8 @@
   },
   "WorkspaceMenu": {
     "inviteMembers": "Invitar miembros",
-    "label": "Menú del espacio de trabajo"
+    "label": "Menú del espacio de trabajo",
+    "pendingMembers": "{count, plural, one {# miembro esperando aprobación} other {# miembros esperando aprobación}}"
   },
   "WorkspaceOnboarding": {
     "workspaceNameDescription": "Opcional. Te ayuda a distinguir tus espacios de trabajo; puedes cambiarlo más tarde.",
@@ -5082,7 +5167,6 @@
       "addOwn": "Añadir otro",
       "continueAnyway": "Continuar de todos modos",
       "fromWebsite": "Sugerido a partir de tu sitio web",
-      "looksRight": "Es correcto",
       "upload": "Subir una hoja de cálculo",
       "winChance": "Probabilidad de cierre"
     },
@@ -5108,7 +5192,7 @@
       "failedBody": "Todo lo terminado se conserva. Reintenta la parte que no terminó para completar tu espacio.",
       "failedTitle": "Una parte de la configuración no terminó",
       "frameTitle": "Tu espacio de trabajo",
-      "keepsRunning": "Esto sigue en marcha aunque cierres la pestaña. Te enviaremos un correo cuando tu espacio de trabajo esté listo.",
+      "keepsRunning": "Esto sigue en marcha aunque cierres la pestaña.",
       "nameColumn": "Nombre",
       "phases": {
         "dashboard": "Panel",
@@ -5139,6 +5223,12 @@
       },
       "title": "Configurando tu espacio de trabajo"
     },
+    "empty": {
+      "action": "Empezar con un espacio de trabajo vacío",
+      "confirm": "Empezar vacío",
+      "description": "Te saltas la configuración guiada. No se crean listas, embudo, panel ni páginas de la base de conocimiento, así que lo construyes todo tú. Recomendamos la configuración guiada.",
+      "title": "¿Empezar con un espacio de trabajo vacío?"
+    },
     "failures": {
       "aiUnavailable": "El servicio de IA no está disponible ahora mismo. Vuelve a intentarlo en unos minutos.",
       "contactSupport": "Contactar con soporte",
@@ -5161,8 +5251,6 @@
       "entryLabel": "Entrada {index}",
       "followUpsSubtitle": "Algunas respuestas pueden entenderse de varias formas. Estas preguntas lo aclaran.",
       "followUpsTitle": "Unos detalles más",
-      "moveDown": "Bajar",
-      "moveUp": "Subir",
       "optionalPlaceholder": "Déjalo vacío si no se te ocurre nada",
       "prefillFailed": "No pudimos leer tu sitio web, así que no hay nada rellenado. Las preguntas solo llevan unos minutos.",
       "rangeFrom": "Desde",
@@ -5323,8 +5411,6 @@
       "planningTitle": "Preparando tu plan",
       "progress": {
         "label": "Progreso del plan",
-        "leave": "Puedes cerrar esta página. Escribiremos a <strong>{email}</strong> en cuanto tu plan esté listo.",
-        "leaveWithoutEmail": "Puedes cerrar esta página. Te enviaremos un correo en cuanto tu plan esté listo.",
         "minutesLeft": "{minutes, plural, one {Queda aproximadamente # minuto} other {Quedan aproximadamente # minutos}}",
         "overdue": "Está tardando un poco más de lo habitual. Ya casi está.",
         "steps": {
@@ -5337,6 +5423,7 @@
         "typical": "Mate está diseñando tu espacio de trabajo a partir de tus respuestas. Suele tardar entre 1 y 2 minutos.",
         "underMinute": "Queda menos de un minuto"
       },
+      "reviewHint": "Revisa el plan y luego crea tu espacio de trabajo.",
       "sampleSummary": "{count, plural, one {Añade # registro de ejemplo para que puedas probar enseguida.} other {Añade # registros de ejemplo para que puedas probar enseguida.}}",
       "subtitle": "Esto es lo que construiremos en cuanto confirmes.",
       "title": "El plan de tu espacio de trabajo",
@@ -5467,42 +5554,6 @@
       "suggestedHint": "Revisa las respuestas marcadas y cambia lo que no encaje.",
       "suggesting": "Sugiriendo respuestas a partir de {website}",
       "title": "Rellena las respuestas desde tu sitio web"
-    }
-  },
-  "WorkspaceSetupNotice": {
-    "fallback": "Si el botón no funciona, copia y pega este enlace en tu navegador: ",
-    "greeting": "Hola {firstName}:",
-    "planFailed": {
-      "body": "Mate no pudo terminar el plan de tu espacio de trabajo. Tus respuestas están guardadas: abre la configuración para volver a intentarlo o ajustarlas.",
-      "bodyNamed": "Mate no pudo terminar el plan para {workspace}. Tus respuestas están guardadas: abre la configuración para intentarlo de nuevo o ajustarlas.",
-      "cta": "Abrir la configuración",
-      "subject": "El plan de tu espacio de trabajo necesita otro intento",
-      "subjectNamed": "Tu plan para {workspace} necesita otro intento",
-      "title": "Tu plan necesita otro intento"
-    },
-    "planReady": {
-      "body": "Mate ha preparado las listas, el pipeline, el panel y las páginas de la base de conocimientos de tu espacio de trabajo. Revisa el plan y crea tu espacio de trabajo en un solo paso.",
-      "bodyNamed": "Mate ha preparado las listas, el embudo, el panel y las páginas de la base de conocimiento para {workspace}. Revisa el plan y crea el espacio de trabajo en un solo paso.",
-      "cta": "Revisar tu plan",
-      "subject": "El plan de tu espacio de trabajo está listo",
-      "subjectNamed": "Tu plan para {workspace} está listo",
-      "title": "Tu plan está listo"
-    },
-    "workspaceFailed": {
-      "body": "Mate creó la mayor parte de tu espacio de trabajo, pero algunas partes no se pudieron terminar. Abre la configuración para volver a intentarlas.",
-      "bodyNamed": "Mate ha creado la mayor parte de {workspace}, pero algunas partes no se pudieron terminar. Abre la configuración para volver a intentarlas.",
-      "cta": "Abrir la configuración",
-      "subject": "La configuración de tu espacio de trabajo necesita una revisión",
-      "subjectNamed": "La configuración de {workspace} necesita una revisión",
-      "title": "Algunas partes necesitan una revisión"
-    },
-    "workspaceReady": {
-      "body": "Mate ha creado tu espacio de trabajo. Tus listas, vistas y panel te están esperando, y las páginas de la base de conocimientos llegan en breve.",
-      "bodyNamed": "Mate ha creado {workspace}. Tus listas, vistas y panel te esperan, y las páginas de la base de conocimientos llegan en breve.",
-      "cta": "Abrir tu espacio de trabajo",
-      "subject": "Tu espacio de trabajo está listo",
-      "subjectNamed": "{workspace} está listo",
-      "title": "Tu espacio de trabajo está listo"
     }
   }
 }

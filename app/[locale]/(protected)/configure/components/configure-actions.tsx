@@ -2,7 +2,6 @@
 
 import type { ReactNode } from "react";
 import type { RecordModelView, RecordType } from "@/features/records/record-model.schema";
-import type { TypeModalStore } from "./type-modal";
 
 import { observer } from "mobx-react-lite";
 import { List, MoreHorizontal, Plus, Trash2 } from "lucide-react";
@@ -10,7 +9,6 @@ import { List, MoreHorizontal, Plus, Trash2 } from "lucide-react";
 import { CONFIGURATION_TRASH_HREF } from "@/features/trash/trash-routes";
 import { useTranslations } from "next-intl";
 
-import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { TopBarMenuButton, TopBarPrimaryButton } from "@/components/shared/top-bar-action-buttons";
 import { IntlLink } from "@/i18n/navigation";
@@ -26,8 +24,6 @@ type Props = {
   ai: ReactNode;
   canManage: boolean;
   disabled: boolean;
-  general: TypeModalStore;
-  generalFormId: string;
   selected?: RecordType;
   canAddSublist: boolean;
   onAdd: (kind: ConfigureAddKind) => void;
@@ -39,8 +35,6 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
   ai,
   canManage,
   disabled,
-  general,
-  generalFormId,
   selected,
   canAddSublist,
   onAdd,
@@ -50,9 +44,6 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
   const t = useTranslations();
   const deletion = useConfigurationDeletion(onDeleted);
   if (!canManage) return <div className="flex shrink-0 items-center gap-1">{ai}</div>;
-  if (selected && general.original?.id === selected.id && general.hasUnsavedChanges)
-    return <FormFooterActions formId={generalFormId} placement="topbar" store={general} />;
-
   return (
     <div className="flex shrink-0 items-center gap-1">
       {ai}

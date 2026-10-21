@@ -15,7 +15,7 @@ type NavigationData = {
   keyboardPreferences: KeyboardPreferences | null;
   subscription: SubscriptionDto | null;
   trialDaysLeft: number | null;
-  systemTaskCount: number;
+  pendingMemberCount: number;
   unreadThreadCount: number;
   channelsNeedingActionCount: number;
   workspaces: WorkspaceSummary[];
@@ -26,7 +26,7 @@ export type NavigationDataLoaders = {
   sidebarLayout: () => Promise<SidebarLayout | null>;
   keyboardPreferences: () => Promise<KeyboardPreferences | null>;
   subscription: () => Promise<SubscriptionDto | null>;
-  systemTaskCount: () => Promise<number>;
+  pendingMemberCount: () => Promise<number>;
   unreadThreadCount: () => Promise<number>;
   channelsNeedingActionCount: () => Promise<number>;
   workspaces: () => Promise<WorkspaceSummary[]>;
@@ -38,7 +38,7 @@ const EMPTY_NAVIGATION_DATA: NavigationData = {
   keyboardPreferences: null,
   subscription: null,
   trialDaysLeft: null,
-  systemTaskCount: 0,
+  pendingMemberCount: 0,
   unreadThreadCount: 0,
   channelsNeedingActionCount: 0,
   workspaces: [],
@@ -54,7 +54,7 @@ export async function loadNavigationData(
 
   const [
     subscription,
-    systemTaskCount,
+    pendingMemberCount,
     unreadThreadCount,
     channelsNeedingActionCount,
     records,
@@ -63,7 +63,7 @@ export async function loadNavigationData(
     workspaces,
   ] = await Promise.all([
     loaders.subscription(),
-    loaders.systemTaskCount(),
+    loaders.pendingMemberCount(),
     loaders.unreadThreadCount(),
     loaders.channelsNeedingActionCount(),
     loaders.records(),
@@ -77,7 +77,7 @@ export async function loadNavigationData(
     keyboardPreferences,
     subscription,
     trialDaysLeft: trialDaysLeft(subscription?.trialEndDate ?? null),
-    systemTaskCount,
+    pendingMemberCount,
     unreadThreadCount,
     channelsNeedingActionCount,
     workspaces,

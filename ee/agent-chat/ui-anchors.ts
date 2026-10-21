@@ -84,11 +84,9 @@ export const FORM_PAGES: FormAnchorPage[] = [
   {
     scope: "widget-modal",
     route: "/dashboard",
-    label:
-      "dashboard widget dialog (a new widget shows Save after you pick its type, and Reset exists only when editing a widget)",
+    label: "dashboard widget dialog (a new widget shows its save bar after you pick its type)",
     opener: "widget-modal-kind",
-    resetOpener: "a widget card",
-    discard: "reset",
+    discard: "cancel",
   },
   {
     scope: "routine-modal",
@@ -453,6 +451,12 @@ export const PRIMARY_NAV_PAGES: PrimaryNavPage[] = [
     route: "/dashboard",
     description: "Sidebar link to the dashboard with pipeline widgets",
     labelKeys: ["NavigationBar.dashboard"],
+  },
+  {
+    key: "calendar",
+    route: "/calendar",
+    description: "Sidebar link to the combined calendar with record dates and connected events",
+    labelKeys: ["Planner.title"],
   },
   {
     key: "wiki",

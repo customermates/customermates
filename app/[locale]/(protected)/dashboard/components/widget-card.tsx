@@ -5,6 +5,11 @@ import type { WidgetDto } from "@/features/widget/widget.schema";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
+import { Pencil } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ItemActions, ItemActionsTrigger, ITEM_REVEAL_CLASS } from "@/components/ui/item-actions";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import type { RecordContributionGroup } from "@/features/records/record-contribution.schema";
 
 import { openWidgetEditor } from "./widget-interaction";
 
@@ -25,6 +30,7 @@ import { RecordWidgetCard } from "./record-widget-card";
 
 type Props = {
   widget: WidgetDto;
+  onInspect?: (group: RecordContributionGroup | null, label: string | null) => void;
 };
 
 async function readCalendarWindow(id: string, window: CalendarWidgetWindow) {
@@ -35,7 +41,7 @@ async function readCalendarWindow(id: string, window: CalendarWidgetWindow) {
   return { data: result.data.data, fields: result.data.fields };
 }
 
-export const WidgetCard = observer(({ widget }: Props) => {
+export const WidgetCard = observer(({ widget, onInspect }: Props) => {
   const t = useTranslations();
   const { widgetModalStore, recordWorkspaceStore } = useRootStore();
   const listLabels = (typeId: string) => recordWorkspaceStore.navigation?.types.find((type) => type.id === typeId);
@@ -70,22 +76,58 @@ export const WidgetCard = observer(({ widget }: Props) => {
     <RecordWidgetCard
       {...widget}
       listLabels={recordWorkspaceStore.navigation?.types.find((type) => type.id === widget.measure.source.typeId)}
+      onInspectGroup={onInspect}
     />
   ) : null;
 
-  return (
-    <div className="relative h-full">
-      <button
-        aria-label={t("Dashboard.widgetEditor.editTitle", {
-          name: widget.name,
-        })}
-        className="pointer-events-none absolute inset-0 z-20 rounded-xl opacity-0 outline-none focus-visible:opacity-100 focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50"
-        data-slot="widget-card-open"
-        type="button"
-        onClick={() => runUserAction(() => openWidgetEditor(widgetModalStore, widget.id))}
-      />
+  const edit = () => runUserAction(() => openWidgetEditor(widgetModalStore, widget.id));
+  const menu = (
+    <>
+      {onInspect && (
+        <DropdownMenuItem onSelect={() => onInspect(null, null)}>{t("RecordWidgets.viewData")}</DropdownMenuItem>
+      )}
 
-      {card}
-    </div>
+      <DropdownMenuItem onSelect={edit}>
+        <Pencil aria-hidden className="size-4" />
+
+        {t("Dashboard.widgetEditor.editTitle", { name: widget.name })}
+      </DropdownMenuItem>
+    </>
+  );
+  return (
+    <ItemActions label={t("Dashboard.widgetEditor.editTitle", { name: widget.name })} menu={menu}>
+      <div className="group/reveal relative h-full [&_[data-slot=card-header]]:pr-18">
+        <button
+          aria-label={
+            onInspect
+              ? t("RecordWidgets.dataTitle", { name: widget.name })
+              : t("Dashboard.widgetEditor.editTitle", { name: widget.name })
+          }
+          className="pointer-events-none absolute inset-0 z-20 rounded-xl opacity-0 outline-none focus-visible:opacity-100 focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50"
+          data-slot="widget-card-open"
+          type="button"
+          onClick={() => (onInspect ? onInspect(null, null) : edit())}
+        />
+
+        {card}
+
+        <div
+          className="absolute top-2 right-2 z-30 flex items-center gap-0.5 rounded-md bg-card"
+          data-widget-interactive=""
+        >
+          <Button
+            aria-label={t("Dashboard.widgetEditor.editTitle", { name: widget.name })}
+            className={ITEM_REVEAL_CLASS}
+            size="icon"
+            variant="ghost"
+            onClick={edit}
+          >
+            <Pencil aria-hidden className="size-4" />
+          </Button>
+
+          <ItemActionsTrigger />
+        </div>
+      </div>
+    </ItemActions>
   );
 });

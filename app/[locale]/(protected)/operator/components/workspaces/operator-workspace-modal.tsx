@@ -14,7 +14,7 @@ import { MAX_ENTERPRISE_FILE_STORAGE_GB_PER_USER } from "@/ee/operator/operator.
 
 import { AppModal } from "@/components/modal";
 import { ConfirmDialog } from "@/components/modal/confirm-dialog";
-import { FormFooterActions } from "@/components/forms/form-footer-actions";
+import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
@@ -248,7 +248,7 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
       title={identity}
       onClose={onClose}
     >
-      <AppCard>
+      <AppCard className="relative">
         <AppCardHeader>
           <div className="flex min-w-0 items-center gap-2">
             <h2 className="grow truncate text-x-lg">{workspace.workspaceLabel}</h2>
@@ -261,7 +261,7 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
           </div>
         </AppCardHeader>
 
-        <AppCardBody>
+        <AppCardBody className="pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]">
           <div className="flex flex-col gap-1.5">
             <InfoRow label={t("Common.table.columns.owner")}>{workspace.ownerEmail ?? "-"}</InfoRow>
 
@@ -488,11 +488,20 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
           <OperatorWorkspaceUsageSection key={workspace.id} companyId={workspace.id} createdAt={workspace.createdAt} />
         </AppCardBody>
 
-        <FormFooterActions
-          anchorScope="operator-modal"
-          dirty={tagsDirty || termsDirty || allowanceDirty || fileStorageDirty}
-          onSave={save}
-        />
+        {(tagsDirty || termsDirty || allowanceDirty || fileStorageDirty) && (
+          <UnsavedChangesBar
+            anchorScope="operator-modal"
+            onCancel={() => {
+              setAllowance(workspace.enterpriseCreditsPerUser ?? undefined);
+              setFileStorage(storageGigabytes(workspace.enterpriseFileStorageBytesPerUser));
+              setTrialEnd(toDateInput(workspace.trialEndDate));
+              setBillingId(workspace.lemonSqueezyId ?? "");
+              setTags(workspace.tags);
+            }}
+            onDismiss={onClose}
+            onSave={save}
+          />
+        )}
       </AppCard>
 
       <ConfirmDialog

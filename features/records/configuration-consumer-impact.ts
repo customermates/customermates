@@ -103,7 +103,7 @@ export function configurationTypeChanges(
     }
     if (
       before &&
-      (field.behavior.kind === "input" || (field.archived && !before.archived)) &&
+      (field.behavior.kind === "input" || field.behavior.kind === "snapshot" || (field.archived && !before.archived)) &&
       fieldValueDefinition({ ...before, archived: field.archived }) === fieldValueDefinition(field) &&
       !referenced(field.id)
     ) {
@@ -254,6 +254,17 @@ export async function collectConsumerImpact(
     }
   }
   for await (const widget of consumers.widgetMeasures) {
+    if (cause && deletedTypeIds.has(widget.measure.source.typeId)) {
+      cleanups.push({ kind: "trashWidget", id: widget.id });
+      if (!widget.trashed) {
+        cleaned.push({
+          consumer: { kind: "widget", id: widget.id, label: widget.name },
+          target: cause,
+          effect: "widgetTrashed",
+        });
+      }
+      continue;
+    }
     if (recordMeasureIsValid(widget.measure, model)) continue;
     if (cause && recordMeasureIsValid(widget.measure, current)) {
       const measure = cleanRecordMeasure(widget.measure, model);
@@ -315,21 +326,27 @@ export async function collectConsumerImpact(
     issues.push({ code: "widget_incompatible", typeId: widget.query.source.typeId });
   }
   for await (const { id, name, query, trashed } of consumers.activityWidgets) {
-    if (trashed) continue;
     const typeIds = [
       ...query.scope.typeIds,
       ...query.scope.records.map((ref) => ref.typeId),
       ...(query.filters ?? []).flatMap((filter) => (filter.kind === "record" ? [filter.typeId] : [])),
     ];
+    const removed = [...new Set(typeIds.filter((typeId) => deletedTypeIds.has(typeId)))];
+    if (cause && removed.length) {
+      cleanups.push({ kind: "trashWidget", id });
+      if (!trashed) {
+        cleaned.push({
+          consumer: { kind: "widget", id, label: name },
+          target: cause,
+          effect: "widgetTrashed",
+        });
+      }
+      continue;
+    }
+    if (trashed) continue;
     for (const typeId of new Set(typeIds)) {
       if (model.types.some((type) => type.id === typeId && !type.archived)) continue;
-      if (cause && deletedTypeIds.has(typeId)) {
-        blockers.push({
-          reason: "widget",
-          source: { kind: "widget", id, label: name },
-          target: cause,
-        });
-      } else issues.push({ code: "widget_incompatible", typeId });
+      issues.push({ code: "widget_incompatible", typeId });
     }
   }
   for await (const subscription of consumers.eventSubscriptions) {

@@ -37,6 +37,41 @@
     "privacyLink": "Datenschutzdetails",
     "title": "Hilf uns zu verstehen, was funktioniert"
   },
+  "ActivityDetail": {
+    "eventAt": "{event} am {date}",
+    "fields": {
+      "acceptanceType": "Art der Zustimmung",
+      "acceptingEmail": "Zugestimmt von",
+      "changedDocuments": "Geänderte Dokumente",
+      "country": "Land",
+      "createType": "Neuer Typ",
+      "cronExpression": "Zeitplan",
+      "debounceSeconds": "Verzögerung",
+      "delete": "In den Papierkorb verschoben",
+      "deletePermanently": "Endgültig gelöscht",
+      "disabledReason": "Deaktivierungsgrund",
+      "effectiveAt": "Gültig ab",
+      "isNewCompany": "Erste Person im Workspace",
+      "markdown": "Markdown",
+      "prompt": "Anweisungen",
+      "publishSummary": "Veröffentlichte Zusammenfassung",
+      "putAccessPreset": "Zugriffsvorlage",
+      "putCapability": "Funktion",
+      "putField": "Feld",
+      "putRelationship": "Beziehung",
+      "putType": "Typ",
+      "recipientEmail": "Gesendet an",
+      "removalReason": "Entfernungsgrund",
+      "restore": "Wiederhergestellt",
+      "timezone": "Zeitzone",
+      "triggerEvents": "Auslöser-Ereignisse",
+      "triggerFilters": "Auslöser-Filter",
+      "triggerKind": "Auslöser",
+      "versions": "Dokumentversionen",
+      "visibility": "Sichtbarkeit"
+    },
+    "unchangedLines": "{count, plural, one {# unveränderte Zeile} other {# unveränderte Zeilen}}"
+  },
   "AgentChat": {
     "activity": {
       "approval": {
@@ -796,41 +831,6 @@
   "ApiKeysCard": {
     "unnamed": "Unbenannt"
   },
-  "AuditLogModal": {
-    "eventAt": "{event} am {date}",
-    "fields": {
-      "acceptanceType": "Art der Zustimmung",
-      "acceptingEmail": "Zugestimmt von",
-      "changedDocuments": "Geänderte Dokumente",
-      "country": "Land",
-      "createType": "Neuer Typ",
-      "cronExpression": "Zeitplan",
-      "debounceSeconds": "Verzögerung",
-      "delete": "In den Papierkorb verschoben",
-      "deletePermanently": "Endgültig gelöscht",
-      "disabledReason": "Deaktivierungsgrund",
-      "effectiveAt": "Gültig ab",
-      "isNewCompany": "Erste Person im Workspace",
-      "markdown": "Markdown",
-      "prompt": "Anweisungen",
-      "publishSummary": "Veröffentlichte Zusammenfassung",
-      "putAccessPreset": "Zugriffsvorlage",
-      "putCapability": "Funktion",
-      "putField": "Feld",
-      "putRelationship": "Beziehung",
-      "putType": "Typ",
-      "recipientEmail": "Gesendet an",
-      "removalReason": "Entfernungsgrund",
-      "restore": "Wiederhergestellt",
-      "timezone": "Zeitzone",
-      "triggerEvents": "Auslöser-Ereignisse",
-      "triggerFilters": "Auslöser-Filter",
-      "triggerKind": "Auslöser",
-      "versions": "Dokumentversionen",
-      "visibility": "Sichtbarkeit"
-    },
-    "unchangedLines": "{count, plural, one {# unveränderte Zeile} other {# unveränderte Zeilen}}"
-  },
   "AuthSocialErrors": {
     "accessDenied": "Die Anmeldung wurde beim Anbieter abgebrochen.",
     "accountAlreadyLinkedToDifferentUser": "Dieses Social-Konto ist bereits mit einem anderen Benutzer verknüpft.",
@@ -1124,8 +1124,14 @@
       "dataViewNotFound": "Diese gespeicherte Ansicht wurde nicht gefunden.",
       "dataViewUpdateEmpty": "Gib einen Namen oder mindestens eine Ansichtseinstellung an, die aktualisiert werden soll.",
       "demoMode": "Diese Aktion ist im Demo-Modus nicht verfügbar. Melde dich an, um alle Funktionen zu nutzen.",
+      "draftAlreadySent": "Dieser Entwurf wurde bereits gesendet.",
+      "draftChanged": "Dieser Entwurf wurde geändert, nachdem du ihn geöffnet hast.",
       "draftMessageNotFound": "Dieser Entwurf wurde nicht gefunden. Möglicherweise wurde er bereits gesendet oder verworfen.",
-      "draftThreadNotSent": "Dieser Entwurf hat noch keine Unterhaltung. Sende ihn über den Posteingang.",
+      "draftRecipientsChanged": "Diese Empfänger passen nicht zum gespeicherten Entwurf. Eine neue Nachricht behält ihre An-Empfänger, und Bcc-Empfänger lassen sich nicht nach An oder Cc verschieben.",
+      "draftSendInProgress": "Dieser Entwurf wird gerade gesendet. Prüfe die Unterhaltung gleich noch einmal.",
+      "draftSendOutcomeUnknown": "Dieser Entwurf wurde möglicherweise schon gesendet, das ließ sich aber nicht bestätigen. Prüfe die Unterhaltung und deinen Gesendet-Ordner. Um ihn trotzdem zu senden, bearbeite und aktualisiere zuerst den Entwurf.",
+      "draftTargetMismatch": "Dieser Entwurf gehört zu einer anderen Unterhaltung oder einem anderen Kanal.",
+      "draftThreadNotSent": "Diese Unterhaltung existiert nur als gespeicherter Entwurf. Sende ihn mit seiner draftMessageId und draftRevision.",
       "draftToRecipientsLocked": "Eine gespeicherte neue Nachricht behält ihre An-Empfänger. Verwirf den Entwurf und beginne eine neue Nachricht, um jemand anderen anzuschreiben.",
       "duplicateOutboundSuppressed": "Eine identische Nachricht wurde gerade eben in dieser Konversation gesendet. Ändere den Text oder warte eine Minute, bevor du es erneut versuchst.",
       "duplicateWebhookEvents": "Doppelte Ereignisse sind nicht erlaubt.",
@@ -1138,6 +1144,7 @@
       "emailMismatch": "E-Mail-Adressen müssen übereinstimmen.",
       "emailNotVerified": "E-Mail nicht verifiziert.",
       "emailRecipientsRequired": "Füge mindestens einen Empfänger unter An, Cc oder Bcc hinzu.",
+      "emailVerificationRequired": "Bestätige deine E-Mail-Adresse, um dieses Konto weiter zu nutzen. Melde dich in der App an und fordere einen neuen Bestätigungslink an.",
       "enterpriseCheckoutUnavailable": "Enterprise-Workspaces werden manuell abgerechnet und können keinen Self-Service-Checkout starten.",
       "filterBetweenInvalidArrayLength": "Der 'between'-Operator erfordert ein Array mit genau 2 Elementen.",
       "generic": "Ein Fehler ist aufgetreten.",
@@ -1240,6 +1247,7 @@
       "routineScheduleInvalid": "Dieser Zeitplan ist kein gültiger Cron-Ausdruck.",
       "routineScheduleRequired": "Wähle einen Zeitplan oder ein einmaliges Datum für diese Routine.",
       "routineScheduleTooFrequent": "Dieser Zeitplan läuft zu häufig. Routinen können höchstens alle 15 Minuten laufen.",
+      "routinesRequireCloud": "Routinen laufen in Customermates Cloud. Eine selbst gehostete Instanz kann sie nicht ausführen.",
       "routineTestRequiresEnabled": "Aktiviere die Routine, bevor du sie testest.",
       "routineTimeZoneInvalid": "Diese Zeitzone wird nicht unterstützt.",
       "routineTriggerEventsRequired": "Wähle mindestens ein Ereignis für diese Routine aus.",
@@ -1646,11 +1654,6 @@
       "manual": "Manuell"
     },
     "stageProbability": "Phasenwahrscheinlichkeit",
-    "systemTasks": {
-      "userPendingAuthorization": {
-        "alert": "Dies ist eine Systemaufgabe, die nicht manuell gelöscht werden kann. Genehmige den Benutzer unter <link>Mitglieder</link>, um diese Aufgabe zu erledigen."
-      }
-    },
     "table": {
       "columns": {
         "action": "Aktion",
@@ -2276,8 +2279,7 @@
       "pickerTitle": "Ansicht wechseln",
       "railLabel": "Gespeicherte Ansichten",
       "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}",
-      "resetChanges": "Änderungen zurücksetzen",
-      "unsavedChangesNotice": "Ungespeicherte Änderungen an dieser Ansicht"
+      "resetChanges": "Änderungen zurücksetzen"
     }
   },
   "Diagrams": {
@@ -2313,6 +2315,7 @@
   "DocsSidebar": {
     "apiKeys": "API-Keys",
     "appAssistant": "Assistent",
+    "appCalendar": "Kalender",
     "appCompany": "Unternehmen",
     "appDashboard": "Dashboard",
     "appGuide": "App-Leitfaden",
@@ -2348,6 +2351,7 @@
     "bold": "Fett",
     "bulletList": "Aufzählungsliste",
     "code": "Code",
+    "codeBlock": "Codeblock",
     "confirm": "Link anwenden",
     "divider": "Trennlinie",
     "formatting": "Formatierung",
@@ -2600,17 +2604,21 @@
       "ccLabel": "Cc",
       "createContact": "„{query}“ erstellen",
       "draftAttachmentsUnsupported": "Entferne Anhänge, bevor du diesen Entwurf speicherst.",
+      "draftChangedNotice": "Dieser Entwurf wurde geändert, nachdem du ihn geöffnet hast. Dein Text ist noch da: Lade die neueste Version oder sende deine.",
       "draftDiscardFailed": "Entwurf konnte nicht verworfen werden",
       "draftEdit": "Bearbeiten",
       "draftSaved": "Entwurf gespeichert. Du findest ihn im Posteingang.",
       "draftSendNow": "Entwurf senden",
+      "draftSentEarlier": "Dieser Entwurf wurde bereits gesendet. Es wurde nichts erneut gesendet.",
       "emailContent": "E-Mail-Inhalt",
       "emojiPicker": "Emoji einfügen",
       "from": "Von",
       "inmailSignaturePlaceholder": "Signatur",
       "inmailSubjectPlaceholder": "InMail-Betreff",
+      "loadLatestDraft": "Neueste Version laden",
       "loadRemoteImages": "Externe Bilder laden",
       "messageSent": "Nachricht gesendet.",
+      "messageSentPendingSync": "Nachricht gesendet. Sie erscheint im Posteingang, sobald dein Postfach sie synchronisiert hat.",
       "moreSendOptions": "Weitere Sendeoptionen",
       "noContacts": "Keine Datensätze.",
       "retry": "Erneut versuchen",
@@ -2618,6 +2626,7 @@
       "send": "Senden",
       "sendAs": "Senden als",
       "sendInBackground": "Du kannst weiterarbeiten. Wir benachrichtigen dich, sobald die Nachricht gesendet wurde.",
+      "sendMyDraft": "Meine Version senden",
       "sendOutcomeUnknown": "Sie wurde möglicherweise gesendet. Prüfe die Unterhaltung, bevor du sie erneut sendest.",
       "sendStarted": "Nachricht wird gesendet",
       "subjectPlaceholder": "Betreff",
@@ -2771,6 +2780,7 @@
       "goList": "Listen nach ihrer Position in deiner Seitenleiste",
       "goRoutines": "Routinen",
       "goSettings": "Einstellungen",
+      "goWorkspaces": "Workspace wechseln",
       "openFilters": "Filter einer Liste öffnen",
       "save": "Offenes Formular speichern",
       "search": "Suchen",
@@ -3011,7 +3021,6 @@
       "title": "Bestehendem Workspace beitreten"
     },
     "optionsLabel": "Auswahl für die Workspace-Einrichtung",
-    "signedInAs": "Angemeldet als",
     "subtitle": "Erstelle einen Workspace für dein Unternehmen, ein Projekt oder deine eigene Arbeit, oder tritt einem Team bei, das Customermates bereits nutzt.",
     "title": "Wie möchtest du starten?"
   },
@@ -3118,7 +3127,6 @@
         }
       }
     },
-    "continue": "Weiter",
     "finish": "Fertig",
     "invite": {
       "emailCount": "{current} von {max} E-Mails · mit Komma oder Enter trennen",
@@ -3127,6 +3135,9 @@
       "linkFailed": "Einladungslink konnte nicht erstellt werden.",
       "loadingLink": "Link wird generiert…",
       "send": "Einladungen senden",
+      "sendFailed": "{failed, plural, one {Die Einladung konnte nicht gesendet werden.} other {Die # Einladungen konnten nicht gesendet werden.}}",
+      "sendFailedDescription": "Der E-Mail-Dienst hat sie nicht angenommen. Teile stattdessen den Einladungslink.",
+      "sendPartlyFailed": "{sent, plural, one {# Einladung gesendet} other {# Einladungen gesendet}}, {failed, plural, one {# konnte nicht gesendet werden.} other {# konnten nicht gesendet werden.}}",
       "sentSuccess": "{count, plural, one {# Einladung gesendet.} other {# Einladungen gesendet.}}",
       "tabs": {
         "email": "E-Mails senden",
@@ -3434,6 +3445,64 @@
     "withdrawConfirmDescription": "Die Admins sehen deine Anfrage nicht mehr. Um später beizutreten, kannst du über einen Einladungslink erneut anfragen, und ein Admin muss die Anfrage genehmigen.",
     "withdrawConfirmTitle": "Anfrage für {name} zurückziehen?",
     "withdrawShort": "Zurückziehen"
+  },
+  "Planner": {
+    "addSource": "Datumsquelle hinzufügen",
+    "calendarSync": "Exportieren & abonnieren",
+    "colorField": "Farbe nach",
+    "connectCalendar": "Kalender verbinden",
+    "copyLink": "Abonnement-Link kopieren",
+    "createSubscription": "Abonnement-URL erstellen",
+    "download": ".ics herunterladen",
+    "editSource": "{source} bearbeiten",
+    "endDate": "Enddatum",
+    "event": "Ereignis",
+    "filterCount": "{count, plural, one {# Filter} other {# Filter}}",
+    "filters": "Filter",
+    "includePersonal": "Auch ausgewählte verbundene Termine aufnehmen (kann vorhandene Termine verdoppeln).",
+    "list": "Liste",
+    "modes": {
+      "agenda": "Agenda",
+      "month": "Monat",
+      "quarter": "Quartal",
+      "timeline": "Zeitachse",
+      "week": "Woche"
+    },
+    "next": "Nächster Zeitraum",
+    "noEndDate": "Einzelnes Datum",
+    "noSources": "Wähle Datumsfelder aus deinen Listen für deinen Kalender.",
+    "openList": "In Liste öffnen",
+    "openProvider": "Verbundenen Kalender öffnen",
+    "personalCalendars": "Meine verbundenen Kalender",
+    "previous": "Vorheriger Zeitraum",
+    "privateUrl": "Private Abonnement-URL",
+    "privateUrlDescription": "Jeder mit diesem Link kann diese Termine lesen, solange du Zugriff hast. Kopiere ihn jetzt; er wird nur einmal angezeigt. Widerrufe ihn unten, um weitere Aktualisierungen zu stoppen.",
+    "quarterLabel": "{number}. Quartal {year}",
+    "readOnlyEvent": "Dieser Termin stammt aus einem verbundenen Kalender. Bearbeite ihn im ursprünglichen Kalender.",
+    "removeSource": "Datumsquelle entfernen",
+    "revokeSubscription": "Abonnement widerrufen",
+    "search": "Kalender durchsuchen…",
+    "snapshot": "Momentaufnahme herunterladen",
+    "snapshotDescription": "Lade den angezeigten Zeitraum mit den aktivierten Quellen herunter. Die Datei wird nicht automatisch aktualisiert.",
+    "sort": "Termine sortieren",
+    "sorts": {
+      "date": "Nach Datum",
+      "source": "Nach Quelle",
+      "title": "Nach Titel"
+    },
+    "sourceColor": "Quellfarbe",
+    "sources": "Datumsquellen",
+    "sourceSettings": "Datumsquelle bearbeiten",
+    "sourceUnavailable": "Eine Datumsquelle ist nicht verfügbar. Prüfe Felder, Filter und Berechtigungen.",
+    "startDate": "Beginn oder Datumsbereich",
+    "subscription": "Aktualisierungen abonnieren",
+    "subscriptionDescription": "Erstelle eine private URL für die aktivierten Quellen und Filter. Sie umfasst die letzten 30 und nächsten 335 Tage. Deine Kalender-App bestimmt, wie oft sie aktualisiert wird. Bei späteren Änderungen am Kalender ist eine neue Abo-URL nötig.",
+    "subscriptionNumber": "Abonnement {number}",
+    "syncDescription": "Verwende diesen Kalender in Apple Kalender, Outlook, Google Kalender oder einer anderen Kalender-App. Änderungen werden von Customermates zur App übertragen. Bearbeite Datensätze in Customermates.",
+    "timeZone": "Zeitzone",
+    "title": "Kalender",
+    "truncated": "Einige Termine überschreiten das Anzeigelimit. Wähle einen kürzeren Zeitraum oder zusätzliche Filter. Exporte erfordern vollständige Ergebnisse.",
+    "unavailableSource": "Datumsquelle nicht verfügbar"
   },
   "ProfileSections": {
     "apiKeysDescription": "Langlebige API-Schlüssel für den programmatischen Zugriff."
@@ -3769,10 +3838,8 @@
     "configurationDeletion": {
       "blockedMessage": "{name} kann nicht gelöscht werden, solange andere Teile deiner Einrichtung es noch verwenden.",
       "blockers": {
-        "binding": "{target} steuert den Workspace-Zugriff für {source} und kann nicht gelöscht werden.",
         "calculation": "{source} berechnet sich aus {target}.",
         "parentAccess": "{source} erhält seinen Zugriff über {target}.",
-        "protected": "{source} steuert den Zugriff auf den Arbeitsbereich und kann nicht gelöscht werden.",
         "requiresRestore": "Stelle zuerst {target} wieder her, {source} gehört dazu.",
         "routine": "Die Routine {source} reagiert auf {target}.",
         "snapshotTrigger": "{source} speichert seinen Wert, wenn sich {target} ändert.",
@@ -3790,7 +3857,8 @@
         "webhookPaused": "{count, plural, one {Der Webhook {consumers} wird pausiert, weil {target} sein einziger Auslöser war. Wähle einen neuen Auslöser, bevor du ihn wieder einschaltest.} other {# Webhooks werden pausiert, weil {target} ihr einziger Auslöser war: {consumers}. Wähle einen neuen Auslöser, bevor du sie wieder einschaltest.}}",
         "webhookTrigger": "{count, plural, one {{target} wird aus dem Auslöser des Webhooks {consumers} entfernt.} other {{target} wird aus dem Auslöser von # Webhooks entfernt: {consumers}.}}",
         "widget": "{count, plural, one {{target} wird aus den Filtern oder der Gruppierung des Widgets {consumers} entfernt.} other {{target} wird aus den Filtern oder der Gruppierung von # Widgets entfernt: {consumers}.}}",
-        "widgetCount": "{count, plural, one {Das Widget {consumers} zählt Datensätze, statt {target} auszuwerten.} other {# Widgets zählen Datensätze, statt {target} auszuwerten: {consumers}.}}"
+        "widgetCount": "{count, plural, one {Das Widget {consumers} zählt Datensätze, statt {target} auszuwerten.} other {# Widgets zählen Datensätze, statt {target} auszuwerten: {consumers}.}}",
+        "widgetTrashed": "{count, plural, one {Das Widget {consumers} wird zusammen mit {target} in den Papierkorb verschoben.} other {# Widgets werden zusammen mit {target} in den Papierkorb verschoben: {consumers}.}}"
       },
       "configureActions": "Aktionen für Konfigurieren",
       "deleteColumn": "Spalte löschen",
@@ -4233,6 +4301,9 @@
   },
   "RecordWidgets": {
     "attribution": "Ein Datensatz kann in mehreren Gruppen erscheinen. Gruppensummen können die Gesamtsumme übersteigen.",
+    "contributingCount": "{count, plural, one {# zugrunde liegender Datensatz} other {# zugrunde liegende Datensätze}}",
+    "contributingRecords": "Diagrammauswahl",
+    "dataTitle": "Daten für {name}",
     "funnelClosedStage": "{label}: {value}, eine verlorene Phase außerhalb des Trichters.",
     "funnelTooltip": "{value} ({conversion} des vorherigen Schritts)",
     "group": "Gruppieren nach",
@@ -4256,6 +4327,7 @@
     "notes": "Zu diesen Zahlen",
     "numberContextAverage": "{count, number} {label} · Ø {average}",
     "numberRecords": "{count, plural, one {Datensatz} other {Datensätze}}",
+    "openInList": "In {list} öffnen",
     "overall": "Insgesamt: {value}",
     "previewFailed": "Die Vorschau konnte nicht geladen werden. Versuche es erneut.",
     "quarterLabel": "Q{quarter} {year}",
@@ -4275,6 +4347,7 @@
     "unavailableMember": "Nicht verfügbare Person",
     "unplacedGroups": "Einige Datensätze sind eingeschränkt oder konnten nicht berechnet werden und werden nicht angezeigt.",
     "value": "Wertefeld",
+    "viewData": "Daten anzeigen",
     "weekOf": "Woche ab {date}",
     "weekShort": "KW {week} {year}",
     "withoutDate": "{count, plural, one {# Datensatz hat kein Datum und wird nicht angezeigt.} other {# Datensätze haben kein Datum und werden nicht angezeigt.}}",
@@ -4308,8 +4381,8 @@
     "recordTypesHint": "Neue Typen sind zunächst nicht zugänglich. Eingebettete Einträge übernehmen den Zugriff ihres übergeordneten Datensatzes.",
     "resourceHeader": "Ressource",
     "resources": {
+      "activityLog": "Aktivitätsprotokoll",
       "api": "API & Webhooks",
-      "auditLog": "Audit-Log",
       "company": "Unternehmen",
       "dataModel": "Datenmodell",
       "inboxMessages": "Inbox-Nachrichten",
@@ -4702,9 +4775,11 @@
     "permanentViewWidgets": "Bei einer Dashboard-Ansicht werden auch ihre Widgets endgültig gelöscht.",
     "restore": "Wiederherstellen",
     "restoreBlocked": {
+      "incompatible": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil sie nicht mehr zur aktuellen Einrichtung oder zu den Daten passen.",
       "listDeleted": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil ihre Liste im Papierkorb liegt. Stelle zuerst die Liste wieder her.",
       "nameTaken": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil ein anderes Element jetzt ihren Namen oder Platz hat.",
       "notFound": "{count, plural, one {# Element existiert} other {# Elemente existieren}} nicht mehr und wurden aus dem Papierkorb entfernt.",
+      "operationPending": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, bis die Wiederherstellung im Hintergrund fertig ist. Stelle sie danach erneut wieder her.",
       "parentDeleted": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil das, wozu sie gehören, im Papierkorb liegt. Stelle das zuerst wieder her.",
       "requiresRestore": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil etwas, das sie brauchen, im Papierkorb liegt. Stelle das zuerst wieder her.",
       "routineLimitReached": "{count, plural, one {# Routine bleibt} other {# Routinen bleiben}} im Papierkorb, weil die Person bereits alle Routinen ihres Tarifs nutzt."
@@ -4977,6 +5052,15 @@
       "workingTitle": "Mate lernt dein Unternehmen kennen"
     }
   },
+  "WithoutErrorReporting": {
+    "ErrorCard": {
+      "contactSupport": "Bitte versuche es erneut. Wenn das Problem bleibt, wende dich an die Person, die diese Customermates-Instanz betreibt.",
+      "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es erneut."
+    },
+    "NotFoundPage": {
+      "body": "Diese Seite gibt es nicht oder sie wurde verschoben. Prüfe die Adresse oder gehe zurück zur Startseite."
+    }
+  },
   "WorkspaceInvitation": {
     "inactive": {
       "body": "Ein Admin hat deinen Zugriff auf diesen Workspace deaktiviert. Bitte einen Admin, ihn wieder zu aktivieren.",
@@ -5009,7 +5093,8 @@
   },
   "WorkspaceMenu": {
     "inviteMembers": "Mitglieder einladen",
-    "label": "Workspace-Menü"
+    "label": "Workspace-Menü",
+    "pendingMembers": "{count, plural, one {# Mitglied wartet auf Genehmigung} other {# Mitglieder warten auf Genehmigung}}"
   },
   "WorkspaceOnboarding": {
     "workspaceNameDescription": "Optional. Damit unterscheidest du deine Workspaces; du kannst ihn später ändern.",
@@ -5082,7 +5167,6 @@
       "addOwn": "Eigenen Eintrag hinzufügen",
       "continueAnyway": "Trotzdem weiter",
       "fromWebsite": "Von deiner Website vorgeschlagen",
-      "looksRight": "Passt so",
       "upload": "Tabelle hochladen",
       "winChance": "Abschlusschance"
     },
@@ -5108,7 +5192,7 @@
       "failedBody": "Alles Fertige bleibt erhalten. Versuch den unfertigen Teil erneut, um deinen Workspace fertigzustellen.",
       "failedTitle": "Ein Teil der Einrichtung wurde nicht fertig",
       "frameTitle": "Dein Workspace",
-      "keepsRunning": "Das läuft weiter, auch wenn du den Tab schließt. Wir schreiben dir eine E-Mail, sobald dein Workspace fertig ist.",
+      "keepsRunning": "Das läuft weiter, auch wenn du den Tab schließt.",
       "nameColumn": "Name",
       "phases": {
         "dashboard": "Dashboard",
@@ -5139,6 +5223,12 @@
       },
       "title": "Wir richten deinen Workspace ein"
     },
+    "empty": {
+      "action": "Mit einem leeren Workspace starten",
+      "confirm": "Leer starten",
+      "description": "Du überspringst die geführte Einrichtung. Es werden keine Listen, keine Pipeline, kein Dashboard und keine Wissensdatenbank-Seiten angelegt, du baust alles selbst auf. Wir empfehlen die geführte Einrichtung.",
+      "title": "Mit einem leeren Workspace starten?"
+    },
     "failures": {
       "aiUnavailable": "Der KI-Dienst ist gerade nicht erreichbar. Versuch es in ein paar Minuten noch einmal.",
       "contactSupport": "Support kontaktieren",
@@ -5161,8 +5251,6 @@
       "entryLabel": "Eintrag {index}",
       "followUpsSubtitle": "Manche Antworten lassen sich unterschiedlich verstehen. Diese Fragen klären das.",
       "followUpsTitle": "Noch ein paar Details",
-      "moveDown": "Nach unten",
-      "moveUp": "Nach oben",
       "optionalPlaceholder": "Leer lassen, wenn dir nichts einfällt",
       "prefillFailed": "Wir konnten deine Website nicht lesen, deshalb ist nichts ausgefüllt. Die Fragen dauern trotzdem nur wenige Minuten.",
       "rangeFrom": "Von",
@@ -5323,8 +5411,6 @@
       "planningTitle": "Wir erstellen deinen Plan",
       "progress": {
         "label": "Fortschritt des Plans",
-        "leave": "Du kannst diese Seite schließen. Wir schreiben an <strong>{email}</strong>, sobald dein Plan fertig ist.",
-        "leaveWithoutEmail": "Du kannst diese Seite schließen. Wir schreiben dir eine E-Mail, sobald dein Plan fertig ist.",
         "minutesLeft": "{minutes, plural, one {Noch etwa # Minute} other {Noch etwa # Minuten}}",
         "overdue": "Dauert etwas länger als sonst. Gleich geschafft.",
         "steps": {
@@ -5337,6 +5423,7 @@
         "typical": "Mate entwirft deinen Workspace aus deinen Antworten. Das dauert meist 1 bis 2 Minuten.",
         "underMinute": "Noch weniger als eine Minute"
       },
+      "reviewHint": "Prüfe den Plan und baue dann deinen Workspace.",
       "sampleSummary": "{count, plural, one {Legt # Beispieldatensatz an, damit du gleich loslegen kannst.} other {Legt # Beispieldatensätze an, damit du gleich loslegen kannst.}}",
       "subtitle": "Das bauen wir für dich, sobald du bestätigst.",
       "title": "Dein Plan für den Workspace",
@@ -5467,42 +5554,6 @@
       "suggestedHint": "Prüf die markierten Antworten und ändere, was nicht passt.",
       "suggesting": "Wir schlagen Antworten aus {website} vor",
       "title": "Antworten aus deiner Website vorschlagen lassen"
-    }
-  },
-  "WorkspaceSetupNotice": {
-    "fallback": "Falls der Button nicht funktioniert, kopiere diesen Link und füge ihn in deinen Browser ein: ",
-    "greeting": "Hallo {firstName},",
-    "planFailed": {
-      "body": "Mate konnte den Plan für deinen Workspace nicht fertigstellen. Deine Antworten sind gespeichert: Öffne die Einrichtung, um es erneut zu versuchen oder sie anzupassen.",
-      "bodyNamed": "Mate konnte den Plan für {workspace} nicht fertigstellen. Deine Antworten sind gespeichert: Öffne die Einrichtung, um es erneut zu versuchen oder sie anzupassen.",
-      "cta": "Einrichtung öffnen",
-      "subject": "Der Plan für deinen Workspace braucht einen neuen Versuch",
-      "subjectNamed": "Der Plan für {workspace} braucht einen neuen Versuch",
-      "title": "Dein Plan braucht einen neuen Versuch"
-    },
-    "planReady": {
-      "body": "Mate hat Listen, Pipeline, Dashboard und Wissensdatenbank-Seiten für deinen Workspace entworfen. Prüfe den Plan und richte deinen Workspace in einem Schritt ein.",
-      "bodyNamed": "Mate hat Listen, Pipeline, Dashboard und Wissensdatenbank-Seiten für {workspace} entworfen. Prüfe den Plan und richte den Workspace in einem Schritt ein.",
-      "cta": "Plan prüfen",
-      "subject": "Der Plan für deinen Workspace ist fertig",
-      "subjectNamed": "Der Plan für {workspace} ist fertig",
-      "title": "Dein Plan ist fertig"
-    },
-    "workspaceFailed": {
-      "body": "Mate hat den Großteil deines Workspaces eingerichtet, aber einige Teile konnten nicht abgeschlossen werden. Öffne die Einrichtung, um sie erneut zu versuchen.",
-      "bodyNamed": "Mate hat den Großteil von {workspace} eingerichtet, einige Teile ließen sich aber nicht abschließen. Öffne die Einrichtung, um sie erneut zu versuchen.",
-      "cta": "Einrichtung öffnen",
-      "subject": "Deine Workspace-Einrichtung braucht einen Blick",
-      "subjectNamed": "Die Einrichtung von {workspace} braucht einen Blick",
-      "title": "Einige Teile brauchen einen Blick"
-    },
-    "workspaceReady": {
-      "body": "Mate hat deinen Workspace eingerichtet. Deine Listen, Ansichten und dein Dashboard warten auf dich, die Seiten der Wissensdatenbank folgen in Kürze.",
-      "bodyNamed": "Mate hat {workspace} eingerichtet. Deine Listen, Ansichten und das Dashboard warten auf dich, die Seiten der Wissensdatenbank folgen in Kürze.",
-      "cta": "Workspace öffnen",
-      "subject": "Dein Workspace ist fertig",
-      "subjectNamed": "{workspace} ist fertig",
-      "title": "Dein Workspace ist fertig"
     }
   }
 }

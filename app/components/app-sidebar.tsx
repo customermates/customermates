@@ -18,6 +18,7 @@ import {
   Inbox,
   Plus,
   LayoutGrid,
+  CalendarDays,
   Repeat,
   ShieldCheck,
   UserPlus,
@@ -44,6 +45,7 @@ import { workspaceDisplayName } from "@/app/components/workspaces/workspace-iden
 import { WorkspaceSwitcherItems } from "@/app/components/workspaces/workspace-switcher-items";
 
 import { NavHeader } from "./navigation/nav-header";
+import { NavBadge } from "./navigation/nav-main";
 import { resolvePlanChip } from "./navigation/plan-subtitle";
 import { OPERATOR_SUBROUTES } from "./navigation/operator-sections";
 import { SETTINGS_SECTIONS, type SettingsSection, visibleSubroutes } from "./navigation/settings-sections";
@@ -64,7 +66,7 @@ import { getEntitlements, isSubscriptionUsable } from "@/ee/subscription/entitle
 const UNREAD_REFRESH_INTERVAL_MS = 10000;
 
 type FullProps = {
-  systemTaskCount: number;
+  pendingMemberCount: number;
   unreadThreadCount: number;
   channelsNeedingActionCount: number;
   user: SidebarUser | null;
@@ -90,8 +92,8 @@ export function AppSidebar(props: Props) {
         emailVerified={null}
         legalStatus={null}
         operatorConsoleVisible={false}
+        pendingMemberCount={0}
         subscription={null}
-        systemTaskCount={0}
         trialDaysLeft={null}
         unreadThreadCount={0}
         user={props.user}
@@ -105,9 +107,9 @@ export function AppSidebar(props: Props) {
       emailVerified={props.emailVerified}
       legalStatus={props.legalStatus}
       operatorConsoleVisible={props.operatorConsoleVisible}
+      pendingMemberCount={props.pendingMemberCount}
       restricted={false}
       subscription={props.subscription}
-      systemTaskCount={props.systemTaskCount}
       trialDaysLeft={props.trialDaysLeft}
       unreadThreadCount={props.unreadThreadCount}
       user={props.user}
@@ -118,7 +120,7 @@ export function AppSidebar(props: Props) {
 const FullAppSidebar = observer(
   ({
     user,
-    systemTaskCount,
+    pendingMemberCount,
     unreadThreadCount,
     channelsNeedingActionCount,
     subscription,
@@ -211,6 +213,13 @@ const FullAppSidebar = observer(
               visible: true,
             },
             {
+              key: "calendar",
+              title: t("Planner.title"),
+              href: "/calendar",
+              icon: CalendarDays,
+              visible: true,
+            },
+            {
               key: "wiki",
               title: t("NavigationBar.wiki"),
               href: "/wiki",
@@ -244,7 +253,6 @@ const FullAppSidebar = observer(
               href: `/records/${type.id}`,
               icon: recordTypeIcon(type.icon),
               visible: true,
-              badge: type.hasAuthorizationTasks ? systemTaskCount : undefined,
             })),
             ...(recordWorkspaceStore.navigation?.canManageSchema
               ? [
@@ -274,7 +282,7 @@ const FullAppSidebar = observer(
           ],
         },
       ].filter((g) => g.items.length > 0);
-    }, [t, recordWorkspaceStore.navigation, rootStore.appMode, user, systemTaskCount, currentUnreadThreadCount]);
+    }, [t, recordWorkspaceStore.navigation, rootStore.appMode, user, currentUnreadThreadCount]);
 
     const areaGroups: AreaNavGroup[] = useMemo(() => {
       if (area === "operator") {
@@ -302,11 +310,16 @@ const FullAppSidebar = observer(
             title: t(subroute.labelKey),
             href: settingsHref(subroute.slug),
             icon: subroute.icon,
-            badge: subroute.slug === "channels" ? channelsNeedingActionCount : undefined,
+            badge:
+              subroute.slug === "channels"
+                ? channelsNeedingActionCount
+                : subroute.slug === "members"
+                  ? pendingMemberCount
+                  : undefined,
           })),
         }))
         .filter((group) => group.items.length > 0);
-    }, [area, t, user, rootStore.appMode, channelsNeedingActionCount]);
+    }, [area, t, user, rootStore.appMode, channelsNeedingActionCount, pendingMemberCount]);
 
     const resolvedSidebar = useResolvedSidebar(navGroups);
 
@@ -423,7 +436,9 @@ const FullAppSidebar = observer(
             >
               <Users />
 
-              <span>{t("SettingsNav.members")}</span>
+              <span className="flex-1">{t("SettingsNav.members")}</span>
+
+              <NavBadge count={pendingMemberCount} />
             </AppLink>
           </DropdownMenuItem>
         )}
@@ -510,6 +525,14 @@ const FullAppSidebar = observer(
                 : null
             }
             workspaceMenu={workspaceMenu}
+            workspaceMenuBadge={
+              restricted
+                ? undefined
+                : {
+                    count: pendingMemberCount,
+                    label: t("WorkspaceMenu.pendingMembers", { count: pendingMemberCount }),
+                  }
+            }
             workspaceMenuLabel={t("WorkspaceMenu.label")}
             onAdd={(invoker) => {
               if (restricted) {

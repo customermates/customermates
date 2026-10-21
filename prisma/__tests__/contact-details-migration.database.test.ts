@@ -24,7 +24,7 @@ import {
   readMigration,
 } from "@/tests/helpers/legacy-migration-database";
 
-const CONTACT_DETAILS_MIGRATION = "20261019100000_files_addresses_and_contact_details";
+const CONTACT_DETAILS_MIGRATION = "20261019190000_files_addresses_and_contact_details";
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
 const databases: Awaited<ReturnType<typeof createLegacyMigrationDatabase>>[] = [];

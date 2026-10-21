@@ -52,7 +52,9 @@ import {
 import { isRecordSortField } from "./record-query-validation";
 import type { RecordQueryResult } from "./record-query-result.schema";
 
-const GetRecordPresentationSchema = z.object({ typeId: z.uuid(), params: GetQueryParamsSchema.default({}) }).strict();
+const GetRecordPresentationSchema = z
+  .object({ typeId: z.uuid(), params: GetQueryParamsSchema.default({}), transient: z.boolean().optional() })
+  .strict();
 export type RecordPresentationResult = {
   model: RecordModelView;
   typeId: string;
@@ -88,7 +90,9 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
         const [model, policy, viewState, t] = await Promise.all([
           this.records.getModel().then(liveRecordModel),
           this.policy.load(),
-          this.views.loadSurfaceState(recordSurfaceKey(input.typeId)),
+          input.transient
+            ? Promise.resolve({ views: [], allState: {}, activeViewKey: null })
+            : this.views.loadSurfaceState(recordSurfaceKey(input.typeId)),
           getTranslations(),
         ]);
         const systemColumnLabels = {
@@ -242,7 +246,18 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
               ...state,
               items,
               p13nId: recordSurfaceKey(type.id),
-              filterableFields: recordFilterableFields(fields, relationships, type.id, paths).map((field) => ({
+              filterableFields: [
+                ...recordFilterableFields(fields, relationships, type.id, paths),
+                ...(query.contribution
+                  ? [
+                      {
+                        field: RECORD_CONTRIBUTION_FILTER,
+                        label: t("RecordWidgets.contributingRecords"),
+                        operators: [FilterOperatorKey.equals],
+                      },
+                    ]
+                  : []),
+              ].map((field) => ({
                 ...field,
                 label:
                   field.field in systemColumnLabels
@@ -324,3 +339,5 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
     };
   }
 }
+import { RECORD_CONTRIBUTION_FILTER } from "./record-contribution-link";
+import { FilterOperatorKey } from "@/core/base/base-query-builder";

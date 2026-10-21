@@ -120,7 +120,9 @@ export const PaletteRootList = observer(function PaletteRootList({
                     </button>
                   }
                   variant="default"
-                  onClick={() => onPickFilter(index)}
+                  onClick={() => {
+                    if (filter.field !== RECORD_CONTRIBUTION_FILTER) onPickFilter(index);
+                  }}
                 >
                   <span className="truncate text-[11px]">
                     <FilterChipValue
@@ -235,3 +237,4 @@ export const PaletteRootList = observer(function PaletteRootList({
     </>
   );
 });
+import { RECORD_CONTRIBUTION_FILTER } from "@/features/records/record-contribution-link";

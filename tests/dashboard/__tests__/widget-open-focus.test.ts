@@ -10,6 +10,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const harness = vi.hoisted(() => ({
   focusedAtOpen: null as Element | null,
+  dataSelection: null as { widget: { id: string }; opener: HTMLElement | null } | null,
   loadById: vi.fn(),
 }));
 
@@ -43,6 +44,9 @@ vi.mock("@/app/[locale]/(protected)/dashboard/components/record-widget-card", ()
 vi.mock("@/app/[locale]/(protected)/dashboard/components/record-activity-widget-card", () => ({
   RecordActivityWidgetCard: ({ widget }: { widget: WidgetDto }) =>
     createElement("div", { "data-record-activity": widget.id }, widget.name),
+}));
+vi.mock("@/app/[locale]/(protected)/dashboard/components/widget-data-drawer", () => ({
+  WidgetDataDrawer: ({ selection }: { selection: { widget: { id: string }; opener: HTMLElement | null } }) => { harness.dataSelection = selection; return null; },
 }));
 vi.mock("@/app/[locale]/(protected)/dashboard/components/widget-modal", () => ({ WidgetModal: () => null }));
 vi.mock("@/app/[locale]/(protected)/dashboard/components/record-calendar-widget-card", () => ({
@@ -82,6 +86,7 @@ let reactRoot: Root;
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   harness.focusedAtOpen = null;
+  harness.dataSelection = null;
   harness.loadById.mockReset();
   container = document.createElement("div");
   document.body.append(container);
@@ -95,7 +100,7 @@ afterEach(() => {
 });
 
 describe("DashboardPageView widget opening", () => {
-  it("moves focus to the widget's edit button before a pointer click opens the editor, so closing it can return there", async () => {
+  it("moves focus to the chart data button before a primary click opens its data, so closing it can return there", async () => {
     act(() =>
       reactRoot.render(
         createElement(DashboardPageView, {
@@ -122,7 +127,8 @@ describe("DashboardPageView widget opening", () => {
       await Promise.resolve();
     });
 
-    expect(harness.loadById).toHaveBeenCalledWith("widget-1");
-    expect(harness.focusedAtOpen).toBe(editButton);
+    expect(harness.loadById).not.toHaveBeenCalled();
+    expect(harness.dataSelection?.widget.id).toBe("widget-1");
+    expect(harness.dataSelection?.opener).toBe(editButton);
   });
 });

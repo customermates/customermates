@@ -29,6 +29,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { initialsFor } from "@/core/utils/initials";
+import { workspaceListName } from "@/app/components/workspaces/workspace-identity";
 import { cn } from "@/core/utils/cn";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRecordEditorDeletion } from "@/app/[locale]/(protected)/records/[typeId]/components/use-record-deletion";
@@ -48,7 +49,12 @@ import {
   SEMANTIC_BEST_MATCH_MIN_SIMILARITY,
 } from "@/features/command-palette/command-search.schema";
 import { encodeGetParams } from "@/core/utils/get-params";
-import { recordEntries, staticEntries, workspaceEntries } from "./command-palette/palette-entries";
+import {
+  recordEntries,
+  staticEntries,
+  workspaceEntries,
+  workspaceSwitchEntries,
+} from "./command-palette/palette-entries";
 import { RecordCommandLevel } from "./command-palette/record-command-level";
 import { WorkspaceCommandLevel } from "./command-palette/workspace-command-level";
 import { useAccountActions } from "./navigation/use-account-actions";
@@ -142,15 +148,21 @@ export const GlobalSearchModal = observer(() => {
           relationships: editor.presentation.model.relationships,
           typeLabels: new Map((navigation?.types ?? []).map((type) => [type.id, type.label])),
           canDelete: editor.presentation.permittedActions.includes("delete"),
-          canAssign:
-            !editor.record.protectedKind &&
-            !editor.presentation.model.types.find((type) => type.id === editor.presentation.typeId)?.embedded,
+          canAssign: !editor.presentation.model.types.find((type) => type.id === editor.presentation.typeId)?.embedded,
         }
       : null;
   const contextEntries = recordEntries(translate, recordContext);
+  const workspaceFallback = t("Workspaces.fallbackName");
+  const otherWorkspaces = workspacesStore.others.map((workspace) => ({
+    companyId: workspace.companyId,
+    name: workspaceListName(workspace, workspacesStore.items, workspaceFallback, (date) =>
+      t("Workspaces.unnamedCreated", { name: workspaceFallback, date }),
+    ),
+  }));
   const entries = [
     ...staticEntries(translate, environment),
     ...workspaceEntries(translate, navigation, globalSearchModalStore.catalog),
+    ...workspaceSwitchEntries(translate, otherWorkspaces),
     ...contextEntries,
   ];
   const entryByKey = new Map(entries.map((entry) => [entry.key, entry]));
@@ -209,6 +221,11 @@ export const GlobalSearchModal = observer(() => {
     if (run.kind === "href") {
       const href = run.href;
       closeThen(() => navigationGuard.tryNavigate(() => router.push(href)));
+      return;
+    }
+    if (run.kind === "switchWorkspace") {
+      const companyId = run.companyId;
+      closeThen(() => workspacesStore.requestSwitch(companyId));
       return;
     }
     if (run.kind === "create") {
@@ -288,6 +305,7 @@ export const GlobalSearchModal = observer(() => {
       (key) => entryByKey.get(key) ?? [],
     ),
     ...(recordContext ? [] : [entryByKey.get("cmd:action.add")].filter((entry) => entry !== undefined)),
+    ...[entryByKey.get("cmd:action.switchWorkspace")].filter((entry) => entry !== undefined),
   ];
 
   const docsRows: PaletteRowData[] = globalSearchModalStore.docs

@@ -38,7 +38,7 @@ function rendersLiteralId(source: string, id: string) {
   const footerScope = /^(.+)-(?:save|cancel|reset)$/.exec(id)?.[1];
   const rendersFooterId =
     footerScope !== undefined &&
-    new RegExp(`<FormFooterActions\\b(?:=>|[^>])*?\\sanchorScope="${footerScope}"`).test(source);
+    new RegExp(`<(?:FormFooterActions|UnsavedChangesBar)\\b(?:=>|[^>])*?\\sanchorScope="${footerScope}"`).test(source);
   return (
     rendersFooterId ||
     [`id="${id}"`, `inputId="${id}"`, `anchorId="${id}"`, `anchorId: "${id}"`].some((form) => source.includes(form))
@@ -170,7 +170,10 @@ describe("agent interface targets", () => {
       expect(findAgentUiTarget(id)?.prerequisite, id).toBe("a member row");
     expect(findAgentUiTarget("widget-modal-save")?.prerequisite).toBe("widget-modal-kind");
     expect(findAgentUiTarget("widget-modal-kind")?.prerequisite).toBe("dashboard-add-widget");
-    expect(findAgentUiTarget("widget-modal-reset")?.prerequisite).toBe("a widget card");
+    expect(findAgentUiTarget("widget-modal-cancel")?.prerequisite).toBe("widget-modal-kind");
+    expect(findAgentUiTarget("widget-modal-reset")).toBeNull();
+    expect(findAgentUiTarget("widget-modal-cancel")?.description).toContain("reverts edits in place");
+    expect(findAgentUiTarget("widget-modal-save")?.description).toContain("enabled immediately for new forms");
   });
 
   it("names the row or card that opens dialogs no target opens", () => {

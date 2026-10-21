@@ -2,14 +2,14 @@ import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { collectPageErrors, expect, test } from "./fixtures";
 import { createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
 import {
-  approvalTaskCount,
+  pendingRequestCount,
   inviteToken,
   joinFromInvitation,
   loginEmail,
   memberItem,
   membershipIn,
   nameLogin,
-  taskList,
+  workspaceMenu,
 } from "./workspace-membership";
 import {
   activeWorkspaceOf,
@@ -39,12 +39,12 @@ test("a person withdraws a pending request from the waiting screen and the admin
     await page.goto(`/en/invitation/${token}`);
     await joinFromInvitation(page);
     await expect(page).toHaveURL(/\/en\/auth\/pending$/);
-    await expect.poll(() => approvalTaskCount(database, inviter.companyId, email)).toBe(1);
+    await expect.poll(() => pendingRequestCount(database, inviter.companyId, email)).toBe(1);
 
     const admin = await signInLogin(browser, database, inviter, testInfo);
     try {
-      await admin.page.goto(taskList(inviter.companyId));
-      await expect(admin.page.getByText(`User Pending Authorization (${email})`, { exact: true })).toBeVisible();
+      await admin.page.goto("/en/dashboard");
+      await expect(workspaceMenu(admin.page)).toHaveAttribute("aria-label", /1 member waiting for approval/);
       await admin.page.goto("/en/settings/members");
       await expect(memberItem(admin.page, "Jonas Keller")).toContainText(
         englishMessages.Common.userStatuses.pendingAuthorization,
@@ -59,7 +59,7 @@ test("a person withdraws a pending request from the waiting screen and the admin
       await expect(page).toHaveURL(/\/en\/dashboard$/);
       await expectCurrentWorkspace(page, "Browser workspace");
       expect(await membershipIn(database, inviter.companyId, email)).toMatchObject({ status: "inactive", left: true });
-      expect(await approvalTaskCount(database, inviter.companyId, email)).toBe(0);
+      expect(await pendingRequestCount(database, inviter.companyId, email)).toBe(0);
       expect(await activeWorkspaceOf(database, workspace)).toEqual({
         session: workspace.companyId,
         lastUsed: workspace.companyId,
@@ -75,9 +75,8 @@ test("a person withdraws a pending request from the waiting screen and the admin
         path: testInfo.outputPath(`ws-withdraw-admin-members-${testInfo.project.name}.png`),
       });
 
-      await admin.page.goto(taskList(inviter.companyId));
-      await admin.page.waitForLoadState("networkidle");
-      await expect(admin.page.getByText(`User Pending Authorization (${email})`, { exact: true })).toHaveCount(0);
+      await admin.page.goto("/en/dashboard");
+      await expect(workspaceMenu(admin.page)).not.toHaveAttribute("aria-label", /waiting for approval/);
       expect(admin.errors).toEqual([]);
     } finally {
       await admin.close();

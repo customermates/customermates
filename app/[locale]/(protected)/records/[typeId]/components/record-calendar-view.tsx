@@ -1,5 +1,6 @@
 "use client";
 
+import type { ChipColor } from "@/constants/chip-colors";
 import type { CSSProperties, KeyboardEvent as ReactKeyboardEvent, ReactNode } from "react";
 import type { CollisionDetection, DragEndEvent, KeyboardCoordinateGetter } from "@dnd-kit/core";
 import type { CalendarViewMode } from "@/core/data-view/calendar-view-config.schema";
@@ -68,8 +69,30 @@ const CALENDAR_KEYBOARD_CODES = {
   end: ["Space", "Enter"],
 };
 
+export type RecordCalendarViewStore = Pick<
+  RecordsStore,
+  | "calendar"
+  | "calendarFields"
+  | "calendarFocusDate"
+  | "calendarMode"
+  | "calendarRange"
+  | "calendarResultSeq"
+  | "calendarWindow"
+  | "canMoveCalendarRecord"
+  | "isRefreshing"
+  | "items"
+  | "moveCalendarRecord"
+  | "refreshQuery"
+  | "setCalendarAnchor"
+  | "setCalendarDisplayMode"
+  | "setViewOptions"
+> & {
+  normalizedCalendarItems?: (pending: ReadonlyMap<string, number>) => CalendarItem[];
+  calendarColorForItem?: (item: CalendarItem) => ChipColor;
+};
 type Props = {
-  store: RecordsStore;
+  store: RecordCalendarViewStore;
+  hideToolbar?: boolean;
   recordName: (record: RecordRow) => string;
   onOpenRecord: (record: RecordRow, returnFocusTo?: HTMLElement | null) => void;
 };
@@ -147,7 +170,7 @@ const CalendarEntry = observer(function CalendarEntry({
   className,
   style,
 }: {
-  store: RecordsStore;
+  store: RecordCalendarViewStore;
   item: CalendarItem;
   segment?: CalendarSegment;
   formats: Formats;
@@ -168,7 +191,8 @@ const CalendarEntry = observer(function CalendarEntry({
     disabled: !movable,
   });
   const name = recordName(item.record);
-  const color = calendarEntryColor(item.entry, store.calendarFields?.color ?? null);
+  const color =
+    store.calendarColorForItem?.(item) ?? calendarEntryColor(item.entry, store.calendarFields?.color ?? null);
   const showsTime = item.entry.time && (!segment || !segment.continuesBefore);
   const dragKeyDown = (listeners as { onKeyDown?: (event: ReactKeyboardEvent<HTMLElement>) => void } | undefined)
     ?.onKeyDown;
@@ -288,7 +312,7 @@ const MoreEntries = observer(function MoreEntries({
   recordName,
   onOpenRecord,
 }: {
-  store: RecordsStore;
+  store: RecordCalendarViewStore;
   date: CalendarDate;
   count: number;
   column: number;
@@ -356,7 +380,7 @@ const CalendarWeekRow = observer(function CalendarWeekRow({
   recordName,
   onOpenRecord,
 }: {
-  store: RecordsStore;
+  store: RecordCalendarViewStore;
   layout: CalendarWeekLayout;
   items: CalendarItem[];
   visibleLanes: number;
@@ -474,7 +498,7 @@ const CalendarAgenda = observer(function CalendarAgenda({
   recordName,
   onOpenRecord,
 }: {
-  store: RecordsStore;
+  store: RecordCalendarViewStore;
   items: CalendarItem[];
   from: CalendarDate;
   to: CalendarDate;
@@ -522,7 +546,12 @@ const CalendarAgenda = observer(function CalendarAgenda({
   );
 });
 
-export const RecordCalendarView = observer(function RecordCalendarView({ store, recordName, onOpenRecord }: Props) {
+export const RecordCalendarView = observer(function RecordCalendarView({
+  store,
+  recordName,
+  onOpenRecord,
+  hideToolbar = false,
+}: Props) {
   const t = useTranslations();
   const formats = useCalendarFormats();
   const titleId = useId();
@@ -565,11 +594,14 @@ export const RecordCalendarView = observer(function RecordCalendarView({ store, 
   });
   const sensors = useSensors(mouseSensor, keyboardSensor);
 
-  if (!fields || !calendarWindow) return null;
+  if ((!fields && !store.normalizedCalendarItems) || !calendarWindow) return null;
   const timeZone = calendarWindow.timeZone;
   const today = zonedDate(new Date(), timeZone);
   const anchor = store.calendarFocusDate;
-  const items = range ? calendarItems(store.items, fields, timeZone, pendingShifts) : [];
+  const items = range
+    ? (store.normalizedCalendarItems?.(pendingShifts) ??
+      (fields ? calendarItems(store.items, fields, timeZone, pendingShifts) : []))
+    : [];
   const itemsById = new Map(items.map((item) => [item.record.id, item]));
   const droppable = mode !== "agenda";
   const title =
@@ -719,7 +751,7 @@ export const RecordCalendarView = observer(function RecordCalendarView({ store, 
         data-calendar-mode={mode}
         data-slot="calendar-root"
       >
-        <div className="flex shrink-0 flex-wrap items-center gap-2 border-b px-3 py-2">
+        <div className={cn("flex shrink-0 flex-wrap items-center gap-2 border-b px-3 py-2", hideToolbar && "sr-only")}>
           <div className="flex items-center">
             <IconButton
               icon={ChevronLeft}
@@ -784,7 +816,9 @@ export const RecordCalendarView = observer(function RecordCalendarView({ store, 
             <div
               className={cn(
                 "flex h-5 w-40 items-center rounded-sm px-1.5 text-xs font-medium shadow-lg",
-                CALENDAR_ENTRY_COLOR_CLASS[calendarEntryColor(dragging.entry, fields.color)],
+                CALENDAR_ENTRY_COLOR_CLASS[
+                  store.calendarColorForItem?.(dragging) ?? calendarEntryColor(dragging.entry, fields?.color ?? null)
+                ],
               )}
             >
               <span className="truncate">{recordName(dragging.record)}</span>

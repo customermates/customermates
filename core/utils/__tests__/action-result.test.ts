@@ -1,13 +1,16 @@
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
-vi.mock("next/navigation", () => ({ redirect: vi.fn() }));
+const { redirect } = vi.hoisted(() => ({ redirect: vi.fn() }));
+
+vi.mock("next/navigation", () => ({ redirect }));
 vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve({ raw: (key: string) => key }),
 }));
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
+import { EmailVerificationRequiredError } from "@/core/auth/email-verification-required-error";
 import { WORKSPACE_CHANGED_DIGEST } from "@/core/errors/workspace-changed";
 import { WorkspaceChangedError } from "@/core/errors/workspace-changed-error";
 import { createZodError, serializeInteractorFailure } from "@/core/validation/validation.utils";
@@ -60,6 +63,29 @@ describe("serializeResult", () => {
       failure: { kind: "rate_limit", retryable: true, issues: [{ customCode: CustomErrorCode.serviceBusy }] },
     });
     await expect(serializeResult(Promise.reject(new Error("unexpected")))).rejects.toThrow("unexpected");
+  });
+
+  it("sends a session held for email verification to the verification page", async () => {
+    redirect.mockImplementationOnce(() => {
+      throw new Error("NEXT_REDIRECT");
+    });
+
+    await expect(serializeResult(Promise.reject(new EmailVerificationRequiredError()))).rejects.toThrow(
+      "NEXT_REDIRECT",
+    );
+    expect(redirect).toHaveBeenCalledWith("/auth/verify-email");
+  });
+
+  it("redirects a held session to verification instead of treating it as an inactive membership", async () => {
+    redirect.mockImplementation(() => {
+      throw new Error("NEXT_REDIRECT");
+    });
+
+    await expect(serializeTypedResult(Promise.reject(new EmailVerificationRequiredError()))).rejects.toThrow(
+      "NEXT_REDIRECT",
+    );
+    expect(redirect).toHaveBeenLastCalledWith("/auth/verify-email");
+    redirect.mockReset();
   });
 
   it("serializes a permission refusal as a typed authorization failure", async () => {
@@ -159,6 +185,12 @@ describe("settleOutcome", () => {
       code: CustomErrorCode.workspaceChanged,
     });
     await expect(settleOutcome(Promise.reject(new Error("unexpected")))).rejects.toThrow("unexpected");
+  });
+
+  it("sends a login held for email verification to verify it, as the other action results do", async () => {
+    expect(await settleOutcome(Promise.reject(new EmailVerificationRequiredError()))).toEqual({
+      redirect: "/auth/verify-email",
+    });
   });
 });
 

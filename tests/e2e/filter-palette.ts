@@ -34,6 +34,8 @@ export async function choosePaletteValue(page: Page, anchor: string, field: stri
   await page.locator("#filter-palette-search").getByRole("combobox").fill(label);
   await page.getByRole("option").getByText(label, { exact: true }).click();
   await page.locator("#filter-palette-back").click();
+  // Escape before the palette is back on its field list can land on the closing value step (seen on Firefox).
+  await expect(page.locator("[data-palette-field]").first()).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(page.locator("#filter-palette-search")).toHaveCount(0);
 }

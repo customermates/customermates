@@ -2,6 +2,9 @@ import { randomUUID } from "node:crypto";
 
 import { presetId } from "../../features/records/crm-preset";
 import { collectPageErrors, expect, test } from "./fixtures";
+import { e2eAppMode } from "./workspace-switching";
+
+test.skip(e2eAppMode() === "self-hosted", "The assistant Mate is cloud-only");
 
 test("reviews Mate's proposed Deals view and saves a DataView row", async ({
   page,

@@ -27,7 +27,7 @@ Important behavior:
 - Formula, lookup, rollup and snapshot definitions are validated backend configuration. Calculation errors are visible. Aggregation uses record identity and a declared grain; equal amounts are not duplicate records.
 - Schema configuration, role administration, record access and publishing a restricted summary are separate authorities. Derived-value restrictions apply to queries, widgets, exports, history and deliveries, including retained values after manual/snapshot conversion and source archive.
 - A normalized channel identifier is indexed and may have associations with several records/types. Removing an association must not delete another association or silently grant inbox access. Removing the last association deletes the canonical identity with its aliases and cached provider metadata; disabling Channels or archiving a type keeps associations for restoration. Conversation links and the per-relationship message switches remain explicit.
-- Application identity, authentication, memberships, provider connections and protected membership-task operations remain system responsibilities. Ordinary fields and renamed types cannot bypass those constraints.
+- Application identity, authentication, memberships and provider connections remain system responsibilities; members waiting for approval are approved in Settings > Members, not through records. Ordinary fields and renamed types cannot bypass those constraints.
 - Large operations retain the previous complete readable state, pause CRM writes and publish a complete revision atomically. Failure, cancellation and retry must not leak partial values or repeat accepted mutations.
 - The upgrade preserves CRM data only. Legacy CRUD, legacy history decoders, presentation and terminology conversion are removed; record history, views and widgets start at the upgrade. Remaining legacy names must be starter presets or the single upgrade migration.
 
@@ -94,6 +94,20 @@ NODE
 
 Unset inherited `DATABASE_URL`, `DIRECT_URL`, `RUN_DATABASE_TESTS`, `CRM_E2E_DATABASE_URL`, `CRM_E2E_BASE_URL`, `CRM_E2E_SERVER_MODE`, `WORKFLOW_LOCAL_DATA_DIR` and provider-pause flags before the commands below if the surrounding shell sets them. Existing process variables take precedence over Node's `--env-file` values. Unset libpq routing overrides; do not bypass a safety rejection. Validate the resolved environment before every migration or verification run.
 
+## Fast path: verification scripts
+
+The manual steps below remain the reference. For everyday verification use the scripts in [scripts/verify](../../scripts/verify), which create their own PostgreSQL containers, databases and builds inside `.runs/verify/` of the worktree and never touch another checkout:
+
+| Command | What it runs |
+| --- | --- |
+| `yarn verify:fast` | generated files, typecheck, lint, i18n audit, the Vitest files affected since `origin/main` (with database tests), Playwright on Cloud Chromium and self-hosted Chromium, and the migration matrix when `prisma/` changed |
+| `yarn verify:full` | the same with the whole Vitest suite, the migration matrix, all five Playwright targets (self-hosted, WebKit and mobile offloaded to ws-test) and the live draft-send checks |
+| `yarn test:shards` | the Vitest suite in parallel shards, each with its own copy of a migrated and seeded template database |
+| `yarn test:e2e:matrix --targets all --offload self-hosted-chromium` | the Playwright matrix: one production build per mode reused across browsers and runs, parallel shards with their own server and database, one retry (reported as flaky) and a comparison with [known-failures.json](known-failures.json) |
+| `yarn test:e2e:baseline compare <outcomes.json>` | prints only new failures, flaky tests and baseline entries that now pass |
+| `yarn test:migrations` | fresh database on PostgreSQL 17 and 16 (migrate, seed twice, status, schema diff) and an upgrade from `origin/main` |
+| `yarn verify:live` | real draft sends between the two Unipile test inboxes only; [the guard](live/live-egress-guard.mjs) refuses any other recipient, account, host or provider write |
+
 ## Application and database gates
 
 Stop only servers owned by this verification session before database tests and scale measurements. Never reset a database used by another server or the human review app. Run gates sequentially; check the exit code and inspect the generated reports.
@@ -115,13 +129,13 @@ yarn vitest run tests/conventions
 node --env-file=.env --env-file=.runs/record-review/db.env node_modules/.bin/vitest run --reporter=default --reporter=json --outputFile=.runs/record-review/application-results.json
 ```
 
-Required database tests must actually run; a green result with them skipped is not acceptance. The full suite covers populated legacy upgrades and reconciliation, malformed legacy data, cross-table UUID collisions, exact decimals, protected tasks, identity matching, permissions, revocation, idempotency, cycles, asynchronous recovery and offline assistant orchestration. Inspect every skipped case separately. Five optional served-marketing HTTP cases were skipped in the prior run because their separate production-server URL was not supplied; they are not CRM/database skips.
+Required database tests must actually run; a green result with them skipped is not acceptance. The full suite covers populated legacy upgrades and reconciliation, malformed legacy data, cross-table UUID collisions, exact decimals, identity matching, permissions, revocation, idempotency, cycles, asynchronous recovery and offline assistant orchestration. Inspect every skipped case separately. Five optional served-marketing HTTP cases were skipped in the prior run because their separate production-server URL was not supplied; they are not CRM/database skips.
 
 Repeat migration deployment and seed twice on a separate loopback PostgreSQL 16 cluster, with its own database and volume. Also run the relevant record-engine and configurable-records-migration database subset there. Never attach a PostgreSQL 17 data directory to PostgreSQL 16. Follow the tracked [PostgreSQL 16 CI job](../../.github/workflows/test.yml) for the compatibility setup. To rehearse the legacy upgrade manually, restore a legacy database (all migrations before `20261010000000_dynamic_record_model`) and run `prisma migrate deploy`; never run it against a database that already has generic record storage.
 
 ## Production-build browser matrix
 
-Prepare the separate browser database. The checked-in [Playwright config](../../playwright.config.ts) launches the actual production application automatically with a dedicated workflow directory, paused hosted AI and the [loopback network guard](network-guard.mjs). It refuses a shared running server, uses one worker and has zero retries. Fixtures authenticate synthetic users, invoke production adapters/interactors and verify persistence rather than replacing CRM with browser mocks.
+Prepare the separate browser database. The checked-in [Playwright config](../../playwright.config.ts) launches the actual production application automatically with a dedicated workflow directory, paused hosted AI and the [loopback network guard](network-guard.mjs). It refuses a shared running server and uses one worker per server; `CRM_E2E_RETRIES` (1 in CI and in the verification scripts, 0 by default) retries a failed test once and reports it as flaky. Fixtures authenticate synthetic users, invoke production adapters/interactors and verify persistence rather than replacing CRM with browser mocks.
 
 ```sh
 node --env-file=.env --env-file=.runs/record-review/browser.env node_modules/.bin/tsx scripts/assert-local-database-url.ts
@@ -144,7 +158,7 @@ Exercise the happy paths and their failure/recovery companions through the actua
 - Personal/shared views, detail layouts/pins, tables, drawer/full-page transitions, keyboard/focus, responsive overlays, assistant draft coexistence and theme/locale presentation.
 - Unified widget creation/edit/preview, count/sum/average/minimum/maximum, relationship grain and attribution, filters, colors, activity details, templates, desktop movement and persisted layout.
 - Independent administrators, schema delegates, assigned writers, workspace readers, restricted/no-access readers and another workspace. Distinguish separate-user permission tests from same-user multi-tab concurrency.
-- Import/export, routines, webhook admission/delivery/retry, protected membership tasks, real authenticated MCP configuration and persisted UI results.
+- Import/export, routines, webhook admission/delivery/retry, pending member approval, real authenticated MCP configuration and persisted UI results.
 - Revoked access, stale versions/revisions, incompatible dependencies, restricted retained totals after archive/conversion, accepted writes followed by failed reads, interruption and staged atomic publication.
 
 Do not use forced clicks, hidden controls, arbitrary retries, error suppression or weakened persistence assertions to turn a failure green. Find whether a failure comes from the product, a fixture that misses the real path, or a genuine platform constraint. Keep that distinction in the evidence.

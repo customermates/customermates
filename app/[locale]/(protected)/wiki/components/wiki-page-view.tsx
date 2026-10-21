@@ -15,6 +15,7 @@ import { useTranslations } from "next-intl";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { AgentStarterActions } from "@/app/components/agent-chat/suggested-questions";
 import { AppForm } from "@/components/forms/form-context";
+import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormTextarea } from "@/components/forms/form-textarea";
 import { Editor } from "@/components/editor/editor";
@@ -43,7 +44,7 @@ import { WikiPageActions } from "./wiki-page-actions";
 import { WikiProposals } from "./wiki-proposals";
 import { WikiProposalsEntry } from "./wiki-proposals-entry";
 import { WikiProposalsStore } from "./wiki-proposals.store";
-import { WikiPageOutline } from "./wiki-page-outline";
+import { WIKI_HEADING_ID_PREFIX, WikiPageOutline } from "./wiki-page-outline";
 import { WikiPageSkeleton } from "./wiki-page-skeleton";
 import { WikiLinkPicker } from "./wiki-link-picker";
 import { WikiPageRail } from "./wiki-page-rail";
@@ -89,7 +90,6 @@ const WikiPageViewContent = observer(function WikiPageView({
   useNavigationGuard(store);
   const formId = useId();
   const titleContainer = useRef<HTMLDivElement>(null);
-  const documentContainer = useRef<HTMLDivElement>(null);
   const pages = useWikiPages(listPage);
   const userStore = rootStore.userStore as typeof rootStore.userStore | undefined;
   const canReviewProposals = typeof userStore?.can === "function" && userStore.can(Resource.wiki, Action.update);
@@ -184,17 +184,14 @@ const WikiPageViewContent = observer(function WikiPageView({
       isNavigating ? null : (
         <WikiPageActions
           canCreate
-          canManage={canManage}
-          formId={formId}
           hasDocument={hasDocument}
           proposals={canReviewProposals ? <WikiProposalsEntry store={proposals} /> : undefined}
           store={store}
-          onCancelCreate={cancelCreate}
           onCreate={create}
           onReload={reload}
         />
       ),
-    [canManage, canReviewProposals, cancelCreate, create, formId, hasDocument, isNavigating, proposals, reload, store],
+    [canReviewProposals, create, hasDocument, isNavigating, proposals, reload, store],
   );
   useSetTopBarActions(topBar);
   const kindLabels: Record<WikiPageKind, string> = {
@@ -287,10 +284,10 @@ const WikiPageViewContent = observer(function WikiPageView({
       documentBody = (
         <AppForm id={formId} store={store}>
           <div
-            className="mx-auto grid w-full max-w-6xl flex-1 items-start gap-12 px-6 py-8 md:px-10 md:py-10 @min-[68rem]/wiki:grid-cols-[minmax(0,48rem)_12rem] @min-[68rem]/wiki:justify-center"
+            className="mx-auto grid w-full max-w-6xl flex-1 items-start gap-6 px-6 py-8 md:px-10 md:py-10 @min-[58rem]/wiki:grid-cols-[minmax(0,48rem)_12rem] @min-[58rem]/wiki:justify-center"
             data-wiki-document-layout=""
           >
-            <div ref={documentContainer} className="mx-auto w-full max-w-3xl min-w-0 space-y-6 @min-[68rem]/wiki:mx-0">
+            <div className="mx-auto w-full max-w-3xl min-w-0 space-y-6 @min-[58rem]/wiki:mx-0">
               {store.conflict && (
                 <Alert color="warning">
                   <div className="flex flex-wrap items-center justify-between gap-3">
@@ -369,13 +366,14 @@ const WikiPageViewContent = observer(function WikiPageView({
               <EditorLinkPickerContext.Provider value={WikiLinkPicker}>
                 <Editor
                   data={store.editorDocument}
+                  headingIdPrefix={WIKI_HEADING_ID_PREFIX}
                   readOnly={!canManage || store.isLoading}
                   onChange={store.onEditorChange}
                 />
               </EditorLinkPickerContext.Provider>
             </div>
 
-            <WikiPageOutline containerRef={documentContainer} document={store.editorDocument} />
+            <WikiPageOutline document={store.editorDocument} />
           </div>
         </AppForm>
       );
@@ -409,50 +407,62 @@ const WikiPageViewContent = observer(function WikiPageView({
       element: (
         <section
           aria-label={t("Wiki.document")}
-          className="@container/wiki flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto"
+          className="@container/wiki relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
           id="wiki-document-panel"
         >
-          <div className="flex min-w-0 items-center border-b border-border px-4 py-2 lg:hidden">
-            <ResponsiveOverlay
-              align="start"
-              drawerDirection="left"
-              open={mobileOpen}
-              popoverClassName="flex h-96 w-80 flex-col p-0"
-              title={t("Wiki.pagesLabel")}
-              trigger={
-                <Button className="min-w-0 max-w-full justify-between gap-3 font-normal" variant="ghost">
-                  <BookOpen aria-hidden="true" className="shrink-0" />
+          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto pb-[var(--unsaved-changes-bar-space,0px)]">
+            <div className="flex min-w-0 items-center border-b border-border px-4 py-2 lg:hidden">
+              <ResponsiveOverlay
+                align="start"
+                drawerDirection="left"
+                open={mobileOpen}
+                popoverClassName="flex h-96 w-80 flex-col p-0"
+                title={t("Wiki.pagesLabel")}
+                trigger={
+                  <Button className="min-w-0 max-w-full justify-between gap-3 font-normal" variant="ghost">
+                    <BookOpen aria-hidden="true" className="shrink-0" />
 
-                  <span className="truncate">{store.form.title || t("Wiki.pagesLabel")}</span>
+                    <span className="truncate">{store.form.title || t("Wiki.pagesLabel")}</span>
 
-                  <ChevronDown aria-hidden="true" className="shrink-0" />
-                </Button>
-              }
-              onOpenChange={setMobileOpen}
-            >
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden">{pageList}</div>
-            </ResponsiveOverlay>
+                    <ChevronDown aria-hidden="true" className="shrink-0" />
+                  </Button>
+                }
+                onOpenChange={setMobileOpen}
+              >
+                <div className="flex min-h-0 flex-1 flex-col overflow-hidden">{pageList}</div>
+              </ResponsiveOverlay>
+            </div>
+
+            {importRunning && pageState !== "setup" && (
+              <div className="mx-auto w-full max-w-6xl px-6 pt-3 md:px-10" data-wiki-import-banner="">
+                <Alert
+                  aria-live="polite"
+                  className="py-2"
+                  description={t("WikiSetup.status.backgroundBanner")}
+                  icon={<Loader2 className="animate-spin motion-reduce:animate-none" />}
+                  role="status"
+                />
+              </div>
+            )}
+
+            {setupFailed && (
+              <div className="mx-auto w-full max-w-6xl px-6 pt-3 md:px-10">
+                <Alert color={hasPages ? "warning" : "danger"} description={setupFailedBody} />
+              </div>
+            )}
+
+            {documentBody}
           </div>
 
-          {importRunning && pageState !== "setup" && (
-            <div className="mx-auto w-full max-w-6xl px-6 pt-3 md:px-10" data-wiki-import-banner="">
-              <Alert
-                aria-live="polite"
-                className="py-2"
-                description={t("WikiSetup.status.backgroundBanner")}
-                icon={<Loader2 className="animate-spin motion-reduce:animate-none" />}
-                role="status"
-              />
-            </div>
+          {hasDocument && (
+            <UnsavedChangesBar
+              anchorScope="wiki-page"
+              creating={store.creating}
+              formId={formId}
+              store={store}
+              onCancel={store.creating ? cancelCreate : store.resetDocument}
+            />
           )}
-
-          {setupFailed && (
-            <div className="mx-auto w-full max-w-6xl px-6 pt-3 md:px-10">
-              <Alert color={hasPages ? "warning" : "danger"} description={setupFailedBody} />
-            </div>
-          )}
-
-          {documentBody}
 
           {canReviewProposals && <WikiProposals canApply={canApplyProposal} store={proposals} />}
         </section>

@@ -2,6 +2,7 @@ import { Github, Star } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { AppLink } from "@/components/shared/app-link";
+import { env } from "@/env";
 import { contentLocaleOrDefault, formattingTagFor } from "@/i18n/locale-registry";
 
 type Props = {
@@ -9,6 +10,8 @@ type Props = {
 };
 
 async function getStarCount(): Promise<number | null> {
+  if (env.APP_MODE === "self-hosted") return null;
+
   try {
     const res = await fetch("https://api.github.com/repos/customermates/customermates", {
       next: { revalidate: 3600 },

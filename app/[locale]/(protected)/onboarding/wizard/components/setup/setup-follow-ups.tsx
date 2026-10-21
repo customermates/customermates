@@ -2,7 +2,10 @@
 
 import { Loader2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
+import { useRef } from "react";
 import { useTranslations } from "next-intl";
+
+import { focusFirstInvalidField } from "@/components/forms/focus-first-invalid-field";
 
 import { Button } from "@/components/ui/button";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -15,11 +18,16 @@ import { SetupQuestionField } from "./setup-question-field";
 export const SetupFollowUps = observer(function SetupFollowUps() {
   const t = useTranslations();
   const { workspaceSetupStore: store } = useRootStore();
+  const section = useRef<HTMLElement>(null);
   const setup = store.setup;
   if (!setup) return null;
 
   return (
-    <section aria-busy={store.isBusy} className="flex animate-page-result-in flex-col gap-6 motion-reduce:animate-none">
+    <section
+      ref={section}
+      aria-busy={store.isBusy}
+      className="flex animate-page-result-in flex-col gap-6 motion-reduce:animate-none"
+    >
       <div className="space-y-1">
         <h2 className="text-lg font-semibold">{t("WorkspaceSetup.interview.followUpsTitle")}</h2>
 
@@ -32,6 +40,7 @@ export const SetupFollowUps = observer(function SetupFollowUps() {
           currency={store.currency}
           descriptor={followUpDescriptor(question)}
           disabled={store.isBusy}
+          invalid={store.answerMissing(question.id)}
           value={displayedFollowUpValue(question, setup, store.followUpDrafts)}
           onChange={(value) => store.setFollowUpAnswer(question.id, value)}
         />
@@ -39,13 +48,16 @@ export const SetupFollowUps = observer(function SetupFollowUps() {
 
       <div className="flex justify-end">
         <Button
-          disabled={!store.canConfirmFollowUps || store.isBusy}
+          disabled={store.isBusy}
           type="button"
-          onClick={() => runUserAction(store.confirmFollowUps)}
+          onClick={() => {
+            if (store.showMissingAnswers(t("Common.errors.mustNotBeBlank"))) focusFirstInvalidField(section.current);
+            else runUserAction(store.confirmFollowUps);
+          }}
         >
           {store.pending === "followUps" ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : null}
 
-          {t("WorkspaceSetup.actions.looksRight")}
+          {t("OnboardingWizard.next")}
         </Button>
       </div>
     </section>

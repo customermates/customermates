@@ -698,39 +698,6 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
           if (otherActiveSystemUsers === 0) return "conflict";
         }
 
-        const leavingPending =
-          target.status === Status.pendingAuthorization && data.status !== Status.pendingAuthorization;
-        const protectedTasks = leavingPending
-          ? await this.prisma.crmRecord.findMany({
-              where: {
-                companyId,
-                protectedKind: "membershipAuthorization",
-                systemData: { path: ["relatedUserId"], equals: data.userId },
-              },
-              select: { id: true, typeId: true },
-            })
-          : [];
-        if (protectedTasks.length) {
-          const [state, linked] = await Promise.all([
-            this.prisma.recordSchemaState.findUnique({
-              where: { companyId },
-              select: { activeOperationId: true },
-            }),
-            this.prisma.recordLink.findFirst({
-              where: {
-                companyId,
-                deletedAt: null,
-                OR: protectedTasks.flatMap((task) => [
-                  { sourceTypeId: task.typeId, sourceId: task.id },
-                  { targetTypeId: task.typeId, targetId: task.id },
-                ]),
-              },
-              select: { id: true },
-            }),
-          ]);
-          if (state?.activeOperationId || linked) return "conflict";
-        }
-
         const enteringActive = target.status !== Status.active && data.status === Status.active;
         await this.owners.users.setOperatorStatusCompanyWide(
           companyId,
@@ -738,8 +705,6 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
           data.status,
           enteringActive ? now : leavingActive ? null : undefined,
         );
-        if (leavingPending && protectedTasks.length)
-          await this.owners.records.deleteMembershipAuthorizationTasksCompanyWide(companyId, data.userId);
 
         await this.createAudit({
           action: OPERATOR_AUDIT_ACTION.userStatusUpdate,
@@ -1321,7 +1286,7 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
     >`
       SELECT
         (SELECT COUNT(*) FROM "RecordTypeDefinition" WHERE "companyId" = ${data.companyId} AND NOT "archived" AND NOT "embedded")::int AS "lists",
-        (SELECT COUNT(*) FROM "CrmRecord" r JOIN "RecordTypeDefinition" t ON t."companyId" = r."companyId" AND t."id" = r."typeId" WHERE r."companyId" = ${data.companyId} AND r."deletedAt" IS NULL AND r."protectedKind" IS NULL AND NOT t."archived" AND NOT t."embedded")::int AS "records",
+        (SELECT COUNT(*) FROM "CrmRecord" r JOIN "RecordTypeDefinition" t ON t."companyId" = r."companyId" AND t."id" = r."typeId" WHERE r."companyId" = ${data.companyId} AND r."deletedAt" IS NULL AND NOT t."archived" AND NOT t."embedded")::int AS "records",
         (SELECT COUNT(*) FROM "MessagingThread" WHERE "companyId" = ${data.companyId})::int AS "messagingThreads",
         (SELECT COUNT(*) FROM "MessagingMessage" WHERE "companyId" = ${data.companyId})::int AS "messagingMessages",
         (SELECT COUNT(*) FROM "AgentConversation" WHERE "companyId" = ${data.companyId})::int AS "agentConversations",

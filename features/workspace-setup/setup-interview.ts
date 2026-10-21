@@ -65,7 +65,7 @@ export const SETUP_SCREEN_DEFINITIONS: SetupScreenDefinition[] = [
 ];
 
 export const SETUP_INTERVIEW_ACTIONS = {
-  confirm: { labelKey: "WorkspaceSetup.actions.looksRight" },
+  confirm: { labelKey: "OnboardingWizard.next" },
   addOwn: { labelKey: "WorkspaceSetup.actions.addOwn" },
   upload: { labelKey: "WorkspaceSetup.actions.upload" },
   fromWebsite: { labelKey: "WorkspaceSetup.actions.fromWebsite" },

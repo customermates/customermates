@@ -7,6 +7,8 @@ const aliases = {
   "@api": path.resolve(__dirname, "./app/api"),
   "server-only": path.resolve(__dirname, "./tests/helpers/server-only.ts"),
 };
+// CI and scripts/verify set VITEST_RETRY=1; the flaky reporter there lists every test that passed only on a retry.
+const retry = Number(process.env.VITEST_RETRY ?? 0);
 const testEnvironment = {
   APP_MODE: "self-hosted",
   BASE_URL: "http://localhost:4000",
@@ -131,6 +133,8 @@ export const domTestFiles = [
   "features/messaging/__tests__/email-frame-theme.test.ts",
   "app/[locale]/(protected)/inbox/components/__tests__/thread-reply-composer-navigation.test.ts",
   "app/[locale]/(protected)/inbox/components/__tests__/email-message-header.test.ts",
+  "app/[locale]/(protected)/inbox/components/__tests__/thread-compose-send-toast.dom.test.ts",
+  "app/[locale]/(protected)/inbox/components/__tests__/draft-conflict-bar.dom.test.ts",
   "app/components/navigation/__tests__/use-marketing-account-state.test.ts",
   "components/ui/__tests__/tooltip.dom.test.ts",
   "components/keyboard/__tests__/key-matching-context.dom.test.ts",
@@ -147,17 +151,18 @@ export default defineConfig({
     maxWorkers: 4,
     environment: "node",
     include: nodeTestInclude,
-    exclude: ["node_modules", ".next", "generated"],
+    exclude: ["node_modules", ".next", "generated", "**/.runs/**"],
     projects: [
       {
         resolve: { alias: aliases },
         test: {
           name: "node",
           globals: true,
+          retry,
           environment: "node",
           env: testEnvironment,
           include: nodeTestInclude,
-          exclude: ["node_modules", ".next", "generated", ...domTestFiles],
+          exclude: ["node_modules", ".next", "generated", "**/.runs/**", ...domTestFiles],
           server: { deps: { inline: [/next-intl/] } },
         },
       },
@@ -166,11 +171,12 @@ export default defineConfig({
         test: {
           name: "dom",
           globals: true,
+          retry,
           environment: "jsdom",
           env: testEnvironment,
           server: { deps: { inline: [/next-intl/] } },
           include: domTestFiles,
-          exclude: ["node_modules", ".next", "generated"],
+          exclude: ["node_modules", ".next", "generated", "**/.runs/**"],
         },
       },
     ],

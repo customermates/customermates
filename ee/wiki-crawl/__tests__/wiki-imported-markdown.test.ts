@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
 
+import type { JSONContent } from "@tiptap/core";
+import { WikiMarkdownSchema } from "@/features/wiki/wiki.schema";
+import { parseMarkdownToJSON } from "@/components/editor/editor.utils";
+import { extractWikiSourceDocument } from "../website-source-extract";
+
 import { APP_LOCALES } from "@/i18n/locale-registry";
 
 import { wikiImportCopy, wikiImportedMarkdown, type WikiSourceRecord } from "../wiki-website-crawl.service";
@@ -16,6 +21,24 @@ const source: WikiSourceRecord = {
 };
 
 describe("imported Wiki page copy", () => {
+  it("imports source-site heading anchors as clean headings through the editor round trip", async () => {
+    const document = extractWikiSourceDocument(
+      "# Intro [#intro]\n\n## Pick your client and start [#pick-your-client-and-start]\n\nUseful context.\n\n## Can I start today? {#start}\n\nYes.",
+      "https://example.com/intro.md",
+      "text/markdown",
+    );
+    expect(document.title).toBe("Intro");
+    const [markdown] = wikiImportedMarkdown({ ...source, ...document }, await wikiImportCopy("en"));
+    const saved = WikiMarkdownSchema.parse(markdown);
+    expect(saved).not.toMatch(/[\[{]#/u);
+    expect(WikiMarkdownSchema.parse(saved)).toBe(saved);
+    const headings = (parseMarkdownToJSON(saved) as JSONContent).content?.filter((node) => node.type === "heading");
+    expect(headings?.map((node) => node.content?.map((text) => text.text).join(""))).toEqual([
+      "Pick your client and start",
+      "Can I start today?",
+    ]);
+  });
+
   it("writes the source line and FAQ heading in the workspace language", async () => {
     const [german] = wikiImportedMarkdown(source, await wikiImportCopy("de"));
 

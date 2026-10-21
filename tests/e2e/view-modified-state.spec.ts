@@ -29,7 +29,7 @@ test("keeps filter changes temporary until saved to the view, resets them and ke
     await expect(target.locator('#global-data-views [data-focus-target^="view:"][aria-current="page"]')).toHaveCount(0);
     await expect(target.locator("#global-data-views-menu[data-view-modified]")).toHaveCount(0);
   };
-  const reset = page.locator("#records-filter-reset");
+  const cancel = page.locator("#records-filter-cancel");
   const save = page.locator("#records-filter-save");
   const applyAssignee = async () => {
     await page.locator("#records-filter").click();
@@ -43,14 +43,20 @@ test("keeps filter changes temporary until saved to the view, resets them and ke
 
   await applyAssignee();
   await expect(viewsMenu).toHaveAttribute("data-view-modified", "");
+  await expect(viewsMenu.locator('span[aria-hidden="true"]')).toBeInViewport({ ratio: 1 });
   await expect(save).toBeVisible();
+  const filterBar = page.locator('[role="dialog"] [data-slot="unsaved-changes-bar"]');
+  await expect(filterBar).toBeVisible();
+  await expect(filterBar.getByRole("button", { name: "Save", exact: true })).toBeInViewport({ ratio: 1 });
+  await expect(filterBar.getByRole("button", { name: "Cancel", exact: true })).toBeInViewport({ ratio: 1 });
+  await expect(page.locator('[role="dialog"] [data-view-changes-notice]')).toHaveCount(0);
   await page.screenshot({ path: testInfo.outputPath("view-modified-light.png"), animations: "disabled" });
   await page.emulateMedia({ colorScheme: "dark" });
   await page.screenshot({ path: testInfo.outputPath("view-modified-dark.png"), animations: "disabled" });
   await page.emulateMedia({ colorScheme: "light" });
-  await reset.click();
+  await cancel.click();
   await expect(unsavedWithoutView).toHaveCount(0);
-  await expect(reset).toHaveCount(0);
+  await expect(cancel).toHaveCount(0);
   await expect(save).toHaveCount(0);
   await expect(page.locator("[data-palette-active-filters]")).toHaveCount(0);
   await page.keyboard.press("Escape");
@@ -230,6 +236,7 @@ test("opens an assistant proposal in the modified state and saves it as an updat
   const proposed = page.locator("#global-data-views-proposed");
   await expect(proposed).toHaveText(/Assigned to me/);
   await expect(proposed).toHaveAttribute("data-view-modified", "");
+  await expect(proposed.locator('span[aria-hidden="true"]')).toBeInViewport({ ratio: 1 });
   await expect(proposed).toHaveAttribute("aria-current", "page");
   await expect(activeView).toHaveCount(0);
   await expect(page.locator("#global-data-views-menu[data-view-modified]")).toHaveCount(0);
@@ -270,6 +277,7 @@ test("opens an assistant proposal in the modified state and saves it as an updat
   const renamed = page.locator(`[data-focus-target="view:${createdId}"]`);
   await expect(renamed).toHaveText(/Assigned to me/);
   await expect(renamed).toHaveAttribute("data-view-modified", "");
+  await expect(renamed.locator('span[aria-hidden="true"]')).toBeInViewport({ ratio: 1 });
   await page.locator("#global-data-views-menu").click();
   await page.locator("#global-data-views-save").click();
   await expect(renamed).toHaveText(/^Mine$/);
@@ -280,7 +288,7 @@ test("opens an assistant proposal in the modified state and saves it as an updat
   expect(errors).toEqual([]);
 });
 
-test("keeps appearance changes temporary until saved to the view, with Save and Reset in Filters and Appearance", async ({
+test("keeps appearance changes temporary with the shared bottom save bar and the existing filter actions", async ({
   page,
   database,
   companyId,
@@ -305,9 +313,10 @@ test("keeps appearance changes temporary until saved to the view, with Save and 
   };
   const groupBy = page.getByRole("combobox", { name: "Group By", exact: true });
   const appearanceSave = page.locator("#records-display-options-view-save");
-  const appearanceReset = page.locator("#records-display-options-view-reset");
+  const appearanceCancel = page.locator("#records-display-options-view-cancel");
+  const appearanceBar = page.locator('[role="dialog"] [data-slot="unsaved-changes-bar"]');
   const filterSave = page.locator("#records-filter-save");
-  const filterReset = page.locator("#records-filter-reset");
+  const filterCancel = page.locator("#records-filter-cancel");
   const openAppearance = async () => {
     await page.locator("#records-display-options").click();
     await expect(groupBy).toBeVisible();
@@ -328,17 +337,38 @@ test("keeps appearance changes temporary until saved to the view, with Save and 
   await withoutView();
   await openAppearance();
   await expect(appearanceSave).toHaveCount(0);
+  await expect(appearanceBar).toHaveCount(0);
   await closeAppearance();
 
   await groupByStage();
   await expect(viewsMenu).toHaveAttribute("data-view-modified", "");
   await expect(appearanceSave).toBeVisible();
-  await expect(appearanceReset).toBeVisible();
+  await expect(appearanceCancel).toBeVisible();
+  await expect(appearanceBar).toBeVisible();
+  await expect(page.locator('[role="dialog"] [data-view-changes-notice]')).toHaveCount(0);
+  const barBounds = await appearanceBar.evaluate((element) => {
+    const bar = element.getBoundingClientRect();
+    const panel = element.closest('[role="dialog"]')!.getBoundingClientRect();
+    const clipped = [...element.querySelectorAll(".truncate")].some(
+      (label) => label.clientWidth > 0 && label.scrollWidth > label.clientWidth + 1,
+    );
+    return { inside: bar.left >= panel.left && bar.right <= panel.right && bar.bottom <= panel.bottom, clipped };
+  });
+  expect(barBounds).toEqual({ inside: true, clipped: false });
+  const scrollTop = await groupBy.evaluate((element) => {
+    const scroller = element.closest('[role="dialog"]')!.querySelector<HTMLElement>(".overflow-y-auto");
+    if (!scroller) throw new Error("The Appearance scroll region is missing");
+    scroller.scrollTop = scroller.scrollHeight;
+    return scroller.scrollTop;
+  });
+  expect(scrollTop).toBeGreaterThan(0);
+  await expect(appearanceSave).toBeInViewport({ ratio: 1 });
+  await expect(appearanceCancel).toBeInViewport({ ratio: 1 });
   await page.screenshot({ path: testInfo.outputPath("appearance-modified.png"), animations: "disabled" });
   await closeAppearance();
   await page.locator("#records-filter").click();
   await expect(filterSave).toBeVisible();
-  await expect(filterReset).toBeVisible();
+  await expect(filterCancel).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("filters-appearance-modified.png"), animations: "disabled" });
   await page.keyboard.press("Escape");
   await expect(filterSave).toHaveCount(0);
@@ -351,12 +381,13 @@ test("keeps appearance changes temporary until saved to the view, with Save and 
   await appearanceSave.click();
   await expect(unsavedWithoutView).toHaveCount(0);
   await expect(appearanceSave).toHaveCount(0);
+  await expect(appearanceBar).toHaveCount(0);
   await expect.poll(storedGrouping).toMatchObject({ field: stage });
 
   await groupBy.click();
   await page.getByRole("option", { name: "None", exact: true }).click();
   await expect(viewsMenu).toHaveAttribute("data-view-modified", "");
-  await appearanceReset.click();
+  await appearanceCancel.click();
   await expect(groupBy).toContainText("Stage");
   await expect(unsavedWithoutView).toHaveCount(0);
   await closeAppearance();

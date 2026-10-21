@@ -242,6 +242,7 @@ test("configures and persists every field type, multiple values and calendar con
   await days.nth(10).click();
   await days.nth(12).click();
   await page.keyboard.press("Escape");
+  await expect(page.locator('[data-slot="popover-content"]')).toHaveCount(0);
   await expect(row("Calendar range").locator(`[id^="values.${field("Calendar range").id}-"]`)).not.toContainText(
     "Pick a range",
   );

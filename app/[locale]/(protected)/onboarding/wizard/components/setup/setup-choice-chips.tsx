@@ -42,9 +42,16 @@ export function SetupChoiceGroup({ label, value, disabled, onValueChange, childr
   );
 }
 
-export function SetupRadioChip({ value, checked, children }: { value: string; checked: boolean; children: ReactNode }) {
+type RadioChipProps = {
+  value: string;
+  checked: boolean;
+  invalid?: boolean;
+  children: ReactNode;
+};
+
+export function SetupRadioChip({ value, checked, invalid, children }: RadioChipProps) {
   return (
-    <RadioGroupPrimitive.Item className={SETUP_CHOICE_CLASS} value={value}>
+    <RadioGroupPrimitive.Item aria-invalid={invalid || undefined} className={SETUP_CHOICE_CLASS} value={value}>
       {checked ? <Check aria-hidden /> : null}
 
       {children}
@@ -55,13 +62,15 @@ export function SetupRadioChip({ value, checked, children }: { value: string; ch
 type CheckChipProps = {
   checked: boolean;
   disabled?: boolean;
+  invalid?: boolean;
   onCheckedChange: (checked: boolean) => void;
   children: ReactNode;
 };
 
-export function SetupCheckChip({ checked, disabled, onCheckedChange, children }: CheckChipProps) {
+export function SetupCheckChip({ checked, disabled, invalid, onCheckedChange, children }: CheckChipProps) {
   return (
     <CheckboxPrimitive.Root
+      aria-invalid={invalid || undefined}
       checked={checked}
       className={SETUP_CHOICE_CLASS}
       disabled={disabled}

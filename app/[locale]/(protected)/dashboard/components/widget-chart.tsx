@@ -77,7 +77,13 @@ const RadarChartComponent = dynamic(
 
 type Props = {
   currency?: string | null;
-  data: (DiagramDataPoint & { formattedValue?: string; axisLabel?: string; detail?: string; missing?: boolean })[];
+  data: (DiagramDataPoint & {
+    formattedValue?: string;
+    axisLabel?: string;
+    detail?: string;
+    missing?: boolean;
+    onSelect?: () => void;
+  })[];
   displayOptions?: WidgetDisplayOptions | null;
   integerValues?: boolean;
   shadeByRank?: boolean;
@@ -111,6 +117,7 @@ export const WidgetChart = observer(
         axisLabel: item.axisLabel,
         detail: item.detail,
         missing: item.missing,
+        onSelect: item.onSelect,
         fill: shades?.[index] ?? chartColors[colorKey],
         color: shades?.[index] ?? chartColors[colorKey],
         labelColor: chartTextColors[colorKey],

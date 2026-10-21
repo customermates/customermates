@@ -1,0 +1,195 @@
+name: E2E
+
+# Playwright against production builds. Pull requests run Cloud Chromium and self-hosted Chromium, plus a Firefox smoke
+# shard of the specs in SMOKE_SPECS; main, the nightly schedule and manual runs cover all five targets and publish a
+# baseline candidate. Each mode is built once and shared by its shards; each shard has its own server and database.
+# Only failures missing from tests/e2e/known-failures.json fail the `e2e` check; tests that pass on the retry are listed
+# as flaky.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 2 * * *"
+  workflow_dispatch:
+    inputs:
+      targets:
+        description: Comma-separated targets, or "all"
+        default: all
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.event.pull_request.number || github.ref }}-${{ github.event_name }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+  BETTER_AUTH_SECRET: synthetic-ci-e2e-auth-secret-0123456789abcdef
+  VERIFY_POSTGRES_URL: "postgresql://postgres:postgres@127.0.0.1:5432/postgres"
+  DATABASE_URL: "postgresql://postgres:postgres@127.0.0.1:5432/postgres"
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      modes: ${{ steps.plan.outputs.modes }}
+      shards: ${{ steps.plan.outputs.shards }}
+    steps:
+      - id: plan
+        env:
+          EVENT: ${{ github.event_name }}
+          REQUESTED: ${{ github.event.inputs.targets }}
+          # About 1 minute of Firefox tests, next to the Chromium shards: the diagnostics that differ per browser and a
+          # few short specs of the record pages.
+          SMOKE_SPECS: >-
+            tests/e2e/browser-diagnostics.spec.ts tests/e2e/route-refresh.spec.ts tests/e2e/record-drawer-back.spec.ts
+            tests/e2e/record-tools.spec.ts tests/e2e/workspace-profile.spec.ts
+        run: |
+          smoke=""
+          if [ "$EVENT" = pull_request ] || { [ "$EVENT" = push ] && [ "$GITHUB_REF" != refs/heads/main ]; }; then targets="cloud-chromium,self-hosted-chromium"; smoke="cloud-firefox";
+          elif [ -n "$REQUESTED" ] && [ "$REQUESTED" != all ]; then targets="$REQUESTED";
+          else targets="cloud-chromium,cloud-firefox,cloud-webkit,cloud-mobile,self-hosted-chromium"; fi
+          # Shards per target: about 12 minutes of tests each on a hosted runner.
+          echo "$targets" | jq -Rc --arg smoke "$smoke" --arg files "$SMOKE_SPECS" 'split(",") | map({target: ., shards: (if test("webkit|mobile") then 8 else 6 end)}) | map(. as $t | range(1; $t.shards + 1) | {target: $t.target, shards: $t.shards, shard: ., files: ""}) + (if $smoke == "" then [] else [{target: $smoke, shards: 1, shard: 1, files: $files}] end)' > shards.json
+          echo "shards=$(cat shards.json)" >> "$GITHUB_OUTPUT"
+          echo "modes=$(echo "$targets,$smoke" | jq -Rc 'split(",") | map(select(. != "")) | map(if startswith("self-hosted") then "self-hosted" else "cloud" end) | unique')" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: build (${{ matrix.mode }})
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        mode: ${{ fromJSON(needs.plan.outputs.modes) }}
+    env:
+      APP_MODE: ${{ matrix.mode }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: ./.github/actions/setup
+      - name: Write the synthetic E2E environment
+        run: |
+          node --input-type=module -e "import { writeEnvFile } from './scripts/verify/lib/app-copy.mjs'; writeEnvFile(process.cwd(), process.env.APP_MODE, { databaseUrl: 'postgresql://postgres:postgres@127.0.0.1:5432/crm_e2e_build', secret: process.env.BETTER_AUTH_SECRET });"
+      - name: Restore the Next.js build cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .next/cache
+          key: next-cache-${{ matrix.mode }}-${{ hashFiles('yarn.lock') }}-${{ github.sha }}
+          restore-keys: next-cache-${{ matrix.mode }}-${{ hashFiles('yarn.lock') }}-
+      - name: Production build
+        run: yarn build
+      - name: Pack the build
+        run: tar --zstd -cf build.tar.zst --exclude=.next/cache .next generated $(test -d .source && echo .source)
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: build-${{ matrix.mode }}
+          path: build.tar.zst
+          retention-days: 3
+          compression-level: 0
+
+  shard:
+    name: ${{ matrix.target }} (${{ matrix.shard }}/${{ matrix.shards }})
+    needs: [plan, build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.shards) }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Start PostgreSQL 17 (pgvector)
+        run: |
+          docker run -d --name postgres -p 127.0.0.1:5432:5432 -e POSTGRES_PASSWORD=postgres --shm-size=1g \
+            pgvector/pgvector:0.8.1-pg17-bookworm \
+            -c max_connections=500
+      - uses: ./.github/actions/setup
+      - name: Select mode and browser
+        id: target
+        env:
+          TARGET: ${{ matrix.target }}
+        run: |
+          case "$TARGET" in self-hosted-*) echo "mode=self-hosted" >> "$GITHUB_OUTPUT";; *) echo "mode=cloud" >> "$GITHUB_OUTPUT";; esac
+          case "$TARGET" in *webkit|*mobile) echo "browser=webkit" >> "$GITHUB_OUTPUT";; *firefox) echo "browser=firefox" >> "$GITHUB_OUTPUT";; *) echo "browser=chromium" >> "$GITHUB_OUTPUT";; esac
+          echo "playwright=$(node -p 'require("@playwright/test/package.json").version')" >> "$GITHUB_OUTPUT"
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: build-${{ steps.target.outputs.mode }}
+      - name: Unpack the build
+        run: tar --zstd -xf build.tar.zst && rm build.tar.zst
+      - name: Restore Playwright browsers
+        id: browsers
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ steps.target.outputs.playwright }}-${{ steps.target.outputs.browser }}
+      - name: Install the browser
+        env:
+          CACHE_HIT: ${{ steps.browsers.outputs.cache-hit }}
+          BROWSER: ${{ steps.target.outputs.browser }}
+        run: |
+          if [ "$CACHE_HIT" = true ]; then npx --no-install playwright install-deps "$BROWSER";
+          else npx --no-install playwright install --with-deps "$BROWSER"; fi
+      - name: Run the shard
+        env:
+          CI: "true"
+          TARGET: ${{ matrix.target }}
+          SHARDS: ${{ matrix.shards }}
+          SHARD: ${{ matrix.shard }}
+          FILES: ${{ matrix.files }}
+        run: |
+          read -ra files <<< "$FILES"
+          node scripts/verify/e2e.mjs --prebuilt --targets "$TARGET" --shards "$SHARDS" --shard-index "$SHARD" --retries 1 --run-id ci ${files[@]+-- "${files[@]}"} || true
+      - name: Keep the shard results
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: e2e-${{ matrix.target }}-${{ matrix.shard }}
+          path: |
+            .runs/verify/ci/
+            .runs/e2e/*/report/
+            .runs/e2e/*/artifacts/**/error-context.md
+            .runs/e2e/*/artifacts/**/trace.zip
+          retention-days: 7
+          if-no-files-found: ignore
+
+  e2e:
+    name: e2e
+    if: always() && needs.plan.result == 'success'
+    needs: [plan, build, shard]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: e2e-*
+          path: results
+      - name: Compare with the known-failure baseline
+        env:
+          SHARDS: ${{ needs.plan.outputs.shards }}
+        run: |
+          set -o pipefail
+          files=$(find results -name outcomes.json | sort)
+          expected=$(echo "$SHARDS" | jq length)
+          found=$(echo "$files" | grep -c . || true)
+          echo "Shard reports: $found of $expected"
+          node scripts/verify/e2e-baseline.mjs compare $files --markdown "$GITHUB_STEP_SUMMARY"
+          if [ "$found" -ne "$expected" ]; then echo "::error::$((expected - found)) shard(s) produced no results"; exit 1; fi
+      - name: Baseline candidate from main
+        if: always() && github.event_name != 'pull_request'
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          node scripts/verify/e2e-baseline.mjs write $(find results -name outcomes.json | sort) --baseline .runs/known-failures.candidate.json --source "$GITHUB_SHA ($EVENT)"
+          cp .runs/known-failures.candidate.json known-failures.candidate.json
+      - if: always() && github.event_name != 'pull_request'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: known-failures-candidate
+          path: known-failures.candidate.json
+          if-no-files-found: ignore

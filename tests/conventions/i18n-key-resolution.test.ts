@@ -213,36 +213,36 @@ const FORM_FIELD_INPUT_KEYS = [
   "Common.inputs.status",
   "Common.inputs.url",
 ] as const;
-const AUDIT_FIELD_KEYS = [
-  "AuditLogModal.fields.acceptanceType",
-  "AuditLogModal.fields.acceptingEmail",
-  "AuditLogModal.fields.changedDocuments",
-  "AuditLogModal.fields.country",
-  "AuditLogModal.fields.createType",
-  "AuditLogModal.fields.cronExpression",
-  "AuditLogModal.fields.debounceSeconds",
-  "AuditLogModal.fields.delete",
-  "AuditLogModal.fields.deletePermanently",
-  "AuditLogModal.fields.disabledReason",
-  "AuditLogModal.fields.effectiveAt",
-  "AuditLogModal.fields.isNewCompany",
-  "AuditLogModal.fields.markdown",
-  "AuditLogModal.fields.prompt",
-  "AuditLogModal.fields.publishSummary",
-  "AuditLogModal.fields.putAccessPreset",
-  "AuditLogModal.fields.putCapability",
-  "AuditLogModal.fields.putField",
-  "AuditLogModal.fields.putRelationship",
-  "AuditLogModal.fields.putType",
-  "AuditLogModal.fields.recipientEmail",
-  "AuditLogModal.fields.removalReason",
-  "AuditLogModal.fields.restore",
-  "AuditLogModal.fields.timezone",
-  "AuditLogModal.fields.triggerEvents",
-  "AuditLogModal.fields.triggerFilters",
-  "AuditLogModal.fields.triggerKind",
-  "AuditLogModal.fields.versions",
-  "AuditLogModal.fields.visibility",
+const ACTIVITY_FIELD_KEYS = [
+  "ActivityDetail.fields.acceptanceType",
+  "ActivityDetail.fields.acceptingEmail",
+  "ActivityDetail.fields.changedDocuments",
+  "ActivityDetail.fields.country",
+  "ActivityDetail.fields.createType",
+  "ActivityDetail.fields.cronExpression",
+  "ActivityDetail.fields.debounceSeconds",
+  "ActivityDetail.fields.delete",
+  "ActivityDetail.fields.deletePermanently",
+  "ActivityDetail.fields.disabledReason",
+  "ActivityDetail.fields.effectiveAt",
+  "ActivityDetail.fields.isNewCompany",
+  "ActivityDetail.fields.markdown",
+  "ActivityDetail.fields.prompt",
+  "ActivityDetail.fields.publishSummary",
+  "ActivityDetail.fields.putAccessPreset",
+  "ActivityDetail.fields.putCapability",
+  "ActivityDetail.fields.putField",
+  "ActivityDetail.fields.putRelationship",
+  "ActivityDetail.fields.putType",
+  "ActivityDetail.fields.recipientEmail",
+  "ActivityDetail.fields.removalReason",
+  "ActivityDetail.fields.restore",
+  "ActivityDetail.fields.timezone",
+  "ActivityDetail.fields.triggerEvents",
+  "ActivityDetail.fields.triggerFilters",
+  "ActivityDetail.fields.triggerKind",
+  "ActivityDetail.fields.versions",
+  "ActivityDetail.fields.visibility",
 ] as const;
 
 const TABLE_COLUMN_KEYS = [
@@ -506,6 +506,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
       "view",
       "widget",
       "widgetCount",
+      "widgetTrashed",
       "webhookTrigger",
       "webhookPaused",
       "bindingAvatar",
@@ -538,7 +539,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
     "RecordModel.cardinality.${*}",
     ["oneToOne", "oneToMany", "manyToOne", "manyToMany"].map((value) => `RecordModel.cardinality.${value}`),
   ],
-  ["AuditLogModal.fields.${*}", AUDIT_FIELD_KEYS],
+  ["ActivityDetail.fields.${*}", ACTIVITY_FIELD_KEYS],
   ["AuthSocialErrors.${*}", AUTH_SOCIAL_ERROR_KEYS],
   ["Common.colors.${*}", COLOR_KEYS],
   ["Common.dateBuckets.${*}", DATE_BUCKET_KEYS],
@@ -627,35 +628,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["AgentChat.suggestions.readOnly.${*}.prompt", AGENT_READ_ONLY_SUGGESTION_KEYS.map((key) => `${key}.prompt`)],
 ]);
 
-const WORKSPACE_SETUP_NOTICES = ["planReady", "planFailed", "workspaceReady", "workspaceFailed"] as const;
-const workspaceSetupNoticeKeys = (field: string) =>
-  WORKSPACE_SETUP_NOTICES.map((notice) => `WorkspaceSetupNotice.${notice}.${field}`);
-
 const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
-  [
-    "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.subject",
-    workspaceSetupNoticeKeys("subject"),
-  ],
-  [
-    "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.subjectNamed",
-    workspaceSetupNoticeKeys("subjectNamed"),
-  ],
-  [
-    "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.title",
-    workspaceSetupNoticeKeys("title"),
-  ],
-  [
-    "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.body",
-    workspaceSetupNoticeKeys("body"),
-  ],
-  [
-    "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.bodyNamed",
-    workspaceSetupNoticeKeys("bodyNamed"),
-  ],
-  [
-    "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.cta",
-    workspaceSetupNoticeKeys("cta"),
-  ],
   [
     "app/[locale]/(protected)/settings/(workspace)/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.description",
     FEEDBACK_DESCRIPTION_KEYS,
@@ -681,12 +654,6 @@ const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
 const ENFORCED = true;
 
 export const DYNAMIC_KEY_SITES = [
-  "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.subject",
-  "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.subjectNamed",
-  "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.title",
-  "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.body",
-  "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.bodyNamed",
-  "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.cta",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Trash.kinds.${kind}",
   "app/[locale]/(protected)/trash/components/use-trash-columns.tsx :: t :: Trash.kinds.${trashKindLabelKey(item)}",
   "app/[locale]/(protected)/configure/components/calculation-flow-editor.tsx :: t :: RecordModel.cardinality.${cardinality}",
@@ -841,9 +808,9 @@ export const DYNAMIC_KEY_SITES = [
   "components/data-view/filter-modal/use-filter-operator-label.ts :: t :: Common.filters.operators.${operator}",
   "components/data-view/group-label.ts :: t :: Common.dateBuckets.${bucket}",
   "components/data-view/group-summaries.tsx :: t :: RecordModel.reducers.${summary.aggregation}",
-  "components/data-view/use-column-label.ts :: t :: AuditLogModal.fields.${columnId}",
+  "components/data-view/use-column-label.ts :: t :: ActivityDetail.fields.${columnId}",
   "components/data-view/use-column-label.ts :: t :: Common.table.columns.${columnId}",
-  "components/data-view/use-column-label.ts :: t.has :: AuditLogModal.fields.${columnId}",
+  "components/data-view/use-column-label.ts :: t.has :: ActivityDetail.fields.${columnId}",
   "components/data-view/use-column-label.ts :: t.has :: Common.table.columns.${columnId}",
   'components/data-view/use-filter-field-label.ts :: t :: Common.filters.fields.${field.replace(/\\./g, "_")}',
   "features/records/workspace-record-preset.ts :: t :: RecordModel.starterTypes.${key}.plural",
@@ -1022,6 +989,20 @@ const OPERATOR_AUDIT_ACTION_LABEL_EVIDENCE = Object.fromEntries(
 
 const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
   {
+    file: "i18n/error-reporting-messages.ts",
+    keys: [
+      "WithoutErrorReporting.ErrorCard.contactSupport",
+      "WithoutErrorReporting.ErrorCard.unexpectedError",
+      "WithoutErrorReporting.NotFoundPage.body",
+    ],
+    evidence: Object.fromEntries(
+      ["ErrorCard.contactSupport", "ErrorCard.unexpectedError", "NotFoundPage.body"].map((key) => [
+        `WithoutErrorReporting.${key}`,
+        [{ kind: "literal" as const, value: "WithoutErrorReporting" }],
+      ]),
+    ),
+  },
+  {
     file: "app/[locale]/(protected)/trash/components/trash.store.ts",
     keys: [
       "Trash.restoreBlocked.listDeleted",
@@ -1030,6 +1011,8 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
       "Trash.restoreBlocked.requiresRestore",
       "Trash.restoreBlocked.nameTaken",
       "Trash.restoreBlocked.routineLimitReached",
+      "Trash.restoreBlocked.incompatible",
+      "Trash.restoreBlocked.operationPending",
     ],
   },
   {

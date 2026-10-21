@@ -1,12 +1,14 @@
-import { fail, failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
+import { fail, failConflict } from "@/core/validation/interactor-failure-server";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
-import type { AttachmentMeta, MessagingAttendee, MessagingThread } from "../messaging.schema";
-import type { MessagingMessageDto } from "../inbox/inbox.schema";
+import type { AttachmentMeta, MessagingAttendee, MessagingMessage, MessagingThread } from "../messaging.schema";
 import type { ConnectedAccount } from "@/generated/prisma";
 import type { MessagingService } from "../messaging.service";
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
+import type { DraftSendClaim } from "../draft-send";
+import type { DraftThreadTarget } from "../draft-thread";
+import type { DraftSendGate } from "./draft-send-gate";
 
 import { z } from "zod";
 import * as Sentry from "@sentry/node";
@@ -24,16 +26,17 @@ import { isDraftThreadId } from "../provider";
 import { accountNeedsReconnect } from "../account-health";
 import {
   DraftRevisionSchema,
-  draftRevisionMatches,
-  draftThreadRecipientSetsMatch,
+  draftBindingConflict,
   draftUpdatedAtFromRevision,
   hasCompleteDraftBinding,
 } from "../draft-thread";
+import { providerSendOutcome } from "../draft-send";
+import { emailSendContentHash, emailSendCopyHashes } from "../draft-send-copy";
 import { composeEmailBodies } from "./email-signature";
 import { resolveStoredEmailSettings } from "../email-settings";
-import { MessagingMessageDtoSchema, toMessagingMessageDto } from "../inbox/inbox.schema";
 import { EMPTY_ATTENDEE, buildEmailMessage, toAttachmentsMeta } from "../unipile.mappers";
 import { UnipileEmailSchema } from "../unipile.schema";
+import { SentMessageResultSchema, toSentMessageResult, type SentMessageResult } from "./sent-message.schema";
 import type { SendEmailRepo } from "./send-email.repo";
 
 const DUPLICATE_OUTBOUND_WINDOW_MS = 60_000;
@@ -70,7 +73,9 @@ export const SendEmailSchema = z
     draftMessageId: z
       .uuid()
       .optional()
-      .describe("Saved draft to convert or discard after this exact delivery succeeds"),
+      .describe(
+        "Saved draft to send. Each draft revision is sent at most once: repeating the call returns the first result",
+      ),
     draftRevision: DraftRevisionSchema.optional().describe(
       "Opaque revision returned with the saved draft; required whenever draftMessageId is provided",
     ),
@@ -114,6 +119,8 @@ export const SendEmailSchema = z
   });
 export type SendEmailData = Data<typeof SendEmailSchema>;
 
+type AcceptedEmail = { unipileMessageId: string | null; providerMessageId: string | null };
+
 function emailRecipient(email: string, displayName?: string | null): MessagingAttendee {
   return {
     ...EMPTY_ATTENDEE,
@@ -124,32 +131,56 @@ function emailRecipient(email: string, displayName?: string | null): MessagingAt
 }
 
 @TenantInteractor({ resource: Resource.inboxMessages, manage: "create" })
-export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, MessagingMessageDto | null> {
+export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, SentMessageResult> {
   constructor(
     private repo: SendEmailRepo,
     private accountRepo: FindUsableAccountRepo,
     private messagingService: MessagingService,
     private entitlements: EntitlementService,
+    private draftSends: DraftSendGate,
   ) {
     super();
   }
 
   @Validate(SendEmailSchema)
-  @ValidateOutput(z.union([MessagingMessageDtoSchema, z.null()]))
-  async invoke(data: SendEmailData): Validated<MessagingMessageDto | null> {
+  @ValidateOutput(SentMessageResultSchema)
+  async invoke(data: SendEmailData): Validated<SentMessageResult> {
     const denied = await this.entitlements.require("messaging");
     if (denied) return denied;
 
     let account: ConnectedAccount;
     let thread: MessagingThread | null = null;
+    let draftThreadId: string | null = null;
     let inReplyTo: string | undefined;
+    const contentHash = data.draftMessageId
+      ? emailSendContentHash({
+          to: data.to.map((recipient) => recipient.identifier),
+          cc: data.cc,
+          bcc: data.bcc,
+          subject: data.subject,
+          body: data.body,
+          attachments: data.attachments,
+        })
+      : "";
 
     if (data.threadId) {
-      thread = await this.repo.findThreadByIdOrThrow(data.threadId);
-      if (isDraftThreadId(thread.unipileThreadId)) return fail(CustomErrorCode.draftThreadNotSent, ["threadId"]);
-
-      account = await this.accountRepo.findUsableAccountByIdOrThrow(thread.connectedAccountId);
-      inReplyTo = (await this.repo.findLatestEmailReplyReferenceForThread(thread.id)) ?? undefined;
+      const found = data.draftMessageId
+        ? await this.repo.findThreadById(data.threadId)
+        : await this.repo.findThreadByIdOrThrow(data.threadId);
+      if (!found && data.draftMessageId && data.draftRevision) {
+        const settled = await this.settledDraftConversation(data.draftMessageId, data.draftRevision, contentHash);
+        if (settled) return settled;
+      }
+      const target = found ?? (await this.repo.findThreadByIdOrThrow(data.threadId));
+      if (isDraftThreadId(target.unipileThreadId)) {
+        if (!data.draftMessageId) return fail(CustomErrorCode.draftThreadNotSent, ["threadId"]);
+        draftThreadId = target.id;
+        account = await this.accountRepo.findUsableAccountByIdOrThrow(target.connectedAccountId);
+      } else {
+        thread = target;
+        account = await this.accountRepo.findUsableAccountByIdOrThrow(thread.connectedAccountId);
+        inReplyTo = (await this.repo.findLatestEmailReplyReferenceForThread(thread.id)) ?? undefined;
+      }
     } else {
       if (!data.connectedAccountId) {
         throw new Error(
@@ -160,26 +191,33 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
     }
     if (accountNeedsReconnect(account)) return fail(CustomErrorCode.unipileDisconnectedAccount, []);
 
-    const draft = data.draftMessageId ? await this.repo.findDraftById({ messageId: data.draftMessageId }) : null;
-    if (data.draftMessageId && !draft) return failNotFound(CustomErrorCode.draftMessageNotFound);
-    if (draft && (!data.draftRevision || !draftRevisionMatches(draft.updatedAt, data.draftRevision)))
-      return failNotFound(CustomErrorCode.draftMessageNotFound);
-    if (
-      draft &&
-      (draft.connectedAccountId !== account.id ||
-        (thread
-          ? draft.messagingThreadId !== thread.id
-          : !isDraftThreadId(draft.unipileThreadId) ||
-            !draftThreadRecipientSetsMatch(
-              account.provider,
-              draft.recipientIdentifiers,
-              data.to.map((recipient) => recipient.identifier),
-            ) ||
-            (data.to.length === 0 &&
-              (!draftThreadRecipientSetsMatch(account.provider, draft.ccIdentifiers ?? [], data.cc ?? []) ||
-                !draftThreadRecipientSetsMatch(account.provider, draft.bccIdentifiers ?? [], data.bcc ?? [])))))
-    )
-      return failNotFound(CustomErrorCode.draftMessageNotFound);
+    let draft: DraftThreadTarget | null = null;
+    if (data.draftMessageId && data.draftRevision) {
+      const revision = draftUpdatedAtFromRevision(data.draftRevision);
+      draft = await this.repo.findDraftById({ messageId: data.draftMessageId });
+      if (!draft) {
+        const missing = await this.draftSends.openMissing({
+          draftMessageId: data.draftMessageId,
+          draftRevision: revision,
+          connectedAccountId: account.id,
+          contentHash,
+        });
+        return "replay" in missing
+          ? this.draftSends.replay(missing.replay, { connectedAccountId: account.id, threadId: thread?.id ?? null })
+          : missing.failure;
+      }
+      if (draftThreadId && draft.messagingThreadId !== draftThreadId) return this.draftSends.refuseBinding("target");
+      const conflict = draftBindingConflict({
+        provider: account.provider,
+        draft,
+        connectedAccountId: account.id,
+        draftRevision: data.draftRevision,
+        replyThreadId: thread?.id ?? null,
+        to: data.to.map((recipient) => recipient.identifier),
+        cc: data.cc,
+      });
+      if (conflict) return this.draftSends.refuseBinding(conflict);
+    }
 
     const email = resolveStoredEmailSettings(account.signature, account.signatureFields);
     const { plainText: outgoingBody, html: outgoingHtml } = composeEmailBodies(
@@ -189,135 +227,223 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
       data.bodyFormat ?? "auto",
     );
 
+    let claim: DraftSendClaim | null = null;
+    if (draft && data.draftRevision) {
+      const gate = await this.draftSends.open({
+        draftMessageId: draft.id,
+        draftRevision: draftUpdatedAtFromRevision(data.draftRevision),
+        connectedAccountId: account.id,
+        contentHash,
+        matchHashes: emailSendCopyHashes({
+          to: data.to.map((recipient) => recipient.identifier),
+          cc: data.cc,
+          subject: data.subject,
+          html: outgoingHtml,
+          plainText: outgoingBody,
+          attachments: data.attachments,
+        }),
+      });
+      if ("replay" in gate)
+        return this.draftSends.replay(gate.replay, { connectedAccountId: account.id, threadId: thread?.id ?? null });
+      if ("failure" in gate) return gate.failure;
+      claim = gate.claim;
+    }
+
+    const duplicateThreadId = thread && outgoingBody.trim() ? thread.id : null;
     if (
-      thread &&
-      outgoingBody.trim() &&
-      (await this.repo.findRecentOutboundDuplicate({
-        messagingThreadId: thread.id,
-        bodyText: outgoingBody,
-        windowMs: DUPLICATE_OUTBOUND_WINDOW_MS,
-      }))
-    )
+      duplicateThreadId &&
+      (await this.draftSends.releaseOnFailure(claim, () =>
+        this.repo.findRecentOutboundDuplicate({
+          messagingThreadId: duplicateThreadId,
+          bodyText: outgoingBody,
+          windowMs: DUPLICATE_OUTBOUND_WINDOW_MS,
+        }),
+      ))
+    ) {
+      if (claim) await this.draftSends.release(claim);
       return failConflict(CustomErrorCode.duplicateOutboundSuppressed);
+    }
 
     const sentAt = new Date();
-    const res = await this.messagingService.sendEmail({
-      accountId: account.unipileAccountId,
-      from: account.emailAddress
-        ? {
-            email: account.emailAddress,
-            display_name: account.displayName ?? undefined,
-          }
-        : undefined,
-      to: data.to.map((attendee) => ({
-        email: attendee.identifier,
-        display_name: attendee.display_name,
-      })),
-      cc: data.cc?.map((email) => ({ email })),
-      bcc: data.bcc?.map((email) => ({ email })),
-      subject: data.subject,
-      body: outgoingHtml,
-      plainText: outgoingBody,
-      inReplyTo,
-      attachments: data.attachments,
-    });
+    let res: Awaited<ReturnType<MessagingService["sendEmail"]>>;
+    try {
+      res = await this.messagingService.sendEmail({
+        accountId: account.unipileAccountId,
+        from: account.emailAddress
+          ? {
+              email: account.emailAddress,
+              display_name: account.displayName ?? undefined,
+            }
+          : undefined,
+        to: data.to.map((attendee) => ({
+          email: attendee.identifier,
+          display_name: attendee.display_name,
+        })),
+        cc: data.cc?.map((email) => ({ email })),
+        bcc: data.bcc?.map((email) => ({ email })),
+        subject: data.subject,
+        body: outgoingHtml,
+        plainText: outgoingBody,
+        inReplyTo,
+        attachments: data.attachments,
+      });
+    } catch (err) {
+      if (claim) await this.draftSends.settle({ claim, state: "unknown" });
+      throw err;
+    }
 
-    if (!res.ok) {
+    let accepted: AcceptedEmail;
+    if (res.ok) accepted = { unipileMessageId: res.data.id, providerMessageId: res.data.messageId };
+    else if (providerSendOutcome(res.error) === "accepted")
+      accepted = { unipileMessageId: null, providerMessageId: null };
+    else {
+      if (claim && draft) {
+        if (providerSendOutcome(res.error) === "unknown") {
+          await this.draftSends.settle({ claim, state: "unknown" });
+          const confirmed = await this.draftSends.confirmedBySyncedCopy(claim, draft.id);
+          if (confirmed) {
+            return this.draftSends.replay(confirmed, {
+              connectedAccountId: account.id,
+              threadId: thread?.id ?? null,
+              repeated: false,
+            });
+          }
+        } else await this.draftSends.release(claim);
+      }
       return fail(res.error, [], {
         retryAfter: await retryAfterPhrase(res.retryAfterSeconds),
       });
     }
 
-    try {
-      if (!thread) {
-        const adopted = await this.adoptSentEmail(account, res.data.id, data.bcc ?? []);
-        if (draft && data.draftRevision) {
-          try {
-            await this.repo.discardDraftAfterSend({
-              messageId: draft.id,
-              expectedUpdatedAt: draftUpdatedAtFromRevision(data.draftRevision),
-            });
-          } catch (err) {
-            Sentry.captureException(err, { tags: { kind: "draft-discard-failure" } });
-          }
-        }
-        return adopted;
-      }
+    if (!thread || !accepted.unipileMessageId) {
+      if (claim && draft) await this.draftSends.completeRemovingDraft({ claim, draftMessageId: draft.id, ...accepted });
+      const adopted =
+        !thread && accepted.unipileMessageId
+          ? await this.adoptSentEmail(account, accepted.unipileMessageId, data.bcc ?? [])
+          : null;
+      if (adopted && claim) await this.draftSends.record(claim, adopted);
+      return {
+        ok: true as const,
+        data: toSentMessageResult({
+          message: adopted,
+          threadId: thread?.id ?? null,
+          providerMessageId: accepted.providerMessageId,
+        }),
+      };
+    }
 
-      let attachmentsMeta: AttachmentMeta[] = [];
-      if (data.attachments?.length) {
+    const sentEmailId = accepted.unipileMessageId;
+    let attachmentsMeta: AttachmentMeta[] = [];
+    if (data.attachments?.length) {
+      try {
         const sent = await this.messagingService.getEmailAttachments({
           accountId: account.unipileAccountId,
-          emailId: res.data.id,
+          emailId: sentEmailId,
         });
         if (sent.ok) attachmentsMeta = toAttachmentsMeta(sent.data);
+      } catch (err) {
+        Sentry.captureException(err, { tags: { kind: "sent-attachments-unreadable" } });
       }
+    }
 
-      const sender: MessagingAttendee = {
-        ...EMPTY_ATTENDEE,
-        attendeeId: account.emailAddress ?? "",
-        identifier: (account.emailAddress ?? "").toLowerCase(),
-        displayName: account.displayName,
-        isSelf: true,
-      };
-      const markSelf = (attendee: MessagingAttendee): MessagingAttendee =>
-        attendee.identifier === sender.identifier ? { ...attendee, isSelf: true } : attendee;
-      const recipients = {
-        to: data.to.map((attendee) => markSelf(emailRecipient(attendee.identifier, attendee.display_name))),
-        cc: (data.cc ?? []).map((email) => markSelf(emailRecipient(email))),
-        bcc: (data.bcc ?? []).map((email) => markSelf(emailRecipient(email))),
-      };
+    const sender: MessagingAttendee = {
+      ...EMPTY_ATTENDEE,
+      attendeeId: account.emailAddress ?? "",
+      identifier: (account.emailAddress ?? "").toLowerCase(),
+      displayName: account.displayName,
+      isSelf: true,
+    };
+    const markSelf = (attendee: MessagingAttendee): MessagingAttendee =>
+      attendee.identifier === sender.identifier ? { ...attendee, isSelf: true } : attendee;
+    const recipients = {
+      to: data.to.map((attendee) => markSelf(emailRecipient(attendee.identifier, attendee.display_name))),
+      cc: (data.cc ?? []).map((email) => markSelf(emailRecipient(email))),
+      bcc: (data.bcc ?? []).map((email) => markSelf(emailRecipient(email))),
+    };
 
-      if (draft && data.draftRevision) {
-        const converted = await this.repo.convertDraftToSent({
-          messageId: draft.id,
-          expectedUpdatedAt: draftUpdatedAtFromRevision(data.draftRevision),
-          unipileMessageId: res.data.id,
-          providerMessageId: res.data.messageId,
-          sender,
-          recipients,
-          subject: data.subject,
-          bodyText: outgoingBody,
-          bodyHtml: outgoingHtml,
-          attachmentsMeta,
-          sentAt,
-        });
-
-        if (converted) {
-          await this.repo.restoreDraftSummaryIfPresent({ messageId: draft.id });
-          return { ok: true as const, data: toMessagingMessageDto(converted) };
-        }
-      }
-
-      const persisted = await this.repo.persistOutboundMessageOrThrow({
-        connectedAccountId: account.id,
-        message: {
-          unipileMessageId: res.data.id,
-          providerMessageId: res.data.messageId,
-          provider: thread.provider,
-          direction: MessagingMessageDirection.outbound,
-          origin: MessagingMessageOrigin.unipile,
-          sender,
-          recipients,
-          subject: data.subject,
-          bodyText: outgoingBody,
-          bodyHtml: outgoingHtml,
-          attachmentsMeta,
-          isEvent: false,
-          isDeleted: false,
-          isHidden: false,
-          sentAt,
-          reactions: [],
-          unipileThreadId: thread.unipileThreadId,
-          threadType: thread.type,
-        },
+    let recorded: MessagingMessage | null = null;
+    if (claim && draft) {
+      recorded = await this.draftSends.completeReply({
+        claim,
+        messageId: draft.id,
+        unipileMessageId: sentEmailId,
+        providerMessageId: accepted.providerMessageId,
+        sender,
+        recipients,
+        subject: data.subject,
+        bodyText: outgoingBody,
+        bodyHtml: outgoingHtml,
+        attachmentsMeta,
+        sentAt,
       });
-      if (draft) await this.repo.restoreDraftSummaryIfPresent({ messageId: draft.id });
+    }
 
-      return { ok: true as const, data: toMessagingMessageDto(persisted) };
+    if (!recorded) {
+      try {
+        recorded = await this.repo.persistOutboundMessageOrThrow({
+          connectedAccountId: account.id,
+          message: {
+            unipileMessageId: sentEmailId,
+            providerMessageId: accepted.providerMessageId,
+            provider: thread.provider,
+            direction: MessagingMessageDirection.outbound,
+            origin: MessagingMessageOrigin.unipile,
+            sender,
+            recipients,
+            subject: data.subject,
+            bodyText: outgoingBody,
+            bodyHtml: outgoingHtml,
+            attachmentsMeta,
+            isEvent: false,
+            isDeleted: false,
+            isHidden: false,
+            sentAt,
+            reactions: [],
+            unipileThreadId: thread.unipileThreadId,
+            threadType: thread.type,
+          },
+        });
+        if (claim) await this.draftSends.record(claim, recorded);
+      } catch (err) {
+        Sentry.captureException(err, { tags: { kind: "sent-message-not-recorded" } });
+      }
+    }
+    if (draft) await this.restoreDraftSummary(draft.id);
+
+    return {
+      ok: true as const,
+      data: toSentMessageResult({
+        message: recorded,
+        threadId: thread.id,
+        providerMessageId: accepted.providerMessageId,
+      }),
+    };
+  }
+
+  private async settledDraftConversation(
+    draftMessageId: string,
+    draftRevision: string,
+    contentHash: string,
+  ): Promise<Awaited<Validated<SentMessageResult>> | null> {
+    const record = await this.draftSends.findSettled(draftMessageId);
+    if (!record) return null;
+    const account = await this.accountRepo.findUsableAccountByIdOrThrow(record.connectedAccountId);
+    const missing = await this.draftSends.openMissing({
+      draftMessageId,
+      draftRevision: draftUpdatedAtFromRevision(draftRevision),
+      connectedAccountId: account.id,
+      contentHash,
+    });
+    return "replay" in missing
+      ? this.draftSends.replay(missing.replay, { connectedAccountId: account.id, threadId: null })
+      : missing.failure;
+  }
+
+  private async restoreDraftSummary(messageId: string) {
+    try {
+      await this.repo.restoreDraftSummaryIfPresent({ messageId });
     } catch (err) {
-      Sentry.captureException(err, { tags: { kind: "sent-message-not-recorded" } });
-      return fail(CustomErrorCode.unipileSendUnconfirmed, []);
+      Sentry.captureException(err, { tags: { kind: "draft-summary-refresh-failure" } });
     }
   }
 
@@ -325,18 +451,18 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
     account: ConnectedAccount,
     emailId: string,
     submittedBcc: string[],
-  ): Validated<MessagingMessageDto | null> {
+  ): Promise<MessagingMessage | null> {
     try {
       const raw = await this.fetchSentEmail(account.unipileAccountId, emailId);
       const parsed = UnipileEmailSchema.safeParse(raw);
-      if (!parsed.success) return { ok: true as const, data: null };
+      if (!parsed.success) return null;
 
       const message = buildEmailMessage(parsed.data, {
         provider: account.provider,
         emailAddress: account.emailAddress,
         sentFolderIds: account.sentFolderIds,
       });
-      if (!message) return { ok: true as const, data: null };
+      if (!message) return null;
       if (message.recipients.bcc.length === 0 && submittedBcc.length > 0) {
         const self = (account.emailAddress ?? "").toLowerCase();
         message.recipients.bcc = submittedBcc.map((email) => {
@@ -345,15 +471,13 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
         });
       }
 
-      const persisted = await this.repo.persistOutboundMessageOrThrow({
+      return await this.repo.persistOutboundMessageOrThrow({
         connectedAccountId: account.id,
         message,
       });
-
-      return { ok: true as const, data: toMessagingMessageDto(persisted) };
     } catch (err) {
       if (!isUnipileResourceNotFound(err) && !isUnipileTimeout(err)) Sentry.captureException(err);
-      return { ok: true as const, data: null };
+      return null;
     }
   }
 

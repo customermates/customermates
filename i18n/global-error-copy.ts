@@ -14,6 +14,7 @@ export type GlobalErrorCopy = {
   retryLabel: string;
   subtitle: string;
   title: string;
+  unreportedBody: string;
 };
 
 export const GLOBAL_ERROR_COPY = {
@@ -23,6 +24,8 @@ export const GLOBAL_ERROR_COPY = {
     retryLabel: "Erneut versuchen",
     subtitle: "Ups! Etwas ist schiefgelaufen",
     title: "Das ist jetzt peinlich",
+    unreportedBody:
+      "Bitte versuche es erneut. Wenn das Problem bleibt, wende dich an die Person, die diese Customermates-Instanz betreibt.",
   },
   en: {
     backLabel: "Back to home",
@@ -30,6 +33,8 @@ export const GLOBAL_ERROR_COPY = {
     retryLabel: "Try again",
     subtitle: "Oops! Something went wrong",
     title: "Well, that's awkward",
+    unreportedBody:
+      "Please try again. If the problem continues, contact the person who runs this Customermates instance.",
   },
   es: {
     backLabel: "Volver al inicio",
@@ -37,6 +42,8 @@ export const GLOBAL_ERROR_COPY = {
     retryLabel: "Inténtalo de nuevo",
     subtitle: "¡Vaya! Algo ha fallado",
     title: "Qué incómodo",
+    unreportedBody:
+      "Vuelve a intentarlo. Si el problema continúa, contacta con la persona que administra esta instancia de Customermates.",
   },
   fr: {
     backLabel: "Retour à l'accueil",
@@ -44,6 +51,8 @@ export const GLOBAL_ERROR_COPY = {
     retryLabel: "Réessayer",
     subtitle: "Oups ! Une erreur est survenue",
     title: "Voilà qui est gênant",
+    unreportedBody:
+      "Veuillez réessayer. Si le problème persiste, contactez la personne qui gère cette instance de Customermates.",
   },
   it: {
     backLabel: "Torna alla home",
@@ -51,6 +60,8 @@ export const GLOBAL_ERROR_COPY = {
     retryLabel: "Riprova",
     subtitle: "Ops! Si è verificato un errore",
     title: "Che imbarazzo",
+    unreportedBody:
+      "Riprova. Se il problema persiste, contatta la persona che gestisce questa istanza di Customermates.",
   },
 } satisfies Record<AppLocale, GlobalErrorCopy>;
 

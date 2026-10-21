@@ -53,18 +53,18 @@ A record appears where its address field stores a position: the center of the po
 
 | Access | Visible content |
 | --- | --- |
-| Audit Log only | Permitted changes |
+| Activity log only | Permitted changes |
 | Inbox messages only, on a plan with messaging | Permitted messages, channel activity and meetings |
 | Both | One merged timeline |
 | Neither | A notice that no activity is available |
 
-The two permissions are the **Audit Log** and **Inbox messages** rows of the member's role in [Roles](app:settings/roles), each with **Read access** **All**. Messages, channel activity and meetings also need Customermates Cloud and a plan with messaging (Pro and above); changes stay visible without it. A deleted or no longer accessible filter value stops matching and shows as **Filter not available** on the chip and **Selection unavailable** in the picker, so you can remove it.
+The two permissions are the **Activity log** and **Inbox messages** rows of the member's role in [Roles](app:settings/roles), each with **Read access** **All**. Messages, channel activity and meetings also need Customermates Cloud and a plan with messaging (Pro and above); changes stay visible without it. A deleted or no longer accessible filter value stops matching and shows as **Filter not available** on the chip and **Selection unavailable** in the picker, so you can remove it.
 
 ## How do I create or edit a chart or timeline widget in the widget editor? [#how-does-the-widget-editor-work]
 
 Pick a chart style, **Activity timeline**, **Upcoming**, **Month overview**, **Map** or a template in **Choose a Widget**; all of them open the same editor. Give the widget a name, then switch between **Data** and **Appearance**. **Data** holds the source and what to count; filters and grouping are collapsible sections inside it and use the same searchable Filters palette as a list: the source and the grouping each have their own, and linked fields appear as **List › Field**. **Appearance** holds the chart style, colors, the legend, **Show metric and filters** and **Share as a template**. The **Live preview** next to the settings (below them on narrow screens) shows the widget with real data at its dashboard size and updates as you change things. Click **Save** in the footer.
 
-To change a widget, click it, or click one of its filter chips to open the editor at that filter. **Reset** restores the saved values once you changed something, and the trash icon in the editor's header moves the widget to [Trash](/docs/app-trash) after a confirmation. A new widget takes the first free spot. Drag a widget to move it and drag an edge or corner to resize it (moving is off on touch devices); the arrangement is saved for you only. Heights snap to rows of 54 px; chart and **Number** widgets are at least two rows tall, an **Activity timeline** at least six rows tall and two columns wide, a calendar widget at least five rows tall and two columns wide, and a **Map** at least five rows tall and three columns wide.
+Click a chart or one of its bars to open its data drawer: the chart remains at the top and the contributing records appear below, with the normal list filters and pagination. Selecting another group changes the records. **Open in list** opens the normal overview with the same selection and any extra filters; it queries the full matching data rather than a sample of record IDs. Clicking a row opens its record. To edit a widget, use the pencil shown on hover or keyboard focus, or choose **Edit** from its local menu (also available by right-click). Clicking a filter chip opens the editor at that filter. **Reset** restores the saved values once you changed something, and the trash icon in the editor's header moves the widget to [Trash](/docs/app-trash) after a confirmation. A new widget takes the first free spot. Drag a widget to move it and drag an edge or corner to resize it (moving is off on touch devices); the arrangement is saved for you only. Heights snap to rows of 54 px; chart and **Number** widgets are at least two rows tall, an **Activity timeline** at least six rows tall and two columns wide, a calendar widget at least five rows tall and two columns wide, and a **Map** at least five rows tall and three columns wide.
 
 ## Which controls does the sidebar add? [#which-controls-does-the-sidebar-add]
 
@@ -86,6 +86,7 @@ Press ? or choose **Keyboard shortcuts** in the personal menu to see every short
 | General | Cmd/Ctrl+\ | Show or hide the sidebar |
 | Navigation | G then D, I, K, R, C | Dashboard, Inbox, Knowledge Base, Routines, Configure |
 | Navigation | G then S | Settings |
+| Navigation | G then W | Switch workspace, when you belong to more than one |
 | Create | C | Add a record or list |
 | Lists and views | G then 1 to 9 | Lists by their position in your sidebar; hidden lists are skipped |
 | Lists and views | V | Switch view on a list or the Dashboard |
@@ -93,7 +94,7 @@ Press ? or choose **Keyboard shortcuts** in the personal menu to see every short
 | Forms | Cmd/Ctrl+Enter | Save the open form |
 | Forms | Esc | Close the topmost dialog or drawer |
 
-After G you have about one second for the second key; a hint shows that the app is waiting. Shortcuts for pages your role cannot open are left out. Search lists the same commands with their keys: **Ask Mate** on top, the views of the list you are on, the pages and **Add**. If you use speech input or press keys by accident, turn off **Single-key shortcuts** at the bottom of the shortcut dialog; Cmd/Ctrl shortcuts keep working. The setting is personal and follows you to every device.
+After G you have about one second for the second key; a hint shows that the app is waiting. Shortcuts for pages your role cannot open are left out. Search lists the same commands with their keys: **Ask Mate** on top, the views of the list you are on, the pages, **Add** and, with more than one workspace, **Switch workspace…**. If you use speech input or press keys by accident, turn off **Single-key shortcuts** at the bottom of the shortcut dialog; Cmd/Ctrl shortcuts keep working. The setting is personal and follows you to every device.
 
 ## What happens on first run? [#what-happens-on-first-run]
 

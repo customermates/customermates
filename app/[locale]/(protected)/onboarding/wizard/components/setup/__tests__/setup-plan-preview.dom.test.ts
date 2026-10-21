@@ -97,7 +97,7 @@ afterEach(() => {
 });
 
 describe("SetupPlanFailed", () => {
-  it("lays out Adjust answers and Try again like the plan preview footer, Try again on top on phones", () => {
+  it("pins the plan's Adjust answers and Build workspace with a hint, and keeps Try again in the footer, on top on phones", () => {
     render(
       SetupPlanPreview,
       setupView({
@@ -105,15 +105,21 @@ describe("SetupPlanFailed", () => {
         plan: { status: "completed", error: null, revision: 1, plan: setupPlan(), ...PLAN_PROGRESS },
       }),
     );
-    const previewFooter = footerOf("WorkspaceSetup.plan.build");
-    expect(labels(previewFooter)).toEqual(["WorkspaceSetup.plan.adjust", "WorkspaceSetup.plan.build"]);
-    const previewClassName = previewFooter.className;
+    const bar = button("WorkspaceSetup.plan.build").closest<HTMLElement>('[data-slot="setup-action-bar"]');
+    expect(bar?.className.split(" ")).toEqual(
+      expect.arrayContaining(["sticky", "bottom-[calc(0.625rem+var(--safe-bottom))]", "z-20"]),
+    );
+    expect(bar?.textContent).toContain("WorkspaceSetup.plan.reviewHint");
+    expect(labels(button("WorkspaceSetup.plan.build").parentElement as HTMLElement)).toEqual([
+      "WorkspaceSetup.plan.adjust",
+      "WorkspaceSetup.plan.build",
+    ]);
 
     render(SetupPlanFailed, failedPlan("generation"));
     const footer = footerOf("WorkspaceSetup.plan.tryAgain");
-    expect(footer.className).toBe(previewClassName);
     expect(labels(footer)).toEqual(["WorkspaceSetup.plan.adjust", "WorkspaceSetup.plan.tryAgain"]);
     expect(button("WorkspaceSetup.plan.adjust").getAttribute("data-variant")).toBe("secondary");
+    expect(container.querySelector('[data-slot="setup-action-bar"]')).toBeNull();
     expect(container.textContent).toContain("WorkspaceSetup.failures.generation");
   });
 

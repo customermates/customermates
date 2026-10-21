@@ -8,43 +8,40 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 
 import { WIDGET_INTERACTIVE_ATTRIBUTE } from "./widget-interaction";
 
-export function WidgetSubtitle({
-  notes,
-  text,
-  reserve = false,
-}: {
-  notes: string[];
-  text: string | null;
-  reserve?: boolean;
-}) {
-  const t = useTranslations();
-  if (!text && notes.length === 0) return reserve ? <div aria-hidden className="h-4" /> : null;
+export function WidgetSubtitle({ text, reserve = false }: { text: string | null; reserve?: boolean }) {
+  if (!text) return reserve ? <div aria-hidden className="h-4" /> : null;
   return (
     <div className="flex w-full min-w-0 items-center gap-1.5 text-xs text-muted-foreground" data-slot="widget-subtitle">
-      {text && <TruncatedText className="min-w-0">{text}</TruncatedText>}
-
-      {notes.length > 0 && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              aria-label={t("RecordWidgets.notes")}
-              className="inline-flex size-4 shrink-0 items-center justify-center rounded-full outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50"
-              type="button"
-              {...{ [WIDGET_INTERACTIVE_ATTRIBUTE]: "true" }}
-            >
-              <Info aria-hidden className="size-3.5" />
-            </button>
-          </TooltipTrigger>
-
-          <TooltipContent className="max-w-64 space-y-1 text-left" side="top">
-            {notes.map((note) => (
-              <p key={note}>{note}</p>
-            ))}
-          </TooltipContent>
-        </Tooltip>
-      )}
-
-      {notes.length > 0 && <span className="sr-only">{notes.join(" ")}</span>}
+      <TruncatedText className="min-w-0">{text}</TruncatedText>
     </div>
+  );
+}
+
+export function WidgetNotes({ notes }: { notes: string[] }) {
+  const t = useTranslations();
+  if (!notes.length) return null;
+  return (
+    <>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            aria-label={t("RecordWidgets.notes")}
+            className="inline-flex size-4 shrink-0 items-center justify-center rounded-full text-muted-foreground outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            type="button"
+            {...{ [WIDGET_INTERACTIVE_ATTRIBUTE]: "true" }}
+          >
+            <Info aria-hidden className="size-3.5" />
+          </button>
+        </TooltipTrigger>
+
+        <TooltipContent className="max-w-64 space-y-1 text-left" side="top">
+          {notes.map((note) => (
+            <p key={note}>{note}</p>
+          ))}
+        </TooltipContent>
+      </Tooltip>
+
+      <span className="sr-only">{notes.join(" ")}</span>
+    </>
   );
 }

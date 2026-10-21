@@ -21,6 +21,8 @@ export function itemArea(trigger: Locator) {
 export async function openItemMenu(page: Page, trigger: Locator) {
   const area = itemArea(trigger);
   const menu = page.getByRole("menu");
+  // A list that is still loading re-renders its rows and detaches a menu opened from them (Members on a fresh page).
+  await page.waitForLoadState("networkidle");
   await expect(menu).toHaveCount(0);
   await expect(async () => {
     if (!(await menu.isVisible())) {

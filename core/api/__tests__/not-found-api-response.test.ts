@@ -37,14 +37,13 @@ describe("documented 404 responses", () => {
     expect(Object.keys(operations.get(operationId)?.responses ?? {})).toContain("404");
   });
 
-  it("documents discardDraft as a no-op answering null for a missing draft and 404 only for a stale revision", () => {
+  it("documents discardDraft as a no-op answering null for a missing draft, never 404", () => {
     const operation = operations.get("discardDraft") as
       | (Operation & { responses?: Record<string, { description?: string }> })
       | undefined;
     expect(operation).toBeDefined();
-    expect(Object.keys(operation?.responses ?? {})).toContain("404");
+    expect(Object.keys(operation?.responses ?? {})).not.toContain("404");
     expect(operation?.description).toContain("safe no-op that returns `threadId: null`");
-    expect(operation?.description).toContain("draftRevision that no longer matches the saved draft answers 404");
     expect(operation?.responses?.["200"]?.description).toContain("`threadId: null` when no draft with this id exists");
   });
 

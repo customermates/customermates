@@ -48,7 +48,10 @@ test("an existing login joins another workspace by invitation, waits for approva
     await page.screenshot({ path: testInfo.outputPath("ws-join-card.png"), fullPage: true });
     if (e2eAppMode() === "cloud") {
       await clickHydrated(page.getByRole("button", { name: "Join workspace", exact: true }));
-      await expect(page.locator("#agreeToTerms-error")).toHaveText(englishMessages.Common.errors.termsNotAgreed);
+      await expect(
+        page.locator("[data-sonner-toast]").filter({ hasText: englishMessages.Common.errors.termsNotAgreed }),
+      ).toBeVisible();
+      await expect(page.locator("#workspace-invitation-terms")).toHaveAttribute("aria-invalid", "true");
       await expect(page).toHaveURL(/\/en\/auth\/invitation\?intent=/);
       expect(await joined()).toEqual([]);
     }

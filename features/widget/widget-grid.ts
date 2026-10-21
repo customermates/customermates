@@ -189,7 +189,7 @@ export function placeWidgets(args: {
     if (placement.w < minimum.w || placement.h < minimum.h) return { ok: false, reason: "tooSmall" };
   }
   const moving = new Set(args.requested.map((item) => item.id));
-  const others = occupiedGrid(args.widgets.filter((widget) => !moving.has(widget.id)));
+  const others = occupiedGrid(args.widgets).filter((widget) => !moving.has(widget.id));
   for (const [index, item] of args.requested.entries()) {
     const conflict = [
       ...others,

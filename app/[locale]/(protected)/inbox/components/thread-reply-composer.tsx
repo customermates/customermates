@@ -35,6 +35,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { usePathname, useRouter } from "@/i18n/navigation";
 
 import { ComposerSignature } from "./composer-signature";
+import { DraftConflictBar } from "./draft-conflict-bar";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { defaultEmailSettings } from "@/ee/messaging/email-settings";
 import { isShortcutPress } from "@/components/keyboard/shortcut-registry";
@@ -202,7 +203,7 @@ export const ThreadReplyComposer = observer(
     function handleKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
       if (isShortcutPress(event.nativeEvent, "save")) {
         event.preventDefault();
-        if (!isNewThread || activeSender) runUserAction(() => threadComposeStore.send());
+        if ((!isNewThread || activeSender) && !draftConflict) runUserAction(() => threadComposeStore.send());
       }
     }
 
@@ -215,7 +216,8 @@ export const ThreadReplyComposer = observer(
     )
       return null;
 
-    const { isLoading, isEmail, isLinkedin, isNewThread, showCcBcc, editingDraftId, attachments } = threadComposeStore;
+    const { isLoading, isEmail, isLinkedin, isNewThread, showCcBcc, editingDraftId, draftConflict, attachments } =
+      threadComposeStore;
     const signatureAccountId = isNewThread
       ? (threadComposeStore.newThreadTarget?.connectedAccountId ?? null)
       : (rootStore.messagingThreadDetailStore.thread?.connectedAccountId ?? null);
@@ -252,8 +254,10 @@ export const ThreadReplyComposer = observer(
       <AppForm
         className="flex flex-col"
         store={threadComposeStore}
-        onSubmit={() => (senderUnavailable ? Promise.resolve() : threadComposeStore.send())}
+        onSubmit={() => (senderUnavailable || draftConflict ? Promise.resolve() : threadComposeStore.send())}
       >
+        <DraftConflictBar senderUnavailable={senderUnavailable} store={threadComposeStore} />
+
         {isNewThread && (senders.length > 1 || senderUnavailable) && (
           <div className="border-border flex items-center gap-2 border-b px-3 py-1">
             <span className="text-muted-foreground w-8 shrink-0 text-xs font-medium">{t("Inbox.compose.from")}</span>
@@ -428,7 +432,9 @@ export const ThreadReplyComposer = observer(
             placeholder={t("Inbox.compose.writeReply")}
             value={threadComposeStore.form.body}
             onChange={(value) => threadComposeStore.onChange("body", value)}
-            onSubmitShortcut={() => runUserAction(() => threadComposeStore.send())}
+            onSubmitShortcut={() => {
+              if (!draftConflict) runUserAction(() => threadComposeStore.send());
+            }}
           />
         ) : (
           <FormTextarea
@@ -547,7 +553,7 @@ export const ThreadReplyComposer = observer(
           <div className="flex items-stretch">
             <Button
               className="rounded-r-none pr-2.5"
-              disabled={isLoading || senderUnavailable}
+              disabled={isLoading || senderUnavailable || draftConflict}
               id="inbox-reply-send"
               size="sm"
               type="submit"
@@ -573,9 +579,9 @@ export const ThreadReplyComposer = observer(
 
                 <DropdownMenuContent align="end" className="min-w-40">
                   <DropdownMenuItem
-                    disabled={senderUnavailable}
+                    disabled={senderUnavailable || draftConflict}
                     onSelect={() => {
-                      if (!senderUnavailable) runUserAction(() => threadComposeStore.saveDraft());
+                      if (!senderUnavailable && !draftConflict) runUserAction(() => threadComposeStore.saveDraft());
                     }}
                   >
                     {editingDraftId ? t("Inbox.compose.updateDraft") : t("Inbox.compose.saveDraft")}

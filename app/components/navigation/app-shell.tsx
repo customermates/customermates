@@ -11,7 +11,7 @@ import { toSidebarUser } from "./sidebar-user";
 import {
   getGetRecordNavigationInteractor,
   getGetP13nInteractor,
-  getCountSystemTasksInteractor,
+  getCountPendingMembersInteractor,
   getGetSubscriptionInteractor,
   getGetUnreadThreadCountInteractor,
   getCountChannelsNeedingActionInteractor,
@@ -61,9 +61,13 @@ export async function AppShell({ children, displayLanguage }: Props) {
         (await getGetP13nInteractor().invoke({ p13nId: KEYBOARD_P13N_ID })).data?.settings,
       ),
     subscription: async () => (await getGetSubscriptionInteractor().invoke()).data,
-    systemTaskCount: async () => {
-      const result = await getCountSystemTasksInteractor().invoke();
-      return result.ok ? result.data : 0;
+    pendingMemberCount: async () => {
+      try {
+        return (await getCountPendingMembersInteractor().invoke()).data;
+      } catch (error) {
+        if (error instanceof ForbiddenError) return 0;
+        throw error;
+      }
     },
     unreadThreadCount: async () => {
       try {
@@ -108,11 +112,11 @@ export async function AppShell({ children, displayLanguage }: Props) {
           keyboardPreferences={navigation.keyboardPreferences}
           legalStatus={accountAllowed ? account.legalStatus : null}
           operatorConsoleVisible={operatorConsoleVisible}
+          pendingMemberCount={navigation.pendingMemberCount}
           recordNavigation={navigation.records}
           sidebarLayout={navigation.sidebarLayout}
           sidebarUser={toSidebarUser(account.user)}
           subscription={navigation.subscription}
-          systemTaskCount={navigation.systemTaskCount}
           trialDaysLeft={navigation.trialDaysLeft}
           unreadThreadCount={navigation.unreadThreadCount}
           userDisplayLanguage={account.user?.displayLanguage}

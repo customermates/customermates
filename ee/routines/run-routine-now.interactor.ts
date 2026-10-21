@@ -46,6 +46,7 @@ export class RunRoutineNowInteractor extends AuthenticatedInteractor<RunRoutineN
 
     const usage = await this.usageService.getUsageSummary(this.user.id);
     if (usage.blockedReason === "credits_exhausted") return failRateLimit(CustomErrorCode.agentLimitReached, ["id"]);
+    if (usage.blockedReason === "self_hosted") return failUnavailable(CustomErrorCode.routinesRequireCloud, ["id"]);
     if (usage.blockedReason) return failUnavailable(CustomErrorCode.agentServiceUnavailable, ["id"]);
 
     const run = await this.repo.createManualRoutineRunOrThrow(routine.id, this.user.id, new Date());

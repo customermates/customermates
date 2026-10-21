@@ -8,6 +8,7 @@ import { MarketingContainer } from "@/components/marketing/marketing-container";
 import { AppLink } from "@/components/shared/app-link";
 import { GridPattern } from "@/components/shared/grid-pattern";
 import { Button } from "@/components/ui/button";
+import { env } from "@/env";
 
 import { homepageDemoBaseUrl } from "./homepage-demo-url";
 import { HomepageHeroMarks } from "./homepage-hero-marks";
@@ -87,6 +88,7 @@ export function HomepageHero({ heroSection, locale }: Props) {
 
         <HomepageProductStage
           demoBaseUrl={homepageDemoBaseUrl()}
+          embed={env.APP_MODE !== "self-hosted"}
           label={heroSection.stage.label}
           live={heroSection.stage.live}
           locale={locale}

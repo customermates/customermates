@@ -4,16 +4,26 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
+
+# A new push to a pull request supersedes its running checks; main keeps every run.
+concurrency:
+  group: tests-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  APP_MODE: self-hosted
+  NEXT_TELEMETRY_DISABLED: "1"
 
 jobs:
   self-hosted-postgres-16:
     name: self-hosted-postgres-16
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     env:
-      APP_MODE: self-hosted
       DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/customermates_test"
       DIRECT_URL: "postgresql://postgres:postgres@localhost:5432/customermates_test"
     services:
@@ -35,53 +45,22 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24
-          cache: yarn
-      - run: yarn install --frozen-lockfile
+      - uses: ./.github/actions/setup
       - name: Verify the self-hosted PostgreSQL 16 schema
         run: |
           npx --no-install prisma migrate deploy
           npx --no-install prisma db seed
           npx --no-install prisma db seed
 
-  ci:
-    name: ci
+  static:
+    name: static
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     env:
-      APP_MODE: self-hosted
-      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/customermates_test"
-      DIRECT_URL: "postgresql://postgres:postgres@localhost:5432/customermates_test"
-      RUN_DATABASE_TESTS: "true"
-      WORKFLOW_POSTGRES_URL: "postgresql://postgres:postgres@localhost:5432/customermates_test"
-    services:
-      postgres:
-        image: pgvector/pgvector:0.8.1-pg17-bookworm
-        env:
-          POSTGRES_DB: customermates_test
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_USER: postgres
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres -d customermates_test"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
+      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/unused"
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: 24
-          cache: yarn
-      - run: yarn install --frozen-lockfile
-      - name: Verify the synthetic seed against Postgres
-        run: |
-          npx --no-install prisma migrate deploy
-          npx --no-install prisma db seed
-          npx --no-install prisma db seed
-      - name: Bootstrap the local workflow store
-        run: yarn workflow:setup
+      - uses: ./.github/actions/setup
       - run: yarn openapi:generate
       - run: yarn raw-docs:generate
       - run: yarn address-metadata:generate
@@ -92,11 +71,70 @@ jobs:
             git diff --stat
             exit 1
           fi
+      - name: Restore the TypeScript and ESLint caches
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            tsconfig.tsbuildinfo
+            .eslintcache
+          key: static-cache-${{ github.sha }}
+          restore-keys: static-cache-
       - run: yarn typecheck
       - name: Lint with the documented heap
-        run: yarn lint
+        run: yarn lint --cache --cache-location .eslintcache --cache-strategy content
         env:
           NODE_OPTIONS: --max-old-space-size=8192
-      - run: yarn test
       - name: Audit the message catalogs across locales
         run: yarn i18n:audit
+
+  vitest:
+    name: vitest (${{ matrix.shard }}/4)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    env:
+      VERIFY_POSTGRES_URL: "postgresql://postgres:postgres@127.0.0.1:5432/postgres"
+      DATABASE_URL: "postgresql://postgres:postgres@127.0.0.1:5432/postgres"
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+      - name: Start PostgreSQL 17 (pgvector) for tests
+        run: |
+          docker run -d --name postgres -p 127.0.0.1:5432:5432 -e POSTGRES_PASSWORD=postgres --shm-size=1g \
+            pgvector/pgvector:0.8.1-pg17-bookworm \
+            -c max_connections=500 -c shared_buffers=512MB
+      - uses: ./.github/actions/setup
+      - name: Wait for PostgreSQL
+        run: until docker exec postgres pg_isready -U postgres -h 127.0.0.1; do sleep 1; done
+      # Migrates and seeds a template database twice (the synthetic seed must converge), then runs this shard's files
+      # against its own copy. Files are balanced by tests/vitest-durations.json; a retried test is reported as flaky.
+      - name: Vitest shard with database tests
+        env:
+          SHARD: ${{ matrix.shard }}
+        run: node scripts/verify/vitest.mjs --shards 4 --shard-index "$SHARD" --max-workers 4 --retry 1 --run-id ci
+      - name: Keep the shard report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: vitest-shard-${{ matrix.shard }}
+          path: .runs/verify/ci/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  ci:
+    name: ci
+    if: always()
+    needs: [static, vitest, self-hosted-postgres-16]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require every test job to pass
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          echo "$RESULTS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          echo "$RESULTS" | jq -e 'all(.[]; .result == "success")' > /dev/null

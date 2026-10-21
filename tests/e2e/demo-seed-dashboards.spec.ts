@@ -9,6 +9,7 @@ import {
   paintedFrames,
   test,
 } from "./demo-seed";
+import { e2eAppMode } from "./workspace-switching";
 
 type SeededWidget = {
   id: string;
@@ -16,11 +17,16 @@ type SeededWidget = {
   kind: string;
   displayType: string | null;
   calendarLayout: string | null;
-  activitySources: string[];
+  aggregation: string | null;
+  sources: string[] | null;
 };
 
-/** Messages, meetings and calendar events come from connected accounts, which only the cloud service offers. */
-const ACCOUNT_ACTIVITY_KINDS = new Set(["message", "activity", "calendar_event"]);
+/** Messages, logged activities and meetings come from connected accounts, which are available on Customermates Cloud only. */
+const CLOUD_ACTIVITY_SOURCES = new Set([
+  "message",
+  "activity",
+  "calendar_event",
+]);
 
 for (const dashboard of DEMO_DASHBOARDS) {
   test(`the ${dashboard.name} dashboard renders every seeded widget with data`, async ({
@@ -29,10 +35,10 @@ for (const dashboard of DEMO_DASHBOARDS) {
     errors,
   }, testInfo) => {
     const { rows: widgets } = await database.query<SeededWidget>(
-      `SELECT id, name, kind::text AS kind, "displayOptions"->>'displayType' AS "displayType",
+      `SELECT id, name, kind::text AS kind, "displayOptions"->>'displayType' AS "displayType", measure->>'aggregation' AS aggregation,
        "calendarQuery"->>'layout' AS "calendarLayout",
-       ARRAY(SELECT jsonb_array_elements_text(f->'values') FROM jsonb_array_elements("activityQuery"->'filters') f
-       WHERE f->>'kind' = 'source') AS "activitySources" FROM "Widget"
+       (SELECT array_agg(source) FROM jsonb_array_elements("activityQuery"->'filters') AS f,
+         jsonb_array_elements_text(f->'values') AS source WHERE f->>'kind' = 'source') AS sources FROM "Widget"
        WHERE "companyId"=$1 AND "userId"=$2 AND id LIKE '15000000-%' AND "viewId" IS NOT DISTINCT FROM $3
        AND "deletedAt" IS NULL ORDER BY id`,
       [DEMO_COMPANY_ID, DEMO_MEMBERS.maxBergmann.userId, dashboard.id],
@@ -48,7 +54,9 @@ for (const dashboard of DEMO_DASHBOARDS) {
     const rail = page.locator("[data-joins-top-bar]");
     for (const other of DEMO_DASHBOARDS.filter(({ id }) => id))
       await expect(rail.getByText(other.name, { exact: true })).toBeVisible();
-    const active = rail.locator('[data-focus-target^="view:"][aria-current="page"]');
+    const active = rail.locator(
+      '[data-focus-target^="view:"][aria-current="page"]',
+    );
     if (dashboard.id) await expect(active).toHaveText(dashboard.name);
     else await expect(active).toHaveCount(0);
 
@@ -56,7 +64,9 @@ for (const dashboard of DEMO_DASHBOARDS) {
       const card = page.locator(`[data-focus-target="widget:${widget.id}"]`);
       await card.scrollIntoViewIfNeeded();
       await expect(
-        card.getByRole("heading", { name: widget.name, exact: true }),
+        card
+          .locator('[data-slot="card-header"]')
+          .getByRole("heading", { name: widget.name, exact: true }),
       ).toBeVisible();
       await expect(
         card.getByText(
@@ -66,12 +76,15 @@ for (const dashboard of DEMO_DASHBOARDS) {
       await expect(card.locator('[data-slot="widget-empty"]')).toHaveCount(0);
       if (
         widget.kind === "activityTimeline" &&
-        process.env.APP_MODE === "self-hosted" &&
-        widget.activitySources.length > 0 &&
-        widget.activitySources.every((kind) => ACCOUNT_ACTIVITY_KINDS.has(kind))
+        e2eAppMode() === "self-hosted" &&
+        widget.sources?.length &&
+        widget.sources.every((source) => CLOUD_ACTIVITY_SOURCES.has(source))
       ) {
-        // Self-hosted installations have no messaging, so a timeline of only account activity stays empty.
-        await expect(card.getByRole("heading", { name: /You do not have access to any activity/ })).toBeVisible();
+        // Self-hosted reads no messaging or calendar activity, so the widget shows its empty state instead.
+        await expect(card.locator('[data-page-state="empty"]')).toBeVisible();
+        await expect(
+          card.getByText("0 activities", { exact: true }),
+        ).toBeVisible();
         continue;
       }
       if (widget.kind === "activityTimeline") {
@@ -91,7 +104,10 @@ for (const dashboard of DEMO_DASHBOARDS) {
           widget.calendarLayout === "upcoming"
             ? card.locator("[data-calendar-item]")
             : card.locator('[data-calendar-day]:not([data-heat="0"])');
-        await expect(data.first(), `${widget.name} shows its records`).toBeVisible();
+        await expect(
+          data.first(),
+          `${widget.name} shows its records`,
+        ).toBeVisible();
         continue;
       }
       if (widget.kind === "map") {
@@ -109,13 +125,18 @@ for (const dashboard of DEMO_DASHBOARDS) {
           displayedNumber(await value.innerText()),
           `${widget.name} value`,
         ).not.toBe(0);
-        const context = await number
-          .locator('[data-slot="widget-number-context"]')
-          .innerText();
-        expect(
-          displayedNumber(context.split(" ")[0] ?? ""),
-          `${widget.name} records`,
-        ).toBeGreaterThan(0);
+        const context = card.locator(
+          '[data-slot="card-header"] [data-slot="widget-subtitle"]',
+        );
+        if (widget.aggregation === "count") {
+          await expect(context).toBeVisible();
+          await expect(context).not.toHaveText("");
+          expect(await context.innerText()).not.toMatch(/^\d[\d,.]*\s/u);
+        } else
+          expect(
+            displayedNumber((await context.innerText()).split(" ")[0] ?? ""),
+            `${widget.name} records`,
+          ).toBeGreaterThan(0);
         continue;
       }
       const marks = {
@@ -253,7 +274,7 @@ for (const width of [1440, 390]) {
       ).toBe(1);
       const clipped = await page
         .locator(
-          '[data-slot="widget-number"] :is([data-slot="widget-number-value"], [data-slot="widget-number-context"]), .react-grid-item:has([data-slot="widget-number"]) [data-slot="card"]',
+          '[data-slot="widget-number-value"], .react-grid-item:has([data-slot="widget-number"]) :is([data-slot="widget-subtitle"], [data-slot="card"])',
         )
         .evaluateAll((elements) =>
           elements.flatMap((element) => {
@@ -277,7 +298,9 @@ for (const width of [1440, 390]) {
             ),
           );
         await page.setViewportSize({ width, height: Math.ceil(bottom + 24) });
-        await expect(page.locator("[data-page-skeleton-loading]")).toHaveCount(0);
+        await expect(page.locator("[data-page-skeleton-loading]")).toHaveCount(
+          0,
+        );
         await paintedFrames(page);
         for (const scheme of ["light", "dark"] as const) {
           await page.emulateMedia({ colorScheme: scheme });

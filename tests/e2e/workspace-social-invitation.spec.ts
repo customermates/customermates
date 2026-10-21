@@ -146,7 +146,7 @@ test("a new Google login from an invitation gets the invitation flow and waits f
     await page.locator("#firstName").fill("Lea");
     await page.locator("#lastName").fill("Brandt");
     await page.locator("#agreeToTerms").click();
-    await clickHydrated(page.getByRole("button", { name: englishMessages.OnboardingWizard.continue, exact: true }));
+    await clickHydrated(page.getByRole("button", { name: englishMessages.OnboardingWizard.next, exact: true }));
 
     await expect(page).toHaveURL(/\/auth\/pending$/);
     await expect(page.getByRole("heading", { level: 1, name: englishMessages.PendingCard.title })).toBeVisible();

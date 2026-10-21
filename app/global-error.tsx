@@ -31,7 +31,7 @@ export default function GlobalError({ error, reset }: Props) {
         <ErrorPageView
           backHref="/"
           backLabel={copy.backLabel}
-          body={copy.body}
+          body={process.env.NEXT_PUBLIC_SENTRY_DSN ? copy.body : copy.unreportedBody}
           retryLabel={copy.retryLabel}
           subtitle={copy.subtitle}
           title={copy.title}

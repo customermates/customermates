@@ -53,6 +53,7 @@ next-env.d.ts
 
 # database dumps
 dumps/
+/backups/
 
 # prisma
 generated/
@@ -75,3 +76,6 @@ CLAUDE.md
 
 # Route-specific Tailwind sources are regenerated when Next loads its config.
 styles/.generated/
+
+# lint cache (CI and scripts/verify)
+.eslintcache

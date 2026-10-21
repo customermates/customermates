@@ -195,8 +195,8 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       this.presentation.permittedActions.includes("update") || this.presentation.permittedActions.includes("delete")
     );
   }
-  override isItemSelectable(item: RecordRow) {
-    return !item.protectedKind && !this.isBulkMutating && !this.pendingBulkOperation;
+  override isItemSelectable(_item: RecordRow) {
+    return !this.isBulkMutating && !this.pendingBulkOperation;
   }
   get selectionTargets() {
     return [...this.selectedIds].map((id) => {
@@ -287,10 +287,9 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
         fields: [{ fieldId, value }],
       }),
     );
-  canUpdateRecord(record: RecordRow) {
+  canUpdateRecord(_record: RecordRow) {
     return (
       this.presentation.permittedActions.includes("update") &&
-      !record.protectedKind &&
       !this.isBulkMutating &&
       !this.pendingBulkOperation &&
       !this.pendingBoardOperation
@@ -341,9 +340,6 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   boardOperationStopped = () => {
     this.setBoardOperation(null);
   };
-  override canMoveItemBetweenGroups(item: RecordRow): boolean {
-    return !item.protectedKind;
-  }
   override get supportsManualOrder() {
     return true;
   }

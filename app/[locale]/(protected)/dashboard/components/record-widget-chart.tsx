@@ -4,11 +4,12 @@ import type { RecordWidgetDto } from "@/features/widget/record-widget.schema";
 import type { CalculatedValue } from "@/features/records/record-model.schema";
 import type { ChipColor } from "@/constants/chip-colors";
 import type { ReactNode } from "react";
+import type { RecordContributionGroup } from "@/features/records/record-contribution.schema";
 import { useLocale, useTranslations } from "next-intl";
 import { ChartNoAxesColumn } from "lucide-react";
 import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
 import { toChipColor } from "@/constants/chip-colors";
-import { getChartRankShades } from "@/constants/chart-colors";
+import { getChartTextColors, getChartRankShades } from "@/constants/chart-colors";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { useRecordValueFormat } from "@/components/records/record-value";
 import { hasRecordMeasureGroupFilter } from "@/features/records/record-measure.schema";
@@ -18,7 +19,7 @@ import { RankedTable } from "./ranked-table";
 import { WidgetChart } from "./widget-chart";
 import { WidgetNumber } from "./widget-number";
 import { formatWidgetNumber, inlineListLabel, widgetNumberAverage } from "./widget-number-format";
-import { WidgetSubtitle } from "./widget-subtitle";
+import { WidgetNotes, WidgetSubtitle } from "./widget-subtitle";
 import { WIDGET_CARD_BODY_CLASS, WIDGET_CARD_HEADER_CLASS, WIDGET_CARD_TITLE_CLASS } from "./widget-card-frame";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { TruncatedText } from "@/components/shared/truncated-text";
@@ -44,6 +45,7 @@ export type RecordWidgetChartProps = Pick<
 > & {
   name: string;
   listLabels?: { label: string; pluralLabel: string } | null;
+  onInspectGroup?: (group: RecordContributionGroup | null, label: string | null) => void;
 };
 
 type ChartRow = {
@@ -57,6 +59,8 @@ type ChartRow = {
   bucketStart: string | null;
   optionColor?: ChipColor;
   missingLabel: boolean;
+  selection?: RecordContributionGroup | null;
+  inspectable?: boolean;
 };
 
 export function RecordWidgetChart({
@@ -68,6 +72,7 @@ export function RecordWidgetChart({
   name,
   decimalPlaces,
   listLabels = null,
+  onInspectGroup,
 }: RecordWidgetChartProps) {
   const t = useTranslations();
   const language = useLocale();
@@ -129,11 +134,15 @@ export function RecordWidgetChart({
   const frame = (body: ReactNode, subtitle: string | null = null, bodyClassName?: string, reserve = true) => (
     <>
       <AppCardHeader className={WIDGET_CARD_HEADER_CLASS}>
-        <h2 className={WIDGET_CARD_TITLE_CLASS}>
-          <TruncatedText>{name}</TruncatedText>
-        </h2>
+        <div className="flex w-full min-w-0 items-center gap-1.5">
+          <h2 className={cn(WIDGET_CARD_TITLE_CLASS, "min-w-0 flex-1")}>
+            <TruncatedText>{name}</TruncatedText>
+          </h2>
 
-        <WidgetSubtitle notes={infoNotes} reserve={reserve} text={subtitle} />
+          <WidgetNotes notes={infoNotes} />
+        </div>
+
+        <WidgetSubtitle reserve={reserve} text={subtitle} />
       </AppCardHeader>
 
       <AppCardBody className={cn(WIDGET_CARD_BODY_CLASS, "overflow-visible recharts-no-focus-outline", bodyClassName)}>
@@ -166,25 +175,29 @@ export function RecordWidgetChart({
       ? inlineListLabel(count === 1 ? listLabels.label : listLabels.pluralLabel, language)
       : t("RecordWidgets.numberRecords", { count });
     const average = measure.aggregation === "sum" && numeric !== null ? widgetNumberAverage(numeric, count) : null;
+    const context =
+      measure.aggregation === "count"
+        ? listLabels
+          ? inlineListLabel(listLabels.pluralLabel, language)
+          : t("RecordWidgets.numberRecords", { count: 2 })
+        : average === null
+          ? `${valueFormat.decimal(count, { maximumFractionDigits: 0 })} ${label}`
+          : t("RecordWidgets.numberContextAverage", {
+              count,
+              label,
+              average: formatWidgetNumber(average, options, valueFormat.decimal).display,
+            });
     return frame(
       <WidgetNumber
-        context={
-          average === null
-            ? `${valueFormat.decimal(count, { maximumFractionDigits: 0 })} ${label}`
-            : t("RecordWidgets.numberContextAverage", {
-                count,
-                label,
-                average: formatWidgetNumber(average, options, valueFormat.decimal).display,
-              })
-        }
+        color={getChartTextColors()[displayOptions.barColors?.[0] ?? ChartColor.primary1]}
         exact={headline.exact}
         value={headline.display}
       />,
-      null,
+      context,
       "justify-end pt-1",
-      false,
     );
   }
+
   const overall = displayOptions.showFilters !== false ? t("RecordWidgets.overall", { value: format(total) }) : null;
   if (data.total.count === 0) {
     return frame(
@@ -225,6 +238,9 @@ export function RecordWidgetChart({
       bucketStart,
       optionColor: option?.color ? toChipColor(option.color) : undefined,
       missingLabel: Boolean(measure.groupBy) && group.label.state === "missing",
+      selection:
+        measure.groupBy && group.label.state !== "restricted" ? { record: group.record, label: group.label } : null,
+      inspectable: group.label.state !== "restricted",
     };
   });
   const rows = orderByOptionPosition(
@@ -240,6 +256,25 @@ export function RecordWidgetChart({
     value: row.value ?? 0,
     formattedValue: row.formatted,
     optionColor: row.optionColor,
+    onSelect:
+      row.inspectable !== false && onInspectGroup
+        ? () => {
+            const selection =
+              row.selection ??
+              (row.bucketStart
+                ? {
+                    record: null,
+                    label: { state: "value" as const, value: { kind: "date" as const, value: row.bucketStart } },
+                  }
+                : row.optionId
+                  ? {
+                      record: null,
+                      label: { state: "value" as const, value: { kind: "select" as const, value: row.optionId } },
+                    }
+                  : null);
+            onInspectGroup(selection, row.label);
+          }
+        : undefined,
     ...extra,
   });
   const fillsWithZero = measure.aggregation === "count" || measure.aggregation === "sum";
@@ -263,6 +298,7 @@ export function RecordWidgetChart({
         hiddenCount={Math.max(0, ranked.length - RANKED_TABLE_ROW_LIMIT)}
         rows={visible.map((row, index) => ({
           key: `${index}:${row.label}`,
+          onSelect: point(row).onSelect,
           label: row.label,
           formattedValue: row.formatted,
           share: shares ? shareOfTotal(row.value, totalValue) : null,
@@ -386,7 +422,20 @@ export function RecordWidgetChart({
           <dl className="space-y-1 text-sm">
             {rows.map((row, index) => (
               <div key={index} className="flex justify-between gap-4">
-                <dt>{row.label}</dt>
+                <dt>
+                  {point(row).onSelect ? (
+                    <button
+                      className="text-left hover:underline focus-visible:underline"
+                      data-widget-interactive=""
+                      type="button"
+                      onClick={point(row).onSelect}
+                    >
+                      {row.label}
+                    </button>
+                  ) : (
+                    row.label
+                  )}
+                </dt>
 
                 <dd className="tabular-nums">{row.formatted}</dd>
               </div>

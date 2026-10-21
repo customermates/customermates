@@ -14,7 +14,6 @@ export function recordDto(
   return {
     ref: { typeId: record.typeId, recordId: record.id },
     version: record.version,
-    ...(record.protectedKind === "membershipAuthorization" ? { protectedKind: record.protectedKind } : {}),
     schemaRevision: model.revision,
     createdAt: record.createdAt.toISOString(),
     updatedAt: record.updatedAt.toISOString(),

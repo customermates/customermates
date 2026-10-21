@@ -12,6 +12,7 @@ import {
   Key,
   Layers,
   LayoutGrid,
+  CalendarDays,
   Sparkles,
   LibraryBig,
   ListFilter,
@@ -94,6 +95,7 @@ export const DOC_NAV_GROUPS: DocNavGroup[] = [
     items: [
       { slug: "app-assistant", i18nKey: "DocsSidebar.appAssistant", icon: Sparkles },
       { slug: "app-dashboard", i18nKey: "DocsSidebar.appDashboard", icon: LayoutGrid },
+      { slug: "app-calendar", i18nKey: "DocsSidebar.appCalendar", icon: CalendarDays },
       { slug: "app-inbox", i18nKey: "DocsSidebar.appInbox", icon: Inbox },
       { slug: "app-records", i18nKey: "DocsSidebar.appRecords", icon: Database },
       { slug: "app-routines", i18nKey: "DocsSidebar.appRoutines", icon: Repeat },

@@ -17,6 +17,7 @@ export abstract class RecordEventLogRepo {
   ): Promise<Map<string, string>>;
   abstract hasRecordHistoryCompanyWide(companyId: string, ref: RecordRef): Promise<boolean>;
   abstract appendRecordEventCompanyWide(companyId: string, event: RecordEventWrite): Promise<void>;
+  abstract appendRecordEventsCompanyWide(companyId: string, events: RecordEventWrite[]): Promise<void>;
   abstract eraseTrashedRecordPayloadsCompanyWide(companyId: string, trashItemIds: string[]): Promise<void>;
   abstract publishStagedRecordEventsCompanyWide(companyId: string, operationId: string): Promise<void>;
 }

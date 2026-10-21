@@ -9,7 +9,10 @@ import { BarChart3 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { isRecordWidget } from "@/features/widget/widget.schema";
+import { WidgetDataDrawer, type WidgetDataSelection } from "./widget-data-drawer";
+import type { RecordContributionGroup } from "@/features/records/record-contribution.schema";
 
 import "@/styles/react-grid-layout.css";
 
@@ -55,6 +58,14 @@ type Props = {
 
 const WIDGET_FOCUS_KINDS: FocusKind[] = ["widget"];
 
+function layoutGeometry(layout: Layout) {
+  return JSON.stringify(
+    [...layout]
+      .sort((left, right) => (left.i < right.i ? -1 : left.i > right.i ? 1 : 0))
+      .map(({ i, x, y, w, h }) => ({ i, x, y, w, h })),
+  );
+}
+
 const DashboardPageViewContent = observer(function DashboardPageView({ dashboard, recordTypes }: Props) {
   const { widgetModalStore, widgetsStore, recordWorkspaceStore } = useRootStore();
   const { items, layouts } = widgetsStore;
@@ -62,6 +73,20 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
   const navigation = recordWorkspaceStore.navigation;
   const needsFirstList = navigation?.canManageSchema === true && !navigation.hasLists;
   const router = useRouter();
+  const [dataSelection, setDataSelection] = useState<WidgetDataSelection | null>(null);
+  const inspectWidget = useCallback(
+    (id: string, group: RecordContributionGroup | null = null, label: string | null = null) => {
+      const widget = widgetsStore.items.find((item) => item.id === id);
+      if (!widget || !isRecordWidget(widget)) return runUserAction(() => openWidgetEditor(widgetModalStore, id));
+      setDataSelection({
+        widget,
+        group,
+        label,
+        opener: document.activeElement instanceof HTMLElement ? document.activeElement : null,
+      });
+    },
+    [widgetsStore, widgetModalStore],
+  );
   useEffect(() => {
     if (recordTypes) widgetModalStore.setRecordTypes(recordTypes);
   }, [recordTypes, widgetModalStore]);
@@ -79,6 +104,15 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
   useEffect(() => connectDataViewUrlSync(widgetsStore), [widgetsStore]);
 
   const gridHost = useRef<HTMLDivElement>(null);
+  const layoutEditStart = useRef<string | null>(null);
+  const layoutEdited = useRef(false);
+  const handleLayoutStart = useCallback((layout: Layout) => {
+    layoutEditStart.current = layoutGeometry(layout);
+  }, []);
+  const handleLayoutEdit = useCallback((layout: Layout) => {
+    layoutEdited.current = layoutEditStart.current !== null && layoutEditStart.current !== layoutGeometry(layout);
+    layoutEditStart.current = null;
+  }, []);
   useEffect(() => {
     const host = gridHost.current;
     if (!host || typeof ResizeObserver === "undefined") return;
@@ -116,14 +150,18 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
         })
       ) {
         opener?.focus({ preventScroll: true });
-        runUserAction(() => openWidgetEditor(widgetModalStore, id));
+        inspectWidget(id);
       }
     }
     document.addEventListener("pointerup", onPointerUp);
     return () => document.removeEventListener("pointerup", onPointerUp);
-  }, [widgetModalStore]);
+  }, [inspectWidget]);
 
   const handlePointerDown = useCallback((id: string, event: React.PointerEvent) => {
+    if (event.button !== 0 || !(event.target instanceof Node) || !event.currentTarget.contains(event.target)) {
+      pointerStart.current = null;
+      return;
+    }
     pointerStart.current = {
       id,
       x: event.clientX,
@@ -233,9 +271,15 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
           margin={[DASHBOARD_GRID_MARGIN, DASHBOARD_GRID_MARGIN]}
           resizeHandles={["n", "s", "e", "w", "ne", "nw", "se", "sw"]}
           rowHeight={DASHBOARD_ROW_HEIGHT}
-          onLayoutChange={(layout: Layout, nextLayouts: ResponsiveLayouts) =>
-            widgetsStore.onLayoutChange(layout, nextLayouts)
-          }
+          onDragStart={handleLayoutStart}
+          onDragStop={handleLayoutEdit}
+          onLayoutChange={(layout: Layout, nextLayouts: ResponsiveLayouts) => {
+            if (!layoutEdited.current) return;
+            layoutEdited.current = false;
+            widgetsStore.onLayoutChange(layout, nextLayouts);
+          }}
+          onResizeStart={handleLayoutStart}
+          onResizeStop={handleLayoutEdit}
         >
           {items.map((widget) => (
             <div
@@ -243,7 +287,12 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
               data-focus-target={`widget:${widget.id}`}
               onPointerDown={(event) => handlePointerDown(widget.id, event)}
             >
-              <WidgetCard widget={widget} />
+              <WidgetCard
+                widget={widget}
+                onInspect={
+                  isRecordWidget(widget) ? (group, label) => inspectWidget(widget.id, group, label) : undefined
+                }
+              />
             </div>
           ))}
         </ResponsiveGridLayout>
@@ -257,6 +306,14 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
 
   return (
     <>
+      {dataSelection && (
+        <WidgetDataDrawer
+          selection={dataSelection}
+          onClose={() => setDataSelection(null)}
+          onSelect={(group, label) => setDataSelection((current) => (current ? { ...current, group, label } : null))}
+        />
+      )}
+
       <DataViewViewsRail
         joinsTopBar
         allLabel={t("Dashboard.mainView")}

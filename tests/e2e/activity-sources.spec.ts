@@ -10,6 +10,7 @@ import {
 } from "../../features/records/record-query.schema";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { readModel } from "./api";
+import { e2eAppMode } from "./workspace-switching";
 
 async function mutation(page: Page, database: Client, companyId: string, change: RecordMutation) {
   const response = await page.request.post("/api/v1/records/mutate", {
@@ -109,6 +110,16 @@ test("shows contacts' messages on organizations and deals but not tasks, followi
     ],
   );
 
+  if (e2eAppMode() === "self-hosted") {
+    // Messaging is cloud-only: stored messages never reach a record timeline on self-hosted.
+    for (const ref of [person, organization, deal]) {
+      const history = await timeline(page, ref);
+      await expect(history.locator("ol > li").first()).toBeVisible();
+      await expect(history.getByText(body, { exact: true })).toHaveCount(0);
+    }
+    expect(errors).toEqual([]);
+    return;
+  }
   for (const ref of [person, organization, deal]) {
     const history = await timeline(page, ref);
     await expect(history.getByText(body, { exact: true })).toBeVisible();

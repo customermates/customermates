@@ -2,14 +2,15 @@
 
 import type { SetupQuestion } from "@/features/workspace-setup/setup-interview";
 
-import { Check, Globe, Loader2, X } from "lucide-react";
+import { Globe, Loader2, X } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
+import { focusFirstInvalidField } from "@/components/forms/focus-first-invalid-field";
+import { ConfirmDialog } from "@/components/modal/confirm-dialog";
 import { Alert } from "@/components/shared/alert";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { IconContainer } from "@/components/shared/icon-container";
 import { WizardProgress } from "@/components/shared/wizard-progress";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,28 +20,13 @@ import { cn } from "@/core/utils/cn";
 import { SETUP_SCREEN_DEFINITIONS, SETUP_SCREENS } from "@/features/workspace-setup/setup-interview";
 
 import { answerFromWebsite, displayedAnswerValue, partVisible, screenQuestions } from "./setup-interview-state";
+import { SetupActionBar } from "./setup-plan-preview";
 import { partDescriptor } from "./setup-question-descriptor";
 import { SetupQuestionField } from "./setup-question-field";
 import { screenSummary } from "./setup-screen-summary";
 import { SetupSpreadsheetUpload } from "./setup-spreadsheet-upload";
 
 type ScreenState = "done" | "current" | "upcoming";
-
-function ScreenMarker({ state, number }: { state: ScreenState; number: number }) {
-  return (
-    <span
-      aria-hidden
-      className={cn(
-        "flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-medium transition-colors motion-reduce:transition-none",
-        state === "done" && "bg-primary text-primary-foreground",
-        state === "current" && "bg-primary/10 text-primary ring-1 ring-primary",
-        state === "upcoming" && "border border-border text-muted-foreground",
-      )}
-    >
-      {state === "done" ? <Check className="size-3.5" /> : number}
-    </span>
-  );
-}
 
 const SetupQuestionBlock = observer(function SetupQuestionBlock({ question }: { question: SetupQuestion }) {
   const t = useTranslations();
@@ -56,6 +42,7 @@ const SetupQuestionBlock = observer(function SetupQuestionBlock({ question }: { 
           descriptor={partDescriptor(part, t, store.answers)}
           disabled={store.isBusy}
           fromWebsite={answerFromWebsite(store.answers, part.id)}
+          invalid={store.answerMissing(part.id)}
           value={displayedAnswerValue(part, store.answers, store.locale)}
           onChange={(value) => store.setAnswer(part.id, value)}
         />
@@ -73,8 +60,6 @@ const SetupQuestionBlock = observer(function SetupQuestionBlock({ question }: { 
   return <div className="flex flex-col gap-6">{fields}</div>;
 });
 
-const WEBSITE_CARD_CLASS = "flex flex-col gap-3 rounded-lg border border-primary/30 bg-primary/10 p-4";
-
 const SetupWebsiteContext = observer(function SetupWebsiteContext() {
   const t = useTranslations();
   const { workspaceSetupStore: store } = useRootStore();
@@ -91,46 +76,44 @@ const SetupWebsiteContext = observer(function SetupWebsiteContext() {
       ? t(`WorkspaceSetup.website.${progress.stage}`, { website: host, read: progress.read, total: progress.total })
       : t("WorkspaceSetup.website.suggestedHint");
     return (
-      <div className={WEBSITE_CARD_CLASS}>
-        <div className="flex items-center gap-3">
-          <IconContainer
-            icon={progress ? Loader2 : Globe}
-            iconClassName={progress ? "animate-spin motion-reduce:animate-none" : undefined}
-            size="md"
-          />
-
-          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-            <span className="truncate text-sm font-medium">{host}</span>
-
-            <span aria-live="polite" className="text-xs text-muted-foreground" role="status">
+      <Alert
+        color="primary"
+        icon={progress ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : <Globe />}
+        role="note"
+        title={host}
+      >
+        <div className="flex flex-col gap-2">
+          <div className="flex items-start justify-between gap-3">
+            <span aria-live="polite" className="text-sm text-primary/90">
               {status}
             </span>
+
+            {editable ? (
+              <Button
+                className="-my-1"
+                disabled={store.isBusy}
+                size="sm"
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setDraft(host);
+                  setEditing(true);
+                }}
+              >
+                {t("WorkspaceSetup.website.change")}
+              </Button>
+            ) : null}
           </div>
 
-          {editable ? (
-            <Button
-              disabled={store.isBusy}
-              size="sm"
-              type="button"
-              variant="ghost"
-              onClick={() => {
-                setDraft(host);
-                setEditing(true);
-              }}
-            >
-              {t("WorkspaceSetup.website.change")}
-            </Button>
+          {progress ? (
+            <div className="flex flex-col gap-1.5">
+              <WizardProgress current={progress.progress} label={host} total={100} valueText={status} />
+
+              <span className="text-xs text-primary/90">{t("WorkspaceSetup.website.eta")}</span>
+            </div>
           ) : null}
         </div>
-
-        {progress ? (
-          <div className="flex flex-col gap-1.5">
-            <WizardProgress current={progress.progress} label={host} total={100} valueText={status} />
-
-            <span className="text-xs text-muted-foreground">{t("WorkspaceSetup.website.eta")}</span>
-          </div>
-        ) : null}
-      </div>
+      </Alert>
     );
   }
   if (!editable) return null;
@@ -148,22 +131,18 @@ const SetupWebsiteContext = observer(function SetupWebsiteContext() {
   };
 
   return (
-    <div className={WEBSITE_CARD_CLASS}>
-      <div className="flex items-center gap-3">
-        <IconContainer icon={Globe} size="md" />
-
-        <div className="flex min-w-0 flex-col gap-0.5">
-          <span className="text-sm font-medium">{t("WorkspaceSetup.website.title")}</span>
-
-          <span className="text-xs text-muted-foreground">{t("WorkspaceSetup.website.hint")}</span>
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+    <Alert
+      color="primary"
+      description={t("WorkspaceSetup.website.hint")}
+      icon={<Globe />}
+      role="note"
+      title={t("WorkspaceSetup.website.title")}
+    >
+      <div className="mt-2 flex gap-2">
         <Input
           aria-label={t("Common.inputs.websiteUrl")}
           autoComplete="url"
-          className="sm:flex-1"
+          className="flex-1"
           disabled={store.isBusy}
           inputMode="url"
           placeholder={t("OnboardingWizard.profile.websitePlaceholder")}
@@ -194,19 +173,21 @@ const SetupWebsiteContext = observer(function SetupWebsiteContext() {
           </Button>
         ) : null}
 
-        <Button disabled={store.isBusy || !draft.trim()} type="button" onClick={submit}>
-          {reading ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : <Globe aria-hidden />}
+        <Button disabled={store.isBusy || !draft.trim()} type="button" variant="secondary" onClick={submit}>
+          {reading ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : null}
 
           {t("WorkspaceSetup.website.read")}
         </Button>
       </div>
-    </div>
+    </Alert>
   );
 });
 
 export const SetupInterview = observer(function SetupInterview() {
   const t = useTranslations();
-  const { workspaceSetupStore: store } = useRootStore();
+  const { workspaceSetupStore: store, onboardingWizardStore: wizard } = useRootStore();
+  const [confirmingEmpty, setConfirmingEmpty] = useState(false);
+  const section = useRef<HTMLElement>(null);
   const triggers = useRef(new Map<number, HTMLButtonElement>());
   const previous = useRef(store.screenIndex);
   const titles = SETUP_SCREEN_DEFINITIONS.map((screen) => t(screen.titleKey));
@@ -225,7 +206,7 @@ export const SetupInterview = observer(function SetupInterview() {
     index === store.screenIndex ? "current" : index <= store.furthestScreen ? "done" : "upcoming";
 
   return (
-    <section aria-busy={store.isBusy} className="flex flex-col gap-6">
+    <section ref={section} aria-busy={store.isBusy} className="flex flex-col gap-6">
       <SetupWebsiteContext />
 
       {store.adjusting ? <Alert color="primary" description={t("WorkspaceSetup.interview.adjusting")} /> : null}
@@ -260,58 +241,79 @@ export const SetupInterview = observer(function SetupInterview() {
                   else triggers.current.delete(index);
                 }}
                 aria-label={`${t("WorkspaceSetup.interview.stepProgress", { current: order + 1, total: visibleScreens.length })}: ${titles[index]}`}
-                className="min-w-0 items-center gap-3 py-3.5 hover:no-underline disabled:opacity-100 [&[data-disabled]>svg]:hidden [&[data-state=open]>svg]:hidden"
+                className="min-w-0 items-center hover:no-underline disabled:opacity-100 [&[data-disabled]>svg]:hidden [&[data-state=open]>svg]:hidden"
               >
-                <span className="flex min-w-0 flex-1 items-center gap-3">
-                  <ScreenMarker number={order + 1} state={state} />
-
-                  <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                    <span
-                      className={cn(
-                        "text-sm",
-                        state === "current" ? "text-base font-semibold" : "font-medium",
-                        state === "upcoming" && "text-muted-foreground",
-                      )}
-                    >
-                      {titles[index]}
-                    </span>
-
-                    {summary ? (
-                      <span className="truncate text-xs font-normal text-muted-foreground">{summary}</span>
-                    ) : null}
+                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                  <span className={cn("text-sm font-medium", state === "upcoming" && "text-muted-foreground")}>
+                    {titles[index]}
                   </span>
+
+                  {summary ? (
+                    <span className="truncate text-xs font-normal text-muted-foreground">{summary}</span>
+                  ) : null}
                 </span>
               </AccordionTrigger>
 
-              <AccordionContent className="flex flex-col gap-6 pt-1 pb-5 sm:pl-9">
+              <AccordionContent className="flex flex-col gap-6">
                 {screenQuestions(SETUP_SCREENS[index]).map((question) => (
                   <SetupQuestionBlock key={question.id} question={question} />
                 ))}
 
-                <div className="flex flex-wrap items-center justify-between gap-2">
+                <SetupActionBar
+                  hint={t("WorkspaceSetup.interview.stepProgress", {
+                    current: order + 1,
+                    total: visibleScreens.length,
+                  })}
+                >
                   {position > 0 || store.adjusting ? (
                     <Button disabled={store.isBusy} type="button" variant="secondary" onClick={store.previousScreen}>
                       {t("Common.actions.back")}
                     </Button>
-                  ) : (
-                    <span />
-                  )}
+                  ) : null}
 
                   <Button
-                    disabled={!store.canConfirmScreen || store.isBusy}
+                    disabled={store.isBusy}
                     type="button"
-                    onClick={() => runUserAction(store.confirmScreen)}
+                    onClick={() => {
+                      if (store.showMissingAnswers(t("Common.errors.mustNotBeBlank")))
+                        focusFirstInvalidField(section.current);
+                      else runUserAction(store.confirmScreen);
+                    }}
                   >
                     {saving ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : null}
 
-                    {t("WorkspaceSetup.actions.looksRight")}
+                    {t("OnboardingWizard.next")}
                   </Button>
-                </div>
+                </SetupActionBar>
               </AccordionContent>
             </AccordionItem>
           );
         })}
       </Accordion>
+
+      {store.adjusting ? null : (
+        <Button
+          className="self-center text-muted-foreground"
+          disabled={store.isBusy || wizard.isSubmitting}
+          size="sm"
+          type="button"
+          variant="ghost"
+          onClick={() => setConfirmingEmpty(true)}
+        >
+          {t("WorkspaceSetup.empty.action")}
+        </Button>
+      )}
+
+      <ConfirmDialog
+        anchorScope="setup-empty-confirm"
+        confirmLabel={t("WorkspaceSetup.empty.confirm")}
+        confirmVariant="default"
+        description={t("WorkspaceSetup.empty.description")}
+        open={confirmingEmpty}
+        title={t("WorkspaceSetup.empty.title")}
+        onCancel={() => setConfirmingEmpty(false)}
+        onConfirm={wizard.startEmpty}
+      />
     </section>
   );
 });

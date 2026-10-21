@@ -137,6 +137,31 @@
     content: "";
   }
 
+  pre {
+    background-color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    color: var(--foreground);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.5rem;
+    margin: 0.75rem 0;
+    overflow-x: auto;
+    padding: 0.875rem 1rem;
+
+    code {
+      background: none;
+      border-radius: 0;
+      color: inherit;
+      font-size: inherit;
+      padding: 0;
+    }
+  }
+
+  &.ProseMirror pre {
+    white-space: pre;
+  }
+
   hr {
     border: none;
     border-top: 1px solid var(--border);

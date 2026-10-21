@@ -12,6 +12,7 @@ export function AppCard({ className, ...props }: Props) {
         "w-full gap-0 bg-background py-0 text-foreground",
         "in-data-overlay-surface:min-h-0 in-data-overlay-surface:flex-1 in-data-overlay-surface:overflow-hidden",
         "in-data-[overlay-surface=drawer]:border-0 in-data-[overlay-surface=drawer]:bg-transparent in-data-[overlay-surface=drawer]:shadow-none",
+        "in-data-[overlay-surface=sheet]:rounded-none in-data-[overlay-surface=sheet]:border-0 in-data-[overlay-surface=sheet]:bg-transparent in-data-[overlay-surface=sheet]:shadow-none",
         className,
       )}
       data-uid="app-card"

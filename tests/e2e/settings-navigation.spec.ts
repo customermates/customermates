@@ -4,7 +4,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { collectPageErrors, expect, test } from "./fixtures";
 import { secondUser } from "./second-user";
 import { openMenu, openSidebar } from "./sidebar";
-import { e2eAppMode } from "./workspace-switching";
+import { e2eAppMode, expectHydrated } from "./workspace-switching";
 
 test("settings live in one area reached from the workspace menu, with Back to the work page", async ({
   page,
@@ -76,9 +76,16 @@ test("settings live in one area reached from the workspace menu, with Back to th
     await expect(page.locator("[data-area-nav]")).toHaveCount(0);
   });
 
-  await test.step("the old profile and company routes are gone", async () => {
-    for (const removed of ["profile/settings", "company/members", "company/webhook-deliveries"])
-      expect((await page.request.get(`/en/${removed}`)).status(), removed).toBe(404);
+  await test.step("the old profile and company routes lead to their Settings pages", async () => {
+    for (const [removed, current] of [
+      ["profile/settings", "settings/profile"],
+      ["company/members", "settings/members"],
+      ["company/webhook-deliveries", "settings/webhook-deliveries"],
+    ] as const) {
+      const response = await page.request.get(`/en/${removed}`, { maxRedirects: 0 });
+      expect(response.status(), removed).toBe(308);
+      expect(response.headers().location, removed).toBe(`/en/${current}`);
+    }
   });
 
   expect(errors).toEqual([]);
@@ -149,6 +156,7 @@ test("profile settings show the unsaved-changes bar only while edits are pending
   await page.goto("/en/settings/profile");
   await page.waitForLoadState("networkidle");
   const firstName = page.locator("#settings-profile-first-name");
+  await expectHydrated(firstName);
   const bar = page.locator("[data-slot='unsaved-changes-bar']");
   const original = await firstName.inputValue();
   const edited = `${original} edited`;
@@ -172,12 +180,11 @@ test("profile settings show the unsaved-changes bar only while edits are pending
   await expect(page.locator("#nav-personal-menu")).toContainText(edited);
   await page.reload();
   await page.waitForLoadState("networkidle");
+  await expectHydrated(firstName);
   await expect(firstName).toHaveValue(edited);
 
-  await expect(async () => {
-    await firstName.fill(original);
-    await expect(bar).toBeVisible({ timeout: 2_000 });
-  }).toPass();
+  await firstName.fill(original);
+  await expect(bar).toBeVisible();
   await page.locator("#settings-profile-save").click();
   await expect(bar).toHaveCount(0);
   expect(errors).toEqual([]);
@@ -208,6 +215,7 @@ test("a member whose role has no Users & Roles access opens and saves Profile & 
     await member.page.goto("/en/settings/profile");
     await member.page.waitForLoadState("networkidle");
     const firstName = member.page.locator("#settings-profile-first-name");
+    await expectHydrated(firstName);
     await expect(firstName).toHaveValue("Second");
 
     await firstName.fill("Renamed");

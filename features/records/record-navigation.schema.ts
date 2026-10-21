@@ -14,7 +14,6 @@ export const RecordNavigationSchema = z
           pluralLabel: z.string(),
           icon: z.string(),
           canCreate: z.boolean(),
-          hasAuthorizationTasks: z.boolean(),
         })
         .strict(),
     ),

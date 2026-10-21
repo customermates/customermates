@@ -10,7 +10,6 @@ const state = vi.hoisted(() => ({
   claimPlan: vi.fn(),
   planPart: vi.fn(),
   finishPlan: vi.fn(),
-  notifyOnce: vi.fn(),
   reportFailure: vi.fn(),
   reportWarning: vi.fn(),
 }));
@@ -54,10 +53,7 @@ vi.mock("@/core/di", () => ({
     abandon: state.abandon,
     drainWarnings: () => [],
   }),
-  getWorkspaceSetupRepo: () => ({}),
-  getWorkspaceSetupNotifier: () => ({}),
 }));
-vi.mock("@/ee/workspace-setup/workspace-setup-notice-marker", () => ({ notifyWorkspaceSetupOnce: state.notifyOnce }));
 vi.mock("../capture-failure", () => ({
   toWorkflowFailure: (error: Error) => ({ name: error.name, message: error.message }),
   reportFailure: state.reportFailure,
@@ -73,7 +69,6 @@ beforeEach(() => {
   state.tenant = "present";
   state.runPhase.mockResolvedValue("settled");
   state.finish.mockResolvedValue(true);
-  state.notifyOnce.mockResolvedValue(null);
   state.followUps.mockResolvedValue("none");
   state.claimPlan.mockResolvedValue({ status: "claimed", revision: 2 });
   state.planPart.mockResolvedValue("done");
@@ -84,10 +79,9 @@ describe("workspace setup workflows when things go wrong", () => {
   it("passes its run id to every phase so a second run cannot take a claimed phase", async () => {
     await buildWorkspaceSetup(payload);
     expect(state.runPhase.mock.calls.map((call) => call[3])).toEqual(Array(5).fill("run-1"));
-    expect(state.notifyOnce).toHaveBeenCalledWith({}, {}, "setup-1", "build");
   });
 
-  it("mails that the workspace is ready while its Knowledge Base is still being written", async () => {
+  it("finishes the workspace while its Knowledge Base is still being written", async () => {
     let knowledgeBaseRounds = 0;
     state.runPhase.mockImplementation((_setupId: string, phase: string) => {
       if (phase !== "knowledgeBase") return Promise.resolve("settled");
@@ -95,9 +89,9 @@ describe("workspace setup workflows when things go wrong", () => {
       return Promise.resolve(knowledgeBaseRounds < 5 ? "wait" : "settled");
     });
     const settledAt: number[] = [];
-    state.notifyOnce.mockImplementation(() => {
+    state.finish.mockImplementation(() => {
       settledAt.push(knowledgeBaseRounds);
-      return Promise.resolve("workspaceReady");
+      return Promise.resolve(true);
     });
 
     await buildWorkspaceSetup(payload);
@@ -108,13 +102,12 @@ describe("workspace setup workflows when things go wrong", () => {
     expect(state.abandon).not.toHaveBeenCalled();
   });
 
-  it("ends quietly without errors, release or mail when the workspace was deleted", async () => {
+  it("ends quietly without errors or release when the workspace was deleted", async () => {
     state.tenant = "deleted";
     await expect(buildWorkspaceSetup(payload)).resolves.toBeUndefined();
     expect(state.runPhase).not.toHaveBeenCalled();
     expect(state.abandon).not.toHaveBeenCalled();
     expect(state.finish).not.toHaveBeenCalled();
-    expect(state.notifyOnce).not.toHaveBeenCalled();
     expect(state.reportFailure).not.toHaveBeenCalled();
 
     await expect(planWorkspaceSetup(payload)).resolves.toBeUndefined();
@@ -122,12 +115,11 @@ describe("workspace setup workflows when things go wrong", () => {
     expect(state.reportFailure).not.toHaveBeenCalled();
   });
 
-  it("releases the phases of an owner who left the workspace and sends them nothing", async () => {
+  it("releases the phases of an owner who left the workspace", async () => {
     state.tenant = "left";
     await expect(buildWorkspaceSetup(payload)).resolves.toBeUndefined();
     expect(state.runPhase).not.toHaveBeenCalled();
     expect(state.abandon).toHaveBeenCalledWith("setup-1", "run-1");
-    expect(state.notifyOnce).not.toHaveBeenCalled();
     expect(state.reportFailure).not.toHaveBeenCalled();
   });
 
@@ -137,35 +129,20 @@ describe("workspace setup workflows when things go wrong", () => {
     expect(state.reportFailure).toHaveBeenCalled();
   });
 
-  it("mails the outcome after releasing a failed build or plan run", async () => {
+  it("releases a failed build or plan run", async () => {
     state.runPhase.mockRejectedValue(new Error("database down"));
     await expect(buildWorkspaceSetup(payload)).rejects.toThrow("database down");
     expect(state.abandon).toHaveBeenCalledWith("setup-1", "run-1");
-    expect(state.notifyOnce).toHaveBeenCalledWith({}, {}, "setup-1", "build");
-    expect(state.abandon.mock.invocationCallOrder[0]).toBeLessThan(state.notifyOnce.mock.invocationCallOrder[0]);
+    expect(state.reportFailure).toHaveBeenCalled();
 
     state.planPart.mockRejectedValue(new Error("database down"));
     await expect(planWorkspaceSetup(payload)).rejects.toThrow("database down");
     expect(state.abandonPlan).toHaveBeenCalledWith("setup-1", 2);
-    expect(state.notifyOnce).toHaveBeenLastCalledWith({}, {}, "setup-1", "plan");
   });
 
-  it("reports a notice that keeps failing instead of failing the build", async () => {
-    state.notifyOnce.mockRejectedValue(new Error("mail down"));
-    await expect(buildWorkspaceSetup(payload)).resolves.toBeUndefined();
-    expect(state.finish).toHaveBeenCalledWith("setup-1");
-    expect(state.reportWarning).toHaveBeenCalledWith(
-      "build-workspace-setup",
-      "Workspace setup notice failed: Error.",
-      undefined,
-    );
-    expect(state.reportFailure).not.toHaveBeenCalled();
-  });
-
-  it("waits for a phase another step still settles before it mails the outcome", async () => {
+  it("waits for a phase another step still settles before it finishes", async () => {
     state.finish.mockResolvedValueOnce(false).mockResolvedValueOnce(false).mockResolvedValue(true);
     await buildWorkspaceSetup(payload);
     expect(state.finish).toHaveBeenCalledTimes(3);
-    expect(state.finish.mock.invocationCallOrder[2]).toBeLessThan(state.notifyOnce.mock.invocationCallOrder[0]);
   });
 });

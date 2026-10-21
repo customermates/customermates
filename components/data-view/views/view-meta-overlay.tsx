@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import { ArrowUpRight, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { FormFooterActions } from "@/components/forms/form-footer-actions";
+import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { focusFirstInvalidField } from "@/components/forms/focus-first-invalid-field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -57,7 +57,7 @@ export function ViewMetaOverlay({
     setShowError(false);
   }
   const invalid = showError && !trimmed;
-  const dirty = mode === "duplicate" || name !== baseline.name;
+  const dirty = name !== baseline.name;
 
   function submit() {
     if (isSubmitting) return;
@@ -79,17 +79,26 @@ export function ViewMetaOverlay({
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (dirty) submit();
+    if (mode !== "edit" || dirty) submit();
   }
 
   const footer = (
-    <FormFooterActions
+    <UnsavedChangesBar
+      compact
       anchorScope="view-editor"
+      creating={mode !== "edit"}
       dirty={dirty}
       formId={FORM_ID}
-      placement="overlay"
+      placement="sticky"
       saving={isSubmitting}
-      onCancel={() => onOpenChange(false)}
+      onCancel={() => {
+        if (mode !== "edit") onOpenChange(false);
+        else {
+          onChange({ name: baseline.name });
+          setShowError(false);
+        }
+      }}
+      onDismiss={() => onOpenChange(false)}
     />
   );
 

@@ -9,8 +9,9 @@ import { z } from "zod";
 
 import { Resource } from "@/generated/prisma";
 
-import { fail } from "@/core/validation/interactor-failure-server";
+import { fail, failNotFound, unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { isInteractorFailure } from "@/core/validation/validation.utils";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
@@ -89,6 +90,7 @@ type UsableAccount = Awaited<ReturnType<FindUsableAccountRepo["findUsableAccount
 
 type ResolvedDraftThread =
   | { ok: true; thread: MessagingThread; recipients: string[]; account?: UsableAccount }
+  | { ok: true; thread: null; recipients: string[]; account: UsableAccount }
   | { ok: false; failure: Validated<MessagingMessageDto> };
 
 function draftRecipient(identifier: string): MessagingAttendee {
@@ -115,16 +117,18 @@ export class SaveDraftInteractor extends AuthenticatedInteractor<SaveDraftData, 
     if (!resolved.ok) return resolved.failure;
 
     const thread = resolved.thread;
-    const isEmail = isEmailProvider(thread.provider);
+    const provider = resolved.thread ? resolved.thread.provider : resolved.account.provider;
+    const isEmail = isEmailProvider(provider);
     if (
       isEmail &&
-      isDraftThreadId(thread.unipileThreadId) &&
+      (!thread || isDraftThreadId(thread.unipileThreadId)) &&
       resolved.recipients.length + (data.cc?.length ?? 0) + (data.bcc?.length ?? 0) === 0
     )
       return fail(CustomErrorCode.emailRecipientsRequired, ["recipients"]);
 
-    const account =
-      resolved.account ?? (await this.accountRepo.findUsableAccountByIdOrThrow(thread.connectedAccountId));
+    const account = resolved.thread
+      ? (resolved.account ?? (await this.accountRepo.findUsableAccountByIdOrThrow(resolved.thread.connectedAccountId)))
+      : resolved.account;
 
     let sender: MessagingAttendee;
     let bodyHtml: string | null = null;
@@ -139,35 +143,40 @@ export class SaveDraftInteractor extends AuthenticatedInteractor<SaveDraftData, 
         isSelf: true,
       };
     } else {
-      sender = (await this.repo.findSelfAttendeeForThread(thread.id)) ?? {
+      sender = (thread ? await this.repo.findSelfAttendeeForThread(thread.id) : null) ?? {
         ...EMPTY_ATTENDEE,
         isSelf: true,
       };
     }
 
-    const recipients = {
-      to: resolved.recipients.map(draftRecipient),
-      cc: isEmail ? (data.cc ?? []).map((email) => draftRecipient(email.toLowerCase())) : [],
-      bcc: isEmail ? (data.bcc ?? []).map((email) => draftRecipient(email.toLowerCase())) : [],
-    };
-
-    const draft = await this.repo.upsertThreadDraftOrThrow({
-      threadId: thread.id,
-      connectedAccountId: thread.connectedAccountId,
-      provider: thread.provider,
+    const content = {
+      connectedAccountId: thread ? thread.connectedAccountId : account.id,
+      provider,
       sender,
       subject: isEmail ? (data.subject ?? null) : null,
       bodyText: data.body,
       bodyHtml,
-      recipients,
-    });
+      recipients: {
+        to: resolved.recipients.map(draftRecipient),
+        cc: isEmail ? (data.cc ?? []).map((email) => draftRecipient(email.toLowerCase())) : [],
+        bcc: isEmail ? (data.bcc ?? []).map((email) => draftRecipient(email.toLowerCase())) : [],
+      },
+    };
+
+    const draft = await (
+      thread
+        ? this.repo.upsertThreadDraftOrThrow({ ...content, threadId: thread.id })
+        : this.repo.createConversationDraftOrThrow(content)
+    ).catch(unwoundFailure);
+    if (isInteractorFailure(draft)) return draft;
 
     return { ok: true as const, data: toMessagingMessageDto(draft) };
   }
 
   private async resolveThread(data: SaveDraftData): Promise<ResolvedDraftThread> {
     if (data.threadId) {
-      const thread = await this.repo.findThreadByIdOrThrow(data.threadId);
+      const thread = await this.repo.findThreadById(data.threadId);
+      if (!thread) return { ok: false, failure: failNotFound(CustomErrorCode.threadNotFound, ["threadId"]) };
       const fallbackRecipients = thread.participants
         .filter((participant) => !participant.isSelf && participant.identifier)
         .map((participant) => participant.identifier);
@@ -208,13 +217,6 @@ export class SaveDraftInteractor extends AuthenticatedInteractor<SaveDraftData, 
       };
     }
 
-    const thread = await this.repo.findOrCreateDraftThread({
-      connectedAccountId: account.id,
-      provider: account.provider,
-      recipients,
-      ...(recipients.length === 0 ? { cc: data.cc, bcc: data.bcc } : {}),
-    });
-
-    return { ok: true, thread, recipients, account };
+    return { ok: true, thread: null, recipients, account };
   }
 }

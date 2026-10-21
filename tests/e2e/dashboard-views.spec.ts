@@ -252,6 +252,18 @@ test("names the widgets of a view that is not shown and renames it from its chip
   const name = page.locator("#view-editor-name");
   await expect(name).toBeVisible();
   await expect(name).toHaveValue("Site Hamburg");
+  const bar = page.locator('[data-slot="unsaved-changes-bar"]');
+  await expect(bar).toHaveCount(0);
+  await name.fill("Discarded site");
+  await expect(bar).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(confirm).toBeVisible();
+  await confirm.getByRole("button", { name: englishMessages.Common.actions.cancel, exact: true }).click();
+  await expect(confirm).toHaveCount(0);
+  await expect(name).toHaveValue("Discarded site");
+  await bar.getByRole("button", { name: englishMessages.Common.actions.cancel, exact: true }).click();
+  await expect(name).toHaveValue("Site Hamburg");
+  await expect(bar).toHaveCount(0);
   await name.fill("Site Bremen");
   await page
     .getByRole("button", {

@@ -8,6 +8,7 @@ import { RootDocument } from "./root-document";
 import { marketingAccountOf } from "@/features/auth/marketing-account";
 import { resolveRequestAccountState } from "@/features/auth/next/resolve-account-state";
 import { NotFoundPageView } from "@/components/shared/not-found-page-view";
+import { env } from "@/env";
 
 export default async function GlobalNotFoundPage() {
   const [account, displayLanguage, messages] = await Promise.all([
@@ -18,7 +19,7 @@ export default async function GlobalNotFoundPage() {
 
   return (
     <RootDocument displayLanguage={displayLanguage} messages={messages}>
-      <MarketingShell account={marketingAccountOf(account)}>
+      <MarketingShell account={marketingAccountOf(account)} appMode={env.APP_MODE}>
         <NotFoundPageView variant="marketing" />
       </MarketingShell>
     </RootDocument>

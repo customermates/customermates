@@ -12,6 +12,7 @@ import {
   Link as LinkIcon,
   Minus,
   Quote,
+  SquareCode,
   Heading1,
   Heading2,
   Heading3,
@@ -122,6 +123,12 @@ export function SlashMenu({ editor, anchorRect, onClose }: Props) {
         title: t("Editor.blockQuote"),
         icon: Quote,
         run: () => chain().toggleBlockquote().run(),
+      },
+      {
+        key: "codeBlock",
+        title: t("Editor.codeBlock"),
+        icon: SquareCode,
+        run: () => chain().toggleCodeBlock().run(),
       },
       {
         key: "divider",

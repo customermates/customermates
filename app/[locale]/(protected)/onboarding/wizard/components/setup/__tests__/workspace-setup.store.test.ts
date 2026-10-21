@@ -123,11 +123,39 @@ describe("WorkspaceSetupStore", () => {
     expect(actions.getWorkspaceSetupStatusAction).toHaveBeenCalled();
   });
 
-  it("blocks Looks right on the data screen until a chosen spreadsheet is uploaded", () => {
+  it("shows the missing answers with a toast when Next is pressed too early and hides them on another screen", async () => {
+    const store = storeWith();
+    store.setAnswer("purpose", { format: "multipleChoice", values: ["clients"], custom: [] });
+    expect(store.answerMissing("currency")).toBe(false);
+
+    expect(store.showMissingAnswers("Must not be blank.")).toBe(true);
+
+    expect(toast).toHaveBeenCalledWith({ errors: ["Must not be blank."] });
+    expect(store.answerMissing("currency")).toBe(true);
+    expect(store.answerMissing("purpose")).toBe(false);
+    expect(store.answerMissing("country")).toBe(false);
+    store.setAnswer("currency", { format: "singleChoice", value: "EUR" });
+    expect(store.answerMissing("currency")).toBe(false);
+    expect(store.missingAnswers).not.toContain("currency");
+    expect(store.answerMissing(store.missingAnswers[0])).toBe(true);
+
+    answerWorkspaceScreen(store, "Acme");
+    expect(store.showMissingAnswers("Must not be blank.")).toBe(false);
+    expect(toast).toHaveBeenCalledOnce();
+    await store.confirmScreen();
+    expect(store.screenIndex).toBe(1);
+    store.showMissingAnswers("Must not be blank.");
+    store.goToScreen(0);
+    expect(store.missingShown).toBe(false);
+  });
+
+  it("blocks Next on the data screen until a chosen spreadsheet is uploaded", () => {
     const store = storeWith();
     while (!store.isLastScreen) store.screenIndex += 1;
     store.setAnswer("existingData", { format: "singleChoice", value: "spreadsheet" });
     expect(store.canConfirmScreen).toBe(false);
+    store.showMissingAnswers("Must not be blank.");
+    expect(store.answerMissing("existingData")).toBe(true);
 
     store.hydrate({ available: true, setup: setupView({ spreadsheet: { fileName: "contacts.csv" } }) });
     expect(store.canConfirmScreen).toBe(true);

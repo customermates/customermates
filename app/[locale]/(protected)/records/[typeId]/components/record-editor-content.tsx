@@ -26,10 +26,7 @@ import { RecordEditorActions, RecordHeaderActions, RecordPageActions } from "./r
 import { EntityDetailPanels, type EntityDetailPanelLayout } from "@/components/entity-detail/entity-detail-panels";
 import { useRecordEditorDeletion } from "./use-record-deletion";
 import { RecordActivitiesPanel } from "@/features/messaging/activities/record-activities-panel";
-import { Alert } from "@/components/shared/alert";
-import { AppLink } from "@/components/shared/app-link";
 import { recordDisplayName } from "@/features/records/record-display-name";
-import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 const RecordEditorRecovery = observer(function RecordEditorRecovery({ store }: { store: RecordEditorStore }) {
   const t = useTranslations();
@@ -140,25 +137,6 @@ const RecordEditorBody = observer(function RecordEditorBody({
   const name = store.record ? recordDisplayName(title, type?.label, t) : (type?.label ?? t("RecordModel.record"));
   const notices = (
     <>
-      {store.record?.protectedKind === "membershipAuthorization" && (
-        <div className="px-6 pb-3">
-          <Alert color="warning">
-            <p className="text-x-sm">
-              {t.rich("Common.systemTasks.userPendingAuthorization.alert", {
-                link: (chunks) =>
-                  store.presentation.systemActions?.includes("manageMembership") ? (
-                    <AppLink inheritSize appearance="inline" href={settingsHref("members")}>
-                      {chunks}
-                    </AppLink>
-                  ) : (
-                    <span>{chunks}</span>
-                  ),
-              })}
-            </p>
-          </Alert>
-        </div>
-      )}
-
       {store.pendingOperationId && (
         <div className="px-6 pb-3">
           <RecordOperationProgress

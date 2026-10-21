@@ -101,7 +101,7 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
             return failNotFound(CustomErrorCode.recordNotFound);
         }
         const availableSources: ActivityKind[] = [];
-        if (policy.allowedSystem("auditLog", "readAll")) {
+        if (policy.allowedSystem("activityLog", "readAll")) {
           availableSources.push(
             ...CHANGE_ACTIVITY_KINDS.filter(
               (kind) => kind !== "configuration" || policy.canManageSchema || policy.canManageRoles,
@@ -216,7 +216,11 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
           const parsed = RecordEventPayloadSchema.safeParse(event.payload);
           if (!parsed.success) continue;
           const changes = await this.history.redact(parsed.data, model, policy, "history", trashed);
-          if (!changes || !["record.created", "record.updated", "record.deleted"].includes(event.kind)) continue;
+          if (
+            !changes ||
+            !["record.created", "record.updated", "record.deleted", "record.restored"].includes(event.kind)
+          )
+            continue;
           recordChanges.push({ event, changes });
         }
         const memberIds = (changes: NonNullable<RecordHistoryChanges>) => [
@@ -257,7 +261,7 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
             id: event.id,
             at: event.createdAt,
             actor: event.actor,
-            event: event.kind as "record.created" | "record.updated" | "record.deleted",
+            event: event.kind as "record.created" | "record.updated" | "record.deleted" | "record.restored",
             changes,
             members: members.filter((member) => referenced.has(member.id)),
             lists: Object.fromEntries(

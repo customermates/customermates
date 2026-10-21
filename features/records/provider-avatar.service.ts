@@ -181,7 +181,7 @@ export class ProviderAvatarService {
           );
           if (!field || field.behavior.kind !== "input") continue;
           const record = await this.records.getRecordUnscoped(this.companyId, ref);
-          if (!record || record.protectedKind) continue;
+          if (!record) continue;
           const previous = decodeRecordValue(
             record.values.find((value) => value.fieldId === field.id),
             field,
@@ -316,7 +316,7 @@ export class ProviderAvatarService {
               );
               if (!field || field.behavior.kind !== "input") continue;
               const record = await this.records.getRecordUnscoped(this.companyId, ref);
-              if (!record || record.protectedKind) continue;
+              if (!record) continue;
               const previous = decodeRecordValue(
                 record.values.find((value) => value.fieldId === field.id),
                 field,
@@ -383,7 +383,7 @@ export class ProviderAvatarService {
             const refs = await journal.repository.getRecordRefsCompanyWide(field.typeId, cursor.afterId, BATCH);
             if (field.behavior.kind !== "snapshot") {
               const calculator = this.calculations.withRepository(journal.repository);
-              for (const ref of refs) await calculator.calculateField(model, ref, field.id, LIMIT);
+              await calculator.calculateFields(model, refs, field.id, LIMIT);
             }
             await journal.persist();
             await this.records.updateOperationUnscoped(this.companyId, operationId, {

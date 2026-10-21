@@ -3,6 +3,7 @@ import type { Page } from "@playwright/test";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { test, expect, collectPageErrors } from "./fixtures";
 import { runNamedRowAction } from "./record-rows";
+import { e2eAppMode } from "./workspace-switching";
 
 test("moves a routine to Trash, stops listing it and restores it from Trash", async ({
   page,
@@ -10,6 +11,7 @@ test("moves a routine to Trash, stops listing it and restores it from Trash", as
   companyId,
   workspace,
 }) => {
+  test.skip(e2eAppMode() === "self-hosted", "Routines are cloud-only");
   const errors = collectPageErrors(page);
   await database.query(
     `INSERT INTO "Routine" (id, "companyId", "ownerUserId", name, prompt, enabled, "triggerKind", "cronExpression", timezone, "updatedAt")

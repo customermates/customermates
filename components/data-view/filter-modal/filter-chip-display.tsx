@@ -45,6 +45,16 @@ export const FilterChipValue = observer(
     const t = useTranslations();
     const { items, getItems, isLoading } = useFilterSelectItems(filter, customColumns);
     const intlStore = useHydratedIntlStore();
+    if (filter.field === RECORD_CONTRIBUTION_FILTER) {
+      const scope = recordContributionFromFilter(filter);
+      return (
+        <>
+          {scope
+            ? `${scope.title}${scope.groupLabel ? ` · ${scope.groupLabel}` : ""}`
+            : t("Common.filters.unavailableValue")}
+        </>
+      );
+    }
 
     const prefix = (
       <>
@@ -119,3 +129,4 @@ export const FilterChipValue = observer(
     );
   },
 );
+import { RECORD_CONTRIBUTION_FILTER, recordContributionFromFilter } from "@/features/records/record-contribution-link";

@@ -101,7 +101,7 @@ export const ActivityEntryDtoSchema = z.union([
     id: z.string(),
     at: z.date(),
     actor: ActorSchema,
-    event: z.enum(["record.created", "record.updated", "record.deleted"]),
+    event: z.enum(["record.created", "record.updated", "record.deleted", "record.restored"]),
     changes: RecordHistoryChangesSchema,
     members: z.array(ActivityMemberSchema),
     lists: z.record(z.uuid(), ActivityListAppearanceSchema),

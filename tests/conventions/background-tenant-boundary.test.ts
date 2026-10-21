@@ -23,6 +23,7 @@ const AUTHENTICATED_TENANT_ENTRYPOINTS = [
   "features/onboarding-wizard/save-onboarding-wizard-progress.interactor.ts",
   "features/auth/route-guard.service.ts",
   "features/record-files/record-file-grant-tenant.ts",
+  "features/planner/calendar-subscription-tenant.ts",
   "features/user/register/register-user.interactor.ts",
   "features/workspace/create-workspace.interactor.ts",
   "features/workspace/join-workspace.interactor.ts",

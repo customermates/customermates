@@ -8,9 +8,10 @@ import type { InteractorFailure, SerializedInteractorFailure } from "../validati
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
-import { isRedirect } from "@/features/auth/auth-outcome";
+import { isRedirect, redirectTo } from "@/features/auth/auth-outcome";
 import { isBusyDatabaseError } from "@/core/errors/prisma-client-error";
 import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
+import { EmailVerificationRequiredError } from "@/core/auth/email-verification-required-error";
 import { isWorkspaceChangedCode, markWorkspaceChanged } from "@/core/errors/workspace-changed";
 import { WorkspaceChangedError } from "@/core/errors/workspace-changed-error";
 import {
@@ -34,7 +35,7 @@ export async function settleActionResult<T>(result: ActionInput<T>): Promise<Awa
   return settleOutcome<Awaited<Validated<T>> | Redirect>(result);
 }
 
-export async function settleOutcome<R>(result: R | Promise<R>): Promise<R | InteractorFailure> {
+export async function settleOutcome<R>(result: R | Promise<R>): Promise<R | InteractorFailure | Redirect> {
   try {
     return await result;
   } catch (error) {
@@ -42,6 +43,7 @@ export async function settleOutcome<R>(result: R | Promise<R>): Promise<R | Inte
     if (error instanceof WorkspaceChangedError) return failConflict(CustomErrorCode.workspaceChanged);
     if (error instanceof ForbiddenError && error.code === AppErrorCode.permissionDenied)
       return failAuthorization(CustomErrorCode.permissionDenied);
+    if (error instanceof EmailVerificationRequiredError) return redirectTo("/auth/verify-email");
     if (error instanceof ForbiddenError && error.code === AppErrorCode.inactiveUser)
       return failAuthorization(CustomErrorCode.userInactive);
     if ((error as { code?: unknown } | null)?.code === "P2028")

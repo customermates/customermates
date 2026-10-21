@@ -388,12 +388,9 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(await runWithoutTenant(() => prisma.recordTypeGrant.count({ where: { companyId: ws.companyId } }))).toBe(0);
     const model = await ws.run(() => createTestRecordRepo().getModel());
     const reference = await references(ws, setupId);
-    expect(model.capabilities.map((binding) => [binding.kind, binding.typeId]).sort()).toEqual(
-      [
-        ["avatar", reference("$list.contact")],
-        ["membershipAuthorization", reference("$list.task")],
-      ].sort(),
-    );
+    expect(model.capabilities.map((binding) => [binding.kind, binding.typeId])).toEqual([
+      ["avatar", reference("$list.contact")],
+    ]);
     const lineItems = () =>
       runWithoutTenant(() =>
         prisma.crmRecord.count({
@@ -437,9 +434,7 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(replayed?.status).toBe("completed");
     expect(replayed?.created).toEqual(setup.created);
     expect(
-      await runWithoutTenant(() =>
-        prisma.crmRecord.count({ where: { companyId: ws.companyId, deletedAt: null, protectedKind: null } }),
-      ),
+      await runWithoutTenant(() => prisma.crmRecord.count({ where: { companyId: ws.companyId, deletedAt: null } })),
     ).toBe(18);
     expect(
       await runWithoutTenant(() => prisma.widget.count({ where: { companyId: ws.companyId, deletedAt: null } })),
@@ -471,14 +466,15 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(view.results.widgets).toHaveLength(agencyPlan.dashboard.widgets.length);
   });
 
-  it("lets a member invited after the build wait for approval in the planned tasks list", async () => {
+  it("lets a member invited after the build wait for approval without adding a record", async () => {
     const ws = await workspace();
     const { setupId, planRevision } = await planned(ws);
     await ws.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision }));
     expect(await ws.run(() => di.getWorkspaceSetupBuildService().runPhase(setupId, "dataModel", false, RUN_ID))).toBe(
       "settled",
     );
-    const reference = await references(ws, setupId);
+    const records = () => runWithoutTenant(() => prisma.crmRecord.count({ where: { companyId: ws.companyId } }));
+    const before = await records();
     const email = `${randomUUID()}@example.test`;
     const authUser = await runWithoutTenant(() =>
       prisma.authUser.create({ data: { id: randomUUID(), email, name: "Invited Member" } }),
@@ -501,14 +497,12 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
           { target: { type: "invitation", companyId: ws.companyId } },
         ),
       ).toEqual({ ok: true, data: { redirectTo: "/auth/pending" } });
+      expect(await records()).toBe(before);
       expect(
         await runWithoutTenant(() =>
-          prisma.crmRecord.findMany({
-            where: { companyId: ws.companyId, protectedKind: "membershipAuthorization" },
-            select: { typeId: true },
-          }),
+          prisma.user.count({ where: { companyId: ws.companyId, email, status: "pendingAuthorization" } }),
         ),
-      ).toEqual([{ typeId: reference("$list.task") }]);
+      ).toBe(1);
     } finally {
       await runWithoutTenant(() => prisma.authUser.delete({ where: { id: authUser.id } }));
     }
@@ -669,13 +663,8 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
       status: "planning",
       plan: { status: "running", parts: { model: "running", knowledge: "running", views: "waiting" } },
     });
-    const watched = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
-    expect(watched?.interview.watchedAt).toEqual(expect.any(String));
-    expect(watched?.interview.planQueuedAt).toEqual(expect.any(String));
-    await status(ws);
-    expect((await ws.run(() => di.getWorkspaceSetupRepo().get(setupId)))?.interview.watchedAt).toBe(
-      watched?.interview.watchedAt,
-    );
+    const queuedSetup = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
+    expect(queuedSetup?.interview.planQueuedAt).toEqual(expect.any(String));
     expect((await ws.run(() => di.getPlanWorkspaceSetupInteractor().invoke({ setupId }))).ok).toBe(false);
 
     await ws.run(() =>

@@ -26,8 +26,7 @@ vi.mock("@/env", () => ({
 
 const {
   getAdminUpdateUserDetailsInteractor,
-  getApplyRecordConfigurationInteractor,
-  getCountSystemTasksInteractor,
+  getCountPendingMembersInteractor,
   getEventService,
   getUpdateUserDetailsInteractor,
   getUpsertRecordActivityWidgetInteractor,
@@ -71,10 +70,8 @@ const owner: TenantUser = createMockUser({
 
 const asOwner = <T>(work: () => Promise<T>) => runWithTenant(owner, work);
 const state = () => asOwner(() => createTestRecordRepo().getState());
-const membershipTasks = () =>
-  runWithoutTenant(() =>
-    prisma.crmRecord.count({ where: { companyId: company, protectedKind: "membershipAuthorization" } }),
-  );
+const records = () => runWithoutTenant(() => prisma.crmRecord.count({ where: { companyId: company } }));
+const pendingMembers = () => asOwner(() => getCountPendingMembersInteractor().invoke());
 
 describeDatabase("a workspace without a record model", { timeout: 120_000 }, () => {
   beforeAll(async () => {
@@ -166,8 +163,8 @@ describeDatabase("a workspace without a record model", { timeout: 120_000 }, () 
     ).toMatchObject({
       status: Status.pendingAuthorization,
     });
-    expect(await membershipTasks()).toBe(0);
-    expect(await asOwner(() => getCountSystemTasksInteractor().invoke())).toMatchObject({ ok: true, data: 0 });
+    expect(await records()).toBe(0);
+    expect(await pendingMembers()).toEqual({ ok: true, data: 1 });
   });
 
   it("approves the pending member in Members", async () => {
@@ -178,7 +175,8 @@ describeDatabase("a workspace without a record model", { timeout: 120_000 }, () 
       getAdminUpdateUserDetailsInteractor().invoke({ userId: member.id, status: Status.active, roleId: memberRole }),
     );
     expect(approved, JSON.stringify(approved)).toMatchObject({ ok: true, data: { status: Status.active } });
-    expect(await membershipTasks()).toBe(0);
+    expect(await records()).toBe(0);
+    expect(await pendingMembers()).toEqual({ ok: true, data: 0 });
   });
 
   it("creates a role at revision 0 and stores an empty first revision", async () => {
@@ -195,63 +193,5 @@ describeDatabase("a workspace without a record model", { timeout: 120_000 }, () 
     expect(created, JSON.stringify(created)).toMatchObject({ ok: true, data: { schemaRevision: 1 } });
     expect(await state()).toMatchObject({ revision: 1 });
     expect(await asOwner(() => createTestRecordRepo().getModel())).toMatchObject({ revision: 1, types: [] });
-  });
-
-  it("lets an admin designate the first membership list once and refuses a second one", async () => {
-    const configure = (revision: number, operations: unknown[]) =>
-      asOwner(() =>
-        getApplyRecordConfigurationInteractor().invoke({
-          expectedRevision: revision,
-          idempotencyKey: randomUUID(),
-          operations,
-        } as never),
-      );
-    const list = (reference: string, label: string) => ({
-      operation: "createType",
-      reference,
-      label,
-      pluralLabel: `${label}s`,
-      description: "",
-      icon: "list",
-      embedded: false,
-      accessPresetId: null,
-    });
-    const membership = (id: string, typeId: string) => ({
-      operation: "putCapability",
-      capability: { id, kind: "membershipAuthorization", typeId, fields: [] },
-    });
-    const refused = {
-      ok: false,
-      error: { issues: [expect.objectContaining({ params: expect.objectContaining({ error: "recordProtected" }) })] },
-    };
-
-    expect(
-      await configure(1, [
-        list("$list.todo", "To-do"),
-        list("$list.chore", "Chore"),
-        membership("$cap.first", "$list.todo"),
-        membership("$cap.second", "$list.chore"),
-      ]),
-    ).toMatchObject(refused);
-    expect(
-      await configure(1, [
-        list("$list.todo", "To-do"),
-        list("$list.chore", "Chore"),
-        membership("$cap.first", "$list.todo"),
-      ]),
-    ).toMatchObject({ ok: true, data: { schemaRevision: 2 } });
-    const model = await asOwner(() => createTestRecordRepo().getModel());
-    const host = model.capabilities.find((binding) => binding.kind === "membershipAuthorization");
-    const chore = model.types.find((type) => type.label === "Chore");
-    expect(model.types.find((type) => type.id === host?.typeId)?.label).toBe("To-do");
-    expect(await configure(2, [membership(randomUUID(), chore?.id ?? "")])).toMatchObject(refused);
-
-    const member = await runWithoutTenant(() =>
-      prisma.user.findUniqueOrThrow({ where: { companyId_email: { companyId: company, email: memberEmail } } }),
-    );
-    expect(await membershipTasks()).toBe(0);
-    expect(
-      await asOwner(() => getAdminUpdateUserDetailsInteractor().invoke({ userId: member.id, status: Status.inactive })),
-    ).toMatchObject({ ok: true });
   });
 });

@@ -115,11 +115,13 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
   setTrash = (trash: TrashedRecordInfo | null) => {
     this.trash = trash;
   };
-  captureNavigationDiscard = () => () => {
-    if (this.rootStore.recordWorkspaceStore?.editor !== this) return;
-    this.rootStore.recordWorkspaceStore.clearDraftHandoff();
-    this.resetForm();
-    this.close();
+  captureNavigationDiscard = () => {
+    const session = this.sessionGeneration;
+    return () => {
+      if (session !== this.sessionGeneration || this.rootStore.recordWorkspaceStore?.editor !== this) return;
+      this.resetForm();
+      this.close();
+    };
   };
   get sessionKey() {
     return this.sessionGeneration;
@@ -489,7 +491,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
   onSubmit = async () => {
     if (!this.isOpen || this.isReadOnly || this.isLoading || this.pendingOperationId) return;
     const missing = this.fields.filter((field) => {
-      if (!field.required || field.behavior.kind !== "input" || this.record?.protectedKind) return false;
+      if (!field.required || field.behavior.kind !== "input") return false;
       if (this.record?.fields.find((value) => value.fieldId === field.id)?.result.state === "restricted") return false;
       if (
         this.record &&

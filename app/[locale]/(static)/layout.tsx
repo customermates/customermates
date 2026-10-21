@@ -22,7 +22,7 @@ export default async function StaticLayout({ children, params }: Props) {
 
   return (
     <>
-      <MarketingShell>{children}</MarketingShell>
+      <MarketingShell appMode={env.APP_MODE}>{children}</MarketingShell>
 
       <Toaster />
 

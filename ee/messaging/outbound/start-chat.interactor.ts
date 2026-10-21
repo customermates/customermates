@@ -1,13 +1,15 @@
 import type { StartChatThreadRepo } from "./start-chat-thread.repo";
 import type { StartChatContactChannel, StartChatContactRepo } from "./start-chat-contact.repo";
 import type { RecordIdentityReader } from "@/features/records/record-identity-reader";
-import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
+import { fail } from "@/core/validation/interactor-failure-server";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { ConnectedAccount } from "@/generated/prisma";
-import type { MessagingAttendee } from "../messaging.schema";
+import type { MessagingAttendee, MessagingMessage } from "../messaging.schema";
 import type { MessagingService, StartChatSpecifics } from "../messaging.service";
+import type { DraftSendClaim } from "../draft-send";
+import type { DraftSendGate } from "./draft-send-gate";
 
 import * as Sentry from "@sentry/node";
 import { randomUUID } from "node:crypto";
@@ -28,22 +30,18 @@ import {
 } from "@/generated/prisma";
 import {
   DraftRevisionSchema,
-  draftRevisionMatches,
-  draftThreadRecipientSetsMatch,
+  draftBindingConflict,
   draftUpdatedAtFromRevision,
   hasCompleteDraftBinding,
 } from "../draft-thread";
-import {
-  LINKEDIN_PRODUCTS,
-  LINKEDIN_PRODUCT_PRIMARY_INBOX,
-  isDraftThreadId,
-  isHandleProvider,
-  type LinkedinProduct,
-} from "../provider";
+import { providerSendOutcome } from "../draft-send";
+import { chatSendContentHash } from "../draft-send-copy";
+import { LINKEDIN_PRODUCTS, LINKEDIN_PRODUCT_PRIMARY_INBOX, isHandleProvider, type LinkedinProduct } from "../provider";
 import { retryAfterPhrase } from "../retry-after.server";
 import { EMPTY_ATTENDEE, buildChatAttendee } from "../unipile.mappers";
 import { UnipileInboxSchema } from "../unipile.schema";
 import { SendAttachmentSchema } from "./send-email.interactor";
+import { SentMessageResultSchema, toSentMessageResult, type SentMessageResult } from "./sent-message.schema";
 
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
 import { accountNeedsReconnect } from "../account-health";
@@ -70,7 +68,12 @@ export const BaseStartChatInputSchema = z.object({
     .describe("Subject line of the InMail. Required for sales_navigator and recruiter"),
   inmailSignature: z.string().max(998).optional().describe("Sender signature. Required for recruiter"),
   attachments: z.array(SendAttachmentSchema).max(20).optional(),
-  draftMessageId: z.uuid().optional().describe("Saved new-conversation draft to reconcile after delivery"),
+  draftMessageId: z
+    .uuid()
+    .optional()
+    .describe(
+      "Saved new-conversation draft to send. Each draft revision is sent at most once: repeating the call returns the first result",
+    ),
   draftRevision: DraftRevisionSchema.optional().describe(
     "Opaque revision returned with the saved draft; required whenever draftMessageId is provided",
   ),
@@ -109,8 +112,6 @@ export const StartChatInputSchema = BaseStartChatInputSchema.superRefine((d, ctx
 
 export type StartChatData = Data<typeof StartChatInputSchema>;
 
-type StartChatResult = { threadId: string | null };
-
 type ResolvedAttendees =
   | { ok: true; ids: string[]; attendees: MessagingAttendee[] }
   | { ok: false; error: CustomErrorCode; retryAfterSeconds?: number };
@@ -122,7 +123,7 @@ const PRODUCT_LABEL: Record<LinkedinProduct, string> = {
 };
 
 @TenantInteractor({ resource: Resource.inboxMessages, manage: "create" })
-export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, StartChatResult> {
+export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, SentMessageResult> {
   constructor(
     private accountRepo: FindUsableAccountRepo,
     private contactRepo: StartChatContactRepo,
@@ -130,69 +131,134 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
     private threadRepo: StartChatThreadRepo,
     private entitlements: EntitlementService,
     private identities: Pick<RecordIdentityReader, "resolve">,
+    private draftSends: DraftSendGate,
   ) {
     super();
   }
 
   @Write({
     input: StartChatInputSchema,
+    output: SentMessageResultSchema,
     precheck: (self, data, ctx) => self.precheck(data, ctx),
     tx: false,
   })
-  async invoke(data: StartChatData): Validated<StartChatResult> {
+  async invoke(data: StartChatData): Validated<SentMessageResult> {
     const denied = await this.entitlements.require("messaging");
     if (denied) return denied;
 
     const account = await this.accountRepo.findUsableAccountByIdOrThrow(data.connectedAccountId);
     if (accountNeedsReconnect(account)) return fail(CustomErrorCode.unipileDisconnectedAccount, []);
-    const draft = data.draftMessageId ? await this.threadRepo.findDraftById({ messageId: data.draftMessageId }) : null;
-    if (data.draftMessageId && !draft) return failNotFound(CustomErrorCode.draftMessageNotFound);
-    if (draft && (!data.draftRevision || !draftRevisionMatches(draft.updatedAt, data.draftRevision)))
-      return failNotFound(CustomErrorCode.draftMessageNotFound);
-    if (
-      draft &&
-      (draft.connectedAccountId !== account.id ||
-        !isDraftThreadId(draft.unipileThreadId) ||
-        !draftThreadRecipientSetsMatch(account.provider, draft.recipientIdentifiers, data.attendeeIdentifiers))
-    )
-      return failNotFound(CustomErrorCode.draftMessageNotFound);
 
-    const attendees = isHandleProvider(account.provider)
-      ? await this.resolveAttendees(account, data.attendeeIdentifiers)
-      : this.plainAttendees(data.attendeeIdentifiers);
+    const draft =
+      data.draftMessageId && data.draftRevision
+        ? await this.threadRepo.findDraftById({ messageId: data.draftMessageId })
+        : null;
+    const contentHash = data.draftMessageId
+      ? chatSendContentHash({ text: data.text, attachments: data.attachments })
+      : "";
+    if (data.draftMessageId && data.draftRevision) {
+      if (!draft) {
+        const missing = await this.draftSends.openMissing({
+          draftMessageId: data.draftMessageId,
+          draftRevision: draftUpdatedAtFromRevision(data.draftRevision),
+          connectedAccountId: account.id,
+          contentHash,
+        });
+        return "replay" in missing
+          ? this.draftSends.replay(missing.replay, { connectedAccountId: account.id, threadId: null })
+          : missing.failure;
+      }
+      const conflict = draftBindingConflict({
+        provider: account.provider,
+        draft,
+        connectedAccountId: account.id,
+        draftRevision: data.draftRevision,
+        replyThreadId: null,
+        to: data.attendeeIdentifiers,
+      });
+      if (conflict) return this.draftSends.refuseBinding(conflict, "attendeeIdentifiers");
+    }
+
+    let claim: DraftSendClaim | null = null;
+    if (draft && data.draftRevision) {
+      const gate = await this.draftSends.open({
+        draftMessageId: draft.id,
+        draftRevision: draftUpdatedAtFromRevision(data.draftRevision),
+        connectedAccountId: account.id,
+        contentHash,
+      });
+      if ("replay" in gate)
+        return this.draftSends.replay(gate.replay, { connectedAccountId: account.id, threadId: null });
+      if ("failure" in gate) return gate.failure;
+      claim = gate.claim;
+    }
+
+    const product = data.linkedinProduct ?? "classic";
+    let attendees: ResolvedAttendees;
+    let inboxId: string | undefined;
+    try {
+      attendees = isHandleProvider(account.provider)
+        ? await this.resolveAttendees(account, data.attendeeIdentifiers)
+        : this.plainAttendees(data.attendeeIdentifiers);
+      inboxId = attendees.ok ? await this.resolveInboxId(account, product) : undefined;
+    } catch (err) {
+      if (claim) await this.draftSends.release(claim);
+      throw err;
+    }
 
     if (!attendees.ok) {
+      if (claim) await this.draftSends.release(claim);
       return fail(attendees.error, [], {
         retryAfter: await retryAfterPhrase(attendees.retryAfterSeconds),
       });
     }
 
-    const product = data.linkedinProduct ?? "classic";
-    const inboxId = await this.resolveInboxId(account, product);
-
-    if (account.provider === MessagingProvider.linkedin && product !== "classic" && !inboxId)
+    if (account.provider === MessagingProvider.linkedin && product !== "classic" && !inboxId) {
+      if (claim) await this.draftSends.release(claim);
       return fail(CustomErrorCode.linkedinInboxUnavailable, [], { product: PRODUCT_LABEL[product] });
+    }
 
-    const res = await this.messagingService.startChat({
-      accountId: account.unipileAccountId,
-      usersIds: attendees.ids,
-      text: data.text,
-      name: data.chatName,
-      attachments: data.attachments,
-      inboxId,
-      specifics: this.buildSpecifics(data),
-    });
+    let res: Awaited<ReturnType<MessagingService["startChat"]>>;
+    try {
+      res = await this.messagingService.startChat({
+        accountId: account.unipileAccountId,
+        usersIds: attendees.ids,
+        text: data.text,
+        name: data.chatName,
+        attachments: data.attachments,
+        inboxId,
+        specifics: this.buildSpecifics(data),
+      });
+    } catch (err) {
+      if (claim) await this.draftSends.settle({ claim, state: "unknown" });
+      throw err;
+    }
 
-    if (!res.ok) return fail(res.error, [], { retryAfter: await retryAfterPhrase(res.retryAfterSeconds) });
+    const started = res.ok ? res.data : null;
+    if (!res.ok && providerSendOutcome(res.error) !== "accepted") {
+      if (claim) {
+        if (providerSendOutcome(res.error) === "unknown") await this.draftSends.settle({ claim, state: "unknown" });
+        else await this.draftSends.release(claim);
+      }
+      return fail(res.error, [], { retryAfter: await retryAfterPhrase(res.retryAfterSeconds) });
+    }
 
-    let threadId: string | null = null;
+    if (claim && draft) {
+      await this.draftSends.completeRemovingDraft({
+        claim,
+        draftMessageId: draft.id,
+        unipileMessageId: started?.messageId ?? null,
+        providerMessageId: null,
+      });
+    }
 
-    if (res.data.chatId) {
+    let persisted: MessagingMessage | null = null;
+    if (started?.chatId) {
       try {
-        const persisted = await this.threadRepo.persistOutboundMessageOrThrow({
+        persisted = await this.threadRepo.persistOutboundMessageOrThrow({
           connectedAccountId: account.id,
           message: {
-            unipileMessageId: res.data.messageId ?? `sent_${randomUUID()}`,
+            unipileMessageId: started.messageId ?? `sent_${randomUUID()}`,
             providerMessageId: null,
             provider: account.provider,
             direction: MessagingMessageDirection.outbound,
@@ -208,28 +274,17 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
             isHidden: false,
             sentAt: new Date(),
             reactions: [],
-            unipileThreadId: res.data.chatId,
+            unipileThreadId: started.chatId,
             threadType: attendees.attendees.length > 1 ? MessagingThreadType.group : MessagingThreadType.single,
           },
         });
-        threadId = persisted.messagingThreadId;
+        if (claim) await this.draftSends.record(claim, persisted);
       } catch (err) {
         Sentry.captureException(err);
       }
     }
 
-    if (draft && data.draftRevision) {
-      try {
-        await this.threadRepo.discardDraftAfterSend({
-          messageId: draft.id,
-          expectedUpdatedAt: draftUpdatedAtFromRevision(data.draftRevision),
-        });
-      } catch (err) {
-        Sentry.captureException(err, { tags: { kind: "draft-discard-failure" } });
-      }
-    }
-
-    return { ok: true as const, data: { threadId } };
+    return { ok: true as const, data: toSentMessageResult({ message: persisted }) };
   }
 
   private async precheck(data: StartChatData, ctx: z.RefinementCtx) {

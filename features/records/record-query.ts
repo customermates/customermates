@@ -24,8 +24,6 @@ export function recordReadPredicate(
   record: Prisma.Sql,
   depth = 0,
 ): Prisma.Sql {
-  if (scope.protectedHidden)
-    return Prisma.sql`(${record}."protectedKind" IS NULL AND ${recordReadPredicate(companyId, { ...scope, protectedHidden: undefined }, record, depth)})`;
   if (scope.parent) {
     const parent = Prisma.raw(`"access_parent_${depth}"`);
     const link = Prisma.raw(`"access_link_${depth}"`);
@@ -52,13 +50,9 @@ export function fieldReadPredicate(
 ): Prisma.Sql {
   const fullyReadable = (scope: RecordReadScope | undefined, depth = 0): boolean =>
     Boolean(
-      scope &&
-        depth <= 12 &&
-        scope.access === "all" &&
-        !scope.protectedHidden &&
-        (!scope.parent || fullyReadable(scope.parent.scope, depth + 1)),
+      scope && depth <= 12 && scope.access === "all" && (!scope.parent || fullyReadable(scope.parent.scope, depth + 1)),
     );
-  if (model.types.every((type) => type.archived || fullyReadable(access.get(type.id)))) return Prisma.sql`TRUE`;
+  if (model.types.every((type) => fullyReadable(access.get(type.id)))) return Prisma.sql`TRUE`;
   const fields = new Map(model.fields.map((definition) => [definition.id, definition]));
   const relations = new Map(model.relationships.map((definition) => [definition.id, definition]));
   let sequence = 0;
@@ -451,7 +445,11 @@ export function compileRecordQuery(
         : filter.recordIds.length
           ? Prisma.sql`${target}.id IN (${Prisma.join(filter.recordIds)})`
           : Prisma.sql`FALSE`;
-    const matching = Prisma.sql`EXISTS (SELECT 1 FROM "RecordLink" ${link} JOIN "CrmRecord" ${target} ON ${target}."companyId" = ${companyId} AND ${target}."typeId" = ${typeId} AND ${target}.id = ${targetId} AND ${target}."deletedAt" IS NULL WHERE ${link}."companyId" = ${companyId} AND ${link}."relationId" = ${relation.id} AND ${link}."deletedAt" IS NULL AND ${sourceId} = ${record}.id AND ${recordReadPredicate(companyId, scope, target)} AND ${selected})`;
+    const linked = Prisma.sql`FROM "RecordLink" ${link} JOIN "CrmRecord" ${target} ON ${target}."companyId" = ${companyId} AND ${target}."typeId" = ${typeId} AND ${target}.id = ${targetId} AND ${target}."deletedAt" IS NULL WHERE ${link}."companyId" = ${companyId} AND ${link}."relationId" = ${relation.id} AND ${link}."deletedAt" IS NULL AND ${recordReadPredicate(companyId, scope, target)} AND ${selected}`;
+    const matching =
+      filter.operator === "any" && filter.recordIds?.length
+        ? Prisma.sql`${record}.id = ANY(ARRAY(SELECT ${sourceId} ${linked}))`
+        : Prisma.sql`EXISTS (SELECT 1 ${linked} AND ${sourceId} = ${record}.id)`;
     conditions.push(filter.operator === "none" ? Prisma.sql`NOT (${matching})` : matching);
   }
   for (const [index, filter] of (query.relatedFilters ?? []).entries()) {
@@ -511,6 +509,18 @@ export function compileRecordQuery(
     const related = Prisma.sql`EXISTS (SELECT 1 FROM ${Prisma.join(joins, " ")} WHERE ${Prisma.join(predicates, " AND ")})`;
     conditions.push(filter.operator === "none" ? Prisma.sql`NOT (${related})` : related);
   }
+  if (query.contribution) {
+    const { measure, group } = query.contribution;
+    conditions.push(
+      Prisma.sql`${record}.id IN (${compileRecordMeasure(
+        companyId,
+        group ? measure : { ...measure, groupBy: null },
+        model,
+        access,
+        group,
+      )})`,
+    );
+  }
   const ordering = query.sort.map((sort) => {
     if (sort.fieldId === MANUAL_ORDER_SORT_KEY) return Prisma.sql`${recordManualOrderKey(record)} ASC`;
     if (sort.fieldId === "system:createdAt" || sort.fieldId === "system:updatedAt") {
@@ -547,3 +557,4 @@ export function compileRecordQuery(
     count: Prisma.sql`${searchSource} SELECT COUNT(*)::integer AS count ${source}`,
   };
 }
+import { compileRecordMeasure } from "./record-measure";

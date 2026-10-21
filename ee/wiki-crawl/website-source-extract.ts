@@ -1,6 +1,7 @@
 import type { FormatCallback } from "html-to-text";
 
 import { compile } from "html-to-text";
+import { stripMarkdownHeadingIds } from "@/core/utils/markdown-headings";
 
 export const WIKI_SOURCE_MAX_CHARACTERS = 40_000;
 const WIKI_SOURCE_MAX_ANSWER_CHARACTERS = 2_000;
@@ -109,7 +110,7 @@ function pageTitle(html: string, text: string): string {
 
 export function extractWikiSourceDocument(html: string, url: string, contentType: string): WikiSourceDocument {
   if (contentType === "text/plain" || contentType === "text/markdown") {
-    const text = cleanText(html);
+    const text = cleanText(stripMarkdownHeadingIds(html));
     return {
       title: /^# (.+)$/mu.exec(text)?.[1]?.slice(0, 160) ?? "",
       text: text.slice(0, WIKI_SOURCE_MAX_CHARACTERS),

@@ -22,7 +22,7 @@ import { WorkspaceAvatar } from "@/app/components/workspaces/workspace-avatar";
 import { workspaceDisplayName } from "@/app/components/workspaces/workspace-identity";
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
-import { UnsavedChangesBar, unsavedChangesMode } from "@/components/forms/unsaved-changes-bar";
+import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { Alert } from "@/components/shared/alert";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
@@ -88,14 +88,7 @@ const WorkspaceGeneralViewContent = observer(({ deleteRefusal, leaveRefusal, wor
             required={editable}
           />
 
-          {unsavedChangesMode({ dirty: store.hasUnsavedChanges, editable }) === "bar" && (
-            <UnsavedChangesBar
-              anchorScope="settings-general"
-              placement="sticky"
-              saving={store.isLoading}
-              onCancel={store.resetForm}
-            />
-          )}
+          <UnsavedChangesBar anchorScope="settings-general" editable={editable} placement="sticky" store={store} />
 
           {demo ? null : (
             <section aria-labelledby="settings-general-danger-zone" className="flex flex-col gap-3">

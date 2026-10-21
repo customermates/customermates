@@ -71,6 +71,7 @@ export function liveRecordFilters(
 ): Filter[] {
   const fields = model.fields.filter((field) => field.typeId === typeId && !field.archived);
   return filters.flatMap((filter) => {
+    if (filter.field === RECORD_CONTRIBUTION_FILTER) return [filter];
     const live = withoutStaleOptions(filter, fields);
     if (!live) return [];
     try {
@@ -183,3 +184,4 @@ export function cleanRecordViewState(typeId: string, state: DataViewState, model
     ? cleaned
     : null;
 }
+import { RECORD_CONTRIBUTION_FILTER } from "./record-contribution-link";

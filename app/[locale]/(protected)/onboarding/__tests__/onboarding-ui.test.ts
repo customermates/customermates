@@ -47,9 +47,7 @@ function groupTag(markup: string) {
 
 describe("onboarding workspace UI", () => {
   it("uses the established large secondary selection buttons", () => {
-    const markup = renderToStaticMarkup(
-      createElement(OnboardingChoiceCard, { email: "person@example.com", trialDays: 7 }),
-    );
+    const markup = renderToStaticMarkup(createElement(OnboardingChoiceCard, { trialDays: 7 }));
     const claudeMarkup = renderToStaticMarkup(
       createElement(AiConnectionClaudeSetup, {
         baseUrl: "http://localhost:4000",
@@ -82,18 +80,8 @@ describe("onboarding workspace UI", () => {
   });
 
   it("offers the free trial only to a login that can still start one", () => {
-    const eligible = renderToStaticMarkup(
-      createElement(OnboardingChoiceCard, {
-        email: "person@example.com",
-        trialDays: 7,
-      }),
-    );
-    const consumed = renderToStaticMarkup(
-      createElement(OnboardingChoiceCard, {
-        email: "person@example.com",
-        trialDays: null,
-      }),
-    );
+    const eligible = renderToStaticMarkup(createElement(OnboardingChoiceCard, { trialDays: 7 }));
+    const consumed = renderToStaticMarkup(createElement(OnboardingChoiceCard, { trialDays: null }));
 
     expect(buttonContaining(eligible, "OnboardingChoice.create.title")).toContain("OnboardingChoice.create.note");
     expect(buttonContaining(consumed, "OnboardingChoice.create.title")).not.toContain("OnboardingChoice.create.note");

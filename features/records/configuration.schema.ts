@@ -40,8 +40,6 @@ export const DeletionBlockerSchema = z
       "calculation",
       "snapshotTrigger",
       "parentAccess",
-      "binding",
-      "protected",
       "routine",
       "webhook",
       "widget",
@@ -60,10 +58,10 @@ export const DeletionCleanupSchema = z
       .optional()
       .describe("For a deleted name field: the field that now names the records, or null when none is left."),
     effect: z
-      .enum(["countsRecords", "triggerChanged", "webhookPaused", "avatar", "calendar"])
+      .enum(["countsRecords", "widgetTrashed", "triggerChanged", "webhookPaused", "avatar", "calendar"])
       .optional()
       .describe(
-        "How the consumer changed: a widget now counts records, a webhook trigger lost the field or was removed, or the field left the avatar or calendar setting.",
+        "How the consumer changed: a widget now counts records or moves to Trash with its list, a webhook trigger lost the field or was removed, or the field left the avatar or calendar setting.",
       ),
   })
   .strict();
@@ -328,7 +326,7 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
               })
               .strict()
               .describe(
-                "Move a list, field (including a contact details field) or relationship to Trash, where it can be restored for 30 days. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion.",
+                "Move a list, field (including a contact details field) or relationship to Trash, where it can be restored for 30 days. Harmless references in views, layouts and widgets are removed. Deleting a list moves widgets that measure it or show its activity to the same Trash batch; calculations, parent access, bindings, routines and webhooks that use it block the deletion.",
               ),
             ...(trashOperations
               ? ([

@@ -88,7 +88,16 @@ export type RestoreTrashData = z.infer<typeof RestoreTrashSchema>;
 const TrashRestoreBlockerSchema = z
   .object({
     itemId: z.uuid(),
-    reason: z.enum(["listDeleted", "parentDeleted", "notFound", "requiresRestore", "nameTaken", "routineLimitReached"]),
+    reason: z.enum([
+      "listDeleted",
+      "parentDeleted",
+      "notFound",
+      "requiresRestore",
+      "nameTaken",
+      "routineLimitReached",
+      "incompatible",
+      "operationPending",
+    ]),
     typeId: z.uuid().nullable(),
     parent: RecordRefSchema.optional(),
     limit: z
@@ -122,6 +131,10 @@ export const TrashRestoreResultSchema = z.discriminatedUnion("status", [
     .object({
       status: z.literal("pending"),
       operationId: z.uuid(),
+      blocked: z
+        .array(TrashRestoreBlockerSchema)
+        .optional()
+        .describe("Items that stay in Trash; the rest are restored by the operation."),
       droppedViewReferences: z.array(DroppedViewReferencesSchema).optional(),
     })
     .strict(),
@@ -199,7 +212,6 @@ export const TrashedRecordSchema = z
     trash: TrashedRecordInfoSchema,
     model: RecordModelViewSchema.describe("The record type, its embedded types and the fields the caller can read."),
     permittedActions: z.array(z.string()).max(0).describe("Always empty: a record in Trash is read only."),
-    systemActions: z.array(z.literal("manageMembership")).max(0).optional(),
     canManageSchema: z.boolean(),
     linkColors: z.record(z.string(), z.enum(CHIP_COLORS)),
     linkIcons: z.record(z.string(), z.string()),

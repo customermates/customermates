@@ -17,7 +17,7 @@ Your role decides what you see. A page your role cannot read is missing from the
 |---|---|
 | Members, Roles | **Users & Roles** read access **All** (**Assigned** shows Members with only your own row) |
 | Billing | Every member; billing controls need **Company** **Edit** |
-| Activity | **Audit Log** read access **All** |
+| Activity | **Activity log** read access **All** |
 | Webhooks | **API & Webhooks** read access **All** |
 
 On Cloud, when the Terms or the DPA change, members see **Legal documents updated** with **Review Terms and DPA** and the date by which to accept. Only a member with the **Admin** role can accept, by ticking the checkbox and clicking **Accept and continue**; everyone else sees "A company administrator must accept by" that date. If nobody accepts in time, every page opens this screen until an Admin accepts.
@@ -33,7 +33,7 @@ Click [Add](app:settings/members?focus=add) on Members (or **Invite members** in
 - **Share link** shows one **Invitation link** for the whole workspace with a copy button. It is valid for 7 days ("Expires on" with the date) and reused until then; the first time the dialog opens after it expired, a new link is created. Anyone with the link can register, and it cannot be revoked early.
 - **Send emails** takes 1 to 20 addresses, separated by a comma or Enter. **Send invitations** emails each address the workspace link once and confirms with "Sent 3 invitations." (with the actual count).
 
-People who register join with status **Waiting for approval** and no role, and see **Waiting for Approval** until someone approves them. When the workspace has a list for membership approvals (on Customermates Cloud, the tasks list from the AI workspace setup), each registration also creates an approval task there for members whose read access to that list is **All**; it disappears once the member is approved, set Inactive or removed, or withdraws the request. Without such a list, for example in a new self-hosted workspace, no task is created, and you approve people on [Members](app:settings/members). An expired or altered link shows an error asking them to request a new one. Someone who already has a Customermates account joins through the same link while signed in and waits for approval the same way; see [joining with an existing account](/docs/app-workspaces#how-do-i-join-with-an-existing-account).
+People who register join with status **Waiting for approval** and no role, and see **Waiting for Approval** until someone approves them. You approve them on [Members](app:settings/members); for everyone with **Users & Roles** **Edit**, the workspace menu, its **Members** item and **Members** in Settings show how many people are waiting. Registering creates no record in any list. An expired or altered link shows an error asking them to request a new one. Someone who already has a Customermates account joins through the same link while signed in and waits for approval the same way; see [joining with an existing account](/docs/app-workspaces#how-do-i-join-with-an-existing-account).
 
 ### How do I approve, edit, deactivate or remove a member? [#how-do-i-approve-deactivate-or-edit-a-member]
 
@@ -65,11 +65,11 @@ Every row has **Create**, **Edit** and **Delete** checkboxes (under **Manage** o
 | Workspace row | What it controls |
 |---|---|
 | **API & Webhooks** | **Create** creates API keys and webhooks and resends deliveries; **Edit** edits webhooks and shows their secret; **Delete** deletes keys and webhooks; **All** shows keys, webhooks and deliveries. |
-| **Users & Roles** | **Create** invites members and creates roles (with their starting record access); **Edit** edits members, their approval tasks and roles, including record access and access presets; **Delete** deletes roles. **All** shows every member and the roles, **Assigned** only your own member row, **None** hides both pages. |
+| **Users & Roles** | **Create** invites members and creates roles (with their starting record access); **Edit** edits and approves members and edits roles, including record access and access presets; **Delete** deletes roles. **All** shows every member and the roles, **Assigned** only your own member row, **None** hides both pages. |
 | **Company** | **Edit** only: uses billing on [Billing](app:settings/billing). |
 | **Data model** | **Edit** only: configures lists, fields, relationships and calculations, without record access or role administration. |
 | **Knowledge Base** | **Create**, **Edit** (and move), **Delete** pages; ticking any of them forces **All**. |
-| **Audit Log** | Read only: [Activity](app:settings/activity) and the change history on records. |
+| **Activity log** | Read only: [Activity](app:settings/activity) and the change history on records. |
 | **Inbox messages** (Cloud) | **Create** connects accounts and sends, drafts and starts conversations; **Edit** changes accounts, threads, conversation state and record links; **Delete** disconnects accounts and discards drafts. Also limited by the plan. |
 | **Routines** (Cloud) | **Create**, **Edit** (and run or test now), **Delete**; deleting a routine or pausing someone else's also needs the **Admin** role. **All** or **Assigned** (own routines). |
 
@@ -182,7 +182,7 @@ On Starter, the [Inbox](app:inbox) and [Channels](app:settings/channels) show **
 - **Admin and system**: members, roles, webhooks, routines, connected accounts, Knowledge Base pages, legal notices and exports. Webhook secrets and header values are redacted.
 - **Configuration**: lists, fields, relationships and record access by role. Only roles with **Data model** **Edit** or **Users & Roles** **Edit** see these entries.
 
-Reading it needs **Audit Log** read access **All**. Record changes follow your record access, and Knowledge Base entries need Knowledge Base read access. Click an entry for details; save personal views as on lists. Entries are kept indefinitely, messages never appear here, and history starts at the upgrade to configurable records. Available on every plan and self-hosted.
+Reading it needs **Activity log** read access **All**. Record changes follow your record access, and Knowledge Base entries need Knowledge Base read access. Click an entry for details; save personal views as on lists. Entries are kept indefinitely, messages never appear here, and history starts at the upgrade to configurable records. Available on every plan and self-hosted.
 
 ## Webhooks [#webhooks-tab]
 
@@ -208,7 +208,7 @@ Open the list in [Configure](app:configure), change **Name** and **Plural name**
 
 ## For agents [#tips-for-agents]
 
-Prefer [MCP](/docs/mcp) tools: `manage_team` invites by email or returns the invitation link (`invite_link`), both with approval, updates members (`update_member`, identify by `userId` or `email` (both must match if supplied); with approval when it changes the role or status; for **Waiting for approval** pass a `roleId` and status `active`) and removes them from the workspace (`remove_member`, by `userId` or `email`, with approval), `list_users` reads members, `manage_roles` reads and saves roles with the current revision (resources `api`, `users`, `company`, `dataModel`, `wiki`, `auditLog`, `inboxMessages`, `routines`; actions `create`, `update`, `delete`, `readAll`, `readOwn`), `manage_webhooks` manages webhooks and deliveries, `get_activities` with an empty scope reads the activity log, and `get_record_model` and `configure_record_model` change lists, currencies and calculations. Over REST, `POST /api/v1/members/invite` sends invitations (1 to 20 addresses), `POST /api/v1/members/invite-link` returns the invitation link and its expiry, `POST /api/v1/members/update` changes another member's role and status; name the member by `userId` or `email` and send the fields to change; omitted fields keep their values. `POST /api/v1/members/remove` removes another member from the workspace, named the same way. `POST /api/v1/roles/list` lists the roles with their permissions; without **Users & Roles** **Edit** it returns only your own role. Billing and API keys stay in the app by design: no tool reads or changes the plan; send the user to [Billing](app:settings/billing).
+Prefer [MCP](/docs/mcp) tools: `manage_team` invites by email or returns the invitation link (`invite_link`), both with approval, updates members (`update_member`, identify by `userId` or `email` (both must match if supplied); with approval when it changes the role or status; for **Waiting for approval** pass a `roleId` and status `active`) and removes them from the workspace (`remove_member`, by `userId` or `email`, with approval), `list_users` reads members, `manage_roles` reads and saves roles with the current revision (resources `api`, `users`, `company`, `dataModel`, `wiki`, `activityLog`, `inboxMessages`, `routines`; actions `create`, `update`, `delete`, `readAll`, `readOwn`), `manage_webhooks` manages webhooks and deliveries, `get_activities` with an empty scope reads the activity log, and `get_record_model` and `configure_record_model` change lists, currencies and calculations. Over REST, `POST /api/v1/members/invite` sends invitations (1 to 20 addresses), `POST /api/v1/members/invite-link` returns the invitation link and its expiry, `POST /api/v1/members/update` changes another member's role and status; name the member by `userId` or `email` and send the fields to change; omitted fields keep their values. `POST /api/v1/members/remove` removes another member from the workspace, named the same way. `POST /api/v1/roles/list` lists the roles with their permissions; without **Users & Roles** **Edit** it returns only your own role. Billing and API keys stay in the app by design: no tool reads or changes the plan; send the user to [Billing](app:settings/billing).
 
 ## Related [#related]
 

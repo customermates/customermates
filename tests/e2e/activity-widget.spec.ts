@@ -1,5 +1,6 @@
 import { addFromConfigure, openConfigure } from "./configure";
 import { test, expect, collectPageErrors } from "./fixtures";
+import { e2eAppMode } from "./workspace-switching";
 
 test("creates a custom-type activity widget, previews history, edits it and preserves assistant drafts", async ({
   page,
@@ -50,11 +51,12 @@ test("creates a custom-type activity widget, previews history, edits it and pres
   await expect(card.getByText("Harbour renewal", { exact: true })).toBeVisible();
   await card.getByRole("button", { name: "Filters, 1 active", exact: true }).click();
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Tender history");
-  if (process.env.APP_MODE === "self-hosted") {
-    // Mate is part of the cloud service only, so the editor offers no Ask Mate button.
-    await expect(dialog.getByRole("button", { name: "Ask Mate", exact: true })).toHaveCount(0);
+  const askMate = dialog.getByRole("button", { name: "Ask Mate", exact: true });
+  if (e2eAppMode() === "self-hosted") {
+    // The assistant Mate is cloud-only, so the widget editor offers no Ask Mate action.
+    await expect(askMate).toHaveCount(0);
   } else {
-    await dialog.getByRole("button", { name: "Ask Mate", exact: true }).click();
+    await askMate.click();
     await expect(page.getByTestId("agent-composer-contexts").getByText("Tender history", { exact: true })).toBeVisible();
     await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Tender history");
     await page.getByTestId("agent-panel").getByRole("button", { name: "Close", exact: true }).click();

@@ -82,11 +82,14 @@ export const PROTECTED_ROUTES = [
   "/auth/mcp-consent",
   "/configure",
   "/dashboard",
+  "/calendar",
   "/inbox",
   "/legal-update",
   "/onboarding",
   "/onboarding/join",
   "/onboarding/wizard",
+  "/open/:area/:preset",
+  "/open/:area/:preset/:recordId",
   "/operator/audit",
   "/operator/overview",
   "/operator/usage",
@@ -174,7 +177,7 @@ export function isProtectedPage(req: NextRequest) {
   return isProtectedPathname(req.nextUrl.pathname);
 }
 
-function isProtectedPathname(pathname: string) {
+export function isProtectedPathname(pathname: string) {
   const decoded = decodePathname(pathname);
   if (decoded === null) return true;
 

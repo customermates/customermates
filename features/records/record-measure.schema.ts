@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { CalculatedValueSchema, RecordRefSchema } from "./record-model.schema";
-import { RecordQuerySchema } from "./record-query.schema";
+import { RecordQueryBaseSchema } from "./record-query-base.schema";
 import { RecordFieldKeySchema } from "./record-column.schema";
 import { isIanaTimeZone } from "@/core/utils/time-zone";
 
@@ -14,7 +14,7 @@ export function isRecordMeasureTimeZone(timeZone: string): boolean {
   return isIanaTimeZone(timeZone);
 }
 
-const RecordMeasureGroupFilterSchema = RecordQuerySchema.pick({
+const RecordMeasureGroupFilterSchema = RecordQueryBaseSchema.pick({
   search: true,
   filters: true,
   relationships: true,
@@ -23,7 +23,7 @@ const RecordMeasureGroupFilterSchema = RecordQuerySchema.pick({
 
 export const RecordMeasureSchema = z
   .object({
-    source: RecordQuerySchema.omit({
+    source: RecordQueryBaseSchema.omit({
       fields: true,
       includeRelationships: true,
       includePaths: true,

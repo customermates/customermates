@@ -10,6 +10,7 @@ import type {
 
 import { observer } from "mobx-react-lite";
 import { toJS } from "mobx";
+import { useId } from "react";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
 
@@ -82,6 +83,7 @@ export const RecordFieldValueEditor = observer(function RecordFieldValueEditor({
   store,
   busy = false,
   saveOnDatePick = false,
+  label = store.field.label,
   members,
   onCancel,
 }: {
@@ -89,16 +91,26 @@ export const RecordFieldValueEditor = observer(function RecordFieldValueEditor({
   busy?: boolean;
   members?: RecordMember[];
   saveOnDatePick?: boolean;
+  label?: string | null;
   onCancel: () => void;
 }) {
   const t = useTranslations();
   const value = store.form.value;
+  const inputId = useId();
   return (
     <AppForm store={store}>
       <div className="space-y-3">
+        {label === null && (
+          <label className="sr-only" htmlFor={inputId}>
+            {store.field.label}
+          </label>
+        )}
+
         <RecordInputField
           field={store.field}
           id="value"
+          inputId={inputId}
+          label={label}
           members={members}
           onDatePicked={saveOnDatePick ? () => runUserAction(() => store.apply(false)) : undefined}
         />

@@ -3,7 +3,6 @@ import { presetId } from "../../features/records/crm-preset";
 import { copyGenericWorkspace } from "../helpers/copy-generic-workspace";
 import { applyConfigurableRecordsMigration, createLegacyMigrationDatabase } from "../helpers/legacy-migration-database";
 import { legacyRecordFixture } from "../helpers/legacy-record-fixture";
-import { expectNotFoundDocuments } from "./browser-diagnostics";
 import { test as base, expect, collectPageErrors } from "./fixtures";
 import { removeBrowserWorkspace } from "./workspace";
 import { openRecordDetails, openRecordLink } from "./record-rows";
@@ -52,7 +51,6 @@ test("opens upgraded records with persisted values, totals and links", async ({
   companyId,
 }, testInfo) => {
   test.setTimeout(240000);
-  const retiredRoute = expectNotFoundDocuments(page);
   const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "deal");
   await page.goto(`/en/records/${typeId}`);
@@ -84,10 +82,7 @@ test("opens upgraded records with persisted values, totals and links", async ({
     animations: "disabled",
   });
   const personType = presetId(companyId, "contact");
-  const retiredContacts = await page.goto("/en/contacts");
-  expect(retiredContacts?.status()).toBe(404);
-  if (testInfo.project.name === "chromium") await expect.poll(() => retiredRoute.events.length).toBe(1);
-  const contacts = await page.goto(`/en/records/${personType}`);
+  const contacts = await page.goto("/en/contacts");
   expect(contacts?.status()).toBe(200);
   await expect(page).toHaveURL(new RegExp(`/en/records/${personType}$`));
   await expect(page.locator("header")).toContainText("Contacts");
@@ -98,6 +93,8 @@ test("opens upgraded records with persisted values, totals and links", async ({
     ])
   ).rows[0];
   await openRecordLink(page.getByRole("link", { name: "Synthetic Person", exact: true }).first());
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await page.getByRole("dialog").getByRole("link", { name: "Open page", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/en/records/${personType}/${person.id}$`));
   await expect(page.getByText("Organization A", { exact: true }).first()).toBeVisible();
   expect(errors).toEqual([]);

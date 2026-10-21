@@ -461,7 +461,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
       kinds.push(WidgetKind.chart, WidgetKind.calendar, WidgetKind.map);
     if (
       this.recordTypes &&
-      (this.rootStore.userStore.canAccess(Resource.auditLog) ||
+      (this.rootStore.userStore.canAccess(Resource.activityLog) ||
         this.rootStore.userStore.canAccess(Resource.inboxMessages))
     )
       kinds.push(WidgetKind.activityTimeline);

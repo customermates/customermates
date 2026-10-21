@@ -3,7 +3,8 @@ import { describe, expect, it } from "vitest";
 import type { RecordFieldView, RecordRelationship } from "@/features/records/record-model.schema";
 import type { CommandEnvironment } from "@/components/keyboard/command-registry";
 import type { PaletteTranslator } from "../palette-entries";
-import { recordEntries, staticEntries, workspaceEntries } from "../palette-entries";
+import { recordEntries, staticEntries, workspaceEntries, workspaceSwitchEntries } from "../palette-entries";
+import { rankCandidates } from "../command-palette-search";
 
 const t: PaletteTranslator = (key, values) =>
   key.startsWith("CommandPalette.synonyms.") ? "one, two" : values ? `${key}:${Object.values(values).join("|")}` : key;
@@ -72,10 +73,12 @@ describe("static palette entries", () => {
       otherWorkspaces: true,
       can: () => true,
     });
-    expect(entries.find((entry) => entry.key === "cmd:action.switchWorkspace")?.run).toEqual({
+    const switchWorkspace = entries.find((entry) => entry.key === "cmd:action.switchWorkspace");
+    expect(switchWorkspace?.run).toEqual({
       kind: "level",
       level: { kind: "workspaces", label: "CommandPalette.labels.switchWorkspace" },
     });
+    expect(switchWorkspace?.shortcut).toBe("goWorkspaces");
   });
 });
 
@@ -95,7 +98,6 @@ describe("workspace palette entries", () => {
             pluralLabel: "Deals",
             icon: "handshake",
             canCreate: true,
-            hasAuthorizationTasks: false,
           },
           {
             id: CONTACTS,
@@ -103,7 +105,6 @@ describe("workspace palette entries", () => {
             pluralLabel: "Contacts",
             icon: "user",
             canCreate: false,
-            hasAuthorizationTasks: false,
           },
         ],
       },
@@ -165,5 +166,37 @@ describe("record palette entries", () => {
 
   it("offers nothing without an editable record", () => {
     expect(recordEntries(t, null)).toEqual([]);
+  });
+});
+
+describe("workspace switch palette entries", () => {
+  const workspaces = [
+    { companyId: "company-a", name: "Acme Workspace" },
+    { companyId: "company-b", name: "Beta Studio" },
+  ];
+
+  it("offers one switch action per other workspace", () => {
+    expect(workspaceSwitchEntries(t, workspaces)).toEqual([
+      expect.objectContaining({
+        key: "workspace:company-a",
+        kind: "action",
+        label: "Workspaces.switchTo:Acme Workspace",
+        keywords: ["Acme Workspace"],
+        run: { kind: "switchWorkspace", companyId: "company-a" },
+      }),
+      expect.objectContaining({
+        key: "workspace:company-b",
+        run: { kind: "switchWorkspace", companyId: "company-b" },
+      }),
+    ]);
+  });
+
+  it("finds the matching workspaces by name", () => {
+    const keys = rankCandidates("studio", workspaceSwitchEntries(t, workspaces), null).map((entry) => entry.key);
+    expect(keys).toEqual(["workspace:company-b"]);
+  });
+
+  it("offers nothing when the person has no other workspace", () => {
+    expect(workspaceSwitchEntries(t, [])).toEqual([]);
   });
 });

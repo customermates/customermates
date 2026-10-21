@@ -12,7 +12,7 @@ import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppForm } from "@/components/forms/form-context";
-import { FormFooterActions } from "@/components/forms/form-footer-actions";
+import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { FormLabel } from "@/components/forms/form-label";
 import { FormInput } from "@/components/forms/form-input";
 import { FormSwitch } from "@/components/forms/form-switch";
@@ -27,10 +27,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getChartColors } from "@/constants/chart-colors";
+import { getChartColors, getChartTextColors } from "@/constants/chart-colors";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useRecordAiAction } from "@/app/components/agent-chat/record-ai-action";
-import type { ChartColor } from "@/features/widget/widget.schema";
+import { ChartColor } from "@/features/widget/widget.schema";
 import { DisplayType } from "@/features/widget/widget.schema";
 import type { RecordModelView } from "@/features/records/record-model.schema";
 import type { WidgetDisplayRequirement } from "@/features/widget/widget-display-rules";
@@ -207,8 +207,9 @@ export const WidgetModal = observer(() => {
   }
   function renderColorPicker() {
     if (form.kind !== WidgetKind.chart) return null;
-    if (form.displayOptions?.displayType === DisplayType.number) return null;
+    const singleColor = form.displayOptions?.displayType === DisplayType.number;
     if (groupColorsApply() && form.displayOptions?.useGroupColors !== false) return null;
+    const colors = Object.entries(chartColors).filter(([key]) => !singleColor || key.endsWith("1"));
 
     return (
       <div className="space-y-1.5">
@@ -225,7 +226,10 @@ export const WidgetModal = observer(() => {
               variant="field"
             >
               <span className="flex flex-wrap items-center gap-1">
-                {(form.displayOptions?.barColors ?? []).map((key) => (
+                {(singleColor
+                  ? [form.displayOptions?.barColors?.[0] ?? ChartColor.primary1]
+                  : (form.displayOptions?.barColors ?? [])
+                ).map((key) => (
                   <span
                     key={key}
                     className="inline-flex size-4 rounded-full"
@@ -245,8 +249,11 @@ export const WidgetModal = observer(() => {
             aria-labelledby="displayOptions.barColors"
             className="w-(--radix-dropdown-menu-trigger-width)"
           >
-            {Object.entries(chartColors).map(([key, color], index) => {
-              const selected = (form.displayOptions?.barColors ?? []).includes(key as ChartColor);
+            {colors.map(([key, color], index) => {
+              const selected = singleColor
+                ? getChartTextColors()[form.displayOptions?.barColors?.[0] ?? ChartColor.primary1] ===
+                  getChartTextColors()[key as ChartColor]
+                : (form.displayOptions?.barColors ?? []).includes(key as ChartColor);
               const label = t("Dashboard.widgetEditor.appearance.colorOption", { number: index + 1 });
               return (
                 <DropdownMenuCheckboxItem
@@ -254,6 +261,10 @@ export const WidgetModal = observer(() => {
                   checked={selected}
                   disabled={isDisabled}
                   onCheckedChange={(checked) => {
+                    if (singleColor) {
+                      if (checked) widgetModalStore.onChange("displayOptions.barColors", [key as ChartColor]);
+                      return;
+                    }
                     const current = form.displayOptions?.barColors ?? [];
                     const next = checked
                       ? [...current, key as ChartColor]
@@ -356,12 +367,17 @@ export const WidgetModal = observer(() => {
       title={dialogTitle}
     >
       <AppForm store={widgetModalStore}>
-        <AppCard>
+        <AppCard className="relative">
           <AppCardHeader>
             <h2 className="min-w-0 break-words text-base font-semibold">{dialogTitle}</h2>
           </AppCardHeader>
 
-          <AppCardBody className={isChooseStep ? "md:flex-initial" : "md:min-h-96 [scrollbar-gutter:stable]"}>
+          <AppCardBody
+            className={cn(
+              "pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]",
+              isChooseStep ? "md:flex-initial" : "md:min-h-96 [scrollbar-gutter:stable]",
+            )}
+          >
             {widgetModalStore.isHydrating ? (
               <WidgetModalSkeleton />
             ) : isChooseStep ? (
@@ -385,15 +401,11 @@ export const WidgetModal = observer(() => {
           </AppCardBody>
 
           {!isChooseStep && (
-            <FormFooterActions
+            <UnsavedChangesBar
               anchorScope="widget-modal"
-              dirty={isCreate ? true : undefined}
-              reset={
-                isCreate
-                  ? undefined
-                  : { differs: widgetModalStore.hasUnsavedChanges, onReset: widgetModalStore.resetForm }
-              }
+              creating={isCreate}
               store={widgetModalStore}
+              onSave={widgetModalStore.onSubmit}
             />
           )}
         </AppCard>

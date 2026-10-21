@@ -1,6 +1,7 @@
 "use client";
 
 import type { AccountState, MarketingAccountProfile } from "@/features/auth/account-state";
+import type { AppMode } from "@/core/config/environment";
 
 import { ChevronDown, Menu, X } from "lucide-react";
 import { useState } from "react";
@@ -32,6 +33,7 @@ import { MarketingContainer } from "@/components/marketing/marketing-container";
 
 type Props = {
   accountState: AccountState;
+  appMode: AppMode;
   hasValidSession: boolean;
   onboardingIntent?: string;
   onSignedOut?: () => void;
@@ -41,7 +43,14 @@ type Props = {
 const mobileOverviewRowClassName =
   "flex min-h-14 w-full items-center justify-between gap-4 py-4 text-left text-lg font-medium text-foreground no-underline outline-none hover:no-underline focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50";
 
-export function PublicNavbar({ accountState, hasValidSession, onboardingIntent, onSignedOut, profile }: Props) {
+export function PublicNavbar({
+  accountState,
+  appMode,
+  hasValidSession,
+  onboardingIntent,
+  onSignedOut,
+  profile,
+}: Props) {
   const t = useTranslations();
   const pathname = usePathname();
   const [menuOpenedAt, setMenuOpenedAt] = useState<string | null>(null);
@@ -172,7 +181,7 @@ export function PublicNavbar({ accountState, hasValidSession, onboardingIntent, 
   function renderPreferenceButtons() {
     return (
       <div className="flex items-center gap-2">
-        <LocaleMenu className="[&_summary]:size-8" />
+        <LocaleMenu appMode={appMode} className="[&_summary]:size-8" />
 
         <ThemeSwitcher />
       </div>

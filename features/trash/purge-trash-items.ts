@@ -21,13 +21,16 @@ export async function purgeTrashItems(
 ): Promise<TrashPurgeOutcome> {
   const purged: string[] = [];
   const failedItemIds: string[] = [];
+  const purgedAlong = new Set<string>();
   for (const group of itemsByHandler(handlers, items).reverse()) {
     for (const item of group.items) {
       const result = await runInTransaction(
         () =>
           runInSavepoint(async () => {
-            if (!(await trash.find({ ids: [item.id] }, Prisma.sql`TRUE`)).length) return false;
+            if (!(await trash.find({ ids: [item.id] }, Prisma.sql`TRUE`)).length) return purgedAlong.has(item.id);
+            const dependents = (await group.handler.dependents?.([item])) ?? [];
             await group.handler.purge([item], scope.actorId, scope.companyId);
+            for (const id of dependents) purgedAlong.add(id);
             return true;
           }),
         { companyId: scope.companyId, timeout: TRASH_ITEM_PURGE_TIMEOUT_MS },

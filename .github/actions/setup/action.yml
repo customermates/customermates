@@ -1,0 +1,26 @@
+name: Set up Node and dependencies
+description: Node 24 and node_modules restored from a cache keyed on the lockfile and patches; installs only on a miss.
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      with:
+        node-version: 24
+    - name: Restore node_modules
+      id: modules
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: node_modules
+        key: node-modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock', 'patches/**', '.nvmrc') }}
+    - name: Install dependencies
+      if: steps.modules.outputs.cache-hit != 'true'
+      shell: bash
+      run: yarn install --frozen-lockfile --prefer-offline
+      env:
+        DATABASE_URL: ${{ env.DATABASE_URL || 'postgresql://postgres:postgres@127.0.0.1:5432/unused' }}
+    - name: Generate the Prisma client
+      if: steps.modules.outputs.cache-hit == 'true'
+      shell: bash
+      run: npx --no-install prisma generate
+      env:
+        DATABASE_URL: ${{ env.DATABASE_URL || 'postgresql://postgres:postgres@127.0.0.1:5432/unused' }}

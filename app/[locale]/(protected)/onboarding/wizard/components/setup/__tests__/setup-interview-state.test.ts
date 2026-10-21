@@ -11,8 +11,8 @@ import {
   partVisible,
   resolveSetupStage,
   resumeScreenIndex,
+  missingScreenParts,
   screenAnswersPayload,
-  screenComplete,
   visibleScreenIndexes,
 } from "../setup-interview-state";
 import { PLAN_PROGRESS, setupView } from "./setup-view-fixture";
@@ -161,12 +161,12 @@ describe("visibility, completeness and payload", () => {
     expect(displayedAnswerValue(part("language"), {}, "de")).toEqual({ format: "singleChoice", value: "de" });
   });
 
-  it("requires every visible required answer before Looks right", () => {
-    expect(screenComplete("workspace", {}, "en")).toBe(false);
-    expect(screenComplete("workspace", WORKSPACE_SCREEN, "en")).toBe(true);
-    expect(screenComplete("workspace", { ...WORKSPACE_SCREEN, purpose: purpose() }, "en")).toBe(false);
+  it("lists every visible required answer still missing before Next", () => {
+    expect(missingScreenParts("workspace", {}, "en")).toContain("purpose");
+    expect(missingScreenParts("workspace", WORKSPACE_SCREEN, "en")).toEqual([]);
+    expect(missingScreenParts("workspace", { ...WORKSPACE_SCREEN, purpose: purpose() }, "en")).toEqual(["purpose"]);
     const withoutName = Object.fromEntries(Object.entries(WORKSPACE_SCREEN).filter(([id]) => id !== "companyName"));
-    expect(screenComplete("workspace", withoutName, "en")).toBe(true);
+    expect(missingScreenParts("workspace", withoutName, "en")).toEqual([]);
   });
 
   it("clears answers to hidden questions and drops blank list entries", () => {

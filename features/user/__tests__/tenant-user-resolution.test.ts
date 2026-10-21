@@ -12,6 +12,7 @@ const tenantUser = createMockUser({ id: "tenant-user" });
 
 function service(overrides: Partial<FindUserRepo> = {}) {
   const repo = {
+    findAuthUserAccountStateUnscoped: vi.fn().mockResolvedValue({ companyId: null, emailVerified: true }),
     findCurrentUserUnscoped: vi.fn(),
     findCurrentUserOrThrowUnscoped: vi.fn().mockResolvedValue(sessionUser),
     findUserByIdOrThrowUnscoped: vi.fn().mockResolvedValue(tenantUser),
@@ -19,7 +20,7 @@ function service(overrides: Partial<FindUserRepo> = {}) {
     ...overrides,
   } as unknown as FindUserRepo;
   const authService = {
-    getSession: vi.fn().mockResolvedValue({ user: { email: "session@example.com" } }),
+    getSession: vi.fn().mockResolvedValue({ user: { email: "session@example.com", emailVerified: true } }),
     isIntegrationCredentialRequest: vi.fn().mockResolvedValue(false),
   };
 

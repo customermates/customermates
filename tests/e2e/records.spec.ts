@@ -12,6 +12,7 @@ import { test, expect, collectPageErrors } from "./fixtures";
 import { saveViewChanges } from "./view-changes";
 import { openRecordDetails, recordItem } from "./record-rows";
 import { openFilterPalette } from "./filter-palette";
+import { expectHydrated } from "./workspace-switching";
 
 test("creates a custom list and field through the UI, then persists a decimal record across reloads", async ({
   page,
@@ -298,6 +299,7 @@ test("resizes table columns with keyboard controls, restores saved widths and re
         `records:${typeId}`,
       ])
     ).rows[0]?.columnWidths?.[fieldId];
+  await expectHydrated(handle);
   await handle.focus();
   await expect(handle).toBeFocused();
   await handle.press("Home");
@@ -317,7 +319,7 @@ test("resizes table columns with keyboard controls, restores saved widths and re
   }
   const saved = await stored();
   await page.reload();
-  await expect(handle).toBeVisible();
+  await expectHydrated(handle);
   await expect.poll(inlineWidth).toBe(`${saved}px`);
   expect(await stored()).toBe(saved);
   if (!isMobile) {
@@ -342,7 +344,7 @@ test("resizes table columns with keyboard controls, restores saved widths and re
     const draggedWidth = Math.round(Math.max(80, headerBounds.width - 40) * 100) / 100;
     await expect.poll(stored).toBe(draggedWidth);
     await page.reload();
-    await expect(handle).toBeVisible();
+    await expectHydrated(handle);
     await expect.poll(inlineWidth).toBe(`${draggedWidth}px`);
     expect(await stored()).toBe(draggedWidth);
   }

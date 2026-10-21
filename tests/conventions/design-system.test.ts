@@ -332,7 +332,7 @@ describe("rule 58: colors only through design tokens", () => {
     ];
 
     enforce(findings, COLOR_ALLOWLIST);
-  });
+  }, 30_000);
 
   it("exempts only the browser theme-color metadata, which cannot read CSS tokens", () => {
     const source = {

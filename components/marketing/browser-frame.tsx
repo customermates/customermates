@@ -11,6 +11,7 @@ import { cn } from "@/core/utils/cn";
 import { ProductWindow } from "./product-window";
 
 type Props = {
+  embed?: boolean;
   fallbackMessage?: string;
   loadAhead?: boolean;
   src: string;
@@ -35,7 +36,7 @@ function getOrigin(src: string): string | null {
   }
 }
 
-export function BrowserFrame({ fallbackMessage, loadAhead = false, src, title }: Props) {
+export function BrowserFrame({ embed = true, fallbackMessage, loadAhead = false, src, title }: Props) {
   const t = useTranslations();
   const frameRef = useRef<HTMLDivElement | null>(null);
   const revealTimer = useRef(0);
@@ -48,13 +49,14 @@ export function BrowserFrame({ fallbackMessage, loadAhead = false, src, title }:
   const viewport = phone ? PHONE_VIEWPORT : DESKTOP_VIEWPORT;
   const scale = frameWidth === null ? 1 : frameWidth / viewport.width;
 
-  if (loadAhead && origin) {
+  if (embed && loadAhead && origin) {
     prefetchDNS(origin);
     preconnect(origin);
   }
 
   useEffect(() => {
     const el = frameRef.current;
+    if (!embed) return;
     if (!el || typeof IntersectionObserver === "undefined") {
       setShouldMount(true);
       return;
@@ -70,7 +72,7 @@ export function BrowserFrame({ fallbackMessage, loadAhead = false, src, title }:
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [loadAhead]);
+  }, [embed, loadAhead]);
 
   useEffect(() => {
     const el = frameRef.current;
@@ -104,7 +106,22 @@ export function BrowserFrame({ fallbackMessage, loadAhead = false, src, title }:
     <div data-live-preview data-reveal className="not-prose relative mx-auto w-full max-w-live-preview">
       <ProductWindow className={cn(phone && "mx-auto max-w-sm")}>
         <div ref={frameRef} className={cn("relative w-full", phone ? "aspect-[1/2]" : "aspect-[16/10]")}>
-          {!loaded ? (
+          {!embed ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-placeholder p-6 text-center">
+              <p className="max-w-xl text-xs leading-5 text-muted-foreground">{title}</p>
+
+              <a
+                className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-foreground hover:underline"
+                href={src}
+                rel="noreferrer noopener"
+                target="_blank"
+              >
+                {t("BrowserFrame.open")}
+
+                <ArrowUpRight aria-hidden className="size-3" />
+              </a>
+            </div>
+          ) : !loaded ? (
             <div className="absolute inset-0 animate-pulse bg-placeholder motion-reduce:animate-none" />
           ) : null}
 

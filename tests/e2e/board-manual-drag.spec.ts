@@ -13,6 +13,9 @@ async function dragCard(page: Page, source: Locator, target: Locator, side: "abo
   const saved = page.waitForResponse(
     (response) => response.request().method() === "POST" && (response.request().postData() ?? "").includes('"placement"'),
   );
+  // Cards format their dates only once the page hydrated, which makes them taller: measure the settled layout, or a
+  // drag aimed at the top edge of a card can land below it.
+  await expect(page.locator("[data-item-id]").filter({ hasNotText: /Updated at.*\d{4}/ })).toHaveCount(0);
   const from = await source.boundingBox();
   const to = await target.boundingBox();
   if (!from || !to) throw new Error("Drag source and target must be visible");

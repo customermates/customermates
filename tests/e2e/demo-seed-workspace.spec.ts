@@ -2,6 +2,7 @@ import type { Locator } from "@playwright/test";
 
 import { expectBlockedEmailScripts } from "./browser-diagnostics";
 import { DEMO_COMPANY_ID, expect, paintedFrames, test } from "./demo-seed";
+import { e2eAppMode } from "./workspace-switching";
 
 /** The seeded workspace beyond records: webhooks and deliveries, the inbox, the Knowledge Base and routines. */
 const HEALTHY_URL = "https://erp-bridge.northwind-labs.example/hooks/crm";
@@ -59,6 +60,7 @@ test("inbox threads are listed and linked to their deals, tickets and candidates
   database,
   errors,
 }) => {
+  test.skip(e2eAppMode() === "self-hosted", "The Inbox is available on Customermates Cloud only");
   expectBlockedEmailScripts(page);
   const { rows: threads } = await database.query<{ id: string; title: string }>(
     `SELECT id, coalesce(nullif(subject, ''), name) AS title FROM "MessagingThread" WHERE "companyId"=$1
@@ -121,6 +123,7 @@ test("email bodies follow the app theme, adaptive emails switch, and other exter
   database,
   errors,
 }, testInfo) => {
+  test.skip(e2eAppMode() === "self-hosted", "The Inbox, where email bodies render, is available on Customermates Cloud only");
   expectBlockedEmailScripts(page);
   const { rows: threads } = await database.query<{ id: string; subject: string }>(
     `SELECT id, subject FROM "MessagingThread" WHERE "companyId"=$1 AND subject = ANY($2)`,
@@ -226,6 +229,7 @@ test("the Knowledge Base lists the Operating Guide and the procedures, and a pro
 });
 
 test("routines are listed with their owners and triggers", async ({ page, database, errors }) => {
+  test.skip(e2eAppMode() === "self-hosted", "Routines are available on Customermates Cloud only");
   const { rows: routines } = await database.query<{
     name: string;
     trigger: string;
@@ -249,6 +253,25 @@ test("routines are listed with their owners and triggers", async ({ page, databa
       if (routine.cron) await expect(row).not.toContainText(routine.cron);
     }
     await expect(row).toContainText(routine.enabled ? "Active" : "Paused");
+  }
+  expect(errors).toEqual([]);
+});
+
+test("self-hosted keeps the seeded Inbox and routines out of reach and sends their pages to the dashboard", async ({
+  page,
+  errors,
+}, testInfo) => {
+  test.skip(e2eAppMode() !== "self-hosted", "The Inbox and routines are available on Customermates Cloud");
+  for (const path of ["/en/inbox", "/en/routines"]) {
+    await page.goto(path);
+    await expect(page).toHaveURL(/\/en\/dashboard$/);
+  }
+  // The phone sidebar is a closed sheet; the desktop sidebar shows the navigation without either entry.
+  if (!testInfo.project.use.isMobile) {
+    const navigation = page.locator('[data-sidebar="sidebar"]');
+    await expect(navigation.getByRole("link", { name: "Dashboard", exact: true })).toBeVisible();
+    await expect(navigation.getByRole("link", { name: "Inbox", exact: true })).toHaveCount(0);
+    await expect(navigation.getByRole("link", { name: "Routines", exact: true })).toHaveCount(0);
   }
   expect(errors).toEqual([]);
 });

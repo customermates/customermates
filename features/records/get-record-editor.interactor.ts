@@ -40,7 +40,6 @@ export type RecordEditorContext = {
   linkColors: RecordLinkColors;
   linkIcons: RecordLinkIcons;
   linkLabels: RecordLinkLabels;
-  systemActions?: Array<"manageMembership">;
   detailLayout?: RecordDetailLayoutResult;
   formulaReferences?: FormulaReferences;
   embedded?: Record<string, EmbeddedSublistPage>;
@@ -171,15 +170,8 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
             linkColors: recordLinkColors(model.types, relationships),
             linkIcons: recordLinkIcons(model.types, relationships),
             linkLabels: recordLinkLabels(model.types, relationships),
-            systemActions:
-              stored?.protectedKind === "membershipAuthorization" &&
-              policy.allowedSystem("users", "update") &&
-              policy.allowedSystem("users", "readAll")
-                ? ["manageMembership"]
-                : [],
-            permittedActions: (["create", "readOwn", "readAll", "update", "delete"] as const).filter(
-              (action) =>
-                policy.allowed(type.id, action) && (!stored?.protectedKind || ["readOwn", "readAll"].includes(action)),
+            permittedActions: (["create", "readOwn", "readAll", "update", "delete"] as const).filter((action) =>
+              policy.allowed(type.id, action),
             ),
             model: {
               ...model,

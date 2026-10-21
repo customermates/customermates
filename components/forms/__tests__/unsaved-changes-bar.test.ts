@@ -13,9 +13,9 @@ describe("unsavedChangesMode", () => {
     expect(unsavedChangesMode({ dirty: true, editable: true })).toBe("bar");
   });
 
-  it("keeps the visible footer for create forms whether or not they are dirty", () => {
-    expect(unsavedChangesMode({ creating: true, dirty: false, editable: true })).toBe("footer");
-    expect(unsavedChangesMode({ creating: true, dirty: true, editable: true })).toBe("footer");
+  it("keeps the floating bar visible for create forms whether or not they are dirty", () => {
+    expect(unsavedChangesMode({ creating: true, dirty: false, editable: true })).toBe("bar");
+    expect(unsavedChangesMode({ creating: true, dirty: true, editable: true })).toBe("bar");
   });
 
   it("shows nothing for read-only forms", () => {

@@ -47,8 +47,8 @@ vi.mock("../../../workspaces/actions", () => ({
 vi.mock("../../../actions", () => ({ getOperatorWorkspaceTagsAction: () => new Promise(() => {}) }));
 vi.mock("@/components/modal", () => ({ AppModal: harness.passThrough }));
 vi.mock("@/components/modal/confirm-dialog", () => ({ ConfirmDialog: () => null }));
-vi.mock("@/components/forms/form-footer-actions", () => ({
-  FormFooterActions: ({ dirty, onSave }: { dirty: boolean; onSave: () => void }) => (
+vi.mock("@/components/forms/unsaved-changes-bar", () => ({
+  UnsavedChangesBar: ({ dirty = true, onSave }: { dirty?: boolean; onSave: () => void }) => (
     <button disabled={!dirty} id="operator-modal-save" type="button" onClick={onSave}>
       save
     </button>
@@ -156,7 +156,7 @@ afterEach(() => {
 describe("OperatorWorkspaceModal", () => {
   it("saves a change of only the file storage of an Enterprise workspace", async () => {
     expect(input("operator-modal-file-storage").value).toBe("5");
-    expect(save().disabled).toBe(true);
+    expect(container.querySelector("#operator-modal-save")).toBeNull();
 
     type("operator-modal-file-storage", "8");
     expect(save().disabled).toBe(false);
@@ -171,6 +171,6 @@ describe("OperatorWorkspaceModal", () => {
     expect(harness.updateEnterpriseFileStorage).toHaveBeenCalledWith({ companyId: WORKSPACE.id, gigabytesPerUser: 8 });
 
     type("operator-modal-file-storage", "5");
-    expect(save().disabled).toBe(true);
+    expect(container.querySelector("#operator-modal-save")).toBeNull();
   });
 });

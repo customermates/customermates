@@ -40,6 +40,7 @@ const { PrismaP13nRepo } = await import("@/features/p13n/prisma-p13n.repository"
 const { DeleteDataViewInteractor } = await import("@/features/data-view/delete-data-view.interactor");
 const { PrismaWidgetRepo } = await import("@/features/widget/prisma-widget.repository");
 const { LIVE_WIDGET } = await import("@/features/widget/live-widget");
+const { createCrmPreset, presetId } = await import("@/features/records/crm-preset");
 const { WidgetTrashBlockers } = await import("@/features/widget/widget-trash-blockers");
 const { DeleteWidgetInteractor } = await import("@/features/widget/delete-widget.interactor");
 const { ValidateWidgetIdsInteractor } = await import("@/core/validation/validators/validate-widget-ids.interactor");
@@ -95,7 +96,7 @@ async function fixture() {
         kind: "widget",
         restoreOrder: 3,
         visibility: visibility.owned("widget"),
-        blockers: new WidgetTrashBlockers(widgets),
+        blockers: new WidgetTrashBlockers(widgets, createTestRecordRepo()),
       },
       widgets,
       trashRepo,
@@ -126,10 +127,10 @@ async function fixture() {
     });
   const restore = (as: TenantUser, batchId: string) =>
     runWithTenant(as, () => trash.restore.invoke({ batchId } as never));
-  const purge = async (as: TenantUser, itemIds: string[]) => {
-    const preview = await runWithTenant(as, () => trash.preview.invoke({ itemIds }));
+  const purge = async (as: TenantUser, itemIds: string[], using: Pick<typeof trash, "preview" | "remove"> = trash) => {
+    const preview = await runWithTenant(as, () => using.preview.invoke({ itemIds }));
     if (!preview.ok) throw new Error(JSON.stringify(preview));
-    return runWithTenant(as, () => trash.remove.invoke({ itemIds, expectedImpactHash: preview.data.impactHash }));
+    return runWithTenant(as, () => using.remove.invoke({ itemIds, expectedImpactHash: preview.data.impactHash }));
   };
   const tx = <T>(as: TenantUser, fn: () => Promise<T>) => runWithTenant(as, () => runInTransaction(fn));
   return { seed, admin, member, trash, items, restore, purge, tx, widgets, wiki };
@@ -239,6 +240,7 @@ describeDatabase("views, widgets, routines and knowledge base pages in Trash", (
 
   it("hides widgets with their dashboard view and refuses to restore one while its view is in Trash", async () => {
     const f = await fixture();
+    await f.tx(f.admin, () => createTestRecordRepo().saveModel(createCrmPreset(f.seed.company.id), f.admin.id));
     const views = createTestDataViewRepo();
     const view = await f.tx(f.admin, () =>
       views.createView({ surfaceKey: "dashboard", name: "Board", position: 0, state: {} }),
@@ -247,7 +249,19 @@ describeDatabase("views, widgets, routines and knowledge base pages in Trash", (
       Promise.all(
         ["On view", "Loose"].map((name, index) =>
           prisma.widget.create({
-            data: { companyId: f.seed.company.id, userId: f.seed.admin.id, name, viewId: index ? null : view.id },
+            data: {
+              companyId: f.seed.company.id,
+              userId: f.seed.admin.id,
+              name,
+              viewId: index ? null : view.id,
+              measure: {
+                source: { typeId: presetId(f.seed.company.id, "service") },
+                aggregation: "count",
+                valueFieldId: null,
+                groupBy: null,
+              },
+              displayOptions: { displayType: "number" },
+            },
           }),
         ),
       ),
@@ -274,18 +288,22 @@ describeDatabase("views, widgets, routines and knowledge base pages in Trash", (
     );
     expect(live).toEqual([{ id: loose.id }]);
 
-    const viewItems = (await f.items(f.admin)).filter((item) => item.kind === "view");
-    expect(
-      await f.purge(
-        f.admin,
-        viewItems.map((item) => item.id),
-      ),
-    ).toMatchObject({ ok: true });
+    const viewItemIds = (await f.items(f.admin)).filter((item) => item.kind === "view").map((item) => item.id);
+    const handlers = getTrashKindHandlers();
+    const production = {
+      preview: new PreviewTrashDeletionInteractor(new PrismaTrashRepo(), handlers),
+      remove: new DeleteTrashPermanentlyInteractor(new PrismaTrashRepo(), handlers),
+    };
+    expect(await f.purge(f.admin, viewItemIds, production)).toMatchObject({
+      ok: true,
+      data: { deletedItemIds: viewItemIds, failedItemIds: [] },
+    });
     expect(
       await runWithoutTenant(() =>
         prisma.widget.findMany({ where: { companyId: f.seed.company.id }, select: { id: true } }),
       ),
     ).toEqual([{ id: loose.id }]);
+    expect(await f.items(f.admin)).toEqual([]);
   });
 
   it("stops a trashed routine from running, shows it only to admins and reschedules it on restore", async () => {

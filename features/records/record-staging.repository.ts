@@ -20,7 +20,6 @@ const StagedRecordSchema = z.object({
   deleted: z.boolean(),
   trashItemId: z.string().nullable().default(null),
   version: z.number().int().positive(),
-  protectedKind: z.string().nullable(),
   systemData: z.unknown(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
@@ -59,7 +58,6 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
       deleted,
       trashItemId,
       version: row.version,
-      protectedKind: row.protectedKind,
       systemData: row.systemData,
       createdAt: row.createdAt.toISOString(),
       updatedAt: row.updatedAt.toISOString(),
@@ -69,7 +67,19 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
     const schema = await base.getStageRow(operationId, "schema", "model");
     return schema ? RecordModelSchema.parse(schema) : base.getModel();
   };
+  let fieldIdsByType: Promise<Map<string, string[]>> | null = null;
+  const fieldKeys = async (refs: RecordRef[]) => {
+    fieldIdsByType ??= Promise.all([base.getModel(), staged.getModel()]).then((models) => {
+      const fieldIds = new Map<string, Set<string>>();
+      for (const field of models.flatMap((model) => model.fields))
+        fieldIds.set(field.typeId, (fieldIds.get(field.typeId) ?? new Set()).add(field.id));
+      return new Map([...fieldIds].map(([typeId, ids]) => [typeId, [...ids]]));
+    });
+    const fieldIds = await fieldIdsByType;
+    return refs.flatMap((ref) => (fieldIds.get(ref.typeId) ?? []).map((fieldId) => `${recordKey(ref)}:${fieldId}`));
+  };
   overrides.saveModel = async (model, _actorId, change) => {
+    fieldIdsByType = null;
     await base.stageRow(operationId, "schema", "model", model);
     if (change) await base.stageRow(operationId, "schema", "change", change);
   };
@@ -80,6 +90,24 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
     return row
       ? z.object({ identities: z.array(RecordIdentitySchema) }).parse(row).identities
       : base.getIdentitiesCompanyWide(ref);
+  };
+  overrides.getRecordIdentitiesCompanyWide = async (typeId, recordIds) => {
+    const key = (recordId: string) => recordKey({ typeId, recordId });
+    const stagedRows = new Map(
+      (await base.getStageRowsByKeys(operationId, "identity", recordIds.map(key))).map((row) => [
+        row.key,
+        z.object({ identities: z.array(RecordIdentitySchema) }).parse(row.payload).identities,
+      ]),
+    );
+    const identities = await base.getRecordIdentitiesCompanyWide(
+      typeId,
+      recordIds.filter((recordId) => !stagedRows.has(key(recordId))),
+    );
+    for (const recordId of recordIds) {
+      const stagedIdentities = stagedRows.get(key(recordId));
+      if (stagedIdentities) identities.set(recordId, stagedIdentities);
+    }
+    return identities;
   };
   overrides.getIdentityChannelsCompanyWide = async (keys) => {
     const found = new Map((await base.getIdentityChannelsCompanyWide(keys)).map((row) => [row.id, row]));
@@ -97,12 +125,13 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
     await base.stageIdentityChannelsCompanyWide(operationId, identities);
     await base.stageRow(operationId, "identity", recordKey(ref), { ref, identities });
   };
-  overrides.getRecordCompanyWide = async (ref, options = {}) => {
-    const [record, overlay, values] = await Promise.all([
-      base.getRecordCompanyWide(ref, { includeTrash: true }),
-      base.getStageRow(operationId, "record", recordKey(ref)),
-      base.getStageRowsByPrefix(operationId, "value", `${recordKey(ref)}:`),
-    ]);
+  const mergeStaged = (
+    ref: RecordRef,
+    record: StoredRecord | null,
+    overlay: Prisma.JsonValue | null,
+    values: Array<{ payload: Prisma.JsonValue }>,
+    options: { includeTrash?: boolean },
+  ): StoredRecord | null => {
     const row = overlay ? StagedRecordSchema.parse(overlay) : null;
     if (row?.deleted || (!record && !row)) return null;
     if (record?.deletedAt && !options.includeTrash) return null;
@@ -112,7 +141,6 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
           id: ref.recordId,
           typeId: ref.typeId,
           version: row.version,
-          protectedKind: row.protectedKind,
           systemData: row.systemData as Prisma.JsonValue,
           rank: record?.rank ?? null,
           deletedAt: record?.deletedAt ?? null,
@@ -145,14 +173,49 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
     }
     return { ...result, values: [...merged.values()] };
   };
-  overrides.getRecordsCompanyWide = async (refs, options) =>
-    (await Promise.all(refs.map((ref) => staged.getRecordCompanyWide(ref, options)))).filter(
-      (record): record is StoredRecord => record !== null,
+  overrides.getRecordCompanyWide = async (ref, options = {}) => {
+    const [record, overlay, values] = await Promise.all([
+      base.getRecordCompanyWide(ref, { includeTrash: true }),
+      base.getStageRow(operationId, "record", recordKey(ref)),
+      base.getStageRowsByPrefix(operationId, "value", `${recordKey(ref)}:`),
+    ]);
+    return mergeStaged(ref, record, overlay, values, options);
+  };
+  overrides.getRecordsCompanyWide = async (refs, options = {}) => {
+    if (!refs.length) return [];
+    const unique = [...new Map(refs.map((ref) => [recordKey(ref), ref])).values()];
+    const [records, overlays, values] = await Promise.all([
+      base.getRecordsCompanyWide(unique, { includeTrash: true }),
+      base.getStageRowsByKeys(operationId, "record", unique.map(recordKey)),
+      fieldKeys(unique).then((keys) => base.getStageRowsByKeys(operationId, "value", keys)),
+    ]);
+    const stored = new Map(
+      records.map((record) => [recordKey({ typeId: record.typeId, recordId: record.id }), record]),
     );
+    const overlay = new Map(overlays.map((row) => [row.key, row.payload]));
+    const valuesOf = new Map<string, Array<{ payload: Prisma.JsonValue }>>();
+    for (const row of values) {
+      const key = row.key.slice(0, row.key.lastIndexOf(":"));
+      valuesOf.set(key, [...(valuesOf.get(key) ?? []), row]);
+    }
+    return unique
+      .map((ref) =>
+        mergeStaged(
+          ref,
+          stored.get(recordKey(ref)) ?? null,
+          overlay.get(recordKey(ref)) ?? null,
+          valuesOf.get(recordKey(ref)) ?? [],
+          options,
+        ),
+      )
+      .filter((record): record is StoredRecord => record !== null);
+  };
   overrides.getRecordRefsCompanyWide = (typeId, afterId, take, options) =>
     base.getStageRecordRefsCompanyWide(operationId, typeId, afterId, take, options);
   overrides.linkedRecordsCompanyWide = (ref, relationId, direction, take) =>
     base.linkedStageRecordsCompanyWide(operationId, ref, relationId, direction, take);
+  overrides.linkedRecordsManyCompanyWide = (refs, relationId, direction, take) =>
+    base.linkedStageRecordsManyCompanyWide(operationId, refs, relationId, direction, take);
   overrides.create = async (ref, assignedUserIds) => {
     const now = new Date();
     await stageRecord({
@@ -160,7 +223,6 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
       id: ref.recordId,
       typeId: ref.typeId,
       version: 1,
-      protectedKind: null,
       systemData: null,
       rank: null,
       deletedAt: null,
@@ -208,17 +270,49 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
       result,
       revision,
     });
+  overrides.setValues = (values) =>
+    base.stageRows(
+      operationId,
+      "value",
+      values.map(({ ref, fieldId, result, revision }) => ({
+        key: `${recordKey(ref)}:${fieldId}`,
+        payload: { ref, fieldId, result, revision },
+      })),
+    );
   overrides.setValueDependencies = (ref, fieldId, sources) =>
     base.stageRow(operationId, "dependency", `${recordKey(ref)}:${fieldId}`, {
       ref,
       fieldId,
       sources,
     });
+  overrides.setValueDependenciesMany = (dependencies) =>
+    base.stageRows(
+      operationId,
+      "dependency",
+      dependencies.map(({ ref, fieldId, sources }) => ({
+        key: `${recordKey(ref)}:${fieldId}`,
+        payload: { ref, fieldId, sources },
+      })),
+    );
   overrides.getValueDependencies = async (ref, fieldId) => {
     const row = await base.getStageRow(operationId, "dependency", `${recordKey(ref)}:${fieldId}`);
     return row
       ? z.object({ sources: z.array(RecordRefSchema) }).parse(row).sources
       : base.getValueDependencies(ref, fieldId);
+  };
+  overrides.getValueDependenciesManyCompanyWide = async (refs, fieldIds) => {
+    const keys = refs.flatMap((ref) => fieldIds.map((fieldId) => `${recordKey(ref)}:${fieldId}`));
+    const stagedRows = new Map(
+      (await base.getStageRowsByKeys(operationId, "dependency", keys)).map((row) => [
+        row.key,
+        z.object({ sources: z.array(RecordRefSchema) }).parse(row.payload).sources,
+      ]),
+    );
+    const unstaged = await base.getValueDependenciesManyCompanyWide(refs, fieldIds);
+    return unstaged.map((entry) => ({
+      ...entry,
+      sources: stagedRows.get(`${recordKey(entry.ref)}:${entry.fieldId}`) ?? entry.sources,
+    }));
   };
   overrides.getRecordDependenciesCompanyWide = async (ref) => {
     const merged = new Map(
@@ -229,6 +323,29 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
       merged.set(entry.fieldId, entry.sources);
     }
     return [...merged].map(([fieldId, sources]) => ({ fieldId, sources }));
+  };
+  overrides.getRecordDependenciesManyCompanyWide = async (refs) => {
+    const unique = [...new Map(refs.map((ref) => [recordKey(ref), ref])).values()];
+    const [stored, stagedRows] = await Promise.all([
+      base.getRecordDependenciesManyCompanyWide(unique),
+      fieldKeys(unique).then((keys) => base.getStageRowsByKeys(operationId, "dependency", keys)),
+    ]);
+    const merged = new Map(
+      stored.map((entry) => [
+        recordKey(entry.ref),
+        new Map(entry.dependencies.map((dependency) => [dependency.fieldId, dependency.sources])),
+      ]),
+    );
+    for (const row of stagedRows) {
+      const entry = z
+        .object({ ref: RecordRefSchema, fieldId: z.uuid(), sources: z.array(RecordRefSchema) })
+        .parse(row.payload);
+      merged.get(recordKey(entry.ref))?.set(entry.fieldId, entry.sources);
+    }
+    return unique.map((ref) => ({
+      ref,
+      dependencies: [...(merged.get(recordKey(ref)) ?? [])].map(([fieldId, sources]) => ({ fieldId, sources })),
+    }));
   };
   const linkKey = (relationId: string, source: RecordRef, target: RecordRef) =>
     `${relationId}:${source.recordId}:${target.recordId}`;
@@ -270,5 +387,14 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
       payload,
       publish,
     });
+  overrides.appendEvents = (events) =>
+    base.stageRows(
+      operationId,
+      "event",
+      events.map(({ ref, actorId, causeId, kind, payload, publish }) => ({
+        key: `${recordKey(ref)}:${kind}`,
+        payload: { id: randomUUID(), ref, actorId, causeId, kind, payload, publish },
+      })),
+    );
   return staged;
 }

@@ -7,7 +7,6 @@ import { observer } from "mobx-react-lite";
 import { Link, MoreHorizontal, RotateCcw, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { TopBarMenuButton, TopBarPrimaryButton } from "@/components/shared/top-bar-action-buttons";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
@@ -17,19 +16,16 @@ import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { Action } from "@/generated/prisma";
 
 type Props = {
-  canManage: boolean;
   canCreate: boolean;
   store: WikiPageStore;
-  formId: string;
   hasDocument: boolean;
-  onCancelCreate: () => void;
   onCreate: () => void;
   onReload: () => void;
   proposals?: ReactNode;
 };
 
 export const WikiPageActions = observer((props: Props) => {
-  const { canManage, canCreate, store, formId, hasDocument, onCancelCreate, onCreate, onReload, proposals } = props;
+  const { canCreate, store, hasDocument, onCreate, onReload, proposals } = props;
   const t = useTranslations();
   const copyToClipboard = useCopyToClipboard();
   const { showTrashConfirmation } = useDeleteConfirmation();
@@ -38,7 +34,7 @@ export const WikiPageActions = observer((props: Props) => {
     <div className="flex items-center gap-1">
       {proposals}
 
-      {hasDocument && store.form.id && !store.hasUnsavedChanges && (
+      {hasDocument && store.form.id && (
         <TopBarMenuButton busy={store.isLoading} icon={MoreHorizontal} label={t("Wiki.pageActions")}>
           <DropdownMenuItem
             onSelect={() =>
@@ -77,19 +73,8 @@ export const WikiPageActions = observer((props: Props) => {
         </TopBarMenuButton>
       )}
 
-      {store.allows(Action.create) && canCreate && !store.creating && !store.hasUnsavedChanges && (
+      {store.allows(Action.create) && canCreate && (
         <TopBarPrimaryButton disabled={store.isLoading} label={t("Wiki.newPage")} onClick={onCreate} />
-      )}
-
-      {hasDocument && (
-        <FormFooterActions
-          editable={canManage}
-          formId={formId}
-          placement="topbar"
-          reset={store.creating ? undefined : { differs: store.hasUnsavedChanges, onReset: store.resetDocument }}
-          store={store}
-          onCancel={store.creating ? onCancelCreate : undefined}
-        />
       )}
     </div>
   );

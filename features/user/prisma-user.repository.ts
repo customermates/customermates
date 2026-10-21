@@ -24,6 +24,7 @@ import type { AdminUpdateUserDetailsRepo } from "@/features/user/upsert/admin-up
 import type { UpdateUserDetailsRepo } from "@/features/user/upsert/update-user-details.repo";
 import type { Prisma } from "@/generated/prisma";
 import type { CountActiveUsersRepo } from "./count-active-users.repo";
+import type { CountPendingMembersRepo } from "./count-pending-members.repo";
 import type { ResolveUserOptionsRepo } from "./get/resolve-user-options.repo";
 import type { FindUserRepo } from "./find-user.repo";
 import type { BillingUsageRepo } from "@/features/billing-usage/billing-usage.repo";
@@ -84,6 +85,7 @@ export class PrismaUserRepo
     DeactivateUsersAfterSubscriptionGracePeriodRepo,
     DeleteAccountsForPlanUserRepo,
     CountActiveUsersRepo,
+    CountPendingMembersRepo,
     CompleteOnboardingWizardRepo,
     GetOnboardingWizardProgressRepo,
     SaveOnboardingWizardProgressRepo,
@@ -812,6 +814,12 @@ export class PrismaUserRepo
   async countActiveUsers() {
     return await this.prisma.user.count({
       where: { companyId: this.companyId, status: Status.active },
+    });
+  }
+
+  async countPendingMembers() {
+    return await this.prisma.user.count({
+      where: { ...memberListWhere(this.permissions), companyId: this.companyId, status: Status.pendingAuthorization },
     });
   }
 

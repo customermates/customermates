@@ -82,7 +82,6 @@ export class GetTrashedRecordInteractor extends AuthenticatedInteractor<RecordRe
             ...editor.data,
             record: editor.data.record ? { ...editor.data.record, relationships } : null,
             permittedActions: [],
-            systemActions: [],
             trash: {
               itemId: item.id,
               deletedAt: item.deletedAt.toISOString(),

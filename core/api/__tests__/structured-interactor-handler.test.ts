@@ -19,6 +19,10 @@ import {
 } from "../structured-interactor-handler";
 
 import { AuthError, DemoModeError, ForbiddenError, InvalidJsonBodyError } from "@/core/errors/app-errors";
+import {
+  EMAIL_VERIFICATION_REQUIRED_MESSAGE,
+  EmailVerificationRequiredError,
+} from "@/core/auth/email-verification-required-error";
 import { WorkspacePlanRequiredError } from "@/core/auth/workspace-plan-required-error";
 import { WorkspaceChangedError } from "@/core/errors/workspace-changed-error";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -35,6 +39,14 @@ describe("handleError", () => {
   it.each([
     ["AuthError", new AuthError(), 401, "authentication", CustomErrorCode.notAuthenticated, "Not authenticated"],
     ["ForbiddenError", new ForbiddenError(), 403, "authorization", CustomErrorCode.permissionDenied, "Not authorized"],
+    [
+      "an email verification hold",
+      new EmailVerificationRequiredError(),
+      403,
+      "authorization",
+      CustomErrorCode.emailVerificationRequired,
+      EMAIL_VERIFICATION_REQUIRED_MESSAGE,
+    ],
     ["DemoModeError", new DemoModeError(), 403, "authorization", CustomErrorCode.demoMode, undefined],
     [
       "InvalidJsonBodyError",

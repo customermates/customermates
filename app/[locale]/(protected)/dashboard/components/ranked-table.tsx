@@ -8,6 +8,7 @@ import { useRecordValueFormat } from "@/components/records/record-value";
 
 export type RankedTableRow = {
   key: string;
+  onSelect?: () => void;
   label: string;
   formattedValue: string;
   share: number | null;
@@ -49,13 +50,24 @@ export function RankedTable({ hiddenCount, rows }: Props) {
 
         <tbody>
           {rows.map((row, index) => (
-            <tr key={row.key} className="border-t border-border align-top">
+            <tr key={row.key} className="align-top">
               <td className="py-1 pr-2 tabular-nums text-muted-foreground">{index + 1}</td>
 
               <th className="w-full max-w-0 py-1 text-left font-normal" scope="row">
-                <TruncatedText>{row.label}</TruncatedText>
+                {row.onSelect ? (
+                  <button
+                    className="block w-full text-left hover:underline focus-visible:underline"
+                    data-widget-interactive=""
+                    type="button"
+                    onClick={row.onSelect}
+                  >
+                    <TruncatedText>{row.label}</TruncatedText>
+                  </button>
+                ) : (
+                  <TruncatedText>{row.label}</TruncatedText>
+                )}
 
-                <span aria-hidden className="mt-0.5 block h-1 overflow-hidden rounded-full bg-muted">
+                <span aria-hidden className="mt-1.5 block h-1 overflow-hidden rounded-full bg-muted">
                   <span
                     className="block h-full rounded-full"
                     style={{ backgroundColor: row.color, width: `${Math.round(row.barWidth * 1000) / 10}%` }}

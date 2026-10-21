@@ -27,6 +27,8 @@ vi.mock("@/core/errors/report-application-error", () => ({
   reportApplicationError: vi.fn(),
 }));
 vi.mock("../../../workspace-setup-actions", () => ({}));
+const toast = vi.hoisted(() => vi.fn());
+vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: toast }));
 
 import { SETUP_SCREENS } from "@/features/workspace-setup/setup-interview";
 
@@ -36,6 +38,8 @@ import { setupView } from "./setup-view-fixture";
 
 let container: HTMLDivElement;
 let root: Root;
+const scrollIntoView = Object.getOwnPropertyDescriptor(Element.prototype, "scrollIntoView");
+const wizard = { isSubmitting: false, startEmpty: vi.fn(() => Promise.resolve()) };
 
 function renderDataScreen(existingData: string) {
   const store = new WorkspaceSetupStore({ localeStore: { locale: "en" } } as never);
@@ -44,7 +48,7 @@ function renderDataScreen(existingData: string) {
     store.screenIndex = SETUP_SCREENS.indexOf("data");
   });
   store.setAnswer("existingData", { format: "singleChoice", value: existingData });
-  harness.rootStore = { workspaceSetupStore: store };
+  harness.rootStore = { workspaceSetupStore: store, onboardingWizardStore: wizard };
   act(() => root.render(createElement(SetupInterview)));
 }
 
@@ -56,6 +60,7 @@ function field(id: string) {
 
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+  Element.prototype.scrollIntoView = vi.fn();
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
@@ -64,12 +69,14 @@ beforeEach(() => {
 afterEach(() => {
   act(() => root.unmount());
   container.remove();
+  if (scrollIntoView) Object.defineProperty(Element.prototype, "scrollIntoView", scrollIntoView);
+  else Reflect.deleteProperty(Element.prototype, "scrollIntoView");
 });
 
 function renderWebsite(view: ReturnType<typeof setupView>) {
   const store = new WorkspaceSetupStore({ localeStore: { locale: "en" } } as never);
   store.hydrate({ available: true, setup: view });
-  harness.rootStore = { workspaceSetupStore: store };
+  harness.rootStore = { workspaceSetupStore: store, onboardingWizardStore: wizard };
   act(() => root.unmount());
   root = createRoot(container);
   act(() => root.render(createElement(SetupInterview)));
@@ -143,6 +150,45 @@ describe("SetupInterview", () => {
     expect(container.querySelector('input[aria-label="Common.inputs.websiteUrl"]')).toBeNull();
   });
 
+  it("keeps Next enabled, marks the missing answers and focuses the first when it is pressed too early", async () => {
+    renderWebsite(setupView());
+    const next = [...container.querySelectorAll("button")].find((candidate) =>
+      candidate.textContent?.includes("OnboardingWizard.next"),
+    );
+    expect(next?.disabled).toBe(false);
+    const bar = next?.closest<HTMLElement>('[data-slot="setup-action-bar"]');
+    expect(bar?.className.split(" ")).toEqual(
+      expect.arrayContaining(["sticky", "bottom-[calc(0.625rem+var(--safe-bottom))]"]),
+    );
+    expect(bar?.textContent).toContain("WorkspaceSetup.interview.stepProgress");
+    expect(container.querySelector('[data-invalid="true"]')).toBeNull();
+
+    act(() => next?.click());
+
+    expect(toast).toHaveBeenCalledWith({ errors: ["Common.errors.mustNotBeBlank"] });
+    expect(container.querySelector('[data-invalid="true"]')).not.toBeNull();
+    expect(container.textContent).not.toContain("Common.errors.mustNotBeBlank");
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    expect(document.activeElement?.closest('[data-invalid="true"]')).not.toBeNull();
+  });
+
+  it("starts an empty workspace only after the owner confirms what they skip", () => {
+    renderWebsite(setupView());
+    const skip = [...container.querySelectorAll("button")].find((candidate) =>
+      candidate.textContent?.includes("WorkspaceSetup.empty.action"),
+    );
+    expect(skip).toBeDefined();
+
+    act(() => skip?.click());
+    expect(document.body.textContent).toContain("WorkspaceSetup.empty.description");
+    expect(wizard.startEmpty).not.toHaveBeenCalled();
+    const confirm = [...document.body.querySelectorAll("button")].find((candidate) =>
+      candidate.textContent?.includes("WorkspaceSetup.empty.confirm"),
+    );
+    act(() => confirm?.click());
+    expect(wizard.startEmpty).toHaveBeenCalledOnce();
+  });
+
   it("offers to fill in the answers from a website on every part when none is given", () => {
     const text = renderWebsite(
       setupView({ websiteUrl: null, interview: { ...setupView().interview, prefill: "skipped" } }),
@@ -150,5 +196,10 @@ describe("SetupInterview", () => {
     expect(text).toContain("WorkspaceSetup.website.title");
     expect(text).toContain("WorkspaceSetup.website.hint");
     expect(text).toContain("WorkspaceSetup.website.read");
+    const callout = container.querySelector('[data-slot="alert"]');
+    expect(callout?.querySelector('input[aria-label="Common.inputs.websiteUrl"]')).not.toBeNull();
+    expect(callout?.querySelector('[data-slot="button"][data-variant="secondary"]')?.textContent).toBe(
+      "WorkspaceSetup.website.read",
+    );
   });
 });

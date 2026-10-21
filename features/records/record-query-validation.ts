@@ -24,7 +24,13 @@ export function invalidRecordQueryPart(
   | "relatedFilters"
   | "grouping"
   | "groupSummaries"
+  | "contribution"
   | null {
+  if (
+    query.contribution &&
+    (query.contribution.measure.source.typeId !== query.typeId || recordMeasureIssue(query.contribution.measure, model))
+  )
+    return "contribution";
   if (query.includeIdentities && !recordChannelsEnabled(model, query.typeId)) return "includeIdentities";
   if ((query.groupPage || query.groupSummaries) && !query.grouping) return "grouping";
   if (query.grouping && !resolveRecordGrouping(query.typeId, query.grouping, model)) return "grouping";
@@ -181,3 +187,4 @@ export function isRecordSortField(field: Pick<RecordField, "multiple" | "valueTy
     !(field.valueType === "select" && field.multiple)
   );
 }
+import { recordMeasureIssue } from "./record-measure-validation";
