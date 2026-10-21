@@ -852,6 +852,12 @@ test("edits built-in assignees across table, card, phone and pinned detail contr
 
 test("edits formatted notes inline with the shared editor in rows, cards and phone rows", async ({ page, companyId, database }, testInfo) => {
   test.setTimeout(240000);
+  // Linux WebKit leaves the iPhone descriptor's platform on the host.
+  // Keep device detection consistent before the editor builds its keymap.
+  await page.addInitScript(() => {
+    if (/iPhone/.test(navigator.userAgent))
+      Object.defineProperty(navigator, "platform", { get: () => "iPhone" });
+  });
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto(`/en/records/${presetId(companyId, "contact")}`);
   const typeId = await createLabList(page, presetId(companyId, "contact"));
