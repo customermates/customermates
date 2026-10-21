@@ -904,7 +904,7 @@ test("edits formatted notes inline with the shared editor in rows, cards and pho
     if (width >= 768) expect((await editor.boundingBox())?.width).toBeGreaterThan(500);
     await editor.getByRole("button", { name: "Edit Notes", exact: true }).press("Enter");
     const text = editor.getByRole("textbox", { name: "Notes", exact: true });
-    const draft = `Formatted notes ${mode} ${width}`;
+    const draft = `Formatted notes ${mode} ${width}${mode === "card" ? ` ${"Unbroken".repeat(12)}` : ""}`;
     await replaceNotes(text, draft);
     await expect.poll(notesValue).not.toContain(draft);
     if (mode === "card") {
@@ -924,6 +924,13 @@ test("edits formatted notes inline with the shared editor in rows, cards and pho
     expect(new URL(page.url()).pathname).toBe(`/en/records/${typeId}`);
     await page.reload();
     await expect(item).toContainText(saved);
+    if (mode === "card") {
+      const cardBounds = await item.boundingBox();
+      const valueBounds = await noteTrigger.boundingBox();
+      expect(cardBounds).not.toBeNull();
+      expect(valueBounds).not.toBeNull();
+      expect(valueBounds!.width).toBeLessThanOrEqual(cardBounds!.width);
+    }
     await page.screenshot({ path: testInfo.outputPath(`inline-notes-${mode}-${width}.png`), animations: "disabled" });
   }
   const phoneItem = page.locator("[data-row-id], [data-item-id]").filter({ hasText: "Lab one" }).first();

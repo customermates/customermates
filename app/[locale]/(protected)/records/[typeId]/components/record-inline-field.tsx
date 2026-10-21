@@ -66,7 +66,7 @@ const EDIT_SURFACE_CLASS =
   "gap-2 rounded-md px-2 py-1 -mx-2 transition-colors hover:bg-foreground/5 focus-within:bg-foreground/5 data-[state=open]:bg-foreground/5";
 const EDIT_TARGET_CLASS = cn(
   EDIT_SURFACE_CLASS,
-  "inline-flex min-h-6 min-w-0 cursor-pointer items-center text-left outline-none focus-visible:ring-2 focus-visible:ring-ring/70 disabled:cursor-default",
+  "inline-flex min-h-6 min-w-0 max-w-full cursor-pointer items-center text-left outline-none focus-visible:ring-2 focus-visible:ring-ring/70 disabled:cursor-default",
 );
 const EDIT_SPACE_BUTTON_CLASS = cn(
   ITEM_REVEAL_CLASS,
