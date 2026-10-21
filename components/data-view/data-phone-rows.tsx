@@ -79,7 +79,7 @@ export const DataPhoneRows = observer(function DataPhoneRows<E extends HasId>({
           )}
 
           <div
-            className="pointer-events-none relative [&_[data-add-property]]:pointer-events-auto [&_[data-chip-column]]:pointer-events-auto"
+            className="pointer-events-none relative [&_[data-add-property]]:pointer-events-auto [&_[data-chip-column]]:pointer-events-auto [&_[data-edit-target]]:pointer-events-auto"
             role="presentation"
             onClick={(event) => {
               if (!event.currentTarget.contains(event.target as Node) || isInteractiveClick(event)) return;
