@@ -78,6 +78,8 @@ test("shows the full name of truncated direct and derived relationship chips on 
     await expectHydrated(label);
     expect(await label.evaluate((element) => element.scrollWidth > element.clientWidth + 1)).toBe(true);
     await page.keyboard.press("Tab");
+    await label.scrollIntoViewIfNeeded();
+    await expect(label).toBeInViewport();
     await label.focus();
     await expect(label).toBeFocused();
     await expect.poll(() => label.evaluate((element) => element.matches(":focus-visible"))).toBe(true);
