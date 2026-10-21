@@ -15,7 +15,6 @@ export const OperatorUserRowDtoSchema = z.object({
   updatedAt: z.date(),
   companyId: z.uuid(),
   workspaceLabel: z.string(),
-  workspaceOwnerEmail: z.string().nullable(),
   workspaceTags: z.array(z.string()),
   plan: z.enum(SubscriptionPlan).nullable(),
   subscriptionStatus: z.enum(SubscriptionStatus).nullable(),

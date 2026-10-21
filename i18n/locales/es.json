@@ -3398,7 +3398,6 @@
       "title": "Almacenamiento de archivos Enterprise"
     },
     "modal": {
-      "identity": "{domain} · {owner}",
       "subscription": "Suscripción",
       "workspaceId": "ID del espacio de trabajo"
     },

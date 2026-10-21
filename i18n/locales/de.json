@@ -3398,7 +3398,6 @@
       "title": "Enterprise-Dateispeicher"
     },
     "modal": {
-      "identity": "{domain} · {owner}",
       "subscription": "Abonnement",
       "workspaceId": "Workspace-ID"
     },

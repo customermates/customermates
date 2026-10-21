@@ -49,7 +49,9 @@ export function useOperatorAuditColumns(): ColumnDef<OperatorAuditRowDto>[] {
       {
         id: "workspace",
         header: t("Common.table.columns.workspace"),
-        cell: ({ row }) => <span className="text-sm">{row.original.workspaceLabel ?? "-"}</span>,
+        cell: ({ row }) => (
+          <span className="block break-all whitespace-normal text-sm">{row.original.workspaceLabel ?? "-"}</span>
+        ),
       },
       {
         id: "target",

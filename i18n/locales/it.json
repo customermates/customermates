@@ -3398,7 +3398,6 @@
       "title": "Spazio file Enterprise"
     },
     "modal": {
-      "identity": "{domain} · {owner}",
       "subscription": "Abbonamento",
       "workspaceId": "ID spazio di lavoro"
     },

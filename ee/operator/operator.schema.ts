@@ -129,7 +129,7 @@ export const UpdateOperatorWorkspaceTagsSchema = z
 export const DeleteOperatorWorkspaceSchema = z
   .object({
     companyId: z.uuid(),
-    confirmWorkspaceLabel: z.string().trim().min(1).max(200),
+    confirmWorkspaceLabel: z.string().trim().min(1).max(512),
     reason: z.string().trim().min(1).max(500),
   })
   .strict();

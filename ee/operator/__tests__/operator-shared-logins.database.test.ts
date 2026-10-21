@@ -32,6 +32,7 @@ import { PrismaOperatorAccessRepo } from "../prisma-operator-access.repository";
 import { PrismaOperatorRiskSummaryRepo } from "../prisma-operator-risk-summary.repository";
 import { PrismaOperatorUsersRepo } from "../prisma-operator-users.repository";
 import { PrismaOperatorWorkspacesRepo } from "../prisma-operator-workspaces.repository";
+import { resolveWorkspaceLabels } from "../operator-list-filters";
 
 const { prisma } = await import("@/prisma/db");
 const { createTestOperatorRepo } = await import("@/tests/helpers/prisma-operator-repo");
@@ -452,33 +453,49 @@ describeDatabase("operator console with logins in several workspaces", { timeout
     expect(delta).toEqual({ activeUsersLastSevenDays: 2, newUsersLastThirtyDays: 1, newWorkspacesLastThirtyDays: 3 });
   });
 
-  it("labels a named workspace by its name in the workspace and user lists and finds it by name", async () => {
+  it("labels a workspace by its name, otherwise its owner email and short id, the same in every list", async () => {
+    const marker = randomUUID().slice(0, 8);
     const nameMarker = randomUUID().slice(0, 8);
-    const domainMarker = randomUUID().slice(0, 8);
-    const { named, unnamed } = await runWithoutTenant(async () => {
+    const publicDomain = `public-${marker}.invalid`;
+    const shared = `owner-${randomUUID()}@${publicDomain}`;
+    const other = `owner-${randomUUID()}@${publicDomain}`;
+    const ids = await runWithoutTenant(async () => {
       const named = await createWorkspace(prisma, { name: `Steuerkanzlei ${nameMarker}` });
-      const unnamed = await createWorkspace(prisma, { name: null });
-      await createMembership(prisma, named, `owner-${randomUUID()}@named-${domainMarker}.invalid`);
-      await createMembership(prisma, unnamed, `owner-${randomUUID()}@unnamed-${domainMarker}.invalid`);
-      return { named, unnamed };
+      const first = await createWorkspace(prisma, { name: null });
+      const second = await createWorkspace(prisma, { name: null });
+      const neighbour = await createWorkspace(prisma, { name: null });
+      const empty = await createWorkspace(prisma, { name: null });
+      await createMembership(prisma, named, `owner-${randomUUID()}@named-${marker}.invalid`);
+      await createMembership(prisma, first, `former-${randomUUID()}@${publicDomain}`, { status: "inactive" });
+      await createMembership(prisma, first, shared);
+      await createMembership(prisma, second, shared);
+      await createMembership(prisma, neighbour, other);
+      return { named, first, second, neighbour, empty };
     });
-    const scoped = inFilter(FilterFieldKey.workspaceId, [named, unnamed]);
+    const expected = {
+      [ids.named]: `Steuerkanzlei ${nameMarker}`,
+      [ids.first]: `${shared} · ${ids.first.slice(0, 8)}`,
+      [ids.second]: `${shared} · ${ids.second.slice(0, 8)}`,
+      [ids.neighbour]: `${other} · ${ids.neighbour.slice(0, 8)}`,
+      [ids.empty]: ids.empty.slice(0, 8),
+    };
+    const scoped = inFilter(FilterFieldKey.workspaceId, Object.values(ids));
+
+    const labels = await runWithoutTenant(() => resolveWorkspaceLabels(prisma, Object.values(ids)));
+    expect(Object.fromEntries(labels)).toEqual(expected);
+    expect(new Set(labels.values()).size).toBe(5);
 
     const workspaces = new PrismaOperatorWorkspacesRepo();
     const rows = await runWithoutTenant(() => workspaces.getItems({ filters: [scoped] }));
-    expect(Object.fromEntries(rows.map((row) => [row.id, row.workspaceLabel]))).toEqual({
-      [named]: `Steuerkanzlei ${nameMarker}`,
-      [unnamed]: `unnamed-${domainMarker}.invalid`,
-    });
+    expect(Object.fromEntries(rows.map((row) => [row.id, row.workspaceLabel]))).toEqual(expected);
+    expect(rows.find((row) => row.id === ids.first)?.ownerEmail).toBe(shared);
 
     const searched = await runWithoutTenant(() => workspaces.getItems({ filters: [scoped], searchTerm: nameMarker }));
-    expect(searched.map((row) => row.id)).toEqual([named]);
+    expect(searched.map((row) => row.id)).toEqual([ids.named]);
 
     const users = new PrismaOperatorUsersRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
     const members = await runWithoutTenant(() => users.getItems({ filters: [scoped] }));
-    expect(Object.fromEntries(members.map((row) => [row.companyId, row.workspaceLabel]))).toEqual({
-      [named]: `Steuerkanzlei ${nameMarker}`,
-      [unnamed]: `unnamed-${domainMarker}.invalid`,
-    });
+    expect(members).toHaveLength(5);
+    for (const member of members) expect(member.workspaceLabel).toBe(expected[member.companyId]);
   });
 });

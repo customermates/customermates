@@ -8,6 +8,7 @@ import { ConnectedAccountStatus, Status } from "@/generated/prisma";
 
 import { OBSERVATION_LAG_MS } from "./billing-usage";
 import { OPERATOR_AUDIT_ACTION } from "./operator.schema";
+import { resolveWorkspaceOwners } from "./operator-list-filters";
 import { workspaceLabelFor } from "./workspace-label";
 
 function deletedWorkspaceLabel(metadata: unknown): string | null {
@@ -147,20 +148,14 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
       .map((workspace) => workspace.companyId);
 
     const companyNames = new Map(companies.map((company) => [company.id, company.name]));
-    const unnamedIds = liveIds.filter((companyId) => !companyNames.get(companyId));
     const recordedLabels = new Map(
       recorded.flatMap((workspace) =>
         workspace.workspaceLabel ? [[workspace.companyId, workspace.workspaceLabel]] : [],
       ),
     );
     const unlabeledDeletedIds = deletedIds.filter((companyId) => !recordedLabels.has(companyId));
-    const [members, activeSeats, connectedChannels, deletions] = await Promise.all([
-      unnamedIds.length === 0
-        ? Promise.resolve([])
-        : this.prisma.user.findMany({
-            where: { companyId: { in: unnamedIds } },
-            select: { companyId: true, email: true },
-          }),
+    const [owners, activeSeats, connectedChannels, deletions] = await Promise.all([
+      resolveWorkspaceOwners(this.prisma, liveIds),
       this.prisma.user.groupBy({
         by: ["companyId"],
         where: {
@@ -190,12 +185,6 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
           }),
     ]);
 
-    const membersByCompany = new Map<string, { email: string }[]>();
-    for (const member of members) {
-      const list = membersByCompany.get(member.companyId) ?? [];
-      list.push(member);
-      membersByCompany.set(member.companyId, list);
-    }
     const subscriptions = new Map(
       companies.map((company) => [
         company.id,
@@ -221,11 +210,12 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
                   id: workspace.companyId,
                   name: companyNames.get(workspace.companyId) ?? null,
                 },
-                membersByCompany.get(workspace.companyId) ?? [],
+                owners.get(workspace.companyId)?.email ?? null,
               )
             : (recordedLabels.get(workspace.companyId) ??
               deletedLabels.get(workspace.companyId) ??
               workspace.companyId.slice(0, 8)),
+        ownerEmail: workspace.deletedAt === null ? (owners.get(workspace.companyId)?.email ?? null) : null,
         createdAt: workspace.createdAt,
         deletedAt: workspace.deletedAt,
         seatsRecordedFrom: workspace.seatsRecordedFrom,

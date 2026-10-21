@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { z } from "zod";
 
 import { APP_LOCALES } from "@/i18n/locale-registry";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -9,15 +10,29 @@ import { createErrorHandler, serializeInteractorFailure } from "@/core/validatio
 import {
   CreateAgentCreditAdjustmentSchema,
   CorrectOperatorSubscriptionSnapshotSchema,
+  DeleteOperatorWorkspaceSchema,
   ResetOperatorUserCreditsSchema,
   UpdateHostedAiEnterpriseAllowanceSchema,
   UpdateOperatorUserPlatformAccessSchema,
   UpdateOperatorUserStatusSchema,
 } from "../operator.schema";
+import { workspaceLabelFor } from "../workspace-label";
 
 const operationId = "04d695c1-aea1-47e6-9871-010644068f9a";
 
 describe("operator input contracts", () => {
+  it("accepts a canonical workspace label containing a long valid owner email", () => {
+    const email = `${"a".repeat(64)}@${"b".repeat(63)}.${"c".repeat(63)}.example`;
+    expect(z.email().safeParse(email).success).toBe(true);
+    const confirmWorkspaceLabel = workspaceLabelFor({ id: operationId, name: null }, email);
+    expect(confirmWorkspaceLabel.length).toBeGreaterThan(200);
+    const input = { companyId: operationId, confirmWorkspaceLabel, reason: "Remove a disposable workspace" };
+    expect(DeleteOperatorWorkspaceSchema.safeParse(input).success).toBe(true);
+    expect(DeleteOperatorWorkspaceSchema.safeParse({ ...input, confirmWorkspaceLabel: "x".repeat(513) }).success).toBe(
+      false,
+    );
+  });
+
   it("keeps Enterprise allowances inside the database safety bound", () => {
     const base = {
       companyId: operationId,

@@ -3398,7 +3398,6 @@
       "title": "Enterprise file storage"
     },
     "modal": {
-      "identity": "{domain} · {owner}",
       "subscription": "Subscription",
       "workspaceId": "Workspace ID"
     },

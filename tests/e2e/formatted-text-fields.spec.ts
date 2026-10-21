@@ -110,6 +110,7 @@ test("edits two formatted text fields inline in the overview, collapses long tex
   for (const label of ["Notes", "Summary"])
     await page.getByRole("checkbox", { name: label, exact: true }).check();
   await page.keyboard.press("Escape");
+  await expect(page.locator('[data-slot="popover-content"]')).toHaveCount(0);
   const row = recordItem(page, name);
   await expect(row).toContainText(
     "Line 1 about the renewal call. Line 2 about the renewal call.",

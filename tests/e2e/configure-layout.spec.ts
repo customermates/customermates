@@ -202,6 +202,21 @@ test("adds and edits definitions in a side drawer and reorders fields with drag 
   const start = await center(handle);
   const target = await center(nameRow);
   await dragBetween(page, start, { x: start.x, y: target.y - 12 });
+  // dnd-kit briefly keeps a document click guard after a pointer drop.
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        let propagated = false;
+        const onClick = () => {
+          propagated = true;
+        };
+        document.body.addEventListener("click", onClick);
+        document.body.dispatchEvent(new Event("click", { bubbles: true }));
+        document.body.removeEventListener("click", onClick);
+        return propagated;
+      }),
+    )
+    .toBe(true);
   await expect
     .poll(() => fields.locator("[data-configure-field]").evaluateAll((rows) => rows.map((row) => row.getAttribute("data-configure-field"))))
     .toEqual([id("deal.notes"), id("deal.name"), ...before.slice(2)]);

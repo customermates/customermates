@@ -4588,6 +4588,20 @@ describe("agent-turn rate-limited provider requests", () => {
     vi.mocked(sleep).mockClear();
   });
 
+  it.each([400, 401, 403, 422])("settles a pre-stream HTTP %i rejection without a receipt at zero", async (status) => {
+    state.runTools = () => Promise.reject(providerRejection(status, { attempts: [null], isRetryable: false }));
+
+    await runAgentTurn(payload);
+
+    expect(state.providerCalls).toBe(1);
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stopReason: "provider_error",
+        usageSettlement: expect.objectContaining({ costMicrocents: 0, costSource: "measured" }),
+      }),
+    );
+  });
+
   it("retries a request-time 429 after its Retry-After wait and completes the turn", async () => {
     let attempts = 0;
     state.runTools = () =>

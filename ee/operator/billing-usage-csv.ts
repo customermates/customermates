@@ -18,6 +18,7 @@ const COLUMNS = [
   "billing",
   "subscription_quantity",
   "current_period_end",
+  "owner_email",
 ] as const;
 
 function csvCell(raw: string): string {
@@ -53,6 +54,7 @@ export function billingUsageSummaryCsv(usage: OperatorBillingUsageDto): string {
           ? ""
           : String(workspace.subscription.quantity),
         iso(workspace.subscription?.currentPeriodEnd ?? null),
+        workspace.ownerEmail ?? "",
       ]
         .map(csvCell)
         .join(","),

@@ -3398,7 +3398,6 @@
       "title": "Stockage de fichiers Enterprise"
     },
     "modal": {
-      "identity": "{domain} · {owner}",
       "subscription": "Abonnement",
       "workspaceId": "ID de l'espace de travail"
     },

@@ -31,6 +31,7 @@ function workspace(companyId: string, createdAt: string, deletedAt: string | nul
   return {
     companyId,
     workspaceLabel,
+    ownerEmail: null,
     createdAt: new Date(createdAt),
     deletedAt: deletedAt ? new Date(deletedAt) : null,
     seatsRecordedFrom: null,

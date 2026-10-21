@@ -53,6 +53,7 @@ import {
   type UpdateOperatorUserStatusData,
   type UpdateOperatorWorkspaceTagsData,
 } from "./operator.schema";
+import { resolveWorkspaceOwners } from "./operator-list-filters";
 import { workspaceLabelFor } from "./workspace-label";
 
 function normalizeWorkspaceTags(tags: string[]): string[] {
@@ -1139,8 +1140,10 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
         });
         if (!company) return "notFound";
 
-        const workspaceLabel = workspaceLabelFor(company, company.users);
-        if (data.confirmWorkspaceLabel !== workspaceLabel) return "conflict";
+        const owner = (await resolveWorkspaceOwners(this.prisma, [company.id])).get(company.id);
+        const confirmationLabel = workspaceLabelFor(company, owner?.email ?? null);
+        if (data.confirmWorkspaceLabel !== confirmationLabel) return "conflict";
+        const workspaceLabel = workspaceLabelFor(company, null);
         if (await holdsPlatformOperatorsOnlyMembership(this.prisma, data.companyId)) return "conflict";
 
         const liveConnectedAccounts = await this.prisma.connectedAccount.count({

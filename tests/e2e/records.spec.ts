@@ -157,6 +157,7 @@ test("creates a custom list and field through the UI, then persists a decimal re
   await page.getByRole("combobox", { name: "Sort by", exact: true }).click();
   await page.getByRole("option", { name: "Budget", exact: true }).click();
   await page.keyboard.press("Escape");
+  await expect(page.locator('[data-slot="popover-content"]')).toHaveCount(0);
   if (!testInfo.project.use.isMobile) await expect(budgetSummary).toBeVisible();
   await expect(budgetColumn()).not.toBeVisible();
   await saveViewChanges(page);
@@ -168,6 +169,7 @@ test("creates a custom list and field through the UI, then persists a decimal re
   await page.getByRole("button", { name: "Appearance", exact: true }).click();
   await page.getByRole("checkbox", { name: "Budget", exact: true }).check();
   await page.keyboard.press("Escape");
+  await expect(page.locator('[data-slot="popover-content"]')).toHaveCount(0);
   if (!testInfo.project.use.isMobile) await expect(budgetColumn()).toBeVisible();
   await saveViewChanges(page);
   await expect.poll(async () => (await savedState())?.hiddenColumns).toEqual([]);
