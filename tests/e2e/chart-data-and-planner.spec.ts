@@ -225,6 +225,11 @@ test("German chart appearance labels fit and edit stays available through the lo
     const card = page.locator(`[data-focus-target="widget:${widgets.rows[0].id}"]`);
     await expect(card.locator("[data-chart-point]").first()).toBeVisible();
     const edit = germanMessages.Dashboard.widgetEditor.editTitle.replace("{name}", "Open pipeline by stage");
+    await expect(card.getByRole("button", { name: edit, exact: true })).toHaveCount(1);
+    await expect(card.getByRole("button", {
+      name: germanMessages.RecordModel.moreActions.replace("{name}", "Open pipeline by stage"),
+      exact: true,
+    })).toHaveCount(1);
     if (testInfo.project.name === "mobile") await card.getByRole("button", { name: edit, exact: true }).first().click();
     else {
       await card.click({ button: "right" });

@@ -95,7 +95,7 @@ export const WidgetCard = observer(({ widget, onInspect }: Props) => {
     </>
   );
   return (
-    <ItemActions label={t("Dashboard.widgetEditor.editTitle", { name: widget.name })} menu={menu}>
+    <ItemActions label={t("RecordModel.moreActions", { name: widget.name })} menu={menu}>
       <div className="group/reveal relative h-full [&_[data-slot=card-header]]:pr-18">
         <button
           aria-label={
