@@ -148,6 +148,44 @@ test("operator labels stay consistent through lists, modals, filters, exports, a
       await expect(page.getByText("Workspace tags updated", { exact: true })).toBeVisible();
     });
 
+    await test.step("narrow workspace columns preserve the identifying suffix in every operator list", async () => {
+      for (const section of ["workspaces", "users", "audit"]) {
+        await page.goto(`/en/operator/${section}`);
+        const resize = page.getByRole("button", { name: /^Resize Workspace column\./ });
+        await expectHydrated(resize);
+        await resize.focus();
+        await resize.press("Home");
+        await expect.poll(() => resize.evaluate((element) => element.closest("th")?.style.width)).toBe("80px");
+        await expect
+          .poll(() =>
+            page
+              .getByText(firstLabel, { exact: true })
+              .first()
+              .evaluate((element) => {
+                const range = document.createRange();
+                range.selectNodeContents(element);
+                const rects = Array.from(range.getClientRects());
+                for (
+                  let parent = element.parentElement;
+                  parent && parent.tagName !== "TR";
+                  parent = parent.parentElement
+                ) {
+                  if (!["hidden", "clip"].includes(getComputedStyle(parent).overflowX)) continue;
+                  const bounds = parent.getBoundingClientRect();
+                  if (rects.some((rect) => rect.left < bounds.left - 1 || rect.right > bounds.right + 1)) return false;
+                }
+                return true;
+              }),
+          )
+          .toBe(true);
+        await page.getByText(firstLabel, { exact: true }).first().scrollIntoViewIfNeeded();
+        await testInfo.attach(`operator-${section}-narrow-column`, {
+          body: await page.screenshot({ fullPage: true }),
+          contentType: "image/png",
+        });
+      }
+    });
+
     await test.step("deletion requires the selected workspace label and preserves its neighbour", async () => {
       await page.goto("/en/operator/workspaces");
       await expectHydrated(page.locator("#operator-workspaces-filter"));

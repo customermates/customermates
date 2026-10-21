@@ -38,7 +38,9 @@ export function useOperatorUserColumns(): ColumnDef<OperatorUserRowDto>[] {
       {
         id: "workspace",
         header: t("Common.table.columns.workspace"),
-        cell: ({ row }) => <span className="text-sm">{row.original.workspaceLabel}</span>,
+        cell: ({ row }) => (
+          <span className="block break-all whitespace-normal text-sm">{row.original.workspaceLabel}</span>
+        ),
       },
       {
         id: "tags",
