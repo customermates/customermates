@@ -353,6 +353,68 @@ describe("relationship unlink focus", () => {
     await close();
     expect(document.activeElement).toBe(link);
   });
+  it("returns focus to the read-only field when resizing removes its overflow opener", async () => {
+    let width = 120;
+    const observers: Array<{ callback: ResizeObserverCallback; elements: Set<Element> }> = [];
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        elements = new Set<Element>();
+        constructor(readonly callback: ResizeObserverCallback) {
+          observers.push(this);
+        }
+        observe(element: Element) {
+          this.elements.add(element);
+        }
+        unobserve(element: Element) {
+          this.elements.delete(element);
+        }
+        disconnect() {
+          this.elements.clear();
+        }
+      },
+    );
+    vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockImplementation(() => width);
+    vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockReturnValue(200);
+    vi.spyOn(HTMLElement.prototype, "getClientRects").mockReturnValue([
+      new DOMRect(0, 0, 80, 30),
+    ] as unknown as DOMRectList);
+    const records = Array.from({ length: 4 }, (_, index) => ({
+      ...linked,
+      ref: { ...linked.ref, recordId: `project-${index}` },
+    }));
+    actions.choices.mockResolvedValue({ ok: true, data: results(records) });
+    const field = render(editor(first, records, true));
+    await act(async () => {
+      await Promise.resolve();
+    });
+    const frame = field.querySelector<HTMLElement>("[data-relationship-field]");
+    const stack = frame?.firstElementChild;
+    const more = [...field.querySelectorAll("button")].find((button) => /^\+\d+ more$/.test(button.textContent ?? ""));
+    expect(more).toBeDefined();
+    expect(field.querySelector('[role="combobox"]')).toBeNull();
+    act(() => more?.click());
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(document.querySelector("[data-linked-record-list]")).not.toBeNull();
+
+    width = 1200;
+    await act(async () => {
+      for (const observer of observers)
+        if (stack && observer.elements.has(stack)) observer.callback([], observer as unknown as ResizeObserver);
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+    });
+    expect(more?.isConnected).toBe(false);
+    act(() => {
+      document.activeElement?.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    });
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 60));
+    });
+    expect(document.querySelector("[data-linked-record-list]")).toBeNull();
+    expect(document.activeElement).toBe(frame);
+  });
   it("moves focus to the next linked record after unlinking, then to the Link control", async () => {
     const other: RecordChoice = {
       ref: { typeId: relation.targetTypeId, recordId: "10000000-0000-4000-8000-000000000007" },

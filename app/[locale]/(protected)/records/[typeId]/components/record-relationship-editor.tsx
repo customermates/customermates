@@ -146,7 +146,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
   const openLinked = (trigger: HTMLElement) => {
     setFocusTarget({
       opener: trigger,
-      fallback: document.getElementById(id),
+      fallback: document.getElementById(id) ?? chips.current,
     });
     setSearch("");
     setPage(1);
@@ -189,6 +189,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
             <div
               ref={chips}
               aria-busy={linked.loading || undefined}
+              aria-label={store.isReadOnly ? label : undefined}
               className={cn(
                 RECORD_LINK_FRAME_CLASS,
                 "flex-nowrap",
@@ -197,9 +198,17 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
                   : "border-input bg-input-background shadow-xs focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50",
               )}
               data-relationship-field=""
-              role="presentation"
+              id={`${id}-field`}
+              role={store.isReadOnly ? "group" : "presentation"}
+              tabIndex={store.isReadOnly ? -1 : undefined}
               onClick={(event) => {
                 if (!editable || (event.target as Element).closest("button, a, [role=button]")) return;
+                document.getElementById(id)?.click();
+              }}
+              onKeyDown={(event) => {
+                if (!editable || event.target !== event.currentTarget || (event.key !== "Enter" && event.key !== " "))
+                  return;
+                event.preventDefault();
                 document.getElementById(id)?.click();
               }}
             >
@@ -244,7 +253,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
                                 container: () => chips.current,
                                 selector: "[data-chip-id] [data-relationship-unlink]",
                                 index,
-                                fallback: () => document.getElementById(id),
+                                fallback: () => document.getElementById(id) ?? chips.current,
                               });
                             }}
                           >
@@ -268,7 +277,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
                               recordId: record.ref.recordId,
                             },
                             event.currentTarget,
-                            document.getElementById(id),
+                            document.getElementById(id) ?? chips.current,
                           )
                         }
                       >
@@ -358,7 +367,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
                               store.rootStore.recordWorkspaceStore.open(
                                 record.ref,
                                 document.activeElement instanceof HTMLElement ? document.activeElement : null,
-                                document.getElementById(id),
+                                document.getElementById(id) ?? chips.current,
                               );
                             }
                           }}

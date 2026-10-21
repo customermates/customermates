@@ -162,17 +162,7 @@ export const RecordInputField = observer(function RecordInputField({
       ) : undefined;
     if (collapsibleText)
       return <FormTextarea {...shared} collapsible ariaLabel={field.label} endContent={endContent} />;
-    return (
-      <FormInput
-        {...shared}
-        className="pr-14"
-        endContent={
-          typeof value === "string" && value.trim() ? (
-            <ContactValueActions action={field.format?.onClick ?? "open"} kind={field.valueType} value={value} />
-          ) : undefined
-        }
-      />
-    );
+    return <FormInput {...shared} className="pr-14" endContent={endContent} />;
   }
   return collapsibleText ? <FormTextarea {...shared} collapsible ariaLabel={field.label} /> : <FormInput {...shared} />;
 });

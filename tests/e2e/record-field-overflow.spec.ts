@@ -3,35 +3,82 @@ import { test, expect, collectPageErrors } from "./fixtures";
 import { postOk, readModel } from "./api";
 import { presetId } from "../../features/records/crm-preset";
 import { openRecordDetails } from "./record-rows";
+import { secondUser } from "./second-user";
 
-test("keeps 100 linked deals within three chip rows and searches, pages, opens and unlinks through the overflow", async ({ page, database, companyId }, testInfo) => {
+test("keeps 100 linked deals within three chip rows and searches, pages, opens and unlinks through the overflow", async ({
+  page,
+  database,
+  companyId,
+}, testInfo) => {
   test.setTimeout(300000);
   const errors = collectPageErrors(page);
   const id = (key: string) => presetId(companyId, key);
-  const org = await database.query('SELECT id FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 LIMIT 1', [companyId, id("organization")]);
+  const org = await database.query('SELECT id FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 LIMIT 1', [
+    companyId,
+    id("organization"),
+  ]);
   const recordId = org.rows[0].id as string;
   await page.goto(`/en/records/${id("organization")}`);
   const model = await readModel(database, companyId);
   for (let index = 0; index < 100; index++) {
     await postOk(page, "/api/v1/records/mutate", {
-      expectedRevision: model.revision, idempotencyKey: randomUUID(), mutation: {
-        action: "create", typeId: id("deal"),
-        fields: [{ fieldId: id("deal.name"), value: { kind: "text", value: `Overflow deal ${String(index).padStart(3, "0")} - ${"Regional workspace expansion ".repeat(3)}` } }],
-        links: [{ relationId: id("deal.organizations"), direction: "outgoing", record: { typeId: id("organization"), recordId } }],
+      expectedRevision: model.revision,
+      idempotencyKey: randomUUID(),
+      mutation: {
+        action: "create",
+        typeId: id("deal"),
+        fields: [
+          {
+            fieldId: id("deal.name"),
+            value: {
+              kind: "text",
+              value: `Overflow deal ${String(index).padStart(3, "0")} - ${"Regional workspace expansion ".repeat(3)}`,
+            },
+          },
+        ],
+        links: [
+          {
+            relationId: id("deal.organizations"),
+            direction: "outgoing",
+            record: { typeId: id("organization"), recordId },
+          },
+        ],
       },
     });
   }
-  await postOk(page, "/api/v1/records/mutate", { expectedRevision: model.revision, idempotencyKey: randomUUID(), mutation: { action: "create", typeId: id("deal"), fields: [{ fieldId: id("deal.name"), value: { kind: "text", value: "Unlinked sentinel deal" } }] } });
+  await postOk(page, "/api/v1/records/mutate", {
+    expectedRevision: model.revision,
+    idempotencyKey: randomUUID(),
+    mutation: {
+      action: "create",
+      typeId: id("deal"),
+      fields: [{ fieldId: id("deal.name"), value: { kind: "text", value: "Unlinked sentinel deal" } }],
+    },
+  });
   const field = page.locator(`[data-entity-field="relationship:${id("deal.organizations")}:incoming"]`);
   const more = () => field.getByRole("button", { name: /^\+\d+ more$/ });
   const chips = () => field.locator("[data-chip-id]");
   await page.goto(`/en/records/${id("organization")}/${recordId}`);
   await expect(more()).toBeVisible();
-  const baseCount = await database.query('SELECT COUNT(*)::integer AS count FROM "RecordLink" WHERE "companyId"=$1 AND "relationId"=$2 AND "targetId"=$3 AND "deletedAt" IS NULL', [companyId, id("deal.organizations"), recordId]);
+  const baseCount = await database.query(
+    'SELECT COUNT(*)::integer AS count FROM "RecordLink" WHERE "companyId"=$1 AND "relationId"=$2 AND "targetId"=$3 AND "deletedAt" IS NULL',
+    [companyId, id("deal.organizations"), recordId],
+  );
   expect(baseCount.rows[0].count).toBe(100);
   for (const width of [390, 1280]) {
     await page.setViewportSize({ width, height: 900 });
-    await expect.poll(async () => chips().evaluateAll((elements) => new Set(Array.from(elements[0].parentElement!.children).filter((element) => element.hasAttribute("data-chip-id") || element.tagName === "BUTTON").map((element) => Math.round(element.getBoundingClientRect().top))).size)).toBe(3);
+    await expect
+      .poll(async () =>
+        chips().evaluateAll(
+          (elements) =>
+            new Set(
+              Array.from(elements[0].parentElement!.children)
+                .filter((element) => element.hasAttribute("data-chip-id") || element.tagName === "BUTTON")
+                .map((element) => Math.round(element.getBoundingClientRect().top)),
+            ).size,
+        ),
+      )
+      .toBe(3);
     const hidden = Number((await more().innerText()).match(/\d+/)?.[0]);
     expect((await chips().count()) + hidden).toBe(100);
     expect(await field.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
@@ -42,7 +89,10 @@ test("keeps 100 linked deals within three chip rows and searches, pages, opens a
   const list = popover.locator("[data-linked-record-list]");
   await expect(popover.getByRole("combobox", { name: "Search...", exact: true })).toBeFocused();
   await expect(list.getByRole("option", { name: /^Overflow deal/ })).toHaveCount(25);
-  const first = await list.getByRole("option", { name: /^Overflow deal/ }).first().innerText();
+  const first = await list
+    .getByRole("option", { name: /^Overflow deal/ })
+    .first()
+    .innerText();
   await popover.getByRole("button", { name: "Next page", exact: true }).focus();
   await page.keyboard.press("Enter");
   await expect(list.getByRole("option", { name: /^Overflow deal/ })).toHaveCount(25);
@@ -70,7 +120,10 @@ test("keeps 100 linked deals within three chip rows and searches, pages, opens a
   await expect(nested).not.toBeVisible();
   await expect(popover.getByRole("combobox", { name: "Search...", exact: true })).toBeFocused();
   await expect(popover).toContainText("99 linked records");
-  await list.getByRole("button", { name: /^Unlink / }).first().focus();
+  await list
+    .getByRole("button", { name: /^Unlink / })
+    .first()
+    .focus();
   await page.keyboard.press("Escape");
   await expect(popover).not.toBeVisible();
   await expect(more()).toBeFocused();
@@ -86,23 +139,135 @@ test("keeps 100 linked deals within three chip rows and searches, pages, opens a
   await expect(page.locator("[data-slot='unsaved-changes-bar']")).toHaveCount(0);
   await page.reload();
   await expect(more()).toBeVisible();
-  const remaining = await database.query('SELECT COUNT(*)::integer AS count FROM "RecordLink" WHERE "companyId"=$1 AND "relationId"=$2 AND "targetId"=$3 AND "deletedAt" IS NULL', [companyId, id("deal.organizations"), recordId]);
+  const remaining = await database.query(
+    'SELECT COUNT(*)::integer AS count FROM "RecordLink" WHERE "companyId"=$1 AND "relationId"=$2 AND "targetId"=$3 AND "deletedAt" IS NULL',
+    [companyId, id("deal.organizations"), recordId],
+  );
   expect(remaining.rows[0].count).toBe(99);
   expect((await chips().count()) + Number((await more().innerText()).match(/\d+/)?.[0])).toBe(99);
   await page.screenshot({ path: testInfo.outputPath("three-row-deal-preview.png"), animations: "disabled" });
   expect(errors).toEqual([]);
 });
 
-test("wraps and expands plain text, edits it directly, and preserves the saved value on page and drawer", async ({ page, database, companyId }, testInfo) => {
+test("returns focus after resizing away a read-only relationship overflow opener", async ({
+  page,
+  browser,
+  database,
+  companyId,
+}, testInfo) => {
+  const id = (key: string) => presetId(companyId, key);
+  await page.goto(`/en/records/${id("organization")}`);
+  const model = await readModel(database, companyId);
+  const created = await postOk(page, "/api/v1/records/mutate", {
+    expectedRevision: model.revision,
+    idempotencyKey: randomUUID(),
+    mutation: {
+      action: "create",
+      typeId: id("organization"),
+      fields: [{ fieldId: id("organization.name"), value: { kind: "text", value: "Read-only overflow organization" } }],
+    },
+  });
+  const recordId = created.refs[0].recordId as string;
+  for (let index = 0; index < 4; index++)
+    await postOk(page, "/api/v1/records/mutate", {
+      expectedRevision: model.revision,
+      idempotencyKey: randomUUID(),
+      mutation: {
+        action: "create",
+        typeId: id("deal"),
+        fields: [
+          { fieldId: id("deal.name"), value: { kind: "text", value: `Regional delivery expansion deal ${index}` } },
+        ],
+        links: [
+          {
+            relationId: id("deal.organizations"),
+            direction: "outgoing",
+            record: { typeId: id("organization"), recordId },
+          },
+        ],
+      },
+    });
+  const role = await postOk(page, "/api/v1/roles/save", {
+    name: "Overflow readers",
+    description: "Read organizations and deals without writes",
+    permissions: [{ resource: "company", actions: [] }],
+    recordGrants: ["organization", "deal"].map((key) => ({ typeId: id(key), actions: ["readAll"] })),
+    expectedRevision: model.revision,
+    idempotencyKey: randomUUID(),
+  });
+  const reader = await secondUser(browser, database, companyId, testInfo, role.role.id);
+  try {
+    await reader.page.setViewportSize({ width: 390, height: 900 });
+    await reader.page.goto(`/en/records/${id("organization")}/${recordId}`);
+    const field = reader.page.locator(`[data-entity-field="relationship:${id("deal.organizations")}:incoming"]`);
+    const more = field.getByRole("button", { name: /^\+\d+ more$/ });
+    await expect(field.getByRole("combobox")).toHaveCount(0);
+    await expect(more).toBeVisible();
+    await more.click();
+    const picker = reader.page.getByRole("dialog", { name: "Deals", exact: true });
+    await expect(picker.getByRole("combobox", { name: "Search...", exact: true })).toBeFocused();
+    await reader.page.setViewportSize({ width: 1600, height: 900 });
+    await expect(more).toHaveCount(0);
+    await reader.page.keyboard.press("Escape");
+    await expect(picker).not.toBeVisible();
+    await expect(field.locator("[data-relationship-field]")).toBeFocused();
+    await expect(field.getByRole("button", { name: /^Unlink / })).toHaveCount(0);
+    expect(reader.errors).toEqual([]);
+    await reader.page.screenshot({ path: testInfo.outputPath("read-only-overflow-focus.png"), animations: "disabled" });
+  } finally {
+    await reader.close();
+  }
+});
+
+test("wraps and expands plain text, edits it directly, and preserves the saved value on page and drawer", async ({
+  page,
+  database,
+  companyId,
+}, testInfo) => {
   const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "organization");
   await page.goto(`/en/records/${typeId}`);
   const model = await readModel(database, companyId);
   const fieldId = randomUUID();
-  await postOk(page, "/api/v1/model/apply", { expectedRevision: model.revision, idempotencyKey: randomUUID(), operations: [{ operation: "putField", field: { id: fieldId, typeId, label: "Plain notes", valueType: "text", required: false, behavior: { kind: "input" }, options: [], position: 99 } }] });
+  await postOk(page, "/api/v1/model/apply", {
+    expectedRevision: model.revision,
+    idempotencyKey: randomUUID(),
+    operations: [
+      {
+        operation: "putField",
+        field: {
+          id: fieldId,
+          typeId,
+          label: "Plain notes",
+          valueType: "text",
+          required: false,
+          behavior: { kind: "input" },
+          options: [],
+          position: 99,
+        },
+      },
+    ],
+  });
   const current = await readModel(database, companyId);
-  const text = "This is a long customer note that wraps across lines without losing the complete saved text. ".repeat(20) + "\n" + "unbroken-reference-".repeat(40);
-  const result = await postOk(page, "/api/v1/records/mutate", { expectedRevision: current.revision, idempotencyKey: randomUUID(), mutation: { action: "create", typeId, fields: [{ fieldId: presetId(companyId, "organization.name"), value: { kind: "text", value: "Overflow text organization" } }, { fieldId, value: { kind: "text", value: text } }] } });
+  const text =
+    "This is a long customer note that wraps across lines without losing the complete saved text. ".repeat(20) +
+    "\n" +
+    "unbroken-reference-".repeat(40);
+  const result = await postOk(page, "/api/v1/records/mutate", {
+    expectedRevision: current.revision,
+    idempotencyKey: randomUUID(),
+    mutation: {
+      action: "create",
+      typeId,
+      fields: [
+        {
+          fieldId: presetId(companyId, "organization.name"),
+          value: { kind: "text", value: "Overflow text organization" },
+        },
+        { fieldId, value: { kind: "text", value: text } },
+      ],
+    },
+  });
   const recordId = result.refs[0].recordId as string;
   const field = page.locator(`[data-entity-field="${fieldId}"]`);
   await page.goto(`/en/records/${typeId}/${recordId}`);
@@ -113,7 +278,9 @@ test("wraps and expands plain text, edits it directly, and preserves the saved v
   await expect(name).toHaveValue(text);
   await name.fill("Overflow text organization");
   for (const theme of ["light", "dark"]) {
-    await page.evaluate((theme) => { document.documentElement.classList.toggle("dark", theme === "dark"); }, theme);
+    await page.evaluate((theme) => {
+      document.documentElement.classList.toggle("dark", theme === "dark");
+    }, theme);
     for (const width of [390, 1280]) {
       await page.setViewportSize({ width, height: 900 });
       await expect.poll(() => field.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
@@ -134,12 +301,18 @@ test("wraps and expands plain text, edits it directly, and preserves the saved v
   await page.reload();
   await field.getByRole("button", { name: "Show more", exact: true }).click();
   await expect(editor).toHaveValue(updated);
-  const stored = await database.query('SELECT "textValue" FROM "RecordValue" WHERE "companyId"=$1 AND "typeId"=$2 AND "recordId"=$3 AND "fieldId"=$4', [companyId, typeId, recordId, fieldId]);
+  const stored = await database.query(
+    'SELECT "textValue" FROM "RecordValue" WHERE "companyId"=$1 AND "typeId"=$2 AND "recordId"=$3 AND "fieldId"=$4',
+    [companyId, typeId, recordId, fieldId],
+  );
   expect(stored.rows[0].textValue).toBe(updated);
   await page.goto(`/en/records/${typeId}`);
   await openRecordDetails(page, "Overflow text organization");
   const drawer = page.getByRole("dialog", { name: "Organization", exact: true });
-  await drawer.locator(`[data-entity-field="${fieldId}"]`).getByRole("button", { name: "Show more", exact: true }).click();
+  await drawer
+    .locator(`[data-entity-field="${fieldId}"]`)
+    .getByRole("button", { name: "Show more", exact: true })
+    .click();
   await expect(drawer.getByRole("textbox", { name: "Plain notes", exact: true })).toHaveValue(updated);
   await page.screenshot({ path: testInfo.outputPath("expanded-plain-text.png"), animations: "disabled" });
   expect(errors).toEqual([]);
