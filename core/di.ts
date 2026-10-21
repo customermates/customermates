@@ -183,6 +183,7 @@ import { UploadRecordFileContentInteractor } from "@/features/record-files/uploa
 import { UploadRecordFileContentByGrantInteractor } from "@/features/record-files/upload-record-file-content-by-grant.interactor";
 import { GetRecordFileInteractor } from "@/features/record-files/get-record-file.interactor";
 import { DownloadRecordFileInteractor } from "@/features/record-files/download-record-file.interactor";
+import { PreviewRecordFileInteractor } from "@/features/record-files/preview-record-file.interactor";
 import { DownloadRecordFileByGrantInteractor } from "@/features/record-files/download-record-file-by-grant.interactor";
 import { UploadRecordFileInteractor } from "@/features/record-files/upload-record-file.interactor";
 import { AttachRecordFileInteractor } from "@/features/record-files/attach-record-file.interactor";
@@ -671,6 +672,8 @@ export const getGetRecordFileInteractor = () =>
   new GetRecordFileInteractor(getRecordFileAccessService(), getRecordFileLinks());
 export const getDownloadRecordFileInteractor = () =>
   new DownloadRecordFileInteractor(getRecordFileAccessService(), getFileStorageDriver);
+export const getPreviewRecordFileInteractor = () =>
+  new PreviewRecordFileInteractor(getRecordFileAccessService(), getFileStorageDriver);
 export const getDownloadRecordFileByGrantInteractor = () =>
   new DownloadRecordFileByGrantInteractor(getRecordFileGrantTenant(), getDownloadRecordFileInteractor());
 export const getUploadRecordFileInteractor = () =>

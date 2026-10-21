@@ -5,7 +5,11 @@ import { randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { presetId } from "../../features/records/crm-preset";
-import { pdfFixture } from "../helpers/record-file-fixtures";
+import {
+  docxFixture,
+  pdfFixture,
+  xlsxFixture,
+} from "../helpers/record-file-fixtures";
 import {
   addFromConfigure,
   configureDrawer,
@@ -53,18 +57,13 @@ async function saveRecord(page: Page, drawer: Locator) {
   await page.waitForLoadState("networkidle");
 }
 
-test("uploads, shows, downloads and removes record files and refuses uploads over the storage limit", async ({
-  page,
-  playwright,
-  diagnostics,
-  database,
-  companyId,
-}) => {
-  test.setTimeout(300000);
-  const errors = collectPageErrors(page);
-  const typeId = presetId(companyId, "organization");
-  const label = `Documents ${randomUUID().slice(0, 6)}`;
-
+async function createFileField(
+  page: Page,
+  database: Client,
+  companyId: string,
+  typeId: string,
+  label: string,
+) {
   await openConfigure(page, typeId);
   await addFromConfigure(page, "Field");
   const fieldDrawer = configureDrawer(page);
@@ -89,6 +88,28 @@ test("uploads, shows, downloads and removes record files and refuses uploads ove
     )
   ).rows[0]?.id;
   if (!fieldId) throw new Error("The file field was not created");
+  return fieldId;
+}
+
+test("uploads, shows, downloads and removes record files and refuses uploads over the storage limit", async ({
+  page,
+  playwright,
+  diagnostics,
+  database,
+  companyId,
+}) => {
+  test.setTimeout(300000);
+  const errors = collectPageErrors(page);
+  const typeId = presetId(companyId, "organization");
+  const label = `Documents ${randomUUID().slice(0, 6)}`;
+
+  const fieldId = await createFileField(
+    page,
+    database,
+    companyId,
+    typeId,
+    label,
+  );
 
   await page.goto(`/en/records/${typeId}`);
   await openRecordDetails(page, "Example organization");
@@ -209,12 +230,25 @@ test("uploads, shows, downloads and removes record files and refuses uploads ove
     await expect(
       row.getByRole("link", { name: /^Open offer\.pdf \(/ }),
     ).toHaveAttribute("href", `/api/v1/files/${offer.id}/content`);
+    await row.getByRole("link", { name: /^Open notes\.txt \(/ }).click();
+    const notesPreview = page.getByRole("dialog", {
+      name: "notes.txt",
+      exact: true,
+    });
+    await expect(notesPreview.locator("pre")).toContainText(
+      "Agreed on the renewal.",
+    );
     const [download] = await Promise.all([
       page.waitForEvent("download"),
-      row.getByRole("link", { name: /^Open notes\.txt \(/ }).click(),
+      notesPreview
+        .getByRole("button", { name: "Download file", exact: true })
+        .click(),
     ]);
     expect(download.suggestedFilename()).toBe("notes.txt");
     expect(await readFile(await download.path())).toEqual(NOTES);
+    await notesPreview
+      .getByRole("button", { name: "Close", exact: true })
+      .click();
     await row.getByRole("link", { name: /^Open workspace\.png \(/ }).click();
     await expect(
       imagePreview.getByRole("img", { name: "workspace.png", exact: true }),
@@ -296,15 +330,13 @@ test("uploads, shows, downloads and removes record files and refuses uploads ove
         new URL(response.url()).pathname === "/api/v1/files/uploads" &&
         response.status() === 409,
     );
-    await editor
-      .locator('input[type="file"]')
-      .setInputFiles([
-        {
-          name: "large.bin",
-          mimeType: "application/octet-stream",
-          buffer: Buffer.alloc(2048, 7),
-        },
-      ]);
+    await editor.locator('input[type="file"]').setInputFiles([
+      {
+        name: "large.bin",
+        mimeType: "application/octet-stream",
+        buffer: Buffer.alloc(2048, 7),
+      },
+    ]);
     const refused = editor.locator('[data-record-file-upload="failed"]');
     await expect(refused).toContainText("large.bin");
     await expect(refused).toContainText(
@@ -319,4 +351,191 @@ test("uploads, shows, downloads and removes record files and refuses uploads ove
   }
   expect(await storedFiles(database, companyId, fieldId)).toHaveLength(3);
   expect(errors).toEqual([]);
+});
+
+test("previews Excel, CSV, Word and text files in the record drawer with bounded content and a download fallback", async ({
+  page,
+  database,
+  companyId,
+  playwright,
+}) => {
+  test.setTimeout(300000);
+  const typeId = presetId(companyId, "organization");
+  const label = `Documents ${randomUUID().slice(0, 6)}`;
+  const fieldId = await createFileField(
+    page,
+    database,
+    companyId,
+    typeId,
+    label,
+  );
+  const workbook = Buffer.from(
+    await xlsxFixture({
+      Budget: [
+        ["Item", "Amount"],
+        ["Kickoff", { formula: "100+50", result: 150 }],
+        ...Array.from({ length: 203 }, (_, index) => [`Line ${index}`, index]),
+      ],
+      Tasks: [
+        ["Task", "Owner"],
+        ["Review", "Alex"],
+      ],
+    }),
+  );
+  const files = [
+    {
+      name: "Budget.xlsx",
+      mimeType:
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      buffer: workbook,
+    },
+    {
+      name: "Contacts.csv",
+      mimeType: "text/csv",
+      buffer: Buffer.from('Name,Notes\nAcme,"First line\nSecond, line"\n'),
+    },
+    {
+      name: "Brief.docx",
+      mimeType:
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      buffer: Buffer.from(
+        docxFixture([
+          { heading: 1, text: "Project brief" },
+          { text: "Kickoff in Mannheim." },
+        ]),
+      ),
+    },
+    {
+      name: "Notes.txt",
+      mimeType: "text/plain",
+      buffer: Buffer.from(`Meeting notes\n${"long".repeat(500)}`),
+    },
+    {
+      name: "Plan.md",
+      mimeType: "text/markdown",
+      buffer: Buffer.from(
+        '# Plan\n<img src="https://example.org/pixel" onerror="alert(1)">',
+      ),
+    },
+    {
+      name: "Data.json",
+      mimeType: "application/json",
+      buffer: Buffer.from('{"count":2,"name":"Acme"}'),
+    },
+    {
+      name: "Broken.docx",
+      mimeType:
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      buffer: Buffer.from("Not a valid Office archive"),
+    },
+  ];
+  await page.goto(`/en/records/${typeId}`);
+  await openRecordDetails(page, "Example organization");
+  const drawer = page.getByRole("dialog", {
+    name: "Organization",
+    exact: true,
+  });
+  const editor = drawer.getByRole("group", { name: label, exact: true });
+  await editor.locator('input[type="file"]').setInputFiles(files);
+  await expect(editor.locator("[data-record-file]")).toHaveCount(files.length);
+  await expect(editor.locator("[data-record-file-upload]")).toHaveCount(0);
+  const open = async (name: string) => {
+    await editor
+      .getByRole("button", {
+        name: new RegExp(`^${name.replaceAll(".", "\\.")}`),
+      })
+      .click();
+    const preview = page.getByRole("dialog", { name, exact: true });
+    await expect(
+      preview.getByRole("heading", { name, exact: true }),
+    ).toBeVisible();
+    return preview;
+  };
+  const close = async (preview: Locator) => {
+    expect(
+      await preview.evaluate(
+        (element) => element.scrollWidth <= element.clientWidth + 1,
+      ),
+    ).toBe(true);
+    await preview.getByRole("button", { name: "Close", exact: true }).click();
+    await expect(preview).not.toBeVisible();
+    await expect(editor.locator("[data-record-file]")).toHaveCount(
+      files.length,
+    );
+  };
+  const excel = await open("Budget.xlsx");
+  await expect(
+    excel.getByRole("table", { name: "Budget", exact: true }),
+  ).toContainText("150");
+  await expect(excel.getByRole("status")).toContainText(
+    "Only part of this file is shown",
+  );
+  expect(await excel.getByRole("table").getByRole("row").count()).toBe(201);
+  await excel.getByRole("tab", { name: "Tasks", exact: true }).click();
+  await expect(
+    excel.getByRole("table", { name: "Tasks", exact: true }),
+  ).toContainText("Alex");
+  await excel
+    .getByRole("tab", { name: "Tasks", exact: true })
+    .press("ArrowLeft");
+  await expect(
+    excel.getByRole("table", { name: "Budget", exact: true }),
+  ).toBeVisible();
+  const [download] = await Promise.all([
+    page.waitForEvent("download"),
+    excel.getByRole("button", { name: "Download file", exact: true }).click(),
+  ]);
+  expect(await readFile(await download.path())).toEqual(workbook);
+  await close(excel);
+  const csv = await open("Contacts.csv");
+  await expect(
+    csv.getByRole("table", { name: "CSV", exact: true }),
+  ).toContainText("Second, line");
+  await close(csv);
+  for (const [name, text] of [
+    ["Brief.docx", "Kickoff in Mannheim."],
+    ["Notes.txt", "Meeting notes"],
+    ["Plan.md", "<img src="],
+    ["Data.json", '"count": 2'],
+  ]) {
+    const preview = await open(name);
+    await expect(preview.locator("pre")).toContainText(text);
+    await expect(preview.locator("img,script")).toHaveCount(0);
+    await close(preview);
+  }
+  const broken = await open("Broken.docx");
+  await expect(broken.getByRole("status")).toContainText(
+    "This file could not be previewed",
+  );
+  const [brokenDownload] = await Promise.all([
+    page.waitForEvent("download"),
+    broken
+      .getByRole("button", { name: "Download file", exact: true })
+      .first()
+      .click(),
+  ]);
+  expect(await readFile(await brokenDownload.path())).toEqual(
+    files.at(-1)?.buffer,
+  );
+  await close(broken);
+  await saveRecord(page, drawer);
+  const stored = await storedFiles(database, companyId, fieldId);
+  const excelFile = stored.find((file) => file.name === "Budget.xlsx");
+  expect(excelFile?.status).toBe("ready");
+  const saved = await page.request.get(
+    `/api/v1/files/${excelFile?.id}/preview`,
+  );
+  expect(saved.status()).toBe(200);
+  expect(saved.headers()["cache-control"]).toBe("private, no-store");
+  expect(await saved.json()).toMatchObject({ kind: "sheets", truncated: true });
+  const anonymous = await playwright.request.newContext({
+    baseURL: new URL(page.url()).origin,
+  });
+  try {
+    expect(
+      (await anonymous.get(`/api/v1/files/${excelFile?.id}/preview`)).status(),
+    ).toBe(401);
+  } finally {
+    await anonymous.dispose();
+  }
 });

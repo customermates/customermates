@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { StructuredApiResponses } from "@/core/api/structured-interactor-handler";
 import { structuredOperation } from "@/core/openapi/structured-operation";
+import { RecordFilePreviewSchema } from "./record-file-preview.schema";
 import {
   AttachRecordFileTargetSchema,
   CreateRecordFileUploadResultSchema,
@@ -54,6 +55,22 @@ const getFileOperation: ZodOpenApiOperationObject = {
     "200": {
       description: "The file details and a signed download link.",
       content: { "application/json": { schema: RecordFileReadResultSchema } },
+    },
+    ...StructuredApiResponses,
+  },
+};
+
+const previewFileOperation: ZodOpenApiOperationObject = {
+  operationId: "previewFile",
+  summary: "Preview a document or spreadsheet",
+  description: `${FILE_CONTRACT} Returns readable Word (.docx), TXT, Markdown or JSON content, or read-only Excel (.xlsx) and CSV sheets. Independent of background indexing and embeddings. Files up to 25 MiB are read; previews contain at most 100,000 characters, 10 sheets, 200 rows and 50 columns per sheet, and 2,000 characters per cell. truncated identifies a partial preview. Formatting, embedded images and charts are not reproduced; formulas use their stored results. Unsupported, empty, oversized or unreadable files return kind unavailable. Requires a session or API key; signed content links do not authorize this endpoint.\n\nRequires: read access to the record and file field, or ownership of a pending upload`,
+  tags: ["files"],
+  security: [{ apiKeyAuth: [] }],
+  requestParams: { path: FileIdPathSchema },
+  responses: {
+    "200": {
+      description: "The bounded preview or its unavailability reason.",
+      content: { "application/json": { schema: RecordFilePreviewSchema } },
     },
     ...StructuredApiResponses,
   },
@@ -137,6 +154,7 @@ const attachOperation: ZodOpenApiOperationObject = {
 export const recordFileApiPaths = {
   "/v1/files/uploads": { post: createUploadOperation },
   "/v1/files/{fileId}": { get: getFileOperation },
+  "/v1/files/{fileId}/preview": { get: previewFileOperation },
   "/v1/files/{fileId}/attach": { post: attachOperation },
   "/v1/files/{fileId}/content": { get: downloadContentOperation, put: uploadContentOperation },
 };

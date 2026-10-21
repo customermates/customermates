@@ -3,6 +3,7 @@ import type { RecordFileExtraction, RecordFileIndexCandidate, RecordFileIndexRep
 import type { RecordFileSemanticIndexer } from "./record-file-semantic-indexer";
 
 import * as Sentry from "@sentry/nextjs";
+import { readFileBytes } from "@/core/storage/read-file-bytes";
 
 import { recordFileChunks } from "./record-file-chunks";
 import { extractRecordFileText, RECORD_FILE_TEXT_MAX_BYTES, recordFileTextFormat } from "./record-file-text";
@@ -14,29 +15,6 @@ const RECORD_FILE_INDEX_STEP_BUDGET_MS = 60_000;
 export type RecordFileIndexOutcome = { extracted: number; embedded: number; remaining: boolean };
 
 export type RecordFileStorageResolver = (driver: string) => FileStorageDriver | null;
-
-async function readBytes(stream: ReadableStream<Uint8Array>, maxBytes: number): Promise<Uint8Array | null> {
-  const reader = stream.getReader();
-  const parts: Uint8Array[] = [];
-  let size = 0;
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    size += value.byteLength;
-    if (size > maxBytes) {
-      await reader.cancel();
-      return null;
-    }
-    parts.push(value);
-  }
-  const bytes = new Uint8Array(size);
-  let offset = 0;
-  for (const part of parts) {
-    bytes.set(part, offset);
-    offset += part.byteLength;
-  }
-  return bytes;
-}
 
 export class RecordFileIndexService {
   constructor(
@@ -108,7 +86,7 @@ export class RecordFileIndexService {
     const driver = this.storage(file.storageDriver);
     const stored = driver ? await driver.read(file.storageKey) : null;
     if (!stored) return { status: "failed" };
-    const bytes = await readBytes(stored.stream, RECORD_FILE_TEXT_MAX_BYTES);
+    const bytes = await readFileBytes(stored.stream, RECORD_FILE_TEXT_MAX_BYTES);
     if (!bytes) return { status: "skipped" };
     const text = await extractRecordFileText(bytes, format);
     return text.status === "done" ? { ...text, chunks: recordFileChunks(file.name, text.text) } : text;

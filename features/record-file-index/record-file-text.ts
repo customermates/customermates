@@ -1,3 +1,4 @@
+import type { RecordFileTextFormat } from "./record-file-text-format";
 import type { RecordFileParsed, RecordFileParserLimits, RecordFileSheet } from "./record-file-parser";
 
 import { xlsxCellText, xlsxCellValue } from "@/features/data-transfer/import/xlsx/xlsx-workbook";
@@ -5,6 +6,8 @@ import { codePointBoundary } from "@/core/retrieval/retrieval-sections";
 
 import { parseRecordFile } from "./record-file-parser";
 import { checkRecordFileZip } from "./record-file-zip";
+
+export { recordFileTextFormat } from "./record-file-text-format";
 
 export const RECORD_FILE_TEXT_MAX_BYTES = 25 * 1024 * 1024;
 export const RECORD_FILE_TEXT_MAX_CHARS = 500_000;
@@ -19,56 +22,17 @@ const UTF8_MAX_BYTES_PER_CHAR = 4;
 const RAW_TEXT_MAX_CHARS = RECORD_FILE_TEXT_MAX_CHARS * UTF8_MAX_BYTES_PER_CHAR;
 const CONTROL_CHARACTERS = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/gu;
 
-export type RecordFileTextFormat = "pdf" | "docx" | "xlsx" | "html" | "json" | "csv" | "markdown" | "text";
-
 export type RecordFileText =
   | { status: "done"; text: string; truncated: boolean; pageCount?: number }
   | { status: "noText" | "failed" | "skipped"; pageCount?: number };
 
 export type RecordFileTextLimits = Pick<RecordFileParserLimits, "timeoutMs" | "heapMb" | "maxPages">;
 
-const FORMAT_BY_MIME_TYPE: Record<string, RecordFileTextFormat> = {
-  "application/pdf": "pdf",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
-  "text/html": "html",
-  "application/xhtml+xml": "html",
-  "application/json": "json",
-  "text/csv": "csv",
-  "application/csv": "csv",
-  "text/tab-separated-values": "csv",
-  "text/markdown": "markdown",
-  "text/x-markdown": "markdown",
-  "text/plain": "text",
-};
-
-const FORMAT_BY_EXTENSION: Record<string, RecordFileTextFormat> = {
-  pdf: "pdf",
-  docx: "docx",
-  xlsx: "xlsx",
-  html: "html",
-  htm: "html",
-  json: "json",
-  csv: "csv",
-  tsv: "csv",
-  md: "markdown",
-  markdown: "markdown",
-  txt: "text",
-};
-
 const DEFAULT_LIMITS: RecordFileTextLimits = {
   timeoutMs: RECORD_FILE_TEXT_TIMEOUT_MS,
   heapMb: RECORD_FILE_PARSER_HEAP_MB,
   maxPages: RECORD_FILE_PDF_MAX_PAGES,
 };
-
-export function recordFileTextFormat(mimeType: string, name: string): RecordFileTextFormat | null {
-  const type = mimeType.split(";")[0].trim().toLowerCase();
-  const known = FORMAT_BY_MIME_TYPE[type] ?? (type.endsWith("+json") ? "json" : undefined);
-  if (known) return known;
-  const extension = /\.([a-z0-9]+)$/iu.exec(name.trim())?.[1]?.toLowerCase();
-  return extension ? (FORMAT_BY_EXTENSION[extension] ?? null) : null;
-}
 
 function cleanText(text: string): string {
   return text

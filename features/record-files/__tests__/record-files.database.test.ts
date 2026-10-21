@@ -54,6 +54,7 @@ const { UploadRecordFileContentInteractor } = await import("../upload-record-fil
 const { UploadRecordFileContentByGrantInteractor } = await import("../upload-record-file-content-by-grant.interactor");
 const { GetRecordFileInteractor } = await import("../get-record-file.interactor");
 const { DownloadRecordFileInteractor } = await import("../download-record-file.interactor");
+const { PreviewRecordFileInteractor } = await import("../preview-record-file.interactor");
 const { DownloadRecordFileByGrantInteractor } = await import("../download-record-file-by-grant.interactor");
 const { UploadRecordFileInteractor } = await import("../upload-record-file.interactor");
 const { PurgeCompanyRecordFilesInteractor } = await import("../purge-company-record-files.interactor");
@@ -209,6 +210,7 @@ async function workspace() {
     putByGrant: new UploadRecordFileContentByGrantInteractor(grants, putContent),
     get: new GetRecordFileInteractor(access, links),
     read: content,
+    preview: new PreviewRecordFileInteractor(access, drivers),
     readByGrant: new DownloadRecordFileByGrantInteractor(grants, content),
     upload: new UploadRecordFileInteractor(uploads, files, drivers, repo, mutate),
     purge: new PurgeCompanyRecordFilesInteractor(
@@ -405,6 +407,55 @@ describeDatabase("record files", () => {
     }
   });
 
+  it("previews pending and saved CSV bytes without indexing and revokes access after removal", async () => {
+    const w = await workspace();
+    const bytes = new TextEncoder().encode("Name,Amount\nAcme,150\n");
+    const started = data(
+      await w.as(w.admin, () =>
+        w.interactors.create.invoke({
+          typeId: w.typeId,
+          fieldId: w.multiple,
+          name: "Budget.csv",
+          size: bytes.length,
+          mimeType: "text/csv",
+        }),
+      ),
+    );
+    data(await w.as(w.admin, () => w.interactors.put.invoke({ fileId: started.fileId, body: streamOf(bytes) })));
+    const expected = {
+      kind: "sheets",
+      truncated: false,
+      sheets: [
+        {
+          name: "CSV",
+          rows: [
+            { number: 1, cells: ["Name", "Amount"] },
+            { number: 2, cells: ["Acme", "150"] },
+          ],
+        },
+      ],
+    };
+    expect(data(await w.as(w.admin, () => w.interactors.preview.invoke({ fileId: started.fileId })))).toEqual(expected);
+    const ref = await w.createDeal([{ fieldId: w.multiple, value: { kind: "file", value: [started.fileId] } }]);
+    expect(data(await w.as(w.colleague, () => w.interactors.preview.invoke({ fileId: started.fileId })))).toEqual(
+      expected,
+    );
+    await runWithoutTenant(() =>
+      prisma.recordFile.update({ where: { id: started.fileId }, data: { size: BigInt(26 * 1024 * 1024) } }),
+    );
+    expect(data(await w.as(w.admin, () => w.interactors.preview.invoke({ fileId: started.fileId })))).toEqual({
+      kind: "unavailable",
+      reason: "tooLarge",
+    });
+    await runWithoutTenant(() =>
+      prisma.recordFile.update({ where: { id: started.fileId }, data: { size: BigInt(bytes.length) } }),
+    );
+    await w.setFiles(ref, w.multiple, []);
+    expect(failure(await w.as(w.admin, () => w.interactors.preview.invoke({ fileId: started.fileId })))).toMatchObject({
+      code: "recordFileNotFound",
+    });
+  });
+
   it("refuses incomplete uploads, keeps pending files to their uploader and hides files from other workspaces", async () => {
     const w = await workspace();
     const stranger = await workspace();
@@ -422,6 +473,10 @@ describeDatabase("record files", () => {
       expect(await w.parts(started.fileId)).toBe(0);
     }
     for (const user of [w.colleague, stranger.admin]) {
+      expect(failure(await w.as(user, () => w.interactors.preview.invoke({ fileId: started.fileId })))).toMatchObject({
+        code: "recordFileNotFound",
+        kind: "not_found",
+      });
       expect(failure(await w.as(user, () => w.interactors.get.invoke({ fileId: started.fileId })))).toMatchObject({
         code: "recordFileNotFound",
         kind: "not_found",
@@ -447,6 +502,14 @@ describeDatabase("record files", () => {
       code: "permissionDenied",
       kind: "authorization",
     });
+    expect(
+      failure(
+        await stranger.as(stranger.admin, () => stranger.interactors.preview.invoke({ fileId: attached.fileId })),
+      ),
+    ).toMatchObject({ code: "recordFileNotFound", kind: "not_found" });
+    expect(failure(await w.as(w.guest, () => w.interactors.preview.invoke({ fileId: attached.fileId })))).toMatchObject(
+      { code: "permissionDenied", kind: "authorization" },
+    );
     expect(
       failure(
         await w.as(w.guest, () =>

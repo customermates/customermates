@@ -14,7 +14,9 @@ import { PageState } from "@/components/page-state/page-state";
 import { Button } from "@/components/ui/button";
 import { LazyMedia } from "@/app/[locale]/(protected)/inbox/components/lazy-media";
 import { INLINE_RECORD_FILE_TYPES } from "@/features/record-files/record-file-response";
+import { recordFilePreviewFormat } from "@/features/record-files/record-file-preview.schema";
 import { downloadRecordFile, openRecordFile, recordFileContentUrl } from "./record-file-links";
+import { RecordFileDocumentPreview } from "./record-file-document-preview";
 
 type PreviewFile = Pick<RecordFileSummary, "id" | "name" | "mimeType">;
 type Selection = { file: PreviewFile; opener: HTMLElement | null };
@@ -48,7 +50,9 @@ function RecordFilePreview({ file, opener, onClose }: Selection & { onClose: () 
         </AppCardHeader>
 
         <AppCardBody>
-          {file.mimeType === "application/pdf" && !canPreviewPdf ? (
+          {recordFilePreviewFormat(file.mimeType, file.name) ? (
+            <RecordFileDocumentPreview file={file} />
+          ) : file.mimeType === "application/pdf" && !canPreviewPdf ? (
             <PageState
               action={
                 <Button variant="secondary" onClick={() => downloadRecordFile(file)}>
@@ -95,7 +99,7 @@ export function useRecordFilePreview() {
   const [selection, setSelection] = useState<Selection | null>(null);
   return {
     openFile: (file: PreviewFile, opener?: HTMLElement | null) => {
-      if (!INLINE_RECORD_FILE_TYPES.has(file.mimeType)) {
+      if (!INLINE_RECORD_FILE_TYPES.has(file.mimeType) && !recordFilePreviewFormat(file.mimeType, file.name)) {
         openRecordFile(file);
         return;
       }

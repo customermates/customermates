@@ -11,9 +11,13 @@ export type RecordFileParserLimits = {
   maxPages: number;
   maxChars: number;
   maxHtmlChars: number;
+  maxRows?: number;
+  maxColumns?: number;
+  maxSheets?: number;
+  maxCellChars?: number;
 };
 
-export type RecordFileSheet = { name: string; rows: unknown[][] };
+export type RecordFileSheet = { name: string; rows: unknown[][]; rowNumbers?: number[] };
 
 export type RecordFileParsed =
   | { kind: "pages"; pages: string[]; numbered: boolean; truncated: boolean; pageCount?: number }
@@ -129,11 +133,15 @@ const PARSER_SOURCE = `(async () => {
       const sheets = [];
       let chars = 0;
       let truncated = false;
-      for (const sheet of workbook.worksheets) {
+      for (const sheet of workbook.worksheets.slice(0, limits.maxSheets ?? workbook.worksheets.length)) {
         const rows = [];
-        for (let index = 1; index <= sheet.rowCount && !truncated; index += 1) {
+        const rowNumbers = [];
+        let sheetTruncated = false;
+        const rowLimit = Math.min(sheet.rowCount, limits.maxRows ?? sheet.rowCount);
+        for (let index = 1; index <= rowLimit && chars <= limits.maxChars; index += 1) {
           const values = sheet.getRow(index).values;
-          const cells = Array.isArray(values) ? values.slice(1) : [];
+          if (limits.maxColumns && values.length > limits.maxColumns + 1) sheetTruncated = true;
+          const cells = Array.isArray(values) ? values.slice(1, limits.maxColumns ? limits.maxColumns + 1 : undefined) : [];
           let last = -1;
           cells.forEach((value, column) => {
             const length = cellLength(value);
@@ -144,12 +152,22 @@ const PARSER_SOURCE = `(async () => {
           });
           if (last < 0) continue;
           chars += last + 1;
-          rows.push(cells.slice(0, last + 1).map(cellValue));
-          truncated = chars > limits.maxChars;
+          rows.push(cells.slice(0, last + 1).map((value) => {
+            const plain = cellValue(value);
+            if (limits.maxCellChars && typeof plain === "string" && plain.length > limits.maxCellChars) {
+              sheetTruncated = true;
+              return plain.slice(0, limits.maxCellChars);
+            }
+            return plain;
+          }));
+          rowNumbers.push(index);
+          if (chars > limits.maxChars) truncated = true;
         }
-        sheets.push({ name: sheet.name, rows });
-        if (truncated) break;
+        sheets.push({ name: sheet.name, rows, rowNumbers });
+        if (sheetTruncated || sheet.rowCount > rowLimit) truncated = true;
+        if (chars > limits.maxChars) break;
       }
+      if (limits.maxSheets && workbook.worksheets.length > limits.maxSheets) truncated = true;
       return { kind: "sheets", sheets, truncated };
     },
   };

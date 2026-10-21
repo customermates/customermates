@@ -99150,6 +99150,243 @@
         }
       }
     },
+    "/v1/files/{fileId}/preview": {
+      "get": {
+        "operationId": "previewFile",
+        "summary": "Preview a document or spreadsheet",
+        "description": "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{fileId}/attach`. Access to a file follows read access to its record and field. Returns readable Word (.docx), TXT, Markdown or JSON content, or read-only Excel (.xlsx) and CSV sheets. Independent of background indexing and embeddings. Files up to 25 MiB are read; previews contain at most 100,000 characters, 10 sheets, 200 rows and 50 columns per sheet, and 2,000 characters per cell. truncated identifies a partial preview. Formatting, embedded images and charts are not reproduced; formulas use their stored results. Unsupported, empty, oversized or unreadable files return kind unavailable. Requires a session or API key; signed content links do not authorize this endpoint.\n\nRequires: read access to the record and file field, or ownership of a pending upload",
+        "tags": [
+          "files"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "fileId",
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "description": "Id of the file."
+            },
+            "required": true,
+            "description": "Id of the file."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The bounded preview or its unavailability reason.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "text"
+                        },
+                        "format": {
+                          "type": "string",
+                          "enum": [
+                            "docx",
+                            "text",
+                            "markdown",
+                            "json"
+                          ]
+                        },
+                        "text": {
+                          "type": "string"
+                        },
+                        "truncated": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "format",
+                        "text",
+                        "truncated"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "sheets"
+                        },
+                        "sheets": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string"
+                              },
+                              "rows": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "number": {
+                                      "type": "integer",
+                                      "exclusiveMinimum": 0,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "cells": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  },
+                                  "required": [
+                                    "number",
+                                    "cells"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "rows"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "truncated": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "sheets",
+                        "truncated"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "unavailable"
+                        },
+                        "reason": {
+                          "type": "string",
+                          "enum": [
+                            "unsupported",
+                            "tooLarge",
+                            "unreadable",
+                            "empty"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "reason"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ],
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
     "/v1/files/{fileId}/attach": {
       "post": {
         "operationId": "attachFile",
