@@ -10,7 +10,7 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { FormCheckbox } from "@/components/forms/form-checkbox";
 import { AppForm } from "@/components/forms/form-context";
-import { FormFooterActions } from "@/components/forms/form-footer-actions";
+import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { FormInput } from "@/components/forms/form-input";
 import { AppModal } from "@/components/modal";
 import { AppLink } from "@/components/shared/app-link";
@@ -43,12 +43,12 @@ export const CreateWorkspaceModal = observer(() => {
   return (
     <AppModal store={store} title={t("Workspaces.create")}>
       <AppForm store={store}>
-        <AppCard>
+        <AppCard className="relative">
           <AppCardHeader>
             <h2 className="text-x-lg">{t("Workspaces.create")}</h2>
           </AppCardHeader>
 
-          <AppCardBody>
+          <AppCardBody className="pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]">
             <p className="text-x-sm text-subdued">{t("Workspaces.createDescription")}</p>
 
             <FormInput
@@ -72,7 +72,7 @@ export const CreateWorkspaceModal = observer(() => {
             ) : null}
           </AppCardBody>
 
-          <FormFooterActions anchorScope="create-workspace" saveLabel={t("Workspaces.create")} />
+          <UnsavedChangesBar creating anchorScope="create-workspace" saveLabel={t("Workspaces.create")} store={store} />
         </AppCard>
       </AppForm>
     </AppModal>

@@ -7,11 +7,15 @@ export type ConfigureSection = "Fields" | "Relationships";
 const escapePattern = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 export function configureDrawer(page: Page) {
-  return page.getByRole("dialog");
+  return page.locator('[role="dialog"][data-slot="sheet-content"]');
 }
 
 export function configureTopBar(page: Page) {
   return page.locator("header").first();
+}
+
+export function configureSaveBar(page: Page) {
+  return page.locator('[data-configure-page] > section > [data-slot="unsaved-changes-bar"]');
 }
 
 export async function openConfigure(page: Page, typeId?: string) {
@@ -53,7 +57,7 @@ export function configureRow(page: Page, section: ConfigureSection, label: strin
 
 export async function openDrawerTab(page: Page, name: string) {
   const drawer = configureDrawer(page);
-  await expect(drawer.getByRole("button", { name: "Save", exact: true }).first()).toBeVisible();
+  await expect(drawer).toBeVisible();
   const tab = drawer.getByRole("tab", { name, exact: true });
   if (await tab.count()) {
     if ((await tab.getAttribute("aria-selected")) !== "true") await tab.click();
@@ -100,7 +104,7 @@ export async function saveDrawer(page: Page) {
   const revision = await configureRevision(page);
   const dialog = configureDrawer(page);
   await dialog.getByRole("button", { name: "Save", exact: true }).first().click();
-  await expect(dialog.getByRole("status").last()).toContainText("Ready to apply");
+  await expect(dialog.getByRole("status").filter({ hasText: "Ready to apply" })).toBeVisible();
   await dialog.getByRole("button", { name: "Save", exact: true }).first().click();
   await expect(dialog).not.toBeVisible();
   await expectConfigureRevisionAfter(page, revision);
@@ -108,18 +112,17 @@ export async function saveDrawer(page: Page) {
 
 export async function saveGeneral(page: Page) {
   const revision = await configureRevision(page);
-  const topBar = configureTopBar(page);
-  const save = topBar.getByRole("button", { name: "Save", exact: true });
-  const reset = topBar.getByRole("button", { name: "Reset", exact: true });
+  const bar = configureSaveBar(page);
+  const save = bar.getByRole("button", { name: "Save", exact: true });
   const ready = page.locator("[data-configure-list-pane]").getByRole("status").filter({ hasText: "Ready to apply" });
   const saveEnabled = () =>
     save.evaluateAll((buttons) => buttons.some((button) => !(button as HTMLButtonElement).disabled));
   await save.click();
   await expect
-    .poll(async () => ((await ready.isVisible()) && (await saveEnabled())) || !(await reset.isVisible()))
+    .poll(async () => ((await ready.isVisible()) && (await saveEnabled())) || !(await bar.isVisible()))
     .toBe(true);
-  if ((await reset.isVisible()) && (await saveEnabled())) await save.click();
-  await expect(reset).toHaveCount(0);
+  if ((await bar.isVisible()) && (await saveEnabled())) await save.click();
+  await expect(bar).toHaveCount(0);
   await expectConfigureRevisionAfter(page, revision);
 }
 

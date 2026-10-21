@@ -40,6 +40,7 @@ vi.mock("../record-editor-content", async () => {
 });
 
 import { RecordWorkspaceStore } from "@/core/stores/record-workspace.store";
+import { NavigationGuardController } from "@/core/stores/navigation-guard.controller";
 import { RecordEditorStore } from "../record-editor.store";
 import { RecordDetailPage } from "../record-detail-page";
 
@@ -123,6 +124,22 @@ afterEach(() => {
 });
 
 describe("record page draft handoff", () => {
+  it("keeps the restored draft guarded independently of the document body", async () => {
+    const h = harness();
+    const guard = new NavigationGuardController();
+    Object.assign(h.root, { navigationGuard: guard });
+    h.handOffFromDrawer("Drawer draft");
+    await h.render(createElement(RecordDetailPage, { initial: h.page }));
+    expect(h.queued()).toBeNull();
+    expect(guard.isGuarding).toBe(true);
+    const navigate = vi.fn();
+    expect(guard.tryNavigate(navigate)).toBe(false);
+    guard.cancel();
+    expect(navigate).not.toHaveBeenCalled();
+    await h.render(null);
+    expect(guard.isGuarding).toBe(false);
+  });
+
   it("restores the drawer draft after an abandoned suspended first mount", async () => {
     const h = harness();
     h.handOffFromDrawer("Drawer draft");

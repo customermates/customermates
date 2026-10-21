@@ -14,7 +14,7 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AgentChatStoreProvider } from "@/app/components/agent-chat/agent-chat-store-context";
 import { AgentRouteReloadBridge } from "@/app/components/agent-chat/agent-route-reload";
-import { FormFooterActions } from "@/components/forms/form-footer-actions";
+import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { AppForm } from "@/components/forms/form-context";
 import { AppModal } from "@/components/modal";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
@@ -124,7 +124,7 @@ export const RoutineModal = observer(() => {
         title={t("RoutineModal.title")}
       >
         <AppForm store={routineModalStore}>
-          <AppCard>
+          <AppCard className="relative">
             <AppCardHeader>
               {openRun ? (
                 <div className="min-w-0">
@@ -154,7 +154,7 @@ export const RoutineModal = observer(() => {
             ) : isExistingRoutine && wide ? (
               <AppCardBody>
                 <div
-                  className="grid min-w-0 items-start gap-6 lg:min-h-[36rem] lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.9fr)]"
+                  className="grid min-w-0 items-start gap-6 pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))] lg:min-h-[36rem] lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.9fr)]"
                   data-routine-layout="wide"
                 >
                   <div className="min-w-0">
@@ -179,7 +179,10 @@ export const RoutineModal = observer(() => {
                 value={routineModalStore.activeTab}
                 onValueChange={routineModalStore.setActiveTab}
               >
-                <AppCardBody data-routine-layout="compact">
+                <AppCardBody
+                  className="pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]"
+                  data-routine-layout="compact"
+                >
                   <SegmentedControlPanel className="mt-0" value="details">
                     <RoutineConfigurationPane store={routineModalStore} onPause={confirmPause} />
                   </SegmentedControlPanel>
@@ -190,12 +193,22 @@ export const RoutineModal = observer(() => {
                 </AppCardBody>
               </SegmentedControl>
             ) : (
-              <AppCardBody data-routine-layout="create">
+              <AppCardBody
+                className="pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]"
+                data-routine-layout="create"
+              >
                 <RoutineConfigurationPane store={routineModalStore} onPause={confirmPause} />
               </AppCardBody>
             )}
 
-            {!openRun && <FormFooterActions anchorScope="routine-modal" store={routineModalStore} />}
+            {!openRun && (
+              <UnsavedChangesBar
+                anchorScope="routine-modal"
+                creating={!isExistingRoutine}
+                store={routineModalStore}
+                onSave={routineModalStore.onSubmit}
+              />
+            )}
           </AppCard>
         </AppForm>
       </AppModal>

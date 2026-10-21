@@ -12,6 +12,7 @@ import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import {
   addFromConfigure,
   configureTopBar,
+  configureSaveBar,
   openConfigure,
   openConfigureRow,
   saveDrawer,
@@ -199,7 +200,7 @@ test("recovers concurrent configuration drafts and resolves each same-control ch
         const remote = await readModel(database, companyId);
         expect(remote.revision).toBe(before.revision + 1);
         expect(type(remote, typeId)).toMatchObject({ label: remoteName, icon: scenario.icon });
-        const save = configureTopBar(page).getByRole("button", {
+        const save = configureSaveBar(page).getByRole("button", {
           name: englishMessages.Common.actions.save,
           exact: true,
         });

@@ -71,7 +71,7 @@ const noWebhooks = new WebhookPauseNotifier(
 const { PurgeExpiredTrashInteractor } = await import("@/features/trash/purge-expired-trash.interactor");
 const { PurgeCompanyTrashInteractor } = await import("@/features/trash/purge-company-trash.interactor");
 const { AdvanceSystemRecordOperationInteractor } = await import("../advance-system-record-operation.interactor");
-const { getWebhookPauseNotifier } = await import("@/core/di");
+const { getWebhookPauseNotifier, getRestoreTrashInteractor, getDeleteWidgetInteractor } = await import("@/core/di");
 const { createCrmPreset, presetId } = await import("../crm-preset");
 const { createTestRecordOperationService, createTestRecordRepo } = await import("@/tests/helpers/record-repository");
 const { PrismaDataViewRepo } = await import("@/features/data-view/prisma-data-view.repository");
@@ -266,6 +266,157 @@ afterAll(async () => {
 });
 
 describeDatabase("configuration trash", () => {
+  it.each([false, true])(
+    "trashes dependent widgets with a deleted list and checks every current dependency on restore (background=%s)",
+    async (background) => {
+      const f = await fixture();
+      const created = await f.as(async () =>
+        f.apply.invoke(
+          await f.change([
+            {
+              operation: "createType",
+              reference: "$alpha",
+              label: "Alpha item",
+              pluralLabel: "Alpha items",
+              description: "",
+              icon: "folder",
+              embedded: false,
+              accessPresetId: null,
+            },
+            {
+              operation: "createType",
+              reference: "$beta",
+              label: "Beta item",
+              pluralLabel: "Beta items",
+              description: "",
+              icon: "folder",
+              embedded: false,
+              accessPresetId: null,
+            },
+          ]),
+        ),
+      );
+      if (!created.ok || created.data.status !== "completed") throw new Error(JSON.stringify(created));
+      const alpha = created.data.references?.find((entry) => entry.reference === "$alpha")?.id;
+      const beta = created.data.references?.find((entry) => entry.reference === "$beta")?.id;
+      if (!alpha || !beta) throw new Error("The measured lists are missing");
+      const chart = randomUUID();
+      const activity = randomUUID();
+      const untouched = randomUUID();
+      const colleagueChart = randomUUID();
+      const colleague = await runWithoutTenant(() =>
+        prisma.user.create({
+          data: {
+            companyId: f.seed.company.id,
+            roleId: f.seed.adminRole.id,
+            firstName: "Colleague",
+            lastName: "Test",
+            email: `${randomUUID()}@example.test`,
+            status: "active",
+          },
+        }),
+      );
+      const measure = (typeId: string) => ({
+        source: { typeId, filters: [], relationships: [] },
+        aggregation: "count",
+        valueFieldId: null,
+        groupBy: null,
+        groupLimit: 100,
+      });
+      await runWithoutTenant(() =>
+        prisma.widget.createMany({
+          data: [
+            {
+              id: chart,
+              companyId: f.seed.company.id,
+              userId: f.admin.id,
+              name: "Alpha count",
+              measure: measure(alpha),
+              displayOptions: { displayType: "number" },
+            },
+            {
+              id: colleagueChart,
+              companyId: f.seed.company.id,
+              userId: colleague.id,
+              name: "Colleague count",
+              measure: measure(alpha),
+              displayOptions: { displayType: "number" },
+            },
+            {
+              id: untouched,
+              companyId: f.seed.company.id,
+              userId: f.admin.id,
+              name: "Unaffected count",
+              measure: measure(f.id("organization")),
+              displayOptions: { displayType: "number" },
+            },
+            {
+              id: activity,
+              companyId: f.seed.company.id,
+              userId: f.admin.id,
+              name: "Alpha and Beta activity",
+              kind: "activityTimeline",
+              displayOptions: { showFilters: true },
+              activityQuery: { scope: { typeIds: [alpha, beta], records: [] }, kinds: ["record"], filters: [] },
+            },
+          ],
+        }),
+      );
+      expect(await f.as(() => getDeleteWidgetInteractor().invoke({ id: colleagueChart }))).toMatchObject({ ok: false });
+      expect(await f.as(() => getDeleteWidgetInteractor().invoke({ id: chart }))).toMatchObject({ ok: true });
+      const chartItem = (await f.items()).find((item) => item.targetId === chart);
+      if (!chartItem) throw new Error("The independently deleted widget is not in Trash");
+      const removeList = async (id: string) => {
+        const result = await f.as(async () =>
+          f.apply.run(await f.change([{ operation: "delete", target: { kind: "type", id } }]), { background }),
+        );
+        if (!result.ok) throw new Error(JSON.stringify(result));
+        if (result.data.status === "pending") {
+          const operationId = result.data.operationId;
+          let done = false;
+          for (let step = 0; step < 80 && !done; step++) done = (await f.as(() => f.worker.advance(operationId))).done;
+          expect(done).toBe(true);
+        }
+      };
+      await removeList(alpha);
+      const items = await f.items();
+      const listItem = items.find((item) => item.kind === "list" && item.targetId === alpha);
+      const activityItem = items.find((item) => item.targetId === activity);
+      const colleagueItem = items.find((item) => item.targetId === colleagueChart);
+      if (!listItem || !activityItem || !colleagueItem)
+        throw new Error("Expected the list and dependent widgets in Trash");
+      expect(activityItem.batchId).toBe(listItem.batchId);
+      expect(colleagueItem.batchId).toBe(listItem.batchId);
+      expect(colleagueItem.ownerUserId).toBe(colleague.id);
+      expect(items.find((item) => item.targetId === chart)).toEqual(chartItem);
+      expect(await runWithoutTenant(() => prisma.widget.findUniqueOrThrow({ where: { id: untouched } }))).toMatchObject(
+        { deletedAt: null },
+      );
+      expect(await f.as(() => getRestoreTrashInteractor().invoke({ itemIds: [chartItem.id] }))).toMatchObject({
+        ok: true,
+        data: { blocked: [{ itemId: chartItem.id, reason: "parentDeleted" }] },
+      });
+      await removeList(beta);
+      expect((await f.items()).filter((item) => item.targetId === activity)).toHaveLength(1);
+      expect(await f.as(() => f.trash.restore.invoke({ itemIds: [listItem.id] }))).toMatchObject({ ok: true });
+      expect(await f.as(() => getRestoreTrashInteractor().invoke({ itemIds: [activityItem.id] }))).toMatchObject({
+        ok: true,
+        data: { blocked: [{ itemId: activityItem.id, reason: "parentDeleted" }] },
+      });
+      expect(await f.as(() => getRestoreTrashInteractor().invoke({ itemIds: [chartItem.id] }))).toMatchObject({
+        ok: true,
+        data: { restoredItemIds: [chartItem.id], blocked: [] },
+      });
+      const betaItem = (await f.items()).find((item) => item.kind === "list" && item.targetId === beta);
+      if (!betaItem) throw new Error("Beta is not in Trash");
+      expect(await f.as(() => f.trash.restore.invoke({ itemIds: [betaItem.id] }))).toMatchObject({ ok: true });
+      expect(await f.as(() => getRestoreTrashInteractor().invoke({ itemIds: [activityItem.id] }))).toMatchObject({
+        ok: true,
+        data: { restoredItemIds: [activityItem.id], blocked: [] },
+      });
+    },
+  );
+
   it("publishes an optional choice field without backfilling a Northwind-sized set of records", async () => {
     const f = await fixture();
     const companyId = f.seed.company.id;

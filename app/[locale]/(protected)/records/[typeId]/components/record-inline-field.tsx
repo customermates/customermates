@@ -15,11 +15,10 @@ import type { RecordsStore } from "./records.store";
 import { useEffect, useId, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Check, Plus, UserRound } from "lucide-react";
+import { Check, Plus } from "lucide-react";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { EmptyValue } from "@/components/shared/empty-value";
-import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import {
@@ -58,10 +57,16 @@ import { useRecordChoices } from "@/components/records/use-record-choices";
 import { isEmptyResult } from "./record-chip-row-model";
 
 const EDIT_TARGET_SELECTOR = "[data-edit-target]";
-const EDIT_TARGET_CLASS =
-  "group/edit inline-flex min-h-6 max-w-full min-w-0 cursor-pointer items-center rounded-md text-left outline-none focus-visible:ring-2 focus-visible:ring-ring/70 disabled:cursor-default";
-const EDIT_SPACE_BUTTON_CLASS =
-  "sr-only focus-visible:not-sr-only focus-visible:ml-1 focus-visible:rounded-md focus-visible:px-1 focus-visible:text-xs focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:outline-none";
+const EDIT_SURFACE_CLASS =
+  "gap-2 rounded-md px-2 py-1 -mx-2 transition-colors hover:bg-foreground/5 focus-within:bg-foreground/5 data-[state=open]:bg-foreground/5";
+const EDIT_TARGET_CLASS = cn(
+  EDIT_SURFACE_CLASS,
+  "inline-flex min-h-6 min-w-0 cursor-pointer items-center text-left outline-none focus-visible:ring-2 focus-visible:ring-ring/70 disabled:cursor-default",
+);
+const EDIT_SPACE_BUTTON_CLASS = cn(
+  ITEM_REVEAL_CLASS,
+  "ml-auto !w-auto shrink-0 rounded-sm px-1 text-xs text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:outline-none",
+);
 const IN_PLACE_VALUE_TYPES: RecordFieldView["valueType"][] = ["text", "number", "currency", ...CONTACT_VALUE_TYPES];
 
 export function focusFirstControl(event: Event) {
@@ -149,7 +154,7 @@ function nextEditTarget(from: HTMLElement | null, backwards: boolean) {
   };
 }
 
-function EmptyValueTarget({ member = false }: { member?: boolean }) {
+function EmptyValueTarget() {
   return (
     <span
       className={cn(
@@ -160,11 +165,7 @@ function EmptyValueTarget({ member = false }: { member?: boolean }) {
     >
       <EmptyValue />
 
-      {member ? (
-        <Avatar aria-hidden unlinked fallback={<UserRound className="size-3" />} size="sm" />
-      ) : (
-        <Plus aria-hidden className="size-3.5" />
-      )}
+      <Plus aria-hidden className="size-3.5" />
     </span>
   );
 }
@@ -210,7 +211,9 @@ const InlineFieldForm = observer(function InlineFieldForm({
   onDone: () => void;
 }) {
   const store = useFieldValueStore(records, record, field, onDone);
-  return <RecordFieldValueEditor saveOnDatePick members={record.memberUsers} store={store} onCancel={onDone} />;
+  return (
+    <RecordFieldValueEditor saveOnDatePick label={null} members={record.memberUsers} store={store} onCancel={onDone} />
+  );
 });
 
 const InPlaceFieldInput = observer(function InPlaceFieldInput({
@@ -297,7 +300,7 @@ const InlineSelect = observer(function InlineSelect({
       <DropdownMenuTrigger asChild disabled={busy}>
         <button
           aria-label={t("RecordModel.editValue", { field: field.label })}
-          className={cn(EDIT_TARGET_CLASS, "[&_[data-slot=badge]]:hover:brightness-95")}
+          className={EDIT_TARGET_CLASS}
           data-edit-target=""
           data-inline-edit={field.id}
           type="button"
@@ -389,7 +392,7 @@ const InPlaceField = observer(function InPlaceField({
   }, [editing]);
   if (editing) {
     return (
-      <span ref={anchor} className="flex min-w-0 flex-1">
+      <span ref={anchor} className="flex min-w-0 max-w-xs">
         <InPlaceFieldInput
           field={field}
           record={record}
@@ -409,7 +412,7 @@ const InPlaceField = observer(function InPlaceField({
     return (
       <span
         ref={anchor}
-        className="-mx-3 -my-2 flex min-w-0 cursor-text items-center px-3 py-2"
+        className={cn(EDIT_SURFACE_CLASS, "flex min-h-6 min-w-0 cursor-text items-center")}
         data-inline-edit-space={field.id}
         role="presentation"
         onClick={(event: MouseEvent<HTMLSpanElement>) => {
@@ -435,10 +438,10 @@ const InPlaceField = observer(function InPlaceField({
     );
   }
   return (
-    <span ref={anchor} className="flex w-full min-w-0">
+    <span ref={anchor} className="flex max-w-full min-w-0">
       <button
         aria-label={label}
-        className={cn(EDIT_TARGET_CLASS, "w-full")}
+        className={EDIT_TARGET_CLASS}
         data-edit-in-place=""
         data-edit-target=""
         data-inline-edit={field.id}
@@ -477,7 +480,13 @@ const PopoverField = observer(function PopoverField({
       type="button"
       {...selectionHandlers(records, record)}
     >
-      {contact ? t("RecordModel.edit") : empty ? <EmptyValueTarget member={field.valueType === "member"} /> : children}
+      {contact ? (
+        t("RecordModel.edit")
+      ) : empty ? (
+        <EmptyValueTarget />
+      ) : (
+        <span className="min-w-0 truncate">{children}</span>
+      )}
     </button>
   );
   return (
@@ -486,7 +495,11 @@ const PopoverField = observer(function PopoverField({
         contact
           ? (editTrigger) => (
               <span
-                className={cn("flex min-w-0 items-center", layout === "row" && "-mx-3 -my-2 cursor-text px-3 py-2")}
+                className={cn(
+                  EDIT_SURFACE_CLASS,
+                  "flex min-h-6 min-w-0 items-center",
+                  layout === "row" && "cursor-text",
+                )}
                 data-inline-edit-space={layout === "row" ? field.id : undefined}
                 role="presentation"
                 onClick={(event: MouseEvent<HTMLSpanElement>) => {

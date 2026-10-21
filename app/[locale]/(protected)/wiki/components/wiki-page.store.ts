@@ -218,7 +218,7 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
 
   override onSubmit = async (event?: FormEvent<HTMLFormElement>): Promise<void> => {
     event?.preventDefault();
-    if (!this.canManage || this.isLoading || !this.hasUnsavedChanges || this.unavailable) return;
+    if (!this.canManage || this.isLoading || (this.form.id && !this.hasUnsavedChanges) || this.unavailable) return;
 
     const generation = this.viewGeneration;
     const previousSelection = { requestedPageId: this.receivedRequestedPageId, previousPageId: this.form.id };

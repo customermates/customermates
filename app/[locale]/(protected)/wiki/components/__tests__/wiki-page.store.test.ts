@@ -98,6 +98,28 @@ describe("Wiki document editing", () => {
     });
   });
 
+  it("validates an untouched new page instead of ignoring Save", async () => {
+    actions.create.mockResolvedValue({
+      ok: false,
+      failure: {
+        kind: "validation",
+        issues: [{ code: "too_small", path: ["pages", 0, "title"], message: "Enter a title" }],
+      },
+    });
+    const store = new WikiPageStore(rootStore(), page, vi.fn());
+    store.startCreate();
+
+    await store.onSubmit();
+
+    expect(actions.create).toHaveBeenCalledExactlyOnceWith({
+      pages: [{ title: "", markdown: "", kind: "knowledge", whenToUse: undefined }],
+      requireEmpty: false,
+    });
+    expect(store.error).toEqual({ errors: [], properties: { title: { errors: ["Enter a title"] } } });
+    expect(store.creating).toBe(true);
+    expect(store.hasUnsavedChanges).toBe(false);
+  });
+
   it("saves direct edits with the original concurrency token and suppresses clean saves", async () => {
     const store = new WikiPageStore(rootStore(), page, vi.fn());
     await store.onSubmit();

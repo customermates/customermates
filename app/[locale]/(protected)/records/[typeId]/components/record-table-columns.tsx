@@ -24,7 +24,8 @@ import {
   hasInlineRelationshipEditor,
 } from "./record-inline-field";
 
-const FILL_EDIT_TARGET_CLASS = "flex min-w-0 [&_[data-edit-target]:not([data-slot=switch])]:w-full";
+const EDIT_TARGET_CONTAINER_CLASS =
+  "flex min-w-0 pr-3 in-data-[align=end]:justify-end in-data-[align=end]:pr-0 in-data-[align=end]:pl-3";
 
 function recordAvatarFieldId(store: RecordsStore) {
   return store.presentation.model.capabilities
@@ -98,7 +99,7 @@ export function useRecordTableColumns(
                 (entry) => entry.relationId === column.relation.id && entry.direction === column.direction,
               );
               return (
-                <div className={FILL_EDIT_TARGET_CLASS}>
+                <div className={EDIT_TARGET_CONTAINER_CLASS}>
                   <RecordInlineRelationship
                     direction={column.direction}
                     empty={!summary?.records.length}
@@ -116,7 +117,7 @@ export function useRecordTableColumns(
             if (column.kind !== "field") return renderCell(false);
             if (canEditInline(store, row.original, column.field)) {
               return (
-                <div className={FILL_EDIT_TARGET_CLASS}>
+                <div className={EDIT_TARGET_CONTAINER_CLASS}>
                   <RecordInlineField field={column.field} record={row.original} records={store}>
                     {renderCell(true)}
                   </RecordInlineField>

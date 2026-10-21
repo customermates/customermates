@@ -40,6 +40,7 @@ const { PrismaP13nRepo } = await import("@/features/p13n/prisma-p13n.repository"
 const { DeleteDataViewInteractor } = await import("@/features/data-view/delete-data-view.interactor");
 const { PrismaWidgetRepo } = await import("@/features/widget/prisma-widget.repository");
 const { LIVE_WIDGET } = await import("@/features/widget/live-widget");
+const { createCrmPreset, presetId } = await import("@/features/records/crm-preset");
 const { WidgetTrashBlockers } = await import("@/features/widget/widget-trash-blockers");
 const { DeleteWidgetInteractor } = await import("@/features/widget/delete-widget.interactor");
 const { ValidateWidgetIdsInteractor } = await import("@/core/validation/validators/validate-widget-ids.interactor");
@@ -95,7 +96,7 @@ async function fixture() {
         kind: "widget",
         restoreOrder: 3,
         visibility: visibility.owned("widget"),
-        blockers: new WidgetTrashBlockers(widgets),
+        blockers: new WidgetTrashBlockers(widgets, createTestRecordRepo()),
       },
       widgets,
       trashRepo,
@@ -239,6 +240,7 @@ describeDatabase("views, widgets, routines and knowledge base pages in Trash", (
 
   it("hides widgets with their dashboard view and refuses to restore one while its view is in Trash", async () => {
     const f = await fixture();
+    await f.tx(f.admin, () => createTestRecordRepo().saveModel(createCrmPreset(f.seed.company.id), f.admin.id));
     const views = createTestDataViewRepo();
     const view = await f.tx(f.admin, () =>
       views.createView({ surfaceKey: "dashboard", name: "Board", position: 0, state: {} }),
@@ -247,7 +249,19 @@ describeDatabase("views, widgets, routines and knowledge base pages in Trash", (
       Promise.all(
         ["On view", "Loose"].map((name, index) =>
           prisma.widget.create({
-            data: { companyId: f.seed.company.id, userId: f.seed.admin.id, name, viewId: index ? null : view.id },
+            data: {
+              companyId: f.seed.company.id,
+              userId: f.seed.admin.id,
+              name,
+              viewId: index ? null : view.id,
+              measure: {
+                source: { typeId: presetId(f.seed.company.id, "service") },
+                aggregation: "count",
+                valueFieldId: null,
+                groupBy: null,
+              },
+              displayOptions: { displayType: "number" },
+            },
           }),
         ),
       ),

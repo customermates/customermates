@@ -3,8 +3,7 @@
 import { useMemo, type MouseEvent } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { FormFooterActions } from "@/components/forms/form-footer-actions";
-import { UnsavedChangesBar, unsavedChangesMode } from "@/components/forms/unsaved-changes-bar";
+import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { Check, Maximize2, RotateCcw, Settings2, Trash2 } from "lucide-react";
 import type { RecordEditorStore } from "./record-editor.store";
 import type { useRecordDeletion } from "./use-record-deletion";
@@ -140,26 +139,8 @@ export const RecordEditorActions = observer(function RecordEditorActions({
   placement = "drawer",
 }: Pick<Props, "store" | "formId"> & { placement?: "drawer" | "topbar" | "page" }) {
   const saving = store.isLoading || store.isDisabled;
-  const mode = unsavedChangesMode({
-    creating: store.record === null,
-    dirty: store.hasUnsavedChanges,
-    editable: !store.isReadOnly,
-  });
-  if (mode === "footer" && placement !== "page") {
-    return (
-      <FormFooterActions
-        dirty
-        editable
-        formId={formId}
-        placement={placement === "topbar" ? "topbar" : "card"}
-        saving={saving}
-        store={store}
-      />
-    );
-  }
-  if (mode === "bar" && placement !== "topbar")
-    return <UnsavedChangesBar formId={formId} saving={saving} onCancel={store.resetForm} />;
-  return null;
+  if (placement === "topbar") return null;
+  return <UnsavedChangesBar creating={store.record === null} formId={formId} saving={saving} store={store} />;
 });
 
 export const RecordPageActions = observer(function RecordPageActions(props: Props) {

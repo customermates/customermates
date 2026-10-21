@@ -147,6 +147,16 @@ export class PrismaWidgetRepo
     return restored;
   }
 
+  async trashCompanyWide(companyId: string, id: string) {
+    const widget = await this.prisma.widget.findFirst({
+      where: { companyId, id, deletedAt: null },
+      select: { name: true, userId: true },
+    });
+    if (!widget) return null;
+    await this.prisma.widget.updateMany({ where: { companyId, id, deletedAt: null }, data: { deletedAt: new Date() } });
+    return widget;
+  }
+
   async purgeTrashed(ids: string[]) {
     await this.prisma.widget.deleteMany({
       where: { id: { in: ids }, companyId: this.companyId, deletedAt: { not: null } },
@@ -159,6 +169,14 @@ export class PrismaWidgetRepo
       select: { id: true },
     });
     return rows.map((row) => row.id);
+  }
+
+  async findTrashedWidgets(ids: string[]): Promise<StoredWidget[]> {
+    const rows = await this.prisma.widget.findMany({
+      where: { companyId: this.companyId, id: { in: ids }, deletedAt: { not: null } },
+      select: this.dtoSelect,
+    });
+    return rows.map((row) => this.storedWidget(row));
   }
 
   async findIds(ids: Set<string>) {

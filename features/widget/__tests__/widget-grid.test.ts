@@ -236,8 +236,18 @@ describe("placing several widgets at once", () => {
     });
   });
 
+  it("keeps untouched widgets in place while resizing or saving a partial layout", () => {
+    expect(placeWidgets({ widgets: stored, requested: [full("a", 0)] })).toEqual({ ok: true });
+    expect(
+      placeWidgets({
+        widgets: stored,
+        requested: [{ ...full("a", 0), placement: { x: 0, y: 0, w: 6, h: 2 } }],
+      }),
+    ).toEqual({ ok: true });
+  });
+
   it("refuses a move onto a widget it leaves where it is, as the dashboard shows it", () => {
-    expect(placeWidgets({ widgets: stored, requested: [full("a", 6), full("b", 1)] })).toEqual({
+    expect(placeWidgets({ widgets: stored, requested: [full("a", 6), full("b", 3)] })).toEqual({
       ok: false,
       reason: "overlap",
       conflictId: "c",

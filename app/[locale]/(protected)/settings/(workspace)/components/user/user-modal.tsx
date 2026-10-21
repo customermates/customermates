@@ -17,7 +17,7 @@ import { AppModal } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppCardBody } from "@/components/card/app-card-body";
-import { FormFooterActions } from "@/components/forms/form-footer-actions";
+import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { USER_STATUS_OPTIONS } from "@/constants/user-statuses";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppLink } from "@/components/shared/app-link";
@@ -108,7 +108,7 @@ export const CompanyUserModal = observer(() => {
       title={t("CompanyUserModal.title")}
     >
       <AppForm store={store}>
-        <AppCard>
+        <AppCard className="relative">
           <AppCardHeader>
             <UserDetailsAvatar
               avatarUrl={savedState.avatarUrl ?? undefined}
@@ -119,7 +119,7 @@ export const CompanyUserModal = observer(() => {
             />
           </AppCardHeader>
 
-          <AppCardBody>
+          <AppCardBody className="pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]">
             {loadedLeftAt ? (
               <Alert color="warning">
                 <p className="text-x-sm">{t("WorkspaceMembership.leftNotice", { name })}</p>
@@ -190,7 +190,7 @@ export const CompanyUserModal = observer(() => {
             />
           </AppCardBody>
 
-          <FormFooterActions anchorScope="member-modal" store={store} />
+          <UnsavedChangesBar anchorScope="member-modal" store={store} onSave={store.onSubmit} />
         </AppCard>
       </AppForm>
     </AppModal>

@@ -22,10 +22,11 @@ import { useColumnLabel } from "@/components/data-view/use-column-label";
 import { useGroupableFieldLabel } from "@/components/data-view/use-groupable-field-label";
 import { useGroupLabel } from "@/components/data-view/group-label";
 import { useViewAi } from "@/components/data-view/views/use-view-ai";
-import { ViewChangesNotice } from "@/components/data-view/views/view-changes-notice";
+import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { AppModalActionRail } from "@/components/modal/app-modal-action";
 import { useAskAiAction } from "@/components/ui/ask-ai-action";
 import { MANUAL_ORDER_SORT_KEY } from "@/features/records/record-column.schema";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 import { ColumnVisibilityList } from "./column-visibility-list";
 import { GroupSummaryOptions } from "./group-summary-options";
@@ -171,6 +172,17 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
   const overlay = (
     <ResponsiveOverlay
       align="end"
+      footer={
+        store.isViewModified ? (
+          <UnsavedChangesBar
+            compact
+            anchorScope={id ? `${id}-view` : undefined}
+            placement="sticky"
+            onCancel={() => runUserAction(store.resetViewChanges)}
+            onSave={store.saveViewChanges}
+          />
+        ) : null
+      }
       headerAction={
         <AppModalActionRail
           actions={[
@@ -216,8 +228,6 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
       onOpenChange={setIsOpen}
     >
       <div className="flex flex-col">
-        <ViewChangesNotice anchorScope={id ? `${id}-view` : undefined} store={store} />
-
         {store.supportsBoard && (
           <Section label={t("Common.table.layout")}>
             <SegmentedControl

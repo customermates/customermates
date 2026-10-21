@@ -196,7 +196,9 @@ function KanbanCard({
             onClick={(e) => {
               if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
               e.preventDefault();
-              if (!onClick) navigateToHref(href);
+              e.stopPropagation();
+              if (onClick) onClick();
+              else navigateToHref(href);
             }}
           />
         )}

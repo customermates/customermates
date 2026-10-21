@@ -110,7 +110,7 @@ function formDiscardTarget(page: FormAnchorPage) {
   if (page.discard === "cancel") {
     return {
       id: `${page.scope}-cancel`,
-      description: `Cancel button that closes the ${page.label} without saving and asks before discarding changes`,
+      description: `Cancel button in the floating save bar of the ${page.label}; closes a new form with discard confirmation for changes, or reverts edits in place; shown immediately for new forms and once an existing form changes`,
       ...prerequisiteOf(page.opener),
     };
   }
@@ -136,7 +136,7 @@ function formTargets(page: FormAnchorPage): AgentUiTarget[] {
       description:
         page.discard === "unsavedChangesBar"
           ? `Save button in the unsaved-changes bar of the ${page.label}; shown once something changed`
-          : `Save button of the ${page.label}; always shown, enabled once something changed`,
+          : `Save button in the floating save bar of the ${page.label}; shown and enabled immediately for new forms, or once an existing form changes`,
       ...prerequisiteOf(page.opener),
     },
     { route: page.route, ...formDiscardTarget(page) },

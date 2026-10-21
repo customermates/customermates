@@ -13,7 +13,7 @@ import { VerifyEmailAction } from "./verify-email-action";
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { FormSelect } from "@/components/forms/form-select";
-import { UnsavedChangesBar, unsavedChangesMode } from "@/components/forms/unsaved-changes-bar";
+import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { usePathname } from "@/i18n/navigation";
@@ -163,15 +163,7 @@ const ProfileSettingsFormContent = observer(({ userDetails, emailVerified }: Pro
           />
         </div>
 
-        {unsavedChangesMode({ dirty: store.hasUnsavedChanges, editable: store.canManage && !store.isReadOnly }) ===
-          "bar" && (
-          <UnsavedChangesBar
-            anchorScope="settings-profile"
-            placement="sticky"
-            saving={store.isLoading}
-            onCancel={store.resetForm}
-          />
-        )}
+        <UnsavedChangesBar anchorScope="settings-profile" placement="sticky" store={store} />
       </div>
     </AppForm>
   );

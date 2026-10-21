@@ -134,10 +134,14 @@ describe("record widget display types", () => {
     expect(chartMocks.calls).toHaveLength(0);
   });
 
-  it("puts the list, its count and the average of summed values below the number", () => {
-    const number = { displayType: DisplayType.number };
+  it("puts useful context below the title and omits repeated count labels", () => {
+    const number = {
+      displayType: DisplayType.number,
+      barColors: [ChartColor.success1],
+    };
     const deals = { label: "Deal", pluralLabel: "Open Deals" };
-    const context = (view: HTMLElement) => view.querySelector('[data-slot="widget-number-context"]')?.textContent;
+    const context = (view: HTMLElement) =>
+      view.querySelector('[data-slot="card-header"] [data-slot="widget-subtitle"]')?.textContent;
     const view = render({
       displayOptions: number,
       measure: measure(null),
@@ -145,6 +149,9 @@ describe("record widget display types", () => {
       data: result({ count: 43, result: euro("2494000") }, []),
     });
     expect(view.querySelector('[data-slot="widget-number-value"]')?.textContent).toBe("€2.5M");
+    expect(view.querySelector<HTMLElement>('[data-slot="widget-number"] p')?.style.color).toBe(
+      "var(--chart-success-text)",
+    );
     expect(context(view)).toBe('RecordWidgets.numberContextAverage{"count":43,"label":"open deals","average":"€58K"}');
     render({
       displayOptions: number,
@@ -161,7 +168,7 @@ describe("record widget display types", () => {
       data: result({ count: 12345, result: plain("12345") }, []),
     });
     expect(view.querySelector('[data-slot="widget-number-value"]')?.textContent).toBe("12,345");
-    expect(context(view)).toBe("12,345 open deals");
+    expect(context(view)).toBe("open deals");
     render({
       displayOptions: number,
       measure: measure(null, "average"),

@@ -15,6 +15,7 @@ import { useTranslations } from "next-intl";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { AgentStarterActions } from "@/app/components/agent-chat/suggested-questions";
 import { AppForm } from "@/components/forms/form-context";
+import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormTextarea } from "@/components/forms/form-textarea";
 import { Editor } from "@/components/editor/editor";
@@ -183,17 +184,14 @@ const WikiPageViewContent = observer(function WikiPageView({
       isNavigating ? null : (
         <WikiPageActions
           canCreate
-          canManage={canManage}
-          formId={formId}
           hasDocument={hasDocument}
           proposals={canReviewProposals ? <WikiProposalsEntry store={proposals} /> : undefined}
           store={store}
-          onCancelCreate={cancelCreate}
           onCreate={create}
           onReload={reload}
         />
       ),
-    [canManage, canReviewProposals, cancelCreate, create, formId, hasDocument, isNavigating, proposals, reload, store],
+    [canReviewProposals, create, hasDocument, isNavigating, proposals, reload, store],
   );
   useSetTopBarActions(topBar);
   const kindLabels: Record<WikiPageKind, string> = {
@@ -409,50 +407,62 @@ const WikiPageViewContent = observer(function WikiPageView({
       element: (
         <section
           aria-label={t("Wiki.document")}
-          className="@container/wiki flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto"
+          className="@container/wiki relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
           id="wiki-document-panel"
         >
-          <div className="flex min-w-0 items-center border-b border-border px-4 py-2 lg:hidden">
-            <ResponsiveOverlay
-              align="start"
-              drawerDirection="left"
-              open={mobileOpen}
-              popoverClassName="flex h-96 w-80 flex-col p-0"
-              title={t("Wiki.pagesLabel")}
-              trigger={
-                <Button className="min-w-0 max-w-full justify-between gap-3 font-normal" variant="ghost">
-                  <BookOpen aria-hidden="true" className="shrink-0" />
+          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto pb-[var(--unsaved-changes-bar-space,0px)]">
+            <div className="flex min-w-0 items-center border-b border-border px-4 py-2 lg:hidden">
+              <ResponsiveOverlay
+                align="start"
+                drawerDirection="left"
+                open={mobileOpen}
+                popoverClassName="flex h-96 w-80 flex-col p-0"
+                title={t("Wiki.pagesLabel")}
+                trigger={
+                  <Button className="min-w-0 max-w-full justify-between gap-3 font-normal" variant="ghost">
+                    <BookOpen aria-hidden="true" className="shrink-0" />
 
-                  <span className="truncate">{store.form.title || t("Wiki.pagesLabel")}</span>
+                    <span className="truncate">{store.form.title || t("Wiki.pagesLabel")}</span>
 
-                  <ChevronDown aria-hidden="true" className="shrink-0" />
-                </Button>
-              }
-              onOpenChange={setMobileOpen}
-            >
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden">{pageList}</div>
-            </ResponsiveOverlay>
+                    <ChevronDown aria-hidden="true" className="shrink-0" />
+                  </Button>
+                }
+                onOpenChange={setMobileOpen}
+              >
+                <div className="flex min-h-0 flex-1 flex-col overflow-hidden">{pageList}</div>
+              </ResponsiveOverlay>
+            </div>
+
+            {importRunning && pageState !== "setup" && (
+              <div className="mx-auto w-full max-w-6xl px-6 pt-3 md:px-10" data-wiki-import-banner="">
+                <Alert
+                  aria-live="polite"
+                  className="py-2"
+                  description={t("WikiSetup.status.backgroundBanner")}
+                  icon={<Loader2 className="animate-spin motion-reduce:animate-none" />}
+                  role="status"
+                />
+              </div>
+            )}
+
+            {setupFailed && (
+              <div className="mx-auto w-full max-w-6xl px-6 pt-3 md:px-10">
+                <Alert color={hasPages ? "warning" : "danger"} description={setupFailedBody} />
+              </div>
+            )}
+
+            {documentBody}
           </div>
 
-          {importRunning && pageState !== "setup" && (
-            <div className="mx-auto w-full max-w-6xl px-6 pt-3 md:px-10" data-wiki-import-banner="">
-              <Alert
-                aria-live="polite"
-                className="py-2"
-                description={t("WikiSetup.status.backgroundBanner")}
-                icon={<Loader2 className="animate-spin motion-reduce:animate-none" />}
-                role="status"
-              />
-            </div>
+          {hasDocument && (
+            <UnsavedChangesBar
+              anchorScope="wiki-page"
+              creating={store.creating}
+              formId={formId}
+              store={store}
+              onCancel={store.creating ? cancelCreate : store.resetDocument}
+            />
           )}
-
-          {setupFailed && (
-            <div className="mx-auto w-full max-w-6xl px-6 pt-3 md:px-10">
-              <Alert color={hasPages ? "warning" : "danger"} description={setupFailedBody} />
-            </div>
-          )}
-
-          {documentBody}
 
           {canReviewProposals && <WikiProposals canApply={canApplyProposal} store={proposals} />}
         </section>

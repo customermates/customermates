@@ -241,6 +241,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
           rowLabel={(record) => recordRowName(store, record, t)}
           store={store}
           view={view}
+          onRowClick={openRecord}
         />
       );
       break;

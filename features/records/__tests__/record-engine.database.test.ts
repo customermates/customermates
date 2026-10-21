@@ -5772,20 +5772,24 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         }),
       ),
     ).toMatchObject({ ok: false });
-    const blocked = await f.run(() =>
+    const deletion = await f.run(() =>
       f.preview.invoke({
         expectedRevision: 2,
         idempotencyKey: randomUUID(),
         operations: [{ operation: "delete", target: { kind: "type", id: type.id } }],
       }),
     );
-    expect(blocked, JSON.stringify(blocked)).toMatchObject({
+    expect(deletion, JSON.stringify(deletion)).toMatchObject({
       ok: true,
       data: {
-        valid: false,
+        valid: true,
         deletion: {
-          blockers: expect.arrayContaining([
-            expect.objectContaining({ reason: "widget", source: expect.objectContaining({ kind: "widget" }) }),
+          blockers: [],
+          cleaned: expect.arrayContaining([
+            expect.objectContaining({
+              effect: "widgetTrashed",
+              consumer: expect.objectContaining({ id: saved.data.id }),
+            }),
           ]),
         },
       },

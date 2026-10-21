@@ -2206,8 +2206,7 @@
       "pickerTitle": "Cambia vista",
       "railLabel": "Viste salvate",
       "recordCount": "{count, plural, one {# record} other {# record}}",
-      "resetChanges": "Ripristina modifiche",
-      "unsavedChangesNotice": "Modifiche non salvate a questa vista"
+      "resetChanges": "Ripristina modifiche"
     }
   },
   "Diagrams": {
@@ -3589,7 +3588,8 @@
         "webhookPaused": "{count, plural, one {Il webhook {consumers} è in pausa, perché {target} era il suo unico trigger. Scegli un nuovo trigger prima di riattivarlo.} other {# webhook sono in pausa, perché {target} era il loro unico trigger: {consumers}. Scegli un nuovo trigger prima di riattivarli.}}",
         "webhookTrigger": "{count, plural, one {{target} viene rimosso dal trigger del webhook {consumers}.} other {{target} viene rimosso dal trigger di # webhook: {consumers}.}}",
         "widget": "{count, plural, one {{target} viene rimosso dai filtri o dal raggruppamento del widget {consumers}.} other {{target} viene rimosso dai filtri o dal raggruppamento di # widget: {consumers}.}}",
-        "widgetCount": "{count, plural, one {Il widget {consumers} conta i record invece di misurare {target}.} other {# widget contano i record invece di misurare {target}: {consumers}.}}"
+        "widgetCount": "{count, plural, one {Il widget {consumers} conta i record invece di misurare {target}.} other {# widget contano i record invece di misurare {target}: {consumers}.}}",
+        "widgetTrashed": "{count, plural, one {Il widget {consumers} viene spostato nel cestino insieme a {target}.} other {# widget vengono spostati nel cestino insieme a {target}: {consumers}.}}"
       },
       "configureActions": "Azioni di Configura",
       "deleteColumn": "Elimina colonna",

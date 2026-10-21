@@ -106,7 +106,7 @@ async function createLabList(page: Page, contactTypeId: string) {
   return type.id;
 }
 
-test("rows and cards open the record page and keep only Open details and Delete as row actions", async ({
+test("rows and cards open the record drawer and keep the existing row actions", async ({
   page,
   companyId,
 }) => {
@@ -130,8 +130,10 @@ test("rows and cards open the record page and keep only Open details and Delete 
   await expect(page.getByRole("dialog")).not.toBeVisible();
 
   await openRecordLink(row.getByRole("link", { name, exact: true }));
-  await expect(page).toHaveURL(new RegExp(`/records/${typeId}/[0-9a-f-]{36}$`));
-  await expect(page.getByRole("heading", { name }).or(page.getByText(name).first())).toBeVisible();
+  await expect(page).toHaveURL(new RegExp(`/records/${typeId}(\\?|$)`));
+  await expect(drawer).toBeVisible();
+  await expect(drawer.getByRole("textbox", { name: "Name", exact: false })).toHaveValue(name);
+  await expect(drawer.getByRole("heading", { name, exact: true })).toBeVisible();
   expect(errors).toEqual([]);
 });
 
@@ -257,7 +259,7 @@ test("edits every field type inline in rows and on board cards, with validation,
   page,
   companyId,
   isMobile,
-}) => {
+}, testInfo) => {
   test.skip(isMobile, "Table cells edit in place on the desktop table; phone rows render no table cells");
   test.setTimeout(240000);
   await page.goto(`/en/records/${presetId(companyId, "contact")}`);
@@ -293,7 +295,14 @@ test("edits every field type inline in rows and on board cards, with validation,
     await expect(row).toContainText(shown);
   };
 
-  await expect(row.locator("[data-inline-edit] svg.lucide-pencil, [data-read-only-field]")).toHaveCount(0);
+  const textEdit = row.getByRole("button", { name: "Edit Text", exact: true });
+  const idleShadow = await textEdit.evaluate((element) => getComputedStyle(element).boxShadow);
+  const idleBackground = await textEdit.evaluate((element) => getComputedStyle(element).backgroundColor);
+  await textEdit.hover();
+  await expect.poll(() => textEdit.evaluate((element) => getComputedStyle(element).backgroundColor)).not.toBe(idleBackground);
+  expect(await textEdit.evaluate((element) => getComputedStyle(element).boxShadow)).toBe(idleShadow);
+  await expect(row.locator("[data-inline-edit] svg.lucide-pencil")).toHaveCount(0);
+  await expect(row.locator("[data-read-only-field]")).toHaveCount(0);
   await enterValue("Text", "Inline text", "Inline text");
   await enterValue("Number", "12.5", "12.5");
   await enterValue("Money", "99.95", "€99.95");
@@ -355,14 +364,33 @@ test("edits every field type inline in rows and on board cards, with validation,
   await page.locator('[data-slot="popover-content"][data-state="open"]').last().getByRole("button", { name: "Today", exact: true }).click();
   await expect(page.locator('[data-slot="popover-content"][data-state="open"]')).toHaveCount(0);
   await expect(row.locator("time")).toHaveCount(times + 1);
+  const dateEdit = row.getByRole("button", { name: "Edit Date", exact: true });
+  await dateEdit.scrollIntoViewIfNeeded();
+  await dateEdit.hover();
+  const datePadding = await dateEdit.evaluate((element) => {
+    const target = element.getBoundingClientRect();
+    const value = element.querySelector("time")!.parentElement!.getBoundingClientRect();
+    return { left: value.left - target.left, right: target.right - value.right };
+  });
+  expect(datePadding.left).toBeGreaterThanOrEqual(8);
+  expect(datePadding.right).toBeGreaterThanOrEqual(8);
+  await page.screenshot({ path: testInfo.outputPath("inline-date-hover.png"), animations: "disabled" });
 
   const contacts = await openEditor("Contacts", false);
   await contacts.getByRole("option").first().click();
   await expect(contacts).not.toBeVisible();
   await expect(row.locator('[data-slot="badge"], [data-slot="app-chip"]').first()).toBeVisible();
 
+  const ownerEdit = row.getByRole("button", { name: "Edit Owner", exact: true });
+  await ownerEdit.hover();
+  await expect(ownerEdit.locator("[data-empty-target] svg.lucide-plus")).toBeVisible();
+  await expect(ownerEdit.locator('[data-slot="avatar"]')).toHaveCount(0);
+  await page.screenshot({ path: testInfo.outputPath("inline-empty-member-hover.png"), animations: "disabled" });
   const owner = await openEditor("Owner");
-  await owner.getByRole("combobox").click();
+  const ownerLabels = owner.locator("label").filter({ hasText: "Owner" });
+  await expect(ownerLabels).toHaveCount(1);
+  await expect(ownerLabels).toHaveClass(/sr-only/);
+  await owner.getByRole("combobox", { name: "Owner", exact: true }).click();
   await page.getByRole("option").first().click();
   await owner.getByRole("button", { name: "Save", exact: true }).click();
   await expect(owner).not.toBeVisible();
@@ -521,7 +549,8 @@ test("rows keep the row click on calculated values, toggle in selection mode and
   await row("Lab one").locator("[data-in-place-editor] input").press("Enter");
   await expect(row("Lab one").locator("[data-calculated-field]")).toHaveText("6");
   await row("Lab one").locator("[data-calculated-field]").click();
-  await expect(page).toHaveURL(new RegExp(`/records/${typeId}/[0-9a-f-]{36}$`), { timeout: 30000 });
+  await expect(page).toHaveURL(new RegExp(`/records/${typeId}(\\?|$)`));
+  await expect(page.getByRole("dialog")).toBeVisible();
   expect(errors).toEqual([]);
 });
 
@@ -593,7 +622,8 @@ test("phone rows show the title and the card chip row instead of table columns",
   await expect(item.locator(`[data-chip-column="${money.id}"]`)).toHaveText("€342K");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await item.getByRole("link", { name: "Lab phone", exact: true }).click({ position: { x: 12, y: 12 } });
-  await expect(page).toHaveURL(new RegExp(`/records/${typeId}/[0-9a-f-]{36}$`), { timeout: 30000 });
+  await expect(page).toHaveURL(new RegExp(`/records/${typeId}(\\?|$)`));
+  await expect(page.getByRole("dialog")).toBeVisible();
 });
 
 test("board columns keep a one-line header, one fixed width and collapse into strips", async ({
@@ -646,4 +676,160 @@ test("board columns keep a one-line header, one fixed width and collapse into st
   await strip.click();
   await expect(strip).toHaveCount(0);
   await expect(lanes).toHaveCount(laneCount);
+});
+
+
+test("short chips stay readable and long chips truncate across table, card and phone widths", async ({
+  page,
+  companyId,
+  database,
+}, testInfo) => {
+  await page.goto(`/en/records/${presetId(companyId, "contact")}`);
+  const typeId = await createLabList(page, presetId(companyId, "contact"));
+  const model = await readModel(page);
+  const choice = model.fields.find((field) => field.typeId === typeId && field.label === "Choice");
+  const text = model.fields.find((field) => field.typeId === typeId && field.label === "Text");
+  const date = model.fields.find((field) => field.typeId === typeId && field.label === "Date");
+  const type = model.types.find((type) => type.id === typeId);
+  if (!choice || !text || !date || !type) throw new Error("The lab fields are missing");
+  const { publishedSummary, ...choiceDefinition } = choice;
+  expect(publishedSummary).toBe(false);
+  const groupId = randomUUID();
+  const longLabel = "Priority requiring a thorough conversation with the customer and the delivery team";
+  await postOk(page, "/api/v1/model/apply", {
+    expectedRevision: model.revision,
+    idempotencyKey: randomUUID(),
+    operations: [
+      {
+        operation: "putField",
+        field: {
+          ...choiceDefinition,
+          options: choice.options.map((option) => ({
+            ...option,
+            label: option.id === "alpha" ? longLabel : "Internal",
+          })),
+        },
+      },
+      {
+        operation: "putField",
+        field: {
+          id: groupId,
+          typeId,
+          label: "Board group",
+          valueType: "select",
+          position: 13,
+          required: false,
+          archived: false,
+          options: [{ id: "group", label: "Group", color: null, attributes: [] }],
+          behavior: { kind: "input" },
+        },
+      },
+    ],
+  });
+  const record = (
+    await database.query('SELECT id,version FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2', [companyId, typeId])
+  ).rows[0];
+  await postOk(page, "/api/v1/records/mutate", {
+    expectedRevision: (await readModel(page)).revision,
+    idempotencyKey: randomUUID(),
+    mutation: {
+      action: "update",
+      ref: { typeId, recordId: record.id },
+      expectedVersion: record.version,
+      fields: [
+        { fieldId: choice.id, value: { kind: "select", value: "alpha" } },
+        { fieldId: text.id, value: { kind: "text", value: longLabel } },
+        { fieldId: groupId, value: { kind: "select", value: "group" } },
+      ],
+    },
+  });
+  await postOk(page, "/api/v1/records/mutate", {
+    expectedRevision: (await readModel(page)).revision,
+    idempotencyKey: randomUUID(),
+    mutation: {
+      action: "create",
+      typeId,
+      fields: [
+        { fieldId: type.primaryFieldId, value: { kind: "text", value: "Lab short chips" } },
+        { fieldId: choice.id, value: { kind: "select", value: "beta" } },
+        { fieldId: text.id, value: { kind: "text", value: "Short text" } },
+        { fieldId: date.id, value: { kind: "date", value: "2026-10-27" } },
+        { fieldId: groupId, value: { kind: "select", value: "group" } },
+      ],
+    },
+  });
+  const errors = collectPageErrors(page);
+  for (const mode of ["row", "card"]) {
+    for (const width of [390, 820, 1280]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(`/en/records/${typeId}?viewMode=${mode}${mode === "card" ? `&groupBy=${groupId}` : ""}`);
+      const shortRecord = page.locator("[data-row-id], [data-item-id]").filter({ hasText: "Lab short chips" }).first();
+      for (const label of ["Choice", "Text", "Date"]) {
+        const short = shortRecord.getByRole("button", { name: `Edit ${label}`, exact: true });
+        await expect(short).toBeVisible();
+        if (label === "Date") await expect(short.locator("time")).toHaveText(/2026/);
+        const clipped = await short.evaluate((element) =>
+          [...element.querySelectorAll(".truncate")].some(
+            (label) => label.clientWidth > 0 && label.scrollWidth > label.clientWidth + 1,
+          ),
+        );
+        expect(clipped, `${label} should fit without truncation at ${mode}/${width}`).toBe(false);
+      }
+      const target = page.locator(`[data-inline-edit="${choice.id}"]:visible`).filter({ hasText: longLabel }).first();
+      if (mode === "row" && width >= 820) {
+        const resize = page.getByRole("button", { name: /^Resize Choice column\./ });
+        await resize.press("Home");
+        for (let step = 0; step < 3; step++) await resize.press("Shift+ArrowRight");
+        await expect
+          .poll(async () => resize.evaluate((element) => element.closest("th")!.getBoundingClientRect().width))
+          .toBe(170);
+      }
+      const chip = target.locator('[data-slot="badge"]:visible').filter({ hasText: longLabel }).first();
+      await expect(chip).toBeVisible();
+      await expect.poll(async () => (await chip.boundingBox())?.width ?? 0).toBeGreaterThan(0);
+      const bounds = await chip.evaluate((element) => {
+        const chip = element.getBoundingClientRect();
+        const parent = element.closest("td, [data-chip-column]")?.getBoundingClientRect();
+        const target = element.closest("[data-edit-target]")?.getBoundingClientRect();
+        const truncated = [...element.querySelectorAll(".truncate")].some(
+          (label) =>
+            label.clientWidth > 0 &&
+            label.scrollWidth > label.clientWidth &&
+            getComputedStyle(label).textOverflow === "ellipsis",
+        );
+        return {
+          left: chip.left,
+          right: chip.right,
+          parentLeft: parent?.left,
+          parentRight: parent?.right,
+          padding: target ? target.height - chip.height : 0,
+          fillsCard: element.closest("[data-chip-column]") ? Math.abs(chip.width - (parent?.width ?? 0)) < 1 : true,
+          truncated,
+        };
+      });
+      expect(bounds.parentRight).toBeDefined();
+      expect(bounds.left).toBeGreaterThanOrEqual((bounds.parentLeft ?? 0) - 1);
+      expect(bounds.right).toBeLessThanOrEqual((bounds.parentRight ?? 0) + 1);
+      expect(bounds.padding).toBeGreaterThanOrEqual(7);
+      expect(bounds.fillsCard).toBe(true);
+      expect(bounds.truncated).toBe(true);
+      await page.screenshot({ path: testInfo.outputPath(`chips-${mode}-${width}.png`), animations: "disabled" });
+      if (mode === "row" && width >= 820) {
+        const cell = page
+          .locator("tbody td")
+          .filter({ has: page.getByRole("button", { name: "Edit Text", exact: true }) })
+          .filter({ hasText: longLabel });
+        const edit = cell.getByRole("button", { name: "Edit Text", exact: true });
+        const cellBox = await cell.boundingBox();
+        const editBox = await edit.boundingBox();
+        if (!cellBox || !editBox) throw new Error("The editable cell is missing");
+        expect(editBox.width).toBeLessThan(cellBox.width);
+        await cell.click({ position: { x: cellBox.width - 4, y: cellBox.height / 2 } });
+        await expect(page.getByRole("dialog")).toBeVisible();
+        await page.keyboard.press("Escape");
+        await expect(page.getByRole("dialog")).not.toBeVisible();
+      }
+    }
+  }
+  expect(errors).toEqual([]);
 });
