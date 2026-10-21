@@ -181,6 +181,7 @@ test("edits two formatted text fields inline in the overview, collapses long tex
   await page.getByRole("checkbox", { name: "Notes", exact: true }).check();
   await page.keyboard.press("Escape");
   const excerpt = card.locator("[data-card-excerpt]");
+  await expect(excerpt).toHaveText("Budget approved for the pilot.");
   await expect(excerpt.getByText("Budget approved for the pilot.", { exact: true })).toBeVisible();
   await expect(excerpt.getByRole("button", { name: "Edit Notes", exact: true })).toHaveCount(1);
   await expect(card.locator("[data-chip-row]")).not.toContainText(

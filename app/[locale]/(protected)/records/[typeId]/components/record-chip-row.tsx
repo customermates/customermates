@@ -189,7 +189,10 @@ const AddPropertyChip = observer(function AddPropertyChip({
 
       <PopoverContent
         align="start"
-        className={chipPopoverClass(editing?.kind === "relationship")}
+        className={cn(
+          chipPopoverClass(editing?.kind === "relationship"),
+          editing?.kind === "field" && editing.field.valueType === "richText" && "w-xl",
+        )}
         onClick={(event) => event.stopPropagation()}
         onOpenAutoFocus={focusFirstControl}
       >

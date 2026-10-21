@@ -583,7 +583,7 @@ const PopoverField = observer(function PopoverField({
   };
   const empty = isEmptyResult(fieldResult(record, field));
   const contact = CONTACT_VALUE_TYPES.includes(field.valueType) && !empty;
-  const separateAction = contact || field.valueType === "richText";
+  const separateAction = contact;
   const label = t("RecordModel.editValue", { field: field.label });
   const trigger = (
     <button
@@ -630,7 +630,7 @@ const PopoverField = observer(function PopoverField({
           : undefined
       }
       open={open}
-      popoverClassName="w-80"
+      popoverClassName={field.valueType === "richText" ? "w-xl" : "w-80"}
       title={field.label}
       trigger={trigger}
       onOpenAutoFocus={focusFirstControl}

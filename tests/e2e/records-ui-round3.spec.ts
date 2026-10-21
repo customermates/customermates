@@ -896,9 +896,12 @@ test("edits formatted notes inline with the shared editor in rows, cards and pho
     else await page.keyboard.press("Escape");
     const item = page.locator("[data-row-id], [data-item-id]").filter({ hasText: "Lab one" }).first();
     await expect(item).toBeVisible();
-    await item.getByRole("button", { name: "Edit Notes", exact: true }).click();
+    const noteTrigger = item.getByRole("button", { name: "Edit Notes", exact: true });
+    await expect(noteTrigger).not.toHaveText("Edit");
+    await noteTrigger.click();
     const editor = page.getByRole("dialog", { name: "Notes", exact: true });
     await expect(editor.locator("[data-formatted-text-field]")).toBeVisible();
+    if (width >= 768) expect((await editor.boundingBox())?.width).toBeGreaterThan(500);
     await editor.getByRole("button", { name: "Edit Notes", exact: true }).press("Enter");
     const text = editor.getByRole("textbox", { name: "Notes", exact: true });
     const draft = `Formatted notes ${mode} ${width}`;
