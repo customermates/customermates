@@ -803,6 +803,7 @@ test("short chips stay readable and long chips truncate across table, card and p
           parentLeft: parent?.left,
           parentRight: parent?.right,
           padding: target ? target.height - chip.height : 0,
+          inChipRow: Boolean(element.closest("[data-chip-row]")),
           fillsCard: element.closest("[data-chip-column]") ? Math.abs(chip.width - (parent?.width ?? 0)) < 1 : true,
           truncated,
         };
@@ -810,7 +811,9 @@ test("short chips stay readable and long chips truncate across table, card and p
       expect(bounds.parentRight).toBeDefined();
       expect(bounds.left).toBeGreaterThanOrEqual((bounds.parentLeft ?? 0) - 1);
       expect(bounds.right).toBeLessThanOrEqual((bounds.parentRight ?? 0) + 1);
-      expect(bounds.padding).toBeGreaterThanOrEqual(7);
+      expect(bounds.inChipRow).toBe(mode === "card" || width < 768);
+      if (bounds.inChipRow) expect(bounds.padding).toBe(0);
+      else expect(bounds.padding).toBeGreaterThanOrEqual(7);
       expect(bounds.fillsCard).toBe(true);
       expect(bounds.truncated).toBe(true);
       await page.screenshot({ path: testInfo.outputPath(`chips-${mode}-${width}.png`), animations: "disabled" });
