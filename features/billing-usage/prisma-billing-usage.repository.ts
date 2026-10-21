@@ -142,12 +142,12 @@ export class PrismaBillingUsageRepo extends TenantRepository implements BillingU
     await this.ensureWorkspace(companyId, now);
     const company = await this.prisma.company.findFirst({
       where: { id: companyId },
-      select: { id: true, name: true, users: { select: { email: true } } },
+      select: { id: true, name: true },
     });
     if (company) {
       await this.prisma.billingUsageWorkspace.updateMany({
         where: { companyId, deletedAt: null },
-        data: { workspaceLabel: workspaceLabelFor(company, company.users) },
+        data: { workspaceLabel: workspaceLabelFor(company, null) },
       });
     }
 

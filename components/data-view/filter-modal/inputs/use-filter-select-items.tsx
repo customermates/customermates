@@ -376,9 +376,7 @@ export function filterOptionSources(
           items: res.items.map((workspace) => ({
             key: workspace.id,
             value: workspace.id,
-            textValue: workspace.ownerEmail
-              ? `${workspace.workspaceLabel} · ${workspace.ownerEmail}`
-              : workspace.workspaceLabel,
+            textValue: workspace.workspaceLabel,
           })),
         })),
     },

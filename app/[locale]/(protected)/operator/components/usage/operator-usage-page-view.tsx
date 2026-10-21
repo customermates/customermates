@@ -131,7 +131,9 @@ export function OperatorUsagePageView({ months, usage }: Props) {
                 <TableRow key={workspace.companyId}>
                   <TableCell>
                     <div className="flex flex-col">
-                      <span>{workspace.workspaceLabel}</span>
+                      <span className="block max-w-48 break-all whitespace-normal sm:max-w-80">
+                        {workspace.workspaceLabel}
+                      </span>
 
                       {workspace.deletedAt ? (
                         <span className="text-xs text-muted-foreground">

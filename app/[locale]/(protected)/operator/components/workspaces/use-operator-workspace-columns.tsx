@@ -25,7 +25,9 @@ export function useOperatorWorkspaceColumns(): ColumnDef<OperatorWorkspaceRowDto
       {
         id: "name",
         header: t("Common.table.columns.workspace"),
-        cell: ({ row }) => <span className="text-sm font-medium">{row.original.workspaceLabel}</span>,
+        cell: ({ row }) => (
+          <span className="block break-all whitespace-normal text-sm font-medium">{row.original.workspaceLabel}</span>
+        ),
       },
       {
         id: "owner",

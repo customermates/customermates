@@ -17,6 +17,7 @@ import { DEFAULT_DATE_BUCKET, NO_VALUE_GROUP_KEY } from "@/core/base/grouping/gr
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 
 import { OPERATOR_AUDIT_SOURCE } from "./operator-lists.schema";
+import { workspaceLabelFor } from "./workspace-label";
 
 export { operatorCollator } from "./operator-collator";
 
@@ -338,14 +339,15 @@ export function planOperatorAuditFilters(filters: Filter[] | undefined): Operato
 export async function resolveWorkspaceOwners(
   prisma: AppPrismaClient,
   companyIds: string[],
-): Promise<Map<string, string>> {
-  const owners = new Map<string, string>();
+): Promise<Map<string, { id: string; email: string }>> {
+  const owners = new Map<string, { id: string; email: string }>();
   if (companyIds.length === 0) return owners;
 
-  const rows = await prisma.$queryRaw<Array<{ companyId: string; owner: string | null }>>`
+  const rows = await prisma.$queryRaw<Array<{ companyId: string; id: string; email: string }>>`
     SELECT DISTINCT ON (u."companyId")
       u."companyId" AS "companyId",
-      u."email" AS "owner"
+      u."id" AS "id",
+      u."email" AS "email"
     FROM "User" AS u
     LEFT JOIN "UserRole" AS r ON r."id" = u."roleId" AND r."companyId" = u."companyId"
     WHERE u."companyId" = ANY(${companyIds}::text[])
@@ -353,10 +355,11 @@ export async function resolveWorkspaceOwners(
       u."companyId" ASC,
       (u."status"::text = 'active') DESC,
       (r."isSystemRole" IS TRUE) DESC,
-      u."createdAt" ASC
+      u."createdAt" ASC,
+      u."id" ASC
   `;
 
-  for (const row of rows) if (row.owner) owners.set(row.companyId, row.owner);
+  for (const row of rows) owners.set(row.companyId, { id: row.id, email: row.email });
 
   return owners;
 }
@@ -368,22 +371,13 @@ export async function resolveWorkspaceLabels(
   const labels = new Map<string, string>();
   if (companyIds.length === 0) return labels;
 
-  const [rows, named] = await Promise.all([
-    prisma.$queryRaw<Array<{ companyId: string; domain: string | null }>>`
-      SELECT DISTINCT ON ("companyId") "companyId", split_part("email", '@', 2) AS domain
-      FROM "User"
-      WHERE "companyId" = ANY(${companyIds}::text[])
-      GROUP BY "companyId", domain
-      ORDER BY "companyId" ASC, COUNT(*) DESC, domain ASC
-    `,
-    prisma.company.findMany({
-      where: { id: { in: companyIds }, name: { not: null } },
-      select: { id: true, name: true },
-    }),
+  const [owners, companies] = await Promise.all([
+    resolveWorkspaceOwners(prisma, companyIds),
+    prisma.company.findMany({ where: { id: { in: companyIds } }, select: { id: true, name: true } }),
   ]);
 
-  for (const row of rows) if (row.domain) labels.set(row.companyId, row.domain);
-  for (const company of named) if (company.name) labels.set(company.id, company.name);
+  for (const company of companies)
+    labels.set(company.id, workspaceLabelFor(company, owners.get(company.id)?.email ?? null));
 
   return labels;
 }

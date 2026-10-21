@@ -61,6 +61,7 @@ export type WorkspaceSubscriptionDto = z.infer<typeof WorkspaceSubscriptionDtoSc
 export const WorkspaceBillingUsageDtoSchema = z.object({
   companyId: z.uuid(),
   workspaceLabel: z.string(),
+  ownerEmail: z.string().nullable(),
   createdAt: z.date(),
   deletedAt: z.date().nullable(),
   seats: z.object({

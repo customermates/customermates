@@ -30,6 +30,7 @@ export type BillingUsageIntervalRow = {
 export type BillingUsageWorkspaceRow = {
   companyId: string;
   workspaceLabel: string;
+  ownerEmail: string | null;
   createdAt: Date;
   deletedAt: Date | null;
   seatsRecordedFrom: Date | null;
@@ -220,6 +221,7 @@ export function workspaceBillingUsage(args: {
   return {
     companyId: workspace.companyId,
     workspaceLabel: workspace.workspaceLabel,
+    ownerEmail: workspace.ownerEmail,
     createdAt: workspace.createdAt,
     deletedAt: workspace.deletedAt,
     seats: {
