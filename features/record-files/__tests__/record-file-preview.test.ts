@@ -23,6 +23,12 @@ describe("record file document previews", () => {
       truncated: false,
     });
     expect(await createRecordFilePreview(utf8('{"count":2}'), "json")).toMatchObject({ text: '{\n  "count": 2\n}' });
+    expect(await createRecordFilePreview(utf8('{"count":'), "json")).toEqual({
+      kind: "text",
+      format: "json",
+      text: '{"count":',
+      truncated: false,
+    });
     const large = await createRecordFilePreview(utf8("a".repeat(RECORD_FILE_PREVIEW_MAX_CHARS) + "😀"), "text");
     expect(large).toMatchObject({ kind: "text", truncated: true, text: "a".repeat(RECORD_FILE_PREVIEW_MAX_CHARS) });
     expect(await createRecordFilePreview(utf8("\u0000binary"), "text")).toEqual({

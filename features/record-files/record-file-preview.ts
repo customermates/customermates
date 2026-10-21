@@ -101,9 +101,7 @@ export async function createRecordFilePreview(bytes: Uint8Array, format: Format)
   if (format === "json" && !truncated) {
     try {
       text = JSON.stringify(JSON.parse(text), null, 2);
-    } catch {
-      /* Preview malformed JSON as text. */
-    }
+    } catch {}
   }
 
   truncated ||= text.length > RECORD_FILE_PREVIEW_MAX_CHARS;
