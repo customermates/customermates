@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Check, ChevronsUpDown, X } from "lucide-react";
+import { ArrowUpRight, Check, ChevronsUpDown, X } from "lucide-react";
 
 import type { RecordChoice } from "@/features/records/get-record-choices.interactor";
 import type { RecordRelationship } from "@/features/records/record-model.schema";
@@ -21,6 +21,7 @@ import { recordLinkColor } from "@/features/records/record-presentation";
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/core/utils/cn";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { recordDisplayName } from "@/features/records/record-display-name";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { useRecordChoices } from "@/components/records/use-record-choices";
@@ -127,10 +128,17 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
       );
     }
   };
-  function select(record: RecordChoice) {
-    if (!editable || chosen.some((entry) => entry.ref.recordId === record.ref.recordId)) return;
-    if (singular) for (const previous of chosen) stage(previous, "unlink");
-    stage(record, "link");
+  function select(record: RecordChoice, selected: boolean) {
+    if (!editable) return;
+    if (selected) stage(record, "unlink");
+    else {
+      if (singular) for (const previous of chosen) stage(previous, "unlink");
+      stage(record, "link");
+    }
+    if (mode === "linked") {
+      document.getElementById(`${id}-options`)?.querySelector<HTMLInputElement>("input")?.focus();
+      return;
+    }
     setMode(null);
     setSearch("");
     setPage(1);
@@ -385,56 +393,60 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
                     <CommandGroup
                       heading={mode === "linked" ? t("RecordModel.linkedRecordCount", { count: total }) : undefined}
                     >
-                      {(mode === "linked" ? listed : (options.data?.records ?? [])).map((record) => (
-                        <CommandItem
-                          key={record.ref.recordId}
-                          aria-label={title(record)}
-                          value={record.ref.recordId}
-                          onSelect={() => {
-                            if (mode === "link") select(record);
-                            else {
-                              store.rootStore.recordWorkspaceStore.open(
-                                record.ref,
-                                document.activeElement instanceof HTMLElement ? document.activeElement : null,
-                                document.getElementById(id) ?? chips.current,
-                              );
-                            }
-                          }}
-                        >
-                          {mode === "linked" && (
-                            <RecordChipIcon icons={store.presentation.linkIcons} typeId={record.ref.typeId} />
-                          )}
+                      {(mode === "linked" ? listed : (options.data?.records ?? [])).map((record) => {
+                        const selected =
+                          mode === "linked" || chosen.some((entry) => entry.ref.recordId === record.ref.recordId);
+                        return (
+                          <CommandItem
+                            key={record.ref.recordId}
+                            aria-label={title(record)}
+                            value={record.ref.recordId}
+                            onSelect={() => {
+                              if (!readOnly) select(record, selected);
+                              else {
+                                store.rootStore.recordWorkspaceStore.open(
+                                  record.ref,
+                                  document.activeElement instanceof HTMLElement ? document.activeElement : null,
+                                  document.getElementById(id) ?? chips.current,
+                                );
+                              }
+                            }}
+                          >
+                            <span className="min-w-0 flex-1 truncate">{title(record)}</span>
 
-                          <span className="min-w-0 flex-1 truncate">{title(record)}</span>
+                            {mode === "linked" && editable && (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    aria-label={t("RecordModel.openRecord", { name: title(record) })}
+                                    className="-my-1"
+                                    size="icon-xs"
+                                    type="button"
+                                    variant="ghost"
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      store.rootStore.recordWorkspaceStore.open(
+                                        record.ref,
+                                        event.currentTarget,
+                                        document.getElementById(id) ?? chips.current,
+                                      );
+                                    }}
+                                    onKeyDown={(event) => {
+                                      if (event.key !== "Escape" && event.key !== "Tab") event.stopPropagation();
+                                    }}
+                                  >
+                                    <ArrowUpRight aria-hidden className="size-3" />
+                                  </Button>
+                                </TooltipTrigger>
 
-                          {mode === "linked" && editable && (
-                            <Button
-                              aria-label={t("RecordModel.unlinkRecord", { name: title(record) })}
-                              className="-my-1"
-                              size="icon-xs"
-                              type="button"
-                              variant="ghost"
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                stage(record, "unlink");
-                                document
-                                  .getElementById(`${id}-options`)
-                                  ?.querySelector<HTMLInputElement>("input")
-                                  ?.focus();
-                              }}
-                              onKeyDown={(event) => {
-                                if (event.key !== "Escape" && event.key !== "Tab") event.stopPropagation();
-                              }}
-                            >
-                              <X className="size-3" />
-                            </Button>
-                          )}
+                                <TooltipContent>{t("RecordModel.openRecord", { name: title(record) })}</TooltipContent>
+                              </Tooltip>
+                            )}
 
-                          {mode === "link" && chosen.some((entry) => entry.ref.recordId === record.ref.recordId) && (
-                            <Check className="size-4" />
-                          )}
-                        </CommandItem>
-                      ))}
+                            {selected && <Check aria-hidden className="size-4" />}
+                          </CommandItem>
+                        );
+                      })}
                     </CommandGroup>
                   </>
                 )}

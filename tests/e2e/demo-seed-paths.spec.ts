@@ -1,4 +1,5 @@
 import { DEMO_COMPANY_ID, demoId, expect, test } from "./demo-seed";
+import { expectHydrated } from "./workspace-switching";
 
 /** Sub-lists and relationship paths of the seeded workspace: deal line items, and the Deals path of a service. */
 test("a deal shows its line items with Max's curated line item columns", async ({
@@ -103,6 +104,7 @@ test("a service lists the deals that sell it and explains the full path in the i
   const seen = new Set<string>();
   for (let index = 0; index < Math.ceil(deals.size / 25); index++) {
     await expect(options).toHaveCount(Math.min(25, deals.size - index * 25));
+    await expect(options.locator(".lucide-check")).toHaveCount(Math.min(25, deals.size - index * 25));
     const records = await options.evaluateAll((elements) =>
       elements.map((element) => ({
         id: element.getAttribute("data-value") ?? "",
@@ -129,5 +131,42 @@ test("a service lists the deals that sell it and explains the full path in the i
   await path.getByRole("button", { name: "Where Deals comes from", exact: true }).click();
   const popover = page.getByRole("dialog", { name: "Where Deals comes from", exact: true });
   await expect(popover.locator("[data-field-derivation]")).toContainText("Through linked records · Line items → Deals");
+  expect(errors).toEqual([]);
+});
+
+test("board chips have equal visible gaps around editable and read-only values", async ({ page, errors }) => {
+  await page.goto(`/en/records/${demoId("deal")}?viewMode=card&groupBy=${demoId("deal.stage")}`);
+  const row = page.locator("[data-chip-row]").first();
+  await expect(row).toBeVisible();
+  await expectHydrated(row.locator("[data-edit-target]").first());
+  for (const width of [390, 1280]) {
+    await page.setViewportSize({ width, height: 900 });
+    await expect
+      .poll(() =>
+        row.evaluate((element) => {
+          const rows = new Map<number, DOMRect[]>();
+          for (const column of element.querySelectorAll(":scope > [data-chip-column]")) {
+            const badge = column.querySelector("[data-slot=badge]");
+            if (!badge) continue;
+            const bounds = badge.getBoundingClientRect();
+            const top = Math.round(bounds.top);
+            rows.set(top, [...(rows.get(top) ?? []), bounds]);
+          }
+          const lines = [...rows.values()];
+          const horizontal = lines.flatMap((line) =>
+            line.slice(1).map((bounds, index) => bounds.left - line[index].right),
+          );
+          const vertical = lines
+            .slice(1)
+            .map((line, index) => line[0].top - Math.max(...lines[index].map((bounds) => bounds.bottom)));
+          return (
+            horizontal.length > 0 &&
+            vertical.length > 0 &&
+            [...horizontal, ...vertical].every((gap) => Math.abs(gap - 4) <= 1)
+          );
+        }),
+      )
+      .toBe(true);
+  }
   expect(errors).toEqual([]);
 });

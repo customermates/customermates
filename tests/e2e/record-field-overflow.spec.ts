@@ -200,7 +200,7 @@ test("keeps 100 linked deals within three chip rows and searches, pages, opens a
   await popover.getByRole("combobox", { name: "Search...", exact: true }).fill("Overflow deal 000");
   await expect(list.getByRole("option", { name: /^Overflow deal/ })).toHaveCount(1);
   await expect(list).not.toContainText("Unlinked sentinel deal");
-  await list.getByRole("option", { name: /^Overflow deal/ }).click();
+  await list.getByRole("button", { name: /^Open Overflow deal/ }).click();
   const nested = page.getByRole("dialog", { name: "Deal", exact: true });
   await expect(nested.getByRole("textbox", { name: "Name", exact: true })).toHaveValue(/^Overflow deal 000/);
   await nested.getByRole("button", { name: "Close", exact: true }).click();
@@ -209,20 +209,22 @@ test("keeps 100 linked deals within three chip rows and searches, pages, opens a
   if (await popover.isVisible()) await page.keyboard.press("Escape");
   await more().click();
   await expect(list.getByRole("option", { name: /^Overflow deal/ })).toHaveCount(25);
-  const unlink = list.getByRole("button", { name: /^Unlink / }).first();
-  const selected = list.getByRole("option", { selected: true });
+  await expect(list.locator(".lucide-check")).toHaveCount(25);
+  const previewName = await chips()
+    .getByRole("button", { name: /^Open / })
+    .first()
+    .innerText();
+  await expect(list.getByRole("option", { name: previewName, exact: true })).toBeVisible();
+  const selected = list.getByRole("option").first();
   const selectedName = await selected.getAttribute("aria-label");
   if (!selectedName) throw new Error("The selected linked record has no accessible name");
-  await unlink.focus();
-  await page.keyboard.press("ArrowDown");
-  await expect(selected).toHaveAttribute("aria-label", selectedName);
-  await expect(unlink).toBeFocused();
-  await page.keyboard.press("Enter");
+  await selected.click();
   await expect(nested).not.toBeVisible();
   await expect(popover.getByRole("combobox", { name: "Search...", exact: true })).toBeFocused();
   await expect(popover).toContainText("99 linked records");
+  await expect(list.getByRole("option", { name: selectedName, exact: true })).toHaveCount(0);
   await list
-    .getByRole("button", { name: /^Unlink / })
+    .getByRole("button", { name: /^Open / })
     .first()
     .focus();
   await page.keyboard.press("Escape");

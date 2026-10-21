@@ -165,6 +165,8 @@ describe("relationship loading presentation and response ownership", () => {
     });
     expect(document.querySelector('[role="dialog"]')?.getAttribute("aria-label")).toBe("Related projects");
     expect(document.querySelector("[data-linked-record-list]")?.querySelectorAll('[role="option"]')).toHaveLength(25);
+    expect(document.querySelectorAll("[data-linked-record-list] .lucide-check")).toHaveLength(25);
+    expect(document.querySelector("[data-linked-record-list]")?.textContent).toContain("Initial project");
     expect(document.querySelector('[data-slot="command-input"]')).toBe(document.activeElement);
     expect(document.querySelector("[data-relationship-unlink]")).toBeNull();
     expect(actions.choices.mock.calls.at(-1)?.[0]).toMatchObject({
@@ -376,7 +378,7 @@ describe("relationship unlink focus", () => {
     act(() => field.querySelector<HTMLElement>("[data-relationship-field]")?.click());
     expect(document.querySelector('[role="dialog"]')).toBeNull();
   });
-  it("opens overflow records with Enter and keeps keyboard unlink separate", async () => {
+  it("shows every linked record as selected, toggles with Enter and keeps opening separate", async () => {
     const other: RecordChoice = {
       ref: { ...linked.ref, recordId: "10000000-0000-4000-8000-000000000007" },
       title: { state: "value", value: { kind: "text", value: "Second project" } },
@@ -396,30 +398,34 @@ describe("relationship unlink focus", () => {
     act(() => {
       input?.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
     });
-    expect(store.rootStore.recordWorkspaceStore.open).toHaveBeenCalledWith(
-      linked.ref,
-      input,
-      field.querySelector('[role="combobox"]'),
-    );
-    const unlink = document.querySelector<HTMLButtonElement>("[data-linked-record-list] button");
-    const selected = document.querySelector('[cmdk-item][aria-selected="true"]');
-    act(() => {
-      unlink?.focus();
-      for (const key of ["ArrowDown", "ArrowUp", "End", "Home", "j"])
-        unlink?.dispatchEvent(new KeyboardEvent("keydown", { key, ctrlKey: key === "j", bubbles: true }));
-    });
-    expect(document.querySelector('[cmdk-item][aria-selected="true"]')).toBe(selected);
-    expect(document.activeElement).toBe(unlink);
-    act(() => {
-      unlink?.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
-      unlink?.click();
-    });
-    expect(store.rootStore.recordWorkspaceStore.open).toHaveBeenCalledOnce();
-    expect(store.stageLink).toHaveBeenCalledWith(
+    const options = [...document.querySelectorAll("[data-linked-record-list] [cmdk-item]")];
+    expect(options).toHaveLength(2);
+    for (const option of options) expect(option.querySelector(".lucide-check")).not.toBeNull();
+    expect(store.rootStore.recordWorkspaceStore.open).not.toHaveBeenCalled();
+    expect(store.stageLink).toHaveBeenCalledExactlyOnceWith(
       { action: "unlink", relationId: relation.id, direction: "outgoing", record: linked.ref },
       linked.title,
     );
     expect(document.activeElement).toBe(input);
+    const open = document.querySelector<HTMLButtonElement>("[data-linked-record-list] button");
+    const selected = document.querySelector('[cmdk-item][aria-selected="true"]');
+    act(() => {
+      open?.focus();
+      for (const key of ["ArrowDown", "ArrowUp", "End", "Home", "j"])
+        open?.dispatchEvent(new KeyboardEvent("keydown", { key, ctrlKey: key === "j", bubbles: true }));
+    });
+    expect(document.querySelector('[cmdk-item][aria-selected="true"]')).toBe(selected);
+    expect(document.activeElement).toBe(open);
+    act(() => {
+      open?.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+      open?.click();
+    });
+    expect(store.rootStore.recordWorkspaceStore.open).toHaveBeenCalledExactlyOnceWith(
+      linked.ref,
+      open,
+      field.querySelector('[role="combobox"]'),
+    );
+    expect(store.stageLink).toHaveBeenCalledOnce();
   });
   it("returns to the current opener after switching from overflow to the Link picker", async () => {
     vi.spyOn(HTMLElement.prototype, "getClientRects").mockReturnValue([
