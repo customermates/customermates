@@ -15,7 +15,7 @@ import type { RecordsStore } from "./records.store";
 import { useEffect, useId, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Check, Plus } from "lucide-react";
+import { Check, Pencil } from "lucide-react";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { EmptyValue } from "@/components/shared/empty-value";
@@ -174,7 +174,7 @@ function EmptyValueTarget() {
     >
       <EmptyValue />
 
-      <Plus aria-hidden className="size-3.5" />
+      <Pencil aria-hidden className="size-3.5" />
     </span>
   );
 }
