@@ -81,6 +81,17 @@ test("starts from a recommended starter, previews it live at dashboard size and 
   const preview = dialog.locator('[data-slot="widget-preview"]');
   await expect(preview.locator('[data-slot="widget-number"]')).toBeVisible();
   await expect(preview.locator('[data-preview-current="true"]')).toBeVisible();
+  await expect(preview).toHaveAttribute("data-preview-sizing", "content");
+  await expect.poll(async () => {
+    const natural = await preview.boundingBox();
+    const column = await dialog.locator('[data-slot="widget-editor-preview"]').boundingBox();
+    return natural && column ? Math.abs(natural.width - column.width) : Number.POSITIVE_INFINITY;
+  }).toBeLessThan(2);
+  const natural = await preview.boundingBox();
+  expect(natural?.height).toBeGreaterThan(50);
+  expect(natural?.height).toBeLessThan(180);
+  await dialog.getByRole("button", { name: englishMessages.Dashboard.widgetEditor.preview.size.replace("{w}", "3").replace("{h}", "2"), exact: true }).click();
+  await expect(preview).toHaveAttribute("data-preview-sizing", "dashboard");
   const size = await preview.boundingBox();
   const real = await preview.evaluate((element) => [
     Number(element.getAttribute("data-preview-width")),
@@ -94,6 +105,15 @@ test("starts from a recommended starter, previews it live at dashboard size and 
   expect(size && size.height).toBeLessThan(
     (page.viewportSize()?.height ?? 0) * 0.8,
   );
+
+  await dialog.locator("#widget-config-filters").click();
+  const inlineFilters = dialog.locator("#widget-source-filters");
+  const filterList = inlineFilters.locator('[data-slot="command-list"]');
+  await expect(filterList).toBeVisible();
+  await expect(filterList).toHaveCSS("overflow-y", "auto");
+  expect((await filterList.boundingBox())?.height).toBeLessThanOrEqual(301);
+  await expect(inlineFilters.getByRole("button", { name: "Filters", exact: true })).toHaveCount(0);
+  await dialog.locator("#widget-config-filters").click();
 
   await dialog
     .getByRole("textbox", { name: "Name", exact: false })
@@ -174,7 +194,7 @@ test("starts from a recommended starter, previews it live at dashboard size and 
   expect(errors).toEqual([]);
 });
 
-for (const action of ["outside", "save", "cancel"] as const) {
+for (const action of ["outside", "save", "keyboard", "collapse", "cancel"] as const) {
   test(`pending scalar array token: ${action}`, async ({
     page,
     database,
@@ -228,6 +248,12 @@ for (const action of ["outside", "save", "cancel"] as const) {
       await page.locator("#widget-modal-save").click();
     }
     if (action === "save") await page.locator("#widget-modal-save").click();
+    if (action === "collapse") {
+      await page.locator("#widget-config-filters").click();
+      await expect(page.locator("#widget-source-filters")).toHaveCount(0);
+      await page.locator("#widget-modal-save").click();
+    }
+    if (action === "keyboard") await page.locator('[id="draft.value"]').press("Control+Enter");
     if (action === "cancel") {
       await page.getByRole("dialog").getByRole("button", { name: "Close", exact: true }).click();
       await page.locator("#discard-changes").click();

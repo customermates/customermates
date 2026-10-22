@@ -892,7 +892,7 @@ test("uses explicit activity record scope, event kinds, positive and negative re
       await page.getByRole("option", { name: record, exact: true }).click();
     }
     await page.locator("#filter-palette-back").click();
-    await page.keyboard.press("Escape");
+    await expect(page.locator("#widget-activity-filters [data-palette-field]").first()).toBeVisible();
   };
   await editRecordFilter("hasSome");
   await activityPreview(page, [entries[0].body], [entries[1].body]);
@@ -921,7 +921,7 @@ test("uses explicit activity record scope, event kinds, positive and negative re
   await toggleMultiple(page, '[id="activityQuery.kinds"]', english.EntityTimeline.types.record);
   await openFilterPalette(page, "widget-activity-filters");
   await page.locator('[data-palette-remove-filter="0"]').click();
-  await page.keyboard.press("Escape");
+  await expect(page.locator("#widget-activity-filters [data-palette-field]").first()).toBeVisible();
   await activityPreview(
     page,
     entries.map((entry) => entry.body),

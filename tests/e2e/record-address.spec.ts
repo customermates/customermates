@@ -141,6 +141,21 @@ async function newContact(page: Page, companyId: string, firstName: string) {
   return drawer;
 }
 
+async function openAddress(page: Page, owner: Locator) {
+  await owner.getByRole("button", { name: "Edit Address", exact: true }).click();
+  const drawer = page.getByRole("dialog", { name: "Edit Address", exact: true });
+  await expect(drawer).toBeVisible();
+  return drawer.locator("[data-address-input]");
+}
+
+async function applyAddress(page: Page) {
+  const drawer = page.getByRole("dialog", { name: "Edit Address", exact: true });
+  if (await drawer.count()) {
+    await drawer.getByRole("button", { name: "Confirm", exact: true }).click();
+    await expect(drawer).toHaveCount(0);
+  }
+}
+
 function addressPart(address: Locator, name: string) {
   return address.getByRole("textbox", { name: new RegExp(`(^|\\s)${name}$`) });
 }
@@ -199,13 +214,41 @@ async function storedAddresses(database: Client, companyId: string) {
   }>;
 }
 
+test("keeps address edits in their drawer until confirmed and saves only with the record", async ({ page, database, companyId }) => {
+  test.setTimeout(240000);
+  const errors = collectPageErrors(page);
+  await addAddressField(page, companyId);
+  const record = await newContact(page, companyId, "Draft");
+  let address = await openAddress(page, record);
+  await fillParts(address, { street: "Tentative street 1", postalCode: "68161", city: "Mannheim" });
+  await page.getByRole("dialog", { name: "Edit Address", exact: true }).getByRole("button", { name: "Cancel", exact: true }).click();
+  await page.getByRole("alertdialog").getByRole("button", { name: "Discard", exact: true }).click();
+  await expect(page.getByRole("dialog", { name: "Edit Address", exact: true })).toHaveCount(0);
+  await expect(record.getByRole("textbox", { name: "First name", exact: false })).toHaveValue("Draft");
+  await expect(record.locator("[data-address-field]")).not.toContainText("Tentative street");
+  expect(await storedAddresses(database, companyId)).toEqual([]);
+  address = await openAddress(page, record);
+  await fillParts(address, { street: "Planken 1", postalCode: "68161", city: "Mannheim" });
+  await applyAddress(page);
+  await expect(record.locator("[data-address-field]")).toContainText("Planken 1");
+  expect(await storedAddresses(database, companyId)).toEqual([]);
+  address = await openAddress(page, record);
+  await expect(addressPart(address, "Street and number")).toHaveValue("Planken 1");
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog", { name: "Edit Address", exact: true })).toHaveCount(0);
+  await record.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(record).toHaveCount(0);
+  await expect.poll(async () => (await storedAddresses(database, companyId)).map((row) => row.address.street)).toEqual(["Planken 1"]);
+  expect(errors).toEqual([]);
+});
+
 test("picks a verified address from the suggestions while typing", async ({ page, database, companyId }) => {
   test.skip(!lookupUrl, "Runs against the mock address service; start the suite with ADDRESS_LOOKUP_URL set");
   test.setTimeout(240000);
   const errors = collectPageErrors(page);
   await addAddressField(page, companyId);
   const drawer = await newContact(page, companyId, "Ada");
-  const address = drawer.locator("[data-address-input]");
+  const address = await openAddress(page, drawer);
   await address.locator("[data-address-search]").click();
   const search = page.getByPlaceholder("Street and number, postal code or city", { exact: true });
   await search.fill("Ha");
@@ -230,6 +273,7 @@ test("picks a verified address from the suggestions while typing", async ({ page
   await expect(addressPart(address, "Street and number")).toHaveValue("Hauptstraße 5");
   await expect(addressPart(address, "Postal code")).toHaveValue("68259");
   await expect(addressPart(address, "City")).toHaveValue("Mannheim");
+  await applyAddress(page);
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer).not.toBeVisible();
   await expect
@@ -255,16 +299,16 @@ test("picks a verified address from the suggestions while typing", async ({ page
 
     const row = page.getByRole("row").filter({ hasText: "Ada Lovelace" });
     const space = row.locator("[data-inline-edit-space]").filter({ hasText: MANNHEIM });
-    await space.scrollIntoViewIfNeeded();
-    const box = await space.boundingBox();
-    if (!box) throw new Error("The address cell is not rendered");
-    await page.mouse.click(box.x + box.width - 4, box.y + box.height / 2);
+    await space.hover();
+    await space.getByRole("button", { name: "Edit Address", exact: true }).click();
     const editor = page.getByRole("dialog", { name: "Address", exact: true });
-    await expect(editor.locator('[data-address-status="verified"]')).toBeVisible();
-    await editor.locator("[data-address-search]").click();
+    const inlineAddress = await openAddress(page, editor);
+    await expect(inlineAddress.locator('[data-address-status="verified"]')).toBeVisible();
+    await inlineAddress.locator("[data-address-search]").click();
     await page.getByPlaceholder("Street and number, postal code or city", { exact: true }).fill("Hauptstr 55");
     await page.getByRole("option", { name: /Mannheim Gold Collection/ }).click();
-    await expect(addressPart(editor, "City")).toHaveValue("Kehl");
+    await expect(addressPart(inlineAddress, "City")).toHaveValue("Kehl");
+    await applyAddress(page);
     await editor.getByRole("button", { name: "Save", exact: true }).click();
     await expect(editor).toHaveCount(0);
     await expect
@@ -286,7 +330,7 @@ test("checks an address entered by hand and turns an edited one unverified", asy
   const errors = collectPageErrors(page);
   await addAddressField(page, companyId);
   const drawer = await newContact(page, companyId, "Grace");
-  const address = drawer.locator("[data-address-input]");
+  const address = await openAddress(page, drawer);
   await fillParts(address, {
     street: "Hauptstr. 5",
     postalCode: "68259",
@@ -307,6 +351,7 @@ test("checks an address entered by hand and turns an edited one unverified", asy
   await suggestion.getByRole("button", { name: "Use suggested address", exact: true }).click();
   await expect(address.locator('[data-address-status="verified"]')).toHaveText("Verified address");
   await expect(addressPart(address, "Street and number")).toHaveValue("Hauptstraße 5");
+  await applyAddress(page);
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer).not.toBeVisible();
   await expect
@@ -315,12 +360,13 @@ test("checks an address entered by hand and turns an edited one unverified", asy
 
   await openRecordDetails(page, "Grace Lovelace");
   const details = page.getByRole("dialog", { name: "Contact", exact: true });
-  const edited = details.locator("[data-address-input]");
+  const edited = await openAddress(page, details);
   await showParts(edited);
   await addressPart(edited, "Street and number").fill("Hauptstraße 7");
   await expect(edited.locator('[data-address-status="unverified"]')).toBeVisible();
   await edited.getByRole("button", { name: "Check address", exact: true }).click();
   await expect(edited.locator('[data-address-status="unverified"]')).toContainText("No matching address found.");
+  await applyAddress(page);
   await details.getByRole("button", { name: "Save", exact: true }).click();
   await expect
     .poll(async () => (await storedAddresses(database, companyId)).map((row) => row.address))
@@ -342,7 +388,7 @@ test("enters addresses by hand when no address service is configured", async ({ 
   const errors = collectPageErrors(page);
   await addAddressField(page, companyId);
   const drawer = await newContact(page, companyId, "Ada");
-  const address = drawer.locator("[data-address-input]");
+  const address = await openAddress(page, drawer);
   await expect(address.locator("[data-address-search]")).toHaveCount(0);
   await expect(address.getByRole("button", { name: /^Address details/ })).toHaveCount(0);
   await fillParts(address, {
@@ -352,6 +398,7 @@ test("enters addresses by hand when no address service is configured", async ({ 
   });
   await expect(address.locator("[data-address-status]")).toHaveCount(0);
   await expect(address.getByRole("button", { name: "Check address", exact: true })).toHaveCount(0);
+  await applyAddress(page);
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer).not.toBeVisible();
   await expect
@@ -375,6 +422,7 @@ test("sets one address on several selected records", async ({ page, database, co
   await addAddressField(page, companyId);
   for (const firstName of ["Ada", "Grace"]) {
     const drawer = await newContact(page, companyId, firstName);
+    await applyAddress(page);
     await drawer.getByRole("button", { name: "Save", exact: true }).click();
     await expect(drawer).not.toBeVisible();
     await expect(page.getByRole("link", { name: `${firstName} Lovelace`, exact: true })).toBeVisible();
@@ -390,11 +438,13 @@ test("sets one address on several selected records", async ({ page, database, co
   await page.locator("[data-record-mass-actions]").getByRole("button", { name: "Edit", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Edit", exact: true });
   await dialog.getByRole("option", { name: "Address", exact: true }).click();
-  await fillParts(dialog.locator("[data-address-input]"), {
+  const address = await openAddress(page, dialog);
+  await fillParts(address, {
     street: "Hauptstraße 5",
     postalCode: "68259",
     city: "Mannheim",
   });
+  await applyAddress(page);
   await dialog.getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.locator("[data-record-mass-actions]")).not.toBeVisible();
   await expect
@@ -415,7 +465,7 @@ test("checks an address while it is typed and completes it from the postal code"
   const errors = collectPageErrors(page);
   await addAddressField(page, companyId);
   const drawer = await newContact(page, companyId, "Ada");
-  const address = drawer.locator("[data-address-input]");
+  const address = await openAddress(page, drawer);
   await chooseOption(page, address, "Country", "Germany");
   await expect(addressPart(address, "Postal code")).toBeVisible();
   await expect(addressChoice(address, "State or region")).toHaveCount(0);
@@ -438,6 +488,7 @@ test("checks an address while it is typed and completes it from the postal code"
     );
     await addressPart(address, "City").fill("Mannheim");
   }
+  await applyAddress(page);
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer).not.toBeVisible();
   await expect
@@ -466,7 +517,7 @@ test("offers the cities of a postal code and corrects a city that does not belon
   const errors = collectPageErrors(page);
   await addAddressField(page, companyId);
   const drawer = await newContact(page, companyId, "Grace");
-  const address = drawer.locator("[data-address-input]");
+  const address = await openAddress(page, drawer);
   await chooseOption(page, address, "Country", "Germany");
   await addressPart(address, "Street and number").fill("Bahnhofstraße 1");
   await addressPart(address, "Postal code").fill("01945");
@@ -484,6 +535,7 @@ test("offers the cities of a postal code and corrects a city that does not belon
   await mismatch.getByRole("button", { name: "Use Mannheim", exact: true }).click();
   await expect(addressPart(address, "City")).toHaveValue("Mannheim");
   await expect(mismatch).toHaveCount(0);
+  await applyAddress(page);
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer).not.toBeVisible();
   await expect
@@ -499,19 +551,21 @@ test("refuses to save a postal code that does not fit the country", async ({ pag
   const errors = collectPageErrors(page);
   await addAddressField(page, companyId);
   const drawer = await newContact(page, companyId, "Ada");
-  const address = drawer.locator("[data-address-input]");
+  const address = await openAddress(page, drawer);
   await chooseOption(page, address, "Country", "Germany");
   await addressPart(address, "Postal code").fill("682591");
   await addressPart(address, "City").fill("Mannheim");
+  await applyAddress(page);
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(
-    page.getByText(
+    drawer.getByText(
       "In Address, 682591 is not a postal code of the chosen country. Postal codes there look like 26133.",
       { exact: true },
     ),
   ).toBeVisible();
-  await expect(addressPart(address, "Postal code")).toHaveAttribute("aria-invalid", "true");
-  await expect(addressPart(address, "City")).not.toHaveAttribute("aria-invalid", "true");
+  const invalid = await openAddress(page, drawer);
+  await expect(addressPart(invalid, "Postal code")).toHaveAttribute("aria-invalid", "true");
+  await expect(addressPart(invalid, "City")).not.toHaveAttribute("aria-invalid", "true");
   await expect(drawer).toBeVisible();
   expect(await storedAddresses(database, companyId)).toEqual([]);
   expect(errors).toEqual([]);
@@ -522,7 +576,7 @@ test("lays an address out the way its country writes it", async ({ page, company
   const errors = collectPageErrors(page);
   await addAddressField(page, companyId);
   const drawer = await newContact(page, companyId, "Ada");
-  const address = drawer.locator("[data-address-input]");
+  const address = await openAddress(page, drawer);
   await chooseOption(page, address, "Country", "United States");
   await expect(addressPart(address, "ZIP code")).toBeVisible();
   await expect(addressPart(address, "Postal code")).toHaveCount(0);

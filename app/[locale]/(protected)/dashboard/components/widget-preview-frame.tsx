@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import type { WidgetKind } from "@/generated/prisma";
 
 import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/core/utils/cn";
 
 import { DASHBOARD_GRID_MARGIN, DASHBOARD_ROW_HEIGHT, GRID_BREAKPOINTS, GRID_COLS } from "./grid.constants";
@@ -36,6 +37,7 @@ function useDashboardGridWidth() {
 type Props = {
   children: ReactNode;
   error?: ReactNode;
+  fitContent?: boolean;
   geometry?: WidgetLayoutGeometry;
   interactive?: boolean;
   kind: WidgetKind;
@@ -60,8 +62,9 @@ function useElementWidth() {
 }
 
 export const WidgetPreviewFrame = observer(
-  ({ children, error, geometry: layout, interactive = false, kind, loading = false }: Props) => {
+  ({ children, error, fitContent = false, geometry: layout, interactive = false, kind, loading = false }: Props) => {
     const t = useTranslations();
+    const [dashboardSize, setDashboardSize] = useState(false);
     const geometry = layout ?? widgetLayoutGeometry(kind, GRID_COLS.lg);
     const size = widgetPixelSize(useDashboardGridWidth(), geometry.w, geometry.h);
     const [measure, columnWidth] = useElementWidth();
@@ -91,28 +94,49 @@ export const WidgetPreviewFrame = observer(
             {t("Dashboard.widgetEditor.preview.live")}
           </h3>
 
-          <span className="ml-auto truncate text-xs text-muted-foreground">
+          <Button
+            aria-pressed={dashboardSize}
+            className="ml-auto h-7 text-xs text-muted-foreground"
+            size="sm"
+            type="button"
+            variant="ghost"
+            onClick={() => setDashboardSize((value) => !value)}
+          >
             {t("Dashboard.widgetEditor.preview.size", { w: geometry.w, h: geometry.h })}
-          </span>
+          </Button>
         </div>
 
-        <div ref={measure} className="w-full pt-4">
+        <div ref={measure} className="w-full pt-2">
           <div
-            className="relative mx-auto"
+            className={cn(
+              "relative mx-auto",
+              !dashboardSize &&
+                (fitContent
+                  ? cn("max-h-80 overflow-auto", (loading || error) && "min-h-28")
+                  : kind === "calendar" || kind === "map"
+                    ? "h-80 sm:h-96"
+                    : "h-64 sm:h-72"),
+            )}
             data-preview-height={size.height}
+            data-preview-sizing={dashboardSize ? "dashboard" : "content"}
             data-preview-width={size.width}
             data-slot="widget-preview"
             style={{
-              width: size.width * scale,
-              height: size.height * scale,
-              visibility: columnWidth ? "visible" : "hidden",
+              width: dashboardSize ? size.width * scale : "100%",
+              height: dashboardSize ? size.height * scale : undefined,
+              visibility: dashboardSize && !columnWidth ? "hidden" : "visible",
             }}
           >
             <div
-              className={cn("absolute left-0 top-0 origin-top-left", STAGE_RESET_CLASS)}
+              className={cn(
+                dashboardSize ? "absolute left-0 top-0 origin-top-left" : "h-full min-w-0",
+                STAGE_RESET_CLASS,
+              )}
               data-preview-interactive={interactive || undefined}
               inert={!interactive}
-              style={{ width: size.width, height: size.height, transform: `scale(${scale})` }}
+              style={
+                dashboardSize ? { width: size.width, height: size.height, transform: `scale(${scale})` } : undefined
+              }
             >
               {children}
             </div>

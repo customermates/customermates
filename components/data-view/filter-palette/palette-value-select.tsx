@@ -29,6 +29,7 @@ type OptionResult = {
 };
 
 type Props = {
+  inline?: boolean;
   filter: Filter;
   customColumns: ColumnPresentation[] | undefined;
   selected: string[];
@@ -37,6 +38,7 @@ type Props = {
 };
 
 export const PaletteValueSelect = observer(function PaletteValueSelect({
+  inline = false,
   filter,
   customColumns,
   selected,
@@ -102,7 +104,7 @@ export const PaletteValueSelect = observer(function PaletteValueSelect({
 
   return (
     <>
-      <CommandList aria-busy={loading || undefined} className="max-h-none! overflow-visible">
+      <CommandList aria-busy={loading || undefined} className={inline ? undefined : "max-h-none! overflow-visible"}>
         {loading && <SelectionOptionsSkeleton label={t("Loading.text")} />}
 
         {!loading && optionError && (

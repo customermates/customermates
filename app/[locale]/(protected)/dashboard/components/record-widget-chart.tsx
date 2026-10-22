@@ -138,11 +138,11 @@ export function RecordWidgetChart({
           <h2 className={cn(WIDGET_CARD_TITLE_CLASS, "min-w-0 flex-1")}>
             <TruncatedText>{name}</TruncatedText>
           </h2>
-
-          <WidgetNotes notes={infoNotes} />
         </div>
 
         <WidgetSubtitle reserve={reserve} text={subtitle} />
+
+        <WidgetNotes notes={infoNotes} />
       </AppCardHeader>
 
       <AppCardBody className={cn(WIDGET_CARD_BODY_CLASS, "overflow-visible recharts-no-focus-outline", bodyClassName)}>

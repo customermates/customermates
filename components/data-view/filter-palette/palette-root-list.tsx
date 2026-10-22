@@ -23,6 +23,7 @@ const PALETTE_GROUP_CLASS =
   "**:[[cmdk-group-heading]]:text-[11px] **:[[cmdk-group-heading]]:tracking-wide **:[[cmdk-group-heading]]:uppercase";
 
 type Props = {
+  inline?: boolean;
   store: FilterTarget;
   search?: FilterPaletteSearch;
   query: string;
@@ -37,6 +38,7 @@ type Props = {
 };
 
 export const PaletteRootList = observer(function PaletteRootList({
+  inline = false,
   store,
   search,
   query,
@@ -181,7 +183,7 @@ export const PaletteRootList = observer(function PaletteRootList({
         </div>
       ))}
 
-      <CommandList className="max-h-none! overflow-visible">
+      <CommandList className={inline ? undefined : "max-h-none! overflow-visible"}>
         {!(search && searchText) && <CommandEmpty>{t("Common.inputs.emptyContent")}</CommandEmpty>}
 
         {search && searchText && (

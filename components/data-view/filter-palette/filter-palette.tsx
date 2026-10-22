@@ -9,7 +9,7 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef } from "react";
 
-import { AppForm } from "@/components/forms/form-context";
+import { AppForm, AppFormProvider } from "@/components/forms/form-context";
 import { Button } from "@/components/ui/button";
 import { Command, CommandInput } from "@/components/ui/command";
 import { FilterOperatorKey as OperatorKey, isStandaloneOperator } from "@/core/base/base-query-builder";
@@ -34,9 +34,10 @@ type Props = {
   store: FilterTarget;
   palette: FilterPaletteStore;
   search?: FilterPaletteSearch;
+  inline?: boolean;
 };
 
-export const FilterPalette = observer(function FilterPalette({ store: host, palette, search }: Props) {
+export const FilterPalette = observer(function FilterPalette({ store: host, palette, search, inline = false }: Props) {
   const t = useTranslations();
   const store = palette.activeTarget ?? host;
   const paletteRef = useRef<HTMLDivElement>(null);
@@ -103,6 +104,7 @@ export const FilterPalette = observer(function FilterPalette({ store: host, pale
         <PaletteRootList
           disabled={palette.isDisabled}
           filters={palette.appliedFilters}
+          inline={inline}
           isAtLimit={palette.isAtFilterLimit}
           query={palette.query}
           search={store === host ? search : undefined}
@@ -125,6 +127,7 @@ export const FilterPalette = observer(function FilterPalette({ store: host, pale
         <PaletteValueSelect
           customColumns={store.filterColumns}
           filter={draftFilter}
+          inline={inline}
           query={palette.query}
           selected={palette.selectedValues}
           onToggle={palette.toggleValue}
@@ -153,6 +156,7 @@ export const FilterPalette = observer(function FilterPalette({ store: host, pale
       return showDateRows ? (
         <PaletteValueDate
           declaredOperators={declaredOperators}
+          inline={inline}
           operator={operator}
           value={draft.value}
           onCommitPreset={(days) => palette.commitNow({ operator: OperatorKey.inLastDays, value: days })}
@@ -169,13 +173,19 @@ export const FilterPalette = observer(function FilterPalette({ store: host, pale
     }
 
     return (
-      <PaletteValueOperator current={operator} operators={declaredOperators} onSelect={palette.setDraftOperator} />
+      <PaletteValueOperator
+        current={operator}
+        inline={inline}
+        operators={declaredOperators}
+        onSelect={palette.setDraftOperator}
+      />
     );
   }
 
+  const Form = inline ? AppFormProvider : AppForm;
   return (
     <FilterOptionsProvider fields={store.filterableFields}>
-      <AppForm store={palette}>
+      <Form store={palette}>
         <div ref={paletteRef} className="flex min-h-0 flex-col" onKeyDownCapture={handleKeyDownCapture}>
           {(!isRoot || palette.pages.length > 1) && (
             <div className="flex shrink-0 items-center gap-1.5 px-2 pt-2 pb-1">
@@ -226,7 +236,7 @@ export const FilterPalette = observer(function FilterPalette({ store: host, pale
             renderPage()
           )}
         </div>
-      </AppForm>
+      </Form>
     </FilterOptionsProvider>
   );
 });

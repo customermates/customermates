@@ -21,7 +21,7 @@ import { FormattedTextField } from "@/components/editor/formatted-text-field";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { getActiveUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 import { actionData } from "@/core/utils/action-data";
-import { RecordAddressInput } from "./record-address-input";
+import { RecordAddressField } from "./record-address-field";
 
 import { RecordFileInput } from "./record-file-input";
 
@@ -149,7 +149,7 @@ export const RecordInputField = observer(function RecordInputField({
     );
   }
   if (field.valueType === "address")
-    return <RecordAddressInput field={field} id={id} inputId={inputId} label={label} />;
+    return <RecordAddressField field={field} id={id} inputId={inputId} label={label} />;
   if (field.valueType === "url") {
     const value = store?.getValue(id);
     return (

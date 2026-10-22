@@ -1,7 +1,7 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
 
 import { useRef } from "react";
 import { Download, X } from "lucide-react";
@@ -10,6 +10,7 @@ import { Icon } from "@/components/shared/icon";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useIsTruncated } from "@/core/utils/use-is-truncated";
 import { cn } from "@/core/utils/cn";
+import { ITEM_REVEAL_CLASS, ITEM_REVEAL_GROUP_CLASS } from "@/components/ui/item-actions";
 
 import { attachmentRowClass } from "./attachment-classify";
 
@@ -24,6 +25,8 @@ type Props = {
   onOpen?: () => void;
   onRemove?: () => void;
   removeLabel?: string;
+  tone?: "message" | "neutral";
+  actions?: ReactNode;
 };
 
 export function AttachmentRow({
@@ -37,6 +40,8 @@ export function AttachmentRow({
   onOpen,
   onRemove,
   removeLabel,
+  tone = "message",
+  actions,
 }: Props) {
   const nameRef = useRef<HTMLSpanElement | null>(null);
   const isTruncated = useIsTruncated(nameRef, name);
@@ -69,30 +74,40 @@ export function AttachmentRow({
     );
   };
 
-  if (onRemove) {
+  if (onRemove || actions) {
     return (
-      <div className={cn(attachmentRowClass(false), className)}>
+      <div className={cn(attachmentRowClass(false, undefined, tone), ITEM_REVEAL_GROUP_CLASS, className)}>
         {withNameTooltip(
           <button className="flex min-w-0 flex-1 items-center gap-2.5" type="button" onClick={onOpen}>
             {body}
           </button>,
         )}
 
-        <button
-          aria-label={removeLabel}
-          className="text-muted-foreground hover:text-foreground shrink-0 transition-colors"
-          type="button"
-          onClick={onRemove}
-        >
-          <Icon className="size-4" icon={X} />
-        </button>
+        {actions ?? (
+          <button
+            aria-label={removeLabel}
+            className={cn(
+              "text-muted-foreground hover:text-foreground shrink-0 transition-colors",
+              tone === "neutral" && cn("size-7 rounded-md", ITEM_REVEAL_CLASS),
+            )}
+            type="button"
+            onClick={onRemove}
+          >
+            <Icon className="size-4" icon={X} />
+          </button>
+        )}
       </div>
     );
   }
 
   if (href) {
     return withNameTooltip(
-      <a className={cn(attachmentRowClass(true), className)} download={download} href={href} rel="noreferrer">
+      <a
+        className={cn(attachmentRowClass(true, undefined, tone), className)}
+        download={download}
+        href={href}
+        rel="noreferrer"
+      >
         {body}
 
         {downloadIcon}
@@ -101,7 +116,7 @@ export function AttachmentRow({
   }
 
   return withNameTooltip(
-    <button className={cn(attachmentRowClass(true), className)} type="button" onClick={onOpen}>
+    <button className={cn(attachmentRowClass(true, undefined, tone), className)} type="button" onClick={onOpen}>
       {body}
 
       {downloadIcon}

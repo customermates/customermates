@@ -10,17 +10,23 @@ import { CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/componen
 import { useFilterOperatorLabel } from "@/components/data-view/filter-modal/use-filter-operator-label";
 
 type Props = {
+  inline?: boolean;
   operators: FilterOperatorKey[];
   current: FilterOperatorKey | undefined;
   onSelect: (operator: FilterOperatorKey) => void;
 };
 
-export const PaletteValueOperator = observer(function PaletteValueOperator({ operators, current, onSelect }: Props) {
+export const PaletteValueOperator = observer(function PaletteValueOperator({
+  operators,
+  current,
+  onSelect,
+  inline = false,
+}: Props) {
   const t = useTranslations();
   const operatorLabel = useFilterOperatorLabel();
 
   return (
-    <CommandList className="max-h-none! overflow-visible">
+    <CommandList className={inline ? undefined : "max-h-none! overflow-visible"}>
       <CommandEmpty>{t("Common.inputs.emptyContent")}</CommandEmpty>
 
       <CommandGroup>

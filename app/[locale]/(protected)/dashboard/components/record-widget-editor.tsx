@@ -126,6 +126,7 @@ export const RecordWidgetEditor = observer(
               </>
             ) : null
           }
+          fitContent={["number", "rankedTable"].includes(form.displayOptions.displayType)}
           geometry={store.previewGeometry}
           kind={form.kind}
           loading={loading || (model === undefined && !shownPreview)}
@@ -180,6 +181,7 @@ export const RecordWidgetEditor = observer(
         {status}
 
         <RecordQueryFilters
+          inline
           anchorId="widget-source-filters"
           id="measure.source"
           model={model}

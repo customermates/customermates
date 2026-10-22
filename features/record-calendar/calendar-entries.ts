@@ -13,6 +13,7 @@ export type CalendarEntry = {
   start: CalendarDate;
   end: CalendarDate;
   time: string | null;
+  endTime?: string | null;
   color: string | null;
 };
 
@@ -52,7 +53,14 @@ export function calendarEntry(
     const start = dayOf(timed ? first : first.slice(0, 10), timeZone);
     const last = scalar.end ?? first;
     const end = timed ? endDayOf(last, scalar.start, timeZone) : last.slice(0, 10);
-    return { id: record.id, start, end: laterOf(start, end), time: timed ? first : null, color };
+    return {
+      id: record.id,
+      start,
+      end: laterOf(start, end),
+      time: timed ? first : null,
+      ...(timed && scalar.end ? { endTime: scalar.end } : {}),
+      color,
+    };
   }
   if (scalar.kind !== "date" && scalar.kind !== "dateTime") return null;
   const start = scalar.kind === "date" ? scalar.value : zonedDate(scalar.value, timeZone);
@@ -65,7 +73,14 @@ export function calendarEntry(
       : endScalar?.kind === "dateTime"
         ? endDayOf(endScalar.value, time, timeZone)
         : start;
-  return { id: record.id, start, end: laterOf(start, end), time, color };
+  return {
+    id: record.id,
+    start,
+    end: laterOf(start, end),
+    time,
+    ...(endScalar?.kind === "dateTime" ? { endTime: endScalar.value } : {}),
+    color,
+  };
 }
 
 export function calendarEntryCovers(entry: CalendarEntry, date: CalendarDate): boolean {

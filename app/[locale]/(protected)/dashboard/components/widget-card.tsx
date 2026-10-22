@@ -6,8 +6,8 @@ import type { WidgetDto } from "@/features/widget/widget.schema";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Pencil } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { ItemActions, ItemActionsTrigger, ITEM_REVEAL_CLASS } from "@/components/ui/item-actions";
+import { IconButton } from "@/components/ui/icon-button";
+import { ItemActions, ITEM_REVEAL_CLASS } from "@/components/ui/item-actions";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import type { RecordContributionGroup } from "@/features/records/record-contribution.schema";
 
@@ -96,7 +96,7 @@ export const WidgetCard = observer(({ widget, onInspect }: Props) => {
   );
   return (
     <ItemActions label={t("RecordModel.moreActions", { name: widget.name })} menu={menu}>
-      <div className="group/reveal relative h-full [&_[data-slot=card-header]]:pr-18">
+      <div className="group/reveal relative h-full [&_[data-slot=card-header]]:pr-10">
         <button
           aria-label={
             onInspect
@@ -111,21 +111,14 @@ export const WidgetCard = observer(({ widget, onInspect }: Props) => {
 
         {card}
 
-        <div
-          className="absolute top-2 right-2 z-30 flex items-center gap-0.5 rounded-md bg-card"
-          data-widget-interactive=""
-        >
-          <Button
-            aria-label={t("Dashboard.widgetEditor.editTitle", { name: widget.name })}
-            className={ITEM_REVEAL_CLASS}
-            size="icon"
-            variant="ghost"
+        <div className="absolute top-2 right-2 z-30" data-widget-interactive="">
+          <IconButton
+            className={`size-7 ${ITEM_REVEAL_CLASS}`}
+            icon={Pencil}
+            iconClassName="size-3.5"
+            label={t("Dashboard.widgetEditor.editTitle", { name: widget.name })}
             onClick={edit}
-          >
-            <Pencil aria-hidden className="size-4" />
-          </Button>
-
-          <ItemActionsTrigger />
+          />
         </div>
       </div>
     </ItemActions>

@@ -6,6 +6,7 @@ import type { RecordFieldView } from "@/features/records/record-model.schema";
 import type { ChipColor } from "@/constants/chip-colors";
 
 import { toChipColor } from "@/constants/chip-colors";
+import { moveInstantToDate, zonedDate } from "@/features/record-calendar/zoned-time";
 import {
   addCalendarDays,
   calendarDatesBetween,
@@ -54,9 +55,17 @@ function earlierOf(left: CalendarDate, right: CalendarDate) {
   return compareCalendarDates(left, right) < 0 ? left : right;
 }
 
-export function shiftCalendarEntry(entry: CalendarEntry, days: number): CalendarEntry {
+export function shiftCalendarEntry(entry: CalendarEntry, days: number, timeZone = "UTC"): CalendarEntry {
   if (days === 0) return entry;
-  return { ...entry, start: addCalendarDays(entry.start, days), end: addCalendarDays(entry.end, days) };
+  const shift = (instant: string) =>
+    moveInstantToDate(instant, addCalendarDays(zonedDate(instant, timeZone), days), timeZone);
+  return {
+    ...entry,
+    start: addCalendarDays(entry.start, days),
+    end: addCalendarDays(entry.end, days),
+    time: entry.time ? shift(entry.time) : null,
+    ...(entry.endTime ? { endTime: shift(entry.endTime) } : {}),
+  };
 }
 
 export function calendarItems(
@@ -68,7 +77,7 @@ export function calendarItems(
   return records
     .flatMap((record) => {
       const entry = calendarEntry(record, fields, timeZone);
-      return entry ? [{ entry: shiftCalendarEntry(entry, pendingShifts.get(record.id) ?? 0), record }] : [];
+      return entry ? [{ entry: shiftCalendarEntry(entry, pendingShifts.get(record.id) ?? 0, timeZone), record }] : [];
     })
     .sort((left, right) => compareCalendarEntries(left.entry, right.entry));
 }

@@ -75,6 +75,7 @@ export function plannerEntries(result: PlannerResult, timeZone: string): Planner
         start,
         end: end < start ? start : end,
         time: event.allDay ? null : event.startsAt,
+        ...(!event.allDay ? { endTime: event.endsAt } : {}),
         color: null,
       },
       endInstant: event.endsAt,

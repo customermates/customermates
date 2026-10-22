@@ -3607,7 +3607,6 @@
       "suggestion": "Vorgeschlagene Adresse",
       "use": "Vorschlag übernehmen"
     },
-    "addressDetails": "Adressdetails",
     "addressIssues": {
       "cityMismatch": "Dieser Ort gehört nicht zur Postleitzahl {postalCode}.",
       "countryMissing": "Wähle ein Land, damit Postleitzahl und Region geprüft werden können.",

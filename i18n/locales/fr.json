@@ -3607,7 +3607,6 @@
       "suggestion": "Adresse suggérée",
       "use": "Utiliser l’adresse suggérée"
     },
-    "addressDetails": "Détails de l’adresse",
     "addressIssues": {
       "cityMismatch": "Cette ville ne correspond pas au code postal {postalCode}.",
       "countryMissing": "Choisissez un pays pour vérifier le code postal et la région.",

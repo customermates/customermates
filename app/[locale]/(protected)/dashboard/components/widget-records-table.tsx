@@ -44,29 +44,38 @@ export const WidgetRecordsTable = observer(function WidgetRecordsTable({
       t,
     );
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3" data-widget-records="">
-      <div className="flex flex-wrap items-center justify-between gap-2">
+    <div className="flex min-h-0 flex-1 flex-col" data-widget-records="">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-y px-4 py-3">
         <h3 className="text-sm font-medium">
           {t("RecordWidgets.contributingCount", { count: store.pagination?.total ?? store.items.length })}
         </h3>
 
-        <Button asChild size="sm" variant="ghost">
-          <IntlLink
-            href={recordContributionHref(presentation.typeId, store.filters ?? [], {
-              searchTerm: store.searchTerm,
-              sortDescriptor: store.sortDescriptor,
-            })}
-          >
-            <ArrowUpRight aria-hidden className="size-4" />
+        <div className="ml-auto flex flex-wrap items-center gap-2">
+          <Button asChild size="sm" variant="ghost">
+            <IntlLink
+              href={recordContributionHref(presentation.typeId, store.filters ?? [], {
+                searchTerm: store.searchTerm,
+                sortDescriptor: store.sortDescriptor,
+              })}
+            >
+              <ArrowUpRight aria-hidden className="size-4" />
 
-            {t("RecordWidgets.openInList", { list: store.type?.pluralLabel ?? t("RecordModel.records") })}
-          </IntlLink>
-        </Button>
+              {t("RecordWidgets.openInList", { list: store.type?.pluralLabel ?? t("RecordModel.records") })}
+            </IntlLink>
+          </Button>
+
+          <DataViewToolbar
+            anchorScope="widget-data"
+            searchLabel={t("Common.filters.searchFields.records")}
+            store={store}
+          />
+        </div>
       </div>
 
-      <DataViewToolbar anchorScope="widget-data" searchLabel={t("Common.filters.searchFields.records")} store={store} />
-
-      <div className="relative min-h-44 flex-1 overflow-auto" data-widget-data-table="">
+      <div
+        className="relative min-h-44 flex-1 overflow-auto sm:overflow-hidden *:data-[slot=table-container]:h-full *:data-[slot=table-container]:overflow-auto"
+        data-widget-data-table=""
+      >
         {store.dataRequest.status === "refresh-error" ? (
           <PageState
             action={

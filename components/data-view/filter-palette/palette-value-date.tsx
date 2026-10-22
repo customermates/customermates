@@ -10,6 +10,7 @@ import { CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/componen
 import { FilterOperatorKey as OperatorKey } from "@/core/base/base-query-builder";
 
 type Props = {
+  inline?: boolean;
   declaredOperators: FilterOperatorKey[];
   operator: FilterOperatorKey | undefined;
   value: unknown;
@@ -39,6 +40,7 @@ const INPUT_ROWS: { operator: FilterOperatorKey; key: InputRowKey }[] = [
 ];
 
 export const PaletteValueDate = observer(function PaletteValueDate({
+  inline = false,
   declaredOperators,
   operator,
   value,
@@ -60,7 +62,7 @@ export const PaletteValueDate = observer(function PaletteValueDate({
   const marker = <CheckIcon className="ml-auto size-3.5" data-palette-current="true" />;
 
   return (
-    <CommandList className="max-h-none! overflow-visible">
+    <CommandList className={inline ? undefined : "max-h-none! overflow-visible"}>
       <CommandEmpty>{t("Common.inputs.emptyContent")}</CommandEmpty>
 
       <CommandGroup>

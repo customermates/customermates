@@ -17,13 +17,10 @@ import { FormInput } from "@/components/forms/form-input";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
 import { FormAutocompleteCountry } from "@/components/forms/form-autocomplete-country";
-import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { addressAutofill, addressFormRows } from "@/features/addresses/address-form-layout";
 import { addressDraftParts, isVerifiedAddressDraft, verifiedAddressDraft } from "@/features/records/record-input-value";
-import { addressCountryLabel } from "@/features/records/record-address-value";
 import { RecordAddressCheckStore } from "./record-address-check.store";
 import { RecordAddressIssues } from "./record-address-issues";
 import { RecordAddressLookupStore, addressCheckKey } from "./record-address-lookup.store";
@@ -54,7 +51,6 @@ export const RecordAddressInput = observer(function RecordAddressInput({
   const t = useTranslations();
   const store = useAppForm();
   const root = useRootStore();
-  const isMobile = useIsMobile();
   const locale = useHydratedIntlStore().formattingLocale;
   const [lookup] = useState(() => new RecordAddressLookupStore());
   const [checks] = useState(() => new RecordAddressCheckStore());
@@ -97,15 +93,6 @@ export const RecordAddressInput = observer(function RecordAddressInput({
     for (const [part, value] of Object.entries(values)) store?.onChange(`${id}.${part}`, value);
   };
   const partLabel = (part: AddressFormPart | "countryCode"): string => addressPartLabel(t, format, part);
-  const summary = [
-    parts.street,
-    parts.line2,
-    [parts.postalCode, parts.city].filter(Boolean).join(" "),
-    parts.region,
-    parts.countryCode ? addressCountryLabel(parts.countryCode, locale) : null,
-  ]
-    .filter(Boolean)
-    .join(", ");
   const regionOptions = format?.regions.length ? addressRegionOptions(format, parts.region) : null;
 
   const partInput = (part: AddressFormPart) => {
@@ -185,13 +172,7 @@ export const RecordAddressInput = observer(function RecordAddressInput({
         />
       )}
 
-      {isMobile && searchable ? (
-        <CollapsibleSection summary={summary || undefined} title={t("RecordModel.addressDetails")}>
-          {partFields}
-        </CollapsibleSection>
-      ) : (
-        partFields
-      )}
+      {partFields}
     </div>
   );
 });

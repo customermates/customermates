@@ -58,11 +58,16 @@ export function attachmentSubtitle(
   return size ? `${t(typeLabelKey)} · ${size}` : t(typeLabelKey);
 }
 
-export function attachmentRowClass(interactive: boolean, extra?: string) {
+export function attachmentRowClass(interactive: boolean, extra?: string, tone: "message" | "neutral" = "message") {
   return cn(
     "flex w-full items-center gap-2 rounded-lg border px-3 py-1.5 text-sm leading-tight",
-    "border-primary/20 bg-primary/10 text-foreground",
-    interactive && "transition-colors hover:bg-primary/15 hover:border-primary/30 active:bg-primary/20",
+    tone === "neutral"
+      ? "min-w-0 border-border bg-input-background py-2.5 text-foreground"
+      : "border-primary/20 bg-primary/10 text-foreground",
+    interactive &&
+      (tone === "neutral"
+        ? "transition-colors hover:bg-accent"
+        : "transition-colors hover:bg-primary/15 hover:border-primary/30 active:bg-primary/20"),
     extra,
   );
 }

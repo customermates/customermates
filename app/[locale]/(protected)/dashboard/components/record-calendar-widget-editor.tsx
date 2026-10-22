@@ -272,6 +272,7 @@ export const RecordCalendarWidgetEditor = observer(
                     {status}
 
                     <RecordQueryFilters
+                      inline
                       anchorId="widget-source-filters"
                       id="calendarQuery.source"
                       model={model}

@@ -128,8 +128,9 @@ test("uploads, shows, downloads and removes record files and refuses uploads ove
   ]);
   await expect(editor.locator("[data-record-file]")).toHaveCount(3);
   await expect(editor.locator("[data-record-file-upload]")).toHaveCount(0);
+  await editor.locator("[data-record-file]", { hasText: "notes.txt" }).hover();
   await expect(
-    editor.getByRole("button", { name: "Remove notes.txt", exact: true }),
+    editor.locator("[data-record-file]", { hasText: "notes.txt" }).locator("[data-item-actions-trigger]"),
   ).toBeVisible();
   await editor.getByRole("button", { name: /^workspace\.png/ }).click();
   const imagePreview = page.getByRole("dialog", {
@@ -293,9 +294,10 @@ test("uploads, shows, downloads and removes record files and refuses uploads ove
   }
 
   await openRecordDetails(page, "Example organization");
-  await editor
-    .getByRole("button", { name: "Remove notes.txt", exact: true })
-    .click();
+  const notesTile = editor.locator("[data-record-file]", { hasText: "notes.txt" });
+  await notesTile.hover();
+  await notesTile.locator("[data-item-actions-trigger]").click();
+  await page.getByRole("menuitem", { name: "Remove notes.txt", exact: true }).click();
   await expect(editor.locator("[data-record-file]")).toHaveCount(2);
   await saveRecord(page, drawer);
   await expect

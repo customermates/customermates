@@ -9,14 +9,17 @@ import { isRecordActivityWidgetForm } from "@/app/[locale]/(protected)/dashboard
 import { ACTIVITY_KINDS, isChangeActivityKind } from "@/ee/messaging/activities/activities.schema";
 import { MessagingProviderSchema } from "@/ee/messaging/messaging.schema";
 import { FilterTargetPopover } from "@/components/data-view/filter-palette/filter-target-popover";
+import { FilterPaletteInline } from "@/components/data-view/filter-palette/filter-palette-inline";
 import { createRecordActivityFilterTarget } from "./record-activity-filter-target";
 
 export const RecordActivityFilters = observer(function RecordActivityFilters({
   store,
   types,
+  inline = false,
 }: {
   store: WidgetModalStore;
   types: Array<{ id: string; pluralLabel: string }>;
+  inline?: boolean;
 }) {
   const t = useTranslations();
   const sources = useActivitySourceChoices();
@@ -50,7 +53,11 @@ export const RecordActivityFilters = observer(function RecordActivityFilters({
       }),
     [store, typeMetadata, t, sources],
   );
-  return <FilterTargetPopover id="widget-activity-filters" store={target} />;
+  return inline ? (
+    <FilterPaletteInline id="widget-activity-filters" store={target} />
+  ) : (
+    <FilterTargetPopover id="widget-activity-filters" store={target} />
+  );
 });
 
 export function useActivitySourceChoices() {

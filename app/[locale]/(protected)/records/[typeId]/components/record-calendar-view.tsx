@@ -28,6 +28,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { useRecordValueFormat } from "@/components/records/record-value";
+import { CalendarEntryTooltip } from "@/components/records/calendar-entry-tooltip";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Popover, PopoverContent, PopoverHeader, PopoverTitle, PopoverTrigger } from "@/components/ui/popover";
@@ -123,7 +124,7 @@ export const calendarKeyboardCoordinates: KeyboardCoordinateGetter = (event, { c
   };
 };
 
-function useCalendarFormats() {
+function useCalendarFormats(timeZone?: string) {
   const valueFormat = useRecordValueFormat();
   return {
     fullDate: (date: CalendarDate) => valueFormat.date(dayDate(date), { dateStyle: "full", timeZone: "UTC" }),
@@ -147,15 +148,19 @@ function useCalendarFormats() {
       valueFormat.date(new Date(instant), {
         hour: "numeric",
         minute: "2-digit",
+        timeZone,
       }),
+    instant: (instant: string) =>
+      valueFormat.date(new Date(instant), { dateStyle: "full", timeStyle: "short", timeZone }),
   };
 }
 
 type Formats = ReturnType<typeof useCalendarFormats>;
 
 function entryDateLabel(item: CalendarItem, formats: Formats) {
-  const { start, end, time } = item.entry;
+  const { start, end, time, endTime } = item.entry;
   const first = time ? `${formats.fullDate(start)} ${formats.time(time)}` : formats.fullDate(start);
+  if (time && endTime && time !== endTime) return `${first} – ${formats.instant(endTime)}`;
   return start === end ? first : `${first} – ${formats.fullDate(end)}`;
 }
 
@@ -199,50 +204,53 @@ const CalendarEntry = observer(function CalendarEntry({
   const open = (element: HTMLElement) => onOpenRecord(item.record, element);
 
   return (
-    <div
-      ref={setNodeRef}
-      {...(movable ? attributes : {})}
-      {...(movable ? listeners : {})}
-      aria-label={t("DataView.calendar.entryLabel", {
-        name,
-        date: entryDateLabel(item, formats),
-      })}
-      aria-roledescription={movable ? t("DataView.calendar.movableEntry") : undefined}
-      className={cn(
-        "flex min-w-0 cursor-pointer select-none items-center gap-1 rounded-sm px-1.5 text-left text-xs font-medium outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/50 motion-reduce:transition-none",
-        compact ? "h-5" : "min-h-8 py-1",
-        CALENDAR_ENTRY_COLOR_CLASS[color],
-        segment?.continuesBefore && "rounded-l-none",
-        segment?.continuesAfter && "rounded-r-none",
-        movable && "touch-manipulation",
-        isDragging && "opacity-40",
-        className,
-      )}
-      data-calendar-entry={item.record.id}
-      data-calendar-entry-start={item.entry.start}
-      role="button"
-      style={style}
-      tabIndex={0}
-      onClick={(event) => {
-        if (isDragging) return;
-        open(event.currentTarget);
-      }}
-      onKeyDown={(event) => {
-        if (event.target !== event.currentTarget) return;
-        if (event.key === "Enter" || (!movable && event.key === " ")) {
-          event.preventDefault();
+    <CalendarEntryTooltip date={entryDateLabel(item, formats)} name={name}>
+      <div
+        ref={setNodeRef}
+        {...(movable ? attributes : {})}
+        {...(movable ? listeners : {})}
+        aria-label={t("DataView.calendar.entryLabel", {
+          name,
+          date: entryDateLabel(item, formats),
+        })}
+        aria-roledescription={movable ? t("DataView.calendar.movableEntry") : undefined}
+        className={cn(
+          "flex min-w-0 cursor-pointer select-none items-center gap-1 rounded-sm px-1.5 text-left text-xs font-medium outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/50 motion-reduce:transition-none",
+          compact ? "h-5" : "min-h-8 py-1",
+          CALENDAR_ENTRY_COLOR_CLASS[color],
+          segment?.continuesBefore && "rounded-l-none",
+          segment?.continuesAfter && "rounded-r-none",
+          movable && "touch-manipulation",
+          isDragging && "opacity-40",
+          className,
+        )}
+        data-calendar-entry={item.record.id}
+        data-calendar-entry-end={item.entry.end}
+        data-calendar-entry-start={item.entry.start}
+        role="button"
+        style={style}
+        tabIndex={0}
+        onClick={(event) => {
+          if (isDragging) return;
           open(event.currentTarget);
-          return;
-        }
-        if (movable) dragKeyDown?.(event);
-      }}
-    >
-      {showsTime && item.entry.time && (
-        <span className="shrink-0 tabular-nums opacity-80">{formats.time(item.entry.time)}</span>
-      )}
+        }}
+        onKeyDown={(event) => {
+          if (event.target !== event.currentTarget) return;
+          if (event.key === "Enter" || (!movable && event.key === " ")) {
+            event.preventDefault();
+            open(event.currentTarget);
+            return;
+          }
+          if (movable) dragKeyDown?.(event);
+        }}
+      >
+        {showsTime && item.entry.time && (
+          <span className="shrink-0 tabular-nums opacity-80">{formats.time(item.entry.time)}</span>
+        )}
 
-      <span className="min-w-0 truncate">{name}</span>
-    </div>
+        <span className="min-w-0 truncate">{name}</span>
+      </div>
+    </CalendarEntryTooltip>
   );
 });
 
@@ -553,7 +561,7 @@ export const RecordCalendarView = observer(function RecordCalendarView({
   hideToolbar = false,
 }: Props) {
   const t = useTranslations();
-  const formats = useCalendarFormats();
+  const formats = useCalendarFormats(store.calendarWindow?.timeZone);
   const titleId = useId();
   const dndContextId = useId();
   const wide = useIsWiderThan("sm");

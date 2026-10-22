@@ -10,9 +10,23 @@ import { observer } from "mobx-react-lite";
 import { useNavigationGuard } from "@/components/modal/use-navigation-guard";
 import { PlannerSettingsStore } from "./planner-settings.store";
 import { useTranslations } from "next-intl";
-import { ArrowUpRight, CalendarDays, ChevronLeft, ChevronRight, Download, Pencil, Plus, Trash2 } from "lucide-react";
+import {
+  ArrowUpRight,
+  SlidersHorizontal,
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  Pencil,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardHeader } from "@/components/card/app-card-header";
+import { AppCardBody } from "@/components/card/app-card-body";
+import { AppModal, AppModalTitle } from "@/components/modal/app-modal";
+import { TopBarActionButtons } from "@/components/shared/top-bar-action-buttons";
+import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
+import { DATA_VIEW_PAGE_CLASS_NAME } from "@/components/data-view/data-view-geometry";
 import { FormSelect } from "@/components/forms/form-select";
 import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { Button } from "@/components/ui/button";
@@ -116,6 +130,7 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
   const [refreshing, setRefreshing] = useState(false);
   const [failed, setFailed] = useState(false);
   const [sourceEditor, setSourceEditor] = useState<PlannerSource | null>(null);
+  const [sourcesOpen, setSourcesOpen] = useState(false);
   const [subscriptionsOpen, setSubscriptionsOpen] = useState(false);
   const [eventDetail, setEventDetail] = useState<PlannerEntry | null>(null);
   const [search, setSearch] = useState("");
@@ -245,7 +260,7 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
     }));
     setSourceEditor(null);
   };
-  const addSource = () => {
+  const addSource = useCallback(() => {
     const field = options.model.fields.find(
       (field) =>
         isCalendarDateField(field) && options.model.types.some((type) => type.id === field.typeId && !type.archived),
@@ -261,377 +276,400 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
         color: "default",
       });
     }
-  };
+  }, [options.model]);
   const sourceName = (source: PlannerSource) => {
     const type = options.model.types.find((type) => type.id === source.typeId);
     const field = options.model.fields.find((field) => field.id === source.calendar.dateFieldId);
     return type && field ? `${type.pluralLabel} · ${field.label}` : t("Planner.unavailableSource");
   };
+  const topBarActions = useMemo(
+    () => (
+      <TopBarActionButtons
+        actions={[
+          {
+            id: "planner-sources",
+            icon: SlidersHorizontal,
+            label: t("Planner.sources"),
+            onClick: () => setSourcesOpen(true),
+          },
+          {
+            id: "planner-sync",
+            icon: Download,
+            label: t("Planner.calendarSync"),
+            disabled: !clientReady,
+            onClick: () => setSubscriptionsOpen(true),
+          },
+          {
+            id: "planner-add",
+            icon: Plus,
+            label: t("Planner.addSource"),
+            disabled: !clientReady || config.sources.length >= 12 || !options.model.fields.some(isCalendarDateField),
+            onClick: addSource,
+          },
+        ]}
+      />
+    ),
+    [t, clientReady, config.sources.length, options.model, addSource],
+  );
+  useSetTopBarActions(topBarActions);
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col p-3 md:p-6" data-planner-page="">
-      <AppCard className="flex min-h-0 flex-1 flex-col overflow-hidden">
-        <AppCardHeader className="flex-wrap justify-between gap-3 border-b p-4">
-          <h1 className="flex items-center gap-2 text-lg font-semibold">
-            <CalendarDays aria-hidden className="size-5 text-muted-foreground" />
+    <div className={cn(DATA_VIEW_PAGE_CLASS_NAME, "relative")} data-planner-page="">
+      <main className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <h1 className="sr-only">{t("Planner.title")}</h1>
 
-            {t("Planner.title")}
-          </h1>
+        <div className="flex flex-wrap items-center gap-2 border-b px-3 py-2">
+          <IconButton
+            icon={ChevronLeft}
+            label={t("Planner.previous")}
+            onClick={() =>
+              setAnchor(
+                mode === "week"
+                  ? addCalendarDays(anchor, -7)
+                  : addCalendarMonths(anchor, mode === "quarter" || mode === "timeline" ? -3 : -1),
+              )
+            }
+          />
 
-          <Button disabled={!clientReady} size="sm" variant="secondary" onClick={() => setSubscriptionsOpen(true)}>
-            <Download aria-hidden className="size-4" />
-
-            {t("Planner.calendarSync")}
+          <Button size="sm" variant="secondary" onClick={() => setAnchor(zonedDate(new Date(), config.timeZone))}>
+            {t("Common.datePresets.today")}
           </Button>
-        </AppCardHeader>
 
-        <div className="flex min-h-0 flex-1 flex-col md:flex-row">
-          <aside
-            aria-label={t("Planner.sources")}
-            className="flex shrink-0 flex-col gap-4 overflow-y-auto border-b p-4 md:w-64 md:border-r md:border-b-0"
-          >
-            <div className="flex items-center justify-between gap-2">
-              <h2 className="text-sm font-medium">{t("Planner.sources")}</h2>
+          <IconButton
+            icon={ChevronRight}
+            label={t("Planner.next")}
+            onClick={() =>
+              setAnchor(
+                mode === "week"
+                  ? addCalendarDays(anchor, 7)
+                  : addCalendarMonths(anchor, mode === "quarter" || mode === "timeline" ? 3 : 1),
+              )
+            }
+          />
 
-              <IconButton
-                disabled={
-                  !clientReady || config.sources.length >= 12 || !options.model.fields.some(isCalendarDateField)
-                }
-                icon={Plus}
-                label={t("Planner.addSource")}
-                onClick={addSource}
-              />
-            </div>
+          <h2 aria-live="polite" className="min-w-0 text-sm font-semibold">
+            {title}
+          </h2>
 
-            <div className="space-y-1">
-              {config.sources.map((source) => (
-                <ItemActions
-                  key={source.id}
-                  label={sourceName(source)}
-                  menu={
-                    <>
-                      <DropdownMenuItem onSelect={() => setSourceEditor(source)}>
-                        <Pencil aria-hidden className="size-4" />
+          {refreshing && <Spinner aria-label={t("Loading.text")} className="size-4" />}
 
-                        {t("Planner.sourceSettings")}
-                      </DropdownMenuItem>
-
-                      <DropdownMenuItem asChild>
-                        <IntlLink href={sourceHref(source)}>
-                          <ArrowUpRight aria-hidden className="size-4" />
-
-                          {t("Planner.openList")}
-                        </IntlLink>
-                      </DropdownMenuItem>
-
-                      <DropdownMenuItem
-                        variant="destructive"
-                        onSelect={() =>
-                          setConfig((current) => ({
-                            ...current,
-                            sources: current.sources.filter((item) => item.id !== source.id),
-                          }))
-                        }
-                      >
-                        <Trash2 aria-hidden className="size-4" />
-
-                        {t("Planner.removeSource")}
-                      </DropdownMenuItem>
-                    </>
-                  }
-                >
-                  <div
-                    className="group/reveal flex min-w-0 items-start gap-2 rounded-md py-2"
-                    data-planner-source={source.id}
-                  >
-                    <Checkbox
-                      checked={source.enabled}
-                      className="mt-0.5"
-                      id={`planner-source-${source.id}`}
-                      onCheckedChange={(checked) => setSource({ ...source, enabled: checked === true })}
-                    />
-
-                    <Label
-                      className="min-w-0 flex-1 cursor-pointer leading-snug"
-                      htmlFor={`planner-source-${source.id}`}
-                    >
-                      <span
-                        aria-hidden
-                        className={cn(
-                          "mr-1.5 inline-block size-2 rounded-full",
-                          CALENDAR_ENTRY_COLOR_CLASS[source.color],
-                        )}
-                      />
-
-                      {sourceName(source)}
-
-                      {source.filters.length > 0 && (
-                        <span className="block pt-1 text-xs text-muted-foreground">
-                          {t("Planner.filterCount", { count: source.filters.length })}
-                        </span>
-                      )}
-                    </Label>
-
-                    <IconButton
-                      className="shrink-0"
-                      icon={Pencil}
-                      label={t("Planner.editSource", { source: sourceName(source) })}
-                      onClick={() => setSourceEditor(source)}
-                    />
-
-                    <ItemActionsTrigger />
-                  </div>
-                </ItemActions>
-              ))}
-            </div>
-
-            {config.sources.length === 0 && <p className="text-sm text-muted-foreground">{t("Planner.noSources")}</p>}
-
-            <Button
-              disabled={!clientReady || config.sources.length >= 12 || !options.model.fields.some(isCalendarDateField)}
-              size="sm"
-              variant="secondary"
-              onClick={addSource}
-            >
-              <Plus aria-hidden className="size-4" />
-
-              {t("Planner.addSource")}
-            </Button>
-
-            {options.personalAvailable && (
-              <section className="space-y-3 border-t pt-4">
-                <h2 className="text-sm font-medium">{t("Planner.personalCalendars")}</h2>
-
-                {options.calendars.length ? (
-                  options.calendars.map((calendar) => (
-                    <div key={calendar.id} className="flex items-start gap-2">
-                      <Checkbox
-                        checked={config.calendarIds.includes(calendar.id)}
-                        className="mt-0.5"
-                        id={`planner-personal-${calendar.id}`}
-                        onCheckedChange={(checked) =>
-                          setConfig((current) => ({
-                            ...current,
-                            calendarIds: checked
-                              ? [...new Set([...current.calendarIds, calendar.id])]
-                              : current.calendarIds.filter((id) => id !== calendar.id),
-                          }))
-                        }
-                      />
-
-                      <Label
-                        className="min-w-0 cursor-pointer leading-snug"
-                        htmlFor={`planner-personal-${calendar.id}`}
-                      >
-                        {calendar.name}
-
-                        <span className="block pt-1 text-xs text-muted-foreground">{calendar.provider}</span>
-                      </Label>
-                    </div>
-                  ))
-                ) : (
-                  <Button asChild size="sm" variant="ghost">
-                    <IntlLink href="/settings/channels">{t("Planner.connectCalendar")}</IntlLink>
-                  </Button>
-                )}
-              </section>
-            )}
-
-            <FormSelect
-              id="planner-time-zone"
-              items={timeZones}
-              label={t("Planner.timeZone")}
-              value={config.timeZone}
-              onValueChange={(timeZone) => setConfig((current) => ({ ...current, timeZone }))}
+          {wide && (
+            <SegmentedControl
+              className="ml-auto max-w-full overflow-x-auto"
+              items={PLANNER_MODES.map((value) => ({
+                value,
+                label: modeLabels[value],
+                controls: false as const,
+              }))}
+              label={t("DataView.calendar.mode")}
+              value={config.mode}
+              onValueChange={(mode) => setConfig((current) => ({ ...current, mode }))}
             />
-          </aside>
+          )}
+        </div>
 
-          <main className="flex min-h-0 min-w-0 flex-1 flex-col">
-            <div className="flex flex-wrap items-center gap-2 border-b px-3 py-2">
-              <IconButton
-                icon={ChevronLeft}
-                label={t("Planner.previous")}
-                onClick={() =>
-                  setAnchor(
-                    mode === "week"
-                      ? addCalendarDays(anchor, -7)
-                      : addCalendarMonths(anchor, mode === "quarter" || mode === "timeline" ? -3 : -1),
-                  )
-                }
-              />
+        {result.sources.some((source) => source.status === "unavailable") && (
+          <p className="border-b bg-warning/10 px-4 py-2 text-xs text-warning" role="status">
+            {t("Planner.sourceUnavailable")}
+          </p>
+        )}
 
-              <Button size="sm" variant="secondary" onClick={() => setAnchor(zonedDate(new Date(), config.timeZone))}>
-                {t("Common.datePresets.today")}
+        {plannerIsTruncated(result) && (
+          <p className="border-b bg-warning/10 px-4 py-2 text-xs text-warning" role="status">
+            {t("Planner.truncated")}
+          </p>
+        )}
+
+        {failed ? (
+          <PageState
+            action={
+              <Button variant="secondary" onClick={() => runUserAction(refresh)}>
+                {t("ErrorCard.retry")}
               </Button>
+            }
+            state="error"
+            title={t("ErrorCard.title")}
+          />
+        ) : !data || data.key !== key ? (
+          <div className="flex-1 p-4">
+            <Skeleton className="h-full min-h-80" />
+          </div>
+        ) : !config.sources.some((source) => source.enabled) && !config.calendarIds.length ? (
+          <PageState
+            action={
+              <Button disabled={!clientReady} variant="secondary" onClick={addSource}>
+                {t("Planner.addSource")}
+              </Button>
+            }
+            state="empty"
+            title={t("Planner.noSources")}
+          />
+        ) : mode === "timeline" ? (
+          <PlannerTimeline config={config} entries={entries} name={name} window={window} onOpen={open} />
+        ) : mode === "quarter" ? (
+          <div
+            className="grid min-h-0 flex-1 grid-cols-[repeat(auto-fit,minmax(min(100%,28rem),1fr))] overflow-auto"
+            data-planner-quarter=""
+          >
+            {[0, 1, 2].map((offset) => {
+              const month = addCalendarMonths(firstMonth, offset);
+              const monthWindow = { ...calendarWindowRange("month", month), timeZone: config.timeZone };
+              const monthAdapter = {
+                ...adapter,
+                calendarFocusDate: month,
+                calendarWindow: monthWindow,
+                calendarRange: { ...monthWindow, total: entries.length, truncated: false },
+              };
+              return (
+                <section key={month} className="flex min-h-132 min-w-0 flex-col border-r last:border-r-0">
+                  <h3 className="border-b p-3 text-sm font-medium">{dateLabel(month)}</h3>
 
-              <IconButton
-                icon={ChevronRight}
-                label={t("Planner.next")}
-                onClick={() =>
-                  setAnchor(
-                    mode === "week"
-                      ? addCalendarDays(anchor, 7)
-                      : addCalendarMonths(anchor, mode === "quarter" || mode === "timeline" ? 3 : 1),
-                  )
-                }
-              />
-
-              <h2 aria-live="polite" className="min-w-0 text-sm font-semibold">
-                {title}
-              </h2>
-
-              {refreshing && <Spinner aria-label={t("Loading.text")} className="size-4" />}
-
-              {wide && (
-                <SegmentedControl
-                  className="ml-auto max-w-full overflow-x-auto"
-                  items={PLANNER_MODES.map((value) => ({
-                    value,
-                    label: modeLabels[value],
-                    controls: false as const,
-                  }))}
-                  label={t("DataView.calendar.mode")}
-                  value={config.mode}
-                  onValueChange={(mode) => setConfig((current) => ({ ...current, mode }))}
-                />
-              )}
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3 border-b px-4 py-2">
-              <Input
-                aria-label={t("Planner.search")}
-                className="h-8 w-64 max-w-full"
-                placeholder={t("Planner.search")}
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-              />
-
-              <FormSelect
-                ariaLabel={t("Planner.sort")}
-                id="planner-sort"
-                items={(["date", "title", "source"] as const).map((value) => ({
-                  value,
-                  label: sortLabels[value],
-                }))}
-                label={null}
-                value={config.sort}
-                onValueChange={(value) =>
-                  setConfig((current) => ({ ...current, sort: value as PlannerConfig["sort"] }))
-                }
-              />
-            </div>
-
-            {result.sources.some((source) => source.status === "unavailable") && (
-              <p className="border-b bg-warning/10 px-4 py-2 text-xs text-warning" role="status">
-                {t("Planner.sourceUnavailable")}
-              </p>
-            )}
-
-            {plannerIsTruncated(result) && (
-              <p className="border-b bg-warning/10 px-4 py-2 text-xs text-warning" role="status">
-                {t("Planner.truncated")}
-              </p>
-            )}
-
-            {failed ? (
-              <PageState
-                action={
-                  <Button variant="secondary" onClick={() => runUserAction(refresh)}>
-                    {t("ErrorCard.retry")}
-                  </Button>
-                }
-                state="error"
-                title={t("ErrorCard.title")}
-              />
-            ) : !data || data.key !== key ? (
-              <div className="flex-1 p-4">
-                <Skeleton className="h-full min-h-80" />
-              </div>
-            ) : !config.sources.some((source) => source.enabled) && !config.calendarIds.length ? (
-              <PageState
-                action={
-                  <Button disabled={!clientReady} variant="secondary" onClick={addSource}>
-                    {t("Planner.addSource")}
-                  </Button>
-                }
-                state="empty"
-                title={t("Planner.noSources")}
-              />
-            ) : mode === "timeline" ? (
-              <PlannerTimeline config={config} entries={entries} name={name} window={window} onOpen={open} />
-            ) : mode === "quarter" ? (
-              <div
-                className="grid min-h-0 flex-1 grid-cols-[repeat(auto-fit,minmax(min(100%,28rem),1fr))] overflow-auto"
-                data-planner-quarter=""
-              >
-                {[0, 1, 2].map((offset) => {
-                  const month = addCalendarMonths(firstMonth, offset);
-                  const monthWindow = { ...calendarWindowRange("month", month), timeZone: config.timeZone };
-                  const monthAdapter = {
-                    ...adapter,
-                    calendarFocusDate: month,
-                    calendarWindow: monthWindow,
-                    calendarRange: { ...monthWindow, total: entries.length, truncated: false },
-                  };
-                  return (
-                    <section key={month} className="flex min-h-132 min-w-0 flex-col border-r last:border-r-0">
-                      <h3 className="border-b p-3 text-sm font-medium">{dateLabel(month)}</h3>
-
-                      <RecordCalendarView
-                        hideToolbar
-                        recordName={(row) => {
-                          const item = byId.get(row.id);
-                          return item ? name(item) : "";
-                        }}
-                        store={monthAdapter}
-                        onOpenRecord={(row, opener) => {
-                          const item = byId.get(row.id);
-                          if (item) open(item, opener);
-                        }}
-                      />
-                    </section>
-                  );
-                })}
-              </div>
-            ) : mode === "week" ? (
-              <div className="flex min-h-0 flex-1 flex-col" data-planner-week="">
-                <div className="h-32 shrink-0 overflow-auto pl-12">
                   <RecordCalendarView
                     hideToolbar
                     recordName={(row) => {
                       const item = byId.get(row.id);
                       return item ? name(item) : "";
                     }}
-                    store={{
-                      ...adapter,
-                      normalizedCalendarItems: (pending) =>
-                        adapter.normalizedCalendarItems?.(pending).filter((item) => !item.entry.time) ?? [],
-                    }}
+                    store={monthAdapter}
                     onOpenRecord={(row, opener) => {
                       const item = byId.get(row.id);
                       if (item) open(item, opener);
                     }}
                   />
-                </div>
-
-                <PlannerWeekSchedule config={config} entries={entries} name={name} window={window} onOpen={open} />
-              </div>
-            ) : (
+                </section>
+              );
+            })}
+          </div>
+        ) : mode === "week" ? (
+          <div className="flex min-h-0 flex-1 flex-col" data-planner-week="">
+            <div className="h-32 shrink-0 overflow-auto pl-12">
               <RecordCalendarView
                 hideToolbar
                 recordName={(row) => {
                   const item = byId.get(row.id);
                   return item ? name(item) : "";
                 }}
-                store={adapter}
+                store={{
+                  ...adapter,
+                  normalizedCalendarItems: (pending) =>
+                    adapter.normalizedCalendarItems?.(pending).filter((item) => !item.entry.time) ?? [],
+                }}
                 onOpenRecord={(row, opener) => {
                   const item = byId.get(row.id);
                   if (item) open(item, opener);
                 }}
               />
-            )}
-          </main>
-        </div>
-      </AppCard>
+            </div>
+
+            <PlannerWeekSchedule config={config} entries={entries} name={name} window={window} onOpen={open} />
+          </div>
+        ) : (
+          <RecordCalendarView
+            hideToolbar
+            recordName={(row) => {
+              const item = byId.get(row.id);
+              return item ? name(item) : "";
+            }}
+            store={adapter}
+            onOpenRecord={(row, opener) => {
+              const item = byId.get(row.id);
+              if (item) open(item, opener);
+            }}
+          />
+        )}
+      </main>
+
+      {sourcesOpen && (
+        <AppModal open titleInContent size="lg" title={t("Planner.sources")} onClose={() => setSourcesOpen(false)}>
+          <AppCard>
+            <AppCardHeader>
+              <AppModalTitle>{t("Planner.sources")}</AppModalTitle>
+            </AppCardHeader>
+
+            <AppCardBody>
+              <div className="space-y-4 border-b pb-4">
+                <Input
+                  aria-label={t("Planner.search")}
+                  className="h-9 w-full"
+                  placeholder={t("Planner.search")}
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                />
+
+                <FormSelect
+                  ariaLabel={t("Planner.sort")}
+                  id="planner-sort"
+                  items={(["date", "title", "source"] as const).map((value) => ({
+                    value,
+                    label: sortLabels[value],
+                  }))}
+                  label={null}
+                  value={config.sort}
+                  onValueChange={(value) =>
+                    setConfig((current) => ({ ...current, sort: value as PlannerConfig["sort"] }))
+                  }
+                />
+              </div>
+
+              <div className="flex items-center justify-between gap-2">
+                <h2 className="text-sm font-medium">{t("Planner.sources")}</h2>
+
+                <IconButton
+                  disabled={
+                    !clientReady || config.sources.length >= 12 || !options.model.fields.some(isCalendarDateField)
+                  }
+                  icon={Plus}
+                  label={t("Planner.addSource")}
+                  onClick={addSource}
+                />
+              </div>
+
+              <div className="space-y-1">
+                {config.sources.map((source) => (
+                  <ItemActions
+                    key={source.id}
+                    label={sourceName(source)}
+                    menu={
+                      <>
+                        <DropdownMenuItem onSelect={() => setSourceEditor(source)}>
+                          <Pencil aria-hidden className="size-4" />
+
+                          {t("Planner.sourceSettings")}
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem asChild>
+                          <IntlLink href={sourceHref(source)}>
+                            <ArrowUpRight aria-hidden className="size-4" />
+
+                            {t("Planner.openList")}
+                          </IntlLink>
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onSelect={() =>
+                            setConfig((current) => ({
+                              ...current,
+                              sources: current.sources.filter((item) => item.id !== source.id),
+                            }))
+                          }
+                        >
+                          <Trash2 aria-hidden className="size-4" />
+
+                          {t("Planner.removeSource")}
+                        </DropdownMenuItem>
+                      </>
+                    }
+                  >
+                    <div
+                      className="group/reveal flex min-w-0 items-start gap-2 rounded-md py-2"
+                      data-planner-source={source.id}
+                    >
+                      <Checkbox
+                        checked={source.enabled}
+                        className="mt-0.5"
+                        id={`planner-source-${source.id}`}
+                        onCheckedChange={(checked) => setSource({ ...source, enabled: checked === true })}
+                      />
+
+                      <Label
+                        className="min-w-0 flex-1 cursor-pointer leading-snug"
+                        htmlFor={`planner-source-${source.id}`}
+                      >
+                        <span
+                          aria-hidden
+                          className={cn(
+                            "mr-1.5 inline-block size-2 rounded-full",
+                            CALENDAR_ENTRY_COLOR_CLASS[source.color],
+                          )}
+                        />
+
+                        {sourceName(source)}
+
+                        {source.filters.length > 0 && (
+                          <span className="block pt-1 text-xs text-muted-foreground">
+                            {t("Planner.filterCount", { count: source.filters.length })}
+                          </span>
+                        )}
+                      </Label>
+
+                      <IconButton
+                        className="shrink-0"
+                        icon={Pencil}
+                        label={t("Planner.editSource", { source: sourceName(source) })}
+                        onClick={() => setSourceEditor(source)}
+                      />
+
+                      <ItemActionsTrigger />
+                    </div>
+                  </ItemActions>
+                ))}
+              </div>
+
+              {config.sources.length === 0 && <p className="text-sm text-muted-foreground">{t("Planner.noSources")}</p>}
+
+              <Button
+                disabled={
+                  !clientReady || config.sources.length >= 12 || !options.model.fields.some(isCalendarDateField)
+                }
+                size="sm"
+                variant="secondary"
+                onClick={addSource}
+              >
+                <Plus aria-hidden className="size-4" />
+
+                {t("Planner.addSource")}
+              </Button>
+
+              {options.personalAvailable && (
+                <section className="space-y-3 border-t pt-4">
+                  <h2 className="text-sm font-medium">{t("Planner.personalCalendars")}</h2>
+
+                  {options.calendars.length ? (
+                    options.calendars.map((calendar) => (
+                      <div key={calendar.id} className="flex items-start gap-2">
+                        <Checkbox
+                          checked={config.calendarIds.includes(calendar.id)}
+                          className="mt-0.5"
+                          id={`planner-personal-${calendar.id}`}
+                          onCheckedChange={(checked) =>
+                            setConfig((current) => ({
+                              ...current,
+                              calendarIds: checked
+                                ? [...new Set([...current.calendarIds, calendar.id])]
+                                : current.calendarIds.filter((id) => id !== calendar.id),
+                            }))
+                          }
+                        />
+
+                        <Label
+                          className="min-w-0 cursor-pointer leading-snug"
+                          htmlFor={`planner-personal-${calendar.id}`}
+                        >
+                          {calendar.name}
+
+                          <span className="block pt-1 text-xs text-muted-foreground">{calendar.provider}</span>
+                        </Label>
+                      </div>
+                    ))
+                  ) : (
+                    <Button asChild size="sm" variant="ghost">
+                      <IntlLink href="/settings/channels">{t("Planner.connectCalendar")}</IntlLink>
+                    </Button>
+                  )}
+                </section>
+              )}
+
+              <FormSelect
+                id="planner-time-zone"
+                items={timeZones}
+                label={t("Planner.timeZone")}
+                value={config.timeZone}
+                onValueChange={(timeZone) => setConfig((current) => ({ ...current, timeZone }))}
+              />
+            </AppCardBody>
+          </AppCard>
+        </AppModal>
+      )}
 
       <UnsavedChangesBar anchorScope="planner" store={settings} onSave={settings.onSubmit} />
 

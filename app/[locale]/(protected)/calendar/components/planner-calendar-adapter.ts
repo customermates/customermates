@@ -70,7 +70,9 @@ export function plannerCalendarAdapter({
     normalizedCalendarItems: (pending) =>
       rows.flatMap((record) => {
         const item = byId.get(record.id);
-        return item ? [{ record, entry: shiftCalendarEntry(item.entry, pending.get(record.id) ?? 0) }] : [];
+        return item
+          ? [{ record, entry: shiftCalendarEntry(item.entry, pending.get(record.id) ?? 0, window.timeZone) }]
+          : [];
       }),
     calendarColorForItem: (item) => {
       const entry = byId.get(item.record.id);

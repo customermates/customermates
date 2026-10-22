@@ -221,6 +221,7 @@ export const RecordMapWidgetEditor = observer(
                     {status}
 
                     <RecordQueryFilters
+                      inline
                       anchorId="widget-source-filters"
                       id="mapQuery.source"
                       model={model}

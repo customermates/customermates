@@ -6,6 +6,8 @@ import type { CalendarWindow } from "@/core/data-view/calendar-view-config.schem
 
 import { useEffect, useRef } from "react";
 import { useRecordValueFormat } from "@/components/records/record-value";
+import { CalendarEntryTooltip } from "@/components/records/calendar-entry-tooltip";
+import { usePlannerEntryDateLabel } from "./planner-entry-label";
 import { cn } from "@/core/utils/cn";
 import { calendarDatesBetween } from "@/features/record-calendar/calendar-date";
 import { layoutPlannerDay } from "@/features/planner/planner-week-layout";
@@ -25,6 +27,7 @@ export function PlannerWeekSchedule({
   onOpen: (item: PlannerEntry, opener: HTMLElement) => void;
 }) {
   const format = useRecordValueFormat();
+  const dateLabel = usePlannerEntryDateLabel(config.timeZone);
   const scroll = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (scroll.current) scroll.current.scrollTop = 7 * 48;
@@ -56,32 +59,36 @@ export function PlannerWeekSchedule({
             {layoutPlannerDay(entries, day, config.timeZone).map(({ item, start, end, column, columns }) => {
               const color = config.sources.find((source) => source.id === item.sourceId)?.color ?? "secondary";
               return (
-                <button
-                  key={item.id}
-                  aria-label={`${name(item)} · ${format.date(new Date(item.entry.time ?? ""), { dateStyle: "full", timeStyle: "short", timeZone: config.timeZone })}`}
-                  className={cn(
-                    "absolute overflow-hidden rounded-sm border border-background px-1.5 py-1 text-left text-xs outline-none focus-visible:z-20 focus-visible:ring-2 focus-visible:ring-ring",
-                    CALENDAR_ENTRY_COLOR_CLASS[color],
-                  )}
-                  style={{
-                    top: (start / 60) * 48,
-                    height: Math.max(18, ((end - start) / 60) * 48),
-                    left: `${(column / columns) * 100}%`,
-                    width: `${100 / columns}%`,
-                  }}
-                  type="button"
-                  onClick={(event) => onOpen(item, event.currentTarget)}
-                >
-                  <span className="block truncate font-medium">{name(item)}</span>
+                <CalendarEntryTooltip key={item.id} date={dateLabel(item)} name={name(item)} source={item.sourceLabel}>
+                  <button
+                    aria-label={`${name(item)} · ${dateLabel(item)}`}
+                    className={cn(
+                      "absolute overflow-hidden rounded-sm border border-background px-1.5 py-1 text-left text-xs outline-none focus-visible:z-20 focus-visible:ring-2 focus-visible:ring-ring",
+                      CALENDAR_ENTRY_COLOR_CLASS[color],
+                    )}
+                    data-planner-range-end={item.entry.end}
+                    data-planner-range-start={item.entry.start}
+                    data-planner-schedule-entry={item.id}
+                    style={{
+                      top: (start / 60) * 48,
+                      height: Math.max(18, ((end - start) / 60) * 48),
+                      left: `${(column / columns) * 100}%`,
+                      width: `${100 / columns}%`,
+                    }}
+                    type="button"
+                    onClick={(event) => onOpen(item, event.currentTarget)}
+                  >
+                    <span className="block truncate font-medium">{name(item)}</span>
 
-                  <span className="block truncate opacity-80">
-                    {format.date(new Date(item.entry.time ?? ""), {
-                      hour: "numeric",
-                      minute: "2-digit",
-                      timeZone: config.timeZone,
-                    })}
-                  </span>
-                </button>
+                    <span className="block truncate opacity-80">
+                      {format.date(new Date(item.entry.time ?? ""), {
+                        hour: "numeric",
+                        minute: "2-digit",
+                        timeZone: config.timeZone,
+                      })}
+                    </span>
+                  </button>
+                </CalendarEntryTooltip>
               );
             })}
           </div>

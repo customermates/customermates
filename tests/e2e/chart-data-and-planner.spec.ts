@@ -26,6 +26,14 @@ test("chart bars open their records and carry the same selection to the overview
   await expect(drawer).toBeVisible();
   await expect(drawer.locator("[data-widget-records]")).toBeVisible();
   await expect(drawer.locator("[data-widget-data-table]")).toContainText(/.+/u);
+  if (testInfo.project.name === "mobile") {
+    const rows = drawer.locator("[data-widget-data-table]");
+    await expect.poll(() => rows.evaluate((element) => element.scrollHeight > element.clientHeight)).toBe(true);
+    const last = rows.locator("[data-row-id]").last();
+    await last.scrollIntoViewIfNeeded();
+    await expect(last).toBeInViewport();
+    expect(await rows.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+  }
   await page.screenshot({ path: testInfo.outputPath("chart-data-drawer.png") });
   const href = await drawer.getByRole("link", { name: "Open in Deals" }).getAttribute("href");
   expect(href).toContain("filters=");
@@ -65,7 +73,7 @@ test("combined calendar adds two lists, toggles sources, opens records, exports 
         [recurringEventId, DEMO_COMPANY_ID],
       );
     await page.goto("/en/calendar");
-    await expect(page.getByRole("heading", { name: "Calendar", exact: true })).toBeVisible();
+    await expect(page.locator("[data-planner-page]")).toBeVisible();
     async function add(list: string, dateField: string) {
       await page.getByRole("button", { name: "Add date source", exact: true }).first().click();
       const modal = page.getByRole("dialog", { name: "Date source settings" });
@@ -78,19 +86,25 @@ test("combined calendar adds two lists, toggles sources, opens records, exports 
     }
     await add("Deals", "Close date");
     await add("Tasks", "Due date");
-    await expect(page.locator("[data-planner-source]")).toHaveCount(2);
-    await expect(page.locator("[data-calendar-entry]").first()).toBeVisible();
+    await page.getByRole("button", { name: "Date sources", exact: true }).click();
+    const sources = page.getByRole("dialog", { name: "Date sources", exact: true });
+    await expect(sources.locator("[data-planner-source]")).toHaveCount(2);
+
     if (e2eAppMode() !== "self-hosted") {
       const connected = page.getByRole("checkbox", { name: /Customer meetings/u });
       await expect(connected).toBeVisible();
       await connected.check();
       await expect(connected).toBeChecked();
-      await expect(page.locator("[data-calendar-entry]").filter({ hasText: "Planner recurring meeting" }).first()).toBeVisible();
+
     } else await expect(page.getByRole("heading", { name: "My connected calendars" })).toHaveCount(0);
     const toggle = page.getByRole("checkbox", { name: "Tasks · Due date", exact: true });
     await toggle.uncheck();
     await expect(toggle).not.toBeChecked();
     await toggle.check();
+    await sources.getByRole("button", { name: "Close", exact: true }).click();
+    await expect(sources).toHaveCount(0);
+    await expect(page.locator("[data-calendar-entry]").first()).toBeVisible();
+    if (e2eAppMode() !== "self-hosted") await expect(page.locator("[data-calendar-entry]").filter({ hasText: "Planner recurring meeting" }).first()).toBeVisible();
     if (testInfo.project.name !== "mobile") {
       await page.getByRole("tab", { name: "Week", exact: true }).click();
       await expect(page.locator("[data-planner-week-schedule]")).toBeVisible();
@@ -108,7 +122,9 @@ test("combined calendar adds two lists, toggles sources, opens records, exports 
     await page.getByRole("button", { name: "Save", exact: true }).click();
     await expect(page.locator('[data-slot="unsaved-changes-bar"]')).toHaveCount(0);
     await page.reload();
-    await expect(page.locator("[data-planner-source]")).toHaveCount(2);
+    await page.getByRole("button", { name: "Date sources", exact: true }).click();
+    await expect(sources.locator("[data-planner-source]")).toHaveCount(2);
+    await sources.getByRole("button", { name: "Close", exact: true }).click();
     await page.getByRole("button", { name: "Export & subscribe", exact: true }).click();
     const sync = page.getByRole("dialog", { name: "Export & subscribe" });
     const downloaded = page.waitForEvent("download");
@@ -229,7 +245,7 @@ test("German chart appearance labels fit and edit stays available through the lo
     await expect(card.getByRole("button", {
       name: germanMessages.RecordModel.moreActions.replace("{name}", "Open pipeline by stage"),
       exact: true,
-    })).toHaveCount(1);
+    })).toHaveCount(0);
     if (testInfo.project.name === "mobile") await card.getByRole("button", { name: edit, exact: true }).first().click();
     else {
       await card.click({ button: "right" });

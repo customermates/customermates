@@ -73,6 +73,11 @@ export const WidgetModal = observer(() => {
   const { widgetModalStore } = useRootStore();
   const { showTrashConfirmation } = useDeleteConfirmation();
   const { form, canManage, isDisabled, companyWideWidgets } = widgetModalStore;
+  const saveWidget = () => {
+    const active = document.activeElement;
+    if (active instanceof HTMLElement && active.closest("[data-widget-editor]")) active.blur();
+    return widgetModalStore.onSubmit();
+  };
   const askAction = useRecordAiAction({
     context: { reference: { kind: "widget", widgetId: form.id ?? "" }, label: form.name },
     active: widgetModalStore.isOpen && Boolean(form.id),
@@ -366,7 +371,7 @@ export const WidgetModal = observer(() => {
       store={widgetModalStore}
       title={dialogTitle}
     >
-      <AppForm store={widgetModalStore}>
+      <AppForm store={widgetModalStore} onSubmit={saveWidget}>
         <AppCard className="relative">
           <AppCardHeader>
             <h2 className="min-w-0 break-words text-base font-semibold">{dialogTitle}</h2>
@@ -405,7 +410,7 @@ export const WidgetModal = observer(() => {
               anchorScope="widget-modal"
               creating={isCreate}
               store={widgetModalStore}
-              onSave={widgetModalStore.onSubmit}
+              onSave={saveWidget}
             />
           )}
         </AppCard>

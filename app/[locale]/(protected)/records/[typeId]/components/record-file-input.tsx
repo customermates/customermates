@@ -7,14 +7,16 @@ import type { RecordFileTransfer } from "@/components/records/record-file-upload
 import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Upload } from "lucide-react";
+import { Download, Eye, Upload, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { ItemActions, ItemActionsTrigger } from "@/components/ui/item-actions";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { useAppForm } from "@/components/forms/form-context";
 import { FormFieldError } from "@/components/forms/form-field-error";
 import { useFormFieldErrors } from "@/components/forms/use-form-field";
 import { useRecordFileSize } from "@/components/records/record-file-chips";
-import { recordFileIcon } from "@/components/records/record-file-links";
+import { downloadRecordFile, recordFileIcon } from "@/components/records/record-file-links";
 import { useRecordFilePreview } from "@/components/records/record-file-preview";
 import { AttachmentRow } from "@/app/[locale]/(protected)/inbox/components/attachment-row";
 import { MAX_RECORD_FILES } from "@/features/records/record-model.schema";
@@ -175,20 +177,62 @@ export const RecordFileInput = observer(function RecordFileInput({
       )}
 
       {(ids.length > 0 || uploads.length > 0) && (
-        <ul className="flex flex-col gap-1.5">
+        <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {ids.map((fileId) => {
             const file = details(fileId);
             return (
               <li key={fileId} data-record-file={fileId}>
-                <AttachmentRow
-                  accent="text-muted-foreground"
-                  fileIcon={recordFileIcon(file?.mimeType)}
-                  name={file?.name ?? t("RecordModel.fileUnavailable")}
-                  removeLabel={t("RecordModel.fileRemove", { name: file?.name ?? t("RecordModel.fileUnavailable") })}
-                  subtitle={file ? fileSize(file.size) : null}
-                  onOpen={file ? () => openFile(file) : undefined}
-                  onRemove={disabled ? undefined : () => remove(fileId)}
-                />
+                <ItemActions
+                  label={file?.name ?? t("RecordModel.fileUnavailable")}
+                  menu={
+                    file && (
+                      <>
+                        <DropdownMenuItem onSelect={() => openFile(file)}>
+                          <Eye aria-hidden />
+
+                          {t("RecordModel.filePreview", { name: file.name })}
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem onSelect={() => downloadRecordFile(file)}>
+                          <Download aria-hidden />
+
+                          {t("RecordModel.fileDownload")}
+                        </DropdownMenuItem>
+
+                        {!disabled && (
+                          <DropdownMenuItem onSelect={() => remove(fileId)}>
+                            <X aria-hidden />
+
+                            {t("RecordModel.fileRemove", { name: file.name })}
+                          </DropdownMenuItem>
+                        )}
+                      </>
+                    )
+                  }
+                >
+                  <div>
+                    <AttachmentRow
+                      accent="text-muted-foreground"
+                      actions={
+                        file ? (
+                          <ItemActionsTrigger
+                            className="touch-input:not-focus-visible:not-data-[state=open]:not-sr-only touch-input:opacity-100"
+                            label={t("RecordModel.moreActions", { name: file.name })}
+                          />
+                        ) : undefined
+                      }
+                      fileIcon={recordFileIcon(file?.mimeType)}
+                      name={file?.name ?? t("RecordModel.fileUnavailable")}
+                      removeLabel={t("RecordModel.fileRemove", {
+                        name: file?.name ?? t("RecordModel.fileUnavailable"),
+                      })}
+                      subtitle={file ? fileSize(file.size) : null}
+                      tone="neutral"
+                      onOpen={file ? () => openFile(file) : undefined}
+                      onRemove={disabled ? undefined : () => remove(fileId)}
+                    />
+                  </div>
+                </ItemActions>
               </li>
             );
           })}
@@ -206,6 +250,7 @@ export const RecordFileInput = observer(function RecordFileInput({
                     : t("RecordModel.fileCancelUpload", { name: entry.file.name })
                 }
                 subtitle={entry.failure ?? t("RecordModel.fileUploading", { progress: entry.progress })}
+                tone="neutral"
                 onRemove={() => {
                   if (entry.transfer) entry.transfer.abort();
                   else drop(entry.key);
@@ -263,7 +308,7 @@ export const RecordFileInput = observer(function RecordFileInput({
             disabled={full}
             size="sm"
             type="button"
-            variant="secondary"
+            variant="ghost"
             onClick={() => picker.current?.click()}
           >
             <Upload aria-hidden />
