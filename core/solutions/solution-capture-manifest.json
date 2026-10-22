@@ -1,0 +1,796 @@
+{
+  "entries": [
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 337016,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 337016,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "smb",
+      "theme": "light"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 342241,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 342241,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "smb",
+      "theme": "dark"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 341826,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 341826,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "smb",
+      "theme": "light"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 347263,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 347263,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "smb",
+      "theme": "dark"
+    },
+    {
+      "locale": "fr",
+      "main": {
+        "bytes": 337016,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 337016,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "smb",
+      "theme": "light"
+    },
+    {
+      "locale": "fr",
+      "main": {
+        "bytes": 342241,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 342241,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "smb",
+      "theme": "dark"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 337016,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 337016,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "consultants",
+      "theme": "light"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 342241,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 342241,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "consultants",
+      "theme": "dark"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 341826,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 341826,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "consultants",
+      "theme": "light"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 347263,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 347263,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "consultants",
+      "theme": "dark"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 337016,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 337016,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "agencies",
+      "theme": "light"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 342241,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 342241,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "agencies",
+      "theme": "dark"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 341826,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 341826,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "agencies",
+      "theme": "light"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 347263,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 347263,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "agencies",
+      "theme": "dark"
+    },
+    {
+      "locale": "fr",
+      "main": {
+        "bytes": 337016,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 337016,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "agencies",
+      "theme": "light"
+    },
+    {
+      "locale": "fr",
+      "main": {
+        "bytes": 342241,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 342241,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "agencies",
+      "theme": "dark"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 337016,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 337016,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "freelancers",
+      "theme": "light"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 342241,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 342241,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "freelancers",
+      "theme": "dark"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 341826,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 341826,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "freelancers",
+      "theme": "light"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 347263,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 347263,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "freelancers",
+      "theme": "dark"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 337016,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 337016,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "startups",
+      "theme": "light"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 342241,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 342241,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "startups",
+      "theme": "dark"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 341826,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 341826,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "startups",
+      "theme": "light"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 347263,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 347263,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "startups",
+      "theme": "dark"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 337016,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 337016,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "client-management",
+      "theme": "light"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 342241,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 342241,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "client-management",
+      "theme": "dark"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 341826,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 341826,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "client-management",
+      "theme": "light"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 347263,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 347263,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "client-management",
+      "theme": "dark"
+    },
+    {
+      "locale": "fr",
+      "main": {
+        "bytes": 337016,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 337016,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "client-management",
+      "theme": "light"
+    },
+    {
+      "locale": "fr",
+      "main": {
+        "bytes": 342241,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 342241,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "client-management",
+      "theme": "dark"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 337016,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 337016,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "sales-pipeline",
+      "theme": "light"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 342241,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 342241,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "sales-pipeline",
+      "theme": "dark"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 341826,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 341826,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "sales-pipeline",
+      "theme": "light"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 347263,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 347263,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "sales-pipeline",
+      "theme": "dark"
+    },
+    {
+      "locale": "fr",
+      "main": {
+        "bytes": 337016,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 337016,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "sales-pipeline",
+      "theme": "light"
+    },
+    {
+      "locale": "fr",
+      "main": {
+        "bytes": 342241,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 342241,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "sales-pipeline",
+      "theme": "dark"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 337016,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 337016,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "linkedin-crm",
+      "theme": "light"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 342241,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 342241,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "linkedin-crm",
+      "theme": "dark"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 341826,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 341826,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "linkedin-crm",
+      "theme": "light"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 347263,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 347263,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "linkedin-crm",
+      "theme": "dark"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 337016,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 337016,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "whatsapp-crm",
+      "theme": "light"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 342241,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 342241,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-en.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "whatsapp-crm",
+      "theme": "dark"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 341826,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 341826,
+        "height": 1800,
+        "src": "/captures/light/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "whatsapp-crm",
+      "theme": "light"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 347263,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 347263,
+        "height": 1800,
+        "src": "/captures/dark/homepage-dashboard-de.png",
+        "width": 2880
+      },
+      "placeholder": true,
+      "solution": "whatsapp-crm",
+      "theme": "dark"
+    }
+  ]
+}
