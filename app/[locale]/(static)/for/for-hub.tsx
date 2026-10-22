@@ -22,6 +22,7 @@ import {
   DEFAULT_LOCALE,
   type MarketingLocale,
   formattingTagFor,
+  isContentLocale,
   marketingLocaleOrDefault,
 } from "@/i18n/locale-registry";
 
@@ -95,9 +96,11 @@ export async function renderForHub(rawLocale: string, pageNumber: number) {
   const collator = new Intl.Collator(formattingTagFor(locale));
   const referenceCollator = new Intl.Collator(formattingTagFor(DEFAULT_LOCALE));
 
-  const referencePages = forPagesSource.getPages(DEFAULT_LOCALE);
-  const paginated = paginateLocalizedHubPages(referencePages, forPagesSource.getPages(locale), pageNumber, (a, b) =>
-    referenceCollator.compare(a.page.data.industryName, b.page.data.industryName),
+  const localizedPages = forPagesSource.getPages(locale);
+  const referencePages = isContentLocale(locale) ? forPagesSource.getPages(DEFAULT_LOCALE) : localizedPages;
+  const referenceOrder = isContentLocale(locale) ? referenceCollator : collator;
+  const paginated = paginateLocalizedHubPages(referencePages, localizedPages, pageNumber, (a, b) =>
+    referenceOrder.compare(a.page.data.industryName, b.page.data.industryName),
   );
   const items: HubGridItem[] = paginated.items
     .map(({ page: p, slug }): HubGridItem => {

@@ -152,12 +152,15 @@ import {
 import { LANDING_HUBS } from "@/core/seo/landing-hubs";
 import { isRetiredRoutePath } from "@/core/seo/route-aliases";
 import {
+  APP_LOCALES,
   CONTENT_LOCALES,
   DEFAULT_LOCALE,
+  PARTIAL_MARKETING_LOCALES,
   ROUTING_LOCALES,
   type ContentLocale,
   type RoutingLocale,
   buildLocalePath,
+  isMarketingLocale,
 } from "@/i18n/locale-registry";
 import { HUB_PAGE_ROUTES, PUBLIC_ROUTES } from "@/i18n/routing";
 
@@ -588,7 +591,10 @@ describe("hub pagination and rendered reachability", () => {
         expect(response.headers.get("location"), path).toBeNull();
       }
 
-      for (const path of ["/en/dashboard", "/en/records/30000000-0000-4000-8000-000000000001/40000000-0000-4000-8000-000000000001?tab=notes"]) {
+      for (const path of [
+        "/en/dashboard",
+        "/en/records/30000000-0000-4000-8000-000000000001/40000000-0000-4000-8000-000000000001?tab=notes",
+      ]) {
         const response = await e2eResponse(path);
         expect(response.status, path).toBe(307);
         const location = response.headers.get("location") ?? "";
@@ -831,7 +837,14 @@ describe("hub pagination and rendered reachability", () => {
       const repeated = await e2eResponse("/en/blog?page=2&page=3");
       await expectSemanticNotFound(repeated, "repeated page query", "en");
 
-      const appOnly = await e2eResponse("/fr/blog?page=1&utm_source=e2e");
+      for (const partialLocale of PARTIAL_MARKETING_LOCALES) {
+        const outOfScope = await e2eResponse(`/${partialLocale}/blog?page=1&utm_source=e2e`);
+        await expectSemanticNotFound(outOfScope, `${partialLocale} hub outside its scope`, DEFAULT_LOCALE);
+      }
+
+      const appOnlyLocale = APP_LOCALES.find((locale) => !isMarketingLocale(locale));
+      if (!appOnlyLocale) throw new Error("the registry needs an application-only locale for this fallback check");
+      const appOnly = await e2eResponse(`/${appOnlyLocale}/blog?page=1&utm_source=e2e`);
       expect(appOnly.status).toBe(307);
       expect(sameOriginPath(appOnly.headers.get("location") ?? "", E2E_BASE_URL as string)).toBe(
         "/en/blog?page=1&utm_source=e2e",
