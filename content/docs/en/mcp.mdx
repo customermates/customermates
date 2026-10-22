@@ -206,7 +206,7 @@ Read fields, stable select-option IDs, relationships, capabilities and configura
 
 Filter, sort and paginate records of one configured type in PostgreSQL. Read its schema first. Results distinguish values, missing inputs, restricted calculations and errors; decimals are strings. Use query_crm_measure for totals across all matches. A filter names fieldId and operator. Single-value operators use value with one typed scalar; in, notIn, all and between use values with typed scalars and value: null. Multiple choice filters use one `{kind: "select", value: optionId}` scalar per option, not selectList. Invalid-filter errors name the index and field. fields accepts live field IDs from the current record model; an unknown or unpublished ID is named in the error.
 
-**Read-only.** Required: `typeId`. Optional: `locale`, `fields`, `includeRelationships`, `includePaths`, `includeIdentities`, `search`, `filters`, `relatedFilters`, `relationships`, `sort`, `page`, `pageSize`, `grouping`, `groupPage`, `groupSummaries`, `contribution`.
+**Read-only.** Required: `typeId`. Optional: `locale`, `fields`, `includeRelationships`, `includePaths`, `includeIdentities`, `search`, `filters`, `relatedFilters`, `relationships`, `sort`, `page`, `pageSize`, `grouping`, `groupPage`, `groupSummaries`.
 
 #### `search_crm_records`
 
@@ -302,7 +302,7 @@ Create or update up to 100 records and 500 links of one list from an export docu
 
 Upload, attach and read files of file fields. upload takes base64 content of up to 3 MB and, with recordId, writes the file into that record's field at once, appending it or replacing the files there; create_upload returns a PUT URL and headers for exactly size bytes that work for 15 minutes, after which you write the fileId into the field with attach or mutate_crm_record. attach writes a pending file you uploaded, such as a file the user gave Mate in a chat, into a record's file field as a record update (append or replace, expectedVersion); from then on the record's access rules apply to it. read returns the file's details, a download link valid for 15 minutes and, once extracted, its text in chunks with offset and nextOffset. Uploads count against the workspace storage.
 
-Required: `action`. Optional: `typeId`, `fieldId`, `name`, `mimeType`, `content`, `size`, `recordId`, `attach`, `expectedVersion`, `fileId`, `offset`.
+Required: `action`. Optional: `typeId`, `fieldId`, `name`, `mimeType`, `content`, `size`, `recordId`, `mode`, `expectedVersion`, `fileId`, `offset`.
 {/* /mcp-catalog */}
 
 ### Batch update by channel identifiers [#batch-identifier-update]
@@ -378,12 +378,12 @@ To check parts before writing them, or to fill a missing city or region from the
 
 ### Verified addresses [#verified-addresses]
 
-A self-hosted server can add an address search through its own Photon service (`ADDRESS_LOOKUP_URL`, see [Self-hosting](/docs/self-hosting#address-lookup)); Customermates Cloud has none. With a service configured, store a verified address like this:
+A self-hosted server can add an address search through its own Photon service (`ADDRESS_LOOKUP_URL`, see [Self-hosting](/docs/self-hosting#address-lookup)); Customermates Cloud has none. Only with a service configured does the server list `lookup_address`; store a verified address like this:
 
 1. Call `lookup_address` (REST: `POST /api/v1/addresses/lookup`) with the address as `query`, for example `{"query": "Hauptstraße 5, Mannheim", "countryCode": "de"}`. Each candidate holds the formatted parts, the location of the building and a `candidateToken`.
 2. Write the token instead of a value in `mutate_crm_record`: `{"fieldId": "<address field id>", "value": {"kind": "address", "candidateToken": "<candidateToken>"}}`. The server stores the candidate as verified, with the provider and the time of the lookup.
 
-A token works for 24 hours and only in the workspace that looked it up; otherwise the write is refused with `recordAddressCandidateInvalid`, and a new lookup helps. When several candidates fit, ask the user; when none does, write the parts. `available: false` means the server has no address service configured: write the parts, which are checked as described above. Show `attribution` (© OpenStreetMap contributors) with candidates you present. Each person can look up 30 addresses in 10 seconds (`rate_limit` with `addressLookupRateLimited`); a service that does not answer returns `unavailable` with `addressLookupUnavailable`. To match parts a person typed against the service, `POST /api/v1/addresses/verify` returns the matching address with a token, or `match: null`.
+A token works for 24 hours and only in the workspace that looked it up; otherwise the write is refused with `recordAddressCandidateInvalid`, and a new lookup helps. When several candidates fit, ask the user; when none does, write the parts. Without a service, MCP clients do not see `lookup_address` and the REST endpoints answer `available: false`: write the parts, which are checked as described above. Show `attribution` (© OpenStreetMap contributors) with candidates you present. Each person can look up 30 addresses in 10 seconds (`rate_limit` with `addressLookupRateLimited`); a service that does not answer returns `unavailable` with `addressLookupUnavailable`. To match parts a person typed against the service, `POST /api/v1/addresses/verify` returns the matching address with a token, or `match: null`.
 
 ### Workspace
 
@@ -454,19 +454,19 @@ Three modes: list: "calendars" (default) lists the calendars of accessible conne
 
 #### `send_chat_message`
 
-Delivers immediately. With threadId replies in an existing chat; with connectedAccountId plus attendeeIdentifiers starts a new one (optional chatName names a group). To send a saved draft, pass both draftMessageId and draftRevision. New LinkedIn chats default to Classic; set linkedinProduct to sales_navigator or recruiter to send an InMail (needs inmailSubject), or inmail:true to InMail someone outside your network on Classic.
+Delivers immediately. With threadId replies in an existing chat or sends the draft of a conversation that exists only as a draft; with connectedAccountId plus attendeeIdentifiers starts a new one (optional chatName names a group). To send a saved draft, pass both draftMessageId and draftRevision; each draft revision is sent at most once, and repeating the call returns the first result with `repeated: true`. New LinkedIn chats default to Classic; set linkedinProduct to sales_navigator or recruiter to send an InMail (needs inmailSubject), or inmail:true to InMail someone outside your network on Classic.
 
 Required: `text`. Optional: `threadId`, `draftMessageId`, `draftRevision`, `connectedAccountId`, `attendeeIdentifiers`, `chatName`, `linkedinProduct`, `inmail`, `inmailSubject`, `inmailSignature`.
 
 #### `send_email`
 
-Delivers immediately. Send or reply from a connected email account; sending a saved draft requires both draftMessageId and draftRevision. The account's enabled signature is appended automatically, so never write a sign-off into the body.
+Delivers immediately. Send or reply from a connected email account; sending a saved draft requires both draftMessageId and draftRevision, and threadId may be the draft's own conversation. Each draft revision is sent at most once: repeating the call returns the first result with `repeated: true`, and a draft that changed or whose earlier send could not be confirmed is refused without sending. The account's enabled signature is appended automatically, so never write a sign-off into the body.
 
 Required: `to`, `subject`, `body`. Optional: `threadId`, `connectedAccountId`, `cc`, `bcc`, `bodyFormat`, `attachments`, `draftMessageId`, `draftRevision`.
 
 #### `save_message_draft`
 
-Prepare a message for review: the draft shows up in the inbox and the user sends it. With `threadId` it drafts a reply; with `connectedAccountId` plus `recipients` it prepares a brand-new conversation that exists only as a draft. Returns the message id and opaque revision token; saving again updates the thread's one draft. The signature is appended when the draft is sent, so never write a sign-off into the body.
+Prepare a message for review: the draft shows up in the inbox and the user sends it. With `threadId` it drafts a reply or updates that conversation's one draft; with `connectedAccountId` plus `recipients` every call prepares another brand-new conversation that exists only as a draft. Returns the message id, opaque revision token and thread id. The signature is appended when the draft is sent, so never write a sign-off into the body.
 
 Required: `body`. Optional: `threadId`, `connectedAccountId`, `recipients`, `subject`, `cc`, `bcc`.
 

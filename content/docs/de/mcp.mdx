@@ -206,7 +206,7 @@ Felder, stabile Options-IDs, Beziehungen, Systembindungen und Konfigurationsrevi
 
 Datensätze eines konfigurierten Typs in PostgreSQL filtern, sortieren und seitenweise lesen. Zuerst das Schema lesen. Ergebnisse unterscheiden Werte, fehlende Eingaben, gesperrte Berechnungen und Fehler; Dezimalwerte sind Strings. query_crm_measure liefert Summen über alle Treffer. Ein Filter nennt fieldId und operator. Operatoren mit einem Wert nutzen value mit einem typisierten Skalar; in, notIn, all und between nutzen values mit typisierten Skalaren und value: null. Mehrfachauswahlfilter nutzen je Option einen Skalar `{kind: "select", value: optionId}`, nicht selectList. Bei ungültigen Filtern nennt die Fehlermeldung Index und Feld. fields akzeptiert aktive Feld-IDs aus dem aktuellen Datenmodell; bei unbekannten oder noch nicht veröffentlichten IDs nennt die Fehlermeldung die ID.
 
-**Nur lesend.** Pflicht: `typeId`. Optional: `locale`, `fields`, `includeRelationships`, `includePaths`, `includeIdentities`, `search`, `filters`, `relatedFilters`, `relationships`, `sort`, `page`, `pageSize`, `grouping`, `groupPage`, `groupSummaries`, `contribution`.
+**Nur lesend.** Pflicht: `typeId`. Optional: `locale`, `fields`, `includeRelationships`, `includePaths`, `includeIdentities`, `search`, `filters`, `relatedFilters`, `relationships`, `sort`, `page`, `pageSize`, `grouping`, `groupPage`, `groupSummaries`.
 
 #### `search_crm_records`
 
@@ -302,7 +302,7 @@ Erstellt oder aktualisiert bis zu 100 Datensätze und 500 Verknüpfungen einer L
 
 Dateien von Dateifeldern hochladen, anhängen und lesen. upload nimmt Base64-Inhalt bis 3 MB und schreibt die Datei mit recordId sofort in das Feld dieses Datensatzes, angehängt oder anstelle der vorhandenen Dateien; create_upload liefert eine PUT-URL und Header für genau size Bytes, die 15 Minuten gelten, danach schreiben Sie die fileId mit attach oder mutate_crm_record in das Feld. attach schreibt eine ausstehende Datei, die Sie hochgeladen haben, etwa eine Datei, die der Nutzer Mate in einem Chat gegeben hat, als Datensatzänderung in das Dateifeld eines Datensatzes (append oder replace, expectedVersion); ab dann gelten für sie die Zugriffsregeln des Datensatzes. read liefert die Angaben zur Datei, einen 15 Minuten gültigen Download-Link und, sobald er extrahiert ist, ihren Text in Abschnitten mit offset und nextOffset. Uploads zählen zum Speicher des Workspace.
 
-Pflicht: `action`. Optional: `typeId`, `fieldId`, `name`, `mimeType`, `content`, `size`, `recordId`, `attach`, `expectedVersion`, `fileId`, `offset`.
+Pflicht: `action`. Optional: `typeId`, `fieldId`, `name`, `mimeType`, `content`, `size`, `recordId`, `mode`, `expectedVersion`, `fileId`, `offset`.
 {/* /mcp-catalog */}
 
 ### Stapel-Update über Kanalkennungen [#batch-identifier-update]
@@ -378,12 +378,12 @@ Um Teile vor dem Schreiben zu prüfen oder einen fehlenden Ort oder eine fehlend
 
 ### Bestätigte Adressen [#verified-addresses]
 
-Ein selbst gehosteter Server kann eine Adresssuche über einen eigenen Photon-Dienst anbieten (`ADDRESS_LOOKUP_URL`, siehe [Self-Hosting](/docs/self-hosting#address-lookup)); Customermates Cloud hat keine. Mit eingerichtetem Dienst speichern Sie eine bestätigte Adresse so:
+Ein selbst gehosteter Server kann eine Adresssuche über einen eigenen Photon-Dienst anbieten (`ADDRESS_LOOKUP_URL`, siehe [Self-Hosting](/docs/self-hosting#address-lookup)); Customermates Cloud hat keine. Nur mit eingerichtetem Dienst listet der Server `lookup_address`; eine bestätigte Adresse speichern Sie so:
 
 1. Rufen Sie `lookup_address` (REST: `POST /api/v1/addresses/lookup`) mit der Adresse als `query` auf, zum Beispiel `{"query": "Hauptstraße 5, Mannheim", "countryCode": "de"}`. Jeder Kandidat enthält die formatierten Teile, den Standort des Gebäudes und ein `candidateToken`.
 2. Schreiben Sie in `mutate_crm_record` das Token statt eines Werts: `{"fieldId": "<address field id>", "value": {"kind": "address", "candidateToken": "<candidateToken>"}}`. Der Server speichert den Kandidaten als bestätigt, mit Anbieter und Zeitpunkt der Suche.
 
-Ein Token gilt 24 Stunden und nur in dem Workspace, der gesucht hat; sonst wird das Schreiben mit `recordAddressCandidateInvalid` abgelehnt, und eine neue Suche hilft. Passen mehrere Kandidaten, fragen Sie nach; passt keiner, schreiben Sie die Teile. `available: false` bedeutet, dass auf dem Server kein Adressdienst eingerichtet ist: Schreiben Sie dann die Teile, die wie oben beschrieben geprüft werden. Zeigen Sie `attribution` (© OpenStreetMap contributors) zusammen mit den Kandidaten an. Jede Person kann 30 Adressen in 10 Sekunden suchen (`rate_limit` mit `addressLookupRateLimited`); antwortet der Dienst nicht, kommt `unavailable` mit `addressLookupUnavailable`. Um eingegebene Teile mit dem Dienst abzugleichen, liefert `POST /api/v1/addresses/verify` die passende Adresse mit Token oder `match: null`.
+Ein Token gilt 24 Stunden und nur in dem Workspace, der gesucht hat; sonst wird das Schreiben mit `recordAddressCandidateInvalid` abgelehnt, und eine neue Suche hilft. Passen mehrere Kandidaten, fragen Sie nach; passt keiner, schreiben Sie die Teile. Ohne Adressdienst sehen MCP-Clients `lookup_address` nicht, und die REST-Endpunkte antworten mit `available: false`: Schreiben Sie dann die Teile, die wie oben beschrieben geprüft werden. Zeigen Sie `attribution` (© OpenStreetMap contributors) zusammen mit den Kandidaten an. Jede Person kann 30 Adressen in 10 Sekunden suchen (`rate_limit` mit `addressLookupRateLimited`); antwortet der Dienst nicht, kommt `unavailable` mit `addressLookupUnavailable`. Um eingegebene Teile mit dem Dienst abzugleichen, liefert `POST /api/v1/addresses/verify` die passende Adresse mit Token oder `match: null`.
 
 ### Workspace [#workspace]
 
@@ -454,25 +454,25 @@ Drei Modi: list: "calendars" (Standard) listet die Kalender der zugänglichen ve
 
 #### `send_chat_message`
 
-Stellt sofort zu. Mit threadId antwortet es in einem bestehenden Chat; mit connectedAccountId plus attendeeIdentifiers startet es einen neuen (optionales chatName benennt eine Gruppe). Zum Senden eines gespeicherten Drafts sind draftMessageId und draftRevision erforderlich. Neue LinkedIn-Chats sind standardmäßig Classic; setzen Sie linkedinProduct auf sales_navigator oder recruiter für ein InMail (braucht inmailSubject), oder inmail:true, um auf Classic jemanden außerhalb Ihres Netzwerks per InMail anzuschreiben.
+Stellt sofort zu. Mit threadId antwortet es in einem bestehenden Chat oder sendet den Draft einer Unterhaltung, die nur als Draft existiert; mit connectedAccountId plus attendeeIdentifiers startet es einen neuen (optionales chatName benennt eine Gruppe). Zum Senden eines gespeicherten Drafts sind draftMessageId und draftRevision erforderlich; jede Draft-Revision wird höchstens einmal gesendet, ein wiederholter Aufruf liefert das erste Ergebnis mit `repeated: true`. Neue LinkedIn-Chats sind standardmäßig Classic; setzen Sie linkedinProduct auf sales_navigator oder recruiter für ein InMail (braucht inmailSubject), oder inmail:true, um auf Classic jemanden außerhalb Ihres Netzwerks per InMail anzuschreiben.
 
 Pflicht: `text`. Optional: `threadId`, `draftMessageId`, `draftRevision`, `connectedAccountId`, `attendeeIdentifiers`, `chatName`, `linkedinProduct`, `inmail`, `inmailSubject`, `inmailSignature`.
 
 #### `send_email`
 
-Stellt sofort zu. Senden oder antworten von einem verbundenen E-Mail-Konto; für einen gespeicherten Draft sind draftMessageId und draftRevision erforderlich. Die aktivierte Signatur des Kontos wird automatisch angehängt, schreiben Sie daher keine Grußformel in den Text.
+Stellt sofort zu. Senden oder antworten von einem verbundenen E-Mail-Konto; für einen gespeicherten Draft sind draftMessageId und draftRevision erforderlich, und threadId darf die eigene Unterhaltung des Drafts sein. Jede Draft-Revision wird höchstens einmal gesendet: Ein wiederholter Aufruf liefert das erste Ergebnis mit `repeated: true`, und ein geänderter Draft oder einer, dessen früheres Senden nicht bestätigt werden konnte, wird ohne Senden abgelehnt. Die aktivierte Signatur des Kontos wird automatisch angehängt, schreiben Sie daher keine Grußformel in den Text.
 
 Pflicht: `to`, `subject`, `body`. Optional: `threadId`, `connectedAccountId`, `cc`, `bcc`, `bodyFormat`, `attachments`, `draftMessageId`, `draftRevision`.
 
 #### `save_message_draft`
 
-Nachricht zur Durchsicht vorbereiten: Der Draft erscheint in der Inbox, und Sie senden ihn selbst. Mit `threadId` entsteht eine Antwort, mit `connectedAccountId` plus `recipients` eine komplett neue Unterhaltung, die zunächst nur als Draft existiert. Gibt Message-ID und undurchsichtiges Revision-Token zurück; erneutes Speichern aktualisiert den einen Draft des Threads. Die Signatur wird beim Senden des Drafts angehängt, schreiben Sie daher keine Grußformel in den Text.
+Nachricht zur Durchsicht vorbereiten: Der Draft erscheint in der Inbox, und Sie senden ihn selbst. Mit `threadId` entsteht eine Antwort, oder der Draft dieser Unterhaltung wird aktualisiert; mit `connectedAccountId` plus `recipients` entsteht bei jedem Aufruf eine neue Unterhaltung, die zunächst nur als Draft existiert. Gibt Message-ID, undurchsichtiges Revision-Token und Thread-ID zurück. Die Signatur wird beim Senden des Drafts angehängt, schreiben Sie daher keine Grußformel in den Text.
 
 Pflicht: `body`. Optional: `threadId`, `connectedAccountId`, `recipients`, `subject`, `cc`, `bcc`.
 
 #### `discard_message_draft`
 
-Die exakte gespeicherte Draft-Version per Message-ID und undurchsichtigem Revision-Token löschen.
+Die exakte gespeicherte Draft-Revision per Message-ID und undurchsichtigem Revision-Token löschen.
 
 **Kann Daten löschen.** Pflicht: `messageId`, `draftRevision`.
 

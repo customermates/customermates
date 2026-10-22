@@ -49059,1044 +49059,6 @@
                       ],
                       "additionalProperties": false
                     }
-                  },
-                  "contribution": {
-                    "description": "Restrict the list to the exact source records contributing to a chart or one of its groups.",
-                    "type": "object",
-                    "properties": {
-                      "measure": {
-                        "type": "object",
-                        "properties": {
-                          "source": {
-                            "$ref": "#/components/schemas/RecordSource"
-                          },
-                          "aggregation": {
-                            "type": "string",
-                            "enum": [
-                              "count",
-                              "sum",
-                              "average",
-                              "min",
-                              "max"
-                            ]
-                          },
-                          "valueFieldId": {
-                            "anyOf": [
-                              {
-                                "type": "string",
-                                "format": "uuid",
-                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "groupBy": {
-                            "anyOf": [
-                              {
-                                "type": "object",
-                                "properties": {
-                                  "path": {
-                                    "maxItems": 6,
-                                    "type": "array",
-                                    "items": {
-                                      "type": "object",
-                                      "properties": {
-                                        "relationId": {
-                                          "type": "string",
-                                          "format": "uuid",
-                                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                        },
-                                        "direction": {
-                                          "type": "string",
-                                          "enum": [
-                                            "incoming",
-                                            "outgoing"
-                                          ]
-                                        }
-                                      },
-                                      "required": [
-                                        "relationId",
-                                        "direction"
-                                      ],
-                                      "additionalProperties": false
-                                    }
-                                  },
-                                  "fieldId": {
-                                    "anyOf": [
-                                      {
-                                        "anyOf": [
-                                          {
-                                            "type": "string",
-                                            "format": "uuid",
-                                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                          },
-                                          {
-                                            "type": "string",
-                                            "enum": [
-                                              "system:createdAt",
-                                              "system:updatedAt",
-                                              "system:assignedTo"
-                                            ]
-                                          }
-                                        ]
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ],
-                                    "description": "A field ID on the terminal type, system:createdAt, system:updatedAt or system:assignedTo, or null to group by each terminal record. Assignee groups use full attribution: a record with several assignees contributes to each."
-                                  },
-                                  "dateInterval": {
-                                    "description": "Bucket a date or dateTime field, system:createdAt or system:updatedAt into calendar periods. Rejected for any other grouping. Weeks start on Monday (ISO). Each group label is the bucket start as a date (YYYY-MM-DD); groups are returned in chronological order and only periods with records appear. Records without a date form the missing group. Every bucket counts toward groupLimit; raise it up to 1000 for long daily series.",
-                                    "type": "string",
-                                    "enum": [
-                                      "day",
-                                      "week",
-                                      "month",
-                                      "quarter",
-                                      "year"
-                                    ]
-                                  },
-                                  "timeZone": {
-                                    "description": "IANA time zone that dateTime values and system timestamps are bucketed in. Requires dateInterval; defaults to UTC. Date-only values are calendar dates and never shift.",
-                                    "type": "string",
-                                    "minLength": 1,
-                                    "maxLength": 64
-                                  },
-                                  "filter": {
-                                    "description": "Limit the terminal records that appear as groups using the same validated filters as record queries. Every path step requires access. Overall totals still use source filters; repeat relevant filters there to limit both contributions and groups.",
-                                    "type": "object",
-                                    "properties": {
-                                      "search": {
-                                        "type": "string",
-                                        "maxLength": 500
-                                      },
-                                      "filters": {
-                                        "default": [],
-                                        "maxItems": 50,
-                                        "type": "array",
-                                        "items": {
-                                          "type": "object",
-                                          "properties": {
-                                            "fieldId": {
-                                              "anyOf": [
-                                                {
-                                                  "type": "string",
-                                                  "format": "uuid",
-                                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                                },
-                                                {
-                                                  "type": "string",
-                                                  "enum": [
-                                                    "system:createdAt",
-                                                    "system:updatedAt",
-                                                    "system:assignedTo"
-                                                  ]
-                                                }
-                                              ]
-                                            },
-                                            "operator": {
-                                              "type": "string",
-                                              "enum": [
-                                                "eq",
-                                                "ne",
-                                                "contains",
-                                                "startsWith",
-                                                "gt",
-                                                "gte",
-                                                "lt",
-                                                "lte",
-                                                "empty",
-                                                "notEmpty",
-                                                "in",
-                                                "notIn",
-                                                "all",
-                                                "between",
-                                                "overlaps",
-                                                "inLastDays",
-                                                "notInLastDays"
-                                              ],
-                                              "description": "For multiple choice fields in, all and notIn take option values and match records holding any, all or none of them. between uses two inclusive date endpoints in values; overlaps takes the same endpoints and also matches a date range that only partly falls between them; a range without an end counts as its start day. inLastDays and notInLastDays use a positive whole day count in value as a decimal without currency. Range contains tests a point; gt/gte test its start, lt/lte its end. Relative windows begin at UTC midnight that many days before the query clock: inLastDays includes later dates, notInLastDays matches only earlier ones."
-                                            },
-                                            "value": {
-                                              "anyOf": [
-                                                {
-                                                  "type": "object",
-                                                  "properties": {
-                                                    "kind": {
-                                                      "type": "string",
-                                                      "enum": [
-                                                        "text",
-                                                        "textList",
-                                                        "decimal",
-                                                        "boolean",
-                                                        "date",
-                                                        "dateTime",
-                                                        "range",
-                                                        "select",
-                                                        "selectList",
-                                                        "member",
-                                                        "richText",
-                                                        "file",
-                                                        "address"
-                                                      ]
-                                                    },
-                                                    "value": {
-                                                      "anyOf": [
-                                                        {
-                                                          "type": "string",
-                                                          "maxLength": 100000,
-                                                          "pattern": "^[^\\u0000]*$"
-                                                        },
-                                                        {
-                                                          "type": "boolean"
-                                                        },
-                                                        {
-                                                          "minItems": 1,
-                                                          "maxItems": 100,
-                                                          "type": "array",
-                                                          "items": {
-                                                            "type": "string",
-                                                            "maxLength": 100000,
-                                                            "pattern": "^[^\\u0000]*$"
-                                                          }
-                                                        },
-                                                        {
-                                                          "$ref": "#/components/schemas/RecordAddressPartsInput"
-                                                        }
-                                                      ]
-                                                    },
-                                                    "currency": {
-                                                      "anyOf": [
-                                                        {
-                                                          "type": "string",
-                                                          "pattern": "^[A-Z]{3}$"
-                                                        },
-                                                        {
-                                                          "type": "null"
-                                                        }
-                                                      ]
-                                                    },
-                                                    "start": {
-                                                      "anyOf": [
-                                                        {
-                                                          "type": "string",
-                                                          "pattern": "^[^\\u0000]*$"
-                                                        },
-                                                        {
-                                                          "type": "null"
-                                                        }
-                                                      ]
-                                                    },
-                                                    "end": {
-                                                      "anyOf": [
-                                                        {
-                                                          "type": "string",
-                                                          "pattern": "^[^\\u0000]*$"
-                                                        },
-                                                        {
-                                                          "type": "null"
-                                                        }
-                                                      ]
-                                                    },
-                                                    "documentJson": {
-                                                      "type": "string",
-                                                      "maxLength": 1000000,
-                                                      "pattern": "^[^\\u0000]*$"
-                                                    }
-                                                  },
-                                                  "required": [
-                                                    "kind"
-                                                  ],
-                                                  "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts."
-                                                },
-                                                {
-                                                  "type": "null"
-                                                }
-                                              ]
-                                            },
-                                            "values": {
-                                              "maxItems": 100,
-                                              "type": "array",
-                                              "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                  "kind": {
-                                                    "type": "string",
-                                                    "enum": [
-                                                      "text",
-                                                      "textList",
-                                                      "decimal",
-                                                      "boolean",
-                                                      "date",
-                                                      "dateTime",
-                                                      "range",
-                                                      "select",
-                                                      "selectList",
-                                                      "member",
-                                                      "richText",
-                                                      "file",
-                                                      "address"
-                                                    ]
-                                                  },
-                                                  "value": {
-                                                    "anyOf": [
-                                                      {
-                                                        "type": "string",
-                                                        "maxLength": 100000,
-                                                        "pattern": "^[^\\u0000]*$"
-                                                      },
-                                                      {
-                                                        "type": "boolean"
-                                                      },
-                                                      {
-                                                        "minItems": 1,
-                                                        "maxItems": 100,
-                                                        "type": "array",
-                                                        "items": {
-                                                          "type": "string",
-                                                          "maxLength": 100000,
-                                                          "pattern": "^[^\\u0000]*$"
-                                                        }
-                                                      },
-                                                      {
-                                                        "$ref": "#/components/schemas/RecordAddressPartsInput"
-                                                      }
-                                                    ]
-                                                  },
-                                                  "currency": {
-                                                    "anyOf": [
-                                                      {
-                                                        "type": "string",
-                                                        "pattern": "^[A-Z]{3}$"
-                                                      },
-                                                      {
-                                                        "type": "null"
-                                                      }
-                                                    ]
-                                                  },
-                                                  "start": {
-                                                    "anyOf": [
-                                                      {
-                                                        "type": "string",
-                                                        "pattern": "^[^\\u0000]*$"
-                                                      },
-                                                      {
-                                                        "type": "null"
-                                                      }
-                                                    ]
-                                                  },
-                                                  "end": {
-                                                    "anyOf": [
-                                                      {
-                                                        "type": "string",
-                                                        "pattern": "^[^\\u0000]*$"
-                                                      },
-                                                      {
-                                                        "type": "null"
-                                                      }
-                                                    ]
-                                                  },
-                                                  "documentJson": {
-                                                    "type": "string",
-                                                    "maxLength": 1000000,
-                                                    "pattern": "^[^\\u0000]*$"
-                                                  }
-                                                },
-                                                "required": [
-                                                  "kind"
-                                                ],
-                                                "additionalProperties": false,
-                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts."
-                                              }
-                                            }
-                                          },
-                                          "required": [
-                                            "fieldId",
-                                            "operator",
-                                            "value"
-                                          ],
-                                          "additionalProperties": false
-                                        }
-                                      },
-                                      "relationships": {
-                                        "default": [],
-                                        "maxItems": 50,
-                                        "type": "array",
-                                        "items": {
-                                          "type": "object",
-                                          "properties": {
-                                            "relationId": {
-                                              "type": "string",
-                                              "format": "uuid",
-                                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                            },
-                                            "direction": {
-                                              "type": "string",
-                                              "enum": [
-                                                "outgoing",
-                                                "incoming"
-                                              ]
-                                            },
-                                            "operator": {
-                                              "type": "string",
-                                              "enum": [
-                                                "any",
-                                                "none"
-                                              ]
-                                            },
-                                            "recordIds": {
-                                              "anyOf": [
-                                                {
-                                                  "maxItems": 100,
-                                                  "type": "array",
-                                                  "items": {
-                                                    "type": "string",
-                                                    "format": "uuid",
-                                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                                  }
-                                                },
-                                                {
-                                                  "type": "null"
-                                                }
-                                              ]
-                                            }
-                                          },
-                                          "required": [
-                                            "relationId",
-                                            "direction",
-                                            "operator",
-                                            "recordIds"
-                                          ],
-                                          "additionalProperties": false
-                                        }
-                                      },
-                                      "relatedFilters": {
-                                        "maxItems": 16,
-                                        "type": "array",
-                                        "items": {
-                                          "type": "object",
-                                          "properties": {
-                                            "path": {
-                                              "minItems": 1,
-                                              "maxItems": 6,
-                                              "type": "array",
-                                              "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                  "relationId": {
-                                                    "type": "string",
-                                                    "format": "uuid",
-                                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                                  },
-                                                  "direction": {
-                                                    "type": "string",
-                                                    "enum": [
-                                                      "outgoing",
-                                                      "incoming"
-                                                    ]
-                                                  }
-                                                },
-                                                "required": [
-                                                  "relationId",
-                                                  "direction"
-                                                ],
-                                                "additionalProperties": false
-                                              }
-                                            },
-                                            "operator": {
-                                              "type": "string",
-                                              "enum": [
-                                                "any",
-                                                "none"
-                                              ]
-                                            },
-                                            "filters": {
-                                              "maxItems": 50,
-                                              "type": "array",
-                                              "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                  "fieldId": {
-                                                    "anyOf": [
-                                                      {
-                                                        "type": "string",
-                                                        "format": "uuid",
-                                                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                                      },
-                                                      {
-                                                        "type": "string",
-                                                        "enum": [
-                                                          "system:createdAt",
-                                                          "system:updatedAt",
-                                                          "system:assignedTo"
-                                                        ]
-                                                      }
-                                                    ]
-                                                  },
-                                                  "operator": {
-                                                    "type": "string",
-                                                    "enum": [
-                                                      "eq",
-                                                      "ne",
-                                                      "contains",
-                                                      "startsWith",
-                                                      "gt",
-                                                      "gte",
-                                                      "lt",
-                                                      "lte",
-                                                      "empty",
-                                                      "notEmpty",
-                                                      "in",
-                                                      "notIn",
-                                                      "all",
-                                                      "between",
-                                                      "overlaps",
-                                                      "inLastDays",
-                                                      "notInLastDays"
-                                                    ],
-                                                    "description": "For multiple choice fields in, all and notIn take option values and match records holding any, all or none of them. between uses two inclusive date endpoints in values; overlaps takes the same endpoints and also matches a date range that only partly falls between them; a range without an end counts as its start day. inLastDays and notInLastDays use a positive whole day count in value as a decimal without currency. Range contains tests a point; gt/gte test its start, lt/lte its end. Relative windows begin at UTC midnight that many days before the query clock: inLastDays includes later dates, notInLastDays matches only earlier ones."
-                                                  },
-                                                  "value": {
-                                                    "anyOf": [
-                                                      {
-                                                        "type": "object",
-                                                        "properties": {
-                                                          "kind": {
-                                                            "type": "string",
-                                                            "enum": [
-                                                              "text",
-                                                              "textList",
-                                                              "decimal",
-                                                              "boolean",
-                                                              "date",
-                                                              "dateTime",
-                                                              "range",
-                                                              "select",
-                                                              "selectList",
-                                                              "member",
-                                                              "richText",
-                                                              "file",
-                                                              "address"
-                                                            ]
-                                                          },
-                                                          "value": {
-                                                            "anyOf": [
-                                                              {
-                                                                "type": "string",
-                                                                "maxLength": 100000,
-                                                                "pattern": "^[^\\u0000]*$"
-                                                              },
-                                                              {
-                                                                "type": "boolean"
-                                                              },
-                                                              {
-                                                                "minItems": 1,
-                                                                "maxItems": 100,
-                                                                "type": "array",
-                                                                "items": {
-                                                                  "type": "string",
-                                                                  "maxLength": 100000,
-                                                                  "pattern": "^[^\\u0000]*$"
-                                                                }
-                                                              },
-                                                              {
-                                                                "$ref": "#/components/schemas/RecordAddressPartsInput"
-                                                              }
-                                                            ]
-                                                          },
-                                                          "currency": {
-                                                            "anyOf": [
-                                                              {
-                                                                "type": "string",
-                                                                "pattern": "^[A-Z]{3}$"
-                                                              },
-                                                              {
-                                                                "type": "null"
-                                                              }
-                                                            ]
-                                                          },
-                                                          "start": {
-                                                            "anyOf": [
-                                                              {
-                                                                "type": "string",
-                                                                "pattern": "^[^\\u0000]*$"
-                                                              },
-                                                              {
-                                                                "type": "null"
-                                                              }
-                                                            ]
-                                                          },
-                                                          "end": {
-                                                            "anyOf": [
-                                                              {
-                                                                "type": "string",
-                                                                "pattern": "^[^\\u0000]*$"
-                                                              },
-                                                              {
-                                                                "type": "null"
-                                                              }
-                                                            ]
-                                                          },
-                                                          "documentJson": {
-                                                            "type": "string",
-                                                            "maxLength": 1000000,
-                                                            "pattern": "^[^\\u0000]*$"
-                                                          }
-                                                        },
-                                                        "required": [
-                                                          "kind"
-                                                        ],
-                                                        "additionalProperties": false,
-                                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts."
-                                                      },
-                                                      {
-                                                        "type": "null"
-                                                      }
-                                                    ]
-                                                  },
-                                                  "values": {
-                                                    "maxItems": 100,
-                                                    "type": "array",
-                                                    "items": {
-                                                      "type": "object",
-                                                      "properties": {
-                                                        "kind": {
-                                                          "type": "string",
-                                                          "enum": [
-                                                            "text",
-                                                            "textList",
-                                                            "decimal",
-                                                            "boolean",
-                                                            "date",
-                                                            "dateTime",
-                                                            "range",
-                                                            "select",
-                                                            "selectList",
-                                                            "member",
-                                                            "richText",
-                                                            "file",
-                                                            "address"
-                                                          ]
-                                                        },
-                                                        "value": {
-                                                          "anyOf": [
-                                                            {
-                                                              "type": "string",
-                                                              "maxLength": 100000,
-                                                              "pattern": "^[^\\u0000]*$"
-                                                            },
-                                                            {
-                                                              "type": "boolean"
-                                                            },
-                                                            {
-                                                              "minItems": 1,
-                                                              "maxItems": 100,
-                                                              "type": "array",
-                                                              "items": {
-                                                                "type": "string",
-                                                                "maxLength": 100000,
-                                                                "pattern": "^[^\\u0000]*$"
-                                                              }
-                                                            },
-                                                            {
-                                                              "$ref": "#/components/schemas/RecordAddressPartsInput"
-                                                            }
-                                                          ]
-                                                        },
-                                                        "currency": {
-                                                          "anyOf": [
-                                                            {
-                                                              "type": "string",
-                                                              "pattern": "^[A-Z]{3}$"
-                                                            },
-                                                            {
-                                                              "type": "null"
-                                                            }
-                                                          ]
-                                                        },
-                                                        "start": {
-                                                          "anyOf": [
-                                                            {
-                                                              "type": "string",
-                                                              "pattern": "^[^\\u0000]*$"
-                                                            },
-                                                            {
-                                                              "type": "null"
-                                                            }
-                                                          ]
-                                                        },
-                                                        "end": {
-                                                          "anyOf": [
-                                                            {
-                                                              "type": "string",
-                                                              "pattern": "^[^\\u0000]*$"
-                                                            },
-                                                            {
-                                                              "type": "null"
-                                                            }
-                                                          ]
-                                                        },
-                                                        "documentJson": {
-                                                          "type": "string",
-                                                          "maxLength": 1000000,
-                                                          "pattern": "^[^\\u0000]*$"
-                                                        }
-                                                      },
-                                                      "required": [
-                                                        "kind"
-                                                      ],
-                                                      "additionalProperties": false,
-                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts."
-                                                    }
-                                                  }
-                                                },
-                                                "required": [
-                                                  "fieldId",
-                                                  "operator",
-                                                  "value"
-                                                ],
-                                                "additionalProperties": false
-                                              }
-                                            },
-                                            "relationships": {
-                                              "default": [],
-                                              "maxItems": 50,
-                                              "type": "array",
-                                              "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                  "relationId": {
-                                                    "type": "string",
-                                                    "format": "uuid",
-                                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                                  },
-                                                  "direction": {
-                                                    "type": "string",
-                                                    "enum": [
-                                                      "outgoing",
-                                                      "incoming"
-                                                    ]
-                                                  },
-                                                  "operator": {
-                                                    "type": "string",
-                                                    "enum": [
-                                                      "any",
-                                                      "none"
-                                                    ]
-                                                  },
-                                                  "recordIds": {
-                                                    "anyOf": [
-                                                      {
-                                                        "maxItems": 100,
-                                                        "type": "array",
-                                                        "items": {
-                                                          "type": "string",
-                                                          "format": "uuid",
-                                                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                                        }
-                                                      },
-                                                      {
-                                                        "type": "null"
-                                                      }
-                                                    ]
-                                                  }
-                                                },
-                                                "required": [
-                                                  "relationId",
-                                                  "direction",
-                                                  "operator",
-                                                  "recordIds"
-                                                ],
-                                                "additionalProperties": false
-                                              }
-                                            },
-                                            "search": {
-                                              "type": "string",
-                                              "maxLength": 500
-                                            },
-                                            "recordIds": {
-                                              "description": "Match these terminal record identities after following the path; all steps require record access.",
-                                              "maxItems": 100,
-                                              "type": "array",
-                                              "items": {
-                                                "type": "string",
-                                                "format": "uuid",
-                                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                              }
-                                            }
-                                          },
-                                          "required": [
-                                            "path",
-                                            "operator",
-                                            "filters"
-                                          ],
-                                          "additionalProperties": false
-                                        }
-                                      }
-                                    },
-                                    "additionalProperties": false
-                                  }
-                                },
-                                "required": [
-                                  "path",
-                                  "fieldId"
-                                ],
-                                "additionalProperties": false
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "groupLimit": {
-                            "default": 100,
-                            "description": "Maximum number of groups, including the missing group. A measure with more groups fails instead of truncating.",
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 1000
-                          }
-                        },
-                        "required": [
-                          "source",
-                          "aggregation",
-                          "valueFieldId",
-                          "groupBy"
-                        ],
-                        "additionalProperties": false
-                      },
-                      "group": {
-                        "anyOf": [
-                          {
-                            "type": "object",
-                            "properties": {
-                              "record": {
-                                "anyOf": [
-                                  {
-                                    "type": "object",
-                                    "properties": {
-                                      "typeId": {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                      },
-                                      "recordId": {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                      }
-                                    },
-                                    "required": [
-                                      "typeId",
-                                      "recordId"
-                                    ],
-                                    "additionalProperties": false
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "label": {
-                                "oneOf": [
-                                  {
-                                    "type": "object",
-                                    "properties": {
-                                      "state": {
-                                        "type": "string",
-                                        "const": "value"
-                                      },
-                                      "value": {
-                                        "type": "object",
-                                        "properties": {
-                                          "kind": {
-                                            "type": "string",
-                                            "enum": [
-                                              "text",
-                                              "textList",
-                                              "decimal",
-                                              "boolean",
-                                              "date",
-                                              "dateTime",
-                                              "range",
-                                              "select",
-                                              "selectList",
-                                              "member",
-                                              "richText",
-                                              "file",
-                                              "address"
-                                            ]
-                                          },
-                                          "value": {
-                                            "anyOf": [
-                                              {
-                                                "type": "string",
-                                                "maxLength": 100000,
-                                                "pattern": "^[^\\u0000]*$"
-                                              },
-                                              {
-                                                "type": "boolean"
-                                              },
-                                              {
-                                                "minItems": 1,
-                                                "maxItems": 100,
-                                                "type": "array",
-                                                "items": {
-                                                  "type": "string",
-                                                  "maxLength": 100000,
-                                                  "pattern": "^[^\\u0000]*$"
-                                                }
-                                              },
-                                              {
-                                                "$ref": "#/components/schemas/RecordAddressPartsInput"
-                                              }
-                                            ]
-                                          },
-                                          "currency": {
-                                            "anyOf": [
-                                              {
-                                                "type": "string",
-                                                "pattern": "^[A-Z]{3}$"
-                                              },
-                                              {
-                                                "type": "null"
-                                              }
-                                            ]
-                                          },
-                                          "start": {
-                                            "anyOf": [
-                                              {
-                                                "type": "string",
-                                                "pattern": "^[^\\u0000]*$"
-                                              },
-                                              {
-                                                "type": "null"
-                                              }
-                                            ]
-                                          },
-                                          "end": {
-                                            "anyOf": [
-                                              {
-                                                "type": "string",
-                                                "pattern": "^[^\\u0000]*$"
-                                              },
-                                              {
-                                                "type": "null"
-                                              }
-                                            ]
-                                          },
-                                          "documentJson": {
-                                            "type": "string",
-                                            "maxLength": 1000000,
-                                            "pattern": "^[^\\u0000]*$"
-                                          }
-                                        },
-                                        "required": [
-                                          "kind"
-                                        ],
-                                        "additionalProperties": false,
-                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts."
-                                      }
-                                    },
-                                    "required": [
-                                      "state",
-                                      "value"
-                                    ],
-                                    "additionalProperties": false
-                                  },
-                                  {
-                                    "type": "object",
-                                    "properties": {
-                                      "state": {
-                                        "type": "string",
-                                        "const": "missing"
-                                      }
-                                    },
-                                    "required": [
-                                      "state"
-                                    ],
-                                    "additionalProperties": false
-                                  },
-                                  {
-                                    "type": "object",
-                                    "properties": {
-                                      "state": {
-                                        "type": "string",
-                                        "const": "restricted"
-                                      }
-                                    },
-                                    "required": [
-                                      "state"
-                                    ],
-                                    "additionalProperties": false
-                                  },
-                                  {
-                                    "type": "object",
-                                    "properties": {
-                                      "state": {
-                                        "type": "string",
-                                        "const": "error"
-                                      },
-                                      "code": {
-                                        "type": "string",
-                                        "enum": [
-                                          "division_by_zero",
-                                          "type_mismatch",
-                                          "currency_mismatch",
-                                          "invalid_date",
-                                          "out_of_range",
-                                          "dependency_error"
-                                        ]
-                                      }
-                                    },
-                                    "required": [
-                                      "state",
-                                      "code"
-                                    ],
-                                    "additionalProperties": false
-                                  }
-                                ],
-                                "type": "object"
-                              }
-                            },
-                            "required": [
-                              "record",
-                              "label"
-                            ],
-                            "additionalProperties": false
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "title": {
-                        "type": "string",
-                        "minLength": 1,
-                        "maxLength": 255
-                      },
-                      "groupLabel": {
-                        "anyOf": [
-                          {
-                            "type": "string",
-                            "maxLength": 500
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      }
-                    },
-                    "required": [
-                      "measure",
-                      "group",
-                      "title",
-                      "groupLabel"
-                    ],
-                    "additionalProperties": false
                   }
                 },
                 "required": [
@@ -98695,7 +97657,7 @@
       "post": {
         "operationId": "createFileUpload",
         "summary": "Start a file upload",
-        "description": "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{fileId}/attach`. Access to a file follows read access to its record and field. Checks the file field, your create or update access to its list, the size limit and the workspace storage. Returns a pending fileId and where to send the bytes within 15 minutes: send exactly size bytes with the given method and headers. The URL is either this API's content route or a presigned URL of the workspace's object store. A pending file that is never written into a file field is deleted after 24 hours.\n\nRequires: create or update access to the list",
+        "description": "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{id}/attach`. Access to a file follows read access to its record and field. Checks the file field, your create or update access to its list, the size limit and the workspace storage. Returns a pending fileId and where to send the bytes within 15 minutes: send exactly size bytes with the given method and headers. The URL is either this API's content route or a presigned URL of the workspace's object store. A pending file that is never written into a file field is deleted after 24 hours.\n\nRequires: create or update access to the list",
         "tags": [
           "files"
         ],
@@ -98906,11 +97868,11 @@
         }
       }
     },
-    "/v1/files/{fileId}": {
+    "/v1/files/{id}": {
       "get": {
         "operationId": "getFile",
         "summary": "Read file details",
-        "description": "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{fileId}/attach`. Access to a file follows read access to its record and field. Returns the file's metadata and a downloadUrl that works without other credentials for 15 minutes. A pending file is visible only to the person who uploaded it. A file of another workspace, of a record in Trash or removed from its field answers 404.\n\nRequires: read access to the record and the file field",
+        "description": "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{id}/attach`. Access to a file follows read access to its record and field. Returns the file's metadata and a downloadUrl that works without other credentials for 15 minutes. A pending file is visible only to the person who uploaded it. A file of another workspace, of a record in Trash or removed from its field answers 404.\n\nRequires: read access to the record and the file field",
         "tags": [
           "files"
         ],
@@ -98922,7 +97884,7 @@
         "parameters": [
           {
             "in": "path",
-            "name": "fileId",
+            "name": "id",
             "schema": {
               "type": "string",
               "format": "uuid",
@@ -99150,11 +98112,11 @@
         }
       }
     },
-    "/v1/files/{fileId}/preview": {
+    "/v1/files/{id}/preview": {
       "get": {
         "operationId": "previewFile",
         "summary": "Preview a document or spreadsheet",
-        "description": "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{fileId}/attach`. Access to a file follows read access to its record and field. Returns readable Word (.docx), TXT, Markdown or JSON content, or read-only Excel (.xlsx) and CSV sheets. Independent of background indexing and embeddings. Files up to 25 MiB are read; previews contain at most 100,000 characters, 10 sheets, 200 rows and 50 columns per sheet, and 2,000 characters per cell. truncated identifies a partial preview. Formatting, embedded images and charts are not reproduced; formulas use their stored results. Unsupported, empty, oversized or unreadable files return kind unavailable. Requires a session or API key; signed content links do not authorize this endpoint.\n\nRequires: read access to the record and file field, or ownership of a pending upload",
+        "description": "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{id}/attach`. Access to a file follows read access to its record and field. Returns readable Word (.docx), TXT, Markdown or JSON content, or read-only Excel (.xlsx) and CSV sheets. Independent of background indexing and embeddings. Files up to 25 MiB are read; previews contain at most 100,000 characters, 10 sheets, 200 rows and 50 columns per sheet, and 2,000 characters per cell. truncated identifies a partial preview. Formatting, embedded images and charts are not reproduced; formulas use their stored results. Unsupported, empty, oversized or unreadable files return kind unavailable. Requires a session or API key; signed content links do not authorize this endpoint.\n\nRequires: read access to the record and file field, or ownership of a pending upload",
         "tags": [
           "files"
         ],
@@ -99166,7 +98128,7 @@
         "parameters": [
           {
             "in": "path",
-            "name": "fileId",
+            "name": "id",
             "schema": {
               "type": "string",
               "format": "uuid",
@@ -99387,11 +98349,11 @@
         }
       }
     },
-    "/v1/files/{fileId}/attach": {
+    "/v1/files/{id}/attach": {
       "post": {
         "operationId": "attachFile",
         "summary": "Attach a pending file to a record",
-        "description": "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{fileId}/attach`. Access to a file follows read access to its record and field. Writes a pending file you uploaded into a record's file field: a pending upload of that field, or a file you gave to Mate in a chat, which is not in any field yet. This is a record update, checked like `/v1/records/mutate`: mode append adds the file after the existing ones, replace keeps only this file, and expectedVersion guards against a concurrent change. Attaching a file that is already in that field returns it unchanged; a file in another record or field is refused with recordFileUnavailable. Once attached, access follows the record and the field. When the write continues in the background, operationId names the operation to read.\n\nRequires: update access to the record and the file field",
+        "description": "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{id}/attach`. Access to a file follows read access to its record and field. Writes a pending file you uploaded into a record's file field: a pending upload of that field, or a file you gave to Mate in a chat, which is not in any field yet. This is a record update, checked like `/v1/records/mutate`: mode append adds the file after the existing ones, replace keeps only this file, and expectedVersion guards against a concurrent change. Attaching a file that is already in that field returns it unchanged; a file in another record or field is refused with recordFileUnavailable. Once attached, access follows the record and the field. When the write continues in the background, operationId names the operation to read.\n\nRequires: update access to the record and the file field",
         "tags": [
           "files"
         ],
@@ -99403,7 +98365,7 @@
         "parameters": [
           {
             "in": "path",
-            "name": "fileId",
+            "name": "id",
             "schema": {
               "type": "string",
               "format": "uuid",
@@ -99693,11 +98655,11 @@
         }
       }
     },
-    "/v1/files/{fileId}/content": {
+    "/v1/files/{id}/content": {
       "get": {
         "operationId": "downloadFileContent",
         "summary": "Download a file",
-        "description": "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{fileId}/attach`. Access to a file follows read access to its record and field. Streams the file with its stored media type. PDFs and PNG, JPEG, GIF and WebP images open in the browser unless download is 1; every other type downloads. Supports a single byte range. Access is checked on every request, also for a signed downloadUrl.\n\nRequires: read access to the record and the file field, or a valid download token",
+        "description": "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{id}/attach`. Access to a file follows read access to its record and field. Streams the file with its stored media type. PDFs and PNG, JPEG, GIF and WebP images open in the browser unless download is 1; every other type downloads. Supports a single byte range. Access is checked on every request, also for a signed downloadUrl.\n\nRequires: read access to the record and the file field, or a valid download token",
         "tags": [
           "files"
         ],
@@ -99712,7 +98674,7 @@
         "parameters": [
           {
             "in": "path",
-            "name": "fileId",
+            "name": "id",
             "schema": {
               "type": "string",
               "format": "uuid",
@@ -99867,7 +98829,7 @@
       "put": {
         "operationId": "uploadFileContent",
         "summary": "Send the bytes of a pending file",
-        "description": "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{fileId}/attach`. Access to a file follows read access to its record and field. The upload URL that `/v1/files/uploads` returns for workspaces that keep files in their database points here and carries a token, so no other credentials are needed. Send exactly the announced number of bytes; a shorter or longer body is refused with recordFileUploadIncomplete. Only the uploader can send the bytes, and only while the file is pending.\n\nRequires: the upload token or the uploader's API key",
+        "description": "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{id}/attach`. Access to a file follows read access to its record and field. The upload URL that `/v1/files/uploads` returns for workspaces that keep files in their database points here and carries a token, so no other credentials are needed. Send exactly the announced number of bytes; a shorter or longer body is refused with recordFileUploadIncomplete. Only the uploader can send the bytes, and only while the file is pending.\n\nRequires: the upload token or the uploader's API key",
         "tags": [
           "files"
         ],
@@ -99882,7 +98844,7 @@
         "parameters": [
           {
             "in": "path",
-            "name": "fileId",
+            "name": "id",
             "schema": {
               "type": "string",
               "format": "uuid",
@@ -137624,17 +136586,18 @@
                     "maximum": 180
                   },
                   "precision": {
-                    "description": "address: the building, from an address lookup; postcode: the centre of the postal code. Missing on locations stored before it existed, which are buildings.",
                     "type": "string",
                     "enum": [
                       "address",
                       "postcode"
-                    ]
+                    ],
+                    "description": "address: the building, from an address lookup; postcode: the centre of the postal code."
                   }
                 },
                 "required": [
                   "lat",
-                  "lon"
+                  "lon",
+                  "precision"
                 ],
                 "additionalProperties": false
               },
@@ -138046,6 +137009,8 @@
                         "emailFolderMoveUnsupported",
                         "calendarEventNotFound",
                         "calendarNotFound",
+                        "calendarExportIncomplete",
+                        "calendarSubscriptionLimitReached",
                         "connectedAccountNotFound",
                         "connectedAccountEmailChangeRequired",
                         "roleNotFound",
