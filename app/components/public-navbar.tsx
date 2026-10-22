@@ -5,9 +5,9 @@ import type { AppMode } from "@/core/config/environment";
 
 import { ChevronDown, Menu, X } from "lucide-react";
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
-import { IntlLink, usePathname } from "@/i18n/navigation";
+import { usePathname } from "@/i18n/navigation";
 import { AppLink } from "@/components/shared/app-link";
 import { AppImage } from "@/components/shared/app-image";
 import { Avatar } from "@/components/ui/avatar";
@@ -52,6 +52,7 @@ export function PublicNavbar({
   profile,
 }: Props) {
   const t = useTranslations();
+  const locale = useLocale();
   const pathname = usePathname();
   const [menuOpenedAt, setMenuOpenedAt] = useState<string | null>(null);
   const isMenuOpen = menuOpenedAt === pathname;
@@ -68,7 +69,7 @@ export function PublicNavbar({
     return pathname === href;
   }
 
-  const publicNavGroups = resolvePublicNavGroups(t);
+  const publicNavGroups = resolvePublicNavGroups(t, locale);
 
   const logoAlt = t("Common.imageAlt.logo");
   const homeLabel = t("UserAvatar.home");
@@ -139,9 +140,9 @@ export function PublicNavbar({
         size="sm"
         variant="ghost"
       >
-        <IntlLink href="/contact" prefetch={false} onNavigate={closeMenu}>
+        <AppLink appearance="unstyled" href="/contact" prefetch={false} onNavigate={closeMenu}>
           {t("Common.actions.contact")}
-        </IntlLink>
+        </AppLink>
       </Button>
     );
   }
