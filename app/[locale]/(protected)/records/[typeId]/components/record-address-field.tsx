@@ -18,11 +18,14 @@ import { FormFieldError } from "@/components/forms/form-field-error";
 import { FormLabel } from "@/components/forms/form-label";
 import { useFormFieldErrors } from "@/components/forms/use-form-field";
 import { AppModal, AppModalTitle } from "@/components/modal/app-modal";
+import { DiscardChangesDialog } from "@/components/modal/confirm-dialog";
+import { useRecordAddressSummary } from "@/components/records/use-record-address-lines";
+import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { cn } from "@/core/utils/cn";
 import { addressDraftParts } from "@/features/records/record-input-value";
-import { addressCountryLabel } from "@/features/records/record-address-value";
 
 import { RecordAddressInput } from "./record-address-input";
 import { RecordAddressDraftStore } from "./record-address-draft.store";
@@ -35,23 +38,23 @@ export const RecordAddressField = observer(function RecordAddressField({ field, 
   const parent = useAppForm();
   const locale = useHydratedIntlStore().formattingLocale;
   const [selection, setSelection] = useState<{ store: RecordAddressDraftStore; opener: HTMLElement } | null>(null);
-  const parts = addressDraftParts(parent?.getValue(id));
-  const summary = [
-    parts.street,
-    parts.line2,
-    [parts.postalCode, parts.city].filter(Boolean).join(" "),
-    parts.region,
-    parts.countryCode ? addressCountryLabel(parts.countryCode, locale) : null,
-  ]
-    .filter(Boolean)
-    .join(", ");
+  const [confirmingDiscard, setConfirmingDiscard] = useState(false);
+  const summary = useRecordAddressSummary(addressDraftParts(parent?.getValue(id)), locale);
   const { hasError, message } = useFormFieldErrors(id);
   const title = t("RecordModel.editValue", { field: label ?? field.label });
   const domId = inputId ?? id;
+  const close = () => {
+    setConfirmingDiscard(false);
+    setSelection(null);
+  };
+  const requestClose = () => {
+    if (selection?.store.hasUnsavedChanges) setConfirmingDiscard(true);
+    else close();
+  };
   const apply = () => {
     if (!selection || !parent || parent.isDisabled) return;
     parent.onChange(id, toJS(selection.store.form.address));
-    setSelection(null);
+    close();
   };
   return (
     <div className="space-y-1.5" data-address-field="">
@@ -65,14 +68,15 @@ export const RecordAddressField = observer(function RecordAddressField({ field, 
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <button
+          <Button
             aria-describedby={hasError ? `${domId}-error` : undefined}
-            aria-label={title}
-            className="flex min-h-9 w-full min-w-0 items-center gap-2 rounded-md border border-input bg-input-background px-3 py-1.5 text-left text-sm shadow-xs outline-none transition-colors hover:border-ring/40 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50 disabled:cursor-not-allowed data-invalid:border-destructive"
-            data-invalid={hasError || undefined}
+            aria-invalid={hasError || undefined}
+            aria-label={summary ? `${title}: ${summary}` : title}
+            className="h-auto min-h-9 w-full justify-start py-1.5 text-left font-normal whitespace-normal"
             disabled={!parent || parent.isDisabled}
             id={domId}
             type="button"
+            variant="field"
             onClick={(event) =>
               setSelection({
                 store: new RecordAddressDraftStore(
@@ -84,14 +88,14 @@ export const RecordAddressField = observer(function RecordAddressField({ field, 
               })
             }
           >
-            <MapPin aria-hidden className="size-4 shrink-0 text-muted-foreground" />
+            <MapPin aria-hidden className="text-muted-foreground" />
 
-            <span className="line-clamp-2 min-w-0 flex-1 wrap-anywhere">
+            <span className={cn("line-clamp-2 min-w-0 flex-1 wrap-anywhere", !summary && "text-muted-foreground")}>
               {summary || t("RecordModel.addValue", { field: field.label })}
             </span>
 
-            <ChevronRight aria-hidden className="size-3.5 shrink-0 text-muted-foreground" />
-          </button>
+            <ChevronRight aria-hidden className="size-3.5 text-muted-foreground" />
+          </Button>
         </TooltipTrigger>
 
         {summary && <TooltipContent className="max-w-xs wrap-anywhere">{summary}</TooltipContent>}
@@ -101,13 +105,14 @@ export const RecordAddressField = observer(function RecordAddressField({ field, 
 
       {selection && (
         <AppModal
+          guardsUnsavedChanges
           open
           sheet
           titleInContent
           focusReturnTarget={selection.opener}
           size="xl"
           title={title}
-          onClose={() => setSelection(null)}
+          onClose={requestClose}
         >
           <AppForm store={selection.store} onSubmit={apply}>
             <AppCard>
@@ -116,7 +121,7 @@ export const RecordAddressField = observer(function RecordAddressField({ field, 
               </AppCardHeader>
 
               <AppCardBody>
-                <RecordAddressInput field={field} id="address" label={null} />
+                <RecordAddressInput field={field} id="address" />
               </AppCardBody>
 
               <FormFooterActions
@@ -126,13 +131,14 @@ export const RecordAddressField = observer(function RecordAddressField({ field, 
                 saveLabel={t("Common.actions.confirm")}
                 saving={parent?.isDisabled}
                 store={null}
-                onCancel={() => setSelection(null)}
                 onSave={apply}
               />
             </AppCard>
           </AppForm>
         </AppModal>
       )}
+
+      <DiscardChangesDialog open={confirmingDiscard} onCancel={() => setConfirmingDiscard(false)} onConfirm={close} />
     </div>
   );
 });

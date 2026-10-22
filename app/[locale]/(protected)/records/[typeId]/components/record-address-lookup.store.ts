@@ -3,6 +3,7 @@ import type { AddressDraftParts } from "@/features/records/record-input-value";
 
 import { action, makeObservable, observable, runInAction } from "mobx";
 
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { Debouncer } from "@/core/utils/debounce";
 import { lookupAddressAction, verifyAddressAction } from "../../actions";
 
@@ -13,9 +14,9 @@ const ADDRESS_SEARCH_DEBOUNCE_MS = 250;
 type AddressLookupActions = { lookup: typeof lookupAddressAction; verify: typeof verifyAddressAction };
 type ActionFailure = { ok: false; code?: string };
 
-export type AddressSearchStatus = "idle" | "searching" | "ready" | "failed";
+type AddressSearchStatus = "idle" | "searching" | "ready" | "failed";
 
-export type AddressCheckState =
+type AddressCheckState =
   | { status: "idle" }
   | { status: "checking"; key: string }
   | { status: "match"; key: string; match: AddressCandidate }
@@ -87,7 +88,13 @@ export class RecordAddressLookupStore {
   };
 
   private search = async (generation: number, query: string) => {
-    const result = await this.actions.lookup({ query, limit: ADDRESS_SEARCH_LIMIT }).catch(() => null);
+    let result: Awaited<ReturnType<AddressLookupActions["lookup"]>> | null = null;
+    try {
+      result = await this.actions.lookup({ query, limit: ADDRESS_SEARCH_LIMIT });
+    } catch (error) {
+      if (notifyIfWorkspaceChanged(error)) return;
+    }
+    if (notifyIfWorkspaceChanged(result)) return;
     runInAction(() => {
       if (generation !== this.generation) return;
       if (result?.ok) {
@@ -108,7 +115,13 @@ export class RecordAddressLookupStore {
     runInAction(() => {
       this.check = { status: "checking", key };
     });
-    const result = await this.actions.verify(parts).catch(() => null);
+    let result: Awaited<ReturnType<AddressLookupActions["verify"]>> | null = null;
+    try {
+      result = await this.actions.verify(parts);
+    } catch (error) {
+      if (notifyIfWorkspaceChanged(error)) return;
+    }
+    if (notifyIfWorkspaceChanged(result)) return;
     runInAction(() => {
       if (generation !== this.checkGeneration) return;
       if (!result?.ok) this.check = { status: "failed", key, code: failureCode(result) };

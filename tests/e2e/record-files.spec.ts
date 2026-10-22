@@ -273,7 +273,7 @@ test("uploads, shows, downloads and removes record files and refuses uploads ove
   const inline = await page.request.get(`/api/v1/files/${offer.id}/content`);
   expect(inline.headers()).toMatchObject({
     "content-type": "application/pdf",
-    "content-security-policy": "sandbox; frame-ancestors 'self'",
+    "content-security-policy": "frame-ancestors 'self'",
   });
   expect(inline.headers()["content-disposition"]).toMatch(/^inline; /);
   const details = await page.request.get(`/api/v1/files/${notes.id}`);
@@ -342,7 +342,7 @@ test("uploads, shows, downloads and removes record files and refuses uploads ove
     const refused = editor.locator('[data-record-file-upload="failed"]');
     await expect(refused).toContainText("large.bin");
     await expect(refused).toContainText(
-      /Your workspace uses .+ of its 1 kB file storage\./,
+      /Your workspace uses .+ of its 1 KB file storage\./,
     );
     await quotaRefusal;
     await editor

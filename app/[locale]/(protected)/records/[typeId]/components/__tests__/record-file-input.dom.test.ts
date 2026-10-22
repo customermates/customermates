@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { RecordFieldView, RecordFileSummary } from "@/features/records/record-model.schema";
 
 import { act, createElement } from "react";
@@ -19,11 +20,12 @@ const form = vi.hoisted(() => ({
 const uploads = vi.hoisted(() => ({
   started: [] as Array<{ typeId: string; fieldId: string; file: File }>,
   refusal: null as string | null,
+  hold: false,
   transfers: [] as Transfer[],
+  held: [] as Array<() => void>,
 }));
 const opened = vi.hoisted(() => [] as unknown[]);
 
-vi.mock("mobx-react-lite", () => ({ observer: <T>(component: T) => component }));
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
     values ? `${key} ${JSON.stringify(values)}` : key,
@@ -41,12 +43,25 @@ vi.mock("@/components/forms/form-context", () => ({
     },
   }),
 }));
-vi.mock("@/components/records/record-file-chips", () => ({
-  useRecordFileSize: () => (bytes: number) => `${bytes} bytes`,
+vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
+  useHydratedIntlStore: () => ({ formatNumber: (value: number) => String(value) }),
 }));
-vi.mock("@/components/records/record-file-links", () => ({
-  recordFileIcon: () => () => null,
-}));
+vi.mock("@/components/records/record-file-links", () => ({ downloadRecordFile: vi.fn() }));
+vi.mock("@/components/ui/item-actions", async () => {
+  const React = await import("react");
+  return {
+    ItemActions: ({ children, menu }: { children: ReactNode; menu: ReactNode }) =>
+      React.createElement(React.Fragment, null, children, menu),
+    ItemActionsTrigger: () => null,
+  };
+});
+vi.mock("@/components/ui/dropdown-menu", async () => {
+  const React = await import("react");
+  return {
+    DropdownMenuItem: ({ children, onSelect }: { children: ReactNode; onSelect?: () => void }) =>
+      React.createElement("button", { "data-menu-item": "", type: "button", onClick: () => onSelect?.() }, children),
+  };
+});
 vi.mock("@/components/records/record-file-preview", () => ({
   useRecordFilePreview: () => ({ openFile: (file: unknown) => opened.push(file), preview: null }),
 }));
@@ -86,13 +101,15 @@ vi.mock("@/components/records/record-file-upload", () => ({
   startRecordFileUpload: (input: { typeId: string; fieldId: string; file: File }) => {
     uploads.started.push(input);
     if (uploads.refusal) return Promise.resolve({ ok: false, message: uploads.refusal });
-    return Promise.resolve({
+    const started = {
       ok: true,
       data: {
         fileId: `uploaded-${uploads.started.length}`,
         upload: { url: "https://store.test/put", method: "PUT", headers: {}, expiresAt: "2026-10-15T10:00:00.000Z" },
       },
-    });
+    };
+    if (!uploads.hold) return Promise.resolve(started);
+    return new Promise((resolve) => uploads.held.push(() => resolve(started)));
   },
   sendRecordFileBytes: (_upload: unknown, file: File, progress: (loaded: number, total: number) => void) => {
     let finish: Transfer["finish"] = () => undefined;
@@ -159,6 +176,9 @@ function render(options: { multiple?: boolean; files?: RecordFileSummary[] } = {
     subtitle: (name: string) => host.querySelector(`[data-row="${name}"] [data-subtitle]`)?.textContent,
     button: (label: string) =>
       [...host.querySelectorAll("button")].find((button) => button.getAttribute("aria-label") === label) ?? null,
+    menuItem: (label: string) =>
+      [...host.querySelectorAll<HTMLButtonElement>("[data-menu-item]")].find((item) => item.textContent === label) ??
+      null,
     pick: async (...files: File[]) => {
       const input = host.querySelector<HTMLInputElement>('input[type="file"]');
       if (!input) throw new Error("The file picker is missing");
@@ -178,6 +198,8 @@ beforeEach(() => {
   form.changes.length = 0;
   uploads.started.length = 0;
   uploads.refusal = null;
+  uploads.hold = false;
+  uploads.held.length = 0;
   uploads.transfers.length = 0;
   opened.length = 0;
 });
@@ -212,7 +234,7 @@ describe("RecordFileInput", () => {
     expect(form.value).toEqual(["saved-file", "uploaded-2", "uploaded-1"]);
     view.redraw();
     expect(view.rows()).toEqual(["Offer.pdf", "sheet.csv", "notes.txt"]);
-    expect(view.subtitle("notes.txt")).toBe("5 bytes");
+    expect(view.subtitle("notes.txt")).toBe("Inbox.attachmentFile · 5 B");
   });
 
   it("shows the server's refusal next to the file and keeps the field's value", async () => {
@@ -238,6 +260,18 @@ describe("RecordFileInput", () => {
     await flush();
     expect(uploads.transfers[1].abort).toHaveBeenCalledOnce();
     expect(view.rows()).toEqual(["Offer.pdf", "one.txt"]);
+    expect(form.changes).toEqual([]);
+  });
+
+  it("never sends or attaches a file whose upload was cancelled while it was still starting", async () => {
+    uploads.hold = true;
+    const view = render();
+    await view.pick(new File(["late"], "late.txt", { type: "text/plain" }));
+    act(() => view.button('RecordModel.fileCancelUpload {"name":"late.txt"}')?.click());
+    expect(view.rows()).toEqual(["Offer.pdf"]);
+    uploads.held[0]();
+    await flush();
+    expect(uploads.transfers).toHaveLength(0);
     expect(form.changes).toEqual([]);
   });
 
@@ -269,14 +303,15 @@ describe("RecordFileInput", () => {
     const view = render();
     act(() => view.host.querySelector<HTMLButtonElement>('[data-row="Offer.pdf"] [data-open]')?.click());
     expect(opened).toEqual([SAVED]);
-    act(() => view.button('RecordModel.fileRemove {"name":"Offer.pdf"}')?.click());
+    act(() => view.menuItem('RecordModel.fileRemove {"name":"Offer.pdf"}')?.click());
     expect(form.value).toEqual([]);
 
     form.value = ["saved-file"];
     form.disabled = true;
     view.redraw();
     expect(view.host.querySelector('input[type="file"]')).toBeNull();
-    expect(view.button('RecordModel.fileRemove {"name":"Offer.pdf"}')).toBeNull();
+    expect(view.menuItem('RecordModel.fileRemove {"name":"Offer.pdf"}')).toBeNull();
+    expect(view.menuItem('RecordModel.filePreview {"name":"Offer.pdf"}')).not.toBeNull();
     expect(view.rows()).toEqual(["Offer.pdf"]);
   });
 

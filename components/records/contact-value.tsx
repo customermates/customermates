@@ -2,6 +2,7 @@
 
 import type { ContactKind } from "@/core/utils/contact-href";
 
+import { useCallback, useRef } from "react";
 import { Copy, ExternalLink, Mail, MapPin, Phone } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -12,6 +13,7 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { cn } from "@/core/utils/cn";
 import { contactHref } from "@/core/utils/contact-href";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
+import { useIsTruncated } from "@/core/utils/use-is-truncated";
 
 export type ContactClickAction = "open" | "copy";
 
@@ -30,8 +32,13 @@ const valueClass =
 export function ContactValue({ value, kind, action = "open", label, className, wrap = false }: Props) {
   const t = useTranslations();
   const copy = useCopyToClipboard();
+  const textRef = useRef<HTMLElement | null>(null);
+  const setTextElement = useCallback((element: HTMLElement | null) => {
+    textRef.current = element;
+  }, []);
   const href = contactHref(kind, value);
   const text = label ?? value;
+  const isTruncated = useIsTruncated(textRef, text) && !wrap;
   const copyValue = () => runUserAction(() => copy(value));
   const textClass = wrap
     ? kind === "address"
@@ -39,6 +46,48 @@ export function ContactValue({ value, kind, action = "open", label, className, w
       : "break-all whitespace-normal"
     : "truncate";
   const external = kind === "url" || kind === "address";
+  const valueElement =
+    action === "open" ? (
+      href ? (
+        <a
+          ref={setTextElement}
+          className={cn(valueClass, textClass)}
+          href={href}
+          rel={external ? "noopener noreferrer" : undefined}
+          target={external ? "_blank" : undefined}
+          onClick={(event) => event.stopPropagation()}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") event.stopPropagation();
+          }}
+        >
+          {text}
+        </a>
+      ) : (
+        <span
+          ref={setTextElement}
+          className={cn("min-w-0 rounded-xs outline-none focus-visible:ring-2 focus-visible:ring-ring/50", textClass)}
+          // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- a truncated value needs a keyboard focus target for its full-text tooltip
+          tabIndex={isTruncated ? 0 : undefined}
+        >
+          {text}
+        </span>
+      )
+    ) : (
+      <button
+        ref={setTextElement}
+        className={cn(valueClass, textClass, "cursor-pointer text-left")}
+        type="button"
+        onClick={(event) => {
+          event.stopPropagation();
+          copyValue();
+        }}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") event.stopPropagation();
+        }}
+      >
+        {text}
+      </button>
+    );
 
   return (
     <span
@@ -50,38 +99,11 @@ export function ContactValue({ value, kind, action = "open", label, className, w
       data-contact-action={action}
       data-slot="contact-value"
     >
-      {action === "open" ? (
-        href ? (
-          <a
-            className={cn(valueClass, textClass)}
-            href={href}
-            rel={external ? "noopener noreferrer" : undefined}
-            target={external ? "_blank" : undefined}
-            onClick={(event) => event.stopPropagation()}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") event.stopPropagation();
-            }}
-          >
-            {text}
-          </a>
-        ) : (
-          <span className={cn("min-w-0", textClass)}>{text}</span>
-        )
-      ) : (
-        <button
-          className={cn(valueClass, textClass, "cursor-pointer text-left")}
-          type="button"
-          onClick={(event) => {
-            event.stopPropagation();
-            copyValue();
-          }}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" || event.key === " ") event.stopPropagation();
-          }}
-        >
-          {text}
-        </button>
-      )}
+      <Tooltip>
+        <TooltipTrigger asChild>{valueElement}</TooltipTrigger>
+
+        {isTruncated ? <TooltipContent className="whitespace-pre-line">{text}</TooltipContent> : null}
+      </Tooltip>
 
       <Tooltip>
         <TooltipTrigger asChild>

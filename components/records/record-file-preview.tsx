@@ -21,7 +21,12 @@ import { RecordFileDocumentPreview } from "./record-file-document-preview";
 type PreviewFile = Pick<RecordFileSummary, "id" | "name" | "mimeType">;
 type Selection = { file: PreviewFile; opener: HTMLElement | null };
 
-function RecordFilePreview({ file, opener, onClose }: Selection & { onClose: () => void }) {
+function RecordFilePreview({
+  file,
+  opener,
+  layerClassName,
+  onClose,
+}: Selection & { layerClassName?: string; onClose: () => void }) {
   const t = useTranslations();
   const src = recordFileContentUrl(file.id);
   const [canPreviewPdf] = useState(() => typeof navigator !== "undefined" && navigator.pdfViewerEnabled === true);
@@ -40,6 +45,7 @@ function RecordFilePreview({ file, opener, onClose }: Selection & { onClose: () 
       ]}
       bodyClassName="flex min-h-0 flex-col overflow-hidden p-0"
       focusReturnTarget={opener}
+      layerClassName={layerClassName}
       size="5xl"
       title={file.name}
       onClose={onClose}
@@ -95,7 +101,7 @@ function RecordFilePreview({ file, opener, onClose }: Selection & { onClose: () 
   );
 }
 
-export function useRecordFilePreview() {
+export function useRecordFilePreview({ layerClassName }: { layerClassName?: string } = {}) {
   const [selection, setSelection] = useState<Selection | null>(null);
   return {
     openFile: (file: PreviewFile, opener?: HTMLElement | null) => {
@@ -109,7 +115,12 @@ export function useRecordFilePreview() {
       });
     },
     preview: selection ? (
-      <RecordFilePreview key={selection.file.id} {...selection} onClose={() => setSelection(null)} />
+      <RecordFilePreview
+        key={selection.file.id}
+        {...selection}
+        layerClassName={layerClassName}
+        onClose={() => setSelection(null)}
+      />
     ) : null,
   };
 }

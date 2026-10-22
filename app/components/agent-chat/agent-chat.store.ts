@@ -34,13 +34,8 @@ import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
 
 import { BaseStore } from "@/core/base/base.store";
 
-import type { RecordFileTransfer } from "@/components/records/record-file-upload";
-
-import {
-  completeChatFileUpload,
-  sendRecordFileBytes,
-  startChatFileUpload,
-} from "@/components/records/record-file-upload";
+import { completeChatFileUpload, startChatFileUpload } from "@/components/records/record-file-upload";
+import { RecordFileUploadQueue } from "@/components/records/record-file-upload-queue";
 
 import {
   getAgentConfigAction,
@@ -120,16 +115,6 @@ export type AgentChatItem =
       retryDecision: "approve" | "reject" | null;
       at?: Date;
     };
-
-export type AgentComposerUpload = {
-  key: string;
-  name: string;
-  size: number;
-  mimeType: string;
-  progress: number;
-  phase: "uploading" | "reading" | "failed";
-  failure: string | null;
-};
 
 type AgentStreamStepCheckpoint = {
   anchorItemId: string | null;
@@ -321,7 +306,7 @@ export class AgentChatStore extends BaseStore {
   composerDraft = "";
   private composerStarterDraft: string | null = null;
   composerContexts: AgentContextAttachment[] = [];
-  composerUploads: AgentComposerUpload[] = [];
+  readonly composerUploadQueue = new RecordFileUploadQueue();
   queuedPrompt: string | null = null;
   queuedPromptNeedsAttention = false;
   routeRefreshRevision = 0;
@@ -358,8 +343,6 @@ export class AgentChatStore extends BaseStore {
   private queuedPromptPageRoute: string | null = null;
   private queuedPromptContexts: AgentContextAttachment[] = [];
   private composerContextPageRoute: string | null = null;
-  private composerUploadTransfers = new Map<string, RecordFileTransfer>();
-  private composerUploadGeneration = 0;
   private activeStreamKey = "stream-0";
   private streamSequence = 0;
   private activeTurnClientRequestId: string | null = null;
@@ -410,7 +393,6 @@ export class AgentChatStore extends BaseStore {
       items: observable,
       composerDraft: observable,
       composerContexts: observable,
-      composerUploads: observable,
       queuedPrompt: observable,
       queuedPromptNeedsAttention: observable,
       routeRefreshRevision: observable,
@@ -514,8 +496,12 @@ export class AgentChatStore extends BaseStore {
     return this.isWorking && this.items.at(-1)?.kind === "user";
   }
 
+  get composerUploads() {
+    return this.composerUploadQueue.uploads;
+  }
+
   get hasPendingComposerUploads() {
-    return this.composerUploads.some((upload) => upload.phase !== "failed");
+    return this.composerUploadQueue.pending > 0;
   }
 
   get isContinuingAfterApproval() {
@@ -604,15 +590,8 @@ export class AgentChatStore extends BaseStore {
     this.composerDraft = "";
     this.composerContexts = [];
     this.composerContextPageRoute = null;
-    this.clearComposerUploads();
+    this.composerUploadQueue.clear();
     this.isHistoryOpen = false;
-  }
-
-  private clearComposerUploads() {
-    this.composerUploadGeneration += 1;
-    for (const transfer of this.composerUploadTransfers.values()) transfer.abort();
-    this.composerUploadTransfers.clear();
-    this.composerUploads = [];
   }
 
   private setOpenState(isOpen: boolean) {
@@ -692,92 +671,40 @@ export class AgentChatStore extends BaseStore {
 
   addComposerFiles = (files: readonly File[]) => {
     const attached = this.composerContexts.filter(isAgentFileContext).length;
-    let room = Math.max(
-      0,
-      AGENT_FILE_ATTACHMENT_LIMIT -
-        attached -
-        this.composerUploads.filter((upload) => upload.phase !== "failed").length,
-    );
-    const generation = this.composerUploadGeneration;
-    for (const file of files) {
-      const accepted = room > 0;
-      room -= 1;
-      const upload: AgentComposerUpload = {
-        key: globalThis.crypto.randomUUID(),
-        name: file.name,
-        size: file.size,
-        mimeType: file.type || "application/octet-stream",
-        progress: 0,
-        phase: accepted ? "uploading" : "failed",
-        failure: accepted ? null : this.t("AgentChat.files.limit", { count: AGENT_FILE_ATTACHMENT_LIMIT }),
-      };
-      this.composerUploads = [...this.composerUploads, upload];
-      if (accepted) void this.uploadComposerFile(upload.key, file, generation);
-    }
+    this.composerUploadQueue.add(files, {
+      room: Math.max(0, AGENT_FILE_ATTACHMENT_LIMIT - attached - this.composerUploadQueue.pending),
+      refusal: this.t("AgentChat.files.limit", { count: AGENT_FILE_ATTACHMENT_LIMIT }),
+      failure: this.t("RecordModel.fileUploadFailed"),
+      start: startChatFileUpload,
+      complete: async (fileId) => {
+        const completed = await completeChatFileUpload(fileId);
+        if (!completed.ok) return completed;
+        const context = AgentContextAttachmentSchema.safeParse({
+          reference: {
+            kind: "file",
+            fileId: completed.data.id,
+            mimeType: completed.data.mimeType,
+            size: completed.data.size,
+          },
+          label: completed.data.name,
+        });
+        return context.success ? { ok: true as const, data: context.data } : { ok: false as const, message: null };
+      },
+      completed: (context) => {
+        this.composerContexts = [...this.composerContexts, context];
+      },
+    });
   };
 
   removeComposerUpload = (key: string) => {
-    const transfer = this.composerUploadTransfers.get(key);
-    this.composerUploadTransfers.delete(key);
-    this.composerUploads = this.composerUploads.filter((upload) => upload.key !== key);
-    transfer?.abort();
-  };
-
-  private updateComposerUpload(key: string, change: Partial<AgentComposerUpload>) {
-    runInAction(() => {
-      this.composerUploads = this.composerUploads.map((upload) =>
-        upload.key === key ? { ...upload, ...change } : upload,
-      );
-    });
-  }
-
-  private failComposerUpload(key: string, failure: string | null | undefined) {
-    this.updateComposerUpload(key, { phase: "failed", failure: failure || this.t("RecordModel.fileUploadFailed") });
-  }
-
-  private uploadComposerFile = async (key: string, file: File, generation: number) => {
-    const current = () =>
-      generation === this.composerUploadGeneration && this.composerUploads.some((upload) => upload.key === key);
-    try {
-      const started = await startChatFileUpload(file);
-      if (!current()) return;
-      if (!started.ok) return this.failComposerUpload(key, started.message);
-      const transfer = sendRecordFileBytes(started.data.upload, file, (loaded, total) =>
-        this.updateComposerUpload(key, { progress: total ? loaded / total : 0 }),
-      );
-      this.composerUploadTransfers.set(key, transfer);
-      const sent = await transfer.done;
-      this.composerUploadTransfers.delete(key);
-      if (!current()) return;
-      if (!sent.ok) return sent.aborted ? undefined : this.failComposerUpload(key, sent.message);
-      this.updateComposerUpload(key, { phase: "reading", progress: 1 });
-      const completed = await completeChatFileUpload(started.data.fileId);
-      if (!current()) return;
-      if (!completed.ok) return this.failComposerUpload(key, completed.message);
-      const context = AgentContextAttachmentSchema.safeParse({
-        reference: {
-          kind: "file",
-          fileId: completed.data.id,
-          mimeType: completed.data.mimeType,
-          size: completed.data.size,
-        },
-        label: completed.data.name,
-      });
-      if (!context.success) return this.failComposerUpload(key, null);
-      runInAction(() => {
-        this.composerUploads = this.composerUploads.filter((upload) => upload.key !== key);
-        this.composerContexts = [...this.composerContexts, context.data];
-      });
-    } catch {
-      if (current()) this.failComposerUpload(key, null);
-    }
+    this.composerUploadQueue.remove(key);
   };
 
   submitDraft = () => {
     const text = this.composerDraft.trim();
     if (!text || this.usage?.blockedReason || this.queuedPrompt || this.hasPendingComposerUploads) return;
     const contexts = [...this.composerContexts];
-    this.composerUploads = [];
+    this.composerUploadQueue.clear();
     const pageRoute = this.composerContextPageRoute ?? this.currentPageRoute();
     if (this.isWorking) {
       if (this.queuedPrompt) return;

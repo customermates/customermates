@@ -741,7 +741,6 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/records/[typeId]/components/contact-compose-popover.tsx :: t :: Common.providers.${provider}",
   "app/[locale]/(protected)/records/[typeId]/components/record-channels.tsx :: t :: Common.providers.${channelLabelKey(identifier.provider)}",
   "app/[locale]/(protected)/records/[typeId]/components/record-channels.tsx :: t :: Common.providers.${channelLabelKey(composeProvider)}",
-  "app/[locale]/(protected)/records/[typeId]/components/record-channels.tsx :: t :: EntityChannels.groups.${group}",
   "app/[locale]/(protected)/records/[typeId]/components/record-detail-chip-row.tsx :: t :: RecordModel.${column.label}",
   "app/[locale]/(protected)/records/[typeId]/components/record-detail-overview.tsx :: t :: RecordModel.${column.label}",
   "app/[locale]/(protected)/records/[typeId]/components/record-field-value-editor.tsx :: getTranslation :: Common.errors.${code}",

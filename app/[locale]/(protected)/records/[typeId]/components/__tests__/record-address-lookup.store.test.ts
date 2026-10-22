@@ -7,6 +7,8 @@ vi.mock("@/app/[locale]/(protected)/records/actions", () => ({
   verifyAddressAction: vi.fn(),
 }));
 
+import { registerWorkspaceChangedHandler } from "@/core/errors/workspace-changed-notice";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import { addressCheckKey, RecordAddressLookupStore } from "../record-address-lookup.store";
 
 const PARTS = {
@@ -75,6 +77,18 @@ describe("address search store", () => {
     expect(instance.status).toBe("ready");
     expect(instance.candidates).toEqual([CANDIDATE]);
     expect(instance.attribution).toBe("© OpenStreetMap contributors");
+  });
+
+  it("reports a switched workspace instead of a failed search", async () => {
+    const { lookup, instance } = store();
+    const changed = vi.fn();
+    const unregister = registerWorkspaceChangedHandler(changed);
+    lookup.mockResolvedValue({ ok: false, code: CustomErrorCode.workspaceChanged });
+    instance.setQuery("Hauptstraße 5");
+    await vi.advanceTimersByTimeAsync(250);
+    expect(changed).toHaveBeenCalledTimes(1);
+    expect(instance.status).toBe("searching");
+    unregister();
   });
 
   it("ignores an answer for a query the user already changed", async () => {

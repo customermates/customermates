@@ -18,7 +18,6 @@ import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
 import { FormAutocompleteCountry } from "@/components/forms/form-autocomplete-country";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { addressAutofill, addressFormRows } from "@/features/addresses/address-form-layout";
 import { addressDraftParts, isVerifiedAddressDraft, verifiedAddressDraft } from "@/features/records/record-input-value";
 import { RecordAddressCheckStore } from "./record-address-check.store";
@@ -40,18 +39,13 @@ const COLUMN_WIDTHS: Readonly<Record<AddressFormPart, string>> = {
 export const RecordAddressInput = observer(function RecordAddressInput({
   field,
   id,
-  inputId,
-  label,
 }: {
   field: RecordFieldView;
   id: string;
-  inputId?: string;
-  label?: string | null;
 }) {
   const t = useTranslations();
   const store = useAppForm();
   const root = useRootStore();
-  const locale = useHydratedIntlStore().formattingLocale;
   const [lookup] = useState(() => new RecordAddressLookupStore());
   const [checks] = useState(() => new RecordAddressCheckStore());
   const autofilled = useRef<string | null>(null);
@@ -116,11 +110,7 @@ export const RecordAddressInput = observer(function RecordAddressInput({
 
   const partFields = (
     <div className="space-y-2">
-      <FormAutocompleteCountry
-        id={`${id}.countryCode`}
-        inputId={searchable ? undefined : inputId}
-        label={t("RecordModel.addressParts.country")}
-      />
+      <FormAutocompleteCountry id={`${id}.countryCode`} label={t("RecordModel.addressParts.country")} />
 
       {addressFormRows(format, parts).map((row) =>
         row.length === 1 ? (
@@ -140,7 +130,6 @@ export const RecordAddressInput = observer(function RecordAddressInput({
         <RecordAddressIssues
           disabled={busy}
           format={format}
-          locale={locale}
           partLabel={partLabel}
           parts={parts}
           result={result}
@@ -151,16 +140,8 @@ export const RecordAddressInput = observer(function RecordAddressInput({
   );
 
   return (
-    <div aria-label={label ?? field.label} className="space-y-2" data-address-input="" role="group">
-      {label && (
-        <p className="text-xs text-muted-foreground">
-          {label}
-
-          {field.required ? <span className="text-destructive"> *</span> : null}
-        </p>
-      )}
-
-      {searchable && <RecordAddressSearch disabled={busy} inputId={inputId} lookup={lookup} onPick={pick} />}
+    <div aria-label={field.label} className="space-y-2" data-address-input="" role="group">
+      {searchable && <RecordAddressSearch disabled={busy} lookup={lookup} onPick={pick} />}
 
       {hasParts && (searchable || verified) && (
         <RecordAddressStatus
@@ -213,7 +194,7 @@ function addressPartLabel(t: Translate, format: AddressCountryFormat | null, par
           return t("RecordModel.addressParts.city");
       }
     case "region":
-      if (!local || !format) return t("RecordModel.addressParts.region");
+      if (!local || !format?.lines.some((line) => line.includes("region"))) return t("RecordModel.addressParts.region");
       return regionLabel(t, format.regionLabel);
   }
 }

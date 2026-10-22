@@ -21,8 +21,8 @@ import { FormattedTextField } from "@/components/editor/formatted-text-field";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { getActiveUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 import { actionData } from "@/core/utils/action-data";
-import { RecordAddressField } from "./record-address-field";
 
+import { RecordAddressField } from "./record-address-field";
 import { RecordFileInput } from "./record-file-input";
 
 type KnownMember = Pick<RecordMember, "id" | "firstName" | "lastName"> & { avatarUrl?: string | null };

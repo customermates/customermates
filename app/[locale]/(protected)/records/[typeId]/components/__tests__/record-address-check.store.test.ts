@@ -8,6 +8,8 @@ vi.mock("@/app/[locale]/(protected)/records/actions", () => ({
   verifyAddressAction: vi.fn(),
 }));
 
+import { registerWorkspaceChangedHandler } from "@/core/errors/workspace-changed-notice";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordAddressCheckStore } from "../record-address-check.store";
 
 const PARTS = { street: null, line2: null, postalCode: "68259", city: null, region: null, countryCode: "de" };
@@ -80,6 +82,20 @@ describe("address check store", () => {
     await vi.advanceTimersByTimeAsync(4000);
     expect(check).toHaveBeenCalledTimes(2);
     expect(store.resultFor(PARTS)?.postalCode.status).toBe("ready");
+  });
+
+  it("reports a switched workspace instead of showing a check", async () => {
+    const changed = vi.fn();
+    const unregister = registerWorkspaceChangedHandler(changed);
+    const check = vi.fn().mockResolvedValue({ ok: false, code: CustomErrorCode.workspaceChanged });
+    const store = new RecordAddressCheckStore(check);
+    store.schedule(PARTS);
+    await vi.advanceTimersByTimeAsync(400);
+    expect(changed).toHaveBeenCalledTimes(1);
+    expect(store.current).toBeNull();
+    await vi.advanceTimersByTimeAsync(4000);
+    expect(check).toHaveBeenCalledTimes(1);
+    unregister();
   });
 
   it("drops an answer that arrives after the parts changed or the store was reset", async () => {

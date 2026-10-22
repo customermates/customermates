@@ -2,13 +2,10 @@
 
 import type { FilterTarget } from "./filter-target";
 
-import { useEffect, useMemo } from "react";
-import { comparer, reaction } from "mobx";
 import { observer } from "mobx-react-lite";
 
-import { useRootStore } from "@/core/stores/root-store.provider";
 import { FilterPalette } from "./filter-palette";
-import { FilterPaletteStore } from "./filter-palette.store";
+import { useFilterPalette } from "./use-filter-palette";
 
 export const FilterPaletteInline = observer(function FilterPaletteInline({
   store,
@@ -17,21 +14,7 @@ export const FilterPaletteInline = observer(function FilterPaletteInline({
   store: FilterTarget;
   id?: string;
 }) {
-  const root = useRootStore();
-  const palette = useMemo(() => new FilterPaletteStore(root, { register: false }), [root, store]);
-  useEffect(() => {
-    palette.setWithUnsavedChangesGuard(false);
-    const dispose = reaction(
-      () => [store.identity, store.scopeKey, store.isDisabled],
-      () => palette.openFor(store),
-      { equals: comparer.shallow, fireImmediately: true },
-    );
-    return () => {
-      dispose();
-      if (!store.discardPendingOnDispose) palette.flushPendingChanges();
-      palette.dispose();
-    };
-  }, [palette, store]);
+  const palette = useFilterPalette(store, { inline: true });
   return (
     <div
       className="min-w-0"

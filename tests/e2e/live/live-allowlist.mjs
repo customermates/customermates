@@ -52,3 +52,4 @@ export async function unipileDecision(method, url, input, init) {
   if (recipients.length === 0 || !recipients.every(isTestInbox)) return { status: 422, reason: "a recipient is not a designated test inbox" };
   return null;
 }
+

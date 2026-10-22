@@ -42,7 +42,7 @@ export function AddressValue({
         wrap={wrap}
       />
 
-      {verified ? (
+      {verified && (
         <Tooltip>
           <TooltipTrigger asChild>
             <span
@@ -56,8 +56,6 @@ export function AddressValue({
 
           <TooltipContent>{t("RecordModel.addressVerified")}</TooltipContent>
         </Tooltip>
-      ) : (
-        wrap && <span className="shrink-0 text-xs text-muted-foreground">{t("RecordModel.addressUnverified")}</span>
       )}
     </span>
   );

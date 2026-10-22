@@ -306,6 +306,35 @@ const XlsxMappingStep = observer(function XlsxMappingStep({ store }: { store: Xl
   );
 });
 
+function RowReasonsTable({ rows, more }: { rows: Array<{ sheetRow: number; reasons: string[] }>; more: string }) {
+  const t = useTranslations();
+  return (
+    <div className="space-y-2">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>{t("DataTransfer.xlsxImport.row")}</TableHead>
+
+            <TableHead>{t("DataTransfer.xlsxImport.reason")}</TableHead>
+          </TableRow>
+        </TableHeader>
+
+        <TableBody>
+          {rows.slice(0, FAILURE_DISPLAY_LIMIT).map((row) => (
+            <TableRow key={row.sheetRow}>
+              <TableCell className="align-top text-muted-foreground">{row.sheetRow}</TableCell>
+
+              <TableCell className="whitespace-normal">{row.reasons.join(" ")}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+
+      {rows.length > FAILURE_DISPLAY_LIMIT && <p className="text-xs text-muted-foreground">{more}</p>}
+    </div>
+  );
+}
+
 const XlsxResultStep = observer(function XlsxResultStep({ store }: { store: XlsxImportWizardStore }) {
   const t = useTranslations();
   const summary = store.summary;
@@ -347,61 +376,25 @@ const XlsxResultStep = observer(function XlsxResultStep({ store }: { store: Xlsx
         <li className={summary.failed.length ? "text-destructive" : undefined}>
           {t("DataTransfer.xlsxImport.failed", { count: summary.failed.length })}
         </li>
+
+        {summary.warned.length > 0 && (
+          <li className="text-warning">{t("DataTransfer.xlsxImport.warned", { count: summary.warned.length })}</li>
+        )}
       </ul>
 
       {summary.failed.length > 0 && (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>{t("DataTransfer.xlsxImport.row")}</TableHead>
-
-              <TableHead>{t("DataTransfer.xlsxImport.reason")}</TableHead>
-            </TableRow>
-          </TableHeader>
-
-          <TableBody>
-            {summary.failed.slice(0, FAILURE_DISPLAY_LIMIT).map((failure) => (
-              <TableRow key={failure.sheetRow}>
-                <TableCell className="align-top text-muted-foreground">{failure.sheetRow}</TableCell>
-
-                <TableCell className="whitespace-normal">{failure.reasons.join(" ")}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      )}
-
-      {summary.failed.length > FAILURE_DISPLAY_LIMIT && (
-        <p className="text-xs text-muted-foreground">
-          {t("DataTransfer.xlsxImport.moreFailures", { count: summary.failed.length - FAILURE_DISPLAY_LIMIT })}
-        </p>
+        <RowReasonsTable
+          more={t("DataTransfer.xlsxImport.moreFailures", { count: summary.failed.length - FAILURE_DISPLAY_LIMIT })}
+          rows={summary.failed}
+        />
       )}
 
       {summary.warned.length > 0 && (
-        <div className="space-y-2" data-testid="xlsx-import-warnings">
-          <p className="text-sm text-warning">
-            {t("DataTransfer.xlsxImport.warned", { count: summary.warned.length })}
-          </p>
-
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t("DataTransfer.xlsxImport.row")}</TableHead>
-
-                <TableHead>{t("DataTransfer.xlsxImport.reason")}</TableHead>
-              </TableRow>
-            </TableHeader>
-
-            <TableBody>
-              {summary.warned.slice(0, FAILURE_DISPLAY_LIMIT).map((warning) => (
-                <TableRow key={warning.sheetRow}>
-                  <TableCell className="align-top text-muted-foreground">{warning.sheetRow}</TableCell>
-
-                  <TableCell className="whitespace-normal">{warning.reasons.join(" ")}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+        <div data-testid="xlsx-import-warnings">
+          <RowReasonsTable
+            more={t("DataTransfer.xlsxImport.moreWarnings", { count: summary.warned.length - FAILURE_DISPLAY_LIMIT })}
+            rows={summary.warned}
+          />
         </div>
       )}
     </div>

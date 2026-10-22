@@ -10,12 +10,14 @@ import { useTranslations } from "next-intl";
 
 import { FormSelect } from "@/components/forms/form-select";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { AppChip } from "@/components/chip/app-chip";
 import { ClickableChip } from "@/components/chip/clickable-chip";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 import { FilterChipValue } from "@/components/data-view/filter-modal/filter-chip-display";
 import { useFilterFieldLabel } from "@/components/data-view/use-filter-field-label";
 import { useFilterOperatorLabel } from "@/components/data-view/filter-modal/use-filter-operator-label";
+import { RECORD_CONTRIBUTION_FILTER } from "@/features/records/record-contribution-link";
 
 const ZONE_LABEL_CLASS = "px-2 py-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground";
 
@@ -23,7 +25,6 @@ const PALETTE_GROUP_CLASS =
   "**:[[cmdk-group-heading]]:text-[11px] **:[[cmdk-group-heading]]:tracking-wide **:[[cmdk-group-heading]]:uppercase";
 
 type Props = {
-  inline?: boolean;
   store: FilterTarget;
   search?: FilterPaletteSearch;
   query: string;
@@ -38,7 +39,6 @@ type Props = {
 };
 
 export const PaletteRootList = observer(function PaletteRootList({
-  inline = false,
   store,
   search,
   query,
@@ -99,9 +99,11 @@ export const PaletteRootList = observer(function PaletteRootList({
             {filters.map((filter, index) => {
               const label = fieldLabel(filter.field, store.filterColumns);
               const operator = operatorLabel(filter.operator as FilterOperatorKey);
+              const pickable = filter.field !== RECORD_CONTRIBUTION_FILTER;
+              const Chip = pickable ? ClickableChip : AppChip;
 
               return (
-                <ClickableChip
+                <Chip
                   key={`${filter.field}-${index}`}
                   className="max-w-full text-primary-soft-foreground"
                   data-filter-index={index}
@@ -122,9 +124,7 @@ export const PaletteRootList = observer(function PaletteRootList({
                     </button>
                   }
                   variant="default"
-                  onClick={() => {
-                    if (filter.field !== RECORD_CONTRIBUTION_FILTER) onPickFilter(index);
-                  }}
+                  onClick={pickable ? () => onPickFilter(index) : undefined}
                 >
                   <span className="truncate text-[11px]">
                     <FilterChipValue
@@ -134,7 +134,7 @@ export const PaletteRootList = observer(function PaletteRootList({
                       operator={operator}
                     />
                   </span>
-                </ClickableChip>
+                </Chip>
               );
             })}
           </div>
@@ -183,7 +183,7 @@ export const PaletteRootList = observer(function PaletteRootList({
         </div>
       ))}
 
-      <CommandList className={inline ? undefined : "max-h-none! overflow-visible"}>
+      <CommandList>
         {!(search && searchText) && <CommandEmpty>{t("Common.inputs.emptyContent")}</CommandEmpty>}
 
         {search && searchText && (
@@ -239,4 +239,3 @@ export const PaletteRootList = observer(function PaletteRootList({
     </>
   );
 });
-import { RECORD_CONTRIBUTION_FILTER } from "@/features/records/record-contribution-link";

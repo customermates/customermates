@@ -72,29 +72,6 @@ describe("IntlStore zoned-value hydration gate", () => {
 
     expect(store.formatNumber(1234.5)).not.toBe("");
   });
-
-  it("formats calendar weekdays, day headings and ranges only after mount", () => {
-    const store = createStore();
-    const monday = new Date("2026-10-12T00:00:00.000Z");
-    const friday = new Date("2026-10-16T00:00:00.000Z");
-    const start = new Date("2026-10-16T09:30:00.000Z");
-    const end = new Date("2026-10-16T11:00:00.000Z");
-
-    expect(store.formatWeekday(monday, { timeZone: "UTC" })).toBe("");
-    expect(store.formatWeekdayDate(friday, { timeZone: "UTC" })).toBe("");
-    expect(store.formatDateRange(monday, friday, { timeZone: "UTC" })).toBe("");
-    expect(store.formatTimeRange(start, end)).toBe("");
-
-    store.markClientHydrated();
-
-    expect(store.formatWeekday(monday, { timeZone: "UTC" })).toBe("Mon");
-    expect(store.formatWeekday(monday, { timeZone: "UTC", width: "long" })).toBe("Monday");
-    expect(store.formatWeekdayDate(friday, { timeZone: "UTC" })).toBe("Friday, October 16");
-    expect(store.formatWeekdayDate(friday, { timeZone: "UTC", year: true })).toBe("Friday, October 16, 2026");
-    expect(store.formatDateRange(monday, friday, { timeZone: "UTC" })).toBe("Oct 12 – 16, 2026");
-    expect(store.formatDateRange(monday, friday, { timeZone: "UTC", year: false })).toBe("Oct 12 – 16");
-    expect(store.formatTimeRange(start, end)).toMatch(/\d{1,2}:\d{2}.*–.*\d{1,2}:\d{2}/);
-  });
 });
 
 describe("IntlStore credit display", () => {

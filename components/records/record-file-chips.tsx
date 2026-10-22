@@ -4,16 +4,19 @@ import type { RecordFileSummary } from "@/features/records/record-model.schema";
 
 import { useTranslations } from "next-intl";
 
+import { describeFile } from "@/app/[locale]/(protected)/inbox/components/attachment-classify";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import { storageSizeLabel } from "@/features/record-files/storage-size";
+import { formatBytes } from "@/core/utils/format-bytes";
 
-import { recordFileContentUrl, recordFileIcon } from "./record-file-links";
+import { recordFileContentUrl } from "./record-file-links";
 import { useRecordFilePreview } from "./record-file-preview";
 
 export function useRecordFileSize() {
   const intlStore = useHydratedIntlStore();
-  return (bytes: number) => storageSizeLabel(bytes, intlStore.formattingLocale);
+  const formatNumber = (value: number | undefined, options?: { maximumFractionDigits?: number }) =>
+    intlStore.formatNumber(value, options);
+  return (bytes: number) => formatBytes(bytes, formatNumber) ?? `${formatNumber(0)} B`;
 }
 
 export function RecordFileChips({
@@ -32,7 +35,7 @@ export function RecordFileChips({
   const { openFile, preview } = useRecordFilePreview();
   const items = fileIds.map((id) => {
     const file = files.find((entry) => entry.id === id);
-    const Icon = recordFileIcon(file?.mimeType);
+    const { Icon } = describeFile({ mime: file?.mimeType, fileName: file?.name });
     return {
       id,
       file,

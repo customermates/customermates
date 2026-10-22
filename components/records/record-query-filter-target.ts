@@ -53,6 +53,7 @@ export function createRecordQueryFilterTarget(options: Options): FilterTarget {
       model,
     );
     const preserved = original.filters.filter((filter) => {
+      if (filter.operator === "overlaps") return true;
       if (
         filter.fieldId.startsWith("system:") ||
         model.fields.some((field) => field.id === filter.fieldId && !field.archived)

@@ -72,7 +72,7 @@ test("gives Mate files by button, drop and paste, sends them with the message an
   const chips = panel.locator("[data-agent-file-context]");
   await expect(chips).toHaveCount(3, { timeout: 60000 });
   await expect(panel.locator("[data-agent-upload]")).toHaveCount(0);
-  await expect(chips.filter({ hasText: "Offer.pdf" })).toContainText(`${OFFER.byteLength} byte`);
+  await expect(chips.filter({ hasText: "Offer.pdf" })).toContainText(`${OFFER.byteLength} B`);
   const stored = await database.query<{
     id: string;
     name: string;
@@ -143,7 +143,7 @@ test("gives Mate files by button, drop and paste, sends them with the message an
   });
   expect(attachResponse.status(), await attachResponse.text()).toBe(200);
   const attached = await attachResponse.json();
-  assertPublishedResponse("/v1/files/{fileId}/attach", "post", 200, attached);
+  assertPublishedResponse("/v1/files/{id}/attach", "post", 200, attached);
   expect(attached).toMatchObject({
     attached: true,
     file: { id: fileId("Offer.pdf"), typeId, fieldId, recordId, status: "ready", name: "Offer.pdf" },

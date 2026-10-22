@@ -13,6 +13,7 @@ import { AppForm, AppFormProvider } from "@/components/forms/form-context";
 import { Button } from "@/components/ui/button";
 import { Command, CommandInput } from "@/components/ui/command";
 import { FilterOperatorKey as OperatorKey, isStandaloneOperator } from "@/core/base/base-query-builder";
+import { cn } from "@/core/utils/cn";
 import { PaletteOperatorMenu } from "@/components/data-view/filter-palette/palette-operator-menu";
 import { hasValidFilterConfiguration } from "@/components/data-view/table-view.utils";
 import { resolveFilterValueClass } from "@/components/data-view/filter-modal/filter-value-class";
@@ -104,7 +105,6 @@ export const FilterPalette = observer(function FilterPalette({ store: host, pale
         <PaletteRootList
           disabled={palette.isDisabled}
           filters={palette.appliedFilters}
-          inline={inline}
           isAtLimit={palette.isAtFilterLimit}
           query={palette.query}
           search={store === host ? search : undefined}
@@ -127,7 +127,6 @@ export const FilterPalette = observer(function FilterPalette({ store: host, pale
         <PaletteValueSelect
           customColumns={store.filterColumns}
           filter={draftFilter}
-          inline={inline}
           query={palette.query}
           selected={palette.selectedValues}
           onToggle={palette.toggleValue}
@@ -156,7 +155,6 @@ export const FilterPalette = observer(function FilterPalette({ store: host, pale
       return showDateRows ? (
         <PaletteValueDate
           declaredOperators={declaredOperators}
-          inline={inline}
           operator={operator}
           value={draft.value}
           onCommitPreset={(days) => palette.commitNow({ operator: OperatorKey.inLastDays, value: days })}
@@ -173,12 +171,7 @@ export const FilterPalette = observer(function FilterPalette({ store: host, pale
     }
 
     return (
-      <PaletteValueOperator
-        current={operator}
-        inline={inline}
-        operators={declaredOperators}
-        onSelect={palette.setDraftOperator}
-      />
+      <PaletteValueOperator current={operator} operators={declaredOperators} onSelect={palette.setDraftOperator} />
     );
   }
 
@@ -186,7 +179,14 @@ export const FilterPalette = observer(function FilterPalette({ store: host, pale
   return (
     <FilterOptionsProvider fields={store.filterableFields}>
       <Form store={palette}>
-        <div ref={paletteRef} className="flex min-h-0 flex-col" onKeyDownCapture={handleKeyDownCapture}>
+        <div
+          ref={paletteRef}
+          className={cn(
+            "flex min-h-0 flex-col",
+            !inline && "**:data-[slot=command-list]:max-h-none! **:data-[slot=command-list]:overflow-visible!",
+          )}
+          onKeyDownCapture={handleKeyDownCapture}
+        >
           {(!isRoot || palette.pages.length > 1) && (
             <div className="flex shrink-0 items-center gap-1.5 px-2 pt-2 pb-1">
               <Button

@@ -189,52 +189,6 @@ export class IntlStore {
     }).format(date);
   }
 
-  formatWeekday(date: Date | undefined, options?: { timeZone?: string; width?: "short" | "long" }): string {
-    if (date === undefined) return "";
-    if (!this.clientHydrated) return "";
-
-    return new Intl.DateTimeFormat(this.formattingLocale, {
-      weekday: options?.width ?? "short",
-      ...(options?.timeZone ? { timeZone: options.timeZone } : {}),
-    }).format(date);
-  }
-
-  formatWeekdayDate(date: Date | undefined, options?: { timeZone?: string; year?: boolean }): string {
-    if (date === undefined) return "";
-    if (!this.clientHydrated) return "";
-
-    return new Intl.DateTimeFormat(this.formattingLocale, {
-      weekday: "long" as const,
-      month: "long" as const,
-      day: "numeric" as const,
-      ...(options?.year ? { year: "numeric" as const } : {}),
-      ...(options?.timeZone ? { timeZone: options.timeZone } : {}),
-    }).format(date);
-  }
-
-  formatDateRange(from: Date | undefined, to: Date | undefined, options?: { timeZone?: string; year?: boolean }) {
-    if (from === undefined || to === undefined) return "";
-    if (!this.clientHydrated) return "";
-
-    return new Intl.DateTimeFormat(this.formattingLocale, {
-      month: "short" as const,
-      day: "numeric" as const,
-      ...(options?.year === false ? {} : { year: "numeric" as const }),
-      ...(options?.timeZone ? { timeZone: options.timeZone } : {}),
-    }).formatRange(from, to);
-  }
-
-  formatTimeRange(from: Date | undefined, to: Date | undefined, options?: { withDate?: boolean }): string {
-    if (from === undefined || to === undefined) return "";
-    if (!this.clientHydrated) return "";
-
-    return new Intl.DateTimeFormat(this.formattingLocale, {
-      ...(options?.withDate ? { month: "short" as const, day: "numeric" as const } : {}),
-      hour: "2-digit" as const,
-      minute: "2-digit" as const,
-    }).formatRange(from, to);
-  }
-
   formatDescriptiveLongDate(date: Date | undefined, options?: { timeZone?: string }): string {
     if (date === undefined) return "";
     if (!this.clientHydrated) return "";

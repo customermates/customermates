@@ -11,6 +11,7 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { Button } from "@/components/ui/button";
 import { IconContainer } from "@/components/shared/icon-container";
+import { useFileDrop } from "@/components/shared/use-file-drop";
 import { assistantSurfaceProps, claimEscapeForAssistant } from "@/components/modal/assistant-surface";
 import { OVERLAY_RAISED_PANEL_LAYER_CLASS, OVERLAY_SCROLL_REGION } from "@/components/ui/overlay-contract";
 import {
@@ -23,7 +24,7 @@ import { cn } from "@/core/utils/cn";
 
 import { ActionTooltip, chatUiCopy } from "./chat-ui";
 import { AgentComposer, AgentConversationLog } from "./agent-conversation";
-import { AgentFileDropOverlay, useAgentFileDrop } from "./agent-composer-uploads";
+import { AgentFileDropOverlay } from "./agent-composer-uploads";
 import { AgentProgressStatus, AgentStatusAnnouncer } from "./agent-status-announcer";
 import { ArchiveUndo, ConversationHistory } from "./conversation-history";
 import { SuggestedQuestions } from "./suggested-questions";
@@ -160,7 +161,7 @@ const AgentChatPanel = observer(function AgentChatPanel({
 
   const usage = store.usage;
   const blocked = usage?.blockedReason ?? null;
-  const fileDrop = useAgentFileDrop(!store.isHistoryOpen && !blocked, store.addComposerFiles);
+  const fileDrop = useFileDrop(!store.isHistoryOpen && !blocked, store.addComposerFiles);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {

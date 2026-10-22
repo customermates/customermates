@@ -19,7 +19,7 @@ import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = {
   initialSubscription: SubscriptionDto | null;
-  storage?: FileStorageUsageDto | null;
+  storage: FileStorageUsageDto | null;
 };
 
 const SubscriptionViewContent = observer(({ initialSubscription, storage }: Props) => {

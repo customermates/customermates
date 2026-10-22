@@ -3,6 +3,7 @@ import type { AddressDraftParts } from "@/features/records/record-input-value";
 
 import { action, makeObservable, observable, runInAction } from "mobx";
 
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { Debouncer } from "@/core/utils/debounce";
 import { checkAddressAction } from "../../actions";
 import { addressCheckKey } from "./record-address-lookup.store";
@@ -11,7 +12,7 @@ const ADDRESS_CHECK_DEBOUNCE_MS = 400;
 const POSTAL_CODES_LOADING_RETRY_MS = 4_000;
 const POSTAL_CODES_LOADING_RETRIES = 5;
 
-export type AddressCheckView = { key: string; result: AddressCheckResult };
+type AddressCheckView = { key: string; result: AddressCheckResult };
 
 function checkable(parts: AddressDraftParts): boolean {
   return Boolean(parts.countryCode || parts.postalCode || parts.region);
@@ -61,8 +62,13 @@ export class RecordAddressCheckStore {
   }
 
   private run = async (generation: number, key: string, parts: AddressDraftParts, attempt: number) => {
-    const result = await this.check(parts).catch(() => null);
-    if (generation !== this.generation || !result?.ok) return;
+    let result: Awaited<ReturnType<typeof checkAddressAction>> | null = null;
+    try {
+      result = await this.check(parts);
+    } catch (error) {
+      if (notifyIfWorkspaceChanged(error)) return;
+    }
+    if (notifyIfWorkspaceChanged(result) || generation !== this.generation || !result?.ok) return;
     runInAction(() => {
       this.current = { key, result: result.data };
     });

@@ -514,7 +514,7 @@
       "dropHint": "Dateien zum Anhängen hier ablegen",
       "failed": "{name}: {message}",
       "limit": "Du kannst höchstens {count, plural, one {# Datei} other {# Dateien}} an eine Nachricht anhängen.",
-      "reading": "Wird gelesen …"
+      "reading": "Wird gelesen…"
     },
     "greeting": {
       "headline": "Hey, ich bin Mate",
@@ -1113,7 +1113,9 @@
       "apiKeyNotFound": "Dieser API-Schlüssel wurde in diesem Workspace nicht gefunden.",
       "billingPortalUnavailable": "Das Abrechnungsportal ist für diesen Workspace nicht verfügbar. Wende dich für Änderungen an den Support.",
       "calendarEventNotFound": "Kalenderereignis-ID nicht gefunden oder nicht zugänglich.",
+      "calendarExportIncomplete": "Dieser Zeitraum enthält mehr Einträge, als ein Export aufnehmen kann. Wähle einen kürzeren Zeitraum oder engere Filter für die Datumsquellen.",
       "calendarNotFound": "Kalender-ID nicht gefunden oder nicht zugänglich.",
+      "calendarSubscriptionLimitReached": "Du kannst bis zu {limit} Kalenderabonnements haben. Widerrufe eines, um ein neues zu erstellen.",
       "channelAlreadyLinked": "Diese Telefonnummer, E-Mail-Adresse oder dieses Profil ist bereits mit einem anderen Datensatz verknüpft.",
       "chatThreadRequired": "Dies ist ein E-Mail-Verlauf. Antworte darauf mit einer E-Mail statt mit einer Chatnachricht.",
       "connectedAccountEmailChangeRequired": "Übergeben Sie eine Signatur, E-Mail-Einstellungen oder beides.",
@@ -2160,8 +2162,9 @@
       "matchBy": "Vorhandene Datensätze abgleichen über",
       "matchHint": "Zeilen ohne passenden Datensatz werden übersprungen. Leere Zellen behalten den aktuellen Wert.",
       "moreFailures": "{count, plural, one {# weitere fehlgeschlagene Zeile wird} other {# weitere fehlgeschlagene Zeilen werden}} nicht angezeigt.",
+      "moreWarnings": "{count, plural, one {# weitere Zeile mit Adresshinweis wird} other {# weitere Zeilen mit Adresshinweisen werden}} nicht angezeigt.",
       "next": "Weiter",
-      "noMatchColumn": "Ordne die Datensatz-ID oder ein Text-, E-Mail-, URL- oder Zahlenfeld zu, um vorhandene Datensätze abzugleichen.",
+      "noMatchColumn": "Ordne die Datensatz-ID oder ein Text-, URL- oder Zahlenfeld zu, um vorhandene Datensätze abzugleichen.",
       "other": "Weitere",
       "previewHint": "{count, plural, =0 {Die ersten {rows} Zeilen haben keine Probleme.} one {# der ersten {rows} Zeilen hat ein Problem.} other {# der ersten {rows} Zeilen haben Probleme.}} Zeilen mit Problemen werden nicht importiert.",
       "problems": {
@@ -2208,7 +2211,7 @@
     "calendar": {
       "colorField": "Farbe nach",
       "dateField": "Datumsfeld",
-      "emptyRange": "Keine Datensätze in diesem Zeitraum.",
+      "emptyRange": "In diesem Zeitraum ist nichts geplant.",
       "endDateField": "Enddatumsfeld",
       "entryLabel": "{name}, {date}",
       "keyboardInstructions": "Drücke die Eingabetaste, um einen Datensatz zu öffnen, und die Leertaste, um ihn aufzunehmen. Wähle mit den Pfeiltasten einen anderen Tag und drücke die Leertaste, um ihn dorthin zu verschieben. Mit Escape brichst du ab.",
@@ -3448,7 +3451,6 @@
   "Planner": {
     "addSource": "Datumsquelle hinzufügen",
     "calendarSync": "Exportieren & abonnieren",
-    "colorField": "Farbe nach",
     "connectCalendar": "Kalender verbinden",
     "copyLink": "Abonnement-Link kopieren",
     "createSubscription": "Abonnement-URL erstellen",
@@ -3461,11 +3463,8 @@
     "includePersonal": "Auch ausgewählte verbundene Termine aufnehmen (kann vorhandene Termine verdoppeln).",
     "list": "Liste",
     "modes": {
-      "agenda": "Agenda",
-      "month": "Monat",
       "quarter": "Quartal",
-      "timeline": "Zeitachse",
-      "week": "Woche"
+      "timeline": "Zeitachse"
     },
     "next": "Nächster Zeitraum",
     "noEndDate": "Einzelnes Datum",
@@ -3480,23 +3479,16 @@
     "readOnlyEvent": "Dieser Termin stammt aus einem verbundenen Kalender. Bearbeite ihn im ursprünglichen Kalender.",
     "removeSource": "Datumsquelle entfernen",
     "revokeSubscription": "Abonnement widerrufen",
-    "search": "Kalender durchsuchen…",
     "snapshot": "Momentaufnahme herunterladen",
     "snapshotDescription": "Lade den angezeigten Zeitraum mit den aktivierten Quellen herunter. Die Datei wird nicht automatisch aktualisiert.",
-    "sort": "Termine sortieren",
-    "sorts": {
-      "date": "Nach Datum",
-      "source": "Nach Quelle",
-      "title": "Nach Titel"
-    },
     "sourceColor": "Quellfarbe",
     "sources": "Datumsquellen",
     "sourceSettings": "Datumsquelle bearbeiten",
     "sourceUnavailable": "Eine Datumsquelle ist nicht verfügbar. Prüfe Felder, Filter und Berechtigungen.",
     "startDate": "Beginn oder Datumsbereich",
     "subscription": "Aktualisierungen abonnieren",
-    "subscriptionDescription": "Erstelle eine private URL für die aktivierten Quellen und Filter. Sie umfasst die letzten 30 und nächsten 335 Tage. Deine Kalender-App bestimmt, wie oft sie aktualisiert wird. Bei späteren Änderungen am Kalender ist eine neue Abo-URL nötig.",
-    "subscriptionNumber": "Abonnement {number}",
+    "subscriptionCreated": "Erstellt am {date}",
+    "subscriptionDescription": "Erstelle eine private URL für die aktivierten Quellen und Filter. Sie umfasst die letzten 30 und nächsten 335 Tage. Deine Kalender-App bestimmt, wie oft sie aktualisiert wird. Bei späteren Änderungen am Kalender ist eine neue Abonnement-URL nötig.",
     "syncDescription": "Verwende diesen Kalender in Apple Kalender, Outlook, Google Kalender oder einer anderen Kalender-App. Änderungen werden von Customermates zur App übertragen. Bearbeite Datensätze in Customermates.",
     "timeZone": "Zeitzone",
     "title": "Kalender",
@@ -3956,7 +3948,7 @@
     "fileRemove": "{name} entfernen",
     "fileUnavailable": "Nicht verfügbare Datei",
     "fileUploadFailed": "Der Upload ist fehlgeschlagen. Versuche es erneut.",
-    "fileUploading": "Wird hochgeladen … {progress, number, percent}",
+    "fileUploading": "Wird hochgeladen… {progress, number, percent}",
     "general": "Allgemein",
     "graph": {
       "accountEdge": "Synchronisiert Unterhaltungen in {list}",

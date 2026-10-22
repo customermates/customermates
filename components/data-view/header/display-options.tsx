@@ -22,6 +22,7 @@ import { useColumnLabel } from "@/components/data-view/use-column-label";
 import { useGroupableFieldLabel } from "@/components/data-view/use-groupable-field-label";
 import { useGroupLabel } from "@/components/data-view/group-label";
 import { useViewAi } from "@/components/data-view/views/use-view-ai";
+import { type DataViewView, resolveDataViewView } from "@/components/data-view/data-view-state";
 import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { AppModalActionRail } from "@/components/modal/app-modal-action";
 import { useAskAiAction } from "@/components/ui/ask-ai-action";
@@ -32,8 +33,6 @@ import { CalendarDisplayOptions } from "./calendar-options";
 import { ColumnVisibilityList } from "./column-visibility-list";
 import { GroupSummaryOptions } from "./group-summary-options";
 import { PopoverSection as Section } from "./popover-section";
-
-type DataViewMode = "table" | "board" | "calendar";
 
 type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
@@ -100,12 +99,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
   const hasActiveOption = Boolean(currentSortField) || Boolean(store.grouping) || store.hiddenColumns.length > 0;
 
   const canCalendar = store.canCalendar;
-  const currentLayout: DataViewMode =
-    store.viewMode === ViewMode.calendar && canCalendar && store.calendar
-      ? "calendar"
-      : store.viewMode === ViewMode.card && canBoard
-        ? "board"
-        : "table";
+  const currentLayout = resolveDataViewView(store.viewMode, canBoard, canCalendar && Boolean(store.calendar));
   const boardGrouped = currentLayout === "board" && Boolean(store.grouping && store.groupingResult);
   const hiddenGroupKeys = new Set(boardGrouped ? (store.grouping?.hidden ?? []) : []);
   const hiddenGroups = (store.groupingResult?.groups ?? []).filter((group) => hiddenGroupKeys.has(group.key));
@@ -118,13 +112,13 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
 
   function handleLayoutChange(next: string) {
     if (!next) return;
-    if ((next as DataViewMode) === "calendar") {
+    if ((next as DataViewView) === "calendar") {
       const calendar = store.calendar ?? store.defaultCalendar;
       if (calendar) store.setViewOptions({ viewMode: ViewMode.calendar, calendar });
       return;
     }
     store.setViewOptions({
-      viewMode: (next as DataViewMode) === "board" ? ViewMode.card : ViewMode.table,
+      viewMode: (next as DataViewView) === "board" ? ViewMode.card : ViewMode.table,
     });
   }
 

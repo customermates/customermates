@@ -11,6 +11,9 @@ import { SkeletonShape } from "@/components/page-state/skeleton-shape";
 import { Button } from "@/components/ui/button";
 import { SegmentedControl, SegmentedControlPanel } from "@/components/ui/segmented-control";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { isWorkspaceChangedFailure } from "@/core/errors/workspace-changed";
+import { notifyWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
+import { cn } from "@/core/utils/cn";
 import { RecordFilePreviewSchema } from "@/features/record-files/record-file-preview.schema";
 import { downloadRecordFile } from "./record-file-links";
 
@@ -27,8 +30,10 @@ export function RecordFileDocumentPreview({ file }: { file: File }) {
       cache: "no-store",
     })
       .then(async (response) => {
+        const body: unknown = await response.json().catch(() => null);
+        if (response.status === 409 && isWorkspaceChangedFailure(body)) notifyWorkspaceChanged();
         if (!response.ok) throw new Error("The file preview could not be loaded");
-        return RecordFilePreviewSchema.parse(await response.json());
+        return RecordFilePreviewSchema.parse(body);
       })
       .then((data) => {
         if (!controller.signal.aborted) setState({ kind: "ready", data });
@@ -101,7 +106,10 @@ export function RecordFileDocumentPreview({ file }: { file: File }) {
           ) : null}
 
           <pre
-            className={`min-w-0 whitespace-pre-wrap wrap-anywhere rounded-lg border bg-muted/30 p-4 text-sm ${preview.format === "docx" ? "font-sans leading-relaxed" : "font-mono"}`}
+            className={cn(
+              "min-w-0 whitespace-pre-wrap wrap-anywhere rounded-lg border bg-muted/30 p-4 text-sm",
+              preview.format === "docx" ? "font-sans leading-relaxed" : "font-mono",
+            )}
           >
             {preview.text}
           </pre>
@@ -130,7 +138,7 @@ function SpreadsheetPreview({ preview }: { preview: Extract<RecordFilePreview, {
       idPrefix={id}
       items={preview.sheets.map((sheet, index) => ({ value: String(index), label: sheet.name }))}
       label={t("RecordModel.filePreviewSheets")}
-      listClassName="flex overflow-x-auto [&>button]:max-w-48 [&>button]:shrink-0"
+      listClassName="flex overflow-x-auto *:max-w-48 *:shrink-0"
       value={active}
       onValueChange={setActive}
     >

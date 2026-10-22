@@ -57,6 +57,8 @@ const child = spawn(
       HOSTED_AI_PROVIDER_WORK_PAUSED: "true",
       NEXT_TELEMETRY_DISABLED: "1",
       CRM_E2E_PROVIDER_DIRECTORY: environment.providerDirectory,
+      // The network guard blocks GeoNames, so postal codes stay off unless the run serves its own directory.
+      POSTAL_CODE_DATA_URL: process.env.POSTAL_CODE_DATA_URL || "off",
       ...(process.env.LEMONSQUEEZY_API_KEY && !live ? localLemonSqueezyEnvironment(process.env.BETTER_AUTH_SECRET) : {}),
       ...(process.env.GOOGLE_CLIENT_ID && !live ? localOAuthEnvironment("google") : {}),
       ...(process.env.AZURE_AD_CLIENT_ID && !live ? localOAuthEnvironment("microsoft") : {}),

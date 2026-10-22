@@ -83,7 +83,9 @@ export function AttachmentRow({
           </button>,
         )}
 
-        {actions ?? (
+        {actions}
+
+        {onRemove && (
           <button
             aria-label={removeLabel}
             className={cn(

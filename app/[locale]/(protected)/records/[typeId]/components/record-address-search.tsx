@@ -21,12 +21,10 @@ const OPENSTREETMAP_COPYRIGHT_URL = "https://www.openstreetmap.org/copyright";
 
 export const RecordAddressSearch = observer(function RecordAddressSearch({
   lookup,
-  inputId,
   disabled,
   onPick,
 }: {
   lookup: RecordAddressLookupStore;
-  inputId?: string;
   disabled: boolean;
   onPick: (candidate: AddressCandidate) => void;
 }) {
@@ -46,7 +44,6 @@ export const RecordAddressSearch = observer(function RecordAddressSearch({
           className="w-full justify-start gap-2 px-3 font-normal text-muted-foreground"
           data-address-search=""
           disabled={disabled}
-          id={inputId}
           role="combobox"
           type="button"
           variant="field"

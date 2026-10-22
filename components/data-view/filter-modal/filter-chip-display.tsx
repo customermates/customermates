@@ -19,6 +19,7 @@ import { FilterOperatorKey, isStandaloneOperator } from "@/core/base/base-query-
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { filterValueKind } from "@/core/types/filter-field-value-kind";
 import { isCustomField } from "@/core/utils/custom-field";
+import { RECORD_CONTRIBUTION_FILTER, recordContributionFromFilter } from "@/features/records/record-contribution-link";
 
 function normalizeValues(value: unknown): string[] {
   if (Array.isArray(value)) return value.map(String);
@@ -129,4 +130,3 @@ export const FilterChipValue = observer(
     );
   },
 );
-import { RECORD_CONTRIBUTION_FILTER, recordContributionFromFilter } from "@/features/records/record-contribution-link";

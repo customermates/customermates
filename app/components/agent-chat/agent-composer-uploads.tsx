@@ -1,40 +1,13 @@
 "use client";
 
-import type { DragEvent } from "react";
-
-import { AlertCircle, Loader2, X } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
 
 import { AppChip } from "@/components/chip/app-chip";
 
 import { useAgentChatStore } from "./agent-chat-store-context";
-
-export function useAgentFileDrop(enabled: boolean, onFiles: (files: File[]) => void) {
-  const [dragging, setDragging] = useState(false);
-  const takes = (event: DragEvent<HTMLElement>) => enabled && event.dataTransfer.types.includes("Files");
-  return {
-    dragging: enabled && dragging,
-    handlers: {
-      onDragLeave: (event: DragEvent<HTMLElement>) => {
-        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDragging(false);
-      },
-      onDragOver: (event: DragEvent<HTMLElement>) => {
-        if (!takes(event)) return;
-        event.preventDefault();
-        event.dataTransfer.dropEffect = "copy";
-        setDragging(true);
-      },
-      onDrop: (event: DragEvent<HTMLElement>) => {
-        setDragging(false);
-        if (!takes(event)) return;
-        event.preventDefault();
-        onFiles(Array.from(event.dataTransfer.files));
-      },
-    },
-  };
-}
+import { AGENT_COMPOSER_CHIP_CLASS, AgentComposerChipRemove } from "./agent-composer-chip";
 
 export function AgentFileDropOverlay() {
   const t = useTranslations();
@@ -66,7 +39,7 @@ export const AgentComposerUploads = observer(function AgentComposerUploads() {
         return (
           <AppChip
             key={upload.key}
-            className="me-1.5 my-px h-5 max-w-full px-[5px] py-0 align-middle text-sm leading-5 font-normal"
+            className={AGENT_COMPOSER_CHIP_CLASS}
             data-agent-upload={upload.phase}
             endContent={
               <>
@@ -85,22 +58,14 @@ export const AgentComposerUploads = observer(function AgentComposerUploads() {
                   </span>
                 )}
 
-                <button
-                  aria-label={
+                <AgentComposerChipRemove
+                  label={
                     failed
                       ? t("RecordModel.fileRemove", { name: upload.name })
                       : t("RecordModel.fileCancelUpload", { name: upload.name })
                   }
-                  className="-mr-0.5 grid size-3.5 shrink-0 place-items-center rounded-sm text-current/60 outline-hidden transition-colors hover:bg-foreground/10 hover:text-current focus-visible:ring-2 focus-visible:ring-ring"
-                  type="button"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    store.removeComposerUpload(upload.key);
-                  }}
-                  onMouseDown={(event) => event.preventDefault()}
-                >
-                  <X aria-hidden className="size-2.5" />
-                </button>
+                  onRemove={() => store.removeComposerUpload(upload.key)}
+                />
               </>
             }
             size="sm"
@@ -111,7 +76,6 @@ export const AgentComposerUploads = observer(function AgentComposerUploads() {
                 <Loader2 aria-hidden className="size-3 shrink-0 animate-spin motion-reduce:animate-none" />
               )
             }
-            tooltip={status}
             variant={failed ? "destructive" : "secondary"}
           >
             {upload.name}

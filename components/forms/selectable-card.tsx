@@ -36,9 +36,7 @@ export function SelectableCard(props: Props) {
   const { description, disabled, id, label, labelClassName, leading, selectionMode, visual } = props;
   const controlClassName = "peer absolute left-3 top-3 z-10";
   const title = (
-    <span className="min-w-0 max-w-full text-sm leading-snug font-medium [overflow-wrap:anywhere] text-foreground">
-      {label}
-    </span>
+    <span className="min-w-0 max-w-full text-sm leading-snug font-medium wrap-anywhere text-foreground">{label}</span>
   );
   const control =
     selectionMode === "single" ? (

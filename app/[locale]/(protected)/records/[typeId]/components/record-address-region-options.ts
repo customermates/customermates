@@ -2,7 +2,7 @@ import type { AddressCountryFormat } from "@/features/addresses/address-country-
 
 import { addressRegionLabel, findAddressRegion, regionValue } from "@/features/addresses/address-region";
 
-export type AddressRegionOption = { key: string; label: string };
+type AddressRegionOption = { key: string; label: string };
 
 export function addressRegionOptions(format: AddressCountryFormat, current: string | null): AddressRegionOption[] {
   const options = format.regions.map((region) => {

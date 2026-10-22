@@ -4,6 +4,7 @@ import type { ComparisonColumn, ComparisonSection } from "@/components/marketing
 import { ResponsiveComparisonTable } from "@/components/marketing/responsive-comparison-table";
 import { MarketingSection } from "@/components/marketing/marketing-section";
 import { formatCommercialAmount, getCommercialOffer, PLAN_IDS, PLAN_CATALOG } from "@/core/commercial/plan-catalog";
+import { fileSizeLabel } from "@/core/utils/format-bytes";
 
 type Props = ComparisonTable & { locale: string };
 
@@ -55,7 +56,7 @@ export function pricingComparisonPresentation({
             return definition.entitlements.sharedAccounts;
           case "fileStoragePerActiveUser": {
             const bytes = definition.entitlements.fileStorageBytesPerActiveUser;
-            return typeof bytes === "number" ? `${bytes / 1024 ** 3} GB` : customValue;
+            return typeof bytes === "number" ? fileSizeLabel(bytes, locale) : customValue;
           }
         }
       });

@@ -137,11 +137,12 @@ export class RootStore {
 
   readonly appMode: AppMode;
   readonly agentChatEnabled: boolean;
-  addressLookupAvailable = false;
+  readonly addressLookupAvailable: boolean;
 
-  constructor(appMode: AppMode, agentChatEnabled: boolean) {
+  constructor(appMode: AppMode, agentChatEnabled: boolean, addressLookupAvailable = false) {
     this.appMode = appMode;
     this.agentChatEnabled = agentChatEnabled;
+    this.addressLookupAvailable = addressLookupAvailable;
   }
 
   get layoutStore() {

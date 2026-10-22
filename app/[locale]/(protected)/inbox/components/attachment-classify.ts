@@ -1,32 +1,26 @@
-import { File as FileIcon, FileImage, FileSpreadsheet, FileText, type LucideIcon, Presentation } from "lucide-react";
+import {
+  File as FileIcon,
+  FileArchive,
+  FileAudio,
+  FileImage,
+  FileSpreadsheet,
+  FileText,
+  FileVideo,
+  type LucideIcon,
+  Presentation,
+} from "lucide-react";
 
 import type { MessagingMessageDto } from "@/ee/messaging/inbox/inbox.schema";
 
 import { classifyAttachment, isMediaKind, type AttachmentKind } from "@/ee/messaging/attachment-kind";
 import { cn } from "@/core/utils/cn";
+import { formatBytes, type FormatNumber } from "@/core/utils/format-bytes";
 
 export { classifyAttachment, isMediaKind };
 export type { AttachmentKind };
 
 export type AttachmentMeta = MessagingMessageDto["attachmentsMeta"][number];
 export type InboxT = (key: string, values?: Record<string, string | number>) => string;
-
-const BYTE_UNITS = ["B", "KB", "MB", "GB", "TB"];
-
-type FormatNumber = (value: number | undefined, options?: { maximumFractionDigits?: number }) => string;
-
-export function formatBytes(size: number | null | undefined, formatNumber?: FormatNumber): string | null {
-  if (typeof size !== "number" || !Number.isFinite(size) || size <= 0) return null;
-  let value = size;
-  let unit = 0;
-  while (value >= 1024 && unit < BYTE_UNITS.length - 1) {
-    value /= 1024;
-    unit += 1;
-  }
-  const rounded = unit === 0 || value >= 100 ? Math.round(value) : Math.round(value * 10) / 10;
-  const formatted = formatNumber ? formatNumber(rounded, { maximumFractionDigits: 1 }) : String(rounded);
-  return `${formatted} ${BYTE_UNITS[unit]}`;
-}
 
 type FileDescriptor = { Icon: LucideIcon; typeLabelKey: string; accent: string };
 
@@ -45,7 +39,15 @@ export function describeFile(input: { mime?: string | null; fileName?: string | 
     return { Icon: Presentation, typeLabelKey: "Inbox.fileTypePowerpoint", accent: "text-warning" };
   if (mime.startsWith("image/"))
     return { Icon: FileImage, typeLabelKey: "Inbox.fileTypeImage", accent: "text-muted-foreground" };
-  return { Icon: FileIcon, typeLabelKey: "Inbox.attachmentFile", accent: "text-muted-foreground" };
+  return { Icon: otherFileIcon(mime), typeLabelKey: "Inbox.attachmentFile", accent: "text-muted-foreground" };
+}
+
+function otherFileIcon(mime: string): LucideIcon {
+  if (mime.startsWith("audio/")) return FileAudio;
+  if (mime.startsWith("video/")) return FileVideo;
+  if (mime.startsWith("text/") || mime === "application/json") return FileText;
+  if (mime === "application/zip" || mime.includes("compressed") || mime.includes("x-tar")) return FileArchive;
+  return FileIcon;
 }
 
 export function attachmentSubtitle(

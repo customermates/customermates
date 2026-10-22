@@ -5,12 +5,12 @@ import type { AddressCheckResult, AddressIssueOutput } from "@/features/addresse
 import type { AddressPlaceChoice } from "@/features/addresses/address-form-layout";
 import type { AddressDraftParts } from "@/features/records/record-input-value";
 
-import { useTranslations } from "next-intl";
-import { CircleAlert, TriangleAlert } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 
+import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/core/utils/cn";
-import { addressCountryLabel } from "@/features/records/record-address-value";
+import { countryLabelForLocale } from "@/constants/countries";
+import { appLocaleOrDefault } from "@/i18n/locale-registry";
 import { addressPlaceChoices } from "@/features/addresses/address-form-layout";
 import { addressRegionName, addressRegionOptionValue } from "./record-address-region-options";
 
@@ -22,7 +22,6 @@ export function RecordAddressIssues({
   result,
   parts,
   format,
-  locale,
   partLabel,
   disabled,
   onUse,
@@ -30,13 +29,13 @@ export function RecordAddressIssues({
   result: AddressCheckResult;
   parts: AddressDraftParts;
   format: AddressCountryFormat | null;
-  locale: string;
   partLabel: (part: AddressIssueOutput["part"]) => string;
   disabled: boolean;
   onUse: (patch: Patch) => void;
 }) {
   const t = useTranslations();
-  const country = parts.countryCode ? addressCountryLabel(parts.countryCode, locale) : "";
+  const locale = appLocaleOrDefault(useLocale());
+  const country = parts.countryCode ? countryLabelForLocale(parts.countryCode, locale) : "";
   const regionPatch = (key: string | null): Patch =>
     key && format?.regions.length && !parts.region ? { region: addressRegionOptionValue(format, key) } : {};
   const choices = parts.city ? [] : addressPlaceChoices(result);
@@ -90,28 +89,22 @@ export function RecordAddressIssues({
   return (
     <div aria-live="polite" className="space-y-1.5" data-address-issues="">
       {result.issues.map((issue) => {
-        const error = issue.severity === "error";
-        const Icon = error ? CircleAlert : TriangleAlert;
         const actions = fixes(issue);
         return (
-          <div
+          <Alert
             key={`${issue.code}:${issue.part}`}
-            className={cn("space-y-1 text-xs", error ? "text-destructive" : "text-warning")}
+            color={issue.severity === "error" ? "danger" : "warning"}
             data-address-issue={issue.code}
             data-severity={issue.severity}
+            description={message(issue)}
+            role="note"
           >
-            <p className="flex items-start gap-1.5">
-              <Icon aria-hidden className="mt-px size-3.5 shrink-0" />
-
-              <span>{message(issue)}</span>
-            </p>
-
             {actions.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 pl-5">
+              <div className="flex flex-wrap gap-1.5">
                 {actions.map((action) => fixButton(action.label, action.patch))}
               </div>
             )}
-          </div>
+          </Alert>
         );
       })}
 

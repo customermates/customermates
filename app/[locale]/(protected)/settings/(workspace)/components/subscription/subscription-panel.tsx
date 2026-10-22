@@ -13,6 +13,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { FormOutputField } from "@/components/forms/form-output-field";
 import { AppChip } from "@/components/chip/app-chip";
+import { useRecordFileSize } from "@/components/records/record-file-chips";
 import { Alert } from "@/components/shared/alert";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { startBackgroundPoll } from "@/core/utils/background-poll";
@@ -20,11 +21,9 @@ import { CHECKOUT_POLL_INTERVAL_MS } from "@/ee/subscription/checkout-state";
 
 import { PlanSelection } from "./plan-selection";
 
-import { storageSizeLabel } from "@/features/record-files/storage-size";
-
 type Props = {
   initialSubscription: SubscriptionDto | null;
-  storage?: FileStorageUsageDto | null;
+  storage: FileStorageUsageDto | null;
 };
 
 export const SUBSCRIPTION_STATUS_COLOR_MAP: Record<SubscriptionStatus, ChipColor> = {
@@ -63,7 +62,7 @@ export const SubscriptionPanel = observer(({ initialSubscription, storage }: Pro
     : hasBillingPortal
       ? t("Subscription.fieldHelp.currentPeriodEndManage", { billing: t("Subscription.manageWithLemonSqueezy") })
       : t("Subscription.fieldHelp.currentPeriodEndUnavailable");
-  const sizeLabel = (bytes: number) => storageSizeLabel(bytes, intlStore.formattingLocale);
+  const sizeLabel = useRecordFileSize();
   const trialEndHelp = !hasActiveSubscription
     ? canManageCompany
       ? t("Subscription.fieldHelp.trialEndsPicker")
@@ -71,6 +70,11 @@ export const SubscriptionPanel = observer(({ initialSubscription, storage }: Pro
     : !canManageCompany
       ? t("Subscription.fieldHelp.trialEndsReadOnly")
       : t("Subscription.fieldHelp.trialEndsManage", { billing: t("Subscription.manageWithLemonSqueezy") });
+  const storageRow = storage?.limitBytes ? (
+    <FormOutputField help={t("Subscription.fieldHelp.fileStorage")} label={t("Subscription.fileStorage")}>
+      {t("Subscription.fileStorageUsage", { used: sizeLabel(storage.usedBytes), limit: sizeLabel(storage.limitBytes) })}
+    </FormOutputField>
+  ) : null;
 
   useEffect(() => {
     if (!awaitingPayment) return;
@@ -99,6 +103,8 @@ export const SubscriptionPanel = observer(({ initialSubscription, storage }: Pro
         </span>
       </FormOutputField>
 
+      {isManaged && storageRow}
+
       {!isManaged && (
         <>
           <div className="grid w-full grid-cols-1 gap-3">
@@ -121,6 +127,8 @@ export const SubscriptionPanel = observer(({ initialSubscription, storage }: Pro
             >
               {seats.toString()}
             </FormOutputField>
+
+            {storageRow}
           </div>
 
           {!hasActiveSubscription && canManageCompany && (
@@ -133,15 +141,6 @@ export const SubscriptionPanel = observer(({ initialSubscription, storage }: Pro
           )}
         </>
       )}
-
-      {storage?.limitBytes ? (
-        <FormOutputField help={t("Subscription.fieldHelp.fileStorage")} label={t("Subscription.fileStorage")}>
-          {t("Subscription.fileStorageUsage", {
-            used: sizeLabel(storage.usedBytes),
-            limit: sizeLabel(storage.limitBytes),
-          })}
-        </FormOutputField>
-      ) : null}
     </section>
   );
 });

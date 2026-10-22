@@ -11,6 +11,7 @@ import { Trash2 } from "lucide-react";
 
 import { SubscriptionPlan as SubscriptionPlanEnum } from "@/generated/prisma";
 import { MAX_ENTERPRISE_FILE_STORAGE_GB_PER_USER } from "@/ee/operator/operator.schema";
+import { GIB } from "@/core/commercial/plan-catalog";
 
 import { AppModal } from "@/components/modal";
 import { ConfirmDialog } from "@/components/modal/confirm-dialog";
@@ -40,8 +41,6 @@ import { getOperatorWorkspaceTagsAction } from "../../actions";
 import { OperatorWorkspaceUsageSection } from "../usage/operator-workspace-usage-section";
 
 type Props = { workspace: OperatorWorkspaceRowDto | null; onClose: () => void };
-
-const GIB = 1024 ** 3;
 
 function storageGigabytes(bytes: number | null): number | undefined {
   return bytes === null ? undefined : Math.round(bytes / GIB);

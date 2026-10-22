@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { attachmentSubtitle, formatBytes } from "../attachment-classify";
+import { formatBytes } from "@/core/utils/format-bytes";
+
+import { attachmentSubtitle } from "../attachment-classify";
 
 const german = (value: number | undefined, options?: { maximumFractionDigits?: number }) =>
   new Intl.NumberFormat("de-DE", {

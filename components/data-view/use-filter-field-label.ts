@@ -5,6 +5,7 @@ import type { ColumnPresentation } from "@/core/data-view/column-presentation.sc
 import { useTranslations } from "next-intl";
 
 import { isCustomField } from "@/core/utils/custom-field";
+import { RECORD_CONTRIBUTION_FILTER } from "@/features/records/record-contribution-link";
 
 export function useFilterFieldLabel() {
   const t = useTranslations();
@@ -18,4 +19,3 @@ export function useFilterFieldLabel() {
     return t(`Common.filters.fields.${field.replace(/\./g, "_")}`);
   };
 }
-import { RECORD_CONTRIBUTION_FILTER } from "@/features/records/record-contribution-link";

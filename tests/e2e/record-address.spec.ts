@@ -142,7 +142,7 @@ async function newContact(page: Page, companyId: string, firstName: string) {
 }
 
 async function openAddress(page: Page, owner: Locator) {
-  await owner.getByRole("button", { name: "Edit Address", exact: true }).click();
+  await owner.getByRole("button", { name: /^Edit Address/ }).click();
   const drawer = page.getByRole("dialog", { name: "Edit Address", exact: true });
   await expect(drawer).toBeVisible();
   return drawer.locator("[data-address-input]");
@@ -150,28 +150,15 @@ async function openAddress(page: Page, owner: Locator) {
 
 async function applyAddress(page: Page) {
   const drawer = page.getByRole("dialog", { name: "Edit Address", exact: true });
-  if (await drawer.count()) {
-    await drawer.getByRole("button", { name: "Confirm", exact: true }).click();
-    await expect(drawer).toHaveCount(0);
-  }
+  await drawer.getByRole("button", { name: "Confirm", exact: true }).click();
+  await expect(drawer).toHaveCount(0);
 }
 
 function addressPart(address: Locator, name: string) {
   return address.getByRole("textbox", { name: new RegExp(`(^|\\s)${name}$`) });
 }
 
-async function showParts(address: Locator) {
-  await expect(address).toBeVisible();
-  const details = address.getByRole("button", { name: /^Address details/ });
-  if (!(await details.count())) return;
-  await expect(async () => {
-    if ((await details.getAttribute("aria-expanded")) !== "true") await details.click();
-    await expect(details).toHaveAttribute("aria-expanded", "true", { timeout: 1000 });
-  }).toPass();
-}
-
 async function fillParts(address: Locator, parts: { street: string; postalCode: string; city: string }) {
-  await showParts(address);
   await addressPart(address, "Street and number").fill(parts.street);
   await addressPart(address, "Postal code").fill(parts.postalCode);
   await addressPart(address, "City").fill(parts.city);
@@ -221,6 +208,9 @@ test("keeps address edits in their drawer until confirmed and saves only with th
   const record = await newContact(page, companyId, "Draft");
   let address = await openAddress(page, record);
   await fillParts(address, { street: "Tentative street 1", postalCode: "68161", city: "Mannheim" });
+  await page.keyboard.press("Escape");
+  await page.getByRole("alertdialog").getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(addressPart(address, "Street and number")).toHaveValue("Tentative street 1");
   await page.getByRole("dialog", { name: "Edit Address", exact: true }).getByRole("button", { name: "Cancel", exact: true }).click();
   await page.getByRole("alertdialog").getByRole("button", { name: "Discard", exact: true }).click();
   await expect(page.getByRole("dialog", { name: "Edit Address", exact: true })).toHaveCount(0);
@@ -269,7 +259,6 @@ test("picks a verified address from the suggestions while typing", async ({ page
   await search.press("Enter");
   await expect(search).toBeHidden();
   await expect(address.locator('[data-address-status="verified"]')).toHaveText("Verified address");
-  await showParts(address);
   await expect(addressPart(address, "Street and number")).toHaveValue("Hauptstraße 5");
   await expect(addressPart(address, "Postal code")).toHaveValue("68259");
   await expect(addressPart(address, "City")).toHaveValue("Mannheim");
@@ -361,7 +350,6 @@ test("checks an address entered by hand and turns an edited one unverified", asy
   await openRecordDetails(page, "Grace Lovelace");
   const details = page.getByRole("dialog", { name: "Contact", exact: true });
   const edited = await openAddress(page, details);
-  await showParts(edited);
   await addressPart(edited, "Street and number").fill("Hauptstraße 7");
   await expect(edited.locator('[data-address-status="unverified"]')).toBeVisible();
   await edited.getByRole("button", { name: "Check address", exact: true }).click();
@@ -390,7 +378,6 @@ test("enters addresses by hand when no address service is configured", async ({ 
   const drawer = await newContact(page, companyId, "Ada");
   const address = await openAddress(page, drawer);
   await expect(address.locator("[data-address-search]")).toHaveCount(0);
-  await expect(address.getByRole("button", { name: /^Address details/ })).toHaveCount(0);
   await fillParts(address, {
     street: "Hauptstraße 5",
     postalCode: "68259",
@@ -422,7 +409,6 @@ test("sets one address on several selected records", async ({ page, database, co
   await addAddressField(page, companyId);
   for (const firstName of ["Ada", "Grace"]) {
     const drawer = await newContact(page, companyId, firstName);
-    await applyAddress(page);
     await drawer.getByRole("button", { name: "Save", exact: true }).click();
     await expect(drawer).not.toBeVisible();
     await expect(page.getByRole("link", { name: `${firstName} Lovelace`, exact: true })).toBeVisible();

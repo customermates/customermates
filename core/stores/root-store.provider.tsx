@@ -35,13 +35,12 @@ export type RootStoreInitialState = {
 };
 
 function createRootStore(agentChatEnabled: boolean, appMode: AppMode, initialState: RootStoreInitialState): RootStore {
-  const rootStore = new RootStore(appMode, agentChatEnabled);
+  const rootStore = new RootStore(appMode, agentChatEnabled, initialState.addressLookupAvailable ?? false);
   rootStore.localeStore.setLocale(initialState.locale);
   rootStore.userStore.setUser(initialState.user);
   rootStore.subscriptionStore.setSubscription(initialState.subscription);
   rootStore.recordWorkspaceStore.setNavigation(initialState.recordNavigation ?? null);
   rootStore.sidebarLayoutStore.setLayout(initialState.sidebarLayout ?? null);
-  rootStore.addressLookupAvailable = initialState.addressLookupAvailable ?? false;
   rootStore.workspacesStore.setWorkspaces(initialState.workspaces ?? []);
   return rootStore;
 }
