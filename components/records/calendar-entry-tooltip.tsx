@@ -8,14 +8,22 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { calendarDateInstant } from "@/features/record-calendar/calendar-date";
 import { zonedDate } from "@/features/record-calendar/zoned-time";
 
-export function useCalendarEntryDateLabel(timeZone: string | undefined) {
+export function useCalendarEntryDateLabel(timeZone: string | undefined, compact = false) {
   const format = useRecordValueFormat();
   const zone = timeZone ?? "UTC";
+  const dateOptions: Intl.DateTimeFormatOptions = compact
+    ? { weekday: "short", day: "numeric", month: "short" }
+    : { dateStyle: "full" };
   return (entry: Pick<CalendarEntry, "start" | "end" | "time" | "endTime">) => {
-    const day = (date: string) => format.date(calendarDateInstant(date), { dateStyle: "full", timeZone: "UTC" });
+    const day = (date: string) => format.date(calendarDateInstant(date), { ...dateOptions, timeZone: "UTC" });
     if (!entry.time) return entry.start === entry.end ? day(entry.start) : `${day(entry.start)} – ${day(entry.end)}`;
     const instant = (value: string) =>
-      format.date(new Date(value), { dateStyle: "full", timeStyle: "short", timeZone: zone });
+      format.date(
+        new Date(value),
+        compact
+          ? { ...dateOptions, hour: "numeric", minute: "2-digit", timeZone: zone }
+          : { dateStyle: "full", timeStyle: "short", timeZone: zone },
+      );
     const first = instant(entry.time);
     if (!entry.endTime || entry.endTime === entry.time) return first;
     const sameDay = zonedDate(entry.endTime, zone) === zonedDate(entry.time, zone);

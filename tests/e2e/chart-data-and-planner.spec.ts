@@ -110,11 +110,11 @@ test("combined calendar adds two lists, toggles sources, opens records, exports 
       await expect(page.locator("[data-planner-week-schedule]")).toBeVisible();
       await page.screenshot({ path: testInfo.outputPath("combined-week.png") });
       await page.getByRole("tab", { name: "Quarter", exact: true }).click();
-      await expect(page.locator("[data-planner-quarter] > section")).toHaveCount(3);
+      await expect(page.locator('[data-planner-timeline][data-planner-scale="week"]')).toBeVisible();
       await page.screenshot({ path: testInfo.outputPath("combined-quarter.png") });
       await page.getByRole("tab", { name: "Timeline", exact: true }).click();
-      await expect(page.locator("[data-planner-timeline-row]").first()).toBeVisible();
-      await page.locator("[data-planner-timeline-row]").first().getByRole("button").first().click();
+      await expect(page.locator("[data-planner-timeline-group]")).toHaveCount(e2eAppMode() === "self-hosted" ? 2 : 3);
+      await page.locator("[data-planner-timeline-bar]").first().click();
       await expect(page.getByRole("dialog").last()).toBeVisible();
       await page.keyboard.press("Escape");
       await page.getByRole("tab", { name: "Month", exact: true }).click();

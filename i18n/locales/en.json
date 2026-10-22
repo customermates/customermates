@@ -2211,6 +2211,7 @@
     "boardPickedUp": "Record picked up.",
     "calendar": {
       "colorField": "Color by",
+      "createOn": "New record on {date}",
       "dateField": "Date field",
       "emptyRange": "Nothing scheduled in this period.",
       "endDateField": "End date field",
@@ -3457,6 +3458,7 @@
     "createSubscription": "Create subscription URL",
     "download": "Download .ics",
     "endDate": "End date",
+    "entryCount": "{count, plural, one {# entry} other {# entries}}",
     "event": "Event",
     "filterCount": "{count, plural, one {# filter} other {# filters}}",
     "filters": "Filters",

@@ -18,6 +18,7 @@ import {
   Plus,
   Trash2,
 } from "lucide-react";
+import type { CalendarDate } from "@/features/record-calendar/calendar-date";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -34,6 +35,15 @@ import { Label } from "@/components/ui/label";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { ItemActions, ItemActionsTrigger } from "@/components/ui/item-actions";
 import { DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { Calendar, focusCalendarDay } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverAnchor,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { PageState } from "@/components/page-state/page-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
@@ -53,12 +63,7 @@ import { IntlLink } from "@/i18n/navigation";
 import { PLANNER_MODES, PLANNER_SOURCE_LIMIT } from "@/features/planner/planner.schema";
 import { plannerEntries, plannerIsTruncated } from "@/features/planner/planner-entries";
 import { showsInAllDayLane } from "@/features/planner/planner-week-layout";
-import {
-  addCalendarMonths,
-  calendarDateInstant,
-  calendarDateParts,
-  startOfCalendarQuarter,
-} from "@/features/record-calendar/calendar-date";
+import { calendarDateInstant, calendarDateOf, calendarDateParts } from "@/features/record-calendar/calendar-date";
 import { calendarWindowRange, shiftCalendarAnchor } from "@/features/record-calendar/calendar-window";
 import { zonedDate } from "@/features/record-calendar/zoned-time";
 import { isCalendarDateField } from "@/features/record-calendar/record-calendar-query";
@@ -115,8 +120,15 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
   const [failed, setFailed] = useState(false);
   const [sourceEditor, setSourceEditor] = useState<{ source: PlannerSource; creating: boolean } | null>(null);
   const [sourcesOpen, setSourcesOpen] = useState(false);
+  const [jumping, setJumping] = useState(false);
   const [subscriptionsOpen, setSubscriptionsOpen] = useState(false);
   const [eventDetail, setEventDetail] = useState<PlannerEntry | null>(null);
+  const [creating, setCreating] = useState<{
+    date: CalendarDate;
+    minutes: number | null;
+    opener: HTMLElement | null;
+    rect: DOMRect | null;
+  } | null>(null);
   const request = useRef(0);
   const mode = wide ? config.mode : "agenda";
   const windowMode = mode === "quarter" || mode === "timeline" ? "quarter" : mode;
@@ -208,6 +220,26 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
       ),
     [root, result, config.timeZone],
   );
+  const creatableKey = config.sources
+    .filter((source) => source.enabled && stores.get(source.id)?.canCreateCalendarRecord)
+    .map((source) => source.id)
+    .join(",");
+  const createIn = useCallback(
+    (sourceId: string, date: CalendarDate, minutes: number | null, opener?: HTMLElement | null) => {
+      const store = stores.get(sourceId);
+      if (store?.canCreateCalendarRecord) store.createCalendarRecord(date, minutes, opener);
+    },
+    [stores],
+  );
+  const createAt = useCallback(
+    (date: CalendarDate, minutes: number | null, opener?: HTMLElement | null, anchor?: DOMRect) => {
+      const ids = creatableKey ? creatableKey.split(",") : [];
+      if (ids.length === 1) createIn(ids[0], date, minutes, opener);
+      else if (ids.length > 1)
+        setCreating({ date, minutes, opener: opener ?? null, rect: anchor ?? opener?.getBoundingClientRect() ?? null });
+    },
+    [creatableKey, createIn],
+  );
   const adapter = useMemo(
     () =>
       plannerCalendarAdapter({
@@ -220,15 +252,15 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
         refreshing,
         refresh,
         navigate: setAnchor,
+        create: creatableKey ? createAt : null,
       }),
-    [stores, colors, entries, anchor, windowMode, calendarWindow, refreshing, refresh],
+    [stores, colors, entries, anchor, windowMode, calendarWindow, refreshing, refresh, creatableKey, createAt],
   );
   const dateLabel = (date: string, full = false) =>
     format.date(
       calendarDateInstant(date),
       full ? { dateStyle: "medium", timeZone: UTC } : { month: "long", year: "numeric", timeZone: UTC },
     );
-  const firstMonth = startOfCalendarQuarter(anchor);
   const title =
     mode === "week"
       ? `${dateLabel(calendarWindow.from, true)} – ${dateLabel(calendarWindow.to, true)}`
@@ -273,6 +305,15 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
     const field = options.model.fields.find((field) => field.id === source.calendar.dateFieldId);
     return type && field ? `${type.pluralLabel} · ${field.label}` : t("Planner.unavailableSource");
   };
+  const timelineGroups = [
+    ...config.sources
+      .filter((source) => source.enabled)
+      .map((source) => ({ id: source.id, label: sourceName(source), color: source.color })),
+    ...options.calendars
+      .filter((calendar) => config.calendarIds.includes(calendar.id))
+      .map((calendar) => ({ id: calendar.id, label: calendar.name, color: "secondary" as const })),
+  ];
+  const anchorParts = calendarDateParts(anchor);
   const topBarActions = useMemo(
     () => (
       <TopBarActionButtons
@@ -332,9 +373,27 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
             onClick={() => setAnchor(shiftCalendarAnchor(windowMode, anchor, 1))}
           />
 
-          <h2 aria-live="polite" className="min-w-0 text-sm font-semibold">
-            {title}
-          </h2>
+          <Popover open={jumping} onOpenChange={setJumping}>
+            <h2 aria-live="polite" className="min-w-0">
+              <PopoverTrigger asChild>
+                <Button className="text-sm font-semibold" data-planner-jump="" size="sm" variant="ghost">
+                  {title}
+                </Button>
+              </PopoverTrigger>
+            </h2>
+
+            <PopoverContent align="start" className="w-auto p-0" onOpenAutoFocus={focusCalendarDay}>
+              <Calendar
+                defaultMonth={new Date(anchorParts.year, anchorParts.month - 1, 1)}
+                mode="single"
+                selected={new Date(anchorParts.year, anchorParts.month - 1, anchorParts.day)}
+                onSelect={(date) => {
+                  if (date) setAnchor(calendarDateOf(date.getFullYear(), date.getMonth() + 1, date.getDate()));
+                  setJumping(false);
+                }}
+              />
+            </PopoverContent>
+          </Popover>
 
           {refreshing && <Spinner aria-label={t("Loading.text")} className="size-4" />}
 
@@ -392,42 +451,19 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
             label={t("PageState.loading")}
             state="loading"
           />
-        ) : mode === "timeline" ? (
+        ) : mode === "timeline" || mode === "quarter" ? (
           <PlannerTimeline
             color={colors}
-            config={config}
             entries={entries}
+            groups={timelineGroups}
             name={name}
             refreshing={refreshing}
+            scale={mode === "timeline" ? "day" : "week"}
+            store={adapter}
             window={calendarWindow}
+            onCreate={(sourceId, date, opener) => createIn(sourceId, date, null, opener)}
             onOpen={open}
           />
-        ) : mode === "quarter" ? (
-          <div
-            className={cn(
-              "grid min-h-0 flex-1 grid-cols-[repeat(auto-fit,minmax(min(100%,28rem),1fr))] overflow-auto",
-              refreshing && "opacity-70",
-            )}
-            data-planner-quarter=""
-          >
-            {[0, 1, 2].map((offset) => {
-              const month = addCalendarMonths(firstMonth, offset);
-              const monthWindow = { ...calendarWindowRange("month", month), timeZone: config.timeZone };
-              const monthAdapter = {
-                ...adapter,
-                calendarFocusDate: month,
-                calendarWindow: monthWindow,
-                calendarRange: { ...monthWindow, total: entries.length, truncated: false },
-              };
-              return (
-                <section key={month} className="flex min-h-132 min-w-0 flex-col border-r last:border-r-0">
-                  <h3 className="border-b p-3 text-sm font-medium">{dateLabel(month)}</h3>
-
-                  <RecordCalendarView hideToolbar recordName={recordName} store={monthAdapter} onOpenRecord={openRow} />
-                </section>
-              );
-            })}
-          </div>
         ) : mode === "week" ? (
           <div className="flex min-h-0 flex-1 flex-col" data-planner-week="">
             <div className="max-h-[40dvh] shrink-0 overflow-auto pl-12" data-planner-all-day="">
@@ -436,8 +472,8 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
                 recordName={recordName}
                 store={{
                   ...adapter,
-                  normalizedCalendarItems: (pending) =>
-                    adapter.normalizedCalendarItems?.(pending).filter((item) => showsInAllDayLane(item.entry)) ?? [],
+                  normalizedCalendarItems: () =>
+                    adapter.normalizedCalendarItems?.().filter((item) => showsInAllDayLane(item.entry)) ?? [],
                 }}
                 onOpenRecord={openRow}
               />
@@ -445,11 +481,12 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
 
             <PlannerWeekSchedule
               color={colors}
-              config={config}
               entries={entries}
               name={name}
               refreshing={refreshing}
+              store={adapter}
               window={calendarWindow}
+              onCreate={creatableKey ? createAt : undefined}
               onOpen={open}
             />
           </div>
@@ -637,6 +674,50 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
           window={range}
           onClose={() => setSubscriptionsOpen(false)}
         />
+      )}
+
+      {creating && (
+        <Popover open onOpenChange={(value) => !value && setCreating(null)}>
+          <PopoverAnchor asChild>
+            <div
+              aria-hidden
+              className="pointer-events-none fixed"
+              style={{
+                left: creating.rect?.left ?? 0,
+                top: creating.rect?.top ?? 0,
+                width: creating.rect?.width ?? 0,
+                height: creating.rect?.height ?? 0,
+              }}
+            />
+          </PopoverAnchor>
+
+          <PopoverContent align="start" className="w-72 p-0" data-planner-create="">
+            <PopoverHeader className="px-3 pb-1 pt-3">
+              <PopoverTitle>{t("DataView.calendar.createOn", { date: dateLabel(creating.date, true) })}</PopoverTitle>
+            </PopoverHeader>
+
+            <div className="flex flex-col gap-0.5 p-1.5">
+              {config.sources
+                .filter((source) => creatableKey.split(",").includes(source.id))
+                .map((source) => (
+                  <Button
+                    key={source.id}
+                    className="justify-start"
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setCreating(null);
+                      createIn(source.id, creating.date, creating.minutes, creating.opener);
+                    }}
+                  >
+                    <span aria-hidden className="size-2 rounded-full" style={calendarSwatchStyle(source.color)} />
+
+                    <span className="truncate">{sourceName(source)}</span>
+                  </Button>
+                ))}
+            </div>
+          </PopoverContent>
+        </Popover>
       )}
 
       {eventDetail && (

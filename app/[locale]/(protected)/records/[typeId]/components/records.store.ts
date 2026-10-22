@@ -34,7 +34,12 @@ import {
   isCalendarRangeField,
   resolveCalendarFields,
 } from "@/features/record-calendar/record-calendar-query";
-import { calendarMoveChanges } from "@/features/record-calendar/calendar-entries";
+import type { CalendarEdit } from "@/features/record-calendar/calendar-entries";
+import {
+  calendarCreateValues,
+  calendarEditChanges,
+  calendarEntryResizable,
+} from "@/features/record-calendar/calendar-entries";
 import { calendarWindowRange } from "@/features/record-calendar/calendar-window";
 import { zonedDate } from "@/features/record-calendar/zoned-time";
 import { browserTimeZone } from "@/core/utils/time-zone";
@@ -92,6 +97,7 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       canCalendar: computed,
       calendarMode: computed,
       calendarFieldOptions: computed,
+      canCreateCalendarRecord: computed,
       setCalendarAnchor: action,
       setCalendarDisplayMode: action,
       setCalendarTimeZone: action,
@@ -188,13 +194,33 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
         [fields.start, fields.end].every((field) => !field || field.behavior.kind === "input"),
     );
   }
-  moveCalendarRecord = async (record: RecordRow, target: CalendarDate): Promise<RecordFieldSaveOutcome> => {
+  canResizeCalendarRecord(record: RecordRow) {
+    const fields = this.calendarFields;
+    return Boolean(fields && calendarEntryResizable(fields) && this.canMoveCalendarRecord(record));
+  }
+  moveCalendarRecord = async (record: RecordRow, edit: CalendarEdit): Promise<RecordFieldSaveOutcome> => {
     const fields = this.calendarFields;
     if (!fields || !this.canMoveCalendarRecord(record)) return { saved: false };
-    const changes = calendarMoveChanges(record, fields, target, this.calendarTimeZone);
+    const changes = calendarEditChanges(record, fields, edit, this.calendarTimeZone);
     if (!changes) return { saved: false };
     if (!changes.length) return { saved: true };
     return this.updateRecord(record, { fields: changes });
+  };
+  get canCreateCalendarRecord() {
+    const fields = this.calendarFields;
+    return Boolean(
+      fields &&
+        this.presentation.permittedActions.includes("create") &&
+        [fields.start, fields.end].every((field) => !field || field.behavior.kind === "input"),
+    );
+  }
+  createCalendarRecord = (date: CalendarDate, minutes: number | null, opener?: HTMLElement | null) => {
+    const fields = this.calendarFields;
+    if (!fields || !this.canCreateCalendarRecord) return;
+    this.rootStore.recordWorkspaceStore.open(
+      { typeId: this.presentation.typeId, values: calendarCreateValues(fields, date, minutes, this.calendarTimeZone) },
+      opener,
+    );
   };
   override get supportsSelection() {
     return (

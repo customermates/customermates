@@ -2211,6 +2211,7 @@
     "boardPickedUp": "Datensatz aufgenommen.",
     "calendar": {
       "colorField": "Farbe nach",
+      "createOn": "Neuer Datensatz am {date}",
       "dateField": "Datumsfeld",
       "emptyRange": "In diesem Zeitraum ist nichts geplant.",
       "endDateField": "Enddatumsfeld",
@@ -3457,6 +3458,7 @@
     "createSubscription": "Abonnement-URL erstellen",
     "download": ".ics herunterladen",
     "endDate": "Enddatum",
+    "entryCount": "{count, plural, one {# Eintrag} other {# Einträge}}",
     "event": "Ereignis",
     "filterCount": "{count, plural, one {# Filter} other {# Filter}}",
     "filters": "Filter",

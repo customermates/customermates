@@ -11,10 +11,9 @@ import {
   calendarEntryColor,
   calendarItems,
   calendarItemsOn,
-  calendarMoveTarget,
+  editCalendarItems,
   hiddenCalendarItemsOn,
   layoutCalendarWeek,
-  shiftCalendarEntry,
 } from "../record-calendar-layout";
 
 function item(id: string, start: string, end = start, time: string | null = null): CalendarItem {
@@ -79,21 +78,24 @@ describe("calendar agenda", () => {
 });
 
 describe("calendar moves", () => {
-  it("moves a span by the distance between the day it was grabbed on and the drop day", () => {
-    const span = item("span", "2026-10-05", "2026-10-09");
-    expect(calendarMoveTarget(span, "2026-10-08", "2026-10-08")).toBe("2026-10-05");
-    expect(calendarMoveTarget(span, "2026-10-08", "2026-10-09")).toBe("2026-10-06");
-    expect(calendarMoveTarget(span, "2026-10-09", "2026-10-02")).toBe("2026-09-28");
-    expect(calendarMoveTarget(span, "2026-10-12", "2026-10-14")).toBe("2026-10-07");
+  it("shows pending moves and resizes at their target days, re-sorted, until the record update settles", () => {
+    const items = [item("early", "2026-10-05", "2026-10-09"), item("late", "2026-10-07")];
+    const edited = editCalendarItems(
+      items,
+      new Map([
+        ["early", { edge: "end" as const, days: 2, minutes: 0 }],
+        ["late", { edge: "move" as const, days: -4, minutes: 0 }],
+      ]),
+      "UTC",
+    );
+    expect(edited.map(({ record: { id }, entry }) => [id, entry.start, entry.end])).toEqual([
+      ["late", "2026-10-03", "2026-10-03"],
+      ["early", "2026-10-05", "2026-10-11"],
+    ]);
+    expect(editCalendarItems(items, new Map(), "UTC")).toEqual(items);
   });
 
-  it("shows a pending move at its target day until the record update settles", () => {
-    const entry = item("deal", "2026-10-30", "2026-11-02").entry;
-    expect(shiftCalendarEntry(entry, 3)).toMatchObject({ start: "2026-11-02", end: "2026-11-05" });
-    expect(shiftCalendarEntry(entry, 0)).toBe(entry);
-  });
-
-  it("builds entries from record values, sorted and shifted by pending moves", () => {
+  it("builds entries from record values, sorted by start", () => {
     const field = (id: string, valueType: "date" | "select") => ({
       id,
       typeId: "deal",
@@ -108,15 +110,10 @@ describe("calendar moves", () => {
         fields: [{ fieldId: "close", result: { state: "value", value: { kind: "date", value: date } } }],
       }) as unknown as RecordRow;
     const fields = { start: field("close", "date"), end: null, color: null } as never;
-    const items = calendarItems(
-      [record("late", "2026-10-20"), record("early", "2026-10-02")],
-      fields,
-      "Europe/Berlin",
-      new Map([["late", -1]]),
-    );
+    const items = calendarItems([record("late", "2026-10-20"), record("early", "2026-10-02")], fields, "Europe/Berlin");
     expect(items.map(({ record: { id }, entry }) => [id, entry.start])).toEqual([
       ["early", "2026-10-02"],
-      ["late", "2026-10-19"],
+      ["late", "2026-10-20"],
     ]);
   });
 });

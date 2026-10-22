@@ -9,7 +9,7 @@ import { PermissionService } from "@/core/base/permission.service";
 import { ViewMode } from "@/core/base/base-query-builder";
 import { addCalendarDays } from "@/features/record-calendar/calendar-date";
 import { zonedDate } from "@/features/record-calendar/zoned-time";
-import { calendarMoveChanges } from "@/features/record-calendar/calendar-entries";
+import { calendarEditChanges } from "@/features/record-calendar/calendar-entries";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
 
@@ -621,16 +621,16 @@ describeDatabase("calendar and map widgets on PostgreSQL", () => {
     ]);
     const current = await f.run(() => f.read.invoke(ref));
     if (!current.ok) throw new Error(JSON.stringify(current));
-    const timed = calendarMoveChanges(
+    const timed = calendarEditChanges(
       { id: ref.recordId, fields: current.data.fields },
       { start: { ...f.fields.meetingAt }, end: null, color: null },
-      "2026-10-26",
+      { edge: "move", days: 3, minutes: 0 },
       ZONE,
     );
-    const pair = calendarMoveChanges(
+    const pair = calendarEditChanges(
       { id: ref.recordId, fields: current.data.fields },
       { start: { ...f.fields.closeDate }, end: { ...f.fields.endDate }, color: null },
-      "2026-10-30",
+      { edge: "move", days: 7, minutes: 0 },
       ZONE,
     );
     const write = (fields: NonNullable<typeof timed>, expectedVersion: number) =>

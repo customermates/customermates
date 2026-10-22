@@ -1,5 +1,5 @@
 import type { CalendarDate } from "@/features/record-calendar/calendar-date";
-import type { CalendarEntry } from "@/features/record-calendar/calendar-entries";
+import type { CalendarEdit, CalendarEntry } from "@/features/record-calendar/calendar-entries";
 import type { CalendarFields } from "@/features/record-calendar/record-calendar-query";
 import type { RecordRow } from "@/features/records/record-presentation";
 import type { RecordFieldView } from "@/features/records/record-model.schema";
@@ -7,9 +7,7 @@ import type { ChipColor } from "@/constants/chip-colors";
 import type { CSSProperties } from "react";
 
 import { toChipColor } from "@/constants/chip-colors";
-import { moveInstantToDate, zonedDate } from "@/features/record-calendar/zoned-time";
 import {
-  addCalendarDays,
   calendarDatesBetween,
   calendarDayDifference,
   compareCalendarDates,
@@ -18,6 +16,7 @@ import {
   calendarEntry,
   calendarEntryCovers,
   compareCalendarEntries,
+  editCalendarEntry,
 } from "@/features/record-calendar/calendar-entries";
 
 export type CalendarItem = { entry: CalendarEntry; record: RecordRow };
@@ -49,30 +48,27 @@ function earlierOf(left: CalendarDate, right: CalendarDate) {
   return compareCalendarDates(left, right) < 0 ? left : right;
 }
 
-export function shiftCalendarEntry(entry: CalendarEntry, days: number, timeZone = "UTC"): CalendarEntry {
-  if (days === 0) return entry;
-  const shift = (instant: string) =>
-    moveInstantToDate(instant, addCalendarDays(zonedDate(instant, timeZone), days), timeZone);
-  return {
-    ...entry,
-    start: addCalendarDays(entry.start, days),
-    end: addCalendarDays(entry.end, days),
-    time: entry.time ? shift(entry.time) : null,
-    ...(entry.endTime ? { endTime: shift(entry.endTime) } : {}),
-  };
-}
-
 export function calendarItems(
   records: readonly RecordRow[],
   fields: CalendarFields<RecordFieldView>,
   timeZone: string,
-  pendingShifts: ReadonlyMap<string, number> = new Map(),
 ): CalendarItem[] {
   return records
     .flatMap((record) => {
       const entry = calendarEntry(record, fields, timeZone);
-      return entry ? [{ entry: shiftCalendarEntry(entry, pendingShifts.get(record.id) ?? 0, timeZone), record }] : [];
+      return entry ? [{ entry, record }] : [];
     })
+    .sort((left, right) => compareCalendarEntries(left.entry, right.entry));
+}
+
+export function editCalendarItems(
+  items: readonly CalendarItem[],
+  pending: ReadonlyMap<string, CalendarEdit>,
+  timeZone: string,
+): CalendarItem[] {
+  if (!pending.size) return [...items];
+  return items
+    .map((item) => ({ ...item, entry: editCalendarEntry(item.entry, pending.get(item.record.id), timeZone) }))
     .sort((left, right) => compareCalendarEntries(left.entry, right.entry));
 }
 
@@ -156,8 +152,4 @@ export function calendarEntryColorStyle(color: ChipColor): CSSProperties {
 
 export function calendarSwatchStyle(color: ChipColor): CSSProperties {
   return { backgroundColor: CHIP_TOKENS[color].color };
-}
-
-export function calendarMoveTarget(item: CalendarItem, grabDate: CalendarDate, dropDate: CalendarDate) {
-  return addCalendarDays(item.entry.start, calendarDayDifference(grabDate, dropDate));
 }

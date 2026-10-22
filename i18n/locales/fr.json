@@ -2211,6 +2211,7 @@
     "boardPickedUp": "Enregistrement saisi.",
     "calendar": {
       "colorField": "Couleur selon",
+      "createOn": "Nouvel enregistrement le {date}",
       "dateField": "Champ de date",
       "emptyRange": "Rien de prévu sur cette période.",
       "endDateField": "Champ de date de fin",
@@ -3457,6 +3458,7 @@
     "createSubscription": "Créer l’URL d’abonnement",
     "download": "Télécharger .ics",
     "endDate": "Date de fin",
+    "entryCount": "{count, plural, one {# entrée} other {# entrées}}",
     "event": "Événement",
     "filterCount": "{count, plural, one {# filtre} other {# filtres}}",
     "filters": "Filtres",

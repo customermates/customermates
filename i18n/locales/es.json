@@ -2211,6 +2211,7 @@
     "boardPickedUp": "Registro seleccionado.",
     "calendar": {
       "colorField": "Color según",
+      "createOn": "Nuevo registro el {date}",
       "dateField": "Campo de fecha",
       "emptyRange": "No hay nada programado en este periodo.",
       "endDateField": "Campo de fecha de fin",
@@ -3457,6 +3458,7 @@
     "createSubscription": "Crear URL de suscripción",
     "download": "Descargar .ics",
     "endDate": "Fecha de fin",
+    "entryCount": "{count, plural, one {# entrada} other {# entradas}}",
     "event": "Evento",
     "filterCount": "{count, plural, one {# filtro} other {# filtros}}",
     "filters": "Filtros",

@@ -40,7 +40,7 @@ async function dragTo(page: Page, source: Locator, target: Locator) {
   await page.mouse.down();
   await page.mouse.move(from.x + 24, from.y + from.height / 2, { steps: 4 });
   await page.mouse.move(to.x + to.width / 2, to.y + to.height / 2, { steps: 16 });
-  await expect(target).toHaveClass(/ring-primary/);
+  await expect(page.locator("[data-calendar-drag-preview]")).toBeVisible();
   await page.mouse.up();
   expect((await saved).ok()).toBe(true);
 }

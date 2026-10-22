@@ -1,4 +1,4 @@
-import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
+import type { DragEndEvent, DragMoveEvent, DragStartEvent } from "@dnd-kit/core";
 import type { ReactNode } from "react";
 import type { Root } from "react-dom/client";
 import type { RecordRow } from "@/features/records/record-presentation";
@@ -11,6 +11,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const spy = vi.hoisted(() => ({
   onDragStart: undefined as ((event: DragStartEvent) => void) | undefined,
   onDragEnd: undefined as ((event: DragEndEvent) => void) | undefined,
+  onDragMove: undefined as ((event: DragMoveEvent) => void) | undefined,
   draggables: [] as { id: string; disabled: boolean }[],
   droppables: [] as { id: string; disabled: boolean }[],
   wide: true,
@@ -41,13 +42,16 @@ vi.mock("@dnd-kit/core", () => ({
     children,
     onDragStart,
     onDragEnd,
+    onDragMove,
   }: {
     children: ReactNode;
     onDragStart: (event: DragStartEvent) => void;
     onDragEnd: (event: DragEndEvent) => void;
+    onDragMove: (event: DragMoveEvent) => void;
   }) => {
     spy.onDragStart = onDragStart;
     spy.onDragEnd = onDragEnd;
+    spy.onDragMove = onDragMove;
     return createElement("div", null, children);
   },
   DragOverlay: ({ children }: { children?: ReactNode }) => children ?? null,
@@ -121,7 +125,10 @@ function fakeStore(overrides: Partial<FakeStore> = {}): FakeStore {
     calendarResultSeq: 1,
     isRefreshing: false,
     canMoveCalendarRecord: (record: RecordRow) => record.id !== "e",
+    canResizeCalendarRecord: () => false,
     moveCalendarRecord: vi.fn().mockResolvedValue({ saved: true }),
+    canCreateCalendarRecord: true,
+    createCalendarRecord: vi.fn(),
     setCalendarDisplayMode: vi.fn(),
     setCalendarAnchor: vi.fn(),
     setViewOptions: vi.fn(),
@@ -161,6 +168,7 @@ function rangeStore(start: string, end: string, overrides: Partial<FakeStore> = 
       } as unknown as RecordRow,
     ],
     calendarFields: { start: field("close", "date"), end: field("finish", "date"), color: null } as never,
+    canResizeCalendarRecord: () => true,
     ...overrides,
   });
 }
@@ -174,8 +182,10 @@ function grabAt(host: HTMLElement, day: string) {
   return new MouseEvent("mousedown", { clientX: 40, clientY: 40 });
 }
 
-async function drag(activatorEvent: Event, segmentStart: string, drop: string) {
-  const active = { id: `r:${segmentStart}`, data: { current: { recordId: "r", segmentStart } } };
+const move = (days: number) => ({ edge: "move", days, minutes: 0 });
+
+async function drag(activatorEvent: Event, day: string, drop: string, edge = "move") {
+  const active = { id: `r:${day}:${edge}`, data: { current: { recordId: "r", edge, day } } };
   await act(async () => {
     spy.onDragStart?.({ active, activatorEvent } as unknown as DragStartEvent);
     await Promise.resolve();
@@ -190,6 +200,7 @@ async function drag(activatorEvent: Event, segmentStart: string, drop: string) {
 beforeEach(() => {
   spy.onDragStart = undefined;
   spy.onDragEnd = undefined;
+  spy.onDragMove = undefined;
   spy.draggables = [];
   spy.droppables = [];
   spy.wide = true;
@@ -229,11 +240,11 @@ describe("record calendar view", () => {
     await act(async () => {
       await Promise.resolve();
       spy.onDragEnd?.({
-        active: { id: "a:2026-10-16", data: { current: { recordId: "a", segmentStart: "2026-10-16" } } },
+        active: { id: "a:2026-10-16:move", data: { current: { recordId: "a", edge: "move", day: "2026-10-16" } } },
         over: { id: "2026-10-22", data: { current: { date: "2026-10-22" } } },
       } as unknown as DragEndEvent);
     });
-    expect(store.moveCalendarRecord).toHaveBeenCalledWith(expect.objectContaining({ id: "a" }), "2026-10-22");
+    expect(store.moveCalendarRecord).toHaveBeenCalledWith(expect.objectContaining({ id: "a" }), move(6));
   });
 
   it("ignores a drop on the same day and keeps read-only records out of drag and drop", async () => {
@@ -242,7 +253,7 @@ describe("record calendar view", () => {
     await act(async () => {
       await Promise.resolve();
       spy.onDragEnd?.({
-        active: { id: "a:2026-10-16", data: { current: { recordId: "a", segmentStart: "2026-10-16" } } },
+        active: { id: "a:2026-10-16:move", data: { current: { recordId: "a", edge: "move", day: "2026-10-16" } } },
         over: { id: "2026-10-16", data: { current: { date: "2026-10-16" } } },
       } as unknown as DragEndEvent);
     });
@@ -260,16 +271,16 @@ describe("record calendar view", () => {
     await drag(grabAt(host, "2026-10-09"), "2026-10-05", "2026-10-09");
     expect(store.moveCalendarRecord).not.toHaveBeenCalled();
     await drag(grabAt(host, "2026-10-09"), "2026-10-05", "2026-10-10");
-    expect(store.moveCalendarRecord).toHaveBeenLastCalledWith(expect.objectContaining({ id: "r" }), "2026-10-06");
+    expect(store.moveCalendarRecord).toHaveBeenLastCalledWith(expect.objectContaining({ id: "r" }), move(1));
     await drag(grabAt(host, "2026-10-08"), "2026-10-05", "2026-10-01");
-    expect(store.moveCalendarRecord).toHaveBeenLastCalledWith(expect.objectContaining({ id: "r" }), "2026-09-28");
+    expect(store.moveCalendarRecord).toHaveBeenLastCalledWith(expect.objectContaining({ id: "r" }), move(-7));
   });
 
   it("moves a range that continues from an earlier week by the grabbed day of its later segment", async () => {
     const store = rangeStore("2026-10-08", "2026-10-14");
     const { host } = render(store);
     await drag(grabAt(host, "2026-10-14"), "2026-10-12", "2026-10-16");
-    expect(store.moveCalendarRecord).toHaveBeenCalledWith(expect.objectContaining({ id: "r" }), "2026-10-10");
+    expect(store.moveCalendarRecord).toHaveBeenCalledWith(expect.objectContaining({ id: "r" }), move(2));
   });
 
   it("moves a range picked up with the keyboard from the day its segment starts", async () => {
@@ -277,7 +288,63 @@ describe("record calendar view", () => {
     const store = rangeStore("2026-10-05", "2026-10-09");
     render(store);
     await drag(new KeyboardEvent("keydown", { code: "Space" }), "2026-10-05", "2026-10-07");
-    expect(store.moveCalendarRecord).toHaveBeenCalledWith(expect.objectContaining({ id: "r" }), "2026-10-07");
+    expect(store.moveCalendarRecord).toHaveBeenCalledWith(expect.objectContaining({ id: "r" }), move(2));
+  });
+
+  it("resizes a range from either edge, previews the new dates and saves even after the dragged segment re-rendered", async () => {
+    let settle: (value: { saved: boolean }) => void = () => undefined;
+    const store = rangeStore("2026-10-05", "2026-10-07", {
+      moveCalendarRecord: vi.fn(() => new Promise<{ saved: boolean }>((resolve) => (settle = resolve))),
+    });
+    const { host } = render(store);
+    expect(host.querySelectorAll('[data-calendar-resize="start"]')).toHaveLength(1);
+    expect(host.querySelectorAll('[data-calendar-resize="end"]')).toHaveLength(1);
+    const activatorEvent = grabAt(host, "2026-10-07");
+    const active = { id: "r:2026-10-07:end", data: { current: { recordId: "r", edge: "end", day: "2026-10-07" } } };
+    await act(async () => {
+      spy.onDragStart?.({ active, activatorEvent } as unknown as DragStartEvent);
+      spy.onDragMove?.({ active, activatorEvent, delta: { x: 0, y: 0 }, over: { id: "2026-10-09" } } as never);
+      await Promise.resolve();
+    });
+    expect(host.querySelector('[data-calendar-entry="r"]')?.getAttribute("data-calendar-entry-end")).toBe("2026-10-09");
+    await act(async () => {
+      spy.onDragEnd?.({
+        active: { id: active.id, data: { current: undefined } },
+        activatorEvent,
+        delta: { x: 0, y: 0 },
+        over: { id: "2026-10-09" },
+      } as never);
+      await Promise.resolve();
+    });
+    expect(store.moveCalendarRecord).toHaveBeenCalledWith(expect.objectContaining({ id: "r" }), {
+      edge: "end",
+      days: 2,
+      minutes: 0,
+    });
+    expect(host.querySelector('[data-calendar-entry="r"]')?.getAttribute("data-calendar-entry-end")).toBe("2026-10-09");
+    await act(async () => {
+      settle({ saved: false });
+      await Promise.resolve();
+    });
+    expect(host.querySelector('[data-calendar-entry="r"]')?.getAttribute("data-calendar-entry-end")).toBe("2026-10-07");
+    await drag(grabAt(host, "2026-10-05"), "2026-10-05", "2026-10-03", "start");
+    expect(store.moveCalendarRecord).toHaveBeenLastCalledWith(expect.objectContaining({ id: "r" }), {
+      edge: "start",
+      days: -2,
+      minutes: 0,
+    });
+  });
+
+  it("creates a record on a day from its add button or a double click on the empty cell", () => {
+    const store = fakeStore();
+    const { host } = render(store);
+    const cell = must(host.querySelector<HTMLElement>('[data-calendar-day="2026-10-21"]'));
+    act(() => must(cell.querySelector("button")).click());
+    expect(store.createCalendarRecord).toHaveBeenLastCalledWith("2026-10-21", null, cell);
+    act(() => {
+      cell.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
+    });
+    expect(store.createCalendarRecord).toHaveBeenCalledTimes(2);
   });
 
   it("shows a timed entry's start time only on its first agenda day", () => {

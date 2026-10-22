@@ -7,7 +7,7 @@ import type { RecordRow } from "@/features/records/record-presentation";
 import type { RecordCalendarViewStore } from "../../records/[typeId]/components/record-calendar-view";
 import type { RecordExplorationStore } from "../../records/[typeId]/components/record-exploration.store";
 
-import { calendarEntryColor, shiftCalendarEntry } from "../../records/[typeId]/components/record-calendar-layout";
+import { calendarEntryColor } from "../../records/[typeId]/components/record-calendar-layout";
 import { resolveCalendarFields } from "@/features/record-calendar/record-calendar-query";
 
 export function plannerEntryColors(config: PlannerConfig, result: PlannerResult): (item: PlannerEntry) => ChipColor {
@@ -38,6 +38,7 @@ export function plannerCalendarAdapter({
   refreshing,
   refresh,
   navigate,
+  create,
 }: {
   stores: ReadonlyMap<string, RecordExplorationStore>;
   colors: (item: PlannerEntry) => ChipColor;
@@ -48,6 +49,7 @@ export function plannerCalendarAdapter({
   refreshing: boolean;
   refresh: () => Promise<void>;
   navigate: (date: string) => void;
+  create: ((date: string, minutes: number | null, opener?: HTMLElement | null) => void) | null;
 }): RecordCalendarViewStore {
   const byId = new Map(entries.map((entry) => [entry.id, entry]));
   const rows: RecordRow[] = entries.map((item) =>
@@ -77,12 +79,10 @@ export function plannerCalendarAdapter({
     calendarResultSeq: 1,
     isRefreshing: refreshing,
     items: rows,
-    normalizedCalendarItems: (pending) =>
+    normalizedCalendarItems: () =>
       rows.flatMap((record) => {
         const item = byId.get(record.id);
-        return item
-          ? [{ record, entry: shiftCalendarEntry(item.entry, pending.get(record.id) ?? 0, window.timeZone) }]
-          : [];
+        return item ? [{ record, entry: item.entry }] : [];
       }),
     calendarColorForItem: (item) => {
       const entry = byId.get(item.record.id);
@@ -92,12 +92,18 @@ export function plannerCalendarAdapter({
       const item = byId.get(row.id);
       return Boolean(item?.record && stores.get(item.sourceId)?.canMoveCalendarRecord(item.record));
     },
-    moveCalendarRecord: async (row, target) => {
+    canResizeCalendarRecord: (row) => {
+      const item = byId.get(row.id);
+      return Boolean(item?.record && stores.get(item.sourceId)?.canResizeCalendarRecord(item.record));
+    },
+    moveCalendarRecord: async (row, edit) => {
       const item = byId.get(row.id);
       const store = item && stores.get(item.sourceId);
       if (!store || !item.record) return { saved: false };
-      return store.moveCalendarRecord(item.record, target);
+      return store.moveCalendarRecord(item.record, edit);
     },
+    canCreateCalendarRecord: Boolean(create),
+    createCalendarRecord: (date, minutes, opener) => create?.(date, minutes, opener),
     refreshQuery: refresh,
     setCalendarAnchor: navigate,
     setCalendarDisplayMode: () => undefined,
