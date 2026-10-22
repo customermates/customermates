@@ -339,7 +339,7 @@ describe("Northwind Labs demo fixture contract", () => {
     expect(SYNTHETIC_CUSTOM_FIELD_DEFINITIONS).toHaveLength(9);
   });
 
-  it("keeps every demo contact's number in Channels as one phone identity, never as a phone field", () => {
+  it("keeps every demo contact's number in its contact details as one phone identity, never as a phone field", () => {
     const phones = buildNorthwindIdentities().filter((identity) => identity.provider === "phone");
     expect(phones.map((identity) => identity.recordId)).toEqual(data.contacts.map((contact) => contact.id));
     for (const identity of phones) expect(normalizedIdentity(identity)?.value).toBe(identity.value);

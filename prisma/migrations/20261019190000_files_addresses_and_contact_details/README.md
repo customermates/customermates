@@ -10,15 +10,10 @@ leaves the database as it was. It runs on PostgreSQL 16 and 17; pgvector is opti
 | Step | Work |
 | --- | --- |
 | Locks | Takes the record engine's lock of every workspace (in id order) before it locks any table, so a write of the previous release that already holds its workspace's lock finishes first instead of deadlocking with the migration. A lock that is not granted within 60 seconds rolls everything back. |
-| 1 Record files and addresses | `RecordFile` (metadata and lifecycle of uploaded files), `RecordFileContent` (the parts the database storage driver writes) and `RecordFileChunk` (extracted text for search, with an optional pgvector embedding). `RecordValue_shape_check` accepts an address: its parts in `jsonValue`, its formatted line in `textValue`. |
-| 2 File storage | `Subscription.enterpriseFileStorageBytesPerUser` and the index the daily file cleanup reads. |
-| 3 File index | Chunk offsets and embedding models, indexing claims and attempts, the `fileIndexing` usage purpose. |
-| 4 Postal codes | `PostalCodeCountry` and `PostalCode`, loaded per country from GeoNames on first use. They are shared by every workspace and hold no workspace data. |
-| 5 Chat files | Files given to Mate in a chat are pending record files without a field until they are filed onto a record. |
-| 6 Calendar views | `DataView.calendar` and `P13n.calendar`. |
-| 7 Calendar and map widgets | The widget kinds `calendar` and `map` with their own query columns. |
-| 8 Contact details | `RecordIdentity.provider` gets its own enum `RecordIdentityProvider` with `phone`; every phone and email field of every workspace's current record model moves into its list's contact details field as described below, in one new configuration revision per affected workspace; contact details fields that still carry a former default name get the new one; the check constraint `RecordFieldDefinition_valueType_not_retired` keeps an older application version from creating a phone or email field afterwards. |
-| 9 Calendar subscriptions | `CalendarSubscription` stores a SHA-256 token hash, the owner and a validated source configuration. Workspace/user deletion cascades to subscriptions. The combined calendar uses existing personal settings; no new database service is required. |
+| 1 Record files | `RecordFile` (metadata, lifecycle and indexing state of uploaded files, also the files given to Mate in a chat, which stay pending without a field until they are filed onto a record), `RecordFileContent` (the parts the database storage driver writes) and `RecordFileChunk` (extracted text for search, with an optional pgvector embedding); `Subscription.enterpriseFileStorageBytesPerUser` and the `fileIndexing` usage purpose. |
+| 2 Addresses and postal codes | `RecordValue_shape_check` accepts an address: its parts in `jsonValue`, its formatted line in `textValue`. `PostalCodeCountry` and `PostalCode`, loaded per country from GeoNames on first use. They are shared by every workspace and hold no workspace data. |
+| 3 Calendars | `DataView.calendar` and `P13n.calendar`; the widget kinds `calendar` and `map` with their own query columns; `CalendarSubscription`, which stores the SHA-256 hash of a subscription URL's token, its member and the validated calendar configuration, and is deleted with the member or the workspace. |
+| 4 Contact details | `RecordIdentity.provider` gets its own enum `RecordIdentityProvider` with `phone`; every phone and email field of every workspace's current record model moves into its list's contact details field as described below, in one new configuration revision per affected workspace; contact details fields that still carry a former default name get the new one; the check constraint `RecordFieldDefinition_valueType_not_retired` keeps an older application version from creating a phone or email field afterwards. |
 
 Enum labels added by `ALTER TYPE … ADD VALUE` (`fileIndexing`, `calendar`, `map`) are never used as a value in this
 file, which PostgreSQL requires inside a transaction. `RecordIdentityProvider` is a new type, so its values can be
@@ -239,9 +234,9 @@ record and message permissions.
 the migrated database until the new one takes over, and an instant rollback runs it again. It writes identity
 providers as `MessagingProvider` values: its record writes cast them with `::"MessagingProvider"` and its Prisma client
 with `CAST(… AS "MessagingProvider")`. The cast `MessagingProvider → RecordIdentityProvider` (`WITH INOUT AS
-ASSIGNMENT`, created by step 8) converts such a value when it is stored; every messaging provider is also an identity
+ASSIGNMENT`, created by step 4) converts such a value when it is stored; every messaging provider is also an identity
 provider. The previous release never compares providers, so it needs no other cast, and it cannot create phone or
-email fields (step 8). It cannot read a `phone` identity, though: its identity schema refuses the provider, so
+email fields (step 4). It cannot read a `phone` identity, though: its identity schema refuses the provider, so
 opening, listing, exporting or saving a record that has a phone number in its contact details fails there. It also
 does not know the new tables, columns and widget kinds, which it never reads. Deploy while few people work, and roll
 back past this release only together with a database backup from before the migration.

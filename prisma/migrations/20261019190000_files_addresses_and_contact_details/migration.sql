@@ -1,19 +1,20 @@
 -- =============================================================================================
 -- Record files, addresses, calendars and contact details.
 --
---   1-3. File fields: uploaded files with their storage parts and extracted text for search.
---   4.   Postal codes, shared by every workspace.
---   5.   Files given to Mate in a chat.
---   6-7. Calendar views, calendar and map widgets.
---   8.   Contact details: phone and email fields become identities of the list's contact details field (one identity
---        per number or address and workspace, shared by every record that has it and reused when the inbox already
---        knows it); the field is renamed from its former default name; the database refuses phone and email fields
---        from then on.
+--   1. Record files: uploaded files with their storage parts and extracted text for search, also the files given to
+--      Mate in a chat, the enterprise storage allowance and the file indexing usage purpose.
+--   2. Addresses and postal codes: address values, and postal codes shared by every workspace.
+--   3. Calendars: calendar views, calendar and map widgets, private calendar subscriptions.
+--   4. Contact details: phone and email fields become identities of the list's contact details field (one identity
+--      per number or address and workspace, shared by every record that has it and reused when the inbox already
+--      knows it); the field is renamed from its former default name; the database refuses phone and email fields
+--      from then on.
 --
 -- prisma migrate deploy runs the file as one implicit transaction. See README.md next to this file for the fallbacks,
 -- the notices and a read-only inventory to run before deploying.
 -- =============================================================================================
 
+SET LOCAL TIME ZONE 'UTC';
 SET LOCAL lock_timeout = '60s';
 SET LOCAL jit = off;
 
@@ -30,7 +31,7 @@ BEGIN
 END $$;
 
 -- ---------------------------------------------------------------------------------------------
--- 1. Record files and addresses
+-- 1. Record files
 -- ---------------------------------------------------------------------------------------------
 
 -- File fields keep their bytes outside RecordValue: RecordFile holds each upload's metadata and lifecycle,
@@ -39,12 +40,19 @@ CREATE TYPE "RecordFileStatus" AS ENUM ('pending', 'ready', 'detached');
 
 CREATE TYPE "RecordFileExtractionStatus" AS ENUM ('pending', 'done', 'noText', 'unsupported', 'failed', 'skipped');
 
+-- A file is in a field with both its list and field, or in neither: a file given to Mate in a chat stays pending
+-- without a field until Mate or the user files it onto a record, and conversationId keeps it for its chat. Only a file
+-- in a field can be ready. Indexing workers claim a file for five minutes and count their attempts, so a file that
+-- keeps failing is marked failed instead of being retried forever. Truncation at the extraction cap is recorded for
+-- readers, embeddedModel tells search and the indexer which files still need vectors, and the page count of a PDF
+-- lets Mate pass short PDFs to the model as files.
 CREATE TABLE "RecordFile" (
   "id" TEXT NOT NULL,
   "companyId" TEXT NOT NULL,
-  "typeId" TEXT NOT NULL,
-  "fieldId" TEXT NOT NULL,
+  "typeId" TEXT,
+  "fieldId" TEXT,
   "recordId" TEXT,
+  "conversationId" TEXT,
   "storageDriver" TEXT NOT NULL,
   "storageKey" TEXT NOT NULL,
   "name" TEXT NOT NULL,
@@ -59,13 +67,29 @@ CREATE TABLE "RecordFile" (
   "attachedAt" TIMESTAMP(3),
   "detachedAt" TIMESTAMP(3),
   "indexedAt" TIMESTAMP(3),
-  CONSTRAINT "RecordFile_pkey" PRIMARY KEY ("id")
+  "textTruncated" BOOLEAN NOT NULL DEFAULT false,
+  "indexClaimedAt" TIMESTAMP(3),
+  "indexAttempts" INTEGER NOT NULL DEFAULT 0,
+  "embeddedModel" TEXT,
+  "pageCount" INTEGER,
+  CONSTRAINT "RecordFile_pkey" PRIMARY KEY ("id"),
+  CONSTRAINT "RecordFile_field_valid"
+    CHECK (("typeId" IS NULL) = ("fieldId" IS NULL) AND ("fieldId" IS NOT NULL OR "status" <> 'ready')),
+  CONSTRAINT "RecordFile_pageCount_valid" CHECK ("pageCount" IS NULL OR "pageCount" >= 0)
 );
 
+-- The daily file cleanup finds detached files whose 30 days have passed, chat cleanup and the send path find a chat's
+-- unfiled files, and the recovery sweep finds attached files that still wait for extraction, each without scanning a
+-- workspace's other files. A file whose bytes another file of the workspace already has reuses its extracted text.
 CREATE UNIQUE INDEX "RecordFile_storageKey_key" ON "RecordFile"("storageKey");
 CREATE INDEX "RecordFile_companyId_status_createdAt_idx" ON "RecordFile"("companyId", "status", "createdAt");
+CREATE INDEX "RecordFile_companyId_status_detachedAt_idx" ON "RecordFile"("companyId", "status", "detachedAt");
 CREATE INDEX "RecordFile_companyId_recordId_idx" ON "RecordFile"("companyId", "recordId");
 CREATE INDEX "RecordFile_companyId_fieldId_idx" ON "RecordFile"("companyId", "fieldId");
+CREATE INDEX "RecordFile_companyId_sha256_idx" ON "RecordFile"("companyId", "sha256");
+CREATE INDEX "RecordFile_companyId_conversationId_idx" ON "RecordFile"("companyId", "conversationId");
+CREATE INDEX "RecordFile_pending_extraction_idx" ON "RecordFile"("attachedAt")
+  WHERE "status" = 'ready' AND "extractionStatus" = 'pending';
 
 -- Records and fields are deliberately not foreign keys: their deletion must remove the stored bytes too, which the
 -- file lifecycle does before it deletes the rows.
@@ -73,22 +97,6 @@ ALTER TABLE "RecordFile" ADD CONSTRAINT "RecordFile_companyId_fkey"
   FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE "RecordFile" ADD CONSTRAINT "RecordFile_uploadedById_fkey"
   FOREIGN KEY ("uploadedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- An address keeps its parts in jsonValue and its formatted line in textValue, where search, sorting and the
--- contains filter read it; every other value still fills exactly one column.
-ALTER TABLE "RecordValue" DROP CONSTRAINT "RecordValue_shape_check";
-ALTER TABLE "RecordValue" ADD CONSTRAINT "RecordValue_shape_check" CHECK (
-  ("state" = 'value' AND "errorCode" IS NULL AND (
-    num_nonnulls("textValue", "decimalValue", "booleanValue", "instantValue", "jsonValue") + CASE WHEN cardinality("textListValue") > 0 THEN 1 ELSE 0 END = 1
-    OR (
-      num_nonnulls("decimalValue", "booleanValue", "instantValue") = 0 AND cardinality("textListValue") = 0
-      AND "textValue" IS NOT NULL AND jsonb_typeof("jsonValue") = 'object' AND ("jsonValue" ->> 'formatted') IS NOT NULL
-    )
-  ))
-  OR ("state" = 'missing' AND cardinality("textListValue") = 0 AND num_nonnulls("textValue", "decimalValue", "booleanValue", "instantValue", "jsonValue", "errorCode") = 0)
-  OR ("state" = 'error' AND cardinality("textListValue") = 0 AND "errorCode" IS NOT NULL AND num_nonnulls("textValue", "decimalValue", "booleanValue", "instantValue", "jsonValue") = 0)
-) NOT VALID;
-ALTER TABLE "RecordValue" VALIDATE CONSTRAINT "RecordValue_shape_check";
 
 CREATE TABLE "RecordFileContent" (
   "fileKey" TEXT NOT NULL,
@@ -103,22 +111,27 @@ CREATE INDEX "RecordFileContent_companyId_idx" ON "RecordFileContent"("companyId
 ALTER TABLE "RecordFileContent" ADD CONSTRAINT "RecordFileContent_companyId_fkey"
   FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
+-- File contents are indexed like Knowledge Base pages. A chunk remembers where its passage starts in the extracted
+-- text, so search can open a file at the match, and which embedding model produced its vector, so a model change
+-- re-embeds it. Vectors are reused across a workspace's chunks with the same content hash.
 CREATE TABLE "RecordFileChunk" (
   "id" TEXT NOT NULL,
   "companyId" TEXT NOT NULL,
   "fileId" TEXT NOT NULL,
   "ordinal" INTEGER NOT NULL,
+  "offset" INTEGER NOT NULL,
   "heading" TEXT,
   "text" TEXT NOT NULL,
   "searchVector" tsvector GENERATED ALWAYS AS (wiki_search_vector(COALESCE("heading", ''), "text")) STORED,
   "contentHash" TEXT NOT NULL,
-  "embeddedAt" TIMESTAMP(3),
+  "model" TEXT,
   "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT "RecordFileChunk_pkey" PRIMARY KEY ("id")
 );
 
 CREATE UNIQUE INDEX "RecordFileChunk_fileId_ordinal_key" ON "RecordFileChunk"("fileId", "ordinal");
 CREATE INDEX "RecordFileChunk_companyId_fileId_idx" ON "RecordFileChunk"("companyId", "fileId");
+CREATE INDEX "RecordFileChunk_companyId_contentHash_idx" ON "RecordFileChunk"("companyId", "contentHash");
 CREATE INDEX "RecordFileChunk_searchVector_idx" ON "RecordFileChunk" USING GIN ("searchVector");
 
 ALTER TABLE "RecordFileChunk" ADD CONSTRAINT "RecordFileChunk_companyId_fkey"
@@ -137,121 +150,73 @@ EXCEPTION
 END
 $$;
 
--- ---------------------------------------------------------------------------------------------
--- 2. File storage
--- ---------------------------------------------------------------------------------------------
-
 -- Enterprise contracts set the file storage each active user adds to the workspace pool; NULL uses the default.
 ALTER TABLE "Subscription" ADD COLUMN "enterpriseFileStorageBytesPerUser" BIGINT;
 ALTER TABLE "Subscription" ADD CONSTRAINT "Subscription_enterprise_file_storage_valid"
   CHECK ("enterpriseFileStorageBytesPerUser" IS NULL OR "enterpriseFileStorageBytesPerUser" BETWEEN 1 AND 1099511627776);
 
--- The daily file cleanup finds detached files whose 30 days have passed without scanning a workspace's other files.
-CREATE INDEX "RecordFile_companyId_status_detachedAt_idx" ON "RecordFile"("companyId", "status", "detachedAt");
-
--- ---------------------------------------------------------------------------------------------
--- 3. File index
--- ---------------------------------------------------------------------------------------------
-
--- File contents are indexed like Knowledge Base pages. A chunk remembers where its passage starts in the extracted text,
--- so search can open a file at the match, and which embedding model produced its vector, so a model change re-embeds it.
-ALTER TABLE "RecordFileChunk"
-  ADD COLUMN "offset" INTEGER NOT NULL DEFAULT 0,
-  ADD COLUMN "model" TEXT;
-
--- Vectors are reused across a workspace's chunks with the same content hash.
-CREATE INDEX "RecordFileChunk_companyId_contentHash_idx" ON "RecordFileChunk"("companyId", "contentHash");
-
--- Indexing workers claim a file for five minutes and count their attempts, so a file that keeps failing is marked
--- failed instead of being retried forever. Truncation at the extraction cap is recorded for readers, and the model
--- every chunk of a file is embedded with tells search and the indexer which files still need vectors.
-ALTER TABLE "RecordFile"
-  ADD COLUMN "textTruncated" BOOLEAN NOT NULL DEFAULT false,
-  ADD COLUMN "indexClaimedAt" TIMESTAMP(3),
-  ADD COLUMN "indexAttempts" INTEGER NOT NULL DEFAULT 0,
-  ADD COLUMN "embeddedModel" TEXT;
-
--- The recovery sweep finds attached files that still wait for extraction without scanning every file, and a file
--- whose bytes another file of the workspace already has reuses that file's extracted text.
-CREATE INDEX "RecordFile_pending_extraction_idx" ON "RecordFile"("attachedAt")
-  WHERE "status" = 'ready' AND "extractionStatus" = 'pending';
-CREATE INDEX "RecordFile_companyId_sha256_idx" ON "RecordFile"("companyId", "sha256");
-
 -- File indexing is a workspace-level charge on the pooled AI credits, like Knowledge Base indexing. Nothing in this
 -- file uses the new label as an enum value, so adding it inside the migration transaction is safe.
-ALTER TYPE "AgentUsagePurpose" ADD VALUE IF NOT EXISTS 'fileIndexing';
+ALTER TYPE "AgentUsagePurpose" ADD VALUE 'fileIndexing';
 
 ALTER TABLE "AgentUsageEvent" DROP CONSTRAINT "AgentUsageEvent_user_or_workspace_charge";
 ALTER TABLE "AgentUsageEvent" ADD CONSTRAINT "AgentUsageEvent_user_or_workspace_charge" CHECK (
   "userId" IS NOT NULL OR "purpose"::text IN ('wikiIndexing', 'fileIndexing')
-) NOT VALID;
-ALTER TABLE "AgentUsageEvent" VALIDATE CONSTRAINT "AgentUsageEvent_user_or_workspace_charge";
+);
 
 -- ---------------------------------------------------------------------------------------------
--- 4. Postal codes
+-- 2. Addresses and postal codes
 -- ---------------------------------------------------------------------------------------------
 
--- Postal codes from GeoNames (CC BY 4.0), loaded per country on first use.
+-- An address keeps its parts in jsonValue and its formatted line in textValue, where search, sorting and the
+-- contains filter read it; every other value still fills exactly one column.
+ALTER TABLE "RecordValue" DROP CONSTRAINT "RecordValue_shape_check";
+ALTER TABLE "RecordValue" ADD CONSTRAINT "RecordValue_shape_check" CHECK (
+  ("state" = 'value' AND "errorCode" IS NULL AND (
+    num_nonnulls("textValue", "decimalValue", "booleanValue", "instantValue", "jsonValue") + CASE WHEN cardinality("textListValue") > 0 THEN 1 ELSE 0 END = 1
+    OR (
+      num_nonnulls("decimalValue", "booleanValue", "instantValue") = 0 AND cardinality("textListValue") = 0
+      AND "textValue" IS NOT NULL AND jsonb_typeof("jsonValue") = 'object' AND ("jsonValue" ->> 'formatted') IS NOT NULL
+    )
+  ))
+  OR ("state" = 'missing' AND cardinality("textListValue") = 0 AND num_nonnulls("textValue", "decimalValue", "booleanValue", "instantValue", "jsonValue", "errorCode") = 0)
+  OR ("state" = 'error' AND cardinality("textListValue") = 0 AND "errorCode" IS NOT NULL AND num_nonnulls("textValue", "decimalValue", "booleanValue", "instantValue", "jsonValue") = 0)
+);
+
+-- Postal codes from GeoNames (CC BY 4.0), loaded per country on first use. They hold no workspace data.
 CREATE TABLE "PostalCodeCountry" (
-    "countryCode" TEXT NOT NULL,
-    "status" TEXT NOT NULL,
-    "version" TEXT NOT NULL,
-    "rowCount" INTEGER NOT NULL DEFAULT 0,
-    "sources" JSONB NOT NULL DEFAULT '[]',
-    "loadedAt" TIMESTAMP(3),
-    "attemptedAt" TIMESTAMP(3) NOT NULL,
-    "attempts" INTEGER NOT NULL DEFAULT 0,
-    "failure" TEXT,
-
-    CONSTRAINT "PostalCodeCountry_pkey" PRIMARY KEY ("countryCode"),
-    CONSTRAINT "PostalCodeCountry_status_check" CHECK ("status" IN ('loading', 'ready', 'failed', 'unavailable'))
+  "countryCode" TEXT NOT NULL,
+  "status" TEXT NOT NULL,
+  "version" TEXT NOT NULL,
+  "rowCount" INTEGER NOT NULL DEFAULT 0,
+  "loadedAt" TIMESTAMP(3),
+  "attemptedAt" TIMESTAMP(3) NOT NULL,
+  "attempts" INTEGER NOT NULL DEFAULT 0,
+  "failure" TEXT,
+  CONSTRAINT "PostalCodeCountry_pkey" PRIMARY KEY ("countryCode"),
+  CONSTRAINT "PostalCodeCountry_status_check" CHECK ("status" IN ('loading', 'ready', 'failed', 'unavailable'))
 );
 
 CREATE TABLE "PostalCode" (
-    "countryCode" TEXT NOT NULL,
-    "postalKey" TEXT NOT NULL,
-    "ordinal" INTEGER NOT NULL,
-    "postalCode" TEXT NOT NULL,
-    "city" TEXT,
-    "region" TEXT,
-    "latitude" DOUBLE PRECISION NOT NULL,
-    "longitude" DOUBLE PRECISION NOT NULL,
-
-    CONSTRAINT "PostalCode_pkey" PRIMARY KEY ("countryCode", "postalKey", "ordinal")
+  "countryCode" TEXT NOT NULL,
+  "postalKey" TEXT NOT NULL,
+  "ordinal" INTEGER NOT NULL,
+  "postalCode" TEXT NOT NULL,
+  "city" TEXT,
+  "region" TEXT,
+  "latitude" DOUBLE PRECISION NOT NULL,
+  "longitude" DOUBLE PRECISION NOT NULL,
+  CONSTRAINT "PostalCode_pkey" PRIMARY KEY ("countryCode", "postalKey", "ordinal")
 );
 
 -- ---------------------------------------------------------------------------------------------
--- 5. Chat files
--- ---------------------------------------------------------------------------------------------
-
--- Files given to Mate in a chat are pending record files without a file field until Mate or the user files them
--- onto a record: list and field stay empty until then, conversationId keeps them for the chat they were sent in.
-ALTER TABLE "RecordFile" ALTER COLUMN "typeId" DROP NOT NULL;
-ALTER TABLE "RecordFile" ALTER COLUMN "fieldId" DROP NOT NULL;
-ALTER TABLE "RecordFile" ADD COLUMN "conversationId" TEXT;
--- Text extraction records the page count of a PDF so Mate can pass short PDFs to the model as files.
-ALTER TABLE "RecordFile" ADD COLUMN "pageCount" INTEGER;
-
--- A file is in a field with both its list and field, or in neither; only a file in a field can be ready.
-ALTER TABLE "RecordFile" ADD CONSTRAINT "RecordFile_field_valid"
-  CHECK (("typeId" IS NULL) = ("fieldId" IS NULL) AND ("fieldId" IS NOT NULL OR "status" <> 'ready'));
-ALTER TABLE "RecordFile" ADD CONSTRAINT "RecordFile_pageCount_valid" CHECK ("pageCount" IS NULL OR "pageCount" >= 0);
-
--- Chat cleanup and the send path find a chat's unfiled files without scanning the workspace's other files.
-CREATE INDEX "RecordFile_companyId_conversationId_idx" ON "RecordFile"("companyId", "conversationId");
-
--- ---------------------------------------------------------------------------------------------
--- 6. Calendar views
+-- 3. Calendars
 -- ---------------------------------------------------------------------------------------------
 
 -- A saved view and a personal list layout remember the calendar layout's date, end date and color fields and its
 -- month, week or agenda mode. NULL keeps every existing view as it is, and older releases never read the column.
 ALTER TABLE "DataView" ADD COLUMN "calendar" JSONB;
 ALTER TABLE "P13n" ADD COLUMN "calendar" JSONB;
-
--- ---------------------------------------------------------------------------------------------
--- 7. Calendar and map widgets
--- ---------------------------------------------------------------------------------------------
 
 -- Calendar and map widgets share the Widget table with charts and activity timelines. Each kind keeps its own
 -- definition column, so the new columns stay NULL on every existing row and older code never reads them.
@@ -260,36 +225,45 @@ ALTER TABLE "P13n" ADD COLUMN "calendar" JSONB;
 -- migration transaction is safe, and no existing row changes. The previous release keeps serving every existing
 -- widget while this migration runs at the start of a build; it cannot read a widget of the new kinds, which only
 -- exist once this release serves requests.
-ALTER TYPE "WidgetKind" ADD VALUE IF NOT EXISTS 'calendar';
-ALTER TYPE "WidgetKind" ADD VALUE IF NOT EXISTS 'map';
+ALTER TYPE "WidgetKind" ADD VALUE 'calendar';
+ALTER TYPE "WidgetKind" ADD VALUE 'map';
 
 ALTER TABLE "Widget" ADD COLUMN "calendarQuery" JSONB;
 ALTER TABLE "Widget" ADD COLUMN "mapQuery" JSONB;
 
+-- Private, revocable calendar subscriptions of a member. Only the SHA-256 hash of a subscription URL's token is stored.
+CREATE TABLE "CalendarSubscription" (
+  "id" TEXT NOT NULL,
+  "companyId" TEXT NOT NULL,
+  "userId" TEXT NOT NULL,
+  "tokenHash" TEXT NOT NULL,
+  "config" JSONB NOT NULL,
+  "includePersonalEvents" BOOLEAN NOT NULL DEFAULT false,
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT "CalendarSubscription_pkey" PRIMARY KEY ("id")
+);
+
+CREATE UNIQUE INDEX "CalendarSubscription_tokenHash_key" ON "CalendarSubscription"("tokenHash");
+CREATE INDEX "CalendarSubscription_companyId_userId_idx" ON "CalendarSubscription"("companyId", "userId");
+
+ALTER TABLE "CalendarSubscription" ADD CONSTRAINT "CalendarSubscription_companyId_fkey"
+  FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "CalendarSubscription" ADD CONSTRAINT "CalendarSubscription_companyId_userId_fkey"
+  FOREIGN KEY ("companyId", "userId") REFERENCES "User"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
+
 -- ---------------------------------------------------------------------------------------------
--- 8. Contact details: phone and email fields become identities of the list's contact details field
+-- 4. Contact details: phone and email fields become identities of the list's contact details field
 -- ---------------------------------------------------------------------------------------------
 
 -- A record identity gets its own provider enum with "phone" next to the messaging providers, so "phone" can never
 -- become a connectable messaging account. The previous release still writes "MessagingProvider" values into it while
 -- this release deploys and after a rollback, so they convert on assignment. README.md says when to drop the cast.
-DO $$
-BEGIN
-  IF to_regtype('"RecordIdentityProvider"') IS NULL THEN
-    CREATE TYPE "RecordIdentityProvider" AS ENUM ('google', 'outlook', 'mail', 'linkedin', 'whatsapp', 'instagram', 'telegram', 'phone');
-  END IF;
-  IF (SELECT atttypid FROM pg_attribute WHERE attrelid = '"RecordIdentity"'::regclass AND attname = 'provider')
-    <> '"RecordIdentityProvider"'::regtype THEN
-    ALTER TABLE "RecordIdentity"
-      ALTER COLUMN "provider" TYPE "RecordIdentityProvider" USING ("provider"::text::"RecordIdentityProvider");
-  END IF;
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_cast
-    WHERE castsource = '"MessagingProvider"'::regtype AND casttarget = '"RecordIdentityProvider"'::regtype
-  ) THEN
-    CREATE CAST ("MessagingProvider" AS "RecordIdentityProvider") WITH INOUT AS ASSIGNMENT;
-  END IF;
-END $$;
+CREATE TYPE "RecordIdentityProvider" AS ENUM ('google', 'outlook', 'mail', 'linkedin', 'whatsapp', 'instagram', 'telegram', 'phone');
+
+ALTER TABLE "RecordIdentity"
+  ALTER COLUMN "provider" TYPE "RecordIdentityProvider" USING ("provider"::text::"RecordIdentityProvider");
+
+CREATE CAST ("MessagingProvider" AS "RecordIdentityProvider") WITH INOUT AS ASSIGNMENT;
 
 -- Field and option names compare like recordNameKey in features/records/record-names.ts (the same helpers as the
 -- dynamic record model migration): Unicode NFD without combining accents, collapsed JavaScript whitespace, trimmed
@@ -984,20 +958,3 @@ DROP FUNCTION pg_temp.contact_details_name_key(text);
 -- requests during the deployment cannot create one.
 ALTER TABLE "RecordFieldDefinition" ADD CONSTRAINT "RecordFieldDefinition_valueType_not_retired"
   CHECK ("valueType" NOT IN ('phone', 'email'));
-
-
--- 9. Private, revocable calendar subscriptions. Only SHA-256 token hashes are stored.
-CREATE TABLE "CalendarSubscription" (
-  "id" TEXT NOT NULL,
-  "companyId" TEXT NOT NULL,
-  "userId" TEXT NOT NULL,
-  "tokenHash" TEXT NOT NULL,
-  "config" JSONB NOT NULL,
-  "includePersonalEvents" BOOLEAN NOT NULL DEFAULT false,
-  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT "CalendarSubscription_pkey" PRIMARY KEY ("id"),
-  CONSTRAINT "CalendarSubscription_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT "CalendarSubscription_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE
-);
-CREATE UNIQUE INDEX "CalendarSubscription_tokenHash_key" ON "CalendarSubscription"("tokenHash");
-CREATE INDEX "CalendarSubscription_companyId_userId_idx" ON "CalendarSubscription"("companyId", "userId");

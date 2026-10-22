@@ -206,6 +206,7 @@ model User {
   recordAssignments               RecordAssignment[]
   recordEventSubscriptions        RecordEventSubscription[]
   uploadedRecordFiles             RecordFile[]
+  calendarSubscriptions           CalendarSubscription[]
 
   @@unique([companyId, id])
   @@unique([companyId, email])
@@ -213,7 +214,6 @@ model User {
   @@index([companyId])
   @@index([companyId, status])
   @@index([roleId])
-  calendarSubscriptions CalendarSubscription[]
 }
 
 model Company {
@@ -288,12 +288,12 @@ model Company {
   recordFiles                 RecordFile[]
   recordFileContents          RecordFileContent[]
   recordFileChunks            RecordFileChunk[]
+  calendarSubscriptions       CalendarSubscription[]
   workspaceSetup              WorkspaceSetup?
   hostedAiWorkspaceUsage      HostedAiPlatformWorkspaceUsage[]
   hostedAiWorkspaceHolds      HostedAiPlatformWorkspaceHold[]
 
   @@index([createdByAuthUserId])
-  calendarSubscriptions CalendarSubscription[]
 }
 
 enum WikiPageKind {
@@ -501,7 +501,6 @@ model PostalCodeCountry {
   status      String
   version     String
   rowCount    Int       @default(0)
-  sources     Json      @default("[]")
   loadedAt    DateTime?
   attemptedAt DateTime
   attempts    Int       @default(0)
@@ -2217,14 +2216,13 @@ model RecordFileChunk {
   companyId    String
   fileId       String
   ordinal      Int
+  offset       Int
   heading      String?
   text         String
   searchVector Unsupported("tsvector")?    @default(dbgenerated("wiki_search_vector(COALESCE(heading, ''::text), text)"))
   embedding    Unsupported("vector(768)")?
   contentHash  String
-  offset       Int                         @default(0)
   model        String?
-  embeddedAt   DateTime?
   createdAt    DateTime                    @default(now())
   company      Company                     @relation(fields: [companyId], references: [id], onDelete: Cascade)
   file         RecordFile                  @relation(fields: [fileId], references: [id], onDelete: Cascade)
@@ -2468,17 +2466,16 @@ model HostedAiPlatformReservation {
   createdAt          DateTime @default(now())
 }
 
-
 model CalendarSubscription {
-  id                    String @id @default(uuid())
+  id                    String   @id @default(uuid())
   companyId             String
   userId                String
-  tokenHash             String @unique
+  tokenHash             String   @unique
   config                Json
-  includePersonalEvents Boolean @default(false)
+  includePersonalEvents Boolean  @default(false)
   createdAt             DateTime @default(now())
-  company               Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  user                  User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company               Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user                  User     @relation(fields: [companyId, userId], references: [companyId, id], onDelete: Cascade)
 
   @@index([companyId, userId])
 }

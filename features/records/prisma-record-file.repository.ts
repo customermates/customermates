@@ -339,7 +339,7 @@ export class PrismaRecordFileRepo
     if (embeddings.length === 0) return;
     await this.prisma.$executeRaw(Prisma.sql`
       UPDATE "RecordFileChunk" c
-      SET "embedding" = u."embedding"::vector, "model" = ${model}, "embeddedAt" = CURRENT_TIMESTAMP
+      SET "embedding" = u."embedding"::vector, "model" = ${model}
       FROM unnest(${embeddings.map(({ id }) => id)}::text[], ${embeddings.map(({ embedding }) => embedding)}::text[])
         AS u("id", "embedding")
       WHERE c."companyId" = ${this.companyId} AND c."id" = u."id"
