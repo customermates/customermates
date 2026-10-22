@@ -302,7 +302,7 @@ test("edits every field type inline in rows and on board cards, with validation,
   await textEdit.hover();
   await expect.poll(() => textEdit.evaluate((element) => getComputedStyle(element).backgroundColor)).not.toBe(idleBackground);
   expect(await textEdit.evaluate((element) => getComputedStyle(element).boxShadow)).toBe(idleShadow);
-  await expect(row.locator("[data-inline-edit] svg.lucide-pencil")).toHaveCount(0);
+  await expect(row.locator("[data-inline-edit]:not(:has([data-empty-target])) svg.lucide-pencil")).toHaveCount(0);
   await expect(row.locator("[data-read-only-field]")).toHaveCount(0);
   await enterValue("Text", "Inline text", "Inline text");
   await enterValue("Number", "12.5", "12.5");
@@ -384,7 +384,8 @@ test("edits every field type inline in rows and on board cards, with validation,
 
   const ownerEdit = row.getByRole("button", { name: "Edit Owner", exact: true });
   await ownerEdit.hover();
-  await expect(ownerEdit.locator("[data-empty-target] svg.lucide-plus")).toBeVisible();
+  await expect(ownerEdit.locator("[data-empty-target] svg.lucide-pencil")).toBeVisible();
+  await expect(ownerEdit).toHaveText("");
   await expect(ownerEdit.locator('[data-slot="avatar"]')).toHaveCount(0);
   await page.screenshot({ path: testInfo.outputPath("inline-empty-member-hover.png"), animations: "disabled" });
   const owner = await openEditor("Owner");
