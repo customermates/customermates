@@ -1,8 +1,8 @@
 "use client";
 
-import type { PlannerConfig } from "@/features/planner/planner.schema";
-import type { CalendarWindow } from "@/core/data-view/calendar-view-config.schema";
+import type { PlannerConfig, PlannerQuery } from "@/features/planner/planner.schema";
 import type { SubscriptionList } from "@/features/planner/calendar-subscription.schema";
+import type { TypedActionResult } from "@/core/utils/action-result";
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -11,6 +11,7 @@ import { AppModal, AppModalTitle } from "@/components/modal/app-modal";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppCardBody } from "@/components/card/app-card-body";
+import { useRecordValueFormat } from "@/components/records/record-value";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -20,20 +21,33 @@ import { IconButton } from "@/components/ui/icon-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { actionData } from "@/core/utils/action-data";
 import { runUserAction, reportApplicationError } from "@/core/errors/report-application-error";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { serializedFailureErrorTree } from "@/core/validation/validation.utils";
+import { CALENDAR_SUBSCRIPTION_LIMIT } from "@/features/planner/calendar-subscription.schema";
 import { calendarSubscriptionsAction, exportPlannerAction } from "../actions";
+
+function refused<T>(result: TypedActionResult<T>): result is Extract<TypedActionResult<T>, { ok: false }> {
+  if (result.ok) return false;
+  if (!notifyIfWorkspaceChanged(result.failure)) toastZodErrorTree(serializedFailureErrorTree(result.failure));
+  return true;
+}
 
 export function PlannerSubscriptionsModal({
   config,
   window,
   personalAvailable,
+  truncated,
   onClose,
 }: {
   config: PlannerConfig;
-  window: CalendarWindow;
+  window: PlannerQuery["window"];
   personalAvailable: boolean;
+  truncated: boolean;
   onClose: () => void;
 }) {
   const t = useTranslations();
+  const format = useRecordValueFormat();
   const [includePersonalEvents, setIncludePersonalEvents] = useState(false);
   const [state, setState] = useState<SubscriptionList | null>(null);
   const [busy, setBusy] = useState(false);
@@ -65,13 +79,18 @@ export function PlannerSubscriptionsModal({
     }
   }
   async function download() {
-    const calendar = await actionData(exportPlannerAction({ config, window, includePersonalEvents }));
-    const url = URL.createObjectURL(new Blob([calendar], { type: "text/calendar;charset=utf-8" }));
+    const result = await exportPlannerAction({ config, window, includePersonalEvents });
+    if (refused(result)) return;
+    const url = URL.createObjectURL(new Blob([result.data], { type: "text/calendar;charset=utf-8" }));
     const anchor = document.createElement("a");
     anchor.href = url;
     anchor.download = "customermates.ics";
     anchor.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+  async function manage(input: Parameters<typeof calendarSubscriptionsAction>[0]) {
+    const result = await calendarSubscriptionsAction(input);
+    if (!refused(result)) setState(result.data);
   }
   return (
     <AppModal open titleInContent size="xl" title={t("Planner.calendarSync")} onClose={onClose}>
@@ -80,8 +99,14 @@ export function PlannerSubscriptionsModal({
           <AppModalTitle>{t("Planner.calendarSync")}</AppModalTitle>
         </AppCardHeader>
 
-        <AppCardBody className="space-y-5 overflow-y-auto">
+        <AppCardBody>
           <p className="text-sm text-muted-foreground">{t("Planner.syncDescription")}</p>
+
+          {truncated && (
+            <p className="rounded-md bg-warning/10 px-3 py-2 text-xs text-warning" role="status">
+              {t("Planner.truncated")}
+            </p>
+          )}
 
           {personalAvailable && (
             <div className="flex items-start gap-2">
@@ -102,7 +127,11 @@ export function PlannerSubscriptionsModal({
 
             <p className="text-sm text-muted-foreground">{t("Planner.snapshotDescription")}</p>
 
-            <Button disabled={busy} variant="secondary" onClick={() => runUserAction(() => perform(download))}>
+            <Button
+              disabled={busy || truncated}
+              variant="secondary"
+              onClick={() => runUserAction(() => perform(download))}
+            >
               <Download aria-hidden className="size-4" />
 
               {t("Planner.download")}
@@ -146,18 +175,10 @@ export function PlannerSubscriptionsModal({
             ) : (
               <>
                 <Button
-                  disabled={busy || state.subscriptions.length >= 10}
+                  disabled={busy || truncated || state.subscriptions.length >= CALENDAR_SUBSCRIPTION_LIMIT}
                   variant="secondary"
                   onClick={() =>
-                    runUserAction(() =>
-                      perform(async () =>
-                        setState(
-                          await actionData(
-                            calendarSubscriptionsAction({ action: "create", config, includePersonalEvents }),
-                          ),
-                        ),
-                      ),
-                    )
+                    runUserAction(() => perform(() => manage({ action: "create", config, includePersonalEvents })))
                   }
                 >
                   <Link aria-hidden className="size-4" />
@@ -166,9 +187,16 @@ export function PlannerSubscriptionsModal({
                 </Button>
 
                 <SectionRows>
-                  {state.subscriptions.map((subscription, index) => (
+                  {state.subscriptions.map((subscription) => (
                     <div key={subscription.id} className="flex items-center justify-between gap-2 py-2">
-                      <span className="text-sm">{t("Planner.subscriptionNumber", { number: index + 1 })}</span>
+                      <span className="text-sm">
+                        {t("Planner.subscriptionCreated", {
+                          date: format.date(new Date(subscription.createdAt), {
+                            dateStyle: "medium",
+                            timeStyle: "short",
+                          }),
+                        })}
+                      </span>
 
                       <Button
                         aria-label={t("Planner.revokeSubscription")}
@@ -176,15 +204,7 @@ export function PlannerSubscriptionsModal({
                         size="icon-sm"
                         variant="ghostDestructive"
                         onClick={() =>
-                          runUserAction(() =>
-                            perform(async () =>
-                              setState(
-                                await actionData(
-                                  calendarSubscriptionsAction({ action: "revoke", id: subscription.id }),
-                                ),
-                              ),
-                            ),
-                          )
+                          runUserAction(() => perform(() => manage({ action: "revoke", id: subscription.id })))
                         }
                       >
                         <Trash2 aria-hidden className="size-4" />

@@ -15,10 +15,8 @@ export type PlannerEntry = {
   title: CalculatedValue;
   record: RecordRow | null;
   entry: CalendarEntry;
-  endInstant: string | null;
   location: string | null;
   provider: string | null;
-  updatedAt: string;
 };
 
 export function plannerEntries(result: PlannerResult, timeZone: string): PlannerEntry[] {
@@ -32,10 +30,6 @@ export function plannerEntries(result: PlannerResult, timeZone: string): Planner
     for (const record of presentation.result.items) {
       const entry = calendarEntry(record, fields, timeZone);
       if (!entry) continue;
-      const startResult = record.fields.find((field) => field.fieldId === fields.start.id)?.result;
-      const endResult = record.fields.find((field) => field.fieldId === fields.end?.id)?.result;
-      const end = endResult?.state === "value" ? endResult.value : null;
-      const start = startResult?.state === "value" ? startResult.value : null;
       const id = `${source.id}:${record.ref.recordId}`;
       entries.push({
         id,
@@ -44,15 +38,8 @@ export function plannerEntries(result: PlannerResult, timeZone: string): Planner
         title: record.fields.find((field) => field.fieldId === type.primaryFieldId)?.result ?? { state: "missing" },
         record,
         entry: { ...entry, id },
-        endInstant:
-          start?.kind === "range" && fields.start.valueType === "dateTimeRange"
-            ? start.end
-            : end?.kind === "dateTime"
-              ? end.value
-              : null,
         location: null,
         provider: null,
-        updatedAt: record.updatedAt,
       });
     }
   }
@@ -67,7 +54,7 @@ export function plannerEntries(result: PlannerResult, timeZone: string): Planner
     entries.push({
       id: `event:${event.id}`,
       sourceId: event.calendarId,
-      sourceLabel: event.provider,
+      sourceLabel: event.calendarName,
       title: { state: "value", value: { kind: "text", value: event.title } },
       record: null,
       entry: {
@@ -78,10 +65,8 @@ export function plannerEntries(result: PlannerResult, timeZone: string): Planner
         ...(!event.allDay ? { endTime: event.endsAt } : {}),
         color: null,
       },
-      endInstant: event.endsAt,
       location: event.location,
       provider: event.provider,
-      updatedAt: event.startsAt,
     });
   }
   return entries.sort((a, b) => compareCalendarEntries(a.entry, b.entry) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));

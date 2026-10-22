@@ -5,15 +5,16 @@ import type { ClusterMarker, MapMarker, PinMarker } from "./map-markers";
 import type { ScreenBox } from "./map-painter";
 import type { MapViewLabels } from "./map-types";
 
+import { getChartColors, getChartTextColors, getChartTintColors } from "@/constants/chart-colors";
 import { cn } from "@/core/utils/cn";
 
 import { toScreen, type Camera, type MapSize } from "./map-geometry";
 
-export function markerDiameter(marker: MapMarker) {
+function markerDiameter(marker: MapMarker) {
   return marker.kind === "pin" ? marker.radius * 2 : marker.diameter;
 }
 
-export function markerCenter(marker: MapMarker, camera: Camera, size: MapSize) {
+function markerCenter(marker: MapMarker, camera: Camera, size: MapSize) {
   const { x, y } = toScreen(camera, size, marker.world);
   return marker.kind === "pin" ? { x: x + marker.offset.x, y: y + marker.offset.y } : { x, y };
 }
@@ -39,7 +40,6 @@ type Props = {
   size: MapSize;
   selectedId: string | null;
   labels: MapViewLabels;
-  textColor: (color: string) => string;
   register: (key: string, element: HTMLElement | null) => void;
   onPin: (marker: PinMarker) => void;
   onCluster: (marker: ClusterMarker) => void;
@@ -51,17 +51,7 @@ function activateOnEnter(event: KeyboardEvent, activate: () => void) {
   activate();
 }
 
-export function MapMarkerLayer({
-  markers,
-  camera,
-  size,
-  selectedId,
-  labels,
-  textColor,
-  register,
-  onPin,
-  onCluster,
-}: Props) {
+export function MapMarkerLayer({ markers, camera, size, selectedId, labels, register, onPin, onCluster }: Props) {
   return (
     <div className="pointer-events-none absolute inset-0">
       {markers.map((marker) => {
@@ -78,13 +68,17 @@ export function MapMarkerLayer({
               className={cn(
                 MARKER_CLASS,
                 "flex items-center justify-center text-[11px] font-bold tabular-nums shadow-md select-none",
+                marker.color === null && "border-muted-foreground bg-card text-foreground",
               )}
               data-map-marker="cluster"
               style={{
                 width: diameter,
                 height: diameter,
-                backgroundColor: marker.color,
-                color: textColor(marker.color),
+                ...(marker.color && {
+                  backgroundColor: getChartTintColors()[marker.color],
+                  borderColor: getChartColors()[marker.color],
+                  color: getChartTextColors()[marker.color],
+                }),
                 transform: markerTransform(marker, camera, size),
                 zIndex: 1,
               }}
@@ -116,7 +110,7 @@ export function MapMarkerLayer({
             style={{
               width: diameter,
               height: diameter,
-              backgroundColor: marker.color,
+              backgroundColor: getChartColors()[marker.color],
               transform: markerTransform(marker, camera, size),
               zIndex: selected ? 3 : 2,
             }}

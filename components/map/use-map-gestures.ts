@@ -6,12 +6,12 @@ import { useEffect, useRef } from "react";
 
 import { panBy, zoomAround, type Camera, type MapSize, type ScreenPoint } from "./map-geometry";
 
-export const DRAG_THRESHOLD = 4;
-export const DOUBLE_TAP_MS = 300;
-export const DOUBLE_TAP_DISTANCE = 24;
-export const WHEEL_SETTLE_MS = 160;
+const DRAG_THRESHOLD = 4;
+const DOUBLE_TAP_MS = 300;
+const DOUBLE_TAP_DISTANCE = 24;
+const WHEEL_SETTLE_MS = 160;
 
-export type MapGestureHandlers = {
+type MapGestureHandlers = {
   camera: () => Camera | null;
   size: () => MapSize;
   move: (camera: Camera) => void;
@@ -24,7 +24,7 @@ export type MapGestureHandlers = {
 
 type Gesture = { camera: Camera; start: Map<number, ScreenPoint>; moved: boolean; fromMarker: boolean };
 
-export function wheelZoomDelta(event: Pick<WheelEvent, "deltaY" | "deltaMode">) {
+function wheelZoomDelta(event: Pick<WheelEvent, "deltaY" | "deltaMode">) {
   const unit = event.deltaMode === 1 ? 0.06 : event.deltaMode === 2 ? 1 : 0.002;
   return Math.max(-1, Math.min(1, -event.deltaY * unit));
 }
@@ -68,7 +68,7 @@ export function useMapGestures(viewportRef: RefObject<HTMLElement | null>, handl
       suppressClick = false;
       handlersRef.current.stop();
       const fromMarker = Boolean(target?.closest("[data-map-marker]"));
-      if (!fromMarker) element.setPointerCapture?.(event.pointerId);
+      if (!fromMarker && event.pointerType !== "touch") element.setPointerCapture?.(event.pointerId);
       pointers.set(event.pointerId, local(event));
       begin(fromMarker || (gesture?.fromMarker ?? false));
     };
@@ -88,6 +88,10 @@ export function useMapGestures(viewportRef: RefObject<HTMLElement | null>, handl
         const dx = first.now.x - first.start.x;
         const dy = first.now.y - first.start.y;
         if (!gesture.moved && Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
+        if (event.pointerType === "touch") {
+          gesture.moved = true;
+          return;
+        }
         if (!gesture.moved) element.setPointerCapture?.(event.pointerId);
         gesture.moved = true;
         handlersRef.current.move(panBy(gesture.camera, size, -dx, -dy));
@@ -146,6 +150,7 @@ export function useMapGestures(viewportRef: RefObject<HTMLElement | null>, handl
     const onWheel = (event: WheelEvent) => {
       const camera = handlersRef.current.camera();
       if (!camera) return;
+      if (!event.ctrlKey && !event.metaKey && !element.contains(document.activeElement)) return;
       event.preventDefault();
       handlersRef.current.stop();
       handlersRef.current.move(

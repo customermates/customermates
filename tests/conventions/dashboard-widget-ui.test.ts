@@ -44,13 +44,16 @@ describe("generic dashboard widget UI", () => {
   });
   it("uses host-owned shared palettes for chart, activity and trigger filters", () => {
     const chart = component("record-widget-editor.tsx");
+    const editorLayout = component("widget-editor-layout.tsx");
     const activity = component("record-activity-widget-editor.tsx");
     const queryHost = read("components/records/record-query-filters.tsx");
     const activityHost = read("components/records/record-activity-filters.tsx");
     const trigger = read("components/records/record-trigger-fields.tsx");
-    expect(chart.match(/<RecordQueryFilters/g)).toHaveLength(2);
-    expect(chart).toContain('anchorId="widget-source-filters"');
-    expect(chart).toContain('anchorId="widget-group-filters"');
+    expect(chart.match(/<RecordQueryFilters/g)).toHaveLength(1);
+    expect(chart).toContain("<WidgetSourceFilters");
+    expect(editorLayout).toContain('anchorId="widget-source-filters"');
+    expect(chart).toMatch(/<RecordQueryFilters\s+inline\s+anchorId="widget-group-filters"/);
+    expect(editorLayout).toMatch(/<RecordQueryFilters\s+inline\s+anchorId="widget-source-filters"/);
     expect(activity).toContain("<RecordActivityFilters");
     expect(trigger).toContain("<RecordQueryFilters");
     for (const host of [queryHost, activityHost]) {
@@ -73,9 +76,9 @@ describe("generic dashboard widget UI", () => {
   it("previews both widget kinds as their real dashboard cards, keyed to the current draft", () => {
     const chart = component("record-widget-editor.tsx");
     const activity = component("record-activity-widget-editor.tsx");
-    expect(component("widget-modal.store.ts")).toContain(
-      "await this.runPreview(() => previewRecordWidgetAction(parsed.data))",
-    );
+    const store = component("widget-modal.store.ts");
+    expect(store).toContain("() => previewRecordWidgetAction(parsed.data)");
+    expect(store).toContain("await this.runPreview(call)");
     expect(chart).toContain("<RecordWidgetCard");
     expect(chart).toContain("preview?.key === key");
     expect(activity).toContain("<RecordActivityWidgetCard");

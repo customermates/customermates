@@ -4,9 +4,10 @@ import type { LucideIcon } from "lucide-react";
 import type { BasemapStatus } from "./use-basemap";
 import type { MapViewLabels } from "./map-types";
 
-import { Loader2Icon, Minus, Plus, RotateCcw, Scan } from "lucide-react";
+import { Minus, Plus, RotateCcw, Scan } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/core/utils/cn";
 
@@ -76,7 +77,7 @@ export function MapControls({ labels, status, canZoomIn, canZoomOut, onZoomIn, o
           className="absolute bottom-2 left-2 flex items-center gap-1.5 rounded-md border border-border bg-card/90 px-2 py-1 text-xs text-muted-foreground shadow-sm"
           role="status"
         >
-          <Loader2Icon aria-hidden className="size-3.5 animate-spin motion-reduce:animate-none" />
+          <Spinner aria-hidden aria-label={labels.loading} className="size-3.5" />
 
           {labels.loading}
         </div>

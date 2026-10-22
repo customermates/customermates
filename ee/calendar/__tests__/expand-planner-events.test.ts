@@ -5,6 +5,7 @@ import { expandPlannerEvents, type RecurringPlannerEvent } from "../expand-plann
 const event: RecurringPlannerEvent = {
   id: "series",
   calendarId: "calendar",
+  calendarName: "Team calendar",
   title: "Weekly review",
   startsAt: "2026-03-22T08:00:00Z",
   endsAt: "2026-03-22T09:00:00Z",
@@ -44,6 +45,42 @@ describe("connected recurring calendar events", () => {
         timeZone: "UTC",
       }),
     ).toEqual({ events: [], truncated: true });
+  });
+  it("reads exclusions and an end given in UTC in the series' own time zone", () => {
+    const result = expandPlannerEvents(
+      [
+        {
+          ...event,
+          recurrenceRule: "RRULE:FREQ=WEEKLY;UNTIL=20260412T070000Z\nEXDATE:20260405T070000Z",
+        },
+      ],
+      { from: "2026-03-01", to: "2026-04-30", timeZone: "Europe/Berlin" },
+    );
+    expect(result.events.map((item) => item.startsAt)).toEqual([
+      "2026-03-22T08:00:00.000Z",
+      "2026-03-29T07:00:00.000Z",
+      "2026-04-12T07:00:00.000Z",
+    ]);
+  });
+  it("reads a start or exclusion declared in another time zone in that zone", () => {
+    const window = { from: "2026-03-01", to: "2026-04-30", timeZone: "Europe/Berlin" };
+    const excluded = expandPlannerEvents(
+      [{ ...event, recurrenceRule: "RRULE:FREQ=WEEKLY;COUNT=4\nEXDATE;TZID=America/New_York:20260405T030000" }],
+      window,
+    );
+    expect(excluded.events.map((item) => item.startsAt)).toEqual([
+      "2026-03-22T08:00:00.000Z",
+      "2026-03-29T07:00:00.000Z",
+      "2026-04-12T07:00:00.000Z",
+    ]);
+    const declared = expandPlannerEvents(
+      [{ ...event, recurrenceRule: "DTSTART;TZID=America/New_York:20260322T040000\nRRULE:FREQ=WEEKLY;COUNT=2" }],
+      window,
+    );
+    expect(declared.events.map((item) => item.startsAt)).toEqual([
+      "2026-03-22T08:00:00.000Z",
+      "2026-03-29T08:00:00.000Z",
+    ]);
   });
   it("keeps all-day dates in the requested window even in UTC+14", () => {
     const result = expandPlannerEvents(

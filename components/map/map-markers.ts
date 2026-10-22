@@ -3,6 +3,8 @@ import type { MapViewPoint } from "./map-types";
 
 import Supercluster from "supercluster";
 
+import { ChartColor } from "@/features/widget/widget-display.schema";
+
 import {
   MAX_ZOOM,
   TILE_SIZE,
@@ -16,12 +18,12 @@ import {
   type ScreenPoint,
   type WorldPoint,
 } from "./map-geometry";
-import { DEFAULT_CLUSTER_COLOR, MIXED_CLUSTER_COLOR } from "./map-palette";
 
+export const DEFAULT_CLUSTER_COLOR = ChartColor.primary1;
 export const PIN_RADIUS_MIN = 5;
 export const PIN_RADIUS_MAX = 14;
 export const PIN_RADIUS_DEFAULT = 6;
-export const CLUSTER_RADIUS = 40;
+const CLUSTER_RADIUS = 40;
 export const CLUSTER_DIAMETER_MIN = 24;
 export const CLUSTER_DIAMETER_MAX = 52;
 const MARKER_MARGIN = 0.25;
@@ -34,7 +36,7 @@ type ClusterTally = { tally: Record<number, number> };
 export type ClusterIndex = {
   index: Supercluster<PointProperties, ClusterTally>;
   points: readonly MapViewPoint[];
-  groupColors: readonly string[];
+  groupColors: readonly ChartColor[];
 };
 
 export type PinMarker = {
@@ -43,7 +45,7 @@ export type PinMarker = {
   id: string;
   world: WorldPoint;
   offset: ScreenPoint;
-  color: string;
+  color: ChartColor;
   radius: number;
   focusable: boolean;
 };
@@ -54,7 +56,7 @@ export type ClusterMarker = {
   clusterId: number;
   world: WorldPoint;
   count: number;
-  color: string;
+  color: ChartColor | null;
   diameter: number;
   expansionZoom: number;
   focusable: boolean;
@@ -89,10 +91,14 @@ export function majorityGroup(tally: Readonly<Record<number, number>>, total: nu
   return null;
 }
 
-export function clusterColor(tally: Readonly<Record<number, number>>, total: number, groupColors: readonly string[]) {
+export function clusterColor(
+  tally: Readonly<Record<number, number>>,
+  total: number,
+  groupColors: readonly ChartColor[],
+): ChartColor | null {
   if (Object.keys(tally).length === 0) return DEFAULT_CLUSTER_COLOR;
   const group = majorityGroup(tally, total);
-  return group === null ? MIXED_CLUSTER_COLOR : (groupColors[group] ?? MIXED_CLUSTER_COLOR);
+  return group === null ? null : (groupColors[group] ?? null);
 }
 
 function mergeTally(left: Readonly<Record<number, number>>, right: Readonly<Record<number, number>>) {
@@ -103,7 +109,7 @@ function mergeTally(left: Readonly<Record<number, number>>, right: Readonly<Reco
 
 export function createClusterIndex(points: readonly MapViewPoint[]): ClusterIndex {
   const groupIndexes = new Map<string, number>();
-  const groupColors: string[] = [];
+  const groupColors: ChartColor[] = [];
   const features: PointFeature<PointProperties>[] = [];
   points.forEach((point, index) => {
     if (!isValidCoordinate(point.lon, point.lat)) return;
@@ -134,7 +140,7 @@ export function createClusterIndex(points: readonly MapViewPoint[]): ClusterInde
   return { index, points, groupColors };
 }
 
-export function clusterQueryZoom(zoom: number) {
+function clusterQueryZoom(zoom: number) {
   return Math.min(MAX_ZOOM, Math.max(0, Math.round(zoom)));
 }
 

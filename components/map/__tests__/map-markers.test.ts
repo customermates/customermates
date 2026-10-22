@@ -2,11 +2,13 @@ import type { MapViewPoint } from "../map-types";
 
 import { describe, expect, it } from "vitest";
 
+import { ChartColor } from "@/features/widget/widget-display.schema";
+
 import { MAX_ZOOM, project } from "../map-geometry";
-import { DEFAULT_CLUSTER_COLOR, MIXED_CLUSTER_COLOR } from "../map-palette";
 import {
   CLUSTER_DIAMETER_MAX,
   CLUSTER_DIAMETER_MIN,
+  DEFAULT_CLUSTER_COLOR,
   PIN_RADIUS_DEFAULT,
   PIN_RADIUS_MAX,
   PIN_RADIUS_MIN,
@@ -33,7 +35,7 @@ function point(
   group: string | null = null,
   weight: number | null = null,
 ): MapViewPoint {
-  return { id, lat, lon, group, color: group === "b" ? "var(--chart-2)" : "var(--chart-1)", weight };
+  return { id, lat, lon, group, color: group === "b" ? ChartColor.secondary1 : ChartColor.primary1, weight };
 }
 
 function cameraOn(lat: number, lon: number, zoom: number) {
@@ -73,21 +75,21 @@ describe("cluster appearance", () => {
   });
 
   it("takes the colour of a group that holds more than half of the points", () => {
-    const colors = ["var(--chart-1)", "var(--chart-2)"];
+    const colors = [ChartColor.primary1, ChartColor.secondary1];
     expect(majorityGroup({ 0: 2, 1: 1 }, 3)).toBe(0);
-    expect(clusterColor({ 0: 2, 1: 1 }, 3, colors)).toBe("var(--chart-1)");
-    expect(clusterColor({ 1: 3 }, 4, colors)).toBe("var(--chart-2)");
+    expect(clusterColor({ 0: 2, 1: 1 }, 3, colors)).toBe(ChartColor.primary1);
+    expect(clusterColor({ 1: 3 }, 4, colors)).toBe(ChartColor.secondary1);
   });
 
-  it("draws mixed groups in the neutral grey and ungrouped points in the primary colour", () => {
-    const colors = ["var(--chart-1)", "var(--chart-2)"];
-    expect(clusterColor({ 0: 2, 1: 2 }, 4, colors)).toBe(MIXED_CLUSTER_COLOR);
-    expect(clusterColor({ 0: 1 }, 3, colors)).toBe(MIXED_CLUSTER_COLOR);
+  it("leaves mixed groups without a colour and draws ungrouped points in the primary colour", () => {
+    const colors = [ChartColor.primary1, ChartColor.secondary1];
+    expect(clusterColor({ 0: 2, 1: 2 }, 4, colors)).toBeNull();
+    expect(clusterColor({ 0: 1 }, 3, colors)).toBeNull();
     expect(clusterColor({}, 5, colors)).toBe(DEFAULT_CLUSTER_COLOR);
-    expect(MIXED_CLUSTER_COLOR).not.toBe(DEFAULT_CLUSTER_COLOR);
+    expect(DEFAULT_CLUSTER_COLOR).toBe(ChartColor.primary1);
   });
 
-  it("colours a cluster without a majority grey and one of ungrouped points primary", () => {
+  it("leaves a cluster without a majority uncoloured and colours one of ungrouped points primary", () => {
     const mixed = createClusterIndex([
       point("x1", 48.1, 11.5, "a"),
       point("x2", 48.1, 11.5, "b"),
@@ -98,7 +100,7 @@ describe("cluster appearance", () => {
     const camera = cameraOn(48.1, 11.5, 5);
     const colorOf = (index: ReturnType<typeof createClusterIndex>) =>
       clusters(computeMarkers({ clusters: index, camera, size: SIZE, selectedId: null, spread: null }))[0]?.color;
-    expect(colorOf(mixed)).toBe(MIXED_CLUSTER_COLOR);
+    expect(colorOf(mixed)).toBeNull();
     expect(colorOf(ungrouped)).toBe(DEFAULT_CLUSTER_COLOR);
   });
 });
@@ -117,7 +119,7 @@ describe("markers", () => {
     const markers = computeMarkers({ clusters: index, camera: overview, size: SIZE, selectedId: null, spread: null });
     const [cluster] = clusters(markers);
     expect(clusters(markers)).toHaveLength(1);
-    expect(cluster).toMatchObject({ count: 3, color: "var(--chart-1)", focusable: true });
+    expect(cluster).toMatchObject({ count: 3, color: ChartColor.primary1, focusable: true });
     expect(cluster?.expansionZoom).toBeGreaterThan(5);
     expect(pins(markers).map((marker) => marker.id)).toEqual(["berlin"]);
   });

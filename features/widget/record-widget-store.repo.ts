@@ -23,7 +23,7 @@ export type SavedRecordWidgetOf = {
 export interface RecordWidgetStoreRepo {
   findOwnedRecordWidget<K extends RecordWidgetKind>(kind: K, id: string): Promise<StoredRecordWidgetOf[K] | null>;
   findReadableRecordWidget<K extends RecordWidgetKind>(kind: K, id: string): Promise<StoredRecordWidgetOf[K] | null>;
-  findReadableWidgetKind(id: string): Promise<RecordWidgetKind | null>;
+  findReadableWidget(id: string): Promise<StoredWidget | null>;
   listLayoutPlacements(viewId: string | null): Promise<WidgetPlacementRow[]>;
   saveRecordWidget<K extends RecordWidgetKind>(
     kind: K,

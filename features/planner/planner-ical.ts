@@ -37,7 +37,7 @@ function title(entry: PlannerEntry): string {
     : entry.sourceLabel;
 }
 
-export function plannerICalendar(entries: PlannerEntry[], baseUrl: string): string {
+export function plannerICalendar(entries: PlannerEntry[], baseUrl: string, stamp: Date): string {
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
@@ -50,14 +50,14 @@ export function plannerICalendar(entries: PlannerEntry[], baseUrl: string): stri
     lines.push(
       "BEGIN:VEVENT",
       `UID:${item.id}@customermates`,
-      `DTSTAMP:${instant(item.updatedAt)}`,
+      `DTSTAMP:${instant(stamp.toISOString())}`,
       `SUMMARY:${escapeText(title(item))}`,
       `DESCRIPTION:${escapeText(item.sourceLabel)}`,
     );
     if (item.entry.time) {
       const end =
-        item.endInstant && new Date(item.endInstant) > new Date(item.entry.time)
-          ? item.endInstant
+        item.entry.endTime && new Date(item.entry.endTime) > new Date(item.entry.time)
+          ? item.entry.endTime
           : new Date(new Date(item.entry.time).getTime() + 3_600_000).toISOString();
       lines.push(`DTSTART:${instant(item.entry.time)}`, `DTEND:${instant(end)}`);
     } else {

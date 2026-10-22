@@ -17,8 +17,9 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
+import { CalendarEntryTooltip, useCalendarEntryDateLabel } from "@/components/records/calendar-entry-tooltip";
 import { RecordValue, useRecordValueFormat } from "@/components/records/record-value";
-import { useNavigateToHref } from "@/components/shared/use-navigate-to-href";
+import { TruncatedText } from "@/components/shared/truncated-text";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import {
@@ -31,14 +32,17 @@ import {
 } from "@/components/ui/popover";
 import { Spinner } from "@/components/ui/spinner";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
 import {
   addCalendarDays,
+  calendarDateInstant,
   calendarWeekdayIndex,
   endOfCalendarMonth,
   startOfCalendarMonth,
   startOfCalendarWeek,
 } from "@/features/record-calendar/calendar-date";
+import { CALENDAR_KEY_STEPS, shiftCalendarAnchor } from "@/features/record-calendar/calendar-window";
 import { recordDisplayName } from "@/features/records/record-display-name";
 
 import {
@@ -48,8 +52,7 @@ import {
   calendarDayItems,
   calendarHeatLevels,
   calendarMonthGrid,
-  calendarMonthWindow,
-  shiftCalendarMonth,
+  calendarWidgetEntry,
 } from "./calendar-widget-view";
 import { WIDGET_INTERACTIVE_ATTRIBUTE } from "./widget-interaction";
 
@@ -67,9 +70,6 @@ type DayRecords =
   | { date: CalendarDate; state: "loading" }
   | { date: CalendarDate; state: "failed" };
 
-const DAY_START = "T00:00:00.000Z";
-const KEY_STEPS: Record<string, number> = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 };
-
 function heatSwatches() {
   return (
     <span className="flex items-center gap-0.5">
@@ -78,10 +78,6 @@ function heatSwatches() {
       ))}
     </span>
   );
-}
-
-function dayDate(date: CalendarDate) {
-  return new Date(`${date}${DAY_START}`);
 }
 
 function useMonthWindow(initial: CalendarWidgetData, loadWindow: Props["loadWindow"]) {
@@ -102,14 +98,14 @@ function useMonthWindow(initial: CalendarWidgetData, loadWindow: Props["loadWind
     const current = ++request.current;
     setFailed(null);
     try {
-      const view = await loadWindow(calendarMonthWindow(target));
+      const view = await loadWindow({ from: startOfCalendarMonth(target), to: endOfCalendarMonth(target) });
       if (current === request.current) setLoaded({ anchor: target, data: view.data });
     } catch {
       if (current === request.current) setFailed(target);
     }
   }
   function navigate(step: number) {
-    const next = shiftCalendarMonth(anchor, step);
+    const next = shiftCalendarAnchor("month", anchor, step);
     setAnchor(next);
     if (next === initialAnchor) {
       request.current += 1;
@@ -137,7 +133,8 @@ export const CalendarWidgetMonth = observer(function CalendarWidgetMonth({
 }: Props) {
   const t = useTranslations();
   const valueFormat = useRecordValueFormat();
-  const navigateToHref = useNavigateToHref();
+  const root = useRootStore();
+  const entryDate = useCalendarEntryDateLabel(query.timeZone);
   const monthLabelId = useId();
   const month = useMonthWindow(initial, loadWindow);
   const [openDate, setOpenDate] = useState<CalendarDate | null>(null);
@@ -150,14 +147,18 @@ export const CalendarWidgetMonth = observer(function CalendarWidgetMonth({
   const today = initial.today;
   const weeks = calendarMonthGrid(month.anchor);
   const levels = data ? calendarHeatLevels(data.days, query.aggregation) : new Map<CalendarDate, CalendarHeatLevel>();
-  const monthLabel = valueFormat.date(dayDate(month.anchor), { month: "long", year: "numeric", timeZone: "UTC" });
+  const monthLabel = valueFormat.date(calendarDateInstant(month.anchor), {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  });
   const firstDay = month.anchor;
   const lastDay = endOfCalendarMonth(month.anchor);
   const todayInMonth = today >= firstDay && today <= lastDay;
   const activeDate =
     focusDate && focusDate >= firstDay && focusDate <= lastDay ? focusDate : todayInMonth ? today : firstDay;
   const weekStart = startOfCalendarWeek(today);
-  const weekdays = Array.from({ length: 7 }, (_, index) => dayDate(addCalendarDays(weekStart, index)));
+  const weekdays = Array.from({ length: 7 }, (_, index) => calendarDateInstant(addCalendarDays(weekStart, index)));
 
   function daySummary(date: CalendarDate) {
     const day = data?.days.find((entry) => entry.date === date);
@@ -203,8 +204,8 @@ export const CalendarWidgetMonth = observer(function CalendarWidgetMonth({
   function moveFocus(event: KeyboardEvent<HTMLButtonElement>, date: CalendarDate) {
     const weekday = calendarWeekdayIndex(date);
     const target =
-      event.key in KEY_STEPS
-        ? addCalendarDays(date, KEY_STEPS[event.key])
+      event.key in CALENDAR_KEY_STEPS
+        ? addCalendarDays(date, CALENDAR_KEY_STEPS[event.key])
         : event.key === "Home"
           ? addCalendarDays(date, -weekday)
           : event.key === "End"
@@ -219,7 +220,7 @@ export const CalendarWidgetMonth = observer(function CalendarWidgetMonth({
 
   function dayLabel(date: CalendarDate) {
     const { count, sum } = daySummary(date);
-    const fullDate = valueFormat.date(dayDate(date), { dateStyle: "full", timeZone: "UTC" });
+    const fullDate = valueFormat.date(calendarDateInstant(date), { dateStyle: "full", timeZone: "UTC" });
     return sum
       ? t("RecordCalendarWidgets.dayLabelWithSum", { date: fullDate, count, sum })
       : t("RecordCalendarWidgets.dayLabel", { date: fullDate, count });
@@ -255,34 +256,37 @@ export const CalendarWidgetMonth = observer(function CalendarWidgetMonth({
           {records.items.map((item) => {
             const name = recordDisplayName(item.title, singular, t);
             const href = recordHref?.(item.record);
-            const content = (
-              <>
-                <span className="min-w-0 flex-1 truncate">{name}</span>
-
-                {amountField && (
-                  <span className="shrink-0 text-xs">
-                    <RecordValue compact field={amountField} result={item.amount ?? { state: "missing" }} />
-                  </span>
-                )}
-              </>
+            const amount = amountField && (
+              <span className="shrink-0 text-xs">
+                <RecordValue compact field={amountField} result={item.amount ?? { state: "missing" }} />
+              </span>
             );
             return (
               <li key={item.record.recordId}>
                 {href ? (
-                  <a
-                    className="flex items-center gap-3 px-4 py-1.5 text-sm outline-none transition-colors hover:bg-accent focus-visible:bg-accent focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50"
-                    href={href}
-                    onClick={(event) => {
-                      if (event.metaKey || event.ctrlKey || event.shiftKey || event.button === 1) return;
-                      event.preventDefault();
-                      closeDay();
-                      navigateToHref(href);
-                    }}
-                  >
-                    {content}
-                  </a>
+                  <CalendarEntryTooltip date={entryDate(calendarWidgetEntry(item))} name={name}>
+                    <a
+                      className="flex items-center gap-3 px-4 py-1.5 text-sm outline-none transition-colors hover:bg-accent focus-visible:bg-accent focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50"
+                      href={href}
+                      onClick={(event) => {
+                        if (event.metaKey || event.ctrlKey || event.shiftKey || event.button === 1) return;
+                        event.preventDefault();
+                        const opener = buttons.current.get(date);
+                        closeDay();
+                        root.recordWorkspaceStore.open(item.record, event.currentTarget, opener);
+                      }}
+                    >
+                      <span className="min-w-0 flex-1 truncate">{name}</span>
+
+                      {amount}
+                    </a>
+                  </CalendarEntryTooltip>
                 ) : (
-                  <span className="flex items-center gap-3 px-4 py-1.5 text-sm">{content}</span>
+                  <span className="flex items-center gap-3 px-4 py-1.5 text-sm">
+                    <TruncatedText className="flex-1">{name}</TruncatedText>
+
+                    {amount}
+                  </span>
                 )}
               </li>
             );
@@ -379,14 +383,14 @@ export const CalendarWidgetMonth = observer(function CalendarWidgetMonth({
                         onFocus={() => setFocusDate(date)}
                         onKeyDown={(event) => moveFocus(event, date)}
                       >
-                        {valueFormat.date(dayDate(date), { day: "numeric", timeZone: "UTC" })}
+                        {valueFormat.date(calendarDateInstant(date), { day: "numeric", timeZone: "UTC" })}
                       </button>
                     </PopoverTrigger>
 
                     <PopoverContent
                       ref={popoverContent}
                       align="start"
-                      aria-label={valueFormat.date(dayDate(date), { dateStyle: "full", timeZone: "UTC" })}
+                      aria-label={valueFormat.date(calendarDateInstant(date), { dateStyle: "full", timeZone: "UTC" })}
                       className="w-80 p-0"
                       tabIndex={-1}
                       {...{ [WIDGET_INTERACTIVE_ATTRIBUTE]: "true" }}
@@ -394,7 +398,7 @@ export const CalendarWidgetMonth = observer(function CalendarWidgetMonth({
                     >
                       <PopoverHeader className="px-4 pb-2 pt-3">
                         <PopoverTitle>
-                          {valueFormat.date(dayDate(date), { dateStyle: "full", timeZone: "UTC" })}
+                          {valueFormat.date(calendarDateInstant(date), { dateStyle: "full", timeZone: "UTC" })}
                         </PopoverTitle>
 
                         <PopoverDescription className="text-xs">

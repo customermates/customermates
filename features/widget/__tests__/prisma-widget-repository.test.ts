@@ -188,11 +188,16 @@ describe("generic widget repository", () => {
     expect(mocks.findMany).not.toHaveBeenCalled();
   });
   it("discovers templates in the active workspace", async () => {
+    const owner = { firstName: "A", lastName: "B", avatarUrl: null };
     mocks.findMany.mockResolvedValue([
-      { ...row({ isTemplate: true }), user: { firstName: "A", lastName: "B", avatarUrl: null } },
+      { ...row({ isTemplate: true }), user: owner },
+      { ...row({ isTemplate: true, kind: "calendar", calendarQuery: { layout: "month" } }), user: owner },
     ]);
     const result = await scoped((repo) => repo.getCompanyWidgets());
-    expect(result).toHaveLength(1);
+    expect(result.map(({ kind, calendarLayout }) => [kind, calendarLayout])).toEqual([
+      ["chart", null],
+      ["calendar", "month"],
+    ]);
     expect(mocks.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { companyId: user.companyId, isTemplate: true, ...LIVE_WIDGET },

@@ -1,30 +1,34 @@
 import type { PlannerConfig } from "@/features/planner/planner.schema";
-import type { RootStore } from "@/core/stores/root.store";
 
-import { action, makeObservable, runInAction, toJS } from "mobx";
-import { BaseFormStore } from "@/core/base/base-form.store";
+import { action, makeObservable, observable } from "mobx";
+import { reportApplicationError } from "@/core/errors/report-application-error";
 import { actionData } from "@/core/utils/action-data";
+import { Debouncer } from "@/core/utils/debounce";
 import { savePlannerAction } from "../actions";
 
-export class PlannerSettingsStore extends BaseFormStore<PlannerConfig> {
-  constructor(root: RootStore, config: PlannerConfig) {
-    super(root, config);
-    makeObservable(this, { setConfig: action });
+const SAVE_DELAY_MS = 1000;
+
+export class PlannerSettingsStore {
+  config: PlannerConfig;
+  private unsaved = false;
+  private readonly saver = new Debouncer(SAVE_DELAY_MS);
+
+  constructor(config: PlannerConfig) {
+    this.config = config;
+    makeObservable(this, { config: observable.ref, setConfig: action });
   }
-  setConfig = (update: PlannerConfig | ((current: PlannerConfig) => PlannerConfig)) => {
-    this.form = typeof update === "function" ? update(toJS(this.form)) : update;
+
+  setConfig = (update: (current: PlannerConfig) => PlannerConfig, { persist = true }: { persist?: boolean } = {}) => {
+    this.config = update(this.config);
+    if (!persist) return;
+    this.unsaved = true;
+    this.saver.run(this.flush);
   };
-  override onSubmit = async () => {
-    if (this.isLoading) return;
-    const snapshot = toJS(this.form);
-    this.setIsLoading(true);
-    try {
-      await actionData(savePlannerAction(snapshot));
-      runInAction(() => {
-        this.savedState = snapshot;
-      });
-    } finally {
-      this.setIsLoading(false);
-    }
+
+  flush = () => {
+    this.saver.cancel();
+    if (!this.unsaved) return;
+    this.unsaved = false;
+    void actionData(savePlannerAction(this.config)).catch(reportApplicationError);
   };
 }

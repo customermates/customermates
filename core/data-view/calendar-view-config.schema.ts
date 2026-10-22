@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { isIanaTimeZone } from "@/core/utils/time-zone";
+import { TimeZoneSchema } from "@/core/utils/time-zone";
 
 export const CALENDAR_VIEW_MODES = ["month", "week", "agenda"] as const;
 export type CalendarViewMode = (typeof CALENDAR_VIEW_MODES)[number];
@@ -41,7 +41,7 @@ export const CalendarWindowSchema = z
   .object({
     from: z.iso.date(),
     to: z.iso.date(),
-    timeZone: z.string().min(1).max(64).refine(isIanaTimeZone, "Use an IANA time zone such as Europe/Berlin"),
+    timeZone: TimeZoneSchema,
   })
   .strict();
 export type CalendarWindow = z.infer<typeof CalendarWindowSchema>;

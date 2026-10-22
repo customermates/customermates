@@ -1,14 +1,12 @@
 "use client";
 
 import type { PlannerOptions } from "@/features/planner/get-planner-options.interactor";
-import type { PlannerConfig, PlannerSource } from "@/features/planner/planner.schema";
+import type { PlannerSource } from "@/features/planner/planner.schema";
 import type { PlannerResult } from "@/features/planner/read-planner.interactor";
 import type { PlannerEntry } from "@/features/planner/planner-entries";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { useNavigationGuard } from "@/components/modal/use-navigation-guard";
-import { PlannerSettingsStore } from "./planner-settings.store";
 import { useTranslations } from "next-intl";
 import {
   ArrowUpRight,
@@ -27,11 +25,10 @@ import { AppModal, AppModalTitle } from "@/components/modal/app-modal";
 import { TopBarActionButtons } from "@/components/shared/top-bar-action-buttons";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { DATA_VIEW_PAGE_CLASS_NAME } from "@/components/data-view/data-view-geometry";
-import { FormSelect } from "@/components/forms/form-select";
-import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
+import { FormAutocomplete } from "@/components/forms/form-autocomplete";
+import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
-import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { SegmentedControl } from "@/components/ui/segmented-control";
@@ -49,44 +46,42 @@ import { encodeGetParams } from "@/core/utils/get-params";
 import { ViewMode } from "@/core/base/base-query-builder";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { browserTimeZone } from "@/core/utils/time-zone";
+import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { useClientReady } from "@/hooks/use-client-ready";
 import { useIsWiderThan } from "@/hooks/use-media-query";
 import { IntlLink } from "@/i18n/navigation";
-import { PLANNER_MODES } from "@/features/planner/planner.schema";
+import { PLANNER_MODES, PLANNER_SOURCE_LIMIT } from "@/features/planner/planner.schema";
 import { plannerEntries, plannerIsTruncated } from "@/features/planner/planner-entries";
+import { showsInAllDayLane } from "@/features/planner/planner-week-layout";
 import {
-  addCalendarDays,
   addCalendarMonths,
+  calendarDateInstant,
   calendarDateParts,
-  endOfCalendarMonth,
-  endOfCalendarWeek,
-  startOfCalendarWeek,
+  startOfCalendarQuarter,
 } from "@/features/record-calendar/calendar-date";
-import { calendarWindowRange } from "@/features/record-calendar/calendar-window";
+import { calendarWindowRange, shiftCalendarAnchor } from "@/features/record-calendar/calendar-window";
 import { zonedDate } from "@/features/record-calendar/zoned-time";
 import { isCalendarDateField } from "@/features/record-calendar/record-calendar-query";
 import { RecordCalendarView } from "../../records/[typeId]/components/record-calendar-view";
-import { CALENDAR_ENTRY_COLOR_CLASS } from "../../records/[typeId]/components/record-calendar-layout";
+import { RecordExplorationStore } from "../../records/[typeId]/components/record-exploration.store";
+import { calendarSwatchStyle } from "../../records/[typeId]/components/record-calendar-layout";
 import { cn } from "@/core/utils/cn";
 import { readPlannerAction } from "../actions";
-import { plannerCalendarAdapter } from "./planner-calendar-adapter";
+import { plannerCalendarAdapter, plannerEntryColors } from "./planner-calendar-adapter";
+import { PlannerSettingsStore } from "./planner-settings.store";
 import { PlannerSourceModal } from "./planner-source-modal";
 import { PlannerWeekSchedule } from "./planner-week-schedule";
 import { PlannerTimeline } from "./planner-timeline";
 import { PlannerEventModal } from "./planner-event-modal";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
-import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { PlannerSubscriptionsModal } from "./planner-subscriptions-modal";
 
 const EMPTY_RESULT: PlannerResult = { sources: [], events: [], personalTruncated: false };
-function quarterStart(date: string) {
-  const parts = calendarDateParts(date);
-  return `${parts.year}-${String(Math.floor((parts.month - 1) / 3) * 3 + 1).padStart(2, "0")}-01`;
-}
+const UTC = "UTC";
+
 function sourceHref(source: PlannerSource) {
   const params = encodeGetParams({
     filters: source.filters,
-    searchTerm: source.search,
     viewMode: ViewMode.table,
     viewId: ALL_VIEW_KEY,
   });
@@ -98,64 +93,50 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
   const t = useTranslations();
   const root = useRootStore();
   const format = useRecordValueFormat();
-  const intl = useHydratedIntlStore();
   const modeLabels = {
-    month: t("Planner.modes.month"),
-    week: t("Planner.modes.week"),
+    month: t("DataView.calendar.modes.month"),
+    week: t("DataView.calendar.modes.week"),
     quarter: t("Planner.modes.quarter"),
     timeline: t("Planner.modes.timeline"),
-    agenda: t("Planner.modes.agenda"),
-  };
-  const sortLabels = {
-    date: t("Planner.sorts.date"),
-    title: t("Planner.sorts.title"),
-    source: t("Planner.sorts.source"),
+    agenda: t("DataView.calendar.modes.agenda"),
   };
   const wide = useIsWiderThan("sm");
   const clientReady = useClientReady();
   const timeZones = useMemo(
-    () => [
-      { value: "UTC", label: String("UTC") },
-      ...Intl.supportedValuesOf("timeZone").map((value) => ({ value, label: value.replace(/_/gu, " ") })),
-    ],
+    () => [UTC, ...Intl.supportedValuesOf("timeZone")].map((value) => ({ value, label: value.replace(/_/gu, " ") })),
     [],
   );
-  const [settings] = useState(() => new PlannerSettingsStore(root, options.config));
-  useNavigationGuard(settings);
-  const configJson = JSON.stringify(settings.form);
-  const config = useMemo(() => JSON.parse(configJson) as PlannerConfig, [configJson]);
+  const [settings] = useState(() => new PlannerSettingsStore(options.config));
+  const config = settings.config;
   const setConfig = settings.setConfig;
   const [anchor, setAnchor] = useState(() => zonedDate(new Date(), options.config.timeZone));
-  const [data, setData] = useState<{ key: string; value: PlannerResult } | null>(null);
+  const [data, setData] = useState<PlannerResult | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [sourceEditor, setSourceEditor] = useState<PlannerSource | null>(null);
+  const [sourceEditor, setSourceEditor] = useState<{ source: PlannerSource; creating: boolean } | null>(null);
   const [sourcesOpen, setSourcesOpen] = useState(false);
   const [subscriptionsOpen, setSubscriptionsOpen] = useState(false);
   const [eventDetail, setEventDetail] = useState<PlannerEntry | null>(null);
-  const [search, setSearch] = useState("");
   const request = useRef(0);
   const mode = wide ? config.mode : "agenda";
-  const firstMonth = quarterStart(anchor);
-  const range = useMemo(
-    () =>
-      mode === "quarter" || mode === "timeline"
-        ? {
-            from: startOfCalendarWeek(firstMonth),
-            to: endOfCalendarWeek(endOfCalendarMonth(addCalendarMonths(firstMonth, 2))),
-          }
-        : calendarWindowRange(mode, anchor),
-    [mode, anchor, firstMonth],
-  );
-  const window = useMemo(() => ({ ...range, timeZone: config.timeZone }), [range, config.timeZone]);
-  const key = JSON.stringify({ config, window });
+  const windowMode = mode === "quarter" || mode === "timeline" ? "quarter" : mode;
+  const range = useMemo(() => calendarWindowRange(windowMode, anchor), [windowMode, anchor]);
+  const calendarWindow = useMemo(() => ({ ...range, timeZone: config.timeZone }), [range, config.timeZone]);
+  const fetchKey = JSON.stringify({
+    config: {
+      sources: config.sources.filter((source) => source.enabled).map(({ color: _color, ...source }) => source),
+      calendarIds: config.calendarIds,
+      timeZone: config.timeZone,
+    },
+    window: range,
+  });
   const refresh = useCallback(async () => {
     const current = ++request.current;
     setRefreshing(true);
     setFailed(false);
     try {
-      const value = await actionData(readPlannerAction({ config, window }));
-      if (current === request.current) setData({ key, value });
+      const value = await actionData(readPlannerAction(JSON.parse(fetchKey)));
+      if (current === request.current) setData(value);
     } catch (error) {
       if (current === request.current) {
         setFailed(true);
@@ -164,7 +145,7 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
     } finally {
       if (current === request.current) setRefreshing(false);
     }
-  }, [config, window, key]);
+  }, [fetchKey]);
   useEffect(() => {
     void refresh().catch(reportApplicationError);
     return () => {
@@ -173,12 +154,19 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
   }, [refresh]);
   useEffect(() => root.recordWorkspaceStore.subscribe(refresh), [root, refresh]);
   useEffect(() => {
-    if (!options.config.sources.length && !options.config.calendarIds.length && options.config.timeZone === "UTC") {
+    window.addEventListener("pagehide", settings.flush);
+    return () => {
+      window.removeEventListener("pagehide", settings.flush);
+      settings.flush();
+    };
+  }, [settings]);
+  useEffect(() => {
+    if (!options.config.sources.length && !options.config.calendarIds.length && options.config.timeZone === UTC) {
       const timeZone = browserTimeZone();
-      settings.onInitOrRefresh({ timeZone });
+      setConfig((current) => ({ ...current, timeZone }), { persist: false });
     }
-  }, [options.config, settings]);
-  const result = data?.key === key ? data.value : EMPTY_RESULT;
+  }, [options.config, setConfig]);
+  const result = data ?? EMPTY_RESULT;
   const name = useCallback(
     (item: PlannerEntry) =>
       recordDisplayName(
@@ -190,62 +178,61 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
       ),
     [options.model, t],
   );
-  const entries = useMemo(
+  const shown = useMemo(
     () =>
-      plannerEntries(result, config.timeZone)
-        .filter(
-          (item) =>
-            !search || `${name(item)} ${item.sourceLabel}`.toLocaleLowerCase().includes(search.toLocaleLowerCase()),
-        )
-        .sort((a, b) =>
-          config.sort === "title"
-            ? name(a).localeCompare(name(b), intl.formattingLocale)
-            : config.sort === "source"
-              ? a.sourceLabel.localeCompare(b.sourceLabel, intl.formattingLocale) ||
-                (a.entry.start < b.entry.start ? -1 : a.entry.start > b.entry.start ? 1 : 0)
-              : 0,
-        ),
-    [result, config.timeZone, config.sort, search, name, intl.formattingLocale],
+      new Set([...config.sources.filter((source) => source.enabled).map((source) => source.id), ...config.calendarIds]),
+    [config.sources, config.calendarIds],
+  );
+  const entries = useMemo(
+    () => plannerEntries(result, config.timeZone).filter((item) => shown.has(item.sourceId)),
+    [result, config.timeZone, shown],
   );
   const byId = new Map(entries.map((item) => [item.id, item]));
+  const colors = useMemo(() => plannerEntryColors(config, result), [config, result]);
   const open = useCallback(
     (item: PlannerEntry, opener?: HTMLElement | null) => {
-      if (item.record) {
-        root.navigationGuard.unregister(settings);
-        try {
-          root.recordWorkspaceStore.open(item.record.ref, opener);
-        } finally {
-          root.navigationGuard.register(settings);
-        }
-      } else setEventDetail(item);
+      if (item.record) root.recordWorkspaceStore.open(item.record.ref, opener);
+      else setEventDetail(item);
     },
-    [root, settings],
+    [root],
+  );
+  const stores = useMemo(
+    () =>
+      new Map(
+        result.sources.flatMap((source) => {
+          if (source.status !== "ready") return [];
+          const store = new RecordExplorationStore(root, source.presentation);
+          store.setCalendarTimeZone(config.timeZone);
+          return [[source.source.id, store] as const];
+        }),
+      ),
+    [root, result, config.timeZone],
   );
   const adapter = useMemo(
     () =>
       plannerCalendarAdapter({
-        root,
-        result,
-        config,
+        stores,
+        colors,
         entries,
         anchor,
-        mode: mode === "quarter" || mode === "timeline" ? "month" : mode,
-        window,
+        mode: windowMode === "quarter" ? "month" : windowMode,
+        window: calendarWindow,
         refreshing,
         refresh,
         navigate: setAnchor,
       }),
-    [root, result, config, entries, anchor, mode, window, refreshing, refresh],
+    [stores, colors, entries, anchor, windowMode, calendarWindow, refreshing, refresh],
   );
   const dateLabel = (date: string, full = false) =>
     format.date(
-      new Date(`${date}T00:00:00Z`),
-      full ? { dateStyle: "medium", timeZone: "UTC" } : { month: "long", year: "numeric", timeZone: "UTC" },
+      calendarDateInstant(date),
+      full ? { dateStyle: "medium", timeZone: UTC } : { month: "long", year: "numeric", timeZone: UTC },
     );
+  const firstMonth = startOfCalendarQuarter(anchor);
   const title =
     mode === "week"
-      ? `${dateLabel(window.from, true)} – ${dateLabel(window.to, true)}`
-      : mode === "quarter" || mode === "timeline"
+      ? `${dateLabel(calendarWindow.from, true)} – ${dateLabel(calendarWindow.to, true)}`
+      : windowMode === "quarter"
         ? t("Planner.quarterLabel", {
             number: Math.floor((calendarDateParts(anchor).month - 1) / 3) + 1,
             year: calendarDateParts(anchor).year,
@@ -260,6 +247,8 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
     }));
     setSourceEditor(null);
   };
+  const canAddSource =
+    clientReady && config.sources.length < PLANNER_SOURCE_LIMIT && options.model.fields.some(isCalendarDateField);
   const addSource = useCallback(() => {
     const field = options.model.fields.find(
       (field) =>
@@ -267,13 +256,15 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
     );
     if (field) {
       setSourceEditor({
-        id: crypto.randomUUID(),
-        typeId: field.typeId,
-        calendar: { dateFieldId: field.id },
-        filters: [],
-        search: "",
-        enabled: true,
-        color: "default",
+        creating: true,
+        source: {
+          id: crypto.randomUUID(),
+          typeId: field.typeId,
+          calendar: { dateFieldId: field.id },
+          filters: [],
+          enabled: true,
+          color: "default",
+        },
       });
     }
   }, [options.model]);
@@ -303,31 +294,32 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
             id: "planner-add",
             icon: Plus,
             label: t("Planner.addSource"),
-            disabled: !clientReady || config.sources.length >= 12 || !options.model.fields.some(isCalendarDateField),
+            disabled: !canAddSource,
             onClick: addSource,
           },
         ]}
       />
     ),
-    [t, clientReady, config.sources.length, options.model, addSource],
+    [t, clientReady, canAddSource, addSource],
   );
   useSetTopBarActions(topBarActions);
+  const recordName = (row: { id: string }) => {
+    const item = byId.get(row.id);
+    return item ? name(item) : "";
+  };
+  const openRow = (row: { id: string }, opener?: HTMLElement | null) => {
+    const item = byId.get(row.id);
+    if (item) open(item, opener);
+  };
+  const empty = !config.sources.some((source) => source.enabled) && !config.calendarIds.length;
   return (
     <div className={cn(DATA_VIEW_PAGE_CLASS_NAME, "relative")} data-planner-page="">
-      <main className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <h1 className="sr-only">{t("Planner.title")}</h1>
-
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <div className="flex flex-wrap items-center gap-2 border-b px-3 py-2">
           <IconButton
             icon={ChevronLeft}
             label={t("Planner.previous")}
-            onClick={() =>
-              setAnchor(
-                mode === "week"
-                  ? addCalendarDays(anchor, -7)
-                  : addCalendarMonths(anchor, mode === "quarter" || mode === "timeline" ? -3 : -1),
-              )
-            }
+            onClick={() => setAnchor(shiftCalendarAnchor(windowMode, anchor, -1))}
           />
 
           <Button size="sm" variant="secondary" onClick={() => setAnchor(zonedDate(new Date(), config.timeZone))}>
@@ -337,13 +329,7 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
           <IconButton
             icon={ChevronRight}
             label={t("Planner.next")}
-            onClick={() =>
-              setAnchor(
-                mode === "week"
-                  ? addCalendarDays(anchor, 7)
-                  : addCalendarMonths(anchor, mode === "quarter" || mode === "timeline" ? 3 : 1),
-              )
-            }
+            onClick={() => setAnchor(shiftCalendarAnchor(windowMode, anchor, 1))}
           />
 
           <h2 aria-live="polite" className="min-w-0 text-sm font-semibold">
@@ -379,7 +365,7 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
           </p>
         )}
 
-        {failed ? (
+        {failed && !data ? (
           <PageState
             action={
               <Button variant="secondary" onClick={() => runUserAction(refresh)}>
@@ -389,25 +375,39 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
             state="error"
             title={t("ErrorCard.title")}
           />
-        ) : !data || data.key !== key ? (
-          <div className="flex-1 p-4">
-            <Skeleton className="h-full min-h-80" />
-          </div>
-        ) : !config.sources.some((source) => source.enabled) && !config.calendarIds.length ? (
+        ) : empty ? (
           <PageState
             action={
-              <Button disabled={!clientReady} variant="secondary" onClick={addSource}>
+              <Button disabled={!canAddSource} variant="secondary" onClick={addSource}>
                 {t("Planner.addSource")}
               </Button>
             }
             state="empty"
             title={t("Planner.noSources")}
           />
+        ) : !data ? (
+          <PageState
+            background={<Skeleton className="h-full min-h-80" />}
+            className="p-4"
+            label={t("PageState.loading")}
+            state="loading"
+          />
         ) : mode === "timeline" ? (
-          <PlannerTimeline config={config} entries={entries} name={name} window={window} onOpen={open} />
+          <PlannerTimeline
+            color={colors}
+            config={config}
+            entries={entries}
+            name={name}
+            refreshing={refreshing}
+            window={calendarWindow}
+            onOpen={open}
+          />
         ) : mode === "quarter" ? (
           <div
-            className="grid min-h-0 flex-1 grid-cols-[repeat(auto-fit,minmax(min(100%,28rem),1fr))] overflow-auto"
+            className={cn(
+              "grid min-h-0 flex-1 grid-cols-[repeat(auto-fit,minmax(min(100%,28rem),1fr))] overflow-auto",
+              refreshing && "opacity-70",
+            )}
             data-planner-quarter=""
           >
             {[0, 1, 2].map((offset) => {
@@ -423,60 +423,40 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
                 <section key={month} className="flex min-h-132 min-w-0 flex-col border-r last:border-r-0">
                   <h3 className="border-b p-3 text-sm font-medium">{dateLabel(month)}</h3>
 
-                  <RecordCalendarView
-                    hideToolbar
-                    recordName={(row) => {
-                      const item = byId.get(row.id);
-                      return item ? name(item) : "";
-                    }}
-                    store={monthAdapter}
-                    onOpenRecord={(row, opener) => {
-                      const item = byId.get(row.id);
-                      if (item) open(item, opener);
-                    }}
-                  />
+                  <RecordCalendarView hideToolbar recordName={recordName} store={monthAdapter} onOpenRecord={openRow} />
                 </section>
               );
             })}
           </div>
         ) : mode === "week" ? (
           <div className="flex min-h-0 flex-1 flex-col" data-planner-week="">
-            <div className="h-32 shrink-0 overflow-auto pl-12">
+            <div className="max-h-[40dvh] shrink-0 overflow-auto pl-12" data-planner-all-day="">
               <RecordCalendarView
                 hideToolbar
-                recordName={(row) => {
-                  const item = byId.get(row.id);
-                  return item ? name(item) : "";
-                }}
+                recordName={recordName}
                 store={{
                   ...adapter,
                   normalizedCalendarItems: (pending) =>
-                    adapter.normalizedCalendarItems?.(pending).filter((item) => !item.entry.time) ?? [],
+                    adapter.normalizedCalendarItems?.(pending).filter((item) => showsInAllDayLane(item.entry)) ?? [],
                 }}
-                onOpenRecord={(row, opener) => {
-                  const item = byId.get(row.id);
-                  if (item) open(item, opener);
-                }}
+                onOpenRecord={openRow}
               />
             </div>
 
-            <PlannerWeekSchedule config={config} entries={entries} name={name} window={window} onOpen={open} />
+            <PlannerWeekSchedule
+              color={colors}
+              config={config}
+              entries={entries}
+              name={name}
+              refreshing={refreshing}
+              window={calendarWindow}
+              onOpen={open}
+            />
           </div>
         ) : (
-          <RecordCalendarView
-            hideToolbar
-            recordName={(row) => {
-              const item = byId.get(row.id);
-              return item ? name(item) : "";
-            }}
-            store={adapter}
-            onOpenRecord={(row, opener) => {
-              const item = byId.get(row.id);
-              if (item) open(item, opener);
-            }}
-          />
+          <RecordCalendarView hideToolbar recordName={recordName} store={adapter} onOpenRecord={openRow} />
         )}
-      </main>
+      </div>
 
       {sourcesOpen && (
         <AppModal open titleInContent size="lg" title={t("Planner.sources")} onClose={() => setSourcesOpen(false)}>
@@ -486,43 +466,6 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
             </AppCardHeader>
 
             <AppCardBody>
-              <div className="space-y-4 border-b pb-4">
-                <Input
-                  aria-label={t("Planner.search")}
-                  className="h-9 w-full"
-                  placeholder={t("Planner.search")}
-                  value={search}
-                  onChange={(event) => setSearch(event.target.value)}
-                />
-
-                <FormSelect
-                  ariaLabel={t("Planner.sort")}
-                  id="planner-sort"
-                  items={(["date", "title", "source"] as const).map((value) => ({
-                    value,
-                    label: sortLabels[value],
-                  }))}
-                  label={null}
-                  value={config.sort}
-                  onValueChange={(value) =>
-                    setConfig((current) => ({ ...current, sort: value as PlannerConfig["sort"] }))
-                  }
-                />
-              </div>
-
-              <div className="flex items-center justify-between gap-2">
-                <h2 className="text-sm font-medium">{t("Planner.sources")}</h2>
-
-                <IconButton
-                  disabled={
-                    !clientReady || config.sources.length >= 12 || !options.model.fields.some(isCalendarDateField)
-                  }
-                  icon={Plus}
-                  label={t("Planner.addSource")}
-                  onClick={addSource}
-                />
-              </div>
-
               <div className="space-y-1">
                 {config.sources.map((source) => (
                   <ItemActions
@@ -530,12 +473,6 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
                     label={sourceName(source)}
                     menu={
                       <>
-                        <DropdownMenuItem onSelect={() => setSourceEditor(source)}>
-                          <Pencil aria-hidden className="size-4" />
-
-                          {t("Planner.sourceSettings")}
-                        </DropdownMenuItem>
-
                         <DropdownMenuItem asChild>
                           <IntlLink href={sourceHref(source)}>
                             <ArrowUpRight aria-hidden className="size-4" />
@@ -568,7 +505,14 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
                         checked={source.enabled}
                         className="mt-0.5"
                         id={`planner-source-${source.id}`}
-                        onCheckedChange={(checked) => setSource({ ...source, enabled: checked === true })}
+                        onCheckedChange={(checked) =>
+                          setConfig((current) => ({
+                            ...current,
+                            sources: current.sources.map((item) =>
+                              item.id === source.id ? { ...item, enabled: checked === true } : item,
+                            ),
+                          }))
+                        }
                       />
 
                       <Label
@@ -577,10 +521,8 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
                       >
                         <span
                           aria-hidden
-                          className={cn(
-                            "mr-1.5 inline-block size-2 rounded-full",
-                            CALENDAR_ENTRY_COLOR_CLASS[source.color],
-                          )}
+                          className="mr-1.5 inline-block size-2 rounded-full"
+                          style={calendarSwatchStyle(source.color)}
                         />
 
                         {sourceName(source)}
@@ -596,7 +538,7 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
                         className="shrink-0"
                         icon={Pencil}
                         label={t("Planner.editSource", { source: sourceName(source) })}
-                        onClick={() => setSourceEditor(source)}
+                        onClick={() => setSourceEditor({ source, creating: false })}
                       />
 
                       <ItemActionsTrigger />
@@ -607,14 +549,7 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
 
               {config.sources.length === 0 && <p className="text-sm text-muted-foreground">{t("Planner.noSources")}</p>}
 
-              <Button
-                disabled={
-                  !clientReady || config.sources.length >= 12 || !options.model.fields.some(isCalendarDateField)
-                }
-                size="sm"
-                variant="secondary"
-                onClick={addSource}
-              >
+              <Button disabled={!canAddSource} size="sm" variant="secondary" onClick={addSource}>
                 <Plus aria-hidden className="size-4" />
 
                 {t("Planner.addSource")}
@@ -622,35 +557,37 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
 
               {options.personalAvailable && (
                 <section className="space-y-3 border-t pt-4">
-                  <h2 className="text-sm font-medium">{t("Planner.personalCalendars")}</h2>
+                  <h3 className="text-sm font-medium">{t("Planner.personalCalendars")}</h3>
 
                   {options.calendars.length ? (
-                    options.calendars.map((calendar) => (
-                      <div key={calendar.id} className="flex items-start gap-2">
-                        <Checkbox
-                          checked={config.calendarIds.includes(calendar.id)}
-                          className="mt-0.5"
-                          id={`planner-personal-${calendar.id}`}
-                          onCheckedChange={(checked) =>
-                            setConfig((current) => ({
-                              ...current,
-                              calendarIds: checked
-                                ? [...new Set([...current.calendarIds, calendar.id])]
-                                : current.calendarIds.filter((id) => id !== calendar.id),
-                            }))
-                          }
-                        />
+                    options.calendars.map((calendar) => {
+                      const ProviderIcon = getProviderIcon(calendar.provider);
+                      return (
+                        <div key={calendar.id} className="flex items-center gap-2">
+                          <Checkbox
+                            checked={config.calendarIds.includes(calendar.id)}
+                            id={`planner-personal-${calendar.id}`}
+                            onCheckedChange={(checked) =>
+                              setConfig((current) => ({
+                                ...current,
+                                calendarIds: checked
+                                  ? [...new Set([...current.calendarIds, calendar.id])]
+                                  : current.calendarIds.filter((id) => id !== calendar.id),
+                              }))
+                            }
+                          />
 
-                        <Label
-                          className="min-w-0 cursor-pointer leading-snug"
-                          htmlFor={`planner-personal-${calendar.id}`}
-                        >
-                          {calendar.name}
+                          <ProviderIcon aria-hidden className="size-4 shrink-0" />
 
-                          <span className="block pt-1 text-xs text-muted-foreground">{calendar.provider}</span>
-                        </Label>
-                      </div>
-                    ))
+                          <Label
+                            className="min-w-0 cursor-pointer leading-snug"
+                            htmlFor={`planner-personal-${calendar.id}`}
+                          >
+                            {calendar.name}
+                          </Label>
+                        </div>
+                      );
+                    })
                   ) : (
                     <Button asChild size="sm" variant="ghost">
                       <IntlLink href="/settings/channels">{t("Planner.connectCalendar")}</IntlLink>
@@ -659,24 +596,28 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
                 </section>
               )}
 
-              <FormSelect
+              <FormAutocomplete
                 id="planner-time-zone"
                 items={timeZones}
                 label={t("Planner.timeZone")}
+                renderValue={(items) => items.map((item) => item.data?.label ?? item.key).join("")}
                 value={config.timeZone}
-                onValueChange={(timeZone) => setConfig((current) => ({ ...current, timeZone }))}
-              />
+                onValueChange={(value) => {
+                  if (typeof value === "string" && value) setConfig((current) => ({ ...current, timeZone: value }));
+                }}
+              >
+                {(item) => <FormAutocompleteItem textValue={item.label}>{item.label}</FormAutocompleteItem>}
+              </FormAutocomplete>
             </AppCardBody>
           </AppCard>
         </AppModal>
       )}
 
-      <UnsavedChangesBar anchorScope="planner" store={settings} onSave={settings.onSubmit} />
-
       {sourceEditor && (
         <PlannerSourceModal
+          creating={sourceEditor.creating}
           model={options.model}
-          source={sourceEditor}
+          source={sourceEditor.source}
           onClose={() => setSourceEditor(null)}
           onSave={setSource}
         />
@@ -686,7 +627,8 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
         <PlannerSubscriptionsModal
           config={config}
           personalAvailable={options.personalAvailable}
-          window={window}
+          truncated={plannerIsTruncated(result)}
+          window={range}
           onClose={() => setSubscriptionsOpen(false)}
         />
       )}

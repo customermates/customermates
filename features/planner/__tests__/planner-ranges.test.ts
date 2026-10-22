@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { PersonalCalendarEvent } from "../planner.repo";
 
 import { plannerEntries } from "../planner-entries";
-import { layoutPlannerDay } from "../planner-week-layout";
+import { layoutPlannerDay, showsInAllDayLane } from "../planner-week-layout";
 
 function entries(event: Partial<PersonalCalendarEvent>, timeZone = "Europe/Berlin") {
   return plannerEntries(
@@ -13,6 +13,7 @@ function entries(event: Partial<PersonalCalendarEvent>, timeZone = "Europe/Berli
         {
           id: "event",
           calendarId: "calendar",
+          calendarName: "Team calendar",
           title: "A long planning event",
           startsAt: "2026-10-30T23:00:00Z",
           endsAt: "2026-11-02T23:00:00Z",
@@ -33,15 +34,19 @@ describe("planner date ranges", () => {
   it("includes all-day events through their last day across a month and week boundary", () => {
     const result = entries({ startsAt: "2026-10-30T00:00:00Z", endsAt: "2026-11-03T00:00:00Z", allDay: true });
     expect(result[0].entry).toMatchObject({ start: "2026-10-30", end: "2026-11-02", time: null });
+    expect(result[0].sourceLabel).toBe("Team calendar");
     expect(layoutPlannerDay(result, "2026-11-01", "Europe/Berlin")).toEqual([]);
   });
 
-  it("ends a midnight event on the preceding day, including full intermediate days", () => {
+  it("ends a midnight event on the preceding day and shows events of a day or longer in the all-day lane", () => {
     const result = entries({});
     expect(result[0].entry).toMatchObject({ start: "2026-10-31", end: "2026-11-02" });
-    expect(layoutPlannerDay(result, "2026-11-01", "Europe/Berlin")).toMatchObject([{ start: 0, end: 1440 }]);
-    expect(layoutPlannerDay(result, "2026-11-02", "Europe/Berlin")).toMatchObject([{ start: 0, end: 1440 }]);
-    expect(layoutPlannerDay(result, "2026-11-03", "Europe/Berlin")).toEqual([]);
+    expect(showsInAllDayLane(result[0].entry)).toBe(true);
+    expect(layoutPlannerDay(result, "2026-11-01", "Europe/Berlin")).toEqual([]);
+    expect(showsInAllDayLane({ time: null })).toBe(true);
+    expect(showsInAllDayLane({ time: "2026-10-31T09:00:00Z" })).toBe(false);
+    expect(showsInAllDayLane({ time: "2026-10-31T09:00:00Z", endTime: "2026-11-01T08:59:00Z" })).toBe(false);
+    expect(showsInAllDayLane({ time: "2026-10-31T09:00:00Z", endTime: "2026-11-01T09:00:00Z" })).toBe(true);
   });
 
   it("clips a timed overnight event to the correct hours on both days", () => {

@@ -1,8 +1,12 @@
 "use client";
 
+import { Info } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { TruncatedText } from "@/components/shared/truncated-text";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+
+import { WIDGET_INTERACTIVE_ATTRIBUTE } from "./widget-interaction";
 
 export function WidgetSubtitle({ text, reserve = false }: { text: string | null; reserve?: boolean }) {
   if (!text) return reserve ? <div aria-hidden className="h-4" /> : null;
@@ -17,8 +21,27 @@ export function WidgetNotes({ notes }: { notes: string[] }) {
   const t = useTranslations();
   if (!notes.length) return null;
   return (
-    <div aria-label={t("RecordWidgets.notes")} className="w-full min-w-0 text-xs text-muted-foreground" role="note">
-      <TruncatedText>{notes.join(" ")}</TruncatedText>
-    </div>
+    <>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            aria-label={t("RecordWidgets.notes")}
+            className="inline-flex size-4 shrink-0 items-center justify-center rounded-full text-muted-foreground outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            type="button"
+            {...{ [WIDGET_INTERACTIVE_ATTRIBUTE]: "true" }}
+          >
+            <Info aria-hidden className="size-3.5" />
+          </button>
+        </TooltipTrigger>
+
+        <TooltipContent className="max-w-64 space-y-1 text-left" side="top">
+          {notes.map((note) => (
+            <p key={note}>{note}</p>
+          ))}
+        </TooltipContent>
+      </Tooltip>
+
+      <span className="sr-only">{notes.join(" ")}</span>
+    </>
   );
 }

@@ -56,7 +56,7 @@ vi.mock("@/app/[locale]/(protected)/dashboard/components/record-calendar-widget-
 vi.mock("@/app/[locale]/(protected)/dashboard/components/record-map-widget-card", () => ({ RecordMapWidgetCard: () => null }));
 vi.mock("@/app/[locale]/(protected)/dashboard/actions", () => ({ readCalendarWidgetWindowAction: vi.fn() }));
 vi.mock("@/core/stores/root-store.provider", () => {
-  const widget = { id: "widget-1", name: "Total Deal Value", kind: "chart" };
+  const widget = { id: "widget-1", name: "Total Deal Value", kind: "chart", measure: { source: { typeId: "deal" } } };
   const widgetModalStore = {
     add: vi.fn(),
     availableKinds: ["chart"],

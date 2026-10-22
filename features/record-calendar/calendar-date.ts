@@ -21,6 +21,10 @@ function fromUtcDay(time: number): CalendarDate {
   return new Date(time).toISOString().slice(0, 10);
 }
 
+export function calendarDateInstant(date: CalendarDate): Date {
+  return new Date(utcDay(date));
+}
+
 export function calendarDateParts(date: CalendarDate): { year: number; month: number; day: number } {
   const value = new Date(utcDay(date));
   return { year: value.getUTCFullYear(), month: value.getUTCMonth() + 1, day: value.getUTCDate() };
@@ -62,6 +66,11 @@ export function startOfCalendarMonth(date: CalendarDate): CalendarDate {
 export function endOfCalendarMonth(date: CalendarDate): CalendarDate {
   const { year, month } = calendarDateParts(date);
   return calendarDateOf(year, month + 1, 0);
+}
+
+export function startOfCalendarQuarter(date: CalendarDate): CalendarDate {
+  const { year, month } = calendarDateParts(date);
+  return calendarDateOf(year, Math.floor((month - 1) / 3) * 3 + 1, 1);
 }
 
 export function addCalendarMonths(date: CalendarDate, months: number): CalendarDate {

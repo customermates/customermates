@@ -73,6 +73,13 @@ describe("calendar fields", () => {
       { fieldId: DATE.id, operator: "lt", value: { kind: "date", value: "2026-10-01" } },
       { fieldId: END_DATE.id, operator: "gte", value: { kind: "date", value: "2026-10-01" } },
     ]);
+    const end = field("00000000-0000-4000-8000-000000000018", "dateTime");
+    const timedPair = calendarWindowFilters({ start: DATE_TIME, end, color: null } as never, window);
+    expect(timedPair.spanning?.[1]).toEqual({
+      fieldId: end.id,
+      operator: "gt",
+      value: { kind: "dateTime", value: "2026-10-01T00:00:00.000+02:00" },
+    });
   });
 });
 

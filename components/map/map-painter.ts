@@ -5,8 +5,8 @@ import { DETAIL_ZOOM } from "./map-basemap";
 import { scaleOf, toScreen, visibleWorldBounds, type Camera, type MapSize, type WorldBounds } from "./map-geometry";
 
 export const LABEL_ZOOM_OFFSET = 1;
-export const STATE_ZOOM_OFFSET = 1.5;
-export const LABEL_FONT_SIZE = 11;
+const STATE_ZOOM_OFFSET = 1.5;
+const LABEL_FONT_SIZE = 11;
 export const LABEL_LIMIT = 80;
 const LABEL_GAP = 5;
 const LABEL_PADDING = 3;
@@ -18,7 +18,7 @@ const STATE_ALPHA = 0.7;
 
 export type DetailLayers = { bounds: WorldBounds; layers: BasemapLayers };
 
-export type PaintScene = {
+type PaintScene = {
   camera: Camera;
   size: MapSize;
   ratio: number;
@@ -30,7 +30,7 @@ export type PaintScene = {
   obstacles: readonly ScreenBox[];
 };
 
-export type LabelPlacement = { x: number; y: number; textX: number; text: string; align: "left" | "right" };
+type LabelPlacement = { x: number; y: number; textX: number; text: string; align: "left" | "right" };
 
 export type ScreenBox = { left: number; top: number; right: number; bottom: number };
 

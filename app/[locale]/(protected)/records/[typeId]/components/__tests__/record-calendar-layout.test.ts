@@ -79,10 +79,12 @@ describe("calendar agenda", () => {
 });
 
 describe("calendar moves", () => {
-  it("moves a span by the distance between the dragged segment and the drop day", () => {
-    const span = item("span", "2026-10-08", "2026-10-14");
-    expect(calendarMoveTarget({ item: span, start: "2026-10-12" }, "2026-10-14")).toBe("2026-10-10");
-    expect(calendarMoveTarget({ item: span, start: "2026-10-08" }, "2026-10-08")).toBe("2026-10-08");
+  it("moves a span by the distance between the day it was grabbed on and the drop day", () => {
+    const span = item("span", "2026-10-05", "2026-10-09");
+    expect(calendarMoveTarget(span, "2026-10-08", "2026-10-08")).toBe("2026-10-05");
+    expect(calendarMoveTarget(span, "2026-10-08", "2026-10-09")).toBe("2026-10-06");
+    expect(calendarMoveTarget(span, "2026-10-09", "2026-10-02")).toBe("2026-09-28");
+    expect(calendarMoveTarget(span, "2026-10-12", "2026-10-14")).toBe("2026-10-07");
   });
 
   it("shows a pending move at its target day until the record update settles", () => {

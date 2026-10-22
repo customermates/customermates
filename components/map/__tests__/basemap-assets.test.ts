@@ -30,18 +30,16 @@ const regions = regionsOf(world);
 const languages = readdirSync(join(ROOT, "i18n", "locales")).map((file) => basename(file, ".json"));
 
 describe("committed basemap files", () => {
-  it("ships the world file, one file per listed region and the readme", () => {
+  it("ships the world file and one file per listed region", () => {
     expect(regions.length).toBeGreaterThan(0);
     expect(regions.length).toBe(Array.isArray(world.regions) ? world.regions.length : -1);
-    expect(new Set(readdirSync(DIRECTORY))).toEqual(
-      new Set([WORLD_FILE, "README.md", ...regions.map(({ file }) => file)]),
-    );
+    expect(new Set(readdirSync(DIRECTORY))).toEqual(new Set([WORLD_FILE, ...regions.map(({ file }) => file)]));
   });
 
   it("stays within the download and disk budgets", () => {
     const world = read(WORLD_FILE);
     expect(gzipSync(world).length).toBeLessThanOrEqual(WORLD_GZIP_BUDGET);
-    let total = world.length + read("README.md").length;
+    let total = world.length;
     for (const { file } of regions) {
       const content = read(file);
       total += content.length;

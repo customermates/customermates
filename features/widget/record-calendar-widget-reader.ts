@@ -1,7 +1,7 @@
 import type { RecordRepo } from "@/features/records/record.repo";
 import type { QueryRecordsInteractor } from "@/features/records/query-records.interactor";
 import type { QueryRecordMeasureInteractor } from "@/features/records/query-record-measure.interactor";
-import type { CalculatedValue, RecordDto, RecordField, RecordScalar } from "@/features/records/record-model.schema";
+import type { CalculatedValue, RecordDto } from "@/features/records/record-model.schema";
 import type { RecordQuery } from "@/features/records/record-query.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 import type {
@@ -17,7 +17,8 @@ import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { fail } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { addCalendarDays, endOfCalendarMonth, startOfCalendarMonth } from "@/features/record-calendar/calendar-date";
-import { zonedDate, zonedDayEndText, zonedDayStartText } from "@/features/record-calendar/zoned-time";
+import { windowEndpoints } from "@/features/record-calendar/record-calendar-query";
+import { zonedDate } from "@/features/record-calendar/zoned-time";
 import { recordDisplayField } from "@/features/records/record-display-field.schema";
 import {
   CALENDAR_WIDGET_ITEM_LIMIT,
@@ -31,12 +32,7 @@ type RecordFilter = RecordQuery["filters"][number];
 
 const MISSING: CalculatedValue = { state: "missing" };
 
-function dayValue(field: RecordField, date: string, timeZone: string, end: boolean): RecordScalar {
-  if (field.valueType === "date") return { kind: "date", value: date };
-  return { kind: "dateTime", value: end ? zonedDayEndText(date, timeZone) : zonedDayStartText(date, timeZone) };
-}
-
-export function calendarWidgetRange(
+function calendarWidgetRange(
   query: CalendarWidgetQuery,
   today: string,
   window?: CalendarWidgetWindow,
@@ -83,10 +79,7 @@ export class RecordCalendarWidgetReader {
       fieldId: dateField.id,
       operator: "between",
       value: null,
-      values: [
-        dayValue(dateField, range.from, query.timeZone, false),
-        dayValue(dateField, range.to, query.timeZone, true),
-      ],
+      values: windowEndpoints(dateField, { ...range, timeZone: query.timeZone }),
     };
     const fields = [type.primaryFieldId, dateField.id, amountField?.id].filter((id): id is string => Boolean(id));
     const listQuery = (filters: RecordFilter[], pageSize: number) => ({
@@ -103,7 +96,13 @@ export class RecordCalendarWidgetReader {
       !window && query.layout === "upcoming" && query.showOverdue
         ? await this.queries.invoke(
             listQuery(
-              [{ fieldId: dateField.id, operator: "lt", value: dayValue(dateField, today, query.timeZone, false) }],
+              [
+                {
+                  fieldId: dateField.id,
+                  operator: "lt",
+                  value: windowEndpoints(dateField, { from: today, to: today, timeZone: query.timeZone })[0],
+                },
+              ],
               CALENDAR_WIDGET_OVERDUE_LIMIT,
             ),
           )

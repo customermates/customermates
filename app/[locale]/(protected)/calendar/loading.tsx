@@ -1,16 +1,16 @@
+import { getTranslations } from "next-intl/server";
+
+import { DataViewSkeleton } from "@/components/data-view/data-view-skeleton";
 import { PageContainer } from "@/components/shared/page-container";
 import { PageState } from "@/components/page-state/page-state";
-import { getTranslations } from "next-intl/server";
-import { PlannerSkeleton } from "./components/planner-skeleton";
 
 export default async function Loading() {
-  const t = await getTranslations("PageState");
+  const t = await getTranslations();
   return (
-    <PageContainer>
+    <PageContainer padded={false}>
       <PageState
-        background={<PlannerSkeleton />}
-        className="h-[calc(100svh-4rem)] md:h-[calc(100svh-5rem)]"
-        label={t("loading")}
+        background={<DataViewSkeleton spec={{ view: "calendar" }} />}
+        label={t("PageState.loading")}
         state="loading"
       />
     </PageContainer>

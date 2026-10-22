@@ -8,7 +8,7 @@ import type { GetWidgetByIdRepo } from "./get-widget-by-id.repo";
 import type { GetWidgetsRepo } from "./get-widgets.repo";
 import type { FindOwnedWidgetKindRepo } from "./find-owned-widget-kind.repo";
 import { RecordActivityWidgetDtoSchema } from "./record-activity-widget.schema";
-import { RecordCalendarWidgetDtoSchema } from "./record-calendar-widget.schema";
+import { CALENDAR_WIDGET_LAYOUTS, RecordCalendarWidgetDtoSchema } from "./record-calendar-widget.schema";
 import { RecordMapWidgetDtoSchema } from "./record-map-widget.schema";
 import { RecordWidgetDtoSchema } from "./record-widget.schema";
 import type { UpdateWidgetLayoutsRepo, WidgetLayoutTarget, WidgetLayoutWrite } from "./update-widget-layouts.repo";
@@ -238,6 +238,10 @@ export class PrismaWidgetRepo
     return widgets.map((widget) => ({
       id: widget.id,
       kind: widget.kind,
+      calendarLayout:
+        CALENDAR_WIDGET_LAYOUTS.find(
+          (layout) => layout === (widget.calendarQuery as { layout?: unknown } | null)?.layout,
+        ) ?? null,
       name: widget.name,
       firstName: widget.user.firstName,
       lastName: widget.user.lastName,
@@ -245,12 +249,20 @@ export class PrismaWidgetRepo
     }));
   }
 
-  async findReadableWidgetKind(id: string): Promise<RecordWidgetKind | null> {
+  async findReadableWidget(id: string): Promise<StoredWidget | null> {
     const row = await this.prisma.widget.findFirst({
       where: { id, companyId: this.companyId, OR: [{ userId: this.userId }, { isTemplate: true }], ...LIVE_WIDGET },
-      select: { kind: true },
     });
-    return row?.kind ?? null;
+    if (!row) return null;
+    const query = {
+      chart: row.measure,
+      activityTimeline: row.activityQuery,
+      calendar: row.calendarQuery,
+      map: row.mapQuery,
+    };
+    return query[row.kind] === null
+      ? null
+      : ({ kind: row.kind, widget: this.storedRecordWidget(row.kind, row) } as StoredWidget);
   }
 
   async findOwnedWidgetKind(id: string): Promise<WidgetKind | null> {

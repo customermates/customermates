@@ -2492,11 +2492,16 @@ import { ManageCalendarSubscriptionsInteractor } from "@/features/planner/manage
 import { ReadCalendarSubscriptionInteractor } from "@/features/planner/read-calendar-subscription.interactor";
 import { CalendarSubscriptionTenant } from "@/features/planner/calendar-subscription-tenant";
 
-export const getPlannerPersonalEvents = () => new PrismaPlannerPersonalEvents(getEntitlementService());
+export const getPlannerPersonalEvents = () => new PrismaPlannerPersonalEvents();
 export const getReadPlannerInteractor = () =>
-  new ReadPlannerInteractor(getGetRecordPresentationInteractor(), getPlannerPersonalEvents());
+  new ReadPlannerInteractor(getGetRecordPresentationInteractor(), getPlannerPersonalEvents(), getEntitlementService());
 export const getGetPlannerOptionsInteractor = () =>
-  new GetPlannerOptionsInteractor(getGetRecordModelInteractor(), getP13nRepo(), getPlannerPersonalEvents());
+  new GetPlannerOptionsInteractor(
+    getGetRecordModelInteractor(),
+    getP13nRepo(),
+    getPlannerPersonalEvents(),
+    getEntitlementService(),
+  );
 export const getCalendarSubscriptionRepo = () => new PrismaCalendarSubscriptionRepo();
 export const getExportPlannerInteractor = () => new ExportPlannerInteractor(getReadPlannerInteractor());
 export const getManageCalendarSubscriptionsInteractor = () =>

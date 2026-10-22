@@ -6,6 +6,7 @@ import { chartPointAction } from "./chart-point-action";
 import { observer } from "mobx-react-lite";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/core/utils/cn";
 
 type Props = {
   chartData: ChartDataPoint[];
@@ -24,7 +25,10 @@ export const FunnelChart = observer(({ chartData }: Props) => {
               <TooltipTrigger asChild>
                 <li
                   {...chartPointAction(step)}
-                  className="col-span-3 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring grid grid-cols-subgrid items-center"
+                  className={cn(
+                    "col-span-3 grid grid-cols-subgrid items-center",
+                    step.onSelect && "cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  )}
                   data-slot="widget-funnel-step"
                 >
                   <span className="truncate text-xs text-foreground">{step.label}</span>

@@ -9,13 +9,16 @@ import { CalendarDays } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
+import { CalendarEntryTooltip, useCalendarEntryDateLabel } from "@/components/records/calendar-entry-tooltip";
 import { RecordValue, useRecordValueFormat } from "@/components/records/record-value";
-import { useNavigateToHref } from "@/components/shared/use-navigate-to-href";
+import { TruncatedText } from "@/components/shared/truncated-text";
 import { SectionRows } from "@/components/ui/section-rows";
+import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
+import { calendarDateInstant } from "@/features/record-calendar/calendar-date";
 import { recordDisplayName } from "@/features/records/record-display-name";
 
-import { calendarMonthKey, calendarOverdueDays } from "./calendar-widget-view";
+import { calendarMonthKey, calendarOverdueDays, calendarWidgetEntry } from "./calendar-widget-view";
 
 type Props = {
   data: CalendarWidgetData;
@@ -27,7 +30,6 @@ type Props = {
   recordHref?: (record: RecordRef) => string;
 };
 
-const DAY_START = "T00:00:00.000Z";
 const SECTION_HEADING_CLASS = "pb-1 text-[11px] font-semibold uppercase tracking-wide";
 
 export const CalendarWidgetUpcoming = observer(function CalendarWidgetUpcoming({
@@ -41,22 +43,24 @@ export const CalendarWidgetUpcoming = observer(function CalendarWidgetUpcoming({
 }: Props) {
   const t = useTranslations();
   const valueFormat = useRecordValueFormat();
-  const navigateToHref = useNavigateToHref();
+  const root = useRootStore();
+  const entryDate = useCalendarEntryDateLabel(timeZone);
   const hiddenOverdue = Math.max(0, data.overdueCount - data.overdue.length);
   const overdueHeadingId = useId();
   const upcomingHeadingId = useId();
 
   function row(item: CalendarWidgetItem, overdue: boolean) {
-    const day = new Date(`${item.date}${DAY_START}`);
+    const day = calendarDateInstant(item.date);
     const name = recordDisplayName(item.title, singular, t);
     const fullDate = valueFormat.date(day, { dateStyle: "full", timeZone: "UTC" });
     const time =
       item.value.state === "value" && item.value.value.kind === "dateTime"
         ? valueFormat.date(new Date(item.value.value.value), { hour: "numeric", minute: "2-digit", timeZone })
         : null;
-    const detail = overdue
+    const overdueBy = overdue
       ? t("RecordCalendarWidgets.overdueBy", { count: calendarOverdueDays(item.date, data.today) })
-      : [dateField?.label, time].filter(Boolean).join(" · ");
+      : null;
+    const detail = overdueBy ?? [dateField?.label, time].filter(Boolean).join(" · ");
     const href = recordHref?.(item.record);
     return (
       <li
@@ -69,16 +73,22 @@ export const CalendarWidgetUpcoming = observer(function CalendarWidgetUpcoming({
         data-overdue={overdue || undefined}
       >
         {href && (
-          <a
-            aria-label={t("RecordCalendarWidgets.itemLabel", { name, date: fullDate })}
-            className="absolute inset-0 outline-none focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50"
-            href={href}
-            onClick={(event) => {
-              if (event.metaKey || event.ctrlKey || event.shiftKey || event.button === 1) return;
-              event.preventDefault();
-              navigateToHref(href);
-            }}
-          />
+          <CalendarEntryTooltip
+            date={entryDate(calendarWidgetEntry(item))}
+            name={name}
+            source={overdueBy ?? dateField?.label}
+          >
+            <a
+              aria-label={t("RecordCalendarWidgets.itemLabel", { name, date: fullDate })}
+              className="absolute inset-0 outline-none focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50"
+              href={href}
+              onClick={(event) => {
+                if (event.metaKey || event.ctrlKey || event.shiftKey || event.button === 1) return;
+                event.preventDefault();
+                root.recordWorkspaceStore.open(item.record, event.currentTarget);
+              }}
+            />
+          </CalendarEntryTooltip>
         )}
 
         <span
@@ -97,13 +107,22 @@ export const CalendarWidgetUpcoming = observer(function CalendarWidgetUpcoming({
         </span>
 
         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <span className="truncate text-sm font-medium">{name}</span>
-
-          {detail && (
-            <span className={cn("truncate text-xs", overdue ? "text-destructive" : "text-muted-foreground")}>
-              {detail}
-            </span>
+          {href ? (
+            <span className="truncate text-sm font-medium">{name}</span>
+          ) : (
+            <TruncatedText className="text-sm font-medium">{name}</TruncatedText>
           )}
+
+          {detail &&
+            (href ? (
+              <span className={cn("truncate text-xs", overdue ? "text-destructive" : "text-muted-foreground")}>
+                {detail}
+              </span>
+            ) : (
+              <TruncatedText className={cn("text-xs", overdue ? "text-destructive" : "text-muted-foreground")}>
+                {detail}
+              </TruncatedText>
+            ))}
         </span>
 
         {amountField && (
@@ -180,7 +199,7 @@ export const CalendarWidgetUpcoming = observer(function CalendarWidgetUpcoming({
                           className="pb-1 pt-3 text-[11px] font-medium uppercase tracking-wide text-muted-foreground"
                           data-calendar-month={month}
                         >
-                          {valueFormat.date(new Date(`${item.date}${DAY_START}`), {
+                          {valueFormat.date(calendarDateInstant(item.date), {
                             month: "long",
                             year: "numeric",
                             timeZone: "UTC",

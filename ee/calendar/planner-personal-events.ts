@@ -1,44 +1,26 @@
-import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { CalendarWindow } from "@/core/data-view/calendar-view-config.schema";
 import type { PlannerPersonalEvents } from "@/features/planner/planner.repo";
 
-import { Resource } from "@/generated/prisma";
-import { env } from "@/env";
 import { TenantRepository } from "@/core/base/tenant-repository";
-import { roleCanRead } from "@/core/base/permission.service";
 import { calendarAccessWhere, calendarEventAccessWhere } from "@/ee/messaging/messaging-access";
+import { calendarDateInstant } from "@/features/record-calendar/calendar-date";
 import { zonedDayStartText, zonedDayEndText } from "@/features/record-calendar/zoned-time";
 import { expandPlannerEvents } from "./expand-planner-events";
 
 export class PrismaPlannerPersonalEvents extends TenantRepository implements PlannerPersonalEvents {
-  constructor(private entitlements: EntitlementService) {
-    super();
-  }
-  private async available() {
-    return (
-      env.APP_MODE !== "self-hosted" &&
-      roleCanRead(this.user.role, Resource.inboxMessages) &&
-      !(await this.entitlements.require("messaging"))
-    );
-  }
   async calendars() {
-    if (!(await this.available())) return { available: false, calendars: [] };
     const rows = await this.prisma.calendar.findMany({
       where: calendarAccessWhere(this.companyId, this.userId),
       orderBy: [{ name: "asc" }, { id: "asc" }],
       take: 100,
       select: { id: true, name: true, connectedAccount: { select: { provider: true } } },
     });
-    return {
-      available: true,
-      calendars: rows.map(({ connectedAccount, ...calendar }) => ({
-        ...calendar,
-        provider: connectedAccount.provider,
-      })),
-    };
+    return rows.map(({ connectedAccount, ...calendar }) => ({ ...calendar, provider: connectedAccount.provider }));
   }
   async events(calendarIds: string[], window: CalendarWindow) {
-    if (!calendarIds.length || !(await this.available())) return { events: [], truncated: false };
+    if (!calendarIds.length) return { events: [], truncated: false };
+    const timedEnd = new Date(zonedDayEndText(window.to, window.timeZone));
+    const allDayEnd = new Date(`${window.to}T23:59:59.999Z`);
     const rows = await this.prisma.calendarEvent.findMany({
       where: {
         ...calendarEventAccessWhere(this.companyId, this.userId),
@@ -47,15 +29,15 @@ export class PrismaPlannerPersonalEvents extends TenantRepository implements Pla
         OR: [
           {
             allDay: false,
-            startsAt: { lte: new Date(zonedDayEndText(window.to, window.timeZone)) },
+            startsAt: { lte: timedEnd },
             endsAt: { gt: new Date(zonedDayStartText(window.from, window.timeZone)) },
           },
           {
             allDay: true,
-            startsAt: { lt: new Date(`${window.to}T23:59:59.999Z`) },
-            endsAt: { gt: new Date(`${window.from}T00:00:00Z`) },
+            startsAt: { lt: allDayEnd },
+            endsAt: { gt: calendarDateInstant(window.from) },
           },
-          { recurrenceRule: { not: null }, startsAt: { lte: new Date(`${window.to}T23:59:59.999Z`) } },
+          { recurrenceRule: { not: null }, startsAt: { lte: timedEnd > allDayEnd ? timedEnd : allDayEnd } },
         ],
       },
       orderBy: [{ startsAt: "asc" }, { id: "asc" }],
@@ -70,12 +52,14 @@ export class PrismaPlannerPersonalEvents extends TenantRepository implements Pla
         location: true,
         recurrenceRule: true,
         timezone: true,
+        calendar: { select: { name: true } },
         connectedAccount: { select: { provider: true } },
       },
     });
     const expanded = expandPlannerEvents(
-      rows.slice(0, 2000).map(({ connectedAccount, startsAt, endsAt, ...event }) => ({
+      rows.slice(0, 2000).map(({ calendar, connectedAccount, startsAt, endsAt, ...event }) => ({
         ...event,
+        calendarName: calendar.name,
         startsAt: startsAt.toISOString(),
         endsAt: endsAt.toISOString(),
         provider: connectedAccount.provider,

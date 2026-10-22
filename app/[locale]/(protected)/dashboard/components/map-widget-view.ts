@@ -1,35 +1,31 @@
-import type { ChipColor } from "@/constants/chip-colors";
 import type { RecordDisplayField } from "@/features/records/record-display-field.schema";
 import type { CalculatedValue } from "@/features/records/record-model.schema";
 import type { MapWidgetPoint } from "@/features/widget/record-map-widget.schema";
 import type { MapViewPoint } from "@/components/map/map-types";
 
-import { CHIP_COLORS } from "@/constants/chip-colors";
-import { MIXED_CLUSTER_COLOR } from "@/components/map/map-palette";
+import { chipChartColor } from "@/constants/chart-colors";
+import { toChipColor } from "@/constants/chip-colors";
+import { ChartColor } from "@/features/widget/widget-display.schema";
 
-export const MAP_DEFAULT_COLOR = "var(--chart-1)";
-export const MAP_NEUTRAL_COLOR = "var(--chart-default-2)";
+export const MAP_DEFAULT_COLOR = ChartColor.primary1;
+export const MAP_NEUTRAL_COLOR = ChartColor.default2;
 export const MAP_MISSING_GROUP = "";
-const CHART_PALETTE_SIZE = 5;
-
-const CHIP_COLOR_TOKENS: Record<ChipColor, string> = {
-  default: "var(--primary)",
-  secondary: "var(--chart-default-1)",
-  destructive: "var(--destructive)",
-  success: "var(--success)",
-  warning: "var(--warning)",
-  info: "var(--info)",
-};
+const OPTION_SEQUENCE = [
+  ChartColor.primary1,
+  ChartColor.secondary1,
+  ChartColor.success1,
+  ChartColor.warning1,
+  ChartColor.danger1,
+];
 
 type ColorField = Pick<RecordDisplayField, "options"> | undefined;
 
-export function mapOptionColor(field: ColorField, optionId: string | null): string {
+export function mapOptionColor(field: ColorField, optionId: string | null): ChartColor {
   if (!field) return MAP_DEFAULT_COLOR;
   const index = optionId === null ? -1 : field.options.findIndex((option) => option.id === optionId);
   if (index < 0) return MAP_NEUTRAL_COLOR;
   const color = field.options[index].color;
-  if (color && (CHIP_COLORS as readonly string[]).includes(color)) return CHIP_COLOR_TOKENS[color as ChipColor];
-  return `var(--chart-${(index % CHART_PALETTE_SIZE) + 1})`;
+  return color ? chipChartColor(toChipColor(color)) : OPTION_SEQUENCE[index % OPTION_SEQUENCE.length];
 }
 
 export function mapPointWeight(size: CalculatedValue | null): number | null {
@@ -57,7 +53,7 @@ export type MapLegendEntry = {
   kind: "option" | "missing" | "mixed";
   id: string | null;
   label: string | null;
-  color: string;
+  color: ChartColor | null;
   count: number | null;
 };
 
@@ -76,7 +72,6 @@ export function mapLegend(points: MapWidgetPoint[], colorField: ColorField): Map
   });
   const missing = counts.get(null);
   if (missing) entries.push({ kind: "missing", id: null, label: null, color: MAP_NEUTRAL_COLOR, count: missing });
-  if (entries.length > 1)
-    entries.push({ kind: "mixed", id: null, label: null, color: MIXED_CLUSTER_COLOR, count: null });
+  if (entries.length > 1) entries.push({ kind: "mixed", id: null, label: null, color: null, count: null });
   return entries;
 }

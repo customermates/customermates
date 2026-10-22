@@ -22,11 +22,7 @@ type SeededWidget = {
 };
 
 /** Messages, logged activities and meetings come from connected accounts, which are available on Customermates Cloud only. */
-const CLOUD_ACTIVITY_SOURCES = new Set([
-  "message",
-  "activity",
-  "calendar_event",
-]);
+const CLOUD_ACTIVITY_SOURCES = new Set(["message", "activity", "calendar_event"]);
 
 for (const dashboard of DEMO_DASHBOARDS) {
   test(`the ${dashboard.name} dashboard renders every seeded widget with data`, async ({
@@ -54,9 +50,7 @@ for (const dashboard of DEMO_DASHBOARDS) {
     const rail = page.locator("[data-joins-top-bar]");
     for (const other of DEMO_DASHBOARDS.filter(({ id }) => id))
       await expect(rail.getByText(other.name, { exact: true })).toBeVisible();
-    const active = rail.locator(
-      '[data-focus-target^="view:"][aria-current="page"]',
-    );
+    const active = rail.locator('[data-focus-target^="view:"][aria-current="page"]');
     if (dashboard.id) await expect(active).toHaveText(dashboard.name);
     else await expect(active).toHaveCount(0);
 
@@ -82,9 +76,7 @@ for (const dashboard of DEMO_DASHBOARDS) {
       ) {
         // Self-hosted reads no messaging or calendar activity, so the widget shows its empty state instead.
         await expect(card.locator('[data-page-state="empty"]')).toBeVisible();
-        await expect(
-          card.getByText("0 activities", { exact: true }),
-        ).toBeVisible();
+        await expect(card.getByText("0 activities", { exact: true })).toBeVisible();
         continue;
       }
       if (widget.kind === "activityTimeline") {
@@ -104,17 +96,11 @@ for (const dashboard of DEMO_DASHBOARDS) {
           widget.calendarLayout === "upcoming"
             ? card.locator("[data-calendar-item]")
             : card.locator('[data-calendar-day]:not([data-heat="0"])');
-        await expect(
-          data.first(),
-          `${widget.name} shows its records`,
-        ).toBeVisible();
+        await expect(data.first(), `${widget.name} shows its records`).toBeVisible();
         continue;
       }
       if (widget.kind === "map") {
-        await expect(
-          card.locator("[data-map-marker]").first(),
-          `${widget.name} places pins or clusters`,
-        ).toBeVisible();
+        await expect(card.locator("[data-map-marker]").first(), `${widget.name} places pins or clusters`).toBeVisible();
         continue;
       }
       if (widget.displayType === "number") {
@@ -125,18 +111,16 @@ for (const dashboard of DEMO_DASHBOARDS) {
           displayedNumber(await value.innerText()),
           `${widget.name} value`,
         ).not.toBe(0);
-        const context = card.locator(
-          '[data-slot="card-header"] [data-slot="widget-subtitle"]',
-        );
+        const context = card.locator('[data-slot="card-header"] [data-slot="widget-subtitle"]');
         if (widget.aggregation === "count") {
           await expect(context).toBeVisible();
           await expect(context).not.toHaveText("");
           expect(await context.innerText()).not.toMatch(/^\d[\d,.]*\s/u);
-        } else
-          expect(
-            displayedNumber((await context.innerText()).split(" ")[0] ?? ""),
-            `${widget.name} records`,
-          ).toBeGreaterThan(0);
+        }
+        else expect(
+          displayedNumber((await context.innerText()).split(" ")[0] ?? ""),
+          `${widget.name} records`,
+        ).toBeGreaterThan(0);
         continue;
       }
       const marks = {
@@ -298,9 +282,7 @@ for (const width of [1440, 390]) {
             ),
           );
         await page.setViewportSize({ width, height: Math.ceil(bottom + 24) });
-        await expect(page.locator("[data-page-skeleton-loading]")).toHaveCount(
-          0,
-        );
+        await expect(page.locator("[data-page-skeleton-loading]")).toHaveCount(0);
         await paintedFrames(page);
         for (const scheme of ["light", "dark"] as const) {
           await page.emulateMedia({ colorScheme: scheme });

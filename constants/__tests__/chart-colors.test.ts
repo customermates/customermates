@@ -3,7 +3,15 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { getChartColors, getChartRankShades, getChartStrokeColors, getChartTextColors } from "@/constants/chart-colors";
+import {
+  chipChartColor,
+  getChartColors,
+  getChartRankShades,
+  getChartStrokeColors,
+  getChartTextColors,
+  getChartTintColors,
+} from "@/constants/chart-colors";
+import { CHIP_COLORS } from "@/constants/chip-colors";
 import { ChartColor } from "@/features/widget/widget.schema";
 
 type Theme = "light" | "dark";
@@ -87,6 +95,19 @@ function resolve(value: string, theme: Theme): string {
 const COLORS = Object.values(ChartColor);
 const THEME_NAMES: Theme[] = ["light", "dark"];
 
+function luminance(hex: string) {
+  const [red, green, blue] = [1, 3, 5].map((offset) => {
+    const unit = parseInt(hex.slice(offset, offset + 2), 16) / 255;
+    return unit <= 0.04045 ? unit / 12.92 : ((unit + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * red + 0.7152 * green + 0.0722 * blue;
+}
+
+function contrast(left: string, right: string) {
+  const [light, dark] = [luminance(left), luminance(right)].sort((a, b) => b - a);
+  return (light + 0.05) / (dark + 0.05);
+}
+
 describe("chart colors", () => {
   it("resolve to the previous fills, strokes and label colors in both themes", () => {
     for (const theme of THEME_NAMES) {
@@ -119,6 +140,29 @@ describe("chart colors", () => {
     expect(new Set(shades).size).toBe(4);
     expect(getChartRankShades(ChartColor.secondary2, [1])).toEqual(["var(--chart-secondary-rank-0)"]);
     expect(getChartRankShades("unknown1" as ChartColor, [1])).toEqual(["var(--chart-primary-rank-0)"]);
+  });
+
+  it("give every option colour its own hue, matching the colour of its chip", () => {
+    expect(CHIP_COLORS.map(chipChartColor)).toEqual([
+      ChartColor.primary1,
+      ChartColor.default1,
+      ChartColor.danger1,
+      ChartColor.success1,
+      ChartColor.warning1,
+      ChartColor.secondary1,
+    ]);
+    for (const theme of THEME_NAMES)
+      expect(resolve(getChartColors()[chipChartColor("default")], theme)).toBe(resolve("var(--primary)", theme));
+  });
+
+  it("keep the label colour of each hue readable on its tint in both themes", () => {
+    for (const theme of THEME_NAMES) {
+      for (const color of COLORS) {
+        const tint = resolve(getChartTintColors()[color], theme);
+        expect(tint).toBe(PREVIOUS_RAMPS[color.replace(/\d$/, "")][theme][2]);
+        expect(contrast(tint, resolve(getChartTextColors()[color], theme))).toBeGreaterThanOrEqual(4.5);
+      }
+    }
   });
 
   it("keep the shared chart tokens on the strongest step of each hue", () => {

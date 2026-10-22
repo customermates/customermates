@@ -1,39 +1,47 @@
 "use client";
 
+import type { ChipColor } from "@/constants/chip-colors";
 import type { PlannerEntry } from "@/features/planner/planner-entries";
 import type { PlannerConfig } from "@/features/planner/planner.schema";
 import type { CalendarWindow } from "@/core/data-view/calendar-view-config.schema";
 
 import { useTranslations } from "next-intl";
 import { useRecordValueFormat } from "@/components/records/record-value";
-import { CalendarEntryTooltip } from "@/components/records/calendar-entry-tooltip";
-import { usePlannerEntryDateLabel } from "./planner-entry-label";
+import { CalendarEntryTooltip, useCalendarEntryDateLabel } from "@/components/records/calendar-entry-tooltip";
 import { cn } from "@/core/utils/cn";
-import { calendarDatesBetween, calendarDayDifference } from "@/features/record-calendar/calendar-date";
-import { CALENDAR_ENTRY_COLOR_CLASS } from "../../records/[typeId]/components/record-calendar-layout";
+import {
+  calendarDateInstant,
+  calendarDatesBetween,
+  calendarDayDifference,
+} from "@/features/record-calendar/calendar-date";
+import { calendarEntryColorStyle } from "../../records/[typeId]/components/record-calendar-layout";
 
 export function PlannerTimeline({
   entries,
   config,
   window,
+  refreshing,
   name,
+  color,
   onOpen,
 }: {
   entries: PlannerEntry[];
   config: PlannerConfig;
   window: CalendarWindow;
+  refreshing: boolean;
   name: (item: PlannerEntry) => string;
+  color: (item: PlannerEntry) => ChipColor;
   onOpen: (item: PlannerEntry, opener: HTMLElement) => void;
 }) {
   const t = useTranslations();
   const format = useRecordValueFormat();
-  const dateLabel = usePlannerEntryDateLabel(config.timeZone);
+  const dateLabel = useCalendarEntryDateLabel(config.timeZone);
   const days = calendarDatesBetween(window.from, window.to);
   const width = days.length * 28;
   return (
     <div
       aria-label={t("Planner.modes.timeline")}
-      className="min-h-0 flex-1 overflow-auto"
+      className={cn("min-h-0 flex-1 overflow-auto", refreshing && "opacity-70")}
       data-planner-timeline=""
       role="region"
     >
@@ -47,16 +55,16 @@ export function PlannerTimeline({
             {days.map((day, index) => (
               <div
                 key={day}
-                aria-label={day}
+                aria-label={format.date(calendarDateInstant(day), { dateStyle: "full", timeZone: "UTC" })}
                 className="w-7 shrink-0 border-r py-1 text-center text-[10px] tabular-nums text-muted-foreground"
               >
-                <span className="block h-4 whitespace-nowrap text-left font-medium">
+                <span aria-hidden className="block h-4 whitespace-nowrap text-left font-medium">
                   {index === 0 || day.endsWith("-01")
-                    ? format.date(new Date(`${day}T00:00:00Z`), { month: "short", timeZone: "UTC" })
+                    ? format.date(calendarDateInstant(day), { month: "short", timeZone: "UTC" })
                     : ""}
                 </span>
 
-                {Number(day.slice(8))}
+                <span aria-hidden>{format.date(calendarDateInstant(day), { day: "numeric", timeZone: "UTC" })}</span>
               </div>
             ))}
           </div>
@@ -69,10 +77,9 @@ export function PlannerTimeline({
             const end = item.entry.end > window.to ? window.to : item.entry.end;
             const left = calendarDayDifference(window.from, start) * 28;
             const span = (calendarDayDifference(start, end) + 1) * 28;
-            const color = config.sources.find((source) => source.id === item.sourceId)?.color ?? "secondary";
             return (
               <div key={item.id} className="flex min-h-12 border-b" data-planner-timeline-row={item.id}>
-                <CalendarEntryTooltip date={dateLabel(item)} name={name(item)} source={item.sourceLabel}>
+                <CalendarEntryTooltip date={dateLabel(item.entry)} name={name(item)} source={item.sourceLabel}>
                   <button
                     className="sticky left-0 z-10 flex w-60 shrink-0 flex-col justify-center border-r bg-background px-3 py-2 text-left outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                     type="button"
@@ -92,18 +99,20 @@ export function PlannerTimeline({
                     backgroundSize: "28px 100%",
                   }}
                 >
-                  <CalendarEntryTooltip date={dateLabel(item)} name={name(item)} source={item.sourceLabel}>
+                  <CalendarEntryTooltip date={dateLabel(item.entry)} name={name(item)} source={item.sourceLabel}>
                     <button
-                      aria-label={`${name(item)} · ${dateLabel(item)}`}
+                      aria-label={`${name(item)} · ${dateLabel(item.entry)}`}
                       className={cn(
-                        "absolute top-3 h-6 truncate rounded-sm px-2 text-left text-xs font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                        CALENDAR_ENTRY_COLOR_CLASS[color],
+                        "absolute top-3 h-6 truncate rounded-sm px-2 text-left text-xs font-medium outline-none hover:brightness-95 focus-visible:ring-2 focus-visible:ring-ring",
+                        item.entry.start < start && "rounded-l-none",
+                        item.entry.end > end && "rounded-r-none",
                       )}
                       data-planner-continues-after={item.entry.end > end || undefined}
                       data-planner-continues-before={item.entry.start < start || undefined}
                       data-planner-range-end={end}
                       data-planner-range-start={start}
-                      style={{ left: left + 2, width: Math.max(24, span - 4) }}
+                      style={{ ...calendarEntryColorStyle(color(item)), left: left + 2, width: Math.max(24, span - 4) }}
+                      tabIndex={-1}
                       type="button"
                       onClick={(event) => onOpen(item, event.currentTarget)}
                     >

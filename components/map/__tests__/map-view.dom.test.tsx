@@ -6,6 +6,8 @@ import { act, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { ChartColor } from "@/features/widget/widget-display.schema";
+
 import { FIT_MAX_ZOOM, FIT_PADDING, MAX_ZOOM, fitCamera, project, worldBoundsOf } from "../map-geometry";
 import { PIN_RADIUS_DEFAULT } from "../map-markers";
 
@@ -26,7 +28,7 @@ const labels: MapViewProps["labels"] = {
 };
 
 function point(id: string, lat: number, lon: number, group: string | null = null): MapViewPoint {
-  return { id, lat, lon, group, color: "var(--chart-1)", weight: null };
+  return { id, lat, lon, group, color: ChartColor.primary1, weight: null };
 }
 
 const munich = [point("m1", 48.137, 11.575, "a"), point("m2", 48.155, 11.6, "a"), point("m3", 48.12, 11.55, "b")];
@@ -42,6 +44,7 @@ function Harness({ points, onSelect }: { points: MapViewPoint[]; onSelect?: (id:
     <MapView
       label="Records map"
       labels={labels}
+      language="en"
       points={points}
       renderPopover={(id) => <p>Details {id}</p>}
       selectedId={selectedId}
@@ -122,6 +125,7 @@ beforeEach(async () => {
   vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
     return this.hasAttribute("data-map-viewport") ? new DOMRect(0, 0, WIDTH, HEIGHT) : new DOMRect(0, 0, 0, 0);
   });
+  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(null);
   vi.spyOn(HTMLElement.prototype, "getClientRects").mockImplementation(
     () => [new DOMRect(0, 0, 10, 10)] as unknown as DOMRectList,
   );
@@ -267,6 +271,60 @@ describe("MapView camera", () => {
     press(viewport(), "0");
     expect(zoom()).toBeCloseTo(start, 3);
     expect(center(pin("berlin"))).toEqual(before);
+  });
+
+  it("leaves the wheel to the page unless Ctrl or Cmd is held or the map has focus", async () => {
+    await render([berlin]);
+    const start = zoom();
+    const wheel = async (init: WheelEventInit) => {
+      const event = new WheelEvent("wheel", { deltaY: -500, clientX: 50, clientY: 50, cancelable: true, ...init });
+      act(() => {
+        viewport().dispatchEvent(event);
+      });
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 200));
+      });
+      return event.defaultPrevented;
+    };
+    expect(await wheel({})).toBe(false);
+    expect(zoom()).toBe(start);
+    expect(await wheel({ ctrlKey: true })).toBe(true);
+    expect(zoom()).toBeCloseTo(start + 1, 3);
+    expect(await wheel({ metaKey: true, deltaY: 500 })).toBe(true);
+    expect(zoom()).toBeCloseTo(start, 3);
+    act(() => viewport().focus());
+    expect(await wheel({})).toBe(true);
+    expect(zoom()).toBeCloseTo(start + 1, 3);
+  });
+
+  it("pans with the mouse but leaves one-finger touch to the page and zooms with two fingers", async () => {
+    await render([berlin]);
+    const start = zoom();
+    const before = center(pin("berlin"));
+    const pointer = (type: string, pointerId: number, pointerType: string, clientX: number, clientY = 100) =>
+      act(() => {
+        viewport().dispatchEvent(
+          Object.assign(new MouseEvent(type, { clientX, clientY, button: 0, buttons: 1, bubbles: true }), {
+            pointerId,
+            pointerType,
+          }),
+        );
+      });
+    pointer("pointerdown", 1, "touch", 100);
+    pointer("pointermove", 1, "touch", 180);
+    pointer("pointerup", 1, "touch", 180);
+    expect(center(pin("berlin"))).toEqual(before);
+    pointer("pointerdown", 2, "touch", 100);
+    pointer("pointerdown", 3, "touch", 200);
+    pointer("pointermove", 3, "touch", 300);
+    pointer("pointerup", 3, "touch", 300);
+    pointer("pointerup", 2, "touch", 100);
+    expect(zoom()).toBeCloseTo(start + 1, 3);
+    const zoomed = center(pin("berlin"));
+    pointer("pointerdown", 4, "mouse", 100);
+    pointer("pointermove", 4, "mouse", 160);
+    pointer("pointerup", 4, "mouse", 160);
+    expect(center(pin("berlin")).x).toBeCloseTo(zoomed.x + 60, 3);
   });
 
   it("zooms with the buttons and disables zoom in at the maximum", async () => {

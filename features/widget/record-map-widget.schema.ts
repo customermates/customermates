@@ -1,11 +1,9 @@
 import { z } from "zod";
 
 import { CalculatedValueSchema, RecordRefSchema } from "@/features/records/record-model.schema";
-import { RecordDisplayFieldSchema } from "@/features/records/record-display-field.schema";
 
+import { recordQueryWidgetSchemas } from "./record-query-widget.schema";
 import { RecordWidgetSourceSchema } from "./record-widget-source.schema";
-import { WidgetLayoutSchema } from "./widget-display.schema";
-import { WidgetPlacementSchema } from "./widget-grid";
 
 export const MAP_WIDGET_POINT_LIMIT = 2000;
 
@@ -61,75 +59,19 @@ export const MapWidgetDataSchema = z
   .strict();
 export type MapWidgetData = z.infer<typeof MapWidgetDataSchema>;
 
-const MapWidgetDisplayOptionsSchema = z.object({ showFilters: z.boolean() }).strict();
+const MAP_WIDGET = recordQueryWidgetSchemas(
+  "map",
+  "mapQuery",
+  MapWidgetQuerySchema,
+  MapWidgetDataSchema,
+  "Definitions of the readable fields the widget shows, for formatting values and the legend.",
+);
 
-const RecordMapWidgetFieldsSchema = z
-  .object({
-    kind: z.literal("map").describe("map. Optional on update; a saved widget keeps its kind."),
-    id: z.uuid().optional(),
-    expectedVersion: z.number().int().positive().optional(),
-    expectedRevision: z.number().int().nonnegative(),
-    idempotencyKey: z.string().min(8).max(200),
-    name: z.string().trim().min(1).max(255),
-    mapQuery: MapWidgetQuerySchema,
-    displayOptions: MapWidgetDisplayOptionsSchema,
-    isTemplate: z.boolean(),
-    layout: WidgetPlacementSchema.optional(),
-    viewId: z
-      .uuid()
-      .nullable()
-      .optional()
-      .describe(
-        "Dashboard view that holds the widget: a dashboard view ID, or null for the main dashboard. Omit it to create the widget on the caller's current dashboard view or to keep an existing widget where it is.",
-      ),
-  })
-  .strict();
+export type SavedRecordMapWidgetInput = Omit<z.infer<typeof MAP_WIDGET.fields>, "kind"> & { kind?: "map" };
 
-export type SavedRecordMapWidgetInput = Omit<z.infer<typeof RecordMapWidgetFieldsSchema>, "kind"> & { kind?: "map" };
-
-export const RecordMapWidgetInputSchema = RecordMapWidgetFieldsSchema.partial({
-  kind: true,
-  name: true,
-  mapQuery: true,
-  displayOptions: true,
-  isTemplate: true,
-}).superRefine((value, context) => {
-  if (Boolean(value.id) !== Boolean(value.expectedVersion)) {
-    context.addIssue({
-      code: "custom",
-      path: ["expectedVersion"],
-      message: "Updates require the saved widget version",
-    });
-  }
-  if (value.id) return;
-  for (const key of ["name", "mapQuery"] as const) {
-    if (value[key] === undefined)
-      context.addIssue({ code: "custom", path: [key], message: "Creation requires this field" });
-  }
-});
+export const RecordMapWidgetInputSchema = MAP_WIDGET.input;
 export type RecordMapWidgetInput = z.infer<typeof RecordMapWidgetInputSchema>;
 
-export const RecordMapWidgetDtoSchema = z
-  .object({
-    id: z.uuid(),
-    kind: z.literal("map"),
-    version: z.number().int().positive(),
-    userId: z.string(),
-    companyId: z.string(),
-    name: z.string(),
-    mapQuery: MapWidgetQuerySchema,
-    displayOptions: MapWidgetDisplayOptionsSchema,
-    layout: WidgetLayoutSchema.nullable(),
-    viewId: z.uuid().nullable(),
-    isTemplate: z.boolean(),
-    createdAt: z.date(),
-    updatedAt: z.date(),
-    data: MapWidgetDataSchema.nullable(),
-    status: z.enum(["ready", "unavailable"]),
-    fields: z
-      .array(RecordDisplayFieldSchema)
-      .describe("Definitions of the readable fields the widget shows, for formatting values and the legend."),
-  })
-  .strict();
+export const RecordMapWidgetDtoSchema = MAP_WIDGET.dto;
 export type RecordMapWidgetDto = z.infer<typeof RecordMapWidgetDtoSchema>;
 export type StoredRecordMapWidget = Omit<RecordMapWidgetDto, "data" | "status" | "fields">;

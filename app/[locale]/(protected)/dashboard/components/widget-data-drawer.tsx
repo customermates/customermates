@@ -69,14 +69,18 @@ export function WidgetDataDrawer({
   const [presentation, setPresentation] = useState<{ key: string; data: RecordPresentationResult } | null>(null);
   const [error, setError] = useState(false);
   const [attempt, setAttempt] = useState(0);
-  const filter = useMemo(
-    () => recordContributionFilter({ measure: widget.measure, group, title: widget.name, groupLabel: label }),
-    [widget.measure, widget.name, group, label],
-  );
-  const key = String("value" in filter ? filter.value : "");
+  const filter = useMemo(() => {
+    try {
+      return recordContributionFilter({ measure: widget.measure, group, title: widget.name, groupLabel: label });
+    } catch {
+      return null;
+    }
+  }, [widget.measure, widget.name, group, label]);
+  const key = filter && "value" in filter ? String(filter.value) : "";
   useEffect(() => {
     let active = true;
-    setError(false);
+    setError(!filter);
+    if (!filter) return;
     actionData(
       getRecordPresentationAction(widget.measure.source.typeId, {
         filters: [filter],

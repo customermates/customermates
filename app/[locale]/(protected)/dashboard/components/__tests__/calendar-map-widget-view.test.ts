@@ -3,14 +3,13 @@ import type { MapWidgetPoint } from "@/features/widget/record-map-widget.schema"
 
 import { describe, expect, it } from "vitest";
 
-import { MIXED_CLUSTER_COLOR } from "@/components/map/map-palette";
+import { ChartColor } from "@/features/widget/widget-display.schema";
 
 import {
   calendarHeatLevels,
   calendarMonthGrid,
-  calendarMonthWindow,
   calendarOverdueDays,
-  shiftCalendarMonth,
+  calendarWidgetEntry,
 } from "../calendar-widget-view";
 import {
   MAP_DEFAULT_COLOR,
@@ -48,13 +47,28 @@ describe("month overview", () => {
     expect(Object.fromEntries(calendarHeatLevels(days, "sum"))).toEqual({ "2026-10-01": 4, "2026-10-02": 1 });
   });
 
-  it("lays out the month from Monday and moves by whole months", () => {
+  it("lays out the month from Monday", () => {
     const grid = calendarMonthGrid("2026-02-14");
     expect(grid[0]).toEqual([null, null, null, null, null, null, "2026-02-01"]);
     expect(grid.flat().filter(Boolean)).toHaveLength(28);
-    expect(calendarMonthWindow("2026-02-14")).toEqual({ from: "2026-02-01", to: "2026-02-28" });
-    expect(shiftCalendarMonth("2026-01-31", 1)).toBe("2026-02-01");
-    expect(shiftCalendarMonth("2026-01-15", -1)).toBe("2025-12-01");
+  });
+
+  it("describes an item by its day and, for a date-time, its time", () => {
+    const item = {
+      record: { typeId: "deal", recordId: "a" },
+      title: { state: "missing" },
+      date: "2026-10-16",
+      amount: null,
+    } as const;
+    expect(
+      calendarWidgetEntry({ ...item, value: { state: "value", value: { kind: "date", value: "2026-10-16" } } }),
+    ).toEqual({ start: "2026-10-16", end: "2026-10-16", time: null });
+    expect(
+      calendarWidgetEntry({
+        ...item,
+        value: { state: "value", value: { kind: "dateTime", value: "2026-10-16T07:30:00Z" } },
+      }),
+    ).toEqual({ start: "2026-10-16", end: "2026-10-16", time: "2026-10-16T07:30:00Z" });
   });
 
   it("counts overdue days up to today", () => {
@@ -68,6 +82,8 @@ describe("map widget points", () => {
     options: [
       { id: "smb", label: "SMB", color: "secondary" },
       { id: "mid", label: "Mid-market", color: null },
+      { id: "vip", label: "VIP", color: "default" },
+      { id: "odd", label: "Odd", color: "teal" },
     ],
   };
   const point = (id: string, color: string | null, size: MapWidgetPoint["size"] = null): MapWidgetPoint => ({
@@ -82,9 +98,11 @@ describe("map widget points", () => {
     detail: null,
   });
 
-  it("colours pins by option color, by palette position without one and neutral without a value", () => {
-    expect(mapOptionColor(colorField, "smb")).toBe("var(--chart-default-1)");
-    expect(mapOptionColor(colorField, "mid")).toBe("var(--chart-2)");
+  it("colours pins like the option chip, by palette position without a color and neutral without a value", () => {
+    expect(mapOptionColor(colorField, "smb")).toBe(ChartColor.default1);
+    expect(mapOptionColor(colorField, "vip")).toBe(ChartColor.primary1);
+    expect(mapOptionColor(colorField, "odd")).toBe(ChartColor.default1);
+    expect(mapOptionColor(colorField, "mid")).toBe(ChartColor.secondary1);
     expect(mapOptionColor(colorField, null)).toBe(MAP_NEUTRAL_COLOR);
     expect(mapOptionColor(undefined, "smb")).toBe(MAP_DEFAULT_COLOR);
   });
@@ -94,7 +112,7 @@ describe("map widget points", () => {
     expect(mapPointWeight(decimal("-3"))).toBe(0);
     expect(mapPointWeight({ state: "missing" })).toBeNull();
     expect(mapViewPoints([point("a", "smb", decimal("2"))], colorField)).toEqual([
-      { id: "a", lat: 52.5, lon: 13.4, group: "smb", color: "var(--chart-default-1)", weight: 2 },
+      { id: "a", lat: 52.5, lon: 13.4, group: "smb", color: ChartColor.default1, weight: 2 },
     ]);
     expect(mapViewPoints([point("a", "smb")], undefined)[0]).toMatchObject({ group: null, color: MAP_DEFAULT_COLOR });
     expect(mapViewPoints([point("b", null), point("c", "gone")], colorField).map(({ group }) => group)).toEqual([
@@ -111,7 +129,12 @@ describe("map widget points", () => {
       ["missing", null, 1],
       ["mixed", null, null],
     ]);
-    expect(legend.at(-1)?.color).toBe(MIXED_CLUSTER_COLOR);
+    expect(legend.map(({ color }) => color)).toEqual([
+      ChartColor.default1,
+      ChartColor.secondary1,
+      MAP_NEUTRAL_COLOR,
+      null,
+    ]);
     expect(mapLegend([point("a", "smb")], undefined)).toEqual([]);
   });
 

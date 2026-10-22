@@ -1,13 +1,11 @@
 import { z } from "zod";
 
-import { isIanaTimeZone } from "@/core/utils/time-zone";
+import { TimeZoneSchema } from "@/core/utils/time-zone";
 import { calendarDayDifference } from "@/features/record-calendar/calendar-date";
 import { CalculatedValueSchema, RecordRefSchema } from "@/features/records/record-model.schema";
-import { RecordDisplayFieldSchema } from "@/features/records/record-display-field.schema";
 
+import { recordQueryWidgetSchemas } from "./record-query-widget.schema";
 import { RecordWidgetSourceSchema } from "./record-widget-source.schema";
-import { WidgetLayoutSchema } from "./widget-display.schema";
-import { WidgetPlacementSchema } from "./widget-grid";
 
 export const CALENDAR_WIDGET_LAYOUTS = ["upcoming", "month"] as const;
 export type CalendarWidgetLayout = (typeof CALENDAR_WIDGET_LAYOUTS)[number];
@@ -26,14 +24,9 @@ export const CalendarWidgetQuerySchema = z
       .describe(
         "upcoming lists the records of the next days, with an overdue section for earlier dates; month shows a heat grid of the month with each day's count or sum.",
       ),
-    timeZone: z
-      .string()
-      .min(1)
-      .max(64)
-      .refine(isIanaTimeZone, "Use an IANA time zone such as Europe/Berlin")
-      .describe(
-        "IANA time zone that sets today and the day of a date-time value, such as Europe/Berlin. Date-only values never shift.",
-      ),
+    timeZone: TimeZoneSchema.describe(
+      "IANA time zone that sets today and the day of a date-time value, such as Europe/Berlin. Date-only values never shift.",
+    ),
     days: z
       .number()
       .int()
@@ -121,77 +114,21 @@ export const CalendarWidgetDataSchema = z
   .strict();
 export type CalendarWidgetData = z.infer<typeof CalendarWidgetDataSchema>;
 
-const CalendarWidgetDisplayOptionsSchema = z.object({ showFilters: z.boolean() }).strict();
+const CALENDAR_WIDGET = recordQueryWidgetSchemas(
+  "calendar",
+  "calendarQuery",
+  CalendarWidgetQuerySchema,
+  CalendarWidgetDataSchema,
+  "Definitions of the readable fields the widget shows, for formatting values.",
+);
 
-const RecordCalendarWidgetFieldsSchema = z
-  .object({
-    kind: z.literal("calendar").describe("calendar. Optional on update; a saved widget keeps its kind."),
-    id: z.uuid().optional(),
-    expectedVersion: z.number().int().positive().optional(),
-    expectedRevision: z.number().int().nonnegative(),
-    idempotencyKey: z.string().min(8).max(200),
-    name: z.string().trim().min(1).max(255),
-    calendarQuery: CalendarWidgetQuerySchema,
-    displayOptions: CalendarWidgetDisplayOptionsSchema,
-    isTemplate: z.boolean(),
-    layout: WidgetPlacementSchema.optional(),
-    viewId: z
-      .uuid()
-      .nullable()
-      .optional()
-      .describe(
-        "Dashboard view that holds the widget: a dashboard view ID, or null for the main dashboard. Omit it to create the widget on the caller's current dashboard view or to keep an existing widget where it is.",
-      ),
-  })
-  .strict();
-
-export type SavedRecordCalendarWidgetInput = Omit<z.infer<typeof RecordCalendarWidgetFieldsSchema>, "kind"> & {
+export type SavedRecordCalendarWidgetInput = Omit<z.infer<typeof CALENDAR_WIDGET.fields>, "kind"> & {
   kind?: "calendar";
 };
 
-export const RecordCalendarWidgetInputSchema = RecordCalendarWidgetFieldsSchema.partial({
-  kind: true,
-  name: true,
-  calendarQuery: true,
-  displayOptions: true,
-  isTemplate: true,
-}).superRefine((value, context) => {
-  if (Boolean(value.id) !== Boolean(value.expectedVersion)) {
-    context.addIssue({
-      code: "custom",
-      path: ["expectedVersion"],
-      message: "Updates require the saved widget version",
-    });
-  }
-  if (value.id) return;
-  for (const key of ["name", "calendarQuery"] as const) {
-    if (value[key] === undefined)
-      context.addIssue({ code: "custom", path: [key], message: "Creation requires this field" });
-  }
-});
+export const RecordCalendarWidgetInputSchema = CALENDAR_WIDGET.input;
 export type RecordCalendarWidgetInput = z.infer<typeof RecordCalendarWidgetInputSchema>;
 
-export const RecordCalendarWidgetDtoSchema = z
-  .object({
-    id: z.uuid(),
-    kind: z.literal("calendar"),
-    version: z.number().int().positive(),
-    userId: z.string(),
-    companyId: z.string(),
-    name: z.string(),
-    calendarQuery: CalendarWidgetQuerySchema,
-    displayOptions: CalendarWidgetDisplayOptionsSchema,
-    layout: WidgetLayoutSchema.nullable(),
-    viewId: z.uuid().nullable(),
-    isTemplate: z.boolean(),
-    createdAt: z.date(),
-    updatedAt: z.date(),
-    data: CalendarWidgetDataSchema.nullable(),
-    status: z.enum(["ready", "unavailable"]),
-    fields: z
-      .array(RecordDisplayFieldSchema)
-      .describe("Definitions of the readable fields the widget shows, for formatting values."),
-  })
-  .strict();
+export const RecordCalendarWidgetDtoSchema = CALENDAR_WIDGET.dto;
 export type RecordCalendarWidgetDto = z.infer<typeof RecordCalendarWidgetDtoSchema>;
 export type StoredRecordCalendarWidget = Omit<RecordCalendarWidgetDto, "data" | "status" | "fields">;

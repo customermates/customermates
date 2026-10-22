@@ -4,6 +4,7 @@ import type { CalendarFields } from "@/features/record-calendar/record-calendar-
 import type { RecordRow } from "@/features/records/record-presentation";
 import type { RecordFieldView } from "@/features/records/record-model.schema";
 import type { ChipColor } from "@/constants/chip-colors";
+import type { CSSProperties } from "react";
 
 import { toChipColor } from "@/constants/chip-colors";
 import { moveInstantToDate, zonedDate } from "@/features/record-calendar/zoned-time";
@@ -39,13 +40,6 @@ export type CalendarWeekLayout = {
 };
 
 export const CALENDAR_MONTH_LANES = 3;
-
-export const CALENDAR_KEY_STEPS: Record<string, number> = {
-  ArrowLeft: -1,
-  ArrowRight: 1,
-  ArrowUp: -7,
-  ArrowDown: 7,
-};
 
 function laterOf(left: CalendarDate, right: CalendarDate) {
   return compareCalendarDates(left, right) < 0 ? right : left;
@@ -142,15 +136,28 @@ export function calendarEntryColor(
   return option ? toChipColor(option.color) : "secondary";
 }
 
-export const CALENDAR_ENTRY_COLOR_CLASS: Record<ChipColor, string> = {
-  default: "bg-primary/15 text-primary hover:bg-primary/25",
-  secondary: "bg-foreground/5 text-foreground/80 hover:bg-foreground/10",
-  destructive: "bg-destructive/15 text-destructive hover:bg-destructive/25",
-  success: "bg-success/15 text-success hover:bg-success/25",
-  warning: "bg-warning/15 text-warning hover:bg-warning/25",
-  info: "bg-info/15 text-info hover:bg-info/25",
+const CHIP_TOKENS: Record<ChipColor, { color: string; tint: number; text: number }> = {
+  default: { color: "var(--primary)", tint: 20, text: 100 },
+  secondary: { color: "var(--foreground)", tint: 5, text: 80 },
+  destructive: { color: "var(--destructive)", tint: 20, text: 100 },
+  success: { color: "var(--success)", tint: 20, text: 100 },
+  warning: { color: "var(--warning)", tint: 20, text: 100 },
+  info: { color: "var(--info)", tint: 20, text: 100 },
 };
 
-export function calendarMoveTarget(segment: Pick<CalendarSegment, "item" | "start">, dropDate: CalendarDate) {
-  return addCalendarDays(segment.item.entry.start, calendarDayDifference(segment.start, dropDate));
+function chipMix(color: string, percent: number) {
+  return percent === 100 ? color : `color-mix(in oklab, ${color} ${percent}%, var(--background))`;
+}
+
+export function calendarEntryColorStyle(color: ChipColor): CSSProperties {
+  const token = CHIP_TOKENS[color];
+  return { backgroundColor: chipMix(token.color, token.tint), color: chipMix(token.color, token.text) };
+}
+
+export function calendarSwatchStyle(color: ChipColor): CSSProperties {
+  return { backgroundColor: CHIP_TOKENS[color].color };
+}
+
+export function calendarMoveTarget(item: CalendarItem, grabDate: CalendarDate, dropDate: CalendarDate) {
+  return addCalendarDays(item.entry.start, calendarDayDifference(grabDate, dropDate));
 }

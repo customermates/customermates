@@ -48,6 +48,7 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   pendingBulkOperation: string | null = null;
   calendarAnchor: CalendarDate | null = null;
   calendarDisplayMode: CalendarViewMode | null = null;
+  calendarTimeZoneOverride: string | null = null;
   calendarRange: CalendarRange | null = null;
   calendarResultSeq = 0;
   isBulkMutating = false;
@@ -81,6 +82,7 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       setBoardOperation: action,
       calendarAnchor: observable,
       calendarDisplayMode: observable,
+      calendarTimeZoneOverride: observable,
       calendarRange: observable.ref,
       calendarResultSeq: observable,
       calendarFields: computed,
@@ -92,6 +94,7 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       calendarFieldOptions: computed,
       setCalendarAnchor: action,
       setCalendarDisplayMode: action,
+      setCalendarTimeZone: action,
       pendingBulkOperation: observable,
       isBulkMutating: observable,
       awaitingBulkRefresh: observable,
@@ -111,8 +114,11 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
     return true;
   }
   get calendarTimeZone() {
-    return browserTimeZone();
+    return this.calendarTimeZoneOverride ?? browserTimeZone();
   }
+  setCalendarTimeZone = (timeZone: string | null) => {
+    this.calendarTimeZoneOverride = timeZone;
+  };
   get calendarDateFields() {
     return this.fields.filter(isCalendarDateField);
   }

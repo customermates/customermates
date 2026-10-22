@@ -4,12 +4,13 @@ import {
   addCalendarDays,
   calendarDayDifference,
   endOfCalendarMonth,
+  endOfCalendarWeek,
 } from "../../features/record-calendar/calendar-date";
 import { presetId } from "../../features/records/crm-preset";
 import { postOk, readModel } from "./api";
 import { collectPageErrors, expect, test } from "./fixtures";
 
-test("calendar ranges span weeks and months, keep midnight exclusive, and reveal full titles", async ({
+test("calendar ranges span weeks and months, keep midnight exclusive, reveal full titles and move by the dragged distance", async ({
   page,
   database,
   companyId,
@@ -75,7 +76,6 @@ test("calendar ranges span weeks and months, keep midnight exclusive, and reveal
       "combined-calendar",
       JSON.stringify({
         mode: "month",
-        sort: "date",
         timeZone: "UTC",
         calendarIds: [],
         sources: [
@@ -84,7 +84,6 @@ test("calendar ranges span weeks and months, keep midnight exclusive, and reveal
             typeId,
             calendar: { dateFieldId: dateField },
             filters: [],
-            search: "",
             enabled: true,
             color: "default",
           },
@@ -93,7 +92,6 @@ test("calendar ranges span weeks and months, keep midnight exclusive, and reveal
             typeId,
             calendar: { dateFieldId: timeField },
             filters: [],
-            search: "",
             enabled: true,
             color: "secondary",
           },
@@ -145,6 +143,31 @@ test("calendar ranges span weeks and months, keep midnight exclusive, and reveal
     await bar.hover();
     await expect(page.getByRole("tooltip")).toContainText(title);
     await page.screenshot({ path: testInfo.outputPath("calendar-ranges-timeline.png") });
+
+    await page.getByRole("tab", { name: "Month", exact: true }).click();
+    const segment = calendar.locator(`[data-calendar-entry="${entryId}"]`).first();
+    await expect(segment).toHaveAttribute("data-calendar-entry-start", start);
+    const segmentEnd = end < endOfCalendarWeek(start) ? end : endOfCalendarWeek(start);
+    const dropDay = calendar.locator(`[data-calendar-day="${addCalendarDays(segmentEnd, -1)}"]`);
+    const segmentBox = await segment.boundingBox();
+    const grabBox = await calendar.locator(`[data-calendar-day="${segmentEnd}"]`).boundingBox();
+    const dropBox = await dropDay.boundingBox();
+    if (!segmentBox || !grabBox || !dropBox) throw new Error("The range and the days around it must be visible");
+    const saved = page.waitForResponse(
+      (response) =>
+        response.request().method() === "POST" && (response.request().postData() ?? "").includes('"update"'),
+    );
+    const grabX = grabBox.x + grabBox.width / 2;
+    const grabY = segmentBox.y + segmentBox.height / 2;
+    await page.mouse.move(grabX, grabY);
+    await page.mouse.down();
+    await page.mouse.move(grabX - 8, grabY, { steps: 4 });
+    await page.mouse.move(dropBox.x + dropBox.width / 2, dropBox.y + dropBox.height / 2, { steps: 16 });
+    await expect(dropDay).toHaveClass(/ring-primary/);
+    await page.mouse.up();
+    expect((await saved).ok()).toBe(true);
+    await expect(segment).toHaveAttribute("data-calendar-entry-start", addCalendarDays(start, -1));
+    await expect(segment).toHaveAttribute("data-calendar-entry-end", addCalendarDays(end, -1));
   }
   expect(errors).toEqual([]);
 });

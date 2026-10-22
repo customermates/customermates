@@ -7,6 +7,7 @@ import { RecordContributionSchema, type RecordContribution } from "./record-cont
 
 export const RECORD_CONTRIBUTION_FILTER = "system:chartContribution";
 const MAX_TOKEN_LENGTH = 24_000;
+const MAX_LIST_HREF_LENGTH = 8_000;
 
 export function encodeRecordContribution(value: RecordContribution): string {
   const bytes = new TextEncoder().encode(JSON.stringify(RecordContributionSchema.parse(value)));
@@ -50,8 +51,9 @@ export function recordContributionHref(
   typeId: string,
   filters: Filter[],
   extra: Pick<GetQueryParams, "searchTerm" | "sortDescriptor"> = {},
-): string {
+): string | null {
   const params = encodeGetParams({ ...extra, filters, viewMode: ViewMode.table, viewId: ALL_VIEW_KEY, page: 1 });
   params.set("viewMode", ViewMode.table);
-  return `/records/${typeId}?${params}`;
+  const href = `/records/${typeId}?${params}`;
+  return href.length <= MAX_LIST_HREF_LENGTH ? href : null;
 }

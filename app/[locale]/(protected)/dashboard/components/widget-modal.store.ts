@@ -51,6 +51,7 @@ import {
   recordWidgetSourceTypeId,
 } from "./record-widget-form";
 import { calendarDateFieldsOf, mapAddressFieldsOf } from "./calendar-map-widget-fields";
+import type { WidgetStarterChoice } from "./widget-starter-picker";
 
 import { Resource, WidgetKind } from "@/generated/prisma";
 import { cloneDeep, omit } from "lodash";
@@ -77,7 +78,7 @@ export type WidgetModalForm =
   | RecordCalendarWidgetForm
   | RecordMapWidgetForm;
 type ActionOutcome<T> = { ok: true; data: T } | { ok: false };
-type WidgetStartOptions = { activityName?: string; displayType?: DisplayType; calendarLayout?: CalendarWidgetLayout };
+type WidgetStartOptions = WidgetStarterChoice & { activityName?: string };
 
 type WidgetFormCommon = { id?: string; name: string; isTemplate: boolean };
 
@@ -153,7 +154,6 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
       runCalendarPreview: action,
       runMapPreview: action,
       loadScopeRecords: action,
-      recordMeasureKey: computed,
       recordQueryKey: computed,
 
       add: action,
@@ -251,10 +251,6 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     );
   }
 
-  get recordMeasureKey() {
-    return isRecordWidgetForm(this.form) ? JSON.stringify(this.form.measure) : null;
-  }
-
   get recordQueryKey() {
     const form = this.form;
     if (isRecordWidgetForm(form)) return JSON.stringify(form.measure);
@@ -283,47 +279,15 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
   runRecordPreview = async () => {
     const form = this.form;
     if (!isRecordWidgetForm(form)) return;
-    const previewed = JSON.stringify(form.measure);
-    const request = ++this.recordPreviewRequest;
-    const isCurrent = () => request === this.recordPreviewRequest;
-    this.recordPreviewLoading = true;
-    this.recordPreviewFailed = false;
-    try {
-      const parsed = RecordMeasureSchema.safeParse(form.measure);
-      if (!parsed.success) {
-        runInAction(() => {
-          this.recordPreviewFailed = true;
-        });
-        return;
-      }
-      const result = await this.runPreview(() => previewRecordWidgetAction(parsed.data));
-      if (!result || !isCurrent()) return;
-      if (!result.ok) {
-        if (notifyIfWorkspaceChanged(result)) return;
-        runInAction(() => {
-          this.recordPreviewFailed = true;
-        });
-        return;
-      }
-      if (this.recordModel && result.data.result.schemaRevision !== this.recordModel.revision) {
-        void this.loadRecordModel();
-        return;
-      }
-      runInAction(() => {
-        this.recordPreview = { key: previewed, ...result.data };
-      });
-      if (this.hasUnsavedChanges) this.onChange("expectedRevision", result.data.result.schemaRevision);
-    } catch (error) {
-      if (notifyIfWorkspaceChanged(error) || !isCurrent()) return;
-      reportApplicationError(error);
-      runInAction(() => {
-        this.recordPreviewFailed = true;
-      });
-    } finally {
-      runInAction(() => {
-        if (isCurrent()) this.recordPreviewLoading = false;
-      });
-    }
+    const parsed = RecordMeasureSchema.safeParse(form.measure);
+    await this.runQueryPreview(
+      JSON.stringify(form.measure),
+      parsed.success ? () => previewRecordWidgetAction(parsed.data) : null,
+      (preview) => preview.result.schemaRevision,
+      (key, preview) => {
+        this.recordPreview = { key, ...preview };
+      },
+    );
   };
 
   runCalendarPreview = async () => {
@@ -388,7 +352,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
       runInAction(() => apply(previewed, result.data));
       if (this.hasUnsavedChanges) this.onChange("expectedRevision", revision);
     } catch (error) {
-      if (!isCurrent()) return;
+      if (notifyIfWorkspaceChanged(error) || !isCurrent()) return;
       reportApplicationError(error);
       runInAction(() => {
         this.recordPreviewFailed = true;
@@ -642,96 +606,42 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     this.setIsLoading(true);
 
     const form = toJS(this.form);
-    if (isRecordActivityWidgetForm(form)) {
-      try {
-        const input = { ...omit(form, ["kind", "idempotencyKey"]), ...this.targetView(form.id) };
-        const parsed = RecordActivityWidgetInputSchema.safeParse({
-          ...input,
-          idempotencyKey: this.submissionKey(input),
-        });
-        if (!parsed.success) {
-          this.setError(z.treeifyError(parsed.error));
-          return;
-        }
-        const result = await upsertRecordActivityWidgetAction(parsed.data);
-        if (!result.ok) {
-          if (session === this.sessionGeneration && this.isOpen) this.setError(result.error);
-          return;
-        }
-        if (session === this.sessionGeneration && this.isOpen) this.hydrateWidget(result.data, false);
-        await this.rootStore.widgetsStore.refresh();
-        if (session === this.sessionGeneration && this.isOpen) this.close();
-      } finally {
-        if (session === this.sessionGeneration) this.setIsLoading(false);
+    const current = () => session === this.sessionGeneration && this.isOpen;
+    try {
+      const input = { ...omit(form, ["kind", "idempotencyKey"]), ...this.targetView(form.id) };
+      const result = await this.saveForm(form, { ...input, idempotencyKey: this.submissionKey(input) });
+      if (!result) return;
+      if (!result.ok) {
+        if (current()) this.setError(result.error);
+        return;
       }
-      return;
+      if (current()) this.hydrateWidget(result.data, false);
+      await this.rootStore.widgetsStore.refresh();
+      if (current()) this.close();
+    } finally {
+      if (session === this.sessionGeneration) this.setIsLoading(false);
     }
-    if (isRecordCalendarWidgetForm(form)) {
-      try {
-        const input = { ...omit(form, ["kind", "idempotencyKey"]), ...this.targetView(form.id) };
-        const parsed = RecordCalendarWidgetInputSchema.safeParse({
-          ...input,
-          idempotencyKey: this.submissionKey(input),
-        });
-        if (!parsed.success) {
-          this.setError(z.treeifyError(parsed.error));
-          return;
-        }
-        const result = await upsertRecordCalendarWidgetAction(parsed.data);
-        if (!result.ok) {
-          if (session === this.sessionGeneration && this.isOpen) this.setError(result.error);
-          return;
-        }
-        if (session === this.sessionGeneration && this.isOpen) this.hydrateWidget(result.data, false);
-        await this.rootStore.widgetsStore.refresh();
-        if (session === this.sessionGeneration && this.isOpen) this.close();
-      } finally {
-        if (session === this.sessionGeneration) this.setIsLoading(false);
-      }
-      return;
-    }
-    if (isRecordMapWidgetForm(form)) {
-      try {
-        const input = { ...omit(form, ["kind", "idempotencyKey"]), ...this.targetView(form.id) };
-        const parsed = RecordMapWidgetInputSchema.safeParse({ ...input, idempotencyKey: this.submissionKey(input) });
-        if (!parsed.success) {
-          this.setError(z.treeifyError(parsed.error));
-          return;
-        }
-        const result = await upsertRecordMapWidgetAction(parsed.data);
-        if (!result.ok) {
-          if (session === this.sessionGeneration && this.isOpen) this.setError(result.error);
-          return;
-        }
-        if (session === this.sessionGeneration && this.isOpen) this.hydrateWidget(result.data, false);
-        await this.rootStore.widgetsStore.refresh();
-        if (session === this.sessionGeneration && this.isOpen) this.close();
-      } finally {
-        if (session === this.sessionGeneration) this.setIsLoading(false);
-      }
-      return;
-    }
-    if (isRecordWidgetForm(form)) {
-      try {
-        const input = { ...omit(form, ["kind", "idempotencyKey"]), ...this.targetView(form.id) };
-        const parsed = RecordWidgetInputSchema.safeParse({ ...input, idempotencyKey: this.submissionKey(input) });
-        if (!parsed.success) {
-          this.setError(z.treeifyError(parsed.error));
-          return;
-        }
-        const result = await upsertRecordWidgetAction(parsed.data);
-        if (!result.ok) {
-          if (session === this.sessionGeneration && this.isOpen) this.setError(result.error);
-          return;
-        }
-        if (session === this.sessionGeneration && this.isOpen) this.hydrateWidget(result.data, false);
-        await this.rootStore.widgetsStore.refresh();
-        if (session === this.sessionGeneration && this.isOpen) this.close();
-      } finally {
-        if (session === this.sessionGeneration) this.setIsLoading(false);
-      }
-      return;
-    }
+  };
+
+  private saveForm = (form: WidgetModalForm, input: object) => {
+    if (isRecordActivityWidgetForm(form))
+      return this.saveValidated(RecordActivityWidgetInputSchema, input, upsertRecordActivityWidgetAction);
+    if (isRecordCalendarWidgetForm(form))
+      return this.saveValidated(RecordCalendarWidgetInputSchema, input, upsertRecordCalendarWidgetAction);
+    if (isRecordMapWidgetForm(form))
+      return this.saveValidated(RecordMapWidgetInputSchema, input, upsertRecordMapWidgetAction);
+    return this.saveValidated(RecordWidgetInputSchema, input, upsertRecordWidgetAction);
+  };
+
+  private saveValidated = <Schema extends z.ZodType, Result>(
+    schema: Schema,
+    input: object,
+    save: (data: z.output<Schema>) => Promise<Result>,
+  ): Promise<Result | null> => {
+    const parsed = schema.safeParse(input);
+    if (parsed.success) return save(parsed.data);
+    this.setError(z.treeifyError(parsed.error));
+    return Promise.resolve(null);
   };
   runPreview = async <T>(run: () => Promise<T>): Promise<T | undefined> => {
     if (!this.isOpen) return undefined;

@@ -40,10 +40,6 @@ export class WidgetTrashBlockers implements TrashRestoreBlockerSource {
     }
     return items
       .filter((item) => hidden.has(item.targetId))
-      .map((item) => ({
-        itemId: item.id,
-        reason: "parentDeleted" as const,
-        typeId: null,
-      }));
+      .map((item) => ({ itemId: item.id, reason: "parentDeleted" as const, typeId: null }));
   }
 }

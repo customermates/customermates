@@ -38,25 +38,19 @@ export class GetRecordWidgetInteractor extends AuthenticatedInteractor<
     return runInTransaction(
       async () => {
         if (!(await this.policy.load()).actor) return failAuthorization(CustomErrorCode.permissionDenied);
-        const kind = await this.widgets.findReadableWidgetKind(input.id);
-        if (input.window && kind && kind !== "calendar") return fail(CustomErrorCode.recordValueInvalid, ["window"]);
-        if (kind === "calendar") {
-          const row = await this.widgets.findReadableRecordWidget("calendar", input.id);
-          if (row) return { ok: true as const, data: await this.calendarReader.read(row, input.window) };
+        const stored = await this.widgets.findReadableWidget(input.id);
+        if (!stored) return failNotFound(CustomErrorCode.widgetNotFound);
+        if (input.window && stored.kind !== "calendar") return fail(CustomErrorCode.recordValueInvalid, ["window"]);
+        switch (stored.kind) {
+          case "calendar":
+            return { ok: true as const, data: await this.calendarReader.read(stored.widget, input.window) };
+          case "map":
+            return { ok: true as const, data: await this.mapReader.read(stored.widget) };
+          case "activityTimeline":
+            return { ok: true as const, data: await this.activityReader.read(stored.widget) };
+          case "chart":
+            return { ok: true as const, data: await this.reader.read(stored.widget) };
         }
-        if (kind === "map") {
-          const row = await this.widgets.findReadableRecordWidget("map", input.id);
-          if (row) return { ok: true as const, data: await this.mapReader.read(row) };
-        }
-        if (kind === "activityTimeline") {
-          const row = await this.widgets.findReadableRecordWidget("activityTimeline", input.id);
-          if (row) return { ok: true as const, data: await this.activityReader.read(row) };
-        }
-        if (kind === "chart") {
-          const row = await this.widgets.findReadableRecordWidget("chart", input.id);
-          if (row) return { ok: true as const, data: await this.reader.read(row) };
-        }
-        return failNotFound(CustomErrorCode.widgetNotFound);
       },
       { readOnly: true, timeout: 30000 },
     );

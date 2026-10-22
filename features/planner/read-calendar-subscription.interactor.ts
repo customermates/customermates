@@ -21,11 +21,7 @@ export class ReadCalendarSubscriptionInteractor {
       return this.exporter.invoke({
         config: subscription.config,
         includePersonalEvents: subscription.includePersonalEvents,
-        window: {
-          from: addCalendarDays(today, -30),
-          to: addCalendarDays(today, 335),
-          timeZone: subscription.config.timeZone,
-        },
+        window: { from: addCalendarDays(today, -30), to: addCalendarDays(today, 335) },
       });
     });
   }

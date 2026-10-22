@@ -1,16 +1,28 @@
+/**
+ * Builds the offline basemap of the map widget into public/maps/v1/ (served from the app's own origin, immutable).
+ *
+ *   yarn basemap:generate [--cache <directory>]
+ *
+ * Downloads Natural Earth (public domain) GeoJSON of the pinned release, checks each file's SHA-256, installs the pinned
+ * mapshaper next to the downloads and writes world.json (1:50m land, coast, borders and the major places, plus the list
+ * of detail regions) and one region-<zoom>-<x>-<y>.json per Web Mercator tile (1:10m, with first-order boundaries and
+ * all places). Place names keep the English name and the app languages' names where they differ. A new data version
+ * belongs in a new public/maps/v<n>/ directory because the files are cached as immutable.
+ */
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync } from "node:fs";
 import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
+import { createRequire } from "node:module";
 import { basename, join } from "node:path";
 import { gzipSync } from "node:zlib";
-
-import mapshaper from "mapshaper";
 
 const ROOT = process.cwd();
 const OUTPUT_DIRECTORY = join(ROOT, "public", "maps", "v1");
 const LOCALES_DIRECTORY = join(ROOT, "i18n", "locales");
 const NATURAL_EARTH_VERSION = "5.1.2";
+const MAPSHAPER_VERSION = "0.7.87";
 const SOURCE_URL = `https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v${NATURAL_EARTH_VERSION}/geojson`;
 const SOURCES = {
   worldCountries: {
@@ -99,6 +111,17 @@ function placeCollection(source, languages) {
     .filter(({ properties, geometry }) => properties.n && Math.abs(geometry.coordinates[1]) < MAX_LATITUDE)
     .sort((left, right) => left.properties.z - right.properties.z || left.properties.n.localeCompare(right.properties.n, "en"));
   return JSON.stringify({ type: "FeatureCollection", features });
+}
+
+let mapshaper;
+
+function loadMapshaper(directory) {
+  const prefix = join(directory, `mapshaper-${MAPSHAPER_VERSION}`);
+  if (!existsSync(join(prefix, "node_modules", "mapshaper")))
+    execFileSync("npm", ["install", "--prefix", prefix, "--no-save", "--no-audit", "--no-fund", `mapshaper@${MAPSHAPER_VERSION}`], {
+      stdio: "inherit",
+    });
+  mapshaper = createRequire(join(prefix, "package.json"))("mapshaper");
 }
 
 async function run(commands, input) {
@@ -236,48 +259,10 @@ function kilobytes(bytes) {
   return `${(bytes / 1000).toFixed(1)} KB`;
 }
 
-function readme(files, languages) {
-  const rows = files.map(({ file, raw, gzip }) => `| \`${file}\` | ${kilobytes(raw)} | ${kilobytes(gzip)} |`);
-  const total = files.reduce((sum, { raw }) => sum + raw, 0);
-  return `# Basemap data (v1)
-
-The map widget draws its basemap from these files. They ship with the application and are served from its own origin, so a map makes no request to a map, tile, font or geocoding provider.
-
-## Source
-
-[Natural Earth](https://www.naturalearthdata.com/) vector data, version ${NATURAL_EARTH_VERSION}, in the public domain ([terms of use](https://www.naturalearthdata.com/about/terms-of-use/)). The script downloads these files of the \`v${NATURAL_EARTH_VERSION}\` release from ${SOURCE_URL} and checks each against its pinned SHA-256:
-
-${Object.values(SOURCES)
-  .map(({ file, sha256: hash }) => `- \`${file}\` (\`${hash}\`)`)
-  .join("\n")}
-
-## Contents
-
-- \`world.json\`: countries at 1:50m with lakes cut out, simplified to about ${WORLD.simplifyMeters / 1000} km, as \`land\` polygons, \`coast\` and \`borders\` lines, and the populated places with a minimum zoom up to ${WORLD.placeMaxZoom} as \`places\`. Its \`regions\` member lists the detail files by Web Mercator tile (\`zoom/x/y\`).
-- \`region-<zoom>-<x>-<y>.json\`: one Web Mercator tile at 1:10m with the same layers plus \`states\` (first-order administrative boundaries up to Natural Earth minimum zoom ${DETAIL.stateMaxZoom}, merged per rounded minimum zoom \`z\`) and the remaining populated places. Land is simplified to about ${DETAIL.simplifyMeters / 1000} km, boundaries to ${DETAIL.stateSimplifyMeters / 1000} km. A tile is split into four while its gzipped size exceeds ${kilobytes(DETAIL.maxGzipBytes)}.
-- Places keep only the name \`n\` (English), the Natural Earth minimum zoom \`z\` and the names in the application languages (${languages.join(", ")}) where they differ from the English one. Coordinates are TopoJSON quantized per file; nothing else of the source attributes is kept.
-
-## Regenerate
-
-\`\`\`sh
-yarn basemap:generate [--cache <directory>]
-\`\`\`
-
-The script downloads only when it runs, never in CI or at run time; \`--cache\` keeps the verified downloads between runs. It rewrites this directory. A new data version belongs in a new \`public/maps/v<n>/\` directory, because the files are served with an immutable cache header.
-
-## Files
-
-| File | Size | Gzipped |
-| --- | --- | --- |
-${rows.join("\n")}
-
-Total on disk: ${kilobytes(total)}.
-`;
-}
-
 async function main() {
   const directory = cacheDirectory();
   await mkdir(directory, { recursive: true });
+  loadMapshaper(directory);
   const languages = await labelLanguages();
   const [worldCountries, countries, states, places] = await Promise.all([
     download(SOURCES.worldCountries, directory),
@@ -302,7 +287,6 @@ async function main() {
   await rm(OUTPUT_DIRECTORY, { recursive: true, force: true });
   await mkdir(OUTPUT_DIRECTORY, { recursive: true });
   for (const { file, text } of measured) await writeFile(join(OUTPUT_DIRECTORY, file), text);
-  await writeFile(join(OUTPUT_DIRECTORY, "README.md"), readme(measured, languages));
   for (const { file, raw, gzip } of measured) console.log(`${file.padEnd(28)} ${kilobytes(raw).padStart(10)} ${kilobytes(gzip).padStart(10)} gzipped`);
   console.log(`${measured.length} files, ${kilobytes(total)} on disk`);
 }

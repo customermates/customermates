@@ -33,7 +33,3 @@ export function mapAddressFieldsOf(model: FieldModel, typeId: string) {
 export function mapDetailFieldsOf(model: FieldModel, typeId: string) {
   return sourceFields(model, typeId, isMapDetailField);
 }
-
-export function keepFieldId(id: string | null, fields: Pick<RecordFieldView, "id">[]): string | null {
-  return id && fields.some((field) => field.id === id) ? id : null;
-}

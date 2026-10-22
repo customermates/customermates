@@ -76,7 +76,7 @@ test("combined calendar adds two lists, toggles sources, opens records, exports 
     await expect(page.locator("[data-planner-page]")).toBeVisible();
     async function add(list: string, dateField: string) {
       await page.getByRole("button", { name: "Add date source", exact: true }).first().click();
-      const modal = page.getByRole("dialog", { name: "Date source settings" });
+      const modal = page.getByRole("dialog", { name: "Add date source" });
       await modal.getByRole("combobox", { name: "List", exact: true }).click();
       await page.getByRole("option", { name: list, exact: true }).click();
       await modal.getByRole("combobox", { name: "Start or date range", exact: true }).click();
@@ -119,8 +119,25 @@ test("combined calendar adds two lists, toggles sources, opens records, exports 
       await page.keyboard.press("Escape");
       await page.getByRole("tab", { name: "Month", exact: true }).click();
     } else await expect(page.locator('[data-calendar-mode="agenda"]')).toBeVisible();
-    await page.getByRole("button", { name: "Save", exact: true }).click();
     await expect(page.locator('[data-slot="unsaved-changes-bar"]')).toHaveCount(0);
+    await expect
+      .poll(async () => {
+        const saved = await database.query(
+          'SELECT settings FROM "P13n" WHERE "companyId"=$1 AND "userId"=$2 AND "p13nId"=$3',
+          [DEMO_COMPANY_ID, userId, "combined-calendar"],
+        );
+        const settings = saved.rows[0]?.settings as
+          | { mode: string; calendarIds: string[]; sources: { enabled: boolean }[] }
+          | undefined;
+        return settings
+          ? {
+              mode: settings.mode,
+              calendars: settings.calendarIds.length,
+              enabled: settings.sources.filter((source) => source.enabled).length,
+            }
+          : null;
+      })
+      .toEqual({ mode: "month", calendars: e2eAppMode() === "self-hosted" ? 0 : 1, enabled: 2 });
     await page.reload();
     await page.getByRole("button", { name: "Date sources", exact: true }).click();
     await expect(sources.locator("[data-planner-source]")).toHaveCount(2);

@@ -9,7 +9,7 @@ export type ScreenPoint = { x: number; y: number };
 export type MapSize = { width: number; height: number };
 export type Camera = { x: number; y: number; zoom: number };
 export type WorldBounds = { minX: number; minY: number; maxX: number; maxY: number };
-export type LonLatBounds = { west: number; south: number; east: number; north: number };
+type LonLatBounds = { west: number; south: number; east: number; north: number };
 
 export const EUROPE_BOUNDS: LonLatBounds = { west: -11, south: 35, east: 32, north: 62 };
 
@@ -64,7 +64,7 @@ function clampRange(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
 
-export function clampZoom(zoom: number, size: MapSize) {
+function clampZoom(zoom: number, size: MapSize) {
   return Math.min(MAX_ZOOM, Math.max(minZoomFor(size), zoom));
 }
 
@@ -152,12 +152,6 @@ export function worldToLonLatBounds({ minX, minY, maxX, maxY }: WorldBounds): Lo
 
 export function boundsIntersect(left: WorldBounds, right: WorldBounds) {
   return left.minX < right.maxX && left.maxX > right.minX && left.minY < right.maxY && left.maxY > right.minY;
-}
-
-export function sameCamera(left: Camera, right: Camera) {
-  return (
-    Math.abs(left.zoom - right.zoom) < 1e-9 && Math.abs(left.x - right.x) < 1e-9 && Math.abs(left.y - right.y) < 1e-9
-  );
 }
 
 export function interpolateCamera(from: Camera, to: Camera, progress: number): Camera {

@@ -1,14 +1,13 @@
 "use client";
 
 import type { RecordDisplayField } from "@/features/records/record-display-field.schema";
-import type { RecordRef } from "@/features/records/record-model.schema";
 import type { MapWidgetData, MapWidgetPoint, MapWidgetQuery } from "@/features/widget/record-map-widget.schema";
 
 import dynamic from "next/dynamic";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { MapPin } from "lucide-react";
 import { observer } from "mobx-react-lite";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -16,16 +15,18 @@ import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppChip } from "@/components/chip/app-chip";
 import { RecordValue } from "@/components/records/record-value";
 import { TruncatedText } from "@/components/shared/truncated-text";
-import { useNavigateToHref } from "@/components/shared/use-navigate-to-href";
 import { Button } from "@/components/ui/button";
+import { getChartColors } from "@/constants/chart-colors";
 import { toChipColor } from "@/constants/chip-colors";
+import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
 import { recordDisplayName } from "@/features/records/record-display-name";
+import { IntlLink } from "@/i18n/navigation";
 
 import { MapWidgetSkeleton } from "./dashboard-page-skeleton";
 import { mapLegend, mapViewPoints } from "./map-widget-view";
 import { WIDGET_CARD_BODY_CLASS, WIDGET_CARD_HEADER_CLASS, WIDGET_CARD_TITLE_CLASS } from "./widget-card-frame";
-import { WIDGET_INTERACTIVE_ATTRIBUTE, stopPortalPointerDown } from "./widget-interaction";
+import { WIDGET_INTERACTIVE_ATTRIBUTE } from "./widget-interaction";
 import { WidgetSourceSummary } from "./widget-source-summary";
 
 const MapView = dynamic(() => import("@/components/map/map-view"), {
@@ -41,7 +42,7 @@ export type RecordMapWidgetCardProps = {
   data: MapWidgetData | null;
   fields: RecordDisplayField[];
   listLabels?: { label: string; pluralLabel: string } | null;
-  recordHref?: (record: RecordRef) => string;
+  openRecords?: boolean;
   onOpenFilters?: () => void;
 };
 
@@ -53,11 +54,13 @@ export const RecordMapWidgetCard = observer(function RecordMapWidgetCard({
   data,
   fields,
   listLabels = null,
-  recordHref,
+  openRecords = false,
   onOpenFilters,
 }: RecordMapWidgetCardProps) {
   const t = useTranslations();
-  const navigateToHref = useNavigateToHref();
+  const language = useLocale();
+  const { recordWorkspaceStore } = useRootStore();
+  const mapRef = useRef<HTMLDivElement>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const field = (id: string | null) => (id ? fields.find((candidate) => candidate.id === id) : undefined);
   const addressField = field(mapQuery.addressFieldId);
@@ -82,7 +85,6 @@ export const RecordMapWidgetCard = observer(function RecordMapWidgetCard({
     const point = byId.get(id);
     if (!point) return null;
     const option = colorField?.options.find((candidate) => candidate.id === point.color);
-    const href = recordHref?.(point.record);
     return (
       <div className="flex flex-col gap-2" data-map-widget-popover={id} {...{ [WIDGET_INTERACTIVE_ATTRIBUTE]: "true" }}>
         <div className="flex flex-col gap-0.5">
@@ -122,19 +124,19 @@ export const RecordMapWidgetCard = observer(function RecordMapWidgetCard({
           </dl>
         )}
 
-        {href && (
+        {openRecords && (
           <Button asChild className="self-start" size="sm" variant="secondary">
-            <a
-              href={href}
+            <IntlLink
+              href={`/records/${point.record.typeId}/${point.record.recordId}`}
               onClick={(event) => {
                 if (event.metaKey || event.ctrlKey || event.shiftKey || event.button === 1) return;
                 event.preventDefault();
                 setSelectedId(null);
-                navigateToHref(href);
+                recordWorkspaceStore.open(point.record, event.currentTarget, mapRef.current);
               }}
             >
               {t("RecordMapWidgets.openRecord")}
-            </a>
+            </IntlLink>
           </Button>
         )}
       </div>
@@ -149,11 +151,7 @@ export const RecordMapWidgetCard = observer(function RecordMapWidgetCard({
     : [];
 
   return (
-    <AppCard
-      className="h-full cursor-pointer overflow-hidden"
-      data-widget-kind="map"
-      onPointerDown={stopPortalPointerDown}
-    >
+    <AppCard className="h-full cursor-pointer overflow-hidden" data-widget-kind="map">
       <AppCardHeader className={WIDGET_CARD_HEADER_CLASS}>
         <h2 className={WIDGET_CARD_TITLE_CLASS}>
           <TruncatedText>{name}</TruncatedText>
@@ -182,7 +180,7 @@ export const RecordMapWidgetCard = observer(function RecordMapWidgetCard({
             <p className="text-sm text-muted-foreground">{t("RecordMapWidgets.noPoints")}</p>
           </div>
         ) : (
-          <div className="relative min-h-0 flex-1" data-map-widget="">
+          <div ref={mapRef} className="relative min-h-0 flex-1" data-map-widget="">
             <MapView
               className="absolute inset-0 min-h-0"
               label={t("RecordMapWidgets.label", { name })}
@@ -201,6 +199,7 @@ export const RecordMapWidgetCard = observer(function RecordMapWidgetCard({
                     : t("RecordModel.record");
                 },
               }}
+              language={language}
               points={points}
               renderPopover={renderPopover}
               selectedId={selectedId}
@@ -221,8 +220,11 @@ export const RecordMapWidgetCard = observer(function RecordMapWidgetCard({
                   >
                     <span
                       aria-hidden
-                      className="size-2.5 shrink-0 rounded-full"
-                      style={{ backgroundColor: entry.color }}
+                      className={cn(
+                        "size-2.5 shrink-0 rounded-full",
+                        entry.color === null && "border-[1.5px] border-muted-foreground bg-card",
+                      )}
+                      style={entry.color ? { backgroundColor: getChartColors()[entry.color] } : undefined}
                     />
 
                     <span className="truncate">

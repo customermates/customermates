@@ -1,10 +1,12 @@
+import type { MessagingProvider } from "@/generated/prisma";
 import type { PlannerConfig } from "./planner.schema";
 import type { CalendarWindow } from "@/core/data-view/calendar-view-config.schema";
 
-export type PersonalCalendar = { id: string; name: string; provider: string };
+export type PersonalCalendar = { id: string; name: string; provider: MessagingProvider };
 export type PersonalCalendarEvent = {
   id: string;
   calendarId: string;
+  calendarName: string;
   title: string;
   startsAt: string;
   endsAt: string;
@@ -15,7 +17,7 @@ export type PersonalCalendarEvent = {
 };
 export type PersonalCalendarWindow = { events: PersonalCalendarEvent[]; truncated: boolean };
 export interface PlannerPersonalEvents {
-  calendars(): Promise<{ available: boolean; calendars: PersonalCalendar[] }>;
+  calendars(): Promise<PersonalCalendar[]>;
   events(calendarIds: string[], window: CalendarWindow): Promise<PersonalCalendarWindow>;
 }
 export type CalendarSubscription = {

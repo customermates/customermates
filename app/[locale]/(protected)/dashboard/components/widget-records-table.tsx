@@ -37,6 +37,10 @@ export const WidgetRecordsTable = observer(function WidgetRecordsTable({
   const openRelated = useCallback((ref: RecordRow["ref"]) => root.recordWorkspaceStore.open(ref), [root]);
   const columns = useRecordTableColumns(store, openRelated, { openRecord: open });
   const renderCard = useRecordCardRenderer(store, openRelated);
+  const listHref = recordContributionHref(presentation.typeId, store.filters ?? [], {
+    searchTerm: store.searchTerm,
+    sortDescriptor: store.sortDescriptor,
+  });
   const name = (record: RecordRow) =>
     recordDisplayName(
       record.fields.find((field) => field.fieldId === store.type?.primaryFieldId)?.result,
@@ -51,18 +55,15 @@ export const WidgetRecordsTable = observer(function WidgetRecordsTable({
         </h3>
 
         <div className="ml-auto flex flex-wrap items-center gap-2">
-          <Button asChild size="sm" variant="ghost">
-            <IntlLink
-              href={recordContributionHref(presentation.typeId, store.filters ?? [], {
-                searchTerm: store.searchTerm,
-                sortDescriptor: store.sortDescriptor,
-              })}
-            >
-              <ArrowUpRight aria-hidden className="size-4" />
+          {listHref && (
+            <Button asChild size="sm" variant="ghost">
+              <IntlLink href={listHref}>
+                <ArrowUpRight aria-hidden className="size-4" />
 
-              {t("RecordWidgets.openInList", { list: store.type?.pluralLabel ?? t("RecordModel.records") })}
-            </IntlLink>
-          </Button>
+                {t("RecordWidgets.openInList", { list: store.type?.pluralLabel ?? t("RecordModel.records") })}
+              </IntlLink>
+            </Button>
+          )}
 
           <DataViewToolbar
             anchorScope="widget-data"

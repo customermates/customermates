@@ -382,6 +382,12 @@ describeDatabase("calendar and map widgets on PostgreSQL", () => {
     expect(saved.data.data?.points).toHaveLength(2);
     const shared = await f.run(() => f.readWidget.invoke({ id: saved.data.id }), f.member);
     expect(shared.ok && shared.data.kind === "map" && names(shared.data.data?.points ?? [])).toEqual(["Mine"]);
+    const windowed = await f.run(() => f.readWidget.invoke({ id: saved.data.id, window: { from: today, to: today } }));
+    expect(windowed).toMatchObject({ ok: false });
+    expect(JSON.stringify(windowed)).toContain("window");
+    const missing = await f.run(() => f.readWidget.invoke({ id: randomUUID() }));
+    expect(missing).toMatchObject({ ok: false });
+    expect(JSON.stringify(missing)).toContain("widgetNotFound");
   });
 
   it("places located records on the map with color, size and detail and counts the others", async () => {

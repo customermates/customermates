@@ -30,10 +30,30 @@ test("the map widget draws its basemap and pins from the app's own origin", asyn
   const markers = card.locator("[data-map-marker]");
   await expect(markers.first()).toBeVisible();
   await expect(card.locator("[data-map-legend]").first()).toBeVisible();
-  // The seeded customers span several segments, so the legend explains the grey of clusters without a majority.
+  // The seeded customers span several segments, so the legend explains the neutral ring of clusters without a majority.
   await expect(card.locator('[data-map-legend="mixed"]')).toHaveText("Mixed");
   await card.getByRole("button", { name: "Zoom in", exact: true }).click();
   await expect(markers.first()).toBeVisible();
+  const viewport = card.locator("[data-map-viewport]");
+  const pin = card.locator('[data-map-marker="pin"]').first();
+  for (let step = 0; step < 8 && (await pin.count()) === 0; step += 1) {
+    const zoom = await viewport.getAttribute("data-zoom");
+    await card.locator('[data-map-marker="cluster"]').first().click();
+    await expect
+      .poll(async () => (await pin.count()) > 0 || (await viewport.getAttribute("data-zoom")) !== zoom)
+      .toBe(true);
+  }
+  await pin.click();
+  const details = page.locator("[data-map-widget-popover]");
+  await expect(details).toBeVisible();
+  // A plain click opens the record drawer over the dashboard; the link keeps the record page for a new tab.
+  await expect(details.getByRole("link", { name: "Open record", exact: true })).toHaveAttribute(
+    "href",
+    /\/records\/[^/]+\/[^/]+$/,
+  );
+  await details.getByRole("link", { name: "Open record", exact: true }).click();
+  await expect(page.getByRole("dialog").last()).toBeVisible();
+  await expect(page).toHaveURL(/\/dashboard/);
   expect(external).toEqual([]);
   expect(errors).toEqual([]);
 });

@@ -14,7 +14,11 @@ type Props = {
   onOpenFilters?: () => void;
 };
 
-export function widgetSourceFilterCount(source: CalendarWidgetQuery["source"]) {
+export function widgetSourceFilterCount(source: {
+  filters: readonly unknown[];
+  relationships: readonly unknown[];
+  relatedFilters?: readonly unknown[];
+}) {
   return source.filters.length + source.relationships.length + (source.relatedFilters?.length ?? 0);
 }
 

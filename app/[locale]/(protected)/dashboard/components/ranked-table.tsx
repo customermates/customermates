@@ -6,6 +6,8 @@ import { EmptyValue } from "@/components/shared/empty-value";
 import { TruncatedText } from "@/components/shared/truncated-text";
 import { useRecordValueFormat } from "@/components/records/record-value";
 
+import { WIDGET_INTERACTIVE_ATTRIBUTE } from "./widget-interaction";
+
 export type RankedTableRow = {
   key: string;
   onSelect?: () => void;
@@ -57,7 +59,7 @@ export function RankedTable({ hiddenCount, rows }: Props) {
                 {row.onSelect ? (
                   <button
                     className="block w-full text-left hover:underline focus-visible:underline"
-                    data-widget-interactive=""
+                    {...{ [WIDGET_INTERACTIVE_ATTRIBUTE]: "true" }}
                     type="button"
                     onClick={row.onSelect}
                   >

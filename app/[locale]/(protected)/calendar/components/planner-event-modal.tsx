@@ -8,8 +8,8 @@ import { AppModal, AppModalTitle } from "@/components/modal/app-modal";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppCardBody } from "@/components/card/app-card-body";
+import { useCalendarEntryDateLabel } from "@/components/records/calendar-entry-tooltip";
 import { Button } from "@/components/ui/button";
-import { useRecordValueFormat } from "@/components/records/record-value";
 
 export function PlannerEventModal({
   event,
@@ -23,7 +23,7 @@ export function PlannerEventModal({
   onClose: () => void;
 }) {
   const t = useTranslations();
-  const format = useRecordValueFormat();
+  const dateLabel = useCalendarEntryDateLabel(timeZone);
   const url =
     event.provider?.toLowerCase() === "google"
       ? `https://calendar.google.com/calendar/u/0/r/day/${event.entry.start.replace(/-/gu, "/")}`
@@ -35,18 +35,14 @@ export function PlannerEventModal({
           <AppModalTitle>{name}</AppModalTitle>
         </AppCardHeader>
 
-        <AppCardBody className="space-y-3">
+        <AppCardBody>
           <p className="text-sm text-muted-foreground">{t("Planner.readOnlyEvent")}</p>
 
-          <p className="text-sm">
-            {event.entry.time
-              ? format.date(new Date(event.entry.time), { dateStyle: "full", timeStyle: "short", timeZone })
-              : format.date(new Date(`${event.entry.start}T00:00:00Z`), { dateStyle: "full", timeZone: "UTC" })}
-          </p>
+          <p className="text-sm">{dateLabel(event.entry)}</p>
 
           {event.location && <p className="text-sm">{event.location}</p>}
 
-          <Button asChild variant="secondary">
+          <Button asChild className="self-start" variant="secondary">
             <a href={url} rel="noopener noreferrer" target="_blank">
               <ArrowUpRight aria-hidden className="size-4" />
 

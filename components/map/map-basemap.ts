@@ -17,7 +17,7 @@ export type BasemapPlace = {
   name: string;
   names: Readonly<Record<string, string>>;
 };
-export type BasemapStateLines = { minZoom: number; lines: Polyline[] };
+type BasemapStateLines = { minZoom: number; lines: Polyline[] };
 export type BasemapLayers = {
   land: Polyline[];
   coast: Polyline[];
@@ -25,9 +25,9 @@ export type BasemapLayers = {
   states: BasemapStateLines[];
   places: BasemapPlace[];
 };
-export type BasemapRegion = { id: string; file: string; bounds: WorldBounds };
+type BasemapRegion = { id: string; file: string; bounds: WorldBounds };
 export type BasemapWorld = { layers: BasemapLayers; regions: BasemapRegion[] };
-export type BasemapFetcher = (url: string) => Promise<Pick<Response, "ok" | "status" | "json">>;
+type BasemapFetcher = (url: string) => Promise<Pick<Response, "ok" | "status" | "json">>;
 
 type BasemapFeature = { geometry: Geometry | null; properties: Record<string, unknown> | null };
 

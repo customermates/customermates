@@ -2,6 +2,7 @@ import type { Data } from "@/core/validation/validation.utils";
 import type { RecordActivityWidgetDto } from "./record-activity-widget.schema";
 import type { RecordCalendarWidgetDto } from "./record-calendar-widget.schema";
 import type { RecordMapWidgetDto } from "./record-map-widget.schema";
+import { CALENDAR_WIDGET_LAYOUTS } from "./record-calendar-widget.schema";
 import { GenericRecordWidgetDtoSchema, type RecordWidgetDto } from "./record-widget.schema";
 export { ChartColor, DisplayType, WidgetDisplayOptionsSchema, WidgetLayoutSchema } from "./widget-display.schema";
 export type { WidgetDisplayOptions } from "./widget-display.schema";
@@ -14,6 +15,7 @@ import { CHIP_COLORS } from "@/constants/chip-colors";
 const CompanyWidgetSchema = z.object({
   id: z.string(),
   kind: z.enum(WidgetKind),
+  calendarLayout: z.enum(CALENDAR_WIDGET_LAYOUTS).nullable(),
   name: z.string(),
   firstName: z.string(),
   lastName: z.string(),

@@ -12,15 +12,22 @@ import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-const spy = vi.hoisted(() => ({ mapProps: null as Record<string, unknown> | null }));
+const spy = vi.hoisted(() => ({ mapProps: null as Record<string, unknown> | null, open: vi.fn() }));
 
 vi.mock("mobx-react-lite", () => ({ observer: <T,>(component: T) => component }));
 vi.mock("next-intl", () => {
   const t = (key: string, values?: Record<string, unknown>) =>
     values ? `${key}:${Object.values(values).join(",")}` : key;
   t.rich = (key: string) => key;
-  return { useTranslations: () => t };
+  return { useLocale: () => "en", useTranslations: () => t };
 });
+vi.mock("@/core/stores/root-store.provider", () => ({
+  useRootStore: () => ({ recordWorkspaceStore: { open: spy.open } }),
+}));
+vi.mock("@/i18n/navigation", () => ({
+  IntlLink: ({ href, children, ...props }: { href: string; children: ReactNode }) =>
+    createElement("a", { href, ...props }, children),
+}));
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
   useHydratedIntlStore: () => ({ formattingLocale: "en-GB", formatNumber: String }),
 }));
@@ -155,7 +162,18 @@ describe("upcoming calendar widget", () => {
     ).toEqual(["a", "b"]);
     expect(upcoming.querySelector('[data-calendar-month="2026-11"]')).not.toBeNull();
     expect([...upcoming.querySelectorAll("[data-amount]")].map((amount) => amount.textContent)).toEqual(["100", "50"]);
-    expect(host.querySelector('[data-calendar-item="a"] a')?.getAttribute("href")).toBe("/records/deal/a");
+    const link = must(host.querySelector<HTMLAnchorElement>('[data-calendar-item="a"] a'));
+    expect(link.getAttribute("href")).toBe("/records/deal/a");
+    spy.open.mockClear();
+    const stayOnPage = (event: Event) => event.preventDefault();
+    document.addEventListener("click", stayOnPage);
+    act(() => {
+      link.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, ctrlKey: true }));
+    });
+    document.removeEventListener("click", stayOnPage);
+    expect(spy.open).not.toHaveBeenCalled();
+    act(() => link.click());
+    expect(spy.open).toHaveBeenCalledWith({ typeId: "deal", recordId: "a" }, link);
     expect(host.querySelector('[data-slot="widget-subtitle"]')?.textContent).toContain("Deals · Close date");
   });
 
@@ -236,8 +254,13 @@ describe("month overview widget", () => {
       await Promise.resolve();
     });
     const records = host.querySelector('[data-calendar-day-records="2026-10-12"]');
-    expect(records?.querySelector("a")?.getAttribute("href")).toBe("/records/deal/a");
+    const link = must(records?.querySelector("a"));
+    expect(link.getAttribute("href")).toBe("/records/deal/a");
     expect(loadWindow).not.toHaveBeenCalled();
+    spy.open.mockClear();
+    const day = host.querySelector('[data-calendar-day="2026-10-12"]');
+    act(() => link.click());
+    expect(spy.open).toHaveBeenCalledWith({ typeId: "deal", recordId: "a" }, link, day);
 
     await act(async () => {
       must(host.querySelector<HTMLElement>('[aria-label="RecordCalendarWidgets.nextMonth"]')).click();
@@ -281,17 +304,17 @@ describe("map widget", () => {
     },
   ];
 
-  function renderMap(mapData: MapWidgetData) {
+  function renderMap(mapData: MapWidgetData, openRecords = true) {
     return render(
       createElement(RecordMapWidgetCard, {
         name: "Customers",
+        openRecords,
         mapQuery,
         displayOptions: { showFilters: true },
         status: "ready",
         data: mapData,
         fields: mapFields,
         listLabels: { label: "Organization", pluralLabel: "Organizations" },
-        recordHref: (ref) => `/records/${ref.typeId}/${ref.recordId}`,
       }),
     );
   }
@@ -306,7 +329,7 @@ describe("map widget", () => {
     });
     expect(host.querySelector("[data-map-view]")).not.toBeNull();
     expect(spy.mapProps?.points).toEqual([
-      expect.objectContaining({ id: "a", group: "smb", color: "var(--success)" }),
+      expect.objectContaining({ id: "a", group: "smb", color: "success1" }),
       expect.objectContaining({ id: "b", group: "" }),
     ]);
     expect([...host.querySelectorAll("[data-map-legend]")].map((entry) => entry.textContent)).toEqual([
@@ -314,12 +337,30 @@ describe("map widget", () => {
       "RecordModel.missing",
       "RecordMapWidgets.mixed",
     ]);
-    expect(host.querySelector('[data-map-legend="mixed"] span')?.getAttribute("style")).toContain("color-mix");
+    expect(host.querySelector('[data-map-legend="smb"] span')?.getAttribute("style")).toContain("--chart-success-1");
+    expect(host.querySelector('[data-map-legend="mixed"] span')?.className).toContain("border-muted-foreground");
     expect(host.querySelector("[data-map-hint]")?.textContent).toBe("RecordMapWidgets.withoutLocation:3");
     const popover = render((spy.mapProps?.renderPopover as (id: string) => ReactNode)("b"));
     expect(popover.textContent).toContain("Org b");
     expect(popover.textContent).toContain("RecordMapWidgets.postcodePrecision");
-    expect(popover.querySelector("a")?.getAttribute("href")).toBe("/records/organization/b");
+    const link = must(popover.querySelector("a"));
+    expect(link.getAttribute("href")).toBe("/records/organization/b");
+    act(() => link.click());
+    expect(spy.open).toHaveBeenCalledWith(
+      { typeId: "organization", recordId: "b" },
+      link,
+      host.querySelector("[data-map-widget]"),
+    );
+  });
+
+  it("leaves records closed in the editor preview, which shows the details without the record link", () => {
+    renderMap(
+      { schemaRevision: 1, points: [point("a", "smb")], total: 1, withoutLocation: 0, truncated: false },
+      false,
+    );
+    const popover = render((spy.mapProps?.renderPopover as (id: string) => ReactNode)("a"));
+    expect(popover.textContent).toContain("Org a");
+    expect(popover.querySelector("a")).toBeNull();
   });
 
   it("shows the empty state instead of a map when no record has a location", () => {

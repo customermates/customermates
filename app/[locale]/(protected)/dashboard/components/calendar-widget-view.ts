@@ -1,14 +1,7 @@
 import type { CalendarDate } from "@/features/record-calendar/calendar-date";
 import type { CalendarWidgetData, CalendarWidgetItem } from "@/features/widget/record-calendar-widget.schema";
 
-import {
-  addCalendarMonths,
-  calendarDateParts,
-  calendarDayDifference,
-  calendarMonthWeeks,
-  endOfCalendarMonth,
-  startOfCalendarMonth,
-} from "@/features/record-calendar/calendar-date";
+import { calendarDateParts, calendarDayDifference, calendarMonthWeeks } from "@/features/record-calendar/calendar-date";
 
 export const CALENDAR_HEAT_LEVELS = [0, 1, 2, 3, 4] as const;
 export type CalendarHeatLevel = (typeof CALENDAR_HEAT_LEVELS)[number];
@@ -23,7 +16,7 @@ export const CALENDAR_HEAT_CLASS: Record<CalendarHeatLevel, string> = {
 
 type CalendarDay = CalendarWidgetData["days"][number];
 
-export function calendarDayMagnitude(day: CalendarDay, aggregation: "count" | "sum"): number {
+function calendarDayMagnitude(day: CalendarDay, aggregation: "count" | "sum"): number {
   if (aggregation === "count" && day.count !== null) return day.count;
   const result = day.result;
   if (result.state !== "value" || result.value.kind !== "decimal") return day.count ?? 0;
@@ -51,19 +44,16 @@ export function calendarOverdueDays(date: CalendarDate, today: CalendarDate): nu
   return Math.max(1, calendarDayDifference(date, today));
 }
 
-export function calendarMonthWindow(anchor: CalendarDate): { from: CalendarDate; to: CalendarDate } {
-  return { from: startOfCalendarMonth(anchor), to: endOfCalendarMonth(anchor) };
-}
-
-export function shiftCalendarMonth(anchor: CalendarDate, step: number): CalendarDate {
-  return startOfCalendarMonth(addCalendarMonths(startOfCalendarMonth(anchor), step));
-}
-
 export function calendarMonthGrid(anchor: CalendarDate): Array<Array<CalendarDate | null>> {
   const month = calendarDateParts(anchor).month;
   return calendarMonthWeeks(anchor).map((week) =>
     week.map((date) => (calendarDateParts(date).month === month ? date : null)),
   );
+}
+
+export function calendarWidgetEntry(item: CalendarWidgetItem) {
+  const time = item.value.state === "value" && item.value.value.kind === "dateTime" ? item.value.value.value : null;
+  return { start: item.date, end: item.date, time };
 }
 
 export function calendarDayItems(items: CalendarWidgetItem[], date: CalendarDate): CalendarWidgetItem[] {

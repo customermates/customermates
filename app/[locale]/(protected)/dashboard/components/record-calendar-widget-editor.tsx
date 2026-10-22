@@ -5,26 +5,17 @@ import type { RecordModelView } from "@/features/records/record-model.schema";
 import type { CalendarWidgetQuery, CalendarWidgetWindow } from "@/features/widget/record-calendar-widget.schema";
 import type { WidgetModalStore } from "./widget-modal.store";
 
-import { useEffect } from "react";
 import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
-import { FormAutocomplete } from "@/components/forms/form-autocomplete";
-import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormSwitch } from "@/components/forms/form-switch";
-import { RecordQueryFilters } from "@/components/records/record-query-filters";
-import { Button } from "@/components/ui/button";
-import { CollapsibleSection } from "@/components/ui/collapsible-section";
-import { runUserAction } from "@/core/errors/report-application-error";
 import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
-import { actionData } from "@/core/utils/action-data";
 import { cn } from "@/core/utils/cn";
-import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { CALENDAR_WIDGET_MAX_DAYS, CalendarWidgetQuerySchema } from "@/features/widget/record-calendar-widget.schema";
 
-import { discoverWidgetRecordTypesAction, previewCalendarWidgetAction } from "../actions";
+import { previewCalendarWidgetAction } from "../actions";
 import { calendarDateFieldsOf, widgetNumberFieldsOf } from "./calendar-map-widget-fields";
 import { RecordCalendarWidgetCard } from "./record-calendar-widget-card";
 import { isRecordCalendarWidgetForm } from "./record-widget-form";
@@ -32,13 +23,16 @@ import { CalendarWidgetSkeleton } from "./dashboard-page-skeleton";
 import {
   WidgetEditorColumns,
   WidgetEditorSegments,
+  WidgetModelStatus,
+  WidgetPreviewError,
+  WidgetPreviewPlaceholder,
+  WidgetSourceFilters,
+  WidgetSourcePicker,
   initialWidgetEditorSegment,
-  opensWidgetFilters,
+  useWidgetAutoPreview,
 } from "./widget-editor-layout";
 import { WidgetPreviewFrame } from "./widget-preview-frame";
-import { widgetSourceFilterCount } from "./widget-source-summary";
 
-const AUTO_PREVIEW_DELAY_MS = 600;
 const NONE = "none";
 const DAY_CHOICES = [7, 14, 30, 60, CALENDAR_WIDGET_MAX_DAYS];
 
@@ -72,15 +66,7 @@ export const RecordCalendarWidgetEditor = observer(
     const previewKey = store.recordQueryKey;
     const query = isRecordCalendarWidgetForm(form) ? form.calendarQuery : null;
     const queryValid = query ? CalendarWidgetQuerySchema.safeParse(query).success : false;
-    const autoPreviewKey =
-      (section === "preview" || section === "all") && previewKey && model && store.isOpen && queryValid
-        ? `${model.revision}:${previewKey}`
-        : null;
-    const debouncedAutoPreviewKey = useDebouncedValue(autoPreviewKey, AUTO_PREVIEW_DELAY_MS);
-    useEffect(() => {
-      if (!debouncedAutoPreviewKey || debouncedAutoPreviewKey !== autoPreviewKey) return;
-      runUserAction(store.runCalendarPreview);
-    }, [debouncedAutoPreviewKey, autoPreviewKey, form, store]);
+    useWidgetAutoPreview(store, (section === "preview" || section === "all") && queryValid, store.runCalendarPreview);
     if (!query || !isRecordCalendarWidgetForm(form)) return null;
     const typeId = query.source.typeId;
     const sourceType = model?.types.find((type) => type.id === typeId);
@@ -89,33 +75,11 @@ export const RecordCalendarWidgetEditor = observer(
     const upcoming = query.layout === "upcoming";
     const shownPreview = preview && preview.data.schemaRevision === model?.revision ? preview : null;
     const previewedQuery = shownPreview ? (JSON.parse(shownPreview.key) as CalendarWidgetQuery) : null;
-    const status =
-      model === undefined ? (
-        <p className="text-sm text-muted-foreground" role="status">
-          {t("RecordWidgets.loadingSchema")}
-        </p>
-      ) : model === null ? (
-        <Button type="button" variant="secondary" onClick={() => runUserAction(store.loadRecordModel)}>
-          {t("ErrorCard.retry")}
-        </Button>
-      ) : null;
     const previewContent = (
       <div className="min-w-0 space-y-3">
         <WidgetPreviewFrame
           interactive
-          error={
-            previewError && !loading ? (
-              <>
-                <p className="text-center text-sm text-destructive" role="alert">
-                  {t("RecordWidgets.previewFailed")}
-                </p>
-
-                <Button type="button" variant="secondary" onClick={() => runUserAction(store.runCalendarPreview)}>
-                  {t("ErrorCard.retry")}
-                </Button>
-              </>
-            ) : null
-          }
+          error={previewError && !loading ? <WidgetPreviewError onRetry={store.runCalendarPreview} /> : null}
           geometry={store.previewGeometry}
           kind={form.kind}
           loading={loading || (model === undefined && !shownPreview)}
@@ -137,15 +101,9 @@ export const RecordCalendarWidgetEditor = observer(
               />
             </div>
           ) : (
-            <div className="flex h-full flex-col justify-center rounded-xl border border-dashed border-border p-6">
-              {!queryValid && model ? (
-                <p className="text-center text-sm text-muted-foreground">
-                  {t("Dashboard.widgetEditor.preview.incomplete")}
-                </p>
-              ) : (
-                <CalendarWidgetSkeleton animated={false} layout={query.layout} />
-              )}
-            </div>
+            <WidgetPreviewPlaceholder incomplete={!queryValid && Boolean(model)}>
+              <CalendarWidgetSkeleton animated={false} layout={query.layout} />
+            </WidgetPreviewPlaceholder>
           )}
         </WidgetPreviewFrame>
       </div>
@@ -169,17 +127,9 @@ export const RecordCalendarWidgetEditor = observer(
     );
     const dataContent = (
       <div className="space-y-4">
-        <FormAutocomplete<{ id: string; pluralLabel: string }>
-          getItems={(params) => actionData(discoverWidgetRecordTypesAction(params))}
-          id="calendarQuery.source.typeId"
-          items={sourceType ? [{ id: sourceType.id, pluralLabel: sourceType.pluralLabel }] : []}
-          label={t("RecordWidgets.source")}
-          renderValue={(items) => items.map((item) => item.data?.pluralLabel ?? t("Loading.text")).join(", ")}
-        >
-          {(type) => <FormAutocompleteItem textValue={type.pluralLabel}>{type.pluralLabel}</FormAutocompleteItem>}
-        </FormAutocomplete>
+        <WidgetSourcePicker id="calendarQuery.source.typeId" model={model} typeId={typeId} />
 
-        {status}
+        <WidgetModelStatus store={store} />
 
         {store.calendarDateFieldMissing && (
           <p className="text-xs text-muted-foreground" data-widget-field-requirement="date">
@@ -260,26 +210,7 @@ export const RecordCalendarWidgetEditor = observer(
 
                 {dataContent}
 
-                <CollapsibleSection
-                  defaultOpen={opensWidgetFilters(store.expandedSection)}
-                  id="widget-config-filters"
-                  summary={t("Dashboard.widgetEditor.sections.activeFilters", {
-                    count: widgetSourceFilterCount(query.source),
-                  })}
-                  title={t("Dashboard.widgetEditor.sections.filters")}
-                >
-                  <div className="space-y-4">
-                    {status}
-
-                    <RecordQueryFilters
-                      inline
-                      anchorId="widget-source-filters"
-                      id="calendarQuery.source"
-                      model={model}
-                      typeId={typeId}
-                    />
-                  </div>
-                </CollapsibleSection>
+                <WidgetSourceFilters id="calendarQuery.source" source={query.source} store={store} typeId={typeId} />
               </>
             }
             dataFields={[

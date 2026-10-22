@@ -70,5 +70,7 @@ describe("calendar dates", () => {
     expect(calendarWindowRange("week", "2026-10-16")).toEqual({ from: "2026-10-12", to: "2026-10-18" });
     expect(shiftCalendarAnchor("week", "2026-10-16", -1)).toBe("2026-10-09");
     expect(shiftCalendarAnchor("month", "2026-10-31", 1)).toBe("2026-11-30");
+    expect(calendarWindowRange("quarter", "2026-11-16")).toEqual({ from: "2026-09-28", to: "2027-01-03" });
+    expect(shiftCalendarAnchor("quarter", "2026-11-16", 1)).toBe("2027-02-16");
   });
 });

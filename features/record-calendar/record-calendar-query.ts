@@ -57,7 +57,10 @@ export function resolveCalendarFields<F extends CalendarFieldShape>(
   return { start, end: end ?? null, color: color ?? null };
 }
 
-function windowEndpoints(field: Pick<RecordField, "valueType">, window: CalendarWindow): [RecordScalar, RecordScalar] {
+export function windowEndpoints(
+  field: Pick<RecordField, "valueType">,
+  window: Pick<CalendarWindow, "from" | "to" | "timeZone">,
+): [RecordScalar, RecordScalar] {
   if (field.valueType === "date" || field.valueType === "dateRange") {
     return [
       { kind: "date", value: window.from },
@@ -83,7 +86,7 @@ export function calendarWindowFilters(
     starting,
     spanning: [
       { fieldId: fields.start.id, operator: "lt", value: from },
-      { fieldId: fields.end.id, operator: "gte", value: from },
+      { fieldId: fields.end.id, operator: fields.end.valueType === "dateTime" ? "gt" : "gte", value: from },
     ],
   };
 }

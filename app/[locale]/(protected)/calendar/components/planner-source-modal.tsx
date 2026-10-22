@@ -2,9 +2,8 @@
 
 import type { PlannerSource } from "@/features/planner/planner.schema";
 import type { RecordModelView } from "@/features/records/record-model.schema";
-import type { RecordPresentationResult } from "@/features/records/get-record-presentation.interactor";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
@@ -15,14 +14,16 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { FormSelect } from "@/components/forms/form-select";
 import { Button } from "@/components/ui/button";
+import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { Skeleton } from "@/components/ui/skeleton";
-import { DataViewToolbar } from "@/components/data-view/data-view-toolbar";
+import { FilterPaletteInline } from "@/components/data-view/filter-palette/filter-palette-inline";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { actionData } from "@/core/utils/action-data";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { ViewMode } from "@/core/base/base-query-builder";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { CHIP_COLORS } from "@/constants/chip-colors";
+import { canonicalRecordJson } from "@/features/records/record-json";
 import {
   isCalendarDateField,
   isCalendarEndField,
@@ -33,44 +34,26 @@ import { RecordExplorationStore } from "../../records/[typeId]/components/record
 import { getRecordPresentationAction } from "../../records/actions";
 
 const NONE = "none";
-const SourceFilters = observer(function SourceFilters({
-  presentation,
-  onReady,
-}: {
-  presentation: RecordPresentationResult;
-  onReady: (store: RecordExplorationStore) => void;
-}) {
-  const root = useRootStore();
-  const t = useTranslations();
-  const [store] = useState(() => new RecordExplorationStore(root, presentation));
-  useEffect(() => onReady(store), [store, onReady]);
-  return (
-    <DataViewToolbar
-      anchorScope="planner-source"
-      searchLabel={t("Common.filters.searchFields.records")}
-      showDisplayOptions={false}
-      store={store}
-    />
-  );
-});
 
-export function PlannerSourceModal({
+export const PlannerSourceModal = observer(function PlannerSourceModal({
   source,
+  creating,
   model,
   onClose,
   onSave,
 }: {
   source: PlannerSource;
+  creating: boolean;
   model: RecordModelView;
   onClose: () => void;
   onSave: (source: PlannerSource) => void;
 }) {
   const t = useTranslations();
+  const root = useRootStore();
   const [draft, setDraft] = useState(source);
-  const [presentation, setPresentation] = useState<{ typeId: string; data: RecordPresentationResult } | null>(null);
+  const [filters, setFilters] = useState<{ typeId: string; store: RecordExplorationStore } | null>(null);
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
-  const filterStore = useRef<RecordExplorationStore | null>(null);
   const colorLabels = {
     default: t("Common.colors.default"),
     secondary: t("Common.colors.secondary"),
@@ -84,15 +67,14 @@ export function PlannerSourceModal({
   const types = model.types.filter(
     (type) => !type.archived && model.fields.some((field) => field.typeId === type.id && isCalendarDateField(field)),
   );
+  const filterStore = filters?.typeId === draft.typeId ? filters.store : null;
   useEffect(() => {
     let active = true;
-    filterStore.current = null;
     setFailed(false);
     actionData(
       getRecordPresentationAction(draft.typeId, {
         viewId: ALL_VIEW_KEY,
-        filters: draft.filters,
-        searchTerm: draft.search,
+        filters: draft.typeId === source.typeId ? source.filters : [],
         viewMode: ViewMode.table,
         grouping: null,
         page: 1,
@@ -100,7 +82,7 @@ export function PlannerSourceModal({
       }),
     )
       .then((data) => {
-        if (active) setPresentation({ typeId: draft.typeId, data });
+        if (active) setFilters({ typeId: draft.typeId, store: new RecordExplorationStore(root, data) });
       })
       .catch((error: unknown) => {
         if (active) {
@@ -111,17 +93,24 @@ export function PlannerSourceModal({
     return () => {
       active = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [draft.typeId, attempt]);
+  }, [root, draft.typeId, source.typeId, source.filters, attempt]);
+  const result = () => ({ ...draft, filters: filterStore ? (toJS(filterStore.filters) ?? []) : draft.filters });
+  const changed = canonicalRecordJson(result()) !== canonicalRecordJson(source);
+  const save = () => {
+    const active = document.activeElement;
+    if (active instanceof HTMLElement && active.closest("[data-filter-inline]")) active.blur();
+    onSave(result());
+  };
   const choice = (field: { id: string; label: string }) => ({ value: field.id, label: field.label });
+  const title = creating ? t("Planner.addSource") : t("Planner.sourceSettings");
   return (
-    <AppModal open titleInContent size="xl" title={t("Planner.sourceSettings")} onClose={onClose}>
+    <AppModal open titleInContent size="xl" title={title} onClose={onClose}>
       <AppCard>
         <AppCardHeader>
-          <AppModalTitle>{t("Planner.sourceSettings")}</AppModalTitle>
+          <AppModalTitle>{title}</AppModalTitle>
         </AppCardHeader>
 
-        <AppCardBody className="space-y-5 overflow-y-auto">
+        <AppCardBody>
           <FormSelect
             id="planner-list"
             items={types.map((type) => ({ value: type.id, label: type.pluralLabel }))}
@@ -129,95 +118,92 @@ export function PlannerSourceModal({
             value={draft.typeId}
             onValueChange={(typeId) => {
               const field = model.fields.find((field) => field.typeId === typeId && isCalendarDateField(field));
-              if (field) setDraft({ ...draft, typeId, calendar: { dateFieldId: field.id }, filters: [], search: "" });
+              if (field) setDraft({ ...draft, typeId, calendar: { dateFieldId: field.id }, filters: [] });
             }}
           />
 
-          <FormSelect
-            id="planner-start"
-            items={fields.filter(isCalendarDateField).map(choice)}
-            label={t("Planner.startDate")}
-            value={draft.calendar.dateFieldId}
-            onValueChange={(dateFieldId) =>
-              setDraft({ ...draft, calendar: { ...draft.calendar, dateFieldId, endDateFieldId: null } })
-            }
-          />
-
-          {start && !isCalendarRangeField(start) && (
+          <div className="grid gap-4 sm:grid-cols-2">
             <FormSelect
-              id="planner-end"
-              items={[
-                { value: NONE, label: t("Planner.noEndDate") },
-                ...fields.filter((field) => field.id !== start.id && isCalendarEndField(field, start)).map(choice),
-              ]}
-              label={t("Planner.endDate")}
-              value={draft.calendar.endDateFieldId ?? NONE}
-              onValueChange={(value) =>
-                setDraft({ ...draft, calendar: { ...draft.calendar, endDateFieldId: value === NONE ? null : value } })
+              id="planner-start"
+              items={fields.filter(isCalendarDateField).map(choice)}
+              label={t("Planner.startDate")}
+              value={draft.calendar.dateFieldId}
+              onValueChange={(dateFieldId) =>
+                setDraft({ ...draft, calendar: { ...draft.calendar, dateFieldId, endDateFieldId: null } })
               }
             />
-          )}
 
-          <FormSelect
-            id="planner-color-field"
-            items={[
-              { value: NONE, label: t("Planner.sourceColor") },
-              ...fields.filter(isCalendarColorField).map(choice),
-            ]}
-            label={t("Planner.colorField")}
-            value={draft.calendar.colorFieldId ?? NONE}
-            onValueChange={(value) =>
-              setDraft({ ...draft, calendar: { ...draft.calendar, colorFieldId: value === NONE ? null : value } })
-            }
-          />
+            {start && !isCalendarRangeField(start) && (
+              <FormSelect
+                id="planner-end"
+                items={[
+                  { value: NONE, label: t("Planner.noEndDate") },
+                  ...fields.filter((field) => field.id !== start.id && isCalendarEndField(field, start)).map(choice),
+                ]}
+                label={t("Planner.endDate")}
+                value={draft.calendar.endDateFieldId ?? NONE}
+                onValueChange={(value) =>
+                  setDraft({ ...draft, calendar: { ...draft.calendar, endDateFieldId: value === NONE ? null : value } })
+                }
+              />
+            )}
+          </div>
 
-          <FormSelect
-            id="planner-color"
-            items={CHIP_COLORS.map((value) => ({ value, label: colorLabels[value], color: value }))}
-            label={t("Planner.sourceColor")}
-            value={draft.color}
-            onValueChange={(color) => {
-              if ((CHIP_COLORS as readonly string[]).includes(color))
-                setDraft({ ...draft, color: color as PlannerSource["color"] });
-            }}
-          />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormSelect
+              id="planner-color-field"
+              items={[
+                { value: NONE, label: t("Planner.sourceColor") },
+                ...fields.filter(isCalendarColorField).map(choice),
+              ]}
+              label={t("DataView.calendar.colorField")}
+              value={draft.calendar.colorFieldId ?? NONE}
+              onValueChange={(value) =>
+                setDraft({ ...draft, calendar: { ...draft.calendar, colorFieldId: value === NONE ? null : value } })
+              }
+            />
 
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium">{t("Planner.filters")}</h3>
+            {!draft.calendar.colorFieldId && (
+              <FormSelect
+                id="planner-color"
+                items={CHIP_COLORS.map((value) => ({ value, label: colorLabels[value], color: value }))}
+                label={t("Planner.sourceColor")}
+                value={draft.color}
+                onValueChange={(color) => {
+                  if ((CHIP_COLORS as readonly string[]).includes(color))
+                    setDraft({ ...draft, color: color as PlannerSource["color"] });
+                }}
+              />
+            )}
+          </div>
 
+          <CollapsibleSection
+            defaultOpen={source.filters.length > 0}
+            id="planner-source-filters"
+            summary={t("Planner.filterCount", { count: result().filters.length })}
+            title={t("Planner.filters")}
+          >
             {failed ? (
               <Button variant="secondary" onClick={() => setAttempt((value) => value + 1)}>
                 {t("ErrorCard.retry")}
               </Button>
-            ) : presentation?.typeId === draft.typeId ? (
-              <SourceFilters
-                key={draft.typeId}
-                presentation={presentation.data}
-                onReady={(store) => {
-                  filterStore.current = store;
-                }}
-              />
+            ) : filterStore ? (
+              <FilterPaletteInline id="planner-source-filter-palette" store={filterStore} />
             ) : (
               <Skeleton className="h-9" />
             )}
-          </div>
+          </CollapsibleSection>
         </AppCardBody>
 
         <FormFooterActions
-          creating
-          dirty
           anchorScope="planner-source"
-          saving={!start || failed || !presentation || presentation.typeId !== draft.typeId}
+          creating={creating && Boolean(start)}
+          dirty={Boolean(start) && changed}
+          store={null}
           onCancel={onClose}
-          onSave={() =>
-            onSave({
-              ...draft,
-              filters: toJS(filterStore.current?.filters ?? draft.filters),
-              search: filterStore.current?.searchTerm ?? draft.search,
-            })
-          }
+          onSave={save}
         />
       </AppCard>
     </AppModal>
   );
-}
+});

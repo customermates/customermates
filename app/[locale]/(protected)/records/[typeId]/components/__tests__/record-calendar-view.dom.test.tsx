@@ -1,4 +1,4 @@
-import type { DragEndEvent } from "@dnd-kit/core";
+import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 import type { ReactNode } from "react";
 import type { Root } from "react-dom/client";
 import type { RecordRow } from "@/features/records/record-presentation";
@@ -9,6 +9,7 @@ import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const spy = vi.hoisted(() => ({
+  onDragStart: undefined as ((event: DragStartEvent) => void) | undefined,
   onDragEnd: undefined as ((event: DragEndEvent) => void) | undefined,
   draggables: [] as { id: string; disabled: boolean }[],
   droppables: [] as { id: string; disabled: boolean }[],
@@ -36,13 +37,23 @@ vi.mock("@/components/ui/segmented-control", () => ({
     createElement("div", { "data-modes": items.map((item) => item.value).join(",") }),
 }));
 vi.mock("@dnd-kit/core", () => ({
-  DndContext: ({ children, onDragEnd }: { children: ReactNode; onDragEnd: (event: DragEndEvent) => void }) => {
+  DndContext: ({
+    children,
+    onDragStart,
+    onDragEnd,
+  }: {
+    children: ReactNode;
+    onDragStart: (event: DragStartEvent) => void;
+    onDragEnd: (event: DragEndEvent) => void;
+  }) => {
+    spy.onDragStart = onDragStart;
     spy.onDragEnd = onDragEnd;
     return createElement("div", null, children);
   },
   DragOverlay: ({ children }: { children?: ReactNode }) => children ?? null,
   KeyboardSensor: function KeyboardSensor() {},
   MouseSensor: function MouseSensor() {},
+  TouchSensor: function TouchSensor() {},
   closestCenter: () => [],
   pointerWithin: () => [],
   useSensor: () => ({}),
@@ -69,7 +80,7 @@ function must<T>(value: T | null | undefined): T {
   return value;
 }
 
-const field = (id: string, valueType: "date" | "select") => ({
+const field = (id: string, valueType: "date" | "dateTime" | "select") => ({
   id,
   typeId: "deal",
   valueType,
@@ -138,7 +149,46 @@ function render(store: FakeStore, onOpenRecord = vi.fn()) {
   return { host, onOpenRecord };
 }
 
+function rangeStore(start: string, end: string, overrides: Partial<FakeStore> = {}) {
+  return fakeStore({
+    items: [
+      {
+        id: "r",
+        fields: [
+          { fieldId: "close", result: { state: "value", value: { kind: "date", value: start } } },
+          { fieldId: "finish", result: { state: "value", value: { kind: "date", value: end } } },
+        ],
+      } as unknown as RecordRow,
+    ],
+    calendarFields: { start: field("close", "date"), end: field("finish", "date"), color: null } as never,
+    ...overrides,
+  });
+}
+
+function grabAt(host: HTMLElement, day: string) {
+  const cell = must(host.querySelector<HTMLElement>(`[data-calendar-day="${day}"]`));
+  Object.defineProperty(document, "elementsFromPoint", {
+    configurable: true,
+    value: vi.fn(() => [must(host.querySelector('[data-calendar-entry="r"]')), cell, document.body]),
+  });
+  return new MouseEvent("mousedown", { clientX: 40, clientY: 40 });
+}
+
+async function drag(activatorEvent: Event, segmentStart: string, drop: string) {
+  const active = { id: `r:${segmentStart}`, data: { current: { recordId: "r", segmentStart } } };
+  await act(async () => {
+    spy.onDragStart?.({ active, activatorEvent } as unknown as DragStartEvent);
+    await Promise.resolve();
+    spy.onDragEnd?.({
+      active,
+      activatorEvent,
+      over: { id: drop, data: { current: { date: drop } } },
+    } as unknown as DragEndEvent);
+  });
+}
+
 beforeEach(() => {
+  spy.onDragStart = undefined;
   spy.onDragEnd = undefined;
   spy.draggables = [];
   spy.droppables = [];
@@ -146,6 +196,8 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  Reflect.deleteProperty(document, "elementsFromPoint");
+  vi.unstubAllGlobals();
   for (const root of roots) act(() => root.unmount());
   roots.clear();
   document.body.replaceChildren();
@@ -166,7 +218,7 @@ describe("record calendar view", () => {
       ["e", "2026-10-20"],
     ]);
     expect(host.querySelector('[data-calendar-more="2026-10-16"]')?.textContent).toBe("DataView.calendar.more:1");
-    expect(host.querySelector('[data-calendar-entry="a"]')?.className).toContain("bg-success/15");
+    expect(host.querySelector('[data-calendar-entry="a"]')?.getAttribute("style")).toContain("var(--success) 20%");
     expect(host.querySelector("[data-modes]")?.getAttribute("data-modes")).toBe("month,week,agenda");
   });
 
@@ -200,6 +252,65 @@ describe("record calendar view", () => {
     expect(readOnly.hasAttribute("aria-disabled")).toBe(false);
     act(() => readOnly.click());
     expect(onOpenRecord).toHaveBeenCalledWith(expect.objectContaining({ id: "e" }), readOnly);
+  });
+
+  it("moves a range by the distance from the day it was grabbed on, not from its first day", async () => {
+    const store = rangeStore("2026-10-05", "2026-10-09");
+    const { host } = render(store);
+    await drag(grabAt(host, "2026-10-09"), "2026-10-05", "2026-10-09");
+    expect(store.moveCalendarRecord).not.toHaveBeenCalled();
+    await drag(grabAt(host, "2026-10-09"), "2026-10-05", "2026-10-10");
+    expect(store.moveCalendarRecord).toHaveBeenLastCalledWith(expect.objectContaining({ id: "r" }), "2026-10-06");
+    await drag(grabAt(host, "2026-10-08"), "2026-10-05", "2026-10-01");
+    expect(store.moveCalendarRecord).toHaveBeenLastCalledWith(expect.objectContaining({ id: "r" }), "2026-09-28");
+  });
+
+  it("moves a range that continues from an earlier week by the grabbed day of its later segment", async () => {
+    const store = rangeStore("2026-10-08", "2026-10-14");
+    const { host } = render(store);
+    await drag(grabAt(host, "2026-10-14"), "2026-10-12", "2026-10-16");
+    expect(store.moveCalendarRecord).toHaveBeenCalledWith(expect.objectContaining({ id: "r" }), "2026-10-10");
+  });
+
+  it("moves a range picked up with the keyboard from the day its segment starts", async () => {
+    vi.stubGlobal("requestAnimationFrame", () => 0);
+    const store = rangeStore("2026-10-05", "2026-10-09");
+    render(store);
+    await drag(new KeyboardEvent("keydown", { code: "Space" }), "2026-10-05", "2026-10-07");
+    expect(store.moveCalendarRecord).toHaveBeenCalledWith(expect.objectContaining({ id: "r" }), "2026-10-07");
+  });
+
+  it("shows a timed entry's start time only on its first agenda day", () => {
+    spy.wide = false;
+    const store = fakeStore({
+      items: [
+        {
+          id: "t",
+          fields: [
+            { fieldId: "at", result: { state: "value", value: { kind: "dateTime", value: "2026-10-16T07:00:00Z" } } },
+            {
+              fieldId: "until",
+              result: { state: "value", value: { kind: "dateTime", value: "2026-10-18T09:00:00Z" } },
+            },
+          ],
+        } as unknown as RecordRow,
+      ],
+      calendar: { dateFieldId: "at", endDateFieldId: "until", mode: "agenda" },
+      calendarFields: { start: field("at", "dateTime"), end: field("until", "dateTime"), color: null } as never,
+      calendarMode: "agenda",
+      calendarWindow: { from: "2026-10-01", to: "2026-10-31", timeZone: "Europe/Berlin" },
+      calendarRange: { from: "2026-10-01", to: "2026-10-31", total: 1, truncated: false },
+    });
+    const { host } = render(store);
+    const days = [...host.querySelectorAll("[data-calendar-agenda-day]")].map((day) => [
+      day.getAttribute("data-calendar-agenda-day"),
+      day.querySelector("[data-calendar-entry]")?.textContent,
+    ]);
+    expect(days).toEqual([
+      ["2026-10-16", "9:00Deal t"],
+      ["2026-10-17", "Deal t"],
+      ["2026-10-18", "Deal t"],
+    ]);
   });
 
   it("shows the agenda on phones and a notice when the window holds more records than it shows", () => {

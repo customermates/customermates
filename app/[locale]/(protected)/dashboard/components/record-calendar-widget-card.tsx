@@ -23,7 +23,7 @@ import { CalendarWidgetMonth } from "./calendar-widget-month";
 import { CalendarWidgetUpcoming } from "./calendar-widget-upcoming";
 import { WIDGET_CARD_BODY_CLASS, WIDGET_CARD_HEADER_CLASS, WIDGET_CARD_TITLE_CLASS } from "./widget-card-frame";
 import { WidgetSourceSummary } from "./widget-source-summary";
-import { WIDGET_INTERACTIVE_ATTRIBUTE, stopPortalPointerDown } from "./widget-interaction";
+import { WIDGET_INTERACTIVE_ATTRIBUTE } from "./widget-interaction";
 import { TruncatedText } from "@/components/shared/truncated-text";
 
 export type RecordCalendarWidgetCardProps = {
@@ -86,11 +86,7 @@ export const RecordCalendarWidgetCard = observer(function RecordCalendarWidgetCa
   );
 
   return (
-    <AppCard
-      className="h-full cursor-pointer overflow-hidden"
-      data-widget-kind="calendar"
-      onPointerDown={stopPortalPointerDown}
-    >
+    <AppCard className="h-full cursor-pointer overflow-hidden" data-widget-kind="calendar">
       <AppCardHeader className={WIDGET_CARD_HEADER_CLASS}>
         <div className="flex w-full min-w-0 items-center gap-2">
           <h2 className={cn(WIDGET_CARD_TITLE_CLASS, "min-w-0 flex-1")}>

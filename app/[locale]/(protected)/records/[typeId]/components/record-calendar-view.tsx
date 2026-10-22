@@ -2,7 +2,7 @@
 
 import type { ChipColor } from "@/constants/chip-colors";
 import type { CSSProperties, KeyboardEvent as ReactKeyboardEvent, ReactNode } from "react";
-import type { CollisionDetection, DragEndEvent, KeyboardCoordinateGetter } from "@dnd-kit/core";
+import type { CollisionDetection, DragEndEvent, DragStartEvent, KeyboardCoordinateGetter } from "@dnd-kit/core";
 import type { CalendarViewMode } from "@/core/data-view/calendar-view-config.schema";
 import type { CalendarDate } from "@/features/record-calendar/calendar-date";
 import type { RecordRow } from "@/features/records/record-presentation";
@@ -14,6 +14,7 @@ import {
   DragOverlay,
   KeyboardSensor,
   MouseSensor,
+  TouchSensor,
   closestCenter,
   pointerWithin,
   useDraggable,
@@ -28,7 +29,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { useRecordValueFormat } from "@/components/records/record-value";
-import { CalendarEntryTooltip } from "@/components/records/calendar-entry-tooltip";
+import { CalendarEntryTooltip, useCalendarEntryDateLabel } from "@/components/records/calendar-entry-tooltip";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Popover, PopoverContent, PopoverHeader, PopoverTitle, PopoverTrigger } from "@/components/ui/popover";
@@ -41,21 +42,21 @@ import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { useIsWiderThan } from "@/hooks/use-media-query";
 import {
   addCalendarDays,
+  calendarDateInstant,
   calendarDateParts,
   calendarDatesBetween,
   calendarDayDifference,
   calendarMonthWeeks,
   startOfCalendarWeek,
 } from "@/features/record-calendar/calendar-date";
-import { shiftCalendarAnchor } from "@/features/record-calendar/calendar-window";
+import { CALENDAR_KEY_STEPS, shiftCalendarAnchor } from "@/features/record-calendar/calendar-window";
 import { zonedDate } from "@/features/record-calendar/zoned-time";
 
 import {
-  CALENDAR_ENTRY_COLOR_CLASS,
-  CALENDAR_KEY_STEPS,
   CALENDAR_MONTH_LANES,
   calendarAgendaDays,
   calendarEntryColor,
+  calendarEntryColorStyle,
   calendarItems,
   calendarItemsOn,
   calendarMoveTarget,
@@ -63,7 +64,6 @@ import {
   layoutCalendarWeek,
 } from "./record-calendar-layout";
 
-const DAY_START = "T00:00:00.000Z";
 const CALENDAR_KEYBOARD_CODES = {
   start: ["Space"],
   cancel: ["Escape"],
@@ -99,75 +99,67 @@ type Props = {
 };
 
 type DragData = { recordId: string; segmentStart: CalendarDate };
+type DayRef = { current: CalendarDate | null };
 
-function dayDate(date: CalendarDate) {
-  return new Date(`${date}${DAY_START}`);
+function calendarCollisionDetection(keyboardDay: DayRef): CollisionDetection {
+  return (args) => {
+    if (!args.pointerCoordinates) {
+      const day = keyboardDay.current;
+      return day && args.droppableContainers.some((container) => container.id === day)
+        ? [{ id: day }]
+        : closestCenter(args);
+    }
+    const within = pointerWithin(args);
+    return within.length ? within : closestCenter(args);
+  };
 }
 
-const calendarCollisionDetection: CollisionDetection = (args) => {
-  const within = args.pointerCoordinates ? pointerWithin(args) : [];
-  return within.length ? within : closestCenter(args);
-};
-
-export const calendarKeyboardCoordinates: KeyboardCoordinateGetter = (event, { currentCoordinates, context }) => {
-  const step = CALENDAR_KEY_STEPS[event.code];
-  if (step === undefined) return;
-  const current = context.over?.id ?? (context.active?.data.current as DragData | undefined)?.segmentStart;
-  if (typeof current !== "string") return;
-  const target = context.droppableRects.get(addCalendarDays(current, step));
-  const rect = context.collisionRect;
-  if (!target || !rect) return;
-  event.preventDefault();
-  return {
-    x: currentCoordinates.x + target.left + target.width / 2 - (rect.left + rect.width / 2),
-    y: currentCoordinates.y + target.top + target.height / 2 - (rect.top + rect.height / 2),
+function calendarKeyboardCoordinates(keyboardDay: DayRef): KeyboardCoordinateGetter {
+  return (event, { currentCoordinates, context }) => {
+    const step = CALENDAR_KEY_STEPS[event.code];
+    const current = keyboardDay.current;
+    if (step === undefined || !current) return;
+    const next = addCalendarDays(current, step);
+    const from = context.droppableRects.get(current);
+    const target = context.droppableRects.get(next);
+    if (!from || !target) return;
+    event.preventDefault();
+    keyboardDay.current = next;
+    return { x: currentCoordinates.x + target.left - from.left, y: currentCoordinates.y + target.top - from.top };
   };
-};
+}
+
+function dayUnderPointer(event: Event): CalendarDate | null {
+  const point = event instanceof MouseEvent ? event : "touches" in event ? (event as TouchEvent).touches[0] : undefined;
+  if (!point) return null;
+  const cell = document
+    .elementsFromPoint(point.clientX, point.clientY)
+    .find((element): element is HTMLElement => element instanceof HTMLElement && Boolean(element.dataset.calendarDay));
+  return cell?.dataset.calendarDay ?? null;
+}
 
 function useCalendarFormats(timeZone?: string) {
   const valueFormat = useRecordValueFormat();
+  const day = (date: CalendarDate, options: Intl.DateTimeFormatOptions) =>
+    valueFormat.date(calendarDateInstant(date), { ...options, timeZone: "UTC" });
   return {
-    fullDate: (date: CalendarDate) => valueFormat.date(dayDate(date), { dateStyle: "full", timeZone: "UTC" }),
-    dayNumber: (date: CalendarDate) => valueFormat.date(dayDate(date), { day: "numeric", timeZone: "UTC" }),
-    weekday: (date: CalendarDate, width: "short" | "long" = "short") =>
-      valueFormat.date(dayDate(date), { weekday: width, timeZone: "UTC" }),
-    month: (date: CalendarDate) =>
-      valueFormat.date(dayDate(date), {
-        month: "long",
-        year: "numeric",
-        timeZone: "UTC",
-      }),
-    shortDate: (date: CalendarDate) =>
-      valueFormat.date(dayDate(date), {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-        timeZone: "UTC",
-      }),
-    time: (instant: string) =>
-      valueFormat.date(new Date(instant), {
-        hour: "numeric",
-        minute: "2-digit",
-        timeZone,
-      }),
-    instant: (instant: string) =>
-      valueFormat.date(new Date(instant), { dateStyle: "full", timeStyle: "short", timeZone }),
+    fullDate: (date: CalendarDate) => day(date, { dateStyle: "full" }),
+    dayNumber: (date: CalendarDate) => day(date, { day: "numeric" }),
+    weekday: (date: CalendarDate) => day(date, { weekday: "short" }),
+    month: (date: CalendarDate) => day(date, { month: "long", year: "numeric" }),
+    shortDate: (date: CalendarDate) => day(date, { day: "numeric", month: "short", year: "numeric" }),
+    time: (instant: string) => valueFormat.date(new Date(instant), { hour: "numeric", minute: "2-digit", timeZone }),
+    entryDate: useCalendarEntryDateLabel(timeZone),
   };
 }
 
 type Formats = ReturnType<typeof useCalendarFormats>;
 
-function entryDateLabel(item: CalendarItem, formats: Formats) {
-  const { start, end, time, endTime } = item.entry;
-  const first = time ? `${formats.fullDate(start)} ${formats.time(time)}` : formats.fullDate(start);
-  if (time && endTime && time !== endTime) return `${first} – ${formats.instant(endTime)}`;
-  return start === end ? first : `${first} – ${formats.fullDate(end)}`;
-}
-
 const CalendarEntry = observer(function CalendarEntry({
   store,
   item,
   segment,
+  date,
   formats,
   recordName,
   onOpenRecord,
@@ -178,6 +170,7 @@ const CalendarEntry = observer(function CalendarEntry({
   store: RecordCalendarViewStore;
   item: CalendarItem;
   segment?: CalendarSegment;
+  date?: CalendarDate;
   formats: Formats;
   recordName: Props["recordName"];
   onOpenRecord: Props["onOpenRecord"];
@@ -198,26 +191,23 @@ const CalendarEntry = observer(function CalendarEntry({
   const name = recordName(item.record);
   const color =
     store.calendarColorForItem?.(item) ?? calendarEntryColor(item.entry, store.calendarFields?.color ?? null);
-  const showsTime = item.entry.time && (!segment || !segment.continuesBefore);
+  const showsTime = Boolean(item.entry.time) && (segment ? !segment.continuesBefore : date === item.entry.start);
+  const dateLabel = formats.entryDate(item.entry);
   const dragKeyDown = (listeners as { onKeyDown?: (event: ReactKeyboardEvent<HTMLElement>) => void } | undefined)
     ?.onKeyDown;
   const open = (element: HTMLElement) => onOpenRecord(item.record, element);
 
   return (
-    <CalendarEntryTooltip date={entryDateLabel(item, formats)} name={name}>
+    <CalendarEntryTooltip date={dateLabel} name={name}>
       <div
         ref={setNodeRef}
         {...(movable ? attributes : {})}
         {...(movable ? listeners : {})}
-        aria-label={t("DataView.calendar.entryLabel", {
-          name,
-          date: entryDateLabel(item, formats),
-        })}
+        aria-label={t("DataView.calendar.entryLabel", { name, date: dateLabel })}
         aria-roledescription={movable ? t("DataView.calendar.movableEntry") : undefined}
         className={cn(
-          "flex min-w-0 cursor-pointer select-none items-center gap-1 rounded-sm px-1.5 text-left text-xs font-medium outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/50 motion-reduce:transition-none",
+          "flex min-w-0 cursor-pointer select-none items-center gap-1 rounded-sm px-1.5 text-left text-xs font-medium outline-none transition-[filter] hover:brightness-95 focus-visible:ring-[3px] focus-visible:ring-ring/50 motion-reduce:transition-none",
           compact ? "h-5" : "min-h-8 py-1",
-          CALENDAR_ENTRY_COLOR_CLASS[color],
           segment?.continuesBefore && "rounded-l-none",
           segment?.continuesAfter && "rounded-r-none",
           movable && "touch-manipulation",
@@ -228,7 +218,7 @@ const CalendarEntry = observer(function CalendarEntry({
         data-calendar-entry-end={item.entry.end}
         data-calendar-entry-start={item.entry.start}
         role="button"
-        style={style}
+        style={{ ...calendarEntryColorStyle(color), ...style }}
         tabIndex={0}
         onClick={(event) => {
           if (isDragging) return;
@@ -248,7 +238,7 @@ const CalendarEntry = observer(function CalendarEntry({
           <span className="shrink-0 tabular-nums opacity-80">{formats.time(item.entry.time)}</span>
         )}
 
-        <span className="min-w-0 truncate">{name}</span>
+        <span className={cn("min-w-0", compact ? "truncate" : "line-clamp-2")}>{name}</span>
       </div>
     </CalendarEntryTooltip>
   );
@@ -358,6 +348,7 @@ const MoreEntries = observer(function MoreEntries({
             {items.map((item) => (
               <CalendarEntry
                 key={item.record.id}
+                date={date}
                 formats={formats}
                 item={item}
                 recordName={recordName}
@@ -539,6 +530,7 @@ const CalendarAgenda = observer(function CalendarAgenda({
               <li key={item.record.id}>
                 <CalendarEntry
                   compact={false}
+                  date={date}
                   formats={formats}
                   item={item}
                   recordName={recordName}
@@ -567,6 +559,10 @@ export const RecordCalendarView = observer(function RecordCalendarView({
   const wide = useIsWiderThan("sm");
   const [pendingShifts, setPendingShifts] = useState<ReadonlyMap<string, number>>(new Map());
   const [dragging, setDragging] = useState<CalendarItem | null>(null);
+  const grabDay = useRef<CalendarDate | null>(null);
+  const keyboardDay = useRef<CalendarDate | null>(null);
+  const [collisionDetection] = useState(() => calendarCollisionDetection(keyboardDay));
+  const [coordinateGetter] = useState(() => calendarKeyboardCoordinates(keyboardDay));
   const heal = useRef<{ key: string; attempts: number }>({
     key: "",
     attempts: 0,
@@ -596,11 +592,14 @@ export const RecordCalendarView = observer(function RecordCalendarView({
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: { distance: 4 },
   });
+  const touchSensor = useSensor(TouchSensor, {
+    activationConstraint: { delay: 250, tolerance: 6 },
+  });
   const keyboardSensor = useSensor(KeyboardSensor, {
-    coordinateGetter: calendarKeyboardCoordinates,
+    coordinateGetter,
     keyboardCodes: CALENDAR_KEYBOARD_CODES,
   });
-  const sensors = useSensors(mouseSensor, keyboardSensor);
+  const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor);
 
   if ((!fields && !store.normalizedCalendarItems) || !calendarWindow) return null;
   const timeZone = calendarWindow.timeZone;
@@ -626,13 +625,29 @@ export const RecordCalendarView = observer(function RecordCalendarView({
       ? { previous: t("DataView.calendar.previousWeek"), next: t("DataView.calendar.nextWeek") }
       : { previous: t("DataView.calendar.previousMonth"), next: t("DataView.calendar.nextMonth") };
 
-  async function handleDragEnd(event: DragEndEvent) {
+  function handleDragStart(event: DragStartEvent) {
+    const data = event.active.data.current as DragData | undefined;
+    const keyboard = event.activatorEvent instanceof KeyboardEvent;
+    const pointerDay = !keyboard && event.activatorEvent ? dayUnderPointer(event.activatorEvent) : null;
+    grabDay.current = data ? (pointerDay ?? data.segmentStart) : null;
+    keyboardDay.current = keyboard && data ? data.segmentStart : null;
+    setDragging((data && itemsById.get(data.recordId)) ?? null);
+  }
+
+  function endDrag() {
+    grabDay.current = null;
+    keyboardDay.current = null;
     setDragging(null);
+  }
+
+  async function handleDragEnd(event: DragEndEvent) {
+    const grabbed = grabDay.current;
+    endDrag();
     const data = event.active.data.current as DragData | undefined;
     const dropDate = event.over ? String(event.over.id) : null;
     const item = data ? itemsById.get(data.recordId) : undefined;
     if (!data || !dropDate || !item) return;
-    const target = calendarMoveTarget({ item, start: data.segmentStart }, dropDate);
+    const target = calendarMoveTarget(item, grabbed ?? data.segmentStart, dropDate);
     const days = calendarDayDifference(item.entry.start, target);
     if (days === 0) return;
     const recordId = item.record.id;
@@ -742,15 +757,12 @@ export const RecordCalendarView = observer(function RecordCalendarView({
           onDragCancel: () => t("DataView.calendar.moveCancelled"),
         },
       }}
-      collisionDetection={calendarCollisionDetection}
+      collisionDetection={collisionDetection}
       id={dndContextId}
       sensors={sensors}
-      onDragCancel={() => setDragging(null)}
+      onDragCancel={endDrag}
       onDragEnd={(event) => runUserAction(() => handleDragEnd(event))}
-      onDragStart={(event) => {
-        const data = event.active.data.current as DragData | undefined;
-        setDragging((data && itemsById.get(data.recordId)) ?? null);
-      }}
+      onDragStart={handleDragStart}
     >
       <section
         aria-busy={refreshing || undefined}
@@ -759,52 +771,58 @@ export const RecordCalendarView = observer(function RecordCalendarView({
         data-calendar-mode={mode}
         data-slot="calendar-root"
       >
-        <div className={cn("flex shrink-0 flex-wrap items-center gap-2 border-b px-3 py-2", hideToolbar && "sr-only")}>
-          <div className="flex items-center">
-            <IconButton
-              icon={ChevronLeft}
-              label={stepLabels.previous}
-              onClick={() => store.setCalendarAnchor(shiftCalendarAnchor(mode, anchor, -1))}
-            />
-
-            <Button className="h-8" size="sm" variant="secondary" onClick={() => store.setCalendarAnchor(today)}>
-              {t("Common.datePresets.today")}
-            </Button>
-
-            <IconButton
-              icon={ChevronRight}
-              label={stepLabels.next}
-              onClick={() => store.setCalendarAnchor(shiftCalendarAnchor(mode, anchor, 1))}
-            />
-          </div>
-
-          <h2 aria-live="polite" className="min-w-0 truncate text-sm font-semibold" id={titleId}>
+        {hideToolbar ? (
+          <h2 className="sr-only" id={titleId}>
             {title}
           </h2>
+        ) : (
+          <div className="flex shrink-0 flex-wrap items-center gap-2 border-b px-3 py-2">
+            <div className="flex items-center">
+              <IconButton
+                icon={ChevronLeft}
+                label={stepLabels.previous}
+                onClick={() => store.setCalendarAnchor(shiftCalendarAnchor(mode, anchor, -1))}
+              />
 
-          {refreshing && <Spinner aria-label={t("Loading.text")} className="size-4 text-muted-foreground" />}
+              <Button className="h-8" size="sm" variant="secondary" onClick={() => store.setCalendarAnchor(today)}>
+                {t("Common.datePresets.today")}
+              </Button>
 
-          {wide && store.calendar && (
-            <SegmentedControl
-              className="ml-auto"
-              items={CALENDAR_VIEW_MODES.map((value) => ({
-                value,
-                label: modeLabels[value],
-                id: `records-calendar-mode-${value}`,
-                controls: false as const,
-              }))}
-              label={t("DataView.calendar.mode")}
-              value={mode}
-              onValueChange={(next) => {
-                if (store.calendar) {
-                  store.setViewOptions({
-                    calendar: { ...store.calendar, mode: next },
-                  });
-                }
-              }}
-            />
-          )}
-        </div>
+              <IconButton
+                icon={ChevronRight}
+                label={stepLabels.next}
+                onClick={() => store.setCalendarAnchor(shiftCalendarAnchor(mode, anchor, 1))}
+              />
+            </div>
+
+            <h2 aria-live="polite" className="min-w-0 truncate text-sm font-semibold" id={titleId}>
+              {title}
+            </h2>
+
+            {refreshing && <Spinner aria-label={t("Loading.text")} className="size-4 text-muted-foreground" />}
+
+            {wide && store.calendar && (
+              <SegmentedControl
+                className="ml-auto"
+                items={CALENDAR_VIEW_MODES.map((value) => ({
+                  value,
+                  label: modeLabels[value],
+                  id: `records-calendar-mode-${value}`,
+                  controls: false as const,
+                }))}
+                label={t("DataView.calendar.mode")}
+                value={mode}
+                onValueChange={(next) => {
+                  if (store.calendar) {
+                    store.setViewOptions({
+                      calendar: { ...store.calendar, mode: next },
+                    });
+                  }
+                }}
+              />
+            )}
+          </div>
+        )}
 
         {range?.truncated && rangeMatches && (
           <p className="shrink-0 border-b bg-warning/10 px-4 py-1.5 text-xs text-warning" data-calendar-truncated="">
@@ -822,11 +840,9 @@ export const RecordCalendarView = observer(function RecordCalendarView({
         createPortal(
           <DragOverlay dropAnimation={null}>
             <div
-              className={cn(
-                "flex h-5 w-40 items-center rounded-sm px-1.5 text-xs font-medium shadow-lg",
-                CALENDAR_ENTRY_COLOR_CLASS[
-                  store.calendarColorForItem?.(dragging) ?? calendarEntryColor(dragging.entry, fields?.color ?? null)
-                ],
+              className="flex h-5 w-40 items-center rounded-sm px-1.5 text-xs font-medium shadow-lg"
+              style={calendarEntryColorStyle(
+                store.calendarColorForItem?.(dragging) ?? calendarEntryColor(dragging.entry, fields?.color ?? null),
               )}
             >
               <span className="truncate">{recordName(dragging.record)}</span>

@@ -31,7 +31,7 @@ import {
 import { MapMarkerLayer, markerBox, markerTransform } from "./map-marker-layer";
 import { clusterLeafIds, computeMarkers, createClusterIndex } from "./map-markers";
 import { paintBasemap } from "./map-painter";
-import { MAP_COLOR_TOKENS, resolvePalette, textTokenResolver } from "./map-palette";
+import { resolvePalette } from "./map-palette";
 import { MapPinPopover } from "./map-pin-popover";
 import { useBasemap } from "./use-basemap";
 import { useElementSize } from "./use-element-size";
@@ -46,20 +46,13 @@ const DETAIL_MARGIN = 0.1;
 type SpreadState = MarkerSpread & { clusters: ClusterIndex; zoom: number };
 
 function prefersReducedMotion() {
-  return typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
-
-function pageLanguage() {
-  return (document.documentElement.lang.split("-")[0] ?? "").toLowerCase();
-}
-
-function defaultTextColor() {
-  return MAP_COLOR_TOKENS.lightText;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
 export default function MapView({
   points,
   label,
+  language,
   labels,
   selectedId,
   onSelect,
@@ -84,7 +77,6 @@ export default function MapView({
   const controlBoxesRef = useRef<ScreenBox[]>([]);
   const [settled, setSettled] = useState<Camera | null>(null);
   const [themeVersion, setThemeVersion] = useState(0);
-  const [textColor, setTextColor] = useState<(color: string) => string>(() => defaultTextColor);
   const [spread, setSpread] = useState<SpreadState | null>(null);
   const lastSelectedRef = useRef(selectedId);
   if (selectedId !== null) lastSelectedRef.current = selectedId;
@@ -134,7 +126,7 @@ export default function MapView({
     }
     const canvas = canvasRef.current;
     const resolved = paletteRef.current;
-    if (!canvas || !resolved || typeof Path2D === "undefined") return;
+    if (!canvas || !resolved) return;
     const ratio = window.devicePixelRatio || 1;
     const width = Math.max(1, Math.round(currentSize.width * ratio));
     const height = Math.max(1, Math.round(currentSize.height * ratio));
@@ -150,7 +142,7 @@ export default function MapView({
       palette: resolved.palette,
       world: world?.layers ?? null,
       details: detailsInView(visibleWorldBounds(camera, currentSize, DETAIL_MARGIN)),
-      language: pageLanguage(),
+      language: language.split("-")[0].toLowerCase(),
       fontFamily: resolved.fontFamily,
       obstacles: [
         ...controlBoxesRef.current,
@@ -332,21 +324,15 @@ export default function MapView({
   useEffect(() => {
     const bump = () => setThemeVersion((version) => version + 1);
     const observer = new MutationObserver(bump);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "style", "data-theme"] });
-    const scheme = typeof window.matchMedia === "function" ? window.matchMedia("(prefers-color-scheme: dark)") : null;
-    scheme?.addEventListener("change", bump);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "style"] });
     void document.fonts?.ready.then(bump).catch(() => undefined);
-    return () => {
-      observer.disconnect();
-      scheme?.removeEventListener("change", bump);
-    };
+    return () => observer.disconnect();
   }, []);
 
   useLayoutEffect(() => {
     const probe = probeRef.current;
     if (!probe) return;
     paletteRef.current = { palette: resolvePalette(probe), fontFamily: getComputedStyle(probe).fontFamily };
-    setTextColor(() => textTokenResolver(probe));
   }, [themeVersion]);
 
   useEffect(() => {
@@ -416,7 +402,7 @@ export default function MapView({
         ref={viewportRef}
         data-map-viewport
         aria-label={label}
-        className="absolute inset-0 cursor-grab touch-none outline-none select-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:ring-inset active:cursor-grabbing"
+        className="absolute inset-0 cursor-grab touch-pan-y outline-none select-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:ring-inset active:cursor-grabbing"
         data-zoom={settled ? String(Math.round(settled.zoom * 1000) / 1000) : undefined}
         role="application"
         // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- the map viewport takes keyboard pan and zoom
@@ -434,7 +420,6 @@ export default function MapView({
             register={register}
             selectedId={selectedId}
             size={size}
-            textColor={textColor}
             onCluster={onCluster}
             onPin={onPin}
           />

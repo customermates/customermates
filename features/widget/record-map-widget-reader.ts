@@ -98,7 +98,7 @@ export class RecordMapWidgetReader {
           title: result(record, type.primaryFieldId),
           lat: location.lat,
           lon: location.lon,
-          precision: location.precision ?? "address",
+          precision: location.precision,
           address: formatted,
           color: color.state === "value" && color.value.kind === "select" ? color.value.value : null,
           size: query.sizeFieldId ? result(record, query.sizeFieldId) : null,

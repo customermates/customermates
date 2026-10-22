@@ -1,10 +1,12 @@
 import type { ChartDataPoint } from "./chart.types";
 import type { KeyboardEvent, MouseEvent } from "react";
 
+import { WIDGET_INTERACTIVE_ATTRIBUTE } from "./widget-interaction";
+
 export function chartPointAction(point: ChartDataPoint) {
   if (!point.onSelect) return {};
   return {
-    "data-widget-interactive": "",
+    [WIDGET_INTERACTIVE_ATTRIBUTE]: "true",
     "data-chart-point": point.label,
     role: "button",
     tabIndex: 0,

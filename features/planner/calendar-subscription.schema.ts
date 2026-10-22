@@ -1,6 +1,8 @@
 import { z as schema } from "zod";
 import type { z } from "zod";
 import { PlannerConfigSchema, PlannerQuerySchema } from "./planner.schema";
+
+export const CALENDAR_SUBSCRIPTION_LIMIT = 10;
 export const ManageCalendarSubscriptionsSchema = schema.discriminatedUnion("action", [
   schema.object({ action: schema.literal("list") }).strict(),
   schema

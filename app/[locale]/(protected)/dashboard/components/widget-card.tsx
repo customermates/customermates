@@ -1,21 +1,20 @@
 "use client";
 
+import type { RecordContributionGroup } from "@/features/records/record-contribution.schema";
 import type { CalendarWidgetWindow } from "@/features/widget/record-calendar-widget.schema";
 import type { WidgetDto } from "@/features/widget/widget.schema";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Pencil } from "lucide-react";
-import { IconButton } from "@/components/ui/icon-button";
-import { ItemActions, ITEM_REVEAL_CLASS } from "@/components/ui/item-actions";
+import { Pencil, Table2 } from "lucide-react";
+
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import type { RecordContributionGroup } from "@/features/records/record-contribution.schema";
-
-import { openWidgetEditor } from "./widget-interaction";
-
+import { IconButton } from "@/components/ui/icon-button";
+import { ITEM_REVEAL_CLASS, ITEM_REVEAL_GROUP_CLASS, ItemActions } from "@/components/ui/item-actions";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { cn } from "@/core/utils/cn";
 import {
   isRecordActivityWidget,
   isRecordCalendarWidget,
@@ -27,6 +26,7 @@ import { RecordActivityWidgetCard } from "./record-activity-widget-card";
 import { RecordCalendarWidgetCard, recordPageHref } from "./record-calendar-widget-card";
 import { RecordMapWidgetCard } from "./record-map-widget-card";
 import { RecordWidgetCard } from "./record-widget-card";
+import { WIDGET_INTERACTIVE_ATTRIBUTE, openWidgetEditor } from "./widget-interaction";
 
 type Props = {
   widget: WidgetDto;
@@ -62,29 +62,29 @@ export const WidgetCard = observer(({ widget, onInspect }: Props) => {
     />
   ) : isRecordMapWidget(widget) ? (
     <RecordMapWidgetCard
+      openRecords
       data={widget.data}
       displayOptions={widget.displayOptions}
       fields={widget.fields}
       listLabels={listLabels(widget.mapQuery.source.typeId)}
       mapQuery={widget.mapQuery}
       name={widget.name}
-      recordHref={recordPageHref}
       status={widget.status}
       onOpenFilters={() => runUserAction(() => widgetModalStore.openWithFilter(widget.id, "filters"))}
     />
   ) : isRecordWidget(widget) ? (
-    <RecordWidgetCard
-      {...widget}
-      listLabels={recordWorkspaceStore.navigation?.types.find((type) => type.id === widget.measure.source.typeId)}
-      onInspectGroup={onInspect}
-    />
+    <RecordWidgetCard {...widget} listLabels={listLabels(widget.measure.source.typeId)} onInspectGroup={onInspect} />
   ) : null;
 
   const edit = () => runUserAction(() => openWidgetEditor(widgetModalStore, widget.id));
   const menu = (
     <>
       {onInspect && (
-        <DropdownMenuItem onSelect={() => onInspect(null, null)}>{t("RecordWidgets.viewData")}</DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => onInspect(null, null)}>
+          <Table2 aria-hidden className="size-4" />
+
+          {t("RecordWidgets.viewData")}
+        </DropdownMenuItem>
       )}
 
       <DropdownMenuItem onSelect={edit}>
@@ -96,7 +96,7 @@ export const WidgetCard = observer(({ widget, onInspect }: Props) => {
   );
   return (
     <ItemActions label={t("RecordModel.moreActions", { name: widget.name })} menu={menu}>
-      <div className="group/reveal relative h-full [&_[data-slot=card-header]]:pr-10">
+      <div className={cn(ITEM_REVEAL_GROUP_CLASS, "relative h-full [&_[data-slot=card-header]]:pr-10")}>
         <button
           aria-label={
             onInspect
@@ -111,9 +111,9 @@ export const WidgetCard = observer(({ widget, onInspect }: Props) => {
 
         {card}
 
-        <div className="absolute top-2 right-2 z-30" data-widget-interactive="">
+        <div className="absolute top-2 right-2 z-30" {...{ [WIDGET_INTERACTIVE_ATTRIBUTE]: "true" }}>
           <IconButton
-            className={`size-7 ${ITEM_REVEAL_CLASS}`}
+            className={cn("size-7", ITEM_REVEAL_CLASS)}
             icon={Pencil}
             iconClassName="size-3.5"
             label={t("Dashboard.widgetEditor.editTitle", { name: widget.name })}

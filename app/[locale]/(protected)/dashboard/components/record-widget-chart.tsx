@@ -21,6 +21,7 @@ import { WidgetNumber } from "./widget-number";
 import { formatWidgetNumber, inlineListLabel, widgetNumberAverage } from "./widget-number-format";
 import { WidgetNotes, WidgetSubtitle } from "./widget-subtitle";
 import { WIDGET_CARD_BODY_CLASS, WIDGET_CARD_HEADER_CLASS, WIDGET_CARD_TITLE_CLASS } from "./widget-card-frame";
+import { WIDGET_INTERACTIVE_ATTRIBUTE } from "./widget-interaction";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { TruncatedText } from "@/components/shared/truncated-text";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -122,7 +123,7 @@ export function RecordWidgetChart({
         ...(String(value.value).length === 10 ? { timeZone: "UTC" } : {}),
       });
     }
-    if (["text", "email", "url"].includes(value.kind) && "value" in value) return String(value.value);
+    if (["text", "url"].includes(value.kind) && "value" in value) return String(value.value);
     return t("RecordModel.missing");
   };
   const infoNotes = [
@@ -138,11 +139,11 @@ export function RecordWidgetChart({
           <h2 className={cn(WIDGET_CARD_TITLE_CLASS, "min-w-0 flex-1")}>
             <TruncatedText>{name}</TruncatedText>
           </h2>
+
+          <WidgetNotes notes={infoNotes} />
         </div>
 
         <WidgetSubtitle reserve={reserve} text={subtitle} />
-
-        <WidgetNotes notes={infoNotes} />
       </AppCardHeader>
 
       <AppCardBody className={cn(WIDGET_CARD_BODY_CLASS, "overflow-visible recharts-no-focus-outline", bodyClassName)}>
@@ -426,7 +427,7 @@ export function RecordWidgetChart({
                   {point(row).onSelect ? (
                     <button
                       className="text-left hover:underline focus-visible:underline"
-                      data-widget-interactive=""
+                      {...{ [WIDGET_INTERACTIVE_ATTRIBUTE]: "true" }}
                       type="button"
                       onClick={point(row).onSelect}
                     >

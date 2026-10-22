@@ -1,20 +1,36 @@
-import type { RootStore } from "@/core/stores/root.store";
+import type { ChipColor } from "@/constants/chip-colors";
 import type { CalendarViewMode, CalendarWindow } from "@/core/data-view/calendar-view-config.schema";
 import type { PlannerConfig } from "@/features/planner/planner.schema";
 import type { PlannerResult } from "@/features/planner/read-planner.interactor";
 import type { PlannerEntry } from "@/features/planner/planner-entries";
 import type { RecordRow } from "@/features/records/record-presentation";
 import type { RecordCalendarViewStore } from "../../records/[typeId]/components/record-calendar-view";
+import type { RecordExplorationStore } from "../../records/[typeId]/components/record-exploration.store";
 
-import { RecordExplorationStore } from "../../records/[typeId]/components/record-exploration.store";
-import { shiftCalendarEntry } from "../../records/[typeId]/components/record-calendar-layout";
-import { calendarEntryColor } from "../../records/[typeId]/components/record-calendar-layout";
+import { calendarEntryColor, shiftCalendarEntry } from "../../records/[typeId]/components/record-calendar-layout";
 import { resolveCalendarFields } from "@/features/record-calendar/record-calendar-query";
 
+export function plannerEntryColors(config: PlannerConfig, result: PlannerResult): (item: PlannerEntry) => ChipColor {
+  const colors = new Map(
+    config.sources.map((source) => {
+      const data = result.sources.find((data) => data.source.id === source.id);
+      const fields =
+        data?.status === "ready"
+          ? resolveCalendarFields(source.typeId, source.calendar, data.presentation.model.fields)
+          : null;
+      return [source.id, { color: source.color, field: fields?.color ?? null }] as const;
+    }),
+  );
+  return (item) => {
+    const source = colors.get(item.sourceId);
+    if (!source) return "secondary";
+    return source.field ? calendarEntryColor(item.entry, source.field) : source.color;
+  };
+}
+
 export function plannerCalendarAdapter({
-  root,
-  result,
-  config,
+  stores,
+  colors,
   entries,
   anchor,
   mode,
@@ -23,9 +39,8 @@ export function plannerCalendarAdapter({
   refresh,
   navigate,
 }: {
-  root: RootStore;
-  result: PlannerResult;
-  config: PlannerConfig;
+  stores: ReadonlyMap<string, RecordExplorationStore>;
+  colors: (item: PlannerEntry) => ChipColor;
   entries: PlannerEntry[];
   anchor: string;
   mode: CalendarViewMode;
@@ -34,11 +49,6 @@ export function plannerCalendarAdapter({
   refresh: () => Promise<void>;
   navigate: (date: string) => void;
 }): RecordCalendarViewStore {
-  const stores = new Map(
-    result.sources.flatMap((data) =>
-      data.status === "ready" ? [[data.source.id, new RecordExplorationStore(root, data.presentation)] as const] : [],
-    ),
-  );
   const byId = new Map(entries.map((entry) => [entry.id, entry]));
   const rows: RecordRow[] = entries.map((item) =>
     item.record
@@ -48,8 +58,8 @@ export function plannerCalendarAdapter({
           ref: { typeId: item.sourceId, recordId: item.id.slice(6) },
           version: 1,
           schemaRevision: 0,
-          createdAt: item.updatedAt,
-          updatedAt: item.updatedAt,
+          createdAt: item.entry.time ?? item.entry.start,
+          updatedAt: item.entry.time ?? item.entry.start,
           fields: [],
           assignedUserIds: [],
           assignedUsers: [],
@@ -76,13 +86,7 @@ export function plannerCalendarAdapter({
       }),
     calendarColorForItem: (item) => {
       const entry = byId.get(item.record.id);
-      const source = config.sources.find((source) => source.id === entry?.sourceId);
-      const data = result.sources.find((data) => data.source.id === source?.id);
-      const fields =
-        data?.status === "ready" && source
-          ? resolveCalendarFields(source.typeId, source.calendar, data.presentation.model.fields)
-          : null;
-      return fields?.color ? calendarEntryColor(item.entry, fields.color) : (source?.color ?? "secondary");
+      return entry ? colors(entry) : "secondary";
     },
     canMoveCalendarRecord: (row) => {
       const item = byId.get(row.id);
@@ -92,9 +96,7 @@ export function plannerCalendarAdapter({
       const item = byId.get(row.id);
       const store = item && stores.get(item.sourceId);
       if (!store || !item.record) return { saved: false };
-      const outcome = await store.moveCalendarRecord(item.record, target);
-      if (outcome.saved) await refresh();
-      return outcome;
+      return store.moveCalendarRecord(item.record, target);
     },
     refreshQuery: refresh,
     setCalendarAnchor: navigate,

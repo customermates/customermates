@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
+import type { ChartColor } from "@/features/widget/widget-display.schema";
 
 export type MapViewPoint = {
   id: string;
   lat: number;
   lon: number;
   group: string | null;
-  color: string;
+  color: ChartColor;
   weight: number | null;
 };
 
@@ -23,6 +24,7 @@ export type MapViewLabels = {
 export type MapViewProps = {
   points: MapViewPoint[];
   label: string;
+  language: string;
   labels: MapViewLabels;
   selectedId: string | null;
   onSelect: (id: string | null) => void;
