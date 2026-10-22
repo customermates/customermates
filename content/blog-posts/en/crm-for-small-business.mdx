@@ -89,7 +89,7 @@ For a fuller cost breakdown beyond the seat price, see [what a CRM costs](/blog/
 
 ## Where Customermates fits
 
-*Disclosure: Customermates publishes this guide.* Customermates is an open-source, AI-native CRM built in Germany for small client-facing teams: consultancies, agencies, other relationship-driven service businesses, and founders who sell through conversations. Contacts, organizations, deals, services and tasks sit in the same workspace as connected email, LinkedIn, WhatsApp, Instagram and Telegram accounts, which come together in the [unified inbox](/features/unified-inbox). The inbox needs Pro or higher; Starter has no inbox.
+*Disclosure: Customermates publishes this guide.* Customermates is an open-source, AI-native CRM built in Germany for small client-facing teams: consultancies, agencies, other relationship-driven service businesses, and founders who sell through conversations. Contacts, organizations, deals, services and tasks sit in the same workspace as connected email, LinkedIn, WhatsApp, Instagram and Telegram accounts, which come together in the [unified inbox](/features/unified-inbox). The inbox needs Pro or higher; Starter has no inbox. For the product view for small service teams, with an example workspace, plan limits and what stays in other systems, see [CRM for small businesses](/for/smb).
 
 In Customermates Cloud, Mate prepares summaries and reply drafts and updates records, using hosted AI credits. Routines run saved instructions on a schedule or when a record changes. If you prefer Claude, ChatGPT or another client, it works with the CRM through [MCP](/docs/mcp), and model calls then run on your own AI provider.
 
@@ -99,8 +99,8 @@ In Customermates Cloud, Mate prepares summaries and reply drafts and updates rec
   <Step title="Price what you sell">
     On **Services**, add each offering with a price, for example a workshop day and a monthly retainer. A deal's value is the sum of its line items, each a service's price times its quantity, so a deal with one workshop day and six retainer months is worth exactly that. If "deals" is not your word, rename the list to Projects or Jobs: open it in **Configure** and change **Name** and **Plural name** under **General**.
   </Step>
-  <Step title="Set the stage probabilities">
-    A new workspace starts with a **Stage** field on deals: Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100%, Lost 0%. Adjust the percentages in Configure for Deals: open the **Stage** field and set **Probability %** on each option. The weighted pipeline is each deal's value times the probability of its stage, a fixed weight you chose and not a prediction.
+  <Step title="Set the stages and probabilities">
+    A new workspace starts without lists. On Customermates Cloud, the AI workspace setup builds lists and deal stages from your description, once during onboarding and within a credit cap; otherwise you create them in **Configure**. Then open the stage field on deals and set **Probability %** on each option, for example 20% for a qualified inquiry and 60% once a proposal is out. The weighted pipeline is each deal's value times the probability of its stage, a fixed weight you chose and not a prediction.
   </Step>
   <Step title="Import the spreadsheet, one list at a time">
     Save the sheet as an Excel workbook (`.xlsx`); CSV files are not accepted. On each list, **More actions › Add from file** lets you match spreadsheet columns to fields. Import organizations first, then contacts, then deals, because link columns match existing records by name. Row and size limits are in the [records guide](/docs/app-records).
@@ -120,7 +120,7 @@ In Customermates Cloud, Mate prepares summaries and reply drafts and updates rec
 
 > This deal just moved to Won. Create a task "Kickoff: deal name" linked to the deal, its organization and its contacts, and assign it to the deal's assigned users. Then read the latest conversation with the main contact and add a three-line summary of what was agreed to the deal notes. Do not send any messages.
 
-The run uses hosted AI credits from the routine owner's allowance and works with that owner's access and channels. Mate can send emails and chat messages without asking first, so keep the last sentence: it limits the routine to a task and a note. Reading conversations needs a plan with the inbox. Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user and Pro includes [[commercial.entitlement.pro.includedRoutinesPerUser]].
+The run uses hosted AI credits from the routine owner's allowance and works with that owner's access and channels. Mate sends emails and chat messages as soon as an instruction asks for it, so keep the last sentence: it limits the routine to a task and a note. Reading conversations needs a plan with the inbox. Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user and Pro includes [[commercial.entitlement.pro.includedRoutinesPerUser]].
 
 Tasks in Customermates have no built-in due date and no reminder. If you want to sort kickoffs by date, add a custom Date field to tasks.
 
@@ -164,7 +164,7 @@ ChatGPT can suggest spreadsheet columns or write code for a simple contact app. 
 </FaqItem>
 
 <FaqItem question="How long does it take to set up a CRM?">
-If your data sits in one clean spreadsheet, plan one working day for the steps in the worked setup above: stages, the import, connected channels and one view per person. The habit takes longer than the setup. Connecting the channels where clients already write shortens it, because the CRM then fills from conversations instead of typing.
+It depends on how clean your data is and how many lists you need, so test with a small import first. The worked setup above lists the steps: stages, the import, connected channels and one view per person. The habit takes longer than the setup. Connecting the channels where clients already write shortens it, because the CRM then fills from conversations instead of typing.
 </FaqItem>
 </Faq>
 
