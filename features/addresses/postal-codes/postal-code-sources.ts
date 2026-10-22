@@ -1,6 +1,6 @@
 import { postalCodeKey } from "../address-postal-code";
 
-export type PostalCodeSource = { file: string; entry: string; required: boolean; region: string | null };
+type PostalCodeSource = { file: string; entry: string; required: boolean; region: string | null };
 
 const TERRITORIES: Readonly<Record<string, readonly string[]>> = {
   au: ["CX", "CC", "NF"],
@@ -20,7 +20,7 @@ const WITHOUT_CITY_CHECK = new Set(["ca", "gb"]);
 
 export const POSTAL_CODE_LOADER_VERSION = 1;
 
-export type PostalCodeLookupKeys = { keys: string[]; exact: ReadonlySet<string> };
+type PostalCodeLookupKeys = { keys: string[]; exact: ReadonlySet<string> };
 
 export function postalCodeSources(countryCode: string): PostalCodeSource[] {
   const country = countryCode.toUpperCase();

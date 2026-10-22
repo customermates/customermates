@@ -785,7 +785,7 @@ describe("AgentUsageService admission and ledger", () => {
     const repo = makeRepo({ usedMicrocents: 999 * CREDIT });
     const service = new AgentUsageService(repo);
 
-    await expect(service.prepareWorkspaceIndexing("company-1", NOW)).resolves.toEqual({
+    await expect(service.prepareWorkspaceIndexing("company-1", "wikiIndexing", NOW)).resolves.toEqual({
       purpose: "wikiIndexing",
       companyId: "company-1",
       userId: null,
@@ -801,7 +801,7 @@ describe("AgentUsageService admission and ledger", () => {
 
   it("stops Wiki indexing once the workspace has committed its pooled allowance", async () => {
     const exhausted = new AgentUsageService(makeRepo({ usedMicrocents: 1_000 * CREDIT }));
-    await expect(exhausted.prepareWorkspaceIndexing("company-1", NOW)).resolves.toBeNull();
+    await expect(exhausted.prepareWorkspaceIndexing("company-1", "wikiIndexing", NOW)).resolves.toBeNull();
 
     const unusable = makeRepo();
     unusable.getWorkspaceCreditPoolUnscoped.mockResolvedValueOnce({
@@ -815,7 +815,9 @@ describe("AgentUsageService admission and ledger", () => {
       memberLimitMicrocents: {},
       usable: false,
     });
-    await expect(new AgentUsageService(unusable).prepareWorkspaceIndexing("company-1", NOW)).resolves.toBeNull();
+    await expect(
+      new AgentUsageService(unusable).prepareWorkspaceIndexing("company-1", "wikiIndexing", NOW),
+    ).resolves.toBeNull();
   });
 
   it("gives a search query grant to the person searching", async () => {
@@ -832,7 +834,7 @@ describe("AgentUsageService admission and ledger", () => {
   it("reserves an embedding's worst case, settles its exact cost, and refuses a grant whose payer does not match its purpose", async () => {
     const repo = makeRepo();
     const service = new AgentUsageService(repo);
-    const grant = await service.prepareWorkspaceIndexing("company-1", NOW);
+    const grant = await service.prepareWorkspaceIndexing("company-1", "wikiIndexing", NOW);
     if (!grant) throw new Error("Expected a workspace indexing grant.");
     const charge = {
       model: "embedding",

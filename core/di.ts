@@ -164,20 +164,17 @@ import { RecordWriteService } from "@/features/records/record-write.service";
 import type { FileStorageDriver } from "@/core/storage/file-storage-driver";
 import { DatabaseFileStorageDriver } from "@/core/storage/database-file-storage.driver";
 import { PrismaFileContentRepo } from "@/core/storage/prisma-file-content.repository";
-import type { AddressCandidateVerifier } from "@/features/records/address-candidate-verifier";
-import type { RecordFileAttacher } from "@/features/records/record-file-attacher";
 import { RecordFileAttachmentService } from "@/features/records/record-file-attachment.service";
 import { PrismaRecordFileRepo } from "@/features/records/prisma-record-file.repository";
-import type { RecordFileIndexDispatcher } from "@/features/records/record-file-index-dispatcher";
 import { S3FileStorageDriver, s3FileStorageConfig } from "@/core/storage/s3-file-storage.driver";
-import { VercelBlobFileStorageDriver } from "@/core/storage/vercel-blob-file-storage.driver";
-import { vercelBlobClient } from "@/core/storage/vercel-blob-client";
+import { VercelBlobFileStorageDriver, vercelBlobClient } from "@/core/storage/vercel-blob-file-storage.driver";
 import { RecordFileLinks } from "@/features/record-files/record-file-links";
 import { RecordFileQuotaService } from "@/features/record-files/record-file-quota.service";
 import { RecordFileUploadService } from "@/features/record-files/record-file-upload.service";
 import { RecordFileAccessService } from "@/features/record-files/record-file-access.service";
 import { RecordFileGrantTenant } from "@/features/record-files/record-file-grant-tenant";
 import { recordFileMaxUploadBytes } from "@/features/record-files/record-file-limits";
+import { frameAncestorsPolicy } from "@/core/config/environment";
 import { CreateRecordFileUploadInteractor } from "@/features/record-files/create-record-file-upload.interactor";
 import { UploadRecordFileContentInteractor } from "@/features/record-files/upload-record-file-content.interactor";
 import { UploadRecordFileContentByGrantInteractor } from "@/features/record-files/upload-record-file-content-by-grant.interactor";
@@ -197,7 +194,6 @@ import { PurgeCompanyRecordFilesInteractor } from "@/features/record-files/purge
 import { NormalizePhoneIdentitiesInteractor } from "@/features/records/normalize-phone-identities.interactor";
 import { NormalizeCompanyPhoneIdentitiesInteractor } from "@/features/records/normalize-company-phone-identities.interactor";
 import { PurgeCompanyFileObjectsInteractor } from "@/features/record-files/purge-company-file-objects.interactor";
-import type { RecordFileTextReader } from "@/features/record-files/record-file-text-reader";
 import { ReadRecordFileInteractor } from "@/features/record-files/read-record-file.interactor";
 import { PrismaRoleRepo } from "@/features/role/prisma-role.repository";
 import { PrismaUserRepo } from "@/features/user/prisma-user.repository";
@@ -614,20 +610,17 @@ export const getRecordWriteService = (records: RecordRepo = getRecordRepo()) =>
     getRecordAccessPolicy(),
     getRecordCalculationService(records),
     getAddressCandidateVerifier(),
-    getRecordFileAttacher(),
+    getRecordFileAttachmentService(),
     getAddressCheckService(),
   );
-export const getAddressCandidateVerifier = (): AddressCandidateVerifier =>
-  new SignedAddressCandidateVerifier(env.BETTER_AUTH_SECRET);
+export const getAddressCandidateVerifier = () => new SignedAddressCandidateVerifier(env.BETTER_AUTH_SECRET);
 export const getRecordFileRepo = (companyId?: string) => new PrismaRecordFileRepo(companyId);
-export const getRecordFileAttacher = (): RecordFileAttacher =>
+export const getRecordFileAttachmentService = () =>
   new RecordFileAttachmentService(
     getRecordFileRepo(),
     { drivers: getFileStorageDriver, maxBytes: recordFileMaxUploadBytes(env.APP_MODE, env.FILE_MAX_UPLOAD_BYTES) },
-    getRecordFileIndexDispatcher(),
+    getBackgroundTaskService(),
   );
-export const getRecordFileIndexDispatcher = (): RecordFileIndexDispatcher =>
-  new BackgroundRecordFileIndexDispatcher(getBackgroundTaskService());
 export const getFileContentRepo = (companyId?: string) => new PrismaFileContentRepo(companyId);
 export const getDatabaseFileStorageDriver = (companyId?: string) =>
   new DatabaseFileStorageDriver(getFileContentRepo(companyId), env.BASE_URL);
@@ -671,7 +664,11 @@ export const getUploadRecordFileContentByGrantInteractor = () =>
 export const getGetRecordFileInteractor = () =>
   new GetRecordFileInteractor(getRecordFileAccessService(), getRecordFileLinks());
 export const getDownloadRecordFileInteractor = () =>
-  new DownloadRecordFileInteractor(getRecordFileAccessService(), getFileStorageDriver);
+  new DownloadRecordFileInteractor(
+    getRecordFileAccessService(),
+    getFileStorageDriver,
+    frameAncestorsPolicy(env.APP_MODE),
+  );
 export const getPreviewRecordFileInteractor = () =>
   new PreviewRecordFileInteractor(getRecordFileAccessService(), getFileStorageDriver);
 export const getDownloadRecordFileByGrantInteractor = () =>
@@ -708,9 +705,8 @@ export const getCompleteAgentChatFileUploadInteractor = () =>
     getRecordFileIndexService,
     recordFileMaxUploadBytes(env.APP_MODE, env.FILE_MAX_UPLOAD_BYTES),
   );
-export const getRecordFileTextReader = (): RecordFileTextReader => getExtractedRecordFileTextReader();
 export const getReadRecordFileInteractor = () =>
-  new ReadRecordFileInteractor(getGetRecordFileInteractor(), getRecordFileTextReader());
+  new ReadRecordFileInteractor(getGetRecordFileInteractor(), getRecordFileSearchRepo());
 export const getGetFileStorageUsageInteractor = () => new GetFileStorageUsageInteractor(getRecordFileQuotaService());
 export const getPurgeExpiredRecordFilesInteractor = () =>
   new PurgeExpiredRecordFilesInteractor(getRecordFileRepo(), getBackgroundTaskService());
@@ -1112,8 +1108,6 @@ const getWikiSemanticRetrieval = () => ({
   gaps: getWikiKnowledgeGapRepo(),
 });
 
-import { BackgroundRecordFileIndexDispatcher } from "@/features/record-file-index/background-record-file-index-dispatcher";
-import { ExtractedRecordFileTextReader } from "@/features/record-file-index/extracted-record-file-text-reader";
 import { IndexRecordFilesInteractor } from "@/features/record-file-index/index-record-files.interactor";
 import { PrismaRecordFileSearchRepo } from "@/features/record-file-index/prisma-record-file-search.repository";
 import { ReadRecordFileContentInteractor } from "@/features/record-file-index/read-record-file-content.interactor";
@@ -1126,15 +1120,13 @@ import { RecordFileSemanticIndexService } from "@/ee/record-file-index/record-fi
 export const getRecordFileSearchRepo = () => new PrismaRecordFileSearchRepo();
 const getRecordFileIndexStorage =
   (companyId: string): RecordFileStorageResolver =>
-  (driver) => {
-    if (driver === "database") return new DatabaseFileStorageDriver(new PrismaFileContentRepo(companyId), env.BASE_URL);
-    return driver === env.FILE_STORAGE_DRIVER ? getFileStorageDriver() : null;
-  };
+  (driver) =>
+    driver === "database" || driver === env.FILE_STORAGE_DRIVER ? getFileStorageDriver(driver, companyId) : null;
 export const getRecordFileIndexService = (companyId: string) =>
   new RecordFileIndexService(
-    new PrismaRecordFileRepo(companyId),
+    getRecordFileRepo(companyId),
     getRecordFileIndexStorage(companyId),
-    new RecordFileSemanticIndexService(new PrismaRecordFileRepo(companyId), getWikiEmbeddingService(), companyId),
+    new RecordFileSemanticIndexService(getRecordFileRepo(companyId), getWikiEmbeddingService(), companyId),
   );
 export const getIndexRecordFilesInteractor = () => new IndexRecordFilesInteractor(getRecordFileIndexService);
 export const getSweepRecordFileIndexInteractor = () =>
@@ -1155,8 +1147,7 @@ export const getSearchRecordFilesInteractor = () =>
     getRecordFileSemanticRetrieval(),
   );
 export const getReadRecordFileContentInteractor = () =>
-  new ReadRecordFileContentInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordFileSearchRepo());
-export const getExtractedRecordFileTextReader = () => new ExtractedRecordFileTextReader(getRecordFileSearchRepo());
+  new ReadRecordFileContentInteractor(getRecordFileAccessService(), getRecordFileSearchRepo());
 
 const EXPECTED_EVENT_LISTENERS = [
   {
@@ -2363,7 +2354,7 @@ const addressLookupRateLimiter = new AddressLookupRateLimiter();
 const addressLookupCache = new AddressLookupCache();
 export const getAddressLookupService = () =>
   new AddressLookupService(
-    env.ADDRESS_LOOKUP_URL && env.APP_MODE !== "demo" ? new PhotonAddressLookupProvider(env.ADDRESS_LOOKUP_URL) : null,
+    env.ADDRESS_LOOKUP_URL ? new PhotonAddressLookupProvider(env.ADDRESS_LOOKUP_URL) : null,
     env.BETTER_AUTH_SECRET,
     addressLookupRateLimiter,
     addressLookupCache,

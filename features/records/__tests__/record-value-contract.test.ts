@@ -27,7 +27,7 @@ describe("typed record value boundary", () => {
         region: null,
         countryCode: "de",
         formatted: "Hauptstraße 5, 68159 Mannheim",
-        location: { lat: 49.4875, lon: 8.466 },
+        location: { lat: 49.4875, lon: 8.466, precision: "address" },
         verification: { status: "verified", provider: "photon", checkedAt: "2026-10-14T12:00:00Z" },
       },
     },

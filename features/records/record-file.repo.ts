@@ -1,3 +1,4 @@
+import type { RecordFileStatus } from "@/generated/prisma";
 import type { RecordRef } from "./record-model.schema";
 
 export type StoredRecordFile = {
@@ -12,15 +13,20 @@ export type StoredRecordFile = {
   mimeType: string;
   size: number;
   sha256: string | null;
-  status: "pending" | "ready" | "detached";
+  status: RecordFileStatus;
   uploadedById: string | null;
   createdAt: Date;
   attachedAt: Date | null;
   detachedAt: Date | null;
 };
 
-export interface RecordFileRepo {
-  getFilesCompanyWide(fileIds: string[]): Promise<StoredRecordFile[]>;
-  attachFiles(ref: RecordRef, fieldId: string, fileIds: string[], chatOwnerId?: string | null): Promise<number>;
-  detachFiles(ref: RecordRef, fieldId: string, fileIds: string[]): Promise<number>;
+export abstract class RecordFileRepo {
+  abstract getFilesCompanyWide(fileIds: string[]): Promise<StoredRecordFile[]>;
+  abstract attachFiles(
+    ref: RecordRef,
+    fieldId: string,
+    fileIds: string[],
+    chatOwnerId?: string | null,
+  ): Promise<number>;
+  abstract detachFiles(ref: RecordRef, fieldId: string, fileIds: string[]): Promise<number>;
 }

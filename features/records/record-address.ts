@@ -3,27 +3,24 @@ import * as addressFormatterModule from "@fragaria/address-formatter";
 import type { RecordAddress } from "./record-model.schema";
 import type { RecordAddressParts } from "./record-address-lines";
 
-import { cleanAddressPart, UNVERIFIED_ADDRESS } from "./record-address-value";
+import {
+  cleanAddressPart,
+  RECORD_ADDRESS_PART_LIMITS,
+  RECORD_ADDRESS_PARTS,
+  UNVERIFIED_ADDRESS,
+} from "./record-address-value";
 import { addressFormatterOf, recordAddressLines, recordAddressStreetLine } from "./record-address-lines";
 
 const addressFormatter = addressFormatterOf(addressFormatterModule);
 
-const PART_LIMITS = {
-  street: 200,
-  line2: 200,
-  postalCode: 20,
-  city: 200,
-  region: 200,
-} as const;
-
-function addressParts(address: RecordAddressParts): RecordAddressParts {
+export function addressParts(address: Partial<RecordAddressParts>): RecordAddressParts {
   return {
-    street: cleanAddressPart(address.street, PART_LIMITS.street),
-    line2: cleanAddressPart(address.line2, PART_LIMITS.line2),
-    postalCode: cleanAddressPart(address.postalCode, PART_LIMITS.postalCode),
-    city: cleanAddressPart(address.city, PART_LIMITS.city),
-    region: cleanAddressPart(address.region, PART_LIMITS.region),
-    countryCode: address.countryCode,
+    street: cleanAddressPart(address.street, RECORD_ADDRESS_PART_LIMITS.street),
+    line2: cleanAddressPart(address.line2, RECORD_ADDRESS_PART_LIMITS.line2),
+    postalCode: cleanAddressPart(address.postalCode, RECORD_ADDRESS_PART_LIMITS.postalCode),
+    city: cleanAddressPart(address.city, RECORD_ADDRESS_PART_LIMITS.city),
+    region: cleanAddressPart(address.region, RECORD_ADDRESS_PART_LIMITS.region),
+    countryCode: address.countryCode ?? null,
   };
 }
 
@@ -77,7 +74,6 @@ export function verifiedRecordAddress(
 export function sameAddressParts(left: RecordAddress, right: RecordAddress): boolean {
   const a = addressParts(left);
   const b = addressParts(right);
-  const keys = ["street", "line2", "postalCode", "city", "region", "countryCode"] as const;
-  if (keys.some((key) => a[key] !== b[key])) return false;
+  if (RECORD_ADDRESS_PARTS.some((key) => a[key] !== b[key])) return false;
   return hasParts(a) || cleanAddressPart(left.formatted, 500) === cleanAddressPart(right.formatted, 500);
 }

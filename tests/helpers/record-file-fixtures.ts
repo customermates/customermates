@@ -2,6 +2,8 @@ import type { Workbook } from "exceljs";
 
 import { deflateRawSync } from "node:zlib";
 
+import { crc32 } from "@/core/utils/zip";
+
 type ExcelModule = { Workbook: typeof Workbook; default?: { Workbook: typeof Workbook } };
 
 export function pdfFixture(pages: string[][]): Uint8Array {
@@ -41,18 +43,6 @@ export function pdfFixture(pages: string[][]): Uint8Array {
   return Uint8Array.from(body, (character) => character.charCodeAt(0));
 }
 
-const CRC_TABLE = Array.from({ length: 256 }, (_, index) => {
-  let value = index;
-  for (let bit = 0; bit < 8; bit += 1) value = value & 1 ? 0xedb88320 ^ (value >>> 1) : value >>> 1;
-  return value >>> 0;
-});
-
-function crc32(data: Uint8Array): number {
-  let crc = 0xffffffff;
-  for (const byte of data) crc = CRC_TABLE[(crc ^ byte) & 0xff] ^ (crc >>> 8);
-  return (crc ^ 0xffffffff) >>> 0;
-}
-
 function concat(parts: Uint8Array[]): Uint8Array {
   const bytes = new Uint8Array(parts.reduce((total, part) => total + part.byteLength, 0));
   let offset = 0;
@@ -72,19 +62,20 @@ function header(size: number, fields: Array<[number, number, 2 | 4]>): Uint8Arra
   return bytes;
 }
 
-export function zipFixture(entries: Record<string, string | Uint8Array>): Uint8Array {
+export type ZipArchiveEntry = { name: string; data: Uint8Array; stored?: boolean; checksum?: number };
+
+export function zipArchive(entries: readonly ZipArchiveEntry[]): Uint8Array {
   const locals: Uint8Array[] = [];
   const centrals: Uint8Array[] = [];
   let offset = 0;
-  for (const [name, text] of Object.entries(entries)) {
-    const data = typeof text === "string" ? new TextEncoder().encode(text) : text;
-    const compressed = new Uint8Array(deflateRawSync(data));
+  for (const { name, data, stored, checksum = crc32(data) } of entries) {
+    const compressed = stored ? data : new Uint8Array(deflateRawSync(data));
+    const method = stored ? 0 : 8;
     const fileName = new TextEncoder().encode(name);
-    const checksum = crc32(data);
     const local = header(30, [
       [0, 0x04034b50, 4],
       [4, 20, 2],
-      [8, 8, 2],
+      [8, method, 2],
       [14, checksum, 4],
       [18, compressed.byteLength, 4],
       [22, data.byteLength, 4],
@@ -94,7 +85,7 @@ export function zipFixture(entries: Record<string, string | Uint8Array>): Uint8A
       [0, 0x02014b50, 4],
       [4, 20, 2],
       [6, 20, 2],
-      [10, 8, 2],
+      [10, method, 2],
       [16, checksum, 4],
       [20, compressed.byteLength, 4],
       [24, data.byteLength, 4],
@@ -106,15 +97,23 @@ export function zipFixture(entries: Record<string, string | Uint8Array>): Uint8A
     offset += local.byteLength + fileName.byteLength + compressed.byteLength;
   }
   const directory = concat(centrals);
-  const count = Object.keys(entries).length;
   const end = header(22, [
     [0, 0x06054b50, 4],
-    [8, count, 2],
-    [10, count, 2],
+    [8, entries.length, 2],
+    [10, entries.length, 2],
     [12, directory.byteLength, 4],
     [16, offset, 4],
   ]);
   return concat([...locals, directory, end]);
+}
+
+export function zipFixture(entries: Record<string, string | Uint8Array>): Uint8Array {
+  return zipArchive(
+    Object.entries(entries).map(([name, text]) => ({
+      name,
+      data: typeof text === "string" ? new TextEncoder().encode(text) : text,
+    })),
+  );
 }
 
 function xmlText(value: string): string {

@@ -263,17 +263,6 @@ export function dateTextHasTime(input: string): boolean {
   return splitDateTime(input.trim()).time !== null;
 }
 
-export function normalizePhone(input: string, countryCode?: string): string | null {
-  let text = input.trim().replace(/\(0\)/g, "");
-  text = text.replace(/[\s ().\/-]/g, "");
-  if (text.startsWith("00")) text = `+${text.slice(2)}`;
-  if (!text.startsWith("+")) {
-    if (!countryCode || !text.startsWith("0")) return null;
-    text = `+${countryCode}${text.replace(/^0+/, "")}`;
-  }
-  return z.e164().safeParse(text).success ? text : null;
-}
-
 export function normalizeEmail(input: string): string | null {
   const text = input.trim().replace(/^mailto:/i, "");
   return z.email().safeParse(text).success ? text : null;

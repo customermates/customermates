@@ -60,7 +60,7 @@ export const AgentContextReferenceSchema = z.union([
 ]);
 
 export type AgentContextReference = z.infer<typeof AgentContextReferenceSchema>;
-export type AgentFileContextReference = z.infer<typeof AgentFileContextReferenceSchema>;
+type AgentFileContextReference = z.infer<typeof AgentFileContextReferenceSchema>;
 
 const CONTROL_CHARACTER_PATTERN = /[\u0000-\u001f\u007f-\u009f]/gu;
 const LABEL_WHITESPACE_PATTERN = /\s+/gu;
@@ -175,7 +175,7 @@ export function agentContextsFromMessageParts(parts: unknown): AgentContextAttac
   return contexts;
 }
 
-function escapeAttribute(value: string): string {
+export function escapeAttribute(value: string): string {
   return value.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 }
 

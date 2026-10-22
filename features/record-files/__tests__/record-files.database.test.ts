@@ -151,7 +151,7 @@ async function workspace() {
   const files = new PrismaRecordFileRepo();
   const driver = new DatabaseFileStorageDriver(new PrismaFileContentRepo(), "http://127.0.0.1:4000", 1024);
   const drivers = () => driver;
-  const indexed: Array<{ companyId: string; fileIds: string[] }> = [];
+  const indexed: Array<{ workflow: string; payload: unknown }> = [];
   const quotaLimit = { bytesPerUser: null as number | null };
   const quota = new RecordFileQuotaService(
     {
@@ -175,8 +175,8 @@ async function workspace() {
     files,
     { drivers, maxBytes: 64 * 1024 },
     {
-      dispatch: (request) => {
-        indexed.push(request);
+      dispatch: (workflow, payload) => {
+        indexed.push({ workflow, payload });
         return Promise.resolve();
       },
     },
@@ -202,7 +202,7 @@ async function workspace() {
     );
   const cancel = new CancelRecordOperationInteractor(repo, policy);
   const access = new RecordFileAccessService(repo, policy, files);
-  const content = new DownloadRecordFileInteractor(access, drivers);
+  const content = new DownloadRecordFileInteractor(access, drivers, "frame-ancestors 'self'");
   const putContent = new UploadRecordFileContentInteractor(files, drivers);
   const interactors = {
     create: new CreateRecordFileUploadInteractor(uploads, drivers, links),
@@ -347,7 +347,7 @@ describeDatabase("record files", () => {
 
     const ref = await w.createDeal([{ fieldId: w.multiple, value: { kind: "file", value: [started.fileId] } }]);
     expect(await w.row(started.fileId)).toMatchObject({ status: "ready", recordId: ref.recordId });
-    expect(w.indexed).toEqual([{ companyId: w.companyId, fileIds: [started.fileId] }]);
+    expect(w.indexed).toEqual([{ workflow: "index-record-files", payload: { companyId: w.companyId } }]);
 
     const details = data(await w.as(w.colleague, () => w.interactors.get.invoke({ fileId: started.fileId })));
     expect(details).toMatchObject({
@@ -371,7 +371,7 @@ describeDatabase("record files", () => {
       "content-disposition": "inline; filename=\"Angebot M_ller.pdf\"; filename*=UTF-8''Angebot%20M%C3%BCller.pdf",
       "x-content-type-options": "nosniff",
       "cache-control": "private, no-store",
-      "content-security-policy": "sandbox; frame-ancestors 'self'",
+      "content-security-policy": "frame-ancestors 'self'",
     });
     expect(await bytesOf(whole.body)).toEqual(bytes);
 

@@ -4,9 +4,8 @@ import type { ProviderJsonResult } from "./address-lookup-request";
 import { requestProviderJson } from "./address-lookup-request";
 import { PHOTON_PROVIDER_ID, photonMatches } from "./photon-address-mapping";
 
-export const ADDRESS_LOOKUP_USER_AGENT =
-  "Customermates/1.0 (+https://customermates.com/docs/app-records; address lookup)";
-export const OPENSTREETMAP_ATTRIBUTION = "© OpenStreetMap contributors";
+const ADDRESS_LOOKUP_USER_AGENT = "Customermates/1.0 (+https://customermates.com/docs/app-records; address lookup)";
+const OPENSTREETMAP_ATTRIBUTION = "© OpenStreetMap contributors";
 
 const MAX_FETCHED_RESULTS = 15;
 

@@ -73,7 +73,7 @@ const FILES: Record<string, Buffer> = {
 
 function download(url: URL): Promise<ProviderFileResult> {
   const body = FILES[url.pathname.slice(1)];
-  return Promise.resolve(body ? { ok: true, body, modifiedAt: null } : { ok: false, reason: "status", status: 404 });
+  return Promise.resolve(body ? { ok: true, body } : { ok: false, reason: "status", status: 404 });
 }
 
 const loader = new PostalCodeService(

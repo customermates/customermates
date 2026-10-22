@@ -1,5 +1,3 @@
-import { createHash } from "node:crypto";
-
 import * as Sentry from "@sentry/nextjs";
 
 import type { AddressFormatSource } from "../address-country-format";
@@ -7,13 +5,12 @@ import type { PostalCodePlace } from "../address-check";
 import type { ProviderFileResult } from "../address-lookup-request";
 import type { PostalCodeCache } from "./postal-code-cache";
 import type { PostalCodeRow, PostalCodeSourceRows } from "./geonames-postal-codes";
-import type { PostalCodeCountryState, PostalCodeRepo, PostalCodeSourceRecord } from "./postal-code.repo";
+import type { PostalCodeCountryState, PostalCodeRepo } from "./postal-code.repo";
 
 import { afterCommit } from "@/core/decorators/after-commit";
 import {
   geoNamesPostalCodeRows,
   MAX_ROWS_PER_CODE,
-  parseGeoNamesPostalCodes,
   postalCodeRows,
   validPostalCodeShare,
 } from "./geonames-postal-codes";
@@ -35,12 +32,12 @@ export type PostalCodeLookup =
     }
   | { status: "pending" | "unavailable" };
 
-export type PostalCodeLoadOutcome =
+type PostalCodeLoadOutcome =
   | { status: "ready"; rows: number }
   | { status: "skipped" | "failed" | "unavailable"; reason: string };
 
-export type PostalCodeDownload = (url: URL) => Promise<ProviderFileResult>;
-export type PostalCodeDispatch = (countryCode: string) => Promise<void>;
+type PostalCodeDownload = (url: URL) => Promise<ProviderFileResult>;
+type PostalCodeDispatch = (countryCode: string) => Promise<void>;
 
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
@@ -132,7 +129,6 @@ export class PostalCodeService {
     const previous = await this.repo.country(countryCode);
     const format = this.formatOf(countryCode);
     const parsed: PostalCodeSourceRows[] = [];
-    const records: PostalCodeSourceRecord[] = [];
     const fail = async (status: "failed" | "unavailable", reason: string): Promise<PostalCodeLoadOutcome> => {
       await this.repo.fail(countryCode, status, reason, now);
       this.cache.forget(countryCode);
@@ -147,19 +143,8 @@ export class PostalCodeService {
       try {
         const content = readZipEntry(result.body, source.entry, MAX_TEXT_BYTES);
         const text = new TextDecoder("utf-8", { fatal: true }).decode(content);
-        const country = source.region ?? countryCode;
-        parsed.push({
-          rows: source.required ? geoNamesPostalCodeRows(text, country) : parseGeoNamesPostalCodes(text, country),
-          region: source.region,
-        });
-        records.push({
-          file: source.file,
-          sha256: createHash("sha256")
-            .update(new Uint8Array(result.body.buffer, result.body.byteOffset, result.body.byteLength))
-            .digest("hex"),
-          bytes: result.body.length,
-          modifiedAt: result.modifiedAt,
-        });
+        const rows = geoNamesPostalCodeRows(text, source.region ?? countryCode);
+        parsed.push({ rows: source.required ? rows : [...rows], region: source.region });
       } catch (error) {
         if (!source.required) continue;
         return fail("failed", error instanceof Error ? error.message : "unreadable");
@@ -180,7 +165,7 @@ export class PostalCodeService {
     }
     if (previous?.status === "ready" && previous.rowCount > 0 && rows.length < previous.rowCount * MAX_SHRINK)
       return fail("failed", `the new data has ${rows.length} rows instead of ${previous.rowCount}`);
-    await this.repo.replace(countryCode, this.version, rows, records, now);
+    await this.repo.replace(countryCode, this.version, rows, now);
     this.cache.forget(countryCode);
     return { status: "ready", rows: rows.length };
   }

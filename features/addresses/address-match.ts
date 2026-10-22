@@ -2,6 +2,8 @@ import type { AddressLookupMatch } from "./address-lookup-provider";
 import type { RecordAddress } from "@/features/records/record-model.schema";
 import type { RecordAddressParts } from "@/features/records/record-address-lines";
 
+import { cityWords } from "./address-check";
+
 const WORD_ALIASES: Readonly<Record<string, string>> = {
   str: "strasse",
   st: "street",
@@ -41,8 +43,8 @@ function sameWords(left: string | null, right: string | null): boolean {
 }
 
 function sameCity(left: string, right: string): boolean {
-  const a = addressWords(left).join(" ");
-  const b = addressWords(right).join(" ");
+  const a = cityWords(left).join(" ");
+  const b = cityWords(right).join(" ");
   return Boolean(a && b) && (a === b || a.startsWith(`${b} `) || b.startsWith(`${a} `));
 }
 

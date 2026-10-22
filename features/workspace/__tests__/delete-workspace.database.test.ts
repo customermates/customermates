@@ -365,7 +365,7 @@ describeDatabase("deleting a workspace on PostgreSQL", { timeout: 240_000 }, () 
       [keys.field, companyId],
     );
     await client.query(
-      'INSERT INTO "RecordFileChunk" ("id", "companyId", "fileId", "ordinal", "text", "contentHash") VALUES ($1, $2, $3, 0, \'offer\', \'synthetic\')',
+      'INSERT INTO "RecordFileChunk" ("id", "companyId", "fileId", "ordinal", "offset", "text", "contentHash") VALUES ($1, $2, $3, 0, 0, \'offer\', \'synthetic\')',
       [randomUUID(), companyId, files.field],
     );
     for (const [kind, column] of [

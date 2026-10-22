@@ -42,7 +42,7 @@ export type AddressRegionMetadata = {
   zip?: string;
 };
 
-export type AddressPostalCodeFormat = { examples: string[]; pattern: string; prefix?: string };
+type AddressPostalCodeFormat = { examples: string[]; pattern: string; prefix?: string };
 
 export type AddressCountryMetadata = {
   cityLabel?: AddressCityLabel;
@@ -52,7 +52,6 @@ export type AddressCountryMetadata = {
   regionLabel?: AddressRegionLabel;
   regions?: AddressRegionMetadata[];
   required?: AddressFormatPart[];
-  upper?: AddressFormatPart[];
 };
 
 export type AddressMetadata = {
@@ -70,7 +69,6 @@ export type AddressCountryFormat = {
   regionLabel: AddressRegionLabel;
   regions: readonly AddressRegionMetadata[];
   required: readonly AddressFormatPart[];
-  upper: readonly AddressFormatPart[];
 };
 
 export type AddressFormatSource = (countryCode: string | null) => AddressCountryFormat;
@@ -86,7 +84,6 @@ export function addressFormatSource(metadata: AddressMetadata): AddressFormatSou
     regionLabel: metadata.defaults.regionLabel,
     regions: [],
     required: metadata.defaults.required,
-    upper: metadata.defaults.upper,
   };
   return (countryCode) => {
     if (!countryCode) return fallback;
@@ -103,7 +100,6 @@ export function addressFormatSource(metadata: AddressMetadata): AddressFormatSou
           regionLabel: country.regionLabel ?? metadata.defaults.regionLabel,
           regions: country.regions ?? [],
           required: country.required ?? metadata.defaults.required,
-          upper: country.upper ?? metadata.defaults.upper,
         }
       : { ...fallback, countryCode };
     formats.set(countryCode, format);

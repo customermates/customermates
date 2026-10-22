@@ -47,6 +47,18 @@ describe("address check matching", () => {
         candidate({ street: "Kaiserstraße 1", postalCode: "60311", city: "Frankfurt am Main" }),
       ),
     ).toBe(true);
+    expect(
+      addressMatchesInput(
+        input({ street: "Marktgasse 1", city: "St. Gallen" }),
+        candidate({ street: "Marktgasse 1", city: "Sankt Gallen" }),
+      ),
+    ).toBe(true);
+    expect(
+      addressMatchesInput(
+        input({ street: "Hauptstraße 1", city: "Frankfurt am Main" }),
+        candidate({ street: "Hauptstraße 1", city: "Frankfurt (Oder)" }),
+      ),
+    ).toBe(false);
   });
 
   it("refuses another house number, postal code, city or country and too little input", () => {

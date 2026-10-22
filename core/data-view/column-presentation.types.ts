@@ -5,11 +5,8 @@ export const CustomColumnType = {
   dateRange: "dateRange",
   dateTime: "dateTime",
   dateTimeRange: "dateTimeRange",
-  email: "email",
   file: "file",
   plain: "plain",
-  link: "link",
-  phone: "phone",
   singleSelect: "singleSelect",
 } as const;
 

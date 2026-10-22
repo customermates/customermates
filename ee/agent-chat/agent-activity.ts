@@ -255,7 +255,6 @@ function describeAgentToolAction(
       if (recordRisk === "read") return descriptor("records.read", undefined, recordRisk);
       if (action === "attach" || (action === "upload" && typeof details.recordId === "string"))
         return descriptor("records.update", undefined, recordRisk);
-      if (action === "upload" || action === "create_upload") return descriptor("records.create", undefined, recordRisk);
       return descriptor("generic", undefined, recordRisk);
     }
 

@@ -11,8 +11,8 @@ import { UserAccessor } from "@/core/base/user-accessor";
 import { unwindFailure } from "@/core/validation/failure-unwind";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { normalizeRecordFileMimeType, sanitizeRecordFileName } from "./record-file-name";
+import { fileSizeLabel } from "@/core/utils/format-bytes";
 import { exceedsFileStorageQuota } from "./record-file-quota";
-import { storageSizeLabel } from "./storage-size";
 
 export type RecordFileUploadLimits = { maxBytes: number; driver: FileStorageDriverName };
 
@@ -55,7 +55,7 @@ export class RecordFileUploadService extends UserAccessor {
   ): Promise<PendingRecordFile> {
     if (input.size > this.limits.maxBytes) {
       throw unwindFailure(CustomErrorCode.recordFileTooLarge, "validation", ["size"], {
-        limit: storageSizeLabel(this.limits.maxBytes, locale),
+        limit: fileSizeLabel(this.limits.maxBytes, locale),
       });
     }
     const name = sanitizeRecordFileName(input.name);
@@ -63,8 +63,8 @@ export class RecordFileUploadService extends UserAccessor {
     const usage = await this.quota.usage();
     if (exceedsFileStorageQuota(usage.usedBytes, input.size, usage.limitBytes)) {
       throw unwindFailure(CustomErrorCode.storageQuotaExceeded, "conflict", ["size"], {
-        used: storageSizeLabel(usage.usedBytes, locale),
-        limit: storageSizeLabel(usage.limitBytes ?? 0, locale),
+        used: fileSizeLabel(usage.usedBytes, locale),
+        limit: fileSizeLabel(usage.limitBytes ?? 0, locale),
       });
     }
     const id = randomUUID();

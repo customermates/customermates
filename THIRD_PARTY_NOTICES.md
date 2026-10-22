@@ -23,7 +23,7 @@ Postal code data from [GeoNames](https://www.geonames.org/), licensed under the 
 Map data from [Natural Earth](https://www.naturalearthdata.com/), which is in the public domain ([terms of use](https://www.naturalearthdata.com/about/terms-of-use/)). No permission is needed to use it; the map credits Natural Earth as a courtesy.
 
 - Source: https://github.com/nvkelso/natural-earth-vector, release v5.1.2
-- In this repository: `scripts/generate-basemap.mjs` downloads the 1:50m and 1:10m countries without boundary lakes, the 1:10m first-order administrative boundary lines and the 1:10m populated places of that release, checks each file against its pinned SHA-256 and writes `public/maps/v1/`, which ships with the application and its container image. The map loads these files from the application's own origin; `public/maps/v1/README.md` lists them.
+- In this repository: `scripts/generate-basemap.mjs` downloads the 1:50m and 1:10m countries without boundary lakes, the 1:10m first-order administrative boundary lines and the 1:10m populated places of that release, checks each file against its pinned SHA-256 and writes `public/maps/v1/`, which ships with the application and its container image. The map loads these files from the application's own origin.
 - Changes: the files keep the land, the coastlines, the country borders, the first-order administrative boundaries up to a minimum zoom and the populated places with their minimum zoom and their names in the application languages. The shapes are simplified, quantized as TopoJSON and split into Web Mercator tiles; the other fields of the source are left out.
 
 ## No warranty

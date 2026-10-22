@@ -1,9 +1,12 @@
+import type { Validated } from "@/core/validation/validation.utils";
 import type { RecordRepo } from "@/features/records/record.repo";
 import type { RecordAccessPolicy } from "@/features/records/record-access";
 import type { RecordFileDetails, RecordFileUploadRepo } from "@/features/records/record-file-upload.repo";
 
 import { UserAccessor } from "@/core/base/user-accessor";
+import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { unwindFailure } from "@/core/validation/failure-unwind";
+import { unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 function missing(): Error {
@@ -17,6 +20,12 @@ export class RecordFileAccessService extends UserAccessor {
     private files: Pick<RecordFileUploadRepo, "getFileCompanyWide">,
   ) {
     super();
+  }
+
+  readableFile(fileId: string): Validated<RecordFileDetails> {
+    return runInTransaction(async () => ({ ok: true as const, data: await this.readable(fileId) }), {
+      readOnly: true,
+    }).catch(unwoundFailure);
   }
 
   async readable(fileId: string): Promise<RecordFileDetails> {

@@ -18,7 +18,7 @@ vi.mock("@/env", () => ({
     BASE_URL: "http://127.0.0.1:4000",
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: "test",
-    BETTER_AUTH_SECRET: "lane-c-address-database-secret",
+    BETTER_AUTH_SECRET: "address-database-secret",
     FILE_STORAGE_DRIVER: "database",
     get ADDRESS_LOOKUP_URL() {
       return lookup.url;
@@ -222,7 +222,7 @@ describeDatabase("address lookup on PostgreSQL", () => {
         city: "Mannheim",
         countryCode: "de",
         formatted: "Somewhere else",
-        location: { lat: 1, lon: 2 },
+        location: { lat: 1, lon: 2, precision: "address" },
         verification: { status: "verified", provider: "client", checkedAt: "2026-10-15T08:00:00Z" },
       },
     });
@@ -244,7 +244,7 @@ describeDatabase("address lookup on PostgreSQL", () => {
       { street: "Hauptstraße 5", line2: null, postalCode: "68259", city: "Mannheim", region: null, countryCode: "de" },
       { provider: "photon", checkedAt: new Date().toISOString(), location: null },
     );
-    const secret = addressCandidateSigningSecret("lane-c-address-database-secret") ?? "";
+    const secret = addressCandidateSigningSecret("address-database-secret") ?? "";
     const foreign = encodeAddressCandidate(address, randomUUID(), secret);
     const expired = encodeAddressCandidate(address, w.companyId, secret, new Date(Date.now() - 25 * 60 * 60 * 1_000));
     for (const candidateToken of [foreign, expired, "forged.token"]) {

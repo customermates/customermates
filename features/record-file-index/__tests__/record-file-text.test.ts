@@ -9,8 +9,8 @@ import {
   RECORD_FILE_TEXT_MAX_CHARS,
   RECORD_FILE_TEXT_TIMEOUT_MS,
   RECORD_FILE_ZIP_MAX_UNPACKED_BYTES,
-  recordFileTextFormat,
 } from "../record-file-text";
+import { recordFileTextFormat } from "../record-file-text-format";
 
 const utf8 = (text: string) => new TextEncoder().encode(text);
 

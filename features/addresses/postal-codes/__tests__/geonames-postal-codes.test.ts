@@ -3,12 +3,12 @@ import { describe, expect, it } from "vitest";
 import type { GeoNamesPostalCode } from "../geonames-postal-codes";
 
 import { addressFormatOf } from "../../address-metadata";
-import { parseGeoNamesPostalCodes, postalCodeRows, validPostalCodeShare } from "../geonames-postal-codes";
+import { geoNamesPostalCodeRows, postalCodeRows, validPostalCodeShare } from "../geonames-postal-codes";
 import { isPostalCodeDataError } from "../postal-code-zip";
 import { geonamesLine } from "./zip-fixture";
 
 function rows(country: string, lines: string[], region: string | null = null) {
-  return { rows: parseGeoNamesPostalCodes(lines.join("\n"), region ?? country), region };
+  return { rows: [...geoNamesPostalCodeRows(lines.join("\n"), region ?? country)], region };
 }
 
 function transformed(country: string, lines: string[]) {
@@ -24,7 +24,7 @@ function transformed(country: string, lines: string[]) {
 
 function failure(text: string, country: string): unknown {
   try {
-    parseGeoNamesPostalCodes(text, country);
+    Array.from(geoNamesPostalCodeRows(text, country));
   } catch (error) {
     return error;
   }
@@ -33,10 +33,12 @@ function failure(text: string, country: string): unknown {
 
 describe("GeoNames postal code files", () => {
   it("parses the twelve tab-separated columns", () => {
-    const parsed = parseGeoNamesPostalCodes(
-      `${geonamesLine("DE", "68259", "Mannheim", { name1: "Baden-Württemberg", code1: "BW", name3: "Mannheim" }, 49.4903, 8.5339)}\n`,
-      "de",
-    );
+    const parsed = [
+      ...geoNamesPostalCodeRows(
+        `${geonamesLine("DE", "68259", "Mannheim", { name1: "Baden-Württemberg", code1: "BW", name3: "Mannheim" }, 49.4903, 8.5339)}\n`,
+        "de",
+      ),
+    ];
     expect(parsed).toEqual<GeoNamesPostalCode[]>([
       {
         countryCode: "DE",

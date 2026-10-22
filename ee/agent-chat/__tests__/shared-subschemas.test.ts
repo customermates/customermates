@@ -1,7 +1,8 @@
 import Ajv from "ajv";
 import { describe, expect, it } from "vitest";
 
-import { inlineSchemaDefinitions, shareRepeatedSubschemas } from "../shared-subschemas";
+import { inlineSchemaDefinitions } from "@/tests/helpers/inline-schema-definitions";
+import { shareRepeatedSubschemas } from "../shared-subschemas";
 
 type JsonRecord = Record<string, unknown>;
 

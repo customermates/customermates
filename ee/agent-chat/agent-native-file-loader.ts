@@ -1,9 +1,8 @@
-import type { FileStorageDrivers } from "@/core/storage/file-storage-drivers";
+import type { FileStorageDrivers } from "@/core/storage/file-storage-driver";
 import type { RecordFileAccessService } from "@/features/record-files/record-file-access.service";
 import type { AgentNativeFile } from "./agent-native-files";
 import type { ReplayMessage } from "./agent-stream-utils";
 
-import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { readCappedStream } from "@/core/storage/read-capped-stream";
 
 import { markAgentNativeFileUnavailable } from "./agent-attachments";
@@ -11,7 +10,7 @@ import { AGENT_NATIVE_FILE_MAX_BYTES } from "./agent-native-files";
 
 export class AgentNativeFileLoader {
   constructor(
-    private access: Pick<RecordFileAccessService, "readable">,
+    private access: Pick<RecordFileAccessService, "readableFile">,
     private drivers: FileStorageDrivers,
   ) {}
 
@@ -35,7 +34,9 @@ export class AgentNativeFileLoader {
   }
 
   private async read(file: AgentNativeFile): Promise<string | null> {
-    const stored = await runInTransaction(() => this.access.readable(file.fileId), { readOnly: true });
+    const readable = await this.access.readableFile(file.fileId);
+    if (!readable.ok) return null;
+    const stored = readable.data;
     if (stored.mimeType !== file.mediaType || stored.size > AGENT_NATIVE_FILE_MAX_BYTES) return null;
     const content = await this.drivers(stored.storageDriver).read(stored.storageKey);
     if (!content) return null;

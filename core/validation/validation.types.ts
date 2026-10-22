@@ -153,6 +153,8 @@ export enum CustomErrorCode {
   emailFolderMoveUnsupported = "emailFolderMoveUnsupported",
   calendarEventNotFound = "calendarEventNotFound",
   calendarNotFound = "calendarNotFound",
+  calendarExportIncomplete = "calendarExportIncomplete",
+  calendarSubscriptionLimitReached = "calendarSubscriptionLimitReached",
   connectedAccountNotFound = "connectedAccountNotFound",
   connectedAccountEmailChangeRequired = "connectedAccountEmailChangeRequired",
   roleNotFound = "roleNotFound",

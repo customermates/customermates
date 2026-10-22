@@ -216,7 +216,7 @@ export const RestoreSummarySchema = z
   })
   .strict();
 
-export const RECORD_WRITE_WARNING_CODES = [
+const RECORD_WRITE_WARNING_CODES = [
   "countryMissing",
   "partMissing",
   "regionUnknown",

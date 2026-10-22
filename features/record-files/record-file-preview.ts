@@ -3,6 +3,12 @@ import type { recordFilePreviewFormat } from "./record-file-preview.schema";
 import type { RecordFileParserLimits } from "@/features/record-file-index/record-file-parser";
 
 import { parseRecordFile } from "@/features/record-file-index/record-file-parser";
+import {
+  decodedRecordFileText,
+  prettyRecordFileJson,
+  RECORD_FILE_ZIP_MAX_ENTRIES,
+  RECORD_FILE_ZIP_MAX_UNPACKED_BYTES,
+} from "@/features/record-file-index/record-file-text";
 import { checkRecordFileZip } from "@/features/record-file-index/record-file-zip";
 import { codePointBoundary } from "@/core/retrieval/retrieval-sections";
 import { xlsxCellText, xlsxCellValue } from "@/features/data-transfer/import/xlsx/xlsx-workbook";
@@ -67,7 +73,10 @@ export async function createRecordFilePreview(bytes: Uint8Array, format: Format)
       : { kind: "unavailable", reason: "unreadable" };
   }
   if (format === "docx" || format === "xlsx") {
-    const zip = checkRecordFileZip(bytes, { maxEntries: 10_000, maxUnpackedBytes: 128 * 1024 * 1024 });
+    const zip = await checkRecordFileZip(bytes, {
+      maxEntries: RECORD_FILE_ZIP_MAX_ENTRIES,
+      maxUnpackedBytes: RECORD_FILE_ZIP_MAX_UNPACKED_BYTES,
+    });
     if (zip !== "ok") return { kind: "unavailable", reason: zip === "tooLarge" ? "tooLarge" : "unreadable" };
     try {
       const parsed = await parseRecordFile(bytes, format, LIMITS);
@@ -94,17 +103,10 @@ export async function createRecordFilePreview(bytes: Uint8Array, format: Format)
       return { kind: "unavailable", reason: "unreadable" };
     }
   }
-  const cap = RECORD_FILE_PREVIEW_MAX_CHARS * 4;
-  let text = new TextDecoder("utf-8").decode(bytes.subarray(0, cap)).replace(/^\uFEFF/u, "");
-  if (text.includes("\u0000")) return { kind: "unavailable", reason: "unreadable" };
-  let truncated = bytes.byteLength > cap;
-  if (format === "json" && !truncated) {
-    try {
-      text = JSON.stringify(JSON.parse(text), null, 2);
-    } catch {}
-  }
-
-  truncated ||= text.length > RECORD_FILE_PREVIEW_MAX_CHARS;
-  text = clipped(text, RECORD_FILE_PREVIEW_MAX_CHARS);
+  const decoded = decodedRecordFileText(bytes, RECORD_FILE_PREVIEW_MAX_CHARS);
+  if (decoded.text.includes("\u0000")) return { kind: "unavailable", reason: "unreadable" };
+  const full = format === "json" && !decoded.truncated ? prettyRecordFileJson(decoded.text) : decoded.text;
+  const text = clipped(full, RECORD_FILE_PREVIEW_MAX_CHARS);
+  const truncated = decoded.truncated || text.length < full.length;
   return text.trim() ? { kind: "text", format, text, truncated } : { kind: "unavailable", reason: "empty" };
 }

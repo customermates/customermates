@@ -2,12 +2,12 @@ import type { AddressLookupCache } from "./address-lookup-cache";
 import type { AddressLookupMatch, AddressLookupProvider } from "./address-lookup-provider";
 import type { AddressLookupRateLimiter } from "./address-lookup-rate-limiter";
 import type { AddressCandidate, LookupAddressInput, VerifyAddressInput } from "./address-lookup.schema";
-import type { RecordAddressParts } from "@/features/records/record-address-lines";
 
 import { addressCandidateSigningSecret, encodeAddressCandidate } from "./address-candidate-token";
+import { checkAddressFormat } from "./address-check";
 import { bestAddressMatch } from "./address-match";
-import { cleanAddressPart } from "@/features/records/record-address-value";
-import { formatRecordAddress } from "@/features/records/record-address";
+import { addressFormatOf, isKnownAddressCountry } from "./address-metadata";
+import { addressParts, formatRecordAddress } from "@/features/records/record-address";
 
 export type AddressLookupCaller = {
   companyId: string;
@@ -74,7 +74,9 @@ export class AddressLookupService {
     const secret = addressCandidateSigningSecret(this.secret);
     if (!secret) return [];
     const now = this.now();
-    return matches.flatMap(({ name, address }) => {
+    return matches.flatMap(({ name, address: found }) => {
+      const { parts } = checkAddressFormat(found, addressFormatOf, isKnownAddressCountry);
+      const address = { ...found, ...parts, formatted: formatRecordAddress(parts) };
       const candidateToken = encodeAddressCandidate(address, caller.companyId, secret, now);
       return candidateToken ? [{ candidateToken, name, address }] : [];
     });
@@ -89,14 +91,7 @@ export class AddressLookupService {
   }
 
   async verify(caller: AddressLookupCaller, input: VerifyAddressInput): Promise<AddressLookupOutcome> {
-    const parts: RecordAddressParts = {
-      street: cleanAddressPart(input.street, 200),
-      line2: cleanAddressPart(input.line2, 200),
-      postalCode: cleanAddressPart(input.postalCode, 20),
-      city: cleanAddressPart(input.city, 200),
-      region: cleanAddressPart(input.region, 200),
-      countryCode: input.countryCode ?? null,
-    };
+    const parts = addressParts(input);
     if (!this.provider || !this.enabled) return { status: "off" };
     if (!parts.postalCode && !parts.city)
       return { status: "ok", attribution: this.provider.attribution, candidates: [] };

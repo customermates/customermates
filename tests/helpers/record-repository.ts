@@ -3,7 +3,7 @@ import type { AppLocale } from "@/i18n/locale-registry";
 import type { RecordRepo, RecordRepoOwners } from "@/features/records/record.repo";
 import { RecordAccessPolicy } from "@/features/records/record-access";
 import type { RecordConfigurationService } from "@/features/records/configuration.service";
-import type { RecordFileAttacher } from "@/features/records/record-file-attacher";
+import type { RecordFileAttachmentService } from "@/features/records/record-file-attachment.service";
 import type { WebhookPauseNotifier } from "@/features/webhook/webhook-pause-notifier";
 import type { RecordWidgetConfigurationRepo } from "@/features/widget/record-widget-configuration.repo";
 import type { ViewWidgetPurgeRepo } from "@/features/widget/view-widget-purge.repo";
@@ -107,7 +107,7 @@ export const createTestRecordOperationService = (
   configurations: RecordConfigurationService,
   webhooks: WebhookPauseNotifier,
   systemCompanyId?: string,
-  files?: RecordFileAttacher,
+  files?: Pick<RecordFileAttachmentService, "attach">,
 ) =>
   new RecordOperationService(
     records,

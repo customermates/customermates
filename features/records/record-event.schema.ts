@@ -20,7 +20,7 @@ export type RecordEventKind = z.infer<typeof RecordEventKindSchema>;
 
 const RecordHistoryPublicationSchema = z.object({ fieldId: z.uuid(), dependencyHash: z.string() }).strict();
 
-export const RecordHistoryValueTypeSchema = z
+const RecordHistoryValueTypeSchema = z
   .enum([...RecordValueTypeSchema.options, "phone", "email"])
   .describe(
     "The field's value type when the change happened; phone and email only in history of retired phone and email fields.",

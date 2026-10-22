@@ -7,8 +7,6 @@ import { codePointBoundary } from "@/core/retrieval/retrieval-sections";
 import { parseRecordFile } from "./record-file-parser";
 import { checkRecordFileZip } from "./record-file-zip";
 
-export { recordFileTextFormat } from "./record-file-text-format";
-
 export const RECORD_FILE_TEXT_MAX_BYTES = 25 * 1024 * 1024;
 export const RECORD_FILE_TEXT_MAX_CHARS = 500_000;
 export const RECORD_FILE_TEXT_TIMEOUT_MS = 60_000;
@@ -58,7 +56,7 @@ function capped(text: string, truncated = false): RecordFileText {
   };
 }
 
-function decodedText(bytes: Uint8Array, maxChars: number): { text: string; truncated: boolean } {
+export function decodedRecordFileText(bytes: Uint8Array, maxChars: number): { text: string; truncated: boolean } {
   const limit = maxChars * UTF8_MAX_BYTES_PER_CHAR;
   const text = new TextDecoder("utf-8").decode(bytes.subarray(0, limit)).replace(/^﻿/u, "");
   return { text, truncated: bytes.byteLength > limit };
@@ -116,17 +114,21 @@ function parsedText(parsed: RecordFileParsed): RecordFileText {
 }
 
 function jsonText(bytes: Uint8Array): RecordFileText {
-  const { text, truncated } = decodedText(bytes, RECORD_FILE_TEXT_MAX_CHARS);
+  const { text, truncated } = decodedRecordFileText(bytes, RECORD_FILE_TEXT_MAX_CHARS);
   if (truncated || text.length > RECORD_FILE_TEXT_MAX_CHARS) return capped(text, true);
+  return capped(prettyRecordFileJson(text));
+}
+
+export function prettyRecordFileJson(text: string): string {
   try {
-    return capped(JSON.stringify(JSON.parse(text), null, 2));
+    return JSON.stringify(JSON.parse(text), null, 2);
   } catch {
-    return capped(text);
+    return text;
   }
 }
 
 function plainText(bytes: Uint8Array): RecordFileText {
-  const { text, truncated } = decodedText(bytes, RECORD_FILE_TEXT_MAX_CHARS);
+  const { text, truncated } = decodedRecordFileText(bytes, RECORD_FILE_TEXT_MAX_CHARS);
   return capped(text, truncated);
 }
 
@@ -138,7 +140,7 @@ export async function extractRecordFileText(
   if (format === "json") return jsonText(bytes);
   if (format === "csv" || format === "markdown" || format === "text") return plainText(bytes);
   if (format === "docx" || format === "xlsx") {
-    const zip = checkRecordFileZip(bytes, {
+    const zip = await checkRecordFileZip(bytes, {
       maxEntries: RECORD_FILE_ZIP_MAX_ENTRIES,
       maxUnpackedBytes: RECORD_FILE_ZIP_MAX_UNPACKED_BYTES,
     });

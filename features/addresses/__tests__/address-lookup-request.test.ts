@@ -18,7 +18,7 @@ const server = createServer((request, response) => {
 });
 let origin = "";
 
-const OPTIONS = { timeoutMs: 1_000, maxBytes: 1_024, userAgent: "lane-c-test" };
+const OPTIONS = { timeoutMs: 1_000, maxBytes: 1_024, userAgent: "address-request-test" };
 
 beforeAll(async () => {
   await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
@@ -82,7 +82,7 @@ describe("address provider requests", () => {
   it("reads JSON from a host the operator configured on a private address", async () => {
     expect(await requestProviderJson(new URL(`${origin}/json`), OPTIONS)).toEqual({
       ok: true,
-      body: { agent: "lane-c-test", host: new URL(origin).host },
+      body: { agent: "address-request-test", host: new URL(origin).host },
     });
     expect(await requestProviderJson(new URL(`${origin}/geojson`), OPTIONS)).toEqual({
       ok: true,
@@ -96,7 +96,7 @@ describe("address provider requests", () => {
       ...OPTIONS,
       resolve: () => Promise.resolve([{ address: "127.0.0.1", family: 4 }]),
     });
-    expect(result).toEqual({ ok: true, body: { agent: "lane-c-test", host: `photon:${port}` } });
+    expect(result).toEqual({ ok: true, body: { agent: "address-request-test", host: `photon:${port}` } });
   });
 
   it("refuses a public host name that resolves to a private address", async () => {
@@ -169,7 +169,7 @@ describe("address provider requests", () => {
   it("treats only explicitly private host names as the operator's private network", () => {
     for (const host of ["localhost", "photon", "photon.internal", "geo.local", "api.home.arpa", "10.0.0.5", "::1"])
       expect(isOperatorPrivateHost(host), host).toBe(true);
-    for (const host of ["photon.komoot.io", "photon.example.com", "8.8.8.8", "2606:4700:4700::1111"])
+    for (const host of ["geocoder.example.org", "photon.example.com", "8.8.8.8", "2606:4700:4700::1111"])
       expect(isOperatorPrivateHost(host), host).toBe(false);
   });
 });

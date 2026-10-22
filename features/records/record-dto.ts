@@ -92,3 +92,11 @@ export async function withMemberUsers<T extends RecordDto>(
     }),
   }));
 }
+
+export async function withMemberUsersAndFiles<T extends RecordDto>(
+  records: T[],
+  repo: Pick<RecordRepo, "getMembersCompanyWide" | "getRecordFilesCompanyWide">,
+  memberScope: RecordReadScope,
+): Promise<T[]> {
+  return withRecordFiles(await withMemberUsers(records, repo, memberScope), repo);
+}

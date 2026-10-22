@@ -1,6 +1,6 @@
 import type { SerializedInteractorFailure } from "@/core/validation/validation.utils";
 
-export type RecordFieldErrors = {
+type RecordFieldErrors = {
   errors: string[];
   fields: Record<string, string[]>;
   parts?: Record<string, Record<string, string[]>>;

@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
 export function isIanaTimeZone(timeZone: string): boolean {
@@ -8,6 +10,12 @@ export function isIanaTimeZone(timeZone: string): boolean {
     return false;
   }
 }
+
+export const TimeZoneSchema = z
+  .string()
+  .min(1)
+  .max(64)
+  .refine(isIanaTimeZone, "Use an IANA time zone such as Europe/Berlin");
 
 export function browserTimeZone(): string {
   try {

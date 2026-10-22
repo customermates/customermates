@@ -394,11 +394,11 @@ describe("agent tools", () => {
     expect(hasNonTransactionalEffect("manage_team", { action: "invite_link" })).toBe(false);
   });
 
-  it("exposes the MCP registry without the deep-research pair, plus the interface tools, load_toolset and analyze_records", () => {
+  it("exposes the MCP registry without the deep-research pair and the address lookup, plus the interface tools, load_toolset and analyze_records", () => {
     const names = Object.keys(getAgentAiTools(deps()));
-    const deepResearch = new Set(MCP_ALWAYS_ON_TOOLS.map((agentTool) => agentTool.name));
+    const excluded = new Set([...MCP_ALWAYS_ON_TOOLS.map((agentTool) => agentTool.name), "lookup_address"]);
     const expected = new Set([
-      ...ALL_MCP_TOOLS.filter((agentTool) => !deepResearch.has(agentTool.name)).map((agentTool) => agentTool.name),
+      ...ALL_MCP_TOOLS.filter((agentTool) => !excluded.has(agentTool.name)).map((agentTool) => agentTool.name),
       ...AGENT_UI_TOOL_NAMES,
       "load_toolset",
       ANALYZE_RECORDS_TOOL_NAME,
@@ -407,6 +407,8 @@ describe("agent tools", () => {
     expect(names.toSorted()).toEqual([...expected].toSorted());
     expect(names).not.toContain("search");
     expect(names).not.toContain("fetch");
+    expect(names).not.toContain("lookup_address");
+    expect(names).toContain("check_address");
     expect(names).toContain("load_toolset");
     expect(names).not.toContain("click_ui_target");
     expect(names.filter((name) => name === "request_support")).toHaveLength(1);

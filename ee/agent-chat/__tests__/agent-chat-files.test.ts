@@ -35,6 +35,7 @@ vi.mock("@sentry/nextjs", () => sentry);
 import type { AgentModelEntry } from "@/ee/agent-chat/model-catalog";
 import type { AgentTurnWorkflowPayload } from "@/workflows/agent-turn";
 import type { AgentTurnFile } from "@/ee/agent-chat/agent-native-files";
+import type { ReplayMessage } from "@/ee/agent-chat/agent-stream-utils";
 
 import {
   AGENT_FILE_ATTACHMENT_LIMIT,
@@ -61,13 +62,14 @@ import {
 } from "@/ee/agent-chat/agent-native-files";
 import { resolveAgentTurnBudget, serializedAgentContextBytes } from "@/ee/agent-chat/agent-budget-policy";
 import { toModelMessages } from "@/ee/agent-chat/agent-stream-utils";
-import { conservativeAgentInitialContextBytes } from "@/ee/agent-chat/agent-provider-context";
+import { buildAgentProviderContext } from "@/ee/agent-chat/agent-provider-context";
 import { SendAgentMessageInteractor } from "@/ee/agent-chat/send-agent-message.interactor";
+import { describeAgentTool } from "@/ee/agent-chat/agent-activity";
+import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
 import { UNTRUSTED_RECORD_TEXT_CLOSE, UNTRUSTED_RECORD_TEXT_OPEN } from "@/features/mcp-tools/untrusted-record-content";
 import { failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-const GEMINI = "google/gemini-3.5-flash-lite";
 const CLAUDE = "anthropic/claude-haiku-5.5";
 const CLIENT_REQUEST_ID = "00000000-0000-4000-8000-000000000001";
 const CONVERSATION_ID = "00000000-0000-4000-8000-000000000002";
@@ -147,12 +149,27 @@ describe("chat file contexts", () => {
   });
 });
 
+describe("manage_record_files activity", () => {
+  const describeFiles = (input: unknown) => describeAgentTool(internalToolIdentity("manage_record_files"), input);
+
+  it("calls a write into a record an update and an upload without a record a generic step", () => {
+    const record = { typeId: CONVERSATION_ID, recordId: CLIENT_REQUEST_ID, fieldId: CARD_ID };
+    expect(describeFiles({ action: "read", fileId: OFFER_ID })).toMatchObject({ kind: "records.read", risk: "read" });
+    expect(describeFiles({ action: "attach", fileId: OFFER_ID, ...record })).toMatchObject({
+      kind: "records.update",
+      risk: "write",
+    });
+    expect(describeFiles({ action: "upload", name: "Offer.pdf", ...record })).toMatchObject({ kind: "records.update" });
+    expect(describeFiles({ action: "upload", name: "Offer.pdf" })).toMatchObject({ kind: "generic", risk: "write" });
+    expect(describeFiles({ action: "create_upload", name: "Offer.pdf" })).toMatchObject({ kind: "generic" });
+  });
+});
+
 describe("attachment planning", () => {
   const excerpt = (text: string) => new Map([[OFFER_ID, { text, totalChars: text.length }]]);
 
   it("passes images and PDFs of known short length as files to models that read them", () => {
-    expect(agentNativeFileTypes(GEMINI)).toContain("application/pdf");
-    expect(agentNativeFileTypes(CLAUDE)).toContain("image/png");
+    expect(agentNativeFileTypes(CLAUDE)).toEqual(["image/png", "image/jpeg", "image/webp", "application/pdf"]);
     expect(agentNativeFileTypes("openai/gpt-test")).toEqual([]);
     const card = turnFile({ id: CARD_ID, name: "Card.jpg", mimeType: "image/jpeg", pageCount: null });
     const shortPdf = turnFile({ pageCount: AGENT_NATIVE_PDF_MAX_PAGES, extractionStatus: "noText" });
@@ -197,7 +214,7 @@ describe("attachment planning", () => {
     const plan = planAgentAttachments({
       files: [turnFile()],
       excerpts: excerpt(long),
-      modelId: GEMINI,
+      modelId: CLAUDE,
       roomBytes: 80_000,
     });
     expect(plan.nativeFiles).toEqual([]);
@@ -216,16 +233,16 @@ describe("attachment planning", () => {
     const roomy = planAgentAttachments({
       files: [turnFile()],
       excerpts: excerpt(text),
-      modelId: GEMINI,
+      modelId: CLAUDE,
       roomBytes: 60_000,
     });
     const tight = planAgentAttachments({
       files: [turnFile()],
       excerpts: excerpt(text),
-      modelId: GEMINI,
+      modelId: CLAUDE,
       roomBytes: 3_000,
     });
-    const none = planAgentAttachments({ files: [turnFile()], excerpts: excerpt(text), modelId: GEMINI, roomBytes: 0 });
+    const none = planAgentAttachments({ files: [turnFile()], excerpts: excerpt(text), modelId: CLAUDE, roomBytes: 0 });
     const roomyShown = Number(/shownChars="(\d+)"/.exec(roomy.attachedText)?.[1]);
     const tightShown = Number(/shownChars="(\d+)"/.exec(tight.attachedText)?.[1]);
     expect(roomyShown).toBe(text.slice(0, AGENT_ATTACHED_TEXT_MAX_CHARS).trimEnd().length);
@@ -246,7 +263,7 @@ describe("attachment planning", () => {
         turnFile({ id: CARD_ID, extractionStatus: "noText", pageCount: 40 }),
       ],
       excerpts: new Map(),
-      modelId: GEMINI,
+      modelId: CLAUDE,
       roomBytes: 60_000,
     });
     expect(statuses.attachedText).toContain(
@@ -282,12 +299,12 @@ describe("attachment planning", () => {
     const excerpts = new Map(
       files.map((file) => [file.id, { text: "Payment terms. ".repeat(600), totalChars: 9_000 }]),
     );
-    const lines = planAgentAttachments({ files, excerpts, modelId: GEMINI, roomBytes: 0 });
+    const lines = planAgentAttachments({ files, excerpts, modelId: CLAUDE, roomBytes: 0 });
     const roomBytes = agentAttachmentContextBytes("Compare", lines) + 200;
-    const plan = planAgentAttachments({ files, excerpts, modelId: GEMINI, roomBytes });
+    const plan = planAgentAttachments({ files, excerpts, modelId: CLAUDE, roomBytes });
     for (const file of files) expect(plan.attachedText).toContain(`fileId="${file.id}"`);
     expect(agentAttachmentContextBytes("Compare", plan)).toBeLessThanOrEqual(roomBytes);
-    const roomy = planAgentAttachments({ files, excerpts, modelId: GEMINI, roomBytes: 40_000 });
+    const roomy = planAgentAttachments({ files, excerpts, modelId: CLAUDE, roomBytes: 40_000 });
     expect(agentAttachmentContextBytes("Compare", roomy)).toBeLessThanOrEqual(40_000);
     expect(roomy.attachedText.split(UNTRUSTED_RECORD_TEXT_OPEN)).toHaveLength(files.length + 1);
   });
@@ -296,7 +313,7 @@ describe("attachment planning", () => {
     const plan = planAgentAttachments({
       files: [turnFile({ id: CARD_ID, name: "Card.png", mimeType: "image/png", pageCount: null })],
       excerpts: new Map(),
-      modelId: GEMINI,
+      modelId: CLAUDE,
       roomBytes: 60_000,
     });
     expect(markAgentNativeFileUnavailable(plan.attachedText, CARD_ID)).toContain(
@@ -349,12 +366,18 @@ describe("attachment context accounting", () => {
     const plan = planAgentAttachments({
       files: [turnFile({ id: CARD_ID, name: "Card.png", mimeType: "image/png", pageCount: null })],
       excerpts: new Map(),
-      modelId: GEMINI,
+      modelId: CLAUDE,
       roomBytes: 60_000,
     });
-    const base = { systemPrompt: "System", currentText: "Read it", pageRoute: null, toolDefinitions: [] };
-    const without = conservativeAgentInitialContextBytes(base) ?? 0;
-    const withAttachments = conservativeAgentInitialContextBytes({ ...base, attachments: plan }) ?? 0;
+    const contextBytes = (message: ReplayMessage) =>
+      serializedAgentContextBytes(buildAgentProviderContext("System", [message], [])) ?? 0;
+    const without = contextBytes({ role: "user", text: "Read it" });
+    const withAttachments = contextBytes({
+      role: "user",
+      text: "Read it",
+      attachedText: plan.attachedText,
+      files: plan.nativeFiles.map((file) => ({ ...file, data: "#" })),
+    });
     expect(withAttachments - without).toBe(agentAttachmentContextBytes("Read it", plan));
     expect(withAttachments - without).toBeGreaterThanOrEqual(agentNativeFileContextBytes("image/png"));
   });

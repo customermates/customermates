@@ -1,4 +1,3 @@
-import type { del, get, head, issueSignedToken, presignUrl, put } from "@vercel/blob";
 import type {
   FileStorageDriver,
   FileUploadRequest,
@@ -9,9 +8,20 @@ import type {
   StoredFileWrite,
 } from "./file-storage-driver";
 
-import { BlobError, BlobNotFoundError, parseStoreIdFromDelegationToken } from "@vercel/blob";
+import {
+  BlobError,
+  BlobNotFoundError,
+  del,
+  get,
+  head,
+  issueSignedToken,
+  list,
+  parseStoreIdFromDelegationToken,
+  presignUrl,
+  put,
+} from "@vercel/blob";
 
-import { emptyFileStream, readCappedStream, totalSizeOfContentRange } from "./read-capped-stream";
+import { readCappedStream, streamOfBytes, totalSizeOfContentRange } from "./read-capped-stream";
 
 export type VercelBlobClient = {
   issueSignedToken: typeof issueSignedToken;
@@ -26,6 +36,8 @@ export type VercelBlobClient = {
     limit?: number;
   }) => Promise<{ blobs: Array<{ pathname: string }>; cursor?: string; hasMore: boolean }>;
 };
+
+export const vercelBlobClient: VercelBlobClient = { issueSignedToken, presignUrl, head, get, del, put, list };
 
 const VERCEL_BLOB_API_VERSION = "13";
 const VERCEL_BLOB_DELETE_BATCH = 100;
@@ -92,7 +104,7 @@ export class VercelBlobFileStorageDriver implements FileStorageDriver {
     } catch (error) {
       if (!range || !unsatisfiableRange(error)) throw error;
       const stored = await this.head(key);
-      return stored ? { stream: emptyFileStream(), size: stored.size, contentType: stored.contentType } : null;
+      return stored ? { stream: streamOfBytes(), size: stored.size, contentType: stored.contentType } : null;
     }
   }
 

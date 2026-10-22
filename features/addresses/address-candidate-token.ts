@@ -2,12 +2,12 @@ import { z } from "zod";
 
 import type { RecordAddress } from "@/features/records/record-model.schema";
 
-import { hmacSha256Hex, verifyHmacSha256Hex } from "@/core/utils/hmac";
+import { hmacSha256Hex, purposeSigningSecret, verifyHmacSha256Hex } from "@/core/utils/hmac";
 import { RecordAddressSchema } from "@/features/records/record-model.schema";
 import { verifiedRecordAddress } from "@/features/records/record-address";
 
 export const ADDRESS_CANDIDATE_TTL_MS = 24 * 60 * 60 * 1_000;
-export const ADDRESS_CANDIDATE_TOKEN_MAX_LENGTH = 4_096;
+const ADDRESS_CANDIDATE_TOKEN_MAX_LENGTH = 4_096;
 
 const CandidatePayloadSchema = z
   .object({
@@ -20,8 +20,7 @@ const CandidatePayloadSchema = z
   .strict();
 
 export function addressCandidateSigningSecret(secret: string | undefined): string | null {
-  const trimmed = secret?.trim();
-  return trimmed ? `address-candidate:v1:${trimmed}` : null;
+  return purposeSigningSecret("address-candidate", secret);
 }
 
 function signedMessage(companyId: string, payload: string): string {

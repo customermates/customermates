@@ -93,7 +93,7 @@ describe("manage_record_files", () => {
       mimeType: "application/pdf",
       content: "JVBERi0xLjQK",
       recordId: RECORD_ID,
-      attach: "replace",
+      mode: "replace",
     });
     expect(spies.upload).toHaveBeenCalledWith({
       typeId: TYPE_ID,
@@ -102,7 +102,7 @@ describe("manage_record_files", () => {
       mimeType: "application/pdf",
       content: "JVBERi0xLjQK",
       recordId: RECORD_ID,
-      attach: "replace",
+      mode: "replace",
     });
     const content = structured(result);
     expect(content).toMatchObject({ action: "upload", attached: true, file: { id: FILE_ID, name: "Offer.pdf" } });
@@ -216,7 +216,7 @@ describe("manage_record_files", () => {
       typeId: TYPE_ID,
       recordId: RECORD_ID,
       fieldId: FIELD_ID,
-      attach: "append",
+      mode: "append",
       expectedVersion: 3,
     });
     expect(spies.attach).toHaveBeenCalledWith({

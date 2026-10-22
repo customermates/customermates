@@ -1,5 +1,5 @@
 import type { PostalCodeRow } from "./geonames-postal-codes";
-import type { PostalCodeCountryState, PostalCodeDataStatus, PostalCodeSourceRecord } from "./postal-code.repo";
+import type { PostalCodeCountryState, PostalCodeDataStatus } from "./postal-code.repo";
 
 import { Prisma } from "@/generated/prisma";
 
@@ -76,13 +76,7 @@ export class PrismaPostalCodeRepo extends PostalCodeRepo {
     });
   }
 
-  async replace(
-    countryCode: string,
-    version: string,
-    rows: readonly PostalCodeRow[],
-    sources: readonly PostalCodeSourceRecord[],
-    now: Date,
-  ): Promise<void> {
+  async replace(countryCode: string, version: string, rows: readonly PostalCodeRow[], now: Date): Promise<void> {
     await runWithoutTenant(() =>
       prisma.$transaction(
         async (tx) => {
@@ -100,15 +94,12 @@ export class PrismaPostalCodeRepo extends PostalCodeRepo {
           }
           await tx.$executeRaw(Prisma.sql`
             INSERT INTO "PostalCodeCountry" (
-              "countryCode", "status", "version", "rowCount", "sources", "loadedAt", "attemptedAt", "attempts", "failure"
+              "countryCode", "status", "version", "rowCount", "loadedAt", "attemptedAt", "attempts", "failure"
             )
-            VALUES (
-              ${countryCode}, 'ready', ${version}, ${rows.length}, ${JSON.stringify(sources)}::jsonb, ${now}, ${now}, 0,
-              NULL
-            )
+            VALUES (${countryCode}, 'ready', ${version}, ${rows.length}, ${now}, ${now}, 0, NULL)
             ON CONFLICT ("countryCode") DO UPDATE SET
               "status" = 'ready', "version" = EXCLUDED."version", "rowCount" = EXCLUDED."rowCount",
-              "sources" = EXCLUDED."sources", "loadedAt" = EXCLUDED."loadedAt", "attempts" = 0, "failure" = NULL
+              "loadedAt" = EXCLUDED."loadedAt", "attempts" = 0, "failure" = NULL
           `);
         },
         { timeout: LOAD_TIMEOUT_MS, maxWait: LOAD_TIMEOUT_MS },

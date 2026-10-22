@@ -24,7 +24,6 @@ export class RecordFileQuotaService {
     return {
       usedBytes,
       limitBytes: fileStorageLimitBytes({
-        appMode: this.appMode,
         plan: subscription?.plan ?? null,
         enterpriseBytesPerUser: subscription?.enterpriseFileStorageBytesPerUser ?? null,
         activeUsers,

@@ -13,8 +13,6 @@ export type PostalCodeCountryState = {
   failure: string | null;
 };
 
-export type PostalCodeSourceRecord = { file: string; sha256: string; bytes: number; modifiedAt: string | null };
-
 export abstract class PostalCodeRepo {
   abstract country(countryCode: string): Promise<PostalCodeCountryState | null>;
   abstract claim(
@@ -23,13 +21,7 @@ export abstract class PostalCodeRepo {
     previous: PostalCodeCountryState | null,
     now: Date,
   ): Promise<boolean>;
-  abstract replace(
-    countryCode: string,
-    version: string,
-    rows: readonly PostalCodeRow[],
-    sources: readonly PostalCodeSourceRecord[],
-    now: Date,
-  ): Promise<void>;
+  abstract replace(countryCode: string, version: string, rows: readonly PostalCodeRow[], now: Date): Promise<void>;
   abstract fail(countryCode: string, status: "failed" | "unavailable", failure: string, now: Date): Promise<void>;
   abstract places(countryCode: string, keys: readonly string[]): Promise<PostalCodeRow[]>;
 }

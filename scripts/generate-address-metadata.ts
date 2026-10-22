@@ -11,7 +11,7 @@ import {
 } from "./address-metadata/build-address-metadata";
 
 const ROOT = process.cwd();
-export const ADDRESS_METADATA_SNAPSHOT_PATH = join(ROOT, "scripts", "address-metadata", "libaddressinput.json");
+const ADDRESS_METADATA_SNAPSHOT_PATH = join(ROOT, "scripts", "address-metadata", "libaddressinput.json");
 export const ADDRESS_METADATA_PATH = join(ROOT, "features", "addresses", "address-metadata.json");
 const SERVICE_URL = "https://chromium-i18n.appspot.com/ssl-address";
 const LICENSE = "CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), address metadata © Google";

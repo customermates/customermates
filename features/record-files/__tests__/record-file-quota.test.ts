@@ -7,7 +7,7 @@ import {
 } from "../record-file-quota";
 import { RecordFileQuotaService } from "../record-file-quota.service";
 import { recordFileMaxUploadBytes } from "../record-file-limits";
-import { storageSizeLabel } from "../storage-size";
+import { fileSizeLabel } from "@/core/utils/format-bytes";
 import { decodeRecordFileContent } from "../record-file-content";
 
 const GIB = 1024 ** 3;
@@ -15,7 +15,7 @@ const GIB = 1024 ** 3;
 describe("file storage quota", () => {
   it("pools the plan's storage per active user in the cloud", () => {
     const limit = (plan: "starter" | "pro" | "business" | "enterprise" | null, activeUsers: number) =>
-      fileStorageLimitBytes({ appMode: "cloud", plan, enterpriseBytesPerUser: null, activeUsers });
+      fileStorageLimitBytes({ plan, enterpriseBytesPerUser: null, activeUsers });
     expect(limit("starter", 3)).toBe(3 * GIB);
     expect(limit("pro", 4)).toBe(20 * GIB);
     expect(limit("business", 2)).toBe(40 * GIB);
@@ -26,23 +26,24 @@ describe("file storage quota", () => {
   it("uses the enterprise contract and falls back to 50 GB per user", () => {
     expect(
       fileStorageLimitBytes({
-        appMode: "cloud",
         plan: "enterprise",
         enterpriseBytesPerUser: 100 * GIB,
         activeUsers: 2,
       }),
     ).toBe(200 * GIB);
-    expect(
-      fileStorageLimitBytes({ appMode: "cloud", plan: "enterprise", enterpriseBytesPerUser: null, activeUsers: 2 }),
-    ).toBe(2 * ENTERPRISE_DEFAULT_FILE_STORAGE_BYTES_PER_USER);
+    expect(fileStorageLimitBytes({ plan: "enterprise", enterpriseBytesPerUser: null, activeUsers: 2 })).toBe(
+      2 * ENTERPRISE_DEFAULT_FILE_STORAGE_BYTES_PER_USER,
+    );
   });
 
-  it("leaves self-hosted and demo storage unlimited", () => {
-    for (const appMode of ["self-hosted", "demo"] as const) {
-      expect(fileStorageLimitBytes({ appMode, plan: "starter", enterpriseBytesPerUser: null, activeUsers: 9 })).toBe(
-        null,
-      );
-    }
+  it("leaves self-hosted and demo storage unlimited", async () => {
+    const sources = {
+      subscription: () => Promise.resolve({ plan: "starter" as const, enterpriseFileStorageBytesPerUser: null }),
+      activeUsers: () => Promise.resolve(9),
+      usedBytes: () => Promise.resolve(1),
+    };
+    for (const appMode of ["self-hosted", "demo"] as const)
+      expect(await new RecordFileQuotaService(sources, appMode).usage()).toEqual({ usedBytes: 1, limitBytes: null });
   });
 
   it("refuses only what goes past the limit", () => {
@@ -75,18 +76,13 @@ describe("file storage quota", () => {
   });
 });
 
-describe("storage size labels", () => {
-  const label = (bytes: number, locale: string) => storageSizeLabel(bytes, locale).replace(/\s/gu, " ");
-
-  it("labels sizes in binary units with one decimal in the reader's locale", () => {
-    expect(label(0, "en")).toBe("0 byte");
-    expect(label(1023, "en")).toBe("1,023 byte");
-    expect(label(1536, "en")).toBe("1.5 kB");
-    expect(label(25 * 1024 * 1024, "en")).toBe("25 MB");
-    expect(label(1.2 * GIB, "de")).toBe("1,2 GB");
-    expect(label(20 * GIB, "de")).toBe("20 GB");
-    expect(label(250 * GIB, "en")).toBe("250 GB");
-    expect(label(1.5 * GIB, "fr")).toBe("1,5 Go");
+describe("file size labels in upload and quota messages", () => {
+  it("read like the file sizes shown in the app", () => {
+    expect(fileSizeLabel(443, "en")).toBe("443 B");
+    expect(fileSizeLabel(0, "en")).toBe("0 B");
+    expect(fileSizeLabel(1536, "de")).toBe("1,5 KB");
+    expect(fileSizeLabel(3 * 1024 * 1024, "en")).toBe("3 MB");
+    expect(fileSizeLabel(60 * GIB, "de")).toBe("60 GB");
   });
 });
 

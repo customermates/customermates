@@ -58,9 +58,6 @@ const { PurgeCompanyRecordFilesInteractor } = await import(
 const { PrismaRecordFileSearchRepo } = await import(
   "@/features/record-file-index/prisma-record-file-search.repository"
 );
-const { ExtractedRecordFileTextReader } = await import(
-  "@/features/record-file-index/extracted-record-file-text-reader"
-);
 const { RecordFileIndexService } = await import("@/features/record-file-index/record-file-index.service");
 const { CreateAgentChatFileUploadInteractor } = await import("../create-agent-chat-file-upload.interactor");
 const { CompleteAgentChatFileUploadInteractor } = await import("../complete-agent-chat-file-upload.interactor");
@@ -194,7 +191,7 @@ async function workspace() {
     createField: new CreateRecordFileUploadInteractor(uploads, drivers, links),
     put: new UploadRecordFileContentInteractor(files, drivers),
     get,
-    read: new ReadRecordFileInteractor(get, new ExtractedRecordFileTextReader(new PrismaRecordFileSearchRepo())),
+    read: new ReadRecordFileInteractor(get, new PrismaRecordFileSearchRepo()),
     attach: new AttachRecordFileInteractor(files, access, { records: repo, mutate }),
     purge: new PurgeCompanyRecordFilesInteractor(
       () => new PrismaRecordFileRepo(companyId),

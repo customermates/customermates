@@ -11,7 +11,7 @@ import { AddressLookupRateLimiter } from "../address-lookup-rate-limiter";
 import { AddressLookupService } from "../address-lookup.service";
 
 const NOW = new Date("2026-10-15T08:00:00.000Z");
-const SECRET = "lane-c-secret";
+const SECRET = "address-lookup-secret";
 const SIGNING = `address-candidate:v1:${SECRET}`;
 const CALLER: AddressLookupCaller = {
   companyId: "00000000-0000-4000-8000-0000000000c1",
@@ -131,6 +131,18 @@ describe("address lookup service", () => {
     expect(decodeAddressCandidate(suggestion.candidateToken, CALLER.companyId, SIGNING, NOW)).toEqual(
       suggestion.address,
     );
+  });
+
+  it("stores candidates in the same normalized form as typed addresses", async () => {
+    const found = match({ street: "1 Market St", postalCode: "94105", city: "San Francisco", region: "California" });
+    const californian = { ...found, address: { ...found.address, countryCode: "us" } };
+    const { instance } = service([{ ok: true, matches: [californian] }]);
+    const outcome = await instance.lookup(CALLER, { query: "1 Market St, San Francisco", limit: 5 });
+    if (outcome.status !== "ok") throw new Error(outcome.status);
+    const [candidate] = outcome.candidates;
+    expect(candidate.address).toMatchObject({ region: "CA", countryCode: "us", verification: { status: "verified" } });
+    expect(candidate.address.formatted).toContain("CA 94105");
+    expect(decodeAddressCandidate(candidate.candidateToken, CALLER.companyId, SIGNING, NOW)).toEqual(candidate.address);
   });
 
   it("returns no suggestion when nothing matches or the input has neither postal code nor city", async () => {

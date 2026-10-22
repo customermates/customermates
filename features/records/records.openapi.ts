@@ -38,12 +38,8 @@ import { GenericRecordWidgetInputSchema, GenericRecordWidgetDtoSchema } from "@/
 import { RecordWidgetReadSchema } from "@/features/widget/record-widget.schema";
 import { RecordDtoSchema } from "./record-model.schema";
 import { ConfigurationContractSchema, ConfigurationPreviewSchema } from "./configuration.schema";
-import {
-  RecordQuerySchema,
-  MutateRecordRequestSchema,
-  RecordOperationResultSchema,
-  RecordReadSchema,
-} from "./record-query.schema";
+import { MutateRecordRequestSchema, RecordOperationResultSchema, RecordReadSchema } from "./record-query.schema";
+import { RecordQueryBaseSchema } from "./record-query-base.schema";
 import { RecordQueryResultSchema } from "./record-query-result.schema";
 import { RecordMeasureSchema, RecordMeasureResultSchema } from "./record-measure.schema";
 import { RecordOperationInputSchema, RecordOperationStatusSchema } from "./record-operation.schema";
@@ -512,7 +508,7 @@ export const recordApiPaths = {
     }),
   },
   "/v1/records/query": {
-    post: operation("queryRecords", "Query records", RecordQuerySchema, RecordQueryResultSchema, {
+    post: operation("queryRecords", "Query records", RecordQueryBaseSchema, RecordQueryResultSchema, {
       read: true,
       requires: "read access to the list; only readable records and values are returned.",
       examples: recordApiExamples.query,

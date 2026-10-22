@@ -281,3 +281,4 @@ if (!options.remote) {
 
 const failed = all.some((entry) => entry.comparison.newFailures.length > 0 || (entry.error && entry.comparison.passed + entry.comparison.failed === 0));
 process.exit(failed ? 1 : 0);
+

@@ -324,10 +324,7 @@ export class RecordJournal {
     await this.staging.base.stageRows(
       this.staging.operationId,
       "journal",
-      [...this.dirty].map((key) => ({
-        key,
-        payload: recordInvariant(this.entries.get(key)),
-      })),
+      [...this.dirty].map((key) => ({ key, payload: recordInvariant(this.entries.get(key)) })),
     );
     this.dirty.clear();
   }

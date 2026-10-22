@@ -18,6 +18,7 @@ import type {
 import { Prisma } from "@/generated/prisma";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
+import { sectionEmbeddingAvailableSql } from "@/core/retrieval/section-search-sql";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { BULK_WRITE_TRANSACTION, Transaction } from "@/core/decorators/transaction.decorator";
 
@@ -276,14 +277,7 @@ export class PrismaRecordFileRepo
 
   async semanticIndexAvailable(): Promise<boolean> {
     semanticIndexColumn ??= this.prisma
-      .$queryRaw<Array<{ available: boolean }>>(
-        Prisma.sql`
-        SELECT EXISTS (
-          SELECT 1 FROM information_schema.columns
-          WHERE table_schema = current_schema() AND table_name = 'RecordFileChunk' AND column_name = 'embedding'
-        ) AS "available"
-      `,
-      )
+      .$queryRaw<Array<{ available: boolean }>>(sectionEmbeddingAvailableSql("RecordFileChunk"))
       .then((rows) => rows[0]?.available === true)
       .catch((error: unknown) => {
         semanticIndexColumn = undefined;

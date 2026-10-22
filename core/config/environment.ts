@@ -91,7 +91,7 @@ export function resolveOptionalHttpUrl(name: string, value: string | undefined):
   return normalized.replace(/\/+$/u, "");
 }
 
-export const DEFAULT_POSTAL_CODE_DATA_URL = "https://download.geonames.org/export/zip";
+const DEFAULT_POSTAL_CODE_DATA_URL = "https://download.geonames.org/export/zip";
 
 export function resolvePostalCodeDataUrl(value: string | undefined): string | null {
   const normalized = value?.trim();
@@ -106,6 +106,12 @@ export function resolveAppMode(source: Environment): AppMode {
   if (appMode !== "self-hosted" && appMode !== "cloud" && appMode !== "demo")
     throw new Error("APP_MODE must be self-hosted, cloud, or demo");
   return appMode;
+}
+
+export function frameAncestorsPolicy(appMode: AppMode): string {
+  return appMode === "demo"
+    ? "frame-ancestors 'self' https://customermates.com https://*.customermates.com"
+    : "frame-ancestors 'self'";
 }
 
 export function normalizeBaseUrl(rawValue: string, variableName = "BASE_URL"): string {

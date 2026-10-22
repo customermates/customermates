@@ -14,7 +14,7 @@ export const CheckAddressSchema = VerifyAddressSchema.describe(
 );
 export type CheckAddressInput = Data<typeof CheckAddressSchema>;
 
-export const AddressIssueSchema = z
+const AddressIssueSchema = z
   .object({
     code: z
       .enum(ADDRESS_ISSUE_CODES)
@@ -36,7 +36,7 @@ export const AddressIssueSchema = z
   .strict();
 export type AddressIssueOutput = Data<typeof AddressIssueSchema>;
 
-export const PostalCodePlaceSchema = z
+const PostalCodePlaceSchema = z
   .object({
     city: z.string().nullable(),
     region: z.string().nullable().describe("The country's region code, as an address field stores it, or null."),

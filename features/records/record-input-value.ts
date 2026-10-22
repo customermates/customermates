@@ -1,5 +1,7 @@
 import type { RecordScalar, RecordScalarInput, RecordFieldView } from "./record-model.schema";
+import type { RecordAddressPart } from "./record-address-value";
 import { filterScalar } from "./record-presentation";
+import { RECORD_ADDRESS_PARTS, unverifiedAddressScalar } from "./record-address-value";
 
 export function recordInputValue(raw: unknown, field: RecordFieldView): RecordScalar | null {
   if (raw === undefined || raw === null || raw === "") return null;
@@ -22,14 +24,13 @@ export function recordInputValue(raw: unknown, field: RecordFieldView): RecordSc
   return filterScalar(String(raw), field);
 }
 
-const ADDRESS_PARTS = ["street", "line2", "postalCode", "city", "region", "countryCode"] as const;
-export type AddressDraftParts = Record<(typeof ADDRESS_PARTS)[number], string | null>;
+export type AddressDraftParts = Record<RecordAddressPart, string | null>;
 export type AddressDraft = AddressDraftParts & { verified?: AddressDraftParts; candidateToken?: string };
 
 export function addressDraftParts(raw: unknown): AddressDraftParts {
   const draft = (typeof raw === "object" && raw !== null ? raw : {}) as Partial<Record<string, unknown>>;
   return Object.fromEntries(
-    ADDRESS_PARTS.map((part) => {
+    RECORD_ADDRESS_PARTS.map((part) => {
       const value = draft[part];
       return [part, typeof value === "string" && value.trim() ? value.trim() : null];
     }),
@@ -41,7 +42,7 @@ export function isVerifiedAddressDraft(raw: unknown): boolean {
   if (!verified) return false;
   const parts = addressDraftParts(raw);
   const expected = addressDraftParts(verified);
-  return ADDRESS_PARTS.every((part) => parts[part] === expected[part]) && Object.values(parts).some(Boolean);
+  return RECORD_ADDRESS_PARTS.every((part) => parts[part] === expected[part]) && Object.values(parts).some(Boolean);
 }
 
 export function verifiedAddressDraft(parts: AddressDraftParts, candidateToken: string): AddressDraft {
@@ -50,22 +51,12 @@ export function verifiedAddressDraft(parts: AddressDraftParts, candidateToken: s
 
 function addressInput(raw: unknown): RecordScalar | null {
   if (typeof raw !== "object" || raw === null) return null;
-  const parts = addressDraftParts(raw);
-  if (!Object.values(parts).some(Boolean)) return null;
-  return {
-    kind: "address",
-    value: {
-      ...parts,
-      formatted: "",
-      location: null,
-      verification: { status: "unverified", provider: null, checkedAt: null },
-    },
-  };
+  return unverifiedAddressScalar(addressDraftParts(raw));
 }
 
 function addressDraft(value: RecordScalar | null | undefined): AddressDraft {
   const parts = Object.fromEntries(
-    ADDRESS_PARTS.map((part) => [part, value?.kind === "address" ? (value.value[part] ?? null) : null]),
+    RECORD_ADDRESS_PARTS.map((part) => [part, value?.kind === "address" ? (value.value[part] ?? null) : null]),
   ) as AddressDraftParts;
   return value?.kind === "address" && value.value.verification.status === "verified"
     ? { ...parts, verified: { ...parts } }
@@ -86,7 +77,6 @@ export function recordDraftValue(
   if (field?.valueType === "address") return addressDraft(value);
   if (!value) return undefined;
   if (value.kind === "file") return [...value.value];
-  if (value.kind === "address") return { ...value.value };
   if (value.kind === "richText") return JSON.parse(value.documentJson);
   if (value.kind === "range") return `${value.start ?? ""},${value.end ?? ""}`;
   if (value.kind === "textList") return value.value.join("\n");

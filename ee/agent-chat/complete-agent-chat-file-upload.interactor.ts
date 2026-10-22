@@ -1,5 +1,5 @@
 import type { Validated } from "@/core/validation/validation.utils";
-import type { FileStorageDrivers } from "@/core/storage/file-storage-drivers";
+import type { FileStorageDrivers } from "@/core/storage/file-storage-driver";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { RecordFileId, RecordFileDto } from "@/features/record-files/record-file.schema";
 import type { RecordFileUploadRepo } from "@/features/records/record-file-upload.repo";
@@ -12,7 +12,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordFileIdSchema } from "@/features/record-files/record-file.schema";
 import { recordFileDto } from "@/features/record-files/record-file-dto";
 
-export type AgentChatFileTextExtraction = (companyId: string) => { extractFile(fileId: string): Promise<void> };
+type AgentChatFileTextExtraction = (companyId: string) => { extractFile(fileId: string): Promise<void> };
 
 @TenantInteractor()
 export class CompleteAgentChatFileUploadInteractor extends AuthenticatedInteractor<RecordFileId, RecordFileDto> {

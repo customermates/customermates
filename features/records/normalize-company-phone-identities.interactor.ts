@@ -8,7 +8,7 @@ import { runInTransaction } from "@/core/decorators/transaction-runner";
 
 import { renormalizedPhoneIdentityValue } from "./phone-identity-value";
 
-export const PHONE_IDENTITY_REPAIR_BATCH = 200;
+const PHONE_IDENTITY_REPAIR_BATCH = 200;
 const PHONE_IDENTITY_REPAIR_TIMEOUT_MS = 60_000;
 
 const NormalizeCompanyPhoneIdentitiesSchema = z

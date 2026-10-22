@@ -1,10 +1,10 @@
 import type { AddressCountryFormat, AddressRegionMetadata } from "./address-country-format";
 
-export type RegionCheck =
+type RegionCheck =
   | { status: "matched"; value: string; region: AddressRegionMetadata }
   | { status: "unknown" | "invalidCode" | "ambiguous" | "unchecked"; value: string };
 
-export type RegionMatch = AddressRegionMetadata | "ambiguous" | null;
+type RegionMatch = AddressRegionMetadata | "ambiguous" | null;
 
 type RegionIndex = {
   tiers: Array<Map<string, AddressRegionMetadata | null>>;

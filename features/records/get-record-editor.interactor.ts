@@ -14,7 +14,7 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { failAuthorization, failNotFound, unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { recordDto, withMemberUsers, withRecordFiles } from "./record-dto";
+import { recordDto, withMemberUsersAndFiles } from "./record-dto";
 import { resolveRecordPath } from "./record-relationship-path";
 import { visibleFormulaFields } from "./record-formula-visibility";
 import { formulaReferences, lookupSelections } from "./formula-references";
@@ -125,13 +125,10 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
           : new Set<string>();
         const record = stored
           ? (
-              await withRecordFiles(
-                await withMemberUsers(
-                  [recordDto(stored, storedModel, visible, policy.memberScope)],
-                  this.records,
-                  policy.memberScope,
-                ),
+              await withMemberUsersAndFiles(
+                [recordDto(stored, storedModel, visible, policy.memberScope)],
                 this.records,
+                policy.memberScope,
               )
             )[0]
           : null;

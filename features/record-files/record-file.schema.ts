@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { RecordFileExtractionStatus } from "@/generated/prisma";
+
 export const RECORD_FILE_UPLOAD_SECONDS = 15 * 60;
 export const RECORD_FILE_CLOUD_MAX_BYTES = 25 * 1024 * 1024;
 
@@ -72,7 +74,7 @@ export const RecordFileStatusSchema = z
   );
 
 export const RecordFileExtractionStatusSchema = z
-  .enum(["pending", "done", "noText", "unsupported", "failed", "skipped"])
+  .enum(RecordFileExtractionStatus)
   .describe(
     "Text extraction for search: pending, done, noText (no text layer), unsupported, failed or skipped when indexing is off.",
   );
@@ -135,6 +137,12 @@ export type DownloadRecordFileByToken = z.infer<typeof DownloadRecordFileByToken
 
 export const RECORD_FILE_INLINE_UPLOAD_MAX_BYTES = 3 * 1024 * 1024;
 
+export const RecordFileAttachModeSchema = z
+  .enum(["append", "replace"])
+  .describe(
+    "append adds the file after the existing ones (default for fields that hold several files); replace keeps only this file (default for single-file fields).",
+  );
+
 export const UploadRecordFileSchema = z
   .object({
     typeId: z.uuid(),
@@ -143,7 +151,7 @@ export const UploadRecordFileSchema = z
     mimeType: z.string().max(255),
     content: z.string().max(4_400_000),
     recordId: z.uuid().optional(),
-    attach: z.enum(["append", "replace"]).optional(),
+    mode: RecordFileAttachModeSchema.optional(),
     expectedVersion: z.number().int().positive().optional(),
   })
   .strict();
@@ -157,12 +165,6 @@ export const UploadRecordFileResultSchema = z
   })
   .strict();
 export type UploadRecordFileResult = z.infer<typeof UploadRecordFileResultSchema>;
-
-export const RecordFileAttachModeSchema = z
-  .enum(["append", "replace"])
-  .describe(
-    "append adds the file after the existing ones (default for fields that hold several files); replace keeps only this file (default for single-file fields).",
-  );
 
 export const AttachRecordFileTargetSchema = z
   .object({
@@ -178,7 +180,6 @@ export const AttachRecordFileTargetSchema = z
       .describe("The record version you read; the current version when omitted."),
   })
   .strict();
-export type AttachRecordFileTarget = z.infer<typeof AttachRecordFileTargetSchema>;
 
 export const AttachRecordFileSchema = AttachRecordFileTargetSchema.extend({
   fileId: z

@@ -23,7 +23,7 @@ export type PlanEntitlements = {
   fileStorageBytesPerActiveUser: number | "contract" | null;
 };
 
-const GIB = 1024 ** 3;
+export const GIB = 1024 ** 3;
 export const HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER = 100;
 
 function hostedAiUsage<const Multiplier extends number>(multiplier: Multiplier) {

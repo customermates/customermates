@@ -297,9 +297,9 @@ describe("convertSpreadsheet", () => {
         record.identities?.map(({ provider, value, channelClass }) => `${provider}:${value}:${channelClass}`),
       ),
     ).toEqual([
-      ["mail:ada@example.com:email", "whatsapp:+49301234567:phone"],
-      ["whatsapp:+442079460958:phone"],
-      ["mail:alan@example.com:email", "whatsapp:+14155550100:phone"],
+      ["mail:ada@example.com:email", "phone:+49301234567:phone"],
+      ["phone:+442079460958:phone"],
+      ["mail:alan@example.com:email", "phone:+14155550100:phone"],
     ]);
   });
 

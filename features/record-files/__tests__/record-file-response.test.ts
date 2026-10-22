@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { frameAncestorsPolicy } from "@/core/config/environment";
+
 import { normalizeRecordFileMimeType, RECORD_FILE_NAME_MAX_LENGTH, sanitizeRecordFileName } from "../record-file-name";
 import {
   parseRecordFileRange,
@@ -7,6 +9,8 @@ import {
   recordFileResponseHeaders,
   recordFileServedInline,
 } from "../record-file-response";
+
+const SELF = "frame-ancestors 'self'";
 
 describe("record file names", () => {
   it("keeps the last path segment and drops control and direction characters", () => {
@@ -84,6 +88,7 @@ describe("record file responses", () => {
         size: 100,
         inline: true,
         range: { start: 10, end: 19 },
+        frameAncestors: SELF,
       }),
     ).toEqual({
       "content-type": "image/png",
@@ -101,10 +106,32 @@ describe("record file responses", () => {
       size: 5,
       inline: false,
       range: null,
+      frameAncestors: SELF,
     });
     expect(download["content-disposition"]).toMatch(/^attachment;/);
     expect(download["content-length"]).toBe("5");
     expect(download["content-security-policy"]).toBe("frame-ancestors 'self'");
     expect(download).not.toHaveProperty("content-range");
+    const pdf = recordFileResponseHeaders({
+      name: "offer.pdf",
+      mimeType: "application/pdf",
+      size: 5,
+      inline: true,
+      range: null,
+      frameAncestors: SELF,
+    });
+    expect(pdf["content-disposition"]).toMatch(/^inline;/);
+    expect(pdf["content-security-policy"]).toBe("frame-ancestors 'self'");
+  });
+
+  it("lets the pages that may frame the app also frame its file previews", () => {
+    const demo = frameAncestorsPolicy("demo");
+    const headers = (mimeType: string) =>
+      recordFileResponseHeaders({ name: "file", mimeType, size: 5, inline: true, range: null, frameAncestors: demo });
+    expect(frameAncestorsPolicy("cloud")).toBe(SELF);
+    expect(frameAncestorsPolicy("self-hosted")).toBe(SELF);
+    expect(headers("application/pdf")["content-security-policy"]).toBe(demo);
+    expect(headers("image/png")["content-security-policy"]).toBe(`sandbox; ${demo}`);
+    expect(demo).toBe("frame-ancestors 'self' https://customermates.com https://*.customermates.com");
   });
 });

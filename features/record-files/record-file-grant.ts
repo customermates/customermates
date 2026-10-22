@@ -1,4 +1,4 @@
-import { hmacSha256Hex, verifyHmacSha256Hex } from "@/core/utils/hmac";
+import { hmacSha256Hex, purposeSigningSecret, verifyHmacSha256Hex } from "@/core/utils/hmac";
 
 export const RECORD_FILE_LINK_SECONDS = 15 * 60;
 
@@ -9,8 +9,7 @@ export type RecordFileGrantPurpose = "download" | "upload";
 export type RecordFileGrant = { status: "valid"; userId: string } | { status: "expired" | "invalid" };
 
 export function recordFileGrantSecret(secret: string | undefined): string | null {
-  const trimmed = secret?.trim();
-  return trimmed ? `record-file-grant:v1:${trimmed}` : null;
+  return purposeSigningSecret("record-file-grant", secret);
 }
 
 export function signRecordFileGrant(

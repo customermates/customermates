@@ -41,9 +41,7 @@ function concurrentSteps(): LifecycleStep[] {
         getSyncStaleWikiSectionsInteractor()
           .invoke()
           .catch((error: unknown) => {
-            Sentry.captureException(error, {
-              tags: { kind: "wiki-section-cron-sync" },
-            });
+            Sentry.captureException(error, { tags: { kind: "wiki-section-cron-sync" } });
           }),
     ],
   ];

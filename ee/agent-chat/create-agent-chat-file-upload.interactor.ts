@@ -1,5 +1,5 @@
 import type { Validated } from "@/core/validation/validation.utils";
-import type { FileStorageDrivers } from "@/core/storage/file-storage-drivers";
+import type { FileStorageDrivers } from "@/core/storage/file-storage-driver";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { RecordFileLinks } from "@/features/record-files/record-file-links";
 import type { RecordFileUploadService } from "@/features/record-files/record-file-upload.service";

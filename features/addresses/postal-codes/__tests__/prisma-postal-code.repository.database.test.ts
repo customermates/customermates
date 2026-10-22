@@ -46,7 +46,6 @@ describeDatabase("postal code repository", () => {
       COUNTRY,
       "1:test",
       [row("9490", 0, "Vaduz"), row("9494", 0, "Schaan"), row("9494", 1, "Nendeln", 47.2, 9.54)],
-      [{ file: "LI.zip", sha256: "a".repeat(64), bytes: 1_234, modifiedAt: null }],
       later,
     );
     expect(await repo.country(COUNTRY)).toMatchObject({ status: "ready", version: "1:test", rowCount: 3, attempts: 0 });
@@ -56,7 +55,7 @@ describeDatabase("postal code repository", () => {
     ]);
     expect(await repo.places(COUNTRY, [])).toEqual([]);
 
-    await repo.replace(COUNTRY, "2:test", [row("9490", 0, "Vaduz")], [], later);
+    await repo.replace(COUNTRY, "2:test", [row("9490", 0, "Vaduz")], later);
     expect(await repo.places(COUNTRY, ["9494"])).toEqual([]);
     expect(await repo.country(COUNTRY)).toMatchObject({ rowCount: 1, version: "2:test" });
   });
@@ -64,7 +63,7 @@ describeDatabase("postal code repository", () => {
   it("keeps serving loaded data when a refresh fails and records the reason", async () => {
     await cleanUp();
     const repo = new PrismaPostalCodeRepo();
-    await repo.replace(COUNTRY, "1:test", [row("9490", 0, "Vaduz")], [], NOW);
+    await repo.replace(COUNTRY, "1:test", [row("9490", 0, "Vaduz")], NOW);
     await repo.fail(COUNTRY, "failed", "timeout", NOW);
     expect(await repo.country(COUNTRY)).toMatchObject({ status: "ready", failure: "timeout", rowCount: 1 });
     await cleanUp();

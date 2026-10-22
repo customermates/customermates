@@ -1,16 +1,16 @@
-import type { RecordFileExtractionStatus } from "@/features/records/record-file-upload.repo";
+import type { RecordFileExtractionStatus } from "@/generated/prisma";
 
 import { AGENT_CONTEXT_BYTES_PER_TOKEN } from "./agent-model";
 
 export const AGENT_NATIVE_FILE_MAX_BYTES = 3 * 1024 * 1024;
 export const AGENT_NATIVE_FILES_MAX_TOTAL_BYTES = 5 * 1024 * 1024;
 export const AGENT_NATIVE_PDF_MAX_PAGES = 3;
-export const AGENT_NATIVE_IMAGE_TOKENS = 1_600;
-export const AGENT_NATIVE_PDF_PAGE_TOKENS = 3_000;
+const AGENT_NATIVE_IMAGE_TOKENS = 1_600;
+const AGENT_NATIVE_PDF_PAGE_TOKENS = 3_000;
 export const AGENT_NATIVE_FILE_TOKEN_BUDGET = 12_000;
 
 const NATIVE_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"] as const;
-const NATIVE_FILE_MODEL_PREFIXES = ["google/gemini-", "anthropic/claude-"] as const;
+const NATIVE_FILE_MODEL_PREFIX = "anthropic/claude-";
 
 export type AgentTurnFile = {
   id: string;
@@ -24,9 +24,7 @@ export type AgentTurnFile = {
 export type AgentNativeFile = { fileId: string; mediaType: string; name: string; data?: string };
 
 export function agentNativeFileTypes(modelId: string): readonly string[] {
-  return NATIVE_FILE_MODEL_PREFIXES.some((prefix) => modelId.startsWith(prefix))
-    ? [...NATIVE_IMAGE_TYPES, "application/pdf"]
-    : [];
+  return modelId.startsWith(NATIVE_FILE_MODEL_PREFIX) ? [...NATIVE_IMAGE_TYPES, "application/pdf"] : [];
 }
 
 export function agentNativeFileTokens(mediaType: string): number {

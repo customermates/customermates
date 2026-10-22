@@ -38,3 +38,5 @@ export interface FileStorageDriver {
   delete(keys: string[]): Promise<void>;
   deletePrefix?(prefix: string): Promise<number>;
 }
+
+export type FileStorageDrivers = (name: string) => FileStorageDriver;

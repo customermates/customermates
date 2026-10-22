@@ -59,7 +59,6 @@ import { RecordInputField } from "../../records/[typeId]/components/record-input
 import { recordDraftValue, recordInputValue } from "@/features/records/record-input-value";
 import {
   CLICK_ACTION_VALUE_TYPES,
-  CONTACT_VALUE_TYPES,
   MULTIPLE_VALUE_TYPES,
   calculationResultType,
   expressionRelationshipDependencies,
@@ -271,7 +270,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
   }
   get derivedType() {
     const derived = this.isCalculated ? derivedValueType(this.form.expression, this.typeId, this.model) : null;
-    if (derived?.valueType === "text" && CONTACT_VALUE_TYPES.includes(this.form.valueType))
+    if (derived?.valueType === "text" && this.form.valueType === "url")
       return { ...derived, valueType: this.form.valueType };
     return derived;
   }

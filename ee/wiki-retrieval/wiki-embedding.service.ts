@@ -70,8 +70,7 @@ export class WikiEmbeddingService {
   ): Promise<AgentRetrievalGrant | null> {
     if (!isWikiSemanticSearchAvailable()) return null;
     try {
-      const grant = await this.usage.prepareWorkspaceIndexing(companyId);
-      return grant && { ...grant, purpose };
+      return await this.usage.prepareWorkspaceIndexing(companyId, purpose);
     } catch (error) {
       Sentry.captureException(error);
       return null;

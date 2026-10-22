@@ -6,6 +6,7 @@ import {
   formatCommercialAmount,
   getCommercialOfferOrThrow,
   getPlanDefinition,
+  GIB,
   isPlanId,
   totalPriceAmountMinor,
 } from "./plan-catalog";
@@ -81,7 +82,7 @@ function resolveStorageToken(parts: string[], locale: string): string {
   const bytes = getPlanDefinition(rawPlan).entitlements.fileStorageBytesPerActiveUser;
   if (bytes === "contract") return locale.startsWith("de") ? "individuell" : "custom";
   if (bytes === null) return localizedUnlimited(locale);
-  return `${new Intl.NumberFormat(locale).format(bytes / 1024 ** 3)} GB`;
+  return `${new Intl.NumberFormat(locale).format(bytes / GIB)} GB`;
 }
 
 function resolveCommercialToken(token: string, locale: string): string {

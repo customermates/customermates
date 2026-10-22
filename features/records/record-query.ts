@@ -13,6 +13,7 @@ import { recordCollation } from "./record-collation";
 import { MANUAL_ORDER_SORT_KEY } from "./record-column.schema";
 import { recordManualOrderKey } from "./record-rank";
 import { recordFileContentMatch } from "@/features/record-file-index/record-file-content-query";
+import { compileRecordMeasure } from "./record-measure";
 
 function alias(index: number): Prisma.Sql {
   return Prisma.raw(`"record_${index}"`);
@@ -557,4 +558,3 @@ export function compileRecordQuery(
     count: Prisma.sql`${searchSource} SELECT COUNT(*)::integer AS count ${source}`,
   };
 }
-import { compileRecordMeasure } from "./record-measure";

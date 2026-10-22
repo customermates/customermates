@@ -1,5 +1,5 @@
 import type { Validated } from "@/core/validation/validation.utils";
-import type { FileStorageDrivers } from "@/core/storage/file-storage-drivers";
+import type { FileStorageDrivers } from "@/core/storage/file-storage-driver";
 import type { RecordRepo } from "@/features/records/record.repo";
 import type { MutateRecordInput, RecordOperationResult } from "@/features/records/record-query.schema";
 import type { RecordFileUploadRepo } from "@/features/records/record-file-upload.repo";
@@ -12,13 +12,14 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { INTERACTIVE_COMPANY_LOCK_WAIT_MS, runInTransaction } from "@/core/decorators/transaction-runner";
+import { streamOfBytes } from "@/core/storage/read-capped-stream";
 import { fail, failNotFound, unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RECORD_FILE_INLINE_UPLOAD_MAX_BYTES, UploadRecordFileSchema } from "./record-file.schema";
-import { decodeRecordFileContent, streamOfBytes } from "./record-file-content";
+import { decodeRecordFileContent } from "./record-file-content";
 import { recordFileDto } from "./record-file-dto";
 import { writeRecordFileIntoField } from "./record-file-field-write";
-import { storageSizeLabel } from "./storage-size";
+import { fileSizeLabel } from "@/core/utils/format-bytes";
 
 @TenantInteractor()
 export class UploadRecordFileInteractor extends AuthenticatedInteractor<UploadRecordFile, UploadRecordFileResult> {
@@ -39,7 +40,7 @@ export class UploadRecordFileInteractor extends AuthenticatedInteractor<UploadRe
     if (!bytes) return fail(CustomErrorCode.recordFileContentInvalid, ["content"]);
     if (bytes.byteLength > RECORD_FILE_INLINE_UPLOAD_MAX_BYTES) {
       return fail(CustomErrorCode.recordFileTooLarge, ["content"], {
-        limit: storageSizeLabel(RECORD_FILE_INLINE_UPLOAD_MAX_BYTES, locale),
+        limit: fileSizeLabel(RECORD_FILE_INLINE_UPLOAD_MAX_BYTES, locale),
       });
     }
     const reserved = await runInTransaction(
@@ -75,7 +76,7 @@ export class UploadRecordFileInteractor extends AuthenticatedInteractor<UploadRe
             typeId: input.typeId,
             recordId: input.recordId,
             fieldId: input.fieldId,
-            mode: input.attach,
+            mode: input.mode,
             expectedVersion: input.expectedVersion,
           },
           `record-file-upload:${pending.id}`,

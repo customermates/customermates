@@ -107,10 +107,7 @@ export function resolveFilterValueClass(
       case "dateTime":
       case "dateTimeRange":
         return dateValueClass(operator);
-      case "link":
       case "plain":
-      case "email":
-      case "phone":
       case "address":
         return "text";
       case "file":

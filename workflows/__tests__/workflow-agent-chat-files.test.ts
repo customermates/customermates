@@ -23,7 +23,7 @@ const usage = {
 function response(parts: MockStreamPart[]): MockStreamPart[] {
   return [
     { type: "stream-start", warnings: [] },
-    { type: "response-metadata", id: "response", modelId: "google/gemini-test", timestamp: new Date(0) },
+    { type: "response-metadata", id: "response", modelId: "anthropic/claude-test", timestamp: new Date(0) },
     ...parts,
     {
       type: "finish",
@@ -51,7 +51,7 @@ describe("Mate with a file attached in the chat", () => {
         },
       ],
       excerpts: new Map(),
-      modelId: "google/gemini-3.5-flash-lite",
+      modelId: "anthropic/claude-haiku-5.5",
       roomBytes: 60_000,
     });
     const messages = toModelMessages([
@@ -68,12 +68,12 @@ describe("Mate with a file attached in the chat", () => {
       typeId: DEAL_TYPE_ID,
       recordId: DEAL_ID,
       fieldId: FIELD_ID,
-      attach: "append",
+      mode: "append",
     };
     let calls = 0;
     const model = new MockLanguageModelV4({
       provider: "gateway",
-      modelId: "google/gemini-test",
+      modelId: "anthropic/claude-test",
       doStream: () => {
         calls += 1;
         return Promise.resolve({

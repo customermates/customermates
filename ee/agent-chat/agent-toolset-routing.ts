@@ -177,6 +177,12 @@ const TOOLSET_TERMS = new Map(
   AGENT_ON_DEMAND_TOOLSETS.map((toolset) => [toolset, Object.values(AGENT_TOOLSET_LEXICON[toolset]).flat()]),
 );
 
+const VIEW_TERMS = TOOLSET_TERMS.get("views") ?? [];
+
+function withoutViewTerms(text: string): string {
+  return VIEW_TERMS.reduce((current, term) => current.replaceAll(term, " ".repeat(term.length)), text);
+}
+
 const TOOLSET_ROUTES: Record<AgentOnDemandToolset, readonly string[]> = {
   "record-model": ["/records", "/configure"],
   views: [],
@@ -262,8 +268,10 @@ export function toolsetsForRequest(args: {
     )
   )
     matched.add("record-model");
+  const outsideViewTerms = withoutViewTerms(text);
   for (const toolset of AGENT_ON_DEMAND_TOOLSETS) {
-    if (TOOLSET_TERMS.get(toolset)?.some((term) => startsWordIn(text, term))) matched.add(toolset);
+    const searched = toolset === "views" ? text : outsideViewTerms;
+    if (TOOLSET_TERMS.get(toolset)?.some((term) => startsWordIn(searched, term))) matched.add(toolset);
     if (route && TOOLSET_ROUTES[toolset].some((prefix) => route === prefix || route.startsWith(`${prefix}/`)))
       matched.add(toolset);
   }

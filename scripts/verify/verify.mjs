@@ -137,3 +137,4 @@ console.log(table(results, ["stage", "result", "time", "log"]));
 if (!full && risks.length) console.log(`Risky areas touched (${risks.join(", ")}): yarn verify:full is required before merging.`);
 writeFileSync(resolve(directory, "summary.json"), JSON.stringify({ tier: options.tier, seconds: seconds(startedAt), risks, results }, null, 2));
 process.exit(results.every((entry) => entry.result === "pass") ? 0 : 1);
+

@@ -1,4 +1,4 @@
-import type { FileStorageDrivers } from "@/core/storage/file-storage-drivers";
+import type { FileStorageDrivers } from "@/core/storage/file-storage-driver";
 import type { PendingRecordFile } from "@/features/records/record-file-upload.repo";
 import type { CreateRecordFileUploadResult } from "./record-file.schema";
 import type { RecordFileLinks } from "./record-file-links";

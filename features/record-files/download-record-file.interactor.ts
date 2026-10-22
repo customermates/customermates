@@ -1,5 +1,5 @@
 import type { Validated } from "@/core/validation/validation.utils";
-import type { FileStorageDrivers } from "@/core/storage/file-storage-drivers";
+import type { FileStorageDrivers } from "@/core/storage/file-storage-driver";
 import type { DownloadRecordFile } from "./record-file.schema";
 import type { RecordFileAccessService } from "./record-file-access.service";
 
@@ -7,8 +7,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
-import { runInTransaction } from "@/core/decorators/transaction-runner";
-import { failNotFound, unwoundFailure } from "@/core/validation/interactor-failure-server";
+import { failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { DownloadRecordFileSchema } from "./record-file.schema";
 import { parseRecordFileRange, recordFileResponseHeaders, recordFileServedInline } from "./record-file-response";
@@ -23,18 +22,16 @@ export type RecordFileDownload = {
 @TenantInteractor()
 export class DownloadRecordFileInteractor extends AuthenticatedInteractor<DownloadRecordFile, RecordFileDownload> {
   constructor(
-    private access: RecordFileAccessService,
+    private access: Pick<RecordFileAccessService, "readableFile">,
     private drivers: FileStorageDrivers,
+    private frameAncestors: string,
   ) {
     super();
   }
 
   @Validate(DownloadRecordFileSchema)
   async invoke({ fileId, range, download }: DownloadRecordFile): Validated<RecordFileDownload> {
-    const readable = await runInTransaction(
-      async () => ({ ok: true as const, data: await this.access.readable(fileId) }),
-      { readOnly: true },
-    ).catch(unwoundFailure);
+    const readable = await this.access.readableFile(fileId);
     if (!readable.ok) return readable;
     const file = readable.data;
     const requested = parseRecordFileRange(range ?? null, file.size);
@@ -60,6 +57,7 @@ export class DownloadRecordFileInteractor extends AuthenticatedInteractor<Downlo
           size: file.size,
           inline: recordFileServedInline(file.mimeType, download === true),
           range: requested,
+          frameAncestors: this.frameAncestors,
         }),
         body: stored.stream,
       },

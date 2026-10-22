@@ -1,26 +1,22 @@
-import type { AppMode } from "@/core/config/environment";
 import type { SubscriptionPlan } from "@/generated/prisma";
 
-import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
-import { getEffectiveEntitlements } from "@/ee/subscription/entitlements";
+import { CLOUD_TRIAL, GIB } from "@/core/commercial/plan-catalog";
+import { getEntitlements } from "@/ee/subscription/entitlements";
 
-export const ENTERPRISE_DEFAULT_FILE_STORAGE_BYTES_PER_USER = 50 * 1024 ** 3;
+export const ENTERPRISE_DEFAULT_FILE_STORAGE_BYTES_PER_USER = 50 * GIB;
 
 export type FileStorageQuotaInput = {
-  appMode: AppMode;
   plan: SubscriptionPlan | null;
   enterpriseBytesPerUser: number | null;
   activeUsers: number;
 };
 
 export function fileStorageLimitBytes({
-  appMode,
   plan,
   enterpriseBytesPerUser,
   activeUsers,
 }: FileStorageQuotaInput): number | null {
-  if (appMode !== "cloud") return null;
-  const perUser = getEffectiveEntitlements({ appMode, plan: plan ?? CLOUD_TRIAL.plan }).fileStorageBytesPerActiveUser;
+  const perUser = getEntitlements(plan ?? CLOUD_TRIAL.plan).fileStorageBytesPerActiveUser;
   if (perUser === null) return null;
   const bytes =
     perUser === "contract" ? (enterpriseBytesPerUser ?? ENTERPRISE_DEFAULT_FILE_STORAGE_BYTES_PER_USER) : perUser;

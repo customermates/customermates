@@ -3,6 +3,7 @@ import type { DeleteOperatorWorkspaceData, DeleteOperatorWorkspaceResultDto } fr
 import type { Validated } from "@/core/validation/validation.utils";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 
+import * as Sentry from "@sentry/nextjs";
 import { failConflict, failNotFound, failUnavailable } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { OperatorInteractor } from "@/core/decorators/operator-interactor.decorator";
@@ -29,7 +30,11 @@ export class DeleteOperatorWorkspaceInteractor {
     if (result === "notFound") return failNotFound(CustomErrorCode.userNotFound);
     if (result === "unavailable") return failUnavailable(CustomErrorCode.operatorUnavailable);
 
-    await this.background.dispatch("purge-company-files", { companyId: data.companyId });
+    try {
+      await this.background.dispatch("purge-company-files", { companyId: data.companyId });
+    } catch (error) {
+      Sentry.captureException(error, { tags: { kind: "workspace-delete-files", companyId: data.companyId } });
+    }
     return { ok: true, data: result };
   }
 }

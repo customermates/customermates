@@ -1,6 +1,6 @@
 import type { AddressCountryFormat } from "./address-country-format";
 
-export type PostalCodeCheck = { value: string; status: "valid" | "invalid" | "unchecked" };
+type PostalCodeCheck = { value: string; status: "valid" | "invalid" | "unchecked" };
 
 const LEGACY_PREFIXES: Readonly<Record<string, readonly string[]>> = {
   ad: ["AND"],

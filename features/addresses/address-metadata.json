@@ -94,16 +94,14 @@
         { "iso": "G", "key": "Santiago del Estero", "zip": "G?[2-5]" },
         { "iso": "V", "key": "Tierra del Fuego", "zip": "V?9" },
         { "iso": "T", "key": "Tucumán", "zip": "T?[45]" }
-      ],
-      "upper": ["street", "postalCode", "city"]
+      ]
     },
     "as": {
       "lines": [["street"], ["city", "region", "postalCode"]],
       "postalCode": { "examples": ["96799"], "pattern": "(96799)(?:[ \\-](\\d{4}))?" },
       "postalCodeLabel": "zip",
       "regionLabel": "state",
-      "required": ["street", "postalCode", "city", "region"],
-      "upper": ["street", "city", "region"]
+      "required": ["street", "postalCode", "city", "region"]
     },
     "at": {
       "lines": [["street"], ["postalCode", "city"]],
@@ -126,8 +124,7 @@
         { "key": "VIC", "name": "Victoria", "zip": "[38]" },
         { "key": "WA", "name": "Western Australia", "zip": "6|0872" }
       ],
-      "required": ["street", "postalCode", "city", "region"],
-      "upper": ["city", "region"]
+      "required": ["street", "postalCode", "city", "region"]
     },
     "aw": { "lines": [["street"], ["city"]] },
     "ax": {
@@ -184,12 +181,11 @@
       "postalCode": { "examples": ["317"], "pattern": "(?:^|\\b)(?:1[0-2]|[1-9])\\d{2}(?:$|\\b)" }
     },
     "bi": { "lines": [["street"], ["city"]] },
-    "bj": { "lines": [["street"], ["city"]], "upper": ["street", "city"] },
+    "bj": { "lines": [["street"], ["city"]] },
     "bl": {
       "lines": [["street"], ["postalCode", "city"]],
       "postalCode": { "examples": ["97100"], "pattern": "9[78][01]\\d{2}" },
-      "required": ["street", "postalCode", "city"],
-      "upper": ["street", "city"]
+      "required": ["street", "postalCode", "city"]
     },
     "bm": {
       "lines": [["street"], ["city", "postalCode"]],
@@ -199,7 +195,7 @@
       "lines": [["street"], ["city", "postalCode"]],
       "postalCode": { "examples": ["BT2328", "KA1131", "BA1511"], "pattern": "[A-Z]{2} ?\\d{4}" }
     },
-    "bo": { "lines": [["street"], ["city"]], "upper": ["street", "city"] },
+    "bo": { "lines": [["street"], ["city"]] },
     "bq": { "lines": [["street"], ["city"]] },
     "br": {
       "lines": [["street"], ["city", "region"], ["postalCode"]],
@@ -234,8 +230,7 @@
         { "key": "SE", "name": "Sergipe", "zip": "49" },
         { "key": "TO", "name": "Tocantins", "zip": "77" }
       ],
-      "required": ["street", "postalCode", "city", "region"],
-      "upper": ["city", "region"]
+      "required": ["street", "postalCode", "city", "region"]
     },
     "bs": {
       "lines": [["street"], ["city", "region"]],
@@ -323,13 +318,11 @@
         { "key": "SK", "name": "Saskatchewan", "zip": "S|R8A" },
         { "key": "YT", "name": "Yukon", "zip": "Y" }
       ],
-      "required": ["street", "postalCode", "city", "region"],
-      "upper": ["street", "postalCode", "city", "region"]
+      "required": ["street", "postalCode", "city", "region"]
     },
     "cc": {
       "lines": [["street"], ["city", "region", "postalCode"]],
-      "postalCode": { "examples": ["6799"], "pattern": "6799" },
-      "upper": ["city", "region"]
+      "postalCode": { "examples": ["6799"], "pattern": "6799" }
     },
     "cd": { "lines": [["street"], ["city"]] },
     "cf": { "lines": [["street"], ["city"]] },
@@ -337,8 +330,7 @@
     "ch": {
       "lines": [["street"], ["postalCode", "city"]],
       "postalCode": { "examples": ["2544", "1211", "1556", "3030"], "pattern": "\\d{4}", "prefix": "CH-" },
-      "required": ["street", "postalCode", "city"],
-      "upper": []
+      "required": ["street", "postalCode", "city"]
     },
     "ci": { "lines": [["street", "city"]] },
     "ck": { "lines": [["street"], ["city"]] },
@@ -404,8 +396,7 @@
         { "iso": "YN", "key": "云南省", "latin": "Yunnan Sheng" },
         { "iso": "ZJ", "key": "浙江省", "latin": "Zhejiang Sheng" }
       ],
-      "required": ["street", "postalCode", "city", "region"],
-      "upper": ["region"]
+      "required": ["street", "postalCode", "city", "region"]
     },
     "co": {
       "lines": [["street"], ["city", "region", "postalCode"]],
@@ -503,8 +494,7 @@
     "cw": { "lines": [["street"], ["city"]] },
     "cx": {
       "lines": [["street"], ["city", "region", "postalCode"]],
-      "postalCode": { "examples": ["6798"], "pattern": "6798" },
-      "upper": ["city", "region"]
+      "postalCode": { "examples": ["6798"], "pattern": "6798" }
     },
     "cy": {
       "lines": [["street"], ["postalCode", "city"]],
@@ -537,8 +527,7 @@
     },
     "ec": {
       "lines": [["street"], ["postalCode"], ["city"]],
-      "postalCode": { "examples": ["090105", "092301"], "pattern": "\\d{6}" },
-      "upper": ["postalCode", "city"]
+      "postalCode": { "examples": ["090105", "092301"], "pattern": "\\d{6}" }
     },
     "ee": {
       "lines": [["street"], ["postalCode", "city", "region"]],
@@ -657,8 +646,7 @@
         { "key": "ZA", "name": "Zamora", "zip": "49" },
         { "key": "Z", "name": "Zaragoza", "zip": "50" }
       ],
-      "required": ["street", "postalCode", "city", "region"],
-      "upper": ["city", "region"]
+      "required": ["street", "postalCode", "city", "region"]
     },
     "et": {
       "lines": [["street"], ["postalCode", "city"]],
@@ -673,8 +661,7 @@
     "fk": {
       "lines": [["street"], ["city"], ["postalCode"]],
       "postalCode": { "examples": ["FIQQ 1ZZ"], "pattern": "FIQQ 1ZZ" },
-      "required": ["street", "postalCode", "city"],
-      "upper": ["postalCode", "city"]
+      "required": ["street", "postalCode", "city"]
     },
     "fm": {
       "lines": [["street"], ["city", "region", "postalCode"]],
@@ -687,8 +674,7 @@
         { "iso": "PNI", "key": "Pohnpei" },
         { "iso": "YAP", "key": "Yap" }
       ],
-      "required": ["street", "postalCode", "city", "region"],
-      "upper": ["street", "city", "region"]
+      "required": ["street", "postalCode", "city", "region"]
     },
     "fo": {
       "lines": [["street"], ["postalCode", "city"]],
@@ -725,8 +711,7 @@
         ],
         "pattern": "GIR ?0AA|(?:(?:AB|AL|B|BA|BB|BD|BF|BH|BL|BN|BR|BS|BT|BX|CA|CB|CF|CH|CM|CO|CR|CT|CV|CW|DA|DD|DE|DG|DH|DL|DN|DT|DY|E|EC|EH|EN|EX|FK|FY|G|GL|GY|GU|HA|HD|HG|HP|HR|HS|HU|HX|IG|IM|IP|IV|JE|KA|KT|KW|KY|L|LA|LD|LE|LL|LN|LS|LU|M|ME|MK|ML|N|NE|NG|NN|NP|NR|NW|OL|OX|PA|PE|PH|PL|PO|PR|RG|RH|RM|S|SA|SE|SG|SK|SL|SM|SN|SO|SP|SR|SS|ST|SW|SY|TA|TD|TF|TN|TQ|TR|TS|TW|UB|W|WA|WC|WD|WF|WN|WR|WS|WV|YO|ZE)(?:\\d[\\dA-Z]? ?\\d[ABD-HJLN-UW-Z]{2}))|BFPO ?\\d{1,4}"
       },
-      "required": ["street", "postalCode", "city"],
-      "upper": ["postalCode", "city"]
+      "required": ["street", "postalCode", "city"]
     },
     "gd": { "lines": [["street"], ["city"]] },
     "ge": {
@@ -736,14 +721,12 @@
     "gf": {
       "lines": [["street"], ["postalCode", "city"]],
       "postalCode": { "examples": ["97300"], "pattern": "9[78]3\\d{2}" },
-      "required": ["street", "postalCode", "city"],
-      "upper": ["street", "city"]
+      "required": ["street", "postalCode", "city"]
     },
     "gg": {
       "lines": [["street"], ["city"], ["postalCode"]],
       "postalCode": { "examples": ["GY1 1AA", "GY2 2BT"], "pattern": "GY\\d[\\dA-Z]? ?\\d[ABD-HJLN-UW-Z]{2}" },
-      "required": ["street", "postalCode", "city"],
-      "upper": ["postalCode", "city"]
+      "required": ["street", "postalCode", "city"]
     },
     "gh": { "lines": [["street"], ["city"]] },
     "gi": {
@@ -764,8 +747,7 @@
     "gp": {
       "lines": [["street"], ["postalCode", "city"]],
       "postalCode": { "examples": ["97100"], "pattern": "9[78][01]\\d{2}" },
-      "required": ["street", "postalCode", "city"],
-      "upper": ["street", "city"]
+      "required": ["street", "postalCode", "city"]
     },
     "gq": { "lines": [["street"], ["city"]] },
     "gr": {
@@ -776,8 +758,7 @@
     "gs": {
       "lines": [["street"], ["city"], ["postalCode"]],
       "postalCode": { "examples": ["SIQQ 1ZZ"], "pattern": "SIQQ 1ZZ" },
-      "required": ["street", "postalCode", "city"],
-      "upper": ["postalCode", "city"]
+      "required": ["street", "postalCode", "city"]
     },
     "gt": {
       "lines": [["street"], ["postalCode", "city"]],
@@ -787,8 +768,7 @@
       "lines": [["street"], ["city", "postalCode"]],
       "postalCode": { "examples": ["96910", "96931"], "pattern": "(969(?:[12]\\d|3[12]))(?:[ \\-](\\d{4}))?" },
       "postalCodeLabel": "zip",
-      "required": ["street", "postalCode", "city"],
-      "upper": ["street", "city"]
+      "required": ["street", "postalCode", "city"]
     },
     "gw": {
       "lines": [["street"], ["postalCode", "city"]],
@@ -804,13 +784,11 @@
         { "key": "Hong Kong Island", "name": "香港島" },
         { "key": "New Territories", "name": "新界" }
       ],
-      "required": ["street", "region"],
-      "upper": ["region"]
+      "required": ["street", "region"]
     },
     "hm": {
       "lines": [["street"], ["city", "region", "postalCode"]],
-      "postalCode": { "examples": ["7050"], "pattern": "\\d{4}" },
-      "upper": ["city", "region"]
+      "postalCode": { "examples": ["7050"], "pattern": "\\d{4}" }
     },
     "hn": {
       "lines": [["street"], ["city", "region"], ["postalCode"]],
@@ -849,8 +827,7 @@
     "hu": {
       "lines": [["city"], ["street"], ["postalCode"]],
       "postalCode": { "examples": ["1037", "2380", "1540"], "pattern": "\\d{4}" },
-      "required": ["street", "postalCode", "city"],
-      "upper": ["street", "city"]
+      "required": ["street", "postalCode", "city"]
     },
     "id": {
       "lines": [["street"], ["city"], ["region", "postalCode"]],
@@ -934,8 +911,7 @@
     "im": {
       "lines": [["street"], ["city"], ["postalCode"]],
       "postalCode": { "examples": ["IM2 1AA", "IM99 1PS"], "pattern": "IM\\d[\\dA-Z]? ?\\d[ABD-HJLN-UW-Z]{2}" },
-      "required": ["street", "postalCode", "city"],
-      "upper": ["postalCode", "city"]
+      "required": ["street", "postalCode", "city"]
     },
     "in": {
       "lines": [["street"], ["city", "postalCode"], ["region"]],
@@ -1003,8 +979,7 @@
     "io": {
       "lines": [["street"], ["city"], ["postalCode"]],
       "postalCode": { "examples": ["BBND 1ZZ"], "pattern": "BBND 1ZZ" },
-      "required": ["street", "postalCode", "city"],
-      "upper": ["postalCode", "city"]
+      "required": ["street", "postalCode", "city"]
     },
     "iq": {
       "lines": [["street"], ["city", "region"], ["postalCode"]],
@@ -1030,8 +1005,7 @@
         { "iso": "NI", "key": "نينوى", "latin": "Nineveh" },
         { "iso": "WA", "key": "واسط", "latin": "Wasit" }
       ],
-      "required": ["street", "city", "region"],
-      "upper": ["city", "region"]
+      "required": ["street", "city", "region"]
     },
     "ir": {
       "lines": [["region"], ["city"], ["street"], ["postalCode"]],
@@ -1190,14 +1164,12 @@
         { "key": "VI", "name": "Vicenza", "zip": "36" },
         { "key": "VT", "name": "Viterbo", "zip": "01" }
       ],
-      "required": ["street", "postalCode", "city", "region"],
-      "upper": ["city", "region"]
+      "required": ["street", "postalCode", "city", "region"]
     },
     "je": {
       "lines": [["street"], ["city"], ["postalCode"]],
       "postalCode": { "examples": ["JE1 1AA", "JE2 2BT"], "pattern": "JE\\d[\\dA-Z]? ?\\d[ABD-HJLN-UW-Z]{2}" },
-      "required": ["street", "postalCode", "city"],
-      "upper": ["postalCode", "city"]
+      "required": ["street", "postalCode", "city"]
     },
     "jm": {
       "lines": [["street"], ["city"], ["region"]],
@@ -1280,8 +1252,7 @@
         { "iso": "46", "key": "鹿児島県", "latin": "Kagoshima", "zip": "89" },
         { "iso": "47", "key": "沖縄県", "latin": "Okinawa", "zip": "90" }
       ],
-      "required": ["street", "postalCode", "region"],
-      "upper": ["region"]
+      "required": ["street", "postalCode", "region"]
     },
     "ke": {
       "lines": [["street"], ["city"], ["postalCode"]],
@@ -1295,12 +1266,8 @@
       "lines": [["street"], ["city", "postalCode"]],
       "postalCode": { "examples": ["120101", "120108"], "pattern": "\\d{5,6}" }
     },
-    "ki": {
-      "lines": [["street"], ["region"], ["city"]],
-      "regionLabel": "island",
-      "upper": ["street", "city", "region"]
-    },
-    "km": { "lines": [["street"], ["city"]], "upper": ["street", "city"] },
+    "ki": { "lines": [["street"], ["region"], ["city"]], "regionLabel": "island" },
+    "km": { "lines": [["street"], ["city"]] },
     "kn": {
       "lines": [["street"], ["city", "region"]],
       "regionLabel": "island",
@@ -1351,8 +1318,7 @@
         { "iso": "44", "key": "충청남도", "latin": "Chungcheongnam-do", "name": "충남", "zip": "3[1-3]\\d{2}" },
         { "iso": "43", "key": "충청북도", "latin": "Chungcheongbuk-do", "name": "충북", "zip": "2[789]\\d{2}" }
       ],
-      "required": ["street", "postalCode", "city", "region"],
-      "upper": ["postalCode"]
+      "required": ["street", "postalCode", "city", "region"]
     },
     "kw": {
       "lines": [["street"], ["postalCode", "city"]],
@@ -1469,8 +1435,7 @@
     "mf": {
       "lines": [["street"], ["postalCode", "city"]],
       "postalCode": { "examples": ["97100"], "pattern": "9[78][01]\\d{2}" },
-      "required": ["street", "postalCode", "city"],
-      "upper": ["street", "city"]
+      "required": ["street", "postalCode", "city"]
     },
     "mg": {
       "lines": [["street"], ["postalCode", "city"]],
@@ -1481,8 +1446,7 @@
       "postalCode": { "examples": ["96960", "96970"], "pattern": "(969[67]\\d)(?:[ \\-](\\d{4}))?" },
       "postalCodeLabel": "zip",
       "regionLabel": "state",
-      "required": ["street", "postalCode", "city", "region"],
-      "upper": ["street", "city", "region"]
+      "required": ["street", "postalCode", "city", "region"]
     },
     "mk": {
       "lines": [["street"], ["postalCode", "city"]],
@@ -1527,29 +1491,25 @@
       "postalCode": { "examples": ["96950", "96951", "96952"], "pattern": "(9695[012])(?:[ \\-](\\d{4}))?" },
       "postalCodeLabel": "zip",
       "regionLabel": "state",
-      "required": ["street", "postalCode", "city", "region"],
-      "upper": ["street", "city", "region"]
+      "required": ["street", "postalCode", "city", "region"]
     },
     "mq": {
       "lines": [["street"], ["postalCode", "city"]],
       "postalCode": { "examples": ["97220"], "pattern": "9[78]2\\d{2}" },
-      "required": ["street", "postalCode", "city"],
-      "upper": ["street", "city"]
+      "required": ["street", "postalCode", "city"]
     },
-    "mr": { "lines": [["street"], ["city"]], "upper": ["street", "city"] },
+    "mr": { "lines": [["street"], ["city"]] },
     "ms": { "lines": [["street"], ["city"]] },
     "mt": {
       "lines": [["street"], ["city", "postalCode"]],
       "postalCode": {
         "examples": ["NXR 01", "ZTN 05", "GPO 01", "BZN 1130", "SPB 6031", "VCT 1753"],
         "pattern": "[A-Z]{3} ?\\d{2,4}"
-      },
-      "upper": ["postalCode", "city"]
+      }
     },
     "mu": {
       "lines": [["street"], ["postalCode"], ["city"]],
-      "postalCode": { "examples": ["42602"], "pattern": "\\d{3}(?:\\d{2}|[A-Z]{2}\\d{3})" },
-      "upper": ["postalCode", "city"]
+      "postalCode": { "examples": ["42602"], "pattern": "\\d{3}(?:\\d{2}|[A-Z]{2}\\d{3})" }
     },
     "mv": {
       "lines": [["street"], ["city", "postalCode"]],
@@ -1594,8 +1554,7 @@
         { "iso": "YUC", "key": "Yuc.", "name": "Yucatán", "zip": "97" },
         { "iso": "ZAC", "key": "Zac.", "name": "Zacatecas", "zip": "9[89]" }
       ],
-      "required": ["street", "postalCode", "city", "region"],
-      "upper": ["postalCode", "city", "region"]
+      "required": ["street", "postalCode", "city", "region"]
     },
     "my": {
       "lines": [["street"], ["postalCode", "city"], ["region"]],
@@ -1619,8 +1578,7 @@
         { "iso": "10", "key": "Selangor", "zip": "4[0-8]|6[3-8]" },
         { "iso": "11", "key": "Terengganu", "zip": "2[0-4]" }
       ],
-      "required": ["street", "postalCode", "city"],
-      "upper": ["city", "region"]
+      "required": ["street", "postalCode", "city"]
     },
     "mz": {
       "lines": [["street"], ["postalCode", "city", "region"]],
@@ -1646,8 +1604,7 @@
     "nc": {
       "lines": [["street"], ["postalCode", "city"]],
       "postalCode": { "examples": ["98814", "98800", "98810"], "pattern": "988\\d{2}" },
-      "required": ["street", "postalCode", "city"],
-      "upper": ["street", "city"]
+      "required": ["street", "postalCode", "city"]
     },
     "ne": {
       "lines": [["street"], ["postalCode", "city"]],
@@ -1655,8 +1612,7 @@
     },
     "nf": {
       "lines": [["street"], ["city", "region", "postalCode"]],
-      "postalCode": { "examples": ["2899"], "pattern": "2899" },
-      "upper": ["city", "region"]
+      "postalCode": { "examples": ["2899"], "pattern": "2899" }
     },
     "ng": {
       "lines": [["street"], ["city", "postalCode"], ["region"]],
@@ -1700,8 +1656,7 @@
         { "iso": "TA", "key": "Taraba" },
         { "iso": "YO", "key": "Yobe" },
         { "iso": "ZA", "key": "Zamfara" }
-      ],
-      "upper": ["city", "region"]
+      ]
     },
     "ni": {
       "lines": [["street"], ["postalCode"], ["city", "region"]],
@@ -1725,8 +1680,7 @@
         { "iso": "AS", "key": "Región Autónoma de la Costa Caribe Sur", "zip": "8[1-3]" },
         { "iso": "SJ", "key": "Río San Juan", "zip": "9[12]" },
         { "iso": "RI", "key": "Rivas", "zip": "4[78]" }
-      ],
-      "upper": ["city", "region"]
+      ]
     },
     "nl": {
       "lines": [["street"], ["postalCode", "city"]],
@@ -1791,8 +1745,7 @@
         { "iso": "8", "key": "Panamá" },
         { "iso": "10", "key": "Panamá Oeste" },
         { "iso": "9", "key": "Veraguas" }
-      ],
-      "upper": ["city", "region"]
+      ]
     },
     "pe": {
       "cityLabel": "district",
@@ -1834,8 +1787,7 @@
       "lines": [["street"], ["postalCode", "city", "region"]],
       "postalCode": { "examples": ["98709"], "pattern": "987\\d{2}" },
       "regionLabel": "island",
-      "required": ["street", "postalCode", "city", "region"],
-      "upper": ["city", "region"]
+      "required": ["street", "postalCode", "city", "region"]
     },
     "pg": {
       "lines": [["street"], ["city", "postalCode", "region"]],
@@ -1966,21 +1918,18 @@
     "pm": {
       "lines": [["street"], ["postalCode", "city"]],
       "postalCode": { "examples": ["97500"], "pattern": "9[78]5\\d{2}" },
-      "required": ["street", "postalCode", "city"],
-      "upper": ["street", "city"]
+      "required": ["street", "postalCode", "city"]
     },
     "pn": {
       "lines": [["street"], ["city"], ["postalCode"]],
       "postalCode": { "examples": ["PCRN 1ZZ"], "pattern": "PCRN 1ZZ" },
-      "required": ["street", "postalCode", "city"],
-      "upper": ["postalCode", "city"]
+      "required": ["street", "postalCode", "city"]
     },
     "pr": {
       "lines": [["street"], ["city", "postalCode"]],
       "postalCode": { "examples": ["00930"], "pattern": "(00[679]\\d{2})(?:[ \\-](\\d{4}))?", "prefix": "PR " },
       "postalCodeLabel": "zip",
-      "required": ["street", "postalCode", "city"],
-      "upper": ["street", "city"]
+      "required": ["street", "postalCode", "city"]
     },
     "ps": { "lines": [["street"], ["city"]] },
     "pt": {
@@ -2014,19 +1963,17 @@
         { "iso": "350", "key": "Peleliu" },
         { "iso": "370", "key": "Sonsorol" }
       ],
-      "required": ["street", "postalCode", "city", "region"],
-      "upper": ["street", "city", "region"]
+      "required": ["street", "postalCode", "city", "region"]
     },
     "py": {
       "lines": [["street"], ["postalCode", "city"]],
       "postalCode": { "examples": ["001001", "051103", "110407"], "pattern": "\\d{6}" }
     },
-    "qa": { "lines": [["street"], ["city"]], "upper": ["street", "city"] },
+    "qa": { "lines": [["street"], ["city"]] },
     "re": {
       "lines": [["street"], ["postalCode", "city"]],
       "postalCode": { "examples": ["97400"], "pattern": "9[78]4\\d{2}" },
-      "required": ["street", "postalCode", "city"],
-      "upper": ["street", "city"]
+      "required": ["street", "postalCode", "city"]
     },
     "ro": {
       "lines": [["street"], ["postalCode", "region", "city"]],
@@ -2075,8 +2022,7 @@
         { "iso": "VL", "key": "Vâlcea" },
         { "iso": "VN", "key": "Vrancea" }
       ],
-      "required": ["street", "postalCode", "city"],
-      "upper": ["street", "city"]
+      "required": ["street", "postalCode", "city"]
     },
     "rs": {
       "lines": [["street"], ["postalCode", "city"]],
@@ -2198,16 +2144,15 @@
         { "iso": "YAN", "key": "Ямало-Ненецкий автономный округ", "latin": "Yamalo-Nenetskiy", "zip": "629" },
         { "iso": "YAR", "key": "Ярославская область", "latin": "Yaroslavskaya oblast'", "zip": "15[0-2]" }
       ],
-      "required": ["street", "postalCode", "city", "region"],
-      "upper": ["street", "city"]
+      "required": ["street", "postalCode", "city", "region"]
     },
-    "rw": { "lines": [["street"], ["city"]], "upper": ["street", "city"] },
+    "rw": { "lines": [["street"], ["city"]] },
     "sa": {
       "lines": [["street"], ["city", "postalCode"]],
       "postalCode": { "examples": ["11564", "11187", "11142"], "pattern": "\\d{5}" }
     },
     "sb": { "lines": [["street"], ["city"]] },
-    "sc": { "lines": [["street"], ["city"], ["region"]], "regionLabel": "island", "upper": ["region"] },
+    "sc": { "lines": [["street"], ["city"], ["region"]], "regionLabel": "island" },
     "sd": {
       "cityLabel": "district",
       "lines": [["street"], ["city"], ["postalCode"]],
@@ -2227,8 +2172,7 @@
     "sh": {
       "lines": [["street"], ["city"], ["postalCode"]],
       "postalCode": { "examples": ["STHL 1ZZ"], "pattern": "(?:ASCN|STHL) 1ZZ" },
-      "required": ["street", "postalCode", "city"],
-      "upper": ["postalCode", "city"]
+      "required": ["street", "postalCode", "city"]
     },
     "si": {
       "lines": [["street"], ["postalCode", "city"]],
@@ -2278,8 +2222,7 @@
         { "iso": "TO", "key": "TG", "name": "Togdheer" },
         { "iso": "WO", "key": "WG", "name": "Woqooyi Galbeed" }
       ],
-      "required": ["street", "city", "region"],
-      "upper": ["street", "city", "region"]
+      "required": ["street", "city", "region"]
     },
     "sr": {
       "lines": [["street"], ["city"], ["region"]],
@@ -2294,8 +2237,7 @@
         { "iso": "SA", "key": "Saramacca" },
         { "iso": "SI", "key": "Sipaliwini" },
         { "iso": "WA", "key": "Wanica" }
-      ],
-      "upper": ["street", "region"]
+      ]
     },
     "ss": { "lines": [["street"], ["city"]] },
     "st": { "lines": [["street"], ["city"]] },
@@ -2318,15 +2260,13 @@
         { "iso": "SO", "key": "Sonsonate", "zip": "23" },
         { "iso": "US", "key": "Usulutan", "name": "Usulután", "zip": "34" }
       ],
-      "required": ["street", "city", "region"],
-      "upper": ["postalCode", "city", "region"]
+      "required": ["street", "city", "region"]
     },
     "sx": { "lines": [["street"], ["city"]] },
     "sy": { "cityLabel": "district", "lines": [["street"], ["city"]] },
     "sz": {
       "lines": [["street"], ["city"], ["postalCode"]],
-      "postalCode": { "examples": ["H100"], "pattern": "[HLMS]\\d{3}" },
-      "upper": ["street", "postalCode", "city"]
+      "postalCode": { "examples": ["H100"], "pattern": "[HLMS]\\d{3}" }
     },
     "ta": {
       "lines": [["street"], ["city"], ["postalCode"]],
@@ -2335,8 +2275,7 @@
     "tc": {
       "lines": [["street"], ["city"], ["postalCode"]],
       "postalCode": { "examples": ["TKCA 1ZZ"], "pattern": "TKCA 1ZZ" },
-      "required": ["street", "postalCode", "city"],
-      "upper": ["postalCode", "city"]
+      "required": ["street", "postalCode", "city"]
     },
     "td": { "lines": [["street"], ["city"]] },
     "tf": { "lines": [["street"], ["city"]] },
@@ -2422,8 +2361,7 @@
         { "iso": "53", "key": "อุตรดิตถ์", "latin": "Uttaradit", "zip": "53" },
         { "iso": "61", "key": "อุทัยธานี", "latin": "Uthai Thani", "zip": "61" },
         { "iso": "34", "key": "อุบลราชธานี", "latin": "Ubon Ratchathani", "zip": "34" }
-      ],
-      "upper": ["region"]
+      ]
     },
     "tj": {
       "lines": [["street"], ["postalCode", "city"]],
@@ -2546,8 +2484,7 @@
         { "iso": "NKF", "key": "Nukufetau" },
         { "iso": "NKL", "key": "Nukulaelae" },
         { "iso": "VAI", "key": "Vaitupu" }
-      ],
-      "upper": ["street", "city", "region"]
+      ]
     },
     "tw": {
       "cityLabel": "district",
@@ -2625,8 +2562,7 @@
       "postalCode": { "examples": ["96898"], "pattern": "96898" },
       "postalCodeLabel": "zip",
       "regionLabel": "state",
-      "required": ["street", "city", "region"],
-      "upper": ["street", "city", "region"]
+      "required": ["street", "city", "region"]
     },
     "us": {
       "lines": [["street"], ["city", "region", "postalCode"]],
@@ -2697,8 +2633,7 @@
         { "key": "WI", "name": "Wisconsin", "zip": "5[34]" },
         { "key": "WY", "name": "Wyoming", "zip": "82|83[01]|83414" }
       ],
-      "required": ["street", "postalCode", "city", "region"],
-      "upper": ["city", "region"]
+      "required": ["street", "postalCode", "city", "region"]
     },
     "uy": {
       "lines": [["street"], ["postalCode", "city", "region"]],
@@ -2723,8 +2658,7 @@
         { "iso": "SO", "key": "Soriano", "zip": "75|70003" },
         { "iso": "TA", "key": "Tacuarembó", "zip": "45" },
         { "iso": "TT", "key": "Treinta y Tres", "zip": "33|30203|30204|30302|37007" }
-      ],
-      "upper": ["city", "region"]
+      ]
     },
     "uz": {
       "lines": [["street"], ["postalCode", "city"], ["region"]],
@@ -2744,8 +2678,7 @@
         { "aliases": ["Ташкентская"], "iso": "TK", "key": "Toshkent" },
         { "aliases": ["Ташкентская область"], "iso": "TO", "key": "Toshkent Viloyati" },
         { "aliases": ["Хорезмская область"], "iso": "XO", "key": "Xorazm Viloyati" }
-      ],
-      "upper": ["city", "region"]
+      ]
     },
     "va": {
       "lines": [["street"], ["postalCode", "city"]],
@@ -2786,8 +2719,7 @@
         { "iso": "U", "key": "Yaracuy" },
         { "iso": "V", "key": "Zulia" }
       ],
-      "required": ["street", "city", "region"],
-      "upper": ["city", "region"]
+      "required": ["street", "city", "region"]
     },
     "vg": {
       "lines": [["street"], ["city"], ["postalCode"]],
@@ -2802,8 +2734,7 @@
       },
       "postalCodeLabel": "zip",
       "regionLabel": "state",
-      "required": ["street", "postalCode", "city", "region"],
-      "upper": ["street", "city", "region"]
+      "required": ["street", "postalCode", "city", "region"]
     },
     "vn": {
       "lines": [["street"], ["city"], ["region", "postalCode"]],
@@ -2879,8 +2810,7 @@
     "wf": {
       "lines": [["street"], ["postalCode", "city"]],
       "postalCode": { "examples": ["98600"], "pattern": "986\\d{2}" },
-      "required": ["street", "postalCode", "city"],
-      "upper": ["street", "city"]
+      "required": ["street", "postalCode", "city"]
     },
     "ws": { "lines": [["street"], ["city"]] },
     "xk": {
@@ -2891,8 +2821,7 @@
     "yt": {
       "lines": [["street"], ["postalCode", "city"]],
       "postalCode": { "examples": ["97600"], "pattern": "976\\d{2}" },
-      "required": ["street", "postalCode", "city"],
-      "upper": ["street", "city"]
+      "required": ["street", "postalCode", "city"]
     },
     "za": {
       "lines": [["street"], ["city"], ["postalCode"]],
@@ -2910,8 +2839,7 @@
     "lines": [["street"], ["city"]],
     "postalCodeLabel": "postal",
     "regionLabel": "province",
-    "required": ["street", "city"],
-    "upper": ["city"]
+    "required": ["street", "city"]
   },
   "source": {
     "license": "CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), address metadata © Google",

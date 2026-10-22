@@ -41,7 +41,7 @@ import { useDataViewItemLayout } from "@/components/data-view/data-view-item-lay
 import { recordDisplayName } from "@/features/records/record-display-name";
 import { cn } from "@/core/utils/cn";
 import { ITEM_REVEAL_CLASS } from "@/components/ui/item-actions";
-import { CLICK_ACTION_VALUE_TYPES, CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
+import { CLICK_ACTION_VALUE_TYPES } from "@/features/records/record-model-validation";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
@@ -67,7 +67,7 @@ const EDIT_SPACE_BUTTON_CLASS = cn(
   ITEM_REVEAL_CLASS,
   "ml-auto !w-auto shrink-0 rounded-sm px-1 text-xs text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:outline-none",
 );
-const IN_PLACE_VALUE_TYPES: RecordFieldView["valueType"][] = ["text", "number", "currency", ...CONTACT_VALUE_TYPES];
+const IN_PLACE_VALUE_TYPES: RecordFieldView["valueType"][] = ["text", "number", "currency", "url"];
 
 export function focusFirstControl(event: Event) {
   if (!(event.currentTarget instanceof HTMLElement)) return;
@@ -384,7 +384,7 @@ const InPlaceField = observer(function InPlaceField({
   const anchor = useRef<HTMLSpanElement>(null);
   const restoreFocus = useRef(false);
   const empty = isEmptyResult(fieldResult(record, field));
-  const contact = CONTACT_VALUE_TYPES.includes(field.valueType);
+  const contact = field.valueType === "url";
   const label = t("RecordModel.editValue", { field: field.label });
   useEffect(() => {
     if (editing || !restoreFocus.current) return;

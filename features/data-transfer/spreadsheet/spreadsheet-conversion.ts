@@ -14,6 +14,7 @@ import type {
 } from "./spreadsheet.schema";
 
 import { parseMarkdownToJSON } from "@/components/editor/editor.utils";
+import { normalizePhoneNumber } from "@/core/utils/phone-number";
 import { channelClass } from "@/ee/messaging/provider";
 import { RECORD_IMPORT_LIMIT, RECORD_IMPORT_LINK_LIMIT } from "@/features/data-transfer/record-transfer.schema";
 import { RecordScalarSchema } from "@/features/records/record-model.schema";
@@ -24,7 +25,6 @@ import {
   loneNameParts,
   matchOptionKey,
   normalizeEmail,
-  normalizePhone,
   normalizeUrl,
   parseDateText,
   parseDateTimeText,
@@ -280,8 +280,8 @@ function spreadsheetChannelIdentity(
 ): Pick<RecordIdentity, "provider" | "value"> | null {
   const email = normalizeEmail(part);
   if (email) return { provider: "mail", value: email };
-  const phone = normalizePhone(part, phoneCountryCode);
-  return phone ? { provider: "whatsapp", value: phone } : null;
+  const phone = normalizePhoneNumber(part, null, phoneCountryCode);
+  return phone ? { provider: "phone", value: phone } : null;
 }
 
 function channelIdentities(

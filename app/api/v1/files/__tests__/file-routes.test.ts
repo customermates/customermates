@@ -25,12 +25,12 @@ vi.mock("@/core/di", () => ({
 }));
 
 import { POST as createUpload } from "../uploads/route";
-import { GET as getFile } from "../[fileId]/route";
-import { GET as download, PUT as upload } from "../[fileId]/content/route";
-import { POST as attach } from "../[fileId]/attach/route";
+import { GET as getFile } from "../[id]/route";
+import { GET as download, PUT as upload } from "../[id]/content/route";
+import { POST as attach } from "../[id]/attach/route";
 
 const FILE_ID = "40000000-0000-4000-8000-000000000001";
-const params = { params: Promise.resolve({ fileId: FILE_ID }) };
+const params = { params: Promise.resolve({ id: FILE_ID }) };
 
 function failure(code: CustomErrorCode, kind?: string) {
   return { ok: false, error: createZodError(code, [], { error: code, ...(kind ? { kind } : {}) }) };

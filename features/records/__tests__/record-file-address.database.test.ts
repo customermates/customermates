@@ -117,7 +117,14 @@ async function fixture() {
       policy,
       calculations,
       verifier,
-      new RecordFileAttachmentService(new PrismaRecordFileRepo()),
+      new RecordFileAttachmentService(
+        new PrismaRecordFileRepo(),
+        {
+          drivers: () => ({ head: () => Promise.resolve({ size: 1234, contentType: null }) }) as never,
+          maxBytes: Number.MAX_SAFE_INTEGER,
+        },
+        { dispatch: () => Promise.resolve() },
+      ),
     ),
     { dispatch: () => Promise.resolve() },
     new RecordTrashService(repo, new RecordCalculationService(repo)),

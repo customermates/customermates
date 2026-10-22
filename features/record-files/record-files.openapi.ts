@@ -15,9 +15,9 @@ import {
 } from "./record-file.schema";
 
 const FILE_CONTRACT =
-  "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{fileId}/attach`. Access to a file follows read access to its record and field.";
+  "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{id}/attach`. Access to a file follows read access to its record and field.";
 
-const FileIdPathSchema = z.object({ fileId: z.uuid().describe("Id of the file.") });
+const FileIdPathSchema = z.object({ id: z.uuid().describe("Id of the file.") });
 const FileTokenSchema = z
   .string()
   .max(512)
@@ -153,8 +153,8 @@ const attachOperation: ZodOpenApiOperationObject = {
 
 export const recordFileApiPaths = {
   "/v1/files/uploads": { post: createUploadOperation },
-  "/v1/files/{fileId}": { get: getFileOperation },
-  "/v1/files/{fileId}/preview": { get: previewFileOperation },
-  "/v1/files/{fileId}/attach": { post: attachOperation },
-  "/v1/files/{fileId}/content": { get: downloadContentOperation, put: uploadContentOperation },
+  "/v1/files/{id}": { get: getFileOperation },
+  "/v1/files/{id}/preview": { get: previewFileOperation },
+  "/v1/files/{id}/attach": { post: attachOperation },
+  "/v1/files/{id}/content": { get: downloadContentOperation, put: uploadContentOperation },
 };

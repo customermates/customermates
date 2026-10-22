@@ -54,6 +54,7 @@ export function recordFileResponseHeaders(file: {
   size: number;
   inline: boolean;
   range: RecordFileByteRange | null;
+  frameAncestors: string;
 }): Record<string, string> {
   const length = file.range ? file.range.end - file.range.start + 1 : file.size;
   return {
@@ -63,7 +64,8 @@ export function recordFileResponseHeaders(file: {
     "x-content-type-options": "nosniff",
     "cache-control": "private, no-store",
     "accept-ranges": "bytes",
-    "content-security-policy": file.inline ? "sandbox; frame-ancestors 'self'" : "frame-ancestors 'self'",
+    "content-security-policy":
+      file.inline && file.mimeType !== "application/pdf" ? `sandbox; ${file.frameAncestors}` : file.frameAncestors,
     ...(file.range ? { "content-range": `bytes ${file.range.start}-${file.range.end}/${file.size}` } : {}),
   };
 }

@@ -70,21 +70,3 @@ function schemaChildren(schema: SchemaNode): unknown[] {
     return [];
   });
 }
-
-export function inlineSchemaDefinitions(document: unknown): unknown {
-  if (!isSchemaNode(document) || !isSchemaNode(document.definitions)) return document;
-  const definitions = document.definitions as Record<string, unknown>;
-  const inline = (node: unknown): unknown => {
-    if (Array.isArray(node)) return node.map(inline);
-    if (!node || typeof node !== "object") return node;
-    const ref = (node as { $ref?: unknown }).$ref;
-    if (typeof ref === "string" && ref.startsWith(SHARED_DEFINITION_PREFIX) && Object.keys(node).length === 1) {
-      const target = definitions[ref.slice(SHARED_DEFINITION_PREFIX.length)];
-      if (target !== undefined) return inline(target);
-    }
-    return Object.fromEntries(Object.entries(node).map(([key, value]) => [key, inline(value)]));
-  };
-  const { definitions: _definitions, ...rest } = document as Record<string, unknown>;
-  void _definitions;
-  return inline(rest);
-}

@@ -17,14 +17,13 @@ import { RetrievalStopwatch } from "@/core/retrieval/retrieval-stopwatch";
 import { unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { recordSearchHit } from "@/features/records/search-records.interactor";
 import { wikiPlainText } from "@/features/wiki/wiki-content";
-import { codePointBoundary } from "@/core/retrieval/retrieval-sections";
-import { wikiSectionSnippet } from "@/features/wiki/search-wiki-pages.interactor";
+import { wikiSectionSnippet } from "@/features/wiki/wiki-section-snippet";
+import { boundedWikiSectionLabel } from "@/features/wiki/wiki-markdown-sections";
 import { env } from "@/env";
 
 import { RecordFileSearchSchema } from "./record-file-index.schema";
 
 const RECORD_FILE_SEARCH_CANDIDATES = 30;
-const RECORD_FILE_SECTION_MAX_LENGTH = 160;
 
 export type RecordFileSemanticRetrieval = {
   embedder: WikiQueryEmbedder;
@@ -35,11 +34,6 @@ export type RecordFileSemanticRetrieval = {
 function sectionBody(section: RecordFileSection): string {
   const separator = section.text.indexOf("\n\n");
   return separator < 0 ? "" : section.text.slice(separator + 2);
-}
-
-function sectionLabel(heading: string): string {
-  if (heading.length <= RECORD_FILE_SECTION_MAX_LENGTH) return heading;
-  return `${heading.slice(0, codePointBoundary(heading, RECORD_FILE_SECTION_MAX_LENGTH - 1)).trimEnd()}…`;
 }
 
 @AllowInDemoMode
@@ -139,7 +133,7 @@ export class SearchRecordFilesInteractor extends AuthenticatedInteractor<RecordF
           fieldId: target.fieldId,
           record,
           snippet: wikiSectionSnippet(wikiPlainText(sectionBody(section)), corrected ?? data.query),
-          ...(section.heading ? { section: sectionLabel(section.heading) } : {}),
+          ...(section.heading ? { section: boundedWikiSectionLabel(section.heading) } : {}),
           offset: section.offset,
         },
       ];

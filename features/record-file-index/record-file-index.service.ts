@@ -3,10 +3,11 @@ import type { RecordFileExtraction, RecordFileIndexCandidate, RecordFileIndexRep
 import type { RecordFileSemanticIndexer } from "./record-file-semantic-indexer";
 
 import * as Sentry from "@sentry/nextjs";
-import { readFileBytes } from "@/core/storage/read-file-bytes";
+import { readCappedStream } from "@/core/storage/read-capped-stream";
 
 import { recordFileChunks } from "./record-file-chunks";
-import { extractRecordFileText, RECORD_FILE_TEXT_MAX_BYTES, recordFileTextFormat } from "./record-file-text";
+import { extractRecordFileText, RECORD_FILE_TEXT_MAX_BYTES } from "./record-file-text";
+import { recordFileTextFormat } from "./record-file-text-format";
 
 export const RECORD_FILE_INDEX_BATCH_FILES = 4;
 export const RECORD_FILE_INDEX_MAX_ATTEMPTS = 3;
@@ -86,9 +87,9 @@ export class RecordFileIndexService {
     const driver = this.storage(file.storageDriver);
     const stored = driver ? await driver.read(file.storageKey) : null;
     if (!stored) return { status: "failed" };
-    const bytes = await readFileBytes(stored.stream, RECORD_FILE_TEXT_MAX_BYTES);
-    if (!bytes) return { status: "skipped" };
-    const text = await extractRecordFileText(bytes, format);
+    const read = await readCappedStream(stored.stream, RECORD_FILE_TEXT_MAX_BYTES);
+    if (!read.ok) return { status: "skipped" };
+    const text = await extractRecordFileText(read.bytes, format);
     return text.status === "done" ? { ...text, chunks: recordFileChunks(file.name, text.text) } : text;
   }
 }

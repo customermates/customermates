@@ -378,7 +378,11 @@ export class AgentUsageService {
     return state.remainingMicrocents < Math.max(1, worstCaseMicrocents) ? "credits" : "unavailable";
   }
 
-  async prepareWorkspaceIndexing(companyId: string, now = new Date()): Promise<AgentRetrievalGrant | null> {
+  async prepareWorkspaceIndexing(
+    companyId: string,
+    purpose: WorkspaceIndexingPurpose = "wikiIndexing",
+    now = new Date(),
+  ): Promise<AgentRetrievalGrant | null> {
     if (env.APP_MODE === "self-hosted") return null;
     const pool = await this.repo.getWorkspaceCreditPoolUnscoped(companyId, now);
     if (!pool?.usable) return null;
@@ -387,7 +391,7 @@ export class AgentUsageService {
     if (pool.usedMicrocents >= pool.limitMicrocents) return null;
     if (!(await this.repo.admitsHostedAiRetrievalUnscoped(now))) return null;
     return {
-      purpose: "wikiIndexing",
+      purpose,
       companyId,
       userId: null,
       planSnapshot: pool.plan,

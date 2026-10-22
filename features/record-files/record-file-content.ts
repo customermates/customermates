@@ -8,12 +8,3 @@ export function decodeRecordFileContent(content: string): Uint8Array | null {
   const canonical = (value: string) => value.replace(/=+$/u, "").replaceAll("-", "+").replaceAll("_", "/");
   return canonical(bytes.toString("base64")) === canonical(compact) ? new Uint8Array(bytes) : null;
 }
-
-export function streamOfBytes(bytes: Uint8Array): ReadableStream<Uint8Array> {
-  return new ReadableStream({
-    start(controller) {
-      if (bytes.byteLength) controller.enqueue(bytes);
-      controller.close();
-    },
-  });
-}

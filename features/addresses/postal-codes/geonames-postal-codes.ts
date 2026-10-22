@@ -127,7 +127,7 @@ function parsedLine(line: string, expected: string, number: number): GeoNamesPos
   };
 }
 
-export function* geoNamesPostalCodes(text: string, country: string): Generator<GeoNamesPostalCode> {
+function* geoNamesPostalCodes(text: string, country: string): Generator<GeoNamesPostalCode> {
   const expected = country.toUpperCase();
   let start = 0;
   for (let number = 1; start < text.length; number += 1) {
@@ -141,10 +141,6 @@ export function* geoNamesPostalCodes(text: string, country: string): Generator<G
 
 export function geoNamesPostalCodeRows(text: string, country: string): Iterable<GeoNamesPostalCode> {
   return { [Symbol.iterator]: () => geoNamesPostalCodes(text, country) };
-}
-
-export function parseGeoNamesPostalCodes(text: string, country: string): GeoNamesPostalCode[] {
-  return [...geoNamesPostalCodes(text, country)];
 }
 
 type RegionLookup = (row: GeoNamesPostalCode, level: 1 | 2) => string | null;

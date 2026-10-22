@@ -2,7 +2,8 @@ import { createHash } from "node:crypto";
 
 import { presetId } from "@/features/records/crm-preset";
 import { recordFileChunks } from "@/features/record-file-index/record-file-chunks";
-import { extractRecordFileText, recordFileTextFormat } from "@/features/record-file-index/record-file-text";
+import { extractRecordFileText } from "@/features/record-file-index/record-file-text";
+import { recordFileTextFormat } from "@/features/record-file-index/record-file-text-format";
 
 import type { SeedContext } from "./context";
 

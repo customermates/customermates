@@ -10,9 +10,9 @@ import {
 } from "@/core/di";
 import { handleError, interactorFailureResponse } from "@/core/api/structured-interactor-handler";
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ fileId: string }> }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { fileId } = await params;
+    const { id: fileId } = await params;
     const token = request.nextUrl.searchParams.get("token");
     const input = {
       fileId,
@@ -29,9 +29,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ fileId: string }> }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { fileId } = await params;
+    const { id: fileId } = await params;
     const token = request.nextUrl.searchParams.get("token");
     const body = request.body;
     const result = token

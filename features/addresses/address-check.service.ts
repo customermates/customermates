@@ -1,7 +1,6 @@
 import type { AddressFormatSource } from "./address-country-format";
 import type { AddressIssue, PostalCodePlace } from "./address-check";
 import type { PostalCodeService } from "./postal-codes/postal-code.service";
-import type { RecordAddressCheck, RecordAddressChecker } from "@/features/records/record-address-checker";
 import type { RecordAddress } from "@/features/records/record-model.schema";
 import type { RecordAddressParts } from "@/features/records/record-address-lines";
 
@@ -10,11 +9,13 @@ import { formatRecordAddress } from "@/features/records/record-address";
 import { addressFormatOf, isKnownAddressCountry } from "./address-metadata";
 import { checkAddressFormat, checkAddressPlaces, isBlockingAddressIssue } from "./address-check";
 
-export type PostalCodeDirectoryStatus = "ready" | "loading" | "unavailable" | "notChecked";
+type PostalCodeDirectoryStatus = "ready" | "loading" | "unavailable" | "notChecked";
 
-export type PostalCodeDirectoryMatch = "exact" | "area" | "none";
+type PostalCodeDirectoryMatch = "exact" | "area" | "none";
 
-export type AddressInspection = RecordAddressCheck & {
+type RecordAddressCheck = { address: RecordAddress; issues: AddressIssue[] };
+
+type AddressInspection = RecordAddressCheck & {
   postalCode: { status: PostalCodeDirectoryStatus; match: PostalCodeDirectoryMatch | null; places: PostalCodePlace[] };
 };
 
@@ -29,7 +30,7 @@ function partsOf(address: RecordAddressParts): RecordAddressParts {
   };
 }
 
-export class AddressCheckService implements RecordAddressChecker {
+export class AddressCheckService {
   constructor(
     private readonly postalCodes: Pick<PostalCodeService, "lookup"> | null = null,
     private readonly formatOf: AddressFormatSource = addressFormatOf,

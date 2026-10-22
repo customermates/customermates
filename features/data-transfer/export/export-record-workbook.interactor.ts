@@ -13,7 +13,7 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { unwoundFailure } from "@/core/validation/interactor-failure-server";
-import { withMemberUsers, withRecordFiles } from "@/features/records/record-dto";
+import { withMemberUsersAndFiles } from "@/features/records/record-dto";
 import { DomainEvent } from "@/features/event/domain-events";
 
 import { collectRecordExport, ExportRecordsSchema, recordsExportedEvent } from "./export-records.interactor";
@@ -75,16 +75,13 @@ export class ExportRecordWorkbookInteractor extends AuthenticatedInteractor<Expo
               for (const [recordId, value] of batch) summaries.set(recordId, value);
             }
           }
-          const records = await withRecordFiles(
-            await withMemberUsers(
-              exported.data.records.map((record) => ({
-                ...record,
-                relationships: summaries.get(record.ref.recordId) ?? [],
-              })),
-              this.records,
-              policy.memberScope,
-            ),
+          const records = await withMemberUsersAndFiles(
+            exported.data.records.map((record) => ({
+              ...record,
+              relationships: summaries.get(record.ref.recordId) ?? [],
+            })),
             this.records,
+            policy.memberScope,
           );
           return { ok: true as const, data: { model, records, typeId: exported.data.typeId, policy } };
         },

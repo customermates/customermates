@@ -7,8 +7,7 @@ import type { RecordFileFieldWriteDeps } from "./record-file-field-write";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
-import { runInTransaction } from "@/core/decorators/transaction-runner";
-import { fail, failNotFound, unwoundFailure } from "@/core/validation/interactor-failure-server";
+import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { AttachRecordFileSchema } from "./record-file.schema";
 import { recordFileDto } from "./record-file-dto";
@@ -18,7 +17,7 @@ import { writeRecordFileIntoField } from "./record-file-field-write";
 export class AttachRecordFileInteractor extends AuthenticatedInteractor<AttachRecordFile, UploadRecordFileResult> {
   constructor(
     private files: Pick<RecordFileUploadRepo, "getFileCompanyWide">,
-    private access: Pick<RecordFileAccessService, "readable">,
+    private access: Pick<RecordFileAccessService, "readableFile">,
     private write: RecordFileFieldWriteDeps,
   ) {
     super();
@@ -32,10 +31,7 @@ export class AttachRecordFileInteractor extends AuthenticatedInteractor<AttachRe
     if (file.status === "ready") {
       if (file.recordId !== target.recordId || file.typeId !== target.typeId || file.fieldId !== target.fieldId)
         return fail(CustomErrorCode.recordFileUnavailable, ["fileId"]);
-      const readable = await runInTransaction(
-        async () => ({ ok: true as const, data: await this.access.readable(fileId) }),
-        { readOnly: true },
-      ).catch(unwoundFailure);
+      const readable = await this.access.readableFile(fileId);
       if (!readable.ok) return readable;
       return { ok: true, data: { file: recordFileDto(readable.data), attached: true } };
     }

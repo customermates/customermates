@@ -119,4 +119,3 @@ export const RecordQueryBaseSchema = z
       ),
   })
   .strict();
-export type RecordQueryBase = z.infer<typeof RecordQueryBaseSchema>;

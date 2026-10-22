@@ -1,6 +1,6 @@
 type Bucket = { tokens: number; refilledAt: number };
 
-export type AddressLookupAdmission = { allowed: true } | { allowed: false; retryAfterSeconds: number };
+type AddressLookupAdmission = { allowed: true } | { allowed: false; retryAfterSeconds: number };
 
 export class AddressLookupRateLimiter {
   private readonly buckets = new Map<string, Bucket>();

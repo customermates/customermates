@@ -28,6 +28,7 @@ import {
   RETRIEVAL_TYPO_TRANSPOSITION_MIN_LENGTH,
 } from "@/core/retrieval/full-text-typo";
 import { RETRIEVAL_SEMANTIC_MIN_SIMILARITY } from "@/core/retrieval/retrieval-pipeline";
+import { sectionEmbeddingAvailableSql } from "@/core/retrieval/section-search-sql";
 import { fieldReadPredicate, recordReadPredicate } from "@/features/records/record-query";
 
 import { RECORD_FILE_FULL_TEXT_CONFIGS } from "./record-file-content-query";
@@ -330,14 +331,7 @@ export class PrismaRecordFileSearchRepo
 
   private semanticIndexAvailable(): Promise<boolean> {
     embeddingColumn ??= this.prisma
-      .$queryRaw<Array<{ available: boolean }>>(
-        Prisma.sql`
-        SELECT EXISTS (
-          SELECT 1 FROM information_schema.columns
-          WHERE table_schema = current_schema() AND table_name = 'RecordFileChunk' AND column_name = 'embedding'
-        ) AS "available"
-      `,
-      )
+      .$queryRaw<Array<{ available: boolean }>>(sectionEmbeddingAvailableSql("RecordFileChunk"))
       .then((rows) => rows[0]?.available === true)
       .catch((error: unknown) => {
         embeddingColumn = undefined;

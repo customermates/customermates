@@ -7,15 +7,14 @@ import type { AgentFileExcerpt } from "./agent-attachments";
 import type { AgentTurnFile } from "./agent-native-files";
 
 import { UserAccessor } from "@/core/base/user-accessor";
-import { runInTransaction } from "@/core/decorators/transaction-runner";
-import { failNotFound, unwoundFailure } from "@/core/validation/interactor-failure-server";
+import { failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import { isAgentFileContext } from "./agent-context";
 
 export class AgentChatFileService extends UserAccessor {
   constructor(
-    private access: Pick<RecordFileAccessService, "readable">,
+    private access: Pick<RecordFileAccessService, "readableFile">,
     private files: RecordChatFileRepo,
     private background: Pick<BackgroundTaskService, "dispatch">,
   ) {
@@ -29,10 +28,7 @@ export class AgentChatFileService extends UserAccessor {
     const resolved: AgentTurnFile[] = [];
     for (const [index, context] of contexts.entries()) {
       if (!isAgentFileContext(context)) continue;
-      const readable = await runInTransaction(
-        async () => ({ ok: true as const, data: await this.access.readable(context.reference.fileId) }),
-        { readOnly: true },
-      ).catch(unwoundFailure);
+      const readable = await this.access.readableFile(context.reference.fileId);
       const file = readable.ok ? readable.data : null;
       const chatFile =
         file !== null &&

@@ -17,7 +17,7 @@ const PhotonFeatureSchema = z.object({
   properties: z.record(z.string(), z.unknown()),
 });
 
-export const PhotonResponseSchema = z.object({ features: z.array(z.unknown()) });
+const PhotonResponseSchema = z.object({ features: z.array(z.unknown()) });
 
 function text(value: unknown): string | null {
   if (typeof value !== "string") return null;

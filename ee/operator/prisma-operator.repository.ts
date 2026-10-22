@@ -15,6 +15,7 @@ import {
   workspaceIndexingShareMicrocents,
 } from "@/ee/agent-chat/agent-credit-policy";
 import { env } from "@/env";
+import { GIB } from "@/core/commercial/plan-catalog";
 import type { AgentUsageRepo } from "@/ee/agent-chat/agent-usage.repo";
 import { isAwaitingFirstPlan } from "@/ee/subscription/entitlements";
 
@@ -880,7 +881,7 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
         });
         if (!subscription) return "notFound";
         if (subscription.plan !== SubscriptionPlan.enterprise) return "conflict";
-        const bytesPerUser = data.gigabytesPerUser * 1024 ** 3;
+        const bytesPerUser = data.gigabytesPerUser * GIB;
         await this.owners.companies.setEnterpriseFileStorageUnscoped(data.companyId, bytesPerUser);
         await this.createAudit({
           action: OPERATOR_AUDIT_ACTION.enterpriseFileStorageUpdate,

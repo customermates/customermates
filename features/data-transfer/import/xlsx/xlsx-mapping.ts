@@ -2,9 +2,7 @@ import type { RecordFieldView, RecordModelView } from "@/features/records/record
 
 import { isRecordFieldWritable } from "@/features/records/record-input-value";
 import { recordChannelsEnabled, recordChannelsField } from "@/features/records/record-channels";
-
-export const XLSX_ADDRESS_PARTS = ["street", "line2", "postalCode", "city", "region", "countryCode"] as const;
-export type XlsxAddressPart = (typeof XLSX_ADDRESS_PARTS)[number];
+import { RECORD_ADDRESS_PARTS, type RecordAddressPart } from "@/features/records/record-address-value";
 
 type XlsxTarget =
   | { kind: "skip" }
@@ -12,7 +10,7 @@ type XlsxTarget =
   | { kind: "assignedTo" }
   | { kind: "field"; fieldId: string }
   | { kind: "rangePart"; fieldId: string; part: "start" | "end" }
-  | { kind: "addressPart"; fieldId: string; part: XlsxAddressPart }
+  | { kind: "addressPart"; fieldId: string; part: RecordAddressPart }
   | { kind: "nameParts"; firstFieldId: string; lastFieldId: string }
   | { kind: "relationship"; relationId: string; targetTypeId: string }
   | { kind: "channels" };
@@ -28,7 +26,7 @@ export type XlsxTargetLabels = {
   assignedTo: string;
   rangeStart: string;
   rangeEnd: string;
-  addressParts: Readonly<Record<XlsxAddressPart, string>>;
+  addressParts: Readonly<Record<RecordAddressPart, string>>;
 };
 
 const PHONE_SYNONYMS = [
@@ -98,7 +96,7 @@ const ASSIGNED_SYNONYMS = [
 
 const RECORD_ID_SYNONYMS = ["id", "recordid", "customermatesid"];
 
-const ADDRESS_PART_SYNONYMS: Readonly<Record<XlsxAddressPart, readonly string[]>> = {
+const ADDRESS_PART_SYNONYMS: Readonly<Record<RecordAddressPart, readonly string[]>> = {
   street: [
     "street",
     "streetaddress",
@@ -170,7 +168,7 @@ export function xlsxTargetOptions(
         }))
       : []),
     ...(field.valueType === "address"
-      ? XLSX_ADDRESS_PARTS.map<XlsxTargetOption>((part) => ({
+      ? RECORD_ADDRESS_PARTS.map<XlsxTargetOption>((part) => ({
           key: `field:${field.id}:${part}`,
           label: `${field.label} (${labels.addressParts[part]})`,
           target: { kind: "addressPart", fieldId: field.id, part },

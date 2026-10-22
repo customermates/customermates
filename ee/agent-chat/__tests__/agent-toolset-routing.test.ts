@@ -113,9 +113,11 @@ describe("toolsetsForRequest", () => {
     expect([...toolsetsForRequest({ text: "Passe meine aktuelle Ansicht an", pageRoute: null })]).toEqual(["views"]);
     expect([
       ...toolsetsForRequest({ text: "Show the deals in a calendar view by close date", pageRoute: null }),
-    ]).toEqual(["views", "messaging"]);
+    ]).toEqual(["views"]);
     expect([...toolsetsForRequest({ text: "Erstelle eine Kalenderansicht der Aufgaben", pageRoute: null })]).toEqual([
       "views",
+    ]);
+    expect([...toolsetsForRequest({ text: "What is in my calendar tomorrow?", pageRoute: null })]).toEqual([
       "messaging",
     ]);
     expect([...toolsetsForRequest({ text: "Add a map widget of our customers", pageRoute: null })]).toEqual([

@@ -19,7 +19,6 @@ import { ContactValue } from "@/components/records/contact-value";
 import { ChannelIconStack } from "@/components/shared/channel-icon-stack";
 import { EmptyValue } from "@/components/shared/empty-value";
 import { toChipColor } from "@/constants/chip-colors";
-import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
 import { cn } from "@/core/utils/cn";
 import { currencyFractionDigits } from "@/features/records/derived-value-format";
 import { AddressValue } from "@/components/records/address-value";
@@ -143,7 +142,7 @@ export const RecordValue = observer(function RecordValue({
     );
   }
   if (value.kind === "boolean") return <span>{value.value ? t("RecordModel.yes") : t("RecordModel.no")}</span>;
-  if ((value.kind === "text" || value.kind === "textList") && CONTACT_VALUE_TYPES.includes(field.valueType)) {
+  if ((value.kind === "text" || value.kind === "textList") && field.valueType === "url") {
     const values = value.kind === "text" ? [value.value] : value.value;
     return (
       <span className="inline-flex min-w-0 max-w-full flex-wrap items-center gap-x-2">

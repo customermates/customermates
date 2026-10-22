@@ -5,10 +5,15 @@ import type { XlsxCell } from "./xlsx-workbook";
 import { channelClass } from "@/ee/messaging/provider";
 import { inferChannelProviders, normalizeChannelValue } from "@/features/records/channel-value";
 import { scalarMatchesType } from "@/features/records/record-model-validation";
-import { addressFromText, cleanAddressPart } from "@/features/records/record-address-value";
+import {
+  addressFromText,
+  cleanAddressPart,
+  RECORD_ADDRESS_PART_LIMITS,
+  type RecordAddressPart,
+} from "@/features/records/record-address-value";
 import { countryCodeFromText } from "@/features/addresses/address-country-name";
 
-import { normalizeXlsxHeader, type XlsxAddressPart } from "./xlsx-mapping";
+import { normalizeXlsxHeader } from "./xlsx-mapping";
 import { xlsxCellText } from "./xlsx-workbook";
 
 export type XlsxIssueCode =
@@ -221,12 +226,10 @@ function dateScalar(cell: XlsxCell, kind: "date" | "dateTime"): XlsxParsed<strin
   return ok(kind === "date" ? utcDate(parsed.date) : parsed.date.toISOString());
 }
 
-const ADDRESS_PART_LIMITS = { street: 200, line2: 200, postalCode: 20, city: 200, region: 200 } as const;
-
-export function parseXlsxAddressPart(cell: XlsxCell, part: XlsxAddressPart): XlsxParsed<string | null> {
+export function parseRecordAddressPart(cell: XlsxCell, part: RecordAddressPart): XlsxParsed<string | null> {
   const text = xlsxCellText(cell).trim();
   if (!text) return ok(null);
-  if (part !== "countryCode") return ok(cleanAddressPart(text, ADDRESS_PART_LIMITS[part]));
+  if (part !== "countryCode") return ok(cleanAddressPart(text, RECORD_ADDRESS_PART_LIMITS[part]));
   const code = countryCodeFromText(text);
   return code ? ok(code) : issue("unknownCountry", text);
 }

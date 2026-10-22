@@ -43,7 +43,7 @@ export const RecordValueTypeSchema = z.enum(
 export type RecordValueType = z.infer<typeof RecordValueTypeSchema>;
 
 export const MAX_RECORD_FILES = 20;
-export const RecordFileIdsSchema = z
+const RecordFileIdsSchema = z
   .array(z.uuid())
   .min(1)
   .max(MAX_RECORD_FILES)
@@ -79,10 +79,7 @@ export const RecordAddressSchema = z
         lon: z.number().min(-180).max(180),
         precision: z
           .enum(["address", "postcode"])
-          .optional()
-          .describe(
-            "address: the building, from an address lookup; postcode: the centre of the postal code. Missing on locations stored before it existed, which are buildings.",
-          ),
+          .describe("address: the building, from an address lookup; postcode: the centre of the postal code."),
       })
       .strict()
       .nullable()
@@ -232,7 +229,7 @@ const RecordAddressWriteSchema = z
   .refine((input) => (input.value === undefined) !== (input.candidateToken === undefined), {
     message: "Send either an address value or a candidateToken",
   });
-export const RecordScalarInputSchema = RecordScalarShapeSchema.extend({
+const RecordScalarInputSchema = RecordScalarShapeSchema.extend({
   candidateToken: z
     .string()
     .min(1)
@@ -626,7 +623,7 @@ export const RecordMemberSchema = z
   })
   .strict();
 export type RecordMember = z.infer<typeof RecordMemberSchema>;
-export const RecordFileSummarySchema = z
+const RecordFileSummarySchema = z
   .object({
     id: z.uuid(),
     name: z.string(),

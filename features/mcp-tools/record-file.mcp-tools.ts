@@ -6,6 +6,13 @@ import {
   getReadRecordFileInteractor,
   getUploadRecordFileInteractor,
 } from "@/core/di";
+import {
+  AttachRecordFileSchema,
+  CreateRecordFileUploadSchema,
+  ReadRecordFileSchema,
+  RecordFileAttachModeSchema,
+  UploadRecordFileSchema,
+} from "@/features/record-files/record-file.schema";
 import { untrustedText } from "./untrusted-record-content";
 import { formatDatesInResponse, mcpValidationFailure, runInteractor, toonResult, untrustedToonResult } from "./utils";
 
@@ -15,7 +22,7 @@ const ManageRecordFilesSchema = z.object({
   action: z
     .enum(RECORD_FILE_ACTIONS)
     .describe(
-      "upload: typeId, fieldId, name, mimeType, content, recordId, attach, expectedVersion; create_upload: typeId, fieldId, name, mimeType, size; read: fileId, offset; attach: fileId, typeId, recordId, fieldId, attach, expectedVersion.",
+      "upload: typeId, fieldId, name, mimeType, content, recordId, mode, expectedVersion; create_upload: typeId, fieldId, name, mimeType, size; read: fileId, offset; attach: fileId, typeId, recordId, fieldId, mode, expectedVersion.",
     ),
   typeId: z.uuid().optional().describe("List (typeId) of the file field."),
   fieldId: z.uuid().optional().describe("File field that receives the file."),
@@ -37,12 +44,9 @@ const ManageRecordFilesSchema = z.object({
     .describe(
       "upload: the record whose file field receives the file at once; without it the file stays pending. attach: the record whose file field receives the file.",
     ),
-  attach: z
-    .enum(["append", "replace"])
-    .optional()
-    .describe(
-      "upload with recordId and attach: append adds the file after the existing ones (default for fields that hold several files); replace keeps only the new file (default for single-file fields).",
-    ),
+  mode: RecordFileAttachModeSchema.optional().describe(
+    "upload with recordId and attach: append adds the file after the existing ones (default for fields that hold several files); replace keeps only the new file (default for single-file fields).",
+  ),
   expectedVersion: z
     .number()
     .int()
@@ -65,31 +69,15 @@ const ManageRecordFilesSchema = z.object({
 type ManageRecordFilesInput = z.infer<typeof ManageRecordFilesSchema>;
 
 const UploadSchema = z.object({
-  typeId: z.uuid(),
-  fieldId: z.uuid(),
-  name: z.string().min(1).max(1024),
-  mimeType: z.string().max(255).default(""),
-  content: z.string().max(4_400_000),
-  recordId: z.uuid().optional(),
-  attach: z.enum(["append", "replace"]).optional(),
-  expectedVersion: z.number().int().positive().optional(),
+  ...UploadRecordFileSchema.shape,
+  mimeType: UploadRecordFileSchema.shape.mimeType.default(""),
 });
 const CreateUploadSchema = z.object({
-  typeId: z.uuid(),
-  fieldId: z.uuid(),
-  name: z.string().min(1).max(1024),
-  mimeType: z.string().max(255).default(""),
-  size: z.number().int().min(0),
+  ...CreateRecordFileUploadSchema.shape,
+  mimeType: CreateRecordFileUploadSchema.shape.mimeType.default(""),
 });
-const ReadSchema = z.object({ fileId: z.uuid(), offset: z.number().int().min(0).default(0) });
-const AttachSchema = z.object({
-  fileId: z.uuid(),
-  typeId: z.uuid(),
-  recordId: z.uuid(),
-  fieldId: z.uuid(),
-  attach: z.enum(["append", "replace"]).optional(),
-  expectedVersion: z.number().int().positive().optional(),
-});
+const ReadSchema = z.object(ReadRecordFileSchema.shape);
+const AttachSchema = z.object(AttachRecordFileSchema.shape);
 
 const RecordFileOutputSchema = z.looseObject({
   id: z.string(),
@@ -149,7 +137,7 @@ export const manageRecordFilesTool = {
   name: "manage_record_files",
   title: "Upload, attach and read record files",
   description:
-    "Upload files into a file field and read files. upload sends the content as base64 (at most 3 MB) and, with recordId, writes the file into that record's file field at once; attach append adds it after the existing files (default when the field holds several), replace keeps only the new file (default for single-file fields). Without recordId the file stays pending: write its id into the field with mutate_crm_record within 24 hours, sending the full list of file ids. create_upload is for larger files and coding agents: it returns a PUT URL with headers that accepts exactly size bytes for 15 minutes and a curl command; then write the returned fileId into the field with mutate_crm_record. attach writes a pending file you uploaded into a record's file field: a file the user attached to a chat message (its fileId is in the message) or an upload without recordId. It is a record update like upload with recordId (attach append or replace, expectedVersion); a file already in that field is returned unchanged, and once attached the record's and field's access rules apply to it. read takes a fileId from a file value, a record's files list or a chat attachment and returns the file's details, a downloadUrl that works for 15 minutes and, once text extraction has run, the file's text in chunks: start with offset 0 and pass nextOffset until it is null. Uploads count against the workspace storage and the size limit per file.",
+    "Upload files into a file field and read files. upload sends the content as base64 (at most 3 MB) and, with recordId, writes the file into that record's file field at once; mode append adds it after the existing files (default when the field holds several), replace keeps only the new file (default for single-file fields). Without recordId the file stays pending: write its id into the field with mutate_crm_record within 24 hours, sending the full list of file ids. create_upload is for larger files and coding agents: it returns a PUT URL with headers that accepts exactly size bytes for 15 minutes and a curl command; then write the returned fileId into the field with mutate_crm_record. attach writes a pending file you uploaded into a record's file field: a file the user attached to a chat message (its fileId is in the message) or an upload without recordId. It is a record update like upload with recordId (mode append or replace, expectedVersion); a file already in that field is returned unchanged, and once attached the record's and field's access rules apply to it. read takes a fileId from a file value, a record's files list or a chat attachment and returns the file's details, a downloadUrl that works for 15 minutes and, once text extraction has run, the file's text in chunks: start with offset 0 and pass nextOffset until it is null. Uploads count against the workspace storage and the size limit per file.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
   inputSchema: ManageRecordFilesSchema,
   outputSchema: ManageRecordFilesOutputSchema,
@@ -171,10 +159,8 @@ export const manageRecordFilesTool = {
     if (params.action === "attach") {
       const parsed = AttachSchema.safeParse(params);
       if (!parsed.success) return mcpValidationFailure(parsed.error);
-      const { attach, ...target } = parsed.data;
-      return runInteractor(
-        getAttachRecordFileInteractor().invoke({ ...target, ...(attach ? { mode: attach } : {}) }),
-        (data) => toonResult(formatDatesInResponse({ action: "attach", ...data })),
+      return runInteractor(getAttachRecordFileInteractor().invoke(parsed.data), (data) =>
+        toonResult(formatDatesInResponse({ action: "attach", ...data })),
       );
     }
     const parsed = ReadSchema.safeParse(params);

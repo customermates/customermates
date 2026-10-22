@@ -31,8 +31,7 @@ export type ModelIssue = {
 };
 
 export const MULTIPLE_VALUE_TYPES: readonly RecordValueType[] = ["text", "url", "select", "file"];
-export const CONTACT_VALUE_TYPES: readonly RecordValueType[] = ["url"];
-export const CLICK_ACTION_VALUE_TYPES: readonly RecordValueType[] = [...CONTACT_VALUE_TYPES, "address", "channels"];
+export const CLICK_ACTION_VALUE_TYPES: readonly RecordValueType[] = ["url", "address", "channels"];
 
 export function selectedOptionIds(value: RecordScalar | null): string[] {
   if (!value) return [];

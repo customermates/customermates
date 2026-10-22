@@ -30,9 +30,10 @@ export async function readCappedStream(
   return { ok: true, bytes, sha256: hash.digest("hex") };
 }
 
-export function emptyFileStream(): ReadableStream<Uint8Array> {
+export function streamOfBytes(bytes: Uint8Array = new Uint8Array()): ReadableStream<Uint8Array> {
   return new ReadableStream({
     start(controller) {
+      if (bytes.byteLength) controller.enqueue(bytes);
       controller.close();
     },
   });

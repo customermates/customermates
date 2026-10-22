@@ -776,9 +776,9 @@ function loadToolsetTool() {
 }
 
 function hostedMcpTools() {
-  return ALL_MCP_TOOLS.filter((mcp) => mcp.name !== "request_support" && !isDeepResearchTool(mcp.name)).map((mcp) =>
-    mcp.name === "get_workspace_context" ? hostedWorkspaceContextTool() : mcp,
-  );
+  return ALL_MCP_TOOLS.filter(
+    (mcp) => mcp.name !== "request_support" && mcp.name !== "lookup_address" && !isDeepResearchTool(mcp.name),
+  ).map((mcp) => (mcp.name === "get_workspace_context" ? hostedWorkspaceContextTool() : mcp));
 }
 
 function isWikiWebsiteSetupTurn(options: Pick<AgentToolOptions, "wikiWebsiteSetup" | "surface">) {

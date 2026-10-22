@@ -2,11 +2,8 @@ import { createHash } from "node:crypto";
 
 import { describe, expect, it } from "vitest";
 
-import {
-  markdownTextChunks,
-  retrievalChunkText,
-  retrievalWindows,
-} from "@/features/record-file-index/record-file-text-chunks";
+import { retrievalEmbeddingText } from "@/core/retrieval/retrieval-sections";
+import { markdownTextChunks, retrievalWindows } from "@/features/record-file-index/record-file-chunks";
 import { wikiMarkdownSections } from "@/features/wiki/wiki-markdown-sections";
 
 const REGEX_HEADING_LINE = /^(#{1,6})[ \t]+(.+?)(?:[ \t]+#+)?[ \t]*$/u;
@@ -54,7 +51,7 @@ function regexChunks(title: string, markdown: string) {
     if (!content && !heading) return [];
     const label = heading && heading !== title ? `${title} > ${heading}` : title;
     return retrievalWindows(content).map(({ text: part }) => {
-      const text = retrievalChunkText(label, part);
+      const text = retrievalEmbeddingText(label, part);
       return {
         offset: section.offset,
         section: section.path.join(" > ") || null,
@@ -118,7 +115,7 @@ describe("wiki Markdown parsing in linear time", () => {
     expect(elapsedMs(() => wikiMarkdownSections(spacedHeading))).toBeLessThan(500);
     expect(elapsedMs(() => wikiMarkdownSections(openBrackets))).toBeLessThan(500);
     expect(elapsedMs(() => wikiMarkdownSections(openLinks))).toBeLessThan(500);
-    expect(elapsedMs(() => markdownTextChunks("Notes", linkOpeners, { maxChunks: 10_000 }))).toBeLessThan(500);
+    expect(elapsedMs(() => markdownTextChunks("Notes", linkOpeners))).toBeLessThan(500);
     expect(wikiMarkdownSections(spacedHeading)[0].path).toEqual(["a b"]);
   });
 });

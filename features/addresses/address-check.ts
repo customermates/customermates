@@ -15,8 +15,8 @@ export const ADDRESS_ISSUE_CODES = [
   "postalCodeRegionMismatch",
   "cityMismatch",
 ] as const;
-export type AddressIssueCode = (typeof ADDRESS_ISSUE_CODES)[number];
-export type AddressIssuePart = AddressFormatPart | "countryCode";
+type AddressIssueCode = (typeof ADDRESS_ISSUE_CODES)[number];
+type AddressIssuePart = AddressFormatPart | "countryCode";
 export type AddressIssue = {
   code: AddressIssueCode;
   severity: "error" | "warning";
@@ -27,7 +27,7 @@ export type AddressIssue = {
 
 export type PostalCodePlace = { city: string | null; region: string | null; latitude: number; longitude: number };
 export type PostalCodePlaces = { match: "exact" | "area" | "none"; cityChecked: boolean; places: PostalCodePlace[] };
-export type AddressFormatCheck = { parts: RecordAddressParts; issues: AddressIssue[] };
+type AddressFormatCheck = { parts: RecordAddressParts; issues: AddressIssue[] };
 
 const BLOCKING: ReadonlySet<AddressIssueCode> = new Set(["countryUnknown", "postalCodeInvalid", "regionInvalid"]);
 const MAX_EXPECTED = 5;
@@ -126,7 +126,7 @@ function mean(places: readonly PostalCodePlace[]): RecordAddress["location"] {
   return { lat: Math.round(lat * 1e5) / 1e5, lon: Math.round(lon * 1e5) / 1e5, precision: "postcode" };
 }
 
-export function distinctCities(places: readonly PostalCodePlace[]): string[] {
+function distinctCities(places: readonly PostalCodePlace[]): string[] {
   const seen = new Set<string>();
   const cities: string[] = [];
   for (const place of places) {
@@ -139,7 +139,7 @@ export function distinctCities(places: readonly PostalCodePlace[]): string[] {
   return cities;
 }
 
-export function distinctRegions(places: readonly PostalCodePlace[]): string[] {
+function distinctRegions(places: readonly PostalCodePlace[]): string[] {
   return [...new Set(places.flatMap((place) => (place.region ? [place.region] : [])))];
 }
 

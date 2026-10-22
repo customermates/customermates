@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { ProviderFileResult } from "../../address-lookup-request";
 import type { PostalCodeRow } from "../geonames-postal-codes";
-import type { PostalCodeCountryState, PostalCodeSourceRecord } from "../postal-code.repo";
+import type { PostalCodeCountryState } from "../postal-code.repo";
 
 import { transactionStorage } from "@/core/decorators/transaction-context";
 import { addressFormatOf } from "../../address-metadata";
@@ -18,7 +18,6 @@ const VERSION = "1:2026-10-16";
 class MemoryPostalCodeRepo extends PostalCodeRepo {
   states = new Map<string, PostalCodeCountryState>();
   rows = new Map<string, PostalCodeRow[]>();
-  sources = new Map<string, readonly PostalCodeSourceRecord[]>();
   claims: string[] = [];
   stateReads = 0;
 
@@ -45,15 +44,8 @@ class MemoryPostalCodeRepo extends PostalCodeRepo {
     return Promise.resolve(true);
   }
 
-  replace(
-    countryCode: string,
-    version: string,
-    rows: readonly PostalCodeRow[],
-    sources: readonly PostalCodeSourceRecord[],
-    now: Date,
-  ) {
+  replace(countryCode: string, version: string, rows: readonly PostalCodeRow[], now: Date) {
     this.rows.set(countryCode, [...rows]);
-    this.sources.set(countryCode, sources);
     this.states.set(countryCode, {
       countryCode,
       status: "ready",
@@ -88,7 +80,7 @@ class MemoryPostalCodeRepo extends PostalCodeRepo {
 }
 
 function file(body: Buffer): ProviderFileResult {
-  return { ok: true, body, modifiedAt: "2026-10-16T02:14:44.000Z" };
+  return { ok: true, body };
 }
 
 function setup(files: Record<string, ProviderFileResult>, baseUrl: string | null = BASE_URL) {
@@ -194,18 +186,10 @@ describe("postal code service", () => {
     expect(repo.claims).toEqual(["de"]);
   });
 
-  it("loads a country file, keeps its source checksum and serves its places", async () => {
-    const { repo, service, downloads } = setup({ "DE.zip": file(GERMAN_FILE) });
+  it("loads a country file and serves its places", async () => {
+    const { service, downloads } = setup({ "DE.zip": file(GERMAN_FILE) });
     expect(await service.load("de")).toEqual({ status: "ready", rows: 3 });
     expect(downloads).toEqual(["DE.zip"]);
-    expect(repo.sources.get("de")).toEqual([
-      {
-        file: "DE.zip",
-        sha256: expect.stringMatching(/^[0-9a-f]{64}$/u),
-        bytes: GERMAN_FILE.length,
-        modifiedAt: "2026-10-16T02:14:44.000Z",
-      },
-    ]);
     expect(await service.lookup("de", "01945")).toEqual({
       status: "ready",
       match: "exact",

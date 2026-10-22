@@ -60,7 +60,7 @@ const { RecordFileIndexService } = await import("../record-file-index.service");
 const { IndexRecordFilesInteractor } = await import("../index-record-files.interactor");
 const { SearchRecordFilesInteractor } = await import("../search-record-files.interactor");
 const { ReadRecordFileContentInteractor } = await import("../read-record-file-content.interactor");
-const { ExtractedRecordFileTextReader } = await import("../extracted-record-file-text-reader");
+const { RecordFileAccessService } = await import("@/features/record-files/record-file-access.service");
 const { boundedRecordFileText } = await import("../record-file-text-chunk");
 const { createTestRecordRepo, preloadTestRecordRepo } = await import("@/tests/helpers/record-repository");
 const { prismaAgentChatRepoDependencies } = await import("@/tests/helpers/prisma-agent-chat-repo");
@@ -165,6 +165,7 @@ async function workspace(options: { subscription?: boolean } = {}) {
     new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
     repo,
   );
+  const storage = new DatabaseFileStorageDriver(new PrismaFileContentRepo(companyId), mockEnv.BASE_URL);
   const mutate = new MutateRecordInteractor(
     repo,
     policy,
@@ -173,7 +174,11 @@ async function workspace(options: { subscription?: boolean } = {}) {
       policy,
       new RecordCalculationService(repo),
       { verify: () => Promise.resolve(null) },
-      new RecordFileAttachmentService(new PrismaRecordFileRepo()),
+      new RecordFileAttachmentService(
+        new PrismaRecordFileRepo(),
+        { drivers: () => storage, maxBytes: Number.MAX_SAFE_INTEGER },
+        { dispatch: () => Promise.resolve() },
+      ),
     ),
     { dispatch: () => Promise.resolve() },
     new RecordTrashService(repo, new RecordCalculationService(repo)),
@@ -189,7 +194,6 @@ async function workspace(options: { subscription?: boolean } = {}) {
   };
   const version = async (ref: { typeId: string; recordId: string }) =>
     (await runWithTenant(admin, () => repo.getRecordCompanyWide(ref)))?.version ?? 0;
-  const storage = new DatabaseFileStorageDriver(new PrismaFileContentRepo(companyId), mockEnv.BASE_URL);
   const upload = (name: string, mimeType: string, bytes: Uint8Array, fieldId = files) =>
     runWithoutTenant(async () => {
       const fileId = randomUUID();
@@ -284,7 +288,10 @@ async function workspace(options: { subscription?: boolean } = {}) {
     });
   const read = (user: TenantUser, fileId: string) =>
     runWithTenant(user, () =>
-      new ReadRecordFileContentInteractor(repo, policy, new PrismaRecordFileSearchRepo()).invoke({ fileId }),
+      new ReadRecordFileContentInteractor(
+        new RecordFileAccessService(repo, policy, new PrismaRecordFileRepo()),
+        new PrismaRecordFileSearchRepo(),
+      ).invoke({ fileId }),
     );
   const fileRow = (fileId: string) =>
     runWithoutTenant(() => prisma.recordFile.findUniqueOrThrow({ where: { id: fileId } }));
@@ -398,16 +405,6 @@ describeDatabase("record file contents indexed like the Knowledge Base", () => {
     });
     expect(chunk).toMatchObject({ offset: hit.offset, nextOffset: null, totalChars: text.length });
     expect(chunk?.text).toContain("The subscription renews every twelve months unless cancelled.");
-    const reader = new ExtractedRecordFileTextReader(new PrismaRecordFileSearchRepo());
-    const part = await runWithTenant(w.admin, () => reader.read(pdf, hit.offset));
-    expect(part).toEqual({
-      offset: hit.offset,
-      nextOffset: null,
-      totalChars: text.length,
-      text: text.slice(hit.offset),
-    });
-    await expect(runWithTenant(w.admin, () => reader.read(image, 0))).resolves.toBeNull();
-    await expect(runWithTenant((await workspace()).admin, () => reader.read(pdf, 0))).resolves.toBeNull();
     await expect(w.read(w.admin, image)).resolves.toMatchObject({
       ok: true,
       data: { extraction: { status: "unsupported" }, text: null },
@@ -458,7 +455,7 @@ describeDatabase("record file contents indexed like the Knowledge Base", () => {
     const foreign = await workspace();
     expect((await foreign.searchFiles(foreign.admin, "budget approval")).items).toEqual([]);
     expect(await foreign.searchRecords(foreign.admin, "approval")).toEqual([]);
-    expect(JSON.stringify(await foreign.read(foreign.admin, otherFile))).toContain("recordNotFound");
+    expect(JSON.stringify(await foreign.read(foreign.admin, otherFile))).toContain("recordFileNotFound");
 
     await w.mutation({
       action: "update",
@@ -469,12 +466,12 @@ describeDatabase("record file contents indexed like the Knowledge Base", () => {
     expect(await w.fileRow(otherFile)).toMatchObject({ status: "detached" });
     expect((await w.searchFiles(w.admin, "airport")).items).toEqual([]);
     expect(await w.searchRecords(w.admin, "airport")).toEqual([]);
-    expect(JSON.stringify(await w.read(w.admin, otherFile))).toContain("recordNotFound");
+    expect(JSON.stringify(await w.read(w.admin, otherFile))).toContain("recordFileNotFound");
 
     await w.mutation({ action: "delete", ref: assigned, expectedVersion: await w.version(assigned) });
     expect((await w.searchFiles(w.admin, "harbour")).items).toEqual([]);
     expect(await w.searchRecords(w.admin, "harbour")).toEqual([]);
-    expect(JSON.stringify(await w.read(w.admin, assignedFile))).toContain("recordNotFound");
+    expect(JSON.stringify(await w.read(w.admin, assignedFile))).toContain("recordFileNotFound");
   });
 
   it("hides files in a field the reader may not see on a record they can read", async () => {
@@ -542,7 +539,7 @@ describeDatabase("record file contents indexed like the Knowledge Base", () => {
     );
     expect((await w.searchFiles(w.admin, "penalty clause")).items).toEqual([]);
     expect(await w.searchRecords(w.admin, "penalty")).toEqual([]);
-    expect(JSON.stringify(await w.read(w.admin, contract))).toContain("recordNotFound");
+    expect(JSON.stringify(await w.read(w.admin, contract))).toContain("recordFileNotFound");
   });
 
   it("marks broken files failed, gives up after repeated crashes and reuses text of identical bytes", async () => {
@@ -559,10 +556,10 @@ describeDatabase("record file contents indexed like the Knowledge Base", () => {
     expect(await w.fileRow(crashing)).toMatchObject({ extractionStatus: "failed", indexAttempts: 4 });
     expect(await w.fileRow(first)).toMatchObject({ extractionStatus: "done" });
 
+    await w.createDeal("Charon", [copy]);
     await runWithoutTenant(() =>
       prisma.recordFileContent.deleteMany({ where: { companyId: w.companyId, fileKey: `${w.companyId}/${copy}` } }),
     );
-    await w.createDeal("Charon", [copy]);
     await w.index();
     expect(await w.fileRow(copy)).toMatchObject({
       extractionStatus: "done",

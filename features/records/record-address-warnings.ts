@@ -9,7 +9,7 @@ export type FieldAddressIssues = { recordId: string; field: RecordField; issues:
 
 const MAX_WARNING_RECORDS = 20;
 
-export function addressIssueMessage(issue: AddressIssue, label: string): string {
+function addressIssueMessage(issue: AddressIssue, label: string): string {
   return `${label}: ${addressIssueText(issue)}`;
 }
 

@@ -151,3 +151,4 @@ for (const { summary } of rows) {
 console.log(`Total ${formatDuration(seconds(startedAt))}; reports in ${relative(REPO_ROOT, directory)}/`);
 writeFileSync(resolve(directory, "summary.json"), JSON.stringify(rows.map(({ summary, ...row }) => ({ ...row, failures: summary.failures, flaky: summary.flaky, fileErrors: summary.fileErrors })), null, 2));
 process.exit(rows.every((row) => row.result === "pass") ? 0 : 1);
+

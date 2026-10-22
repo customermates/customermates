@@ -1,12 +1,12 @@
 import type { Validated } from "@/core/validation/validation.utils";
-import type { FileStorageDrivers } from "@/core/storage/file-storage-drivers";
+import type { FileStorageDrivers } from "@/core/storage/file-storage-driver";
 import type { RecordFileUploadRepo } from "@/features/records/record-file-upload.repo";
 import type { UploadRecordFileContent, UploadRecordFileContentResult } from "./record-file.schema";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
-import { emptyFileStream } from "@/core/storage/read-capped-stream";
+import { streamOfBytes } from "@/core/storage/read-capped-stream";
 import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { UploadRecordFileContentSchema } from "./record-file.schema";
@@ -25,7 +25,7 @@ export class UploadRecordFileContentInteractor extends AuthenticatedInteractor<
 
   @Validate(UploadRecordFileContentSchema)
   async invoke({ fileId, body }: UploadRecordFileContent): Validated<UploadRecordFileContentResult> {
-    const stream = body ?? emptyFileStream();
+    const stream = body ?? streamOfBytes();
     const file = await this.files.getFileCompanyWide(fileId);
     if (!file || file.status !== "pending" || file.uploadedById !== this.userId) {
       await stream.cancel().catch(() => undefined);

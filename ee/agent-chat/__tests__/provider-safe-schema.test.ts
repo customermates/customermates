@@ -40,7 +40,7 @@ import {
   getAgentAiTools,
   type AgentToolDeps,
 } from "../agent-tools";
-import { inlineSchemaDefinitions } from "../shared-subschemas";
+import { inlineSchemaDefinitions } from "@/tests/helpers/inline-schema-definitions";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -206,7 +206,7 @@ describe("provider-safe tool schemas", () => {
       }
     }
 
-    expect(Object.fromEntries(census)).toEqual({ uuid: 313, "date-time": 15, email: 7, uri: 5, date: 2 });
+    expect(Object.fromEntries(census)).toEqual({ uuid: 291, "date-time": 15, email: 7, uri: 5, date: 2 });
   });
 
   it("still enforces the real constraint through the tool's own validator", async () => {

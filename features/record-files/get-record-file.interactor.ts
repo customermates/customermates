@@ -7,8 +7,6 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
-import { runInTransaction } from "@/core/decorators/transaction-runner";
-import { unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { RecordFileIdSchema } from "./record-file.schema";
 import { RECORD_FILE_LINK_SECONDS } from "./record-file-grant";
 import { recordFileDto } from "./record-file-dto";
@@ -17,7 +15,7 @@ import { recordFileDto } from "./record-file-dto";
 @TenantInteractor()
 export class GetRecordFileInteractor extends AuthenticatedInteractor<RecordFileId, RecordFileReadResult> {
   constructor(
-    private access: RecordFileAccessService,
+    private access: Pick<RecordFileAccessService, "readableFile">,
     private links: RecordFileLinks,
   ) {
     super();
@@ -25,20 +23,17 @@ export class GetRecordFileInteractor extends AuthenticatedInteractor<RecordFileI
 
   @Validate(RecordFileIdSchema)
   async invoke({ fileId }: RecordFileId): Validated<RecordFileReadResult> {
-    return runInTransaction(
-      async () => {
-        const file = await this.access.readable(fileId);
-        const expiresAt = new Date(Date.now() + RECORD_FILE_LINK_SECONDS * 1000);
-        return {
-          ok: true as const,
-          data: {
-            ...recordFileDto(file),
-            downloadUrl: this.links.contentUrl("download", file.id, this.userId, expiresAt),
-            downloadUrlExpiresAt: expiresAt.toISOString(),
-          },
-        };
+    const readable = await this.access.readableFile(fileId);
+    if (!readable.ok) return readable;
+    const file = readable.data;
+    const expiresAt = new Date(Date.now() + RECORD_FILE_LINK_SECONDS * 1000);
+    return {
+      ok: true,
+      data: {
+        ...recordFileDto(file),
+        downloadUrl: this.links.contentUrl("download", file.id, this.userId, expiresAt),
+        downloadUrlExpiresAt: expiresAt.toISOString(),
       },
-      { readOnly: true },
-    ).catch(unwoundFailure);
+    };
   }
 }

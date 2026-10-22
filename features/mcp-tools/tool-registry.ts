@@ -60,6 +60,8 @@ import {
 import type { McpTool } from "@/features/mcp-tools/mcp-tool";
 import type { AppMode } from "@/core/config/environment";
 
+import { env } from "@/env";
+
 export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
   records: [
     discoverRecordTypesV2Tool,
@@ -128,13 +130,16 @@ const CLOUD_ONLY_MCP_TOOLS: ReadonlySet<McpTool> = new Set([
   ...MCP_TOOL_GROUPS.routines,
 ]);
 
-export function mcpToolGroupsForAppMode(appMode: AppMode): Record<string, McpTool[]> {
-  if (appMode !== "self-hosted") return MCP_TOOL_GROUPS;
+function isMcpToolOffered(tool: McpTool, appMode: AppMode): boolean {
+  if (appMode === "self-hosted" && CLOUD_ONLY_MCP_TOOLS.has(tool)) return false;
+  return tool !== lookupAddressTool || Boolean(env.ADDRESS_LOOKUP_URL);
+}
 
+export function mcpToolGroupsForAppMode(appMode: AppMode): Record<string, McpTool[]> {
   return Object.fromEntries(
     Object.entries(MCP_TOOL_GROUPS).map(([key, tools]) => [
       key,
-      tools.filter((tool) => !CLOUD_ONLY_MCP_TOOLS.has(tool)),
+      tools.filter((tool) => isMcpToolOffered(tool, appMode)),
     ]),
   );
 }

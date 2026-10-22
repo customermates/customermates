@@ -27,10 +27,4 @@ describe("participant identity lookup", () => {
   ] as const)("normalizes %s identifier %s identically in the reader and writer", (provider, value, expected) => {
     expect(identityLookupValue(provider, value)).toBe(expected);
   });
-
-  it("reads national phone numbers in the acting user's country", () => {
-    expect(identityLookupValue("phone", "0621 123456", "de")).toBe("+49621123456");
-    expect(identityLookupValue("phone", "(201) 555-0123", "us")).toBe("+12015550123");
-    expect(identityLookupValue("whatsapp", "0621 123456", "de")).toBe("0621 123456");
-  });
 });

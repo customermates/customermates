@@ -18,20 +18,18 @@ import type { XlsxRow } from "./xlsx-workbook";
 
 import { RECORD_IMPORT_LIMIT, RECORD_IMPORT_LINK_LIMIT } from "@/features/data-transfer/record-transfer.schema";
 import { channelClass } from "@/ee/messaging/provider";
-import { addressDisplayText, cleanAddressPart, UNVERIFIED_ADDRESS } from "@/features/records/record-address-value";
+import {
+  addressDisplayText,
+  cleanAddressPart,
+  unverifiedAddressScalar,
+  type RecordAddressPart,
+} from "@/features/records/record-address-value";
 import { REGISTERED_LOCALES } from "@/i18n/locale-registry";
 import { requiredNamePart, splitPersonName } from "@/features/data-transfer/spreadsheet/spreadsheet-values";
 
+import { normalizeXlsxHeader, xlsxImportFields, XLSX_CHANNELS_KEY, XLSX_SKIP_KEY } from "./xlsx-mapping";
 import {
-  normalizeXlsxHeader,
-  xlsxImportFields,
-  XLSX_ADDRESS_PARTS,
-  XLSX_CHANNELS_KEY,
-  XLSX_SKIP_KEY,
-  type XlsxAddressPart,
-} from "./xlsx-mapping";
-import {
-  parseXlsxAddressPart,
+  parseRecordAddressPart,
   parseXlsxChannelsCell,
   parseXlsxFieldCell,
   parseXlsxMembersCell,
@@ -107,24 +105,6 @@ function valueResult(value: RecordScalar | null): CalculatedValue {
   return value ? { state: "value", value } : MISSING;
 }
 
-function addressScalar(parts: Partial<Record<XlsxAddressPart, string | null>>): RecordScalar | null {
-  if (!XLSX_ADDRESS_PARTS.some((part) => parts[part])) return null;
-  return {
-    kind: "address",
-    value: {
-      street: parts.street ?? null,
-      line2: parts.line2 ?? null,
-      postalCode: parts.postalCode ?? null,
-      city: parts.city ?? null,
-      region: parts.region ?? null,
-      countryCode: parts.countryCode ?? null,
-      formatted: "",
-      location: null,
-      verification: UNVERIFIED_ADDRESS,
-    },
-  };
-}
-
 function repeatsStoredAddress(value: RecordScalar, stored: CalculatedValue): boolean {
   if (value.kind !== "address" || stored.state !== "value" || stored.value.kind !== "address") return false;
   const address = stored.value.value;
@@ -175,7 +155,7 @@ export function parseXlsxRows(input: XlsxPlanInput, rows: XlsxRow[] = input.rows
       issues: [],
     };
     const ranges = new Map<string, { start: string | null; end: string | null }>();
-    const addresses = new Map<string, Partial<Record<XlsxAddressPart, string | null>>>();
+    const addresses = new Map<string, Partial<Record<RecordAddressPart, string | null>>>();
     input.mapping.forEach((key, column) => {
       if (key === XLSX_SKIP_KEY) return;
       const target = options.get(key)?.target;
@@ -207,7 +187,7 @@ export function parseXlsxRows(input: XlsxPlanInput, rows: XlsxRow[] = input.rows
         const current = ranges.get(field.id) ?? { start: null, end: null };
         ranges.set(field.id, { ...current, [target.part]: result.value });
       } else if (target.kind === "addressPart") {
-        const result = parseXlsxAddressPart(cell, target.part);
+        const result = parseRecordAddressPart(cell, target.part);
         if (!result.ok) {
           report(result.code, result.value);
           return;
@@ -254,7 +234,7 @@ export function parseXlsxRows(input: XlsxPlanInput, rows: XlsxRow[] = input.rows
       if (!parsed.values.has(fieldId))
         parsed.values.set(fieldId, range.start || range.end ? { kind: "range", ...range } : null);
     }
-    for (const [fieldId, address] of addresses) parsed.values.set(fieldId, addressScalar(address));
+    for (const [fieldId, address] of addresses) parsed.values.set(fieldId, unverifiedAddressScalar(address));
     return parsed;
   });
 }

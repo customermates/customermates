@@ -1,10 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { RETRIEVAL_CHUNK_MAX_LENGTH } from "@/features/record-file-index/record-file-text-chunks";
-import { markdownTextChunks } from "@/features/record-file-index/record-file-text-chunks";
+import { RETRIEVAL_SECTION_MAX_LENGTH } from "@/core/retrieval/retrieval-sections";
 import { WIKI_SECTION_MAX_LENGTH } from "@/features/wiki/wiki-markdown-sections";
 
-import { RECORD_FILE_MAX_CHUNKS, recordFileChunks } from "../record-file-chunks";
+import { markdownTextChunks, RECORD_FILE_MAX_CHUNKS, recordFileChunks } from "../record-file-chunks";
 
 describe("record file chunks", () => {
   it("labels each section with the file name and heading path, exactly like Knowledge Base chunks", () => {
@@ -13,8 +12,8 @@ describe("record file chunks", () => {
     const chunks = recordFileChunks("Contract.pdf", text);
 
     expect(chunks).toEqual(
-      markdownTextChunks("Contract.pdf", text).map((chunk) => ({
-        ordinal: chunk.ordinal,
+      markdownTextChunks("Contract.pdf", text).map((chunk, ordinal) => ({
+        ordinal,
         offset: chunk.offset,
         heading: chunk.section,
         text: chunk.text,
@@ -50,7 +49,7 @@ describe("record file chunks", () => {
     const offsets = chunks.map(({ offset }) => offset);
     expect(offsets).toEqual([...offsets].sort((left, right) => left - right));
     expect(
-      chunks.every((chunk) => chunk.text.length <= RETRIEVAL_CHUNK_MAX_LENGTH + "leads.csv > Leads\n\n".length),
+      chunks.every((chunk) => chunk.text.length <= RETRIEVAL_SECTION_MAX_LENGTH + "leads.csv > Leads\n\n".length),
     ).toBe(true);
   });
 
@@ -70,7 +69,7 @@ describe("record file chunks", () => {
     expect(recordFileChunks("parts.md", text)).toHaveLength(RECORD_FILE_MAX_CHUNKS);
   });
 
-  it("caps a long heading in every chunk of a file, while Knowledge Base chunks keep the whole heading", () => {
+  it("caps a long heading in every chunk of a file", () => {
     const heading = Array.from({ length: 40_000 }, (_, index) => `w${index}`).join(" ");
     const text = `# ${heading}\n\n${"The renewal terms apply to every plan. ".repeat(200)}`;
     const chunks = recordFileChunks("notes.md", text);
@@ -81,9 +80,8 @@ describe("record file chunks", () => {
       expect(chunk.heading?.endsWith("…")).toBe(true);
       expect(chunk.text.startsWith(`notes.md > ${chunk.heading}\n\n`)).toBe(true);
       expect(chunk.text.length).toBeLessThanOrEqual(
-        `notes.md > \n\n`.length + WIKI_SECTION_MAX_LENGTH + RETRIEVAL_CHUNK_MAX_LENGTH,
+        `notes.md > \n\n`.length + WIKI_SECTION_MAX_LENGTH + RETRIEVAL_SECTION_MAX_LENGTH,
       );
     }
-    expect(markdownTextChunks("notes.md", text)[0].section).toBe(heading);
   });
 });

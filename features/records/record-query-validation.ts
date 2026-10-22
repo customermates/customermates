@@ -9,6 +9,7 @@ import { recordFilterOperators } from "./record-filter";
 import { isTemporalRecordType, temporalFilterIsValid } from "./record-temporal-filter";
 import { resolveRecordGrouping } from "./record-grouping";
 import { resolveRecordPath } from "./record-relationship-path";
+import { recordMeasureIssue } from "./record-measure-validation";
 
 export function invalidRecordQueryPart(
   query: RecordQuery,
@@ -187,4 +188,3 @@ export function isRecordSortField(field: Pick<RecordField, "multiple" | "valueTy
     !(field.valueType === "select" && field.multiple)
   );
 }
-import { recordMeasureIssue } from "./record-measure-validation";

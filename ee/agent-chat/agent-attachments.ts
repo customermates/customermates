@@ -10,12 +10,13 @@ import {
   agentNativeFileTypes,
   isAgentNativeFileEligible,
 } from "./agent-native-files";
+import { escapeAttribute } from "./agent-context";
 import { serializedReplayTextBytes } from "./agent-replay-budget";
 import { serializedAgentContextBytes } from "./agent-budget-policy";
 import { toModelMessages } from "./agent-stream-utils";
 
 export const AGENT_ATTACHED_TEXT_MAX_CHARS = 8_000;
-export const AGENT_ATTACHED_TEXT_MIN_CHARS = 400;
+const AGENT_ATTACHED_TEXT_MIN_CHARS = 400;
 export const AGENT_ATTACHMENT_HEADROOM_BYTES = 2_048;
 
 const ATTACHED_FILES_NOTE =
@@ -24,10 +25,6 @@ const ATTACHED_FILES_NOTE =
 export type AgentFileExcerpt = { text: string; totalChars: number };
 
 export type AgentAttachmentPlan = { attachedText: string; nativeFiles: AgentNativeFile[] };
-
-function escapeAttribute(value: string): string {
-  return value.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-}
 
 function fileTag(file: AgentTurnFile, attributes: Record<string, string | number>, body?: string): string {
   const all = { fileId: file.id, name: file.name, ...attributes };

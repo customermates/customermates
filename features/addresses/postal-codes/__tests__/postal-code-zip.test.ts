@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { crc32, isPostalCodeDataError, readZipEntry } from "../postal-code-zip";
+import { isPostalCodeDataError, readZipEntry } from "../postal-code-zip";
 import { zipFixture } from "./zip-fixture";
 
 describe("postal code archives", () => {
@@ -12,10 +12,6 @@ describe("postal code archives", () => {
     ]);
     expect(readZipEntry(archive, "DE.txt", 1_000).toString("utf8")).toBe("DE\t68259\tMannheim");
     expect(readZipEntry(archive, "plain.txt", 1_000).toString("utf8")).toBe("stored");
-  });
-
-  it("computes the standard CRC-32", () => {
-    expect(crc32(new TextEncoder().encode("123456789"))).toBe(0xcbf43926);
   });
 
   it("refuses a damaged checksum, a missing entry, an oversized entry and a cut-off archive", () => {

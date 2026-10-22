@@ -1,4 +1,4 @@
-import type { FileStorageDrivers } from "@/core/storage/file-storage-drivers";
+import type { FileStorageDrivers } from "@/core/storage/file-storage-driver";
 import type { RecordFileCleanupRepo } from "@/features/records/record-file-cleanup.repo";
 
 import { z } from "zod";

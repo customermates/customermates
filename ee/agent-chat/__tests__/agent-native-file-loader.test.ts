@@ -72,11 +72,11 @@ describe("loading attached files for the model", () => {
       modelId: "anthropic/claude-haiku-5.5",
       roomBytes: 60_000,
     });
-    const readable = vi.fn((fileId: string) =>
-      fileId === CARD ? Promise.resolve(details(CARD)) : Promise.reject(new Error("File not found")),
+    const readableFile = vi.fn((fileId: string) =>
+      Promise.resolve(fileId === CARD ? { ok: true as const, data: details(CARD) } : ({ ok: false } as never)),
     );
     const read = vi.fn(() => Promise.resolve({ stream: stream("bytes!"), size: 6, contentType: "image/png" }));
-    const loader = new AgentNativeFileLoader({ readable }, () => ({ read }) as never);
+    const loader = new AgentNativeFileLoader({ readableFile }, () => ({ read }) as never);
     const history = { role: "assistant", text: "Earlier answer" };
 
     const [assistant, user] = await loader.load([
@@ -90,7 +90,7 @@ describe("loading attached files for the model", () => {
     ]);
     expect(user.attachedText).toContain(`<file fileId="${CARD}" name="Card.png" content="file"/>`);
     expect(user.attachedText).toContain(`<file fileId="${SCAN}" name="Scan.png" content="none" reason="unavailable"/>`);
-    expect(readable).toHaveBeenCalledTimes(2);
+    expect(readableFile).toHaveBeenCalledTimes(2);
     expect(read).toHaveBeenCalledTimes(1);
   });
 
@@ -101,7 +101,10 @@ describe("loading attached files for the model", () => {
       details(CARD, { mimeType: "application/pdf" }),
       details(CARD, { size: AGENT_NATIVE_FILE_MAX_BYTES + 1 }),
     ]) {
-      const loader = new AgentNativeFileLoader({ readable: () => Promise.resolve(stored) }, () => ({ read }) as never);
+      const loader = new AgentNativeFileLoader(
+        { readableFile: () => Promise.resolve({ ok: true as const, data: stored }) },
+        () => ({ read }) as never,
+      );
       const [user] = await loader.load([{ role: "user", text: "Read it", files }]);
       expect(user.files).toEqual([]);
     }

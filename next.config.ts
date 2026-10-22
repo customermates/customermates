@@ -10,6 +10,7 @@ import { withSentryConfig } from "@sentry/nextjs";
 import { withWorkflow } from "workflow/next";
 
 import { env } from "@/env";
+import { frameAncestorsPolicy } from "@/core/config/environment";
 import { permanentAliasRedirects, retiredAppRouteRedirects } from "@/core/seo/route-aliases";
 import { recordFileParserPackages } from "@/features/record-file-index/record-file-parser-packages";
 
@@ -20,9 +21,9 @@ const withMDX = createMDX({
 });
 
 // The record file text parser runs in a worker thread that loads these packages from node_modules at run time,
-// so the workflow function and the route that reads a file given to Mate have to ship them and everything they
-// depend on. Turbopack keeps every file an include glob matches, so folders a package never loads in Node (the
-// browser bundles of exceljs) are left out here.
+// so the workflow function, the route that reads a file given to Mate and the file preview route have to ship them
+// and everything they depend on. Turbopack keeps every file an include glob matches, so folders a package never loads
+// in Node (the browser bundles of exceljs) are left out here.
 function packageTrees(names: string[], skipped: Record<string, string[]>, root = process.cwd()): string[] {
   const found = new Map<string, string>();
   const visit = (name: string, from: string) => {
@@ -76,6 +77,7 @@ const nextConfig: NextConfig = {
       ...recordFileParserTrees,
     ],
     "/api/agent/files/*/complete": recordFileParserTrees,
+    "/api/v1/files/*/preview": recordFileParserTrees,
   },
 
   images: {
@@ -114,15 +116,7 @@ const nextConfig: NextConfig = {
     return Promise.resolve([
       {
         source: "/:path((?!api/v1/files/[^/]+/content$).*)",
-        headers: [
-          {
-            key: "Content-Security-Policy",
-            value:
-              env.APP_MODE === "demo"
-                ? "frame-ancestors 'self' https://customermates.com https://*.customermates.com"
-                : "frame-ancestors 'self'",
-          },
-        ],
+        headers: [{ key: "Content-Security-Policy", value: frameAncestorsPolicy(env.APP_MODE) }],
       },
       {
         source: "/maps/v1/:path*",

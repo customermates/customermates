@@ -173,7 +173,6 @@ function countryMetadata(
   if (regions) lines = placeMissing(lines, "region");
   lines = placeMissing(lines, "city");
   const required = entry.require === undefined ? undefined : parts(entry.require);
-  const upper = entry.upper === undefined ? undefined : parts(entry.upper);
   const cityLabel = label<AddressCityLabel>(entry.locality_name_type, CITY_LABELS, key);
   const postalCodeLabel = label<AddressPostalCodeLabel>(entry.zip_name_type, POSTAL_CODE_LABELS, key);
   const regionLabel = label<AddressRegionLabel>(entry.state_name_type, REGION_LABELS, key);
@@ -187,7 +186,6 @@ function countryMetadata(
     ...(regionLabel && regionLabel !== defaults.regionLabel ? { regionLabel } : {}),
     ...(regions ? { regions } : {}),
     ...(required && !sameParts(required, defaults.required) ? { required } : {}),
-    ...(upper && !sameParts(upper, defaults.upper) ? { upper } : {}),
   };
 }
 
@@ -198,7 +196,6 @@ function defaultsOf(entry: LibaddressinputEntry): AddressMetadata["defaults"] {
     postalCodeLabel: label<AddressPostalCodeLabel>(entry.zip_name_type, POSTAL_CODE_LABELS, "ZZ") ?? "postal",
     regionLabel: label<AddressRegionLabel>(entry.state_name_type, REGION_LABELS, "ZZ") ?? "province",
     required: parts(entry.require ?? "AC"),
-    upper: parts(entry.upper ?? ""),
   };
 }
 

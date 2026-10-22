@@ -12,7 +12,7 @@ import { createHash } from "node:crypto";
 
 import { AwsV4Signer } from "aws4fetch";
 
-import { emptyFileStream, readCappedStream, totalSizeOfContentRange } from "./read-capped-stream";
+import { readCappedStream, streamOfBytes, totalSizeOfContentRange } from "./read-capped-stream";
 
 export type S3FileStorageConfig = {
   endpoint: string;
@@ -172,7 +172,7 @@ export class S3FileStorageDriver implements FileStorageDriver {
       await response.body?.cancel();
       const size = totalSizeOfContentRange(response.headers.get("content-range"));
       const stored = size === null ? await this.head(key) : { size, contentType: null };
-      return stored ? { stream: emptyFileStream(), size: stored.size, contentType: stored.contentType } : null;
+      return stored ? { stream: streamOfBytes(), size: stored.size, contentType: stored.contentType } : null;
     }
     if (!response.ok || !response.body) throw new Error(`S3 answered ${response.status} to a GET request`);
     const size =

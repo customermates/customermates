@@ -17,6 +17,7 @@ import {
   resolveCalendarFields,
 } from "@/features/record-calendar/record-calendar-query";
 import type { CalendarViewConfig } from "@/core/data-view/calendar-view-config.schema";
+import { RECORD_CONTRIBUTION_FILTER } from "./record-contribution-link";
 
 export function recordViewStateIsValid(typeId: string, state: DataViewState, model: RecordModel): boolean {
   if (!model.types.some((type) => type.id === typeId && !type.archived)) return false;
@@ -184,4 +185,3 @@ export function cleanRecordViewState(typeId: string, state: DataViewState, model
     ? cleaned
     : null;
 }
-import { RECORD_CONTRIBUTION_FILTER } from "./record-contribution-link";

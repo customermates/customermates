@@ -27,6 +27,18 @@ describe("phone number normaliser", () => {
   });
 
   it.each([
+    ["030 1234567", "49", "+49301234567"],
+    ["+49 (0)30 1234-567", "1", "+49301234567"],
+    ["0621 123456", "41", "+41621123456"],
+  ])("reads %s with calling code %s as %s", (raw, callingCode, expected) => {
+    expect(normalizePhoneNumber(raw, null, callingCode)).toBe(expected);
+  });
+
+  it("prefers the region over the calling code", () => {
+    expect(normalizePhoneNumber("0621 123456", "de", "1")).toBe("+49621123456");
+  });
+
+  it.each([
     ["0621 123456", undefined],
     ["0621 123456", null],
     ["0621 123456", "aq"],

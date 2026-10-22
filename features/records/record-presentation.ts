@@ -13,6 +13,7 @@ import type {
 import type { RecordQuery } from "./record-query.schema";
 
 import { toChipColor, type ChipColor } from "@/constants/chip-colors";
+import { RECORD_CONTRIBUTION_FILTER, recordContributionFromFilter } from "./record-contribution-link";
 
 export type RecordLinkColors = Partial<Record<string, ChipColor>>;
 export type RecordLinkIcons = Partial<Record<string, string>>;
@@ -368,4 +369,3 @@ export function recordLinkLabels(types: RecordType[], relationships: RecordRelat
 export function recordLinkColor(colors: RecordLinkColors, typeId: string) {
   return toChipColor(colors[typeId]);
 }
-import { RECORD_CONTRIBUTION_FILTER, recordContributionFromFilter } from "./record-contribution-link";

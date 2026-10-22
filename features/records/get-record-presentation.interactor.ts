@@ -42,7 +42,7 @@ import { liveGroupSummaries, recordGroupableFields, resolveRecordGrouping } from
 import { parseRelationshipColumnKey } from "./record-column.schema";
 import { resolveRecordPath } from "./record-relationship-path";
 import { liveRecordFilters } from "./record-view-state";
-import { ViewMode } from "@/core/base/base-query-builder";
+import { FilterOperatorKey, ViewMode } from "@/core/base/base-query-builder";
 import { CALENDAR_RECORD_LIMIT, type CalendarWindow } from "@/core/data-view/calendar-view-config.schema";
 import {
   calendarWindowFilters,
@@ -51,6 +51,7 @@ import {
 } from "@/features/record-calendar/record-calendar-query";
 import { isRecordSortField } from "./record-query-validation";
 import type { RecordQueryResult } from "./record-query-result.schema";
+import { RECORD_CONTRIBUTION_FILTER } from "./record-contribution-link";
 
 const GetRecordPresentationSchema = z
   .object({ typeId: z.uuid(), params: GetQueryParamsSchema.default({}), transient: z.boolean().optional() })
@@ -339,5 +340,3 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
     };
   }
 }
-import { RECORD_CONTRIBUTION_FILTER } from "./record-contribution-link";
-import { FilterOperatorKey } from "@/core/base/base-query-builder";

@@ -17,12 +17,10 @@ import type {
   RecordField,
   RecordFieldUpdate,
 } from "./record-model.schema";
-import type { AddressCandidateVerifier } from "./address-candidate-verifier";
-import type { RecordAddressChecker } from "./record-address-checker";
+import type { SignedAddressCandidateVerifier } from "@/features/addresses/signed-address-candidate-verifier";
 import type { AddressIssue } from "@/features/addresses/address-check";
-import type { RecordWriteWarning } from "./record-query.schema";
-import type { RecordFileAttacher } from "./record-file-attacher";
-import type { RecordMutation } from "./record-query.schema";
+import type { RecordMutation, RecordWriteWarning } from "./record-query.schema";
+import type { RecordFileAttachmentService } from "./record-file-attachment.service";
 import type { InteractorFailureKind } from "@/core/validation/validation.utils";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -39,7 +37,6 @@ import { identityKeys, normalizedIdentity, normalizedIdentityAssociation } from 
 import { channelClass } from "@/ee/messaging/provider";
 import { canonicalRecordJson, compareRecordKey } from "./record-json";
 import { recordTrashLabel } from "./record-trash-label";
-import { RejectingAddressCandidateVerifier } from "./rejecting-address-candidate-verifier";
 import { sameAddressParts, unverifiedRecordAddress } from "./record-address";
 import { AddressCheckService } from "@/features/addresses/address-check.service";
 import { isBlockingAddressIssue } from "@/features/addresses/address-check";
@@ -176,20 +173,22 @@ export type RecordWrite = {
   warnings?: RecordWriteWarning[];
 };
 
-const ADDRESS_ERROR_CODES = {
+const ADDRESS_ERROR_CODES: Partial<Record<AddressIssue["code"], CustomErrorCode>> = {
   countryUnknown: CustomErrorCode.recordAddressCountryInvalid,
   postalCodeInvalid: CustomErrorCode.recordAddressPostalCodeInvalid,
   regionInvalid: CustomErrorCode.recordAddressRegionInvalid,
-} as const;
+};
 
 export class RecordWriteService {
   constructor(
     private records: RecordRepo,
     private policy: RecordAccessPolicy,
     private calculations: RecordCalculationService,
-    private addresses: AddressCandidateVerifier = new RejectingAddressCandidateVerifier(),
-    private files?: RecordFileAttacher,
-    private addressChecker: RecordAddressChecker = new AddressCheckService(),
+    private addresses: Pick<SignedAddressCandidateVerifier, "verify"> = { verify: () => Promise.resolve(null) },
+    private files: Pick<RecordFileAttachmentService, "attach"> = {
+      attach: () => Promise.reject(new Error("File values need a file attacher")),
+    },
+    private addressChecker: Pick<AddressCheckService, "check"> = new AddressCheckService(),
   ) {}
 
   withRepository(records: RecordRepo): RecordWriteService {
@@ -215,19 +214,15 @@ export class RecordWriteService {
     if (stored && sameAddressParts(stored, address)) return { value: { kind: "address", value: stored }, issues: [] };
     const checked = await this.addressChecker.check(address);
     const blocking = checked.issues.find(isBlockingAddressIssue);
-    if (blocking && blocking.code in ADDRESS_ERROR_CODES) {
-      reject(
-        ADDRESS_ERROR_CODES[blocking.code as keyof typeof ADDRESS_ERROR_CODES],
-        "validation",
-        [...path, blocking.part],
-        {
-          field: field.label,
-          country: address.countryCode ?? "",
-          postalCode: checked.address.postalCode ?? "",
-          region: checked.address.region ?? "",
-          example: blocking.example ?? "",
-        },
-      );
+    const errorCode = blocking && ADDRESS_ERROR_CODES[blocking.code];
+    if (blocking && errorCode) {
+      reject(errorCode, "validation", [...path, blocking.part], {
+        field: field.label,
+        country: address.countryCode ?? "",
+        postalCode: checked.address.postalCode ?? "",
+        region: checked.address.region ?? "",
+        example: blocking.example ?? "",
+      });
     }
     if (stored && sameAddressParts(stored, checked.address))
       return { value: { kind: "address", value: stored }, issues: [] };
@@ -647,7 +642,6 @@ export class RecordWriteService {
           continue;
         if (value?.kind === "member") await this.requireAssignable(policy, [value.value], path);
         if (field.valueType === "file") {
-          if (!this.files) throw new Error("File values need a file attacher");
           const attached = await this.files.attach({
             ref,
             fieldId: field.id,
