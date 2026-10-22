@@ -8,14 +8,14 @@ import { SYNTHETIC_AVATAR_URLS } from "./avatars";
 import { SEED_IDS } from "./context";
 import { seedCompanyMembers } from "./members";
 import { reconcileAuthUserId } from "./helpers";
-import { NORTHWIND_COMPANY_NAME } from "./northwind-model";
+import { TEAM_COMPANY_NAME } from "./solutions/team-workspace";
 import { seedRoles } from "./roles";
 import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
 
 const SYNTHETIC_COMPANY = {
   ...SYNTHETIC_SEED_TIMELINE.company,
   createdByAuthUserId: SEED_IDS.user,
-  name: NORTHWIND_COMPANY_NAME,
+  name: TEAM_COMPANY_NAME,
 } as const;
 
 export const SYNTHETIC_SUBSCRIPTION = {

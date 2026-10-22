@@ -4,20 +4,18 @@ import type { Prisma } from "@/generated/prisma";
 import type { SeedContext } from "./context";
 
 import { fixtureId, upsertFixturesById } from "./helpers";
-import { NORTHWIND_STORY_END_MS, northwindAt } from "./northwind-data";
 import { seedRecordEventSubscription } from "./record-event-subscriptions";
+import { storyMoment } from "./timeline";
 
-const DAY = 86_400_000;
-
-/** Healthy webhook: won deals and subscription changes go to the ERP bridge; every recent delivery succeeded. */
-export const SYNTHETIC_WEBHOOK_URL = "https://erp-bridge.northwind-labs.example/hooks/crm";
-export const SYNTHETIC_WEBHOOK_DESCRIPTION = "Send deal and subscription changes to the ERP bridge";
+/** Healthy webhook: deal and organization changes go to the accounting bridge; every recent delivery succeeded. */
+export const SYNTHETIC_WEBHOOK_URL = "https://accounting-bridge.harborlane-it.example/hooks/crm";
+export const SYNTHETIC_WEBHOOK_DESCRIPTION = "Send deal and organization changes to the accounting bridge";
 export const SYNTHETIC_WEBHOOK_ID = fixtureId("22000000", 1);
 
-/** Paused webhook: ticket alerts for the on-call tool, paused after the receiver kept failing. */
-export const SYNTHETIC_PAUSED_WEBHOOK_URL = "https://oncall.northwind-labs.example/hooks/tickets";
+/** Paused webhook: task changes for the dispatch board, paused after the receiver kept failing. */
+export const SYNTHETIC_PAUSED_WEBHOOK_URL = "https://dispatch.harborlane-it.example/hooks/tasks";
 export const SYNTHETIC_PAUSED_WEBHOOK_DESCRIPTION =
-  "Ticket alerts for the on-call tool (paused while the receiver is down)";
+  "Task changes for the dispatch board (paused while the receiver is down)";
 export const SYNTHETIC_PAUSED_WEBHOOK_ID = fixtureId("22000000", 2);
 
 const HEALTHY_DELIVERIES = 18;
@@ -42,16 +40,16 @@ export async function seedWebhooks(context: SeedContext): Promise<void> {
       description: SYNTHETIC_WEBHOOK_DESCRIPTION,
       url: SYNTHETIC_WEBHOOK_URL,
       enabled: true,
-      recordTypes: ["deal", "subscription"],
-      createdAt: northwindAt(NORTHWIND_STORY_END_MS - 210 * DAY),
+      recordTypes: ["deal", "organization"],
+      createdAt: storyMoment(210),
     },
     {
       id: SYNTHETIC_PAUSED_WEBHOOK_ID,
       description: SYNTHETIC_PAUSED_WEBHOOK_DESCRIPTION,
       url: SYNTHETIC_PAUSED_WEBHOOK_URL,
       enabled: false,
-      recordTypes: ["ticket"],
-      createdAt: northwindAt(NORTHWIND_STORY_END_MS - 120 * DAY),
+      recordTypes: ["task"],
+      createdAt: storyMoment(120),
     },
   ] as const;
 

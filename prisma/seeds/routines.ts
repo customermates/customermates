@@ -6,7 +6,7 @@ import type { RecordDeliveryEnvelope } from "@/features/records/record-delivery.
 import type { EventEnvelope } from "@/features/event/event-envelope";
 import type { RoutineTriggerEvent } from "@/ee/routines/routine-trigger-events";
 import type { SeedContext } from "./context";
-import type { SyntheticRecordType } from "./custom-fields";
+type SyntheticRecordType = "contact" | "organization" | "deal" | "service" | "task";
 
 import type { Prisma } from "@/generated/prisma";
 import {
@@ -516,7 +516,7 @@ const SYNTHETIC_ROUTINE_LIBRARY: SeedRoutine[] = [
   {
     index: 18,
     owner: "elenaHoffmannUser",
-    name: "Start onboarding when a deal is won",
+    name: "Kickoff task when a deal is won",
     prompt: recordRoutinePrompt(18),
     enabled: true,
     trigger: {
@@ -532,21 +532,21 @@ const SYNTHETIC_ROUTINE_LIBRARY: SeedRoutine[] = [
         startedHoursAgo: 30,
         durationSeconds: 46,
         chargedCredits: 7,
-        summary: "Created the onboarding project and a kickoff task for the newly won deal.",
+        summary: "Created a kickoff task for the newly won deal.",
       },
       {
         status: RoutineRunStatus.succeeded,
         startedHoursAgo: 75,
         durationSeconds: 12,
         chargedCredits: 2,
-        summary: "The deal moved to Proposal, not Won; nothing to do.",
+        summary: "The deal moved to Proposal sent, not Won; nothing to do.",
       },
     ],
   },
   {
     index: 19,
     owner: "elenaHoffmannUser",
-    name: "Task for overdue tickets",
+    name: "Task for overdue next steps",
     prompt: recordRoutinePrompt(19),
     enabled: true,
     trigger: { kind: "schedule", cron: "0 8 * * 1-5" },
@@ -556,21 +556,21 @@ const SYNTHETIC_ROUTINE_LIBRARY: SeedRoutine[] = [
         startedHoursAgo: 6,
         durationSeconds: 58,
         chargedCredits: 9,
-        summary: "Found 4 overdue tickets and created 2 new tasks; 2 already had one.",
+        summary: "Found 4 deals with an overdue next step and created 2 tasks; 2 already had one.",
       },
       {
         status: RoutineRunStatus.succeeded,
         startedHoursAgo: 30,
         durationSeconds: 41,
         chargedCredits: 7,
-        summary: "Created 1 task for an overdue P2 High ticket.",
+        summary: "Created 1 task for an overdue next step on a proposal.",
       },
     ],
   },
   {
     index: 20,
     owner: "elenaHoffmannUser",
-    name: "Renewal tasks 60 days ahead",
+    name: "Check in with quiet customers",
     prompt: recordRoutinePrompt(20),
     enabled: true,
     trigger: { kind: "schedule", cron: "0 7 * * 1" },
@@ -580,13 +580,13 @@ const SYNTHETIC_ROUTINE_LIBRARY: SeedRoutine[] = [
         startedHoursAgo: 52,
         durationSeconds: 66,
         chargedCredits: 10,
-        summary: "Created renewal tasks for 3 subscriptions; 1 is Red with an open P2 ticket.",
+        summary: "Created check-in tasks for 3 customers without contact in 90 days.",
       },
     ],
   },
 ];
 
-// Each Pro owner keeps five Routines; the Northwind customer success routines (18 to 20) replace three of Elena's.
+// Each Pro owner keeps five Routines; the customer care routines (18 to 20) replace three of Elena's.
 const UNSHIPPED_ROUTINES = new Set([6, 9, 10, 15, 17]);
 
 export const SYNTHETIC_ROUTINES = SYNTHETIC_ROUTINE_LIBRARY.filter(({ index }) => !UNSHIPPED_ROUTINES.has(index));

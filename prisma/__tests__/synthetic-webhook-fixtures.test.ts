@@ -82,7 +82,7 @@ describe("synthetic webhook fixtures", () => {
         kind: "webhook",
         ownerUserId: SEED_IDS.user,
         enabled: true,
-        sources: ["deal", "subscription"].map((type) => ({
+        sources: ["deal", "organization"].map((type) => ({
           query: { typeId: presetId(SEED_IDS.company, type), filters: [], relationships: [] },
           events: ["record.created", "record.updated"],
           changedFieldIds: [],

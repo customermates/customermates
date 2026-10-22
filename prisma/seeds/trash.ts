@@ -5,8 +5,9 @@ import { Prisma } from "@/generated/prisma";
 
 import type { SeedContext } from "./context";
 import { fixtureId } from "./helpers";
-import { NORTHWIND_STORY_END_MS, northwindAt, northwindDataset } from "./northwind-data";
-import { NORTHWIND_MEMBER_IDS } from "./northwind-model";
+import { teamRecord } from "./solutions/team-workspace";
+import { TEAM_MEMBER_IDS } from "./team";
+import { storyMoment } from "./timeline";
 
 const DAY = 86_400_000;
 const RECORD_PREFIX = "4d000000";
@@ -15,28 +16,26 @@ const ITEM_PREFIX = "4d200000";
 const BATCH_PREFIX = "4d300000";
 
 /**
- * Trash of the demo: three records deleted last week (a duplicate organization from the trade fair import, a badge
- * scan contact and an obsolete task), a saved view and the retired "Legacy account ID" field. Everything is within
- * the retention period and restorable.
+ * Trash of the team workspace: three records deleted last week (a duplicate organization, a badge scan contact and
+ * an obsolete task), a saved view and the retired "Old customer number" field. Everything is within the retention
+ * period and restorable.
  */
 export async function seedTrash(context: SeedContext): Promise<void> {
   const { prisma } = context;
   const companyId = context.ids.company;
   const id = (key: string) => presetId(companyId, key);
-  const data = northwindDataset();
-  const duplicateOf = data.organizations[0];
-  if (!duplicateOf) throw new Error("Missing Northwind organization for the trashed duplicate");
-  const deletedAt = (daysAgo: number) => northwindAt(NORTHWIND_STORY_END_MS - daysAgo * DAY);
+  const duplicateOf = String(teamRecord("organization", "kessler").values.name);
+  const deletedAt = (daysAgo: number) => storyMoment(daysAgo);
   const expiresAt = (date: Date) => new Date(date.getTime() + TRASH_RETENTION_DAYS * DAY);
   const records = [
     {
       typeKey: "organization",
-      name: `${duplicateOf.name} (duplicate)`,
-      by: NORTHWIND_MEMBER_IDS.sofiaRossi,
+      name: `${duplicateOf} (duplicate)`,
+      by: TEAM_MEMBER_IDS.sofiaRossi,
       daysAgo: 2,
     },
-    { typeKey: "contact", name: "Badge Scan", by: NORTHWIND_MEMBER_IDS.claraNeumann, daysAgo: 4 },
-    { typeKey: "task", name: "Call back about the cancelled pilot", by: NORTHWIND_MEMBER_IDS.marcoSilva, daysAgo: 6 },
+    { typeKey: "contact", name: "Badge Scan", by: TEAM_MEMBER_IDS.claraNeumann, daysAgo: 4 },
+    { typeKey: "task", name: "Call back about the cancelled site visit", by: TEAM_MEMBER_IDS.marcoSilva, daysAgo: 6 },
   ].map((record, index) => ({
     ...record,
     id: fixtureId(RECORD_PREFIX, index + 1),
@@ -106,7 +105,7 @@ export async function seedTrash(context: SeedContext): Promise<void> {
         data: {
           id: view.id,
           companyId,
-          userId: NORTHWIND_MEMBER_IDS.maxBergmann,
+          userId: TEAM_MEMBER_IDS.maxBergmann,
           surfaceKey: view.surfaceKey,
           name: view.name,
           position: 99,
@@ -137,9 +136,9 @@ export async function seedTrash(context: SeedContext): Promise<void> {
             targetId: view.id,
             typeId: id("deal"),
             surfaceKey: view.surfaceKey,
-            ownerUserId: NORTHWIND_MEMBER_IDS.maxBergmann,
+            ownerUserId: TEAM_MEMBER_IDS.maxBergmann,
             label: view.name,
-            deletedById: NORTHWIND_MEMBER_IDS.maxBergmann,
+            deletedById: TEAM_MEMBER_IDS.maxBergmann,
             deletedAt: view.deletedAt,
             expiresAt: expiresAt(view.deletedAt),
             batchId: view.batchId,
@@ -148,10 +147,10 @@ export async function seedTrash(context: SeedContext): Promise<void> {
             companyId,
             id: field.itemId,
             kind: "field" as const,
-            targetId: id("organization.legacyAccountId"),
+            targetId: id("organization.oldCustomerNumber"),
             typeId: id("organization"),
-            label: "Legacy account ID",
-            deletedById: NORTHWIND_MEMBER_IDS.maxBergmann,
+            label: "Old customer number",
+            deletedById: TEAM_MEMBER_IDS.maxBergmann,
             deletedAt: field.deletedAt,
             expiresAt: expiresAt(field.deletedAt),
             batchId: field.batchId,

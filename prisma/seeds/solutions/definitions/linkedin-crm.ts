@@ -1,0 +1,1363 @@
+import { ChartColor, DisplayType } from "@/features/widget/widget-display.schema";
+
+import { day, defineSolution, photo, type RecordSpec } from "../define-solution";
+
+/**
+ * LinkedIn conversations in your CRM relationship context: a small company that sells security awareness training to
+ * mid-sized firms and builds most of its relationships in LinkedIn conversations. Prospects lead the sidebar; their
+ * conversations come from Max's own connected LinkedIn account, sit next to a few emails, and belong to an opportunity
+ * or organization only after a person linked them (one conversation is still unlinked). Opportunities carry their value
+ * as an input; next-step dates and tasks are ordinary fields that remind nobody.
+ */
+
+const ORGANIZATIONS = [
+  "hollis",
+  "marlow",
+  "cedarline",
+  "brightford",
+  "quayside",
+  "ashcombe",
+  "tidewell",
+  "kingsgate",
+  "fenwick",
+  "larchmont",
+] as const;
+type OrganizationKey = (typeof ORGANIZATIONS)[number];
+const CONTACTS = [
+  "rachel",
+  "simon",
+  "claire",
+  "joe",
+  "martin",
+  "priya",
+  "tom",
+  "helen",
+  "george",
+  "nina",
+  "oliver",
+  "amy",
+  "fiona",
+  "andrew",
+  "kate",
+  "paul",
+] as const;
+type ContactKey = (typeof CONTACTS)[number];
+const DEALS = [
+  "hollisProgram",
+  "marlowBaseline",
+  "cedarlineProgram",
+  "brightfordPilot",
+  "quaysideWorkshop",
+  "ashcombeProgram",
+  "tidewellBaseline",
+  "kingsgateLeadership",
+  "fenwickBaseline",
+  "larchmontProgram",
+  "cedarlineWorkshop",
+  "hollisLeadership",
+] as const;
+type DealKey = (typeof DEALS)[number];
+type OpenDealKey =
+  | "hollisProgram"
+  | "marlowBaseline"
+  | "cedarlineProgram"
+  | "brightfordPilot"
+  | "ashcombeProgram"
+  | "tidewellBaseline"
+  | "kingsgateLeadership"
+  | "larchmontProgram";
+const TASKS = [
+  "replyRachel",
+  "agendaClaire",
+  "linkKateConversation",
+  "prepareCedarlineCall",
+  "answerAshcombe",
+  "sampleModuleTidewell",
+  "followUpTom",
+  "leadershipOutline",
+  "quaysideSlides",
+  "fenwickCheckIn",
+  "briefingDatesSimon",
+  "meetupNotes",
+] as const;
+type TaskKey = (typeof TASKS)[number];
+
+const en = {
+  company: "Clearwatch Awareness",
+  website: "https://clearwatch-awareness.example",
+  selfTitle: "Founder",
+  lists: {
+    contact: ["Prospect", "Prospects", "People we know from LinkedIn, events and introductions."],
+    organization: ["Organization", "Organizations", "Companies our prospects work for."],
+    deal: ["Opportunity", "Opportunities", "Trainings and programs we are discussing, with their value."],
+    task: ["Task", "Tasks", "Next actions with a due date."],
+  },
+  fields: {
+    jobTitle: "Job title",
+    howWeMet: "How we met",
+    lastLinkedinChat: "Last LinkedIn conversation",
+    industry: "Industry",
+    city: "City",
+    website: "Website",
+    employees: "Employees",
+    offering: "Offering",
+    closeDate: "Expected close",
+    nextStep: "Next step",
+    nextStepDate: "Next step date",
+    lostReason: "Lost reason",
+    dueDate: "Due date",
+    priority: "Priority",
+  },
+  options: {
+    howWeMet: {
+      event: "Event",
+      introduction: "Introduction",
+      linkedinConversation: "LinkedIn conversation",
+      inbound: "Inbound",
+    },
+    industry: {
+      logistics: "Logistics",
+      insurance: "Insurance",
+      healthcare: "Healthcare",
+      manufacturing: "Manufacturing",
+      legal: "Legal",
+      engineering: "Engineering",
+      retail: "Retail",
+      housing: "Housing",
+      accounting: "Accounting",
+    },
+    offering: {
+      baselineTraining: "Baseline training",
+      annualProgram: "Annual awareness program",
+      phishingExercise: "Phishing exercises",
+      leadershipWorkshop: "Leadership workshop",
+    },
+    lostReason: { price: "Price", timing: "Timing", inHouse: "Solved in-house" },
+    priority: { low: "Low", medium: "Medium", high: "High" },
+  },
+  stages: {
+    knownProspect: "Known prospect",
+    conversation: "Conversation",
+    meetingDiscussed: "Meeting discussed",
+    proposal: "Proposal sent",
+    won: "Won",
+    lost: "Lost",
+  },
+  organizations: {
+    hollis: ["Hollis Freight", "Leeds", "hollis-freight.example"],
+    marlow: ["Marlow Insurance Brokers", "Bristol", "marlow-brokers.example"],
+    cedarline: ["Cedarline Health Group", "Sheffield", "cedarline-health.example"],
+    brightford: ["Brightford Manufacturing", "Coventry", "brightford-mfg.example"],
+    quayside: ["Quayside Legal", "Liverpool", "quayside-legal.example"],
+    ashcombe: ["Ashcombe Engineering", "Derby", "ashcombe-engineering.example"],
+    tidewell: ["Tidewell Retail", "Southampton", "tidewell-retail.example"],
+    kingsgate: ["Kingsgate Housing Association", "Nottingham", "kingsgate-housing.example"],
+    fenwick: ["Fenwick Accountants", "York", "fenwick-accountants.example"],
+    larchmont: ["Larchmont Logistics", "Manchester", "larchmont-logistics.example"],
+  } satisfies Record<OrganizationKey, readonly [string, string, string]>,
+  contacts: {
+    rachel: ["Rachel", "Dawson", "IT manager"],
+    simon: ["Simon", "Pryce", "Head of HR"],
+    claire: ["Claire", "Whitaker", "Operations director"],
+    joe: ["Joe", "Harper", "IT coordinator"],
+    martin: ["Martin", "Ashby", "Information security officer"],
+    priya: ["Priya", "Nair", "Head of people"],
+    tom: ["Tom", "Kendrick", "Plant IT lead"],
+    helen: ["Helen", "Garner", "Practice manager"],
+    george: ["George", "Lamb", "Head of IT"],
+    nina: ["Nina", "Ford", "Compliance manager"],
+    oliver: ["Oliver", "Shaw", "IT director"],
+    amy: ["Amy", "Lowe", "Training coordinator"],
+    fiona: ["Fiona", "Blake", "Chief executive"],
+    andrew: ["Andrew", "Cole", "Managing partner"],
+    kate: ["Kate", "Morrison", "HR director"],
+    paul: ["Paul", "Heston", "IT security lead"],
+  } satisfies Record<ContactKey, readonly [string, string, string]>,
+  deals: {
+    hollisProgram: "Hollis Freight – annual awareness program",
+    marlowBaseline: "Marlow Insurance – baseline training for all staff",
+    cedarlineProgram: "Cedarline Health – awareness program for clinical staff",
+    brightfordPilot: "Brightford Manufacturing – phishing exercises pilot",
+    quaysideWorkshop: "Quayside Legal – partner workshop",
+    ashcombeProgram: "Ashcombe Engineering – annual program for three sites",
+    tidewellBaseline: "Tidewell Retail – baseline training for store managers",
+    kingsgateLeadership: "Kingsgate Housing – leadership workshop",
+    fenwickBaseline: "Fenwick Accountants – baseline training",
+    larchmontProgram: "Larchmont Logistics – training for new starters",
+    cedarlineWorkshop: "Cedarline Health – board workshop",
+    hollisLeadership: "Hollis Freight – leadership workshop",
+  } satisfies Record<DealKey, string>,
+  nextSteps: {
+    hollisProgram: "Send Rachel the three-month rollout outline",
+    marlowBaseline: "Meeting with Claire and Joe on Wednesday",
+    cedarlineProgram: "Call with Martin and Priya",
+    brightfordPilot: "Ask Tom how many plant workers use email",
+    ashcombeProgram: "Confirm site reports and the Polish version",
+    tidewellBaseline: "Hear back from Oliver about the sample module",
+    kingsgateLeadership: "Send Fiona the workshop outline",
+    larchmontProgram: "First call with Kate about onboarding",
+  } satisfies Record<OpenDealKey, string>,
+  tasks: {
+    replyRachel: "Reply to Rachel with the rollout outline",
+    agendaClaire: "Send Claire a short agenda for Wednesday",
+    linkKateConversation: "Link Kate's LinkedIn conversation once the opportunity is clear",
+    prepareCedarlineCall: "Prepare the call with Martin and Priya",
+    answerAshcombe: "Answer George's questions about site reports and languages",
+    sampleModuleTidewell: "Share a sample module with Oliver",
+    followUpTom: "Follow up with Tom at Brightford",
+    leadershipOutline: "Write the leadership workshop outline for Kingsgate",
+    quaysideSlides: "Send the workshop slides to Helen",
+    fenwickCheckIn: "Check in with Andrew after the tax season",
+    briefingDatesSimon: "Add Hollis briefing dates to the rollout outline",
+    meetupNotes: "Write up notes from the regional security meetup",
+  } satisfies Record<TaskKey, string>,
+  views: {
+    pipeline: "Pipeline",
+    nextSteps: "Next steps",
+    prospects: "Recent LinkedIn conversations",
+    organizations: "All organizations",
+    taskBoard: "Tasks by status",
+    dueSoon: "Due soon",
+  },
+  widgets: {
+    openPipeline: "Open opportunities",
+    weighted: "Weighted value",
+    won: "Won value",
+    openTasks: "Open tasks",
+    byStage: "Open opportunities by stage",
+    byHowWeMet: "Prospects by how we met",
+    wonByMonth: "Won value by month",
+    byOffering: "Opportunities by offering",
+    activity: "Recent activity",
+  },
+  wiki: {
+    guide: {
+      title: "Operating Guide",
+      markdown: [
+        "Clearwatch Awareness runs security awareness training for mid-sized companies: baseline trainings, annual programs, phishing exercises and leadership workshops. Most of our relationships start or continue in LinkedIn conversations. This workspace is demo data; every company and person in it is fictional.",
+        "",
+        "## How we use the CRM",
+        "- **Prospects** are the people we talk to. Each one shows how we met and the date of the last LinkedIn conversation.",
+        "- **Organizations** are the companies they work for. **Opportunities** are trainings and programs we are discussing; the stage shows where the conversation is and the value is entered by hand.",
+        "- **Tasks** and the next step date on an opportunity are ordinary fields. Nobody is reminded automatically, so check the Next steps and Due soon views every morning.",
+        "",
+        "## LinkedIn conversations",
+        "- The conversations come from Max's own connected LinkedIn account: what Max sent and received there, next to his email.",
+        "- A conversation belongs to an opportunity or organization only when someone links it. Nothing is linked automatically; Kate Morrison's conversation is not linked yet.",
+        "- Every message is written by a person, one conversation at a time. We do not import contact lists or send messages to many people at once.",
+      ],
+    },
+    stages: {
+      title: "Opportunity stages",
+      markdown: [
+        "An opportunity moves through these stages as the conversation with the prospect develops. The stage is set by hand.",
+        "",
+        "## Stages",
+        "1. **Known prospect:** we know the person and the company, but have not talked about training yet.",
+        "2. **Conversation:** a real exchange about their situation, usually on LinkedIn.",
+        "3. **Meeting discussed:** a call or meeting is agreed or has taken place.",
+        "4. **Proposal sent:** scope, dates and value are on the opportunity and the proposal is out.",
+        "5. **Won or Lost:** record the outcome and, when lost, the reason.",
+      ],
+    },
+    linking: {
+      title: "Linking a LinkedIn conversation",
+      whenToUse:
+        "When a LinkedIn conversation turns into a concrete opportunity or concerns an organization we work with.",
+      markdown: [
+        "Conversations from Max's LinkedIn account are not linked to any record until a person links them. Follow these steps.",
+        "",
+        "## Steps",
+        "1. Open the conversation in the inbox and check that the person is a prospect in the CRM. If not, add them with job title and how we met.",
+        "2. Link the conversation to the opportunity and, if useful, to the organization.",
+        "3. Update the prospect's last LinkedIn conversation date.",
+        "4. Set the next step and its date on the opportunity, and create a task for every promise you made.",
+      ],
+    },
+  },
+  threads: {
+    rachel: [
+      "Hi Max, thanks for sending the proposal. Simon and I went through it yesterday. One question: can the annual program start with the drivers and warehouse staff? Most of them only use shared tablets.",
+      "Hi Rachel, yes. We would start with short modules that work on shared devices and add the office teams in the second quarter. I can show you a sample module on a call.",
+      "That would help. Could you also send a rough plan for the first three months? Our board meets on the 14th.",
+      "Hi Rachel, here is the outline: month one drivers and warehouse, month two the office teams, month three a first phishing exercise and a one-page summary for your board. Shall we go through it on Thursday?",
+    ],
+    martin: [
+      "Max, your post about phishing exercises in hospitals stuck with me. Our clinical staff have very little time for training. How do you handle that?",
+      "Hi Martin, five-minute modules planned around shift changes, and no exercises during peak hours. Happy to share how other healthcare teams set it up.",
+      "Good. Priya from HR should join the next conversation. Could we do a call in two weeks?",
+      "Of course. I will send you and Priya two time options.",
+    ],
+    claire: [
+      "Hi Max, good to meet you at the risk breakfast in Bristol. As I said, fake payment requests are our biggest worry. Could we talk about a baseline training for all 60 staff?",
+      "Hi Claire, likewise. A baseline training is a good start. Would a 45-minute meeting with you and Joe next week work?",
+      "Yes. Tuesday or Wednesday afternoon works for both of us.",
+      "Then let's say Wednesday at 2 pm. I will send a short agenda beforehand.",
+    ],
+    fiona: [
+      "Max, thank you for your talk at the housing conference. Our leadership team would benefit from a session on how attackers target executives. Do you run those on site?",
+      "Hi Fiona, thank you. Yes, a half-day workshop at your office for up to twelve people. I can send you an outline of the topics.",
+      "Please do. I would like to put it on our leadership day in December.",
+    ],
+    kate: [
+      "Hi Max, Paul from our IT team shared your article on security training for new starters. We take on around 40 warehouse staff a month. Is that something you cover?",
+      "Hi Kate, thanks for reaching out. Yes, onboarding is a common place to start. How are new starters trained today?",
+      "Mostly a printed handbook and a day of shadowing. Happy to talk next week.",
+    ],
+    george: [
+      "Max, Nina and I reviewed the proposal. Two questions: can the reports be split by site, and is the program available in Polish for our plant?",
+      "Hi George, reports can be split by site. For Polish I need to check with our content partner; I will come back to you by Friday.",
+      "Thanks. If both work, we would like to sign before the end of the month.",
+    ],
+    simon: {
+      subject: "Training dates for the warehouse teams",
+      messages: [
+        "Dear Max,\n\nRachel forwarded your proposal. From the HR side, the training would need to fit into our monthly team briefings, which take place in the first week of each month.\n\nCould the modules be completed within those sessions?\n\nKind regards,\nSimon Pryce",
+        "Dear Simon,\n\nThank you. Yes, each module takes about ten minutes, so two of them fit into one briefing. I will add the briefing dates to the plan for Rachel.\n\nBest regards,\nMax",
+      ],
+    },
+    helen: {
+      subject: "Thank you for the workshop",
+      messages: [
+        "Dear Max,\n\nThank you for last week's workshop. The partners found the examples very practical. Could you send us the slides for the two colleagues who missed it?\n\nBest wishes,\nHelen Garner",
+        "Dear Helen,\n\nThank you for the kind feedback. I will send the slides separately today. If your two colleagues have questions, they are welcome to get in touch.\n\nBest regards,\nMax",
+      ],
+    },
+  },
+};
+
+type Strings = typeof en;
+
+const de: Strings = {
+  company: "Wachblick Schulungen GmbH",
+  website: "https://wachblick-schulungen.example",
+  selfTitle: "Geschäftsführer",
+  lists: {
+    contact: [
+      "Interessent",
+      "Interessenten",
+      "Menschen, die wir über LinkedIn, Veranstaltungen und Empfehlungen kennen.",
+    ],
+    organization: ["Organisation", "Organisationen", "Unternehmen, für die unsere Interessenten arbeiten."],
+    deal: ["Verkaufschance", "Verkaufschancen", "Schulungen und Programme, über die wir sprechen, mit ihrem Wert."],
+    task: ["Aufgabe", "Aufgaben", "Nächste Schritte mit Fälligkeitsdatum."],
+  },
+  fields: {
+    jobTitle: "Position",
+    howWeMet: "Kennengelernt über",
+    lastLinkedinChat: "Letztes LinkedIn-Gespräch",
+    industry: "Branche",
+    city: "Ort",
+    website: "Website",
+    employees: "Mitarbeitende",
+    offering: "Angebot",
+    closeDate: "Erwarteter Abschluss",
+    nextStep: "Nächster Schritt",
+    nextStepDate: "Datum nächster Schritt",
+    lostReason: "Verlustgrund",
+    dueDate: "Fällig am",
+    priority: "Priorität",
+  },
+  options: {
+    howWeMet: {
+      event: "Veranstaltung",
+      introduction: "Empfehlung",
+      linkedinConversation: "LinkedIn-Gespräch",
+      inbound: "Eigene Anfrage",
+    },
+    industry: {
+      logistics: "Logistik",
+      insurance: "Versicherung",
+      healthcare: "Gesundheitswesen",
+      manufacturing: "Produktion",
+      legal: "Recht",
+      engineering: "Ingenieurwesen",
+      retail: "Handel",
+      housing: "Wohnungswirtschaft",
+      accounting: "Steuerberatung",
+    },
+    offering: {
+      baselineTraining: "Grundschulung",
+      annualProgram: "Awareness-Jahresprogramm",
+      phishingExercise: "Phishing-Übungen",
+      leadershipWorkshop: "Workshop für Führungskräfte",
+    },
+    lostReason: { price: "Preis", timing: "Zeitpunkt", inHouse: "Intern gelöst" },
+    priority: { low: "Niedrig", medium: "Mittel", high: "Hoch" },
+  },
+  stages: {
+    knownProspect: "Bekannter Kontakt",
+    conversation: "Im Gespräch",
+    meetingDiscussed: "Termin vereinbart",
+    proposal: "Angebot gesendet",
+    won: "Gewonnen",
+    lost: "Verloren",
+  },
+  organizations: {
+    hollis: ["Hollmann Spedition GmbH", "Bremen", "hollmann-spedition.example"],
+    marlow: ["Mahrenholz Versicherungsmakler", "Hamburg", "mahrenholz-makler.example"],
+    cedarline: ["Klinikverbund Zedernhof", "Kassel", "zedernhof-kliniken.example"],
+    brightford: ["Brückner Maschinenbau AG", "Bielefeld", "brueckner-maschinenbau.example"],
+    quayside: ["Kanzlei am Kai", "Hamburg", "kanzlei-am-kai.example"],
+    ashcombe: ["Aschenbach Ingenieure GmbH", "Stuttgart", "aschenbach-ingenieure.example"],
+    tidewell: ["Tiedemann Handelshaus", "Lübeck", "tiedemann-handel.example"],
+    kingsgate: ["Wohnungsbau Königstor eG", "Hannover", "koenigstor-wohnen.example"],
+    fenwick: ["Fehrmann & Partner Steuerberater", "Münster", "fehrmann-partner.example"],
+    larchmont: ["Lärchenfeld Logistik GmbH", "Erfurt", "laerchenfeld-logistik.example"],
+  },
+  contacts: {
+    rachel: ["Rebecca", "Dreyer", "IT-Leiterin"],
+    simon: ["Simon", "Pfeiffer", "Personalleiter"],
+    claire: ["Claudia", "Wittmann", "Leiterin Betrieb"],
+    joe: ["Jonas", "Harms", "IT-Koordinator"],
+    martin: ["Martin", "Albers", "Informationssicherheitsbeauftragter"],
+    priya: ["Petra", "Nolte", "Leiterin Personal"],
+    tom: ["Thomas", "Kemper", "IT-Leiter Werk"],
+    helen: ["Helene", "Gärtner", "Büroleiterin"],
+    george: ["Georg", "Lammers", "Leiter IT"],
+    nina: ["Nina", "Vogt", "Compliance-Managerin"],
+    oliver: ["Oliver", "Schütte", "IT-Direktor"],
+    amy: ["Anja", "Lohmann", "Schulungskoordinatorin"],
+    fiona: ["Friederike", "Blank", "Vorständin"],
+    andrew: ["Andreas", "Kolbe", "Geschäftsführender Partner"],
+    kate: ["Katrin", "Morawe", "Personalleiterin"],
+    paul: ["Paul", "Hesse", "Verantwortlicher IT-Sicherheit"],
+  },
+  deals: {
+    hollisProgram: "Hollmann Spedition – Awareness-Jahresprogramm",
+    marlowBaseline: "Mahrenholz – Grundschulung für alle Mitarbeitenden",
+    cedarlineProgram: "Klinikverbund Zedernhof – Programm für das Pflege- und Ärzteteam",
+    brightfordPilot: "Brückner Maschinenbau – Pilot Phishing-Übungen",
+    quaysideWorkshop: "Kanzlei am Kai – Workshop für die Partner",
+    ashcombeProgram: "Aschenbach Ingenieure – Jahresprogramm für drei Standorte",
+    tidewellBaseline: "Tiedemann Handelshaus – Grundschulung für Filialleitungen",
+    kingsgateLeadership: "Wohnungsbau Königstor – Workshop für Führungskräfte",
+    fenwickBaseline: "Fehrmann & Partner – Grundschulung",
+    larchmontProgram: "Lärchenfeld Logistik – Schulung für neue Mitarbeitende",
+    cedarlineWorkshop: "Klinikverbund Zedernhof – Workshop für die Geschäftsführung",
+    hollisLeadership: "Hollmann Spedition – Workshop für Führungskräfte",
+  },
+  nextSteps: {
+    hollisProgram: "Frau Dreyer den Ablaufplan für drei Monate schicken",
+    marlowBaseline: "Termin mit Frau Wittmann und Herrn Harms am Mittwoch",
+    cedarlineProgram: "Telefonat mit Herrn Albers und Frau Nolte",
+    brightfordPilot: "Herrn Kemper fragen, wie viele im Werk E-Mail nutzen",
+    ashcombeProgram: "Berichte je Standort und polnische Fassung bestätigen",
+    tidewellBaseline: "Rückmeldung von Herrn Schütte zum Beispielmodul",
+    kingsgateLeadership: "Frau Blank die Gliederung des Workshops schicken",
+    larchmontProgram: "Erstes Gespräch mit Frau Morawe zur Einarbeitung",
+  },
+  tasks: {
+    replyRachel: "Frau Dreyer mit dem Ablaufplan antworten",
+    agendaClaire: "Frau Wittmann eine kurze Agenda für Mittwoch schicken",
+    linkKateConversation: "LinkedIn-Gespräch mit Frau Morawe verknüpfen, sobald die Verkaufschance klar ist",
+    prepareCedarlineCall: "Telefonat mit Herrn Albers und Frau Nolte vorbereiten",
+    answerAshcombe: "Fragen von Herrn Lammers zu Standortberichten und Sprachen beantworten",
+    sampleModuleTidewell: "Herrn Schütte ein Beispielmodul zeigen",
+    followUpTom: "Bei Herrn Kemper von Brückner nachfassen",
+    leadershipOutline: "Gliederung des Führungskräfte-Workshops für Königstor schreiben",
+    quaysideSlides: "Folien des Workshops an Frau Gärtner schicken",
+    fenwickCheckIn: "Nach der Steuersaison bei Herrn Kolbe melden",
+    briefingDatesSimon: "Termine der Teambesprechungen bei Hollmann in den Ablaufplan aufnehmen",
+    meetupNotes: "Notizen vom regionalen Sicherheitsstammtisch aufschreiben",
+  },
+  views: {
+    pipeline: "Pipeline",
+    nextSteps: "Nächste Schritte",
+    prospects: "Letzte LinkedIn-Gespräche",
+    organizations: "Alle Organisationen",
+    taskBoard: "Aufgaben nach Status",
+    dueSoon: "Bald fällig",
+  },
+  widgets: {
+    openPipeline: "Offene Verkaufschancen",
+    weighted: "Gewichteter Wert",
+    won: "Gewonnener Wert",
+    openTasks: "Offene Aufgaben",
+    byStage: "Offene Verkaufschancen nach Phase",
+    byHowWeMet: "Interessenten nach Kennenlernweg",
+    wonByMonth: "Gewonnener Wert pro Monat",
+    byOffering: "Verkaufschancen nach Angebot",
+    activity: "Letzte Aktivitäten",
+  },
+  wiki: {
+    guide: {
+      title: "Leitfaden",
+      markdown: [
+        "Wachblick Schulungen bietet Sicherheitsschulungen für mittelständische Unternehmen an: Grundschulungen, Jahresprogramme, Phishing-Übungen und Workshops für Führungskräfte. Die meisten Beziehungen beginnen oder entwickeln sich in LinkedIn-Gesprächen. Dieser Arbeitsbereich enthält Demodaten; alle Firmen und Personen sind erfunden.",
+        "",
+        "## So nutzen wir das CRM",
+        "- **Interessenten** sind die Menschen, mit denen wir sprechen. Bei jedem steht, wie wir uns kennengelernt haben und wann das letzte LinkedIn-Gespräch war.",
+        "- **Organisationen** sind die Unternehmen, für die sie arbeiten. **Verkaufschancen** sind Schulungen und Programme, über die wir sprechen; die Phase zeigt den Stand des Gesprächs, den Wert tragen wir von Hand ein.",
+        "- **Aufgaben** und das Datum des nächsten Schritts sind normale Felder. Niemand wird automatisch erinnert, deshalb jeden Morgen die Ansichten „Nächste Schritte“ und „Bald fällig“ prüfen.",
+        "",
+        "## LinkedIn-Gespräche",
+        "- Die Gespräche stammen aus Max' eigenem verbundenen LinkedIn-Konto: was Max dort gesendet und empfangen hat, neben seinen E-Mails.",
+        "- Ein Gespräch gehört nur dann zu einer Verkaufschance oder Organisation, wenn jemand es verknüpft. Nichts wird automatisch verknüpft; das Gespräch mit Katrin Morawe ist noch nicht verknüpft.",
+        "- Jede Nachricht schreibt ein Mensch, ein Gespräch nach dem anderen. Wir importieren keine Kontaktlisten und schreiben nicht viele Menschen auf einmal an.",
+      ],
+    },
+    stages: {
+      title: "Phasen einer Verkaufschance",
+      markdown: [
+        "Eine Verkaufschance durchläuft diese Phasen, während sich das Gespräch mit dem Interessenten entwickelt. Die Phase setzen wir von Hand.",
+        "",
+        "## Phasen",
+        "1. **Bekannter Kontakt:** Wir kennen Person und Unternehmen, haben aber noch nicht über Schulungen gesprochen.",
+        "2. **Im Gespräch:** ein echter Austausch über ihre Lage, meist auf LinkedIn.",
+        "3. **Termin vereinbart:** Ein Telefonat oder Treffen ist vereinbart oder hat stattgefunden.",
+        "4. **Angebot gesendet:** Umfang, Termine und Wert stehen in der Verkaufschance, das Angebot ist verschickt.",
+        "5. **Gewonnen oder Verloren:** Ergebnis festhalten, bei Verlust mit Grund.",
+      ],
+    },
+    linking: {
+      title: "LinkedIn-Gespräch verknüpfen",
+      whenToUse:
+        "Wenn aus einem LinkedIn-Gespräch eine konkrete Verkaufschance wird oder es eine Organisation betrifft, mit der wir arbeiten.",
+      markdown: [
+        "Gespräche aus Max' LinkedIn-Konto sind mit keinem Datensatz verknüpft, bis ein Mensch sie verknüpft. So gehen wir vor.",
+        "",
+        "## Schritte",
+        "1. Das Gespräch im Posteingang öffnen und prüfen, ob die Person als Interessent im CRM steht. Falls nicht, mit Position und Kennenlernweg anlegen.",
+        "2. Das Gespräch mit der Verkaufschance und bei Bedarf mit der Organisation verknüpfen.",
+        "3. Das Datum des letzten LinkedIn-Gesprächs beim Interessenten aktualisieren.",
+        "4. Nächsten Schritt und Datum in der Verkaufschance eintragen und für jede Zusage eine Aufgabe anlegen.",
+      ],
+    },
+  },
+  threads: {
+    rachel: [
+      "Hallo Herr Bergmann, danke für das Angebot. Herr Pfeiffer und ich sind es gestern durchgegangen. Eine Frage: Kann das Jahresprogramm mit den Fahrern und dem Lager beginnen? Die meisten nutzen dort nur gemeinsame Tablets.",
+      "Hallo Frau Dreyer, ja. Wir würden mit kurzen Modulen starten, die auf gemeinsam genutzten Geräten funktionieren, und die Büroteams im zweiten Quartal dazunehmen. Ein Beispielmodul zeige ich Ihnen gern in einem Telefonat.",
+      "Das wäre hilfreich. Könnten Sie auch einen groben Plan für die ersten drei Monate schicken? Unser Vorstand tagt am 14.",
+      "Hallo Frau Dreyer, hier der Ablauf: im ersten Monat Fahrer und Lager, im zweiten die Büroteams, im dritten eine erste Phishing-Übung und eine einseitige Zusammenfassung für Ihren Vorstand. Wollen wir das am Donnerstag kurz besprechen?",
+    ],
+    martin: [
+      "Herr Bergmann, Ihr Beitrag über Phishing-Übungen in Kliniken ist mir hängen geblieben. Unser Pflege- und Ärzteteam hat kaum Zeit für Schulungen. Wie gehen Sie damit um?",
+      "Hallo Herr Albers, mit Modulen von fünf Minuten, abgestimmt auf die Schichtwechsel, und ohne Übungen zu Stoßzeiten. Ich erzähle Ihnen gern, wie andere Kliniken das umgesetzt haben.",
+      "Gut. Frau Nolte aus der Personalabteilung sollte beim nächsten Gespräch dabei sein. Passt ein Telefonat in zwei Wochen?",
+      "Sehr gern. Ich schicke Ihnen und Frau Nolte zwei Terminvorschläge.",
+    ],
+    claire: [
+      "Hallo Herr Bergmann, schön, Sie beim Risikofrühstück in Hamburg kennengelernt zu haben. Wie gesagt: Gefälschte Zahlungsaufforderungen sind unsere größte Sorge. Können wir über eine Grundschulung für alle 60 Mitarbeitenden sprechen?",
+      "Hallo Frau Wittmann, ganz meinerseits. Eine Grundschulung ist ein guter Anfang. Passt Ihnen und Herrn Harms nächste Woche ein Termin von 45 Minuten?",
+      "Ja. Dienstag- oder Mittwochnachmittag geht bei uns beiden.",
+      "Dann Mittwoch um 14 Uhr. Ich schicke vorab eine kurze Agenda.",
+    ],
+    fiona: [
+      "Herr Bergmann, danke für Ihren Vortrag auf dem Verbandstag der Wohnungswirtschaft. Unserem Vorstand würde eine Sitzung dazu guttun, wie Angreifer gezielt Führungskräfte ansprechen. Bieten Sie so etwas bei uns vor Ort an?",
+      "Hallo Frau Blank, vielen Dank. Ja, als halbtägigen Workshop in Ihren Räumen für bis zu zwölf Personen. Gern schicke ich Ihnen eine Gliederung der Themen.",
+      "Sehr gern. Ich würde den Workshop auf unseren Führungskräftetag im Dezember legen.",
+    ],
+    kate: [
+      "Hallo Herr Bergmann, Herr Hesse aus unserer IT hat Ihren Artikel über Sicherheitsschulungen für neue Mitarbeitende geteilt. Wir stellen im Monat rund 40 Leute im Lager ein. Decken Sie so etwas ab?",
+      "Hallo Frau Morawe, danke für Ihre Nachricht. Ja, die Einarbeitung ist ein häufiger Startpunkt. Wie werden neue Mitarbeitende heute geschult?",
+      "Vor allem mit einem gedruckten Handbuch und einem Tag Mitlaufen. Gern sprechen wir nächste Woche.",
+    ],
+    george: [
+      "Herr Bergmann, Frau Vogt und ich haben das Angebot durchgesehen. Zwei Fragen: Lassen sich die Berichte nach Standort aufteilen, und gibt es das Programm für unser Werk auch auf Polnisch?",
+      "Hallo Herr Lammers, die Berichte lassen sich nach Standort aufteilen. Die polnische Fassung kläre ich mit unserem Inhaltspartner und melde mich bis Freitag.",
+      "Danke. Wenn beides klappt, möchten wir noch vor Monatsende unterschreiben.",
+    ],
+    simon: {
+      subject: "Schulungstermine für die Lagerteams",
+      messages: [
+        "Sehr geehrter Herr Bergmann,\n\nFrau Dreyer hat mir Ihr Angebot weitergeleitet. Aus Sicht der Personalabteilung müsste die Schulung in unsere monatlichen Teambesprechungen passen, die jeweils in der ersten Woche des Monats stattfinden.\n\nLassen sich die Module in diesen Terminen durcharbeiten?\n\nMit freundlichen Grüßen\nSimon Pfeiffer",
+        "Sehr geehrter Herr Pfeiffer,\n\nvielen Dank. Ja, jedes Modul dauert etwa zehn Minuten, zwei davon passen also in eine Besprechung. Ich nehme die Termine in den Ablaufplan für Frau Dreyer auf.\n\nMit freundlichen Grüßen\nMax Bergmann",
+      ],
+    },
+    helen: {
+      subject: "Danke für den Workshop",
+      messages: [
+        "Sehr geehrter Herr Bergmann,\n\nvielen Dank für den Workshop letzte Woche. Die Partner fanden die Beispiele sehr praxisnah. Könnten Sie uns die Folien für die beiden Kollegen schicken, die nicht dabei sein konnten?\n\nViele Grüße\nHelene Gärtner",
+        "Sehr geehrte Frau Gärtner,\n\nvielen Dank für die freundliche Rückmeldung. Die Folien schicke ich Ihnen heute separat. Wenn Ihre Kollegen Fragen haben, können sie sich gern bei mir melden.\n\nMit freundlichen Grüßen\nMax Bergmann",
+      ],
+    },
+  },
+};
+
+const ORGANIZATION_FACTS: Record<OrganizationKey, { industry: string; employees: number; createdDaysAgo: number }> = {
+  hollis: { industry: "logistics", employees: 420, createdDaysAgo: 140 },
+  marlow: { industry: "insurance", employees: 60, createdDaysAgo: 40 },
+  cedarline: { industry: "healthcare", employees: 900, createdDaysAgo: 150 },
+  brightford: { industry: "manufacturing", employees: 350, createdDaysAgo: 25 },
+  quayside: { industry: "legal", employees: 45, createdDaysAgo: 165 },
+  ashcombe: { industry: "engineering", employees: 280, createdDaysAgo: 92 },
+  tidewell: { industry: "retail", employees: 520, createdDaysAgo: 56 },
+  kingsgate: { industry: "housing", employees: 190, createdDaysAgo: 31 },
+  fenwick: { industry: "accounting", employees: 38, createdDaysAgo: 205 },
+  larchmont: { industry: "logistics", employees: 610, createdDaysAgo: 7 },
+};
+
+const CONTACT_FACTS: Record<
+  ContactKey,
+  {
+    organization: OrganizationKey;
+    howWeMet: string;
+    linkedin: boolean;
+    lastChat?: number;
+    createdDaysAgo: number;
+    avatar?: Parameters<typeof photo>[0];
+  }
+> = {
+  rachel: {
+    organization: "hollis",
+    howWeMet: "linkedinConversation",
+    linkedin: true,
+    lastChat: 0,
+    createdDaysAgo: 135,
+    avatar: "mia-schneider",
+  },
+  simon: { organization: "hollis", howWeMet: "introduction", linkedin: false, createdDaysAgo: 132 },
+  claire: {
+    organization: "marlow",
+    howWeMet: "event",
+    linkedin: true,
+    lastChat: -1,
+    createdDaysAgo: 40,
+    avatar: "lea-bauer",
+  },
+  joe: { organization: "marlow", howWeMet: "introduction", linkedin: false, createdDaysAgo: 35 },
+  martin: {
+    organization: "cedarline",
+    howWeMet: "linkedinConversation",
+    linkedin: true,
+    lastChat: -2,
+    createdDaysAgo: 145,
+    avatar: "tim-wagner",
+  },
+  priya: { organization: "cedarline", howWeMet: "introduction", linkedin: true, createdDaysAgo: 100 },
+  tom: {
+    organization: "brightford",
+    howWeMet: "linkedinConversation",
+    linkedin: true,
+    lastChat: -18,
+    createdDaysAgo: 24,
+  },
+  helen: {
+    organization: "quayside",
+    howWeMet: "inbound",
+    linkedin: true,
+    createdDaysAgo: 160,
+    avatar: "sophie-hoffmann",
+  },
+  george: {
+    organization: "ashcombe",
+    howWeMet: "event",
+    linkedin: true,
+    lastChat: 0,
+    createdDaysAgo: 90,
+    avatar: "reinhold-mertens",
+  },
+  nina: { organization: "ashcombe", howWeMet: "introduction", linkedin: true, createdDaysAgo: 80 },
+  oliver: {
+    organization: "tidewell",
+    howWeMet: "linkedinConversation",
+    linkedin: true,
+    lastChat: -9,
+    createdDaysAgo: 55,
+  },
+  amy: { organization: "tidewell", howWeMet: "introduction", linkedin: false, createdDaysAgo: 50 },
+  fiona: {
+    organization: "kingsgate",
+    howWeMet: "event",
+    linkedin: true,
+    lastChat: -3,
+    createdDaysAgo: 30,
+    avatar: "anna-mueller",
+  },
+  andrew: { organization: "fenwick", howWeMet: "inbound", linkedin: false, createdDaysAgo: 200 },
+  kate: {
+    organization: "larchmont",
+    howWeMet: "linkedinConversation",
+    linkedin: true,
+    lastChat: -1,
+    createdDaysAgo: 6,
+    avatar: "nia-johnson",
+  },
+  paul: {
+    organization: "larchmont",
+    howWeMet: "linkedinConversation",
+    linkedin: true,
+    createdDaysAgo: 5,
+    avatar: "paul-koch",
+  },
+};
+
+type DealFacts = {
+  organization: OrganizationKey;
+  contacts: ContactKey[];
+  stage: string;
+  offering: string;
+  value: number;
+  createdDaysAgo: number;
+  close: number;
+  next?: number;
+  lost?: string;
+  /** Stage changes oldest first: `[days ago, stage before the change]`; the last change leads to the current stage. */
+  moves?: Array<[number, string]>;
+};
+
+const DEAL_FACTS: Record<DealKey, DealFacts> = {
+  hollisProgram: {
+    organization: "hollis",
+    contacts: ["rachel", "simon"],
+    stage: "proposal",
+    offering: "annualProgram",
+    value: 18400,
+    createdDaysAgo: 70,
+    close: 20,
+    next: 1,
+    moves: [
+      [52, "knownProspect"],
+      [30, "conversation"],
+      [9, "meetingDiscussed"],
+    ],
+  },
+  marlowBaseline: {
+    organization: "marlow",
+    contacts: ["claire", "joe"],
+    stage: "meetingDiscussed",
+    offering: "baselineTraining",
+    value: 7200,
+    createdDaysAgo: 30,
+    close: 45,
+    next: 6,
+    moves: [
+      [24, "knownProspect"],
+      [1, "conversation"],
+    ],
+  },
+  cedarlineProgram: {
+    organization: "cedarline",
+    contacts: ["martin", "priya"],
+    stage: "conversation",
+    offering: "annualProgram",
+    value: 32000,
+    createdDaysAgo: 110,
+    close: 90,
+    next: 12,
+    moves: [[60, "knownProspect"]],
+  },
+  brightfordPilot: {
+    organization: "brightford",
+    contacts: ["tom"],
+    stage: "knownProspect",
+    offering: "phishingExercise",
+    value: 6500,
+    createdDaysAgo: 20,
+    close: 120,
+    next: 6,
+  },
+  quaysideWorkshop: {
+    organization: "quayside",
+    contacts: ["helen"],
+    stage: "won",
+    offering: "leadershipWorkshop",
+    value: 4800,
+    createdDaysAgo: 150,
+    close: -30,
+    moves: [
+      [110, "knownProspect"],
+      [80, "conversation"],
+      [55, "meetingDiscussed"],
+      [30, "proposal"],
+    ],
+  },
+  ashcombeProgram: {
+    organization: "ashcombe",
+    contacts: ["george", "nina"],
+    stage: "proposal",
+    offering: "annualProgram",
+    value: 24500,
+    createdDaysAgo: 85,
+    close: 10,
+    next: 4,
+    moves: [
+      [70, "knownProspect"],
+      [40, "conversation"],
+      [15, "meetingDiscussed"],
+    ],
+  },
+  tidewellBaseline: {
+    organization: "tidewell",
+    contacts: ["oliver", "amy"],
+    stage: "conversation",
+    offering: "baselineTraining",
+    value: 9600,
+    createdDaysAgo: 50,
+    close: 60,
+    next: 7,
+    moves: [[30, "knownProspect"]],
+  },
+  kingsgateLeadership: {
+    organization: "kingsgate",
+    contacts: ["fiona"],
+    stage: "meetingDiscussed",
+    offering: "leadershipWorkshop",
+    value: 5400,
+    createdDaysAgo: 28,
+    close: 40,
+    next: 5,
+    moves: [
+      [20, "knownProspect"],
+      [3, "conversation"],
+    ],
+  },
+  fenwickBaseline: {
+    organization: "fenwick",
+    contacts: ["andrew"],
+    stage: "lost",
+    offering: "baselineTraining",
+    value: 3900,
+    createdDaysAgo: 190,
+    close: -100,
+    lost: "timing",
+    moves: [
+      [150, "conversation"],
+      [100, "proposal"],
+    ],
+  },
+  larchmontProgram: {
+    organization: "larchmont",
+    contacts: ["kate", "paul"],
+    stage: "knownProspect",
+    offering: "annualProgram",
+    value: 15800,
+    createdDaysAgo: 5,
+    close: 150,
+    next: 3,
+  },
+  cedarlineWorkshop: {
+    organization: "cedarline",
+    contacts: ["martin"],
+    stage: "won",
+    offering: "leadershipWorkshop",
+    value: 6200,
+    createdDaysAgo: 140,
+    close: -75,
+    moves: [
+      [110, "meetingDiscussed"],
+      [75, "proposal"],
+    ],
+  },
+  hollisLeadership: {
+    organization: "hollis",
+    contacts: ["simon"],
+    stage: "lost",
+    offering: "leadershipWorkshop",
+    value: 4200,
+    createdDaysAgo: 130,
+    close: -95,
+    lost: "price",
+    moves: [[95, "proposal"]],
+  },
+};
+
+const TASK_FACTS: Record<
+  TaskKey,
+  {
+    status: string;
+    priority: string;
+    due: number;
+    deal?: DealKey;
+    organization?: OrganizationKey;
+    contact?: ContactKey;
+    createdDaysAgo: number;
+    done?: number;
+  }
+> = {
+  replyRachel: {
+    status: "open",
+    priority: "high",
+    due: 0,
+    deal: "hollisProgram",
+    contact: "rachel",
+    createdDaysAgo: 1,
+  },
+  agendaClaire: {
+    status: "inProgress",
+    priority: "high",
+    due: 2,
+    deal: "marlowBaseline",
+    contact: "claire",
+    createdDaysAgo: 1,
+  },
+  linkKateConversation: {
+    status: "open",
+    priority: "medium",
+    due: 1,
+    organization: "larchmont",
+    contact: "kate",
+    createdDaysAgo: 1,
+  },
+  prepareCedarlineCall: {
+    status: "open",
+    priority: "medium",
+    due: 11,
+    deal: "cedarlineProgram",
+    contact: "martin",
+    createdDaysAgo: 2,
+  },
+  answerAshcombe: {
+    status: "inProgress",
+    priority: "high",
+    due: 3,
+    deal: "ashcombeProgram",
+    contact: "george",
+    createdDaysAgo: 1,
+  },
+  sampleModuleTidewell: {
+    status: "done",
+    priority: "medium",
+    due: -4,
+    deal: "tidewellBaseline",
+    contact: "oliver",
+    createdDaysAgo: 12,
+    done: 5,
+  },
+  followUpTom: { status: "open", priority: "low", due: 6, deal: "brightfordPilot", contact: "tom", createdDaysAgo: 4 },
+  leadershipOutline: {
+    status: "open",
+    priority: "medium",
+    due: 5,
+    deal: "kingsgateLeadership",
+    contact: "fiona",
+    createdDaysAgo: 3,
+  },
+  quaysideSlides: {
+    status: "done",
+    priority: "low",
+    due: -5,
+    deal: "quaysideWorkshop",
+    contact: "helen",
+    createdDaysAgo: 7,
+    done: 6,
+  },
+  fenwickCheckIn: {
+    status: "onHold",
+    priority: "low",
+    due: 45,
+    organization: "fenwick",
+    contact: "andrew",
+    createdDaysAgo: 20,
+  },
+  briefingDatesSimon: {
+    status: "open",
+    priority: "medium",
+    due: 1,
+    deal: "hollisProgram",
+    contact: "simon",
+    createdDaysAgo: 1,
+  },
+  meetupNotes: { status: "blocked", priority: "low", due: -1, createdDaysAgo: 4 },
+};
+
+function slug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/ä/g, "ae")
+    .replace(/ö/g, "oe")
+    .replace(/ü/g, "ue")
+    .replace(/ß/g, "ss")
+    .replace(/[^a-z]/g, "");
+}
+
+function organizationOf(facts: { organization?: OrganizationKey; deal?: DealKey }): OrganizationKey | undefined {
+  return facts.organization ?? (facts.deal ? DEAL_FACTS[facts.deal].organization : undefined);
+}
+
+export default defineSolution<Strings>({
+  id: "linkedin-crm",
+  strings: { en, de },
+  build: (t) => {
+    const open = ["knownProspect", "conversation", "meetingDiscussed", "proposal"];
+    const label = <K extends string>(
+      options: Record<K, string>,
+      colors: Record<K, "default" | "secondary" | "destructive" | "success" | "warning" | "info">,
+    ) => (Object.keys(options) as K[]).map((key) => ({ key, label: options[key], color: colors[key] }));
+
+    const organization: RecordSpec[] = ORGANIZATIONS.map((key) => {
+      const facts = ORGANIZATION_FACTS[key];
+      const [name, city, domain] = t.organizations[key];
+      return {
+        key,
+        values: { name, industry: facts.industry, city, website: `https://${domain}`, employees: facts.employees },
+        owner: "maxBergmann",
+        channels: { email: `info@${domain}` },
+        createdDaysAgo: facts.createdDaysAgo,
+      };
+    });
+    const contact: RecordSpec[] = CONTACTS.map((key) => {
+      const facts = CONTACT_FACTS[key];
+      const [firstName, lastName, jobTitle] = t.contacts[key];
+      const domain = t.organizations[facts.organization][2];
+      const handle = `${slug(firstName)}-${slug(lastName)}`;
+      return {
+        key,
+        values: {
+          firstName,
+          lastName,
+          jobTitle,
+          howWeMet: facts.howWeMet,
+          ...(facts.lastChat === undefined ? {} : { lastLinkedinChat: day(facts.lastChat) }),
+        },
+        links: { "contact.organizations": facts.organization },
+        owner: "maxBergmann",
+        channels: {
+          email: `${slug(firstName)}.${slug(lastName)}@${domain}`,
+          ...(facts.linkedin
+            ? { linkedin: `${handle}.linkedin.example`, linkedinUrl: `https://linkedin.example/in/${handle}` }
+            : {}),
+        },
+        ...(facts.avatar ? { avatar: photo(facts.avatar) } : {}),
+        createdDaysAgo: facts.createdDaysAgo,
+      };
+    });
+    const deal: RecordSpec[] = DEALS.map((key) => {
+      const facts = DEAL_FACTS[key];
+      const moves = facts.moves ?? [];
+      return {
+        key,
+        values: {
+          name: t.deals[key],
+          stage: facts.stage,
+          offering: facts.offering,
+          totalValue: facts.value,
+          closeDate: day(facts.close),
+          ...(facts.next === undefined
+            ? {}
+            : { nextStep: t.nextSteps[key as OpenDealKey], nextStepDate: day(facts.next) }),
+          ...(facts.lost ? { lostReason: facts.lost } : {}),
+        },
+        links: { "deal.organizations": facts.organization, "deal.contacts": facts.contacts },
+        owner: "maxBergmann",
+        createdDaysAgo: facts.createdDaysAgo,
+        history: moves.map(([daysAgo, previous]) => ({ daysAgo, previous: { stage: previous } })),
+      };
+    });
+    const task: RecordSpec[] = TASKS.map((key) => {
+      const facts = TASK_FACTS[key];
+      const organizationKey = organizationOf(facts);
+      return {
+        key,
+        values: { name: t.tasks[key], status: facts.status, priority: facts.priority, dueDate: day(facts.due) },
+        links: {
+          ...(facts.deal ? { "task.deals": facts.deal } : {}),
+          ...(organizationKey ? { "task.organizations": organizationKey } : {}),
+          ...(facts.contact ? { "task.contacts": facts.contact } : {}),
+        },
+        owner: "maxBergmann",
+        createdDaysAgo: facts.createdDaysAgo,
+        ...(facts.done === undefined ? {} : { history: [{ daysAgo: facts.done, previous: { status: "open" } }] }),
+      };
+    });
+
+    const chat = (
+      contactKey: ContactKey,
+      texts: readonly string[],
+      options: { draftLast?: boolean; reaction?: number } = {},
+    ) =>
+      texts.map((text, index) => ({
+        from: index % 2 === 0 ? contactKey : "self",
+        text,
+        ...(options.draftLast && index === texts.length - 1 ? { draft: true } : {}),
+        ...(options.reaction === index ? { reaction: { from: contactKey, value: "👍" } } : {}),
+      }));
+
+    return {
+      companyName: t.company,
+      lists: (["contact", "organization", "deal", "task"] as const).map((key) => ({
+        key,
+        label: t.lists[key][0],
+        pluralLabel: t.lists[key][1],
+        description: t.lists[key][2],
+        icon: { organization: "building", contact: "contact", deal: "handshake", task: "check" }[key],
+      })),
+      fields: [
+        { key: "contact.jobTitle", label: t.fields.jobTitle, type: "text" },
+        {
+          key: "contact.howWeMet",
+          label: t.fields.howWeMet,
+          type: "select",
+          options: label(t.options.howWeMet, {
+            event: "warning",
+            introduction: "success",
+            linkedinConversation: "info",
+            inbound: "secondary",
+          }),
+        },
+        { key: "contact.lastLinkedinChat", label: t.fields.lastLinkedinChat, type: "date" },
+        {
+          key: "organization.industry",
+          label: t.fields.industry,
+          type: "select",
+          options: label(t.options.industry, {
+            logistics: "default",
+            insurance: "info",
+            healthcare: "success",
+            manufacturing: "warning",
+            legal: "info",
+            engineering: "secondary",
+            retail: "warning",
+            housing: "success",
+            accounting: "secondary",
+          }),
+        },
+        { key: "organization.city", label: t.fields.city, type: "text" },
+        { key: "organization.website", label: t.fields.website, type: "url" },
+        { key: "organization.employees", label: t.fields.employees, type: "number" },
+        {
+          key: "deal.offering",
+          label: t.fields.offering,
+          type: "select",
+          options: label(t.options.offering, {
+            baselineTraining: "info",
+            annualProgram: "success",
+            phishingExercise: "warning",
+            leadershipWorkshop: "secondary",
+          }),
+        },
+        { key: "deal.closeDate", label: t.fields.closeDate, type: "date" },
+        { key: "deal.nextStep", label: t.fields.nextStep, type: "text" },
+        { key: "deal.nextStepDate", label: t.fields.nextStepDate, type: "date" },
+        {
+          key: "deal.lostReason",
+          label: t.fields.lostReason,
+          type: "select",
+          options: label(t.options.lostReason, { price: "warning", timing: "info", inHouse: "secondary" }),
+        },
+        { key: "task.dueDate", label: t.fields.dueDate, type: "date" },
+        {
+          key: "task.priority",
+          label: t.fields.priority,
+          type: "select",
+          options: label(t.options.priority, { low: "secondary", medium: "info", high: "destructive" }),
+        },
+      ],
+      stages: [
+        { key: "knownProspect", label: t.stages.knownProspect, color: "secondary", probability: 10 },
+        { key: "conversation", label: t.stages.conversation, color: "info", probability: 25 },
+        { key: "meetingDiscussed", label: t.stages.meetingDiscussed, color: "info", probability: 45 },
+        { key: "proposal", label: t.stages.proposal, color: "warning", probability: 60 },
+        { key: "won", label: t.stages.won, color: "success", probability: 100 },
+        { key: "lost", label: t.stages.lost, color: "destructive", probability: 0 },
+      ],
+      records: { contact, organization, deal, task },
+      views: [
+        {
+          key: "pipeline",
+          list: "deal",
+          name: t.views.pipeline,
+          mode: "board",
+          groupBy: "stage",
+          columns: ["totalValue", "deal.organizations", "nextStepDate", "offering"],
+          filters: [{ field: "stage", notIn: ["lost"] }],
+        },
+        {
+          key: "nextSteps",
+          list: "deal",
+          name: t.views.nextSteps,
+          mode: "table",
+          columns: ["stage", "nextStep", "nextStepDate", "totalValue", "deal.organizations", "deal.contacts"],
+          filters: [{ field: "stage", in: open }],
+          sort: { field: "nextStepDate", direction: "asc" },
+        },
+        {
+          key: "prospects",
+          list: "contact",
+          name: t.views.prospects,
+          mode: "table",
+          columns: ["jobTitle", "contact.organizations", "howWeMet", "lastLinkedinChat", "capability.identity"],
+          sort: { field: "lastLinkedinChat", direction: "desc" },
+        },
+        {
+          key: "organizations",
+          list: "organization",
+          name: t.views.organizations,
+          mode: "table",
+          columns: ["industry", "city", "employees", "contact.organizations", "deal.organizations"],
+          sort: { field: "industry", direction: "asc" },
+        },
+        {
+          key: "taskBoard",
+          list: "task",
+          name: t.views.taskBoard,
+          mode: "board",
+          groupBy: "status",
+          columns: ["dueDate", "priority", "task.deals", "task.contacts"],
+          filters: [{ field: "status", notIn: ["archived"] }],
+        },
+        {
+          key: "dueSoon",
+          list: "task",
+          name: t.views.dueSoon,
+          mode: "table",
+          columns: ["dueDate", "status", "priority", "task.deals", "task.contacts"],
+          filters: [{ field: "status", notIn: ["done", "archived"] }],
+          sort: { field: "dueDate", direction: "asc" },
+        },
+      ],
+      dashboard: {
+        widgets: [
+          {
+            kind: "kpi",
+            title: t.widgets.openPipeline,
+            list: "deal",
+            aggregation: "sum",
+            field: "totalValue",
+            filters: [{ field: "stage", in: open }],
+          },
+          {
+            kind: "kpi",
+            title: t.widgets.weighted,
+            list: "deal",
+            aggregation: "sum",
+            field: "weightedValue",
+            filters: [{ field: "stage", in: open }],
+          },
+          {
+            kind: "kpi",
+            title: t.widgets.won,
+            list: "deal",
+            aggregation: "sum",
+            field: "totalValue",
+            filters: [{ field: "stage", in: ["won"] }],
+          },
+          {
+            kind: "kpi",
+            title: t.widgets.openTasks,
+            list: "task",
+            aggregation: "count",
+            filters: [{ field: "status", notIn: ["done", "archived"] }],
+          },
+          {
+            kind: "chart",
+            title: t.widgets.byStage,
+            display: DisplayType.verticalBarChartWithLabels,
+            list: "deal",
+            aggregation: "sum",
+            field: "totalValue",
+            groupBy: { field: "stage" },
+            filters: [{ field: "stage", in: open }],
+            width: 6,
+          },
+          {
+            kind: "chart",
+            title: t.widgets.byHowWeMet,
+            display: DisplayType.doughnutChart,
+            list: "contact",
+            aggregation: "count",
+            groupBy: { field: "howWeMet" },
+            width: 6,
+          },
+          {
+            kind: "chart",
+            title: t.widgets.wonByMonth,
+            display: DisplayType.areaChart,
+            list: "deal",
+            aggregation: "sum",
+            field: "totalValue",
+            groupBy: { month: "closeDate" },
+            filters: [{ field: "stage", in: ["won"] }],
+            width: 6,
+          },
+          {
+            kind: "chart",
+            title: t.widgets.byOffering,
+            display: DisplayType.horizontalBarChartWithLabels,
+            list: "deal",
+            aggregation: "count",
+            groupBy: { field: "offering" },
+            colors: [ChartColor.secondary1],
+            width: 6,
+          },
+          { kind: "activity", title: t.widgets.activity },
+        ],
+      },
+      wiki: [
+        { key: "guide", kind: "guide", title: t.wiki.guide.title, markdown: t.wiki.guide.markdown },
+        { key: "stages", kind: "knowledge", title: t.wiki.stages.title, markdown: t.wiki.stages.markdown },
+        {
+          key: "linking",
+          kind: "procedure",
+          title: t.wiki.linking.title,
+          whenToUse: t.wiki.linking.whenToUse,
+          markdown: t.wiki.linking.markdown,
+        },
+      ],
+      messaging: {
+        accounts: ["linkedin", "google"],
+        selfTitle: t.selfTitle,
+        website: t.website,
+        threads: [
+          {
+            account: "linkedin",
+            with: ["rachel"],
+            state: "unread",
+            latestMinutesAgo: 40,
+            messages: chat("rachel", t.threads.rachel, { draftLast: true }),
+            links: ["deal:hollisProgram", "organization:hollis"],
+          },
+          {
+            account: "linkedin",
+            with: ["george"],
+            state: "unread",
+            latestMinutesAgo: 3 * 60,
+            messages: chat("george", t.threads.george),
+            links: ["deal:ashcombeProgram", "organization:ashcombe"],
+          },
+          {
+            account: "linkedin",
+            with: ["kate"],
+            state: "unread",
+            latestMinutesAgo: 22 * 60,
+            messages: chat("kate", t.threads.kate),
+          },
+          {
+            account: "linkedin",
+            with: ["claire"],
+            state: "open",
+            latestMinutesAgo: 26 * 60,
+            messages: chat("claire", t.threads.claire),
+            links: ["deal:marlowBaseline", "organization:marlow"],
+          },
+          {
+            account: "linkedin",
+            with: ["martin"],
+            state: "open",
+            latestMinutesAgo: 2 * 24 * 60,
+            messages: chat("martin", t.threads.martin, { reaction: 3 }),
+            links: ["deal:cedarlineProgram"],
+          },
+          {
+            account: "linkedin",
+            with: ["fiona"],
+            state: "open",
+            latestMinutesAgo: 3 * 24 * 60,
+            messages: chat("fiona", t.threads.fiona),
+            links: ["deal:kingsgateLeadership", "organization:kingsgate"],
+          },
+          {
+            account: "google",
+            with: ["simon"],
+            subject: t.threads.simon.subject,
+            state: "open",
+            latestMinutesAgo: 5 * 60,
+            messages: chat("simon", t.threads.simon.messages),
+            links: ["deal:hollisProgram"],
+          },
+          {
+            account: "google",
+            with: ["helen"],
+            subject: t.threads.helen.subject,
+            state: "open",
+            latestMinutesAgo: 6 * 24 * 60,
+            messages: chat("helen", t.threads.helen.messages),
+            links: ["deal:quaysideWorkshop", "organization:quayside"],
+          },
+        ],
+      },
+    };
+  },
+});

@@ -51,9 +51,9 @@ describe("synthetic routine fixtures", () => {
       "Research new LinkedIn connections",
       "Weekly workspace health check",
       "Check service pricing and deal totals",
-      "Start onboarding when a deal is won",
-      "Task for overdue tickets",
-      "Renewal tasks 60 days ahead",
+      "Kickoff task when a deal is won",
+      "Task for overdue next steps",
+      "Check in with quiet customers",
     ]);
     expect(names.every((name) => name.length <= 45)).toBe(true);
   });

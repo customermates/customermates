@@ -116,3 +116,13 @@ export const SYNTHETIC_SEED_TIMELINE = {
   },
   webhookDelivery: (index: number): Date => timestamp("2026-08-01T10:15:00.000Z", index, 5 * 60 * MINUTE),
 } as const;
+
+/** A moment `daysAgo` days and `minutesEarlier` minutes before the shifted story end. */
+export function storyMoment(daysAgo: number, minutesEarlier = 0): Date {
+  return new Date(AUTHORED_END + SYNTHETIC_TIMELINE_SHIFT_MS - daysAgo * DAY - minutesEarlier * MINUTE);
+}
+
+/** The calendar day (YYYY-MM-DD) `offset` days after the shifted story end; negative offsets lie before it. */
+export function storyDay(offset: number): string {
+  return new Date(AUTHORED_END + SYNTHETIC_TIMELINE_SHIFT_MS + offset * DAY).toISOString().slice(0, 10);
+}

@@ -6,8 +6,8 @@ import type { SeedContext } from "./context";
 import type { SeedMembershipKey } from "./helpers";
 
 import { SYNTHETIC_AVATAR_URLS } from "./avatars";
-import { northwindAt, northwindMemberJoinedMs } from "./northwind-data";
-import { NORTHWIND_MEMBER_IDS, NORTHWIND_MEMBER_ROLES } from "./northwind-model";
+import { TEAM_MEMBER_IDS, TEAM_MEMBER_JOINED_DAYS_AGO, TEAM_MEMBER_ROLES } from "./team";
+import { storyMoment } from "./timeline";
 
 type SyntheticCompanyMemberDefinition = Readonly<{
   agreeToTerms: boolean;
@@ -21,23 +21,23 @@ type SyntheticCompanyMemberDefinition = Readonly<{
 }>;
 
 const member = (
-  key: keyof typeof NORTHWIND_MEMBER_IDS,
+  key: keyof typeof TEAM_MEMBER_IDS,
   firstName: string,
   lastName: string,
   email: string,
   avatarPath: string,
 ) => ({
-  id: NORTHWIND_MEMBER_IDS[key],
+  id: TEAM_MEMBER_IDS[key],
   agreeToTerms: false,
   avatarPath,
   email,
   firstName,
   lastName,
-  roleId: NORTHWIND_MEMBER_ROLES[key],
+  roleId: TEAM_MEMBER_ROLES[key],
   status: "active" as Status,
 });
 
-/** The seven Northwind Labs members; the first three keep their historical ids and sign-in identities. */
+/** The seven members of the small-business team; the first three keep their historical ids and sign-in identities. */
 export const SYNTHETIC_COMPANY_MEMBER_DEFINITIONS = [
   member(
     "maxBergmann",
@@ -88,9 +88,9 @@ async function reconcileMemberId(
 }
 
 export async function seedCompanyMembers(context: SeedContext): Promise<void> {
-  const keys = Object.keys(NORTHWIND_MEMBER_IDS) as Array<keyof typeof NORTHWIND_MEMBER_IDS>;
+  const keys = Object.keys(TEAM_MEMBER_IDS) as Array<keyof typeof TEAM_MEMBER_IDS>;
   for (const [index, { avatarPath, ...definition }] of SYNTHETIC_COMPANY_MEMBER_DEFINITIONS.entries()) {
-    const joined = northwindAt(northwindMemberJoinedMs(keys[index]));
+    const joined = storyMoment(TEAM_MEMBER_JOINED_DAYS_AGO[keys[index]]);
     const timeline = { createdAt: joined, updatedAt: new Date(joined.getTime() + 30 * 60_000) };
     const user = {
       ...definition,

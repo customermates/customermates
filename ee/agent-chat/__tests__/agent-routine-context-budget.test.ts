@@ -30,13 +30,14 @@ vi.mock("next-intl/server", () => ({
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { agentCreditsToMicrocents } from "@/core/commercial/agent-credits";
-import { createCrmPreset, presetId } from "@/features/records/crm-preset";
+import { presetId } from "@/features/records/crm-preset";
 import type { DiscoveredRecordTypes } from "@/features/records/discover-record-types.interactor";
 import { GetWikiCatalogInteractor } from "@/features/wiki/get-wiki-catalog.interactor";
 import { SEED_IDS } from "@/prisma/seeds/context";
-import { applyNorthwindModel } from "@/prisma/seeds/northwind-schema";
 import { SYNTHETIC_ROUTINES, type SeedRoutine } from "@/prisma/seeds/routines";
-import { SYNTHETIC_WIKI_PAGE_DEFINITIONS } from "@/prisma/seeds/wiki";
+import { solutionWorkspacePlan } from "@/prisma/seeds/solutions/seed-solutions";
+import { buildSolutionWiki } from "@/prisma/seeds/solutions/solution-presentation";
+import { TEAM_SOLUTION_WORKSPACE } from "@/prisma/seeds/solutions/solution-workspaces";
 import { composeRoutinePrompt } from "@/ee/routines/routine-prompt";
 import { DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN } from "@/ee/routines/routine-run-limits";
 import { ROUTINE_PROMPT_MAX_CHARS } from "@/ee/routines/routine.schema";
@@ -66,8 +67,10 @@ const OWNERS = {
   elenaHoffmannUser: ["Elena", "Hoffmann"],
 } as const satisfies Record<SeedRoutine["owner"], readonly [string, string]>;
 
-function northwindDiscovery(): DiscoveredRecordTypes {
-  const model = applyNorthwindModel(createCrmPreset(COMPANY_ID), COMPANY_ID);
+const TEAM_PLAN = solutionWorkspacePlan(TEAM_SOLUTION_WORKSPACE);
+
+function teamDiscovery(): DiscoveredRecordTypes {
+  const model = TEAM_PLAN.model;
   const types = model.types.filter((type) => !type.archived && !type.embedded);
   return {
     schemaRevision: model.revision,
@@ -89,8 +92,8 @@ function northwindDiscovery(): DiscoveredRecordTypes {
   };
 }
 
-function northwindWikiCatalog() {
-  const pages = SYNTHETIC_WIKI_PAGE_DEFINITIONS.map((page, index) => ({
+function teamWikiCatalog() {
+  const pages = buildSolutionWiki(TEAM_SOLUTION_WORKSPACE, TEAM_PLAN.content).map((page, index) => ({
     id: page.id,
     title: page.title,
     markdown: page.markdown,
@@ -225,14 +228,14 @@ function admissionHarness() {
     reserveUsage: vi.fn().mockResolvedValue(true),
   };
   const background = { dispatchTracked: vi.fn().mockResolvedValue("wrun_routine_budget") };
-  const discovery = northwindDiscovery();
+  const discovery = teamDiscovery();
   const interactor = new SendAgentMessageInteractor(
     repo as never,
     usage as never,
     mockEntitlementService(),
     background as never,
     { invoke: () => Promise.resolve({ ok: true as const, data: discovery }) },
-    northwindWikiCatalog(),
+    teamWikiCatalog(),
     { hasPermission: () => Promise.resolve(true) },
     { findLatestCrawl: () => Promise.resolve(null) },
   );
@@ -301,14 +304,14 @@ async function firstRoutineRound(owner: SeedRoutine["owner"], text: string, inde
 
 describe("routine context budget", () => {
   it.each(SYNTHETIC_ROUTINES.map((routine) => [routine.index, routine.trigger.kind, routine.name, routine] as const))(
-    "starts Northwind seed routine %i (%s, %s) inside the provider context of the default model",
+    "starts team workspace seed routine %i (%s, %s) inside the provider context of the default model",
     async (index, _kind, _name, routine) => {
       const text = composeRoutinePrompt(routine.prompt, { routineName: routine.name, ...triggerOf(routine) });
       const { payload, admittedBytes, sent } = await firstRoutineRound(routine.owner, text, index);
 
       expect(payload.surface).toBe("routine");
       expect(payload.toolsets).toEqual([]);
-      expect(payload.schemaDigest).toContain("Onboarding projects");
+      expect(payload.schemaDigest).toContain("Services");
       expect(payload.wikiCatalog).toContain("Operating Guide");
       expect(payload.turnBudget.modelSpec).toBe(AGENT_MODELS.routine.modelId);
       expect(sent).not.toHaveProperty("system");

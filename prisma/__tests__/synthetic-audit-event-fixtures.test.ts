@@ -16,10 +16,9 @@ import {
 import { SEED_IDS } from "../seeds/context";
 import { fixtureId } from "../seeds/helpers";
 import { SYNTHETIC_CUSTOM_ROLES } from "../seeds/roles";
-import { SYNTHETIC_SEED_TIMELINE, SYNTHETIC_TIMELINE_SHIFT_MS } from "../seeds/timeline";
+import { SYNTHETIC_SEED_TIMELINE, SYNTHETIC_TIMELINE_SHIFT_MS, storyMoment } from "../seeds/timeline";
 import { SYNTHETIC_COMPANY_MEMBER_DEFINITIONS } from "../seeds/members";
-import { NORTHWIND_STORY_END_MS, northwindAt, northwindMemberJoinedMs } from "../seeds/northwind-data";
-import { NORTHWIND_MEMBER_IDS } from "../seeds/northwind-model";
+import { TEAM_MEMBER_IDS, TEAM_MEMBER_JOINED_DAYS_AGO } from "../seeds/team";
 import {
   SYNTHETIC_PAUSED_WEBHOOK_DESCRIPTION,
   SYNTHETIC_PAUSED_WEBHOOK_ID,
@@ -30,12 +29,11 @@ import {
 } from "../seeds/webhooks";
 
 const messagingSyncAt = new Date(Date.parse("2026-08-06T00:00:00.000Z") + SYNTHETIC_TIMELINE_SHIFT_MS);
-const DAY = 86_400_000;
-const memberKeys = Object.keys(NORTHWIND_MEMBER_IDS) as Array<keyof typeof NORTHWIND_MEMBER_IDS>;
+const memberKeys = Object.keys(TEAM_MEMBER_IDS) as Array<keyof typeof TEAM_MEMBER_IDS>;
 
 function syntheticSnapshot(): SyntheticAuditSnapshot {
   const users = SYNTHETIC_COMPANY_MEMBER_DEFINITIONS.map((member, index) => {
-    const createdAt = northwindAt(northwindMemberJoinedMs(memberKeys[index]));
+    const createdAt = storyMoment(TEAM_MEMBER_JOINED_DAYS_AGO[memberKeys[index]]);
     return {
       id: member.id,
       email: member.email,
@@ -57,8 +55,8 @@ function syntheticSnapshot(): SyntheticAuditSnapshot {
     headers: null,
     bodyTemplate: null,
     enabled,
-    createdAt: northwindAt(NORTHWIND_STORY_END_MS - createdDaysAgo * DAY),
-    updatedAt: northwindAt(NORTHWIND_STORY_END_MS - (enabled ? createdDaysAgo : 2) * DAY),
+    createdAt: storyMoment(createdDaysAgo),
+    updatedAt: storyMoment(enabled ? createdDaysAgo : 2),
   });
 
   return {
@@ -180,7 +178,7 @@ describe("synthetic audit event fixtures", () => {
         role: { previous: null, current: "Sales lead" },
       },
     });
-    expect(eventPayload(fixtureForEntity(updates, DomainEvent.USER_UPDATED, NORTHWIND_MEMBER_IDS.kianRahimi))).toEqual({
+    expect(eventPayload(fixtureForEntity(updates, DomainEvent.USER_UPDATED, TEAM_MEMBER_IDS.kianRahimi))).toEqual({
       changes: {
         status: { previous: "pendingAuthorization", current: "active" },
         role: { previous: null, current: "Support" },

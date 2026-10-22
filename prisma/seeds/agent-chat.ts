@@ -16,17 +16,17 @@ type SeedConversation = {
 };
 
 const ACTIVE_ANSWER = [
-  "Here are the open opportunities worth your attention this quarter, ranked by weighted value:",
+  "Here are the open deals worth your attention this quarter, ranked by weighted value:",
   "",
-  "| Opportunity | Account | Stage | Value |",
+  "| Deal | Organization | Stage | Value |",
   "| --- | --- | --- | --- |",
-  "| Cloud Infrastructure Migration | Continental | Qualified | €340,000 |",
-  "| Data & Analytics Transformation | Deutsche Telekom | In Progress | €265,000 |",
-  "| CRM Rollout & Sales Enablement | Roche | Qualified | €180,000 |",
-  "| Digital Customer Platform | BMW | New | €150,000 |",
-  "| Enterprise Integration Program | Hays | In Progress | €120,000 |",
+  "| Northgate Logistics – warehouse network and support | Northgate Logistics | Conversation | €16,000 |",
+  "| Kessler Dental – managed support renewal | Kessler Dental Practice | Proposal sent | €6,720 |",
+  "| Maple & Finch – office network setup | Maple & Finch Law | Proposal sent | €3,950 |",
+  "| Oakridge Property – support for three offices | Oakridge Property Management | New | €7,680 |",
+  "| Harbourview Hotel – managed support | Harbourview Hotel | New | €5,760 |",
   "",
-  "Two things stand out: the Continental migration has had no activity for eleven days despite being your largest qualified deal, and both In Progress opportunities have tasks overdue this week. I would start with a check-in on Continental and clear the overdue tasks on Deutsche Telekom.",
+  "Two things stand out: the Kessler renewal is due this month and Hannah still wants the updated workstation count, and the Northgate site visit is the step that decides your largest deal. I would send the Kessler summary first and prepare the walkthrough with Ethan.",
 ].join("\n");
 
 const CONVERSATIONS: SeedConversation[] = [
@@ -49,7 +49,7 @@ const CONVERSATIONS: SeedConversation[] = [
       { role: "user", text: "Find contacts that look like duplicates" },
       {
         role: "assistant",
-        text: "I reviewed all 30 contacts and found no exact duplicates. Two entries share the Continental account with similar roles: Felix Koch and Jonas Weber. Both have distinct email addresses and phone numbers, so they look like genuinely different people rather than duplicates.",
+        text: "I reviewed all 18 contacts and found no exact duplicates. Two entries share the Kessler Dental Practice account: Hannah Kessler and Liam Carter. They have different email addresses and roles, so they look like genuinely different people rather than duplicates.",
       },
     ],
   },
@@ -62,7 +62,7 @@ const CONVERSATIONS: SeedConversation[] = [
       { role: "user", text: "What should I work on today?" },
       {
         role: "assistant",
-        text: "You have three tasks due today: preparing the Roche renewal summary, the follow-up call with Anna Müller, and reviewing the Wavestone proposal. The Roche renewal is attached to a qualified opportunity, so I would start there.",
+        text: "You have three tasks due soon: the Kessler renewal summary, the follow-up with Megan at Willow Street Bakery and the walkthrough at Harbourview Hotel. The Kessler renewal is attached to a deal in Proposal sent, so I would start there.",
       },
     ],
   },
@@ -75,7 +75,7 @@ const CONVERSATIONS: SeedConversation[] = [
       { role: "user", text: "How healthy is my pipeline?" },
       {
         role: "assistant",
-        text: "Your pipeline holds 20 open opportunities worth €2.1M in total. 40% of the value sits in the Qualified stage, which is a solid position, but five opportunities in New have had no activity for over two weeks. Reviving or closing those would give you a more honest forecast.",
+        text: "Your pipeline holds 10 open deals worth about €57,000 in total. The largest share sits in Conversation with Northgate, while three deals in New have no reply from the customer yet. Giving each of those a dated next step would make the pipeline more reliable.",
       },
     ],
   },
