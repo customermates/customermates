@@ -1,11 +1,14 @@
 "use server";
 
+import { getLocale } from "next-intl/server";
+
 import type { CreateWorkspaceData } from "@/features/workspace/create-workspace.interactor";
 import type { DeleteWorkspaceData } from "@/features/workspace/delete-workspace.interactor";
 import type { GetWorkspaceTabStateData } from "@/features/workspace/get-workspace-tab-state.interactor";
 import type { LeaveWorkspaceData } from "@/features/workspace/leave-workspace.interactor";
 import type { SwitchWorkspaceData } from "@/features/workspace/switch-workspace.interactor";
 import type { WithdrawWorkspaceRequestData } from "@/features/workspace/withdraw-workspace-request.interactor";
+import type { WorkspaceSummary } from "@/features/workspace/workspace.schema";
 
 import {
   getCreateWorkspaceInteractor,
@@ -16,10 +19,16 @@ import {
   getSwitchWorkspaceInteractor,
   getWithdrawWorkspaceRequestInteractor,
 } from "@/core/di";
+import { demoWorkspacesForUiLocale } from "@/core/solutions/demo-workspace-filter";
 import { serializeResult, serializeTypedResult } from "@/core/utils/action-result";
+import { env } from "@/env";
 
 export async function listMyWorkspacesAction() {
-  return serializeResult(getListMyWorkspacesInteractor().invoke());
+  const listed = getListMyWorkspacesInteractor().invoke();
+  if (env.APP_MODE !== "demo") return serializeResult(listed);
+  return serializeResult<WorkspaceSummary[]>(
+    listed.then(async (result) => ({ ...result, data: demoWorkspacesForUiLocale(result.data, await getLocale()) })),
+  );
 }
 
 export async function switchWorkspaceAction(data: SwitchWorkspaceData) {
