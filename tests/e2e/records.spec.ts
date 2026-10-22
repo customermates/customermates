@@ -217,15 +217,13 @@ test("creates a custom list and field through the UI, then persists a decimal re
   await page.getByRole("menuitem", { name: ">", exact: true }).click();
   await page.locator('[id="draft.value"]').fill("100");
   await page.locator('[id="draft.value"]').press("Enter");
-  await page.keyboard.press("Escape");
-  await expect(page.locator("#filter-palette-search")).toHaveCount(0);
+  await expect(page.locator("#widget-source-filters [data-palette-field]").first()).toBeVisible();
   await openFilterPalette(page, "widget-source-filters");
   await paletteField("Client organization").click();
   await page.locator("[data-palette-operator-trigger]").click();
   await page.getByRole("menuitem", { name: "has none", exact: true }).click();
   await page.locator("#filter-palette-back").click();
-  await page.keyboard.press("Escape");
-  await expect(page.locator("#filter-palette-search")).toHaveCount(0);
+  await expect(page.locator("#widget-source-filters [data-palette-field]").first()).toBeVisible();
   await expect(dialog.getByText(/Overall:.*123,456,789,012,345\.13/)).toBeVisible();
   await dialog.locator("#widget-modal-save").click();
   await expect(dialog).not.toBeVisible();
