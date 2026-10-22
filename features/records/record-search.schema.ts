@@ -6,6 +6,7 @@ const RecordSearchCursorSchema = z
     revision: z.number().int().nonnegative(),
     createdAt: RecordDateTimeSchema,
     ref: RecordRefSchema,
+    rank: z.number().int().min(0).max(3).optional(),
   })
   .strict();
 
@@ -17,7 +18,7 @@ export const RecordSearchSchema = z
       .min(1)
       .max(200)
       .describe(
-        "Text to find in titles and searchable fields; a record id finds that record. Wrap a phrase in double quotes to match it only as written. Otherwise, when nothing matches, records with a similarly spelled title are returned, best first and without nextCursor.",
+        "Text to find in titles and searchable fields; a record id finds that record. Records whose title equals, starts with or contains the text come first. Wrap a phrase in double quotes to match it only as written. Otherwise, when nothing matches, records with a similarly spelled title are returned, best first and without nextCursor.",
       ),
     typeIds: z.array(z.uuid()).min(1).max(100).optional(),
     includeEmbedded: z.boolean().optional(),

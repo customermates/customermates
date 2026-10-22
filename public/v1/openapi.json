@@ -8086,7 +8086,7 @@
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 200,
-                    "description": "Text to find in titles and searchable fields; a record id finds that record. Wrap a phrase in double quotes to match it only as written. Otherwise, when nothing matches, records with a similarly spelled title are returned, best first and without nextCursor."
+                    "description": "Text to find in titles and searchable fields; a record id finds that record. Records whose title equals, starts with or contains the text come first. Wrap a phrase in double quotes to match it only as written. Otherwise, when nothing matches, records with a similarly spelled title are returned, best first and without nextCursor."
                   },
                   "typeIds": {
                     "minItems": 1,
@@ -8142,6 +8142,11 @@
                               "recordId"
                             ],
                             "additionalProperties": false
+                          },
+                          "rank": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 3
                           }
                         },
                         "required": [
@@ -8605,6 +8610,11 @@
                                 "recordId"
                               ],
                               "additionalProperties": false
+                            },
+                            "rank": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 3
                             }
                           },
                           "required": [

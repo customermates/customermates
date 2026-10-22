@@ -10,11 +10,19 @@ import {
 
 const coreToolNameSet: ReadonlySet<string> = new Set(AGENT_CORE_TOOL_NAMES);
 
+export const AGENT_TOOLSET_TOOL_NAMES: Partial<Record<AgentOnDemandToolset, readonly string[]>> = {
+  "data-transfer": ["export_crm_records", "import_crm_records"],
+};
+
+const explicitToolsetToolNames: ReadonlySet<string> = new Set(Object.values(AGENT_TOOLSET_TOOL_NAMES).flat());
+
 function toolNamesOfGroup(group: string): string[] {
   return (MCP_TOOL_GROUPS[group] ?? []).map((tool) => tool.name);
 }
 
 function onDemandNamesOfGroup(group: string): string[] {
+  const explicit = isAgentOnDemandToolset(group) ? AGENT_TOOLSET_TOOL_NAMES[group] : undefined;
+  if (explicit) return [...explicit];
   return toolNamesOfGroup(group).filter((name) => !coreToolNameSet.has(name));
 }
 
@@ -38,5 +46,9 @@ export function toolNamesOfToolset(toolset: string): string[] {
 }
 
 export function coreToolNames(): Set<string> {
-  return new Set([...AGENT_CORE_TOOLSETS.flatMap((group) => toolNamesOfGroup(group)), ...AGENT_CORE_TOOL_NAMES]);
+  return new Set(
+    [...AGENT_CORE_TOOLSETS.flatMap((group) => toolNamesOfGroup(group)), ...AGENT_CORE_TOOL_NAMES].filter(
+      (name) => !explicitToolsetToolNames.has(name),
+    ),
+  );
 }

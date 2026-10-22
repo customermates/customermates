@@ -950,6 +950,40 @@ describe("agent saved-view management", () => {
     expect(subject.upsert.invoke).not.toHaveBeenCalled();
   });
 
+  it("lists linked-record filters for record views with how to fill them", async () => {
+    const typeId = "10000000-0000-4000-8000-000000000001";
+    const relationId = "30000000-0000-4000-8000-000000000001";
+    const recordViews = {
+      list: vi.fn().mockResolvedValue([]),
+      describe: vi.fn().mockResolvedValue({
+        type: { id: typeId, pluralLabel: "Bookings", relationshipPaths: [] },
+        fields: [],
+        relationships: [
+          {
+            id: relationId,
+            sourceTypeId: typeId,
+            targetTypeId: "10000000-0000-4000-8000-000000000002",
+            sourceLabel: "Provider",
+            targetLabel: "Bookings",
+            archived: false,
+          },
+        ],
+        columns: [],
+      }),
+      validate: vi.fn().mockResolvedValue(null),
+    };
+    const subject = setup(recordViews);
+    const result = await subject.run({ action: "config", surfaceKey: `records:${typeId}`, section: "filters" });
+    expect(result.ok && result.data.items).toContainEqual(
+      expect.objectContaining({
+        field: `relationship:${relationId}:outgoing`,
+        label: "Provider",
+        operators: expect.arrayContaining(["in", "notIn"]),
+        description: expect.stringContaining("linked record ids"),
+      }),
+    );
+  });
+
   it("reads record views with the filter values of deleted options left out", async () => {
     const surfaceKey = "records:10000000-0000-4000-8000-000000000001";
     const recordViews = {

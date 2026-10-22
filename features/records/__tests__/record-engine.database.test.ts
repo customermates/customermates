@@ -15564,6 +15564,56 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     ).toMatchObject({ ok: false });
   });
 
+  it("ranks title matches above newer records that only mention the term, across cursor pages", async () => {
+    const f = await fixture();
+    const model = await f.run(() => f.repo.getModel());
+    const organization = recordInvariant(model.types.find((type) => type.id === f.id("organization")));
+    const titled = [
+      ["Cursor", "2026-09-28T10:00:01.000Z"],
+      ["Cursor Pro", "2026-09-28T10:00:02.000Z"],
+      ["Paid cursor plan", "2026-09-28T10:00:03.000Z"],
+    ] as const;
+    const ids = new Map<string, string>();
+    await f.run(() =>
+      runInTransaction(async () => {
+        for (const [title] of titled) {
+          const recordId = randomUUID();
+          ids.set(title, recordId);
+          await f.repo.create({ typeId: organization.id, recordId }, []);
+          await f.repo.setValue(
+            { typeId: organization.id, recordId },
+            recordInvariant(organization.primaryFieldId),
+            { state: "value", value: textValue(title) },
+            1,
+          );
+        }
+      }),
+    );
+    for (const [title, createdAt] of titled) {
+      await f.run(() =>
+        prisma.crmRecord.updateMany({
+          where: { companyId: f.company.id, id: ids.get(title) },
+          data: { createdAt: new Date(createdAt) },
+        }),
+      );
+    }
+    const expected = ["Cursor", "Cursor Pro", "Paid cursor plan"].map((title) => ids.get(title));
+    const first = await f.run(() => f.search.invoke(RecordSearchSchema.parse({ searchTerm: "cursor", limit: 10 })));
+    if (!first.ok) throw first.error;
+    expect(first.data.results.map((hit) => hit.ref.recordId)).toEqual(expected);
+    const paged: string[] = [];
+    let cursor: RecordSearch["cursor"] = null;
+    do {
+      const result = await f.run(() =>
+        f.search.invoke(RecordSearchSchema.parse({ searchTerm: "cursor", limit: 1, cursor })),
+      );
+      if (!result.ok) throw result.error;
+      paged.push(...result.data.results.map((hit) => hit.ref.recordId));
+      cursor = result.data.nextCursor;
+    } while (cursor);
+    expect(paged).toEqual(expected);
+  });
+
   it("applies own/all/none and tenant access again for search and recent references", async () => {
     const f = await fixture();
     const other = await fixture();
