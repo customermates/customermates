@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { ArrowUpRight } from "lucide-react";
+import { getImageProps } from "next/image";
 import { useTranslations } from "next-intl";
 import { preconnect, prefetchDNS } from "react-dom";
 
@@ -10,13 +11,80 @@ import { cn } from "@/core/utils/cn";
 
 import { ProductWindow } from "./product-window";
 
+export type BrowserFramePosterImage = {
+  height: number;
+  src: string;
+  width: number;
+};
+
+export type BrowserFramePoster = {
+  dark: BrowserFramePosterImage;
+  light: BrowserFramePosterImage;
+};
+
 type Props = {
   embed?: boolean;
   fallbackMessage?: string;
   loadAhead?: boolean;
+  poster?: BrowserFramePoster;
   src: string;
   title: string;
 };
+
+const POSTER_THEMES = [
+  { className: "dark:hidden", theme: "light" },
+  { className: "not-dark:hidden", theme: "dark" },
+] as const;
+
+const POSTER_SIZES = "(min-width: 80rem) 72rem, 100vw";
+
+function BrowserFramePosterImages({
+  eager,
+  hidden,
+  poster,
+  title,
+}: {
+  eager: boolean;
+  hidden: boolean;
+  poster: BrowserFramePoster;
+  title: string;
+}) {
+  return (
+    <div
+      data-browser-frame-poster
+      aria-hidden={hidden || undefined}
+      className={cn(
+        "absolute inset-0 overflow-hidden bg-sidebar transition-opacity duration-500 ease-out motion-reduce:transition-none",
+        hidden ? "opacity-0" : "opacity-100",
+      )}
+    >
+      {POSTER_THEMES.map(({ className, theme }) => {
+        const image = poster[theme];
+        const { props } = getImageProps({
+          alt: title,
+          height: image.height,
+          sizes: POSTER_SIZES,
+          src: image.src,
+          width: image.width,
+        });
+
+        return (
+          // eslint-disable-next-line @next/next/no-img-element -- getImageProps keeps next/image optimization
+          <img
+            key={theme}
+            {...props}
+            alt={title}
+            className={cn("block size-full object-cover object-left-top", className)}
+            data-browser-frame-poster-theme={theme}
+            decoding="async"
+            fetchPriority={eager ? "high" : undefined}
+            loading={eager ? "eager" : "lazy"}
+          />
+        );
+      })}
+    </div>
+  );
+}
 
 const LOAD_AHEAD_MARGIN = "400px 0px";
 
@@ -36,7 +104,7 @@ function getOrigin(src: string): string | null {
   }
 }
 
-export function BrowserFrame({ embed = true, fallbackMessage, loadAhead = false, src, title }: Props) {
+export function BrowserFrame({ embed = true, fallbackMessage, loadAhead = false, poster, src, title }: Props) {
   const t = useTranslations();
   const frameRef = useRef<HTMLDivElement | null>(null);
   const revealTimer = useRef(0);
@@ -106,8 +174,19 @@ export function BrowserFrame({ embed = true, fallbackMessage, loadAhead = false,
     <div data-live-preview data-reveal className="not-prose relative mx-auto w-full max-w-live-preview">
       <ProductWindow className={cn(phone && "mx-auto max-w-sm")}>
         <div ref={frameRef} className={cn("relative w-full", phone ? "aspect-[1/2]" : "aspect-[16/10]")}>
+          {poster ? (
+            <BrowserFramePosterImages eager={loadAhead} hidden={embed && loaded} poster={poster} title={title} />
+          ) : null}
+
           {!embed ? (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-placeholder p-6 text-center">
+            <div
+              className={cn(
+                "absolute flex flex-col items-center justify-center gap-3 p-6 text-center",
+                poster
+                  ? "inset-x-4 bottom-4 z-10 rounded-xl border border-border-strong bg-background/95 shadow-lg backdrop-blur-sm"
+                  : "inset-0 bg-placeholder",
+              )}
+            >
               <p className="max-w-xl text-xs leading-5 text-muted-foreground">{title}</p>
 
               <a
@@ -121,7 +200,7 @@ export function BrowserFrame({ embed = true, fallbackMessage, loadAhead = false,
                 <ArrowUpRight aria-hidden className="size-3" />
               </a>
             </div>
-          ) : !loaded ? (
+          ) : !loaded && !poster ? (
             <div className="absolute inset-0 animate-pulse bg-placeholder motion-reduce:animate-none" />
           ) : null}
 

@@ -1,10 +1,13 @@
 import { useLocale } from "next-intl";
 
-import { BrowserFrame } from "./browser-frame";
+import { type BrowserFramePoster, BrowserFrame } from "./browser-frame";
 import { DEMO_RECORD_LIST_PATHS, PUBLIC_DEMO_ORIGIN, localProductDemoSrc } from "./product-demo-src";
 import { cn } from "@/core/utils/cn";
 import { env } from "@/env";
-import { type ContentLocale, contentLocaleOrDefault } from "@/i18n/locale-registry";
+import { type ContentLocale, appLocaleOrDefault, contentLocaleOrDefault } from "@/i18n/locale-registry";
+import solutionCaptureManifest from "@/core/solutions/solution-capture-manifest.json";
+import { type SolutionCaptureManifest, solutionCapturePair } from "@/core/solutions/solution-captures";
+import { type SolutionId, findSolution, solutionDataLocaleForUiLocale } from "@/core/solutions/solution-catalog";
 
 export { DEMO_RECORD_LIST_PATHS, DEMO_RECORD_TYPE_IDS } from "./product-demo-src";
 
@@ -167,23 +170,41 @@ function isProductDemoPath(path: string): path is ProductDemoPath {
   return PRODUCT_DEMO_PATHS.some((candidate) => candidate === path);
 }
 
-export function buildProductDemoUrl(locale: ContentLocale, path: string): string {
+export function productDemoPath(path: string): ProductDemoPath {
   if (!isProductDemoPath(path)) throw new Error(`Unsupported product demo path: ${path}`);
+  return path;
+}
 
-  const query = path === "/inbox" ? "threadId=latest&agentChat=closed" : "agentChat=closed";
+export function buildProductDemoUrl(locale: string, path: string, workspaceSlug?: string): string {
+  const demoPath = productDemoPath(path);
+  const query = demoPath === "/inbox" ? "threadId=latest&agentChat=closed" : "agentChat=closed";
+  const workspacePrefix = workspaceSlug ? `/w/${encodeURIComponent(workspaceSlug)}` : "";
 
-  return `${PUBLIC_DEMO_ORIGIN}/${locale}${path}?${query}`;
+  return `${PUBLIC_DEMO_ORIGIN}/${appLocaleOrDefault(locale)}${workspacePrefix}${demoPath}?${query}`;
+}
+
+export function solutionDemoWorkspaceSlug(solutionId: SolutionId, uiLocale: string): string {
+  return findSolution(solutionId).workspaces[solutionDataLocaleForUiLocale(uiLocale)].slug;
+}
+
+export function solutionDemoPoster(solutionId: SolutionId, pageLocale: string): BrowserFramePoster | undefined {
+  const pair = solutionCapturePair(solutionCaptureManifest as SolutionCaptureManifest, solutionId, pageLocale);
+  return pair ? { dark: pair.dark.main, light: pair.light.main } : undefined;
 }
 
 type Props = {
   hostedBoundary?: boolean;
   path: ProductDemoPath;
   presentation?: ProductDemoPresentation;
+  solutionId?: SolutionId;
 };
 
-export function ProductDemo({ hostedBoundary = false, path, presentation = "article" }: Props) {
-  const locale = contentLocaleOrDefault(useLocale());
+export function ProductDemo({ hostedBoundary = false, path, presentation = "article", solutionId }: Props) {
+  const uiLocale = appLocaleOrDefault(useLocale());
+  const locale: ContentLocale = contentLocaleOrDefault(uiLocale);
   const copy = COPY[locale];
+  const workspaceSlug = solutionId ? solutionDemoWorkspaceSlug(solutionId, uiLocale) : undefined;
+  const poster = solutionId ? solutionDemoPoster(solutionId, uiLocale) : undefined;
   const disclosure = hostedBoundary ? copy.hostedDisclosure : copy.standardDisclosure;
 
   return (
@@ -191,6 +212,7 @@ export function ProductDemo({ hostedBoundary = false, path, presentation = "arti
       className={cn("not-prose mx-auto w-full max-w-live-preview", presentation === "article" ? "my-12" : "my-0")}
       data-product-demo={path}
       data-product-demo-presentation={presentation}
+      data-product-demo-solution={solutionId}
     >
       <figcaption
         className={cn(
@@ -224,7 +246,8 @@ export function ProductDemo({ hostedBoundary = false, path, presentation = "arti
       <BrowserFrame
         embed={env.APP_MODE !== "self-hosted"}
         fallbackMessage={copy.fallback}
-        src={localProductDemoSrc(buildProductDemoUrl(locale, path))}
+        poster={poster}
+        src={localProductDemoSrc(buildProductDemoUrl(uiLocale, path, workspaceSlug))}
         title={copy.titles[path]}
       />
     </figure>

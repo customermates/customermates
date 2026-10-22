@@ -1,11 +1,21 @@
-import { DEMO_RECORD_LIST_PATHS, type ProductDemoPath } from "./product-demo";
+import { DEMO_RECORD_LIST_PATHS, type ProductDemoPath, productDemoPath } from "./product-demo";
+
+import {
+  PROFESSIONAL_SERVICES_SOLUTION_ID,
+  SOLUTION_CATALOG,
+  type SolutionCatalogEntry,
+  type SolutionId,
+  findSolution,
+  findSolutionByLandingPath,
+} from "@/core/solutions/solution-catalog";
 
 export type ProductDemoConfig = {
   hostedBoundary?: boolean;
   path: ProductDemoPath;
+  solutionId?: SolutionId;
 };
 
-export const FEATURE_PRODUCT_DEMOS = {
+const FEATURE_DEMO_SURFACES = {
   api: { path: "/settings/api-keys" },
   "cloud-crm": { hostedBoundary: true, path: "/dashboard" },
   "contact-management": { path: DEMO_RECORD_LIST_PATHS.contacts },
@@ -25,14 +35,41 @@ export const FEATURE_PRODUCT_DEMOS = {
   "workflow-automation": { path: "/settings/webhooks" },
 } as const satisfies Record<string, ProductDemoConfig>;
 
-export const INDUSTRY_PRODUCT_DEMOS = {
-  "professional-services": { path: DEMO_RECORD_LIST_PATHS.deals },
-} as const satisfies Record<string, ProductDemoConfig>;
+const FEATURE_PREFIX = "/features/";
+
+const INDUSTRY_PREFIX = "/for/";
+
+const PROFESSIONAL_SERVICES_SLUG = "professional-services";
+
+export function solutionProductDemo(solution: SolutionCatalogEntry, surface?: ProductDemoConfig): ProductDemoConfig {
+  return {
+    ...(surface?.hostedBoundary ? { hostedBoundary: true } : {}),
+    path: productDemoPath(solution.previewRoute),
+    solutionId: solution.id,
+  };
+}
+
+export const FEATURE_PRODUCT_DEMOS = Object.fromEntries(
+  Object.entries(FEATURE_DEMO_SURFACES).map(([slug, surface]) => {
+    const solution = findSolutionByLandingPath(`${FEATURE_PREFIX}${slug}`);
+    return [slug, solution ? solutionProductDemo(solution, surface) : surface];
+  }),
+) as Record<keyof typeof FEATURE_DEMO_SURFACES, ProductDemoConfig>;
+
+export const INDUSTRY_PRODUCT_DEMOS: Readonly<Record<string, ProductDemoConfig>> = Object.fromEntries([
+  ...SOLUTION_CATALOG.filter((solution) => solution.landingPath.startsWith(INDUSTRY_PREFIX)).map((solution) => [
+    solution.landingPath.slice(INDUSTRY_PREFIX.length),
+    solutionProductDemo(solution),
+  ]),
+  [PROFESSIONAL_SERVICES_SLUG, solutionProductDemo(findSolution(PROFESSIONAL_SERVICES_SOLUTION_ID))],
+]);
 
 export function productDemoForFeature(slug: string): ProductDemoConfig | null {
-  return slug in FEATURE_PRODUCT_DEMOS ? FEATURE_PRODUCT_DEMOS[slug as keyof typeof FEATURE_PRODUCT_DEMOS] : null;
+  return Object.hasOwn(FEATURE_PRODUCT_DEMOS, slug)
+    ? FEATURE_PRODUCT_DEMOS[slug as keyof typeof FEATURE_PRODUCT_DEMOS]
+    : null;
 }
 
 export function productDemoForIndustry(slug: string): ProductDemoConfig | null {
-  return slug in INDUSTRY_PRODUCT_DEMOS ? INDUSTRY_PRODUCT_DEMOS[slug as keyof typeof INDUSTRY_PRODUCT_DEMOS] : null;
+  return Object.hasOwn(INDUSTRY_PRODUCT_DEMOS, slug) ? INDUSTRY_PRODUCT_DEMOS[slug] : null;
 }
