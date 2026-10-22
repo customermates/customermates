@@ -33,7 +33,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { ItemActions, ItemActionsTrigger } from "@/components/ui/item-actions";
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { PageState } from "@/components/page-state/page-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
@@ -466,104 +466,110 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
             </AppCardHeader>
 
             <AppCardBody>
-              <div className="space-y-1">
-                {config.sources.map((source) => (
-                  <ItemActions
-                    key={source.id}
-                    label={sourceName(source)}
-                    menu={
-                      <>
-                        <DropdownMenuItem asChild>
-                          <IntlLink href={sourceHref(source)}>
-                            <ArrowUpRight aria-hidden className="size-4" />
+              <div className="-mx-1.5 space-y-0.5">
+                {config.sources.map((source) => {
+                  const menu = (
+                    <>
+                      <DropdownMenuItem onSelect={() => setSourceEditor({ source, creating: false })}>
+                        <Pencil aria-hidden className="size-4" />
 
-                            {t("Planner.openList")}
-                          </IntlLink>
-                        </DropdownMenuItem>
+                        {t("Planner.sourceSettings")}
+                      </DropdownMenuItem>
 
-                        <DropdownMenuItem
-                          variant="destructive"
-                          onSelect={() =>
-                            setConfig((current) => ({
-                              ...current,
-                              sources: current.sources.filter((item) => item.id !== source.id),
-                            }))
-                          }
-                        >
-                          <Trash2 aria-hidden className="size-4" />
+                      <DropdownMenuItem asChild>
+                        <IntlLink href={sourceHref(source)}>
+                          <ArrowUpRight aria-hidden className="size-4" />
 
-                          {t("Planner.removeSource")}
-                        </DropdownMenuItem>
-                      </>
-                    }
-                  >
-                    <div
-                      className="group/reveal flex min-w-0 items-start gap-2 rounded-md py-2"
-                      data-planner-source={source.id}
-                    >
-                      <Checkbox
-                        checked={source.enabled}
-                        className="mt-0.5"
-                        id={`planner-source-${source.id}`}
-                        onCheckedChange={(checked) =>
+                          {t("Planner.openList")}
+                        </IntlLink>
+                      </DropdownMenuItem>
+
+                      <DropdownMenuSeparator />
+
+                      <DropdownMenuItem
+                        variant="destructive"
+                        onSelect={() =>
                           setConfig((current) => ({
                             ...current,
-                            sources: current.sources.map((item) =>
-                              item.id === source.id ? { ...item, enabled: checked === true } : item,
-                            ),
+                            sources: current.sources.filter((item) => item.id !== source.id),
                           }))
                         }
-                      />
-
-                      <Label
-                        className="min-w-0 flex-1 cursor-pointer leading-snug"
-                        htmlFor={`planner-source-${source.id}`}
                       >
+                        <Trash2 aria-hidden className="size-4" />
+
+                        {t("Planner.removeSource")}
+                      </DropdownMenuItem>
+                    </>
+                  );
+                  return (
+                    <ItemActions
+                      key={source.id}
+                      label={t("Planner.sourceActions", { source: sourceName(source) })}
+                      menu={menu}
+                    >
+                      <div
+                        className="flex min-w-0 items-center gap-2.5 rounded-md p-1.5 text-sm hover:bg-accent/50"
+                        data-planner-source={source.id}
+                      >
+                        <Checkbox
+                          checked={source.enabled}
+                          id={`planner-source-${source.id}`}
+                          onCheckedChange={(checked) =>
+                            setConfig((current) => ({
+                              ...current,
+                              sources: current.sources.map((item) =>
+                                item.id === source.id ? { ...item, enabled: checked === true } : item,
+                              ),
+                            }))
+                          }
+                        />
+
                         <span
                           aria-hidden
-                          className="mr-1.5 inline-block size-2 rounded-full"
+                          className="size-2 shrink-0 rounded-full"
                           style={calendarSwatchStyle(source.color)}
                         />
 
-                        {sourceName(source)}
+                        <Label
+                          className="min-w-0 flex-1 cursor-pointer flex-col items-start gap-0.5 leading-snug"
+                          htmlFor={`planner-source-${source.id}`}
+                        >
+                          <span className="w-full truncate">{sourceName(source)}</span>
 
-                        {source.filters.length > 0 && (
-                          <span className="block pt-1 text-xs text-muted-foreground">
-                            {t("Planner.filterCount", { count: source.filters.length })}
-                          </span>
-                        )}
-                      </Label>
+                          {source.filters.length > 0 && (
+                            <span className="text-xs font-normal text-muted-foreground">
+                              {t("Planner.filterCount", { count: source.filters.length })}
+                            </span>
+                          )}
+                        </Label>
 
-                      <IconButton
-                        className="shrink-0"
-                        icon={Pencil}
-                        label={t("Planner.editSource", { source: sourceName(source) })}
-                        onClick={() => setSourceEditor({ source, creating: false })}
-                      />
-
-                      <ItemActionsTrigger />
-                    </div>
-                  </ItemActions>
-                ))}
+                        <ItemActionsTrigger />
+                      </div>
+                    </ItemActions>
+                  );
+                })}
               </div>
 
               {config.sources.length === 0 && <p className="text-sm text-muted-foreground">{t("Planner.noSources")}</p>}
 
-              <Button disabled={!canAddSource} size="sm" variant="secondary" onClick={addSource}>
+              <Button className="self-start" disabled={!canAddSource} size="sm" variant="secondary" onClick={addSource}>
                 <Plus aria-hidden className="size-4" />
 
                 {t("Planner.addSource")}
               </Button>
 
               {options.personalAvailable && (
-                <section className="space-y-3 border-t pt-4">
+                <section className="space-y-1.5 border-t pt-4">
                   <h3 className="text-sm font-medium">{t("Planner.personalCalendars")}</h3>
 
                   {options.calendars.length ? (
                     options.calendars.map((calendar) => {
                       const ProviderIcon = getProviderIcon(calendar.provider);
                       return (
-                        <div key={calendar.id} className="flex items-center gap-2">
+                        <div
+                          key={calendar.id}
+                          className="-mx-1.5 flex min-w-0 items-center gap-2.5 rounded-md p-1.5 text-sm hover:bg-accent/50"
+                        >
                           <Checkbox
                             checked={config.calendarIds.includes(calendar.id)}
                             id={`planner-personal-${calendar.id}`}
@@ -580,10 +586,10 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
                           <ProviderIcon aria-hidden className="size-4 shrink-0" />
 
                           <Label
-                            className="min-w-0 cursor-pointer leading-snug"
+                            className="min-w-0 flex-1 cursor-pointer leading-snug"
                             htmlFor={`planner-personal-${calendar.id}`}
                           >
-                            {calendar.name}
+                            <span className="truncate">{calendar.name}</span>
                           </Label>
                         </div>
                       );

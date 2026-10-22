@@ -104,7 +104,7 @@ export const PlannerSourceModal = observer(function PlannerSourceModal({
   const choice = (field: { id: string; label: string }) => ({ value: field.id, label: field.label });
   const title = creating ? t("Planner.addSource") : t("Planner.sourceSettings");
   return (
-    <AppModal open titleInContent size="xl" title={title} onClose={onClose}>
+    <AppModal open titleInContent size="lg" title={title} onClose={onClose}>
       <AppCard>
         <AppCardHeader>
           <AppModalTitle>{title}</AppModalTitle>
@@ -122,60 +122,56 @@ export const PlannerSourceModal = observer(function PlannerSourceModal({
             }}
           />
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <FormSelect
-              id="planner-start"
-              items={fields.filter(isCalendarDateField).map(choice)}
-              label={t("Planner.startDate")}
-              value={draft.calendar.dateFieldId}
-              onValueChange={(dateFieldId) =>
-                setDraft({ ...draft, calendar: { ...draft.calendar, dateFieldId, endDateFieldId: null } })
-              }
-            />
+          <FormSelect
+            id="planner-start"
+            items={fields.filter(isCalendarDateField).map(choice)}
+            label={t("Planner.startDate")}
+            value={draft.calendar.dateFieldId}
+            onValueChange={(dateFieldId) =>
+              setDraft({ ...draft, calendar: { ...draft.calendar, dateFieldId, endDateFieldId: null } })
+            }
+          />
 
-            {start && !isCalendarRangeField(start) && (
-              <FormSelect
-                id="planner-end"
-                items={[
-                  { value: NONE, label: t("Planner.noEndDate") },
-                  ...fields.filter((field) => field.id !== start.id && isCalendarEndField(field, start)).map(choice),
-                ]}
-                label={t("Planner.endDate")}
-                value={draft.calendar.endDateFieldId ?? NONE}
-                onValueChange={(value) =>
-                  setDraft({ ...draft, calendar: { ...draft.calendar, endDateFieldId: value === NONE ? null : value } })
-                }
-              />
-            )}
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
+          {start && !isCalendarRangeField(start) && (
             <FormSelect
-              id="planner-color-field"
+              id="planner-end"
               items={[
-                { value: NONE, label: t("Planner.sourceColor") },
-                ...fields.filter(isCalendarColorField).map(choice),
+                { value: NONE, label: t("Planner.noEndDate") },
+                ...fields.filter((field) => field.id !== start.id && isCalendarEndField(field, start)).map(choice),
               ]}
-              label={t("DataView.calendar.colorField")}
-              value={draft.calendar.colorFieldId ?? NONE}
+              label={t("Planner.endDate")}
+              value={draft.calendar.endDateFieldId ?? NONE}
               onValueChange={(value) =>
-                setDraft({ ...draft, calendar: { ...draft.calendar, colorFieldId: value === NONE ? null : value } })
+                setDraft({ ...draft, calendar: { ...draft.calendar, endDateFieldId: value === NONE ? null : value } })
               }
             />
+          )}
 
-            {!draft.calendar.colorFieldId && (
-              <FormSelect
-                id="planner-color"
-                items={CHIP_COLORS.map((value) => ({ value, label: colorLabels[value], color: value }))}
-                label={t("Planner.sourceColor")}
-                value={draft.color}
-                onValueChange={(color) => {
-                  if ((CHIP_COLORS as readonly string[]).includes(color))
-                    setDraft({ ...draft, color: color as PlannerSource["color"] });
-                }}
-              />
-            )}
-          </div>
+          <FormSelect
+            id="planner-color-field"
+            items={[
+              { value: NONE, label: t("Planner.sourceColor") },
+              ...fields.filter(isCalendarColorField).map(choice),
+            ]}
+            label={t("DataView.calendar.colorField")}
+            value={draft.calendar.colorFieldId ?? NONE}
+            onValueChange={(value) =>
+              setDraft({ ...draft, calendar: { ...draft.calendar, colorFieldId: value === NONE ? null : value } })
+            }
+          />
+
+          {!draft.calendar.colorFieldId && (
+            <FormSelect
+              id="planner-color"
+              items={CHIP_COLORS.map((value) => ({ value, label: colorLabels[value], color: value }))}
+              label={t("Planner.sourceColor")}
+              value={draft.color}
+              onValueChange={(color) => {
+                if ((CHIP_COLORS as readonly string[]).includes(color))
+                  setDraft({ ...draft, color: color as PlannerSource["color"] });
+              }}
+            />
+          )}
 
           <CollapsibleSection
             defaultOpen={source.filters.length > 0}
