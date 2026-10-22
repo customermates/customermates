@@ -1,6 +1,6 @@
 ---
-title: "LinkedIn CRM Integration for Messages and Sales Navigator"
-description: "Bring LinkedIn messages into the cloud inbox, then inspect profiles, posts, engagement and Sales Navigator results through REST or MCP. No CRM Sync."
+title: "LinkedIn CRM Integration: Conversations and Sales Navigator"
+description: "Connect supported LinkedIn conversations to contacts and opportunities in the cloud inbox from Pro. Explore the workflow and check plan limits. No CRM Sync."
 featureName: LinkedIn CRM Integration
 
 acquisition:
@@ -10,8 +10,8 @@ acquisition:
   role: support
   primaryIntent: LinkedIn CRM integration for messages and Sales Navigator workflows
   metadata:
-    title: "LinkedIn CRM Integration for Messages and Sales Navigator"
-    description: "Bring LinkedIn messages into the cloud inbox, then inspect profiles, posts, engagement and Sales Navigator results through REST or MCP. No CRM Sync."
+    title: "LinkedIn CRM Integration: Conversations and Sales Navigator"
+    description: "Connect supported LinkedIn conversations to contacts and opportunities in the cloud inbox from Pro. Explore the workflow and check plan limits. No CRM Sync."
   proof:
     factReferences:
       - product:cloud-only-unified-inbox
@@ -28,15 +28,15 @@ acquisition:
       - claim:no-linkedin-bulk-import
   cta:
     action: Test your LinkedIn workflow with real CRM context
-    description: Connect one LinkedIn account in a Pro trial, open a real conversation or Sales Navigator search, and verify the handoff your team needs.
+    description: Explore the example LinkedIn sales workspace, then connect one LinkedIn account in a Pro trial and check a real conversation against your own records.
     buttonLeftText: Start a Pro trial
     buttonLeftHref: /auth/signup
-    buttonRightText: Read the MCP guide
-    buttonRightHref: /docs/mcp
+    buttonRightText: Explore the workspace
+    buttonRightHref: https://demo.customermates.com/en/w/linkedin-sales
     hint: "LinkedIn messaging and Sales Navigator require Cloud Pro or above and the relevant LinkedIn subscription."
   relatedHrefs:
     - /features/unified-inbox
-    - /docs/app-inbox
+    - /features/whatsapp-integration
     - /docs/mcp
     - /features/contact-management
   visual:
@@ -44,9 +44,9 @@ acquisition:
     locale: en
     referenceSystemVersion: customermates-marketing-visuals@8
     source:
-      headline: "LinkedIn conversations and Sales Navigator, with CRM context"
-      body: "Work with LinkedIn messages in the cloud inbox, inspect profiles, posts and engagement on demand, and use Sales Navigator through REST or MCP. This is not CRM Sync, bundled continuous enrichment or bulk import."
-      checksum: fnv1a-ea1b8d73
+      headline: "LinkedIn conversations in your CRM relationship context"
+      body: "For founders, consultants and small sales teams who sell through LinkedIn: keep each supported conversation next to the prospect and opportunity it belongs to. Customermates Cloud from Pro, not Starter or self-hosted. No LinkedIn CRM Sync, enrichment feed or bulk import."
+      checksum: fnv1a-3c906e51
     kind: none
     reason: "The early disclosed inbox demo is route-specific proof; a separate hero illustration would duplicate it."
     selection: explicit
@@ -57,43 +57,45 @@ acquisition:
     faqFromRenderedContent: true
 
 hero:
-  title: LinkedIn conversations and Sales Navigator, with CRM context
-  description: Work with LinkedIn messages in the cloud inbox, inspect profiles, posts and engagement on demand, and use Sales Navigator through REST or MCP. This is not CRM Sync, bundled continuous enrichment or bulk import.
+  title: LinkedIn conversations in your CRM relationship context
+  description: "For founders, consultants and small sales teams who sell through LinkedIn: keep each supported conversation next to the prospect and opportunity it belongs to. Customermates Cloud from Pro, not Starter or self-hosted. No LinkedIn CRM Sync, enrichment feed or bulk import."
   buttonLeftText: Start a Pro trial
   buttonLeftHref: /auth/signup
-  buttonRightText: Review the MCP tools
-  buttonRightHref: /docs/mcp
+  buttonRightText: Explore the workspace
+  buttonRightHref: https://demo.customermates.com/en/w/linkedin-sales
   hint: "Cloud only • Pro or above • LinkedIn subscriptions remain separate"
   showOpenSourceBadge: false
 
 cta:
   action: Test your LinkedIn workflow with real CRM context
-  description: Connect one LinkedIn account in a Pro trial, open a real conversation or Sales Navigator search, and verify the handoff your team needs.
+  description: Explore the example LinkedIn sales workspace, then connect one LinkedIn account in a Pro trial and check a real conversation against your own records.
   buttonLeftText: Start a Pro trial
   buttonLeftHref: /auth/signup
-  buttonRightText: Read the MCP guide
-  buttonRightHref: /docs/mcp
+  buttonRightText: Explore the workspace
+  buttonRightHref: https://demo.customermates.com/en/w/linkedin-sales
   hint: "LinkedIn messaging and Sales Navigator require Cloud Pro or above and the relevant LinkedIn subscription."
 ---
 
-A **LinkedIn CRM integration** can mean very different things. Customermates provides three bounded surfaces: individual LinkedIn messages and InMail in the managed inbox; on-demand profile, post, engagement and connection-request operations; and customer-authorized Sales Navigator search and list operations through REST or MCP. It does not provide LinkedIn CRM Sync, bundled continuous enrichment, automatic profile matching or bulk lead import.
+If you sell through LinkedIn conversations, the hard part is rarely the message itself. It is remembering who the person is, which opportunity the conversation belongs to and what was agreed by email. In Customermates, a **LinkedIn CRM integration** means three bounded things: supported LinkedIn conversations and InMail in the managed-cloud inbox, next to your CRM records; on-demand profile, post and connection-request operations; and Sales Navigator search and list operations through REST or MCP. It is not LinkedIn CRM Sync, and it does not enrich, scrape or bulk import profiles.
 
 <ArticleSummary title="At a glance">
   <SummaryItem label="Outcome">
-    Keep an individual LinkedIn conversation close to the contact records and
-    pipeline context your team already uses.
+    Keep an individual LinkedIn conversation next to the contact, organization
+    and opportunity your team already tracks, with email alongside.
   </SummaryItem>
   <SummaryItem label="Availability">
-    LinkedIn messaging and Sales Navigator operations are managed-cloud features
-    from Pro upward. The relevant LinkedIn subscription remains separate.
+    Customermates Cloud from Pro. Starter and self-hosted installations have no
+    connected messaging accounts. The LinkedIn subscription remains separate.
   </SummaryItem>
-  <SummaryItem label="Supported surfaces">
-    Work with messages in the inbox, inspect social context on demand, or search
-    and manage existing Sales Navigator lists through REST and MCP.
+  <SummaryItem label="Record links">
+    Participants are matched to records by their LinkedIn identity. Linking a
+    conversation to an opportunity or organization is an explicit step by a
+    user or agent, never automatic.
   </SummaryItem>
   <SummaryItem label="Important boundary">
-    There is no official CRM Sync, embedded LinkedIn profile, bundled
-    continuous enrichment, automatic matching or one-click importer.
+    No official CRM Sync, embedded LinkedIn profile, lead feed, bundled
+    continuous enrichment, scraping, bulk import, bulk invites, sequences or
+    mass messaging.
   </SummaryItem>
 </ArticleSummary>
 
@@ -105,38 +107,50 @@ A **LinkedIn CRM integration** can mean very different things. Customermates pro
   <ProofItem label="Sales Navigator">Search and existing lists</ProofItem>
 </ProofRail>
 
-## LinkedIn messages in CRM context
+## The example workspace: LinkedIn sales with sample data
 
-An entitled cloud account can connect supported LinkedIn Classic, Sales Navigator or Recruiter variants. The unified inbox then presents supported conversations beside email and other connected channels. A teammate can read a thread, keep a draft, reply, or start an individual chat. Sales Navigator and Recruiter InMail use the subject and signature fields required by the connected product.
+The demo above and the [example workspace](https://demo.customermates.com/en/w/linkedin-sales) show a small LinkedIn sales setup with sample data, not a customer. It has four lists: Prospects, Organizations, Opportunities and Tasks. Opportunities move through the stages Known prospect, Conversation, Meeting discussed, Proposal sent, Won and Lost.
 
-The participant can be associated with a Customermates contact, which is the bridge to related organizations, deals, services and tasks. A message is not linked directly to a deal, and the inbox is not a social-listening or campaign product.
+Open the inbox and you see a supported LinkedIn conversation whose participant is matched to a prospect record. The conversation is linked to that prospect's opportunity under **Conversation records**, a link someone set on purpose. An email thread with the same person sits alongside it, so the LinkedIn exchange and the email follow-up read as one relationship.
+
+These lists and stages are an example. A new workspace starts without lists: on Customermates Cloud the AI workspace setup can build lists, stages, a dashboard and Knowledge Base pages from your description, once at onboarding and within its credit cap, or you skip it with **Start with an empty workspace**. Otherwise people with Configure rights create the lists and fields in Configure and import existing records from an Excel workbook.
+
+## Follow a known prospect conversation
+
+An entitled cloud account can connect supported LinkedIn Classic, Sales Navigator or Recruiter variants. The [unified inbox](/features/unified-inbox) then shows supported conversations beside email and other connected channels. A teammate can read a thread, keep a draft, reply, or start an individual chat. Sales Navigator and Recruiter InMail use the subject and signature fields required by the connected product.
 
 <Steps>
   <Step title="Connect an entitled account">
     Use Customermates Cloud Pro or above and connect the LinkedIn product that
     your user is entitled to operate.
   </Step>
-  <Step title="Open one conversation">
-    Start with a real thread or individual message rather than a bulk list or
-    automated sequence.
+  <Step title="Open one known conversation">
+    Start with a real thread with a prospect you already know, not a bulk list
+    or an automated sequence.
   </Step>
-  <Step title="Associate the participant">
-    Connect the person in the conversation to the correct CRM contact so the
-    relationship context is available.
+  <Step title="Match the participant">
+    Add the person's LinkedIn identity to the Channels field of the right
+    prospect record, or create the record from the conversation.
   </Step>
-  <Step title="Review and send">
+  <Step title="Link the opportunity">
+    Under **Conversation records**, use **Link record** to attach this
+    conversation to the opportunity or organization it belongs to.
+  </Step>
+  <Step title="Draft and send one reply">
     Check the recipient, content and connected LinkedIn identity before a user
-    or authorized client sends the message.
+    or authorized client sends the individual message.
   </Step>
 </Steps>
 
+Matching works through a Channels field: the email addresses and social identities that connect messages to a record. A conversation reaches an opportunity or organization only when a user or an agent links it explicitly. Customermates never logs a LinkedIn conversation to a deal automatically, and the inbox is not a social-listening or campaign product.
+
 ## Profiles, posts and relationship actions on demand
 
-Through a connected LinkedIn account, an authorized REST or MCP client can retrieve a person or company profile, read posts, inspect comments and reactions, and list, send, accept or cancel connection requests. These are explicit, user-authorized operations against the connected provider account. They are useful when a teammate needs current context before a conversation or CRM update.
+Through a connected LinkedIn account, an authorized REST or MCP client can retrieve a person or company profile, read posts, inspect comments and reactions, and list, send, accept or cancel individual connection requests. These are explicit, user-authorized operations against the connected provider account. They are useful when a teammate needs current context before a conversation or CRM update.
 
 The returned provider data is not a bundled background enrichment feed. Customermates does not continuously monitor profiles, match LinkedIn identities to CRM records, write provider fields into contacts automatically, or alert on job changes. An authorized client can take an on-demand profile result and invoke a separate, permission-checked contact or organization create/update through REST or MCP, with field mapping, validation and duplicate handling defined by the user or workflow.
 
-A customer-run workflow can also call an enrichment provider selected by the customer and write selected fields back through the Customermates REST API. The customer operates that provider and workflow; Customermates does not include the provider, source its data, choose the mapping or run a native continuous enrichment service.
+A customer-run workflow can also call an enrichment provider selected by the customer and write selected fields back through the Customermates REST API. The customer operates that provider and workflow. Customermates does not include the provider, source its data, choose the mapping or run a native continuous enrichment service.
 
 <AcquisitionCallout title="On-demand context is not a bundled enrichment feed" variant="proof">
   A profile or post is fetched because an authorized user or client asks for it.
@@ -148,20 +162,20 @@ A customer-run workflow can also call an enrichment provider selected by the cus
 
 With a connected LinkedIn account and an active Sales Navigator subscription, Customermates exposes a focused set of REST and MCP operations. A user or authorized client can search people or companies from structured filters or a copied Sales Navigator search URL, resolve filter parameters, list or browse existing lead and account lists, and save a result to an existing list.
 
-A search result can become the input to a **separate** CRM record-creation action. That second operation still needs explicit field mapping, validation and deduplication. It is not an automatic import, synchronization or background enrichment process.
+A search result can become the input to a **separate** CRM record-creation action. That second operation still needs explicit field mapping, validation and deduplication. It is not an automatic import, synchronization, lead feed or background enrichment process.
 
-| Capability                                     | Current state                                         |
-| ---------------------------------------------- | ----------------------------------------------------- |
-| Search people and companies                    | Supported with an active Sales Navigator subscription |
-| Resolve Sales Navigator search parameters      | Supported                                             |
-| List and browse existing lead or account lists | Supported                                             |
-| Save a person or company to an existing list   | Supported                                             |
-| Create a CRM contact or organization           | Separate authorized REST or MCP action                |
-| Create a new Sales Navigator list              | Not supported; create it in Sales Navigator first     |
-| Bulk import or continuous synchronization      | Not supported                                         |
-| On-demand person or company profile lookup     | Supported through the connected LinkedIn account      |
-| Customer-run external-provider enrichment      | Separate workflow with explicit REST writeback        |
-| Bundled continuous enrichment or job monitoring | Not provided                                         |
+| Capability                                      | Current state                                         |
+| ----------------------------------------------- | ----------------------------------------------------- |
+| Search people and companies                     | Supported with an active Sales Navigator subscription |
+| Resolve Sales Navigator search parameters       | Supported                                             |
+| List and browse existing lead or account lists  | Supported                                             |
+| Save a person or company to an existing list    | Supported                                             |
+| Create a CRM contact or organization            | Separate authorized REST or MCP action                |
+| Create a new Sales Navigator list               | Not supported; create it in Sales Navigator first     |
+| Bulk import, lead feed or continuous sync       | Not supported                                         |
+| On-demand person or company profile lookup      | Supported through the connected LinkedIn account      |
+| Customer-run external-provider enrichment       | Separate workflow with explicit REST writeback        |
+| Bundled continuous enrichment or job monitoring | Not provided                                          |
 
 <AcquisitionCallout title="A composed handoff is not a sync" variant="boundary">
   Search, inspect and record creation are deliberately separate operations. The
@@ -185,28 +199,29 @@ Customermates instead connects supported messages and exposes customer-authorize
   On-demand profile reads and mapped CRM writes remain separate operations.
 </AcquisitionCallout>
 
-## Plans, accounts and external providers
+## Plans, accounts and inbox sharing
 
-| Customermates plan | Shared connected-account pool per user | Account-wide sharing                 |
-| ------------------ | -------------------------------------- | ------------------------------------ |
-| Starter            | None                                   | No                                   |
-| Pro                | One across all supported providers     | No; individual threads can be shared |
-| Business           | Three across all supported providers   | Yes                                  |
-| Enterprise         | Unlimited under fair-use terms         | Yes                                  |
+| Customermates plan     | Connected accounts per user                                    | Inbox sharing                                   |
+| ---------------------- | -------------------------------------------------------------- | ----------------------------------------------- |
+| Starter or self-hosted | None                                                           | No inbox                                        |
+| Pro                    | [[commercial.entitlement.pro.includedAccountsPerUser]]         | Your own accounts plus individually shared threads |
+| Business               | [[commercial.entitlement.business.includedAccountsPerUser]]    | Whole connected accounts can be shared          |
+| Max                    | [[commercial.entitlement.max.includedAccountsPerUser]]         | Whole connected accounts can be shared          |
+| Enterprise             | [[commercial.entitlement.enterprise.includedAccountsPerUser]] under fair-use terms | Whole connected accounts can be shared |
 
-The allowance is one shared pool: a linked mailbox, LinkedIn, WhatsApp, Instagram or Telegram profile each consumes one connected-account slot. It is not a separate LinkedIn quota. LinkedIn accounts, Sales Navigator or Recruiter subscriptions, provider limits and provider terms are not included in the Customermates subscription. The connected-account processing path is documented in the Customermates subprocessor information. Self-hosted Customermates uses the Starter feature set and therefore does not include connected LinkedIn accounts, the unified inbox or Sales Navigator operations.
+The allowance is one shared pool: a linked mailbox, LinkedIn, WhatsApp, Instagram or Telegram profile each uses one connected-account slot. It is not a separate LinkedIn quota, so LinkedIn plus an email inbox for the same person needs more than the Pro allowance. LinkedIn accounts, Sales Navigator or Recruiter subscriptions, provider limits and provider terms are not included in the Customermates subscription. The connected-account processing path is documented in the Customermates [subprocessor information](/subprocessors). Self-hosted Customermates uses the Starter feature set and therefore does not include connected LinkedIn accounts, the unified inbox or Sales Navigator operations. Current prices are on the [pricing page](/pricing).
 
-## MCP and approval boundaries
+## MCP, Mate and approval boundaries
 
-An external AI client can call the permitted messaging and Sales Navigator tools through MCP. The MCP instructions tell compatible clients to request confirmation before a send or destructive action, but the server does not add a second confirmation after an authorized client calls the tool. Review the client's confirmation behavior, the user's workspace permissions and the connected account before enabling write access.
+An external AI client can call the permitted messaging and Sales Navigator tools through MCP, using your own AI provider. The MCP instructions tell compatible clients to request confirmation before a send or destructive action, but the server does not add a second confirmation after an authorized client calls the tool. Review the client's confirmation behavior, the user's workspace permissions and the connected account before enabling write access.
 
-Cloud plans include a Mate entitlement and hosted-AI credit allowance. When Mate is enabled in the hosted environment, it can use eligible tools under the user's permissions and the plan allowance. External MCP clients use their own model provider and subscription and do not consume those credits. Both paths still enforce the user's workspace permissions, plan entitlements and connected-account prerequisites; their confirmation controls are documented separately.
+Cloud plans include a Mate entitlement and hosted-AI credit allowance. When Mate is enabled in the hosted environment, it can use eligible tools under the user's permissions and the plan allowance. Mate sends a message as soon as you ask it to send, so ask for a draft when you want to review first. Mate is not available in self-hosted installations. External MCP clients use their own model provider and subscription and do not consume those credits. Both paths still enforce the user's workspace permissions, plan entitlements and connected-account prerequisites.
 
-## Who this approach fits—and who it does not
+## Who this fits, and who it does not
 
-This approach fits teams that want individual LinkedIn conversations in the same working context as their CRM records, or that want a controlled Sales Navigator search and list workflow through typed interfaces.
+This fits founders, consultants and small sales teams who hold individual LinkedIn conversations and want them in the same working context as their prospects and opportunities, or who want a controlled Sales Navigator search and list workflow through typed interfaces.
 
-It is not a fit when the buying requirement is a bundled continuous enrichment service, LinkedIn CRM Sync, bulk prospect import, scraping, native job-change monitoring, multi-step outreach sequences, Lead Gen Forms, audience sync or campaign analytics. Those are different products and processing relationships.
+It is not a fit when the buying requirement is LinkedIn CRM Sync, a lead feed, bundled continuous enrichment, bulk prospect import, scraping, native job-change monitoring, bulk connection invites, multi-step outreach sequences, mass messaging, Lead Gen Forms, audience sync or campaign analytics. Those are different products and processing relationships.
 
 ## Frequently asked questions
 
@@ -224,6 +239,13 @@ It is not a fit when the buying requirement is a bundled continuous enrichment s
   operations require the user's active Sales Navigator subscription.
 </FaqItem>
 
+<FaqItem question="Is a LinkedIn conversation logged to the deal automatically?">
+  No. The participant is matched to a record through the LinkedIn identity in
+  its Channels field. Linking the conversation to an opportunity or
+  organization is an explicit step under Conversation records, taken by a user
+  or an agent.
+</FaqItem>
+
 <FaqItem question="Can I import Sales Navigator leads into Customermates?">
   There is no bulk or one-click importer. An authorized workflow can search a
   lead, inspect the result and then invoke a separate CRM-record creation
@@ -238,11 +260,18 @@ It is not a fit when the buying requirement is a bundled continuous enrichment s
   native job-change alerts.
 </FaqItem>
 
+<FaqItem question="Can I send connection invites or messages in bulk?">
+  No. Connection requests and messages are individual operations. Customermates
+  has no bulk invites, sequences or mass messaging, and the provider's own
+  rate limits apply to every connected account.
+</FaqItem>
+
 <FaqItem question="Can an AI client draft or send LinkedIn messages?">
   An external MCP client can use permitted messaging tools on an entitled cloud
   account. The MCP server executes an authorized tool when called; confirmation
   behavior belongs to that client. When Mate is enabled in the hosted
-  environment, it uses the plan's hosted-AI allowance.
+  environment, it uses the plan's hosted-AI allowance and sends when you ask it
+  to send; ask for a draft if you want to review the message first.
 </FaqItem>
 
 <FaqItem question="Does this work in self-hosted Customermates?">
