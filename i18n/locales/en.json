@@ -1571,6 +1571,7 @@
       "secret": "Secret",
       "status": "Status",
       "theme": "Theme",
+      "time": "Time",
       "triggerEvents": "Events",
       "triggerFilters": "Record filters",
       "triggerKind": "Trigger",

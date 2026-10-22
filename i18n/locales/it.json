@@ -1571,6 +1571,7 @@
       "secret": "Segreto",
       "status": "Stato",
       "theme": "Tema",
+      "time": "Ora",
       "triggerEvents": "Eventi",
       "triggerFilters": "Filtri sui record",
       "triggerKind": "Attivazione",

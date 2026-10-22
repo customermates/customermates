@@ -1571,6 +1571,7 @@
       "secret": "Secret",
       "status": "Status",
       "theme": "Darstellung",
+      "time": "Zeit",
       "triggerEvents": "Ereignisse",
       "triggerFilters": "Datensatzfilter",
       "triggerKind": "Auslöser",

@@ -1571,6 +1571,7 @@
       "secret": "Secreto",
       "status": "Estado",
       "theme": "Tema",
+      "time": "Hora",
       "triggerEvents": "Eventos",
       "triggerFilters": "Filtros de registro",
       "triggerKind": "Disparador",

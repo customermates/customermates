@@ -17,6 +17,9 @@ type Props = {
 
 const TIME_PATTERN_24 = /^([01]?\d|2[0-3]):([0-5]?\d)(?::([0-5]?\d))?$/;
 const TIME_PATTERN_12 = /^(0?[1-9]|1[0-2]):([0-5]?\d)(?::([0-5]?\d))?\s*(am|pm)$/i;
+const STEP_MINUTES = 15;
+const DAY_MINUTES = 24 * 60;
+const PLACEHOLDER_TIME = "09:00:00";
 
 export function TimeInput({ id, value, onChange, use12Hour, disabled, className }: Props) {
   const [text, setText] = useState(() => formatForDisplay(value, use12Hour));
@@ -25,26 +28,38 @@ export function TimeInput({ id, value, onChange, use12Hour, disabled, className 
     setText(formatForDisplay(value, use12Hour));
   }, [value, use12Hour]);
 
+  function apply(next: string) {
+    onChange(next);
+    setText(formatForDisplay(next, use12Hour));
+  }
+
   function commit() {
     const parsed = parseTime(text);
-    if (parsed) {
-      onChange(parsed);
-      setText(formatForDisplay(parsed, use12Hour));
-      return;
-    }
-    setText(formatForDisplay(value, use12Hour));
+    if (parsed) apply(parsed);
+    else setText(formatForDisplay(value, use12Hour));
+  }
+
+  function step(direction: 1 | -1) {
+    const [h, m] = (parseTime(text) ?? value ?? PLACEHOLDER_TIME).split(":").map(Number);
+    const minutes = h * 60 + m;
+    const snapped =
+      direction > 0
+        ? Math.floor(minutes / STEP_MINUTES) * STEP_MINUTES + STEP_MINUTES
+        : Math.ceil(minutes / STEP_MINUTES) * STEP_MINUTES - STEP_MINUTES;
+    const next = (snapped + DAY_MINUTES) % DAY_MINUTES;
+    apply(toIsoLikeTime(Math.floor(next / 60), next % 60, 0));
   }
 
   return (
     <div className="relative">
-      <ClockIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+      <ClockIcon className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 
       <Input
-        className={cn("h-9 pl-9 font-mono tabular-nums", className)}
+        className={cn("h-9 pl-8 tabular-nums", className)}
         disabled={disabled}
         id={id}
         inputMode="numeric"
-        placeholder={use12Hour ? "12:00:00 AM" : "00:00:00"}
+        placeholder={formatForDisplay(PLACEHOLDER_TIME, use12Hour)}
         type="text"
         value={text}
         onBlur={commit}
@@ -53,6 +68,9 @@ export function TimeInput({ id, value, onChange, use12Hour, disabled, className 
           if (e.key === "Enter") {
             e.preventDefault();
             commit();
+          } else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+            e.preventDefault();
+            step(e.key === "ArrowUp" ? 1 : -1);
           }
         }}
       />
@@ -66,15 +84,14 @@ function formatForDisplay(value: string, use12Hour: boolean): string {
   const [h, m, s = 0] = parts;
   if (![h, m, s].every((n) => Number.isFinite(n))) return value;
 
-  const hh = String(h).padStart(2, "0");
   const mm = String(m).padStart(2, "0");
-  const ss = String(s).padStart(2, "0");
+  const seconds = s ? `:${String(s).padStart(2, "0")}` : "";
 
-  if (!use12Hour) return `${hh}:${mm}:${ss}`;
+  if (!use12Hour) return `${String(h).padStart(2, "0")}:${mm}${seconds}`;
 
   const period = h >= 12 ? "PM" : "AM";
   const h12 = h % 12 === 0 ? 12 : h % 12;
-  return `${String(h12).padStart(2, "0")}:${mm}:${ss} ${period}`;
+  return `${h12}:${mm}${seconds} ${period}`;
 }
 
 function parseTime(text: string): string | undefined {

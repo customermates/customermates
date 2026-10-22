@@ -1571,6 +1571,7 @@
       "secret": "Secret",
       "status": "Statut",
       "theme": "Thème",
+      "time": "Heure",
       "triggerEvents": "Évènements",
       "triggerFilters": "Filtres d’enregistrement",
       "triggerKind": "Déclencheur",

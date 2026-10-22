@@ -190,7 +190,7 @@ export const FormIsoDatePicker = observer(
 
                 <div className="flex flex-col gap-2 p-3">
                   <FormLabel className="text-xs text-muted-foreground" htmlFor={`${domId}-time`}>
-                    {t("Common.datePresets.startTime")}
+                    {t("Common.inputs.time")}
                   </FormLabel>
 
                   <TimeInput
