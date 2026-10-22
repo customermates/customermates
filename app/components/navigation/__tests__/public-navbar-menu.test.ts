@@ -75,6 +75,44 @@ const groups: PublicNavGroup[] = [
   },
 ];
 
+const preview = (name: string) => ({
+  dark: { height: 450, src: `/captures/solutions/dark/${name}-en-nav.webp`, width: 720 },
+  light: { height: 450, src: `/captures/solutions/light/${name}-en-nav.webp`, width: 720 },
+});
+
+const sectionedGroups: PublicNavGroup[] = [
+  {
+    activeHref: "/for",
+    columns: 2,
+    icon: UsersRound,
+    id: "solutions",
+    links: [
+      { href: "/for/smb", icon: UsersRound, preview: preview("smb"), section: "team", title: "Small business" },
+      { href: "/for/agencies", icon: Megaphone, preview: preview("agencies"), section: "team", title: "Agencies" },
+      {
+        href: "/features/pipeline",
+        icon: Boxes,
+        preview: preview("sales-pipeline"),
+        section: "workflow",
+        title: "Sales pipeline",
+      },
+      { href: "/for", icon: UsersRound, section: "more", title: "All solutions" },
+    ],
+    sections: [{ id: "team", title: "By team" }, { id: "workflow", title: "By workflow" }, { id: "more" }],
+    title: "Solutions",
+  },
+];
+
+function sectionedMenu() {
+  return createElement(PublicNavbarMenu, {
+    ariaLabel: "Primary navigation",
+    groups: sectionedGroups,
+    onNavigate: vi.fn(),
+    pathname: "/",
+    pricingLabel: "Pricing",
+  });
+}
+
 let container: HTMLDivElement | undefined;
 let root: Root | undefined;
 
@@ -631,5 +669,42 @@ describe("PublicNavbarMenu", () => {
 
     expect(markup).toMatch(/data-public-nav-active="true"[^>]*data-public-nav-trigger="product"/u);
     expect(markup.match(/aria-current="page"/gu)).toHaveLength(1);
+  });
+
+  it("groups solutions by team and workflow and swaps one shared preview on hover and focus", () => {
+    const markup = renderToStaticMarkup(sectionedMenu());
+    expect(markup).toContain("By team");
+    expect(markup).toContain("By workflow");
+    expect(markup).not.toContain("data-public-nav-preview");
+    expect(markup).not.toContain(".webp");
+
+    act(() => root?.render(sectionedMenu()));
+    const trigger = container?.querySelector<HTMLButtonElement>('[data-public-nav-trigger="solutions"]');
+    act(() => trigger?.click());
+
+    const panel = () => container?.querySelector<HTMLElement>("[data-public-nav-preview]");
+    const images = () => [...(panel()?.querySelectorAll("img") ?? [])].map((image) => image.getAttribute("src"));
+    expect(panel()?.getAttribute("aria-hidden")).toBe("true");
+    expect(panel()?.className).toContain("xl:flex");
+    expect(images()).toEqual(["/captures/solutions/light/smb-en-nav.webp", "/captures/solutions/dark/smb-en-nav.webp"]);
+    expect(container?.querySelectorAll("[data-public-nav-preview]")).toHaveLength(1);
+
+    const agencies = container?.querySelector<HTMLAnchorElement>('a[href="/for/agencies"]');
+    act(() => {
+      agencies?.dispatchEvent(new MouseEvent("pointerover", { bubbles: true, relatedTarget: document.body }));
+    });
+    expect(panel()?.getAttribute("data-public-nav-preview")).toBe("/for/agencies");
+
+    act(() => container?.querySelector<HTMLAnchorElement>('a[href="/features/pipeline"]')?.focus());
+    expect(images()[0]).toBe("/captures/solutions/light/sales-pipeline-en-nav.webp");
+
+    act(() => container?.querySelector<HTMLAnchorElement>('a[href="/for"]')?.focus());
+    expect(panel()?.getAttribute("data-public-nav-preview")).toBe("/features/pipeline");
+
+    act(() => {
+      document.activeElement?.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Escape" }));
+    });
+    expect(trigger?.getAttribute("aria-expanded")).toBe("false");
+    expect(panel()).toBeFalsy();
   });
 });

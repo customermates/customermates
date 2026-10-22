@@ -17,17 +17,17 @@ import {
   Plug,
   Presentation,
   Rocket,
-  Scale,
   Server,
   Store,
   TrendingUp,
-  UserRoundSearch,
   Users,
   UsersRound,
 } from "lucide-react";
 import { describe, expect, it } from "vitest";
 
 import { resolvePublicNavGroups } from "@/app/components/navigation/public-navbar-model";
+import { SOLUTION_CATALOG } from "@/core/solutions/solution-catalog";
+import { DEFAULT_LOCALE, PARTIAL_MARKETING_LOCALES, isMarketingPathPublished } from "@/i18n/locale-registry";
 
 const REPO_ROOT = process.cwd();
 
@@ -43,7 +43,7 @@ function read(file: string): string {
 }
 
 const translationKey = ((key: string) => key) as unknown as Parameters<typeof resolvePublicNavGroups>[0];
-const publicNavGroups = resolvePublicNavGroups(translationKey);
+const publicNavGroups = resolvePublicNavGroups(translationKey, DEFAULT_LOCALE);
 
 function publicNavGroup(id: string) {
   const group = publicNavGroups.find((candidate) => candidate.id === id);
@@ -80,12 +80,8 @@ describe("public navigation preferences", () => {
     expect(navbar.match(/<LocaleMenu/g)).toHaveLength(1);
     expect(navbar.match(/<ThemeSwitcher/g)).toHaveLength(1);
     expect(navbar.match(/\{renderPreferenceButtons\(\)\}/g)).toHaveLength(2);
-    expect(navbar).toContain(
-      'className="hidden items-center gap-2 justify-self-end xl:flex"',
-    );
-    expect(navbar).toContain(
-      'className="col-span-3 flex w-full items-center justify-between xl:hidden"',
-    );
+    expect(navbar).toContain('className="hidden items-center gap-2 justify-self-end xl:flex"');
+    expect(navbar).toContain('className="col-span-3 flex w-full items-center justify-between xl:hidden"');
     expect(navbar).toContain('<MarketingContainer className="flex flex-col gap-3 py-4">');
     expect(navbar).not.toContain("border-y");
     expect(navbar).not.toContain("github.com/customermates/customermates");
@@ -95,24 +91,15 @@ describe("public navigation preferences", () => {
     // shells cover every URL in the sitemap.
     for (const [name, file] of Object.entries(HEADER_SHELLS)) {
       const source = read(file);
-      expect(source, `${name} is missing the locale menu`).toContain(
-        "<LocaleMenu",
-      );
-      expect(source, `${name} is missing the theme switcher`).toContain(
-        "<ThemeSwitcher",
-      );
+      expect(source, `${name} is missing the locale menu`).toContain("<LocaleMenu");
+      expect(source, `${name} is missing the theme switcher`).toContain("<ThemeSwitcher");
     }
 
     // CUS-202 stripped duplicate preference controls from the footer. The two header shells still
     // own those controls, while the footer remains free to carry curated marketing links.
     const footer = read(FOOTER);
-    expect(footer, "the header menu already links every locale").not.toContain(
-      "<LocaleMenu",
-    );
-    expect(
-      footer,
-      "the theme switcher belongs to the header shells",
-    ).not.toContain("<ThemeSwitcher");
+    expect(footer, "the header menu already links every locale").not.toContain("<LocaleMenu");
+    expect(footer, "the theme switcher belongs to the header shells").not.toContain("<ThemeSwitcher");
     for (const href of [
       "https://viesearch.com/",
       "https://www.promotebusinessdirectory.com/",
@@ -143,7 +130,7 @@ describe("public navigation preferences", () => {
     ]);
     expect(groupShape).toEqual([
       ["product", "/features", 3, Boxes, "NavigationBar.public.product"],
-      ["solutions", "/for", 3, UsersRound, "NavigationBar.public.solutions"],
+      ["solutions", "/for", 2, UsersRound, "NavigationBar.public.solutions"],
       ["integrations", "/features/integrations", 2, Plug, "NavigationBar.public.integrations"],
       ["resources", "/blog", 2, BookOpen, "NavigationBar.public.resources"],
     ]);
@@ -162,10 +149,12 @@ describe("public navigation preferences", () => {
     expect(hrefs, "the integrations group has no hub page of its own").not.toContain("/features/integrations");
 
     for (const group of publicNavGroups) {
-      expect(Object.keys(group).sort()).toEqual(["activeHref", "columns", "icon", "id", "links", "title"]);
+      expect(["activeHref", "columns", "icon", "id", "links", "sections", "title"]).toEqual(
+        expect.arrayContaining(Object.keys(group)),
+      );
       for (const link of group.links) {
         expect(
-          ["activeMatch", "href", "icon", "mark", "title"],
+          ["activeMatch", "href", "icon", "mark", "preview", "section", "title"],
           `${link.href} carries a field the flat map does not render`,
         ).toEqual(expect.arrayContaining(Object.keys(link)));
       }
@@ -186,17 +175,37 @@ describe("public navigation preferences", () => {
       ["/docs/mcp", Cable],
       ["/features/all", Boxes],
     ]);
-    expect(iconLinks("solutions")).toEqual([
-      ["/for/professional-services", BriefcaseBusiness],
-      ["/for/agencies", Megaphone],
-      ["/for/consultants", Presentation],
-      ["/for/recruiting", UserRoundSearch],
-      ["/for/freelancers", Laptop],
-      ["/for/law-firms", Scale],
-      ["/for/startups", Rocket],
+    expect(publicNavGroup("solutions").links.map((link) => [link.href, link.section])).toEqual([
+      ...SOLUTION_CATALOG.map((solution) => [solution.landingPath, solution.group]),
+      ["/for/professional-services", "more"],
+      ["/for", "more"],
+    ]);
+    expect(iconLinks("solutions").slice(0, 5)).toEqual([
       ["/for/smb", Store],
+      ["/for/consultants", Presentation],
+      ["/for/agencies", Megaphone],
+      ["/for/freelancers", Laptop],
+      ["/for/startups", Rocket],
+    ]);
+    expect(iconLinks("solutions").slice(-2)).toEqual([
+      ["/for/professional-services", BriefcaseBusiness],
       ["/for", UsersRound],
     ]);
+    expect(publicNavGroup("solutions").links.filter((link) => link.preview)).toHaveLength(SOLUTION_CATALOG.length);
+    expect(hrefs).not.toContain("/for/recruiting");
+    expect(hrefs).not.toContain("/for/law-firms");
+
+    for (const locale of PARTIAL_MARKETING_LOCALES) {
+      const solutionHrefs = resolvePublicNavGroups(translationKey, locale)
+        .find((group) => group.id === "solutions")
+        ?.links.map((link) => link.href);
+      expect(solutionHrefs).toEqual([
+        ...SOLUTION_CATALOG.filter((solution) => solution.publicLocales.includes(locale)).map(
+          (solution) => solution.landingPath,
+        ),
+        ...["/for/professional-services", "/for"].filter((href) => isMarketingPathPublished(locale, href)),
+      ]);
+    }
     expect(iconLinks("resources")).toEqual([
       ["/docs", BookOpen],
       ["/blog", BookOpen],
@@ -235,17 +244,9 @@ describe("public navigation preferences", () => {
     // A native disclosure ships its links in the server HTML whether or not it is open, and
     // `name` gives one-open-at-a-time without a controlled value. Radix Accordion bought the same
     // behaviour for 3.3 KB of JavaScript on every marketing page.
-    expect(
-      navbar,
-      "the mobile disclosure has to be native to render closed",
-    ).toContain("<details");
-    expect(navbar, "one mobile group open at a time").toContain(
-      'name="public-nav-mobile"',
-    );
-    expect(
-      navbar,
-      "a disclosure list does not need an overlay primitive",
-    ).not.toContain("<Accordion");
+    expect(navbar, "the mobile disclosure has to be native to render closed").toContain("<details");
+    expect(navbar, "one mobile group open at a time").toContain('name="public-nav-mobile"');
+    expect(navbar, "a disclosure list does not need an overlay primitive").not.toContain("<Accordion");
     expect(navbar).toContain("<MarketingContainer");
     expect(menu).toContain("<Popover");
     expect(menu).toContain("<PopoverAnchor");
@@ -255,9 +256,7 @@ describe("public navigation preferences", () => {
     expect(menu).not.toContain("NavigationMenu");
     expect(menu).not.toContain('className="fixed');
     expect(menu).not.toContain("DropdownMenu");
-    expect(menu).not.toMatch(
-      /bg-(?:red|orange|amber|yellow|green|blue|violet|purple)-/u,
-    );
+    expect(menu).not.toMatch(/bg-(?:red|orange|amber|yellow|green|blue|violet|purple)-/u);
 
     expect(navbar).not.toContain('href="/docs"');
     expect(publicNavGroup("resources").links.filter((link) => link.href === "/docs")).toHaveLength(1);
@@ -267,7 +266,8 @@ describe("public navigation preferences", () => {
 
     expect(menu).toContain("group.links.map");
     expect(menu).toContain('group.columns === 3 ? "grid-cols-3" : "grid-cols-2"');
-    expect(menu).not.toContain("group.sections");
+    expect(menu).toContain("group.sections ? renderSectionedPanel(group, expanded) : renderGridPanel(group, expanded)");
+    expect(publicNavGroups.filter((group) => group.sections).map((group) => group.id)).toEqual(["solutions"]);
     expect(menu).not.toContain("group.description");
     expect(menu).not.toContain("<section");
     expect(menu).not.toContain("<footer");
@@ -289,10 +289,9 @@ describe("public navigation preferences", () => {
     expect(menu).toContain('href="/docs"');
 
     expect(mobile.match(/mobileOverviewRowClassName/gu)).toHaveLength(2);
-    expect(
-      mobile,
-      "a group row has to look like the flat mobile links beside it",
-    ).toMatch(/<summary\s+className=\{cn\(\s*mobileOverviewRowClassName/u);
+    expect(mobile, "a group row has to look like the flat mobile links beside it").toMatch(
+      /<summary\s+className=\{cn\(\s*mobileOverviewRowClassName/u,
+    );
     for (const href of ["/pricing"]) {
       const hrefIndex = mobile.indexOf(`href="${href}"`);
       const linkStart = mobile.lastIndexOf("<AppLink", hrefIndex);
@@ -328,10 +327,7 @@ describe("public navigation preferences", () => {
       "https://startupfa.me/s/customermates",
       "https://open-launch.com/projects/customermates",
     ]) {
-      expect(
-        badges,
-        `${href} is missing from the Featured On proof rail`,
-      ).toContain(href);
+      expect(badges, `${href} is missing from the Featured On proof rail`).toContain(href);
     }
 
     for (const badgeAsset of [
@@ -364,84 +360,46 @@ describe("public navigation preferences", () => {
     // rendered-but-closed workaround makes Radix aria-hide the rest of the page and swallow the
     // trigger's own pointerdown. A native disclosure ships every anchor in the server HTML instead,
     // which is what lets /de be discovered by a crawler that never opens the menu.
-    expect(
-      menu,
-      "a portalled menu ships no anchors to a crawler",
-    ).not.toContain("DropdownMenu");
-    expect(menu, "the disclosure has to be native to render closed").toContain(
-      "<details",
+    expect(menu, "a portalled menu ships no anchors to a crawler").not.toContain("DropdownMenu");
+    expect(menu, "the disclosure has to be native to render closed").toContain("<details");
+    expect(menu, "the trigger has to be native to render closed").toContain("<summary");
+    expect(menu, "each locale needs a real anchor, not a button").toContain("hrefLang={locale}");
+    expect(menu, "the anchor must resolve to this page in the other locale").toContain(
+      "buildLocalePath(locale, pathname)",
     );
-    expect(menu, "the trigger has to be native to render closed").toContain(
-      "<summary",
-    );
-    expect(menu, "each locale needs a real anchor, not a button").toContain(
-      "hrefLang={locale}",
-    );
-    expect(
-      menu,
-      "the anchor must resolve to this page in the other locale",
-    ).toContain("buildLocalePath(locale, pathname)");
-    expect(menu, "a modified click must still open a new tab").toContain(
-      "event.metaKey",
-    );
-    expect(
-      menu,
-      "the unsaved-changes guard still owns same-tab navigation",
-    ).toContain("navigationGuard.tryNavigate");
-    expect(menu, "the trigger shows the locale it is currently on").toContain(
-      "currentLocale.toUpperCase()",
-    );
+    expect(menu, "a modified click must still open a new tab").toContain("event.metaKey");
+    expect(menu, "the unsaved-changes guard still owns same-tab navigation").toContain("navigationGuard.tryNavigate");
+    expect(menu, "the trigger shows the locale it is currently on").toContain("currentLocale.toUpperCase()");
     // Radix Avatar resolves its source with `new Image()` to decide a loading state, so the flags
     // were fetched from flagcdn.com on every marketing page even though the disclosure is closed.
     // A lazy <img> inside a closed <details> is never requested.
-    expect(menu, "the flag must not be fetched until the menu opens").toContain(
-      'loading="lazy"',
-    );
-    expect(menu, "the flag still comes from the locale registry").toContain(
-      "flagCodeFor(locale)",
-    );
+    expect(menu, "the flag must not be fetched until the menu opens").toContain('loading="lazy"');
+    expect(menu, "the flag still comes from the locale registry").toContain("flagCodeFor(locale)");
     // The avatar primitive also hid a flag that never loaded. A bare <img> paints the browser's
     // broken-image glyph instead, whenever a blocker or an outage stops flagcdn.com.
     expect(menu, "a flag that fails to load keeps its slot but paints nothing").toContain(
       'event.currentTarget.style.visibility = "hidden"',
     );
-    expect(
-      menu,
-      "a portalled avatar primitive ships a request for a menu nobody opened",
-    ).not.toContain("FormAutocompleteCountryItem");
+    expect(menu, "a portalled avatar primitive ships a request for a menu nobody opened").not.toContain(
+      "FormAutocompleteCountryItem",
+    );
   });
 
   it("leaves no import of the retired dropdown-based selector", () => {
-    expect(
-      existsSync(join(REPO_ROOT, "components/shared/language-selector.tsx")),
-    ).toBe(false);
+    expect(existsSync(join(REPO_ROOT, "components/shared/language-selector.tsx"))).toBe(false);
 
-    const stragglers = sourceFiles().filter((file) =>
-      readFileSync(file, "utf8").includes("language-selector"),
-    );
-    expect(stragglers.map((file) => file.replace(REPO_ROOT + "/", ""))).toEqual(
-      [],
-    );
+    const stragglers = sourceFiles().filter((file) => readFileSync(file, "utf8").includes("language-selector"));
+    expect(stragglers.map((file) => file.replace(REPO_ROOT + "/", ""))).toEqual([]);
   });
 
   it("toggles directly between the resolved light and dark themes", () => {
     const themeSwitcher = read("components/shared/theme-switcher.tsx");
 
-    expect(themeSwitcher).toContain(
-      'resolvedTheme === "dark" ? "dark" : "light"',
-    );
-    expect(themeSwitcher).toContain(
-      'selectedTheme === "dark" ? "light" : "dark"',
-    );
-    expect(themeSwitcher).toContain(
-      'import type { Theme } from "@/generated/prisma"',
-    );
-    expect(themeSwitcher).not.toContain(
-      'import { Theme } from "@/generated/prisma"',
-    );
-    expect(themeSwitcher).toContain(
-      '${t("Common.ariaLabels.themeSwitcher")}: ${selectedThemeLabel}',
-    );
+    expect(themeSwitcher).toContain('resolvedTheme === "dark" ? "dark" : "light"');
+    expect(themeSwitcher).toContain('selectedTheme === "dark" ? "light" : "dark"');
+    expect(themeSwitcher).toContain('import type { Theme } from "@/generated/prisma"');
+    expect(themeSwitcher).not.toContain('import { Theme } from "@/generated/prisma"');
+    expect(themeSwitcher).toContain('${t("Common.ariaLabels.themeSwitcher")}: ${selectedThemeLabel}');
     expect(themeSwitcher).not.toContain("DropdownMenu");
   });
 });
