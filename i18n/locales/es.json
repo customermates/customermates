@@ -1704,6 +1704,7 @@
       "light": "Claro",
       "system": "Sistema"
     },
+    "unlimited": "ilimitado",
     "unnamed": "Sin nombre",
     "unsavedChanges": "Cambios sin guardar",
     "updatedOn": "Actualizado el {date}",
@@ -2446,6 +2447,11 @@
     "resetLinkSent": "Enlace de restablecimiento enviado a tu correo.",
     "sendCta": "Enviar el enlace de restablecimiento",
     "title": "Contraseña olvidada"
+  },
+  "ForHub": {
+    "allGuides": "Todas las guías por sector",
+    "byTeam": "Por equipo",
+    "byWorkflow": "Por flujo de trabajo"
   },
   "GlobalSearch": {
     "askMateWith": "Preguntar a Mate: {question}",

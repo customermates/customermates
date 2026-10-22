@@ -6,6 +6,7 @@ import {
   validateVisualBrief,
   visualSourceChecksum,
 } from "./visual-contract";
+import { contentLocaleOrDefault } from "@/i18n/locale-registry";
 
 export type GoldenVisualBrief = BrandIllustrationBrief & {
   id: `golden.${VisualPathway}`;
@@ -222,7 +223,7 @@ export function validateGoldenVisualBrief(value: unknown): GoldenVisualBrief {
   const brief = validateVisualBrief(value);
   if (brief.kind !== "brand-illustration") throw new Error("Golden visuals must be brand illustrations");
 
-  const golden = GOLDEN_VISUAL_BRIEFS[brief.pathway][brief.locale];
+  const golden = GOLDEN_VISUAL_BRIEFS[brief.pathway][contentLocaleOrDefault(brief.locale)];
   if (JSON.stringify(brief) !== JSON.stringify(golden))
     throw new Error(`${brief.id} does not exactly match the registered golden benchmark`);
 

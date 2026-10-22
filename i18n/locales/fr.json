@@ -1704,6 +1704,7 @@
       "light": "Clair",
       "system": "Système"
     },
+    "unlimited": "illimité",
     "unnamed": "Sans nom",
     "unsavedChanges": "Modifications non enregistrées",
     "updatedOn": "Mis à jour le {date}",
@@ -2446,6 +2447,11 @@
     "resetLinkSent": "Lien de réinitialisation envoyé par e-mail.",
     "sendCta": "Envoyer le lien de réinitialisation",
     "title": "Mot de passe oublié"
+  },
+  "ForHub": {
+    "allGuides": "Tous les guides par secteur",
+    "byTeam": "Par équipe",
+    "byWorkflow": "Par usage"
   },
   "GlobalSearch": {
     "askMateWith": "Demander à Mate : {question}",

@@ -1704,6 +1704,7 @@
       "light": "Chiaro",
       "system": "Sistema"
     },
+    "unlimited": "illimitato",
     "unnamed": "Senza nome",
     "unsavedChanges": "Modifiche non salvate",
     "updatedOn": "Aggiornato il {date}",
@@ -2446,6 +2447,11 @@
     "resetLinkSent": "Link di reimpostazione inviato alla tua e-mail.",
     "sendCta": "Invia il link di reimpostazione",
     "title": "Password dimenticata"
+  },
+  "ForHub": {
+    "allGuides": "Tutte le guide per settore",
+    "byTeam": "Per team",
+    "byWorkflow": "Per flusso di lavoro"
   },
   "GlobalSearch": {
     "askMateWith": "Chiedi a Mate: {question}",

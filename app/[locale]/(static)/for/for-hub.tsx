@@ -5,11 +5,11 @@ import { getTranslations } from "next-intl/server";
 
 import { Footer } from "@/app/components/footer";
 import { HubPagination } from "@/components/marketing/hub-pagination";
-import { HubGrid, type HubGridItem } from "@/components/marketing/hub-grid";
+import { HubGrid, type HubGridGroup, type HubGridItem } from "@/components/marketing/hub-grid";
 import { CTASection } from "@/components/marketing/cta-section";
 import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
-import { forPagesSource, forSource } from "@/core/fumadocs/source";
+import { featurePagesSource, forPagesSource, forSource } from "@/core/fumadocs/source";
 import {
   hubPageCountForSource,
   hubPageHref,
@@ -17,7 +17,49 @@ import {
   resolveHubPageSegment,
 } from "@/core/seo/hub-pagination";
 import { breadcrumbListSchema } from "@/core/seo/schemas";
-import { DEFAULT_LOCALE, contentLocaleOrDefault, formattingTagFor } from "@/i18n/locale-registry";
+import { SOLUTION_CATALOG, type SolutionGroup } from "@/core/solutions/solution-catalog";
+import {
+  DEFAULT_LOCALE,
+  type MarketingLocale,
+  formattingTagFor,
+  marketingLocaleOrDefault,
+} from "@/i18n/locale-registry";
+
+const PROFESSIONAL_SERVICES_PATH = "/for/professional-services";
+
+function landingItem(landingPath: string, locale: MarketingLocale): HubGridItem | null {
+  const [, base, slug] = landingPath.split("/");
+  if (!slug) return null;
+
+  if (base === "for") {
+    const page = forPagesSource.getPage([slug], locale);
+    return page ? { description: page.data.description, href: landingPath, name: page.data.industryName } : null;
+  }
+
+  if (base === "features") {
+    const page = featurePagesSource.getPage([slug], locale);
+    return page ? { description: page.data.description, href: landingPath, name: page.data.featureName } : null;
+  }
+
+  return null;
+}
+
+function solutionItems(group: SolutionGroup, locale: MarketingLocale): HubGridItem[] {
+  return SOLUTION_CATALOG.filter((entry) => entry.group === group && entry.publicLocales.includes(locale)).flatMap(
+    (entry) => landingItem(entry.landingPath, locale) ?? [],
+  );
+}
+
+export function forHubSolutionGroups(locale: MarketingLocale, titles: Record<SolutionGroup, string>): HubGridGroup[] {
+  return [
+    {
+      id: "team",
+      items: [...solutionItems("team", locale), ...[landingItem(PROFESSIONAL_SERVICES_PATH, locale) ?? []].flat()],
+      title: titles.team,
+    },
+    { id: "workflow", items: solutionItems("workflow", locale), title: titles.workflow },
+  ];
+}
 
 export function forHubPageCount(): number {
   return hubPageCountForSource(forPagesSource);
@@ -44,7 +86,7 @@ export async function generateForHubMetadata(locale: string, pageNumber: number)
 }
 
 export async function renderForHub(rawLocale: string, pageNumber: number) {
-  const locale = contentLocaleOrDefault(rawLocale);
+  const locale = marketingLocaleOrDefault(rawLocale);
   const page = forSource.getPage(["for"], locale);
 
   if (!page) notFound();
@@ -80,6 +122,11 @@ export async function renderForHub(rawLocale: string, pageNumber: number) {
       />
 
       <HubGrid
+        groups={
+          paginated.page === 1
+            ? forHubSolutionGroups(locale, { team: t("ForHub.byTeam"), workflow: t("ForHub.byWorkflow") })
+            : []
+        }
         hero={{
           ...page.data.hero,
           title:
@@ -88,6 +135,7 @@ export async function renderForHub(rawLocale: string, pageNumber: number) {
               : page.data.hero.title,
         }}
         items={items}
+        resultsTitle={paginated.page === 1 ? t("ForHub.allGuides") : undefined}
       />
 
       <HubPagination

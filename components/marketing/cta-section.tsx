@@ -4,7 +4,7 @@ import { ArrowUpRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ORGANIZATION_NAME } from "@/core/seo/schemas";
-import { IntlLink } from "@/i18n/navigation";
+import { AppLink } from "@/components/shared/app-link";
 
 import { MarketingSection } from "./marketing-section";
 import { SectionGlow } from "./section-glow";
@@ -50,15 +50,16 @@ export function CTASection({
 
             <div className="mt-7 flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center">
               <Button asChild className="w-full sm:w-auto" size="lg" variant="default">
-                <IntlLink href={buttonLeftHref} prefetch={contentLinkPrefetch(buttonLeftHref)}>
+                <AppLink appearance="unstyled" href={buttonLeftHref} prefetch={contentLinkPrefetch(buttonLeftHref)}>
                   {buttonLeftText}
 
                   <ArrowUpRight aria-hidden className="size-4" />
-                </IntlLink>
+                </AppLink>
               </Button>
 
               <Button asChild className="glass-surface w-full sm:w-auto" size="lg" variant="ghost">
-                <IntlLink
+                <AppLink
+                  appearance="unstyled"
                   href={buttonRightHref}
                   prefetch={contentLinkPrefetch(buttonRightHref)}
                   rel={buttonRightIsExternal ? "noopener noreferrer" : undefined}
@@ -67,7 +68,7 @@ export function CTASection({
                   {buttonRightText}
 
                   <ArrowUpRight aria-hidden className="size-4" />
-                </IntlLink>
+                </AppLink>
               </Button>
             </div>
 

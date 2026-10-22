@@ -15,8 +15,8 @@ import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { forPagesSource } from "@/core/fumadocs/source";
 import { getMDXComponents } from "@/core/fumadocs/mdx-components";
 import { breadcrumbListSchema } from "@/core/seo/schemas";
-import { contentLocaleOrDefault } from "@/i18n/locale-registry";
-import { enableStaticLocale } from "@/i18n/static-locale";
+import { marketingLocaleOrDefault } from "@/i18n/locale-registry";
+import { enableMarketingLocale } from "@/i18n/static-locale";
 import { localizedSlugParams } from "@/core/fumadocs/static-params";
 
 interface Props {
@@ -41,14 +41,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ForIndustryPage({ params }: Props) {
-  await enableStaticLocale(params);
+  const { industry } = await params;
+  await enableMarketingLocale(params, `/for/${industry}`);
 
-  const [rawLocale, t, { industry }] = await Promise.all([
-    getLocale(),
-    getTranslations("StructuredData.breadcrumb"),
-    params,
-  ]);
-  const locale = contentLocaleOrDefault(rawLocale);
+  const [rawLocale, t] = await Promise.all([getLocale(), getTranslations("StructuredData.breadcrumb")]);
+  const locale = marketingLocaleOrDefault(rawLocale);
   const page = forPagesSource.getPage([industry], locale);
 
   if (!page) notFound();

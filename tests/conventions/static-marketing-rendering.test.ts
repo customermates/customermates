@@ -43,7 +43,9 @@ describe("static marketing rendering", () => {
   it("sets the request locale from the URL in every marketing page, so next-intl never reads a header", () => {
     const missing = staticSegments()
       .filter((path) => path.endsWith("page.tsx") || path === join(STATIC_ROOT, "layout.tsx"))
-      .filter((path) => !readFileSync(path, "utf8").includes("enableStaticLocale(params)"))
+      .filter(
+        (path) => !/\benable(?:Static|Marketing|MarketingShell)Locale\(params[,)]/u.test(readFileSync(path, "utf8")),
+      )
       .map((path) => relative(REPO_ROOT, path));
 
     expect(missing).toEqual([]);

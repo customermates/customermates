@@ -6,7 +6,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { GridPattern } from "@/components/shared/grid-pattern";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/core/utils/cn";
-import { IntlLink } from "@/i18n/navigation";
+import { AppLink } from "@/components/shared/app-link";
 
 import { AgplGithubBadge } from "./agpl-github-badge";
 import { HeadingText } from "./heading-text";
@@ -65,9 +65,9 @@ function HeroAction({ href, label, variant }: { href: string; label: string; var
           {content}
         </a>
       ) : (
-        <IntlLink href={href} prefetch={contentLinkPrefetch(href)}>
+        <AppLink appearance="unstyled" href={href} prefetch={contentLinkPrefetch(href)}>
           {content}
-        </IntlLink>
+        </AppLink>
       )}
     </Button>
   );

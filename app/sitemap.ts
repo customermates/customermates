@@ -6,7 +6,7 @@ import { assembleSitemap, latestDate, resolvePageLastModified } from "@/core/seo
 import { hubPageCountForSource, hubPageHref } from "@/core/seo/hub-pagination";
 import { LANDING_HUBS } from "@/core/seo/landing-hubs";
 import { isRetiredRoutePath } from "@/core/seo/route-aliases";
-import { CONTENT_LOCALES, stripLocalePrefix } from "@/i18n/locale-registry";
+import { MARKETING_LOCALES, isMarketingPathPublished, stripLocalePrefix } from "@/i18n/locale-registry";
 import { SITEMAP_CONTENT_ROUTES, SITEMAP_EXTRA_CONTENT_ROUTES } from "@/i18n/routing";
 import { ROUTE_SOURCE_MAP } from "@/core/fumadocs/route-source-map";
 
@@ -17,13 +17,14 @@ function collectLocalizedRoutes(): LocalizedRoute[] {
   const emitted = new Set<string>();
 
   const push = (route: LocalizedRoute) => {
+    if (!isMarketingPathPublished(route.locale, route.routePath)) return;
     const key = `${route.locale}:${route.routePath}`;
     if (emitted.has(key)) return;
     emitted.add(key);
     localizedRoutes.push(route);
   };
 
-  for (const locale of CONTENT_LOCALES) {
+  for (const locale of MARKETING_LOCALES) {
     for (const route of SITEMAP_CONTENT_ROUTES) {
       const routeMapping = ROUTE_SOURCE_MAP[route];
 

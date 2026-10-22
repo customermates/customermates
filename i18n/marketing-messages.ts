@@ -10,6 +10,7 @@ export const MARKETING_NAMESPACES = [
   "ErrorCard",
   "FAQSection",
   "Footer",
+  "ForHub",
   "HomepagePricing",
   "HomepageStatsRow",
   "Loading",

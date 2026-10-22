@@ -8,6 +8,8 @@ import {
   buildLocalePath,
   isAppLocale,
   isContentLocale,
+  isMarketingPathPublished,
+  isPartialMarketingLocale,
   routingLocaleFromPathname,
   routingLocaleFromUrlSegment,
   stripLocalePrefix,
@@ -259,6 +261,12 @@ async function routePageRequest(
   }
 
   if (isContentPage(req)) {
+    if (isPartialMarketingLocale(currentLocale)) {
+      return isMarketingPathPublished(currentLocale, stripLocalePrefix(pathname))
+        ? intlAppMiddleware(req)
+        : notFoundResponse(req, currentLocale);
+    }
+
     if (!isContentLocale(currentLocale))
       return localeRedirect(DEFAULT_LOCALE, stripLocalePrefix(pathname), base, req.nextUrl.search);
 

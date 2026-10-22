@@ -135,7 +135,7 @@ function normalizedRoutePath(routePath: string): string {
   return trimmed === "" ? "/" : trimmed.toLowerCase();
 }
 
-export function isMarketingPathPublished(locale: unknown, routePath: string): boolean {
+export function isMarketingPathPublished(locale: unknown, routePath: string): locale is MarketingLocale {
   if (isContentLocale(locale)) return true;
   if (!isPartialMarketingLocale(locale)) return false;
   const paths = marketingPathsOf(locale);

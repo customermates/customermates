@@ -1704,6 +1704,7 @@
       "light": "Hell",
       "system": "System"
     },
+    "unlimited": "unbegrenzt",
     "unnamed": "Unbenannt",
     "unsavedChanges": "Ungespeicherte Änderungen",
     "updatedOn": "Aktualisiert am {date}",
@@ -2446,6 +2447,11 @@
     "resetLinkSent": "Link zum Zurücksetzen an deine E-Mail gesendet.",
     "sendCta": "Link zum Zurücksetzen senden",
     "title": "Passwort vergessen"
+  },
+  "ForHub": {
+    "allGuides": "Alle Branchenleitfäden",
+    "byTeam": "Nach Team",
+    "byWorkflow": "Nach Arbeitsablauf"
   },
   "GlobalSearch": {
     "askMateWith": "Mate fragen: {question}",

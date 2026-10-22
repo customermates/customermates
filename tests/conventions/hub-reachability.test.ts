@@ -54,7 +54,10 @@ const routeFixtures = vi.hoisted(() => {
 });
 
 vi.mock("@/core/fumadocs/source", () => {
-  const collection = (pages: readonly unknown[]) => ({ getPages: () => pages });
+  const collection = (pages: readonly { url: string }[]) => ({
+    getPage: ([slug]: string[]) => pages.find((page) => page.url.endsWith(`/${slug}`)),
+    getPages: () => pages,
+  });
   const hub = (title: string) => ({
     getPage: () => ({
       data: {

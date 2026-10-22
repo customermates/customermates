@@ -29,10 +29,11 @@ const REDECLARED_LOCALE_ALIAS =
   /\(typeof\s+(?:REGISTERED_LOCALES|ROUTING_LOCALES|APP_LOCALES|CONTENT_LOCALES|FORMATTING_LOCALES)\)\[number\]/;
 
 const DOMAIN_EXPECTATIONS: Array<{ file: string; imports: string }> = [
-  { file: "app/sitemap.ts", imports: "CONTENT_LOCALES" },
+  { file: "app/sitemap.ts", imports: "MARKETING_LOCALES" },
   { file: "core/fumadocs/i18n.ts", imports: "CONTENT_LOCALES" },
-  { file: "core/fumadocs/metadata.ts", imports: "CONTENT_LOCALES" },
-  { file: "components/shared/locale-menu.tsx", imports: "CONTENT_LOCALES" },
+  { file: "core/fumadocs/i18n.ts", imports: "MARKETING_LOCALES" },
+  { file: "core/fumadocs/metadata.ts", imports: "marketingLocalesForPath" },
+  { file: "components/shared/locale-menu.tsx", imports: "marketingLocalesForPath" },
   { file: "scripts/generate-raw-docs-manifest.ts", imports: "CONTENT_LOCALES" },
   { file: "app/[locale]/(protected)/settings/(account)/components/profile-settings-form.tsx", imports: "DISPLAY_LANGUAGE_VALUES" },
   {
@@ -375,12 +376,7 @@ function hardCodedLocaleComparisonsInSource(source: string, repoPath: string): s
   return found;
 }
 
-const ALLOWED_LOCALE_BRANCHING = new Map([
-  [
-    "core/commercial/commercial-tokens.ts",
-    "Build-time MDX token expansion picks one of two literals; content locales are the two the tokens ship in.",
-  ],
-]);
+const ALLOWED_LOCALE_BRANCHING = new Map<string, string>([]);
 
 const ALLOWED_LOCALE_KEYED_TABLES = new Map([
   ["scripts/audit-i18n.ts", "The translation glossary is reference data for auditing catalogs, never rendered copy."],

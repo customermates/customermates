@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { HomepageRootMetadata } from "@/core/fumadocs/schemas/homepage";
-import type { ContentLocale } from "@/i18n/locale-registry";
+import type { MarketingLocale } from "@/i18n/locale-registry";
 
 import { env } from "@/env";
 import { buildAlternateLanguages } from "@/core/seo/alternates";
@@ -18,9 +18,9 @@ export const GLOBAL_METADATA: Metadata = {
 };
 
 type BuildHomepageMetadataParams = {
-  locale: ContentLocale;
+  locale: MarketingLocale;
   rootMetadata: HomepageRootMetadata;
-  translatedLocales: readonly ContentLocale[];
+  translatedLocales: readonly MarketingLocale[];
 };
 
 export function buildHomepageMetadata({

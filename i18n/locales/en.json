@@ -1704,6 +1704,7 @@
       "light": "Light",
       "system": "System"
     },
+    "unlimited": "unlimited",
     "unnamed": "Unnamed",
     "unsavedChanges": "Unsaved changes",
     "updatedOn": "Updated {date}",
@@ -2446,6 +2447,11 @@
     "resetLinkSent": "Reset link sent to your email.",
     "sendCta": "Send reset link",
     "title": "Forgot password"
+  },
+  "ForHub": {
+    "allGuides": "All industry guides",
+    "byTeam": "By team",
+    "byWorkflow": "By workflow"
   },
   "GlobalSearch": {
     "askMateWith": "Ask Mate: {question}",

@@ -22,10 +22,35 @@ import { AppLink, contentHrefForLocale, protectedHrefFromContent } from "../app-
 
 describe("contentHrefForLocale", () => {
   it("forces a document navigation to the default content locale from an app-only locale", () => {
-    expect(contentHrefForLocale("/pricing", "fr")).toBe("/en/pricing");
+    expect(contentHrefForLocale("/pricing", "it")).toBe("/en/pricing");
     expect(contentHrefForLocale("/docs?tab=api#oauth", "it")).toBe("/en/docs?tab=api#oauth");
-    expect(contentHrefForLocale("/fr/pricing", "es")).toBe("/en/pricing");
+    expect(contentHrefForLocale("/fr/blog", "es")).toBe("/en/blog");
     expect(contentHrefForLocale("/de/terms", "it")).toBe("/de/terms");
+    expect(contentHrefForLocale("/contact", "es")).toBe("/en/contact");
+  });
+
+  it("keeps a partial marketing locale on its published pages and falls back to the default elsewhere", () => {
+    expect(contentHrefForLocale("/pricing", "fr")).toBeNull();
+    expect(contentHrefForLocale("/features/pipeline", "fr")).toBeNull();
+    expect(contentHrefForLocale("/fr/pricing", "es")).toBe("/fr/pricing");
+    expect(contentHrefForLocale("/docs/app-records", "fr")).toBe("/en/docs/app-records");
+    expect(contentHrefForLocale("/privacy", "fr")).toBe("/en/privacy");
+    expect(contentHrefForLocale("/contact", "fr")).toBe("/en/contact");
+    expect(contentHrefForLocale("/for/consultants", "fr")).toBe("/en/for/consultants");
+    expect(contentHrefForLocale("/fr/blog", "de")).toBe("/de/blog");
+  });
+
+  it("marks a fallback link with the language it opens in", () => {
+    routeState.locale = "fr";
+    routeState.pathname = "/pricing";
+    const fallback = renderToStaticMarkup(createElement(AppLink, { href: "/docs/app-records" }, "Fiches"));
+    expect(fallback).toContain('href="/en/docs/app-records"');
+    expect(fallback).toContain('hrefLang="en"');
+    expect(fallback).toMatch(/<span[^>]*lang="en"[^>]*>en<\/span>/u);
+
+    const published = renderToStaticMarkup(createElement(AppLink, { href: "/features/pipeline" }, "Pipeline"));
+    expect(published).toContain('data-intl-link="true"');
+    expect(published).not.toContain("hrefLang");
   });
 
   it("keeps content links on the client router when the current locale has content", () => {
@@ -36,7 +61,7 @@ describe("contentHrefForLocale", () => {
   });
 
   it("does not rewrite app routes or external links", () => {
-    expect(contentHrefForLocale("/contact", "fr")).toBeNull();
+    expect(contentHrefForLocale("/dashboard", "fr")).toBeNull();
     expect(contentHrefForLocale("https://example.com/pricing", "fr")).toBeNull();
   });
 

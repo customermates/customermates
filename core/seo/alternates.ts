@@ -1,4 +1,4 @@
-import type { ContentLocale } from "@/i18n/locale-registry";
+import type { MarketingLocale } from "@/i18n/locale-registry";
 
 import { DEFAULT_LOCALE, buildLocalePath } from "@/i18n/locale-registry";
 
@@ -6,7 +6,7 @@ const RECIPROCAL_ALTERNATE_MINIMUM = 2;
 
 export function buildAlternateLanguages(
   routePath: string,
-  availableLocales: readonly ContentLocale[],
+  availableLocales: readonly MarketingLocale[],
   baseUrl: string,
 ): Record<string, string> | undefined {
   const distinctLocales = [...new Set(availableLocales)];

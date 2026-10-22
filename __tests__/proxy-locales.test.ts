@@ -17,6 +17,7 @@ vi.mock("@/i18n/locale-registry", () => {
     formattingTag: string;
     flagCode: string;
     validationTag: string;
+    marketingPaths: "all" | readonly string[];
   };
 
   const registry: Record<string, Capabilities> = {
@@ -27,6 +28,7 @@ vi.mock("@/i18n/locale-registry", () => {
       formattingTag: "en-US",
       flagCode: "us",
       validationTag: "en",
+      marketingPaths: "all",
     },
     de: {
       offeredAsDisplayLanguage: true,
@@ -35,6 +37,7 @@ vi.mock("@/i18n/locale-registry", () => {
       formattingTag: "de-DE",
       flagCode: "de",
       validationTag: "de",
+      marketingPaths: "all",
     },
     fr: {
       offeredAsDisplayLanguage: true,
@@ -43,6 +46,7 @@ vi.mock("@/i18n/locale-registry", () => {
       formattingTag: "fr-FR",
       flagCode: "fr",
       validationTag: "fr",
+      marketingPaths: [],
     },
     nl: {
       offeredAsDisplayLanguage: false,
@@ -51,6 +55,16 @@ vi.mock("@/i18n/locale-registry", () => {
       formattingTag: "nl-NL",
       flagCode: "nl",
       validationTag: "nl",
+      marketingPaths: "all",
+    },
+    it: {
+      offeredAsDisplayLanguage: true,
+      offeredAsFormattingLocale: true,
+      hasPublishedContent: false,
+      formattingTag: "it-IT",
+      flagCode: "it",
+      validationTag: "it",
+      marketingPaths: ["/", "/pricing"],
     },
   };
 
@@ -58,6 +72,17 @@ vi.mock("@/i18n/locale-registry", () => {
     typeof value === "string" && Object.prototype.hasOwnProperty.call(registry, value);
   const isAppLocale = (value: unknown) => isRoutingLocale(value) && registry[value].offeredAsDisplayLanguage;
   const isContentLocale = (value: unknown) => isRoutingLocale(value) && registry[value].hasPublishedContent;
+  const isPartialMarketingLocale = (value: unknown) => {
+    if (!isRoutingLocale(value) || isContentLocale(value)) return false;
+    const paths = registry[value].marketingPaths;
+    return paths !== "all" && paths.length > 0;
+  };
+  const isMarketingPathPublished = (value: unknown, routePath: string) => {
+    if (isContentLocale(value)) return true;
+    if (!isPartialMarketingLocale(value)) return false;
+    const paths = registry[value as string].marketingPaths;
+    return paths !== "all" && paths.includes(routePath.replace(/\/+$/u, "") || "/");
+  };
   const ROUTING_LOCALES = Object.keys(registry);
 
   return {
@@ -69,6 +94,8 @@ vi.mock("@/i18n/locale-registry", () => {
     isRoutingLocale,
     isAppLocale,
     isContentLocale,
+    isPartialMarketingLocale,
+    isMarketingPathPublished,
     appLocaleOrDefault: (value: unknown) => (isAppLocale(value) ? value : "en"),
     contentLocaleOrDefault: (value: unknown) => (isContentLocale(value) ? value : "en"),
     appLocaleFromLanguageTag: (value: string) => {
@@ -171,7 +198,7 @@ const PATHS = [
 
 describe("locale routing configuration", () => {
   it("recognises every routing locale as a url prefix", () => {
-    expect([...routing.locales].sort()).toEqual(["de", "en", "fr", "nl"]);
+    expect([...routing.locales].sort()).toEqual(["de", "en", "fr", "it", "nl"]);
   });
 
   it("negotiates only into locales that have published content", () => {
@@ -183,7 +210,7 @@ describe("locale routing configuration", () => {
   });
 
   it("routes application pages only through application locales", () => {
-    expect([...appRouting.locales].sort()).toEqual(["de", "en", "fr"]);
+    expect([...appRouting.locales].sort()).toEqual(["de", "en", "fr", "it"]);
     expect(appRouting.locales).not.toContain("nl");
   });
 
@@ -302,6 +329,27 @@ describe("proxy locale routing", () => {
     expect(status).toBe(307);
     expect(location).toContain("/en");
     expect(location).not.toContain("/fr");
+  });
+
+  it("serves a partial marketing locale only on its published paths", async () => {
+    for (const path of ["/it", "/it/pricing"]) {
+      const { status, location, response } = await call(path);
+      expect(location, `${path} should render, not redirect`).toBeNull();
+      expect(status).toBe(200);
+      expect(response.headers.get("x-middleware-rewrite")).toBeNull();
+    }
+
+    for (const path of ["/it/blog", "/it/for/smb", "/it/docs"]) {
+      const { location, response } = await call(path);
+      expect(location, `${path} must not fall back to another language`).toBeNull();
+      expect(response.headers.get("x-middleware-rewrite"), `${path} should render the localized 404`).toBe(
+        "http://localhost:4000/it/_missing-page",
+      );
+    }
+
+    const dashboard = await call("/it/dashboard");
+    expect(dashboard.status).toBe(307);
+    expect(dashboard.location).toContain("/it/auth/signin");
   });
 
   it("serves the locale root of a content locale", async () => {

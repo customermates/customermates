@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { parse } from "yaml";
 
-import { CONTENT_LOCALES } from "@/i18n/locale-registry";
+import { CONTENT_LOCALES, MARKETING_LOCALES } from "@/i18n/locale-registry";
 import { resolveCommercialTokens } from "@/core/commercial/commercial-tokens";
 import { resolveDerivedTokens } from "@/core/content/derived-tokens";
 
@@ -69,7 +69,7 @@ const slugs: Record<string, Record<string, string[]>> = {};
 
 for (const collection of SLUG_COLLECTIONS) {
   slugs[collection] = {};
-  for (const locale of LOCALES) {
+  for (const locale of MARKETING_LOCALES) {
     let files: string[] = [];
     try {
       files = readdirSync(path.join(root, collection, locale));
