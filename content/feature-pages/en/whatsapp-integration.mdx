@@ -1,0 +1,172 @@
+---
+title: "WhatsApp CRM Integration: Chats Next to Customer Records"
+description: "Connect a WhatsApp account to the Customermates Cloud inbox from Pro, reply to chats and match contacts by phone number. Not the WhatsApp Business API."
+featureName: WhatsApp CRM Integration
+
+relatedHrefs:
+  - /features/unified-inbox
+  - /docs/app-inbox
+  - /features/linkedin-integration
+  - /features/contact-management
+
+hero:
+  title: WhatsApp chats next to the customer record
+  description: "For small teams whose customers write on WhatsApp: connect a WhatsApp account through our messaging provider, answer chats in the CRM inbox and match each contact by phone number. This is not the official WhatsApp Business API, so there are no templates, broadcasts or chatbots. Customermates Cloud from Pro, not Starter or self-hosted."
+  buttonLeftText: Start a Pro trial
+  buttonLeftHref: /auth/signup
+  buttonRightText: Explore the workspace
+  buttonRightHref: https://demo.customermates.com/en/w/whatsapp
+  hint: "Cloud only • Pro or above • Not the WhatsApp Business API"
+  showOpenSourceBadge: false
+
+cta:
+  action: Check WhatsApp against your own customer conversations
+  description: Explore the example WhatsApp workspace, then connect your WhatsApp account in a Pro trial and see whether your chats and contacts line up the way your team works.
+  buttonLeftText: Start a Pro trial
+  buttonLeftHref: /auth/signup
+  buttonRightText: Explore the workspace
+  buttonRightHref: https://demo.customermates.com/en/w/whatsapp
+  hint: "WhatsApp in the inbox requires Customermates Cloud Pro or above. Starter and self-hosted have no connected messaging accounts."
+---
+
+Many small businesses agree appointments, quotes and changes with customers on WhatsApp, while the customer record lives somewhere else. A **WhatsApp CRM integration** in Customermates puts those chats into the [unified inbox](/features/unified-inbox) on Customermates Cloud, next to the contact they belong to. You connect a WhatsApp account through our messaging provider by QR code. It is not the official WhatsApp Business API, and it is built for individual conversations, not for campaigns or automated messaging.
+
+<ArticleSummary title="At a glance">
+  <SummaryItem label="What connects">
+    One WhatsApp account per connected-account slot, linked by QR code through
+    the messaging provider. Individual and group chats come into the inbox.
+  </SummaryItem>
+  <SummaryItem label="Plan">
+    Customermates Cloud from Pro. Pro includes
+    [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per
+    user. Starter and self-hosted installations have no connected messaging
+    accounts.
+  </SummaryItem>
+  <SummaryItem label="CRM context">
+    Contacts are matched by the phone number in their Channels field. Linking a
+    chat to a deal or organization is an explicit step by a user or agent.
+  </SummaryItem>
+  <SummaryItem label="Not included">
+    No official WhatsApp Business API, message templates, campaigns, broadcasts,
+    sequences, chatbots, bulk sending or automation.
+  </SummaryItem>
+</ArticleSummary>
+
+## The example workspace: WhatsApp customer contact with sample data
+
+The demo above and the [example workspace](https://demo.customermates.com/en/w/whatsapp) use sample data, not a customer. The workspace has lists for contacts, organizations, deals and tasks. In the inbox, a WhatsApp chat sits beside the customer's contact record: the contact was matched by the phone number in its Channels field, and the chat was linked to an open deal under **Conversation records**, on purpose and by hand.
+
+These lists are an example. A new workspace starts without lists: on Customermates Cloud the AI workspace setup can build lists, stages, a dashboard and Knowledge Base pages from your description, once at onboarding and within its credit cap, or you skip it with **Start with an empty workspace**. Otherwise people with Configure rights create the lists and fields in Configure and import existing contacts from an Excel workbook. To match WhatsApp chats, the contacts list needs a Channels field.
+
+## What the WhatsApp connection does
+
+**Chats in the inbox.** After you connect, individual and group chats of the WhatsApp account are imported and new messages keep arriving. They appear in the same list as email, LinkedIn, Instagram and Telegram conversations, newest activity first.
+
+**Read and reply.** Open a chat, read the history and reply in the same chat. Attachments work where the provider connection supports them. You can keep a draft on an existing chat and send it later.
+
+**Start a chat from a phone number.** Start a new chat from a contact's phone number in international format, for example +49 followed by the number without the leading zero.
+
+**Contacts matched by phone number.** A phone number in a record's Channels field connects that record to the WhatsApp chats with that number. Ordinary phone fields are not used for matching. For a sender who has no record yet, open **Thread settings** and link the number to an existing contact or create one.
+
+**State kept in Customermates.** Mark a chat unread, open, closed or spam to organize the inbox. This state lives only in Customermates: closing a chat here does not archive or change it in WhatsApp.
+
+<Steps>
+  <Step title="Check the plan">
+    Use Customermates Cloud on Pro or above, or a trial. Your role needs Create
+    on Inbox messages to connect a channel.
+  </Step>
+  <Step title="Connect WhatsApp">
+    Open Settings › Channels, choose Connect channel and WhatsApp, then scan the
+    QR code with the WhatsApp app on your phone.
+  </Step>
+  <Step title="Match your contacts">
+    Add each customer's WhatsApp number to the Channels field of their contact
+    record, or link the sender from the chat's Thread settings.
+  </Step>
+  <Step title="Link the chat to a deal">
+    When a chat belongs to an open deal or organization, use Link record under
+    Conversation records. Customermates does not do this for you.
+  </Step>
+  <Step title="Reply and triage">
+    Answer in the chat, keep a draft if you need to check something first, and
+    set the state to open or closed as the conversation moves on.
+  </Step>
+</Steps>
+
+## What this WhatsApp CRM is not
+
+The connection goes through a messaging provider that links your WhatsApp account, similar to linking WhatsApp on a second device. That keeps setup simple, and it also sets clear limits.
+
+| You might expect                                      | In Customermates                                          |
+| ----------------------------------------------------- | --------------------------------------------------------- |
+| Official WhatsApp Business API or Cloud API           | Not used; the account connects through the messaging provider |
+| Message templates, campaigns, broadcasts, newsletters | Not available                                             |
+| Sequences, chatbots or automated replies              | Not available                                             |
+| Bulk sending to many numbers                          | Not available; every message is sent individually         |
+| Chat state synced back to WhatsApp                    | No; unread, open, closed and spam stay in Customermates   |
+| Chats logged to deals automatically                   | No; a user or agent links a chat explicitly               |
+| Guaranteed delivery or guaranteed message retention   | No guarantee; delivery and history depend on WhatsApp and the provider |
+
+Providers limit how fast messages can be read and sent, and new chats have their own budget. Customermates applies a conservative request budget per channel and pauses before WhatsApp would push back; the current numbers are in [messaging rate limits](/docs/messaging-rate-limits). Disconnecting the channel permanently deletes the chats and messages Customermates imported from it. Your WhatsApp account and WhatsApp's own terms stay yours. The messaging provider is listed on the [subprocessors page](/subprocessors).
+
+<AcquisitionCallout title="Built for conversations, not for campaigns" variant="boundary">
+  If you need approved message templates, broadcast lists, a chatbot or
+  automated follow-ups, you need a WhatsApp Business API provider. Customermates
+  covers the individual customer conversation next to the CRM record.
+</AcquisitionCallout>
+
+## Who sees which chats
+
+A new channel is private: only you see its chats, and no role, Admin included, can read a teammate's private conversations. On Pro you work with your own accounts and can share individual chats with teammates. Sharing a whole connected account, for example a team WhatsApp number one person connected, needs Business, Max or Enterprise.
+
+| Plan                   | Connected accounts per user                                    | Inbox sharing                                   |
+| ---------------------- | -------------------------------------------------------------- | ----------------------------------------------- |
+| Starter or self-hosted | None                                                           | No inbox                                        |
+| Pro                    | [[commercial.entitlement.pro.includedAccountsPerUser]]         | Your own accounts plus individually shared chats |
+| Business               | [[commercial.entitlement.business.includedAccountsPerUser]]    | Whole connected accounts can be shared          |
+| Max                    | [[commercial.entitlement.max.includedAccountsPerUser]]         | Whole connected accounts can be shared          |
+| Enterprise             | [[commercial.entitlement.enterprise.includedAccountsPerUser]] under fair-use terms | Whole connected accounts can be shared |
+
+The allowance is one shared pool across email, LinkedIn, WhatsApp, Instagram and Telegram. If one person needs WhatsApp and an email inbox, that person needs more than the Pro allowance. Current prices are on the [pricing page](/pricing); billing is monthly.
+
+## AI on your WhatsApp chats
+
+**Mate, in Customermates Cloud.** Mate can summarize a chat or draft a reply when you ask, within your plan's hosted AI credits. Mate sends a message as soon as you ask it to send, so say "draft" when you only want a draft. Mate is not available in self-hosted installations.
+
+**Your own AI client, through MCP.** Claude, ChatGPT and other MCP clients can read chats and save drafts through the [MCP server](/docs/mcp), using your own AI provider. Whether the client asks before it sends depends on the client, so check its confirmation behavior before you allow sending.
+
+## Frequently asked questions
+
+<Faq>
+<FaqItem question="Is this the official WhatsApp Business API?">
+No. Customermates connects a WhatsApp account through its messaging provider by QR code. It does not use the WhatsApp Business API or Cloud API, and it offers none of the API features such as approved templates.
+</FaqItem>
+
+<FaqItem question="Can I send broadcasts, templates or campaigns?">
+No. There are no broadcasts, newsletters, templates, campaigns, sequences or bulk sending. Every message is written and sent in one chat.
+</FaqItem>
+
+<FaqItem question="Which plans include WhatsApp?">
+Customermates Cloud from Pro, and the trial. Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user. Starter has no connected messaging accounts.
+</FaqItem>
+
+<FaqItem question="Does WhatsApp work in self-hosted Customermates?">
+No. Self-hosted installations use the Starter feature set: no connected messaging accounts, no inbox and no Mate. MCP with your own AI client still works for the core CRM records.
+</FaqItem>
+
+<FaqItem question="Are WhatsApp chats linked to deals automatically?">
+No. The contact is matched by the phone number in its Channels field. Linking a chat to a deal or organization is an explicit step under Conversation records, taken by a user or an agent.
+</FaqItem>
+
+<FaqItem question="If I close a chat in Customermates, does it change in WhatsApp?">
+No. Unread, open, closed and spam are Customermates states. They are not synced back to the WhatsApp app.
+</FaqItem>
+
+<FaqItem question="Does it handle group chats?">
+Yes. Individual and group chats of the connected account come into the inbox, and you can read and reply in them.
+</FaqItem>
+
+<FaqItem question="Does Customermates guarantee delivery or keep every message?">
+No. Delivery depends on WhatsApp and the messaging provider, and Customermates does not guarantee message retention. Disconnecting the channel deletes the chats imported from it.
+</FaqItem>
+</Faq>

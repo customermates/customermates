@@ -21,6 +21,7 @@ export const FEATURE_PRODUCT_DEMOS = {
   "simple-crm": { path: "/dashboard" },
   "task-management": { path: DEMO_RECORD_LIST_PATHS.tasks },
   "unified-inbox": { hostedBoundary: true, path: "/inbox" },
+  "whatsapp-integration": { hostedBoundary: true, path: "/inbox" },
   "workflow-automation": { path: "/settings/webhooks" },
 } as const satisfies Record<string, ProductDemoConfig>;
 
