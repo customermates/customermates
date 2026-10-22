@@ -2465,7 +2465,7 @@
       "badge": "Popolare",
       "compareText": "Confronta i piani",
       "ctaText": "Inizia gratis",
-      "featureBusiness": "Business: {accounts, plural, one {# account per utente} other {# account per utente}}, account condivisi e assistenza prioritaria",
+      "featureBusiness": "Business: {accounts, plural, one {# account per utente} other {# account per utente}}, condivisione di account interi nella posta in arrivo e assistenza prioritaria",
       "featurePro": "Pro: posta in arrivo unificata, {accounts, plural, one {# account collegato per utente} other {# account collegati per utente}}",
       "featureStarter": "Starter: il nucleo del CRM",
       "period": "/ utente / mese",
@@ -2489,7 +2489,7 @@
       "featureUsers": "Utenti dello spazio di lavoro",
       "period": "con licenza AGPL",
       "price": "Core gratuito",
-      "tag": "Esegui il core dell'applicazione con licenza AGPL e PostgreSQL sul tuo server tramite Docker Compose, con funzionalità Starter. I servizi esterni restano separati.",
+      "tag": "Esegui il core dell'applicazione con licenza AGPL e PostgreSQL sul tuo server tramite Docker Compose, con funzionalità Starter, senza posta in arrivo e senza IA ospitata. I servizi esterni restano separati.",
       "title": "Self-hosted"
     },
     "subtitle": "Piani trasparenti, senza costi nascosti. Ospita gratis il core con licenza AGPL; i servizi esterni restano separati. Oppure inizia sul Cloud senza carta di credito.",

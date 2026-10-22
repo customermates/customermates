@@ -2465,7 +2465,7 @@
       "badge": "Populaire",
       "compareText": "Comparer les formules",
       "ctaText": "Commencer gratuitement",
-      "featureBusiness": "Business : {accounts, plural, one {# compte par utilisateur} other {# comptes par utilisateur}}, comptes partagés et assistance prioritaire",
+      "featureBusiness": "Business : {accounts, plural, one {# compte par utilisateur} other {# comptes par utilisateur}}, partage de comptes entiers dans la boîte de réception et assistance prioritaire",
       "featurePro": "Pro : boîte de réception unifiée, {accounts, plural, one {# compte connecté par utilisateur} other {# comptes connectés par utilisateur}}",
       "featureStarter": "Starter : le cœur du CRM",
       "period": "/ utilisateur / mois",
@@ -2489,7 +2489,7 @@
       "featureUsers": "Utilisateurs de l’espace de travail",
       "period": "sous AGPL",
       "price": "Cœur gratuit",
-      "tag": "Exécutez le cœur de l’application sous AGPL et PostgreSQL sur votre serveur avec Docker Compose, dans le périmètre Starter. Les services externes restent distincts.",
+      "tag": "Exécutez le cœur de l’application sous AGPL et PostgreSQL sur votre serveur avec Docker Compose, dans le périmètre Starter, sans boîte de réception ni IA hébergée. Les services externes restent distincts.",
       "title": "Auto-hébergé"
     },
     "subtitle": "Des formules transparentes, sans coûts cachés. Auto-hébergez gratuitement le cœur sous AGPL ; les services externes restent distincts. Ou démarrez sur le Cloud sans carte bancaire.",

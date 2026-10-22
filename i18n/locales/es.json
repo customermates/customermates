@@ -2465,7 +2465,7 @@
       "badge": "Popular",
       "compareText": "Comparar los planes",
       "ctaText": "Empieza gratis",
-      "featureBusiness": "Business: {accounts, plural, one {# cuenta por usuario} other {# cuentas por usuario}}, cuentas compartidas y soporte prioritario",
+      "featureBusiness": "Business: {accounts, plural, one {# cuenta por usuario} other {# cuentas por usuario}}, cuentas completas compartidas en la bandeja de entrada y soporte prioritario",
       "featurePro": "Pro: bandeja de entrada unificada, {accounts, plural, one {# cuenta conectada por usuario} other {# cuentas conectadas por usuario}}",
       "featureStarter": "Starter: el núcleo del CRM",
       "period": "/ usuario / mes",
@@ -2489,7 +2489,7 @@
       "featureUsers": "Usuarios del espacio de trabajo",
       "period": "bajo AGPL",
       "price": "Núcleo gratis",
-      "tag": "Ejecuta la aplicación base con licencia AGPL y PostgreSQL en tu servidor mediante Docker Compose, con el alcance de Starter. Los servicios externos van aparte.",
+      "tag": "Ejecuta la aplicación base con licencia AGPL y PostgreSQL en tu servidor mediante Docker Compose, con el alcance de Starter, sin bandeja de entrada ni IA alojada. Los servicios externos van aparte.",
       "title": "Autoalojado"
     },
     "subtitle": "Planes transparentes, sin costes ocultos. Autoaloja gratis el núcleo AGPL; los servicios externos van aparte. O empieza en Cloud sin tarjeta.",

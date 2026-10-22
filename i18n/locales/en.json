@@ -2465,7 +2465,7 @@
       "badge": "Popular",
       "compareText": "Compare plans",
       "ctaText": "Start free",
-      "featureBusiness": "Business: {accounts, plural, one {# account per user} other {# accounts per user}}, shared accounts & priority support",
+      "featureBusiness": "Business: {accounts, plural, one {# account per user} other {# accounts per user}}, whole-account inbox sharing & priority support",
       "featurePro": "Pro: unified inbox, {accounts, plural, one {# connected account per user} other {# connected accounts per user}}",
       "featureStarter": "Starter: the core CRM",
       "period": "/ user / month",
@@ -2489,7 +2489,7 @@
       "featureUsers": "Workspace users",
       "period": "under AGPL",
       "price": "Free core",
-      "tag": "Run the AGPL core app and PostgreSQL on your server with Docker Compose at Starter scope. External services stay separate.",
+      "tag": "Run the AGPL core app and PostgreSQL on your server with Docker Compose at Starter scope, without the inbox and hosted AI. External services stay separate.",
       "title": "Self-Hosted"
     },
     "subtitle": "Transparent tiers, no hidden costs. Self-host the AGPL core for free; external services stay separate. Or start on Cloud with no credit card.",

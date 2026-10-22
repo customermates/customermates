@@ -2465,7 +2465,7 @@
       "badge": "Beliebt",
       "compareText": "Tarife vergleichen",
       "ctaText": "Kostenlos starten",
-      "featureBusiness": "Business: {accounts, plural, one {# Konto pro Nutzer} other {# Konten pro Nutzer}}, geteilte Konten & Priority-Support",
+      "featureBusiness": "Business: {accounts, plural, one {# Konto pro Nutzer} other {# Konten pro Nutzer}}, Teilen ganzer Konten im Posteingang & Priority-Support",
       "featurePro": "Pro: einheitlicher Posteingang, {accounts, plural, one {# verbundenes Konto pro Nutzer} other {# verbundene Konten pro Nutzer}}",
       "featureStarter": "Starter: die CRM-Kernfunktionen",
       "period": "/ Nutzer / Monat",
@@ -2489,7 +2489,7 @@
       "featureUsers": "Workspace-Nutzer",
       "period": "unter AGPL",
       "price": "Kern kostenlos",
-      "tag": "Betreiben Sie die AGPL-Kernanwendung und PostgreSQL mit Docker Compose auf Ihrem Server im Starter-Umfang. Externe Dienste bleiben separat.",
+      "tag": "Betreiben Sie die AGPL-Kernanwendung und PostgreSQL mit Docker Compose auf Ihrem Server im Starter-Umfang, ohne Posteingang und gehostete KI. Externe Dienste bleiben separat.",
       "title": "Self-Hosted"
     },
     "subtitle": "Transparente Tarife, keine versteckten Kosten. Der AGPL-Kern bleibt beim Self-Hosting kostenlos; externe Dienste bleiben separat. Oder starten Sie ohne Kreditkarte in der Cloud.",
