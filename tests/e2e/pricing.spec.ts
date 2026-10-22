@@ -164,7 +164,11 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
   await page.getByRole("combobox", { name: "Group By", exact: true }).click();
   await page.getByRole("option", { name: "Offered services", exact: true }).click();
   if (testInfo.project.name === "mobile") await page.locator('[data-slot="drawer-close"]').click();
-  else await page.keyboard.press("Escape");
+  else {
+    await page.keyboard.press("Escape");
+    await expect(page.locator('[data-slot="popover-content"]')).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Appearance", exact: true })).toBeFocused();
+  }
   await expect(page.getByRole("link", { name: "Local opportunity", exact: true })).toHaveCount(2);
   await saveViewChanges(page);
   await expect
