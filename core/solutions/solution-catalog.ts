@@ -155,9 +155,7 @@ export const DEMO_DEFAULT_WORKSPACE_SLUG = "small-business";
 
 export const PROFESSIONAL_SERVICES_SOLUTION_ID: SolutionId = "smb";
 
-export function solutionDataLocaleForUiLocale(
-  uiLocale: string,
-): SolutionDataLocale {
+export function solutionDataLocaleForUiLocale(uiLocale: string): SolutionDataLocale {
   return uiLocale === "de" ? "de" : "en";
 }
 
@@ -167,24 +165,16 @@ export function findSolution(id: SolutionId): SolutionCatalogEntry {
   return entry;
 }
 
-export function findSolutionByLandingPath(
-  landingPath: string,
-): SolutionCatalogEntry | undefined {
-  return SOLUTION_CATALOG.find(
-    (solution) => solution.landingPath === landingPath,
-  );
+export function findSolutionByLandingPath(landingPath: string): SolutionCatalogEntry | undefined {
+  return SOLUTION_CATALOG.find((solution) => solution.landingPath === landingPath);
 }
 
 export function findSolutionByWorkspaceSlug(
   slug: string,
-):
-  | { solution: SolutionCatalogEntry; dataLocale: SolutionDataLocale }
-  | undefined {
+): { solution: SolutionCatalogEntry; dataLocale: SolutionDataLocale } | undefined {
   for (const solution of SOLUTION_CATALOG) {
-    for (const dataLocale of SOLUTION_DATA_LOCALES) {
-      if (solution.workspaceSlugs[dataLocale] === slug)
-        return { solution, dataLocale };
-    }
+    for (const dataLocale of SOLUTION_DATA_LOCALES)
+      if (solution.workspaceSlugs[dataLocale] === slug) return { solution, dataLocale };
   }
   return undefined;
 }
