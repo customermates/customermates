@@ -1,94 +1,53 @@
-import type { ContactSeedData } from "./contacts";
 import type { SeedContext } from "./context";
-import type { DealSeedData } from "./deals";
-import type { OrganizationSeedData } from "./organizations";
-import {
-  calculateSyntheticRecords,
-  resetOutdatedSyntheticWorkspace,
-  seedRecordFixtures,
-  syntheticRecordModel,
-} from "./records";
-import type { ServiceSeedData } from "./services";
-import type { TaskSeedData } from "./tasks";
+import type { SolutionSeedCounts } from "./solutions/seed-solution";
 
 import { seedAgentConversations } from "./agent-chat";
 import { seedSyntheticAuditEvents } from "./audit-events";
-import { seedContacts } from "./contacts";
-import { seedCustomFields } from "./custom-fields";
-import { seedDataViews } from "./data-views";
-import { seedDeals } from "./deals";
 import {
   seedHostedAiOperatorFixtures,
   seedHostedAiOperatorUserTableFixtures,
   seedLocalHostedAiOperatorAccess,
 } from "./hosted-ai-operator";
 import { seedIdentity } from "./identity";
-import { seedDemoMessagingFixtures } from "./messaging/seed";
-import { seedOrganizations } from "./organizations";
-import { seedPersonalization } from "./personalization";
-import { seedRecordHistory } from "./record-history";
-import { seedRelationships } from "./relationships";
+import { initializeOperatorFixtureModels } from "./records";
 import { seedRoutines } from "./routines";
-import { seedSecondWorkspace } from "./second-workspace";
-import { seedServices } from "./services";
-import { seedSidebars } from "./sidebar";
-import { seedSublistColumns } from "./sublist-columns";
-import { seedTasks } from "./tasks";
+import {
+  resetOutdatedSolutionWorkspaces,
+  seedSolutionWorkspaces,
+  solutionWorkspacePlans,
+} from "./solutions/seed-solutions";
 import { seedTrash } from "./trash";
 import { seedWebhooks } from "./webhooks";
-import { seedWidgets } from "./widgets";
-import { seedWikiPages } from "./wiki";
 
-export type SyntheticSeedData = OrganizationSeedData & ContactSeedData & DealSeedData & ServiceSeedData & TaskSeedData;
+export type SyntheticSeedReport = { reset: string[]; workspaces: SolutionSeedCounts[] };
 
+/**
+ * Seeds the demo: one workspace per solution and data locale for Max Bergmann, plus the team fixtures of the
+ * small-business workspace (members, roles, webhooks, Trash, audit history, agent chats and routines) and the hosted
+ * AI operator fixtures. Every step is idempotent.
+ */
 export async function runSyntheticSeed(
   context: SeedContext,
   options: { includeLocalOperatorAccess?: boolean } = {},
-): Promise<SyntheticSeedData> {
-  const organizationData = await seedOrganizations(context);
-  const contactData = await seedContacts(context, organizationData.organizations);
-  const serviceData = await seedServices(context);
-  const dealData = await seedDeals(context, serviceData);
-  const taskData = await seedTasks(context);
-  const entities = {
-    ...organizationData,
-    ...contactData,
-    ...dealData,
-    ...serviceData,
-    ...taskData,
-  };
-  const customFieldData = seedCustomFields(context, entities);
-  await resetOutdatedSyntheticWorkspace(context, syntheticRecordModel(context, customFieldData));
+): Promise<SyntheticSeedReport> {
+  const plans = solutionWorkspacePlans();
+  const reset = await resetOutdatedSolutionWorkspaces(context.prisma, plans);
 
   await seedIdentity(context);
-  await seedSecondWorkspace(context);
   await seedHostedAiOperatorFixtures(context);
   if (options.includeLocalOperatorAccess) await seedLocalHostedAiOperatorAccess(context);
   await seedHostedAiOperatorUserTableFixtures(context, options);
+  await initializeOperatorFixtureModels(context);
 
-  await seedRecordFixtures(context, entities, customFieldData);
-  await seedRelationships(context, entities);
-  await calculateSyntheticRecords(context.prisma, context.ids.company);
-  await seedWidgets(context, customFieldData);
-  await seedDataViews(context, customFieldData);
-  await seedPersonalization(context, customFieldData);
-  await seedSidebars(context);
-  await seedSublistColumns(context);
-  await seedDemoMessagingFixtures(context.prisma, {
-    companyId: context.ids.company,
-    contactIds: contactData.contacts.map(({ id }) => id),
-    seedUserEmail: context.seedUserEmail,
-    userId: context.ids.user,
-  });
-  await seedRecordHistory(context, entities);
+  const workspaces = await seedSolutionWorkspaces(context, plans);
+
   await seedWebhooks(context);
   await seedTrash(context);
   await seedSyntheticAuditEvents(context);
-  await seedWikiPages(context);
   await seedAgentConversations(context);
   await seedRoutines(context);
   await context.prisma
     .$executeRaw`SELECT setval(pg_get_serial_sequence('"AgentMessage"', 'sequence'), (SELECT COALESCE(MAX(sequence), 1) FROM "AgentMessage"))`;
 
-  return entities;
+  return { reset, workspaces };
 }

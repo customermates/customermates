@@ -33,6 +33,38 @@ export const SYNTHETIC_CONTACT_AVATAR_URLS = [
   `${SYNTHETIC_AVATAR_BASE_URL}/paul-fischer.png`,
 ] as const;
 
+/** The people on the approved contact photos, in photo order; marketing visuals show them under these names. */
+export const DEMO_PHOTO_PEOPLE = [
+  ["Leon", "Becker"],
+  ["Tim", "Wagner"],
+  ["Lucio", "Ball"],
+  ["Mara", "Bauer"],
+  ["Max", "Schmidt"],
+  ["Sophie", "Hoffmann"],
+  ["Jonas", "Weber"],
+  ["Amin", "Hassan"],
+  ["Lea", "Bauer"],
+  ["Maxine", "Zoll"],
+  ["Lina", "Alvarez"],
+  ["Felix", "Koch"],
+  ["Omar", "Khalil"],
+  ["Tim", "Weber"],
+  ["Leila", "Chen"],
+  ["Mia", "Schneider"],
+  ["Amir", "Haddad"],
+  ["Sophie", "Wagner"],
+  ["Reinhold", "Mertens"],
+  ["Alexej", "Sofr"],
+  ["Anna", "Müller"],
+  ["Yasmin", "Farouk"],
+  ["Lukas", "Fischer"],
+  ["Felix", "Schneider"],
+  ["Rashid", "Malik"],
+  ["Paul", "Koch"],
+  ["Nia", "Johnson"],
+  ["Paul", "Fischer"],
+] as const;
+
 export const SYNTHETIC_AVATAR_URLS = {
   aminHassan: `${SYNTHETIC_AVATAR_BASE_URL}/amin-hassan.png`,
   annaMueller: `${SYNTHETIC_AVATAR_BASE_URL}/anna-mueller.png`,
@@ -49,3 +81,38 @@ export const SYNTHETIC_AVATAR_URLS = {
   sophieWagner: `${SYNTHETIC_AVATAR_BASE_URL}/sophie-wagner.png`,
   yasminFarouk: `${SYNTHETIC_AVATAR_BASE_URL}/yasmin-farouk.png`,
 } as const;
+
+/** The approved contact photos by file name; demo records pick one whose first name fits the contact. */
+export type DemoContactPhoto =
+  | "leon-becker"
+  | "tim-wagner"
+  | "lucio-ball"
+  | "mara-bauer"
+  | "max-schmidt"
+  | "sophie-hoffmann"
+  | "jonas-weber"
+  | "amin-hassan"
+  | "lea-bauer"
+  | "maxine-zoll"
+  | "lina-alvarez"
+  | "felix-koch"
+  | "omar-khalil"
+  | "tim-weber"
+  | "leila-chen"
+  | "mia-schneider"
+  | "amir-haddad"
+  | "sophie-wagner"
+  | "reinhold-mertens"
+  | "alexej-sofr"
+  | "anna-mueller"
+  | "yasmin-farouk"
+  | "lukas-fischer"
+  | "felix-schneider"
+  | "rashid-malik"
+  | "paul-koch"
+  | "nia-johnson"
+  | "paul-fischer";
+
+export function demoContactPhoto(photo: DemoContactPhoto): string {
+  return `${SYNTHETIC_AVATAR_BASE_URL}/${photo}.png`;
+}

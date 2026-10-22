@@ -10,7 +10,9 @@ import {
 } from "@/tests/helpers/legacy-migration-database";
 import { createSeedContext, SEED_IDS } from "../seeds/context";
 import { runSyntheticSeed } from "../seeds/run";
+import { solutionWorkspacePlans } from "../seeds/solutions/seed-solutions";
 import { presetId } from "@/features/records/crm-preset";
+import { compareRecordKey } from "@/features/records/record-json";
 
 const database = getLocalDatabaseTestUrl();
 const suite = database ? describe : describe.skip;
@@ -25,7 +27,12 @@ suite("generic synthetic seed convergence", { timeout: 180000 }, () => {
         seedUserEmail: "max.bergmann@customermates.com",
         sharedUserPassword: "synthetic-local-test",
       });
-      const entities = await runSyntheticSeed(context);
+      const first = await runSyntheticSeed(context);
+      expect(first.workspaces).toHaveLength(18);
+      expect(first.workspaces.every((workspace) => workspace.created > 0 && workspace.updated === 0)).toBe(true);
+      const plans = solutionWorkspacePlans();
+      const team = plans.find(({ workspace }) => workspace.team);
+      if (!team) throw new Error("Missing the team workspace");
       const companyId = SEED_IDS.company,
         typeId = presetId(companyId, "contact");
       const link = await prisma.recordLink.findFirstOrThrow({
@@ -45,7 +52,25 @@ suite("generic synthetic seed convergence", { timeout: 180000 }, () => {
         histories: await prisma.eventLog.count({ where: { companyId } }),
         deliveries: await prisma.webhookDelivery.count({ where: { companyId } }),
       };
-      await runSyntheticSeed(context);
+      const second = await runSyntheticSeed(context);
+      expect(second.reset).toEqual([]);
+      expect(second.workspaces.filter((workspace) => workspace.slug !== team.workspace.slug)).toEqual(
+        first.workspaces
+          .filter((workspace) => workspace.slug !== team.workspace.slug)
+          .map((workspace) => ({
+            ...workspace,
+            created: 0,
+            updated: 0,
+            deleted: 0,
+            unchanged: workspace.created,
+            durationMs: expect.any(Number),
+          })),
+      );
+      expect(second.workspaces.find((workspace) => workspace.slug === team.workspace.slug)).toMatchObject({
+        created: 0,
+        updated: 0,
+        deleted: 1,
+      });
       expect(
         await prisma.crmRecord.findUnique({ where: { companyId_typeId_id: { companyId, typeId, id: unrelatedId } } }),
       ).not.toBeNull();
@@ -65,31 +90,31 @@ suite("generic synthetic seed convergence", { timeout: 180000 }, () => {
         // Records in Trash (the seeded Trash fixtures) are not part of the live lists.
         expect(
           await prisma.crmRecord.count({ where: { companyId, typeId: presetId(companyId, kind), deletedAt: null } }),
-        ).toBe(entities[`${kind}s`].length + (kind === "contact" ? 1 : 0));
+        ).toBe((team.content.records[kind]?.length ?? 0) + (kind === "contact" ? 1 : 0));
       }
 
       const secondWorkspace = SEED_IDS.secondWorkspaceCompany;
       const owner = await prisma.user.findUniqueOrThrow({ where: { id: SEED_IDS.user }, select: { email: true } });
-      expect(
-        await prisma.user.findMany({
-          where: { email: owner.email },
-          select: {
-            companyId: true,
-            status: true,
-            company: { select: { name: true } },
-            role: { select: { isSystemRole: true } },
-          },
-          orderBy: { createdAt: "asc" },
-        }),
-      ).toEqual([
-        { companyId, status: "active", company: { name: "Northwind Labs" }, role: { isSystemRole: true } },
-        {
-          companyId: secondWorkspace,
-          status: "active",
-          company: { name: "Bergmann Steuern" },
-          role: { isSystemRole: true },
+      const memberships = await prisma.user.findMany({
+        where: { email: owner.email },
+        select: {
+          companyId: true,
+          status: true,
+          company: { select: { name: true } },
+          role: { select: { isSystemRole: true } },
         },
-      ]);
+      });
+      expect(memberships.toSorted((a, b) => compareRecordKey(a.companyId, b.companyId))).toEqual(
+        plans
+          .map(({ workspace, content }) => ({
+            companyId: workspace.companyId,
+            status: "active",
+            company: { name: content.companyName },
+            role: { isSystemRole: true },
+          }))
+          .toSorted((a, b) => compareRecordKey(a.companyId, b.companyId)),
+      );
+      expect(memberships.some(({ company }) => /Northwind|Bergmann Steuern/.test(company.name ?? ""))).toBe(false);
       expect(await prisma.userRole.count({ where: { companyId: secondWorkspace } })).toBe(1);
       expect(await prisma.recordSchemaState.count({ where: { companyId: secondWorkspace } })).toBe(1);
       expect(await prisma.recordTypeDefinition.count({ where: { companyId: secondWorkspace } })).toBeGreaterThan(0);
@@ -99,6 +124,11 @@ suite("generic synthetic seed convergence", { timeout: 180000 }, () => {
           select: { status: true },
         }),
       ).toEqual({ status: "active" });
+      expect(
+        await prisma.p13n.count({
+          where: { companyId: { in: plans.map(({ workspace }) => workspace.companyId) }, p13nId: "sidebar" },
+        }),
+      ).toBe(0);
 
       const hooks = await prisma.webhook.findMany({ where: { companyId } });
       expect(

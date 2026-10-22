@@ -1,24 +1,11 @@
 import { calculationDependencyHash } from "@/features/records/configuration.service";
 import { recordChannelsField } from "@/features/records/record-channels";
-import { presetId } from "@/features/records/crm-preset";
 import { recordEventChanges, historyPublications } from "@/features/records/record-journal";
 import { compareRecordKey } from "@/features/records/record-json";
-import {
-  RecordModelSchema,
-  type RecordModel,
-  type RecordRef,
-  type RecordScalar,
-} from "@/features/records/record-model.schema";
+import { type RecordModel, type RecordRef, type RecordScalar } from "@/features/records/record-model.schema";
 import type { RecordHistorySnapshot } from "@/features/records/record-event.schema";
 import { decodeRecordValue } from "@/features/records/record-storage";
 import type { Prisma, PrismaClient } from "@/generated/prisma";
-
-import type { SeedContext } from "./context";
-import { northwindAt } from "./northwind-data";
-import { SYNTHETIC_RECORD_EVENT_ID_PREFIX, buildNorthwindHistory } from "./northwind-history";
-import type { RelationshipSeedInput } from "./relationships";
-
-export { SYNTHETIC_RECORD_EVENT_ID_PREFIX } from "./northwind-history";
 
 const factsByModel = new WeakMap<RecordModel, Map<string, { publications: unknown; dependencyHash: unknown }>>();
 
@@ -202,64 +189,66 @@ async function historyReader(prisma: PrismaClient, companyId: string) {
   return { client, events };
 }
 
-/** Writes the demo's record history: every creation and the changes of the story, at their story times. */
-export async function seedRecordHistory(context: SeedContext, _entities: RelationshipSeedInput): Promise<void> {
-  const { prisma, ids } = context;
-  const companyId = ids.company;
-  const state = await prisma.recordSchemaState.findUniqueOrThrow({ where: { companyId } });
-  const model = RecordModelSchema.parse(
-    (
-      await prisma.recordSchemaRevision.findUniqueOrThrow({
-        where: { companyId_revision: { companyId, revision: state.revision } },
-      })
-    ).snapshot,
-  );
-  const entries = buildNorthwindHistory(companyId);
+export type SyntheticHistoryEntry = {
+  id: string;
+  typeId: string;
+  recordId: string;
+  kind: "record.created" | "record.updated";
+  at: Date;
+  actorId: string;
+  /** Created: the values at creation that differ from today. Updated: the values before the change. */
+  values: ReadonlyMap<string, RecordScalar>;
+};
+
+/**
+ * Writes a workspace's record history: every creation and the authored changes, at their story times, replacing the
+ * events under `prefix`. Records with updates get the matching version.
+ */
+export async function writeSyntheticRecordHistory(
+  prisma: PrismaClient,
+  companyId: string,
+  model: RecordModel,
+  entries: readonly SyntheticHistoryEntry[],
+  prefix: string,
+): Promise<void> {
   const memory = await historyReader(prisma, companyId);
-  const firstValues = new Map<string, Map<string, RecordScalar>>();
-  const updates = new Map<string, number>();
-  for (const entry of entries.filter((candidate) => candidate.kind === "record.updated")) {
-    const key = `${entry.typeKey}:${entry.recordId}`;
-    const values = firstValues.get(key) ?? new Map<string, RecordScalar>();
-    for (const [fieldId, value] of entry.previous) if (!values.has(fieldId)) values.set(fieldId, value);
-    firstValues.set(key, values);
-    updates.set(key, (updates.get(key) ?? 0) + 1);
+  const versions = new Map<string, { typeId: string; recordId: string; version: number }>();
+  for (const entry of entries) {
+    const key = `${entry.typeId}:${entry.recordId}`;
+    const current = versions.get(key) ?? { typeId: entry.typeId, recordId: entry.recordId, version: 0 };
+    versions.set(key, { ...current, version: current.version + 1 });
   }
   for (let start = 0; start < entries.length; start += HISTORY_CONCURRENCY) {
     await Promise.all(
       entries.slice(start, start + HISTORY_CONCURRENCY).map((entry) => {
-        const ref = { typeId: presetId(companyId, entry.typeKey), recordId: entry.recordId };
         const created = entry.kind === "record.created";
         return writeRecordChange(memory.client, companyId, model, {
           id: entry.id,
-          ref,
+          ref: { typeId: entry.typeId, recordId: entry.recordId },
           actorId: entry.actorId,
-          at: northwindAt(entry.atMs),
-          before: created ? null : new Map(entry.previous),
-          after: created ? (firstValues.get(`${entry.typeKey}:${entry.recordId}`) ?? new Map()) : new Map(),
+          at: entry.at,
+          before: created ? null : entry.values,
+          after: created ? entry.values : new Map(),
         });
       }),
     );
   }
-  await prisma.eventLog.deleteMany({
-    where: { companyId, id: { in: entries.map(({ id }) => id) } },
-  });
-  for (let start = 0; start < memory.events.length; start += 1000)
-    await prisma.eventLog.createMany({ data: memory.events.slice(start, start + 1000) });
-  const versions = [...updates];
-  if (versions.length) {
-    const typeIds = versions.map(([key]) => presetId(companyId, key.split(":")[0]));
-    const recordIds = versions.map(([key]) => key.split(":")[1]);
-    const counts = versions.map(([, count]) => count + 1);
-    await prisma.$executeRaw`
-      UPDATE "CrmRecord" AS record SET "version" = row.version
-      FROM unnest(${typeIds}::text[], ${recordIds}::text[], ${counts}::int[]) AS row(type_id, id, version)
-      WHERE record."companyId" = ${companyId} AND record."typeId" = row.type_id AND record."id" = row.id`;
-  }
-  await prisma.eventLog.deleteMany({
-    where: {
-      companyId,
-      id: { startsWith: `${SYNTHETIC_RECORD_EVENT_ID_PREFIX}-`, notIn: entries.map(({ id }) => id) },
+  await prisma.$transaction(
+    async (tx) => {
+      await tx.eventLog.deleteMany({ where: { companyId, id: { startsWith: `${prefix}-` } } });
+      for (let start = 0; start < memory.events.length; start += 1000)
+        await tx.eventLog.createMany({ data: memory.events.slice(start, start + 1000) });
+      const rows = [...versions.values()];
+      if (rows.length) {
+        const typeIds = rows.map((entry) => entry.typeId);
+        const recordIds = rows.map((entry) => entry.recordId);
+        const counts = rows.map((entry) => entry.version);
+        await tx.$executeRaw`
+          UPDATE "CrmRecord" AS record SET "version" = row.version
+          FROM unnest(${typeIds}::text[], ${recordIds}::text[], ${counts}::int[]) AS row(type_id, id, version)
+          WHERE record."companyId" = ${companyId} AND record."typeId" = row.type_id AND record."id" = row.id`;
+      }
     },
-  });
+    { maxWait: 60000, timeout: 600000 },
+  );
 }

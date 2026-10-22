@@ -21,8 +21,15 @@ async function main(): Promise<void> {
 
   try {
     console.log("Seeding deterministic synthetic fixtures...");
-    await runSyntheticSeed(context, { includeLocalOperatorAccess });
-    console.log("Synthetic fixture seed complete");
+    const started = Date.now();
+    const report = await runSyntheticSeed(context, { includeLocalOperatorAccess });
+    if (report.reset.length) console.log(`Rebuilt workspaces on an older model: ${report.reset.join(", ")}`);
+    for (const workspace of report.workspaces) {
+      console.log(
+        `  ${workspace.slug}: ${workspace.created} created, ${workspace.updated} updated, ${workspace.deleted} deleted, ${workspace.unchanged} unchanged (${workspace.durationMs} ms)`,
+      );
+    }
+    console.log(`Synthetic fixture seed complete in ${Date.now() - started} ms`);
   } finally {
     await prisma.$disconnect();
   }
