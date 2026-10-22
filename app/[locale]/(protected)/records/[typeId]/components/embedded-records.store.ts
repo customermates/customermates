@@ -135,7 +135,8 @@ export class EmbeddedRecordsStore extends RecordsStore {
   private loadColumnChoice() {
     this.choiceRequest ??= getP13nAction({ p13nId: this.columnChoiceP13nId })
       .then((result) => {
-        if (result.ok) this.applyColumnChoice(readSublistColumns(result.data?.settings)?.columns ?? null);
+        if (result.ok)
+          this.applyColumnChoice(readSublistColumns(result.data?.settings, this.type?.primaryFieldId)?.columns ?? null);
         else if (!notifyIfWorkspaceChanged(result)) this.choiceRequest = null;
       })
       .catch(() => {
@@ -157,7 +158,7 @@ export class EmbeddedRecordsStore extends RecordsStore {
     const saved = this.choiceSaving.then(async () => {
       const result = await upsertP13nAction({
         p13nId: this.columnChoiceP13nId,
-        settings: columns ? { columns } : null,
+        settings: columns ? { columns, version: 2 } : null,
       });
       if (!result.ok) {
         this.applyColumnChoice(previous);

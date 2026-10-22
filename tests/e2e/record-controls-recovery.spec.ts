@@ -13,7 +13,7 @@ import {
 import { BrowserDiagnostics, type ExpectedDiagnostic } from "./browser-diagnostics";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { postOk } from "./api";
-import { openRecordDetails, openRecordLink, recordRows } from "./record-rows";
+import { recordItem, openRecordDetails, recordRows } from "./record-rows";
 import { invokesServerAction, serverActionIds } from "./server-actions";
 import { e2eAppMode } from "./workspace-switching";
 import { presetId } from "../../features/records/crm-preset";
@@ -1159,7 +1159,7 @@ test("retains readable list content after a failed refresh and retries the empty
     );
   const before = (await values()).rows;
   await page.goto(`/en/records/${service.typeId}`);
-  await expect(page.getByRole("link", { name, exact: true })).toBeVisible();
+  await expect(recordItem(page, name)).toBeVisible();
   let retainedFault = true;
   let emptyFault = true;
   let matchingReads = 0;
@@ -1191,7 +1191,7 @@ test("retains readable list content after a failed refresh and retries the empty
   await applyPaletteSearch(page, "records-filter", "retained-response-failure");
   await expect.poll(() => evidence.faults.length).toBe(1);
   await expect(page.locator('[data-page-state="loading"]')).toHaveCount(0);
-  await expect(page.getByRole("link", { name, exact: true })).toBeVisible();
+  await expect(recordItem(page, name)).toBeVisible();
   await expect(page.locator('[data-page-state="error"]')).toHaveCount(0);
   await expectPaletteSearch(page, "records-filter", "retained-response-failure");
   await applyPaletteSearch(page, "records-filter", "completed-empty-search");
@@ -1200,7 +1200,7 @@ test("retains readable list content after a failed refresh and retries the empty
       exact: true,
     }),
   ).toBeVisible();
-  await expect(page.getByRole("link", { name, exact: true })).toHaveCount(0);
+  await expect(recordItem(page, name)).toHaveCount(0);
   await expect(page.locator('[data-page-state="error"]')).toHaveCount(0);
   const surfaceKey = recordSurfaceKey(service.typeId);
   const saveAction = serverActionIds("app/actions.ts", "saveDataViewStateAction");
@@ -1216,7 +1216,7 @@ test("retains readable list content after a failed refresh and retries the empty
   await expect(error.getByRole("heading", { name: english.ErrorCard.title, exact: true })).toBeVisible();
   await expectPaletteSearch(page, "records-filter", name);
   await error.getByRole("button", { name: english.ErrorCard.retry, exact: true }).click();
-  await expect(page.getByRole("link", { name, exact: true })).toBeVisible();
+  await expect(recordItem(page, name)).toBeVisible();
   await expect(error).toHaveCount(0);
   expect(matchingReads).toBe(2);
   expect((await values()).rows).toEqual(before);
@@ -1224,7 +1224,7 @@ test("retains readable list content after a failed refresh and retries the empty
   await page.unrouteAll({ behavior: "wait" });
   await expect(page).toHaveURL((url) => url.searchParams.get("searchTerm") === name);
   await page.reload();
-  await expect(page.getByRole("link", { name, exact: true })).toBeVisible();
+  await expect(recordItem(page, name)).toBeVisible();
   await expectPaletteSearch(page, "records-filter", name);
   expect(searchSaves).toEqual([]);
   expect(
@@ -1386,9 +1386,7 @@ test("retries relationship reads and accepted record, bulk and schema refreshes 
   let afterBulk = afterSave;
   if (!test.info().project.use.isMobile) {
     for (const name of ["Recovery service", "Recovery second"]) {
-      await page
-        .getByRole("row")
-        .filter({ has: page.getByRole("link", { name, exact: true }) })
+      await recordItem(page, name)
         .getByRole("checkbox")
         .check();
     }
@@ -1556,7 +1554,7 @@ test("recovers a parent after an embedded save without repeating the child mutat
     fields: [{ fieldId: notes.id, value: null }],
   });
   await expect(main.locator(`[data-entity-field="${id("deal.totalValue")}"]`)).toContainText("€100.00");
-  await openRecordLink(embedded.getByRole("button", { name: "Recovery line", exact: true }));
+  await openRecordDetails(page, "Recovery line");
   const child = page.getByRole("dialog");
   await child.getByRole("textbox", { name: "Quantity", exact: false }).fill("2");
   const before = await persisted();

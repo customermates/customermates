@@ -22,9 +22,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { getActiveUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 import { actionData } from "@/core/utils/action-data";
 
-type KnownMember = Pick<RecordMember, "id" | "firstName" | "lastName"> & {
-  avatarUrl?: string | null;
-};
+type KnownMember = Pick<RecordMember, "id" | "firstName" | "lastName"> & { avatarUrl?: string | null };
 
 export function knownMembers(
   members: RecordMember[],

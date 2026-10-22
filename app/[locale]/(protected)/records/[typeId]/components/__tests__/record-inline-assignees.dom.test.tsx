@@ -119,11 +119,32 @@ vi.mock("@/components/ui/popover", () => {
 import { useAppForm } from "@/components/forms/form-context";
 import type { BaseFormStore } from "@/core/base/base-form.store";
 
-import { RecordInlineAssignees, canEditAssignees } from "../record-inline-field";
+import { RecordInlineAssignees, canEditAssignees, canEditInline } from "../record-inline-field";
+import { createCrmPreset, presetId } from "@/features/records/crm-preset";
 import { RecordCardContent } from "../record-chip-row";
 
 let root: Root | undefined;
 let host: HTMLDivElement | undefined;
+it("treats a writable display-name field like any other inline text field and keeps read-only guards", () => {
+  const company = "6487f9fb-7b10-439a-b783-9d3da8184b14";
+  const model = createCrmPreset(company);
+  const type = model.types.find((type) => type.id === presetId(company, "organization"));
+  const field = model.fields.find((field) => field.id === type?.primaryFieldId);
+  if (!field || !type) throw new Error("Missing fixture name");
+  const record = { fields: [] } as unknown as RecordRow;
+  const store = { type, canUpdateRecord: () => true } as unknown as RecordsStore;
+  expect(canEditInline(store, record, field)).toBe(true);
+  expect(canEditInline({ type, canUpdateRecord: () => false } as unknown as RecordsStore, record, field)).toBe(false);
+  expect(
+    canEditInline(store, { ...record, fields: [{ fieldId: field.id, result: { state: "restricted" } }] }, field),
+  ).toBe(false);
+  expect(
+    canEditInline(store, record, {
+      ...field,
+      behavior: { kind: "formula", expression: { kind: "literal", value: null } },
+    }),
+  ).toBe(false);
+});
 afterEach(() => {
   act(() => root?.unmount());
   host?.remove();
@@ -173,6 +194,13 @@ it("retains the draft's original version and assignment baseline after a backgro
     ["A", "B"],
   );
   expect(host.querySelector("[data-save]")?.getAttribute("data-dirty")).toBe("true");
+  const form = guard.use.mock.lastCall?.[0] as BaseFormStore;
+  updateRecordAssignees.mockResolvedValueOnce({ saved: true });
+  await act(async () => {
+    host?.querySelector<HTMLButtonElement>("[data-save]")?.click();
+    await vi.waitFor(() => expect(updateRecordAssignees).toHaveBeenCalledTimes(2));
+  });
+  expect(form.hasUnsavedChanges).toBe(false);
 });
 
 it("keeps assignee editing disabled for embedded lists and records without update permission", () => {

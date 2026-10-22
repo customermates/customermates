@@ -9,21 +9,9 @@ import { activityViewStateValid } from "@/ee/messaging/activities/record-activit
 
 import { resolveDataViewState } from "../resolve-data-view-state";
 
-const paramFilter: Filter = {
-  field: "firstName",
-  operator: FilterOperatorKey.contains,
-  value: "param",
-};
-const baseFilter: Filter = {
-  field: "firstName",
-  operator: FilterOperatorKey.contains,
-  value: "base",
-};
-const defaultFilter: Filter = {
-  field: "firstName",
-  operator: FilterOperatorKey.contains,
-  value: "default",
-};
+const paramFilter: Filter = { field: "firstName", operator: FilterOperatorKey.contains, value: "param" };
+const baseFilter: Filter = { field: "firstName", operator: FilterOperatorKey.contains, value: "base" };
+const defaultFilter: Filter = { field: "firstName", operator: FilterOperatorKey.contains, value: "default" };
 
 const defaultSort: SortDescriptor = { field: "createdAt", direction: "desc" };
 const baseSort: SortDescriptor = { field: "firstName", direction: "asc" };
@@ -112,26 +100,13 @@ describe("resolveDataViewState three layer precedence", () => {
   });
 
   it("decides each field on its own, so one param leaves every other field on the base", () => {
-    const resolved = resolveDataViewState({
-      params: { pageSize: 5 },
-      base,
-      defaults,
-    });
+    const resolved = resolveDataViewState({ params: { pageSize: 5 }, base, defaults });
 
-    expect(resolved).toMatchObject({
-      filters: [baseFilter],
-      searchTerm: "base-search",
-      pageSize: 5,
-    });
+    expect(resolved).toMatchObject({ filters: [baseFilter], searchTerm: "base-search", pageSize: 5 });
   });
 
   it("falls through an absent base key to defaults and keeps a present base key over them", () => {
-    expect(
-      resolveDataViewState({
-        base: { columnWidths: { firstName: 200 } },
-        defaults,
-      }),
-    ).toMatchObject({
+    expect(resolveDataViewState({ base: { columnWidths: { firstName: 200 } }, defaults })).toMatchObject({
       filters: [defaultFilter],
       searchTerm: "default-search",
       sortDescriptor: defaultSort,
@@ -175,11 +150,7 @@ describe("resolveDataViewState three layer precedence", () => {
   it("keeps the base filters and the default sort when only a page is requested", () => {
     const params = { page: 2 } as unknown as DataViewParamsLayer;
 
-    const resolved = resolveDataViewState({
-      params,
-      base: { filters: [baseFilter] },
-      defaults,
-    });
+    const resolved = resolveDataViewState({ params, base: { filters: [baseFilter] }, defaults });
 
     expect(resolved.filters).toEqual([baseFilter]);
     expect(resolved.sortDescriptor).toEqual(defaultSort);
@@ -189,12 +160,7 @@ describe("resolveDataViewState three layer precedence", () => {
 
   it("resolves pageSize through params, base, defaults and then the floor of 100", () => {
     expect(resolveDataViewState({ params: { pageSize: 5 }, base: { pageSize: 10 } }).pageSize).toBe(5);
-    expect(
-      resolveDataViewState({
-        base: { pageSize: 10 },
-        defaults: { pageSize: 25 },
-      }).pageSize,
-    ).toBe(10);
+    expect(resolveDataViewState({ base: { pageSize: 10 }, defaults: { pageSize: 25 } }).pageSize).toBe(10);
     expect(resolveDataViewState({ defaults: { pageSize: 5 } }).pageSize).toBe(5);
     expect(resolveDataViewState({}).pageSize).toBe(100);
   });
@@ -215,22 +181,13 @@ describe("resolveDataViewState three layer precedence", () => {
   });
 
   it("keeps the stored hidden columns when the URL names the same grouping", () => {
-    const stored = {
-      field: A_GROUPING_COLUMN,
-      hidden: ["value:won"],
-      hideEmpty: true,
-    };
+    const stored = { field: A_GROUPING_COLUMN, hidden: ["value:won"], hideEmpty: true };
     expect(
-      resolveDataViewState({
-        params: { grouping: { field: A_GROUPING_COLUMN } },
-        base: { grouping: stored },
-      }).grouping,
+      resolveDataViewState({ params: { grouping: { field: A_GROUPING_COLUMN } }, base: { grouping: stored } }).grouping,
     ).toEqual(stored);
     expect(
-      resolveDataViewState({
-        params: { grouping: { field: "system:assignedTo" } },
-        base: { grouping: stored },
-      }).grouping,
+      resolveDataViewState({ params: { grouping: { field: "system:assignedTo" } }, base: { grouping: stored } })
+        .grouping,
     ).toEqual({ field: "system:assignedTo" });
   });
 
@@ -243,25 +200,14 @@ describe("resolveDataViewState three layer precedence", () => {
       summaries: [{ fieldId: value, aggregation: "sum" as const }],
     };
     expect(
-      resolveDataViewState({
-        params: { grouping: { field: A_GROUPING_COLUMN } },
-        base: { grouping: stored },
-      }).grouping,
+      resolveDataViewState({ params: { grouping: { field: A_GROUPING_COLUMN } }, base: { grouping: stored } }).grouping,
     ).toEqual(stored);
     expect(
       resolveDataViewState({
-        params: {
-          grouping: {
-            field: A_GROUPING_COLUMN,
-            summaries: [{ fieldId: weighted, aggregation: "max" }],
-          },
-        },
+        params: { grouping: { field: A_GROUPING_COLUMN, summaries: [{ fieldId: weighted, aggregation: "max" }] } },
         base: { grouping: stored },
       }).grouping,
-    ).toEqual({
-      ...stored,
-      summaries: [{ fieldId: weighted, aggregation: "max" }],
-    });
+    ).toEqual({ ...stored, summaries: [{ fieldId: weighted, aggregation: "max" }] });
     expect(
       resolveDataViewState({
         params: { grouping: { field: A_GROUPING_COLUMN, summaries: [] } },
@@ -272,10 +218,7 @@ describe("resolveDataViewState three layer precedence", () => {
 
   it("treats a cleared grouping as no grouping with no floor", () => {
     expect(
-      resolveDataViewState({
-        params: { grouping: null },
-        base: { grouping: { field: A_GROUPING_COLUMN } },
-      }).grouping,
+      resolveDataViewState({ params: { grouping: null }, base: { grouping: { field: A_GROUPING_COLUMN } } }).grouping,
     ).toBeUndefined();
     expect(resolveDataViewState({ base: { grouping: null } }).grouping).toBeUndefined();
   });

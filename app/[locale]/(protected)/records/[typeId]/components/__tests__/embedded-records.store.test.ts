@@ -6,6 +6,7 @@ import type { RecordEditorContext } from "@/features/records/get-record-editor.i
 import { createCrmPreset, presetId } from "@/features/records/crm-preset";
 import { relationshipColumnKey } from "@/features/records/record-column.schema";
 import { recordColumns } from "@/features/records/record-columns";
+import { readSublistColumns } from "@/features/p13n/sublist-columns.schema";
 
 const mocks = vi.hoisted(() => ({
   mutateRecordAction: vi.fn(),
@@ -57,13 +58,10 @@ const editor: RecordEditorContext = {
 };
 const lineFields = model.fields.filter((field) => field.typeId === id("lineItem") && !field.archived);
 const formatted = lineFields.filter((field) => field.valueType === "richText").map((field) => field.id);
-const ownFields = lineFields
-  .filter((field) => field.id !== id("lineItem.name") && field.valueType !== "richText")
-  .map((field) => field.id);
+const ownFields = lineFields.filter((field) => field.valueType !== "richText").map((field) => field.id);
 const layout = (chosen: string[] | null, columns = recordColumns(id("lineItem"), model)) =>
   embeddedColumnLayout({
     columns,
-    primaryColumnId: id("lineItem.name"),
     parentColumnId,
     defaultHidden: formatted,
     chosen,
@@ -103,6 +101,12 @@ beforeEach(() => {
 });
 
 describe("sub-list columns", () => {
+  it("preserves a legacy implicit name column but respects an explicit new choice to hide it", () => {
+    const name = id("lineItem.name");
+    const columns = [id("lineItem.quantity")];
+    expect(readSublistColumns({ columns }, name)?.columns).toEqual([name, ...columns]);
+    expect(readSublistColumns({ columns, version: 2 }, name)?.columns).toEqual(columns);
+  });
   it("shows the sub-list's own fields in field order and hides system columns, formatted text and the parent", () => {
     expect(formatted).toHaveLength(1);
     const quiet = layout(null);
@@ -110,11 +114,11 @@ describe("sub-list columns", () => {
     expect(quiet.hiddenColumns).toEqual([...formatted, ...systemColumns, parentColumnId]);
   });
 
-  it("shows the system columns when the sub-list has no other columns", () => {
+  it("keeps the name as an ordinary visible field when it is the only own field", () => {
     const columns = recordColumns(id("lineItem"), model).filter(
       (column) => column.kind === "system" || column.id === id("lineItem.name") || column.id === parentColumnId,
     );
-    expect(visibleOf(layout(null, columns))).toEqual(systemColumns);
+    expect(visibleOf(layout(null, columns))).toEqual([id("lineItem.name")]);
   });
 
   it("keeps a stored choice in its order, ignores stale ids and hides fields added after the choice", () => {
@@ -131,10 +135,10 @@ describe("sub-list columns", () => {
     expect(visibleOf(layout(null, grown))).toContain(added.id);
   });
 
-  it("never lists the name column as a choice and always leaves it out of the stored layout", () => {
-    const chosen = layout([id("lineItem.name"), id("lineItem.quantity")]);
-    expect(chosen.columnOrder).not.toContain(id("lineItem.name"));
-    expect(chosen.hiddenColumns).not.toContain(id("lineItem.name"));
+  it("lets the name column be reordered or hidden like any other field", () => {
+    const chosen = layout([id("lineItem.quantity"), id("lineItem.name")]);
+    expect(chosen.columnOrder.slice(0, 2)).toEqual([id("lineItem.quantity"), id("lineItem.name")]);
+    expect(layout([id("lineItem.quantity")]).hiddenColumns).toContain(id("lineItem.name"));
   });
 
   it("loads the quiet default when nothing is stored", async () => {
@@ -142,7 +146,7 @@ describe("sub-list columns", () => {
     await store.refresh();
     expect(p13n.getP13nAction).toHaveBeenCalledWith({ p13nId: `sublist-columns:${id("lineItem")}` });
     const visible = store.visibleColumns.map((column) => column.uid);
-    expect(visible).toEqual([id("lineItem.name"), ...ownFields, serviceColumnId]);
+    expect(visible).toEqual([...ownFields, serviceColumnId]);
     expect(store.columnChoice).toBeNull();
   });
 
@@ -158,14 +162,14 @@ describe("sub-list columns", () => {
     expect(store.visibleColumns.map((column) => column.uid)).toEqual([id("lineItem.name"), amount, quantity]);
 
     const saving = store.setColumnChoice([quantity]);
-    expect(store.visibleColumns.map((column) => column.uid)).toEqual([id("lineItem.name"), quantity]);
+    expect(store.visibleColumns.map((column) => column.uid)).toEqual([quantity]);
     await saving;
     expect(p13n.upsertP13nAction).toHaveBeenLastCalledWith({
       p13nId: `sublist-columns:${id("lineItem")}`,
-      settings: { columns: [quantity] },
+      settings: { columns: [quantity], version: 2 },
     });
     await store.refresh();
-    expect(store.visibleColumns.map((column) => column.uid)).toEqual([id("lineItem.name"), quantity]);
+    expect(store.visibleColumns.map((column) => column.uid)).toEqual([quantity]);
 
     await store.setColumnChoice(null);
     expect(p13n.upsertP13nAction).toHaveBeenLastCalledWith({
@@ -173,11 +177,7 @@ describe("sub-list columns", () => {
       settings: null,
     });
     expect(store.columnChoice).toBeNull();
-    expect(store.visibleColumns.map((column) => column.uid)).toEqual([
-      id("lineItem.name"),
-      ...ownFields,
-      serviceColumnId,
-    ]);
+    expect(store.visibleColumns.map((column) => column.uid)).toEqual([...ownFields, serviceColumnId]);
   });
 
   it("rolls the choice back when it cannot be saved", async () => {
@@ -186,11 +186,7 @@ describe("sub-list columns", () => {
     await store.refresh();
     await store.setColumnChoice([id("lineItem.quantity")]);
     expect(store.columnChoice).toBeNull();
-    expect(store.visibleColumns.map((column) => column.uid)).toEqual([
-      id("lineItem.name"),
-      ...ownFields,
-      serviceColumnId,
-    ]);
+    expect(store.visibleColumns.map((column) => column.uid)).toEqual([...ownFields, serviceColumnId]);
   });
 });
 

@@ -5,7 +5,7 @@ import { applyConfigurableRecordsMigration, createLegacyMigrationDatabase } from
 import { legacyRecordFixture } from "../helpers/legacy-record-fixture";
 import { test as base, expect, collectPageErrors } from "./fixtures";
 import { removeBrowserWorkspace } from "./workspace";
-import { openRecordDetails, openRecordLink } from "./record-rows";
+import { openRecordDetails, recordRows } from "./record-rows";
 
 const test = base.extend({
   workspace: async ({ database }, use) => {
@@ -55,7 +55,7 @@ test("opens upgraded records with persisted values, totals and links", async ({
   const typeId = presetId(companyId, "deal");
   await page.goto(`/en/records/${typeId}`);
   await expect(page.locator("header")).toContainText("Deals");
-  await expect(page.getByRole("link", { name: "Synthetic deal", exact: true })).toHaveCount(2);
+  await expect(recordRows(page).filter({ has: page.getByRole("button", { name: "More actions for Synthetic deal", exact: true, includeHidden: true }) })).toHaveCount(2);
   await openRecordDetails(page, "Synthetic deal");
   const drawer = page.getByRole("dialog", { name: "Deal", exact: true });
   await expect(drawer.getByRole("heading", { name: "Synthetic deal", exact: true })).toBeVisible();
@@ -92,7 +92,7 @@ test("opens upgraded records with persisted values, totals and links", async ({
       personType,
     ])
   ).rows[0];
-  await openRecordLink(page.getByRole("link", { name: "Synthetic Person", exact: true }).first());
+  await openRecordDetails(page, "Synthetic Person");
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.getByRole("dialog").getByRole("link", { name: "Open page", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/en/records/${personType}/${person.id}$`));

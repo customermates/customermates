@@ -236,12 +236,7 @@ export abstract class BaseGetInteractor<T> {
     if (!this.repo.countByGroup) throw new Error("This repository declares groupable fields but cannot count groups");
 
     const [rows, total] = await Promise.all([
-      this.repo.countByGroup({
-        spec,
-        params: baseQuery,
-        bucket: grouping.bucket,
-        now,
-      }),
+      this.repo.countByGroup({ spec, params: baseQuery, bucket: grouping.bucket, now }),
       this.repo.getCount({
         filters: baseQuery.filters,
         searchTerm: baseQuery.searchTerm,

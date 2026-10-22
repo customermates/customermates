@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { isObservable, observable } from "mobx";
+import { isObservable, observable, runInAction } from "mobx";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { RootStore } from "@/core/stores/root.store";
@@ -83,6 +83,22 @@ function store() {
   return store;
 }
 beforeEach(() => vi.resetAllMocks());
+
+describe("record name column", () => {
+  it("puts the record name first in saved orders that omit it without marking the layout as changed", () => {
+    const records = new RecordsStore(root, presentation);
+    const name = id("deal.name");
+    const saved = records.orderedColumns.map((column) => column.uid);
+    const withoutName = saved.filter((uid) => uid !== name);
+    runInAction(() => (records.columnOrder = saved));
+    const differs = records.differsFromDefaultLayout;
+    runInAction(() => (records.columnOrder = withoutName));
+    expect(records.orderedColumns[0]?.uid).toBe(name);
+    expect(records.differsFromDefaultLayout).toBe(differs);
+    runInAction(() => (records.columnOrder = [...withoutName, name]));
+    expect(records.orderedColumns.at(-1)?.uid).toBe(name);
+  });
+});
 
 describe("inline record assignments", () => {
   it("uses the versioned record mutation and invalidates the workspace after assigning members", async () => {

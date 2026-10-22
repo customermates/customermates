@@ -171,7 +171,10 @@ describeDatabase("record editor embedded sub-lists", { timeout: 120_000 }, () =>
 
     const chosen = [f.id("lineItem.quantity")];
     await f.run(() =>
-      f.personalization.upsertP13n({ p13nId: sublistColumnsP13nId(lineItem), settings: { columns: chosen } }),
+      f.personalization.upsertP13n({
+        p13nId: sublistColumnsP13nId(lineItem),
+        settings: { columns: chosen, version: 2 },
+      }),
     );
     const personal = await f.run(() => f.editor.invoke(deal));
     if (!personal.ok) throw new Error("The admin could not read the deal again");

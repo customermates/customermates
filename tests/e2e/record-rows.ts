@@ -5,7 +5,7 @@ import { itemMenuLabels, openItemMenu, runItemAction } from "./item-actions";
 export function recordItem(page: Page, name: string) {
   return page
     .locator("tr, [data-row-id], [data-item-id]")
-    .filter({ has: page.getByRole("link", { name, exact: true }) })
+    .filter({ has: page.getByRole("button", { name: `More actions for ${name}`, exact: true, includeHidden: true }) })
     .first();
 }
 
@@ -52,9 +52,11 @@ export function recordRows(scope: Locator | Page) {
 export async function recordRowName(row: Locator) {
   const open = row.locator('[data-slot="data-row-open"]');
   if (await open.count()) return (await open.first().innerText()).trim();
+  const actions = row.locator("[data-item-actions-trigger]").first();
+  if (await actions.count()) return (await actions.getAttribute("aria-label"))?.replace(/^More actions for /, "") ?? "";
   return (await row.locator(":scope > a[aria-label], :scope > button[aria-label]").first().getAttribute("aria-label")) ?? "";
 }
 
 export async function openRecordLink(target: Locator) {
-  await target.click({ position: { x: 8, y: 8 } });
+  await target.click({ position: { x: 2, y: 2 } });
 }

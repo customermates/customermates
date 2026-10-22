@@ -47,7 +47,7 @@ test.describe("item menus on a fine pointer", () => {
     const fromRightClick = await itemMenuLabels(page, await openItemContextMenu(page, row));
     expect(fromRightClick).toEqual(fromTrigger);
 
-    await row.getByRole("link", { name, exact: true }).focus();
+    await row.getByRole("button", { name: "Edit Name", exact: true }).focus();
     await page.keyboard.press("Shift+F10");
     const fromKeyboard = page.getByRole("menu");
     await expect(fromKeyboard.getByRole("menuitem").first()).toBeFocused();

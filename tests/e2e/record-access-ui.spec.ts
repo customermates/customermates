@@ -249,16 +249,10 @@ test("admits an assigned-record writer and separately delegates schema configura
     });
     await member.page.goto(`/en/records/${type.id}`);
     await expect(
-      member.page.getByRole("link", {
-        name: "Assigned project",
-        exact: true,
-      }),
+      recordItem(member.page, "Assigned project"),
     ).toBeVisible();
     await expect(
-      member.page.getByRole("link", {
-        name: "Other member project",
-        exact: true,
-      }),
+      recordItem(member.page, "Other member project"),
     ).toHaveCount(0);
     await expect(member.page.locator("#records-add")).toHaveCount(0);
     await expect(member.page.locator("#nav-configure-records")).toHaveCount(0);
@@ -282,10 +276,7 @@ test("admits an assigned-record writer and separately delegates schema configura
     await drawer.getByRole("button", { name: "Save", exact: true }).click();
     await expect(drawer).not.toBeVisible();
     await expect(
-      member.page.getByRole("link", {
-        name: "Edited assigned project",
-        exact: true,
-      }),
+      recordItem(member.page, "Edited assigned project"),
     ).toBeVisible();
     expect(
       (
@@ -342,10 +333,7 @@ test("admits an assigned-record writer and separately delegates schema configura
       .toEqual([workspace.userId, member.userId].sort());
     await member.page.reload();
     await expect(
-      member.page.getByRole("link", {
-        name: "Other member project",
-        exact: true,
-      }),
+      recordItem(member.page, "Other member project"),
     ).toBeVisible();
     expect(
       (
@@ -373,16 +361,10 @@ test("admits an assigned-record writer and separately delegates schema configura
     await expect.poll(assignees).toEqual([workspace.userId]);
     await member.page.reload();
     await expect(
-      member.page.getByRole("link", {
-        name: "Other member project",
-        exact: true,
-      }),
+      recordItem(member.page, "Other member project"),
     ).toHaveCount(0);
     await expect(
-      member.page.getByRole("link", {
-        name: "Edited assigned project",
-        exact: true,
-      }),
+      recordItem(member.page, "Edited assigned project"),
     ).toBeVisible();
     expect(
       (
@@ -618,10 +600,7 @@ test("admits an assigned-record writer and separately delegates schema configura
       .click();
     await expect(approvedDrawer).not.toBeVisible();
     await expect(
-      member.page.getByRole("link", {
-        name: "Own approved record",
-        exact: true,
-      }),
+      recordItem(member.page, "Own approved record"),
     ).toBeVisible();
     const foreign = await mutate(page, {
       action: "create",
@@ -1241,16 +1220,10 @@ test("keeps shared Inbox participants permission-scoped across genuine readers a
       ).toBe(404);
     await foreign.page.goto(`/en/records/${foreignContactTypeId}`);
     await expect(
-      foreign.page.getByRole("link", {
-        name: "Foreign CRM Ada",
-        exact: true,
-      }),
+      recordItem(foreign.page, "Foreign CRM Ada"),
     ).toBeVisible();
     await expect(
-      foreign.page.getByRole("link", {
-        name: "Private CRM Ada",
-        exact: true,
-      }),
+      recordItem(foreign.page, "Private CRM Ada"),
     ).toHaveCount(0);
     await foreign.page.screenshot({
       path: testInfo.outputPath("foreign-workspace-identical-identifier.png"),
@@ -2776,6 +2749,37 @@ test("keeps retained values restricted after a delegated manager converts fields
       {
         operation: "putField",
         field: {
+          id: "$email",
+          typeId: "$source",
+          label: "Private email",
+          valueType: "email",
+          required: false,
+          archived: false,
+          options: [],
+          position: 3,
+          behavior: { kind: "input" },
+        },
+      },
+      {
+        operation: "putField",
+        field: {
+          id: "$linkedEmail",
+          typeId: "$summary",
+          label: "Private email copy",
+          valueType: "email",
+          required: false,
+          archived: false,
+          options: [],
+          position: 4,
+          behavior: {
+            kind: "lookup",
+            expression: { kind: "related", relationId: "$sourceLink", direction: "outgoing", expression: { kind: "field", fieldId: "$email" }, reducer: "one" },
+          },
+        },
+      },
+      {
+        operation: "putField",
+        field: {
           id: "$memo",
           typeId: "$summary",
           label: "Private memo",
@@ -2808,10 +2812,12 @@ test("keeps retained values restricted after a delegated manager converts fields
   const amount = model.fields.find((field) => field.label === "Private amount");
   const total = model.fields.find((field) => field.label === "Retained total");
   const memo = model.fields.find((field) => field.label === "Private memo");
+  const email = model.fields.find((field) => field.label === "Private email");
+  const linkedEmail = model.fields.find((field) => field.label === "Private email copy");
   const relation = model.relationships.find(
     (entry) => entry.sourceLabel === "Private source",
   );
-  if (!sourceType || !summaryType || !amount || !total || !memo || !relation)
+  if (!sourceType || !summaryType || !amount || !total || !memo || !email || !linkedEmail || !relation)
     throw new Error("The private-source fixture schema is incomplete");
   await postOk(page, "/api/v1/model/apply", {
     expectedRevision: model.revision,
@@ -2827,6 +2833,7 @@ test("keeps retained values restricted after a delegated manager converts fields
     ],
   });
   const canary = `Private-${randomUUID()}`;
+  const emailCanary = `${canary.toLowerCase()}@example.test`;
   const source = await mutate(page, {
     action: "create",
     typeId: sourceType.id,
@@ -2839,6 +2846,7 @@ test("keeps retained values restricted after a delegated manager converts fields
         fieldId: amount.id,
         value: { kind: "decimal", value: "41.25", currency: "EUR" },
       },
+      { fieldId: email.id, value: { kind: "text", value: emailCanary } },
     ],
   });
   const summary = await mutate(page, {
@@ -2867,7 +2875,7 @@ test("keeps retained values restricted after a delegated manager converts fields
     permissions: [{ resource: "company", actions: [] }],
     recordGrants: model.types
       .filter((type) => type.id !== sourceType.id && !type.embedded)
-      .map((type) => ({ typeId: type.id, actions: ["readAll"] })),
+      .map((type) => ({ typeId: type.id, actions: type.id === summaryType.id ? ["readAll", "update"] : ["readAll"] })),
   });
   const managerRole = await saveRole(page, {
     name: "Archive schema manager",
@@ -2959,7 +2967,8 @@ test("keeps retained values restricted after a delegated manager converts fields
           )
         ).rows,
       ).toEqual([{ textValue: canary }]);
-      for (const field of [total, memo]) {
+      expect((await database.query('SELECT "textValue" FROM "RecordValue" WHERE "companyId"=$1 AND "typeId"=$2 AND "recordId"=$3 AND "fieldId"=$4', [companyId, summary.typeId, summary.recordId, linkedEmail.id])).rows).toEqual([{ textValue: emailCanary }]);
+      for (const field of [total, memo, linkedEmail]) {
         expect(
           (
             await database.query(
@@ -2974,7 +2983,7 @@ test("keeps retained values restricted after a delegated manager converts fields
       const dto = RecordDtoSchema.parse(
         await postOk(reader.page, "/api/v1/records/read", summary),
       );
-      for (const field of [total, memo])
+      for (const field of [total, memo, linkedEmail])
         expect(
           dto.fields.find((entry) => entry.fieldId === field.id)?.result,
         ).toEqual({ state: "restricted" });
@@ -2983,15 +2992,17 @@ test("keeps retained values restricted after a delegated manager converts fields
       if (!test.info().project.use.isMobile)
         await expect(
           row.getByRole("cell", { name: "Restricted", exact: true }),
-        ).toHaveCount(2);
+        ).toHaveCount(3);
       await expect(row).not.toContainText(canary);
+      await expect(row).not.toContainText(emailCanary);
       await expect(row).not.toContainText("€41.25");
       await openRecordDetails(reader.page, "Readable archive summary");
       const editor = reader.page.getByRole("dialog", {
         name: summaryType.label,
         exact: true,
       });
-      for (const field of [total, memo]) {
+      await expect(editor.getByRole("textbox", { name: summaryType.label, exact: false })).toBeEditable();
+      for (const field of [total, memo, linkedEmail]) {
         const value = editor.locator(`[data-entity-field="${field.id}"]`);
         await expect(
           value.getByText("Restricted", { exact: true }),
@@ -3011,6 +3022,7 @@ test("keeps retained values restricted after a delegated manager converts fields
         await expect(
           pinned.getByText("Restricted", { exact: true }),
         ).toBeVisible();
+        await expect(pinned.getByRole("button", { name: `Edit ${field.label}`, exact: true })).toHaveCount(0);
       }
       await reader.page.waitForLoadState("networkidle");
       await editor.getByRole("button", { name: "Close", exact: true }).click();
@@ -3041,7 +3053,7 @@ test("keeps retained values restricted after a delegated manager converts fields
         .filter({ hasText: "Readable archive summary" })
         .filter({ hasNotText: "Ask Mate" })
         .click();
-      for (const field of [total, memo]) {
+      for (const field of [total, memo, linkedEmail]) {
         await expect(
           editor
             .locator(`[data-entity-field="${field.id}"]`)
@@ -3084,7 +3096,7 @@ test("keeps retained values restricted after a delegated manager converts fields
       await expect(dialog).toBeVisible();
       await saveDrawer(manager.page);
     };
-    for (const field of [total, memo]) {
+    for (const field of [total, memo, linkedEmail]) {
       const dialog = await summaryFieldEditorUi(
         manager.page,
         summaryType.id,
@@ -3116,7 +3128,7 @@ test("keeps retained values restricted after a delegated manager converts fields
     expect(
       model.relationships.find((entry) => entry.id === relation.id)?.archived,
     ).toBe(true);
-    for (const field of [total, memo]) {
+    for (const field of [total, memo, linkedEmail]) {
       expect(model.fields.find((entry) => entry.id === field.id)).toMatchObject(
         {
           behavior: { kind: "input" },
@@ -3134,7 +3146,7 @@ test("keeps retained values restricted after a delegated manager converts fields
     ).toEqual(
       model.types
         .filter((type) => type.id !== sourceType.id && !type.embedded)
-        .map((type) => ({ typeId: type.id, actions: ["readAll"] }))
+        .map((type) => ({ typeId: type.id, actions: type.id === summaryType.id ? ["readAll", "update"] : ["readAll"] }))
         .sort((a, b) => a.typeId.localeCompare(b.typeId)),
     );
     expect(

@@ -268,7 +268,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
   abstract get columnsDefinition(): TableColumn[];
 
-  get primaryColumnId(): string {
+  get primaryColumnId(): string | undefined {
     return "name";
   }
 

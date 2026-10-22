@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import { OverlayDismissGuardContext, useOwnOverlayDismissGuard } from "@/components/modal/overlay-dismiss-guard";
-import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
 import { formattedTextExcerpt, RecordValue } from "@/components/records/record-value";
 import { ITEM_REVEAL_CLASS } from "@/components/ui/item-actions";
 import { cn } from "@/core/utils/cn";
@@ -74,8 +73,7 @@ const PropertyChip = observer(function PropertyChip({
   }
   if (column.kind === "field") {
     const field = column.field;
-    if (!canEditInline(records, record, field) || field.valueType === "boolean") return chip;
-    if (CONTACT_VALUE_TYPES.includes(field.valueType)) return chip;
+    if (!canEditInline(records, record, field)) return chip;
     return (
       <RecordInlineField field={field} record={record} records={records} onOpenChange={onEditingChange}>
         {chip}
@@ -111,11 +109,7 @@ function editableAddColumns(
     if (column.id === "system:assignedTo") return emptyIds.has(column.id) && canEditAssignees(records, record);
     if (column.kind === "field") {
       if (!canEditInline(records, record, column.field)) return false;
-      return (
-        emptyIds.has(column.id) ||
-        CONTACT_VALUE_TYPES.includes(column.field.valueType) ||
-        column.field.valueType === "boolean"
-      );
+      return emptyIds.has(column.id);
     }
     if (column.kind === "relationship")
       return emptyIds.has(column.id) && hasInlineRelationshipEditor(records, record, column.relation);
@@ -262,7 +256,7 @@ export const RecordCardContent = observer(function RecordCardContent({
   const [editingExcerpt, setEditingExcerpt] = useState<string | null>(null);
   const byId = new Map(records.recordColumns.map((column) => [column.id, column]));
   const hidden = new Set([
-    records.primaryColumnId,
+    title ? records.type?.primaryFieldId : undefined,
     records.groupingResult?.grouping.field,
     records.groupingResult?.columnId,
   ]);
@@ -281,7 +275,11 @@ export const RecordCardContent = observer(function RecordCardContent({
   });
   return (
     <div className="space-y-2">
-      <div className="pr-6 text-sm font-medium [&_.truncate]:line-clamp-3 [&_.truncate]:whitespace-normal">{title}</div>
+      {title && (
+        <div className="pr-6 text-sm font-medium [&_.truncate]:line-clamp-3 [&_.truncate]:whitespace-normal">
+          {title}
+        </div>
+      )}
 
       {excerpts.map(({ field, result }) => (
         <div key={field.id} className="text-xs" data-card-excerpt={field.id}>

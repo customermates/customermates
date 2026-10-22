@@ -5,6 +5,8 @@ import { describe, expect, it } from "vitest";
 
 import { applyConfigurationLifecycle, targetKey, type ConfigurationDeletionRecord } from "../configuration-lifecycle";
 import { createCrmPreset, presetId } from "../crm-preset";
+import { validateRecordModel } from "../record-model-validation";
+import { recordInvariant } from "../record-invariant";
 
 const COMPANY_ID = "configuration-lifecycle";
 const id = (key: string) => presetId(COMPANY_ID, key);
@@ -30,6 +32,29 @@ function restoreTarget(model: RecordModel, target: ConfigurationTarget, deletion
 }
 
 describe("relationship paths of configuration in Trash", () => {
+  it.each([false, true])(
+    "restores a legacy multi-value name field while retaining its eligible replacement (%s)",
+    (hasReplacement) => {
+      const model = createCrmPreset(COMPANY_ID);
+      const name = recordInvariant(model.fields.find((field) => field.id === id("organization.name")));
+      name.multiple = true;
+      const replacementId = id("organization.alias");
+      if (hasReplacement)
+        model.fields.push({ ...name, id: replacementId, label: "Alias", multiple: false, position: 2 });
+      const target: ConfigurationTarget = { kind: "field", id: name.id };
+      const deletions = deleteTarget(model, target);
+      const type = recordInvariant(model.types.find((type) => type.id === name.typeId));
+      expect(type.primaryFieldId).toBe(hasReplacement ? replacementId : null);
+      expect(validateRecordModel(model).issues).toEqual([]);
+      restoreTarget(model, target, deletions);
+      expect(model.types.find((candidate) => candidate.id === type.id)?.primaryFieldId).toBe(
+        hasReplacement ? replacementId : null,
+      );
+      expect(model.fields.find((field) => field.id === name.id)).toMatchObject({ archived: false, multiple: true });
+      expect(validateRecordModel(model).issues).toEqual([]);
+    },
+  );
+
   it("keeps the paths a deleted relationship breaks archived on their lists, so the previous release reads the deletion", () => {
     const model = createCrmPreset(COMPANY_ID);
     const relationship: ConfigurationTarget = { kind: "relationship", id: id("lineItem.service") };

@@ -136,9 +136,17 @@ export function recordFilterableFields(
       ),
   ];
 }
-export function recordDefaults(typeId: string, fields: RecordFieldView[]): DataViewState {
+export function recordDefaults(
+  typeId: string,
+  fields: RecordFieldView[],
+  primaryFieldId?: string | null,
+): DataViewState {
+  const columnOrder = fields.filter((field) => field.typeId === typeId && !field.archived).map((field) => field.id);
   return {
-    columnOrder: fields.filter((field) => field.typeId === typeId && !field.archived).map((field) => field.id),
+    columnOrder:
+      primaryFieldId && columnOrder.includes(primaryFieldId)
+        ? [primaryFieldId, ...columnOrder.filter((id) => id !== primaryFieldId)]
+        : columnOrder,
     hiddenColumns: defaultHiddenColumns(typeId, fields),
     viewMode: ViewMode.table,
     grouping: null,

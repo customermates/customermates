@@ -303,6 +303,7 @@ export const ConfigureListPane = observer(function ConfigureListPane({
                         interactive={interactive}
                         label={field.label}
                         leading={canManage ? <span aria-hidden="true" className="w-3 shrink-0" /> : undefined}
+                        status={field.id === selected.primaryFieldId ? t("RecordModel.recordNameField") : null}
                         onOpen={canManage && isResolvedField(field) ? () => onEditField(field) : undefined}
                       />
                     </SortableField>

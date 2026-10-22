@@ -154,10 +154,7 @@ test("a new Google login from an invitation gets the invitation flow and waits f
     await expect(page).toHaveURL(/\/en\/onboarding\/wizard\?intent=/);
     await expect(
       page.getByText(
-        englishMessages.OnboardingWizard.steps.profile.invitedSubtitleNamed.replace(
-          "{workspace}",
-          "Hoffmann Consulting",
-        ),
+        englishMessages.OnboardingWizard.steps.profile.invitedSubtitleNamed.replace("{workspace}", "Hoffmann Consulting"),
         { exact: true },
       ),
     ).toBeVisible();

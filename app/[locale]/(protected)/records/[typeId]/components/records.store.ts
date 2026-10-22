@@ -274,10 +274,7 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
     const option = this.groupOption(groupKey);
     if (!field || !option || !this.canCreateInGroup(groupKey)) return;
     this.rootStore.recordWorkspaceStore.open(
-      {
-        typeId: this.presentation.typeId,
-        values: { [field.id]: { kind: "select", value: option.id } },
-      },
+      { typeId: this.presentation.typeId, values: { [field.id]: { kind: "select", value: option.id } } },
       returnFocusTo,
     );
   }
@@ -286,11 +283,7 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
     if (!this.presentation.canManageSchema || !field) return undefined;
     const option = this.groupOption(groupKey);
     if (!option) return undefined;
-    return focusHref({
-      kind: "option",
-      id: `${field.id}.${option.id}`,
-      typeId: this.presentation.typeId,
-    });
+    return focusHref({ kind: "option", id: `${field.id}.${option.id}`, typeId: this.presentation.typeId });
   }
   override async moveItemBetweenGroups(
     params: Parameters<BaseDataViewStore<RecordRow>["moveItemBetweenGroups"]>[0],
@@ -424,16 +417,20 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   }
   override get differsFromDefaultLayout() {
     if (!this.type) return false;
-    const defaults = recordDefaults(this.presentation.typeId, this.presentation.model.fields);
+    const defaults = recordDefaults(this.presentation.typeId, this.presentation.model.fields, this.type.primaryFieldId);
     const available = new Set(this.columnsDefinition.map((column) => column.uid));
-    const columns = (ids: string[] | undefined) =>
-      (ids ?? []).filter((id) => available.has(id) && id !== this.primaryColumnId);
+    const nameId = this.type.primaryFieldId;
+    const order =
+      nameId && this.columnOrder.length > 0 && !this.columnOrder.includes(nameId)
+        ? [nameId, ...this.columnOrder]
+        : this.columnOrder;
+    const columns = (ids: string[] | undefined) => (ids ?? []).filter((id) => available.has(id));
     const sort = (descriptor: { field: string; direction: string } | null | undefined) =>
       descriptor ? { field: descriptor.field, direction: descriptor.direction } : null;
     const grouping = (value: { field: string; bucket?: string } | null | undefined) =>
       value ? { field: value.field, bucket: value.bucket ?? null } : null;
     return (
-      !deepEqual(columns(this.columnOrder), columns(defaults.columnOrder)) ||
+      !deepEqual(columns(order), columns(defaults.columnOrder)) ||
       !deepEqual(new Set(columns(this.hiddenColumns)), new Set(columns(defaults.hiddenColumns))) ||
       Object.keys(this.columnWidths).length > 0 ||
       !this.showRecordPictures ||
@@ -456,8 +453,15 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   get formulaModel() {
     return withFormulaReferences(this.presentation.model, this.presentation.formulaReferences);
   }
-  get primaryColumnId() {
-    return this.type ? (this.type.primaryFieldId ?? UNTITLED_COLUMN_ID) : super.primaryColumnId;
+  override get orderedColumns() {
+    const columns = super.orderedColumns;
+    const nameId = this.type?.primaryFieldId;
+    const name = columns.find((column) => column.uid === nameId);
+    if (!name || this.columnOrder.includes(name.uid)) return columns;
+    return [name, ...columns.filter((column) => column !== name)];
+  }
+  override get primaryColumnId(): string | undefined {
+    return this.type && !this.type.primaryFieldId ? UNTITLED_COLUMN_ID : undefined;
   }
   get filterColumns() {
     return [
@@ -521,10 +525,7 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   protected async refreshAction(params?: GetQueryParams) {
     const bulkRefreshGeneration = this.bulkRefreshGeneration;
     const presentation = await actionData(getRecordPresentationAction(this.presentation.typeId, params));
-    this.loaded.set(presentation.result, {
-      presentation,
-      bulkRefreshGeneration,
-    });
+    this.loaded.set(presentation.result, { presentation, bulkRefreshGeneration });
     return presentation.result;
   }
 }

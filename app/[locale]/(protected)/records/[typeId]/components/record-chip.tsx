@@ -202,7 +202,9 @@ export const RecordPropertyChipView = observer(function RecordPropertyChipView({
     if (result?.state === "value" && result.value.kind === "boolean") {
       return (
         <AppChip startContent={icon} tooltip={field.label}>
-          {field.label}
+          <ChipLabel name={field.label}>
+            <RecordValue field={field} result={result} />
+          </ChipLabel>
         </AppChip>
       );
     }

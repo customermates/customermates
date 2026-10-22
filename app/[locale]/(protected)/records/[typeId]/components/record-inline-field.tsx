@@ -14,6 +14,7 @@ import type { RecordsStore } from "./records.store";
 
 import { useEffect, useId, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
+import { toJS } from "mobx";
 import { useTranslations } from "next-intl";
 import { Check, Pencil } from "lucide-react";
 
@@ -68,7 +69,7 @@ const EDIT_TARGET_CLASS = cn(
   EDIT_SURFACE_CLASS,
   "inline-flex min-h-6 min-w-0 cursor-pointer items-center text-left outline-none focus-visible:ring-2 focus-visible:ring-ring/70 disabled:cursor-default",
 );
-const EDIT_SPACE_BUTTON_CLASS = cn(
+export const EDIT_SPACE_BUTTON_CLASS = cn(
   ITEM_REVEAL_CLASS,
   "ml-auto !w-auto shrink-0 rounded-sm px-1 text-xs text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:outline-none",
 );
@@ -83,7 +84,6 @@ export function focusFirstControl(event: Event) {
 
 export function canEditInline(store: RecordsStore, record: RecordRow, field: RecordFieldView) {
   if (!store.canUpdateRecord(record) || !isRecordFieldWritable(field)) return false;
-  if (field.id === store.type?.primaryFieldId) return false;
   const result = record.fields.find((value) => value.fieldId === field.id)?.result;
   return result?.state !== "restricted" && result?.state !== "error";
 }
@@ -93,7 +93,7 @@ export function canEditAssignees(records: RecordsStore, record: RecordRow) {
 }
 
 export function isCalculatedField(store: RecordsStore, field: RecordFieldView) {
-  return !isRecordFieldWritable(field) && field.valueType !== "channels" && field.id !== store.type?.primaryFieldId;
+  return !isRecordFieldWritable(field) && field.valueType !== "channels";
 }
 
 export function hasInlineRelationshipEditor(records: RecordsStore, record: RecordRow, relation: RecordRelationship) {
@@ -238,8 +238,10 @@ class InlineAssigneesStore extends BaseFormStore<{ assignedUserIds: string[] }> 
     this.setIsLoading(true);
     try {
       const outcome = await this.records.updateRecordAssignees(this.record, [...this.form.assignedUserIds]);
-      if (outcome.saved) this.onDone();
-      else if (outcome.invalid?.length) this.setError({ errors: outcome.invalid });
+      if (outcome.saved) {
+        this.onInitOrRefresh(toJS(this.form));
+        this.onDone();
+      } else if (outcome.invalid?.length) this.setError({ errors: outcome.invalid });
     } finally {
       this.setIsLoading(false);
     }
@@ -365,6 +367,7 @@ const InPlaceFieldInput = observer(function InPlaceFieldInput({
         if (event.key === "Escape") {
           event.preventDefault();
           event.stopPropagation();
+          store.resetForm();
           onDone();
         } else if (event.key === "Enter") {
           event.preventDefault();
@@ -583,20 +586,19 @@ const PopoverField = observer(function PopoverField({
   };
   const empty = isEmptyResult(fieldResult(record, field));
   const contact = CONTACT_VALUE_TYPES.includes(field.valueType) && !empty;
-  const separateAction = contact;
   const label = t("RecordModel.editValue", { field: field.label });
   const trigger = (
     <button
       aria-label={label}
       className={
-        separateAction ? EDIT_SPACE_BUTTON_CLASS : cn(EDIT_TARGET_CLASS, field.valueType === "richText" && "max-w-full")
+        contact ? EDIT_SPACE_BUTTON_CLASS : cn(EDIT_TARGET_CLASS, field.valueType === "richText" && "max-w-full")
       }
       data-edit-target=""
       data-inline-edit={field.id}
       type="button"
       {...selectionHandlers(records, record)}
     >
-      {separateAction ? (
+      {contact ? (
         t("RecordModel.edit")
       ) : empty ? (
         <EmptyValueTarget />
@@ -608,18 +610,18 @@ const PopoverField = observer(function PopoverField({
   return (
     <ResponsiveOverlay
       anchor={
-        separateAction
+        contact
           ? (editTrigger) => (
               <span
                 className={cn(
                   EDIT_SURFACE_CLASS,
                   "flex min-h-6 min-w-0 items-center",
-                  contact && layout === "row" && "cursor-text",
+                  layout === "row" && "cursor-text",
                 )}
-                data-inline-edit-space={contact && layout === "row" ? field.id : undefined}
+                data-inline-edit-space={layout === "row" ? field.id : undefined}
                 role="presentation"
                 onClick={(event: MouseEvent<HTMLSpanElement>) => {
-                  if (!contact || layout !== "row" || records.selectedIds.size > 0 || isInteractiveClick(event)) return;
+                  if (layout !== "row" || records.selectedIds.size > 0 || isInteractiveClick(event)) return;
                   event.stopPropagation();
                   setOpen(true);
                 }}
@@ -666,7 +668,8 @@ export const RecordInlineField = observer(function RecordInlineField({
       </InlineSelect>
     );
   }
-  if (field.valueType === "boolean") return <InlineBoolean field={field} record={record} records={records} />;
+  if (field.valueType === "boolean" && layout !== "card")
+    return <InlineBoolean field={field} record={record} records={records} />;
   if (layout === "row" && editsInPlace(field)) {
     return (
       <InPlaceField field={field} record={record} records={records}>

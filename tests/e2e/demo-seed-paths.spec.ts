@@ -2,11 +2,7 @@ import { DEMO_COMPANY_ID, demoId, expect, test } from "./demo-seed";
 import { expectHydrated } from "./workspace-switching";
 
 /** Sub-lists and relationship paths of the seeded workspace: deal line items, and the Deals path of a service. */
-test("a deal shows its line items with Max's curated line item columns", async ({
-  page,
-  database,
-  errors,
-}, testInfo) => {
+test("a deal shows its line items with Max's curated line item columns", async ({ page, database, errors }, testInfo) => {
   const { rows: deals } = await database.query<{ id: string; items: number }>(
     `SELECT l."targetId" AS id, count(*)::int AS items FROM "RecordLink" l
      JOIN "CrmRecord" r ON r."companyId"=l."companyId" AND r."typeId"=l."sourceTypeId" AND r.id=l."sourceId"

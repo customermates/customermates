@@ -122,10 +122,7 @@ export function readStoredPersonalizationState({
   viewStateKeys,
   ...columns
 }: StoredPersonalizationRow): DataViewState {
-  const state = readStoredState({
-    ...columns,
-    pageSize: storedPageSize(pagination),
-  });
+  const state = readStoredState({ ...columns, pageSize: storedPageSize(pagination) });
   if (!Array.isArray(viewStateKeys)) return state;
   const keys = new Set(viewStateKeys);
   const clear: DataViewState = {

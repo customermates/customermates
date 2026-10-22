@@ -16,6 +16,7 @@ import { MemberAvatar, memberName } from "@/components/chip/member-chip";
 import { FormAutocompleteAvatar } from "@/components/forms/form-autocomplete-avatar";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { cn } from "@/core/utils/cn";
+import { ITEM_REVEAL_GROUP_CLASS } from "@/components/ui/item-actions";
 import {
   type EntityDetailPreviewItem,
   useEntityDetailPersonalization,
@@ -26,7 +27,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { recordColumns } from "@/features/records/record-columns";
 import { isRecordFieldWritable } from "@/features/records/record-input-value";
 import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
@@ -43,7 +44,7 @@ import {
   linkTypeId,
 } from "./record-chip";
 import { RecordChannelPopover } from "./record-identity-editor";
-import { focusFirstControl, RecordLinkPicker } from "./record-inline-field";
+import { EDIT_SPACE_BUTTON_CLASS, focusFirstControl, RecordLinkPicker } from "./record-inline-field";
 import { RecordInputField } from "./record-input-field";
 import { useRecordChoices } from "@/components/records/use-record-choices";
 import { actionData } from "@/core/utils/action-data";
@@ -150,6 +151,8 @@ function ChipPopover({
   label,
   chip,
   wide = false,
+  contact = false,
+  formatted = false,
   open,
   onOpenChange,
   children,
@@ -157,6 +160,8 @@ function ChipPopover({
   label: string;
   chip: ReactNode;
   wide?: boolean;
+  contact?: boolean;
+  formatted?: boolean;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   children: ReactNode;
@@ -164,13 +169,39 @@ function ChipPopover({
   const t = useTranslations();
   return (
     <Popover modal open={open} onOpenChange={onOpenChange}>
-      <PopoverTrigger asChild>
-        <button aria-label={t("RecordModel.editValue", { field: label })} className={CHIP_TRIGGER_CLASS} type="button">
-          {chip}
-        </button>
-      </PopoverTrigger>
+      {contact ? (
+        <PopoverAnchor asChild>
+          <span className={cn(ITEM_REVEAL_GROUP_CLASS, "inline-flex min-w-0 max-w-full items-center gap-1")}>
+            {chip}
 
-      <PopoverContent align="start" className={chipPopoverClass(wide)} onOpenAutoFocus={focusFirstControl}>
+            <PopoverTrigger asChild>
+              <button
+                aria-label={t("RecordModel.editValue", { field: label })}
+                className={EDIT_SPACE_BUTTON_CLASS}
+                type="button"
+              >
+                {t("RecordModel.edit")}
+              </button>
+            </PopoverTrigger>
+          </span>
+        </PopoverAnchor>
+      ) : (
+        <PopoverTrigger asChild>
+          <button
+            aria-label={t("RecordModel.editValue", { field: label })}
+            className={CHIP_TRIGGER_CLASS}
+            type="button"
+          >
+            {chip}
+          </button>
+        </PopoverTrigger>
+      )}
+
+      <PopoverContent
+        align="start"
+        className={cn(chipPopoverClass(wide), formatted && "w-xl")}
+        onOpenAutoFocus={focusFirstControl}
+      >
         {open && children}
       </PopoverContent>
     </Popover>
@@ -248,13 +279,9 @@ const LinkedChip = observer(function LinkedChip({
 
 function editsInChip(store: RecordEditorStore, column: RecordChipColumn) {
   if (store.isReadOnly) return false;
-  if (column.kind === "field") {
-    return (
-      isRecordFieldWritable(column.field) &&
-      column.field.valueType !== "richText" &&
-      !CONTACT_VALUE_TYPES.includes(column.field.valueType)
-    );
-  }
+  if (column.kind === "field")
+    return isRecordFieldWritable(column.field) && store.previewValue(column.field).state !== "restricted";
+
   if (column.kind === "relationship") {
     return !store.presentation.model.types.some(
       (type) => type.embedded && type.parentRelationshipId === column.relation.id,
@@ -349,8 +376,19 @@ const DetailChip = observer(function DetailChip({
   );
   if (personalizing || column.kind !== "field" || !editsInChip(store, column)) return chip;
   return (
-    <ChipPopover chip={chip} label={column.label} open={open} onOpenChange={setOpen}>
+    <ChipPopover
+      chip={chip}
+      contact={!entry.empty && CONTACT_VALUE_TYPES.includes(column.field.valueType)}
+      formatted={column.field.valueType === "richText"}
+      label={column.label}
+      open={open}
+      onOpenChange={setOpen}
+    >
       <EditorHeading label={column.label} />
+
+      <label className="sr-only" htmlFor={inputId}>
+        {column.label}
+      </label>
 
       <RecordInputField
         field={column.field}

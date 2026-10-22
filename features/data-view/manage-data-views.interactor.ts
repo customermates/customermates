@@ -260,12 +260,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
             page: 1,
             pageSize: 1,
             totalPages: 1,
-            items: [
-              {
-                ...view,
-                state: await this.liveState(data.surfaceKey, view.state),
-              },
-            ],
+            items: [{ ...view, state: await this.liveState(data.surfaceKey, view.state) }],
             activeViewKey: surfaceState.activeViewKey,
           },
         };

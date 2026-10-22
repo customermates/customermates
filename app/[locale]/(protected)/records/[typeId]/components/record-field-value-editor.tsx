@@ -63,8 +63,10 @@ export class RecordFieldValueStore extends BaseFormStore<{ value: unknown }> {
     this.setIsLoading(true);
     try {
       const outcome = await this.save(value);
-      if (outcome.saved) this.done();
-      else if (outcome.invalid?.length) this.showInvalid(outcome.invalid);
+      if (outcome.saved) {
+        this.onInitOrRefresh(toJS(this.form));
+        this.done();
+      } else if (outcome.invalid?.length) this.showInvalid(outcome.invalid);
     } finally {
       this.setIsLoading(false);
     }

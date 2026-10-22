@@ -39,16 +39,8 @@ export function activityViewFilters(filters: readonly Filter[]): RecordActivityF
         values: [...new Set(sources.flatMap((source) => [...SOURCES[source]]))],
       });
     }
-    const kind = {
-      provider: "provider",
-      connectedAccountId: "account",
-      timelineThreadId: "thread",
-    }[filter.field];
-    return RecordActivityFilterSchema.parse({
-      kind,
-      operator: filter.operator,
-      values,
-    });
+    const kind = { provider: "provider", connectedAccountId: "account", timelineThreadId: "thread" }[filter.field];
+    return RecordActivityFilterSchema.parse({ kind, operator: filter.operator, values });
   });
 }
 

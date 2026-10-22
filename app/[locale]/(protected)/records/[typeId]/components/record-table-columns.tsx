@@ -13,6 +13,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { recordDisplayName } from "@/features/records/record-display-name";
 import { RecordCell } from "./record-cell";
 import { RecordCardContent } from "./record-chip-row";
+import { DataViewItemLayout } from "@/components/data-view/data-view-item-layout";
 import { UNTITLED_COLUMN_ID } from "./records.store";
 import {
   RecordCalculatedValue,
@@ -169,25 +170,37 @@ export function useRecordCardRenderer(store: RecordsStore, openRelated: (ref: Re
   const avatarFieldId = recordAvatarFieldId(store);
   return useCallback(
     (record: RecordRow) => {
-      const primary = store.recordColumns.find((column) => column.id === store.primaryColumnId);
-      return (
-        <RecordCardContent
+      const primary = store.recordColumns.find((column) => column.id === store.type?.primaryFieldId);
+      const showTitle = !primary || store.visibleColumns.some((column) => column.uid === primary.id);
+      const title = (
+        <RecordCell
+          avatarFieldId={avatarFieldId}
+          column={primary}
+          fallbackTitle={recordDisplayName(undefined, store.type?.label, t)}
+          linkColors={store.presentation.linkColors}
+          linkIcons={store.presentation.linkIcons}
+          linkLabels={store.presentation.linkLabels}
           record={record}
-          records={store}
-          title={
-            <RecordCell
-              avatarFieldId={avatarFieldId}
-              column={primary}
-              fallbackTitle={recordDisplayName(undefined, store.type?.label, t)}
-              linkColors={store.presentation.linkColors}
-              linkIcons={store.presentation.linkIcons}
-              linkLabels={store.presentation.linkLabels}
-              record={record}
-              onOpen={openRelated}
-            />
-          }
-          onOpenRecord={openRelated}
+          onOpen={openRelated}
         />
+      );
+      return (
+        <DataViewItemLayout.Provider value="card">
+          <RecordCardContent
+            record={record}
+            records={store}
+            title={
+              !showTitle ? null : primary?.kind === "field" && canEditInline(store, record, primary.field) ? (
+                <RecordInlineField field={primary.field} record={record} records={store}>
+                  {title}
+                </RecordInlineField>
+              ) : (
+                title
+              )
+            }
+            onOpenRecord={openRelated}
+          />
+        </DataViewItemLayout.Provider>
       );
     },
     [avatarFieldId, openRelated, store, t],

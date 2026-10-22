@@ -51,6 +51,7 @@ function store(): BaseDataViewStore<Item> {
     isItemSelectable: () => true,
     isReady: true,
     items: ITEMS,
+    primaryColumnId: "name",
     selectedIds: new Set<string>(),
     setPageSelection: vi.fn(),
     setQueryOptions: vi.fn(),

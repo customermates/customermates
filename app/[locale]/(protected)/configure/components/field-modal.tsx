@@ -84,19 +84,13 @@ const initial = () => ({
   defaultValue: undefined as unknown,
   publishedSummary: false,
   allowManualOverride: false as boolean | undefined,
-  choices: {
-    columns: [] as OptionAttributeColumn[],
-    options: [] as OptionDraft[],
-  },
+  choices: { columns: [] as OptionAttributeColumn[], options: [] as OptionDraft[] },
 });
 export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>> {
   typeId = "";
   original: RecordField | null = null;
   private definitionId: string = crypto.randomUUID();
-  private publication: {
-    signature: string;
-    operations: ConfigurationChange["operations"];
-  } | null = null;
+  private publication: { signature: string; operations: ConfigurationChange["operations"] } | null = null;
   constructor(
     root: RootStore,
     model: RecordModelView,
@@ -202,6 +196,10 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
       return undefined;
     return this.model.types.find((type) => type.id === this.typeId)?.pluralLabel;
   }
+  get recordNameListLabel() {
+    if (!this.original) return undefined;
+    return this.model.types.find((type) => type.primaryFieldId === this.original?.id)?.pluralLabel;
+  }
   protected projectLatestModel(model: RecordModelView) {
     if (!model.types.some((type) => type.id === this.typeId)) return null;
     this.publication = null;
@@ -279,9 +277,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
       archived: false,
       publishedSummary: false,
       position: this.original?.position ?? 0,
-      format: {
-        currency: this.form.valueType === "currency" ? this.form.currency.toUpperCase() : null,
-      },
+      format: { currency: this.form.valueType === "currency" ? this.form.currency.toUpperCase() : null },
       options: optionsWithAttributes(this.form.choices.columns, this.form.choices.options),
     };
   }
@@ -451,10 +447,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
         dependencyHash: calculation.dependencyHash,
       },
     ];
-    this.publication = {
-      signature: JSON.stringify(toJS(this.form)),
-      operations,
-    };
+    this.publication = { signature: JSON.stringify(toJS(this.form)), operations };
     return { ...change, operations };
   }
   operations(): ConfigurationChange["operations"] {
@@ -528,12 +521,7 @@ export const FieldModal = observer(function FieldModal({
   const t = useTranslations();
   const deletion = useConfigurationDeletion(onDeleted);
   const original = store.original;
-  const deleteTarget = original
-    ? {
-        target: { kind: "field" as const, id: original.id },
-        name: original.label,
-      }
-    : null;
+  const deleteTarget = original ? { target: { kind: "field" as const, id: original.id }, name: original.label } : null;
   const thisList = store.model.types.find((type) => type.id === store.typeId);
   const linkedList = store.model.types.find((type) => type.id === store.linkedTypeIds[0]);
   const updateLabels: Record<CalculationUpdates, string> = {
@@ -553,11 +541,7 @@ export const FieldModal = observer(function FieldModal({
     active: store.isOpen,
     context: {
       reference: store.original
-        ? {
-            kind: "recordField",
-            typeId: store.typeId,
-            fieldId: store.original.id,
-          }
+        ? { kind: "recordField", typeId: store.typeId, fieldId: store.original.id }
         : { kind: "recordType", typeId: store.typeId },
       label: store.original?.label ?? t("RecordModel.addField"),
     },
@@ -599,6 +583,12 @@ export const FieldModal = observer(function FieldModal({
           <>
             <FormInput required showErrorMessage id="label" label={t("RecordModel.name")} />
 
+            {store.recordNameListLabel && (
+              <p className="text-sm text-muted-foreground">
+                {t("RecordModel.recordNameFieldUsage", { list: store.recordNameListLabel })}
+              </p>
+            )}
+
             {store.pictureListLabel && (
               <p className="text-sm text-muted-foreground">
                 {t("RecordModel.pictureFieldUsage", {
@@ -634,20 +624,13 @@ export const FieldModal = observer(function FieldModal({
                       value === "select"
                         ? [
                             { value, label: t("RecordModel.types.select") },
-                            {
-                              value: "multiSelect",
-                              label: t("RecordModel.types.multiSelect"),
-                            },
+                            { value: "multiSelect", label: t("RecordModel.types.multiSelect") },
                           ]
                         : [
                             {
                               value,
                               label: t(`RecordModel.types.${value}`),
-                              ...(value === "richText"
-                                ? {
-                                    description: t("RecordModel.typeHints.richText"),
-                                  }
-                                : {}),
+                              ...(value === "richText" ? { description: t("RecordModel.typeHints.richText") } : {}),
                             },
                           ],
                     )}
@@ -746,10 +729,7 @@ export const FieldModal = observer(function FieldModal({
             >
               <FormSelect
                 id="updates"
-                items={CALCULATION_UPDATES.map((value) => ({
-                  value,
-                  label: updateLabels[value],
-                }))}
+                items={CALCULATION_UPDATES.map((value) => ({ value, label: updateLabels[value] }))}
                 label={t("RecordModel.calculationFlow.updates")}
               />
 
@@ -792,9 +772,7 @@ export const FieldModal = observer(function FieldModal({
                   {store.canPublishSummary ? (
                     <FormSwitch
                       id="publishedSummary"
-                      label={t("RecordModel.calculationFlow.showToEveryone", {
-                        list: thisList?.label ?? "",
-                      })}
+                      label={t("RecordModel.calculationFlow.showToEveryone", { list: thisList?.label ?? "" })}
                     />
                   ) : (
                     <p className="text-sm">{t("RecordModel.summaryApprovalRequired")}</p>
@@ -802,9 +780,7 @@ export const FieldModal = observer(function FieldModal({
 
                   {store.form.publishedSummary && (
                     <p className="text-xs text-muted-foreground">
-                      {t("RecordModel.calculationFlow.showToEveryoneHelp", {
-                        list: linkedList.label,
-                      })}
+                      {t("RecordModel.calculationFlow.showToEveryoneHelp", { list: linkedList.label })}
                     </p>
                   )}
                 </div>

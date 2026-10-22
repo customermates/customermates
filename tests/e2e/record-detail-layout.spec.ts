@@ -534,7 +534,13 @@ test("edits header links with the card picker, keeps contact values outside edit
   const avatar = chips.getByRole("group", { name: "Avatar", exact: true });
   await expect(avatar.getByRole("link")).toBeVisible();
   await expect(avatar.locator("button a, a button")).toHaveCount(0);
-  await expect(avatar.getByRole("button", { name: "Edit Avatar", exact: true })).toHaveCount(0);
+  await avatar.hover();
+  await expect(avatar.getByRole("button", { name: "Edit Avatar", exact: true })).toBeVisible();
+  await avatar.getByRole("button", { name: "Edit Avatar", exact: true }).click();
+  const pictureEditor = page.locator('[data-slot="popover-content"][data-state="open"]');
+  await expect(pictureEditor.getByRole("textbox", { name: "Avatar", exact: true })).toHaveValue("https://example.test/avatar.png");
+  await page.keyboard.press("Escape");
+  await expect(avatar.getByRole("link")).toBeVisible();
 
   const organizations = chips.getByRole("group", {
     name: "Organizations",

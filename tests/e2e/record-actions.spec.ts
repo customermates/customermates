@@ -5,7 +5,7 @@ import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { postOk } from "./api";
 import { openItemMenu } from "./item-actions";
-import { openRecordDetails, rowActionLabels } from "./record-rows";
+import { recordItem, openRecordDetails, rowActionLabels } from "./record-rows";
 
 async function setListColor(page: Page, typeId: string, color: string) {
   const model = RecordModelSchema.parse(await postOk(page, "/api/v1/model/read", {}));
@@ -79,7 +79,7 @@ test("record drawer keeps record actions icon-only in the header row next to Clo
   await rail.getByRole("button", { name: "Delete", exact: true }).click();
   await page.getByRole("alertdialog").locator("#confirm-delete").click();
   await expect(drawer).not.toBeVisible();
-  await expect(page.getByRole("link", { name, exact: true })).toHaveCount(0);
+  await expect(recordItem(page, name)).toHaveCount(0);
 });
 
 test("single select inputs show the selected option as a chip", async ({ page, companyId }) => {

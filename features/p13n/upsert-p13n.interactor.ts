@@ -49,21 +49,12 @@ const Schema = z
     if (data.settings === undefined) return;
     const schema = p13nSettingsSchema(data.p13nId);
     if (!schema) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["settings"],
-        message: "Settings are not stored for this view",
-      });
+      ctx.addIssue({ code: "custom", path: ["settings"], message: "Settings are not stored for this view" });
       return;
     }
     if (data.settings === null) return;
-    for (const issue of schema.safeParse(data.settings).error?.issues ?? []) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["settings", ...issue.path],
-        message: issue.message,
-      });
-    }
+    for (const issue of schema.safeParse(data.settings).error?.issues ?? [])
+      ctx.addIssue({ code: "custom", path: ["settings", ...issue.path], message: issue.message });
   });
 export type UpsertP13nData = Data<typeof Schema>;
 

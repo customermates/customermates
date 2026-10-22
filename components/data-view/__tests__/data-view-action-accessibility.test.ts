@@ -40,6 +40,7 @@ function store(): BaseDataViewStore<Item> {
     isItemSelectable: () => true,
     isReady: true,
     items: [{ id: "routine-1", name: "Daily summary" }],
+    primaryColumnId: "name",
     selectedIds: new Set(),
     setPageSelection: vi.fn(),
     setQueryOptions: vi.fn(),

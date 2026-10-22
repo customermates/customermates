@@ -130,7 +130,7 @@ test("rows and cards open the record drawer and keep the existing row actions", 
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).not.toBeVisible();
 
-  await openRecordLink(row.getByRole("link", { name, exact: true }));
+  await runRowAction(page, row, name, "Open details");
   await expect(page).toHaveURL(new RegExp(`/records/${typeId}(\\?|$)`));
   await expect(drawer).toBeVisible();
   await expect(drawer.getByRole("textbox", { name: "Name", exact: false })).toHaveValue(name);
@@ -269,7 +269,7 @@ test("edits every field type inline in rows and on board cards, with validation,
   await expect(page.locator("#records-add")).toBeEnabled();
   await page.waitForLoadState("networkidle");
   const errors = collectPageErrors(page);
-  const row = page.getByRole("row").filter({ has: page.getByRole("link", { name: "Lab one", exact: true }) });
+  const row = recordItem(page, "Lab one");
   const inPlace = row.locator("[data-in-place-editor]");
   const openInPlace = async (label: string) => {
     await row.hover();
@@ -515,7 +515,7 @@ test("rows keep the row click on calculated values, toggle in selection mode and
   await expect(page.locator("#records-add")).toBeEnabled();
   await page.waitForLoadState("networkidle");
   const errors = collectPageErrors(page);
-  const row = (name: string) => page.getByRole("row").filter({ has: page.getByRole("link", { name, exact: true }) });
+  const row = (name: string) => recordItem(page, name);
   const selectAll = page.getByRole("checkbox", { name: "Select all rows", exact: true });
 
   await row("Lab one").getByRole("checkbox").click();
@@ -623,7 +623,7 @@ test("phone rows show the title and the card chip row instead of table columns",
   const item = rows.locator("[data-row-id]").filter({ hasText: "Lab phone" });
   await expect(item.locator(`[data-chip-column="${money.id}"]`)).toHaveText("€342K");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-  await item.getByRole("link", { name: "Lab phone", exact: true }).click({ position: { x: 12, y: 12 } });
+  await item.getByRole("link", { name: "Lab phone", exact: true }).click({ position: { x: 2, y: 2 } });
   await expect(page).toHaveURL(new RegExp(`/records/${typeId}(\\?|$)`));
   await expect(page.getByRole("dialog")).toBeVisible();
 });
@@ -838,6 +838,8 @@ test("edits built-in assignees across table, card, phone and pinned detail contr
   const assignment = page.getByRole("combobox", { name: "Assigned to", exact: true }).filter({ visible: true }).last();
   await assignment.press("Enter");
   await page.getByRole("option").filter({ hasText: "Assigned Colleague" }).click();
+  await expect(drawer.locator('[data-slot="unsaved-changes-bar"]')).toBeVisible();
+  await expect(drawer.getByRole("button", { name: "Save", exact: true })).toBeEnabled();
   await page.keyboard.press("Escape");
   await expect(page.getByRole("option")).toHaveCount(0);
   await page.keyboard.press("Escape");

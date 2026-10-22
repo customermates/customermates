@@ -33,6 +33,82 @@ export type ModelIssue = {
 export const MULTIPLE_VALUE_TYPES: readonly RecordValueType[] = ["text", "email", "phone", "url", "select"];
 export const CONTACT_VALUE_TYPES: readonly RecordValueType[] = ["email", "phone", "url"];
 
+export function isRecordNameField(field: Pick<RecordField, "archived" | "valueType" | "multiple">) {
+  return !field.archived && field.valueType === "text" && !field.multiple;
+}
+
+export function recordNameIssues(model: RecordModel, previous: RecordModel): ModelIssue[] {
+  return model.types.flatMap((type): ModelIssue[] => {
+    const field = model.fields.find((field) => field.id === type.primaryFieldId);
+    if (!field?.multiple) return [];
+    const existing = previous.types.find((candidate) => candidate.id === type.id);
+    const retained = previous.fields.find((candidate) => candidate.id === existing?.primaryFieldId);
+    return existing?.primaryFieldId === field.id && retained?.multiple
+      ? []
+      : [{ code: "invalid_primary_field", typeId: type.id, fieldId: field.id }];
+  });
+}
+
+export function becameMultiplePictureUrl(
+  field: Pick<RecordField, "archived" | "valueType" | "multiple">,
+  previous: Pick<RecordField, "valueType" | "multiple"> | undefined,
+) {
+  return (
+    field.archived &&
+    field.valueType === "url" &&
+    field.multiple &&
+    !(previous?.valueType === "url" && previous.multiple)
+  );
+}
+
+export function recordPictureIssues(
+  model: RecordModel,
+  previous: RecordModel,
+  dropped: readonly { bindingId: string; fieldId: string; role: string }[] = [],
+): ModelIssue[] {
+  const archived = model.fields.flatMap((field): ModelIssue[] =>
+    becameMultiplePictureUrl(
+      field,
+      previous.fields.find((candidate) => candidate.id === field.id),
+    ) &&
+    dropped.some(
+      (entry) =>
+        entry.fieldId === field.id &&
+        model.capabilities.some((binding) => binding.id === entry.bindingId && binding.kind === "avatar"),
+    )
+      ? [{ code: "capability_requires_field", fieldId: field.id }]
+      : [],
+  );
+  return [
+    ...archived,
+    ...model.capabilities.flatMap((binding) =>
+      binding.kind !== "avatar"
+        ? []
+        : binding.fields.flatMap((reference): ModelIssue[] => {
+            const field = model.fields.find((field) => field.id === reference.fieldId);
+            if (!field?.multiple) return [];
+            const existing = previous.fields.find((field) => field.id === reference.fieldId);
+            const retained = previous.capabilities.some(
+              (candidate) =>
+                candidate.kind === "avatar" &&
+                candidate.typeId === binding.typeId &&
+                candidate.fields.some((field) => field.fieldId === reference.fieldId && field.role === reference.role),
+            );
+            const restoring =
+              existing?.archived &&
+              !field.archived &&
+              dropped.some(
+                (entry) =>
+                  entry.bindingId === binding.id && entry.fieldId === field.id && entry.role === reference.role,
+              );
+            return existing?.multiple && (retained || restoring)
+              ? []
+              : [{ code: "capability_requires_field", fieldId: field.id }];
+          }),
+    ),
+  ];
+}
+
 export function selectedOptionIds(value: RecordScalar | null): string[] {
   if (!value) return [];
   if (value.kind === "select") return [value.value];
@@ -259,10 +335,7 @@ function inferExpressionType(
 export function calculationExpressionIssues(
   expression: CalculationExpression,
   typeId: string,
-  model: {
-    fields: CalculationInputField[];
-    relationships: RecordModel["relationships"];
-  },
+  model: { fields: CalculationInputField[]; relationships: RecordModel["relationships"] },
 ): { resultType: RecordValueType | null; issues: string[] } {
   const issues: string[] = [];
   const resultType = inferExpressionType(
@@ -278,10 +351,7 @@ export function calculationExpressionIssues(
 export function calculationResultType(
   expression: CalculationExpression,
   typeId: string,
-  model: {
-    fields: CalculationInputField[];
-    relationships: RecordModel["relationships"];
-  },
+  model: { fields: CalculationInputField[]; relationships: RecordModel["relationships"] },
 ): RecordValueType | null {
   return calculationExpressionIssues(expression, typeId, model).resultType;
 }
@@ -320,7 +390,7 @@ export function validateRecordModel(model: RecordModel): {
       type.primaryFieldId &&
       (!primary || primary.typeId !== type.id || primary.archived || primary.valueType !== "text")
     )
-      issues.push({ code: "invalid_primary_field", typeId: type.id });
+      issues.push({ code: "invalid_primary_field", typeId: type.id, ...(primary ? { fieldId: primary.id } : {}) });
   }
   for (const type of model.types) {
     if (type.archived) continue;
@@ -387,13 +457,7 @@ export function validateRecordModel(model: RecordModel): {
     for (const reference of binding.fields) {
       const field = fields.get(reference.fieldId);
       const expectedType = binding.kind === "avatar" ? "url" : "dateTimeRange";
-      if (
-        !field ||
-        field.archived ||
-        field.typeId !== binding.typeId ||
-        field.valueType !== expectedType ||
-        (binding.kind === "avatar" && field.multiple)
-      ) {
+      if (!field || field.archived || field.typeId !== binding.typeId || field.valueType !== expectedType) {
         issues.push({
           code: "capability_requires_field",
           fieldId: reference.fieldId,
@@ -404,12 +468,8 @@ export function validateRecordModel(model: RecordModel): {
   for (const field of model.fields) {
     if (field.multiple && !MULTIPLE_VALUE_TYPES.includes(field.valueType))
       issues.push({ code: "invalid_multiple_value_type", fieldId: field.id });
-    if (field.valueType === "select" && field.multiple && field.behavior.kind !== "input") {
-      issues.push({
-        code: "multiple_choice_requires_input",
-        fieldId: field.id,
-      });
-    }
+    if (field.valueType === "select" && field.multiple && field.behavior.kind !== "input")
+      issues.push({ code: "multiple_choice_requires_input", fieldId: field.id });
     if (!types.has(field.typeId)) issues.push({ code: "invalid_field_type", fieldId: field.id });
     if (new Set(field.options.map((option) => option.id)).size !== field.options.length)
       issues.push({ code: "duplicate_option_id", fieldId: field.id });
@@ -432,13 +492,8 @@ export function validateRecordModel(model: RecordModel): {
         model.fields.some(
           (other) => other.valueType === "channels" && other.typeId === field.typeId && other.id < field.id,
         )
-      ) {
-        issues.push({
-          code: "duplicate_channels_field",
-          typeId: field.typeId,
-          fieldId: field.id,
-        });
-      }
+      )
+        issues.push({ code: "duplicate_channels_field", typeId: field.typeId, fieldId: field.id });
     }
     if (field.behavior.kind === "input") {
       if (

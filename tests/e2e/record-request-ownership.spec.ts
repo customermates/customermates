@@ -2,7 +2,7 @@ import type { Page, Route } from "@playwright/test";
 import { presetId } from "../../features/records/crm-preset";
 import { addFromConfigure, openConfigure, saveDrawer } from "./configure";
 import { expect, test, collectPageErrors } from "./fixtures";
-import { openRecordDetails } from "./record-rows";
+import { recordItem, openRecordDetails } from "./record-rows";
 
 async function delayNextAction(page: Page) {
   let accepted!: () => void;
@@ -88,7 +88,7 @@ test("keeps the current record draft when a previous real save response arrives 
     await editor.getByRole("textbox", { name: "Name", exact: false }).fill("Current retained draft");
     await editor.getByRole("textbox", { name: "Price", exact: false }).fill("19.75");
     await expect(
-      page.getByRole("link", { name: "Accepted earlier record", exact: true, includeHidden: true }),
+      recordItem(page, "Accepted earlier record"),
     ).toHaveCount(1);
     await expect(editor.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Current retained draft");
     await expect(editor.getByRole("textbox", { name: "Price", exact: false })).toHaveValue("19.75");
@@ -194,7 +194,7 @@ test("keeps a newly opened record draft when an accepted deletion response arriv
     await editor.getByRole("textbox", { name: "Name", exact: false }).fill("Draft after deletion");
     await editor.getByRole("textbox", { name: "Price", exact: false }).fill("31.25");
     await expect(
-      page.getByRole("link", { name: "Earlier deletion target", exact: true, includeHidden: true }),
+      recordItem(page, "Earlier deletion target"),
     ).toHaveCount(0);
     await expect(editor.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Draft after deletion");
     await expect(editor.getByRole("button", { name: "Save", exact: true })).toBeEnabled();

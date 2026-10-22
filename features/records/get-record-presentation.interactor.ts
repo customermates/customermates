@@ -128,7 +128,7 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
             pageSize: input.params.pageSize ?? input.params.pagination?.pageSize,
           },
           base: selected?.state ?? allState,
-          defaults: recordDefaults(type.id, fields),
+          defaults: recordDefaults(type.id, fields, type.primaryFieldId),
         });
         if (state.grouping && !resolveRecordGrouping(type.id, state.grouping, model)) state.grouping = undefined;
         const query = presentationQuery(

@@ -6,7 +6,7 @@ import { test, expect, collectPageErrors } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
-import { openRecordLink } from "./record-rows";
+import { recordItem, openRecordLink } from "./record-rows";
 
 async function create(page: Page, mutation: Record<string, unknown>) {
   const model = RecordModelSchema.parse(await (await page.request.post("/api/v1/model/read", { data: {} })).json());
@@ -98,7 +98,7 @@ test("the row's More actions trigger sits on a solid surface on keyboard focus a
     fields: [{ fieldId: id("deal.name"), value: { kind: "text", value: "Surface deal" } }],
   });
   await page.reload();
-  const row = page.locator("tr").filter({ has: page.getByRole("link", { name: "Surface deal", exact: true }) });
+  const row = recordItem(page, "Surface deal");
   const more = row.getByRole("button", { name: "More actions for Surface deal", exact: true });
   const surface = () =>
     row.locator("[data-record-row-actions]").evaluate((element) => {
