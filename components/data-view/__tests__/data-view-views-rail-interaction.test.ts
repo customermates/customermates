@@ -702,6 +702,23 @@ describe("data view rail interaction", () => {
     expect(value.applyView).toHaveBeenCalledExactlyOnceWith(OPEN.id);
   });
 
+  it("keeps a proposed new view open when its own tab is clicked", () => {
+    const value = store({
+      activeViewKey: ALL_VIEW_KEY,
+      isViewModified: true,
+      proposal: { isNew: true, name: "Cursor bookings" },
+    } as unknown as Partial<BaseDataViewStore<Item>>);
+    const host = render(value);
+    let leftPage: boolean | undefined;
+    host.addEventListener("click", (event) => (leftPage = !event.defaultPrevented));
+
+    act(() => host.querySelector<HTMLAnchorElement>("#global-data-views-proposed")?.click());
+
+    expect(leftPage).toBe(false);
+    expect(value.applyView).not.toHaveBeenCalled();
+    expect(harness.routerPush).not.toHaveBeenCalled();
+  });
+
   it("offers Switch view only once views exist, lists All first and ignores choosing the active view again", () => {
     const empty = store({ views: [] });
     render(empty);

@@ -198,6 +198,9 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
     event.preventDefault();
     selectView(viewKey);
   };
+  const keepProposal = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (isPlainClick(event)) event.preventDefault();
+  };
 
   return (
     <nav
@@ -288,6 +291,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
             modifiedLabel={t("DataView.views.modified")}
             preview={previewFor(proposedName, true)}
             tabIndex={-1}
+            onSelect={keepProposal}
           />
         )}
 
