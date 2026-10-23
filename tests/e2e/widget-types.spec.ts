@@ -546,7 +546,7 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
       dialog.locator('[data-slot="widget-number-value"]'),
     ).toHaveText(compactMoney(total));
     await dialog.getByRole("button", { name: "Colors", exact: true }).click();
-    await page.getByRole("menuitemcheckbox", { name: "Color 4", exact: true }).check();
+    await page.getByRole("menuitemcheckbox", { name: "Color 6", exact: true }).check();
     await page.keyboard.press("Escape");
     await save(page);
     const saved = await readWidget(database, companyId, "Pipeline total");
