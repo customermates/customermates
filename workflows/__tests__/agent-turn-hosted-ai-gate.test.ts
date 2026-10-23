@@ -62,6 +62,7 @@ const state = vi.hoisted(() => ({
     type?: "provider";
     id?: string;
     isProviderExecuted?: boolean;
+    toolset?: string | null;
   }[],
   normalize: vi.fn(),
   execute: vi.fn(),
@@ -339,9 +340,9 @@ vi.mock("@/core/di", () => ({
 vi.mock("@/ee/agent-chat/agent-tools", () => ({
   agentToolDefinitionsForTurn: () => {
     if (state.toolLoadFailure) throw new Error("tool shell unavailable");
-    return state.definitions.map((definition: { name: string }) => ({
+    return state.definitions.map((definition) => ({
       ...definition,
-      toolset: null,
+      toolset: definition.toolset ?? null,
     }));
   },
   getAgentAiTools: (deps: AgentToolDeps, options: AgentToolOptions = {}) => {
@@ -375,7 +376,10 @@ vi.mock("@/ee/agent-chat/classifier/metered", () => ({
   }),
 }));
 vi.mock("@/ee/agent-chat/system-prompt", () => ({
-  agentSystemPromptParts: () => ({ stable: "system", volatile: "volatile" }),
+  agentSystemPromptParts: ({ loadedToolsets = [] }: { loadedToolsets?: string[] }) => ({
+    stable: "system",
+    volatile: loadedToolsets.length > 0 ? `volatile loaded=${loadedToolsets.join(",")}` : "volatile",
+  }),
   routineTriggerEventOf: () => null,
 }));
 vi.mock("@/ee/agent-chat/agent-provider-context", async () => {
@@ -429,6 +433,7 @@ import { sleep } from "workflow";
 import { runAgentTurn, type AgentTurnWorkflowPayload } from "../agent-turn";
 import { approvalDenialReason } from "@/ee/agent-chat/agent-approval-resume";
 import { AGENT_WIKI_REFERENCE_CLOSE, agentWikiSystemPrompt } from "@/ee/agent-chat/agent-wiki-context";
+import { AGENT_CONTEXT_OMITTED_NOTE } from "@/ee/agent-chat/agent-context-degradation";
 import {
   agentRoundReserveMicrocents,
   agentRoundWorstCaseMicrocents,
@@ -1840,6 +1845,179 @@ describe("agent-turn credit-bounded continuation", () => {
     expect(state.takeUiResult).toHaveBeenCalled();
     expect(state.finalize).toHaveBeenCalledWith(
       expect.objectContaining({ terminalCode: "completed", stopReason: null }),
+    );
+  });
+});
+
+describe("agent-turn context degradation", () => {
+  const measuredFits = (context: unknown, stepMessages: unknown, maxBytes: unknown) =>
+    (serializedAgentContextBytes(
+      agentStepContext({ ...(context as { system: string }), messages: stepMessages as unknown[] }),
+    ) ?? Infinity) <= (maxBytes as number);
+  const coreTool = { name: "query_crm_records", description: "Query records.", inputSchema: { type: "object" } };
+  const widgetsTool = {
+    name: "manage_widgets",
+    description: "x".repeat(40_000),
+    inputSchema: { type: "object" },
+    toolset: "widgets",
+  };
+  const activeToolsOf = (prepared: unknown) => (prepared as { activeTools?: string[] }).activeTools;
+
+  it("starts an oversize first round with the core tools after dropping a loaded on-demand set", async () => {
+    state.definitions.push(coreTool, widgetsTool);
+    state.contextFits.mockImplementation(measuredFits);
+    const prepared: unknown[] = [];
+    state.runTools = ({ messages, prepared: step }) => {
+      prepared.push(step);
+      return Promise.resolve({ finishReason: "stop", messages, steps: [streamedStep("Done.", "stop")] });
+    };
+
+    await runAgentTurn({ ...payload, toolsets: ["widgets"] });
+
+    expect(state.providerCalls).toBe(1);
+    expect(activeToolsOf(prepared[0])).toEqual(["query_crm_records"]);
+    expect(state.instructions.at(-1)).not.toContain("loaded=widgets");
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "completed", stopReason: null }),
+    );
+  });
+
+  it("keeps the set the current request asked for and drops only sets carried over from history", async () => {
+    state.definitions.push(coreTool, widgetsTool, {
+      name: "manage_webhooks",
+      description: "y".repeat(40_000),
+      inputSchema: { type: "object" },
+      toolset: "webhooks",
+    });
+    state.contextFits.mockImplementation(measuredFits);
+    const prepared: unknown[] = [];
+    state.runTools = ({ messages, prepared: step }) => {
+      prepared.push(step);
+      return Promise.resolve({ finishReason: "stop", messages, steps: [streamedStep("Done.", "stop")] });
+    };
+
+    await runAgentTurn({
+      ...payload,
+      toolsets: ["widgets", "webhooks"],
+      requestToolsets: ["webhooks"],
+      turnBudget: { ...payload.turnBudget, maxContextBytes: 60_000 },
+    });
+
+    expect(state.providerCalls).toBe(1);
+    expect(activeToolsOf(prepared[0])).toEqual(["query_crm_records", "manage_webhooks"]);
+    expect(state.instructions.at(-1)).toContain("loaded=webhooks");
+  });
+
+  it("drops replayed history first, then the attached context, and keeps the current request text", async () => {
+    state.definitions.push(coreTool);
+    state.contextFits.mockImplementation(measuredFits);
+    const seenMessages: unknown[][] = [];
+    state.runTools = ({ messages }) => {
+      seenMessages.push(messages);
+      return Promise.resolve({ finishReason: "stop", messages, steps: [streamedStep("Done.", "stop")] });
+    };
+    const attached = `<selected_context kind="record" name="${"z".repeat(40_000)}"/>\n`;
+
+    await runAgentTurn({
+      ...payload,
+      messages: [
+        { role: "user", text: "Earlier question" },
+        { role: "user", text: "Earlier follow-up" },
+        { role: "user", text: `${attached}Summarize this deal for me.` },
+      ],
+    });
+
+    expect(state.providerCalls).toBe(1);
+    const sent = JSON.stringify(seenMessages[0]);
+    expect(sent).toContain("Summarize this deal for me.");
+    expect(sent).toContain(JSON.stringify(AGENT_CONTEXT_OMITTED_NOTE).slice(1, -1));
+    expect(sent).toContain("2 earlier conversation messages were left out");
+    expect(sent).not.toContain("Earlier question");
+    expect(sent).not.toContain("zzzz");
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "completed", stopReason: null }),
+    );
+  });
+
+  it("keeps the history and context when dropping the on-demand set is enough", async () => {
+    state.definitions.push(coreTool, widgetsTool);
+    state.contextFits.mockImplementation(measuredFits);
+    const seenMessages: unknown[][] = [];
+    state.runTools = ({ messages }) => {
+      seenMessages.push(messages);
+      return Promise.resolve({ finishReason: "stop", messages, steps: [streamedStep("Done.", "stop")] });
+    };
+
+    await runAgentTurn({
+      ...payload,
+      toolsets: ["widgets"],
+      messages: [
+        { role: "user", text: "Earlier question" },
+        { role: "user", text: "Earlier follow-up" },
+        { role: "user", text: `<page_context route="/en/contacts"/>\nHello` },
+      ],
+    });
+
+    const sent = JSON.stringify(seenMessages[0]);
+    expect(sent).toContain("Earlier question");
+    expect(sent).toContain("page_context");
+    expect(sent).not.toContain("context_budget_note");
+  });
+
+  it("drops a loaded set when a later segment cannot be compacted with it", async () => {
+    state.definitions.push(coreTool, { ...widgetsTool, description: "Widgets." });
+    state.contextFits.mockImplementation(
+      (context: { system: string; tools: { name: string }[] }, stepMessages: unknown) =>
+        !JSON.stringify(stepMessages).includes("OVERSIZE") &&
+        !(
+          context.system.includes("agent_continuation_checkpoint") &&
+          context.tools.some((tool) => tool.name === "manage_widgets")
+        ),
+    );
+    const prepared: unknown[] = [];
+    let segment = 0;
+    state.runTools = ({ messages, prepared: step }) => {
+      prepared.push(step);
+      segment += 1;
+      if (segment === 1) {
+        return Promise.resolve({
+          finishReason: "tool-calls",
+          messages: [...messages, { role: "assistant", content: "OVERSIZE" }],
+          steps: Array.from({ length: 32 }, () => streamedStep("", "tool-calls")),
+        });
+      }
+      return Promise.resolve({ finishReason: "stop", messages, steps: [streamedStep("Done.", "stop")] });
+    };
+
+    await runAgentTurn({ ...payload, toolsets: ["widgets"] });
+
+    expect(state.providerCalls).toBe(2);
+    expect(activeToolsOf(prepared[0])).toEqual(["query_crm_records", "manage_widgets"]);
+    expect(activeToolsOf(prepared[1])).toEqual(["query_crm_records"]);
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "completed", stopReason: null }),
+    );
+  });
+
+  it("still ends with the context limit when the current request alone cannot fit", async () => {
+    state.definitions.push(coreTool, widgetsTool);
+    state.contextFits.mockImplementation(measuredFits);
+    state.runTools = ({ messages }) =>
+      Promise.resolve({ finishReason: "stop", messages, steps: [streamedStep("Done.", "stop")] });
+
+    await runAgentTurn({
+      ...payload,
+      toolsets: ["widgets"],
+      messages: [
+        { role: "user", text: "Earlier question" },
+        { role: "user", text: "Earlier follow-up" },
+        { role: "user", text: `<page_context route="/en/contacts"/>\n${"q".repeat(40_000)}` },
+      ],
+    });
+
+    expect(state.providerCalls).toBe(0);
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "partial", stopReason: "context_limit" }),
     );
   });
 });
