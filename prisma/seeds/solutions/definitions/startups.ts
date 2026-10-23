@@ -84,6 +84,7 @@ type TaskKey = (typeof TASKS)[number];
 
 const en = {
   company: "Gaugewise",
+  workspaceName: "Startups",
   website: "https://gaugewise.example",
   phones: {
     mobile: { templates: ["+1 216 555 01##", "+1 414 555 01##", "+1 614 555 01##", "+1 317 555 01##"], start: 10 },
@@ -397,6 +398,7 @@ type Strings = typeof en;
 
 const de: Strings = {
   company: "Messwerk Software GmbH",
+  workspaceName: "Start-ups",
   website: "https://messwerk-software.example",
   phones: { mobile: { templates: ["+49 30 23125 ###"], start: 300 } },
   selfTitle: "Mitgründer und Geschäftsführer",
@@ -1272,6 +1274,7 @@ export default defineSolution<Strings>({
     });
 
     return {
+      workspaceName: t.workspaceName,
       companyName: t.company,
       lists: (["organization", "contact", "deal", "investor", "task"] as const).map((key) => ({
         key,

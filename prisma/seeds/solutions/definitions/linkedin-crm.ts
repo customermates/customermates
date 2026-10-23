@@ -109,6 +109,7 @@ type TaskKey = (typeof TASKS)[number];
 
 const en = {
   company: "Clearwatch Awareness",
+  workspaceName: "LinkedIn sales",
   website: "https://clearwatch-awareness.example",
   selfTitle: "Founder",
   lists: {
@@ -388,6 +389,7 @@ type Strings = typeof en;
 
 const de: Strings = {
   company: "Wachblick Schulungen GmbH",
+  workspaceName: "LinkedIn-Vertrieb",
   website: "https://wachblick-schulungen.example",
   selfTitle: "Geschäftsführer",
   lists: {
@@ -1398,6 +1400,7 @@ export default defineSolution<Strings>({
       }));
 
     return {
+      workspaceName: t.workspaceName,
       companyName: t.company,
       lists: (["contact", "organization", "deal", "task"] as const).map((key) => ({
         key,

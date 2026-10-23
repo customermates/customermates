@@ -92,6 +92,7 @@ type ThreadKey = "copper" | "marlowe" | "ninebean" | "riverbend" | "lantern" | "
 
 const en = {
   company: "Birch & Bolt Workshop",
+  workspaceName: "WhatsApp customers",
   website: "https://birchandbolt.example",
   phones: { mobile: { templates: ["+1 412 555 01##"], start: 10 } },
   selfTitle: "Owner",
@@ -371,6 +372,7 @@ type Strings = typeof en;
 
 const de: Strings = {
   company: "Tischlerei Birkenholz",
+  workspaceName: "WhatsApp-Kundenkontakt",
   website: "https://tischlerei-birkenholz.example",
   phones: { mobile: { templates: ["+49 30 23125 ###"], start: 110 } },
   selfTitle: "Inhaber und Tischlermeister",
@@ -1408,6 +1410,7 @@ export default defineSolution<Strings>({
     ];
 
     return {
+      workspaceName: t.workspaceName,
       companyName: t.company,
       lists: (["organization", "contact", "deal", "task"] as const).map((key) => ({
         key,

@@ -38,7 +38,7 @@ export const demoId = (key: string) => presetId(DEMO_COMPANY_ID, key);
 
 /** The seeded content of the team workspace (`prisma/seeds/solutions/definitions/smb.ts`, English data). */
 export const DEMO_CONTENT = TEAM_SOLUTION_CONTENT;
-export const DEMO_COMPANY_NAME = DEMO_CONTENT.companyName;
+export const DEMO_COMPANY_NAME = DEMO_CONTENT.workspaceName;
 
 /** Plural labels of the workspace's lists, in sidebar order. */
 export const DEMO_LISTS = DEMO_CONTENT.lists.map((list) => list.pluralLabel);

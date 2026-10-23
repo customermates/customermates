@@ -8,8 +8,10 @@ import { encodeRecordValue } from "@/features/records/record-storage";
 import { Prisma, type PrismaClient } from "@/generated/prisma";
 
 import type { SeedContext } from "../context";
-import { fixtureId, reconcileDomainUserId, upsertFixturesById } from "../helpers";
+import { fixtureId, reconcileDomainUserId, upsertFixturesById, workspaceFixtureId } from "../helpers";
 import { seedWorkspaceMessaging } from "../messaging/seed";
+import { seedSolutionRoutines } from "../routines";
+import { seedWebhooks } from "../webhooks";
 import { calculateSyntheticRecords, initializeRecordModel } from "../records";
 import { writeSyntheticRecordHistory } from "../record-history";
 import { TEAM_MEMBER_IDS } from "../team";
@@ -21,6 +23,7 @@ import {
   SOLUTION_RECORD_EVENT_PREFIX,
   buildSolutionRecordData,
   solutionRecordPrefixes,
+  solutionColleagueId,
   type SolutionRecordData,
 } from "./solution-data";
 import { buildSolutionMessaging } from "./solution-messaging";
@@ -68,7 +71,7 @@ async function seedWorkspaceShell(context: SeedContext, workspace: SolutionWorks
   if (workspace.team) return;
   const createdAt = solutionWorkspaceCreatedAt(workspace, content);
   const company = {
-    name: content.companyName,
+    name: content.workspaceName,
     createdByAuthUserId: context.ids.user,
     createdAt,
     updatedAt: createdAt,
@@ -120,6 +123,38 @@ async function seedWorkspaceShell(context: SeedContext, workspace: SolutionWorks
   } satisfies Prisma.UserUncheckedCreateInput;
   await reconcileDomainUserId(context, member.id, member);
   await prisma.user.upsert({ where: { id: member.id }, update: member, create: member });
+
+  const colleagues = (content.members ?? []).map((colleague, index) => {
+    const joined = new Date(createdAt.getTime() + (index + 1) * DAY);
+    return {
+      id: solutionColleagueId(workspace, colleague.key),
+      companyId: workspace.companyId,
+      roleId: workspace.roleId,
+      email: colleague.email,
+      firstName: colleague.firstName,
+      lastName: colleague.lastName,
+      avatarUrl: colleague.avatar,
+      displayLanguage: profile.displayLanguage,
+      formattingLocale: profile.formattingLocale,
+      status: "active" as const,
+      agreeToTerms: true,
+      leftAt: null,
+      agentCreditActivatedAt: joined,
+      onboardingWizardCompletedAt: new Date(joined.getTime() + 35 * 60_000),
+      createdAt: joined,
+      updatedAt: new Date(joined.getTime() + 30 * 60_000),
+    } satisfies Prisma.UserUncheckedCreateInput;
+  });
+  for (const colleague of colleagues) {
+    await reconcileDomainUserId(context, colleague.id, colleague);
+    await prisma.user.upsert({ where: { id: colleague.id }, update: colleague, create: colleague });
+  }
+  await prisma.user.deleteMany({
+    where: {
+      companyId: workspace.companyId,
+      id: { startsWith: `30000000-${workspace.tag}-`, notIn: [workspace.memberId, ...colleagues.map(({ id }) => id)] },
+    },
+  });
 
   const subscription = { ...SOLUTION_SUBSCRIPTION, agentCreditAnchorAt: createdAt };
   await prisma.subscription.upsert({
@@ -473,6 +508,39 @@ async function writePresentation(
   );
 }
 
+const API_KEY_GROUP = "2b000000";
+
+/**
+ * Writes the API keys a workspace shows on Max's profile. Their stored key is no hash of any key, so they never
+ * authenticate; keys the workspace no longer has are removed.
+ */
+async function seedSolutionApiKeys(prisma: PrismaClient, workspace: SolutionWorkspace, content: SolutionContent) {
+  const { companyId, tag } = workspace;
+  const keys = (content.apiKeys ?? []).map((spec, index) => {
+    const id = workspaceFixtureId(API_KEY_GROUP, tag, index + 1);
+    const createdAt = storyMoment(spec.createdDaysAgo);
+    return {
+      id,
+      name: spec.name,
+      start: `cm_${tag}`,
+      prefix: "cm_",
+      key: `display-only-${id}`,
+      referenceId: TEAM_MEMBER_IDS.maxBergmann,
+      configId: "default",
+      enabled: true,
+      rateLimitEnabled: false,
+      requestCount: 0,
+      createdAt,
+      updatedAt: createdAt,
+      companyId,
+    } satisfies Prisma.ApikeyUncheckedCreateInput;
+  });
+  for (const key of keys) await prisma.apikey.upsert({ where: { id: key.id }, update: key, create: key });
+  await prisma.apikey.deleteMany({
+    where: { companyId, id: { startsWith: `${API_KEY_GROUP}-${tag}-`, notIn: keys.map(({ id }) => id) } },
+  });
+}
+
 /**
  * Seeds one demo workspace from its solution content: the shell (company, admin, membership, subscription), the
  * record model, records with links, owners, identities, calculations and history, then views, the dashboard, the
@@ -514,6 +582,13 @@ export async function seedSolutionWorkspace(
       where: { companyId, id: { startsWith: `16000000-${workspace.tag}-` } },
     });
   }
+  await seedWebhooks(
+    prisma,
+    { companyId, tag: workspace.tag, ownerUserId: workspace.memberId },
+    content.webhooks ?? [],
+  );
+  await seedSolutionRoutines(prisma, workspace, content, data);
+  await seedSolutionApiKeys(prisma, workspace, content);
 
   return {
     slug: workspace.slug,

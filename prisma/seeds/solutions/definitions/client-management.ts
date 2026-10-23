@@ -90,6 +90,7 @@ type ServiceUsedKey =
 
 const en = {
   company: "Hollis Office Services",
+  workspaceName: "Client management",
   website: "https://hollis-office.example",
   phones: {
     mobile: { templates: ["+1 202 555 01##"], start: 0 },
@@ -350,6 +351,7 @@ type Strings = typeof en;
 
 const de: Strings = {
   company: "Bohnenhaus Büroservice",
+  workspaceName: "Kundenverwaltung",
   website: "https://bohnenhaus-bueroservice.example",
   phones: {
     mobile: { templates: ["+49 30 23125 0##"], start: 0 },
@@ -1217,6 +1219,7 @@ export default defineSolution<Strings>({
       }));
 
     return {
+      workspaceName: t.workspaceName,
       companyName: t.company,
       lists: (["organization", "contact", "deal", "task"] as const).map((key) => ({
         key,

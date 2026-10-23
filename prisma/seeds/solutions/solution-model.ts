@@ -59,7 +59,18 @@ function formulaExpression(formula: FormulaSpec, id: (key: string) => string): C
     case "daysBetween":
       return { kind: "operation", operator: "daysBetween", arguments: [field(formula.from), field(formula.to)] };
     case "product":
-      return { kind: "operation", operator: "multiply", arguments: [field(formula.left), field(formula.right)] };
+      return {
+        kind: "operation",
+        operator: "multiply",
+        arguments: [
+          field(formula.left),
+          typeof formula.right === "number"
+            ? { kind: "literal", value: { kind: "decimal", value: String(formula.right), currency: null } }
+            : field(formula.right),
+        ],
+      };
+    case "difference":
+      return { kind: "operation", operator: "subtract", arguments: [field(formula.left), field(formula.right)] };
     case "rollupSum":
       return {
         kind: "related",
@@ -74,13 +85,13 @@ function formulaExpression(formula: FormulaSpec, id: (key: string) => string): C
 /**
  * The record model of a solution workspace: the localized starter model, reduced to the starter lists the solution
  * keeps and relabelled, plus its custom lists, fields and relationships. Without a Services list the deal value is a
- * plain currency input instead of the line-item rollup. Deals never show their contacts' conversations by relationship:
+ * plain currency input or the solution's own calculation instead of the line-item rollup. Deals never show their contacts' conversations by relationship:
  * a conversation belongs to a deal only through an explicit conversation link. Every id is `presetId(companyId, key)`.
  */
 export function buildSolutionModel(
   companyId: string,
   locale: SolutionDataLocale,
-  content: Pick<SolutionContent, "lists" | "fields" | "stages" | "relationships">,
+  content: Pick<SolutionContent, "lists" | "fields" | "stages" | "relationships" | "dealValue">,
 ): RecordModel {
   const id = (key: string) => presetId(companyId, key);
   const t = solutionTranslator(locale);
@@ -169,7 +180,9 @@ export function buildSolutionModel(
   if (!keepServices) {
     const value = fields.find((field) => field.id === id("deal.totalValue"));
     if (!value) throw new Error("The starter model lost its deal value");
-    value.behavior = { kind: "input" };
+    value.behavior = content.dealValue
+      ? { kind: "formula", expression: formulaExpression(content.dealValue, id) }
+      : { kind: "input" };
     const quantity = fields.findIndex((field) => field.id === id("deal.totalQuantity"));
     if (quantity >= 0) fields.splice(quantity, 1);
   }

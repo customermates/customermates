@@ -101,6 +101,7 @@ type StoryStage = "introduction" | "discovery" | "scoping" | "proposal" | "decis
 
 const en = {
   company: "Ashcombe Advisory",
+  workspaceName: "Consultants",
   website: "https://ashcombe-advisory.example",
   phones: { mobile: { templates: ["+44 20 7946 0###"], start: 300 } },
   selfTitle: "Principal consultant",
@@ -403,6 +404,7 @@ type Strings = typeof en;
 
 const de: Strings = {
   company: "Kronfeld Beratung",
+  workspaceName: "Beratung",
   website: "https://kronfeld-beratung.example",
   phones: { mobile: { templates: ["+49 30 23125 ###"], start: 300 } },
   selfTitle: "Inhaber und Berater",
@@ -1417,6 +1419,7 @@ export default defineSolution<Strings>({
       }));
 
     return {
+      workspaceName: t.workspaceName,
       companyName: t.company,
       lists: (["organization", "contact", "deal", "service", "task"] as const).map((key) => ({
         key,

@@ -67,6 +67,7 @@ type TaskKey = (typeof TASKS)[number];
 
 const en = {
   company: "Linwood Product Design",
+  workspaceName: "Freelancers",
   website: "https://linwood-design.example",
   phones: { mobile: { templates: ["+1 202 555 01##"], start: 20 } },
   selfTitle: "Freelance UX and product designer",
@@ -314,6 +315,7 @@ type Strings = typeof en;
 
 const de: Strings = {
   company: "Feldmark Produktdesign",
+  workspaceName: "Selbstständige",
   website: "https://feldmark-design.example",
   phones: { mobile: { templates: ["+49 30 23125 ###"], start: 300 } },
   selfTitle: "Freiberuflicher UX- und Produktdesigner",
@@ -1107,6 +1109,7 @@ export default defineSolution<Strings>({
 
     const thread = t.threads;
     return {
+      workspaceName: t.workspaceName,
       companyName: t.company,
       lists: (["organization", "contact", "deal", "task"] as const).map((key) => ({
         key,

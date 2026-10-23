@@ -10,7 +10,6 @@ import {
 } from "./hosted-ai-operator";
 import { seedIdentity } from "./identity";
 import { initializeOperatorFixtureModels } from "./records";
-import { seedRoutines } from "./routines";
 import {
   assignSolutionWorkspaceSlugs,
   resetOutdatedSolutionWorkspaces,
@@ -18,13 +17,12 @@ import {
   solutionWorkspacePlans,
 } from "./solutions/seed-solutions";
 import { seedTrash } from "./trash";
-import { seedWebhooks } from "./webhooks";
 
 export type SyntheticSeedReport = { reset: string[]; slugsAssigned: number; workspaces: SolutionSeedCounts[] };
 
 /**
  * Seeds the demo: one workspace per solution and data locale for Max Bergmann, plus the team fixtures of the
- * small-business workspace (members, roles, webhooks, Trash, audit history, agent chats and routines) and the hosted
+ * small-business workspace (members, roles, Trash, audit history and agent chats) and the hosted
  * AI operator fixtures. Every step is idempotent.
  */
 export async function runSyntheticSeed(
@@ -43,11 +41,9 @@ export async function runSyntheticSeed(
   const workspaces = await seedSolutionWorkspaces(context, plans);
   const slugsAssigned = await assignSolutionWorkspaceSlugs(context.prisma);
 
-  await seedWebhooks(context);
   await seedTrash(context);
   await seedSyntheticAuditEvents(context);
   await seedAgentConversations(context);
-  await seedRoutines(context);
   await context.prisma
     .$executeRaw`SELECT setval(pg_get_serial_sequence('"AgentMessage"', 'sequence'), (SELECT COALESCE(MAX(sequence), 1) FROM "AgentMessage"))`;
 

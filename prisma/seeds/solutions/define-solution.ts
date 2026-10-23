@@ -1,6 +1,7 @@
 import type { ChipColor } from "@/constants/chip-colors";
 import type { SolutionDataLocale, SolutionId } from "@/core/solutions/solution-catalog";
 import type { DisplayType } from "@/features/widget/widget-display.schema";
+import type { RoutineTriggerEvent } from "@/ee/routines/routine-trigger-events";
 
 import type { TEAM_MEMBER_IDS } from "../team";
 
@@ -8,7 +9,11 @@ import type { TEAM_MEMBER_IDS } from "../team";
 export const PRESET_LIST_KEYS = ["organization", "contact", "deal", "service", "task"] as const;
 export type PresetListKey = (typeof PRESET_LIST_KEYS)[number];
 
-export type MemberKey = keyof typeof TEAM_MEMBER_IDS;
+/** The two colleagues a non-team workspace may add beside Max. */
+export const COLLEAGUE_KEYS = ["colleagueA", "colleagueB"] as const;
+export type ColleagueKey = (typeof COLLEAGUE_KEYS)[number];
+
+export type MemberKey = keyof typeof TEAM_MEMBER_IDS | ColleagueKey;
 
 export type FieldType =
   | "text"
@@ -49,7 +54,8 @@ export type FieldSpec = {
 export type FormulaSpec =
   | { kind: "weighted"; value: string; select: string }
   | { kind: "daysBetween"; from: string; to: string }
-  | { kind: "product"; left: string; right: string }
+  | { kind: "product"; left: string; right: string | number }
+  | { kind: "difference"; left: string; right: string }
   | { kind: "rollupSum"; relation: string; field: string };
 
 export type RelationshipSpec = {
@@ -201,7 +207,61 @@ export type MessagingSpec = {
   calendar?: { name: string; events: readonly CalendarEventSpec[] };
 };
 
+/** A synthetic colleague of Max in a non-team workspace; never signs in. */
+export type ColleagueSpec = { key: ColleagueKey; firstName: string; lastName: string; email: string; avatar: string };
+
+export type RoutineRunSpec = {
+  status: "succeeded" | "failed" | "blocked";
+  startedHoursAgo: number;
+  durationSeconds: number;
+  credits: number;
+  /** What the run reported; a failed or blocked run gives the note Mate wrote instead. */
+  summary?: string;
+  note?: string;
+  error?: "providerUnavailable" | "creditLimitReached";
+};
+
+/** What a routine reacts to; a sample names the record (`<list>:<key>`) or conversation (thread index) of its runs. */
+export type RoutineTriggerSpec =
+  | { kind: "schedule"; cron: string }
+  | {
+      kind: "event";
+      events: readonly RoutineTriggerEvent[];
+      lists?: readonly string[];
+      debounceSeconds: number;
+      sample?: { record: string } | { thread: number };
+    };
+
+/** A Mate routine of the workspace with its run history; routines draft and create tasks or notes, never send. */
+export type RoutineSpec = {
+  key: string;
+  name: string;
+  /** The task part of the prompt; the shared CRM protocol follows it. */
+  task: string;
+  owner?: MemberKey;
+  enabled?: boolean;
+  trigger: RoutineTriggerSpec;
+  runs: readonly RoutineRunSpec[];
+};
+
+/** A webhook on record changes of some lists, with its most recent deliveries (all failing when paused). */
+export type WebhookSpec = {
+  key: string;
+  description: string;
+  url: string;
+  enabled: boolean;
+  lists: readonly string[];
+  createdDaysAgo: number;
+  deliveries: number;
+};
+
+/** An API key on Max's profile, shown in the settings; it cannot authenticate. */
+export type ApiKeySpec = { name: string; createdDaysAgo: number };
+
 export type SolutionContent = {
+  /** The workspace name: the solution name, so the workspace reads as an example. */
+  workspaceName: string;
+  /** The fictional company of the story, named in the Operating Guide and email signatures. */
   companyName: string;
   lists: readonly ListSpec[];
   fields: readonly FieldSpec[];
@@ -213,6 +273,12 @@ export type SolutionContent = {
   dashboard: { widgets: readonly WidgetSpec[] };
   wiki: readonly WikiPageSpec[];
   messaging?: MessagingSpec;
+  /** The deal value as a calculation, for solutions without a Services list (otherwise a plain input). */
+  dealValue?: FormulaSpec;
+  members?: readonly ColleagueSpec[];
+  routines?: readonly RoutineSpec[];
+  webhooks?: readonly WebhookSpec[];
+  apiKeys?: readonly ApiKeySpec[];
 };
 
 export type SolutionDefinition<Strings> = {

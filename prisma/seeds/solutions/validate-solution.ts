@@ -1,8 +1,21 @@
 import { SOLUTION_DATA_LOCALES, findSolution } from "@/core/solutions/solution-catalog";
+import { ROUTINE_NAME_MAX_CHARS, ROUTINE_PROMPT_MAX_CHARS } from "@/ee/routines/routine.schema";
+import {
+  MIN_ROUTINE_INTERVAL_MINUTES,
+  parseCronExpression,
+  smallestIntervalMinutes,
+} from "@/ee/routines/routine-schedule";
 import { wikiExcerpt } from "@/features/wiki/wiki-content";
 import { WIKI_GUIDE_CONTEXT_MAX_BYTES, WikiPageInputSchema } from "@/features/wiki/wiki.schema";
 
-import { solutionContent, type AnySolutionDefinition, type SolutionContent } from "./define-solution";
+import { routinePrompt } from "../record-routine-prompts";
+import {
+  COLLEAGUE_KEYS,
+  solutionContent,
+  type AnySolutionDefinition,
+  type MemberKey,
+  type SolutionContent,
+} from "./define-solution";
 import { buildSolutionRecordData } from "./solution-data";
 import { buildSolutionMessaging } from "./solution-messaging";
 import { buildSolutionModel } from "./solution-model";
@@ -72,7 +85,80 @@ function structure(content: SolutionContent) {
           calendar: content.messaging.calendar?.events.map((event) => [event.with, event.startsMinutesAgo]) ?? null,
         }
       : null,
+    dealValue: content.dealValue ?? null,
+    members: (content.members ?? []).map((member) => [member.key, member.avatar]),
+    routines: (content.routines ?? []).map((routine) => ({
+      key: routine.key,
+      owner: routine.owner ?? null,
+      enabled: routine.enabled ?? true,
+      trigger: routine.trigger,
+      runs: routine.runs.map((run) => [run.status, run.startedHoursAgo, run.error ?? null, run.summary !== undefined]),
+    })),
+    webhooks: (content.webhooks ?? []).map((hook) => ({ ...hook, description: null, url: null })),
+    apiKeys: (content.apiKeys ?? []).map((key) => key.createdDaysAgo),
   };
+}
+
+/** Problems of a workspace's routines, colleagues and record owners that only a seed run would otherwise find. */
+function routineProblems(content: SolutionContent, team: boolean): string[] {
+  const problems: string[] = [];
+  const colleagues = new Set((content.members ?? []).map((member) => member.key));
+  const known = (member: MemberKey | undefined) =>
+    !member || !(COLLEAGUE_KEYS as readonly string[]).includes(member) || (!team && colleagues.has(member as never));
+  for (const [list, records] of Object.entries(content.records)) {
+    for (const record of records)
+      if (!known(record.owner)) problems.push(`${list}:${record.key} is owned by an unknown colleague`);
+  }
+  const keys = new Set<string>();
+  for (const routine of content.routines ?? []) {
+    if (keys.has(routine.key)) problems.push(`routine ${routine.key} exists twice`);
+    keys.add(routine.key);
+    if (!known(routine.owner)) problems.push(`routine ${routine.key} is owned by an unknown colleague`);
+    if (routine.name.length > ROUTINE_NAME_MAX_CHARS) problems.push(`routine ${routine.key} has a long name`);
+    if (routinePrompt(routine.task).length > ROUTINE_PROMPT_MAX_CHARS)
+      problems.push(`routine ${routine.key} has a long prompt`);
+    if (routine.runs.length < 2 || routine.runs.length > 4) problems.push(`routine ${routine.key} needs 2-4 runs`);
+    if (!routine.runs.some((run) => run.status === "succeeded" && run.summary))
+      problems.push(`routine ${routine.key} needs a run with a summary`);
+    for (const run of routine.runs) {
+      if ((run.status === "succeeded") !== (run.summary !== undefined && run.error === undefined))
+        problems.push(`routine ${routine.key}: a succeeded run has a summary, a failed or blocked run an error`);
+    }
+    const trigger = routine.trigger;
+    if (trigger.kind === "schedule") {
+      const parsed = parseCronExpression(trigger.cron);
+      const smallest = parsed.ok
+        ? smallestIntervalMinutes(parsed.cron, new Date("2026-01-01T00:00:00.000Z"), "Europe/Berlin")
+        : null;
+      if (smallest === null || smallest < MIN_ROUTINE_INTERVAL_MINUTES)
+        problems.push(`routine ${routine.key} has an unsupported schedule`);
+      continue;
+    }
+    const recordEvents = trigger.events.some((event) => event.startsWith("record."));
+    if (recordEvents !== Boolean(trigger.lists?.length))
+      problems.push(`routine ${routine.key} watches record events exactly when it names lists`);
+    for (const list of trigger.lists ?? [])
+      if (!content.lists.some((entry) => entry.key === list)) problems.push(`routine ${routine.key} watches ${list}`);
+    const sample = trigger.sample;
+    if (sample && "record" in sample) {
+      const [list, key] = sample.record.split(":");
+      const record = content.records[list]?.find((entry) => entry.key === key);
+      if (!record || !recordEvents) problems.push(`routine ${routine.key} samples an unknown record`);
+      else if (trigger.events[0] === "record.updated" && !record.history?.length)
+        problems.push(`routine ${routine.key} samples a record that was never updated`);
+    }
+    if (sample && "thread" in sample && (recordEvents || !content.messaging?.threads[sample.thread]))
+      problems.push(`routine ${routine.key} samples an unknown conversation`);
+    if (!sample && routine.runs.length) problems.push(`routine ${routine.key} with runs needs a sample trigger`);
+  }
+  for (const hook of content.webhooks ?? []) {
+    for (const list of hook.lists)
+      if (!content.lists.some((entry) => entry.key === list)) problems.push(`webhook ${hook.key} watches ${list}`);
+    if (!RESERVED_HOST.test(new URL(hook.url).hostname)) problems.push(`webhook ${hook.key} url is not reserved`);
+  }
+  for (const member of content.members ?? [])
+    if (!RESERVED_HOST.test(member.email.split("@")[1] ?? "")) problems.push(`${member.key} email is not reserved`);
+  return problems;
 }
 
 /**
@@ -107,6 +193,7 @@ export function validateSolutionDefinition(
       }
       for (const list of content.lists)
         if (!content.records[list.key]?.length) problems.push(`${locale}: list ${list.key} has no records`);
+      problems.push(...routineProblems(content, workspace.team).map((problem) => `${locale}: ${problem}`));
     } catch (error) {
       problems.push(`${locale}: ${error instanceof Error ? error.message : String(error)}`);
       continue;

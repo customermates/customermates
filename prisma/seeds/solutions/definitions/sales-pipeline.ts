@@ -105,6 +105,7 @@ type TaskKey = (typeof TASKS)[number];
 
 const en = {
   company: "Brightwater Air Systems",
+  workspaceName: "Sales pipeline",
   website: "https://brightwater-air.example",
   phones: {
     office: {
@@ -405,6 +406,7 @@ type Strings = typeof en;
 
 const de: Strings = {
   company: "Weserluft Drucklufttechnik GmbH",
+  workspaceName: "Vertriebspipeline",
   website: "https://weserluft.example",
   phones: { office: { templates: ["+49 30 23125 5##"], start: 0 } },
   selfTitle: "Vertriebsleiter",
@@ -1519,6 +1521,7 @@ export default defineSolution<Strings>({
     const halden = thread("haldenSchedule", "tom", "haldenCompressor");
 
     return {
+      workspaceName: t.workspaceName,
       companyName: t.company,
       lists: (["organization", "contact", "deal", "task"] as const).map((key) => ({
         key,

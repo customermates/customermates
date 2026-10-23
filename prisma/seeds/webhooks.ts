@@ -1,24 +1,22 @@
 import { presetId } from "@/features/records/crm-preset";
-import type { Prisma } from "@/generated/prisma";
+import type { Prisma, PrismaClient } from "@/generated/prisma";
 
-import type { SeedContext } from "./context";
-
-import { fixtureId, upsertFixturesById } from "./helpers";
+import { upsertFixturesById, workspaceFixtureId } from "./helpers";
 import { seedRecordEventSubscription } from "./record-event-subscriptions";
+import type { WebhookSpec } from "./solutions/define-solution";
 import { storyMoment } from "./timeline";
 
-/** Healthy webhook: deal and organization changes go to the accounting bridge; every recent delivery succeeded. */
+/** The small-business team's healthy webhook: deal and organization changes go to the accounting bridge. */
 export const SYNTHETIC_WEBHOOK_URL = "https://accounting-bridge.harborlane-it.example/hooks/crm";
 export const SYNTHETIC_WEBHOOK_DESCRIPTION = "Send deal and organization changes to the accounting bridge";
-export const SYNTHETIC_WEBHOOK_ID = fixtureId("22000000", 1);
+export const SYNTHETIC_WEBHOOK_ID = workspaceFixtureId("22000000", "0000", 1);
 
-/** Paused webhook: task changes for the dispatch board, paused after the receiver kept failing. */
+/** The team's paused webhook: task changes for the dispatch board, paused after the receiver kept failing. */
 export const SYNTHETIC_PAUSED_WEBHOOK_URL = "https://dispatch.harborlane-it.example/hooks/tasks";
 export const SYNTHETIC_PAUSED_WEBHOOK_DESCRIPTION =
   "Task changes for the dispatch board (paused while the receiver is down)";
-export const SYNTHETIC_PAUSED_WEBHOOK_ID = fixtureId("22000000", 2);
+export const SYNTHETIC_PAUSED_WEBHOOK_ID = workspaceFixtureId("22000000", "0000", 2);
 
-const HEALTHY_DELIVERIES = 18;
 const FAILED_RESPONSES = [
   [502, "Bad Gateway"],
   [502, "Bad Gateway"],
@@ -30,59 +28,58 @@ const FAILED_RESPONSES = [
   [404, "Not Found"],
 ] as const;
 
-export async function seedWebhooks(context: SeedContext): Promise<void> {
-  const { prisma, ids } = context;
-  const companyId = ids.company;
-  const events = ["record.created", "record.updated"];
-  const hooks = [
-    {
-      id: SYNTHETIC_WEBHOOK_ID,
-      description: SYNTHETIC_WEBHOOK_DESCRIPTION,
-      url: SYNTHETIC_WEBHOOK_URL,
-      enabled: true,
-      recordTypes: ["deal", "organization"],
-      createdAt: storyMoment(210),
-    },
-    {
-      id: SYNTHETIC_PAUSED_WEBHOOK_ID,
-      description: SYNTHETIC_PAUSED_WEBHOOK_DESCRIPTION,
-      url: SYNTHETIC_PAUSED_WEBHOOK_URL,
-      enabled: false,
-      recordTypes: ["task"],
-      createdAt: storyMoment(120),
-    },
-  ] as const;
+const EVENTS = ["record.created", "record.updated"];
 
-  const deliveries: Prisma.WebhookDeliveryUncheckedCreateInput[] = [];
+export type WebhookSeedTarget = { companyId: string; tag: string; ownerUserId: string };
+
+/**
+ * Seeds a workspace's webhooks on record changes of their lists. Each one gets deliveries for its latest record events
+ * since it was created: all successful while enabled, all failed once paused. Webhooks and deliveries the workspace
+ * no longer has are removed.
+ */
+export async function seedWebhooks(
+  prisma: PrismaClient,
+  target: WebhookSeedTarget,
+  specs: readonly WebhookSpec[],
+): Promise<void> {
+  const { companyId, tag, ownerUserId } = target;
+  const hooks = specs.map((spec, index) => ({
+    ...spec,
+    id: workspaceFixtureId("22000000", tag, index + 1),
+    createdAt: storyMoment(spec.createdDaysAgo),
+  }));
+
+  const deliveries: Array<Prisma.WebhookDeliveryUncheckedCreateInput & { id: string }> = [];
   for (const hook of hooks) {
-    await seedRecordEventSubscription(context, {
+    if (hook.deliveries > (hook.enabled ? Number.POSITIVE_INFINITY : FAILED_RESPONSES.length))
+      throw new Error(`Webhook ${hook.key} has more failed deliveries than failure responses`);
+    await seedRecordEventSubscription(prisma, companyId, {
       id: hook.id,
       kind: "webhook",
-      ownerUserId: ids.user,
+      ownerUserId,
       enabled: hook.enabled,
-      events,
-      recordTypes: [...hook.recordTypes],
+      events: EVENTS,
+      recordTypes: [...hook.lists],
     });
     const recordEvents = await prisma.eventLog.findMany({
       where: {
         companyId,
         subjectKind: "record",
-        subjectTypeId: { in: hook.recordTypes.map((type) => presetId(companyId, type)) },
-        kind: { in: events },
+        subjectTypeId: { in: hook.lists.map((list) => presetId(companyId, list)) },
+        kind: { in: EVENTS },
         createdAt: { gte: hook.createdAt },
       },
       orderBy: [{ createdAt: "desc" }, { id: "asc" }],
-      take: hook.enabled ? HEALTHY_DELIVERIES : FAILED_RESPONSES.length,
+      take: hook.deliveries,
       select: { id: true, kind: true, createdAt: true },
     });
-    const expected = hook.enabled ? HEALTHY_DELIVERIES : FAILED_RESPONSES.length;
-    if (recordEvents.length !== expected) throw new Error(`Missing record events for webhook ${hook.id}`);
+    if (recordEvents.length !== hook.deliveries) throw new Error(`Missing record events for webhook ${hook.key}`);
     const webhook = {
       id: hook.id,
       companyId,
       description: hook.description,
       enabled: hook.enabled,
-      events,
+      events: EVENTS,
       createdAt: hook.createdAt,
       secret: null,
       url: hook.url,
@@ -96,7 +93,7 @@ export async function seedWebhooks(context: SeedContext): Promise<void> {
       const createdAt = new Date(recordEvent.createdAt.getTime() + 2_000);
       const failure = hook.enabled ? null : FAILED_RESPONSES[position];
       deliveries.push({
-        id: fixtureId("23000000", deliveries.length + 1),
+        id: workspaceFixtureId("23000000", tag, deliveries.length + 1),
         companyId,
         webhookId: webhook.id,
         eventId: recordEvent.id,
@@ -116,14 +113,16 @@ export async function seedWebhooks(context: SeedContext): Promise<void> {
     }
   }
 
-  await upsertFixturesById(
-    deliveries as Array<Prisma.WebhookDeliveryUncheckedCreateInput & { id: string }>,
-    (delivery) => prisma.webhookDelivery.upsert({ where: { id: delivery.id }, update: delivery, create: delivery }),
+  await upsertFixturesById(deliveries, (delivery) =>
+    prisma.webhookDelivery.upsert({ where: { id: delivery.id }, update: delivery, create: delivery }),
   );
   await prisma.webhookDelivery.deleteMany({
-    where: { companyId, id: { startsWith: "23000000-", notIn: deliveries.map(({ id }) => id as string) } },
+    where: { companyId, id: { startsWith: `23000000-${tag}-`, notIn: deliveries.map(({ id }) => id) } },
   });
-  await prisma.webhook.deleteMany({
-    where: { companyId, id: { startsWith: "22000000-", notIn: hooks.map(({ id }) => id) } },
+  const retired = await prisma.webhook.findMany({
+    where: { companyId, id: { startsWith: `22000000-${tag}-`, notIn: hooks.map(({ id }) => id) } },
+    select: { id: true },
   });
+  await prisma.recordEventSubscription.deleteMany({ where: { companyId, id: { in: retired.map(({ id }) => id) } } });
+  await prisma.webhook.deleteMany({ where: { companyId, id: { in: retired.map(({ id }) => id) } } });
 }

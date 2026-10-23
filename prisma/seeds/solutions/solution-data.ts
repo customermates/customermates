@@ -4,10 +4,17 @@ import { identityKeys, normalizedIdentity } from "@/features/records/record-iden
 import type { RecordModel, RecordScalar } from "@/features/records/record-model.schema";
 import type { MessagingProvider as PrismaMessagingProvider } from "@/generated/prisma";
 
-import { fixtureId } from "../helpers";
+import { fixtureId, workspaceFixtureId } from "../helpers";
 import { TEAM_MEMBER_IDS } from "../team";
 import { storyDay, storyMoment } from "../timeline";
-import type { FieldInput, MemberKey, RecordSpec, SolutionContent } from "./define-solution";
+import {
+  COLLEAGUE_KEYS,
+  type ColleagueKey,
+  type FieldInput,
+  type MemberKey,
+  type RecordSpec,
+  type SolutionContent,
+} from "./define-solution";
 import type { SolutionWorkspace } from "./solution-workspaces";
 
 const STARTER_RECORD_PREFIXES: Record<string, string> = {
@@ -77,9 +84,26 @@ export function solutionDocument(text: string | readonly string[]): string {
   });
 }
 
-/** The member behind an owner or member value: team members in the team workspace, Max everywhere else. */
+function isColleague(member: MemberKey): member is ColleagueKey {
+  return (COLLEAGUE_KEYS as readonly string[]).includes(member);
+}
+
+/** The user id of a synthetic colleague in a non-team workspace. */
+export function solutionColleagueId(workspace: SolutionWorkspace, colleague: ColleagueKey): string {
+  return workspaceFixtureId("30000000", workspace.tag, COLLEAGUE_KEYS.indexOf(colleague) + 2);
+}
+
+/**
+ * The member behind an owner or member value: team members in the team workspace, the workspace's own colleagues
+ * elsewhere, and Max for every other key.
+ */
 export function solutionMemberId(workspace: SolutionWorkspace, member: MemberKey | undefined): string {
-  if (!member || !workspace.team) return workspace.memberId;
+  if (!member) return workspace.memberId;
+  if (isColleague(member)) {
+    if (workspace.team) throw new Error("The team workspace has no colleagues besides its team");
+    return solutionColleagueId(workspace, member);
+  }
+  if (!workspace.team) return workspace.memberId;
   return TEAM_MEMBER_IDS[member];
 }
 
