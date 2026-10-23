@@ -141,9 +141,14 @@ export function recordDefaults(
   typeId: string,
   fields: RecordFieldView[],
   capabilities: RecordModel["capabilities"] = [],
+  primaryFieldId?: string | null,
 ): DataViewState {
+  const columnOrder = fields.filter((field) => field.typeId === typeId && !field.archived).map((field) => field.id);
   return {
-    columnOrder: fields.filter((field) => field.typeId === typeId && !field.archived).map((field) => field.id),
+    columnOrder:
+      primaryFieldId && columnOrder.includes(primaryFieldId)
+        ? [primaryFieldId, ...columnOrder.filter((id) => id !== primaryFieldId)]
+        : columnOrder,
     hiddenColumns: defaultHiddenColumns(typeId, fields, capabilities),
     viewMode: ViewMode.table,
     grouping: null,
@@ -360,4 +365,23 @@ export function recordLinkLabels(types: RecordType[], relationships: RecordRelat
 
 export function recordLinkColor(colors: RecordLinkColors, typeId: string) {
   return toChipColor(colors[typeId]);
+}
+
+type FormattedTextNode = { type?: string; text?: string; content?: FormattedTextNode[] };
+
+export function formattedTextExcerpt(documentJson: string) {
+  const blocks: string[] = [];
+  const visit = (node: FormattedTextNode) => {
+    if (node.content?.some((child) => child.type === "text")) {
+      blocks.push(node.content.map((child) => child.text ?? "").join(""));
+      return;
+    }
+    node.content?.forEach(visit);
+  };
+  visit(JSON.parse(documentJson) as FormattedTextNode);
+  return blocks
+    .map((block) => block.trim())
+    .filter(Boolean)
+    .join(" ")
+    .replace(/\s+/g, " ");
 }

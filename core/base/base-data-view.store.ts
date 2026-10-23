@@ -195,6 +195,9 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   get supportsManualOrder(): boolean {
     return false;
   }
+  get recordPictureFieldId(): string | undefined {
+    return undefined;
+  }
   get recordLabels(): { singular: string; plural: string } | undefined {
     return undefined;
   }
@@ -251,7 +254,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
   abstract get columnsDefinition(): TableColumn[];
 
-  get primaryColumnId(): string {
+  get primaryColumnId(): string | undefined {
     return "name";
   }
 

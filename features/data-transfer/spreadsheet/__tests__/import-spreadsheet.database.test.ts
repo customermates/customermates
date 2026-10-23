@@ -45,7 +45,7 @@ const { createCrmPreset, presetId } = await import("@/features/records/crm-prese
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
 
-async function fixture() {
+async function fixture(useAliasForName = false) {
   const seed = await runWithoutTenant(async () => {
     const company = await prisma.company.create({ data: {} });
     companies.push(company.id);
@@ -78,9 +78,16 @@ async function fixture() {
   );
   const spreadsheet = new ImportSpreadsheetInteractor(repo, query, importer);
   const read = new GetRecordInteractor(repo, policy);
-  await runWithTenant(admin, () =>
-    runInTransaction(() => repo.saveModel(createCrmPreset(seed.company.id), admin.id), { timeout: 30000 }),
-  );
+  const model = createCrmPreset(seed.company.id);
+  if (useAliasForName) {
+    const organization = model.types.find((type) => type.id === presetId(seed.company.id, "organization"));
+    const name = model.fields.find((field) => field.id === organization?.primaryFieldId);
+    if (!organization || !name) throw new Error("Missing fixture organization");
+    const aliasId = presetId(seed.company.id, "organization.alias");
+    model.fields.push({ ...name, id: aliasId, label: "Alias", required: false, position: 20 });
+    organization.primaryFieldId = aliasId;
+  }
+  await runWithTenant(admin, () => runInTransaction(() => repo.saveModel(model, admin.id), { timeout: 30000 }));
   const id = (key: string) => presetId(seed.company.id, key);
   const run = <T>(fn: () => Promise<T>) => runWithTenant(admin, fn);
   const list = async (type: string) => {
@@ -110,6 +117,52 @@ async function table(bytes: Uint8Array): Promise<SpreadsheetTable> {
 }
 
 describeDatabase("ImportSpreadsheetInteractor", () => {
+  it("matches imported relationships using the configured display name instead of the original Name field", async () => {
+    const f = await fixture(true);
+    const organizations = await table(
+      new TextEncoder().encode("Name,Alias\nOriginal legal name,Matching display name\n"),
+    );
+    const created = await f.run(() =>
+      f.spreadsheet.invoke(
+        ImportSpreadsheetSchema.parse({
+          table: organizations,
+          mapping: {
+            typeId: f.id("organization"),
+            locale: "en",
+            columns: [
+              { column: "Name", fieldId: f.id("organization.name") },
+              { column: "Alias", fieldId: f.id("organization.alias") },
+            ],
+          },
+          idempotencyKey: randomUUID(),
+        }),
+      ),
+    );
+    expect(created.ok, JSON.stringify(created)).toBe(true);
+    const contacts = await table(new TextEncoder().encode("First,Company\nAlice,Matching display name\n"));
+    const imported = await f.run(() =>
+      f.spreadsheet.invoke(
+        ImportSpreadsheetSchema.parse({
+          table: contacts,
+          mapping: {
+            typeId: f.id("contact"),
+            locale: "en",
+            columns: [{ column: "First", fieldId: f.id("contact.firstName") }],
+            relationships: [{ column: "Company", relationId: f.id("contact.organizations") }],
+          },
+          idempotencyKey: randomUUID(),
+        }),
+      ),
+    );
+    expect(imported.ok, JSON.stringify(imported)).toBe(true);
+    if (!imported.ok) throw new Error("Import failed");
+    expect(imported.data.linked).toBe(1);
+    const contact = await f.record(imported.data.records[0]);
+    expect(contact.relationships[0].records[0].title).toEqual({
+      state: "value",
+      value: { kind: "text", value: "Matching display name" },
+    });
+  });
   afterAll(async () => {
     await runWithoutTenant(() => prisma.company.deleteMany({ where: { id: { in: companies } } }));
     await prisma.$disconnect();

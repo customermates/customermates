@@ -108,7 +108,9 @@ test("board columns add a record with the column value, open the option, and col
     await action();
     if (testInfo.project.name === "mobile") await page.locator('[data-slot="drawer-close"]').click();
     else await page.keyboard.press("Escape");
-    await expect(page.getByRole("heading", { name: "Appearance", exact: true })).not.toBeVisible();
+    // Wait for the closing overlay to unmount and return focus before opening the view menu.
+    await expect(page.getByRole("heading", { name: "Appearance", exact: true, includeHidden: true })).toHaveCount(0);
+    await expect(page.locator("#records-display-options")).toBeFocused();
   };
   const storedGrouping = async () =>
     (

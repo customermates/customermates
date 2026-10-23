@@ -97,7 +97,8 @@ const RecordsPageViewContent = observer(function RecordsPageView({
   const recordHref = useCallback((record: RecordRow) => `/records/${record.ref.typeId}/${record.ref.recordId}`, []);
   const view = resolveDataViewView(store.viewMode, store.canBoard);
   const columns = useRecordTableColumns(store, openRelated, { openRecord });
-  const { recordColumns, primaryColumnId, firstNumberColumnId } = store;
+  const { recordColumns, firstNumberColumnId } = store;
+  const primaryColumnId = store.type?.primaryFieldId ?? store.primaryColumnId;
   const columnStyles = useMemo(
     () =>
       new Map(

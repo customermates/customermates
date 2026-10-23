@@ -1,3 +1,4 @@
+import { recordItem } from "./record-rows";
 import { randomUUID } from "node:crypto";
 
 import type { Page } from "@playwright/test";
@@ -48,7 +49,7 @@ test("the switcher lists the login's workspaces and a switch shows only the chos
   const firstListInSecond = appPath(second.slug, `/records/${presetId(workspace.companyId, "organization")}`);
 
   await page.goto(firstList);
-  await expect(page.getByRole("link", { name: "Hansen Logistik", exact: true })).toBeVisible();
+  await expect(recordItem(page, "Hansen Logistik")).toBeVisible();
   const menu = await openWorkspaceSwitcher(page);
   await expect(switcherWorkspaces(menu)).toHaveText([/Browser workspace/, /Bergmann Steuern/]);
   await expect(menu.locator(`[data-workspace-id="${workspace.companyId}"]`)).toHaveAttribute("aria-current", "true");
@@ -61,8 +62,8 @@ test("the switcher lists the login's workspaces and a switch shows only the chos
   await expectCurrentWorkspace(page, "Bergmann Steuern");
   expect(await activeWorkspaceOf(database, workspace)).toEqual({ lastUsed: second.companyId });
   await page.goto(secondList);
-  await expect(page.getByRole("link", { name: "Example organization", exact: true })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Hansen Logistik", exact: true })).toHaveCount(0);
+  await expect(recordItem(page, "Example organization")).toBeVisible();
+  await expect(recordItem(page, "Hansen Logistik")).toHaveCount(0);
   const model = await postOk(page, "/api/v1/model/read", {});
   const typeIds = model.types.map((type: { id: string }) => type.id);
   expect(typeIds).toContain(presetId(second.companyId, "organization"));
@@ -76,7 +77,7 @@ test("the switcher lists the login's workspaces and a switch shows only the chos
   await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/dashboard$"));
   await expectCurrentWorkspace(page, "Browser workspace");
   await page.goto(firstList);
-  await expect(page.getByRole("link", { name: "Hansen Logistik", exact: true })).toBeVisible();
+  await expect(recordItem(page, "Hansen Logistik")).toBeVisible();
   expect(errors).toEqual([]);
 });
 

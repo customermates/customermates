@@ -76,7 +76,14 @@ const RecordDetailPageContent = observer(function RecordDetailPage({
       title: type?.pluralLabel ?? "",
       pictureUrl: null,
       avatarKind: null,
-      record: recordId ? { id: recordId, title: name, pictureUrl, showAvatar: Boolean(avatar) } : undefined,
+      record: recordId
+        ? {
+            id: recordId,
+            title: name,
+            pictureUrl,
+            showAvatar: Boolean(avatar?.fields.some((field) => field.role === "image")),
+          }
+        : undefined,
     });
     return () => root.layoutStore.clearRuntimeIdentity("entity", key);
   }, [initial.typeId, root, type?.pluralLabel, recordId, name, pictureUrl, avatar]);

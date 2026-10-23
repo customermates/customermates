@@ -45,6 +45,7 @@ type Props = {
   optionsLoading?: boolean;
   value?: string;
   onValueChange?: (value: string) => void;
+  onOpenChange?: (open: boolean) => void;
   labelEndAddon?: ReactNode;
   endContent?: ReactNode;
   ariaLabel?: string;
@@ -68,6 +69,7 @@ export const FormSelect = observer(
     optionsLoading = false,
     value: controlledValue,
     onValueChange,
+    onOpenChange,
     labelEndAddon,
     endContent,
     ariaLabel,
@@ -111,7 +113,11 @@ export const FormSelect = observer(
           disabled={isDisabled}
           open={canEdit && open}
           value={value}
-          onOpenChange={(next) => setOpen(canEdit && next)}
+          onOpenChange={(next) => {
+            if (!canEdit) return;
+            setOpen(next);
+            onOpenChange?.(next);
+          }}
           onValueChange={
             !canEdit ? undefined : (next) => (onValueChange ? onValueChange(next) : store?.onChange(id, next))
           }

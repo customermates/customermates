@@ -350,6 +350,8 @@ test("opens a record on Enter for a two-word partial name without calling the re
   await expect(record).toHaveAttribute("aria-selected", "true");
   await page.keyboard.press("Enter");
   await expect(page.locator("#global-search-input")).toHaveCount(0);
-  await expect(page.getByRole("dialog").getByText(`Anna${suffix} Schmidt renewal`).first()).toBeVisible();
+  await expect(
+    page.getByRole("dialog").getByRole("heading", { name: `Anna${suffix} Schmidt renewal`, exact: true }),
+  ).toBeVisible();
   expect(resolverCalls).toBe(0);
 });

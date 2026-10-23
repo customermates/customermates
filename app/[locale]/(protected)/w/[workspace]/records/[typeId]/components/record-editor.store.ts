@@ -29,7 +29,7 @@ export type RecordDraft = {
   id: string | undefined;
   values: Record<string, unknown>;
   assignedUserIds: string[];
-  linkChanges: Array<RecordLinkChange & { title: RecordChoice["title"] }>;
+  linkChanges: Array<RecordLinkChange & Pick<RecordChoice, "title" | "pictureUrl">>;
   identities: RecordIdentityInput[];
   captureFieldIds: string[];
 };
@@ -450,7 +450,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
       current.includes(fieldId) ? current.filter((id) => id !== fieldId) : [...current, fieldId],
     );
   };
-  stageLink = (change: RecordLinkChange, title: RecordChoice["title"]) => {
+  stageLink = (change: RecordLinkChange, title: RecordChoice["title"], pictureUrl?: RecordChoice["pictureUrl"]) => {
     const current = this.form.linkChanges;
     const existing = current.find(
       (entry) =>
@@ -462,7 +462,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
     if (existing?.action === change.action) return;
     this.onChange(
       "linkChanges",
-      existing ? current.filter((entry) => entry !== existing) : [...current, { ...change, title }],
+      existing ? current.filter((entry) => entry !== existing) : [...current, { ...change, title, pictureUrl }],
     );
   };
   private scalar(field: RecordFieldView): RecordScalar | null {

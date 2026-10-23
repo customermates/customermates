@@ -170,14 +170,17 @@ describe("WidgetsStore refresh compatibility", () => {
       lg: [{ h: 2, i: FIRST_ID, w: 3, x: 1, y: 0 }],
     };
 
-    store.onLayoutChange([], moved);
+    try {
+      store.onLayoutChange([], moved);
 
-    await vi.waitFor(() => expect(seen).toEqual([error]));
-    expect(updateWidgetLayoutsAction).toHaveBeenCalledTimes(1);
-    expect(store.layouts).toEqual(before);
-    expect(store.layouts).not.toEqual(moved);
-    expect(captureException).toHaveBeenCalledExactlyOnceWith(error);
-    unregister();
+      await vi.waitFor(() => expect(seen).toEqual([error]));
+      expect(updateWidgetLayoutsAction).toHaveBeenCalledTimes(1);
+      expect(store.layouts).toEqual(before);
+      expect(store.layouts).not.toEqual(moved);
+      await vi.waitFor(() => expect(captureException).toHaveBeenCalledExactlyOnceWith(error));
+    } finally {
+      unregister();
+    }
   });
 
   it("sends the expected widget versions and reloads the dashboard after a version conflict", async () => {

@@ -16,6 +16,7 @@ import { MemberAvatar, memberName } from "@/components/chip/member-chip";
 import { FormAutocompleteAvatar } from "@/components/forms/form-autocomplete-avatar";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { cn } from "@/core/utils/cn";
+import { ITEM_REVEAL_GROUP_CLASS } from "@/components/ui/item-actions";
 import {
   type EntityDetailPreviewItem,
   useEntityDetailPersonalization,
@@ -26,7 +27,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { recordColumns } from "@/features/records/record-columns";
 import { isRecordFieldWritable } from "@/features/records/record-input-value";
 import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
@@ -43,7 +44,14 @@ import {
   linkTypeId,
 } from "./record-chip";
 import { RecordChannelPopover } from "./record-identity-editor";
-import { focusFirstControl, RecordLinkPicker } from "./record-inline-field";
+import {
+  EDIT_SPACE_BUTTON_CLASS,
+  EDIT_SPACE_FOCUS_CLASS,
+  focusFirstControl,
+  inlineEditorPopoverClass,
+  RecordLinkPicker,
+} from "./record-inline-field";
+import { editsFlush } from "./record-field-value-editor";
 import { RecordInputField } from "./record-input-field";
 import { useRecordChoices } from "@/components/records/use-record-choices";
 import { actionData } from "@/core/utils/action-data";
@@ -120,7 +128,7 @@ function useLinkedChoices(store: RecordEditorStore, column: LinkColumn) {
         (change) =>
           change.action === "link" && !original.some((record) => record.ref.recordId === change.record.recordId),
       )
-      .map((change) => ({ ref: change.record, title: change.title })),
+      .map((change) => ({ ref: change.record, title: change.title, pictureUrl: change.pictureUrl })),
   ];
   const hidden = store.trash
     ? Math.max(0, (own?.readableCount ?? 0) - original.length)
@@ -150,6 +158,8 @@ function ChipPopover({
   label,
   chip,
   wide = false,
+  contact = false,
+  popoverClassName,
   open,
   onOpenChange,
   children,
@@ -157,6 +167,8 @@ function ChipPopover({
   label: string;
   chip: ReactNode;
   wide?: boolean;
+  contact?: boolean;
+  popoverClassName?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   children: ReactNode;
@@ -164,21 +176,50 @@ function ChipPopover({
   const t = useTranslations();
   return (
     <Popover modal open={open} onOpenChange={onOpenChange}>
-      <PopoverTrigger asChild>
-        <button aria-label={t("RecordModel.editValue", { field: label })} className={CHIP_TRIGGER_CLASS} type="button">
-          {chip}
-        </button>
-      </PopoverTrigger>
+      {contact ? (
+        <PopoverAnchor asChild>
+          <span
+            className={cn(
+              ITEM_REVEAL_GROUP_CLASS,
+              EDIT_SPACE_FOCUS_CLASS,
+              "inline-flex min-w-0 max-w-full items-center gap-1",
+            )}
+          >
+            {chip}
 
-      <PopoverContent align="start" className={chipPopoverClass(wide)} onOpenAutoFocus={focusFirstControl}>
+            <PopoverTrigger asChild>
+              <button
+                aria-label={t("RecordModel.editValue", { field: label })}
+                className={EDIT_SPACE_BUTTON_CLASS}
+                data-edit-target=""
+                type="button"
+              >
+                {t("RecordModel.edit")}
+              </button>
+            </PopoverTrigger>
+          </span>
+        </PopoverAnchor>
+      ) : (
+        <PopoverTrigger asChild>
+          <button
+            aria-label={t("RecordModel.editValue", { field: label })}
+            className={CHIP_TRIGGER_CLASS}
+            type="button"
+          >
+            {chip}
+          </button>
+        </PopoverTrigger>
+      )}
+
+      <PopoverContent
+        align="start"
+        className={cn(chipPopoverClass(wide), popoverClassName)}
+        onOpenAutoFocus={focusFirstControl}
+      >
         {open && children}
       </PopoverContent>
     </Popover>
   );
-}
-
-function EditorHeading({ label }: { label: string }) {
-  return <p className="truncate text-xs font-medium text-muted-foreground">{label}</p>;
 }
 
 const LinkedChip = observer(function LinkedChip({
@@ -217,7 +258,11 @@ const LinkedChip = observer(function LinkedChip({
   const direction = column.direction;
   const singular = (direction === "outgoing" ? relation.sourceCardinality : relation.targetCardinality) === "one";
   const stage = (choice: RecordChoice, action: "link" | "unlink") =>
-    store.stageLink({ action, relationId: relation.id, direction, record: choice.ref }, choice.title);
+    store.stageLink(
+      { action, relationId: relation.id, direction, record: choice.ref },
+      choice.title,
+      choice.pictureUrl,
+    );
   const toggle = (choice: RecordChoice, isLinked: boolean) => {
     if (isLinked) stage(choice, "unlink");
     else {
@@ -248,13 +293,9 @@ const LinkedChip = observer(function LinkedChip({
 
 function editsInChip(store: RecordEditorStore, column: RecordChipColumn) {
   if (store.isReadOnly) return false;
-  if (column.kind === "field") {
-    return (
-      isRecordFieldWritable(column.field) &&
-      column.field.valueType !== "richText" &&
-      !CONTACT_VALUE_TYPES.includes(column.field.valueType)
-    );
-  }
+  if (column.kind === "field")
+    return isRecordFieldWritable(column.field) && store.previewValue(column.field).state !== "restricted";
+
   if (column.kind === "relationship") {
     return !store.presentation.model.types.some(
       (type) => type.embedded && type.parentRelationshipId === column.relation.id,
@@ -272,6 +313,7 @@ const AssigneeEditor = observer(function AssigneeEditor({ store, label }: { stor
   );
   return (
     <FormAutocompleteAvatar
+      inline
       ariaLabel={label}
       getItems={(params) => actionData(getActiveUsersAction(params))}
       id="assignedUserIds"
@@ -308,14 +350,13 @@ const DetailChip = observer(function DetailChip({
     if (!editable || store.isDisabled) return placeholder;
     return (
       <ChipPopover chip={placeholder} label={column.label} open={open} onOpenChange={setOpen}>
-        <EditorHeading label={column.label} />
-
         <RecordChannelPopover editor={store} />
       </ChipPopover>
     );
   }
   if (column.id === "system:assignedTo") {
-    if (!entry.empty) {
+    const canEdit = editable && !store.type?.embedded;
+    if (!entry.empty && !canEdit) {
       return (
         <AppChipStack
           items={row.assignedUsers.map((member) => ({
@@ -327,12 +368,14 @@ const DetailChip = observer(function DetailChip({
         />
       );
     }
-    const placeholder = <PlaceholderChip column={column} store={store} />;
-    if (!editable) return placeholder;
+    const chip = entry.empty ? (
+      <PlaceholderChip column={column} store={store} />
+    ) : (
+      <RecordPropertyChipView inTrigger entry={entry} presentation={store.presentation} record={row} />
+    );
+    if (!canEdit) return chip;
     return (
-      <ChipPopover chip={placeholder} label={column.label} open={open} onOpenChange={setOpen}>
-        <EditorHeading label={column.label} />
-
+      <ChipPopover chip={chip} label={column.label} open={open} popoverClassName="p-0" onOpenChange={setOpen}>
         <AssigneeEditor label={column.label} store={store} />
       </ChipPopover>
     );
@@ -344,15 +387,29 @@ const DetailChip = observer(function DetailChip({
   );
   if (personalizing || column.kind !== "field" || !editsInChip(store, column)) return chip;
   return (
-    <ChipPopover chip={chip} label={column.label} open={open} onOpenChange={setOpen}>
-      <EditorHeading label={column.label} />
+    <ChipPopover
+      chip={chip}
+      contact={!entry.empty && CONTACT_VALUE_TYPES.includes(column.field.valueType)}
+      label={column.label}
+      open={open}
+      popoverClassName={inlineEditorPopoverClass(column.field)}
+      onOpenChange={setOpen}
+    >
+      <label className="sr-only" htmlFor={inputId}>
+        {column.label}
+      </label>
 
       <RecordInputField
         field={column.field}
+        flush={editsFlush(column.field)}
         id={`values.${column.field.id}`}
         inputId={inputId}
         label={null}
         members={row.memberUsers}
+        onDatePicked={() => setOpen(false)}
+        onSelectOpenChange={(next) => {
+          if (!next) setOpen(false);
+        }}
       />
     </ChipPopover>
   );

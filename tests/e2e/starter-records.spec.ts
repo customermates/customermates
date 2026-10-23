@@ -1,5 +1,5 @@
 import { test, expect, collectPageErrors } from "./fixtures";
-import { openRecordDetails } from "./record-rows";
+import { recordItem, openRecordDetails } from "./record-rows";
 import { presetId } from "../../features/records/crm-preset";
 import { companyPath } from "./app-paths";
 
@@ -48,7 +48,7 @@ test("creates, edits, connects, assigns, reloads, and deletes all five starter t
     await expect(dialog).not.toBeVisible();
     await page.reload();
     const updatedTitle = `Journey ${label} B`;
-    await expect(page.getByRole("link", { name: updatedTitle, exact: true })).toBeVisible();
+    await expect(recordItem(page, updatedTitle)).toBeVisible();
     const saved = await database.query(
       'SELECT r.id,a."userId" FROM "CrmRecord" r JOIN "RecordValue" v ON v."companyId"=r."companyId" AND v."typeId"=r."typeId" AND v."recordId"=r.id JOIN "RecordAssignment" a ON a."companyId"=r."companyId" AND a."typeId"=r."typeId" AND a."recordId"=r.id WHERE r."companyId"=$1 AND r."typeId"=$2 AND v."fieldId"=$3 AND v."textValue"=$4',
       [companyId, typeId, presetId(companyId, `${kind}.name`), updatedTitle],
@@ -101,7 +101,7 @@ test("creates, edits, connects, assigns, reloads, and deletes all five starter t
     await dialog.getByRole("button", { name: "Delete", exact: true }).click();
     await page.getByRole("alertdialog").getByRole("button", { name: "Delete", exact: true }).click();
     await expect(dialog).not.toBeVisible();
-    await expect(page.getByRole("link", { name: record.title, exact: true })).not.toBeVisible();
+    await expect(recordItem(page, record.title)).not.toBeVisible();
   }
   const remaining = await database.query(
     'SELECT COUNT(*)::integer AS count FROM "CrmRecord" WHERE "companyId"=$1 AND id=ANY($2::text[]) AND "deletedAt" IS NULL',

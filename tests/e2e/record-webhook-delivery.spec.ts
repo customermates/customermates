@@ -3,7 +3,7 @@ import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
 import { addFromConfigure, openConfigure } from "./configure";
 import { test, expect, collectPageErrors } from "./fixtures";
-import { openRecordDetails, runRowAction } from "./record-rows";
+import { recordItem, openRecordDetails, runRowAction } from "./record-rows";
 import { companyPath, companyUrlPattern } from "./app-paths";
 
 test("delivers a custom-record event to a loopback receiver and retries a transient failure", async ({
@@ -204,7 +204,7 @@ test("delivers only deleted records that matched the webhook filter before remov
       await dialog.getByRole("button", { name: "Delete", exact: true }).click();
       await page.getByRole("alertdialog").getByRole("button", { name: "Delete", exact: true }).click();
       await expect(dialog).not.toBeVisible();
-      await expect(page.getByRole("link", { name: title, exact: true })).not.toBeVisible();
+      await expect(recordItem(page, title)).not.toBeVisible();
       await expect
         .poll(
           async () => {

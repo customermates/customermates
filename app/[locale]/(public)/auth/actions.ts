@@ -46,12 +46,9 @@ export async function continueWithGoogleAction(callbackURL?: string, errorCallba
     callbackURL,
     errorCallbackURL,
   });
-  if (isRedirect(result)) return { ok: true as const, data: { url: result.redirect } };
+  if (isRedirect(result)) redirect(result.redirect);
 
-  const serialized = await serializeResult(result);
-  if (!serialized.ok) return serialized;
-
-  return { ok: true as const, data: { url: null } };
+  return serializeResult(result);
 }
 
 export async function continueWithMicrosoftAction(callbackURL?: string, errorCallbackURL?: string) {
@@ -60,12 +57,9 @@ export async function continueWithMicrosoftAction(callbackURL?: string, errorCal
     callbackURL,
     errorCallbackURL,
   });
-  if (isRedirect(result)) return { ok: true as const, data: { url: result.redirect } };
+  if (isRedirect(result)) redirect(result.redirect);
 
-  const serialized = await serializeResult(result);
-  if (!serialized.ok) return serialized;
-
-  return { ok: true as const, data: { url: null } };
+  return serializeResult(result);
 }
 
 export async function signUpWithEmailAction(data: EmailSignUpData) {

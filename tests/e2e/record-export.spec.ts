@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 
 import { companyUrlPattern, pagePath } from "./app-paths";
 import { test, expect } from "./fixtures";
-import { openRecordDetails, openRecordLink } from "./record-rows";
+import { openRecordDetails, recordItem } from "./record-rows";
 import { presetId } from "../../features/records/crm-preset";
 
 
@@ -177,11 +177,11 @@ test("round-trips deal line items and their calculated total through the transfe
   await dialogs.getByRole("button", { name: "Add Line item", exact: true }).click();
   await dialogs.getByRole("textbox", { name: "Add Line item", exact: true }).fill("Transfer line");
   await page.keyboard.press("Enter");
-  const line = dialogs.getByRole("region", { name: "Line items" }).getByRole("button", { name: "Transfer line", exact: true });
+  const line = recordItem(page, "Transfer line");
   await expect(line).toBeVisible();
   // A nested create reloads the parent; until that reload lands it is read-only (no Add row) and a row click is lost.
   await expect(dialogs.getByRole("button", { name: "Add Line item", exact: true })).toBeVisible();
-  await openRecordLink(line);
+  await openRecordDetails(page, "Transfer line");
   await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(2);
   const child = dialogs.last();
   await child.getByRole("textbox", { name: "Quantity", exact: false }).fill("2");

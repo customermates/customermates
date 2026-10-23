@@ -74,7 +74,10 @@ export function RecordChipList({
   children?: ReactNode;
 }) {
   return (
-    <div className="flex min-w-0 flex-wrap items-center gap-1" data-chip-row="">
+    <div
+      className="flex min-w-0 flex-wrap items-center gap-1 [&_:is([data-edit-target],[data-edit-surface])]:m-0 [&_:is([data-edit-target],[data-edit-surface])]:min-h-0 [&_:is([data-edit-target],[data-edit-surface])]:p-0"
+      data-chip-row=""
+    >
       {entries.map((entry) => (
         <span
           key={entry.column.id}
@@ -151,10 +154,12 @@ export const RecordPropertyChipView = observer(function RecordPropertyChipView({
   presentation,
   record,
   entry,
+  inTrigger = false,
 }: {
   presentation: ChipPresentation;
   record: RecordRow;
   entry: RecordChipEntry;
+  inTrigger?: boolean;
 }) {
   const t = useTranslations();
   const intl = useHydratedIntlStore();
@@ -227,7 +232,9 @@ export const RecordPropertyChipView = observer(function RecordPropertyChipView({
     return (
       <AppChip
         data-chip-id={count === 1 ? `${first.ref.typeId}:${first.ref.recordId}` : undefined}
-        startContent={<RecordChipIcon icons={linkIcons} typeId={typeId} />}
+        startContent={
+          <RecordChipIcon icons={linkIcons} pictureUrl={count === 1 ? first.pictureUrl : null} typeId={typeId} />
+        }
         tooltip={column.label}
         variant={recordLinkColor(linkColors, typeId)}
       >
@@ -244,6 +251,7 @@ export const RecordPropertyChipView = observer(function RecordPropertyChipView({
             label: memberName(member),
             startContent: <MemberAvatar member={member} />,
           }))}
+          overflowMenu={!inTrigger}
         />
       </FieldTooltip>
     );

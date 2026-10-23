@@ -37,6 +37,7 @@ type Props = {
   trigger: ReactNode;
   anchor?: (trigger: ReactNode) => ReactNode;
   title: ReactNode;
+  hideTitle?: boolean;
   headerAction?: ReactNode;
   children: ReactNode;
   footer?: ReactNode;
@@ -54,6 +55,7 @@ export function ResponsiveOverlay({
   trigger,
   anchor,
   title,
+  hideTitle = false,
   headerAction,
   children,
   footer,
@@ -107,7 +109,13 @@ export function ResponsiveOverlay({
         onInteractOutside={keepOpenForAssistantSurface}
         onOpenAutoFocus={onOpenAutoFocus}
       >
-        <PopoverHeader className={cn("shrink-0 p-3", headerAction && "flex-row items-center gap-2 py-1.5 pr-1.5")}>
+        <PopoverHeader
+          className={cn(
+            "shrink-0 p-3",
+            headerAction && "flex-row items-center gap-2 py-1.5 pr-1.5",
+            hideTitle && !headerAction && "sr-only",
+          )}
+        >
           <PopoverTitle className={cn(headerAction && "min-w-0 flex-1 truncate")} id={titleId}>
             {title}
           </PopoverTitle>

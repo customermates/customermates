@@ -1,3 +1,4 @@
+import { openRecordDetails } from "./record-rows";
 import type { Request } from "@playwright/test";
 
 import { randomUUID } from "node:crypto";
@@ -162,13 +163,7 @@ test("record names and ordinary rows open the drawer while direct cell editing s
   await drawer.getByRole("textbox", { name: "Price", exact: false }).fill("12");
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer).not.toBeVisible();
-  if (isMobile)
-    await page
-      .locator("[data-phone-rows] [data-row-id]")
-      .filter({ hasText: "Drawer test service" })
-      .getByText("Browser Administrator", { exact: true })
-      .click();
-  else await page.getByRole("link", { name: "Drawer test service", exact: true }).click();
+  await openRecordDetails(page, "Drawer test service");
   await expect(drawer).toBeVisible();
   await expect(page).toHaveURL(new RegExp(`${path}(?:\\?|$)`));
   await page.keyboard.press("Escape");

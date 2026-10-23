@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { expect, test, collectPageErrors } from "./fixtures";
-import { recordRowName, recordRows, runNamedRowAction } from "./record-rows";
+import { linkedRecordNames, linkedRecordOpeners, recordRowName, recordRows, runNamedRowAction } from "./record-rows";
 import { pagePath } from "./app-paths";
 
 test("returns to a valid relationship, path and embedded page after deleting its last row", async ({
@@ -59,7 +59,7 @@ test("returns to a valid relationship, path and embedded page after deleting its
   const deal = await create("deal", [
     { fieldId: id("deal.name"), value: { kind: "text", value: "Pagination parent" } },
   ]);
-  for (let index = 1; index <= 26; index += 1)
+  for (let index = 1; index <= 26; index += 1) {
     await create(
       "organization",
       [
@@ -70,11 +70,12 @@ test("returns to a valid relationship, path and embedded page after deleting its
       ],
       [{ relationId: id("deal.organizations"), direction: "incoming", record: deal }],
     );
+  }
   const service = await create("service", [
     { fieldId: id("service.name"), value: { kind: "text", value: "Paged service" } },
     { fieldId: id("service.amount"), value: { kind: "decimal", value: "2", currency: "EUR" } },
   ]);
-  for (let index = 1; index <= 11; index += 1)
+  for (let index = 1; index <= 11; index += 1) {
     await create(
       "lineItem",
       [
@@ -89,28 +90,63 @@ test("returns to a valid relationship, path and embedded page after deleting its
         { relationId: id("lineItem.service"), direction: "outgoing", record: service },
       ],
     );
+  }
   await page.goto(pagePath(page, `/records/${deal.typeId}/${deal.recordId}`));
   const main = page.getByRole("main");
   const direct = main.locator(`[data-entity-field="relationship:${id("deal.organizations")}:outgoing"]`);
   const projected = main.locator(`[data-entity-field="path:${pathId}"]`);
-  await expect(direct.getByRole("button", { name: /^Open Linked organization/ })).toHaveCount(25);
-  await expect(projected.getByRole("button", { name: /^Open Linked organization/ })).toHaveCount(25);
-  await direct.getByRole("button", { name: "Next page", exact: true }).click();
-  await projected.getByRole("button", { name: "Next page", exact: true }).click();
-  const last = direct.getByRole("button", { name: /^Open Linked organization/ });
-  await expect(last).toHaveCount(1);
-  const title = (await last.getAttribute("aria-label"))?.replace(/^Open /, "");
-  expect(title).toBeTruthy();
-  await last.click();
-  const editor = page.getByRole("dialog", { name: "Organization", exact: true });
-  await expect(editor.getByRole("textbox", { name: "Name", exact: false })).toHaveValue(title!);
+  const more = direct.getByRole("button", { name: /^\+\d+ more$/ });
+  await expect(more).toBeVisible();
+  expect(
+    (await direct.getByRole("button", { name: /^Open Linked organization/ }).count()) +
+      Number((await more.innerText()).match(/\d+/)?.[0]),
+  ).toBe(26);
+  const projectedMore = projected.getByRole("button", { name: /^\+\d+ more$/ });
+  await expect(projectedMore).toBeVisible();
+  for (const field of [direct, projected]) {
+    expect(
+      (await field.locator("[data-chip-id]").count()) +
+        Number((await field.getByRole("button", { name: /^\+\d+ more$/ }).innerText()).match(/\d+/)?.[0]),
+    ).toBe(26);
+    await expect(field.getByRole("button", { name: "Next page", exact: true })).toHaveCount(0);
+  }
+  const drawer = page.getByRole("dialog").filter({ has: page.locator("[data-linked-records]") });
+  const rows = linkedRecordOpeners(drawer);
+  await more.click();
+  await expect(drawer.getByRole("heading", { name: "Organizations", exact: true })).toBeVisible();
+  await expect(drawer).toContainText("26 records");
+  await expect(rows).toHaveCount(10);
+  await page.keyboard.press("Escape");
+  await expect(drawer).toHaveCount(0);
+  await projectedMore.click();
+  await expect(drawer.getByRole("heading", { name: "Connected organizations", exact: true })).toBeVisible();
+  await expect(drawer).toContainText("26 records");
+  await drawer.getByRole("button", { name: "Next page", exact: true }).click();
+  await drawer.getByRole("button", { name: "Next page", exact: true }).click();
+  await expect(rows).toHaveCount(6);
+  const title = (await linkedRecordNames(drawer)).at(-1) ?? "";
+  await rows.last().focus();
+  await page.keyboard.press("Enter");
+  await expect(drawer).toHaveCount(0);
+  const editor = page.getByRole("dialog", {
+    name: "Organization",
+    exact: true,
+  });
+  await expect(editor.getByRole("textbox", { name: "Name", exact: false })).toHaveValue(title);
   await editor.getByRole("button", { name: "Delete", exact: true }).click();
   await page.getByRole("alertdialog").locator("#confirm-delete").click();
   await expect(editor).not.toBeVisible();
-  await expect(direct.getByRole("button", { name: /^Open Linked organization/ })).toHaveCount(25);
-  await expect(projected.getByRole("button", { name: /^Open Linked organization/ })).toHaveCount(25);
-  await expect(direct.getByRole("button", { name: "Next page", exact: true })).toHaveCount(0);
-  await expect(projected.getByRole("button", { name: "Next page", exact: true })).toHaveCount(0);
+  await projectedMore.click();
+  await expect(drawer).toContainText("25 records");
+  await page.keyboard.press("Escape");
+  await expect(drawer).toHaveCount(0);
+  await expect(projectedMore).toBeFocused();
+  for (const field of [direct, projected]) {
+    expect(
+      (await field.locator("[data-chip-id]").count()) +
+        Number((await field.getByRole("button", { name: /^\+\d+ more$/ }).innerText()).match(/\d+/)?.[0]),
+    ).toBe(25);
+  }
   expect(
     (
       await database.query(
@@ -149,8 +185,18 @@ test("returns to a valid relationship, path and embedded page after deleting its
     animations: "disabled",
   });
   await page.reload();
-  await expect(direct.getByRole("button", { name: /^Open Linked organization/ })).toHaveCount(25);
-  await expect(projected.getByRole("button", { name: /^Open Linked organization/ })).toHaveCount(25);
+  await more.click();
+  await expect(drawer).toContainText("25 records");
+  await page.keyboard.press("Escape");
+  await expect(drawer).toHaveCount(0);
+  expect(
+    (await projected.locator("[data-chip-id]").count()) +
+      Number((await projectedMore.innerText()).match(/\d+/)?.[0]),
+  ).toBe(25);
+  await projectedMore.click();
+  await expect(drawer).toContainText("25 records");
+  await page.keyboard.press("Escape");
+  await expect(drawer).toHaveCount(0);
   await expect(recordRows(embedded)).toHaveCount(10);
   expect(errors).toEqual([]);
 });

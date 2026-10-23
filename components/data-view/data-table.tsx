@@ -190,7 +190,9 @@ export const DataTable = observer(function DataTable<E extends HasId>({
               return;
             }
             if (onRowClick) {
-              e.currentTarget.querySelector<HTMLElement>('[data-slot="data-row-open"]')?.focus({ preventScroll: true });
+              e.currentTarget
+                .querySelector<HTMLElement>('[data-slot="data-row-open"], [data-item-actions-trigger]')
+                ?.focus({ preventScroll: true });
               onRowClick(row.original);
               return;
             }
@@ -201,7 +203,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
           {row.getVisibleCells().map((cell) => {
             const columnId = cell.column.id;
             const isSelectionCell = columnId === "__select" || columnId === "__actions";
-            const isNameCell = columnId === (store.primaryColumnId ?? store.columnsDefinition[0]?.uid);
+            const isNameCell = columnId === store.primaryColumnId;
             const liveWidth = getColumnWidth(columnId);
             const content = flexRender(cell.column.columnDef.cell, cell.getContext());
             const rowHref = onRowHref?.(row.original);
@@ -265,7 +267,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                 style={liveWidth != null && !isSelectionCell ? fixedWidthStyle(liveWidth) : undefined}
               >
                 {liveWidth != null && !isSelectionCell ? (
-                  <div className="truncate" style={{ width: Math.max(0, liveWidth - 24) }}>
+                  <div className="-mx-3 truncate px-3" data-column-sized="" style={{ width: liveWidth }}>
                     {wrapped}
                   </div>
                 ) : (

@@ -82,7 +82,7 @@ test("each person picks their own sub-list columns and the default leaves out sy
   }
   let menu = await openPicker(page, lines);
   await expect(menu.getByRole("checkbox", { name: "Name", exact: true })).toBeChecked();
-  await expect(menu.getByRole("checkbox", { name: "Name", exact: true })).toBeDisabled();
+  await expect(menu.getByRole("checkbox", { name: "Name", exact: true })).toBeEnabled();
   await expect(menu.getByRole("checkbox", { name: "Pricing", exact: true })).toBeChecked();
   for (const label of SYSTEM_COLUMNS) await expect(menu.getByRole("checkbox", { name: label, exact: true })).not.toBeChecked();
   await expect(menu.getByRole("checkbox", { name: "Deal", exact: true })).toHaveCount(0);

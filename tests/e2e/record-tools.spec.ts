@@ -1,3 +1,4 @@
+import { recordItem } from "./record-rows";
 import { randomUUID } from "node:crypto";
 import type { Request } from "@playwright/test";
 import { z } from "zod";
@@ -313,7 +314,7 @@ test("configures a type, formula, saved view and widget over authenticated MCP a
     expect(viewUrl.pathname).toContain(`/w/${companySlug(companyId)}/records/`);
     await page.goto(`/en${viewUrl.pathname}${viewUrl.search}`);
     await expect(
-      page.getByRole("link", { name: "Protocol project", exact: true }),
+      recordItem(page, "Protocol project"),
     ).toBeVisible();
     await expect(
       page
@@ -333,7 +334,7 @@ test("configures a type, formula, saved view and widget over authenticated MCP a
     if (hydrated) await hydrated;
     else
       await expectHydrated(
-        page.getByRole("link", { name: "Protocol project", exact: true }),
+        recordItem(page, "Protocol project"),
       );
     await expect.poll(() => pendingActions.size, { timeout: 30000 }).toBe(0);
     await page.goto(companyPath(companyId, "/dashboard"));

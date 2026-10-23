@@ -547,6 +547,27 @@ export class PrismaMessagingRepo
   }
 
   @BypassTenantGuard
+  async findLatestParticipantPictureUnscoped(
+    companyId: string,
+    provider: MessagingProvider,
+    lookupValue: string,
+    providerUserId: string | null,
+  ) {
+    const row = await this.prisma.messagingThreadParticipant.findFirst({
+      where: {
+        companyId,
+        provider,
+        isSelf: false,
+        pictureUrl: { not: null },
+        OR: [{ identityLookupValue: lookupValue }, ...(providerUserId ? [{ providerUserId }] : [])],
+      },
+      orderBy: { updatedAt: "desc" },
+      select: { pictureUrl: true },
+    });
+    return row?.pictureUrl ?? null;
+  }
+
+  @BypassTenantGuard
   async findThreadLatestMessageAtUnscoped(args: { connectedAccountId: string; unipileThreadId: string }) {
     const row = await this.prisma.messagingThread.findUnique({
       where: {

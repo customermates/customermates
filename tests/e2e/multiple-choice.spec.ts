@@ -61,10 +61,8 @@ test("creates a multiple choice field and edits, filters, bulk edits and groups 
 
   await row(`Inline ${suffix}`).hover();
   await row(`Inline ${suffix}`).getByRole("button", { name: `Edit ${label}`, exact: true }).click();
-  const editor = page.locator('[data-slot="popover-content"]').filter({ has: page.getByRole("combobox") });
-  await editor.getByRole("combobox", { name: label, exact: true }).click();
-  await page.getByRole("option", { name: "Beta", exact: true }).click();
-  await page.keyboard.press("Escape");
+  const editor = page.locator('[data-slot="popover-content"][data-state="open"]').filter({ has: page.locator("[data-inline-autocomplete]") });
+  await editor.getByRole("option", { name: "Beta", exact: true }).click();
   await editor.getByRole("button", { name: "Save", exact: true }).click();
   await expect(chips(`Inline ${suffix}`).filter({ hasText: "Beta" }).first()).toBeVisible();
 

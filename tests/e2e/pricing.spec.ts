@@ -1,7 +1,7 @@
 import { addFromConfigure, followConfigureLink, saveDrawer } from "./configure";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
-import { openRecordDetails, openRecordLink } from "./record-rows";
+import { openRecordDetails, openRecordLink, recordItem, recordRows } from "./record-rows";
 import { saveViewChanges } from "./view-changes";
 import { companyPath } from "./app-paths";
 
@@ -54,11 +54,11 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
     await dialogs.getByRole("button", { name: "Add Line item", exact: true }).click();
     await dialogs.getByRole("textbox", { name: "Add Line item", exact: true }).fill(name);
     await page.keyboard.press("Enter");
-    const line = dialogs.getByRole("region", { name: "Line items" }).getByRole("button", { name, exact: true });
+    const line = recordItem(page, name);
     await expect(line).toBeVisible();
     // A nested create reloads the parent; until that reload lands it is read-only (no Add row) and a row click is lost.
     await expect(dialogs.getByRole("button", { name: "Add Line item", exact: true })).toBeVisible();
-    await line.click();
+    await openRecordLink(recordItem(page, name));
     await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(2);
     const child = dialogs.last();
     await child.getByRole("textbox", { name: "Quantity", exact: false }).fill(quantity);
@@ -67,7 +67,7 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
     await child.getByRole("button", { name: "Save", exact: true }).click();
     await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(1);
     await expect(
-      dialogs.getByRole("region", { name: "Line items" }).getByRole("button", { name, exact: true }),
+      recordItem(page, name),
     ).toBeVisible();
   }
   const lineItems = dialogs.getByRole("region", { name: "Line items" });
@@ -166,7 +166,7 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
   await page.getByRole("option", { name: "Offered services", exact: true }).click();
   if (testInfo.project.name === "mobile") await page.locator('[data-slot="drawer-close"]').click();
   else await page.keyboard.press("Escape");
-  await expect(page.getByRole("link", { name: "Local opportunity", exact: true })).toHaveCount(2);
+  await expect(recordRows(page).filter({ has: page.getByRole("button", { name: "More actions for Local opportunity", exact: true, includeHidden: true }) })).toHaveCount(2);
   await saveViewChanges(page);
   await expect
     .poll(async () => {
@@ -184,7 +184,7 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
   });
   await page.getByRole("button", { name: "Appearance", exact: true }).click();
   await page.getByRole("button", { name: "Reset layout", exact: true }).click();
-  await expect(page.getByRole("link", { name: "Local opportunity", exact: true })).toHaveCount(1);
+  await expect(recordRows(page).filter({ has: page.getByRole("button", { name: "More actions for Local opportunity", exact: true, includeHidden: true }) })).toHaveCount(1);
   const changeLivePrice = async (price: string) => {
     await openRecords("service");
     await openRecordDetails(page, "Service A");
@@ -197,7 +197,7 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
   await openRecords("deal");
   await openRecordDetails(page, "Local opportunity");
   for (const name of ["A first", "A second"]) {
-    await dialogs.getByRole("region", { name: "Line items" }).getByRole("button", { name, exact: true }).click();
+    await openRecordLink(recordItem(page, name));
     await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(2);
     const child = dialogs.last();
     await child.getByRole("combobox", { name: "Pricing", exact: false }).click();
@@ -207,9 +207,7 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
     await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(1);
   }
   await expect.poll(totals).toEqual({ Value: "2600", Quantity: "5", "Weighted value": "1560" });
-  await openRecordLink(
-    dialogs.getByRole("region", { name: "Line items" }).getByRole("button", { name: "B", exact: true }),
-  );
+  await openRecordLink(recordItem(page, "B"));
   await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(2);
   await dialogs.getByRole("combobox", { name: "Pricing", exact: false }).click();
   await page.getByRole("option", { name: "Saved price", exact: true }).click();
@@ -296,7 +294,8 @@ test("refreshes the deal from in-place sub-list edits in the drawer and locks th
   await lineItems.getByRole("textbox", { name: "Add Line item", exact: true }).fill("Drawer line");
   await page.keyboard.press("Enter");
   await expect(lineItems.locator("[data-embedded-count]")).toHaveText("1");
-  await lineItems.getByRole("button", { name: "Drawer line", exact: true }).click();
+  await expect(lineItems.getByRole("button", { name: "Add Line item", exact: true })).toBeVisible();
+  await openRecordLink(recordItem(page, "Drawer line"));
   await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(2);
   const child = dialogs.last();
   await child.getByRole("combobox", { name: "Service", exact: true }).click();

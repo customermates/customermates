@@ -1,3 +1,4 @@
+import { recordItem } from "./record-rows";
 import { randomUUID } from "node:crypto";
 
 import { presetId } from "../../features/records/crm-preset";
@@ -56,7 +57,7 @@ test("uses configured navigation, quick creation, rename-safe routes, and hidden
   await editor.getByRole("textbox", { name: "Name", exact: false }).fill("Quick catalog entry");
   await editor.getByRole("button", { name: "Save", exact: true }).click();
   await expect(editor).not.toBeVisible();
-  await expect(page.getByRole("link", { name: "Quick catalog entry", exact: true })).toBeVisible();
+  await expect(recordItem(page, "Quick catalog entry")).toBeVisible();
   const saved = await database.query(
     'SELECT COUNT(*)::integer AS count FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2',
     [companyId, serviceId],

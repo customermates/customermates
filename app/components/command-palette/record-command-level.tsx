@@ -207,12 +207,14 @@ export const RecordCommandLevel = observer(function RecordCommandLevel({ level, 
             editor.stageLink(
               { action: "unlink", relationId: relationship.id, direction: level.direction, record: previous.ref },
               previous.title,
+              previous.pictureUrl,
             );
           }
         }
         editor.stageLink(
           { action: "link", relationId: relationship.id, direction: level.direction, record: record.ref },
           record.title,
+          record.pictureUrl,
         );
       });
     return (

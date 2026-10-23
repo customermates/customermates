@@ -85,7 +85,7 @@ test("renders every record detail field in the input box and explains calculated
 
   const quantity = main.locator(`[data-entity-field="${typeId("deal.totalQuantity")}"]`);
   const output = quantity.locator('[data-field-state="read-only"]');
-  const name = main.getByRole("textbox", { name: "Name", exact: false });
+  const name = main.locator(`[data-entity-field="${typeId("deal.stage")}"] [data-slot="select-trigger"]`);
   await expect(output).toHaveCSS("border-top-width", "1px");
   await expect(output).toHaveCSS("padding-left", "12px");
   const [outputBox, nameBox] = [await output.boundingBox(), await name.boundingBox()];
@@ -239,14 +239,12 @@ test("renders every record detail field in the input box and explains calculated
     await expect(memberDerivation.getByRole("link", { name: "Edit in Configure", exact: true })).toHaveCount(0);
     await member.page.keyboard.press("Escape");
     await expect(memberDerivation).toHaveCount(0);
-    const memberName = memberMain.getByRole("textbox", { name: "Name", exact: false });
+    const memberName = memberMain.getByRole("heading").getByRole("textbox", { name: "Name", exact: false });
     await expect(memberName).toHaveAttribute("readonly", "");
-    expect(await surface(memberName)).toBe(plainSurface);
+    await expect(memberName).not.toBeEditable();
     expect(await surface(memberQuantity.locator('[data-field-state="read-only"]'))).toBe(plainSurface);
     expect(await surface(memberMain.locator("[data-formatted-text-area]").first())).toBe(plainSurface);
     await expect(memberMain.locator("[data-formatting-toolbar]")).toHaveCount(0);
-    await memberName.hover();
-    await expect(memberName).toHaveCSS("cursor", "not-allowed");
     await memberName.focus();
     await expect(member.page.getByRole("tooltip")).toHaveCount(0);
     await expect(

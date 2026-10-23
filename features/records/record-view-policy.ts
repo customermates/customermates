@@ -10,7 +10,7 @@ import { activityViewStateValid, activityViewFilters } from "@/ee/messaging/acti
 import { liveRecordFilters, recordViewStateIsValid } from "./record-view-state";
 import { recordSurfaceKey } from "@/core/data-view/data-view-keys";
 import { recordColumns } from "./record-columns";
-import { resolveRecordPath } from "./record-relationship-path";
+import { recordFilterPaths, resolveRecordPath } from "./record-relationship-path";
 import { recordGroupableFields, resolveRecordGrouping } from "./record-grouping";
 import type { Grouping } from "@/core/base/grouping/grouping.schema";
 import type { Filter } from "@/core/base/base-get.schema";
@@ -64,7 +64,7 @@ export class RecordViewPolicy implements DataViewPolicy {
     const type = model.types.find((candidate) => candidate.id === typeId && !candidate.archived);
     if (!type) return null;
     const fields = model.fields.filter((field) => field.typeId === typeId && !field.archived);
-    const paths = type.relationshipPaths ?? [];
+    const paths = recordFilterPaths(typeId, model);
     const definitions = recordFilterableFields(fields, model.relationships, typeId, paths);
     for (const [index, filter] of filters.entries()) {
       if (presentationFiltersAreValid([filter], fields, model.relationships, typeId, paths)) continue;

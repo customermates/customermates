@@ -36,6 +36,7 @@ export const RecordDetailOverview = observer(function RecordDetailOverview({
   const fields = recordColumns(store.presentation.typeId, store.presentation.model).flatMap((column) => {
     let content: ReactNode;
     if (column.kind === "field") {
+      if (column.field.id === type?.primaryFieldId) return [];
       if (!store.record && column.field.behavior.kind !== "input" && column.field.behavior.kind !== "snapshot")
         return [];
       content = <RecordEditorField field={column.field} store={store} />;

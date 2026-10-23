@@ -26,7 +26,9 @@ export class EmbeddedSublistReader {
     const pages = await Promise.all(
       sublists.map(async ({ typeId, relationId }) => {
         const stored = await this.personalization.getP13n(sublistColumnsP13nId(typeId));
-        const columns = readSublistColumns(stored?.settings)?.columns ?? null;
+        const columns =
+          readSublistColumns(stored?.settings, model.types.find((type) => type.id === typeId)?.primaryFieldId)
+            ?.columns ?? null;
         const queries = embeddedSublistQueries({
           typeId,
           parentRelationId: relationId,

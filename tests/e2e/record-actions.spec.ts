@@ -5,7 +5,7 @@ import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { postOk } from "./api";
 import { openItemMenu } from "./item-actions";
-import { openRecordDetails, rowActionLabels } from "./record-rows";
+import { recordItem, openRecordDetails, rowActionLabels } from "./record-rows";
 import { companyPath } from "./app-paths";
 
 async function setListColor(page: Page, typeId: string, color: string) {
@@ -80,7 +80,7 @@ test("record drawer keeps record actions icon-only in the header row next to Clo
   await rail.getByRole("button", { name: "Delete", exact: true }).click();
   await page.getByRole("alertdialog").locator("#confirm-delete").click();
   await expect(drawer).not.toBeVisible();
-  await expect(page.getByRole("link", { name, exact: true })).toHaveCount(0);
+  await expect(recordItem(page, name)).toHaveCount(0);
 });
 
 test("single select inputs show the selected option as a chip", async ({ page, companyId }) => {
@@ -157,12 +157,12 @@ test("record tables edit cells in place, open linked chips and offer row actions
   await expect(row.getByRole("button", { name: "Edit Value", exact: true })).toHaveCount(0);
   await expect(drawer).not.toBeVisible();
 
-  const organizations = row.getByRole("button", {
-    name: "Edit Organizations",
-    exact: true,
-  });
+  const organizations = row
+    .locator("[data-edit-surface]")
+    .filter({ has: page.getByRole("button", { name: "Edit Organizations", exact: true }) });
   await expect(organizations.locator('[data-slot="badge"]')).toHaveAttribute("data-variant", "info");
-  await organizations.click();
+  const blank = await organizations.boundingBox();
+  await organizations.click({ position: { x: blank!.width - 4, y: blank!.height / 2 } });
   const picker = page.locator('[data-slot="popover-content"][data-state="open"]');
   await expect(picker.getByRole("option").last()).toHaveText("Open Example organization");
   await picker.getByRole("option", { name: "Open Example organization", exact: true }).click();
@@ -173,10 +173,7 @@ test("record tables edit cells in place, open linked chips and offer row actions
   await expect(organization.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Example organization");
   await organization.getByRole("button", { name: "Close", exact: true }).click();
   await expect(organization).not.toBeVisible();
-  await organizations
-    .locator("[data-chip-id]")
-    .first()
-    .click({ modifiers: ["ControlOrMeta"] });
+  await organizations.locator("[data-chip-id]").first().click();
   await expect(organization.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Example organization");
   await expect(picker).toHaveCount(0);
   await organization.getByRole("button", { name: "Close", exact: true }).click();
@@ -289,10 +286,9 @@ test("linked record chips collapse into a +N stack so rows and cards keep one he
   await page.goto(companyPath(companyId, `/records/${id("deal")}`));
   const crowdedRow = page.getByRole("row").filter({ hasText: `Crowded deal ${suffix}` });
   const quietRow = page.getByRole("row").filter({ hasText: `Quiet deal ${suffix}` });
-  const organizations = crowdedRow.getByRole("button", {
-    name: "Edit Organizations",
-    exact: true,
-  });
+  const organizations = crowdedRow
+    .locator("[data-edit-surface]")
+    .filter({ has: page.getByRole("button", { name: "Edit Organizations", exact: true }) });
   const more = organizations.locator('[data-slot="badge"]:not([aria-hidden="true"] *)').filter({ hasText: /^\+\d+$/ });
   await expect(more).toHaveCount(1);
   await expect(more).toBeVisible();
@@ -304,7 +300,14 @@ test("linked record chips collapse into a +N stack so rows and cards keep one he
     .toBe(8);
   const [crowdedBox, quietBox] = await Promise.all([crowdedRow.boundingBox(), quietRow.boundingBox()]);
   expect(Math.abs(crowdedBox!.height - quietBox!.height)).toBeLessThan(2);
-  await organizations.click();
+  await more.click();
+  const drawer = page.getByRole("dialog").filter({ has: page.locator("[data-linked-records]") });
+  await expect(drawer.getByRole("heading", { name: "Organizations", exact: true })).toBeVisible();
+  await expect(drawer).toContainText("8 records");
+  await page.keyboard.press("Escape");
+  await expect(drawer).toHaveCount(0);
+  const blank = await organizations.boundingBox();
+  await organizations.click({ position: { x: blank!.width - 4, y: blank!.height / 2 } });
   const picker = page.locator('[data-slot="popover-content"][data-state="open"]');
   await expect(picker.getByRole("option").filter({ hasText: /^Open Stacked organization/ })).toHaveCount(8);
   await page.keyboard.press("Escape");
