@@ -8695,7 +8695,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         viewKey: "__all__",
         state: {
           hiddenColumns: [],
-          searchTerm: "Preserve this",
           sortDescriptor: { field: amount, direction: "asc" },
           grouping: { field: "system:assignedTo", summaries: [{ fieldId: amount, aggregation: "sum" }] },
         },
@@ -8708,7 +8707,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         query: { groupSummaries: [{ fieldId: amount, aggregation: "sum" }] },
         result: {
           hiddenColumns: [],
-          searchTerm: "Preserve this",
           sortDescriptor: { field: amount, direction: "asc" },
           grouping: {
             grouping: { field: "system:assignedTo", summaries: [{ fieldId: amount, aggregation: "sum" }] },
@@ -8755,7 +8753,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       data: {
         result: {
           hiddenColumns: [f.id("service.notes")],
-          searchTerm: "Preserve this",
         },
       },
     });
@@ -8770,7 +8767,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         },
       }),
     );
-    expect(stored.viewStateKeys).toEqual(["searchTerm"]);
+    expect(stored.viewStateKeys).toEqual(["filters", "searchTerm"]);
   });
 
   it("previews incompatible populated values and refuses the same change without losing source values", async () => {
