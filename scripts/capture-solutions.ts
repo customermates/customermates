@@ -39,7 +39,7 @@ const MANIFEST_PATH = join(ROOT, "core", "solutions", "solution-capture-manifest
 const PROVENANCE_PATH = join(ROOT, "core", "solutions", "solution-capture-provenance.json");
 const MAIN_WEBP_QUALITY = 82;
 const NAV_WEBP_QUALITY = 78;
-const READY_TIMEOUT_MS = 30_000;
+const READY_TIMEOUT_MS = 60_000;
 const STABLE_SAMPLES = 3;
 const STABLE_SAMPLE_INTERVAL_MS = 400;
 const NAVIGATION_TIMEOUT_MS = 90_000;
@@ -302,6 +302,36 @@ async function capture(options: CaptureSolutionsOptions): Promise<void> {
   const entries = new Map(manifest.entries.map((entry) => [`${entry.solution}:${entry.locale}:${entry.theme}`, entry]));
   const evidence = new Map((previous?.entries ?? []).map((entry) => [entry.key, entry]));
 
+  const persist = () => {
+    const order = solutionCapturePlan().map((item) => item.key);
+    const sorted = <T>(map: Map<string, T>) => order.filter((key) => map.has(key)).map((key) => map.get(key)!);
+    const today = new Date().toISOString().slice(0, 10);
+    const revision = `${git(["rev-parse", "--short=9", "HEAD"])}${dirty ? "-dirty" : ""}`;
+    const environment =
+      "Local APP_MODE=demo instance on a freshly reset and seeded PostgreSQL database; Chromium via Playwright";
+    const keepMain = options.navOnly && previous;
+    const provenance: SolutionCaptureProvenance = {
+      capturedOn: keepMain ? previous.capturedOn : today,
+      entries: sorted(evidence),
+      environment: keepMain ? previous.environment : environment,
+      nav: {
+        capturedOn: today,
+        clip: SOLUTION_NAV_CAPTURE_CLIP,
+        environment: options.resetDatabase
+          ? environment
+          : "Local APP_MODE=demo instance on its current seeded database; Chromium via Playwright",
+        sidebarWidth: SIDEBAR_MIN_WIDTH,
+        sourceRevision: revision,
+        viewport: SOLUTION_NAV_CAPTURE_VIEWPORT,
+      },
+      sourceRevision: keepMain ? previous.sourceRevision : revision,
+      viewport: SOLUTION_CAPTURE_VIEWPORT,
+    };
+
+    writeJson(MANIFEST_PATH, { entries: sorted(entries) } satisfies SolutionCaptureManifest);
+    writeJson(PROVENANCE_PATH, provenance);
+  };
+
   const browser = await chromium.launch();
   try {
     for (const item of plan) {
@@ -311,39 +341,12 @@ async function capture(options: CaptureSolutionsOptions): Promise<void> {
       });
       entries.set(item.key, result.entry);
       evidence.set(item.key, result.evidence);
+      persist();
       console.log(`captured ${item.key} ${result.entry.main.bytes + result.entry.nav.bytes} bytes`);
     }
   } finally {
     await browser.close();
   }
-
-  const order = solutionCapturePlan().map((item) => item.key);
-  const sorted = <T>(map: Map<string, T>) => order.filter((key) => map.has(key)).map((key) => map.get(key)!);
-  const today = new Date().toISOString().slice(0, 10);
-  const revision = `${git(["rev-parse", "--short=9", "HEAD"])}${dirty ? "-dirty" : ""}`;
-  const environment =
-    "Local APP_MODE=demo instance on a freshly reset and seeded PostgreSQL database; Chromium via Playwright";
-  const keepMain = options.navOnly && previous;
-  const provenance: SolutionCaptureProvenance = {
-    capturedOn: keepMain ? previous.capturedOn : today,
-    entries: sorted(evidence),
-    environment: keepMain ? previous.environment : environment,
-    nav: {
-      capturedOn: today,
-      clip: SOLUTION_NAV_CAPTURE_CLIP,
-      environment: options.resetDatabase
-        ? environment
-        : "Local APP_MODE=demo instance on its current seeded database; Chromium via Playwright",
-      sidebarWidth: SIDEBAR_MIN_WIDTH,
-      sourceRevision: revision,
-      viewport: SOLUTION_NAV_CAPTURE_VIEWPORT,
-    },
-    sourceRevision: keepMain ? previous.sourceRevision : revision,
-    viewport: SOLUTION_CAPTURE_VIEWPORT,
-  };
-
-  writeJson(MANIFEST_PATH, { entries: sorted(entries) } satisfies SolutionCaptureManifest);
-  writeJson(PROVENANCE_PATH, provenance);
 }
 
 function check(options: CaptureSolutionsOptions): void {
