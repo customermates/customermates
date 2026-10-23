@@ -108,7 +108,7 @@ cta:
   hint: "Project delivery, proposals, time tracking and billing stay in your agency tools."
 ---
 
-Customermates is a **CRM for marketing agencies** and creative studios that win clients through inquiries, pitches and relationships. Clients and prospects, their contacts, each pitch, signed retainers and the next action stay connected until won work is handed to the tools that run delivery. It is an open-source, AI-native CRM made in Germany, and it covers new business and client relationships, not projects, campaigns or invoicing.
+Customermates is a **CRM for marketing agencies** and creative studios that win clients through inquiries, pitches and relationships. Clients and prospects, their contacts, each pitch, signed retainers and the next action stay connected until won work is handed to the tools that run delivery. It is an open-source, AI-native CRM made in Germany, and it covers new business and client relationships, not delivery planning, campaigns or invoicing.
 
 <ArticleSummary title="At a glance">
   <SummaryItem label="Fits">
@@ -139,18 +139,19 @@ Customermates is a **CRM for marketing agencies** and creative studios that win 
 
 ## The pitch board in the example workspace
 
-The [agency workspace](https://demo.customermates.com/en/w/agencies/dashboard) is an example with sample data, not a customer account. It has five lists: **Clients and prospects**, **Contacts**, **Pitches**, **Retainers** and **Tasks**. Pitches move through **Inquiry**, **Briefing**, **Pitch preparation**, **Proposal sent**, **Negotiation**, **Won** and **Lost**.
+The [agency workspace](https://demo.customermates.com/en/w/agencies/dashboard) is an example with sample data, not a customer account. It has six lists: **Clients**, **Contacts**, **Pitches**, **Projects**, **Retainers** and **Tasks**. Pitches move through **Inquiry**, **Briefing**, **Pitch preparation**, **Proposal sent**, **Negotiation**, **Won** and **Lost**.
 
 The pitch board shows every open pitch as a card in its stage, with its owner and estimated value. Each stage carries a win probability, so the board also shows a weighted value per pitch. That is pipeline weighting from your own probabilities, not a forecast.
 
 Open a client from a card and the relationship is in one place:
 
 - **The people:** the marketing lead who briefed you, the managing director who signs, the procurement contact.
-- **The pitches:** the current one in Pitch preparation and an earlier one that was won.
-- **The retainer:** a record with fields such as monthly fee, start date and renewal date. It describes the agreement; it does not create invoices or recurring billing.
+- **The pitches:** the current one in Pitch preparation and earlier ones that were won.
+- **The projects:** won work as records with a status, budget, hours budget and hours used; hours left is calculated from the two.
+- **The retainer:** a record with fields such as monthly fee, term, start date and renewal date. Contract value is calculated as monthly fee times term, and the client shows its retainer MRR. It describes the agreement; it does not create invoices or recurring billing.
 - **The conversation:** an email thread with the marketing lead, linked to the pitch. The contact was matched by email address in a channels field; the link to the pitch was set explicitly by a person, never automatically.
 
-## From inquiry to signed retainer
+## From inquiry to project and retainer
 
 <Steps>
   <Step title="Capture the inquiry">
@@ -170,8 +171,9 @@ Open a client from a card and the relationship is in one place:
     the client record and conversation, then read and send it.
   </Step>
   <Step title="Record the outcome">
-    Move the pitch to Won or Lost. For won work, create the retainer record and
-    hand delivery to your project and finance tools.
+    Move the pitch to Won or Lost. For won work, create the project or retainer
+    record and keep delivery plans, time tracking and billing in your project and
+    finance tools.
   </Step>
 </Steps>
 
@@ -182,7 +184,7 @@ Open a client from a card and the relationship is in one place:
 | Inquiry and briefing | Clients, contacts, pitch stages, owners and your own fields | Enrichment, lead scoring and outbound sequences |
 | Pitch and negotiation | Estimated value, weighted value, follow-up context | Pitch decks, proposals, statements of work and contracts |
 | New-business review | Pitch board, stage probabilities and weighted totals | Predictive forecasting and finance planning |
-| Signed work | Retainer record and the relationship context | Projects, capacity, time tracking, invoicing and accounting |
+| Signed work | Project and retainer records with status, budget, hours entered by hand and renewal date | Delivery plans, capacity, time tracking, invoicing and accounting |
 | Campaigns | Nothing | Ad platforms, email marketing and client reporting |
 
 <AcquisitionCallout
@@ -206,7 +208,7 @@ The plan decides how far the inbox reaches:
 
 ## AI help and connections
 
-Mate, the assistant in Customermates Cloud, can summarize a client before a pitch meeting, move a pitch to its next stage and save a follow-up draft in the conversation. It runs on hosted AI credits included per active user on every cloud plan and is not available self-hosted. Mate sends when you tell it to send, so ask for a draft when you want to review first. A [routine](/docs/app-routines) can run Mate weekly, for example to list pitches in Proposal sent with a passed next-step date.
+Mate, the assistant in Customermates Cloud, can summarize a client before a pitch meeting, move a pitch to its next stage and save a follow-up draft in the conversation. It runs on hosted AI credits included per active user on every cloud plan and is not available self-hosted. Mate sends when you tell it to send, so ask for a draft when you want to review first. A [routine](/docs/app-routines) can run Mate on a schedule or when a record changes. The example workspace has two: every Monday a renewal check marks retainers renewing within 60 days as Renewal due and creates a task, and when a pitch moves to Proposal sent Mate saves a follow-up draft for review.
 
 Every plan, self-hosted included, has a [REST API and webhooks](/features/api) and [MCP](/docs/mcp) for external AI clients such as Claude or ChatGPT, which can read or update the records your role permits. A separately operated [n8n workflow](/features/workflow-automation) can pass a won pitch to your project tool.
 
@@ -221,7 +223,7 @@ Before you invite the whole agency, know the limits:
 
 ## Setting up your own workspace
 
-A new workspace starts without lists. Pitches and Retainers are example lists from the demo, not what every account contains. In Customermates Cloud, the AI workspace setup asks what the workspace is for and builds lists, stages, a dashboard and Knowledge Base pages from your answers. It runs once at onboarding, within a capped amount of AI credit, and you can skip it with **Start with an empty workspace** (see [onboarding](/docs/app-onboarding)).
+A new workspace starts without lists. Pitches, Projects and Retainers are example lists from the demo, not what every account contains. In Customermates Cloud, the AI workspace setup asks what the workspace is for and builds lists, stages, a dashboard and Knowledge Base pages from your answers. It runs once at onboarding, within a capped amount of AI credit, and you can skip it with **Start with an empty workspace** (see [onboarding](/docs/app-onboarding)).
 
 Otherwise, people with Configure rights create the lists, fields and stages in Configure and import existing clients and contacts from an Excel workbook. An import cannot be undone, so try it with a few rows first.
 
@@ -233,14 +235,14 @@ Lists, fields, the pitch board, tasks, REST, webhooks and MCP work in Customerma
 
 <Faq>
 <FaqItem question="Does Customermates manage agency projects or campaigns?">
-No. It manages clients, contacts and new business. Delivery plans, capacity, time tracking and campaigns belong in project management, PSA and marketing tools.
+Not as a project tool. The example workspace keeps a simple Projects list with status, budget and hours used, entered by hand, so won work sits beside the client. Delivery plans, capacity, time tracking and campaigns belong in project management, PSA and marketing tools.
 </FaqItem>
 
 <FaqItem question="Can it create proposals, contracts or invoices?">
 No. A pitch can carry its stage, value and the link to the proposal document, but Customermates has no proposal, contract or invoice workflow. Retainers are records, not recurring invoices.
 </FaqItem>
 
-<FaqItem question="Does a new workspace come with Pitches and Retainers?">
+<FaqItem question="Does a new workspace come with Pitches, Projects and Retainers?">
 No. A new workspace starts without lists. In Customermates Cloud the AI workspace setup can build lists and stages from your description once at onboarding. Otherwise people with Configure rights create them and import records from Excel.
 </FaqItem>
 

@@ -3,11 +3,11 @@ import { DisplayType } from "@/features/widget/widget-display.schema";
 import { day, defineSolution, photo, type RecordSpec, phoneNumber } from "../define-solution";
 
 /**
- * Agencies: a small brand and marketing agency tracks its new business. Every pitch moves across the board from the
- * first inquiry through briefing, pitch preparation, proposal and negotiation to a decision; a won pitch can lead to a
- * retainer, an ordinary record the team keeps with its monthly fee, scope and review date (no billing). Emails around
- * a pitch belong to the pitch or client only when someone links them, and a follow-up after a presentation waits as a
- * draft.
+ * Agencies: a brand and content agency team wins pitches, turns them into projects and retainers, and sees the monthly
+ * retainer revenue per client. Every pitch moves across the board from the first inquiry through briefing, pitch
+ * preparation, proposal and negotiation to a decision; won work continues as a project (status, budget, hours) or a
+ * retainer (monthly fee, term, renewal date; no billing). Emails around a pitch belong to the pitch or client only when
+ * someone links them, and a follow-up after a presentation waits as a draft.
  */
 
 const ORGANIZATIONS = [
@@ -60,23 +60,24 @@ const DEALS = [
   "harlowContent",
   "brambleSocial",
   "northshoreExhibition",
-  "wexfordCatalogue",
   "harlowAutumn",
-  "harlowSummer",
-  "quarryTaproom",
   "quarryWebsite",
-  "brambleMenu",
   "greenmileOpening",
   "copperleafEvents",
   "meridianCampaign",
   "lumenDeck",
-  "wexfordShowroom",
-  "harlowWinter",
-  "wexfordLookbook",
-  "quarryFestival",
   "brambleCatering",
 ] as const;
 type DealKey = (typeof DEALS)[number];
+const PROJECTS = [
+  "greenmileRollout",
+  "brambleCateringPrint",
+  "greenmileOpeningCampaign",
+  "harlowAutumnContent",
+  "quarryWebsiteBuild",
+  "brambleShopPhotos",
+] as const;
+type ProjectKey = (typeof PROJECTS)[number];
 const RETAINERS = [
   "harlowRetainer",
   "brambleRetainer",
@@ -90,7 +91,6 @@ const TASKS = [
   "tidewellRehearsal",
   "meridianFollowUp",
   "copperleafScope",
-  "lumenNotes",
   "lumenQuestions",
   "orchardCall",
   "pinewoodReply",
@@ -99,7 +99,6 @@ const TASKS = [
   "quarryReview",
   "greenmileKickoff",
   "northshoreDebrief",
-  "credentials",
 ] as const;
 type TaskKey = (typeof TASKS)[number];
 
@@ -110,13 +109,14 @@ const en = {
   phones: { office: { templates: ["+1 312 555 01##", "+1 773 555 01##", "+1 847 555 01##"], start: 40 } },
   selfTitle: "Founder and managing director",
   lists: {
-    organization: ["Client or prospect", "Clients and prospects", "Brands we work for or are pitching to."],
+    organization: ["Client", "Clients", "Brands we work for or are pitching to, with their monthly retainer fees."],
     contact: ["Contact", "Contacts", "Marketing leads, founders and decision makers at clients and prospects."],
     deal: ["Pitch", "Pitches", "New business from the first conversation to the client's decision."],
+    project: ["Project", "Projects", "Won work in delivery: status, budget, hours and deadline."],
     retainer: [
       "Retainer",
       "Retainers",
-      "Ongoing monthly engagements with clients, kept as records. Billing happens in the accounting tool.",
+      "Ongoing monthly engagements with clients and their renewal dates, kept as records. Billing happens in the accounting tool.",
     ],
     task: ["Task", "Tasks", "Next actions with an owner and a due date."],
   },
@@ -137,11 +137,20 @@ const en = {
     nextStep: "Next step",
     nextStepDate: "Next step date",
     lostReason: "Lost reason",
+    retainerMrr: "Retainer MRR",
     monthlyFee: "Monthly fee",
+    termMonths: "Term (months)",
+    contractValue: "Contract value",
     startDate: "Start date",
-    reviewDate: "Review date",
+    renewalDate: "Renewal date",
     scope: "Scope",
     retainerStatus: "Status",
+    projectStatus: "Status",
+    budget: "Budget",
+    hoursBudget: "Hours budget",
+    hoursUsed: "Hours used",
+    hoursLeft: "Hours left",
+    deadline: "Deadline",
     dueDate: "Due date",
     priority: "Priority",
   },
@@ -158,7 +167,7 @@ const en = {
       manufacturing: "Manufacturing",
     },
     relationship: { prospect: "Prospect", client: "Client", former: "Former client" },
-    decisionRole: { decisionMaker: "Decision maker", influencer: "Influencer", buyer: "Procurement" },
+    decisionRole: { decisionMaker: "Decision maker", influencer: "Marketing lead", buyer: "Procurement" },
     source: {
       referral: "Referral",
       existing: "Existing client",
@@ -181,7 +190,13 @@ const en = {
       postponed: "Project postponed",
       fit: "Not the right fit",
     },
-    retainerStatus: { active: "Active", paused: "Paused", ended: "Ended" },
+    retainerStatus: { active: "Active", renewalDue: "Renewal due", paused: "Paused", ended: "Ended" },
+    projectStatus: {
+      kickoff: "Kickoff",
+      inProduction: "In production",
+      review: "Client review",
+      delivered: "Delivered",
+    },
     priority: { low: "Low", medium: "Medium", high: "High" },
   },
   stages: {
@@ -247,20 +262,12 @@ const en = {
     harlowContent: ["Harlow Outdoor – content retainer", "Retainer started"],
     brambleSocial: ["Bramble & Rye – social media retainer", "Retainer started"],
     northshoreExhibition: ["Northshore Art Museum – exhibition identity", "Feedback call done"],
-    wexfordCatalogue: ["Wexford Furniture – catalogue and retainer renewal", "Closed lost"],
     harlowAutumn: ["Harlow Outdoor – autumn campaign content", "Campaign delivered"],
-    harlowSummer: ["Harlow Outdoor – summer social campaign", "Campaign delivered"],
-    quarryTaproom: ["Quarry Lane – taproom identity and menus", "Delivered"],
     quarryWebsite: ["Quarry Lane – new website", "Website live"],
-    brambleMenu: ["Bramble & Rye – menu boards and bread bags", "Delivered"],
     greenmileOpening: ["Green Mile Cycles – shop opening campaign", "Campaign delivered"],
-    copperleafEvents: ["Copperleaf Hotels – events brochure", "Closed lost"],
+    copperleafEvents: ["Copperleaf Hotels – events brochure", "Call Erin about the print run"],
     meridianCampaign: ["Meridian Health – patient campaign", "Closed lost"],
     lumenDeck: ["Lumen Robotics – investor deck design", "Closed lost"],
-    wexfordShowroom: ["Wexford Furniture – showroom graphics", "Closed lost"],
-    harlowWinter: ["Harlow Outdoor – winter gear content", "Content delivered"],
-    wexfordLookbook: ["Wexford Furniture – spring lookbook", "Delivered"],
-    quarryFestival: ["Quarry Lane – beer festival print and social", "Campaign delivered"],
     brambleCatering: ["Bramble & Rye – catering menu and flyers", "Delivered"],
   } satisfies Record<DealKey, readonly [string, string]>,
   retainers: {
@@ -285,12 +292,19 @@ const en = {
       "Catalogue layout and showroom graphics. Ended after the client moved design in-house.",
     ],
   } satisfies Record<RetainerKey, readonly [string, string]>,
+  projects: {
+    greenmileRollout: "Green Mile Cycles – brand rollout",
+    brambleCateringPrint: "Bramble & Rye – catering menu and flyers",
+    greenmileOpeningCampaign: "Green Mile Cycles – shop opening campaign",
+    harlowAutumnContent: "Harlow Outdoor – autumn campaign content",
+    quarryWebsiteBuild: "Quarry Lane – website build",
+    brambleShopPhotos: "Bramble & Rye – shop photo session",
+  } satisfies Record<ProjectKey, string>,
   tasks: {
     tidewellDeck: "Finish the pitch deck for Tidewell",
     tidewellRehearsal: "Rehearse the Tidewell presentation with the team",
     meridianFollowUp: "Follow up with Laura on the Meridian proposal",
     copperleafScope: "Send Copperleaf the revised scope and monthly fee",
-    lumenNotes: "Write up the Lumen briefing notes",
     lumenQuestions: "Send Priya the follow-up questions on positioning",
     orchardCall: "Intro call with Samantha at Orchard Street Dental",
     pinewoodReply: "Reply to Pinewood about the annual report timeline",
@@ -299,13 +313,13 @@ const en = {
     quarryReview: "Prepare the Quarry Lane retainer review",
     greenmileKickoff: "Kick-off meeting with Green Mile Cycles",
     northshoreDebrief: "Ask Northshore for feedback on the lost pitch",
-    credentials: "Add the Green Mile work to our credentials deck",
   } satisfies Record<TaskKey, string>,
   views: {
     pitchBoard: "Pitch board",
+    projects: "Projects by status",
+    retainers: "Retainers by renewal",
     nextSteps: "Next steps",
-    clients: "Clients and prospects",
-    retainers: "Retainers",
+    clients: "Clients",
     allContacts: "All contacts",
     dueSoon: "Due soon",
   },
@@ -313,31 +327,56 @@ const en = {
     retainerMrr: "Retainer MRR",
     openPitches: "Open pitch value",
     won: "Won in the last 12 months",
-    overdueTasks: "Overdue tasks",
+    hoursLeft: "Hours left on running projects",
     byStage: "Open pitch value by stage",
-    lostByReason: "Lost pitches by reason",
+    projectsByStatus: "Projects by status",
     byDiscipline: "Open pitches by discipline",
     wonByMonth: "Won value by month",
-    topClients: "Top clients by won value",
+    mrrByClient: "Retainer MRR by client",
+  },
+  members: {
+    colleagueA: ["Hannah", "Price", "hannah.price@fernhill-creative.example"],
+    colleagueB: ["Daniel", "Ortiz", "daniel.ortiz@fernhill-creative.example"],
+  },
+  routines: {
+    renewal: {
+      name: "Retainer renewal check",
+      task: "Every Monday, read the Retainers list with its configured Status, Monthly fee, Term, Renewal date, Scope and client relationship. Find retainers whose Status is Active and whose Renewal date lies within the next 60 days. For each one, set Status to Renewal due and create one ordinary task \"Prepare the renewal: <retainer name>\" for the retainer's owner, due 30 days before the Renewal date or today if that date has passed, Medium priority, linked to the retainer's client, with the monthly fee, term and scope in notes. Skip a retainer that already has such an open task. Do not change fees, terms or any other record, and never message the client. Report the retainers and tasks.",
+      runs: [
+        "Set Bramble & Rye – social media to Renewal due and created 1 renewal task for Hannah Price.",
+        "No active retainer renews within the next 60 days without a task.",
+        "I could not reach the model provider on this attempt, so I stopped before reading or changing anything. The next scheduled run will pick this up.",
+      ],
+    },
+    followUp: {
+      name: "Pitch follow-up draft",
+      task: "A pitch changed. Read the pitch in routine_trigger with its configured Stage, client, contacts, presentation date and notes. Continue only when the Stage is Proposal sent. Find the latest email thread with the pitch's contacts using the messaging tools. If that thread has no reply draft yet, save one concise follow-up draft with save_message_draft that thanks the contact for the presentation, sums up the proposal and names the next step. The draft is for human review; never send it. Do not change the pitch or create records. Report the thread and whether a draft was saved.",
+      runs: [
+        "The pitch moved to Negotiation, not Proposal sent; nothing to do.",
+        "Saved a follow-up draft to Laura Kim on the Meridian proposal thread for review.",
+      ],
+    },
   },
   wiki: {
     guide: {
       title: "Operating Guide",
       markdown: [
-        "Fernhill Creative is a brand and marketing agency of eight people in Chicago. We work for consumer brands, hospitality and healthcare clients. This workspace is demo data; every company and person in it is fictional.",
+        "Fernhill Creative is a brand and content agency of twelve people in Chicago. We work for consumer brands, hospitality and healthcare clients. This workspace is demo data; every company and person in it is fictional.",
         "",
         "## How we use the CRM",
         "- **Pitches** are our new business. The pitch board shows every pitch by stage, from the first inquiry to the decision. The value is our estimate of the first year's fees, entered by hand; the weighted value is that estimate times the stage probability.",
-        "- **Clients and prospects** are the brands we work for or pitch to. **Contacts** are the people there.",
-        "- **Retainers** are ordinary records we keep for ongoing client work: monthly fee, scope, start and review date, status. They do not create invoices or recurring billing; billing stays in our accounting tool.",
+        "- **Clients** are the brands we work for or pitch to; Retainer MRR on a client adds up the monthly fees of its retainers. **Contacts** are the people there.",
+        "- **Projects** are won work in delivery: status, budget, hours budget and hours used. Hours left is calculated from the two.",
+        "- **Retainers** are ordinary records we keep for ongoing client work: monthly fee, term, start and renewal date, scope and status. Contract value is the monthly fee times the term. They do not create invoices or recurring billing; billing stays in our accounting tool.",
         "- **Tasks** and the next step date on a pitch are ordinary fields. Nobody gets an automatic reminder, so check the Next steps and Due soon views every morning.",
         "- An email belongs to a pitch or a client only when someone links it there. Link every thread about a pitch to that pitch.",
         "",
         "## Working rules",
         "- Every open pitch has a next step and a next step date.",
-        "- When a pitch is won, set it to Won and create the retainer, linked to the client and the pitch.",
+        "- When a pitch is won, set it to Won and create the project or the retainer, linked to the client and the pitch.",
+        "- Every pitch, project and retainer has an owner: Max, Hannah (account director) or Daniel (creative director).",
         "- When a pitch is lost, record the reason and ask for feedback.",
-        "- Project delivery, timesheets and billing stay in their own tools.",
+        "- Time tracking and billing stay in their own tools; hours used on a project are updated by hand every Friday.",
       ],
     },
     process: {
@@ -351,7 +390,7 @@ const en = {
         "3. **Pitch preparation:** the team works on the idea and the deck. Enter the presentation date and the number of agencies in the pitch.",
         "4. **Proposal sent:** the presentation is done and the written proposal with scope and fees is with the client.",
         "5. **Negotiation:** scope, fee and terms are being agreed.",
-        "6. **Won or Lost:** record the outcome. Won pitches with ongoing work get a retainer record.",
+        "6. **Won or Lost:** record the outcome. Won pitches become a project, ongoing work also gets a retainer record.",
       ],
     },
     afterPitch: {
@@ -366,6 +405,20 @@ const en = {
         "3. Link the email thread to the pitch and the client.",
         "4. Move the pitch to Proposal sent once the proposal is out, and set the next step and its date.",
         "5. Create a task for every promise you made in the room.",
+      ],
+    },
+    renewal: {
+      title: "Retainer renewal checklist",
+      whenToUse: "When a retainer shows Renewal due or its renewal date is less than 60 days away.",
+      markdown: [
+        "A renewal is decided long before the renewal date. We start 60 days ahead, so the client hears from us before they start to wonder.",
+        "",
+        "## Steps",
+        "1. Open the retainer from the view Retainers by renewal and check the scope against what we actually delivered in the last months.",
+        "2. Look at the client's projects: hours used against hours budget show whether the scope still fits.",
+        "3. Agree internally on the proposal: same scope, more or less work, and the monthly fee and term.",
+        "4. Book a renewal call with the client's decision maker and link the email thread to the client.",
+        "5. After the call, update the monthly fee, term and renewal date, and set the status back to Active, or to Ended with a note on why.",
       ],
     },
   },
@@ -432,13 +485,18 @@ const de: Strings = {
   phones: { office: { templates: ["+49 30 23125 4##"], start: 0 } },
   selfTitle: "Gründer und Geschäftsführer",
   lists: {
-    organization: ["Kunde oder Interessent", "Kunden und Interessenten", "Marken, für die wir arbeiten oder pitchen."],
+    organization: [
+      "Kunde",
+      "Kunden",
+      "Marken, für die wir arbeiten oder pitchen, mit ihren monatlichen Retainer-Honoraren.",
+    ],
     contact: ["Kontakt", "Kontakte", "Marketingverantwortliche, Gründer und Entscheider bei Kunden und Interessenten."],
     deal: ["Pitch", "Pitches", "Neugeschäft vom ersten Gespräch bis zur Entscheidung des Kunden."],
+    project: ["Projekt", "Projekte", "Gewonnene Arbeit in der Umsetzung: Status, Budget, Stunden und Abgabetermin."],
     retainer: [
       "Retainer",
       "Retainer",
-      "Laufende monatliche Betreuung von Kunden, als Datensätze geführt. Abgerechnet wird in der Buchhaltung.",
+      "Laufende monatliche Betreuung von Kunden mit Verlängerungstermin, als Datensätze geführt. Abgerechnet wird in der Buchhaltung.",
     ],
     task: ["Aufgabe", "Aufgaben", "Nächste Schritte mit Verantwortlichen und Fälligkeitsdatum."],
   },
@@ -459,11 +517,20 @@ const de: Strings = {
     nextStep: "Nächster Schritt",
     nextStepDate: "Datum nächster Schritt",
     lostReason: "Verlustgrund",
+    retainerMrr: "Retainer pro Monat",
     monthlyFee: "Monatliches Honorar",
+    termMonths: "Laufzeit (Monate)",
+    contractValue: "Vertragswert",
     startDate: "Beginn",
-    reviewDate: "Überprüfung am",
+    renewalDate: "Verlängerung am",
     scope: "Umfang",
     retainerStatus: "Status",
+    projectStatus: "Status",
+    budget: "Budget",
+    hoursBudget: "Stundenbudget",
+    hoursUsed: "Stunden verbraucht",
+    hoursLeft: "Reststunden",
+    deadline: "Abgabetermin",
     dueDate: "Fällig am",
     priority: "Priorität",
   },
@@ -480,7 +547,7 @@ const de: Strings = {
       manufacturing: "Produktion",
     },
     relationship: { prospect: "Interessent", client: "Kunde", former: "Ehemaliger Kunde" },
-    decisionRole: { decisionMaker: "Entscheider", influencer: "Beeinflusser", buyer: "Einkauf" },
+    decisionRole: { decisionMaker: "Entscheider", influencer: "Marketingleitung", buyer: "Einkauf" },
     source: {
       referral: "Empfehlung",
       existing: "Bestandskunde",
@@ -503,7 +570,13 @@ const de: Strings = {
       postponed: "Projekt verschoben",
       fit: "Passt nicht zu uns",
     },
-    retainerStatus: { active: "Aktiv", paused: "Pausiert", ended: "Beendet" },
+    retainerStatus: { active: "Aktiv", renewalDue: "Verlängerung fällig", paused: "Pausiert", ended: "Beendet" },
+    projectStatus: {
+      kickoff: "Kick-off",
+      inProduction: "In Produktion",
+      review: "Kundenabnahme",
+      delivered: "Geliefert",
+    },
     priority: { low: "Niedrig", medium: "Mittel", high: "Hoch" },
   },
   stages: {
@@ -578,20 +651,12 @@ const de: Strings = {
     harlowContent: ["Hartmann Outdoor – Content-Retainer", "Retainer gestartet"],
     brambleSocial: ["Backhaus Brombeere – Social-Media-Retainer", "Retainer gestartet"],
     northshoreExhibition: ["Kunsthalle Nordufer – Ausstellungsdesign", "Feedbackgespräch geführt"],
-    wexfordCatalogue: ["Möbelwerk Weber – Katalog und Verlängerung des Retainers", "Verloren"],
     harlowAutumn: ["Hartmann Outdoor – Content zur Herbstkampagne", "Kampagne geliefert"],
-    harlowSummer: ["Hartmann Outdoor – Social-Media-Kampagne im Sommer", "Kampagne geliefert"],
-    quarryTaproom: ["Brauerei Steinbruch – Auftritt und Karten für den Ausschank", "Geliefert"],
     quarryWebsite: ["Brauerei Steinbruch – neue Website", "Website online"],
-    brambleMenu: ["Backhaus Brombeere – Thekentafeln und Brottüten", "Geliefert"],
     greenmileOpening: ["Grünweg Fahrräder – Kampagne zur Ladeneröffnung", "Kampagne geliefert"],
-    copperleafEvents: ["Kupferblatt Hotels – Veranstaltungsbroschüre", "Verloren"],
+    copperleafEvents: ["Kupferblatt Hotels – Veranstaltungsbroschüre", "Mit Frau Demir die Auflage klären"],
     meridianCampaign: ["Meridian Gesundheitszentren – Patientenkampagne", "Verloren"],
     lumenDeck: ["Lumen Robotik – Gestaltung der Investorenpräsentation", "Verloren"],
-    wexfordShowroom: ["Möbelwerk Weber – Grafiken für die Ausstellung", "Verloren"],
-    harlowWinter: ["Hartmann Outdoor – Content zur Winterausrüstung", "Content geliefert"],
-    wexfordLookbook: ["Möbelwerk Weber – Lookbook für das Frühjahr", "Geliefert"],
-    quarryFestival: ["Brauerei Steinbruch – Print und Social Media zum Bierfest", "Kampagne geliefert"],
     brambleCatering: ["Backhaus Brombeere – Cateringkarte und Flyer", "Geliefert"],
   },
   retainers: {
@@ -616,12 +681,19 @@ const de: Strings = {
       "Katalogsatz und Grafiken für die Ausstellung. Beendet, seit der Kunde die Gestaltung selbst übernimmt.",
     ],
   },
+  projects: {
+    greenmileRollout: "Grünweg Fahrräder – Einführung der neuen Marke",
+    brambleCateringPrint: "Backhaus Brombeere – Cateringkarte und Flyer",
+    greenmileOpeningCampaign: "Grünweg Fahrräder – Kampagne zur Ladeneröffnung",
+    harlowAutumnContent: "Hartmann Outdoor – Content zur Herbstkampagne",
+    quarryWebsiteBuild: "Brauerei Steinbruch – Umsetzung der Website",
+    brambleShopPhotos: "Backhaus Brombeere – Fotoshooting in der Filiale",
+  },
   tasks: {
     tidewellDeck: "Pitch-Präsentation für die Gezeiten Versicherung fertigstellen",
     tidewellRehearsal: "Präsentation für die Gezeiten Versicherung mit dem Team proben",
     meridianFollowUp: "Bei Frau Kühn zum Angebot für Meridian nachfassen",
     copperleafScope: "Überarbeiteten Umfang und Honorar an Kupferblatt Hotels senden",
-    lumenNotes: "Notizen aus dem Briefing mit Lumen Robotik aufschreiben",
     lumenQuestions: "Rückfragen zur Positionierung an Frau Rademacher senden",
     orchardCall: "Kennenlerngespräch mit Frau Reuter vom Zahnzentrum",
     pinewoodReply: "Der Bildungsstiftung zum Zeitplan des Jahresberichts antworten",
@@ -630,13 +702,13 @@ const de: Strings = {
     quarryReview: "Überprüfung des Retainers mit der Brauerei Steinbruch vorbereiten",
     greenmileKickoff: "Kick-off mit Grünweg Fahrräder",
     northshoreDebrief: "Bei der Kunsthalle Nordufer Feedback zum verlorenen Pitch einholen",
-    credentials: "Arbeiten für Grünweg in die Agenturpräsentation aufnehmen",
   },
   views: {
     pitchBoard: "Pitch-Board",
+    projects: "Projekte nach Status",
+    retainers: "Retainer nach Verlängerung",
     nextSteps: "Nächste Schritte",
-    clients: "Kunden und Interessenten",
-    retainers: "Retainer",
+    clients: "Kunden",
     allContacts: "Alle Kontakte",
     dueSoon: "Bald fällig",
   },
@@ -644,31 +716,56 @@ const de: Strings = {
     retainerMrr: "Retainer pro Monat",
     openPitches: "Offenes Pitch-Volumen",
     won: "Gewonnen in 12 Monaten",
-    overdueTasks: "Überfällige Aufgaben",
+    hoursLeft: "Reststunden laufender Projekte",
     byStage: "Offenes Pitch-Volumen nach Phase",
-    lostByReason: "Verlorene Pitches nach Grund",
+    projectsByStatus: "Projekte nach Status",
     byDiscipline: "Offene Pitches nach Leistung",
     wonByMonth: "Gewonnener Wert pro Monat",
-    topClients: "Top-Kunden nach gewonnenem Wert",
+    mrrByClient: "Retainer pro Monat nach Kunde",
+  },
+  members: {
+    colleagueA: ["Mia", "Schneider", "mia.schneider@kranich-kommunikation.example"],
+    colleagueB: ["Felix", "Koch", "felix.koch@kranich-kommunikation.example"],
+  },
+  routines: {
+    renewal: {
+      name: "Retainer-Verlängerungen prüfen",
+      task: "Lies jeden Montag die Liste Retainer mit den konfigurierten Feldern Status, Monatliches Honorar, Laufzeit, Verlängerung am, Umfang und der Beziehung zum Kunden. Suche Retainer mit Status Aktiv, deren Verlängerungstermin in den nächsten 60 Tagen liegt. Setze für jeden den Status auf „Verlängerung fällig“ und lege eine normale Aufgabe „Verlängerung vorbereiten: <Name des Retainers>“ für den Verantwortlichen des Retainers an, fällig 30 Tage vor dem Verlängerungstermin oder heute, falls dieser Tag vorbei ist, Priorität Mittel, verknüpft mit dem Kunden des Retainers, mit Honorar, Laufzeit und Umfang in den Notizen. Überspringe Retainer, die schon eine solche offene Aufgabe haben. Ändere keine Honorare, Laufzeiten oder anderen Datensätze und schreibe dem Kunden nie. Berichte die Retainer und Aufgaben.",
+      runs: [
+        "„Backhaus Brombeere – Social Media“ auf „Verlängerung fällig“ gesetzt und 1 Aufgabe zur Verlängerung für Mia Schneider angelegt.",
+        "Kein aktiver Retainer wird in den nächsten 60 Tagen ohne Aufgabe verlängert.",
+        "Der Modellanbieter war bei diesem Versuch nicht erreichbar, deshalb habe ich vor dem Lesen und Ändern abgebrochen. Der nächste geplante Lauf holt das nach.",
+      ],
+    },
+    followUp: {
+      name: "Nachfass-Entwurf zum Pitch",
+      task: "Ein Pitch hat sich geändert. Lies den Pitch aus routine_trigger mit den konfigurierten Feldern Phase, Kunde, Kontakte, Präsentationstermin und Notizen. Mach nur weiter, wenn die Phase „Angebot gesendet“ ist. Suche mit den Messaging-Werkzeugen den neuesten E-Mail-Verlauf mit den Kontakten des Pitches. Hat dieser Verlauf noch keinen Antwortentwurf, speichere mit save_message_draft einen kurzen Nachfass-Entwurf, der sich für die Präsentation bedankt, das Angebot zusammenfasst und den nächsten Schritt nennt. Der Entwurf ist zur Prüfung durch einen Menschen; sende ihn nie. Ändere den Pitch nicht und lege keine Datensätze an. Berichte den Verlauf und ob ein Entwurf gespeichert wurde.",
+      runs: [
+        "Der Pitch ist in die Verhandlung gewechselt, nicht auf „Angebot gesendet“; nichts zu tun.",
+        "Einen Nachfass-Entwurf an Laura Kühn im Verlauf zum Meridian-Angebot zur Prüfung gespeichert.",
+      ],
+    },
   },
   wiki: {
     guide: {
       title: "Leitfaden",
       markdown: [
-        "Kranich Kommunikation ist eine Agentur für Marke und Kommunikation mit acht Leuten in Leipzig. Wir arbeiten für Konsumgütermarken, Hotellerie und Gesundheitsunternehmen. Dieser Arbeitsbereich enthält Demodaten; alle Firmen und Personen sind erfunden.",
+        "Kranich Kommunikation ist eine Agentur für Marke und Content mit zwölf Leuten in Leipzig. Wir arbeiten für Konsumgütermarken, Hotellerie und Gesundheitsunternehmen. Dieser Arbeitsbereich enthält Demodaten; alle Firmen und Personen sind erfunden.",
         "",
         "## So nutzen wir das CRM",
         "- **Pitches** sind unser Neugeschäft. Das Pitch-Board zeigt jeden Pitch nach Phase, von der ersten Anfrage bis zur Entscheidung. Der Wert ist unsere Schätzung der Honorare im ersten Jahr und wird von Hand eingetragen; der gewichtete Wert ist diese Schätzung mal der Wahrscheinlichkeit der Phase.",
-        "- **Kunden und Interessenten** sind die Marken, für die wir arbeiten oder pitchen. **Kontakte** sind die Menschen dort.",
-        "- **Retainer** sind normale Datensätze für laufende Kundenarbeit: Monatshonorar, Umfang, Beginn, Überprüfungstermin und Status. Sie erzeugen keine Rechnungen und keine wiederkehrende Abrechnung; abgerechnet wird weiter in unserer Buchhaltung.",
+        "- **Kunden** sind die Marken, für die wir arbeiten oder pitchen; „Retainer pro Monat“ am Kunden addiert die Monatshonorare seiner Retainer. **Kontakte** sind die Menschen dort.",
+        "- **Projekte** sind gewonnene Arbeit in der Umsetzung: Status, Budget, Stundenbudget und verbrauchte Stunden. Die Reststunden werden daraus berechnet.",
+        "- **Retainer** sind normale Datensätze für laufende Kundenarbeit: Monatshonorar, Laufzeit, Beginn und Verlängerungstermin, Umfang und Status. Der Vertragswert ist Monatshonorar mal Laufzeit. Sie erzeugen keine Rechnungen und keine wiederkehrende Abrechnung; abgerechnet wird weiter in unserer Buchhaltung.",
         "- **Aufgaben** und das Datum des nächsten Schritts an einem Pitch sind normale Felder. Niemand wird automatisch erinnert, deshalb jeden Morgen die Ansichten „Nächste Schritte“ und „Bald fällig“ prüfen.",
         "- Eine E-Mail gehört nur dann zu einem Pitch oder Kunden, wenn jemand sie dort verknüpft. Jeden Verlauf zu einem Pitch mit diesem Pitch verknüpfen.",
         "",
         "## Arbeitsregeln",
         "- Jeder offene Pitch hat einen nächsten Schritt mit Datum.",
-        "- Ist ein Pitch gewonnen, auf „Gewonnen“ setzen und den Retainer anlegen, verknüpft mit Kunde und Pitch.",
+        "- Ist ein Pitch gewonnen, auf „Gewonnen“ setzen und das Projekt oder den Retainer anlegen, verknüpft mit Kunde und Pitch.",
+        "- Jeder Pitch, jedes Projekt und jeder Retainer hat einen Verantwortlichen: Max, Mia (Beratung) oder Felix (Kreation).",
         "- Ist ein Pitch verloren, den Grund eintragen und um Feedback bitten.",
-        "- Projektabwicklung, Zeiterfassung und Abrechnung bleiben in ihren eigenen Programmen.",
+        "- Zeiterfassung und Abrechnung bleiben in ihren eigenen Programmen; die verbrauchten Stunden eines Projekts tragen wir jeden Freitag von Hand nach.",
       ],
     },
     process: {
@@ -682,7 +779,7 @@ const de: Strings = {
         "3. **Pitch-Vorbereitung:** Das Team arbeitet an Idee und Präsentation. Präsentationstermin und Anzahl der Agenturen im Pitch eintragen.",
         "4. **Angebot gesendet:** Die Präsentation ist gehalten, das schriftliche Angebot mit Umfang und Honorar liegt beim Kunden.",
         "5. **Verhandlung:** Umfang, Honorar und Konditionen werden abgestimmt.",
-        "6. **Gewonnen oder Verloren:** Ergebnis festhalten. Gewonnene Pitches mit laufender Arbeit bekommen einen Retainer.",
+        "6. **Gewonnen oder Verloren:** Ergebnis festhalten. Gewonnene Pitches werden zum Projekt, laufende Arbeit bekommt zusätzlich einen Retainer.",
       ],
     },
     afterPitch: {
@@ -698,6 +795,21 @@ const de: Strings = {
         "3. Den E-Mail-Verlauf mit dem Pitch und dem Kunden verknüpfen.",
         "4. Den Pitch auf „Angebot gesendet“ setzen, sobald das Angebot raus ist, und den nächsten Schritt mit Datum eintragen.",
         "5. Für jede Zusage aus dem Termin eine Aufgabe anlegen.",
+      ],
+    },
+    renewal: {
+      title: "Checkliste Retainer-Verlängerung",
+      whenToUse:
+        "Wenn ein Retainer auf „Verlängerung fällig“ steht oder sein Verlängerungstermin weniger als 60 Tage entfernt ist.",
+      markdown: [
+        "Über eine Verlängerung wird lange vor dem Termin entschieden. Wir beginnen 60 Tage vorher, damit der Kunde von uns hört, bevor er ins Grübeln kommt.",
+        "",
+        "## Schritte",
+        "1. Den Retainer in der Ansicht „Retainer nach Verlängerung“ öffnen und den Umfang mit dem vergleichen, was wir in den letzten Monaten tatsächlich geliefert haben.",
+        "2. Die Projekte des Kunden ansehen: Verbrauchte Stunden gegen Stundenbudget zeigen, ob der Umfang noch passt.",
+        "3. Intern den Vorschlag abstimmen: gleicher Umfang, mehr oder weniger Arbeit, dazu Monatshonorar und Laufzeit.",
+        "4. Einen Termin zur Verlängerung mit dem Entscheider des Kunden vereinbaren und den E-Mail-Verlauf mit dem Kunden verknüpfen.",
+        "5. Nach dem Termin Monatshonorar, Laufzeit und Verlängerungstermin aktualisieren und den Status wieder auf Aktiv setzen, oder auf Beendet mit einer Notiz zum Grund.",
       ],
     },
   },
@@ -755,7 +867,7 @@ const de: Strings = {
   },
 };
 
-type Member = "maxBergmann";
+type Member = "maxBergmann" | "colleagueA" | "colleagueB";
 
 const ORGANIZATION_FACTS: Record<
   OrganizationKey,
@@ -1013,18 +1125,6 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
       { daysAgo: 54, stage: "proposal" },
     ],
   },
-  wexfordCatalogue: {
-    organization: "wexford",
-    contacts: ["paul"],
-    stage: "lost",
-    source: "existing",
-    services: ["print"],
-    value: 20000,
-    createdDaysAgo: 130,
-    close: -90,
-    lost: "budget",
-    history: [{ daysAgo: 110, stage: "proposal" }],
-  },
   harlowAutumn: {
     organization: "harlow",
     contacts: ["rachel", "tom"],
@@ -1038,30 +1138,6 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
       { daysAgo: 140, stage: "briefing" },
       { daysAgo: 132, stage: "proposal" },
     ],
-  },
-
-  harlowSummer: {
-    organization: "harlow",
-    contacts: ["tom"],
-    stage: "won",
-    source: "existing",
-    services: ["content", "social"],
-    value: 21000,
-    createdDaysAgo: 240,
-    close: -225,
-    history: [{ daysAgo: 232, stage: "proposal" }],
-  },
-
-  quarryTaproom: {
-    organization: "quarry",
-    contacts: ["jake"],
-    stage: "won",
-    source: "existing",
-    services: ["identity", "print"],
-    value: 12000,
-    createdDaysAgo: 280,
-    close: -250,
-    history: [{ daysAgo: 265, stage: "proposal" }],
   },
   quarryWebsite: {
     organization: "quarry",
@@ -1078,18 +1154,6 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     ],
   },
 
-  brambleMenu: {
-    organization: "bramble",
-    contacts: ["nina"],
-    stage: "won",
-    source: "existing",
-    services: ["print", "packaging"],
-    value: 11500,
-    createdDaysAgo: 100,
-    close: -72,
-    history: [{ daysAgo: 85, stage: "proposal" }],
-  },
-
   greenmileOpening: {
     organization: "greenmile",
     contacts: ["ben", "alex"],
@@ -1104,15 +1168,20 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
 
   copperleafEvents: {
     organization: "copperleaf",
-    contacts: ["michael"],
-    stage: "lost",
-    source: "event",
+    contacts: ["erin", "michael"],
+    stage: "proposal",
+    source: "existing",
     services: ["print"],
     value: 15000,
-    createdDaysAgo: 88,
-    close: -60,
-    lost: "postponed",
-    history: [{ daysAgo: 75, stage: "proposal" }],
+    competitors: 1,
+    pitch: -12,
+    createdDaysAgo: 38,
+    close: 21,
+    next: 4,
+    history: [
+      { daysAgo: 30, stage: "briefing" },
+      { daysAgo: 11, stage: "proposal" },
+    ],
   },
   meridianCampaign: {
     organization: "meridian",
@@ -1141,51 +1210,6 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     lost: "fit",
     history: [{ daysAgo: 14, stage: "proposal" }],
   },
-  wexfordShowroom: {
-    organization: "wexford",
-    contacts: ["paul"],
-    stage: "lost",
-    source: "existing",
-    services: ["print"],
-    value: 11000,
-    createdDaysAgo: 300,
-    close: -260,
-    lost: "otherAgency",
-    history: [{ daysAgo: 280, stage: "proposal" }],
-  },
-  harlowWinter: {
-    organization: "harlow",
-    contacts: ["rachel"],
-    stage: "won",
-    source: "existing",
-    services: ["content"],
-    value: 14000,
-    createdDaysAgo: 300,
-    close: -275,
-    history: [{ daysAgo: 285, stage: "proposal" }],
-  },
-  wexfordLookbook: {
-    organization: "wexford",
-    contacts: ["paul"],
-    stage: "won",
-    source: "existing",
-    services: ["print"],
-    value: 14000,
-    createdDaysAgo: 175,
-    close: -150,
-    history: [{ daysAgo: 160, stage: "proposal" }],
-  },
-  quarryFestival: {
-    organization: "quarry",
-    contacts: ["jake"],
-    stage: "won",
-    source: "existing",
-    services: ["print", "social"],
-    value: 13000,
-    createdDaysAgo: 120,
-    close: -100,
-    history: [{ daysAgo: 110, stage: "proposal" }],
-  },
   brambleCatering: {
     organization: "bramble",
     contacts: ["nina"],
@@ -1206,8 +1230,10 @@ const RETAINER_FACTS: Record<
     pitch?: DealKey;
     status: string;
     fee: number;
+    term: number;
     start: number;
-    review: number;
+    renewal: number;
+    owner: Member;
     createdDaysAgo: number;
     history?: Array<{ daysAgo: number; status: string }>;
   }
@@ -1217,34 +1243,43 @@ const RETAINER_FACTS: Record<
     pitch: "harlowContent",
     status: "active",
     fee: 4500,
+    term: 12,
     start: -290,
-    review: 40,
+    renewal: 75,
+    owner: "colleagueB",
     createdDaysAgo: 298,
   },
   brambleRetainer: {
     organization: "bramble",
     pitch: "brambleSocial",
-    status: "active",
+    status: "renewalDue",
     fee: 1500,
+    term: 12,
     start: -190,
-    review: 25,
+    renewal: 25,
+    owner: "colleagueA",
     createdDaysAgo: 198,
+    history: [{ daysAgo: 1, status: "active" }],
   },
   greenmileRetainer: {
     organization: "greenmile",
     pitch: "greenmileBrand",
     status: "active",
     fee: 2500,
+    term: 12,
     start: -10,
-    review: 80,
+    renewal: 350,
+    owner: "colleagueA",
     createdDaysAgo: 19,
   },
   quarryRetainer: {
     organization: "quarry",
     status: "paused",
     fee: 1800,
+    term: 24,
     start: -480,
-    review: 12,
+    renewal: 12,
+    owner: "maxBergmann",
     createdDaysAgo: 500,
     history: [{ daysAgo: 45, status: "active" }],
   },
@@ -1252,11 +1287,135 @@ const RETAINER_FACTS: Record<
     organization: "wexford",
     status: "ended",
     fee: 3000,
+    term: 18,
     start: -650,
-    review: -90,
+    renewal: -90,
+    owner: "maxBergmann",
     createdDaysAgo: 660,
     history: [{ daysAgo: 85, status: "active" }],
   },
+};
+
+const PROJECT_FACTS: Record<
+  ProjectKey,
+  {
+    organization: OrganizationKey;
+    pitch?: DealKey;
+    status: string;
+    budget: number;
+    hours: number;
+    used: number;
+    deadline: number;
+    owner: Member;
+    createdDaysAgo: number;
+    history?: Array<{ daysAgo: number; status: string }>;
+  }
+> = {
+  greenmileRollout: {
+    organization: "greenmile",
+    pitch: "greenmileBrand",
+    status: "inProduction",
+    budget: 30000,
+    hours: 240,
+    used: 150,
+    deadline: 25,
+    owner: "colleagueA",
+    createdDaysAgo: 19,
+    history: [{ daysAgo: 12, status: "kickoff" }],
+  },
+  brambleCateringPrint: {
+    organization: "bramble",
+    pitch: "brambleCatering",
+    status: "kickoff",
+    budget: 9500,
+    hours: 80,
+    used: 6,
+    deadline: 30,
+    owner: "colleagueB",
+    createdDaysAgo: 4,
+  },
+  greenmileOpeningCampaign: {
+    organization: "greenmile",
+    pitch: "greenmileOpening",
+    status: "review",
+    budget: 12000,
+    hours: 100,
+    used: 92,
+    deadline: 4,
+    owner: "colleagueA",
+    createdDaysAgo: 45,
+    history: [
+      { daysAgo: 40, status: "kickoff" },
+      { daysAgo: 6, status: "inProduction" },
+    ],
+  },
+  harlowAutumnContent: {
+    organization: "harlow",
+    pitch: "harlowAutumn",
+    status: "delivered",
+    budget: 26000,
+    hours: 210,
+    used: 218,
+    deadline: -95,
+    owner: "colleagueB",
+    createdDaysAgo: 124,
+    history: [
+      { daysAgo: 118, status: "kickoff" },
+      { daysAgo: 96, status: "inProduction" },
+    ],
+  },
+  quarryWebsiteBuild: {
+    organization: "quarry",
+    pitch: "quarryWebsite",
+    status: "delivered",
+    budget: 19000,
+    hours: 160,
+    used: 151,
+    deadline: -140,
+    owner: "colleagueB",
+    createdDaysAgo: 174,
+    history: [
+      { daysAgo: 170, status: "kickoff" },
+      { daysAgo: 142, status: "inProduction" },
+    ],
+  },
+  brambleShopPhotos: {
+    organization: "bramble",
+    status: "inProduction",
+    budget: 4500,
+    hours: 40,
+    used: 22,
+    deadline: 12,
+    owner: "maxBergmann",
+    createdDaysAgo: 16,
+    history: [{ daysAgo: 9, status: "kickoff" }],
+  },
+};
+
+const ORGANIZATION_OWNERS: Partial<Record<OrganizationKey, Member>> = {
+  harlow: "colleagueB",
+  quarry: "colleagueB",
+  bramble: "colleagueA",
+  greenmile: "colleagueA",
+  meridian: "colleagueA",
+  tidewell: "colleagueA",
+  copperleaf: "colleagueA",
+};
+
+const DEAL_OWNERS: Partial<Record<DealKey, Member>> = {
+  tidewellIdentity: "colleagueA",
+  meridianBrand: "colleagueA",
+  copperleafContent: "colleagueA",
+  copperleafEvents: "colleagueA",
+  greenmileBrand: "colleagueA",
+  greenmileOpening: "colleagueA",
+  meridianCampaign: "colleagueA",
+  harlowSpring: "colleagueB",
+  quarryLabels: "colleagueB",
+  brambleShop: "colleagueB",
+  harlowAutumn: "colleagueB",
+  quarryWebsite: "colleagueB",
+  brambleCatering: "colleagueB",
 };
 
 const TASK_FACTS: Record<
@@ -1290,7 +1449,6 @@ const TASK_FACTS: Record<
     contact: "michael",
     createdDaysAgo: 3,
   },
-  lumenNotes: { status: "done", priority: "medium", due: -2, deal: "lumenLaunch", createdDaysAgo: 3, done: 2 },
   lumenQuestions: {
     status: "open",
     priority: "medium",
@@ -1351,7 +1509,6 @@ const TASK_FACTS: Record<
     createdDaysAgo: 39,
     done: 33,
   },
-  credentials: { status: "open", priority: "low", due: 14, createdDaysAgo: 7 },
 };
 
 const OWNER: Member = "maxBergmann";
@@ -1395,7 +1552,7 @@ export default defineSolution<Strings>({
           website: `https://${domain}`,
           employees: facts.employees,
         },
-        owner: OWNER,
+        owner: ORGANIZATION_OWNERS[key] ?? OWNER,
         channels: { email: `hello@${domain}` },
         createdDaysAgo: facts.createdDaysAgo,
       };
@@ -1407,7 +1564,7 @@ export default defineSolution<Strings>({
         key,
         values: { firstName, lastName, jobTitle, decisionRole: facts.role, phone: office(index) },
         links: { "contact.organizations": facts.organization },
-        owner: OWNER,
+        owner: ORGANIZATION_OWNERS[facts.organization] ?? OWNER,
         channels: { email: `${mailbox(firstName)}.${mailbox(lastName)}@${domainOf(facts.organization)}` },
         ...(facts.avatar ? { avatar: photo(facts.avatar) } : {}),
         createdDaysAgo: facts.createdDaysAgo,
@@ -1433,7 +1590,7 @@ export default defineSolution<Strings>({
           ...(facts.lost ? { lostReason: facts.lost } : {}),
         },
         links: { "deal.organizations": facts.organization, "deal.contacts": facts.contacts },
-        owner: OWNER,
+        owner: DEAL_OWNERS[key] ?? OWNER,
         createdDaysAgo: facts.createdDaysAgo,
         history: [
           ...(facts.history ?? []).map((change, index, all) => ({
@@ -1455,15 +1612,44 @@ export default defineSolution<Strings>({
           name,
           status: facts.status,
           monthlyFee: facts.fee,
+          termMonths: facts.term,
           startDate: day(facts.start),
-          reviewDate: day(facts.review),
+          renewalDate: day(facts.renewal),
           scope,
         },
         links: {
           "retainer.organization": facts.organization,
           ...(facts.pitch ? { "retainer.pitch": facts.pitch } : {}),
         },
-        owner: OWNER,
+        owner: facts.owner,
+        createdDaysAgo: facts.createdDaysAgo,
+        ...(facts.history
+          ? {
+              history: facts.history.map((change) => ({
+                daysAgo: change.daysAgo,
+                previous: { status: change.status },
+              })),
+            }
+          : {}),
+      };
+    });
+    const project: RecordSpec[] = PROJECTS.map((key) => {
+      const facts = PROJECT_FACTS[key];
+      return {
+        key,
+        values: {
+          name: t.projects[key],
+          status: facts.status,
+          budget: facts.budget,
+          hoursBudget: facts.hours,
+          hoursUsed: facts.used,
+          deadline: day(facts.deadline),
+        },
+        links: {
+          "project.organization": facts.organization,
+          ...(facts.pitch ? { "project.pitch": facts.pitch } : {}),
+        },
+        owner: facts.owner,
         createdDaysAgo: facts.createdDaysAgo,
         ...(facts.history
           ? {
@@ -1486,7 +1672,10 @@ export default defineSolution<Strings>({
           ...(organizationKey ? { "task.organizations": organizationKey } : {}),
           ...(facts.contact ? { "task.contacts": facts.contact } : {}),
         },
-        owner: OWNER,
+        owner:
+          (facts.deal ? DEAL_OWNERS[facts.deal] : undefined) ??
+          (organizationKey ? ORGANIZATION_OWNERS[organizationKey] : undefined) ??
+          OWNER,
         createdDaysAgo: facts.createdDaysAgo,
         ...(facts.done === undefined ? {} : { history: [{ daysAgo: facts.done, previous: { status: "open" } }] }),
       };
@@ -1498,14 +1687,19 @@ export default defineSolution<Strings>({
     return {
       workspaceName: t.workspaceName,
       companyName: t.company,
-      lists: (["deal", "organization", "contact", "retainer", "task"] as const).map((key) => ({
+      lists: (["organization", "contact", "deal", "project", "retainer", "task"] as const).map((key) => ({
         key,
         label: t.lists[key][0],
         pluralLabel: t.lists[key][1],
         description: t.lists[key][2],
-        icon: { organization: "building", contact: "contact", deal: "handshake", retainer: "repeat", task: "check" }[
-          key
-        ],
+        icon: {
+          organization: "building",
+          contact: "contact",
+          deal: "handshake",
+          project: "kanban",
+          retainer: "repeat",
+          task: "check",
+        }[key],
       })),
       fields: [
         {
@@ -1533,6 +1727,12 @@ export default defineSolution<Strings>({
         { key: "organization.city", label: t.fields.city, type: "text" },
         { key: "organization.website", label: t.fields.website, type: "url" },
         { key: "organization.employees", label: t.fields.employees, type: "number" },
+        {
+          key: "organization.retainerMrr",
+          label: t.fields.retainerMrr,
+          type: "currency",
+          formula: { kind: "rollupSum", relation: "retainer.organization", field: "retainer.monthlyFee" },
+        },
         { key: "contact.jobTitle", label: t.fields.jobTitle, type: "text" },
         { key: "contact.phone", label: t.fields.phone, type: "phone" },
         {
@@ -1584,14 +1784,47 @@ export default defineSolution<Strings>({
           }),
         },
         {
+          key: "project.status",
+          label: t.fields.projectStatus,
+          type: "select",
+          options: label(t.options.projectStatus, {
+            kickoff: "info",
+            inProduction: "warning",
+            review: "secondary",
+            delivered: "success",
+          }),
+        },
+        { key: "project.budget", label: t.fields.budget, type: "currency" },
+        { key: "project.hoursBudget", label: t.fields.hoursBudget, type: "number" },
+        { key: "project.hoursUsed", label: t.fields.hoursUsed, type: "number" },
+        {
+          key: "project.hoursLeft",
+          label: t.fields.hoursLeft,
+          type: "number",
+          formula: { kind: "difference", left: "project.hoursBudget", right: "project.hoursUsed" },
+        },
+        { key: "project.deadline", label: t.fields.deadline, type: "date" },
+        {
           key: "retainer.status",
           label: t.fields.retainerStatus,
           type: "select",
-          options: label(t.options.retainerStatus, { active: "success", paused: "warning", ended: "secondary" }),
+          options: label(t.options.retainerStatus, {
+            active: "success",
+            renewalDue: "warning",
+            paused: "info",
+            ended: "secondary",
+          }),
         },
         { key: "retainer.monthlyFee", label: t.fields.monthlyFee, type: "currency" },
+        { key: "retainer.termMonths", label: t.fields.termMonths, type: "number" },
+        {
+          key: "retainer.contractValue",
+          label: t.fields.contractValue,
+          type: "currency",
+          formula: { kind: "product", left: "retainer.monthlyFee", right: "retainer.termMonths" },
+        },
         { key: "retainer.startDate", label: t.fields.startDate, type: "date" },
-        { key: "retainer.reviewDate", label: t.fields.reviewDate, type: "date" },
+        { key: "retainer.renewalDate", label: t.fields.renewalDate, type: "date" },
         { key: "retainer.scope", label: t.fields.scope, type: "text" },
         { key: "task.dueDate", label: t.fields.dueDate, type: "date" },
         {
@@ -1612,6 +1845,20 @@ export default defineSolution<Strings>({
       ],
       relationships: [
         {
+          key: "project.organization",
+          source: "project",
+          target: "organization",
+          sourceCardinality: "one",
+          targetCardinality: "many",
+        },
+        {
+          key: "project.pitch",
+          source: "project",
+          target: "deal",
+          sourceCardinality: "one",
+          targetCardinality: "many",
+        },
+        {
           key: "retainer.organization",
           source: "retainer",
           target: "organization",
@@ -1626,7 +1873,7 @@ export default defineSolution<Strings>({
           targetCardinality: "many",
         },
       ],
-      records: { organization, contact, deal, retainer, task },
+      records: { organization, contact, deal, project, retainer, task },
       views: [
         {
           key: "pitchBoard",
@@ -1634,15 +1881,40 @@ export default defineSolution<Strings>({
           name: t.views.pitchBoard,
           mode: "board",
           groupBy: "stage",
-          columns: ["totalValue", "deal.organizations", "pitchDate", "nextStepDate"],
+          columns: ["totalValue", "deal.organizations", "pitchDate", "nextStepDate", "system:assignedTo"],
           filters: [{ field: "stage", notIn: ["lost"] }],
+        },
+        {
+          key: "projects",
+          list: "project",
+          name: t.views.projects,
+          mode: "board",
+          groupBy: "status",
+          columns: ["budget", "project.organization", "hoursLeft", "deadline", "system:assignedTo"],
+        },
+        {
+          key: "retainers",
+          list: "retainer",
+          name: t.views.retainers,
+          mode: "table",
+          columns: [
+            "status",
+            "renewalDate",
+            "monthlyFee",
+            "termMonths",
+            "contractValue",
+            "retainer.organization",
+            "system:assignedTo",
+          ],
+          filters: [{ field: "status", notIn: ["ended"] }],
+          sort: { field: "renewalDate", direction: "asc" },
         },
         {
           key: "nextSteps",
           list: "deal",
           name: t.views.nextSteps,
           mode: "table",
-          columns: ["stage", "nextStep", "nextStepDate", "pitchDate", "totalValue", "deal.organizations"],
+          columns: ["stage", "nextStep", "nextStepDate", "totalValue", "deal.organizations", "system:assignedTo"],
           filters: [{ field: "stage", in: open }],
           sort: { field: "nextStepDate", direction: "asc" },
         },
@@ -1651,16 +1923,8 @@ export default defineSolution<Strings>({
           list: "organization",
           name: t.views.clients,
           mode: "table",
-          columns: ["relationship", "industry", "city", "contact.organizations", "retainer.organization"],
+          columns: ["relationship", "retainerMrr", "industry", "city", "contact.organizations", "system:assignedTo"],
           sort: { field: "relationship", direction: "asc" },
-        },
-        {
-          key: "retainers",
-          list: "retainer",
-          name: t.views.retainers,
-          mode: "table",
-          columns: ["status", "monthlyFee", "retainer.organization", "startDate", "reviewDate", "retainer.pitch"],
-          sort: { field: "reviewDate", direction: "asc" },
         },
         {
           key: "allContacts",
@@ -1674,7 +1938,7 @@ export default defineSolution<Strings>({
           list: "task",
           name: t.views.dueSoon,
           mode: "table",
-          columns: ["dueDate", "status", "priority", "task.deals", "task.organizations"],
+          columns: ["dueDate", "status", "priority", "task.deals", "task.organizations", "system:assignedTo"],
           filters: [{ field: "status", notIn: ["done", "archived"] }],
           sort: { field: "dueDate", direction: "asc" },
         },
@@ -1687,7 +1951,7 @@ export default defineSolution<Strings>({
             list: "retainer",
             aggregation: "sum",
             field: "monthlyFee",
-            filters: [{ field: "status", in: ["active"] }],
+            filters: [{ field: "status", in: ["active", "renewalDue"] }],
           },
           {
             kind: "kpi",
@@ -1710,13 +1974,11 @@ export default defineSolution<Strings>({
           },
           {
             kind: "kpi",
-            title: t.widgets.overdueTasks,
-            list: "task",
-            aggregation: "count",
-            filters: [
-              { field: "status", notIn: ["done", "archived"] },
-              { field: "dueDate", olderThanDays: 1 },
-            ],
+            title: t.widgets.hoursLeft,
+            list: "project",
+            aggregation: "sum",
+            field: "hoursLeft",
+            filters: [{ field: "status", notIn: ["delivered"] }],
           },
           {
             kind: "chart",
@@ -1730,15 +1992,11 @@ export default defineSolution<Strings>({
           },
           {
             kind: "chart",
-            title: t.widgets.lostByReason,
+            title: t.widgets.projectsByStatus,
             display: DisplayType.doughnutChart,
-            list: "deal",
+            list: "project",
             aggregation: "count",
-            groupBy: { field: "lostReason" },
-            filters: [
-              { field: "stage", in: ["lost"] },
-              { field: "closeDate", withinDays: 365 },
-            ],
+            groupBy: { field: "status" },
           },
           {
             kind: "chart",
@@ -1764,16 +2022,13 @@ export default defineSolution<Strings>({
           },
           {
             kind: "chart",
-            title: t.widgets.topClients,
+            title: t.widgets.mrrByClient,
             display: DisplayType.rankedTable,
-            list: "deal",
+            list: "retainer",
             aggregation: "sum",
-            field: "totalValue",
-            groupBy: { relation: "deal.organizations" },
-            filters: [
-              { field: "stage", in: ["won"] },
-              { field: "closeDate", withinDays: 365 },
-            ],
+            field: "monthlyFee",
+            groupBy: { relation: "retainer.organization" },
+            filters: [{ field: "status", in: ["active", "renewalDue"] }],
           },
         ],
       },
@@ -1786,6 +2041,81 @@ export default defineSolution<Strings>({
           title: t.wiki.afterPitch.title,
           whenToUse: t.wiki.afterPitch.whenToUse,
           markdown: t.wiki.afterPitch.markdown,
+        },
+        {
+          key: "renewal",
+          kind: "procedure",
+          title: t.wiki.renewal.title,
+          whenToUse: t.wiki.renewal.whenToUse,
+          markdown: t.wiki.renewal.markdown,
+        },
+      ],
+      members: (["colleagueA", "colleagueB"] as const).map((key, index) => ({
+        key,
+        firstName: t.members[key][0],
+        lastName: t.members[key][1],
+        email: t.members[key][2],
+        avatar: photo(index === 0 ? "mia-schneider" : "felix-koch"),
+      })),
+      routines: [
+        {
+          key: "renewal",
+          name: t.routines.renewal.name,
+          task: t.routines.renewal.task,
+          trigger: { kind: "schedule", cron: "0 8 * * 1" },
+          runs: [
+            {
+              status: "succeeded",
+              startedHoursAgo: 26,
+              durationSeconds: 64,
+              credits: 9,
+              summary: t.routines.renewal.runs[0],
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 194,
+              durationSeconds: 48,
+              credits: 7,
+              summary: t.routines.renewal.runs[1],
+            },
+            {
+              status: "failed",
+              startedHoursAgo: 362,
+              durationSeconds: 11,
+              credits: 2,
+              error: "providerUnavailable",
+              note: t.routines.renewal.runs[2],
+            },
+          ],
+        },
+        {
+          key: "followUp",
+          name: t.routines.followUp.name,
+          task: t.routines.followUp.task,
+          owner: "colleagueA",
+          trigger: {
+            kind: "event",
+            events: ["record.updated"],
+            lists: ["deal"],
+            debounceSeconds: 600,
+            sample: { record: "deal:meridianBrand" },
+          },
+          runs: [
+            {
+              status: "succeeded",
+              startedHoursAgo: 170,
+              durationSeconds: 22,
+              credits: 3,
+              summary: t.routines.followUp.runs[0],
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 194,
+              durationSeconds: 71,
+              credits: 11,
+              summary: t.routines.followUp.runs[1],
+            },
+          ],
         },
       ],
       messaging: {

@@ -108,7 +108,7 @@ cta:
   hint: "Projektabwicklung, Angebote, Zeiterfassung und Abrechnung bleiben in Ihren Agentur-Tools."
 ---
 
-Customermates ist ein **CRM für Agenturen**, die Kunden über Anfragen, Pitches und Beziehungen gewinnen: Marketing-, Kreativ- und Digitalagenturen. Kunden und Interessenten, ihre Ansprechpartner, jeder Pitch, unterschriebene Retainer und der nächste Schritt bleiben verbunden, bis gewonnene Arbeit an die Tools für die Umsetzung übergeht. Customermates ist ein Open-Source-CRM mit KI, entwickelt in Deutschland. Es deckt Neugeschäft und Kundenbeziehungen ab, nicht Projekte, Kampagnen oder Rechnungen.
+Customermates ist ein **CRM für Agenturen**, die Kunden über Anfragen, Pitches und Beziehungen gewinnen: Marketing-, Kreativ- und Digitalagenturen. Kunden und Interessenten, ihre Ansprechpartner, jeder Pitch, unterschriebene Retainer und der nächste Schritt bleiben verbunden, bis gewonnene Arbeit an die Tools für die Umsetzung übergeht. Customermates ist ein Open-Source-CRM mit KI, entwickelt in Deutschland. Es deckt Neugeschäft und Kundenbeziehungen ab, nicht Projektplanung, Kampagnen oder Rechnungen.
 
 <ArticleSummary title="Auf einen Blick">
   <SummaryItem label="Passt zu">
@@ -139,18 +139,19 @@ Customermates ist ein **CRM für Agenturen**, die Kunden über Anfragen, Pitches
 
 ## Das Pitch-Board im Beispiel-Workspace
 
-Der [Agentur-Workspace](https://demo.customermates.com/de/w/agenturen/dashboard) ist ein Beispiel mit Beispieldaten, kein Kundenkonto. Er enthält fünf Listen für Kunden und Interessenten, Kontakte, Pitches, Retainer und Aufgaben. Ein Pitch durchläuft sieben Phasen: von der Anfrage über Briefing und Pitch-Vorbereitung zum versendeten Angebot, dann in die Verhandlung und schließlich zu Gewonnen oder Verloren.
+Der [Agentur-Workspace](https://demo.customermates.com/de/w/agenturen/dashboard) ist ein Beispiel mit Beispieldaten, kein Kundenkonto. Er enthält sechs Listen: **Kunden**, **Kontakte**, **Pitches**, **Projekte**, **Retainer** und **Aufgaben**. Ein Pitch durchläuft sieben Phasen: von der Anfrage über Briefing und Pitch-Vorbereitung zum versendeten Angebot, dann in die Verhandlung und schließlich zu Gewonnen oder Verloren.
 
 Das Pitch-Board zeigt jeden offenen Pitch als Karte in seiner Phase, mit verantwortlicher Person und geschätztem Wert. Jede Phase trägt eine Abschlusswahrscheinlichkeit, daraus ergibt sich ein gewichteter Wert pro Pitch. Das ist eine Gewichtung mit Ihren eigenen Wahrscheinlichkeiten, keine Prognose.
 
 Öffnen Sie von einer Karte aus den Kunden, steht die Beziehung an einem Ort:
 
 - **Die Menschen:** die Marketingleiterin, die das Briefing gegeben hat, der Geschäftsführer, der unterschreibt, der Kontakt im Einkauf.
-- **Die Pitches:** der aktuelle in der Vorbereitung und ein früherer, der gewonnen wurde.
-- **Der Retainer:** ein Datensatz mit Feldern wie Monatshonorar, Beginn und Verlängerungsdatum. Er beschreibt die Vereinbarung, erzeugt aber keine Rechnungen und keine wiederkehrende Abrechnung.
+- **Die Pitches:** der aktuelle in der Vorbereitung und frühere, die gewonnen wurden.
+- **Die Projekte:** gewonnene Arbeit als Datensätze mit Status, Budget, Stundenbudget und verbrauchten Stunden; die Reststunden werden daraus berechnet.
+- **Der Retainer:** ein Datensatz mit Feldern wie Monatshonorar, Laufzeit, Beginn und Verlängerungstermin. Der Vertragswert wird aus Monatshonorar mal Laufzeit berechnet, und der Kunde zeigt seine Retainer pro Monat. Er beschreibt die Vereinbarung, erzeugt aber keine Rechnungen und keine wiederkehrende Abrechnung.
 - **Das Gespräch:** ein E-Mail-Verlauf mit der Marketingleiterin, verknüpft mit dem Pitch. Den Kontakt hat Customermates über die E-Mail-Adresse in einem Kanäle-Feld zugeordnet; die Verknüpfung mit dem Pitch hat eine Person bewusst gesetzt, sie entsteht nie automatisch.
 
-## Von der Anfrage zum unterschriebenen Retainer
+## Von der Anfrage zu Projekt und Retainer
 
 <Steps>
   <Step title="Anfrage festhalten">
@@ -173,8 +174,8 @@ Das Pitch-Board zeigt jeden offenen Pitch als Karte in seiner Phase, mit verantw
   </Step>
   <Step title="Ergebnis festhalten">
     Setzen Sie den Pitch auf Gewonnen oder Verloren. Für gewonnene Arbeit legen
-    Sie den Retainer an und übergeben die Umsetzung an Ihre Projekt- und
-    Finanz-Tools.
+    Sie das Projekt oder den Retainer an; Projektplanung, Zeiterfassung und
+    Abrechnung bleiben in Ihren Projekt- und Finanz-Tools.
   </Step>
 </Steps>
 
@@ -185,7 +186,7 @@ Das Pitch-Board zeigt jeden offenen Pitch als Karte in seiner Phase, mit verantw
 | Anfrage und Briefing | Kunden, Kontakte, Pitch-Phasen, Verantwortliche und eigene Felder | Datenanreicherung, Lead-Scoring und Outbound-Sequenzen |
 | Pitch und Verhandlung | Geschätzter und gewichteter Wert, Kontext zum Nachfassen | Pitch-Decks, Angebote, Leistungsbeschreibungen und Verträge |
 | Neugeschäft im Überblick | Pitch-Board, Phasenwahrscheinlichkeiten und gewichtete Summen | Prognosen und Finanzplanung |
-| Unterschriebene Arbeit | Retainer-Datensatz und Kontext der Beziehung | Projekte, Kapazität, Zeiterfassung, Rechnungen und Buchhaltung |
+| Unterschriebene Arbeit | Projekt- und Retainer-Datensätze mit Status, Budget, von Hand gepflegten Stunden und Verlängerungstermin | Projektplanung, Kapazität, Zeiterfassung, Rechnungen und Buchhaltung |
 | Kampagnen | Nichts | Werbeplattformen, E-Mail-Marketing und Reporting für Kunden |
 
 <AcquisitionCallout
@@ -210,7 +211,7 @@ Wie weit der Posteingang reicht, hängt vom Tarif ab:
 
 ## KI und Anbindungen
 
-Mate, der Assistent in Customermates Cloud, fasst vor einem Pitch-Termin den Kunden zusammen, verschiebt einen Pitch in die nächste Phase und speichert einen Nachfassentwurf in der Konversation. Mate nutzt gehostete KI-Credits, die jeder Cloud-Tarif pro aktivem Nutzer enthält, und steht selbst gehostet nicht zur Verfügung. Mate sendet, wenn Sie ihn zum Senden auffordern; bitten Sie um einen Entwurf, wenn Sie vorher prüfen möchten. Eine [Routine](/docs/app-routines) lässt Mate wöchentlich arbeiten, zum Beispiel um Pitches mit versendetem Angebot und überschrittenem Datum für den nächsten Schritt aufzulisten.
+Mate, der Assistent in Customermates Cloud, fasst vor einem Pitch-Termin den Kunden zusammen, verschiebt einen Pitch in die nächste Phase und speichert einen Nachfassentwurf in der Konversation. Mate nutzt gehostete KI-Credits, die jeder Cloud-Tarif pro aktivem Nutzer enthält, und steht selbst gehostet nicht zur Verfügung. Mate sendet, wenn Sie ihn zum Senden auffordern; bitten Sie um einen Entwurf, wenn Sie vorher prüfen möchten. Eine [Routine](/docs/app-routines) lässt Mate nach Zeitplan oder bei einer Änderung arbeiten. Der Beispiel-Workspace hat zwei: Jeden Montag setzt eine Prüfung Retainer, die in den nächsten 60 Tagen verlängert werden, auf „Verlängerung fällig“ und legt eine Aufgabe an, und wechselt ein Pitch auf „Angebot gesendet“, speichert Mate einen Nachfassentwurf zur Prüfung.
 
 Jeder Tarif, auch selbst gehostet, bietet eine [REST-API mit Webhooks](/features/api) und [MCP](/docs/mcp) für externe KI-Clients wie Claude oder ChatGPT, die Datensätze im Rahmen Ihrer Rolle lesen oder ändern. Ein separat betriebener [n8n-Workflow](/features/workflow-automation) kann einen gewonnenen Pitch an Ihr Projekt-Tool übergeben.
 
@@ -225,7 +226,7 @@ Bevor Sie die ganze Agentur einladen, sollten Sie die Grenzen kennen:
 
 ## Ihren eigenen Workspace einrichten
 
-Ein neuer Workspace startet ohne Listen. Pitches und Retainer sind Beispiellisten aus der Demo, nicht der Inhalt jedes Kontos. In Customermates Cloud fragt die KI-Einrichtung, wofür der Workspace gedacht ist, und baut aus Ihren Antworten Listen, Phasen, ein Dashboard und Seiten der Knowledge Base. Sie läuft einmal beim Onboarding, verbraucht eine begrenzte Menge an KI-Credits und lässt sich mit **Mit einem leeren Workspace starten** überspringen (siehe [Onboarding](/docs/app-onboarding)).
+Ein neuer Workspace startet ohne Listen. Pitches, Projekte und Retainer sind Beispiellisten aus der Demo, nicht der Inhalt jedes Kontos. In Customermates Cloud fragt die KI-Einrichtung, wofür der Workspace gedacht ist, und baut aus Ihren Antworten Listen, Phasen, ein Dashboard und Seiten der Knowledge Base. Sie läuft einmal beim Onboarding, verbraucht eine begrenzte Menge an KI-Credits und lässt sich mit **Mit einem leeren Workspace starten** überspringen (siehe [Onboarding](/docs/app-onboarding)).
 
 Sonst legen Personen mit Konfigurationsrechten Listen, Felder und Phasen unter Konfigurieren an und importieren bestehende Kunden und Kontakte aus einer Excel-Datei. Ein Import lässt sich nicht rückgängig machen; testen Sie ihn deshalb zuerst mit wenigen Zeilen.
 
@@ -237,14 +238,14 @@ Listen, Felder, Pitch-Board, Aufgaben, REST, Webhooks und MCP gibt es in Custome
 
 <Faq>
 <FaqItem question="Verwaltet Customermates Agenturprojekte oder Kampagnen?">
-Nein. Customermates verwaltet Kunden, Kontakte und Neugeschäft. Umsetzungspläne, Kapazität, Zeiterfassung und Kampagnen gehören in Projektmanagement-, PSA- und Marketing-Tools.
+Nicht als Projekt-Tool. Der Beispiel-Workspace führt eine einfache Projektliste mit Status, Budget und von Hand gepflegten Stunden, damit gewonnene Arbeit neben dem Kunden steht. Umsetzungspläne, Kapazität, Zeiterfassung und Kampagnen gehören in Projektmanagement-, PSA- und Marketing-Tools.
 </FaqItem>
 
 <FaqItem question="Erstellt Customermates Angebote, Verträge oder Rechnungen?">
 Nein. Ein Pitch trägt Phase, Wert und den Link zum Angebotsdokument, aber Customermates hat keinen Ablauf für Angebote, Verträge oder Rechnungen. Retainer sind Datensätze, keine wiederkehrenden Rechnungen.
 </FaqItem>
 
-<FaqItem question="Bringt ein neuer Workspace Pitches und Retainer mit?">
+<FaqItem question="Bringt ein neuer Workspace Pitches, Projekte und Retainer mit?">
 Nein. Ein neuer Workspace startet ohne Listen. In Customermates Cloud kann die KI-Einrichtung beim Onboarding einmalig Listen und Phasen aus Ihrer Beschreibung bauen. Sonst legen Personen mit Konfigurationsrechten sie an und importieren Datensätze aus Excel.
 </FaqItem>
 
