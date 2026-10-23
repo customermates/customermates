@@ -258,6 +258,19 @@ test("deleting the login's only workspace blocks its other tab, stops its polls 
   await expect(page).toHaveURL(/\/en\/onboarding$/);
   expect(await activeWorkspaceOf(database, workspace)).toMatchObject({ lastUsed: null });
 
+  if (e2eAppMode() !== "cloud") {
+    // Self-hosted has no background poll to notice the deletion; the tab's next load finds its address gone.
+    expectNotFoundDocuments(other);
+    await other.reload();
+    await expect(other.getByRole("heading", { level: 1 })).toHaveText(englishMessages.NotFoundPage.title);
+    await other.goto("/en/dashboard");
+    await expect(other).toHaveURL(/\/en\/onboarding$/);
+    expect(failures).toEqual([]);
+    expect(await toasts()).toEqual([]);
+    expect(sentry).toEqual([]);
+    expect(errors).toEqual([]);
+    return;
+  }
   const notice = other.getByRole("alertdialog", { name: messages.unavailable.title });
   await expect(notice).toBeVisible({ timeout: 20_000 });
   const shownAt = Date.now();
