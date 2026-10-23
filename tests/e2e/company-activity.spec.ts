@@ -142,7 +142,7 @@ test("shows admin and configuration history on the workspace activity page and f
   await expect(page.locator("#global-data-views-all")).toContainText("All activity");
   const storedActivityFilters = async () => {
     const stored = await database.query(
-      'SELECT filters FROM "P13n" WHERE "companyId"=$1 AND "p13nId"=\'activity\' AND filters <> \'[]\'::jsonb',
+      'SELECT filters FROM "P13n" WHERE "companyId"=$1 AND "p13nId"=\'activity\' AND filters NOT IN (\'[]\'::jsonb, \'null\'::jsonb)',
       [companyId],
     );
     return stored.rows.length;
