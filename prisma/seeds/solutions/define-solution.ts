@@ -275,6 +275,8 @@ export type SolutionContent = {
   messaging?: MessagingSpec;
   /** The deal value as a calculation, for solutions without a Services list (otherwise a plain input). */
   dealValue?: FormulaSpec;
+  /** Labels of the deal value and weighted value when the solution names them itself ("Fee", "ARR"). */
+  valueLabels?: { value: string; weighted: string };
   members?: readonly ColleagueSpec[];
   routines?: readonly RoutineSpec[];
   webhooks?: readonly WebhookSpec[];

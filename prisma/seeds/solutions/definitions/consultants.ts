@@ -101,6 +101,8 @@ const en = {
     task: ["Task", "Tasks", "Things we promised, with a due date."],
   },
   fields: {
+    dealValue: "Fee",
+    weightedValue: "Weighted fee",
     industry: "Industry",
     relationship: "Relationship",
     city: "City",
@@ -452,6 +454,8 @@ const de: Strings = {
     task: ["Aufgabe", "Aufgaben", "Was wir zugesagt haben, mit Fälligkeitsdatum."],
   },
   fields: {
+    dealValue: "Honorar",
+    weightedValue: "Gewichtetes Honorar",
     industry: "Branche",
     relationship: "Beziehung",
     city: "Ort",
@@ -1472,6 +1476,7 @@ export default defineSolution<Strings>({
 
     return {
       workspaceName: t.workspaceName,
+      valueLabels: { value: t.fields.dealValue, weighted: t.fields.weightedValue },
       companyName: t.company,
       lists: (["organization", "contact", "deal", "task"] as const).map((key) => ({
         key,

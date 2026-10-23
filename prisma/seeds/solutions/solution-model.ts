@@ -91,7 +91,7 @@ function formulaExpression(formula: FormulaSpec, id: (key: string) => string): C
 export function buildSolutionModel(
   companyId: string,
   locale: SolutionDataLocale,
-  content: Pick<SolutionContent, "lists" | "fields" | "stages" | "relationships" | "dealValue">,
+  content: Pick<SolutionContent, "lists" | "fields" | "stages" | "relationships" | "dealValue" | "valueLabels">,
 ): RecordModel {
   const id = (key: string) => presetId(companyId, key);
   const t = solutionTranslator(locale);
@@ -188,6 +188,12 @@ export function buildSolutionModel(
   }
   for (const field of fields)
     if ([id("deal.totalValue"), id("deal.weightedValue")].includes(field.id)) field.publishedSummary = true;
+  if (content.valueLabels) {
+    for (const field of fields) {
+      if (field.id === id("deal.totalValue")) field.label = content.valueLabels.value;
+      if (field.id === id("deal.weightedValue")) field.label = content.valueLabels.weighted;
+    }
+  }
 
   for (const spec of content.fields) {
     const [list] = spec.key.split(".");

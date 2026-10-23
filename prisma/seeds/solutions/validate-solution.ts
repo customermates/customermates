@@ -208,6 +208,7 @@ export function validateSolutionDefinition(
         .filter((field) => !field.archived)
         .flatMap((field) => [field.label, ...(field.options ?? []).map((option) => option.label)]),
       ...content.stages.map((stage) => stage.label),
+      ...(content.valueLabels ? [content.valueLabels.value, content.valueLabels.weighted] : []),
       ...content.views.map((view) => view.name),
       ...content.dashboard.widgets.map((widget) => widget.title),
     ];
