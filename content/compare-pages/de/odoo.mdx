@@ -205,7 +205,7 @@ Customermates ist ein Open-Source-KI-CRM für kleine Teams mit Kundenkontakt: Be
 - **Keine Massen-E-Mails, Kampagnen oder Sequenzen.** Nachrichten gehen einzeln hinaus, von Ihnen geschrieben oder von Mate entworfen.
 - **Keine Telefonie, keine SMS, keine nativen Apps für Smartphones und kein Single Sign-on.**
 - **Aufgaben haben kein eingebautes Fälligkeitsdatum und keine Erinnerungen.** Legen Sie bei Bedarf ein eigenes Datumsfeld an.
-- **Gespeicherte Ansichten sind persönlich, und Berechtigungen gelten pro Liste und Aktion, nicht pro Feld.** An Listen scheitert es nicht: Ein Workspace startet mit fünf (Kontakte, Organisationen, Deals, Services, Aufgaben), und Sie können eigene anlegen, mit typisierten Feldern, Beziehungen und berechneten Feldern.
+- **Gespeicherte Ansichten sind persönlich, und Berechtigungen gelten pro Liste und Aktion, nicht pro Feld.** An Listen scheitert es nicht: Ein neuer Workspace startet ohne Listen, und Sie legen die benötigten an (Kontakte, Organisationen, Deals oder eigene), mit typisierten Feldern, Beziehungen und berechneten Feldern.
 
 ## Umstieg von Odoo CRM
 
@@ -216,13 +216,13 @@ Für die meisten Daten aus Odoo CRM gibt es ein direktes Gegenstück. Öffnen Si
 | Kontakte, die Unternehmen sind | Organisationen, auf Wunsch umbenannt in „Unternehmen“ |
 | Kontakte, die Personen sind | Kontakte, verknüpft mit ihrer Organisation |
 | Verkaufschancen in der Pipeline | Deals, umbenannt in „Chancen“ |
-| Leads, falls Sie sie nutzen | Kontakte mit dem vorhandenen Feld „Vertriebsphase“: Neu, Kontaktiert, Qualifiziert, In Bearbeitung, Gewonnen, Verloren |
+| Leads, falls Sie sie nutzen | Kontakte mit einem Einzelauswahl-Feld, das Sie anlegen, etwa „Vertriebsphase“: Neu, Kontaktiert, Qualifiziert, In Bearbeitung, Gewonnen, Verloren |
 | Produkte an Verkaufschancen | Services, umbenannt in „Produkte“, als Positionen mit Menge im Deal |
 | Geplante Aktivitäten | Aufgaben mit zugewiesenen Nutzern, dazu ein eigenes Datumsfeld für die Frist |
 | Tags in Odoo | Ein Mehrfachauswahl-Feld pro Gruppe von Tags; Customermates hat keine Tags an Datensätzen |
 | Angebote und Rechnungen | Kein Gegenstück; behalten Sie dafür die Odoo-App für Rechnungen oder Ihre Buchhaltungssoftware |
 
-Ein neuer Workspace beginnt mit den Phasen Akquise 10 %, Qualifizierung 20 %, Demo 40 %, Angebot 60 %, Verhandlung 80 %, Gewonnen 100 % und Verloren 0 %. Benennen Sie sie nach Ihren Odoo-Phasen um und tragen Sie in **Konfigurieren** beim Feld **Phase** je Option eine eigene **Wahrscheinlichkeit %** ein. Die Wahrscheinlichkeit pro Verkaufschance aus Odoo wird nicht übernommen: In Customermates bekommt jeder Deal einer Phase dieselbe Gewichtung.
+Phasen sind nicht vorgegeben: Legen Sie in **Konfigurieren** an Ihrer Deal-Liste ein Einzelauswahl-Feld **Phase** mit einer Option je Odoo-Phase an (in der Cloud kann die KI-Einrichtung es anlegen) und tragen Sie je Option eine eigene **Wahrscheinlichkeit %** ein. Die Wahrscheinlichkeit pro Verkaufschance aus Odoo wird nicht übernommen: In Customermates bekommt jeder Deal einer Phase dieselbe Gewichtung.
 
 <Steps>
   <Step title="Aus Odoo exportieren">Markieren Sie in jeder Listenansicht die Datensätze, öffnen Sie Aktion und wählen Sie Exportieren. Nehmen Sie das Excel-Format, nicht CSV. Der Import-Assistent von Customermates liest .xlsx-Arbeitsmappen; endet Ihre Datei auf .xls, speichern Sie sie vorher in Excel oder LibreOffice als .xlsx.</Step>

@@ -45,7 +45,7 @@ Jedes Diagramm nimmt eine Liste als Quelle, eine Aggregation und eine Gruppierun
 
 Als **Gruppierung** wählen Sie **Keine Gruppierung** (eine Summe), ein Feld wie Phase oder Lead-Quelle, jeden Datensatz einzeln, **Zugewiesen an** oder ein Feld über eine Beziehung. Das liefert zum Beispiel „Deal-Wert nach Phase“, „Deal-Wert pro Organisation“ oder „Positionsbeträge nach Service“. Gruppieren Sie nach einem Datumsfeld, nach **Erstellt am** oder **Aktualisiert am** und wählen ein **Zeitintervall**, erhalten Sie einen Wert pro Tag, Woche, Monat, Quartal oder Jahr.
 
-**Gewichteter Wert** ist ein berechnetes Feld bei Deals: der Wert des Deals mal die **Wahrscheinlichkeit %** seiner Phase, die Sie unter **Konfigurieren** an jeder Option des Felds Phase festlegen. Ein neuer Arbeitsbereich hat die Wahrscheinlichkeiten bereits vorbelegt, das funktioniert also ab dem ersten Deal.
+**Gewichteter Wert** ist ein berechnetes Feld bei Deals: der Wert des Deals mal die **Wahrscheinlichkeit %** seiner Phase, die Sie unter **Konfigurieren** an jeder Option des Felds Phase festlegen. Sobald die Wahrscheinlichkeiten eingetragen sind, funktioniert das ab dem ersten Deal.
 
 **Filter** grenzen ein, was ein Diagramm zählt, über jedes Feld, auch über Datumsangaben; verknüpfte Felder erscheinen als **Liste › Feld**. So werten Sie „gewonnener Deal-Wert pro Organisation“ aus: Deals als Quelle, Filter Phase ist Gewonnen, gruppiert nach Organisation.
 
@@ -55,7 +55,7 @@ Die zweite Widget-Art, der **Aktivitätsverlauf**, zeigt Änderungen an Datensä
 
 ## Auswertungen für kleine Teams und wie Sie sie anlegen
 
-Die Beispiele setzen das Standardfeld „Phase“ voraus und zwei Einzelauswahl-Felder, die Sie bei Deals ergänzen: „Lead-Quelle“ und „Verlustgrund“.
+Die Beispiele setzen eine Deal-Liste mit dem Einzelauswahl-Feld „Phase“ voraus und zwei weitere Einzelauswahl-Felder, die Sie ergänzen: „Lead-Quelle“ und „Verlustgrund“.
 
 | Frage | Quelle | Kennzahl | Gruppierung | Filter |
 |---|---|---|---|---|
@@ -67,7 +67,7 @@ Die Beispiele setzen das Standardfeld „Phase“ voraus und zwei Einzelauswahl-
 | Warum verlieren wir? | Deals | Anzahl | Verlustgrund | Phase ist Verloren |
 | Wie viel offene Arbeit gibt es? | Aufgaben | Anzahl | Status | Status ist nicht Erledigt oder Archiviert |
 
-Aufgaben haben kein eingebautes Fälligkeitsdatum. Das Feld „Status“ in der letzten Zeile ist ein Einzelauswahl-Feld, mit dem ein neuer Arbeitsbereich startet; Sie können es wie jedes andere Feld umbenennen, ändern oder löschen.
+Aufgaben haben kein eingebautes Fälligkeitsdatum. Das Feld „Status“ in der letzten Zeile ist ein Einzelauswahl-Feld, das Sie an Ihrer Aufgabenliste anlegen; Sie können es wie jedes andere Feld umbenennen, ändern oder löschen.
 
 Zwei Fragen beantwortet eine Liste besser als ein Diagramm. **Wer arbeitet an welchen Deals?** Stellen Sie die Deal-Liste auf das Board um und gruppieren Sie nach **Zugewiesen**: Jede Person bekommt eine Spalte mit Anzahl und Summen ihrer Deals. **Wie viele Deals haben wir pro Monat angelegt?** Gruppieren Sie die Deal-Tabelle nach Erstelldatum, zusammengefasst nach Monat. Als Ansicht gespeichert, sind beide Auswertungen einen Klick entfernt. Ansichten gehören der Person, die sie speichert.
 

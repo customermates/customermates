@@ -133,7 +133,7 @@ This is the setup in Customermates for the first flow above. It uses the [REST A
 
 **Fields.** In **Configure**, add custom fields of type Text: "ERP customer no." on organizations, "ERP order no." on deals, and "ERP item no." on services. A deal's line items each hold a service and a quantity, so the line items and their services' item numbers become the order lines. If account managers need delivery or payment state, add a Single choice field such as "ERP status" on deals and let only the integration write it.
 
-**Trigger.** The default deal Stage field has a "Won" option. Under **Settings → Webhooks**, subscribe a URL to `record.updated` for the Deals list, optionally with Stage under **Changed fields**, and set a secret. Each delivery is signed with HMAC-SHA256 in the `X-Webhook-Signature` header, and for update events `data.record.fields` lists each changed field with its `before` and `after` value. Your receiver acts only when the stage changed to "Won".
+**Trigger.** This assumes your deals list has a Stage Single choice field with a "Won" option (stages are not preset). Under **Settings → Webhooks**, subscribe a URL to `record.updated` for the Deals list, optionally with Stage under **Changed fields**, and set a secret. Each delivery is signed with HMAC-SHA256 in the `X-Webhook-Signature` header, and for update events `data.record.fields` lists each changed field with its `before` and `after` value. Your receiver acts only when the stage changed to "Won".
 
 **Idempotency.** Every event carries an `id` that stays the same on retries and resends, so deduplicate by it. As a second check, use the cross-reference: if the deal's "ERP order no." is already filled, stop.
 

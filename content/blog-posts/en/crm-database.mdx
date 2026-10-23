@@ -35,7 +35,7 @@ You rarely build that database from scratch. You pick a CRM, decide which record
   <SummaryItem label="What it is">Linked records for people, companies, deals and tasks, with typed fields and an activity history. A spreadsheet holds rows; a CRM database holds relationships.</SummaryItem>
   <SummaryItem label="How to build one">Fix the record types first, then the fields you filter on, then one unique key per person. Clean before you import, and import companies before people.</SummaryItem>
   <SummaryItem label="What breaks it">Duplicates, free-text fields that should be choices, and nobody owning the cleanup.</SummaryItem>
-  <SummaryItem label="Customermates">Starts with five lists (contacts, organizations, deals, services, tasks), lets you add your own, with typed fields and relationships, from [[commercial.price.starter.monthly]] per user per month in the cloud, or self-hosted under AGPL.</SummaryItem>
+  <SummaryItem label="Customermates">Starts without lists: you create the ones you need (contacts, organizations, deals or your own), with typed fields and relationships, from [[commercial.price.starter.monthly]] per user per month in the cloud, or self-hosted under AGPL.</SummaryItem>
 </ArticleSummary>
 
 ## What a CRM database holds
@@ -65,7 +65,7 @@ The record types tell you what a CRM was built for. This table compares the data
 | [Pipedrive](https://support.pipedrive.com/en/article/how-is-pipedrive-data-organized) | Leads, deals, people, organizations, activities, products, projects and mail | The linked article names no custom object type; Projects is an add-on on Growth and lower plans and standard on Premium and Ultimate |
 | Customermates | Contacts, organizations, deals, services and tasks, each freely renamable | Your own lists with typed fields, relationships and calculated fields |
 
-The pattern: HubSpot and Salesforce let you add your own object types and configure them, on HubSpot with an Enterprise subscription. Pipedrive's data items stay close to the sales process. Customermates starts with five lists, lets you rename any of them, so Contacts can read Clients and Deals can read Projects across the whole workspace, and lets you add your own.
+The pattern: HubSpot and Salesforce let you add your own object types and configure them, on HubSpot with an Enterprise subscription. Pipedrive's data items stay close to the sales process. Customermates starts without lists: you create the ones you need and name each one, so a contacts list can read Clients and a deals list Projects across the whole workspace, and you can rename them later.
 
 ## CRM database, spreadsheet or plain database?
 
@@ -122,7 +122,7 @@ Here is the same design in Customermates, set up the way the product works today
 
 **Relations.** A client can link to several organizations, and a project to several clients, organizations and assigned users. A project's value is the sum of its line items, each a service price multiplied by its quantity, so "Strategy workshop" at one price and "Monthly retainer" times six add up on their own.
 
-**Stages.** A new workspace starts with a Stage field (Prospecting, Qualification, Demo, Proposal, Negotiation, Won, Lost) whose win probabilities you set per stage in Configure. The weighted pipeline is the plain arithmetic of those percentages, not a prediction.
+**Stages.** Stages are not preset: you add a Stage field (for example Prospecting, Qualification, Demo, Proposal, Negotiation, Won, Lost) and set win probabilities per stage in Configure. The weighted pipeline is the plain arithmetic of those percentages, not a prediction.
 
 **Unique key.** Email addresses go into the client's Channels field, which matches incoming messages to the record. One address can belong to several records, so remove duplicates before you import. Global search (Cmd/Ctrl+K) finds a client by name or by any email address or phone number in their Channels.
 

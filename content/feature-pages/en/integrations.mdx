@@ -71,7 +71,7 @@ Deliveries are not strictly ordered, so treat them as idempotent messages keyed 
 
 ## REST API
 
-The API is versioned under `/api/v1`, authenticated with an `x-api-key` header, and described by an OpenAPI document. The same action endpoints serve every list, the five starter lists and the ones your workspace adds, and address a record by `typeId` and `recordId`: `POST /api/v1/records/query` and `/records/search` read, `POST /api/v1/records/mutate` creates, updates, deletes, links and unlinks, and its `updateMany` and `deleteMany` actions change up to 100 records per request. `POST /api/v1/model/read` returns your fields and their option IDs, which you need because the deal **Stage** is a configurable single choice field, not a fixed value.
+The API is versioned under `/api/v1`, authenticated with an `x-api-key` header, and described by an OpenAPI document. The same action endpoints serve every list your workspace creates and address a record by `typeId` and `recordId`: `POST /api/v1/records/query` and `/records/search` read, `POST /api/v1/records/mutate` creates, updates, deletes, links and unlinks, and its `updateMany` and `deleteMany` actions change up to 100 records per request. `POST /api/v1/model/read` returns your fields and their option IDs, which you need because the deal **Stage** is a configurable single choice field, not a fixed value.
 
 An API key inherits the permissions of the user who created it. There is no per-key scope, so create keys from a user whose role fits the integration. More detail on the [API feature page](/features/api).
 

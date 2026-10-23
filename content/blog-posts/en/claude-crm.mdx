@@ -144,11 +144,11 @@ Customermates bills monthly per user, with no yearly contract. When Claude works
 
 *Disclosure: Customermates publishes this guide.* Customermates is an open-source, AI-native CRM built in Germany for small client-facing teams: consultants, agencies, other service businesses and founders. Its MCP endpoint is part of the AGPL core, so it works on every cloud plan and on self-hosted installations, with [[derived.mcp.tools.total]] tools. Through it, Claude works with contacts, organizations, deals, services, tasks and any lists you add, their notes and fields, and the workspace Knowledge Base. On Pro and higher in Customermates Cloud, the same connection reaches the [unified inbox](/features/unified-inbox) with email, LinkedIn, WhatsApp, Instagram and Telegram conversations.
 
-Four prompts that test the setup on a workspace with the default deal stages:
+Four prompts that test the setup. Customermates has no preset stages, so replace the stage, organization and deal names in brackets with ones from your workspace:
 
-1. "Show my open deals in the Proposal stage with their organization and weighted value." (read)
-2. "On the Northwind deal, set Stage to Negotiation and add to its notes: budget approved on today's call, contract draft next." (update)
-3. "Create a contact for Sarah Lee, link her to the Northwind organization and the Northwind deal, and create a task assigned to me to send the contract draft." (create and link)
+1. "Show my open deals in the [Proposal] stage with their organization and weighted value." (read)
+2. "On the [organization] deal, set Stage to [Negotiation] and add to its notes: budget approved on today's call, contract draft next." (update)
+3. "Create a contact for Sarah Lee, link her to the [organization] organization and its deal, and create a task assigned to me to send the contract draft." (create and link)
 4. "Find my latest email thread with Sarah Lee, summarize it in two lines and save a reply as a draft. Do not send it." (Pro, inbox)
 
 If you would rather not run your own AI client, Mate is the assistant inside Customermates Cloud. It uses the monthly hosted AI credits per active user that come with the plan, prepares summaries and reply drafts, and runs Routines: saved instructions on a schedule or on record events. In Customermates Cloud, the primary production database is configured in the AWS Frankfurt region. That is a selected setting rather than a residency guarantee, and the subprocessors are listed publicly.
