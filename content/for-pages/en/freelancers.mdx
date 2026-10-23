@@ -36,8 +36,8 @@ A freelancer CRM earns its place when your work depends on relationships: a form
     repeat work and referrals.
   </SummaryItem>
   <SummaryItem label="Example workspace">
-    Clients, Contacts, Work opportunities and Tasks, with sample data. Your own
-    workspace starts without lists.
+    Clients, Contacts, Inquiries, Projects and Tasks, with sample data. Your
+    own workspace starts without lists.
   </SummaryItem>
   <SummaryItem label="Inbox and AI">
     Cloud only. The inbox needs Pro or higher; Mate works within your plan's
@@ -57,18 +57,20 @@ It does not suit a business that runs on bookings and payments. There is no book
 
 ## The example freelance workspace
 
-The demo opens an example workspace with sample data, not a customer's account. It has four lists:
+The demo opens an example workspace with sample data, not a customer's account. It has five lists:
 
 - **Clients**: the companies you work for or want to work for.
 - **Contacts**: the people at those clients, and the people who refer you.
-- **Work opportunities**: each inquiry or possible project, with its stage.
-- **Tasks**: concrete next steps, linked to a client or opportunity.
+- **Inquiries**: each inquiry or possible project, with its stage.
+- **Projects**: work you agreed to do, with a day rate, a number of days and a fee calculated from both.
+- **Tasks**: concrete next steps, linked to a client or inquiry.
 
-Work opportunities move through Inquiry, First conversation, Proposal sent, Accepted, Closed and Lost. Open the client list, then one client: the detail page shows the linked contacts, the open opportunity, recent notes and conversation context, and a **Next action** date. That date is a field configured in this workspace, not a built-in reminder. Tasks in Customermates have no built-in due dates, statuses or reminders, so the example adds a date field and a saved view sorted by it.
+Inquiries move through Inquiry, First call, Proposal sent, Won and Lost; won work continues as a project with a status from Planned to Billed. Billed is only a label: billing stays in your invoicing tool. Open the client list, then one client: the detail page shows the linked contacts, the running project with its calculated fee, the open inquiry, recent notes and conversation context, and a **Next action** date. That date is a field configured in this workspace, not a built-in reminder. Tasks in Customermates have no built-in due dates, statuses or reminders, so the example adds a date field and a saved view sorted by it.
 
 <ProofRail label="Freelance workspace in the demo">
   <ProofItem label="Relationship">Clients with linked contacts</ProofItem>
-  <ProofItem label="New work">Work opportunities by stage</ProofItem>
+  <ProofItem label="New work">Inquiries by stage</ProofItem>
+  <ProofItem label="Running work">Projects with a calculated fee</ProofItem>
   <ProofItem label="Next step">Configured Next action date</ProofItem>
   <ProofItem label="Context">Notes and supported conversations</ProofItem>
 </ProofRail>
@@ -81,7 +83,7 @@ Fields come in the types you would expect: text, rich text, number, currency, ye
 
 ## Track new work
 
-A work opportunity is one possible piece of work with one client. The [pipeline board](/features/pipeline) shows each stage as a column, and you drag a card when something changes. Each stage option can carry a win probability, so the board can show an opportunity's value next to its weighted value. That is weighting with your own percentages, not a forecast.
+An inquiry is one possible piece of work with one client; once it is won, the work continues as a project. The [pipeline board](/features/pipeline) shows each stage as a column, and you drag a card when something changes. Each stage option can carry a win probability, so the board can show an opportunity's value next to its weighted value. That is weighting with your own percentages, not a forecast.
 
 A few saved views cover a weekly check: open opportunities in Proposal sent sorted by last update, clients sorted by Next action, and past clients you have not spoken to for a while. Saved views are personal and store filters, sort and columns together. The [records documentation](/docs/app-records) explains views, fields and import.
 
@@ -95,7 +97,7 @@ A few saved views cover a weekly check: open opportunities in Proposal sent sort
     or LinkedIn identity in a channels field brings matching conversations to
     the record.
   </Step>
-  <Step title="Open a work opportunity">
+  <Step title="Open an inquiry">
     Create it on the client, set the stage to Inquiry and fill in a value
     field if your workspace has one.
   </Step>

@@ -36,8 +36,8 @@ Als Selbstständiger im B2B-Geschäft leben Sie von Beziehungen: dem früheren K
     Folgeaufträgen und Empfehlungen.
   </SummaryItem>
   <SummaryItem label="Beispiel-Workspace">
-    Kunden, Kontakte, Auftragschancen und Aufgaben mit Beispieldaten. Ihr
-    eigener Workspace startet ohne Listen.
+    Kunden, Kontakte, Anfragen, Projekte und Aufgaben mit Beispieldaten.
+    Ihr eigener Workspace startet ohne Listen.
   </SummaryItem>
   <SummaryItem label="Posteingang und KI">
     Nur in der Cloud. Der Posteingang braucht mindestens Pro; Mate arbeitet
@@ -58,18 +58,20 @@ Nicht passend ist es für ein Geschäft, das von Buchungen und Zahlungen lebt. E
 
 ## Der Beispiel-Workspace für Selbstständige
 
-Die Demo öffnet einen Beispiel-Workspace mit Beispieldaten, kein Kundenkonto. Er hat vier Listen:
+Die Demo öffnet einen Beispiel-Workspace mit Beispieldaten, kein Kundenkonto. Er hat fünf Listen:
 
 - **Kunden**: die Firmen, für die Sie arbeiten oder arbeiten möchten.
 - **Kontakte**: die Menschen bei diesen Kunden und alle, die Sie weiterempfehlen.
-- **Auftragschancen**: jede Anfrage und jedes mögliche Projekt mit seiner Phase.
-- **Aufgaben**: konkrete nächste Schritte, verknüpft mit einem Kunden oder einer Auftragschance.
+- **Anfragen**: jede Anfrage und jedes mögliche Projekt mit seiner Phase.
+- **Projekte**: zugesagte Arbeit mit Tagessatz, Anzahl der Tage und einem daraus berechneten Honorar.
+- **Aufgaben**: konkrete nächste Schritte, verknüpft mit einem Kunden oder einer Anfrage.
 
-Auftragschancen durchlaufen die Phasen Anfrage, Erstgespräch, Angebot verschickt, Zusage, Abgeschlossen und Verloren. Öffnen Sie die Kundenliste und dann einen Kunden: Die Detailseite zeigt die verknüpften Kontakte, die offene Auftragschance, aktuelle Notizen und Gesprächskontext sowie ein Datum für die nächste Aktion. Dieses Datum ist ein in diesem Workspace angelegtes Feld, keine eingebaute Erinnerungsfunktion. Aufgaben haben in Customermates keine eingebauten Fälligkeiten, keinen Status und keine Erinnerungen, deshalb ergänzt das Beispiel ein eigenes Datumsfeld und eine danach sortierte Ansicht.
+Anfragen durchlaufen die Phasen Anfrage, Erstgespräch, Angebot gesendet, Zugesagt und Verloren; zugesagte Arbeit geht als Projekt weiter, mit einem Status von Geplant bis Abgerechnet. Abgerechnet ist nur eine Markierung: Die Abrechnung bleibt in Ihrem Rechnungsprogramm. Öffnen Sie die Kundenliste und dann einen Kunden: Die Detailseite zeigt die verknüpften Kontakte, das laufende Projekt mit seinem berechneten Honorar, die offene Anfrage, aktuelle Notizen und Gesprächskontext sowie ein Datum für die nächste Aktion. Dieses Datum ist ein in diesem Workspace angelegtes Feld, keine eingebaute Erinnerungsfunktion. Aufgaben haben in Customermates keine eingebauten Fälligkeiten, keinen Status und keine Erinnerungen, deshalb ergänzt das Beispiel ein eigenes Datumsfeld und eine danach sortierte Ansicht.
 
 <ProofRail label="Selbstständigen-Workspace in der Demo">
   <ProofItem label="Beziehung">Kunden mit verknüpften Kontakten</ProofItem>
-  <ProofItem label="Neue Aufträge">Auftragschancen nach Phase</ProofItem>
+  <ProofItem label="Neue Aufträge">Anfragen nach Phase</ProofItem>
+  <ProofItem label="Laufende Arbeit">Projekte mit berechnetem Honorar</ProofItem>
   <ProofItem label="Nächster Schritt">Eigenes Datumsfeld für die nächste Aktion</ProofItem>
   <ProofItem label="Kontext">Notizen und unterstützte Gespräche</ProofItem>
 </ProofRail>
@@ -82,7 +84,7 @@ Als Feldtypen stehen unter anderem Text, formatierter Text, Zahl, Währung, Ja/N
 
 ## Neue Aufträge verfolgen
 
-Eine Auftragschance ist ein mögliches Projekt mit einem Kunden. Auf dem [Pipeline-Board](/features/pipeline) ist jede Phase eine Spalte, und Sie ziehen eine Karte weiter, sobald sich etwas ändert. Jede Phase kann eine Abschlusswahrscheinlichkeit tragen, sodass das Board neben dem Wert auch den gewichteten Wert zeigt. Das ist eine Gewichtung mit Ihren eigenen Prozentsätzen, keine Prognose.
+Eine Anfrage ist ein mögliches Projekt mit einem Kunden; wird sie zugesagt, geht die Arbeit als Projekt weiter. Auf dem [Pipeline-Board](/features/pipeline) ist jede Phase eine Spalte, und Sie ziehen eine Karte weiter, sobald sich etwas ändert. Jede Phase kann eine Abschlusswahrscheinlichkeit tragen, sodass das Board neben dem Wert auch den gewichteten Wert zeigt. Das ist eine Gewichtung mit Ihren eigenen Prozentsätzen, keine Prognose.
 
 Für den wöchentlichen Blick reichen wenige gespeicherte Ansichten: offene Auftragschancen in „Angebot verschickt“, sortiert nach letzter Änderung, Kunden sortiert nach dem Datum der nächsten Aktion und frühere Kunden, mit denen Sie länger nicht gesprochen haben. Gespeicherte Ansichten sind persönlich und sichern Filter, Sortierung und Spalten gemeinsam. Die [Dokumentation zu Datensätzen](/docs/app-records) erklärt Ansichten, Felder und Import.
 
@@ -95,7 +97,7 @@ Für den wöchentlichen Blick reichen wenige gespeicherte Ansichten: offene Auft
     Legen Sie Kontakt und Firma an. In der Cloud ab Pro führt die E-Mail-Adresse
     oder LinkedIn-Identität im Kanäle-Feld passende Gespräche zum Datensatz.
   </Step>
-  <Step title="Auftragschance eröffnen">
+  <Step title="Anfrage anlegen">
     Legen Sie sie beim Kunden an, setzen Sie die Phase auf Anfrage und tragen
     Sie einen Wert ein, falls Ihr Workspace ein Wertfeld hat.
   </Step>
