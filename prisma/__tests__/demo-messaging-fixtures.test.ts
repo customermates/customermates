@@ -453,6 +453,9 @@ describe.each(["demo", "cloud"] as const)("workspace messaging fixtures in APP_M
       });
     }
 
+    const externalEmailHtml = new Set(fixtureMessages.flatMap((message) => (message.html ? [message.html] : [])));
+    expect(externalEmailHtml.size).toBe(2);
+    expect([...externalEmailHtml].filter((html) => /prefers-color-scheme:\s*dark/.test(html))).toHaveLength(1);
     const threadsById = new Map(threads.map((thread) => [String(thread.id), thread]));
     const accountsById = new Map(accounts.map((account) => [String(account.id), account]));
     for (const [index, message] of messages.entries()) {
@@ -480,6 +483,10 @@ describe.each(["demo", "cloud"] as const)("workspace messaging fixtures in APP_M
       }
       expect(message.providerMessageId).toBe(`demo-provider-message-0000-${index + 1}`);
       const html = String(message.bodyHtml);
+      expect(message.folderIds).toEqual([
+        `demo-${String(message.provider)}-${message.direction === "outbound" ? "sent" : "inbox"}`,
+      ]);
+      if (externalEmailHtml.has(html)) continue;
       expect(html).toContain('data-customermates-email-markdown="true"');
       expect(html).not.toMatch(/<img/i);
       expect(html).not.toContain(SIGNATURE_LOGO_URL);

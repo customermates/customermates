@@ -19,8 +19,6 @@ export const SYNTHETIC_COMPANY_USERS = {
   },
 } as const;
 
-export const SYNTHETIC_SECOND_WORKSPACE_NAME = "Bergmann Steuern";
-
 export const SYNTHETIC_SHARED_USER_PASSWORD = "local-demo-password";
 
 export const SYNTHETIC_SEED_USER = {

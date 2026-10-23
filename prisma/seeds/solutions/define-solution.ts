@@ -145,6 +145,8 @@ export type MessageSpec = {
   /** `self` or the key of a contact record. */
   from: string;
   text: string;
+  /** The HTML body of an email as the sender's mail client wrote it; `text` stays its plain-text part. */
+  html?: string;
   draft?: boolean;
   reaction?: { from: string; value: string };
 };
