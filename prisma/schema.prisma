@@ -217,6 +217,7 @@ model User {
 model Company {
   id                          String                           @id @default(uuid())
   name                        String?
+  slug                        String                           @unique @default(dbgenerated("('ws-'::text || substr(replace((gen_random_uuid())::text, '-'::text, ''::text), 1, 16))"))
   createdByAuthUserId         String?
   deletingAt                  DateTime?
   createdAt                   DateTime                         @default(now())

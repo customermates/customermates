@@ -25,6 +25,7 @@ import { ConversionEventType, SubscriptionStatus, type Prisma, type Subscription
 
 import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
 import { workspaceDeletionMarkerCutoff } from "@/features/workspace/workspace-deletion-marker";
+import { claimWorkspaceSlug } from "@/features/workspace/workspace-slug";
 import { env } from "@/env";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
@@ -405,11 +406,20 @@ export class PrismaCompanyRepo
   }
 
   async createRegisteredCompany(setup: WorkspaceSetup = {}) {
-    const company = await this.prisma.company.create({
-      data: {
-        name: setup.name ?? null,
-        createdByAuthUserId: setup.createdByAuthUserId ?? null,
-      },
+    const company = { id: crypto.randomUUID() };
+    await claimWorkspaceSlug(setup.name, async (slug) => {
+      const { count } = await this.prisma.company.createMany({
+        data: [
+          {
+            id: company.id,
+            name: setup.name ?? null,
+            slug,
+            createdByAuthUserId: setup.createdByAuthUserId ?? null,
+          },
+        ],
+        skipDuplicates: true,
+      });
+      return count === 1;
     });
     await this.billingUsage.recordWorkspaceCreated(company.id);
 

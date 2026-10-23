@@ -2,7 +2,7 @@ import { createTranslator } from "next-intl";
 
 import type { Prisma } from "@/generated/prisma";
 
-import { SYNTHETIC_SECOND_WORKSPACE_NAME } from "@/core/config/synthetic-seed-user";
+import { SYNTHETIC_SECOND_WORKSPACE_NAME, SYNTHETIC_SECOND_WORKSPACE_SLUG } from "@/core/config/synthetic-seed-user";
 import { validateRecordModel } from "@/features/records/record-model-validation";
 import { RecordRevisionChangeSchema } from "@/features/records/record-revision.schema";
 import { recordJson } from "@/features/records/record-storage";
@@ -22,6 +22,7 @@ const SYNTHETIC_SECOND_WORKSPACE = {
     id: SEED_IDS.secondWorkspaceCompany,
     createdByAuthUserId: SEED_IDS.user,
     name: SYNTHETIC_SECOND_WORKSPACE_NAME,
+    slug: SYNTHETIC_SECOND_WORKSPACE_SLUG,
     ...timeline.company,
   },
   role: {
