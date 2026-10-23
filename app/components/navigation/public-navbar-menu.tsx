@@ -314,10 +314,13 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
 
     return (
       <div
-        className="hidden w-[22rem] shrink-0 flex-col gap-2.5 rounded-xl bg-foreground/[0.025] p-1.5 pb-3 xl:flex"
+        className="hidden w-[22rem] shrink-0 flex-col gap-2 rounded-xl bg-foreground/[0.025] p-1.5 pb-2.5 xl:flex"
         data-public-nav-preview={link.href}
       >
-        <div aria-hidden className="relative aspect-[16/10] overflow-hidden rounded-lg border border-border bg-sidebar">
+        <div
+          aria-hidden
+          className="relative min-h-32 flex-1 overflow-hidden rounded-lg border border-border bg-sidebar"
+        >
           {PREVIEW_THEMES.map(({ className, theme }) => (
             // eslint-disable-next-line @next/next/no-img-element -- one decorative capture, loaded only for the selected entry
             <img
@@ -333,7 +336,7 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
           ))}
         </div>
 
-        <div className="grid gap-1 px-1.5">
+        <div className="grid gap-0.5 px-1.5">
           <p className="truncate text-[13px] leading-5 font-medium text-foreground">{link.title}</p>
 
           <p className="truncate text-[13px] leading-5 text-muted-foreground" title={preview.description}>
@@ -369,7 +372,7 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
     return (
       <div className="flex gap-2">
         <div className="flex min-w-0 flex-1 flex-col">
-          <div className="grid flex-1 grid-cols-2 gap-x-1">
+          <div className="grid grid-cols-2 gap-x-1">
             {sections.map((section) => (
               <div key={section.id} className="min-w-0" data-public-nav-section={section.id}>
                 <p className="px-2 py-1.5 text-xs leading-4 text-muted-foreground">{section.title}</p>
