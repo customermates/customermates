@@ -3,7 +3,13 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { getChartColors, getChartRankShades, getChartStrokeColors, getChartTextColors } from "@/constants/chart-colors";
+import {
+  getChartColors,
+  getChartMatchedColors,
+  getChartRankShades,
+  getChartStrokeColors,
+  getChartTextColors,
+} from "@/constants/chart-colors";
 import { chartAccentSwatches } from "@/styles/color-palettes";
 import { ChartColor } from "@/features/widget/widget.schema";
 
@@ -24,6 +30,11 @@ const PREVIOUS_RAMPS: Record<string, Record<Theme, string[]> & { text: Record<Th
     light: ["#2f6fdf", "#7aa6ef", "#bad2f8"],
     dark: ["#5b9bf5", "#3f72b8", "#2b4f80"],
     text: { light: "#173a7a", dark: "#dbe8fd" },
+  },
+  violet: {
+    light: ["#8a4fd1", "#b48ae4", "#dac6f3"],
+    dark: ["#b083f0", "#8460b8", "#594080"],
+    text: { light: "#45206f", dark: "#f1e6fd" },
   },
   secondary: {
     light: ["#14918c", "#5fb5b1", "#a8d8d5"],
@@ -153,6 +164,28 @@ describe("chart colors", () => {
     expect(new Set(shades).size).toBe(4);
     expect(getChartRankShades(ChartColor.secondary2, [1])).toEqual(["var(--chart-secondary-rank-0)"]);
     expect(getChartRankShades("unknown1" as ChartColor, [1])).toEqual(["var(--chart-primary-rank-0)"]);
+  });
+
+  it("give doughnut groups a matched set of distinct hues around the accent, largest first", () => {
+    expect(getChartMatchedColors(ChartColor.primary1, [3, 9, 1, 5])).toEqual([
+      "var(--chart-secondary-1)",
+      "var(--chart-primary-1)",
+      "var(--chart-default-1)",
+      "var(--chart-info-1)",
+    ]);
+    expect(getChartMatchedColors(ChartColor.violet1, [6, 5, 4, 3, 2, 1], [false, false, true])).toEqual([
+      "var(--chart-violet-1)",
+      "var(--chart-info-1)",
+      "var(--chart-default-rank-3)",
+      "var(--chart-secondary-1)",
+      "var(--chart-default-1)",
+      "var(--chart-violet-2)",
+    ]);
+    for (const color of COLORS) {
+      const fills = getChartMatchedColors(color, [4, 3, 2, 1]);
+      expect(new Set(fills).size).toBe(4);
+      for (const fill of fills) for (const theme of THEME_NAMES) expect(resolve(fill, theme)).toMatch(/^#/);
+    }
   });
 
   it("keep the shared chart tokens on the strongest step of each hue", () => {

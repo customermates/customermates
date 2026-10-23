@@ -1,8 +1,8 @@
 import type { ChartColor } from "@/features/widget/widget.schema";
 
-type Hue = "default" | "primary" | "info" | "secondary" | "success" | "warning" | "danger";
+type Hue = "default" | "primary" | "info" | "violet" | "secondary" | "success" | "warning" | "danger";
 
-const HUES: Hue[] = ["default", "primary", "info", "secondary", "success", "warning", "danger"];
+const HUES: Hue[] = ["default", "primary", "info", "violet", "secondary", "success", "warning", "danger"];
 const STEPS = [1, 2, 3];
 
 function byColor(token: (hue: Hue, step: number) => string) {
@@ -43,5 +43,30 @@ export function getChartRankShades(color: ChartColor, values: number[], neutral:
     const rank = ranks.get(index) ?? 0;
     const step = ranked.length > 1 ? Math.round((rank / (ranked.length - 1)) * span) : 0;
     return `var(--chart-${hue}-rank-${step})`;
+  });
+}
+
+const MATCHED_HUES: Record<Hue, Hue[]> = {
+  primary: ["primary", "info", "secondary", "default"],
+  info: ["info", "secondary", "violet", "default"],
+  violet: ["violet", "info", "secondary", "default"],
+  secondary: ["secondary", "info", "primary", "default"],
+  success: ["success", "info", "primary", "default"],
+  warning: ["warning", "danger", "primary", "default"],
+  danger: ["danger", "warning", "primary", "default"],
+  default: ["default", "primary", "info", "secondary"],
+};
+
+export function getChartMatchedColors(color: ChartColor, values: number[], neutral: boolean[] = []): string[] {
+  const named = color.replace(/\d$/, "") as Hue;
+  const hues = MATCHED_HUES[HUES.includes(named) ? named : "primary"];
+  const ranked = values.flatMap((value, index) => (neutral[index] ? [] : [{ value, index }]));
+  const order = [...ranked].sort((left, right) => right.value - left.value);
+  const ranks = new Map(order.map(({ index }, rank) => [index, rank]));
+  return values.map((_, index) => {
+    if (neutral[index]) return CHART_NEUTRAL_SHADE;
+    const rank = ranks.get(index) ?? 0;
+    const step = Math.min(STEPS.length, Math.floor(rank / hues.length) + 1);
+    return `var(--chart-${hues[rank % hues.length]}-${step})`;
   });
 }

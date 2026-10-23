@@ -11,6 +11,9 @@ export enum ChartColor {
   info1 = "info1",
   info2 = "info2",
   info3 = "info3",
+  violet1 = "violet1",
+  violet2 = "violet2",
+  violet3 = "violet3",
   secondary1 = "secondary1",
   secondary2 = "secondary2",
   secondary3 = "secondary3",
@@ -48,11 +51,21 @@ export const WidgetDisplayOptionsSchema = z.object({
   reverseXAxis: z.boolean().optional(),
   reverseYAxis: z.boolean().optional(),
   useGroupColors: z.boolean().optional(),
+  palette: z
+    .enum(["accent"])
+    .optional()
+    .describe(
+      "accent draws a chart in shades of its first bar colour and a doughnut in a small matched set of colours around it; option colours of a grouping field then show only with useGroupColors true. Without it, groups of a choice field keep their option colours unless useGroupColors is false. New widgets get accent.",
+    ),
   showLegend: z.boolean().optional(),
   showFilters: z.boolean().optional(),
 });
 
 export type WidgetDisplayOptions = Data<typeof WidgetDisplayOptionsSchema>;
+
+export function widgetUsesGroupColors(options?: Pick<WidgetDisplayOptions, "palette" | "useGroupColors"> | null) {
+  return options?.palette === "accent" ? options.useGroupColors === true : options?.useGroupColors !== false;
+}
 
 export const WidgetLayoutItemSchema = z.object({
   i: z.string(),

@@ -31,7 +31,7 @@ import { getChartColors, getChartTextColors } from "@/constants/chart-colors";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useRecordAiAction } from "@/app/components/agent-chat/record-ai-action";
 import { ChartColor } from "@/features/widget/widget.schema";
-import { DisplayType } from "@/features/widget/widget.schema";
+import { DisplayType, widgetUsesGroupColors } from "@/features/widget/widget.schema";
 import type { RecordModelView } from "@/features/records/record-model.schema";
 import type { WidgetDisplayRequirement } from "@/features/widget/widget-display-rules";
 import { widgetDisplayTypeIssue } from "@/features/widget/widget-display-rules";
@@ -184,7 +184,7 @@ export const WidgetModal = observer(() => {
   function renderColorPicker() {
     if (form.kind !== WidgetKind.chart) return null;
     const singleColor = form.displayOptions?.displayType === DisplayType.number;
-    if (groupColorsApply() && form.displayOptions?.useGroupColors === true) return null;
+    if (groupColorsApply() && widgetUsesGroupColors(form.displayOptions)) return null;
     const colors = Object.entries(chartColors).filter(([key]) => !singleColor || key.endsWith("1"));
 
     return (

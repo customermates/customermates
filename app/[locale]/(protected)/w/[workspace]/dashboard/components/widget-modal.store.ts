@@ -5,7 +5,7 @@ import type { DiscoveredRecordTypes } from "@/features/records/discover-record-t
 import { RecordActivityWidgetInputSchema } from "@/features/widget/record-activity-widget.schema";
 import { RecordWidgetInputSchema } from "@/features/widget/record-widget.schema";
 import type { CompanyWidget, WidgetDto } from "@/features/widget/widget.schema";
-import { isRecordActivityWidget, isRecordWidget } from "@/features/widget/widget.schema";
+import { isRecordActivityWidget, isRecordWidget, widgetUsesGroupColors } from "@/features/widget/widget.schema";
 import type { FormEvent } from "react";
 import { z } from "zod";
 import { previewRecordWidgetAction, upsertRecordActivityWidgetAction, upsertRecordWidgetAction } from "../actions";
@@ -47,6 +47,7 @@ function chartDisplayDefaults(): NonNullable<RecordWidgetForm["displayOptions"]>
     reverseXAxis: false,
     reverseYAxis: false,
     useGroupColors: false,
+    palette: "accent",
     showLegend: true,
     showFilters: true,
   };
@@ -612,7 +613,10 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
           expectedRevision: widget.data?.schemaRevision ?? this.recordTypes?.schemaRevision ?? 0,
           idempotencyKey: crypto.randomUUID(),
           measure: cloneDeep(widget.measure),
-          displayOptions: cloneDeep(widget.displayOptions),
+          displayOptions: {
+            ...cloneDeep(widget.displayOptions),
+            useGroupColors: widgetUsesGroupColors(widget.displayOptions),
+          },
         },
       };
     }

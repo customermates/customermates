@@ -8,8 +8,14 @@ import dynamic from "next/dynamic";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
-import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
-import { getChartColors, getChartRankShades, getChartStrokeColors, getChartTextColors } from "@/constants/chart-colors";
+import { ChartColor, DisplayType, widgetUsesGroupColors } from "@/features/widget/widget.schema";
+import {
+  getChartColors,
+  getChartMatchedColors,
+  getChartRankShades,
+  getChartStrokeColors,
+  getChartTextColors,
+} from "@/constants/chart-colors";
 import { widgetDataPointLabel } from "./widget-label";
 
 const CHIP_TO_CHART_COLOR: Record<ChipColor, ChartColor> = {
@@ -20,6 +26,8 @@ const CHIP_TO_CHART_COLOR: Record<ChipColor, ChartColor> = {
   warning: ChartColor.warning1,
   info: ChartColor.info1,
 };
+
+const LEGACY_CHIP_TO_CHART_COLOR: Record<ChipColor, ChartColor> = { ...CHIP_TO_CHART_COLOR, info: ChartColor.primary1 };
 
 const RANK_SHADED_TYPES = new Set<DisplayType>([
   DisplayType.verticalBarChart,
@@ -93,7 +101,9 @@ export const WidgetChart = observer(
   ({ data, displayOptions, currency, integerValues = false, shadeByRank = true }: Props) => {
     const t = useTranslations();
     const configuredBarColors = displayOptions?.barColors?.length ? displayOptions.barColors : [ChartColor.primary1];
-    const useGroupColors = displayOptions?.useGroupColors === true;
+    const accent = displayOptions?.palette === "accent";
+    const useGroupColors = widgetUsesGroupColors(displayOptions);
+    const chipColors = accent ? CHIP_TO_CHART_COLOR : LEGACY_CHIP_TO_CHART_COLOR;
     const chartColors = getChartColors();
     const chartTextColors = getChartTextColors();
     const chartStrokeColors = getChartStrokeColors();
@@ -101,7 +111,7 @@ export const WidgetChart = observer(
     const singleColor = configuredBarColors.length === 1 && !(useGroupColors && data.some((item) => item.optionColor));
     const shades =
       shadeByRank && singleColor && RANK_SHADED_TYPES.has(displayType)
-        ? getChartRankShades(
+        ? (accent && displayType === DisplayType.doughnutChart ? getChartMatchedColors : getChartRankShades)(
             configuredBarColors[0],
             data.map((item) => item.value),
             data.map((item) => item.neutral === true),
@@ -109,7 +119,7 @@ export const WidgetChart = observer(
         : null;
     const chartData: ChartDataPoint[] = data.map((item, index) => {
       const fallbackKey = configuredBarColors[index % configuredBarColors.length] ?? ChartColor.primary1;
-      const colorKey = useGroupColors && item.optionColor ? CHIP_TO_CHART_COLOR[item.optionColor] : fallbackKey;
+      const colorKey = useGroupColors && item.optionColor ? chipColors[item.optionColor] : fallbackKey;
 
       return {
         label: widgetDataPointLabel(item, t),

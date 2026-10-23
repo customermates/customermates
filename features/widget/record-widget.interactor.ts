@@ -28,8 +28,10 @@ import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
 function completeChart(input: RecordWidgetInput, current: StoredRecordWidget | null): SavedRecordWidgetInput | null {
   const name = input.name ?? current?.name;
   const measure = input.measure ?? current?.measure;
-  const displayOptions = input.displayOptions ?? current?.displayOptions;
-  if (name === undefined || measure === undefined || displayOptions === undefined) return null;
+  const options = input.displayOptions ?? current?.displayOptions;
+  if (name === undefined || measure === undefined || options === undefined) return null;
+  const palette = options.palette ?? (current ? current.displayOptions.palette : "accent");
+  const displayOptions = palette ? { ...options, palette } : options;
   return { ...input, name, measure, displayOptions, isTemplate: input.isTemplate ?? current?.isTemplate ?? false };
 }
 

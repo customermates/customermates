@@ -50,6 +50,7 @@ vi.mock("@/constants/chart-colors", () => {
     getChartStrokeColors: () => palette("stroke"),
     getChartTextColors: () => palette("text"),
     getChartRankShades: (color: string, values: number[]) => values.map((value) => `shade-${color}-${value}`),
+    getChartMatchedColors: (color: string, values: number[]) => values.map((value) => `matched-${color}-${value}`),
   };
 });
 
@@ -252,15 +253,55 @@ describe("WidgetChart", () => {
     expect(area.props.colors).toEqual(["fill-primary1"]);
   });
 
-  it("keeps legacy widgets without display options on vertical primary shades, ignoring option colors", () => {
+  it("keeps legacy widgets without display options on the vertical primary-color default", () => {
     const call = renderChart(DisplayType.radarChart, { displayOptions: null });
 
     expect(call.chart).toBe("vertical");
     expect((call.props.chartData as Array<{ fill: string }>).map(({ fill }) => fill)).toEqual([
-      "shade-primary1-200",
-      "shade-primary1-100",
+      "fill-success1",
+      "fill-primary1",
     ]);
-    expect(call.props.colors).toEqual(["shade-primary1-200", "shade-primary1-100"]);
+    expect(call.props.colors).toEqual(["fill-success1", "fill-primary1"]);
+  });
+
+  it("keeps option colors on legacy widgets without a palette and maps info options to primary", () => {
+    const call = renderChart(DisplayType.verticalBarChart, {
+      data: [
+        { labelKind: "literal", label: "Warm", optionColor: "info", value: 3 },
+        { labelKind: "literal", label: "New", value: 1 },
+      ],
+      displayOptions: { barColors: [ChartColor.secondary1], displayType: DisplayType.verticalBarChart },
+    });
+
+    expect((call.props.chartData as Array<{ fill: string }>).map(({ fill }) => fill)).toEqual([
+      "fill-primary1",
+      "fill-secondary1",
+    ]);
+  });
+
+  it("shades accent widgets by rank and gives accent doughnuts the matched set, unless option colors are on", () => {
+    const accent = { barColors: [ChartColor.secondary1], palette: "accent" as const };
+    const bars = renderChart(DisplayType.verticalBarChart, {
+      displayOptions: { ...accent, displayType: DisplayType.verticalBarChart },
+    });
+    expect((bars.props.chartData as Array<{ fill: string }>).map(({ fill }) => fill)).toEqual([
+      "shade-secondary1-200",
+      "shade-secondary1-100",
+    ]);
+    const doughnut = renderChart(DisplayType.doughnutChart, {
+      displayOptions: { ...accent, displayType: DisplayType.doughnutChart },
+    });
+    expect((doughnut.props.chartData as Array<{ fill: string }>).map(({ fill }) => fill)).toEqual([
+      "matched-secondary1-200",
+      "matched-secondary1-100",
+    ]);
+    const optionColors = renderChart(DisplayType.doughnutChart, {
+      displayOptions: { ...accent, displayType: DisplayType.doughnutChart, useGroupColors: true },
+    });
+    expect((optionColors.props.chartData as Array<{ fill: string }>).map(({ fill }) => fill)).toEqual([
+      "fill-success1",
+      "fill-secondary1",
+    ]);
   });
 
   it("passes the legend choice only to the doughnut chart", () => {
