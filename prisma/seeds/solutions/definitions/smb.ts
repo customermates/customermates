@@ -311,6 +311,8 @@ const en = {
       ],
     },
     kesslerRenewal: {
+      inventory:
+        '<!doctype html><html><head><meta name="color-scheme" content="light dark"><meta name="supported-color-schemes" content="light dark"><style>:root{color-scheme:light dark}body{margin:0;background:#f4f7fb;color:#1c2733;font-family:-apple-system,\'Segoe UI\',Roboto,Helvetica,Arial,sans-serif}.digest{padding:20px}.title{font-size:18px;font-weight:600;margin:0 0 4px}.lead{color:#52606d;margin:0 0 16px;font-size:14px}.stats{width:100%;border-collapse:separate;border-spacing:8px 0}.stat{background:#ffffff;border:1px solid #dbe3ec;border-radius:10px;padding:12px}.value{font-size:22px;font-weight:600;color:#1f6feb}.label{font-size:12px;color:#52606d}.foot{font-size:12px;color:#7b8794;margin-top:16px}@media (prefers-color-scheme: dark){body{background:#10161d;color:#e6edf3}.lead,.label{color:#9aa7b4}.stat{background:#18212b;border-color:#2b3846}.value{color:#6cb6ff}.foot{color:#7d8a97}}[data-ogsc] .lead{color:#9aa7b4}</style></head><body><div class="digest"><p class="title">Workstation inventory</p><p class="lead">Hi Max, here is the current device list from our practice system, ahead of the renewal.</p><table class="stats" role="presentation"><tr><td class="stat"><div class="value">12</div><div class="label">Workstations today</div></td><td class="stat"><div class="value">2</div><div class="label">New in the fourth room</div></td><td class="stat"><div class="value">3</div><div class="label">Printers</div></td></tr></table><p class="foot">Sent from the practice system&#39;s weekly inventory report.</p></div></body></html>',
       subject: "Support renewal and the new treatment room",
       messages: [
         "Hello Max,\n\nOur support contract renews next month. We are also opening a fourth treatment room, so we will have two more workstations.\n\nCan you include them?\n\nDavid",
@@ -334,6 +336,8 @@ const en = {
       ],
     },
     harbourviewIntro: {
+      letter:
+        '<html><head><style>.wrap{font-family:Georgia,\'Times New Roman\',serif;color:#2b2b2b}.band{background:#0f4c5c;color:#ffffff;padding:14px 20px;font-size:13px;letter-spacing:0.08em;text-transform:uppercase}.card{border:1px solid #d9e2e5;padding:18px 20px}.meta td{padding:4px 12px 4px 0;font-size:13px;color:#5b6b70}.meta td.value{color:#1d2b30;font-weight:bold}.note{font-size:12px;color:#7a868a;padding-top:12px}</style></head><body><div class="wrap"><div class="band">Harbourview Hotel &middot; Guest services</div><div class="card"><p style="margin:0 0 12px;font-size:15px">Dear Max,</p><p style="margin:0 0 12px;font-size:15px">A colleague at Alder Accounting recommended you. We are a 40-room hotel with a small office and the front desk. Our current provider is retiring at the end of the year. Would you have time for an introductory call?</p><table class="meta" role="presentation"><tr><td>Rooms</td><td class="value">40</td></tr><tr><td>Front desk</td><td class="value">Open around the clock</td></tr><tr><td>Contact</td><td class="value">Chloe Bennett, General manager</td></tr></table><p class="note">Harbourview Hotel, Astoria. This message was sent from our guest services mailbox.</p></div></div></body></html>',
       subject: "Introduction – IT support for the hotel",
       messages: [
         "Dear Max,\n\nA colleague at Alder Accounting recommended you. We are a 40-room hotel with a small office and the front desk. Our current provider is retiring at the end of the year.\n\nWould you have time for an introductory call?\n\nKind regards,\nChloe Bennett",
@@ -593,6 +597,8 @@ const de: Strings = {
       ],
     },
     kesslerRenewal: {
+      inventory:
+        '<!doctype html><html><head><meta name="color-scheme" content="light dark"><meta name="supported-color-schemes" content="light dark"><style>:root{color-scheme:light dark}body{margin:0;background:#f4f7fb;color:#1c2733;font-family:-apple-system,\'Segoe UI\',Roboto,Helvetica,Arial,sans-serif}.digest{padding:20px}.title{font-size:18px;font-weight:600;margin:0 0 4px}.lead{color:#52606d;margin:0 0 16px;font-size:14px}.stats{width:100%;border-collapse:separate;border-spacing:8px 0}.stat{background:#ffffff;border:1px solid #dbe3ec;border-radius:10px;padding:12px}.value{font-size:22px;font-weight:600;color:#1f6feb}.label{font-size:12px;color:#52606d}.foot{font-size:12px;color:#7b8794;margin-top:16px}@media (prefers-color-scheme: dark){body{background:#10161d;color:#e6edf3}.lead,.label{color:#9aa7b4}.stat{background:#18212b;border-color:#2b3846}.value{color:#6cb6ff}.foot{color:#7d8a97}}[data-ogsc] .lead{color:#9aa7b4}</style></head><body><div class="digest"><p class="title">Geräteübersicht</p><p class="lead">Hallo Herr Bergmann, hier die aktuelle Geräteliste aus unserem Praxissystem für die Verlängerung.</p><table class="stats" role="presentation"><tr><td class="stat"><div class="value">12</div><div class="label">Arbeitsplätze heute</div></td><td class="stat"><div class="value">2</div><div class="label">Neu im vierten Zimmer</div></td><td class="stat"><div class="value">3</div><div class="label">Drucker</div></td></tr></table><p class="foot">Versendet vom wöchentlichen Inventarbericht des Praxissystems.</p></div></body></html>',
       subject: "Verlängerung der Betreuung und neues Behandlungszimmer",
       messages: [
         "Hallo Herr Bergmann,\n\nunser Betreuungsvertrag verlängert sich nächsten Monat. Außerdem eröffnen wir ein viertes Behandlungszimmer, wir haben also zwei Arbeitsplätze mehr.\n\nKönnen Sie die mit aufnehmen?\n\nDavid Möller",
@@ -616,6 +622,8 @@ const de: Strings = {
       ],
     },
     harbourviewIntro: {
+      letter:
+        '<html><head><style>.wrap{font-family:Georgia,\'Times New Roman\',serif;color:#2b2b2b}.band{background:#0f4c5c;color:#ffffff;padding:14px 20px;font-size:13px;letter-spacing:0.08em;text-transform:uppercase}.card{border:1px solid #d9e2e5;padding:18px 20px}.meta td{padding:4px 12px 4px 0;font-size:13px;color:#5b6b70}.meta td.value{color:#1d2b30;font-weight:bold}.note{font-size:12px;color:#7a868a;padding-top:12px}</style></head><body><div class="wrap"><div class="band">Hotel Seeblick &middot; Gästeservice</div><div class="card"><p style="margin:0 0 12px;font-size:15px">Sehr geehrter Herr Bergmann,</p><p style="margin:0 0 12px;font-size:15px">Ihr Name wurde mir vom Steuerbüro Erlenhof empfohlen. Wir sind ein Hotel mit 40 Zimmern, einem kleinen Büro und der Rezeption. Unser bisheriger Dienstleister geht zum Jahresende in den Ruhestand. Hätten Sie Zeit für ein erstes Gespräch?</p><table class="meta" role="presentation"><tr><td>Zimmer</td><td class="value">40</td></tr><tr><td>Rezeption</td><td class="value">Rund um die Uhr besetzt</td></tr><tr><td>Ansprechpartnerin</td><td class="value">Clara Becker, Direktorin</td></tr></table><p class="note">Hotel Seeblick, Steinhude. Diese Nachricht wurde aus dem Postfach unseres Gästeservice gesendet.</p></div></div></body></html>',
       subject: "Anfrage – IT-Betreuung für unser Hotel",
       messages: [
         "Sehr geehrter Herr Bergmann,\n\nIhr Name wurde mir vom Steuerbüro Erlenhof empfohlen. Wir sind ein Hotel mit 40 Zimmern, einem kleinen Büro und der Rezeption. Unser bisheriger Dienstleister geht zum Jahresende in den Ruhestand.\n\nHätten Sie Zeit für ein erstes Gespräch?\n\nMit freundlichen Grüßen\nClara Becker",
@@ -1568,7 +1576,7 @@ export default defineSolution<Strings>({
             messages: [
               { from: "david", text: t.threads.kesslerRenewal.messages[0] },
               { from: "self", text: t.threads.kesslerRenewal.messages[1] },
-              { from: "david", text: t.threads.kesslerRenewal.messages[2] },
+              { from: "david", text: t.threads.kesslerRenewal.messages[2], html: t.threads.kesslerRenewal.inventory },
             ],
             links: ["deal:kesslerSupport", "organization:kessler"],
           },
@@ -1604,7 +1612,7 @@ export default defineSolution<Strings>({
             state: "open",
             latestMinutesAgo: 2 * 24 * 60,
             messages: [
-              { from: "chloe", text: t.threads.harbourviewIntro.messages[0] },
+              { from: "chloe", text: t.threads.harbourviewIntro.messages[0], html: t.threads.harbourviewIntro.letter },
               { from: "self", text: t.threads.harbourviewIntro.messages[1] },
             ],
             links: ["deal:harbourviewSupport"],

@@ -92,6 +92,7 @@ export function buildSolutionMessaging(
       messages: thread.messages.map((message) => ({
         sender: message.from,
         text: message.text,
+        ...(message.html ? { html: message.html } : {}),
         ...(message.draft ? { draft: true } : {}),
         ...(message.reaction ? { reaction: { sender: message.reaction.from, value: message.reaction.value } } : {}),
       })),
