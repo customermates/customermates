@@ -4,9 +4,9 @@ import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/
 
 import { mintApiKey } from "./api-key";
 import { localE2eEnvironment } from "./local-environment";
-import { DEMO_COMPANY_ID, DEMO_MEMBERS, demoId, expect, test } from "./demo-seed";
+import { DEMO_COMPANY_ID, DEMO_CONTENT, DEMO_MEMBERS, demoId, expect, test } from "./demo-seed";
 
-test("adds an optional choice field to the Northwind model through REST and MCP", async ({
+test("adds an optional choice field to the seeded team workspace model through REST and MCP", async ({
   page,
   database,
   errors,
@@ -17,7 +17,10 @@ test("adds an optional choice field to the Northwind model through REST and MCP"
     'SELECT count(*)::int AS count FROM "CrmRecord" WHERE "companyId"=$1',
     [DEMO_COMPANY_ID],
   );
-  expect(size.rows[0].count).toBeGreaterThanOrEqual(456);
+  const seeded = Object.values(DEMO_CONTENT.records)
+    .flat()
+    .reduce((total, record) => total + 1 + (record.lines?.length ?? 0), 0);
+  expect(size.rows[0].count).toBeGreaterThanOrEqual(seeded);
   const state = await database.query<{ revision: number }>(
     'SELECT revision FROM "RecordSchemaState" WHERE "companyId"=$1',
     [DEMO_COMPANY_ID],
@@ -57,9 +60,9 @@ test("adds an optional choice field to the Northwind model through REST and MCP"
   const credential = await mintApiKey(
     database,
     { authUserId: owner.rows[0].id, companyId: DEMO_COMPANY_ID },
-    "Northwind model field verification",
+    "Demo model field verification",
   );
-  const client = new Client({ name: "northwind-model-field-verification", version: "1.0.0" });
+  const client = new Client({ name: "demo-model-field-verification", version: "1.0.0" });
   const transport = new StreamableHTTPClientTransport(new URL(`${baseUrl}/api/v1/mcp`), {
     requestInit: { headers: { "x-api-key": credential.key } },
   });
