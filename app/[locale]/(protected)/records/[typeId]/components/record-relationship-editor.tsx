@@ -111,7 +111,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
         (change) =>
           change.action === "link" && !original.some((record) => record.ref.recordId === change.record.recordId),
       )
-      .map((change) => ({ ref: change.record, title: change.title })),
+      .map((change) => ({ ref: change.record, title: change.title, pictureUrl: change.pictureUrl })),
   ];
   const title = (record: RecordChoice) =>
     recordDisplayName(record.title, store.presentation.linkLabels[record.ref.typeId], t);
@@ -126,6 +126,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
           record: record.ref,
         },
         record.title,
+        record.pictureUrl,
       );
     }
   };
@@ -153,7 +154,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
   );
   const staged = changes
     .filter((change) => change.action === "link")
-    .map((change) => ({ ref: change.record, title: change.title }))
+    .map((change) => ({ ref: change.record, title: change.title, pictureUrl: change.pictureUrl }))
     .filter((record) => !debounced || title(record).toLocaleLowerCase().includes(debounced.toLocaleLowerCase()));
   const stagedPages = mode === "linked" ? Math.ceil(staged.length / 25) : 0;
   const options = useRecordChoices(
@@ -336,7 +337,13 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
                           </button>
                         ) : undefined
                       }
-                      startContent={<RecordChipIcon icons={store.presentation.linkIcons} typeId={record.ref.typeId} />}
+                      startContent={
+                        <RecordChipIcon
+                          icons={store.presentation.linkIcons}
+                          pictureUrl={record.pictureUrl}
+                          typeId={record.ref.typeId}
+                        />
+                      }
                       variant={recordLinkColor(store.presentation.linkColors, typeId)}
                     >
                       <button

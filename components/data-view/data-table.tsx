@@ -267,7 +267,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                 style={liveWidth != null && !isSelectionCell ? fixedWidthStyle(liveWidth) : undefined}
               >
                 {liveWidth != null && !isSelectionCell ? (
-                  <div className="-mx-3 truncate px-3" style={{ width: liveWidth }}>
+                  <div className="-mx-3 truncate px-3" data-column-sized="" style={{ width: liveWidth }}>
                     {wrapped}
                   </div>
                 ) : (

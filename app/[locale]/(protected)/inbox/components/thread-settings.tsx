@@ -112,61 +112,62 @@ export const ThreadSettings = observer(
             </AppCardHeader>
 
             <AppCardBody className="gap-6">
-              <label
-                className={cn(
-                  "flex items-start justify-between gap-4 rounded-lg border p-4",
-                  isOwner && !accountShared ? "cursor-pointer" : "cursor-default",
-                )}
-                htmlFor="thread-shared"
-              >
-                <span className="flex flex-col gap-1">
+              <div className="flex items-start gap-3">
+                <Switch
+                  checked={isShared}
+                  className="mt-0.5"
+                  disabled={accountShared || !isOwner}
+                  id="thread-shared"
+                  onCheckedChange={(next) => runUserAction(() => messagingThreadDetailStore.toggleSharing(next))}
+                />
+
+                <label
+                  className={cn(
+                    "flex flex-col gap-0.5",
+                    isOwner && !accountShared ? "cursor-pointer" : "cursor-default",
+                  )}
+                  htmlFor="thread-shared"
+                >
                   <span className="text-sm font-medium">{t("Inbox.settings.visibilityTitle")}</span>
 
-                  <span className="text-muted-foreground text-xs">
+                  <span className="text-xs text-muted-foreground">
                     {accountShared
                       ? t("Inbox.shareToCrmViaAccount")
                       : isShared
                         ? t("Inbox.shareToCrmActive")
                         : t("Inbox.settings.visibilityHint")}
                   </span>
-                </span>
-
-                <Switch
-                  checked={isShared}
-                  disabled={accountShared || !isOwner}
-                  id="thread-shared"
-                  onCheckedChange={(next) => runUserAction(() => messagingThreadDetailStore.toggleSharing(next))}
-                />
-              </label>
+                </label>
+              </div>
 
               {(selfParticipant || accountOwner || linkable.length > 0) && (
-                <section className="flex flex-col gap-3">
-                  <h3 className="text-sm font-medium">{t("Inbox.settings.people")}</h3>
+                <section aria-labelledby="thread-people" className="flex flex-col gap-1">
+                  <h3 className="text-xs text-muted-foreground" id="thread-people">
+                    {t("Inbox.settings.people")}
+                  </h3>
 
-                  <div className="flex flex-col gap-1">
-                    {(selfParticipant || accountOwner) && (
-                      <div className="flex items-center gap-3 py-2">
-                        <Avatar name={selfLabel} size="lg" src={selfParticipant?.pictureUrl ?? undefined} />
+                  {(selfParticipant || accountOwner) && (
+                    <div className="flex min-w-0 items-center gap-3 py-1.5">
+                      <Avatar name={selfLabel} src={selfParticipant?.pictureUrl ?? undefined} />
 
-                        <div className="min-w-0 flex-1">
-                          <div className="truncate text-sm font-medium">{selfLabel}</div>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-medium">{selfLabel}</div>
 
-                          {(selfParticipant?.identifier || accountOwner?.accountLabel) && (
-                            <CopyableAddress
-                              className="text-muted-foreground max-w-full"
-                              value={
-                                selfParticipant?.identifier
-                                  ? (displayableIdentifier(provider, selfParticipant.identifier) ?? "")
-                                  : (accountOwner?.accountLabel ?? "")
-                              }
-                            />
-                          )}
-                        </div>
+                        {(selfParticipant?.identifier || accountOwner?.accountLabel) && (
+                          <CopyableAddress
+                            className="max-w-full text-xs text-muted-foreground"
+                            value={
+                              selfParticipant?.identifier
+                                ? (displayableIdentifier(provider, selfParticipant.identifier) ?? "")
+                                : (accountOwner?.accountLabel ?? "")
+                            }
+                          />
+                        )}
                       </div>
-                    )}
+                    </div>
+                  )}
 
-                    <ThreadPeopleManager canManage={canManageContacts} participants={linkable} provider={provider} />
-                  </div>
+                  <ThreadPeopleManager canManage={canManageContacts} participants={linkable} provider={provider} />
                 </section>
               )}
 

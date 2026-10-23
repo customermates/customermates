@@ -491,7 +491,11 @@ export const RecordRelationshipSummarySchema = z
   .object({
     relationId: z.uuid(),
     direction: z.enum(["outgoing", "incoming"]),
-    records: z.array(z.object({ ref: RecordRefSchema, title: CalculatedValueSchema }).strict()),
+    records: z.array(
+      z
+        .object({ ref: RecordRefSchema, title: CalculatedValueSchema, pictureUrl: z.string().nullable().optional() })
+        .strict(),
+    ),
     readableCount: z.number().int().nonnegative(),
     hasMore: z.boolean(),
   })

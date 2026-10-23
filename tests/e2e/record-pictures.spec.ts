@@ -302,3 +302,56 @@ test("keeps pictures beside fallback titles when the name fields are removed", a
   await expect(page.locator("[data-item-id]").first()).toContainText("Untitled Contact");
   expect(errors).toEqual([]);
 });
+
+test("shows each linked record's picture in its chips and keeps the list icon without one", async ({
+  page,
+  database,
+  companyId,
+  isMobile,
+}) => {
+  test.setTimeout(240000);
+  const errors = collectPageErrors(page);
+  const id = (key: string) => presetId(companyId, key);
+  const { first } = await contacts(page, database, companyId);
+  const contactIds = async (firstName: string) =>
+    (
+      await database.query(
+        'SELECT "recordId" FROM "RecordValue" WHERE "companyId"=$1 AND "fieldId"=$2 AND "textValue"=$3',
+        [companyId, id("contact.firstName"), firstName],
+      )
+    ).rows[0].recordId as string;
+  const pictured = await contactIds("Picture");
+  const plain = await contactIds("Initials");
+  const model = await readModel(database, companyId);
+  const created = await postOk(page, "/api/v1/records/mutate", {
+    expectedRevision: model.revision,
+    idempotencyKey: randomUUID(),
+    mutation: {
+      action: "create",
+      typeId: id("deal"),
+      fields: [{ fieldId: id("deal.name"), value: { kind: "text", value: "Aaa pictured deal" } }],
+      links: [pictured, plain].map((recordId) => ({
+        relationId: id("deal.contacts"),
+        direction: "outgoing",
+        record: { typeId: id("contact"), recordId },
+      })),
+    },
+  });
+  const dealId = created.refs[0].recordId as string;
+  const chip = (scope: ReturnType<Page["locator"]>, recordId: string) =>
+    scope.locator(`[data-chip-id$="${recordId}"]`).first();
+  const expectPictures = async (scope: ReturnType<Page["locator"]>) => {
+    await expect(chip(scope, pictured).locator("[data-record-chip-picture] img")).toHaveAttribute("src", first);
+    await expect(chip(scope, plain)).toBeVisible();
+    await expect(chip(scope, plain).locator("[data-record-chip-picture]")).toHaveCount(0);
+    await expect(chip(scope, plain).locator("svg").first()).toBeVisible();
+  };
+  if (!isMobile) {
+    await page.setViewportSize({ width: 1600, height: 900 });
+    await page.goto(`/en/records/${id("deal")}?searchTerm=${encodeURIComponent("Aaa pictured deal")}`);
+    await expectPictures(page.locator(`tr[data-row-id="${dealId}"]`));
+  }
+  await page.goto(`/en/records/${id("deal")}/${dealId}`);
+  await expectPictures(page.locator(`[data-entity-field="relationship:${id("deal.contacts")}:outgoing"]`));
+  expect(errors).toEqual([]);
+});

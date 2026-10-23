@@ -138,6 +138,8 @@ export function AppChipStack<T extends ChipStackItem>({
     if (!containerRef.current) return;
 
     const containerWidth = Math.ceil(containerRef.current.clientWidth);
+    if (widthsRef.current.length !== items.length || widthsRef.current.some((width) => !width))
+      widthsRef.current = items.map((item) => Math.ceil(chipMeasureRefs.current.get(item.id)?.offsetWidth ?? 0));
     const widths = widthsRef.current;
 
     if (maxRows > 1) {

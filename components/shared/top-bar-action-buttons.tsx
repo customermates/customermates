@@ -5,17 +5,14 @@ import type { ReactNode } from "react";
 
 import { LoaderCircle, Plus } from "lucide-react";
 
-import { isAskAiAction, orderAppModalActions, type AppModalActionProps } from "@/components/modal/app-modal-action";
-import { AskAiAction } from "@/components/ui/ask-ai-action";
+import { orderAppModalActions, type AppModalActionProps } from "@/components/modal/app-modal-action";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { IntlLink } from "@/i18n/navigation";
 
-function TopBarActionButton({ action }: { action: AppModalActionProps }) {
-  if (isAskAiAction(action) && action.onClick)
-    return <AskAiAction id={action.anchorId} placement="topbar" onClick={action.onClick} />;
+export function TopBarActionButton({ action }: { action: AppModalActionProps }) {
   const { label, tooltip } = action;
   const busy = action.busy === true;
   const Icon = busy ? LoaderCircle : action.icon;

@@ -17,7 +17,7 @@ import { EmptyValue } from "@/components/shared/empty-value";
 import { Avatar } from "@/components/ui/avatar";
 import { recordDisplayName } from "@/features/records/record-display-name";
 
-const LINKED_CHIPS_MAX_WIDTH = 240;
+const LINKED_CHIPS_CLASS = "block min-w-0 max-w-60 in-data-column-sized:max-w-none";
 
 export function RecordCell({
   column,
@@ -87,16 +87,17 @@ export function RecordCell({
   if (column.kind === "system") {
     if (column.id === "system:assignedTo") {
       return record.assignedUsers.length ? (
-        <AppChipStack
-          fill
-          items={record.assignedUsers.map((member) => ({
-            id: member.id,
-            label: memberName(member),
-            startContent: <MemberAvatar member={member} />,
-          }))}
-          maxWidth={LINKED_CHIPS_MAX_WIDTH}
-          overflowMenu={!inTrigger}
-        />
+        <span className={LINKED_CHIPS_CLASS}>
+          <AppChipStack
+            fill
+            items={record.assignedUsers.map((member) => ({
+              id: member.id,
+              label: memberName(member),
+              startContent: <MemberAvatar member={member} />,
+            }))}
+            overflowMenu={!inTrigger}
+          />
+        </span>
       ) : (
         empty
       );
@@ -121,21 +122,22 @@ export function RecordCell({
   const items = summary.records.map((related) => ({
     id: `${related.ref.typeId}:${related.ref.recordId}`,
     ref: related.ref,
-    startContent: <RecordChipIcon icons={linkIcons} typeId={related.ref.typeId} />,
+    startContent: <RecordChipIcon icons={linkIcons} pictureUrl={related.pictureUrl} typeId={related.ref.typeId} />,
     label: recordDisplayName(related.title, linkLabels[related.ref.typeId], t),
   }));
   return (
-    <AppChipStack
-      fill
-      chipLabel={(item) => t("RecordModel.openRecord", { name: item.label })}
-      extraCount={summary.hasMore ? Math.max(0, summary.readableCount - summary.records.length) : 0}
-      items={items}
-      maxWidth={LINKED_CHIPS_MAX_WIDTH}
-      overflowMenu={!inTrigger}
-      variant={recordLinkColor(linkColors, summary.records[0].ref.typeId)}
-      onChipClick={inTrigger ? undefined : (item) => onOpen(item.ref)}
-      onMoreClick={inTrigger || !onMore ? undefined : onMore}
-      onMoreClickWhenLoaded={Boolean(onMore)}
-    />
+    <span className={LINKED_CHIPS_CLASS}>
+      <AppChipStack
+        fill
+        chipLabel={(item) => t("RecordModel.openRecord", { name: item.label })}
+        extraCount={summary.hasMore ? Math.max(0, summary.readableCount - summary.records.length) : 0}
+        items={items}
+        overflowMenu={!inTrigger}
+        variant={recordLinkColor(linkColors, summary.records[0].ref.typeId)}
+        onChipClick={inTrigger ? undefined : (item) => onOpen(item.ref)}
+        onMoreClick={inTrigger || !onMore ? undefined : onMore}
+        onMoreClickWhenLoaded={Boolean(onMore)}
+      />
+    </span>
   );
 }

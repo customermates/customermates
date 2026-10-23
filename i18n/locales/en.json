@@ -2604,7 +2604,6 @@
       "linkUpdateFailed": "Couldn't update the record link",
       "noRecords": "No linked records",
       "openRecordNamed": "Open record: {name}",
-      "unlinkRecord": "Unlink record",
       "unlinkRecordNamed": "Unlink record: {name}"
     },
     "previewAudio": "🎵 Audio",
@@ -2633,7 +2632,7 @@
       "title": "Thread settings",
       "tooltip": "Manage visibility and people",
       "visibilityHint": "Private conversations are only visible to you. Share to CRM makes just this conversation visible to your whole team.",
-      "visibilityTitle": "Visibility Settings"
+      "visibilityTitle": "Share with team"
     },
     "shareToCrmActive": "Shared to CRM, visible to your whole team",
     "shareToCrmPermissionDenied": "Your Inbox permission changed. You can no longer change this conversation's visibility.",

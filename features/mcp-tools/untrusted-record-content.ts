@@ -69,7 +69,15 @@ const MarkedCalculatedValueSchema = z.union([
 ]);
 
 const MarkedRelationshipSummarySchema = RecordRelationshipSummarySchema.extend({
-  records: z.array(z.object({ ref: RecordRefSchema, title: MarkedCalculatedValueSchema }).strict()),
+  records: z.array(
+    z
+      .object({
+        ref: RecordRefSchema,
+        title: MarkedCalculatedValueSchema,
+        pictureUrl: z.string().nullable().optional(),
+      })
+      .strict(),
+  ),
 }).strict();
 
 const UntrustedTextHandlingShape = {

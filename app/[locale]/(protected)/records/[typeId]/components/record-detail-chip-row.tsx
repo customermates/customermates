@@ -128,7 +128,7 @@ function useLinkedChoices(store: RecordEditorStore, column: LinkColumn) {
         (change) =>
           change.action === "link" && !original.some((record) => record.ref.recordId === change.record.recordId),
       )
-      .map((change) => ({ ref: change.record, title: change.title })),
+      .map((change) => ({ ref: change.record, title: change.title, pictureUrl: change.pictureUrl })),
   ];
   const hidden = store.trash
     ? Math.max(0, (own?.readableCount ?? 0) - original.length)
@@ -258,7 +258,11 @@ const LinkedChip = observer(function LinkedChip({
   const direction = column.direction;
   const singular = (direction === "outgoing" ? relation.sourceCardinality : relation.targetCardinality) === "one";
   const stage = (choice: RecordChoice, action: "link" | "unlink") =>
-    store.stageLink({ action, relationId: relation.id, direction, record: choice.ref }, choice.title);
+    store.stageLink(
+      { action, relationId: relation.id, direction, record: choice.ref },
+      choice.title,
+      choice.pictureUrl,
+    );
   const toggle = (choice: RecordChoice, isLinked: boolean) => {
     if (isLinked) stage(choice, "unlink");
     else {

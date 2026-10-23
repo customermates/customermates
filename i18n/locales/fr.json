@@ -2604,7 +2604,6 @@
       "linkUpdateFailed": "Impossible de mettre à jour le lien vers l’enregistrement",
       "noRecords": "Aucune fiche liée",
       "openRecordNamed": "Ouvrir la fiche : {name}",
-      "unlinkRecord": "Délier la fiche",
       "unlinkRecordNamed": "Délier la fiche : {name}"
     },
     "previewAudio": "🎵 Audio",
@@ -2633,7 +2632,7 @@
       "title": "Paramètres de la conversation",
       "tooltip": "Gérer la visibilité et les personnes",
       "visibilityHint": "Les conversations privées ne sont visibles que par vous. Le partage vers le CRM rend uniquement cette conversation visible par toute votre équipe.",
-      "visibilityTitle": "Paramètres de visibilité"
+      "visibilityTitle": "Partager avec l’équipe"
     },
     "shareToCrmActive": "Partagée vers le CRM, visible par toute votre équipe",
     "shareToCrmPermissionDenied": "Votre autorisation pour la boîte de réception a changé. Vous ne pouvez plus modifier la visibilité de cette conversation.",

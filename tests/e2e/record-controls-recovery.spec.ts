@@ -1022,7 +1022,7 @@ test("retries failed participant and conversation searches and deletes a real re
       exact: true,
     });
     await settings.getByRole("button", { name: english.Inbox.participants.link, exact: true }).click();
-    await expect(settings.getByRole("combobox")).toBeVisible();
+    await expect(page.locator('[data-slot="popover-content"]').getByRole("combobox")).toBeVisible();
     let personFault = true;
     let conversationFault = false;
     await page.route("**/*", async (route) => {
@@ -1042,12 +1042,12 @@ test("retries failed participant and conversation searches and deletes a real re
         await evidence.failResponse(route, "conversation search");
       } else await route.fallback();
     });
-    await settings.getByRole("combobox").fill("Retry Person");
-    await expect(settings.getByRole("alert")).toBeVisible();
-    await settings.getByRole("button", { name: english.ErrorCard.retry, exact: true }).click();
-    await expect(settings.getByRole("option", { name: "Retry Person", exact: true })).toBeVisible();
-    await expect(settings.getByRole("alert")).toHaveCount(0);
-    await settings.getByRole("option", { name: "Retry Person", exact: true }).click();
+    await page.locator('[data-slot="popover-content"]').getByRole("combobox").fill("Retry Person");
+    await expect(page.locator('[data-slot="popover-content"]').getByRole("alert")).toBeVisible();
+    await page.locator('[data-slot="popover-content"]').getByRole("button", { name: english.ErrorCard.retry, exact: true }).click();
+    await expect(page.locator('[data-slot="popover-content"]').getByRole("option", { name: "Retry Person", exact: true })).toBeVisible();
+    await expect(page.locator('[data-slot="popover-content"]').getByRole("alert")).toHaveCount(0);
+    await page.locator('[data-slot="popover-content"]').getByRole("option", { name: "Retry Person", exact: true }).click();
     await expect(
       settings.getByRole("button", {
         name: "Open record: Retry Person",
@@ -1073,12 +1073,12 @@ test("retries failed participant and conversation searches and deletes a real re
       })
       .click();
     conversationFault = true;
-    await conversation.getByRole("combobox").fill("Retry conversation deal");
-    await expect(conversation.getByRole("alert")).toBeVisible();
-    await conversation.getByRole("button", { name: english.ErrorCard.retry, exact: true }).click();
-    await expect(conversation.getByRole("option").filter({ hasText: "Retry conversation deal" })).toBeVisible();
-    await expect(conversation.getByRole("alert")).toHaveCount(0);
-    await conversation.getByRole("option").filter({ hasText: "Retry conversation deal" }).click();
+    await page.locator('[data-slot="popover-content"]').getByRole("combobox").fill("Retry conversation deal");
+    await expect(page.locator('[data-slot="popover-content"]').getByRole("alert")).toBeVisible();
+    await page.locator('[data-slot="popover-content"]').getByRole("button", { name: english.ErrorCard.retry, exact: true }).click();
+    await expect(page.locator('[data-slot="popover-content"]').getByRole("option").filter({ hasText: "Retry conversation deal" })).toBeVisible();
+    await expect(page.locator('[data-slot="popover-content"]').getByRole("alert")).toHaveCount(0);
+    await page.locator('[data-slot="popover-content"]').getByRole("option").filter({ hasText: "Retry conversation deal" }).click();
     await expect(
       conversation.getByRole("button", {
         name: "Open record: Retry conversation deal",
@@ -1093,8 +1093,10 @@ test("retries failed participant and conversation searches and deletes a real re
         )
       ).rows,
     ).toEqual([{ threadId: threads[0], typeId: deal.typeId, recordId: deal.recordId }]);
-    await page.keyboard.press("Escape");
-    await expect(settings).not.toBeVisible();
+    await expect(async () => {
+      await page.keyboard.press("Escape");
+      await expect(settings).not.toBeVisible({ timeout: 1000 });
+    }).toPass();
     await page.unrouteAll({ behavior: "wait" });
   }
   await page.goto(`/en/records/${service.typeId}/${service.recordId}`);

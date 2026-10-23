@@ -17915,7 +17915,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
       ).toBe(publishedEvents);
     },
   );
-  it("never replaces an image a person entered, but refreshes empty and provider-derived images", async () => {
+  it("never replaces an image a person entered or cleared, but refreshes empty and provider-derived images", async () => {
     const f = await fixture();
     const { ProviderAvatarService } = await import("../provider-avatar.service");
     const create = async (avatarUrl?: string) => {
@@ -17963,6 +17963,18 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
       service.synchronize("google", "shared-avatar@example.test", "https://example.test/later.png"),
     );
     expect(await avatar(empty)).toEqual({ state: "value", value: textValue("https://example.test/chosen.png") });
+    expect(
+      await f.mutation({
+        action: "update",
+        ref: empty,
+        expectedVersion: (await f.readRecord(empty)).version,
+        fields: [{ fieldId: f.id("contact.avatarUrl"), value: null }],
+      }),
+    ).toMatchObject({ ok: true });
+    await runWithoutTenant(() =>
+      service.synchronize("google", "shared-avatar@example.test", "https://example.test/cleared.png"),
+    );
+    expect(await avatar(empty)).toEqual({ state: "missing" });
     expect(background.dispatch).not.toHaveBeenCalled();
   });
 

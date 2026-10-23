@@ -1084,7 +1084,7 @@ export const RecordInlineRelationship = observer(function RecordInlineRelationsh
               setOpen(true);
             }}
           >
-            <span className="min-w-0">{children}</span>
+            <span className="min-w-0 flex-1">{children}</span>
 
             {layout === "row" && (
               <ChevronsUpDown

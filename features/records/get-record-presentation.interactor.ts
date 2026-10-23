@@ -44,6 +44,7 @@ import { recordFilterPaths, resolveRecordPath } from "./record-relationship-path
 import { liveRecordFilters } from "./record-view-state";
 
 const GetRecordPresentationSchema = z.object({ typeId: z.uuid(), params: GetQueryParamsSchema.default({}) }).strict();
+const LINKED_PREVIEW_LIMIT = 10;
 export type RecordPresentationResult = {
   model: RecordModelView;
   typeId: string;
@@ -156,14 +157,14 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
           .filter((column) => column.kind === "relationship" && !state.hiddenColumns.includes(column.id))
           .flatMap((column) => {
             const selection = parseRelationshipColumnKey(column.id);
-            return selection ? [selection] : [];
+            return selection ? [{ ...selection, limit: LINKED_PREVIEW_LIMIT }] : [];
           });
         const pathSelections = recordColumns(type.id, {
           ...model,
           relationships,
         }).flatMap((column) =>
           column.kind === "relationshipPath" && !state.hiddenColumns.includes(column.id)
-            ? [{ pathId: column.definition.id, limit: 3 }]
+            ? [{ pathId: column.definition.id, limit: LINKED_PREVIEW_LIMIT }]
             : [],
         );
         if (selections.length + pathSelections.length > 32) return fail(CustomErrorCode.recordCalculationBudget);

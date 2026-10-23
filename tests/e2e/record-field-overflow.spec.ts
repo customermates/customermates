@@ -406,3 +406,65 @@ test("wraps and expands plain text, edits it directly, and preserves the saved v
   await page.screenshot({ path: testInfo.outputPath("expanded-plain-text.png"), animations: "disabled" });
   expect(errors).toEqual([]);
 });
+
+test("fills a widened relationship column with chips before the remaining count", async ({
+  page,
+  database,
+  companyId,
+  isMobile,
+}, testInfo) => {
+  test.skip(isMobile, "Column widths apply to the desktop table");
+  const id = (key: string) => presetId(companyId, key);
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await page.goto(`/en/records/${id("organization")}`);
+  const model = await readModel(database, companyId);
+  const created = await postOk(page, "/api/v1/records/mutate", {
+    expectedRevision: model.revision,
+    idempotencyKey: randomUUID(),
+    mutation: {
+      action: "create",
+      typeId: id("organization"),
+      fields: [{ fieldId: id("organization.name"), value: { kind: "text", value: "Aaa wide chips organization" } }],
+    },
+  });
+  const recordId = created.refs[0].recordId as string;
+  for (let index = 0; index < 6; index++) {
+    await postOk(page, "/api/v1/records/mutate", {
+      expectedRevision: model.revision,
+      idempotencyKey: randomUUID(),
+      mutation: {
+        action: "create",
+        typeId: id("deal"),
+        fields: [{ fieldId: id("deal.name"), value: { kind: "text", value: `Wide deal ${index}` } }],
+        links: [
+          {
+            relationId: id("deal.organizations"),
+            direction: "outgoing",
+            record: { typeId: id("organization"), recordId },
+          },
+        ],
+      },
+    });
+  }
+  await page.goto(`/en/records/${id("organization")}?searchTerm=${encodeURIComponent("Aaa wide chips")}`);
+  const row = page.locator(`tr[data-row-id="${recordId}"]`);
+  const chips = row.locator(`[data-chip-id^="${id("deal")}:"]`);
+  const more = row.getByRole("button", { name: /^\+\d+/ });
+  await expect(chips.first()).toBeVisible();
+  await expect.poll(() => chips.count()).toBeLessThan(6);
+  await expect(more).toBeVisible();
+  const readable = () =>
+    chips.evaluateAll((elements) => elements.every((element) => element.getBoundingClientRect().width >= 60));
+  const resize = page.getByRole("button", { name: /^Resize Deals column\./ });
+  const width = () => resize.evaluate((element) => element.closest("th")!.getBoundingClientRect().width);
+  for (let step = 0; step < 20; step++) await resize.press("Shift+ArrowRight");
+  await expect.poll(width).toBeGreaterThan(700);
+  await expect(chips).toHaveCount(6);
+  await expect(more).toHaveCount(0);
+  await expect.poll(readable).toBe(true);
+  await page.screenshot({ path: testInfo.outputPath("wide-relationship-column.png"), animations: "disabled" });
+  await resize.press("Home");
+  await expect.poll(width).toBeLessThan(200);
+  await expect.poll(() => chips.count()).toBeLessThan(6);
+  await expect(more).toBeVisible();
+});

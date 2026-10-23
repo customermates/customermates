@@ -212,12 +212,11 @@ describe("AppModal actions", () => {
       { id: "ai", icon: RefreshCw, label: "Ask AI", kind: "assistant", onClick: vi.fn() },
     ]);
     const order = [
-      'data-slot="ask-ai-action"',
-      ...["Customize", "Sync", "Delete", "Open page"].map((label) => `aria-label="${label}"`),
+      ...["Ask AI", "Customize", "Sync", "Delete", "Open page"].map((label) => `aria-label="${label}"`),
     ].map((marker) => html.indexOf(marker));
     expect(order.every((index) => index >= 0)).toBe(true);
     expect([...order].sort((a, b) => a - b)).toEqual(order);
-    expect(html).toContain('data-overlay-action-count="6"');
+    expect(html).toContain('data-overlay-action-count="5"');
   });
 });
 

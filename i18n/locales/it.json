@@ -2604,7 +2604,6 @@
       "linkUpdateFailed": "Impossibile aggiornare il collegamento al record",
       "noRecords": "Nessun record collegato",
       "openRecordNamed": "Apri record: {name}",
-      "unlinkRecord": "Scollega record",
       "unlinkRecordNamed": "Scollega record: {name}"
     },
     "previewAudio": "🎵 Audio",
@@ -2633,7 +2632,7 @@
       "title": "Impostazioni della conversazione",
       "tooltip": "Gestisci visibilità e persone",
       "visibilityHint": "Le conversazioni private sono visibili solo a te. La condivisione con il CRM rende visibile a tutto il team solo questa conversazione.",
-      "visibilityTitle": "Impostazioni di visibilità"
+      "visibilityTitle": "Condividi con il team"
     },
     "shareToCrmActive": "Condivisa con il CRM, visibile a tutto il team",
     "shareToCrmPermissionDenied": "La tua autorizzazione per la Posta in arrivo è cambiata. Non puoi più modificare la visibilità di questa conversazione.",

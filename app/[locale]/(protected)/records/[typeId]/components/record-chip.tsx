@@ -232,7 +232,9 @@ export const RecordPropertyChipView = observer(function RecordPropertyChipView({
     return (
       <AppChip
         data-chip-id={count === 1 ? `${first.ref.typeId}:${first.ref.recordId}` : undefined}
-        startContent={<RecordChipIcon icons={linkIcons} typeId={typeId} />}
+        startContent={
+          <RecordChipIcon icons={linkIcons} pictureUrl={count === 1 ? first.pictureUrl : null} typeId={typeId} />
+        }
         tooltip={column.label}
         variant={recordLinkColor(linkColors, typeId)}
       >

@@ -2604,7 +2604,6 @@
       "linkUpdateFailed": "Datensatzverknüpfung konnte nicht aktualisiert werden",
       "noRecords": "Keine verknüpften Datensätze",
       "openRecordNamed": "Datensatz öffnen: {name}",
-      "unlinkRecord": "Datensatzverknüpfung entfernen",
       "unlinkRecordNamed": "Datensatzverknüpfung entfernen: {name}"
     },
     "previewAudio": "🎵 Audio",
@@ -2633,7 +2632,7 @@
       "title": "Konversationseinstellungen",
       "tooltip": "Sichtbarkeit und Personen verwalten",
       "visibilityHint": "Private Konversationen sind nur für dich sichtbar. Wenn du eine Konversation im CRM teilst, wird nur diese für dein ganzes Team sichtbar.",
-      "visibilityTitle": "Sichtbarkeitseinstellungen"
+      "visibilityTitle": "Mit dem Team teilen"
     },
     "shareToCrmActive": "Im CRM geteilt, für dein ganzes Team sichtbar",
     "shareToCrmPermissionDenied": "Deine Posteingang-Berechtigung hat sich geändert. Du kannst die Sichtbarkeit dieser Konversation nicht mehr ändern.",
