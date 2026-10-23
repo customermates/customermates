@@ -709,10 +709,14 @@ describe("PublicNavbarMenu", () => {
     expect(example?.getAttribute("href")).toBe("https://demo.customermates.com/en/w/smb/dashboard");
     expect(example?.textContent).toBe("Open this example workspace");
 
+    const smbRow = container?.querySelector<HTMLElement>('[data-public-nav-link="/for/smb"]');
+    expect(smbRow?.querySelector("[data-public-nav-summary]")?.textContent).toBe("smb summary");
+    expect(smbRow?.classList.contains("h-11")).toBe(true);
     const footer = container?.querySelector<HTMLElement>("[data-public-nav-footer]");
     expect(
       [...(footer?.querySelectorAll<HTMLAnchorElement>("a[href]") ?? [])].map((link) => link.getAttribute("href")),
     ).toEqual(["/for/professional-services", "/for"]);
+    expect(footer?.querySelector("[data-public-nav-summary]")).toBeNull();
     expect(
       container?.querySelector('[data-public-nav-section="team"] a[href="/for/professional-services"]'),
     ).toBeNull();

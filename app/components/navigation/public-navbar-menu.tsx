@@ -263,13 +263,15 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
 
   function renderPanelLink(group: PublicNavGroup, link: PublicNavLink, expanded: boolean) {
     const linkActive = isCurrentPage(pathname, link.href) && isPrimaryPublicNavLink(groups, link);
+    const summary = link.footer ? undefined : link.preview?.description;
 
     return (
       <AppLink
         appearance="unstyled"
         aria-current={linkActive ? "page" : undefined}
         className={cn(
-          "group/link flex h-[30px] items-center gap-2 rounded-md px-2 text-[13px] leading-none outline-none transition-colors duration-150 hover:bg-foreground/[0.05] hover:text-foreground focus-visible:bg-foreground/[0.05] focus-visible:text-foreground motion-reduce:transition-none",
+          "group/link flex gap-2 rounded-md px-2 text-[13px] leading-none outline-none transition-colors duration-150 hover:bg-foreground/[0.05] hover:text-foreground focus-visible:bg-foreground/[0.05] focus-visible:text-foreground motion-reduce:transition-none",
+          summary ? "h-11 items-start py-1.5" : "h-[30px] items-center",
           linkActive ? "bg-foreground/[0.05] text-foreground" : "text-subdued",
         )}
         data-public-nav-link={link.href}
@@ -282,7 +284,17 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
       >
         {link.mark ? <PublicNavLinkMark mark={link.mark} /> : <PublicNavLinkIcon icon={link.icon} />}
 
-        <span className="min-w-0 truncate">{link.title}</span>
+        {summary ? (
+          <span className="grid min-w-0 gap-0.5">
+            <span className="truncate leading-[18px]">{link.title}</span>
+
+            <span data-public-nav-summary className="truncate text-xs leading-4 text-muted-foreground">
+              {summary}
+            </span>
+          </span>
+        ) : (
+          <span className="min-w-0 truncate">{link.title}</span>
+        )}
       </AppLink>
     );
   }
@@ -317,10 +329,7 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
         className="hidden w-[22rem] shrink-0 flex-col gap-2 rounded-xl bg-foreground/[0.025] p-1.5 pb-2.5 xl:flex"
         data-public-nav-preview={link.href}
       >
-        <div
-          aria-hidden
-          className="relative min-h-32 flex-1 overflow-hidden rounded-lg border border-border bg-sidebar"
-        >
+        <div aria-hidden className="relative aspect-[16/10] overflow-hidden rounded-lg border border-border bg-sidebar">
           {PREVIEW_THEMES.map(({ className, theme }) => (
             // eslint-disable-next-line @next/next/no-img-element -- one decorative capture, loaded only for the selected entry
             <img
