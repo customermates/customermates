@@ -1,6 +1,6 @@
 ---
 title: "CRM for Consultants: Clients and Engagements"
-description: "A consulting CRM for independent consultants and small firms: client organizations, engagement opportunities and email or LinkedIn context in one record."
+description: "A consulting CRM for independent consultants and small firms: clients, engagements priced as days times day rate, and email or LinkedIn context in one record."
 industryName: "Consultants"
 
 relatedHrefs:
@@ -11,7 +11,7 @@ relatedHrefs:
 
 hero:
   title: "CRM for consultants: keep the relationship behind every engagement"
-  description: "For independent consultants and small consulting firms who win work through referrals and conversations. Track client organizations, contacts and engagement opportunities from introduction to decision. Email and LinkedIn context needs Customermates Cloud from Pro; time tracking, billing and proposal documents stay in your other tools."
+  description: "For independent consultants and small consulting firms who win work through referrals and conversations. Track clients, contacts and engagements from introduction to decision and through delivery. Email and LinkedIn context needs Customermates Cloud from Pro; time tracking, billing and proposal documents stay in your other tools."
   buttonLeftText: Start free trial
   buttonLeftHref: /auth/signup
   buttonRightText: Explore the workspace
@@ -28,7 +28,7 @@ cta:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-A **CRM for consultants** has one job: tell you which client relationships and open engagements need you this week, and give you the context to act. Customermates is an open-source, AI-native CRM made in Germany. It keeps client organizations, the people in them, each engagement opportunity and, in Customermates Cloud from the Pro plan, the email and LinkedIn conversations around them in one place. It covers winning the work. Time tracking, billing, proposal documents and project delivery stay in other tools.
+A **CRM for consultants** has one job: tell you which client relationships and open engagements need you this week, and give you the context to act. Customermates is an open-source, AI-native CRM made in Germany. It keeps clients, the people in them, each engagement and, in Customermates Cloud from the Pro plan, the email and LinkedIn conversations around them in one place. It covers winning the work. Time tracking, billing, proposal documents and project delivery stay in other tools.
 
 <ArticleSummary title="At a glance">
   <SummaryItem label="Fits">
@@ -62,12 +62,12 @@ Many tools sold as consultant CRMs bundle the pipeline with timesheets and billi
 
 ## One engagement in the example workspace
 
-The [consulting workspace](https://demo.customermates.com/en/w/consultants/dashboard) is an example with sample data, not a customer account. It has five lists: **Client organizations**, **Contacts**, **Engagement opportunities**, **Services** and **Tasks**. Engagement opportunities move through **Introduction**, **Discovery**, **Scoping**, **Proposal sent**, **Decision**, **Won** and **Lost**.
+The [consulting workspace](https://demo.customermates.com/en/w/consultants/dashboard) is an example with sample data, not a customer account. It has four lists: **Clients**, **Contacts**, **Engagements** and **Tasks**. Engagements move through **Introduction**, **Discovery**, **Scoping**, **Proposal sent**, **Decision**, **Won** and **Lost**. Won engagements then move across a second board, **Active engagements**, through **Not started**, **In delivery**, **Wrapping up** and **Completed**.
 
-Open one engagement opportunity in Scoping and you see what a consultant checks before the next call:
+Open one engagement in Proposal sent and you see what a consultant checks before the next call:
 
-- **The client organization** with its contacts: the sponsor, the day-to-day contact and the person who signs.
-- **The services in scope**, priced from the Services list, so the engagement carries a value. Each stage has a win probability, and the weighted value is that probability applied to the value. It is pipeline weighting, not a forecast.
+- **The client** with its contacts and their role in the engagement: the sponsor, the day-to-day contact and the person who signs off.
+- **The fee**, calculated from two fields you fill in: the estimated days times the day rate. Each stage has a win probability, and the weighted value is that probability applied to the fee. It is pipeline weighting, not a forecast. A duration field counts the days from the planned start to the end.
 - **The conversations.** An email thread and a LinkedIn conversation with the sponsor, linked to this engagement. Contacts are matched to conversations by their email address or LinkedIn identity in a channels field; the link from a conversation to the engagement or client was made explicitly by a person, never automatically.
 - **A next-step date** in an ordinary date field, recorded by hand after the last call. Tasks have no built-in due dates or reminders, so the date lives in a field you configure and a saved view sorts by it.
 
@@ -77,12 +77,13 @@ Open one engagement opportunity in Scoping and you see what a consultant checks 
 
 <Steps>
   <Step title="Record the introduction">
-    Add the person and their client organization, and open an engagement
-    opportunity in Introduction. Note who referred you in a field.
+    Add the person and their client, and open an engagement in Introduction.
+    Note who referred you in a field.
   </Step>
   <Step title="Discovery and scoping">
     Move the engagement through Discovery and Scoping as the problem and budget
-    become clear. Add the services in scope so it carries a value.
+    become clear. Enter the day rate and the estimated days, and the fee is
+    calculated.
   </Step>
   <Step title="Send the proposal">
     Move it to Proposal sent and set the decision date and next-step date in
@@ -93,8 +94,8 @@ Open one engagement opportunity in Scoping and you see what a consultant checks 
     for a draft based on the record and conversation, then read and send it.
   </Step>
   <Step title="Record the decision">
-    Move the engagement to Won or Lost. Won work goes to the tools that run
-    delivery, hours and invoicing.
+    Move the engagement to Won or Lost. A won engagement moves on through the
+    delivery stages; hours and invoicing stay in the tools built for them.
   </Step>
 </Steps>
 
@@ -112,7 +113,7 @@ Conversations from your own accounts stay private until you share them. That sui
 
 Mate is the assistant inside Customermates Cloud. It runs on hosted AI credits included per active user on every cloud plan, and is not available in self-hosted installations. Before a call, ask in the chat for a summary of an engagement: its stage, the latest email and LinkedIn messages and the next-step date. After the call, ask it to update the stage and save a short follow-up as a draft in the conversation.
 
-Mate can send messages when you tell it to send, so ask for drafts when you want to read first. Deletions, imports and access changes always stop for your approval. A [routine](/docs/app-routines) runs Mate on a schedule or when a record changes: for example every Monday, list engagements in Proposal sent whose next-step date has passed and save a draft reply for each. A routine belongs to one user and sees what that user sees. Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user and Pro includes [[commercial.entitlement.pro.includedRoutinesPerUser]].
+Mate can send messages when you tell it to send, so ask for drafts when you want to read first. Deletions, imports and access changes always stop for your approval. A [routine](/docs/app-routines) runs Mate on a schedule or when a record changes: for example every Monday, list engagements in Proposal sent whose next-step date has passed and save a draft reply for each. The example workspace has two: one adds a short brief to the engagement before each of the day's calendar meetings, the other creates a task for close contacts you have not met in two months. A routine belongs to one user and sees what that user sees. Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user and Pro includes [[commercial.entitlement.pro.includedRoutinesPerUser]].
 
 Prefer your own AI client? Connect Claude, ChatGPT or another client through [MCP](/docs/mcp). It works on every plan and on self-hosted installations, with model use billed by your AI provider, and can read or update the records your role permits.
 
@@ -129,7 +130,7 @@ Customermates fits a small firm, with limits worth knowing before you invite a t
 
 A new workspace starts without lists. The consulting lists above are an example, not what every account contains. In Customermates Cloud, the AI workspace setup asks what the workspace is for and builds lists, stages, a dashboard and Knowledge Base pages from your answers. It runs once at onboarding, uses a capped amount of AI credit, and you can skip it with **Start with an empty workspace** (see [onboarding](/docs/app-onboarding)).
 
-Otherwise, people with Configure rights create the lists, fields and stages in Configure, then import records from an Excel workbook (.xlsx, up to 5,000 rows per file). Import client organizations first, then contacts, then open engagements. An import cannot be undone, so test it with a few rows. If a team member needs a list renamed, for example Engagement opportunities to Mandates, that is a setting in Configure too.
+Otherwise, people with Configure rights create the lists, fields and stages in Configure, then import records from an Excel workbook (.xlsx, up to 5,000 rows per file). Import clients first, then contacts, then open engagements. An import cannot be undone, so test it with a few rows. If a team member needs a list renamed, for example Engagements to Mandates, that is a setting in Configure too.
 
 ## What Customermates does not do for consultants
 
@@ -178,7 +179,7 @@ No. Saved views are personal, and there are no shared or team views. Permissions
 </FaqItem>
 
 <FaqItem question="Are emails logged to the engagement automatically?">
-No. Participants are matched to contacts by their email address or LinkedIn identity. A conversation is linked to an engagement or client organization only when you or an agent link it explicitly.
+No. Participants are matched to contacts by their email address or LinkedIn identity. A conversation is linked to an engagement or client only when you or an agent link it explicitly.
 </FaqItem>
 
 <FaqItem question="Can Customermates track time and handle billing?">

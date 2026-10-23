@@ -4,11 +4,12 @@ import { day, defineSolution, photo, type FieldInput, type RecordSpec, phoneNumb
 
 /**
  * Consultants: an independent, relationship-led consulting practice that advises mid-sized B2B companies on strategy
- * and operations. Engagement opportunities move from introduction through discovery and scoping to a proposal and a
- * decision; the proposal itself is written outside the CRM, the stage only records where things stand. The story
- * follows one engagement (Fairhaven / Falkenried) from the first introduction to the recorded decision, and Max drafts a
- * personal follow-up to the client. Contacts carry a relationship strength and the date of the last meeting; next steps
- * and task due dates are ordinary fields, and a conversation belongs to an opportunity only when someone links it.
+ * and operations. Engagements move from introduction through discovery and scoping to a proposal and a decision; the
+ * fee is the estimated days times the day rate, and won engagements move on through delivery on a second board. The
+ * story follows one engagement (Fairhaven / Falkenried) whose proposal is with the client: Max drafts the answer to the
+ * sponsor's fee question. Contacts carry their role in the engagement, a relationship strength and the date of the last
+ * meeting; next steps and task due dates are ordinary fields, and a conversation belongs to an engagement only when
+ * someone links it.
  */
 
 const ORGANIZATIONS = [
@@ -57,31 +58,17 @@ const DEALS = [
   "kestrelSales",
   "marlowIntegration",
   "rivertonExport",
+  "calderPlanning",
   "oakhamStrategy",
-  "calderReview",
   "wexfordPlant",
+  "calderReview",
   "kestrelWorkshop",
-  "brightwaterDiscovery",
-  "brightwaterOffsite",
-  "brightwaterPricing",
-  "kestrelReview",
   "kestrelOffsite",
-  "calderInterim",
   "stanmoreDay",
-  "calderDiscovery",
   "kestrelInterim",
   "brightwaterWorkshop",
 ] as const;
 type DealKey = (typeof DEALS)[number];
-const SERVICES = [
-  "discoverySprint",
-  "operatingModelReview",
-  "pricingReview",
-  "workshopDay",
-  "offsiteFacilitation",
-  "interimDay",
-] as const;
-type ServiceKey = (typeof SERVICES)[number];
 const TASKS = [
   "briefHelen",
   "kickoffAgenda",
@@ -89,12 +76,10 @@ const TASKS = [
   "brightwaterScope",
   "interimAvailability",
   "ellisonQuestions",
-  "thankRichard",
   "kestrelWalkthrough",
   "briefDiane",
   "rivertonNotes",
   "lunchGeorge",
-  "oakhamCheckIn",
 ] as const;
 type TaskKey = (typeof TASKS)[number];
 type StoryStage = "introduction" | "discovery" | "scoping" | "proposal" | "decision";
@@ -106,14 +91,13 @@ const en = {
   phones: { mobile: { templates: ["+44 20 7946 0###"], start: 300 } },
   selfTitle: "Principal consultant",
   lists: {
-    organization: ["Client organization", "Client organizations", "Companies we advise, talk to or work alongside."],
+    organization: ["Client", "Clients", "Companies we advise, talk to or work alongside."],
     contact: ["Contact", "Contacts", "The people behind every engagement and introduction."],
     deal: [
-      "Engagement opportunity",
-      "Engagement opportunities",
-      "Possible engagements, from the first introduction to the decision.",
+      "Engagement",
+      "Engagements",
+      "Engagements from the first introduction to the decision and through delivery.",
     ],
-    service: ["Service", "Services", "Fixed-fee packages, workshop days and interim days."],
     task: ["Task", "Tasks", "Things we promised, with a due date."],
   },
   fields: {
@@ -124,8 +108,15 @@ const en = {
     employees: "Employees",
     jobTitle: "Job title",
     phone: "Phone",
+    role: "Role in engagement",
     strength: "Relationship strength",
     lastMeeting: "Last meeting",
+    dayRate: "Day rate",
+    days: "Days estimated",
+    start: "Start",
+    end: "End",
+    duration: "Duration (days)",
+    delivery: "Delivery",
     referralSource: "Referral source",
     decisionDate: "Decision date",
     nextStep: "Next step",
@@ -149,7 +140,14 @@ const en = {
       chemicals: "Chemicals",
     },
     relationship: { prospect: "Prospect", client: "Client", former: "Former client", partner: "Referral partner" },
+    role: { sponsor: "Sponsor", dayToDay: "Day-to-day contact", signsOff: "Signs off" },
     strength: { strong: "Strong", warm: "Warm", early: "New" },
+    delivery: {
+      notStarted: "Not started",
+      inDelivery: "In delivery",
+      wrappingUp: "Wrapping up",
+      completed: "Completed",
+    },
     referralSource: {
       clientReferral: "Client referral",
       peerReferral: "Peer or partner referral",
@@ -208,38 +206,31 @@ const en = {
     richard: ["Richard", "Hale", "Partner"],
     kevin: ["Kevin", "Walsh", "Managing director"],
   } satisfies Record<ContactKey, readonly [string, string, string]>,
-  services: {
-    discoverySprint: "Discovery sprint (fixed fee, three weeks)",
-    operatingModelReview: "Operating model review (fixed fee)",
-    pricingReview: "Pricing and margin review (fixed fee)",
-    workshopDay: "Workshop day with preparation",
-    offsiteFacilitation: "Leadership offsite, two days (fixed fee)",
-    interimDay: "Interim management day",
-  } satisfies Record<ServiceKey, string>,
   deals: {
-    fairhavenReview: ["Fairhaven Components – operating model review", "Kick-off workshop with the leadership team"],
+    fairhavenReview: [
+      "Fairhaven Components – operating model review",
+      "Walk Martin and Rachel through option B on Thursday",
+    ],
     northwoldReview: ["Northwold Logistics – depot network review", "Answer Tom's two questions on the proposal"],
     brightwaterScaling: ["Brightwater Software – scaling customer operations", "Send Sarah two scope options"],
     brightwaterInterim: ["Brightwater Software – interim head of operations", "Sarah confirms the start date"],
     ellisonPricing: ["Ellison Fluid Systems – pricing and margin review", "Discovery call with Alan and Nina"],
     greyfriarsSuccession: ["Greyfriars Wholesale – leadership offsite on succession", "First call with Paul"],
-    kestrelSales: ["Kestrel Medical – sales organisation review", "Walk Laura and Simon through the proposal"],
+    kestrelSales: ["Kestrel Medical – sales organisation review", "Laura confirms the split workshop days"],
     marlowIntegration: ["Marlow Facility Services – integration support after the merger", "First meeting with Diane"],
     rivertonExport: ["Riverton Food Ingredients – export market assessment", "Share the discovery summary with Emily"],
+    calderPlanning: ["Calder Packaging – plant planning follow-up", "Agree the plants and interviews with George"],
     oakhamStrategy: ["Oakham Precision – strategy day with the owners", "Check in again in spring"],
-    calderReview: ["Calder Packaging – operating model review", "Engagement completed"],
     wexfordPlant: ["Wexford Coatings – plant operations review", "Closed"],
-    kestrelWorkshop: ["Kestrel Medical – annual strategy workshop", "Workshop delivered"],
-    brightwaterDiscovery: ["Brightwater Software – discovery sprint on customer operations", "Engagement completed"],
-    brightwaterOffsite: ["Brightwater Software – leadership offsite", "Offsite delivered"],
-    brightwaterPricing: ["Brightwater Software – pricing and margin review", "Engagement completed"],
-    kestrelReview: ["Kestrel Medical – pricing and margin review", "Engagement completed"],
-    kestrelOffsite: ["Kestrel Medical – leadership offsite on the sales plan", "Offsite delivered"],
-    calderInterim: ["Calder Packaging – interim operations lead", "Interim days delivered"],
+    calderReview: ["Calder Packaging – operating model review", "Engagement completed"],
+    kestrelWorkshop: ["Kestrel Medical – annual strategy workshop", "Send the workshop summary to Laura"],
+    kestrelOffsite: ["Kestrel Medical – leadership offsite on the sales plan", "Confirm the offsite venue with Simon"],
     stanmoreDay: ["Hale & Stanmore – partner strategy day", "Workshop delivered"],
-    calderDiscovery: ["Calder Packaging – discovery sprint on plant planning", "Engagement completed"],
-    kestrelInterim: ["Kestrel Medical – interim support for the sales lead", "Interim days delivered"],
-    brightwaterWorkshop: ["Brightwater Software – workshop days on the support model", "Workshops delivered"],
+    kestrelInterim: ["Kestrel Medical – interim support for the sales lead", "Monthly check-in with Simon"],
+    brightwaterWorkshop: [
+      "Brightwater Software – workshop days on the support model",
+      "Prepare the second workshop day",
+    ],
   } satisfies Record<DealKey, readonly [string, string]>,
   story: {
     introduction: "Discovery conversation with Helen and Martin",
@@ -252,40 +243,38 @@ const en = {
     "Introduced by Richard Hale, who has advised Helen for years.",
     "Discovery: margins are under pressure because each plant plans on its own; Martin wants one planning rhythm across the three plants.",
     "Scoping: five interviews, one site visit per plant, two workshop days with the leadership team.",
-    "Decision: option B (review plus two workshop days), confirmed by Helen in writing.",
+    "Proposal: option A is the review alone (10 days), option B adds two workshop days (16 days). Both at the standard day rate.",
+    "Martin sponsors the engagement and is the day-to-day contact with Rachel; Helen signs off after the leadership meeting.",
   ],
   tasks: {
-    briefHelen: "Prepare a relationship brief for the kick-off with Helen",
-    kickoffAgenda: "Send Martin the kick-off agenda and two dates",
+    briefHelen: "Prepare a relationship brief for the walkthrough with Martin and Rachel",
+    kickoffAgenda: "Send Martin the one-page interview summary before Thursday",
     callTom: "Call Tom about his questions on the proposal",
     brightwaterScope: "Write two scope options for Brightwater",
     interimAvailability: "Confirm interim days for January with Sarah",
     ellisonQuestions: "Prepare discovery questions for Alan and Nina",
-    thankRichard: "Thank Richard for the introduction to Greyfriars",
     kestrelWalkthrough: "Walk Laura through the split workshop days",
     briefDiane: "Prepare a relationship brief for the first meeting with Diane",
     rivertonNotes: "Write up the Riverton discovery call",
     lunchGeorge: "Suggest two lunch dates to George",
-    oakhamCheckIn: "Check in with Ian about the strategy day",
   } satisfies Record<TaskKey, string>,
   views: {
     pipeline: "Engagement pipeline",
+    active: "Active engagements",
     nextSteps: "Next steps",
-    organizations: "Client organizations",
     relationships: "Relationships by last meeting",
     openTasks: "Open tasks",
-    services: "Services and fees",
   },
   widgets: {
     proposalsOut: "Proposals out",
     won: "Won in the last 12 months",
-    averageWon: "Average engagement",
+    daysInDelivery: "Days booked in delivery",
     quietContacts: "Not met in 60+ days",
     byStage: "Open pipeline by stage",
-    wonBySource: "Won value by referral source",
+    byDelivery: "Won engagements by delivery",
     byIndustry: "Open pipeline by industry",
-    wonByMonth: "Won value by month",
-    topClients: "Top clients by won value",
+    wonByMonth: "Won fees by month",
+    topClients: "Top clients by won fees",
   },
   wiki: {
     guide: {
@@ -294,45 +283,67 @@ const en = {
         "Ashcombe Advisory is an independent practice that advises mid-sized B2B companies on strategy and operations. Most work comes from relationships: clients, former colleagues and partners who introduce us. This workspace is demo data; every company and person in it is fictional.",
         "",
         "## How we use the CRM",
-        "- **Client organizations** are the companies we advise or talk to, plus the partners who refer us. **Contacts** are the people there, with a relationship strength and the date of the last meeting.",
-        "- **Engagement opportunities** move from Introduction through Discovery, Scoping, Proposal sent and Decision to Won or Lost. The proposal itself is written outside the CRM; the stage only records that it was sent and what was decided.",
-        "- **Services** are our fixed-fee packages, workshop days and interim days. The value of an opportunity comes from the services added to it.",
+        "- **Clients** are the companies we advise or talk to, plus the partners who refer us. **Contacts** are the people there, with their role in the engagement, a relationship strength and the date of the last meeting.",
+        "- **Engagements** move from Introduction through Discovery, Scoping, Proposal sent and Decision to Won or Lost. The proposal itself is written outside the CRM; the stage only records that it was sent and what was decided.",
+        "- The value of an engagement is our fee: the estimated days times the day rate, calculated by the CRM. The weighted value applies the stage probability to it. Duration counts the days from start to end.",
+        "- Won engagements move on through Delivery on the Active engagements board: Not started, In delivery, Wrapping up, Completed.",
         "- **Tasks** are things we promised, with a due date. Tasks, next steps and next step dates are ordinary fields: nobody is reminded automatically, so look at the Next steps and Open tasks views every morning.",
-        "- A conversation from the inbox belongs to an engagement opportunity or client organization only when someone links it there.",
+        "- A conversation from the inbox belongs to an engagement or client only when someone links it there.",
         "",
         "## Working rules",
-        "- Every open opportunity has a next step and a next step date.",
+        "- Every open engagement has a next step and a next step date.",
         "- After every meeting, update the contact's last meeting date and relationship strength.",
-        "- Record a decision on the opportunity as soon as the client tells us, with the lost reason when we did not get it.",
-        "- Fees come from the Services list. Billing and project work stay in their own tools.",
+        "- Record a decision on the engagement as soon as the client tells us, with the lost reason when we did not get it.",
+        "- Day rates and fee options are on the page of the same name. Billing and project documents stay in their own tools.",
       ],
     },
     process: {
       title: "How engagements move",
       markdown: [
-        "Every engagement opportunity moves through the same stages. The stage records where the conversation stands, not a document.",
+        "Every engagement moves through the same stages. The stage records where the conversation stands, not a document.",
         "",
         "## Stages",
-        "1. **Introduction:** someone introduced us or the client got in touch. Add the organization, the person and who referred them.",
+        "1. **Introduction:** someone introduced us or the client got in touch. Add the client, the person and who referred them.",
         "2. **Discovery:** first conversation done. Write down the problem in the client's words and who else is involved.",
-        "3. **Scoping:** we agree what the engagement covers, who we interview and which services fit.",
-        "4. **Proposal sent:** the proposal went out by email; services are on the opportunity.",
+        "3. **Scoping:** we agree what the engagement covers and who we interview. Enter the day rate and the estimated days, so the fee is calculated.",
+        "4. **Proposal sent:** the proposal went out by email; the fee on the engagement matches the option we recommend.",
         "5. **Decision:** the client is deciding. Keep the next step on the date they gave us.",
         "6. **Won or Lost:** record the decision manually and, when lost, the reason. Thank the person who referred us either way.",
+        "",
+        "## After the decision",
+        "A won engagement starts in Delivery at Not started. Set the start and end dates, move it to In delivery at the kick-off and to Wrapping up when the final workshop is booked. Completed engagements stay for the next conversation with the client.",
       ],
     },
     brief: {
       title: "Prepare a relationship brief",
       whenToUse: "When a meeting with a client, prospect or referral partner is coming up.",
       markdown: [
-        "A relationship brief takes ten minutes and makes sure we walk into every meeting knowing the person, not just the opportunity.",
+        "A relationship brief takes ten minutes and makes sure we walk into every meeting knowing the person, not just the engagement.",
         "",
         "## Steps",
         "1. Open the contact and check the relationship strength, the last meeting and who introduced us.",
-        "2. Open the organization and its engagement opportunities: stage, next step and earlier work together.",
-        "3. Read the conversations linked to the opportunity and the organization. Conversations nobody linked do not show up there, so check the inbox for the person's name as well.",
-        "4. Write five lines into the notes of the opportunity: what they care about, what changed since we last spoke, what we promised, one personal detail worth remembering, and the question we want answered.",
+        "2. Open the client and its engagements: stage, next step and earlier work together.",
+        "3. Read the conversations linked to the engagement and the client. Conversations nobody linked do not show up there, so check the inbox for the person's name as well.",
+        "4. Write five lines into the notes of the engagement: what they care about, what changed since we last spoke, what we promised, one personal detail worth remembering, and the question we want answered.",
         "5. After the meeting, update the last meeting date, the relationship strength, the next step and its date, and add a task for every promise.",
+      ],
+    },
+    rates: {
+      title: "Day rates and fee options",
+      markdown: [
+        "We price every engagement as estimated days times a day rate. The CRM calculates the fee from these two fields, so change the inputs, not the fee.",
+        "",
+        "## Day rates",
+        "- **Advisory and reviews:** 1,850 euros per day, including preparation and the written summary.",
+        "- **Workshops and offsites:** 1,900 euros per day of facilitation; preparation is part of the estimate.",
+        "- **Interim management:** 1,350 euros per day for blocks of at least 20 days.",
+        "- Introductions through a referral partner get the standard rate; we never discount for the referral.",
+        "",
+        "## Fee options in a proposal",
+        "- Offer two options: the core review alone, and the review plus workshop days with the leadership team.",
+        "- Enter the option we recommend on the engagement. Mention the other one in the notes with its days.",
+        "- When a client asks to split or move workshop days, the fee stays the same as long as the days do.",
+        "- Travel is billed at cost and never part of the day rate.",
       ],
     },
   },
@@ -341,8 +352,15 @@ const en = {
       subject: "Proposal: operating model review",
       messages: [
         "Dear Helen,\n\nThank you for the open conversation last week. As agreed, the proposal has two scope options: option A covers the operations review on its own, option B adds two workshop days with your leadership team.\n\nI am happy to walk Martin and Rachel through it before your leadership meeting.\n\nBest regards,\nMax",
-        "Dear Max,\n\nWe discussed the proposal in Monday's leadership meeting and decided to go ahead with option B. Martin will coordinate the kick-off dates with you.\n\nThank you for taking the time to understand how we really work before writing anything down.\n\nBest,\nHelen",
-        "Dear Helen,\n\nThank you for your decision and for the trust behind it. It was a pleasure getting to know your team during the interviews, and I am looking forward to working with all of you.\n\nI will send Martin two dates for the kick-off workshop this week. And good luck to your son in the regional final on Saturday!\n\nWarm regards,\nMax",
+        "Dear Max,\n\nThank you, we will decide in Monday's leadership meeting. Martin and Rachel would like to go through option B with you first. Could you also tell us how the fee changes if we start with two of the three plants?\n\nBest,\nHelen",
+        "Dear Helen,\n\nThank you. Option B is 16 days at our day rate of 1,850 euros. Starting with two plants takes it to 12 days; the two workshop days stay the same.\n\nThursday at 10 works for the walkthrough with Martin and Rachel, and I will bring the interview summary. And good luck to your son in the regional final on Saturday!\n\nWarm regards,\nMax",
+      ],
+    },
+    martinLinkedin: {
+      messages: [
+        "Max, good to see the proposal arrive. Rachel asked for one page on how the two workshop days would run. Anything you could share before Thursday?",
+        "Of course, Martin. I will send a one-pager tomorrow and bring printed copies on Thursday.",
+        "Perfect, thank you.",
       ],
     },
     fairhavenInterviews: {
@@ -393,10 +411,29 @@ const en = {
   calendar: {
     name: "Client meetings",
     events: [
-      "Kick-off workshop at Fairhaven Components",
+      "Proposal walkthrough with Fairhaven Components",
       "Discovery call with Ellison Fluid Systems",
-      "Proposal call with Kestrel Medical",
+      "Workshop planning with Kestrel Medical",
     ],
+  },
+  routines: {
+    briefs: {
+      name: "Prepare meeting briefs",
+      task: "Every weekday morning, read today's accessible calendar events with get_calendars. Match the attendees to contacts through their identity channels, then read each contact's client and open engagements with stage, next step, last meeting and the conversations linked to the engagement. For every event with a matching open engagement, append one dated brief of at most 120 words to that engagement's notes: what the people care about, what changed since the last meeting, what we promised and the question to settle. Skip events without a matching engagement and never add the same brief twice. Change no other field, create no calendar event and send no message.",
+      runs: [
+        "Added briefs to 2 engagements for today's meetings: Fairhaven Components and Kestrel Medical.",
+        "Added a brief for the Ellison discovery call; the other meeting had no open engagement.",
+      ],
+      note: "I could not reach the model provider on this attempt, so I stopped before reading the calendar. Nothing was changed; tomorrow's run prepares the briefs again.",
+    },
+    revisit: {
+      name: "Relationships to revisit",
+      task: 'Every Monday, query contacts sorted by Last meeting, oldest first, and read their relationship strength, role and client. For at most three contacts whose last meeting is more than 60 days ago, whose relationship strength is Strong or Warm, and who have no open task linked to them, create one ordinary task named "Get back in touch with <contact name>" for the workspace owner, due this Friday, Low priority, linked to the contact and the client, with the last meeting date and the latest engagement in its notes. Do not change the contacts and do not message anyone.',
+      runs: [
+        "Created 2 tasks: George Barlow (last met 140 days ago) and Kevin Walsh (105 days).",
+        "Created 1 task for Ian Pollard; the other quiet contacts already had an open task.",
+      ],
+    },
   },
 };
 
@@ -409,14 +446,9 @@ const de: Strings = {
   phones: { mobile: { templates: ["+49 30 23125 ###"], start: 300 } },
   selfTitle: "Inhaber und Berater",
   lists: {
-    organization: [
-      "Kundenorganisation",
-      "Kundenorganisationen",
-      "Unternehmen, die wir beraten, ansprechen oder mit denen wir zusammenarbeiten.",
-    ],
+    organization: ["Kunde", "Kunden", "Unternehmen, die wir beraten, ansprechen oder mit denen wir zusammenarbeiten."],
     contact: ["Kontakt", "Kontakte", "Die Menschen hinter jedem Mandat und jeder Empfehlung."],
-    deal: ["Mandatsanfrage", "Mandatsanfragen", "Mögliche Mandate, vom ersten Kennenlernen bis zur Entscheidung."],
-    service: ["Leistung", "Leistungen", "Festpreispakete, Workshoptage und Interimstage."],
+    deal: ["Mandat", "Mandate", "Mandate vom ersten Kennenlernen bis zur Entscheidung und durch die Umsetzung."],
     task: ["Aufgabe", "Aufgaben", "Was wir zugesagt haben, mit Fälligkeitsdatum."],
   },
   fields: {
@@ -427,8 +459,15 @@ const de: Strings = {
     employees: "Mitarbeitende",
     jobTitle: "Position",
     phone: "Telefon",
+    role: "Rolle im Mandat",
     strength: "Beziehungsstärke",
     lastMeeting: "Letztes Treffen",
+    dayRate: "Tagessatz",
+    days: "Geschätzte Tage",
+    start: "Beginn",
+    end: "Ende",
+    duration: "Dauer (Tage)",
+    delivery: "Umsetzung",
     referralSource: "Empfehlungsquelle",
     decisionDate: "Entscheidungsdatum",
     nextStep: "Nächster Schritt",
@@ -457,7 +496,14 @@ const de: Strings = {
       former: "Ehemaliger Kunde",
       partner: "Empfehlungspartner",
     },
+    role: { sponsor: "Auftraggeber", dayToDay: "Ansprechpartner", signsOff: "Unterschreibt" },
     strength: { strong: "Eng", warm: "Gut", early: "Neu" },
+    delivery: {
+      notStarted: "Nicht begonnen",
+      inDelivery: "In Umsetzung",
+      wrappingUp: "Abschluss",
+      completed: "Abgeschlossen",
+    },
     referralSource: {
       clientReferral: "Kundenempfehlung",
       peerReferral: "Empfehlung aus dem Netzwerk",
@@ -516,18 +562,10 @@ const de: Strings = {
     richard: ["Richard", "Haller", "Partner"],
     kevin: ["Klaus", "Wieland", "Geschäftsführer"],
   },
-  services: {
-    discoverySprint: "Analysesprint (Festpreis, drei Wochen)",
-    operatingModelReview: "Überprüfung des Betriebsmodells (Festpreis)",
-    pricingReview: "Preis- und Margenanalyse (Festpreis)",
-    workshopDay: "Workshoptag inklusive Vorbereitung",
-    offsiteFacilitation: "Klausur der Geschäftsleitung, zwei Tage (Festpreis)",
-    interimDay: "Interim-Management-Tag",
-  },
   deals: {
     fairhavenReview: [
       "Falkenried Komponenten – Überprüfung des Betriebsmodells",
-      "Auftaktworkshop mit der Geschäftsleitung",
+      "Variante B am Donnerstag mit Herrn Pfeiffer und Frau Decker durchgehen",
     ],
     northwoldReview: [
       "Nordwald Logistik – Analyse des Standortnetzes",
@@ -545,7 +583,7 @@ const de: Strings = {
     greyfriarsSuccession: ["Grauhof Großhandel – Klausur zur Nachfolge", "Erstes Telefonat mit Herrn Grauhof"],
     kestrelSales: [
       "Sperber Medizintechnik – Analyse der Vertriebsorganisation",
-      "Angebot mit Frau Brandl und Herrn Hartl durchgehen",
+      "Frau Brandl bestätigt die geteilten Workshoptage",
     ],
     marlowIntegration: [
       "Marbach Gebäudeservice – Begleitung der Integration nach der Fusion",
@@ -555,20 +593,24 @@ const de: Strings = {
       "Uferhof Lebensmittelzutaten – Bewertung neuer Exportmärkte",
       "Zusammenfassung der Bedarfsklärung an Frau Rößler schicken",
     ],
+    calderPlanning: [
+      "Kalder Verpackungen – Folgeprojekt Werksplanung",
+      "Werke und Interviews mit Herrn Brenner abstimmen",
+    ],
     oakhamStrategy: ["Achtal Präzision – Strategietag mit den Gesellschaftern", "Im Frühjahr erneut nachfragen"],
-    calderReview: ["Kalder Verpackungen – Überprüfung des Betriebsmodells", "Mandat abgeschlossen"],
     wexfordPlant: ["Weißach Industrielacke – Analyse der Werksabläufe", "Abgeschlossen"],
-    kestrelWorkshop: ["Sperber Medizintechnik – jährlicher Strategieworkshop", "Workshop durchgeführt"],
-    brightwaterDiscovery: ["Klarwasser Software – Discovery-Sprint zum Kundenbetrieb", "Mandat abgeschlossen"],
-    brightwaterOffsite: ["Klarwasser Software – Klausur der Geschäftsleitung", "Klausur durchgeführt"],
-    brightwaterPricing: ["Klarwasser Software – Preis- und Margenanalyse", "Mandat abgeschlossen"],
-    kestrelReview: ["Sperber Medizintechnik – Preis- und Margenanalyse", "Mandat abgeschlossen"],
-    kestrelOffsite: ["Sperber Medizintechnik – Klausur zur Vertriebsplanung", "Klausur durchgeführt"],
-    calderInterim: ["Kalder Verpackungen – Interimsleitung Betrieb", "Interimstage geleistet"],
-    stanmoreDay: ["Haller & Stammer – Strategietag der Partner", "Workshop durchgeführt"],
-    calderDiscovery: ["Kalder Verpackungen – Discovery-Sprint zur Werksplanung", "Mandat abgeschlossen"],
-    kestrelInterim: ["Sperber Medizintechnik – Interimsunterstützung der Vertriebsleitung", "Interimstage geleistet"],
-    brightwaterWorkshop: ["Klarwasser Software – Workshoptage zum Supportmodell", "Workshops durchgeführt"],
+    calderReview: ["Kalder Verpackungen – Überprüfung des Betriebsmodells", "Mandat abgeschlossen"],
+    kestrelWorkshop: [
+      "Sperber Medizintechnik – jährlicher Strategieworkshop",
+      "Workshop-Zusammenfassung an Frau Brandl",
+    ],
+    kestrelOffsite: ["Sperber Medizintechnik – Klausur zur Vertriebsplanung", "Tagungsort mit Herrn Hartl festlegen"],
+    stanmoreDay: ["Haller & Stein – Strategietag der Partner", "Workshop durchgeführt"],
+    kestrelInterim: [
+      "Sperber Medizintechnik – Interimsunterstützung der Vertriebsleitung",
+      "Monatliches Abstimmungsgespräch mit Herrn Hartl",
+    ],
+    brightwaterWorkshop: ["Klarwasser Software – Workshoptage zum Supportmodell", "Zweiten Workshoptag vorbereiten"],
   },
   story: {
     introduction: "Erstgespräch mit Frau Albrecht und Herrn Pfeiffer",
@@ -581,40 +623,38 @@ const de: Strings = {
     "Empfohlen von Richard Haller, der Frau Albrecht seit Jahren berät.",
     "Bedarfsklärung: Die Margen stehen unter Druck, weil jedes Werk für sich plant; Herr Pfeiffer möchte einen gemeinsamen Planungsrhythmus für alle drei Werke.",
     "Auftragsklärung: fünf Interviews, ein Besuch pro Werk, zwei Workshoptage mit der Geschäftsleitung.",
-    "Entscheidung: Variante B (Überprüfung plus zwei Workshoptage), von Frau Albrecht schriftlich bestätigt.",
+    "Angebot: Variante A ist die Überprüfung allein (10 Tage), Variante B kommt mit zwei Workshoptagen auf 16 Tage. Beide zum üblichen Tagessatz.",
+    "Herr Pfeiffer ist Auftraggeber und mit Frau Decker unser Ansprechpartner; Frau Albrecht unterschreibt nach der Sitzung der Geschäftsleitung.",
   ],
   tasks: {
-    briefHelen: "Beziehungsbriefing für den Auftakt mit Frau Albrecht vorbereiten",
-    kickoffAgenda: "Herrn Pfeiffer Agenda und zwei Termine für den Auftakt schicken",
+    briefHelen: "Beziehungsbriefing für den Termin mit Herrn Pfeiffer und Frau Decker vorbereiten",
+    kickoffAgenda: "Herrn Pfeiffer vor Donnerstag die Interview-Zusammenfassung schicken",
     callTom: "Herrn Wendt wegen seiner Fragen zum Angebot anrufen",
     brightwaterScope: "Zwei Varianten für den Umfang bei Klarwasser ausarbeiten",
     interimAvailability: "Interimstage im Januar mit Frau Kern abstimmen",
     ellisonQuestions: "Fragen für das Erstgespräch mit Ellwanger vorbereiten",
-    thankRichard: "Richard für die Empfehlung an Grauhof danken",
     kestrelWalkthrough: "Mit Frau Brandl die geteilten Workshoptage durchgehen",
     briefDiane: "Beziehungsbriefing für das erste Treffen mit Frau Merkle vorbereiten",
     rivertonNotes: "Gespräch zur Bedarfsklärung mit Uferhof zusammenfassen",
     lunchGeorge: "Georg zwei Termine für ein Mittagessen vorschlagen",
-    oakhamCheckIn: "Bei Herrn Pohl wegen des Strategietags nachfragen",
   },
   views: {
     pipeline: "Mandatspipeline",
+    active: "Laufende Mandate",
     nextSteps: "Nächste Schritte",
-    organizations: "Kundenorganisationen",
     relationships: "Beziehungen nach letztem Treffen",
     openTasks: "Offene Aufgaben",
-    services: "Leistungen und Honorare",
   },
   widgets: {
     proposalsOut: "Offene Angebote",
     won: "Gewonnen in 12 Monaten",
-    averageWon: "Durchschnittliches Mandat",
+    daysInDelivery: "Gebuchte Tage in Umsetzung",
     quietContacts: "Seit 60+ Tagen nicht getroffen",
     byStage: "Offene Pipeline nach Phase",
-    wonBySource: "Gewonnener Wert nach Empfehlungsquelle",
+    byDelivery: "Gewonnene Mandate nach Umsetzung",
     byIndustry: "Offene Pipeline nach Branche",
-    wonByMonth: "Gewonnener Wert pro Monat",
-    topClients: "Top-Kunden nach gewonnenem Wert",
+    wonByMonth: "Gewonnene Honorare pro Monat",
+    topClients: "Top-Kunden nach gewonnenen Honoraren",
   },
   wiki: {
     guide: {
@@ -623,45 +663,67 @@ const de: Strings = {
         "Kronfeld Beratung ist eine unabhängige Beratung für mittelständische B2B-Unternehmen mit Schwerpunkt Strategie und Organisation. Die meisten Mandate entstehen aus Beziehungen: Kunden, frühere Kollegen und Partner, die uns weiterempfehlen. Dieser Arbeitsbereich enthält Demodaten; alle Firmen und Personen sind erfunden.",
         "",
         "## So nutzen wir das CRM",
-        "- **Kundenorganisationen** sind die Unternehmen, die wir beraten oder ansprechen, dazu die Partner, die uns empfehlen. **Kontakte** sind die Menschen dort, mit Beziehungsstärke und Datum des letzten Treffens.",
-        "- **Mandatsanfragen** durchlaufen Kennenlernen, Bedarfsklärung, Auftragsklärung, Angebot gesendet und Entscheidung bis Gewonnen oder Verloren. Das Angebot selbst entsteht außerhalb des CRM; die Phase hält nur fest, dass es verschickt wurde und wie entschieden wurde.",
-        "- **Leistungen** sind unsere Festpreispakete, Workshoptage und Interimstage. Der Wert einer Mandatsanfrage ergibt sich aus den Leistungen, die ihr zugeordnet sind.",
+        "- **Kunden** sind die Unternehmen, die wir beraten oder ansprechen, dazu die Partner, die uns empfehlen. **Kontakte** sind die Menschen dort, mit ihrer Rolle im Mandat, Beziehungsstärke und Datum des letzten Treffens.",
+        "- **Mandate** durchlaufen Kennenlernen, Bedarfsklärung, Auftragsklärung, Angebot gesendet und Entscheidung bis Gewonnen oder Verloren. Das Angebot selbst entsteht außerhalb des CRM; die Phase hält nur fest, dass es verschickt wurde und wie entschieden wurde.",
+        "- Der Wert eines Mandats ist unser Honorar: geschätzte Tage mal Tagessatz, vom CRM berechnet. Der gewichtete Wert wendet die Wahrscheinlichkeit der Phase darauf an. Die Dauer zählt die Tage von Beginn bis Ende.",
+        "- Gewonnene Mandate durchlaufen danach die Umsetzung auf dem Board „Laufende Mandate“: Nicht begonnen, In Umsetzung, Abschluss, Abgeschlossen.",
         "- **Aufgaben** sind Zusagen mit Fälligkeitsdatum. Aufgaben, nächste Schritte und deren Datum sind normale Felder: Niemand wird automatisch erinnert, deshalb jeden Morgen die Ansichten „Nächste Schritte“ und „Offene Aufgaben“ prüfen.",
-        "- Ein Gespräch aus dem Posteingang gehört nur dann zu einer Mandatsanfrage oder Kundenorganisation, wenn jemand es dort verknüpft.",
+        "- Ein Gespräch aus dem Posteingang gehört nur dann zu einem Mandat oder Kunden, wenn jemand es dort verknüpft.",
         "",
         "## Arbeitsregeln",
-        "- Jede offene Mandatsanfrage hat einen nächsten Schritt mit Datum.",
+        "- Jedes offene Mandat hat einen nächsten Schritt mit Datum.",
         "- Nach jedem Treffen beim Kontakt das Datum des letzten Treffens und die Beziehungsstärke aktualisieren.",
-        "- Entscheidungen sofort in der Mandatsanfrage festhalten, bei einer Absage mit Grund.",
-        "- Honorare kommen aus der Liste der Leistungen. Abrechnung und Projektarbeit bleiben in ihren eigenen Programmen.",
+        "- Entscheidungen sofort im Mandat festhalten, bei einer Absage mit Grund.",
+        "- Tagessätze und Honorarvarianten stehen auf der gleichnamigen Seite. Abrechnung und Projektdokumente bleiben in ihren eigenen Programmen.",
       ],
     },
     process: {
       title: "So entwickeln sich Mandate",
       markdown: [
-        "Jede Mandatsanfrage durchläuft dieselben Phasen. Die Phase hält fest, wo das Gespräch steht, sie ist kein Dokument.",
+        "Jedes Mandat durchläuft dieselben Phasen. Die Phase hält fest, wo das Gespräch steht, sie ist kein Dokument.",
         "",
         "## Phasen",
-        "1. **Kennenlernen:** Jemand hat uns empfohlen oder das Unternehmen hat sich gemeldet. Organisation, Person und Empfehlungsquelle anlegen.",
+        "1. **Kennenlernen:** Jemand hat uns empfohlen oder das Unternehmen hat sich gemeldet. Kunde, Person und Empfehlungsquelle anlegen.",
         "2. **Bedarfsklärung:** Das erste Gespräch hat stattgefunden. Das Problem in den Worten des Kunden festhalten und notieren, wer noch beteiligt ist.",
-        "3. **Auftragsklärung:** Wir stimmen ab, was das Mandat umfasst, wen wir interviewen und welche Leistungen passen.",
-        "4. **Angebot gesendet:** Das Angebot ist per E-Mail verschickt; die Leistungen sind in der Mandatsanfrage erfasst.",
+        "3. **Auftragsklärung:** Wir stimmen ab, was das Mandat umfasst und wen wir interviewen. Tagessatz und geschätzte Tage eintragen, damit das Honorar berechnet wird.",
+        "4. **Angebot gesendet:** Das Angebot ist per E-Mail verschickt; das Honorar im Mandat entspricht der Variante, die wir empfehlen.",
         "5. **Entscheidung:** Der Kunde entscheidet. Den nächsten Schritt auf das Datum legen, das er uns genannt hat.",
         "6. **Gewonnen oder Verloren:** Die Entscheidung von Hand eintragen, bei einer Absage mit Grund. In beiden Fällen der Person danken, die uns empfohlen hat.",
+        "",
+        "## Nach der Entscheidung",
+        "Ein gewonnenes Mandat beginnt in der Umsetzung bei Nicht begonnen. Beginn und Ende eintragen, zum Auftakt auf In Umsetzung und mit dem letzten gebuchten Workshop auf Abschluss setzen. Abgeschlossene Mandate bleiben für das nächste Gespräch mit dem Kunden erhalten.",
       ],
     },
     brief: {
       title: "Beziehungsbriefing vorbereiten",
       whenToUse: "Wenn ein Treffen mit Kunden, Interessenten oder Empfehlungspartnern ansteht.",
       markdown: [
-        "Ein Beziehungsbriefing dauert zehn Minuten und sorgt dafür, dass wir in jedes Treffen gehen und den Menschen kennen, nicht nur die Anfrage.",
+        "Ein Beziehungsbriefing dauert zehn Minuten und sorgt dafür, dass wir in jedes Treffen gehen und den Menschen kennen, nicht nur das Mandat.",
         "",
         "## Schritte",
         "1. Den Kontakt öffnen und Beziehungsstärke, letztes Treffen und Empfehlungsquelle prüfen.",
-        "2. Die Organisation und ihre Mandatsanfragen öffnen: Phase, nächster Schritt und frühere Zusammenarbeit.",
-        "3. Die Gespräche lesen, die mit der Mandatsanfrage und der Organisation verknüpft sind. Nicht verknüpfte Gespräche erscheinen dort nicht, deshalb auch im Posteingang nach dem Namen der Person suchen.",
-        "4. Fünf Zeilen in die Notizen der Mandatsanfrage schreiben: was der Person wichtig ist, was sich seit dem letzten Gespräch geändert hat, was wir zugesagt haben, ein persönliches Detail, das wir uns merken sollten, und die Frage, die wir beantwortet haben wollen.",
+        "2. Den Kunden und seine Mandate öffnen: Phase, nächster Schritt und frühere Zusammenarbeit.",
+        "3. Die Gespräche lesen, die mit dem Mandat und dem Kunden verknüpft sind. Nicht verknüpfte Gespräche erscheinen dort nicht, deshalb auch im Posteingang nach dem Namen der Person suchen.",
+        "4. Fünf Zeilen in die Notizen des Mandats schreiben: was der Person wichtig ist, was sich seit dem letzten Gespräch geändert hat, was wir zugesagt haben, ein persönliches Detail, das wir uns merken sollten, und die Frage, die wir beantwortet haben wollen.",
         "5. Nach dem Treffen letztes Treffen, Beziehungsstärke, nächsten Schritt und Datum aktualisieren und für jede Zusage eine Aufgabe anlegen.",
+      ],
+    },
+    rates: {
+      title: "Tagessätze und Honorarvarianten",
+      markdown: [
+        "Jedes Mandat kalkulieren wir als geschätzte Tage mal Tagessatz. Das CRM berechnet das Honorar aus diesen beiden Feldern, deshalb ändern wir die Eingaben, nicht das Honorar.",
+        "",
+        "## Tagessätze",
+        "- **Beratung und Analysen:** 1.850 Euro pro Tag, inklusive Vorbereitung und schriftlicher Zusammenfassung.",
+        "- **Workshops und Klausuren:** 1.900 Euro pro Moderationstag; die Vorbereitung ist in der Schätzung enthalten.",
+        "- **Interim-Management:** 1.350 Euro pro Tag bei Blöcken ab 20 Tagen.",
+        "- Empfehlungen über Partner erhalten den üblichen Satz; für Empfehlungen gibt es keinen Nachlass.",
+        "",
+        "## Honorarvarianten im Angebot",
+        "- Zwei Varianten anbieten: die Analyse allein und die Analyse mit Workshoptagen für die Geschäftsleitung.",
+        "- Die empfohlene Variante im Mandat eintragen, die andere mit ihren Tagen in den Notizen erwähnen.",
+        "- Wenn ein Kunde Workshoptage teilen oder verschieben möchte, bleibt das Honorar gleich, solange die Zahl der Tage gleich bleibt.",
+        "- Reisekosten rechnen wir nach Aufwand ab, sie sind nie Teil des Tagessatzes.",
       ],
     },
   },
@@ -670,8 +732,15 @@ const de: Strings = {
       subject: "Angebot: Überprüfung des Betriebsmodells",
       messages: [
         "Sehr geehrte Frau Albrecht,\n\nvielen Dank für das offene Gespräch in der vergangenen Woche. Wie besprochen enthält das Angebot zwei Varianten: Variante A umfasst die Überprüfung der Abläufe, Variante B zusätzlich zwei Workshoptage mit Ihrer Geschäftsleitung.\n\nGern gehe ich das Angebot vor Ihrer Sitzung mit Herrn Pfeiffer und Frau Decker durch.\n\nMit freundlichen Grüßen\nMax Bergmann",
-        "Sehr geehrter Herr Bergmann,\n\nwir haben das Angebot am Montag in der Geschäftsleitung besprochen und uns für Variante B entschieden. Herr Pfeiffer stimmt die Termine für den Auftakt mit Ihnen ab.\n\nDanke, dass Sie sich die Zeit genommen haben, unsere Abläufe wirklich zu verstehen, bevor Sie etwas aufgeschrieben haben.\n\nViele Grüße\nHeike Albrecht",
-        "Sehr geehrte Frau Albrecht,\n\nherzlichen Dank für Ihre Entscheidung und das Vertrauen, das dahintersteht. Es war eine Freude, Ihr Team in den Interviews kennenzulernen, und ich freue mich auf die Zusammenarbeit.\n\nHerrn Pfeiffer schicke ich diese Woche zwei Termine für den Auftaktworkshop. Und viel Erfolg für Ihren Sohn beim Landesfinale am Samstag!\n\nHerzliche Grüße\nMax Bergmann",
+        "Sehr geehrter Herr Bergmann,\n\nvielen Dank, wir entscheiden am Montag in der Geschäftsleitung. Herr Pfeiffer und Frau Decker möchten Variante B vorher mit Ihnen durchgehen. Können Sie uns außerdem sagen, wie sich das Honorar ändert, wenn wir mit zwei der drei Werke beginnen?\n\nViele Grüße\nHeike Albrecht",
+        "Sehr geehrte Frau Albrecht,\n\nvielen Dank. Variante B umfasst 16 Tage zu unserem Tagessatz von 1.850 Euro. Mit zwei Werken sind es 12 Tage; die zwei Workshoptage bleiben gleich.\n\nDonnerstag um 10 Uhr passt für das Gespräch mit Herrn Pfeiffer und Frau Decker, die Zusammenfassung der Interviews bringe ich mit. Und viel Erfolg für Ihren Sohn beim Landesfinale am Samstag!\n\nHerzliche Grüße\nMax Bergmann",
+      ],
+    },
+    martinLinkedin: {
+      messages: [
+        "Herr Bergmann, das Angebot ist gut angekommen. Frau Decker hätte gern eine Seite dazu, wie die zwei Workshoptage ablaufen. Können Sie vor Donnerstag etwas schicken?",
+        "Sehr gern, Herr Pfeiffer. Ich schicke Ihnen morgen eine Seite und bringe am Donnerstag Ausdrucke mit.",
+        "Perfekt, danke.",
       ],
     },
     fairhavenInterviews: {
@@ -722,18 +791,37 @@ const de: Strings = {
   calendar: {
     name: "Kundentermine",
     events: [
-      "Auftaktworkshop bei Falkenried Komponenten",
+      "Angebotsbesprechung bei Falkenried Komponenten",
       "Erstgespräch mit Ellwanger Fluidtechnik",
-      "Angebotsbesprechung mit Sperber Medizintechnik",
+      "Workshopplanung mit Sperber Medizintechnik",
     ],
+  },
+  routines: {
+    briefs: {
+      name: "Briefings für Termine vorbereiten",
+      task: "Lies an jedem Werktag morgens mit get_calendars die heutigen Termine. Ordne die Teilnehmenden über ihre Identitätskanäle Kontakten zu und lies zu jedem Kontakt den Kunden und die offenen Mandate mit Phase, nächstem Schritt, letztem Treffen und den mit dem Mandat verknüpften Gesprächen. Hänge für jeden Termin mit passendem offenem Mandat ein datiertes Briefing von höchstens 120 Wörtern an die Notizen dieses Mandats an: was den Personen wichtig ist, was sich seit dem letzten Treffen geändert hat, was wir zugesagt haben und welche Frage zu klären ist. Überspringe Termine ohne passendes Mandat und schreibe kein Briefing doppelt. Ändere keine anderen Felder, lege keine Termine an und sende keine Nachrichten.",
+      runs: [
+        "Briefings für 2 Mandate zu den heutigen Terminen ergänzt: Falkenried Komponenten und Sperber Medizintechnik.",
+        "Briefing für das Erstgespräch mit Ellwanger ergänzt; der andere Termin hatte kein offenes Mandat.",
+      ],
+      note: "Ich konnte den Modellanbieter bei diesem Versuch nicht erreichen und habe deshalb vor dem Lesen des Kalenders abgebrochen. Nichts wurde geändert; der Lauf morgen bereitet die Briefings erneut vor.",
+    },
+    revisit: {
+      name: "Beziehungen wieder aufnehmen",
+      task: 'Frage jeden Montag die Kontakte sortiert nach Letztes Treffen ab, die ältesten zuerst, und lies Beziehungsstärke, Rolle und Kunde. Lege für höchstens drei Kontakte, deren letztes Treffen mehr als 60 Tage zurückliegt, deren Beziehungsstärke Eng oder Gut ist und die keine offene verknüpfte Aufgabe haben, je eine normale Aufgabe "Wieder melden bei <Name des Kontakts>" für die Inhaberin oder den Inhaber des Arbeitsbereichs an, fällig diesen Freitag, Priorität Niedrig, verknüpft mit Kontakt und Kunde, mit dem Datum des letzten Treffens und dem jüngsten Mandat in den Notizen. Ändere die Kontakte nicht und schreibe niemandem.',
+      runs: [
+        "2 Aufgaben angelegt: Georg Brenner (zuletzt vor 140 Tagen getroffen) und Klaus Wieland (105 Tage).",
+        "1 Aufgabe für Ingo Pohl angelegt; die anderen ruhigen Kontakte hatten bereits eine offene Aufgabe.",
+      ],
+    },
   },
 };
 
 const ORGANIZATION_FACTS: Record<
   OrganizationKey,
-  { industry: string; relationship: string; employees: number; createdDaysAgo: number; becameClient?: number }
+  { industry: string; relationship: string; employees: number; createdDaysAgo: number }
 > = {
-  fairhaven: { industry: "manufacturing", relationship: "client", employees: 240, createdDaysAgo: 54, becameClient: 2 },
+  fairhaven: { industry: "manufacturing", relationship: "prospect", employees: 240, createdDaysAgo: 54 },
   northwold: { industry: "logistics", relationship: "prospect", employees: 380, createdDaysAgo: 36 },
   brightwater: { industry: "software", relationship: "client", employees: 160, createdDaysAgo: 260 },
   calder: { industry: "packaging", relationship: "former", employees: 210, createdDaysAgo: 310 },
@@ -751,6 +839,7 @@ const CONTACT_FACTS: Record<
   ContactKey,
   {
     organization: OrganizationKey;
+    role: string;
     strength: string;
     lastMeeting: number;
     createdDaysAgo: number;
@@ -758,44 +847,84 @@ const CONTACT_FACTS: Record<
     avatar?: Parameters<typeof photo>[0];
   }
 > = {
-  helen: { organization: "fairhaven", strength: "strong", lastMeeting: -5, createdDaysAgo: 54, avatar: "anna-mueller" },
-  martin: { organization: "fairhaven", strength: "warm", lastMeeting: -12, createdDaysAgo: 50, avatar: "felix-koch" },
-  rachel: { organization: "fairhaven", strength: "warm", lastMeeting: -12, createdDaysAgo: 40 },
+  helen: {
+    organization: "fairhaven",
+    role: "signsOff",
+    strength: "strong",
+    lastMeeting: -5,
+    createdDaysAgo: 54,
+    avatar: "anna-mueller",
+  },
+  martin: {
+    organization: "fairhaven",
+    role: "sponsor",
+    strength: "warm",
+    lastMeeting: -12,
+    createdDaysAgo: 50,
+    linkedin: true,
+    avatar: "felix-koch",
+  },
+  rachel: { organization: "fairhaven", role: "dayToDay", strength: "warm", lastMeeting: -12, createdDaysAgo: 40 },
   tom: {
     organization: "northwold",
+    role: "sponsor",
     strength: "warm",
     lastMeeting: -9,
     createdDaysAgo: 36,
     linkedin: true,
     avatar: "leon-becker",
   },
-  claire: { organization: "northwold", strength: "early", lastMeeting: -20, createdDaysAgo: 28 },
+  claire: { organization: "northwold", role: "dayToDay", strength: "early", lastMeeting: -20, createdDaysAgo: 28 },
   sarah: {
     organization: "brightwater",
+    role: "sponsor",
     strength: "strong",
     lastMeeting: -6,
     createdDaysAgo: 258,
     linkedin: true,
     avatar: "mia-schneider",
   },
-  adam: { organization: "brightwater", strength: "warm", lastMeeting: -25, createdDaysAgo: 240 },
-  george: { organization: "calder", strength: "strong", lastMeeting: -140, createdDaysAgo: 305, linkedin: true },
+  adam: { organization: "brightwater", role: "signsOff", strength: "warm", lastMeeting: -25, createdDaysAgo: 240 },
+  george: {
+    organization: "calder",
+    role: "sponsor",
+    strength: "strong",
+    lastMeeting: -140,
+    createdDaysAgo: 305,
+    linkedin: true,
+  },
   alan: {
     organization: "ellison",
+    role: "sponsor",
     strength: "early",
     lastMeeting: -15,
     createdDaysAgo: 17,
     linkedin: true,
     avatar: "tim-wagner",
   },
-  nina: { organization: "ellison", strength: "early", lastMeeting: -15, createdDaysAgo: 15 },
-  paul: { organization: "greyfriars", strength: "early", lastMeeting: -3, createdDaysAgo: 5 },
-  laura: { organization: "kestrel", strength: "strong", lastMeeting: -10, createdDaysAgo: 198, avatar: "lea-bauer" },
-  simon: { organization: "kestrel", strength: "warm", lastMeeting: -10, createdDaysAgo: 120 },
-  diane: { organization: "marlow", strength: "early", lastMeeting: -7, createdDaysAgo: 8, linkedin: true },
-  ian: { organization: "oakham", strength: "warm", lastMeeting: -72, createdDaysAgo: 115 },
+  nina: { organization: "ellison", role: "dayToDay", strength: "early", lastMeeting: -15, createdDaysAgo: 15 },
+  paul: { organization: "greyfriars", role: "signsOff", strength: "early", lastMeeting: -3, createdDaysAgo: 5 },
+  laura: {
+    organization: "kestrel",
+    role: "sponsor",
+    strength: "strong",
+    lastMeeting: -10,
+    createdDaysAgo: 198,
+    avatar: "lea-bauer",
+  },
+  simon: { organization: "kestrel", role: "dayToDay", strength: "warm", lastMeeting: -10, createdDaysAgo: 120 },
+  diane: {
+    organization: "marlow",
+    role: "signsOff",
+    strength: "early",
+    lastMeeting: -7,
+    createdDaysAgo: 8,
+    linkedin: true,
+  },
+  ian: { organization: "oakham", role: "signsOff", strength: "warm", lastMeeting: -72, createdDaysAgo: 115 },
   emily: {
     organization: "riverton",
+    role: "sponsor",
     strength: "early",
     lastMeeting: -4,
     createdDaysAgo: 13,
@@ -804,13 +933,14 @@ const CONTACT_FACTS: Record<
   },
   richard: {
     organization: "stanmore",
+    role: "sponsor",
     strength: "strong",
     lastMeeting: -14,
     createdDaysAgo: 420,
     linkedin: true,
     avatar: "paul-koch",
   },
-  kevin: { organization: "wexford", strength: "warm", lastMeeting: -105, createdDaysAgo: 165 },
+  kevin: { organization: "wexford", role: "signsOff", strength: "warm", lastMeeting: -105, createdDaysAgo: 165 },
 };
 
 type DealFacts = {
@@ -818,12 +948,17 @@ type DealFacts = {
   contacts: ContactKey[];
   stage: string;
   source: string;
-  lines: Array<[ServiceKey, number]>;
+  rate: number;
+  days: number;
   createdDaysAgo: number;
   decision: number;
+  /** Start and end of the work, relative to the story end; open engagements plan them after the decision. */
+  start?: number;
+  end?: number;
+  delivery?: string;
   next?: number;
   lost?: string;
-  /** Stage moves, oldest first: on `daysAgo` the opportunity left the stage `from`. */
+  /** Stage moves, oldest first: on `daysAgo` the engagement left the stage `from`. */
   moves?: Array<{ daysAgo: number; from: string }>;
 };
 
@@ -831,21 +966,19 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
   fairhavenReview: {
     organization: "fairhaven",
     contacts: ["helen", "martin", "rachel"],
-    stage: "won",
+    stage: "proposal",
     source: "peerReferral",
-    lines: [
-      ["operatingModelReview", 1],
-      ["workshopDay", 2],
-    ],
+    rate: 1850,
+    days: 16,
     createdDaysAgo: 52,
-    decision: -2,
-    next: 9,
+    decision: 6,
+    start: 20,
+    end: 68,
+    next: 2,
     moves: [
       { daysAgo: 45, from: "introduction" },
       { daysAgo: 33, from: "discovery" },
-      { daysAgo: 19, from: "scoping" },
-      { daysAgo: 7, from: "proposal" },
-      { daysAgo: 2, from: "decision" },
+      { daysAgo: 7, from: "scoping" },
     ],
   },
   northwoldReview: {
@@ -853,12 +986,12 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     contacts: ["tom", "claire"],
     stage: "proposal",
     source: "event",
-    lines: [
-      ["discoverySprint", 1],
-      ["workshopDay", 3],
-    ],
+    rate: 1850,
+    days: 18,
     createdDaysAgo: 34,
     decision: 14,
+    start: 28,
+    end: 70,
     next: 1,
     moves: [
       { daysAgo: 27, from: "introduction" },
@@ -871,7 +1004,8 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     contacts: ["sarah", "adam"],
     stage: "scoping",
     source: "existingClient",
-    lines: [["operatingModelReview", 1]],
+    rate: 1850,
+    days: 12,
     createdDaysAgo: 21,
     decision: 30,
     next: 2,
@@ -885,9 +1019,12 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     contacts: ["sarah"],
     stage: "decision",
     source: "existingClient",
-    lines: [["interimDay", 40]],
+    rate: 1350,
+    days: 40,
     createdDaysAgo: 30,
     decision: 5,
+    start: 21,
+    end: 140,
     next: 4,
     moves: [
       { daysAgo: 24, from: "introduction" },
@@ -901,7 +1038,8 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     contacts: ["alan", "nina"],
     stage: "discovery",
     source: "content",
-    lines: [["pricingReview", 1]],
+    rate: 1850,
+    days: 10,
     createdDaysAgo: 16,
     decision: 40,
     next: 3,
@@ -912,10 +1050,8 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     contacts: ["paul"],
     stage: "introduction",
     source: "peerReferral",
-    lines: [
-      ["offsiteFacilitation", 1],
-      ["workshopDay", 1],
-    ],
+    rate: 1900,
+    days: 3,
     createdDaysAgo: 4,
     decision: 60,
     next: 2,
@@ -923,19 +1059,20 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
   kestrelSales: {
     organization: "kestrel",
     contacts: ["laura", "simon"],
-    stage: "proposal",
+    stage: "decision",
     source: "existingClient",
-    lines: [
-      ["discoverySprint", 1],
-      ["workshopDay", 2],
-    ],
+    rate: 1850,
+    days: 14,
     createdDaysAgo: 40,
     decision: 10,
+    start: 35,
+    end: 90,
     next: 1,
     moves: [
       { daysAgo: 33, from: "introduction" },
       { daysAgo: 22, from: "discovery" },
       { daysAgo: 9, from: "scoping" },
+      { daysAgo: 3, from: "proposal" },
     ],
   },
   marlowIntegration: {
@@ -943,7 +1080,8 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     contacts: ["diane"],
     stage: "introduction",
     source: "event",
-    lines: [["interimDay", 20]],
+    rate: 1350,
+    days: 20,
     createdDaysAgo: 7,
     decision: 45,
     next: 3,
@@ -953,18 +1091,35 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     contacts: ["emily"],
     stage: "discovery",
     source: "content",
-    lines: [["discoverySprint", 1]],
+    rate: 1850,
+    days: 9,
     createdDaysAgo: 12,
     decision: 35,
     next: 5,
     moves: [{ daysAgo: 4, from: "introduction" }],
+  },
+  calderPlanning: {
+    organization: "calder",
+    contacts: ["george"],
+    stage: "scoping",
+    source: "existingClient",
+    rate: 1850,
+    days: 8,
+    createdDaysAgo: 14,
+    decision: 35,
+    next: 6,
+    moves: [
+      { daysAgo: 10, from: "introduction" },
+      { daysAgo: 5, from: "discovery" },
+    ],
   },
   oakhamStrategy: {
     organization: "oakham",
     contacts: ["ian"],
     stage: "lost",
     source: "clientReferral",
-    lines: [["workshopDay", 1]],
+    rate: 1900,
+    days: 2,
     createdDaysAgo: 110,
     decision: -70,
     lost: "timing",
@@ -974,31 +1129,13 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
       { daysAgo: 70, from: "proposal" },
     ],
   },
-  calderReview: {
-    organization: "calder",
-    contacts: ["george"],
-    stage: "won",
-    source: "clientReferral",
-    lines: [
-      ["operatingModelReview", 1],
-      ["workshopDay", 1],
-    ],
-    createdDaysAgo: 300,
-    decision: -220,
-    moves: [
-      { daysAgo: 280, from: "introduction" },
-      { daysAgo: 262, from: "discovery" },
-      { daysAgo: 245, from: "scoping" },
-      { daysAgo: 232, from: "proposal" },
-      { daysAgo: 220, from: "decision" },
-    ],
-  },
   wexfordPlant: {
     organization: "wexford",
     contacts: ["kevin"],
     stage: "lost",
     source: "event",
-    lines: [["operatingModelReview", 1]],
+    rate: 1850,
+    days: 15,
     createdDaysAgo: 160,
     decision: -100,
     lost: "otherAdvisor",
@@ -1009,140 +1146,75 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
       { daysAgo: 100, from: "decision" },
     ],
   },
+  calderReview: {
+    organization: "calder",
+    contacts: ["george"],
+    stage: "won",
+    source: "clientReferral",
+    rate: 1850,
+    days: 14,
+    createdDaysAgo: 300,
+    decision: -220,
+    start: -205,
+    end: -120,
+    delivery: "completed",
+    moves: [
+      { daysAgo: 280, from: "introduction" },
+      { daysAgo: 262, from: "discovery" },
+      { daysAgo: 245, from: "scoping" },
+      { daysAgo: 232, from: "proposal" },
+      { daysAgo: 220, from: "decision" },
+    ],
+  },
   kestrelWorkshop: {
     organization: "kestrel",
     contacts: ["laura"],
     stage: "won",
     source: "existingClient",
-    lines: [["workshopDay", 3]],
+    rate: 1900,
+    days: 3,
     createdDaysAgo: 190,
     decision: -150,
+    start: -40,
+    end: 6,
+    delivery: "wrappingUp",
     moves: [
       { daysAgo: 175, from: "proposal" },
       { daysAgo: 150, from: "decision" },
     ],
   },
-  brightwaterDiscovery: {
-    organization: "brightwater",
-    contacts: ["sarah"],
-    stage: "won",
-    source: "content",
-    lines: [
-      ["discoverySprint", 1],
-      ["workshopDay", 1],
-    ],
-    createdDaysAgo: 257,
-    decision: -248,
-    moves: [
-      { daysAgo: 252, from: "proposal" },
-      { daysAgo: 248, from: "decision" },
-    ],
-  },
-
-  brightwaterOffsite: {
-    organization: "brightwater",
-    contacts: ["sarah"],
-    stage: "won",
-    source: "existingClient",
-    lines: [
-      ["offsiteFacilitation", 1],
-      ["workshopDay", 1],
-    ],
-    createdDaysAgo: 135,
-    decision: -125,
-    moves: [
-      { daysAgo: 129, from: "proposal" },
-      { daysAgo: 125, from: "decision" },
-    ],
-  },
-
-  brightwaterPricing: {
-    organization: "brightwater",
-    contacts: ["adam"],
-    stage: "won",
-    source: "existingClient",
-    lines: [["pricingReview", 1]],
-    createdDaysAgo: 85,
-    decision: -75,
-    moves: [
-      { daysAgo: 80, from: "proposal" },
-      { daysAgo: 75, from: "decision" },
-    ],
-  },
-
-  kestrelReview: {
-    organization: "kestrel",
-    contacts: ["laura"],
-    stage: "won",
-    source: "clientReferral",
-    lines: [["pricingReview", 1]],
-    createdDaysAgo: 196,
-    decision: -170,
-    moves: [
-      { daysAgo: 180, from: "proposal" },
-      { daysAgo: 170, from: "decision" },
-    ],
-  },
-
   kestrelOffsite: {
     organization: "kestrel",
     contacts: ["laura", "simon"],
     stage: "won",
     source: "existingClient",
-    lines: [
-      ["offsiteFacilitation", 1],
-      ["workshopDay", 1],
-    ],
+    rate: 1900,
+    days: 4,
     createdDaysAgo: 55,
     decision: -30,
+    start: 18,
+    end: 19,
+    delivery: "notStarted",
     moves: [
       { daysAgo: 40, from: "proposal" },
       { daysAgo: 30, from: "decision" },
     ],
   },
-
-  calderInterim: {
-    organization: "calder",
-    contacts: ["george"],
-    stage: "won",
-    source: "existingClient",
-    lines: [["interimDay", 8]],
-    createdDaysAgo: 210,
-    decision: -195,
-    moves: [
-      { daysAgo: 200, from: "proposal" },
-      { daysAgo: 195, from: "decision" },
-    ],
-  },
-
   stanmoreDay: {
     organization: "stanmore",
     contacts: ["richard"],
     stage: "won",
     source: "event",
-    lines: [["workshopDay", 3]],
+    rate: 1900,
+    days: 3,
     createdDaysAgo: 330,
     decision: -300,
+    start: -290,
+    end: -284,
+    delivery: "completed",
     moves: [
       { daysAgo: 310, from: "proposal" },
       { daysAgo: 300, from: "decision" },
-    ],
-  },
-
-  calderDiscovery: {
-    organization: "calder",
-    contacts: ["george"],
-    stage: "won",
-    source: "clientReferral",
-    lines: [
-      ["discoverySprint", 1],
-      ["workshopDay", 1],
-    ],
-    createdDaysAgo: 295,
-    decision: -275,
-    moves: [
-      { daysAgo: 285, from: "proposal" },
-      { daysAgo: 275, from: "decision" },
     ],
   },
   kestrelInterim: {
@@ -1150,9 +1222,13 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     contacts: ["simon"],
     stage: "won",
     source: "existingClient",
-    lines: [["interimDay", 6]],
+    rate: 1350,
+    days: 24,
     createdDaysAgo: 110,
     decision: -100,
+    start: -90,
+    end: 30,
+    delivery: "inDelivery",
     moves: [
       { daysAgo: 104, from: "proposal" },
       { daysAgo: 100, from: "decision" },
@@ -1163,23 +1239,19 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     contacts: ["sarah", "adam"],
     stage: "won",
     source: "existingClient",
-    lines: [["workshopDay", 3]],
+    rate: 1900,
+    days: 3,
     createdDaysAgo: 62,
     decision: -50,
+    start: -35,
+    end: 20,
+    delivery: "inDelivery",
+    next: 8,
     moves: [
       { daysAgo: 55, from: "proposal" },
       { daysAgo: 50, from: "decision" },
     ],
   },
-};
-
-const SERVICE_PRICES: Record<ServiceKey, number> = {
-  discoverySprint: 6500,
-  operatingModelReview: 18500,
-  pricingReview: 12000,
-  workshopDay: 2400,
-  offsiteFacilitation: 5800,
-  interimDay: 1350,
 };
 
 const TASK_FACTS: Record<
@@ -1198,7 +1270,7 @@ const TASK_FACTS: Record<
   briefHelen: {
     status: "open",
     priority: "high",
-    due: 8,
+    due: 2,
     deal: "fairhavenReview",
     contact: "helen",
     createdDaysAgo: 2,
@@ -1206,12 +1278,12 @@ const TASK_FACTS: Record<
   kickoffAgenda: {
     status: "inProgress",
     priority: "high",
-    due: 3,
+    due: 1,
     deal: "fairhavenReview",
     contact: "martin",
     createdDaysAgo: 2,
   },
-  callTom: { status: "open", priority: "high", due: 1, deal: "northwoldReview", contact: "tom", createdDaysAgo: 1 },
+  callTom: { status: "open", priority: "high", due: -1, deal: "northwoldReview", contact: "tom", createdDaysAgo: 3 },
   brightwaterScope: {
     status: "inProgress",
     priority: "high",
@@ -1235,15 +1307,6 @@ const TASK_FACTS: Record<
     deal: "ellisonPricing",
     contact: "alan",
     createdDaysAgo: 3,
-  },
-  thankRichard: {
-    status: "done",
-    priority: "medium",
-    due: -2,
-    organization: "stanmore",
-    contact: "richard",
-    createdDaysAgo: 5,
-    done: 3,
   },
   kestrelWalkthrough: {
     status: "open",
@@ -1273,18 +1336,10 @@ const TASK_FACTS: Record<
   lunchGeorge: {
     status: "open",
     priority: "low",
-    due: 5,
+    due: -3,
     organization: "calder",
     contact: "george",
     createdDaysAgo: 6,
-  },
-  oakhamCheckIn: {
-    status: "onHold",
-    priority: "low",
-    due: 60,
-    deal: "oakhamStrategy",
-    contact: "ian",
-    createdDaysAgo: 68,
   },
 };
 
@@ -1333,9 +1388,6 @@ export default defineSolution<Strings>({
         },
         channels: { email: `office@${domain(key)}` },
         createdDaysAgo: facts.createdDaysAgo,
-        ...(facts.becameClient === undefined
-          ? {}
-          : { history: [{ daysAgo: facts.becameClient, previous: { relationship: "prospect" } }] }),
       };
     });
     const contact: RecordSpec[] = CONTACTS.map((key, index) => {
@@ -1349,6 +1401,7 @@ export default defineSolution<Strings>({
           lastName,
           jobTitle,
           phone: phone(index),
+          role: facts.role,
           strength: facts.strength,
           lastMeeting: day(facts.lastMeeting),
         },
@@ -1363,11 +1416,6 @@ export default defineSolution<Strings>({
         createdDaysAgo: facts.createdDaysAgo,
       };
     });
-    const service: RecordSpec[] = SERVICES.map((key, index) => ({
-      key,
-      values: { name: t.services[key], amount: SERVICE_PRICES[key] },
-      createdDaysAgo: 600 - index,
-    }));
     const deal: RecordSpec[] = DEALS.map((key) => {
       const facts = DEAL_FACTS[key];
       const [name, nextStep] = t.deals[key];
@@ -1378,14 +1426,18 @@ export default defineSolution<Strings>({
           name,
           stage: facts.stage,
           referralSource: facts.source,
+          dayRate: facts.rate,
+          daysEstimated: facts.days,
           decisionDate: day(facts.decision),
+          ...(facts.start === undefined ? {} : { start: day(facts.start) }),
+          ...(facts.end === undefined ? {} : { end: day(facts.end) }),
+          ...(facts.delivery ? { delivery: facts.delivery } : {}),
           nextStep,
           ...(facts.next === undefined ? {} : { nextStepDate: day(facts.next) }),
           ...(facts.lost ? { lostReason: facts.lost } : {}),
           ...(story ? { notes: t.fairhavenNotes } : {}),
         },
         links: { "deal.organizations": facts.organization, "deal.contacts": facts.contacts },
-        lines: facts.lines,
         createdDaysAgo: facts.createdDaysAgo,
         history: (facts.moves ?? []).map((move) => ({
           daysAgo: move.daysAgo,
@@ -1421,14 +1473,12 @@ export default defineSolution<Strings>({
     return {
       workspaceName: t.workspaceName,
       companyName: t.company,
-      lists: (["organization", "contact", "deal", "service", "task"] as const).map((key) => ({
+      lists: (["organization", "contact", "deal", "task"] as const).map((key) => ({
         key,
         label: t.lists[key][0],
         pluralLabel: t.lists[key][1],
         description: t.lists[key][2],
-        icon: { organization: "building", contact: "contact", deal: "handshake", service: "package", task: "check" }[
-          key
-        ],
+        icon: { organization: "building", contact: "contact", deal: "handshake", task: "check" }[key],
       })),
       fields: [
         {
@@ -1466,6 +1516,12 @@ export default defineSolution<Strings>({
         { key: "contact.jobTitle", label: t.fields.jobTitle, type: "text" },
         { key: "contact.phone", label: t.fields.phone, type: "phone" },
         {
+          key: "contact.role",
+          label: t.fields.role,
+          type: "select",
+          options: label(t.options.role, { sponsor: "success", dayToDay: "info", signsOff: "warning" }),
+        },
+        {
           key: "contact.strength",
           label: t.fields.strength,
           type: "select",
@@ -1484,7 +1540,28 @@ export default defineSolution<Strings>({
             existingClient: "secondary",
           }),
         },
+        { key: "deal.dayRate", label: t.fields.dayRate, type: "currency" },
+        { key: "deal.daysEstimated", label: t.fields.days, type: "number" },
         { key: "deal.decisionDate", label: t.fields.decisionDate, type: "date" },
+        { key: "deal.start", label: t.fields.start, type: "date" },
+        { key: "deal.end", label: t.fields.end, type: "date" },
+        {
+          key: "deal.duration",
+          label: t.fields.duration,
+          type: "number",
+          formula: { kind: "daysBetween", from: "deal.start", to: "deal.end" },
+        },
+        {
+          key: "deal.delivery",
+          label: t.fields.delivery,
+          type: "select",
+          options: label(t.options.delivery, {
+            notStarted: "secondary",
+            inDelivery: "info",
+            wrappingUp: "warning",
+            completed: "success",
+          }),
+        },
         { key: "deal.nextStep", label: t.fields.nextStep, type: "text" },
         { key: "deal.nextStepDate", label: t.fields.nextStepDate, type: "date" },
         {
@@ -1515,7 +1592,8 @@ export default defineSolution<Strings>({
         { key: "won", label: t.stages.won, color: "success", probability: 100 },
         { key: "lost", label: t.stages.lost, color: "destructive", probability: 0 },
       ],
-      records: { organization, contact, service, deal, task },
+      dealValue: { kind: "product", left: "deal.dayRate", right: "deal.daysEstimated" },
+      records: { organization, contact, deal, task },
       views: [
         {
           key: "pipeline",
@@ -1527,6 +1605,16 @@ export default defineSolution<Strings>({
           filters: [{ field: "stage", notIn: ["lost"] }],
         },
         {
+          key: "active",
+          list: "deal",
+          name: t.views.active,
+          mode: "board",
+          groupBy: "delivery",
+          columns: ["totalValue", "deal.organizations", "start", "end"],
+          filters: [{ field: "stage", in: ["won"] }],
+          sort: { field: "end", direction: "asc" },
+        },
+        {
           key: "nextSteps",
           list: "deal",
           name: t.views.nextSteps,
@@ -1536,19 +1624,11 @@ export default defineSolution<Strings>({
           sort: { field: "nextStepDate", direction: "asc" },
         },
         {
-          key: "organizations",
-          list: "organization",
-          name: t.views.organizations,
-          mode: "table",
-          columns: ["relationship", "industry", "city", "employees", "contact.organizations"],
-          sort: { field: "relationship", direction: "asc" },
-        },
-        {
           key: "relationships",
           list: "contact",
           name: t.views.relationships,
           mode: "table",
-          columns: ["jobTitle", "contact.organizations", "strength", "lastMeeting", "capability.identity"],
+          columns: ["jobTitle", "contact.organizations", "role", "strength", "lastMeeting", "capability.identity"],
           sort: { field: "lastMeeting", direction: "asc" },
         },
         {
@@ -1559,14 +1639,6 @@ export default defineSolution<Strings>({
           columns: ["dueDate", "status", "priority", "task.deals", "task.contacts"],
           filters: [{ field: "status", notIn: ["done", "archived"] }],
           sort: { field: "dueDate", direction: "asc" },
-        },
-        {
-          key: "services",
-          list: "service",
-          name: t.views.services,
-          mode: "table",
-          columns: ["amount"],
-          sort: { field: "amount", direction: "desc" },
         },
       ],
       dashboard: {
@@ -1589,11 +1661,14 @@ export default defineSolution<Strings>({
           },
           {
             kind: "kpi",
-            title: t.widgets.averageWon,
+            title: t.widgets.daysInDelivery,
             list: "deal",
-            aggregation: "average",
-            field: "totalValue",
-            filters: wonLastYear,
+            aggregation: "sum",
+            field: "daysEstimated",
+            filters: [
+              { field: "stage", in: ["won"] },
+              { field: "delivery", in: ["notStarted", "inDelivery", "wrappingUp"] },
+            ],
           },
           {
             kind: "kpi",
@@ -1614,13 +1689,12 @@ export default defineSolution<Strings>({
           },
           {
             kind: "chart",
-            title: t.widgets.wonBySource,
+            title: t.widgets.byDelivery,
             display: DisplayType.doughnutChart,
             list: "deal",
-            aggregation: "sum",
-            field: "totalValue",
-            groupBy: { field: "referralSource" },
-            filters: wonLastYear,
+            aggregation: "count",
+            groupBy: { field: "delivery" },
+            filters: [{ field: "stage", in: ["won"] }],
           },
           {
             kind: "chart",
@@ -1650,7 +1724,7 @@ export default defineSolution<Strings>({
             aggregation: "sum",
             field: "totalValue",
             groupBy: { relation: "deal.organizations" },
-            filters: wonLastYear,
+            filters: [{ field: "stage", in: ["won"] }],
           },
         ],
       },
@@ -1664,6 +1738,7 @@ export default defineSolution<Strings>({
           whenToUse: t.wiki.brief.whenToUse,
           markdown: t.wiki.brief.markdown,
         },
+        { key: "rates", kind: "knowledge", title: t.wiki.rates.title, markdown: t.wiki.rates.markdown },
       ],
       messaging: {
         accounts: ["google", "linkedin"],
@@ -1678,6 +1753,14 @@ export default defineSolution<Strings>({
             latestMinutesAgo: 40,
             messages: thread("fairhavenDecision", ["self", "helen", "self"], true),
             links: ["deal:fairhavenReview", "organization:fairhaven"],
+          },
+          {
+            account: "linkedin",
+            with: ["martin"],
+            state: "open",
+            latestMinutesAgo: 5 * 60,
+            messages: thread("martinLinkedin", ["martin", "self", "martin"]),
+            links: ["deal:fairhavenReview"],
           },
           {
             account: "google",
@@ -1737,20 +1820,74 @@ export default defineSolution<Strings>({
           events: [
             {
               title: t.calendar.events[0],
-              with: ["helen", "martin"],
-              startsMinutesAgo: -9 * 24 * 60,
-              durationMinutes: 180,
+              with: ["martin", "rachel"],
+              startsMinutesAgo: -2 * 24 * 60,
+              durationMinutes: 60,
             },
             {
               title: t.calendar.events[1],
               with: ["alan", "nina"],
-              startsMinutesAgo: -2 * 24 * 60,
+              startsMinutesAgo: -3 * 24 * 60,
               durationMinutes: 60,
             },
             { title: t.calendar.events[2], with: ["laura"], startsMinutesAgo: -20 * 60, durationMinutes: 30 },
           ],
         },
       },
+      routines: [
+        {
+          key: "briefs",
+          name: t.routines.briefs.name,
+          task: t.routines.briefs.task,
+          trigger: { kind: "schedule", cron: "30 7 * * 1-5" },
+          runs: [
+            {
+              status: "succeeded",
+              startedHoursAgo: 3,
+              durationSeconds: 84,
+              credits: 14,
+              summary: t.routines.briefs.runs[0],
+            },
+            {
+              status: "failed",
+              startedHoursAgo: 27,
+              durationSeconds: 9,
+              credits: 1,
+              error: "providerUnavailable",
+              note: t.routines.briefs.note,
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 51,
+              durationSeconds: 66,
+              credits: 11,
+              summary: t.routines.briefs.runs[1],
+            },
+          ],
+        },
+        {
+          key: "revisit",
+          name: t.routines.revisit.name,
+          task: t.routines.revisit.task,
+          trigger: { kind: "schedule", cron: "0 8 * * 1" },
+          runs: [
+            {
+              status: "succeeded",
+              startedHoursAgo: 75,
+              durationSeconds: 58,
+              credits: 9,
+              summary: t.routines.revisit.runs[0],
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 243,
+              durationSeconds: 47,
+              credits: 8,
+              summary: t.routines.revisit.runs[1],
+            },
+          ],
+        },
+      ],
     };
   },
 });
