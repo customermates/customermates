@@ -60,7 +60,6 @@ export const WidgetCard = observer(({ widget, onInspect, onInspectDay }: Props) 
       name={widget.name}
       recordHref={recordPageHref}
       status={widget.status}
-      onOpenFilters={() => runUserAction(() => widgetModalStore.openWithFilter(widget.id, "filters"))}
       onSelectDay={onInspectDay}
     />
   ) : isRecordMapWidget(widget) ? (
@@ -73,7 +72,6 @@ export const WidgetCard = observer(({ widget, onInspect, onInspectDay }: Props) 
       mapQuery={widget.mapQuery}
       name={widget.name}
       status={widget.status}
-      onOpenFilters={() => runUserAction(() => widgetModalStore.openWithFilter(widget.id, "filters"))}
     />
   ) : isRecordWidget(widget) ? (
     <RecordWidgetCard {...widget} listLabels={listLabels(widget.measure.source.typeId)} onInspectGroup={onInspect} />

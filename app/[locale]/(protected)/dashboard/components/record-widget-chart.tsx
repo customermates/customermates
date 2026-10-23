@@ -19,11 +19,10 @@ import { RankedTable } from "./ranked-table";
 import { WidgetChart } from "./widget-chart";
 import { WidgetNumber } from "./widget-number";
 import { formatWidgetNumber, inlineListLabel, widgetNumberAverage } from "./widget-number-format";
-import { WidgetNotes, WidgetSubtitle } from "./widget-subtitle";
-import { WIDGET_CARD_BODY_CLASS, WIDGET_CARD_HEADER_CLASS, WIDGET_CARD_TITLE_CLASS } from "./widget-card-frame";
+import { WidgetSubtitle, WidgetTitle } from "./widget-subtitle";
+import { WIDGET_CARD_BODY_CLASS, WIDGET_CARD_HEADER_CLASS } from "./widget-card-frame";
 import { WIDGET_INTERACTIVE_ATTRIBUTE } from "./widget-interaction";
 import { AppCardHeader } from "@/components/card/app-card-header";
-import { TruncatedText } from "@/components/shared/truncated-text";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { cn } from "@/core/utils/cn";
 import {
@@ -146,13 +145,7 @@ export function RecordWidgetChart({
     ) : (
       <>
         <AppCardHeader className={WIDGET_CARD_HEADER_CLASS}>
-          <div className="flex w-full min-w-0 items-center gap-1.5">
-            <h2 className={cn(WIDGET_CARD_TITLE_CLASS, "min-w-0 flex-1")}>
-              <TruncatedText>{name}</TruncatedText>
-            </h2>
-
-            <WidgetNotes notes={infoNotes} />
-          </div>
+          <WidgetTitle name={name} notes={infoNotes} />
 
           <WidgetSubtitle reserve={reserve} text={subtitle} />
         </AppCardHeader>

@@ -3553,7 +3553,6 @@
     "showOverdue": "Afficher les enregistrements en retard",
     "showOverdueHelp": "Les enregistrements datés d’avant aujourd’hui apparaissent en premier. Excluez les enregistrements terminés, par exemple par un statut terminé, pour ne compter que ceux encore ouverts.",
     "sumOf": "Somme de {field}",
-    "sumTotal": "Σ {value}",
     "truncated": "Affichage des {count} premiers enregistrements. Affinez les filtres pour tous les voir.",
     "unavailable": "Ce calendrier est indisponible. Vérifiez sa configuration ou vos accès."
   },

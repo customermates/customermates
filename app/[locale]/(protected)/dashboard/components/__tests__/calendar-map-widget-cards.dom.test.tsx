@@ -134,7 +134,9 @@ describe("upcoming calendar widget", () => {
         recordHref: (ref) => `/records/${ref.typeId}/${ref.recordId}`,
       }),
     );
-    expect(host.textContent).toContain("RecordCalendarWidgets.overdueCount:3");
+    const subtitle = must(host.querySelector<HTMLElement>('[data-slot="card-header"] [data-slot="widget-subtitle"]'));
+    expect(subtitle.textContent).toBe("RecordCalendarWidgets.overdueCount:3");
+    expect(subtitle.className).toContain("text-destructive");
     const overdue = must(host.querySelector('[data-calendar-section="overdue"]'));
     expect(overdue.querySelector('[data-calendar-item="late"]')?.hasAttribute("data-overdue")).toBe(true);
     expect(overdue.textContent).toContain("RecordCalendarWidgets.overdueBy:10");
@@ -157,7 +159,10 @@ describe("upcoming calendar widget", () => {
     expect(spy.open).not.toHaveBeenCalled();
     act(() => link.click());
     expect(spy.open).toHaveBeenCalledWith({ typeId: "deal", recordId: "a" }, link);
-    expect(host.querySelector('[data-slot="widget-subtitle"]')?.textContent).toContain("Deals · Close date");
+    const title = must(host.querySelector('[data-slot="widget-title"]'));
+    expect(title.querySelector("h2")?.textContent).toBe("Closing soon");
+    expect(title.querySelector('[aria-label="RecordWidgets.notes"]')).not.toBeNull();
+    expect(title.textContent).toContain("Deals · Close date · RecordCalendarWidgets.nextDays:14");
   });
 
   it("says when nothing is due and when the widget is unavailable", () => {
@@ -232,7 +237,9 @@ describe("month overview widget", () => {
     expect(host.querySelector('[data-calendar-day="2026-10-13"]')?.getAttribute("data-heat")).toBe("0");
     expect(host.querySelector('[data-calendar-day="2026-10-18"]')?.hasAttribute("data-today")).toBe(true);
     expect(host.querySelector('[data-calendar-day="2026-10-18"]')?.getAttribute("tabindex")).toBe("0");
-    expect(host.textContent).toContain("RecordCalendarWidgets.sumTotal");
+    expect(host.querySelector('[data-slot="card-header"] [data-slot="widget-subtitle"]')?.textContent).toBe(
+      "RecordWidgets.overall:€500",
+    );
 
     const day = must(host.querySelector<HTMLButtonElement>('[data-calendar-day="2026-10-12"]'));
     expect(day.tagName).toBe("BUTTON");
@@ -251,6 +258,67 @@ describe("month overview widget", () => {
       "2026-11-01",
     );
     expect(host.querySelectorAll("[data-calendar-day]")).toHaveLength(30);
+  });
+
+  it("steps the month from the row above the weekdays and outlines today without colouring it", async () => {
+    const loadWindow = vi.fn(({ from, to }: { from: string; to: string }) =>
+      Promise.resolve({
+        data: data({ window: { from, to }, items: [], overdue: [], overdueCount: 0, days: [] }),
+        fields,
+      }),
+    );
+    const host = render(
+      createElement(RecordCalendarWidgetCard, {
+        name: "Closing this month",
+        calendarQuery: query({ layout: "month", aggregation: "sum" }),
+        displayOptions: { showFilters: true },
+        status: "ready",
+        data: month,
+        fields,
+        loadWindow,
+      }),
+    );
+    const short = (iso: string) =>
+      new Intl.DateTimeFormat("en-GB", { month: "short", year: "numeric", timeZone: "UTC" }).format(new Date(iso));
+    const full = (iso: string) =>
+      new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(iso));
+    const header = must(host.querySelector('[data-slot="card-header"]'));
+    expect(header.querySelectorAll("button:not([aria-label='RecordWidgets.notes'])")).toHaveLength(0);
+    const monthRoot = must(host.querySelector<HTMLElement>('[data-calendar-layout="month"]'));
+    const nav = must(monthRoot.querySelector<HTMLElement>("[data-calendar-month-nav]"));
+    expect(nav.nextElementSibling?.getAttribute("role")).toBe("grid");
+    const label = () => must(nav.querySelector<HTMLElement>("[data-calendar-month-label]"));
+    expect(label().textContent).toBe(short("2026-10-01"));
+    expect(nav.querySelector("[aria-live]")?.textContent).toBe(full("2026-10-01"));
+    expect(monthRoot.querySelector('[role="grid"]')?.getAttribute("aria-labelledby")).toBe(
+      nav.querySelector("[aria-live]")?.id,
+    );
+
+    const today = must(host.querySelector<HTMLElement>("[data-today]"));
+    expect(today.getAttribute("data-calendar-day")).toBe("2026-10-18");
+    expect(today.getAttribute("data-heat")).toBe("0");
+    expect(today.className).toContain("ring-1");
+    expect(today.className).not.toContain("outline-ring");
+    const blanks = [...monthRoot.querySelectorAll('[role="row"]')][1].querySelectorAll('[aria-hidden="true"]');
+    expect(blanks.length).toBe(3);
+    for (const blank of blanks) expect(blank.textContent).toBe("");
+
+    await act(async () => {
+      must(nav.querySelector<HTMLElement>('[aria-label="RecordCalendarWidgets.previousMonth"]')).click();
+      await Promise.resolve();
+    });
+    expect(loadWindow).toHaveBeenLastCalledWith({ from: "2026-09-01", to: "2026-09-30" });
+    expect(monthRoot.getAttribute("data-calendar-month")).toBe("2026-09-01");
+    expect(label().textContent).toBe(short("2026-09-01"));
+    expect(host.querySelector("[data-today]")).toBeNull();
+
+    await act(async () => {
+      must(nav.querySelector<HTMLElement>('[aria-label="RecordCalendarWidgets.nextMonth"]')).click();
+      await Promise.resolve();
+    });
+    expect(label().textContent).toBe(short("2026-10-01"));
+    expect(host.querySelector("[data-today]")?.getAttribute("data-calendar-day")).toBe("2026-10-18");
+    expect(loadWindow).toHaveBeenCalledTimes(1);
   });
 
   it("shows the days without a drill-down where no drawer is available, as in the editor preview", () => {

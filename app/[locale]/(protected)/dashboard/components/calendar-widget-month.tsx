@@ -18,7 +18,6 @@ import { useTranslations } from "next-intl";
 import { useRecordValueFormat } from "@/components/records/record-value";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
-import { Spinner } from "@/components/ui/spinner";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { cn } from "@/core/utils/cn";
 import {
@@ -122,6 +121,11 @@ export const CalendarWidgetMonth = observer(function CalendarWidgetMonth({
     year: "numeric",
     timeZone: "UTC",
   });
+  const shortMonthLabel = valueFormat.date(calendarDateInstant(month.anchor), {
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
   const firstDay = month.anchor;
   const lastDay = endOfCalendarMonth(month.anchor);
   const todayInMonth = today >= firstDay && today <= lastDay;
@@ -170,7 +174,7 @@ export const CalendarWidgetMonth = observer(function CalendarWidgetMonth({
     return cn(
       "flex size-full items-start justify-end rounded-md px-1 py-0.5 text-[11px] font-medium tabular-nums outline-none transition-[box-shadow] focus-visible:ring-[3px] focus-visible:ring-ring/50 motion-reduce:transition-none",
       CALENDAR_HEAT_CLASS[levels.get(date) ?? 0],
-      date === today && "outline-2 outline-offset-1 outline-ring",
+      date === today && "ring-1 ring-foreground/70 ring-inset",
     );
   }
 
@@ -183,27 +187,31 @@ export const CalendarWidgetMonth = observer(function CalendarWidgetMonth({
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-2" data-calendar-layout="month" data-calendar-month={month.anchor}>
-      <div className="flex items-center gap-2">
-        <span aria-live="polite" className="min-w-0 flex-1 truncate text-sm font-medium" id={monthLabelId}>
+    <div className="flex h-full min-h-0 flex-col gap-1" data-calendar-layout="month" data-calendar-month={month.anchor}>
+      <div className="flex min-h-5 items-center gap-1 text-xs" data-calendar-month-nav="">
+        <span aria-hidden className="min-w-0 flex-1 truncate font-medium" data-calendar-month-label="">
+          {shortMonthLabel}
+        </span>
+
+        <span aria-live="polite" className="sr-only" id={monthLabelId}>
           {monthLabel}
         </span>
 
-        {month.loading && <Spinner aria-label={t("Loading.text")} className="size-4 text-muted-foreground" />}
+        <IconButton
+          className="size-5"
+          icon={ChevronLeft}
+          iconClassName="size-3.5"
+          label={t("RecordCalendarWidgets.previousMonth")}
+          onClick={() => month.navigate(-1)}
+        />
 
-        <div className="flex shrink-0 items-center">
-          <IconButton
-            icon={ChevronLeft}
-            label={t("RecordCalendarWidgets.previousMonth")}
-            onClick={() => month.navigate(-1)}
-          />
-
-          <IconButton
-            icon={ChevronRight}
-            label={t("RecordCalendarWidgets.nextMonth")}
-            onClick={() => month.navigate(1)}
-          />
-        </div>
+        <IconButton
+          className="size-5"
+          icon={ChevronRight}
+          iconClassName="size-3.5"
+          label={t("RecordCalendarWidgets.nextMonth")}
+          onClick={() => month.navigate(1)}
+        />
       </div>
 
       <div

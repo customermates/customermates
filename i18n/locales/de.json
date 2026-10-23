@@ -3553,7 +3553,6 @@
     "showOverdue": "Überfällige Datensätze anzeigen",
     "showOverdueHelp": "Datensätze mit einem Datum vor heute erscheinen zuerst. Filtere erledigte Datensätze heraus, etwa über einen Erledigt-Status, damit nur offene zählen.",
     "sumOf": "Summe von {field}",
-    "sumTotal": "Σ {value}",
     "truncated": "Es werden die ersten {count} Datensätze angezeigt. Grenze die Filter ein, um alle zu sehen.",
     "unavailable": "Dieser Kalender ist nicht verfügbar. Prüfe Konfiguration und Zugriff."
   },

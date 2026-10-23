@@ -3553,7 +3553,6 @@
     "showOverdue": "Mostrar los registros vencidos",
     "showOverdueHelp": "Los registros con fecha anterior a hoy aparecen primero. Excluye los registros terminados, por ejemplo con un estado de completado, para que solo cuenten los abiertos.",
     "sumOf": "Suma de {field}",
-    "sumTotal": "Σ {value}",
     "truncated": "Se muestran los primeros {count} registros. Ajusta los filtros para verlos todos.",
     "unavailable": "Este calendario no está disponible. Revisa su configuración o los permisos."
   },

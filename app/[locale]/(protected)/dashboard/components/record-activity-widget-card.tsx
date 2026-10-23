@@ -22,7 +22,8 @@ import {
   recordActivityFilterCount,
 } from "@/ee/messaging/activities/record-activity-sources";
 import { WIDGET_INTERACTIVE_ATTRIBUTE } from "./widget-interaction";
-import { WIDGET_CARD_BODY_CLASS, WIDGET_CARD_HEADER_CLASS, WIDGET_CARD_TITLE_CLASS } from "./widget-card-frame";
+import { WIDGET_CARD_BODY_CLASS, WIDGET_CARD_HEADER_CLASS } from "./widget-card-frame";
+import { WidgetSubtitle, WidgetTitle } from "./widget-subtitle";
 import { cn } from "@/core/utils/cn";
 import { accountSupportsActivitySources, resolveActivityWidgetState } from "./activity-widget-state";
 
@@ -61,22 +62,12 @@ export const RecordActivityWidgetCard = observer(
     return (
       <AppCard className="h-full cursor-pointer overflow-hidden">
         <AppCardHeader className={WIDGET_CARD_HEADER_CLASS}>
-          <h2 className={cn(WIDGET_CARD_TITLE_CLASS, "truncate")}>{widget.name}</h2>
+          <WidgetTitle
+            name={widget.name}
+            notes={widget.displayOptions.showFilters ? [t("Dashboard.widgetEditor.tabs.filtersLabel", { count })] : []}
+          />
 
-          <span className="text-xs text-muted-foreground">
-            {t("Dashboard.activityWidget.activityCount", { count: timeline.items.length })}
-          </span>
-
-          {widget.displayOptions.showFilters && (
-            <button
-              className="text-left text-xs text-muted-foreground hover:underline"
-              type="button"
-              {...{ [WIDGET_INTERACTIVE_ATTRIBUTE]: "true" }}
-              onClick={() => runUserAction(() => root.widgetModalStore.openWithFilter(widget.id, "activityFilters"))}
-            >
-              {t("Dashboard.widgetEditor.tabs.filtersLabel", { count })}
-            </button>
-          )}
+          <WidgetSubtitle text={t("Dashboard.activityWidget.activityCount", { count: timeline.items.length })} />
         </AppCardHeader>
 
         <AppCardBody

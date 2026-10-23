@@ -14,7 +14,6 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppChip } from "@/components/chip/app-chip";
 import { RecordValue } from "@/components/records/record-value";
-import { TruncatedText } from "@/components/shared/truncated-text";
 import { Button } from "@/components/ui/button";
 import { getChartColors } from "@/constants/chart-colors";
 import { toChipColor } from "@/constants/chip-colors";
@@ -25,9 +24,10 @@ import { IntlLink } from "@/i18n/navigation";
 
 import { MapWidgetSkeleton } from "./dashboard-page-skeleton";
 import { mapLegend, mapViewPoints } from "./map-widget-view";
-import { WIDGET_CARD_BODY_CLASS, WIDGET_CARD_HEADER_CLASS, WIDGET_CARD_TITLE_CLASS } from "./widget-card-frame";
+import { WIDGET_CARD_BODY_CLASS, WIDGET_CARD_HEADER_CLASS } from "./widget-card-frame";
 import { WIDGET_INTERACTIVE_ATTRIBUTE } from "./widget-interaction";
-import { WidgetSourceSummary } from "./widget-source-summary";
+import { widgetSourceFilterCount } from "./widget-source-summary";
+import { WidgetSubtitle, WidgetTitle } from "./widget-subtitle";
 
 const MapView = dynamic(() => import("@/components/map/map-view"), {
   ssr: false,
@@ -43,7 +43,6 @@ export type RecordMapWidgetCardProps = {
   fields: RecordDisplayField[];
   listLabels?: { label: string; pluralLabel: string } | null;
   openRecords?: boolean;
-  onOpenFilters?: () => void;
 };
 
 export const RecordMapWidgetCard = observer(function RecordMapWidgetCard({
@@ -55,7 +54,6 @@ export const RecordMapWidgetCard = observer(function RecordMapWidgetCard({
   fields,
   listLabels = null,
   openRecords = false,
-  onOpenFilters,
 }: RecordMapWidgetCardProps) {
   const t = useTranslations();
   const language = useLocale();
@@ -79,6 +77,8 @@ export const RecordMapWidgetCard = observer(function RecordMapWidgetCard({
   ]
     .filter(Boolean)
     .join(" · ");
+  const filters = t("Dashboard.widgetEditor.tabs.filtersLabel", { count: widgetSourceFilterCount(mapQuery.source) });
+  const notes = displayOptions.showFilters ? [[summary, filters].filter(Boolean).join(" · ")] : [];
   const pointName = (point: MapWidgetPoint) => recordDisplayName(point.title, listLabels?.label, t);
 
   function renderPopover(id: string) {
@@ -153,13 +153,9 @@ export const RecordMapWidgetCard = observer(function RecordMapWidgetCard({
   return (
     <AppCard className="h-full cursor-pointer overflow-hidden" data-widget-kind="map">
       <AppCardHeader className={WIDGET_CARD_HEADER_CLASS}>
-        <h2 className={WIDGET_CARD_TITLE_CLASS}>
-          <TruncatedText>{name}</TruncatedText>
-        </h2>
+        <WidgetTitle name={name} notes={notes} />
 
-        {displayOptions.showFilters && (
-          <WidgetSourceSummary source={mapQuery.source} summary={summary} onOpenFilters={onOpenFilters} />
-        )}
+        <WidgetSubtitle reserve text={null} />
       </AppCardHeader>
 
       <AppCardBody

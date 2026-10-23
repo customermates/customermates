@@ -20,13 +20,23 @@ describe("generic dashboard widget UI", () => {
     expect(modal).toContain('id="displayOptions.reverseYAxis"');
     expect(modal).not.toContain("function requestClose");
   });
-  it("summarizes activity counts and active filters in the heading", () => {
+  it("summarizes activity counts in the subtitle and active filters in the title's info tooltip", () => {
     const card = component("record-activity-widget-card.tsx");
     const header = card.slice(card.indexOf("<AppCardHeader"), card.indexOf("</AppCardHeader>"));
-    expect(header).toContain('t("Dashboard.activityWidget.activityCount", { count: timeline.items.length })');
-    expect(header).toContain("widget.displayOptions.showFilters");
-    expect(header).toContain('openWithFilter(widget.id, "activityFilters")');
+    expect(header).toContain(
+      '<WidgetSubtitle text={t("Dashboard.activityWidget.activityCount", { count: timeline.items.length })} />',
+    );
+    expect(header).toContain("<WidgetTitle");
+    expect(header).toContain('widget.displayOptions.showFilters ? [t("Dashboard.widgetEditor.tabs.filtersLabel", { count })]');
     expect(card).toContain("recordActivityFilterCount(query)");
+  });
+  it("keeps the widget header's top-right corner free for the hover edit button", () => {
+    for (const file of ["record-calendar-widget-card.tsx", "record-map-widget-card.tsx", "record-widget-chart.tsx"]) {
+      const card = component(file);
+      const header = card.slice(card.indexOf("<AppCardHeader"), card.indexOf("</AppCardHeader>"));
+      expect(header, file).toContain("<WidgetTitle");
+      expect(header, file).not.toContain("AppChip");
+    }
   });
   it("keeps linked-record chips in the activity detail header", () => {
     const chips = read("features/messaging/activities/activity-record-chips.tsx");

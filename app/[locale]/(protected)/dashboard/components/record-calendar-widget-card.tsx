@@ -15,16 +15,15 @@ import { useTranslations } from "next-intl";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
-import { AppChip } from "@/components/chip/app-chip";
 import { useRecordValueFormat } from "@/components/records/record-value";
 import { cn } from "@/core/utils/cn";
 
 import { type CalendarDaySelect, CalendarWidgetMonth } from "./calendar-widget-month";
 import { CalendarWidgetUpcoming } from "./calendar-widget-upcoming";
-import { WIDGET_CARD_BODY_CLASS, WIDGET_CARD_HEADER_CLASS, WIDGET_CARD_TITLE_CLASS } from "./widget-card-frame";
-import { WidgetSourceSummary } from "./widget-source-summary";
+import { WIDGET_CARD_BODY_CLASS, WIDGET_CARD_HEADER_CLASS } from "./widget-card-frame";
+import { widgetSourceFilterCount } from "./widget-source-summary";
+import { WidgetSubtitle, WidgetTitle } from "./widget-subtitle";
 import { WIDGET_INTERACTIVE_ATTRIBUTE } from "./widget-interaction";
-import { TruncatedText } from "@/components/shared/truncated-text";
 
 export type RecordCalendarWidgetCardProps = {
   name: string;
@@ -36,7 +35,6 @@ export type RecordCalendarWidgetCardProps = {
   listLabels?: { label: string; pluralLabel: string } | null;
   loadWindow: (window: CalendarWidgetWindow) => Promise<CalendarWidgetPreview>;
   recordHref?: (record: RecordRef) => string;
-  onOpenFilters?: () => void;
   onSelectDay?: CalendarDaySelect;
 };
 
@@ -54,7 +52,6 @@ export const RecordCalendarWidgetCard = observer(function RecordCalendarWidgetCa
   listLabels = null,
   loadWindow,
   recordHref,
-  onOpenFilters,
   onSelectDay,
 }: RecordCalendarWidgetCardProps) {
   const t = useTranslations();
@@ -71,36 +68,33 @@ export const RecordCalendarWidgetCard = observer(function RecordCalendarWidgetCa
     : calendarQuery.aggregation === "sum" && amountField
       ? t("RecordCalendarWidgets.sumOf", { field: amountField.label })
       : t("RecordCalendarWidgets.countPerDay");
-  const summary = [list, dateField?.label, range].filter(Boolean).join(" · ");
+  const filters = t("Dashboard.widgetEditor.tabs.filtersLabel", {
+    count: widgetSourceFilterCount(calendarQuery.source),
+  });
+  const notes = displayOptions.showFilters
+    ? [[list, dateField?.label, range, filters].filter(Boolean).join(" · ")]
+    : [];
   const total = data?.total.result;
-  const chip = !ready ? null : upcoming ? (
-    data.overdueCount > 0 ? (
-      <AppChip variant="destructive">{t("RecordCalendarWidgets.overdueCount", { count: data.overdueCount })}</AppChip>
-    ) : null
-  ) : calendarQuery.aggregation === "sum" && total?.state === "value" && total.value.kind === "decimal" ? (
-    <AppChip>
-      {t("RecordCalendarWidgets.sumTotal", {
-        value: valueFormat.decimal(total.value.value, { currency: total.value.currency ?? null, compact: true }),
-      })}
-    </AppChip>
-  ) : (
-    <AppChip>{t("RecordCalendarWidgets.recordCount", { count: data.total.count })}</AppChip>
-  );
+  const overall =
+    !ready || upcoming || !displayOptions.showFilters
+      ? null
+      : t("RecordWidgets.overall", {
+          value:
+            calendarQuery.aggregation === "sum" && total?.state === "value" && total.value.kind === "decimal"
+              ? valueFormat.decimal(total.value.value, { currency: total.value.currency ?? null, compact: true })
+              : t("RecordCalendarWidgets.recordCount", { count: data.total.count }),
+        });
+  const overdue =
+    ready && upcoming && data.overdueCount > 0
+      ? t("RecordCalendarWidgets.overdueCount", { count: data.overdueCount })
+      : null;
 
   return (
     <AppCard className="h-full cursor-pointer overflow-hidden" data-widget-kind="calendar">
       <AppCardHeader className={WIDGET_CARD_HEADER_CLASS}>
-        <div className="flex w-full min-w-0 items-center gap-2">
-          <h2 className={cn(WIDGET_CARD_TITLE_CLASS, "min-w-0 flex-1")}>
-            <TruncatedText>{name}</TruncatedText>
-          </h2>
+        <WidgetTitle name={name} notes={notes} />
 
-          {chip && <span className="shrink-0">{chip}</span>}
-        </div>
-
-        {displayOptions.showFilters && (
-          <WidgetSourceSummary source={calendarQuery.source} summary={summary} onOpenFilters={onOpenFilters} />
-        )}
+        <WidgetSubtitle reserve text={overdue ?? overall} tone={overdue ? "destructive" : "muted"} />
       </AppCardHeader>
 
       <AppCardBody

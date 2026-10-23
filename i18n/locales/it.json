@@ -3553,7 +3553,6 @@
     "showOverdue": "Mostra i record scaduti",
     "showOverdueHelp": "I record con una data precedente a oggi compaiono per primi. Escludi i record completati, ad esempio con uno stato di completamento, così contano solo quelli aperti.",
     "sumOf": "Somma di {field}",
-    "sumTotal": "Σ {value}",
     "truncated": "Vengono mostrati i primi {count} record. Restringi i filtri per vederli tutti.",
     "unavailable": "Questo calendario non è disponibile. Controlla configurazione e accesso."
   },

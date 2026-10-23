@@ -3553,7 +3553,6 @@
     "showOverdue": "Show overdue records",
     "showOverdueHelp": "Records dated before today appear first. Filter out finished records, for example by a done status, so only open ones count.",
     "sumOf": "Sum of {field}",
-    "sumTotal": "Σ {value}",
     "truncated": "Showing the first {count} records. Narrow the filters to see all of them.",
     "unavailable": "This calendar is unavailable. Review its configuration or access."
   },
