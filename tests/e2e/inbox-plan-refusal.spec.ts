@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 
+import { pagePath } from "./app-paths";
 import { collectPageErrors, expect, test } from "./fixtures";
 import { invokesServerAction, serverActionIds } from "./server-actions";
 import { e2eAppMode } from "./workspace-switching";
@@ -41,9 +42,9 @@ test("a locked German phone Inbox stays quiet and recovers when the subscription
       });
     });
   });
-  await page.goto("/de/inbox");
+  await page.goto(pagePath(page, "/inbox", "de"));
   await expect(page.getByText("Private subscription thread").first()).toBeVisible();
-  const actionIds = serverActionIds("app/[locale]/(protected)/inbox/actions.ts", "getMessagingThreadsAction");
+  const actionIds = serverActionIds("app/[locale]/(protected)/w/[workspace]/inbox/actions.ts", "getMessagingThreadsAction");
   await database.query('UPDATE "Subscription" SET status=$1 WHERE "companyId"=$2', ["pastDue", workspace.companyId]);
   await page.waitForResponse((response) => invokesServerAction(response.request(), actionIds), { timeout: 25_000 });
   expect(

@@ -5,7 +5,7 @@ import type { RecordSearchResult } from "@/features/records/record-search.schema
 
 const notifyWorkspaceChangedMock = vi.hoisted(() => vi.fn());
 
-vi.mock("@/app/[locale]/(protected)/search/actions", () => ({
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/search/actions", () => ({
   resolveSearchReferencesAction: vi.fn(),
   globalSearchAction: vi.fn(),
   commandCatalogAction: vi.fn(),
@@ -29,7 +29,7 @@ import {
   globalSearchAction,
   resolveCommandAction,
   resolveSearchReferencesAction,
-} from "@/app/[locale]/(protected)/search/actions";
+} from "@/app/[locale]/(protected)/w/[workspace]/search/actions";
 import { GlobalSearchModalStore } from "../global-search-modal.store";
 
 const TYPE = "10000000-0000-4000-8000-000000000001";

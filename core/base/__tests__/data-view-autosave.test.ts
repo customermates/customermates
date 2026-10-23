@@ -24,7 +24,7 @@ vi.mock("@/app/actions", () => ({
   updateEntityCustomFieldValueAction: vi.fn(),
 }));
 vi.mock("../../utils/toast-zod-error-tree", () => ({ toastZodErrorTree }));
-vi.mock("@/app/[locale]/(protected)/records/actions", () => ({}));
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/records/actions", () => ({}));
 
 import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 import { FilterOperatorKey, ViewMode } from "../base-query-builder";

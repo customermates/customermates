@@ -1,7 +1,13 @@
 import type { Data } from "@/core/validation/validation.utils";
 import type { RecordActivityWidgetDto } from "./record-activity-widget.schema";
 import { GenericRecordWidgetDtoSchema, type RecordWidgetDto } from "./record-widget.schema";
-export { ChartColor, DisplayType, WidgetDisplayOptionsSchema, WidgetLayoutSchema } from "./widget-display.schema";
+export {
+  ChartColor,
+  DisplayType,
+  WidgetDisplayOptionsSchema,
+  WidgetLayoutSchema,
+  widgetUsesGroupColors,
+} from "./widget-display.schema";
 export type { WidgetDisplayOptions } from "./widget-display.schema";
 
 import { WidgetKind } from "@/generated/prisma";

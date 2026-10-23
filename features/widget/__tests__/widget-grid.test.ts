@@ -51,8 +51,8 @@ describe("grid geometry", () => {
   it("places unsaved widgets the way the dashboard does", () => {
     expect(occupiedGrid([chart("a", { x: 0, y: 0, w: 6, h: 4 }), chart("b"), chart("c")])).toEqual([
       { id: "a", x: 0, y: 0, w: 6, h: 4 },
-      { id: "b", x: 6, y: 0, w: 4, h: 8 },
-      { id: "c", x: 0, y: 4, w: 4, h: 8 },
+      { id: "b", x: 6, y: 0, w: 4, h: 6 },
+      { id: "c", x: 0, y: 4, w: 4, h: 6 },
     ]);
   });
 
@@ -65,8 +65,11 @@ describe("grid geometry", () => {
 
   it("sizes new widgets for their display type", () => {
     expect(widgetDefaultSize("chart", DisplayType.number)).toEqual({ w: 3, h: 2 });
-    expect(widgetDefaultSize("chart", DisplayType.areaChart)).toEqual({ w: 6, h: 6 });
-    expect(widgetDefaultSize("activityTimeline")).toEqual({ w: 6, h: 8 });
+    expect(widgetDefaultSize("chart", DisplayType.areaChart)).toEqual({ w: 6, h: 5 });
+    expect(widgetDefaultSize("chart", DisplayType.doughnutChart)).toEqual({ w: 3, h: 5 });
+    expect(widgetDefaultSize("chart", DisplayType.verticalBarChart)).toEqual({ w: 4, h: 5 });
+    expect(widgetDefaultSize("chart")).toEqual({ w: 4, h: 6 });
+    expect(widgetDefaultSize("activityTimeline")).toEqual({ w: 6, h: 6 });
   });
 });
 

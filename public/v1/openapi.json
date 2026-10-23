@@ -14084,6 +14084,12 @@
                                 "primary1",
                                 "primary2",
                                 "primary3",
+                                "info1",
+                                "info2",
+                                "info3",
+                                "violet1",
+                                "violet2",
+                                "violet3",
                                 "secondary1",
                                 "secondary2",
                                 "secondary3",
@@ -14123,6 +14129,13 @@
                           },
                           "useGroupColors": {
                             "type": "boolean"
+                          },
+                          "palette": {
+                            "description": "accent draws a chart in shades of its first bar colour and a doughnut in a small matched set of colours around it; option colours of a grouping field then show only with useGroupColors true. Without it, groups of a choice field keep their option colours unless useGroupColors is false. New widgets get accent.",
+                            "type": "string",
+                            "enum": [
+                              "accent"
+                            ]
                           },
                           "showLegend": {
                             "type": "boolean"
@@ -17536,6 +17549,12 @@
                                   "primary1",
                                   "primary2",
                                   "primary3",
+                                  "info1",
+                                  "info2",
+                                  "info3",
+                                  "violet1",
+                                  "violet2",
+                                  "violet3",
                                   "secondary1",
                                   "secondary2",
                                   "secondary3",
@@ -17575,6 +17594,13 @@
                             },
                             "useGroupColors": {
                               "type": "boolean"
+                            },
+                            "palette": {
+                              "description": "accent draws a chart in shades of its first bar colour and a doughnut in a small matched set of colours around it; option colours of a grouping field then show only with useGroupColors true. Without it, groups of a choice field keep their option colours unless useGroupColors is false. New widgets get accent.",
+                              "type": "string",
+                              "enum": [
+                                "accent"
+                              ]
                             },
                             "showLegend": {
                               "type": "boolean"
@@ -27034,6 +27060,12 @@
                                   "primary1",
                                   "primary2",
                                   "primary3",
+                                  "info1",
+                                  "info2",
+                                  "info3",
+                                  "violet1",
+                                  "violet2",
+                                  "violet3",
                                   "secondary1",
                                   "secondary2",
                                   "secondary3",
@@ -27073,6 +27105,13 @@
                             },
                             "useGroupColors": {
                               "type": "boolean"
+                            },
+                            "palette": {
+                              "description": "accent draws a chart in shades of its first bar colour and a doughnut in a small matched set of colours around it; option colours of a grouping field then show only with useGroupColors true. Without it, groups of a choice field keep their option colours unless useGroupColors is false. New widgets get accent.",
+                              "type": "string",
+                              "enum": [
+                                "accent"
+                              ]
                             },
                             "showLegend": {
                               "type": "boolean"
@@ -70520,6 +70559,12 @@
                                         "primary1",
                                         "primary2",
                                         "primary3",
+                                        "info1",
+                                        "info2",
+                                        "info3",
+                                        "violet1",
+                                        "violet2",
+                                        "violet3",
                                         "secondary1",
                                         "secondary2",
                                         "secondary3",
@@ -70559,6 +70604,13 @@
                                   },
                                   "useGroupColors": {
                                     "type": "boolean"
+                                  },
+                                  "palette": {
+                                    "description": "accent draws a chart in shades of its first bar colour and a doughnut in a small matched set of colours around it; option colours of a grouping field then show only with useGroupColors true. Without it, groups of a choice field keep their option colours unless useGroupColors is false. New widgets get accent.",
+                                    "type": "string",
+                                    "enum": [
+                                      "accent"
+                                    ]
                                   },
                                   "showLegend": {
                                     "type": "boolean"
@@ -117734,6 +117786,7 @@
                         "workspaceSetupConflict",
                         "workspaceSetupNotFound",
                         "workspaceSetupUnavailable",
+                        "workspaceSlugTaken",
                         "threadNotFound",
                         "messageNotFound",
                         "emailFolderNotFound",

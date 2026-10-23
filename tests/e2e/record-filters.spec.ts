@@ -1,3 +1,4 @@
+import { companyPath } from "./app-paths";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 import { recordItem } from "./record-rows";
@@ -11,7 +12,7 @@ test("restores relationship, assignment and date filters with labels after reloa
   const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "deal");
   const relationship = `relationship:${presetId(companyId, "deal.organizations")}:outgoing`;
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   for (const [name, linked] of [
     ["Linked opportunity", true],
     ["Unlinked opportunity", false],

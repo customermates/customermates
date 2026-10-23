@@ -4,9 +4,12 @@ import type { NavigationGuardState } from "./navigation-guard.controller";
 import type { RecordNavigation } from "@/features/records/record-navigation.schema";
 import type { RecordDto, RecordRef, RecordScalar } from "@/features/records/record-model.schema";
 import type { RecordEditorContext } from "@/features/records/get-record-editor.interactor";
-import type { RecordDraft } from "@/app/[locale]/(protected)/records/[typeId]/components/record-editor.store";
-import { RecordEditorStore } from "@/app/[locale]/(protected)/records/[typeId]/components/record-editor.store";
-import { getRecordEditorAction, getRecordNavigationAction } from "@/app/[locale]/(protected)/records/actions";
+import type { RecordDraft } from "@/app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-editor.store";
+import { RecordEditorStore } from "@/app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-editor.store";
+import {
+  getRecordEditorAction,
+  getRecordNavigationAction,
+} from "@/app/[locale]/(protected)/w/[workspace]/records/actions";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { CustomErrorCode } from "@/core/validation/validation.types";

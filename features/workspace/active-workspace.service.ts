@@ -17,10 +17,29 @@ export class ActiveWorkspaceService {
   }
 
   async requireMembership(session: AuthenticatedSession): Promise<TenantUser | null> {
-    const { membership, binding } = await this.resolve(session);
-    if (!membership && binding.kind === "session" && !binding.documentRequest) throw new WorkspaceChangedError();
+    return (await this.resolve(session)).membership;
+  }
 
-    return membership;
+  async requestedWorkspaceSlug(session: AuthenticatedSession, headersList?: Headers): Promise<string | null> {
+    const binding = await this.authService.getCredentialWorkspace(session, headersList);
+    return binding.kind === "session" ? binding.workspaceSlug : null;
+  }
+
+  async rememberLastUsed(session: AuthenticatedSession, companyId: string): Promise<void> {
+    if ((await this.users.findAuthUserCompanyIdUnscoped(session.user.id)) === companyId) return;
+
+    await this.users.setLastUsedCompanyUnscoped(session.user.id, companyId);
+  }
+
+  async resolveLastUsed(session: AuthenticatedSession): Promise<TenantUser | null> {
+    const memberships = await this.users.listMembershipsUnscoped(session.user.email);
+    const lastUsedCompanyId = await this.users.findAuthUserCompanyIdUnscoped(session.user.id);
+    const fallback =
+      memberships.find((membership) => membership.companyId === lastUsedCompanyId) ??
+      memberships.find((membership) => membership.status === Status.active) ??
+      memberships[0];
+
+    return fallback ? await this.users.findMembershipUnscoped(session.user.email, fallback.companyId) : null;
   }
 
   private async resolve(
@@ -35,23 +54,12 @@ export class ActiveWorkspaceService {
       return { membership, binding };
     }
 
-    if (binding.companyId) {
-      const selected = await this.users.findMembershipUnscoped(email, binding.companyId);
-      if (selected) return { membership: selected, binding };
-      if (!binding.documentRequest) throw new WorkspaceChangedError();
+    if (binding.workspaceSlug) {
+      const membership = await this.users.findMembershipBySlugUnscoped(email, binding.workspaceSlug);
+      if (!membership) throw new WorkspaceChangedError();
+      return { membership, binding };
     }
 
-    const memberships = await this.users.listMembershipsUnscoped(email);
-    const lastUsedCompanyId = await this.users.findAuthUserCompanyIdUnscoped(session.user.id);
-    const fallback =
-      memberships.find((membership) => membership.companyId === lastUsedCompanyId) ??
-      memberships.find((membership) => membership.status === Status.active) ??
-      memberships[0];
-    const membership = fallback ? await this.users.findMembershipUnscoped(email, fallback.companyId) : null;
-
-    if (membership) await this.authService.setSessionActiveCompany(binding.sessionId, membership.companyId);
-    else if (binding.companyId) await this.authService.setSessionActiveCompany(binding.sessionId, null);
-
-    return { membership, binding };
+    return { membership: await this.resolveLastUsed(session), binding };
   }
 }

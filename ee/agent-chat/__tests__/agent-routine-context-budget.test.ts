@@ -30,13 +30,14 @@ vi.mock("next-intl/server", () => ({
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { agentCreditsToMicrocents } from "@/core/commercial/agent-credits";
-import { createCrmPreset, presetId } from "@/features/records/crm-preset";
+import { presetId } from "@/features/records/crm-preset";
 import type { DiscoveredRecordTypes } from "@/features/records/discover-record-types.interactor";
 import { GetWikiCatalogInteractor } from "@/features/wiki/get-wiki-catalog.interactor";
 import { SEED_IDS } from "@/prisma/seeds/context";
-import { applyNorthwindModel } from "@/prisma/seeds/northwind-schema";
 import { SYNTHETIC_ROUTINES, type SeedRoutine } from "@/prisma/seeds/routines";
-import { SYNTHETIC_WIKI_PAGE_DEFINITIONS } from "@/prisma/seeds/wiki";
+import { solutionWorkspacePlan } from "@/prisma/seeds/solutions/seed-solutions";
+import { buildSolutionWiki } from "@/prisma/seeds/solutions/solution-presentation";
+import { TEAM_SOLUTION_WORKSPACE } from "@/prisma/seeds/solutions/solution-workspaces";
 import { composeRoutinePrompt } from "@/ee/routines/routine-prompt";
 import { DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN } from "@/ee/routines/routine-run-limits";
 import { ROUTINE_PROMPT_MAX_CHARS } from "@/ee/routines/routine.schema";
@@ -53,6 +54,7 @@ import { AGENT_MODELS, type AgentModelEntry } from "@/ee/agent-chat/model-catalo
 import { SendAgentMessageInteractor } from "@/ee/agent-chat/send-agent-message.interactor";
 import { agentSystemPromptParts, routineTriggerEventOf } from "@/ee/agent-chat/system-prompt";
 import type { AgentTurnWorkflowPayload } from "@/workflows/agent-turn";
+import { WorkspaceSlugResolver } from "@/features/workspace/workspace-slug-resolver";
 
 const COMPANY_ID = SEED_IDS.company;
 const THREAD = {
@@ -60,14 +62,11 @@ const THREAD = {
   connectedAccountId: "37000000-0000-4000-8000-000000000001",
 };
 const RECORD_ID = "80000000-0000-4000-8000-000000000001";
-const OWNERS = {
-  user: ["Max", "Bergmann"],
-  sofiaRossiUser: ["Sofia", "Rossi"],
-  elenaHoffmannUser: ["Elena", "Hoffmann"],
-} as const satisfies Record<SeedRoutine["owner"], readonly [string, string]>;
 
-function northwindDiscovery(): DiscoveredRecordTypes {
-  const model = applyNorthwindModel(createCrmPreset(COMPANY_ID), COMPANY_ID);
+const TEAM_PLAN = solutionWorkspacePlan(TEAM_SOLUTION_WORKSPACE);
+
+function teamDiscovery(): DiscoveredRecordTypes {
+  const model = TEAM_PLAN.model;
   const types = model.types.filter((type) => !type.archived && !type.embedded);
   return {
     schemaRevision: model.revision,
@@ -89,8 +88,8 @@ function northwindDiscovery(): DiscoveredRecordTypes {
   };
 }
 
-function northwindWikiCatalog() {
-  const pages = SYNTHETIC_WIKI_PAGE_DEFINITIONS.map((page, index) => ({
+function teamWikiCatalog() {
+  const pages = buildSolutionWiki(TEAM_SOLUTION_WORKSPACE, TEAM_PLAN.content).map((page, index) => ({
     id: page.id,
     title: page.title,
     markdown: page.markdown,
@@ -103,16 +102,19 @@ function northwindWikiCatalog() {
   const procedures = pages
     .filter((page) => page.kind === "procedure")
     .toSorted((left, right) => left.title.localeCompare(right.title));
-  return new GetWikiCatalogInteractor({
-    listCatalogPages: ({ page }: { page: number }) =>
-      Promise.resolve({ items: knowledge.slice((page - 1) * 10, page * 10), total: knowledge.length }),
-    loadOperatingPages: (limit: number) =>
-      Promise.resolve({
-        guide: pages.find((page) => page.kind === "guide") ?? null,
-        procedures: procedures.slice(0, limit),
-        proceduresTotal: procedures.length,
-      }),
-  } as never);
+  return new GetWikiCatalogInteractor(
+    {
+      listCatalogPages: ({ page }: { page: number }) =>
+        Promise.resolve({ items: knowledge.slice((page - 1) * 10, page * 10), total: knowledge.length }),
+      loadOperatingPages: (limit: number) =>
+        Promise.resolve({
+          guide: pages.find((page) => page.kind === "guide") ?? null,
+          procedures: procedures.slice(0, limit),
+          proceduresTotal: procedures.length,
+        }),
+    } as never,
+    new WorkspaceSlugResolver({ findWorkspaceSlugUnscoped: () => Promise.resolve("acme") }),
+  );
 }
 
 function triggerOf(routine: Pick<SeedRoutine, "trigger">) {
@@ -225,22 +227,22 @@ function admissionHarness() {
     reserveUsage: vi.fn().mockResolvedValue(true),
   };
   const background = { dispatchTracked: vi.fn().mockResolvedValue("wrun_routine_budget") };
-  const discovery = northwindDiscovery();
+  const discovery = teamDiscovery();
   const interactor = new SendAgentMessageInteractor(
     repo as never,
     usage as never,
     mockEntitlementService(),
     background as never,
     { invoke: () => Promise.resolve({ ok: true as const, data: discovery }) },
-    northwindWikiCatalog(),
+    teamWikiCatalog(),
     { hasPermission: () => Promise.resolve(true) },
     { findLatestCrawl: () => Promise.resolve(null) },
   );
   return { interactor, usage, background };
 }
 
-async function firstRoutineRound(owner: SeedRoutine["owner"], text: string, index: number) {
-  const [firstName, lastName] = OWNERS[owner];
+async function firstRoutineRound(owner: string, text: string, index: number) {
+  const [firstName, lastName] = owner.split(" ");
   tenant.user = createMockUser({
     id: `20000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
     companyId: COMPANY_ID,
@@ -301,14 +303,14 @@ async function firstRoutineRound(owner: SeedRoutine["owner"], text: string, inde
 
 describe("routine context budget", () => {
   it.each(SYNTHETIC_ROUTINES.map((routine) => [routine.index, routine.trigger.kind, routine.name, routine] as const))(
-    "starts Northwind seed routine %i (%s, %s) inside the provider context of the default model",
+    "starts team workspace seed routine %i (%s, %s) inside the provider context of the default model",
     async (index, _kind, _name, routine) => {
       const text = composeRoutinePrompt(routine.prompt, { routineName: routine.name, ...triggerOf(routine) });
-      const { payload, admittedBytes, sent } = await firstRoutineRound(routine.owner, text, index);
+      const { payload, admittedBytes, sent } = await firstRoutineRound(routine.ownerName, text, index);
 
       expect(payload.surface).toBe("routine");
       expect(payload.toolsets).toEqual([]);
-      expect(payload.schemaDigest).toContain("Onboarding projects");
+      expect(payload.schemaDigest).toContain("Services");
       expect(payload.wikiCatalog).toContain("Operating Guide");
       expect(payload.turnBudget.modelSpec).toBe(AGENT_MODELS.routine.modelId);
       expect(sent).not.toHaveProperty("system");
@@ -329,7 +331,7 @@ describe("routine context budget", () => {
         trigger: { kind: "event", events: ["record.updated"], recordTypes: ["deal"], debounceSeconds: 300 },
       }),
     });
-    const { payload, admittedBytes, sent } = await firstRoutineRound("user", text, 99);
+    const { payload, admittedBytes, sent } = await firstRoutineRound("Max Bergmann", text, 99);
 
     expect(payload.toolsets).toEqual([]);
     expect(serializedAgentContextBytes(sent)).toBeLessThanOrEqual(admittedBytes);

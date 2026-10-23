@@ -186,6 +186,7 @@ import { EventService } from "@/features/event/event.service";
 import { UserService } from "@/features/user/user.service";
 import { ActiveWorkspaceService } from "@/features/workspace/active-workspace.service";
 import { WorkspaceDepartureService } from "@/features/workspace/workspace-departure.service";
+import { WorkspaceSlugResolver } from "@/features/workspace/workspace-slug-resolver";
 // Task Listeners
 import { DomainEvent } from "@/features/event/domain-events";
 // Contacts interactors
@@ -227,13 +228,12 @@ import { LeaveWorkspaceInteractor } from "@/features/workspace/leave-workspace.i
 import { DeleteWorkspaceInteractor } from "@/features/workspace/delete-workspace.interactor";
 import { UnrecordedSubscriptionCheck } from "@/ee/subscription/unrecorded-subscription-check";
 import { GetWorkspaceDeletionInteractor } from "@/features/workspace/get-workspace-deletion.interactor";
-import { GetWorkspaceTabStateInteractor } from "@/features/workspace/get-workspace-tab-state.interactor";
 import { GetTrialEligibilityInteractor } from "@/features/workspace/get-trial-eligibility.interactor";
 import { GetWorkspaceLeaveInteractor } from "@/features/workspace/get-workspace-leave.interactor";
 import { ListMyWorkspacesInteractor } from "@/features/workspace/list-my-workspaces.interactor";
 import { RemoveWorkspaceMemberInteractor } from "@/features/workspace/remove-workspace-member.interactor";
 import { RenameWorkspaceInteractor } from "@/features/workspace/rename-workspace.interactor";
-import { SwitchWorkspaceInteractor } from "@/features/workspace/switch-workspace.interactor";
+import { UpdateWorkspaceSlugInteractor } from "@/features/workspace/update-workspace-slug.interactor";
 import { WithdrawWorkspaceRequestInteractor } from "@/features/workspace/withdraw-workspace-request.interactor";
 // Auth interactors
 import { ContinueWithSocialsInteractor } from "@/features/auth/continue-with-socials.interactor";
@@ -785,6 +785,7 @@ export const getResumeRecordOperationInteractor = () =>
 export const getPermissionService = () => new PermissionService();
 export const getUserRepo = () => new PrismaUserRepo(getPermissionService(), getBillingUsageRepo());
 export const getCompanyRepo = () => new PrismaCompanyRepo(getBillingUsageRepo());
+export const getWorkspaceSlugResolver = () => new WorkspaceSlugResolver(getCompanyRepo());
 export const getRoleRepo = () => new PrismaRoleRepo(getBillingUsageRepo());
 export const getP13nRepo = () => new PrismaP13nRepo();
 export const createPrismaDataViewRepo = (companyId?: string) =>
@@ -1070,10 +1071,6 @@ export const getListMyWorkspacesInteractor = () =>
 export const getGetTrialEligibilityInteractor = () =>
   new GetTrialEligibilityInteractor(getAuthService(), getUserRepo());
 
-export const getGetWorkspaceTabStateInteractor = () =>
-  new GetWorkspaceTabStateInteractor(getAuthService(), getUserRepo(), getCompanyRepo());
-
-export const getSwitchWorkspaceInteractor = () => new SwitchWorkspaceInteractor(getAuthService(), getUserRepo());
 export const getWithdrawWorkspaceRequestInteractor = () =>
   new WithdrawWorkspaceRequestInteractor(getAuthService(), getUserRepo(), getWorkspaceDepartureService());
 
@@ -1087,6 +1084,8 @@ export const getCreateWorkspaceInteractor = () =>
   );
 
 export const getRenameWorkspaceInteractor = () => new RenameWorkspaceInteractor(getCompanyRepo());
+
+export const getUpdateWorkspaceSlugInteractor = () => new UpdateWorkspaceSlugInteractor(getCompanyRepo());
 
 export const getWorkspaceDepartureService = () =>
   new WorkspaceDepartureService(
@@ -1234,7 +1233,8 @@ export const getGetCompanyWidgetsInteractor = () => new GetCompanyWidgetsInterac
 export const getGetWidgetByIdInteractor = () => new GetWidgetByIdInteractor(getWidgetRepo(), getWidgetDtoReader());
 
 export const getGetWikiPagesInteractor = () => new GetWikiPagesInteractor(getWikiPageRepo());
-export const getGetWikiCatalogInteractor = () => new GetWikiCatalogInteractor(getWikiPageRepo());
+export const getGetWikiCatalogInteractor = () =>
+  new GetWikiCatalogInteractor(getWikiPageRepo(), getWorkspaceSlugResolver());
 export const getSearchWikiPagesInteractor = () =>
   new SearchWikiPagesInteractor(getWikiSectionRepo(), "stored", null, sharedWikiSearchOrders);
 export const getSearchWikiKnowledgeInteractor = () =>
@@ -1245,6 +1245,7 @@ export const getSearchExternalizedWikiPagesInteractor = () =>
     "externalized",
     getWikiSemanticRetrieval(),
     sharedWikiSearchOrders,
+    getWorkspaceSlugResolver(),
   );
 export const getGetWikiKnowledgeGapsInteractor = () => new GetWikiKnowledgeGapsInteractor(getWikiKnowledgeGapRepo());
 export const getPruneWikiKnowledgeGapsInteractor = () =>
@@ -1369,6 +1370,7 @@ export const getDeleteAccountsForPlanInteractor = () =>
     getUserRepo(),
     getDeleteAccountForBillingService(),
     getEmailService(),
+    getWorkspaceSlugResolver(),
   );
 
 export const getResyncThreadInteractor = () =>

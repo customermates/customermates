@@ -1,6 +1,7 @@
 import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
+import { companyUrlPattern, pagePath } from "./app-paths";
 import { openConfigure, openConfigureRow, saveDrawer } from "./configure";
 import { expect, test, collectPageErrors } from "./fixtures";
 
@@ -33,10 +34,10 @@ test("gives each money field its own currency, with no company settings page", a
   await test.step("the retired company settings page leads to Configure", async () => {
     const response = await page.goto("/en/company/settings");
     expect(response?.status()).toBe(200);
-    await expect(page).toHaveURL(/\/en\/configure$/);
+    await expect(page).toHaveURL(companyUrlPattern(companyId, "/configure$"));
   });
 
-  await page.goto(`/en/records/${id("deal")}`);
+  await page.goto(pagePath(page, `/records/${id("deal")}`));
   await expect(page.locator("#records-add")).toBeEnabled();
   await expect(page.locator('[id="nav-company-settings"]')).toHaveCount(0);
   await page.waitForLoadState("networkidle");

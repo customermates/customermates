@@ -3,69 +3,44 @@ import { isDeepStrictEqual } from "node:util";
 import { SYNTHETIC_HOSTED_AI_OPERATOR_USER_DEFINITIONS } from "./hosted-ai-operator";
 import { Prisma, type PrismaClient } from "@/generated/prisma";
 import { createCrmPreset, presetId } from "@/features/records/crm-preset";
-import {
-  RecordModelSchema,
-  type RecordModel,
-  type RecordRef,
-  type RecordScalar,
-} from "@/features/records/record-model.schema";
-import { validateRecordModel } from "@/features/records/record-model-validation";
+import { RecordModelSchema, type RecordModel, type RecordRef } from "@/features/records/record-model.schema";
 import { RecordCalculationService, type CalculationRecordRepo } from "@/features/records/record-calculation.service";
 import { encodeRecordValue, recordJson } from "@/features/records/record-storage";
 import type { SeedContext } from "./context";
-import type { SyntheticSeedData } from "./run";
-import type { CustomFieldSeedData } from "./custom-fields";
-import { NORTHWIND_RECORD_PREFIXES, buildNorthwindRecords } from "./northwind-records";
-import { applyNorthwindModel } from "./northwind-schema";
 import { SYNTHETIC_CUSTOM_ROLES } from "./roles";
 
-export function syntheticRecordModel(context: Pick<SeedContext, "ids">, fields: CustomFieldSeedData): RecordModel {
-  const companyId = context.ids.company;
-  const id = (key: string) => presetId(companyId, key);
-  const preset = createCrmPreset(companyId);
-  const modelFields = preset.fields.filter((field) => field.id !== id("deal.stage"));
-  for (const field of fields.customFields)
-    modelFields.push({ ...field, position: modelFields.filter((existing) => existing.typeId === field.typeId).length });
-  for (const field of modelFields) {
-    if ([id("deal.totalValue"), id("deal.totalQuantity"), id("deal.weightedValue")].includes(field.id))
-      field.publishedSummary = true;
-  }
-  const model = applyNorthwindModel({ ...preset, fields: modelFields }, companyId);
-  const parsed = RecordModelSchema.parse(model);
-  const issues = validateRecordModel(parsed).issues;
-  if (issues.length) throw new Error(`Invalid synthetic record configuration: ${JSON.stringify(issues)}`);
-  return parsed;
-}
-
 /**
- * The seed builds the synthetic workspace on its exact record model. A workspace stored on another model (an older
- * seed, or an older synthetic company converted by the release migration) lacks the later types, fields and
- * relationships its fixtures need, so the synthetic company is removed (cascading only to its own rows) and seeded
- * fresh. A workspace already on the current model is left alone, which keeps a repeated seed a no-op.
+ * The seed builds each demo workspace on its exact record model. A workspace stored on another model (an older seed,
+ * or an older synthetic company converted by the release migration) lacks the types, fields and relationships its
+ * fixtures need, so the company is removed (cascading only to its own rows) and seeded fresh. A workspace already on
+ * the current model is left alone, which keeps a repeated seed a no-op.
  */
-export async function resetOutdatedSyntheticWorkspace(context: SeedContext, proposed: RecordModel): Promise<boolean> {
-  const companyId = context.ids.company;
-  return context.prisma.$transaction(
-    async (prisma) => {
-      const state = await prisma.recordSchemaState.findUnique({ where: { companyId } });
+export async function resetOutdatedSyntheticWorkspace(
+  prisma: PrismaClient,
+  companyId: string,
+  proposed: RecordModel,
+): Promise<boolean> {
+  return prisma.$transaction(
+    async (tx) => {
+      const state = await tx.recordSchemaState.findUnique({ where: { companyId } });
       if (!state) return false;
       if (state.activeOperationId) throw new Error("Cannot seed records while a CRM operation is active");
-      const revision = await prisma.recordSchemaRevision.findUnique({
+      const revision = await tx.recordSchemaRevision.findUnique({
         where: { companyId_revision: { companyId, revision: state.revision } },
       });
       const stored = revision && RecordModelSchema.safeParse(revision.snapshot);
       if (stored?.success && isDeepStrictEqual(stored.data, RecordModelSchema.parse(recordJson(proposed))))
         return false;
       // Record event subscriptions restrict deleting their record type, so they go before the company cascade.
-      await prisma.recordEventSubscription.deleteMany({ where: { companyId } });
-      await prisma.company.delete({ where: { id: companyId } });
+      await tx.recordEventSubscription.deleteMany({ where: { companyId } });
+      await tx.company.delete({ where: { id: companyId } });
       return true;
     },
     { maxWait: 60000, timeout: 600000 },
   );
 }
 
-async function initialize(
+export async function initializeRecordModel(
   prisma: Prisma.TransactionClient,
   companyId: string,
   proposed: RecordModel,
@@ -192,151 +167,8 @@ export function syntheticCalculationRepo(prisma: Prisma.TransactionClient, compa
   };
 }
 
-const CHUNK = 1000;
-
-function chunks<T>(rows: readonly T[], size = CHUNK): T[][] {
-  const result: T[][] = [];
-  for (let start = 0; start < rows.length; start += size) result.push(rows.slice(start, start + size));
-  return result;
-}
-
-export async function seedRecordFixtures(
-  context: SeedContext,
-  entities: SyntheticSeedData,
-  fields: CustomFieldSeedData,
-): Promise<void> {
-  const proposed = syntheticRecordModel(context, fields),
-    companyId = context.ids.company;
-  const id = (key: string) => presetId(companyId, key);
-  const northwind = buildNorthwindRecords(companyId);
-  await context.prisma.$transaction(
-    async (prisma) => {
-      await prisma.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${companyId}, 0))`;
-      const model = await initialize(prisma, companyId, proposed);
-      const fieldsById = new Map(model.fields.map((field) => [field.id, field]));
-
-      const rows = [
-        ...(["contact", "organization", "deal", "service", "task"] as const).flatMap((kind) =>
-          entities[`${kind}s`].map(({ id: recordId, createdAt, updatedAt }) => ({
-            typeKey: kind as string,
-            id: recordId,
-            createdAt,
-            updatedAt,
-          })),
-        ),
-        ...northwind.records,
-      ];
-      for (const [typeKey, prefix] of NORTHWIND_RECORD_PREFIXES) {
-        await prisma.crmRecord.deleteMany({
-          where: {
-            companyId,
-            typeId: id(typeKey),
-            id: { startsWith: prefix, notIn: rows.filter((row) => row.typeKey === typeKey).map((row) => row.id) },
-          },
-        });
-      }
-      for (const batch of chunks(rows)) {
-        const data = batch.map((row) => ({
-          companyId,
-          typeId: id(row.typeKey),
-          id: row.id,
-          createdAt: row.createdAt,
-          updatedAt: row.updatedAt,
-        }));
-        const existing = await prisma.crmRecord.findMany({
-          where: {
-            companyId,
-            typeId: { in: [...new Set(data.map((row) => row.typeId))] },
-            id: { in: data.map((row) => row.id) },
-          },
-          select: { typeId: true, id: true, createdAt: true, updatedAt: true },
-        });
-        const stored = new Map(existing.map((row) => [`${row.typeId}:${row.id}`, row]));
-        await prisma.crmRecord.createMany({ data, skipDuplicates: true });
-        for (const row of data) {
-          const current = stored.get(`${row.typeId}:${row.id}`);
-          if (
-            !current ||
-            (current.createdAt.getTime() === row.createdAt.getTime() &&
-              current.updatedAt.getTime() === row.updatedAt.getTime())
-          )
-            continue;
-          await prisma.crmRecord.update({
-            where: { companyId, companyId_typeId_id: { companyId, typeId: row.typeId, id: row.id } },
-            data: { createdAt: row.createdAt, updatedAt: row.updatedAt },
-          });
-        }
-      }
-
-      const values: Array<{ typeId: string; recordId: string; fieldId: string; value: RecordScalar }> = [];
-      const text = (value: string): RecordScalar => ({ kind: "text", value });
-      for (const contact of entities.contacts) {
-        const typeId = id("contact");
-        values.push({ typeId, recordId: contact.id, fieldId: id("contact.firstName"), value: text(contact.firstName) });
-        values.push({ typeId, recordId: contact.id, fieldId: id("contact.lastName"), value: text(contact.lastName) });
-        if (contact.avatarUrl) {
-          values.push({
-            typeId,
-            recordId: contact.id,
-            fieldId: id("contact.avatarUrl"),
-            value: text(contact.avatarUrl),
-          });
-        }
-      }
-      for (const kind of ["organization", "deal", "service", "task"] as const) {
-        for (const row of entities[`${kind}s`])
-          values.push({ typeId: id(kind), recordId: row.id, fieldId: id(`${kind}.name`), value: text(row.name) });
-      }
-      for (const service of entities.services) {
-        values.push({
-          typeId: id("service"),
-          recordId: service.id,
-          fieldId: id("service.amount"),
-          value: { kind: "decimal", value: String(service.amount), currency: "EUR" },
-        });
-      }
-      for (const row of fields.customFieldValues)
-        values.push({ typeId: id(row.recordType), recordId: row.recordId, fieldId: row.fieldId, value: row.value });
-      for (const row of northwind.values)
-        values.push({ typeId: id(row.typeKey), recordId: row.recordId, fieldId: id(row.fieldKey), value: row.value });
-      for (const row of values) {
-        const field = fieldsById.get(row.fieldId);
-        if (!field || field.typeId !== row.typeId) throw new Error(`Synthetic field is missing: ${row.fieldId}`);
-        if (field.behavior.kind !== "input" && field.behavior.kind !== "snapshot")
-          throw new Error(`Synthetic field is calculated: ${field.label}`);
-      }
-
-      for (const batch of chunks(rows)) {
-        await prisma.recordValue.deleteMany({
-          where: {
-            companyId,
-            OR: [...new Set(batch.map((row) => row.typeKey))].map((typeKey) => ({
-              typeId: id(typeKey),
-              recordId: { in: batch.filter((row) => row.typeKey === typeKey).map((row) => row.id) },
-            })),
-          },
-        });
-      }
-      for (const batch of chunks(values, 2000)) {
-        await prisma.recordValue.createMany({
-          data: batch.map((row) => {
-            const encoded = encodeRecordValue({ state: "value", value: row.value });
-            return {
-              companyId,
-              typeId: row.typeId,
-              recordId: row.recordId,
-              fieldId: row.fieldId,
-              ...encoded,
-              jsonValue: encoded.jsonValue ?? Prisma.DbNull,
-              schemaRevision: model.revision,
-            };
-          }),
-        });
-      }
-    },
-    { maxWait: 60000, timeout: 600000 },
-  );
-  // Operator-only fixture workspaces also initialize directly on generic storage.
+/** Operator-only fixture workspaces initialize the starter model directly on generic storage. */
+export async function initializeOperatorFixtureModels(context: SeedContext): Promise<void> {
   const companies = await context.prisma.company.findMany({
     where: {
       id: {
@@ -351,7 +183,7 @@ export async function seedRecordFixtures(
   });
   for (const company of companies) {
     await context.prisma.$transaction(
-      (prisma) => initialize(prisma, company.id, createCrmPreset(company.id)).then(() => undefined),
+      (prisma) => initializeRecordModel(prisma, company.id, createCrmPreset(company.id)).then(() => undefined),
       { maxWait: 60000, timeout: 600000 },
     );
   }

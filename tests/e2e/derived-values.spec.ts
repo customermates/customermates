@@ -6,6 +6,7 @@ import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { expect, test, collectPageErrors } from "./fixtures";
+import { pagePath } from "./app-paths";
 
 async function revision(page: Page) {
   const response = await page.request.post("/api/v1/model/read", { data: {} });
@@ -57,7 +58,7 @@ test("rounds an average widget to the measured currency field's cents", async ({
     viewId: null,
   });
 
-  await page.goto("/en/dashboard");
+  await page.goto(pagePath(page, "/dashboard"));
   const card = page.locator('[data-slot="card"]').filter({ has: page.getByRole("heading", { name, exact: true }) });
   await expect(card.locator('[data-slot="widget-number"]')).toContainText("€16.67");
   await expect(card).not.toContainText("16.666");
@@ -113,7 +114,7 @@ test("shows a list ungrouped when a link groups it by a multiple choice field, w
     },
   });
 
-  await page.goto(`/en/records/${typeId}?groupBy=${roleId}`);
+  await page.goto(pagePath(page, `/records/${typeId}?groupBy=${roleId}`));
   await expect(page.locator("#records-add")).toBeEnabled();
   await expect(page.getByText(contact, { exact: true }).first()).toBeVisible();
 

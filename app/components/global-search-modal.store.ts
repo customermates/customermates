@@ -19,7 +19,7 @@ import {
   globalSearchAction,
   resolveCommandAction,
   resolveSearchReferencesAction,
-} from "@/app/[locale]/(protected)/search/actions";
+} from "@/app/[locale]/(protected)/w/[workspace]/search/actions";
 import { recordSearchKey, StoredSearchReferenceSchema } from "@/features/records/record-search.schema";
 import type { CommandDocsHit } from "@/features/command-palette/command-search.schema";
 import type { CommandResolution } from "@/features/command-palette/command-resolve";

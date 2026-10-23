@@ -37,7 +37,7 @@ vi.mock("next/navigation", () => ({
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
-vi.mock("@/app/[locale]/(protected)/search/actions", () => ({
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/search/actions", () => ({
   globalSearchAction: harness.globalSearchAction,
 }));
 vi.mock("@/components/entity-detail/entity-relations", () => ({

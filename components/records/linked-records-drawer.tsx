@@ -25,12 +25,12 @@ import { actionData } from "@/core/utils/action-data";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { recordDisplayName } from "@/features/records/record-display-name";
 import { linkedRecordsFilter, linkedRecordsHref } from "@/features/records/linked-records-link";
-import { getRecordPresentationAction } from "@/app/[locale]/(protected)/records/actions";
-import { RecordExplorationStore } from "@/app/[locale]/(protected)/records/[typeId]/components/record-exploration.store";
+import { getRecordPresentationAction } from "@/app/[locale]/(protected)/w/[workspace]/records/actions";
+import { RecordExplorationStore } from "@/app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-exploration.store";
 import {
   useRecordCardRenderer,
   useRecordTableColumns,
-} from "@/app/[locale]/(protected)/records/[typeId]/components/record-table-columns";
+} from "@/app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-table-columns";
 
 const LinkedRecordsTable = observer(function LinkedRecordsTable({
   store,

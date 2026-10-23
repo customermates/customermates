@@ -5,6 +5,7 @@ import type { SaveOnboardingWizardProgressData } from "@/features/onboarding-wiz
 
 import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
+import { appRedirectHref } from "@/features/auth/next/app-redirect";
 import { getLocale } from "next-intl/server";
 
 import {
@@ -23,14 +24,14 @@ import { appLocaleOrDefault, buildLocalePath } from "@/i18n/locale-registry";
 
 async function settleInLocale<T>(outcome: Parameters<typeof settleActionResult<T>>[0]) {
   const settled = await settleActionResult(outcome);
-  if (isRedirect(settled)) redirect(buildLocalePath(await getLocale(), settled.redirect));
+  if (isRedirect(settled)) redirect(await appRedirectHref(settled.redirect));
   return settled;
 }
 
 export async function registerProfileAction(data: RegisterOnboardingProfileData) {
   const adAttribution = await readRegistrationAdAttribution();
   const registrationResult = await getRegisterOnboardingProfileInteractor().invoke(data, { adAttribution });
-  if (isRedirect(registrationResult)) redirect(buildLocalePath(await getLocale(), registrationResult.redirect));
+  if (isRedirect(registrationResult)) redirect(await appRedirectHref(registrationResult.redirect));
   const result = await serializeResult(registrationResult);
   if (result.ok) {
     await clearRegisteredAdClicksFromCookie();

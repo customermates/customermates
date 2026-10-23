@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
+import { demoWorkspacePath } from "@/components/marketing/product-demo-src";
 import { DOC_NAV_GROUPS } from "@/features/docs/docs-nav";
 import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 
@@ -43,7 +44,7 @@ describe("docs navigation completeness", () => {
       const landingPage = readFileSync(join(REPO_ROOT, "content", "docs", locale, "intro-page.mdx"), "utf8");
 
       expect(landingPage).toContain(
-        `src: https://demo.customermates.com/${locale}/dashboard?agentChat=closed`,
+        `src: https://demo.customermates.com${demoWorkspacePath(locale, "/dashboard")}?agentChat=closed`,
       );
     }
   });

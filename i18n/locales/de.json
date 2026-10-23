@@ -1293,7 +1293,7 @@
       "wikiProposalReviewed": "Dieser Vorschlag wurde bereits geprüft.",
       "wikiProposalStale": "Die Seite wurde geändert, nachdem Mate diesen Vorschlag gemacht hat. Lehne ihn ab oder bitte Mate, die Änderung neu vorzuschlagen.",
       "wikiWhenToUseRequired": "Ein Verfahren braucht eine kurze Beschreibung, wann es gilt.",
-      "workspaceChanged": "Dein Workspace hat sich in einem anderen Tab oder auf einem anderen Gerät geändert. Lade die Seite neu, bevor du weitermachst.",
+      "workspaceChanged": "Dieser Workspace ist nicht mehr verfügbar. Er wurde gelöscht, seine URL wurde geändert oder dein Zugriff wurde entfernt.",
       "workspaceCreationUnavailable": "Hier können keine neuen Workspaces erstellt werden.",
       "workspaceDeleteAdminRequired": "Nur ein Admin kann diesen Workspace löschen.",
       "workspaceDeleteBillingActive": "Dieser Workspace hat noch ein Abo, das abgerechnet oder fortgesetzt werden kann. Kündige es und warte, bis es endet, oder wende dich an den Support.",
@@ -1315,7 +1315,8 @@
       "workspaceSetupAnswerInvalid": "Diese Antwort passt nicht zur Frage. Prüfe sie und versuche es erneut.",
       "workspaceSetupConflict": "Die Workspace-Einrichtung ist gerade mit einem anderen Schritt beschäftigt. Lade sie neu und versuche es erneut.",
       "workspaceSetupNotFound": "Für diesen Workspace wurde keine Einrichtung gefunden.",
-      "workspaceSetupUnavailable": "Die KI-Einrichtung des Workspace ist hier nicht verfügbar."
+      "workspaceSetupUnavailable": "Die KI-Einrichtung des Workspace ist hier nicht verfügbar.",
+      "workspaceSlugTaken": "Ein anderer Workspace verwendet diese URL bereits. Wähle eine andere."
     },
     "events": {
       "connected_account": {
@@ -1704,6 +1705,7 @@
       "light": "Hell",
       "system": "System"
     },
+    "unlimited": "unbegrenzt",
     "unnamed": "Unbenannt",
     "unsavedChanges": "Ungespeicherte Änderungen",
     "updatedOn": "Aktualisiert am {date}",
@@ -2447,6 +2449,11 @@
     "sendCta": "Link zum Zurücksetzen senden",
     "title": "Passwort vergessen"
   },
+  "ForHub": {
+    "allGuides": "Alle Branchenleitfäden",
+    "byTeam": "Nach Team",
+    "byWorkflow": "Nach Arbeitsablauf"
+  },
   "GlobalSearch": {
     "askMateWith": "Mate fragen: {question}",
     "emptyDescription": "Finde Datensätze in den Listen, auf die du Zugriff hast.",
@@ -2465,7 +2472,7 @@
       "badge": "Beliebt",
       "compareText": "Tarife vergleichen",
       "ctaText": "Kostenlos starten",
-      "featureBusiness": "Business: {accounts, plural, one {# Konto pro Nutzer} other {# Konten pro Nutzer}}, geteilte Konten & Priority-Support",
+      "featureBusiness": "Business: {accounts, plural, one {# Konto pro Nutzer} other {# Konten pro Nutzer}}, Teilen ganzer Konten im Posteingang & Priority-Support",
       "featurePro": "Pro: einheitlicher Posteingang, {accounts, plural, one {# verbundenes Konto pro Nutzer} other {# verbundene Konten pro Nutzer}}",
       "featureStarter": "Starter: die CRM-Kernfunktionen",
       "period": "/ Nutzer / Monat",
@@ -2489,7 +2496,7 @@
       "featureUsers": "Workspace-Nutzer",
       "period": "unter AGPL",
       "price": "Kern kostenlos",
-      "tag": "Betreiben Sie die AGPL-Kernanwendung und PostgreSQL mit Docker Compose auf Ihrem Server im Starter-Umfang. Externe Dienste bleiben separat.",
+      "tag": "Betreiben Sie die AGPL-Kernanwendung und PostgreSQL mit Docker Compose auf Ihrem Server im Starter-Umfang, ohne Posteingang und gehostete KI. Externe Dienste bleiben separat.",
       "title": "Self-Hosted"
     },
     "subtitle": "Transparente Tarife, keine versteckten Kosten. Der AGPL-Kern bleibt beim Self-Hosting kostenlos; externe Dienste bleiben separat. Oder starten Sie ohne Kreditkarte in der Cloud.",
@@ -2876,6 +2883,9 @@
       "allSolutions": "Alle Lösungen",
       "articlesAndGuides": "Artikel und Anleitungen",
       "blog": "Blog",
+      "byTeam": "Nach Team",
+      "byWorkflow": "Nach Arbeitsablauf",
+      "clientManagement": "Kundenverwaltung",
       "cloudCrm": "Cloud-CRM",
       "compare": "Vergleiche",
       "consultants": "Beratungen",
@@ -2883,9 +2893,10 @@
       "emailAndGmail": "E-Mail und Gmail",
       "freelancers": "Freelancer",
       "integrations": "Integrationen",
-      "lawFirms": "Kanzleien",
+      "linkedinCrm": "LinkedIn-CRM",
       "mcp": "MCP",
       "n8n": "n8n-Automatisierung",
+      "openExampleWorkspace": "Diesen Beispiel-Arbeitsbereich öffnen",
       "openSourceCrm": "Open-Source-CRM",
       "pipeline": "Vertriebspipeline",
       "primaryNavigation": "Hauptnavigation",
@@ -2905,15 +2916,26 @@
       "providerSlack": "Slack",
       "providerTelegram": "Telegram",
       "providerWhatsApp": "WhatsApp",
-      "recruiting": "Recruiting",
       "resources": "Ressourcen",
       "salesTracking": "Vertriebsaktivitäten",
       "selfHosted": "Selbst gehostetes CRM",
       "smallBusiness": "Kleine Unternehmen",
       "solutions": "Lösungen",
+      "solutionSummaries": {
+        "agencies": "Pitches, Projekte und Retainer",
+        "clientManagement": "Jeder Kunde mit Kontakten und Verträgen",
+        "consultants": "Mandate vom Erstgespräch bis zum Angebot",
+        "freelancers": "Kunden, Projekte und nächste Schritte",
+        "linkedinCrm": "LinkedIn-Nachrichten zu Deals",
+        "salesPipeline": "Deals nach Phase mit nächstem Schritt",
+        "smallBusiness": "Kunden, Deals und Wiedervorlagen im Team",
+        "startups": "Gründervertrieb bis zum Abschluss",
+        "whatsappCrm": "WhatsApp-Chats passend zu Kunden"
+      },
       "startups": "Startups",
       "taskManagement": "Aufgabenverwaltung",
-      "unifiedInbox": "Einheitlicher Posteingang"
+      "unifiedInbox": "Einheitlicher Posteingang",
+      "whatsappCrm": "WhatsApp-CRM"
     },
     "routines": "Routinen",
     "search": "Suchen",
@@ -3063,11 +3085,6 @@
         "email": "E-Mails senden",
         "link": "Link teilen"
       }
-    },
-    "linkedWorkspace": {
-      "description": "Dieser Link öffnet die Einrichtung von {workspace}. Du arbeitest gerade in einem anderen Workspace; der Wechsel gilt für alle deine offenen Tabs.",
-      "switch": "Workspace wechseln",
-      "title": "In {workspace} weitermachen"
     },
     "milestones": {
       "ai": "KI-Tools",
@@ -4869,17 +4886,17 @@
     "nameDescription": "Alle Mitglieder sehen diesen Namen im Workspace-Menü.",
     "nameLabel": "Workspace-Name",
     "noPlan": "Kein Tarif",
-    "otherTab": {
-      "description": "Dieser Tab zeigt noch {current}. Lade ihn neu, damit nichts im falschen Workspace gespeichert wird.",
-      "reload": "Neu laden",
-      "title": "Du hast in einem anderen Tab den Workspace gewechselt",
-      "titleChanged": "Dein Workspace hat sich geändert",
-      "titleDeleted": "Dieser Workspace wurde gelöscht",
-      "titleNamed": "Du hast in einem anderen Tab zu {name} gewechselt"
-    },
     "renameReadOnly": "Nur Mitglieder, die den Workspace verwalten dürfen, können den Namen ändern.",
+    "slugDescription": "Links zu diesem Workspace verwenden {path}. Verwende Kleinbuchstaben, Ziffern und Bindestriche. Alte Links funktionieren nach einer Änderung nicht mehr.",
+    "slugLabel": "Workspace-URL",
+    "slugReadOnly": "Links zu diesem Workspace verwenden {path}. Nur Mitglieder, die den Workspace verwalten dürfen, können sie ändern.",
     "switch": "Wechseln",
     "switchTo": "Zu {name} wechseln",
+    "unavailable": {
+      "description": "Er wurde gelöscht, seine URL wurde geändert oder dein Zugriff wurde entfernt. Öffne dein Dashboard, um weiterzumachen.",
+      "open": "Zum Dashboard",
+      "title": "Dieser Workspace ist nicht verfügbar"
+    },
     "unnamedCreated": "{name} (erstellt am {date})",
     "unnamedPrompt": {
       "description": "Er hat noch keinen Namen, deshalb zeigt das Workspace-Menü nur „Workspace“. Mit einem Namen können alle Mitglieder deine Workspaces auseinanderhalten.",

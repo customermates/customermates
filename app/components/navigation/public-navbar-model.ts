@@ -6,28 +6,25 @@ import {
   BookOpen,
   Bot,
   Boxes,
-  BriefcaseBusiness,
   Cable,
   CheckCircle2,
+  FileText,
   GitCompareArrows,
   Github,
   Inbox,
-  Laptop,
+  SquareKanban,
   LayoutGrid,
-  Megaphone,
+  Newspaper,
   Plug,
-  Presentation,
-  Rocket,
-  Scale,
   Server,
-  Store,
   TrendingUp,
-  UserRoundSearch,
   Users,
   UsersRound,
 } from "lucide-react";
 
 import { pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
+
+import { solutionNavLinks, solutionNavSections } from "./solution-nav";
 
 type PublicNavbarCta = {
   href: string;
@@ -90,7 +87,7 @@ export function resolvePublicNavbarActions({
   };
 }
 
-export function resolvePublicNavGroups(t: ReturnType<typeof useTranslations>): PublicNavGroup[] {
+export function resolvePublicNavGroups(t: ReturnType<typeof useTranslations>, locale: string): PublicNavGroup[] {
   return [
     {
       activeHref: "/features",
@@ -109,7 +106,7 @@ export function resolvePublicNavGroups(t: ReturnType<typeof useTranslations>): P
           title: t("NavigationBar.public.contactManagement"),
         },
         {
-          icon: TrendingUp,
+          icon: SquareKanban,
           href: "/features/pipeline",
           title: t("NavigationBar.public.pipeline"),
         },
@@ -149,61 +146,16 @@ export function resolvePublicNavGroups(t: ReturnType<typeof useTranslations>): P
     },
     {
       activeHref: "/for",
-      columns: 3,
+      columns: 2,
       icon: UsersRound,
       id: "solutions",
-      links: [
-        {
-          icon: BriefcaseBusiness,
-          href: "/for/professional-services",
-          title: t("NavigationBar.public.professionalServices"),
-        },
-        {
-          icon: Megaphone,
-          href: "/for/agencies",
-          title: t("NavigationBar.public.agencies"),
-        },
-        {
-          icon: Presentation,
-          href: "/for/consultants",
-          title: t("NavigationBar.public.consultants"),
-        },
-        {
-          icon: UserRoundSearch,
-          href: "/for/recruiting",
-          title: t("NavigationBar.public.recruiting"),
-        },
-        {
-          icon: Laptop,
-          href: "/for/freelancers",
-          title: t("NavigationBar.public.freelancers"),
-        },
-        {
-          icon: Scale,
-          href: "/for/law-firms",
-          title: t("NavigationBar.public.lawFirms"),
-        },
-        {
-          icon: Rocket,
-          href: "/for/startups",
-          title: t("NavigationBar.public.startups"),
-        },
-        {
-          icon: Store,
-          href: "/for/smb",
-          title: t("NavigationBar.public.smallBusiness"),
-        },
-        {
-          icon: UsersRound,
-          href: "/for",
-          title: t("NavigationBar.public.allSolutions"),
-        },
-      ],
+      links: solutionNavLinks(t, locale),
+      sections: solutionNavSections(t),
       title: t("NavigationBar.public.solutions"),
     },
     {
       activeHref: "/features/integrations",
-      columns: 2,
+      columns: 3,
       icon: Plug,
       id: "integrations",
       links: [
@@ -301,12 +253,12 @@ export function resolvePublicNavGroups(t: ReturnType<typeof useTranslations>): P
       id: "resources",
       links: [
         {
-          icon: BookOpen,
+          icon: FileText,
           href: "/docs",
           title: t("NavigationBar.docs"),
         },
         {
-          icon: BookOpen,
+          icon: Newspaper,
           href: "/blog",
           title: t("NavigationBar.public.blog"),
         },

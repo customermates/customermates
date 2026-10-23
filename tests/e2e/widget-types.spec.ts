@@ -16,6 +16,7 @@ import {
 } from "../../features/widget/widget-display-rules";
 import { expect, test, collectPageErrors } from "./fixtures";
 import { postOk } from "./api";
+import { pagePath } from "./app-paths";
 
 const TIME_ZONE = "Europe/Berlin";
 test.use({ timezoneId: TIME_ZONE });
@@ -25,6 +26,12 @@ const money = (value: number) =>
     style: "currency",
     currency: "EUR",
     maximumFractionDigits: 20,
+  }).format(value);
+const chartMoney = (value: number) =>
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "EUR",
+    maximumFractionDigits: Math.abs(value) >= 1_000 ? 0 : 20,
   }).format(value);
 const compactMoney = (value: number) =>
   value < 10_000
@@ -498,7 +505,7 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
   test.setTimeout(420000);
   const errors = collectPageErrors(page);
   const dialog = page.getByRole("dialog");
-  await page.goto("/en/dashboard");
+  await page.goto(pagePath(page, "/dashboard"));
   const { id, closeDateId } = await seedPipeline(
     page,
     database,
@@ -545,7 +552,7 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
       dialog.locator('[data-slot="widget-number-value"]'),
     ).toHaveText(compactMoney(total));
     await dialog.getByRole("button", { name: "Colors", exact: true }).click();
-    await page.getByRole("menuitemcheckbox", { name: "Color 4", exact: true }).check();
+    await page.getByRole("menuitemcheckbox", { name: "Color 6", exact: true }).check();
     await page.keyboard.press("Escape");
     await save(page);
     const saved = await readWidget(database, companyId, "Pipeline total");
@@ -662,7 +669,7 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
       .map((deal, index) => [
         String(index + 1),
         deal.name,
-        money(dealValue(deal)),
+        chartMoney(dealValue(deal)),
         percent(dealValue(deal) / total),
       ]);
     const widget = card(page, "Deal ranking");
@@ -816,7 +823,7 @@ test("starts a widget from every display type card with that type preset on the 
 }) => {
   const errors = collectPageErrors(page);
   const dialog = page.getByRole("dialog");
-  await page.goto("/en/dashboard");
+  await page.goto(pagePath(page, "/dashboard"));
   for (const displayType of WIDGET_STARTER_DISPLAY_TYPES) {
     await page.locator("#dashboard-add-widget").click();
     await expect(dialog.locator("#widget-gallery-heading")).toHaveCount(0);

@@ -208,7 +208,7 @@ Sobald die Verbindung steht, zählen zwei Risiken. Ein angebundener KI-Client ha
 
 **Ihr ChatGPT, über MCP.** Der MCP-Endpunkt gehört zu jedem Tarif und zum selbst gehosteten Kern. In ChatGPT legen Sie eine App mit der Adresse Ihrer Customermates-Instanz plus `/api/v1/mcp` an, wählen OAuth, melden sich an und klicken auf dem Zustimmungsbildschirm auf **Zulassen**. Die [Anleitung zum Connector](/docs/connect-custom-connector) beschreibt die Schritte und den Weg per API-Schlüssel. ChatGPT stehen dann [[derived.mcp.tools.total]] Tools zur Verfügung, darunter solche für Kontakte, Organisationen, Deals, Leistungen, Aufgaben und eigene Listen, ihre Notizen und Felder. Das Modell läuft über Ihren ChatGPT-Tarif und verbraucht keine KI-Credits von Customermates. Customermates fragt vor einem Tool-Aufruf nicht noch einmal nach. Legen Sie die Berechtigungen der App deshalb in ChatGPT fest und lassen Sie Entwürfe anlegen, statt Nachrichten senden zu lassen.
 
-Prompts zum Test der Verbindung in einem neuen Arbeitsbereich, dessen Standardphasen für Deals Akquise, Qualifizierung, Demo, Angebot, Verhandlung, Gewonnen und Verloren heißen:
+Prompts zum Test der Verbindung. Customermates hat keine voreingestellten Phasen, die Prompts setzen also eine Liste Deals voraus, deren Feld Phase eine Option Angebot hat; setzen Sie Ihre eigenen Phasen- und Datensatznamen ein:
 
 1. „Listen Sie meine offenen Deals in der Phase Angebot mit Organisation, Wert und zugewiesenen Nutzern auf.“ (lesen)
 2. „Fügen Sie diese Gesprächszusammenfassung den Notizen des Deals Roth Steuerberatung hinzu und setzen Sie die Phase auf Angebot: [einfügen].“ (ändern)

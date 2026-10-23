@@ -10,11 +10,12 @@ import { expect } from "./fixtures";
 import { localE2eEnvironment } from "./local-environment";
 import { invokesServerAction, serverActionIds } from "./server-actions";
 import { openMenu, openSidebar } from "./sidebar";
+import { rememberWorkspaceSlug } from "./app-paths";
 
 type Membership = { companyId: string; userId: string };
 type MembershipStatus = "active" | "inactive" | "pendingAuthorization";
 
-const WORKSPACE_ACTIONS = "app/[locale]/(protected)/settings/(account)/workspaces/actions.ts";
+const WORKSPACE_ACTIONS = "app/[locale]/(protected)/w/[workspace]/settings/(account)/workspaces/actions.ts";
 
 export function e2eAppMode() {
   return resolveAppMode(process.env);
@@ -66,15 +67,11 @@ export async function expectCurrentWorkspace(page: Page, name: string) {
 }
 
 export async function activeWorkspaceOf(database: Client, login: BrowserWorkspace) {
-  const session = await database.query<{ activeCompanyId: string | null }>(
-    'SELECT "activeCompanyId" FROM "AuthSession" WHERE "userId"=$1 ORDER BY "createdAt" DESC LIMIT 1',
-    [login.authUserId],
-  );
   const authUser = await database.query<{ companyId: string | null }>(
     'SELECT "companyId" FROM "AuthUser" WHERE id=$1',
     [login.authUserId],
   );
-  return { session: session.rows[0]?.activeCompanyId ?? null, lastUsed: authUser.rows[0]?.companyId ?? null };
+  return { lastUsed: authUser.rows[0]?.companyId ?? null };
 }
 
 export async function setActiveWorkspace(database: Client, login: BrowserWorkspace, companyId: string) {
@@ -142,6 +139,7 @@ export async function signInLogin(browser: Browser, database: Client, login: Bro
     reducedMotion: "reduce",
   });
   BrowserDiagnostics.of(testInfo).watch(context);
+  rememberWorkspaceSlug(context, login.slug);
   await context.addCookies([
     {
       name: "app.session_token",

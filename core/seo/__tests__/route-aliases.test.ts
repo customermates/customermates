@@ -158,11 +158,11 @@ describe("retired app routes", () => {
     expect(destinationOf("/services")).toBe("/open/records/service");
     expect(destinationOf("/tasks")).toBe("/open/records/task");
     expect(destinationOf("/de/deals/:recordId")).toBe("/de/open/records/deal/:recordId");
-    expect(destinationOf("/company/members")).toBe("/settings/members");
-    expect(destinationOf("/company/audit-logs")).toBe("/settings/activity");
-    expect(destinationOf("/company/settings")).toBe("/configure");
-    expect(destinationOf("/fr/profile/api-keys")).toBe("/fr/settings/api-keys");
-    expect(destinationOf("/profile/settings")).toBe("/settings/profile");
+    expect(destinationOf("/company/members")).toBe("/dashboard?open=%2Fsettings%2Fmembers");
+    expect(destinationOf("/company/audit-logs")).toBe("/dashboard?open=%2Fsettings%2Factivity");
+    expect(destinationOf("/company/settings")).toBe("/dashboard?open=%2Fconfigure");
+    expect(destinationOf("/fr/profile/api-keys")).toBe("/fr/dashboard?open=%2Fsettings%2Fapi-keys");
+    expect(destinationOf("/profile/settings")).toBe("/dashboard?open=%2Fsettings%2Fprofile");
   });
 
   it("redirects permanently from every app locale and from the unprefixed URL, without loops", () => {
@@ -173,7 +173,10 @@ describe("retired app routes", () => {
       expect(redirect.permanent).toBe(true);
       expect(redirect.source).not.toBe(redirect.destination);
       expect(isProtectedPathname(redirect.source), `${redirect.source} is still a live route`).toBe(false);
-      expect(isProtectedPathname(redirect.destination), `${redirect.destination} is not an app route`).toBe(true);
+      expect(
+        isProtectedPathname(redirect.destination.split("?")[0] ?? ""),
+        `${redirect.destination} is not an app route`,
+      ).toBe(true);
     }
 
     for (const redirect of redirects.filter(

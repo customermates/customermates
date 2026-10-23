@@ -11,13 +11,19 @@ import {
   DEFAULT_LOCALE,
   FORMATTING_LOCALES,
   LOCALE_REGISTRY,
+  MARKETING_LOCALES,
+  PARTIAL_MARKETING_LOCALES,
+  REGISTERED_LOCALES,
   ROUTING_LOCALES,
   appLocaleFromLanguageTag,
   buildLocalePath,
   isAppLocale,
   isContentLocale,
   isFormattingLocale,
+  isMarketingLocale,
+  isMarketingPathPublished,
   isRoutingLocale,
+  partialMarketingPaths,
   routingLocaleFromUrlSegment,
   stripLocalePrefix,
   validationTagFor,
@@ -106,7 +112,10 @@ describe("locale registry", () => {
   it.skipIf(!ENFORCED)("resolves every app locale's browser and validation adapters", async () => {
     for (const locale of APP_LOCALES) {
       expect(appLocaleFromLanguageTag(LOCALE_REGISTRY[locale].formattingTag), `${locale} browser tag`).toBe(locale);
-      await expect(import(`zod/v4/locales/${validationTagFor(locale)}.js`), `${locale} Zod locale`).resolves.toBeTruthy();
+      await expect(
+        import(`zod/v4/locales/${validationTagFor(locale)}.js`),
+        `${locale} Zod locale`,
+      ).resolves.toBeTruthy();
     }
 
     expect(routingLocaleFromUrlSegment("en-US")).toBeNull();
@@ -142,4 +151,38 @@ describe("locale registry", () => {
       `two-letter route segments collide with locale prefixes and break the unsupported-prefix guard:\n${ambiguous.join("\n")}`,
     ).toEqual([]);
   });
+
+  it.skipIf(!ENFORCED)("keeps full content, partial marketing and app locales distinct", () => {
+    for (const locale of REGISTERED_LOCALES) {
+      const paths = LOCALE_REGISTRY[locale].marketingPaths;
+      expect(paths === "all", `${locale}: marketingPaths "all" must match hasPublishedContent`).toBe(
+        LOCALE_REGISTRY[locale].hasPublishedContent,
+      );
+    }
+    for (const locale of PARTIAL_MARKETING_LOCALES) {
+      expect(isContentLocale(locale), `${locale} is partial, not a full content locale`).toBe(false);
+      expect(isAppLocale(locale), `${locale} must also be an app locale to route`).toBe(true);
+      expect(CONTENT_LOCALES).not.toContain(locale);
+      expect(isMarketingLocale(locale)).toBe(true);
+    }
+    expect([...MARKETING_LOCALES].sort()).toEqual(
+      [...new Set([...CONTENT_LOCALES, ...PARTIAL_MARKETING_LOCALES])].sort(),
+    );
+  });
+
+  it.skipIf(!ENFORCED)("publishes a partial locale only on its explicit marketing paths", () => {
+    for (const locale of PARTIAL_MARKETING_LOCALES) {
+      const paths = partialMarketingPaths(locale);
+      expect(paths.length).toBeGreaterThan(0);
+      for (const path of paths) {
+        expect(path, `${locale} scope path ${path}`).toMatch(/^\/(?:[a-z0-9-]+(?:\/[a-z0-9-]+)*)?$/);
+        expect(isMarketingPathPublished(locale, path)).toBe(true);
+        expect(isMarketingPathPublished(locale, `${path === "/" ? "" : path}/`)).toBe(true);
+      }
+      for (const path of ["/blog", "/docs", "/privacy", "/for/page/2", "/features/all"])
+        expect(isMarketingPathPublished(locale, path), `${locale} ${path}`).toBe(false);
+    }
+    for (const locale of CONTENT_LOCALES) expect(isMarketingPathPublished(locale, "/blog")).toBe(true);
+  });
 });
+

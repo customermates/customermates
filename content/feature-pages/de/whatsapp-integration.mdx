@@ -1,0 +1,178 @@
+---
+title: "WhatsApp CRM: Chats direkt neben Ihren Kundendaten"
+description: "WhatsApp-Konto ab Pro mit dem Postfach von Customermates Cloud verbinden, Chats beantworten, Kontakte per Telefonnummer zuordnen. Keine WhatsApp Business API."
+featureName: WhatsApp CRM-Integration
+
+relatedHrefs:
+  - /features/unified-inbox
+  - /docs/app-inbox
+  - /features/linkedin-integration
+  - /features/contact-management
+
+hero:
+  title: WhatsApp-Chats direkt beim Kundendatensatz
+  description: "Für kleine Teams, deren Kunden per WhatsApp schreiben: Verbinden Sie ein WhatsApp-Konto über unseren Messaging-Anbieter, beantworten Sie Chats im CRM-Postfach und ordnen Sie jeden Kontakt über die Telefonnummer zu. Das ist nicht die offizielle WhatsApp Business API, es gibt also keine Vorlagen, Broadcasts oder Chatbots. Customermates Cloud ab Pro, nicht in Starter oder Self-Hosting."
+  buttonLeftText: Pro-Testphase starten
+  buttonLeftHref: /auth/signup
+  buttonRightText: Workspace ansehen
+  buttonRightHref: https://demo.customermates.com/de/w/whatsapp-kundenkontakt/dashboard
+  hint: "Nur Cloud • Pro oder höher • Keine WhatsApp Business API"
+  showOpenSourceBadge: false
+
+cta:
+  action: WhatsApp mit Ihren eigenen Kundengesprächen prüfen
+  description: Sehen Sie sich den Beispiel-Workspace an, verbinden Sie dann in der Pro-Testphase Ihr WhatsApp-Konto und prüfen Sie, ob Chats und Kontakte so zusammenpassen, wie Ihr Team arbeitet.
+  buttonLeftText: Pro-Testphase starten
+  buttonLeftHref: /auth/signup
+  buttonRightText: Workspace ansehen
+  buttonRightHref: https://demo.customermates.com/de/w/whatsapp-kundenkontakt/dashboard
+  hint: "WhatsApp im Postfach benötigt Customermates Cloud Pro oder höher. Starter und Self-Hosting enthalten keine verbundenen Messaging-Konten."
+---
+
+In vielen kleinen Betrieben laufen Terminabsprachen, Angebote und Rückfragen über WhatsApp, während die Kundendaten an anderer Stelle liegen. Mit Customermates als **WhatsApp CRM** landen diese Chats im [einheitlichen Postfach](/features/unified-inbox) von Customermates Cloud, direkt beim passenden Kontakt. Sie verbinden ein WhatsApp-Konto per QR-Code über unseren Messaging-Anbieter. Das ist nicht die offizielle WhatsApp Business API. Die Integration ist für einzelne Kundengespräche gedacht, nicht für Kampagnen oder automatisierte Nachrichten.
+
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Was verbunden wird">
+    Ein WhatsApp-Konto pro Kontenplatz, per QR-Code über den
+    Messaging-Anbieter. Einzel- und Gruppenchats erscheinen im Postfach.
+  </SummaryItem>
+  <SummaryItem label="Tarif">
+    Customermates Cloud ab Pro. Pro enthält
+    [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro
+    Nutzer. Starter und Self-Hosting enthalten keine verbundenen
+    Messaging-Konten.
+  </SummaryItem>
+  <SummaryItem label="CRM-Kontext">
+    Kontakte werden über die Telefonnummer in ihrem Kanäle-Feld zugeordnet. Die
+    Verknüpfung eines Chats mit einem Deal oder einer Organisation setzt ein
+    Nutzer oder Agent bewusst.
+  </SummaryItem>
+  <SummaryItem label="Nicht enthalten">
+    Keine offizielle WhatsApp Business API, keine Nachrichtenvorlagen,
+    Kampagnen, Broadcasts, Sequenzen, Chatbots, Massenversand oder
+    Automatisierung.
+  </SummaryItem>
+</ArticleSummary>
+
+## Der Beispiel-Workspace „WhatsApp-CRM“ mit Beispieldaten
+
+Die Demo oben und der [Beispiel-Workspace](https://demo.customermates.com/de/w/whatsapp-kundenkontakt/dashboard) arbeiten mit erfundenen Beispieldaten, nicht mit einem Kunden. Der Workspace enthält Listen für Kunden, Kontakte, Aufträge und Aufgaben. Im Postfach steht ein WhatsApp-Chat neben dem Kontaktdatensatz: Der Kontakt wurde über die Telefonnummer in seinem Kanäle-Feld zugeordnet, und unter **Datensätze dieser Unterhaltung** wurde der Chat bewusst von Hand mit einem offenen Auftrag verknüpft. Ein von Hand gesetzter Chat-Status an jedem Kontakt füllt ein Board mit den Chats, die noch auf eine Antwort warten.
+
+Diese Listen sind ein Beispiel. Ein neuer Workspace startet ohne Listen. In Customermates Cloud kann die KI-Einrichtung aus Ihrer Beschreibung Listen, Phasen, ein Dashboard und Knowledge-Base-Seiten anlegen, einmalig beim Onboarding und mit begrenzten Credits. Sie können sie auch mit **Mit einem leeren Workspace starten** überspringen. Andernfalls legen Personen, die das Datenmodell verwalten, Listen und Felder unter **Konfigurieren** an und importieren vorhandene Kontakte aus einer Excel-Arbeitsmappe. Damit WhatsApp-Chats zugeordnet werden, braucht die Kontaktliste ein Kanäle-Feld.
+
+## Was die WhatsApp-Verbindung leistet
+
+**Chats im Postfach.** Nach dem Verbinden werden Einzel- und Gruppenchats des WhatsApp-Kontos importiert, und neue Nachrichten kommen laufend hinzu. Sie stehen in derselben Liste wie E-Mail-, LinkedIn-, Instagram- und Telegram-Unterhaltungen, die jüngste Aktivität zuerst.
+
+**Lesen und antworten.** Öffnen Sie einen Chat, lesen Sie den Verlauf und antworten Sie im selben Chat. Anhänge funktionieren, soweit die Anbieterverbindung sie unterstützt. Für einen bestehenden Chat können Sie einen Entwurf speichern und später senden.
+
+**Chat über eine Telefonnummer starten.** Einen neuen Chat starten Sie mit der Telefonnummer eines Kontakts im internationalen Format, also zum Beispiel +49 und die Nummer ohne führende Null.
+
+**Kontakte über die Telefonnummer.** Eine Telefonnummer im Kanäle-Feld eines Datensatzes verbindet ihn mit den WhatsApp-Chats dieser Nummer. Gewöhnliche Telefonfelder werden für die Zuordnung nicht verwendet. Hat ein Absender noch keinen Datensatz, öffnen Sie die **Konversationseinstellungen** und verknüpfen die Nummer mit einem vorhandenen Kontakt oder legen einen neuen an.
+
+**Status bleibt in Customermates.** Markieren Sie einen Chat als ungelesen, offen, geschlossen oder Spam, um das Postfach zu ordnen. Dieser Status existiert nur in Customermates: Wenn Sie hier einen Chat schließen, wird er in WhatsApp weder archiviert noch verändert.
+
+<Steps>
+  <Step title="Tarif prüfen">
+    Nutzen Sie Customermates Cloud ab Pro oder die Testphase. Ihre Rolle
+    braucht die Berechtigung Erstellen für Inbox-Nachrichten, um einen Kanal
+    zu verbinden.
+  </Step>
+  <Step title="WhatsApp verbinden">
+    Öffnen Sie Einstellungen › Kanäle, wählen Sie Kanal verbinden und WhatsApp
+    und scannen Sie den QR-Code mit der WhatsApp-App auf Ihrem Telefon.
+  </Step>
+  <Step title="Kontakte zuordnen">
+    Tragen Sie die WhatsApp-Nummer jedes Kunden im Kanäle-Feld seines
+    Kontaktdatensatzes ein oder verknüpfen Sie den Absender in den
+    Konversationseinstellungen des Chats.
+  </Step>
+  <Step title="Chat mit einem Deal verknüpfen">
+    Gehört ein Chat zu einem offenen Deal oder einer Organisation, nutzen Sie
+    Datensatz verknüpfen unter Datensätze dieser Unterhaltung. Customermates
+    übernimmt das nicht von selbst.
+  </Step>
+  <Step title="Antworten und sortieren">
+    Antworten Sie im Chat, speichern Sie einen Entwurf, wenn Sie vorher etwas
+    klären müssen, und setzen Sie den Status auf offen oder geschlossen.
+  </Step>
+</Steps>
+
+## Was dieses WhatsApp CRM nicht ist
+
+Die Verbindung läuft über einen Messaging-Anbieter, der Ihr WhatsApp-Konto ähnlich wie ein weiteres verknüpftes Gerät anbindet. Das hält die Einrichtung einfach und setzt zugleich klare Grenzen.
+
+| Erwartung                                                  | In Customermates                                                 |
+| ---------------------------------------------------------- | ---------------------------------------------------------------- |
+| Offizielle WhatsApp Business API oder Cloud API            | Nicht genutzt; das Konto wird über den Messaging-Anbieter verbunden |
+| Nachrichtenvorlagen, Kampagnen, Broadcasts, Newsletter     | Nicht verfügbar                                                  |
+| Sequenzen, Chatbots oder automatische Antworten            | Nicht verfügbar                                                  |
+| Massenversand an viele Nummern                             | Nicht verfügbar; jede Nachricht wird einzeln gesendet           |
+| Chat-Status zurück nach WhatsApp synchronisiert            | Nein; ungelesen, offen, geschlossen und Spam bleiben in Customermates |
+| Chats automatisch beim Deal abgelegt                       | Nein; ein Nutzer oder Agent verknüpft einen Chat bewusst         |
+| Garantierte Zustellung oder garantierte Aufbewahrung       | Keine Garantie; Zustellung und Verlauf hängen von WhatsApp und dem Anbieter ab |
+
+Anbieter begrenzen, wie schnell Nachrichten gelesen und gesendet werden können, und für neue Chats gilt ein eigenes Kontingent. Customermates arbeitet pro Kanal mit einem vorsichtigen Anfragebudget und pausiert, bevor WhatsApp bremsen würde; die aktuellen Werte stehen unter [Messaging-Ratenlimits](/docs/messaging-rate-limits). Wenn Sie den Kanal trennen, löscht Customermates die daraus importierten Chats und Nachrichten endgültig. Ihr WhatsApp-Konto und die Bedingungen von WhatsApp bleiben Ihre Sache. Der Messaging-Anbieter ist auf der Seite [Subdienstleister](/subprocessors) aufgeführt.
+
+<AcquisitionCallout title="Für Gespräche gebaut, nicht für Kampagnen" variant="boundary">
+  Wenn Sie freigegebene Nachrichtenvorlagen, Broadcast-Listen, einen Chatbot
+  oder automatisches Nachfassen brauchen, benötigen Sie einen Anbieter für die
+  WhatsApp Business API. Customermates deckt das einzelne Kundengespräch neben
+  dem CRM-Datensatz ab.
+</AcquisitionCallout>
+
+## Wer welche Chats sieht
+
+Ein neuer Kanal ist privat: Nur Sie sehen seine Chats, und keine Rolle, auch nicht Admin, kann die privaten Unterhaltungen eines Teammitglieds lesen. Mit Pro arbeiten Sie mit Ihren eigenen Konten und können einzelne Chats mit Kolleginnen und Kollegen teilen. Ein ganzes verbundenes Konto zu teilen, etwa eine Team-Nummer, die eine Person verbunden hat, setzt Business, Max oder Enterprise voraus.
+
+| Tarif                     | Verbundene Konten pro Nutzer                                    | Teilen im Postfach                                  |
+| ------------------------- | --------------------------------------------------------------- | --------------------------------------------------- |
+| Starter oder Self-Hosting | Keine                                                           | Kein Postfach                                       |
+| Pro                       | [[commercial.entitlement.pro.includedAccountsPerUser]]          | Eigene Konten plus einzeln geteilte Chats           |
+| Business                  | [[commercial.entitlement.business.includedAccountsPerUser]]     | Ganze verbundene Konten teilbar                     |
+| Max                       | [[commercial.entitlement.max.includedAccountsPerUser]]          | Ganze verbundene Konten teilbar                     |
+| Enterprise                | [[commercial.entitlement.enterprise.includedAccountsPerUser]] unter Fair-Use-Bedingungen | Ganze verbundene Konten teilbar |
+
+Das Kontingent ist ein gemeinsamer Pool für E-Mail, LinkedIn, WhatsApp, Instagram und Telegram. Braucht eine Person WhatsApp und ein E-Mail-Postfach, reicht das Pro-Kontingent nicht aus. Aktuelle Preise finden Sie auf der [Preisseite](/pricing); abgerechnet wird monatlich.
+
+## KI für Ihre WhatsApp-Chats
+
+**Mate, in Customermates Cloud.** Mate fasst auf Wunsch einen Chat zusammen oder entwirft eine Antwort, im Rahmen der gehosteten KI-Credits Ihres Tarifs. Bitten Sie Mate ums Senden, sendet Mate sofort; sagen Sie also „Entwurf“, wenn Sie nur einen Entwurf möchten. Im Self-Hosting ist Mate nicht verfügbar.
+
+**Ihr eigener KI-Client über MCP.** Claude, ChatGPT und andere MCP-Clients können über den [MCP-Server](/docs/mcp) Chats lesen und Entwürfe speichern und nutzen dabei Ihren eigenen KI-Anbieter. Ob der Client vor dem Senden nachfragt, hängt vom Client ab. Prüfen Sie sein Bestätigungsverhalten, bevor Sie das Senden erlauben.
+
+## Häufige Fragen
+
+<Faq>
+<FaqItem question="Ist das die offizielle WhatsApp Business API?">
+Nein. Customermates verbindet ein WhatsApp-Konto per QR-Code über seinen Messaging-Anbieter. Die WhatsApp Business API oder Cloud API wird nicht genutzt, und deren Funktionen wie freigegebene Vorlagen gibt es nicht.
+</FaqItem>
+
+<FaqItem question="Kann ich Broadcasts, Vorlagen oder Kampagnen versenden?">
+Nein. Es gibt keine Broadcasts, Newsletter, Vorlagen, Kampagnen, Sequenzen und keinen Massenversand. Jede Nachricht wird in einem einzelnen Chat geschrieben und gesendet.
+</FaqItem>
+
+<FaqItem question="Welche Tarife enthalten WhatsApp?">
+Customermates Cloud ab Pro sowie die Testphase. Pro enthält [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer. Starter enthält keine verbundenen Messaging-Konten.
+</FaqItem>
+
+<FaqItem question="Funktioniert WhatsApp beim Self-Hosting?">
+Nein. Self-Hosted-Installationen nutzen den Funktionsumfang von Starter: keine verbundenen Messaging-Konten, kein Postfach und kein Mate. MCP mit Ihrem eigenen KI-Client funktioniert weiterhin für die Kern-CRM-Datensätze.
+</FaqItem>
+
+<FaqItem question="Werden WhatsApp-Chats automatisch mit Deals verknüpft?">
+Nein. Der Kontakt wird über die Telefonnummer in seinem Kanäle-Feld zugeordnet. Die Verknüpfung eines Chats mit einem Deal oder einer Organisation ist ein bewusster Schritt unter „Datensätze dieser Unterhaltung“, den ein Nutzer oder Agent ausführt.
+</FaqItem>
+
+<FaqItem question="Ändert sich ein Chat in WhatsApp, wenn ich ihn in Customermates schließe?">
+Nein. Ungelesen, offen, geschlossen und Spam sind Status in Customermates. Sie werden nicht zurück in die WhatsApp-App synchronisiert.
+</FaqItem>
+
+<FaqItem question="Funktionieren Gruppenchats?">
+Ja. Einzel- und Gruppenchats des verbundenen Kontos erscheinen im Postfach, und Sie können darin lesen und antworten.
+</FaqItem>
+
+<FaqItem question="Garantiert Customermates die Zustellung oder bewahrt jede Nachricht auf?">
+Nein. Die Zustellung hängt von WhatsApp und dem Messaging-Anbieter ab, und Customermates garantiert keine Aufbewahrung. Wenn Sie den Kanal trennen, werden die daraus importierten Chats gelöscht.
+</FaqItem>
+</Faq>

@@ -4,7 +4,8 @@ import { useEffect } from "react";
 import { useLocale } from "next-intl";
 
 import { appLocaleCookieUpdate, appLocaleReconciliationTarget, browserAppLocale } from "@/i18n/locale-preference";
-import { usePathname } from "@/i18n/navigation";
+import { usePathname, useWorkspaceSlug } from "@/i18n/navigation";
+import { withWorkspaceHref } from "@/core/navigation/workspace-paths";
 import { isContentPathname } from "@/i18n/routing";
 
 type Props = {
@@ -13,7 +14,7 @@ type Props = {
 
 export function AppLocalePreferenceSync({ displayLanguage }: Props) {
   const currentLocale = useLocale();
-  const pathname = usePathname();
+  const pathname = withWorkspaceHref(usePathname(), useWorkspaceSlug());
 
   useEffect(() => {
     if (isContentPathname(pathname)) return;

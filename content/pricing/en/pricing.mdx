@@ -1,13 +1,13 @@
 ---
 title: "Pricing: The Agentic Open-Source CRM"
 titleAccent: simple, honest, European.
-description: "Transparent pricing for the agentic open-source CRM, from [[commercial.price.starter.monthly]] per user per month. Core CRM, REST, webhooks and MCP in every plan, unified inbox from Pro."
+description: "Monthly per-seat pricing for the open-source CRM, from [[commercial.price.starter.monthly]] per user. Core CRM, REST, webhooks and MCP on every plan; the cloud inbox from Pro."
 
 pricing:
   ariaLabelSlider: Number of users
   customPrice: Custom
   users: Users
-  footnote: "A connected account is one linked mailbox, LinkedIn, WhatsApp, Instagram, or Telegram profile that belongs to a single user. Connected account limits vary by plan (see below)."
+  footnote: "A connected account is one linked mailbox, LinkedIn, WhatsApp, Instagram, or Telegram profile that belongs to a single user. Starter has no connected accounts. On Pro you share individual threads; sharing a whole account with the team starts on Business. Prices are per seat, billed monthly in euros."
   totalSuffixSingular: "/month total for {count} user"
   totalSuffixPlural: "/month total for {count} users"
   pricingCards:
@@ -24,6 +24,8 @@ pricing:
       - REST API, webhooks & interfaces for your own n8n
       - "[[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user: let Mate work on a schedule or when a record changes"
       - "Mate usage: 1x per active user, the base allowance (usable when Mate is enabled)"
+      - No inbox or connected messaging accounts
+      - "Self-hosting: the Starter feature set without Mate, routines or AI setup"
   - plan: pro
     title: Pro
     description: CRM + unified inbox. Includes your [[commercial.trial.days]]-day free trial.
@@ -34,8 +36,9 @@ pricing:
     buttonVariant: bordered
     features:
       - Everything in Starter
-      - "Unified inbox: Email, LinkedIn, WhatsApp, Instagram, Telegram"
+      - "Unified inbox for your own accounts: Email, LinkedIn, WhatsApp, Instagram, Telegram"
       - "[[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user included"
+      - Share individual threads with teammates
       - "[[commercial.entitlement.pro.includedRoutinesPerUser]] routines per user: let Mate work on a schedule or when a record changes"
       - Read-only calendar access & LinkedIn Sales Navigator
       - "Mate usage: 3x Starter per active user (usable when Mate is enabled)"
@@ -54,8 +57,7 @@ pricing:
       - Everything in Pro
       - "[[commercial.entitlement.business.includedAccountsPerUser]] connected accounts per user included"
       - "Routines per user: [[commercial.entitlement.business.includedRoutinesPerUser]] (fair use)"
-      - "Shared accounts: team-wide inbox visibility"
-      - One team-wide timeline across every channel
+      - "Whole-account sharing: share a connected account with the team"
       - Priority support
       - "Mate usage: 10x Starter per active user, the most usage per euro (usable when Mate is enabled)"
   - plan: max
@@ -125,8 +127,14 @@ comparison:
         catalogFact: messaging
       - label: Connected accounts per user
         catalogFact: includedAccountsPerUser
-      - label: Shared accounts
+      - label: Whole-account sharing
         catalogFact: sharedAccounts
+      - label: Share individual threads
+        starter: false
+        pro: true
+        business: true
+        max: true
+        enterprise: true
       - label: Read-only calendar access
         starter: false
         pro: true
@@ -235,16 +243,16 @@ faq:
     content: We grow organically and invest directly in the product and support. This keeps the product maintained for the long term.
   - id: pricing-faq-3
     title: Why a specialized CRM?
-    content: An agentic open-source CRM adapts to your workflows instead of forcing them. Teams can extend it through open APIs, customer-run automation, and external AI clients connected via MCP.
+    content: Large CRM suites bundle marketing, service and sales and charge for modules many small teams never use. Customermates focuses on customer records you configure, the unified inbox and AI access through MCP. You pay for that and extend the rest when needed through the REST API, webhooks or your own n8n instance.
   - id: pricing-faq-4
-    title: How does your CRM improve productivity?
-    content: We focus on a clear, intuitive user interface, so your team needs little training. As a result, you save time, avoid mistakes, and focus on your customers instead of the system.
+    title: How do I set up a new workspace?
+    content: "A new workspace starts without lists. On Customermates Cloud, AI setup builds lists, stages, a dashboard and Knowledge Base pages from your description once at onboarding, within a credit cap, and you can skip it to start with an empty workspace. Otherwise people with Configure rights create lists and fields in Configure and import records from an Excel workbook."
   - id: pricing-faq-5
-    title: Why is your CRM a strong choice?
-    content: "We offer the core CRM functionality most teams need, combined with MCP access for external AI clients, open APIs, and interfaces for a separate n8n instance. That gives you an agentic open-source CRM with flexible extensions and clear product boundaries."
+    title: What is not included in any plan?
+    content: "Customermates does not include sequences or mass outreach, quotes or invoicing, telephony or SMS, web forms, native mobile apps, or shared team views (saved views are personal). The inbox works through supported provider integrations, not the official WhatsApp Business API or LinkedIn CRM Sync. SSO and white-label are not built and are only available as contracted Enterprise work."
   - id: pricing-faq-6
     title: What counts as a connected account?
-    content: "A connected account is one linked mailbox, LinkedIn, WhatsApp, Instagram, or Telegram profile that belongs to a single user. Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, Business includes [[commercial.entitlement.business.includedAccountsPerUser]] per user, Max includes [[commercial.entitlement.max.includedAccountsPerUser]] per user, and Enterprise is [[commercial.entitlement.enterprise.includedAccountsPerUser]] under fair use. If you need more than [[commercial.entitlement.max.includedAccountsPerUser]] accounts per user, Enterprise is the right plan."
+    content: "A connected account is one linked mailbox, LinkedIn, WhatsApp, Instagram, or Telegram profile that belongs to a single user. Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, Business includes [[commercial.entitlement.business.includedAccountsPerUser]] per user, Max includes [[commercial.entitlement.max.includedAccountsPerUser]] per user, and Enterprise is [[commercial.entitlement.enterprise.includedAccountsPerUser]] under fair use. If you need more than [[commercial.entitlement.max.includedAccountsPerUser]] accounts per user, Enterprise is the right plan. Starter and self-hosted instances have no connected accounts. On Pro, each person works in their own accounts and can share individual threads; sharing a whole connected account with the team needs Business, Max or Enterprise."
   - id: pricing-faq-7
     title: How does monthly billing work?
     content: "You pay per active user. When you add or remove users, the change is prorated on your next invoice. Plan upgrades apply immediately with a prorated charge for the remainder of the billing period, and downgrades apply immediately with the unused portion credited."
@@ -254,13 +262,16 @@ faq:
   - id: pricing-faq-9
     title: Can one login use several workspaces?
     content: "Yes. One login can belong to several fully separate workspaces, for example one for sales and one for bookkeeping, and switch between them. Each workspace has its own plan, subscription and invoices, and seats count per workspace: a person who is active in two workspaces is a paid seat in both. The first workspace you create includes the [[commercial.trial.days]]-day free trial; every additional workspace starts by choosing a plan. A self-hosted instance runs any number of workspaces without billing."
+  - id: pricing-faq-10
+    title: What do I get when I self-host?
+    content: "A self-hosted instance always has the Starter feature set: core CRM, MCP, REST API, webhooks and the n8n interfaces, without billing. The unified inbox, Mate, routines and AI setup run only on Customermates Cloud. MCP with your own AI client works on a self-hosted instance, and that client uses your own AI provider."
 
 cta:
   action: Ready to get started?
-  description: Start with Customermates today and switch to an agentic open-source CRM built for flexible workflows.
+  description: Explore an example small-business workspace with sample data, or start your own trial on Customermates Cloud with Pro features.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
-  buttonRightText: View live demo
-  buttonRightHref: https://demo.customermates.com
+  buttonRightText: Explore the workspace
+  buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---

@@ -9,11 +9,12 @@ import { IntlLink, usePathname } from "@/i18n/navigation";
 import {
   buildLocalePath,
   contentLocaleOrDefault,
-  isContentLocale,
+  isMarketingPathPublished,
+  isPartialMarketingLocale,
   routingLocaleFromPathname,
   stripLocalePrefix,
 } from "@/i18n/locale-registry";
-import { isContentPathname, isPublicPathname } from "@/i18n/routing";
+import { isContentPathname, isMarketingPathname, isPublicPathname } from "@/i18n/routing";
 import { leavesContentTree } from "@/i18n/content-links";
 import { cn } from "@/core/utils/cn";
 
@@ -30,11 +31,15 @@ type Props = BaseProps &
 export function localizedContentHref(href: string, locale: unknown): string | null {
   const base = "https://internal.invalid";
   const target = new URL(href, base);
-  if (target.origin !== base || !isContentPathname(target.pathname)) return null;
+  if (target.origin !== base || !isMarketingPathname(target.pathname)) return null;
 
   const targetLocale = routingLocaleFromPathname(target.pathname);
-  const contentLocale = isContentLocale(targetLocale) ? targetLocale : contentLocaleOrDefault(locale);
   const pathname = stripLocalePrefix(target.pathname);
+  const contentLocale = isMarketingPathPublished(targetLocale, pathname)
+    ? targetLocale
+    : isMarketingPathPublished(locale, pathname)
+      ? locale
+      : contentLocaleOrDefault(locale);
 
   return `${buildLocalePath(contentLocale, pathname)}${target.search}${target.hash}`;
 }
@@ -42,10 +47,20 @@ export function localizedContentHref(href: string, locale: unknown): string | nu
 export function contentHrefForLocale(href: string, locale: unknown): string | null {
   const localizedHref = localizedContentHref(href, locale);
   if (!localizedHref) return null;
-  if (!isContentLocale(locale)) return localizedHref;
 
-  const targetLocale = routingLocaleFromPathname(new URL(href, "https://internal.invalid").pathname);
-  return isContentLocale(targetLocale) && targetLocale !== locale ? localizedHref : null;
+  const requestedLocale = routingLocaleFromPathname(new URL(href, "https://internal.invalid").pathname);
+  const targetLocale = routingLocaleFromPathname(localizedHref);
+  return targetLocale === locale && (requestedLocale === null || requestedLocale === targetLocale)
+    ? null
+    : localizedHref;
+}
+
+export function fallbackLanguageOfContentHref(href: string, locale: unknown): string | null {
+  if (!isPartialMarketingLocale(locale)) return null;
+
+  const localizedHref = localizedContentHref(href, locale);
+  const targetLocale = localizedHref ? routingLocaleFromPathname(localizedHref) : null;
+  return targetLocale && targetLocale !== locale ? targetLocale : null;
 }
 
 export function protectedHrefFromContent(href: string, pathname: string): string | null {
@@ -92,6 +107,9 @@ export function AppLink(props: Props) {
       ? (contentHrefForLocale(internalProps.href, locale) ?? protectedHrefFromContent(internalProps.href, pathname))
       : null;
 
+  const fallbackLanguage =
+    typeof internalProps.href === "string" ? fallbackLanguageOfContentHref(internalProps.href, locale) : null;
+
   if (hardNavigationHref) {
     const anchorProps = { ...internalProps } as Record<string, unknown>;
     delete anchorProps.as;
@@ -110,9 +128,19 @@ export function AppLink(props: Props) {
       <a
         className={mergedClassName}
         href={hardNavigationHref}
+        hrefLang={fallbackLanguage ?? undefined}
         {...(anchorProps as AnchorHTMLAttributes<HTMLAnchorElement>)}
       >
         {internalProps.children}
+
+        {fallbackLanguage ? (
+          <span
+            className="ms-1 align-baseline text-[0.7em] font-medium uppercase text-muted-foreground"
+            lang={fallbackLanguage}
+          >
+            {fallbackLanguage}
+          </span>
+        ) : null}
       </a>
     );
   }

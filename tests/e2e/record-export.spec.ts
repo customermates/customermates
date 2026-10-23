@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 
+import { companyUrlPattern, pagePath } from "./app-paths";
 import { test, expect } from "./fixtures";
 import { openRecordDetails, recordItem } from "./record-rows";
 import { presetId } from "../../features/records/crm-preset";
@@ -12,7 +13,7 @@ test("downloads generic records from the shared table with persisted typed value
   companyId,
 }) => {
   const typeId = presetId(companyId, "service");
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(pagePath(page, `/records/${typeId}`));
   await page.locator("#records-add").click();
   const editor = page.getByRole("dialog");
   await editor
@@ -105,7 +106,7 @@ test("exports a customer-created type through the same transfer menu", async ({
   database,
   companyId,
 }) => {
-  await page.goto(`/en/records/${presetId(companyId, "service")}`);
+  await page.goto(pagePath(page, `/records/${presetId(companyId, "service")}`));
   if (!(await page.locator("#nav-add").isVisible()))
     await page.locator("#sidebar-trigger").click();
   await page.locator("#nav-add").click();
@@ -122,7 +123,7 @@ test("exports a customer-created type through the same transfer menu", async ({
     .first()
     .click();
   await expect(dialog).not.toBeVisible();
-  await expect(page).toHaveURL(/\/records\/[a-f0-9-]+$/);
+  await expect(page).toHaveURL(companyUrlPattern(companyId, "/records/[a-f0-9-]+$"));
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
   expect(typeId).toBeTruthy();
 
@@ -160,14 +161,14 @@ test("round-trips deal line items and their calculated total through the transfe
   const dealTypeId = presetId(companyId, "deal");
   const lineTypeId = presetId(companyId, "lineItem");
   const dialogs = page.getByRole("dialog");
-  await page.goto(`/en/records/${serviceTypeId}`);
+  await page.goto(pagePath(page, `/records/${serviceTypeId}`));
   await page.locator("#records-add").click();
   await dialogs.getByRole("textbox", { name: "Name", exact: false }).fill("Transfer service");
   await dialogs.getByRole("textbox", { name: "Price", exact: false }).fill("1000");
   await dialogs.getByRole("button", { name: "Save", exact: true }).click();
   await expect(dialogs).not.toBeVisible();
 
-  await page.goto(`/en/records/${dealTypeId}`);
+  await page.goto(pagePath(page, `/records/${dealTypeId}`));
   await page.locator("#records-add").click();
   await dialogs.getByRole("textbox", { name: "Name", exact: false }).fill("Transfer opportunity");
   await dialogs.getByRole("button", { name: "Save", exact: true }).click();

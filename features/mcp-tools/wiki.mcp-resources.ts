@@ -9,6 +9,7 @@ import { env } from "@/env";
 import { appErrorDetailsInCauseChain } from "@/core/errors/app-errors";
 import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
 import { externalizeWikiPageLinks } from "@/features/wiki/wiki-markdown-links";
+import { mcpWorkspaceSlug } from "./mcp-workspace-slug";
 
 const RESOURCE_UNAVAILABLE = "Knowledge Base resource is unavailable.";
 
@@ -36,7 +37,7 @@ async function wikiPageText(id: string | null) {
   if (id === null) return null;
   const result = await getGetWikiPageInteractor().invoke({ id });
   if (!result.ok) return null;
-  return externalizeWikiPageLinks(result.data.markdown, env.BASE_URL);
+  return externalizeWikiPageLinks(result.data.markdown, env.BASE_URL, await mcpWorkspaceSlug());
 }
 
 function catalogPage(value: unknown): number | null {

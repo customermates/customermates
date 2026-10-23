@@ -5,6 +5,7 @@ import type { Client as Database } from "pg";
 
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { UNSIGNED_CHECKOUT_CLAIMS_END } from "../../ee/subscription/unsigned-checkout-claims";
+import { appPath, appUrlPattern } from "./app-paths";
 import { collectPageErrors, expect, test } from "./fixtures";
 import {
   changeProviderSubscription,
@@ -94,7 +95,7 @@ test("an admin back from checkout sees the payment being processed, and the page
   const second = await expiredWorkspace(database, workspace, "Bergmann Steuern");
   const checkoutPages = await stubCheckoutPage(page);
   await page.goto("/en/dashboard");
-  await expect(page).toHaveURL(/\/en\/subscription-expired$/);
+  await expect(page).toHaveURL(appUrlPattern(second.slug, "/subscription-expired$"));
   await expect(planPicker(page)).toBeVisible();
   await expect(pendingNotice(page)).toHaveCount(0);
 
@@ -110,7 +111,7 @@ test("an admin back from checkout sees the payment being processed, and the page
   expect(checkout.expiresAt).toBe(new Date((startedAt?.getTime() ?? 0) + 15 * 60 * 1000).toISOString());
 
   await page.goto(checkout.redirectUrl as string);
-  await expect(page).toHaveURL(/\/en\/subscription-expired$/);
+  await expect(page).toHaveURL(appUrlPattern(second.slug, "/subscription-expired$"));
   await expect(pendingNotice(page)).toBeVisible();
   await expect(pendingNotice(page)).toContainText(copy.title);
   await expect(pendingNotice(page).getByRole("button", { name: copy.abandon, exact: true })).toBeVisible();
@@ -120,7 +121,7 @@ test("an admin back from checkout sees the payment being processed, and the page
   const paid = startProviderSubscription(second.companyId, "business", 1);
   await deliverWebhookBody(request, subscriptionWebhookBody("subscription_created", paid, checkout.custom));
 
-  await expect(page).toHaveURL(/\/en\/settings\/billing$/);
+  await expect(page).toHaveURL(appUrlPattern(second.slug, "/settings/billing$"));
   await expectPlan(page, "Business", "Active");
   expect(await billing(database, second.companyId)).toMatchObject({
     status: "active",
@@ -143,7 +144,7 @@ test("the escape link clears a pending payment at once and brings the plans back
   await startedMinutesAgo(database, second.companyId, 1);
 
   await page.goto("/en/dashboard");
-  await expect(page).toHaveURL(/\/en\/subscription-expired$/);
+  await expect(page).toHaveURL(appUrlPattern(second.slug, "/subscription-expired$"));
   await expect(pendingNotice(page)).toBeVisible();
   await clickHydrated(pendingNotice(page).getByRole("button", { name: copy.abandon, exact: true }));
   await expect(planPicker(page)).toBeVisible();
@@ -155,8 +156,8 @@ test("the escape link clears a pending payment at once and brings the plans back
   await setActiveWorkspace(database, workspace, workspace.companyId);
   await inTrial(database, workspace.companyId);
   await startedMinutesAgo(database, workspace.companyId, 1);
-  await page.goto("/en/settings/billing");
-  await expect(page).toHaveURL(/\/en\/settings\/billing$/);
+  await page.goto(appPath(workspace.slug, "/settings/billing"));
+  await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/settings/billing$"));
   await expect(pendingNotice(page)).toBeVisible();
   await clickHydrated(pendingNotice(page).getByRole("button", { name: copy.abandon, exact: true }));
   await expect(planPicker(page)).toBeVisible();
@@ -181,9 +182,9 @@ test("every admin sees the payment being processed, and the server refuses a sec
     await stubCheckoutPage(page);
     await stubCheckoutPage(colleague.page);
     await stubCheckoutPage(stale);
-    await page.goto("/en/settings/billing");
-    await colleague.page.goto("/en/settings/billing");
-    await stale.goto("/en/settings/billing");
+    await page.goto(appPath(workspace.slug, "/settings/billing"));
+    await colleague.page.goto(appPath(workspace.slug, "/settings/billing"));
+    await stale.goto(appPath(workspace.slug, "/settings/billing"));
     await expect(planPicker(page)).toBeVisible();
     await expect(planPicker(colleague.page)).toBeVisible();
     await expect(planPicker(stale)).toBeVisible();
@@ -196,7 +197,7 @@ test("every admin sees the payment being processed, and the server refuses a sec
     await choosePlan(colleague.page, "Pro");
     await expect(pendingNotice(colleague.page)).toBeVisible();
     await expect(planPicker(colleague.page)).toHaveCount(0);
-    await expect(colleague.page).toHaveURL(/\/en\/settings\/billing$/);
+    await expect(colleague.page).toHaveURL(appUrlPattern(workspace.slug, "/settings/billing$"));
     expect(checkoutsFor(workspace.companyId)).toHaveLength(1);
     await colleague.page.reload();
     await expect(pendingNotice(colleague.page)).toBeVisible();
@@ -206,7 +207,7 @@ test("every admin sees the payment being processed, and the server refuses a sec
     });
 
     await page.goto(checkout.redirectUrl as string);
-    await expect(page).toHaveURL(/\/en\/settings\/billing$/);
+    await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/settings/billing$"));
     await expect(pendingNotice(page)).toBeVisible();
 
     const paid = startProviderSubscription(workspace.companyId, "business", 2);
@@ -224,7 +225,7 @@ test("every admin sees the payment being processed, and the server refuses a sec
     await choosePlan(stale, "Starter");
     await expectPlan(stale, "Business", "Active");
     await expect(planPicker(stale)).toHaveCount(0);
-    await expect(stale).toHaveURL(/\/en\/settings\/billing$/);
+    await expect(stale).toHaveURL(appUrlPattern(workspace.slug, "/settings/billing$"));
     expect(checkoutsFor(workspace.companyId)).toHaveLength(1);
     expect(colleague.errors).toEqual([]);
   } finally {
@@ -243,7 +244,7 @@ test("after fifteen minutes the plans come back with a way to support, and a new
   await inTrial(database, workspace.companyId);
   await startedMinutesAgo(database, workspace.companyId, 1);
   await stubCheckoutPage(page);
-  await page.goto("/en/settings/billing");
+  await page.goto(appPath(workspace.slug, "/settings/billing"));
   await expect(pendingNotice(page)).toBeVisible();
 
   await startedMinutesAgo(database, workspace.companyId, 16);
@@ -318,7 +319,7 @@ test.describe("workspace claims of the webhook", () => {
     expect(emailText(forgedMail)).toContain(second.companyId);
 
     await page.goto("/en/dashboard");
-    await expect(page).toHaveURL(/\/en\/subscription-expired$/);
+    await expect(page).toHaveURL(appUrlPattern(second.slug, "/subscription-expired$"));
     await expect(planPicker(page)).toBeVisible();
     expect(errors).toEqual([]);
   });
@@ -402,8 +403,8 @@ test.describe("workspace claims of the webhook", () => {
     expect(await billing(database, second.companyId)).toMatchObject({ plan: "business", lemonSqueezyId: newest.id });
     expect(operatorMailsAbout(first.id)).toHaveLength(2);
 
-    await page.goto("/en/settings/billing");
-    await expect(page).toHaveURL(/\/en\/settings\/billing$/);
+    await page.goto(appPath(second.slug, "/settings/billing"));
+    await expect(page).toHaveURL(appUrlPattern(second.slug, "/settings/billing$"));
     await expectPlan(page, "Business", "Active");
     expect(errors).toEqual([]);
   });

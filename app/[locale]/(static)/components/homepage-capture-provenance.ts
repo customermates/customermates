@@ -4,10 +4,11 @@ import type { HomepageCaptureName } from "./homepage-captures";
 
 export const HOMEPAGE_CAPTURE_PROVENANCE = {
   authenticity: "real",
-  capturedOn: "2026-10-15",
+  capturedOn: "2026-10-23",
   claim: "Real Customermates interface with synthetic demo data. Not a customer workspace and not a measured result.",
-  environment: "Isolated local instance, APP_MODE=demo, fresh PostgreSQL migrated and seeded with prisma db seed",
-  productRef: "8510bf681",
+  environment:
+    "Isolated local instance, APP_MODE=demo, fresh PostgreSQL migrated and seeded with prisma db seed, small-business demo workspace (kleine-unternehmen for German)",
+  productRef: "e084475a7",
   renderer:
     "Chromium via Playwright in the page locale, Europe/Berlin, device scale factor 2, theme set through next-themes",
 } as const;
@@ -23,224 +24,227 @@ type CaptureEvidence = {
 export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvidence> = {
   "homepage-inbox": {
     clipped: false,
-    route: "/[locale]/inbox",
-    scenario: "WhatsApp thread with Sophie Wagner selected in the unified inbox",
+    route: "/[locale]/w/[workspace]/inbox",
+    scenario: "WhatsApp thread with Sophie Turner (Sophie Thiele in German) selected in the unified inbox",
     sha256: {
       de: {
-        dark: "4c059c28a3d0c4019340dee0104e0df031614eb058e01c0cbfad25adb089089d",
-        light: "c2ad057e84656d2633469a645cffb647b1d1e7a1e632497275a3b39b6b2e7dfd",
+        dark: "6273236364cc674b08b0d6c0f4b8529e6a8233f7d7cbdc6dce6f2c67a2464f5e",
+        light: "9a15e1491a8ece97ab5f4e2da1c2cf6432f7ad4e17644d5917053f761f6180cc",
       },
       en: {
-        dark: "0e6553b88de288ddfa576bc57a13de5c0854234000b6c1395bc305984113ae02",
-        light: "10dab0ba7074ac38fa6e75d75a93f0863246c153b43d2f679063ebdb62d76314",
+        dark: "49f9cf7037f825f5988c5c0b343be0128442ff4082787a37674f56e11aa75801",
+        light: "ad3f76a9c10bcfce36bf99e142e464f58b1dd37c9419af7bfee7be620edb236a",
       },
     },
     viewport: { height: 900, width: 1440 },
   },
   "homepage-record": {
     clipped: false,
-    route: "/[locale]/records/[contacts]/[id]",
-    scenario: "Contact record of Anna Müller with fields and cross-channel history",
+    route: "/[locale]/w/[workspace]/records/[contacts]/[id]",
+    scenario: "Contact record of James Finch (Jakob Fink in German) with fields, channels and cross-channel history",
     sha256: {
       de: {
-        dark: "a59198b19536b15aed20d17aa7f71d0c1c5d44ebe0448c51210ccefaa3881bba",
-        light: "970e17020ca4a0259f50051e6968f401432ad7bffe3bedee45113cb090e41666",
+        dark: "aea95f6f27c0dd1faee2660b776ec84ef8b071b9bf9158c390018c09cb37f250",
+        light: "3486cc6a4c86b42fb606752eab5f536fb4798df4081df2f5087f5d689a072527",
       },
       en: {
-        dark: "08ea998cfcac91e6ca1eb6df548cdf7f508c9be46b900c44ca33c32baacdb507",
-        light: "7ca41a91a5115aadc5154a734235d2e5c70ef28207edcd7c31c44a5471896f0c",
+        dark: "1ecfff90a231f43dc22402511e5cc32dad540b85578bd28c51133a24f65d0797",
+        light: "b0f281e8f1da4d149aed8031235e66759331e0ed398fe35a15ff299a2c5a707a",
       },
     },
     viewport: { height: 900, width: 1440 },
   },
   "homepage-pipeline": {
     clipped: false,
-    route: "/[locale]/records/[deals]",
-    scenario: "Deals list in the board view grouped by stage",
+    route: "/[locale]/w/[workspace]/records/[deals]",
+    scenario: "Deals list in the Pipeline board view grouped by stage",
     sha256: {
       de: {
-        dark: "fd53799dcd41300de95cd5357c1910c0db95df066c2648ffa49a9057aaa7ea71",
-        light: "2beb378ef15a6f5930bb41717cba914ac87977db35a0d81b776c694501a70159",
+        dark: "5145f5513b280ab4da3d5afda853fef335209619724402ebdec841b087304bf8",
+        light: "a0aef5000dd25ceea84fda1d1b816cfea0ff0579aeb9e2a2743d8043e48a7498",
       },
       en: {
-        dark: "643b01bd7ab7c3f64e02f8bf232002713013791db0a4ed2bb5d1d5d8fd235ae7",
-        light: "7d4acc4ae356e3ffad9c8da82dfef74c5ecb86da150dff4e6463bce3e3a72487",
+        dark: "6eebb313ccc62dd439903b2e017f5f06911d397c415265468d92000db9d70415",
+        light: "a62fd9cd4c6cdf9ea6d7332e8cab36274826b7718be584ad122e598d034ced44",
       },
     },
     viewport: { height: 900, width: 1440 },
   },
   "homepage-dashboard": {
     clipped: false,
-    route: "/[locale]/dashboard",
-    scenario: "Main dashboard with open pipeline, forecast, won revenue and revenue per rep",
+    route: "/[locale]/w/[workspace]/dashboard",
+    scenario:
+      "Main dashboard with open pipeline, value won in 12 months, average won deal, overdue tasks, pipeline by stage and won value by source",
     sha256: {
       de: {
-        dark: "688824b5046d4479000882e6b3dc2d727449bb2f6750b882b519cae37512de3e",
-        light: "1cdf1ecfc5363de15a48cadc09b3d64cd9a49f1fbf80329517710cd7856d15c3",
+        dark: "01c1635fadae968bda74c488decb68ae4b4a2d1aca63edb7f9d26d27da3c8397",
+        light: "8a3fafa466be578e6f135358abbe56492e6a972adb1980259a9c72f87cc4994e",
       },
       en: {
-        dark: "ac13e21488be931e321fd6dbfe74e34237947f9b2075b83d15b50fd88a551ba0",
-        light: "a96b1a94b4c8f212f407be2457e4bdb9b52b9577cb135d86f420bdf1d504240a",
+        dark: "19d9ea757f64ea5297141f668944c337547f2bc7a1185240a5e24a62d56520a4",
+        light: "f434ba4265adfb9c3fccc8c68435d1a865cc17ecd036bdf3cdd13be30088809e",
       },
     },
     viewport: { height: 900, width: 1440 },
   },
   "homepage-routines": {
     clipped: false,
-    route: "/[locale]/routines",
-    scenario: "Routines list grouped by owner with schedules, triggers and last runs",
+    route: "/[locale]/w/[workspace]/routines",
+    scenario:
+      "Routines list with owners, schedules, triggers and last runs of the small-business workspace (kleine-unternehmen in German)",
     sha256: {
       de: {
-        dark: "714d40429bd6fc0dbf90e2f86567dae6e73b62fb1acae8dd4c2be2d1df67d280",
-        light: "40eb06b4a55879afa92dda77d43e8b0958a37dd72ce9bdc1eb99535c56973ec0",
+        dark: "7f4791d12c2f2c626955475ef63f24b5df290af5e3211f0ee6299c7c872e5f82",
+        light: "42224d747f637d854e1c810ccfb90a28efba8dfc87da3bf118955b7ffb5824f0",
       },
       en: {
-        dark: "f55a21ae4c7614e579f87a0966b52227d19a202d86561c79b2861a0f90f1a6b1",
-        light: "a82a059255aeffba112599d38ff1f0e409aa8881170d49c2e2517ad991760316",
+        dark: "f6b736de7888660da1dc4cf5911c39045a429da8a0f3cb84aff4aaea8a6796cd",
+        light: "39bf60cb990bcbe0c92719b00116a9831ed3306f28b772f57cf8ad56bea2eab7",
       },
     },
     viewport: { height: 900, width: 1440 },
   },
   "homepage-configure": {
     clipped: false,
-    route: "/[locale]/configure",
+    route: "/[locale]/w/[workspace]/configure",
     scenario: "Data model graph zoomed to the Deals list and its line items with calculated fields",
     sha256: {
       de: {
-        dark: "c7882d5a75dc9202cfff7aa7694428d8a5682cd4115cd42c43e48ec953062628",
-        light: "66c80ef69aae99c2922a6d5a198efd531f2dac7f915cea445e7425eac7374d16",
+        dark: "f1acaab5fb2d66c538b021d36c2e39d679fb9626089fc22e735083a666d7bb44",
+        light: "9e8e54b90d55b6b0e75b44b3f4443016e2bc2e4d3a6a88ac759925791de9e10c",
       },
       en: {
-        dark: "66ee2c1558e1cb6b7cbb4ee7aeed781fae08efdc6d893249e63ec99f70cacddc",
-        light: "267db9ca88b5d38ae20d725c1ac04462b1b3b179789ab5a2adc26ecc99655a72",
+        dark: "780b056691d858da9163f8b2de43f0e9150b0069a59728f83cdc65371c629c98",
+        light: "fd54b32f9cc50edc235a0d66195fda85fb5cc9f4c13841ef0467cb9667de2e1b",
       },
     },
     viewport: { height: 900, width: 1440 },
   },
   "homepage-thread-linkedin": {
     clipped: false,
-    route: "/[locale]/inbox",
-    scenario: "LinkedIn conversation with Leon Becker beside the thread list, sidebar collapsed, at a 1024 px window",
+    route: "/[locale]/w/[workspace]/inbox",
+    scenario:
+      "LinkedIn conversation with Ethan Clarke (Erik Claasen in German) beside the thread list, sidebar collapsed, at a 1024 px window",
     sha256: {
       de: {
-        dark: "5888102c5bdc5c893a6d9bedfeb80e19a7127ba1bfdd99995561e69d702440a3",
-        light: "d29742a5f0a497cb8312392ada6d8d92b7665a0e79b2a43a3d3c24ccd9454fd3",
+        dark: "b9daf8be721f333bf55e752117231df40bc6ae4e7f8ab5cb706a875a691d9d77",
+        light: "106d0140206978f1bc5f5f5f18859d9a7ad6249fda2cb3005748d76be0fec6bf",
       },
       en: {
-        dark: "aca613ba9fd796d1db8d4266142a09293fcb1e49acaf03d68ed8b88c80b36425",
-        light: "dbb9f6374603bfa2ae7cfa1b988338db60844cf81cb9cfaeca81e32bdfeab458",
+        dark: "07b08c6739ca36843953a09d22079656f8f4363b7944879a9ffaca355c2d1466",
+        light: "ebcf7a6520ed616351bb5bdb9839c3c6793241106e01d38665bdfb06231bec36",
       },
     },
     viewport: { height: 900, width: 1024 },
   },
   "homepage-draft": {
     clipped: true,
-    route: "/[locale]/inbox",
-    scenario: "Email thread with Anna Müller ending in a saved reply draft with Send draft",
+    route: "/[locale]/w/[workspace]/inbox",
+    scenario: "Email thread with James Finch (Jakob Fink in German) ending in a saved reply draft with Send draft",
     sha256: {
       de: {
-        dark: "d5bf3e7627c3a99bffd337ff6657ad3bd4056a3b50c8666505dbf93e07f4675a",
-        light: "d7bd9a615cc46297188151c93e919f25d63807827d9353733061c1647443e1f0",
+        dark: "c62aaff779d4b04028b3c7bbc0f2dc8bd37d16cd68b093f224a5be1b952cdb0e",
+        light: "a346dfdfd6ba1ab74ef5a0584f48b180345632d4c9b33d7a6a1a4f6f855877fe",
       },
       en: {
-        dark: "8ec8184eb556eb1b5ea433f8e8fc971b83ae83edd6b9b4f56408621dadf402f9",
-        light: "01833bf3a0efa0ddf17376d774e86a43082f38d64ee5a0660550e00d321330d4",
+        dark: "11c7942875b79db7d81c42a1c7d15f99a6af3db1cc163fd6ace4b8b83a9e558b",
+        light: "b54d488cccd4251bb0252d036f49ac8a1575bf17e658f4784cd7c962ab716f88",
       },
     },
     viewport: { height: 900, width: 1440 },
   },
   "homepage-inbox-mobile": {
     clipped: false,
-    route: "/[locale]/inbox",
-    scenario: "WhatsApp thread with Sophie Wagner on a phone-width viewport",
+    route: "/[locale]/w/[workspace]/inbox",
+    scenario: "WhatsApp thread with Sophie Turner (Sophie Thiele in German) on a phone-width viewport",
     sha256: {
       de: {
-        dark: "56c7add36b57c75b96f1efb3fc0e9449acbfd653f54e61f21fc199e2362c4e0a",
-        light: "21e253fe14ebd952d243a4df36494eff63f70fe32f5759535d28b636a2752a22",
+        dark: "7814e860902bb174051f5299c416aeaa62505f6f4c98f4e4cb6bc5e558e69837",
+        light: "cb529281c7c1fb5c7e0ad889f3fe33297e8fd7f1006047900a95c4d8f2a1c340",
       },
       en: {
-        dark: "e8b7884975add94d4f0555b2bd64e91541762faaf2b538e0dc6b46da4b1c953b",
-        light: "8d6d135216de5856299d93e9420d80ed95428a3914f5d14afd66e2ca9cbeecba",
+        dark: "7f5510df06f6715c2faf06d4ac8eaa971e4d9372b1d6500e35aa94093c9164b8",
+        light: "3a1a6fec0a7b5797e34fbe48da256790f9d17fd5d392e91399dc0be2d13e1b07",
       },
     },
     viewport: { height: 844, width: 390 },
   },
   "homepage-record-mobile": {
     clipped: false,
-    route: "/[locale]/records/[contacts]/[id]",
-    scenario: "Contact record of Anna Müller on a phone-width viewport",
+    route: "/[locale]/w/[workspace]/records/[contacts]/[id]",
+    scenario: "Contact record of James Finch (Jakob Fink in German) on a phone-width viewport",
     sha256: {
       de: {
-        dark: "8338fbbd7d35cc3b350096ac0c2cb0df2f333f52fac830fdcf122c7cdc5a7676",
-        light: "20b1feb58a1839933c2881ec1997642686acacdc4137671b10640e956f54c93a",
+        dark: "58b4e60b07b7e210160eb6566ca3306be75205741a31b27da890c2690ab5ca11",
+        light: "0c15b6a89cbb4a0742f5071792445bf085f7b45d6ae25cc922620298baef1e78",
       },
       en: {
-        dark: "6f2c4087788e5a0ce3ec3126d2e8004ff41ba4b49bfb9cb83e7bd8ca683e5236",
-        light: "57b71dfe9051e8c20931016e6200e3c299fd0e0ae32038ac02b6314b4e71e52b",
+        dark: "4de33d1adee4f11a2f68fb4e47c91754df7252802c6b63264d572efaa3729c2c",
+        light: "84118add771752befe26ea5216fbe9fe2d57084f0cbd09c11e92b206fcbd8df9",
       },
     },
     viewport: { height: 844, width: 390 },
   },
   "homepage-pipeline-mobile": {
     clipped: false,
-    route: "/[locale]/records/[deals]",
+    route: "/[locale]/w/[workspace]/records/[deals]",
     scenario: "Deals board on a phone-width viewport",
     sha256: {
       de: {
-        dark: "c7f2b58278f764dac2e15dc0cc18b8da35321a7ef597682bd4b0d46b02fe816d",
-        light: "d1b75e87877b57ddfe80335d0e7bbf12611881a2608c14785cee9bc6ad81eca9",
+        dark: "d452191eda4eb33f60575b433c04ede87ebe4b9d54842fd659cd6c03c8714676",
+        light: "1766cd742d8f6b10bcbb758bffeb4b7f6462cac9b3a812a06d2f36b88716c50e",
       },
       en: {
-        dark: "896cbb9522157ed1c2642ba12f14407725a6ed35a7253ccca337f403cf89ec31",
-        light: "fdb5373d7c2b19fb481066830fbe2c12f7675479c7792e16679877c873f31123",
+        dark: "43d0997c6f1716b6771cf9530a04ce6c579bdad2d8c992571458589490507f4b",
+        light: "2405d055d8e80373159b6c8ba202b30bd8876543b476ee323b0d6654b84432b7",
       },
     },
     viewport: { height: 844, width: 390 },
   },
   "homepage-dashboard-mobile": {
     clipped: false,
-    route: "/[locale]/dashboard",
+    route: "/[locale]/w/[workspace]/dashboard",
     scenario: "Dashboard widgets on a phone-width viewport",
     sha256: {
       de: {
-        dark: "cfb011c369dac90192efa61d7286502ae97d8145640f2a969e03a84f3dd3dddf",
-        light: "0ad71594b9dde43e7e166bc12bbc082f7abc67c39df22c6ecba79afdee8711ec",
+        dark: "4be9fe93bdfa1fa66d43c86495a382990b908c1df3ecd9bd43ae3fde706c3290",
+        light: "96d145515355bb7e510b625335c50a7dc966c6fcb3ece014e08ff33327d46ceb",
       },
       en: {
-        dark: "cfa0e9df780219da447c2319089accb4bf17ca78a85b4aa0f17b33c17f68c7a8",
-        light: "17a04631e9a670811c73298a7fba178d66a6ba59bbee84fd87397fd4acfbb271",
+        dark: "ac2d5348bdc944705a06e297c6b52cc88ac5084ddf13d601bf08940e1ad5b0e6",
+        light: "d04106ccda764cc9bf4e5927e561c5573373d85bbc78ec2496fd5f4ea843cbcc",
       },
     },
     viewport: { height: 844, width: 390 },
   },
   "homepage-routines-mobile": {
     clipped: false,
-    route: "/[locale]/routines",
-    scenario: "Routines list on a phone-width viewport",
+    route: "/[locale]/w/[workspace]/routines",
+    scenario: "Routines list of the small-business workspace on a phone-width viewport",
     sha256: {
       de: {
-        dark: "f55db6f658f121ef73e9b2b7f98b2ee092538175adae423a2db8c8ae9098338e",
-        light: "3d9404b863ec9cd759598030faa7472cea26629fafb90fddf9320b7e8fee054c",
+        dark: "761afe38a794a3b9356a168dd38e4f66711c717f018861e7bf74d7d97d29ea24",
+        light: "1ec012600ace148e50b6dac0f632ee85ff3ea264f1adfd6dc0b29ca23f8ff10d",
       },
       en: {
-        dark: "665a3e7226b3ec1a97ee702c448cfead8ae893083af875a2080f3078866c57fd",
-        light: "c9cae1d7ecea8ee4b2d9be5b54523719493936336f86557af17ce78d3e3e436e",
+        dark: "a58c7fc2eae6c19b0148d0a61016cd02ef7660b1dda4595d23a3fe4ab5f13137",
+        light: "b82b42938f3dd9faa446196f5e1aad07276ad3e78370f95e987000b153576ebb",
       },
     },
     viewport: { height: 844, width: 390 },
   },
   "homepage-configure-mobile": {
     clipped: false,
-    route: "/[locale]/configure",
+    route: "/[locale]/w/[workspace]/configure",
     scenario: "Data model graph zoomed to the Deals list on a phone-width viewport",
     sha256: {
       de: {
-        dark: "fff190c2e18f76a5f3af3c9bac3073e7c96c66a9cb76ce94a23850e368d2eb59",
-        light: "f3765834061d3697cef2317decbf4087dcc40c4e23cf3aa41705f4e691bfc941",
+        dark: "a4c06a11549a29ed76c9615e15fe8d0f731578f9e4379ce9f72cd5bb2ca29799",
+        light: "c1377ba85bc69d8e1713c876818445243871e370d78152defa2ea87503d3c4a0",
       },
       en: {
-        dark: "94368b5dcd9fd9a417f8bf968c36089b2e024cfd84a1f8abf0135610c85b2d7f",
-        light: "a6ae0ab7d9ea37e2d14d9a04bb134c8fd47888eec61828174cd53972884bce58",
+        dark: "4c8181ce92f0e1909bc64109c3837d30ed46503a26c9b8432733e638d3847210",
+        light: "abd62d14d3bb9fb88f7730e4e44675b9f667e206d4be836b23f47d6389e55c3a",
       },
     },
     viewport: { height: 844, width: 390 },

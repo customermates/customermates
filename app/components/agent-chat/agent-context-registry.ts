@@ -3,6 +3,7 @@ import type { AgentContextAttachment } from "@/ee/agent-chat/agent-context";
 import { makeAutoObservable, runInAction } from "mobx";
 
 import { agentContextAttachmentKey } from "@/ee/agent-chat/agent-context";
+import { stripWorkspacePrefix } from "@/core/navigation/workspace-paths";
 
 export type AgentContextCandidate = {
   context: AgentContextAttachment;
@@ -16,7 +17,7 @@ type RegisteredCandidates = {
 };
 
 function normalizePathname(pathname: string): string {
-  const withoutQuery = pathname.split(/[?#]/, 1)[0] || "/";
+  const withoutQuery = stripWorkspacePrefix(pathname.split(/[?#]/, 1)[0] || "/");
   return withoutQuery === "/" ? withoutQuery : withoutQuery.replace(/\/+$/, "");
 }
 

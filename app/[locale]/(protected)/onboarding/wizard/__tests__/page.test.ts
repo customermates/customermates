@@ -33,9 +33,6 @@ vi.mock("@/components/shared/centered-card-page", () => ({
 vi.mock("../components/onboarding-wizard", () => ({
   OnboardingWizard: "onboarding-wizard",
 }));
-vi.mock("../components/linked-workspace-card", () => ({
-  LinkedWorkspaceCard: "linked-workspace-card",
-}));
 
 import OnboardingWizardPage from "../page";
 
@@ -245,27 +242,27 @@ describe("OnboardingWizardPage authentication detours", () => {
       ok: true,
       data: workspaces.map((workspace) => ({
         name: `Workspace ${workspace.companyId}`,
+        slug: `workspace-${workspace.companyId}`,
         status: "active",
         ...workspace,
       })),
     });
   }
 
-  it("asks before switching to the workspace a setup email names, instead of switching while the page loads", async () => {
+  it("opens the setup in the workspace a setup email names, under that workspace's URL", async () => {
     memberOf({ companyId: "company-a", isCurrent: true }, { companyId: "company-b", isCurrent: false });
 
-    const page = await OnboardingWizardPage({ searchParams: Promise.resolve({ workspace: "company-b" }) });
-
-    expect(page.props.children.type).toBe("linked-workspace-card");
-    expect(page.props.children.props).toEqual({ companyId: "company-b", name: "Workspace company-b" });
+    await expect(OnboardingWizardPage({ searchParams: Promise.resolve({ workspace: "company-b" }) })).rejects.toThrow(
+      "REDIRECT:/en/w/workspace-company-b/onboarding/wizard",
+    );
     expect(mocks.requireAccountState).not.toHaveBeenCalled();
   });
 
-  it("drops the workspace from the link when it already names the active workspace", async () => {
+  it("drops the workspace from the link when it already names the workspace this page shows", async () => {
     memberOf({ companyId: "company-a", isCurrent: true });
 
     await expect(OnboardingWizardPage({ searchParams: Promise.resolve({ workspace: "company-a" }) })).rejects.toThrow(
-      "REDIRECT:/en/onboarding/wizard",
+      "REDIRECT:/en/w/workspace-company-a/onboarding/wizard",
     );
   });
 
@@ -279,7 +276,7 @@ describe("OnboardingWizardPage authentication detours", () => {
     memberOf(...workspaces);
 
     await expect(OnboardingWizardPage({ searchParams: Promise.resolve({ workspace: "company-b" }) })).rejects.toThrow(
-      /^REDIRECT:\/en\/?$/u,
+      "REDIRECT:/en/dashboard",
     );
   });
 });

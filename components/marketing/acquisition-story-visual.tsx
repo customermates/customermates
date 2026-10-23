@@ -4,7 +4,7 @@ import { Boxes, BriefcaseBusiness, CircleDollarSign, Code2, ContactRound, Databa
 
 import { VISUAL_PLACEMENTS, type BrandIllustrationBrief } from "@/components/marketing/visuals/visual-contract";
 import { cn } from "@/core/utils/cn";
-import { formattingTagFor, type ContentLocale } from "@/i18n/locale-registry";
+import { contentLocaleOrDefault, formattingTagFor, type MarketingLocale } from "@/i18n/locale-registry";
 
 import {
   VISUAL_AGENT_PROVIDER_FIXTURES,
@@ -25,7 +25,7 @@ import { VisualArtboard } from "./visuals/visual-artboard";
 
 type Props = {
   brief: BrandIllustrationBrief;
-  locale: ContentLocale;
+  locale: MarketingLocale;
 };
 
 type Placement = "narrow" | "split" | "wide";
@@ -534,7 +534,7 @@ function InboxScene({ brief, placement }: Pick<Props, "brief"> & { placement: Pl
 
           {placement === "wide" ? (
             <p className="mt-3 line-clamp-2 text-xs leading-snug font-medium">
-              {conversation.localizedSubject[brief.locale]}
+              {conversation.localizedSubject[contentLocaleOrDefault(brief.locale)]}
             </p>
           ) : null}
         </div>
@@ -577,7 +577,7 @@ function recordsForStatus(records: readonly VisualRecordFixtureId[], status: (ty
   return records.filter((record) => VISUAL_RECORD_FIXTURES[record].status === status).slice(0, 2);
 }
 
-function formatDealValue(record: VisualRecordFixtureId, locale: ContentLocale, kind: "total" | "weighted") {
+function formatDealValue(record: VisualRecordFixtureId, locale: MarketingLocale, kind: "total" | "weighted") {
   const fixture = VISUAL_RECORD_FIXTURES[record];
   const value = kind === "total" ? fixture.totalValue : fixture.weightedValue;
 

@@ -8,6 +8,7 @@ import { GroupingSchema } from "@/core/base/grouping/grouping.schema";
 import { ViewMode } from "@/core/base/base-query-builder";
 import { AiManageableDataViewSurfaceKeySchema } from "@/core/data-view/ai-manageable-surfaces";
 import { dataViewPath } from "@/core/data-view/data-view-paths";
+import { stripWorkspacePrefix } from "@/core/navigation/workspace-paths";
 import { DATA_VIEW_NAME_MAX_LENGTH } from "@/core/data-view/data-view-limits";
 import {
   DataViewPageSizeSchema,
@@ -164,7 +165,8 @@ export const ManageDataViewsResultSchema = z
         const path = dataViewPath(result.surfaceKey);
         const expectedLink = path ? `${path}?view=${result.viewKey}` : null;
         const linkPath = result.link && URL.canParse(result.link) ? new URL(result.link) : null;
-        if (result.link !== expectedLink && `${linkPath?.pathname}${linkPath?.search}` !== expectedLink) {
+        const linkPathname = linkPath ? stripWorkspacePrefix(linkPath.pathname) : undefined;
+        if (result.link !== expectedLink && `${linkPathname}${linkPath?.search}` !== expectedLink) {
           ctx.addIssue({
             code: "custom",
             path: ["link"],

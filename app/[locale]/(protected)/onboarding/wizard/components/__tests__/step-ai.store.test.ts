@@ -6,7 +6,7 @@ const profileActions = vi.hoisted(() => ({
   createApiKeyAction: vi.fn(),
 }));
 
-vi.mock("../../../../settings/(account)/actions", () => profileActions);
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/settings/(account)/actions", () => profileActions);
 
 import { AiConnectionStore } from "@/components/ai-connection/ai-connection.store";
 

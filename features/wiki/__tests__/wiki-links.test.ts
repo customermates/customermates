@@ -8,6 +8,7 @@ import {
   wikiPageMarkdownLink,
   wikiPagePath,
   wikiPageUrl,
+  workspaceWikiPagePath,
 } from "../wiki-links";
 import { externalizeWikiPageLinks, extractWikiPageLinks, hasInvalidWikiPageLinks } from "../wiki-markdown-links";
 import { ROUTING_LOCALES } from "@/i18n/locale-registry";
@@ -15,13 +16,27 @@ import { ROUTING_LOCALES } from "@/i18n/locale-registry";
 const ID = "10000000-0000-4000-8000-000000000001";
 const LINKED_ID = "10000000-0000-4000-8000-000000000002";
 const BASE_URL = "https://app.customermates.com";
+const SLUG = "acme";
 
 describe("Wiki deep-link contract", () => {
   it.each(ROUTING_LOCALES)("accepts the %s app locale and canonicalizes it", (locale) => {
     expect(parseWikiPageHref(`/${locale}/wiki?page=${ID}`, BASE_URL)).toEqual({
       id: ID,
       path: `/wiki?page=${ID}`,
+      slug: null,
     });
+    expect(parseWikiPageHref(`/${locale}/w/${SLUG}/wiki?page=${ID}`, BASE_URL)).toEqual({
+      id: ID,
+      path: `/wiki?page=${ID}`,
+      slug: SLUG,
+    });
+  });
+
+  it("reads the workspace slug of qualified relative and same-origin links", () => {
+    expect(parseWikiPageHref(`/w/${SLUG}/wiki?page=${ID}`)).toEqual({ id: ID, path: `/wiki?page=${ID}`, slug: SLUG });
+    expect(parseWikiPageHref(`${BASE_URL}/w/beratung/wiki?page=${ID}`, BASE_URL)?.slug).toBe("beratung");
+    expect(parseWikiPageHref(`/w/Not_A_Slug/wiki?page=${ID}`)).toBeNull();
+    expect(parseWikiPageHref(`/w//wiki?page=${ID}`)).toBeNull();
   });
 
   it("renders a Markdown link whose title cannot break out of the link text", () => {
@@ -31,15 +46,24 @@ describe("Wiki deep-link contract", () => {
 
   it("generates stable UUID paths, public URLs, and fetch ids", () => {
     expect(wikiPagePath(ID)).toBe(`/wiki?page=${ID}`);
-    expect(wikiPageUrl(`${BASE_URL}/some/base/path`, ID)).toBe(`${BASE_URL}/wiki?page=${ID}`);
+    expect(workspaceWikiPagePath(SLUG, ID)).toBe(`/w/${SLUG}/wiki?page=${ID}`);
+    expect(() => workspaceWikiPagePath("", ID)).toThrow();
+    expect(wikiPageUrl(`${BASE_URL}/some/base/path`, SLUG, ID)).toBe(`${BASE_URL}/w/${SLUG}/wiki?page=${ID}`);
     expect(wikiPageFetchId(ID)).toBe(`wiki:${ID}`);
     expect(parseWikiPageReference(`wiki:${ID}`, BASE_URL)).toEqual({
       id: ID,
       path: `/wiki?page=${ID}`,
+      slug: null,
     });
     expect(parseWikiPageReference(`${BASE_URL}/wiki?page=${ID}`, BASE_URL)).toEqual({
       id: ID,
       path: `/wiki?page=${ID}`,
+      slug: null,
+    });
+    expect(parseWikiPageReference(`${BASE_URL}/w/${SLUG}/wiki?page=${ID}`, BASE_URL)).toEqual({
+      id: ID,
+      path: `/wiki?page=${ID}`,
+      slug: SLUG,
     });
   });
 
@@ -80,6 +104,13 @@ describe("Wiki deep-link contract", () => {
       `Read /wiki?page=${ID}; ignore ${foreign}. Keep ${invalidQuery}, ${invalidFragment}, and ${invalidSuffix}.`,
     );
   });
+
+  it("localizes qualified Wiki URLs of the bound workspace and keeps other workspaces' URLs", () => {
+    const own = `${BASE_URL}/w/${SLUG}/wiki?page=${ID}`;
+    const other = `${BASE_URL}/w/beratung/wiki?page=${LINKED_ID}`;
+    expect(localizeWikiPageUrls(`See ${own} and ${other}.`, BASE_URL, SLUG)).toBe(`See /wiki?page=${ID} and ${other}.`);
+    expect(localizeWikiPageUrls(`See ${own}.`, BASE_URL)).toBe(`See ${own}.`);
+  });
 });
 
 describe("Wiki Markdown links", () => {
@@ -91,6 +122,8 @@ describe("Wiki Markdown links", () => {
     `${BASE_URL}/wiki?page=...`,
     `${BASE_URL}//wiki?page=${ID}`,
     `/wiki/${ID}`,
+    `/w/${SLUG}/wiki?page=...`,
+    `/w/${SLUG}/wiki/${ID}`,
   ])("rejects a malformed internal Markdown link %s", (href) => {
     expect(hasInvalidWikiPageLinks(`[Support](${href})`, BASE_URL)).toBe(true);
     expect(hasInvalidWikiPageLinks(`[Support][ref]\n\n[ref]: ${href}`, BASE_URL)).toBe(true);
@@ -100,6 +133,7 @@ describe("Wiki Markdown links", () => {
     const markdown = [
       `[Support](/en/wiki?page=${ID})`,
       `[Support](${BASE_URL}/wiki?page=${ID})`,
+      `[Support](/en/w/${SLUG}/wiki?page=${ID})`,
       "[External](https://other.example/wiki?page=...)",
       "[All pages](/wiki)",
       "`[Example](/wiki?page=...)`",
@@ -119,26 +153,34 @@ describe("Wiki Markdown links", () => {
       "```",
     ].join("\n");
 
-    const projected = externalizeWikiPageLinks(markdown, BASE_URL);
-    expect(projected).toContain(`[Support](${BASE_URL}/wiki?page=${LINKED_ID})`);
+    const projected = externalizeWikiPageLinks(markdown, BASE_URL, SLUG);
+    expect(projected).toContain(`[Support](${BASE_URL}/w/${SLUG}/wiki?page=${LINKED_ID})`);
     expect(projected).toContain(`\`[not a link](/wiki?page=${LINKED_ID})\``);
     expect(projected).toContain(`[also not a link](/wiki?page=${LINKED_ID})`);
 
-    expect(extractWikiPageLinks(markdown, BASE_URL)).toEqual([
+    expect(extractWikiPageLinks(markdown, BASE_URL, SLUG)).toEqual([
       {
         id: LINKED_ID,
         label: "Support",
         path: `/wiki?page=${LINKED_ID}`,
-        url: `${BASE_URL}/wiki?page=${LINKED_ID}`,
+        url: `${BASE_URL}/w/${SLUG}/wiki?page=${LINKED_ID}`,
         fetchId: `wiki:${LINKED_ID}`,
       },
     ]);
   });
 
+  it("resolves stored links with the source page's workspace and keeps explicitly qualified ones", () => {
+    const markdown = `[Own](/wiki?page=${ID}) and [Other](/w/beratung/wiki?page=${LINKED_ID})`;
+    const projected = externalizeWikiPageLinks(markdown, BASE_URL, SLUG);
+    expect(projected).toContain(`[Own](${BASE_URL}/w/${SLUG}/wiki?page=${ID})`);
+    expect(projected).toContain(`[Other](${BASE_URL}/w/beratung/wiki?page=${LINKED_ID})`);
+    expect(extractWikiPageLinks(markdown, BASE_URL, SLUG).map((link) => link.id)).toEqual([ID]);
+  });
+
   it("keeps links valid across title changes because identity is the UUID", () => {
     const beforeRename = `[Old title](/wiki?page=${LINKED_ID})`;
     const afterRename = `[New title](/wiki?page=${LINKED_ID})`;
-    expect(extractWikiPageLinks(beforeRename, BASE_URL)[0]?.id).toBe(LINKED_ID);
-    expect(extractWikiPageLinks(afterRename, BASE_URL)[0]?.id).toBe(LINKED_ID);
+    expect(extractWikiPageLinks(beforeRename, BASE_URL, SLUG)[0]?.id).toBe(LINKED_ID);
+    expect(extractWikiPageLinks(afterRename, BASE_URL, SLUG)[0]?.id).toBe(LINKED_ID);
   });
 });

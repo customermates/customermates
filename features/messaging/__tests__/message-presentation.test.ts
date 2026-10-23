@@ -90,12 +90,12 @@ vi.mock("../activities/activities-row", () => ({
   IdentityAvatar: () => null,
   TypeBadge: () => null,
 }));
-vi.mock("@/app/[locale]/(protected)/inbox/components/message-attachment", () => ({
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/inbox/components/message-attachment", () => ({
   MessageAttachment: ({ att }: { att: { id: string } }) => createElement("span", { "data-attachment": att.id }),
 }));
 
-import { MessageItem } from "@/app/[locale]/(protected)/inbox/components/message-item";
-import { EmailMessageHeader } from "@/app/[locale]/(protected)/inbox/components/email-message-header";
+import { MessageItem } from "@/app/[locale]/(protected)/w/[workspace]/inbox/components/message-item";
+import { EmailMessageHeader } from "@/app/[locale]/(protected)/w/[workspace]/inbox/components/email-message-header";
 import { MessageDetail, TimelineDetailModal } from "../activities/activities-detail-modal";
 import { hasLoadableRemoteImages, MessageBody } from "../message-body";
 import { MessageSurface } from "../message-surface";

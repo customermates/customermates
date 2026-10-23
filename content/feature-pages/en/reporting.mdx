@@ -15,7 +15,7 @@ hero:
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
-  buttonRightHref: https://demo.customermates.com
+  buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
@@ -24,7 +24,7 @@ cta:
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
-  buttonRightHref: https://demo.customermates.com
+  buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
@@ -45,7 +45,7 @@ Every chart takes one list as its source, an aggregation and a grouping. The agg
 
 **Grouping** is **No grouping** (one total), a field such as Stage or Lead source, each record, **Assigned to**, or a field reached through a relationship. That gives you "deal value by stage", "deal value per organization" or "line item amounts by service". Group by a date field, **Created at** or **Updated at** and pick a **Time interval** to get one value per day, week, month, quarter or year.
 
-**Weighted value** is a calculated field on deals: the deal's value times the **Probability %** of its stage, which you set on each option of the Stage field in **Configure**. A new workspace already has probabilities filled in, so it works from the first deal.
+**Weighted value** is a calculated field on deals: the deal's value times the **Probability %** of its stage, which you set on each option of the Stage field in **Configure**. Once the probabilities are set, it works from the first deal.
 
 **Filters** narrow what a chart counts, using any field, including dates; linked fields appear as **List › Field**. That is how you chart "won deal value per organization": deals as the source, a filter on Stage is Won, grouped by organization.
 
@@ -55,7 +55,7 @@ The second widget kind, the **Activity timeline**, is a newest-first feed of rec
 
 ## Reports a small team uses, and how to build each
 
-These recipes assume the default Stage field plus two single choice fields you add to deals: "Lead source" and "Lost reason".
+These recipes assume a deals list with a Stage single choice field plus two more single choice fields you add: "Lead source" and "Lost reason".
 
 | Question | Source | Measure | Grouping | Filters |
 |---|---|---|---|---|
@@ -67,7 +67,7 @@ These recipes assume the default Stage field plus two single choice fields you a
 | Why do we lose? | Deals | Count | Lost reason | Stage is Lost |
 | How much open work is there? | Tasks | Count | Status | Status is not Done or Archived |
 
-Tasks have no built-in due date. The Status field in the last row is a single choice field that a new workspace starts with, and you can rename, change or delete it like any other field.
+Tasks have no built-in due date. The Status field in the last row is a single choice field you add to your tasks list, and you can rename, change or delete it like any other field.
 
 Two questions are better answered by a list than by a chart. **Who is working on which deals?** Switch the deals list to the board and group it by **Assigned**: each person gets a column with their deal count and totals. **How many deals did we open per month?** Group the deals table by created date, bucketed by month. Saved as views, both stay one click away; views are personal to the person who saves them.
 

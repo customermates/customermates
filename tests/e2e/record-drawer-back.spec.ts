@@ -2,6 +2,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { openRecordDetails } from "./record-rows";
 import { openSidebar } from "./sidebar";
 import { test, expect, collectPageErrors } from "./fixtures";
+import { companyPath, companyUrlPattern, pagePath } from "./app-paths";
 
 for (const { title, discard } of [
   { title: "browser Back guards a record drawer draft and an immediate Open page handoff", discard: false },
@@ -9,10 +10,10 @@ for (const { title, discard } of [
 ]) test(title, async ({ page, companyId, isMobile }, testInfo) => {
   const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "service");
-  await page.goto("/en/dashboard");
+  await page.goto(pagePath(page, "/dashboard"));
   await openSidebar(page);
   await page.locator(`[id="nav-records:${typeId}"]`).click();
-  await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}$`));
+  await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${typeId}$`));
   await page.locator("#records-add").click();
   const drawer = page.getByRole("dialog");
   await drawer.getByRole("textbox", { name: "Name", exact: false }).fill("Back guard service");
@@ -59,7 +60,7 @@ for (const { title, discard } of [
     await page.screenshot({ path: testInfo.outputPath("guarded-loading-handoff.png"), animations: "disabled" });
     await guard.getByRole("button", { name: discard ? "Discard" : "Cancel", exact: true }).click();
     await expect(guard).not.toBeVisible();
-    if (discard) await expect(page).toHaveURL((url) => url.pathname === `/en/records/${typeId}`);
+    if (discard) await expect(page).toHaveURL((url) => url.pathname === companyPath(companyId, `/records/${typeId}`));
     else await expect(page).toHaveURL((url) => url.pathname === detailPath);
     if (!discard) {
       if (isMobile) await expect(page.locator("#sidebar-trigger")).toBeDisabled();

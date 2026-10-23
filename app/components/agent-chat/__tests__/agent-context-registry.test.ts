@@ -65,4 +65,14 @@ describe("AgentContextRegistry", () => {
 
     expect(snapshots).toEqual([[], ["Ada"], []]);
   });
+
+  it("matches a workspace-qualified pathname with its app route", () => {
+    const registry = new AgentContextRegistry();
+    registry.register("/en/w/acme/contacts", () => [
+      { context: record("Ada", "10000000-0000-4000-8000-000000000001") },
+    ]);
+
+    expect(registry.candidates("/en/contacts").map((candidate) => candidate.context.label)).toEqual(["Ada"]);
+    expect(registry.candidates("/en/w/acme/contacts/").map((candidate) => candidate.context.label)).toEqual(["Ada"]);
+  });
 });

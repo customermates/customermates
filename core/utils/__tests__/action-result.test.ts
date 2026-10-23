@@ -4,6 +4,7 @@ vi.mock("server-only", () => ({}));
 const { redirect } = vi.hoisted(() => ({ redirect: vi.fn() }));
 
 vi.mock("next/navigation", () => ({ redirect }));
+vi.mock("next/headers", () => ({ headers: () => Promise.resolve(new Headers()) }));
 vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve({ raw: (key: string) => key }),
 }));

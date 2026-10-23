@@ -2,9 +2,9 @@ import { ArrowUpRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { AppImage } from "@/components/shared/app-image";
+import { AppLink } from "@/components/shared/app-link";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/core/utils/cn";
-import { IntlLink } from "@/i18n/navigation";
 
 type Props = {
   className?: string;
@@ -47,11 +47,11 @@ export function FounderContactCard({ className }: Props) {
       <p className="mt-3 text-xs leading-5 text-muted-foreground">{t("ContactPage.highlights.personal.body")}</p>
 
       <Button asChild className="mt-2 h-auto justify-start px-0 py-1 text-xs" size="xs" variant="link">
-        <IntlLink href="/contact" prefetch={false}>
+        <AppLink appearance="unstyled" href="/contact" prefetch={false}>
           {t("Common.actions.contact")}
 
           <ArrowUpRight aria-hidden className="size-3.5" />
-        </IntlLink>
+        </AppLink>
       </Button>
     </section>
   );

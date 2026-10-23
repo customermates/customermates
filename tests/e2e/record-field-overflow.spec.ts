@@ -5,6 +5,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { linkedRecordNames, linkedRecordOpeners, openRecordDetails } from "./record-rows";
 import { secondUser } from "./second-user";
 import { expectHydrated } from "./workspace-switching";
+import { pagePath } from "./app-paths";
 
 test("shows the full name of truncated direct and derived relationship chips on focus and hover", async ({
   page,
@@ -65,7 +66,7 @@ test("shows the full name of truncated direct and derived relationship chips on 
     },
   });
   await page.setViewportSize({ width: 320, height: 844 });
-  await page.goto(`/en/records/${id("deal")}/${deal.refs[0].recordId}`);
+  await page.goto(pagePath(page, `/records/${id("deal")}/${deal.refs[0].recordId}`));
   const main = page.getByRole("main");
   const fields = [
     main.locator(`[data-entity-field="relationship:${id("deal.organizations")}:outgoing"]`),
@@ -117,7 +118,7 @@ test("keeps 100 linked deals within three chip rows, pages and opens them in the
     id("organization"),
   ]);
   const recordId = org.rows[0].id as string;
-  await page.goto(`/en/records/${id("organization")}`);
+  await page.goto(pagePath(page, `/records/${id("organization")}`));
   const model = await readModel(database, companyId);
   for (let index = 0; index < 100; index++) {
     await postOk(page, "/api/v1/records/mutate", {
@@ -157,7 +158,7 @@ test("keeps 100 linked deals within three chip rows, pages and opens them in the
   const field = page.locator(`[data-entity-field="relationship:${id("deal.organizations")}:incoming"]`);
   const more = () => field.getByRole("button", { name: /^\+\d+ more$/ });
   const chips = () => field.locator("[data-chip-id]");
-  await page.goto(`/en/records/${id("organization")}/${recordId}`);
+  await page.goto(pagePath(page, `/records/${id("organization")}/${recordId}`));
   await expect(more()).toBeVisible();
   const baseCount = await database.query(
     'SELECT COUNT(*)::integer AS count FROM "RecordLink" WHERE "companyId"=$1 AND "relationId"=$2 AND "targetId"=$3 AND "deletedAt" IS NULL',
@@ -243,7 +244,7 @@ test("returns focus after resizing away a read-only relationship overflow opener
   companyId,
 }, testInfo) => {
   const id = (key: string) => presetId(companyId, key);
-  await page.goto(`/en/records/${id("organization")}`);
+  await page.goto(pagePath(page, `/records/${id("organization")}`));
   const model = await readModel(database, companyId);
   const created = await postOk(page, "/api/v1/records/mutate", {
     expectedRevision: model.revision,
@@ -286,7 +287,7 @@ test("returns focus after resizing away a read-only relationship overflow opener
   const reader = await secondUser(browser, database, companyId, testInfo, role.role.id);
   try {
     await reader.page.setViewportSize({ width: 390, height: 900 });
-    await reader.page.goto(`/en/records/${id("organization")}/${recordId}`);
+    await reader.page.goto(pagePath(reader.page, `/records/${id("organization")}/${recordId}`));
     const field = reader.page.locator(`[data-entity-field="relationship:${id("deal.organizations")}:incoming"]`);
     const more = field.getByRole("button", { name: /^\+\d+ more$/ });
     await expect(field.getByRole("combobox")).toHaveCount(0);
@@ -314,7 +315,7 @@ test("wraps and expands plain text, edits it directly, and preserves the saved v
 }, testInfo) => {
   const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "organization");
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(pagePath(page, `/records/${typeId}`));
   const model = await readModel(database, companyId);
   const fieldId = randomUUID();
   await postOk(page, "/api/v1/model/apply", {
@@ -358,7 +359,7 @@ test("wraps and expands plain text, edits it directly, and preserves the saved v
   });
   const recordId = result.refs[0].recordId as string;
   const field = page.locator(`[data-entity-field="${fieldId}"]`);
-  await page.goto(`/en/records/${typeId}/${recordId}`);
+  await page.goto(pagePath(page, `/records/${typeId}/${recordId}`));
   await expect(field.getByRole("button", { name: "Show more", exact: true })).toBeVisible();
   const name = page.getByRole("main").getByRole("heading").getByRole("textbox", { name: "Name", exact: true });
   const longName = text.replaceAll("\n", " ");
@@ -395,7 +396,7 @@ test("wraps and expands plain text, edits it directly, and preserves the saved v
     [companyId, typeId, recordId, fieldId],
   );
   expect(stored.rows[0].textValue).toBe(updated);
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(pagePath(page, `/records/${typeId}`));
   await openRecordDetails(page, "Overflow text organization");
   const drawer = page.getByRole("dialog", { name: "Organization", exact: true });
   await drawer
@@ -416,7 +417,7 @@ test("fills a widened relationship column with chips before the remaining count"
   test.skip(isMobile, "Column widths apply to the desktop table");
   const id = (key: string) => presetId(companyId, key);
   await page.setViewportSize({ width: 1600, height: 900 });
-  await page.goto(`/en/records/${id("organization")}`);
+  await page.goto(pagePath(page, `/records/${id("organization")}`));
   const model = await readModel(database, companyId);
   const created = await postOk(page, "/api/v1/records/mutate", {
     expectedRevision: model.revision,
@@ -446,7 +447,7 @@ test("fills a widened relationship column with chips before the remaining count"
       },
     });
   }
-  await page.goto(`/en/records/${id("organization")}?searchTerm=${encodeURIComponent("Aaa wide chips")}`);
+  await page.goto(pagePath(page, `/records/${id("organization")}?searchTerm=${encodeURIComponent("Aaa wide chips")}`));
   const row = page.locator(`tr[data-row-id="${recordId}"]`);
   const chips = row.locator(`[data-chip-id^="${id("deal")}:"]`);
   const more = row.getByRole("button", { name: /^\+\d+/ });

@@ -1,7 +1,7 @@
 import { PermissionService } from "@/core/base/permission.service";
 import type { CalculatedValue, RecordField, RecordRef, RecordScalar } from "@/features/records/record-model.schema";
 import type { RecordMutation } from "@/features/records/record-query.schema";
-import type { XlsxWizardPorts } from "@/app/[locale]/(protected)/records/[typeId]/components/xlsx-import-wizard.store";
+import type { XlsxWizardPorts } from "@/app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/xlsx-import-wizard.store";
 
 import { randomUUID } from "node:crypto";
 import { afterAll, describe, expect, it, vi } from "vitest";
@@ -53,7 +53,7 @@ const { EventService } = await import("@/features/event/event.service");
 const { PrismaEventLogRepo } = await import("@/features/event/prisma-event-log.repository");
 const { createCrmPreset, presetId } = await import("@/features/records/crm-preset");
 const { XlsxImportWizardStore } = await import(
-  "@/app/[locale]/(protected)/records/[typeId]/components/xlsx-import-wizard.store"
+  "@/app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/xlsx-import-wizard.store"
 );
 
 const describeRoundTrip = getLocalDatabaseTestUrl() ? describe : describe.skip;

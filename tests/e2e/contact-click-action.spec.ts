@@ -3,6 +3,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { addFromConfigure, openConfigure, saveDrawer } from "./configure";
 import { test, expect } from "./fixtures";
 import { postOk, readModel } from "./api";
+import { companyPath, pagePath } from "./app-paths";
 
 test("opens or copies contact values and edits them from empty cell space", async ({
   page,
@@ -38,7 +39,7 @@ test("opens or copies contact values and edits them from empty cell space", asyn
 
   const email = `billing-${suffix}@example.test`;
   const site = `https://example.test/${suffix}`;
-  await page.goto(`/en/records/${typeId}?viewMode=table`);
+  await page.goto(companyPath(companyId, `/records/${typeId}?viewMode=table`));
   const recordDrawer = page.getByRole("dialog", { name: "Organization", exact: true });
   await page.locator("#records-add").click();
   await recordDrawer.getByRole("textbox", { name: "Name", exact: false }).fill(`Contact ${suffix}`);
@@ -115,7 +116,7 @@ test("contact chips reuse inline copy actions without reserved space across deta
     },
     { id: randomUUID(), label: "Telephone", valueType: "phone", action: "open", value: "+493012345678" },
   ];
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(pagePath(page, `/records/${typeId}`));
   const model = await readModel(database, companyId);
   await postOk(page, "/api/v1/model/apply", {
     expectedRevision: model.revision,
@@ -148,7 +149,7 @@ test("contact chips reuse inline copy actions without reserved space across deta
     },
   });
   const recordId = created.refs[0].recordId as string;
-  await page.goto(`/en/records/${typeId}/${recordId}`);
+  await page.goto(pagePath(page, `/records/${typeId}/${recordId}`));
   for (const field of fields) {
     await page.getByRole("button", { name: "Pin or unpin fields", exact: true }).click();
     await page.getByRole("menuitemcheckbox", { name: field.label, exact: true }).click();
@@ -207,13 +208,13 @@ test("contact chips reuse inline copy actions without reserved space across deta
   }
   await page.screenshot({ path: testInfo.outputPath("contact-chip-actions.png"), animations: "disabled" });
   await page.setViewportSize({ width: 1280, height: 900 });
-  await page.goto(`/en/records/${typeId}?viewMode=table`);
+  await page.goto(pagePath(page, `/records/${typeId}?viewMode=table`));
   const row = page.getByRole("row").filter({ hasText: "Inline contact actions" });
   await row.getByRole("button", { name: fields[0].value, exact: true }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   for (const width of [1280, 390]) {
     await page.setViewportSize({ width, height: 900 });
-    await page.goto(`/en/records/${typeId}?viewMode=card&groupBy=system%3AcreatedAt`);
+    await page.goto(pagePath(page, `/records/${typeId}?viewMode=card&groupBy=system%3AcreatedAt`));
     const value = page.locator(`[data-chip-column="${fields[0].id}"] [data-slot="contact-value"]`);
     await expect(value).toBeVisible();
     await value.getByRole("button", { name: fields[0].value, exact: true }).click();

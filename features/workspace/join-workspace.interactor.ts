@@ -52,7 +52,7 @@ export class JoinWorkspaceInteractor {
     const { email } = session.user;
     const existing = await this.memberships.findMembershipUnscoped(email, intent.companyId);
     if (existing) {
-      await this.activate(session.session.id, session.user.id, email, existing.companyId);
+      await this.activate(session.user.id, email, existing.companyId);
       return {
         ok: true as const,
         data: { companyId: existing.companyId, status: existing.status, alreadyMember: true },
@@ -84,7 +84,7 @@ export class JoinWorkspaceInteractor {
       { companyId: intent.companyId },
     );
     const { member, alreadyMember } = joined;
-    await this.activate(session.session.id, session.user.id, email, member.companyId);
+    await this.activate(session.user.id, email, member.companyId);
     if (alreadyMember)
       return { ok: true as const, data: { companyId: member.companyId, status: member.status, alreadyMember } };
 
@@ -106,8 +106,7 @@ export class JoinWorkspaceInteractor {
     return { ok: true as const, data: { companyId: member.companyId, status: member.status, alreadyMember: false } };
   }
 
-  private async activate(sessionId: string, authUserId: string, email: string, companyId: string) {
-    await this.authService.setSessionActiveCompany(sessionId, companyId);
+  private async activate(authUserId: string, email: string, companyId: string) {
     await this.memberships.setLastUsedCompanyUnscoped(authUserId, companyId);
     await this.memberships.markMembershipActiveUnscoped(email, companyId);
   }

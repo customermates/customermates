@@ -1,6 +1,6 @@
 ---
-title: "CRM Pipeline: Deals als Kanban-Board mit Phasen"
-description: "CRM-Pipeline mit Drag-and-Drop-Board, Phasenwahrscheinlichkeiten und gewichteter Pipeline. Einrichtung, mehrere Pipelines, Grenzen und Kosten."
+title: "Vertriebspipeline im CRM: Deal-Board mit Phasenwerten"
+description: "Vertriebs-CRM für kleine Teams: Verkaufschancen nach Phase mit Wahrscheinlichkeit, Wert und gewichtetem Wert, der Kundenkontext gleich daneben."
 featureName: Vertriebspipeline
 
 relatedHrefs:
@@ -10,159 +10,143 @@ relatedHrefs:
   - /blog/sales-pipeline
 
 hero:
-  title: Die CRM-Pipeline, die jeden Deal nach Phase, Wert und Wahrscheinlichkeit zeigt
-  description: Ziehen Sie Deals über ein Board mit Ihren eigenen Phasen. Jede Spalte zeigt, wie viele Deals dort stehen, was sie wert sind und was sie gewichtet mit der Abschlusswahrscheinlichkeit der Phase wert sind. Pipeline, Board und Dashboards gibt es in jedem Tarif, ab Starter.
+  title: "Vertriebspipeline: Chancen und nächste Schritte im Blick"
+  description: Sehen Sie jede Verkaufschance nach Phase, mit Abschlusswahrscheinlichkeit, Wert und gewichtetem Wert, und öffnen Sie mit einem Klick den Kunden dahinter. Die Phasen legen Sie selbst fest. Der gewichtete Wert ist Ihr Wert mal Ihre Wahrscheinlichkeit, keine Prognose, und gespeicherte Ansichten bleiben persönlich.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
-  buttonRightText: Live-Demo ansehen
-  buttonRightHref: https://demo.customermates.com
+  buttonRightText: Workspace ansehen
+  buttonRightHref: https://demo.customermates.com/de/w/vertriebspipeline/dashboard
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 
 cta:
-  action: Bringen Sie Ihre offenen Deals aufs Board
-  description: Benennen Sie die Phasen um, legen Sie die Wahrscheinlichkeiten fest und importieren Sie Ihre Deals aus einer Excel-Datei. Tarife ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, monatlich abgerechnet.
+  action: Bringen Sie Ihre offenen Verkaufschancen aufs Board
+  description: Legen Sie Phasen und Wahrscheinlichkeiten fest, importieren Sie Ihre Verkaufschancen aus einer Excel-Arbeitsmappe und prüfen Sie in [[commercial.trial.days]] Tagen, ob Ihr Team das Board aktuell hält. Pläne ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, monatlich abgerechnet.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
-  buttonRightText: Live-Demo ansehen
-  buttonRightHref: https://demo.customermates.com
+  buttonRightText: Workspace ansehen
+  buttonRightHref: https://demo.customermates.com/de/w/vertriebspipeline/dashboard
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 ---
 
-Eine CRM-Pipeline ordnet Ihre offenen Verkaufschancen nach Phasen, vom ersten Kontakt bis zum Abschluss. Auf einen Blick sehen Sie, was gerade läuft, was es wert ist und welcher Deal seit Wochen stillsteht. In Customermates wird die Deal-Liste mit einem Klick zu diesem Board: Jede Spalte zeigt Anzahl, Gesamtwert und gewichteten Wert ihrer Deals, und einen Deal verschieben Sie per Drag-and-Drop.
-
-Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit direktem Kundenkontakt, etwa Beratungen, Agenturen, andere Dienstleister und Gründer, die selbst verkaufen. Umsatzprognosen und automatische Warnungen bei liegengebliebenen Deals bietet Customermates nicht. Braucht Ihr Vertriebsteam genau das, etwa für viele Deals aus der Kaltakquise, nennt der Vergleich weiter unten passendere Werkzeuge.
+Eine Vertriebspipeline ordnet Ihre offenen Verkaufschancen nach Phasen, vom ersten Gespräch bis zum Abschluss. So sehen Sie, was gerade läuft, was es wert ist und bei welchem Deal der nächste Schritt fehlt. Customermates ist ein Vertriebs-CRM für kleine Teams, deren Abschlüsse aus Gesprächen entstehen: Beratungen, Agenturen, Dienstleister und Gründer, die selbst verkaufen. Es ist Open Source, arbeitet mit KI und kommt aus Deutschland.
 
 <ArticleSummary title="Auf einen Blick">
-  <SummaryItem label="Was Sie bekommen">Ein Deal-Board nach Phasen, Abschlusswahrscheinlichkeiten je Phase, Gesamt- und gewichtete Pipeline, persönliche gespeicherte Ansichten und Dashboard-Diagramme.</SummaryItem>
-  <SummaryItem label="Tarife">Alles auf dieser Seite außer Mate, Routinen und dem einheitlichen Posteingang ist im Starter-Tarif für [[commercial.price.starter.monthly]] pro Nutzer und Monat enthalten, ebenso in der selbst gehosteten Version.</SummaryItem>
-  <SummaryItem label="KI">In Customermates Cloud prüft und aktualisiert Mate die Pipeline und verbraucht dabei gehostete KI-Credits. Ihr eigener KI-Client erledigt das in jedem Tarif über MCP.</SummaryItem>
-  <SummaryItem label="Nicht enthalten">Keine KI-gestützte Umsatzvorhersage, keine Auswertung von Verweildauer oder Konversion je Phase im Zeitverlauf, keine automatische Markierung inaktiver Deals und keine native App fürs Smartphone.</SummaryItem>
+  <SummaryItem label="In jedem Plan">Board nach Phasen, Abschlusswahrscheinlichkeit je Phase, Wert und gewichteter Wert pro Spalte, persönliche Ansichten, Dashboard-Widgets, Excel-Import und -Export, REST, Webhooks und MCP. Auch selbst gehostet.</SummaryItem>
+  <SummaryItem label="Nur in der Cloud">Mate, der gehostete Assistent, und Routinen im Rahmen der KI-Credits Ihres Plans. Der einheitliche Posteingang ab Pro.</SummaryItem>
+  <SummaryItem label="Nicht enthalten">Keine Umsatzprognose, keine Auswertung von Pipeline-Geschwindigkeit oder Konversion je Phase, keine Markierung liegengebliebener Deals, keine geteilten oder Team-Ansichten, keine Rechte auf Feldebene.</SummaryItem>
 </ArticleSummary>
 
-## Was das Pipeline-Board kann
+## Ein Beispiel-Workspace zum Ausprobieren
 
-**Die Phasen gehören Ihnen.** Die Phase eines Deals ist ein Feld vom Typ Einzelauswahl namens „Phase“. Ein neuer Arbeitsbereich startet mit sieben Optionen und bereits hinterlegten Abschlusswahrscheinlichkeiten:
+Der [Workspace „Pipeline“](https://demo.customermates.com/de/w/vertriebspipeline/dashboard) ist ein Beispiel mit erfundenen Daten, kein Kundenkonto. Er enthält fünf Listen: Firmenkunden, Kontakte, Verkaufschancen, Produkte und Aufgaben. Die Verkaufschancen durchlaufen die Phasen Neu, Qualifiziert, Bedarfsanalyse, Angebot gesendet, Verhandlung, Gewonnen und Verloren, und drei Vertriebsleute sind für sie verantwortlich.
 
-| Phase | Wahrscheinlichkeit |
-|---|---|
-| Akquise | 10 % |
-| Qualifizierung | 20 % |
-| Demo | 40 % |
-| Angebot | 60 % |
-| Verhandlung | 80 % |
-| Gewonnen | 100 % |
-| Verloren | 0 % |
+Das Board zeigt jede Phase mit ihrer Wahrscheinlichkeit, und jeder Spaltenkopf summiert Wert und gewichteten Wert. Der Wert einer Verkaufschance ergibt sich aus ihren Positionen: Produkte aus der Produktliste, Menge mal Stückpreis. Ein Klick auf eine Karte öffnet die Verkaufschance mit Firmenkunde, Kontakten, Positionen, Aufgaben und dem dort festgehaltenen nächsten Schritt.
 
-Sie können Phasen umbenennen, umsortieren, ergänzen oder löschen. Eine Unternehmensberatung arbeitet vielleicht mit Anfrage, Erstgespräch, Angebot verschickt, Mündliche Zusage, Gewonnen und Verloren.
+Ihr eigener Workspace startet ohne diese Listen und Phasen, nämlich ganz ohne Listen. In Customermates Cloud baut die KI-Einrichtung aus Ihrer Beschreibung Listen, Phasen, ein Dashboard und Seiten der Wissensdatenbank. Sie läuft einmal beim Onboarding, ist durch ein Credit-Budget begrenzt und lässt sich mit **Mit einem leeren Workspace starten** überspringen. Andernfalls legen Personen mit Rechten zum Konfigurieren die Liste und ihr Phasenfeld unter **Konfigurieren** an. Selbst gehostet ist das der einzige Weg.
 
-**Das Board.** Öffnen Sie **Deals**, wählen Sie unter **Darstellung** **Board**, gruppiert nach Phase. Ziehen Sie eine Karte in eine andere Spalte, ändert sich die Phase; auf **Kein Wert** abgelegt, wird sie geleert. Jede Karte zeigt die Felder, die Sie unter **Darstellung** einblenden, zum Beispiel Wert, zugewiesene Nutzer, Organisation und ein Datumsfeld „Voraussichtlicher Abschluss“.
+## So funktioniert das Board
 
-**Die Spaltenköpfe rechnen mit.** Jeder Spaltenkopf zeigt die Anzahl der Deals und die Summen, die Sie für die Gruppierung wählen, etwa **Wert** und **Gewichteter Wert**. Der gewichtete Wert eines Deals ist sein Wert mal die Wahrscheinlichkeit seiner Phase. Ein Beispiel mit drei offenen Deals:
+**Die Phasen gehören Ihnen.** Eine Phase ist eine Option in einem Einzelauswahlfeld, und jede Option trägt eine Abschlusswahrscheinlichkeit zwischen 0 und 100 Prozent. Unter **Konfigurieren** benennen Sie Phasen um, ordnen sie neu, ergänzen oder entfernen sie. Eine Vorschau zeigt vor dem Speichern, was sich an Berechnungen und Widgets ändert. Eine umbenannte Phase bleibt an jedem Datensatz erhalten.
 
-| Deal | Phase | Wert | Gewichtet |
+**Das Board.** Unter **Darstellung** wählen Sie **Board**, gruppiert nach Phase. Ziehen Sie eine Karte in eine andere Spalte, ändert sich die Phase. Auf den Karten stehen die Felder Ihrer Wahl, etwa Wert, Account, zuständige Personen oder das Datum des nächsten Schritts.
+
+**Die Spaltenköpfe rechnen mit.** Jeder Kopf zeigt die Anzahl und die Summen, die Sie auswählen, zum Beispiel Wert und gewichteten Wert. Der gewichtete Wert ist der Wert der Verkaufschance mal die Wahrscheinlichkeit ihrer Phase. Drei Beispiele:
+
+| Verkaufschance | Phase (Wahrscheinlichkeit) | Wert | Gewichtet |
 |---|---|---|---|
-| Website-Relaunch | Akquise | 5.000 | 500 |
-| Markenworkshop | Angebot | 8.000 | 4.800 |
-| Jahresbetreuung | Verhandlung | 12.000 | 9.600 |
-| **Pipeline** | | **25.000** | **14.900** |
+| Website-Relaunch | qualifiziert (20 %) | 5.000 | 1.000 |
+| Markenworkshop | Angebot verschickt (60 %) | 8.000 | 4.800 |
+| Jahresbetreuung | Verhandlung (80 %) | 12.000 | 9.600 |
+| **Offene Pipeline** | | **25.000** | **15.400** |
 
-Für dieselben Summen auf dem Dashboard legen Sie ein Diagramm-Widget an, das **Wert** oder **Gewichteter Wert** summiert, nach Phase gruppiert.
+Diese Summe gewichtet Ihre eigenen Zahlen. Umsätze oder Abschlusstermine sagt sie nicht voraus. Die Prozentwerte oben sind Beispiele, keine Vorgaben.
 
-**Der Deal-Wert ergibt sich aus Positionen.** Den Wert eines Deals tippen Sie nicht ein. Er ist die Summe seiner Positionen, jeweils Service mal Menge. Zwei Workshoptage zu 1.500 und zehn Coachingstunden zu 150 ergeben einen Deal-Wert von 4.500.
+**Der Wert.** Eine Verkaufschance hat einen Geldbetrag. Verkaufen Sie aus einem Katalog von Leistungen oder Produkten, können Positionen den Wert ergeben: Menge mal Stückpreis je Position.
 
-**Dieselbe Liste als Tabelle.** Wechseln Sie wieder zu **Tabelle** und behalten Sie die Gruppierung: Die Phasen werden zu einklappbaren Zeilengruppen mit eigenen Anzahlen und Summen. Tabellen sortieren nach **Wert** und **Gewichteter Wert** sowie nach jedem eigenen Feld.
+**Die Tabelle.** Wechseln Sie zu **Tabelle** und behalten Sie die Gruppierung bei: Die Phasen werden zu Zeilengruppen mit eigener Anzahl und Summe, und Sie sortieren nach Wert oder gewichtetem Wert.
 
-## Welchen Tarif Sie brauchen
-
-Board, Phasen, Wahrscheinlichkeiten, gespeicherte Ansichten, Dashboard-Diagramme, XLSX-Import und -Export, REST, Webhooks und MCP sind in jedem Tarif enthalten, auch in Starter und in der selbst gehosteten Version. Ab Pro kommt der [einheitliche Posteingang](/features/unified-inbox) dazu, der E-Mail-, LinkedIn- und WhatsApp-Verläufe bei den Kontakten eines Deals zeigt. Mate und Routinen gibt es nur in Customermates Cloud, sie verbrauchen gehostete KI-Credits. Jeder Cloud-Tarif enthält monatliche KI-Credits je aktivem Nutzer, die Mengen stehen auf der [Preisseite](/pricing).
-
-## So richten Sie Ihre Pipeline ein
+## Vom Board zum nächsten Schritt
 
 <Steps>
-  <Step title="Phasen umbenennen">Öffnen Sie unter **Konfigurieren** die Deals und das Feld **Phase** und benennen Sie die Optionen um, ergänzen oder sortieren Sie sie.</Step>
-  <Step title="Wahrscheinlichkeiten prüfen">Setzen Sie im selben Feld **Phase** für jede Option die **Wahrscheinlichkeit %** von 0 bis 100 und speichern Sie. Eine Vorschau zeigt die Auswirkung, und Customermates berechnet den gewichteten Wert jedes Deals neu.</Step>
-  <Step title="Leistungen anlegen">Legen Sie unter **Services** an, was Sie verkaufen, jeweils mit Preis. Daraus entstehen die Positionen und damit die Deal-Werte.</Step>
-  <Step title="Zwei eigene Felder ergänzen">Ein Datumsfeld „Voraussichtlicher Abschluss“ und eine Einzelauswahl „Verlustgrund“ mit Preis, Zeitpunkt, Wettbewerber gewählt und Keine Entscheidung.</Step>
-  <Step title="Offene Deals importieren">Nutzen Sie **Aus Datei hinzufügen** mit einer Excel-Datei: erst Organisationen, dann Kontakte, dann Deals, damit die Deals auf bereits vorhandene Datensätze verweisen können. CSV-Dateien werden nicht angenommen, speichern Sie diese vorher als XLSX.</Step>
-  <Step title="Pipeline-Ansicht speichern">Gruppieren Sie das Board nach Phase, filtern Sie Gewonnen und Verloren heraus, klicken Sie auf **Neue Ansicht** und nennen Sie sie „Offene Pipeline“. Die Ansicht merkt sich Filter, Gruppierung, Layout und eingeblendete Felder.</Step>
+  <Step title="Chancen nach Phase sehen">Öffnen Sie das Board Ihrer Verkaufschancen und lesen Sie die Summen der Spalten.</Step>
+  <Step title="Einen Deal prüfen">Ein Klick auf die Karte zeigt Account, Ansprechpartner, Aufgaben und Notizen.</Step>
+  <Step title="Nächsten Schritt festhalten">Tragen Sie ein Datum in ein Feld wie **Nächster Schritt** ein und legen Sie eine Aufgabe an. Eingebaute Erinnerungen gibt es nicht, eine gespeicherte Ansicht mit verstrichenen Daten übernimmt diese Rolle.</Step>
+  <Step title="Felder und Phasen anpassen">Ergänzen Sie Felder wie **Erwarteter Abschluss** (Datum) oder **Verlustgrund** (Einzelauswahl) und passen Sie Wahrscheinlichkeiten an, wenn Ihre Erfahrung sich ändert.</Step>
+  <Step title="KI im erlaubten Rahmen nutzen">Bitten Sie Mate in der Cloud oder Ihren eigenen KI-Client über MCP, eine Phase zu ändern oder Deals ohne nächsten Schritt aufzulisten.</Step>
 </Steps>
 
-Die [Anleitung zu Datensätzen](/docs/app-records) beschreibt Board, Ansichten und Import im Detail.
+## Der Kundenkontext neben dem Deal
 
-## Mehrere Pipelines
+Eine Verkaufschance ist mit ihrem Account und ihren Ansprechpartnern verknüpft, Personen und Verlauf sind also einen Klick entfernt. In Customermates Cloud kommt ab Pro der [einheitliche Posteingang](/features/unified-inbox) für Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram und Telegram hinzu. Eine beteiligte Person wird über die Adresse im Feld Kanäle einem Ansprechpartner zugeordnet. Mit einer Verkaufschance oder einem Account wird ein Gespräch nur verknüpft, wenn Sie oder ein Agent das ausdrücklich tun. Automatisch landet nichts bei einem Deal.
 
-Customermates kennt kein eigenes Pipeline-Objekt. Eine zweite Pipeline ist deshalb ein zweites Einzelauswahl-Feld auf Deals. Ein Team, das neue Projekte verkauft und Rahmenverträge verlängert, legt etwa das Feld „Verlängerungsphase“ mit Anstehend, In Abstimmung, Angebot verschickt und Verlängert an und speichert dazu eine Board-Ansicht, gruppiert nach diesem Feld und gefiltert auf Verlängerungen.
-
-Zwei Grenzen gelten. **Gewichteter Wert** wird aus dem Feld Phase berechnet; das zweite Board zeigt Anzahlen und Gesamtwerte, aber keine gewichteten Zahlen. Und ein Board zeigt höchstens 50 Spalten.
-
-Wer lieber bei einer Phasenliste bleibt, ergänzt eine Einzelauswahl „Pipeline“ mit Neugeschäft und Verlängerung und speichert je Wert eine gefilterte Ansicht.
+Für den Posteingang gelten Planunterschiede. Im Starter-Plan und selbst gehostet gibt es keine verbundenen Messaging-Konten. Pro umfasst Ihre eigenen Konten, [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer inklusive, und einzeln geteilte Gespräche. Ein ganzes Konto mit dem Team teilen Sie ab Business, Max oder Enterprise.
 
 ## Die Pipeline aktuell halten
 
-Ein Board hilft nur, solange es stimmt. Dafür gibt es drei Wege:
+**Eine Ansicht für liegengebliebene Deals.** Filtern Sie Verkaufschancen nach **Aktualisiert am** älter als 14 Tage und Phase weder gewonnen noch verloren, und speichern Sie die Ansicht. Jede Änderung zählt als Aktualisierung, nicht nur ein Phasenwechsel.
 
-**Eine Ansicht für liegengebliebene Deals.** Filtern Sie Deals nach **Aktualisiert am** mit **Älter als…** 14 Tage und Phase weder Gewonnen noch Verloren. Der Filter bleibt relativ, die gespeicherte Ansicht zeigt also immer die Deals, die seit zwei Wochen niemand angefasst hat. Jede Änderung am Deal zählt als Aktualisierung, nicht nur ein Phasenwechsel.
-
-**Eine wöchentliche Routine (Customermates Cloud).** Routinen lassen Mate eine gespeicherte Anweisung nach Zeitplan oder bei Änderungen an Datensätzen ausführen und verbrauchen die gehosteten KI-Credits ihres Eigentümers. Starter enthält [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer, Pro [[commercial.entitlement.pro.includedRoutinesPerUser]]. Stellen Sie eine Routine auf **Wöchentlich**, Montag früh:
+**Eine wöchentliche Routine (nur Cloud).** Eine [Routine](/docs/app-routines) lässt Mate nach Zeitplan oder bei einer Änderung am Datensatz arbeiten. Sie gehört einer Person, sieht nur, was diese Person sieht, und verbraucht deren KI-Credits:
 
 ```text
-Suche Deals in den Phasen Angebot oder Verhandlung, die in den letzten 14 Tagen nicht aktualisiert wurden. Lege für jeden eine Aufgabe „Nachfassen: [Deal-Name]“ an, verknüpfe sie mit dem Deal und weise sie den zugewiesenen Nutzern des Deals zu. Versende keine Nachrichten.
+Finde Verkaufschancen in Angebot verschickt oder Verhandlung, die seit 14 Tagen nicht aktualisiert wurden. Lege für jede eine Aufgabe „Nachfassen: [Name]“ an, verknüpfe sie mit der Verkaufschance und weise sie der zuständigen Person zu. Sende keine Nachrichten.
 ```
 
-Die Routine läuft als ihr Eigentümer und sieht nur die Deals, die diese Person sehen darf. Aufgaben anlegen braucht keine Freigabe; Löschungen bräuchten eine, deshalb lehnt ein unbeaufsichtigter Lauf sie ab. Weitere Beispiele finden Sie bei der [Workflow-Automatisierung](/features/workflow-automation).
+Datensätze anlegen, ändern und Nachrichten senden erledigt Mate direkt, schreiben Sie also in die Anweisung, was nicht passieren soll. Löschen, Importe und Änderungen an Zugriffsrechten warten auf eine Freigabe, und eine Routine ohne Beteiligung lehnt sie ab. Selbst gehostet gibt es Mate nicht.
 
-**Ihr eigener KI-Client über MCP.** Claude, ChatGPT und andere MCP-Clients verschieben Deals zwischen Phasen und ändern Felder mit den [[derived.mcp.tools.total]] Werkzeugen aus der [MCP-Dokumentation](/docs/mcp), in jedem Tarif und auch in der selbst gehosteten Version. Jeder Phasenwechsel löst unabhängig von der Quelle einen `record.updated`-Webhook für die Liste Deals mit den geänderten Feldern aus, den ein separat betriebener n8n-Workflow aufgreifen kann.
+**Ihr eigener KI-Client über MCP.** In jedem Plan, auch selbst gehostet, können Claude, ChatGPT oder ein anderer [MCP](/docs/mcp)-Client Verkaufschancen lesen und Phasen und Felder ändern, soweit Ihre Rolle es erlaubt. Abgerechnet wird über Ihren KI-Anbieter. Jeder Phasenwechsel löst einen Webhook `record.updated` aus, den ein separater n8n-Workflow aufgreifen kann.
+
+## Im Team arbeiten
+
+Wer alle Verkaufschancen lesen darf, sieht dieselben Deals; mit Leserecht **Zugewiesen** sieht jemand nur die eigenen. Für Teams zählen drei Grenzen:
+
+- Gespeicherte Ansichten und Dashboards sind persönlich. Geteilte oder Team-Ansichten gibt es nicht, jede Person speichert ihr eigenes Board.
+- Rechte gelten für ganze Listen. Rechte auf Feldebene gibt es nicht: Wer Verkaufschancen lesen darf, sieht alle ihre Felder.
+- Ganze Konten im Posteingang teilen Sie ab Business. In Pro teilen Kolleginnen und Kollegen einzelne Gespräche.
 
 ## Grenzen
 
 <AcquisitionCallout title="Was die Pipeline nicht kann" variant="boundary">
-  Die gewichtete Pipeline ist Ihr Wert mal Ihre Wahrscheinlichkeiten. Es gibt kein Modell, das Umsatz oder Abschlusstermine vorhersagt, und keine Auswertung von Verweildauer, Konversion je Phase im Zeitverlauf oder Vertriebsgeschwindigkeit. Inaktive Deals werden nicht automatisch markiert; dafür ist die Ansicht oben da. Gespeicherte Ansichten und Dashboards sind persönlich und lassen sich nicht teilen, deshalb speichert jede Person ihre eigene; ein als Vorlage geteiltes Diagramm lässt sich übernehmen. Deals haben keine Dateianhänge, und eine native App fürs Smartphone gibt es nicht.
+  Der gewichtete Wert ist Ihr Wert mal Ihre Wahrscheinlichkeiten. Es gibt keine vorausschauende Umsatzprognose, keine Auswertung von Verweildauer, Konversion je Phase oder Pipeline-Geschwindigkeit und keine automatische Markierung liegengebliebener Deals. Keine geteilten oder Team-Ansichten, keine Rechte auf Feldebene, keine Dateianhänge an Datensätzen und keine native App fürs Smartphone.
 </AcquisitionCallout>
 
-Kennzahlen wie die Gewinnrate pro Person ermittelt Mate in Customermates Cloud aus Ihren Datensätzen, mit einem Analysewerkzeug, das nur liest. Alternativ exportieren Sie die Deals als XLSX. Die Diagrammoptionen beschreibt die Seite [Reporting](/features/reporting).
+Kennzahlen wie die Abschlussquote pro Person kann Mate in der Cloud aus Ihren Datensätzen berechnen, oder Sie exportieren die Liste als Excel-Arbeitsmappe. Diagramm-Optionen zeigt die Seite [Auswertungen](/features/reporting).
 
-## Customermates im Vergleich mit anderen Pipeline-Werkzeugen
+## Mehrere Pipelines
 
-Diese Seite wird von Customermates veröffentlicht. Die Angaben zu anderen Anbietern wurden am 8. Oktober 2026 auf deren eigenen Seiten geprüft, die Links stehen am Ende.
+Ein eigenes Pipeline-Objekt gibt es nicht. Eine zweite Pipeline ist ein zweites Einzelauswahlfeld, etwa **Verlängerungsphase**, mit einer eigenen Board-Ansicht. Der gewichtete Wert stammt aus dem Phasenfeld mit Wahrscheinlichkeiten, ein zweites Board zeigt deshalb Anzahl und Summen, aber keine gewichteten Werte.
 
-| Werkzeug | Passt am besten, wenn | Pipeline-Angaben des Anbieters |
-|---|---|---|
-| Pipedrive | Sie ein auf den Vertrieb ausgerichtetes CRM mit mehreren Pipelines wollen und inaktive Deals auf dem Board markiert sehen möchten | Mehrere Pipelines; eine Rotting-Funktion, die Deals nach einer festgelegten Zeit ohne Aktualisierung rot zeigt; Forecast-Ansicht ab dem Growth-Tarif |
-| HubSpot | Sie kostenlos starten und später Marketing- und Service-Werkzeuge dazunehmen wollen | Vertriebspipeline mit bearbeitbaren Phasen in den kostenlosen Tools; eigene Pipelines ab Starter (15) und Professional (100) bei sitzplatzbasierten Tarifen, geteilt über alle Objekte |
-| Pipeline CRM | Sie als kleines oder mittleres B2B-Team ein Werkzeug suchen, das von der Pipeline her gedacht ist | Start-Tarif mit 1 Pipeline und bis zu 250 aktiven Deals je Konto; Develop 2, Grow 5, Enterprise 20 Pipelines |
-| Customermates | Ihre Deals an Kundengesprächen hängen und KI das Board pflegen soll | Phasen-Board mit gewichteten Werten in jedem Tarif; weitere Pipelines als zusätzliche Phasenfelder; Gesprächsverläufe ab Pro |
+## Welches Werkzeug passt
+
+| Ihre Lage | Passende Lösung |
+|---|---|
+| Ein Vertriebsteam mit vielen Deals aus der Kaltakquise, das Prognosen und Warnungen für liegengebliebene Deals braucht | Ein darauf ausgerichtetes Vertriebs-CRM wie Pipedrive |
+| Ein kleines Team, dessen Deals in E-Mail-, LinkedIn- und WhatsApp-Gesprächen entstehen | Customermates |
+| Eine Person mit einer Handvoll Deals | Vielleicht reicht noch eine Tabelle |
 
 ## Was es kostet
 
-| Team | Tarif | Pro Monat |
-|---|---|---|
-| 3 Personen, nur Board und Dashboards | Starter | [[commercial.price.starter.monthly.seats.3]] |
-| 5 Personen, die auch per E-Mail und LinkedIn verkaufen | Pro | [[commercial.price.pro.monthly.seats.5]] |
-
-Über zwölf Monate zahlt das Pro-Team mit fünf Personen [[commercial.price.pro.monthly.seats.5.months.12]]. Abgerechnet wird monatlich. Für den selbst gehosteten Open-Source-Kern fällt keine Lizenzgebühr an; Sie zahlen nur Ihren eigenen Server.
+Abgerechnet wird monatlich pro Nutzer. Starter kostet [[commercial.price.starter.monthly]] und enthält Board, Phasen, gewichteten Wert und Dashboards. Pro kostet [[commercial.price.pro.monthly]] und ergänzt den Posteingang. Business kostet [[commercial.price.business.monthly]] und ergänzt das Teilen ganzer Konten. Den Open-Source-Kern selbst zu hosten kostet keine Lizenzgebühr, Sie zahlen nur Ihren Server. Details auf der Seite [Preise](/pricing).
 
 ## Häufige Fragen
 
 <Faq>
-<FaqItem question="Was versteht man unter einer Pipeline im CRM?">
-Die Pipeline ist die Liste Ihrer offenen Verkaufschancen, geordnet nach Phasen wie Erstgespräch, Angebot und Verhandlung. Im CRM sehen Sie sie meist als Board mit einer Spalte je Phase. Mit Wahrscheinlichkeiten je Phase ergibt sich daraus ein gewichteter Pipeline-Wert.
+<FaqItem question="Bringt ein neuer Workspace Pipeline-Phasen mit?">
+Nein. Ein neuer Workspace startet ohne Listen. In Customermates Cloud baut die KI-Einrichtung beim Onboarding aus Ihrer Beschreibung eine Liste für Verkaufschancen mit Phasen. Sonst legen Sie Liste und Phasenfeld unter Konfigurieren an.
 </FaqItem>
 
-<FaqItem question="Ist Pipedrive ein CRM?">
-Ja. Pipedrive bezeichnet sich selbst als CRM für kleine Unternehmen und wachsende Teams und ist stark auf die Vertriebspipeline ausgerichtet. Nicht zu verwechseln mit Pipeline CRM, bis 2020 PipelineDeals, einem eigenständigen Produkt für kleine und mittlere B2B-Teams. Dessen Start-Tarif kostet 25 US-Dollar pro Nutzer und Monat bei jährlicher oder 29 US-Dollar bei monatlicher Abrechnung, mit einer Pipeline (Preise am 8. Oktober 2026 auf der [Preisseite von Pipeline CRM](https://pipelinecrm.com/pricing/) geprüft).
+<FaqItem question="Erstellt Customermates eine Umsatzprognose?">
+Nein. Der gewichtete Wert multipliziert den Wert jeder Verkaufschance mit der Wahrscheinlichkeit, die Sie für ihre Phase festlegen. Das ist Rechnen mit Ihren eigenen Zahlen, keine Vorhersage, und Auswertungen zu Geschwindigkeit oder Konversion gibt es nicht.
 </FaqItem>
 
-<FaqItem question="Kann ich in Customermates mehrere Pipelines führen?">
-Ja, als getrennte Einzelauswahl-Felder auf Deals, jeweils mit eigener gespeicherter Board-Ansicht. In den gewichteten Wert fließt nur das Feld Phase ein.
+<FaqItem question="Kann mein Team mit demselben Board arbeiten?">
+Wer alle Verkaufschancen lesen darf, sieht dieselben Deals. Gespeicherte Ansichten sind persönlich, jede Person speichert ihr eigenes Board. Rechte auf Feldebene gibt es nicht.
 </FaqItem>
 
-<FaqItem question="Macht Customermates eine Umsatzprognose?">
-Nein, nicht im Sinne einer Vorhersage. Die gewichtete Pipeline multipliziert den Wert jedes Deals mit der Wahrscheinlichkeit, die Sie für seine Phase festgelegt haben. Das ist Rechnen mit Ihren eigenen Zahlen.
+<FaqItem question="Kann ich mehrere Pipelines führen?">
+Ja, als getrennte Einzelauswahlfelder mit jeweils eigener Board-Ansicht.
 </FaqItem>
 
-<FaqItem question="Sieht mein ganzes Team dasselbe Board?">
-Alle, deren Rolle sämtliche Deals lesen darf, sehen dieselben Deals und können dasselbe Board bauen. Mit Lesezugriff **Zugewiesen** sieht eine Person nur die ihr zugewiesenen Deals. Gespeicherte Ansichten sind persönlich, deshalb speichert jede Person ihre eigene Board-Ansicht.
+<FaqItem question="Landen E-Mails automatisch beim Deal?">
+Nein. Ab Pro in der Cloud werden Gespräche über die Kanäle den Ansprechpartnern zugeordnet. Die Verknüpfung mit einer Verkaufschance ist ein ausdrücklicher Schritt durch Sie oder einen Agenten.
 </FaqItem>
 </Faq>
-
-Angaben zu anderen Anbietern am 8. Oktober 2026 geprüft auf [Pipedrive zu mehreren Pipelines](https://support.pipedrive.com/en/article/how-can-i-have-multiple-pipelines), [Pipedrives Rotting-Funktion](https://support.pipedrive.com/en/article/the-rotting-feature), [Pipedrives Tarifübersicht](https://support.pipedrive.com/en/article/new-pipedrive-plans), [Pipedrive CRM für kleine Unternehmen](https://www.pipedrive.com/de/crm/solutions/crm-for-small-business), [HubSpot Pipeline-Management](https://www.hubspot.com/products/crm/pipeline-management), [HubSpots Pipeline-Limits](https://knowledge.hubspot.com/object-settings/set-up-and-customize-pipelines), [Pipeline CRM](https://pipelinecrm.com/) und [Pipeline CRM Preise](https://pipelinecrm.com/pricing/).

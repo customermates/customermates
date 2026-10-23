@@ -6,6 +6,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const searchWiki = vi.hoisted(() => vi.fn());
 
 vi.mock("@/env", () => ({ env: { BASE_URL: "http://localhost:4105" } }));
+vi.mock("../mcp-workspace-slug", async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  mcpWorkspaceSlug: () => Promise.resolve("acme"),
+}));
 vi.mock("@/core/di", () => ({
   getSearchExternalizedWikiPagesInteractor: () => ({ invoke: searchWiki }),
   getSearchRecordsInteractor: () => ({ invoke: () => Promise.resolve({ ok: true, data: { results: [] } }) }),

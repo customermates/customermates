@@ -7,6 +7,7 @@ import { localE2eEnvironment } from "./local-environment";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { postOk } from "./api";
 import { e2eAppMode } from "./workspace-switching";
+import { companyPath } from "./app-paths";
 
 test("shares an indexed identifier across lists, unlinks one association and links only one conversation", async ({
   page, database, companyId, workspace,
@@ -66,7 +67,7 @@ test("shares an indexed identifier across lists, unlinks one association and lin
       await database.query('INSERT INTO "MessagingThreadParticipant" (id,"companyId","messagingThreadId",provider,"providerUserId",identifier,"identityLookupValue","displayName","updatedAt") VALUES ($1,$2,$3,\'mail\',$4,$4,$4,\'Shared Person\',NOW())', [randomUUID(), companyId, threadId, email]);
       await database.query('INSERT INTO "MessagingMessage" (id,"companyId","messagingThreadId","connectedAccountId","unipileMessageId",provider,direction,origin,sender,recipients,"bodyText","sentAt","updatedAt") VALUES ($1,$2,$3,$4,$5,\'mail\',\'inbound\',\'unipile\',$6,$7,$8,NOW(),NOW())', [randomUUID(), companyId, threadId, accountId, randomUUID(), JSON.stringify({ attendeeId: email, identifier: email, displayName: "Shared Person" }), JSON.stringify({ to: [], cc: [], bcc: [] }), index === 0 ? "Linked conversation message" : "Other conversation message"]);
     }
-    await page.goto(`/en/inbox?threadId=${threadIds[0]}`);
+    await page.goto(companyPath(companyId, `/inbox?threadId=${threadIds[0]}`));
     await page.getByRole("button", { name: "Thread settings", exact: true }).and(page.locator('[data-slot="badge"]')).click();
     const settings = page.getByRole("dialog", { name: "Thread settings", exact: true });
     await expect(settings.getByRole("button", { name: "Open record: Shared Person", exact: true })).toBeVisible();

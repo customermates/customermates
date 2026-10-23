@@ -5,6 +5,7 @@ import type { ExpectedDiagnostic } from "./browser-diagnostics";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { openRecordDetails } from "./record-rows";
 import { RecordQueryResultSchema } from "../../features/records/record-query-result.schema";
+import { companyPath } from "./app-paths";
 
 /**
  * The update below recalculates the calculated fields of every deal and line item. The test cancels a first run and
@@ -24,7 +25,7 @@ test("keeps complete application reads, History and a blocked form draft while a
 }, testInfo) => {
   test.setTimeout(300000);
   const id = (key: string) => presetId(companyId, key);
-  await page.goto(`/en/records/${id("service")}`);
+  await page.goto(companyPath(companyId, `/records/${id("service")}`));
   await page.locator("#records-add").click();
   const editor = page.getByRole("dialog");
   await editor.getByRole("textbox", { name: "Name", exact: false }).fill("Shared live catalogue price");
@@ -121,7 +122,7 @@ test("keeps complete application reads, History and a blocked form draft while a
     ).rows[0];
   expect(await snapshot()).toEqual({ activeOperationId: null, price: "10", count: 600, minimum: "10", maximum: "10" });
   const draft = await context.newPage();
-  await draft.goto(`/en/records/${id("deal")}/${deals[0]}`);
+  await draft.goto(companyPath(companyId, `/records/${id("deal")}/${deals[0]}`));
   await expect(draft.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
   const name = draft.getByRole("main").getByRole("textbox", { name: "Name", exact: false });
   await name.fill("Retained during recalculation");
@@ -218,7 +219,7 @@ test("keeps complete application reads, History and a blocked form draft while a
     const freshReadStarted = performance.now();
     const beforeFreshRead = await snapshot();
     expect(beforeFreshRead.activeOperationId).toBeTruthy();
-    await readPage.goto(`/en/records/${id("service")}/${service}`);
+    await readPage.goto(companyPath(companyId, `/records/${id("service")}/${service}`));
     await expect(readPage.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
     await expect(readMain.getByRole("textbox", { name: "Price", exact: false })).toHaveValue("10");
     const loadedLine = readMain.getByRole("button", { name: /^Unlink Line [0-9]+$/ }).first();
@@ -386,7 +387,7 @@ test("keeps complete application reads, History and a blocked form draft while a
   expect(operation.rows).toEqual([{ state: "cancelled" }, { state: "completed" }]);
   expect([...pageErrors, ...draftErrors, ...readErrors]).toEqual([]);
   if (testInfo.project.name === "chromium")
-    expect(transportErrors.flatMap(({ events }) => events.map(({ source }) => source))).toEqual([expect.stringContaining("/en/records/")]);
+    expect(transportErrors.flatMap(({ events }) => events.map(({ source }) => source))).toEqual([expect.stringContaining(companyPath(companyId, "/records/"))]);
   await readPage.close();
   await draft.close();
 });

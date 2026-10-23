@@ -14,15 +14,17 @@ import {
   legacyFixtureWriter,
 } from "@/tests/helpers/legacy-migration-database";
 import { createSeedContext, SEED_IDS } from "../seeds/context";
-import { NORTHWIND_RECORD_ID_PREFIXES } from "../seeds/northwind-model";
 import { runSyntheticSeed } from "../seeds/run";
+import { SOLUTION_WORKSPACES } from "../seeds/solutions/solution-workspaces";
+import { solutionWorkspacePlans } from "../seeds/solutions/seed-solutions";
 
 const database = getLocalDatabaseTestUrl();
 const suite = database ? describe : describe.skip;
 const companyId = SEED_IDS.company;
-const NORTHWIND_TYPES = ["contact", "organization", "deal", "service", "task", "lineItem"].concat(
-  Object.keys(NORTHWIND_RECORD_ID_PREFIXES),
-);
+const DEMO_COMPANIES = SOLUTION_WORKSPACES.map((workspace) => workspace.companyId);
+const TEAM_TYPES = (solutionWorkspacePlans().find(({ workspace }) => workspace.team)?.content.lists ?? [])
+  .map((list) => list.key)
+  .concat("lineItem");
 
 type Fixture = Awaited<ReturnType<typeof createLegacyMigrationDatabase>> & { prisma: PrismaClient };
 
@@ -45,6 +47,14 @@ function seed(fixture: Fixture) {
       sharedUserPassword: "synthetic-local-test",
     }),
   );
+}
+
+async function catalogSlugs(fixture: Fixture) {
+  const companies = await fixture.prisma.company.findMany({
+    where: { id: { in: DEMO_COMPANIES } },
+    select: { id: true, slug: true },
+  });
+  return DEMO_COMPANIES.map((id) => companies.find((company) => company.id === id));
 }
 
 const BILLING_USAGE_LEDGER_TABLES = new Set(["BillingUsageInterval", "BillingUsageWorkspace"]);
@@ -82,7 +92,7 @@ async function workspaceState(fixture: Fixture, company: string) {
 }
 
 /**
- * Every tenant row of the synthetic company apart from its timestamps, for a repeated seed on the same database.
+ * Every tenant row of every demo workspace apart from its timestamps, for a repeated seed on the same database.
  * Routine runs and agent conversations are anchored to the time of the seed run, so timestamps move on every run.
  */
 async function workspaceContent(fixture: Fixture) {
@@ -95,9 +105,9 @@ async function workspaceContent(fixture: Fixture) {
     );
     const { rows } = await fixture.client.query<{ digest: string | null }>(
       `SELECT md5(string_agg(row, ',' ORDER BY row)) AS digest FROM (
-         SELECT (to_jsonb(t) - $2::text[])::text AS row FROM "${table}" t WHERE "companyId" = $1
+         SELECT (to_jsonb(t) - $2::text[])::text AS row FROM "${table}" t WHERE "companyId" = ANY($1::text[])
        ) rows`,
-      [companyId, timestamps.map((row) => row.column)],
+      [DEMO_COMPANIES, timestamps.map((row) => row.column)],
     );
     content[table] = rows[0].digest ?? "";
   }
@@ -119,12 +129,17 @@ suite("synthetic seed on an existing synthetic workspace", { timeout: 900000 }, 
     await fresh?.close();
   });
 
-  it("seeds every Northwind list on a fresh database", async () => {
+  it("seeds every list of the team workspace and every demo workspace on a fresh database", async () => {
     const types = await fresh.prisma.recordTypeDefinition.findMany({ where: { companyId }, select: { id: true } });
     expect(types.map((type) => type.id)).toEqual(
-      expect.arrayContaining(NORTHWIND_TYPES.map((key) => presetId(companyId, key))),
+      expect.arrayContaining(TEAM_TYPES.map((key) => presetId(companyId, key))),
     );
-    for (const key of NORTHWIND_TYPES) {
+    for (const demo of DEMO_COMPANIES)
+      expect(await fresh.prisma.crmRecord.count({ where: { companyId: demo } }), demo).toBeGreaterThan(30);
+    expect(await catalogSlugs(fresh)).toEqual(
+      SOLUTION_WORKSPACES.map(({ companyId, slug }) => ({ id: companyId, slug })),
+    );
+    for (const key of TEAM_TYPES) {
       expect(freshState.records.filter((record) => record.typeId === presetId(companyId, key)).length).toBeGreaterThan(
         0,
       );
@@ -133,13 +148,15 @@ suite("synthetic seed on an existing synthetic workspace", { timeout: 900000 }, 
 
   it("leaves the workspace unchanged when the seed runs again", async () => {
     const before = await workspaceContent(fresh);
-    await seed(fresh);
+    const slugs = await catalogSlugs(fresh);
+    expect((await seed(fresh)).slugsAssigned).toBe(0);
+    expect(await catalogSlugs(fresh)).toEqual(slugs);
     expect(await workspaceState(fresh, companyId)).toEqual(freshState);
     expect(await workspaceContent(fresh)).toEqual(before);
   });
 
-  it("rebuilds a workspace seeded on an older model without a later Northwind list", async () => {
-    const ticket = presetId(companyId, "ticket");
+  it("rebuilds a workspace seeded on an older model without a later list", async () => {
+    const ticket = presetId(companyId, "service");
     const state = await fresh.prisma.recordSchemaState.findUniqueOrThrow({ where: { companyId } });
     const revision = await fresh.prisma.recordSchemaRevision.findUniqueOrThrow({
       where: { companyId_revision: { companyId, revision: state.revision } },

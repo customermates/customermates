@@ -67,7 +67,7 @@ vi.mock("@/components/chip/app-chip", () => ({
 const { PricingSection, pricingCardPresentation } = await import("../pricing-section");
 const { pricingComparisonPresentation } = await import("../pricing-comparison-table");
 const { PlanPicker } = await import(
-  "@/app/[locale]/(protected)/settings/(workspace)/components/subscription/plan-picker"
+  "@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/subscription/plan-picker"
 );
 const { HomepagePricing } = await import("@/app/[locale]/(static)/components/homepage-pricing");
 

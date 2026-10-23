@@ -1,7 +1,7 @@
 import { loader } from "fumadocs-core/source";
 import { toFumadocsSource } from "fumadocs-mdx/runtime/server";
 
-import { i18n } from "./i18n";
+import { i18n, marketingI18n } from "./i18n";
 
 import {
   about,
@@ -89,19 +89,19 @@ export const comparePagesSource = loader({
 
 export const forSource = loader({
   baseUrl: "/for",
-  i18n,
+  i18n: marketingI18n,
   source: toFumadocsSource(forHub, []),
 });
 
 export const pricingSource = loader({
   baseUrl: "/pricing",
-  i18n,
+  i18n: marketingI18n,
   source: toFumadocsSource(pricing, []),
 });
 
 export const featurePagesSource = loader({
   baseUrl: "/features",
-  i18n,
+  i18n: marketingI18n,
   source: toFumadocsSource(featurePages, []),
 });
 
@@ -119,7 +119,7 @@ export const featuresAllSource = loader({
 
 export const forPagesSource = loader({
   baseUrl: "/for",
-  i18n,
+  i18n: marketingI18n,
   source: toFumadocsSource(forPages, []),
 });
 
@@ -131,7 +131,7 @@ export const helpAndFeedbackSource = loader({
 
 export const homepageSource = loader({
   baseUrl: "",
-  i18n,
+  i18n: marketingI18n,
   source: toFumadocsSource(homepage, []),
 });
 

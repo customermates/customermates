@@ -4,6 +4,7 @@ import { serializeSignedCookie } from "better-call";
 import { Client } from "pg";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
+import { WORKSPACE_HEADER } from "@/core/navigation/workspace-paths";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
 const requestContext = vi.hoisted(() => ({ headers: new Headers() }));
@@ -31,21 +32,21 @@ const describeDatabase = databaseUrl ? describe : describe.skip;
 
 const SERVER_ACTION = { "next-action": "7f00c0ffee", "sec-fetch-mode": "cors", "sec-fetch-dest": "empty" };
 
-type Login = { authUserId: string; email: string; companyId: string; userId: string; cookie: string };
+type Login = { authUserId: string; email: string; companyId: string; userId: string; cookie: string; slug: string };
 
 async function memberFacingActions() {
   const protectedActions = await import("@/app/[locale]/(protected)/actions");
-  const dashboard = await import("@/app/[locale]/(protected)/dashboard/actions");
-  const routines = await import("@/app/[locale]/(protected)/routines/actions");
-  const trash = await import("@/app/[locale]/(protected)/trash/actions");
-  const inbox = await import("@/app/[locale]/(protected)/inbox/actions");
-  const workspace = await import("@/app/[locale]/(protected)/settings/(workspace)/actions");
-  const account = await import("@/app/[locale]/(protected)/settings/(account)/actions");
-  const channels = await import("@/app/[locale]/(protected)/settings/(account)/channels/actions");
-  const records = await import("@/app/[locale]/(protected)/records/actions");
-  const search = await import("@/app/[locale]/(protected)/search/actions");
+  const dashboard = await import("@/app/[locale]/(protected)/w/[workspace]/dashboard/actions");
+  const routines = await import("@/app/[locale]/(protected)/w/[workspace]/routines/actions");
+  const trash = await import("@/app/[locale]/(protected)/w/[workspace]/trash/actions");
+  const inbox = await import("@/app/[locale]/(protected)/w/[workspace]/inbox/actions");
+  const workspace = await import("@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/actions");
+  const account = await import("@/app/[locale]/(protected)/w/[workspace]/settings/(account)/actions");
+  const channels = await import("@/app/[locale]/(protected)/w/[workspace]/settings/(account)/channels/actions");
+  const records = await import("@/app/[locale]/(protected)/w/[workspace]/records/actions");
+  const search = await import("@/app/[locale]/(protected)/w/[workspace]/search/actions");
   const agentChat = await import("@/app/components/agent-chat/actions");
-  const wiki = await import("@/app/[locale]/(protected)/wiki/actions");
+  const wiki = await import("@/app/[locale]/(protected)/w/[workspace]/wiki/actions");
   const setup = await import("@/app/[locale]/(protected)/onboarding/wizard/workspace-setup-actions");
   const id = randomUUID();
 
@@ -106,10 +107,10 @@ describeDatabase("member-facing server actions in a tab whose workspace is gone"
     authUserIds.push(authUserId);
     companyIds.push(companyId);
 
-    await client.query('INSERT INTO "Company" ("id", "name", "updatedAt") VALUES ($1, $2, CURRENT_TIMESTAMP)', [
-      companyId,
-      name,
-    ]);
+    const company = await client.query<{ slug: string }>(
+      'INSERT INTO "Company" ("id", "name", "updatedAt") VALUES ($1, $2, CURRENT_TIMESTAMP) RETURNING "slug"',
+      [companyId, name],
+    );
     await client.query(
       'INSERT INTO "Subscription" ("id", "companyId", "status", "updatedAt") VALUES ($1, $2, \'active\', CURRENT_TIMESTAMP)',
       [randomUUID(), companyId],
@@ -135,11 +136,11 @@ describeDatabase("member-facing server actions in a tab whose workspace is gone"
 
     const token = randomUUID().replaceAll("-", "");
     await client.query(
-      'INSERT INTO "AuthSession" ("id", "token", "userId", "expiresAt", "activeCompanyId", "updatedAt") VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)',
-      [randomUUID(), token, authUserId, new Date(Date.now() + 60 * 60 * 1000), companyId],
+      'INSERT INTO "AuthSession" ("id", "token", "userId", "expiresAt", "updatedAt") VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)',
+      [randomUUID(), token, authUserId, new Date(Date.now() + 60 * 60 * 1000)],
     );
     const cookie = (await serializeSignedCookie("app.session_token", token, secret)).split(";")[0];
-    return { authUserId, email, companyId, userId, cookie };
+    return { authUserId, email, companyId, userId, cookie, slug: company.rows[0].slug };
   }
 
   async function expectEveryActionRefused(login: Login, codes: readonly string[]) {
@@ -147,7 +148,7 @@ describeDatabase("member-facing server actions in a tab whose workspace is gone"
     const actions = await memberFacingActions();
 
     for (const [name, call] of Object.entries(actions)) {
-      requestContext.headers = new Headers({ cookie: login.cookie, ...SERVER_ACTION });
+      requestContext.headers = new Headers({ cookie: login.cookie, ...SERVER_ACTION, [WORKSPACE_HEADER]: login.slug });
       const settled = await call().then(
         (result) => ({ resolved: true as const, result }),
         (error: unknown) => ({ resolved: false as const, error }),

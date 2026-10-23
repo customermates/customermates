@@ -5,6 +5,7 @@ import type { Locator, Page } from "@playwright/test";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { RoleApiMutationResultSchema } from "../../features/role/role-management.schema";
 import { presetId } from "../../features/records/crm-preset";
+import { companyPath } from "./app-paths";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { postOk } from "./api";
 import { secondUser } from "./second-user";
@@ -28,7 +29,7 @@ test("renders every record detail field in the input box and explains calculated
   const errors = collectPageErrors(page);
   const typeId = (key: string) => presetId(companyId, key);
   const dialogs = page.getByRole("dialog");
-  await page.goto(`/en/records/${typeId("deal")}`);
+  await page.goto(companyPath(companyId, `/records/${typeId("deal")}`));
   await page.locator("#records-add").click();
   await dialogs.getByRole("textbox", { name: "Name", exact: false }).fill("Boxed opportunity");
   await dialogs.getByRole("button", { name: "Save", exact: true }).click();
@@ -37,7 +38,7 @@ test("renders every record detail field in the input box and explains calculated
     'SELECT id FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 AND "deletedAt" IS NULL ORDER BY "createdAt" DESC LIMIT 1',
     [companyId, typeId("deal")],
   );
-  await page.goto(`/en/records/${typeId("deal")}/${created.rows[0].id}`);
+  await page.goto(companyPath(companyId, `/records/${typeId("deal")}/${created.rows[0].id}`));
   const recordUrl = page.url();
   const main = page.getByRole("main");
   await showOverview(main);

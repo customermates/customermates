@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 
 import { RecordModelSchema } from "../../features/records/record-model.schema";
+import { companyPath } from "./app-paths";
 import { expect, test, collectPageErrors } from "./fixtures";
 import { readModel } from "./api";
 
@@ -56,7 +57,7 @@ test("Fit view includes all 128 lists on desktop and phone", async ({
     model.revision,
   ]);
 
-  await page.goto("/en/configure");
+  await page.goto(companyPath(companyId, "/configure"));
   for (const width of [1440, 390])
     for (const theme of ["light", "dark"] as const) {
       await database.query('UPDATE "User" SET theme=$1 WHERE id=$2', [theme, workspace.userId]);

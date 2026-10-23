@@ -6,7 +6,8 @@ import { calculationChip, calculationFlow, chooseValueSource, pickOption } from 
 import { expect, test, collectPageErrors } from "./fixtures";
 import { readModel } from "./api";
 import { e2eAppMode } from "./workspace-switching";
-import { recordItem, openRecordDetails } from "./record-rows";
+import { recordItem, openRecordDetails, openRecordLink } from "./record-rows";
+import { companyPath, pagePath } from "./app-paths";
 
 async function applyConfiguration(page: Page) {
   await saveDrawer(page);
@@ -28,7 +29,7 @@ async function openSidebarLink(page: Page, id: string) {
 
 async function openRecordList(page: Page, typeId: string) {
   await openSidebarLink(page, `nav-records:${typeId}`);
-  await expect.poll(() => new URL(page.url()).pathname).toBe(`/en/records/${typeId}`);
+  await expect.poll(() => new URL(page.url()).pathname).toBe(pagePath(page, `/records/${typeId}`));
   await expect(page.locator("#records-add")).toBeEnabled();
 }
 
@@ -278,7 +279,7 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
 
   await test.step("select Weighted value in the unified builder and persist its exact measure", async () => {
     await openSidebarLink(page, "nav-dashboard");
-    await expect.poll(() => new URL(page.url()).pathname).toBe("/en/dashboard");
+    await expect.poll(() => new URL(page.url()).pathname).toBe(companyPath(companyId, "/dashboard"));
     await page.locator("#dashboard-add-widget").click();
     await dialog.locator("#widget-starter-verticalBarChart").click();
     await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Configured weighted pipeline");
@@ -294,7 +295,7 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
     await expect(dialog.getByRole("tab", { name: "Appearance", exact: true })).toBeVisible();
     await dialog.getByRole("textbox", { name: "Name", exact: false }).scrollIntoViewIfNeeded();
     await page.screenshot({ path: testInfo.outputPath("weighted-widget-editor-settings.png"), animations: "disabled" });
-    await expect(dialog.getByText("Overall: €2,400.00", { exact: true })).toBeVisible();
+    await expect(dialog.getByText("Overall: €2,400", { exact: true })).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath("weighted-widget-editor-preview.png"), animations: "disabled" });
     await dialog.locator("#widget-modal-save").click();
     await expect(dialog).not.toBeVisible();
@@ -307,9 +308,9 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
       groupBy: null,
     });
     const widget = page.locator('[data-uid="app-card"]').filter({ has: page.getByRole("heading", { name: "Configured weighted pipeline", exact: true }) });
-    await expect(widget.getByText("Overall: €2,400.00", { exact: true })).toBeVisible();
+    await expect(widget.getByText("Overall: €2,400", { exact: true })).toBeVisible();
     await page.reload();
-    await expect(widget.getByText("Overall: €2,400.00", { exact: true })).toBeVisible();
+    await expect(widget.getByText("Overall: €2,400", { exact: true })).toBeVisible();
     await widget.screenshot({ path: testInfo.outputPath("configured-weighted-widget.png"), animations: "disabled" });
     await expect.poll(dealValues).toEqual({ "Configured opportunity/Value": money("4000"), "Configured opportunity/Weighted value": money("2400") });
   });

@@ -11,10 +11,10 @@ const mocks = vi.hoisted(() => ({
   getRecordEditorAction: vi.fn(),
   getRecordNavigationAction: vi.fn(),
 }));
-vi.mock("@/app/[locale]/(protected)/records/actions", () => mocks);
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/records/actions", () => mocks);
 
 import { RecordWorkspaceStore } from "../record-workspace.store";
-import { RecordEditorStore } from "@/app/[locale]/(protected)/records/[typeId]/components/record-editor.store";
+import { RecordEditorStore } from "@/app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-editor.store";
 import type { RecordDto } from "@/features/records/record-model.schema";
 import type { RecordEditorResult } from "@/features/records/get-record-editor.interactor";
 import { NavigationGuardController } from "../navigation-guard.controller";

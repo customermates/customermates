@@ -153,7 +153,9 @@ describe("BrowserFrame", () => {
     setIntersection(true);
     const frame = host.querySelector("iframe");
     expect(frame?.getAttribute("loading")).toBe("lazy");
-    expect(frame?.getAttribute("src")).toBe("https://demo.customermates.com/en/dashboard?agentChat=closed");
+    expect(frame?.getAttribute("src")).toBe(
+      "https://demo.customermates.com/en/w/small-business/dashboard?agentChat=closed",
+    );
     expect(observer.disconnect).toHaveBeenCalledOnce();
   });
 
@@ -169,5 +171,49 @@ describe("BrowserFrame", () => {
 
     setIntersection(true);
     expect(host.querySelector("iframe")?.getAttribute("loading")).toBe("eager");
+  });
+
+  it("shows the solution capture first, then cross-fades into the solution workspace once the frame loads", () => {
+    vi.useFakeTimers();
+    try {
+      const host = mount(<ProductDemo path="/dashboard" solutionId="agencies" />);
+      const poster = host.querySelector<HTMLElement>("[data-browser-frame-poster]");
+
+      expect(host.querySelector('[data-product-demo-solution="agencies"]')).not.toBeNull();
+      expect(poster?.classList.contains("opacity-100")).toBe(true);
+      expect(poster?.querySelectorAll("img")).toHaveLength(2);
+      expect(poster?.querySelector('[data-browser-frame-poster-theme="dark"]')?.className).toContain("not-dark:hidden");
+      expect(host.querySelector(".animate-pulse")).toBeNull();
+      expect(host.querySelector("iframe")).toBeNull();
+
+      setIntersection(true);
+      const frame = host.querySelector("iframe");
+      expect(frame?.getAttribute("src")).toBe(
+        "https://demo.customermates.com/en/w/agencies/dashboard?agentChat=closed",
+      );
+      expect(frame?.getAttribute("sandbox")).toBe("allow-scripts allow-same-origin allow-popups allow-forms");
+      expect(frame?.getAttribute("loading")).toBe("lazy");
+
+      act(() => {
+        frame?.dispatchEvent(new Event("load"));
+        vi.advanceTimersByTime(500);
+      });
+      expect(frame?.classList.contains("opacity-100")).toBe(true);
+      expect(poster?.classList.contains("opacity-0")).toBe(true);
+      expect(poster?.getAttribute("aria-hidden")).toBe("true");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("keeps the capture visible behind the hosted-demo link on a self-hosted instance", () => {
+    appEnv.APP_MODE = "self-hosted";
+    const host = mount(<ProductDemo path="/dashboard" solutionId="smb" />);
+
+    expect(host.querySelector("iframe")).toBeNull();
+    expect(host.querySelector("[data-browser-frame-poster]")?.classList.contains("opacity-100")).toBe(true);
+    expect(host.querySelector<HTMLAnchorElement>('a[target="_blank"]')?.href).toBe(
+      "https://demo.customermates.com/en/w/small-business/dashboard?agentChat=closed",
+    );
   });
 });

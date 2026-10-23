@@ -13,6 +13,9 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 
 import { GetWikiCatalogInteractor } from "../get-wiki-catalog.interactor";
 import { wikiExcerpt, wikiPlainText } from "../wiki-content";
+import { WorkspaceSlugResolver } from "@/features/workspace/workspace-slug-resolver";
+
+const slugs = () => new WorkspaceSlugResolver({ findWorkspaceSlugUnscoped: () => Promise.resolve("acme") });
 
 const id = "00000000-0000-4000-8000-000000000001";
 const page = {
@@ -48,7 +51,7 @@ describe("GetWikiCatalogInteractor", () => {
       listCatalogPages: vi.fn().mockResolvedValue({ items: [page], total: 11 }),
       loadOperatingPages: vi.fn().mockResolvedValue(NO_OPERATING_PAGES),
     };
-    const result = await new GetWikiCatalogInteractor(repo).invoke({ page: 1 });
+    const result = await new GetWikiCatalogInteractor(repo, slugs()).invoke({ page: 1 });
     expect(result).toEqual({
       ok: true,
       data: {
@@ -59,7 +62,7 @@ describe("GetWikiCatalogInteractor", () => {
             id,
             title: page.title,
             excerpt: "Write clearly and helpfully.",
-            url: `http://localhost:4000/wiki?page=${id}`,
+            url: `http://localhost:4000/w/acme/wiki?page=${id}`,
             createdAt: page.createdAt,
             updatedAt: page.updatedAt,
           },
@@ -79,12 +82,12 @@ describe("GetWikiCatalogInteractor", () => {
       listCatalogPages: vi.fn().mockResolvedValue({ items: [], total: 0 }),
       loadOperatingPages: vi.fn().mockResolvedValue(NO_OPERATING_PAGES),
     };
-    expect(await new GetWikiCatalogInteractor(repo).invoke({ page: 1 })).toMatchObject({
+    expect(await new GetWikiCatalogInteractor(repo, slugs()).invoke({ page: 1 })).toMatchObject({
       ok: true,
       data: { items: [], total: 0, nextPage: null, truncated: false },
     });
     repo.listCatalogPages.mockResolvedValue({ items: [page], total: 11 });
-    expect(await new GetWikiCatalogInteractor(repo).invoke({ page: 2 })).toMatchObject({
+    expect(await new GetWikiCatalogInteractor(repo, slugs()).invoke({ page: 2 })).toMatchObject({
       ok: true,
       data: { total: 11, page: 2, nextPage: null, truncated: false },
     });
@@ -95,7 +98,7 @@ describe("GetWikiCatalogInteractor", () => {
       listCatalogPages: vi.fn().mockResolvedValue({ items: [], total: 0 }),
       loadOperatingPages: vi.fn().mockResolvedValue(NO_OPERATING_PAGES),
     };
-    const interactor = new GetWikiCatalogInteractor(repo);
+    const interactor = new GetWikiCatalogInteractor(repo, slugs());
     await expect(
       runWithTenant(createMockUserWithPermissions([]), () => interactor.invoke({ page: 1 })),
     ).rejects.toBeInstanceOf(ForbiddenError);
@@ -119,7 +122,7 @@ describe("GetWikiCatalogInteractor", () => {
         proceduresTotal: 21,
       }),
     };
-    const first = await new GetWikiCatalogInteractor(repo).invoke({ page: 1 });
+    const first = await new GetWikiCatalogInteractor(repo, slugs()).invoke({ page: 1 });
     if (!first.ok) throw new Error("catalog failed");
     expect(repo.loadOperatingPages).toHaveBeenCalledWith(20);
     expect(first.data.guide?.title).toBe("Operating Guide");
@@ -131,7 +134,7 @@ describe("GetWikiCatalogInteractor", () => {
         {
           id,
           title: "Refunds",
-          url: `http://localhost:4000/wiki?page=${id}`,
+          url: `http://localhost:4000/w/acme/wiki?page=${id}`,
           whenToUse: "Use when a customer wants money back.",
         },
       ],
@@ -140,7 +143,7 @@ describe("GetWikiCatalogInteractor", () => {
     });
 
     repo.loadOperatingPages.mockClear();
-    const second = await new GetWikiCatalogInteractor(repo).invoke({ page: 2 });
+    const second = await new GetWikiCatalogInteractor(repo, slugs()).invoke({ page: 2 });
     expect(repo.loadOperatingPages).not.toHaveBeenCalled();
     expect(second).toMatchObject({ ok: true });
     expect(second.ok && "guide" in second.data).toBe(false);
@@ -151,7 +154,7 @@ describe("GetWikiCatalogInteractor", () => {
       listCatalogPages: vi.fn(),
       loadOperatingPages: vi.fn(),
     };
-    expect(await new GetWikiCatalogInteractor(repo).invoke({ page: 0 })).toMatchObject({ ok: false });
+    expect(await new GetWikiCatalogInteractor(repo, slugs()).invoke({ page: 0 })).toMatchObject({ ok: false });
     expect(repo.listCatalogPages).not.toHaveBeenCalled();
   });
 });

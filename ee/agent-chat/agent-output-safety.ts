@@ -3,6 +3,7 @@ import { SURFACE } from "@/core/data-view/data-view-keys";
 import { dataViewNavigationHref, dataViewNavigationRanges } from "@/core/data-view/data-view-links";
 import { DATA_VIEW_PATHS, isRecordTimelinePath } from "@/core/data-view/data-view-paths";
 import { findWikiPageHrefRanges, parseWikiPageHref } from "@/features/wiki/wiki-links";
+import { WORKSPACE_APP_ROOTS, isWorkspaceSlugSegment } from "@/core/navigation/workspace-paths";
 import { APP_LOCALES, ROUTING_LOCALES } from "@/i18n/locale-registry";
 
 import { parse, postprocess, preprocess } from "micromark";
@@ -14,7 +15,7 @@ const INTERNAL_DETAILS = "[internal details]";
 const WIKI_LOCALE_SOURCE = ROUTING_LOCALES.map((locale) => locale.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
 const WIKI_LOCALE_PATH_SOURCE = WIKI_LOCALE_SOURCE ? `(?:(?:${WIKI_LOCALE_SOURCE})\/)?` : "";
 const WIKI_URL_TOKEN_PATTERN = new RegExp(`(?:^|\\s)\\S*\\/${WIKI_LOCALE_PATH_SOURCE}wiki\\?page=\\S*`, "gi");
-const WIKI_TO_LINK_PATTERN = /\]\(to:(\/(?:[a-z]{2}\/)?wiki\?page=[^)]+)\)/giu;
+const WIKI_TO_LINK_PATTERN = /\]\(to:(\/(?:[a-z]{2}\/)?(?:w\/[a-z0-9-]+\/)?wiki\?page=[^)]+)\)/giu;
 
 const UUID_PATTERN = /(^|[^0-9a-f])([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})(?=$|[^0-9a-f])/gi;
 const PARTIAL_UUID_PATTERN = /(^|[^0-9a-f])([0-9a-f]{8}-(?:[0-9a-f]{0,4}(?:-[0-9a-f]{0,4}){0,3})?)$/gi;
@@ -477,8 +478,35 @@ function canonicalizeSameOriginDataViewLinks(value: string, origin?: string) {
     );
 }
 
+function unboundWikiPageHref(href: string, wikiBaseUrl?: string) {
+  const target = parseWikiPageHref(href, wikiBaseUrl);
+  return target && target.slug === null ? target : null;
+}
+
+function originOf(value: string | undefined) {
+  if (!value) return null;
+  try {
+    return new URL(value).origin;
+  } catch {
+    return null;
+  }
+}
+
+const WORKSPACE_ROOT_SOURCE = WORKSPACE_APP_ROOTS.map((root) => escapePattern(root.slice(1))).join("|");
+
+function withoutBoundWorkspacePrefix(value: string, workspaceSlug: string | null | undefined, baseUrls: string[]) {
+  if (!isWorkspaceSlugSegment(workspaceSlug) || !value.includes(`w/${workspaceSlug}/`)) return value;
+  const origins = baseUrls.map(originOf).filter((origin): origin is string => origin !== null);
+  const before = ["(?:^|[\\s(\\[<\"'\\x60:])", ...origins.map(escapePattern)].join("|");
+  const pattern = new RegExp(
+    `(?<=(?:${before})/${LOCALE_PREFIX_SOURCE})w/${escapePattern(workspaceSlug)}/(?=(?:${WORKSPACE_ROOT_SOURCE})(?:[/?#\\s)\\]>"'\\x60]|$))`,
+    "g",
+  );
+  return value.replace(pattern, "");
+}
+
 function replaceUuid(value: string, wikiBaseUrl?: string) {
-  const pageLinks = findWikiPageHrefRanges(value, wikiBaseUrl);
+  const pageLinks = findWikiPageHrefRanges(value, wikiBaseUrl).filter((link) => link.slug === null);
   return value.replace(UUID_PATTERN, (match, prefix: string, id: string, offset: number) => {
     const idStart = offset + prefix.length;
     const idEnd = idStart + id.length;
@@ -490,7 +518,7 @@ function replaceUuid(value: string, wikiBaseUrl?: string) {
 
 function normalizeWikiLinkAliases(value: string, wikiBaseUrl?: string) {
   return value.replace(WIKI_TO_LINK_PATTERN, (match, href: string) => {
-    const target = parseWikiPageHref(href, wikiBaseUrl);
+    const target = unboundWikiPageHref(href, wikiBaseUrl);
     return target ? `](${target.path})` : match;
   });
 }
@@ -537,7 +565,7 @@ function replaceUuidOutsideRecordPageLinks(value: string, wikiBaseUrl?: string) 
     visible += replaceUuid(value.slice(copiedUntil, link.start), wikiBaseUrl);
     if (link.type === "link" && RECORD_PAGE_ROUTE_PATTERN.test(decodedDestination))
       visible += `${replaceUuid(value.slice(link.start, link.destination.start), wikiBaseUrl)}${destination}${replaceUuid(value.slice(link.destination.end, link.end), wikiBaseUrl)}`;
-    else if (link.type === "link" && parseWikiPageHref(decodedDestination, wikiBaseUrl))
+    else if (link.type === "link" && unboundWikiPageHref(decodedDestination, wikiBaseUrl))
       visible += replaceUuid(value.slice(link.start, link.end), wikiBaseUrl);
     else visible += replaceUuid(link.text ? value.slice(link.text.start, link.text.end) : "", wikiBaseUrl);
     copiedUntil = link.end;
@@ -858,19 +886,24 @@ function plainLinkLabel(value: string) {
   return sanitizeTextFragment(plainLabel).replace(/[<>]/g, "");
 }
 
-function sanitizeVisibleText(value: string, appBaseUrl?: string, wikiBaseUrl?: string) {
-  const canonicalValue = canonicalizeSameOriginDataViewLinks(value, appBaseUrl);
+function sanitizeVisibleText(value: string, appBaseUrl?: string, wikiBaseUrl?: string, workspaceSlug?: string | null) {
+  const boundValue = withoutBoundWorkspacePrefix(
+    value,
+    workspaceSlug,
+    [appBaseUrl, wikiBaseUrl].filter((url): url is string => Boolean(url)),
+  );
+  const canonicalValue = canonicalizeSameOriginDataViewLinks(boundValue, appBaseUrl);
   const withoutPreviouslyRedactedLinks = unwrapAlreadyRedactedDataViewLinks(canonicalValue, appBaseUrl);
   const withoutModelAuthoredLinks = unwrapModelAuthoredDataViewLinks(withoutPreviouslyRedactedLinks);
   return neutralizeBareModelAuthoredDataViewUrls(sanitizeTextFragment(withoutModelAuthoredLinks, wikiBaseUrl));
 }
 
-export function sanitizeAgentVisibleText(value: string, wikiBaseUrl?: string) {
-  return sanitizeVisibleText(value, undefined, wikiBaseUrl);
+export function sanitizeAgentVisibleText(value: string, wikiBaseUrl?: string, workspaceSlug?: string | null) {
+  return sanitizeVisibleText(value, undefined, wikiBaseUrl, workspaceSlug);
 }
 
-export function sanitizeAgentVisibleTextForApp(value: string, appBaseUrl: string) {
-  return sanitizeVisibleText(value, appBaseUrl, appBaseUrl);
+export function sanitizeAgentVisibleTextForApp(value: string, appBaseUrl: string, workspaceSlug?: string | null) {
+  return sanitizeVisibleText(value, appBaseUrl, appBaseUrl, workspaceSlug);
 }
 
 export function sanitizeAgentPlainText(value: string) {
@@ -914,7 +947,10 @@ export class AgentVisibleTextStreamSanitizer {
   private finished = false;
   private toolProtocolRemoved = false;
 
-  constructor(private readonly appBaseUrl?: string) {}
+  constructor(
+    private readonly appBaseUrl?: string,
+    private readonly workspaceSlug?: string | null,
+  ) {}
 
   get removedToolProtocol() {
     return this.toolProtocolRemoved;
@@ -926,7 +962,12 @@ export class AgentVisibleTextStreamSanitizer {
 
     const protocolStart = toolProtocolStart(this.buffer);
     if (protocolStart !== null) {
-      const visible = sanitizeVisibleText(this.buffer.slice(0, protocolStart), this.appBaseUrl, this.appBaseUrl);
+      const visible = sanitizeVisibleText(
+        this.buffer.slice(0, protocolStart),
+        this.appBaseUrl,
+        this.appBaseUrl,
+        this.workspaceSlug,
+      );
       this.buffer = "";
       this.toolProtocolRemoved = true;
       return visible;
@@ -942,7 +983,12 @@ export class AgentVisibleTextStreamSanitizer {
       Math.min(requestedEnd, unsafeStart ?? this.buffer.length),
       this.appBaseUrl,
     );
-    const visible = sanitizeVisibleText(this.buffer.slice(0, safeEnd), this.appBaseUrl, this.appBaseUrl);
+    const visible = sanitizeVisibleText(
+      this.buffer.slice(0, safeEnd),
+      this.appBaseUrl,
+      this.appBaseUrl,
+      this.workspaceSlug,
+    );
     this.buffer = this.buffer.slice(safeEnd);
     return visible;
   }
@@ -953,13 +999,18 @@ export class AgentVisibleTextStreamSanitizer {
 
     const protocolStart = toolProtocolStart(this.buffer);
     if (protocolStart !== null) {
-      const visible = sanitizeVisibleText(this.buffer.slice(0, protocolStart), this.appBaseUrl, this.appBaseUrl);
+      const visible = sanitizeVisibleText(
+        this.buffer.slice(0, protocolStart),
+        this.appBaseUrl,
+        this.appBaseUrl,
+        this.workspaceSlug,
+      );
       this.buffer = "";
       this.toolProtocolRemoved = true;
       return visible;
     }
 
-    const visible = sanitizeVisibleText(this.buffer, this.appBaseUrl, this.appBaseUrl);
+    const visible = sanitizeVisibleText(this.buffer, this.appBaseUrl, this.appBaseUrl, this.workspaceSlug);
     this.buffer = "";
     return visible;
   }

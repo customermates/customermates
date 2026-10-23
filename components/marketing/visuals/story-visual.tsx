@@ -4,6 +4,8 @@ import { Send } from "lucide-react";
 import { cn } from "@/core/utils/cn";
 import type { ContentLocale } from "@/i18n/locale-registry";
 
+import { contentLocaleOrDefault } from "@/i18n/locale-registry";
+
 import {
   VISUAL_PERSON_FIXTURES,
   VISUAL_PROVIDER_FIXTURES,
@@ -593,7 +595,11 @@ function FocusVisual({ brief, placement }: Pick<GoldenStoryVisualProps, "brief" 
     <>
       <AmbientField placement={placement} />
 
-      <ContextPlane locale={brief.locale} placement={placement} subjects={brief.supportingSubjects} />
+      <ContextPlane
+        locale={contentLocaleOrDefault(brief.locale)}
+        placement={placement}
+        subjects={brief.supportingSubjects}
+      />
 
       <FocalPlane className={FOCUS_FOCAL_POSITION[placement]}>
         <div className="relative">
@@ -603,7 +609,7 @@ function FocusVisual({ brief, placement }: Pick<GoldenStoryVisualProps, "brief" 
 
           <SignalArtifact
             label={brief.focalLabel?.text}
-            locale={brief.locale}
+            locale={contentLocaleOrDefault(brief.locale)}
             placement={placement}
             record={record}
             status={status}

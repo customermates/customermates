@@ -1293,7 +1293,7 @@
       "wikiProposalReviewed": "Someone already reviewed this proposal.",
       "wikiProposalStale": "The page changed after Mate made this proposal. Reject the proposal, or ask Mate to propose the change again.",
       "wikiWhenToUseRequired": "A procedure needs a short description of when to use it.",
-      "workspaceChanged": "Your workspace changed in another tab or on another device. Reload the page before you continue.",
+      "workspaceChanged": "This workspace is not available any more. It was deleted, its URL changed or your access was removed.",
       "workspaceCreationUnavailable": "New workspaces cannot be created here.",
       "workspaceDeleteAdminRequired": "Only an admin can delete this workspace.",
       "workspaceDeleteBillingActive": "This workspace still has a subscription that can be billed or resumed. Cancel it and wait until it ends, or contact support.",
@@ -1315,7 +1315,8 @@
       "workspaceSetupAnswerInvalid": "This answer does not fit the question. Check it and try again.",
       "workspaceSetupConflict": "The workspace setup is busy with another step. Reload it and try again.",
       "workspaceSetupNotFound": "No workspace setup was found for this workspace.",
-      "workspaceSetupUnavailable": "The AI workspace setup is not available here."
+      "workspaceSetupUnavailable": "The AI workspace setup is not available here.",
+      "workspaceSlugTaken": "Another workspace already uses this URL. Choose a different one."
     },
     "events": {
       "connected_account": {
@@ -1704,6 +1705,7 @@
       "light": "Light",
       "system": "System"
     },
+    "unlimited": "unlimited",
     "unnamed": "Unnamed",
     "unsavedChanges": "Unsaved changes",
     "updatedOn": "Updated {date}",
@@ -2447,6 +2449,11 @@
     "sendCta": "Send reset link",
     "title": "Forgot password"
   },
+  "ForHub": {
+    "allGuides": "All industry guides",
+    "byTeam": "By team",
+    "byWorkflow": "By workflow"
+  },
   "GlobalSearch": {
     "askMateWith": "Ask Mate: {question}",
     "emptyDescription": "Find records across the lists you can access.",
@@ -2465,7 +2472,7 @@
       "badge": "Popular",
       "compareText": "Compare plans",
       "ctaText": "Start free",
-      "featureBusiness": "Business: {accounts, plural, one {# account per user} other {# accounts per user}}, shared accounts & priority support",
+      "featureBusiness": "Business: {accounts, plural, one {# account per user} other {# accounts per user}}, whole-account inbox sharing & priority support",
       "featurePro": "Pro: unified inbox, {accounts, plural, one {# connected account per user} other {# connected accounts per user}}",
       "featureStarter": "Starter: the core CRM",
       "period": "/ user / month",
@@ -2489,7 +2496,7 @@
       "featureUsers": "Workspace users",
       "period": "under AGPL",
       "price": "Free core",
-      "tag": "Run the AGPL core app and PostgreSQL on your server with Docker Compose at Starter scope. External services stay separate.",
+      "tag": "Run the AGPL core app and PostgreSQL on your server with Docker Compose at Starter scope, without the inbox and hosted AI. External services stay separate.",
       "title": "Self-Hosted"
     },
     "subtitle": "Transparent tiers, no hidden costs. Self-host the AGPL core for free; external services stay separate. Or start on Cloud with no credit card.",
@@ -2876,6 +2883,9 @@
       "allSolutions": "All solutions",
       "articlesAndGuides": "Articles and guides",
       "blog": "Blog",
+      "byTeam": "By team",
+      "byWorkflow": "By workflow",
+      "clientManagement": "Client management",
       "cloudCrm": "Cloud CRM",
       "compare": "Comparisons",
       "consultants": "Consultants",
@@ -2883,9 +2893,10 @@
       "emailAndGmail": "Email and Gmail",
       "freelancers": "Freelancers",
       "integrations": "Integrations",
-      "lawFirms": "Law firms",
+      "linkedinCrm": "LinkedIn CRM",
       "mcp": "MCP",
       "n8n": "n8n automation",
+      "openExampleWorkspace": "Open this example workspace",
       "openSourceCrm": "Open-source CRM",
       "pipeline": "Sales pipeline",
       "primaryNavigation": "Primary navigation",
@@ -2905,15 +2916,26 @@
       "providerSlack": "Slack",
       "providerTelegram": "Telegram",
       "providerWhatsApp": "WhatsApp",
-      "recruiting": "Recruiting",
       "resources": "Resources",
       "salesTracking": "Sales tracking",
       "selfHosted": "Self-hosted CRM",
       "smallBusiness": "Small business",
       "solutions": "Solutions",
+      "solutionSummaries": {
+        "agencies": "Pitches, projects and retainers",
+        "clientManagement": "Each client with contacts and contracts",
+        "consultants": "Engagements from first call to proposal",
+        "freelancers": "Clients, projects and next steps",
+        "linkedinCrm": "LinkedIn conversations linked to deals",
+        "salesPipeline": "Deals by stage with value and next steps",
+        "smallBusiness": "Customers, deals and follow-ups",
+        "startups": "Founder-led sales from lead to close",
+        "whatsappCrm": "WhatsApp chats matched to customers"
+      },
       "startups": "Startups",
       "taskManagement": "Task management",
-      "unifiedInbox": "Unified inbox"
+      "unifiedInbox": "Unified inbox",
+      "whatsappCrm": "WhatsApp CRM"
     },
     "routines": "Routines",
     "search": "Search",
@@ -3063,11 +3085,6 @@
         "email": "Send emails",
         "link": "Share link"
       }
-    },
-    "linkedWorkspace": {
-      "description": "This link opens the setup of {workspace}. You are working in another workspace right now; switching applies to all your open tabs.",
-      "switch": "Switch workspace",
-      "title": "Continue in {workspace}"
     },
     "milestones": {
       "ai": "AI tools",
@@ -4869,17 +4886,17 @@
     "nameDescription": "Everyone in this workspace sees this name in the workspace menu.",
     "nameLabel": "Workspace name",
     "noPlan": "No plan",
-    "otherTab": {
-      "description": "This tab still shows {current}. Reload it so nothing is saved to the wrong workspace.",
-      "reload": "Reload",
-      "title": "You switched workspaces in another tab",
-      "titleChanged": "Your workspace changed",
-      "titleDeleted": "This workspace was deleted",
-      "titleNamed": "You switched to {name} in another tab"
-    },
     "renameReadOnly": "Only members who can manage the workspace can change its name.",
+    "slugDescription": "Links to this workspace use {path}. Use lowercase letters, numbers and hyphens. Old links stop working when you change it.",
+    "slugLabel": "Workspace URL",
+    "slugReadOnly": "Links to this workspace use {path}. Only members who can manage the workspace can change it.",
     "switch": "Switch",
     "switchTo": "Switch to {name}",
+    "unavailable": {
+      "description": "It was deleted, its URL changed or your access was removed. Go to your dashboard to continue.",
+      "open": "Go to dashboard",
+      "title": "This workspace is not available"
+    },
     "unnamedCreated": "{name} (created {date})",
     "unnamedPrompt": {
       "description": "It has no name yet, so the workspace menu only shows \"Workspace\". A name helps every member tell your workspaces apart.",

@@ -6,6 +6,7 @@ import type {
   RecordDto,
   RecordField,
   RecordFieldView,
+  RecordModel,
   RecordRelationship,
   RecordScalar,
   RecordType,
@@ -139,6 +140,7 @@ export function recordFilterableFields(
 export function recordDefaults(
   typeId: string,
   fields: RecordFieldView[],
+  capabilities: RecordModel["capabilities"] = [],
   primaryFieldId?: string | null,
 ): DataViewState {
   const columnOrder = fields.filter((field) => field.typeId === typeId && !field.archived).map((field) => field.id);
@@ -147,7 +149,7 @@ export function recordDefaults(
       primaryFieldId && columnOrder.includes(primaryFieldId)
         ? [primaryFieldId, ...columnOrder.filter((id) => id !== primaryFieldId)]
         : columnOrder,
-    hiddenColumns: defaultHiddenColumns(typeId, fields),
+    hiddenColumns: defaultHiddenColumns(typeId, fields, capabilities),
     viewMode: ViewMode.table,
     grouping: null,
     sortDescriptor: null,

@@ -1,4 +1,10 @@
-import type { RecordField, RecordRelationship, RecordModelView, RecordFieldView } from "./record-model.schema";
+import type {
+  RecordField,
+  RecordModel,
+  RecordRelationship,
+  RecordModelView,
+  RecordFieldView,
+} from "./record-model.schema";
 
 import type { RecordSystemColumnSchema } from "./record-column.schema";
 import { relationshipColumnKey, relationshipPathColumnKey } from "./record-column.schema";
@@ -33,9 +39,19 @@ export type RecordColumn<F extends RecordFieldView = RecordField> =
 export function defaultHiddenColumns(
   typeId: string,
   fields: Pick<RecordFieldView, "id" | "typeId" | "archived" | "valueType">[],
+  capabilities: RecordModel["capabilities"] = [],
 ): string[] {
+  const images = new Set(
+    capabilities
+      .filter((capability) => capability.kind === "avatar" && capability.typeId === typeId)
+      .flatMap((capability) =>
+        capability.fields.filter((field) => field.role === "image").map((field) => field.fieldId),
+      ),
+  );
   return fields
-    .filter((field) => field.typeId === typeId && !field.archived && field.valueType === "richText")
+    .filter(
+      (field) => field.typeId === typeId && !field.archived && (field.valueType === "richText" || images.has(field.id)),
+    )
     .map((field) => field.id);
 }
 

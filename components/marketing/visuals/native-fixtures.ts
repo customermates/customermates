@@ -208,11 +208,6 @@ export const NATIVE_VISUAL_FIXTURE_SOURCES = [
   "components/ui/badge.tsx",
   "ee/messaging/connect/connect-channels.ts",
   "prisma/seeds/avatars.ts",
-  "prisma/seeds/custom-fields.ts",
-  "prisma/seeds/deals.ts",
   "prisma/seeds/members.ts",
   "prisma/seeds/messaging/fixtures.ts",
-  "prisma/seeds/organizations.ts",
-  "prisma/seeds/relationships.ts",
-  "prisma/seeds/services.ts",
 ] as const;

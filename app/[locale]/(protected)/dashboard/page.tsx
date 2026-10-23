@@ -1,28 +1,38 @@
-import { DashboardPageView } from "./components/dashboard-page-view";
+import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
 
-import { PageContainer } from "@/components/shared/page-container";
-import { SURFACE } from "@/core/data-view/data-view-keys";
-import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
-import { getDiscoverRecordTypesInteractor, getGetWidgetsInteractor } from "@/core/di";
+import { demoDefaultWorkspaceSlug } from "@/core/solutions/solution-catalog";
+import {
+  WORKSPACE_ENTRY_TARGET_PARAM,
+  workspaceEntryTarget,
+  workspaceLocalePath,
+} from "@/core/navigation/workspace-paths";
+import { env } from "@/env";
+import { buildLocalePath } from "@/i18n/locale-registry";
 import { requireAccess } from "@/features/auth/next/require";
-import { unwrapPage } from "@/core/validation/next/unwrap-page";
+import { resolveRequestAccountState } from "@/features/auth/next/resolve-account-state";
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function DashboardPage({ searchParams }: Props) {
+function searchOf(params: Record<string, string | string[] | undefined>): string {
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(params))
+    for (const entry of Array.isArray(value) ? value : value === undefined ? [] : [value]) search.append(key, entry);
+
+  const serialized = search.toString();
+  return serialized ? `?${serialized}` : "";
+}
+
+export default async function WorkspaceEntryPage({ searchParams }: Props) {
   await requireAccess();
 
-  const params = await readSurfaceParams(SURFACE.dashboard, searchParams);
-  const [dashboard, recordTypes] = await Promise.all([
-    unwrapPage(getGetWidgetsInteractor().invoke({ viewId: params.viewId })),
-    unwrapPage(getDiscoverRecordTypesInteractor().invoke({ includeEmbedded: true, page: 1, pageSize: 25 })),
-  ]);
+  const { user } = await resolveRequestAccountState();
+  const locale = await getLocale();
+  const slug = env.APP_MODE === "demo" ? demoDefaultWorkspaceSlug(locale) : user?.company?.slug;
+  if (!slug) redirect(buildLocalePath(locale, "/onboarding"));
 
-  return (
-    <PageContainer padded={false}>
-      <DashboardPageView dashboard={dashboard} recordTypes={recordTypes} />
-    </PageContainer>
-  );
+  const { [WORKSPACE_ENTRY_TARGET_PARAM]: target, ...rest } = await searchParams;
+  redirect(`${workspaceLocalePath(locale, slug, workspaceEntryTarget(target))}${searchOf(rest)}`);
 }

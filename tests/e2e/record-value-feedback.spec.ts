@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
+import { companyPath } from "./app-paths";
 import { addFromConfigure, openConfigure, saveDrawer } from "./configure";
 import { test, expect } from "./fixtures";
 
@@ -30,7 +31,7 @@ test("marks invalid values on their field, normalises phone numbers and keeps ta
     await saveDrawer(page);
   }
 
-  await page.goto(`/en/records/${typeId}?viewMode=table`);
+  await page.goto(companyPath(companyId, `/records/${typeId}?viewMode=table`));
   const recordDrawer = page.getByRole("dialog", { name: "Organization", exact: true });
   await page.locator("#records-add").click();
   await recordDrawer.getByRole("textbox", { name: "Name", exact: false }).fill(name);

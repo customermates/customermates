@@ -32,7 +32,7 @@ import { initialsFor } from "@/core/utils/initials";
 import { workspaceListName } from "@/app/components/workspaces/workspace-identity";
 import { cn } from "@/core/utils/cn";
 import { runUserAction } from "@/core/errors/report-application-error";
-import { useRecordEditorDeletion } from "@/app/[locale]/(protected)/records/[typeId]/components/use-record-deletion";
+import { useRecordEditorDeletion } from "@/app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/use-record-deletion";
 import {
   bestCandidate,
   exactTitleMatch,

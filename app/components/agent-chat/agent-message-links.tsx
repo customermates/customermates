@@ -10,6 +10,7 @@ import { dataViewNavigationHref, dataViewNavigationRanges } from "@/core/data-vi
 import { AI_MANAGEABLE_DATA_VIEW_SURFACE_KEYS } from "@/core/data-view/ai-manageable-surfaces";
 import { DATA_VIEW_PATHS } from "@/core/data-view/data-view-paths";
 import { stripLocalePrefix } from "@/i18n/locale-registry";
+import { stripWorkspacePrefix } from "@/core/navigation/workspace-paths";
 
 type MarkdownNode = {
   type?: string;
@@ -31,7 +32,7 @@ function isLocalViewLikeHref(value: unknown) {
     const target = new URL(value, base);
     if (target.origin !== new URL(base).origin || target.username || target.password || target.hash) return false;
     if (!target.searchParams.has("view")) return false;
-    const pathname = stripLocalePrefix(target.pathname);
+    const pathname = stripWorkspacePrefix(stripLocalePrefix(target.pathname));
     const knownSurface = AI_MANAGEABLE_DATA_VIEW_SURFACE_KEYS.includes(
       target.searchParams.get("viewSurface") as (typeof AI_MANAGEABLE_DATA_VIEW_SURFACE_KEYS)[number],
     );

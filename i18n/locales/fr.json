@@ -1293,7 +1293,7 @@
       "wikiProposalReviewed": "Cette proposition a déjà été examinée.",
       "wikiProposalStale": "La page a changé après la proposition de Mate. Rejetez la proposition ou demandez à Mate de proposer à nouveau la modification.",
       "wikiWhenToUseRequired": "Une procédure doit indiquer brièvement quand l'utiliser.",
-      "workspaceChanged": "Votre espace de travail a changé dans un autre onglet ou sur un autre appareil. Rechargez la page avant de continuer.",
+      "workspaceChanged": "Cet espace de travail n'est plus disponible. Il a été supprimé, son URL a changé ou votre accès a été retiré.",
       "workspaceCreationUnavailable": "Impossible de créer de nouveaux espaces de travail ici.",
       "workspaceDeleteAdminRequired": "Seul un administrateur peut supprimer cet espace de travail.",
       "workspaceDeleteBillingActive": "Cet espace de travail a encore un abonnement qui peut être facturé ou repris. Résiliez-le et attendez qu'il prenne fin, ou contactez le support.",
@@ -1315,7 +1315,8 @@
       "workspaceSetupAnswerInvalid": "Cette réponse ne correspond pas à la question. Vérifiez-la et réessayez.",
       "workspaceSetupConflict": "La configuration de l'espace de travail est occupée par une autre étape. Rechargez-la et réessayez.",
       "workspaceSetupNotFound": "Aucune configuration n'a été trouvée pour cet espace de travail.",
-      "workspaceSetupUnavailable": "La configuration de l'espace de travail par l'IA n'est pas disponible ici."
+      "workspaceSetupUnavailable": "La configuration de l'espace de travail par l'IA n'est pas disponible ici.",
+      "workspaceSlugTaken": "Un autre espace de travail utilise déjà cette URL. Choisissez-en une autre."
     },
     "events": {
       "connected_account": {
@@ -1704,6 +1705,7 @@
       "light": "Clair",
       "system": "Système"
     },
+    "unlimited": "illimité",
     "unnamed": "Sans nom",
     "unsavedChanges": "Modifications non enregistrées",
     "updatedOn": "Mis à jour le {date}",
@@ -2447,6 +2449,11 @@
     "sendCta": "Envoyer le lien de réinitialisation",
     "title": "Mot de passe oublié"
   },
+  "ForHub": {
+    "allGuides": "Tous les guides par secteur",
+    "byTeam": "Par équipe",
+    "byWorkflow": "Par usage"
+  },
   "GlobalSearch": {
     "askMateWith": "Demander à Mate : {question}",
     "emptyDescription": "Recherchez des fiches dans les listes auxquelles vous avez accès.",
@@ -2465,7 +2472,7 @@
       "badge": "Populaire",
       "compareText": "Comparer les formules",
       "ctaText": "Commencer gratuitement",
-      "featureBusiness": "Business : {accounts, plural, one {# compte par utilisateur} other {# comptes par utilisateur}}, comptes partagés et assistance prioritaire",
+      "featureBusiness": "Business : {accounts, plural, one {# compte par utilisateur} other {# comptes par utilisateur}}, partage de comptes entiers dans la boîte de réception et assistance prioritaire",
       "featurePro": "Pro : boîte de réception unifiée, {accounts, plural, one {# compte connecté par utilisateur} other {# comptes connectés par utilisateur}}",
       "featureStarter": "Starter : le cœur du CRM",
       "period": "/ utilisateur / mois",
@@ -2489,7 +2496,7 @@
       "featureUsers": "Utilisateurs de l’espace de travail",
       "period": "sous AGPL",
       "price": "Cœur gratuit",
-      "tag": "Exécutez le cœur de l’application sous AGPL et PostgreSQL sur votre serveur avec Docker Compose, dans le périmètre Starter. Les services externes restent distincts.",
+      "tag": "Exécutez le cœur de l’application sous AGPL et PostgreSQL sur votre serveur avec Docker Compose, dans le périmètre Starter, sans boîte de réception ni IA hébergée. Les services externes restent distincts.",
       "title": "Auto-hébergé"
     },
     "subtitle": "Des formules transparentes, sans coûts cachés. Auto-hébergez gratuitement le cœur sous AGPL ; les services externes restent distincts. Ou démarrez sur le Cloud sans carte bancaire.",
@@ -2876,6 +2883,9 @@
       "allSolutions": "Toutes les solutions",
       "articlesAndGuides": "Articles et guides",
       "blog": "Blog",
+      "byTeam": "Par équipe",
+      "byWorkflow": "Par usage",
+      "clientManagement": "Gestion des clients",
       "cloudCrm": "CRM cloud",
       "compare": "Comparatifs",
       "consultants": "Consultants",
@@ -2883,9 +2893,10 @@
       "emailAndGmail": "E-mail et Gmail",
       "freelancers": "Freelances",
       "integrations": "Intégrations",
-      "lawFirms": "Cabinets d'avocats",
+      "linkedinCrm": "CRM LinkedIn",
       "mcp": "MCP",
       "n8n": "Automatisation n8n",
+      "openExampleWorkspace": "Ouvrir cet espace de travail d’exemple",
       "openSourceCrm": "CRM open source",
       "pipeline": "Pipeline commercial",
       "primaryNavigation": "Navigation principale",
@@ -2905,15 +2916,26 @@
       "providerSlack": "Slack",
       "providerTelegram": "Telegram",
       "providerWhatsApp": "WhatsApp",
-      "recruiting": "Recrutement",
       "resources": "Ressources",
       "salesTracking": "Suivi des ventes",
       "selfHosted": "CRM auto-hébergé",
       "smallBusiness": "Petites entreprises",
       "solutions": "Solutions",
+      "solutionSummaries": {
+        "agencies": "Pitchs, projets et contrats récurrents",
+        "clientManagement": "Chaque client avec contacts et contrats",
+        "consultants": "Du premier appel à la proposition",
+        "freelancers": "Clients, projets et prochaines étapes",
+        "linkedinCrm": "Messages LinkedIn liés aux affaires",
+        "salesPipeline": "Affaires par étape, montant et suite",
+        "smallBusiness": "Clients, affaires et relances",
+        "startups": "Vente par les fondateurs",
+        "whatsappCrm": "Discussions WhatsApp liées aux clients"
+      },
       "startups": "Start-ups",
       "taskManagement": "Gestion des tâches",
-      "unifiedInbox": "Boîte de réception unifiée"
+      "unifiedInbox": "Boîte de réception unifiée",
+      "whatsappCrm": "CRM WhatsApp"
     },
     "routines": "Routines",
     "search": "Rechercher",
@@ -3063,11 +3085,6 @@
         "email": "Envoyer des e-mails",
         "link": "Partager un lien"
       }
-    },
-    "linkedWorkspace": {
-      "description": "Ce lien ouvre la configuration de {workspace}. Vous travaillez actuellement dans un autre espace de travail ; le changement s'applique à tous vos onglets ouverts.",
-      "switch": "Changer d'espace de travail",
-      "title": "Continuer dans {workspace}"
     },
     "milestones": {
       "ai": "Outils IA",
@@ -4869,17 +4886,17 @@
     "nameDescription": "Tous les membres voient ce nom dans le menu de l'espace de travail.",
     "nameLabel": "Nom de l'espace de travail",
     "noPlan": "Aucune offre",
-    "otherTab": {
-      "description": "Cet onglet affiche encore {current}. Rechargez-le pour ne rien enregistrer dans le mauvais espace de travail.",
-      "reload": "Recharger",
-      "title": "Vous avez changé d'espace de travail dans un autre onglet",
-      "titleChanged": "Votre espace de travail a changé",
-      "titleDeleted": "Cet espace de travail a été supprimé",
-      "titleNamed": "Vous avez basculé vers {name} dans un autre onglet"
-    },
     "renameReadOnly": "Seuls les membres autorisés à gérer l'espace de travail peuvent modifier son nom.",
+    "slugDescription": "Les liens vers cet espace de travail utilisent {path}. Utilisez des lettres minuscules, des chiffres et des tirets. Les anciens liens ne fonctionnent plus après une modification.",
+    "slugLabel": "URL de l'espace de travail",
+    "slugReadOnly": "Les liens vers cet espace de travail utilisent {path}. Seuls les membres qui peuvent gérer l'espace de travail peuvent la modifier.",
     "switch": "Changer",
     "switchTo": "Passer à {name}",
+    "unavailable": {
+      "description": "Il a été supprimé, son URL a changé ou votre accès a été retiré. Ouvrez votre tableau de bord pour continuer.",
+      "open": "Aller au tableau de bord",
+      "title": "Cet espace de travail n'est pas disponible"
+    },
     "unnamedCreated": "{name} (créé le {date})",
     "unnamedPrompt": {
       "description": "Il n'a pas encore de nom, le menu des espaces de travail n'affiche donc que « Espace de travail ». Un nom aide chaque membre à distinguer vos espaces de travail.",

@@ -2,6 +2,7 @@ type LocaleCapabilities = {
   offeredAsDisplayLanguage: boolean;
   offeredAsFormattingLocale: boolean;
   hasPublishedContent: boolean;
+  marketingPaths: "all" | readonly string[];
   formattingTag: string;
   flagCode: string;
   validationTag: string;
@@ -16,6 +17,7 @@ export const LOCALE_REGISTRY = {
     offeredAsDisplayLanguage: true,
     offeredAsFormattingLocale: true,
     hasPublishedContent: true,
+    marketingPaths: "all",
     formattingTag: "en-US",
     flagCode: "us",
     validationTag: "en",
@@ -26,6 +28,7 @@ export const LOCALE_REGISTRY = {
     offeredAsDisplayLanguage: true,
     offeredAsFormattingLocale: true,
     hasPublishedContent: true,
+    marketingPaths: "all",
     formattingTag: "de-DE",
     flagCode: "de",
     validationTag: "de",
@@ -36,6 +39,15 @@ export const LOCALE_REGISTRY = {
     offeredAsDisplayLanguage: true,
     offeredAsFormattingLocale: true,
     hasPublishedContent: false,
+    marketingPaths: [
+      "/",
+      "/pricing",
+      "/for",
+      "/for/smb",
+      "/for/agencies",
+      "/features/contact-management",
+      "/features/pipeline",
+    ],
     formattingTag: "fr-FR",
     flagCode: "fr",
     validationTag: "fr",
@@ -46,6 +58,7 @@ export const LOCALE_REGISTRY = {
     offeredAsDisplayLanguage: true,
     offeredAsFormattingLocale: true,
     hasPublishedContent: false,
+    marketingPaths: [],
     formattingTag: "it-IT",
     flagCode: "it",
     validationTag: "it",
@@ -56,6 +69,7 @@ export const LOCALE_REGISTRY = {
     offeredAsDisplayLanguage: true,
     offeredAsFormattingLocale: true,
     hasPublishedContent: false,
+    marketingPaths: [],
     formattingTag: "es-ES",
     flagCode: "es",
     validationTag: "es",
@@ -73,6 +87,14 @@ export type AppLocale = {
 export type ContentLocale = {
   [Code in LocaleCode]: (typeof LOCALE_REGISTRY)[Code]["hasPublishedContent"] extends true ? Code : never;
 }[LocaleCode];
+
+export type PartialMarketingLocale = {
+  [Code in LocaleCode]: (typeof LOCALE_REGISTRY)[Code]["marketingPaths"] extends readonly [string, ...string[]]
+    ? Code
+    : never;
+}[LocaleCode];
+
+export type MarketingLocale = ContentLocale | PartialMarketingLocale;
 
 export type FormattingLocale = {
   [Code in LocaleCode]: (typeof LOCALE_REGISTRY)[Code]["offeredAsFormattingLocale"] extends true ? Code : never;
@@ -94,6 +116,32 @@ export function isContentLocale(value: unknown): value is ContentLocale {
   return isLocaleCode(value) && LOCALE_REGISTRY[value].hasPublishedContent;
 }
 
+function marketingPathsOf(locale: LocaleCode): LocaleCapabilities["marketingPaths"] {
+  return LOCALE_REGISTRY[locale].marketingPaths;
+}
+
+export function isPartialMarketingLocale(value: unknown): value is PartialMarketingLocale {
+  if (!isLocaleCode(value) || isContentLocale(value)) return false;
+  const paths = marketingPathsOf(value);
+  return paths !== "all" && paths.length > 0;
+}
+
+export function isMarketingLocale(value: unknown): value is MarketingLocale {
+  return isContentLocale(value) || isPartialMarketingLocale(value);
+}
+
+function normalizedRoutePath(routePath: string): string {
+  const trimmed = routePath.replace(/\/+$/u, "");
+  return trimmed === "" ? "/" : trimmed.toLowerCase();
+}
+
+export function isMarketingPathPublished(locale: unknown, routePath: string): locale is MarketingLocale {
+  if (isContentLocale(locale)) return true;
+  if (!isPartialMarketingLocale(locale)) return false;
+  const paths = marketingPathsOf(locale);
+  return paths !== "all" && paths.includes(normalizedRoutePath(routePath));
+}
+
 export function isFormattingLocale(value: unknown): value is FormattingLocale {
   return isLocaleCode(value) && LOCALE_REGISTRY[value].offeredAsFormattingLocale;
 }
@@ -108,12 +156,30 @@ export const APP_LOCALES: readonly AppLocale[] = REGISTERED_LOCALES.filter(isApp
 
 export const CONTENT_LOCALES: readonly ContentLocale[] = REGISTERED_LOCALES.filter(isContentLocale);
 
+export const PARTIAL_MARKETING_LOCALES: readonly PartialMarketingLocale[] =
+  REGISTERED_LOCALES.filter(isPartialMarketingLocale);
+
+export const MARKETING_LOCALES: readonly MarketingLocale[] = REGISTERED_LOCALES.filter(isMarketingLocale);
+
+export function marketingLocalesForPath(routePath: string): readonly MarketingLocale[] {
+  return MARKETING_LOCALES.filter((locale) => isMarketingPathPublished(locale, routePath));
+}
+
+export function partialMarketingPaths(locale: PartialMarketingLocale): readonly string[] {
+  const paths = marketingPathsOf(locale);
+  return paths === "all" ? [] : paths;
+}
+
 export const FORMATTING_LOCALES: readonly FormattingLocale[] = REGISTERED_LOCALES.filter(isFormattingLocale);
 
 export const ROUTING_LOCALES: readonly RoutingLocale[] = REGISTERED_LOCALES.filter(isRoutingLocale);
 
 export function appLocaleOrDefault(value: unknown): AppLocale {
   return isAppLocale(value) ? value : DEFAULT_LOCALE;
+}
+
+export function marketingLocaleOrDefault(value: unknown): MarketingLocale {
+  return isMarketingLocale(value) ? value : DEFAULT_LOCALE;
 }
 
 export function contentLocaleOrDefault(value: unknown): ContentLocale {

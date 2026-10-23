@@ -7,7 +7,7 @@ import { widgetLayoutGeometry } from "@/features/widget/widget-grid";
 
 describe("widgetLayoutGeometry", () => {
   it("preserves chart defaults and persisted dimensions", () => {
-    expect(widgetLayoutGeometry(WidgetKind.chart, 12)).toEqual({ w: 4, h: 8, minH: 2 });
+    expect(widgetLayoutGeometry(WidgetKind.chart, 12)).toEqual({ w: 4, h: 6, minH: 2 });
     expect(widgetLayoutGeometry(WidgetKind.chart, 8, { w: 7, h: 4 })).toEqual({
       w: 7,
       h: 4,
@@ -36,7 +36,7 @@ describe("widgetLayoutGeometry", () => {
   it("gives activity timelines a wider large-screen default but lets them shrink like charts", () => {
     expect(widgetLayoutGeometry(WidgetKind.activityTimeline, 12)).toEqual({
       w: 6,
-      h: 8,
+      h: 6,
       minW: 2,
       minH: 6,
     });
@@ -45,7 +45,7 @@ describe("widgetLayoutGeometry", () => {
   it("fits activity minimums to narrow breakpoint columns", () => {
     expect(widgetLayoutGeometry(WidgetKind.activityTimeline, 2)).toEqual({
       w: 2,
-      h: 8,
+      h: 6,
       minW: 2,
       minH: 6,
     });

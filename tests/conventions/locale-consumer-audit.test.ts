@@ -29,14 +29,15 @@ const REDECLARED_LOCALE_ALIAS =
   /\(typeof\s+(?:REGISTERED_LOCALES|ROUTING_LOCALES|APP_LOCALES|CONTENT_LOCALES|FORMATTING_LOCALES)\)\[number\]/;
 
 const DOMAIN_EXPECTATIONS: Array<{ file: string; imports: string }> = [
-  { file: "app/sitemap.ts", imports: "CONTENT_LOCALES" },
+  { file: "app/sitemap.ts", imports: "MARKETING_LOCALES" },
   { file: "core/fumadocs/i18n.ts", imports: "CONTENT_LOCALES" },
-  { file: "core/fumadocs/metadata.ts", imports: "CONTENT_LOCALES" },
-  { file: "components/shared/locale-menu.tsx", imports: "CONTENT_LOCALES" },
+  { file: "core/fumadocs/i18n.ts", imports: "MARKETING_LOCALES" },
+  { file: "core/fumadocs/metadata.ts", imports: "marketingLocalesForPath" },
+  { file: "components/shared/locale-menu.tsx", imports: "marketingLocalesForPath" },
   { file: "scripts/generate-raw-docs-manifest.ts", imports: "CONTENT_LOCALES" },
-  { file: "app/[locale]/(protected)/settings/(account)/components/profile-settings-form.tsx", imports: "DISPLAY_LANGUAGE_VALUES" },
+  { file: "app/[locale]/(protected)/w/[workspace]/settings/(account)/components/profile-settings-form.tsx", imports: "DISPLAY_LANGUAGE_VALUES" },
   {
-    file: "app/[locale]/(protected)/settings/(account)/components/profile-settings-form.tsx",
+    file: "app/[locale]/(protected)/w/[workspace]/settings/(account)/components/profile-settings-form.tsx",
     imports: "FORMATTING_LOCALE_VALUES",
   },
   { file: "features/user/upsert/update-user-details.interactor.ts", imports: "StoredDisplayLanguageSchema" },
@@ -48,7 +49,7 @@ const DOMAIN_EXPECTATIONS: Array<{ file: string; imports: string }> = [
 
 const ALLOWED_AMBIENT_FORMATTING_SITES = new Map([
   [
-    "app/[locale]/(protected)/settings/(account)/components/profile-settings-form.tsx :: new Intl.DateTimeFormat :: <missing>",
+    "app/[locale]/(protected)/w/[workspace]/settings/(account)/components/profile-settings-form.tsx :: new Intl.DateTimeFormat :: <missing>",
     "Browser-language detection intentionally asks the browser for its resolved locale.",
   ],
   [
@@ -67,7 +68,7 @@ const ALLOWED_VISIBLE_COPY_SITES = new Map<string, VisibleCopyException>([
     'components/ai-connection/ai-client-logo.tsx :: jsx-alt :: "Google Gemini"',
     'app/components/navigation/public-navbar-menu.tsx :: jsx-alt :: "n8n"',
     'components/marketing/founder-contact-card.tsx :: jsx-alt :: "Benjamin Wagner"',
-    'app/[locale]/(protected)/settings/(workspace)/components/subscription/subscribe-manage-button.tsx :: jsx-alt :: "Lemon Squeezy"',
+    'app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/subscription/subscribe-manage-button.tsx :: jsx-alt :: "Lemon Squeezy"',
     'app/[locale]/(static)/blog/[slug]/page.tsx :: jsx-alt :: "Benjamin Wagner"',
     'app/[locale]/(static)/docs/components/docs-sidebar.tsx :: jsx-text :: "Customermates"',
     'app/components/footer-content.tsx :: jsx-text :: "GitHub"',
@@ -199,7 +200,7 @@ function violations(pattern: RegExp): string[] {
 function isProductionSource(repoPath: string): boolean {
   return (
     !/(^|\/)(?:tests|__tests__)(?:\/|$)/.test(repoPath) &&
-    !repoPath.startsWith("app/[locale]/(protected)/test/") &&
+    !repoPath.startsWith("app/[locale]/(protected)/w/[workspace]/test/") &&
     // The style guide is an internal, noindex engineering reference. Its copy names tokens
     // and CSS roles, so it is deliberately English-only and never shown to a customer.
     !repoPath.startsWith("app/[locale]/(static)/styleguide/")
@@ -375,12 +376,7 @@ function hardCodedLocaleComparisonsInSource(source: string, repoPath: string): s
   return found;
 }
 
-const ALLOWED_LOCALE_BRANCHING = new Map([
-  [
-    "core/commercial/commercial-tokens.ts",
-    "Build-time MDX token expansion picks one of two literals; content locales are the two the tokens ship in.",
-  ],
-]);
+const ALLOWED_LOCALE_BRANCHING = new Map<string, string>([]);
 
 const ALLOWED_LOCALE_KEYED_TABLES = new Map([
   ["scripts/audit-i18n.ts", "The translation glossary is reference data for auditing catalogs, never rendered copy."],

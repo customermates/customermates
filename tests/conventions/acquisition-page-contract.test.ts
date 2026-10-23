@@ -8,6 +8,7 @@ import {
   ACQUISITION_FACT_SOURCES,
   acquisitionPageSchema,
 } from "@/core/fumadocs/schemas/common";
+import { SOLUTION_CATALOG } from "@/core/solutions/solution-catalog";
 import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 
 import { REPO_ROOT } from "./walk";
@@ -46,6 +47,19 @@ type Frontmatter = {
   };
   title?: string;
 };
+
+const DEMO_WORKSPACE_HREF =
+  /^https:\/\/demo\.customermates\.com\/[a-z]{2}\/w\/(?<slug>[a-z0-9-]+)(?<rest>\/.*)?$/u;
+
+function ctaDestination(href: string | undefined) {
+  const match = href ? DEMO_WORKSPACE_HREF.exec(href) : null;
+  if (!match?.groups) return href;
+  const { slug, rest = "" } = match.groups;
+  const solution = SOLUTION_CATALOG.find((entry) =>
+    Object.values(entry.workspaceSlugs).includes(slug),
+  );
+  return solution ? `demo:${solution.id}${rest}` : href;
+}
 
 function contentFile(collection: string, locale: string, slug: string) {
   return join(REPO_ROOT, "content", collection, locale, `${slug}.mdx`);
@@ -325,20 +339,37 @@ describe("approved acquisition page contract", () => {
   });
 
   it("binds LinkedIn social and Sales Navigator claims to MCP and REST authorities", () => {
-    const socialSources = ACQUISITION_FACT_SOURCES["product:linkedin-social-workflows"];
-    expect(socialSources).toContain("features/mcp-tools/social-posts.mcp-tools.ts");
-    expect(socialSources).toContain("app/api/v1/messaging/social-profiles/search/route.ts");
-    expect(socialSources).toContain("app/api/v1/messaging/social-posts/search/route.ts");
-    expect(socialSources).toContain("app/api/v1/messaging/social-relations/invite/route.ts");
+    const socialSources =
+      ACQUISITION_FACT_SOURCES["product:linkedin-social-workflows"];
+    expect(socialSources).toContain(
+      "features/mcp-tools/social-posts.mcp-tools.ts",
+    );
+    expect(socialSources).toContain(
+      "app/api/v1/messaging/social-profiles/search/route.ts",
+    );
+    expect(socialSources).toContain(
+      "app/api/v1/messaging/social-posts/search/route.ts",
+    );
+    expect(socialSources).toContain(
+      "app/api/v1/messaging/social-relations/invite/route.ts",
+    );
 
-    const salesSources = ACQUISITION_FACT_SOURCES["product:sales-navigator-workflows"];
-    expect(salesSources).toContain("features/mcp-tools/sales-navigator.mcp-tools.ts");
-    expect(salesSources).toContain("app/api/v1/messaging/sales-navigator/search/people/route.ts");
-    expect(salesSources).toContain("app/api/v1/messaging/sales-navigator/lists/save/route.ts");
+    const salesSources =
+      ACQUISITION_FACT_SOURCES["product:sales-navigator-workflows"];
+    expect(salesSources).toContain(
+      "features/mcp-tools/sales-navigator.mcp-tools.ts",
+    );
+    expect(salesSources).toContain(
+      "app/api/v1/messaging/sales-navigator/search/people/route.ts",
+    );
+    expect(salesSources).toContain(
+      "app/api/v1/messaging/sales-navigator/lists/save/route.ts",
+    );
   });
 
   it("keeps LinkedIn enrichment claims scoped to the implemented composed workflows", () => {
-    const coreRecordSources = ACQUISITION_FACT_SOURCES["product:core-crm-records"];
+    const coreRecordSources =
+      ACQUISITION_FACT_SOURCES["product:core-crm-records"];
     expect(coreRecordSources).toEqual(
       expect.arrayContaining([
         "features/mcp-tools/record-model.mcp-tools.ts",
@@ -354,7 +385,9 @@ describe("approved acquisition page contract", () => {
     }));
     for (const page of pages) {
       const acquisition = acquisitionPageSchema.parse(page.data.acquisition);
-      expect(acquisition.proof.factReferences, page.locale).toContain("product:core-crm-records");
+      expect(acquisition.proof.factReferences, page.locale).toContain(
+        "product:core-crm-records",
+      );
       expect(acquisition.proof.excludedClaims, page.locale).toContain(
         "claim:no-native-linkedin-enrichment-monitoring",
       );
@@ -363,10 +396,18 @@ describe("approved acquisition page contract", () => {
       );
     }
 
-    expect(pages[0]?.body).toContain("A customer-run workflow can also call an enrichment provider");
-    expect(pages[0]?.body).toContain("separate, permission-checked contact or organization create/update");
-    expect(pages[1]?.body).toContain("Ein kundenseitig betriebener Workflow kann außerdem");
-    expect(pages[1]?.body).toContain("separate, berechtigungsgeprüfte REST- oder MCP-Aktion");
+    expect(pages[0]?.body).toContain(
+      "A customer-run workflow can also call an enrichment provider",
+    );
+    expect(pages[0]?.body).toContain(
+      "separate, permission-checked contact or organization create/update",
+    );
+    expect(pages[1]?.body).toContain(
+      "Ein kundenseitig betriebener Workflow kann außerdem",
+    );
+    expect(pages[1]?.body).toContain(
+      "separate, berechtigungsgeprüfte REST- oder MCP-Aktion",
+    );
     expect(pages[0]?.body).toContain(
       "https://www.linkedin.com/help/sales-navigator/answer/a105094/sales-navigator-application-platform-snap-overview?lang=en",
     );
@@ -376,19 +417,35 @@ describe("approved acquisition page contract", () => {
   });
 
   it("binds the shared connected-account allowance to provider-agnostic enforcement", () => {
-    const sources = ACQUISITION_FACT_SOURCES["product:unified-inbox-entitlements"];
-    expect(sources).toContain("ee/messaging/connect/create-auth-link.interactor.ts");
-    expect(sources).toContain("ee/messaging/persistence/prisma-connected-account.repository.ts");
+    const sources =
+      ACQUISITION_FACT_SOURCES["product:unified-inbox-entitlements"];
+    expect(sources).toContain(
+      "ee/messaging/connect/create-auth-link.interactor.ts",
+    );
+    expect(sources).toContain(
+      "ee/messaging/persistence/prisma-connected-account.repository.ts",
+    );
 
-    const allowance = readFileSync(join(REPO_ROOT, "ee/messaging/connect/create-auth-link.interactor.ts"), "utf8");
-    expect(allowance).toContain("getEntitlements(subscription.plan).includedAccountsPerUser");
+    const allowance = readFileSync(
+      join(REPO_ROOT, "ee/messaging/connect/create-auth-link.interactor.ts"),
+      "utf8",
+    );
+    expect(allowance).toContain(
+      "getEntitlements(subscription.plan).includedAccountsPerUser",
+    );
     expect(allowance).toContain("this.repo.countActiveAccountsForUser()");
 
     const repository = readFileSync(
-      join(REPO_ROOT, "ee/messaging/persistence/prisma-connected-account.repository.ts"),
+      join(
+        REPO_ROOT,
+        "ee/messaging/persistence/prisma-connected-account.repository.ts",
+      ),
       "utf8",
     );
-    const counter = /async countActiveAccountsForUser\(\) \{(?<body>[\s\S]*?)\n  \}/u.exec(repository)?.groups?.body;
+    const counter =
+      /async countActiveAccountsForUser\(\) \{(?<body>[\s\S]*?)\n  \}/u.exec(
+        repository,
+      )?.groups?.body;
     expect(counter).toContain("companyId: this.companyId");
     expect(counter).toContain("userId: this.userId");
     expect(counter).not.toContain("provider:");
@@ -427,8 +484,10 @@ describe("approved acquisition page contract", () => {
         );
       }
       if (
-        en.cta.buttonLeftHref !== de.cta.buttonLeftHref ||
-        en.cta.buttonRightHref !== de.cta.buttonRightHref
+        ctaDestination(en.cta.buttonLeftHref) !==
+          ctaDestination(de.cta.buttonLeftHref) ||
+        ctaDestination(en.cta.buttonRightHref) !==
+          ctaDestination(de.cta.buttonRightHref)
       ) {
         problems.push(
           `${collection}/${basename(slug)}: CTA destinations differ by locale`,

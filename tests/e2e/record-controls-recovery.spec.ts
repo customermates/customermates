@@ -33,6 +33,7 @@ import { ALL_VIEW_KEY, SURFACE, recordSurfaceKey } from "../../core/data-view/da
 import { getChartRankShades } from "../../constants/chart-colors";
 import { ChartColor } from "../../features/widget/widget-display.schema";
 import english from "../../i18n/locales/en.json" with { type: "json" };
+import { companyUrlPattern, pagePath } from "./app-paths";
 
 async function model(page: Page) {
   return RecordModelSchema.parse(await postOk(page, "/api/v1/model/read", {}));
@@ -138,7 +139,7 @@ test("paginates and retries record and widget history, restores a personal timel
       dashboardFaultArmed &&
       invokesServerAction(
         route.request(),
-        serverActionIds("app/[locale]/(protected)/dashboard/actions.ts", "refreshWidgetsAction"),
+        serverActionIds("app/[locale]/(protected)/w/[workspace]/dashboard/actions.ts", "refreshWidgetsAction"),
       )
     )
       label = "dashboard collection";
@@ -146,7 +147,7 @@ test("paginates and retries record and widget history, restores a personal timel
     else if (label && faults.delete(label)) await evidence.failResponse(route, label);
     else await route.fallback();
   });
-  await page.goto(`/en/records/${ref.typeId}/${ref.recordId}`);
+  await page.goto(pagePath(page, `/records/${ref.typeId}/${ref.recordId}`));
   const history = page.locator('main [data-detail-panel="activities"]');
   if (!(await history.isVisible())) await page.getByRole("tab", { name: "Activities", exact: true }).click();
   const rows = history.locator("ol > li");
@@ -217,7 +218,7 @@ test("paginates and retries record and widget history, restores a personal timel
   await expect(page.locator("#sidebar-trigger")).not.toHaveAttribute("aria-disabled", "true");
   if (!(await services.isVisible())) await page.locator("#sidebar-trigger").click();
   await services.click();
-  await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}(?:\\?.*)?$`));
+  await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${typeId}(?:\\?.*)?$`));
   await expect(history).toHaveCount(0);
   await expect
     .poll(
@@ -339,7 +340,7 @@ test("paginates and retries record and widget history, restores a personal timel
   const dashboard = page.getByRole("link", { name: "Dashboard", exact: true });
   if (!(await dashboard.isVisible())) await page.locator("#sidebar-trigger").click();
   await dashboard.click();
-  await expect(page).toHaveURL(/\/en\/dashboard$/);
+  await expect(page).toHaveURL(companyUrlPattern(companyId, "/dashboard$"));
   await page.locator("#dashboard-add-widget").click();
   const dialog = page.getByRole("dialog");
   await dialog.locator("#widget-kind-activityTimeline").click();
@@ -590,13 +591,13 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
       ])
     ).rows,
   ).toEqual([{ count: 4 }]);
-  await page.goto("/en/dashboard");
+  await page.goto(pagePath(page, "/dashboard"));
   await page.locator("#dashboard-add-widget").click();
   const dialog = page.getByRole("dialog");
   await dialog.locator("#widget-starter-verticalBarChart").click();
   const name = "Related price aggregates";
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill(name);
-  const modelAction = serverActionIds("app/[locale]/(protected)/records/actions.ts", "getRecordModelAction");
+  const modelAction = serverActionIds("app/[locale]/(protected)/w/[workspace]/records/actions.ts", "getRecordModelAction");
   let schemaFault = false;
   let previewFault = false;
   await page.route("**/*", async (route) => {
@@ -633,13 +634,7 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
       name: english.Common.inputs.displayOptions.useGroupColors,
       exact: true,
     }),
-  ).toBeChecked();
-  await dialog
-    .getByRole("switch", {
-      name: english.Common.inputs.displayOptions.useGroupColors,
-      exact: true,
-    })
-    .uncheck();
+  ).not.toBeChecked();
   await expect(dialog.getByRole("button", { name: "Colors", exact: true })).toBeVisible();
   await dialog
     .getByRole("switch", {
@@ -678,8 +673,8 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
       root.className = previous;
       return [...new Set(painted)];
     }, theme);
-  expect(await paintedFills("light")).toEqual(["rgb(119, 103, 232)", "rgb(94, 74, 227)"]);
-  expect(await paintedFills("dark")).toEqual(["rgb(108, 96, 214)", "rgb(124, 109, 242)"]);
+  expect(await paintedFills("light")).toEqual(["rgb(124, 120, 244)", "rgb(94, 74, 227)"]);
+  expect(await paintedFills("dark")).toEqual(["rgb(110, 99, 212)", "rgb(124, 109, 242)"]);
   await dialog
     .getByRole("switch", {
       name: english.Common.inputs.displayOptions.useGroupColors,
@@ -862,7 +857,7 @@ test("uses explicit activity record scope, event kinds, positive and negative re
     target: organization,
   });
   await messageFixtures(database, companyId, workspace.userId, entries);
-  await page.goto("/en/dashboard");
+  await page.goto(pagePath(page, "/dashboard"));
   await page.locator("#dashboard-add-widget").click();
   const dialog = page.getByRole("dialog");
   await dialog.locator("#widget-kind-activityTimeline").click();
@@ -1012,7 +1007,7 @@ test("retries failed participant and conversation searches and deletes a real re
         body: "Unlinked retry conversation",
       },
     ]);
-    await page.goto(`/en/inbox?threadId=${threads[0]}`);
+    await page.goto(pagePath(page, `/inbox?threadId=${threads[0]}`));
     await page
       .getByRole("button", { name: english.Inbox.settings.title, exact: true })
       .and(page.locator('[data-slot="badge"]'))
@@ -1099,7 +1094,7 @@ test("retries failed participant and conversation searches and deletes a real re
     }).toPass();
     await page.unrouteAll({ behavior: "wait" });
   }
-  await page.goto(`/en/records/${service.typeId}/${service.recordId}`);
+  await page.goto(pagePath(page, `/records/${service.typeId}/${service.recordId}`));
   const projection = page.getByRole("region", { name: "Deals", exact: true });
   await projection
     .getByRole("button", {
@@ -1135,7 +1130,7 @@ test("retries failed participant and conversation searches and deletes a real re
       )
     ).rows,
   ).toEqual([{ count: 2 }]);
-  await page.goto(`/en/records/${service.typeId}/${service.recordId}`);
+  await page.goto(pagePath(page, `/records/${service.typeId}/${service.recordId}`));
   await expect(page.getByRole("region", { name: "Deals", exact: true })).toHaveCount(0);
   await evidence.verify(testInfo, inbox ? ["participant search", "conversation search"] : []);
 });
@@ -1160,7 +1155,7 @@ test("retains readable list content after a failed refresh and retries the empty
       [companyId, service.typeId, service.recordId],
     );
   const before = (await values()).rows;
-  await page.goto(`/en/records/${service.typeId}`);
+  await page.goto(pagePath(page, `/records/${service.typeId}`));
   await expect(recordItem(page, name)).toBeVisible();
   let retainedFault = true;
   let emptyFault = true;
@@ -1288,8 +1283,8 @@ test("retries relationship reads and accepted record, bulk and schema refreshes 
   let bulkFaultsRemaining = 0;
   let modelFault = false;
   let acceptedNavigationReads = 0;
-  const navigationAction = serverActionIds("app/[locale]/(protected)/records/actions.ts", "getRecordNavigationAction");
-  const modelAction = serverActionIds("app/[locale]/(protected)/records/actions.ts", "getRecordModelAction");
+  const navigationAction = serverActionIds("app/[locale]/(protected)/w/[workspace]/records/actions.ts", "getRecordNavigationAction");
+  const modelAction = serverActionIds("app/[locale]/(protected)/w/[workspace]/records/actions.ts", "getRecordModelAction");
   await page.route("**/*", async (route) => {
     const args = nextArguments(route.request());
     const input = args?.length === 1 && typeof args[0] === "object" && args[0] !== null ? args[0] : null;
@@ -1334,7 +1329,7 @@ test("retries relationship reads and accepted record, bulk and schema refreshes 
       await evidence.failResponse(route, "accepted schema refresh");
     } else await route.fallback();
   });
-  await page.goto(`/en/records/${service.typeId}/${service.recordId}`);
+  await page.goto(pagePath(page, `/records/${service.typeId}/${service.recordId}`));
   const main = page.getByRole("main");
   const linked = main.locator(`[data-entity-field="relationship:${id("lineItem.service")}:incoming"]`);
   const projection = main.getByRole("region", { name: "Deals", exact: true });
@@ -1384,7 +1379,7 @@ test("retries relationship reads and accepted record, bulk and schema refreshes 
   expect(await receiptCount()).toBe(beforeSave + 1);
   expect(await sourceRows()).toEqual(afterSave);
   await expect(main.locator('[aria-busy="true"]')).toHaveCount(0);
-  await page.goto(`/en/records/${service.typeId}`);
+  await page.goto(pagePath(page, `/records/${service.typeId}`));
   let afterBulk = afterSave;
   if (!test.info().project.use.isMobile) {
     for (const name of ["Recovery service", "Recovery second"]) {
@@ -1544,7 +1539,7 @@ test("recovers a parent after an embedded save without repeating the child mutat
       await evidence.failResponse(route, "accepted nested parent refresh");
     } else await route.fallback();
   });
-  await page.goto(`/en/records/${deal.typeId}/${deal.recordId}`);
+  await page.goto(pagePath(page, `/records/${deal.typeId}/${deal.recordId}`));
   const main = page.getByRole("main");
   const embedded = main.getByRole("region", { name: "Line items", exact: true });
   await expect(main.getByRole("textbox", { name: notes.label, exact: true })).toHaveText("Previously stored notes");

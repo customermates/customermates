@@ -14,6 +14,7 @@ import {
 } from "./configure";
 import { presetId } from "../../features/records/crm-preset";
 import { localE2eEnvironment } from "./local-environment";
+import { pagePath } from "./app-paths";
 
 async function contacts(page: Page, database: Client, companyId: string) {
   const id = (key: string) => presetId(companyId, key);
@@ -101,7 +102,7 @@ test("configures a picture source in General, explains the field, and disables p
     (await readModel(database, companyId)).capabilities
       .find((binding) => binding.kind === "avatar" && binding.typeId === typeId)
       ?.fields.find((field) => field.role === "image")?.fieldId;
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(pagePath(page, `/records/${typeId}`));
   await expect(pictures(page).locator("img")).toHaveAttribute("src", first);
   await expect(pictures(page, "Initials Record")).toHaveText("IR");
   await openConfigure(page, typeId);
@@ -116,7 +117,7 @@ test("configures a picture source in General, explains the field, and disables p
   await expect(configureDrawer(page)).toContainText("Used as the record picture for Contacts.");
   await page.keyboard.press("Escape");
   await expect(configureDrawer(page)).not.toBeVisible();
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(pagePath(page, `/records/${typeId}`));
   await expect(pictures(page).locator("img")).toHaveAttribute("src", second);
   await openConfigure(page, typeId);
   await choosePicture(page, "None");
@@ -127,7 +128,7 @@ test("configures a picture source in General, explains the field, and disables p
     portraitFieldId,
   ]);
   expect(stored.rows.map((row) => row.textValue)).toContain(second);
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(pagePath(page, `/records/${typeId}`));
   await expect(pictureRecord(page, "Picture Record")).toBeVisible();
   await expect(pictures(page)).toHaveCount(0);
   await page.locator("#records-display-options").click();
@@ -167,7 +168,7 @@ test("enables pictures on an unconfigured list using an existing URL field", asy
   expect(model.capabilities.find((binding) => binding.kind === "avatar" && binding.typeId === typeId)?.fields).toEqual([
     { role: "image", fieldId: presetId(companyId, "organization.website") },
   ]);
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(pagePath(page, `/records/${typeId}`));
   await expect(pictures(page, "Example organization")).toHaveText("EO");
   expect(errors).toEqual([]);
 });
@@ -185,10 +186,10 @@ test("keeps pictures beside fallback titles when the name fields are removed", a
     await openConfigureRow(page, "Fields", label);
     await deleteFromDrawer(page, "Delete field");
   }
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(pagePath(page, `/records/${typeId}`));
   await expect(page.locator('main [data-slot="avatar"][data-size="default"] img')).toHaveAttribute("src", first);
   await expect(page.locator("main")).toContainText("Untitled Contact");
-  await page.goto(`/en/records/${typeId}?viewMode=card&groupBy=${stageFieldId}`);
+  await page.goto(pagePath(page, `/records/${typeId}?viewMode=card&groupBy=${stageFieldId}`));
   await expect(page.locator('[data-item-id] [data-slot="avatar"][data-size="default"] img')).toHaveAttribute("src", first);
   await expect(page.locator("[data-item-id]").first()).toContainText("Untitled Contact");
   expect(errors).toEqual([]);
@@ -239,10 +240,10 @@ test("shows each linked record's picture in its chips and keeps the list icon wi
   };
   if (!isMobile) {
     await page.setViewportSize({ width: 1600, height: 900 });
-    await page.goto(`/en/records/${id("deal")}?searchTerm=${encodeURIComponent("Aaa pictured deal")}`);
+    await page.goto(pagePath(page, `/records/${id("deal")}?searchTerm=${encodeURIComponent("Aaa pictured deal")}`));
     await expectPictures(page.locator(`tr[data-row-id="${dealId}"]`));
   }
-  await page.goto(`/en/records/${id("deal")}/${dealId}`);
+  await page.goto(pagePath(page, `/records/${id("deal")}/${dealId}`));
   await expectPictures(page.locator(`[data-entity-field="relationship:${id("deal.contacts")}:outgoing"]`));
   expect(errors).toEqual([]);
 });

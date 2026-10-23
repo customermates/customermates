@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { CONTENT_LOCALES, isContentLocale, type ContentLocale } from "@/i18n/locale-registry";
+import { CONTENT_LOCALES, isMarketingLocale, type ContentLocale, type MarketingLocale } from "@/i18n/locale-registry";
 
 import {
   VISUAL_AGENT_PROVIDER_FIXTURES,
@@ -40,7 +40,9 @@ export type VisualPathway = (typeof VISUAL_PATHWAYS)[number];
 export type VisualPlacement = (typeof VISUAL_PLACEMENTS)[number];
 export type VisualLocale = ContentLocale;
 
-const VisualLocaleSchema = z.custom<ContentLocale>(isContentLocale, {
+export type VisualBriefLocale = MarketingLocale;
+
+const VisualLocaleSchema = z.custom<MarketingLocale>(isMarketingLocale, {
   message: "locale must publish content",
 });
 const VisualPlacementSchema = z.enum(VISUAL_PLACEMENTS);

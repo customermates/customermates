@@ -71,7 +71,7 @@ describe("drawer side placement (rule 60: every drawer opens from the right)", (
 
   it("opens the record drawer as a shared AppModal sheet", () => {
     const source = readSourceText(
-      join(REPO_ROOT, "app/[locale]/(protected)/records/[typeId]/components/record-editor.tsx"),
+      join(REPO_ROOT, "app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-editor.tsx"),
     );
 
     expect(source).toMatch(/<AppModal\b[^>]*\bsheet\b/);

@@ -14,17 +14,17 @@ const protectedRoot = "app/[locale]/(protected)";
 const protectedPages = filesUnder(protectedRoot)
   .filter((path) => path.endsWith("/page.tsx"))
   .map((path) => path.slice(protectedRoot.length + 1))
-  .filter((path) => !path.startsWith("test/"))
+  .filter((path) => !path.startsWith("w/[workspace]/test/"))
   .sort();
 const protectedLoaders = protectedPages.map((page) => join(protectedRoot, dirname(page), "loading.tsx"));
 
 const collectionViews = [
-  "app/[locale]/(protected)/records/[typeId]/components/records-page-view.tsx",
-  "app/[locale]/(protected)/settings/(workspace)/components/user/members-page-view.tsx",
-  "app/[locale]/(protected)/settings/(workspace)/components/role/roles-page-view.tsx",
-  "app/[locale]/(protected)/routines/components/routines-page-view.tsx",
-  "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhooks-page-view.tsx",
-  "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-deliveries-page-view.tsx",
+  "app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/records-page-view.tsx",
+  "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/user/members-page-view.tsx",
+  "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/role/roles-page-view.tsx",
+  "app/[locale]/(protected)/w/[workspace]/routines/components/routines-page-view.tsx",
+  "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/webhook/webhooks-page-view.tsx",
+  "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/webhook/webhook-deliveries-page-view.tsx",
 ] as const;
 
 const pureSkeletons = [
@@ -32,26 +32,26 @@ const pureSkeletons = [
   "components/entity-detail/entity-detail-page-skeleton.tsx",
   "components/forms/settings-form-skeleton.tsx",
   "components/shared/centered-card-page-skeleton.tsx",
-  "app/[locale]/(protected)/configure/components/configure-graph-skeleton.tsx",
-  "app/[locale]/(protected)/dashboard/components/dashboard-page-skeleton.tsx",
-  "app/[locale]/(protected)/inbox/components/inbox-page-skeleton.tsx",
-  "app/[locale]/(protected)/settings/(account)/components/profile-resource-page-skeleton.tsx",
+  "app/[locale]/(protected)/w/[workspace]/configure/components/configure-graph-skeleton.tsx",
+  "app/[locale]/(protected)/w/[workspace]/dashboard/components/dashboard-page-skeleton.tsx",
+  "app/[locale]/(protected)/w/[workspace]/inbox/components/inbox-page-skeleton.tsx",
+  "app/[locale]/(protected)/w/[workspace]/settings/(account)/components/profile-resource-page-skeleton.tsx",
   "features/messaging/activities/activity-timeline-skeleton.tsx",
 ] as const;
 
 const featureSkeletons = [
-  "app/[locale]/(protected)/settings/(account)/components/profile-settings-page-skeleton.tsx",
-  "app/[locale]/(protected)/settings/(workspace)/components/subscription/subscription-page-skeleton.tsx",
+  "app/[locale]/(protected)/w/[workspace]/settings/(account)/components/profile-settings-page-skeleton.tsx",
+  "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/subscription/subscription-page-skeleton.tsx",
   "app/[locale]/(protected)/onboarding/wizard/components/onboarding-page-skeleton.tsx",
 ] as const;
 
 const exhaustiveResourceOwners = [
-  ["app/[locale]/(protected)/dashboard/components/dashboard-page-view.tsx", "switch (pageState)"],
-  ["app/[locale]/(protected)/settings/(account)/components/api-keys-page-view.tsx", "switch (pageState)"],
-  ["app/[locale]/(protected)/settings/(account)/components/connected-accounts-page-view.tsx", "switch (pageState)"],
-  ["app/[locale]/(protected)/inbox/components/inbox-list.tsx", "switch (pageState)"],
-  ["app/[locale]/(protected)/inbox/components/thread-panel.tsx", "switch (pageState.status)"],
-  ["app/[locale]/(protected)/wiki/components/wiki-page-view.tsx", "switch (pageState)"],
+  ["app/[locale]/(protected)/w/[workspace]/dashboard/components/dashboard-page-view.tsx", "switch (pageState)"],
+  ["app/[locale]/(protected)/w/[workspace]/settings/(account)/components/api-keys-page-view.tsx", "switch (pageState)"],
+  ["app/[locale]/(protected)/w/[workspace]/settings/(account)/components/connected-accounts-page-view.tsx", "switch (pageState)"],
+  ["app/[locale]/(protected)/w/[workspace]/inbox/components/inbox-list.tsx", "switch (pageState)"],
+  ["app/[locale]/(protected)/w/[workspace]/inbox/components/thread-panel.tsx", "switch (pageState.status)"],
+  ["app/[locale]/(protected)/w/[workspace]/wiki/components/wiki-page-view.tsx", "switch (pageState)"],
 ] as const;
 
 describe("page-state ownership", () => {
@@ -124,14 +124,14 @@ describe("page-state ownership", () => {
   });
 
   it("does not start connected-account work behind locked surfaces", () => {
-    expect(read("app/[locale]/(protected)/settings/(account)/components/connected-accounts-page-view.tsx")).toContain(
+    expect(read("app/[locale]/(protected)/w/[workspace]/settings/(account)/components/connected-accounts-page-view.tsx")).toContain(
       "if (locked) return;",
     );
-    expect(read("app/[locale]/(protected)/inbox/components/inbox-list.tsx")).toContain("if (locked) return;");
+    expect(read("app/[locale]/(protected)/w/[workspace]/inbox/components/inbox-list.tsx")).toContain("if (locked) return;");
   });
 
   it("keeps the neutral public and internal-test loaders generic", () => {
-    for (const path of ["app/[locale]/(public)/loading.tsx", "app/[locale]/(protected)/test/loading.tsx"]) {
+    for (const path of ["app/[locale]/(public)/loading.tsx", "app/[locale]/(protected)/w/[workspace]/test/loading.tsx"]) {
       const source = read(path);
       expect(source, path).toContain("GenericPageLoading");
       expect(source, path).not.toMatch(/PageState|PageSkeleton|RouteLoading|<main|\bfixed\b/);

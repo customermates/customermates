@@ -12,7 +12,7 @@ const BACKGROUND_TENANT_MODULE = /(^|\/)background-tenant$/;
 
 const AUTHENTICATED_TENANT_ENTRYPOINTS = [
   "app/[locale]/(protected)/onboarding/wizard/page.tsx",
-  "app/[locale]/(protected)/test/error/actions.ts",
+  "app/[locale]/(protected)/w/[workspace]/test/error/actions.ts",
   "core/data-view/view-owner-context.ts",
   "core/decorators/background-tenant.ts",
   "core/decorators/tenant-interactor.decorator.ts",

@@ -1,6 +1,6 @@
 import type { ChipColor } from "@/constants/chip-colors";
-import { colorPalettes } from "@/styles/color-palettes";
-import type { ChartColor } from "@/features/widget/widget-display.schema";
+import { chartAccentSwatches, colorPalettes } from "@/styles/color-palettes";
+import { ChartColor } from "@/features/widget/widget-display.schema";
 
 type BrandColorSource = "themeColor" | "manifest" | "customProperty" | "button";
 type BrandColorCandidate = { hex: string; source: BrandColorSource; score: number };
@@ -25,13 +25,6 @@ const CHIP_REFERENCES: Record<ChipColor, string> = {
   warning: colorPalettes.light.warning.DEFAULT,
   info: colorPalettes.light.focus,
 };
-
-const CHART_HUES = ["default", "primary", "secondary", "success", "warning", "danger"] as const;
-const CHART_REFERENCES = Object.fromEntries(
-  CHART_HUES.flatMap((hue) =>
-    (["400", "500", "600"] as const).map((shade, index) => [`${hue}${index + 1}`, colorPalettes.dark[hue][shade]]),
-  ),
-) as Record<ChartColor, string>;
 
 function channel(value: string, scale: number): number {
   const trimmed = value.trim();
@@ -193,8 +186,28 @@ export function nearestChipColor(hex: string): ChipColor {
   return nearest(hex, CHIP_REFERENCES);
 }
 
+function hueAngle(lab: Lab): number {
+  return Math.atan2(lab.b, lab.a);
+}
+
+export function brandAccent(color: ChartColor): ChartColor {
+  return color === ChartColor.warning1 ? ChartColor.violet1 : color;
+}
+
 export function nearestChartColor(hex: string): ChartColor {
-  return nearest(hex, CHART_REFERENCES);
+  const target = parseCssColor(hex);
+  if (!target) throw new Error("Invalid brand colour.");
+  const angle = hueAngle(toOklab(target));
+  let best: { key: ChartColor; gap: number } | null = null;
+  for (const [key, value] of Object.entries(chartAccentSwatches) as Array<[ChartColor, string]>) {
+    const reference = parseCssColor(value);
+    if (!reference) continue;
+    const turn = Math.abs(angle - hueAngle(toOklab(reference)));
+    const gap = Math.min(turn, 2 * Math.PI - turn);
+    if (!best || gap < best.gap) best = { key, gap };
+  }
+  if (!best) throw new Error("No reference colours.");
+  return brandAccent(best.key);
 }
 
 export function mapBrandColors(input: BrandColorInput): BrandColorMapping | null {

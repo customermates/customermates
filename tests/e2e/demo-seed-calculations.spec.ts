@@ -1,19 +1,23 @@
 import type { Page } from "@playwright/test";
 import type { Client } from "pg";
 
-import { DEMO_COMPANY_ID, demoId, displayedNumber, expect, test } from "./demo-seed";
+import { SOLUTION_CATALOG } from "../../core/solutions/solution-catalog";
+import { presetId } from "../../features/records/crm-preset";
+import { solutionContent } from "../../prisma/seeds/solutions/define-solution";
+import { SOLUTION_DEFINITIONS } from "../../prisma/seeds/solutions/definitions";
+import { appPath } from "./app-paths";
+import { DEMO_COMPANY_ID, DEMO_SLUG, DEMO_STAGE_PROBABILITY, demoId, displayedNumber, expect, test } from "./demo-seed";
 
 /**
- * Calculated fields of the seeded workspace match a direct database computation from their inputs, and the record
+ * Calculated fields of the seeded demo workspaces match a direct database computation from their inputs, and the record
  * page shows the same value. Records are picked deterministically (by id) among those the calculation applies to.
  */
 type Value = { decimal: number | null; text: string | null; instant: Date | null; bool: boolean | null };
 type Row = Record<string, Value | undefined>;
 
-const DAY = 86_400_000;
-
-async function load(database: Client, typeKey: string, fieldKeys: string[]) {
-  const ids = fieldKeys.map(demoId);
+async function load(database: Client, typeKey: string, fieldKeys: string[], companyId = DEMO_COMPANY_ID) {
+  const id = (key: string) => presetId(companyId, key);
+  const ids = fieldKeys.map(id);
   const { rows } = await database.query<{
     recordId: string;
     fieldId: string;
@@ -27,18 +31,19 @@ async function load(database: Client, typeKey: string, fieldKeys: string[]) {
      FROM "CrmRecord" r LEFT JOIN "RecordValue" v ON v."companyId"=r."companyId" AND v."typeId"=r."typeId"
        AND v."recordId"=r.id AND v."fieldId"=ANY($3) AND v.state='value'
      WHERE r."companyId"=$1 AND r."typeId"=$2 AND r."deletedAt" IS NULL ORDER BY r.id`,
-    [DEMO_COMPANY_ID, demoId(typeKey), ids],
+    [companyId, id(typeKey), ids],
   );
   const records = new Map<string, Row>();
   for (const row of rows) {
     const record = records.get(row.recordId) ?? {};
-    if (row.fieldId)
+    if (row.fieldId) {
       record[fieldKeys[ids.indexOf(row.fieldId)]] = {
         decimal: row.decimal === null ? null : Number(row.decimal),
         text: row.text,
         instant: row.instant,
         bool: row.bool,
       };
+    }
     records.set(row.recordId, record);
   }
   return records;
@@ -59,14 +64,14 @@ async function linked(database: Client, relationKey: string) {
 
 const amount = (row: Row | undefined, key: string) => row?.[key]?.decimal ?? null;
 const sum = (values: Array<number | null>) => values.reduce<number>((total, value) => total + (value ?? 0), 0);
-const days = (from: Date, to: Date) => Math.round((to.getTime() - from.getTime()) / DAY);
+const numbers = (text: string) => (text.match(/-?\d[\d,]*(?:\.\d+)?/g) ?? []).map((n) => Number(n.replace(/,/g, "")));
 
 /**
  * The value a record page shows for a calculated field: read-only output, or the input of a snapshot that allows a
  * manual override.
  */
 async function shown(page: Page, typeKey: string, recordId: string, fieldKey: string) {
-  await page.goto(`/en/records/${demoId(typeKey)}/${recordId}`);
+  await page.goto(appPath(DEMO_SLUG, `/records/${demoId(typeKey)}/${recordId}`));
   const main = page.getByRole("main");
   const overview = main.getByRole("tab", { name: "Overview", exact: true });
   if (await overview.isVisible()) await overview.click();
@@ -86,246 +91,126 @@ async function expectShownAmount(page: Page, typeKey: string, recordId: string, 
   expect(displayedNumber(text), `${fieldKey} of ${recordId} shows "${text}"`).toBeCloseTo(expected, 1);
 }
 
-test("subscription ARR is the flat annual price or seats times the monthly seat price times twelve", async ({
-  page,
-  database,
-  errors,
-}) => {
-  const subscriptions = await load(database, "subscription", [
-    "subscription.annualPrice",
-    "subscription.seats",
-    "subscription.pricePerSeat",
-    "subscription.arr",
-  ]);
-  const expected = (row: Row) =>
-    amount(row, "subscription.annualPrice") ??
-    (amount(row, "subscription.seats") ?? 0) * (amount(row, "subscription.pricePerSeat") ?? 0) * 12;
-  for (const [id, row] of subscriptions)
-    expect(amount(row, "subscription.arr"), `ARR of subscription ${id}`).toBeCloseTo(expected(row), 2);
-  const entries = [...subscriptions];
-  const perSeat = entries.find(([, row]) => amount(row, "subscription.annualPrice") === null);
-  const flat = entries.find(([, row]) => amount(row, "subscription.annualPrice") !== null);
-  expect(perSeat, "a per-seat subscription").toBeTruthy();
-  for (const [id, row] of [perSeat, flat].filter((entry) => entry !== undefined))
-    await expectShownAmount(page, "subscription", id, "subscription.arr", expected(row));
+test("a deal's value is the sum of its line item amounts", async ({ page, database, errors }) => {
+  const deals = await load(database, "deal", ["deal.totalValue"]);
+  const lineItems = await load(database, "lineItem", ["lineItem.amount"]);
+  const itemsOf = await linked(database, "lineItem.deal");
+  const value = (dealId: string) =>
+    sum(itemsOf.filter(([, deal]) => deal === dealId).map(([item]) => amount(lineItems.get(item), "lineItem.amount")));
+  for (const [id, row] of deals)
+    expect(amount(row, "deal.totalValue") ?? 0, `value of deal ${id}`).toBeCloseTo(value(id), 2);
+  const lines = (dealId: string) => itemsOf.filter(([, deal]) => deal === dealId).length;
+  const multiLine = [...deals.keys()].find((id) => lines(id) >= 2 && value(id) > 0);
+  expect(multiLine, "a deal with two or more line items").toBeTruthy();
+  await expectShownAmount(page, "deal", multiLine as string, "deal.totalValue", value(multiLine as string));
   expect(errors).toEqual([]);
 });
 
-test("organization ARR and open pipeline roll up their subscriptions and open deals", async ({
+test("a line item's amount is its quantity times the price of its service", async ({
   page,
   database,
   errors,
-}) => {
-  const organizations = await load(database, "organization", ["organization.arr", "organization.openPipeline"]);
-  const subscriptions = await load(database, "subscription", ["subscription.arr"]);
-  const deals = await load(database, "deal", ["deal.totalValue", "deal.stage", "deal.openValue"]);
-  const stage = (key: string) => demoId(`deal.stage.${key}`);
-  const closed = new Set([stage("won"), stage("lost")]);
-  const openValue = (row: Row | undefined) =>
-    closed.has(row?.["deal.stage"]?.text ?? "") ? 0 : (amount(row, "deal.totalValue") ?? 0);
-  for (const [id, row] of deals)
-    expect(amount(row, "deal.openValue"), `open value of deal ${id}`).toBeCloseTo(openValue(row), 2);
-
-  const subscriptionLinks = await linked(database, "subscription.organization");
-  const dealLinks = await linked(database, "deal.organizations");
-  const arr = (organizationId: string) =>
-    sum(
-      subscriptionLinks
-        .filter(([, target]) => target === organizationId)
-        .map(([source]) => amount(subscriptions.get(source), "subscription.arr")),
-    );
-  const pipeline = (organizationId: string) =>
-    sum(dealLinks.filter(([, target]) => target === organizationId).map(([source]) => openValue(deals.get(source))));
-  for (const [id, row] of organizations) {
-    expect(amount(row, "organization.arr") ?? 0, `ARR of organization ${id}`).toBeCloseTo(arr(id), 2);
-    expect(amount(row, "organization.openPipeline") ?? 0, `open pipeline of organization ${id}`).toBeCloseTo(
-      pipeline(id),
-      2,
-    );
-  }
-  const counts = (links: ReadonlyArray<readonly [string, string]>, id: string) =>
-    links.filter(([, target]) => target === id).length;
-  const multiSubscription = [...organizations.keys()].find((id) => counts(subscriptionLinks, id) >= 2);
-  const withPipeline = [...organizations.keys()].find((id) => pipeline(id) > 0);
-  expect(multiSubscription, "an organization with two or more subscriptions").toBeTruthy();
-  expect(withPipeline, "an organization with open pipeline").toBeTruthy();
-  await expectShownAmount(
-    page,
-    "organization",
-    multiSubscription as string,
-    "organization.arr",
-    arr(multiSubscription as string),
-  );
-  await expectShownAmount(
-    page,
-    "organization",
-    withPipeline as string,
-    "organization.openPipeline",
-    pipeline(withPipeline as string),
-  );
-  expect(errors).toEqual([]);
-});
-
-test("won deals snapshot their contract value; discount, days to close and industry follow their inputs", async ({
-  page,
-  database,
-  errors,
-}) => {
-  const deals = await load(database, "deal", [
-    "deal.stage",
-    "deal.totalValue",
-    "deal.contractValue",
-    "deal.discountPercent",
-    "deal.openedOn",
-    "deal.closeDate",
-    "deal.daysToClose",
-    "deal.industry",
+}, testInfo) => {
+  const lineItems = await load(database, "lineItem", [
+    "lineItem.quantity",
+    "lineItem.pricingMode",
+    "lineItem.effectivePrice",
+    "lineItem.amount",
   ]);
-  const won = [...deals].filter(([, row]) => row["deal.stage"]?.text === demoId("deal.stage.won"));
-  expect(won.length).toBeGreaterThan(10);
-  for (const [id, row] of won)
-    expect(amount(row, "deal.contractValue"), `contract value of won deal ${id}`).toBeCloseTo(
-      amount(row, "deal.totalValue") ?? Number.NaN,
-      2,
-    );
-  for (const [id, row] of deals)
-    if (row["deal.stage"]?.text !== demoId("deal.stage.won"))
-      expect(amount(row, "deal.contractValue"), `contract value of open or lost deal ${id}`).toBeNull();
-
-  const lineItems = await load(database, "lineItem", ["lineItem.effectivePrice"]);
   const services = await load(database, "service", ["service.amount"]);
   const serviceOf = new Map((await linked(database, "lineItem.service")).map(([item, service]) => [item, service]));
-  const itemsOf = await linked(database, "lineItem.deal");
-  const discount = (dealId: string) => {
-    const discounts = itemsOf
-      .filter(([, deal]) => deal === dealId)
-      .flatMap(([item]) => {
-        const price = amount(lineItems.get(item), "lineItem.effectivePrice");
-        const list = amount(services.get(serviceOf.get(item) ?? ""), "service.amount");
-        return price === null || !list ? [] : [(1 - price / list) * 100];
-      });
-    return discounts.length ? Math.max(...discounts) : null;
-  };
-  for (const [id, row] of deals) {
-    const expected = discount(id);
-    if (expected === null) continue;
-    expect(amount(row, "deal.discountPercent"), `discount of deal ${id}`).toBeCloseTo(expected, 4);
+  const dealOf = new Map((await linked(database, "lineItem.deal")).map(([item, deal]) => [item, deal]));
+  expect(lineItems.size).toBeGreaterThan(0);
+  for (const [id, row] of lineItems) {
+    const price = amount(services.get(serviceOf.get(id) ?? ""), "service.amount");
+    expect(price, `service price of line item ${id}`).not.toBeNull();
+    if (row["lineItem.pricingMode"]?.text !== "saved") {
+      expect(amount(row, "lineItem.effectivePrice"), `unit price of line item ${id}`).toBeCloseTo(
+        price ?? Number.NaN,
+        2,
+      );
+    }
+    expect(amount(row, "lineItem.amount"), `amount of line item ${id}`).toBeCloseTo(
+      (amount(row, "lineItem.quantity") ?? 0) * (amount(row, "lineItem.effectivePrice") ?? 0),
+      2,
+    );
   }
-  const discounted = [...deals.keys()].find((id) => (discount(id) ?? 0) > 0);
-  expect(discounted, "a discounted deal").toBeTruthy();
-
-  for (const [id, row] of deals) {
-    const opened = row["deal.openedOn"]?.instant;
-    const closes = row["deal.closeDate"]?.instant;
-    if (opened && closes)
-      expect(amount(row, "deal.daysToClose"), `days to close of deal ${id}`).toBe(days(opened, closes));
-  }
-
-  const organizations = await load(database, "organization", ["organization.industry"]);
-  const organizationOf = await linked(database, "deal.organizations");
-  for (const [id, row] of deals) {
-    const organization = organizationOf.find(([deal]) => deal === id)?.[1];
-    const industry = organization ? organizations.get(organization)?.["organization.industry"]?.text : undefined;
-    expect(row["deal.industry"]?.text, `industry of deal ${id}`).toBe(industry);
-  }
-
-  const [wonId, wonRow] = won[0];
-  await expectShownAmount(page, "deal", wonId, "deal.contractValue", amount(wonRow, "deal.totalValue") ?? Number.NaN);
-  await expectShownAmount(
-    page,
-    "deal",
-    discounted as string,
-    "deal.discountPercent",
-    discount(discounted as string) ?? 0,
-  );
-  await expectShownAmount(
-    page,
-    "deal",
-    wonId,
-    "deal.daysToClose",
-    days(wonRow["deal.openedOn"]?.instant as Date, wonRow["deal.closeDate"]?.instant as Date),
-  );
-  const { rows } = await database.query<{ options: Array<{ id: string; label: string }> }>(
-    `SELECT definition->'options' AS options FROM "RecordFieldDefinition" WHERE "companyId"=$1 AND id=$2`,
-    [DEMO_COMPANY_ID, demoId("organization.industry")],
-  );
-  const label = rows[0].options.find((option) => option.id === wonRow["deal.industry"]?.text)?.label;
-  expect(label, "the won deal has an industry").toBeTruthy();
-  await page.goto(`/en/records/${demoId("deal")}/${wonId}`);
-  await expect(page.getByRole("main").locator(`[data-entity-field="${demoId("deal.industry")}"]`)).toContainText(
-    label as string,
-  );
-  expect(errors).toEqual([]);
-});
-
-test("tickets are overdue exactly when they ran past the SLA due date", async ({ page, database, errors }) => {
-  const tickets = await load(database, "ticket", [
-    "ticket.slaDue",
-    "ticket.resolvedOn",
-    "ticket.lastResponseOn",
-    "ticket.daysOverSla",
-    "ticket.overdue",
-  ]);
-  const over = (row: Row) => {
-    const due = row["ticket.slaDue"]?.instant;
-    const until = row["ticket.resolvedOn"]?.instant ?? row["ticket.lastResponseOn"]?.instant;
-    return due && until ? days(due, until) : null;
-  };
-  for (const [id, row] of tickets) {
-    expect(amount(row, "ticket.daysOverSla"), `days over SLA of ticket ${id}`).toBe(over(row));
-    if (over(row) !== null) expect(row["ticket.overdue"]?.bool, `overdue of ticket ${id}`).toBe((over(row) ?? 0) > 0);
-  }
-  const overdue = [...tickets].find(([, row]) => (over(row) ?? 0) > 0);
-  const onTime = [...tickets].find(([, row]) => over(row) !== null && (over(row) ?? 1) <= 0);
-  expect(overdue, "an overdue ticket").toBeTruthy();
-  expect(onTime, "a ticket within its SLA").toBeTruthy();
-  for (const [id, row] of [overdue, onTime] as Array<[string, Row]>) {
-    await expectShownAmount(page, "ticket", id, "ticket.daysOverSla", over(row) ?? Number.NaN);
-    const flag = page
-      .getByRole("main")
-      .locator(`[data-entity-field="${demoId("ticket.overdue")}"] [data-field-state="read-only"]`);
-    await expect(flag).toHaveText((over(row) ?? 0) > 0 ? "Yes" : "No");
+  const [lineId, line] =
+    [...lineItems].find(([, row]) => (amount(row, "lineItem.quantity") ?? 0) > 1) ?? [...lineItems][0];
+  const expected = amount(line, "lineItem.amount") ?? Number.NaN;
+  await page.goto(appPath(DEMO_SLUG, `/records/${demoId("deal")}/${dealOf.get(lineId)}`));
+  const main = page.getByRole("main");
+  const overview = main.getByRole("tab", { name: "Overview", exact: true });
+  if (await overview.isVisible()) await overview.click();
+  const row = main
+    .getByRole("region", { name: "Line items", exact: true })
+    .locator(`[data-row-id="${lineId}"], [data-item-id="${lineId}"]`);
+  await expect(row).toBeVisible();
+  // Phones show the sub-list as rows without the amount column; the shown amount is a desktop check.
+  if (!testInfo.project.use.isMobile) {
+    await expect
+      .poll(async () => numbers(await row.innerText()).some((number) => Math.abs(number - expected) < 0.01))
+      .toBe(true);
   }
   expect(errors).toEqual([]);
 });
 
-test("campaign pipeline sourced and partner revenue influenced roll up their linked deals", async ({
-  page,
+test("weighted value is the deal value times the probability of its stage", async ({ page, database, errors }) => {
+  const deals = await load(database, "deal", ["deal.stage", "deal.totalValue", "deal.weightedValue"]);
+  const probability = (row: Row) => DEMO_STAGE_PROBABILITY.get(row["deal.stage"]?.text ?? "") ?? Number.NaN;
+  const weighted = (row: Row) => ((amount(row, "deal.totalValue") ?? 0) * probability(row)) / 100;
+  for (const [id, row] of deals)
+    expect(amount(row, "deal.weightedValue") ?? 0, `weighted value of deal ${id}`).toBeCloseTo(weighted(row), 2);
+  const partial = [...deals].find(([, row]) => probability(row) > 0 && probability(row) < 100 && weighted(row) > 0);
+  expect(partial, "an open deal with a value").toBeTruthy();
+  const [id, row] = partial as [string, Row];
+  await expectShownAmount(page, "deal", id, "deal.weightedValue", weighted(row));
+  expect(errors).toEqual([]);
+});
+
+test("without a Services list a deal keeps its entered value, and its weighted value follows the stage", async ({
   database,
-  errors,
 }) => {
-  const deals = await load(database, "deal", ["deal.totalValue", "deal.contractValue"]);
-  const campaigns = await load(database, "campaign", ["campaign.pipelineSourced"]);
-  const partners = await load(database, "partner", ["partner.revenueInfluenced"]);
-  const campaignLinks = await linked(database, "deal.campaign");
-  const partnerLinks = await linked(database, "deal.partner");
-  const sourced = (id: string) =>
-    sum(
-      campaignLinks
-        .filter(([, campaign]) => campaign === id)
-        .map(([deal]) => amount(deals.get(deal), "deal.totalValue")),
-    );
-  const influenced = (id: string) =>
-    sum(
-      partnerLinks
-        .filter(([, partner]) => partner === id)
-        .map(([deal]) => amount(deals.get(deal), "deal.contractValue")),
-    );
-  for (const [id, row] of campaigns)
-    expect(amount(row, "campaign.pipelineSourced") ?? 0, `pipeline sourced by campaign ${id}`).toBeCloseTo(
-      sourced(id),
+  const solution = SOLUTION_CATALOG.find(({ id }) => id === "whatsapp-crm");
+  if (!solution) throw new Error("The catalog has no WhatsApp solution");
+  const companyId = solution.companyIds.en;
+  const content = solutionContent(SOLUTION_DEFINITIONS[solution.id], "en");
+  expect(content.lists.map(({ key }) => key)).not.toContain("service");
+  expect(content.dealValue).toBeUndefined();
+  const probabilities = new Map(
+    content.stages.map((stage) => [presetId(companyId, `deal.stage.${stage.key}`), stage.probability ?? 0]),
+  );
+  const deals = await load(database, "deal", ["deal.stage", "deal.totalValue", "deal.weightedValue"], companyId);
+  const seeded = (content.records.deal ?? []).map(({ values }) => Number(values.totalValue));
+  expect([...deals.values()].map((row) => amount(row, "deal.totalValue")).sort((a, b) => (a ?? 0) - (b ?? 0))).toEqual(
+    seeded.sort((a, b) => a - b),
+  );
+  for (const [id, row] of deals) {
+    const probability = probabilities.get(row["deal.stage"]?.text ?? "") ?? Number.NaN;
+    expect(amount(row, "deal.weightedValue") ?? 0, `weighted value of deal ${id}`).toBeCloseTo(
+      ((amount(row, "deal.totalValue") ?? 0) * probability) / 100,
       2,
     );
-  for (const [id, row] of partners)
-    expect(amount(row, "partner.revenueInfluenced") ?? 0, `revenue influenced by partner ${id}`).toBeCloseTo(
-      influenced(id),
+  }
+});
+
+test("a consultants engagement calculates its fee from day rate and days", async ({ database }) => {
+  const solution = SOLUTION_CATALOG.find(({ id }) => id === "consultants");
+  if (!solution) throw new Error("The catalog has no consultants solution");
+  const companyId = solution.companyIds.en;
+  const content = solutionContent(SOLUTION_DEFINITIONS[solution.id], "en");
+  expect(content.dealValue).toEqual({ kind: "product", left: "deal.dayRate", right: "deal.daysEstimated" });
+  const deals = await load(
+    database,
+    "deal",
+    ["deal.dayRate", "deal.daysEstimated", "deal.totalValue", "deal.weightedValue"],
+    companyId,
+  );
+  expect(deals.size).toBe(content.records.deal?.length);
+  for (const [id, row] of deals) {
+    expect(amount(row, "deal.totalValue") ?? 0, `fee of engagement ${id}`).toBeCloseTo(
+      (amount(row, "deal.dayRate") ?? 0) * (amount(row, "deal.daysEstimated") ?? 0),
       2,
     );
-  const campaign = [...campaigns.keys()].sort((left, right) => sourced(right) - sourced(left))[0];
-  const partner = [...partners.keys()].sort((left, right) => influenced(right) - influenced(left))[0];
-  expect(sourced(campaign)).toBeGreaterThan(0);
-  expect(influenced(partner)).toBeGreaterThan(0);
-  await expectShownAmount(page, "campaign", campaign, "campaign.pipelineSourced", sourced(campaign));
-  await expectShownAmount(page, "partner", partner, "partner.revenueInfluenced", influenced(partner));
-  expect(errors).toEqual([]);
+  }
 });

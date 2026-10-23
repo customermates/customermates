@@ -4,6 +4,7 @@ import { dataViewPath, isRecordTimelinePath } from "@/core/data-view/data-view-p
 import { SURFACE, type DataViewSurfaceKey } from "@/core/data-view/data-view-keys";
 import { SurfaceKeySchema, ViewKeySchema } from "@/core/data-view/data-view-state.schema";
 import { GET_PARAM_KEYS } from "@/core/utils/get-params";
+import { stripWorkspacePrefix } from "@/core/navigation/workspace-paths";
 
 type ViewContext = { surfaceKey: string; viewKey: string };
 type Registration = {
@@ -38,14 +39,21 @@ export class AgentViewContext {
     viewPathname?: string,
     propose?: Registration["propose"],
   ): () => void {
-    const registration = { pathname, read, prepare, viewPathname, propose };
+    const registration = {
+      pathname: stripWorkspacePrefix(pathname),
+      read,
+      prepare,
+      viewPathname: viewPathname === undefined ? undefined : stripWorkspacePrefix(viewPathname),
+      propose,
+    };
     this.registrations.push(registration);
     return () => {
       this.registrations = this.registrations.filter((entry) => entry !== registration);
     };
   }
 
-  private current(pathname: string, allowViewPathname = false) {
+  private current(path: string, allowViewPathname = false) {
+    const pathname = stripWorkspacePrefix(path);
     const owner = this.registration;
     if (!owner || (owner.pathname !== pathname && !(allowViewPathname && owner.viewPathname === pathname))) return null;
 
@@ -63,7 +71,8 @@ export class AgentViewContext {
     return null;
   }
 
-  route(pathname: string): string {
+  route(path: string): string {
+    const pathname = stripWorkspacePrefix(path);
     const view = this.current(pathname);
     if (!view) return pathname;
     const query = new URLSearchParams({
@@ -84,7 +93,8 @@ export class AgentViewContext {
     return current.registration.prepare?.();
   }
 
-  propose(pathname: string, proposal: DataViewProposal): boolean {
+  propose(path: string, proposal: DataViewProposal): boolean {
+    const pathname = stripWorkspacePrefix(path);
     for (let index = this.registrations.length - 1; index >= 0; index -= 1) {
       const registration = this.registrations[index];
       if (registration.pathname !== pathname && registration.viewPathname !== pathname) continue;
@@ -97,13 +107,14 @@ export class AgentViewContext {
 
   reloadHref(href: string, changes: readonly AgentViewChange[]): string | null {
     const url = new URL(href);
-    const view = this.current(url.pathname);
+    const routePath = stripWorkspacePrefix(url.pathname);
+    const view = this.current(routePath);
     if (!view) return null;
     const matching = changes.filter((change) => change.surfaceKey === view.surfaceKey);
     if (!matching.length) return null;
     const ownedPath = dataViewPath(view.surfaceKey);
-    const timelineDetail = view.surfaceKey === SURFACE.entityTimeline && isTimelineRecordPath(url.pathname);
-    if ((!ownedPath || stripLocalePrefix(url.pathname) !== ownedPath) && !timelineDetail) return null;
+    const timelineDetail = view.surfaceKey === SURFACE.entityTimeline && isTimelineRecordPath(routePath);
+    if ((!ownedPath || stripLocalePrefix(routePath) !== ownedPath) && !timelineDetail) return null;
     const selectionChanged = matching.some(
       (change) =>
         change.action === "create" ||

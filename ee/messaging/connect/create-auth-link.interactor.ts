@@ -27,6 +27,7 @@ import { CONNECT_CHANNELS, CONNECT_CHANNEL_KEYS } from "./connect-channels";
 import type { CreateHostedAuthLinkRepo } from "./create-hosted-auth-link.repo";
 import type { CreateAuthLinkSubscriptionRepo } from "./create-auth-link-subscription.repo";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
+import { workspaceReturnUrl } from "@/features/workspace/workspace-return-url";
 
 const HOSTED_AUTH_EXPIRY_MINUTES = 30;
 
@@ -70,7 +71,7 @@ export class CreateAuthLinkInteractor extends UserAccessor {
     try {
       link = await this.messagingService.createAuthLink({
         providers: [...entry.providers],
-        redirectUri: `${baseUrl}${settingsHref("channels")}`,
+        redirectUri: workspaceReturnUrl(baseUrl, this.user.company?.slug, settingsHref("channels")),
         expiresOn,
         state,
         ...(entry.config ? { config: entry.config } : {}),

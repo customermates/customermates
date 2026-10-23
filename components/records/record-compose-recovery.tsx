@@ -4,7 +4,7 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { AppModal } from "@/components/modal/app-modal";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { ContactComposePopover } from "@/app/[locale]/(protected)/records/[typeId]/components/contact-compose-popover";
+import { ContactComposePopover } from "@/app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/contact-compose-popover";
 import { useNavigationGuard } from "@/components/modal/use-navigation-guard";
 
 export const RecordComposeRecovery = observer(function RecordComposeRecovery() {

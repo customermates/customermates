@@ -1,9 +1,10 @@
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
-import { GRID_BREAKPOINTS, GRID_COLS } from "../../app/[locale]/(protected)/dashboard/components/grid.constants";
+import { GRID_BREAKPOINTS, GRID_COLS } from "../../app/[locale]/(protected)/w/[workspace]/dashboard/components/grid.constants";
 import { DisplayType } from "../../features/widget/widget-display.schema";
 import { widgetDisplayRequirement } from "../../features/widget/widget-display-rules";
 import { presetId } from "../../features/records/crm-preset";
 import { expect, test, collectPageErrors } from "./fixtures";
+import { pagePath } from "./app-paths";
 
 test("persists every chart style, appearance, a copied template, resizing and deletion through the unified builder", async ({
   page,
@@ -14,7 +15,7 @@ test("persists every chart style, appearance, a copied template, resizing and de
   test.setTimeout(240000);
   const errors = collectPageErrors(page);
   const dialog = page.getByRole("dialog");
-  await page.goto(`/en/records/${presetId(companyId, "service")}`);
+  await page.goto(pagePath(page, `/records/${presetId(companyId, "service")}`));
   for (const [name, price] of [
     ["First category", "5"],
     ["Second category", "8"],
@@ -25,7 +26,7 @@ test("persists every chart style, appearance, a copied template, resizing and de
     await dialog.getByRole("button", { name: "Save", exact: true }).click();
     await expect(dialog).not.toBeVisible();
   }
-  await page.goto("/en/dashboard");
+  await page.goto(pagePath(page, "/dashboard"));
   await page.locator("#dashboard-add-widget").click();
   await dialog.locator("#widget-starter-verticalBarChart").click();
   await dialog.getByRole("button", { name: englishMessages.Dashboard.widgetEditor.kind.change, exact: true }).click();
@@ -238,7 +239,7 @@ test("preserves widget previews and accessible draft confirmations across respon
   const errors = collectPageErrors(page);
   const originalViewport = page.viewportSize();
   await page.setViewportSize({ width: 1100, height: 900 });
-  await page.goto(`/en/records/${presetId(companyId, "service")}`);
+  await page.goto(pagePath(page, `/records/${presetId(companyId, "service")}`));
   await page.locator("#records-add").click();
   const recordDrawer = page.getByRole("dialog");
   await recordDrawer.getByRole("textbox", { name: "Name", exact: false }).fill("Responsive preview source");

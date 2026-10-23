@@ -1,0 +1,339 @@
+{
+  "capturedOn": "2026-10-23",
+  "entries": [
+    {
+      "key": "smb:en:light",
+      "mainSha256": "8c7c17aa0e6ea5f7deb2b6cc3978aa0a271d2c87ba241f0e03a51e283a721ac5",
+      "navRoute": "/en/w/small-business/dashboard",
+      "navSha256": "57234d2ee418e33222f10a5da96d5483d94d1705976ee47f067f665e8ddcd8df",
+      "route": "/en/w/small-business/dashboard"
+    },
+    {
+      "key": "smb:en:dark",
+      "mainSha256": "81601280fca17b4d66b29aa4fd01315ceb4b102e85ca80e58a828b0bbb7437ff",
+      "navRoute": "/en/w/small-business/dashboard",
+      "navSha256": "7af8ae5f29a982d215433d866b423b319f46b52c19eddaaf2c99703aac66453d",
+      "route": "/en/w/small-business/dashboard"
+    },
+    {
+      "key": "smb:de:light",
+      "mainSha256": "de625207c8c09dc6c42b3d2d646a41938cef1137ace90cf54aae18fb3526636f",
+      "navRoute": "/de/w/kleine-unternehmen/dashboard",
+      "navSha256": "12b3628316d7a5d5291e22e85fa2967ee9271217f74dd000ccb86ae384e1f268",
+      "route": "/de/w/kleine-unternehmen/dashboard"
+    },
+    {
+      "key": "smb:de:dark",
+      "mainSha256": "e0641db9a6f96cc7709369b7e392824239c67ca1dd49f9aeeca181ae8a6c9d3f",
+      "navRoute": "/de/w/kleine-unternehmen/dashboard",
+      "navSha256": "e28a29564cbdca7534b6acd140dd504dbd771fb201b10a06d9a6462363f5d442",
+      "route": "/de/w/kleine-unternehmen/dashboard"
+    },
+    {
+      "key": "smb:fr:light",
+      "mainSha256": "67902d019a20f1af2285a5449f5cb48b570b462a9b9133b4a1ec25ed9677ca41",
+      "navRoute": "/fr/w/small-business/dashboard",
+      "navSha256": "711b3d623b8188ccb00faeb757ca401cb8538ae6017155d7d4460bd7818c422b",
+      "route": "/fr/w/small-business/dashboard"
+    },
+    {
+      "key": "smb:fr:dark",
+      "mainSha256": "d20369d6e0fd2348bb79fa89475d1be20f62ec99502416dbc459ec6432a36ef0",
+      "navRoute": "/fr/w/small-business/dashboard",
+      "navSha256": "765cdb04ecaff84131b65554754c46abac6bedaf5252b90c3dc1e0488ee67a8b",
+      "route": "/fr/w/small-business/dashboard"
+    },
+    {
+      "key": "consultants:en:light",
+      "mainSha256": "a76a4bcc5e6e221efa39f8d8b90f1165155cae217cd440734367204b21d9f3b5",
+      "navRoute": "/en/w/consultants/records/7c0f67eb-0740-8230-8c6d-c63d21920ddd?view=1f100000-5100-4000-8000-000000000002",
+      "navSha256": "3a9255992078d9fdc8f00854284d8fadc607f4575add68800c851a9bafb3c878",
+      "route": "/en/w/consultants/dashboard"
+    },
+    {
+      "key": "consultants:en:dark",
+      "mainSha256": "bfef149f006a723e8afd9e72ecfc8642e901522c447038ff079ea247ded87149",
+      "navRoute": "/en/w/consultants/records/7c0f67eb-0740-8230-8c6d-c63d21920ddd?view=1f100000-5100-4000-8000-000000000002",
+      "navSha256": "caea488acd587ef27ba819ca5bc6020af2d4d55945bdee97bd39861711fd0ab0",
+      "route": "/en/w/consultants/dashboard"
+    },
+    {
+      "key": "consultants:de:light",
+      "mainSha256": "daf7e6d040916afb32260e0df474e4b54c868483d7b4b5ffe1a615b32f04a4ee",
+      "navRoute": "/de/w/beratung/records/08eef326-1d0b-8a53-8ec9-288aacd109e4?view=1f100000-5110-4000-8000-000000000002",
+      "navSha256": "324dc865a5505d8a2c42393eb9fd34edfb8adf93e7ba9e793a3c3a971f05ded7",
+      "route": "/de/w/beratung/dashboard"
+    },
+    {
+      "key": "consultants:de:dark",
+      "mainSha256": "27d4bb1d3956a30b2465dd53aad68e00f6202b1e1f2e9533b976f247059418d9",
+      "navRoute": "/de/w/beratung/records/08eef326-1d0b-8a53-8ec9-288aacd109e4?view=1f100000-5110-4000-8000-000000000002",
+      "navSha256": "377e962359ffcb9038d41390664b01692849c29249a67f7b1a36bbc1b6b83636",
+      "route": "/de/w/beratung/dashboard"
+    },
+    {
+      "key": "agencies:en:light",
+      "mainSha256": "c302700af1f6ffbeaa568ed8bc49e2037e9c31c7787f300e5980158958f328c6",
+      "navRoute": "/en/w/agencies/records/7c9cb8af-257b-87ea-8a8e-6c5dec71d826?view=1f100000-5200-4000-8000-000000000001",
+      "navSha256": "c7b14aedf91af015161514a4e55c352125cf409ed2ac7145da51780af6b185af",
+      "route": "/en/w/agencies/dashboard"
+    },
+    {
+      "key": "agencies:en:dark",
+      "mainSha256": "4a0b6a0978c638be6c9dc946f4d80d426b66c83a9cbff9d4b1a9f118e6bfe3bd",
+      "navRoute": "/en/w/agencies/records/7c9cb8af-257b-87ea-8a8e-6c5dec71d826?view=1f100000-5200-4000-8000-000000000001",
+      "navSha256": "2d5bf9502628f8767eb8b2ef6ce17f1205fd3b7b65b76b478b23579239c15897",
+      "route": "/en/w/agencies/dashboard"
+    },
+    {
+      "key": "agencies:de:light",
+      "mainSha256": "a738ac08bce35bf645e1846bfecc4bf27c9e394289340804cac3f99992e15304",
+      "navRoute": "/de/w/agenturen/records/9d4fde54-a01d-8ab5-8004-6d8f8b1eaf2b?view=1f100000-5210-4000-8000-000000000001",
+      "navSha256": "ecbef082f6530c43e6488a6141a4fe91682877876ea2c43eeadc6a987248cb6a",
+      "route": "/de/w/agenturen/dashboard"
+    },
+    {
+      "key": "agencies:de:dark",
+      "mainSha256": "730c37927dc108761107f6d78ae7a96e5343f5c01b2301f0c37e4c8f8cb27cce",
+      "navRoute": "/de/w/agenturen/records/9d4fde54-a01d-8ab5-8004-6d8f8b1eaf2b?view=1f100000-5210-4000-8000-000000000001",
+      "navSha256": "ca2645795b4f5b5c2f98d7e126f1dea8f35fb036d3bf10edb674b00dc924b391",
+      "route": "/de/w/agenturen/dashboard"
+    },
+    {
+      "key": "agencies:fr:light",
+      "mainSha256": "de8c467d6a60ac891c1499584e4edac64fbd5c61f8ea70a59a01757123e78077",
+      "navRoute": "/fr/w/agencies/records/7c9cb8af-257b-87ea-8a8e-6c5dec71d826?view=1f100000-5200-4000-8000-000000000001",
+      "navSha256": "8dceb01e901b54f18563677698ca1be50304d173b047960cd5c357bc96058669",
+      "route": "/fr/w/agencies/dashboard"
+    },
+    {
+      "key": "agencies:fr:dark",
+      "mainSha256": "24180b5c6553529f173374720debd1014016144900c7fbebaed86190c41c558e",
+      "navRoute": "/fr/w/agencies/records/7c9cb8af-257b-87ea-8a8e-6c5dec71d826?view=1f100000-5200-4000-8000-000000000001",
+      "navSha256": "ab6f0646ad02d528fdc8c781aa1d5b7c1bede1c9059e3301678c5c3d76708ea2",
+      "route": "/fr/w/agencies/dashboard"
+    },
+    {
+      "key": "freelancers:en:light",
+      "mainSha256": "c1e228676a9c884ebbaed56578b183e1de089a27f48b30c88fc95e70e9232cf1",
+      "navRoute": "/en/w/freelancers/records/04b6c610-0f56-8e55-80e6-786ba78856e2?view=1f100000-5300-4000-8000-000000000001",
+      "navSha256": "73130365d67007db25b008f7a374c6604d0b5d0e0416d136a1ac6a3202908c56",
+      "route": "/en/w/freelancers/dashboard"
+    },
+    {
+      "key": "freelancers:en:dark",
+      "mainSha256": "6a8c44ddf851bb890747a5e58e491541e80b2e20f6da38dfb72afa466dc93ce6",
+      "navRoute": "/en/w/freelancers/records/04b6c610-0f56-8e55-80e6-786ba78856e2?view=1f100000-5300-4000-8000-000000000001",
+      "navSha256": "b3c59cb8d6f4b66be5c0501c6901f9a881ac16eec7f786172ca0e4521648672a",
+      "route": "/en/w/freelancers/dashboard"
+    },
+    {
+      "key": "freelancers:de:light",
+      "mainSha256": "5a9d09811120f719b76ad1da513ae72daad74075c4ff3baec0bd709bd6b21512",
+      "navRoute": "/de/w/selbststaendige/records/851871ee-f28b-8d31-8ae0-ba32234af792?view=1f100000-5310-4000-8000-000000000001",
+      "navSha256": "fe3830173ed69b2483d9c21edd39c359aca4571f9ddbd32c0e12fa1747d56298",
+      "route": "/de/w/selbststaendige/dashboard"
+    },
+    {
+      "key": "freelancers:de:dark",
+      "mainSha256": "24947d72cc453a2b910736c922463cf23e18c7b5d39845346fe3bbc0b3fc96d1",
+      "navRoute": "/de/w/selbststaendige/records/851871ee-f28b-8d31-8ae0-ba32234af792?view=1f100000-5310-4000-8000-000000000001",
+      "navSha256": "6a78cbbb7bd54a9675f90fcbab2cd0548839e2f5e522d8a07ec7bd49d0a25b8a",
+      "route": "/de/w/selbststaendige/dashboard"
+    },
+    {
+      "key": "startups:en:light",
+      "mainSha256": "5c19f0f9860c23b6aecb071518dd1b1b0c42adf1af6ba91ee7978f2e682c70ef",
+      "navRoute": "/en/w/founder-sales/dashboard",
+      "navSha256": "7083d96031d94cf1dc010056703a1013d199e61c60b529aa4a45c4a4551be182",
+      "route": "/en/w/founder-sales/dashboard"
+    },
+    {
+      "key": "startups:en:dark",
+      "mainSha256": "1559d181a4a0b3029f26a639cc2e823af49aca22be23fee83e91d31e949a878c",
+      "navRoute": "/en/w/founder-sales/dashboard",
+      "navSha256": "199a5d6ccfda79e9f09fb6b9db475ee0e2481cf894785bdbf4bc0e251c95743d",
+      "route": "/en/w/founder-sales/dashboard"
+    },
+    {
+      "key": "startups:de:light",
+      "mainSha256": "79688c810c6cdc5994751dc8e40eb9e48539a7e7ef5b1a48076d0e4baeefb149",
+      "navRoute": "/de/w/gruender-vertrieb/dashboard",
+      "navSha256": "af44db225cbe31ada0c90a9b1bb04fc08b8ac76f9c79241919f6ae9ed0288870",
+      "route": "/de/w/gruender-vertrieb/dashboard"
+    },
+    {
+      "key": "startups:de:dark",
+      "mainSha256": "c890bc5c6b7764574a974a9e18d00ffb16cae45397ae85f6b911ef8d8d4d0710",
+      "navRoute": "/de/w/gruender-vertrieb/dashboard",
+      "navSha256": "6f65c9ccf0b80abd802bfb282940b22b3c40e9519270d3993e31c5d517576350",
+      "route": "/de/w/gruender-vertrieb/dashboard"
+    },
+    {
+      "key": "client-management:en:light",
+      "mainSha256": "1062f36e70d51071fea3850c233ee068a9293ac18f7687978623eba2a3d08b82",
+      "navRoute": "/en/w/client-management/records/26318eee-a3d2-82bf-842f-f21a9897ed56?view=1f100000-5500-4000-8000-000000000002",
+      "navSha256": "8af24cf361e372a645539d542f36b9ea315646d78194aace51d983d9dcdb557d",
+      "route": "/en/w/client-management/dashboard"
+    },
+    {
+      "key": "client-management:en:dark",
+      "mainSha256": "a3848f582a2b3a23ea02c7c28c6868ad512d7d16e8432de3b6072e7b08cadfb1",
+      "navRoute": "/en/w/client-management/records/26318eee-a3d2-82bf-842f-f21a9897ed56?view=1f100000-5500-4000-8000-000000000002",
+      "navSha256": "1d144939d43c278642bcf9b62167ff92e1a28780e2a0277ac80bef08824dce0e",
+      "route": "/en/w/client-management/dashboard"
+    },
+    {
+      "key": "client-management:de:light",
+      "mainSha256": "c0de548ac9c0ff5795b6eb9fa60d5fb9f2cb5cae71e5cb948f62c0d4ae4f88d2",
+      "navRoute": "/de/w/kundenverwaltung/records/b745dd1d-13fb-8956-8daa-58f35c7e5cfd?view=1f100000-5510-4000-8000-000000000002",
+      "navSha256": "2daeccbfa1855021356522136eee1dab09849963a913526bcd87f987d0a6d39c",
+      "route": "/de/w/kundenverwaltung/dashboard"
+    },
+    {
+      "key": "client-management:de:dark",
+      "mainSha256": "ab589de8ecd3d3bdad77f8abe7e8ab448b0169c43e175343d413a7d8e71c0934",
+      "navRoute": "/de/w/kundenverwaltung/records/b745dd1d-13fb-8956-8daa-58f35c7e5cfd?view=1f100000-5510-4000-8000-000000000002",
+      "navSha256": "71e6249ed98dfb0042052bfdaee3d618679c536bd6a2435a3bcda29fde5cfa38",
+      "route": "/de/w/kundenverwaltung/dashboard"
+    },
+    {
+      "key": "client-management:fr:light",
+      "mainSha256": "b3053376f38ca941ff89b7c84633de582361908b03274a34edcd43cee5bb1153",
+      "navRoute": "/fr/w/client-management/records/26318eee-a3d2-82bf-842f-f21a9897ed56?view=1f100000-5500-4000-8000-000000000002",
+      "navSha256": "a0cd3742fce82002d667a7a45006df2225515a95333631bbf95648c1fe5426df",
+      "route": "/fr/w/client-management/dashboard"
+    },
+    {
+      "key": "client-management:fr:dark",
+      "mainSha256": "258c6cb1f7369dd26c5a9faeca9393a90058f93d44a754e7372bdfd280376021",
+      "navRoute": "/fr/w/client-management/records/26318eee-a3d2-82bf-842f-f21a9897ed56?view=1f100000-5500-4000-8000-000000000002",
+      "navSha256": "2175afd0c4e0e64bd1ec344c6eadf0872a7acc76f3b0536e3019136b95b62709",
+      "route": "/fr/w/client-management/dashboard"
+    },
+    {
+      "key": "sales-pipeline:en:light",
+      "mainSha256": "474e07e82050f689ca8e1e7960af1ed537ac9cac2b351da681ecd46b7eaa9a70",
+      "navRoute": "/en/w/sales-pipeline/records/9b774d19-a0a5-8e18-8549-908fabb6754b?view=1f100000-5600-4000-8000-000000000001",
+      "navSha256": "d243362803c1ad9de8665cf621d408d1590c614b7b4e753922faffe5ad239024",
+      "route": "/en/w/sales-pipeline/dashboard"
+    },
+    {
+      "key": "sales-pipeline:en:dark",
+      "mainSha256": "2f85317cdc0345c3d95a40c6f71ee7d0b98fe9add823bf56af3d637be166e6b7",
+      "navRoute": "/en/w/sales-pipeline/records/9b774d19-a0a5-8e18-8549-908fabb6754b?view=1f100000-5600-4000-8000-000000000001",
+      "navSha256": "41a008fc78ecfbc114a0555e230a5fa6f3c8dca5ad9cadf1191f872b33ba7ac9",
+      "route": "/en/w/sales-pipeline/dashboard"
+    },
+    {
+      "key": "sales-pipeline:de:light",
+      "mainSha256": "26e5671adf73527af125864cb42f9f07606cc333747646a5ba7c46c5ff73d7d6",
+      "navRoute": "/de/w/vertriebspipeline/records/f2cddf3a-2b98-8e74-89fb-3e9425f8c342?view=1f100000-5610-4000-8000-000000000001",
+      "navSha256": "0b603a40bdcf0499a20654f5893923f4d26843bce2651d909f95d5e624421c21",
+      "route": "/de/w/vertriebspipeline/dashboard"
+    },
+    {
+      "key": "sales-pipeline:de:dark",
+      "mainSha256": "551e965b3a22a414fbcf32ad8c986e7a48c732dbf1837d286b67263c05124985",
+      "navRoute": "/de/w/vertriebspipeline/records/f2cddf3a-2b98-8e74-89fb-3e9425f8c342?view=1f100000-5610-4000-8000-000000000001",
+      "navSha256": "843ce345042b1c146357439520ed778f82eb28069db4cfb6d1f497b9ffb833e0",
+      "route": "/de/w/vertriebspipeline/dashboard"
+    },
+    {
+      "key": "sales-pipeline:fr:light",
+      "mainSha256": "8486bfac0d2d079968b12f30d685631962a40fdcaf22dc410d61c2a42b638832",
+      "navRoute": "/fr/w/sales-pipeline/records/9b774d19-a0a5-8e18-8549-908fabb6754b?view=1f100000-5600-4000-8000-000000000001",
+      "navSha256": "34e206685fd8ccc775ce6f8d1d6d5737e8db7e5d1de570ccdfd257e1120c49d9",
+      "route": "/fr/w/sales-pipeline/dashboard"
+    },
+    {
+      "key": "sales-pipeline:fr:dark",
+      "mainSha256": "fbac5f298ae693493781146e4b38689d79dc2dbd9ba70cbaf219b79097de2906",
+      "navRoute": "/fr/w/sales-pipeline/records/9b774d19-a0a5-8e18-8549-908fabb6754b?view=1f100000-5600-4000-8000-000000000001",
+      "navSha256": "b3f0e52a58249a3e02ec23d8d88ab1764b4c501e35aa7779061c6924347116f6",
+      "route": "/fr/w/sales-pipeline/dashboard"
+    },
+    {
+      "key": "linkedin-crm:en:light",
+      "mainSha256": "a30527c79427f482a8536c733279c75710eb634ff94a069e4c48ce8fa438e9e6",
+      "navRoute": "/en/w/linkedin-sales/inbox?threadId=17000000-5700-4000-8000-000000000001",
+      "navSha256": "0f736efda1fc511cc71d1f9b777835d32a4eed6bc967e7620fee2355e4825f12",
+      "route": "/en/w/linkedin-sales/dashboard"
+    },
+    {
+      "key": "linkedin-crm:en:dark",
+      "mainSha256": "6713e9f95c5fffd483b9c4e0105891c8b6fa183c0ba50bce8b390f77c362b7ed",
+      "navRoute": "/en/w/linkedin-sales/inbox?threadId=17000000-5700-4000-8000-000000000001",
+      "navSha256": "b8525f8e22087cb0d37fb9e41398a00fa110a7e4857cfe64cb5b8b73ce2c45d3",
+      "route": "/en/w/linkedin-sales/dashboard"
+    },
+    {
+      "key": "linkedin-crm:de:light",
+      "mainSha256": "ec3a3f76396faf0d4e04284f36b477a14869f77e4305af6cae663fb7d6a227c6",
+      "navRoute": "/de/w/linkedin-vertrieb/inbox?threadId=17000000-5710-4000-8000-000000000001",
+      "navSha256": "f27411de63098dcb938a572a7f6eaf84983105e5742ec3f507479e21569cf1ea",
+      "route": "/de/w/linkedin-vertrieb/dashboard"
+    },
+    {
+      "key": "linkedin-crm:de:dark",
+      "mainSha256": "0a783fb0c1b25f79b5f6f5c70178455a0f17be50a11b980290474d21088cf70e",
+      "navRoute": "/de/w/linkedin-vertrieb/inbox?threadId=17000000-5710-4000-8000-000000000001",
+      "navSha256": "6550a5ec4a41862aab279554ad45d2d11ca6e66a74452a4950d54e6ee882304c",
+      "route": "/de/w/linkedin-vertrieb/dashboard"
+    },
+    {
+      "key": "whatsapp-crm:en:light",
+      "mainSha256": "a8f3e7355a7a96d2ea5530bb92e741525704931d3bbc9dad5381792dbd87e07d",
+      "navRoute": "/en/w/whatsapp/inbox?threadId=17000000-5800-4000-8000-000000000001",
+      "navSha256": "c9b8fbefed167f8b335b24844978ae7be78c02fefc3f6e1453b7cda9c1083201",
+      "route": "/en/w/whatsapp/dashboard"
+    },
+    {
+      "key": "whatsapp-crm:en:dark",
+      "mainSha256": "3c6e5361f9174e4653455291b54ed10c64ab4ccb3728edceedffb948beb66783",
+      "navRoute": "/en/w/whatsapp/inbox?threadId=17000000-5800-4000-8000-000000000001",
+      "navSha256": "a8ef9c6c746acc5a1497d79a5896648bdf229960f173a7d9cbd3b02b8bf0c4a8",
+      "route": "/en/w/whatsapp/dashboard"
+    },
+    {
+      "key": "whatsapp-crm:de:light",
+      "mainSha256": "7815b347ca14ed2720778323cdc85b5cbbfc06c62b868279a50eef69f0f25c76",
+      "navRoute": "/de/w/whatsapp-kundenkontakt/inbox?threadId=17000000-5810-4000-8000-000000000001",
+      "navSha256": "103975dff0a65de3b910cdf3dd3bf1bd34b2bd3a6312fae1e05568813473ce1b",
+      "route": "/de/w/whatsapp-kundenkontakt/dashboard"
+    },
+    {
+      "key": "whatsapp-crm:de:dark",
+      "mainSha256": "34fcd6758eb4d975edb4e05b676bd8a3616f8f8cb6e698b9d896f11088b138d8",
+      "navRoute": "/de/w/whatsapp-kundenkontakt/inbox?threadId=17000000-5810-4000-8000-000000000001",
+      "navSha256": "d1a39e0d7051d6ed8247e9deda1238b27d3dd25c50c696643cba1fd210cdda60",
+      "route": "/de/w/whatsapp-kundenkontakt/dashboard"
+    }
+  ],
+  "environment": "Local APP_MODE=demo instance on a freshly reset and seeded PostgreSQL database; Chromium via Playwright",
+  "nav": {
+    "capturedOn": "2026-10-23",
+    "clip": {
+      "height": 720,
+      "width": 1152
+    },
+    "environment": "Local APP_MODE=demo instance on its current seeded database; Chromium via Playwright",
+    "image": {
+      "height": 600,
+      "width": 960
+    },
+    "sidebarWidth": 208,
+    "sourceRevision": "52a4b54fe-dirty",
+    "viewport": {
+      "deviceScaleFactor": 2,
+      "height": 900,
+      "width": 1440
+    }
+  },
+  "sourceRevision": "52a4b54fe-dirty",
+  "viewport": {
+    "deviceScaleFactor": 2,
+    "height": 900,
+    "width": 1440
+  }
+}

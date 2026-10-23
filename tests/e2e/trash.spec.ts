@@ -4,9 +4,10 @@ import { test, expect, collectPageErrors } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 import { recordItem, runRowAction } from "./record-rows";
 import { openSidebar } from "./sidebar";
+import { companyPath, companyUrlPattern, pagePath } from "./app-paths";
 
 async function addServices(page: Page, typeId: string, names: string[]) {
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(pagePath(page, `/records/${typeId}`));
   const dialog = page.getByRole("dialog");
   for (const name of names) {
     await page.locator("#records-add").click();
@@ -56,7 +57,7 @@ test("restores a deleted record from Trash and shows a trashed record read only"
 
   await openSidebar(page);
   await page.locator("#nav-trash").click();
-  await expect(page).toHaveURL(/\/en\/trash/);
+  await expect(page).toHaveURL(companyUrlPattern(companyId, "/trash"));
   const row = trashRow(page, "Restore Service");
   await expect(row).toContainText("Record in Services");
   await expect(row).toContainText("Browser Administrator");
@@ -107,9 +108,9 @@ test("restores a deleted record from Trash and shows a trashed record read only"
   await page.getByRole("button", { name: "Restore", exact: true }).click();
   await expect(banner).not.toBeVisible();
 
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   await expect(recordItem(page, "Restore Service")).toBeVisible();
-  await page.goto("/en/trash");
+  await page.goto(companyPath(companyId, "/trash"));
   await expect(trashRow(page, "Restore Service")).toHaveCount(0);
   expect(errors).toEqual([]);
 });
@@ -119,7 +120,7 @@ test("deletes a record permanently after confirming what disappears", async ({ p
   const typeId = presetId(companyId, "service");
   await addServices(page, typeId, ["Gone Service"]);
   await deleteFromRow(page, "Gone Service");
-  await page.goto("/en/trash");
+  await page.goto(companyPath(companyId, "/trash"));
   const row = trashRow(page, "Gone Service");
   await runRowAction(page, row, "Gone Service", "Delete permanently");
   const confirmation = page.getByRole("alertdialog");
@@ -148,7 +149,7 @@ test("mentions dashboard widgets only when a dashboard view is deleted permanent
   };
   await trashView(`records:${presetId(companyId, "contact")}`, "Trashed contacts view");
   await trashView("dashboard", "Trashed board");
-  await page.goto("/en/trash");
+  await page.goto(companyPath(companyId, "/trash"));
   const confirmation = page.getByRole("alertdialog");
   const widgets = "For a dashboard view, its widgets are also deleted permanently.";
 
@@ -172,7 +173,7 @@ test("restores and deletes permanently in bulk and empties the trash", async ({ 
   await addServices(page, typeId, names);
   for (const name of names) await deleteFromRow(page, name);
 
-  await page.goto("/en/trash");
+  await page.goto(companyPath(companyId, "/trash"));
   await page.locator("#trash-more").click();
   await expect(page.locator("#trash-empty")).toBeVisible();
   await expect(page.locator("#trash-empty")).toHaveAttribute("data-variant", "destructive");
@@ -211,7 +212,7 @@ test("restores and deletes permanently in bulk and empties the trash", async ({ 
     await page.screenshot({ path: testInfo.outputPath(`trash-empty-${scheme}.png`), animations: "disabled" });
   }
 
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   for (const name of ["Bulk One", "Bulk Two"])
     await expect(recordItem(page, name)).toBeVisible();
   for (const name of ["Bulk Three", "Bulk Four"])

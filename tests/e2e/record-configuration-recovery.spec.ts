@@ -20,7 +20,8 @@ import {
 } from "./configure";
 import { expect, test, collectPageErrors } from "./fixtures";
 import { readModel } from "./api";
-import { suggestListPlural } from "../../app/[locale]/(protected)/configure/components/list-plural";
+import { suggestListPlural } from "../../app/[locale]/(protected)/w/[workspace]/configure/components/list-plural";
+import { anyWorkspaceUrlPattern } from "./app-paths";
 
 const labels = englishMessages.RecordModel;
 const recovery = {
@@ -81,7 +82,7 @@ async function createList(page: Page, name: string) {
   await dialog.locator("#name").fill(name);
   await dialog.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).first().click();
   await expect(dialog).not.toBeVisible();
-  await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
+  await expect(page).toHaveURL(anyWorkspaceUrlPattern("/records/[a-f0-9-]+$"));
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
   if (!typeId) throw new Error("Expected created type route");
   await configure(page, typeId);

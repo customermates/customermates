@@ -1,15 +1,16 @@
 import { Status } from "@/generated/prisma";
 import { redirect } from "next/navigation";
+import { appRedirectHref } from "@/features/auth/next/app-redirect";
+import { workspaceLocalePath } from "@/core/navigation/workspace-paths";
+import { buildLocalePath } from "@/i18n/locale-registry";
 import { getLocale } from "next-intl/server";
 
-import { LinkedWorkspaceCard } from "./components/linked-workspace-card";
 import { OnboardingWizard } from "./components/onboarding-wizard";
 
 import { requireAccountState } from "@/features/auth/next/require";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 import { ONBOARDING_INTENT_QUERY_PARAM, onboardingIntentAuthRedirects } from "@/features/company/onboarding-intent-url";
 import { resolveOnboardingIntent } from "@/features/company/next/onboarding-intent";
-import { buildLocalePath } from "@/i18n/locale-registry";
 import {
   getGetOnboardingWizardProgressInteractor,
   getGetWorkspaceSetupStatusInteractor,
@@ -32,17 +33,13 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
     const linked = workspaces.data.find(
       (workspace) => workspace.companyId === linkedWorkspace && workspace.status === Status.active,
     );
-    if (!linked) redirect(buildLocalePath(await getLocale(), "/"));
-    if (linked.isCurrent) redirect(buildLocalePath(await getLocale(), "/onboarding/wizard"));
-    return (
-      <CenteredCardPage>
-        <LinkedWorkspaceCard companyId={linked.companyId} name={linked.name} />
-      </CenteredCardPage>
-    );
+    const locale = await getLocale();
+    if (!linked) redirect(buildLocalePath(locale, "/dashboard"));
+    redirect(workspaceLocalePath(locale, linked.slug, "/onboarding/wizard"));
   }
   const onboardingIntent = await resolveOnboardingIntent(params[ONBOARDING_INTENT_QUERY_PARAM]);
   if (onboardingIntent.status === "invalid" && onboardingIntent.source === "explicit")
-    redirect(buildLocalePath(await getLocale(), `/auth/error?type=${onboardingIntent.errorMessage}`));
+    redirect(await appRedirectHref(`/auth/error?type=${onboardingIntent.errorMessage}`));
 
   const activeIntent = onboardingIntent.status === "valid" ? onboardingIntent : null;
   const resolution = await requireAccountState(
@@ -55,7 +52,7 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
 
   const effectiveIntent = user ? null : activeIntent;
   if (effectiveIntent?.type === "createCompany" && effectiveIntent.authUserId !== sessionUser.id)
-    redirect(buildLocalePath(await getLocale(), "/auth/error?type=invalidOnboardingIntent"));
+    redirect(await appRedirectHref("/auth/error?type=invalidOnboardingIntent"));
 
   const invitation = effectiveIntent?.type === "invitation" ? effectiveIntent : null;
   const hasExplicitCreateIntent = effectiveIntent?.type === "createCompany";
@@ -65,7 +62,7 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
   const canCreateCompany = Boolean(
     effectiveIntent?.type === "createCompany" && effectiveIntent.authUserId === sessionUser.id,
   );
-  if (!user && !isInvited && !canCreateCompany) redirect(buildLocalePath(await getLocale(), "/onboarding"));
+  if (!user && !isInvited && !canCreateCompany) redirect(await appRedirectHref("/onboarding"));
 
   let setupStatus: WorkspaceSetupStatusView | undefined;
   let setupStepCompleted = false;
@@ -86,7 +83,7 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
   const sessionLastName = isEmail ? undefined : spaceIndex === -1 ? undefined : sessionName.slice(spaceIndex + 1);
   const sessionAvatarUrl = sessionUser.image?.startsWith("https:") ? sessionUser.image : "";
   const savedProgress = user?.role?.isSystemRole ? await getGetOnboardingWizardProgressInteractor().invoke() : null;
-  if (savedProgress && isRedirect(savedProgress)) redirect(buildLocalePath(await getLocale(), savedProgress.redirect));
+  if (savedProgress && isRedirect(savedProgress)) redirect(await appRedirectHref(savedProgress.redirect));
 
   return (
     <CenteredCardPage>

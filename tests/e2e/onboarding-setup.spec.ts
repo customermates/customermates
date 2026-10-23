@@ -9,6 +9,7 @@ import { collectPageErrors, expect, test } from "./fixtures";
 import { moveWithKeyboard } from "./keyboard-drag";
 import { uniqueWorkspaceName } from "./workspace-names";
 import { clickHydrated, e2eAppMode } from "./workspace-switching";
+import { appPath, appUrlPattern, workspaceSlugOf } from "./app-paths";
 
 test.skip(e2eAppMode() !== "cloud", "The guided workspace setup runs in the cloud only");
 
@@ -19,13 +20,13 @@ async function openSetupOfNewWorkspace(page: Page, database: Client, workspace: 
     'INSERT INTO "User" (id,"companyId","roleId",email,"firstName","lastName",status,"agreeToTerms","onboardingWizardCompletedAt","createdAt","updatedAt") SELECT $1,"companyId","roleId",$2,\'Clara\',\'Founder\',\'active\',true,NOW(),"createdAt" - interval \'1 day\',NOW() FROM "User" WHERE id=$3',
     [randomUUID(), `clara-${randomUUID()}@example.test`, workspace.userId],
   );
-  await page.goto("/en/settings/workspaces");
+  await page.goto(appPath(workspace.slug, "/settings/workspaces"));
   await clickHydrated(page.getByRole("button", { name: "Create workspace", exact: true }));
   const dialog = page.getByRole("dialog", { name: "Create workspace" });
   await dialog.locator("#create-workspace-name").fill(name);
   await dialog.locator("#create-workspace-terms").click();
   await dialog.getByRole("button", { name: "Create workspace", exact: true }).click();
-  await expect(page).toHaveURL(/\/en\/onboarding\/wizard$/);
+  await expect(page).toHaveURL(/\/en(?:\/w\/[a-z0-9-]+)?\/onboarding\/wizard$/);
   await expect(
     page.getByRole("heading", { level: 1, name: englishMessages.OnboardingWizard.steps.setup.title, exact: true }),
   ).toBeVisible();
@@ -108,7 +109,7 @@ test("starting with an empty workspace skips the guided setup after a confirmati
   await page.screenshot({ path: testInfo.outputPath("setup-empty-confirm.png") });
   await confirm.getByRole("button", { name: englishMessages.WorkspaceSetup.empty.confirm, exact: true }).click();
 
-  await expect(page).toHaveURL(/\/en\/dashboard$/);
+  await expect(page).toHaveURL(appUrlPattern(await workspaceSlugOf(database, companyId), "/dashboard$"));
   await expect(page.getByRole("button", { name: "Create list" }).first()).toBeVisible();
   const lists = await database.query('SELECT 1 FROM "RecordTypeDefinition" WHERE "companyId"=$1', [companyId]);
   expect(lists.rowCount).toBe(0);

@@ -63,35 +63,35 @@ export function widgetLayoutGeometry(
 ): WidgetLayoutGeometry {
   const minimum = widgetMinimumSize(kind, displayType);
   if (kind === "chart")
-    return { w: Math.min(persisted?.w ?? 4, cols), h: Math.max(minimum.h, persisted?.h ?? 8), minH: minimum.h };
+    return { w: Math.min(persisted?.w ?? 4, cols), h: Math.max(minimum.h, persisted?.h ?? 6), minH: minimum.h };
   const minW = Math.min(minimum.w, cols);
   return {
     w: Math.max(minW, Math.min(persisted?.w ?? Math.min(cols >= 12 ? 6 : 4, cols), cols)),
-    h: Math.max(minimum.h, persisted?.h ?? 8),
+    h: Math.max(minimum.h, persisted?.h ?? 6),
     minW,
     minH: minimum.h,
   };
 }
 
 export function widgetDefaultSize(kind: WidgetKindName, displayType?: DisplayType): { w: number; h: number } {
-  if (kind === "activityTimeline") return { w: 6, h: 8 };
+  if (kind === "activityTimeline") return { w: 6, h: 6 };
   switch (displayType) {
     case DisplayType.number:
       return { w: 3, h: 2 };
     case DisplayType.areaChart:
-      return { w: 6, h: 6 };
+      return { w: 6, h: 5 };
     case DisplayType.doughnutChart:
     case DisplayType.radarChart:
-      return { w: 3, h: 6 };
+      return { w: 3, h: 5 };
     case DisplayType.rankedTable:
     case DisplayType.funnelChart:
     case DisplayType.horizontalBarChart:
     case DisplayType.horizontalBarChartWithLabels:
-      return { w: 4, h: 6 };
+      return { w: 4, h: 5 };
     case undefined:
-      return { w: 4, h: 8 };
-    default:
       return { w: 4, h: 6 };
+    default:
+      return { w: 4, h: 5 };
   }
 }
 
@@ -237,4 +237,67 @@ export function packBreakpointLayout(items: BreakpointItem[], cols: number, star
 
 export function withLargePlacement(id: string, layout: WidgetLayout | null, placement: GridRect): WidgetLayout {
   return { ...(layout ?? {}), lg: { i: id, ...placement } };
+}
+
+export const DASHBOARD_METRICS_PER_ROW = 4;
+export const DASHBOARD_CHART_HEIGHT = 5;
+const DASHBOARD_CHART_ROW_PATTERN = [3, 2] as const;
+
+export type DashboardLayoutItem = { metric: boolean; wide?: boolean };
+
+function metricRowSizes(count: number): number[] {
+  if (count === 0) return [];
+  const rows = Math.ceil(count / DASHBOARD_METRICS_PER_ROW);
+  const base = Math.floor(count / rows);
+  return Array.from({ length: rows }, (_, index) => base + (index < count % rows ? 1 : 0));
+}
+
+function chartRowSizes(count: number): number[] {
+  const sizes: number[] = [];
+  let left = count;
+  while (left > 0) {
+    const size = Math.min(DASHBOARD_CHART_ROW_PATTERN[sizes.length % DASHBOARD_CHART_ROW_PATTERN.length], left);
+    sizes.push(size);
+    left -= size;
+  }
+  if (sizes.length > 1 && sizes.at(-1) === 1) {
+    sizes.pop();
+    const previous = sizes.pop() ?? 0;
+    sizes.push(...(previous === 3 ? [2, 2] : [previous + 1]));
+  }
+  return sizes;
+}
+
+export function structuredDashboardLayout(
+  items: readonly DashboardLayoutItem[],
+  startY = 0,
+  metricHeight = widgetDefaultSize("chart", DisplayType.number).h,
+  chartHeight = DASHBOARD_CHART_HEIGHT,
+): GridRect[] {
+  const layouts: GridRect[] = [];
+  let y = startY;
+  const metrics = items.flatMap((item, index) => (item.metric ? [index] : []));
+  let next = 0;
+  for (const size of metricRowSizes(metrics.length)) {
+    const w = WIDGET_GRID_COLUMNS / size;
+    metrics.slice(next, next + size).forEach((index, column) => {
+      layouts[index] = { x: column * w, y, w, h: metricHeight };
+    });
+    next += size;
+    y += metricHeight;
+  }
+  const slots: GridRect[] = [];
+  for (const size of chartRowSizes(items.length - metrics.length)) {
+    const w = WIDGET_GRID_COLUMNS / size;
+    for (let column = 0; column < size; column++) slots.push({ x: column * w, y, w, h: chartHeight });
+    y += chartHeight;
+  }
+  const charts = items.flatMap((item, index) => (item.metric ? [] : [index]));
+  for (const slot of slots) {
+    const wideSlot = slot.w >= WIDGET_GRID_COLUMNS / 2;
+    const preferred = charts.findIndex((index) => Boolean(items[index].wide) === wideSlot);
+    const [index] = charts.splice(preferred === -1 ? 0 : preferred, 1);
+    layouts[index] = slot;
+  }
+  return layouts;
 }

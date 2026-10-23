@@ -1,6 +1,6 @@
 ---
-title: "Contact Management Software for Small Teams"
-description: "Contacts linked to their companies, deals and conversations, with custom fields, Excel import and role-based access. From [[commercial.price.starter.monthly]] per user a month."
+title: "Contact Management Software for Client Relationships"
+description: "Contact and client management software for small teams: connect clients, contacts, opportunities and supported conversations. From [[commercial.price.starter.monthly]] per user a month."
 featureName: Contact Management
 
 relatedHrefs:
@@ -10,158 +10,147 @@ relatedHrefs:
   - /features/simple-crm
 
 hero:
-  title: "Contact management software that keeps people, companies and conversations together"
-  description: Customermates stores every contact with the organizations they work for, their deals, tasks, notes and channels. Import your Excel list, add the fields your business needs, and from Pro see email, LinkedIn and WhatsApp conversations on the contact.
+  title: "Contact and client management with the full relationship in context"
+  description: For small teams that look after clients, not just phone numbers. Customermates links each client to its people, opportunities, tasks and, on Pro and higher in the cloud, supported conversations. You shape the lists and fields yourself. There are no tags and no file attachments on records, and an import cannot be undone.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
-  buttonRightText: Watch live demo
-  buttonRightHref: https://demo.customermates.com
+  buttonRightText: Explore the workspace
+  buttonRightHref: https://demo.customermates.com/en/w/client-management/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
-  action: Bring your contact list over during the trial
-  description: Save your Outlook, Google or Excel list as an .xlsx workbook, map the columns to fields and channels, and check within [[commercial.trial.days]] days whether your team finds people faster.
+  action: Bring your client list over during the trial
+  description: Save your spreadsheet as an Excel workbook, map the columns to your fields and check within [[commercial.trial.days]] days whether your team finds clients and their context faster.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
-  buttonRightText: Watch live demo
-  buttonRightHref: https://demo.customermates.com
+  buttonRightText: Explore the workspace
+  buttonRightHref: https://demo.customermates.com/en/w/client-management/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-Contact management software keeps every person and company you deal with in one shared list, together with what has happened with them. In Customermates, a contact is linked to the organizations they work for, their deals and tasks, the teammates assigned to them, and the email addresses and messaging handles you reach them on.
-
-These records and links work on every plan, self-hosted included. The conversations themselves need the [unified inbox](/features/unified-inbox), which starts on Pro in Customermates Cloud.
+Contact management software keeps every person and company you work with in one shared place, together with what is going on with them. Client management software goes one step further: it answers who the client is, who you talk to there, what is open and what happens next. Customermates covers both for small client-facing teams. It is an open-source, AI-native CRM made in Germany.
 
 <ArticleSummary title="At a glance">
-  <SummaryItem label="Every plan">Contacts and organizations, typed custom fields, filters, personal saved views, table or board, roles, Excel import and export, REST, webhooks and MCP.</SummaryItem>
-  <SummaryItem label="Pro and higher">Email, LinkedIn, WhatsApp, Instagram and Telegram conversations on the contact. Cloud only.</SummaryItem>
-  <SummaryItem label="Not included">No address-book sync, no merge function, no tags, no file attachments on records, no reminders.</SummaryItem>
+  <SummaryItem label="Every plan">Configurable lists for clients, contacts and opportunities, typed fields, relationships, filters, personal saved views, table or board, roles, Excel import and export, REST, webhooks and MCP. Self-hosted included.</SummaryItem>
+  <SummaryItem label="Pro and higher, cloud only">Email, LinkedIn, WhatsApp, Instagram and Telegram conversations beside the people they involve.</SummaryItem>
+  <SummaryItem label="Not included">No tags (use a multiple-choice field), no file attachments on records, no import undo, no address-book sync, no merge function, no reminders.</SummaryItem>
 </ArticleSummary>
 
-## What a contact and an organization hold
+## See it in an example workspace
 
-| | Contact | Organization |
-|---|---|---|
-| Built-in fields | Name, notes | Name, notes |
-| Channels | Email addresses, WhatsApp number, LinkedIn, Instagram and Telegram handles | None at first; a Channels field can be added |
-| Links | Organizations (several allowed), deals, tasks, assigned users | Contacts, deals, tasks, assigned users |
-| Your own fields | Custom fields of any type | Custom fields of any type |
+The [client management workspace](https://demo.customermates.com/en/w/client-management/dashboard) is an example with sample data, not a customer account. It has five lists: Clients, Contacts, Contracts, Opportunities and Tasks. Each client carries a relationship status (New relationship, Active discussion, Customer, Dormant), an account manager and a configured date field for the next action. Each contract is one service at one site with a monthly fee and a review date, and a calculated field adds up the client's annual value from its contracts.
 
-The field types are Text, Formatted text, Number, Money, Yes or no, Date, Date and time, Date range, Date and time range, Single choice, Multiple choice, Email, Phone, Web address and Member. A landline or a mobile number without WhatsApp goes into a Phone field. Notes are a Formatted text field and can hold tables and images.
+Open one client and you see its people, its contracts, its open opportunities, its tasks and the supported conversations of the people linked to it, on one record. Nothing there is copied into a second data silo: the contact in the client record is the same contact you search for, filter on or update.
 
-One email address or handle can belong to several records, for example a contact and an organization. Global search (Cmd/Ctrl+K) finds contacts by name, channel value or linked organization; custom fields are reached through filters.
+Your own workspace does not start with these lists. A new workspace starts without lists. On Customermates Cloud, the AI workspace setup builds lists, stages, a dashboard and Knowledge Base pages from your description. It runs once during onboarding, is capped by setup credits, and you can skip it with **Start with an empty workspace**. Otherwise, people with Configure rights create the lists and fields in **Configure**. When self-hosting, that is the only way.
 
-## Organizations as accounts
+## Structured client details
 
-If you manage accounts rather than single people, the organization is the account. In **Configure** you can rename any list for the whole workspace: open it, change **Name** and **Plural name** under **General** and save, for example Organizations to Accounts and Contacts to Clients.
+A client record holds the fields you decide on. The field types are text, rich text, number, currency, yes/no, date, date and time, date range, single or multiple choice, email, phone, URL, member and channels. Calculated fields add values from other fields or linked records.
 
-An account setup needs three pieces. A Single choice field **Role** on contacts says who decides, who handles the day-to-day work and who sits in accounting. A Date field **Contract end** on organizations holds the renewal date. And the deals board, grouped by organization, shows each account's number of deals and their total value. Customermates calculates no account health, churn risk or score; if your team rates accounts, keep the rating in a Single Select field.
+A **Channels** field holds the email addresses, WhatsApp numbers and LinkedIn, Instagram and Telegram identities that match messages to a person. A landline or a mobile number without WhatsApp goes into an ordinary phone field. One address can belong to several records, for example a contact and a client.
 
-## A worked setup for a five-person consultancy
+Notes live on each record. Global search (Cmd/Ctrl+K) finds records by name and channel values; other fields are reached through filters.
 
-<Steps>
-  <Step title="Name the lists">In **Configure**, rename Contacts to Clients and Organizations to Accounts if that is how your team talks.</Step>
-  <Step title="Add four fields">On contacts: **Relationship** (Single choice: Prospect, Active client, Past client, Referral partner) and **Role** (Decision maker, Day-to-day, Accounting). On organizations: **Contract end** (Date) and **Source** (Single choice: Referral, Event, Website, Outbound).</Step>
-  <Step title="Save three personal views">"My active clients": **Assigned** set to yourself and **Relationship** is Active client. "No organization yet": **Organizations** has none, for cleaning up after an import. "Gone quiet": **Updated at** older than 90 days.</Step>
-  <Step title="Switch one view to the board">Group contacts by **Relationship** and drag a card from Prospect to Active client when someone signs.</Step>
-  <Step title="Decide who sees what">In the role editor, set **Contacts** read access to **Assigned** for people who should only see their own clients, or **All** for everyone.</Step>
-</Steps>
+## Linked records instead of a flat list
 
-"Gone quiet" looks at the last edit, not the last message. Saved views are personal, so each colleague sets the same filters and saves their own view. The [records guide](/docs/app-records) documents every control.
+Relationships connect the lists. A contact can belong to several clients, an opportunity points to its client and its people, and a task points to whatever it is about. If your team talks about accounts rather than clients, rename the list for the whole workspace in **Configure**.
 
-## Moving contacts in from Excel, Outlook or Google
+Where a spreadsheet keeps one row per person and repeats the company name, Customermates keeps the company once and links the people to it. Open the client and its people are listed there; open a person and their clients are one click away.
+
+## Set up client management in five steps
 
 <Steps>
-  <Step title="Export and convert">Outlook and Google Contacts deliver their download as a comma-separated text file (Google also as vCard). Open it in Excel and save it as an .xlsx workbook, because Customermates does not import CSV files.</Step>
-  <Step title="Clean up first">Remove duplicate rows and split the list into one workbook for organizations and one for contacts. An import cannot be undone.</Step>
-  <Step title="Import organizations">On **Organizations**, open **More actions › Add from file**, choose the workbook, map the columns and import.</Step>
-  <Step title="Import contacts">Map the name, the email column to the **Channels** field, the company column to **Organizations** and the rest to your fields. Failed rows are listed with their reason.</Step>
-  <Step title="Correct in bulk">Export the list, edit it in Excel and import it again as **Existing records**, so it updates them instead of adding new ones.</Step>
+  <Step title="Create or check the lists">Let the AI workspace setup build them on Customermates Cloud, or create Clients, Contacts and Opportunities in **Configure** with relationships between them.</Step>
+  <Step title="Add the fields you sort by">For example **Relationship** (single choice), **Role** on contacts (Decision maker, Day-to-day, Accounting) and **Next action** (date).</Step>
+  <Step title="Import your list">Import clients first, then contacts, so the company column links up. Details below.</Step>
+  <Step title="Save personal views">"My active clients", "Next action this week" or "No client yet" for clean-up after the import. Saved views are personal, so each colleague saves their own.</Step>
+  <Step title="Decide who sees what">In the role editor, set read access per list to **All**, **Assigned** or **None**, plus create, edit and delete rights. Permissions apply to whole lists, not single fields.</Step>
 </Steps>
 
-One file currently takes up to 10,000 rows and 10 MB. The import adds channels to new contacts only. There is no ongoing sync, so after the import your Outlook or Google address book and Customermates are separate lists.
+## Configurable next actions
 
-## Conversations on the contact (Pro and higher)
+Customermates has no built-in reminders or due-date logic. You add a date field such as **Next action** to clients or opportunities and save a view filtered to dates that have passed. On Customermates Cloud, a [routine](/docs/app-routines) can list those records every Monday morning. Board views grouped by relationship status show at a glance who is new, active or dormant.
 
-In Customermates Cloud on Pro or higher, you connect Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram or Telegram, and conversations are matched to contacts through their channels. When an unknown address writes in, click **Link** on that participant in the inbox and pick or create the contact. Every conversation with that address, not only this one, then shows on the contact's timeline.
+## Moving off Excel or Google Sheets
 
-You see conversations from your own channels and those teammates share with the CRM. On Business a whole channel can be shared, so several colleagues' conversations with one client sit on one timeline. On Starter and when self-hosting, channels are stored and searchable, but there is no inbox.
+Many teams arrive with a spreadsheet. Moving it is practical, but not automatic:
 
-## AI on your contacts: Mate and MCP
+- **Format.** A list imports from an Excel workbook (.xlsx) through a wizard: pick the sheet, map the columns, check the preview, import. Google Sheets files are not imported directly: download the sheet as .xlsx, and save an Outlook or Google Contacts download as .xlsx in Excel. A JSON export of the same list can also be imported again.
+- **Order.** Import clients before contacts so the company column links to existing records. Map email and messaging columns to the **Channels** field.
+- **No undo.** An import cannot be rolled back. Clean duplicates first, because there is no merge function afterwards. Test with a small file.
+- **No attachments.** Files that sit next to your spreadsheet, such as contracts or PDFs, do not move into Customermates. Keep them in your file storage and put a link in a URL field.
+- **Corrections in bulk.** Export the list, edit it in Excel and import it again as **Existing records**.
+- **No ongoing sync.** After the import, your spreadsheet and Customermates are separate lists.
 
-In Customermates Cloud, Mate, the hosted assistant, works on contacts in plain language and uses hosted AI credits:
+The [records guide](/docs/app-records#how-do-i-import-or-export-records) documents limits and options.
+
+## Conversations beside the relationship
+
+On Customermates Cloud, Pro and higher connect Gmail, Outlook, IMAP, LinkedIn (including supported Sales Navigator and Recruiter chats), WhatsApp, Instagram and Telegram through the [unified inbox](/features/unified-inbox). A participant is associated with a contact through the identity in its Channels field. When an unknown address writes, you link that participant to an existing or new contact. A conversation is linked to an opportunity or client only when you or an agent do it explicitly; nothing is filed to a deal automatically.
+
+Plan limits apply. Starter and self-hosted have no connected messaging accounts. Pro covers your own accounts, with [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user included, plus threads shared individually. Sharing a whole account with the team needs Business, Max or Enterprise.
+
+## AI on your client records: Mate and MCP
+
+On Customermates Cloud, Mate, the hosted assistant, works on records in plain language within your plan's AI credits:
 
 ```text
-Create contacts for everyone in this email signature and link them to the organization Hartmann Consulting. Set Role to Decision maker for the managing director and Day-to-day for the others. Check first whether any of them already exist.
+Create contacts for everyone in this email signature and link them to the client Hartmann Consulting. Check first whether any of them already exist.
 ```
 
-Mate creates and updates records without asking for approval; deleting a contact asks every time. A [routine](/docs/app-routines), also Cloud only, can run an instruction every Monday, such as "List every account whose Contract end falls in the next 60 days. Do not change any records."
+Mate sees what you may see. It creates and updates records and sends messages as soon as you ask; deletions, imports and access changes stop for your approval every time. Mate is not available when self-hosting.
 
-On every plan, self-hosted included, your own AI client such as Claude or ChatGPT can search, create and update contacts through MCP, with [[derived.mcp.tools.total]] tools, billed by your AI provider. Webhooks fire on `record.created`, `record.updated` and `record.deleted` for the Contacts list.
+On every plan, self-hosted included, your own AI client such as Claude or ChatGPT can read and update records you have access to through [MCP](/docs/mcp), billed by your AI provider.
 
-## Who sees which contacts, and where the data lives
+## Where the data lives
 
-Each role sets read access per list to **All**, **Assigned** or **None**, plus **Create**, **Edit** and **Delete**. Export needs read access, import needs **Create**. A record's change history shows for roles with read access **All** on **Audit Log**, such as Admin. Permissions apply to whole lists, not to single fields.
-
-In Customermates Cloud, the production database is configured in the AWS Frankfurt region. Service providers, including US companies, are listed on the [subprocessors page](/subprocessors), and a [data processing agreement](/dpa) is available. Customermates holds no certification. If contact data must stay on your own servers, run the AGPL core [self-hosted](/features/self-hosted), without the inbox and without Mate.
+On Customermates Cloud the database runs in the AWS Frankfurt region. Service providers, including US companies, are on the [subprocessors page](/subprocessors), and a [data processing agreement](/dpa) is available. EU hosting is not a certification, and Customermates holds none. To keep data on your own servers, run the AGPL core [self-hosted](/features/self-hosted), without the inbox and without Mate.
 
 ## What it does not do
 
-- No sync with Outlook, Google or phone address books in either direction.
-- No merge function. Clean duplicates before importing.
-- No tags. For several values per record, use a Multiple choice field.
-- No file attachments on records. Message attachments stay in their inbox thread, not on the contact.
-- No reminders, due dates or birthday alerts. Store dates in custom fields and let a Cloud routine list the ones that have passed.
-- No newsletters, mass email, sequences or data enrichment.
-- No mobile app. Customermates runs in the browser.
+<AcquisitionCallout title="Limits that affect the decision" variant="boundary">
+  No tags: use a multiple-choice field. No file attachments on records; message attachments stay in their inbox thread. Import only from the documented formats, with no undo. No merge function, no address-book sync, no reminders or due-date alerts, no newsletters, mass email, sequences or data enrichment, no native mobile app.
+</AcquisitionCallout>
 
-Client files in therapy, care or social work that hold health data belong in specialised practice software, not in a general CRM.
-
-## Which kind of tool fits
-
-Customermates publishes this page. Vendor details were checked on 8 October 2026 on the official pages listed at the end.
+## Contact management software or a phone address book?
 
 | Your situation | Look at |
 |---|---|
-| One person who needs names, numbers and email addresses | The contacts in Outlook (People) or Google Contacts that come with your account |
-| Free start for up to 2 users and 1,000 contacts | HubSpot's free CRM tools |
-| Free start for up to 3 users and 5,000 records | Zoho CRM's free edition |
-| Data kept in Germany by the vendor, priced in packages of users and contacts | CentralStationCRM, for example Team: €24 a month plus VAT for 3 users and 3,000 contacts |
-| A larger sales organisation built on Microsoft 365 | Dynamics 365 Sales, from $65 per user a month paid yearly |
-| A small client-facing team that wants conversations, AI and open source next to its contacts | Customermates |
+| One person who needs names and numbers on a phone | The address book of your phone, Outlook or Google account |
+| A shared spreadsheet that still works for two people | Keep it until links, history or access rights become the problem |
+| A small team that shares clients, opportunities and conversations | A CRM such as Customermates |
 
-For more options side by side, read the [client database software comparison](/blog/client-database-software).
+Customermates does not sync with phone or Outlook address books. It is where a team manages client relationships, not a replacement for the contacts app on your phone. For more options side by side, read the [client database software comparison](/blog/client-database-software).
 
 ## What it costs
 
-A solo consultant on Starter pays [[commercial.price.starter.monthly]] a month, with [[commercial.entitlement.starter.includedRoutinesPerUser]] routine. Five people on Pro pay [[commercial.price.pro.monthly.seats.5]] a month and get the inbox with [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user. Billing is monthly and per user, never per contact. Each Cloud plan includes monthly hosted AI credits per active user; see [pricing](/pricing).
+Billing is monthly per user, never per contact. Starter costs [[commercial.price.starter.monthly]], Pro [[commercial.price.pro.monthly]] and Business [[commercial.price.business.monthly]] per user a month. The inbox starts on Pro, whole-account sharing on Business. Self-hosting the AGPL core has no licence fee. See [pricing](/pricing).
 
 ## Frequently asked questions
 
 <Faq>
-<FaqItem question="What is the difference between contact management and a CRM?">
-Contact management stores people, companies and what happened with them. A CRM adds the work around them: deals in a pipeline, tasks, reporting and integrations. In Customermates, contacts are the base that deals, tasks and the inbox attach to.
+<FaqItem question="What is the difference between contact management and client management?">
+Contact management stores people, companies and their details. Client management adds what you do with them: opportunities, next actions, tasks and conversations. In Customermates both sit in linked lists of one workspace.
 </FaqItem>
 
-<FaqItem question="Does Microsoft have a contact management tool?">
-Yes. Outlook keeps contacts and contact lists under People, in Microsoft 365 and Outlook.com, as an address book for one person. Microsoft's CRM is Dynamics 365 Sales. Customermates connects an Outlook mailbox on Pro and higher but does not sync Outlook contacts.
+<FaqItem question="Can I use tags for contacts?">
+No. Add a multiple-choice field instead, for example **Segment** with the values you would have used as tags. You can filter and group by it.
 </FaqItem>
 
-<FaqItem question="Can I import contacts from Outlook, Google Contacts or Excel?">
-Yes, as an Excel workbook. Download your contacts from Outlook or Google Contacts, open the file in Excel and save it as .xlsx first, because Customermates does not import CSV files. Import organizations before contacts so the company column links up.
+<FaqItem question="Can I attach files to a client or contact?">
+No. Records have no file attachments. Attachments of supported messages stay in their inbox thread. Store documents in your file storage and link them in a URL field.
 </FaqItem>
 
-<FaqItem question="How many contacts can I manage in Customermates?">
-The plans set no contact limit, so 300 or 30,000 contacts cost the same. One import file currently takes up to 10,000 rows, one export up to 5,000 records of the current view.
+<FaqItem question="Can I import from Excel, Google Sheets or Outlook?">
+Yes, as an Excel workbook (.xlsx). Google Sheets files are not imported directly, so download the sheet or your contacts as .xlsx first, import clients before contacts, and test with a small file: an import cannot be undone.
 </FaqItem>
 
-<FaqItem question="What is account management in a CRM?">
-Managing each client company as a whole: its people, open deals and contract dates. In Customermates the organization is the account and can be renamed to Accounts. Health scores and renewal alerts are not built in.
+<FaqItem question="Does a new workspace come with Clients and Contacts lists?">
+No. A new workspace starts without lists. On Customermates Cloud the AI workspace setup can build them during onboarding, otherwise you create them in Configure. The lists in the example workspace show one possible setup.
 </FaqItem>
 
-<FaqItem question="Is there free contact management software?">
-Outlook and Google Contacts come with the account. HubSpot's free CRM tools allow 2 users and 1,000 contacts, Zoho CRM's free edition 3 users and 5,000 records, CentralStationCRM's free Starter 3 users and 200 contacts. Customermates has no free Cloud plan, but its AGPL core runs self-hosted without a licence fee.
+<FaqItem question="How many contacts can I manage?">
+The plans set no contact limit. One export covers up to 5,000 records of the current view.
 </FaqItem>
 </Faq>
-
-Third-party details checked on 8 October 2026: [Outlook contacts](https://support.microsoft.com/en-us/office/create-view-and-edit-contacts-and-contact-lists-in-outlook-88ff6c60-0a1d-4b54-8c9d-9e1a71bc3023), [Outlook export](https://support.microsoft.com/en-us/office/export-contacts-from-outlook-10f09abd-643c-4495-bb80-543714eca73f), [Google Contacts export](https://support.google.com/contacts/answer/7199294?hl=en), [HubSpot pricing](https://www.hubspot.com/pricing/crm), [Zoho CRM free edition](https://www.zoho.com/crm/free-crm.html), [CentralStationCRM prices](https://centralstationcrm.de/preise), [Dynamics 365 Sales pricing](https://www.microsoft.com/en-us/dynamics-365/products/sales/pricing).

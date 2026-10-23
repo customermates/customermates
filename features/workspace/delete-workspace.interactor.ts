@@ -100,7 +100,6 @@ export class DeleteWorkspaceInteractor extends AuthenticatedInteractor<DeleteWor
     }
     if (!deleted.ok) return deleted;
 
-    await this.authService.setSessionActiveCompany(session.session.id, deleted.data.nextCompanyId);
     logAuditEvent("workspace-deleted", {
       companyId,
       appMode: env.APP_MODE,

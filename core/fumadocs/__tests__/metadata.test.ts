@@ -4,6 +4,8 @@ vi.mock("../route-source-map", () => {
   const pages = new Map([
     ["pricing|en", { data: { description: "Plans and pricing", title: "Pricing" } }],
     ["pricing|de", { data: { description: "Pläne und Preise", title: "Preise" } }],
+    ["pricing|fr", { data: { description: "Formules et tarifs", title: "Tarifs" } }],
+    ["imprint|fr", { data: { description: "Mentions", title: "Mentions" } }],
     ["auth/signup|en", { data: { description: "Create an account", title: "Sign up" } }],
     ["docs/openapi/contacts|en", { data: { description: "Contacts API", title: "Contacts" } }],
     ["best-crm|en", { data: { description: "", title: "Best CRM" } }],
@@ -49,6 +51,7 @@ describe("generateMetadataFromMeta", () => {
         languages: {
           de: `${BASE_URL}/de/pricing`,
           en: `${BASE_URL}/en/pricing`,
+          fr: `${BASE_URL}/fr/pricing`,
           "x-default": `${BASE_URL}/en/pricing`,
         },
       },
@@ -169,8 +172,8 @@ describe("generateMetadataFromMeta", () => {
 
   it("sends a locale that publishes no content to the 404 rather than failing the build", () => {
     expect(
-      () => generateMetadataFromMeta({ locale: "fr", route: "/pricing" }),
-      "fr is a routing-only locale, so a request for it is a bad URL and not a build bug",
+      () => generateMetadataFromMeta({ locale: "es", route: "/pricing" }),
+      "es is a routing-only locale, so a request for it is a bad URL and not a build bug",
     ).toThrow(/NEXT_HTTP_ERROR_FALLBACK;404/);
   });
 
@@ -201,5 +204,20 @@ describe("generateMetadataFromMeta", () => {
         route: "/docs/openapi/:slug",
       }),
     ).toThrow(/NEXT_HTTP_ERROR_FALLBACK;404/);
+  });
+
+  it("gives a published partial-locale page a self canonical and reciprocal alternates", () => {
+    const metadata = generateMetadataFromMeta({ locale: "fr", route: "/pricing" });
+    expect(metadata.alternates?.canonical).toBe(`${BASE_URL}/fr/pricing`);
+    expect(metadata.alternates?.languages).toEqual({
+      de: `${BASE_URL}/de/pricing`,
+      en: `${BASE_URL}/en/pricing`,
+      fr: `${BASE_URL}/fr/pricing`,
+      "x-default": `${BASE_URL}/en/pricing`,
+    });
+  });
+
+  it("never lists or serves a partial-locale page outside its scope, even when a file exists", () => {
+    expect(() => generateMetadataFromMeta({ locale: "fr", route: "/imprint" })).toThrow("NEXT_HTTP_ERROR_FALLBACK;404");
   });
 });

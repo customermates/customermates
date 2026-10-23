@@ -10,41 +10,16 @@ import { recordMeasureIsValid } from "@/features/records/record-measure-validati
 import { RecordWidgetInputSchema } from "@/features/widget/record-widget.schema";
 import { widgetDisplayTypeIssue } from "@/features/widget/widget-display-rules";
 import { DisplayType } from "@/features/widget/widget-display.schema";
-import { WIDGET_GRID_BREAKPOINT_COLUMNS, widgetDefaultSize } from "@/features/widget/widget-grid";
+import { structuredDashboardLayout } from "@/features/widget/widget-grid";
 
+import { brandAccent } from "./brand-colors";
 import { setupIdempotencyKey } from "./setup-references";
 
-const GRID_COLUMNS = WIDGET_GRID_BREAKPOINT_COLUMNS.lg;
-const METRICS_PER_ROW = 4;
-const CHARTS_PER_ROW = 2;
-const CHART_HEIGHT = 6;
-
 export function setupDashboardLayouts(widgets: readonly SetupWidget[], occupied: readonly GridRect[] = []): GridRect[] {
-  const layouts: GridRect[] = [];
-  let y = occupied.reduce((bottom, rect) => Math.max(bottom, rect.y + rect.h), 0);
-  const placeRow = (indices: number[], h: number) => {
-    const w = GRID_COLUMNS / indices.length;
-    indices.forEach((index, column) => {
-      layouts[index] = { x: column * w, y, w, h };
-    });
-    y += h;
-  };
-  const metrics = widgets.flatMap((widget, index) => (widget.display === DisplayType.number ? [index] : []));
-  for (let start = 0; start < metrics.length; start += METRICS_PER_ROW)
-    placeRow(metrics.slice(start, start + METRICS_PER_ROW), widgetDefaultSize("chart", DisplayType.number).h);
-
-  let row: number[] = [];
-  widgets.forEach((widget, index) => {
-    if (widget.display === DisplayType.number) return;
-    if (widget.size === "wide") return placeRow([index], CHART_HEIGHT);
-    row.push(index);
-    if (row.length === CHARTS_PER_ROW) {
-      placeRow(row, CHART_HEIGHT);
-      row = [];
-    }
-  });
-  if (row.length) placeRow(row, CHART_HEIGHT);
-  return layouts;
+  return structuredDashboardLayout(
+    widgets.map((widget) => ({ metric: widget.display === DisplayType.number, wide: widget.size === "wide" })),
+    occupied.reduce((bottom, rect) => Math.max(bottom, rect.y + rect.h), 0),
+  );
 }
 
 export function setupWidgetCreationOrder<T extends { layout?: { x: number; y: number } }>(widgets: readonly T[]): T[] {
@@ -127,7 +102,6 @@ export function compileSetupDashboard(
     };
     if (!recordMeasureIsValid(measure, model)) return missing("invalid_measure", "list");
     if (widgetDisplayTypeIssue(widget.display, measure, model)) return missing("display_mismatch", "display");
-    const choice = groupField ? model.fields.find((candidate) => candidate.id === groupField) : undefined;
     const input = {
       expectedRevision: context.expectedRevision,
       idempotencyKey: setupIdempotencyKey(context.setupId, `widget:${widget.key}`),
@@ -135,8 +109,9 @@ export function compileSetupDashboard(
       measure,
       displayOptions: {
         displayType: widget.display,
-        ...(context.brandChart ? { barColors: [context.brandChart] } : {}),
-        ...(choice?.valueType === "select" ? { useGroupColors: true } : {}),
+        ...(context.brandChart ? { barColors: [brandAccent(context.brandChart)] } : {}),
+        useGroupColors: false,
+        palette: "accent" as const,
       },
       isTemplate: plan.workspace.dashboardAudience !== "me",
       layout: layouts[index],

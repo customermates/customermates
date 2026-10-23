@@ -12,6 +12,7 @@ import {
   forPagesSource,
 } from "@/core/fumadocs/source";
 import { compareDisplayTitle } from "@/core/seo/compare-title";
+import { contentLocaleOrDefault, isMarketingPathPublished } from "@/i18n/locale-registry";
 import { type RelatedRouteSegment, type RelatedTargetResolver, resolveRelatedTarget } from "./related-target";
 
 const RELATED_SEGMENTS: Record<RelatedRouteSegment, RelatedTargetResolver> = {
@@ -80,7 +81,8 @@ export async function RelatedPages({ children }: { children: ReactNode }) {
 }
 
 export async function RelatedPage({ href }: { href: string }) {
-  const [locale, t] = await Promise.all([getLocale(), getTranslations()]);
+  const [pageLocale, t] = await Promise.all([getLocale(), getTranslations()]);
+  const locale = isMarketingPathPublished(pageLocale, href) ? pageLocale : contentLocaleOrDefault(pageLocale);
   const target = resolveRelatedTarget(
     href,
     locale,
