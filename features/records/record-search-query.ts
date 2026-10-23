@@ -45,7 +45,7 @@ export function compileRecordSearch(
   );
   const cursor = "search" in request ? request.search.cursor : null;
   const cursorRank = cursor?.rank ?? 0;
-  const rankedTerm = "search" in request && !request.similarTitles ? request.search.searchTerm.toLowerCase() : null;
+  const rankedTerm = "search" in request && !request.similarTitles ? request.search.searchTerm : null;
   const similarTerm = "search" in request && request.similarTitles ? request.search.searchTerm : null;
   const pageLimit = "search" in request ? request.search.limit + 1 : request.refs.length;
   const branches = types.map((type) => {
@@ -62,16 +62,17 @@ export function compileRecordSearch(
       : Prisma.sql`NULL::text`;
     const scope = access.get(type.id) ?? { access: "none" as const, userId: "" };
     const similar = similarTerm !== null && title ? similarTerm : null;
-    const titleText = title
-      ? Prisma.sql`(SELECT lower(value."textValue") FROM "RecordValue" value WHERE value."companyId" = ${companyId}
-        AND value."typeId" = ${type.id} AND value."recordId" = record.id AND value."fieldId" = ${title.id} AND value.state = 'value')`
-      : null;
     const rank =
-      rankedTerm !== null && titleText
-        ? Prisma.sql`CASE WHEN NOT ${titleAccess} THEN 3 WHEN ${titleText} = ${rankedTerm} THEN 0
-          WHEN starts_with(${titleText}, ${rankedTerm}) THEN 1 WHEN position(${rankedTerm} IN ${titleText}) > 0 THEN 2 ELSE 3 END`
+      rankedTerm !== null && title
+        ? Prisma.sql`CASE WHEN ${titleAccess} THEN COALESCE((SELECT CASE WHEN title.text = term.text THEN 0
+          WHEN starts_with(title.text, term.text) THEN 1
+          WHEN title.text ~ ('[^[:alnum:]]' || regexp_replace(term.text, '([^[:alnum:]])', '\\\\\\1', 'g')) THEN 2
+          WHEN position(term.text IN title.text) > 0 THEN 3 ELSE 4 END
+          FROM (SELECT lower(${rankedTerm}) AS text) term, (SELECT lower(value."textValue") AS text FROM "RecordValue" value
+            WHERE value."companyId" = ${companyId} AND value."typeId" = ${type.id} AND value."recordId" = record.id
+              AND value."fieldId" = ${title.id} AND value.state = 'value') title), 4) ELSE 4 END`
         : rankedTerm !== null
-          ? Prisma.sql`3`
+          ? Prisma.sql`4`
           : Prisma.sql`0`;
     const matching =
       "refs" in request

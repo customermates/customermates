@@ -15572,6 +15572,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ["Cursor", "2026-09-28T10:00:01.000Z"],
       ["Cursor Pro", "2026-09-28T10:00:02.000Z"],
       ["Paid cursor plan", "2026-09-28T10:00:03.000Z"],
+      ["Plan (cursor)", "2026-09-28T10:00:04.000Z"],
+      ["Precursor", "2026-09-28T10:00:05.000Z"],
     ] as const;
     const ids = new Map<string, string>();
     await f.run(() =>
@@ -15597,7 +15599,9 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         }),
       );
     }
-    const expected = ["Cursor", "Cursor Pro", "Paid cursor plan"].map((title) => ids.get(title));
+    const expected = ["Cursor", "Cursor Pro", "Plan (cursor)", "Paid cursor plan", "Precursor"].map((title) =>
+      ids.get(title),
+    );
     const first = await f.run(() => f.search.invoke(RecordSearchSchema.parse({ searchTerm: "cursor", limit: 10 })));
     if (!first.ok) throw first.error;
     expect(first.data.results.map((hit) => hit.ref.recordId)).toEqual(expected);
@@ -15612,6 +15616,9 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       cursor = result.data.nextCursor;
     } while (cursor);
     expect(paged).toEqual(expected);
+    const literal = await f.run(() => f.search.invoke(RecordSearchSchema.parse({ searchTerm: "(cursor", limit: 10 })));
+    if (!literal.ok) throw literal.error;
+    expect(literal.data.results.map((hit) => hit.ref.recordId)).toEqual([ids.get("Plan (cursor)")]);
   });
 
   it("applies own/all/none and tenant access again for search and recent references", async () => {

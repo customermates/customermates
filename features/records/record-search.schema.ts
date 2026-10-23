@@ -6,7 +6,7 @@ const RecordSearchCursorSchema = z
     revision: z.number().int().nonnegative(),
     createdAt: RecordDateTimeSchema,
     ref: RecordRefSchema,
-    rank: z.number().int().min(0).max(3).optional(),
+    rank: z.number().int().min(0).max(4).optional(),
   })
   .strict();
 
