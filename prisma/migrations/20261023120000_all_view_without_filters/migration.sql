@@ -2,7 +2,8 @@
 -- saved views and still carries them becomes a saved view of its owner, named "Saved filters" in the owner's display
 -- language and placed after the owner's other views of that surface. The view copies the All state the list shows
 -- today (respecting P13n."viewStateKeys"), the user lands on it when the All view was the one they had open, and the
--- All state keeps everything except its filters and search term. A second run finds nothing to convert.
+-- All state keeps everything except its filters and search term. A Members list filtered only to active members gets
+-- no view and its owner lands on All. A second run finds nothing to convert.
 
 WITH "candidate" AS MATERIALIZED (
     SELECT
@@ -136,7 +137,12 @@ WITH "candidate" AS MATERIALIZED (
         ) AS "showsAll"
     FROM "state" s
     JOIN "User" u ON u."id" = s."userId"
-    WHERE s."hasFilters" OR s."searchTerm" IS NOT NULL
+    WHERE (s."hasFilters" OR s."searchTerm" IS NOT NULL)
+        AND NOT (
+            s."surfaceKey" = 'users-card-store'
+            AND s."searchTerm" IS NULL
+            AND s."filters" = '[{"field": "status", "operator": "in", "value": ["active"]}]'::jsonb
+        )
 ),
 "named" AS MATERIALIZED (
     SELECT
