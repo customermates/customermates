@@ -499,7 +499,9 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
         <AppModal open titleInContent size="lg" title={t("Planner.sources")} onClose={() => setSourcesOpen(false)}>
           <AppCard>
             <AppCardHeader>
-              <AppModalTitle>{t("Planner.sources")}</AppModalTitle>
+              <AppModalTitle className="min-w-0 break-words text-base font-semibold">
+                {t("Planner.sources")}
+              </AppModalTitle>
             </AppCardHeader>
 
             <AppCardBody>

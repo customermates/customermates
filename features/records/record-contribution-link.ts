@@ -1,13 +1,9 @@
-import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import type { Filter } from "@/core/base/base-get.schema";
-import type { GetQueryParams } from "@/core/base/base-get.schema";
-import { encodeGetParams } from "@/core/utils/get-params";
-import { FilterOperatorKey, ViewMode } from "@/core/base/base-query-builder";
+import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { RecordContributionSchema, type RecordContribution } from "./record-contribution.schema";
 
 export const RECORD_CONTRIBUTION_FILTER = "system:chartContribution";
 const MAX_TOKEN_LENGTH = 24_000;
-const MAX_LIST_HREF_LENGTH = 8_000;
 
 export function encodeRecordContribution(value: RecordContribution): string {
   const bytes = new TextEncoder().encode(JSON.stringify(RecordContributionSchema.parse(value)));
@@ -45,15 +41,4 @@ export function recordContributionFromFilter(filter: Filter): RecordContribution
     "value" in filter
     ? decodeRecordContribution(filter.value)
     : null;
-}
-
-export function recordContributionHref(
-  typeId: string,
-  filters: Filter[],
-  extra: Pick<GetQueryParams, "searchTerm" | "sortDescriptor"> = {},
-): string | null {
-  const params = encodeGetParams({ ...extra, filters, viewMode: ViewMode.table, viewId: ALL_VIEW_KEY, page: 1 });
-  params.set("viewMode", ViewMode.table);
-  const href = `/records/${typeId}?${params}`;
-  return href.length <= MAX_LIST_HREF_LENGTH ? href : null;
 }

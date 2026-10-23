@@ -1,5 +1,6 @@
 "use client";
 
+import { RECORD_NAME_HEADING_CLASS } from "@/components/records/inline-edit-classes";
 import { withFormulaReferences } from "@/features/records/formula-references";
 import { useId } from "react";
 import { observer } from "mobx-react-lite";
@@ -28,8 +29,6 @@ import { FormInput } from "@/components/forms/form-input";
 import { cn } from "@/core/utils/cn";
 
 const DERIVATION_ICONS = { calculation: Sigma, lookup: Link2, saved: Camera } as const;
-const RECORD_NAME_HEADING_CLASS =
-  "-mx-2 min-w-0 flex-1 [&_input]:h-9 [&_input]:border-transparent [&_input]:bg-transparent [&_input]:px-[7px] [&_input]:text-lg [&_input]:font-semibold [&_input]:shadow-none [&_input]:hover:bg-foreground/5 [&_input]:read-only:hover:bg-transparent [&_input]:focus-visible:border-ring/60 [&_input]:focus-visible:bg-background [&_input]:focus-visible:shadow-[0_0_0_3px_color-mix(in_oklab,var(--ring)_16%,transparent)] [&_input]:focus-visible:ring-0";
 
 export function recordNameField(store: RecordEditorStore) {
   const type = store.presentation.model.types.find((type) => type.id === store.presentation.typeId);

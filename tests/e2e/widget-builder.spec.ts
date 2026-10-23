@@ -81,17 +81,6 @@ test("starts from a recommended starter, previews it live at dashboard size and 
   const preview = dialog.locator('[data-slot="widget-preview"]');
   await expect(preview.locator('[data-slot="widget-number"]')).toBeVisible();
   await expect(preview.locator('[data-preview-current="true"]')).toBeVisible();
-  await expect(preview).toHaveAttribute("data-preview-sizing", "content");
-  await expect.poll(async () => {
-    const natural = await preview.boundingBox();
-    const column = await dialog.locator('[data-slot="widget-editor-preview"]').boundingBox();
-    return natural && column ? Math.abs(natural.width - column.width) : Number.POSITIVE_INFINITY;
-  }).toBeLessThan(2);
-  const natural = await preview.boundingBox();
-  expect(natural?.height).toBeGreaterThan(50);
-  expect(natural?.height).toBeLessThan(180);
-  await dialog.getByRole("button", { name: englishMessages.Dashboard.widgetEditor.preview.size.replace("{w}", "3").replace("{h}", "2"), exact: true }).click();
-  await expect(preview).toHaveAttribute("data-preview-sizing", "dashboard");
   const size = await preview.boundingBox();
   const real = await preview.evaluate((element) => [
     Number(element.getAttribute("data-preview-width")),

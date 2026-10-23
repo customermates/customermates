@@ -46,6 +46,7 @@ export type RecordWidgetChartProps = Pick<
 > & {
   name: string;
   listLabels?: { label: string; pluralLabel: string } | null;
+  embedded?: boolean;
   onInspectGroup?: (group: RecordContributionGroup | null, label: string | null) => void;
 };
 
@@ -73,6 +74,7 @@ export function RecordWidgetChart({
   name,
   decimalPlaces,
   listLabels = null,
+  embedded = false,
   onInspectGroup,
 }: RecordWidgetChartProps) {
   const t = useTranslations();
@@ -132,25 +134,36 @@ export function RecordWidgetChart({
       : []),
     ...(hasRecordMeasureGroupFilter(measure) ? [t("RecordWidgets.groupFilterSummary")] : []),
   ];
-  const frame = (body: ReactNode, subtitle: string | null = null, bodyClassName?: string, reserve = true) => (
-    <>
-      <AppCardHeader className={WIDGET_CARD_HEADER_CLASS}>
-        <div className="flex w-full min-w-0 items-center gap-1.5">
-          <h2 className={cn(WIDGET_CARD_TITLE_CLASS, "min-w-0 flex-1")}>
-            <TruncatedText>{name}</TruncatedText>
-          </h2>
+  const frame = (body: ReactNode, subtitle: string | null = null, bodyClassName?: string, reserve = true) =>
+    embedded ? (
+      <div className="flex min-h-0 flex-1 flex-col gap-2" data-widget-chart-embedded="">
+        {subtitle && <WidgetSubtitle text={subtitle} />}
 
-          <WidgetNotes notes={infoNotes} />
+        <div className={cn("flex min-h-0 flex-1 flex-col overflow-visible recharts-no-focus-outline", bodyClassName)}>
+          {body}
         </div>
+      </div>
+    ) : (
+      <>
+        <AppCardHeader className={WIDGET_CARD_HEADER_CLASS}>
+          <div className="flex w-full min-w-0 items-center gap-1.5">
+            <h2 className={cn(WIDGET_CARD_TITLE_CLASS, "min-w-0 flex-1")}>
+              <TruncatedText>{name}</TruncatedText>
+            </h2>
 
-        <WidgetSubtitle reserve={reserve} text={subtitle} />
-      </AppCardHeader>
+            <WidgetNotes notes={infoNotes} />
+          </div>
 
-      <AppCardBody className={cn(WIDGET_CARD_BODY_CLASS, "overflow-visible recharts-no-focus-outline", bodyClassName)}>
-        {body}
-      </AppCardBody>
-    </>
-  );
+          <WidgetSubtitle reserve={reserve} text={subtitle} />
+        </AppCardHeader>
+
+        <AppCardBody
+          className={cn(WIDGET_CARD_BODY_CLASS, "overflow-visible recharts-no-focus-outline", bodyClassName)}
+        >
+          {body}
+        </AppCardBody>
+      </>
+    );
   if (status === "unavailable" || !data) {
     return frame(
       <p className="text-sm text-muted-foreground" role="status">

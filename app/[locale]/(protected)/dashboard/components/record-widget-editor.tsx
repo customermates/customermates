@@ -34,12 +34,12 @@ import {
   opensWidgetFilters,
   useWidgetAutoPreview,
 } from "./widget-editor-layout";
+import { widgetSourceFilterCount } from "./widget-source-summary";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { WidgetPreviewFrame } from "./widget-preview-frame";
 import { cn } from "@/core/utils/cn";
 import { widgetRelationshipChoices } from "./record-widget-filters";
 import { isRecordMeasureGroupField } from "@/features/records/record-measure-validation";
-import { widgetSourceFilterCount } from "./widget-source-summary";
 
 export const RecordWidgetEditor = observer(
   ({
@@ -98,7 +98,6 @@ export const RecordWidgetEditor = observer(
       <div className="min-w-0 space-y-3">
         <WidgetPreviewFrame
           error={previewError && !loading ? <WidgetPreviewError onRetry={store.runRecordPreview} /> : null}
-          fitContent={["number", "rankedTable"].includes(form.displayOptions.displayType)}
           geometry={store.previewGeometry}
           kind={form.kind}
           loading={loading || (model === undefined && !shownPreview)}

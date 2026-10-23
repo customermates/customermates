@@ -19,26 +19,27 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { actionData } from "@/core/utils/action-data";
 import { cn } from "@/core/utils/cn";
+import { widgetSourceFilterCount } from "./widget-source-summary";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 
 import { discoverWidgetRecordTypesAction } from "../actions";
-import { widgetSourceFilterCount } from "./widget-source-summary";
 
 type WidgetEditorSegment = "data" | "appearance";
 
 const AUTO_PREVIEW_DELAY_MS = 600;
 
-export const WIDGET_EDITOR_STACK_CLASS = "flex min-w-0 flex-col gap-6";
+export const WIDGET_EDITOR_GRID_CLASS =
+  "grid min-w-0 gap-6 lg:grid-cols-[minmax(0,24rem)_minmax(0,1fr)] lg:items-start xl:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]";
 
 export function WidgetEditorColumns({ preview, settings }: { preview: ReactNode; settings: ReactNode }) {
   return (
-    <div className={WIDGET_EDITOR_STACK_CLASS} data-widget-editor="stacked">
-      <div className="min-w-0" data-slot="widget-editor-preview">
-        {preview}
-      </div>
-
+    <div className={WIDGET_EDITOR_GRID_CLASS} data-widget-editor="split">
       <div className="flex min-w-0 flex-col" data-slot="widget-editor-settings">
         {settings}
+      </div>
+
+      <div className="min-w-0 lg:sticky lg:top-0" data-slot="widget-editor-preview">
+        {preview}
       </div>
     </div>
   );

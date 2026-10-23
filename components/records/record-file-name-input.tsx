@@ -3,18 +3,18 @@
 import { useRef, useState } from "react";
 
 import { Input } from "@/components/ui/input";
-import { cn } from "@/core/utils/cn";
+import { IN_PLACE_EDITOR_CLASS, RECORD_NAME_HEADING_CLASS } from "./inline-edit-classes";
 import { RECORD_FILE_NAME_MAX_LENGTH } from "@/features/record-files/record-file-name";
 
 export function RecordFileNameInput({
   name,
   label,
-  className,
+  appearance = "inline",
   onDone,
 }: {
   name: string;
   label: string;
-  className?: string;
+  appearance?: "inline" | "heading";
   onDone: (name: string | null) => void;
 }) {
   const [value, setValue] = useState(name);
@@ -25,27 +25,28 @@ export function RecordFileNameInput({
     onDone(commit ? value : null);
   };
   return (
-    <Input
-      autoFocus
-      aria-label={label}
-      className={cn("h-7 min-w-0 px-2 text-sm", className)}
-      data-local-escape=""
-      data-record-file-name-input=""
-      maxLength={RECORD_FILE_NAME_MAX_LENGTH}
-      value={value}
-      onBlur={() => finish(true)}
-      onChange={(event) => setValue(event.target.value)}
-      onClick={(event) => event.stopPropagation()}
-      onFocus={(event) => {
-        const dot = name.lastIndexOf(".");
-        event.currentTarget.setSelectionRange(0, dot > 0 ? dot : name.length);
-      }}
-      onKeyDown={(event) => {
-        event.stopPropagation();
-        if (event.key !== "Enter" && event.key !== "Escape") return;
-        event.preventDefault();
-        finish(event.key === "Enter");
-      }}
-    />
+    <div className={appearance === "heading" ? RECORD_NAME_HEADING_CLASS : IN_PLACE_EDITOR_CLASS}>
+      <Input
+        autoFocus
+        aria-label={label}
+        data-local-escape=""
+        data-record-file-name-input=""
+        maxLength={RECORD_FILE_NAME_MAX_LENGTH}
+        value={value}
+        onBlur={() => finish(true)}
+        onChange={(event) => setValue(event.target.value)}
+        onClick={(event) => event.stopPropagation()}
+        onFocus={(event) => {
+          const dot = name.lastIndexOf(".");
+          event.currentTarget.setSelectionRange(0, dot > 0 ? dot : name.length);
+        }}
+        onKeyDown={(event) => {
+          event.stopPropagation();
+          if (event.key !== "Enter" && event.key !== "Escape") return;
+          event.preventDefault();
+          finish(event.key === "Enter");
+        }}
+      />
+    </div>
   );
 }

@@ -122,7 +122,7 @@ const RecordFileRow = observer(function RecordFileRow({
           setEditing(true);
         }}
       >
-        <div className={cn(ROW_CLASS, file && "transition-colors hover:bg-accent/60")}>
+        <div className={cn(ROW_CLASS, file && "transition-colors hover:bg-foreground/5")}>
           <FileTypeBadge
             mimeType={file?.mimeType}
             name={file?.name}
@@ -251,6 +251,7 @@ export const RecordFileInput = observer(function RecordFileInput({
   label,
   files = [],
   members = [],
+  flush = false,
 }: {
   field: RecordFieldView;
   id: string;
@@ -258,6 +259,7 @@ export const RecordFileInput = observer(function RecordFileInput({
   label?: string | null;
   files?: RecordFileSummary[];
   members?: Member[];
+  flush?: boolean;
 }) {
   const t = useTranslations();
   const store = useAppForm();
@@ -346,8 +348,9 @@ export const RecordFileInput = observer(function RecordFileInput({
       {(hasRows || !readOnly) && (
         <div
           className={cn(
-            "relative overflow-hidden rounded-lg border bg-input-background transition-[border-color,box-shadow]",
-            fileDrop.dragging && "border-dashed border-primary ring-2 ring-primary/20",
+            "relative overflow-hidden transition-[border-color,box-shadow]",
+            !flush && "rounded-lg border bg-input-background",
+            fileDrop.dragging && "border border-dashed border-primary ring-2 ring-primary/20",
           )}
           data-dragging={fileDrop.dragging || undefined}
           {...fileDrop.handlers}
@@ -401,7 +404,7 @@ export const RecordFileInput = observer(function RecordFileInput({
                     aria-describedby={hasError ? errorId : undefined}
                     className={cn(
                       ROW_CLASS,
-                      "min-h-10 w-full text-left text-sm text-muted-foreground outline-none transition-colors hover:bg-accent/60 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:ring-inset",
+                      "min-h-10 w-full text-left text-sm text-muted-foreground outline-none transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:ring-inset",
                     )}
                     data-record-file-add=""
                     type="button"

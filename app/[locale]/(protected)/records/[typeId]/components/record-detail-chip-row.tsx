@@ -401,6 +401,7 @@ const DetailChip = observer(function DetailChip({
 
       <RecordInputField
         field={column.field}
+        files={row.files}
         flush={editsFlush(column.field)}
         id={`values.${column.field.id}`}
         inputId={inputId}

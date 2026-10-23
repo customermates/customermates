@@ -1,36 +1,29 @@
 "use client";
 
-import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
-
-import type { Filter } from "@/core/base/base-get.schema";
+import type { AppModalActionProps } from "@/components/modal/app-modal-action";
 import type { CalendarDate } from "@/features/record-calendar/calendar-date";
 import type { RecordWidgetDto } from "@/features/widget/record-widget.schema";
 import type { RecordCalendarWidgetDto } from "@/features/widget/record-calendar-widget.schema";
 import type { RecordContributionGroup } from "@/features/records/record-contribution.schema";
-import type { RecordPresentationResult } from "@/features/records/get-record-presentation.interactor";
-import type { ReactNode } from "react";
+import type { RecordExplorationStore } from "../../records/[typeId]/components/record-exploration.store";
 
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Pencil } from "lucide-react";
-import { AppModal } from "@/components/modal/app-modal";
-import { AppCard } from "@/components/card/app-card";
-import { AppCardBody } from "@/components/card/app-card-body";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
+
 import { PageState } from "@/components/page-state/page-state";
+import { ScopedRecordsSheet } from "@/components/records/scoped-records-sheet";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { ViewMode } from "@/core/base/base-query-builder";
 import { actionData } from "@/core/utils/action-data";
 import { reportApplicationError } from "@/core/errors/report-application-error";
+import { cn } from "@/core/utils/cn";
 import { recordContributionFilter } from "@/features/records/record-contribution-link";
-import { getWidgetByIdAction } from "../actions";
+import { DisplayType } from "@/features/widget/widget-display.schema";
 import { isRecordWidget } from "@/features/widget/widget.schema";
 import { calendarWidgetDayMeasure } from "@/features/widget/record-calendar-widget-window";
-import { getRecordPresentationAction } from "../../records/actions";
+import { getWidgetByIdAction } from "../actions";
 import { openWidgetEditor } from "./widget-interaction";
 import { RecordWidgetChart } from "./record-widget-chart";
-import { WidgetRecordsTable } from "./widget-records-table";
 
 export type WidgetDataSelection =
   | {
@@ -47,6 +40,11 @@ export type WidgetDataSelection =
       label: string;
       opener: HTMLElement | null;
     };
+
+const LEAD_HEIGHT_CLASS: Partial<Record<DisplayType, string>> = {
+  [DisplayType.number]: "h-24",
+  [DisplayType.rankedTable]: "max-h-64",
+};
 
 export function WidgetDataDrawer({
   open,
@@ -66,6 +64,26 @@ export function WidgetDataDrawer({
   );
 }
 
+function useEditWidgetAction(widgetId: string, name: string, onClose: () => void): AppModalActionProps {
+  const root = useRootStore();
+  const t = useTranslations();
+  return {
+    id: "edit-widget",
+    label: t("Dashboard.widgetEditor.editTitle", { name }),
+    icon: Pencil,
+    onClick: () => {
+      onClose();
+      return openWidgetEditor(root.widgetModalStore, widgetId);
+    },
+  };
+}
+
+function useRecordCount() {
+  const t = useTranslations();
+  return (store: RecordExplorationStore | null) =>
+    store ? t("RecordWidgets.contributingCount", { count: store.pagination?.total ?? store.items.length }) : null;
+}
+
 function CalendarDayDataDrawer({
   open,
   selection,
@@ -76,7 +94,9 @@ function CalendarDayDataDrawer({
   onClose: () => void;
 }) {
   const t = useTranslations();
+  const count = useRecordCount();
   const { widget, date, label } = selection;
+  const editAction = useEditWidgetAction(widget.id, widget.name, onClose);
   const query = widget.calendarQuery;
   const dateField = widget.fields.find((field) => field.id === query.dateFieldId);
   const filter = useMemo(() => {
@@ -93,21 +113,16 @@ function CalendarDayDataDrawer({
     }
   }, [query, dateField, date, widget.name, label]);
   return (
-    <WidgetDataSheet
+    <ScopedRecordsSheet
+      actions={[editAction]}
+      emptyTitle={t("Diagrams.noData")}
       filter={filter}
-      header={
-        <div className="flex shrink-0 flex-col gap-1 py-5 pr-28 pl-4" data-widget-detail-day={date}>
-          <p className="truncate text-base font-semibold">{label}</p>
-
-          <p className="truncate text-sm text-muted-foreground">{widget.name}</p>
-        </div>
-      }
+      idPrefix="widget-data"
       open={open}
       opener={selection.opener}
-      title={t("RecordCalendarWidgets.dayDataTitle", { name: widget.name, date: label })}
+      summary={(store) => [widget.name, count(store)].filter(Boolean).join(" · ")}
+      title={label}
       typeId={query.source.typeId}
-      widgetId={widget.id}
-      widgetName={widget.name}
       onClose={onClose}
     />
   );
@@ -126,9 +141,11 @@ function MeasureDataDrawer({
 }) {
   const root = useRootStore();
   const t = useTranslations();
+  const count = useRecordCount();
   const { group, label } = selection;
   const [widget, setWidget] = useState(selection.widget);
   const [chartFailed, setChartFailed] = useState(false);
+  const editAction = useEditWidgetAction(widget.id, widget.name, onClose);
   useEffect(
     () =>
       root.recordWorkspaceStore.subscribe(async () => {
@@ -155,129 +172,32 @@ function MeasureDataDrawer({
     }
   }, [widget.measure, widget.name, group, label]);
   return (
-    <WidgetDataSheet
+    <ScopedRecordsSheet
+      actions={[editAction]}
+      emptyTitle={t("Diagrams.noData")}
       filter={filter}
-      header={
-        <div className="flex h-64 shrink-0 flex-col" data-widget-detail-chart="">
+      idPrefix="widget-data"
+      lead={
+        <div
+          className={cn(
+            "flex shrink-0 flex-col px-6 pb-4",
+            LEAD_HEIGHT_CLASS[widget.displayOptions.displayType] ?? "h-56",
+          )}
+          data-widget-detail-chart=""
+        >
           {chartFailed ? (
             <PageState state="error" title={t("RecordWidgets.unavailable")} />
           ) : (
-            <RecordWidgetChart {...widget} onInspectGroup={onSelect} />
+            <RecordWidgetChart {...widget} embedded onInspectGroup={onSelect} />
           )}
         </div>
       }
       open={open}
       opener={selection.opener}
-      title={t("RecordWidgets.dataTitle", { name: widget.name })}
+      summary={(store) => [label, count(store)].filter(Boolean).join(" · ")}
+      title={widget.name}
       typeId={widget.measure.source.typeId}
-      widgetId={widget.id}
-      widgetName={widget.name}
       onClose={onClose}
     />
-  );
-}
-
-function WidgetDataSheet({
-  open,
-  widgetId,
-  widgetName,
-  title,
-  typeId,
-  filter,
-  opener,
-  header,
-  onClose,
-}: {
-  open: boolean;
-  widgetId: string;
-  widgetName: string;
-  title: string;
-  typeId: string;
-  filter: Filter | null;
-  opener: HTMLElement | null;
-  header: ReactNode;
-  onClose: () => void;
-}) {
-  const root = useRootStore();
-  const t = useTranslations();
-  const [presentation, setPresentation] = useState<{ key: string; data: RecordPresentationResult } | null>(null);
-  const [error, setError] = useState(false);
-  const [attempt, setAttempt] = useState(0);
-  const key = filter && "value" in filter ? String(filter.value) : "";
-  useEffect(() => {
-    let active = true;
-    setError(!filter);
-    if (!filter) return;
-    actionData(
-      getRecordPresentationAction(typeId, {
-        filters: [filter],
-        searchTerm: "",
-        viewMode: ViewMode.table,
-        grouping: null,
-        page: 1,
-        pageSize: 10,
-        viewId: ALL_VIEW_KEY,
-      }),
-    )
-      .then((data) => {
-        if (active) setPresentation({ key, data });
-      })
-      .catch((cause: unknown) => {
-        if (active) {
-          setError(true);
-          reportApplicationError(cause);
-        }
-      });
-    return () => {
-      active = false;
-    };
-  }, [key, filter, typeId, attempt]);
-  return (
-    <AppModal
-      sheet
-      actions={[
-        {
-          id: "edit-widget",
-          label: t("Dashboard.widgetEditor.editTitle", { name: widgetName }),
-          icon: Pencil,
-          onClick: () => {
-            onClose();
-            return openWidgetEditor(root.widgetModalStore, widgetId);
-          },
-        },
-      ]}
-      bodyClassName="flex min-h-0 flex-col overflow-hidden p-0"
-      focusReturnTarget={opener}
-      open={open}
-      size="5xl"
-      title={title}
-      onClose={onClose}
-    >
-      <AppCard className="flex min-h-0 flex-1 flex-col">
-        {header}
-
-        <AppCardBody className="flex min-h-0 flex-1 flex-col overflow-hidden p-0">
-          {error ? (
-            <PageState
-              action={
-                <Button variant="secondary" onClick={() => setAttempt((value) => value + 1)}>
-                  {t("ErrorCard.retry")}
-                </Button>
-              }
-              state="error"
-              title={t("RecordWidgets.unavailable")}
-            />
-          ) : presentation?.key === key ? (
-            <WidgetRecordsTable key={key} presentation={presentation.data} />
-          ) : (
-            <div aria-label={t("Loading.text")} className="space-y-3" role="status">
-              <Skeleton className="h-9" />
-
-              <Skeleton className="h-48" />
-            </div>
-          )}
-        </AppCardBody>
-      </AppCard>
-    </AppModal>
   );
 }

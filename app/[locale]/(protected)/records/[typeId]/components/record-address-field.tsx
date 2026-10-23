@@ -13,7 +13,7 @@ import { AppCard } from "@/components/card/app-card";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppForm, useAppForm } from "@/components/forms/form-context";
-import { FormFooterActions } from "@/components/forms/form-footer-actions";
+import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { FormFieldError } from "@/components/forms/form-field-error";
 import { FormLabel } from "@/components/forms/form-label";
 import { useFormFieldErrors } from "@/components/forms/use-form-field";
@@ -115,22 +115,21 @@ export const RecordAddressField = observer(function RecordAddressField({ field, 
           onClose={requestClose}
         >
           <AppForm store={selection.store} onSubmit={apply}>
-            <AppCard>
+            <AppCard className="relative">
               <AppCardHeader>
-                <AppModalTitle>{title}</AppModalTitle>
+                <AppModalTitle className="min-w-0 truncate text-lg font-semibold">{title}</AppModalTitle>
               </AppCardHeader>
 
-              <AppCardBody>
+              <AppCardBody className="pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]">
                 <RecordAddressInput field={field} id="address" />
               </AppCardBody>
 
-              <FormFooterActions
+              <UnsavedChangesBar
                 creating
                 dirty={selection.store.hasUnsavedChanges}
                 editable={!parent?.isDisabled}
                 saveLabel={t("Common.actions.confirm")}
                 saving={parent?.isDisabled}
-                store={null}
                 onSave={apply}
               />
             </AppCard>

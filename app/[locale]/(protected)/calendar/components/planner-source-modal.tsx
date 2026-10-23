@@ -11,7 +11,7 @@ import { AppModal, AppModalTitle } from "@/components/modal/app-modal";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppCardBody } from "@/components/card/app-card-body";
-import { FormFooterActions } from "@/components/forms/form-footer-actions";
+import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { FormSelect } from "@/components/forms/form-select";
 import { Button } from "@/components/ui/button";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
@@ -105,12 +105,12 @@ export const PlannerSourceModal = observer(function PlannerSourceModal({
   const title = creating ? t("Planner.addSource") : t("Planner.sourceSettings");
   return (
     <AppModal open titleInContent size="lg" title={title} onClose={onClose}>
-      <AppCard>
+      <AppCard className="relative">
         <AppCardHeader>
-          <AppModalTitle>{title}</AppModalTitle>
+          <AppModalTitle className="min-w-0 break-words text-base font-semibold">{title}</AppModalTitle>
         </AppCardHeader>
 
-        <AppCardBody>
+        <AppCardBody className="pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]">
           <FormSelect
             id="planner-list"
             items={types.map((type) => ({ value: type.id, label: type.pluralLabel }))}
@@ -191,11 +191,10 @@ export const PlannerSourceModal = observer(function PlannerSourceModal({
           </CollapsibleSection>
         </AppCardBody>
 
-        <FormFooterActions
+        <UnsavedChangesBar
           anchorScope="planner-source"
           creating={creating && Boolean(start)}
           dirty={Boolean(start) && changed}
-          store={null}
           onCancel={onClose}
           onSave={save}
         />

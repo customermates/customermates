@@ -186,8 +186,19 @@ export const RecordInputField = observer(function RecordInputField({
     );
   }
 
-  if (field.valueType === "file")
-    return <RecordFileInput field={field} files={files} id={id} inputId={inputId} label={label} members={members} />;
+  if (field.valueType === "file") {
+    return (
+      <RecordFileInput
+        field={field}
+        files={files}
+        flush={flush}
+        id={id}
+        inputId={inputId}
+        label={label}
+        members={members}
+      />
+    );
+  }
 
   if (field.multiple) {
     return (

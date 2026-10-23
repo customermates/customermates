@@ -1,5 +1,6 @@
 "use client";
 
+import { IN_PLACE_EDITOR_CLASS } from "@/components/records/inline-edit-classes";
 import type { KeyboardEvent, MouseEvent, PointerEvent, ReactNode } from "react";
 import type {
   RecordFieldView,
@@ -73,8 +74,6 @@ export const EDIT_SPACE_BUTTON_CLASS = "sr-only";
 export const EDIT_SPACE_FOCUS_CLASS =
   "rounded-md has-[[data-edit-target]:focus-visible]:ring-2 has-[[data-edit-target]:focus-visible]:ring-ring/70";
 const IN_PLACE_VALUE_TYPES: RecordFieldView["valueType"][] = ["text", "number", "currency", "url"];
-const IN_PLACE_EDITOR_CLASS =
-  "-mx-2 min-w-0 flex-1 [&_input]:h-7 [&_input]:border-ring/60 [&_input]:bg-background [&_input]:px-[7px] [&_input]:py-0 [&_input]:[font:inherit] [&_input]:shadow-[0_0_0_3px_color-mix(in_oklab,var(--ring)_16%,transparent)] [&_input]:focus-visible:border-ring/60 [&_input]:focus-visible:ring-0";
 
 const DATE_VALUE_TYPES: RecordFieldView["valueType"][] = ["date", "dateTime", "dateRange", "dateTimeRange"];
 
@@ -259,7 +258,14 @@ const InlineFieldForm = observer(function InlineFieldForm({
 }) {
   const store = useFieldValueStore(records, record, field, onDone);
   return (
-    <RecordFieldValueEditor saveOnDatePick label={null} members={record.memberUsers} store={store} onCancel={onDone} />
+    <RecordFieldValueEditor
+      saveOnDatePick
+      files={record.files}
+      label={null}
+      members={record.memberUsers}
+      store={store}
+      onCancel={onDone}
+    />
   );
 });
 
@@ -426,7 +432,14 @@ const InPlaceFieldInput = observer(function InPlaceFieldInput({
           {field.label}
         </label>
 
-        <RecordInputField field={field} id="value" inputId={inputId} label={null} members={record.memberUsers} />
+        <RecordInputField
+          field={field}
+          files={record.files}
+          id="value"
+          inputId={inputId}
+          label={null}
+          members={record.memberUsers}
+        />
       </AppFormProvider>
     </div>
   );

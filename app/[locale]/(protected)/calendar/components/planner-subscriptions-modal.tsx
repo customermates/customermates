@@ -96,7 +96,9 @@ export function PlannerSubscriptionsModal({
     <AppModal open titleInContent size="xl" title={t("Planner.calendarSync")} onClose={onClose}>
       <AppCard>
         <AppCardHeader>
-          <AppModalTitle>{t("Planner.calendarSync")}</AppModalTitle>
+          <AppModalTitle className="min-w-0 break-words text-base font-semibold">
+            {t("Planner.calendarSync")}
+          </AppModalTitle>
         </AppCardHeader>
 
         <AppCardBody>

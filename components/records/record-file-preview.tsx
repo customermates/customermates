@@ -10,6 +10,7 @@ import { ChevronLeft, ChevronRight, Download, ExternalLink, FileText, Pencil } f
 
 import { FileTypeBadge } from "@/components/files/file-type-badge";
 import { fileKind } from "@/components/files/file-kind";
+import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppModal, AppModalTitle } from "@/components/modal/app-modal";
 import { PageState } from "@/components/page-state/page-state";
 import { Button } from "@/components/ui/button";
@@ -46,8 +47,6 @@ function stepsWithin(target: EventTarget) {
     )
   );
 }
-
-const HEADER_RAIL_CLASS: Record<number, string> = { 1: "pr-24", 2: "pr-32", 3: "pr-40", 4: "pr-52", 5: "pr-60" };
 
 function canShowPdf() {
   return typeof navigator === "undefined" || navigator.pdfViewerEnabled !== false;
@@ -151,20 +150,18 @@ const RecordFilePreview = observer(function RecordFilePreview({
         data-record-file-preview-file={file.id}
         data-record-file-preview-kind={kind}
       >
-        <header
-          className={cn("flex shrink-0 items-center gap-3 border-b py-4 pl-4", HEADER_RAIL_CLASS[actions.length])}
-        >
+        <AppCardHeader className="gap-3 pb-4">
           <FileTypeBadge mimeType={file.mimeType} name={file.name} />
 
-          <div className="min-w-0 flex-1">
-            <AppModalTitle className={cn("truncate text-sm font-semibold", editing && rename && "sr-only")}>
+          <div className="flex min-w-0 flex-1 flex-col items-start gap-1">
+            <AppModalTitle className={cn("w-full truncate text-lg font-semibold", editing && rename && "sr-only")}>
               {file.name}
             </AppModalTitle>
 
             {editing && rename && (
               <RecordFileNameInput
                 key={file.id}
-                className="w-full"
+                appearance="heading"
                 label={t("RecordModel.fileNameLabel")}
                 name={file.name}
                 onDone={(value) => {
@@ -175,16 +172,20 @@ const RecordFilePreview = observer(function RecordFilePreview({
             )}
 
             {many && (
-              <p aria-live="polite" className="truncate text-xs text-muted-foreground" data-record-file-position="">
+              <p
+                aria-live="polite"
+                className="w-full truncate text-sm text-muted-foreground"
+                data-record-file-position=""
+              >
                 {group
                   ? t("RecordModel.filePositionIn", { position: index + 1, count: files.length, group })
                   : t("RecordModel.filePosition", { position: index + 1, count: files.length })}
               </p>
             )}
           </div>
-        </header>
+        </AppCardHeader>
 
-        <div className="flex min-h-0 flex-1 flex-col overflow-auto bg-muted/30 p-4">
+        <div className="flex min-h-0 flex-1 flex-col overflow-auto border-t bg-muted/30 px-6 py-4">
           {recordFilePreviewFormat(file.mimeType, file.name) ? (
             <RecordFileDocumentPreview key={file.id} file={file} />
           ) : kind === "pdf" && inline && showPdf ? (
@@ -238,7 +239,7 @@ const RecordFilePreview = observer(function RecordFilePreview({
 
         {meta && (
           <footer
-            className="shrink-0 truncate border-t px-4 py-3 text-xs text-muted-foreground"
+            className="shrink-0 truncate px-6 py-3 text-xs text-muted-foreground"
             data-record-file-preview-meta=""
           >
             {meta}

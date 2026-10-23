@@ -3,6 +3,7 @@
 import type { RootStore } from "@/core/stores/root.store";
 import type {
   RecordFieldView,
+  RecordFileSummary,
   RecordMember,
   RecordScalar,
   RecordScalarInput,
@@ -102,11 +103,13 @@ export const RecordFieldValueEditor = observer(function RecordFieldValueEditor({
   saveOnDatePick = false,
   label = store.field.label,
   members,
+  files,
   onCancel,
 }: {
   store: RecordFieldValueStore;
   busy?: boolean;
   members?: RecordMember[];
+  files?: RecordFileSummary[];
   saveOnDatePick?: boolean;
   label?: string | null;
   onCancel: () => void;
@@ -126,6 +129,7 @@ export const RecordFieldValueEditor = observer(function RecordFieldValueEditor({
 
         <RecordInputField
           field={store.field}
+          files={files}
           flush={flush}
           id="value"
           inputId={inputId}

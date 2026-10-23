@@ -22,12 +22,13 @@ test("chart bars open their records and carry the same selection to the overview
   const bar = card.locator("[data-chart-point]").first();
   await expect(bar).toBeVisible();
   await bar.click();
-  const drawer = page.getByRole("dialog", { name: "Data for Open pipeline by stage" });
+  const drawer = page.getByRole("dialog", { name: "Open pipeline by stage", exact: true });
   await expect(drawer).toBeVisible();
-  await expect(drawer.locator("[data-widget-records]")).toBeVisible();
-  await expect(drawer.locator("[data-widget-data-table]")).toContainText(/.+/u);
+  await expect(drawer.locator("[data-widget-detail-chart] [data-widget-chart-embedded]")).toBeVisible();
+  await expect(drawer.locator("[data-linked-records-summary]")).toContainText(/ · \d+ contributing records?$/u);
+  await expect(drawer.locator("[data-linked-records-table]")).toContainText(/.+/u);
   if (testInfo.project.name === "mobile") {
-    const rows = drawer.locator("[data-widget-data-table]");
+    const rows = drawer.locator("[data-linked-records-table]");
     await expect.poll(() => rows.evaluate((element) => element.scrollHeight > element.clientHeight)).toBe(true);
     const last = rows.locator("[data-row-id]").last();
     await last.scrollIntoViewIfNeeded();
@@ -35,10 +36,10 @@ test("chart bars open their records and carry the same selection to the overview
     expect(await rows.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
   }
   await page.screenshot({ path: testInfo.outputPath("chart-data-drawer.png") });
-  const href = await drawer.getByRole("link", { name: "Open in Deals" }).getAttribute("href");
+  const href = await drawer.getByRole("link", { name: "Open list", exact: true }).getAttribute("href");
   expect(href).toContain("filters=");
   expect(href).toContain("viewMode=table");
-  await drawer.getByRole("link", { name: "Open in Deals" }).click();
+  await drawer.getByRole("link", { name: "Open list", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/records/${demoId("deal")}`));
   await expect(page.locator('[data-slot="calendar-root"]')).toHaveCount(0);
   await page.getByRole("button", { name: "Filters", exact: true }).click();

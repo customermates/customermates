@@ -32,7 +32,7 @@ export function PlannerEventModal({
     <AppModal open titleInContent size="lg" title={name} onClose={onClose}>
       <AppCard>
         <AppCardHeader>
-          <AppModalTitle>{name}</AppModalTitle>
+          <AppModalTitle className="min-w-0 break-words text-base font-semibold">{name}</AppModalTitle>
         </AppCardHeader>
 
         <AppCardBody>

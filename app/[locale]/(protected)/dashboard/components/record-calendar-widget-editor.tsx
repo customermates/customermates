@@ -78,7 +78,6 @@ export const RecordCalendarWidgetEditor = observer(
     const previewContent = (
       <div className="min-w-0 space-y-3">
         <WidgetPreviewFrame
-          interactive
           error={previewError && !loading ? <WidgetPreviewError onRetry={store.runCalendarPreview} /> : null}
           geometry={store.previewGeometry}
           kind={form.kind}

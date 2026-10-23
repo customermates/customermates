@@ -71,17 +71,16 @@ test("the calendar widgets list upcoming records and open a day of the month ove
   const busyDay = month.locator('[data-calendar-day]:not([data-heat="0"])').first();
   await expect(busyDay).toBeVisible();
   const label = (await busyDay.getAttribute("aria-label")) ?? "";
-  const date = await busyDay.getAttribute("data-calendar-day");
   const [, day, count] = /^(.+): (\d+) records?/u.exec(label) ?? [];
   await busyDay.click();
   // A day opens the right-hand records drawer, as a chart segment does, listing exactly that day's records.
-  const drawer = page.getByRole("dialog", { name: `Deals closing this month · ${day}` });
+  const drawer = page.getByRole("dialog", { name: day, exact: true });
   await expect(drawer).toBeVisible();
-  await expect(drawer.locator(`[data-widget-detail-day="${date}"]`)).toContainText(day);
-  await expect(drawer.locator("[data-widget-records] h3")).toHaveText(
-    `${count} contributing record${count === "1" ? "" : "s"}`,
+  await expect(drawer.getByRole("heading", { name: day, exact: true })).toBeVisible();
+  await expect(drawer.locator("[data-linked-records-summary]")).toHaveText(
+    `Deals closing this month · ${count} contributing record${count === "1" ? "" : "s"}`,
   );
-  await expect(drawer.locator("[data-widget-data-table] [data-row-id]")).toHaveCount(Math.min(Number(count), 10));
+  await expect(drawer.locator("[data-linked-records-table] [data-row-id]")).toHaveCount(Math.min(Number(count), 10));
   await page.keyboard.press("Escape");
   await expect(drawer).toHaveCount(0);
   await expect(busyDay).toBeFocused();
@@ -92,7 +91,7 @@ test("the calendar widgets list upcoming records and open a day of the month ove
   const nextDay = /^(.+): /u.exec((await next.getAttribute("aria-label")) ?? "")?.[1];
   const nextCell = month.locator(`[data-calendar-day="${await next.getAttribute("data-calendar-day")}"]`);
   await page.keyboard.press("Enter");
-  const nextDrawer = page.getByRole("dialog", { name: `Deals closing this month · ${nextDay}` });
+  const nextDrawer = page.getByRole("dialog", { name: nextDay, exact: true });
   await expect(nextDrawer).toBeVisible();
   // Keyboard focus shows the close button's tooltip, which takes the first Escape.
   await expect(async () => {

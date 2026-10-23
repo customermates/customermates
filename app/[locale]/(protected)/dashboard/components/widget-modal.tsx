@@ -42,7 +42,7 @@ import { RecordCalendarWidgetEditor } from "./record-calendar-widget-editor";
 import { RecordMapWidgetEditor } from "./record-map-widget-editor";
 import { RecordWidgetEditor } from "./record-widget-editor";
 import { WidgetDisplayTypePicker } from "./widget-display-type-picker";
-import { WIDGET_EDITOR_STACK_CLASS } from "./widget-editor-layout";
+import { WIDGET_EDITOR_GRID_CLASS } from "./widget-editor-layout";
 import { WidgetStarterPicker } from "./widget-starter-picker";
 import { cn } from "@/core/utils/cn";
 
@@ -50,7 +50,7 @@ function WidgetModalSkeleton() {
   const t = useTranslations();
 
   return (
-    <div className={cn(WIDGET_EDITOR_STACK_CLASS, "min-h-96")} role="status">
+    <div className={cn(WIDGET_EDITOR_GRID_CLASS, "min-h-96")} role="status">
       <span className="sr-only">{t("Loading.text")}</span>
 
       <div className="space-y-4">
