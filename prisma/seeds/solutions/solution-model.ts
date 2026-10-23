@@ -209,6 +209,7 @@ export function buildSolutionModel(
       required: false,
       ...(spec.type === "multiSelect" ? { multiple: true } : {}),
       ...(spec.type === "currency" ? { format: { currency: "EUR" } } : {}),
+      ...(spec.formula?.kind === "daysBetween" ? { format: { decimalPlaces: 0 } } : {}),
       archived: spec.archived === true,
       publishedSummary: false,
       options: (spec.options ?? []).map((option) => ({

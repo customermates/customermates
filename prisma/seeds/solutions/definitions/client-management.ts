@@ -299,7 +299,7 @@ const en = {
   widgets: {
     annualValue: "Annual contract value",
     reviewDue: "Contracts up for review",
-    noContact: "Customers without contact in 30 days",
+    noContact: "No contact in 30 days",
     overdueTasks: "Overdue tasks",
     byStatus: "Clients by relationship status",
     byService: "Annual value by service",
