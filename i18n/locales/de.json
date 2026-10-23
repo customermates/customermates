@@ -2933,6 +2933,17 @@
         "startups": "Gründervertrieb vom Lead bis zum Abschluss",
         "whatsappCrm": "WhatsApp-Chats bei Kontakten und Deals"
       },
+      "solutionTaglines": {
+        "agencies": "Pitches, Projekte, Retainer",
+        "clientManagement": "Jeder Kunde auf einer Seite",
+        "consultants": "Mandate bis zur Unterschrift",
+        "freelancers": "Kunden und Projekte",
+        "linkedinCrm": "LinkedIn-Chats zu Deals",
+        "salesPipeline": "Deals nach Phase",
+        "smallBusiness": "Kunden, Deals, Wiedervorlagen",
+        "startups": "Vertrieb durch Gründer",
+        "whatsappCrm": "WhatsApp-Chats zu Kunden"
+      },
       "startups": "Startups",
       "taskManagement": "Aufgabenverwaltung",
       "unifiedInbox": "Einheitlicher Posteingang",

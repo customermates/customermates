@@ -94,6 +94,29 @@ function solutionNavSummary(t: Translate, id: SolutionId): string {
   }
 }
 
+function solutionNavTagline(t: Translate, id: SolutionId): string {
+  switch (id) {
+    case "smb":
+      return t("NavigationBar.public.solutionTaglines.smallBusiness");
+    case "consultants":
+      return t("NavigationBar.public.solutionTaglines.consultants");
+    case "agencies":
+      return t("NavigationBar.public.solutionTaglines.agencies");
+    case "freelancers":
+      return t("NavigationBar.public.solutionTaglines.freelancers");
+    case "startups":
+      return t("NavigationBar.public.solutionTaglines.startups");
+    case "client-management":
+      return t("NavigationBar.public.solutionTaglines.clientManagement");
+    case "sales-pipeline":
+      return t("NavigationBar.public.solutionTaglines.salesPipeline");
+    case "linkedin-crm":
+      return t("NavigationBar.public.solutionTaglines.linkedinCrm");
+    case "whatsapp-crm":
+      return t("NavigationBar.public.solutionTaglines.whatsappCrm");
+  }
+}
+
 export function solutionExampleWorkspaceHref(solution: SolutionCatalogEntry, locale: string): string {
   return `${PUBLIC_DEMO_ORIGIN}${demoWorkspacePath(locale, "/dashboard", solution.id)}`;
 }
@@ -107,6 +130,7 @@ export function solutionNavPreview(t: Translate, solution: SolutionCatalogEntry,
     exampleHref: solutionExampleWorkspaceHref(solution, locale),
     exampleLabel: t("NavigationBar.public.openExampleWorkspace"),
     light: pair.light.nav,
+    tagline: solutionNavTagline(t, solution.id),
   };
 }
 

@@ -2933,6 +2933,17 @@
         "startups": "Vendite guidate dai founder, dal primo lead alla chiusura",
         "whatsappCrm": "Chat WhatsApp collegate a contatti e trattative"
       },
+      "solutionTaglines": {
+        "agencies": "Pitch, progetti, retainer",
+        "clientManagement": "Ogni cliente in una scheda",
+        "consultants": "Dalla call alla firma",
+        "freelancers": "Clienti e progetti",
+        "linkedinCrm": "LinkedIn e trattative",
+        "salesPipeline": "Trattative per fase",
+        "smallBusiness": "Clienti e trattative",
+        "startups": "Vendite dei founder",
+        "whatsappCrm": "WhatsApp e clienti"
+      },
       "startups": "Startup",
       "taskManagement": "Gestione delle attività",
       "unifiedInbox": "Posta in arrivo unificata",

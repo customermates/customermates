@@ -2933,6 +2933,17 @@
         "startups": "Founder-led sales from first lead to closed deal",
         "whatsappCrm": "WhatsApp chats linked to contacts and deals"
       },
+      "solutionTaglines": {
+        "agencies": "Pitches, projects, retainers",
+        "clientManagement": "Every client in one record",
+        "consultants": "From first call to signature",
+        "freelancers": "Clients, projects, next steps",
+        "linkedinCrm": "LinkedIn chats to deals",
+        "salesPipeline": "Deal board with next steps",
+        "smallBusiness": "Customers, deals, follow-ups",
+        "startups": "Founder-led sales",
+        "whatsappCrm": "WhatsApp chats to customers"
+      },
       "startups": "Startups",
       "taskManagement": "Task management",
       "unifiedInbox": "Unified inbox",

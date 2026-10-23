@@ -2933,6 +2933,17 @@
         "startups": "Vente menée par les fondateurs, du premier lead à la signature",
         "whatsappCrm": "Discussions WhatsApp liées aux contacts et aux affaires"
       },
+      "solutionTaglines": {
+        "agencies": "Pitchs, projets, contrats",
+        "clientManagement": "Chaque client sur une fiche",
+        "consultants": "De l’appel à la signature",
+        "freelancers": "Clients et projets",
+        "linkedinCrm": "LinkedIn lié aux affaires",
+        "salesPipeline": "Affaires par étape",
+        "smallBusiness": "Clients, affaires, relances",
+        "startups": "Vente par les fondateurs",
+        "whatsappCrm": "WhatsApp lié aux clients"
+      },
       "startups": "Start-ups",
       "taskManagement": "Gestion des tâches",
       "unifiedInbox": "Boîte de réception unifiée",

@@ -81,6 +81,7 @@ const preview = (name: string) => ({
   exampleHref: `https://demo.customermates.com/en/w/${name}/dashboard`,
   exampleLabel: "Open this example workspace",
   light: { height: 600, src: `/captures/solutions/light/${name}-en-nav.webp`, width: 960 },
+  tagline: `${name} tagline`,
 });
 
 const sectionedGroups: PublicNavGroup[] = [
@@ -710,7 +711,7 @@ describe("PublicNavbarMenu", () => {
     expect(example?.textContent).toBe("Open this example workspace");
 
     const smbRow = container?.querySelector<HTMLElement>('[data-public-nav-link="/for/smb"]');
-    expect(smbRow?.querySelector("[data-public-nav-summary]")?.textContent).toBe("smb summary");
+    expect(smbRow?.querySelector("[data-public-nav-summary]")?.textContent).toBe("smb tagline");
     expect(smbRow?.classList.contains("h-11")).toBe(true);
     const footer = container?.querySelector<HTMLElement>("[data-public-nav-footer]");
     expect(

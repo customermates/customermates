@@ -26,6 +26,7 @@ export type PublicNavPreview = {
   exampleHref: string;
   exampleLabel: string;
   light: PublicNavPreviewImage;
+  tagline: string;
 };
 
 type PublicNavLinkBase = {
@@ -263,7 +264,7 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
 
   function renderPanelLink(group: PublicNavGroup, link: PublicNavLink, expanded: boolean) {
     const linkActive = isCurrentPage(pathname, link.href) && isPrimaryPublicNavLink(groups, link);
-    const summary = link.footer ? undefined : link.preview?.description;
+    const summary = link.footer ? undefined : link.preview?.tagline;
 
     return (
       <AppLink
