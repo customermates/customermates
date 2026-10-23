@@ -163,6 +163,8 @@ export const SOLUTION_CATALOG: readonly SolutionCatalogEntry[] = SOLUTION_DEFINI
 
 export const DEMO_DEFAULT_WORKSPACE_SLUG = "small-business";
 
+export const DEMO_DEFAULT_SOLUTION_ID: SolutionId = "smb";
+
 export const PROFESSIONAL_SERVICES_SOLUTION_ID: SolutionId = "smb";
 
 export function solutionDataLocaleForUiLocale(uiLocale: string): SolutionDataLocale {
@@ -187,4 +189,8 @@ export function findSolutionByWorkspaceSlug(
       if (solution.workspaceSlugs[dataLocale] === slug) return { solution, dataLocale };
   }
   return undefined;
+}
+
+export function demoDefaultWorkspaceSlug(uiLocale: string): string {
+  return findSolution(DEMO_DEFAULT_SOLUTION_ID).workspaceSlugs[solutionDataLocaleForUiLocale(uiLocale)];
 }

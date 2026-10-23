@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
 
-import { DEMO_DEFAULT_WORKSPACE_SLUG } from "@/core/solutions/solution-catalog";
+import { demoDefaultWorkspaceSlug } from "@/core/solutions/solution-catalog";
 import {
   WORKSPACE_ENTRY_TARGET_PARAM,
   workspaceEntryTarget,
@@ -29,8 +29,8 @@ export default async function WorkspaceEntryPage({ searchParams }: Props) {
   await requireAccess();
 
   const { user } = await resolveRequestAccountState();
-  const slug = env.APP_MODE === "demo" ? DEMO_DEFAULT_WORKSPACE_SLUG : user?.company?.slug;
   const locale = await getLocale();
+  const slug = env.APP_MODE === "demo" ? demoDefaultWorkspaceSlug(locale) : user?.company?.slug;
   if (!slug) redirect(buildLocalePath(locale, "/onboarding"));
 
   const { [WORKSPACE_ENTRY_TARGET_PARAM]: target, ...rest } = await searchParams;

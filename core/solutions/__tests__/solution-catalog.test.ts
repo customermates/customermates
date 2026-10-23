@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  DEMO_DEFAULT_SOLUTION_ID,
   DEMO_DEFAULT_WORKSPACE_SLUG,
   SOLUTION_CATALOG,
   SOLUTION_DATA_LOCALES,
+  demoDefaultWorkspaceSlug,
+  findSolution,
   findSolutionByWorkspaceSlug,
   solutionDataLocaleForUiLocale,
 } from "@/core/solutions/solution-catalog";
@@ -22,6 +25,15 @@ describe("solution catalog", () => {
     expect(new Set(slugs).size).toBe(slugs.length);
     expect(new Set(ids).size).toBe(ids.length);
     expect(slugs).toContain(DEMO_DEFAULT_WORKSPACE_SLUG);
+  });
+
+  it("enters the demo in the default solution's workspace of the interface's data locale", () => {
+    expect(findSolution(DEMO_DEFAULT_SOLUTION_ID).workspaceSlugs[DEFAULT_LOCALE]).toBe(DEMO_DEFAULT_WORKSPACE_SLUG);
+    for (const uiLocale of APP_LOCALES) {
+      expect(demoDefaultWorkspaceSlug(uiLocale)).toBe(
+        findSolution(DEMO_DEFAULT_SOLUTION_ID).workspaceSlugs[solutionDataLocaleForUiLocale(uiLocale)],
+      );
+    }
   });
 
   it("derives the slug and company id tables from the per-data-locale workspaces", () => {
