@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Check, ChevronsUpDown, X } from "lucide-react";
+import { ArrowUpRight, Check, ChevronsUpDown, PanelRightOpen, X } from "lucide-react";
 
 import type { RecordChoice } from "@/features/records/get-record-choices.interactor";
 import type { RecordRelationship } from "@/features/records/record-model.schema";
+import type { RecordRelationshipPath } from "@/features/records/record-relationship-path.schema";
 import type { RecordEditorStore } from "./record-editor.store";
 
 import { Button } from "@/components/ui/button";
@@ -14,78 +15,92 @@ import { useFocusAfterRemoval } from "@/components/ui/use-focus-after-removal";
 import { SelectionOptionsSkeleton, SelectionValueSkeleton } from "@/components/forms/selection-loading";
 import { RecordChipIcon } from "@/components/records/record-chip-icon";
 import { AppChip } from "@/components/chip/app-chip";
+import { AppChipStack } from "@/components/chip/app-chip-stack";
+import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
+import { openLinkedRecords } from "./open-linked-records";
 import { recordLinkColor } from "@/features/records/record-presentation";
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/core/utils/cn";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { recordDisplayName } from "@/features/records/record-display-name";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { useRecordChoices } from "@/components/records/use-record-choices";
 import { EntityDetailFieldShell } from "@/components/entity-detail/entity-detail-field-shell";
 import { EmptyValue } from "@/components/shared/empty-value";
-import { relationshipColumnKey } from "@/features/records/record-column.schema";
+import { relationshipColumnKey, relationshipPathColumnKey } from "@/features/records/record-column.schema";
 
 export const RECORD_LINK_FRAME_CLASS =
   "flex min-h-9 w-full flex-wrap items-center gap-1 rounded-md border px-3 py-1.5 text-sm";
 export const RECORD_LINK_FRAME_READ_ONLY_CLASS = "border-input bg-input-background shadow-xs";
 
-export const RecordRelationshipEditor = observer(function RecordRelationshipEditor({
-  store,
-  relationship,
-  direction,
-}: {
+type Props = {
   store: RecordEditorStore;
-  relationship: RecordRelationship;
-  direction: "outgoing" | "incoming";
-}) {
+  endContent?: ReactNode;
+} & (
+  | { relationship: RecordRelationship; direction: "outgoing" | "incoming" }
+  | { path: RecordRelationshipPath; targetTypeId: string }
+);
+
+export const RecordRelationshipEditor = observer(function RecordRelationshipEditor(props: Props) {
+  const { store, endContent } = props;
+  const relationship = "relationship" in props ? props.relationship : null;
+  const direction = "direction" in props ? props.direction : "outgoing";
+  const readOnly = store.isReadOnly || "path" in props;
   const t = useTranslations();
-  const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState<"link" | "linked" | null>(null);
+  const open = mode !== null;
+  const [focusTarget, setFocusTarget] = useState<{
+    opener: HTMLElement;
+    fallback: HTMLElement | null;
+  } | null>(null);
+  const focusReturn = useOverlayFocusReturn(open, focusTarget?.opener, focusTarget?.fallback);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [linkedPage, setLinkedPage] = useState(1);
   const [attempt, setAttempt] = useState(0);
   const debounced = useDebouncedValue(search);
   const outgoing = direction === "outgoing";
-  const label = outgoing ? relationship.sourceLabel : relationship.targetLabel;
-  const typeId = outgoing ? relationship.targetTypeId : relationship.sourceTypeId;
-  const singular = (outgoing ? relationship.sourceCardinality : relationship.targetCardinality) === "one";
+  const label =
+    "path" in props ? props.path.label : outgoing ? props.relationship.sourceLabel : props.relationship.targetLabel;
+  const typeId =
+    "path" in props ? props.targetTypeId : outgoing ? props.relationship.targetTypeId : props.relationship.sourceTypeId;
+  const singular =
+    relationship !== null && (outgoing ? relationship.sourceCardinality : relationship.targetCardinality) === "one";
+  const fieldId =
+    "path" in props
+      ? relationshipPathColumnKey(props.path.id)
+      : relationshipColumnKey(props.relationship.id, direction);
+  const recordFilter = store.record
+    ? "path" in props
+      ? { throughPath: { ref: store.record.ref, pathId: props.path.id } }
+      : {
+          linkedTo: {
+            ref: store.record.ref,
+            relationId: props.relationship.id,
+            direction,
+          },
+        }
+    : {};
   const linked = useRecordChoices(
     {
       typeId,
-      page: linkedPage,
+      page: 1,
       pageSize: 25,
-      ...(store.record
-        ? {
-            linkedTo: {
-              ref: {
-                typeId: store.record.ref.typeId,
-                recordId: store.record.ref.recordId,
-              },
-              relationId: relationship.id,
-              direction,
-            },
-          }
-        : {}),
+      ...recordFilter,
     },
     store.isOpen && store.record !== null && !store.trash,
     attempt + store.relatedRevision,
   );
-  const options = useRecordChoices({ typeId, page, pageSize: 25, search: debounced }, open && store.isOpen, attempt);
-  useEffect(() => {
-    const data = linked.data;
-    if (data) setLinkedPage((current) => Math.min(current, Math.max(1, Math.ceil(data.total / data.pageSize))));
-  }, [linked.data]);
-  useEffect(() => {
-    const data = options.data;
-    if (data) setPage((current) => Math.min(current, Math.max(1, Math.ceil(data.total / data.pageSize))));
-  }, [options.data]);
-  const changes = store.form.linkChanges.filter(
-    (change) => change.relationId === relationship.id && change.direction === direction,
-  );
-  const initialSummary = store.record?.relationships.find(
-    (entry) => entry.relationId === relationship.id && entry.direction === direction,
-  );
-  const original = linked.data?.records ?? (linked.loading && linkedPage === 1 ? (initialSummary?.records ?? []) : []);
+  const changes = relationship
+    ? store.form.linkChanges.filter((change) => change.relationId === relationship.id && change.direction === direction)
+    : [];
+  const initialSummary =
+    "path" in props
+      ? store.record?.relationshipPaths?.find((entry) => entry.pathId === props.path.id)
+      : store.record?.relationships.find(
+          (entry) => entry.relationId === props.relationship.id && entry.direction === direction,
+        );
+  const original = linked.data?.records ?? (linked.loading ? (initialSummary?.records ?? []) : []);
   const chosen = [
     ...original.filter(
       (record) =>
@@ -96,23 +111,119 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
         (change) =>
           change.action === "link" && !original.some((record) => record.ref.recordId === change.record.recordId),
       )
-      .map((change) => ({ ref: change.record, title: change.title })),
+      .map((change) => ({ ref: change.record, title: change.title, pictureUrl: change.pictureUrl })),
   ];
   const title = (record: RecordChoice) =>
     recordDisplayName(record.title, store.presentation.linkLabels[record.ref.typeId], t);
-  const editable = !store.isReadOnly && !store.isLoading && !linked.loading && !linked.failed;
-  const stage = (record: RecordChoice, action: "link" | "unlink") =>
-    store.stageLink({ action, relationId: relationship.id, direction, record: record.ref }, record.title);
-  function select(record: RecordChoice) {
-    if (!editable || chosen.some((entry) => entry.ref.recordId === record.ref.recordId)) return;
-    if (singular) for (const previous of chosen) stage(previous, "unlink");
-    stage(record, "link");
-    setOpen(false);
+  const editable = !readOnly && !store.isLoading && !linked.loading && !linked.failed;
+  const stage = (record: RecordChoice, action: "link" | "unlink") => {
+    if (relationship) {
+      store.stageLink(
+        {
+          action,
+          relationId: relationship.id,
+          direction,
+          record: record.ref,
+        },
+        record.title,
+        record.pictureUrl,
+      );
+    }
+  };
+  function select(record: RecordChoice, selected: boolean) {
+    if (!editable) return;
+    if (selected) stage(record, "unlink");
+    else {
+      if (singular) for (const previous of chosen) stage(previous, "unlink");
+      stage(record, "link");
+    }
+    if (mode === "linked") {
+      document.getElementById(`${id}-options`)?.querySelector<HTMLInputElement>("input")?.focus();
+      return;
+    }
+    setMode(null);
     setSearch("");
     setPage(1);
   }
-  const id = `relationship-${relationship.id}-${direction}-${useId()}`;
+  const id = `relationship-${fieldId}-${useId()}`;
   const chips = useRef<HTMLDivElement>(null);
+  const total = Math.max(
+    0,
+    (linked.data?.total ?? initialSummary?.readableCount ?? 0) +
+      changes.reduce((sum, change) => sum + (change.action === "link" ? 1 : -1), 0),
+  );
+  const staged = changes
+    .filter((change) => change.action === "link")
+    .map((change) => ({ ref: change.record, title: change.title, pictureUrl: change.pictureUrl }))
+    .filter((record) => !debounced || title(record).toLocaleLowerCase().includes(debounced.toLocaleLowerCase()));
+  const stagedPages = mode === "linked" ? Math.ceil(staged.length / 25) : 0;
+  const options = useRecordChoices(
+    {
+      typeId,
+      page: Math.max(1, page - stagedPages),
+      pageSize: 25,
+      search: debounced,
+      ...(mode === "linked" ? recordFilter : {}),
+    },
+    open && store.isOpen && (mode === "link" || store.record !== null),
+    attempt + store.relatedRevision,
+  );
+  const persisted =
+    options.data?.records.filter(
+      (record) =>
+        !changes.some((change) => change.action === "unlink" && change.record.recordId === record.ref.recordId),
+    ) ?? [];
+  const listed = page <= stagedPages ? staged.slice((page - 1) * 25, page * 25) : persisted;
+  const resultPages = stagedPages + Math.ceil((options.data?.total ?? 0) / 25);
+  useEffect(() => {
+    if (!options.loading) setPage((current) => Math.min(current, Math.max(1, resultPages)));
+  }, [options.loading, resultPages]);
+  const openLinked = (trigger: HTMLElement) => {
+    setFocusTarget({
+      opener: trigger,
+      fallback: document.getElementById(id) ?? chips.current,
+    });
+    setSearch("");
+    setPage(1);
+    setMode("linked");
+  };
+  const showLinked = (trigger: HTMLElement) => {
+    if (!store.record) return;
+    openLinkedRecords(
+      store.rootStore,
+      {
+        source: store.record,
+        model: store.presentation.model,
+        link: "path" in props ? { pathId: props.path.id } : { relationId: props.relationship.id, direction },
+        targetTypeId: typeId,
+        label,
+        t,
+      },
+      trigger,
+      document.getElementById(id) ?? chips.current,
+    );
+  };
+  const canShowLinked = Boolean(store.record) && !store.trash;
+  const showLinkedLabel = t("RecordModel.showLinkedRecords", { field: label });
+  const showLinkedAction = canShowLinked ? (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          aria-label={showLinkedLabel}
+          className="-my-1 text-muted-foreground"
+          data-show-linked-records=""
+          size="icon-xs"
+          type="button"
+          variant="ghost"
+          onClick={(event) => showLinked(event.currentTarget)}
+        >
+          <PanelRightOpen aria-hidden className="size-3.5" />
+        </Button>
+      </TooltipTrigger>
+
+      <TooltipContent>{showLinkedLabel}</TooltipContent>
+    </Tooltip>
+  ) : undefined;
   const focusAfterRemoval = useFocusAfterRemoval();
   const error = (retry: () => void) => (
     <div className="flex items-center gap-2 text-sm" role="alert">
@@ -125,7 +236,8 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
   );
   return (
     <EntityDetailFieldShell
-      fieldId={relationshipColumnKey(relationship.id, direction)}
+      action={showLinkedAction}
+      fieldId={fieldId}
       inputId={id}
       label={label}
       locked={store.isPermissionReadOnly}
@@ -133,80 +245,140 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
       {linked.failed ? (
         error(() => setAttempt((value) => value + 1))
       ) : (
-        <Popover modal open={open && editable} onOpenChange={setOpen}>
+        <Popover
+          modal
+          open={open}
+          onOpenChange={(value) => {
+            if (value) {
+              const opener = document.getElementById(id);
+              setFocusTarget(opener ? { opener, fallback: null } : null);
+            }
+            setMode(value ? ("path" in props ? "linked" : "link") : null);
+            setSearch("");
+            setPage(1);
+          }}
+        >
           <PopoverAnchor asChild>
             <div
               ref={chips}
               aria-busy={linked.loading || undefined}
+              aria-label={readOnly ? label : undefined}
               className={cn(
                 RECORD_LINK_FRAME_CLASS,
-                store.isReadOnly
+                "flex-nowrap",
+                endContent && "relative pr-9",
+                readOnly
                   ? RECORD_LINK_FRAME_READ_ONLY_CLASS
                   : "border-input bg-input-background shadow-xs focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50",
               )}
               data-relationship-field=""
+              data-relationship-path-field={"path" in props ? "" : undefined}
+              id={`${id}-field`}
+              role={readOnly ? "group" : "presentation"}
+              tabIndex={readOnly ? -1 : undefined}
+              onClick={(event) => {
+                if (!editable || (event.target as Element).closest("button, a, [role=button]")) return;
+                document.getElementById(id)?.click();
+              }}
+              onKeyDown={(event) => {
+                if (!editable || event.target !== event.currentTarget || (event.key !== "Enter" && event.key !== " "))
+                  return;
+                event.preventDefault();
+                document.getElementById(id)?.click();
+              }}
             >
-              {linked.loading && store.isReadOnly && chosen.length === 0 && (
+              {linked.loading && readOnly && chosen.length === 0 && (
                 <span aria-label={t("Loading.text")} role="status">
                   <SelectionValueSkeleton />
                 </span>
               )}
 
-              {!linked.loading && store.isReadOnly && chosen.length === 0 && <EmptyValue />}
+              {!linked.loading && readOnly && chosen.length === 0 && <EmptyValue />}
 
-              {chosen.map((record, index) => (
-                <AppChip
-                  key={record.ref.recordId}
-                  data-relationship-chip=""
-                  endContent={
-                    editable ? (
+              {(chosen.length > 0 || total > 0) && (
+                <AppChipStack
+                  extraCount={Math.max(0, total - chosen.length)}
+                  items={chosen.map((record) => ({
+                    ...record,
+                    id: record.ref.recordId,
+                    label: title(record),
+                  }))}
+                  maxRows={3}
+                  moreButtonProps={{
+                    id: `${id}-more`,
+                    "aria-haspopup": "dialog",
+                    "aria-expanded": mode === "linked",
+                    "aria-controls": `${id}-options`,
+                  }}
+                  moreLabel={(count) => t("RecordModel.moreRecords", { count })}
+                  renderChip={(record, index) => (
+                    <AppChip
+                      data-relationship-chip=""
+                      endContent={
+                        editable ? (
+                          <button
+                            aria-label={t("RecordModel.unlinkRecord", {
+                              name: title(record),
+                            })}
+                            className="inline-flex size-5 items-center justify-center rounded-sm focus-visible:ring-2 focus-visible:ring-ring"
+                            data-relationship-unlink=""
+                            type="button"
+                            onClick={() => {
+                              stage(record, "unlink");
+                              focusAfterRemoval({
+                                container: () => chips.current,
+                                selector: "[data-chip-id] [data-relationship-unlink]",
+                                index,
+                                fallback: () => document.getElementById(id) ?? chips.current,
+                              });
+                            }}
+                          >
+                            <X className="size-3" />
+                          </button>
+                        ) : undefined
+                      }
+                      startContent={
+                        <RecordChipIcon
+                          icons={store.presentation.linkIcons}
+                          pictureUrl={record.pictureUrl}
+                          typeId={record.ref.typeId}
+                        />
+                      }
+                      variant={recordLinkColor(store.presentation.linkColors, typeId)}
+                    >
                       <button
-                        aria-label={t("RecordModel.unlinkRecord", {
+                        aria-label={t("RecordModel.openRecord", {
                           name: title(record),
                         })}
-                        className="inline-flex size-5 items-center justify-center rounded-sm focus-visible:ring-2 focus-visible:ring-ring"
-                        data-relationship-unlink=""
+                        className="block max-w-full truncate rounded-sm text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         type="button"
-                        onClick={() => {
-                          stage(record, "unlink");
-                          focusAfterRemoval({
-                            container: () => chips.current,
-                            selector: "[data-relationship-unlink]",
-                            index,
-                            fallback: () => document.getElementById(id),
-                          });
-                        }}
+                        onClick={(event) =>
+                          store.rootStore.recordWorkspaceStore.open(
+                            {
+                              typeId: record.ref.typeId,
+                              recordId: record.ref.recordId,
+                            },
+                            event.currentTarget,
+                            document.getElementById(id) ?? chips.current,
+                          )
+                        }
                       >
-                        <X className="size-3" />
+                        {title(record)}
                       </button>
-                    ) : undefined
-                  }
-                  startContent={<RecordChipIcon icons={store.presentation.linkIcons} typeId={record.ref.typeId} />}
-                  variant={recordLinkColor(store.presentation.linkColors, typeId)}
-                >
-                  <button
-                    aria-label={t("RecordModel.openRecord", {
-                      name: title(record),
-                    })}
-                    className="max-w-full rounded-sm text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    type="button"
-                    onClick={(event) =>
-                      store.rootStore.recordWorkspaceStore.open(
-                        {
-                          typeId: record.ref.typeId,
-                          recordId: record.ref.recordId,
-                        },
-                        event.currentTarget,
-                        document.getElementById(id),
-                      )
-                    }
-                  >
-                    {title(record)}
-                  </button>
-                </AppChip>
-              ))}
+                    </AppChip>
+                  )}
+                  onMoreClickWhenLoaded
+                  onMoreClick={(trigger) => (canShowLinked && changes.length === 0 ? showLinked : openLinked)(trigger)}
+                />
+              )}
 
-              {!store.isReadOnly && (
+              {endContent && (
+                <div className="absolute top-1/2 right-3 flex -translate-y-1/2 items-center" data-form-control-end="">
+                  {endContent}
+                </div>
+              )}
+
+              {!readOnly && (
                 <PopoverTrigger asChild>
                   <button
                     aria-busy={linked.loading || undefined}
@@ -234,9 +406,20 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
             </div>
           </PopoverAnchor>
 
-          <PopoverContent align="start" className="w-(--radix-popover-trigger-width) p-0" id={`${id}-options`}>
-            <Command shouldFilter={false}>
+          <PopoverContent
+            align="start"
+            aria-label={label}
+            className="flex min-h-0 w-(--radix-popover-trigger-width) flex-col overflow-hidden p-0"
+            id={`${id}-options`}
+            {...focusReturn}
+            onOpenAutoFocus={() => {
+              focusReturn.onOpenAutoFocus();
+              document.getElementById(`${id}-options`)?.querySelector<HTMLInputElement>("input")?.focus();
+            }}
+          >
+            <Command className="min-h-0" shouldFilter={false}>
               <CommandInput
+                aria-label={t("Common.table.search")}
                 placeholder={t("Common.table.search")}
                 value={search}
                 onValueChange={(value) => {
@@ -245,7 +428,11 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
                 }}
               />
 
-              <CommandList aria-busy={options.loading || undefined}>
+              <CommandList
+                aria-busy={options.loading || undefined}
+                className="min-h-0"
+                data-linked-record-list={mode === "linked" ? "" : undefined}
+              >
                 {options.loading || search !== debounced ? (
                   <SelectionOptionsSkeleton label={t("Loading.text")} />
                 ) : options.failed ? (
@@ -254,77 +441,94 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
                   <>
                     <CommandEmpty>{t("Common.inputs.emptyContent")}</CommandEmpty>
 
-                    <CommandGroup>
-                      {options.data?.records.map((record) => (
-                        <CommandItem
-                          key={record.ref.recordId}
-                          value={record.ref.recordId}
-                          onSelect={() => select(record)}
-                        >
-                          <span className="flex-1 truncate">{title(record)}</span>
+                    <CommandGroup
+                      heading={mode === "linked" ? t("RecordModel.linkedRecordCount", { count: total }) : undefined}
+                    >
+                      {(mode === "linked" ? listed : (options.data?.records ?? [])).map((record) => {
+                        const selected =
+                          mode === "linked" || chosen.some((entry) => entry.ref.recordId === record.ref.recordId);
+                        return (
+                          <CommandItem
+                            key={record.ref.recordId}
+                            aria-label={title(record)}
+                            value={record.ref.recordId}
+                            onSelect={() => {
+                              if (!readOnly) select(record, selected);
+                              else {
+                                store.rootStore.recordWorkspaceStore.open(
+                                  record.ref,
+                                  document.activeElement instanceof HTMLElement ? document.activeElement : null,
+                                  document.getElementById(id) ?? chips.current,
+                                );
+                              }
+                            }}
+                          >
+                            <span className="min-w-0 flex-1 truncate">{title(record)}</span>
 
-                          {chosen.some((entry) => entry.ref.recordId === record.ref.recordId) && (
-                            <Check className="size-4" />
-                          )}
-                        </CommandItem>
-                      ))}
+                            {mode === "linked" && editable && (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    aria-label={t("RecordModel.openRecord", { name: title(record) })}
+                                    className="-my-1"
+                                    size="icon-xs"
+                                    type="button"
+                                    variant="ghost"
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      store.rootStore.recordWorkspaceStore.open(
+                                        record.ref,
+                                        event.currentTarget,
+                                        document.getElementById(id) ?? chips.current,
+                                      );
+                                    }}
+                                    onKeyDown={(event) => {
+                                      if (event.key !== "Escape" && event.key !== "Tab") event.stopPropagation();
+                                    }}
+                                  >
+                                    <ArrowUpRight aria-hidden className="size-3" />
+                                  </Button>
+                                </TooltipTrigger>
+
+                                <TooltipContent>{t("RecordModel.openRecord", { name: title(record) })}</TooltipContent>
+                              </Tooltip>
+                            )}
+
+                            {selected && <Check aria-hidden className="size-4" />}
+                          </CommandItem>
+                        );
+                      })}
                     </CommandGroup>
                   </>
                 )}
               </CommandList>
-
-              {options.data && options.data.total > options.data.pageSize && (
-                <div className="flex justify-between border-t p-1">
-                  <Button
-                    disabled={page === 1 || options.loading}
-                    size="sm"
-                    type="button"
-                    variant="ghost"
-                    onClick={() => setPage((value) => value - 1)}
-                  >
-                    {t("Common.table.previousPage")}
-                  </Button>
-
-                  <Button
-                    disabled={page * options.data.pageSize >= options.data.total || options.loading}
-                    size="sm"
-                    type="button"
-                    variant="ghost"
-                    onClick={() => setPage((value) => value + 1)}
-                  >
-                    {t("Common.table.nextPage")}
-                  </Button>
-                </div>
-              )}
             </Command>
+
+            {resultPages > 1 && (
+              <div className="flex justify-between border-t p-1">
+                <Button
+                  disabled={page === 1 || options.loading}
+                  size="sm"
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setPage((value) => value - 1)}
+                >
+                  {t("Common.table.previousPage")}
+                </Button>
+
+                <Button
+                  disabled={page >= resultPages || options.loading}
+                  size="sm"
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setPage((value) => value + 1)}
+                >
+                  {t("Common.table.nextPage")}
+                </Button>
+              </div>
+            )}
           </PopoverContent>
         </Popover>
-      )}
-
-      {linked.data && linked.data.total > linked.data.pageSize && (
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Button
-            disabled={linkedPage === 1 || linked.loading}
-            size="sm"
-            type="button"
-            variant="ghost"
-            onClick={() => setLinkedPage((value) => value - 1)}
-          >
-            {t("Common.table.previousPage")}
-          </Button>
-
-          <span>{t("RecordModel.linkedRecordCount", { count: linked.data.total })}</span>
-
-          <Button
-            disabled={linkedPage * linked.data.pageSize >= linked.data.total || linked.loading}
-            size="sm"
-            type="button"
-            variant="ghost"
-            onClick={() => setLinkedPage((value) => value + 1)}
-          >
-            {t("Common.table.nextPage")}
-          </Button>
-        </div>
       )}
     </EntityDetailFieldShell>
   );

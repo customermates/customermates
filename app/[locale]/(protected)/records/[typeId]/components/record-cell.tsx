@@ -17,7 +17,7 @@ import { EmptyValue } from "@/components/shared/empty-value";
 import { Avatar } from "@/components/ui/avatar";
 import { recordDisplayName } from "@/features/records/record-display-name";
 
-const LINKED_CHIPS_MAX_WIDTH = 240;
+const LINKED_CHIPS_CLASS = "block min-w-0 max-w-60 in-data-column-sized:max-w-none";
 
 export function RecordCell({
   column,
@@ -30,43 +30,50 @@ export function RecordCell({
   inTrigger = false,
   relativeTimestamp = false,
   avatarFieldId,
+  fallbackTitle,
 }: {
-  column: RecordColumn<RecordFieldView>;
+  column?: RecordColumn<RecordFieldView>;
   linkColors: RecordLinkColors;
   linkIcons: RecordLinkIcons;
   linkLabels: RecordLinkLabels;
   record: RecordDto;
   onOpen: (ref: RecordRef) => void;
-  onMore?: () => void;
+  onMore?: (trigger: HTMLElement) => void;
   inTrigger?: boolean;
   relativeTimestamp?: boolean;
   avatarFieldId?: string;
+  fallbackTitle?: string;
 }) {
   const t = useTranslations();
   const intl = useHydratedIntlStore();
   const empty = <EmptyValue />;
-  if (column.kind === "field") {
-    const result = record.fields.find((value) => value.fieldId === column.field.id)?.result;
-    if (avatarFieldId && result?.state === "value" && result.value.kind === "text") {
-      const image = record.fields.find((field) => field.fieldId === avatarFieldId)?.result;
-      return (
-        <span className="flex min-w-0 items-center gap-2">
-          <Avatar
-            aria-hidden
-            name={result.value.value}
-            src={image?.state === "value" && image.value.kind === "text" ? image.value.value : null}
-          />
+  const field = column?.kind === "field" ? column.field : undefined;
+  const result = field ? record.fields.find((value) => value.fieldId === field.id)?.result : undefined;
+  if (!column || (avatarFieldId && result?.state === "value" && result.value.kind === "text")) {
+    const name =
+      result?.state === "value" && result.value.kind === "text"
+        ? result.value.value
+        : (fallbackTitle ?? recordDisplayName(undefined, undefined, t));
+    const content = field ? (
+      <RecordValue field={field} identities={record.identities} members={record.memberUsers} result={result} />
+    ) : (
+      <span className="truncate">{name}</span>
+    );
+    if (!avatarFieldId) return content;
+    const image = record.fields.find((value) => value.fieldId === avatarFieldId)?.result;
+    return (
+      <span className="flex min-w-0 items-center gap-2" data-slot="record-name">
+        <Avatar
+          aria-hidden
+          name={name}
+          src={image?.state === "value" && image.value.kind === "text" ? image.value.value : null}
+        />
 
-          <RecordValue
-            field={column.field}
-            files={record.files}
-            identities={record.identities}
-            members={record.memberUsers}
-            result={result}
-          />
-        </span>
-      );
-    }
+        {content}
+      </span>
+    );
+  }
+  if (column.kind === "field") {
     return (
       <RecordValue
         field={column.field}
@@ -81,15 +88,17 @@ export function RecordCell({
   if (column.kind === "system") {
     if (column.id === "system:assignedTo") {
       return record.assignedUsers.length ? (
-        <AppChipStack
-          fill
-          items={record.assignedUsers.map((member) => ({
-            id: member.id,
-            label: memberName(member),
-            startContent: <MemberAvatar member={member} />,
-          }))}
-          maxWidth={LINKED_CHIPS_MAX_WIDTH}
-        />
+        <span className={LINKED_CHIPS_CLASS}>
+          <AppChipStack
+            fill
+            items={record.assignedUsers.map((member) => ({
+              id: member.id,
+              label: memberName(member),
+              startContent: <MemberAvatar member={member} />,
+            }))}
+            overflowMenu={!inTrigger}
+          />
+        </span>
       ) : (
         empty
       );
@@ -114,20 +123,22 @@ export function RecordCell({
   const items = summary.records.map((related) => ({
     id: `${related.ref.typeId}:${related.ref.recordId}`,
     ref: related.ref,
-    startContent: <RecordChipIcon icons={linkIcons} typeId={related.ref.typeId} />,
+    startContent: <RecordChipIcon icons={linkIcons} pictureUrl={related.pictureUrl} typeId={related.ref.typeId} />,
     label: recordDisplayName(related.title, linkLabels[related.ref.typeId], t),
   }));
   return (
-    <AppChipStack
-      fill
-      chipLabel={(item) => t("RecordModel.openRecord", { name: item.label })}
-      extraCount={summary.hasMore ? Math.max(0, summary.readableCount - summary.records.length) : 0}
-      items={items}
-      maxWidth={LINKED_CHIPS_MAX_WIDTH}
-      overflowMenu={!inTrigger}
-      variant={recordLinkColor(linkColors, summary.records[0].ref.typeId)}
-      onChipClick={inTrigger ? undefined : (item) => onOpen(item.ref)}
-      onMoreClick={inTrigger || !onMore ? undefined : onMore}
-    />
+    <span className={LINKED_CHIPS_CLASS}>
+      <AppChipStack
+        fill
+        chipLabel={(item) => t("RecordModel.openRecord", { name: item.label })}
+        extraCount={summary.hasMore ? Math.max(0, summary.readableCount - summary.records.length) : 0}
+        items={items}
+        overflowMenu={!inTrigger}
+        variant={recordLinkColor(linkColors, summary.records[0].ref.typeId)}
+        onChipClick={inTrigger ? undefined : (item) => onOpen(item.ref)}
+        onMoreClick={inTrigger || !onMore ? undefined : onMore}
+        onMoreClickWhenLoaded={Boolean(onMore)}
+      />
+    </span>
   );
 }

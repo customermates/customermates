@@ -38,6 +38,8 @@ type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
   id?: string;
   anchorScope?: string;
+  compact?: boolean;
+  active?: boolean;
 };
 
 function HiddenBoardColumns<E extends HasId>({
@@ -76,6 +78,8 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
   store,
   id,
   anchorScope,
+  compact = false,
+  active,
 }: Props<E>) {
   const t = useTranslations();
   const [isOpen, setIsOpen] = useState(false);
@@ -96,7 +100,8 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
   const currentSortDirectionLabel =
     currentSortDirection === "asc" ? t("Common.sort.ascending") : t("Common.sort.descending");
   const currentGroupingId = store.currentGroupableFieldId;
-  const hasActiveOption = Boolean(currentSortField) || Boolean(store.grouping) || store.hiddenColumns.length > 0;
+  const hasActiveOption =
+    active ?? (Boolean(currentSortField) || Boolean(store.grouping) || store.hiddenColumns.length > 0);
 
   const canCalendar = store.canCalendar;
   const currentLayout = resolveDataViewView(store.viewMode, canBoard, canCalendar && Boolean(store.calendar));
@@ -159,7 +164,21 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
     store.setViewOptions({ hiddenColumns: Array.from(next) });
   }
 
-  const trigger = (
+  const trigger = compact ? (
+    <Button
+      aria-label={t("Common.ariaLabels.tooltipFields")}
+      className="relative text-muted-foreground"
+      id={id}
+      size="icon-sm"
+      variant="ghost"
+    >
+      <SlidersHorizontal className="size-3.5" />
+
+      {hasActiveOption && (
+        <span aria-hidden="true" className="absolute right-1.5 top-1.5 size-2 rounded-full bg-primary" />
+      )}
+    </Button>
+  ) : (
     <Button
       aria-label={t("Common.ariaLabels.tooltipFields")}
       className="relative h-8"

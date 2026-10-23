@@ -19,18 +19,16 @@ type Column = Pick<RecordColumn, "id" | "kind">;
 
 export function embeddedColumnLayout({
   columns,
-  primaryColumnId,
   parentColumnId,
   defaultHidden,
   chosen,
 }: {
   columns: Column[];
-  primaryColumnId: string;
   parentColumnId: string;
   defaultHidden: string[];
   chosen: string[] | null;
 }): { columnOrder: string[]; hiddenColumns: string[] } {
-  const choosable = columns.filter((column) => column.id !== primaryColumnId && column.id !== parentColumnId);
+  const choosable = columns.filter((column) => column.id !== parentColumnId);
   const available = new Set(choosable.map((column) => column.id));
   const quiet = new Set(defaultHidden);
   const unhidden = choosable.filter((column) => !quiet.has(column.id));
@@ -52,7 +50,6 @@ export function embeddedSublistLayout(
   const columns = recordColumns<RecordFieldView>(typeId, model as RecordModelView);
   const layout = embeddedColumnLayout({
     columns,
-    primaryColumnId: model.types.find((type) => type.id === typeId)?.primaryFieldId ?? "",
     parentColumnId: relationshipColumnKey(parentRelationId, "outgoing"),
     defaultHidden: defaultHiddenColumns(typeId, model.fields),
     chosen,

@@ -10,7 +10,7 @@ import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { failureUnwindCause, unwindFailure } from "@/core/validation/failure-unwind";
 import { isTransactionEndedError } from "@/core/errors/prisma-client-error";
-import { RecordRefSchema } from "./record-model.schema";
+import { RecordModelSchema, RecordRefSchema } from "./record-model.schema";
 import { ConfigurationChangeSchema } from "./configuration.schema";
 import type { RecordConfigurationService } from "./configuration.service";
 import type { RecordConfigurationWriter } from "./record-configuration-writer";
@@ -122,7 +122,12 @@ export class RecordOperationService extends UserAccessor {
           const calculations = this.calculations.withRepository(staged);
           const prepared =
             operation.kind === "configuration"
-              ? await this.configurations.prepare(ConfigurationChangeSchema.parse(operation.request), current, policy)
+              ? await this.configurations.prepare(
+                  ConfigurationChangeSchema.parse(operation.request),
+                  current,
+                  policy,
+                  operation.stagedSchema ? RecordModelSchema.parse(operation.stagedSchema) : undefined,
+                )
               : null;
           if (prepared && !prepared.preview.valid) throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
           const cursor = CursorSchema.parse(operation.cursor ?? { phase: "source", index: 0 });

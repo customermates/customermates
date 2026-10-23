@@ -177,7 +177,7 @@ test("edits a linear calculation and restores deleted fields and a list", async 
   );
   expect(calculated.rows).toEqual([{ state: "value", value: "25" }]);
   await page.reload();
-  await expect(page.getByRole("link", { name: "Pilot research", exact: true })).toBeVisible();
+  await expect(recordItem(page, "Pilot research")).toBeVisible();
   await followConfigureLink(page);
   await openConfigureRow(page, "Fields", "Double budget");
   await deleteFromDrawer(page, "Delete field");
@@ -197,7 +197,7 @@ test("edits a linear calculation and restores deleted fields and a list", async 
     pluralLabel: name,
   });
   await openRecordList(page, typeId);
-  await expect(page.getByRole("link", { name: "Pilot research", exact: true })).toBeVisible();
+  await expect(recordItem(page, "Pilot research")).toBeVisible();
   await expect(recordItem(page, "Pilot research")).toContainText("25");
   await page.screenshot({ path: testInfo.outputPath("restored-custom-record.png"), animations: "disabled" });
   expect(errors).toEqual([]);

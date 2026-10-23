@@ -190,7 +190,29 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
     return !this.original && Boolean(type && !type.embedded) && !recordChannelsField(this.model, this.typeId);
   }
   get providerAvatarAvailable() {
-    return this.model.capabilities.some((binding) => binding.kind === "avatar" && binding.typeId === this.typeId);
+    const fieldId = this.model.capabilities
+      .find((binding) => binding.kind === "avatar" && binding.typeId === this.typeId)
+      ?.fields.find((field) => field.role === "image")?.fieldId;
+    return this.model.fields.some(
+      (field) => field.id === fieldId && !field.archived && field.behavior.kind === "input",
+    );
+  }
+  get pictureListLabel() {
+    if (
+      !this.original ||
+      !this.model.capabilities.some(
+        (binding) =>
+          binding.kind === "avatar" &&
+          binding.typeId === this.typeId &&
+          binding.fields.some((field) => field.role === "image" && field.fieldId === this.original?.id),
+      )
+    )
+      return undefined;
+    return this.model.types.find((type) => type.id === this.typeId)?.pluralLabel;
+  }
+  get recordNameListLabel() {
+    if (!this.original) return undefined;
+    return this.model.types.find((type) => type.primaryFieldId === this.original?.id)?.pluralLabel;
   }
   protected projectLatestModel(model: RecordModelView) {
     if (!model.types.some((type) => type.id === this.typeId)) return null;
@@ -580,6 +602,20 @@ export const FieldModal = observer(function FieldModal({
 
           <>
             <FormInput required showErrorMessage id="label" label={t("RecordModel.name")} />
+
+            {store.recordNameListLabel && (
+              <p className="text-sm text-muted-foreground">
+                {t("RecordModel.recordNameFieldUsage", { list: store.recordNameListLabel })}
+              </p>
+            )}
+
+            {store.pictureListLabel && (
+              <p className="text-sm text-muted-foreground">
+                {t("RecordModel.pictureFieldUsage", {
+                  list: store.pictureListLabel,
+                })}
+              </p>
+            )}
 
             <div className={cn("grid gap-4", !store.isCalculated && "sm:grid-cols-2")}>
               {!store.isChannels && (

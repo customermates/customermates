@@ -11,7 +11,11 @@ import type { RecordRelationshipPath } from "./record-relationship-path.schema";
 import type { RecordDefinitionDeletion } from "./record.repo";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { expressionFieldDependencies, expressionRelationshipDependencies } from "./record-model-validation";
+import {
+  expressionFieldDependencies,
+  expressionRelationshipDependencies,
+  isRecordNameField,
+} from "./record-model-validation";
 import { resolveRecordPath } from "./record-relationship-path";
 
 type ConfigurationDeletion = {
@@ -85,10 +89,6 @@ function setDeleted(model: RecordModel, target: ConfigurationTarget, archived: b
   items[index] = { ...items[index], archived };
 }
 
-function canNameRecords(field: RecordModel["fields"][number]) {
-  return !field.archived && field.valueType === "text" && !field.multiple;
-}
-
 function fieldsInOrder(model: RecordModel, typeId: string) {
   return model.fields.filter((field) => field.typeId === typeId).sort((left, right) => left.position - right.position);
 }
@@ -96,7 +96,7 @@ function fieldsInOrder(model: RecordModel, typeId: string) {
 function nextNameField(model: RecordModel, deleted: RecordModel["fields"][number]) {
   const fields = fieldsInOrder(model, deleted.typeId);
   const index = fields.findIndex((field) => field.id === deleted.id);
-  return [...fields.slice(index + 1), ...fields.slice(0, index)].find(canNameRecords) ?? null;
+  return [...fields.slice(index + 1), ...fields.slice(0, index)].find(isRecordNameField) ?? null;
 }
 
 function setNameField(model: RecordModel, typeId: string, fieldId: string | null) {
@@ -106,7 +106,7 @@ function setNameField(model: RecordModel, typeId: string, fieldId: string | null
 export function assignMissingNameFields(model: RecordModel) {
   for (const type of model.types) {
     if (type.archived || type.primaryFieldId) continue;
-    const field = fieldsInOrder(model, type.id).find(canNameRecords);
+    const field = fieldsInOrder(model, type.id).find(isRecordNameField);
     if (field) setNameField(model, type.id, field.id);
   }
 }
@@ -367,7 +367,9 @@ export function applyConfigurationLifecycle(
     setDeleted(model, target, false);
     const record = records.get(targetKey(target));
     const named = record?.nameField && model.types.find((type) => type.id === record.nameField?.typeId);
-    if (named && named.primaryFieldId === record?.nameField?.replacementId) setNameField(model, named.id, target.id);
+    const nameField = model.fields.find((field) => field.id === target.id && field.typeId === named?.id);
+    if (named && nameField && isRecordNameField(nameField) && named.primaryFieldId === record?.nameField?.replacementId)
+      setNameField(model, named.id, target.id);
     if (record?.bindings?.length) restoreBindingFields(model, record.bindings);
     const cascade = (record?.cascade ?? []).filter((item) => inModel(model, item));
     for (const kind of ["type", "relationship", "field"] as const) {

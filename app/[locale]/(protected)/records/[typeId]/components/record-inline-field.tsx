@@ -14,8 +14,9 @@ import type { RecordsStore } from "./records.store";
 
 import { useEffect, useId, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
+import { toJS } from "mobx";
 import { useTranslations } from "next-intl";
-import { Check, Plus } from "lucide-react";
+import { Check, ChevronsUpDown, Pencil } from "lucide-react";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { EmptyValue } from "@/components/shared/empty-value";
@@ -30,10 +31,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ResponsiveOverlay } from "@/components/modal/responsive-overlay";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { AppFormProvider } from "@/components/forms/form-context";
+import { AppForm, AppFormProvider } from "@/components/forms/form-context";
+import { BaseFormStore } from "@/core/base/base-form.store";
+import { FormAutocompleteAvatar } from "@/components/forms/form-autocomplete-avatar";
+import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
 import { toChipColor } from "@/constants/chip-colors";
 import { isInteractiveClick } from "@/components/data-view/is-interactive-click";
@@ -43,6 +47,8 @@ import { cn } from "@/core/utils/cn";
 import { ITEM_REVEAL_CLASS } from "@/components/ui/item-actions";
 import { CLICK_ACTION_VALUE_TYPES } from "@/features/records/record-model-validation";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { actionData } from "@/core/utils/action-data";
+import { getActiveUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { useRecordValueFormat } from "@/components/records/record-value";
@@ -51,7 +57,7 @@ import type { SentenceValueFormat } from "@/features/records/calculation-sentenc
 import type { SentenceModel } from "@/features/records/formula-references";
 
 import { expressionResolves, expressionSegments, sentenceText } from "@/features/records/calculation-sentence";
-import { RecordFieldValueEditor, RecordFieldValueStore } from "./record-field-value-editor";
+import { RecordFieldValueEditor, RecordFieldValueStore, editsFlush } from "./record-field-value-editor";
 import { RecordInputField } from "./record-input-field";
 import { useRecordChoices } from "@/components/records/use-record-choices";
 import { isEmptyResult } from "./record-chip-row-model";
@@ -63,11 +69,49 @@ const EDIT_TARGET_CLASS = cn(
   EDIT_SURFACE_CLASS,
   "inline-flex min-h-6 min-w-0 cursor-pointer items-center text-left outline-none focus-visible:ring-2 focus-visible:ring-ring/70 disabled:cursor-default",
 );
-const EDIT_SPACE_BUTTON_CLASS = cn(
-  ITEM_REVEAL_CLASS,
-  "ml-auto !w-auto shrink-0 rounded-sm px-1 text-xs text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:outline-none",
-);
+export const EDIT_SPACE_BUTTON_CLASS = "sr-only";
+export const EDIT_SPACE_FOCUS_CLASS =
+  "rounded-md has-[[data-edit-target]:focus-visible]:ring-2 has-[[data-edit-target]:focus-visible]:ring-ring/70";
 const IN_PLACE_VALUE_TYPES: RecordFieldView["valueType"][] = ["text", "number", "currency", "url"];
+const IN_PLACE_EDITOR_CLASS =
+  "-mx-2 min-w-0 flex-1 [&_input]:h-7 [&_input]:border-ring/60 [&_input]:bg-background [&_input]:px-[7px] [&_input]:py-0 [&_input]:[font:inherit] [&_input]:shadow-[0_0_0_3px_color-mix(in_oklab,var(--ring)_16%,transparent)] [&_input]:focus-visible:border-ring/60 [&_input]:focus-visible:ring-0";
+
+const DATE_VALUE_TYPES: RecordFieldView["valueType"][] = ["date", "dateTime", "dateRange", "dateTimeRange"];
+
+export function inlineEditorPopoverClass(field: Pick<RecordFieldView, "valueType" | "multiple">) {
+  if (field.valueType === "richText") return "w-xl p-0";
+  if (DATE_VALUE_TYPES.includes(field.valueType)) return "w-auto p-0";
+  return editsFlush(field) ? "w-80 p-0" : undefined;
+}
+
+export type RecordOpener = { href: string; onOpen: (trigger: HTMLElement) => void };
+
+export const RecordOpenLink = observer(function RecordOpenLink({
+  records,
+  record,
+  opener,
+  children,
+}: {
+  records: RecordsStore;
+  record: RecordRow;
+  opener: RecordOpener;
+  children: ReactNode;
+}) {
+  return (
+    <a
+      className="min-w-0 truncate rounded-sm text-inherit outline-none focus-visible:ring-2 focus-visible:ring-ring/70"
+      data-slot="data-row-open"
+      href={opener.href}
+      {...selectionHandlers(records, record, (event) => {
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.button === 1) return;
+        event.preventDefault();
+        opener.onOpen(event.currentTarget);
+      })}
+    >
+      {children}
+    </a>
+  );
+});
 
 export function focusFirstControl(event: Event) {
   if (!(event.currentTarget instanceof HTMLElement)) return;
@@ -78,14 +122,16 @@ export function focusFirstControl(event: Event) {
 
 export function canEditInline(store: RecordsStore, record: RecordRow, field: RecordFieldView) {
   if (!store.canUpdateRecord(record) || !isRecordFieldWritable(field)) return false;
-  if (field.id === store.type?.primaryFieldId || field.valueType === "richText" || field.valueType === "file")
-    return false;
   const result = record.fields.find((value) => value.fieldId === field.id)?.result;
   return result?.state !== "restricted" && result?.state !== "error";
 }
 
+export function canEditAssignees(records: RecordsStore, record: RecordRow) {
+  return records.canUpdateRecord(record) && !records.type?.embedded;
+}
+
 export function isCalculatedField(store: RecordsStore, field: RecordFieldView) {
-  return !isRecordFieldWritable(field) && field.valueType !== "channels" && field.id !== store.type?.primaryFieldId;
+  return !isRecordFieldWritable(field) && field.valueType !== "channels";
 }
 
 export function hasInlineRelationshipEditor(records: RecordsStore, record: RecordRow, relation: RecordRelationship) {
@@ -166,7 +212,7 @@ function EmptyValueTarget() {
     >
       <EmptyValue />
 
-      <Plus aria-hidden className="size-3.5" />
+      <Pencil aria-hidden className="size-3.5" />
     </span>
   );
 }
@@ -217,6 +263,108 @@ const InlineFieldForm = observer(function InlineFieldForm({
   );
 });
 
+class InlineAssigneesStore extends BaseFormStore<{ assignedUserIds: string[] }> {
+  constructor(
+    private readonly records: RecordsStore,
+    private readonly record: RecordRow,
+    private readonly onDone: () => void,
+  ) {
+    super(records.rootStore, { assignedUserIds: [...record.assignedUserIds] });
+  }
+  onSubmit = async () => {
+    if (this.isReadOnly || this.isLoading) return;
+    this.setIsLoading(true);
+    try {
+      const outcome = await this.records.updateRecordAssignees(this.record, [...this.form.assignedUserIds]);
+      if (outcome.saved) {
+        this.onInitOrRefresh(toJS(this.form));
+        this.onDone();
+      } else if (outcome.invalid?.length) this.setError({ errors: outcome.invalid });
+    } finally {
+      this.setIsLoading(false);
+    }
+  };
+}
+
+const InlineAssigneesForm = observer(function InlineAssigneesForm({
+  records,
+  record,
+  onDone,
+}: {
+  records: RecordsStore;
+  record: RecordRow;
+  onDone: () => void;
+}) {
+  const t = useTranslations();
+  const inputId = useId();
+  const [store] = useState(() => new InlineAssigneesStore(records, record, onDone));
+  const [initialAssignedUsers] = useState(() => [...record.assignedUsers]);
+  return (
+    <AppForm store={store}>
+      <FormAutocompleteAvatar
+        inline
+        ariaLabel={t("RecordModel.assignedTo")}
+        getItems={(params) => actionData(getActiveUsersAction(params))}
+        id="assignedUserIds"
+        inputId={inputId}
+        items={initialAssignedUsers}
+        label={null}
+        selectionMode="multiple"
+      />
+
+      <div className="flex items-center justify-end gap-2 border-t p-3">
+        <FormFooterActions placement="overlay" store={store} onCancel={onDone} onSave={store.onSubmit} />
+      </div>
+    </AppForm>
+  );
+});
+
+export const RecordInlineAssignees = observer(function RecordInlineAssignees({
+  records,
+  record,
+  children,
+  onOpenChange,
+}: {
+  records: RecordsStore;
+  record: RecordRow;
+  children: ReactNode;
+  onOpenChange?: (open: boolean) => void;
+}) {
+  const t = useTranslations();
+  const [open, setIsOpen] = useState(false);
+  const setOpen = (value: boolean) => {
+    setIsOpen(value);
+    onOpenChange?.(value);
+  };
+  const label = t("RecordModel.assignedTo");
+  return (
+    <ResponsiveOverlay
+      hideTitle
+      open={open}
+      popoverClassName="w-80"
+      title={label}
+      trigger={
+        <button
+          aria-label={t("RecordModel.editValue", { field: label })}
+          className={EDIT_TARGET_CLASS}
+          data-edit-target=""
+          data-inline-edit="system:assignedTo"
+          type="button"
+          {...selectionHandlers(records, record)}
+        >
+          {record.assignedUserIds.length ? children : <EmptyValueTarget />}
+        </button>
+      }
+      onOpenAutoFocus={focusFirstControl}
+      onOpenChange={setOpen}
+    >
+      <div className="max-md:px-4 max-md:pb-3">
+        {open && <InlineAssigneesForm record={record} records={records} onDone={() => setOpen(false)} />}
+      </div>
+    </ResponsiveOverlay>
+  );
+});
+
 const InPlaceFieldInput = observer(function InPlaceFieldInput({
   records,
   record,
@@ -233,7 +381,9 @@ const InPlaceFieldInput = observer(function InPlaceFieldInput({
   const activateNext = useRef<(() => void) | undefined>(undefined);
   const store = useFieldValueStore(records, record, field, () => onDone(activateNext.current));
   useEffect(() => {
-    container.current?.querySelector<HTMLInputElement>('input:not([type="hidden"])')?.focus({ preventScroll: true });
+    const input = container.current?.querySelector<HTMLInputElement>('input:not([type="hidden"])');
+    input?.focus({ preventScroll: true });
+    input?.select();
   }, []);
   const commit = (next?: () => void) =>
     runUserAction(async () => {
@@ -247,7 +397,7 @@ const InPlaceFieldInput = observer(function InPlaceFieldInput({
   return (
     <div
       ref={container}
-      className="min-w-0 flex-1 [&_input]:h-7 [&_input]:px-2 [&_input]:text-[13px]"
+      className={IN_PLACE_EDITOR_CLASS}
       data-in-place-editor={field.id}
       role="presentation"
       onBlur={(event) => {
@@ -259,6 +409,7 @@ const InPlaceFieldInput = observer(function InPlaceFieldInput({
         if (event.key === "Escape") {
           event.preventDefault();
           event.stopPropagation();
+          store.resetForm();
           onDone();
         } else if (event.key === "Enter") {
           event.preventDefault();
@@ -345,16 +496,19 @@ const InlineBoolean = observer(function InlineBoolean({
   records,
   record,
   field,
+  children,
 }: {
   records: RecordsStore;
   record: RecordRow;
   field: RecordFieldView;
+  children?: ReactNode;
 }) {
   const t = useTranslations();
+  const layout = useDataViewItemLayout();
   const { busy, save } = useInlineSave(records, record, field);
   const result = fieldResult(record, field);
   const checked = result?.state === "value" && result.value.kind === "boolean" && result.value.value;
-  return (
+  const control = (
     <Switch
       aria-label={t("RecordModel.editValue", { field: field.label })}
       checked={checked}
@@ -366,20 +520,31 @@ const InlineBoolean = observer(function InlineBoolean({
       onCheckedChange={(next) => save({ kind: "boolean", value: next })}
     />
   );
+  if (layout !== "card" || !children) return control;
+  return (
+    <span className="inline-flex min-w-0 items-center gap-1.5">
+      {children}
+
+      {control}
+    </span>
+  );
 });
 
 const InPlaceField = observer(function InPlaceField({
   records,
   record,
   field,
+  opener,
   children,
 }: {
   records: RecordsStore;
   record: RecordRow;
   field: RecordFieldView;
+  opener?: RecordOpener;
   children: ReactNode;
 }) {
   const t = useTranslations();
+  const layout = useDataViewItemLayout();
   const [editing, setEditing] = useState(false);
   const anchor = useRef<HTMLSpanElement>(null);
   const restoreFocus = useRef(false);
@@ -393,7 +558,7 @@ const InPlaceField = observer(function InPlaceField({
   }, [editing]);
   if (editing) {
     return (
-      <span ref={anchor} className="flex min-w-0 max-w-xs">
+      <span ref={anchor} className={cn("flex min-w-0", opener ? "w-full" : "max-w-xs")}>
         <InPlaceFieldInput
           field={field}
           record={record}
@@ -409,15 +574,49 @@ const InPlaceField = observer(function InPlaceField({
       </span>
     );
   }
+  if (opener && !empty) {
+    return (
+      <span
+        ref={anchor}
+        className={cn("flex min-h-6 min-w-0 items-center gap-2", EDIT_SPACE_FOCUS_CLASS)}
+        data-edit-surface=""
+      >
+        {layout === "row" ? (
+          <RecordOpenLink opener={opener} record={record} records={records}>
+            {children}
+          </RecordOpenLink>
+        ) : (
+          <span className="min-w-0 truncate">{children}</span>
+        )}
+
+        <button
+          aria-label={label}
+          className={EDIT_SPACE_BUTTON_CLASS}
+          data-edit-in-place=""
+          data-edit-target=""
+          data-inline-edit={field.id}
+          type="button"
+          {...selectionHandlers(records, record, () => setEditing(true))}
+        >
+          {t("RecordModel.edit")}
+        </button>
+      </span>
+    );
+  }
   if (contact && !empty) {
     return (
       <span
         ref={anchor}
-        className={cn(EDIT_SURFACE_CLASS, "flex min-h-6 min-w-0 cursor-text items-center")}
-        data-inline-edit-space={field.id}
+        className={cn(
+          "flex min-h-6 min-w-0 items-center",
+          EDIT_SPACE_FOCUS_CLASS,
+          layout === "row" && cn(EDIT_SURFACE_CLASS, "cursor-text"),
+        )}
+        data-edit-surface=""
+        data-inline-edit-space={layout === "row" ? field.id : undefined}
         role="presentation"
         onClick={(event: MouseEvent<HTMLSpanElement>) => {
-          if (records.selectedIds.size > 0 || isInteractiveClick(event)) return;
+          if (layout !== "row" || records.selectedIds.size > 0 || isInteractiveClick(event)) return;
           event.stopPropagation();
           setEditing(true);
         }}
@@ -460,22 +659,30 @@ const PopoverField = observer(function PopoverField({
   record,
   field,
   children,
+  onOpenChange,
 }: {
   records: RecordsStore;
   record: RecordRow;
   field: RecordFieldView;
   children: ReactNode;
+  onOpenChange?: (open: boolean) => void;
 }) {
   const t = useTranslations();
   const layout = useDataViewItemLayout();
-  const [open, setOpen] = useState(false);
+  const [open, setIsOpen] = useState(false);
+  const setOpen = (value: boolean) => {
+    setIsOpen(value);
+    onOpenChange?.(value);
+  };
   const empty = isEmptyResult(fieldResult(record, field));
   const contact = CLICK_ACTION_VALUE_TYPES.includes(field.valueType) && !empty;
   const label = t("RecordModel.editValue", { field: field.label });
   const trigger = (
     <button
       aria-label={label}
-      className={contact ? EDIT_SPACE_BUTTON_CLASS : EDIT_TARGET_CLASS}
+      className={
+        contact ? EDIT_SPACE_BUTTON_CLASS : cn(EDIT_TARGET_CLASS, field.valueType === "richText" && "max-w-full")
+      }
       data-edit-target=""
       data-inline-edit={field.id}
       type="button"
@@ -492,15 +699,17 @@ const PopoverField = observer(function PopoverField({
   );
   return (
     <ResponsiveOverlay
+      hideTitle
       anchor={
         contact
           ? (editTrigger) => (
               <span
                 className={cn(
-                  EDIT_SURFACE_CLASS,
                   "flex min-h-6 min-w-0 items-center",
-                  layout === "row" && "cursor-text",
+                  EDIT_SPACE_FOCUS_CLASS,
+                  layout === "row" && cn(EDIT_SURFACE_CLASS, "cursor-text"),
                 )}
+                data-edit-surface=""
                 data-inline-edit-space={layout === "row" ? field.id : undefined}
                 role="presentation"
                 onClick={(event: MouseEvent<HTMLSpanElement>) => {
@@ -517,13 +726,13 @@ const PopoverField = observer(function PopoverField({
           : undefined
       }
       open={open}
-      popoverClassName="w-80"
+      popoverClassName={inlineEditorPopoverClass(field) ?? "w-80"}
       title={field.label}
       trigger={trigger}
       onOpenAutoFocus={focusFirstControl}
       onOpenChange={setOpen}
     >
-      <div className="space-y-2 px-3 pb-3 max-md:px-4">
+      <div className={cn("max-md:px-4 max-md:pb-3", !editsFlush(field) && "md:p-3")}>
         {open && <InlineFieldForm field={field} record={record} records={records} onDone={() => setOpen(false)} />}
       </div>
     </ResponsiveOverlay>
@@ -534,14 +743,17 @@ export const RecordInlineField = observer(function RecordInlineField({
   records,
   record,
   field,
+  opener,
   children,
+  onOpenChange,
 }: {
   records: RecordsStore;
   record: RecordRow;
   field: RecordFieldView;
+  opener?: RecordOpener;
   children: ReactNode;
+  onOpenChange?: (open: boolean) => void;
 }) {
-  const layout = useDataViewItemLayout();
   if (field.valueType === "select" && !field.multiple) {
     return (
       <InlineSelect field={field} record={record} records={records}>
@@ -549,16 +761,22 @@ export const RecordInlineField = observer(function RecordInlineField({
       </InlineSelect>
     );
   }
-  if (field.valueType === "boolean") return <InlineBoolean field={field} record={record} records={records} />;
-  if (layout === "row" && editsInPlace(field)) {
+  if (field.valueType === "boolean") {
     return (
-      <InPlaceField field={field} record={record} records={records}>
+      <InlineBoolean field={field} record={record} records={records}>
+        {children}
+      </InlineBoolean>
+    );
+  }
+  if (editsInPlace(field)) {
+    return (
+      <InPlaceField field={field} opener={opener} record={record} records={records}>
         {children}
       </InPlaceField>
     );
   }
   return (
-    <PopoverField field={field} record={record} records={records}>
+    <PopoverField field={field} record={record} records={records} onOpenChange={onOpenChange}>
       {children}
     </PopoverField>
   );
@@ -829,31 +1047,56 @@ export const RecordInlineRelationship = observer(function RecordInlineRelationsh
   children: ReactNode;
 }) {
   const t = useTranslations();
+  const layout = useDataViewItemLayout();
   const [open, setOpen] = useState(false);
+  const trigger = (
+    <PopoverTrigger asChild>
+      <button
+        aria-label={t("RecordModel.editValue", { field: label })}
+        className={empty ? EDIT_TARGET_CLASS : EDIT_SPACE_BUTTON_CLASS}
+        data-edit-target=""
+        data-inline-edit={relation.id}
+        type="button"
+        {...selectionHandlers(records, record)}
+      >
+        {empty ? <EmptyValueTarget /> : t("RecordModel.edit")}
+      </button>
+    </PopoverTrigger>
+  );
   return (
     <Popover modal open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <button
-          aria-label={t("RecordModel.editValue", { field: label })}
-          className={EDIT_TARGET_CLASS}
-          data-edit-target=""
-          data-inline-edit={relation.id}
-          type="button"
-          {...selectionHandlers(records, record, (event) => {
-            if (!(event.metaKey || event.ctrlKey)) return;
-            const chipId = (event.target as HTMLElement).closest("[data-chip-id]")?.getAttribute("data-chip-id");
-            const separator = chipId?.indexOf(":") ?? -1;
-            if (!chipId || separator < 0) return;
-            event.preventDefault();
-            onOpenRecord({
-              typeId: chipId.slice(0, separator),
-              recordId: chipId.slice(separator + 1),
-            });
-          })}
-        >
-          {empty ? <EmptyValueTarget /> : children}
-        </button>
-      </PopoverTrigger>
+      {empty ? (
+        trigger
+      ) : (
+        <PopoverAnchor asChild>
+          <span
+            className={cn(
+              "flex min-h-6 min-w-0 items-center",
+              EDIT_SPACE_FOCUS_CLASS,
+              layout === "row" && cn(EDIT_SURFACE_CLASS, "flex-1 cursor-pointer"),
+            )}
+            data-edit-surface=""
+            data-inline-edit-space={layout === "row" ? relation.id : undefined}
+            role="presentation"
+            onClick={(event: MouseEvent<HTMLSpanElement>) => {
+              if (layout !== "row" || records.selectedIds.size > 0 || isInteractiveClick(event)) return;
+              event.stopPropagation();
+              setOpen(true);
+            }}
+          >
+            <span className="min-w-0 flex-1">{children}</span>
+
+            {layout === "row" && (
+              <ChevronsUpDown
+                aria-hidden
+                className={cn(ITEM_REVEAL_CLASS, "ml-auto size-3.5 shrink-0 text-muted-foreground")}
+              />
+            )}
+
+            {trigger}
+          </span>
+        </PopoverAnchor>
+      )}
 
       <PopoverContent align="start" className="w-72 p-0" onOpenAutoFocus={focusFirstControl}>
         {open && (
@@ -885,6 +1128,9 @@ export const RecordPropertyEditor = observer(function RecordPropertyEditor({
   onDone: () => void;
   onOpenRecord: (ref: RecordRef) => void;
 }) {
+  if (column.id === "system:assignedTo")
+    return <InlineAssigneesForm record={record} records={records} onDone={onDone} />;
+
   if (column.kind === "relationship") {
     return (
       <InlineRelationshipPicker
@@ -901,7 +1147,9 @@ export const RecordPropertyEditor = observer(function RecordPropertyEditor({
   if (column.kind !== "field") return null;
   return (
     <>
-      <p className="text-xs font-medium text-muted-foreground">{column.label}</p>
+      <p className={cn("text-xs font-medium text-muted-foreground", editsFlush(column.field) && "px-3 pt-3")}>
+        {column.label}
+      </p>
 
       <InlineFieldForm field={column.field} record={record} records={records} onDone={onDone} />
     </>

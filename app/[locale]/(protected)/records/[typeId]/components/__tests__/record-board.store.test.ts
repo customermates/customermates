@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { isObservable, observable } from "mobx";
+import { isObservable, observable, runInAction } from "mobx";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { RootStore } from "@/core/stores/root.store";
@@ -83,6 +83,70 @@ function store() {
   return store;
 }
 beforeEach(() => vi.resetAllMocks());
+
+describe("record name column", () => {
+  it("puts the record name first in saved orders that omit it without marking the layout as changed", () => {
+    const records = new RecordsStore(root, presentation);
+    const name = id("deal.name");
+    const saved = records.orderedColumns.map((column) => column.uid);
+    const withoutName = saved.filter((uid) => uid !== name);
+    runInAction(() => (records.columnOrder = saved));
+    const differs = records.differsFromDefaultLayout;
+    runInAction(() => (records.columnOrder = withoutName));
+    expect(records.orderedColumns[0]?.uid).toBe(name);
+    expect(records.differsFromDefaultLayout).toBe(differs);
+    runInAction(() => (records.columnOrder = [...withoutName, name]));
+    expect(records.orderedColumns.at(-1)?.uid).toBe(name);
+  });
+});
+
+describe("inline record assignments", () => {
+  it("uses the versioned record mutation and invalidates the workspace after assigning members", async () => {
+    const state = store();
+    const assignedUserIds = [randomUUID(), randomUUID()];
+    mocks.mutateRecordAction.mockResolvedValue({
+      ok: true,
+      data: { status: "completed", refs: [item.ref], schemaRevision: 1 },
+    });
+
+    expect(await state.updateRecordAssignees({ ...item, version: 7 }, assignedUserIds)).toEqual({ saved: true });
+
+    expect(mocks.mutateRecordAction).toHaveBeenCalledExactlyOnceWith({
+      expectedRevision: model.revision,
+      idempotencyKey: expect.any(String),
+      mutation: {
+        action: "update",
+        ref: item.ref,
+        expectedVersion: 7,
+        fields: [],
+        assignedUserIds,
+      },
+    });
+    expect(mocks.invalidate).toHaveBeenCalledOnce();
+  });
+
+  it("refuses assignment changes without update permission", async () => {
+    const state = store();
+    state.presentation = { ...presentation, permittedActions: ["readAll"] };
+
+    expect(await state.updateRecordAssignees(item, [])).toEqual({ saved: false });
+    expect(mocks.mutateRecordAction).not.toHaveBeenCalled();
+  });
+
+  it("keeps a rejected assignment unsaved and returns the server validation message", async () => {
+    const state = store();
+    mocks.mutateRecordAction.mockResolvedValue({
+      ok: false,
+      failure: { kind: "validation", issues: [{ message: "Choose an active workspace member." }] },
+    });
+
+    expect(await state.updateRecordAssignees(item, [randomUUID()])).toEqual({
+      saved: false,
+      invalid: ["Choose an active workspace member."],
+    });
+    expect(mocks.invalidate).not.toHaveBeenCalled();
+  });
+});
 
 describe("generic board persistence", () => {
   it("constructs the inherited MobX store and preserves a bound generic mutation handler", async () => {

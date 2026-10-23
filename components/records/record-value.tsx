@@ -25,24 +25,9 @@ import { AddressValue } from "@/components/records/address-value";
 
 import { RecordFileChips } from "./record-file-chips";
 
-type FormattedTextNode = { type?: string; text?: string; content?: FormattedTextNode[] };
+import { formattedTextExcerpt } from "@/features/records/record-presentation";
 
-export function formattedTextExcerpt(documentJson: string) {
-  const blocks: string[] = [];
-  const visit = (node: FormattedTextNode) => {
-    if (node.content?.some((child) => child.type === "text")) {
-      blocks.push(node.content.map((child) => child.text ?? "").join(""));
-      return;
-    }
-    node.content?.forEach(visit);
-  };
-  visit(JSON.parse(documentJson) as FormattedTextNode);
-  return blocks
-    .map((block) => block.trim())
-    .filter(Boolean)
-    .join(" ")
-    .replace(/\s+/g, " ");
-}
+export { formattedTextExcerpt } from "@/features/records/record-presentation";
 
 type DecimalFormat = { currency?: string | null; compact?: boolean; maximumFractionDigits?: number };
 

@@ -6,7 +6,7 @@ import { calculationChip, calculationFlow, chooseValueSource, pickOption } from 
 import { expect, test, collectPageErrors } from "./fixtures";
 import { readModel } from "./api";
 import { e2eAppMode } from "./workspace-switching";
-import { openRecordDetails, openRecordLink } from "./record-rows";
+import { recordItem, openRecordDetails } from "./record-rows";
 
 async function applyConfiguration(page: Page) {
   await saveDrawer(page);
@@ -151,7 +151,7 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
       await dialog.getByRole("textbox", { name: /^Price(?: \*)?$/ }).fill(price);
       await dialog.getByRole("button", { name: "Save", exact: true }).click();
       await expect(dialog).not.toBeVisible();
-      await expect(page.getByRole("link", { name, exact: true })).toBeVisible();
+      await expect(recordItem(page, name)).toBeVisible();
     }
     await expect.poll(serviceValues).toEqual({
       "Calculation A/Original price": money("1000"),
@@ -170,11 +170,11 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
       await dialog.getByRole("button", { name: "Add Line item", exact: true }).click();
       await dialog.getByRole("textbox", { name: "Add Line item", exact: true }).fill(name);
       await page.keyboard.press("Enter");
-      const line = dialog.getByRole("region", { name: "Line items", exact: true }).getByRole("button", { name, exact: true });
+      const line = recordItem(page, name);
       await expect(line).toBeVisible();
       // A nested create reloads the parent; until that reload lands it is read-only (no Add row) and a row click is lost.
       await expect(dialog.getByRole("button", { name: "Add Line item", exact: true })).toBeVisible();
-      await openRecordLink(line);
+      await openRecordDetails(page, name);
       await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(2);
       const child = dialog.last();
       await child.getByRole("textbox", { name: "Quantity", exact: false }).fill(quantity);
@@ -182,11 +182,11 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
       await page.getByRole("option", { name: service, exact: true }).click();
       await child.getByRole("button", { name: "Save", exact: true }).click();
       await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(1);
-      await expect(dialog.getByRole("region", { name: "Line items", exact: true }).getByRole("button", { name, exact: true })).toBeVisible();
+      await expect(recordItem(page, name)).toBeVisible();
     }
     await expect.poll(catalogValues).toEqual({ "Calculated A/Catalog price": money("1000"), "Calculated B/Catalog price": money("200") });
     await expect(dialog.getByRole("button", { name: "Add Line item", exact: true })).toBeVisible();
-    await openRecordLink(dialog.getByRole("region", { name: "Line items", exact: true }).getByRole("button", { name: "Calculated A", exact: true }));
+    await openRecordDetails(page, "Calculated A");
     await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(2);
     const catalog = dialog.last().locator(`[data-entity-field="${catalogPriceId}"]`);
     await expect(catalog.locator("[data-field-state=\"read-only\"]")).toHaveCSS("border-top-width", "1px");
@@ -238,7 +238,7 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
     await expect.poll(dealValues).toEqual({ "Configured opportunity/Value": money("3000"), "Configured opportunity/Weighted value": money("1800") });
     await openRecordList(page, id("deal"));
     await openRecordDetails(page, "Configured opportunity");
-    await openRecordLink(dialog.getByRole("region", { name: "Line items", exact: true }).getByRole("button", { name: "Calculated A", exact: true }));
+    await openRecordDetails(page, "Calculated A");
     const lookup = dialog.last().locator(`[data-entity-field="${catalogPriceId}"]`);
     await lookup.getByText("€1,200.00", { exact: true }).scrollIntoViewIfNeeded();
     await expect(lookup.getByText("€1,200.00", { exact: true })).toBeVisible();

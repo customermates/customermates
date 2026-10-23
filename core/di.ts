@@ -24,6 +24,7 @@ import { PrismaRecordEventSubscriptionRepo } from "@/features/records/prisma-rec
 import { ProcessDueEventsInteractor } from "@/features/event/process-due-events.interactor";
 import { ProcessEventInteractor } from "@/features/event/process-event.interactor";
 import { ProviderAvatarService } from "@/features/records/provider-avatar.service";
+import { synchronizeKnownAvatars } from "@/ee/messaging/ingest/known-avatar";
 import { PrismaRecordRecipientRepo } from "@/features/records/prisma-record-recipient.repository";
 import { PrismaWebhookAdmissionRepo } from "@/features/webhook/prisma-webhook-admission.repository";
 import { AdvanceProviderAvatarInteractor } from "@/features/records/advance-provider-avatar.interactor";
@@ -777,6 +778,8 @@ export const getMutateRecordInteractor = () =>
     getRecordWriteService(),
     getBackgroundTaskService(),
     getRecordTrashService(),
+    (companyId, identities) =>
+      synchronizeKnownAvatars(getProviderAvatarService, getMessagingRepo(), companyId, identities),
   );
 export const getPreviewRecordConfigurationInteractor = () =>
   new PreviewRecordConfigurationInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordConfigurationService());

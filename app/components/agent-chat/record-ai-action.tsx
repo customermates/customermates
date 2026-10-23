@@ -37,10 +37,7 @@ export function useRecordAiAction({
   });
 }
 
-export const RecordAiAction = observer(function RecordAiAction({
-  className,
-  ...props
-}: Props & { className?: string }) {
+export const RecordAiAction = observer(function RecordAiAction(props: Props) {
   const askAi = useRecordAiAction(props);
-  return askAi ? <AskAiAction className={className} placement="topbar" onClick={askAi.onClick} /> : null;
+  return askAi ? <AskAiAction placement="topbar" onClick={askAi.onClick} /> : null;
 });

@@ -36,6 +36,7 @@ type Props = {
   onPicked?: () => void;
   className?: string;
   containerClassName?: string;
+  inline?: boolean;
 };
 
 export const FormIsoDatePicker = observer(
@@ -53,6 +54,7 @@ export const FormIsoDatePicker = observer(
     onPicked,
     className,
     containerClassName,
+    inline = false,
   }: Props) => {
     const t = useTranslations();
     const resolvedPlaceholder = placeholder ?? t("Common.inputs.datePlaceholder");
@@ -133,6 +135,58 @@ export const FormIsoDatePicker = observer(
 
     const timeValue = parsed ? localTimeValue(parsed) : "";
 
+    const panel = (
+      <>
+        <Calendar
+          disabled={isLoading}
+          mode="single"
+          month={currentMonth}
+          selected={parsed}
+          onMonthChange={setCurrentMonth}
+          onSelect={isReadOnly ? undefined : handleSelect}
+        />
+
+        {!dateOnly && (
+          <>
+            <Separator />
+
+            <div className="flex flex-col gap-2 p-3">
+              <FormLabel className="text-xs text-muted-foreground" htmlFor={`${domId}-time`}>
+                {t("Common.inputs.time")}
+              </FormLabel>
+
+              <TimeInput
+                disabled={isLoading}
+                id={`${domId}-time`}
+                use12Hour={intlStore.use12Hour}
+                value={timeValue}
+                onChange={handleTimeChange}
+              />
+            </div>
+          </>
+        )}
+
+        <Separator />
+
+        <div className="grid grid-cols-2 gap-2 p-3">
+          {DATE_PRESETS.map((preset) => (
+            <Button
+              key={preset.key}
+              disabled={isLoading}
+              size="sm"
+              type="button"
+              variant="secondary"
+              onClick={isReadOnly ? undefined : () => handlePreset(preset.compute)}
+            >
+              {t(`Common.datePresets.${preset.key}`)}
+            </Button>
+          ))}
+        </div>
+      </>
+    );
+
+    if (inline) return <div data-inline-date-picker="">{panel}</div>;
+
     return (
       <div className={cn("flex flex-col gap-1.5", containerClassName)}>
         {resolvedLabel && (
@@ -175,51 +229,7 @@ export const FormIsoDatePicker = observer(
             className="w-auto max-h-(--radix-popover-content-available-height) overflow-y-auto p-0"
             onOpenAutoFocus={focusCalendarDay}
           >
-            <Calendar
-              disabled={isLoading}
-              mode="single"
-              month={currentMonth}
-              selected={parsed}
-              onMonthChange={setCurrentMonth}
-              onSelect={isReadOnly ? undefined : handleSelect}
-            />
-
-            {!dateOnly && (
-              <>
-                <Separator />
-
-                <div className="flex flex-col gap-2 p-3">
-                  <FormLabel className="text-xs text-muted-foreground" htmlFor={`${domId}-time`}>
-                    {t("Common.inputs.time")}
-                  </FormLabel>
-
-                  <TimeInput
-                    disabled={isLoading}
-                    id={`${domId}-time`}
-                    use12Hour={intlStore.use12Hour}
-                    value={timeValue}
-                    onChange={handleTimeChange}
-                  />
-                </div>
-              </>
-            )}
-
-            <Separator />
-
-            <div className="grid grid-cols-2 gap-2 p-3">
-              {DATE_PRESETS.map((preset) => (
-                <Button
-                  key={preset.key}
-                  disabled={isLoading}
-                  size="sm"
-                  type="button"
-                  variant="secondary"
-                  onClick={isReadOnly ? undefined : () => handlePreset(preset.compute)}
-                >
-                  {t(`Common.datePresets.${preset.key}`)}
-                </Button>
-              ))}
-            </div>
+            {panel}
           </PopoverContent>
         </Popover>
       </div>

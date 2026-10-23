@@ -525,6 +525,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
       "summaryApproval",
       "readAll",
       "dependency",
+      "recordNameField",
     ].map(
       (key) => `RecordModel.configurationDeletion.issues.${key}`,
     ),
@@ -654,6 +655,7 @@ const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
 const ENFORCED = true;
 
 export const DYNAMIC_KEY_SITES = [
+  "app/[locale]/(protected)/configure/components/type-modal.tsx :: t :: Common.colors.${color}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Trash.kinds.${kind}",
   "app/[locale]/(protected)/trash/components/use-trash-columns.tsx :: t :: Trash.kinds.${trashKindLabelKey(item)}",
   "app/[locale]/(protected)/configure/components/calculation-flow-editor.tsx :: t :: RecordModel.cardinality.${cardinality}",

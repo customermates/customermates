@@ -838,6 +838,8 @@ test("preserves missing, false, zero and exact money defaults and captures a sna
       amount: null,
       booleanValue: null,
     });
+  // The post-save refresh inserts and reorders rows; finish it before targeting the existing record's menu.
+  await expect(recordItem(page, "New cleared-default record")).toBeVisible();
   const open = async () => openRecordDetails(page, "Original defaults record");
   const expectCapture = async (amount: string) => {
     expect(valueFor(await readValues(original.recordId), "Disabled snapshot")).toMatchObject({

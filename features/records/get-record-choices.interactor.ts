@@ -17,6 +17,7 @@ import { RecordRefSchema } from "./record-model.schema";
 import { RecordQuerySchema } from "./record-query.schema";
 import { resolveRecordPath } from "./record-relationship-path";
 import type { RecordPathStep } from "./record-relationship-path.schema";
+import { recordPictureField } from "./record-picture";
 
 export const RecordChoicesSchema = z
   .object({
@@ -37,7 +38,7 @@ export const RecordChoicesSchema = z
   .strict()
   .refine((input) => !(input.linkedTo && input.throughPath), "Choose one relationship source");
 export type RecordChoicesInput = z.infer<typeof RecordChoicesSchema>;
-export type RecordChoice = { ref: RecordRef; title: CalculatedValue };
+export type RecordChoice = { ref: RecordRef; title: CalculatedValue; pictureUrl?: string | null };
 export type RecordChoicesResult = {
   typeLabel: string;
   records: RecordChoice[];
@@ -46,6 +47,10 @@ export type RecordChoicesResult = {
   pageSize: number;
   schemaRevision: number;
 };
+
+function choicePicture(result: CalculatedValue | undefined) {
+  return result?.state === "value" && result.value.kind === "text" ? { pictureUrl: result.value.value } : {};
+}
 
 @AllowInDemoMode
 @TenantInteractor()
@@ -95,10 +100,11 @@ export class GetRecordChoicesInteractor extends AuthenticatedInteractor<RecordCh
             return failNotFound(CustomErrorCode.recordNotFound);
           if (!(await policy.canRead(source))) return failAuthorization(CustomErrorCode.permissionDenied);
         }
+        const picture = recordPictureField(model, type.id);
         const result = await this.query.invoke(
           RecordQuerySchema.parse({
             typeId: type.id,
-            fields: type.primaryFieldId ? [type.primaryFieldId] : [],
+            fields: [type.primaryFieldId, picture?.id].filter((id): id is string => Boolean(id)),
             search: input.search,
             page: input.page,
             pageSize: input.pageSize,
@@ -129,6 +135,7 @@ export class GetRecordChoicesInteractor extends AuthenticatedInteractor<RecordCh
               title: record.fields.find((field) => field.fieldId === type.primaryFieldId)?.result ?? {
                 state: "missing" as const,
               },
+              ...choicePicture(record.fields.find((field) => field.fieldId === picture?.id)?.result),
             })),
           },
         };

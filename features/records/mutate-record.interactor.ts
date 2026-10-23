@@ -18,6 +18,8 @@ import type { RecordTrashService } from "./record-trash.service";
 import { RecordJournal } from "./record-journal";
 import { currentRoutineContext } from "@/core/decorators/routine-context";
 import { recordRequestHash } from "./record-request-hash";
+import type { RecordIdentityInput } from "./record-identity.schema";
+import * as Sentry from "@sentry/nextjs";
 
 @TenantInteractor()
 export class MutateRecordInteractor extends AuthenticatedInteractor<MutateRecordInput, RecordOperationResult> {
@@ -27,6 +29,7 @@ export class MutateRecordInteractor extends AuthenticatedInteractor<MutateRecord
     private writer: RecordWriteService,
     private background: Pick<BackgroundTaskService, "dispatch">,
     private trash: RecordTrashService,
+    private identitiesSaved?: (companyId: string, identities: RecordIdentityInput[]) => Promise<void>,
   ) {
     super();
   }
@@ -91,6 +94,13 @@ export class MutateRecordInteractor extends AuthenticatedInteractor<MutateRecord
       },
       { timeout: 20000, companyLockWait: INTERACTIVE_COMPANY_LOCK_WAIT_MS },
     ).catch(unwoundFailure);
+    const identities =
+      (input.mutation.action === "create" || input.mutation.action === "update") && input.mutation.identities;
+    if (result.ok && result.data.status === "completed" && identities && identities.length && this.identitiesSaved) {
+      await this.identitiesSaved(this.companyId, identities).catch((error: unknown) => {
+        Sentry.captureException(error, { tags: { kind: "known-avatar", companyId: this.companyId } });
+      });
+    }
     if (
       result.ok ||
       (input.mutation.action === "update" && input.mutation.placement) ||

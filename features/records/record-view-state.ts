@@ -18,11 +18,12 @@ import {
 } from "@/features/record-calendar/record-calendar-query";
 import type { CalendarViewConfig } from "@/core/data-view/calendar-view-config.schema";
 import { RECORD_CONTRIBUTION_FILTER } from "./record-contribution-link";
+import { recordFilterPaths } from "./record-relationship-path";
 
 export function recordViewStateIsValid(typeId: string, state: DataViewState, model: RecordModel): boolean {
   if (!model.types.some((type) => type.id === typeId && !type.archived)) return false;
   const fields = model.fields.filter((field) => field.typeId === typeId && !field.archived);
-  const paths = model.types.find((type) => type.id === typeId)?.relationshipPaths;
+  const paths = recordFilterPaths(typeId, model);
   const ids = new Set(recordColumns(typeId, model).map((column) => column.id));
   if (
     [...(state.columnOrder ?? []), ...(state.hiddenColumns ?? [])].some((id) => !ids.has(id)) ||
@@ -68,7 +69,7 @@ export function liveRecordFilters(
   filters: Filter[],
   model: RecordModel,
   relationships: RecordRelationship[] = model.relationships,
-  paths: RecordRelationshipPath[] | undefined = model.types.find((type) => type.id === typeId)?.relationshipPaths,
+  paths: RecordRelationshipPath[] = recordFilterPaths(typeId, model),
 ): Filter[] {
   const fields = model.fields.filter((field) => field.typeId === typeId && !field.archived);
   return filters.flatMap((filter) => {

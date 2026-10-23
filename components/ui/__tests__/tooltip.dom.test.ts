@@ -19,6 +19,77 @@ afterEach(() => {
 });
 
 describe("TooltipContent", () => {
+  it.each([true, false])("respects keyboard focus on a nested control: %s", async (keyboardFocus) => {
+    const host = document.createElement("div");
+    document.body.append(host);
+    const root = createRoot(host);
+    act(() => {
+      root.render(
+        createElement(
+          Tooltip,
+          null,
+          createElement(
+            TooltipTrigger,
+            { asChild: true },
+            createElement("span", null, createElement("button", { id: "nested-control" }, "Related record")),
+          ),
+          createElement(TooltipContent, null, "Full related record name"),
+        ),
+      );
+    });
+    const control = document.getElementById("nested-control");
+    if (!control?.parentElement) throw new Error("Nested tooltip fixture is missing");
+    vi.spyOn(control, "matches").mockReturnValue(keyboardFocus);
+    vi.spyOn(control.parentElement, "matches").mockReturnValue(false);
+    await act(async () => {
+      control.focus();
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    });
+    expect(document.querySelector('[data-slot="tooltip-content"]') !== null).toBe(keyboardFocus);
+    act(() => root.unmount());
+  });
+
+  it.each([true, false])("opens the innermost available tooltip on keyboard focus: %s", async (innerHasContent) => {
+    const host = document.createElement("div");
+    document.body.append(host);
+    const root = createRoot(host);
+    act(() => {
+      root.render(
+        createElement(
+          Tooltip,
+          null,
+          createElement(
+            TooltipTrigger,
+            { asChild: true },
+            createElement(
+              "span",
+              null,
+              createElement(
+                Tooltip,
+                null,
+                createElement(TooltipTrigger, { id: "nested-tooltip" }, "Related record"),
+                innerHasContent && createElement(TooltipContent, null, "Inner name"),
+              ),
+            ),
+          ),
+          createElement(TooltipContent, null, "Outer name"),
+        ),
+      );
+    });
+    const control = document.getElementById("nested-tooltip");
+    if (!control) throw new Error("Nested tooltip fixture is missing");
+    vi.spyOn(control, "matches").mockReturnValue(true);
+    await act(async () => {
+      control.focus();
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    });
+    const contents = [...document.querySelectorAll('[data-slot="tooltip-content"]')].map(
+      (content) => content.firstChild?.textContent,
+    );
+    act(() => root.unmount());
+    expect(contents).toEqual([innerHasContent ? "Inner name" : "Outer name"]);
+  });
+
   it("never takes pointer events from the control it describes", () => {
     const host = document.createElement("div");
     document.body.append(host);

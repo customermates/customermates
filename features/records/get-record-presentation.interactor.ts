@@ -39,8 +39,8 @@ import {
 } from "./record-presentation";
 import { recordColumns } from "./record-columns";
 import { liveGroupSummaries, recordGroupableFields, resolveRecordGrouping } from "./record-grouping";
-import { parseRelationshipColumnKey } from "./record-column.schema";
-import { resolveRecordPath } from "./record-relationship-path";
+import { parseRelationshipColumnKey, relationshipPathColumnKey } from "./record-column.schema";
+import { recordFilterPaths, resolveRecordPath } from "./record-relationship-path";
 import { liveRecordFilters } from "./record-view-state";
 import { FilterOperatorKey, ViewMode } from "@/core/base/base-query-builder";
 import { CALENDAR_RECORD_LIMIT, type CalendarWindow } from "@/core/data-view/calendar-view-config.schema";
@@ -56,6 +56,7 @@ import { RECORD_CONTRIBUTION_FILTER } from "./record-contribution-link";
 const GetRecordPresentationSchema = z
   .object({ typeId: z.uuid(), params: GetQueryParamsSchema.default({}), transient: z.boolean().optional() })
   .strict();
+const LINKED_PREVIEW_LIMIT = 10;
 export type RecordPresentationResult = {
   model: RecordModelView;
   typeId: string;
@@ -117,6 +118,11 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
               relationships: allowedRelationships,
             }),
         );
+        const filterPaths = recordFilterPaths(
+          type.id,
+          { types: model.types, relationships: allowedRelationships },
+          paths,
+        );
         const pathRelationships = new Set(paths?.flatMap((path) => path.path.map((step) => step.relationId)));
         const relationships = allowedRelationships.filter(
           (relation) =>
@@ -126,7 +132,7 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
         );
         const liveState = <T extends { filters?: Filter[] }>(state: T): T =>
           state.filters
-            ? { ...state, filters: liveRecordFilters(type.id, state.filters, model, relationships, paths) }
+            ? { ...state, filters: liveRecordFilters(type.id, state.filters, model, relationships, filterPaths) }
             : state;
         const views = viewState.views.map((view) => ({ ...view, state: liveState(view.state) }));
         const allState = liveState(viewState.allState);
@@ -142,7 +148,7 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
             pageSize: input.params.pageSize ?? input.params.pagination?.pageSize,
           },
           base: selected?.state ?? allState,
-          defaults: recordDefaults(type.id, fields),
+          defaults: recordDefaults(type.id, fields, type.primaryFieldId),
         });
         if (state.grouping && !resolveRecordGrouping(type.id, state.grouping, model)) state.grouping = undefined;
         const query = presentationQuery(
@@ -153,7 +159,7 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
             page: input.params.page ?? input.params.pagination?.page ?? 1,
           },
           relationships,
-          paths,
+          filterPaths,
         );
         const avatarFieldId = model.capabilities
           .find((binding) => binding.kind === "avatar" && binding.typeId === type.id)
@@ -165,14 +171,14 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
           .filter((column) => column.kind === "relationship" && !state.hiddenColumns.includes(column.id))
           .flatMap((column) => {
             const selection = parseRelationshipColumnKey(column.id);
-            return selection ? [selection] : [];
+            return selection ? [{ ...selection, limit: LINKED_PREVIEW_LIMIT }] : [];
           });
         const pathSelections = recordColumns(type.id, {
           ...model,
           relationships,
         }).flatMap((column) =>
           column.kind === "relationshipPath" && !state.hiddenColumns.includes(column.id)
-            ? [{ pathId: column.definition.id, limit: 3 }]
+            ? [{ pathId: column.definition.id, limit: LINKED_PREVIEW_LIMIT }]
             : [],
         );
         if (selections.length + pathSelections.length > 32) return fail(CustomErrorCode.recordCalculationBudget);
@@ -248,7 +254,7 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
               items,
               p13nId: recordSurfaceKey(type.id),
               filterableFields: [
-                ...recordFilterableFields(fields, relationships, type.id, paths),
+                ...recordFilterableFields(fields, relationships, type.id, filterPaths),
                 ...(query.contribution
                   ? [
                       {
@@ -260,6 +266,7 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
                   : []),
               ].map((field) => ({
                 ...field,
+                typeId: filterPaths.find((path) => relationshipPathColumnKey(path.id) === field.field)?.sourceTypeId,
                 label:
                   field.field in systemColumnLabels
                     ? systemColumnLabels[field.field as keyof typeof systemColumnLabels]

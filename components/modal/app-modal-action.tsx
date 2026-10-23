@@ -10,7 +10,6 @@ import {
   overlayIconControlClass,
   type OverlayIconControlVariant,
 } from "@/components/ui/overlay-contract";
-import { AskAiAction } from "@/components/ui/ask-ai-action";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { runUserAction } from "@/core/errors/report-application-error";
 
@@ -63,16 +62,11 @@ function isLinkAction(props: AppModalActionProps): props is LinkActionProps {
   return typeof props.href === "string";
 }
 
-export function isAskAiAction(action: AppModalActionProps) {
-  return action.kind === "assistant" && !isLinkAction(action);
-}
-
 export function appModalActionSlots(actions: readonly AppModalActionProps[]) {
-  return actions.reduce((slots, action) => slots + (isAskAiAction(action) ? 2 : 1), 0);
+  return actions.length;
 }
 
 export function AppModalAction(props: AppModalActionProps) {
-  if (isAskAiAction(props) && props.onClick) return <AskAiAction id={props.anchorId} onClick={props.onClick} />;
   const { icon: Icon, label, tooltip, variant = "neutral" } = props;
   const isBusy = "busy" in props && props.busy === true;
   const isDisabled = !isLinkAction(props) && (props.disabled === true || isBusy);
@@ -166,14 +160,18 @@ export function orderAppModalActions(actions: readonly AppModalActionProps[]) {
 
 export function AppModalActionRail({
   actions,
+  controls,
   className,
 }: {
   actions: readonly AppModalActionProps[];
+  controls?: ReactNode;
   className?: string;
 }) {
-  if (actions.length === 0) return null;
+  if (actions.length === 0 && !controls) return null;
   return (
     <div className={cn("flex min-h-8 shrink-0 items-center gap-2 self-start", className)} data-slot="app-modal-actions">
+      {controls}
+
       {orderAppModalActions(actions).map((action) => (
         <AppModalAction key={action.id} {...action} />
       ))}

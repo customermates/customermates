@@ -12,6 +12,7 @@ import { useNavigateToHref } from "@/components/shared/use-navigate-to-href";
 import { cn } from "@/core/utils/cn";
 
 import { AppChip } from "./app-chip";
+import { visibleChipRows } from "./chip-stack-rows";
 
 const moreWidthCache = new Map<string, number>();
 
@@ -57,7 +58,17 @@ type Props<T extends ChipStackItem> = {
   overflowMenu?: boolean;
   fill?: boolean;
   onMoreClick?: (trigger: HTMLElement) => void;
+  onMoreClickWhenLoaded?: boolean;
+  maxRows?: number;
+  renderChip?: (item: T, index: number) => ReactNode;
+  moreLabel?: (count: number) => string;
+  moreButtonProps?: Pick<
+    ComponentProps<"button">,
+    "id" | "aria-label" | "aria-controls" | "aria-expanded" | "aria-haspopup"
+  >;
 };
+
+const defaultMoreLabel = (count: number) => `+${count}`;
 
 export function AppChipStack<T extends ChipStackItem>({
   items,
@@ -71,9 +82,14 @@ export function AppChipStack<T extends ChipStackItem>({
   overflowMenu = true,
   fill = false,
   onMoreClick,
+  onMoreClickWhenLoaded = false,
+  maxRows = 1,
+  renderChip,
+  moreLabel = defaultMoreLabel,
+  moreButtonProps,
 }: Props<T>) {
   const navigateToHref = useNavigateToHref();
-  const GAP_PX = 8;
+  const GAP_PX = maxRows > 1 ? 4 : 8;
   const RESERVE_PX = 16;
   const MAX_WIDTH_THRESHOLD = 5;
 
@@ -98,9 +114,8 @@ export function AppChipStack<T extends ChipStackItem>({
   const ensuredVisibleCount = Math.max(1, visibleCount);
   const ensuredHiddenItems = items.slice(ensuredVisibleCount);
   const hiddenCount = ensuredHiddenItems.length + extraCount;
+  const handlesMoreClick = Boolean(onMoreClick && (extraCount > 0 || onMoreClickWhenLoaded));
   const isSingleVisibleWithOverflow = ensuredVisibleCount === 1 && hiddenCount > 0;
-
-  const moreLabel = useCallback((n: number) => `+${n}`, []);
 
   const setChipMeasureRef = useCallback(
     (id: string) => (el: HTMLDivElement | null) => {
@@ -114,16 +129,33 @@ export function AppChipStack<T extends ChipStackItem>({
     (hiddenCount: number): number => {
       const digits = Math.max(1, String(hiddenCount).length);
 
-      return moreWidthCache.get(moreWidthKey(size, variant, digits)) ?? 0;
+      return moreWidthCache.get(`${moreWidthKey(size, variant, digits)}|${moreLabel(Number("9".repeat(digits)))}`) ?? 0;
     },
-    [size, variant],
+    [size, variant, moreLabel],
   );
 
   const recalc = useCallback(() => {
     if (!containerRef.current) return;
 
     const containerWidth = Math.ceil(containerRef.current.clientWidth);
+    if (widthsRef.current.length !== items.length || widthsRef.current.some((width) => !width))
+      widthsRef.current = items.map((item) => Math.ceil(chipMeasureRefs.current.get(item.id)?.offsetWidth ?? 0));
     const widths = widthsRef.current;
+
+    if (maxRows > 1) {
+      const measuredWidths = items.map((item) => chipMeasureRefs.current.get(item.id)?.offsetWidth ?? 0);
+      setVisibleCount(
+        visibleChipRows(
+          measuredWidths,
+          containerWidth,
+          maxRows,
+          GAP_PX,
+          (count) => measureMoreChipWidth(count) + RESERVE_PX,
+          extraCount,
+        ),
+      );
+      return;
+    }
 
     let low = 0;
     let high = items.length;
@@ -166,13 +198,13 @@ export function AppChipStack<T extends ChipStackItem>({
       singleVisibleMaxWidthRef.current = null;
       setSingleVisibleMaxWidth(null);
     }
-  }, [items, extraCount, measureMoreChipWidth, visibleCount]);
+  }, [items, extraCount, measureMoreChipWidth, visibleCount, maxRows, GAP_PX]);
 
   useLayoutEffect(() => {
     if (!needsOverflowHandling) return;
 
     for (const digits of digitsNeeded(items.length + extraCount)) {
-      const key = moreWidthKey(size, variant, digits);
+      const key = `${moreWidthKey(size, variant, digits)}|${moreLabel(Number("9".repeat(digits)))}`;
 
       if (moreWidthCache.has(key)) continue;
       const el = moreMeasureRefs.current.get(digits);
@@ -182,7 +214,7 @@ export function AppChipStack<T extends ChipStackItem>({
 
     const stamp = itemsStamp(items, size, variant);
 
-    if (stampRef.current !== stamp) {
+    if (stampRef.current !== stamp || renderChip) {
       stampRef.current = stamp;
       widthsRef.current = items.map((it) => {
         const el = chipMeasureRefs.current.get(it.id);
@@ -192,41 +224,50 @@ export function AppChipStack<T extends ChipStackItem>({
     }
 
     recalc();
-  }, [items, extraCount, size, variant, recalc, needsOverflowHandling]);
+  }, [items, extraCount, size, variant, recalc, needsOverflowHandling, renderChip, moreLabel]);
 
   useEffect(() => {
     if (!containerRef.current || !needsOverflowHandling) return;
     const ro = new ResizeObserver(() => {
+      if (maxRows > 1) {
+        recalc();
+        return;
+      }
       if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
       rafIdRef.current = requestAnimationFrame(() => {
         rafIdRef.current = null;
         const width = Math.ceil(containerRef.current?.clientWidth || 0);
         const itemCount = items.length;
 
-        if (width === lastDimsRef.current.width && itemCount === lastDimsRef.current.itemCount) return;
+        if (maxRows === 1 && width === lastDimsRef.current.width && itemCount === lastDimsRef.current.itemCount) return;
         lastDimsRef.current = { width, itemCount };
         recalc();
       });
     });
 
     ro.observe(containerRef.current);
+    if (maxRows > 1 && measurerRef.current) ro.observe(measurerRef.current);
 
     return () => {
       if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
       ro.disconnect();
     };
-  }, [items.length, recalc, needsOverflowHandling]);
+  }, [items.length, recalc, needsOverflowHandling, maxRows]);
 
-  if (!items?.length) return null;
+  if (!items?.length && !(onMoreClickWhenLoaded && extraCount > 0)) return null;
 
   return (
     <div
       ref={containerRef}
-      className={cn("relative flex min-w-0 overflow-hidden flex-nowrap whitespace-nowrap", fill && "w-full")}
+      className={cn(
+        "relative flex min-w-0 overflow-hidden whitespace-nowrap",
+        maxRows > 1 ? "flex-wrap" : "flex-nowrap",
+        fill && "w-full",
+      )}
       style={{ gap: GAP_PX, maxWidth }}
     >
       {needsOverflowHandling && (
-        <div aria-hidden className="absolute left-0 top-0 -z-50 opacity-0 pointer-events-none">
+        <div aria-hidden inert className="absolute left-0 top-0 -z-50 opacity-0 pointer-events-none">
           <div
             ref={measurerRef}
             className="flex flex-nowrap"
@@ -234,16 +275,20 @@ export function AppChipStack<T extends ChipStackItem>({
             tabIndex={-1}
             onFocus={(e) => e.target.blur()}
           >
-            {items.map((item) => (
+            {items.map((item, index) => (
               <div key={item.id} ref={setChipMeasureRef(item.id)} className="flex-none">
-                <AppChip
-                  className="max-w-full cursor-pointer"
-                  size={size}
-                  startContent={item.startContent}
-                  variant={item.variant ?? variant}
-                >
-                  <span className="truncate whitespace-nowrap">{item.label}</span>
-                </AppChip>
+                {renderChip ? (
+                  renderChip(item, index)
+                ) : (
+                  <AppChip
+                    className="max-w-full cursor-pointer"
+                    size={size}
+                    startContent={item.startContent}
+                    variant={item.variant ?? variant}
+                  >
+                    <span className="truncate whitespace-nowrap">{item.label}</span>
+                  </AppChip>
+                )}
               </div>
             ))}
 
@@ -257,7 +302,7 @@ export function AppChipStack<T extends ChipStackItem>({
                     }}
                     className="truncate whitespace-nowrap"
                   >
-                    {`+${"9".repeat(digits)}`}
+                    {moreLabel(Number("9".repeat(digits)))}
                   </span>
                 </AppChip>
               </div>
@@ -266,7 +311,14 @@ export function AppChipStack<T extends ChipStackItem>({
         </div>
       )}
 
-      {items.slice(0, ensuredVisibleCount).map((item) => {
+      {items.slice(0, ensuredVisibleCount).map((item, index) => {
+        if (renderChip) {
+          return (
+            <span key={item.id} className="inline-flex max-w-full min-w-0 shrink-0" data-chip-id={item.id}>
+              {renderChip(item, index)}
+            </span>
+          );
+        }
         const style: React.CSSProperties =
           isSingleVisibleWithOverflow && singleVisibleMaxWidth != null
             ? { maxWidth: `${singleVisibleMaxWidth}px` }
@@ -330,13 +382,14 @@ export function AppChipStack<T extends ChipStackItem>({
         );
       })}
 
-      {hiddenCount > 0 && onMoreClick && extraCount > 0 && (
+      {hiddenCount > 0 && handlesMoreClick && (
         <button
+          {...moreButtonProps}
           className="relative inline-flex flex-none"
           type="button"
           onClick={(event) => {
             event.stopPropagation();
-            onMoreClick(event.currentTarget);
+            onMoreClick?.(event.currentTarget);
           }}
         >
           <AppChip interactive className="max-w-full cursor-pointer" size={size} variant={variant}>
@@ -345,7 +398,7 @@ export function AppChipStack<T extends ChipStackItem>({
         </button>
       )}
 
-      {hiddenCount > 0 && !(onMoreClick && extraCount > 0) && (!overflowMenu || ensuredHiddenItems.length === 0) && (
+      {hiddenCount > 0 && !handlesMoreClick && (!overflowMenu || ensuredHiddenItems.length === 0) && (
         <AppChip
           className="max-w-full flex-none"
           size={size}
@@ -356,7 +409,7 @@ export function AppChipStack<T extends ChipStackItem>({
         </AppChip>
       )}
 
-      {hiddenCount > 0 && !(onMoreClick && extraCount > 0) && overflowMenu && ensuredHiddenItems.length > 0 && (
+      {hiddenCount > 0 && !handlesMoreClick && overflowMenu && ensuredHiddenItems.length > 0 && (
         <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <button ref={moreTriggerRef} className="flex-none inline-flex" type="button">

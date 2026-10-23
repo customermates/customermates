@@ -166,19 +166,21 @@ export function issueSentences(
         ? { count: issue.count, examples: issue.examples.map((example) => `"${example}"`).join(", ") }
         : null;
     const key =
-      issue.code === "existing_values_incompatible"
-        ? detail
-          ? "existingValuesDetail"
-          : "existingValues"
-        : issue.code === "saved_view_incompatible"
-          ? "savedView"
-          : issue.code === "detail_layout_incompatible"
-            ? "detailLayout"
-            : issue.code === "summary_approval_required"
-              ? "summaryApproval"
-              : issue.code === "deletion_requires_read_all"
-                ? "readAll"
-                : "dependency";
+      issue.code === "invalid_primary_field"
+        ? "recordNameField"
+        : issue.code === "existing_values_incompatible"
+          ? detail
+            ? "existingValuesDetail"
+            : "existingValues"
+          : issue.code === "saved_view_incompatible"
+            ? "savedView"
+            : issue.code === "detail_layout_incompatible"
+              ? "detailLayout"
+              : issue.code === "summary_approval_required"
+                ? "summaryApproval"
+                : issue.code === "deletion_requires_read_all"
+                  ? "readAll"
+                  : "dependency";
     return chip
       ? confirmationSentence(
           (values) =>

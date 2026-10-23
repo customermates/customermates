@@ -33,6 +33,7 @@ const { MutateRecordInteractor } = await import("../mutate-record.interactor");
 const { RecordTrashService } = await import("../record-trash.service");
 const { QueryRecordsInteractor } = await import("../query-records.interactor");
 const { GetRecordInteractor } = await import("../get-record.interactor");
+const { GetRecordChoicesInteractor } = await import("../get-record-choices.interactor");
 const { createCrmPreset, presetId } = await import("../crm-preset");
 const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
 
@@ -67,6 +68,7 @@ async function fixture() {
   const admin = createMockUser({ ...seed.admin, role: { ...seed.adminRole, permissions: [] } });
   const member = createMockUser({ ...seed.member, role: { ...seed.memberRole, permissions: [] } });
   const repo = createTestRecordRepo();
+  const identitiesSaved = vi.fn().mockResolvedValue(undefined);
   const policy = new RecordAccessPolicy(
     new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
     repo,
@@ -80,6 +82,7 @@ async function fixture() {
       dispatch: () => Promise.resolve(),
     },
     new RecordTrashService(repo, new RecordCalculationService(repo)),
+    identitiesSaved,
   );
   const read = new GetRecordInteractor(repo, policy);
   const query = new QueryRecordsInteractor(repo, policy);
@@ -120,7 +123,8 @@ async function fixture() {
     if (!result.ok) throw new Error("Record could not be read");
     return result.data.version;
   };
-  return { seed, admin, member, id, mutation, created, links, version, query, read };
+  const choices = new GetRecordChoicesInteractor(repo, policy, query);
+  return { seed, admin, member, id, mutation, created, links, version, query, read, choices, identitiesSaved };
 }
 
 afterAll(async () => {
@@ -193,5 +197,78 @@ describeDatabase("record links outside the caller's access", () => {
       await f.mutation({ action: "link", relationId: f.id("deal.contacts"), source: deal, target: visible }, f.member),
     ).toMatchObject({ ok: true });
     expect(await f.links(deal)).toEqual([hidden.recordId, visible.recordId].sort());
+  }, 120_000);
+
+  it("returns each linked record's picture for its chips and choices", async () => {
+    const f = await fixture();
+    const deal = await f.created({
+      action: "create",
+      typeId: f.id("deal"),
+      fields: [{ fieldId: f.id("deal.name"), value: text("Pictured") }],
+    });
+    const picture = "https://example.test/ada.png";
+    const pictured = await f.created({
+      action: "create",
+      typeId: f.id("contact"),
+      fields: [
+        { fieldId: f.id("contact.firstName"), value: text("Ada") },
+        { fieldId: f.id("contact.avatarUrl"), value: text(picture) },
+      ],
+    });
+    const plain = await f.created({
+      action: "create",
+      typeId: f.id("contact"),
+      fields: [{ fieldId: f.id("contact.firstName"), value: text("Bea") }],
+    });
+    for (const target of [pictured, plain]) {
+      expect(
+        await f.mutation({ action: "link", relationId: f.id("deal.contacts"), source: deal, target }),
+      ).toMatchObject({ ok: true });
+    }
+
+    const listed = await runWithTenant(f.admin, () =>
+      f.query.invoke({
+        typeId: f.id("deal"),
+        includeRelationships: [{ relationId: f.id("deal.contacts"), direction: "outgoing", limit: 25 }],
+      } as never),
+    );
+    if (!listed.ok) throw new Error("Query failed");
+    const [relationship] =
+      listed.data.records.find((record) => record.ref.recordId === deal.recordId)?.relationships ?? [];
+    const pictures = Object.fromEntries(
+      (relationship?.records ?? []).map((record) => [record.ref.recordId, record.pictureUrl]),
+    );
+    expect(pictures).toEqual({ [pictured.recordId]: picture, [plain.recordId]: undefined });
+
+    const offered = await runWithTenant(f.admin, () =>
+      f.choices.invoke({ typeId: f.id("contact"), page: 1, pageSize: 25 }),
+    );
+    if (!offered.ok) throw new Error("Choices failed");
+    expect(
+      Object.fromEntries(offered.data.records.map((record) => [record.ref.recordId, record.pictureUrl])),
+    ).toMatchObject({ [pictured.recordId]: picture, [plain.recordId]: undefined });
+  }, 120_000);
+
+  it("hands saved channels to the known-picture hook after the record commits", async () => {
+    const f = await fixture();
+    const ref = await f.created({
+      action: "create",
+      typeId: f.id("contact"),
+      fields: [{ fieldId: f.id("contact.firstName"), value: text("Channel") }],
+      identities: [{ provider: "linkedin", value: "channel-person" }],
+    });
+    expect(f.identitiesSaved).toHaveBeenCalledWith(f.seed.company.id, [
+      expect.objectContaining({ provider: "linkedin", value: "channel-person" }),
+    ]);
+    f.identitiesSaved.mockClear();
+    expect(
+      await f.mutation({
+        action: "update",
+        ref,
+        expectedVersion: await f.version(ref),
+        fields: [{ fieldId: f.id("contact.firstName"), value: text("Renamed") }],
+      }),
+    ).toMatchObject({ ok: true });
+    expect(f.identitiesSaved).not.toHaveBeenCalled();
   }, 120_000);
 });

@@ -1,5 +1,5 @@
 import type { RecordModel, RecordRelationship } from "./record-model.schema";
-import type { RecordPathStep } from "./record-relationship-path.schema";
+import type { RecordPathStep, RecordRelationshipPath } from "./record-relationship-path.schema";
 
 export function resolveRecordPath(
   typeId: string,
@@ -16,4 +16,31 @@ export function resolveRecordPath(
     result.push({ ...step, relation, typeId });
   }
   return result;
+}
+
+export function recordFilterPaths(
+  typeId: string,
+  model: Pick<RecordModel, "types" | "relationships">,
+  own: RecordRelationshipPath[] = model.types.find((type) => type.id === typeId)?.relationshipPaths ?? [],
+): Array<RecordRelationshipPath & { sourceTypeId?: string }> {
+  const reversed = model.types.flatMap((owner) =>
+    owner.archived || owner.id === typeId
+      ? []
+      : (owner.relationshipPaths ?? []).flatMap((path) => {
+          const steps = path.archived ? null : resolveRecordPath(owner.id, path.path, model);
+          if (steps?.at(-1)?.typeId !== typeId) return [];
+          return [
+            {
+              ...path,
+              label: owner.label,
+              sourceTypeId: owner.id,
+              path: steps.toReversed().map((step) => ({
+                relationId: step.relationId,
+                direction: step.direction === "outgoing" ? ("incoming" as const) : ("outgoing" as const),
+              })),
+            },
+          ];
+        }),
+  );
+  return [...own, ...reversed];
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -7,6 +8,8 @@ import { RecordEditor } from "@/app/[locale]/(protected)/records/[typeId]/compon
 import { AppModal } from "@/components/modal/app-modal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RecordAccessDeniedNotice } from "@/components/records/record-access-denied";
+import { LinkedRecordsDrawer } from "@/components/records/linked-records-drawer";
+import { linkedRecordsKey } from "@/features/records/linked-records-link";
 import { cn } from "@/core/utils/cn";
 
 const SKELETON_FIELDS = ["w-24", "w-20", "w-28", "w-24", "w-16"];
@@ -14,6 +17,8 @@ const SKELETON_FIELDS = ["w-24", "w-20", "w-28", "w-24", "w-16"];
 export const WorkspaceRecordEditor = observer(function WorkspaceRecordEditor() {
   const store = useRootStore().recordWorkspaceStore;
   const t = useTranslations();
+  const [linked, setLinked] = useState(store.linkedRecords);
+  if (store.linkedRecords && store.linkedRecords !== linked) setLinked(store.linkedRecords);
   return (
     <>
       <AppModal
@@ -66,6 +71,15 @@ export const WorkspaceRecordEditor = observer(function WorkspaceRecordEditor() {
       </AppModal>
 
       {store.editor && <RecordEditor store={store.editor} />}
+
+      {linked && (
+        <LinkedRecordsDrawer
+          key={`${linked.source.recordId}:${linkedRecordsKey(linked.link)}`}
+          open={store.linkedRecords === linked}
+          selection={linked}
+          onClose={store.closeLinkedRecords}
+        />
+      )}
     </>
   );
 });
