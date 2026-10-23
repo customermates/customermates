@@ -7,10 +7,10 @@ import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { WORKSPACE_HEADER } from "../../core/navigation/workspace-paths";
 import { presetId } from "../../features/records/crm-preset";
 import {
-  BERGMANN_STEUERN_COMPANY_ID,
-  BERGMANN_STEUERN_SLUG,
-  NORTHWIND_COMPANY_ID,
-  NORTHWIND_SLUG,
+  GERMAN_CONSULTANTS_COMPANY_ID,
+  GERMAN_CONSULTANTS_SLUG,
+  TEAM_WORKSPACE_COMPANY_ID,
+  TEAM_WORKSPACE_SLUG,
   appPath,
   appUrlPattern,
 } from "./app-paths";
@@ -88,30 +88,33 @@ seededTest.describe("one login in two tabs on two seeded workspaces", () => {
     "each tab works in the workspace of its URL, also after the other tab switched and was used last",
     async ({ context, page, database, errors }) => {
       seededTest.setTimeout(240_000);
-      const northwind = await workspaceName(database, NORTHWIND_COMPANY_ID);
-      const bergmann = await workspaceName(database, BERGMANN_STEUERN_COMPANY_ID);
+      const northwind = await workspaceName(database, TEAM_WORKSPACE_COMPANY_ID);
+      const bergmann = await workspaceName(database, GERMAN_CONSULTANTS_COMPANY_ID);
       const suffix = randomUUID().slice(0, 8);
-      const fromNorthwindTab = `Tab A Hafenkontor ${suffix}`;
-      const fromBergmannTab = `Tab B Steuerkanzlei ${suffix}`;
+      const fromTeamTab = `Tab A Hafenkontor ${suffix}`;
+      const fromConsultantsTab = `Tab B Steuerkanzlei ${suffix}`;
       const tabA = page;
       const tabB = await context.newPage();
       const tabBErrors = collectPageErrors(tabB);
       const tabAActions = recordServerActions(tabA);
       const tabBActions = recordServerActions(tabB);
-      const bergmannList = organizationList(BERGMANN_STEUERN_SLUG, BERGMANN_STEUERN_COMPANY_ID);
-      const northwindList = organizationList(NORTHWIND_SLUG, NORTHWIND_COMPANY_ID);
+      const bergmannList = organizationList(GERMAN_CONSULTANTS_SLUG, GERMAN_CONSULTANTS_COMPANY_ID);
+      const northwindList = organizationList(TEAM_WORKSPACE_SLUG, TEAM_WORKSPACE_COMPANY_ID);
       try {
-        await tabA.goto(appPath(BERGMANN_STEUERN_SLUG, "/dashboard"));
+        await tabA.goto(appPath(GERMAN_CONSULTANTS_SLUG, "/dashboard"));
         await expectCurrentWorkspace(tabA, bergmann);
         await tabB.goto(bergmannList);
         await expectCurrentWorkspace(tabB, bergmann);
 
         const menu = await openWorkspaceSwitcher(tabA);
-        await menu.locator(`[data-workspace-id="${NORTHWIND_COMPANY_ID}"]`).click();
-        await expect(tabA).toHaveURL(appUrlPattern(NORTHWIND_SLUG, "/dashboard$"));
+        await menu.locator(`[data-workspace-id="${TEAM_WORKSPACE_COMPANY_ID}"]`).click();
+        await expect(tabA).toHaveURL(appUrlPattern(TEAM_WORKSPACE_SLUG, "/dashboard$"));
         await expectCurrentWorkspace(tabA, northwind);
         await expect(tabB).toHaveURL(
-          appUrlPattern(BERGMANN_STEUERN_SLUG, `/records/${presetId(BERGMANN_STEUERN_COMPANY_ID, "organization")}$`),
+          appUrlPattern(
+            GERMAN_CONSULTANTS_SLUG,
+            `/records/${presetId(GERMAN_CONSULTANTS_COMPANY_ID, "organization")}$`,
+          ),
         );
         await tabB.reload();
         await expect(tabB).toHaveURL(new RegExp(`${bergmannList}$`));
@@ -120,39 +123,40 @@ seededTest.describe("one login in two tabs on two seeded workspaces", () => {
         await tabA.goto(northwindList);
         await tabB.reload();
         await expectCurrentWorkspace(tabB, bergmann);
-        await addOrganization(tabA, fromNorthwindTab);
-        expect(await organizationsNamed(database, fromNorthwindTab)).toEqual([
-          expect.objectContaining({ companyId: NORTHWIND_COMPANY_ID }),
+        await addOrganization(tabA, fromTeamTab);
+        expect(await organizationsNamed(database, fromTeamTab)).toEqual([
+          expect.objectContaining({ companyId: TEAM_WORKSPACE_COMPANY_ID }),
         ]);
 
         await tabA.reload();
         await expectCurrentWorkspace(tabA, northwind);
-        await addOrganization(tabB, fromBergmannTab);
-        expect(await organizationsNamed(database, fromBergmannTab)).toEqual([
-          expect.objectContaining({ companyId: BERGMANN_STEUERN_COMPANY_ID }),
+        await addOrganization(tabB, fromConsultantsTab);
+        expect(await organizationsNamed(database, fromConsultantsTab)).toEqual([
+          expect.objectContaining({ companyId: GERMAN_CONSULTANTS_COMPANY_ID }),
         ]);
 
         await tabA.reload();
-        await expect(tabA.getByText(fromNorthwindTab, { exact: true }).first()).toBeVisible();
-        await expect(tabA.getByText(fromBergmannTab, { exact: true })).toHaveCount(0);
+        await expect(tabA.getByText(fromTeamTab, { exact: true }).first()).toBeVisible();
+        await expect(tabA.getByText(fromConsultantsTab, { exact: true })).toHaveCount(0);
         await tabB.reload();
-        await expect(tabB.getByText(fromBergmannTab, { exact: true }).first()).toBeVisible();
-        await expect(tabB.getByText(fromNorthwindTab, { exact: true })).toHaveCount(0);
+        await expect(tabB.getByText(fromConsultantsTab, { exact: true }).first()).toBeVisible();
+        await expect(tabB.getByText(fromTeamTab, { exact: true })).toHaveCount(0);
 
         expect(tabAActions.length).toBeGreaterThan(0);
         expect(tabBActions.length).toBeGreaterThan(0);
-        expect(tabBActions.filter((path) => !path.startsWith(appPath(BERGMANN_STEUERN_SLUG, "/")))).toEqual([]);
+        expect(tabBActions.filter((path) => !path.startsWith(appPath(GERMAN_CONSULTANTS_SLUG, "/")))).toEqual([]);
         expect(
           tabAActions.filter(
             (path) =>
-              !path.startsWith(appPath(NORTHWIND_SLUG, "/")) && !path.startsWith(appPath(BERGMANN_STEUERN_SLUG, "/")),
+              !path.startsWith(appPath(TEAM_WORKSPACE_SLUG, "/")) &&
+              !path.startsWith(appPath(GERMAN_CONSULTANTS_SLUG, "/")),
           ),
         ).toEqual([]);
         expect(errors).toEqual([]);
         expect(tabBErrors).toEqual([]);
       } finally {
         await tabB.close();
-        await removeRecordsNamed(database, [fromNorthwindTab, fromBergmannTab]);
+        await removeRecordsNamed(database, [fromTeamTab, fromConsultantsTab]);
       }
     },
   );
@@ -164,7 +168,7 @@ test("a workspace slug the login is not a member of is not found and does not fa
 }) => {
   const errors = collectPageErrors(page);
   expectNotFoundDocuments(page);
-  for (const slug of [NORTHWIND_SLUG, BERGMANN_STEUERN_SLUG, `missing-${randomUUID().slice(0, 8)}`]) {
+  for (const slug of [TEAM_WORKSPACE_SLUG, GERMAN_CONSULTANTS_SLUG, `missing-${randomUUID().slice(0, 8)}`]) {
     const response = await page.goto(appPath(slug, "/dashboard"));
     expect(response?.status()).toBe(404);
     await expect(page.getByRole("heading", { name: NOT_FOUND, exact: true })).toBeVisible();

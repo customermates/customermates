@@ -1,20 +1,16 @@
 import type { BrowserContext, Page } from "@playwright/test";
 import type { Client } from "pg";
 
-import {
-  SYNTHETIC_SECOND_WORKSPACE_SLUG,
-  SYNTHETIC_WORKSPACE_SLUG,
-  fixtureWorkspaceSlug,
-} from "../../core/config/synthetic-seed-user";
+import { fixtureWorkspaceSlug } from "../../core/config/synthetic-seed-user";
 import { SOLUTION_CATALOG, SOLUTION_DATA_LOCALES, findSolution } from "../../core/solutions/solution-catalog";
 
-export const NORTHWIND_SLUG = SYNTHETIC_WORKSPACE_SLUG;
+export const TEAM_WORKSPACE_SLUG = findSolution("smb").workspaceSlugs.en;
 
-export const BERGMANN_STEUERN_SLUG = SYNTHETIC_SECOND_WORKSPACE_SLUG;
+export const GERMAN_CONSULTANTS_SLUG = findSolution("consultants").workspaceSlugs.de;
 
-export const NORTHWIND_COMPANY_ID = findSolution("smb").companyIds.en;
+export const TEAM_WORKSPACE_COMPANY_ID = findSolution("smb").companyIds.en;
 
-export const BERGMANN_STEUERN_COMPANY_ID = findSolution("consultants").companyIds.de;
+export const GERMAN_CONSULTANTS_COMPANY_ID = findSolution("consultants").companyIds.de;
 
 export { fixtureWorkspaceSlug };
 

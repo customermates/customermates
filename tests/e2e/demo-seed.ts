@@ -7,7 +7,7 @@ import { Client } from "pg";
 
 import { presetId } from "../../features/records/crm-preset";
 import { TEAM_SOLUTION_CONTENT } from "../../prisma/seeds/solutions/team-workspace";
-import { NORTHWIND_SLUG, rememberWorkspaceSlug } from "./app-paths";
+import { TEAM_WORKSPACE_SLUG, rememberWorkspaceSlug } from "./app-paths";
 import { localE2eEnvironment } from "./local-environment";
 import { BrowserDiagnostics, collectPageErrors } from "./browser-diagnostics";
 
@@ -18,7 +18,7 @@ import { BrowserDiagnostics, collectPageErrors } from "./browser-diagnostics";
  */
 export const DEMO_COMPANY_ID = "10000000-0000-4000-8000-000000000001";
 
-export const DEMO_SLUG = NORTHWIND_SLUG;
+export const DEMO_SLUG = TEAM_WORKSPACE_SLUG;
 
 const fixtureId = (prefix: string, index: number) => `${prefix}-0000-4000-8000-${String(index).padStart(12, "0")}`;
 
