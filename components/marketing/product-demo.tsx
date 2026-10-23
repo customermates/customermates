@@ -1,13 +1,19 @@
 import { useLocale } from "next-intl";
 
 import { type BrowserFramePoster, BrowserFrame } from "./browser-frame";
-import { DEMO_RECORD_LIST_PATHS, PUBLIC_DEMO_ORIGIN, localProductDemoSrc } from "./product-demo-src";
+import {
+  DEMO_RECORD_LIST_PATHS,
+  PUBLIC_DEMO_ORIGIN,
+  demoWorkspacePath,
+  demoWorkspaceSlug,
+  localProductDemoSrc,
+} from "./product-demo-src";
 import { cn } from "@/core/utils/cn";
 import { env } from "@/env";
 import { type ContentLocale, appLocaleOrDefault, contentLocaleOrDefault } from "@/i18n/locale-registry";
 import solutionCaptureManifest from "@/core/solutions/solution-capture-manifest.json";
 import { type SolutionCaptureManifest, solutionCapturePair } from "@/core/solutions/solution-captures";
-import { type SolutionId, findSolution, solutionDataLocaleForUiLocale } from "@/core/solutions/solution-catalog";
+import type { SolutionId } from "@/core/solutions/solution-catalog";
 
 export { DEMO_RECORD_LIST_PATHS, DEMO_RECORD_TYPE_IDS } from "./product-demo-src";
 
@@ -175,16 +181,15 @@ export function productDemoPath(path: string): ProductDemoPath {
   return path;
 }
 
-export function buildProductDemoUrl(locale: string, path: string, workspaceSlug?: string): string {
+export function buildProductDemoUrl(locale: string, path: string, solutionId?: SolutionId): string {
   const demoPath = productDemoPath(path);
   const query = demoPath === "/inbox" ? "threadId=latest&agentChat=closed" : "agentChat=closed";
-  const workspacePrefix = workspaceSlug ? `/w/${encodeURIComponent(workspaceSlug)}` : "";
 
-  return `${PUBLIC_DEMO_ORIGIN}/${appLocaleOrDefault(locale)}${workspacePrefix}${demoPath}?${query}`;
+  return `${PUBLIC_DEMO_ORIGIN}${demoWorkspacePath(locale, demoPath, solutionId)}?${query}`;
 }
 
 export function solutionDemoWorkspaceSlug(solutionId: SolutionId, uiLocale: string): string {
-  return findSolution(solutionId).workspaces[solutionDataLocaleForUiLocale(uiLocale)].slug;
+  return demoWorkspaceSlug(uiLocale, solutionId);
 }
 
 export function solutionDemoPoster(solutionId: SolutionId, pageLocale: string): BrowserFramePoster | undefined {
@@ -203,7 +208,6 @@ export function ProductDemo({ hostedBoundary = false, path, presentation = "arti
   const uiLocale = appLocaleOrDefault(useLocale());
   const locale: ContentLocale = contentLocaleOrDefault(uiLocale);
   const copy = COPY[locale];
-  const workspaceSlug = solutionId ? solutionDemoWorkspaceSlug(solutionId, uiLocale) : undefined;
   const poster = solutionId ? solutionDemoPoster(solutionId, uiLocale) : undefined;
   const disclosure = hostedBoundary ? copy.hostedDisclosure : copy.standardDisclosure;
 
@@ -247,7 +251,7 @@ export function ProductDemo({ hostedBoundary = false, path, presentation = "arti
         embed={env.APP_MODE !== "self-hosted"}
         fallbackMessage={copy.fallback}
         poster={poster}
-        src={localProductDemoSrc(buildProductDemoUrl(uiLocale, path, workspaceSlug))}
+        src={localProductDemoSrc(buildProductDemoUrl(uiLocale, path, solutionId))}
         title={copy.titles[path]}
       />
     </figure>

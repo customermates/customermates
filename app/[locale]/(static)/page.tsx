@@ -20,7 +20,12 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { homepageSource } from "@/core/fumadocs/source";
 import { buildHomepageMetadata } from "@/core/seo/homepage-metadata";
 import { organizationSchema, softwareApplicationSchema } from "@/core/seo/schemas";
-import { contentLocaleOrDefault, isMarketingPathPublished, marketingLocalesForPath } from "@/i18n/locale-registry";
+import {
+  appLocaleOrDefault,
+  contentLocaleOrDefault,
+  isMarketingPathPublished,
+  marketingLocalesForPath,
+} from "@/i18n/locale-registry";
 import { enableMarketingLocale, type StaticLocaleProps } from "@/i18n/static-locale";
 
 type Props = {
@@ -86,7 +91,7 @@ export default async function HomePage({ params }: StaticLocaleProps) {
         })}
       />
 
-      <HomepageHero heroSection={hero} locale={contentLocale} />
+      <HomepageHero demoLocale={appLocaleOrDefault(locale)} heroSection={hero} locale={contentLocale} />
 
       <HomepageFacts benefitsSection={benefits} />
 

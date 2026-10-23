@@ -11,11 +11,17 @@ import {
   DEMO_RECORD_LIST_PATHS,
   PRODUCT_DEMO_PATHS,
   buildProductDemoUrl,
-  solutionDemoWorkspaceSlug,
 } from "@/components/marketing/product-demo";
 import {
+  DEMO_DEFAULT_RECORD_TYPE_IDS,
+  DEMO_RECORD_TYPE_IDS,
+  demoWorkspacePath,
+} from "@/components/marketing/product-demo-src";
+import {
   PROFESSIONAL_SERVICES_SOLUTION_ID,
+  DEMO_DEFAULT_SOLUTION_ID,
   SOLUTION_CATALOG,
+  SOLUTION_DATA_LOCALES,
   findSolution,
 } from "@/core/solutions/solution-catalog";
 import { presetId } from "@/features/records/crm-preset";
@@ -74,16 +80,16 @@ describe("seeded public product demo", () => {
       "/settings/webhooks",
     ]);
     expect(buildProductDemoUrl("en", "/inbox")).toBe(
-      "https://demo.customermates.com/en/inbox?threadId=latest&agentChat=closed",
+      "https://demo.customermates.com/en/w/small-business/inbox?threadId=latest&agentChat=closed",
     );
     expect(buildProductDemoUrl("de", DEMO_RECORD_LIST_PATHS.deals)).toBe(
-      `https://demo.customermates.com/de/records/${presetId(SEED_IDS.company, "deal")}?agentChat=closed`,
+      `https://demo.customermates.com/de/w/kleine-unternehmen/records/${presetId(findSolution("smb").companyIds.de, "deal")}?agentChat=closed`,
     );
     expect(
       buildProductDemoUrl(
         "fr",
         "/dashboard",
-        solutionDemoWorkspaceSlug("agencies", "fr"),
+        "agencies",
       ),
     ).toBe(
       "https://demo.customermates.com/fr/w/agencies/dashboard?agentChat=closed",
@@ -92,7 +98,7 @@ describe("seeded public product demo", () => {
       buildProductDemoUrl(
         "de",
         "/dashboard",
-        solutionDemoWorkspaceSlug("agencies", "de"),
+        "agencies",
       ),
     ).toBe(
       "https://demo.customermates.com/de/w/agenturen/dashboard?agentChat=closed",
@@ -106,6 +112,22 @@ describe("seeded public product demo", () => {
         `/records/${presetId(SEED_IDS.company, "service")}`,
       ),
     ).toThrow("Unsupported product demo path");
+  });
+
+  it("opens every default demo list in the workspace of the page's data locale", () => {
+    const solution = findSolution(DEMO_DEFAULT_SOLUTION_ID);
+    const keys = { contacts: "contact", deals: "deal", organizations: "organization", tasks: "task" } as const;
+    for (const dataLocale of SOLUTION_DATA_LOCALES)
+      for (const list of Object.keys(DEMO_RECORD_TYPE_IDS) as Array<keyof typeof keys>)
+        expect(DEMO_DEFAULT_RECORD_TYPE_IDS[dataLocale][list], `${dataLocale} ${list}`).toBe(
+          presetId(solution.companyIds[dataLocale], keys[list]),
+        );
+    expect(demoWorkspacePath("fr", DEMO_RECORD_LIST_PATHS.tasks)).toBe(
+      `/fr/w/small-business/records/${DEMO_RECORD_TYPE_IDS.tasks}`,
+    );
+    expect(demoWorkspacePath("de", `/configure?focus=list:${DEMO_RECORD_TYPE_IDS.deals}`)).toBe(
+      `/de/w/kleine-unternehmen/configure?focus=list:${DEMO_DEFAULT_RECORD_TYPE_IDS.de.deals}`,
+    );
   });
 
   it("maps every localized feature page to one relevant reviewed demo surface", () => {

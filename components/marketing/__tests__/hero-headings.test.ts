@@ -41,6 +41,7 @@ describe("hero headings", () => {
   it("keeps the whole homepage claim inside one h1 and reads the first rotation to assistive technology", () => {
     const html = renderToStaticMarkup(
       createElement(HomepageHero, {
+        demoLocale: "en",
         heroSection: {
           buttonLeftHref: "/auth/signup",
           buttonLeftText: "Start free",

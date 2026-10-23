@@ -153,7 +153,9 @@ describe("BrowserFrame", () => {
     setIntersection(true);
     const frame = host.querySelector("iframe");
     expect(frame?.getAttribute("loading")).toBe("lazy");
-    expect(frame?.getAttribute("src")).toBe("https://demo.customermates.com/en/dashboard?agentChat=closed");
+    expect(frame?.getAttribute("src")).toBe(
+      "https://demo.customermates.com/en/w/small-business/dashboard?agentChat=closed",
+    );
     expect(observer.disconnect).toHaveBeenCalledOnce();
   });
 

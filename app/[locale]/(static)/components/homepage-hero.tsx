@@ -1,5 +1,5 @@
 import type { Hero } from "@/core/fumadocs/schemas/homepage";
-import type { ContentLocale } from "@/i18n/locale-registry";
+import type { AppLocale, ContentLocale } from "@/i18n/locale-registry";
 
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 
@@ -17,10 +17,11 @@ import { RotatingAccent } from "./rotating-accent";
 
 type Props = {
   heroSection: Hero;
+  demoLocale: AppLocale;
   locale: ContentLocale;
 };
 
-export function HomepageHero({ heroSection, locale }: Props) {
+export function HomepageHero({ demoLocale, heroSection, locale }: Props) {
   return (
     <section className="relative isolate w-full overflow-hidden" data-homepage-section="hero">
       <GridPattern className="z-0" fade="bottom" />
@@ -88,6 +89,7 @@ export function HomepageHero({ heroSection, locale }: Props) {
 
         <HomepageProductStage
           demoBaseUrl={homepageDemoBaseUrl()}
+          demoLocale={demoLocale}
           embed={env.APP_MODE !== "self-hosted"}
           label={heroSection.stage.label}
           live={heroSection.stage.live}

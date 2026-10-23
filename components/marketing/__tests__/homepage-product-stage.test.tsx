@@ -75,6 +75,7 @@ function render(stageTabs: HomepageStageTab[] = tabs, embed?: boolean) {
     root?.render(
       createElement(HomepageProductStage, {
         demoBaseUrl: "https://demo.example",
+        demoLocale: "en",
         embed,
         label: "Product areas",
         live: { prompt: "Try it live" },
@@ -296,7 +297,7 @@ it("goes live on a wide viewport right after the page loads, before the stage is
   const host = render();
 
   expect(activeIframe(host)?.getAttribute("src")).toBe(
-    "https://demo.example/en/inbox?threadId=latest&agentChat=closed",
+    "https://demo.example/en/w/small-business/inbox?threadId=latest&agentChat=closed",
   );
   expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("loading");
   expect(resourceHints.preconnect).toHaveBeenCalledWith("https://demo.example");
@@ -346,13 +347,13 @@ it("shows every tab as its own live iframe, keeps rotating and preloads the next
   expect(progress(host)).toBe("running");
   expect(host.querySelectorAll("iframe")).toHaveLength(2);
   expect(host.querySelector('iframe[data-homepage-stage-iframe="standby"]')?.getAttribute("src")).toBe(
-    `https://demo.example/en${DEMO_RECORD_LIST_PATHS.contacts}?agentChat=closed`,
+    `https://demo.example/en/w/small-business${DEMO_RECORD_LIST_PATHS.contacts}?agentChat=closed`,
   );
 
   advance(PRODUCT_STAGE_INTERVAL_MS - LIVE_REVEAL_DELAY_MS);
   expect(selectedLabel(host)).toContain("Customers");
   expect(activeIframe(host)?.getAttribute("src")).toBe(
-    `https://demo.example/en${DEMO_RECORD_LIST_PATHS.contacts}?agentChat=closed`,
+    `https://demo.example/en/w/small-business${DEMO_RECORD_LIST_PATHS.contacts}?agentChat=closed`,
   );
   expect(activeIframe(host)?.hasAttribute("inert")).toBe(false);
   expect(host.querySelector('iframe[data-homepage-stage-iframe="standby"]')?.hasAttribute("inert")).toBe(true);
@@ -394,7 +395,7 @@ it("stops rotating on the live area a visitor picks", () => {
   loadAndReveal(activeIframe(host));
   act(() => tabButtons(host)[2].click());
   expect(activeIframe(host)?.getAttribute("src")).toBe(
-    `https://demo.example/en${DEMO_RECORD_LIST_PATHS.deals}?agentChat=closed`,
+    `https://demo.example/en/w/small-business${DEMO_RECORD_LIST_PATHS.deals}?agentChat=closed`,
   );
   expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("loading");
   expect(progress(host)).toBe("static");
@@ -494,7 +495,9 @@ it("opens the area a capture link names, live on a wide viewport", () => {
   act(() => link?.click());
 
   expect(selectedLabel(host)).toContain("Routines");
-  expect(activeIframe(host)?.getAttribute("src")).toBe("https://demo.example/en/routines?agentChat=closed");
+  expect(activeIframe(host)?.getAttribute("src")).toBe(
+    "https://demo.example/en/w/small-business/routines?agentChat=closed",
+  );
   advance(PRODUCT_STAGE_INTERVAL_MS * 2);
   expect(selectedLabel(host)).toContain("Routines");
   act(() => linkRoot.unmount());
@@ -508,7 +511,7 @@ it("opens from a product-demo hash on load and ignores unrelated hashes", () => 
 
   expect(selectedLabel(host)).toContain("Customers");
   expect(activeIframe(host)?.getAttribute("src")).toBe(
-    `https://demo.example/en${DEMO_RECORD_LIST_PATHS.contacts}?agentChat=closed`,
+    `https://demo.example/en/w/small-business${DEMO_RECORD_LIST_PATHS.contacts}?agentChat=closed`,
   );
 
   act(() => root?.unmount());
@@ -518,7 +521,7 @@ it("opens from a product-demo hash on load and ignores unrelated hashes", () => 
 
   expect(selectedLabel(unrelated)).toContain("Inbox");
   expect(activeIframe(unrelated)?.getAttribute("src")).toBe(
-    "https://demo.example/en/inbox?threadId=latest&agentChat=closed",
+    "https://demo.example/en/w/small-business/inbox?threadId=latest&agentChat=closed",
   );
   window.history.replaceState(null, "", "#");
 });
@@ -541,7 +544,7 @@ it("opens the live data model focused on the deals list", () => {
 
   expect(selectedLabel(host)).toContain("Data model");
   expect(activeIframe(host)?.getAttribute("src")).toBe(
-    `https://demo.example/en/configure?focus=list:${DEMO_RECORD_TYPE_IDS.deals}&agentChat=closed`,
+    `https://demo.example/en/w/small-business/configure?focus=list:${DEMO_RECORD_TYPE_IDS.deals}&agentChat=closed`,
   );
   loadAndReveal(activeIframe(host));
   expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("ready");

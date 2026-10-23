@@ -1,7 +1,7 @@
 "use client";
 
 import type { HomepageStageTab } from "@/core/fumadocs/schemas/homepage";
-import type { ContentLocale } from "@/i18n/locale-registry";
+import type { AppLocale, ContentLocale } from "@/i18n/locale-registry";
 
 import { type FocusEvent, type KeyboardEvent, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import { motion } from "framer-motion";
@@ -11,7 +11,11 @@ import { Inbox, KanbanSquare, LayoutDashboard, Repeat, Settings2, UserRound } fr
 import { cn } from "@/core/utils/cn";
 
 import { HomepageCaptureImage } from "./homepage-capture-image";
-import { DEMO_RECORD_LIST_PATHS, DEMO_RECORD_TYPE_IDS } from "@/components/marketing/product-demo-src";
+import {
+  DEMO_RECORD_LIST_PATHS,
+  DEMO_RECORD_TYPE_IDS,
+  demoWorkspacePath,
+} from "@/components/marketing/product-demo-src";
 import { ProductWindow } from "@/components/marketing/product-window";
 import { useHomepageMotion } from "./homepage-motion";
 import {
@@ -77,6 +81,7 @@ const STAGE_MIN_SCALE = 0.94;
 
 type Props = {
   demoBaseUrl: string;
+  demoLocale: AppLocale;
   embed?: boolean;
   label: string;
   live: { prompt: string };
@@ -105,7 +110,15 @@ function StageProgressRing() {
   );
 }
 
-export function HomepageProductStage({ demoBaseUrl, embed = true, label, live: liveCopy, locale, tabs }: Props) {
+export function HomepageProductStage({
+  demoBaseUrl,
+  demoLocale,
+  embed = true,
+  label,
+  live: liveCopy,
+  locale,
+  tabs,
+}: Props) {
   const { ref, shouldAnimate, shouldReduceMotion } = useHomepageMotion<HTMLDivElement>();
   const frameRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -263,7 +276,7 @@ export function HomepageProductStage({ demoBaseUrl, embed = true, label, live: l
   function liveSrcFor(tab: HomepageStageTab) {
     const path: string = STAGE_DEMO_PATHS[STAGE_AREAS[tab.capture]];
 
-    return `${demoBaseUrl}/${locale}${path}${path.includes("?") ? "&" : "?"}agentChat=closed`;
+    return `${demoBaseUrl}${demoWorkspacePath(demoLocale, path)}${path.includes("?") ? "&" : "?"}agentChat=closed`;
   }
 
   function revealLive(index: number) {
