@@ -13,8 +13,9 @@ import {
   type SolutionCaptureProvenance,
   checkSolutionCaptureManifest,
 } from "@/core/solutions/solution-captures";
+import { solutionNavRouteForPlanItem } from "@/scripts/lib/solution-nav-routes";
 
-const CAPTURE_RUN_PENDING = true;
+const CAPTURE_RUN_PENDING = false;
 
 function readFacts(src: string) {
   const file = join(REPO_ROOT, "public", src);
@@ -24,11 +25,11 @@ function readFacts(src: string) {
 }
 
 describe("solution captures", () => {
-  it("ships a light and dark capture for every published solution view, within budget", () => {
+  it("ships a light and dark capture and navigation preview for every published solution view, within budget", () => {
     const result = checkSolutionCaptureManifest(
       manifest as SolutionCaptureManifest,
       provenance as SolutionCaptureProvenance,
-      { allowPlaceholders: CAPTURE_RUN_PENDING, readFile: readFacts },
+      { allowPlaceholders: CAPTURE_RUN_PENDING, navRoute: solutionNavRouteForPlanItem, readFile: readFacts },
     );
     expect(result.problems, result.problems.join("\n")).toEqual([]);
   });
