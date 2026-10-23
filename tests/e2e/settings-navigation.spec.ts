@@ -34,7 +34,13 @@ test("settings live in one area reached from the workspace menu, with Back to th
     const menu = await openMenu(page, "#nav-workspace-menu");
     await expect(menu.locator("[data-workspace-id]")).toHaveText([/Browser workspace$/]);
     await expect(menu.getByRole("menuitem").nth(2)).toHaveText("Invite members");
-    const items = [expect.stringMatching(/Browser workspace$/), "Create workspace", "Invite members", "Members", "Settings"];
+    const items = [
+      expect.stringMatching(/Browser workspace$/),
+      "Create workspace",
+      "Invite members",
+      "Members",
+      "Settings",
+    ];
     expect((await menu.getByRole("menuitem").allTextContents()).slice(0, 6)).toEqual(
       e2eAppMode() === "self-hosted" ? items : [...items, expect.stringMatching(/^Billing/)],
     );
@@ -85,7 +91,9 @@ test("settings live in one area reached from the workspace menu, with Back to th
     ] as const) {
       const response = await page.request.get(`/en/${removed}`, { maxRedirects: 0 });
       expect(response.status(), removed).toBe(308);
-      expect(response.headers().location, removed).toBe(`/en/${current}`);
+      const location = new URL(response.headers().location ?? "", "http://localhost");
+      expect(location.pathname, removed).toBe("/en/dashboard");
+      expect(location.searchParams.get("open"), removed).toBe(`/${current}`);
     }
   });
 

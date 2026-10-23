@@ -3,7 +3,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { APP_LOCALES } from "../../i18n/locale-registry";
 import { APP_LOCALE_COOKIE_NAME } from "../../i18n/locale-preference";
 import { localE2eEnvironment } from "./local-environment";
-import { appPath } from "./app-paths";
+import { companyPath } from "./app-paths";
 
 test("renders the configurable record surface in all application locales and both themes without document overflow", async ({
   context,
@@ -27,7 +27,7 @@ test("renders the configurable record surface in all application locales and bot
       await page.bringToFront();
       await page.addInitScript((preference) => window.localStorage.setItem("theme", preference), theme);
       const errors = collectPageErrors(page);
-      await page.goto(appPath(workspace.slug, `/records/${typeId}`, locale));
+      await page.goto(companyPath(companyId, `/records/${typeId}`, locale));
       await expect(page.locator("html")).toHaveAttribute("lang", locale);
       await expect(page.locator("html")).toHaveClass(new RegExp(`(?:^|\\s)${theme}(?:\\s|$)`));
       await expect(page.locator("#records-add")).toBeVisible();

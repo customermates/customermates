@@ -19,7 +19,7 @@ import { TopBarActionsProvider } from "../topbar-actions-context";
 
 import { isCanonicalInactiveErrorType } from "@/features/auth/account-state";
 import { ONBOARDING_INTENT_QUERY_PARAM } from "@/features/company/onboarding-intent-url";
-import { usePathname, useRouter } from "@/i18n/navigation";
+import { FallbackWorkspaceSlugProvider, usePathname, useRouter } from "@/i18n/navigation";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppLocalePreferenceSync } from "@/components/shared/app-locale-preference-sync";
@@ -165,7 +165,11 @@ export function NavigationSwitch({
   } else if (shellMode === "restricted") {
     shell = (
       <SidebarProvider defaultOpen={defaultSidebarOpen} defaultWidth={defaultSidebarWidth}>
-        {sidebarUser ? <AppSidebar mode="restricted" user={sidebarUser} /> : null}
+        {sidebarUser ? (
+          <FallbackWorkspaceSlugProvider slug={workspaces.find((workspace) => workspace.isCurrent)?.slug ?? null}>
+            <AppSidebar mode="restricted" user={sidebarUser} />
+          </FallbackWorkspaceSlugProvider>
+        ) : null}
 
         <SidebarInset className="min-w-0 overflow-x-clip">
           <ShellHeader />
