@@ -1,7 +1,7 @@
 import { DEMO_COMPANY_ID, demoId, expect, test } from "./demo-seed";
 
 /** Sub-lists and relationship paths of the seeded workspace: deal line items, and the Deals path of a service. */
-test("a deal shows its line items with Max's curated line item columns", async ({ page, database, errors }, testInfo) => {
+test("a deal shows its line items with the default line item columns", async ({ page, database, errors }, testInfo) => {
   const { rows: deals } = await database.query<{ id: string; items: number }>(
     `SELECT l."targetId" AS id, count(*)::int AS items FROM "RecordLink" l
      JOIN "CrmRecord" r ON r."companyId"=l."companyId" AND r."typeId"=l."sourceTypeId" AND r.id=l."sourceId"
@@ -10,7 +10,7 @@ test("a deal shows its line items with Max's curated line item columns", async (
     [DEMO_COMPANY_ID, demoId("lineItem.deal")],
   );
   const deal = deals[0];
-  expect(deal.items).toBeGreaterThanOrEqual(3);
+  expect(deal.items).toBeGreaterThanOrEqual(2);
   const { rows: quantities } = await database.query<{ quantity: string }>(
     `SELECT v."decimalValue"::numeric::text AS quantity FROM "RecordLink" l
      JOIN "RecordValue" v ON v."companyId"=l."companyId" AND v."recordId"=l."sourceId" AND v."fieldId"=$3
@@ -27,16 +27,16 @@ test("a deal shows its line items with Max's curated line item columns", async (
   await expect(lines.locator("[data-row-id], [data-item-id]")).toHaveCount(deal.items);
   // Phones show the sub-list as rows without column headers; the columns are a desktop check.
   if (testInfo.project.use.isMobile) return expect(errors).toEqual([]);
-  // Max keeps a lean personal choice of sub-list columns; the other line item columns stay in the Columns menu.
+  // Without a personal column choice the sub-list shows the line item's own fields; system columns stay in the menu.
   const headers = lines.getByRole("columnheader");
   const column = (label: string) => headers.filter({ hasText: new RegExp(`^\\W*${label}\\W*$`, "i") });
   for (const label of ["Name", "Quantity", "Unit price", "Amount"])
     await expect(column(label), `${label} column`).toHaveCount(1);
-  for (const label of ["Pricing", "List amount", "Service", "Created at", "Assigned to"])
+  for (const label of ["Notes", "Created at", "Assigned to"])
     await expect(column(label), `${label} column`).toHaveCount(0);
   await lines.getByRole("button", { name: "Columns for Line items", exact: true }).click();
   const menu = page.getByRole("dialog", { name: "Columns for Line items", exact: true });
-  await expect(menu.getByRole("checkbox", { name: "Pricing", exact: true })).not.toBeChecked();
+  await expect(menu.getByRole("checkbox", { name: "Created at", exact: true })).not.toBeChecked();
   await expect(menu.getByRole("checkbox", { name: "Unit price", exact: true })).toBeChecked();
   await page.keyboard.press("Escape");
   for (const { quantity } of quantities)

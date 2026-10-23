@@ -1,27 +1,23 @@
 import type { Page } from "@playwright/test";
 import type { Client } from "pg";
 
-import { DEMO_COMPANY_ID, DEMO_MEMBERS, type DemoMember, demoId, expect, memberPage, test } from "./demo-seed";
+import {
+  DEMO_COMPANY_ID,
+  DEMO_LISTS,
+  DEMO_MEMBERS,
+  type DemoMember,
+  demoId,
+  expect,
+  memberPage,
+  test,
+} from "./demo-seed";
 import { openSidebar } from "./sidebar";
 
 /**
  * The seeded roles: each member sees the lists their role grants, deals follow the role's visibility, fields of
  * read-only lists explain why they cannot be edited, and only the admin can change the configuration.
  */
-const LISTS = [
-  "Contacts",
-  "Organizations",
-  "Deals",
-  "Products and services",
-  "Tasks",
-  "Subscriptions",
-  "Onboarding projects",
-  "Tickets",
-  "Campaigns",
-  "Partners",
-  "Open roles",
-  "Candidates",
-];
+const LISTS = DEMO_LISTS;
 
 async function firstRecord(database: Client, typeKey: string, assignee?: DemoMember) {
   const { rows } = await database.query<{ id: string }>(
@@ -59,7 +55,8 @@ async function openRecord(page: Page, typeKey: string, recordId: string) {
   const main = page.getByRole("main");
   const overview = main.getByRole("tab", { name: "Overview", exact: true });
   if (await overview.isVisible()) await overview.click();
-  const name = main.locator(`[data-entity-field="${demoId(`${typeKey}.name`)}"] input`).first();
+  const field = typeKey === "contact" ? "contact.firstName" : `${typeKey}.name`;
+  const name = main.locator(`[data-entity-field="${demoId(field)}"] input`).first();
   await expect(name).toBeVisible();
   return name;
 }
@@ -77,26 +74,14 @@ async function expectReadOnly(page: Page, typeKey: string, recordId: string) {
   await expect(page.getByRole("tooltip")).toHaveCount(0);
 }
 
-test("the sales lead sees every deal, campaigns and partners, and reads subscriptions", async ({
-  browser,
-  database,
-}, testInfo) => {
+test("the sales lead manages every deal and reads the price list", async ({ browser, database }, testInfo) => {
   const member = await memberPage(browser, database, "sofiaRossi", testInfo);
   try {
     await member.page.goto("/en/dashboard");
-    await expectSidebarLists(member.page, [
-      "Contacts",
-      "Organizations",
-      "Deals",
-      "Products and services",
-      "Tasks",
-      "Subscriptions",
-      "Onboarding projects",
-      "Campaigns",
-      "Partners",
-    ]);
+    await expectSidebarLists(member.page, ["Contacts", "Organizations", "Deals", "Services", "Tasks"]);
     await expectEditable(member.page, "deal", await firstRecord(database, "deal", "claraNeumann"));
-    await expectReadOnly(member.page, "subscription", await firstRecord(database, "subscription"));
+    await expectEditable(member.page, "organization", await firstRecord(database, "organization"));
+    await expectReadOnly(member.page, "service", await firstRecord(database, "service"));
     await expectReadOnlyConfigure(member.page);
     expect(member.errors).toEqual([]);
   } finally {
@@ -104,7 +89,7 @@ test("the sales lead sees every deal, campaigns and partners, and reads subscrip
   }
 });
 
-test("an account executive works only their own deals and reads subscriptions", async ({
+test("an account executive works only their own deals on shared accounts and reads the price list", async ({
   browser,
   database,
 }, testInfo) => {
@@ -115,26 +100,18 @@ test("an account executive works only their own deals and reads subscriptions", 
     [DEMO_COMPANY_ID, demoId("deal"), DEMO_MEMBERS.claraNeumann.userId],
   );
   const own = Number(rows[0].count);
-  expect(own).toBeGreaterThan(5);
+  expect(own).toBeGreaterThan(1);
   const member = await memberPage(browser, database, "claraNeumann", testInfo);
   try {
     await member.page.goto("/en/dashboard");
-    await expectSidebarLists(member.page, [
-      "Contacts",
-      "Organizations",
-      "Deals",
-      "Products and services",
-      "Tasks",
-      "Subscriptions",
-      "Campaigns",
-      "Partners",
-    ]);
+    await expectSidebarLists(member.page, ["Contacts", "Organizations", "Deals", "Services", "Tasks"]);
     await member.page.goto(`/en/records/${demoId("deal")}`);
     const rowsShown = member.page.locator("[data-row-id], [data-item-id]");
     await expect(rowsShown.first()).toBeVisible();
     await expect(rowsShown, "only the deals assigned to Clara").toHaveCount(own);
     await expectEditable(member.page, "deal", await firstRecord(database, "deal", "claraNeumann"));
-    await expectReadOnly(member.page, "subscription", await firstRecord(database, "subscription"));
+    await expectEditable(member.page, "organization", await firstRecord(database, "organization", "sofiaRossi"));
+    await expectReadOnly(member.page, "service", await firstRecord(database, "service"));
     await expectReadOnlyConfigure(member.page);
     expect(member.errors).toEqual([]);
 
@@ -152,23 +129,19 @@ test("an account executive works only their own deals and reads subscriptions", 
   }
 });
 
-test("customer success runs subscriptions and tickets and reads deals", async ({ browser, database }, testInfo) => {
+test("customer success manages customers, contacts and tasks and reads deals and services", async ({
+  browser,
+  database,
+}, testInfo) => {
   const member = await memberPage(browser, database, "elenaHoffmann", testInfo);
   try {
     await member.page.goto("/en/dashboard");
-    await expectSidebarLists(member.page, [
-      "Contacts",
-      "Organizations",
-      "Deals",
-      "Products and services",
-      "Tasks",
-      "Subscriptions",
-      "Onboarding projects",
-      "Tickets",
-    ]);
-    await expectEditable(member.page, "subscription", await firstRecord(database, "subscription"));
-    await expectEditable(member.page, "ticket", await firstRecord(database, "ticket"));
+    await expectSidebarLists(member.page, ["Contacts", "Organizations", "Deals", "Services", "Tasks"]);
+    await expectEditable(member.page, "organization", await firstRecord(database, "organization"));
+    await expectEditable(member.page, "contact", await firstRecord(database, "contact"));
+    await expectEditable(member.page, "task", await firstRecord(database, "task"));
     await expectReadOnly(member.page, "deal", await firstRecord(database, "deal", "sofiaRossi"));
+    await expectReadOnly(member.page, "service", await firstRecord(database, "service"));
     await expectReadOnlyConfigure(member.page);
     expect(member.errors).toEqual([]);
   } finally {
@@ -176,17 +149,17 @@ test("customer success runs subscriptions and tickets and reads deals", async ({
   }
 });
 
-test("support handles tickets and reads the accounts behind them, without deals", async ({
+test("support contributes tasks and reads the customers behind them, without deals", async ({
   browser,
   database,
 }, testInfo) => {
   const member = await memberPage(browser, database, "kianRahimi", testInfo);
   try {
     await member.page.goto("/en/dashboard");
-    await expectSidebarLists(member.page, ["Contacts", "Organizations", "Tasks", "Subscriptions", "Tickets"]);
-    await expectEditable(member.page, "ticket", await firstRecord(database, "ticket"));
+    await expectSidebarLists(member.page, ["Contacts", "Organizations", "Tasks"]);
+    await expectEditable(member.page, "task", await firstRecord(database, "task", "kianRahimi"));
     await expectReadOnly(member.page, "organization", await firstRecord(database, "organization"));
-    await expectReadOnly(member.page, "subscription", await firstRecord(database, "subscription"));
+    await expectReadOnly(member.page, "contact", await firstRecord(database, "contact"));
     await expectReadOnlyConfigure(member.page);
     expect(member.errors).toEqual([]);
   } finally {
@@ -194,13 +167,16 @@ test("support handles tickets and reads the accounts behind them, without deals"
   }
 });
 
-test("people and operations run hiring without customer or deal data", async ({ browser, database }, testInfo) => {
+test("office and operations keep the price list and tasks without customer or deal data", async ({
+  browser,
+  database,
+}, testInfo) => {
   const member = await memberPage(browser, database, "lauraFischer", testInfo);
   try {
     await member.page.goto("/en/dashboard");
-    await expectSidebarLists(member.page, ["Tasks", "Open roles", "Candidates"]);
-    await expectEditable(member.page, "candidate", await firstRecord(database, "candidate"));
-    await expectEditable(member.page, "openRole", await firstRecord(database, "openRole"));
+    await expectSidebarLists(member.page, ["Services", "Tasks"]);
+    await expectEditable(member.page, "service", await firstRecord(database, "service"));
+    await expectEditable(member.page, "task", await firstRecord(database, "task"));
     await expectReadOnlyConfigure(member.page);
     expect(member.errors).toEqual([]);
   } finally {
