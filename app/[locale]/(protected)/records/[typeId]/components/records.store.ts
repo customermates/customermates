@@ -51,6 +51,7 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       presentation: observable.ref,
       fields: computed,
       type: computed,
+      recordPictureFieldId: computed,
       differsFromDefaultLayout: computed,
       recordColumns: computed,
       columnHeaders: computed({ equals: comparer.structural }),
@@ -77,6 +78,12 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   }
   override get supportsBoard() {
     return true;
+  }
+  override get recordPictureFieldId() {
+    const fieldId = this.presentation.model.capabilities
+      .find((binding) => binding.kind === "avatar" && binding.typeId === this.presentation.typeId)
+      ?.fields.find((field) => field.role === "image")?.fieldId;
+    return this.fields.find((field) => field.id === fieldId && field.valueType === "url" && !field.multiple)?.id;
   }
   override get supportsSelection() {
     return (
@@ -187,9 +194,15 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
     this.updateRecord(record, { fields: [{ fieldId, value }] });
   updateRecordLinks = (record: RecordRow, linkChanges: RecordLinkChange[]) =>
     this.updateRecord(record, { fields: [], linkChanges });
+  updateRecordAssignees = (record: RecordRow, assignedUserIds: string[]) =>
+    this.updateRecord(record, { fields: [], assignedUserIds });
   private updateRecord = async (
     record: RecordRow,
-    changes: { fields: { fieldId: string; value: RecordScalar | null }[]; linkChanges?: RecordLinkChange[] },
+    changes: {
+      fields: { fieldId: string; value: RecordScalar | null }[];
+      linkChanges?: RecordLinkChange[];
+      assignedUserIds?: string[];
+    },
   ): Promise<RecordFieldSaveOutcome> => {
     if (!this.canUpdateRecord(record) || this.movingRecords.has(record.id)) return { saved: false };
     this.movingRecords.add(record.id);
@@ -205,8 +218,12 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
         },
       });
       if (!result.ok) {
-        if (result.failure?.kind === "validation")
-          return { saved: false, invalid: [...new Set(result.failure.issues.map((issue) => issue.message))] };
+        if (result.failure?.kind === "validation") {
+          return {
+            saved: false,
+            invalid: [...new Set(result.failure.issues.map((issue) => issue.message))],
+          };
+        }
         toastZodErrorTree(result.error);
         await this.refresh();
         return { saved: false };
@@ -389,16 +406,20 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   }
   override get differsFromDefaultLayout() {
     if (!this.type) return false;
-    const defaults = recordDefaults(this.presentation.typeId, this.presentation.model.fields);
+    const defaults = recordDefaults(this.presentation.typeId, this.presentation.model.fields, this.type.primaryFieldId);
     const available = new Set(this.columnsDefinition.map((column) => column.uid));
-    const columns = (ids: string[] | undefined) =>
-      (ids ?? []).filter((id) => available.has(id) && id !== this.primaryColumnId);
+    const nameId = this.type.primaryFieldId;
+    const order =
+      nameId && this.columnOrder.length > 0 && !this.columnOrder.includes(nameId)
+        ? [nameId, ...this.columnOrder]
+        : this.columnOrder;
+    const columns = (ids: string[] | undefined) => (ids ?? []).filter((id) => available.has(id));
     const sort = (descriptor: { field: string; direction: string } | null | undefined) =>
       descriptor ? { field: descriptor.field, direction: descriptor.direction } : null;
     const grouping = (value: { field: string; bucket?: string } | null | undefined) =>
       value ? { field: value.field, bucket: value.bucket ?? null } : null;
     return (
-      !deepEqual(columns(this.columnOrder), columns(defaults.columnOrder)) ||
+      !deepEqual(columns(order), columns(defaults.columnOrder)) ||
       !deepEqual(new Set(columns(this.hiddenColumns)), new Set(columns(defaults.hiddenColumns))) ||
       Object.keys(this.columnWidths).length > 0 ||
       this.viewMode !== defaults.viewMode ||
@@ -420,8 +441,15 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   get formulaModel() {
     return withFormulaReferences(this.presentation.model, this.presentation.formulaReferences);
   }
-  get primaryColumnId() {
-    return this.type ? (this.type.primaryFieldId ?? UNTITLED_COLUMN_ID) : super.primaryColumnId;
+  override get orderedColumns() {
+    const columns = super.orderedColumns;
+    const nameId = this.type?.primaryFieldId;
+    const name = columns.find((column) => column.uid === nameId);
+    if (!name || this.columnOrder.includes(name.uid)) return columns;
+    return [name, ...columns.filter((column) => column !== name)];
+  }
+  override get primaryColumnId(): string | undefined {
+    return this.type && !this.type.primaryFieldId ? UNTITLED_COLUMN_ID : undefined;
   }
   get filterColumns() {
     return [
@@ -449,6 +477,18 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
                   type: column.id === "system:assignedTo" ? ("member" as const) : ("dateTime" as const),
                 },
         ),
+      ...this.filterableFields.flatMap((field) =>
+        field.typeId && !this.recordColumns.some((column) => column.id === field.field)
+          ? [
+              {
+                id: field.field,
+                label: field.label ?? field.field,
+                type: "recordReference" as const,
+                typeId: field.typeId,
+              },
+            ]
+          : [],
+      ),
     ];
   }
   get canManage() {

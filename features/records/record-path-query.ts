@@ -6,6 +6,7 @@ import type { RecordPathStep, RecordPathSelection } from "./record-relationship-
 
 import { resolveRecordPath } from "./record-relationship-path";
 import { fieldReadPredicate, recordReadPredicate } from "./record-query";
+import { recordPictureSql } from "./record-picture";
 
 export function liveLinkJoin(join: {
   companyId: string;
@@ -83,6 +84,7 @@ export type RecordPathRow = {
   state: string;
   title: string | null;
   errorCode: string | null;
+  pictureUrl: string | null;
   readableCount: number;
 };
 
@@ -106,11 +108,12 @@ export function compileRecordPathSummaries(
     const title = model.fields.find((field) => field.id === type?.primaryFieldId && !field.archived);
     const target = Prisma.sql`target`;
     const readable = title ? fieldReadPredicate(companyId, title, model, access, target) : Prisma.sql`TRUE`;
-    return Prisma.sql`SELECT "ownerId", ${definition.id}::text AS "pathId", "typeId", "recordId", state, title, "errorCode", "readableCount" FROM (
+    return Prisma.sql`SELECT "ownerId", ${definition.id}::text AS "pathId", "typeId", "recordId", state, title, "errorCode", "pictureUrl", "readableCount" FROM (
       SELECT target."ownerId", target."typeId", target.id AS "recordId",
         CASE WHEN ${readable} THEN COALESCE(value.state, 'missing') ELSE 'restricted' END AS state,
         CASE WHEN ${readable} AND value.state = 'value' THEN value."textValue" ELSE NULL END AS title,
         CASE WHEN ${readable} AND value.state = 'error' THEN value."errorCode" ELSE NULL END AS "errorCode",
+        ${recordPictureSql(companyId, path.typeId, model, access, target)} AS "pictureUrl",
         COUNT(*) OVER (PARTITION BY target."ownerId")::integer AS "readableCount",
         ROW_NUMBER() OVER (PARTITION BY target."ownerId" ORDER BY target.id) AS ordinal
       FROM (

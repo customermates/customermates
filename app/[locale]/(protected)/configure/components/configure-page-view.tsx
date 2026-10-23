@@ -257,7 +257,6 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
         ai={
           <RecordAiAction
             registerContext
-            className="shrink-0"
             context={
               selected
                 ? { reference: { kind: "recordType", typeId: selected.id }, label: selected.pluralLabel }

@@ -20,6 +20,7 @@ import {
   RecordDetailPersonalization,
   useRecordDetailLayout,
 } from "./record-detail-personalization";
+import { RecordNameHeading } from "./record-editor-fields";
 import { RecordDetailOverview } from "./record-detail-overview";
 import { RecordDetailChipRow } from "./record-detail-chip-row";
 import { RecordEditorActions, RecordHeaderActions, RecordPageActions } from "./record-editor-actions";
@@ -135,6 +136,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
 
   const title = store.record?.fields.find((field) => field.fieldId === type?.primaryFieldId)?.result;
   const name = store.record ? recordDisplayName(title, type?.label, t) : (type?.label ?? t("RecordModel.record"));
+  const newName = t("RecordModel.newRecord", { type: type?.label ?? t("RecordModel.record") });
   const notices = (
     <>
       {store.pendingOperationId && (
@@ -173,6 +175,8 @@ const RecordEditorBody = observer(function RecordEditorBody({
             }
             details={
               <div className="p-4 pb-[calc(1rem+var(--unsaved-changes-bar-space,0px))]">
+                <RecordNameHeading className="mb-4" name={name} placeholder={newName} store={store} />
+
                 <RecordDetailOverview renderEditor={renderEditor} store={store} />
               </div>
             }
@@ -191,9 +195,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
       <AppCard className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-none border-0 bg-transparent shadow-none">
         <div className="flex shrink-0 items-start pr-12">
           <AppCardHeader className="min-w-0 flex-1 pr-4! pb-4">
-            <h2 className="min-w-0 flex-1 truncate text-lg font-semibold">
-              {store.record ? name : t("RecordModel.newRecord", { type: type?.label ?? t("RecordModel.record") })}
-            </h2>
+            <RecordNameHeading name={name} placeholder={newName} store={store} />
           </AppCardHeader>
 
           {detailLayout && (

@@ -22,6 +22,8 @@ import { configureFieldOrder, moveConfigureField, reorderFieldOperations, typeDe
 import { ModelChangeSheet } from "./model-change-sheet";
 import { suggestListPlural } from "./list-plural";
 import { SublistSentence } from "./sublist-sentence";
+import { isRecordNameField } from "@/features/records/record-model-validation";
+import { CHIP_COLORS, type ChipColor } from "@/constants/chip-colors";
 
 const initialType = () => ({
   name: "",
@@ -30,6 +32,9 @@ const initialType = () => ({
   icon: "folder",
   accessPresetId: "private",
   navigationVisible: true,
+  pictureFieldId: "__none__",
+  recordNameFieldId: "__none__",
+  color: "secondary" as ChipColor,
   fieldOrder: [] as string[],
 });
 export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialType>> {
@@ -66,6 +71,12 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
             description: type.description,
             icon: type.icon,
             navigationVisible: type.navigationVisible,
+            recordNameFieldId: type.primaryFieldId ?? "__none__",
+            color: type.color ?? "secondary",
+            pictureFieldId:
+              model.capabilities
+                .find((binding) => binding.kind === "avatar" && binding.typeId === type.id)
+                ?.fields.find((field) => field.role === "image")?.fieldId ?? "__none__",
             fieldOrder: configureFieldOrder(model, type.id),
           }
         : initialType(),
@@ -78,6 +89,27 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
   };
   get parentType() {
     return this.model.types.find((type) => type.id === this.parentTypeId);
+  }
+  get pictureFields() {
+    return this.model.fields.filter(
+      (field) =>
+        field.typeId === this.original?.id &&
+        !field.archived &&
+        field.valueType === "url" &&
+        (!field.multiple || field.id === this.savedState.pictureFieldId),
+    );
+  }
+  get recordNameFields() {
+    return this.model.fields.filter(
+      (field) =>
+        field.typeId === this.original?.id &&
+        !field.archived &&
+        field.valueType === "text" &&
+        (!field.multiple || field.id === this.savedState.recordNameFieldId),
+    );
+  }
+  get canEditRecordPicture() {
+    return this.rootStore.userStore?.user?.role?.isSystemRole === true;
   }
   protected override requiredFields() {
     return [{ id: "name" as const, message: this.t("RecordModel.nameRequired") }];
@@ -105,6 +137,11 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
   };
   operations(): ConfigurationChange["operations"] {
     if (this.original) {
+      const binding = this.model.capabilities.find(
+        (candidate) => candidate.kind === "avatar" && candidate.typeId === this.original?.id,
+      );
+      const previous = binding?.fields.find((field) => field.role === "image")?.fieldId ?? "";
+      const pictureFieldId = this.form.pictureFieldId === "__none__" ? "" : this.form.pictureFieldId;
       return [
         {
           operation: "putType",
@@ -115,9 +152,24 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
             description: this.form.description,
             icon: this.form.icon,
             navigationVisible: this.form.navigationVisible,
+            primaryFieldId: this.form.recordNameFieldId === "__none__" ? null : this.form.recordNameFieldId,
+            color: this.form.color,
           },
         },
         ...reorderFieldOperations(this.model, this.original.id, this.form.fieldOrder),
+        ...(previous !== pictureFieldId
+          ? [
+              {
+                operation: "putCapability" as const,
+                capability: {
+                  id: binding?.id ?? "$avatar",
+                  kind: "avatar" as const,
+                  typeId: this.original.id,
+                  fields: pictureFieldId ? [{ role: "image", fieldId: pictureFieldId }] : [],
+                },
+              },
+            ]
+          : []),
       ];
     }
     const pluralLabel = this.form.pluralName.trim() || this.suggestPlural(this.form.name);
@@ -216,8 +268,54 @@ export const TypeSettingsFields = observer(function TypeSettingsFields({
 
       <FormTextarea id="description" inputId={inputId("description")} label={t("RecordModel.description")} />
 
+      {store.original && (
+        <FormSelect
+          description={t("RecordModel.recordNameFieldHelp")}
+          id="recordNameFieldId"
+          inputId={inputId("recordNameFieldId")}
+          items={
+            store.recordNameFields.length
+              ? store.recordNameFields.map((field) => ({
+                  value: field.id,
+                  label: field.label,
+                  disabled: !isRecordNameField(field),
+                }))
+              : [{ value: "__none__", label: t("Common.none") }]
+          }
+          label={t("RecordModel.recordNameField")}
+        />
+      )}
+
+      {store.original && (
+        <FormSelect
+          description={t("RecordModel.pictureFieldHelp")}
+          id="pictureFieldId"
+          inputId={inputId("pictureFieldId")}
+          items={[
+            { value: "__none__", label: t("Common.none") },
+            ...store.pictureFields.map((field) => ({
+              value: field.id,
+              label: field.label,
+              disabled: Boolean(field.multiple),
+            })),
+          ]}
+          label={t("RecordModel.pictureField")}
+          readOnly={!store.canEditRecordPicture}
+        />
+      )}
+
       <div className="grid gap-4 sm:grid-cols-2">
         <FormRecordTypeIcon id="icon" inputId={inputId("icon")} label={t("RecordModel.icon")} />
+
+        {store.original && (
+          <FormSelect
+            description={t("RecordModel.linkColorHelp")}
+            id="color"
+            inputId={inputId("color")}
+            items={CHIP_COLORS.map((color) => ({ value: color, label: t(`Common.colors.${color}`), color }))}
+            label={t("RecordModel.linkColor")}
+          />
+        )}
 
         {!store.original && !store.parentTypeId && (
           <FormSelect

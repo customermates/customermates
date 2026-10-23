@@ -14,7 +14,7 @@ async function addServices(page: Page, typeId: string, names: string[]) {
     await dialog.getByRole("textbox", { name: "Price", exact: false }).fill("10");
     await dialog.getByRole("button", { name: "Save", exact: true }).click();
     await expect(dialog).not.toBeVisible();
-    await expect(page.getByRole("link", { name, exact: true })).toBeVisible();
+    await expect(recordItem(page, name)).toBeVisible();
   }
 }
 
@@ -35,13 +35,13 @@ test("undoes a record delete from the toast", async ({ page, companyId }, testIn
   const typeId = presetId(companyId, "service");
   await addServices(page, typeId, ["Undo Service"]);
   await deleteFromRow(page, "Undo Service");
-  await expect(page.getByRole("link", { name: "Undo Service", exact: true })).not.toBeVisible();
+  await expect(recordItem(page, "Undo Service")).not.toBeVisible();
   const toast = page.locator("[data-sonner-toast]").filter({ hasText: "Moved to Trash" });
   await expect(toast).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("trash-undo-toast.png"), animations: "disabled" });
   await toast.getByRole("button", { name: "Undo", exact: true }).click();
   await expect(page.locator("[data-sonner-toast]").filter({ hasText: "1 item restored" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Undo Service", exact: true })).toBeVisible();
+  await expect(recordItem(page, "Undo Service")).toBeVisible();
   expect(errors).toEqual([]);
 });
 
@@ -108,7 +108,7 @@ test("restores a deleted record from Trash and shows a trashed record read only"
   await expect(banner).not.toBeVisible();
 
   await page.goto(`/en/records/${typeId}`);
-  await expect(page.getByRole("link", { name: "Restore Service", exact: true })).toBeVisible();
+  await expect(recordItem(page, "Restore Service")).toBeVisible();
   await page.goto("/en/trash");
   await expect(trashRow(page, "Restore Service")).toHaveCount(0);
   expect(errors).toEqual([]);
@@ -213,8 +213,8 @@ test("restores and deletes permanently in bulk and empties the trash", async ({ 
 
   await page.goto(`/en/records/${typeId}`);
   for (const name of ["Bulk One", "Bulk Two"])
-    await expect(page.getByRole("link", { name, exact: true })).toBeVisible();
+    await expect(recordItem(page, name)).toBeVisible();
   for (const name of ["Bulk Three", "Bulk Four"])
-    await expect(page.getByRole("link", { name, exact: true })).toHaveCount(0);
+    await expect(recordItem(page, name)).toHaveCount(0);
   expect(errors).toEqual([]);
 });

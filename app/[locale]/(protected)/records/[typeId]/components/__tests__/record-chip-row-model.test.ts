@@ -120,6 +120,7 @@ describe("record chip row model", () => {
     const filled = row({ fields, assignedUsers } as unknown as Partial<RecordRow>);
 
     expect(isEmptyColumn(filled, field("done", "Done", "boolean"))).toBe(false);
+    expect(isEmptyColumn(row(), field("done", "Done", "boolean"))).toBe(true);
     expect(isEmptyColumn(filled, services)).toBe(false);
     expect(isEmptyColumn(filled, owner)).toBe(false);
     expect(isEmptyColumn(row({ relationships: [] }), services)).toBe(true);
@@ -135,4 +136,27 @@ describe("record chip row model", () => {
       recordChipRowModel([channels], row({ identities: [identity] } as unknown as Partial<RecordRow>)).entries,
     ).toHaveLength(1);
   });
+});
+
+it("keeps blank formatted documents addable while showing nonempty formatted notes", () => {
+  const notes = field("notes", "Notes", "richText");
+  for (const text of ["", "   ", "A note"]) {
+    const record = row({
+      fields: [
+        {
+          fieldId: notes.id,
+          result: value({
+            kind: "richText",
+            documentJson: JSON.stringify({
+              type: "doc",
+              content: [{ type: "paragraph", content: text ? [{ type: "text", text }] : [] }],
+            }),
+          }),
+        },
+      ],
+    });
+    const model = recordChipRowModel([notes], record);
+    expect(model.empty.map((column) => column.id)).toEqual(text.trim() ? [] : [notes.id]);
+    expect(model.entries.map((entry) => entry.column.id)).toEqual(text.trim() ? [notes.id] : []);
+  }
 });

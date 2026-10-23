@@ -129,6 +129,7 @@ export const FilterableFieldSchema = z.object({
   operators: z.array(z.enum(FilterOperatorKey)),
   label: z.string().optional(),
   options: z.array(FilterOptionSchema).optional(),
+  typeId: z.uuid().optional(),
 });
 export type FilterableField = Data<typeof FilterableFieldSchema>;
 

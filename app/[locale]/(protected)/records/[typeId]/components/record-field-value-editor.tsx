@@ -8,6 +8,7 @@ import { toJS } from "mobx";
 import { useId } from "react";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
+import { cn } from "@/core/utils/cn";
 
 import { BaseFormStore } from "@/core/base/base-form.store";
 import { AppForm } from "@/components/forms/form-context";
@@ -63,8 +64,10 @@ export class RecordFieldValueStore extends BaseFormStore<{ value: unknown }> {
     this.setIsLoading(true);
     try {
       const outcome = await this.save(value);
-      if (outcome.saved) this.done();
-      else if (outcome.invalid?.length) this.showInvalid(outcome.invalid);
+      if (outcome.saved) {
+        this.onInitOrRefresh(toJS(this.form));
+        this.done();
+      } else if (outcome.invalid?.length) this.showInvalid(outcome.invalid);
     } finally {
       this.setIsLoading(false);
     }
@@ -72,6 +75,20 @@ export class RecordFieldValueStore extends BaseFormStore<{ value: unknown }> {
   private showInvalid(errors: string[]) {
     this.setError({ errors: [], properties: { value: { errors } } });
   }
+}
+
+const FLUSH_VALUE_TYPES: RecordFieldView["valueType"][] = [
+  "richText",
+  "select",
+  "member",
+  "date",
+  "dateTime",
+  "dateRange",
+  "dateTimeRange",
+];
+
+export function editsFlush(field: Pick<RecordFieldView, "valueType" | "multiple">) {
+  return FLUSH_VALUE_TYPES.includes(field.valueType) || (field.multiple && field.valueType !== "channels");
 }
 
 export const RecordFieldValueEditor = observer(function RecordFieldValueEditor({
@@ -92,9 +109,10 @@ export const RecordFieldValueEditor = observer(function RecordFieldValueEditor({
   const t = useTranslations();
   const value = store.form.value;
   const inputId = useId();
+  const flush = label === null && editsFlush(store.field);
   return (
     <AppForm store={store}>
-      <div className="space-y-3">
+      <div className={cn(!flush && "space-y-3")}>
         {label === null && (
           <label className="sr-only" htmlFor={inputId}>
             {store.field.label}
@@ -103,14 +121,15 @@ export const RecordFieldValueEditor = observer(function RecordFieldValueEditor({
 
         <RecordInputField
           field={store.field}
+          flush={flush}
           id="value"
           inputId={inputId}
           label={label}
           members={members}
-          onDatePicked={saveOnDatePick ? () => runUserAction(() => store.apply(false)) : undefined}
+          onDatePicked={saveOnDatePick && !flush ? () => runUserAction(() => store.apply(false)) : undefined}
         />
 
-        <div className="flex items-center gap-2">
+        <div className={cn("flex items-center gap-2", flush && "border-t p-3")}>
           <Button
             disabled={store.field.required || store.isLoading || busy}
             size="sm"

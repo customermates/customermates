@@ -14,6 +14,7 @@ import {
   assignMissingNameFields,
   deletionReference,
   isLifecycleOperation,
+  type ConfigurationDeletionRecord,
 } from "./configuration-lifecycle";
 import { UserAccessor } from "@/core/base/user-accessor";
 import { configurationReferences } from "./configuration-references";
@@ -27,8 +28,11 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { normalizeRecordScalar } from "./record-write.service";
 import { RecordModelSchema } from "./record-model.schema";
 import {
+  becameMultiplePictureUrl,
   expressionFieldDependencies,
   expressionRelationshipDependencies,
+  recordNameIssues,
+  recordPictureIssues,
   validateRecordModel,
 } from "./record-model-validation";
 import { SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
@@ -122,6 +126,7 @@ export class RecordConfigurationService extends UserAccessor {
     input: ConfigurationChange,
     current: RecordModel,
     policy: Awaited<ReturnType<RecordAccessPolicy["load"]>>,
+    stagedModel?: RecordModel,
   ): Promise<PreparedConfiguration> {
     if (!canConfigureRecords(input, policy)) throw unwindFailure(CustomErrorCode.permissionDenied, "authorization");
     if (input.expectedRevision !== current.revision)
@@ -141,13 +146,25 @@ export class RecordConfigurationService extends UserAccessor {
       previousGrants,
       validRoles: (roleIds) => this.records.validRecordRolesCompanyWide(roleIds),
     });
+    const deletionTargets = [
+      ...input.operations.flatMap((operation) => (isLifecycleOperation(operation) ? [operation.target] : [])),
+      ...model.fields
+        .filter((field) =>
+          becameMultiplePictureUrl(
+            field,
+            current.fields.find((candidate) => candidate.id === field.id),
+          ),
+        )
+        .map((field) => ({ kind: "field" as const, id: field.id })),
+    ];
+    const lifecycleRecords = deletionTargets.length
+      ? await this.records.getConfigurationDeletions(deletionTargets)
+      : new Map<string, ConfigurationDeletionRecord>();
     const lifecycle = input.operations.some(isLifecycleOperation)
       ? applyConfigurationLifecycle(
           model,
           input.operations,
-          await this.records.getConfigurationDeletions(
-            input.operations.flatMap((operation) => (isLifecycleOperation(operation) ? [operation.target] : [])),
-          ),
+          lifecycleRecords,
           input.operations.some((operation) => operation.operation === "restore")
             ? await this.records.getConfigurationTrashTargetIds()
             : undefined,
@@ -168,7 +185,14 @@ export class RecordConfigurationService extends UserAccessor {
     assignMissingNameFields(model);
     if (!RecordModelSchema.safeParse(model).success) throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
     const validation = validateRecordModel(model);
-    validation.issues.push(...duplicateNameIssues(model, current), ...nestedSublistIssues(model, current));
+    const accepted = stagedModel?.revision === model.revision ? stagedModel : current;
+    const droppedBindings = [...lifecycleRecords.values()].flatMap((record) => record.bindings ?? []);
+    validation.issues.push(
+      ...duplicateNameIssues(model, current),
+      ...nestedSublistIssues(model, current),
+      ...recordNameIssues(model, accepted),
+      ...recordPictureIssues(model, accepted, droppedBindings),
+    );
     const removed = lifecycle?.removed ? { deletion: lifecycle.removed } : null;
     const readsFully = (typeId: string) =>
       policy.isAdmin || !current.types.some((type) => type.id === typeId) || policy.readScope(typeId) === "all";

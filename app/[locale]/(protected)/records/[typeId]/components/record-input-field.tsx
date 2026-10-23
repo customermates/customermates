@@ -36,6 +36,9 @@ export function knownMembers(
   return [...known.values()];
 }
 
+const FLUSH_TEXTAREA_CLASS =
+  "min-h-24 resize-none rounded-none border-0 bg-transparent px-3 py-3 shadow-none focus-visible:border-0 focus-visible:ring-0";
+
 export const RecordInputField = observer(function RecordInputField({
   field,
   id,
@@ -43,6 +46,9 @@ export const RecordInputField = observer(function RecordInputField({
   label = field.label,
   members = [],
   onDatePicked,
+  onSelectOpenChange,
+  collapsibleText = false,
+  flush = false,
 }: {
   field: RecordFieldView;
   id: string;
@@ -50,6 +56,9 @@ export const RecordInputField = observer(function RecordInputField({
   label?: string | null;
   members?: RecordMember[];
   onDatePicked?: () => void;
+  onSelectOpenChange?: (open: boolean) => void;
+  collapsibleText?: boolean;
+  flush?: boolean;
 }) {
   const t = useTranslations();
   const store = useAppForm();
@@ -59,6 +68,7 @@ export const RecordInputField = observer(function RecordInputField({
     const editor = (
       <FormattedTextField
         data={store?.getValue(id) as object | undefined}
+        flush={flush}
         label={label ?? field.label}
         readOnly={Boolean(store?.isReadOnly || store?.isLoading)}
         onChange={(value) => store?.onChange(id, value)}
@@ -84,6 +94,7 @@ export const RecordInputField = observer(function RecordInputField({
       <FormAutocomplete
         {...shared}
         ariaLabel={label ?? field.label}
+        inline={flush}
         items={options}
         renderValue={(selected) =>
           selected.map((entry) => (
@@ -103,6 +114,30 @@ export const RecordInputField = observer(function RecordInputField({
       </FormAutocomplete>
     );
   }
+  if (field.valueType === "select" && flush) {
+    return (
+      <FormAutocomplete
+        {...shared}
+        inline
+        ariaLabel={label ?? field.label}
+        items={field.options.map((option) => ({
+          id: option.id,
+          label: option.label,
+          color: toChipColor(option.color),
+        }))}
+        renderValue={() => null}
+        selectionMode="single"
+        onOpenChange={onSelectOpenChange}
+      >
+        {(option) =>
+          FormAutocompleteItem({
+            textValue: option.label,
+            children: <AppChip variant={option.color}>{option.label}</AppChip>,
+          })
+        }
+      </FormAutocomplete>
+    );
+  }
   if (field.valueType === "select") {
     return (
       <FormSelect
@@ -112,6 +147,7 @@ export const RecordInputField = observer(function RecordInputField({
           label: option.label,
           color: toChipColor(option.color),
         }))}
+        onOpenChange={onSelectOpenChange}
       />
     );
   }
@@ -122,17 +158,40 @@ export const RecordInputField = observer(function RecordInputField({
         {...shared}
         ariaLabel={label ?? field.label}
         getItems={(params) => actionData(getActiveUsersAction(params))}
+        inline={flush}
         items={knownMembers(members, root.userStore.user, store?.getValue(id))}
+        onOpenChange={onSelectOpenChange}
       />
     );
   }
-  if (field.valueType === "date" || field.valueType === "dateTime")
-    return <FormIsoDatePicker {...shared} dateOnly={field.valueType === "date"} onPicked={onDatePicked} />;
+  if (field.valueType === "date" || field.valueType === "dateTime") {
+    return (
+      <FormIsoDatePicker {...shared} dateOnly={field.valueType === "date"} inline={flush} onPicked={onDatePicked} />
+    );
+  }
 
-  if (field.valueType === "dateRange" || field.valueType === "dateTimeRange")
-    return <FormIsoDateRangePicker {...shared} dateOnly={field.valueType === "dateRange"} />;
+  if (field.valueType === "dateRange" || field.valueType === "dateTimeRange") {
+    return (
+      <FormIsoDateRangePicker
+        {...shared}
+        dateOnly={field.valueType === "dateRange"}
+        inline={flush}
+        onPicked={onDatePicked}
+      />
+    );
+  }
 
-  if (field.multiple) return <FormTextarea {...shared} placeholder={t("RecordModel.onePerLine")} />;
+  if (field.multiple) {
+    return (
+      <FormTextarea
+        {...shared}
+        ariaLabel={field.label}
+        className={flush ? FLUSH_TEXTAREA_CLASS : undefined}
+        collapsible={collapsibleText}
+        placeholder={t("RecordModel.onePerLine")}
+      />
+    );
+  }
   if (field.valueType === "number" || field.valueType === "currency") {
     return (
       <FormDecimalInput
@@ -143,17 +202,13 @@ export const RecordInputField = observer(function RecordInputField({
   }
   if (field.valueType === "email" || field.valueType === "phone" || field.valueType === "url") {
     const value = store?.getValue(id);
-    return (
-      <FormInput
-        {...shared}
-        className="pr-14"
-        endContent={
-          typeof value === "string" && value.trim() ? (
-            <ContactValueActions action={field.format?.onClick ?? "open"} kind={field.valueType} value={value} />
-          ) : undefined
-        }
-      />
-    );
+    const endContent =
+      typeof value === "string" && value.trim() ? (
+        <ContactValueActions action={field.format?.onClick ?? "open"} kind={field.valueType} value={value} />
+      ) : undefined;
+    if (collapsibleText)
+      return <FormTextarea {...shared} collapsible ariaLabel={field.label} endContent={endContent} />;
+    return <FormInput {...shared} className="pr-14" endContent={endContent} />;
   }
-  return <FormInput {...shared} />;
+  return collapsibleText ? <FormTextarea {...shared} collapsible ariaLabel={field.label} /> : <FormInput {...shared} />;
 });

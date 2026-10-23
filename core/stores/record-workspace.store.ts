@@ -15,6 +15,7 @@ import { RecordDetailLayoutStore, type RecordDetailLayoutNotifications } from ".
 import { toast } from "sonner";
 import { handOffSheet } from "@/components/ui/overlay-contract";
 import { actionData } from "@/core/utils/action-data";
+import type { LinkedRecordsLink } from "@/features/records/linked-records-link";
 
 type RecordDraftHandoff = {
   presentation: RecordEditorContext;
@@ -25,12 +26,23 @@ type RecordDraftHandoff = {
 
 export type QueuedRecordDraftHandoff = { key: string; actorScope: string | null; draft: RecordDraftHandoff };
 
+export type LinkedRecordsSelection = {
+  source: RecordRef;
+  sourceName: string;
+  link: LinkedRecordsLink;
+  targetTypeId: string;
+  label: string;
+  opener: HTMLElement | null;
+  fallback?: HTMLElement | null;
+};
+
 const recordKey = (ref: RecordRef) => `${ref.typeId}:${ref.recordId}`;
 
 export class RecordWorkspaceStore {
   navigation: RecordNavigation | null = null;
   navigationRefreshFailed = false;
   editor: RecordEditorStore | null = null;
+  linkedRecords: LinkedRecordsSelection | null = null;
   isOpening = false;
   accessDenied = false;
   private opening = 0;
@@ -50,10 +62,13 @@ export class RecordWorkspaceStore {
       navigation: observable.ref,
       navigationRefreshFailed: observable,
       editor: observable.ref,
+      linkedRecords: observable.ref,
       isOpening: observable,
       accessDenied: observable,
       setNavigation: action,
       setEditor: action,
+      openLinkedRecords: action,
+      closeLinkedRecords: action,
       setOpening: action,
       close: action,
       registerRoute: action,
@@ -68,6 +83,7 @@ export class RecordWorkspaceStore {
         this.detailLayouts.clear();
         this.clearDraftHandoff();
         this.pageEditor = null;
+        this.closeLinkedRecords();
         this.close();
         this.setEditor(null);
         this.setNavigation(null);
@@ -113,6 +129,14 @@ export class RecordWorkspaceStore {
       }
       throw error;
     }
+  };
+
+  openLinkedRecords = (selection: LinkedRecordsSelection) => {
+    this.linkedRecords = selection;
+  };
+
+  closeLinkedRecords = () => {
+    this.linkedRecords = null;
   };
 
   setOpening = (opening: boolean) => {

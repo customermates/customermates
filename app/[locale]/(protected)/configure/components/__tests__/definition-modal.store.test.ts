@@ -26,6 +26,18 @@ function validate(operations: unknown) {
 }
 
 describe("configuration modal contracts", () => {
+  it("explains the picture field and offers provider photos only while an editable image field is assigned", () => {
+    const model = createCrmPreset(company);
+    const field = recordInvariant(model.fields.find((field) => field.id === id("contact.avatarUrl")));
+    const store = new FieldModalStore(root, model, vi.fn());
+    store.edit(model, id("contact"), field);
+    expect(store.pictureListLabel).toBe("Contacts");
+    expect(store.providerAvatarAvailable).toBe(true);
+    model.capabilities[0].fields = [];
+    store.edit(model, id("contact"), field);
+    expect(store.pictureListLabel).toBeUndefined();
+    expect(store.providerAvatarAvailable).toBe(false);
+  });
   it("sends edited definitions without a lifecycle flag and keeps their ids", () => {
     const model = createCrmPreset(company);
     const type = recordInvariant(model.types.find((type) => type.id === id("organization")));

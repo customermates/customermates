@@ -106,8 +106,7 @@ test("creates a custom list and field through the UI, then persists a decimal re
     await expect(page.getByRole("columnheader", { name: "Created at", exact: false })).toBeVisible();
     await expect(page.getByRole("columnheader", { name: "Assigned to", exact: false })).toBeVisible();
   }
-  await recordItem(page, recordName).getByRole("button", { name: "Edit Client organization", exact: true }).click();
-  await page.getByRole("option", { name: `Open ${client.name}`, exact: true }).click();
+  await recordItem(page, recordName).locator(`[data-chip-id$=":${client.id}"]`).first().click();
   await expect(dialog.getByText(recordName, { exact: true })).toBeVisible();
   await dialog.getByRole("button", { name: `Unlink ${recordName}`, exact: true }).click();
   await dialog.getByRole("button", { name: "Save", exact: true }).click();
@@ -286,7 +285,7 @@ test("resizes table columns with keyboard controls, restores saved widths and re
   const typeId = presetId(companyId, "organization");
   const fieldId = presetId(companyId, "organization.name");
   await page.goto(`/en/records/${typeId}`);
-  await expect(page.getByRole("link", { name: "Example organization", exact: true })).toBeVisible();
+  await expect(recordItem(page, "Example organization")).toBeVisible();
   const handle = page.getByRole("button", {
     name: englishMessages.DataView.resizeColumn.replace("{column}", "Name"),
     exact: true,

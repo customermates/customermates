@@ -19,6 +19,7 @@ import type { RecordSearch } from "../record-search.schema";
 
 import { DisplayType } from "@/features/widget/widget.schema";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
+import { validateRecordModel } from "../record-model-validation";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { interactorFailureStatus } from "@/core/validation/validation.utils";
@@ -3295,6 +3296,169 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     expect(binding?.fields.some((entry) => entry.fieldId === f.id("contact.avatarUrl")) ?? false).toBe(false);
   });
+
+  it("rejects a new multi-value picture mapping without changing the stored model", async () => {
+    const f = await fixture();
+    const field = recordInvariant(f.model.fields.find((field) => field.id === f.id("contact.avatarUrl")));
+    const result = await f.run(() =>
+      f.preview.invoke({
+        expectedRevision: f.model.revision,
+        idempotencyKey: randomUUID(),
+        operations: [{ operation: "putField", field: { ...omit(field, "publishedSummary"), multiple: true } }],
+      }),
+    );
+    expect(result).toMatchObject({
+      ok: true,
+      data: { valid: false, issues: [{ code: "capability_requires_field", fieldId: field.id }] },
+    });
+    expect(await f.run(() => f.repo.getModel())).toEqual(f.model);
+  });
+
+  it.each(["putType", "putField-pending", "putField-staging", "queued-new-multiple"])(
+    "keeps legacy multi-value settings compatible and resumes %s without changing their meaning",
+    async (mode) => {
+      const f = await fixture();
+      const organization = await f.create("organization", "Original name");
+      const aliasId = randomUUID();
+      const legacy = structuredClone(f.model);
+      legacy.revision = 2;
+      const queuedNew = mode === "queued-new-multiple";
+      if (!queuedNew) {
+        for (const key of ["organization.name", "task.name", "contact.avatarUrl"])
+          recordInvariant(legacy.fields.find((field) => field.id === f.id(key))).multiple = true;
+      } else recordInvariant(legacy.fields.find((field) => field.id === f.id("organization.name"))).required = false;
+      legacy.fields.push({
+        ...recordInvariant(legacy.fields.find((field) => field.id === f.id("organization.name"))),
+        id: aliasId,
+        label: "Code",
+        multiple: false,
+        required: false,
+        position: 3,
+      });
+      const alias = recordInvariant(legacy.fields.find((field) => field.id === aliasId));
+      const numericAlias = { ...alias, valueType: "number" as const };
+      await f.run(() => runInTransaction(() => f.repo.saveModel(legacy, f.admin.id)));
+      await f.run(() =>
+        prisma.recordValue.updateMany({
+          where: { companyId: f.company.id, fieldId: f.id("organization.name"), recordId: organization.recordId },
+          data: {
+            state: queuedNew ? "missing" : "value",
+            textValue: null,
+            textListValue: queuedNew ? [] : ["Original name", "Second name"],
+          },
+        }),
+      );
+      const renamed = {
+        ...recordInvariant(legacy.types.find((type) => type.id === organization.typeId)),
+        label: "Renamed organization",
+      };
+      const changedFields = queuedNew
+        ? legacy.fields.map((field) =>
+            [f.id("organization.name"), f.id("contact.avatarUrl")].includes(field.id)
+              ? { ...field, multiple: true }
+              : field,
+          )
+        : mode === "putType"
+          ? legacy.fields
+          : legacy.fields.map((field) => (field.id === aliasId ? numericAlias : field));
+      const request: ConfigurationChange = {
+        expectedRevision: 2,
+        idempotencyKey: randomUUID(),
+        operations:
+          mode === "putType"
+            ? [{ operation: "putType", type: renamed }]
+            : queuedNew
+              ? changedFields
+                  .filter((field) => [f.id("organization.name"), f.id("contact.avatarUrl")].includes(field.id))
+                  .map((field) => ({ operation: "putField" as const, field: omit(field, "publishedSummary") }))
+              : [{ operation: "putField", field: omit(numericAlias, "publishedSummary") }],
+      };
+      const stagedModel = {
+        ...legacy,
+        revision: 3,
+        types:
+          mode === "putType" ? legacy.types.map((type) => (type.id === renamed.id ? renamed : type)) : legacy.types,
+        fields: changedFields,
+      };
+      expect(validateRecordModel(legacy).issues).toEqual([]);
+      expect(validateRecordModel(stagedModel).issues).toEqual([]);
+      if (queuedNew) {
+        expect(await f.run(() => f.preview.invoke(request))).toMatchObject({
+          ok: true,
+          data: {
+            valid: false,
+            issues: expect.arrayContaining([
+              { code: "invalid_primary_field", typeId: organization.typeId, fieldId: f.id("organization.name") },
+              { code: "capability_requires_field", fieldId: f.id("contact.avatarUrl") },
+            ]),
+          },
+        });
+      }
+      expect(
+        await f.run(async () =>
+          new RecordConfigurationService(f.repo).prepare(request, legacy, await f.policy.load(), stagedModel),
+        ),
+      ).toMatchObject({ preview: { valid: true, issues: [] } });
+      const operation = await f.run(() =>
+        runInTransaction(async () => {
+          const operation = await f.repo.createOperation({
+            id: randomUUID(),
+            userId: f.admin.id,
+            kind: "configuration",
+            expectedRevision: 2,
+            request,
+            stagedSchema: stagedModel,
+          });
+          await f.repo.stageRow(operation.id, "schema", "model", stagedModel);
+          return operation;
+        }),
+      );
+      const storedValue = () =>
+        f.run(() =>
+          prisma.recordValue.findMany({
+            where: { companyId: f.company.id, recordId: organization.recordId },
+          }),
+        );
+      const before = await storedValue();
+      if (mode === "putField-staging") {
+        expect(await f.run(() => f.worker().advance(operation.id))).toEqual({ done: false });
+        expect((await f.run(() => f.repo.getOperation(operation.id)))?.cursor).toMatchObject({ phase: "values" });
+      }
+      for (let step = 0; step < 30; step++) if ((await f.run(() => f.worker().advance(operation.id))).done) break;
+      expect(await f.run(() => f.status.invoke({ operationId: operation.id }))).toMatchObject({
+        ok: true,
+        data: { state: "completed", errorCode: null },
+      });
+      expect(await f.run(() => f.repo.getModel())).toEqual(stagedModel);
+      expect((await f.run(() => f.repo.getOperation(operation.id)))?.request).toEqual(request);
+      expect(
+        await f.mutation(
+          {
+            action: "create",
+            typeId: f.id("service"),
+            fields: [{ fieldId: f.id("service.name"), value: textValue("Unrelated write") }],
+          },
+          f.admin,
+          randomUUID(),
+          3,
+        ),
+      ).toMatchObject({ ok: true, data: { status: "completed" } });
+      if (queuedNew) expect(await f.value(organization, "organization.name")).toEqual({ state: "missing" });
+      else {
+        const retained = await storedValue();
+        expect(retained).toEqual(expect.arrayContaining(before));
+        expect(retained).toHaveLength(before.length + (mode === "putType" ? 0 : 1));
+        if (mode !== "putType") {
+          expect(retained.find((value) => value.fieldId === aliasId)).toMatchObject({
+            state: "missing",
+            textValue: null,
+            decimalValue: null,
+            textListValue: [],
+          });
+        }
+      }
+    },
+  );
 
   it("keeps only real blockers and gives back bindings and the name only when nothing changed since", async () => {
     const f = await fixture();
@@ -17751,7 +17915,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
       ).toBe(publishedEvents);
     },
   );
-  it("never replaces an image a person entered, but refreshes empty and provider-derived images", async () => {
+  it("never replaces an image a person entered or cleared, but refreshes empty and provider-derived images", async () => {
     const f = await fixture();
     const { ProviderAvatarService } = await import("../provider-avatar.service");
     const create = async (avatarUrl?: string) => {
@@ -17799,6 +17963,18 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
       service.synchronize("google", "shared-avatar@example.test", "https://example.test/later.png"),
     );
     expect(await avatar(empty)).toEqual({ state: "value", value: textValue("https://example.test/chosen.png") });
+    expect(
+      await f.mutation({
+        action: "update",
+        ref: empty,
+        expectedVersion: (await f.readRecord(empty)).version,
+        fields: [{ fieldId: f.id("contact.avatarUrl"), value: null }],
+      }),
+    ).toMatchObject({ ok: true });
+    await runWithoutTenant(() =>
+      service.synchronize("google", "shared-avatar@example.test", "https://example.test/cleared.png"),
+    );
+    expect(await avatar(empty)).toEqual({ state: "missing" });
     expect(background.dispatch).not.toHaveBeenCalled();
   });
 

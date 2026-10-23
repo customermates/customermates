@@ -5,6 +5,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { BrowserDiagnostics } from "./browser-diagnostics";
 import { invokesServerAction, serverActionIds } from "./server-actions";
 import { e2eAppMode, expectHydrated } from "./workspace-switching";
+import { postOk, readModel } from "./api";
 
 for (const theme of ["light", "dark"] as const) {
   test(`German phone layout error stays inside the drawer in ${theme} mode`, async ({
@@ -54,7 +55,7 @@ for (const theme of ["light", "dark"] as const) {
     await drawer.getByRole("button", { name: "Anpassen", exact: true }).click();
     await drawer
       .getByRole("button", {
-        name: "Name an die Übersicht anheften",
+        name: "Notes an die Übersicht anheften",
         exact: true,
       })
       .click();
@@ -99,11 +100,13 @@ test("persists personal detail pins, visibility and keyboard order without losin
     }),
   ).toHaveCount(0);
   await drawer.getByRole("button", { name: "Customize", exact: true }).click();
-  await drawer.getByRole("button", { name: "Pin Name to the overview", exact: true }).click();
-  await expect(drawer.locator(`[data-chip-column="${nameId}"]`)).toContainText("Draft stays here");
-  await expect(drawer.getByRole("link", { name: "Edit field Name", exact: true })).toHaveAttribute(
+  const notesFieldId = presetId(companyId, "organization.notes");
+  await expect(drawer.getByRole("button", { name: "Pin Name to the overview", exact: true })).toHaveCount(0);
+  await drawer.getByRole("button", { name: "Pin Notes to the overview", exact: true }).click();
+  await expect(drawer.locator(`[data-chip-column="${notesFieldId}"]`)).toBeVisible();
+  await expect(drawer.getByRole("link", { name: "Edit field Notes", exact: true })).toHaveAttribute(
     "href",
-    new RegExp(`/configure\\?typeId=${typeId}&tab=fields&focus=field%3A${nameId}$`),
+    new RegExp(`/configure\\?typeId=${typeId}&tab=fields&focus=field%3A${notesFieldId}$`),
   );
   await expect(drawer.getByRole("link", { name: "Edit field Updated at", exact: true })).toHaveCount(0);
   await drawer.getByRole("button", { name: "Hide Updated at from details", exact: true }).click();
@@ -130,7 +133,7 @@ test("persists personal detail pins, visibility and keyboard order without losin
     return result.rows[0]?.detailOptions;
   };
   await expect.poll(readLayout).toMatchObject({
-    starredFieldIds: [nameId],
+    starredFieldIds: [notesFieldId],
     hiddenFieldIds: ["system:updatedAt"],
     fieldOrder: expect.any(Array),
   });
@@ -162,7 +165,7 @@ test("persists personal detail pins, visibility and keyboard order without losin
   await expect(drawer).not.toBeVisible();
   await page.reload();
   await openRecordDetails(page, "Draft stays here");
-  await expect(drawer.locator(`[data-chip-column="${nameId}"]`)).toContainText("Draft stays here");
+  await expect(drawer.locator(`[data-chip-column="${notesFieldId}"]`)).toBeVisible();
   await expect(drawer.locator('[data-sortable-field="system:updatedAt"]')).not.toBeVisible();
   await page.screenshot({
     path: testInfo.outputPath("personal-record-details.png"),
@@ -171,7 +174,7 @@ test("persists personal detail pins, visibility and keyboard order without losin
   });
   await drawer.getByRole("link", { name: "Open page", exact: true }).click();
   const main = page.getByRole("main");
-  await expect(main.locator(`[data-chip-column="${nameId}"]`)).toBeVisible();
+  await expect(main.locator(`[data-chip-column="${notesFieldId}"]`)).toBeVisible();
   await expect(page.locator("header")).toContainText("Draft stays here");
   if (testInfo.project.name !== "mobile") {
     await page.setViewportSize({ width: 1720, height: 1000 });
@@ -222,7 +225,7 @@ test("persists personal detail pins, visibility and keyboard order without losin
       idempotencyKey: randomUUID(),
       layout: {
         pinnedFields: ["system:createdAt"],
-        hiddenFields: [nameId],
+        hiddenFields: [notesFieldId],
         fieldOrder: [],
       },
     },
@@ -230,7 +233,8 @@ test("persists personal detail pins, visibility and keyboard order without losin
   expect(api.status()).toBe(200);
   await page.reload();
   await expect(main.locator('[data-chip-column="system:createdAt"]')).toBeVisible();
-  await expect(main.getByRole("textbox", { name: "Name", exact: false })).not.toBeVisible();
+  await expect(main.locator(`[data-sortable-field="${notesFieldId}"]`)).not.toBeVisible();
+  await expect(main.getByRole("heading").getByRole("textbox", { name: "Name", exact: true })).toBeVisible();
   await page.locator("header").getByRole("link", { name: "Organizations", exact: true }).click();
   await page.locator("#records-add").click();
   await expect(drawer.getByRole("textbox", { name: "Name", exact: false })).toBeVisible();
@@ -308,6 +312,184 @@ test("shows pinned fields as a chip row under the title that pins, edits the dra
   await expect(lastName).toHaveCount(0);
 });
 
+test("closes pinned single-select editors after picking without saving the drawer and keeps multi-select open", async ({
+  page,
+  database,
+  companyId,
+  workspace,
+}) => {
+  const errors = collectPageErrors(page);
+  const typeId = presetId(companyId, "organization");
+  const stageId = randomUUID();
+  const tagsId = randomUUID();
+  const memberId = randomUUID();
+  const dateId = randomUUID();
+  const model = await readModel(database, companyId);
+  await postOk(page, "/api/v1/model/apply", {
+    expectedRevision: model.revision,
+    idempotencyKey: randomUUID(),
+    operations: [
+      { id: stageId, label: "Pinned stage", valueType: "select", multiple: false },
+      { id: tagsId, label: "Pinned tags", valueType: "select", multiple: true },
+      { id: memberId, label: "Pinned reviewer", valueType: "member", multiple: false },
+      { id: dateId, label: "Pinned date", valueType: "date", multiple: false },
+    ].map((definition, index) => ({
+      operation: "putField",
+      field: {
+        ...definition,
+        typeId,
+        required: false,
+        behavior: { kind: "input" },
+        position: 100 + index,
+        options: definition.valueType === "select"
+          ? [
+              { id: "alpha", label: "Alpha", color: null, attributes: [] },
+              { id: "beta", label: "Beta", color: null, attributes: [] },
+            ]
+          : [],
+      },
+    })),
+  });
+  const current = await readModel(database, companyId);
+  const created = await postOk(page, "/api/v1/records/mutate", {
+    expectedRevision: current.revision,
+    idempotencyKey: randomUUID(),
+    mutation: {
+      action: "create",
+      typeId,
+      fields: [
+        {
+          fieldId: presetId(companyId, "organization.name"),
+          value: { kind: "text", value: "Pinned selection organization" },
+        },
+        { fieldId: stageId, value: { kind: "select", value: "alpha" } },
+        { fieldId: memberId, value: { kind: "member", value: workspace.userId } },
+        { fieldId: dateId, value: { kind: "date", value: "2026-10-21" } },
+      ],
+    },
+  });
+  const recordId = created.refs[0].recordId as string;
+  const savedStage = async () =>
+    (
+      await database.query(
+        'SELECT "textValue" FROM "RecordValue" WHERE "companyId"=$1 AND "recordId"=$2 AND "fieldId"=$3',
+        [companyId, recordId, stageId],
+      )
+    ).rows[0]?.textValue;
+  const savedDate = async () =>
+    (await database.query(
+      'SELECT "lexicalValue" FROM "RecordValue" WHERE "companyId"=$1 AND "recordId"=$2 AND "fieldId"=$3',
+      [companyId, recordId, dateId],
+    )).rows[0]?.lexicalValue;
+  await page.goto(`/en/records/${typeId}`);
+  await openRecordDetails(page, "Pinned selection organization");
+  const drawer = page.getByRole("dialog", {
+    name: "Organization",
+    exact: true,
+  });
+  await drawer
+    .getByRole("button", { name: "Pin or unpin fields", exact: true })
+    .click();
+  for (const label of ["Pinned stage", "Pinned tags", "Pinned reviewer", "Pinned date"]) {
+    const item = page.getByRole("menuitemcheckbox", {
+      name: label,
+      exact: true,
+    });
+    await item.click();
+    await expect(item).toHaveAttribute("aria-checked", "true");
+  }
+  await page.keyboard.press("Escape");
+  const stage = drawer.getByRole("button", {
+    name: "Edit Pinned stage",
+    exact: true,
+  });
+  const editor = page
+    .locator('[data-slot="popover-content"][data-state="open"]')
+    .filter({ hasText: "Pinned stage" });
+  await stage.click();
+  await editor.getByRole("option", { name: "Beta", exact: true }).click();
+  await expect(editor).not.toBeVisible();
+  await expect(stage).toBeFocused();
+  await expect(stage).toContainText("Beta");
+  await expect(drawer).toBeVisible();
+  await expect(drawer).toContainText("Unsaved changes");
+  expect(await savedStage()).toBe("alpha");
+
+  for (const key of ["Enter", "Escape"]) {
+    await stage.click();
+    await expect(editor.getByRole("option", { name: "Beta", exact: true })).toBeVisible();
+    await editor.getByRole("combobox").fill("Beta");
+    await page.keyboard.press(key);
+    await expect(editor).not.toBeVisible();
+    await expect(stage).toBeFocused();
+    await expect(drawer).toBeVisible();
+  }
+
+  const member = drawer.getByRole("button", { name: "Edit Pinned reviewer", exact: true });
+  await member.click();
+  const memberEditor = page.locator('[data-slot="popover-content"][data-state="open"]').filter({ hasText: "Pinned reviewer" });
+  await memberEditor.getByRole("combobox").click();
+  await page.getByRole("option").filter({ hasText: "Browser Administrator" }).click();
+  await expect(memberEditor).not.toBeVisible();
+  await expect(member).toBeFocused();
+  await expect(drawer).toBeVisible();
+  const date = drawer.getByRole("button", { name: "Edit Pinned date", exact: true });
+  await date.click();
+  const dateEditor = page.locator('[data-slot="popover-content"][data-state="open"]').filter({ hasText: "Pinned date" });
+  await dateEditor.locator('button[data-day="2026-10-22"]').click();
+  await expect(dateEditor).not.toBeVisible();
+  await expect(date).toBeFocused();
+  await expect(drawer).toBeVisible();
+  expect(await savedDate()).toBe("2026-10-21");
+
+  await drawer
+    .getByRole("button", { name: "Edit Pinned tags", exact: true })
+    .click();
+  const tagsEditor = page
+    .locator('[data-slot="popover-content"][data-state="open"]')
+    .filter({ hasText: "Pinned tags" });
+  await tagsEditor.getByRole("combobox").click();
+  for (const label of ["Alpha", "Beta"]) {
+    const option = page.getByRole("option", { name: label, exact: true });
+    await option.click();
+    await expect(option).toHaveAttribute("aria-selected", "true");
+    await expect(tagsEditor).toBeVisible();
+  }
+  await expect(tagsEditor.getByRole("combobox")).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(tagsEditor).not.toBeVisible();
+  expect(await savedStage()).toBe("alpha");
+  await drawer.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(drawer).not.toBeVisible();
+  expect(await savedStage()).toBe("beta");
+  expect(await savedDate()).toBe("2026-10-22");
+  const savedTags = await database.query(
+    'SELECT "textListValue" FROM "RecordValue" WHERE "companyId"=$1 AND "recordId"=$2 AND "fieldId"=$3',
+    [companyId, recordId, tagsId],
+  );
+  expect(savedTags.rows[0]?.textListValue).toEqual(["alpha", "beta"]);
+  await page.reload();
+  await openRecordDetails(page, "Pinned selection organization");
+  await expect(stage).toContainText("Beta");
+  const tags = drawer.getByRole("button", {
+    name: "Edit Pinned tags",
+    exact: true,
+  });
+  await expect(tags).toContainText("Alpha");
+  await expect(tags).toContainText("Beta");
+  await stage.click();
+  await editor.getByRole("combobox").click();
+  await page.getByRole("option", { name: "Alpha", exact: true }).click();
+  await expect(editor).not.toBeVisible();
+  await expect(stage).toContainText("Alpha");
+  await drawer.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(drawer).toBeVisible();
+  await expect(stage).toContainText("Beta");
+  await expect(drawer).not.toContainText("Unsaved changes");
+  expect(await savedStage()).toBe("beta");
+  expect(errors).toEqual([]);
+});
+
 test("edits header links with the card picker, keeps contact values outside edit targets, fills placeholders", async ({
   page,
   companyId,
@@ -348,7 +530,14 @@ test("edits header links with the card picker, keeps contact values outside edit
   const avatar = chips.getByRole("group", { name: "Avatar", exact: true });
   await expect(avatar.getByRole("link")).toBeVisible();
   await expect(avatar.locator("button a, a button")).toHaveCount(0);
-  await expect(avatar.getByRole("button", { name: "Edit Avatar", exact: true })).toHaveCount(0);
+  const editAvatar = avatar.getByRole("button", { name: "Edit Avatar", exact: true });
+  await editAvatar.focus();
+  await expect(editAvatar).toHaveText("Edit");
+  await editAvatar.press("Enter");
+  const pictureEditor = page.locator('[data-slot="popover-content"][data-state="open"]');
+  await expect(pictureEditor.getByRole("textbox", { name: "Avatar", exact: true })).toHaveValue("https://example.test/avatar.png");
+  await page.keyboard.press("Escape");
+  await expect(avatar.getByRole("link")).toBeVisible();
 
   const organizations = chips.getByRole("group", {
     name: "Organizations",

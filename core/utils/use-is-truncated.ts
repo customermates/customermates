@@ -11,7 +11,10 @@ export function useIsTruncated(ref: RefObject<HTMLElement | null>, dependency?: 
     const el = ref.current;
     if (!el) return;
 
-    const update = () => setIsTruncated(el.scrollWidth > el.clientWidth + 1);
+    const update = () =>
+      setIsTruncated(
+        [el, ...el.querySelectorAll("*")].some((element) => element.scrollWidth > element.clientWidth + 1),
+      );
     update();
 
     const frame = typeof requestAnimationFrame === "undefined" ? undefined : requestAnimationFrame(update);

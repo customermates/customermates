@@ -59,6 +59,20 @@ describe("inline record field validation", () => {
     expect(save).toHaveBeenCalledOnce();
     expect(toast.error).toHaveBeenCalledExactlyOnceWith("Enter a valid URL.");
     expect(store.getError("value")).toEqual(["Enter a valid URL."]);
+    expect(store.hasUnsavedChanges).toBe(true);
     expect(done).not.toHaveBeenCalled();
+  });
+
+  it.each([false, true])("marks a successful save clean before closing, including clear=%s", async (clear) => {
+    const save = vi.fn().mockResolvedValue({ saved: true });
+    const done = vi.fn(() => expect(store.hasUnsavedChanges).toBe(false));
+    const store = new RecordFieldValueStore(rootStore, field("text"), "Before", save, done);
+    store.onChange("value", "After");
+
+    await store.apply(clear);
+
+    expect(save).toHaveBeenCalledExactlyOnceWith(clear ? null : { kind: "text", value: "After" });
+    expect(done).toHaveBeenCalledOnce();
+    expect(store.isLoading).toBe(false);
   });
 });

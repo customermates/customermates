@@ -1215,6 +1215,7 @@ export class PrismaRecordRepo
       summary.records.push({
         ref: { typeId: row.typeId, recordId: row.recordId },
         title,
+        ...(row.pictureUrl ? { pictureUrl: row.pictureUrl } : {}),
       });
       summary.readableCount = row.readableCount;
       summary.hasMore = row.readableCount > summary.records.length;
@@ -1259,6 +1260,7 @@ export class PrismaRecordRepo
       summary.records.push({
         ref: { typeId: row.typeId, recordId: row.recordId },
         title,
+        ...(row.pictureUrl ? { pictureUrl: row.pictureUrl } : {}),
       });
       summary.readableCount = row.readableCount;
       summary.hasMore = row.readableCount > summary.records.length;

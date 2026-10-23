@@ -76,13 +76,13 @@ test("shares an indexed identifier across lists, unlinks one association and lin
     expect((await database.query('SELECT id FROM "RecordIdentity" WHERE "companyId"=$1', [companyId])).rows).toEqual([identity]);
     expect((await resolve()).matches[0].records.map((record: { ref: unknown }) => record.ref)).toEqual([contact]);
     await settings.getByRole("button", { name: "Link", exact: true }).click();
-    await settings.getByRole("combobox").fill("Shared Organization");
-    await settings.getByRole("option", { name: "Shared Organization", exact: true }).click();
+    await page.locator('[data-slot="popover-content"]').getByRole("combobox").fill("Shared Organization");
+    await page.locator('[data-slot="popover-content"]').getByRole("option", { name: "Shared Organization", exact: true }).click();
     await expect(settings.getByRole("button", { name: "Open record: Shared Organization", exact: true })).toBeVisible();
     const conversation = settings.getByRole("region", { name: "Conversation records", exact: true });
     await conversation.getByRole("button", { name: "Link record", exact: true }).click();
-    await conversation.getByRole("combobox").fill("Conversation project");
-    await conversation.getByRole("option").filter({ hasText: "Conversation project" }).click();
+    await page.locator('[data-slot="popover-content"]').getByRole("combobox").fill("Conversation project");
+    await page.locator('[data-slot="popover-content"]').getByRole("option").filter({ hasText: "Conversation project" }).click();
     await expect(conversation.getByRole("button", { name: "Open record: Conversation project", exact: true })).toBeVisible();
     expect((await database.query('SELECT "threadId","typeId","recordId" FROM "MessagingThreadRecordLink" WHERE "companyId"=$1', [companyId])).rows).toEqual([{ threadId: threadIds[0], typeId: deal.typeId, recordId: deal.recordId }]);
     expect((await resolve()).matches[0].records).toHaveLength(2);

@@ -47,7 +47,7 @@ describe("technical-id loading contract", () => {
       expect(source).toContain("SelectionOptionsSkeleton");
       expect(source).toContain("Common.inputs.unavailableSelection");
     }
-    expect(autocomplete).toContain("const popoverOpen = canEdit && open");
+    expect(autocomplete).toContain("const popoverOpen = canEdit && (open || inline)");
     expect(autocomplete).toContain("popoverOpen && getItems");
     expect(paletteSelect).toContain("!getItems || optionRequestKey === null");
     expect(paletteSelect).not.toMatch(/textValue\s*\?\?\s*k/);

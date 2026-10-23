@@ -38,10 +38,11 @@ async function firstRecord(database: Client, typeKey: string, assignee?: DemoMem
 async function expectSidebarLists(page: Page, visible: string[]) {
   await openSidebar(page);
   const items = page.locator("[data-sidebar-item]");
-  for (const list of LISTS)
+  for (const list of LISTS) {
     await expect(items.filter({ has: page.getByText(list, { exact: true }) }), list).toHaveCount(
       visible.includes(list) ? 1 : 0,
     );
+  }
   await expect(items.filter({ has: page.getByText("Configure", { exact: true }) })).toHaveCount(0);
 }
 
@@ -59,21 +60,30 @@ async function openRecord(page: Page, typeKey: string, recordId: string) {
   const main = page.getByRole("main");
   const overview = main.getByRole("tab", { name: "Overview", exact: true });
   if (await overview.isVisible()) await overview.click();
-  const name = main.locator(`[data-entity-field="${demoId(`${typeKey}.name`)}"] input`).first();
+  const name = main.locator(`[data-record-name-heading="${demoId(`${typeKey}.name`)}"]`).getByRole("textbox");
   await expect(name).toBeVisible();
   return name;
 }
 
 async function expectEditable(page: Page, typeKey: string, recordId: string) {
   const name = await openRecord(page, typeKey, recordId);
-  await expect(name, `${typeKey} name is editable`).not.toHaveAttribute("readonly", "");
+  await expect(name, `${typeKey} name is editable`).toBeEditable();
 }
 
 async function expectReadOnly(page: Page, typeKey: string, recordId: string) {
   const name = await openRecord(page, typeKey, recordId);
   await expect(name, `${typeKey} name is read-only`).toHaveAttribute("readonly", "");
+  await expect(name).not.toBeEditable();
+  const value = await name.inputValue();
+  await name.focus();
+  await page.keyboard.type("Read-only change attempt");
+  await expect(name).toHaveValue(value);
   await name.hover();
-  await expect(name).toHaveCSS("cursor", "not-allowed");
+  const inheritedCursor = await name.evaluate((element) => {
+    if (!element.parentElement) throw new Error("The record field is detached");
+    return getComputedStyle(element.parentElement).cursor;
+  });
+  await expect(name).toHaveCSS("cursor", inheritedCursor);
   await expect(page.getByRole("tooltip")).toHaveCount(0);
 }
 
