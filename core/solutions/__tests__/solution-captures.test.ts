@@ -6,8 +6,9 @@ import {
   type SolutionCaptureProvenance,
   SOLUTION_CAPTURE_THEMES,
   SOLUTION_CAPTURE_VIEWPORT,
+  SOLUTION_NAV_CAPTURE_CLIP,
+  SOLUTION_NAV_CAPTURE_VIEWPORT,
   checkSolutionCaptureManifest,
-  navThumbnailSize,
   solutionCapturePair,
   solutionCapturePlan,
   solutionCaptureRoute,
@@ -23,7 +24,7 @@ function capturedManifest(): { manifest: SolutionCaptureManifest; provenance: So
   const entries: SolutionCaptureEntry[] = plan.map((item) => ({
     locale: item.locale,
     main: { bytes: 10, height: 1800, src: item.mainSrc, width: 2880 },
-    nav: { bytes: 5, height: 450, src: item.navSrc, width: 720 },
+    nav: { bytes: 5, height: 600, src: item.navSrc, width: 960 },
     placeholder: false,
     solution: item.solution.id,
     theme: item.theme,
@@ -32,7 +33,13 @@ function capturedManifest(): { manifest: SolutionCaptureManifest; provenance: So
     manifest: { entries },
     provenance: {
       capturedOn: "2026-10-22",
-      entries: plan.map((item) => ({ key: item.key, mainSha256: "m", navSha256: "n", route: item.route })),
+      entries: plan.map((item) => ({
+        key: item.key,
+        mainSha256: "m",
+        navRoute: `${item.route}#nav`,
+        navSha256: "n",
+        route: item.route,
+      })),
       environment: "test",
       sourceRevision: "abc",
       viewport: SOLUTION_CAPTURE_VIEWPORT,
@@ -59,9 +66,10 @@ describe("solution capture plan", () => {
     }
   });
 
-  it("derives a proportional navigation thumbnail", () => {
-    expect(navThumbnailSize({ height: 1800, width: 2880 })).toEqual({ height: 450, width: 720 });
-    expect(navThumbnailSize({ height: 300, width: 600 })).toEqual({ height: 300, width: 600 });
+  it("keeps the navigation preview at 16:10 from the top-left of a 1280 px wide window", () => {
+    expect(SOLUTION_NAV_CAPTURE_CLIP.width / SOLUTION_NAV_CAPTURE_CLIP.height).toBe(16 / 10);
+    expect(SOLUTION_NAV_CAPTURE_CLIP.width).toBeLessThanOrEqual(SOLUTION_NAV_CAPTURE_VIEWPORT.width);
+    expect(SOLUTION_NAV_CAPTURE_CLIP.height).toBeLessThanOrEqual(SOLUTION_NAV_CAPTURE_VIEWPORT.height);
   });
 });
 
@@ -122,6 +130,28 @@ describe("solution capture check", () => {
       { allowPlaceholders: false, catalog, readFile: facts },
     );
     expect(foreign.problems).toContainEqual(expect.stringContaining("not a published solution view"));
+  });
+
+  it("checks the navigation preview route when a resolver is given", () => {
+    const { manifest, provenance } = capturedManifest();
+    const navRoute = (item: { route: string }) => `${item.route}#nav`;
+    expect(
+      checkSolutionCaptureManifest(manifest, provenance, {
+        allowPlaceholders: false,
+        catalog,
+        navRoute,
+        readFile: facts,
+      }).problems,
+    ).toEqual([]);
+
+    const drifted = checkSolutionCaptureManifest(manifest, provenance, {
+      allowPlaceholders: false,
+      catalog,
+      navRoute: (item) => `${item.route}#other`,
+      readFile: facts,
+    });
+    expect(drifted.problems).toHaveLength(manifest.entries.length);
+    expect(drifted.problems[0]).toContain("navigation preview captured");
   });
 
   it("pairs light and dark entries for one view", () => {

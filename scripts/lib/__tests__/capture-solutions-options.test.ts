@@ -14,6 +14,7 @@ describe("capture-solutions options", () => {
       allowPlaceholders: false,
       baseUrl: DEFAULT_CAPTURE_BASE_URL,
       mode: "capture",
+      navOnly: false,
       only: [],
       resetDatabase: false,
     });
@@ -28,6 +29,7 @@ describe("capture-solutions options", () => {
     expect(
       parseCaptureSolutionsArgs(["--base-url", "http://localhost:4600/", "--only", "smb,agencies", "--reset-db"]),
     ).toMatchObject({ baseUrl: "http://localhost:4600", only: ["smb", "agencies"], resetDatabase: true });
+    expect(parseCaptureSolutionsArgs(["--nav-only"]).navOnly).toBe(true);
   });
 
   it("refuses remote hosts, unknown flags and missing values", () => {
@@ -41,6 +43,9 @@ describe("capture-solutions options", () => {
   it("closes the assistant in the captured URL", () => {
     expect(captureNavigationUrl("http://127.0.0.1:3000", "/en/w/small-business/dashboard")).toBe(
       "http://127.0.0.1:3000/en/w/small-business/dashboard?agentChat=closed",
+    );
+    expect(captureNavigationUrl("http://127.0.0.1:3000", "/en/w/whatsapp/inbox?threadId=t1")).toBe(
+      "http://127.0.0.1:3000/en/w/whatsapp/inbox?threadId=t1&agentChat=closed",
     );
   });
 });

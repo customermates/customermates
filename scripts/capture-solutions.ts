@@ -4,7 +4,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 import sharp from "sharp";
-import { chromium, type Browser, type Page } from "@playwright/test";
+import { chromium, type Browser, type BrowserContext, type Page } from "@playwright/test";
 
 import { assertLocalDatabaseEnvironment } from "./local-database-safety";
 import {
@@ -12,10 +12,15 @@ import {
   parseCaptureSolutionsArgs,
   type CaptureSolutionsOptions,
 } from "./lib/capture-solutions-options";
+import { solutionNavPreview, solutionNavRouteForPlanItem } from "./lib/solution-nav-routes";
 
+import { SIDEBAR_MIN_WIDTH, SIDEBAR_WIDTH_COOKIE_NAME } from "@/components/layout/sidebar-width";
 import { HOMEPAGE_CAPTURE_PROVENANCE } from "@/app/[locale]/(static)/components/homepage-capture-provenance";
 import {
   SOLUTION_CAPTURE_VIEWPORT,
+  SOLUTION_NAV_CAPTURE_CLIP,
+  SOLUTION_NAV_CAPTURE_VIEWPORT,
+  type SolutionCaptureAsset,
   type SolutionCaptureEntry,
   type SolutionCaptureFileFacts,
   type SolutionCaptureManifest,
@@ -23,7 +28,6 @@ import {
   type SolutionCaptureProvenance,
   type SolutionCaptureProvenanceEntry,
   checkSolutionCaptureManifest,
-  navThumbnailSize,
   solutionCapturePlan,
 } from "@/core/solutions/solution-captures";
 import { formattingTagFor, isLocaleCode } from "@/i18n/locale-registry";
@@ -38,6 +42,9 @@ const NAV_WEBP_QUALITY = 78;
 const READY_TIMEOUT_MS = 30_000;
 const STABLE_SAMPLES = 3;
 const STABLE_SAMPLE_INTERVAL_MS = 400;
+const NAVIGATION_TIMEOUT_MS = 90_000;
+const CAPTURE_ATTEMPTS = 3;
+const HIDE_DEV_OVERLAY_CSS = "nextjs-portal { display: none !important; }";
 
 function sha256(buffer: Buffer): string {
   return createHash("sha256").update(new Uint8Array(buffer)).digest("hex");
@@ -142,66 +149,145 @@ async function waitForStableGeometry(page: Page): Promise<void> {
   await page.mouse.move(0, 0);
 }
 
-async function captureItem(browser: Browser, baseUrl: string, item: SolutionCapturePlanItem) {
+type CapturedImage = { asset: SolutionCaptureAsset; sha256: string };
+
+async function newCaptureContext(
+  browser: Browser,
+  item: SolutionCapturePlanItem,
+  viewport: { deviceScaleFactor: number; height: number; width: number },
+): Promise<BrowserContext> {
   const context = await browser.newContext({
     colorScheme: item.theme,
-    deviceScaleFactor: SOLUTION_CAPTURE_VIEWPORT.deviceScaleFactor,
+    deviceScaleFactor: viewport.deviceScaleFactor,
     locale: isLocaleCode(item.locale) ? formattingTagFor(item.locale) : undefined,
     timezoneId: "Europe/Berlin",
-    viewport: { height: SOLUTION_CAPTURE_VIEWPORT.height, width: SOLUTION_CAPTURE_VIEWPORT.width },
+    viewport: { height: viewport.height, width: viewport.width },
   });
   await context.addInitScript((theme) => window.localStorage.setItem("theme", theme), item.theme);
+  return context;
+}
 
+async function openReadyPage(
+  context: BrowserContext,
+  baseUrl: string,
+  key: string,
+  route: string,
+  area?: { height: number; width: number },
+): Promise<Page> {
+  const page = await context.newPage();
+  await page.goto(captureNavigationUrl(baseUrl, route), { timeout: NAVIGATION_TIMEOUT_MS, waitUntil: "networkidle" });
+  const expected = new URL(route, `${baseUrl}/`).pathname;
+  const landed = new URL(page.url()).pathname;
+  if (landed !== expected) throw new Error(`${key}: landed on ${landed}, expected ${expected}`);
+
+  await page.addStyleTag({ content: HIDE_DEV_OVERLAY_CSS });
+  await page.waitForFunction(
+    (visible) =>
+      document.fonts.status === "loaded" &&
+      document.querySelector("main") !== null &&
+      Array.from(document.querySelectorAll('[aria-busy="true"], .animate-pulse')).every((node) => {
+        if (!visible) return false;
+        const box = node.getBoundingClientRect();
+        return box.left >= visible.width || box.top >= visible.height || box.width === 0 || box.height === 0;
+      }),
+    area ?? null,
+    { timeout: READY_TIMEOUT_MS },
+  );
+  await waitForStableGeometry(page);
+  return page;
+}
+
+function writeWebp(src: string, buffer: Buffer, width: number, height: number): CapturedImage {
+  mkdirSync(dirname(publicFile(src)), { recursive: true });
+  writeFileSync(publicFile(src), new Uint8Array(buffer));
+  return { asset: { bytes: buffer.byteLength, height, src, width }, sha256: sha256(buffer) };
+}
+
+async function withRetries<T>(key: string, run: () => Promise<T>): Promise<T> {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await run();
+    } catch (error) {
+      if (attempt >= CAPTURE_ATTEMPTS) throw error;
+      console.warn(
+        `${key}: attempt ${attempt} failed (${error instanceof Error ? error.message.split("\n")[0] : error})`,
+      );
+    }
+  }
+}
+
+async function captureMain(browser: Browser, baseUrl: string, item: SolutionCapturePlanItem): Promise<CapturedImage> {
+  const context = await newCaptureContext(browser, item, SOLUTION_CAPTURE_VIEWPORT);
   try {
-    const page = await context.newPage();
-    await page.goto(captureNavigationUrl(baseUrl, item.route), { waitUntil: "networkidle" });
-    const landed = new URL(page.url()).pathname;
-    if (landed !== item.route) throw new Error(`${item.key}: landed on ${landed}, expected ${item.route}`);
-
-    await page.waitForFunction(
-      () =>
-        document.fonts.status === "loaded" &&
-        document.querySelector("main") !== null &&
-        document.querySelector('[aria-busy="true"], .animate-pulse') === null,
-      undefined,
-      { timeout: READY_TIMEOUT_MS },
-    );
-    await waitForStableGeometry(page);
-
+    const page = await openReadyPage(context, baseUrl, item.key, item.route);
     const png = await page.screenshot({ animations: "disabled", caret: "hide", type: "png" });
     const main = await sharp(png).webp({ quality: MAIN_WEBP_QUALITY }).toBuffer({ resolveWithObject: true });
-    const navSize = navThumbnailSize(main.info);
-    const nav = await sharp(png)
-      .resize(navSize.width, navSize.height)
-      .webp({ quality: NAV_WEBP_QUALITY })
-      .toBuffer({ resolveWithObject: true });
-
-    for (const [src, buffer] of [
-      [item.mainSrc, main.data],
-      [item.navSrc, nav.data],
-    ] as const) {
-      mkdirSync(dirname(publicFile(src)), { recursive: true });
-      writeFileSync(publicFile(src), new Uint8Array(buffer));
-    }
-
-    const entry: SolutionCaptureEntry = {
-      locale: item.locale,
-      main: { bytes: main.data.byteLength, height: main.info.height, src: item.mainSrc, width: main.info.width },
-      nav: { bytes: nav.data.byteLength, height: nav.info.height, src: item.navSrc, width: nav.info.width },
-      placeholder: false,
-      solution: item.solution.id,
-      theme: item.theme,
-    };
-    const evidence: SolutionCaptureProvenanceEntry = {
-      key: item.key,
-      mainSha256: sha256(main.data),
-      navSha256: sha256(nav.data),
-      route: item.route,
-    };
-    return { entry, evidence };
+    return writeWebp(item.mainSrc, main.data, main.info.width, main.info.height);
   } finally {
     await context.close();
   }
+}
+
+async function captureNav(
+  browser: Browser,
+  baseUrl: string,
+  item: SolutionCapturePlanItem,
+  route: string,
+): Promise<CapturedImage> {
+  const context = await newCaptureContext(browser, item, SOLUTION_NAV_CAPTURE_VIEWPORT);
+  await context.addCookies([{ name: SIDEBAR_WIDTH_COOKIE_NAME, url: baseUrl, value: String(SIDEBAR_MIN_WIDTH) }]);
+  try {
+    const page = await openReadyPage(context, baseUrl, item.key, route, SOLUTION_NAV_CAPTURE_CLIP);
+    const png = await page.screenshot({
+      animations: "disabled",
+      caret: "hide",
+      clip: { height: SOLUTION_NAV_CAPTURE_CLIP.height, width: SOLUTION_NAV_CAPTURE_CLIP.width, x: 0, y: 0 },
+      type: "png",
+    });
+    const nav = await sharp(png)
+      .resize(SOLUTION_NAV_CAPTURE_CLIP.width, SOLUTION_NAV_CAPTURE_CLIP.height)
+      .webp({ quality: NAV_WEBP_QUALITY })
+      .toBuffer({ resolveWithObject: true });
+    return writeWebp(item.navSrc, nav.data, nav.info.width, nav.info.height);
+  } finally {
+    await context.close();
+  }
+}
+
+async function captureItem(
+  browser: Browser,
+  options: CaptureSolutionsOptions,
+  item: SolutionCapturePlanItem,
+  previous: { entry?: SolutionCaptureEntry; evidence?: SolutionCaptureProvenanceEntry },
+) {
+  let main: CapturedImage;
+  if (options.navOnly) {
+    if (!previous.entry || previous.entry.placeholder || !previous.evidence)
+      throw new Error(`${item.key}: --nav-only needs an earlier main capture`);
+    main = { asset: previous.entry.main, sha256: previous.evidence.mainSha256 };
+  } else main = await withRetries(item.key, () => captureMain(browser, options.baseUrl, item));
+
+  const { fallback: navFallback, path: navRoute } = solutionNavPreview(item.solution, item.locale);
+  if (navFallback) console.warn(`${item.key}: navigation preview falls back to ${navRoute} (${navFallback})`);
+  const nav = await withRetries(item.key, () => captureNav(browser, options.baseUrl, item, navRoute));
+
+  const entry: SolutionCaptureEntry = {
+    locale: item.locale,
+    main: main.asset,
+    nav: nav.asset,
+    placeholder: false,
+    solution: item.solution.id,
+    theme: item.theme,
+  };
+  const evidence: SolutionCaptureProvenanceEntry = {
+    key: item.key,
+    mainSha256: main.sha256,
+    ...(navFallback ? { navFallback } : {}),
+    navRoute,
+    navSha256: nav.sha256,
+    route: options.navOnly && previous.evidence ? previous.evidence.route : item.route,
+  };
+  return { entry, evidence };
 }
 
 async function capture(options: CaptureSolutionsOptions): Promise<void> {
@@ -219,7 +305,10 @@ async function capture(options: CaptureSolutionsOptions): Promise<void> {
   const browser = await chromium.launch();
   try {
     for (const item of plan) {
-      const result = await captureItem(browser, options.baseUrl, item);
+      const result = await captureItem(browser, options, item, {
+        entry: entries.get(item.key),
+        evidence: evidence.get(item.key),
+      });
       entries.set(item.key, result.entry);
       evidence.set(item.key, result.evidence);
       console.log(`captured ${item.key} ${result.entry.main.bytes + result.entry.nav.bytes} bytes`);
@@ -230,12 +319,26 @@ async function capture(options: CaptureSolutionsOptions): Promise<void> {
 
   const order = solutionCapturePlan().map((item) => item.key);
   const sorted = <T>(map: Map<string, T>) => order.filter((key) => map.has(key)).map((key) => map.get(key)!);
+  const today = new Date().toISOString().slice(0, 10);
+  const revision = `${git(["rev-parse", "--short=9", "HEAD"])}${dirty ? "-dirty" : ""}`;
+  const environment =
+    "Local APP_MODE=demo instance on a freshly reset and seeded PostgreSQL database; Chromium via Playwright";
+  const keepMain = options.navOnly && previous;
   const provenance: SolutionCaptureProvenance = {
-    capturedOn: new Date().toISOString().slice(0, 10),
+    capturedOn: keepMain ? previous.capturedOn : today,
     entries: sorted(evidence),
-    environment:
-      "Local APP_MODE=demo instance on a freshly reset and seeded PostgreSQL database; Chromium via Playwright",
-    sourceRevision: `${git(["rev-parse", "--short=9", "HEAD"])}${dirty ? "-dirty" : ""}`,
+    environment: keepMain ? previous.environment : environment,
+    nav: {
+      capturedOn: today,
+      clip: SOLUTION_NAV_CAPTURE_CLIP,
+      environment: options.resetDatabase
+        ? environment
+        : "Local APP_MODE=demo instance on its current seeded database; Chromium via Playwright",
+      sidebarWidth: SIDEBAR_MIN_WIDTH,
+      sourceRevision: revision,
+      viewport: SOLUTION_NAV_CAPTURE_VIEWPORT,
+    },
+    sourceRevision: keepMain ? previous.sourceRevision : revision,
     viewport: SOLUTION_CAPTURE_VIEWPORT,
   };
 
@@ -247,7 +350,7 @@ function check(options: CaptureSolutionsOptions): void {
   const result = checkSolutionCaptureManifest(
     readJson<SolutionCaptureManifest>(MANIFEST_PATH),
     readJson<SolutionCaptureProvenance>(PROVENANCE_PATH),
-    { allowPlaceholders: options.allowPlaceholders, readFile: readFacts },
+    { allowPlaceholders: options.allowPlaceholders, navRoute: solutionNavRouteForPlanItem, readFile: readFacts },
   );
   for (const problem of result.problems) console.error(problem);
   console.log(

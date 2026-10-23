@@ -5,6 +5,7 @@ export type CaptureSolutionsOptions = {
   allowPlaceholders: boolean;
   baseUrl: string;
   mode: CaptureSolutionsMode;
+  navOnly: boolean;
   only: string[];
   resetDatabase: boolean;
 };
@@ -34,6 +35,7 @@ export function parseCaptureSolutionsArgs(args: readonly string[]): CaptureSolut
     allowPlaceholders: false,
     baseUrl: DEFAULT_CAPTURE_BASE_URL,
     mode: "capture",
+    navOnly: false,
     only: [],
     resetDatabase: false,
   };
@@ -45,6 +47,7 @@ export function parseCaptureSolutionsArgs(args: readonly string[]): CaptureSolut
     else if (arg === "--allow-placeholders") options.allowPlaceholders = true;
     else if (arg === "--allow-dirty") options.allowDirty = true;
     else if (arg === "--reset-db") options.resetDatabase = true;
+    else if (arg === "--nav-only") options.navOnly = true;
     else if (arg === "--base-url") options.baseUrl = valueAfter(args, index++, arg).replace(/\/+$/u, "");
     else if (arg === "--only") options.only = valueAfter(args, index++, arg).split(",").filter(Boolean);
     else throw new Error(`Unknown argument ${arg}`);
@@ -57,5 +60,7 @@ export function parseCaptureSolutionsArgs(args: readonly string[]): CaptureSolut
 }
 
 export function captureNavigationUrl(baseUrl: string, route: string): string {
-  return `${baseUrl}${route}?agentChat=closed`;
+  const url = new URL(route, `${baseUrl}/`);
+  url.searchParams.set("agentChat", "closed");
+  return url.toString();
 }

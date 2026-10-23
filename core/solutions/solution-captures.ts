@@ -12,7 +12,9 @@ export type SolutionCaptureTheme = (typeof SOLUTION_CAPTURE_THEMES)[number];
 
 export const SOLUTION_CAPTURE_VIEWPORT = { deviceScaleFactor: 2, height: 900, width: 1440 } as const;
 
-export const SOLUTION_NAV_THUMBNAIL_WIDTH = 720;
+export const SOLUTION_NAV_CAPTURE_VIEWPORT = { deviceScaleFactor: 2, height: 800, width: 1280 } as const;
+
+export const SOLUTION_NAV_CAPTURE_CLIP = { height: 600, width: 960 } as const;
 
 export const SOLUTION_CAPTURE_BUDGET_BYTES = 15 * 1024 * 1024;
 
@@ -41,14 +43,26 @@ export type SolutionCaptureManifest = {
 export type SolutionCaptureProvenanceEntry = {
   key: string;
   mainSha256: string;
+  navFallback?: string;
+  navRoute?: string;
   navSha256: string;
   route: string;
+};
+
+export type SolutionNavCaptureProvenance = {
+  capturedOn: string;
+  clip: typeof SOLUTION_NAV_CAPTURE_CLIP;
+  environment: string;
+  sidebarWidth: number;
+  sourceRevision: string;
+  viewport: typeof SOLUTION_NAV_CAPTURE_VIEWPORT;
 };
 
 export type SolutionCaptureProvenance = {
   capturedOn: string;
   entries: readonly SolutionCaptureProvenanceEntry[];
   environment: string;
+  nav?: SolutionNavCaptureProvenance;
   sourceRevision: string;
   viewport: typeof SOLUTION_CAPTURE_VIEWPORT;
 };
@@ -102,14 +116,6 @@ export function solutionCapturePlan(catalog: readonly SolutionCatalogEntry[] = S
   );
 }
 
-export function navThumbnailSize(main: { height: number; width: number }): { height: number; width: number } {
-  if (main.width <= SOLUTION_NAV_THUMBNAIL_WIDTH) return { height: main.height, width: main.width };
-  return {
-    height: Math.round((main.height * SOLUTION_NAV_THUMBNAIL_WIDTH) / main.width),
-    width: SOLUTION_NAV_THUMBNAIL_WIDTH,
-  };
-}
-
 export function findSolutionCapture(
   manifest: SolutionCaptureManifest,
   solution: SolutionId,
@@ -142,6 +148,7 @@ export type SolutionCaptureCheckOptions = {
   allowPlaceholders: boolean;
   budgetBytes?: number;
   catalog?: readonly SolutionCatalogEntry[];
+  navRoute?: (item: SolutionCapturePlanItem) => string;
   readFile: (publicSrc: string) => SolutionCaptureFileFacts | null;
 };
 
@@ -205,6 +212,8 @@ export function checkSolutionCaptureManifest(
     if (!evidence) problems.push(`${key}: no provenance entry`);
     else if (!entry.placeholder && evidence.route !== item.route)
       problems.push(`${key}: captured ${evidence.route}, expected ${item.route}`);
+    if (evidence && !entry.placeholder && options.navRoute && evidence.navRoute !== options.navRoute(item))
+      problems.push(`${key}: navigation preview captured ${evidence.navRoute}, expected ${options.navRoute(item)}`);
 
     for (const [label, asset, sha] of [
       ["main", entry.main, evidence?.mainSha256],
