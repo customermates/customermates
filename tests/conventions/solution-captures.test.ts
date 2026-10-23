@@ -9,6 +9,9 @@ import { REPO_ROOT } from "./walk";
 import manifest from "@/core/solutions/solution-capture-manifest.json";
 import provenance from "@/core/solutions/solution-capture-provenance.json";
 import {
+  SOLUTION_NAV_CAPTURE_CLIP,
+  SOLUTION_NAV_CAPTURE_VIEWPORT,
+  SOLUTION_NAV_IMAGE_SIZE,
   type SolutionCaptureManifest,
   type SolutionCaptureProvenance,
   checkSolutionCaptureManifest,
@@ -32,5 +35,14 @@ describe("solution captures", () => {
       { allowPlaceholders: CAPTURE_RUN_PENDING, navRoute: solutionNavRouteForPlanItem, readFile: readFacts },
     );
     expect(result.problems, result.problems.join("\n")).toEqual([]);
+  });
+
+  it("captures every navigation preview with the current window, clip and image size", () => {
+    const nav = (provenance as SolutionCaptureProvenance).nav;
+    expect(nav?.viewport).toEqual(SOLUTION_NAV_CAPTURE_VIEWPORT);
+    expect(nav?.clip).toEqual(SOLUTION_NAV_CAPTURE_CLIP);
+    expect(nav?.image).toEqual(SOLUTION_NAV_IMAGE_SIZE);
+    for (const entry of (manifest as SolutionCaptureManifest).entries)
+      expect({ height: entry.nav.height, width: entry.nav.width }).toEqual(SOLUTION_NAV_IMAGE_SIZE);
   });
 });

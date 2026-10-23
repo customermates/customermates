@@ -8,6 +8,7 @@ import {
   SOLUTION_CAPTURE_VIEWPORT,
   SOLUTION_NAV_CAPTURE_CLIP,
   SOLUTION_NAV_CAPTURE_VIEWPORT,
+  SOLUTION_NAV_IMAGE_SIZE,
   checkSolutionCaptureManifest,
   solutionCapturePair,
   solutionCapturePlan,
@@ -66,10 +67,12 @@ describe("solution capture plan", () => {
     }
   });
 
-  it("keeps the navigation preview at 16:10 from the top-left of a 1280 px wide window", () => {
+  it("keeps the navigation preview at 16:10 from the top-left of a 1440 px wide window", () => {
     expect(SOLUTION_NAV_CAPTURE_CLIP.width / SOLUTION_NAV_CAPTURE_CLIP.height).toBe(16 / 10);
     expect(SOLUTION_NAV_CAPTURE_CLIP.width).toBeLessThanOrEqual(SOLUTION_NAV_CAPTURE_VIEWPORT.width);
     expect(SOLUTION_NAV_CAPTURE_CLIP.height).toBeLessThanOrEqual(SOLUTION_NAV_CAPTURE_VIEWPORT.height);
+    expect(SOLUTION_NAV_IMAGE_SIZE.width / SOLUTION_NAV_IMAGE_SIZE.height).toBe(16 / 10);
+    expect(SOLUTION_NAV_CAPTURE_CLIP.width).toBeGreaterThan(SOLUTION_NAV_IMAGE_SIZE.width);
   });
 });
 

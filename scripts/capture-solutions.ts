@@ -20,6 +20,7 @@ import {
   SOLUTION_CAPTURE_VIEWPORT,
   SOLUTION_NAV_CAPTURE_CLIP,
   SOLUTION_NAV_CAPTURE_VIEWPORT,
+  SOLUTION_NAV_IMAGE_SIZE,
   type SolutionCaptureAsset,
   type SolutionCaptureEntry,
   type SolutionCaptureFileFacts,
@@ -245,7 +246,7 @@ async function captureNav(
       type: "png",
     });
     const nav = await sharp(png)
-      .resize(SOLUTION_NAV_CAPTURE_CLIP.width, SOLUTION_NAV_CAPTURE_CLIP.height)
+      .resize(SOLUTION_NAV_IMAGE_SIZE.width, SOLUTION_NAV_IMAGE_SIZE.height)
       .webp({ quality: NAV_WEBP_QUALITY })
       .toBuffer({ resolveWithObject: true });
     return writeWebp(item.navSrc, nav.data, nav.info.width, nav.info.height);
@@ -320,6 +321,7 @@ async function capture(options: CaptureSolutionsOptions): Promise<void> {
         environment: options.resetDatabase
           ? environment
           : "Local APP_MODE=demo instance on its current seeded database; Chromium via Playwright",
+        image: SOLUTION_NAV_IMAGE_SIZE,
         sidebarWidth: SIDEBAR_MIN_WIDTH,
         sourceRevision: revision,
         viewport: SOLUTION_NAV_CAPTURE_VIEWPORT,

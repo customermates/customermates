@@ -12,9 +12,11 @@ export type SolutionCaptureTheme = (typeof SOLUTION_CAPTURE_THEMES)[number];
 
 export const SOLUTION_CAPTURE_VIEWPORT = { deviceScaleFactor: 2, height: 900, width: 1440 } as const;
 
-export const SOLUTION_NAV_CAPTURE_VIEWPORT = { deviceScaleFactor: 2, height: 800, width: 1280 } as const;
+export const SOLUTION_NAV_CAPTURE_VIEWPORT = { deviceScaleFactor: 2, height: 900, width: 1440 } as const;
 
-export const SOLUTION_NAV_CAPTURE_CLIP = { height: 600, width: 960 } as const;
+export const SOLUTION_NAV_CAPTURE_CLIP = { height: 720, width: 1152 } as const;
+
+export const SOLUTION_NAV_IMAGE_SIZE = { height: 600, width: 960 } as const;
 
 export const SOLUTION_CAPTURE_BUDGET_BYTES = 15 * 1024 * 1024;
 
@@ -52,6 +54,7 @@ export type SolutionCaptureProvenanceEntry = {
 export type SolutionNavCaptureProvenance = {
   capturedOn: string;
   clip: typeof SOLUTION_NAV_CAPTURE_CLIP;
+  image?: typeof SOLUTION_NAV_IMAGE_SIZE;
   environment: string;
   sidebarWidth: number;
   sourceRevision: string;
