@@ -1,3 +1,4 @@
+import { recordItem } from "./record-rows";
 import { randomUUID } from "node:crypto";
 import { addFromConfigure, openConfigure } from "./configure";
 import { test, expect, collectPageErrors } from "./fixtures";
@@ -23,7 +24,7 @@ test("searches custom records across pages, opens generic drawers, and attaches 
   await dialog.getByRole("textbox", { name: "Projects", exact: false }).fill("Searchable project");
   await dialog.getByRole("button", { name: "Save", exact: true }).click();
   await expect(dialog).not.toBeVisible();
-  await expect(page.getByRole("link", { name: "Searchable project", exact: true })).toBeVisible();
+  await expect(recordItem(page, "Searchable project")).toBeVisible();
   for (let index = 0; index < 41; index += 1) {
     const response = await page.request.post("/api/v1/records/mutate", {
       data: {

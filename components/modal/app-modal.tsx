@@ -56,6 +56,7 @@ const sizeClassMap: Record<ModalSize, string> = {
 type SharedProps = {
   title: ReactNode;
   actions?: AppModalActions;
+  controls?: { node: ReactNode; slots: number };
   description?: ReactNode;
   layerClassName?: string;
   size?: ModalSize;
@@ -111,8 +112,8 @@ export const AppModal = observer((props: Props) => {
   const isWide = useIsWiderThan("md");
   const [presentation, setPresentation] = useState({ open: isOpen, wide: isWide });
   if (presentation.open !== isOpen) setPresentation({ open: isOpen, wide: isOpen ? isWide : presentation.wide });
-  const actionCount = appModalActionSlots(actions);
-  const hasActions = actions.length > 0;
+  const actionCount = appModalActionSlots(actions) + (props.controls?.slots ?? 0);
+  const hasActions = actionCount > 0;
 
   const focusReturn = useOverlayFocusReturn(
     isOpen,
@@ -191,7 +192,11 @@ export const AppModal = observer((props: Props) => {
               </VisuallyHidden.Root>
             )}
 
-            <AppModalActionRail actions={actions} className={APP_MODAL_ACTION_RAIL_CLASS} />
+            <AppModalActionRail
+              actions={actions}
+              className={APP_MODAL_ACTION_RAIL_CLASS}
+              controls={props.controls?.node}
+            />
 
             <OverlayDismissGuardContext.Provider value={dismissGuard.guard}>
               <AppModalCloseContext.Provider value={modalClose}>
@@ -227,7 +232,11 @@ export const AppModal = observer((props: Props) => {
               {description ? <DialogDescription>{description}</DialogDescription> : null}
             </VisuallyHidden.Root>
 
-            <AppModalActionRail actions={actions} className={APP_MODAL_ACTION_RAIL_CLASS} />
+            <AppModalActionRail
+              actions={actions}
+              className={APP_MODAL_ACTION_RAIL_CLASS}
+              controls={props.controls?.node}
+            />
 
             <OverlayDismissGuardContext.Provider value={dismissGuard.guard}>
               <AppModalCloseContext.Provider value={modalClose}>
@@ -257,7 +266,11 @@ export const AppModal = observer((props: Props) => {
               {description ? <DrawerDescription>{description}</DrawerDescription> : null}
             </VisuallyHidden.Root>
 
-            <AppModalActionRail actions={actions} className={APP_MODAL_ACTION_RAIL_CLASS} />
+            <AppModalActionRail
+              actions={actions}
+              className={APP_MODAL_ACTION_RAIL_CLASS}
+              controls={props.controls?.node}
+            />
 
             <OverlayDismissGuardContext.Provider value={dismissGuard.guard}>
               <AppModalCloseContext.Provider value={modalClose}>

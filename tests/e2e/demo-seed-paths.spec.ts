@@ -1,4 +1,6 @@
 import { DEMO_COMPANY_ID, demoId, expect, test } from "./demo-seed";
+import { expectHydrated } from "./workspace-switching";
+import { linkedRecordNames, linkedRecordOpeners } from "./record-rows";
 
 /** Sub-lists and relationship paths of the seeded workspace: deal line items, and the Deals path of a service. */
 test("a deal shows its line items with Max's curated line item columns", async ({ page, database, errors }, testInfo) => {
@@ -49,16 +51,16 @@ test("a service lists the deals that sell it and explains the full path in the i
   database,
   errors,
 }) => {
-  const { rows } = await database.query<{ serviceId: string; deal: string }>(
-    `SELECT s."targetId" AS "serviceId", v."textValue" AS deal FROM "RecordLink" s
+  const { rows } = await database.query<{ serviceId: string; dealId: string; deal: string }>(
+    `SELECT s."targetId" AS "serviceId", d."targetId" AS "dealId", v."textValue" AS deal FROM "RecordLink" s
      JOIN "RecordLink" d ON d."companyId"=s."companyId" AND d."relationId"=$3 AND d."sourceId"=s."sourceId"
      JOIN "RecordValue" v ON v."companyId"=d."companyId" AND v."recordId"=d."targetId" AND v."fieldId"=$4
      WHERE s."companyId"=$1 AND s."relationId"=$2 ORDER BY s."targetId", v."textValue"`,
     [DEMO_COMPANY_ID, demoId("lineItem.service"), demoId("lineItem.deal"), demoId("deal.name")],
   );
   const serviceId = rows[0].serviceId;
-  const deals = new Set(rows.filter((row) => row.serviceId === serviceId).map((row) => row.deal));
-  expect(deals.size).toBeGreaterThan(0);
+  const deals = new Map(rows.filter((row) => row.serviceId === serviceId).map((row) => [row.dealId, row.deal]));
+  expect(deals.size).toBeGreaterThan(25);
 
   await page.goto(`/en/records/${demoId("service")}/${serviceId}`);
   const main = page.getByRole("main");
@@ -66,14 +68,86 @@ test("a service lists the deals that sell it and explains the full path in the i
   if (await overview.isVisible()) await overview.click();
   const path = main.getByRole("region", { name: "Deals", exact: true });
   await expect(path).toBeVisible();
-  // The path lists the deals page by page; every deal shown sells this service.
-  const chips = path.getByRole("button", { name: /^Open / });
-  await expect(chips.first()).toBeVisible();
-  const shown = (await chips.allInnerTexts()).map((name) => name.trim());
-  expect(shown.length).toBe(Math.min(deals.size, 25));
-  for (const name of shown) expect([...deals], name).toContain(name);
+  const chips = path.locator("[data-chip-id]");
+  const more = path.getByRole("button", { name: /^\+\d+ more$/ });
+  await expect(more).toBeVisible();
+  await expect
+    .poll(async () => (await chips.count()) + Number((await more.innerText()).match(/\d+/)?.[0]))
+    .toBe(deals.size);
+  const shown = (await chips.getByRole("button", { name: /^Open / }).allInnerTexts()).map((name) => name.trim());
+  expect(shown.length).toBeGreaterThan(0);
+  for (const name of shown) expect([...deals.values()], name).toContain(name);
+  await expect
+    .poll(() =>
+      chips.evaluateAll((elements) => {
+        const parent = elements[0]?.parentElement;
+        if (!parent) throw new Error("The relationship chip stack is missing");
+        return new Set(
+          Array.from(parent.children)
+            .filter((element) => element.hasAttribute("data-chip-id") || element.tagName === "BUTTON")
+            .map((element) => Math.round(element.getBoundingClientRect().top)),
+        ).size;
+      }),
+    )
+    .toBe(3);
+  await more.click();
+  const drawer = page.getByRole("dialog").filter({ has: page.locator("[data-linked-records]") });
+  await expect(drawer.getByRole("heading", { name: "Deals", exact: true })).toBeVisible();
+  await expect(drawer).toContainText(`${deals.size} records`);
+  const drawerRows = linkedRecordOpeners(drawer);
+  const seen: string[] = [];
+  for (let index = 0; index < Math.ceil(deals.size / 10); index++) {
+    await expect(drawerRows).toHaveCount(Math.min(10, deals.size - index * 10));
+    const names = await linkedRecordNames(drawer);
+    seen.push(...names);
+    if (seen.length < deals.size) {
+      await drawer.getByRole("button", { name: "Next page", exact: true }).click();
+      await expect.poll(async () => (await linkedRecordNames(drawer))[0]).not.toBe(names[0]);
+    }
+  }
+  expect(seen.sort()).toEqual([...deals.values()].sort());
+  await page.keyboard.press("Escape");
+  await expect(drawer).toHaveCount(0);
+  await expect(more).toBeFocused();
   await path.getByRole("button", { name: "Where Deals comes from", exact: true }).click();
   const popover = page.getByRole("dialog", { name: "Where Deals comes from", exact: true });
   await expect(popover.locator("[data-field-derivation]")).toContainText("Through linked records · Line items → Deals");
+  expect(errors).toEqual([]);
+});
+
+test("board chips have equal visible gaps around editable and read-only values", async ({ page, errors }) => {
+  await page.goto(`/en/records/${demoId("deal")}?viewMode=card&groupBy=${demoId("deal.stage")}`);
+  const row = page.locator("[data-chip-row]").first();
+  await expect(row).toBeVisible();
+  await expectHydrated(row.locator("[data-edit-target]").first());
+  for (const width of [390, 1280]) {
+    await page.setViewportSize({ width, height: 900 });
+    await expect
+      .poll(() =>
+        row.evaluate((element) => {
+          const rows = new Map<number, DOMRect[]>();
+          for (const column of element.querySelectorAll(":scope > [data-chip-column]")) {
+            const badge = column.querySelector("[data-slot=badge]");
+            if (!badge) continue;
+            const bounds = badge.getBoundingClientRect();
+            const top = Math.round(bounds.top);
+            rows.set(top, [...(rows.get(top) ?? []), bounds]);
+          }
+          const lines = [...rows.values()];
+          const horizontal = lines.flatMap((line) =>
+            line.slice(1).map((bounds, index) => bounds.left - line[index].right),
+          );
+          const vertical = lines
+            .slice(1)
+            .map((line, index) => line[0].top - Math.max(...lines[index].map((bounds) => bounds.bottom)));
+          return (
+            horizontal.length > 0 &&
+            vertical.length > 0 &&
+            [...horizontal, ...vertical].every((gap) => Math.abs(gap - 4) <= 1)
+          );
+        }),
+      )
+      .toBe(true);
+  }
   expect(errors).toEqual([]);
 });

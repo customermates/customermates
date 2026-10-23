@@ -72,6 +72,15 @@ async function dispatch(target: Element, event: Event) {
 }
 
 describe("FormattedTextField", () => {
+  it("does not add a collapse action when a short read-only link receives focus", async () => {
+    const host = document.createElement("div");
+    document.body.append(host);
+    const field = await renderField(host, vi.fn(), true);
+    const link = field.querySelector<HTMLAnchorElement>("a[href='https://example.com/brief']");
+    act(() => link?.focus());
+    expect(field.textContent).not.toContain("Common.actions.showLess");
+  });
+
   it("starts editing on a plain click but leaves links and text selections alone", async () => {
     const host = document.createElement("div");
     document.body.append(host);

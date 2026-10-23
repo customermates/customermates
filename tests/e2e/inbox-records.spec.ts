@@ -49,7 +49,7 @@ test("creates, unlinks and relinks a generic person from the inbox", async ({
   const settings = page.getByRole("dialog", { name: "Thread settings", exact: true });
   await expect(settings).toBeVisible();
   await settings.getByRole("button", { name: "Link", exact: true }).click();
-  await settings.getByRole("option", { name: 'Create "Inbox Person"', exact: true }).click();
+  await page.locator('[data-slot="popover-content"]').getByRole("option", { name: 'Create "Inbox Person"', exact: true }).click();
   await expect(settings.getByRole("button", { name: "Unlink record: Inbox Person", exact: true })).toBeVisible();
   const stored = await database.query(
     'SELECT i.id,l."typeId",l."recordId",i.value FROM "RecordIdentity" i JOIN "RecordIdentityLink" l ON l."companyId"=i."companyId" AND l."identityId"=i.id WHERE i."companyId"=$1',
@@ -96,7 +96,7 @@ test("creates, unlinks and relinks a generic person from the inbox", async ({
       .rows[0].count,
   ).toBe(0);
   await settings.getByRole("button", { name: "Link", exact: true }).click();
-  await settings.getByRole("option", { name: "Inbox Person", exact: true }).click();
+  await page.locator('[data-slot="popover-content"]').getByRole("option", { name: "Inbox Person", exact: true }).click();
   await expect(settings.getByRole("button", { name: "Unlink record: Inbox Person", exact: true })).toBeVisible();
   const relinked = await database.query('SELECT l."recordId",i.value FROM "RecordIdentity" i JOIN "RecordIdentityLink" l ON l."companyId"=i."companyId" AND l."identityId"=i.id WHERE i."companyId"=$1', [
     companyId,

@@ -208,6 +208,10 @@ describe("record view defaults", () => {
       grouping: null,
       sortDescriptor: null,
     });
+    expect(recordDefaults(deal.id, model.fields, notes).columnOrder).toEqual([
+      notes,
+      ...own.filter((field) => field !== notes),
+    ]);
     expect(defaultHiddenColumns(deal.id, model.fields)).toEqual([notes]);
     expect(
       defaultHiddenColumns(

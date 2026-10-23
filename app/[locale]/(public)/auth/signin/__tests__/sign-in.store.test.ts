@@ -1,6 +1,7 @@
 import type { RootStore } from "@/core/stores/root.store";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { redirect } from "next/navigation";
 
 const authActions = vi.hoisted(() => ({
   signInWithEmailAction: vi.fn(),
@@ -24,7 +25,7 @@ beforeEach(() => {
 
 describe("SignInStore", () => {
   it("refreshes and clears callbacks in the form and provider continuation together", async () => {
-    authActions.continueWithGoogleAction.mockResolvedValue({ ok: true, data: { url: null } });
+    authActions.continueWithGoogleAction.mockResolvedValue({ ok: true, data: null });
     const store = new SignInStore(rootStore);
     store.onInitOrRefresh({ callbackURL: "/auth/invitation?intent=invite-a" });
     store.onChange("email", "invited@example.com");
@@ -84,11 +85,14 @@ describe("SignInStore", () => {
     expect(store.isLoading).toBe(false);
   });
 
-  it("keeps both social providers locked after hard navigation starts", async () => {
-    authActions.continueWithGoogleAction.mockResolvedValue({
-      ok: true,
-      data: { url: "https://accounts.google.test/authorize" },
-    });
+  it("keeps both providers locked while Next handles the server redirect", async () => {
+    let signal: unknown;
+    try {
+      redirect("https://accounts.google.test/authorize");
+    } catch (error) {
+      signal = error;
+    }
+    authActions.continueWithGoogleAction.mockRejectedValue(signal);
     const store = new SignInStore(rootStore);
     store.onInitOrRefresh({ callbackURL: "/en/dashboard" });
 
@@ -96,14 +100,14 @@ describe("SignInStore", () => {
     await store.continueWithProvider("google");
 
     expect(authActions.continueWithGoogleAction).toHaveBeenCalledExactlyOnceWith("/en/dashboard", "/auth/signin");
-    expect(assign).toHaveBeenCalledExactlyOnceWith("https://accounts.google.test/authorize");
+    expect(assign).not.toHaveBeenCalled();
     expect(store.isLoading).toBe(true);
   });
 
   it("preserves the onboarding intent in a provider error callback", async () => {
     authActions.continueWithGoogleAction.mockResolvedValue({
       ok: true,
-      data: { url: "https://accounts.google.test/authorize" },
+      data: null,
     });
     const store = new SignInStore(rootStore);
     store.onInitOrRefresh({ callbackURL: "/auth/invitation?intent=signed.intent" });

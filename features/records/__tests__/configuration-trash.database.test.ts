@@ -1,9 +1,10 @@
 import { PermissionService } from "@/core/base/permission.service";
 import type { ConfigurationChange } from "../configuration.schema";
-import type { RecordScalar } from "../record-model.schema";
+import type { RecordField, RecordScalar } from "../record-model.schema";
 import type { TenantUser } from "@/features/user/user.schema";
 
 import { randomUUID } from "node:crypto";
+import { omit } from "lodash";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { Client } from "pg";
 import { afterAll, describe, expect, it, vi } from "vitest";
@@ -793,40 +794,140 @@ describeDatabase("configuration trash", () => {
     expect(await f.items()).toEqual([]);
   }, 180_000);
 
-  it("keeps a deleted list's bindings and gives a deleted field its binding back through Trash", async () => {
+  it.each([false, true])(
+    "keeps a deleted list's bindings and restores its picture field through Trash (legacy multiple=%s)",
+    async (legacy) => {
+      const f = await fixture();
+      const repo = createTestRecordRepo();
+      if (legacy) {
+        const model = await f.as(() => repo.getModel());
+        const picture = model.fields.find((field) => field.id === f.id("contact.avatarUrl"));
+        if (!picture) throw new Error("Missing picture field");
+        picture.multiple = true;
+        model.revision++;
+        await f.as(() => runInTransaction(() => repo.saveModel(model, f.admin.id)));
+      }
+      const person = await f.create("contact", "contact.firstName", "Retained picture");
+      const pictures = ["https://example.test/one.png", "https://example.test/two.png"];
+      expect(
+        await f.as(async () =>
+          f.mutate.invoke({
+            expectedRevision: await f.revision(),
+            idempotencyKey: randomUUID(),
+            mutation: {
+              action: "update",
+              ref: person,
+              expectedVersion: 1,
+              fields: [
+                {
+                  fieldId: f.id("contact.avatarUrl"),
+                  value: legacy ? { kind: "textList", value: pictures } : text(pictures[0]),
+                },
+              ],
+            },
+          }),
+        ),
+      ).toMatchObject({ ok: true, data: { status: "completed" } });
+      const stored = () =>
+        f.as(() =>
+          prisma.recordValue.findMany({
+            where: { companyId: f.seed.company.id, recordId: person.recordId, fieldId: f.id("contact.avatarUrl") },
+            select: { state: true, textValue: true, textListValue: true },
+          }),
+        );
+      const before = await stored();
+      const avatar = () =>
+        f.as(async () =>
+          (await createTestRecordRepo().getModel()).capabilities.find(
+            (binding) => binding.kind === "avatar" && binding.typeId === f.id("contact"),
+          ),
+        );
+      const remove = async (kind: "field" | "type", id: string) => {
+        const result = await f.as(async () =>
+          f.apply.invoke(await f.change([{ operation: "delete", target: { kind, id } }])),
+        );
+        if (!result.ok || result.data.status !== "completed" || !result.data.trashBatchId)
+          throw new Error(JSON.stringify(result));
+
+        return result.data.trashBatchId;
+      };
+      const restore = async (batchId: string) =>
+        expect(await f.as(() => f.trash.restore.invoke({ batchId } as never))).toMatchObject({
+          ok: true,
+          data: { status: "completed", blocked: [] },
+        });
+      const image = [{ role: "image", fieldId: f.id("contact.avatarUrl") }];
+
+      await restore(await remove("type", f.id("contact")));
+      expect((await avatar())?.fields).toEqual(image);
+
+      await remove("field", f.id("contact.avatarUrl"));
+      expect((await avatar())?.fields ?? []).toEqual([]);
+      const [item] = await f.items();
+      expect(item).toMatchObject({ kind: "field", targetId: f.id("contact.avatarUrl") });
+      await restore(item.batchId);
+      expect((await avatar())?.fields).toEqual(image);
+      expect(await stored()).toEqual(before);
+    },
+    180_000,
+  );
+
+  it("rejects converting a trashed scalar picture to multiple values before restoring its binding", async () => {
     const f = await fixture();
-    const avatar = () =>
+    const repo = createTestRecordRepo();
+    const fieldId = f.id("contact.avatarUrl");
+    expect(
+      await f.as(async () =>
+        f.apply.invoke(await f.change([{ operation: "delete", target: { kind: "field", id: fieldId } }])),
+      ),
+    ).toMatchObject({ ok: true, data: { status: "completed" } });
+    const deleted = await f.as(() => repo.getModel());
+    const field = deleted.fields.find((candidate) => candidate.id === fieldId);
+    if (!field) throw new Error("Missing picture field");
+    const policy = new RecordAccessPolicy(
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+      repo,
+    );
+    const preview = async (change: Omit<RecordField, "archived" | "publishedSummary">) =>
       f.as(async () =>
-        (await createTestRecordRepo().getModel()).capabilities.find(
-          (binding) => binding.kind === "avatar" && binding.typeId === f.id("contact"),
+        new PreviewRecordConfigurationInteractor(repo, policy, new RecordConfigurationService(repo)).invoke(
+          await f.change([{ operation: "putField", field: change }]),
         ),
       );
-    const remove = async (kind: "field" | "type", id: string) => {
-      const result = await f.as(async () =>
-        f.apply.invoke(await f.change([{ operation: "delete", target: { kind, id } }])),
-      );
-      if (!result.ok || result.data.status !== "completed" || !result.data.trashBatchId)
-        throw new Error(JSON.stringify(result));
-
-      return result.data.trashBatchId;
-    };
-    const restore = async (batchId: string) =>
-      expect(await f.as(() => f.trash.restore.invoke({ batchId } as never))).toMatchObject({
-        ok: true,
-        data: { status: "completed", blocked: [] },
-      });
-    const image = [{ role: "image", fieldId: f.id("contact.avatarUrl") }];
-
-    await restore(await remove("type", f.id("contact")));
-    expect((await avatar())?.fields).toEqual(image);
-
-    await remove("field", f.id("contact.avatarUrl"));
-    expect((await avatar())?.fields ?? []).toEqual([]);
+    const rejected = { ok: true, data: { valid: false, issues: [{ code: "capability_requires_field", fieldId }] } };
+    expect(await preview({ ...omit(field, "archived", "publishedSummary"), multiple: true })).toMatchObject(rejected);
+    expect(
+      await f.as(async () =>
+        f.apply.invoke(
+          await f.change([
+            { operation: "putField", field: { ...omit(field, "archived", "publishedSummary"), multiple: true } },
+          ]),
+        ),
+      ),
+    ).toMatchObject({ ok: false });
+    expect(await f.as(() => repo.getModel())).toEqual(deleted);
+    const asText = { ...omit(field, "archived", "publishedSummary"), valueType: "text" as const, multiple: true };
+    expect(
+      await f.as(async () => f.apply.invoke(await f.change([{ operation: "putField", field: asText }]))),
+    ).toMatchObject({ ok: true, data: { status: "completed" } });
+    expect(await preview({ ...asText, valueType: "url" })).toMatchObject(rejected);
+    expect(
+      await f.as(async () =>
+        f.apply.invoke(await f.change([{ operation: "putField", field: omit(field, "archived", "publishedSummary") }])),
+      ),
+    ).toMatchObject({ ok: true, data: { status: "completed" } });
     const [item] = await f.items();
-    expect(item).toMatchObject({ kind: "field", targetId: f.id("contact.avatarUrl") });
-    await restore(item.batchId);
-    expect((await avatar())?.fields).toEqual(image);
-  }, 180_000);
+    expect(await f.as(() => f.trash.restore.invoke({ batchId: item.batchId } as never))).toMatchObject({
+      ok: true,
+      data: { status: "completed", blocked: [] },
+    });
+    const restored = await f.as(() => repo.getModel());
+    expect(restored.fields.find((candidate) => candidate.id === fieldId)).toMatchObject({ archived: false });
+    expect(restored.fields.find((candidate) => candidate.id === fieldId)?.multiple ?? false).toBe(false);
+    expect(restored.capabilities.find((binding) => binding.kind === "avatar")?.fields).toEqual([
+      { role: "image", fieldId },
+    ]);
+  });
 
   it("lists only the deleted list, not what was deleted with it, and deletes it permanently with exact counts", async () => {
     const f = await fixture();

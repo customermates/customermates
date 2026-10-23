@@ -2,17 +2,11 @@ import * as React from "react";
 
 import { cn } from "@/core/utils/cn";
 
+export const TEXTAREA_CLASS_NAME =
+  "flex field-sizing-content min-h-16 w-full rounded-md border border-input bg-input-background px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50 read-only:cursor-[inherit] read-only:focus-visible:border-ring read-only:focus-visible:ring-[2px] read-only:focus-visible:ring-ring/30 disabled:cursor-not-allowed disabled:opacity-100 aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-invalid:ring-inset md:text-sm dark:aria-invalid:ring-destructive/40";
+
 function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
-  return (
-    <textarea
-      className={cn(
-        "flex field-sizing-content min-h-16 w-full rounded-md border border-input bg-input-background px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50 read-only:cursor-[inherit] read-only:focus-visible:border-ring read-only:focus-visible:ring-[2px] read-only:focus-visible:ring-ring/30 disabled:cursor-not-allowed disabled:opacity-100 aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-invalid:ring-inset md:text-sm dark:aria-invalid:ring-destructive/40",
-        className,
-      )}
-      data-slot="textarea"
-      {...props}
-    />
-  );
+  return <textarea className={cn(TEXTAREA_CLASS_NAME, className)} data-slot="textarea" {...props} />;
 }
 
 export { Textarea };

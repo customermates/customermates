@@ -1,3 +1,4 @@
+import { recordItem } from "./record-rows";
 import { randomBytes, randomUUID } from "node:crypto";
 
 import type { Page } from "@playwright/test";
@@ -68,11 +69,11 @@ test("two browsers of one login in different workspaces save records at the same
     expect(await organizationNames(database, workspace.companyId)).not.toContain("Bergmann Mandant");
     expect(await organizationNames(database, second.companyId)).toEqual(["Bergmann Mandant", "Example organization"]);
     await page.reload();
-    await expect(page.getByRole("link", { name: "Hansen Logistik", exact: true })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Bergmann Mandant", exact: true })).toHaveCount(0);
+    await expect(recordItem(page, "Hansen Logistik")).toBeVisible();
+    await expect(recordItem(page, "Bergmann Mandant")).toHaveCount(0);
     await other.page.reload();
-    await expect(other.page.getByRole("link", { name: "Bergmann Mandant", exact: true })).toBeVisible();
-    await expect(other.page.getByRole("link", { name: "Hansen Logistik", exact: true })).toHaveCount(0);
+    await expect(recordItem(other.page, "Bergmann Mandant")).toBeVisible();
+    await expect(recordItem(other.page, "Hansen Logistik")).toHaveCount(0);
     await expectCurrentWorkspace(page, "Browser workspace");
     await expectCurrentWorkspace(other.page, "Bergmann Steuern");
     expect(other.errors).toEqual([]);

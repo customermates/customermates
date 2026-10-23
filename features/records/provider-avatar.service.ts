@@ -93,19 +93,15 @@ function avatarSourceTypeIds(model: RecordModel): string[] {
   ];
 }
 
-type AvatarCandidate = { ref: RecordRef; fieldId: string; hasValue: boolean };
+type AvatarCandidate = { ref: RecordRef; fieldId: string };
 
 async function replaceableAvatars(
   records: ProviderAvatarRecordRepo,
   companyId: string,
   candidates: AvatarCandidate[],
 ): Promise<AvatarCandidate[]> {
-  const writers = await records.getLastFieldWritersUnscoped(
-    companyId,
-    candidates.filter((candidate) => candidate.hasValue),
-  );
+  const writers = await records.getLastFieldWritersUnscoped(companyId, candidates);
   return candidates.filter((candidate) => {
-    if (!candidate.hasValue) return true;
     const writer = writers.get(`${candidate.ref.typeId}:${candidate.ref.recordId}:${candidate.fieldId}`);
     return writer === undefined || writer === ACTOR;
   });
@@ -187,7 +183,7 @@ export class ProviderAvatarService {
             field,
           );
           if (previous.state !== "value" || previous.value.kind !== "text" || previous.value.value !== pictureUrl)
-            candidates.push({ ref, fieldId: field.id, hasValue: previous.state === "value" });
+            candidates.push({ ref, fieldId: field.id });
         }
         const targets = (await replaceableAvatars(this.records, this.companyId, candidates)).map(
           ({ ref, fieldId }) => ({
@@ -327,7 +323,7 @@ export class ProviderAvatarService {
                 previous.value.value === request.pictureUrl
               )
                 continue;
-              candidates.push({ ref, fieldId: field.id, hasValue: previous.state === "value" });
+              candidates.push({ ref, fieldId: field.id });
             }
             for (const { ref, fieldId } of await replaceableAvatars(this.records, this.companyId, candidates)) {
               await journal.repository.setValue(

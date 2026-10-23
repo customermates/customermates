@@ -1,5 +1,6 @@
 import { test, expect, collectPageErrors } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
+import { recordItem } from "./record-rows";
 import { submitViewEditor } from "./view-changes";
 
 test("saves relationship, assignment and date filters as a view and restores them with labels after reloading the generic list", async ({
@@ -49,8 +50,8 @@ test("saves relationship, assignment and date filters as a view and restores the
   await page.locator("#filter-palette-back").click();
   await page.keyboard.press("Escape");
   await expect(page.getByRole("heading", { name: "Filters", exact: true })).not.toBeVisible();
-  await expect(page.getByRole("link", { name: "Linked opportunity", exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Unlinked opportunity", exact: true })).not.toBeVisible();
+  await expect(recordItem(page, "Linked opportunity")).toBeVisible();
+  await expect(recordItem(page, "Unlinked opportunity")).toHaveCount(0);
   const unsavedChanges = page.locator("#global-data-views [data-view-modified]");
   await expect(page.locator("#global-data-views-all")).toHaveAttribute("data-view-modified", "");
   await page.locator("#records-filter").click();
@@ -76,8 +77,8 @@ test("saves relationship, assignment and date filters as a view and restores the
     "aria-current",
     "page",
   );
-  await expect(page.getByRole("link", { name: "Linked opportunity", exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Unlinked opportunity", exact: true })).not.toBeVisible();
+  await expect(recordItem(page, "Linked opportunity")).toBeVisible();
+  await expect(recordItem(page, "Unlinked opportunity")).toHaveCount(0);
   await expect(unsavedChanges).toHaveCount(0);
   await page.getByRole("button", { name: "Filters", exact: true }).click();
   const active = page.locator("[data-palette-active-filters]");

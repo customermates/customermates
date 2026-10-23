@@ -4,6 +4,7 @@ import type { RecordModel, RecordRef } from "./record-model.schema";
 import type { RecordAccessMap } from "./record-query.schema";
 import type { RecordSearch } from "./record-search.schema";
 import { RecordQuerySchema } from "./record-query.schema";
+import { recordPictureSql } from "./record-picture";
 import { compileRecordQuery, fieldReadPredicate, recordReadPredicate } from "./record-query";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
@@ -51,15 +52,7 @@ export function compileRecordSearch(
   const branches = types.map((type) => {
     const title = model.fields.find((field) => field.id === type.primaryFieldId && !field.archived);
     const titleAccess = title ? fieldReadPredicate(companyId, title, model, access, root) : Prisma.sql`TRUE`;
-    const avatarBinding = model.capabilities.find((binding) => binding.kind === "avatar" && binding.typeId === type.id);
-    const avatar = model.fields.find(
-      (field) => field.id === avatarBinding?.fields.find((field) => field.role === "image")?.fieldId && !field.archived,
-    );
-    const avatarValue = avatar
-      ? Prisma.sql`CASE WHEN ${fieldReadPredicate(companyId, avatar, model, access, root)} THEN
-      (SELECT value."textValue" FROM "RecordValue" value WHERE value."companyId" = ${companyId} AND value."typeId" = ${type.id}
-        AND value."recordId" = record.id AND value."fieldId" = ${avatar.id} AND value.state = 'value') ELSE NULL END`
-      : Prisma.sql`NULL::text`;
+    const avatarValue = recordPictureSql(companyId, type.id, model, access, root);
     const scope = access.get(type.id) ?? { access: "none" as const, userId: "" };
     const similar = similarTerm !== null && title ? similarTerm : null;
     const rank =

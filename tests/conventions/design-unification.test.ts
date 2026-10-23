@@ -358,16 +358,29 @@ describe("F14a: chips use the standard size and set a variant only for a color",
   });
 });
 
+const INLINE_FIELD_SURFACE = "app/[locale]/(protected)/records/[typeId]/components/record-inline-field.tsx";
 const VALUE_SURFACES = [
   "components/data-view/",
   "components/chip/",
   "app/[locale]/(protected)/records/[typeId]/components/record-cell.tsx",
   "components/records/record-value.tsx",
-  "app/[locale]/(protected)/records/[typeId]/components/record-inline-field.tsx",
+  INLINE_FIELD_SURFACE,
   "app/[locale]/(protected)/records/[typeId]/components/records-page-view.tsx",
 ];
 const HINT_ICONS = new Set(["Pencil", "PencilLine", "SquarePen", "Lock", "LockKeyhole"]);
 const HINT_SLOT = /["'`][^"'`]*\bsize-6\b[^"'`]*\bopacity-0\b[^"'`]*["'`]/;
+
+function isEmptyValuePencil(source: SourceFile, icon: ts.ImportSpecifier) {
+  if (source.file !== INLINE_FIELD_SURFACE || icon.name.text !== "Pencil" || icon.propertyName) return false;
+  let emptyOnly = true;
+  visit(source.ast, (node) => {
+    if (!ts.isIdentifier(node) || node.text !== "Pencil" || node.parent === icon) return;
+    let owner: ts.Node | undefined = node.parent;
+    while (owner && !ts.isFunctionDeclaration(owner)) owner = owner.parent;
+    if (!owner || owner.name?.text !== "EmptyValueTarget") emptyOnly = false;
+  });
+  return emptyOnly;
+}
 
 function inlineHintFindings(sources: SourceFile[]) {
   const findings: Finding[] = [];
@@ -380,7 +393,8 @@ function inlineHintFindings(sources: SourceFile[]) {
         ts.isImportSpecifier(node) &&
         HINT_ICONS.has(node.name.text) &&
         ts.isImportDeclaration(node.parent.parent.parent) &&
-        (node.parent.parent.parent.moduleSpecifier as ts.StringLiteral).text === "lucide-react"
+        (node.parent.parent.parent.moduleSpecifier as ts.StringLiteral).text === "lucide-react" &&
+        !isEmptyValuePencil(source, node)
       )
         findings.push(finding(source, node.getStart(source.ast), node.getText(source.ast)));
     });
@@ -402,6 +416,21 @@ describe("rule 64: values are the edit target, without reserved hint slots", () 
       'import { Pencil } from "lucide-react";\nconst HINT = "inline-flex size-6 opacity-0 group-hover/row:opacity-100";',
     );
     expect(inlineHintFindings([source]).map(({ line }) => line)).toEqual([2, 1]);
+  });
+
+  it("allows the pencil only in the shared empty-field control, without reserving a hint slot", () => {
+    const empty = 'import { Pencil } from "lucide-react";\nfunction EmptyValueTarget() { return <Pencil />; }';
+    expect(inlineHintFindings([sourceFromText(INLINE_FIELD_SURFACE, empty)])).toEqual([]);
+    expect(inlineHintFindings([sourceFromText("components/data-view/cell.tsx", empty)])).toHaveLength(1);
+    expect(
+      inlineHintFindings([sourceFromText(INLINE_FIELD_SURFACE, `${empty}\nconst value = <Pencil />;`)]),
+    ).toHaveLength(1);
+    expect(
+      inlineHintFindings([sourceFromText(INLINE_FIELD_SURFACE, empty.replaceAll("Pencil", "Lock"))]),
+    ).toHaveLength(1);
+    expect(
+      inlineHintFindings([sourceFromText(INLINE_FIELD_SURFACE, `${empty}\nconst HINT = "size-6 opacity-0";`)]),
+    ).toHaveLength(1);
   });
 });
 

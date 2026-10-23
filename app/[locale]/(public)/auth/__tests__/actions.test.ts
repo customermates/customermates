@@ -25,6 +25,8 @@ vi.mock("@/core/di", () => ({
 vi.mock("@/core/utils/action-result", () => ({ serializeResult: async (result: unknown) => await result }));
 
 import {
+  continueWithGoogleAction,
+  continueWithMicrosoftAction,
   requestPasswordResetAction,
   resendVerificationEmailFromAuthAction,
   resetPasswordAction,
@@ -34,10 +36,34 @@ import {
 describe("authentication action adapters", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.redirect.mockReset();
     mocks.requestPasswordReset.mockResolvedValue({ ok: true, data: null });
     mocks.resendVerification.mockResolvedValue({ ok: true });
     mocks.resetPassword.mockResolvedValue({ ok: true, data: null });
     mocks.signUp.mockResolvedValue({ ok: true, data: null });
+  });
+
+  it.each([
+    ["google", continueWithGoogleAction],
+    ["microsoft", continueWithMicrosoftAction],
+  ] as const)("redirects %s on the server before rendering the old auth page", async (provider, invoke) => {
+    const destination = `https://${provider}.example/authorize`;
+    const redirected = new Error("NEXT_REDIRECT");
+    mocks.social.mockResolvedValue({ redirect: destination });
+    mocks.redirect.mockImplementation(() => {
+      throw redirected;
+    });
+
+    await expect(
+      invoke("/auth/invitation?intent=synthetic.intent", "/auth/signin?intent=synthetic.intent"),
+    ).rejects.toBe(redirected);
+
+    expect(mocks.redirect).toHaveBeenCalledExactlyOnceWith(destination);
+    expect(mocks.social).toHaveBeenCalledExactlyOnceWith({
+      provider,
+      callbackURL: "/auth/invitation?intent=synthetic.intent",
+      errorCallbackURL: "/auth/signin?intent=synthetic.intent",
+    });
   });
 
   it("passes signup data and invitation intent to the interactor", async () => {
