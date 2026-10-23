@@ -60,7 +60,7 @@ async function openRecord(page: Page, typeKey: string, recordId: string) {
   const main = page.getByRole("main");
   const overview = main.getByRole("tab", { name: "Overview", exact: true });
   if (await overview.isVisible()) await overview.click();
-  const name = main.locator(`[data-entity-field="${demoId(`${typeKey}.name`)}"]`).getByRole("textbox");
+  const name = main.locator(`[data-record-name-heading="${demoId(`${typeKey}.name`)}"]`).getByRole("textbox");
   await expect(name).toBeVisible();
   return name;
 }

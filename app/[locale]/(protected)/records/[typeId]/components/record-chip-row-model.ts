@@ -38,6 +38,7 @@ export function isEmptyColumn(record: RecordRow, column: RecordChipColumn) {
   if (column.kind === "field") {
     if (column.field.valueType === "channels") return !record.identities?.length;
     const result = record.fields.find((value) => value.fieldId === column.field.id)?.result;
+    if (result?.state === "value" && result.value.kind === "boolean") return !result.value.value;
     return isEmptyResult(result);
   }
   if (column.kind === "relationship" || column.kind === "relationshipPath")

@@ -15,8 +15,8 @@ vi.mock("next-intl", () => ({
     key === "RecordModel.moreRecords" ? `+${values?.count} more` : key,
 }));
 vi.mock("@/components/entity-detail/entity-detail-field-shell", () => ({
-  EntityDetailFieldShell: ({ children }: { children: ReactNode }) =>
-    createElement("div", { "data-field": "" }, children),
+  EntityDetailFieldShell: ({ children, action }: { children: ReactNode; action?: ReactNode }) =>
+    createElement("div", { "data-field": "" }, action, children),
 }));
 
 import { RecordRelationshipEditor } from "../record-relationship-editor";
@@ -60,6 +60,7 @@ function editor(ref = first, summaries: RecordChoice[] = [], isReadOnly = false)
     form: { linkChanges: [] },
     record: {
       ref,
+      fields: [],
       relationships: [
         {
           relationId: relation.id,
@@ -72,7 +73,7 @@ function editor(ref = first, summaries: RecordChoice[] = [], isReadOnly = false)
     },
     stageLink: vi.fn(),
     presentation: { linkColors: {}, linkIcons: {}, linkLabels: {}, model: { types: [] } },
-    rootStore: { recordWorkspaceStore: { open: vi.fn() } },
+    rootStore: { recordWorkspaceStore: { open: vi.fn(), openLinkedRecords: vi.fn() } },
   } as unknown as RecordEditorStore;
 }
 let root: Root | undefined;
@@ -129,7 +130,7 @@ afterEach(() => {
 });
 
 describe("relationship loading presentation and response ownership", () => {
-  it("limits derived relationships to three rows and browses them through the same read-only picker", async () => {
+  it("limits derived relationships to three rows and shows them all in the linked records drawer", async () => {
     vi.stubGlobal("matchMedia", () => ({
       matches: true,
       addEventListener() {},
@@ -163,16 +164,21 @@ describe("relationship loading presentation and response ownership", () => {
     await act(async () => {
       await Promise.resolve();
     });
-    expect(document.querySelector('[role="dialog"]')?.getAttribute("aria-label")).toBe("Related projects");
-    expect(document.querySelector("[data-linked-record-list]")?.querySelectorAll('[role="option"]')).toHaveLength(25);
-    expect(document.querySelectorAll("[data-linked-record-list] .lucide-check")).toHaveLength(25);
-    expect(document.querySelector("[data-linked-record-list]")?.textContent).toContain("Initial project");
-    expect(document.querySelector('[data-slot="command-input"]')).toBe(document.activeElement);
-    expect(document.querySelector("[data-relationship-unlink]")).toBeNull();
+    expect(document.querySelector("[data-linked-record-list]")).toBeNull();
+    expect(store.rootStore.recordWorkspaceStore.openLinkedRecords).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        source: first,
+        sourceName: "RecordModel.untitledRecord",
+        link: { pathId: relation.id },
+        targetTypeId: relation.targetTypeId,
+        label: "Related projects",
+        opener: more,
+      }),
+    );
     expect(actions.choices.mock.calls.at(-1)?.[0]).toMatchObject({
       throughPath: { ref: first, pathId: relation.id },
     });
-    expect(actions.choices.mock.calls.at(-1)?.[0]).not.toHaveProperty("linkedTo");
+    expect(document.querySelector("[data-relationship-unlink]")).toBeNull();
     expect(store.stageLink).not.toHaveBeenCalled();
   });
   it("keeps an empty editable loading indicator inside the existing Link control", async () => {
@@ -236,53 +242,6 @@ describe("relationship loading presentation and response ownership", () => {
     expect(field.textContent).not.toContain("Initial project");
     expect(field.querySelector<HTMLButtonElement>('[role="combobox"]')?.disabled).toBe(false);
   });
-  it("keeps the compact preview while loading the overflow list and its later pages", async () => {
-    let overflow!: (result: { ok: true; data: RecordChoicesResult }) => void;
-    let nextPage!: (result: { ok: true; data: RecordChoicesResult }) => void;
-    actions.choices.mockResolvedValueOnce({ ok: true, data: { ...results([linked]), total: 26 } });
-    actions.choices.mockImplementationOnce(
-      () =>
-        new Promise((resolve) => {
-          overflow = resolve;
-        }),
-    );
-    actions.choices.mockImplementationOnce(
-      () =>
-        new Promise((resolve) => {
-          nextPage = resolve;
-        }),
-    );
-    const field = render(editor(first, [linked]));
-    await act(async () => {
-      await Promise.resolve();
-    });
-    const more = Array.from(field.querySelectorAll("button")).find((button) =>
-      /^\+\d+ more$/.test(button.textContent ?? ""),
-    );
-    expect(more).toBeDefined();
-    act(() => more?.click());
-    expect(field.querySelector("[data-chip-id]")?.textContent).toContain("Initial project");
-    expect(document.querySelector("[data-linked-record-list]")?.textContent).not.toContain("Initial project");
-    await act(async () => {
-      overflow({ ok: true, data: { ...results([linked]), total: 26 } });
-      await Promise.resolve();
-    });
-    const next = Array.from(document.querySelectorAll("button")).find(
-      (button) => button.textContent === "Common.table.nextPage",
-    );
-    act(() => next?.click());
-    expect(field.querySelector("[data-chip-id]")?.textContent).toContain("Initial project");
-    expect(document.querySelector("[data-linked-record-list]")?.textContent).not.toContain("Initial project");
-    await act(async () => {
-      nextPage({ ok: true, data: { ...results([]), page: 2, total: 26 } });
-      await Promise.resolve();
-    });
-    expect(document.querySelector("[data-linked-record-list]")?.textContent).not.toContain("Initial project");
-    expect(actions.choices.mock.calls.at(-1)?.[0]).toMatchObject({
-      page: 2,
-      linkedTo: { ref: first, relationId: relation.id },
-    });
-  });
   it("retains restricted title presentation and does not offer writes in a read-only loading preview", async () => {
     let finish!: (result: { ok: true; data: RecordChoicesResult }) => void;
     actions.choices.mockImplementationOnce(
@@ -307,49 +266,6 @@ describe("relationship loading presentation and response ownership", () => {
 });
 
 describe("relationship unlink focus", () => {
-  it("returns focus to a derived overflow opener replaced by a related-record refresh", async () => {
-    vi.stubGlobal("matchMedia", () => ({ matches: true, addEventListener() {}, removeEventListener() {} }));
-    vi.spyOn(HTMLElement.prototype, "getClientRects").mockReturnValue([
-      new DOMRect(0, 0, 80, 30),
-    ] as unknown as DOMRectList);
-    const data = { ...results([linked]), total: 40 };
-    actions.choices.mockResolvedValue({ ok: true, data });
-    const store = observable(editor());
-    store.presentation.model.relationships = [relation];
-    const field = render(store, true);
-    await act(async () => {
-      await Promise.resolve();
-    });
-    const more = () =>
-      [...field.querySelectorAll<HTMLButtonElement>("button")].find((button) =>
-        /^\+\d+ more$/.test(button.textContent ?? ""),
-      );
-    const original = more();
-    act(() => original?.click());
-    await act(async () => {
-      await Promise.resolve();
-    });
-    const pending: Array<(value: { ok: true; data: RecordChoicesResult }) => void> = [];
-    actions.choices.mockImplementation(() => new Promise((resolve) => pending.push(resolve)));
-    await act(async () => {
-      action(() => {
-        store.relatedRevision++;
-      })();
-      await Promise.resolve();
-    });
-    expect(original?.isConnected).toBe(false);
-    await act(async () => {
-      for (const resolve of pending) resolve({ ok: true, data });
-      await Promise.resolve();
-    });
-    const replacement = more();
-    expect(replacement).toBeDefined();
-    expect(replacement).not.toBe(original);
-    act(() => {
-      document.activeElement?.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
-    });
-    await vi.waitFor(() => expect(document.activeElement).toBe(replacement));
-  });
   it("opens the picker from blank input space and keeps chip actions independent", async () => {
     actions.choices.mockResolvedValue({ ok: true, data: results([linked]) });
     const store = editor();
@@ -378,150 +294,54 @@ describe("relationship unlink focus", () => {
     act(() => field.querySelector<HTMLElement>("[data-relationship-field]")?.click());
     expect(document.querySelector('[role="dialog"]')).toBeNull();
   });
-  it("shows every linked record as selected, toggles with Enter and keeps opening separate", async () => {
-    const other: RecordChoice = {
-      ref: { ...linked.ref, recordId: "10000000-0000-4000-8000-000000000007" },
-      title: { state: "value", value: { kind: "text", value: "Second project" } },
-    };
-    actions.choices.mockResolvedValue({ ok: true, data: { ...results([linked, other]), total: 30 } });
-    const store = editor();
-    const field = render(store);
-    await act(async () => {
-      await Promise.resolve();
-    });
-    const more = [...field.querySelectorAll("button")].find((button) => /^\+\d+ more$/.test(button.textContent ?? ""));
-    act(() => more?.click());
-    await act(async () => {
-      await Promise.resolve();
-    });
-    const input = document.querySelector<HTMLInputElement>('[data-slot="command-input"]');
-    act(() => {
-      input?.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
-    });
-    const options = [...document.querySelectorAll("[data-linked-record-list] [cmdk-item]")];
-    expect(options).toHaveLength(2);
-    for (const option of options) expect(option.querySelector(".lucide-check")).not.toBeNull();
-    expect(store.rootStore.recordWorkspaceStore.open).not.toHaveBeenCalled();
-    expect(store.stageLink).toHaveBeenCalledExactlyOnceWith(
-      { action: "unlink", relationId: relation.id, direction: "outgoing", record: linked.ref },
-      linked.title,
-    );
-    expect(document.activeElement).toBe(input);
-    const open = document.querySelector<HTMLButtonElement>("[data-linked-record-list] button");
-    const selected = document.querySelector('[cmdk-item][aria-selected="true"]');
-    act(() => {
-      open?.focus();
-      for (const key of ["ArrowDown", "ArrowUp", "End", "Home", "j"])
-        open?.dispatchEvent(new KeyboardEvent("keydown", { key, ctrlKey: key === "j", bubbles: true }));
-    });
-    expect(document.querySelector('[cmdk-item][aria-selected="true"]')).toBe(selected);
-    expect(document.activeElement).toBe(open);
-    act(() => {
-      open?.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
-      open?.click();
-    });
-    expect(store.rootStore.recordWorkspaceStore.open).toHaveBeenCalledExactlyOnceWith(
-      linked.ref,
-      open,
-      field.querySelector('[role="combobox"]'),
-    );
-    expect(store.stageLink).toHaveBeenCalledOnce();
-  });
-  it("returns to the current opener after switching from overflow to the Link picker", async () => {
-    vi.spyOn(HTMLElement.prototype, "getClientRects").mockReturnValue([
-      new DOMRect(0, 0, 80, 30),
-    ] as unknown as DOMRectList);
-    actions.choices.mockResolvedValue({ ok: true, data: { ...results([linked]), total: 30 } });
-    const field = render(editor());
-    await act(async () => {
-      await Promise.resolve();
-    });
-    const more = [...field.querySelectorAll("button")].find((button) => /^\+\d+ more$/.test(button.textContent ?? ""));
-    const close = async () => {
-      act(() => {
-        document.activeElement?.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
-      });
+  it.each([false, true])(
+    "opens the linked records drawer from the label button, even without links (read-only: %s)",
+    async (readOnly) => {
+      actions.choices.mockResolvedValue({ ok: true, data: results([]) });
+      const store = editor(first, [], readOnly);
+      const field = render(store);
       await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 60));
+        await Promise.resolve();
       });
-    };
-    act(() => more?.click());
-    await act(async () => {
-      await Promise.resolve();
-    });
-    await close();
-    expect(document.activeElement).toBe(more);
-
-    const link = field.querySelector<HTMLButtonElement>('[role="combobox"]');
-    act(() => link?.click());
-    await act(async () => {
-      await Promise.resolve();
-    });
-    await close();
-    expect(document.activeElement).toBe(link);
+      const button = field.querySelector<HTMLButtonElement>("[data-show-linked-records]");
+      expect(button?.getAttribute("aria-label")).toBe("RecordModel.showLinkedRecords");
+      act(() => button?.click());
+      expect(store.rootStore.recordWorkspaceStore.openLinkedRecords).toHaveBeenCalledExactlyOnceWith(
+        expect.objectContaining({ link: { relationId: relation.id, direction: "outgoing" }, opener: button }),
+      );
+    },
+  );
+  it("offers no linked records drawer for a record that is not saved yet", () => {
+    const store = Object.assign(editor(), { record: null }) as unknown as RecordEditorStore;
+    const field = render(store);
+    expect(field.querySelector("[data-show-linked-records]")).toBeNull();
   });
-  it("returns focus to the read-only field when resizing removes its overflow opener", async () => {
-    let width = 120;
-    const observers: Array<{ callback: ResizeObserverCallback; elements: Set<Element> }> = [];
-    vi.stubGlobal(
-      "ResizeObserver",
-      class {
-        elements = new Set<Element>();
-        constructor(readonly callback: ResizeObserverCallback) {
-          observers.push(this);
-        }
-        observe(element: Element) {
-          this.elements.add(element);
-        }
-        unobserve(element: Element) {
-          this.elements.delete(element);
-        }
-        disconnect() {
-          this.elements.clear();
-        }
-      },
-    );
-    vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockImplementation(() => width);
-    vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockReturnValue(200);
-    vi.spyOn(HTMLElement.prototype, "getClientRects").mockReturnValue([
-      new DOMRect(0, 0, 80, 30),
-    ] as unknown as DOMRectList);
-    const records = Array.from({ length: 4 }, (_, index) => ({
-      ...linked,
-      ref: { ...linked.ref, recordId: `project-${index}` },
-    }));
-    actions.choices.mockResolvedValue({ ok: true, data: results(records) });
-    const field = render(editor(first, records, true));
-    await act(async () => {
-      await Promise.resolve();
-    });
-    const frame = field.querySelector<HTMLElement>("[data-relationship-field]");
-    const stack = frame?.firstElementChild;
-    const more = [...field.querySelectorAll("button")].find((button) => /^\+\d+ more$/.test(button.textContent ?? ""));
-    expect(more).toBeDefined();
-    expect(field.querySelector('[role="combobox"]')).toBeNull();
-    act(() => more?.click());
-    await act(async () => {
-      await Promise.resolve();
-    });
-    expect(document.querySelector("[data-linked-record-list]")).not.toBeNull();
-
-    width = 1200;
-    await act(async () => {
-      for (const observer of observers)
-        if (stack && observer.elements.has(stack)) observer.callback([], observer as unknown as ResizeObserver);
-      await new Promise((resolve) => requestAnimationFrame(resolve));
-    });
-    expect(more?.isConnected).toBe(false);
-    act(() => {
-      document.activeElement?.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
-    });
-    await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 60));
-    });
-    expect(document.querySelector("[data-linked-record-list]")).toBeNull();
-    expect(document.activeElement).toBe(frame);
-  });
+  it.each([false, true])(
+    "opens the linked records drawer from the overflow of a saved relationship (read-only: %s)",
+    async (readOnly) => {
+      actions.choices.mockResolvedValue({ ok: true, data: { ...results([linked]), total: 30 } });
+      const store = editor(first, [], readOnly);
+      const field = render(store);
+      await act(async () => {
+        await Promise.resolve();
+      });
+      const more = [...field.querySelectorAll("button")].find((button) =>
+        /^\+\d+ more$/.test(button.textContent ?? ""),
+      );
+      act(() => more?.click());
+      expect(document.querySelector("[data-linked-record-list]")).toBeNull();
+      expect(store.rootStore.recordWorkspaceStore.openLinkedRecords).toHaveBeenCalledExactlyOnceWith(
+        expect.objectContaining({
+          source: first,
+          sourceName: "RecordModel.untitledRecord",
+          link: { relationId: relation.id, direction: "outgoing" },
+          targetTypeId: relation.targetTypeId,
+          label: relation.sourceLabel,
+          opener: more,
+        }),
+      );
+    },
+  );
   it("moves focus to the next linked record after unlinking, then to the Link control", async () => {
     const other: RecordChoice = {
       ref: { typeId: relation.targetTypeId, recordId: "10000000-0000-4000-8000-000000000007" },

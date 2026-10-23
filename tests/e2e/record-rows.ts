@@ -60,3 +60,13 @@ export async function recordRowName(row: Locator) {
 export async function openRecordLink(target: Locator) {
   await target.click({ position: { x: 2, y: 2 } });
 }
+
+export function linkedRecordOpeners(drawer: Locator) {
+  return drawer.locator('[data-linked-records-table] :is(a[data-slot="data-row-open"], [data-row-id] > a[aria-label])');
+}
+
+export async function linkedRecordNames(drawer: Locator) {
+  return linkedRecordOpeners(drawer).evaluateAll((elements) =>
+    elements.map((element) => (element.getAttribute("aria-label") ?? element.textContent ?? "").trim()),
+  );
+}

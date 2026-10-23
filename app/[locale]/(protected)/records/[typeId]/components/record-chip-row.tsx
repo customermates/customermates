@@ -21,6 +21,8 @@ import { OverlayDismissGuardContext, useOwnOverlayDismissGuard } from "@/compone
 import { formattedTextExcerpt, RecordValue } from "@/components/records/record-value";
 import { ITEM_REVEAL_CLASS } from "@/components/ui/item-actions";
 import { cn } from "@/core/utils/cn";
+import { useRootStore } from "@/core/stores/root-store.provider";
+import { linkedRecordsTarget, openLinkedRecords } from "./open-linked-records";
 import {
   RecordInlineField,
   RecordInlineAssignees,
@@ -30,8 +32,9 @@ import {
   canEditAssignees,
   focusFirstControl,
   hasInlineRelationshipEditor,
+  inlineEditorPopoverClass,
 } from "./record-inline-field";
-import { type RecordChipColumn, type RecordChipEntry, recordChipRowModel } from "./record-chip-row-model";
+import { type RecordChipColumn, type RecordChipEntry, linkSummary, recordChipRowModel } from "./record-chip-row-model";
 import {
   AddChip,
   CHIP_TRIGGER_CLASS,
@@ -54,9 +57,11 @@ const PropertyChip = observer(function PropertyChip({
   onEditingChange: (open: boolean) => void;
   onOpenRecord: (ref: RecordRef) => void;
 }) {
+  const t = useTranslations();
+  const root = useRootStore();
   const { column } = entry;
   const assigneesEditable = column.id === "system:assignedTo" && canEditAssignees(records, record);
-  const chip = (
+  const view = (
     <RecordPropertyChipView
       entry={entry}
       inTrigger={assigneesEditable}
@@ -64,19 +69,51 @@ const PropertyChip = observer(function PropertyChip({
       record={record}
     />
   );
+  const summary =
+    column.kind === "relationship" || column.kind === "relationshipPath" ? linkSummary(record, column) : undefined;
+  const count = summary ? Math.max(summary.readableCount, summary.records.length) : 0;
+  const first = summary?.records[0];
+  const chip =
+    first && (column.kind === "relationship" || column.kind === "relationshipPath") ? (
+      <button
+        className="min-w-0 rounded-md text-left outline-none focus-visible:ring-2 focus-visible:ring-ring/70"
+        type="button"
+        onClick={(event) => {
+          event.stopPropagation();
+          if (count === 1) onOpenRecord(first.ref);
+          else {
+            openLinkedRecords(
+              root,
+              {
+                source: record,
+                model: records.presentation.model,
+                ...linkedRecordsTarget(column),
+                label: column.label,
+                t,
+              },
+              event.currentTarget,
+            );
+          }
+        }}
+      >
+        {view}
+      </button>
+    ) : (
+      view
+    );
   if (assigneesEditable) {
     return (
       <RecordInlineAssignees record={record} records={records} onOpenChange={onEditingChange}>
-        {chip}
+        {view}
       </RecordInlineAssignees>
     );
   }
   if (column.kind === "field") {
     const field = column.field;
-    if (!canEditInline(records, record, field)) return chip;
+    if (!canEditInline(records, record, field)) return view;
     return (
       <RecordInlineField field={field} record={record} records={records} onOpenChange={onEditingChange}>
-        {chip}
+        {view}
       </RecordInlineField>
     );
   }
@@ -185,7 +222,8 @@ const AddPropertyChip = observer(function AddPropertyChip({
         align="start"
         className={cn(
           chipPopoverClass(editing?.kind === "relationship"),
-          editing?.kind === "field" && editing.field.valueType === "richText" && "w-xl",
+          editing?.kind === "field" && inlineEditorPopoverClass(editing.field),
+          editing?.id === "system:assignedTo" && "p-0",
         )}
         onClick={(event) => event.stopPropagation()}
         onOpenAutoFocus={focusFirstControl}

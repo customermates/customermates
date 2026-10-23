@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { ArrowUpRight, Check, ChevronsUpDown, X } from "lucide-react";
+import { ArrowUpRight, Check, ChevronsUpDown, PanelRightOpen, X } from "lucide-react";
 
 import type { RecordChoice } from "@/features/records/get-record-choices.interactor";
 import type { RecordRelationship } from "@/features/records/record-model.schema";
@@ -17,6 +17,7 @@ import { RecordChipIcon } from "@/components/records/record-chip-icon";
 import { AppChip } from "@/components/chip/app-chip";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
+import { openLinkedRecords } from "./open-linked-records";
 import { recordLinkColor } from "@/features/records/record-presentation";
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/core/utils/cn";
@@ -185,6 +186,43 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
     setPage(1);
     setMode("linked");
   };
+  const showLinked = (trigger: HTMLElement) => {
+    if (!store.record) return;
+    openLinkedRecords(
+      store.rootStore,
+      {
+        source: store.record,
+        model: store.presentation.model,
+        link: "path" in props ? { pathId: props.path.id } : { relationId: props.relationship.id, direction },
+        targetTypeId: typeId,
+        label,
+        t,
+      },
+      trigger,
+      document.getElementById(id) ?? chips.current,
+    );
+  };
+  const canShowLinked = Boolean(store.record) && !store.trash;
+  const showLinkedLabel = t("RecordModel.showLinkedRecords", { field: label });
+  const showLinkedAction = canShowLinked ? (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          aria-label={showLinkedLabel}
+          className="-my-1 text-muted-foreground"
+          data-show-linked-records=""
+          size="icon-xs"
+          type="button"
+          variant="ghost"
+          onClick={(event) => showLinked(event.currentTarget)}
+        >
+          <PanelRightOpen aria-hidden className="size-3.5" />
+        </Button>
+      </TooltipTrigger>
+
+      <TooltipContent>{showLinkedLabel}</TooltipContent>
+    </Tooltip>
+  ) : undefined;
   const focusAfterRemoval = useFocusAfterRemoval();
   const error = (retry: () => void) => (
     <div className="flex items-center gap-2 text-sm" role="alert">
@@ -196,7 +234,13 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
     </div>
   );
   return (
-    <EntityDetailFieldShell fieldId={fieldId} inputId={id} label={label} locked={store.isPermissionReadOnly}>
+    <EntityDetailFieldShell
+      action={showLinkedAction}
+      fieldId={fieldId}
+      inputId={id}
+      label={label}
+      locked={store.isPermissionReadOnly}
+    >
       {linked.failed ? (
         error(() => setAttempt((value) => value + 1))
       ) : (
@@ -317,7 +361,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
                     </AppChip>
                   )}
                   onMoreClickWhenLoaded
-                  onMoreClick={openLinked}
+                  onMoreClick={(trigger) => (canShowLinked && changes.length === 0 ? showLinked : openLinked)(trigger)}
                 />
               )}
 

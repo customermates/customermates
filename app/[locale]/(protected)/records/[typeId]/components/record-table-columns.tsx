@@ -4,9 +4,12 @@ import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import type { RecordRow } from "@/features/records/record-presentation";
 import type { RecordRef } from "@/features/records/record-model.schema";
 import type { RecordsStore } from "./records.store";
+import type { RecordOpener } from "./record-inline-field";
 
 import { useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
+import { useRootStore } from "@/core/stores/root-store.provider";
+import { linkedRecordsTarget, openLinkedRecords } from "./open-linked-records";
 import { Sigma } from "lucide-react";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -20,6 +23,7 @@ import {
   RecordInlineField,
   RecordInlineAssignees,
   RecordInlineRelationship,
+  RecordOpenLink,
   CalculatedFieldText,
   canEditInline,
   canEditAssignees,
@@ -29,6 +33,10 @@ import {
 
 const EDIT_TARGET_CONTAINER_CLASS =
   "flex min-w-0 pr-3 in-data-[align=end]:justify-end in-data-[align=end]:pr-0 in-data-[align=end]:pl-3";
+
+function recordOpener(record: RecordRow, open: (trigger: HTMLElement) => void): RecordOpener {
+  return { href: `/records/${record.ref.typeId}/${record.ref.recordId}`, onOpen: open };
+}
 
 function recordAvatarFieldId(store: RecordsStore) {
   return store.showRecordPictures ? store.recordPictureFieldId : undefined;
@@ -46,6 +54,7 @@ export function useRecordTableColumns(
   } = {},
 ) {
   const t = useTranslations();
+  const root = useRootStore();
   const avatarFieldId = recordAvatarFieldId(store);
   const columnHeaders = store.columnHeaders;
   const untitledHeader = store.type && !store.type.primaryFieldId ? store.type.label : null;
@@ -107,7 +116,22 @@ export function useRecordTableColumns(
                 linkIcons={store.presentation.linkIcons}
                 linkLabels={store.presentation.linkLabels}
                 record={row.original}
-                onMore={openRecord ? () => openRecord(row.original) : undefined}
+                onMore={
+                  column.kind === "relationship" || column.kind === "relationshipPath"
+                    ? (trigger) =>
+                        openLinkedRecords(
+                          root,
+                          {
+                            source: row.original,
+                            model: store.presentation.model,
+                            ...linkedRecordsTarget(column),
+                            label: column.label,
+                            t,
+                          },
+                          trigger,
+                        )
+                    : undefined
+                }
                 onOpen={openRelated}
               />
             );
@@ -135,33 +159,46 @@ export function useRecordTableColumns(
                     relation={column.relation}
                     onOpenRecord={openRelated}
                   >
-                    {renderCell(true)}
+                    {renderCell(false)}
                   </RecordInlineRelationship>
                 </div>
               );
             }
             if (column.kind !== "field") return renderCell(false);
+            const opener =
+              column.id === store.type?.primaryFieldId
+                ? recordOpener(row.original, () =>
+                    openRecord ? openRecord(row.original) : openRelated(row.original.ref),
+                  )
+                : undefined;
             if (canEditInline(store, row.original, column.field)) {
               return (
                 <div className={EDIT_TARGET_CONTAINER_CLASS}>
-                  <RecordInlineField field={column.field} record={row.original} records={store}>
+                  <RecordInlineField field={column.field} opener={opener} record={row.original} records={store}>
                     {renderCell(true)}
                   </RecordInlineField>
                 </div>
               );
             }
-            return isCalculatedField(store, column.field) ? (
-              <RecordCalculatedValue field={column.field} model={store.formulaModel}>
-                {calculated ? <span className="text-muted-foreground">{renderCell(false)}</span> : renderCell(false)}
-              </RecordCalculatedValue>
+            const value = opener ? (
+              <RecordOpenLink opener={opener} record={row.original} records={store}>
+                {renderCell(false)}
+              </RecordOpenLink>
             ) : (
               renderCell(false)
+            );
+            return !opener && isCalculatedField(store, column.field) ? (
+              <RecordCalculatedValue field={column.field} model={store.formulaModel}>
+                {calculated ? <span className="text-muted-foreground">{value}</span> : value}
+              </RecordCalculatedValue>
+            ) : (
+              value
             );
           },
         };
       }),
     ],
-    [columnHeaders, openRelated, openRecord, avatarFieldId, store, markCalculated, t, untitledHeader],
+    [columnHeaders, openRelated, openRecord, avatarFieldId, store, markCalculated, t, untitledHeader, root],
   );
 }
 
@@ -191,7 +228,12 @@ export function useRecordCardRenderer(store: RecordsStore, openRelated: (ref: Re
             records={store}
             title={
               !showTitle ? null : primary?.kind === "field" && canEditInline(store, record, primary.field) ? (
-                <RecordInlineField field={primary.field} record={record} records={store}>
+                <RecordInlineField
+                  field={primary.field}
+                  opener={recordOpener(record, () => openRelated(record.ref))}
+                  record={record}
+                  records={store}
+                >
                   {title}
                 </RecordInlineField>
               ) : (

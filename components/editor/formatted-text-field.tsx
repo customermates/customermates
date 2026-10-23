@@ -23,16 +23,18 @@ export function FormattedTextField({
   data,
   label,
   readOnly = false,
+  flush = false,
   onChange,
 }: {
   data?: object;
   label: string;
   readOnly?: boolean;
+  flush?: boolean;
   onChange?: (data: object) => void;
 }) {
   const t = useTranslations();
   const contentId = useId();
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(flush);
   const [expanded, setExpanded] = useState(false);
   const [overflowing, setOverflowing] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -109,11 +111,13 @@ export function FormattedTextField({
         ref={areaRef}
         data-formatted-text-area
         className={cn(
-          "relative rounded-md border border-input bg-input-background px-3 py-1.5 text-sm text-foreground shadow-xs",
-          !readOnly &&
+          "relative px-3 py-1.5 text-sm text-foreground",
+          !flush && "rounded-md border border-input bg-input-background shadow-xs",
+          !flush &&
+            !readOnly &&
             !isEditing &&
             "cursor-text has-[[data-edit-trigger]:focus-visible]:border-ring has-[[data-edit-trigger]:focus-visible]:ring-[2px] has-[[data-edit-trigger]:focus-visible]:ring-ring/30",
-          isEditing && "border-ring ring-[2px] ring-ring/30",
+          !flush && isEditing && "border-ring ring-[2px] ring-ring/30",
         )}
         id={contentId}
         role="presentation"

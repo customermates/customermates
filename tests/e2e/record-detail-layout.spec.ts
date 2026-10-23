@@ -55,7 +55,7 @@ for (const theme of ["light", "dark"] as const) {
     await drawer.getByRole("button", { name: "Anpassen", exact: true }).click();
     await drawer
       .getByRole("button", {
-        name: "Name an die Übersicht anheften",
+        name: "Notes an die Übersicht anheften",
         exact: true,
       })
       .click();
@@ -100,11 +100,13 @@ test("persists personal detail pins, visibility and keyboard order without losin
     }),
   ).toHaveCount(0);
   await drawer.getByRole("button", { name: "Customize", exact: true }).click();
-  await drawer.getByRole("button", { name: "Pin Name to the overview", exact: true }).click();
-  await expect(drawer.locator(`[data-chip-column="${nameId}"]`)).toContainText("Draft stays here");
-  await expect(drawer.getByRole("link", { name: "Edit field Name", exact: true })).toHaveAttribute(
+  const notesFieldId = presetId(companyId, "organization.notes");
+  await expect(drawer.getByRole("button", { name: "Pin Name to the overview", exact: true })).toHaveCount(0);
+  await drawer.getByRole("button", { name: "Pin Notes to the overview", exact: true }).click();
+  await expect(drawer.locator(`[data-chip-column="${notesFieldId}"]`)).toBeVisible();
+  await expect(drawer.getByRole("link", { name: "Edit field Notes", exact: true })).toHaveAttribute(
     "href",
-    new RegExp(`/configure\\?typeId=${typeId}&tab=fields&focus=field%3A${nameId}$`),
+    new RegExp(`/configure\\?typeId=${typeId}&tab=fields&focus=field%3A${notesFieldId}$`),
   );
   await expect(drawer.getByRole("link", { name: "Edit field Updated at", exact: true })).toHaveCount(0);
   await drawer.getByRole("button", { name: "Hide Updated at from details", exact: true }).click();
@@ -131,7 +133,7 @@ test("persists personal detail pins, visibility and keyboard order without losin
     return result.rows[0]?.detailOptions;
   };
   await expect.poll(readLayout).toMatchObject({
-    starredFieldIds: [nameId],
+    starredFieldIds: [notesFieldId],
     hiddenFieldIds: ["system:updatedAt"],
     fieldOrder: expect.any(Array),
   });
@@ -163,7 +165,7 @@ test("persists personal detail pins, visibility and keyboard order without losin
   await expect(drawer).not.toBeVisible();
   await page.reload();
   await openRecordDetails(page, "Draft stays here");
-  await expect(drawer.locator(`[data-chip-column="${nameId}"]`)).toContainText("Draft stays here");
+  await expect(drawer.locator(`[data-chip-column="${notesFieldId}"]`)).toBeVisible();
   await expect(drawer.locator('[data-sortable-field="system:updatedAt"]')).not.toBeVisible();
   await page.screenshot({
     path: testInfo.outputPath("personal-record-details.png"),
@@ -172,7 +174,7 @@ test("persists personal detail pins, visibility and keyboard order without losin
   });
   await drawer.getByRole("link", { name: "Open page", exact: true }).click();
   const main = page.getByRole("main");
-  await expect(main.locator(`[data-chip-column="${nameId}"]`)).toBeVisible();
+  await expect(main.locator(`[data-chip-column="${notesFieldId}"]`)).toBeVisible();
   await expect(page.locator("header")).toContainText("Draft stays here");
   if (testInfo.project.name !== "mobile") {
     await page.setViewportSize({ width: 1720, height: 1000 });
@@ -223,7 +225,7 @@ test("persists personal detail pins, visibility and keyboard order without losin
       idempotencyKey: randomUUID(),
       layout: {
         pinnedFields: ["system:createdAt"],
-        hiddenFields: [nameId],
+        hiddenFields: [notesFieldId],
         fieldOrder: [],
       },
     },
@@ -231,7 +233,8 @@ test("persists personal detail pins, visibility and keyboard order without losin
   expect(api.status()).toBe(200);
   await page.reload();
   await expect(main.locator('[data-chip-column="system:createdAt"]')).toBeVisible();
-  await expect(main.getByRole("textbox", { name: "Name", exact: false })).not.toBeVisible();
+  await expect(main.locator(`[data-sortable-field="${notesFieldId}"]`)).not.toBeVisible();
+  await expect(main.getByRole("heading").getByRole("textbox", { name: "Name", exact: true })).toBeVisible();
   await page.locator("header").getByRole("link", { name: "Organizations", exact: true }).click();
   await page.locator("#records-add").click();
   await expect(drawer.getByRole("textbox", { name: "Name", exact: false })).toBeVisible();
@@ -404,8 +407,7 @@ test("closes pinned single-select editors after picking without saving the drawe
     .locator('[data-slot="popover-content"][data-state="open"]')
     .filter({ hasText: "Pinned stage" });
   await stage.click();
-  await editor.getByRole("combobox").click();
-  await page.getByRole("option", { name: "Beta", exact: true }).click();
+  await editor.getByRole("option", { name: "Beta", exact: true }).click();
   await expect(editor).not.toBeVisible();
   await expect(stage).toBeFocused();
   await expect(stage).toContainText("Beta");
@@ -415,11 +417,8 @@ test("closes pinned single-select editors after picking without saving the drawe
 
   for (const key of ["Enter", "Escape"]) {
     await stage.click();
-    await editor.getByRole("combobox").focus();
-    await page.keyboard.press("Enter");
-    await expect(
-      page.getByRole("option", { name: "Beta", exact: true }),
-    ).toBeFocused();
+    await expect(editor.getByRole("option", { name: "Beta", exact: true })).toBeVisible();
+    await editor.getByRole("combobox").fill("Beta");
     await page.keyboard.press(key);
     await expect(editor).not.toBeVisible();
     await expect(stage).toBeFocused();
@@ -437,8 +436,7 @@ test("closes pinned single-select editors after picking without saving the drawe
   const date = drawer.getByRole("button", { name: "Edit Pinned date", exact: true });
   await date.click();
   const dateEditor = page.locator('[data-slot="popover-content"][data-state="open"]').filter({ hasText: "Pinned date" });
-  await dateEditor.locator('button[aria-haspopup="dialog"]').click();
-  await page.locator('button[data-day="2026-10-22"]').click();
+  await dateEditor.locator('button[data-day="2026-10-22"]').click();
   await expect(dateEditor).not.toBeVisible();
   await expect(date).toBeFocused();
   await expect(drawer).toBeVisible();
@@ -457,8 +455,6 @@ test("closes pinned single-select editors after picking without saving the drawe
     await expect(option).toHaveAttribute("aria-selected", "true");
     await expect(tagsEditor).toBeVisible();
   }
-  await page.keyboard.press("Escape");
-  await expect(tagsEditor).toBeVisible();
   await expect(tagsEditor.getByRole("combobox")).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(tagsEditor).not.toBeVisible();
@@ -534,9 +530,10 @@ test("edits header links with the card picker, keeps contact values outside edit
   const avatar = chips.getByRole("group", { name: "Avatar", exact: true });
   await expect(avatar.getByRole("link")).toBeVisible();
   await expect(avatar.locator("button a, a button")).toHaveCount(0);
-  await avatar.hover();
-  await expect(avatar.getByRole("button", { name: "Edit Avatar", exact: true })).toBeVisible();
-  await avatar.getByRole("button", { name: "Edit Avatar", exact: true }).click();
+  const editAvatar = avatar.getByRole("button", { name: "Edit Avatar", exact: true });
+  await editAvatar.focus();
+  await expect(editAvatar).toHaveText("Edit");
+  await editAvatar.press("Enter");
   const pictureEditor = page.locator('[data-slot="popover-content"][data-state="open"]');
   await expect(pictureEditor.getByRole("textbox", { name: "Avatar", exact: true })).toHaveValue("https://example.test/avatar.png");
   await page.keyboard.press("Escape");

@@ -23,8 +23,52 @@ import { focusHref } from "@/components/focus/focus-href";
 import { CalculationFlowView } from "@/app/[locale]/(protected)/configure/components/calculation-flow-editor";
 import { recordDisplayName } from "@/features/records/record-display-name";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { FormInput } from "@/components/forms/form-input";
+import { cn } from "@/core/utils/cn";
 
 const DERIVATION_ICONS = { calculation: Sigma, lookup: Link2, saved: Camera } as const;
+const RECORD_NAME_HEADING_CLASS =
+  "-mx-2 min-w-0 flex-1 [&_input]:h-9 [&_input]:border-transparent [&_input]:bg-transparent [&_input]:px-[7px] [&_input]:text-lg [&_input]:font-semibold [&_input]:shadow-none [&_input]:hover:bg-foreground/5 [&_input]:read-only:hover:bg-transparent [&_input]:focus-visible:border-ring/60 [&_input]:focus-visible:bg-background [&_input]:focus-visible:shadow-[0_0_0_3px_color-mix(in_oklab,var(--ring)_16%,transparent)] [&_input]:focus-visible:ring-0";
+
+export function recordNameField(store: RecordEditorStore) {
+  const type = store.presentation.model.types.find((type) => type.id === store.presentation.typeId);
+  return store.presentation.model.fields.find((field) => field.id === type?.primaryFieldId && !field.archived);
+}
+
+export const RecordNameHeading = observer(function RecordNameHeading({
+  store,
+  name,
+  placeholder,
+  className,
+}: {
+  store: RecordEditorStore;
+  name: string;
+  placeholder: string;
+  className?: string;
+}) {
+  const field = recordNameField(store);
+  const result = store.record?.fields.find((value) => value.fieldId === field?.id)?.result;
+  if (!field || result?.state === "restricted" || !isRecordFieldWritable(field))
+    return <h2 className={cn("min-w-0 flex-1 truncate text-lg font-semibold", className)}>{name}</h2>;
+
+  return (
+    <div
+      aria-level={2}
+      className={cn(RECORD_NAME_HEADING_CLASS, className)}
+      data-record-name-heading={field.id}
+      role="heading"
+    >
+      <FormInput
+        showErrorMessage
+        aria-label={field.label}
+        id={`values.${field.id}`}
+        label={null}
+        placeholder={placeholder}
+        required={field.required}
+      />
+    </div>
+  );
+});
 
 export const RecordEditorField = observer(function RecordEditorField({
   store,

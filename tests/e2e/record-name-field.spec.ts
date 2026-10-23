@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import type { Client } from "pg";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { postOk, readModel } from "./api";
@@ -35,49 +35,68 @@ async function fixture(page: Page, database: Client, companyId: string) {
   return { typeId, nameId, aliasId, stageId, recordId: rows.rows[0].recordId as string };
 }
 
+async function rename(page: Page, scope: Locator) {
+  await page.waitForLoadState("networkidle");
+  const edit = scope.getByRole("button", { name: "Edit Name", exact: true });
+  await edit.focus();
+  await edit.press("Enter");
+}
+
 async function choose(page: Page, label: string, option: string) {
   await page.getByRole("combobox", { name: label, exact: true }).click();
   await page.getByRole("option", { name: option, exact: true }).click();
 }
 
-test("edits the record name as ordinary text in tables and cards, retaining cancel and record navigation", async ({ page, database, companyId, isMobile }, testInfo) => {
+test("opens the record from its name and renames it in place, on cards and in the record title", async ({ page, database, companyId, isMobile }, testInfo) => {
   test.setTimeout(180000);
   const errors = collectPageErrors(page);
   const { typeId, nameId, stageId, recordId } = await fixture(page, database, companyId);
-  await page.goto(`/en/records/${typeId}`);
-  if (isMobile) await expect(page.locator("[data-phone-rows]")).toBeVisible();
-  const item = page.locator(`[data-row-id="${recordId}"], [data-item-id="${recordId}"]`).first();
   const persisted = async () => (await database.query('SELECT "textValue" FROM "RecordValue" WHERE "companyId"=$1 AND "fieldId"=$2 AND "recordId"=$3', [companyId, nameId, recordId])).rows[0].textValue;
-  await clickHydrated(item.getByRole("button", { name: "Edit Name", exact: true }));
-  const editor = isMobile ? page.locator('[data-slot="drawer-content"][data-state="open"]').last() : item.locator("[data-in-place-editor]");
-  const input = editor.locator("input").first();
-  await expect(input).toHaveValue("Original organization");
-  await input.fill("Cancelled name");
+  await page.goto(`/en/records/${typeId}`);
+  const item = page.locator(`[data-row-id="${recordId}"], [data-item-id="${recordId}"]`).first();
+  const title = (name: string) => page.getByRole("dialog").getByRole("heading", { name, exact: true });
   if (isMobile) {
-    await editor.getByRole("button", { name: "Cancel", exact: true }).click();
-    await page.getByRole("alertdialog").getByRole("button", { name: "Discard", exact: true }).click();
-    await expect(editor).not.toBeVisible();
-  } else await input.press("Escape");
-  expect(await persisted()).toBe("Original organization");
-  await item.getByRole("button", { name: "Edit Name", exact: true }).click();
-  await input.fill("Renamed organization");
-  if (isMobile) await editor.getByRole("button", { name: "Save", exact: true }).click();
-  else await input.press("Enter");
-  await expect.poll(persisted).toBe("Renamed organization");
-  await expect(editor).not.toBeVisible();
-  await item.click({ position: { x: 2, y: 2 } });
-  await expect(page.getByRole("dialog").getByRole("heading", { name: "Renamed organization", exact: true })).toBeVisible();
+    await expect(page.locator("[data-phone-rows]")).toBeVisible();
+    await page.waitForLoadState("networkidle");
+    await item.click({ position: { x: 2, y: 2 } });
+  } else {
+    await expect(item.locator('a[data-slot="data-row-open"]')).toHaveAttribute("href", `/records/${typeId}/${recordId}`);
+    await rename(page, item);
+    const input = item.locator("[data-in-place-editor] input");
+    await expect(input).toHaveValue("Original organization");
+    expect(await input.evaluate((element: HTMLInputElement) => [element.selectionStart, element.selectionEnd])).toEqual([0, "Original organization".length]);
+    await input.fill("Cancelled name");
+    await input.press("Escape");
+    expect(await persisted()).toBe("Original organization");
+    await rename(page, item);
+    await input.fill("Renamed organization");
+    await input.press("Enter");
+    await expect.poll(persisted).toBe("Renamed organization");
+    await expect(input).toHaveCount(0);
+    await item.locator('a[data-slot="data-row-open"]').click();
+  }
+  const current = isMobile ? "Original organization" : "Renamed organization";
+  await expect(title(current)).toBeVisible();
+  const heading = page.getByRole("dialog").getByRole("textbox", { name: "Name", exact: true });
+  await expect(heading).toHaveValue(current);
+  await expect(page.getByRole("dialog").locator(`[data-entity-field="${nameId}"]`)).toHaveCount(0);
+  await heading.fill("Title name");
+  await page.getByRole("dialog").getByRole("button", { name: "Save", exact: true }).click();
+  await expect.poll(persisted).toBe("Title name");
+  await expect(heading).toHaveValue("Title name");
   await page.keyboard.press("Escape");
-  await page.goto(`/en/records/${typeId}?viewMode=card&groupBy=${stageId}`);
-  const card = page.locator(`[data-item-id="${recordId}"]`);
-  await clickHydrated(card.getByRole("button", { name: "Edit Name", exact: true }));
-  const overlay = page.locator('[data-slot="popover-content"][data-state="open"], [data-slot="drawer-content"][data-state="open"]').last();
-  await overlay.locator("input").first().fill("Card name");
-  await overlay.getByRole("button", { name: "Save", exact: true }).click();
-  await expect.poll(persisted).toBe("Card name");
-  await expect(card).toContainText("Card name");
-  await expect(card.locator("button button, a button, button a")).toHaveCount(0);
-  await page.screenshot({ path: testInfo.outputPath("ordinary-name-editor.png"), animations: "disabled" });
+  if (!isMobile) {
+    await page.goto(`/en/records/${typeId}?viewMode=card&groupBy=${stageId}`);
+    const card = page.locator(`[data-item-id="${recordId}"]`);
+    await rename(page, card);
+    const cardInput = card.locator("[data-in-place-editor] input");
+    await cardInput.fill("Card name");
+    await cardInput.press("Enter");
+    await expect.poll(persisted).toBe("Card name");
+    await expect(card).toContainText("Card name");
+    await expect(card.locator("button button, a button, button a")).toHaveCount(0);
+  }
+  await page.screenshot({ path: testInfo.outputPath("name-opens-and-renames.png"), animations: "disabled" });
   expect(errors).toEqual([]);
 });
 
@@ -103,7 +122,7 @@ test("changes the display-name mapping and link color in General and carries the
   await page.goto(`/en/records/${typeId}`);
   if (isMobile) {
     const phone = page.locator(`[data-phone-rows] [data-row-id="${recordId}"]`);
-    await expect(phone.getByRole("button", { name: "Edit Alias", exact: true })).toBeVisible();
+    await expect(phone.getByText("Display alias", { exact: true })).toBeVisible();
     await expect(phone.locator(`[data-chip-column="${aliasId}"]`)).toHaveCount(0);
     await expect(phone.locator(`[data-chip-column="${nameId}"]`)).toBeVisible();
   } else {
@@ -185,7 +204,8 @@ test("allows hiding and keyboard reordering the name column and persists both th
   await expect(page.getByRole("dialog")).toBeVisible();
 });
 
-test("shows the record name first and as the card and phone heading in saved layouts that omit it", async ({ page, database, companyId, workspace }) => {
+test("shows the record name first and as the card and phone heading in saved layouts that omit it", async ({ page, database, companyId, workspace, isMobile }) => {
+  test.skip(isMobile, "Touch renames from the record title; the phone layout is checked by resizing");
   test.setTimeout(180000);
   const errors = collectPageErrors(page);
   const { typeId, recordId, nameId, aliasId, stageId } = await fixture(page, database, companyId);
@@ -197,7 +217,7 @@ test("shows the record name first and as the card and phone heading in saved lay
   expect(headers.findIndex((label) => label.includes("Name"))).toBeLessThan(headers.findIndex((label) => label.includes("Alias")));
   await page.goto(`/en/records/${typeId}?viewMode=card&groupBy=${stageId}`);
   const card = page.locator(`[data-item-id="${recordId}"]`);
-  await expect(card.getByRole("button", { name: "Edit Name", exact: true })).toBeVisible();
+  await expect(card.getByRole("button", { name: "Edit Name", exact: true })).toHaveCount(1);
   await expect(card.locator(`[data-chip-column="${nameId}"]`)).toHaveCount(0);
   await expect(card.locator(`[data-chip-column="${aliasId}"]`)).toBeVisible();
   await clickHydrated(page.locator("#records-display-options"));
@@ -219,10 +239,10 @@ test("shows the record name first and as the card and phone heading in saved lay
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await page.locator('[data-slot="drawer-close"]').last().click();
   await expect(phone.locator(`[data-chip-column="${nameId}"]`)).toHaveCount(0);
-  await phone.getByRole("button", { name: "Edit Name", exact: true }).click();
-  const editor = page.locator('[data-slot="drawer-content"][data-state="open"]').last();
-  await expect(editor.locator("input").first()).toHaveValue("Original organization");
-  await editor.getByRole("button", { name: "Cancel", exact: true }).click();
-  await expect(editor).not.toBeVisible();
+  await rename(page, phone);
+  const editor = phone.locator("[data-in-place-editor] input");
+  await expect(editor).toHaveValue("Original organization");
+  await editor.press("Escape");
+  await expect(editor).toHaveCount(0);
   expect(errors).toEqual([]);
 });

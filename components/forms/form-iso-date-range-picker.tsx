@@ -35,6 +35,8 @@ type Props = {
   dateOnly?: boolean;
   className?: string;
   containerClassName?: string;
+  inline?: boolean;
+  onPicked?: () => void;
 };
 
 export const FormIsoDateRangePicker = observer(
@@ -48,6 +50,8 @@ export const FormIsoDateRangePicker = observer(
     dateOnly = true,
     className,
     containerClassName,
+    inline = false,
+    onPicked,
   }: Props) => {
     const t = useTranslations();
     const resolvedPlaceholder = placeholder ?? t("Common.inputs.dateRangePlaceholder");
@@ -101,6 +105,7 @@ export const FormIsoDateRangePicker = observer(
       }
 
       commit(next);
+      if (dateOnly && next.from.getTime() !== next.to.getTime()) onPicked?.();
     }
 
     function handleTimeChange(side: "from" | "to", value: string) {
@@ -129,6 +134,7 @@ export const FormIsoDateRangePicker = observer(
         next.to.setHours(parsedRange.to.getHours(), parsedRange.to.getMinutes(), parsedRange.to.getSeconds(), 0);
       }
       commit(next);
+      if (dateOnly) onPicked?.();
     }
 
     const fromTimeValue = parsedRange ? localTimeValue(parsedRange.from) : "";
@@ -141,6 +147,75 @@ export const FormIsoDateRangePicker = observer(
     const calendarSelected: DateRange | undefined = parsedRange
       ? { from: parsedRange.from, to: parsedRange.to }
       : undefined;
+
+    const panel = (
+      <>
+        <Calendar
+          disabled={isLoading}
+          mode="range"
+          month={currentMonth}
+          numberOfMonths={isWide ? 2 : 1}
+          selected={calendarSelected}
+          onMonthChange={setCurrentMonth}
+          onSelect={isReadOnly ? undefined : handleSelect}
+        />
+
+        {!dateOnly && (
+          <>
+            <Separator />
+
+            <div className="flex flex-col gap-3 p-3 sm:flex-row">
+              <div className="flex flex-1 flex-col gap-1.5">
+                <FormLabel className="text-xs text-muted-foreground" htmlFor={`${domId}-time-from`}>
+                  {t("Common.datePresets.startTime")}
+                </FormLabel>
+
+                <TimeInput
+                  disabled={isLoading || !parsedRange}
+                  id={`${domId}-time-from`}
+                  use12Hour={intlStore.use12Hour}
+                  value={fromTimeValue}
+                  onChange={(v) => handleTimeChange("from", v)}
+                />
+              </div>
+
+              <div className="flex flex-1 flex-col gap-1.5">
+                <FormLabel className="text-xs text-muted-foreground" htmlFor={`${domId}-time-to`}>
+                  {t("Common.datePresets.endTime")}
+                </FormLabel>
+
+                <TimeInput
+                  disabled={isLoading || !parsedRange}
+                  id={`${domId}-time-to`}
+                  use12Hour={intlStore.use12Hour}
+                  value={toTimeValue}
+                  onChange={(v) => handleTimeChange("to", v)}
+                />
+              </div>
+            </div>
+          </>
+        )}
+
+        <Separator />
+
+        <div className="grid grid-cols-2 gap-2 p-3 sm:grid-cols-3">
+          {RANGE_PRESET_KEYS.map((key) => (
+            <Button
+              key={key}
+              disabled={isLoading}
+              size="sm"
+              type="button"
+              variant="secondary"
+              onClick={isReadOnly ? undefined : () => handlePreset(key)}
+            >
+              {t(`Common.datePresets.${key}`)}
+            </Button>
+          ))}
+        </div>
+      </>
+    );
+
+    if (inline) return <div data-inline-date-picker="">{panel}</div>;
 
     return (
       <div className={cn("flex flex-col gap-1.5", containerClassName)}>
@@ -182,68 +257,7 @@ export const FormIsoDateRangePicker = observer(
             className="w-auto max-h-(--radix-popover-content-available-height) overflow-y-auto p-0"
             onOpenAutoFocus={focusCalendarDay}
           >
-            <Calendar
-              disabled={isLoading}
-              mode="range"
-              month={currentMonth}
-              numberOfMonths={isWide ? 2 : 1}
-              selected={calendarSelected}
-              onMonthChange={setCurrentMonth}
-              onSelect={isReadOnly ? undefined : handleSelect}
-            />
-
-            {!dateOnly && (
-              <>
-                <Separator />
-
-                <div className="flex flex-col gap-3 p-3 sm:flex-row">
-                  <div className="flex flex-1 flex-col gap-1.5">
-                    <FormLabel className="text-xs text-muted-foreground" htmlFor={`${domId}-time-from`}>
-                      {t("Common.datePresets.startTime")}
-                    </FormLabel>
-
-                    <TimeInput
-                      disabled={isLoading || !parsedRange}
-                      id={`${domId}-time-from`}
-                      use12Hour={intlStore.use12Hour}
-                      value={fromTimeValue}
-                      onChange={(v) => handleTimeChange("from", v)}
-                    />
-                  </div>
-
-                  <div className="flex flex-1 flex-col gap-1.5">
-                    <FormLabel className="text-xs text-muted-foreground" htmlFor={`${domId}-time-to`}>
-                      {t("Common.datePresets.endTime")}
-                    </FormLabel>
-
-                    <TimeInput
-                      disabled={isLoading || !parsedRange}
-                      id={`${domId}-time-to`}
-                      use12Hour={intlStore.use12Hour}
-                      value={toTimeValue}
-                      onChange={(v) => handleTimeChange("to", v)}
-                    />
-                  </div>
-                </div>
-              </>
-            )}
-
-            <Separator />
-
-            <div className="grid grid-cols-2 gap-2 p-3 sm:grid-cols-3">
-              {RANGE_PRESET_KEYS.map((key) => (
-                <Button
-                  key={key}
-                  disabled={isLoading}
-                  size="sm"
-                  type="button"
-                  variant="secondary"
-                  onClick={isReadOnly ? undefined : () => handlePreset(key)}
-                >
-                  {t(`Common.datePresets.${key}`)}
-                </Button>
-              ))}
-            </div>
+            {panel}
           </PopoverContent>
         </Popover>
       </div>

@@ -38,7 +38,7 @@ export function RecordCell({
   linkLabels: RecordLinkLabels;
   record: RecordDto;
   onOpen: (ref: RecordRef) => void;
-  onMore?: () => void;
+  onMore?: (trigger: HTMLElement) => void;
   inTrigger?: boolean;
   relativeTimestamp?: boolean;
   avatarFieldId?: string;
@@ -135,6 +135,7 @@ export function RecordCell({
       variant={recordLinkColor(linkColors, summary.records[0].ref.typeId)}
       onChipClick={inTrigger ? undefined : (item) => onOpen(item.ref)}
       onMoreClick={inTrigger || !onMore ? undefined : onMore}
+      onMoreClickWhenLoaded={Boolean(onMore)}
     />
   );
 }

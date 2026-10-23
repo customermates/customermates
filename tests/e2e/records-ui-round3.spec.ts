@@ -361,8 +361,8 @@ test("edits every field type inline in rows and on board cards, with validation,
 
   const times = await row.locator("time").count();
   const date = await openEditor("Date");
-  await date.locator("button").first().click();
-  await page.locator('[data-slot="popover-content"][data-state="open"]').last().getByRole("button", { name: "Today", exact: true }).click();
+  await date.getByRole("button", { name: "Today", exact: true }).click();
+  await date.getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.locator('[data-slot="popover-content"][data-state="open"]')).toHaveCount(0);
   await expect(row.locator("time")).toHaveCount(times + 1);
   const dateEdit = row.getByRole("button", { name: "Edit Date", exact: true });
@@ -392,8 +392,7 @@ test("edits every field type inline in rows and on board cards, with validation,
   const ownerLabels = owner.locator("label").filter({ hasText: "Owner" });
   await expect(ownerLabels).toHaveCount(1);
   await expect(ownerLabels).toHaveClass(/sr-only/);
-  await owner.getByRole("combobox", { name: "Owner", exact: true }).click();
-  await page.getByRole("option").first().click();
+  await owner.getByRole("option").first().click();
   await owner.getByRole("button", { name: "Save", exact: true }).click();
   await expect(owner).not.toBeVisible();
   await expect(row).not.toContainText("Member");
@@ -404,7 +403,7 @@ test("edits every field type inline in rows and on board cards, with validation,
   const card = page.locator("[data-item-id]").first();
   await expect(card).toBeVisible();
   await page.waitForLoadState("networkidle");
-  const cardEditor = page.locator('[data-slot="popover-content"][data-state="open"]').last();
+  const cardEditor = card.locator("[data-in-place-editor] input");
   await expect(async () => {
     if (!(await cardEditor.isVisible())) {
       await card.hover();
@@ -412,9 +411,9 @@ test("edits every field type inline in rows and on board cards, with validation,
     }
     await expect(cardEditor).toBeVisible({ timeout: 2000 });
   }).toPass({ timeout: 20000 });
-  await cardEditor.locator("input").first().fill("40");
-  await cardEditor.locator("input").first().press("Enter");
-  await expect(cardEditor).not.toBeVisible();
+  await cardEditor.fill("40");
+  await cardEditor.press("Enter");
+  await expect(cardEditor).toHaveCount(0);
   await expect(card).toContainText("80");
   await expect(page).toHaveURL(new RegExp(`/records/${typeId}\\?`));
   expect(errors).toEqual([]);
@@ -474,10 +473,11 @@ test("board cards show one chip row with icons, hide empty and grouped values an
     .locator('[data-slot="popover-content"][data-state="open"], [data-slot="drawer-content"][data-state="open"]')
     .last();
   await chip("Money").getByRole("button", { name: "Edit Money", exact: true }).click();
-  await expect(editor).toContainText("Money");
-  await expect(editor.locator("input").first()).toHaveValue(/342,?000/);
-  await page.keyboard.press("Escape");
-  await expect(editor).toHaveCount(0);
+  const moneyInput = chip("Money").locator("[data-in-place-editor] input");
+  await expect(moneyInput).toHaveValue(/342,?000/);
+  await moneyInput.press("Escape");
+  await expect(moneyInput).toHaveCount(0);
+  await expect(chip("Money")).toHaveText("€342K");
   await expect(page.locator(`[data-group-key="value:${choice.options[0].id}"]`).locator(card)).toBeVisible();
 
   await card.hover();
@@ -725,10 +725,8 @@ test("edits built-in assignees across table, card, phone and pinned detail contr
     const editor = page.getByRole("dialog", { name: "Assigned to", exact: true });
     await expect(editor).toBeVisible();
     await expect(editor.getByRole("button", { name: "Save", exact: true })).toBeDisabled();
-    await editor.getByRole("combobox", { name: "Assigned to", exact: true }).press("Enter");
-    await page.getByRole("option").filter({ hasText: "Assigned Colleague" }).click();
-    await expect(page.getByRole("option").filter({ hasText: "Browser Administrator" })).toBeVisible();
-    await page.keyboard.press("Escape");
+    await editor.getByRole("option").filter({ hasText: "Assigned Colleague" }).click();
+    await expect(editor.getByRole("option").filter({ hasText: "Browser Administrator" })).toBeVisible();
     await expect(editor).toBeVisible();
     const before = await assignedIds();
     expect(before).toContain(workspace.userId);
@@ -739,25 +737,21 @@ test("edits built-in assignees across table, card, phone and pinned detail contr
     await expect(trigger).toContainText("Assigned Colleague");
     expect(new URL(page.url()).pathname).toBe(`/en/records/${typeId}`);
     await trigger.click();
-    await editor.getByRole("combobox", { name: "Assigned to", exact: true }).press("Enter");
-    await page.getByRole("option").filter({ hasText: "Assigned Colleague" }).click();
-    await page.keyboard.press("Escape");
+    await editor.getByRole("option").filter({ hasText: "Assigned Colleague" }).click();
     if (mode === "row" && width === 1280) {
       await editor.getByRole("button", { name: "Cancel", exact: true }).click();
       await page.getByRole("alertdialog").getByRole("button", { name: "Discard", exact: true }).click();
       await expect(editor).not.toBeVisible();
       await expect.poll(assignedIds).toEqual([workspace.userId, colleagueId].sort());
       await trigger.click();
-      await editor.getByRole("combobox", { name: "Assigned to", exact: true }).press("Enter");
-      await page.getByRole("option").filter({ hasText: "Assigned Colleague" }).click();
-      await page.keyboard.press("Escape");
+      await editor.getByRole("option").filter({ hasText: "Assigned Colleague" }).click();
     }
     await editor.getByRole("button", { name: "Save", exact: true }).click();
     await expect(editor).not.toBeVisible();
     await expect.poll(assignedIds).toEqual([workspace.userId]);
     if (mode === "card") {
       await trigger.click();
-      await editor.getByRole("combobox", { name: "Assigned to", exact: true }).locator("[data-remove-selection]").click();
+      await editor.getByRole("option").filter({ hasText: "Browser Administrator" }).click();
       await editor.getByRole("button", { name: "Save", exact: true }).click();
       await expect(editor).not.toBeVisible();
       await expect.poll(assignedIds).toEqual([]);
@@ -765,19 +759,14 @@ test("edits built-in assignees across table, card, phone and pinned detail contr
       await item.hover();
       await item.getByRole("button", { name: "Add property", exact: true }).click();
       await page.getByRole("menuitem", { name: "Assigned to", exact: true }).click();
-      const emptyEditor = page.getByRole("dialog").filter({
-        has: page.getByRole("combobox", { name: "Assigned to", exact: true }),
-      });
-      await emptyEditor.getByRole("combobox", { name: "Assigned to", exact: true }).press("Enter");
-      await page.getByRole("option").filter({ hasText: "Browser Administrator" }).click();
-      await page.keyboard.press("Escape");
-      await expect(page.getByRole("option")).toHaveCount(0);
+      const emptyEditor = page.getByRole("dialog").filter({ has: page.locator("[data-inline-autocomplete]") });
+      await emptyEditor.getByRole("option").filter({ hasText: "Browser Administrator" }).click();
       await page.keyboard.press("Escape");
       const discard = page.getByRole("alertdialog");
       await expect(discard).toBeVisible();
       await discard.getByRole("button", { name: "Cancel", exact: true }).click();
       await expect(emptyEditor).toBeVisible();
-      await expect(emptyEditor.getByRole("combobox", { name: "Assigned to", exact: true })).toContainText("Browser Administrator");
+      await expect(emptyEditor.getByRole("option").filter({ hasText: "Browser Administrator" }).locator(".lucide-check")).toHaveCount(1);
       await emptyEditor.getByRole("button", { name: "Save", exact: true }).click();
       await expect.poll(assignedIds).toEqual([workspace.userId]);
       await expect(trigger).toContainText("Browser Administrator");
@@ -793,10 +782,7 @@ test("edits built-in assignees across table, card, phone and pinned detail contr
   const conflictItem = page.locator(`[data-row-id="${recordId}"], [data-item-id="${recordId}"]`).first();
   await conflictItem.getByRole("button", { name: "Edit Assigned to", exact: true }).click();
   const conflictEditor = page.getByRole("dialog", { name: "Assigned to", exact: true });
-  await conflictEditor.getByRole("combobox", { name: "Assigned to", exact: true }).press("Enter");
-  await page.getByRole("option").filter({ hasText: "Assigned Colleague" }).click();
-  await page.keyboard.press("Escape");
-  await expect(page.getByRole("option")).toHaveCount(0);
+  await conflictEditor.getByRole("option").filter({ hasText: "Assigned Colleague" }).click();
   expect(await page.evaluate(() => !window.dispatchEvent(new Event("beforeunload", { cancelable: true })))).toBe(true);
   await page.evaluate(() => history.back());
   const navigationDiscard = page.getByRole("alertdialog");
@@ -818,8 +804,8 @@ test("edits built-in assignees across table, card, phone and pinned detail contr
   await expect(page.locator("[data-sonner-toast]").filter({ hasText: "This record changed. Refresh before saving again." }).first()).toBeVisible();
   await expect(conflictItem.locator('[data-inline-edit="system:assignedTo"]')).not.toContainText("Browser Administrator");
   await expect(conflictEditor).toBeVisible();
-  await expect(conflictEditor.getByRole("combobox", { name: "Assigned to", exact: true })).toContainText("Browser Administrator");
-  await expect(conflictEditor.getByRole("combobox", { name: "Assigned to", exact: true })).toContainText("Assigned Colleague");
+  await expect(conflictEditor.getByRole("option").filter({ hasText: "Browser Administrator" }).locator(".lucide-check")).toHaveCount(1);
+  await expect(conflictEditor.getByRole("option").filter({ hasText: "Assigned Colleague" }).locator(".lucide-check")).toHaveCount(1);
   await expect(conflictEditor).not.toContainText("Selection unavailable");
   expect(await assignedIds()).toEqual([colleagueId]);
   await conflictEditor.getByRole("button", { name: "Cancel", exact: true }).click();
@@ -835,13 +821,9 @@ test("edits built-in assignees across table, card, phone and pinned detail contr
   await page.keyboard.press("Escape");
   const pinned = drawer.locator("[data-record-chip-row]").getByRole("group", { name: "Assigned to", exact: true });
   await pinned.getByRole("button").first().click();
-  const assignment = page.getByRole("combobox", { name: "Assigned to", exact: true }).filter({ visible: true }).last();
-  await assignment.press("Enter");
-  await page.getByRole("option").filter({ hasText: "Assigned Colleague" }).click();
+  await page.locator('[data-slot="popover-content"][data-state="open"]').getByRole("option").filter({ hasText: "Assigned Colleague" }).click();
   await expect(drawer.locator('[data-slot="unsaved-changes-bar"]')).toBeVisible();
   await expect(drawer.getByRole("button", { name: "Save", exact: true })).toBeEnabled();
-  await page.keyboard.press("Escape");
-  await expect(page.getByRole("option")).toHaveCount(0);
   await page.keyboard.press("Escape");
   await expect(page.locator('[data-slot="popover-content"][data-state="open"]')).toHaveCount(0);
   await expect(drawer).toBeVisible();
@@ -905,7 +887,7 @@ test("edits formatted notes inline with the shared editor in rows, cards and pho
     const editor = page.getByRole("dialog", { name: "Notes", exact: true });
     await expect(editor.locator("[data-formatted-text-field]")).toBeVisible();
     if (width >= 768) expect((await editor.boundingBox())?.width).toBeGreaterThan(500);
-    await editor.getByRole("button", { name: "Edit Notes", exact: true }).press("Enter");
+    await expect(editor.getByRole("textbox", { name: "Notes", exact: true })).toBeVisible();
     const text = editor.getByRole("textbox", { name: "Notes", exact: true });
     const draft = `Formatted notes ${mode} ${width}${mode === "card" ? ` ${"Unbroken".repeat(12)}` : ""}`;
     await replaceNotes(text, draft);
@@ -916,7 +898,7 @@ test("edits formatted notes inline with the shared editor in rows, cards and pho
       await expect(editor).not.toBeVisible();
       expect(await notesValue()).toContain(saved);
       await item.getByRole("button", { name: "Edit Notes", exact: true }).click();
-      await editor.getByRole("button", { name: "Edit Notes", exact: true }).press("Enter");
+      await expect(editor.getByRole("textbox", { name: "Notes", exact: true })).toBeVisible();
       await replaceNotes(text, draft);
     }
     await editor.getByRole("button", { name: "Save", exact: true }).click();
@@ -939,7 +921,6 @@ test("edits formatted notes inline with the shared editor in rows, cards and pho
   const phoneItem = page.locator("[data-row-id], [data-item-id]").filter({ hasText: "Lab one" }).first();
   await phoneItem.getByRole("button", { name: "Edit Notes", exact: true }).click();
   const notesEditor = page.getByRole("dialog", { name: "Notes", exact: true });
-  await notesEditor.getByRole("button", { name: "Edit Notes", exact: true }).press("Enter");
   const clearedNotes = notesEditor.getByRole("textbox", { name: "Notes", exact: true });
   await replaceNotes(clearedNotes, "");
   await expect(notesEditor.getByRole("button", { name: "Save", exact: true })).toBeEnabled();
@@ -949,7 +930,6 @@ test("edits formatted notes inline with the shared editor in rows, cards and pho
   await phoneItem.getByRole("button", { name: "Add property", exact: true }).click();
   await page.getByRole("menuitem", { name: "Notes", exact: true }).click();
   const emptyNotes = page.getByRole("dialog").filter({ has: page.locator("[data-formatted-text-field]") });
-  await emptyNotes.getByRole("button", { name: "Edit Notes", exact: true }).press("Enter");
   await replaceNotes(emptyNotes.getByRole("textbox", { name: "Notes", exact: true }), "Notes added from the existing property menu");
   await emptyNotes.getByRole("button", { name: "Save", exact: true }).click();
   await expect(emptyNotes).not.toBeVisible();

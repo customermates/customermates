@@ -6,7 +6,7 @@ import type { GetResult } from "@/core/base/base-get.interactor";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { ChevronsUpDownIcon, XIcon } from "lucide-react";
+import { CheckIcon, ChevronsUpDownIcon, XIcon } from "lucide-react";
 
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -55,6 +55,7 @@ type Props<T extends Identifiable> = {
   onSelectionDataChange?: (items: Array<{ key: string; data?: T }>) => void;
   onValueChange?: (value: string | string[] | undefined) => void;
   onOpenChange?: (open: boolean) => void;
+  inline?: boolean;
 };
 
 function keyOf<T extends Identifiable>(item: T): string {
@@ -101,6 +102,7 @@ export const FormAutocomplete = observer(
     onSelectionDataChange,
     onValueChange,
     onOpenChange,
+    inline = false,
   }: Props<T>) => {
     const store = useAppForm();
     const navigateToHref = useNavigateToHref();
@@ -133,7 +135,7 @@ export const FormAutocomplete = observer(
     const labelId = `${domId}-label`;
 
     const itemsArray: T[] = useMemo(() => Array.from(items ?? []), [items]);
-    const popoverOpen = canEdit && open;
+    const popoverOpen = canEdit && (open || inline);
     const optionRequestKey = popoverOpen && getItems ? JSON.stringify([debouncedInput, optionAttempt]) : null;
     const isOptionsLoading =
       optionRequestKey !== null &&
@@ -399,6 +401,85 @@ export const FormAutocomplete = observer(
       !optionError &&
       canEdit;
 
+    const commandPanel = (
+      <Command shouldFilter={false}>
+        <CommandInput
+          ref={searchInputRef}
+          autoFocus
+          disabled={isCreating}
+          placeholder={t("Common.table.search")}
+          value={input}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && showCreate) {
+              e.preventDefault();
+              runUserAction(handleCreate);
+            }
+          }}
+          onValueChange={setInput}
+        />
+
+        <CommandList aria-busy={isOptionsLoading || isCreating || undefined}>
+          {(isOptionsLoading || isCreating) && <SelectionOptionsSkeleton label={t("Loading.text")} />}
+
+          {!isOptionsLoading && !isCreating && optionError && (
+            <div className="flex flex-col items-center gap-2 px-3 py-4 text-center text-sm" role="alert">
+              <span className="text-muted-foreground">{t("Common.notifications.unexpectedError")}</span>
+
+              <Button
+                size="sm"
+                type="button"
+                variant="secondary"
+                onClick={() => setOptionAttempt((value) => value + 1)}
+              >
+                {t("ErrorCard.retry")}
+              </Button>
+            </div>
+          )}
+
+          {!isOptionsLoading && !isCreating && !optionError && filteredItems.length === 0 && !showCreate && (
+            <CommandEmpty>{resolvedEmptyContent}</CommandEmpty>
+          )}
+
+          {showCreate && (
+            <CommandGroup>
+              <CommandItem value={`__create__${input}`} onSelect={() => runUserAction(handleCreate)}>
+                {t("Common.inputs.addOption", { value: input.trim() })}
+              </CommandItem>
+            </CommandGroup>
+          )}
+
+          {!isOptionsLoading && !optionError && filteredItems.length > 0 && (
+            <CommandGroup>
+              {filteredItems.map((item) => {
+                const k = keyOf(item);
+                const rendered = children(item);
+                const selected = selectedKeys.includes(k);
+                return (
+                  <CommandItem
+                    key={k}
+                    className={cn(selected && "bg-accent")}
+                    data-selected={selected}
+                    value={k}
+                    onSelect={() => {
+                      toggleKey(k);
+                      if (inline && selectionMode === "multiple")
+                        searchInputRef.current?.focus({ preventScroll: true });
+                    }}
+                  >
+                    {rendered}
+
+                    {inline && selected && <CheckIcon aria-hidden className="ml-auto size-4" />}
+                  </CommandItem>
+                );
+              })}
+            </CommandGroup>
+          )}
+        </CommandList>
+      </Command>
+    );
+
+    if (inline) return <div data-inline-autocomplete="">{commandPanel}</div>;
+
     return (
       <div className={cn("space-y-1.5", containerClassName)}>
         {resolvedLabel && (
@@ -460,74 +541,7 @@ export const FormAutocomplete = observer(
                 )}
                 onOpenAutoFocus={() => searchInputRef.current?.focus()}
               >
-                <Command shouldFilter={false}>
-                  <CommandInput
-                    ref={searchInputRef}
-                    autoFocus
-                    disabled={isCreating}
-                    placeholder={t("Common.table.search")}
-                    value={input}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && showCreate) {
-                        e.preventDefault();
-                        runUserAction(handleCreate);
-                      }
-                    }}
-                    onValueChange={setInput}
-                  />
-
-                  <CommandList aria-busy={isOptionsLoading || isCreating || undefined}>
-                    {(isOptionsLoading || isCreating) && <SelectionOptionsSkeleton label={t("Loading.text")} />}
-
-                    {!isOptionsLoading && !isCreating && optionError && (
-                      <div className="flex flex-col items-center gap-2 px-3 py-4 text-center text-sm" role="alert">
-                        <span className="text-muted-foreground">{t("Common.notifications.unexpectedError")}</span>
-
-                        <Button
-                          size="sm"
-                          type="button"
-                          variant="secondary"
-                          onClick={() => setOptionAttempt((value) => value + 1)}
-                        >
-                          {t("ErrorCard.retry")}
-                        </Button>
-                      </div>
-                    )}
-
-                    {!isOptionsLoading && !isCreating && !optionError && filteredItems.length === 0 && !showCreate && (
-                      <CommandEmpty>{resolvedEmptyContent}</CommandEmpty>
-                    )}
-
-                    {showCreate && (
-                      <CommandGroup>
-                        <CommandItem value={`__create__${input}`} onSelect={() => runUserAction(handleCreate)}>
-                          {t("Common.inputs.addOption", { value: input.trim() })}
-                        </CommandItem>
-                      </CommandGroup>
-                    )}
-
-                    {!isOptionsLoading && !optionError && filteredItems.length > 0 && (
-                      <CommandGroup>
-                        {filteredItems.map((item) => {
-                          const k = keyOf(item);
-                          const rendered = children(item);
-                          const selected = selectedKeys.includes(k);
-                          return (
-                            <CommandItem
-                              key={k}
-                              className={cn(selected && "bg-accent")}
-                              data-selected={selected}
-                              value={k}
-                              onSelect={() => toggleKey(k)}
-                            >
-                              {rendered}
-                            </CommandItem>
-                          );
-                        })}
-                      </CommandGroup>
-                    )}
-                  </CommandList>
-                </Command>
+                {commandPanel}
               </PopoverContent>
             </Popover>
           )}

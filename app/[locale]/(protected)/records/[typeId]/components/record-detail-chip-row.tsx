@@ -44,7 +44,14 @@ import {
   linkTypeId,
 } from "./record-chip";
 import { RecordChannelPopover } from "./record-identity-editor";
-import { EDIT_SPACE_BUTTON_CLASS, focusFirstControl, RecordLinkPicker } from "./record-inline-field";
+import {
+  EDIT_SPACE_BUTTON_CLASS,
+  EDIT_SPACE_FOCUS_CLASS,
+  focusFirstControl,
+  inlineEditorPopoverClass,
+  RecordLinkPicker,
+} from "./record-inline-field";
+import { editsFlush } from "./record-field-value-editor";
 import { RecordInputField } from "./record-input-field";
 import { useRecordChoices } from "@/components/records/use-record-choices";
 import { actionData } from "@/core/utils/action-data";
@@ -152,7 +159,7 @@ function ChipPopover({
   chip,
   wide = false,
   contact = false,
-  formatted = false,
+  popoverClassName,
   open,
   onOpenChange,
   children,
@@ -161,7 +168,7 @@ function ChipPopover({
   chip: ReactNode;
   wide?: boolean;
   contact?: boolean;
-  formatted?: boolean;
+  popoverClassName?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   children: ReactNode;
@@ -171,13 +178,20 @@ function ChipPopover({
     <Popover modal open={open} onOpenChange={onOpenChange}>
       {contact ? (
         <PopoverAnchor asChild>
-          <span className={cn(ITEM_REVEAL_GROUP_CLASS, "inline-flex min-w-0 max-w-full items-center gap-1")}>
+          <span
+            className={cn(
+              ITEM_REVEAL_GROUP_CLASS,
+              EDIT_SPACE_FOCUS_CLASS,
+              "inline-flex min-w-0 max-w-full items-center gap-1",
+            )}
+          >
             {chip}
 
             <PopoverTrigger asChild>
               <button
                 aria-label={t("RecordModel.editValue", { field: label })}
                 className={EDIT_SPACE_BUTTON_CLASS}
+                data-edit-target=""
                 type="button"
               >
                 {t("RecordModel.edit")}
@@ -199,17 +213,13 @@ function ChipPopover({
 
       <PopoverContent
         align="start"
-        className={cn(chipPopoverClass(wide), formatted && "w-xl")}
+        className={cn(chipPopoverClass(wide), popoverClassName)}
         onOpenAutoFocus={focusFirstControl}
       >
         {open && children}
       </PopoverContent>
     </Popover>
   );
-}
-
-function EditorHeading({ label }: { label: string }) {
-  return <p className="truncate text-xs font-medium text-muted-foreground">{label}</p>;
 }
 
 const LinkedChip = observer(function LinkedChip({
@@ -299,6 +309,7 @@ const AssigneeEditor = observer(function AssigneeEditor({ store, label }: { stor
   );
   return (
     <FormAutocompleteAvatar
+      inline
       ariaLabel={label}
       getItems={(params) => actionData(getActiveUsersAction(params))}
       id="assignedUserIds"
@@ -335,8 +346,6 @@ const DetailChip = observer(function DetailChip({
     if (!editable || store.isDisabled) return placeholder;
     return (
       <ChipPopover chip={placeholder} label={column.label} open={open} onOpenChange={setOpen}>
-        <EditorHeading label={column.label} />
-
         <RecordChannelPopover editor={store} />
       </ChipPopover>
     );
@@ -362,9 +371,7 @@ const DetailChip = observer(function DetailChip({
     );
     if (!canEdit) return chip;
     return (
-      <ChipPopover chip={chip} label={column.label} open={open} onOpenChange={setOpen}>
-        <EditorHeading label={column.label} />
-
+      <ChipPopover chip={chip} label={column.label} open={open} popoverClassName="p-0" onOpenChange={setOpen}>
         <AssigneeEditor label={column.label} store={store} />
       </ChipPopover>
     );
@@ -379,19 +386,18 @@ const DetailChip = observer(function DetailChip({
     <ChipPopover
       chip={chip}
       contact={!entry.empty && CONTACT_VALUE_TYPES.includes(column.field.valueType)}
-      formatted={column.field.valueType === "richText"}
       label={column.label}
       open={open}
+      popoverClassName={inlineEditorPopoverClass(column.field)}
       onOpenChange={setOpen}
     >
-      <EditorHeading label={column.label} />
-
       <label className="sr-only" htmlFor={inputId}>
         {column.label}
       </label>
 
       <RecordInputField
         field={column.field}
+        flush={editsFlush(column.field)}
         id={`values.${column.field.id}`}
         inputId={inputId}
         label={null}

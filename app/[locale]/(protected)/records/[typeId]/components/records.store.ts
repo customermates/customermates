@@ -489,6 +489,18 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
                   type: column.id === "system:assignedTo" ? ("member" as const) : ("dateTime" as const),
                 },
         ),
+      ...this.filterableFields.flatMap((field) =>
+        field.typeId && !this.recordColumns.some((column) => column.id === field.field)
+          ? [
+              {
+                id: field.field,
+                label: field.label ?? field.field,
+                type: "recordReference" as const,
+                typeId: field.typeId,
+              },
+            ]
+          : [],
+      ),
     ];
   }
   get canManage() {

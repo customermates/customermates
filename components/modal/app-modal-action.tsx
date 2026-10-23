@@ -166,14 +166,18 @@ export function orderAppModalActions(actions: readonly AppModalActionProps[]) {
 
 export function AppModalActionRail({
   actions,
+  controls,
   className,
 }: {
   actions: readonly AppModalActionProps[];
+  controls?: ReactNode;
   className?: string;
 }) {
-  if (actions.length === 0) return null;
+  if (actions.length === 0 && !controls) return null;
   return (
     <div className={cn("flex min-h-8 shrink-0 items-center gap-2 self-start", className)} data-slot="app-modal-actions">
+      {controls}
+
       {orderAppModalActions(actions).map((action) => (
         <AppModalAction key={action.id} {...action} />
       ))}

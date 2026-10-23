@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { expect, test, collectPageErrors } from "./fixtures";
-import { recordRowName, recordRows, runNamedRowAction } from "./record-rows";
+import { linkedRecordNames, linkedRecordOpeners, recordRowName, recordRows, runNamedRowAction } from "./record-rows";
 
 test("returns to a valid relationship, path and embedded page after deleting its last row", async ({
   page,
@@ -95,8 +95,6 @@ test("returns to a valid relationship, path and embedded page after deleting its
   const direct = main.locator(`[data-entity-field="relationship:${id("deal.organizations")}:outgoing"]`);
   const projected = main.locator(`[data-entity-field="path:${pathId}"]`);
   const more = direct.getByRole("button", { name: /^\+\d+ more$/ });
-  const picker = page.getByRole("dialog", { name: "Organizations", exact: true });
-  const options = picker.getByRole("option", { name: /^Linked organization/ });
   await expect(more).toBeVisible();
   expect(
     (await direct.getByRole("button", { name: /^Open Linked organization/ }).count()) +
@@ -111,37 +109,24 @@ test("returns to a valid relationship, path and embedded page after deleting its
     ).toBe(26);
     await expect(field.getByRole("button", { name: "Next page", exact: true })).toHaveCount(0);
   }
+  const drawer = page.getByRole("dialog").filter({ has: page.locator("[data-linked-records]") });
+  const rows = linkedRecordOpeners(drawer);
   await more.click();
-  await expect(options).toHaveCount(25);
-  await picker.getByRole("button", { name: "Next page", exact: true }).click();
-  await expect(options).toHaveCount(1);
+  await expect(drawer.getByRole("heading", { name: "Organizations", exact: true })).toBeVisible();
+  await expect(drawer).toContainText("26 records");
+  await expect(rows).toHaveCount(10);
   await page.keyboard.press("Escape");
-  await expect(picker).not.toBeVisible();
+  await expect(drawer).toHaveCount(0);
   await projectedMore.click();
-  const projectedPicker = page.getByRole("dialog", {
-    name: "Connected organizations",
-    exact: true,
-  });
-  const projectedOptions = projectedPicker.getByRole("option", {
-    name: /^Linked organization/,
-  });
-  const search = projectedPicker.getByRole("combobox", {
-    name: "Search...",
-    exact: true,
-  });
-  await expect(search).toBeFocused();
-  await expect(projectedOptions).toHaveCount(25);
-  await expect(projectedPicker.getByRole("button", { name: /^Unlink / })).toHaveCount(0);
-  await search.fill("Linked organization 01");
-  await expect(projectedOptions).toHaveCount(1);
-  await search.fill("");
-  await expect(projectedOptions).toHaveCount(25);
-  await projectedPicker.getByRole("button", { name: "Next page", exact: true }).click();
-  const last = projectedOptions;
-  await expect(last).toHaveCount(1);
-  const title = await last.getAttribute("aria-label");
-  if (!title) throw new Error("The last linked organization has no accessible name");
-  await last.click();
+  await expect(drawer.getByRole("heading", { name: "Connected organizations", exact: true })).toBeVisible();
+  await expect(drawer).toContainText("26 records");
+  await drawer.getByRole("button", { name: "Next page", exact: true }).click();
+  await drawer.getByRole("button", { name: "Next page", exact: true }).click();
+  await expect(rows).toHaveCount(6);
+  const title = (await linkedRecordNames(drawer)).at(-1) ?? "";
+  await rows.last().focus();
+  await page.keyboard.press("Enter");
+  await expect(drawer).toHaveCount(0);
   const editor = page.getByRole("dialog", {
     name: "Organization",
     exact: true,
@@ -150,12 +135,10 @@ test("returns to a valid relationship, path and embedded page after deleting its
   await editor.getByRole("button", { name: "Delete", exact: true }).click();
   await page.getByRole("alertdialog").locator("#confirm-delete").click();
   await expect(editor).not.toBeVisible();
-  // The existing linked picker is revealed again when its child drawer closes.
-  await expect(projectedPicker).toBeVisible();
-  await expect(projectedOptions).toHaveCount(25);
-  await expect(projectedPicker.getByRole("button", { name: "Next page", exact: true })).toHaveCount(0);
+  await projectedMore.click();
+  await expect(drawer).toContainText("25 records");
   await page.keyboard.press("Escape");
-  await expect(projectedPicker).not.toBeVisible();
+  await expect(drawer).toHaveCount(0);
   await expect(projectedMore).toBeFocused();
   for (const field of [direct, projected]) {
     expect(
@@ -202,19 +185,17 @@ test("returns to a valid relationship, path and embedded page after deleting its
   });
   await page.reload();
   await more.click();
-  await expect(options).toHaveCount(25);
-  await expect(picker.getByRole("button", { name: "Next page", exact: true })).toHaveCount(0);
+  await expect(drawer).toContainText("25 records");
   await page.keyboard.press("Escape");
-  await expect(picker).not.toBeVisible();
+  await expect(drawer).toHaveCount(0);
   expect(
     (await projected.locator("[data-chip-id]").count()) +
       Number((await projectedMore.innerText()).match(/\d+/)?.[0]),
   ).toBe(25);
   await projectedMore.click();
-  await expect(projectedOptions).toHaveCount(25);
-  await expect(projectedPicker.getByRole("button", { name: "Next page", exact: true })).toHaveCount(0);
+  await expect(drawer).toContainText("25 records");
   await page.keyboard.press("Escape");
-  await expect(projectedPicker).not.toBeVisible();
+  await expect(drawer).toHaveCount(0);
   await expect(recordRows(embedded)).toHaveCount(10);
   expect(errors).toEqual([]);
 });

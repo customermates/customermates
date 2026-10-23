@@ -75,7 +75,7 @@ export function RecordChipList({
 }) {
   return (
     <div
-      className="flex min-w-0 flex-wrap items-center gap-1 [&_[data-edit-target]]:m-0 [&_[data-edit-target]]:min-h-0 [&_[data-edit-target]]:p-0"
+      className="flex min-w-0 flex-wrap items-center gap-1 [&_:is([data-edit-target],[data-edit-surface])]:m-0 [&_:is([data-edit-target],[data-edit-surface])]:min-h-0 [&_:is([data-edit-target],[data-edit-surface])]:p-0"
       data-chip-row=""
     >
       {entries.map((entry) => (
@@ -202,9 +202,7 @@ export const RecordPropertyChipView = observer(function RecordPropertyChipView({
     if (result?.state === "value" && result.value.kind === "boolean") {
       return (
         <AppChip startContent={icon} tooltip={field.label}>
-          <ChipLabel name={field.label}>
-            <RecordValue field={field} result={result} />
-          </ChipLabel>
+          {field.label}
         </AppChip>
       );
     }

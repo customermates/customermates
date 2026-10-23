@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { postOk, readModel } from "./api";
 import { presetId } from "../../features/records/crm-preset";
-import { openRecordDetails } from "./record-rows";
+import { linkedRecordNames, linkedRecordOpeners, openRecordDetails } from "./record-rows";
 import { secondUser } from "./second-user";
 import { expectHydrated } from "./workspace-switching";
 
@@ -104,7 +104,7 @@ test("shows the full name of truncated direct and derived relationship chips on 
   expect(errors).toEqual([]);
 });
 
-test("keeps 100 linked deals within three chip rows and searches, pages, opens and unlinks through the overflow", async ({
+test("keeps 100 linked deals within three chip rows, pages and opens them in the drawer and unlinks through the picker", async ({
   page,
   database,
   companyId,
@@ -189,47 +189,31 @@ test("keeps 100 linked deals within three chip rows and searches, pages, opens a
     .innerText();
   await more().scrollIntoViewIfNeeded();
   await more().click();
-  const popover = page.getByRole("dialog", { name: "Deals", exact: true });
-  const list = popover.locator("[data-linked-record-list]");
-  await expect(popover.getByRole("combobox", { name: "Search...", exact: true })).toBeFocused();
-  await expect(list.getByRole("option", { name: /^Overflow deal/ })).toHaveCount(25);
-  const first = await list
-    .getByRole("option", { name: /^Overflow deal/ })
-    .first()
-    .innerText();
-  await popover.getByRole("button", { name: "Next page", exact: true }).focus();
-  await page.keyboard.press("Enter");
-  await expect(list.getByRole("option", { name: /^Overflow deal/ })).toHaveCount(25);
-  await expect(list.getByRole("option", { name: first, exact: true })).toHaveCount(0);
-  await popover.getByRole("combobox", { name: "Search...", exact: true }).fill("Overflow deal 000");
-  await expect(list.getByRole("option", { name: /^Overflow deal/ })).toHaveCount(1);
-  await expect(list).not.toContainText("Unlinked sentinel deal");
-  await list.getByRole("button", { name: /^Open Overflow deal/ }).click();
+  const drawer = page.getByRole("dialog").filter({ has: page.locator("[data-linked-records]") });
+  await expect(drawer.getByRole("heading", { name: "Deals", exact: true })).toBeVisible();
+  await expect(drawer).toContainText("100 records");
+  const rows = linkedRecordOpeners(drawer);
+  await expect(rows).toHaveCount(10);
+  const [first] = await linkedRecordNames(drawer);
+  await drawer.getByRole("button", { name: "Next page", exact: true }).click();
+  await expect.poll(async () => (await linkedRecordNames(drawer)).includes(first)).toBe(false);
+  await expect(drawer).not.toContainText("Unlinked sentinel deal");
+  const [opened] = await linkedRecordNames(drawer);
+  await rows.first().click();
+  await expect(drawer).toHaveCount(0);
   const nested = page.getByRole("dialog", { name: "Deal", exact: true });
-  await expect(nested.getByRole("textbox", { name: "Name", exact: true })).toHaveValue(/^Overflow deal 000/);
+  await expect.poll(async () => (await nested.getByRole("textbox", { name: "Name", exact: true }).inputValue()).trim()).toBe(opened);
   await nested.getByRole("button", { name: "Close", exact: true }).click();
   await expect(nested).not.toBeVisible();
-  // Opening a linked record closes the picker through the existing overlay lifecycle.
-  if (await popover.isVisible()) await page.keyboard.press("Escape");
-  await more().click();
-  await expect(list.getByRole("option", { name: /^Overflow deal/ })).toHaveCount(25);
-  await expect(list.locator(".lucide-check")).toHaveCount(25);
-  await expect(list.getByRole("option", { name: previewName, exact: true })).toBeVisible();
-  const selected = list.getByRole("option").first();
-  const selectedName = await selected.getAttribute("aria-label");
-  if (!selectedName) throw new Error("The selected linked record has no accessible name");
-  await selected.click();
-  await expect(nested).not.toBeVisible();
-  await expect(popover.getByRole("combobox", { name: "Search...", exact: true })).toBeFocused();
-  await expect(popover).toContainText("99 linked records");
-  await expect(list.getByRole("option", { name: selectedName, exact: true })).toHaveCount(0);
-  await list
-    .getByRole("button", { name: /^Open / })
-    .first()
-    .focus();
+  const popover = page.getByRole("dialog", { name: "Deals", exact: true });
+  await field.locator("[data-relationship-field]").click({ position: { x: 3, y: 3 } });
+  await popover.locator('[data-slot="command-input"]').fill(previewName);
+  const linked = popover.getByRole("option", { name: previewName, exact: true });
+  await expect(linked.locator(".lucide-check")).toHaveCount(1);
+  await linked.click();
+  await expect(linked.locator(".lucide-check")).toHaveCount(0);
   await page.keyboard.press("Escape");
   await expect(popover).not.toBeVisible();
-  await expect(more()).toBeFocused();
   const link = field.getByRole("combobox", { name: "Deals", exact: true });
   // The blank part of the bordered input still opens its normal picker.
   await field.locator("[data-relationship-field]").click({ position: { x: 3, y: 3 } });
@@ -308,12 +292,12 @@ test("returns focus after resizing away a read-only relationship overflow opener
     await expect(field.getByRole("combobox")).toHaveCount(0);
     await expect(more).toBeVisible();
     await more.click();
-    const picker = reader.page.getByRole("dialog", { name: "Deals", exact: true });
-    await expect(picker.getByRole("combobox", { name: "Search...", exact: true })).toBeFocused();
+    const drawer = reader.page.getByRole("dialog").filter({ has: reader.page.locator("[data-linked-records]") });
+    await expect(drawer).toContainText("4 records");
     await reader.page.setViewportSize({ width: 1600, height: 900 });
     await expect(more).toHaveCount(0);
     await reader.page.keyboard.press("Escape");
-    await expect(picker).not.toBeVisible();
+    await expect(drawer).not.toBeVisible();
     await expect(field.locator("[data-relationship-field]")).toBeFocused();
     await expect(field.getByRole("button", { name: /^Unlink / })).toHaveCount(0);
     expect(reader.errors).toEqual([]);
@@ -376,10 +360,11 @@ test("wraps and expands plain text, edits it directly, and preserves the saved v
   const field = page.locator(`[data-entity-field="${fieldId}"]`);
   await page.goto(`/en/records/${typeId}/${recordId}`);
   await expect(field.getByRole("button", { name: "Show more", exact: true })).toBeVisible();
-  const name = page.getByRole("main").getByRole("textbox", { name: "Name", exact: true });
-  await name.fill(text);
+  const name = page.getByRole("main").getByRole("heading").getByRole("textbox", { name: "Name", exact: true });
+  const longName = text.replace("\n", " ");
+  await name.fill(longName);
   await expect(name).toBeFocused();
-  await expect(name).toHaveValue(text);
+  await expect(name).toHaveValue(longName);
   await name.fill("Overflow text organization");
   for (const theme of ["light", "dark"]) {
     await page.evaluate((theme) => {

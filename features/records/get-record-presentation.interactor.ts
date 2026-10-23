@@ -39,8 +39,8 @@ import {
 } from "./record-presentation";
 import { recordColumns } from "./record-columns";
 import { liveGroupSummaries, recordGroupableFields, resolveRecordGrouping } from "./record-grouping";
-import { parseRelationshipColumnKey } from "./record-column.schema";
-import { resolveRecordPath } from "./record-relationship-path";
+import { parseRelationshipColumnKey, relationshipPathColumnKey } from "./record-column.schema";
+import { recordFilterPaths, resolveRecordPath } from "./record-relationship-path";
 import { liveRecordFilters } from "./record-view-state";
 
 const GetRecordPresentationSchema = z.object({ typeId: z.uuid(), params: GetQueryParamsSchema.default({}) }).strict();
@@ -103,6 +103,11 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
               relationships: allowedRelationships,
             }),
         );
+        const filterPaths = recordFilterPaths(
+          type.id,
+          { types: model.types, relationships: allowedRelationships },
+          paths,
+        );
         const pathRelationships = new Set(paths?.flatMap((path) => path.path.map((step) => step.relationId)));
         const relationships = allowedRelationships.filter(
           (relation) =>
@@ -112,7 +117,7 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
         );
         const liveState = <T extends { filters?: Filter[] }>(state: T): T =>
           state.filters
-            ? { ...state, filters: liveRecordFilters(type.id, state.filters, model, relationships, paths) }
+            ? { ...state, filters: liveRecordFilters(type.id, state.filters, model, relationships, filterPaths) }
             : state;
         const views = viewState.views.map((view) => ({ ...view, state: liveState(view.state) }));
         const allState = liveState(viewState.allState);
@@ -139,7 +144,7 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
             page: input.params.page ?? input.params.pagination?.page ?? 1,
           },
           relationships,
-          paths,
+          filterPaths,
         );
         const avatarFieldId = model.capabilities
           .find((binding) => binding.kind === "avatar" && binding.typeId === type.id)
@@ -216,8 +221,9 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
               ...state,
               items,
               p13nId: recordSurfaceKey(type.id),
-              filterableFields: recordFilterableFields(fields, relationships, type.id, paths).map((field) => ({
+              filterableFields: recordFilterableFields(fields, relationships, type.id, filterPaths).map((field) => ({
                 ...field,
+                typeId: filterPaths.find((path) => relationshipPathColumnKey(path.id) === field.field)?.sourceTypeId,
                 label:
                   field.field in systemColumnLabels
                     ? systemColumnLabels[field.field as keyof typeof systemColumnLabels]

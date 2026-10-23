@@ -1,5 +1,6 @@
 import { DEMO_COMPANY_ID, demoId, expect, test } from "./demo-seed";
 import { expectHydrated } from "./workspace-switching";
+import { linkedRecordNames, linkedRecordOpeners } from "./record-rows";
 
 /** Sub-lists and relationship paths of the seeded workspace: deal line items, and the Deals path of a service. */
 test("a deal shows its line items with Max's curated line item columns", async ({ page, database, errors }, testInfo) => {
@@ -90,39 +91,23 @@ test("a service lists the deals that sell it and explains the full path in the i
     )
     .toBe(3);
   await more.click();
-  const picker = page.getByRole("dialog", { name: "Deals", exact: true });
-  const list = picker.locator("[data-linked-record-list]");
-  const options = list.getByRole("option");
-  const search = picker.getByRole("combobox", { name: "Search...", exact: true });
-  await expect(search).toBeFocused();
-  await expect(picker).toContainText(`${deals.size} linked records`);
-  await expect(picker.getByRole("button", { name: /^Unlink / })).toHaveCount(0);
-  const seen = new Set<string>();
-  for (let index = 0; index < Math.ceil(deals.size / 25); index++) {
-    await expect(options).toHaveCount(Math.min(25, deals.size - index * 25));
-    await expect(options.locator(".lucide-check")).toHaveCount(Math.min(25, deals.size - index * 25));
-    const records = await options.evaluateAll((elements) =>
-      elements.map((element) => ({
-        id: element.getAttribute("data-value") ?? "",
-        name: element.getAttribute("aria-label"),
-      })),
-    );
-    for (const record of records) {
-      expect(deals.get(record.id)).toBe(record.name);
-      expect(seen.has(record.id)).toBe(false);
-      seen.add(record.id);
-    }
-    if (seen.size < deals.size) {
-      await picker.getByRole("button", { name: "Next page", exact: true }).click();
-      await expect.poll(() => options.first().getAttribute("data-value")).not.toBe(records[0].id);
+  const drawer = page.getByRole("dialog").filter({ has: page.locator("[data-linked-records]") });
+  await expect(drawer.getByRole("heading", { name: "Deals", exact: true })).toBeVisible();
+  await expect(drawer).toContainText(`${deals.size} records`);
+  const drawerRows = linkedRecordOpeners(drawer);
+  const seen: string[] = [];
+  for (let index = 0; index < Math.ceil(deals.size / 10); index++) {
+    await expect(drawerRows).toHaveCount(Math.min(10, deals.size - index * 10));
+    const names = await linkedRecordNames(drawer);
+    seen.push(...names);
+    if (seen.length < deals.size) {
+      await drawer.getByRole("button", { name: "Next page", exact: true }).click();
+      await expect.poll(async () => (await linkedRecordNames(drawer))[0]).not.toBe(names[0]);
     }
   }
-  expect([...seen].sort()).toEqual([...deals.keys()].sort());
-  const [searchId, searchName] = [...deals.entries()][0];
-  await search.fill(searchName);
-  await expect(list.locator(`[role="option"][data-value="${searchId}"]`)).toBeVisible();
+  expect(seen.sort()).toEqual([...deals.values()].sort());
   await page.keyboard.press("Escape");
-  await expect(picker).not.toBeVisible();
+  await expect(drawer).toHaveCount(0);
   await expect(more).toBeFocused();
   await path.getByRole("button", { name: "Where Deals comes from", exact: true }).click();
   const popover = page.getByRole("dialog", { name: "Where Deals comes from", exact: true });

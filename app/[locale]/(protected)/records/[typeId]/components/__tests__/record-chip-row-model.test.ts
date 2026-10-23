@@ -88,27 +88,15 @@ describe("record chip row model", () => {
   it("shows only filled values on cards and lists the empty ones for the add chip", () => {
     const { entries, empty } = recordChipRowModel(columns, row());
 
-    expect(entries.map((entry) => entry.column.id)).toEqual([
-      "value",
-      "weighted",
-      "quantity",
-      "done",
-      "relationship:services",
-    ]);
-    expect(empty.map((column) => column.id)).toEqual(["tags", "notes", "system:assignedTo"]);
+    expect(entries.map((entry) => entry.column.id)).toEqual(["value", "weighted", "quantity", "relationship:services"]);
+    expect(empty.map((column) => column.id)).toEqual(["tags", "done", "notes", "system:assignedTo"]);
   });
 
   it("names a chip only when another visible chip shares its icon", () => {
     const { entries } = recordChipRowModel(columns, row());
     const named = Object.fromEntries(entries.map((entry) => [entry.column.id, entry.showName]));
 
-    expect(named).toEqual({
-      value: true,
-      weighted: true,
-      quantity: false,
-      done: false,
-      "relationship:services": false,
-    });
+    expect(named).toEqual({ value: true, weighted: true, quantity: false, "relationship:services": false });
   });
 
   it("keys a link chip by the list it points to", () => {
@@ -132,7 +120,7 @@ describe("record chip row model", () => {
     const filled = row({ fields, assignedUsers } as unknown as Partial<RecordRow>);
 
     expect(isEmptyColumn(filled, field("done", "Done", "boolean"))).toBe(false);
-    expect(isEmptyColumn(row(), field("done", "Done", "boolean"))).toBe(false);
+    expect(isEmptyColumn(row(), field("done", "Done", "boolean"))).toBe(true);
     expect(isEmptyColumn(filled, services)).toBe(false);
     expect(isEmptyColumn(filled, owner)).toBe(false);
     expect(isEmptyColumn(row({ relationships: [] }), services)).toBe(true);
