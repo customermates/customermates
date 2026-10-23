@@ -1,5 +1,7 @@
 export const WIDGET_NUMBER_COMPACT_FROM = 10_000;
 
+export const WIDGET_CURRENCY_WHOLE_FROM = 1_000;
+
 type DecimalFormat = (
   value: string | number,
   options: { currency?: string | null; compact?: boolean; maximumFractionDigits?: number },
@@ -16,8 +18,11 @@ export function formatWidgetNumber(
 ): WidgetNumberText {
   const exact = decimal(value, { currency, maximumFractionDigits: integer ? 0 : fractionDigits });
   const magnitude = Math.abs(Number(value));
-  if (integer || !Number.isFinite(magnitude) || magnitude < WIDGET_NUMBER_COMPACT_FROM)
-    return { display: exact, exact };
+  if (integer || !Number.isFinite(magnitude)) return { display: exact, exact };
+  if (magnitude < WIDGET_NUMBER_COMPACT_FROM) {
+    if (!currency || magnitude < WIDGET_CURRENCY_WHOLE_FROM) return { display: exact, exact };
+    return { display: decimal(value, { currency, maximumFractionDigits: 0 }), exact };
+  }
   return { display: decimal(Number(value), { currency, compact: true, maximumFractionDigits: 1 }), exact };
 }
 
