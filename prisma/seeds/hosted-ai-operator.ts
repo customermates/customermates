@@ -4,6 +4,7 @@ import type { Prisma } from "@/generated/prisma";
 
 import { agentCreditPeriodForAnchor } from "@/ee/agent-chat/agent-credit-policy";
 import { AGENT_MODELS } from "@/ee/agent-chat/model-catalog";
+import { fixtureWorkspaceSlug } from "@/core/config/synthetic-seed-user";
 
 import type { SeedContext } from "./context";
 import { fixtureId, reconcileAuthUserId, reconcileDomainUserId } from "./helpers";
@@ -149,6 +150,7 @@ export async function seedHostedAiOperatorFixtures(context: SeedContext, now = n
   const password = await hashPassword(sharedUserPassword);
 
   const company = {
+    slug: fixtureWorkspaceSlug(ids.hostedAiFixtureCompany),
     createdAt: FIXTURE_COMPANY_CREATED_AT,
     updatedAt: FIXTURE_COMPANY_CREATED_AT,
   };
@@ -318,6 +320,7 @@ export async function seedHostedAiOperatorUserTableFixtures(
 
   for (const definition of SYNTHETIC_HOSTED_AI_OPERATOR_USER_DEFINITIONS) {
     const company = {
+      slug: fixtureWorkspaceSlug(definition.companyId),
       createdAt: new Date(definition.createdAt.getTime() - HOUR),
       updatedAt: definition.createdAt,
     };

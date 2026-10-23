@@ -22,6 +22,7 @@ const prismaMock = {
   conversionEvent: { create: vi.fn().mockResolvedValue({ id: "conversion-1" }) },
   company: {
     create: vi.fn().mockResolvedValue({ id: "company-1" }),
+    createMany: vi.fn().mockResolvedValue({ count: 1 }),
     update: vi.fn().mockResolvedValue({ id: "company-1" }),
   },
   userRole: { create: vi.fn().mockResolvedValue({ id: "role-1" }) },
@@ -73,11 +74,15 @@ const registerArgs = {
 describe("WorkspaceRegistrationService.createCompanyAndUser", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(crypto, "randomUUID").mockReturnValue("company-1" as ReturnType<typeof crypto.randomUUID>);
   });
 
   it("creates membership, role, subscription, and workspace infrastructure", async () => {
     await registration().createCompanyAndUser(registerArgs);
-    expect(prismaMock.company.create).toHaveBeenCalledOnce();
+    expect(prismaMock.company.createMany).toHaveBeenCalledOnce();
+    expect(prismaMock.company.createMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skipDuplicates: true, data: [expect.objectContaining({ id: "company-1" })] }),
+    );
     expect(prismaMock.userRole.create).toHaveBeenCalledOnce();
     expect(prismaMock.user.create).toHaveBeenCalledOnce();
     expect(prismaMock.subscription.create).toHaveBeenCalledOnce();

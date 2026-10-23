@@ -1,6 +1,6 @@
 import { hashPassword } from "better-auth/crypto";
 
-import { SYNTHETIC_COMPANY_USERS } from "@/core/config/synthetic-seed-user";
+import { SYNTHETIC_COMPANY_USERS, SYNTHETIC_WORKSPACE_SLUG } from "@/core/config/synthetic-seed-user";
 
 import type { SeedContext } from "./context";
 
@@ -16,6 +16,7 @@ const SYNTHETIC_COMPANY = {
   ...SYNTHETIC_SEED_TIMELINE.company,
   createdByAuthUserId: SEED_IDS.user,
   name: TEAM_COMPANY_NAME,
+  slug: SYNTHETIC_WORKSPACE_SLUG,
 } as const;
 
 export const SYNTHETIC_SUBSCRIPTION = {
