@@ -1,4 +1,4 @@
-import { ChartColor, DisplayType } from "@/features/widget/widget-display.schema";
+import { DisplayType } from "@/features/widget/widget-display.schema";
 
 import { day, defineSolution, photo, type FieldInput, type RecordSpec, phoneNumber } from "../define-solution";
 
@@ -1354,7 +1354,6 @@ export default defineSolution<Strings>({
             list: "organization",
             aggregation: "count",
             groupBy: { field: "preferredChannel" },
-            colors: [ChartColor.secondary1],
             width: 6,
           },
           {

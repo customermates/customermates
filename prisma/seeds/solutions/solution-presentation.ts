@@ -138,6 +138,19 @@ export type SolutionWidgetRow = {
 };
 
 const KPI_HEIGHT = 2;
+
+/** One accent hue per solution: every widget of its dashboards uses that hue, multi-value charts its shades. */
+const SOLUTION_ACCENTS: Record<SolutionWorkspace["solution"]["id"], ChartColor> = {
+  smb: ChartColor.primary1,
+  consultants: ChartColor.info1,
+  agencies: ChartColor.warning1,
+  freelancers: ChartColor.secondary1,
+  startups: ChartColor.success1,
+  "client-management": ChartColor.secondary1,
+  "sales-pipeline": ChartColor.primary1,
+  "linkedin-crm": ChartColor.info1,
+  "whatsapp-crm": ChartColor.success1,
+};
 const CHART_HEIGHT = 5;
 
 function widgetFilters(
@@ -164,6 +177,7 @@ function valueField(companyId: string, list: string, field: string | undefined):
 export function buildSolutionWidgets(workspace: SolutionWorkspace, content: SolutionContent): SolutionWidgetRow[] {
   const { companyId } = workspace;
   const id = (key: string) => presetId(companyId, key);
+  const accent = SOLUTION_ACCENTS[workspace.solution.id];
   const definitions: WidgetDefinition[] = [];
   let x = 0;
   let y = 0;
@@ -207,7 +221,7 @@ export function buildSolutionWidgets(workspace: SolutionWorkspace, content: Solu
           groupBy: null,
           groupLimit: 1000,
         },
-        barColors: [ChartColor.primary1],
+        barColors: [accent],
         useGroupColors: false,
         lg: place(3, KPI_HEIGHT),
       });
@@ -226,7 +240,6 @@ export function buildSolutionWidgets(workspace: SolutionWorkspace, content: Solu
           : "relation" in widget.groupBy
             ? { path: [{ relationId: id(widget.groupBy.relation), direction: "outgoing" }], fieldId: null }
             : { path: [], fieldId: null };
-    const doughnut = widget.display === DisplayType.doughnutChart;
     definitions.push({
       kind: "chart",
       name: widget.title,
@@ -238,19 +251,8 @@ export function buildSolutionWidgets(workspace: SolutionWorkspace, content: Solu
         groupBy,
         groupLimit: 1000,
       },
-      barColors: [
-        ...(widget.colors ??
-          (doughnut
-            ? [
-                ChartColor.primary1,
-                ChartColor.secondary1,
-                ChartColor.primary3,
-                ChartColor.default1,
-                ChartColor.default3,
-              ]
-            : [ChartColor.primary1])),
-      ],
-      useGroupColors: doughnut,
+      barColors: [accent],
+      useGroupColors: false,
       lg: place(widget.width ?? 6, CHART_HEIGHT),
     });
   }
@@ -283,7 +285,7 @@ export function buildSolutionWidgets(workspace: SolutionWorkspace, content: Solu
         reverseXAxis: false,
         reverseYAxis: false,
         showFilters: widget.measure.source.filters.length > 0,
-        showLegend: widget.useGroupColors,
+        showLegend: widget.displayType === DisplayType.doughnutChart,
         useGroupColors: widget.useGroupColors,
       },
       measure: widget.measure as Prisma.InputJsonValue,

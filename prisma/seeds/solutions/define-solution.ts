@@ -1,6 +1,6 @@
 import type { ChipColor } from "@/constants/chip-colors";
 import type { SolutionDataLocale, SolutionId } from "@/core/solutions/solution-catalog";
-import type { ChartColor, DisplayType } from "@/features/widget/widget-display.schema";
+import type { DisplayType } from "@/features/widget/widget-display.schema";
 
 import type { TEAM_MEMBER_IDS } from "../team";
 
@@ -126,7 +126,6 @@ export type WidgetSpec =
       field?: string;
       groupBy: { field: string } | { relation: string } | { month: string } | { records: true };
       filters?: readonly WidgetFilterSpec[];
-      colors?: readonly ChartColor[];
       width?: 4 | 6 | 8 | 12;
     }
   | { kind: "activity"; title: string };

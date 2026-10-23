@@ -1,4 +1,4 @@
-import { ChartColor, DisplayType } from "@/features/widget/widget-display.schema";
+import { DisplayType } from "@/features/widget/widget-display.schema";
 
 import { day, defineSolution, phoneNumber, photo, type MessagingProvider, type RecordSpec } from "../define-solution";
 
@@ -1531,7 +1531,6 @@ export default defineSolution<Strings>({
             aggregation: "count",
             groupBy: { field: "priority" },
             filters: [{ field: "status", notIn: ["done", "archived"] }],
-            colors: [ChartColor.secondary1],
             width: 6,
           },
           { kind: "activity", title: t.widgets.activity },

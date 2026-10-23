@@ -1,4 +1,4 @@
-import { ChartColor, DisplayType } from "@/features/widget/widget-display.schema";
+import { DisplayType } from "@/features/widget/widget-display.schema";
 
 import { day, defineSolution, photo, type RecordSpec, phoneNumber } from "../define-solution";
 
@@ -1535,7 +1535,6 @@ export default defineSolution<Strings>({
             field: "monthlyFee",
             groupBy: { relation: "retainer.organization" },
             filters: [{ field: "status", in: ["active"] }],
-            colors: [ChartColor.secondary1],
             width: 6,
           },
           { kind: "activity", title: t.widgets.activity },
