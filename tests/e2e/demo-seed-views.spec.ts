@@ -183,7 +183,8 @@ test("opening a list and switching its views updates no component while another 
   // Becoming visible again refreshes the route; wait for that refresh of this list.
   const refreshed = page.waitForResponse(
     (response) =>
-      response.request().headers()["rsc"] === "1" && new URL(response.url()).pathname === appPath(DEMO_SLUG, `/records/${deals}`),
+      response.request().headers()["rsc"] === "1" &&
+      new URL(response.url()).pathname === appPath(DEMO_SLUG, `/records/${deals}`),
   );
   await page.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
   expect((await refreshed).ok()).toBe(true);

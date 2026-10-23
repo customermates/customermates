@@ -245,7 +245,7 @@ test("long profile email stays inside the phone viewport", async ({ page, databa
     await themed.addInitScript((value) => localStorage.setItem("theme", value), theme);
     await themed.emulateMedia({ colorScheme: theme });
     await themed.setViewportSize({ width: 390, height: 1000 });
-    await themed.goto("/de/settings/profile");
+    await themed.goto(appPath(workspace.slug, "/settings/profile", "de"));
     await themed.waitForLoadState("networkidle");
     const address = themed
       .locator("form")

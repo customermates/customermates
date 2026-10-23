@@ -44,7 +44,9 @@ for (const dashboard of DEMO_DASHBOARDS) {
     // A tall desktop viewport places every widget on screen, so each one loads and the screenshots show them all.
     if (!testInfo.project.use.isMobile) await page.setViewportSize({ width: 1440, height: 2600 });
     // The main dashboard opens on /en/dashboard; dashboard views would open with ?view=.
-    await page.goto(dashboard.id ? appPath(DEMO_SLUG, `/dashboard?view=${dashboard.id}`) : appPath(DEMO_SLUG, "/dashboard"));
+    await page.goto(
+      dashboard.id ? appPath(DEMO_SLUG, `/dashboard?view=${dashboard.id}`) : appPath(DEMO_SLUG, "/dashboard"),
+    );
     const rail = page.locator("[data-joins-top-bar]");
     for (const other of DEMO_DASHBOARDS.filter(({ id }) => id))
       await expect(rail.getByText(other.name, { exact: true })).toBeVisible();
@@ -129,7 +131,9 @@ for (const width of [1440, 390]) {
     test.skip(Boolean(testInfo.project.use.isMobile) && width > 600, "Desktop widths run on desktop projects");
     await page.setViewportSize({ width, height: 1000 });
     for (const dashboard of DEMO_DASHBOARDS) {
-      await page.goto(dashboard.id ? appPath(DEMO_SLUG, `/dashboard?view=${dashboard.id}`) : appPath(DEMO_SLUG, "/dashboard"));
+      await page.goto(
+        dashboard.id ? appPath(DEMO_SLUG, `/dashboard?view=${dashboard.id}`) : appPath(DEMO_SLUG, "/dashboard"),
+      );
       const numbers = page.locator('[data-slot="widget-number"]');
       await expect(numbers.first().locator('[data-slot="widget-number-value"]')).toHaveText(/\d/);
       // The grid re-measures its width after the cards mount and animates them into place, so wait until
