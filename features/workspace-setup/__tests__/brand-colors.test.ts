@@ -67,11 +67,12 @@ describe("brand colour extraction", () => {
   });
 
   it.each([
-    ["#ff3b30", "destructive", ChartColor.danger1],
+    ["#ff3b30", "destructive", ChartColor.warning1],
     ["#34c759", "success", ChartColor.success1],
     ["#ff9500", "warning", ChartColor.warning1],
     ["#5e4ae3", "default", ChartColor.primary1],
-    ["#0a84ff", "info", ChartColor.primary2],
+    ["#0a84ff", "info", ChartColor.info1],
+    ["#14b8a6", "success", ChartColor.secondary1],
   ])("maps %s to the nearest chip and chart colour", (hex, chip, chart) => {
     expect(nearestChipColor(hex)).toBe(chip);
     expect(nearestChartColor(hex)).toBe(chart);

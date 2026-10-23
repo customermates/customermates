@@ -248,6 +248,7 @@ export function RecordWidgetChart({
     value: row.value ?? 0,
     formattedValue: row.formatted,
     optionColor: row.optionColor,
+    ...(row.missingLabel ? { neutral: true } : {}),
     ...extra,
   });
   const fillsWithZero = measure.aggregation === "count" || measure.aggregation === "sum";
@@ -265,6 +266,7 @@ export function RecordWidgetChart({
     const shades = getChartRankShades(
       displayOptions.barColors?.[0] ?? ChartColor.primary1,
       visible.map((row) => row.value ?? 0),
+      visible.map((row) => row.missingLabel),
     );
     content = (
       <RankedTable

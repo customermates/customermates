@@ -184,7 +184,7 @@ export const WidgetModal = observer(() => {
   function renderColorPicker() {
     if (form.kind !== WidgetKind.chart) return null;
     const singleColor = form.displayOptions?.displayType === DisplayType.number;
-    if (groupColorsApply() && form.displayOptions?.useGroupColors !== false) return null;
+    if (groupColorsApply() && form.displayOptions?.useGroupColors === true) return null;
     const colors = Object.entries(chartColors).filter(([key]) => !singleColor || key.endsWith("1"));
 
     return (

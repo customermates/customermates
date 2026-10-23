@@ -252,15 +252,15 @@ describe("WidgetChart", () => {
     expect(area.props.colors).toEqual(["fill-primary1"]);
   });
 
-  it("keeps legacy widgets without display options on the vertical primary-color default", () => {
+  it("keeps legacy widgets without display options on vertical primary shades, ignoring option colors", () => {
     const call = renderChart(DisplayType.radarChart, { displayOptions: null });
 
     expect(call.chart).toBe("vertical");
     expect((call.props.chartData as Array<{ fill: string }>).map(({ fill }) => fill)).toEqual([
-      "fill-success1",
-      "fill-primary1",
+      "shade-primary1-200",
+      "shade-primary1-100",
     ]);
-    expect(call.props.colors).toEqual(["fill-success1", "fill-primary1"]);
+    expect(call.props.colors).toEqual(["shade-primary1-200", "shade-primary1-100"]);
   });
 
   it("passes the legend choice only to the doughnut chart", () => {

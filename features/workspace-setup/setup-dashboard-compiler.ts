@@ -127,7 +127,6 @@ export function compileSetupDashboard(
     };
     if (!recordMeasureIsValid(measure, model)) return missing("invalid_measure", "list");
     if (widgetDisplayTypeIssue(widget.display, measure, model)) return missing("display_mismatch", "display");
-    const choice = groupField ? model.fields.find((candidate) => candidate.id === groupField) : undefined;
     const input = {
       expectedRevision: context.expectedRevision,
       idempotencyKey: setupIdempotencyKey(context.setupId, `widget:${widget.key}`),
@@ -136,7 +135,7 @@ export function compileSetupDashboard(
       displayOptions: {
         displayType: widget.display,
         ...(context.brandChart ? { barColors: [context.brandChart] } : {}),
-        ...(choice?.valueType === "select" ? { useGroupColors: true } : {}),
+        useGroupColors: false,
       },
       isTemplate: plan.workspace.dashboardAudience !== "me",
       layout: layouts[index],

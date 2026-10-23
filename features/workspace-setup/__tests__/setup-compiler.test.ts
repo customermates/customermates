@@ -485,7 +485,7 @@ describe("workspace setup compiler", () => {
         value: { kind: "decimal", value: "30", currency: null },
       },
     ]);
-    expect(widgets.data[2].displayOptions?.useGroupColors).toBe(true);
+    expect(widgets.data[2].displayOptions?.useGroupColors).toBe(false);
   });
 
   it("reports a widget whose display type does not fit its measure", async () => {

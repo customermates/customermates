@@ -1,3 +1,11 @@
+export const chartAccentSwatches = {
+  primary1: "#5e4ae3",
+  info1: "#2f6fdf",
+  secondary1: "#14918c",
+  success1: "#2f9e6a",
+  warning1: "#d8901f",
+} as const;
+
 export const colorPalettes = {
   light: {
     default: {

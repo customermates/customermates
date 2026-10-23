@@ -46,7 +46,7 @@ function chartDisplayDefaults(): NonNullable<RecordWidgetForm["displayOptions"]>
     displayType: DisplayType.verticalBarChart,
     reverseXAxis: false,
     reverseYAxis: false,
-    useGroupColors: true,
+    useGroupColors: false,
     showLegend: true,
     showFilters: true,
   };

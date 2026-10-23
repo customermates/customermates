@@ -18,7 +18,7 @@ const CHIP_TO_CHART_COLOR: Record<ChipColor, ChartColor> = {
   destructive: ChartColor.danger1,
   success: ChartColor.success1,
   warning: ChartColor.warning1,
-  info: ChartColor.primary1,
+  info: ChartColor.info1,
 };
 
 const RANK_SHADED_TYPES = new Set<DisplayType>([
@@ -77,7 +77,13 @@ const RadarChartComponent = dynamic(
 
 type Props = {
   currency?: string | null;
-  data: (DiagramDataPoint & { formattedValue?: string; axisLabel?: string; detail?: string; missing?: boolean })[];
+  data: (DiagramDataPoint & {
+    formattedValue?: string;
+    axisLabel?: string;
+    detail?: string;
+    missing?: boolean;
+    neutral?: boolean;
+  })[];
   displayOptions?: WidgetDisplayOptions | null;
   integerValues?: boolean;
   shadeByRank?: boolean;
@@ -87,7 +93,7 @@ export const WidgetChart = observer(
   ({ data, displayOptions, currency, integerValues = false, shadeByRank = true }: Props) => {
     const t = useTranslations();
     const configuredBarColors = displayOptions?.barColors?.length ? displayOptions.barColors : [ChartColor.primary1];
-    const useGroupColors = displayOptions?.useGroupColors !== false;
+    const useGroupColors = displayOptions?.useGroupColors === true;
     const chartColors = getChartColors();
     const chartTextColors = getChartTextColors();
     const chartStrokeColors = getChartStrokeColors();
@@ -98,6 +104,7 @@ export const WidgetChart = observer(
         ? getChartRankShades(
             configuredBarColors[0],
             data.map((item) => item.value),
+            data.map((item) => item.neutral === true),
           )
         : null;
     const chartData: ChartDataPoint[] = data.map((item, index) => {
