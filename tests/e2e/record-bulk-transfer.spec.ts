@@ -1,5 +1,10 @@
 import { randomUUID } from "node:crypto";
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import { z } from "zod";
 
+import { mintApiKey } from "./api-key";
+import { localE2eEnvironment } from "./local-environment";
 import { presetId } from "../../features/records/crm-preset";
 import { postOk, readModel } from "./api";
 import { expect, test } from "./fixtures";
@@ -152,4 +157,80 @@ test("imports sparse rows in batches, patches them per record with links and unl
       { fieldId: firstName, result: { state: "value", value: { kind: "text", value: "Bulkperson 1" } } },
     ]),
   );
+});
+
+test("import_crm_records and export_crm_records accept sparse rows and pages over MCP", async ({
+  page,
+  database,
+  workspace,
+  companyId,
+}) => {
+  await page.goto("/en/dashboard");
+  const model = await readModel(database, companyId);
+  const contactType = presetId(companyId, "contact");
+  const firstName = presetId(companyId, "contact.firstName");
+  const lastName = presetId(companyId, "contact.lastName");
+  const recordId = randomUUID();
+  const ref = { typeId: contactType, recordId };
+  const text = (fieldId: string, value: string) => ({
+    fieldId,
+    result: { state: "value", value: { kind: "text", value } },
+  });
+  const { key } = await mintApiKey(database, workspace, "Bulk transfer over MCP");
+  const client = new Client({ name: "bulk-transfer", version: "1.0.0" });
+  const transport = new StreamableHTTPClientTransport(new URL(`${localE2eEnvironment().baseUrl}/api/v1/mcp`), {
+    requestInit: { headers: { "x-api-key": key } },
+  });
+  const importRows = (mode: "create" | "update", fields: unknown[]) =>
+    client.callTool({
+      name: "import_crm_records",
+      arguments: {
+        mode,
+        idempotencyKey: randomUUID(),
+        document: {
+          format: "customermates-records",
+          version: 1,
+          typeId: contactType,
+          schemaRevision: model.revision,
+          records: [{ ref, fields }],
+        },
+      },
+    });
+
+  try {
+    await client.connect(transport);
+    const tools = await client.listTools();
+    const importTool = tools.tools.find((tool) => tool.name === "import_crm_records");
+    expect(JSON.stringify(importTool?.inputSchema)).toContain("unlinks");
+
+    const created = await importRows("create", [text(firstName, "Mcp")]);
+    expect(created.isError, JSON.stringify(created.content)).not.toBe(true);
+    expect(created.structuredContent).toMatchObject({ created: 1 });
+    const updated = await importRows("update", [text(lastName, "Sparse")]);
+    expect(updated.isError, JSON.stringify(updated.content)).not.toBe(true);
+    expect(updated.structuredContent).toMatchObject({ updated: 1 });
+
+    const exported = await client.callTool({
+      name: "export_crm_records",
+      arguments: { typeId: contactType, search: "Mcp Sparse", page: 1, pageSize: 10 },
+    });
+    expect(exported.isError, JSON.stringify(exported.content)).not.toBe(true);
+    const output = z
+      .object({
+        total: z.number(),
+        nextPage: z.number().nullable(),
+        records: z.array(z.object({ ref: z.object({ recordId: z.string() }), fields: z.array(z.unknown()) })),
+      })
+      .parse(exported.structuredContent);
+    expect(output).toMatchObject({ total: 1, nextPage: null });
+    expect(output.records[0]?.ref.recordId).toBe(recordId);
+    expect(output.records[0]?.fields).toEqual(
+      expect.arrayContaining([
+        { fieldId: firstName, result: { state: "value", value: { kind: "text", value: "Mcp" } } },
+        { fieldId: lastName, result: { state: "value", value: { kind: "text", value: "Sparse" } } },
+      ]),
+    );
+  } finally {
+    await client.close();
+  }
 });
