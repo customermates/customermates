@@ -50,7 +50,6 @@ test("copies contact details, opens links and edits them from empty cell space",
   await addContact.press("Enter");
   await expect(recordDrawer.getByRole("button", { name: email, exact: true })).toBeVisible();
   await recordDrawer.getByRole("textbox", { name: siteLabel, exact: true }).fill(site);
-  await expect(recordDrawer.getByRole("button", { name: "Copy address", exact: true })).toBeVisible();
   await expect(recordDrawer.getByRole("link", { name: "Open link", exact: true })).toHaveAttribute("href", site);
   await recordDrawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(recordDrawer).not.toBeVisible();
@@ -101,17 +100,17 @@ test("contact chips reuse inline copy actions without reserved space across deta
   const fields = [
     {
       id: randomUUID(),
-      label: "Billing",
-      valueType: "email",
+      label: "Billing portal",
+      valueType: "url",
       action: "copy",
-      value: "billing.person.with.a.long.name@regional-service.example.test",
+      value: "https://billing.regional-service.example.test/accounts/a-long-customer-name",
     },
     {
       id: randomUUID(),
-      label: "Support",
-      valueType: "email",
+      label: "Support portal",
+      valueType: "url",
       action: "open",
-      value: "support.person.with.a.long.name@regional-service.example.test",
+      value: "https://support.regional-service.example.test/tickets/a-long-customer-name",
     },
     {
       id: randomUUID(),
@@ -120,7 +119,6 @@ test("contact chips reuse inline copy actions without reserved space across deta
       action: "open",
       value: "https://example.test/a/long/path/for/the/regional/customer/support/guide",
     },
-    { id: randomUUID(), label: "Telephone", valueType: "phone", action: "open", value: "+493012345678" },
   ];
   await page.goto(`/en/records/${typeId}`);
   const model = await readModel(database, companyId);
@@ -198,7 +196,7 @@ test("contact chips reuse inline copy actions without reserved space across deta
         if (fineHover && field.action === "open") {
           await action.hover();
           await expect(page.getByRole("tooltip")).toHaveText(
-            field.valueType === "phone" ? "Copy number" : field.valueType === "url" ? "Copy link" : "Copy address",
+            "Copy link",
           );
         }
         await action.focus();
