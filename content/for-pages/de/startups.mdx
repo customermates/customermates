@@ -36,8 +36,8 @@ In einem jungen B2B-Startup sind die Gründer das Vertriebsteam. Deals beginnen 
     von zwei Gründern bis zur ersten Vertriebsperson.
   </SummaryItem>
   <SummaryItem label="Beispiel-Workspace">
-    Interessenten, Kontakte, Verkaufschancen, Investorenbeziehungen und
-    Aufgaben mit Beispieldaten. Ihr eigener Workspace startet ohne Listen.
+    Firmen, Kontakte, Verkaufschancen, Investoren und Aufgaben mit
+    Beispieldaten. Ihr eigener Workspace startet ohne Listen.
   </SummaryItem>
   <SummaryItem label="KI">
     MCP in jedem Tarif für Claude, ChatGPT, Gemini, Cursor und andere
@@ -63,13 +63,13 @@ In einem jungen B2B-Startup sind die Gründer das Vertriebsteam. Deals beginnen 
 
 Die Demo öffnet einen Beispiel-Workspace mit Beispieldaten, kein Kundenkonto. Sie startet mit einem kompakten Vertriebs-Dashboard und einem Board der Verkaufschancen. Die Listen:
 
-- **Interessenten**: die Unternehmen, an die Sie verkaufen.
+- **Firmen**: die Unternehmen, an die Sie verkaufen.
 - **Kontakte**: Fürsprecher, Entscheider und die Menschen, die Sie vorgestellt haben.
-- **Verkaufschancen**: jeder mögliche Deal mit den Phasen Identifiziert, Gespräch, Demo, Bewertung, Entscheidung, Gewonnen und Verloren.
-- **Investorenbeziehungen**: Business Angels und Fonds, mit denen Sie sprechen, als gewöhnliche Datensätze mit eigenen Feldern.
+- **Verkaufschancen**: jeder mögliche Deal mit den Phasen Identifiziert, Im Gespräch, Demo, Pilotphase, Entscheidung, Gewonnen und Verloren. Der Wert wird aus Produktionslinien mal Preis pro Linie und Jahr berechnet, dem wiederkehrenden Jahresumsatz bei Abschluss.
+- **Investoren**: Business Angels und Fonds, mit denen Sie über die Seed-Runde sprechen, als gewöhnliche Datensätze mit Ticketgröße und Rundenstatus, auf einem eigenen Board „Seed-Runde“.
 - **Aufgaben**: konkrete Zusagen wie „Sicherheitsfragebogen schicken“, verknüpft mit einer Verkaufschance.
 
-Investorenbeziehungen sind eine Liste wie jede andere. Sie sind keine Fundraising-Plattform, keine Investorendatenbank und kein Dealsourcing, und es gibt weder Cap Table noch Datenraum. Als eigene Liste vermischen sie sich nie mit den Vertriebszahlen auf dem Board.
+Investoren sind eine Liste wie jede andere. Sie sind keine Fundraising-Plattform, keine Investorendatenbank und kein Dealsourcing, und es gibt weder Cap Table noch Datenraum. Als eigene Liste vermischen sie sich nie mit den Vertriebszahlen auf dem Board.
 
 <ProofRail label="Gründer-Workspace in der Demo">
   <ProofItem label="Pipeline">Verkaufschancen nach Phase</ProofItem>
@@ -109,7 +109,7 @@ Investorenbeziehungen sind eine Liste wie jede andere. Sie sind keine Fundraisin
 
 Customermates hat in jedem Tarif einen [MCP](/docs/mcp)-Endpunkt, auch bei selbst gehosteten Installationen. Verbinden Sie Claude, ChatGPT, Gemini, Cursor oder einen anderen Client. Er nutzt Ihren eigenen KI-Anbieter, der die Modellnutzung abrechnet.
 
-Ein typischer Fall im Gründeralltag: Sie fragen in Claude, in welcher Phase die Verkaufschance mit einem Interessenten steht und wer dort Ihr Fürsprecher ist. Der Client liest die Verkaufschance und den verknüpften Kontakt über MCP. Nach dem Termin bitten Sie ihn, die Chance auf Bewertung zu setzen und eine Notiz mit dem vereinbarten nächsten Schritt anzulegen. Der Client ändert diesen Datensatz, und Sie sehen die Änderung in Customermates.
+Ein typischer Fall im Gründeralltag: Sie fragen in Claude, in welcher Phase die Verkaufschance mit einem Interessenten steht und wer dort Ihr Fürsprecher ist. Der Client liest die Verkaufschance und den verknüpften Kontakt über MCP. Nach dem Termin bitten Sie ihn, die Chance auf Pilotphase zu setzen und eine Notiz mit dem vereinbarten nächsten Schritt anzulegen. Der Client ändert diesen Datensatz, und Sie sehen die Änderung in Customermates.
 
 Was der Client darf, begrenzen Ihre Rolle und Ihre Berechtigungen: Er sieht und ändert nur, was Sie auch in der App sehen und ändern könnten. Behandeln Sie ihn wie jedes Tool mit Schreibzugriff. Ein MCP-Client fragt vielleicht vor dem Löschen oder Senden nach, das ist aber Verhalten des Clients und keine Prüfung in Customermates. Prüfen Sie deshalb, worum Sie ihn bitten. Gelöschte Datensätze liegen 30 Tage im Papierkorb, andere Änderungen werden nicht automatisch zurückgenommen.
 
@@ -177,7 +177,7 @@ Sobald eine zweite Person mit Kunden spricht oder zum ersten Mal ein Nachfassen 
 </FaqItem>
 
 <FaqItem question="Können wir Investoren im selben CRM verwalten?">
-Ja, als gewöhnliche Datensätze. Der Beispiel-Workspace führt Investorenbeziehungen in einer eigenen Liste, getrennt von den Verkaufschancen. Eine Fundraising-Plattform ist Customermates nicht: Es gibt keine Investorendatenbank, keinen Cap Table, keinen Datenraum und keine Auswertung von Pitch-Decks.
+Ja, als gewöhnliche Datensätze. Der Beispiel-Workspace führt Investoren in einer eigenen Liste mit dem Board „Seed-Runde“, getrennt von den Verkaufschancen. Eine Fundraising-Plattform ist Customermates nicht: Es gibt keine Investorendatenbank, keinen Cap Table, keinen Datenraum und keine Auswertung von Pitch-Decks.
 </FaqItem>
 
 <FaqItem question="Was kann ein KI-Client über MCP?">

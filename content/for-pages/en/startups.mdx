@@ -36,8 +36,8 @@ In an early B2B startup, the founders are the sales team. Deals start with a war
     from two founders to the first sales hire.
   </SummaryItem>
   <SummaryItem label="Example workspace">
-    Prospect organizations, Contacts, Sales opportunities, Investor
-    relationships and Tasks, with sample data. Your own workspace starts
+    Companies, Contacts, Opportunities, Investors and Tasks, with sample
+    data. Your own workspace starts
     without lists.
   </SummaryItem>
   <SummaryItem label="AI">
@@ -62,16 +62,16 @@ In an early B2B startup, the founders are the sales team. Deals start with a war
 
 The demo opens an example workspace with sample data, not a customer's account. It starts on a compact sales dashboard and a board of opportunities. The lists:
 
-- **Prospect organizations**: the companies you sell to.
+- **Companies**: the companies you sell to.
 - **Contacts**: champions, decision makers and the people who introduced you.
-- **Sales opportunities**: each potential deal, moving through Identified, Conversation, Demo, Evaluation, Decision, Won and Lost.
-- **Investor relationships**: angels and funds you talk to, kept as ordinary records with their own fields.
+- **Opportunities**: each potential deal, moving through Identified, Conversation, Demo, Pilot, Decision, Won and Lost. Its value is calculated from production lines times the price per line and year, the annual recurring revenue if it closes.
+- **Investors**: angels and funds you talk to about the seed round, kept as ordinary records with ticket size and round status, and shown on a separate Seed round board.
 - **Tasks**: concrete commitments such as "send the security questionnaire", linked to an opportunity.
 
-Investor relationships are a list like any other. They are not a fundraising platform, an investor database or deal sourcing, and they have no cap table or data room. Keeping them in a separate list means they never mix with the sales numbers on the board.
+Investors are a list like any other. They are not a fundraising platform, an investor database or deal sourcing, and they have no cap table or data room. Keeping them in a separate list means they never mix with the sales numbers on the board.
 
 <ProofRail label="Founder sales workspace in the demo">
-  <ProofItem label="Pipeline">Sales opportunities by stage</ProofItem>
+  <ProofItem label="Pipeline">Opportunities by stage</ProofItem>
   <ProofItem label="Context">Prospects with linked contacts</ProofItem>
   <ProofItem label="Investors">An ordinary list, kept apart</ProofItem>
   <ProofItem label="AI access">Permitted read or update over MCP</ProofItem>
@@ -79,7 +79,7 @@ Investor relationships are a list like any other. They are not a fundraising pla
 
 ## Prepare for a prospect conversation
 
-Before a call, open the prospect organization: its contacts, the open opportunity and its stage, your notes from the last conversation and, on Customermates Cloud from Pro, the email or LinkedIn threads you linked to it. Each stage can carry a win probability, so the [pipeline board](/features/pipeline) shows value next to weighted value. That is weighting with your own percentages, useful in an investor update if you state the method, but it is not predictive forecasting, conversion analytics or pipeline velocity.
+Before a call, open the company: its contacts, the open opportunity and its stage, your notes from the last conversation and, on Customermates Cloud from Pro, the email or LinkedIn threads you linked to it. Each stage can carry a win probability, so the [pipeline board](/features/pipeline) shows value next to weighted value. That is weighting with your own percentages, useful in an investor update if you state the method, but it is not predictive forecasting, conversion analytics or pipeline velocity.
 
 <Steps>
   <Step title="Add the prospect">
@@ -108,7 +108,7 @@ Before a call, open the prospect organization: its contacts, the open opportunit
 
 Customermates has an [MCP](/docs/mcp) endpoint on every plan, including self-hosted installations. Connect Claude, ChatGPT, Gemini, Cursor or another client, and it uses your own AI provider, which bills the model use.
 
-A typical use for a founder: in Claude, ask which stage your opportunity with a prospect is in and who the champion is The client reads the opportunity and the linked contact through MCP. After the call, ask it to move the opportunity to Evaluation and add a note with the agreed next step. The client updates that record, and you see the change in Customermates.
+A typical use for a founder: in Claude, ask which stage your opportunity with a prospect is in and who the champion is The client reads the opportunity and the linked contact through MCP. After the call, ask it to move the opportunity to Pilot and add a note with the agreed next step. The client updates that record, and you see the change in Customermates.
 
 What the client can do is limited by your role and permissions: it sees and changes only what you could see and change in the app. Treat it like any tool with write access. An MCP client may ask you to confirm before deleting or sending, but that is the client's behaviour, not a check in Customermates, so review what you ask it to do. Deleted records go to Trash for 30 days; other changes are not undone automatically.
 
@@ -176,7 +176,7 @@ When a second person talks to customers, or the first time a follow-up gets lost
 </FaqItem>
 
 <FaqItem question="Can we track investors in the same CRM?">
-Yes, as ordinary records. The example workspace keeps investor relationships in their own list, separate from sales opportunities. Customermates is not a fundraising platform: there is no investor database, cap table, data room or deck analytics.
+Yes, as ordinary records. The example workspace keeps investors in their own list with a Seed round board, separate from the sales opportunities. Customermates is not a fundraising platform: there is no investor database, cap table, data room or deck analytics.
 </FaqItem>
 
 <FaqItem question="What can an AI client do through MCP?">
