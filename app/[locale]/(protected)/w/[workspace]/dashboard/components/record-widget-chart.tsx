@@ -17,7 +17,7 @@ import { widgetDisplayTypeIssue } from "@/features/widget/widget-display-rules";
 import { RankedTable } from "./ranked-table";
 import { WidgetChart } from "./widget-chart";
 import { WidgetNumber } from "./widget-number";
-import { formatWidgetNumber, inlineListLabel, widgetNumberAverage } from "./widget-number-format";
+import { formatWidgetAmount, formatWidgetNumber, inlineListLabel, widgetNumberAverage } from "./widget-number-format";
 import { WidgetNotes, WidgetSubtitle } from "./widget-subtitle";
 import { WIDGET_CARD_BODY_CLASS, WIDGET_CARD_HEADER_CLASS, WIDGET_CARD_TITLE_CLASS } from "./widget-card-frame";
 import { AppCardHeader } from "@/components/card/app-card-header";
@@ -75,7 +75,11 @@ export function RecordWidgetChart({
   const valueFormat = useRecordValueFormat();
   const interval = measure.groupBy?.dateInterval;
   const formatDecimal = (value: string, currency: string | null) =>
-    valueFormat.decimal(value, { currency, maximumFractionDigits: derivedFractionDigits(decimalPlaces, currency) });
+    formatWidgetAmount(
+      value,
+      { currency, fractionDigits: derivedFractionDigits(decimalPlaces, currency) },
+      valueFormat.decimal,
+    );
   const bucketYears = new Set(
     (data?.groups ?? []).flatMap((group) =>
       group.label.state === "value" && group.label.value.kind === "date"

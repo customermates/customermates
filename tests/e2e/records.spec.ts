@@ -246,13 +246,13 @@ test("creates a custom list and field through the UI, then persists a decimal re
   const widgetCard = page
     .locator('[data-uid="app-card"]')
     .filter({ has: page.getByRole("heading", { name: widgetName, exact: true }) });
-  await expect(widgetCard.getByText(/Overall:.*123,456,789,012,345\.13/)).toBeVisible();
+  await expect(widgetCard.getByText(/Overall:.*123,456,789,012,345$/)).toBeVisible();
   const bar = widgetCard.locator(".recharts-bar-rectangle path").first();
   await expect(bar).toBeVisible();
   if (!testInfo.project.use.isMobile) {
     await bar.hover();
     await expect(
-      widgetCard.locator(".recharts-tooltip-wrapper").getByText("€123,456,789,012,345.13", { exact: true }),
+      widgetCard.locator(".recharts-tooltip-wrapper").getByText("€123,456,789,012,345", { exact: true }),
     ).toBeVisible();
   }
   await widgetCard.screenshot({ path: testInfo.outputPath("custom-budget-widget.png") });

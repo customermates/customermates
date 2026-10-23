@@ -295,7 +295,7 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
     await expect(dialog.getByRole("tab", { name: "Appearance", exact: true })).toBeVisible();
     await dialog.getByRole("textbox", { name: "Name", exact: false }).scrollIntoViewIfNeeded();
     await page.screenshot({ path: testInfo.outputPath("weighted-widget-editor-settings.png"), animations: "disabled" });
-    await expect(dialog.getByText("Overall: €2,400.00", { exact: true })).toBeVisible();
+    await expect(dialog.getByText("Overall: €2,400", { exact: true })).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath("weighted-widget-editor-preview.png"), animations: "disabled" });
     await dialog.locator("#widget-modal-save").click();
     await expect(dialog).not.toBeVisible();
@@ -308,9 +308,9 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
       groupBy: null,
     });
     const widget = page.locator('[data-uid="app-card"]').filter({ has: page.getByRole("heading", { name: "Configured weighted pipeline", exact: true }) });
-    await expect(widget.getByText("Overall: €2,400.00", { exact: true })).toBeVisible();
+    await expect(widget.getByText("Overall: €2,400", { exact: true })).toBeVisible();
     await page.reload();
-    await expect(widget.getByText("Overall: €2,400.00", { exact: true })).toBeVisible();
+    await expect(widget.getByText("Overall: €2,400", { exact: true })).toBeVisible();
     await widget.screenshot({ path: testInfo.outputPath("configured-weighted-widget.png"), animations: "disabled" });
     await expect.poll(dealValues).toEqual({ "Configured opportunity/Value": money("4000"), "Configured opportunity/Weighted value": money("2400") });
   });

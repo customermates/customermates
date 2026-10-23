@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   WIDGET_CURRENCY_WHOLE_FROM,
   WIDGET_NUMBER_COMPACT_FROM,
+  formatWidgetAmount,
+  formatWidgetAxisValue,
   formatWidgetNumber,
   inlineListLabel,
   widgetNumberAverage,
@@ -13,15 +15,18 @@ type Options = Parameters<typeof formatWidgetNumber>[1] & { locale?: string };
 const euro = { currency: "EUR", fractionDigits: 2 };
 const plain = { currency: null, fractionDigits: 2 };
 
-function format(value: string | number, { locale = "en-US", ...options }: Options) {
-  return formatWidgetNumber(value, options, (input, { currency = null, compact = false, maximumFractionDigits }) =>
+function decimalFor(locale: string): Parameters<typeof formatWidgetNumber>[2] {
+  return (input, { currency = null, compact = false, maximumFractionDigits }) =>
     new Intl.NumberFormat(locale, {
       style: currency ? "currency" : "decimal",
       ...(currency ? { currency } : {}),
       notation: compact ? "compact" : "standard",
       maximumFractionDigits,
-    }).format(input as unknown as number),
-  );
+    }).format(input as unknown as number);
+}
+
+function format(value: string | number, { locale = "en-US", ...options }: Options) {
+  return formatWidgetNumber(value, options, decimalFor(locale));
 }
 
 describe("number widget headline", () => {
@@ -67,6 +72,48 @@ describe("number widget headline", () => {
       display: "1,234,567",
       exact: "1,234,567",
     });
+  });
+});
+
+describe("chart and ranked table amounts", () => {
+  const amount = (
+    value: string | number,
+    options: { currency: string | null; fractionDigits?: number },
+    locale = "en-US",
+  ) => formatWidgetAmount(value, options, decimalFor(locale));
+
+  it("drops cents from one thousand and keeps them below", () => {
+    expect(amount("40600", euro)).toBe("€40,600");
+    expect(amount("1000", euro)).toBe("€1,000");
+    expect(amount("-2750.5", euro)).toBe("-€2,751");
+    expect(amount("999.5", euro)).toBe("€999.50");
+    expect(amount("0", euro)).toBe("€0.00");
+    expect(amount("40600", euro, "de-DE")).toMatch(/^40\.600\s€$/);
+  });
+
+  it("keeps plain numbers at the field's precision", () => {
+    expect(amount("8500.25", plain)).toBe("8,500.25");
+    expect(amount("12.5", { currency: null })).toBe("12.5");
+  });
+});
+
+describe("chart axis values", () => {
+  const axis = (value: string | number, currency: string | null, locale = "en-US") =>
+    formatWidgetAxisValue(value, currency, decimalFor(locale));
+
+  it("abbreviates thousands where the locale does", () => {
+    expect(axis(60000, "EUR")).toBe("€60K");
+    expect(axis(1250, "EUR")).toBe("€1.25K");
+    expect(axis(450, "EUR")).toBe("€450");
+    expect(axis(0, "EUR")).toBe("€0");
+    expect(axis(12.5, null)).toBe("12.5");
+  });
+
+  it("shows whole grouped amounts where the locale keeps thousands", () => {
+    expect(axis(9000, "EUR", "de-DE")).toMatch(/^9\.000\s€$/);
+    expect(axis(1234.56, "EUR", "de-DE")).toMatch(/^1\.235\s€$/);
+    expect(axis(60000, "EUR", "de-DE")).toMatch(/^60\.000\s€$/);
+    expect(axis(2500000, "EUR", "de-DE")).toMatch(/^2,5\sMio\.\s€$/);
   });
 });
 

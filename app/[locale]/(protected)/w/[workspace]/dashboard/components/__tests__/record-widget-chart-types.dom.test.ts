@@ -459,11 +459,22 @@ describe("record widget display types", () => {
       displayOptions: { displayType: DisplayType.rankedTable },
       measure: measure({ path: [], fieldId: STAGE }, "average"),
       groupOptions: [{ id: "New", label: "New", color: null }],
+      data: result({ count: 3, result: euro("999.3333333333333333") }, [
+        group(option("New"), euro("999.3333333333333333"), 3),
+      ]),
+    });
+    expect(view.textContent).toContain("€999.33");
+    expect(view.textContent).not.toContain("999.3333");
+
+    render({
+      displayOptions: { displayType: DisplayType.rankedTable },
+      measure: measure({ path: [], fieldId: STAGE }, "average"),
+      groupOptions: [{ id: "New", label: "New", color: null }],
       data: result({ count: 3, result: euro("1000.3333333333333333") }, [
         group(option("New"), euro("1000.3333333333333333"), 3),
       ]),
     });
-    expect(view.textContent).toContain("€1,000.33");
-    expect(view.textContent).not.toContain("1,000.3333");
+    expect(view.textContent).toContain("€1,000");
+    expect(view.textContent).not.toContain("1,000.33");
   });
 });
