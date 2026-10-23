@@ -20,6 +20,8 @@ const ORGANIZATIONS = [
   "optics",
   "furniture",
   "coatings",
+  "gears",
+  "molds",
 ] as const;
 type OrganizationKey = (typeof ORGANIZATIONS)[number];
 const CONTACTS = [
@@ -58,6 +60,8 @@ const DEALS = [
   "coatingsPilot",
   "castingsSecondPlant",
   "coatingsExpansion",
+  "gearsInspection",
+  "moldsPilot",
 ] as const;
 type DealKey = (typeof DEALS)[number];
 const INVESTORS = ["seedFund", "angel", "syndicate", "ventureFund", "corporate", "secondSeed"] as const;
@@ -169,6 +173,8 @@ const en = {
     optics: ["Marlow Optics", "Rochester", "marlow-optics.example"],
     furniture: ["Fenwick Office Furniture", "Holland", "fenwick-furniture.example"],
     coatings: ["Tolland Coatings", "Akron", "tolland-coatings.example"],
+    gears: ["Lakeview Gear Works", "Erie", "lakeview-gears.example"],
+    molds: ["Pioneer Moldworks", "Kalamazoo", "pioneer-moldworks.example"],
   } satisfies Record<OrganizationKey, readonly [string, string, string]>,
   contacts: {
     precisionQm: ["Aaron", "Whitfield", "Head of quality"],
@@ -205,6 +211,8 @@ const en = {
     coatingsPilot: ["Tolland Coatings – first line", "Signed"],
     castingsSecondPlant: ["Brennan Castings – second plant", "Ask Kevin who runs the second plant"],
     coatingsExpansion: ["Tolland Coatings – all lines", "Usage review with Janet"],
+    gearsInspection: ["Lakeview Gear Works – gear inspection", "Closed lost"],
+    moldsPilot: ["Pioneer Moldworks – tool shop pilot", "Closed lost"],
   } satisfies Record<DealKey, readonly [string, string]>,
   investors: {
     seedFund: [
@@ -269,15 +277,15 @@ const en = {
     dueSoon: "Due soon",
   },
   widgets: {
-    openPipeline: "Open pipeline (first year)",
+    openPipeline: "Open pipeline",
     weighted: "Weighted pipeline",
     won: "Won first-year value",
-    openDeals: "Open opportunities",
+    investorsTalking: "Investors in conversation",
     byStage: "Open value by stage",
     bySource: "Opportunities by source",
-    wonByMonth: "Won value by month",
-    investorsByStatus: "Investor relationships by status",
-    activity: "Recent activity",
+    byIndustry: "Open pipeline by industry",
+    newByMonth: "New opportunities per month",
+    byAccount: "Late-stage pipeline by account",
   },
   wiki: {
     guide: {
@@ -489,6 +497,8 @@ const de: Strings = {
     optics: ["Feinoptik Seidel GmbH", "Jena", "feinoptik-seidel.example"],
     furniture: ["Büromöbel Kranich GmbH", "Bielefeld", "bueromoebel-kranich.example"],
     coatings: ["Oberflächentechnik Neuhaus GmbH", "Solingen", "neuhaus-oberflaeche.example"],
+    gears: ["Getriebebau Seewald GmbH", "Friedrichshafen", "getriebebau-seewald.example"],
+    molds: ["Formenbau Pionier GmbH", "Lüdenscheid", "formenbau-pionier.example"],
   },
   contacts: {
     precisionQm: ["Andreas", "Vogt", "Leiter Qualitätssicherung"],
@@ -528,6 +538,8 @@ const de: Strings = {
     coatingsPilot: ["Oberflächentechnik Neuhaus – erste Linie", "Unterschrieben"],
     castingsSecondPlant: ["Gießerei Brenner – zweites Werk", "Herrn Steiner nach der Leitung des zweiten Werks fragen"],
     coatingsExpansion: ["Oberflächentechnik Neuhaus – alle Linien", "Nutzung mit Frau Kolb durchgehen"],
+    gearsInspection: ["Getriebebau Seewald – Zahnradprüfung", "Verloren"],
+    moldsPilot: ["Formenbau Pionier – Pilot im Werkzeugbau", "Verloren"],
   },
   investors: {
     seedFund: [
@@ -592,15 +604,15 @@ const de: Strings = {
     dueSoon: "Bald fällig",
   },
   widgets: {
-    openPipeline: "Offene Pipeline (erstes Jahr)",
+    openPipeline: "Offene Pipeline",
     weighted: "Gewichtete Pipeline",
-    won: "Gewonnener Wert im ersten Jahr",
-    openDeals: "Offene Vertriebschancen",
+    won: "Gewonnener Jahreswert",
+    investorsTalking: "Investoren im Gespräch",
     byStage: "Offener Wert nach Phase",
     bySource: "Vertriebschancen nach Quelle",
-    wonByMonth: "Gewonnener Wert pro Monat",
-    investorsByStatus: "Investorenkontakte nach Status",
-    activity: "Letzte Aktivitäten",
+    byIndustry: "Offene Pipeline nach Branche",
+    newByMonth: "Neue Vertriebschancen pro Monat",
+    byAccount: "Pipeline ab Demo nach Unternehmen",
   },
   wiki: {
     guide: {
@@ -723,6 +735,8 @@ const ORGANIZATION_FACTS: Record<
   optics: { industry: "optics", fit: "medium", employees: 90, createdDaysAgo: 6 },
   furniture: { industry: "furniture", fit: "weak", employees: 150, createdDaysAgo: 120 },
   coatings: { industry: "surface", fit: "strong", employees: 75, createdDaysAgo: 180 },
+  gears: { industry: "machinery", fit: "medium", employees: 230, createdDaysAgo: 165 },
+  molds: { industry: "plastics", fit: "weak", employees: 45, createdDaysAgo: 130 },
 };
 
 const CONTACT_FACTS: Record<
@@ -936,6 +950,35 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     close: 40,
     next: 9,
     history: [{ daysAgo: 7, stage: "conversation" }],
+  },
+  gearsInspection: {
+    organization: "gears",
+    contacts: [],
+    stage: "lost",
+    source: "event",
+    value: 16000,
+    createdDaysAgo: 155,
+    close: -110,
+    lost: "budget",
+    history: [
+      { daysAgo: 140, stage: "conversation" },
+      { daysAgo: 125, stage: "demo" },
+    ],
+  },
+  moldsPilot: {
+    organization: "molds",
+    contacts: [],
+    stage: "lost",
+    source: "linkedin",
+    value: 5000,
+    createdDaysAgo: 125,
+    close: -75,
+    lost: "competitor",
+    history: [
+      { daysAgo: 110, stage: "conversation" },
+      { daysAgo: 95, stage: "demo" },
+      { daysAgo: 85, stage: "evaluation" },
+    ],
   },
 };
 
@@ -1436,21 +1479,20 @@ export default defineSolution<Strings>({
           },
           {
             kind: "kpi",
-            title: t.widgets.openDeals,
-            list: "deal",
+            title: t.widgets.investorsTalking,
+            list: "investor",
             aggregation: "count",
-            filters: [{ field: "stage", in: open }],
+            filters: [{ field: "relationshipStatus", in: ["inConversation"] }],
           },
           {
             kind: "chart",
             title: t.widgets.byStage,
-            display: DisplayType.verticalBarChartWithLabels,
+            display: DisplayType.verticalBarChart,
             list: "deal",
             aggregation: "sum",
             field: "totalValue",
             groupBy: { field: "stage" },
             filters: [{ field: "stage", in: open }],
-            width: 6,
           },
           {
             kind: "chart",
@@ -1459,29 +1501,35 @@ export default defineSolution<Strings>({
             list: "deal",
             aggregation: "count",
             groupBy: { field: "source" },
-            width: 6,
           },
           {
             kind: "chart",
-            title: t.widgets.wonByMonth,
-            display: DisplayType.areaChart,
+            title: t.widgets.byIndustry,
+            display: DisplayType.horizontalBarChartWithLabels,
             list: "deal",
             aggregation: "sum",
             field: "totalValue",
-            groupBy: { month: "closeDate" },
-            filters: [{ field: "stage", in: ["won"] }],
-            width: 6,
+            groupBy: { relation: "deal.organizations", field: "organization.industry" },
+            filters: [{ field: "stage", in: open }],
           },
           {
             kind: "chart",
-            title: t.widgets.investorsByStatus,
-            display: DisplayType.horizontalBarChartWithLabels,
-            list: "investor",
+            title: t.widgets.newByMonth,
+            display: DisplayType.areaChart,
+            list: "deal",
             aggregation: "count",
-            groupBy: { field: "relationshipStatus" },
-            width: 6,
+            groupBy: { month: "system:createdAt" },
           },
-          { kind: "activity", title: t.widgets.activity },
+          {
+            kind: "chart",
+            title: t.widgets.byAccount,
+            display: DisplayType.rankedTable,
+            list: "deal",
+            aggregation: "sum",
+            field: "totalValue",
+            groupBy: { relation: "deal.organizations" },
+            filters: [{ field: "stage", in: ["demo", "evaluation", "decision"] }],
+          },
         ],
       },
       wiki: [

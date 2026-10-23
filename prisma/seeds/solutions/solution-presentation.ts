@@ -1,6 +1,5 @@
 import type { Filter } from "@/core/base/base-get.schema";
 import type { DataViewState } from "@/core/data-view/data-view-state.schema";
-import type { RecordActivityQuery } from "@/ee/messaging/activities/record-activities.schema";
 import type { RecordMeasure } from "@/features/records/record-measure.schema";
 import type { RecordModel } from "@/features/records/record-model.schema";
 import type { RecordQuery } from "@/features/records/record-query.schema";
@@ -9,11 +8,12 @@ import type { Prisma } from "@/generated/prisma";
 import { FilterOperatorKey, ViewMode } from "@/core/base/base-query-builder";
 import { presetId } from "@/features/records/crm-preset";
 import { ChartColor, DisplayType } from "@/features/widget/widget-display.schema";
+import { structuredDashboardLayout } from "@/features/widget/widget-grid";
 import { WidgetKind } from "@/generated/prisma";
 
 import { dashboardLayouts, type WidgetDefinition } from "../dashboards-layout";
 import { workspaceFixtureId } from "../helpers";
-import type { SolutionContent, ViewSpec, WidgetFilterSpec } from "./define-solution";
+import type { SolutionContent, ViewSpec, WidgetFilterSpec, WidgetGroupSpec } from "./define-solution";
 import type { SolutionWorkspace } from "./solution-workspaces";
 
 export const SOLUTION_VIEW_GROUP = "1f100000";
@@ -134,16 +134,13 @@ export type SolutionWidgetRow = {
   isTemplate: boolean;
   layout: Prisma.InputJsonValue;
   measure?: Prisma.InputJsonValue;
-  activityQuery?: Prisma.InputJsonValue;
 };
-
-const KPI_HEIGHT = 2;
 
 /** One accent hue per solution: every widget of its dashboards uses that hue, multi-value charts its shades. */
 const SOLUTION_ACCENTS: Record<SolutionWorkspace["solution"]["id"], ChartColor> = {
   smb: ChartColor.primary1,
   consultants: ChartColor.info1,
-  agencies: ChartColor.warning1,
+  agencies: ChartColor.violet1,
   freelancers: ChartColor.secondary1,
   startups: ChartColor.success1,
   "client-management": ChartColor.secondary1,
@@ -151,115 +148,104 @@ const SOLUTION_ACCENTS: Record<SolutionWorkspace["solution"]["id"], ChartColor> 
   "linkedin-crm": ChartColor.info1,
   "whatsapp-crm": ChartColor.success1,
 };
-const CHART_HEIGHT = 5;
+
+const DASHBOARD_SHAPE = { kpi: 4, chart: 5 } as const;
+
+function fieldKey(companyId: string, list: string, field: string): string {
+  return field.startsWith("system:") ? field : presetId(companyId, `${list}.${field}`);
+}
+
+function days(count: number) {
+  return { kind: "decimal" as const, value: String(count), currency: null };
+}
 
 function widgetFilters(
   companyId: string,
   list: string,
   filters: readonly WidgetFilterSpec[] = [],
 ): RecordQuery["filters"] {
-  return filters.map((filter) => ({
-    fieldId: presetId(companyId, `${list}.${filter.field}`),
-    operator: filter.notIn ? "notIn" : "in",
-    value: null,
-    values: optionIds(companyId, list, filter.field, filter.notIn ?? filter.in ?? []).map((value) => ({
-      kind: "select" as const,
-      value,
-    })),
-  }));
+  return filters.map((filter) => {
+    const fieldId = fieldKey(companyId, list, filter.field);
+    if (filter.withinDays !== undefined)
+      return { fieldId, operator: "inLastDays" as const, value: days(filter.withinDays) };
+    if (filter.olderThanDays !== undefined)
+      return { fieldId, operator: "notInLastDays" as const, value: days(filter.olderThanDays) };
+    if (filter.empty) return { fieldId, operator: "empty" as const, value: null };
+    return {
+      fieldId,
+      operator: filter.notIn ? ("notIn" as const) : ("in" as const),
+      value: null,
+      values: optionIds(companyId, list, filter.field, filter.notIn ?? filter.in ?? []).map((value) => ({
+        kind: "select" as const,
+        value,
+      })),
+    };
+  });
 }
 
-function valueField(companyId: string, list: string, field: string | undefined): string | null {
-  return field ? presetId(companyId, `${list}.${field}`) : null;
+function widgetGroupBy(companyId: string, list: string, group: WidgetGroupSpec): NonNullable<RecordMeasure["groupBy"]> {
+  if ("month" in group) {
+    return {
+      path: [],
+      fieldId: fieldKey(companyId, list, group.month),
+      dateInterval: "month",
+      timeZone: "Europe/Berlin",
+    };
+  }
+  if ("relation" in group) {
+    return {
+      path: [{ relationId: presetId(companyId, group.relation), direction: "outgoing" }],
+      fieldId: group.field ? presetId(companyId, group.field) : null,
+    };
+  }
+  if ("field" in group) return { path: [], fieldId: fieldKey(companyId, list, group.field) };
+  if ("assignee" in group) return { path: [], fieldId: "system:assignedTo" };
+  return { path: [], fieldId: null };
 }
 
-/** The workspace's main dashboard: KPI cards in the first row, charts two to a row, the activity timeline last. */
+/**
+ * The workspace's main dashboard in its fixed shape: four number cards in the first row, three charts in the second
+ * and two wider charts in the third, every row filling the grid at one height.
+ */
 export function buildSolutionWidgets(workspace: SolutionWorkspace, content: SolutionContent): SolutionWidgetRow[] {
   const { companyId } = workspace;
-  const id = (key: string) => presetId(companyId, key);
   const accent = SOLUTION_ACCENTS[workspace.solution.id];
-  const definitions: WidgetDefinition[] = [];
-  let x = 0;
-  let y = 0;
-  let rowHeight = 0;
-  const place = (w: number, h: number) => {
-    if (x + w > 12) {
-      x = 0;
-      y += rowHeight;
-      rowHeight = 0;
-    }
-    const rect = { x, y, w, h };
-    x += w;
-    rowHeight = Math.max(rowHeight, h);
-    return rect;
-  };
-  for (const widget of content.dashboard.widgets) {
-    if (widget.kind === "activity") {
-      const activityQuery: RecordActivityQuery = {
-        scope: { records: [], typeIds: [] },
-        kinds: ["record", "audit", "configuration", "message", "activity", "calendar_event"],
-        filters: [],
-      };
-      definitions.push({ kind: "activityTimeline", name: widget.title, activityQuery, lg: place(12, 6) });
-      continue;
-    }
+  const widgets = content.dashboard.widgets;
+  const shape = widgets.map((widget) => widget.kind).join(",");
+  const expected = [
+    ...Array<string>(DASHBOARD_SHAPE.kpi).fill("kpi"),
+    ...Array<string>(DASHBOARD_SHAPE.chart).fill("chart"),
+  ].join(",");
+  if (shape !== expected) throw new Error(`${workspace.slug}: the dashboard needs four kpi then five chart widgets`);
+  const rects = structuredDashboardLayout(widgets.map((widget) => ({ metric: widget.kind === "kpi" })));
+  const definitions: WidgetDefinition[] = widgets.map((widget, index) => {
     const source: RecordMeasure["source"] = {
-      typeId: id(widget.list),
+      typeId: presetId(companyId, widget.list),
       filters: widgetFilters(companyId, widget.list, widget.filters),
       relationships: [],
       relatedFilters: [],
     };
-    if (widget.kind === "kpi") {
-      definitions.push({
-        kind: "chart",
-        name: widget.title,
-        displayType: DisplayType.number,
-        measure: {
-          source,
-          aggregation: widget.aggregation,
-          valueFieldId: valueField(companyId, widget.list, widget.field),
-          groupBy: null,
-          groupLimit: 1000,
-        },
-        barColors: [accent],
-        useGroupColors: false,
-        lg: place(3, KPI_HEIGHT),
-      });
-      continue;
-    }
-    const groupBy: NonNullable<RecordMeasure["groupBy"]> =
-      "field" in widget.groupBy
-        ? { path: [], fieldId: id(`${widget.list}.${widget.groupBy.field}`) }
-        : "month" in widget.groupBy
-          ? {
-              path: [],
-              fieldId: id(`${widget.list}.${widget.groupBy.month}`),
-              dateInterval: "month",
-              timeZone: "Europe/Berlin",
-            }
-          : "relation" in widget.groupBy
-            ? { path: [{ relationId: id(widget.groupBy.relation), direction: "outgoing" }], fieldId: null }
-            : { path: [], fieldId: null };
-    definitions.push({
+    return {
       kind: "chart",
       name: widget.title,
-      displayType: widget.display,
+      displayType: widget.kind === "kpi" ? DisplayType.number : widget.display,
       measure: {
         source,
         aggregation: widget.aggregation,
-        valueFieldId: valueField(companyId, widget.list, widget.field),
-        groupBy,
+        valueFieldId: widget.field ? fieldKey(companyId, widget.list, widget.field) : null,
+        groupBy: widget.kind === "kpi" ? null : widgetGroupBy(companyId, widget.list, widget.groupBy),
         groupLimit: 1000,
       },
       barColors: [accent],
       useGroupColors: false,
-      lg: place(widget.width ?? 6, CHART_HEIGHT),
-    });
-  }
+      lg: rects[index],
+    };
+  });
   const ids = definitions.map((_, index) => workspaceFixtureId(SOLUTION_WIDGET_GROUP, workspace.tag, index + 1));
   const layouts = dashboardLayouts(ids, definitions);
   return definitions.map((widget, index) => {
-    const base = {
+    if (widget.kind !== "chart") throw new Error("Solution dashboards hold chart widgets only");
+    return {
       id: ids[index],
       companyId,
       userId: workspace.memberId,
@@ -267,17 +253,6 @@ export function buildSolutionWidgets(workspace: SolutionWorkspace, content: Solu
       name: widget.name,
       isTemplate: false,
       layout: layouts[index] as Prisma.InputJsonValue,
-    };
-    if (widget.kind === "activityTimeline") {
-      return {
-        ...base,
-        kind: WidgetKind.activityTimeline,
-        displayOptions: { showFilters: true },
-        activityQuery: widget.activityQuery as Prisma.InputJsonValue,
-      };
-    }
-    return {
-      ...base,
       kind: WidgetKind.chart,
       displayOptions: {
         barColors: widget.barColors,
@@ -287,6 +262,7 @@ export function buildSolutionWidgets(workspace: SolutionWorkspace, content: Solu
         showFilters: widget.measure.source.filters.length > 0,
         showLegend: widget.displayType === DisplayType.doughnutChart,
         useGroupColors: widget.useGroupColors,
+        palette: "accent",
       },
       measure: widget.measure as Prisma.InputJsonValue,
     };

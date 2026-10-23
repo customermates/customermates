@@ -106,8 +106,32 @@ export type ViewSpec = {
   sort?: { field: string; direction: "asc" | "desc" };
 };
 
-export type WidgetFilterSpec = { field: string; in?: readonly string[]; notIn?: readonly string[] };
+/**
+ * A widget filter on a field of the widget's list, or on `system:createdAt`/`system:updatedAt`: options in or not in a
+ * select, a date at most `withinDays` days back (or later), a date more than `olderThanDays` days back, or an empty
+ * value.
+ */
+export type WidgetFilterSpec = {
+  field: string;
+  in?: readonly string[];
+  notIn?: readonly string[];
+  withinDays?: number;
+  olderThanDays?: number;
+  empty?: true;
+};
 
+/** Group by a field, a month of a date, the records a relationship links to (or a `<list>.<field>` of them), the assignees or each record. */
+export type WidgetGroupSpec =
+  | { field: string }
+  | { relation: string; field?: string }
+  | { month: string }
+  | { assignee: true }
+  | { records: true };
+
+/**
+ * The dashboard has a fixed shape: four number cards, then three charts in a row and two wider charts below them, so a
+ * solution lists exactly four `kpi` widgets followed by five `chart` widgets.
+ */
 export type WidgetSpec =
   | {
       kind: "kpi";
@@ -122,13 +146,11 @@ export type WidgetSpec =
       title: string;
       display: DisplayType;
       list: string;
-      aggregation: "count" | "sum";
+      aggregation: "count" | "sum" | "average";
       field?: string;
-      groupBy: { field: string } | { relation: string } | { month: string } | { records: true };
+      groupBy: WidgetGroupSpec;
       filters?: readonly WidgetFilterSpec[];
-      width?: 4 | 6 | 8 | 12;
-    }
-  | { kind: "activity"; title: string };
+    };
 
 export type WikiPageSpec = {
   key: string;

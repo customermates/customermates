@@ -120,6 +120,9 @@ const en = {
     nextStepDate: "Next step date",
     dueDate: "Due date",
     priority: "Priority",
+    clientStatus: "Client status",
+    annualValue: "Annual value",
+    lastContact: "Last contact",
   },
   options: {
     segment: {
@@ -139,6 +142,7 @@ const en = {
     } satisfies Record<ServiceUsedKey, string>,
     opportunityType: { newClient: "New client", expansion: "Extra site or service", renewal: "Yearly review" },
     priority: { low: "Low", medium: "Medium", high: "High" },
+    clientStatus: { active: "Active client", prospect: "Prospect", paused: "Paused" },
   },
   stages: {
     newRelationship: "New relationship",
@@ -227,15 +231,15 @@ const en = {
     dueSoon: "Due soon",
   },
   widgets: {
-    openValue: "Open opportunity value",
-    weighted: "Weighted open value",
-    customerValue: "Value at Customer stage",
-    openTasks: "Open tasks",
-    byStage: "Opportunity value by stage",
+    activeClients: "Active clients",
+    annualValue: "Annual value of active clients",
+    noContact: "No contact in 30 days",
+    overdueTasks: "Overdue tasks",
     bySegment: "Clients by segment",
-    byChannel: "Clients by preferred channel",
-    byType: "Opportunities by type",
-    activity: "Recent activity",
+    byService: "Active clients by service",
+    byStage: "Opportunity value by stage",
+    reviewsByMonth: "Annual value up for review",
+    activeDiscussions: "Active discussions by value",
   },
   wiki: {
     guide: {
@@ -380,6 +384,9 @@ const de: Strings = {
     nextStepDate: "Datum nächster Schritt",
     dueDate: "Fällig am",
     priority: "Priorität",
+    clientStatus: "Kundenstatus",
+    annualValue: "Jahreswert",
+    lastContact: "Letzter Kontakt",
   },
   options: {
     segment: {
@@ -403,6 +410,7 @@ const de: Strings = {
       renewal: "Jahresgespräch",
     },
     priority: { low: "Niedrig", medium: "Mittel", high: "Hoch" },
+    clientStatus: { active: "Aktiver Kunde", prospect: "Interessent", paused: "Pausiert" },
   },
   stages: { newRelationship: "Neue Beziehung", activeDiscussion: "Im Gespräch", customer: "Kunde", dormant: "Ruhend" },
   organizations: {
@@ -489,15 +497,15 @@ const de: Strings = {
     dueSoon: "Bald fällig",
   },
   widgets: {
-    openValue: "Wert offener Verkaufschancen",
-    weighted: "Gewichteter offener Wert",
-    customerValue: "Wert in der Phase Kunde",
-    openTasks: "Offene Aufgaben",
-    byStage: "Wert der Verkaufschancen nach Phase",
+    activeClients: "Aktive Kunden",
+    annualValue: "Jahreswert aktiver Kunden",
+    noContact: "Seit 30 Tagen kein Kontakt",
+    overdueTasks: "Überfällige Aufgaben",
     bySegment: "Kunden nach Segment",
-    byChannel: "Kunden nach bevorzugtem Kanal",
-    byType: "Verkaufschancen nach Art",
-    activity: "Letzte Aktivitäten",
+    byService: "Aktive Kunden nach Leistung",
+    byStage: "Wert der Verkaufschancen nach Phase",
+    reviewsByMonth: "Jahreswert zur Vertragsprüfung",
+    activeDiscussions: "Laufende Gespräche nach Wert",
   },
   wiki: {
     guide: {
@@ -605,6 +613,9 @@ const de: Strings = {
 };
 
 type OrganizationFacts = {
+  status: "active" | "prospect" | "paused";
+  annual?: number;
+  lastContact: number;
   segment: string;
   sites: number;
   channel: string;
@@ -618,6 +629,9 @@ type OrganizationFacts = {
 
 const ORGANIZATION_FACTS: Record<OrganizationKey, OrganizationFacts> = {
   halverson: {
+    status: "active",
+    annual: 42000,
+    lastContact: -2,
     segment: "midsize",
     sites: 3,
     channel: "email",
@@ -629,6 +643,9 @@ const ORGANIZATION_FACTS: Record<OrganizationKey, OrganizationFacts> = {
     history: [{ daysAgo: 6, previous: { sites: 2 } }],
   },
   meridian: {
+    status: "active",
+    annual: 18500,
+    lastContact: -12,
     segment: "midsize",
     sites: 2,
     channel: "email",
@@ -639,6 +656,9 @@ const ORGANIZATION_FACTS: Record<OrganizationKey, OrganizationFacts> = {
     services: ["coffeeMachines", "waterDispensers"],
   },
   oakfield: {
+    status: "active",
+    annual: 3400,
+    lastContact: -41,
     segment: "smallOffice",
     sites: 2,
     channel: "phone",
@@ -649,6 +669,9 @@ const ORGANIZATION_FACTS: Record<OrganizationKey, OrganizationFacts> = {
     services: ["waterDispensers"],
   },
   brightside: {
+    status: "active",
+    annual: 12800,
+    lastContact: -3,
     segment: "coworking",
     sites: 1,
     channel: "whatsapp",
@@ -659,8 +682,19 @@ const ORGANIZATION_FACTS: Record<OrganizationKey, OrganizationFacts> = {
     services: ["coffeeMachines", "breakroomSupplies", "eventCatering"],
     history: [{ daysAgo: 90, previous: { preferredChannel: "email" } }],
   },
-  larkspur: { segment: "smallOffice", sites: 1, channel: "phone", domain: "larkspur-law.example", createdDaysAgo: 16 },
+  larkspur: {
+    status: "prospect",
+    lastContact: -5,
+    segment: "smallOffice",
+    sites: 1,
+    channel: "phone",
+    domain: "larkspur-law.example",
+    createdDaysAgo: 16,
+  },
   riverbend: {
+    status: "active",
+    annual: 21000,
+    lastContact: -8,
     segment: "midsize",
     sites: 5,
     channel: "email",
@@ -671,6 +705,9 @@ const ORGANIZATION_FACTS: Record<OrganizationKey, OrganizationFacts> = {
     services: ["coffeeMachines", "waterDispensers", "meetingCatering"],
   },
   tallis: {
+    status: "active",
+    annual: 7900,
+    lastContact: -1,
     segment: "midsize",
     sites: 1,
     channel: "whatsapp",
@@ -681,6 +718,8 @@ const ORGANIZATION_FACTS: Record<OrganizationKey, OrganizationFacts> = {
     services: ["coffeeMachines", "freshFruit"],
   },
   greystone: {
+    status: "prospect",
+    lastContact: -9,
     segment: "smallOffice",
     sites: 1,
     channel: "email",
@@ -688,6 +727,9 @@ const ORGANIZATION_FACTS: Record<OrganizationKey, OrganizationFacts> = {
     createdDaysAgo: 22,
   },
   juniper: {
+    status: "paused",
+    annual: 2600,
+    lastContact: -64,
     segment: "smallOffice",
     sites: 1,
     channel: "email",
@@ -697,6 +739,8 @@ const ORGANIZATION_FACTS: Record<OrganizationKey, OrganizationFacts> = {
     services: ["freshFruit"],
   },
   westmoor: {
+    status: "prospect",
+    lastContact: -4,
     segment: "largeSite",
     sites: 2,
     channel: "phone",
@@ -704,15 +748,27 @@ const ORGANIZATION_FACTS: Record<OrganizationKey, OrganizationFacts> = {
     createdDaysAgo: 45,
   },
   ashcombe: {
+    status: "active",
+    annual: 5400,
+    lastContact: -62,
     segment: "smallOffice",
     sites: 1,
     channel: "email",
     domain: "ashcombe-media.example",
     createdDaysAgo: 700,
     since: -680,
+    review: 30,
     services: ["coffeeMachines"],
   },
-  kingsley: { segment: "largeSite", sites: 3, channel: "email", domain: "kingsley-medical.example", createdDaysAgo: 5 },
+  kingsley: {
+    status: "prospect",
+    lastContact: -3,
+    segment: "largeSite",
+    sites: 3,
+    channel: "email",
+    domain: "kingsley-medical.example",
+    createdDaysAgo: 5,
+  },
 };
 
 const CONTACT_FACTS: Record<
@@ -962,10 +1018,10 @@ const TASK_FACTS: Record<
   descaleMachines: {
     status: "open",
     priority: "medium",
-    due: 2,
+    due: -3,
     organization: "halverson",
     contact: "tom",
-    createdDaysAgo: 1,
+    createdDaysAgo: 9,
   },
   meridianMenu: {
     status: "open",
@@ -1010,11 +1066,11 @@ const TASK_FACTS: Record<
   },
   ashcombeCheckIn: {
     status: "open",
-    priority: "low",
-    due: 14,
+    priority: "medium",
+    due: -5,
     organization: "ashcombe",
     contact: "zoe",
-    createdDaysAgo: 9,
+    createdDaysAgo: 20,
   },
   larkspurCall: {
     status: "open",
@@ -1064,6 +1120,7 @@ export default defineSolution<Strings>({
     const mobile = (suffix: string) => phoneNumber(t.phones.mobile, Number(suffix));
     const office = (index: number) => phoneNumber(t.phones.office, index);
     const open = ["newRelationship", "activeDiscussion"];
+    const active = [{ field: "clientStatus", in: ["active"] }];
     const label = <K extends string>(
       options: Record<K, string>,
       colors: Record<K, "default" | "secondary" | "destructive" | "success" | "warning" | "info">,
@@ -1076,6 +1133,9 @@ export default defineSolution<Strings>({
         key,
         values: {
           name,
+          clientStatus: facts.status,
+          ...(facts.annual === undefined ? {} : { annualValue: facts.annual }),
+          lastContact: day(facts.lastContact),
           segment: facts.segment,
           city,
           website: `https://${facts.domain}`,
@@ -1177,6 +1237,14 @@ export default defineSolution<Strings>({
             coworking: "warning",
           }),
         },
+        {
+          key: "organization.clientStatus",
+          label: t.fields.clientStatus,
+          type: "select",
+          options: label(t.options.clientStatus, { active: "success", prospect: "info", paused: "secondary" }),
+        },
+        { key: "organization.annualValue", label: t.fields.annualValue, type: "currency" },
+        { key: "organization.lastContact", label: t.fields.lastContact, type: "date" },
         { key: "organization.city", label: t.fields.city, type: "text" },
         { key: "organization.website", label: t.fields.website, type: "url" },
         { key: "organization.sites", label: t.fields.sites, type: "number" },
@@ -1252,6 +1320,9 @@ export default defineSolution<Strings>({
           name: t.views.clients,
           mode: "table",
           columns: [
+            "clientStatus",
+            "annualValue",
+            "lastContact",
             "segment",
             "clientSince",
             "servicesUsed",
@@ -1299,44 +1370,35 @@ export default defineSolution<Strings>({
         widgets: [
           {
             kind: "kpi",
-            title: t.widgets.openValue,
-            list: "deal",
-            aggregation: "sum",
-            field: "totalValue",
-            filters: [{ field: "stage", in: open }],
+            title: t.widgets.activeClients,
+            list: "organization",
+            aggregation: "count",
+            filters: active,
           },
           {
             kind: "kpi",
-            title: t.widgets.weighted,
-            list: "deal",
+            title: t.widgets.annualValue,
+            list: "organization",
             aggregation: "sum",
-            field: "weightedValue",
-            filters: [{ field: "stage", in: open }],
+            field: "annualValue",
+            filters: active,
           },
           {
             kind: "kpi",
-            title: t.widgets.customerValue,
-            list: "deal",
-            aggregation: "sum",
-            field: "totalValue",
-            filters: [{ field: "stage", in: ["customer"] }],
+            title: t.widgets.noContact,
+            list: "organization",
+            aggregation: "count",
+            filters: [...active, { field: "lastContact", olderThanDays: 30 }],
           },
           {
             kind: "kpi",
-            title: t.widgets.openTasks,
+            title: t.widgets.overdueTasks,
             list: "task",
             aggregation: "count",
-            filters: [{ field: "status", notIn: ["done", "archived"] }],
-          },
-          {
-            kind: "chart",
-            title: t.widgets.byStage,
-            display: DisplayType.verticalBarChartWithLabels,
-            list: "deal",
-            aggregation: "sum",
-            field: "totalValue",
-            groupBy: { field: "stage" },
-            width: 6,
+            filters: [
+              { field: "status", notIn: ["done", "archived"] },
+              { field: "dueDate", olderThanDays: 1 },
+            ],
           },
           {
             kind: "chart",
@@ -1345,27 +1407,45 @@ export default defineSolution<Strings>({
             list: "organization",
             aggregation: "count",
             groupBy: { field: "segment" },
-            width: 6,
           },
           {
             kind: "chart",
-            title: t.widgets.byChannel,
+            title: t.widgets.byService,
             display: DisplayType.horizontalBarChartWithLabels,
             list: "organization",
             aggregation: "count",
-            groupBy: { field: "preferredChannel" },
-            width: 6,
+            groupBy: { field: "servicesUsed" },
+            filters: active,
           },
           {
             kind: "chart",
-            title: t.widgets.byType,
-            display: DisplayType.doughnutChart,
+            title: t.widgets.byStage,
+            display: DisplayType.verticalBarChart,
             list: "deal",
-            aggregation: "count",
-            groupBy: { field: "opportunityType" },
-            width: 6,
+            aggregation: "sum",
+            field: "totalValue",
+            groupBy: { field: "stage" },
           },
-          { kind: "activity", title: t.widgets.activity },
+          {
+            kind: "chart",
+            title: t.widgets.reviewsByMonth,
+            display: DisplayType.verticalBarChart,
+            list: "organization",
+            aggregation: "sum",
+            field: "annualValue",
+            groupBy: { month: "contractReviewDate" },
+            filters: active,
+          },
+          {
+            kind: "chart",
+            title: t.widgets.activeDiscussions,
+            display: DisplayType.rankedTable,
+            list: "deal",
+            aggregation: "sum",
+            field: "totalValue",
+            groupBy: { records: true },
+            filters: [{ field: "stage", in: ["activeDiscussion"] }],
+          },
         ],
       },
       wiki: [

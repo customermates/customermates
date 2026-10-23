@@ -445,9 +445,18 @@ async function writePresentation(
     where: { companyId, id: { startsWith: `${SOLUTION_VIEW_GROUP}-${tag}-`, notIn: views.map(({ id }) => id) } },
   });
 
-  const widgets = buildSolutionWidgets(workspace, content);
+  const widgetsCreatedAt = new Date(solutionWorkspaceCreatedAt(workspace, content).getTime() + 2 * DAY);
+  const widgets = buildSolutionWidgets(workspace, content).map((widget) => ({
+    ...widget,
+    createdAt: widgetsCreatedAt,
+    updatedAt: widgetsCreatedAt,
+  }));
   await upsertFixturesById(widgets, (widget) =>
-    prisma.widget.upsert({ where: { id: widget.id }, update: widget, create: widget }),
+    prisma.widget.upsert({
+      where: { id: widget.id },
+      update: { ...widget, activityQuery: Prisma.DbNull },
+      create: widget,
+    }),
   );
   await prisma.widget.deleteMany({
     where: { companyId, id: { startsWith: `${SOLUTION_WIDGET_GROUP}-${tag}-`, notIn: widgets.map(({ id }) => id) } },
