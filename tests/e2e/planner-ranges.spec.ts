@@ -132,6 +132,7 @@ test("calendar ranges span weeks and months, keep midnight exclusive, reveal ful
     await expect(midnight).toHaveCSS("height", "720px");
     await midnight.hover();
     await expect(page.getByRole("tooltip")).toContainText(timedTitle);
+    await page.mouse.move(0, 0);
     await page.getByRole("tab", { name: "Quarter", exact: true }).click();
     await expect(calendar.locator('[data-planner-timeline][data-planner-scale="week"]')).toBeVisible();
     await expect(entry).toHaveAttribute("data-calendar-entry-end", end);
