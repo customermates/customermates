@@ -2,12 +2,13 @@
 
 import { RECORD_NAME_HEADING_CLASS } from "@/components/records/inline-edit-classes";
 import { withFormulaReferences } from "@/features/records/formula-references";
-import { useId } from "react";
+import { useId, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { isRecordFieldWritable } from "@/features/records/record-input-value";
 import { useTranslations } from "next-intl";
 import { Camera, Link2, Sigma } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { RecordEditorStore } from "./record-editor.store";
 import type { RecordField, RecordFieldView } from "@/features/records/record-model.schema";
 import { EntityDetailFieldShell } from "@/components/entity-detail/entity-detail-field-shell";
@@ -47,27 +48,43 @@ export const RecordNameHeading = observer(function RecordNameHeading({
   className?: string;
 }) {
   const field = recordNameField(store);
+  const headingRef = useRef<HTMLDivElement>(null);
+  const [fullNameShown, setFullNameShown] = useState(false);
   const result = store.record?.fields.find((value) => value.fieldId === field?.id)?.result;
   if (!field || result?.state === "restricted" || !isRecordFieldWritable(field))
     return <h2 className={cn("min-w-0 flex-1 truncate text-lg font-semibold", className)}>{name}</h2>;
 
+  const value = String(store.getValue(`values.${field.id}`) ?? "");
+  const showFullName = (open: boolean) => {
+    const input = headingRef.current?.querySelector("input");
+    if (!input) return setFullNameShown(false);
+    setFullNameShown(open && input !== document.activeElement && input.scrollWidth > input.clientWidth);
+  };
+
   return (
-    <div
-      aria-level={2}
-      className={cn(RECORD_NAME_HEADING_CLASS, className)}
-      data-record-name-heading={field.id}
-      role="heading"
-    >
-      <FormInput
-        showErrorMessage
-        aria-label={field.label}
-        id={`values.${field.id}`}
-        label={null}
-        placeholder={placeholder}
-        required={field.required}
-        title={String(store.getValue(`values.${field.id}`) ?? "") || undefined}
-      />
-    </div>
+    <Tooltip open={fullNameShown && Boolean(value)} onOpenChange={showFullName}>
+      <TooltipTrigger asChild>
+        <div
+          ref={headingRef}
+          aria-level={2}
+          className={cn(RECORD_NAME_HEADING_CLASS, className)}
+          data-record-name-heading={field.id}
+          role="heading"
+          onFocusCapture={() => setFullNameShown(false)}
+        >
+          <FormInput
+            showErrorMessage
+            aria-label={field.label}
+            id={`values.${field.id}`}
+            label={null}
+            placeholder={placeholder}
+            required={field.required}
+          />
+        </div>
+      </TooltipTrigger>
+
+      <TooltipContent className="max-w-md">{value}</TooltipContent>
+    </Tooltip>
   );
 });
 
