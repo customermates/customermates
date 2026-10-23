@@ -76,7 +76,7 @@ const PropertyChip = observer(function PropertyChip({
   const chip =
     first && (column.kind === "relationship" || column.kind === "relationshipPath") ? (
       <button
-        className="min-w-0 rounded-md text-left outline-none focus-visible:ring-2 focus-visible:ring-ring/70"
+        className="flex min-w-0 rounded-md text-left outline-none focus-visible:ring-2 focus-visible:ring-ring/70"
         type="button"
         onClick={(event) => {
           event.stopPropagation();

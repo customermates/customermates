@@ -58,8 +58,10 @@ async function openRecord(page: Page, typeKey: string, recordId: string) {
   const main = page.getByRole("main");
   const overview = main.getByRole("tab", { name: "Overview", exact: true });
   if (await overview.isVisible()) await overview.click();
-  const field = typeKey === "contact" ? "contact.firstName" : `${typeKey}.name`;
-  const name = main.locator(`[data-record-name-heading="${demoId(field)}"]`).getByRole("textbox");
+  const name =
+    typeKey === "contact"
+      ? main.getByRole("textbox", { name: "First Name", exact: true })
+      : main.locator(`[data-record-name-heading="${demoId(`${typeKey}.name`)}"]`).getByRole("textbox");
   await expect(name).toBeVisible();
   return name;
 }
