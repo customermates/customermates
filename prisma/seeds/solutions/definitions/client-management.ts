@@ -105,7 +105,7 @@ type ServiceKey = "coffeeMachines" | "breakroomSupplies" | "catering" | "waterDi
 
 const en = {
   company: "Hollis Office Services",
-  workspaceName: "Client management",
+  workspaceName: "Clients",
   website: "https://hollis-office.example",
   phones: {
     mobile: { templates: ["+1 202 555 01##"], start: 0 },
@@ -450,7 +450,7 @@ type Strings = typeof en;
 
 const de: Strings = {
   company: "Bohnenhaus Büroservice",
-  workspaceName: "Kundenverwaltung",
+  workspaceName: "Kunden",
   website: "https://bohnenhaus-bueroservice.example",
   phones: {
     mobile: { templates: ["+49 30 23125 0##"], start: 0 },

@@ -93,7 +93,7 @@ type RoutineKey = "unknownSenders" | "morningChats";
 
 const en = {
   company: "Birch & Bolt Workshop",
-  workspaceName: "WhatsApp customers",
+  workspaceName: "WhatsApp CRM",
   website: "https://birchandbolt.example",
   phones: { mobile: { templates: ["+1 412 555 01##"], start: 10 } },
   selfTitle: "Owner",
@@ -413,7 +413,7 @@ type Strings = typeof en;
 
 const de: Strings = {
   company: "Tischlerei Birkenholz",
-  workspaceName: "WhatsApp-Kundenkontakt",
+  workspaceName: "WhatsApp-Kunden",
   website: "https://tischlerei-birkenholz.example",
   phones: { mobile: { templates: ["+49 30 23125 ###"], start: 110 } },
   selfTitle: "Inhaber und Tischlermeister",

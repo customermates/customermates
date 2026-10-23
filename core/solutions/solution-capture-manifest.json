@@ -435,13 +435,13 @@
     {
       "locale": "en",
       "main": {
-        "bytes": 144564,
+        "bytes": 142894,
         "height": 1800,
         "src": "/captures/solutions/light/client-management-en.webp",
         "width": 2880
       },
       "nav": {
-        "bytes": 38538,
+        "bytes": 38292,
         "height": 600,
         "src": "/captures/solutions/light/client-management-en-nav.webp",
         "width": 960
@@ -453,13 +453,13 @@
     {
       "locale": "en",
       "main": {
-        "bytes": 143218,
+        "bytes": 141634,
         "height": 1800,
         "src": "/captures/solutions/dark/client-management-en.webp",
         "width": 2880
       },
       "nav": {
-        "bytes": 38556,
+        "bytes": 38246,
         "height": 600,
         "src": "/captures/solutions/dark/client-management-en-nav.webp",
         "width": 960
@@ -471,13 +471,13 @@
     {
       "locale": "de",
       "main": {
-        "bytes": 158486,
+        "bytes": 156870,
         "height": 1800,
         "src": "/captures/solutions/light/client-management-de.webp",
         "width": 2880
       },
       "nav": {
-        "bytes": 40502,
+        "bytes": 40248,
         "height": 600,
         "src": "/captures/solutions/light/client-management-de-nav.webp",
         "width": 960
@@ -489,13 +489,13 @@
     {
       "locale": "de",
       "main": {
-        "bytes": 156878,
+        "bytes": 155382,
         "height": 1800,
         "src": "/captures/solutions/dark/client-management-de.webp",
         "width": 2880
       },
       "nav": {
-        "bytes": 40476,
+        "bytes": 40226,
         "height": 600,
         "src": "/captures/solutions/dark/client-management-de-nav.webp",
         "width": 960
@@ -507,13 +507,13 @@
     {
       "locale": "fr",
       "main": {
-        "bytes": 149406,
+        "bytes": 147688,
         "height": 1800,
         "src": "/captures/solutions/light/client-management-fr.webp",
         "width": 2880
       },
       "nav": {
-        "bytes": 39900,
+        "bytes": 39678,
         "height": 600,
         "src": "/captures/solutions/light/client-management-fr-nav.webp",
         "width": 960
@@ -525,13 +525,13 @@
     {
       "locale": "fr",
       "main": {
-        "bytes": 148014,
+        "bytes": 146390,
         "height": 1800,
         "src": "/captures/solutions/dark/client-management-fr.webp",
         "width": 2880
       },
       "nav": {
-        "bytes": 39646,
+        "bytes": 39354,
         "height": 600,
         "src": "/captures/solutions/dark/client-management-fr-nav.webp",
         "width": 960
@@ -723,13 +723,13 @@
     {
       "locale": "en",
       "main": {
-        "bytes": 137658,
+        "bytes": 136978,
         "height": 1800,
         "src": "/captures/solutions/light/whatsapp-crm-en.webp",
         "width": 2880
       },
       "nav": {
-        "bytes": 40422,
+        "bytes": 40424,
         "height": 600,
         "src": "/captures/solutions/light/whatsapp-crm-en-nav.webp",
         "width": 960
@@ -741,7 +741,7 @@
     {
       "locale": "en",
       "main": {
-        "bytes": 137298,
+        "bytes": 136526,
         "height": 1800,
         "src": "/captures/solutions/dark/whatsapp-crm-en.webp",
         "width": 2880
@@ -759,13 +759,13 @@
     {
       "locale": "de",
       "main": {
-        "bytes": 151350,
+        "bytes": 150862,
         "height": 1800,
         "src": "/captures/solutions/light/whatsapp-crm-de.webp",
         "width": 2880
       },
       "nav": {
-        "bytes": 42316,
+        "bytes": 42578,
         "height": 600,
         "src": "/captures/solutions/light/whatsapp-crm-de-nav.webp",
         "width": 960
@@ -777,13 +777,13 @@
     {
       "locale": "de",
       "main": {
-        "bytes": 150694,
+        "bytes": 150224,
         "height": 1800,
         "src": "/captures/solutions/dark/whatsapp-crm-de.webp",
         "width": 2880
       },
       "nav": {
-        "bytes": 42494,
+        "bytes": 42384,
         "height": 600,
         "src": "/captures/solutions/dark/whatsapp-crm-de-nav.webp",
         "width": 960

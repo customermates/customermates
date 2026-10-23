@@ -171,44 +171,44 @@
     },
     {
       "key": "client-management:en:light",
-      "mainSha256": "b5508172c4fd0895018f29268c51886253a30b3a26fc4829fa93b78bb15af93c",
+      "mainSha256": "3a7b25683ce0420e48b3ae08307ff7e207af31a67b4f0e46e249bf8c319e09ea",
       "navRoute": "/en/w/client-management/records/26318eee-a3d2-82bf-842f-f21a9897ed56?view=1f100000-5500-4000-8000-000000000002",
-      "navSha256": "b05d6995737d9b5c23218caca7604b64ded42585a8583b8b4ca54cea3714ccd9",
+      "navSha256": "8af24cf361e372a645539d542f36b9ea315646d78194aace51d983d9dcdb557d",
       "route": "/en/w/client-management/dashboard"
     },
     {
       "key": "client-management:en:dark",
-      "mainSha256": "ae5afd1c39acc5b4d712b7f674ae8ca8464a1c3ca8a4faa8a237e2fd26a21cd8",
+      "mainSha256": "1b27eab195b4b4ddd4fb76bbe29579d35098e8113bcfe3e5e3beb589e2ab36a5",
       "navRoute": "/en/w/client-management/records/26318eee-a3d2-82bf-842f-f21a9897ed56?view=1f100000-5500-4000-8000-000000000002",
-      "navSha256": "1a517025895da6976898157df5d64c08695dbe069911101dbe61e82e88b58e39",
+      "navSha256": "1d144939d43c278642bcf9b62167ff92e1a28780e2a0277ac80bef08824dce0e",
       "route": "/en/w/client-management/dashboard"
     },
     {
       "key": "client-management:de:light",
-      "mainSha256": "9f5ee0b3141a4ed2e14f3a43816b0f0db37c3dba673034f9ccb131b709f5be0c",
+      "mainSha256": "79ff1a9312d97f231550a3dde43675510662e6caaaabde1bf6d8421ef0011045",
       "navRoute": "/de/w/kundenverwaltung/records/b745dd1d-13fb-8956-8daa-58f35c7e5cfd?view=1f100000-5510-4000-8000-000000000002",
-      "navSha256": "4b04a95d43ab34f824d2dbbd0f093ec48e695bafdda91b0d47a1c9df5a62ec64",
+      "navSha256": "2daeccbfa1855021356522136eee1dab09849963a913526bcd87f987d0a6d39c",
       "route": "/de/w/kundenverwaltung/dashboard"
     },
     {
       "key": "client-management:de:dark",
-      "mainSha256": "fa218dae812c359b70194c8ce210d647feea8c99e943d86985b67faff60db4b3",
+      "mainSha256": "28d1858efa14d6c79eb65a22c9a0c26caa3a8ad7dda3b0a18221a6cf7e05acac",
       "navRoute": "/de/w/kundenverwaltung/records/b745dd1d-13fb-8956-8daa-58f35c7e5cfd?view=1f100000-5510-4000-8000-000000000002",
-      "navSha256": "b81dab113fd8f493711b40122074602ea4d18f49c753472db46eddb83dbb55e3",
+      "navSha256": "71e6249ed98dfb0042052bfdaee3d618679c536bd6a2435a3bcda29fde5cfa38",
       "route": "/de/w/kundenverwaltung/dashboard"
     },
     {
       "key": "client-management:fr:light",
-      "mainSha256": "2db342d8802c298916fba649f30b08293c60a8482e1b2ba0b6c114404cc05e71",
+      "mainSha256": "08f59747cda2e9f31a1abc9cc6e73299d3ebe2af67a4d635f41065953cc609e0",
       "navRoute": "/fr/w/client-management/records/26318eee-a3d2-82bf-842f-f21a9897ed56?view=1f100000-5500-4000-8000-000000000002",
-      "navSha256": "23304eb208e029d0f54bbaa96a5f01cd1ff2a01c8ffcf77bdb57b6c0ffe2b8b1",
+      "navSha256": "a0cd3742fce82002d667a7a45006df2225515a95333631bbf95648c1fe5426df",
       "route": "/fr/w/client-management/dashboard"
     },
     {
       "key": "client-management:fr:dark",
-      "mainSha256": "066b831ca8840e154541d800bbaf54c71078b7dedfadde1673e5c60838f2dd73",
+      "mainSha256": "f8a0d128415765a54cfea542257cb0954d8e97adf358e30dd96ca2dfa1313451",
       "navRoute": "/fr/w/client-management/records/26318eee-a3d2-82bf-842f-f21a9897ed56?view=1f100000-5500-4000-8000-000000000002",
-      "navSha256": "d917398f237b78bffdbc1fea4f6987131855e9b833ddae6a5f9068bbd62a37e2",
+      "navSha256": "2175afd0c4e0e64bd1ec344c6eadf0872a7acc76f3b0536e3019136b95b62709",
       "route": "/fr/w/client-management/dashboard"
     },
     {
@@ -283,30 +283,30 @@
     },
     {
       "key": "whatsapp-crm:en:light",
-      "mainSha256": "92aa15e08367d7902e6df815ff50f16e0a2ff81bf49e450eda8931ba065ee8e7",
+      "mainSha256": "a4a48587e4e94d893a2567b7ccdbd1f109b6d542e41f307d59d8588e3c7867f5",
       "navRoute": "/en/w/whatsapp/inbox?threadId=17000000-5800-4000-8000-000000000001",
-      "navSha256": "e08cab2497ff0ce8abf319c2afc96e1c9ac2522a08be8e3b8e1212c29dc9ed9a",
+      "navSha256": "48837a1a1496ec4b819b322dd5099b73030b09aa5fd41fcb916b8c84ad9707c0",
       "route": "/en/w/whatsapp/dashboard"
     },
     {
       "key": "whatsapp-crm:en:dark",
-      "mainSha256": "6c26b3a967dba786fbcfa1f73c967278cf296727f60a98f056f5bfc9256148b9",
+      "mainSha256": "3a1a98dad912d6d60492f4d43e58e80b1bb7b7f794787d2a50df67a0e2aed3cd",
       "navRoute": "/en/w/whatsapp/inbox?threadId=17000000-5800-4000-8000-000000000001",
-      "navSha256": "47704b0a6923f702445522a8f58085124dc49868d97802138a1385fbadfadf47",
+      "navSha256": "b0f3b1319af7b5406b36d22c28a0331c6d2841c9d36fce595aa276707e7e0905",
       "route": "/en/w/whatsapp/dashboard"
     },
     {
       "key": "whatsapp-crm:de:light",
-      "mainSha256": "de5e5f05b9afbf70f4831f761a4e580364dcef90ca007382c7498d44eb81bee5",
+      "mainSha256": "f790c713796f1d921a0521aa1176e5907f5abb1e994fe2c8b9e5fb030be711af",
       "navRoute": "/de/w/whatsapp-kundenkontakt/inbox?threadId=17000000-5810-4000-8000-000000000001",
-      "navSha256": "93f9c834049076ed6d5dca84d9c7c899916557ed0d5c5c5ac615c00b0de65f66",
+      "navSha256": "8b29113095a8e0d83a8b9bf167b284ec268857482d5c3a343628933d352c219c",
       "route": "/de/w/whatsapp-kundenkontakt/dashboard"
     },
     {
       "key": "whatsapp-crm:de:dark",
-      "mainSha256": "36ffde1c29c6bd65144a45fa29d794c9a1e4f899e9e9300690dd84480274c5f9",
+      "mainSha256": "191483a843fb00e26dfee383bd5172f249ade6a70c97fa65b0cd1225728720c6",
       "navRoute": "/de/w/whatsapp-kundenkontakt/inbox?threadId=17000000-5810-4000-8000-000000000001",
-      "navSha256": "2d1230df5ae624c4b43d4a77499767d2a58ad8d4d61488fae61803575dbdcd11",
+      "navSha256": "f80ed5b1763bf17d650ff959727bba172370fa9ad02161f31a7f400f1a0eb1e8",
       "route": "/de/w/whatsapp-kundenkontakt/dashboard"
     }
   ],
@@ -323,14 +323,14 @@
       "width": 960
     },
     "sidebarWidth": 208,
-    "sourceRevision": "622478895-dirty",
+    "sourceRevision": "301ba32e6-dirty",
     "viewport": {
       "deviceScaleFactor": 2,
       "height": 900,
       "width": 1440
     }
   },
-  "sourceRevision": "5e75c8be0",
+  "sourceRevision": "301ba32e6-dirty",
   "viewport": {
     "deviceScaleFactor": 2,
     "height": 900,
