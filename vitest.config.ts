@@ -75,6 +75,7 @@ export const domTestFiles = [
   "core/utils/__tests__/background-poll.dom.test.ts",
   "components/focus/__tests__/focus-target.dom.test.ts",
   "components/records/__tests__/record-operation-progress.dom.test.ts",
+  "components/records/__tests__/record-file-preview.dom.test.ts",
   "core/utils/__tests__/use-is-truncated.test.ts",
   "components/data-view/__tests__/is-interactive-click.test.ts",
   "components/data-view/__tests__/data-table-grouping.test.tsx",

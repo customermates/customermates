@@ -33,7 +33,7 @@ describe("attachment size formatting", () => {
     const t = (key: string) => key;
     const input = { mime: "application/pdf", fileName: "invoice.pdf", size: 8_596_329 };
 
-    expect(attachmentSubtitle(t, input, german)).toBe("Inbox.fileTypePdf · 8,2 MB");
-    expect(attachmentSubtitle(t, input)).toBe("Inbox.fileTypePdf · 8.2 MB");
+    expect(attachmentSubtitle(t, input, german)).toBe("FileTypes.pdf · 8,2 MB");
+    expect(attachmentSubtitle(t, input)).toBe("FileTypes.pdf · 8.2 MB");
   });
 });

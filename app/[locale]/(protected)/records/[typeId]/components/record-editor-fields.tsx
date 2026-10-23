@@ -11,6 +11,7 @@ import type { RecordEditorStore } from "./record-editor.store";
 import type { RecordField, RecordFieldView } from "@/features/records/record-model.schema";
 import { EntityDetailFieldShell } from "@/components/entity-detail/entity-detail-field-shell";
 import { RecordValue, useRecordValueFormat } from "@/components/records/record-value";
+import { RecordFileCount } from "./record-file-input";
 import { RecordInputField } from "./record-input-field";
 import { FormattedTextField } from "@/components/editor/formatted-text-field";
 import { ConfirmationSentenceView, referenceSentence } from "@/components/modal/confirmation-sentence";
@@ -148,6 +149,7 @@ export const RecordEditorField = observer(function RecordEditorField({
       fieldId={field.id}
       inputId={field.valueType === "richText" ? undefined : inputId}
       label={field.label}
+      labelSuffix={field.valueType === "file" ? <RecordFileCount id={id} /> : undefined}
       locked={permissionReadOnly}
       required={field.required}
     >

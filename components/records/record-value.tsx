@@ -84,6 +84,7 @@ export const RecordValue = observer(function RecordValue({
 }: {
   result?: CalculatedValue;
   field: Pick<RecordFieldView, "valueType" | "format" | "multiple"> & {
+    label?: string;
     options: ReadonlyArray<Pick<RecordFieldView["options"][number], "id" | "label" | "color">>;
   };
   members?: RecordMember[];
@@ -129,8 +130,18 @@ export const RecordValue = observer(function RecordValue({
       />
     );
   }
-  if (value.kind === "file")
-    return <RecordFileChips compact={compact} fileIds={value.value} files={files} overflowMenu={overflowMenu} />;
+  if (value.kind === "file") {
+    return (
+      <RecordFileChips
+        compact={compact}
+        fileIds={value.value}
+        files={files}
+        group={field.label}
+        members={members}
+        overflowMenu={overflowMenu}
+      />
+    );
+  }
   if (value.kind === "address") {
     return (
       <AddressValue

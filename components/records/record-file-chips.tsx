@@ -1,48 +1,44 @@
 "use client";
 
-import type { RecordFileSummary } from "@/features/records/record-model.schema";
+import type { RecordFileSummary, RecordMember } from "@/features/records/record-model.schema";
 
 import { useTranslations } from "next-intl";
 
-import { describeFile } from "@/app/[locale]/(protected)/inbox/components/attachment-classify";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
-import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import { formatBytes } from "@/core/utils/format-bytes";
+import { FileTypeBadge } from "@/components/files/file-type-badge";
 
 import { recordFileContentUrl } from "./record-file-links";
+import { memberName, useRecordFileSize } from "./record-file-meta";
 import { useRecordFilePreview } from "./record-file-preview";
-
-export function useRecordFileSize() {
-  const intlStore = useHydratedIntlStore();
-  const formatNumber = (value: number | undefined, options?: { maximumFractionDigits?: number }) =>
-    intlStore.formatNumber(value, options);
-  return (bytes: number) => formatBytes(bytes, formatNumber) ?? `${formatNumber(0)} B`;
-}
 
 export function RecordFileChips({
   fileIds,
   files,
+  group,
+  members = [],
   compact = false,
   overflowMenu = true,
 }: {
   fileIds: string[];
   files: RecordFileSummary[];
+  group?: string;
+  members?: RecordMember[];
   compact?: boolean;
   overflowMenu?: boolean;
 }) {
   const t = useTranslations();
   const fileSize = useRecordFileSize();
-  const { openFile, preview } = useRecordFilePreview();
+  const { openFiles, preview } = useRecordFilePreview();
   const items = fileIds.map((id) => {
     const file = files.find((entry) => entry.id === id);
-    const { Icon } = describeFile({ mime: file?.mimeType, fileName: file?.name });
     return {
       id,
       file,
       label: file?.name ?? t("RecordModel.fileUnavailable"),
-      startContent: <Icon aria-hidden="true" />,
+      startContent: <FileTypeBadge mimeType={file?.mimeType} name={file?.name} size="sm" />,
     };
   });
+  const known = items.flatMap((item) => (item.file ? [item.file] : []));
   return (
     <>
       <AppChipStack
@@ -54,7 +50,12 @@ export function RecordFileChips({
         items={items}
         overflowMenu={overflowMenu}
         onChipClick={(item, opener) => {
-          if (item.file) openFile(item.file, opener);
+          if (item.file) {
+            openFiles(
+              { files: known, index: known.indexOf(item.file), group, uploaderName: memberName(members) },
+              opener,
+            );
+          }
         }}
       />
 

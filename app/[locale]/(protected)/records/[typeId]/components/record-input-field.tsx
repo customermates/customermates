@@ -138,7 +138,8 @@ export const RecordInputField = observer(function RecordInputField({
     return <FormIsoDateRangePicker {...shared} dateOnly={field.valueType === "dateRange"} />;
 
   if (field.valueType === "file")
-    return <RecordFileInput field={field} files={files} id={id} inputId={inputId} label={label} />;
+    return <RecordFileInput field={field} files={files} id={id} inputId={inputId} label={label} members={members} />;
+
   if (field.multiple) return <FormTextarea {...shared} placeholder={t("RecordModel.onePerLine")} />;
   if (field.valueType === "number" || field.valueType === "currency") {
     return (

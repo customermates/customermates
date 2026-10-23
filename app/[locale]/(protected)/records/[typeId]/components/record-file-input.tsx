@@ -1,36 +1,208 @@
 "use client";
 
-import type { RecordFieldView, RecordFileSummary } from "@/features/records/record-model.schema";
+import type { ImageSize } from "@/components/files/file-type-badge";
+import type { PreviewFile } from "@/components/records/record-file-preview";
+import type { RecordFieldView, RecordFileSummary, RecordMember } from "@/features/records/record-model.schema";
 
 import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Download, Eye, Upload, X } from "lucide-react";
+import { Download, ExternalLink, Plus, X } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { ItemActions, ItemActionsTrigger } from "@/components/ui/item-actions";
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { FileTypeBadge } from "@/components/files/file-type-badge";
 import { useAppForm } from "@/components/forms/form-context";
 import { FormFieldError } from "@/components/forms/form-field-error";
 import { FormLabel } from "@/components/forms/form-label";
 import { useFormFieldErrors } from "@/components/forms/use-form-field";
-import { downloadRecordFile } from "@/components/records/record-file-links";
+import { downloadRecordFile, recordFileContentUrl } from "@/components/records/record-file-links";
+import { memberName, useRecordFileMeta } from "@/components/records/record-file-meta";
 import { useRecordFilePreview } from "@/components/records/record-file-preview";
 import { startRecordFileUpload } from "@/components/records/record-file-upload";
-import { RecordFileUploadQueue } from "@/components/records/record-file-upload-queue";
+import { type RecordFileUpload, RecordFileUploadQueue } from "@/components/records/record-file-upload-queue";
 import { useFileDrop } from "@/components/shared/use-file-drop";
 import { WizardProgress } from "@/components/shared/wizard-progress";
-import { AttachmentRow } from "@/app/[locale]/(protected)/inbox/components/attachment-row";
-import { attachmentSubtitle, describeFile } from "@/app/[locale]/(protected)/inbox/components/attachment-classify";
-import { MAX_RECORD_FILES } from "@/features/records/record-model.schema";
-import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { IconButton } from "@/components/ui/icon-button";
+import { ItemActions, ItemActionsTrigger, ITEM_ACTIONS_TRIGGER_CLASS } from "@/components/ui/item-actions";
+import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
+import { INLINE_RECORD_FILE_TYPES } from "@/features/record-files/record-file-response";
+import { MAX_RECORD_FILES } from "@/features/records/record-model.schema";
 
-type KnownFile = Pick<RecordFileSummary, "id" | "name" | "mimeType" | "size">;
+type KnownFile = PreviewFile;
+type Member = Pick<RecordMember, "id" | "firstName" | "lastName">;
+
+const ROW_CLASS = "relative flex min-h-12 items-center gap-3 px-3 py-2";
+const TOUCH_VISIBLE_CLASS = "touch-input:not-focus-visible:not-data-[state=open]:not-sr-only touch-input:opacity-100";
 
 function fileIdsOf(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((id): id is string => typeof id === "string") : [];
 }
+
+const RecordFileRow = observer(function RecordFileRow({
+  fileId,
+  file,
+  readOnly,
+  uploaderName,
+  onOpen,
+  onRemove,
+}: {
+  fileId: string;
+  file: KnownFile | undefined;
+  readOnly: boolean;
+  uploaderName: (userId: string) => string | null;
+  onOpen: (opener: HTMLElement) => void;
+  onRemove: () => void;
+}) {
+  const t = useTranslations();
+  const [imageSize, setImageSize] = useState<ImageSize | null>(null);
+  const meta = useRecordFileMeta(file, { uploaderName, imageSize });
+  const name = file?.name ?? t("RecordModel.fileUnavailable");
+  const inline = file ? INLINE_RECORD_FILE_TYPES.has(file.mimeType) : false;
+  const menu = file && (
+    <>
+      {inline && (
+        <DropdownMenuItem asChild>
+          <a href={recordFileContentUrl(file.id)} rel="noopener noreferrer" target="_blank">
+            <ExternalLink aria-hidden />
+
+            {t("Common.actions.openInNewTab")}
+          </a>
+        </DropdownMenuItem>
+      )}
+
+      <DropdownMenuItem onSelect={() => downloadRecordFile(file)}>
+        <Download aria-hidden />
+
+        {t("RecordModel.fileDownload")}
+      </DropdownMenuItem>
+
+      {!readOnly && (
+        <>
+          <DropdownMenuSeparator />
+
+          <DropdownMenuItem variant="destructive" onSelect={onRemove}>
+            <X aria-hidden />
+
+            {t("RecordModel.fileRemove", { name: file.name })}
+          </DropdownMenuItem>
+        </>
+      )}
+    </>
+  );
+  return (
+    <li data-record-file={fileId} data-record-file-kind={file ? undefined : "unavailable"}>
+      <ItemActions label={name} menu={menu}>
+        <div className={cn(ROW_CLASS, file && "transition-colors hover:bg-accent/60")}>
+          <FileTypeBadge
+            mimeType={file?.mimeType}
+            name={file?.name}
+            thumbnailSrc={file && inline ? recordFileContentUrl(file.id) : null}
+            onImageSize={setImageSize}
+          />
+
+          <div className="min-w-0 flex-1">
+            {file ? (
+              <button
+                className="block w-full truncate text-left text-sm font-medium outline-none before:absolute before:inset-0 before:rounded-[inherit] focus-visible:before:ring-2 focus-visible:before:ring-ring/70 focus-visible:before:ring-inset"
+                data-record-file-name=""
+                type="button"
+                onClick={(event) => onOpen(event.currentTarget)}
+              >
+                {name}
+              </button>
+            ) : (
+              <span className="block truncate text-sm text-muted-foreground" data-record-file-name="">
+                {name}
+              </span>
+            )}
+
+            {meta && (
+              <p className="truncate text-xs text-muted-foreground" data-record-file-meta="">
+                {meta}
+              </p>
+            )}
+          </div>
+
+          {file ? (
+            <div className="relative flex shrink-0 items-center gap-0.5">
+              <IconButton
+                className={cn(ITEM_ACTIONS_TRIGGER_CLASS, TOUCH_VISIBLE_CLASS)}
+                icon={Download}
+                label={t("RecordModel.fileDownloadNamed", { name: file.name })}
+                onClick={() => downloadRecordFile(file)}
+              />
+
+              <ItemActionsTrigger className={TOUCH_VISIBLE_CLASS} label={t("RecordModel.moreActions", { name })} />
+            </div>
+          ) : (
+            !readOnly && (
+              <IconButton
+                className="relative"
+                icon={X}
+                label={t("RecordModel.fileRemove", { name })}
+                onClick={onRemove}
+              />
+            )
+          )}
+        </div>
+      </ItemActions>
+    </li>
+  );
+});
+
+function UploadRow({ entry, onRemove }: { entry: RecordFileUpload; onRemove: () => void }) {
+  const t = useTranslations();
+  const failed = entry.phase === "failed";
+  const progress = t("RecordModel.fileUploading", { progress: entry.progress });
+  return (
+    <li
+      className={cn(ROW_CLASS, failed && "bg-destructive/5")}
+      data-record-file-upload={failed ? "failed" : "uploading"}
+    >
+      <FileTypeBadge className={cn(!failed && "opacity-60")} mimeType={entry.mimeType} name={entry.name} />
+
+      <div className="min-w-0 flex-1 space-y-1">
+        <p className="truncate text-sm font-medium" data-record-file-name="">
+          {entry.name}
+        </p>
+
+        {failed ? (
+          <p className="truncate text-xs text-destructive" data-record-file-meta="">
+            {entry.failure}
+          </p>
+        ) : (
+          <WizardProgress
+            current={Math.round(entry.progress * 100)}
+            label={progress}
+            min={0}
+            total={100}
+            valueText={progress}
+          />
+        )}
+      </div>
+
+      <IconButton
+        icon={X}
+        label={
+          failed
+            ? t("RecordModel.fileRemove", { name: entry.name })
+            : t("RecordModel.fileCancelUpload", { name: entry.name })
+        }
+        onClick={onRemove}
+      />
+    </li>
+  );
+}
+
+export const RecordFileCount = observer(function RecordFileCount({ id }: { id: string }) {
+  const count = fileIdsOf(useAppForm()?.getValue(id)).length;
+  return count > 0 ? (
+    <span className="ml-1.5 font-normal text-muted-foreground tabular-nums" data-record-file-count="">
+      {count}
+    </span>
+  ) : null;
+});
 
 export const RecordFileInput = observer(function RecordFileInput({
   field,
@@ -38,32 +210,39 @@ export const RecordFileInput = observer(function RecordFileInput({
   inputId,
   label,
   files = [],
+  members = [],
 }: {
   field: RecordFieldView;
   id: string;
   inputId?: string;
   label?: string | null;
   files?: RecordFileSummary[];
+  members?: Member[];
 }) {
   const t = useTranslations();
   const store = useAppForm();
-  const intlStore = useHydratedIntlStore();
-  const { openFile, preview } = useRecordFilePreview();
+  const root = useRootStore();
+  const { openFiles, preview } = useRecordFilePreview();
   const picker = useRef<HTMLInputElement>(null);
   const [queue] = useState(() => new RecordFileUploadQueue());
   const [uploaded, setUploaded] = useState<KnownFile[]>([]);
   const { hasError, message } = useFormFieldErrors(id);
   const ids = fileIdsOf(store?.getValue(id));
-  const disabled = !store || store.isDisabled;
+  const readOnly = !store || store.isDisabled;
   const limit = field.multiple ? MAX_RECORD_FILES : 1;
   const full = field.multiple && ids.length + queue.pending >= limit;
   const domId = inputId ?? id;
   const errorId = `${domId}-error`;
+  const fieldLabel = label ?? field.label;
+  const viewer = root.userStore.user;
+  const uploaderName = memberName(
+    viewer && !members.some((member) => member.id === viewer.id) ? [...members, viewer] : members,
+  );
 
   useEffect(() => () => queue.clear(), [queue]);
 
   const add = (picked: File[]) => {
-    if (disabled || !picked.length) return;
+    if (readOnly || !picked.length) return;
     if (!field.multiple) queue.clear();
     queue.add(picked, {
       room: field.multiple ? Math.max(0, limit - ids.length - queue.pending) : 1,
@@ -73,7 +252,14 @@ export const RecordFileInput = observer(function RecordFileInput({
       complete: (fileId, file) =>
         Promise.resolve({
           ok: true as const,
-          data: { id: fileId, name: file.name, mimeType: file.type || "application/octet-stream", size: file.size },
+          data: {
+            id: fileId,
+            name: file.name,
+            mimeType: file.type || "application/octet-stream",
+            size: file.size,
+            uploadedAt: new Date().toISOString(),
+            uploadedById: viewer?.id ?? null,
+          },
         }),
       completed: (file: KnownFile) => {
         setUploaded((known) => [...known, file]);
@@ -94,162 +280,107 @@ export const RecordFileInput = observer(function RecordFileInput({
 
   const details = (fileId: string) =>
     files.find((file) => file.id === fileId) ?? uploaded.find((file) => file.id === fileId);
+  const known = ids.flatMap((fileId) => {
+    const file = details(fileId);
+    return file ? [file] : [];
+  });
 
-  const fileDrop = useFileDrop(!disabled && !full, add);
-  const subtitle = (file: KnownFile) =>
-    attachmentSubtitle(t, { mime: file.mimeType, fileName: file.name, size: file.size }, (value, options) =>
-      intlStore.formatNumber(value, options),
-    );
+  const fileDrop = useFileDrop(!readOnly && !full, add);
+  const hasRows = ids.length > 0 || queue.uploads.length > 0;
 
   return (
-    <div
-      aria-label={label ?? field.label}
-      className="space-y-1.5"
-      data-record-file-input={field.id}
-      id={domId}
-      role="group"
-    >
+    <div aria-label={fieldLabel} className="space-y-1.5" data-record-file-input={field.id} id={domId} role="group">
       {label && (
         <FormLabel fieldId={id}>
           {label}
+
+          <RecordFileCount id={id} />
 
           {field.required && <span className="text-destructive"> *</span>}
         </FormLabel>
       )}
 
-      {(ids.length > 0 || queue.uploads.length > 0) && (
-        <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {ids.map((fileId) => {
-            const file = details(fileId);
-            return (
-              <li key={fileId} data-record-file={fileId}>
-                <ItemActions
-                  label={file?.name ?? t("RecordModel.fileUnavailable")}
-                  menu={
-                    file && (
-                      <>
-                        <DropdownMenuItem onSelect={() => openFile(file)}>
-                          <Eye aria-hidden />
-
-                          {t("RecordModel.filePreview", { name: file.name })}
-                        </DropdownMenuItem>
-
-                        <DropdownMenuItem onSelect={() => downloadRecordFile(file)}>
-                          <Download aria-hidden />
-
-                          {t("RecordModel.fileDownload")}
-                        </DropdownMenuItem>
-
-                        {!disabled && (
-                          <DropdownMenuItem onSelect={() => remove(fileId)}>
-                            <X aria-hidden />
-
-                            {t("RecordModel.fileRemove", { name: file.name })}
-                          </DropdownMenuItem>
-                        )}
-                      </>
-                    )
-                  }
-                >
-                  <div>
-                    <AttachmentRow
-                      accent="text-muted-foreground"
-                      actions={
-                        file ? (
-                          <ItemActionsTrigger
-                            className="touch-input:not-focus-visible:not-data-[state=open]:not-sr-only touch-input:opacity-100"
-                            label={t("RecordModel.moreActions", { name: file.name })}
-                          />
-                        ) : undefined
-                      }
-                      fileIcon={describeFile({ mime: file?.mimeType, fileName: file?.name }).Icon}
-                      name={file?.name ?? t("RecordModel.fileUnavailable")}
-                      subtitle={file ? subtitle(file) : null}
-                      tone="neutral"
-                      onOpen={file ? () => openFile(file) : undefined}
-                    />
-                  </div>
-                </ItemActions>
-              </li>
-            );
-          })}
-
-          {queue.uploads.map((entry) => {
-            const failed = entry.phase === "failed";
-            return (
-              <li key={entry.key} className="space-y-1" data-record-file-upload={failed ? "failed" : "uploading"}>
-                <AttachmentRow
-                  accent={failed ? "text-destructive" : "text-muted-foreground"}
-                  className={cn(failed && "border-destructive/30 bg-destructive/10")}
-                  fileIcon={describeFile({ mime: entry.mimeType, fileName: entry.name }).Icon}
-                  name={entry.name}
-                  removeLabel={
-                    failed
-                      ? t("RecordModel.fileRemove", { name: entry.name })
-                      : t("RecordModel.fileCancelUpload", { name: entry.name })
-                  }
-                  subtitle={failed ? entry.failure : t("RecordModel.fileUploading", { progress: entry.progress })}
-                  tone="neutral"
-                  onRemove={() => queue.remove(entry.key)}
-                />
-
-                {!failed && (
-                  <WizardProgress
-                    current={Math.round(entry.progress * 100)}
-                    label={t("RecordModel.fileUploading", { progress: entry.progress })}
-                    min={0}
-                    total={100}
-                    valueText={t("RecordModel.fileUploading", { progress: entry.progress })}
-                  />
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      )}
-
-      {!disabled && (
+      {(hasRows || !readOnly) && (
         <div
           className={cn(
-            "flex flex-wrap items-center gap-2 rounded-lg border border-dashed px-3 py-2 transition-colors",
-            fileDrop.dragging ? "border-primary bg-primary/5" : "border-border",
+            "relative overflow-hidden rounded-lg border bg-input-background transition-[border-color,box-shadow]",
+            fileDrop.dragging && "border-dashed border-primary ring-2 ring-primary/20",
           )}
           data-dragging={fileDrop.dragging || undefined}
           {...fileDrop.handlers}
         >
-          <input
-            ref={picker}
-            aria-hidden="true"
-            className="hidden"
-            multiple={field.multiple}
-            tabIndex={-1}
-            type="file"
-            onChange={(event) => {
-              const picked = Array.from(event.target.files ?? []);
-              event.target.value = "";
-              add(picked);
-            }}
-          />
+          <ul className="divide-y">
+            {ids.map((fileId) => (
+              <RecordFileRow
+                key={fileId}
+                file={details(fileId)}
+                fileId={fileId}
+                readOnly={readOnly}
+                uploaderName={uploaderName}
+                onOpen={(opener) => {
+                  const file = details(fileId);
+                  if (file)
+                    openFiles({ files: known, index: known.indexOf(file), group: fieldLabel, uploaderName }, opener);
+                }}
+                onRemove={() => remove(fileId)}
+              />
+            ))}
 
-          <Button
-            aria-describedby={hasError ? errorId : undefined}
-            aria-invalid={hasError}
-            disabled={full}
-            size="sm"
-            type="button"
-            variant="secondary"
-            onClick={() => picker.current?.click()}
-          >
-            <Upload aria-hidden />
+            {queue.uploads.map((entry) => (
+              <UploadRow key={entry.key} entry={entry} onRemove={() => queue.remove(entry.key)} />
+            ))}
 
-            {t("RecordModel.fileAdd", { mode: field.multiple ? "many" : "one" })}
-          </Button>
+            {!readOnly && (
+              <li>
+                <input
+                  ref={picker}
+                  aria-hidden="true"
+                  className="hidden"
+                  multiple={field.multiple}
+                  tabIndex={-1}
+                  type="file"
+                  onChange={(event) => {
+                    const picked = Array.from(event.target.files ?? []);
+                    event.target.value = "";
+                    add(picked);
+                  }}
+                />
 
-          <span className="text-xs text-muted-foreground">
-            {full
-              ? t("RecordModel.fileLimit", { count: limit })
-              : t("RecordModel.fileDropHint", { mode: field.multiple ? "many" : "one" })}
-          </span>
+                {full ? (
+                  <p className={cn(ROW_CLASS, "min-h-10 text-xs text-muted-foreground")}>
+                    {t("RecordModel.fileLimit", { count: limit })}
+                  </p>
+                ) : (
+                  <button
+                    aria-describedby={hasError ? errorId : undefined}
+                    className={cn(
+                      ROW_CLASS,
+                      "min-h-10 w-full text-left text-sm text-muted-foreground outline-none transition-colors hover:bg-accent/60 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:ring-inset",
+                    )}
+                    data-record-file-add=""
+                    type="button"
+                    onClick={() => picker.current?.click()}
+                  >
+                    <span className="flex size-8 shrink-0 items-center justify-center">
+                      <Plus aria-hidden className="size-4" />
+                    </span>
+
+                    {t("RecordModel.fileAddRow", { mode: field.multiple ? "many" : "one" })}
+                  </button>
+                )}
+              </li>
+            )}
+          </ul>
+
+          {fileDrop.dragging && (
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 flex items-center justify-center bg-background/85 text-sm font-medium text-primary backdrop-blur-[1px]"
+              data-record-file-drop-overlay=""
+            >
+              {t("RecordModel.fileDropOverlay", { field: fieldLabel })}
+            </div>
+          )}
         </div>
       )}
 

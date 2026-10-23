@@ -1755,7 +1755,15 @@ export class PrismaRecordRepo
     if (!fileIds.length) return [];
     const files = await this.prisma.recordFile.findMany({
       where: { companyId: this.companyId, id: { in: [...new Set(fileIds)] } },
-      select: { id: true, name: true, mimeType: true, size: true, createdAt: true, uploadedById: true },
+      select: {
+        id: true,
+        name: true,
+        mimeType: true,
+        size: true,
+        createdAt: true,
+        uploadedById: true,
+        pageCount: true,
+      },
     });
     return files.map((file) => ({
       id: file.id,
@@ -1764,6 +1772,7 @@ export class PrismaRecordRepo
       size: Number(file.size),
       uploadedAt: file.createdAt.toISOString(),
       uploadedById: file.uploadedById,
+      pageCount: file.pageCount && file.pageCount > 0 ? file.pageCount : null,
     }));
   }
 

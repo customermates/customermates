@@ -5,9 +5,9 @@ import type { AgentFileContext } from "@/ee/agent-chat/agent-context";
 
 import { useTranslations } from "next-intl";
 
-import { describeFile } from "@/app/[locale]/(protected)/inbox/components/attachment-classify";
 import { AppChip } from "@/components/chip/app-chip";
-import { useRecordFileSize } from "@/components/records/record-file-chips";
+import { FileTypeBadge } from "@/components/files/file-type-badge";
+import { useRecordFileSize } from "@/components/records/record-file-meta";
 import { recordFileContentUrl } from "@/components/records/record-file-links";
 import { useRecordFilePreview } from "@/components/records/record-file-preview";
 import { OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
@@ -23,8 +23,7 @@ export function AgentComposerFileChip({
 }) {
   const t = useTranslations();
   const fileSize = useRecordFileSize();
-  const { openFile, preview } = useRecordFilePreview({ layerClassName: OVERLAY_TOPMOST_LAYER_CLASS });
-  const { Icon } = describeFile({ mime: context.reference.mimeType, fileName: context.label });
+  const { openFiles, preview } = useRecordFilePreview({ layerClassName: OVERLAY_TOPMOST_LAYER_CLASS });
   const size = fileSize(context.reference.size);
   const chip = (
     <AppChip
@@ -39,7 +38,7 @@ export function AgentComposerFileChip({
       }
       interactive={!removeButton}
       size="sm"
-      startContent={<Icon aria-hidden className="size-3 shrink-0" />}
+      startContent={<FileTypeBadge mimeType={context.reference.mimeType} name={context.label} size="sm" />}
       variant="default"
     >
       {context.label}
@@ -55,8 +54,18 @@ export function AgentComposerFileChip({
         onClick={(event) => {
           if (event.metaKey || event.ctrlKey || event.shiftKey) return;
           event.preventDefault();
-          openFile(
-            { id: context.reference.fileId, name: context.label, mimeType: context.reference.mimeType },
+          openFiles(
+            {
+              files: [
+                {
+                  id: context.reference.fileId,
+                  name: context.label,
+                  mimeType: context.reference.mimeType,
+                  size: context.reference.size,
+                },
+              ],
+              index: 0,
+            },
             event.currentTarget,
           );
         }}

@@ -47,9 +47,12 @@ export function recordDto(
 }
 
 function memberIds(record: RecordDto) {
-  return record.fields.flatMap(({ result }) =>
-    result.state === "value" && result.value.kind === "member" ? [result.value.value] : [],
-  );
+  return [
+    ...record.fields.flatMap(({ result }) =>
+      result.state === "value" && result.value.kind === "member" ? [result.value.value] : [],
+    ),
+    ...(record.files ?? []).flatMap((file) => (file.uploadedById ? [file.uploadedById] : [])),
+  ];
 }
 
 function fileIds(record: RecordDto) {
@@ -98,5 +101,5 @@ export async function withMemberUsersAndFiles<T extends RecordDto>(
   repo: Pick<RecordRepo, "getMembersCompanyWide" | "getRecordFilesCompanyWide">,
   memberScope: RecordReadScope,
 ): Promise<T[]> {
-  return withRecordFiles(await withMemberUsers(records, repo, memberScope), repo);
+  return withMemberUsers(await withRecordFiles(records, repo), repo, memberScope);
 }

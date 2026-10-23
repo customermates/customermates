@@ -25,6 +25,7 @@ const uploads = vi.hoisted(() => ({
   held: [] as Array<() => void>,
 }));
 const opened = vi.hoisted(() => [] as unknown[]);
+const downloaded = vi.hoisted(() => [] as unknown[]);
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
@@ -44,54 +45,61 @@ vi.mock("@/components/forms/form-context", () => ({
   }),
 }));
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
-  useHydratedIntlStore: () => ({ formatNumber: (value: number) => String(value) }),
+  useHydratedIntlStore: () => ({ formatNumber: (value: number) => String(value), formatRelativeTime: () => "2h ago" }),
 }));
-vi.mock("@/components/records/record-file-links", () => ({ downloadRecordFile: vi.fn() }));
+vi.mock("@/components/records/record-file-links", () => ({
+  downloadRecordFile: (file: unknown) => downloaded.push(file),
+  recordFileContentUrl: (id: string) => `/api/v1/files/${id}/content`,
+}));
+vi.mock("@/components/ui/icon-button", async () => {
+  const React = await import("react");
+  return {
+    IconButton: ({ label, onClick }: { label: string; onClick?: () => void }) =>
+      React.createElement("button", { "aria-label": label, type: "button", onClick }),
+  };
+});
 vi.mock("@/components/ui/item-actions", async () => {
   const React = await import("react");
   return {
     ItemActions: ({ children, menu }: { children: ReactNode; menu: ReactNode }) =>
       React.createElement(React.Fragment, null, children, menu),
     ItemActionsTrigger: () => null,
+    ITEM_ACTIONS_TRIGGER_CLASS: "",
   };
 });
 vi.mock("@/components/ui/dropdown-menu", async () => {
   const React = await import("react");
   return {
-    DropdownMenuItem: ({ children, onSelect }: { children: ReactNode; onSelect?: () => void }) =>
-      React.createElement("button", { "data-menu-item": "", type: "button", onClick: () => onSelect?.() }, children),
+    DropdownMenuItem: ({
+      children,
+      onSelect,
+      asChild,
+    }: {
+      children: ReactNode;
+      onSelect?: () => void;
+      asChild?: boolean;
+    }) =>
+      asChild
+        ? children
+        : React.createElement(
+            "button",
+            { "data-menu-item": "", type: "button", onClick: () => onSelect?.() },
+            children,
+          ),
+    DropdownMenuSeparator: () => null,
   };
 });
 vi.mock("@/components/records/record-file-preview", () => ({
-  useRecordFilePreview: () => ({ openFile: (file: unknown) => opened.push(file), preview: null }),
+  useRecordFilePreview: () => ({ openFiles: (set: unknown) => opened.push(set), preview: null }),
 }));
 vi.mock("@/core/errors/report-application-error", () => ({
   runUserAction: (action: () => unknown) => {
     void action();
   },
 }));
-vi.mock("@/app/[locale]/(protected)/inbox/components/attachment-row", async () => {
-  const React = await import("react");
-  return {
-    AttachmentRow: (props: {
-      name: string;
-      subtitle: string | null;
-      removeLabel?: string;
-      onOpen?: () => void;
-      onRemove?: () => void;
-    }) =>
-      React.createElement(
-        "div",
-        { "data-row": props.name },
-        React.createElement("button", { "data-open": "", type: "button", onClick: props.onOpen }, props.name),
-        React.createElement("span", { "data-subtitle": "" }, props.subtitle),
-        props.onRemove
-          ? React.createElement("button", { "aria-label": props.removeLabel, type: "button", onClick: props.onRemove })
-          : null,
-      ),
-  };
-});
-vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => ({ userStore: { user: null } }) }));
+vi.mock("@/core/stores/root-store.provider", () => ({
+  useRootStore: () => ({ userStore: { user: { id: VIEWER_ID, firstName: "Max", lastName: "Bergmann" } } }),
+}));
 vi.mock("@/app/[locale]/(protected)/settings/(workspace)/actions", () => ({ getActiveUsersAction: vi.fn() }));
 vi.mock("@/app/[locale]/(protected)/records/actions", () => ({
   lookupAddressAction: vi.fn(),
@@ -123,8 +131,11 @@ vi.mock("@/components/records/record-file-upload", () => ({
 }));
 
 import { RecordFileInput } from "../record-file-input";
+
+const XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 import { RecordInputField } from "../record-input-field";
 
+const VIEWER_ID = "11111111-1111-4111-8111-111111111111";
 const SAVED: RecordFileSummary = {
   id: "saved-file",
   name: "Offer.pdf",
@@ -152,7 +163,14 @@ async function flush() {
   });
 }
 
-function render(options: { multiple?: boolean; files?: RecordFileSummary[] } = {}) {
+function render(
+  options: {
+    multiple?: boolean;
+    files?: RecordFileSummary[];
+    label?: string | null;
+    members?: Array<{ id: string; firstName: string; lastName: string; avatarUrl: null }>;
+  } = {},
+) {
   const host = document.createElement("div");
   document.body.append(host);
   const root = createRoot(host);
@@ -163,8 +181,9 @@ function render(options: { multiple?: boolean; files?: RecordFileSummary[] } = {
         createElement(RecordFileInput, {
           field: field(options.multiple ?? true),
           id: "values.field-id",
-          label: null,
+          label: options.label ?? null,
           files: options.files ?? [SAVED],
+          members: options.members ?? [],
         }),
       ),
     );
@@ -172,8 +191,19 @@ function render(options: { multiple?: boolean; files?: RecordFileSummary[] } = {
   return {
     host,
     redraw: draw,
-    rows: () => [...host.querySelectorAll("[data-row]")].map((row) => row.getAttribute("data-row")),
-    subtitle: (name: string) => host.querySelector(`[data-row="${name}"] [data-subtitle]`)?.textContent,
+    rows: () =>
+      [...host.querySelectorAll("[data-record-file], [data-record-file-upload]")].map(
+        (row) => row.querySelector("[data-record-file-name]")?.textContent,
+      ),
+    row: (name: string) =>
+      [...host.querySelectorAll<HTMLElement>("[data-record-file], [data-record-file-upload]")].find(
+        (row) => row.querySelector("[data-record-file-name]")?.textContent === name,
+      ) ?? null,
+    subtitle: (name: string) =>
+      [...host.querySelectorAll("[data-record-file], [data-record-file-upload]")]
+        .find((row) => row.querySelector("[data-record-file-name]")?.textContent === name)
+        ?.querySelector("[data-record-file-meta]")?.textContent,
+    addRow: () => host.querySelector<HTMLButtonElement>("[data-record-file-add]"),
     button: (label: string) =>
       [...host.querySelectorAll("button")].find((button) => button.getAttribute("aria-label") === label) ?? null,
     menuItem: (label: string) =>
@@ -202,6 +232,7 @@ beforeEach(() => {
   uploads.held.length = 0;
   uploads.transfers.length = 0;
   opened.length = 0;
+  downloaded.length = 0;
 });
 
 afterEach(() => {
@@ -223,8 +254,9 @@ describe("RecordFileInput", () => {
     ]);
     expect(view.rows()).toEqual(["Offer.pdf", "notes.txt", "sheet.csv"]);
     act(() => uploads.transfers[0].progress(5, 10));
-    expect(view.subtitle("notes.txt")).toBe('RecordModel.fileUploading {"progress":0.5}');
-    expect(view.host.querySelector('[role="progressbar"]')?.getAttribute("aria-valuenow")).toBe("50");
+    const progress = view.row("notes.txt")?.querySelector('[role="progressbar"]');
+    expect(progress?.getAttribute("aria-valuenow")).toBe("50");
+    expect(progress?.getAttribute("aria-valuetext")).toBe('RecordModel.fileUploading {"progress":0.5}');
 
     uploads.transfers[1].finish({ ok: true });
     await flush();
@@ -234,7 +266,9 @@ describe("RecordFileInput", () => {
     expect(form.value).toEqual(["saved-file", "uploaded-2", "uploaded-1"]);
     view.redraw();
     expect(view.rows()).toEqual(["Offer.pdf", "sheet.csv", "notes.txt"]);
-    expect(view.subtitle("notes.txt")).toBe("Inbox.attachmentFile · 5 B");
+    expect(view.subtitle("notes.txt")).toBe("5 B · Max Bergmann · 2h ago");
+    expect(view.row("notes.txt")?.querySelector("[data-file-badge]")?.getAttribute("data-file-badge")).toBe("text");
+    expect(view.row("sheet.csv")?.querySelector("[data-file-badge]")?.textContent).toBe("CSV");
   });
 
   it("shows the server's refusal next to the file and keeps the field's value", async () => {
@@ -278,7 +312,7 @@ describe("RecordFileInput", () => {
   it("replaces the file of a single-file field after the new upload finished", async () => {
     const view = render({ multiple: false });
     expect(view.host.querySelector('input[type="file"]')?.hasAttribute("multiple")).toBe(false);
-    expect(view.host.textContent).toContain('RecordModel.fileAdd {"mode":"one"}');
+    expect(view.addRow()?.textContent).toBe('RecordModel.fileAddRow {"mode":"one"}');
     await view.pick(new File(["new"], "new.pdf", { type: "application/pdf" }));
     uploads.transfers[0].finish({ ok: true });
     await flush();
@@ -292,27 +326,75 @@ describe("RecordFileInput", () => {
 
     expect(uploads.started.map((upload) => upload.file.name)).toEqual(["a.txt"]);
     expect(view.subtitle("b.txt")).toBe('RecordModel.fileLimit {"count":20}');
-    const add = [...view.host.querySelectorAll("button")].find(
-      (button) => button.textContent === 'RecordModel.fileAdd {"mode":"many"}',
-    );
-    expect(add?.disabled).toBe(true);
+    expect(view.addRow()).toBeNull();
+    expect(view.host.textContent).toContain('RecordModel.fileLimit {"count":20}');
     expect(view.host.querySelector('[role="group"]')?.id).toBe("values.field-id");
   });
 
-  it("opens and removes saved files and offers no changes while the form is read-only", () => {
-    const view = render();
-    act(() => view.host.querySelector<HTMLButtonElement>('[data-row="Offer.pdf"] [data-open]')?.click());
-    expect(opened).toEqual([SAVED]);
+  it("opens the field's files in the preview, downloads and removes them, and offers no changes while read-only", () => {
+    const second = { ...SAVED, id: "second-file", name: "Prices.xlsx", mimeType: XLSX };
+    form.value = ["saved-file", "second-file"];
+    const view = render({ files: [SAVED, second], label: "Documents" });
+    expect(view.host.querySelector("[data-record-file-count]")?.textContent).toBe("2");
+    act(() => view.row("Prices.xlsx")?.querySelector<HTMLButtonElement>("[data-record-file-name]")?.click());
+    expect(opened).toEqual([expect.objectContaining({ files: [SAVED, second], index: 1, group: "Documents" })]);
+    act(() => view.button('RecordModel.fileDownloadNamed {"name":"Offer.pdf"}')?.click());
+    expect(downloaded).toEqual([SAVED]);
+    expect(view.row("Offer.pdf")?.querySelector('a[target="_blank"]')?.getAttribute("href")).toBe(
+      "/api/v1/files/saved-file/content",
+    );
+    expect(view.row("Prices.xlsx")?.querySelector('a[target="_blank"]')).toBeNull();
     act(() => view.menuItem('RecordModel.fileRemove {"name":"Offer.pdf"}')?.click());
-    expect(form.value).toEqual([]);
+    expect(form.value).toEqual(["second-file"]);
 
     form.value = ["saved-file"];
     form.disabled = true;
     view.redraw();
     expect(view.host.querySelector('input[type="file"]')).toBeNull();
+    expect(view.addRow()).toBeNull();
     expect(view.menuItem('RecordModel.fileRemove {"name":"Offer.pdf"}')).toBeNull();
-    expect(view.menuItem('RecordModel.filePreview {"name":"Offer.pdf"}')).not.toBeNull();
+    expect(view.menuItem("RecordModel.fileDownload")).not.toBeNull();
     expect(view.rows()).toEqual(["Offer.pdf"]);
+  });
+
+  it("describes each file with its page count, size, uploader and age", () => {
+    const uploader = "22222222-2222-4222-8222-222222222222";
+    const view = render({
+      files: [{ ...SAVED, pageCount: 2, uploadedById: uploader }],
+      members: [{ id: uploader, firstName: "Lena", lastName: "Hoffmann", avatarUrl: null }],
+    });
+    expect(view.subtitle("Offer.pdf")).toBe('RecordModel.filePages {"count":2} · 2 KB · Lena Hoffmann · 2h ago');
+    expect(view.row("Offer.pdf")?.querySelector("[data-file-badge]")?.textContent).toBe("PDF");
+  });
+
+  it("shows only the quiet add row while empty and outlines the list while files are dragged over it", async () => {
+    form.value = [];
+    const view = render({ files: [], label: "Documents" });
+    expect(view.rows()).toEqual([]);
+    expect(view.addRow()?.textContent).toBe('RecordModel.fileAddRow {"mode":"many"}');
+    expect(view.host.querySelector("[data-record-file-count]")).toBeNull();
+    const zone = view.host.querySelector<HTMLElement>("[data-record-file-add]")?.closest("ul")?.parentElement;
+    if (!zone) throw new Error("The drop zone is missing");
+    const dropped = new File(["dropped"], "dropped.md", { type: "text/markdown" });
+    const drag = (type: string) => {
+      const event = new Event(type, { bubbles: true, cancelable: true });
+      Object.defineProperty(event, "dataTransfer", {
+        value: { types: ["Files"], files: [dropped], dropEffect: "none" },
+      });
+      act(() => {
+        zone.dispatchEvent(event);
+      });
+    };
+    drag("dragover");
+    expect(zone.hasAttribute("data-dragging")).toBe(true);
+    expect(view.host.querySelector("[data-record-file-drop-overlay]")?.textContent).toBe(
+      'RecordModel.fileDropOverlay {"field":"Documents"}',
+    );
+    drag("drop");
+    await flush();
+    expect(view.host.querySelector("[data-record-file-drop-overlay]")).toBeNull();
+    expect(uploads.started.map((upload) => upload.file.name)).toEqual(["dropped.md"]);
+    expect(view.row("dropped.md")?.querySelector("[data-file-badge]")?.textContent).toBe("MD");
   });
 
   it("edits a file field that holds several files with the file editor, not as lines of text", () => {
@@ -325,6 +407,6 @@ describe("RecordFileInput", () => {
     );
     expect(host.querySelector('[data-record-file-input="field-id"]')).not.toBeNull();
     expect(host.querySelector("textarea")).toBeNull();
-    expect(host.querySelector('[data-row="Offer.pdf"]')).not.toBeNull();
+    expect(host.querySelector('[data-record-file="saved-file"]')).not.toBeNull();
   });
 });

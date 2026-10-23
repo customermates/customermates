@@ -1,64 +1,186 @@
 "use client";
 
+import type { ImageSize } from "@/components/files/file-type-badge";
 import type { RecordFileSummary } from "@/features/records/record-model.schema";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Download, FileText } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, ExternalLink, FileText } from "lucide-react";
 
-import { AppCard } from "@/components/card/app-card";
-import { AppCardBody } from "@/components/card/app-card-body";
-import { AppCardHeader } from "@/components/card/app-card-header";
+import { FileTypeBadge } from "@/components/files/file-type-badge";
+import { fileKind } from "@/components/files/file-kind";
 import { AppModal, AppModalTitle } from "@/components/modal/app-modal";
 import { PageState } from "@/components/page-state/page-state";
 import { Button } from "@/components/ui/button";
-import { LazyMedia } from "@/app/[locale]/(protected)/inbox/components/lazy-media";
+import { cn } from "@/core/utils/cn";
 import { INLINE_RECORD_FILE_TYPES } from "@/features/record-files/record-file-response";
 import { recordFilePreviewFormat } from "@/features/record-files/record-file-preview.schema";
-import { downloadRecordFile, openRecordFile, recordFileContentUrl } from "./record-file-links";
+
+import { downloadRecordFile, recordFileContentUrl } from "./record-file-links";
 import { RecordFileDocumentPreview } from "./record-file-document-preview";
+import { useRecordFileMeta } from "./record-file-meta";
 
-type PreviewFile = Pick<RecordFileSummary, "id" | "name" | "mimeType">;
-type Selection = { file: PreviewFile; opener: HTMLElement | null };
+export type PreviewFile = Pick<RecordFileSummary, "id" | "name" | "mimeType"> &
+  Partial<Pick<RecordFileSummary, "size" | "uploadedAt" | "uploadedById" | "pageCount">>;
 
-function RecordFilePreview({
-  file,
+export type RecordFileSet = {
+  files: PreviewFile[];
+  index: number;
+  group?: string | null;
+  uploaderName?: (userId: string) => string | null;
+};
+
+type Selection = RecordFileSet & { opener: HTMLElement | null; open: boolean; opening: number };
+
+function stepsWithin(target: EventTarget) {
+  return (
+    target instanceof HTMLElement &&
+    Boolean(
+      target.closest(
+        'input, textarea, select, [contenteditable="true"], [role="tablist"], [data-slot="table-container"]',
+      ),
+    )
+  );
+}
+
+const HEADER_RAIL_CLASS: Record<number, string> = { 1: "pr-24", 2: "pr-32", 3: "pr-40", 4: "pr-52" };
+
+function canShowPdf() {
+  return typeof navigator === "undefined" || navigator.pdfViewerEnabled !== false;
+}
+
+const RecordFilePreview = observer(function RecordFilePreview({
+  files,
+  index: initial,
+  group,
+  uploaderName,
   opener,
+  open,
   layerClassName,
   onClose,
 }: Selection & { layerClassName?: string; onClose: () => void }) {
   const t = useTranslations();
+  const [index, setIndex] = useState(Math.min(Math.max(initial, 0), files.length - 1));
+  const [imageSize, setImageSize] = useState<{ id: string; size: ImageSize } | null>(null);
+  const [showPdf] = useState(canShowPdf);
+  const file = files[index];
+  const meta = useRecordFileMeta(file, {
+    uploaderName,
+    imageSize: imageSize?.id === file.id ? imageSize.size : null,
+    withType: true,
+  });
   const src = recordFileContentUrl(file.id);
-  const [canPreviewPdf] = useState(() => typeof navigator !== "undefined" && navigator.pdfViewerEnabled === true);
+  const kind = fileKind(file.mimeType, file.name);
+  const inline = INLINE_RECORD_FILE_TYPES.has(file.mimeType);
+  const count = files.length;
+  const many = count > 1;
+  const step = (delta: number) => setIndex((current) => (current + delta + count) % count);
+  const body = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open || !many) return;
+    const onKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.defaultPrevented || event.altKey || event.metaKey || event.ctrlKey || event.shiftKey) return;
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+      const dialog = body.current?.closest('[role="dialog"]');
+      if (!(event.target instanceof Node) || !dialog?.contains(event.target) || stepsWithin(event.target)) return;
+      event.preventDefault();
+      const delta = event.key === "ArrowLeft" ? -1 : 1;
+      setIndex((current) => (current + delta + count) % count);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [open, many, count]);
+  const actions = [
+    ...(many
+      ? [
+          { id: "previous-file", icon: ChevronLeft, label: t("RecordModel.filePrevious"), onClick: () => step(-1) },
+          { id: "next-file", icon: ChevronRight, label: t("RecordModel.fileNext"), onClick: () => step(1) },
+        ]
+      : []),
+    ...(inline
+      ? [
+          {
+            id: "open-file",
+            icon: ExternalLink,
+            label: t("Common.actions.openInNewTab"),
+            href: src,
+            external: true as const,
+          },
+        ]
+      : []),
+    {
+      id: "download-file",
+      icon: Download,
+      label: t("RecordModel.fileDownload"),
+      onClick: () => downloadRecordFile(file),
+    },
+  ];
   return (
     <AppModal
-      open
       sheet
       titleInContent
-      actions={[
-        {
-          id: "download-file",
-          icon: Download,
-          label: t("RecordModel.fileDownload"),
-          onClick: () => downloadRecordFile(file),
-        },
-      ]}
+      actions={actions}
       bodyClassName="flex min-h-0 flex-col overflow-hidden p-0"
       focusReturnTarget={opener}
       layerClassName={layerClassName}
+      open={open}
       size="5xl"
       title={file.name}
       onClose={onClose}
     >
-      <AppCard className="flex min-h-0 flex-1 flex-col">
-        <AppCardHeader>
-          <AppModalTitle className="min-w-0 wrap-anywhere text-base font-semibold">{file.name}</AppModalTitle>
-        </AppCardHeader>
+      <div
+        ref={body}
+        className="flex min-h-0 flex-1 flex-col"
+        data-record-file-preview-file={file.id}
+        data-record-file-preview-kind={kind}
+      >
+        <header
+          className={cn("flex shrink-0 items-center gap-3 border-b py-4 pl-4", HEADER_RAIL_CLASS[actions.length])}
+        >
+          <FileTypeBadge mimeType={file.mimeType} name={file.name} />
 
-        <AppCardBody>
+          <div className="min-w-0 flex-1">
+            <AppModalTitle className="truncate text-sm font-semibold">{file.name}</AppModalTitle>
+
+            {many && (
+              <p aria-live="polite" className="truncate text-xs text-muted-foreground" data-record-file-position="">
+                {group
+                  ? t("RecordModel.filePositionIn", { position: index + 1, count: files.length, group })
+                  : t("RecordModel.filePosition", { position: index + 1, count: files.length })}
+              </p>
+            )}
+          </div>
+        </header>
+
+        <div className="flex min-h-0 flex-1 flex-col overflow-auto bg-muted/30 p-4">
           {recordFilePreviewFormat(file.mimeType, file.name) ? (
-            <RecordFileDocumentPreview file={file} />
-          ) : file.mimeType === "application/pdf" && !canPreviewPdf ? (
+            <RecordFileDocumentPreview key={file.id} file={file} />
+          ) : kind === "pdf" && inline && showPdf ? (
+            <iframe
+              key={file.id}
+              className="min-h-[60dvh] w-full flex-1 rounded-lg border bg-background"
+              data-record-file-pdf=""
+              src={src}
+              title={t("RecordModel.filePreview", { name: file.name })}
+            />
+          ) : kind === "image" && inline ? (
+            <div className="flex min-h-60 flex-1 items-center justify-center">
+              {/* eslint-disable-next-line @next/next/no-img-element -- authenticated file stream; an image proxy cannot forward the session */}
+              <img
+                key={file.id}
+                alt={file.name}
+                className="max-h-[70dvh] max-w-full rounded-md object-contain shadow-sm"
+                src={src}
+                onLoad={(event) =>
+                  setImageSize({
+                    id: file.id,
+                    size: { width: event.currentTarget.naturalWidth, height: event.currentTarget.naturalHeight },
+                  })
+                }
+              />
+            </div>
+          ) : (
             <PageState
               action={
                 <Button variant="secondary" onClick={() => downloadRecordFile(file)}>
@@ -67,59 +189,53 @@ function RecordFilePreview({
                   {t("RecordModel.fileDownload")}
                 </Button>
               }
-              description={t("RecordModel.filePreviewUnavailableDescription")}
+              description={
+                kind === "pdf"
+                  ? t("RecordModel.filePreviewUnavailableDescription")
+                  : t("RecordModel.filePreviewReason.unsupported")
+              }
               icon={FileText}
               state="empty"
-              title={t("RecordModel.filePreviewUnavailable")}
+              title={
+                kind === "pdf"
+                  ? t("RecordModel.filePreviewUnavailable")
+                  : t("RecordModel.fileDocumentPreviewUnavailable")
+              }
             />
-          ) : file.mimeType === "application/pdf" ? (
-            <iframe
-              className="min-h-[60dvh] w-full flex-1 rounded-lg border bg-muted/30"
-              src={src}
-              title={t("RecordModel.filePreview", { name: file.name })}
-            />
-          ) : (
-            <LazyMedia
-              className="flex min-h-60 w-full flex-1 items-center justify-center rounded-lg bg-muted/30"
-              src={src}
-            >
-              {(onLoaded, onFailed) => (
-                // eslint-disable-next-line @next/next/no-img-element -- authenticated file stream; an image proxy cannot forward the session
-                <img
-                  alt={file.name}
-                  className="max-h-[75dvh] max-w-full object-contain"
-                  src={src}
-                  onError={onFailed}
-                  onLoad={onLoaded}
-                />
-              )}
-            </LazyMedia>
           )}
-        </AppCardBody>
-      </AppCard>
+        </div>
+
+        {meta && (
+          <footer
+            className="shrink-0 truncate border-t px-4 py-3 text-xs text-muted-foreground"
+            data-record-file-preview-meta=""
+          >
+            {meta}
+          </footer>
+        )}
+      </div>
     </AppModal>
   );
-}
+});
 
 export function useRecordFilePreview({ layerClassName }: { layerClassName?: string } = {}) {
   const [selection, setSelection] = useState<Selection | null>(null);
   return {
-    openFile: (file: PreviewFile, opener?: HTMLElement | null) => {
-      if (!INLINE_RECORD_FILE_TYPES.has(file.mimeType) && !recordFilePreviewFormat(file.mimeType, file.name)) {
-        openRecordFile(file);
-        return;
-      }
-      setSelection({
-        file,
+    openFiles: (set: RecordFileSet, opener?: HTMLElement | null) => {
+      if (!set.files.length) return;
+      setSelection((current) => ({
+        ...set,
         opener: opener ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null),
-      });
+        open: true,
+        opening: (current?.opening ?? 0) + 1,
+      }));
     },
     preview: selection ? (
       <RecordFilePreview
-        key={selection.file.id}
+        key={selection.opening}
         {...selection}
         layerClassName={layerClassName}
-        onClose={() => setSelection(null)}
+        onClose={() => setSelection((current) => current && { ...current, open: false })}
       />
     ) : null,
   };

@@ -1,18 +1,8 @@
-import {
-  File as FileIcon,
-  FileArchive,
-  FileAudio,
-  FileImage,
-  FileSpreadsheet,
-  FileText,
-  FileVideo,
-  type LucideIcon,
-  Presentation,
-} from "lucide-react";
-
+import type { LucideIcon } from "lucide-react";
 import type { MessagingMessageDto } from "@/ee/messaging/inbox/inbox.schema";
 
 import { classifyAttachment, isMediaKind, type AttachmentKind } from "@/ee/messaging/attachment-kind";
+import { FILE_KIND_ICON, fileKind, fileKindAccentClass, fileTypeLabelKey } from "@/components/files/file-kind";
 import { cn } from "@/core/utils/cn";
 import { formatBytes, type FormatNumber } from "@/core/utils/format-bytes";
 
@@ -25,29 +15,8 @@ export type InboxT = (key: string, values?: Record<string, string | number>) => 
 type FileDescriptor = { Icon: LucideIcon; typeLabelKey: string; accent: string };
 
 export function describeFile(input: { mime?: string | null; fileName?: string | null }): FileDescriptor {
-  const mime = input.mime?.toLowerCase() ?? "";
-  const ext = (input.fileName?.split(".").pop() ?? "").toLowerCase();
-  const has = (m: string, e: string[]) => mime.includes(m) || e.includes(ext);
-
-  if (mime === "application/pdf" || ext === "pdf")
-    return { Icon: FileText, typeLabelKey: "Inbox.fileTypePdf", accent: "text-destructive" };
-  if (has("wordprocessingml", ["doc", "docx"]) || mime === "application/msword")
-    return { Icon: FileText, typeLabelKey: "Inbox.fileTypeWord", accent: "text-primary" };
-  if (has("spreadsheetml", ["xls", "xlsx", "csv"]) || mime === "application/vnd.ms-excel")
-    return { Icon: FileSpreadsheet, typeLabelKey: "Inbox.fileTypeExcel", accent: "text-success" };
-  if (has("presentationml", ["ppt", "pptx"]) || mime === "application/vnd.ms-powerpoint")
-    return { Icon: Presentation, typeLabelKey: "Inbox.fileTypePowerpoint", accent: "text-warning" };
-  if (mime.startsWith("image/"))
-    return { Icon: FileImage, typeLabelKey: "Inbox.fileTypeImage", accent: "text-muted-foreground" };
-  return { Icon: otherFileIcon(mime), typeLabelKey: "Inbox.attachmentFile", accent: "text-muted-foreground" };
-}
-
-function otherFileIcon(mime: string): LucideIcon {
-  if (mime.startsWith("audio/")) return FileAudio;
-  if (mime.startsWith("video/")) return FileVideo;
-  if (mime.startsWith("text/") || mime === "application/json") return FileText;
-  if (mime === "application/zip" || mime.includes("compressed") || mime.includes("x-tar")) return FileArchive;
-  return FileIcon;
+  const kind = fileKind(input.mime, input.fileName);
+  return { Icon: FILE_KIND_ICON[kind], typeLabelKey: fileTypeLabelKey(kind), accent: fileKindAccentClass(kind) };
 }
 
 export function attachmentSubtitle(

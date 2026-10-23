@@ -631,6 +631,13 @@ const RecordFileSummarySchema = z
     size: z.number().int().nonnegative(),
     uploadedAt: z.iso.datetime(),
     uploadedById: z.uuid().nullable(),
+    pageCount: z
+      .number()
+      .int()
+      .positive()
+      .nullable()
+      .optional()
+      .describe("Number of pages of a PDF, known once its text has been read."),
   })
   .strict();
 export type RecordFileSummary = z.infer<typeof RecordFileSummarySchema>;

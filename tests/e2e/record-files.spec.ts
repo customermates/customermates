@@ -118,20 +118,60 @@ test("uploads, shows, downloads and removes record files and refuses uploads ove
     exact: true,
   });
   const editor = drawer.getByRole("group", { name: label, exact: true });
-  await expect(
-    editor.getByRole("button", { name: "Add files", exact: true }),
-  ).toBeVisible();
-  await editor.locator('input[type="file"]').setInputFiles([
+  const addRow = editor.locator("[data-record-file-add]");
+  await expect(addRow).toHaveText("Add files or drop them here");
+  const fieldCount = drawer.locator(`[data-entity-field="${fieldId}"] [data-record-file-count]`);
+  await expect(fieldCount).toHaveCount(0);
+  const chooser = page.waitForEvent("filechooser");
+  await addRow.click();
+  await (await chooser).setFiles([
     { name: "notes.txt", mimeType: "text/plain", buffer: NOTES },
     { name: "offer.pdf", mimeType: "application/pdf", buffer: OFFER },
     { name: "workspace.png", mimeType: "image/png", buffer: IMAGE },
   ]);
   await expect(editor.locator("[data-record-file]")).toHaveCount(3);
   await expect(editor.locator("[data-record-file-upload]")).toHaveCount(0);
-  await editor.locator("[data-record-file]", { hasText: "notes.txt" }).hover();
-  await expect(
-    editor.locator("[data-record-file]", { hasText: "notes.txt" }).locator("[data-item-actions-trigger]"),
-  ).toBeVisible();
+
+  const list = editor.locator("[data-record-file-add]").locator("xpath=ancestor::ul/..");
+  const dropped = await page.evaluateHandle(() => {
+    const transfer = new DataTransfer();
+    transfer.items.add(new File(["# Plan\n"], "plan.md", { type: "text/markdown" }));
+    return transfer;
+  });
+  await list.dispatchEvent("dragover", { dataTransfer: dropped });
+  await expect(list).toHaveAttribute("data-dragging", "true");
+  await expect(editor.locator("[data-record-file-drop-overlay]")).toHaveText(`Drop to add to ${label}`);
+  await list.dispatchEvent("drop", { dataTransfer: dropped });
+  await expect(editor.locator("[data-record-file-drop-overlay]")).toHaveCount(0);
+  await expect(editor.locator("[data-record-file]")).toHaveCount(4);
+  await expect(editor.locator("[data-record-file-upload]")).toHaveCount(0);
+  await expect(fieldCount).toHaveText("4");
+
+  const fileRow = (name: string) => editor.locator("[data-record-file]", { hasText: name });
+  for (const [name, kind, text] of [
+    ["notes.txt", "text", "TXT"],
+    ["offer.pdf", "pdf", "PDF"],
+    ["plan.md", "markdown", "MD"],
+  ]) {
+    await expect(fileRow(name).locator("[data-file-badge]")).toHaveAttribute("data-file-badge", kind);
+    await expect(fileRow(name).locator("[data-file-badge]")).toHaveText(text);
+  }
+  await expect(fileRow("workspace.png").locator('img[data-file-badge="image"]')).toBeVisible();
+  await expect(fileRow("workspace.png").locator("[data-record-file-meta]")).toContainText(/^\d+ × \d+ · [\d.]+ [KM]B · /u);
+  await expect(fileRow("notes.txt").locator("[data-record-file-meta]")).toContainText(`${NOTES.byteLength} B · `);
+
+  await fileRow("notes.txt").hover();
+  await expect(fileRow("notes.txt").locator("[data-item-actions-trigger]")).toBeVisible();
+  const [rowDownload] = await Promise.all([
+    page.waitForEvent("download"),
+    fileRow("notes.txt").getByRole("button", { name: "Download notes.txt", exact: true }).click(),
+  ]);
+  expect(rowDownload.suggestedFilename()).toBe("notes.txt");
+  expect(await readFile(await rowDownload.path())).toEqual(NOTES);
+
+  const order = await editor.locator("[data-record-file] [data-record-file-name]").allTextContents();
+  const at = order.indexOf("workspace.png");
+  const after = order[(at + 1) % order.length];
   await editor.getByRole("button", { name: /^workspace\.png/ }).click();
   const imagePreview = page.getByRole("dialog", {
     name: "workspace.png",
@@ -145,6 +185,15 @@ test("uploads, shows, downloads and removes record files and refuses uploads ove
   await expect(
     imagePreview.getByRole("heading", { name: "workspace.png", exact: true }),
   ).toBeVisible();
+  await expect(imagePreview.locator("[data-record-file-position]")).toHaveText(
+    `${at + 1} of 4 in ${label}`,
+  );
+  await expect(imagePreview.locator("[data-record-file-preview-meta]")).toContainText(
+    /^Image · \d+ × \d+ · [\d.]+ [KM]B · Added by .+ · /u,
+  );
+  await expect(
+    imagePreview.getByRole("link", { name: "Open in new tab", exact: true }),
+  ).toHaveAttribute("href", /^\/api\/v1\/files\/[^/]+\/content$/u);
   await expect
     .poll(() =>
       image.evaluate((element: HTMLImageElement) => element.naturalWidth),
@@ -171,11 +220,22 @@ test("uploads, shows, downloads and removes record files and refuses uploads ove
   ]);
   expect(imageDownload.suggestedFilename()).toBe("workspace.png");
   expect(await readFile(await imageDownload.path())).toEqual(IMAGE);
+  await page.getByRole("button", { name: "Next file", exact: true }).click();
+  const stepped = page.getByRole("dialog", { name: after, exact: true });
+  await expect(stepped.getByRole("heading", { name: after, exact: true })).toBeVisible();
+  await expect(stepped.locator("[data-record-file-position]")).toHaveText(
+    `${((at + 1) % 4) + 1} of 4 in ${label}`,
+  );
+  await page.keyboard.press("ArrowLeft");
+  await expect(imagePreview.getByRole("heading", { name: "workspace.png", exact: true })).toBeVisible();
+  await page.keyboard.press("ArrowRight");
+  await expect(stepped.getByRole("heading", { name: after, exact: true })).toBeVisible();
+  await page.keyboard.press("ArrowLeft");
   await imagePreview
     .getByRole("button", { name: "Close", exact: true })
     .click();
   await expect(imagePreview).not.toBeVisible();
-  await expect(editor.locator("[data-record-file]")).toHaveCount(3);
+  await expect(editor.locator("[data-record-file]")).toHaveCount(4);
   await editor.getByRole("button", { name: /^offer\.pdf/ }).click();
   const pdfPreview = page.getByRole("dialog", {
     name: "offer.pdf",
@@ -184,10 +244,11 @@ test("uploads, shows, downloads and removes record files and refuses uploads ove
   await expect(
     pdfPreview.getByRole("heading", { name: "offer.pdf", exact: true }),
   ).toBeVisible();
-  if (await page.evaluate(() => navigator.pdfViewerEnabled === true)) {
-    await expect(
-      pdfPreview.locator('iframe[title="Preview offer.pdf"]'),
-    ).toBeVisible();
+  if (await page.evaluate(() => navigator.pdfViewerEnabled !== false)) {
+    const frame = pdfPreview.locator('iframe[title="Preview offer.pdf"]');
+    await expect(frame).toBeVisible();
+    await expect(frame).toHaveAttribute("src", /^\/api\/v1\/files\/[^/]+\/content$/u);
+    await expect(pdfPreview.getByText("PDF preview is unavailable in this browser")).toHaveCount(0);
   } else {
     await expect(pdfPreview.getByRole("status")).toContainText(
       "PDF preview is unavailable in this browser",
@@ -214,9 +275,10 @@ test("uploads, shows, downloads and removes record files and refuses uploads ove
     .toEqual([
       ["notes.txt", "ready"],
       ["offer.pdf", "ready"],
+      ["plan.md", "ready"],
       ["workspace.png", "ready"],
     ]);
-  const [notes, offer, photo] = await storedFiles(database, companyId, fieldId);
+  const [notes, offer, , photo] = await storedFiles(database, companyId, fieldId);
   expect([Number(notes.size), Number(offer.size), Number(photo.size)]).toEqual([
     NOTES.byteLength,
     OFFER.byteLength,
@@ -298,7 +360,7 @@ test("uploads, shows, downloads and removes record files and refuses uploads ove
   await notesTile.hover();
   await notesTile.locator("[data-item-actions-trigger]").click();
   await page.getByRole("menuitem", { name: "Remove notes.txt", exact: true }).click();
-  await expect(editor.locator("[data-record-file]")).toHaveCount(2);
+  await expect(editor.locator("[data-record-file]")).toHaveCount(3);
   await saveRecord(page, drawer);
   await expect
     .poll(async () =>
@@ -309,6 +371,7 @@ test("uploads, shows, downloads and removes record files and refuses uploads ove
     .toEqual([
       ["notes.txt", "detached"],
       ["offer.pdf", "ready"],
+      ["plan.md", "ready"],
       ["workspace.png", "ready"],
     ]);
   expect(
@@ -349,9 +412,9 @@ test("uploads, shows, downloads and removes record files and refuses uploads ove
       .getByRole("button", { name: "Remove large.bin", exact: true })
       .click();
     await expect(refused).toHaveCount(0);
-    await expect(editor.locator("[data-record-file]")).toHaveCount(2);
+    await expect(editor.locator("[data-record-file]")).toHaveCount(3);
   }
-  expect(await storedFiles(database, companyId, fieldId)).toHaveLength(3);
+  expect(await storedFiles(database, companyId, fieldId)).toHaveLength(4);
   expect(errors).toEqual([]);
 });
 
@@ -441,6 +504,20 @@ test("previews Excel, CSV, Word and text files in the record drawer with bounded
   await editor.locator('input[type="file"]').setInputFiles(files);
   await expect(editor.locator("[data-record-file]")).toHaveCount(files.length);
   await expect(editor.locator("[data-record-file-upload]")).toHaveCount(0);
+  for (const [name, kind, text, meta] of [
+    ["Budget.xlsx", "spreadsheet", "XLSX", "B · "],
+    ["Contacts.csv", "csv", "CSV", "B · "],
+    ["Brief.docx", "document", "DOCX", "B · "],
+    ["Plan.md", "markdown", "MD", "B · "],
+    ["Data.json", "json", "JSON", "B · "],
+  ]) {
+    const badge = editor.locator("[data-record-file]", { hasText: name }).locator("[data-file-badge]");
+    await expect(badge).toHaveAttribute("data-file-badge", kind);
+    await expect(badge).toHaveText(text);
+    await expect(
+      editor.locator("[data-record-file]", { hasText: name }).locator("[data-record-file-meta]"),
+    ).toContainText(meta);
+  }
   const open = async (name: string) => {
     await editor
       .getByRole("button", {
@@ -483,6 +560,8 @@ test("previews Excel, CSV, Word and text files in the record drawer with bounded
   await expect(
     excel.getByRole("table", { name: "Budget", exact: true }),
   ).toBeVisible();
+  await expect(excel.getByRole("heading", { name: "Budget.xlsx", exact: true })).toBeVisible();
+  await expect(excel.locator("[data-record-file-preview-meta]")).toContainText(/^Spreadsheet · [\d.]+ KB · /u);
   const [download] = await Promise.all([
     page.waitForEvent("download"),
     excel.getByRole("button", { name: "Download file", exact: true }).click(),

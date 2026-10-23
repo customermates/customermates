@@ -13,7 +13,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { FormOutputField } from "@/components/forms/form-output-field";
 import { AppChip } from "@/components/chip/app-chip";
-import { useRecordFileSize } from "@/components/records/record-file-chips";
+import { useRecordFileSize } from "@/components/records/record-file-meta";
 import { Alert } from "@/components/shared/alert";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { startBackgroundPoll } from "@/core/utils/background-poll";
