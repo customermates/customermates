@@ -1,6 +1,14 @@
 "use client";
 
-import { createElement, forwardRef, useMemo, type ComponentProps } from "react";
+import {
+  createContext,
+  createElement,
+  forwardRef,
+  useContext,
+  useMemo,
+  type ComponentProps,
+  type ReactNode,
+} from "react";
 import { useParams } from "next/navigation";
 
 import { createNavigation } from "next-intl/navigation";
@@ -19,10 +27,18 @@ const nav = createNavigation(routing);
 
 type Href = Parameters<ReturnType<typeof nav.useRouter>["push"]>[0];
 
+const FallbackWorkspaceSlugContext = createContext<string | null>(null);
+
+export function FallbackWorkspaceSlugProvider({ slug, children }: { slug: string | null; children: ReactNode }) {
+  return createElement(FallbackWorkspaceSlugContext.Provider, { value: slug }, children);
+}
+
 export function useWorkspaceSlug(): string | null {
   const params = useParams<{ workspace?: string | string[] }>();
+  const fallback = useContext(FallbackWorkspaceSlugContext);
   const value = params?.workspace;
-  return isWorkspaceSlugSegment(typeof value === "string" ? value : null) ? (value as string) : null;
+  if (isWorkspaceSlugSegment(typeof value === "string" ? value : null)) return value as string;
+  return isWorkspaceSlugSegment(fallback) ? fallback : null;
 }
 
 export function workspaceHref<T extends Href | ComponentProps<typeof nav.Link>["href"]>(

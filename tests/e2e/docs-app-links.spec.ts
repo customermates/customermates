@@ -1,7 +1,7 @@
 import { workspaceEntryHref } from "../../core/navigation/workspace-paths";
 import { CONTENT_LOCALES } from "../../i18n/locale-registry";
 import { expect, test } from "./fixtures";
-import { appPath, appUrlPattern } from "./app-paths";
+import { appPath } from "./app-paths";
 
 const ADD_ROLE = "/settings/roles?focus=control%3Asettings-roles-add";
 
@@ -17,7 +17,7 @@ test("rendered Add links on Roles in both languages open the page and highlight 
     const link = page.locator(`a[href$="${workspaceEntryHref(ADD_ROLE)}"]`).first();
     await expect(link).toBeVisible();
     await link.click();
-    await expect(page).toHaveURL(appUrlPattern(slug, "/settings/roles(?:\\?|$)", locale));
+    await expect(page).toHaveURL(new RegExp(`/[a-z]{2}/w/${slug}/settings/roles(?:\\?|$)`));
     await expect(page.locator("#settings-roles-add")).toHaveAttribute("data-focus-highlight", "");
   }
 });

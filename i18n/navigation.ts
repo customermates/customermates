@@ -4,4 +4,11 @@ import { routing } from "./routing";
 
 export const { redirect } = createNavigation(routing);
 
-export { IntlLink, usePathname, useRouter, useWorkspaceSlug, workspaceHref } from "./workspace-navigation";
+export {
+  FallbackWorkspaceSlugProvider,
+  IntlLink,
+  usePathname,
+  useRouter,
+  useWorkspaceSlug,
+  workspaceHref,
+} from "./workspace-navigation";

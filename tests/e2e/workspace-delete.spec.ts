@@ -5,6 +5,7 @@ import type { Client } from "pg";
 import type { BrowserWorkspace } from "./workspace";
 
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
+import { expectNotFoundDocuments } from "./browser-diagnostics";
 import { collectPageErrors, expect, test } from "./fixtures";
 import { openSidebar } from "./sidebar";
 import { addBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
@@ -205,6 +206,7 @@ test("a member's open page of a deleted workspace shows the workspace-changed di
 
       await expect(member.page).toHaveURL(appUrlPattern(rita.slug, "/dashboard$"));
       await expect.poll(async () => (await activeWorkspaceOf(database, rita)).lastUsed).toBe(rita.companyId);
+      expectNotFoundDocuments(member.page);
       await member.page.goto(organizationList(second.companyId));
       await expect(
         member.page.getByRole("heading", { name: englishMessages.NotFoundPage.title, exact: true }),

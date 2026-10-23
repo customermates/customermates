@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { Page, Route } from "@playwright/test";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
-import { companyUrlPattern, pagePath } from "./app-paths";
+import { appApiPath, companyUrlPattern, pagePath } from "./app-paths";
 import { collectPageErrors, test, expect } from "./fixtures";
 import { invokesServerAction, serverActionIds } from "./server-actions";
 import { e2eAppMode } from "./workspace-switching";
@@ -214,8 +214,10 @@ test.describe("Ask Mate fallback", () => {
     page,
     companyId,
     diagnostics,
+    slug,
   }) => {
     test.setTimeout(180000);
+    const messagesPath = appApiPath(slug, "/api/agent/messages");
     const id = (key: string) => presetId(companyId, key);
     const model = RecordModelSchema.parse(await api(page, "/api/v1/model/read", {}));
     const suffix = randomUUID().slice(0, 6);
@@ -266,7 +268,7 @@ test.describe("Ask Mate fallback", () => {
     const offlineMate = diagnostics.expect({
       kind: "console",
       text: /^Failed to load resource: the server responded with a status of 422/,
-      source: (url) => url.pathname === "/api/agent/messages",
+      source: (url) => url.pathname === messagesPath,
       page,
     });
     await page.goto(pagePath(page, "/dashboard"));
@@ -290,8 +292,7 @@ test.describe("Ask Mate fallback", () => {
     await again.fill("something nobody configured here");
     await expect(dialog.getByRole("option").first()).toContainText("Go to");
     const mateRequest = page.waitForResponse(
-      (response) =>
-        new URL(response.url()).pathname === "/api/agent/messages" && response.request().method() === "POST",
+      (response) => new URL(response.url()).pathname === messagesPath && response.request().method() === "POST",
     );
     await page.keyboard.press("Enter");
     await expect(page.locator("#global-search-input")).toHaveCount(0);
