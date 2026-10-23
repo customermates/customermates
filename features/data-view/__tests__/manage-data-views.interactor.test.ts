@@ -779,44 +779,21 @@ describe("agent saved-view management", () => {
     expect(subject.save.invoke).toHaveBeenCalledTimes(1);
   });
 
-  it.each([
-    { field: "filters", state: { filters: [{ field: "name", operator: FilterOperatorKey.contains, value: "ada" }] } },
-    { field: "searchTerm", state: { searchTerm: "ada", viewMode: ViewMode.card } },
-  ])("refuses $field on All, applied or proposed, and points the agent at a new view", async ({ field, state }) => {
+  it("saves filters and a search on All like on any other view", async () => {
     const subject = setup();
-    const input = { action: "update", surfaceKey: SURFACE.users, viewKey: ALL_VIEW_KEY, state } as ManageDataViewsData;
-
-    const applied = await subject.run(input);
-    const proposed = await runWithTenant(mockUser, () => subject.interactor.propose(input));
-
-    for (const result of [applied, proposed]) {
-      expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error.issues).toEqual([
-          expect.objectContaining({
-            path: ["state", field],
-            params: { error: CustomErrorCode.dataViewAllQueryImmutable },
-          }),
-        ]);
-      }
-    }
-    expect(subject.save.invoke).not.toHaveBeenCalled();
-  });
-
-  it("still updates the layout of All, and accepts clearing its filters and search", async () => {
-    const subject = setup();
+    const filters = [{ field: "name", operator: FilterOperatorKey.contains as const, value: "ada" }];
     const result = await subject.run({
       action: "update",
       surfaceKey: SURFACE.users,
       viewKey: ALL_VIEW_KEY,
-      state: { filters: [], searchTerm: "", sortDescriptor: { field: "createdAt", direction: "desc" } },
+      state: { filters, searchTerm: "ada" },
     });
 
     expect(result.ok).toBe(true);
     expect(subject.save.invoke).toHaveBeenCalledWith({
       surfaceKey: SURFACE.users,
       viewKey: ALL_VIEW_KEY,
-      state: expect.objectContaining({ sortDescriptor: { field: "createdAt", direction: "desc" } }),
+      state: expect.objectContaining({ filters, searchTerm: "ada" }),
     });
   });
 

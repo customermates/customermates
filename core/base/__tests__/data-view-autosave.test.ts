@@ -398,18 +398,15 @@ describe("data view autosave", () => {
     expect(saveDataViewStateAction).toHaveBeenCalledExactlyOnceWith({
       surfaceKey: SURFACE.routines,
       viewKey: ALL_VIEW_KEY,
-      state: { columnWidths: { stage: 240 } },
+      state: { filters: [], searchTerm: "", columnWidths: { stage: 240 } },
     });
   });
 
-  it("never writes filters or a search into the All tab, and keeps them as a session draft across a switch", async () => {
+  it("remembers a written All tab state so switching back to All applies it instead of defaults", async () => {
     const store = hydrated();
 
     store.setQueryOptions({ filters: [filter("open")], searchTerm: "acme" });
-    expect(store.canSaveViewChanges).toBe(false);
-    expect(store.canSaveAsView).toBe(true);
     await store.saveViewChanges();
-    expect(saveDataViewStateAction).not.toHaveBeenCalled();
 
     store.applyView(VIEW_ID);
     await vi.advanceTimersByTimeAsync(0);
@@ -613,33 +610,10 @@ describe("data view autosave", () => {
     expect(store.views[0]?.state).toEqual(VIEW.state);
   });
 
-  it("saves only the layout of the All tab, even while its filters and search are modified", async () => {
+  it("expresses a cleared query with empty values rather than omitting the keys", async () => {
     const store = hydrated();
 
     store.setQueryOptions({ filters: [filter("open")], searchTerm: "acme" });
-    store.setQueryOptions({ sortDescriptor: { field: "stage", direction: "asc" } });
-    store.setViewOptions({ viewMode: ViewMode.card });
-    expect(store.canSaveViewChanges).toBe(true);
-
-    await store.saveViewChanges();
-
-    const state = saveDataViewStateAction.mock.calls[0]?.[0]?.state;
-    expect(saveDataViewStateAction.mock.calls[0]?.[0]?.viewKey).toBe(ALL_VIEW_KEY);
-    expect(state).toMatchObject({ sortDescriptor: { field: "stage", direction: "asc" }, viewMode: ViewMode.card });
-    expect(state).not.toHaveProperty("filters");
-    expect(state).not.toHaveProperty("searchTerm");
-    expect(store.isAppearanceModified).toBe(false);
-    expect(store.isFilterModified).toBe(true);
-    expect(store.canSaveAsView).toBe(true);
-    expect(store.filters).toEqual([filter("open")]);
-  });
-
-  it("expresses a cleared query with empty values rather than omitting the keys", async () => {
-    const store = hydrated();
-    store.applyView(VIEW_ID);
-    await vi.advanceTimersByTimeAsync(0);
-
-    store.setQueryOptions({ filters: [filter("open"), filter("won")], searchTerm: "acme" });
     await store.saveViewChanges();
     saveDataViewStateAction.mockClear();
 
@@ -1341,31 +1315,6 @@ describe("assistant view proposals", () => {
     expect(store.proposal).toEqual({ isNew: false });
     expect(store.filters).toEqual([filter("won")]);
     expect(store.hiddenColumns).toEqual(["stage"]);
-  });
-
-  it("turns a proposal that would filter All into a proposed new view and keeps a layout-only one on All", async () => {
-    const store = hydrated();
-    store.applyViewProposal(proposal({ viewKey: ALL_VIEW_KEY, name: "Won" }));
-    await vi.advanceTimersByTimeAsync(0);
-
-    expect(store.activeViewKey).toBe(ALL_VIEW_KEY);
-    expect(store.proposal).toEqual({ name: "Won", isNew: true });
-    expect(store.filters).toEqual([filter("won")]);
-
-    const unnamed = hydrated();
-    unnamed.applyViewProposal(proposal({ viewKey: ALL_VIEW_KEY }));
-    await vi.advanceTimersByTimeAsync(0);
-    expect(unnamed.proposal).toEqual({ isNew: true });
-    expect(unnamed.canSaveViewChanges).toBe(false);
-    expect(unnamed.canSaveAsView).toBe(true);
-
-    const layout = hydrated();
-    layout.forgetQueryDraft(ALL_VIEW_KEY);
-    layout.applyViewProposal(proposal({ viewKey: ALL_VIEW_KEY, state: { sortDescriptor: sort("stage") } }));
-    await vi.advanceTimersByTimeAsync(0);
-    expect(layout.proposal).toEqual({ isNew: false });
-    expect(layout.canSaveViewChanges).toBe(true);
-    expect(saveDataViewStateAction).not.toHaveBeenCalled();
   });
 
   it("saves a proposed new view as a new view and opens it", async () => {

@@ -117673,7 +117673,6 @@
                         "dataViewNotFound",
                         "dataViewNameMismatch",
                         "dataViewAllNameImmutable",
-                        "dataViewAllQueryImmutable",
                         "dataViewUpdateEmpty",
                         "emailNotVerified",
                         "invalidCredentials",

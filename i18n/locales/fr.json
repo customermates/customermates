@@ -1110,7 +1110,6 @@
       "connectedAccountNotFound": "ID de canal introuvable ou inaccessible.",
       "customFieldInvalidDate": "La date est invalide. Elle doit être au format ISO 8601 (par exemple 2024-01-15) ou au format date-heure ISO 8601 (par exemple 2024-01-15T00:00:00Z).",
       "dataViewAllNameImmutable": "La vue Toutes ne peut pas être renommée. Omettez name et modifiez uniquement les paramètres demandés dans state. Consultez config pour les paramètres pris en charge et list pour l’état actuel avant de réessayer.",
-      "dataViewAllQueryImmutable": "La vue Toutes affiche toujours toutes les fiches et ne peut contenir ni filtres ni recherche. Créez plutôt une vue avec ces filtres.",
       "dataViewNameMismatch": "Le nom ne correspond pas à cette vue enregistrée. Lisez la vue et confirmez son nom exact avant de la supprimer.",
       "dataViewNotFound": "Cette vue enregistrée est introuvable.",
       "dataViewUpdateEmpty": "Indiquez un nom ou au moins un paramètre de vue à mettre à jour.",

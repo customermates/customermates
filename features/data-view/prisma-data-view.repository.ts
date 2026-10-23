@@ -8,7 +8,6 @@ import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { runAsViewOwner } from "@/core/data-view/view-owner-context";
-import { allViewLayout } from "@/core/data-view/all-view-state";
 import {
   readStoredPersonalizationState,
   readStoredState,
@@ -192,7 +191,7 @@ export class PrismaDataViewRepo
       return {
         activeViewKey: personalization?.activeViewKey ?? null,
         views: views.map((row) => toChip(row as StoredViewRow)),
-        allState: personalization ? allViewLayout(readStoredPersonalizationState(personalization)) : {},
+        allState: personalization ? readStoredPersonalizationState(personalization) : {},
       };
     });
   }

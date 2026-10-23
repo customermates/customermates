@@ -2,7 +2,6 @@ import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
 import { postOk } from "./api";
 import { test, expect, collectPageErrors } from "./fixtures";
-import { submitViewEditor } from "./view-changes";
 
 test("restored records show in the workspace activity and keep older activity reachable", async ({
   page,
@@ -139,38 +138,34 @@ test("shows admin and configuration history on the workspace activity page and f
   await expect(page.getByRole("button", { name: /Role Created/ })).toHaveCount(0);
   await expect(configuration).toBeVisible();
   await expect(page.locator("#global-data-views-all")).toHaveAttribute("data-view-modified", "");
-  await expect(page.locator("#global-data-views-all")).toContainText("All activity");
-  const storedActivityFilters = async () => {
-    const stored = await database.query(
-      'SELECT filters FROM "P13n" WHERE "companyId"=$1 AND "p13nId"=\'activity\' AND filters NOT IN (\'[]\'::jsonb, \'null\'::jsonb)',
-      [companyId],
-    );
-    return stored.rows.length;
-  };
-  await expect.poll(storedActivityFilters).toBe(0);
+  await expect
+    .poll(async () => {
+      const stored = await database.query(
+        'SELECT filters FROM "P13n" WHERE "companyId"=$1 AND "p13nId"=\'activity\' AND filters <> \'[]\'::jsonb',
+        [companyId],
+      );
+      return stored.rows.length;
+    })
+    .toBe(0);
   await page.getByRole("button", { name: "Filters", exact: true }).click();
-  await page
-    .getByRole("dialog", { name: "Filters" })
-    .getByRole("button", { name: "Save as view", exact: true })
-    .click();
-  await submitViewEditor(page, "Configuration changes");
+  await page.getByRole("dialog", { name: "Filters" }).getByRole("button", { name: "Save", exact: true }).click();
+  await page.keyboard.press("Escape");
   await expect(page.locator("#global-data-views [data-view-modified]")).toHaveCount(0);
 
   await expect
     .poll(async () => {
       const stored = await database.query(
-        'SELECT "surfaceKey", filters FROM "DataView" WHERE "companyId"=$1 AND name=$2',
-        [companyId, "Configuration changes"],
+        'SELECT "p13nId", filters FROM "P13n" WHERE "companyId"=$1 AND "p13nId" IN (\'activity\', \'entity-timeline\')',
+        [companyId],
       );
       return stored.rows;
     })
     .toEqual([
       {
-        surfaceKey: "activity",
+        p13nId: "activity",
         filters: [{ field: "timelineKind", operator: "in", value: ["configuration"] }],
       },
     ]);
-  expect(await storedActivityFilters()).toBe(0);
 
   const audit = await database.query(
     'SELECT kind, "subjectKind", "deliveredAt" IS NOT NULL AS delivered FROM "EventLog" WHERE "companyId"=$1 AND kind=\'role.created\'',

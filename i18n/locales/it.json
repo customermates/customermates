@@ -1110,7 +1110,6 @@
       "connectedAccountNotFound": "ID canale non trovato o non accessibile.",
       "customFieldInvalidDate": "La data non è valida. Deve essere nel formato ISO 8601 (ad esempio 2024-01-15) o nel formato data-ora ISO 8601 (ad esempio 2024-01-15T00:00:00Z).",
       "dataViewAllNameImmutable": "La vista Tutte non può essere rinominata. Ometti name e aggiorna solo le impostazioni richieste in state. Consulta config per le impostazioni supportate e list per lo stato attuale prima di riprovare.",
-      "dataViewAllQueryImmutable": "La vista Tutte mostra sempre tutti i record e non può contenere filtri né una ricerca. Crea invece una vista con questi filtri.",
       "dataViewNameMismatch": "Il nome non corrisponde a questa vista salvata. Leggi la vista e conferma il nome esatto prima di eliminarla.",
       "dataViewNotFound": "Questa vista salvata non è stata trovata.",
       "dataViewUpdateEmpty": "Indica un nome o almeno un'impostazione della vista da aggiornare.",

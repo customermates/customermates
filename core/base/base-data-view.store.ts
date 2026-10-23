@@ -37,7 +37,6 @@ import {
   sameGrouping,
 } from "@/core/base/grouping/grouping.schema";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
-import { allViewLayout } from "@/core/data-view/all-view-state";
 import type { DataViewProposal } from "@/core/data-view/data-view-proposal.schema";
 import type { SharedView } from "@/core/data-view/shared-view-link";
 import { scopeSharedViewState } from "@/core/data-view/shared-view-link";
@@ -384,8 +383,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   }
 
   get savedQuery(): ViewQuery {
-    const saved = this.views.find((view) => view.id === this.activeViewKey)?.state;
-    if (!saved) return { filters: [], searchTerm: undefined };
+    const saved = this.views.find((view) => view.id === this.activeViewKey)?.state ?? this.allViewState;
     return {
       filters: this.withKnownFields(saved.filters),
       searchTerm: saved.searchTerm || undefined,
@@ -420,7 +418,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     if (!this.isViewModified) return false;
     if (this.proposal) return !this.proposal.isNew || Boolean(this.proposal.name);
 
-    return this.activeViewKey !== ALL_VIEW_KEY || this.isAppearanceModified;
+    return true;
   }
 
   get canSaveAsView(): boolean {
@@ -453,7 +451,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   }
 
   private get savedViewState(): DataViewState {
-    return this.views.find((view) => view.id === this.activeViewKey)?.state ?? allViewLayout(this.allViewState);
+    return this.views.find((view) => view.id === this.activeViewKey)?.state ?? this.allViewState;
   }
 
   currentAppearance = (): DataViewState => ({
@@ -753,7 +751,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.groupingResult = args.grouping;
     this.groupableFields = args.groupableFields ?? [];
     this.views = args.views ?? [];
-    this.allViewState = allViewLayout(args.allState ?? this.allViewState);
+    this.allViewState = args.allState ?? this.allViewState;
     this.activeViewKey = args.activeViewKey ?? ALL_VIEW_KEY;
     this.viewPersistable = args.viewPersistable ?? true;
     this.groupCounts = args.groupCounts ?? {};
@@ -1060,7 +1058,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     const flushed = this.flushPendingViewState();
     const chip = this.views.find((view) => view.id === viewKey);
     const key = chip ? chip.id : ALL_VIEW_KEY;
-    const saved: DataViewState = chip?.state ?? allViewLayout(this.allViewState);
+    const saved: DataViewState = chip?.state ?? this.allViewState;
     const draft = this.readQueryDraft(key);
     const state: DataViewState = draft?.proposal ? { ...saved, ...draft.proposal.state } : saved;
     const sessionAppearance = draft?.proposal ? undefined : draft?.appearance;
@@ -1672,8 +1670,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     const intent = this.pendingViewStateIntent ?? this.reserveViewStateIntent();
     this.pendingViewStateIntent = undefined;
     const viewKey = this.activeViewKey;
-    const snapshot = this.viewStateSnapshot({ includeQuery });
-    const state = viewKey === ALL_VIEW_KEY ? allViewLayout(snapshot) : snapshot;
+    const state = this.viewStateSnapshot({ includeQuery });
     const appearance = includeQuery ? this.currentAppearance() : undefined;
 
     const surfaceKey = this.p13nId as DataViewSurfaceKey;

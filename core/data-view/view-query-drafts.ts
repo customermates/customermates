@@ -2,7 +2,6 @@ import type { Filter } from "@/core/base/base-get.schema";
 import type { DataViewProposal } from "./data-view-proposal.schema";
 import type { DataViewState } from "./data-view-state.schema";
 
-import { carriesViewQuery } from "./all-view-state";
 import { ALL_VIEW_KEY } from "./data-view-keys";
 import { DataViewStateSchema } from "./data-view-state.schema";
 
@@ -84,10 +83,7 @@ export function mergeProposalDraft(existing: ViewDraft | undefined, proposal: Da
     proposal: {
       state,
       ...(name ? { name } : {}),
-      isNew:
-        !proposal.viewKey ||
-        existing?.proposal?.isNew === true ||
-        (proposal.viewKey === ALL_VIEW_KEY && carriesViewQuery(proposal.state)),
+      isNew: !proposal.viewKey || existing?.proposal?.isNew === true,
     },
   };
 }

@@ -91,23 +91,21 @@ describe("a GET never persists what the user is looking at", () => {
     expect(interactorSource).not.toMatch(/\bupsert|\bupdate\w*\(|\bdelete\w*\(/i);
   });
 
-  it("ignores filters stored on the All tab and keeps the surface default sort when only a page is requested", async () => {
+  it("keeps the personal All tab filters and the surface default sort when only a page is requested", async () => {
     const { data, repo } = await invokeWith({ p13nId: "contacts-card-store", page: 2 });
 
-    expect(data.filters).toEqual([]);
-    expect(repo.itemCalls[0]?.filters).toEqual([]);
+    expect(data.filters).toEqual(storedFilters);
     expect(data.sortDescriptor).toEqual({ field: "createdAt", direction: "desc" });
     expect(data.pagination?.page).toBe(2);
     expect(data.pagination?.pageSize).toBe(25);
     expect(repo.itemCalls[0]?.pagination).toEqual({ page: 2, pageSize: 25 });
   });
 
-  it("resolves the All tab against the personal layout read from personalization, never its filters, and writes nothing", async () => {
+  it("resolves the All tab against the personal state read from personalization and writes nothing", async () => {
     const { data, touched } = await invokeWith({ p13nId: "contacts-card-store" });
 
     expect(data.activeViewKey).toBe(ALL_VIEW_KEY);
-    expect(data.filters).toEqual([]);
-    expect(data.searchTerm).toBeUndefined();
+    expect(data.filters).toEqual(storedFilters);
     expect(data.pagination?.pageSize).toBe(25);
     expect(data.viewMode).toBe(ViewMode.table);
     expect(touched).toEqual(["loadSurfaceState"]);
@@ -124,20 +122,10 @@ describe("a GET never persists what the user is looking at", () => {
     expect(touched).toEqual(["loadSurfaceState"]);
   });
 
-  it("carries the personal All tab layout alongside a named view so the client can switch back without a blank frame", async () => {
+  it("carries the personal All tab state alongside a named view so the client can switch back without a blank frame", async () => {
     const { data } = await invokeWith({ p13nId: "contacts-card-store", viewId: A_VIEW_ID });
-    const layout = { ...allState };
-    delete layout.filters;
-    delete layout.searchTerm;
 
-    expect(data.allState).toEqual(layout);
-  });
-
-  it("still applies session filters the client sends for the All tab", async () => {
-    const { data } = await invokeWith({ p13nId: "contacts-card-store", filters: storedFilters });
-
-    expect(data.activeViewKey).toBe(ALL_VIEW_KEY);
-    expect(data.filters).toEqual(storedFilters);
+    expect(data.allState).toEqual(allState);
   });
 
   it("degrades an unreadable view id to the All chip without writing the correction back", async () => {
