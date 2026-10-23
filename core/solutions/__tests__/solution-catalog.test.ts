@@ -59,11 +59,11 @@ describe("solution catalog", () => {
     expect(solutionDataLocaleForUiLocale("xx")).toBe(DEFAULT_LOCALE);
   });
 
-  it("names one menu preview highlight per solution: two dashboards, two boards, three records and two inboxes", () => {
+  it("names one menu preview highlight per solution: two dashboards, five lists and two inboxes", () => {
     const kinds = SOLUTION_CATALOG.map((entry) => entry.navPreview.kind);
     expect(kinds.filter((kind) => kind === "dashboard")).toHaveLength(2);
-    expect(kinds.filter((kind) => kind === "view")).toHaveLength(2);
-    expect(kinds.filter((kind) => kind === "record")).toHaveLength(3);
+    expect(kinds.filter((kind) => kind === "view")).toHaveLength(5);
+    expect(kinds.filter((kind) => kind === "record")).toHaveLength(0);
     expect(kinds.filter((kind) => kind === "inbox")).toHaveLength(2);
     for (const entry of SOLUTION_CATALOG) expect(entry.previewRoute).toBe("/dashboard");
   });

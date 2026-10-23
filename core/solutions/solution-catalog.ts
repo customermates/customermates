@@ -71,7 +71,7 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     id: "consultants",
     group: "team",
     landingPath: "/for/consultants",
-    navPreview: { kind: "record", list: "deal", key: "fairhavenReview" },
+    navPreview: { kind: "view", view: "active" },
     navLabelKey: "consultants",
     previewRoute: "/dashboard",
     workspaces: {
@@ -95,7 +95,7 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     id: "freelancers",
     group: "team",
     landingPath: "/for/freelancers",
-    navPreview: { kind: "record", list: "organization", key: "tidewater" },
+    navPreview: { kind: "view", view: "clients" },
     navLabelKey: "freelancers",
     previewRoute: "/dashboard",
     workspaces: {
@@ -119,7 +119,7 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     id: "client-management",
     group: "workflow",
     landingPath: "/features/contact-management",
-    navPreview: { kind: "record", list: "organization", key: "halverson" },
+    navPreview: { kind: "view", view: "clientOverview" },
     navLabelKey: "clientManagement",
     previewRoute: "/dashboard",
     workspaces: {
