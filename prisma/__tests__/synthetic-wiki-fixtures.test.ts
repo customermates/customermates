@@ -36,13 +36,13 @@ describe("demo Knowledge Base fixtures", () => {
   });
 
   it("passes the real editor and procedure validation with useful leading excerpts", () => {
-    for (const { pages } of wikis) {
+    for (const { workspace, pages } of wikis) {
       for (const { whenToUse, ...page } of pages) {
         const result = WikiPageInputSchema.safeParse({ ...page, whenToUse: whenToUse ?? undefined });
         expect(result.success, page.title).toBe(true);
         expect(page.markdown).toMatch(/^\S.+\n\n## /u);
         expect(wikiExcerpt(page.markdown).length, page.title).toBeGreaterThan(70);
-        expect(extractWikiPageLinks(page.markdown, "http://localhost:4000"), page.title).toEqual([]);
+        expect(extractWikiPageLinks(page.markdown, "http://localhost:4000", workspace.slug), page.title).toEqual([]);
       }
       const guide = pages.find(({ kind }) => kind === "guide");
       expect(new TextEncoder().encode(guide?.markdown ?? "").byteLength).toBeLessThanOrEqual(

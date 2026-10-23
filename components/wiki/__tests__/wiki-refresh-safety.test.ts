@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { NavigationGuardController } from "@/core/stores/navigation-guard.controller";
 import type { RootStore } from "@/core/stores/root.store";
-import { WikiPageStore } from "@/app/[locale]/(protected)/wiki/components/wiki-page.store";
+import { WikiPageStore } from "@/app/[locale]/(protected)/w/[workspace]/wiki/components/wiki-page.store";
 
 const harness = vi.hoisted(() => ({
   refresh: vi.fn(),
@@ -18,7 +18,7 @@ vi.mock("@/core/errors/report-application-error", () => ({
 }));
 vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ refresh: harness.refresh }) }));
 vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => harness.rootStore }));
-vi.mock("@/app/[locale]/(protected)/wiki/actions", () => ({
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/wiki/actions", () => ({
   getWikiHomepageSetupStateAction: harness.getState,
   startWikiHomepageSetupAction: vi.fn(),
   createWikiPagesAction: vi.fn(),

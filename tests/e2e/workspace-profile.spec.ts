@@ -1,3 +1,4 @@
+import { companyPath } from "./app-paths";
 import { collectPageErrors, expect, test } from "./fixtures";
 import { openMenu } from "./sidebar";
 import { addBrowserWorkspace } from "./workspace";
@@ -21,7 +22,7 @@ test("an own profile edit and a theme switch apply in every workspace of the log
     ).rows.map((row) => `${row.firstName}/${row.theme}`);
   expect(await memberships()).toEqual(["Browser/system", "Browser/system"]);
 
-  await page.goto("/en/settings/profile");
+  await page.goto(companyPath(workspace.companyId, "/settings/profile"));
   await page.waitForLoadState("networkidle");
   const unsavedChanges = page.locator("[data-slot='unsaved-changes-bar']");
   await expect(async () => {

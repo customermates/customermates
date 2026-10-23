@@ -9,7 +9,7 @@ import {
 } from "@/tests/helpers/interactor-test-setup";
 
 const COMPANY_ID = "00000000-0000-4000-8000-000000000001";
-const mockUser = createMockUser({ companyId: COMPANY_ID });
+const mockUser = createMockUser({ companyId: COMPANY_ID, company: { slug: "acme" } });
 const request = vi.hoisted(() => ({
   origin: "https://feat-inbox.customermates.com",
 }));
@@ -108,7 +108,7 @@ describe("CreateCheckoutSessionInteractor", () => {
       email: mockUser.email,
       productName: "Bergmann Steuern",
       custom: { company_id: COMPANY_ID, company_signature: expect.stringMatching(/^[0-9a-f]{64}$/) },
-      redirectUrl: "https://feat-inbox.customermates.com/en/settings/billing",
+      redirectUrl: "https://feat-inbox.customermates.com/en/w/acme/settings/billing",
       expiresAt: expect.any(Date),
     });
   });
@@ -196,7 +196,7 @@ describe("CreateCheckoutSessionInteractor", () => {
     await interactor.invoke({ plan: "business", cadence: "monthly" } as never);
 
     expect(subscriptionService.createCheckoutOrThrow.mock.calls[0][0].redirectUrl).toBe(
-      "https://customermates-git-feat-inbox-customermates.vercel.app/en/settings/billing",
+      "https://customermates-git-feat-inbox-customermates.vercel.app/en/w/acme/settings/billing",
     );
   });
 
@@ -217,7 +217,7 @@ describe("CreateCheckoutSessionInteractor", () => {
     }
 
     expect(subscriptionService.createCheckoutOrThrow.mock.calls[0][0].redirectUrl).toBe(
-      "https://feat-inbox.customermates.com/de/settings/billing",
+      "https://feat-inbox.customermates.com/de/w/acme/settings/billing",
     );
   });
 

@@ -1,5 +1,6 @@
 import type { Page } from "@playwright/test";
 import { expect } from "./fixtures";
+import { anyWorkspaceUrlPattern, pagePath } from "./app-paths";
 
 export type ConfigureAddItem = "List" | "Field" | "Calculated field" | "Sub-list" | "Relationship" | "Channels";
 export type ConfigureSection = "Fields" | "Relationships";
@@ -20,7 +21,7 @@ export function configureSaveBar(page: Page) {
 
 export async function openConfigure(page: Page, typeId?: string) {
   if (page.url() !== "about:blank") await page.waitForLoadState("networkidle");
-  await page.goto(typeId ? `/en/configure?typeId=${typeId}` : "/en/configure");
+  await page.goto(pagePath(page, typeId ? `/configure?typeId=${typeId}` : "/configure"));
   await expect(page.locator("[data-configure-page]")).toBeVisible();
   if (typeId) await expect(page.locator("[data-configure-list-pane]")).toBeVisible();
   else await expect(page.locator("[data-configure-graph] [data-configure-node]").first()).toBeAttached();
@@ -158,12 +159,12 @@ export async function createConfiguredList(page: Page, name: string, { channels 
   await expect(dialog.getByRole("switch", { name: "Enable channels", exact: true })).toHaveCount(0);
   await dialog.getByRole("button", { name: "Save", exact: true }).first().click();
   await expect(dialog).not.toBeVisible();
-  await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
+  await expect(page).toHaveURL(anyWorkspaceUrlPattern("/records/[a-f0-9-]+$"));
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
   if (!typeId) throw new Error("The created list route did not contain its identity");
   if (channels) {
     await addChannelsField(page, typeId);
-    await page.goto(`/en/records/${typeId}`);
+    await page.goto(pagePath(page, `/records/${typeId}`));
   }
   return typeId;
 }
@@ -182,6 +183,6 @@ export async function addChannelsField(page: Page, typeId: string) {
 export async function followConfigureLink(page: Page) {
   await page.locator("#records-more").click();
   await page.getByRole("menuitem", { name: /^Configure / }).and(page.locator("#records-configure")).click();
-  await expect(page).toHaveURL(/\/en\/configure\?typeId=[a-f0-9-]+$/);
+  await expect(page).toHaveURL(anyWorkspaceUrlPattern("/configure\\?typeId=[a-f0-9-]+$"));
   await expect(page.locator("[data-configure-list-pane]")).toBeVisible();
 }

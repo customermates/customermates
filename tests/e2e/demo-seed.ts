@@ -7,6 +7,7 @@ import { Client } from "pg";
 
 import { presetId } from "../../features/records/crm-preset";
 import { TEAM_SOLUTION_CONTENT } from "../../prisma/seeds/solutions/team-workspace";
+import { NORTHWIND_SLUG, rememberWorkspaceSlug } from "./app-paths";
 import { localE2eEnvironment } from "./local-environment";
 import { BrowserDiagnostics, collectPageErrors } from "./browser-diagnostics";
 
@@ -16,6 +17,8 @@ import { BrowserDiagnostics, collectPageErrors } from "./browser-diagnostics";
  * or restore what they change before they finish.
  */
 export const DEMO_COMPANY_ID = "10000000-0000-4000-8000-000000000001";
+
+export const DEMO_SLUG = NORTHWIND_SLUG;
 
 const fixtureId = (prefix: string, index: number) => `${prefix}-0000-4000-8000-${String(index).padStart(12, "0")}`;
 
@@ -79,6 +82,7 @@ export async function signInMember(context: BrowserContext, database: Client, me
     'INSERT INTO "AuthSession" (id,token,"userId","expiresAt","createdAt","updatedAt") VALUES ($1,$2,$3,NOW()+interval \'1 hour\',NOW(),NOW())',
     [sessionId, token, rows[0].id],
   );
+  rememberWorkspaceSlug(context, DEMO_SLUG);
   await context.addCookies([
     {
       name: "app.session_token",

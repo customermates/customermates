@@ -11,7 +11,7 @@ import {
   cancelRecordOperationAction,
   getRecordOperationAction,
   resumeRecordOperationAction,
-} from "@/app/[locale]/(protected)/records/actions";
+} from "@/app/[locale]/(protected)/w/[workspace]/records/actions";
 
 export function RecordOperationProgress({
   operationId,

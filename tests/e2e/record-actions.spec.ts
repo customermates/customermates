@@ -6,6 +6,7 @@ import { test, expect, collectPageErrors } from "./fixtures";
 import { postOk } from "./api";
 import { openItemMenu } from "./item-actions";
 import { openRecordDetails, rowActionLabels } from "./record-rows";
+import { companyPath } from "./app-paths";
 
 async function setListColor(page: Page, typeId: string, color: string) {
   const model = RecordModelSchema.parse(await postOk(page, "/api/v1/model/read", {}));
@@ -22,7 +23,7 @@ test("records list top bar orders Filter, Appearance and More actions before Add
   page,
   companyId,
 }) => {
-  await page.goto(`/en/records/${presetId(companyId, "contact")}`);
+  await page.goto(companyPath(companyId, `/records/${presetId(companyId, "contact")}`));
   const header = page.locator("header.sticky");
   const controls = ["#records-filter", "#records-display-options", "#records-more", "#records-add"].map((id) =>
     header.locator(id),
@@ -47,7 +48,7 @@ test("records list top bar orders Filter, Appearance and More actions before Add
 test("record drawer keeps record actions icon-only in the header row next to Close", async ({ page, companyId }) => {
   const typeId = presetId(companyId, "organization");
   const name = `Header actions ${randomUUID().slice(0, 8)}`;
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   await page.locator("#records-add").click();
   const drawer = page.getByRole("dialog", {
     name: "Organization",
@@ -83,7 +84,7 @@ test("record drawer keeps record actions icon-only in the header row next to Clo
 });
 
 test("single select inputs show the selected option as a chip", async ({ page, companyId }) => {
-  await page.goto(`/en/records/${presetId(companyId, "deal")}`);
+  await page.goto(companyPath(companyId, `/records/${presetId(companyId, "deal")}`));
   await page.locator("#records-add").click();
   const drawer = page.getByRole("dialog", { name: "Deal", exact: true });
   const stage = drawer.getByRole("combobox", { name: "Stage", exact: false });
@@ -98,7 +99,7 @@ test("single select inputs show the selected option as a chip", async ({ page, c
 
 test("relationship inputs keep linked chips and the record search inside one field", async ({ page, companyId }) => {
   await setListColor(page, presetId(companyId, "organization"), "info");
-  await page.goto(`/en/records/${presetId(companyId, "deal")}`);
+  await page.goto(companyPath(companyId, `/records/${presetId(companyId, "deal")}`));
   await page.locator("#records-add").click();
   const drawer = page.getByRole("dialog", { name: "Deal", exact: true });
   const combobox = drawer.getByRole("combobox", {
@@ -132,7 +133,7 @@ test("record tables edit cells in place, open linked chips and offer row actions
   test.setTimeout(180000);
   await setListColor(page, presetId(companyId, "organization"), "info");
   const name = `Inline deal ${randomUUID().slice(0, 8)}`;
-  await page.goto(`/en/records/${presetId(companyId, "deal")}`);
+  await page.goto(companyPath(companyId, `/records/${presetId(companyId, "deal")}`));
   await page.locator("#records-add").click();
   const drawer = page.getByRole("dialog", { name: "Deal", exact: true });
   await drawer.getByRole("textbox", { name: "Name", exact: false }).fill(name);
@@ -224,7 +225,7 @@ test("record tables edit cells in place, open linked chips and offer row actions
 test("record tables edit number fields in place without opening the drawer", async ({ page, companyId, isMobile }) => {
   test.skip(isMobile, "Table cells edit in place on the desktop table; phone rows render no cells");
   const name = `Inline service ${randomUUID().slice(0, 8)}`;
-  await page.goto(`/en/records/${presetId(companyId, "service")}`);
+  await page.goto(companyPath(companyId, `/records/${presetId(companyId, "service")}`));
   await page.locator("#records-add").click();
   const drawer = page.getByRole("dialog", { name: "Service", exact: true });
   await drawer.getByRole("textbox", { name: "Name", exact: false }).fill(name);
@@ -285,7 +286,7 @@ test("linked record chips collapse into a +N stack so rows and cards keep one he
     ]);
 
   await page.setViewportSize({ width: 720, height: 900 });
-  await page.goto(`/en/records/${id("deal")}`);
+  await page.goto(companyPath(companyId, `/records/${id("deal")}`));
   const crowdedRow = page.getByRole("row").filter({ hasText: `Crowded deal ${suffix}` });
   const quietRow = page.getByRole("row").filter({ hasText: `Quiet deal ${suffix}` });
   const organizations = crowdedRow.getByRole("button", {
@@ -311,7 +312,7 @@ test("linked record chips collapse into a +N stack so rows and cards keep one he
 
 test("record drawer tabs remember the last tab and flag invalid fields on other tabs", async ({ page, companyId }) => {
   const id = (key: string) => presetId(companyId, key);
-  await page.goto(`/en/records/${id("organization")}`);
+  await page.goto(companyPath(companyId, `/records/${id("organization")}`));
   await openRecordDetails(page, "Example organization");
   const drawer = page.getByRole("dialog", {
     name: "Organization",

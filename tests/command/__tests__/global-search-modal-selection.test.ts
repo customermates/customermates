@@ -26,7 +26,7 @@ vi.mock("@/app/components/navigation/use-account-actions", () => ({
   useAccountActions: () => ({ changeTheme: vi.fn(), signOut: vi.fn(), inviteMembers: vi.fn(), sendFeedback: vi.fn() }),
 }));
 vi.mock("@/app/components/command-palette/record-command-level", () => ({ RecordCommandLevel: () => null }));
-vi.mock("@/app/[locale]/(protected)/records/[typeId]/components/use-record-deletion", () => ({
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/use-record-deletion", () => ({
   useRecordEditorDeletion: () => ({ requestDeletion: vi.fn() }),
 }));
 vi.mock("@/core/stores/root-store.provider", () => ({

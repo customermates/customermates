@@ -117624,6 +117624,7 @@
                         "workspaceSetupConflict",
                         "workspaceSetupNotFound",
                         "workspaceSetupUnavailable",
+                        "workspaceSlugTaken",
                         "threadNotFound",
                         "messageNotFound",
                         "emailFolderNotFound",

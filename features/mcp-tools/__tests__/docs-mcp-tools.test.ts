@@ -37,7 +37,7 @@ describe("get_docs_page", () => {
     });
 
     expect(markdown).toBe(
-      "Open [Configure](http://localhost:4000/configure) or [Roles](http://localhost:4000/settings/roles?focus=control%3Asettings-roles-add).",
+      "Open [Configure](http://localhost:4000/dashboard?open=%2Fconfigure) or [Roles](http://localhost:4000/dashboard?open=%2Fsettings%2Froles%3Ffocus%3Dcontrol%253Asettings-roles-add).",
     );
   });
 

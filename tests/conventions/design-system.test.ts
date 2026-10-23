@@ -358,7 +358,7 @@ const INLINE_SVG_EXEMPTIONS: Allowlist = {
   "components/ai-connection/ai-client-logo.tsx": "third-party brand mark, not part of the icon set",
   "app/components/agent-chat/usage-ring.tsx": "data graphic (usage progress ring), not an icon",
   "app/[locale]/(protected)/onboarding/wizard/components/onboarding-artwork.tsx": "illustration, not an icon",
-  "app/[locale]/(protected)/dashboard/components/widget-display-type-picker.tsx": "chart preview illustration",
+  "app/[locale]/(protected)/w/[workspace]/dashboard/components/widget-display-type-picker.tsx": "chart preview illustration",
 };
 
 const INLINE_SVG_ALLOWLIST: Allowlist = {};

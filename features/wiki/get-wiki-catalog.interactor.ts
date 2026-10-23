@@ -1,6 +1,7 @@
 import type { GetWikiCatalogRepo } from "./get-wiki-catalog.repo";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { WikiCatalog, WikiCatalogInput, WikiPageDto } from "./wiki.schema";
+import type { WorkspaceSlugResolver } from "@/features/workspace/workspace-slug-resolver";
 
 import { Resource } from "@/generated/prisma";
 
@@ -24,7 +25,10 @@ import {
 @AllowInDemoMode
 @TenantInteractor({ resource: Resource.wiki, read: "all" })
 export class GetWikiCatalogInteractor extends AuthenticatedInteractor<WikiCatalogInput, WikiCatalog> {
-  constructor(private repo: GetWikiCatalogRepo) {
+  constructor(
+    private repo: GetWikiCatalogRepo,
+    private slugs: WorkspaceSlugResolver,
+  ) {
     super();
   }
 
@@ -36,17 +40,18 @@ export class GetWikiCatalogInteractor extends AuthenticatedInteractor<WikiCatalo
       data.page === 1 ? this.repo.loadOperatingPages(WIKI_PROCEDURE_INDEX_SIZE) : null,
     ]);
     const nextPage = data.page * WIKI_CATALOG_PAGE_SIZE < total ? data.page + 1 : null;
+    const slug = await this.slugs.requireSlugOf(this.user);
     return {
       ok: true as const,
       data: {
         ...(operating
           ? {
-              guide: operating.guide ? this.guide(operating.guide) : null,
+              guide: operating.guide ? this.guide(operating.guide, slug) : null,
               procedures: {
                 items: operating.procedures.map(({ id, title, whenToUse, summary }) => ({
                   id,
                   title,
-                  url: wikiPageUrl(env.BASE_URL, id),
+                  url: wikiPageUrl(env.BASE_URL, slug, id),
                   whenToUse: whenToUse ?? "",
                   ...(summary ? { summary } : {}),
                 })),
@@ -62,7 +67,7 @@ export class GetWikiCatalogInteractor extends AuthenticatedInteractor<WikiCatalo
           updatedAt,
           excerpt: wikiExcerpt(markdown),
           ...(summary ? { summary } : {}),
-          url: wikiPageUrl(env.BASE_URL, id),
+          url: wikiPageUrl(env.BASE_URL, slug, id),
         })),
         total,
         page: data.page,
@@ -72,12 +77,12 @@ export class GetWikiCatalogInteractor extends AuthenticatedInteractor<WikiCatalo
     };
   }
 
-  private guide(page: WikiPageDto) {
+  private guide(page: WikiPageDto, slug: string) {
     const markdown = wikiLeadingSlice(page.markdown, WIKI_GUIDE_CONTEXT_MAX_BYTES);
     return {
       id: page.id,
       title: page.title,
-      url: wikiPageUrl(env.BASE_URL, page.id),
+      url: wikiPageUrl(env.BASE_URL, slug, page.id),
       markdown,
       nextOffset: markdown.length < page.markdown.length ? markdown.length : null,
     };

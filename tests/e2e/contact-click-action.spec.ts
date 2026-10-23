@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
 import { addFromConfigure, openConfigure, saveDrawer } from "./configure";
 import { test, expect } from "./fixtures";
+import { companyPath } from "./app-paths";
 
 
 test("opens or copies contact values and edits them from empty cell space", async ({
@@ -38,7 +39,7 @@ test("opens or copies contact values and edits them from empty cell space", asyn
 
   const email = `billing-${suffix}@example.test`;
   const site = `https://example.test/${suffix}`;
-  await page.goto(`/en/records/${typeId}?viewMode=table`);
+  await page.goto(companyPath(companyId, `/records/${typeId}?viewMode=table`));
   const recordDrawer = page.getByRole("dialog", { name: "Organization", exact: true });
   await page.locator("#records-add").click();
   await recordDrawer.getByRole("textbox", { name: "Name", exact: false }).fill(`Contact ${suffix}`);

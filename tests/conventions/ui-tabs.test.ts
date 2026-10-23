@@ -15,8 +15,8 @@ describe("shared tabs", () => {
   });
 
   it("keeps widget configuration in one form beside its live preview", () => {
-    const widgetModal = read("app/[locale]/(protected)/dashboard/components/widget-modal.tsx");
-    const editorLayout = read("app/[locale]/(protected)/dashboard/components/widget-editor-layout.tsx");
+    const widgetModal = read("app/[locale]/(protected)/w/[workspace]/dashboard/components/widget-modal.tsx");
+    const editorLayout = read("app/[locale]/(protected)/w/[workspace]/dashboard/components/widget-editor-layout.tsx");
 
     expect(editorLayout).toContain('data-widget-editor="split"');
     expect(widgetModal).toContain('section="all"');

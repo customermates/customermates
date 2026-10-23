@@ -1,6 +1,7 @@
 import type { Client } from "pg";
 import type { Page } from "@playwright/test";
 
+import { companyPath } from "./app-paths";
 import { collectPageErrors, expect, test } from "./fixtures";
 import { openItemMenu } from "./item-actions";
 import { moveWithKeyboard } from "./keyboard-drag";
@@ -37,7 +38,7 @@ test("deleting a personal section asks first and moves its items to the top leve
 }, testInfo) => {
   const errors = collectPageErrors(page);
   const touch = testInfo.project.name === "mobile";
-  await page.goto("/en/dashboard");
+  await page.goto(companyPath(workspace.companyId, "/dashboard"));
   await page.waitForLoadState("networkidle");
   await openSidebar(page);
   const initial = await sidebarOrder(page);
@@ -98,7 +99,7 @@ test("the customize dialog reorders, renames and deletes sections with visible h
 }, testInfo) => {
   const errors = collectPageErrors(page);
   const touch = testInfo.project.name === "mobile";
-  await page.goto("/en/dashboard");
+  await page.goto(companyPath(workspace.companyId, "/dashboard"));
   await page.waitForLoadState("networkidle");
 
   const dialog = await openCustomize(page);
@@ -177,7 +178,7 @@ test("items move to the top level and the seeded Data section can be renamed, de
   workspace,
 }, testInfo) => {
   const errors = collectPageErrors(page);
-  await page.goto("/en/dashboard");
+  await page.goto(companyPath(workspace.companyId, "/dashboard"));
   await page.waitForLoadState("networkidle");
   await openSidebar(page);
   const initial = await sidebarOrder(page);

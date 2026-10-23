@@ -27,6 +27,7 @@ function workspace(
   return {
     companyId,
     name,
+    slug: `ws-${companyId}`,
     status: "active",
     roleName: "Admin",
     isAdmin: true,

@@ -1,4 +1,5 @@
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
+import { appUrlPattern } from "./app-paths";
 import { collectPageErrors, expect, test } from "./fixtures";
 import { addBrowserWorkspace } from "./workspace";
 import {
@@ -38,12 +39,9 @@ test("a pending membership waits on its approval screen and leaves the way to th
   await expect(restricted.locator("#workspace-menu-create")).toBeVisible();
   await restricted.locator(`[data-workspace-id="${workspace.companyId}"]`).click();
 
-  await expect(page).toHaveURL(/\/en\/dashboard$/);
+  await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/dashboard$"));
   await expectCurrentWorkspace(page, "Browser workspace");
-  expect(await activeWorkspaceOf(database, workspace)).toEqual({
-    session: workspace.companyId,
-    lastUsed: workspace.companyId,
-  });
+  expect(await activeWorkspaceOf(database, workspace)).toEqual({ lastUsed: workspace.companyId });
   const menu = await openWorkspaceSwitcher(page);
   await expect(menu.locator(`[data-workspace-id="${second.companyId}"]`)).toContainText(
     englishMessages.Common.userStatuses.pendingAuthorization,
@@ -75,7 +73,7 @@ test("a deactivated membership explains itself and leaves the way to the other w
   await page.screenshot({ path: testInfo.outputPath("ws-restricted-inactive.png"), fullPage: true });
   await switchFromBlockedPage(page, workspace.companyId);
 
-  await expect(page).toHaveURL(/\/en\/dashboard$/);
+  await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/dashboard$"));
   await expectCurrentWorkspace(page, "Browser workspace");
   const menu = await openWorkspaceSwitcher(page);
   await expect(menu.locator(`[data-workspace-id="${second.companyId}"]`)).toContainText(

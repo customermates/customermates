@@ -2,7 +2,7 @@ import { action, makeObservable, observable, runInAction } from "mobx";
 
 import type { RecordChoicesInput, RecordChoicesResult } from "@/features/records/get-record-choices.interactor";
 
-import { getRecordChoicesAction } from "@/app/[locale]/(protected)/records/actions";
+import { getRecordChoicesAction } from "@/app/[locale]/(protected)/w/[workspace]/records/actions";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 

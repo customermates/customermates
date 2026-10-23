@@ -6,6 +6,7 @@ import type { RecordPresentationResult } from "@/features/records/get-record-pre
 import { useCallback, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import { workspaceApiUrl } from "@/core/navigation/workspace-api-url";
 
 const FILENAME_PATTERN = /filename="([^"]+)"/;
 
@@ -18,7 +19,7 @@ export function useRecordExport(presentation: RecordPresentationResult, format: 
   return useCallback(async () => {
     try {
       const { typeId, search, filters, relatedFilters, relationships, sort } = presentationRef.current.query;
-      const response = await fetch("/api/v1/records/export", {
+      const response = await fetch(workspaceApiUrl("/api/v1/records/export"), {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ typeId, search, filters, relatedFilters, relationships, sort, format }),

@@ -1,1 +1,1 @@
-export { default } from "../../../records/[typeId]/loading";
+export { default } from "../../../w/[workspace]/records/[typeId]/loading";

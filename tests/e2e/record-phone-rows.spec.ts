@@ -7,6 +7,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
 import { openRecordLink } from "./record-rows";
+import { pagePath } from "./app-paths";
 
 async function create(page: Page, mutation: Record<string, unknown>) {
   const model = RecordModelSchema.parse(await (await page.request.post("/api/v1/model/read", { data: {} })).json());
@@ -29,7 +30,7 @@ test("phone rows load more per group until every record of the group is reachabl
   const id = (key: string) => presetId(companyId, key);
   const typeId = id("deal");
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(pagePath(page, `/records/${typeId}`));
   for (let index = 1; index <= 12; index++)
     await create(page, {
       typeId,
@@ -39,7 +40,7 @@ test("phone rows load more per group until every record of the group is reachabl
       ],
     });
 
-  await page.goto(`/en/records/${typeId}?groupBy=${encodeURIComponent(id("deal.stage"))}`);
+  await page.goto(pagePath(page, `/records/${typeId}?groupBy=${encodeURIComponent(id("deal.stage"))}`));
   const rows = page.locator("[data-phone-rows] [data-row-id]");
   await expect(rows).toHaveCount(10);
   const loadMore = page.locator("[data-phone-rows] [data-slot='group-load-more']").getByRole("button", {
@@ -58,7 +59,7 @@ test("sub-list phone rows open the record on tap", async ({ page, companyId }) =
   const errors = collectPageErrors(page);
   const id = (key: string) => presetId(companyId, key);
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto(`/en/records/${id("deal")}`);
+  await page.goto(pagePath(page, `/records/${id("deal")}`));
   const deal = await create(page, {
     typeId: id("deal"),
     fields: [{ fieldId: id("deal.name"), value: { kind: "text", value: "Phone parent deal" } }],
@@ -69,7 +70,7 @@ test("sub-list phone rows open the record on tap", async ({ page, companyId }) =
     links: [{ relationId: id("lineItem.deal"), direction: "outgoing", record: deal }],
   });
 
-  await page.goto(`/en/records/${deal.typeId}/${deal.recordId}`);
+  await page.goto(pagePath(page, `/records/${deal.typeId}/${deal.recordId}`));
   const lineItems = page.getByRole("region", { name: "Line items" });
   const row = lineItems.locator("[data-phone-rows] [data-row-id]");
   await expect(row).toHaveCount(1);
@@ -92,7 +93,7 @@ test("the row's More actions trigger sits on a solid surface on keyboard focus a
   const id = (key: string) => presetId(companyId, key);
   const typeId = id("deal");
   await page.setViewportSize({ width: 1280, height: 800 });
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(pagePath(page, `/records/${typeId}`));
   await create(page, {
     typeId,
     fields: [{ fieldId: id("deal.name"), value: { kind: "text", value: "Surface deal" } }],

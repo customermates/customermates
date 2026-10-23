@@ -37,6 +37,7 @@ export const TenantUserSchema = UserDtoSchema.extend({
   onboardingWizardCompletedAt: z.date().nullable(),
   onboardingWikiStepCompletedAt: z.date().nullable(),
   role: RoleDtoSchema.nullable(),
+  company: z.object({ slug: z.string() }).optional(),
 });
 
 export type TenantUser = Data<typeof TenantUserSchema>;

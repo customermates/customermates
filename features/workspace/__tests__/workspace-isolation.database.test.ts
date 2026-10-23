@@ -5,6 +5,7 @@ import { serializeSignedCookie } from "better-call";
 import { Client } from "pg";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
+import { WORKSPACE_HEADER } from "@/core/navigation/workspace-paths";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
 const requestContext = vi.hoisted(() => ({ headers: new Headers() }));
@@ -54,6 +55,15 @@ describeDatabase("one login in several isolated workspaces", { timeout: 120_000 
   const client = new Client({ connectionString: databaseUrl ?? undefined });
   const createdCompanyIds: string[] = [];
   let fixture: Fixture;
+
+  async function slugOf(companyId: string) {
+    const company = await client.query<{ slug: string }>('SELECT "slug" FROM "Company" WHERE "id" = $1', [companyId]);
+    return company.rows[0]?.slug ?? "";
+  }
+
+  async function useLastWorkspace(companyId: string) {
+    await client.query('UPDATE "AuthUser" SET "companyId" = $2 WHERE "id" = $1', [fixture.authUserId, companyId]);
+  }
 
   beforeAll(async () => {
     await client.connect();
@@ -167,14 +177,18 @@ describeDatabase("one login in several isolated workspaces", { timeout: 120_000 
     await client.end();
   });
 
-  it("opens the last used workspace for a new session and remembers it on the session", async () => {
+  it("opens the last used workspace for a request without a workspace in its URL", async () => {
     expect(await whoAmI({ cookie: fixture.cookie })).toEqual({ status: 200, userId: fixture.members.b });
+    expect(await whoAmI({ cookie: fixture.cookie, [WORKSPACE_HEADER]: await slugOf(fixture.companies.a) })).toEqual({
+      status: 200,
+      userId: fixture.members.a,
+    });
 
-    const session = await client.query<{ activeCompanyId: string | null }>(
-      'SELECT "activeCompanyId" FROM "AuthSession" WHERE "id" = $1',
-      [fixture.sessionId],
+    const login = await client.query<{ companyId: string | null }>(
+      'SELECT "companyId" FROM "AuthUser" WHERE "id" = $1',
+      [fixture.authUserId],
     );
-    expect(session.rows[0].activeCompanyId).toBe(fixture.companies.b);
+    expect(login.rows[0].companyId).toBe(fixture.companies.b);
   });
 
   it("lists every membership of the login and marks the current one", async () => {
@@ -192,31 +206,18 @@ describeDatabase("one login in several isolated workspaces", { timeout: 120_000 
     expect(result.data.find((workspace) => workspace.companyId === fixture.companies.a)?.name).toBe("Workspace a");
   });
 
-  it("switches the browser session between workspaces and refuses a workspace without membership", async () => {
-    const { getSwitchWorkspaceInteractor } = await import("@/core/di");
-    asSession(fixture);
+  it("opens the workspace a browser request's URL names and refuses a workspace without membership", async () => {
+    const [a, foreign] = await Promise.all([slugOf(fixture.companies.a), slugOf(fixture.companies.foreign)]);
 
-    expect(await getSwitchWorkspaceInteractor().invoke({ companyId: fixture.companies.a })).toEqual({
-      ok: true,
-      data: { companyId: fixture.companies.a },
+    expect(await whoAmI({ cookie: fixture.cookie, [WORKSPACE_HEADER]: a })).toEqual({
+      status: 200,
+      userId: fixture.members.a,
     });
-    expect(await whoAmI({ cookie: fixture.cookie })).toEqual({ status: 200, userId: fixture.members.a });
-
-    asSession(fixture);
-    const refused = await getSwitchWorkspaceInteractor().invoke({ companyId: fixture.companies.foreign });
-    expect(refused.ok).toBe(false);
-    expect(await whoAmI({ cookie: fixture.cookie })).toEqual({ status: 200, userId: fixture.members.a });
-
-    const login = await client.query<{ companyId: string }>('SELECT "companyId" FROM "AuthUser" WHERE "id" = $1', [
-      fixture.authUserId,
-    ]);
-    expect(login.rows[0].companyId).toBe(fixture.companies.a);
+    expect((await whoAmI({ cookie: fixture.cookie, [WORKSPACE_HEADER]: foreign })).status).not.toBe(200);
   });
 
   it("keeps an API key and an MCP token in their own workspace whatever the browser session shows", async () => {
-    const { getSwitchWorkspaceInteractor } = await import("@/core/di");
-    asSession(fixture);
-    await getSwitchWorkspaceInteractor().invoke({ companyId: fixture.companies.b });
+    await useLastWorkspace(fixture.companies.b);
 
     expect(await whoAmI({ "x-api-key": fixture.keys.a })).toEqual({ status: 200, userId: fixture.members.a });
     expect(await whoAmI({ authorization: `Bearer ${fixture.bearerB}` })).toEqual({
@@ -227,7 +228,7 @@ describeDatabase("one login in several isolated workspaces", { timeout: 120_000 
   });
 
   it("refuses to let the last admin leave, then leaves and revokes that workspace's credentials", async () => {
-    const { getLeaveWorkspaceInteractor, getSwitchWorkspaceInteractor } = await import("@/core/di");
+    const { getLeaveWorkspaceInteractor } = await import("@/core/di");
     const { MessagingService } = await import("@/ee/messaging/messaging.service");
     const providerRemoval = vi.spyOn(MessagingService.prototype, "deleteAccount").mockResolvedValue(undefined);
     const channelId = randomUUID();
@@ -239,8 +240,7 @@ describeDatabase("one login in several isolated workspaces", { timeout: 120_000 
       'INSERT INTO "User" ("id", "email", "firstName", "lastName", "companyId", "status", "createdAt", "updatedAt") VALUES ($1, $2, \'Multi\', \'Workspace\', $3, \'pendingAuthorization\', CURRENT_TIMESTAMP - INTERVAL \'1 year\', CURRENT_TIMESTAMP)',
       [randomUUID(), fixture.email, fixture.companies.foreign],
     );
-    asSession(fixture);
-    await getSwitchWorkspaceInteractor().invoke({ companyId: fixture.companies.b });
+    await useLastWorkspace(fixture.companies.b);
     await client.query('UPDATE "User" SET "status" = \'inactive\' WHERE "id" = $1', [fixture.members.bSecondAdmin]);
 
     asSession(fixture);
@@ -275,9 +275,8 @@ describeDatabase("one login in several isolated workspaces", { timeout: 120_000 
     expect(await whoAmI({ cookie: fixture.cookie })).toEqual({ status: 200, userId: fixture.members.a });
     expect(await whoAmI({ "x-api-key": fixture.keys.a })).toEqual({ status: 200, userId: fixture.members.a });
 
-    asSession(fixture);
-    const switchBack = await getSwitchWorkspaceInteractor().invoke({ companyId: fixture.companies.b });
-    expect(switchBack.ok).toBe(false);
+    const leftSlug = await slugOf(fixture.companies.b);
+    expect((await whoAmI({ cookie: fixture.cookie, [WORKSPACE_HEADER]: leftSlug })).status).not.toBe(200);
   });
 
   it("creates a further workspace for the login with its own admin role and switches to it", async () => {

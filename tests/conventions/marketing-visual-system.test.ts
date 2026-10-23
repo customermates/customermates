@@ -1058,7 +1058,7 @@ describe("marketing visual boundaries", () => {
     ).toEqual(["/components/ui/"]);
     expect(
       rendererBoundaryViolations(
-        'import { Dashboard } from "@/app/[locale]/(protected)/dashboard";',
+        'import { Dashboard } from "@/app/[locale]/(protected)/w/[workspace]/dashboard";',
       ),
     ).toEqual(["/(protected)/"]);
 

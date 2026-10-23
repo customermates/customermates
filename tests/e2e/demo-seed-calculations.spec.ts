@@ -5,7 +5,8 @@ import { SOLUTION_CATALOG } from "../../core/solutions/solution-catalog";
 import { presetId } from "../../features/records/crm-preset";
 import { solutionContent } from "../../prisma/seeds/solutions/define-solution";
 import { SOLUTION_DEFINITIONS } from "../../prisma/seeds/solutions/definitions";
-import { DEMO_COMPANY_ID, DEMO_STAGE_PROBABILITY, demoId, displayedNumber, expect, test } from "./demo-seed";
+import { appPath } from "./app-paths";
+import { DEMO_COMPANY_ID, DEMO_SLUG, DEMO_STAGE_PROBABILITY, demoId, displayedNumber, expect, test } from "./demo-seed";
 
 /**
  * Calculated fields of the seeded demo workspaces match a direct database computation from their inputs, and the record
@@ -69,7 +70,7 @@ const numbers = (text: string) => (text.match(/-?\d[\d,]*(?:\.\d+)?/g) ?? []).ma
  * manual override.
  */
 async function shown(page: Page, typeKey: string, recordId: string, fieldKey: string) {
-  await page.goto(`/en/records/${demoId(typeKey)}/${recordId}`);
+  await page.goto(appPath(DEMO_SLUG, `/records/${demoId(typeKey)}/${recordId}`));
   const main = page.getByRole("main");
   const overview = main.getByRole("tab", { name: "Overview", exact: true });
   if (await overview.isVisible()) await overview.click();
@@ -135,7 +136,7 @@ test("a line item's amount is its quantity times the price of its service", asyn
   const [lineId, line] =
     [...lineItems].find(([, row]) => (amount(row, "lineItem.quantity") ?? 0) > 1) ?? [...lineItems][0];
   const expected = amount(line, "lineItem.amount") ?? Number.NaN;
-  await page.goto(`/en/records/${demoId("deal")}/${dealOf.get(lineId)}`);
+  await page.goto(appPath(DEMO_SLUG, `/records/${demoId("deal")}/${dealOf.get(lineId)}`));
   const main = page.getByRole("main");
   const overview = main.getByRole("tab", { name: "Overview", exact: true });
   if (await overview.isVisible()) await overview.click();

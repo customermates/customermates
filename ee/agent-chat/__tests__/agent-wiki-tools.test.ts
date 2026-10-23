@@ -21,6 +21,10 @@ const calls = vi.hoisted(() => ({
 }));
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
+vi.mock("@/features/mcp-tools/mcp-workspace-slug", async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  mcpWorkspaceSlug: () => Promise.resolve("acme"),
+}));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/core/di", () => ({
   ...createMockDiModule(() => mockUser),

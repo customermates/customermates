@@ -2,6 +2,11 @@ import { focusHref } from "@/components/focus/focus-href";
 import { TOOLBAR_PAGES_WITH_ADD, TOOLBAR_PAGES_WITHOUT_ADD } from "@/ee/agent-chat/ui-anchors";
 import { AGENT_UI_TARGETS } from "@/ee/agent-chat/ui-targets";
 import { escapeRegExp } from "@/i18n/routing";
+import {
+  WORKSPACE_ENTRY_TARGET_PARAM,
+  WORKSPACE_LANDING_PATH,
+  workspaceEntryHref,
+} from "@/core/navigation/workspace-paths";
 
 export const APP_LINK_SCHEME = "app:";
 
@@ -68,11 +73,11 @@ function resolveAppLinks(markdown: string, toHref: (link: ParsedAppLink) => stri
 export function publicAppLinkHref(href: string): string {
   const link = parseAppLink(href);
   if (!link) throw new Error(`Unknown app link: ${href}`);
-  return appLinkPath(link);
+  return workspaceEntryHref(appLinkPath(link));
 }
 
 export function resolvePublicAppLinks(markdown: string, baseUrl = ""): string {
-  return resolveAppLinks(markdown, (link) => `${baseUrl}${appLinkPath(link)}`);
+  return resolveAppLinks(markdown, (link) => `${baseUrl}${workspaceEntryHref(appLinkPath(link))}`);
 }
 
 const LINK_BASE = "https://app-link.invalid";
@@ -105,10 +110,19 @@ export function isResolvedAppLinkPath(path: string): boolean {
   return link !== null && appLinkPath(link) === path;
 }
 
+function appLinkFromEntryPath(path: string): ParsedAppLink | null {
+  const url = relativeUrl(path);
+  if (!url || url.pathname !== WORKSPACE_LANDING_PATH) return null;
+  const target = onlyParam(url, WORKSPACE_ENTRY_TARGET_PARAM);
+  if (target === null) return null;
+  const link = appLinkFromPublicPath(target);
+  return link && workspaceEntryHref(appLinkPath(link)) === path ? link : null;
+}
+
 export function localizeAppLinks(text: string, baseUrl: string): string {
   const pattern = new RegExp(`\\]\\(${escapeRegExp(baseUrl)}(/[^)\\s]*)\\)`, "g");
   return text.replace(pattern, (match, path: string) => {
-    const link = appLinkFromPublicPath(path);
+    const link = appLinkFromEntryPath(path) ?? appLinkFromPublicPath(path);
     return link ? `](${appLinkPath(link)})` : match;
   });
 }

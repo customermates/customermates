@@ -236,4 +236,20 @@ describe("agent saved-view context", () => {
     expect(context.propose(pathname, { ...proposal, surfaceKey: SURFACE.routines })).toBe(false);
     expect(membersPropose).toHaveBeenCalledOnce();
   });
+
+  it("keys workspace-qualified browser paths by their app route and keeps the real URL on reload", () => {
+    const context = new AgentViewContext();
+    const qualified = "/en/w/acme/settings/members";
+    context.register(qualified, () => ({ surfaceKey: SURFACE.users, viewKey: VIEW_ID }));
+
+    expect(context.route(qualified)).toBe(`/en/settings/members?view=${VIEW_ID}&viewSurface=${SURFACE.users}`);
+    expect(context.route("/en/settings/members")).toBe(
+      `/en/settings/members?view=${VIEW_ID}&viewSurface=${SURFACE.users}`,
+    );
+    expect(
+      context.reloadHref(`http://localhost${qualified}?view=${VIEW_ID}`, [
+        { surfaceKey: SURFACE.users, action: "create" },
+      ]),
+    ).toBe(qualified);
+  });
 });

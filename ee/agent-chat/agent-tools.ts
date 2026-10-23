@@ -65,6 +65,7 @@ import { getAgentWebSearchTool } from "./agent-web-search";
 import { hostedWorkspaceContextTool } from "@/features/mcp-tools/workspace.mcp-tools";
 import { localizeWikiPageUrls } from "@/features/wiki/wiki-links";
 import { localizeAppLinks } from "@/features/docs/app-links";
+import { mcpWorkspaceSlug } from "@/features/mcp-tools/mcp-workspace-slug";
 import { hostedSectionRankers } from "./docs-rerank";
 import { DataViewProposalSchema } from "@/core/data-view/data-view-proposal.schema";
 import { proposingManageDataViewsTool } from "@/features/mcp-tools/data-view.mcp-tools";
@@ -199,6 +200,7 @@ export function agentToolResult(
     toolName?: string;
     pageRoute?: string | null;
     input?: unknown;
+    workspaceSlug?: string | null;
   } = {},
 ) {
   const input =
@@ -329,7 +331,11 @@ export function agentToolResult(
     }
   }
   const text = localizeAppLinks(
-    localizeWikiPageUrls(contextualAgentToolResultText(context.toolName, outcome, context.pageRoute), env.BASE_URL),
+    localizeWikiPageUrls(
+      contextualAgentToolResultText(context.toolName, outcome, context.pageRoute),
+      env.BASE_URL,
+      context.workspaceSlug,
+    ),
     env.BASE_URL,
   );
   if (!outcome.ok) return boundedAgentToolFailure({ result: text, failure: outcome.failure }, maxChars);
@@ -573,6 +579,14 @@ async function listUiTargets(input: z.infer<typeof ListUiTargetsSchema>, resultM
   return `${header}${lines.join("\n")}\n${footer}`;
 }
 
+async function agentWorkspaceSlug(): Promise<string | null> {
+  try {
+    return await mcpWorkspaceSlug();
+  } catch {
+    return null;
+  }
+}
+
 const SECTION_RANKED_TOOLS = new Set([searchDocsTool.name, getDocsPageTool.name, manageWikiPagesTool.name]);
 
 function hostedMcpTool(
@@ -623,6 +637,7 @@ function crmTool(
           toolName: mcp.name,
           pageRoute: deps.pageRoute,
           input,
+          workspaceSlug: await agentWorkspaceSlug(),
         });
       };
       const enrollable =
@@ -637,6 +652,7 @@ function crmTool(
               toolName: mcp.name,
               pageRoute: deps.pageRoute,
               input,
+              workspaceSlug: await agentWorkspaceSlug(),
             })
           : result;
       };

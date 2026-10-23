@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { Client } from "pg";
+import { fixtureWorkspaceSlug } from "../../core/config/synthetic-seed-user";
 import { createCrmPreset, presetId } from "../../features/records/crm-preset";
 
 export type BrowserWorkspace = Awaited<ReturnType<typeof createBrowserWorkspace>>;
@@ -44,11 +45,10 @@ async function insertWorkspace(
 ) {
   const { companyId, userId } = workspace;
   const roleId = randomUUID();
-  await database.query('INSERT INTO "Company" (id,name,"createdByAuthUserId","updatedAt") VALUES ($1,$2,$3,NOW())', [
-    companyId,
-    workspace.name,
-    workspace.authUserId,
-  ]);
+  await database.query(
+    'INSERT INTO "Company" (id,name,slug,"createdByAuthUserId","updatedAt") VALUES ($1,$2,$3,$4,NOW())',
+    [companyId, workspace.name, fixtureWorkspaceSlug(companyId), workspace.authUserId],
+  );
   await database.query(
     'INSERT INTO "UserRole" (id,"companyId",name,"isSystemRole","updatedAt") VALUES ($1,$2,\'Administrator\',true,NOW())',
     [roleId, companyId],
@@ -100,7 +100,7 @@ export async function createBrowserWorkspace(database: Client, name = "Browser w
       'INSERT INTO "AuthUser" (id,"companyId",email,name,"emailVerified","updatedAt") VALUES ($1,$2,$3,\'Browser Administrator\',true,NOW())',
       [authUserId, companyId, email],
     );
-    return { companyId, userId, authUserId };
+    return { companyId, userId, authUserId, slug: fixtureWorkspaceSlug(companyId) };
   });
 }
 
@@ -116,7 +116,7 @@ export async function addBrowserWorkspace(database: Client, workspace: BrowserWo
       if (inserted.rowCount !== 1) throw new Error("The browser login to add a workspace to is missing");
     }),
   );
-  return { companyId, userId };
+  return { companyId, userId, slug: fixtureWorkspaceSlug(companyId) };
 }
 
 export async function removeBrowserWorkspace(database: Client, workspace: BrowserWorkspace) {

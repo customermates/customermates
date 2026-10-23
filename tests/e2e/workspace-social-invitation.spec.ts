@@ -93,7 +93,7 @@ test("an existing login signs in with Google from an invitation, lands on the jo
     expect(await membershipsIn(database, workspace.companyId, email)).toEqual([
       { status: "active", roleId: expect.any(String) },
     ]);
-    expect((await activeWorkspaceOf(database, workspace)).session).toBe(inviter.companyId);
+    expect((await activeWorkspaceOf(database, workspace)).lastUsed).toBe(inviter.companyId);
   } finally {
     await removeBrowserWorkspace(database, inviter);
   }

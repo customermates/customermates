@@ -1293,7 +1293,7 @@
       "wikiProposalReviewed": "Questa proposta è già stata rivista.",
       "wikiProposalStale": "La pagina è cambiata dopo la proposta di Mate. Rifiuta la proposta o chiedi a Mate di proporre di nuovo la modifica.",
       "wikiWhenToUseRequired": "Una procedura richiede una breve descrizione di quando usarla.",
-      "workspaceChanged": "Il tuo spazio di lavoro è cambiato in un'altra scheda o su un altro dispositivo. Ricarica la pagina prima di continuare.",
+      "workspaceChanged": "Questo spazio di lavoro non è più disponibile. È stato eliminato, il suo URL è cambiato o il tuo accesso è stato rimosso.",
       "workspaceCreationUnavailable": "Qui non è possibile creare nuovi spazi di lavoro.",
       "workspaceDeleteAdminRequired": "Solo un amministratore può eliminare questo spazio di lavoro.",
       "workspaceDeleteBillingActive": "Questo spazio di lavoro ha ancora un abbonamento che può essere addebitato o ripreso. Annullalo e attendi che termini, oppure contatta l'assistenza.",
@@ -1315,7 +1315,8 @@
       "workspaceSetupAnswerInvalid": "Questa risposta non corrisponde alla domanda. Controllala e riprova.",
       "workspaceSetupConflict": "La configurazione dello spazio di lavoro è occupata con un altro passaggio. Ricaricala e riprova.",
       "workspaceSetupNotFound": "Nessuna configurazione trovata per questo spazio di lavoro.",
-      "workspaceSetupUnavailable": "La configurazione dello spazio di lavoro con l'IA non è disponibile qui."
+      "workspaceSetupUnavailable": "La configurazione dello spazio di lavoro con l'IA non è disponibile qui.",
+      "workspaceSlugTaken": "Un altro spazio di lavoro usa già questo URL. Scegline un altro."
     },
     "events": {
       "connected_account": {
@@ -3073,11 +3074,6 @@
         "email": "Invia e-mail",
         "link": "Condividi il link"
       }
-    },
-    "linkedWorkspace": {
-      "description": "Questo link apre la configurazione di {workspace}. Al momento stai lavorando in un altro spazio di lavoro; il cambio vale per tutte le schede aperte.",
-      "switch": "Cambia spazio di lavoro",
-      "title": "Continua in {workspace}"
     },
     "milestones": {
       "ai": "Strumenti IA",
@@ -4865,17 +4861,17 @@
     "nameDescription": "Tutti i membri vedono questo nome nel menu dello spazio di lavoro.",
     "nameLabel": "Nome dello spazio di lavoro",
     "noPlan": "Nessun piano",
-    "otherTab": {
-      "description": "Questa scheda mostra ancora {current}. Ricaricala per non salvare nulla nello spazio di lavoro sbagliato.",
-      "reload": "Ricarica",
-      "title": "Hai cambiato spazio di lavoro in un'altra scheda",
-      "titleChanged": "Il tuo spazio di lavoro è cambiato",
-      "titleDeleted": "Questo spazio di lavoro è stato eliminato",
-      "titleNamed": "In un'altra scheda hai aperto {name}"
-    },
     "renameReadOnly": "Solo i membri che possono gestire lo spazio di lavoro possono cambiarne il nome.",
+    "slugDescription": "I link a questo spazio di lavoro usano {path}. Usa lettere minuscole, numeri e trattini. I vecchi link smettono di funzionare se la modifichi.",
+    "slugLabel": "URL dello spazio di lavoro",
+    "slugReadOnly": "I link a questo spazio di lavoro usano {path}. Solo i membri che possono gestire lo spazio di lavoro possono modificarla.",
     "switch": "Passa",
     "switchTo": "Passa a {name}",
+    "unavailable": {
+      "description": "È stato eliminato, il suo URL è cambiato o il tuo accesso è stato rimosso. Vai alla dashboard per continuare.",
+      "open": "Vai alla dashboard",
+      "title": "Questo spazio di lavoro non è disponibile"
+    },
     "unnamedCreated": "{name} (creato il {date})",
     "unnamedPrompt": {
       "description": "Non ha ancora un nome, quindi il menu degli spazi di lavoro mostra solo «Spazio di lavoro». Un nome aiuta ogni membro a distinguere i tuoi spazi di lavoro.",

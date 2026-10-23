@@ -6,6 +6,7 @@ import { observer } from "mobx-react-lite";
 import type { AgentContextAttachment } from "@/ee/agent-chat/agent-context";
 import { agentContextAttachmentKey } from "@/ee/agent-chat/agent-context";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { stripWorkspacePrefix } from "@/core/navigation/workspace-paths";
 import { AskAiAction, useAskAiAction } from "@/components/ui/ask-ai-action";
 import type { AppModalButtonActionProps } from "@/components/modal/app-modal-action";
 
@@ -23,7 +24,7 @@ export function useRecordAiAction({
   const askAiAction = useAskAiAction();
   const root = useRootStore();
   const agentChatStore = root.agentChatEnabled ? root.agentChatStore : null;
-  const pathname = usePathname();
+  const pathname = stripWorkspacePrefix(usePathname());
   const serialized = JSON.stringify(context);
   const key = agentContextAttachmentKey(context);
   useEffect(() => {

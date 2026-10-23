@@ -10,115 +10,100 @@ import { ActiveWorkspaceService } from "../active-workspace.service";
 
 const session = { session: { id: "session-1" }, user: { id: "login-1", email: "ben@example.com" } } as never;
 const memberA = createMockUser({ id: "member-a", companyId: "company-a" });
+const memberB = createMockUser({ id: "member-b", companyId: "company-b" });
 
 describe("ActiveWorkspaceService", () => {
   let binding: CredentialWorkspace;
   const authService = {
     getCredentialWorkspace: vi.fn(() => Promise.resolve(binding)),
-    setSessionActiveCompany: vi.fn(),
   };
   const users = {
     findMembershipUnscoped: vi.fn(),
+    findMembershipBySlugUnscoped: vi.fn(),
     listMembershipsUnscoped: vi.fn(),
     findAuthUserCompanyIdUnscoped: vi.fn(),
+    setLastUsedCompanyUnscoped: vi.fn(),
   };
 
   function service() {
     return new ActiveWorkspaceService(authService as never, users as never);
   }
 
-  function stored(companyId: string | null, documentRequest: boolean): CredentialWorkspace {
-    return { kind: "session", sessionId: "session-1", companyId, documentRequest };
+  function browsing(workspaceSlug: string | null): CredentialWorkspace {
+    return { kind: "session", sessionId: "session-1", workspaceSlug };
   }
 
   beforeEach(() => {
     vi.clearAllMocks();
     users.findMembershipUnscoped.mockImplementation((_email: string, companyId: string) =>
-      Promise.resolve(companyId === "company-a" ? memberA : null),
+      Promise.resolve(companyId === "company-a" ? memberA : companyId === "company-b" ? memberB : null),
     );
-    users.listMembershipsUnscoped.mockResolvedValue([{ companyId: "company-a", status: Status.active }]);
+    users.findMembershipBySlugUnscoped.mockImplementation((_email: string, slug: string) =>
+      Promise.resolve(slug === "alpha" ? memberA : slug === "beta" ? memberB : null),
+    );
+    users.listMembershipsUnscoped.mockResolvedValue([
+      { companyId: "company-a", status: Status.active },
+      { companyId: "company-b", status: Status.active },
+    ]);
     users.findAuthUserCompanyIdUnscoped.mockResolvedValue("company-a");
   });
 
-  it("keeps the workspace stored on the session while the membership exists", async () => {
-    binding = stored("company-a", false);
+  it("resolves the workspace named by the URL, whatever was used last", async () => {
+    binding = browsing("beta");
 
-    await expect(service().resolveMembership(session)).resolves.toBe(memberA);
-    expect(authService.setSessionActiveCompany).not.toHaveBeenCalled();
+    await expect(service().resolveMembership(session)).resolves.toBe(memberB);
+    expect(users.findAuthUserCompanyIdUnscoped).not.toHaveBeenCalled();
   });
 
-  it("refuses an action, a client navigation or a fetch of a session whose workspace was left elsewhere", async () => {
-    binding = stored("company-left", false);
+  it("refuses a URL workspace the login is not a member of instead of falling back", async () => {
+    binding = browsing("gamma");
 
     await expect(service().resolveMembership(session)).rejects.toBeInstanceOf(WorkspaceChangedError);
-    expect(authService.setSessionActiveCompany).not.toHaveBeenCalled();
     expect(users.listMembershipsUnscoped).not.toHaveBeenCalled();
   });
 
-  it("moves such a session to the last used workspace on a full page load", async () => {
-    binding = stored("company-left", true);
+  it("opens the last used workspace for a request without a workspace in its URL", async () => {
+    binding = browsing(null);
 
     await expect(service().resolveMembership(session)).resolves.toBe(memberA);
-    expect(authService.setSessionActiveCompany).toHaveBeenCalledWith("session-1", "company-a");
   });
 
-  it("clears the workspace of a session whose only membership ended, on the next full page load", async () => {
-    binding = stored("company-left", true);
+  it("prefers an active membership when the last used workspace is gone", async () => {
+    binding = browsing(null);
+    users.findAuthUserCompanyIdUnscoped.mockResolvedValue("company-deleted");
+    users.listMembershipsUnscoped.mockResolvedValue([
+      { companyId: "company-a", status: Status.pendingAuthorization },
+      { companyId: "company-b", status: Status.active },
+    ]);
+
+    await expect(service().resolveMembership(session)).resolves.toBe(memberB);
+  });
+
+  it("returns no membership for a login without workspaces", async () => {
+    binding = browsing(null);
     users.listMembershipsUnscoped.mockResolvedValue([]);
 
     await expect(service().resolveMembership(session)).resolves.toBeNull();
-    expect(authService.setSessionActiveCompany).toHaveBeenCalledWith("session-1", null);
-
-    binding = stored(null, false);
-    await expect(service().resolveMembership(session)).resolves.toBeNull();
-    expect(authService.setSessionActiveCompany).toHaveBeenCalledTimes(1);
   });
 
-  it("keeps refusing the stale page's actions until that page load, so the tab reloads first", async () => {
-    binding = stored("company-left", false);
-    users.listMembershipsUnscoped.mockResolvedValue([]);
+  it("keeps an API key or MCP token on its own workspace", async () => {
+    binding = { kind: "integration", companyId: "company-b" };
 
-    await expect(service().resolveMembership(session)).rejects.toBeInstanceOf(WorkspaceChangedError);
-    expect(authService.setSessionActiveCompany).not.toHaveBeenCalled();
+    await expect(service().resolveMembership(session)).resolves.toBe(memberB);
+    expect(users.findMembershipBySlugUnscoped).not.toHaveBeenCalled();
   });
 
-  it("opens the last used workspace for a new session whatever the request", async () => {
-    binding = stored(null, false);
-
-    await expect(service().resolveMembership(session)).resolves.toBe(memberA);
-    expect(authService.setSessionActiveCompany).toHaveBeenCalledWith("session-1", "company-a");
-  });
-
-  it("never moves an API key or MCP token to another workspace", async () => {
-    binding = { kind: "integration", companyId: "company-left" };
-
-    await expect(service().resolveMembership(session)).resolves.toBeNull();
-    expect(authService.setSessionActiveCompany).not.toHaveBeenCalled();
-  });
-
-  it("refuses an action or a client navigation of a session that has no workspace left, so the tab reloads", async () => {
-    binding = stored(null, false);
-    users.listMembershipsUnscoped.mockResolvedValue([]);
-
-    await expect(service().requireMembership(session)).rejects.toBeInstanceOf(WorkspaceChangedError);
-  });
-
-  it("lets a full page load of a session without a workspace continue to onboarding", async () => {
-    binding = stored(null, true);
-    users.listMembershipsUnscoped.mockResolvedValue([]);
-
-    await expect(service().requireMembership(session)).resolves.toBeNull();
-  });
-
-  it("leaves an API key or MCP token without a workspace unauthenticated rather than asking it to reload", async () => {
+  it("leaves an API key or MCP token without a workspace unauthenticated", async () => {
     binding = { kind: "integration", companyId: null };
 
     await expect(service().requireMembership(session)).resolves.toBeNull();
   });
 
-  it("returns the membership a session still has", async () => {
-    binding = stored("company-a", false);
+  it("writes the last used workspace only when it changes", async () => {
+    await service().rememberLastUsed(session, "company-a");
+    expect(users.setLastUsedCompanyUnscoped).not.toHaveBeenCalled();
 
-    await expect(service().requireMembership(session)).resolves.toBe(memberA);
+    await service().rememberLastUsed(session, "company-b");
+    expect(users.setLastUsedCompanyUnscoped).toHaveBeenCalledWith("login-1", "company-b");
   });
 });

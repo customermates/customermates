@@ -85,7 +85,7 @@ export class RouteGuardService {
     private workspaces: ActiveWorkspaceService,
   ) {}
 
-  async resolveAccountState(): Promise<AccountStateResolution> {
+  async resolveAccountState(options: { ignoreRequestedWorkspace?: boolean } = {}): Promise<AccountStateResolution> {
     const session = await this.authService.getSession();
     if (!session) {
       return {
@@ -110,7 +110,10 @@ export class RouteGuardService {
       };
     }
 
-    const user = await this.workspaces.resolveMembership(session);
+    const user = await this.workspaces.resolveMembership(
+      session,
+      options.ignoreRequestedWorkspace ? new Headers() : undefined,
+    );
     const authUserCompanyId = authUserState.companyId;
     let companyId = user?.companyId ?? null;
     if (
@@ -146,7 +149,9 @@ export class RouteGuardService {
       default:
         return unsupportedAccountStatus(user.status);
     }
-    const commercial = await this.resolveCommercialState(user);
+    const commercial = options.ignoreRequestedWorkspace
+      ? await runWithTenant(user, () => this.resolveCommercialState(user))
+      : await this.resolveCommercialState(user);
     if (user.role?.isSystemRole && user.onboardingWizardCompletedAt == null && commercial.state !== "subscription")
       return { state: "onboarding", ...base };
 

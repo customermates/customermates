@@ -1,7 +1,8 @@
 import type { Page } from "@playwright/test";
 import { ALL_VIEW_KEY } from "../../core/data-view/data-view-keys";
 
-import { DEMO_COMPANY_ID, DEMO_CONTENT, DEMO_LISTS, DEMO_MEMBERS, demoId, expect, test } from "./demo-seed";
+import { appPath } from "./app-paths";
+import { DEMO_COMPANY_ID, DEMO_SLUG, DEMO_CONTENT, DEMO_LISTS, DEMO_MEMBERS, demoId, expect, test } from "./demo-seed";
 import { openSidebar } from "./sidebar";
 
 type SeededView = {
@@ -25,7 +26,7 @@ const AGGREGATION_LABELS: Record<string, string> = {
 
 /** Opens a seeded saved view and checks it shows records, its groups and the configured group totals. */
 async function expectViewShowsData(page: Page, view: SeededView, isMobile: boolean) {
-  await page.goto(`/en/records/${view.typeId}?view=${view.id}`);
+  await page.goto(appPath(DEMO_SLUG, `/records/${view.typeId}?view=${view.id}`));
   await expect(page.locator("[data-joins-top-bar]").getByText(view.name, { exact: true }).first()).toBeVisible();
   await expect(page.getByText(/^No records yet$|^No records match/)).toHaveCount(0);
   const records = page.locator("[data-row-id], [data-item-id]");
@@ -101,7 +102,7 @@ test("the All view of every list shows records for the admin", async ({ page, da
   );
   expect(rows.map(({ pluralLabel }) => pluralLabel).sort()).toEqual([...LISTS].sort());
   for (const list of rows) {
-    await page.goto(`/en/records/${list.id}?view=${ALL_VIEW_KEY}`);
+    await page.goto(appPath(DEMO_SLUG, `/records/${list.id}?view=${ALL_VIEW_KEY}`));
     await expect(page.getByText(/^No records yet$|^No records match/)).toHaveCount(0);
     const records = page.locator("[data-row-id], [data-item-id]");
     await expect(records.first(), `${list.pluralLabel} All shows records`).toBeVisible();
@@ -126,7 +127,7 @@ test("seeded board views stay curated for an overview: at most five card chips",
     `SELECT id FROM "DataView" WHERE "companyId"=$1 AND "surfaceKey"=$2 AND name=$3 AND "userId"=$4`,
     [DEMO_COMPANY_ID, `records:${deals}`, "Pipeline", DEMO_MEMBERS.maxBergmann.userId],
   );
-  await page.goto(`/en/records/${deals}?view=${pipeline[0]?.id}`);
+  await page.goto(appPath(DEMO_SLUG, `/records/${deals}?view=${pipeline[0]?.id}`));
   const cards = page.locator("[data-item-id], [data-row-id]");
   await expect(cards.first()).toBeVisible();
   await expect(cards.first().locator("[data-chip-column]").first()).toBeVisible();
@@ -143,7 +144,7 @@ test("seeded board views stay curated for an overview: at most five card chips",
     `SELECT id FROM "DataView" WHERE "companyId"=$1 AND "surfaceKey"=$2 AND name=$3`,
     [DEMO_COMPANY_ID, `records:${deals}`, "Next steps"],
   );
-  await page.goto(`/en/records/${deals}?view=${nextSteps[0]?.id}`);
+  await page.goto(appPath(DEMO_SLUG, `/records/${deals}?view=${nextSteps[0]?.id}`));
   await expect(page.locator("[data-row-id]").first()).toBeVisible();
   await page.screenshot({
     path: testInfo.outputPath("deals-next-steps-table.png"),
@@ -161,10 +162,10 @@ test("opening a list and switching its views updates no component while another 
     (view) => view.typeId === deals && view.userId === DEMO_MEMBERS.maxBergmann.userId,
   );
   expect(views.length, "Deals has saved views to switch").toBeGreaterThanOrEqual(2);
-  await page.goto("/en/dashboard");
+  await page.goto(appPath(DEMO_SLUG, "/dashboard"));
   await openSidebar(page);
   await page.locator(`[id="nav-records:${deals}"]`).click();
-  await expect.poll(() => new URL(page.url()).pathname).toBe(`/en/records/${deals}`);
+  await expect.poll(() => new URL(page.url()).pathname).toBe(appPath(DEMO_SLUG, `/records/${deals}`));
   const rail = page.locator("#global-data-views");
   const records = page.locator("[data-row-id], [data-item-id]");
   await expect(records.first()).toBeVisible();
@@ -182,7 +183,7 @@ test("opening a list and switching its views updates no component while another 
   // Becoming visible again refreshes the route; wait for that refresh of this list.
   const refreshed = page.waitForResponse(
     (response) =>
-      response.request().headers()["rsc"] === "1" && new URL(response.url()).pathname === `/en/records/${deals}`,
+      response.request().headers()["rsc"] === "1" && new URL(response.url()).pathname === appPath(DEMO_SLUG, `/records/${deals}`),
   );
   await page.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
   expect((await refreshed).ok()).toBe(true);

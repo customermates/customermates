@@ -6,12 +6,14 @@ import { Client } from "pg";
 import { localE2eEnvironment } from "./local-environment";
 import { createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
 import { BrowserDiagnostics } from "./browser-diagnostics";
+import { companyPath, rememberWorkspaceSlug } from "./app-paths";
 
 type Fixtures = {
   diagnostics: BrowserDiagnostics;
   database: Client;
   workspace: Awaited<ReturnType<typeof createBrowserWorkspace>>;
   companyId: string;
+  slug: string;
   signedIn: void;
 };
 export const test = base.extend<Fixtures>({
@@ -45,6 +47,9 @@ export const test = base.extend<Fixtures>({
   companyId: async ({ workspace }, use) => {
     await use(workspace.companyId);
   },
+  slug: async ({ workspace }, use) => {
+    await use(workspace.slug);
+  },
   signedIn: [
     async ({ context, database, companyId, workspace }, use) => {
       const { baseUrl } = localE2eEnvironment();
@@ -59,6 +64,7 @@ export const test = base.extend<Fixtures>({
       const signed = encodeURIComponent(
         `${token}.${createHmac("sha256", secret).update(token).digest("base64")}`,
       );
+      rememberWorkspaceSlug(context, workspace.slug);
       await context.addCookies([
         {
           name: "app.session_token",
@@ -94,8 +100,8 @@ export const test = base.extend<Fixtures>({
           if (!type.rows[0])
             throw new Error("The browser baseline record types are missing");
           for (const path of [
-            "/en/configure",
-            `/en/records/${type.rows[0].id}`,
+            companyPath(companyId, "/configure"),
+            companyPath(companyId, `/records/${type.rows[0].id}`),
           ]) {
             const response = await context.request.get(`${baseUrl}${path}`, {
               timeout: 120000,

@@ -19,6 +19,7 @@ function row(companyId: string, status: Status): WorkspaceMembershipRow {
     role: status === Status.active ? { name: "Admin", isSystemRole: true } : null,
     company: {
       name: `Workspace ${companyId}`,
+      slug: `workspace-${companyId}`,
       createdAt: new Date("2025-01-01T00:00:00.000Z"),
       subscription: {
         status: SubscriptionStatus.trial,
@@ -74,6 +75,20 @@ describe("ListMyWorkspacesInteractor", () => {
       "Workspace pending",
       "Workspace inactive",
     ]);
+  });
+
+  it("names each workspace's URL slug and marks the one this request's URL opened as current", async () => {
+    repo.listWorkspaceMembershipsUnscoped.mockResolvedValue([
+      row("active", Status.active),
+      row("other", Status.active),
+    ]);
+    const { data } = await interactor().invoke();
+
+    expect(data.map(({ companyId, slug, isCurrent }) => ({ companyId, slug, isCurrent }))).toEqual([
+      { companyId: "active", slug: "workspace-active", isCurrent: true },
+      { companyId: "other", slug: "workspace-other", isCurrent: false },
+    ]);
+    expect(workspaces.resolveMembership).toHaveBeenCalledWith(expect.objectContaining({ session: { id: "s" } }));
   });
 
   it("lists nothing without an interactive session", async () => {

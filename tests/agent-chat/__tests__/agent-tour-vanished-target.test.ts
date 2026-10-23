@@ -11,7 +11,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const testContext = vi.hoisted(() => ({ rootStore: null as unknown }));
 
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
-vi.mock("@/app/[locale]/(protected)/records/actions", () => ({
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/records/actions", () => ({
   getRecordAction: vi.fn(),
   getRecordNavigationAction: vi.fn(),
 }));

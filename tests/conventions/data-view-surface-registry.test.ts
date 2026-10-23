@@ -52,7 +52,7 @@ describe("data view surface registry", () => {
         const route = `/${path
           .split("/")
           .slice(1, -1)
-          .filter((segment) => segment !== "[locale]" && !segment.startsWith("("))
+          .filter((segment) => !["[locale]", "w", "[workspace]"].includes(segment) && !segment.startsWith("("))
           .join("/")}`;
         expect(DATA_VIEW_PATHS[key as BuiltinDataViewSurfaceKey], `${path} saved-view link`).toBe(route);
         reached.add(key as string);

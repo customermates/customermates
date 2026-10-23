@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { appPath, appUrlPattern } from "./app-paths";
 import { collectPageErrors, expect, test } from "./fixtures";
 import { runRowAction } from "./record-rows";
 import { openMenu, openSidebar } from "./sidebar";
@@ -24,13 +25,13 @@ test("counts a member waiting for approval on the workspace menu and Members, an
     ).rows[0].count;
   const recordsBefore = await records();
 
-  await page.goto("/en/dashboard");
+  await page.goto(appPath(workspace.slug, "/dashboard"));
   await expect(workspaceMenu(page)).toHaveAttribute("aria-label", /, 1 member waiting for approval$/);
   const menu = await openMenu(page, "#nav-workspace-menu");
   const members = menu.getByRole("menuitem", { name: /^Members/ });
   await expect(members).toHaveText(/Members\s*1$/);
   await members.click();
-  await expect(page).toHaveURL(/\/en\/settings\/members$/);
+  await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/settings/members$"));
 
   await openSidebar(page, ["sidebar-trigger"]);
   await expect(page.locator("#nav-settings-members")).toHaveText(/Members\s*1$/);
@@ -51,7 +52,7 @@ test("counts a member waiting for approval on the workspace menu and Members, an
     )
     .toBe("active");
 
-  await page.goto("/en/dashboard");
+  await page.goto(appPath(workspace.slug, "/dashboard"));
   await expect(workspaceMenu(page)).not.toHaveAttribute("aria-label", /waiting for approval/);
   expect(await records()).toBe(recordsBefore);
   expect(errors).toEqual([]);

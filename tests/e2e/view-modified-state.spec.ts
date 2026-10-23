@@ -1,3 +1,4 @@
+import { companyPath, companyUrlPattern } from "./app-paths";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 import { openSidebar } from "./sidebar";
@@ -38,7 +39,7 @@ test("keeps filter changes temporary until saved to the view, resets them and ke
     await page.locator("#filter-palette-back").click();
   };
 
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   await withoutView();
 
   await applyAssignee();
@@ -73,11 +74,11 @@ test("keeps filter changes temporary until saved to the view, resets them and ke
   await openSidebar(page);
   await sidebarLink("Contacts").click();
   await expect(page).toHaveURL(
-    new RegExp(`/en/records/${presetId(companyId, "contact")}(?:\\?.*)?$`),
+    companyUrlPattern(companyId, `/records/${presetId(companyId, "contact")}(?:\\?.*)?$`),
   );
   await openSidebar(page);
   await sidebarLink("Deals").click();
-  await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}(?:\\?.*)?$`));
+  await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${typeId}(?:\\?.*)?$`));
   await expect(viewsMenu).toHaveAttribute("data-view-modified", "");
   await expect(page).toHaveURL((url) => url.searchParams.has("filters"));
   await page.reload();
@@ -85,7 +86,7 @@ test("keeps filter changes temporary until saved to the view, resets them and ke
   expect(await storedFilters()).toEqual([]);
 
   const otherSession = await page.context().newPage();
-  await otherSession.goto(`/en/records/${typeId}`);
+  await otherSession.goto(companyPath(companyId, `/records/${typeId}`));
   await withoutView(otherSession);
   await otherSession.close();
 
@@ -103,7 +104,7 @@ test("keeps filter changes temporary until saved to the view, resets them and ke
   await page.keyboard.press("Escape");
 
   const savedSession = await page.context().newPage();
-  await savedSession.goto(`/en/records/${typeId}`);
+  await savedSession.goto(companyPath(companyId, `/records/${typeId}`));
   await withoutView(savedSession);
   await savedSession.locator("#records-filter").click();
   await expect(
@@ -123,7 +124,7 @@ test("keeps an Activities rail filter temporary with the modified dot on the vie
   const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "service");
   const name = "Rail filter service";
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   await page.locator("#records-add").click();
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill(name);
@@ -133,7 +134,7 @@ test("keeps an Activities rail filter temporary with the modified dot on the vie
     'SELECT "recordId" FROM "RecordValue" WHERE "companyId"=$1 AND "typeId"=$2 AND "fieldId"=$3 AND "textValue"=$4',
     [companyId, typeId, presetId(companyId, "service.name"), name],
   );
-  await page.goto(`/en/records/${typeId}/${record.rows[0].recordId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}/${record.rows[0].recordId}`));
   const history = page.locator('main [data-detail-panel="activities"]');
   if (!(await history.isVisible())) await page.getByRole("tab", { name: "Activities", exact: true }).click();
   const menu = history.locator("#global-data-views-menu");
@@ -208,7 +209,7 @@ test("opens an assistant proposal in the modified state and saves it as an updat
   const viewsMenu = page.locator("#global-data-views-menu");
   const activeView = page.locator('#global-data-views [data-focus-target^="view:"][aria-current="page"]');
 
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   await expect(page.locator("#global-data-views-new")).toBeVisible();
   await expect(activeView).toHaveCount(0);
   await page.waitForLoadState("networkidle");
@@ -333,7 +334,7 @@ test("keeps appearance changes temporary with the shared bottom save bar and the
     await expect(groupBy).toContainText("Stage");
   };
 
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   await withoutView();
   await openAppearance();
   await expect(appearanceSave).toHaveCount(0);
@@ -394,7 +395,7 @@ test("keeps appearance changes temporary with the shared bottom save bar and the
   await expect.poll(storedGrouping).toMatchObject({ field: stage });
 
   const otherSession = await page.context().newPage();
-  await otherSession.goto(`/en/records/${typeId}`);
+  await otherSession.goto(companyPath(companyId, `/records/${typeId}`));
   await withoutView(otherSession);
   await otherSession.locator("#records-display-options").click();
   await expect(otherSession.getByRole("combobox", { name: "Group By", exact: true })).toContainText("Stage");

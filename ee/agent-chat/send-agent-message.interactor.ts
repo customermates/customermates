@@ -216,6 +216,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         ? clientSafeAgentMessageParts(assistantMessage.parts, {
             sanitizeText: true,
             wikiBaseUrl: env.BASE_URL,
+            workspaceSlug: user.company?.slug ?? null,
           })
         : [];
       if (!assistantMessage || !terminalCode || !hasRenderableAgentMessageParts(safeParts)) {
@@ -506,6 +507,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         userName,
         locale,
         appBaseUrl,
+        workspaceSlug: user.company?.slug ?? null,
         pageRoute,
         messages,
         turnBudget: reservation.budget,

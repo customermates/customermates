@@ -3,6 +3,7 @@ import { createHmac, randomBytes, randomUUID } from "node:crypto";
 import type { Browser, TestInfo } from "@playwright/test";
 import type { Client } from "pg";
 
+import { companySlug, rememberWorkspaceSlug } from "./app-paths";
 import { localE2eEnvironment } from "./local-environment";
 import { BrowserDiagnostics, collectPageErrors } from "./browser-diagnostics";
 
@@ -48,6 +49,7 @@ export async function secondUser(
     reducedMotion: "reduce",
   });
   BrowserDiagnostics.of(testInfo).watch(context);
+  rememberWorkspaceSlug(context, companySlug(companyId));
   await context.addCookies([
     {
       name: "app.session_token",

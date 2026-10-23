@@ -1,6 +1,7 @@
 import { SYNTHETIC_SEED_USER } from "../../core/config/synthetic-seed-user";
 import { SOLUTION_CATALOG, SOLUTION_DATA_LOCALES } from "../../core/solutions/solution-catalog";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
+import { companyPath, companyUrlPattern } from "./app-paths";
 import { collectPageErrors, expect, test } from "./fixtures";
 import {
   clickHydrated,
@@ -42,7 +43,7 @@ test("the demo switches between the seeded workspaces but cannot create, rename 
   if (!team || !other) throw new Error("The demo memberships lack the team workspace or another English workspace");
   await database.query('UPDATE "AuthUser" SET "companyId"=$2 WHERE id=$1', [authUserId, team.companyId]);
   try {
-    await page.goto("/en/settings/workspaces");
+    await page.goto(companyPath(team.companyId, "/settings/workspaces"));
     await expect(page.locator(`li[data-workspace-id="${team.companyId}"]`)).toContainText("Current");
     // The settings list reads every membership; only the switcher filters by the data locale.
     await expect(page.locator("li[data-workspace-id]")).toHaveCount(memberships.rows.length);
@@ -54,18 +55,18 @@ test("the demo switches between the seeded workspaces but cannot create, rename 
     await page.screenshot({ path: testInfo.outputPath("ws-demo-switcher.png") });
     await menu.locator(`[data-workspace-id="${other.companyId}"]`).click();
 
-    await expect(page).toHaveURL(/\/en\/dashboard$/);
+    await expect(page).toHaveURL(companyUrlPattern(other.companyId, "/dashboard$"));
     await expectCurrentWorkspace(page, other.name);
-    await page.goto("/en/settings/general");
+    await page.goto(companyPath(other.companyId, "/settings/general"));
     const name = page.locator("#settings-general-name");
     await expect(name).toHaveValue(other.name);
     await expect(name).toHaveAttribute("readonly", "");
     await expect(page.getByRole("heading", { name: englishMessages.Workspaces.dangerZone })).toHaveCount(0);
     await expect(page.locator("#settings-general-leave")).toHaveCount(0);
 
-    await page.goto("/en/settings/workspaces");
+    await page.goto(companyPath(other.companyId, "/settings/workspaces"));
     await clickHydrated(page.getByRole("button", { name: `Switch to ${team.name}`, exact: true }));
-    await expect(page).toHaveURL(/\/en\/dashboard$/);
+    await expect(page).toHaveURL(companyUrlPattern(team.companyId, "/dashboard$"));
     await expectCurrentWorkspace(page, team.name);
   } finally {
     await database.query('UPDATE "AuthUser" SET "companyId"=$2 WHERE id=$1', [authUserId, lastUsed]);

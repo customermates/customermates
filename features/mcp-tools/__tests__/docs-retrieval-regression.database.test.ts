@@ -6,6 +6,7 @@ import {
   createLiveDocsRetrievalContracts,
   liveDocsRetrievalContractsEnabled,
 } from "@/tests/helpers/live-docs-retrieval-contracts";
+import { workspaceEntryHref } from "@/core/navigation/workspace-paths";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { docsCorpus } from "../docs-corpus";
 import { unifiedDocsPageResult, unifiedDocsSearchResult, type DocsSearchHit, searchDocsTool } from "../docs.mcp-tools";
@@ -254,12 +255,12 @@ it("keeps the hosted route and section expectations aligned with the current doc
     const targets = localeSections(locale)
       .map((section) => links(section.text))
       .join("\n");
-    if (!targets.includes(route)) misses.push(`${locale} "${query}": no section links ${route}`);
+    if (!targets.includes(workspaceEntryHref(route))) misses.push(`${locale} "${query}": no section links ${route}`);
   }
   for (const [locale, query, expected, route] of SECTION_QUESTIONS) {
     const section = localeSections(locale).find((candidate) => `${candidate.slug}#${candidate.anchor}` === expected);
     if (!section) misses.push(`${locale} "${query}": no section ${expected}`);
-    else if (route && !links(section.text).includes(route)) {
+    else if (route && !links(section.text).includes(workspaceEntryHref(route))) {
       misses.push(
         `${locale} "${query}": ${expected} does not link ${route} (links: ${links(section.text).replace(/\n/g, " ")})`,
       );
@@ -466,7 +467,9 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
           PAGE_LINK_QUESTIONS.map(async ([locale, query, route]) => {
             const [best] = await searchHits(query, locale);
             const excerpt = best ? await excerptOf(best.slug, query, locale) : "";
-            return appLinks(excerpt).includes(route) ? [] : [`${locale} "${query}" -> ${best?.slug}#${best?.anchor}`];
+            return appLinks(excerpt).includes(workspaceEntryHref(route))
+              ? []
+              : [`${locale} "${query}" -> ${best?.slug}#${best?.anchor}`];
           }),
         )
       ).flat();
@@ -484,7 +487,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
             const [best] = await searchHits(query, locale);
             const found = `${best?.slug}#${best?.anchor}`;
             const link = best ? appLinks(await excerptOf(best.slug, query, locale)) : "";
-            const routeOk = route === null || link.includes(route);
+            const routeOk = route === null || link.includes(workspaceEntryHref(route));
             return found === expected && routeOk
               ? []
               : [`${locale} "${query}" -> ${found} (link: ${link.slice(0, 60)})`];
@@ -513,7 +516,9 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
             const [best] = await searchHits(query, locale);
             const found = `${best?.slug}#${best?.anchor}`;
             const link = best ? appLinks(await excerptOf(best.slug, query, locale)) : "";
-            return found === expected && link.includes(route) ? [] : [`${locale} "${query}" -> ${found}`];
+            return found === expected && link.includes(workspaceEntryHref(route))
+              ? []
+              : [`${locale} "${query}" -> ${found}`];
           }),
         )
       ).flat();
@@ -706,7 +711,9 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
     ] as const) {
       const [best] = await searchHits(query, "de");
       expect(best, query).toBeDefined();
-      expect(appLinks(await excerptOf(best?.slug ?? "", query, "de")), query).toContain(`${APP}${route}`);
+      expect(appLinks(await excerptOf(best?.slug ?? "", query, "de")), query).toContain(
+        `${APP}${workspaceEntryHref(route)}`,
+      );
     }
   });
 
@@ -799,7 +806,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
       query: "Walk me through connecting WhatsApp to the Customermates inbox.",
     });
     const bounded = result.slice(0, 512);
-    expect(bounded).toContain(`${APP}/settings/channels`);
+    expect(bounded).toContain(`${APP}${workspaceEntryHref("/settings/channels")}`);
     expect(bounded).toContain("settings-channels-connect");
     expect(bounded).toContain("WhatsApp");
   });
@@ -813,7 +820,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
       ["de", "URL der Webhooks-Seite", "/settings/webhooks"],
     ] as const) {
       const excerpt = await excerptOf("app-company", query, locale);
-      expect(appLinks(excerpt).split(" "), `${locale} "${query}"`).toContain(`${APP}${route}`);
+      expect(appLinks(excerpt).split(" "), `${locale} "${query}"`).toContain(`${APP}${workspaceEntryHref(route)}`);
       const best = (await searchHits(query, locale)).find((hit) => hit.slug === "app-company");
       if (best) expect(excerpt.split("\n")[0], `${locale} "${query}"`).toContain(best.section.split(" > ").at(-1));
     }
@@ -831,7 +838,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
       const [firstLine] = excerpt.split("\n");
       expect(firstLine, `${slug} "${heading}"`).toMatch(/^#+ /);
       expect(firstLine.replace(/^#+ /, ""), `${slug} "${heading}"`).toBe(heading);
-      expect(appLinks(excerpt).split(" "), `${slug} "${heading}"`).toContain(`${APP}${route}`);
+      expect(appLinks(excerpt).split(" "), `${slug} "${heading}"`).toContain(`${APP}${workspaceEntryHref(route)}`);
     }
     expect((await excerptOf("app-company", "roles-tab")).split("\n")[0]).toBe("## Roles");
   });
@@ -843,7 +850,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
         "app-profile",
         "which setting decides the number and date format",
         "| Field | Rules and effect |",
-        "| [Formatting Locale](http://localhost:4000/settings/profile?focus=control%3Asettings-profile-formatting-locale) | The same choices; how numbers, dates and amounts are written",
+        `| [Formatting Locale](${APP}${workspaceEntryHref("/settings/profile?focus=control%3Asettings-profile-formatting-locale")}) | The same choices; how numbers, dates and amounts are written`,
       ],
       ["app-routines", "what is the default schedule of a routine", null, "The default is every day at 09:00."],
     ] as const) {
@@ -859,9 +866,9 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
   it("keeps the step that answers a question in the words of that step, not a row that shares one word", async () => {
     const excerpt = await excerptOf("webhooks", "Wo trage ich die Webhook-URL ein", "de");
     expect(excerpt).toContain(
-      `Öffnen Sie [Webhooks](${APP}/settings/webhooks), klicken Sie auf [Hinzufügen](${APP}/settings/webhooks?focus=control%3Asettings-webhooks-add), füllen Sie den Dialog **Webhook** aus, tragen Sie die **URL** ein`,
+      `Öffnen Sie [Webhooks](${APP}${workspaceEntryHref("/settings/webhooks")}), klicken Sie auf [Hinzufügen](${APP}${workspaceEntryHref("/settings/webhooks?focus=control%3Asettings-webhooks-add")}), füllen Sie den Dialog **Webhook** aus, tragen Sie die **URL** ein`,
     );
-    expect(appLinks(excerpt).split(" ")).toContain(`${APP}/settings/webhooks`);
+    expect(appLinks(excerpt).split(" ")).toContain(`${APP}${workspaceEntryHref("/settings/webhooks")}`);
   });
 
   itHosted("answers a channel status question with the instruction to reactivate the channel", async () => {
@@ -871,7 +878,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
     ] as const) {
       const excerpt = await excerptOf("app-profile", query, locale);
       expect(excerpt, query).toContain(action);
-      expect(appLinks(excerpt), query).toContain(`${APP}/settings/channels`);
+      expect(appLinks(excerpt), query).toContain(`${APP}${workspaceEntryHref("/settings/channels")}`);
     }
   });
 
@@ -890,7 +897,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
     ] as const) {
       const excerpt = await excerptOf("concepts", query, locale);
       expect(excerpt, query).toContain(formula);
-      expect(appLinks(excerpt).split(" "), query).toContain(`${APP}/configure`);
+      expect(appLinks(excerpt).split(" "), query).toContain(`${APP}${workspaceEntryHref("/configure")}`);
       expect(excerpt.length, query).toBeLessThanOrEqual(1400);
     }
   });

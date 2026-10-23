@@ -33,6 +33,7 @@ import { DeleteWikiPageInteractor } from "../delete-wiki-page.interactor";
 import { GetWikiPageInteractor } from "../get-wiki-page.interactor";
 import { GetWikiPagesInteractor } from "../get-wiki-pages.interactor";
 import { GetWikiCatalogInteractor } from "../get-wiki-catalog.interactor";
+import { WorkspaceSlugResolver } from "@/features/workspace/workspace-slug-resolver";
 import { GetWikiHomepageSetupStateInteractor } from "../get-wiki-homepage-setup-state.interactor";
 import { PrismaWikiPageRepo } from "../prisma-wiki-page.repository";
 import { createTestWikiSectionRepo } from "@/tests/helpers/wiki-section-repository";
@@ -297,7 +298,10 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
       data: { total: 1 },
     });
     const catalog = await runWithTenant(user, () =>
-      new GetWikiCatalogInteractor(new PrismaWikiPageRepo(new PermissionService())).invoke({
+      new GetWikiCatalogInteractor(
+        new PrismaWikiPageRepo(new PermissionService()),
+        new WorkspaceSlugResolver({ findWorkspaceSlugUnscoped: () => Promise.resolve("acme") }),
+      ).invoke({
         page: 1,
       }),
     );
@@ -386,7 +390,10 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     await create(foreignUser, [{ title: "Foreign catalog entry", markdown: "Hidden" }]);
     const catalog = (page: number) =>
       runWithTenant(user, () =>
-        new GetWikiCatalogInteractor(new PrismaWikiPageRepo(new PermissionService())).invoke({ page }),
+        new GetWikiCatalogInteractor(
+          new PrismaWikiPageRepo(new PermissionService()),
+          new WorkspaceSlugResolver({ findWorkspaceSlugUnscoped: () => Promise.resolve("acme") }),
+        ).invoke({ page }),
       );
     const first = await catalog(1);
     const second = await catalog(2);

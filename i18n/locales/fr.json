@@ -1293,7 +1293,7 @@
       "wikiProposalReviewed": "Cette proposition a déjà été examinée.",
       "wikiProposalStale": "La page a changé après la proposition de Mate. Rejetez la proposition ou demandez à Mate de proposer à nouveau la modification.",
       "wikiWhenToUseRequired": "Une procédure doit indiquer brièvement quand l'utiliser.",
-      "workspaceChanged": "Votre espace de travail a changé dans un autre onglet ou sur un autre appareil. Rechargez la page avant de continuer.",
+      "workspaceChanged": "Cet espace de travail n'est plus disponible. Il a été supprimé, son URL a changé ou votre accès a été retiré.",
       "workspaceCreationUnavailable": "Impossible de créer de nouveaux espaces de travail ici.",
       "workspaceDeleteAdminRequired": "Seul un administrateur peut supprimer cet espace de travail.",
       "workspaceDeleteBillingActive": "Cet espace de travail a encore un abonnement qui peut être facturé ou repris. Résiliez-le et attendez qu'il prenne fin, ou contactez le support.",
@@ -1315,7 +1315,8 @@
       "workspaceSetupAnswerInvalid": "Cette réponse ne correspond pas à la question. Vérifiez-la et réessayez.",
       "workspaceSetupConflict": "La configuration de l'espace de travail est occupée par une autre étape. Rechargez-la et réessayez.",
       "workspaceSetupNotFound": "Aucune configuration n'a été trouvée pour cet espace de travail.",
-      "workspaceSetupUnavailable": "La configuration de l'espace de travail par l'IA n'est pas disponible ici."
+      "workspaceSetupUnavailable": "La configuration de l'espace de travail par l'IA n'est pas disponible ici.",
+      "workspaceSlugTaken": "Un autre espace de travail utilise déjà cette URL. Choisissez-en une autre."
     },
     "events": {
       "connected_account": {
@@ -3073,11 +3074,6 @@
         "email": "Envoyer des e-mails",
         "link": "Partager un lien"
       }
-    },
-    "linkedWorkspace": {
-      "description": "Ce lien ouvre la configuration de {workspace}. Vous travaillez actuellement dans un autre espace de travail ; le changement s'applique à tous vos onglets ouverts.",
-      "switch": "Changer d'espace de travail",
-      "title": "Continuer dans {workspace}"
     },
     "milestones": {
       "ai": "Outils IA",
@@ -4865,17 +4861,17 @@
     "nameDescription": "Tous les membres voient ce nom dans le menu de l'espace de travail.",
     "nameLabel": "Nom de l'espace de travail",
     "noPlan": "Aucune offre",
-    "otherTab": {
-      "description": "Cet onglet affiche encore {current}. Rechargez-le pour ne rien enregistrer dans le mauvais espace de travail.",
-      "reload": "Recharger",
-      "title": "Vous avez changé d'espace de travail dans un autre onglet",
-      "titleChanged": "Votre espace de travail a changé",
-      "titleDeleted": "Cet espace de travail a été supprimé",
-      "titleNamed": "Vous avez basculé vers {name} dans un autre onglet"
-    },
     "renameReadOnly": "Seuls les membres autorisés à gérer l'espace de travail peuvent modifier son nom.",
+    "slugDescription": "Les liens vers cet espace de travail utilisent {path}. Utilisez des lettres minuscules, des chiffres et des tirets. Les anciens liens ne fonctionnent plus après une modification.",
+    "slugLabel": "URL de l'espace de travail",
+    "slugReadOnly": "Les liens vers cet espace de travail utilisent {path}. Seuls les membres qui peuvent gérer l'espace de travail peuvent la modifier.",
     "switch": "Changer",
     "switchTo": "Passer à {name}",
+    "unavailable": {
+      "description": "Il a été supprimé, son URL a changé ou votre accès a été retiré. Ouvrez votre tableau de bord pour continuer.",
+      "open": "Aller au tableau de bord",
+      "title": "Cet espace de travail n'est pas disponible"
+    },
     "unnamedCreated": "{name} (créé le {date})",
     "unnamedPrompt": {
       "description": "Il n'a pas encore de nom, le menu des espaces de travail n'affiche donc que « Espace de travail ». Un nom aide chaque membre à distinguer vos espaces de travail.",

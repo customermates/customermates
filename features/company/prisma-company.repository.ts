@@ -18,8 +18,10 @@ import type { RegisterUserCompanyRepo } from "@/features/user/register/register-
 import type { AdminUpdateUserSubscriptionRepo } from "@/features/user/upsert/admin-update-user-subscription.repo";
 import type { GetCompanyRepo } from "./get-company.repo";
 import type { RenameWorkspaceRepo } from "@/features/workspace/rename-workspace.repo";
+import type { UpdateWorkspaceSlugRepo } from "@/features/workspace/update-workspace-slug.repo";
 import type { WorkspaceDeletionRepo } from "@/features/workspace/workspace-deletion.repo";
 import type { GetOrCreateInviteTokenRepo } from "./get-or-create-invite-token.repo";
+import type { WorkspaceSlugRepo } from "@/features/workspace/workspace-slug.repo";
 
 import { ConversionEventType, SubscriptionStatus, type Prisma, type Subscription } from "@/generated/prisma";
 
@@ -47,6 +49,7 @@ export class PrismaCompanyRepo
   implements
     GetCompanyRepo,
     RenameWorkspaceRepo,
+    UpdateWorkspaceSlugRepo,
     GetOrCreateInviteTokenRepo,
     InviteTokenRepo,
     SubscriptionRepo,
@@ -63,7 +66,8 @@ export class PrismaCompanyRepo
     CreateAuthLinkSubscriptionRepo,
     UpsertRoutineSubscriptionRepo,
     RegisterUserCompanyRepo,
-    WorkspaceDeletionRepo
+    WorkspaceDeletionRepo,
+    WorkspaceSlugRepo
 {
   constructor(private readonly billingUsage: BillingUsageRepo) {
     super();
@@ -83,6 +87,17 @@ export class PrismaCompanyRepo
       where: { id: companyId },
       data: { name },
     });
+  }
+
+  async updateCompanySlug(slug: string) {
+    const { companyId } = this.user;
+    try {
+      await this.prisma.company.updateMany({ where: { id: companyId }, data: { slug } });
+      return "updated" as const;
+    } catch (error) {
+      if ((error as { code?: unknown } | null)?.code === "P2002") return "taken" as const;
+      throw error;
+    }
   }
 
   @Transaction
@@ -111,6 +126,12 @@ export class PrismaCompanyRepo
         expiresAt: "desc",
       },
     });
+  }
+
+  @BypassTenantGuard
+  async findWorkspaceSlugUnscoped(companyId: string) {
+    const company = await this.prisma.company.findUnique({ where: { id: companyId }, select: { slug: true } });
+    return company?.slug ?? null;
   }
 
   @BypassTenantGuard

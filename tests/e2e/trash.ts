@@ -2,9 +2,10 @@ import { expect, type Page } from "@playwright/test";
 
 import { CONFIGURATION_TRASH_HREF, TRASH_HREF } from "@/features/trash/trash-routes";
 import { runNamedRowAction } from "./record-rows";
+import { pagePath } from "./app-paths";
 
 export async function openTrash(page: Page, { configuration = false } = {}) {
-  await page.goto(`/en${configuration ? CONFIGURATION_TRASH_HREF : TRASH_HREF}`);
+  await page.goto(pagePath(page, configuration ? CONFIGURATION_TRASH_HREF : TRASH_HREF));
   await expect(page.getByRole("main")).toBeVisible();
 }
 

@@ -3,6 +3,7 @@ import { saveViewChanges } from "./view-changes";
 import { openItemMenu } from "./item-actions";
 import type { Request } from "@playwright/test";
 import { presetId } from "../../features/records/crm-preset";
+import { companyPath } from "./app-paths";
 
 test.use({ timezoneId: "America/Los_Angeles" });
 
@@ -15,7 +16,7 @@ test("moves a board card with the keyboard and restores relationship and date gr
   const errors = collectPageErrors(page);
   const pending = new Set<Request>();
   page.on("request", (request) => {
-    if (request.method() === "POST" && new URL(request.url()).pathname.startsWith("/en/records/")) pending.add(request);
+    if (request.method() === "POST" && new URL(request.url()).pathname.startsWith(companyPath(companyId, "/records/"))) pending.add(request);
   });
   page.on("requestfinished", (request) => pending.delete(request));
   page.on("requestfailed", (request) => pending.delete(request));
@@ -26,7 +27,7 @@ test("moves a board card with the keyboard and restores relationship and date gr
     await expect(page.getByRole("heading", { name: "Appearance", exact: true })).not.toBeVisible();
   };
   const typeId = id("deal");
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   await page.locator("#records-add").click();
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Keyboard opportunity");

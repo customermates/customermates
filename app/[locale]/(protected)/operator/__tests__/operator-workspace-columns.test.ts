@@ -16,9 +16,12 @@ vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
   }),
 }));
 
-vi.mock("@/app/[locale]/(protected)/settings/(workspace)/components/subscription/subscription-panel", () => ({
-  SUBSCRIPTION_STATUS_COLOR_MAP: {},
-}));
+vi.mock(
+  "@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/subscription/subscription-panel",
+  () => ({
+    SUBSCRIPTION_STATUS_COLOR_MAP: {},
+  }),
+);
 
 const { OperatorWorkspacesStore } = await import("../components/workspaces/operator-workspaces.store");
 const { useOperatorWorkspaceColumns } = await import("../components/workspaces/use-operator-workspace-columns");

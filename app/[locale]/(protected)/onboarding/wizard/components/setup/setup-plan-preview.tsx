@@ -30,7 +30,7 @@ import { Button } from "@/components/ui/button";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
-import { supportMailHref } from "@/app/[locale]/(protected)/settings/(workspace)/components/subscription/support-mail-href";
+import { supportMailHref } from "@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/subscription/support-mail-href";
 
 import { planProgress } from "./setup-plan-progress";
 import { planBoards, planLists } from "./setup-plan-summary";

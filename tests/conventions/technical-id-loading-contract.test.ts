@@ -11,7 +11,7 @@ describe("technical-id loading contract", () => {
   it("keys shell identities to the active entity and uses a breadcrumb skeleton", () => {
     const crumbs = read("app/components/app-topbar-crumbs.ts");
     const topbar = read("app/components/app-topbar.tsx");
-    const detail = read("app/[locale]/(protected)/records/[typeId]/components/record-detail-page.tsx");
+    const detail = read("app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-detail-page.tsx");
     expect(crumbs).toContain("runtimeIdentity.key === `records:${parts[1]}`");
     expect(crumbs).toContain('t("PageState.loading")');
     expect(crumbs).not.toMatch(/slice\(0,\s*8\)|label:\s*leaf/);
@@ -24,7 +24,7 @@ describe("technical-id loading contract", () => {
 
   it("guards record hydration and refresh against older requests and closing the drawer", () => {
     const store = read("core/stores/record-workspace.store.ts");
-    const editor = read("app/[locale]/(protected)/records/[typeId]/components/record-editor.store.ts");
+    const editor = read("app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-editor.store.ts");
     const pending = read("components/records/workspace-record-editor.tsx");
     expect(store).toContain("const opening = ++this.opening");
     expect(store).toContain("if (opening !== this.opening || scope !== this.actorScope) return");
@@ -83,25 +83,25 @@ describe("technical-id loading contract", () => {
     expect(read("components/data-view/data-kanban-view.tsx")).not.toContain("option?.label ?? key");
     expect(read("components/data-view/data-kanban-view.tsx")).not.toContain("options.options");
     expect(read("components/data-view/data-kanban-view.tsx")).not.toContain("KANBAN_EMPTY_GROUP_KEY");
-    expect(read("app/[locale]/(protected)/dashboard/components/widget-label.ts")).toContain("UUID_LABEL.test");
-    expect(read("app/[locale]/(protected)/settings/(account)/components/account-folders.tsx")).not.toContain(
+    expect(read("app/[locale]/(protected)/w/[workspace]/dashboard/components/widget-label.ts")).toContain("UUID_LABEL.test");
+    expect(read("app/[locale]/(protected)/w/[workspace]/settings/(account)/components/account-folders.tsx")).not.toContain(
       "folder.name ?? folder.id",
     );
-    expect(read("app/[locale]/(protected)/inbox/components/thread-reply-composer.tsx")).not.toContain(
+    expect(read("app/[locale]/(protected)/w/[workspace]/inbox/components/thread-reply-composer.tsx")).not.toContain(
       "name ?? account.id",
     );
   });
 
   it("reuses shared option skeletons for record relationships and inbox participants", () => {
     for (const path of [
-      "app/[locale]/(protected)/records/[typeId]/components/record-relationship-editor.tsx",
-      "app/[locale]/(protected)/inbox/components/thread-participants-contacts.tsx",
+      "app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-relationship-editor.tsx",
+      "app/[locale]/(protected)/w/[workspace]/inbox/components/thread-participants-contacts.tsx",
     ]) {
       const source = read(path);
       expect(source, path).toContain("SelectionOptionsSkeleton");
       expect(source, path).toContain("aria-busy");
     }
-    const relationship = read("app/[locale]/(protected)/records/[typeId]/components/record-relationship-editor.tsx");
+    const relationship = read("app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-relationship-editor.tsx");
     expect(relationship).toContain("options.loading || search !== debounced");
     expect(relationship).toContain("options.failed");
     expect(read("components/records/record-choices.store.ts")).toContain("this.response?.key === key");

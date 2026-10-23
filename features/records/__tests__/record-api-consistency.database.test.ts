@@ -35,7 +35,7 @@ const { configureRecordModelV2Tool, mutateRecordV2Tool, readRecordV2Tool } = awa
   "@/features/mcp-tools/record-model.mcp-tools"
 );
 const { getRestoreTrashInteractor } = await import("@/core/di");
-const recordActions = await import("@/app/[locale]/(protected)/records/actions");
+const recordActions = await import("@/app/[locale]/(protected)/w/[workspace]/records/actions");
 const mutateRoute = await restRoute("/v1/records/mutate");
 const previewRoute = await restRoute("/v1/model/preview");
 const applyRoute = await restRoute("/v1/model/apply");

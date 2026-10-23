@@ -45,7 +45,7 @@ describe("app links", () => {
 
     expect(appLinkHrefs(markdown)).toEqual(["app:configure", "app:settings/roles"]);
     expect(resolvePublicAppLinks(markdown, BASE)).toBe(
-      `Open [Configure](${BASE}/configure) and [Roles](${BASE}/settings/roles).`,
+      `Open [Configure](${BASE}/dashboard?open=%2Fconfigure) and [Roles](${BASE}/dashboard?open=%2Fsettings%2Froles).`,
     );
     expect(() => resolvePublicAppLinks("[x](app:nowhere)")).toThrow("Unknown app link: app:nowhere");
     expect(() => resolvePublicAppLinks("[Contacts](app:records/contact)")).toThrow(
@@ -65,6 +65,9 @@ describe("app links", () => {
       `${BASE}/settings/roles#top`,
       `${BASE}/records/${LIST}`,
       `${BASE}/open/records/contact`,
+      `${BASE}/dashboard?open=%2Fsettings%2Froles&x=1`,
+      `${BASE}/dashboard?open=%2Frecords%2F${LIST}`,
+      `${BASE}/dashboard?open=/settings/roles`,
     ])
       expect(localizeAppLinks(`[x](${kept})`, BASE)).toBe(`[x](${kept})`);
   });

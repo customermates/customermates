@@ -6,20 +6,22 @@ import { expect } from "./fixtures";
 import { localE2eEnvironment } from "./local-environment";
 import { insertStarterModel } from "./workspace";
 import { clickHydrated, e2eAppMode } from "./workspace-switching";
+import { anyWorkspaceUrlPattern, pagePath, slugFromUrl, slugInUrl } from "./app-paths";
 
 export async function createWorkspaceFromSettings(page: Page, name: string) {
-  await page.goto("/en/settings/workspaces");
+  await page.goto(pagePath(page, "/settings/workspaces"));
   await clickHydrated(page.getByRole("button", { name: "Create workspace", exact: true }));
   const dialog = page.getByRole("dialog", { name: "Create workspace" });
   await dialog.locator("#create-workspace-name").fill(name);
   if (e2eAppMode() === "cloud") await dialog.locator("#create-workspace-terms").click();
   await dialog.getByRole("button", { name: "Create workspace", exact: true }).click();
   if (e2eAppMode() !== "cloud") {
-    await expect(page).toHaveURL(/\/en\/onboarding\/wizard$/);
-    return;
+    await expect(page).toHaveURL(/\/en(?:\/w\/[a-z0-9-]+)?\/onboarding\/wizard$/);
+    return slugInUrl(page.url());
   }
-  await expect(page).toHaveURL(/\/en\/subscription-expired$/);
+  await expect(page).toHaveURL(anyWorkspaceUrlPattern("/subscription-expired$"));
   await expect(page.getByRole("heading", { level: 1, name: `Choose a plan for ${name}`, exact: true })).toBeVisible();
+  return slugFromUrl(page.url());
 }
 
 export async function choosePlan(page: Page, plan: string) {
@@ -38,8 +40,8 @@ async function completeSetupStepInDatabase(page: Page) {
   await client.connect();
   try {
     const updated = await client.query<{ id: string; companyId: string }>(
-      'UPDATE "User" u SET "onboardingWikiStepCompletedAt"=NOW() FROM "AuthSession" s JOIN "AuthUser" a ON a.id=s."userId" WHERE s.token=$1 AND u."companyId"=s."activeCompanyId" AND u.email=a.email AND u."leftAt" IS NULL RETURNING u.id, u."companyId"',
-      [token],
+      'UPDATE "User" u SET "onboardingWikiStepCompletedAt"=NOW() FROM "AuthSession" s JOIN "AuthUser" a ON a.id=s."userId" WHERE s.token=$1 AND u."companyId"=COALESCE((SELECT id FROM "Company" WHERE slug=$2),a."companyId") AND u.email=a.email AND u."leftAt" IS NULL RETURNING u.id, u."companyId"',
+      [token, slugInUrl(page.url())],
     );
     expect(updated.rowCount).toBe(1);
     const [member] = updated.rows;
@@ -51,7 +53,7 @@ async function completeSetupStepInDatabase(page: Page) {
 }
 
 export async function finishOnboarding(page: Page) {
-  await expect(page).toHaveURL(/\/en\/onboarding\/wizard$/);
+  await expect(page).toHaveURL(/\/en(?:\/w\/[a-z0-9-]+)?\/onboarding\/wizard$/);
   const heading = (name: string) => page.getByRole("heading", { level: 1, name, exact: true });
   const setup = heading(englishMessages.OnboardingWizard.steps.setup.title);
   const invite = heading(englishMessages.OnboardingWizard.steps.invite.title);
@@ -64,11 +66,12 @@ export async function finishOnboarding(page: Page) {
   await clickHydrated(page.locator("#onboarding-next"));
   await expect(heading(englishMessages.OnboardingWizard.steps.ai.title)).toBeVisible();
   await clickHydrated(page.getByRole("button", { name: englishMessages.OnboardingWizard.finish, exact: true }));
-  await expect(page).toHaveURL(/\/en\/dashboard$/);
+  await expect(page).toHaveURL(anyWorkspaceUrlPattern("/dashboard$"));
+  return slugFromUrl(page.url());
 }
 
 export async function createApiKeyInSettings(page: Page, workspaceName: string, name: string) {
-  await page.goto("/en/settings/api-keys");
+  await page.goto(pagePath(page, "/settings/api-keys"));
   await expect(page.getByText(`These keys only access the ${workspaceName} workspace.`).first()).toBeVisible();
   await clickHydrated(page.locator("#settings-api-keys-generate"));
   const dialog = page.getByRole("dialog");

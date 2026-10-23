@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ActivityEntryDto, ActivityKind } from "@/ee/messaging/activities/activities.schema";
 import type { RecordActivitiesInput, RecordActivityQuery } from "@/ee/messaging/activities/record-activities.schema";
 import { ACTIVITY_KINDS } from "@/ee/messaging/activities/activities.schema";
-import { getRecordActivitiesAction } from "@/app/[locale]/(protected)/records/actions";
+import { getRecordActivitiesAction } from "@/app/[locale]/(protected)/w/[workspace]/records/actions";
 import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { activityEntryKey } from "./activity-entry-key";

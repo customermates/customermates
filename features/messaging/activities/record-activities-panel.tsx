@@ -15,14 +15,18 @@ import { DataViewEmpty } from "@/components/data-view/data-view-empty";
 import { ActivitiesList, TimelineEmptyState, TimelineNotice } from "./activities-list";
 import { ActivityTimelineSkeleton } from "./activity-timeline-skeleton";
 import { RecordActivityViewsStore } from "./record-activity-views.store";
+import { withWorkspaceHref } from "@/core/navigation/workspace-paths";
+import { useWorkspaceSlug } from "@/i18n/navigation";
 
 export function useRecordActivityViews(record: RecordRef | null, viewSyncToUrl: boolean, includeTrashed = false) {
   const locale = useLocale();
   const root = useRootStore();
   const params = useSearchParams();
-  const viewPathname = record
-    ? `/${locale}/records/${record.typeId}/${record.recordId}`
-    : `/${locale}/settings/activity`;
+  const workspaceSlug = useWorkspaceSlug();
+  const viewPathname = withWorkspaceHref(
+    record ? `/${locale}/records/${record.typeId}/${record.recordId}` : `/${locale}/settings/activity`,
+    workspaceSlug,
+  );
   const requestedView =
     viewSyncToUrl && params.get("viewSurface") === SURFACE.entityTimeline ? params.get("view") : null;
   const [store] = useState(

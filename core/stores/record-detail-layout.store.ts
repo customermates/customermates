@@ -4,7 +4,10 @@ import type {
   RecordDetailLayoutResult,
   SaveRecordDetailLayoutInput,
 } from "@/features/records/record-detail-layout.schema";
-import { readRecordDetailLayoutAction, saveRecordDetailLayoutAction } from "@/app/[locale]/(protected)/records/actions";
+import {
+  readRecordDetailLayoutAction,
+  saveRecordDetailLayoutAction,
+} from "@/app/[locale]/(protected)/w/[workspace]/records/actions";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";

@@ -8,7 +8,7 @@ import type { PlanStage } from "./setup-plan-summary";
 import { FileText } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { ChartTypeIllustration } from "@/app/[locale]/(protected)/dashboard/components/widget-display-type-picker";
+import { ChartTypeIllustration } from "@/app/[locale]/(protected)/w/[workspace]/dashboard/components/widget-display-type-picker";
 import { AppChip } from "@/components/chip/app-chip";
 import { RecordTypeGlyph } from "@/components/records/record-type-glyph";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

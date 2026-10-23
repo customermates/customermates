@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { companyPath } from "./app-paths";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { openRecordDetails, editFormattedText } from "./record-rows";
 import { presetId } from "../../features/records/crm-preset";
@@ -28,7 +29,7 @@ for (const theme of ["light", "dark"] as const) {
     ]);
     await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
     await page.setViewportSize({ width: 390, height: 1000 });
-    await page.goto("/de/dashboard");
+    await page.goto(companyPath(companyId, "/dashboard", "de"));
     await page.waitForLoadState("networkidle");
     await expectHydrated(page.locator("#sidebar-trigger"));
     await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
@@ -37,7 +38,7 @@ for (const theme of ["light", "dark"] as const) {
     await page.locator(`[role="option"][data-value="${typeId}:${recordId}"]`).click();
     const drawer = page.getByRole("dialog");
     await expect(drawer.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Example organization");
-    const ids = serverActionIds("app/[locale]/(protected)/records/actions.ts", "saveRecordDetailLayoutAction");
+    const ids = serverActionIds("app/[locale]/(protected)/w/[workspace]/records/actions.ts", "saveRecordDetailLayoutAction");
     let fail = true;
     await page.route("**/*", async (route) => {
       if (fail && invokesServerAction(route.request(), ids)) {
@@ -82,7 +83,7 @@ test("persists personal detail pins, visibility and keyboard order without losin
   const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "organization");
   const nameId = presetId(companyId, "organization.name");
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   await page.locator("#records-add").click();
   const drawer = page.getByRole("dialog", {
     name: "Organization",
@@ -255,7 +256,7 @@ test("shows pinned fields as a chip row under the title that pins, edits the dra
 }) => {
   test.setTimeout(180000);
   const firstName = `Chip row ${randomUUID().slice(0, 6)}`;
-  await page.goto(`/en/records/${presetId(companyId, "contact")}`);
+  await page.goto(companyPath(companyId, `/records/${presetId(companyId, "contact")}`));
   await page.locator("#records-add").click();
   const drawer = page.getByRole("dialog", { name: "Contact", exact: true });
   await drawer.getByRole("textbox", { name: "First name", exact: false }).fill(firstName);
@@ -317,7 +318,7 @@ test("edits header links with the card picker, keeps contact values outside edit
   const suffix = randomUUID().slice(0, 6);
   const organization = `Picker org ${suffix}`;
   const firstName = `Picker ${suffix}`;
-  await page.goto(`/en/records/${presetId(companyId, "organization")}`);
+  await page.goto(companyPath(companyId, `/records/${presetId(companyId, "organization")}`));
   await page.locator("#records-add").click();
   const organizationDrawer = page.getByRole("dialog", {
     name: "Organization",
@@ -327,7 +328,7 @@ test("edits header links with the card picker, keeps contact values outside edit
   await organizationDrawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(organizationDrawer).not.toBeVisible();
 
-  await page.goto(`/en/records/${presetId(companyId, "contact")}`);
+  await page.goto(companyPath(companyId, `/records/${presetId(companyId, "contact")}`));
   await page.locator("#records-add").click();
   const drawer = page.getByRole("dialog", { name: "Contact", exact: true });
   await drawer.getByRole("textbox", { name: "First name", exact: false }).fill(firstName);

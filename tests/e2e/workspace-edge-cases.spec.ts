@@ -17,6 +17,7 @@ import {
   setMembershipStatus,
   signInLogin,
 } from "./workspace-switching";
+import { appPath, appUrlPattern, companyPath } from "./app-paths";
 
 test.skip(e2eAppMode() === "demo", "Demo mode signs every visitor in as the shared demo account");
 
@@ -29,7 +30,7 @@ async function organizationNames(database: Client, companyId: string) {
 }
 
 async function startOrganization(page: Page, companyId: string, name: string) {
-  await page.goto(`/en/records/${presetId(companyId, "organization")}`);
+  await page.goto(companyPath(companyId, `/records/${presetId(companyId, "organization")}`));
   await clickHydrated(page.locator("#records-add"));
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill(name);
@@ -45,14 +46,14 @@ test("two browsers of one login in different workspaces save records at the same
   test.setTimeout(180_000);
   const errors = collectPageErrors(page);
   const second = await addBrowserWorkspace(database, workspace, "Bergmann Steuern");
-  await page.goto("/en/dashboard");
+  await page.goto(appPath(workspace.slug, "/dashboard"));
   await expectCurrentWorkspace(page, "Browser workspace");
   const other = await signInLogin(browser, database, workspace, testInfo);
   try {
-    await other.page.goto("/en/dashboard");
+    await other.page.goto(appPath(workspace.slug, "/dashboard"));
     const menu = await openWorkspaceSwitcher(other.page);
     await menu.locator(`[data-workspace-id="${second.companyId}"]`).click();
-    await expect(other.page).toHaveURL(/\/en\/dashboard$/);
+    await expect(other.page).toHaveURL(appUrlPattern(second.slug, "/dashboard$"));
     await expectCurrentWorkspace(other.page, "Bergmann Steuern");
 
     const first = await startOrganization(page, workspace.companyId, "Hansen Logistik");
@@ -89,7 +90,7 @@ test("switching workspaces with an unsaved workspace name asks first and never s
 }, testInfo) => {
   const errors = collectPageErrors(page);
   const second = await addBrowserWorkspace(database, workspace, "Bergmann Steuern");
-  await page.goto("/en/settings/general");
+  await page.goto(appPath(workspace.slug, "/settings/general"));
   const name = page.locator("#settings-general-name");
   await expect(name).toHaveValue("Browser workspace");
   await expectHydrated(name);
@@ -101,20 +102,20 @@ test("switching workspaces with an unsaved workspace name asks first and never s
   await expect(discard).toBeVisible();
   await expect(menu).toBeHidden();
   await page.screenshot({ path: testInfo.outputPath("ws-switch-unsaved.png"), fullPage: true });
-  expect((await activeWorkspaceOf(database, workspace)).session).toBe(workspace.companyId);
+  expect((await activeWorkspaceOf(database, workspace)).lastUsed).toBe(workspace.companyId);
   await discard.getByRole("button", { name: englishMessages.Common.actions.cancel, exact: true }).click();
   await expect(discard).toHaveCount(0);
-  await expect(page).toHaveURL(/\/en\/settings\/general$/);
+  await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/settings/general$"));
   await expect(name).toHaveValue("Browser workspace GmbH");
-  expect((await activeWorkspaceOf(database, workspace)).session).toBe(workspace.companyId);
+  expect((await activeWorkspaceOf(database, workspace)).lastUsed).toBe(workspace.companyId);
 
   menu = await openWorkspaceSwitcher(page);
   await menu.locator(`[data-workspace-id="${second.companyId}"]`).click();
   await expect(discard).toBeVisible();
   await discard.getByRole("button", { name: englishMessages.Common.actions.discard, exact: true }).click();
-  await expect(page).toHaveURL(/\/en\/dashboard$/);
+  await expect(page).toHaveURL(appUrlPattern(second.slug, "/dashboard$"));
   await expectCurrentWorkspace(page, "Bergmann Steuern");
-  expect((await activeWorkspaceOf(database, workspace)).session).toBe(second.companyId);
+  expect((await activeWorkspaceOf(database, workspace)).lastUsed).toBe(second.companyId);
   const names = await database.query<{ id: string; name: string }>(
     'SELECT id,name FROM "Company" WHERE id=ANY($1) ORDER BY name',
     [[workspace.companyId, second.companyId]],
@@ -169,7 +170,7 @@ test("an invitation to a workspace that deactivated the login explains it and of
     [second.companyId, second.userId],
   );
   expect(memberships.rows).toEqual([{ status: "inactive" }]);
-  expect((await activeWorkspaceOf(database, workspace)).session).toBe(workspace.companyId);
+  expect((await activeWorkspaceOf(database, workspace)).lastUsed).toBe(workspace.companyId);
   expect(errors).toEqual([]);
 });
 
@@ -196,7 +197,7 @@ test("switching from the command palette over a record dialog with an unsaved dr
   await discard.getByRole("button", { name: englishMessages.Common.actions.cancel, exact: true }).click();
   await expect(discard).toHaveCount(0);
   await expect(draft.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Ungespeicherte Firma");
-  expect((await activeWorkspaceOf(database, workspace)).session).toBe(workspace.companyId);
+  expect((await activeWorkspaceOf(database, workspace)).lastUsed).toBe(workspace.companyId);
 
   await page.keyboard.press("ControlOrMeta+k");
   await expect(search).toBeVisible();
@@ -206,9 +207,9 @@ test("switching from the command palette over a record dialog with an unsaved dr
   await palette.getByRole("option").filter({ hasText: "Bergmann Steuern" }).click();
   await expect(discard).toBeVisible();
   await discard.getByRole("button", { name: englishMessages.Common.actions.discard, exact: true }).click();
-  await expect(page).toHaveURL(/\/en\/dashboard$/);
+  await expect(page).toHaveURL(appUrlPattern(second.slug, "/dashboard$"));
   await expectCurrentWorkspace(page, "Bergmann Steuern");
-  expect((await activeWorkspaceOf(database, workspace)).session).toBe(second.companyId);
+  expect((await activeWorkspaceOf(database, workspace)).lastUsed).toBe(second.companyId);
   expect(await organizationNames(database, workspace.companyId)).not.toContain("Ungespeicherte Firma");
   expect(await organizationNames(database, second.companyId)).not.toContain("Ungespeicherte Firma");
   expect(errors).toEqual([]);

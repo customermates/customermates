@@ -18,7 +18,6 @@ import {
   bindApiKeyToCompany,
   deleteApiKeysForIdentities,
   revokeMembershipCredentials,
-  setSessionActiveCompany,
 } from "@/core/auth/better-auth";
 import { getTransactionClient } from "@/core/decorators/transaction-context";
 import { prisma } from "@/prisma/db";
@@ -30,7 +29,7 @@ import {
   mcpResourceWorkspaceOf,
   withMcpResourceWorkspace,
 } from "./mcp-authorization-code";
-import { isDocumentRequest } from "./document-request";
+import { requestedWorkspaceSlug } from "@/core/navigation/workspace-request-header";
 import { SESSION_HINT_COOKIE_NAME } from "./session-hint";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { env } from "@/env";
@@ -50,7 +49,7 @@ export type InteractiveSession = Session;
 export type AuthenticatedSession = Pick<Session, "session" | "user">;
 export type CredentialWorkspace =
   | { kind: "integration"; companyId: string | null }
-  | { kind: "session"; sessionId: string; companyId: string | null; documentRequest: boolean };
+  | { kind: "session"; sessionId: string; workspaceSlug: string | null };
 export type McpCredentialWorkspace = { credential: "apiKey" | "bearer"; companyId: string | null };
 type CreateApiKeyError =
   | CustomErrorCode.apiKeyMinExpiration
@@ -141,20 +140,11 @@ export class AuthService {
       return { kind: "integration", companyId: token?.userId === session.user.id ? token.companyId : null };
     }
 
-    const stored = await prisma.authSession.findUnique({
-      where: { id: session.session.id },
-      select: { userId: true, activeCompanyId: true },
-    });
     return {
       kind: "session",
       sessionId: session.session.id,
-      companyId: stored?.userId === session.user.id ? stored.activeCompanyId : null,
-      documentRequest: isDocumentRequest(requestHeaders),
+      workspaceSlug: requestedWorkspaceSlug(requestHeaders),
     };
-  }
-
-  async setSessionActiveCompany(sessionId: string, companyId: string | null): Promise<void> {
-    await setSessionActiveCompany(sessionId, companyId);
   }
 
   async revokeMembershipCredentials(authUserId: string, companyId: string): Promise<number> {
@@ -580,8 +570,11 @@ export class AuthService {
         : await this.resolveMcpBearerSession(headersList);
       if (!session) return null;
 
-      const { companyId } = await this.getCredentialWorkspace(session, headersList);
-      return { credential: key ? "apiKey" : "bearer", companyId };
+      const binding = await this.getCredentialWorkspace(session, headersList);
+      return {
+        credential: key ? "apiKey" : "bearer",
+        companyId: binding.kind === "integration" ? binding.companyId : null,
+      };
     } catch {
       return null;
     }

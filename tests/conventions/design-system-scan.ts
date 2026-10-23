@@ -10,7 +10,7 @@ const PRODUCT_DIRECTORIES = ["app", "components", "constants", "features", "ee"]
 const NON_PRODUCT_PREFIXES = [
   "app/[locale]/(static)/",
   "app/[locale]/(public)/",
-  "app/[locale]/(protected)/test/",
+  "app/[locale]/(protected)/w/[workspace]/test/",
   "app/api/",
   "components/marketing/",
   "components/emails/",

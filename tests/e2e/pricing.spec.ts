@@ -3,6 +3,7 @@ import { test, expect, collectPageErrors } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 import { openRecordDetails, openRecordLink } from "./record-rows";
 import { saveViewChanges } from "./view-changes";
+import { companyPath } from "./app-paths";
 
 test("edits duplicate embedded items, live and saved prices, and weighted totals through the generic UI", async ({
   page,
@@ -21,10 +22,10 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
     const link = page.locator(`[id="nav-records:${typeId(key)}"]`);
     if (!(await link.isVisible())) await page.locator("#sidebar-trigger").click();
     await link.click();
-    await expect.poll(() => new URL(page.url()).pathname).toBe(`/en/records/${typeId(key)}`);
+    await expect.poll(() => new URL(page.url()).pathname).toBe(companyPath(companyId, `/records/${typeId(key)}`));
     await expect(page.locator("#records-add")).toBeEnabled();
   };
-  await page.goto(`/en/records/${typeId("service")}`);
+  await page.goto(companyPath(companyId, `/records/${typeId("service")}`));
   for (const [name, price] of [
     ["Service A", "1000"],
     ["Service B", "200"],
@@ -275,13 +276,13 @@ test("refreshes the deal from in-place sub-list edits in the drawer and locks th
   const errors = collectPageErrors(page);
   const dialogs = page.getByRole("dialog");
   const typeId = (key: string) => presetId(companyId, key);
-  await page.goto(`/en/records/${typeId("service")}`);
+  await page.goto(companyPath(companyId, `/records/${typeId("service")}`));
   await page.locator("#records-add").click();
   await dialogs.getByRole("textbox", { name: "Name", exact: false }).fill("Drawer service");
   await dialogs.getByRole("textbox", { name: "Price", exact: false }).fill("100");
   await dialogs.getByRole("button", { name: "Save", exact: true }).click();
   await expect(dialogs).not.toBeVisible();
-  await page.goto(`/en/records/${typeId("deal")}`);
+  await page.goto(companyPath(companyId, `/records/${typeId("deal")}`));
   await page.locator("#records-add").click();
   await dialogs.getByRole("textbox", { name: "Name", exact: false }).fill("Drawer opportunity");
   await dialogs.getByRole("button", { name: "Save", exact: true }).click();

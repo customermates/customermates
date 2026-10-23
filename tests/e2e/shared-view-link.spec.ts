@@ -8,6 +8,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { relationshipColumnKey } from "../../features/records/record-column.schema";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
+import { companyPath, pagePath } from "./app-paths";
 import { expect, test, collectPageErrors } from "./fixtures";
 import { secondUser } from "./second-user";
 
@@ -41,7 +42,7 @@ async function copyViewLink(page: Page, typeId: string, viewId: string) {
       },
     });
   });
-  await page.goto(`/en/records/${typeId}?view=${viewId}`);
+  await page.goto(pagePath(page, `/records/${typeId}?view=${viewId}`));
   await expect(page.locator(`[data-focus-target="view:${viewId}"]`)).toHaveAttribute("aria-current", "page");
   await page.locator("#global-data-views-menu").click();
   await page.getByRole("menuitem", { name: englishMessages.DataView.views.copyLink, exact: true }).click();
@@ -121,7 +122,7 @@ test("opens a colleague's view link as unsaved changes and saves it as an indepe
   const [original] = await viewRows(database, companyId, surfaceKey, name);
 
   const link = await copyViewLink(page, typeId, viewId);
-  expect(link.pathname).toBe(`/en/records/${typeId}`);
+  expect(link.pathname).toBe(companyPath(companyId, `/records/${typeId}`));
   expect(link.searchParams.get("view")).toBe(viewId);
   expect(link.searchParams.has("viewShare")).toBe(true);
 

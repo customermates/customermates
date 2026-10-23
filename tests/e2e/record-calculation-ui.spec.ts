@@ -7,6 +7,7 @@ import { expect, test, collectPageErrors } from "./fixtures";
 import { readModel } from "./api";
 import { e2eAppMode } from "./workspace-switching";
 import { openRecordDetails, openRecordLink } from "./record-rows";
+import { companyPath, pagePath } from "./app-paths";
 
 async function applyConfiguration(page: Page) {
   await saveDrawer(page);
@@ -28,7 +29,7 @@ async function openSidebarLink(page: Page, id: string) {
 
 async function openRecordList(page: Page, typeId: string) {
   await openSidebarLink(page, `nav-records:${typeId}`);
-  await expect.poll(() => new URL(page.url()).pathname).toBe(`/en/records/${typeId}`);
+  await expect.poll(() => new URL(page.url()).pathname).toBe(pagePath(page, `/records/${typeId}`));
   await expect(page.locator("#records-add")).toBeEnabled();
 }
 
@@ -278,7 +279,7 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
 
   await test.step("select Weighted value in the unified builder and persist its exact measure", async () => {
     await openSidebarLink(page, "nav-dashboard");
-    await expect.poll(() => new URL(page.url()).pathname).toBe("/en/dashboard");
+    await expect.poll(() => new URL(page.url()).pathname).toBe(companyPath(companyId, "/dashboard"));
     await page.locator("#dashboard-add-widget").click();
     await dialog.locator("#widget-starter-verticalBarChart").click();
     await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Configured weighted pipeline");

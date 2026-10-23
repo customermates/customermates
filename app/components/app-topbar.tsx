@@ -21,12 +21,13 @@ import { IntlLink } from "@/i18n/navigation";
 
 import { ShellHeader } from "./shell-header";
 import { stripLocalePrefix } from "@/i18n/locale-registry";
+import { stripWorkspacePrefix } from "@/core/navigation/workspace-paths";
 import { useTopBarActions } from "./topbar-actions-context";
 import { buildAppTopbarCrumbs } from "./app-topbar-crumbs";
 
 export const AppTopBar = observer(({ operatorConsoleVisible }: { operatorConsoleVisible: boolean }) => {
   const t = useTranslations();
-  const pathname = usePathname();
+  const pathname = stripWorkspacePrefix(usePathname());
   const searchParams = useSearchParams();
   const inboxThreadId = searchParams.get("threadId");
   const rootStore = useRootStore();

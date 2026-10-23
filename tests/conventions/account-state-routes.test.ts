@@ -20,7 +20,7 @@ describe("guarded account-state route contract", () => {
     ["app/[locale]/(protected)/onboarding/join/page.tsx", /requireAccountState\(\s*"unregistered"(?:\s*,|\s*\))/],
     ["app/[locale]/(protected)/legal-update/page.tsx", /requireAccountState\(\s*\[\s*"allowed",\s*"legal"\s*\]\s*\)/],
     [
-      "app/[locale]/(protected)/subscription-expired/page.tsx",
+      "app/[locale]/(protected)/w/[workspace]/subscription-expired/page.tsx",
       /requireAccountState\(\s*"subscription",\s*settingsHref\("billing"\),?\s*\)/,
     ],
     ["app/[locale]/(public)/auth/mcp-consent/page.tsx", /requireAccountState\(\s*MCP_CONSENT_MEMBER_STATES\s*\)/],
@@ -92,7 +92,7 @@ describe("guarded account-state route contract", () => {
   });
 
   it("keeps tenant enhancements and keyboard shortcuts unmounted for restricted shells", () => {
-    const layout = source("app/[locale]/(protected)/protected-shell.tsx");
+    const layout = source("app/[locale]/(protected)/w/[workspace]/protected-shell.tsx");
     const navigation = source("app/components/navigation/navigation-switch.tsx");
     const context = source("app/components/navigation/protected-enhancements-context.tsx");
     const guardedMarkup = layout.indexOf("{protectedEnhancementsAllowed ? (");
@@ -152,7 +152,7 @@ describe("guarded account-state route contract", () => {
       "signOutAction",
     );
     expect(
-      source("app/[locale]/(protected)/subscription-expired/components/subscription-expired-view.tsx"),
+      source("app/[locale]/(protected)/w/[workspace]/subscription-expired/components/subscription-expired-view.tsx"),
     ).not.toContain("signOutAction");
   });
 });

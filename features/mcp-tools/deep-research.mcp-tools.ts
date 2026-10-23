@@ -6,6 +6,7 @@ import type { WikiOutlineEntry } from "@/features/wiki/wiki-markdown-sections";
 import { customMcpFailure, mcpInteractorFailure, mcpMessageFailure } from "./utils";
 import { getDocsPageRaw, listDocsSlugs, searchDocsHits } from "./docs.mcp-tools";
 import { UNTRUSTED_RECORD_TEXT_HANDLING, untrustedRecordText } from "./untrusted-record-content";
+import { mcpRecordUrl, mcpWorkspaceSlug } from "./mcp-workspace-slug";
 
 import { env } from "@/env";
 import { CONTENT_LOCALES, DEFAULT_LOCALE, isContentLocale } from "@/i18n/locale-registry";
@@ -137,7 +138,7 @@ async function fetchRecord(ref: RecordRef) {
     id: `record:${ref.typeId}:${ref.recordId}`,
     title,
     text,
-    url: `${env.BASE_URL}/records/${ref.typeId}/${ref.recordId}`,
+    url: mcpRecordUrl(await mcpWorkspaceSlug(), ref.typeId, ref.recordId),
     metadata: { typeId: ref.typeId },
   };
   return { text: JSON.stringify(output), structuredContent: output };
@@ -165,14 +166,15 @@ async function fetchWiki(id: string, requestedOffset: number) {
   const result = await getGetWikiPageInteractor().invoke({ id });
   if (!result.ok) return mcpInteractorFailure(result.error);
   const page = result.data;
-  const links = extractWikiPageLinks(page.markdown, env.BASE_URL, 6);
-  const markdown = externalizeWikiPageLinks(page.markdown, env.BASE_URL);
+  const slug = await mcpWorkspaceSlug();
+  const links = extractWikiPageLinks(page.markdown, env.BASE_URL, slug, 6);
+  const markdown = externalizeWikiPageLinks(page.markdown, env.BASE_URL, slug);
   let selectedLinks = links.slice(0, 5);
   let outlineTruncated = false;
   const outputAt = (offset: number, end: number, outline: WikiOutlineEntry[]) => ({
     id: wikiPageFetchId(page.id),
     title: page.title,
-    url: wikiPageUrl(env.BASE_URL, page.id),
+    url: wikiPageUrl(env.BASE_URL, slug, page.id),
     metadata: {
       source: "wiki",
       kind: page.kind,
@@ -237,10 +239,12 @@ async function searchWiki(query: string) {
       pageSize: 5,
     });
     if (!result.ok) return { results: [], didYouMean: [] };
+    if (result.data.items.length === 0) return { results: [], didYouMean: result.data.didYouMean ?? [] };
+    const slug = await mcpWorkspaceSlug();
     const results = result.data.items.map((page) => ({
       id: wikiPageFetchId(page.id),
       title: page.title,
-      url: wikiPageUrl(env.BASE_URL, page.id),
+      url: wikiPageUrl(env.BASE_URL, slug, page.id),
       snippet: page.snippet,
       ...(page.kind !== "knowledge" ? { kind: page.kind } : {}),
       ...(page.whenToUse ? { whenToUse: page.whenToUse } : {}),
@@ -283,15 +287,15 @@ export const searchTool = {
     const [recordResults, wiki, docHits] = await Promise.all([
       getSearchRecordsInteractor()
         .invoke({ searchTerm: recordQuery, limit: 15, cursor: null })
-        .then((records) =>
-          records.ok
-            ? records.data.results.map((item) => ({
-                id: `record:${item.ref.typeId}:${item.ref.recordId}`,
-                title: recordDisplayName(item.title, item.typeLabel, englishTitleText),
-                url: `${env.BASE_URL}/records/${item.ref.typeId}/${item.ref.recordId}`,
-              }))
-            : [],
-        )
+        .then(async (records) => {
+          if (!records.ok || records.data.results.length === 0) return [];
+          const slug = await mcpWorkspaceSlug();
+          return records.data.results.map((item) => ({
+            id: `record:${item.ref.typeId}:${item.ref.recordId}`,
+            title: recordDisplayName(item.title, item.typeLabel, englishTitleText),
+            url: mcpRecordUrl(slug, item.ref.typeId, item.ref.recordId),
+          }));
+        })
         .catch((error: unknown) => {
           if (error instanceof ForbiddenError && error.code === AppErrorCode.permissionDenied) return [];
           throw error;

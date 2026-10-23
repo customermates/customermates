@@ -4,6 +4,7 @@ import type { AddressInfo } from "node:net";
 import { addFromConfigure, openConfigure } from "./configure";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { openRecordDetails, runRowAction } from "./record-rows";
+import { companyPath, companyUrlPattern } from "./app-paths";
 
 test("delivers a custom-record event to a loopback receiver and retries a transient failure", async ({
   page,
@@ -35,7 +36,7 @@ test("delivers a custom-record event to a loopback receiver and retries a transi
     const creation = page.getByRole("dialog");
     await creation.getByRole("textbox", { name: "Name", exact: false }).first().fill("Projects");
     await creation.getByRole("button", { name: "Save", exact: true }).first().click();
-    await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
+    await expect(page).toHaveURL(companyUrlPattern(companyId, "/records/[a-f0-9-]+$"));
     const typeId = new URL(page.url()).pathname.split("/").at(-1);
     const field = await database.query(
       `SELECT f.id, f.definition->>'label' AS label FROM "RecordFieldDefinition" f JOIN "RecordTypeDefinition" t ON t."companyId"=f."companyId" AND t.id=f."typeId" AND t.definition->>'primaryFieldId'=f.id WHERE f."companyId"=$1 AND f."typeId"=$2`,
@@ -43,7 +44,7 @@ test("delivers a custom-record event to a loopback receiver and retries a transi
     );
     expect(field.rows).toHaveLength(1);
 
-    await page.goto("/en/settings/webhooks");
+    await page.goto(companyPath(companyId, "/settings/webhooks"));
     await page.locator("#settings-webhooks-add").click();
     const webhook = page.getByRole("dialog");
     await webhook.locator("#webhook-modal-url").fill(receiverUrl);
@@ -55,7 +56,7 @@ test("delivers a custom-record event to a loopback receiver and retries a transi
     await webhook.getByRole("button", { name: "Save", exact: true }).click();
     await expect(webhook).not.toBeVisible();
 
-    await page.goto(`/en/records/${typeId}`);
+    await page.goto(companyPath(companyId, `/records/${typeId}`));
     await page.locator("#records-add").click();
     const record = page.getByRole("dialog");
     await record.getByRole("textbox", { name: field.rows[0].label, exact: false }).fill("Delivered project");
@@ -91,7 +92,7 @@ test("delivers a custom-record event to a loopback receiver and retries a transi
         }),
       ]);
 
-    await page.goto("/en/settings/webhooks");
+    await page.goto(companyPath(companyId, "/settings/webhooks"));
     await page.locator("#settings-webhooks-add").click();
     await webhook.locator("#webhook-modal-url").fill(receiverUrl);
     await webhook.locator("#webhook-modal-description").fill("Second receiver");
@@ -111,10 +112,10 @@ test("delivers a custom-record event to a loopback receiver and retries a transi
     expect(second.description).toBe("Second receiver");
 
     const openDeliveries = async (row: ReturnType<typeof page.locator>, webhookId: string) => {
-      await page.goto("/en/settings/webhooks");
+      await page.goto(companyPath(companyId, "/settings/webhooks"));
       await page.waitForLoadState("networkidle");
       await runRowAction(page, row, receiverUrl, "Show deliveries");
-      await expect(page).toHaveURL(/\/en\/settings\/webhook-deliveries\?/);
+      await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/webhook-deliveries\\?"));
       expect(new URL(page.url()).searchParams.getAll("filters")).toContain(`webhookId:in:${webhookId}`);
     };
     const rows = page.getByRole("row").filter({ hasText: receiverUrl });
@@ -160,7 +161,7 @@ test("delivers only deleted records that matched the webhook filter before remov
     const dialog = page.getByRole("dialog");
     await dialog.getByRole("textbox", { name: "Name", exact: false }).first().fill("Projects");
     await dialog.getByRole("button", { name: "Save", exact: true }).first().click();
-    await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
+    await expect(page).toHaveURL(companyUrlPattern(companyId, "/records/[a-f0-9-]+$"));
     const typeId = new URL(page.url()).pathname.split("/").at(-1);
     const field = await database.query(
       `SELECT f.id, f.definition->>'label' AS label FROM "RecordFieldDefinition" f JOIN "RecordTypeDefinition" t ON t."companyId"=f."companyId" AND t.id=f."typeId" AND t.definition->>'primaryFieldId'=f.id WHERE f."companyId"=$1 AND f."typeId"=$2`,
@@ -181,7 +182,7 @@ test("delivers only deleted records that matched the webhook filter before remov
       projects.set(title, persisted.rows[0].recordId);
     }
 
-    await page.goto("/en/settings/webhooks");
+    await page.goto(companyPath(companyId, "/settings/webhooks"));
     await page.locator("#settings-webhooks-add").click();
     await dialog.locator("#webhook-modal-url").fill(receiverUrl);
     await dialog.locator("#webhook-modal-events").click();
@@ -197,7 +198,7 @@ test("delivers only deleted records that matched the webhook filter before remov
       receiverUrl,
     ]);
     expect(hook.rows).toHaveLength(1);
-    await page.goto(`/en/records/${typeId}`);
+    await page.goto(companyPath(companyId, `/records/${typeId}`));
     for (const [title, recordId] of projects) {
       await openRecordDetails(page, title);
       await dialog.getByRole("button", { name: "Delete", exact: true }).click();
@@ -250,7 +251,7 @@ test("delivers only deleted records that matched the webhook filter before remov
       typeId,
     ]);
     expect(remaining.rows).toEqual([]);
-    await page.goto("/en/settings/webhook-deliveries");
+    await page.goto(companyPath(companyId, "/settings/webhook-deliveries"));
     await expect(page.getByText(receiverUrl).first()).toBeVisible();
     await expect(page.getByText("Delivered", { exact: true }).first()).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath("filtered-deletion-delivery.png"), animations: "disabled" });

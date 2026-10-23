@@ -6,6 +6,7 @@ import type {
 import type { DeleteAccountsForPlanUserRepo } from "./delete-accounts-for-plan-user.repo";
 import type { EmailService } from "@/features/email/email.service";
 import type { SubscriptionPlan } from "@/generated/prisma";
+import type { WorkspaceSlugResolver } from "@/features/workspace/workspace-slug-resolver";
 
 import AccountsRemovedNotice from "@/components/emails/accounts-removed-notice";
 import { getEmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
@@ -15,6 +16,7 @@ import { getTranslator } from "@/i18n/get-translator";
 import { resolveUserLocale } from "@/i18n/user-locale";
 import { env } from "@/env";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
+import { workspaceReturnUrl } from "@/features/workspace/workspace-return-url";
 
 type DeleteAccountsForPlanPayload = { companyId: string; plan: SubscriptionPlan };
 
@@ -25,6 +27,7 @@ export class DeleteAccountsForPlanInteractor {
     private userRepo: DeleteAccountsForPlanUserRepo,
     private deleteService: DeleteAccountForBillingService,
     private emailService: EmailService,
+    private slugs: WorkspaceSlugResolver,
   ) {}
 
   async invoke(payload: DeleteAccountsForPlanPayload): Promise<void> {
@@ -55,10 +58,11 @@ export class DeleteAccountsForPlanInteractor {
   ): Promise<void> {
     const admins = await this.userRepo.findCompanyAdminsUnscoped(companyId);
     if (admins.length === 0) return;
+    const slug = await this.slugs.slugFor(companyId);
+    const href = workspaceReturnUrl(env.BASE_URL, slug, settingsHref("channels"));
 
     for (const admin of admins) {
       const locale = resolveUserLocale(admin);
-      const href = `${env.BASE_URL}${settingsHref("channels")}`;
       const t = await getTranslator(locale);
       const layoutCopy = await getEmailLayoutCopy(locale);
       const accountsLabel = removedAccounts

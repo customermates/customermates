@@ -2,15 +2,15 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import { DashboardPageSkeleton } from "@/app/[locale]/(protected)/dashboard/components/dashboard-page-skeleton";
-import { InboxPageSkeleton } from "@/app/[locale]/(protected)/inbox/components/inbox-page-skeleton";
-import { SubscriptionPageSkeleton } from "@/app/[locale]/(protected)/settings/(workspace)/components/subscription/subscription-page-skeleton";
+import { DashboardPageSkeleton } from "@/app/[locale]/(protected)/w/[workspace]/dashboard/components/dashboard-page-skeleton";
+import { InboxPageSkeleton } from "@/app/[locale]/(protected)/w/[workspace]/inbox/components/inbox-page-skeleton";
+import { SubscriptionPageSkeleton } from "@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/subscription/subscription-page-skeleton";
 import { OnboardingPageSkeleton } from "@/app/[locale]/(protected)/onboarding/wizard/components/onboarding-page-skeleton";
 import {
   ApiKeysPageSkeleton,
   ConnectedAccountsPageSkeleton,
-} from "@/app/[locale]/(protected)/settings/(account)/components/profile-resource-page-skeleton";
-import { ProfileSettingsPageSkeleton } from "@/app/[locale]/(protected)/settings/(account)/components/profile-settings-page-skeleton";
+} from "@/app/[locale]/(protected)/w/[workspace]/settings/(account)/components/profile-resource-page-skeleton";
+import { ProfileSettingsPageSkeleton } from "@/app/[locale]/(protected)/w/[workspace]/settings/(account)/components/profile-settings-page-skeleton";
 import { EntityDetailPageSkeleton } from "@/components/entity-detail/entity-detail-page-skeleton";
 import { CenteredCardPageSkeleton } from "@/components/shared/centered-card-page-skeleton";
 

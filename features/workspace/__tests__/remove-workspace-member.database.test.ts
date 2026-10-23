@@ -6,6 +6,7 @@ import { NextRequest } from "next/server";
 import { Client } from "pg";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
+import { WORKSPACE_HEADER } from "@/core/navigation/workspace-paths";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
 const requestContext = vi.hoisted(() => ({ headers: new Headers() }));
@@ -138,12 +139,9 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
     return result.rows[0]?.companyId ?? null;
   }
 
-  async function activeCompanyId(sessionId: string) {
-    const result = await client.query<{ activeCompanyId: string | null }>(
-      'SELECT "activeCompanyId" FROM "AuthSession" WHERE id = $1',
-      [sessionId],
-    );
-    return result.rows[0]?.activeCompanyId ?? null;
+  async function slugOf(companyId: string) {
+    const result = await client.query<{ slug: string }>('SELECT "slug" FROM "Company" WHERE "id" = $1', [companyId]);
+    return result.rows[0]?.slug ?? "";
   }
 
   async function pendingRequests(person: Person) {
@@ -398,15 +396,19 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
     const { getGetUserDetailsInteractor, getRouteGuardService } = await import("@/core/di");
     const { WorkspaceChangedError } = await import("@/core/errors/workspace-changed-error");
 
-    as(benSessions.stale, SERVER_ACTION);
+    const team = { [WORKSPACE_HEADER]: await slugOf(companies.team) };
+
+    as(benSessions.stale, { ...SERVER_ACTION, ...team });
     await expect(getGetUserDetailsInteractor().invoke()).rejects.toBeInstanceOf(WorkspaceChangedError);
-    expect(await activeCompanyId(benSessions.stale.id)).toBe(companies.team);
+
+    as(benSessions.stale, { ...PAGE_LOAD, ...team });
+    await expect(getRouteGuardService().resolveAccountState()).rejects.toBeInstanceOf(WorkspaceChangedError);
 
     as(benSessions.stale, PAGE_LOAD);
     expect((await getRouteGuardService().resolveAccountState()).user?.id).toBe(ownMemberships.ben);
-    expect(await activeCompanyId(benSessions.stale.id)).toBe(companies.bensOwn);
+    expect(await lastUsed("ben")).toBe(companies.bensOwn);
 
-    as(benSessions.other, SERVER_ACTION);
+    as(benSessions.other, { ...SERVER_ACTION, ...team });
     await expect(getGetUserDetailsInteractor().invoke()).rejects.toBeInstanceOf(WorkspaceChangedError);
   });
 

@@ -1293,7 +1293,7 @@
       "wikiProposalReviewed": "Someone already reviewed this proposal.",
       "wikiProposalStale": "The page changed after Mate made this proposal. Reject the proposal, or ask Mate to propose the change again.",
       "wikiWhenToUseRequired": "A procedure needs a short description of when to use it.",
-      "workspaceChanged": "Your workspace changed in another tab or on another device. Reload the page before you continue.",
+      "workspaceChanged": "This workspace is not available any more. It was deleted, its URL changed or your access was removed.",
       "workspaceCreationUnavailable": "New workspaces cannot be created here.",
       "workspaceDeleteAdminRequired": "Only an admin can delete this workspace.",
       "workspaceDeleteBillingActive": "This workspace still has a subscription that can be billed or resumed. Cancel it and wait until it ends, or contact support.",
@@ -1315,7 +1315,8 @@
       "workspaceSetupAnswerInvalid": "This answer does not fit the question. Check it and try again.",
       "workspaceSetupConflict": "The workspace setup is busy with another step. Reload it and try again.",
       "workspaceSetupNotFound": "No workspace setup was found for this workspace.",
-      "workspaceSetupUnavailable": "The AI workspace setup is not available here."
+      "workspaceSetupUnavailable": "The AI workspace setup is not available here.",
+      "workspaceSlugTaken": "Another workspace already uses this URL. Choose a different one."
     },
     "events": {
       "connected_account": {
@@ -3073,11 +3074,6 @@
         "email": "Send emails",
         "link": "Share link"
       }
-    },
-    "linkedWorkspace": {
-      "description": "This link opens the setup of {workspace}. You are working in another workspace right now; switching applies to all your open tabs.",
-      "switch": "Switch workspace",
-      "title": "Continue in {workspace}"
     },
     "milestones": {
       "ai": "AI tools",
@@ -4865,17 +4861,17 @@
     "nameDescription": "Everyone in this workspace sees this name in the workspace menu.",
     "nameLabel": "Workspace name",
     "noPlan": "No plan",
-    "otherTab": {
-      "description": "This tab still shows {current}. Reload it so nothing is saved to the wrong workspace.",
-      "reload": "Reload",
-      "title": "You switched workspaces in another tab",
-      "titleChanged": "Your workspace changed",
-      "titleDeleted": "This workspace was deleted",
-      "titleNamed": "You switched to {name} in another tab"
-    },
     "renameReadOnly": "Only members who can manage the workspace can change its name.",
+    "slugDescription": "Links to this workspace use {path}. Use lowercase letters, numbers and hyphens. Old links stop working when you change it.",
+    "slugLabel": "Workspace URL",
+    "slugReadOnly": "Links to this workspace use {path}. Only members who can manage the workspace can change it.",
     "switch": "Switch",
     "switchTo": "Switch to {name}",
+    "unavailable": {
+      "description": "It was deleted, its URL changed or your access was removed. Go to your dashboard to continue.",
+      "open": "Go to dashboard",
+      "title": "This workspace is not available"
+    },
     "unnamedCreated": "{name} (created {date})",
     "unnamedPrompt": {
       "description": "It has no name yet, so the workspace menu only shows \"Workspace\". A name helps every member tell your workspaces apart.",

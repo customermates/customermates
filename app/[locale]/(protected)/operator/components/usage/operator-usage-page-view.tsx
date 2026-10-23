@@ -8,7 +8,7 @@ import { Download, Receipt } from "lucide-react";
 
 import { SubscriptionStatus } from "@/generated/prisma";
 
-import { SUBSCRIPTION_STATUS_COLOR_MAP } from "@/app/[locale]/(protected)/settings/(workspace)/components/subscription/subscription-panel";
+import { SUBSCRIPTION_STATUS_COLOR_MAP } from "@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/subscription/subscription-panel";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
