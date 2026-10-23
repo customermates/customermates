@@ -6,6 +6,7 @@ import type {
   RecordDto,
   RecordField,
   RecordFieldView,
+  RecordModel,
   RecordRelationship,
   RecordScalar,
   RecordType,
@@ -136,10 +137,14 @@ export function recordFilterableFields(
       ),
   ];
 }
-export function recordDefaults(typeId: string, fields: RecordFieldView[]): DataViewState {
+export function recordDefaults(
+  typeId: string,
+  fields: RecordFieldView[],
+  capabilities: RecordModel["capabilities"] = [],
+): DataViewState {
   return {
     columnOrder: fields.filter((field) => field.typeId === typeId && !field.archived).map((field) => field.id),
-    hiddenColumns: defaultHiddenColumns(typeId, fields),
+    hiddenColumns: defaultHiddenColumns(typeId, fields, capabilities),
     viewMode: ViewMode.table,
     grouping: null,
     sortDescriptor: null,

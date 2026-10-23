@@ -216,6 +216,15 @@ describe("record view defaults", () => {
       ),
     ).toEqual([]);
   });
+
+  it("hides the photo field of the avatar capability, which shows next to the name instead", () => {
+    const contact = id("contact");
+    const avatar = id("contact.avatarUrl");
+    expect(defaultHiddenColumns(contact, model.fields)).not.toContain(avatar);
+    expect(defaultHiddenColumns(contact, model.fields, model.capabilities)).toContain(avatar);
+    expect(recordDefaults(contact, model.fields, model.capabilities).hiddenColumns).toContain(avatar);
+    expect(defaultHiddenColumns(id("deal"), model.fields, model.capabilities)).toEqual([id("deal.notes")]);
+  });
 });
 
 describe("view group summaries", () => {

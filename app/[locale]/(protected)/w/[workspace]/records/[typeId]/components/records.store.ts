@@ -389,7 +389,11 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   }
   override get differsFromDefaultLayout() {
     if (!this.type) return false;
-    const defaults = recordDefaults(this.presentation.typeId, this.presentation.model.fields);
+    const defaults = recordDefaults(
+      this.presentation.typeId,
+      this.presentation.model.fields,
+      this.presentation.model.capabilities,
+    );
     const available = new Set(this.columnsDefinition.map((column) => column.uid));
     const columns = (ids: string[] | undefined) =>
       (ids ?? []).filter((id) => available.has(id) && id !== this.primaryColumnId);
