@@ -17,16 +17,16 @@
     },
     {
       "key": "smb:de:light",
-      "mainSha256": "8895037344b4ec6b31b6c2a5aeab0d972129fa75cfc028fcc37f7f09fced9410",
+      "mainSha256": "de625207c8c09dc6c42b3d2d646a41938cef1137ace90cf54aae18fb3526636f",
       "navRoute": "/de/w/kleine-unternehmen/dashboard",
-      "navSha256": "147df1b923e8ee2bf466614543e9f0a446d45ec82ca7e615033477775ca32eb5",
+      "navSha256": "12b3628316d7a5d5291e22e85fa2967ee9271217f74dd000ccb86ae384e1f268",
       "route": "/de/w/kleine-unternehmen/dashboard"
     },
     {
       "key": "smb:de:dark",
-      "mainSha256": "3191195387886a1d8b4021444b4ac6943bc814e47a4f9bfccfa456db4c6acbc3",
+      "mainSha256": "e0641db9a6f96cc7709369b7e392824239c67ca1dd49f9aeeca181ae8a6c9d3f",
       "navRoute": "/de/w/kleine-unternehmen/dashboard",
-      "navSha256": "bd7fddde3e1e1fe923fe0ab48e58fdb6f0953d3c287600efe89fa09b56657034",
+      "navSha256": "e28a29564cbdca7534b6acd140dd504dbd771fb201b10a06d9a6462363f5d442",
       "route": "/de/w/kleine-unternehmen/dashboard"
     },
     {
@@ -227,16 +227,16 @@
     },
     {
       "key": "sales-pipeline:de:light",
-      "mainSha256": "bc331f1f5ffed7d7eb3cca1b739ca40ff7492a595b619903ed014a8bd51a3f1b",
+      "mainSha256": "26e5671adf73527af125864cb42f9f07606cc333747646a5ba7c46c5ff73d7d6",
       "navRoute": "/de/w/vertriebspipeline/records/f2cddf3a-2b98-8e74-89fb-3e9425f8c342?view=1f100000-5610-4000-8000-000000000001",
-      "navSha256": "db0c4bb7bdf4fca5d266d30fb5a4a00ec11d3b40d71c6702e0d153079b3b9f2d",
+      "navSha256": "0b603a40bdcf0499a20654f5893923f4d26843bce2651d909f95d5e624421c21",
       "route": "/de/w/vertriebspipeline/dashboard"
     },
     {
       "key": "sales-pipeline:de:dark",
-      "mainSha256": "98eeb382ba41b5e6360f1bd77bee6226a1ee4a73bb99040c30a0ec6aff3b4d6a",
+      "mainSha256": "551e965b3a22a414fbcf32ad8c986e7a48c732dbf1837d286b67263c05124985",
       "navRoute": "/de/w/vertriebspipeline/records/f2cddf3a-2b98-8e74-89fb-3e9425f8c342?view=1f100000-5610-4000-8000-000000000001",
-      "navSha256": "300ab27dfeab70f1ac196ccc0c5b14937978948f27cabb68677431f2da394884",
+      "navSha256": "843ce345042b1c146357439520ed778f82eb28069db4cfb6d1f497b9ffb833e0",
       "route": "/de/w/vertriebspipeline/dashboard"
     },
     {
@@ -257,56 +257,56 @@
       "key": "linkedin-crm:en:light",
       "mainSha256": "a30527c79427f482a8536c733279c75710eb634ff94a069e4c48ce8fa438e9e6",
       "navRoute": "/en/w/linkedin-sales/inbox?threadId=17000000-5700-4000-8000-000000000001",
-      "navSha256": "bc4693380652b6252b90946cfc8e6f91ded080c7969f7537157b7fe1221bfc15",
+      "navSha256": "0f736efda1fc511cc71d1f9b777835d32a4eed6bc967e7620fee2355e4825f12",
       "route": "/en/w/linkedin-sales/dashboard"
     },
     {
       "key": "linkedin-crm:en:dark",
       "mainSha256": "6713e9f95c5fffd483b9c4e0105891c8b6fa183c0ba50bce8b390f77c362b7ed",
       "navRoute": "/en/w/linkedin-sales/inbox?threadId=17000000-5700-4000-8000-000000000001",
-      "navSha256": "14f671084020be7c8e5470d053a1e7bccec27df1098ef547dc3e0feff9d48b60",
+      "navSha256": "b8525f8e22087cb0d37fb9e41398a00fa110a7e4857cfe64cb5b8b73ce2c45d3",
       "route": "/en/w/linkedin-sales/dashboard"
     },
     {
       "key": "linkedin-crm:de:light",
-      "mainSha256": "f8c5e04e8673fdfd55577c414a9d287907843b7084b6bf4c70c4a7864a2ef968",
+      "mainSha256": "ec3a3f76396faf0d4e04284f36b477a14869f77e4305af6cae663fb7d6a227c6",
       "navRoute": "/de/w/linkedin-vertrieb/inbox?threadId=17000000-5710-4000-8000-000000000001",
-      "navSha256": "626b5518a75065c1f1255a57a23af1c9408be3e8716f24ce19f7a48189939162",
+      "navSha256": "f27411de63098dcb938a572a7f6eaf84983105e5742ec3f507479e21569cf1ea",
       "route": "/de/w/linkedin-vertrieb/dashboard"
     },
     {
       "key": "linkedin-crm:de:dark",
-      "mainSha256": "47c47e31840f2560b4e05c12af005589e52860d1da41aac500de4c46a0747b31",
+      "mainSha256": "0a783fb0c1b25f79b5f6f5c70178455a0f17be50a11b980290474d21088cf70e",
       "navRoute": "/de/w/linkedin-vertrieb/inbox?threadId=17000000-5710-4000-8000-000000000001",
-      "navSha256": "2fac6d3e57511da8ec85db7c205266dbfe219dd2ff80c5352f099c7a40d8c0f0",
+      "navSha256": "6550a5ec4a41862aab279554ad45d2d11ca6e66a74452a4950d54e6ee882304c",
       "route": "/de/w/linkedin-vertrieb/dashboard"
     },
     {
       "key": "whatsapp-crm:en:light",
       "mainSha256": "a8f3e7355a7a96d2ea5530bb92e741525704931d3bbc9dad5381792dbd87e07d",
       "navRoute": "/en/w/whatsapp/inbox?threadId=17000000-5800-4000-8000-000000000001",
-      "navSha256": "0835e04ee3aae8c07de47b4257ba635f9efcc787cc40cce1636088c463668fc6",
+      "navSha256": "c9b8fbefed167f8b335b24844978ae7be78c02fefc3f6e1453b7cda9c1083201",
       "route": "/en/w/whatsapp/dashboard"
     },
     {
       "key": "whatsapp-crm:en:dark",
       "mainSha256": "3c6e5361f9174e4653455291b54ed10c64ab4ccb3728edceedffb948beb66783",
       "navRoute": "/en/w/whatsapp/inbox?threadId=17000000-5800-4000-8000-000000000001",
-      "navSha256": "1410d3a1608a62ccb52f50f55d38f2dc02af6ba94470039be410e66d98cd0794",
+      "navSha256": "a8ef9c6c746acc5a1497d79a5896648bdf229960f173a7d9cbd3b02b8bf0c4a8",
       "route": "/en/w/whatsapp/dashboard"
     },
     {
       "key": "whatsapp-crm:de:light",
-      "mainSha256": "545c0472c4de4e79f8bedef52c85e0a788e8bfc8a003d0c62fd6557eec05822c",
+      "mainSha256": "7815b347ca14ed2720778323cdc85b5cbbfc06c62b868279a50eef69f0f25c76",
       "navRoute": "/de/w/whatsapp-kundenkontakt/inbox?threadId=17000000-5810-4000-8000-000000000001",
-      "navSha256": "5362d3d4ac98fe2d680d64a9747d2d7ffd049b79524cf5ee97f3416371ec90ca",
+      "navSha256": "103975dff0a65de3b910cdf3dd3bf1bd34b2bd3a6312fae1e05568813473ce1b",
       "route": "/de/w/whatsapp-kundenkontakt/dashboard"
     },
     {
       "key": "whatsapp-crm:de:dark",
-      "mainSha256": "ce70936e2aebbeeb183feb72777759b58005949a0e9aa85d449d7162c32f47b5",
+      "mainSha256": "34fcd6758eb4d975edb4e05b676bd8a3616f8f8cb6e698b9d896f11088b138d8",
       "navRoute": "/de/w/whatsapp-kundenkontakt/inbox?threadId=17000000-5810-4000-8000-000000000001",
-      "navSha256": "96063bcde38016f9272682ffdf8a1979df4fbcfe74257ee1db505ade08e87666",
+      "navSha256": "d1a39e0d7051d6ed8247e9deda1238b27d3dd25c50c696643cba1fd210cdda60",
       "route": "/de/w/whatsapp-kundenkontakt/dashboard"
     }
   ],
@@ -323,14 +323,14 @@
       "width": 960
     },
     "sidebarWidth": 208,
-    "sourceRevision": "519775581-dirty",
+    "sourceRevision": "52a4b54fe-dirty",
     "viewport": {
       "deviceScaleFactor": 2,
       "height": 900,
       "width": 1440
     }
   },
-  "sourceRevision": "519775581-dirty",
+  "sourceRevision": "52a4b54fe-dirty",
   "viewport": {
     "deviceScaleFactor": 2,
     "height": 900,

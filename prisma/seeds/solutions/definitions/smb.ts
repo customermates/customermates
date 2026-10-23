@@ -445,7 +445,7 @@ type Strings = typeof en;
 
 const de: Strings = {
   company: "Lindenhof IT-Service",
-  workspaceName: "Kleine Unternehmen",
+  workspaceName: "Kleinbetrieb",
   website: "https://lindenhof-it.example",
   phones: {
     mobile: { templates: ["+49 30 23125 0##"], start: 0 },

@@ -413,7 +413,7 @@ type Strings = typeof en;
 
 const de: Strings = {
   company: "Tischlerei Birkenholz",
-  workspaceName: "WhatsApp-Kunden",
+  workspaceName: "WhatsApp-CRM",
   website: "https://tischlerei-birkenholz.example",
   phones: { mobile: { templates: ["+49 30 23125 ###"], start: 110 } },
   selfTitle: "Inhaber und Tischlermeister",

@@ -407,7 +407,7 @@ type Strings = typeof en;
 
 const de: Strings = {
   company: "Wachblick Schulungen GmbH",
-  workspaceName: "LinkedIn-Vertrieb",
+  workspaceName: "LinkedIn",
   website: "https://wachblick-schulungen.example",
   selfTitle: "Geschäftsführer",
   lists: {

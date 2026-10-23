@@ -495,7 +495,7 @@ type Strings = typeof en;
 
 const de: Strings = {
   company: "Weserluft Drucklufttechnik GmbH",
-  workspaceName: "Vertriebspipeline",
+  workspaceName: "Pipeline",
   website: "https://weserluft.example",
   phones: { office: { templates: ["+49 30 23125 5##"], start: 0 } },
   selfTitle: "Vertriebsleiter",

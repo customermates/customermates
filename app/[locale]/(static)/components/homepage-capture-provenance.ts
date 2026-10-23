@@ -28,12 +28,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "WhatsApp thread with Sophie Turner (Sophie Thiele in German) selected in the unified inbox",
     sha256: {
       de: {
-        dark: "8adfdbc610b5014182a05bceecc30b4a3688a477ebb22826901ffeb32b94e3da",
-        light: "0cbf6f3011c0d745f55251819c722b3b4c08d2185207b00a128360dc78040b62",
+        dark: "6273236364cc674b08b0d6c0f4b8529e6a8233f7d7cbdc6dce6f2c67a2464f5e",
+        light: "9a15e1491a8ece97ab5f4e2da1c2cf6432f7ad4e17644d5917053f761f6180cc",
       },
       en: {
-        dark: "96ba2c3e3418ba0a46d0181da67ddb7e21a7d6ede71b59f4aa041df207c94d49",
-        light: "6c3a3a14a6fda5918901b4b61e5fde5ec5563c775d9aeb7d57dadee6cc50001a",
+        dark: "49f9cf7037f825f5988c5c0b343be0128442ff4082787a37674f56e11aa75801",
+        light: "ad3f76a9c10bcfce36bf99e142e464f58b1dd37c9419af7bfee7be620edb236a",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -44,12 +44,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Contact record of James Finch (Jakob Fink in German) with fields, channels and cross-channel history",
     sha256: {
       de: {
-        dark: "a2d8378c252c0b9ef98268a0f1ce24aef85daf89649f671b05a4a7906ad9e6b4",
-        light: "dfd63e544a91d09efadef6386287d444988b6901402499fe33ff1ccf4001b44a",
+        dark: "aea95f6f27c0dd1faee2660b776ec84ef8b071b9bf9158c390018c09cb37f250",
+        light: "3486cc6a4c86b42fb606752eab5f536fb4798df4081df2f5087f5d689a072527",
       },
       en: {
-        dark: "9c7beb9c7689210ead50d758fb49939d7072769df6c5a4546efed92e3e253df0",
-        light: "9f26cf981595439e960a9db1d05283b600b6aab90c022eda4c2d2b4a41a2eca7",
+        dark: "1ecfff90a231f43dc22402511e5cc32dad540b85578bd28c51133a24f65d0797",
+        light: "b0f281e8f1da4d149aed8031235e66759331e0ed398fe35a15ff299a2c5a707a",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -60,8 +60,8 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Deals list in the Pipeline board view grouped by stage",
     sha256: {
       de: {
-        dark: "5be8023ae93002687dcdae4843539d858577c1937bb4bac4de2f102ea172867b",
-        light: "79c689624f130671aa8040b0fc9864dfdfbd6bf39801f25f5a08968b1a130e59",
+        dark: "5145f5513b280ab4da3d5afda853fef335209619724402ebdec841b087304bf8",
+        light: "a0aef5000dd25ceea84fda1d1b816cfea0ff0579aeb9e2a2743d8043e48a7498",
       },
       en: {
         dark: "6eebb313ccc62dd439903b2e017f5f06911d397c415265468d92000db9d70415",
@@ -77,12 +77,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
       "Main dashboard with open pipeline, value won in 12 months, average won deal, overdue tasks, pipeline by stage and won value by source",
     sha256: {
       de: {
-        dark: "6e7dc75fecd76b79f3ebfa4ce85ff8725e70cf38e082fbce540998b595f97086",
-        light: "15df4ac9b8b528aaf7b02594839c7aee887e9f74b741fd59c2825cb973b1efd1",
+        dark: "01c1635fadae968bda74c488decb68ae4b4a2d1aca63edb7f9d26d27da3c8397",
+        light: "8a3fafa466be578e6f135358abbe56492e6a972adb1980259a9c72f87cc4994e",
       },
       en: {
-        dark: "91d30f2418d13883f56137379bf99937e073266dd77ad66f22d7ecbf120c59a8",
-        light: "0eeed288c510866019d203afdec687a88538a237bba36ac7c5835cc4d644e360",
+        dark: "19d9ea757f64ea5297141f668944c337547f2bc7a1185240a5e24a62d56520a4",
+        light: "f434ba4265adfb9c3fccc8c68435d1a865cc17ecd036bdf3cdd13be30088809e",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -94,12 +94,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
       "Routines list with owners, schedules, triggers and last runs of the small-business workspace (kleine-unternehmen in German)",
     sha256: {
       de: {
-        dark: "3abda609ba643c5e0273e42f43bd64812b30afee6bde54ab87034209c223365c",
-        light: "fd0339510d13bbb6af697a3d977d2da2ec1275aa0d43b5c168ac00a479a736c0",
+        dark: "7f4791d12c2f2c626955475ef63f24b5df290af5e3211f0ee6299c7c872e5f82",
+        light: "42224d747f637d854e1c810ccfb90a28efba8dfc87da3bf118955b7ffb5824f0",
       },
       en: {
-        dark: "a5c606e789580ef27229968e1c7e8a328709c2ca4672e868a0687986fb855dd6",
-        light: "61631b681c85144500227a7f6274b1140a360cef9819b66ee3a233a8b3ee3c94",
+        dark: "f6b736de7888660da1dc4cf5911c39045a429da8a0f3cb84aff4aaea8a6796cd",
+        light: "39bf60cb990bcbe0c92719b00116a9831ed3306f28b772f57cf8ad56bea2eab7",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -110,8 +110,8 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Data model graph zoomed to the Deals list and its line items with calculated fields",
     sha256: {
       de: {
-        dark: "432043e4137073335a929fb0860b68eea98a643ecf6d0e028a6efc2524ae3f90",
-        light: "8799fdc30dc08cfb5ee66abc960d5fad8255f72400ea8b10c85723010321e1e1",
+        dark: "f1acaab5fb2d66c538b021d36c2e39d679fb9626089fc22e735083a666d7bb44",
+        light: "9e8e54b90d55b6b0e75b44b3f4443016e2bc2e4d3a6a88ac759925791de9e10c",
       },
       en: {
         dark: "780b056691d858da9163f8b2de43f0e9150b0069a59728f83cdc65371c629c98",
@@ -127,12 +127,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
       "LinkedIn conversation with Ethan Clarke (Erik Claasen in German) beside the thread list, sidebar collapsed, at a 1024 px window",
     sha256: {
       de: {
-        dark: "80454eb1d32c9aa8cae39a8c3d6d4eda45e7538f32f1531cb1c8f50d8541f13a",
-        light: "5f6df9e1630e8f368b0ea6485d84e6d33fdfe7e361a67deafeb366fc87153186",
+        dark: "b9daf8be721f333bf55e752117231df40bc6ae4e7f8ab5cb706a875a691d9d77",
+        light: "106d0140206978f1bc5f5f5f18859d9a7ad6249fda2cb3005748d76be0fec6bf",
       },
       en: {
-        dark: "894b2d180240514a073a70a24fe24158039695567fddfac4037024aae1b448f5",
-        light: "d40a6d964af8e8f6a968140cc1a019a43b0a30382d3c8151201ed500b82666e3",
+        dark: "07b08c6739ca36843953a09d22079656f8f4363b7944879a9ffaca355c2d1466",
+        light: "ebcf7a6520ed616351bb5bdb9839c3c6793241106e01d38665bdfb06231bec36",
       },
     },
     viewport: { height: 900, width: 1024 },
@@ -143,12 +143,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Email thread with James Finch (Jakob Fink in German) ending in a saved reply draft with Send draft",
     sha256: {
       de: {
-        dark: "51744bdd0c120670c1fc7c26de535949b3c209e682f6497945c4214f9cff37b3",
-        light: "e7d0a90884c3dcc671f32c99d0c167641dce6139076278365664f9f3a457893f",
+        dark: "c62aaff779d4b04028b3c7bbc0f2dc8bd37d16cd68b093f224a5be1b952cdb0e",
+        light: "a346dfdfd6ba1ab74ef5a0584f48b180345632d4c9b33d7a6a1a4f6f855877fe",
       },
       en: {
-        dark: "625a2e94b74c38a9ea62dcdc8eb3be5ab675265b954d1c7d74b7f9a3b6a7b269",
-        light: "8385a16a35a4a56114574d7cb20d4960844f8f4425acd911a787175734567a08",
+        dark: "11c7942875b79db7d81c42a1c7d15f99a6af3db1cc163fd6ace4b8b83a9e558b",
+        light: "b54d488cccd4251bb0252d036f49ac8a1575bf17e658f4784cd7c962ab716f88",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -159,12 +159,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "WhatsApp thread with Sophie Turner (Sophie Thiele in German) on a phone-width viewport",
     sha256: {
       de: {
-        dark: "aa83f25fd732b056127497130e375899b00268a414899a77e600d1ec3b4a17d5",
-        light: "dc734c4e13105c4e91278da58adce85e6f746c16e3e1d6377c4b35d73ec22431",
+        dark: "7814e860902bb174051f5299c416aeaa62505f6f4c98f4e4cb6bc5e558e69837",
+        light: "cb529281c7c1fb5c7e0ad889f3fe33297e8fd7f1006047900a95c4d8f2a1c340",
       },
       en: {
-        dark: "07377f46ab10e842f640f4a2128279006516e48665129b459bb8bb4183c6b900",
-        light: "aba280ef2bc737c47c5df37e7666ad14e0f35d2b72b2ba9d998457a5278b4c6d",
+        dark: "7f5510df06f6715c2faf06d4ac8eaa971e4d9372b1d6500e35aa94093c9164b8",
+        light: "3a1a6fec0a7b5797e34fbe48da256790f9d17fd5d392e91399dc0be2d13e1b07",
       },
     },
     viewport: { height: 844, width: 390 },
@@ -207,12 +207,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Dashboard widgets on a phone-width viewport",
     sha256: {
       de: {
-        dark: "b8f84d0868d5adaa9782204de1a5f87de1f658ae80bd1c2bd21c8c13645c7a30",
-        light: "6ba5461c90f572e3c7a68791c6f8cab8390e7be6faa2a13a1cd99f26149376cd",
+        dark: "4be9fe93bdfa1fa66d43c86495a382990b908c1df3ecd9bd43ae3fde706c3290",
+        light: "96d145515355bb7e510b625335c50a7dc966c6fcb3ece014e08ff33327d46ceb",
       },
       en: {
-        dark: "ea24101f305ea868c7bd1dd958198a5eff787e794e48848eb1a6d9bcbbafa1d5",
-        light: "c6e18a7405d5398a5794318fa591adfe0585457794e95f1b3960dd2ba77bf104",
+        dark: "ac2d5348bdc944705a06e297c6b52cc88ac5084ddf13d601bf08940e1ad5b0e6",
+        light: "d04106ccda764cc9bf4e5927e561c5573373d85bbc78ec2496fd5f4ea843cbcc",
       },
     },
     viewport: { height: 844, width: 390 },
