@@ -17,7 +17,7 @@ import { setupIdempotencyKey } from "./setup-references";
 const GRID_COLUMNS = WIDGET_GRID_BREAKPOINT_COLUMNS.lg;
 const METRICS_PER_ROW = 4;
 const CHARTS_PER_ROW = 2;
-const CHART_HEIGHT = 6;
+const CHART_HEIGHT = 5;
 
 export function setupDashboardLayouts(widgets: readonly SetupWidget[], occupied: readonly GridRect[] = []): GridRect[] {
   const layouts: GridRect[] = [];

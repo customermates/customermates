@@ -120,7 +120,7 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
           const lg = desktop.get(widget.id);
           return {
             id: widget.id,
-            lg: lg ? { x: lg.x, y: lg.y, w: lg.w, h: lg.h } : { x: 0, y: WIDGET_GRID_MAX_ROW, w: cols, h: 8 },
+            lg: lg ? { x: lg.x, y: lg.y, w: lg.w, h: lg.h } : { x: 0, y: WIDGET_GRID_MAX_ROW, w: cols, h: 6 },
             compact: isRecordWidget(widget) && widget.displayOptions.displayType === DisplayType.number,
           };
         }),

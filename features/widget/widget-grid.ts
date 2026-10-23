@@ -63,35 +63,35 @@ export function widgetLayoutGeometry(
 ): WidgetLayoutGeometry {
   const minimum = widgetMinimumSize(kind, displayType);
   if (kind === "chart")
-    return { w: Math.min(persisted?.w ?? 4, cols), h: Math.max(minimum.h, persisted?.h ?? 8), minH: minimum.h };
+    return { w: Math.min(persisted?.w ?? 4, cols), h: Math.max(minimum.h, persisted?.h ?? 6), minH: minimum.h };
   const minW = Math.min(minimum.w, cols);
   return {
     w: Math.max(minW, Math.min(persisted?.w ?? Math.min(cols >= 12 ? 6 : 4, cols), cols)),
-    h: Math.max(minimum.h, persisted?.h ?? 8),
+    h: Math.max(minimum.h, persisted?.h ?? 6),
     minW,
     minH: minimum.h,
   };
 }
 
 export function widgetDefaultSize(kind: WidgetKindName, displayType?: DisplayType): { w: number; h: number } {
-  if (kind === "activityTimeline") return { w: 6, h: 8 };
+  if (kind === "activityTimeline") return { w: 6, h: 6 };
   switch (displayType) {
     case DisplayType.number:
       return { w: 3, h: 2 };
     case DisplayType.areaChart:
-      return { w: 6, h: 6 };
+      return { w: 6, h: 5 };
     case DisplayType.doughnutChart:
     case DisplayType.radarChart:
-      return { w: 3, h: 6 };
+      return { w: 3, h: 5 };
     case DisplayType.rankedTable:
     case DisplayType.funnelChart:
     case DisplayType.horizontalBarChart:
     case DisplayType.horizontalBarChartWithLabels:
-      return { w: 4, h: 6 };
+      return { w: 4, h: 5 };
     case undefined:
-      return { w: 4, h: 8 };
-    default:
       return { w: 4, h: 6 };
+    default:
+      return { w: 4, h: 5 };
   }
 }
 

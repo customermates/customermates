@@ -138,6 +138,7 @@ export type SolutionWidgetRow = {
 };
 
 const KPI_HEIGHT = 2;
+const CHART_HEIGHT = 5;
 
 function widgetFilters(
   companyId: string,
@@ -250,7 +251,7 @@ export function buildSolutionWidgets(workspace: SolutionWorkspace, content: Solu
             : [ChartColor.primary1])),
       ],
       useGroupColors: doughnut,
-      lg: place(widget.width ?? 6, 7),
+      lg: place(widget.width ?? 6, CHART_HEIGHT),
     });
   }
   const ids = definitions.map((_, index) => workspaceFixtureId(SOLUTION_WIDGET_GROUP, workspace.tag, index + 1));
