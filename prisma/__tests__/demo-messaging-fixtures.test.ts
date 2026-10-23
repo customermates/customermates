@@ -395,7 +395,7 @@ describe.each(["demo", "cloud"] as const)("workspace messaging fixtures in APP_M
       if (links.length) expect(createAt).toBe(deleteAt + 1);
       else expect(createAt).toBe(-1);
     }
-    expect(fixtures.threads.some(({ links }) => links.length === 0)).toBe(true);
+    expect(fixtures.threads.every(({ links }) => links.length > 0)).toBe(true);
     expect(fixtures.threads.some(({ links }) => links.length > 1)).toBe(true);
 
     expect(participants).toHaveLength(participantCount(fixtures));

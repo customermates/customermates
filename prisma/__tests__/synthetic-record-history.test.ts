@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import { solutionWorkspaceCreatedAt } from "../seeds/solutions/seed-solution";
 import { solutionWorkspacePlan } from "../seeds/solutions/seed-solutions";
-import { buildSolutionRecordData, SOLUTION_RECORD_EVENT_PREFIX } from "../seeds/solutions/solution-data";
+import {
+  buildSolutionRecordData,
+  SOLUTION_RECORD_EVENT_PREFIX,
+  solutionColleagueId,
+} from "../seeds/solutions/solution-data";
 import { SOLUTION_WORKSPACES } from "../seeds/solutions/solution-workspaces";
 import { TEAM_MEMBER_IDS } from "../seeds/team";
 import { storyMoment } from "../seeds/timeline";
@@ -43,14 +47,20 @@ describe("demo record history", () => {
     }
   });
 
-  it("attributes the team workspace's changes to its members and every other workspace to its only member", () => {
+  it("attributes the team workspace's changes to its members and every other workspace to Max and its colleagues", () => {
     const members = new Set<string>(Object.values(TEAM_MEMBER_IDS));
-    for (const { workspace, data } of histories) {
+    for (const { workspace, content, data } of histories) {
       const actors = new Set(data.history.map((entry) => entry.actorId));
       if (workspace.team) {
         expect([...actors].every((actor) => members.has(actor))).toBe(true);
         expect(actors.size).toBeGreaterThan(3);
-      } else expect([...actors], workspace.slug).toEqual([workspace.memberId]);
+      } else {
+        const own = [
+          workspace.memberId,
+          ...(content.members ?? []).map(({ key }) => solutionColleagueId(workspace, key)),
+        ];
+        expect([...actors].toSorted(), workspace.slug).toEqual(own.toSorted());
+      }
     }
   });
 });

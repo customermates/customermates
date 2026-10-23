@@ -109,7 +109,7 @@ suite("generic synthetic seed convergence", { timeout: 180000 }, () => {
           .map(({ workspace, content }) => ({
             companyId: workspace.companyId,
             status: "active",
-            company: { name: content.companyName },
+            company: { name: content.workspaceName },
             role: { isSystemRole: true },
           }))
           .toSorted((a, b) => compareRecordKey(a.companyId, b.companyId)),

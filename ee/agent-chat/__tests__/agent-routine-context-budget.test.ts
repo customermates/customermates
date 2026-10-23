@@ -62,11 +62,6 @@ const THREAD = {
   connectedAccountId: "37000000-0000-4000-8000-000000000001",
 };
 const RECORD_ID = "80000000-0000-4000-8000-000000000001";
-const OWNERS = {
-  user: ["Max", "Bergmann"],
-  sofiaRossiUser: ["Sofia", "Rossi"],
-  elenaHoffmannUser: ["Elena", "Hoffmann"],
-} as const satisfies Record<SeedRoutine["owner"], readonly [string, string]>;
 
 const TEAM_PLAN = solutionWorkspacePlan(TEAM_SOLUTION_WORKSPACE);
 
@@ -246,8 +241,8 @@ function admissionHarness() {
   return { interactor, usage, background };
 }
 
-async function firstRoutineRound(owner: SeedRoutine["owner"], text: string, index: number) {
-  const [firstName, lastName] = OWNERS[owner];
+async function firstRoutineRound(owner: string, text: string, index: number) {
+  const [firstName, lastName] = owner.split(" ");
   tenant.user = createMockUser({
     id: `20000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
     companyId: COMPANY_ID,
@@ -311,7 +306,7 @@ describe("routine context budget", () => {
     "starts team workspace seed routine %i (%s, %s) inside the provider context of the default model",
     async (index, _kind, _name, routine) => {
       const text = composeRoutinePrompt(routine.prompt, { routineName: routine.name, ...triggerOf(routine) });
-      const { payload, admittedBytes, sent } = await firstRoutineRound(routine.owner, text, index);
+      const { payload, admittedBytes, sent } = await firstRoutineRound(routine.ownerName, text, index);
 
       expect(payload.surface).toBe("routine");
       expect(payload.toolsets).toEqual([]);
@@ -336,7 +331,7 @@ describe("routine context budget", () => {
         trigger: { kind: "event", events: ["record.updated"], recordTypes: ["deal"], debounceSeconds: 300 },
       }),
     });
-    const { payload, admittedBytes, sent } = await firstRoutineRound("user", text, 99);
+    const { payload, admittedBytes, sent } = await firstRoutineRound("Max Bergmann", text, 99);
 
     expect(payload.toolsets).toEqual([]);
     expect(serializedAgentContextBytes(sent)).toBeLessThanOrEqual(admittedBytes);

@@ -7,59 +7,64 @@ import {
   parseCronExpression,
   smallestIntervalMinutes,
 } from "@/ee/routines/routine-schedule";
-import { ROUTINE_TIMEZONE, SYNTHETIC_ROUTINES } from "../seeds/routines";
+import { ROUTINE_TIMEZONE, SYNTHETIC_ROUTINES, solutionSeedRoutines } from "../seeds/routines";
+import { solutionWorkspacePlans } from "../seeds/solutions/seed-solutions";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const itDatabase = databaseUrl ? it : it.skip;
 
-const scheduled = SYNTHETIC_ROUTINES.filter((routine) => routine.trigger.kind === "schedule");
-const evented = SYNTHETIC_ROUTINES.filter((routine) => routine.trigger.kind === "event");
+const plans = solutionWorkspacePlans();
+const perWorkspace = plans.map(({ workspace, content }) => ({
+  workspace,
+  routines: solutionSeedRoutines(workspace, content),
+}));
+const ALL_ROUTINES = perWorkspace.flatMap(({ routines }) => routines);
+const scheduled = ALL_ROUTINES.filter((routine) => routine.trigger.kind === "schedule");
+const evented = ALL_ROUTINES.filter((routine) => routine.trigger.kind === "event");
 
 describe("synthetic routine fixtures", () => {
-  it("seeds a demo set with both trigger kinds", () => {
-    expect(SYNTHETIC_ROUTINES).toHaveLength(15);
+  it("gives every demo workspace two or three routines with both trigger kinds across the demo", () => {
+    for (const { workspace, routines } of perWorkspace) {
+      expect(routines.length, workspace.slug).toBeGreaterThanOrEqual(2);
+      expect(routines.length, workspace.slug).toBeLessThanOrEqual(3);
+      expect(new Set(routines.map((routine) => routine.name)).size, workspace.slug).toBe(routines.length);
+    }
     expect(scheduled.length).toBeGreaterThan(0);
     expect(evented.length).toBeGreaterThan(0);
-    expect(new Set(SYNTHETIC_ROUTINES.map((routine) => routine.index)).size).toBe(SYNTHETIC_ROUTINES.length);
-    expect(new Set(SYNTHETIC_ROUTINES.map((routine) => routine.name)).size).toBe(SYNTHETIC_ROUTINES.length);
   });
 
-  it("keeps every seeded Pro owner at the five-Routine allowance", () => {
-    const perOwner = Object.groupBy(SYNTHETIC_ROUTINES, ({ owner }) => owner);
-
-    expect(Object.fromEntries(Object.entries(perOwner).map(([owner, routines]) => [owner, routines?.length]))).toEqual({
-      user: 5,
-      sofiaRossiUser: 5,
-      elenaHoffmannUser: 5,
-    });
+  it("gives the English and German twin of a solution the same routines", () => {
+    for (const { workspace, routines } of perWorkspace) {
+      const twin = perWorkspace.find(
+        (entry) => entry.workspace.solution.id === workspace.solution.id && entry.workspace !== workspace,
+      );
+      const shape = (list: typeof routines = []) =>
+        JSON.stringify(
+          list.map((routine) => [routine.trigger, routine.enabled, routine.runs.map((run) => run.status)]),
+          (key, value: unknown) => (key === "eventId" || key === "entityId" ? undefined : value),
+        );
+      expect(shape(twin?.routines), workspace.slug).toBe(shape(routines));
+    }
   });
 
-  it("uses concise, distinct names that read like common use cases", () => {
-    const names = SYNTHETIC_ROUTINES.map(({ name }) => name);
-
-    expect(names).toEqual([
-      "Weekly pipeline summary",
+  it("shows the three selling routines in the team workspace and keeps channel routines in their solutions", () => {
+    expect(SYNTHETIC_ROUTINES.map(({ name }) => name)).toEqual([
+      "Morning pipeline briefing",
       "Follow up on stale deals",
-      "Check deal line items",
-      "Find duplicate CRM records",
-      "Enrich new contacts",
       "Draft replies to new emails",
-      "Flag messages from unknown contacts",
-      "Weekly sales report",
-      "Log deal stage changes",
-      "Research new LinkedIn connections",
-      "Weekly workspace health check",
-      "Check service pricing and deal totals",
-      "Kickoff task when a deal is won",
-      "Task for overdue next steps",
-      "Check in with quiet customers",
     ]);
-    expect(names.every((name) => name.length <= 45)).toBe(true);
+    const names = (solution: string) =>
+      perWorkspace
+        .filter(({ workspace }) => workspace.solution.id === solution && workspace.locale === "en")
+        .flatMap(({ routines }) => routines.map(({ name }) => name));
+    expect(names("linkedin-crm")).toEqual(["Research new LinkedIn connections", "Find similar prospects on LinkedIn"]);
+    expect(names("whatsapp-crm")).toContain("Flag messages from unknown contacts");
+    expect(ALL_ROUTINES.every((routine) => routine.name.length <= 45)).toBe(true);
   });
 
   it("stays inside every field limit the schema enforces", () => {
-    for (const routine of SYNTHETIC_ROUTINES) {
+    for (const routine of ALL_ROUTINES) {
       expect(routine.name.length, routine.name).toBeLessThanOrEqual(ROUTINE_NAME_MAX_CHARS);
       expect(routine.prompt.length, routine.name).toBeLessThanOrEqual(ROUTINE_PROMPT_MAX_CHARS);
       expect(routine.prompt.trim().length, routine.name).toBeGreaterThan(0);
@@ -67,7 +72,7 @@ describe("synthetic routine fixtures", () => {
   });
 
   it("uses current CRM tools and contract discovery in every shipped routine prompt", () => {
-    for (const routine of SYNTHETIC_ROUTINES) {
+    for (const routine of ALL_ROUTINES) {
       expect(routine.prompt, routine.name).toContain("discover_record_types");
       expect(routine.prompt, routine.name).toContain("get_record_model");
       expect(routine.prompt, routine.name).toContain("typeId and recordId");
@@ -103,7 +108,7 @@ describe("synthetic routine fixtures", () => {
   });
 
   it("gives a sample trigger to every event routine whose prompt reads the trigger block", () => {
-    for (const routine of SYNTHETIC_ROUTINES) {
+    for (const routine of ALL_ROUTINES) {
       if (routine.trigger.kind !== "event") continue;
       if (!routine.prompt.includes("routine_trigger")) continue;
       if (routine.runs.length === 0) continue;
@@ -115,7 +120,7 @@ describe("synthetic routine fixtures", () => {
   it("never claims a write in the summary of a run whose routine forbids writing", () => {
     const writes = /\b(created|filed|linked|appended|updated|drafted)\b/i;
 
-    for (const routine of SYNTHETIC_ROUTINES) {
+    for (const routine of ALL_ROUTINES) {
       if (!/read-only report/i.test(routine.prompt)) continue;
 
       for (const run of routine.runs) {
@@ -139,7 +144,7 @@ describe("synthetic routine fixtures", () => {
   it("never instructs the demo agent to delete records or send outbound messages", () => {
     const forbidden = ["delete_records", "send_email(", "send_chat_message("];
 
-    for (const routine of SYNTHETIC_ROUTINES) {
+    for (const routine of ALL_ROUTINES) {
       for (const tool of forbidden) {
         const mentioned = routine.prompt.includes(tool);
         const negated = new RegExp(`(never|not|do not|without)[^.]{0,80}${tool.replace("(", "\\(")}`, "i").test(

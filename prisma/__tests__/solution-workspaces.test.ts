@@ -78,6 +78,31 @@ describe("solution demo workspaces", () => {
     expect(new Set(plans.map(({ content }) => content.companyName)).size).toBe(18);
   });
 
+  it("names every workspace after its solution and keeps the story company in the guide", () => {
+    expect(new Set(plans.map(({ content }) => content.workspaceName)).size).toBe(18);
+    for (const { workspace, content } of plans) {
+      expect(content.workspaceName, workspace.slug).not.toBe(content.companyName);
+      const guide = content.wiki.find((page) => page.kind === "guide");
+      expect(guide?.markdown.join("\n"), workspace.slug).toContain(content.companyName.split(" ")[0]);
+    }
+    expect(plans.find(({ workspace }) => workspace.team)?.content.workspaceName).toBe("Small business");
+  });
+
+  it("gives every workspace routines and the team-type workspaces two colleagues", () => {
+    for (const { workspace, content } of plans) {
+      expect(content.routines?.length ?? 0, workspace.slug).toBeGreaterThanOrEqual(2);
+      const colleagues = ["agencies", "sales-pipeline", "client-management"].includes(workspace.solution.id) ? 2 : 0;
+      expect(content.members?.length ?? 0, workspace.slug).toBe(colleagues);
+    }
+  });
+
+  it("never shows the contact photo URL as a view column", () => {
+    for (const [index, { workspace }] of plans.entries()) {
+      const avatar = presetId(workspace.companyId, "contact.avatarUrl");
+      for (const view of built(index).views) expect(view.state.columnOrder, view.name).not.toContain(avatar);
+    }
+  });
+
   it("builds identical rows on every run, with unique ids inside each workspace and across shared tables", () => {
     const sharedIds = new Set<string>();
     for (const [index, { workspace }] of plans.entries()) {

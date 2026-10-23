@@ -2,15 +2,17 @@ import type { PrismaClient } from "@/generated/prisma";
 
 import { describe, expect, it, vi } from "vitest";
 
-import { SYNTHETIC_SEED_USER } from "@/core/config/synthetic-seed-user";
 import { presetId } from "@/features/records/crm-preset";
 
-import { SEED_IDS, type SeedContext } from "../seeds/context";
+import { SEED_IDS } from "../seeds/context";
+import { TEAM_SOLUTION_CONTENT } from "../seeds/solutions/team-workspace";
 import { fixtureId } from "../seeds/helpers";
 import {
   seedWebhooks,
   SYNTHETIC_PAUSED_WEBHOOK_ID,
   SYNTHETIC_PAUSED_WEBHOOK_URL,
+  SYNTHETIC_PAUSED_WEBHOOK_DESCRIPTION,
+  SYNTHETIC_WEBHOOK_DESCRIPTION,
   SYNTHETIC_WEBHOOK_ID,
   SYNTHETIC_WEBHOOK_URL,
 } from "../seeds/webhooks";
@@ -47,6 +49,7 @@ async function seed() {
         return Promise.resolve(input.create);
       }),
       deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
+      findMany: vi.fn().mockResolvedValue([]),
     },
     webhookDelivery: {
       upsert: vi.fn((input: { create: Record<string, unknown>; update: Record<string, unknown> }) => {
@@ -56,13 +59,8 @@ async function seed() {
       deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
     },
   } as unknown as PrismaClient;
-  const context = {
-    prisma,
-    ids: SEED_IDS,
-    seedUserEmail: SYNTHETIC_SEED_USER.email,
-    sharedUserPassword: "test-password",
-  } satisfies SeedContext;
-  await seedWebhooks(context);
+  const team = TEAM_SOLUTION_CONTENT.webhooks ?? [];
+  await seedWebhooks(prisma, { companyId: SEED_IDS.company, tag: "0000", ownerUserId: SEED_IDS.user }, team);
   return calls;
 }
 
@@ -70,9 +68,11 @@ describe("synthetic webhook fixtures", () => {
   it("restores a healthy and a paused webhook on reserved hosts without a credential", async () => {
     const calls = await seed();
 
-    expect(calls.webhook.map(({ create }) => [create.id, create.enabled, create.secret])).toEqual([
-      [SYNTHETIC_WEBHOOK_ID, true, null],
-      [SYNTHETIC_PAUSED_WEBHOOK_ID, false, null],
+    expect(
+      calls.webhook.map(({ create }) => [create.id, create.enabled, create.secret, create.url, create.description]),
+    ).toEqual([
+      [SYNTHETIC_WEBHOOK_ID, true, null, SYNTHETIC_WEBHOOK_URL, SYNTHETIC_WEBHOOK_DESCRIPTION],
+      [SYNTHETIC_PAUSED_WEBHOOK_ID, false, null, SYNTHETIC_PAUSED_WEBHOOK_URL, SYNTHETIC_PAUSED_WEBHOOK_DESCRIPTION],
     ]);
     for (const url of [SYNTHETIC_WEBHOOK_URL, SYNTHETIC_PAUSED_WEBHOOK_URL])
       expect(new URL(url).hostname).toMatch(/\.example$/);
