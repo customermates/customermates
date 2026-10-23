@@ -8,7 +8,7 @@ export const HOMEPAGE_CAPTURE_PROVENANCE = {
   claim: "Real Customermates interface with synthetic demo data. Not a customer workspace and not a measured result.",
   environment:
     "Isolated local instance, APP_MODE=demo, fresh PostgreSQL migrated and seeded with prisma db seed, small-business demo workspace (kleine-unternehmen for German)",
-  productRef: "55d3a9434",
+  productRef: "e084475a7",
   renderer:
     "Chromium via Playwright in the page locale, Europe/Berlin, device scale factor 2, theme set through next-themes",
 } as const;
@@ -28,12 +28,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "WhatsApp thread with Sophie Turner (Sophie Thiele in German) selected in the unified inbox",
     sha256: {
       de: {
-        dark: "3ddb547dea224150ea7d037c3d52c53d9951387e37e000cc703c8bf24e9e78f1",
-        light: "5430a9f3cf181ac6705e6bde734a76540c932fce68b228b7bbc5777b627d4c2d",
+        dark: "8adfdbc610b5014182a05bceecc30b4a3688a477ebb22826901ffeb32b94e3da",
+        light: "0cbf6f3011c0d745f55251819c722b3b4c08d2185207b00a128360dc78040b62",
       },
       en: {
-        dark: "f24f7f76a34cf495e684642664fb1d0ed3ac2ae1ecf92969ce8417d52a8cd8d2",
-        light: "d4b8c151018af9bb9a8b4c4953b842fcfa4b0036d061c415a504e99b677646aa",
+        dark: "96ba2c3e3418ba0a46d0181da67ddb7e21a7d6ede71b59f4aa041df207c94d49",
+        light: "6c3a3a14a6fda5918901b4b61e5fde5ec5563c775d9aeb7d57dadee6cc50001a",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -44,12 +44,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Contact record of James Finch (Jakob Fink in German) with fields, channels and cross-channel history",
     sha256: {
       de: {
-        dark: "f2c90d88d778931672d3a28494a9ea12d4bcc6e83363296d7abba3ddd3a6b6e5",
-        light: "3358baeae8b14d434ad34c258178310720571e1b324d8aa8258b74bce01fc0a0",
+        dark: "a2d8378c252c0b9ef98268a0f1ce24aef85daf89649f671b05a4a7906ad9e6b4",
+        light: "dfd63e544a91d09efadef6386287d444988b6901402499fe33ff1ccf4001b44a",
       },
       en: {
-        dark: "cbee5ff19ef7f3b3ee8649fd256dc72cf9b2bc92d25366404a9b734d8a482f4f",
-        light: "56ac2bbf3ed5af0f3aa7b5e05728d9b4885f0a0f30b95972275782ea75f9c303",
+        dark: "9c7beb9c7689210ead50d758fb49939d7072769df6c5a4546efed92e3e253df0",
+        light: "9f26cf981595439e960a9db1d05283b600b6aab90c022eda4c2d2b4a41a2eca7",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -60,12 +60,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Deals list in the Pipeline board view grouped by stage",
     sha256: {
       de: {
-        dark: "e62dff1abe8d11cb2341223107ab20cc0783005fdb7a19f5fbd666c1cd3b6d63",
-        light: "3c9e2df0e2f4c303e7ab00a47fde5655d06be8357a953119871c5013ab9f425a",
+        dark: "5be8023ae93002687dcdae4843539d858577c1937bb4bac4de2f102ea172867b",
+        light: "79c689624f130671aa8040b0fc9864dfdfbd6bf39801f25f5a08968b1a130e59",
       },
       en: {
-        dark: "872fa0e3d0b1d76247d34e5d9d4d6812bb228e64465c3cce3d1e0991e19e8033",
-        light: "2168a6a7196bf97d5e0c07b38d95bfeeb7b157693684c0da6fc5e6d4915adb26",
+        dark: "6eebb313ccc62dd439903b2e017f5f06911d397c415265468d92000db9d70415",
+        light: "a62fd9cd4c6cdf9ea6d7332e8cab36274826b7718be584ad122e598d034ced44",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -74,15 +74,15 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     clipped: false,
     route: "/[locale]/w/[workspace]/dashboard",
     scenario:
-      "Main dashboard with open and weighted pipeline, value won in 12 months, open tasks, deals by stage and source",
+      "Main dashboard with open pipeline, value won in 12 months, average won deal, overdue tasks, pipeline by stage and won value by source",
     sha256: {
       de: {
-        dark: "161e5bd60299459abbb2965a3c851730f49567ed5371b89afd92af7817cf1d2f",
-        light: "664a9f3af17d9a6465e195c479cd4622521949d44646448cba97df6eabae2ee6",
+        dark: "6e7dc75fecd76b79f3ebfa4ce85ff8725e70cf38e082fbce540998b595f97086",
+        light: "15df4ac9b8b528aaf7b02594839c7aee887e9f74b741fd59c2825cb973b1efd1",
       },
       en: {
-        dark: "a82f71ecbc7033ae672a26239a91905e80751ae377ef1ff6edf376cea6f61084",
-        light: "0a367fdd13cf1d1458d798c7613b065d94cc86af4a1143a4a0f77dddd7a34164",
+        dark: "91d30f2418d13883f56137379bf99937e073266dd77ad66f22d7ecbf120c59a8",
+        light: "0eeed288c510866019d203afdec687a88538a237bba36ac7c5835cc4d644e360",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -91,15 +91,15 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     clipped: false,
     route: "/[locale]/w/[workspace]/routines",
     scenario:
-      "Routines list with owners, schedules, triggers and last runs; only the English small-business workspace has seeded routines, so the German capture shows it in the German UI",
+      "Routines list with owners, schedules, triggers and last runs of the small-business workspace (kleine-unternehmen in German)",
     sha256: {
       de: {
-        dark: "5435ec06a51af21b3c0df60aade9a17710705279c41f173748f4d35357c58912",
-        light: "3d3c99834cd1c8cb4cdf16c39407153f768b7a85d997d0b973dc2fa63d663ba5",
+        dark: "3abda609ba643c5e0273e42f43bd64812b30afee6bde54ab87034209c223365c",
+        light: "fd0339510d13bbb6af697a3d977d2da2ec1275aa0d43b5c168ac00a479a736c0",
       },
       en: {
-        dark: "3015b0123b325929f9c735dde50334feee11b5fa9e05242861529e039be3826a",
-        light: "b6b5892243fa85d824f104fcde076fb701abce3ce2eae1ba299c2e30edb5cc26",
+        dark: "a5c606e789580ef27229968e1c7e8a328709c2ca4672e868a0687986fb855dd6",
+        light: "61631b681c85144500227a7f6274b1140a360cef9819b66ee3a233a8b3ee3c94",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -110,12 +110,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Data model graph zoomed to the Deals list and its line items with calculated fields",
     sha256: {
       de: {
-        dark: "94c1b63dedb2a691a77d15fde8d037a3f5597b09cd8c03b101c85f75c71cdf18",
-        light: "6e8df7f3aedeff953b9f31773811a9f3531adcc1dac8743a357e79bb0a5430ef",
+        dark: "432043e4137073335a929fb0860b68eea98a643ecf6d0e028a6efc2524ae3f90",
+        light: "8799fdc30dc08cfb5ee66abc960d5fad8255f72400ea8b10c85723010321e1e1",
       },
       en: {
-        dark: "de4b175532b08f314067009db9af1d6f74582d11166c00a397174af361c1a0be",
-        light: "68cdc6f84acbf9c9774212d92b42e154c82a497b3920826519dc99d5ac1e0ff3",
+        dark: "780b056691d858da9163f8b2de43f0e9150b0069a59728f83cdc65371c629c98",
+        light: "fd54b32f9cc50edc235a0d66195fda85fb5cc9f4c13841ef0467cb9667de2e1b",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -127,12 +127,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
       "LinkedIn conversation with Ethan Clarke (Erik Claasen in German) beside the thread list, sidebar collapsed, at a 1024 px window",
     sha256: {
       de: {
-        dark: "c9a1f4618afd245b1ab8b1487236486e2be5425ac07c9e03cfed92f224b802f0",
-        light: "6160f0639fa79fe37a2fd118a0a2935545c012bea2378014a173123e9a8dce07",
+        dark: "80454eb1d32c9aa8cae39a8c3d6d4eda45e7538f32f1531cb1c8f50d8541f13a",
+        light: "5f6df9e1630e8f368b0ea6485d84e6d33fdfe7e361a67deafeb366fc87153186",
       },
       en: {
-        dark: "ce71a270ba1c7f2d5df5128680bc9d572d487b0939ae08ffd5113cac37019b5f",
-        light: "05c74728a1aa92688b0371181e0aa5ca6335f5b4855a9295c3ad79d037679776",
+        dark: "894b2d180240514a073a70a24fe24158039695567fddfac4037024aae1b448f5",
+        light: "d40a6d964af8e8f6a968140cc1a019a43b0a30382d3c8151201ed500b82666e3",
       },
     },
     viewport: { height: 900, width: 1024 },
@@ -143,12 +143,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Email thread with James Finch (Jakob Fink in German) ending in a saved reply draft with Send draft",
     sha256: {
       de: {
-        dark: "ea2bb8acd4a204794e5703f152b4903ea3e3822f3c1d6e031dbdde412a1acc83",
-        light: "ea2bb7087d4ed54e59af134c043f650d711c6709f2e54cbe9552d40d3e61ad54",
+        dark: "51744bdd0c120670c1fc7c26de535949b3c209e682f6497945c4214f9cff37b3",
+        light: "e7d0a90884c3dcc671f32c99d0c167641dce6139076278365664f9f3a457893f",
       },
       en: {
-        dark: "2ca4d40561e5ccb0e1be4c00097f6f1877c40b8f91861db784c2da6291dce369",
-        light: "b230ab3dc85ff9f635b67d2722ab2acebdf34952a4601f5982c110681a0b9a2c",
+        dark: "625a2e94b74c38a9ea62dcdc8eb3be5ab675265b954d1c7d74b7f9a3b6a7b269",
+        light: "8385a16a35a4a56114574d7cb20d4960844f8f4425acd911a787175734567a08",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -159,12 +159,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "WhatsApp thread with Sophie Turner (Sophie Thiele in German) on a phone-width viewport",
     sha256: {
       de: {
-        dark: "614f5db7fa3ecaa36fae1cf790aef1454a29669db7f912bc5595c406dd67a0ff",
-        light: "fa247fd2d60287f4e5e6e120f916c93deb2691ab9e52d9600d0e848d697b614c",
+        dark: "aa83f25fd732b056127497130e375899b00268a414899a77e600d1ec3b4a17d5",
+        light: "dc734c4e13105c4e91278da58adce85e6f746c16e3e1d6377c4b35d73ec22431",
       },
       en: {
-        dark: "d5607f4effd227b4a09cc435925b4a8d868a07c6233358f978acad4ed765def8",
-        light: "65ab0d5b52c07841397183073191a9c1df20ab501fc49d6366e558897971a214",
+        dark: "07377f46ab10e842f640f4a2128279006516e48665129b459bb8bb4183c6b900",
+        light: "aba280ef2bc737c47c5df37e7666ad14e0f35d2b72b2ba9d998457a5278b4c6d",
       },
     },
     viewport: { height: 844, width: 390 },
@@ -175,12 +175,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Contact record of James Finch (Jakob Fink in German) on a phone-width viewport",
     sha256: {
       de: {
-        dark: "412dcb86622fce94a45c1aac593db3375c08d2411a49b9c8cee37de66e87c3ab",
-        light: "50799af4a99d125f75a3d1e3f3147d862f98ef2d61bf553084e2be7224fc48fc",
+        dark: "58b4e60b07b7e210160eb6566ca3306be75205741a31b27da890c2690ab5ca11",
+        light: "0c15b6a89cbb4a0742f5071792445bf085f7b45d6ae25cc922620298baef1e78",
       },
       en: {
-        dark: "a603dd7328e0c8196cab9819011ee580f67d4a6799516e7849ba30dda88bd9f0",
-        light: "4db83b8ea280b502e972b6c0a5c17f28a0871fd366d60f1e4895d0bc5cf1cd37",
+        dark: "4de33d1adee4f11a2f68fb4e47c91754df7252802c6b63264d572efaa3729c2c",
+        light: "84118add771752befe26ea5216fbe9fe2d57084f0cbd09c11e92b206fcbd8df9",
       },
     },
     viewport: { height: 844, width: 390 },
@@ -191,12 +191,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Deals board on a phone-width viewport",
     sha256: {
       de: {
-        dark: "7f8b72560151e624eb3555d43b249c409dd39c1fdb01faf30ee2cbd27071ac4b",
-        light: "46ce031f944edfb06ed78a2c66ad083b6db8fdce8b622d5d0525a342eda59b15",
+        dark: "d452191eda4eb33f60575b433c04ede87ebe4b9d54842fd659cd6c03c8714676",
+        light: "1766cd742d8f6b10bcbb758bffeb4b7f6462cac9b3a812a06d2f36b88716c50e",
       },
       en: {
-        dark: "a4e4795d73a2f9cd91bc7b504c549a775fc1b83b64005b8fdd10c81b66fd83e9",
-        light: "0e00ea4bb4a9ae5c1efa8a09646b39e44ecb8f45caf0c64d0ff485f5d450a349",
+        dark: "43d0997c6f1716b6771cf9530a04ce6c579bdad2d8c992571458589490507f4b",
+        light: "2405d055d8e80373159b6c8ba202b30bd8876543b476ee323b0d6654b84432b7",
       },
     },
     viewport: { height: 844, width: 390 },
@@ -207,12 +207,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Dashboard widgets on a phone-width viewport",
     sha256: {
       de: {
-        dark: "b6e6080d5f45f78957794f7c5da353b524892d978b941c1d7dab7796b3832c9b",
-        light: "545bc0afe031f62851be48ddcf9f13ee61f02d03b5ca402229b5bf6b6ae8c751",
+        dark: "b8f84d0868d5adaa9782204de1a5f87de1f658ae80bd1c2bd21c8c13645c7a30",
+        light: "6ba5461c90f572e3c7a68791c6f8cab8390e7be6faa2a13a1cd99f26149376cd",
       },
       en: {
-        dark: "c1a332b754877a3d2736fbb2656e8fb9672641bda3da436632203692d6c670e6",
-        light: "72647b8d8df2e81c7762e1c38c799b3c8b863930159393201a78f26ee570d1f3",
+        dark: "ea24101f305ea868c7bd1dd958198a5eff787e794e48848eb1a6d9bcbbafa1d5",
+        light: "c6e18a7405d5398a5794318fa591adfe0585457794e95f1b3960dd2ba77bf104",
       },
     },
     viewport: { height: 844, width: 390 },
@@ -220,15 +220,15 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
   "homepage-routines-mobile": {
     clipped: false,
     route: "/[locale]/w/[workspace]/routines",
-    scenario: "Routines list of the English small-business workspace on a phone-width viewport",
+    scenario: "Routines list of the small-business workspace on a phone-width viewport",
     sha256: {
       de: {
-        dark: "ecff64178f446b81b8790d3a3a5bfde84b3497506e83b465b58f6e309aecc66e",
-        light: "95ef360b09a4b4c0813c7919e85ec19716cc47cfa9ba2d1db7596bb51d973c39",
+        dark: "761afe38a794a3b9356a168dd38e4f66711c717f018861e7bf74d7d97d29ea24",
+        light: "1ec012600ace148e50b6dac0f632ee85ff3ea264f1adfd6dc0b29ca23f8ff10d",
       },
       en: {
-        dark: "c85b93a1dad201d7ff58b4420fce28029cf1ec6b02e2319405ce3bb7ddcdd71a",
-        light: "384b52c24a84f3f411b757a47d881bf0def16bb675cf35658e8f2d0120ce3793",
+        dark: "a58c7fc2eae6c19b0148d0a61016cd02ef7660b1dda4595d23a3fe4ab5f13137",
+        light: "b82b42938f3dd9faa446196f5e1aad07276ad3e78370f95e987000b153576ebb",
       },
     },
     viewport: { height: 844, width: 390 },
@@ -239,12 +239,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Data model graph zoomed to the Deals list on a phone-width viewport",
     sha256: {
       de: {
-        dark: "81c797e65f946fa75a85a2766db88b00495f5ccb31bc62ab328dd75d6f3ef6ae",
-        light: "6f3af2fbb97e5ffb0ddb5edbb77e18de0d972f276630ec511984a0c199816361",
+        dark: "a4c06a11549a29ed76c9615e15fe8d0f731578f9e4379ce9f72cd5bb2ca29799",
+        light: "c1377ba85bc69d8e1713c876818445243871e370d78152defa2ea87503d3c4a0",
       },
       en: {
-        dark: "e9ff7ea2f417f84ae0de4388d35f5d402d84ae441ae7125e9c9a262a3c307b6f",
-        light: "6275a00f90ec80570acb55b92c334ea354a3ea28432ff6bcd553119aeb661caf",
+        dark: "4c8181ce92f0e1909bc64109c3837d30ed46503a26c9b8432733e638d3847210",
+        light: "abd62d14d3bb9fb88f7730e4e44675b9f667e206d4be836b23f47d6389e55c3a",
       },
     },
     viewport: { height: 844, width: 390 },
