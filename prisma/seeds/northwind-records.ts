@@ -45,6 +45,11 @@ const range = (start: number, end: number): RecordScalar => ({
   start: northwindDay(start),
   end: northwindDay(end),
 });
+const instantRange = (start: number, end: number): RecordScalar => ({
+  kind: "range",
+  start: northwindAt(start).toISOString(),
+  end: northwindAt(end).toISOString(),
+});
 const member = (key: MemberKey): RecordScalar => ({ kind: "member", value: NORTHWIND_MEMBER_IDS[key] });
 const document = (lines: readonly string[] | string): RecordScalar => ({
   kind: "richText",
@@ -200,6 +205,7 @@ export function buildNorthwindRecords(companyId: string) {
     set("task", task.id, [
       ["team", option("task.team", task.team)],
       ["dueDate", date(task.dueMs)],
+      ["scheduled", task.scheduled ? instantRange(task.scheduled.startMs, task.scheduled.endMs) : null],
     ]);
     for (const [kind, indexes] of [
       ["contact", task.contactIndexes],

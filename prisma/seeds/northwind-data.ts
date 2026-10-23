@@ -583,6 +583,8 @@ export type NorthwindTask = {
   priority: "low" | "medium" | "high";
   assigneeKey: MemberKey | null;
   dueMs: number;
+  /** The planned work slot (authored instants), or null when the task has none. */
+  scheduled: { startMs: number; endMs: number } | null;
   createdAtMs: number;
   contactIndexes: number[];
   organizationIndexes: number[];
@@ -1499,7 +1501,7 @@ export function buildNorthwindDataset(): NorthwindDataset {
   const tasks: NorthwindTask[] = [];
   type TaskInput = Omit<
     NorthwindTask,
-    "index" | "id" | "contactIndexes" | "organizationIndexes" | "dealIndexes" | "serviceIndexes"
+    "index" | "id" | "scheduled" | "contactIndexes" | "organizationIndexes" | "dealIndexes" | "serviceIndexes"
   > &
     Partial<Pick<NorthwindTask, "contactIndexes" | "organizationIndexes" | "dealIndexes" | "serviceIndexes">>;
   const addTask = (task: TaskInput) =>
@@ -1508,6 +1510,7 @@ export function buildNorthwindDataset(): NorthwindDataset {
       organizationIndexes: [],
       dealIndexes: [],
       serviceIndexes: [],
+      scheduled: null,
       ...task,
       createdAtMs: Math.min(task.createdAtMs, END - HOUR),
       index: tasks.length,
@@ -1730,6 +1733,20 @@ export function buildNorthwindDataset(): NorthwindDataset {
     if (task.status === "done" || task.status === "archived") continue;
     if (task.index % 8 === 0) task.dueMs = Math.min(task.dueMs, END - (1 + (task.index % 5)) * DAY);
     else task.dueMs = Math.max(task.dueMs, END + (7 + (task.index % 14)) * DAY);
+  }
+
+  // Every third open task that is not overdue has a work slot in the story's current week or the following Monday,
+  // so the calendars show timed entries. The slots derive from the order alone (no random draw shifts the rest of
+  // the story) and end before the task is due.
+  const monday = Math.floor(END / DAY) * DAY - ((new Date(END).getUTCDay() + 6) % 7) * DAY;
+  const workdays = [0, 1, 2, 3, 4, 7].map((offset) => monday + offset * DAY);
+  const planned = tasks
+    .filter((task) => (task.status === "open" || task.status === "inProgress") && task.dueMs > END)
+    .filter((_, index) => index % 3 === 0)
+    .slice(0, 14);
+  for (const [index, task] of planned.entries()) {
+    const startMs = workdays[index % workdays.length] + (6 + ((index * 5) % 8)) * HOUR + (index % 2) * 30 * 60_000;
+    task.scheduled = { startMs, endMs: startMs + [30, 45, 60, 90, 120][index % 5] * 60_000 };
   }
 
   // Notes on key records -------------------------------------------------------------------------------------------------

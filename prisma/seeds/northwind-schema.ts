@@ -484,6 +484,7 @@ export function applyNorthwindModel(model: RecordModel, companyId: string): Reco
   // Tasks
   choice("task", "task.team", "Team");
   add("task", "task.dueDate", "Due date", "date");
+  add("task", "task.scheduled", "Scheduled", "dateTimeRange");
 
   // Subscriptions
   choice("subscription", "subscription.plan", "Plan");

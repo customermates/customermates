@@ -175,6 +175,18 @@ describe("Northwind Labs demo fixture contract", () => {
     );
   });
 
+  it("schedules timed work slots on open tasks in the story's current week, each ending before the task is due", () => {
+    const scheduled = data.tasks.filter((task) => task.scheduled);
+    expect(scheduled.length).toBeGreaterThanOrEqual(10);
+    for (const task of scheduled) {
+      const slot = task.scheduled as { startMs: number; endMs: number };
+      expect(["open", "inProgress"]).toContain(task.status);
+      expect(slot.endMs).toBeGreaterThan(slot.startMs);
+      expect(slot.endMs).toBeLessThan(task.dueMs);
+      expect(Math.abs(slot.startMs - NORTHWIND_STORY_END_MS)).toBeLessThan(7 * 86_400_000);
+    }
+  });
+
   it("uses fictional organizations with reserved example domains", () => {
     expect(new Set(SYNTHETIC_ORGANIZATION_DEFINITIONS.map(({ name }) => name)).size).toBe(120);
     for (const { emailDomain, website } of SYNTHETIC_ORGANIZATION_DEFINITIONS) {
@@ -308,6 +320,7 @@ describe("Northwind Labs demo fixture contract", () => {
         "boolean",
         "date",
         "dateRange",
+        "dateTimeRange",
         "select",
         "url",
         "member",

@@ -134,6 +134,7 @@ export const NORTHWIND_FIELD_KEYS = {
   task: {
     team: "task.team",
     dueDate: "task.dueDate",
+    scheduled: "task.scheduled",
   },
   subscription: {
     name: "subscription.name",
