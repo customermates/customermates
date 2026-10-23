@@ -20,6 +20,7 @@ export type RecordFileDetails = StoredRecordFile & {
 export abstract class RecordFileUploadRepo {
   abstract createPendingFile(file: PendingRecordFile): Promise<void>;
   abstract getFileCompanyWide(fileId: string): Promise<RecordFileDetails | null>;
+  abstract renameFileCompanyWide(fileId: string, name: string): Promise<boolean>;
   abstract markFileUploaded(fileId: string, upload: { size: number; sha256: string }): Promise<boolean>;
   abstract storageUsageCompanyWide(): Promise<number>;
 }

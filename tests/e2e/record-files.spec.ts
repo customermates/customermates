@@ -356,6 +356,60 @@ test("uploads, shows, downloads and removes record files and refuses uploads ove
   }
 
   await openRecordDetails(page, "Example organization");
+  const named = (name: string) =>
+    editor.locator("[data-record-file]", {
+      has: page.locator("[data-record-file-name]", { hasText: new RegExp(`^${name.replaceAll(".", "\\.")}$`, "u") }),
+    });
+  await named("plan.md").hover();
+  await named("plan.md").locator("[data-item-actions-trigger]").click();
+  await page.getByRole("menuitem", { name: "Rename plan.md", exact: true }).click();
+  const nameInput = editor.getByRole("textbox", { name: "File name", exact: true });
+  await expect(nameInput).toBeFocused();
+  await expect(nameInput).toHaveValue("plan.md");
+  expect(
+    await nameInput.evaluate((element: HTMLInputElement) => [element.selectionStart, element.selectionEnd]),
+  ).toEqual([0, 4]);
+  await page.keyboard.type("plan final");
+  const renamed = page.waitForResponse(
+    (response) => response.request().method() === "PATCH" && response.url().includes("/api/v1/files/"),
+  );
+  await page.keyboard.press("Enter");
+  await expect(named("plan final.md")).toBeVisible();
+  expect((await renamed).status()).toBe(200);
+  await expect(named("plan.md")).toHaveCount(0);
+  await expect
+    .poll(async () => (await storedFiles(database, companyId, fieldId)).map(({ name }) => name))
+    .toContain("plan final.md");
+
+  await named("plan final.md").hover();
+  await named("plan final.md").locator("[data-item-actions-trigger]").click();
+  await page.getByRole("menuitem", { name: "Rename plan final.md", exact: true }).click();
+  await expect(nameInput).toBeFocused();
+  await page.keyboard.type("discarded");
+  await page.keyboard.press("Escape");
+  await expect(nameInput).toHaveCount(0);
+  await expect(drawer).toBeVisible();
+  await expect(named("plan final.md")).toBeVisible();
+
+  await named("plan final.md").locator("[data-record-file-name]").click();
+  const renamedPreview = page.getByRole("dialog", { name: "plan final.md", exact: true });
+  await expect(renamedPreview.getByRole("heading", { name: "plan final.md", exact: true })).toBeVisible();
+  const [renamedDownload] = await Promise.all([
+    page.waitForEvent("download"),
+    renamedPreview.getByRole("button", { name: "Download file", exact: true }).first().click(),
+  ]);
+  expect(renamedDownload.suggestedFilename()).toBe("plan final.md");
+  await renamedPreview.getByRole("button", { name: "Rename plan final.md", exact: true }).click();
+  const drawerInput = renamedPreview.getByRole("textbox", { name: "File name", exact: true });
+  await expect(drawerInput).toBeFocused();
+  await page.keyboard.type("plan v2");
+  await page.keyboard.press("Enter");
+  await expect(renamedPreview).toHaveCount(0);
+  const renamedAgain = page.getByRole("dialog", { name: "plan v2.md", exact: true });
+  await expect(renamedAgain.getByRole("heading", { name: "plan v2.md", exact: true })).toBeVisible();
+  await renamedAgain.getByRole("button", { name: "Close", exact: true }).click();
+  await expect(named("plan v2.md")).toBeVisible();
+
   const notesTile = editor.locator("[data-record-file]", { hasText: "notes.txt" });
   await notesTile.hover();
   await notesTile.locator("[data-item-actions-trigger]").click();
@@ -371,7 +425,7 @@ test("uploads, shows, downloads and removes record files and refuses uploads ove
     .toEqual([
       ["notes.txt", "detached"],
       ["offer.pdf", "ready"],
-      ["plan.md", "ready"],
+      ["plan v2.md", "ready"],
       ["workspace.png", "ready"],
     ]);
   expect(

@@ -101,21 +101,32 @@ const FILES: PreviewFile[] = [
 
 const roots = new Set<Root>();
 let open: (set: RecordFileSet) => void = () => undefined;
+const renamer = vi.hoisted(() => ({ names: new Map<string, string>(), calls: [] as Array<[string, string]> }));
+const rename = {
+  nameOf: (file: { id: string; name: string }) => renamer.names.get(file.id) ?? file.name,
+  rename: (file: { id: string; name: string }, name: string) => {
+    renamer.calls.push([file.id, name]);
+    renamer.names.set(file.id, `${name}.pdf`);
+    return Promise.resolve();
+  },
+};
 
-function Harness() {
-  const preview = useRecordFilePreview();
+function Harness({ renamable = false }: { renamable?: boolean }) {
+  const preview = useRecordFilePreview({ rename: renamable ? rename : undefined });
   open = (set) => preview.openFiles(set, null);
   return createElement("div", null, preview.preview);
 }
 
-function render() {
+function render(renamable = false) {
   const host = document.createElement("div");
   document.body.append(host);
   const root = createRoot(host);
   roots.add(root);
-  act(() => root.render(createElement(Harness)));
+  const draw = () => act(() => root.render(createElement(Harness, { renamable })));
+  draw();
   return {
     host,
+    draw,
     open: (set: RecordFileSet) => act(() => open(set)),
     shown: () => host.querySelector("[data-record-file-preview-file]")?.getAttribute("data-record-file-preview-file"),
     position: () => host.querySelector("[data-record-file-position]")?.textContent,
@@ -133,6 +144,8 @@ function render() {
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   downloaded.length = 0;
+  renamer.names.clear();
+  renamer.calls.length = 0;
   Object.defineProperty(navigator, "pdfViewerEnabled", { configurable: true, value: true });
 });
 
@@ -162,6 +175,33 @@ describe("record file preview", () => {
     expect(view.shown()).toBe("archive");
     act(() => view.button("RecordModel.filePrevious")?.click());
     expect(view.shown()).toBe("image");
+  });
+
+  it("renames the shown file from the header when the field can be edited, and only then", async () => {
+    const readOnly = render();
+    readOnly.open({ files: FILES, index: 0 });
+    expect(readOnly.host.querySelector('[data-action="rename-file"]')).toBeNull();
+
+    const view = render(true);
+    view.open({ files: FILES, index: 0, group: "Documents" });
+    act(() => view.host.querySelector<HTMLButtonElement>('[data-action="rename-file"]')?.click());
+    const input = view.host.querySelector<HTMLInputElement>("[data-record-file-name-input]");
+    if (!input) throw new Error("The name input is missing");
+    expect([input.selectionStart, input.selectionEnd]).toEqual([0, 5]);
+    view.key("ArrowRight", input);
+    expect(view.shown()).toBe("pdf");
+    await act(async () => {
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set?.call(input, "Signed");
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true }));
+      await Promise.resolve();
+    });
+    expect(renamer.calls).toEqual([["pdf", "Signed"]]);
+    view.draw();
+    expect(view.host.querySelector("h2")?.textContent).toBe("Signed.pdf");
+    expect(view.host.querySelector("[role=dialog]")?.getAttribute("aria-label")).toBe("Signed.pdf");
+    act(() => view.host.querySelector<HTMLButtonElement>('[data-action="download-file"]')?.click());
+    expect(downloaded).toEqual([expect.objectContaining({ id: "pdf", name: "Signed.pdf" })]);
   });
 
   it("leaves arrow keys to text fields and sheet tabs inside the preview", () => {

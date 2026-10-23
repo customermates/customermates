@@ -20,6 +20,21 @@ export function sanitizeRecordFileName(name: string): string | null {
   return truncateKeepingExtension(cleaned).trim();
 }
 
+function extensionOf(name: string): string {
+  const dot = name.lastIndexOf(".");
+  const extension = dot > 0 ? name.slice(dot) : "";
+  return /^\.[^\s.]{1,16}$/u.test(extension) ? extension : "";
+}
+
+export function renamedRecordFileName(current: string, requested: string): string | null {
+  if (/[/\\]/u.test(requested)) return null;
+  const sanitized = sanitizeRecordFileName(requested);
+  if (!sanitized) return null;
+  const kept = extensionOf(current);
+  if (!kept || extensionOf(sanitized)) return sanitized;
+  return sanitizeRecordFileName(`${sanitized}${kept}`);
+}
+
 export function normalizeRecordFileMimeType(mimeType: string): string {
   const bare = mimeType.split(";")[0]?.trim().toLowerCase() ?? "";
   return MIME_TYPE.test(bare) ? bare : DEFAULT_RECORD_FILE_MIME_TYPE;

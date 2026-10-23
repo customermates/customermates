@@ -184,6 +184,7 @@ import { PreviewRecordFileInteractor } from "@/features/record-files/preview-rec
 import { DownloadRecordFileByGrantInteractor } from "@/features/record-files/download-record-file-by-grant.interactor";
 import { UploadRecordFileInteractor } from "@/features/record-files/upload-record-file.interactor";
 import { AttachRecordFileInteractor } from "@/features/record-files/attach-record-file.interactor";
+import { RenameRecordFileInteractor } from "@/features/record-files/rename-record-file.interactor";
 import { AgentChatFileService } from "@/ee/agent-chat/agent-chat-files.service";
 import { AgentNativeFileLoader } from "@/ee/agent-chat/agent-native-file-loader";
 import { CompleteAgentChatFileUploadInteractor } from "@/ee/agent-chat/complete-agent-chat-file-upload.interactor";
@@ -686,6 +687,13 @@ export const getAttachRecordFileInteractor = () =>
     records: getRecordRepo(),
     mutate: getMutateRecordInteractor(),
   });
+export const getRenameRecordFileInteractor = () =>
+  new RenameRecordFileInteractor(
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getRecordWriteService(),
+    getRecordFileRepo(),
+  );
 export const getAgentChatFileService = () =>
   new AgentChatFileService(getRecordFileAccessService(), getRecordFileRepo(), getBackgroundTaskService());
 export const getAgentNativeFileLoader = () =>

@@ -31,7 +31,7 @@ export function recordToolRisk(name: string, input: unknown): RecordToolRisk | n
   }
   if (name === "manage_record_files") {
     if (data.action === "read") return "read";
-    return typeof data.action === "string" && ["upload", "create_upload", "attach"].includes(data.action)
+    return typeof data.action === "string" && ["upload", "create_upload", "attach", "rename"].includes(data.action)
       ? "write"
       : "sensitive";
   }

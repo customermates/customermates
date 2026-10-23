@@ -53,6 +53,7 @@ const { CreateRecordFileUploadInteractor } = await import("../create-record-file
 const { UploadRecordFileContentInteractor } = await import("../upload-record-file-content.interactor");
 const { UploadRecordFileContentByGrantInteractor } = await import("../upload-record-file-content-by-grant.interactor");
 const { GetRecordFileInteractor } = await import("../get-record-file.interactor");
+const { RenameRecordFileInteractor } = await import("../rename-record-file.interactor");
 const { DownloadRecordFileInteractor } = await import("../download-record-file.interactor");
 const { PreviewRecordFileInteractor } = await import("../preview-record-file.interactor");
 const { DownloadRecordFileByGrantInteractor } = await import("../download-record-file-by-grant.interactor");
@@ -213,6 +214,12 @@ async function workspace() {
     preview: new PreviewRecordFileInteractor(access, drivers),
     readByGrant: new DownloadRecordFileByGrantInteractor(grants, content),
     upload: new UploadRecordFileInteractor(uploads, files, drivers, repo, mutate),
+    rename: new RenameRecordFileInteractor(
+      repo,
+      policy,
+      new RecordWriteService(repo, policy, calculations, undefined, attacher),
+      files,
+    ),
     purge: new PurgeCompanyRecordFilesInteractor(
       () => new PrismaRecordFileRepo(companyId),
       () => () => new DatabaseFileStorageDriver(new PrismaFileContentRepo(companyId), "http://127.0.0.1:4000", 1024),
@@ -517,6 +524,54 @@ describeDatabase("record files", () => {
         ),
       ),
     ).toMatchObject({ code: "permissionDenied" });
+  });
+
+  it("renames a file as a record update that keeps the extension, the version and the uploader's pending files", async () => {
+    const w = await workspace();
+    const file = await w.uploaded(64);
+    const ref = await w.createDeal([{ fieldId: w.multiple, value: { kind: "file", value: [file.fileId] } }]);
+    const before = await w.version(ref);
+    const renamed = data(
+      await w.as(w.admin, () => w.interactors.rename.invoke({ fileId: file.fileId, name: " Signed " })),
+    );
+    expect(renamed).toMatchObject({ id: file.fileId, name: "Signed.pdf", status: "ready" });
+    expect((await w.row(file.fileId))?.name).toBe("Signed.pdf");
+    expect(await w.version(ref)).toBe(before);
+    const events = await runWithoutTenant(() =>
+      prisma.eventLog.findMany({
+        where: { companyId: w.companyId, subjectId: ref.recordId, kind: "record.updated", actorId: w.admin.id },
+        orderBy: { createdAt: "asc" },
+      }),
+    );
+    const change = (events.at(-1)?.payload as { changedFieldIds: string[]; fields: unknown[] } | undefined) ?? null;
+    expect(change?.changedFieldIds).toEqual([w.multiple]);
+    expect(change?.fields).toEqual([
+      expect.objectContaining({
+        fieldId: w.multiple,
+        before: expect.objectContaining({ files: [{ id: file.fileId, name: "Offer.pdf" }] }),
+        after: expect.objectContaining({ files: [{ id: file.fileId, name: "Signed.pdf" }] }),
+      }),
+    ]);
+    expect(
+      data(await w.as(w.admin, () => w.interactors.rename.invoke({ fileId: file.fileId, name: "Signed.txt" }))).name,
+    ).toBe("Signed.txt");
+    for (const name of ["folder/Signed.pdf", "..\\x.pdf", "   ", "\u0000"]) {
+      expect(
+        failure(await w.as(w.admin, () => w.interactors.rename.invoke({ fileId: file.fileId, name }))),
+      ).toMatchObject({ code: "recordFileNameInvalid" });
+    }
+    expect(
+      failure(await w.as(w.guest, () => w.interactors.rename.invoke({ fileId: file.fileId, name: "Mine" }))),
+    ).toMatchObject({ code: "permissionDenied", kind: "authorization" });
+    expect((await w.row(file.fileId))?.name).toBe("Signed.txt");
+
+    const pending = await w.uploaded(16, w.multiple, "Draft.pdf");
+    expect(
+      failure(await w.as(w.colleague, () => w.interactors.rename.invoke({ fileId: pending.fileId, name: "Theirs" }))),
+    ).toMatchObject({ code: "recordFileNotFound", kind: "not_found" });
+    expect(
+      data(await w.as(w.admin, () => w.interactors.rename.invoke({ fileId: pending.fileId, name: "Final" }))).name,
+    ).toBe("Final.pdf");
   });
 
   it("validates the field, the name, the size limit and the workspace storage", async () => {

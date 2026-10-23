@@ -11,7 +11,13 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 import { createMockDiModule, MOCK_ENV_MODULE, MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
 
 const mockUser = createMockUser();
-const spies = vi.hoisted(() => ({ upload: vi.fn(), createUpload: vi.fn(), read: vi.fn(), attach: vi.fn() }));
+const spies = vi.hoisted(() => ({
+  upload: vi.fn(),
+  createUpload: vi.fn(),
+  read: vi.fn(),
+  attach: vi.fn(),
+  rename: vi.fn(),
+}));
 
 vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
@@ -25,6 +31,7 @@ vi.mock("@/core/di", () => ({
   getCreateRecordFileUploadInteractor: () => ({ invoke: spies.createUpload }),
   getReadRecordFileInteractor: () => ({ invoke: spies.read }),
   getAttachRecordFileInteractor: () => ({ invoke: spies.attach }),
+  getRenameRecordFileInteractor: () => ({ invoke: spies.rename }),
 }));
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -243,6 +250,29 @@ describe("manage_record_files", () => {
     expect(spies.attach).toHaveBeenCalledTimes(2);
   });
 
+  it("renames a file through the rename interactor and passes a refused name on with its code", async () => {
+    spies.rename.mockResolvedValueOnce({ ok: true, data: { ...file, name: "Signed offer.pdf" } });
+    const result = await execute({ action: "rename", fileId: FILE_ID, name: "Signed offer" });
+    expect(spies.rename).toHaveBeenCalledWith({ fileId: FILE_ID, name: "Signed offer" });
+    const content = structured(result);
+    expect(content).toMatchObject({ action: "rename", file: { id: FILE_ID, name: "Signed offer.pdf" } });
+    expect(await sdkOutputViolations(content)).toEqual({ server: null, client: null });
+
+    spies.rename.mockResolvedValueOnce({
+      ok: false,
+      error: createZodError("Enter a file name without folders.", ["name"], {
+        error: CustomErrorCode.recordFileNameInvalid,
+        kind: "validation",
+      }),
+    });
+    expect(JSON.stringify(await execute({ action: "rename", fileId: FILE_ID, name: "a/b.pdf" }))).toContain(
+      "recordFileNameInvalid",
+    );
+    const missing = await execute({ action: "rename", fileId: FILE_ID });
+    expect(JSON.stringify(missing)).toContain("name");
+    expect(spies.rename).toHaveBeenCalledTimes(2);
+  });
+
   it("reads a chat file that is not in any field yet", async () => {
     spies.read.mockResolvedValue({
       ok: true,
@@ -266,11 +296,12 @@ describe("manage_record_files", () => {
     expect(await sdkOutputViolations(content)).toEqual({ server: null, client: null });
   });
 
-  it("lets Mate read, upload and attach without approval and treats only read as read-only", () => {
+  it("lets Mate read, upload, attach and rename without approval and treats only read as read-only", () => {
     const identity = internalToolIdentity("manage_record_files");
-    for (const action of ["read", "create_upload", "upload", "attach"])
+    for (const action of ["read", "create_upload", "upload", "attach", "rename"])
       expect(requiresApproval(identity, manageRecordFilesTool, { action }), action).toBe(false);
     expect(isReadOnlyAgentToolCall("manage_record_files", manageRecordFilesTool, { action: "read" })).toBe(true);
     expect(isReadOnlyAgentToolCall("manage_record_files", manageRecordFilesTool, { action: "upload" })).toBe(false);
+    expect(isReadOnlyAgentToolCall("manage_record_files", manageRecordFilesTool, { action: "rename" })).toBe(false);
   });
 });

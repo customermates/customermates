@@ -9,7 +9,9 @@ import {
   AttachRecordFileTargetSchema,
   CreateRecordFileUploadResultSchema,
   CreateRecordFileUploadSchema,
+  RecordFileDtoSchema,
   RecordFileReadResultSchema,
+  RenameRecordFileSchema,
   UploadRecordFileContentResultSchema,
   UploadRecordFileResultSchema,
 } from "./record-file.schema";
@@ -121,6 +123,31 @@ const downloadContentOperation: ZodOpenApiOperationObject = {
   },
 };
 
+const renameFileOperation: ZodOpenApiOperationObject = {
+  operationId: "renameFile",
+  summary: "Rename a file",
+  description: `${FILE_CONTRACT} Changes the name a file shows and downloads with. Folders are refused, control characters are removed and the name is cut to 255 characters; a name without an extension keeps the file's current one, so "Offer" renames "Draft.pdf" to "Offer.pdf". Renaming a file in a record's file field is a record update: it appears in the record's activity like any change of the field, but leaves the record version unchanged. Renaming a pending file is possible for the person who uploaded it. An empty or invalid name answers 400 with recordFileNameInvalid.\n\nRequires: update access to the record and the file field, or ownership of a pending upload`,
+  tags: ["files"],
+  security: [{ apiKeyAuth: [] }],
+  requestParams: { path: FileIdPathSchema },
+  requestBody: {
+    required: true,
+    content: {
+      "application/json": {
+        schema: RenameRecordFileSchema.omit({ fileId: true }),
+        example: { name: "Signed offer.pdf" },
+      },
+    },
+  },
+  responses: {
+    "200": {
+      description: "The renamed file.",
+      content: { "application/json": { schema: RecordFileDtoSchema } },
+    },
+    ...StructuredApiResponses,
+  },
+};
+
 const attachOperation: ZodOpenApiOperationObject = {
   operationId: "attachFile",
   summary: "Attach a pending file to a record",
@@ -153,7 +180,7 @@ const attachOperation: ZodOpenApiOperationObject = {
 
 export const recordFileApiPaths = {
   "/v1/files/uploads": { post: createUploadOperation },
-  "/v1/files/{id}": { get: getFileOperation },
+  "/v1/files/{id}": { get: getFileOperation, patch: renameFileOperation },
   "/v1/files/{id}/preview": { get: previewFileOperation },
   "/v1/files/{id}/attach": { post: attachOperation },
   "/v1/files/{id}/content": { get: downloadContentOperation, put: uploadContentOperation },

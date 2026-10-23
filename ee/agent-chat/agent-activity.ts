@@ -253,7 +253,7 @@ function describeAgentToolAction(
     if (toolName === "manage_record_files") {
       const action = actionValue(details);
       if (recordRisk === "read") return descriptor("records.read", undefined, recordRisk);
-      if (action === "attach" || (action === "upload" && typeof details.recordId === "string"))
+      if (action === "attach" || action === "rename" || (action === "upload" && typeof details.recordId === "string"))
         return descriptor("records.update", undefined, recordRisk);
       return descriptor("generic", undefined, recordRisk);
     }

@@ -188,6 +188,20 @@ export const AttachRecordFileSchema = AttachRecordFileTargetSchema.extend({
 }).strict();
 export type AttachRecordFile = z.infer<typeof AttachRecordFileSchema>;
 
+export const RenameRecordFileSchema = z
+  .object({
+    fileId: z.uuid().describe("Id of the file."),
+    name: z
+      .string()
+      .min(1)
+      .max(1024)
+      .describe(
+        "New file name without folders; control characters are removed and it is cut to 255 characters. A name without an extension keeps the file's current extension.",
+      ),
+  })
+  .strict();
+export type RenameRecordFile = z.infer<typeof RenameRecordFileSchema>;
+
 export const FileStorageUsageSchema = z
   .object({
     usedBytes: z.number().int().nonnegative(),

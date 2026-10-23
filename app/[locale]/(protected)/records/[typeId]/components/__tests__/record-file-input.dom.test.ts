@@ -26,6 +26,13 @@ const uploads = vi.hoisted(() => ({
 }));
 const opened = vi.hoisted(() => [] as unknown[]);
 const downloaded = vi.hoisted(() => [] as unknown[]);
+const renames = vi.hoisted(() => ({
+  calls: [] as Array<[string, string]>,
+  pending: [] as Array<(outcome: unknown) => void>,
+  toasts: [] as string[],
+}));
+
+vi.mock("sonner", () => ({ toast: { error: (message: string) => renames.toasts.push(message) } }));
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
@@ -61,8 +68,25 @@ vi.mock("@/components/ui/icon-button", async () => {
 vi.mock("@/components/ui/item-actions", async () => {
   const React = await import("react");
   return {
-    ItemActions: ({ children, menu }: { children: ReactNode; menu: ReactNode }) =>
-      React.createElement(React.Fragment, null, children, menu),
+    ItemActions: ({
+      children,
+      menu,
+      onCloseAutoFocus,
+    }: {
+      children: ReactNode;
+      menu: ReactNode;
+      onCloseAutoFocus?: (event: Event) => void;
+    }) =>
+      React.createElement(
+        React.Fragment,
+        null,
+        children,
+        React.createElement(
+          "div",
+          { onClick: () => onCloseAutoFocus?.(new Event("focus", { cancelable: true })) },
+          menu,
+        ),
+      ),
     ItemActionsTrigger: () => null,
     ITEM_ACTIONS_TRIGGER_CLASS: "",
   };
@@ -118,6 +142,10 @@ vi.mock("@/components/records/record-file-upload", () => ({
     };
     if (!uploads.hold) return Promise.resolve(started);
     return new Promise((resolve) => uploads.held.push(() => resolve(started)));
+  },
+  renameRecordFile: (fileId: string, name: string) => {
+    renames.calls.push([fileId, name]);
+    return new Promise((resolve) => renames.pending.push(resolve));
   },
   sendRecordFileBytes: (_upload: unknown, file: File, progress: (loaded: number, total: number) => void) => {
     let finish: Transfer["finish"] = () => undefined;
@@ -233,6 +261,9 @@ beforeEach(() => {
   uploads.transfers.length = 0;
   opened.length = 0;
   downloaded.length = 0;
+  renames.calls.length = 0;
+  renames.pending.length = 0;
+  renames.toasts.length = 0;
 });
 
 afterEach(() => {
@@ -355,6 +386,59 @@ describe("RecordFileInput", () => {
     expect(view.menuItem('RecordModel.fileRemove {"name":"Offer.pdf"}')).toBeNull();
     expect(view.menuItem("RecordModel.fileDownload")).not.toBeNull();
     expect(view.rows()).toEqual(["Offer.pdf"]);
+  });
+
+  it("renames a file inline from its menu, optimistically and with a rollback when the server refuses", async () => {
+    const view = render();
+    act(() => view.menuItem('RecordModel.fileRename {"name":"Offer.pdf"}')?.click());
+    const input = view.host.querySelector<HTMLInputElement>("[data-record-file-name-input]");
+    if (!input) throw new Error("The name input is missing");
+    expect(input.value).toBe("Offer.pdf");
+    expect(document.activeElement).toBe(input);
+    expect([input.selectionStart, input.selectionEnd]).toEqual([0, 5]);
+    expect(input.hasAttribute("data-local-escape")).toBe(true);
+    const type = (value: string, key: string) =>
+      act(() => {
+        Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set?.call(input, value);
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }));
+      });
+    type("Signed", "Enter");
+    expect(renames.calls).toEqual([["saved-file", "Signed"]]);
+    expect(view.rows()).toEqual(["Signed.pdf"]);
+    await act(async () => {
+      renames.pending[0]({ ok: true, data: { ...SAVED, name: "Signed.pdf" } });
+      await Promise.resolve();
+    });
+    expect(view.rows()).toEqual(["Signed.pdf"]);
+
+    act(() => view.menuItem('RecordModel.fileRename {"name":"Signed.pdf"}')?.click());
+    const again = view.host.querySelector<HTMLInputElement>("[data-record-file-name-input]");
+    if (!again) throw new Error("The name input is missing");
+    act(() => {
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set?.call(again, "Taken");
+      again.dispatchEvent(new Event("input", { bubbles: true }));
+      again.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true }));
+    });
+    expect(view.rows()).toEqual(["Taken.pdf"]);
+    await act(async () => {
+      renames.pending[1]({ ok: false, message: "No access" });
+      await Promise.resolve();
+    });
+    expect(view.rows()).toEqual(["Signed.pdf"]);
+    expect(renames.toasts).toEqual(["No access"]);
+
+    act(() => view.menuItem('RecordModel.fileRename {"name":"Signed.pdf"}')?.click());
+    const cancelled = view.host.querySelector<HTMLInputElement>("[data-record-file-name-input]");
+    act(() => {
+      cancelled?.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
+    });
+    expect(view.host.querySelector("[data-record-file-name-input]")).toBeNull();
+    expect(renames.calls).toHaveLength(2);
+
+    form.disabled = true;
+    view.redraw();
+    expect(view.menuItem('RecordModel.fileRename {"name":"Signed.pdf"}')).toBeNull();
   });
 
   it("describes each file with its page count, size, uploader and age", () => {

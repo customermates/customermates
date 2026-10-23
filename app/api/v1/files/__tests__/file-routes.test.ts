@@ -8,6 +8,7 @@ const interactors = vi.hoisted(() => ({
   attach: vi.fn(),
   createUpload: vi.fn(),
   getFile: vi.fn(),
+  rename: vi.fn(),
   readContent: vi.fn(),
   readByGrant: vi.fn(),
   uploadContent: vi.fn(),
@@ -18,6 +19,7 @@ vi.mock("@/core/di", () => ({
   getAttachRecordFileInteractor: () => ({ invoke: interactors.attach }),
   getCreateRecordFileUploadInteractor: () => ({ invoke: interactors.createUpload }),
   getGetRecordFileInteractor: () => ({ invoke: interactors.getFile }),
+  getRenameRecordFileInteractor: () => ({ invoke: interactors.rename }),
   getDownloadRecordFileInteractor: () => ({ invoke: interactors.readContent }),
   getDownloadRecordFileByGrantInteractor: () => ({ invoke: interactors.readByGrant }),
   getUploadRecordFileContentInteractor: () => ({ invoke: interactors.uploadContent }),
@@ -25,7 +27,7 @@ vi.mock("@/core/di", () => ({
 }));
 
 import { POST as createUpload } from "../uploads/route";
-import { GET as getFile } from "../[id]/route";
+import { GET as getFile, PATCH as renameFile } from "../[id]/route";
 import { GET as download, PUT as upload } from "../[id]/content/route";
 import { POST as attach } from "../[id]/attach/route";
 
@@ -74,6 +76,24 @@ describe("file routes", () => {
     const refused = await attach(request(), params);
     expect(refused.status).toBe(400);
     expect((await refused.json()).error.issues[0].customCode).toBe("recordFileUnavailable");
+  });
+
+  it("renames the file of the path and maps an invalid name to 400 and a refused edit to 403", async () => {
+    const request = (body: unknown) =>
+      new NextRequest(`http://localhost:4105/api/v1/files/${FILE_ID}`, { method: "PATCH", body: JSON.stringify(body) });
+    interactors.rename.mockResolvedValueOnce({ ok: true, data: { id: FILE_ID, name: "Offer.pdf" } });
+    const renamed = await renameFile(request({ name: "Offer", fileId: "ignored" }), params);
+    expect(renamed.status).toBe(200);
+    expect(await renamed.json()).toEqual({ id: FILE_ID, name: "Offer.pdf" });
+    expect(interactors.rename).toHaveBeenCalledWith({ name: "Offer", fileId: FILE_ID });
+
+    interactors.rename.mockResolvedValueOnce(failure(CustomErrorCode.recordFileNameInvalid, "validation"));
+    const invalid = await renameFile(request({ name: "a/b" }), params);
+    expect(invalid.status).toBe(400);
+    expect((await invalid.json()).error.issues[0].customCode).toBe("recordFileNameInvalid");
+
+    interactors.rename.mockResolvedValueOnce(failure(CustomErrorCode.permissionDenied, "authorization"));
+    expect((await renameFile(request({ name: "Offer" }), params)).status).toBe(403);
   });
 
   it("returns file details and 404 for unknown files", async () => {

@@ -6,19 +6,22 @@ import type { RecordFileSummary } from "@/features/records/record-model.schema";
 import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { ChevronLeft, ChevronRight, Download, ExternalLink, FileText } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, ExternalLink, FileText, Pencil } from "lucide-react";
 
 import { FileTypeBadge } from "@/components/files/file-type-badge";
 import { fileKind } from "@/components/files/file-kind";
 import { AppModal, AppModalTitle } from "@/components/modal/app-modal";
 import { PageState } from "@/components/page-state/page-state";
 import { Button } from "@/components/ui/button";
+import { runUserAction } from "@/core/errors/report-application-error";
 import { cn } from "@/core/utils/cn";
 import { INLINE_RECORD_FILE_TYPES } from "@/features/record-files/record-file-response";
 import { recordFilePreviewFormat } from "@/features/record-files/record-file-preview.schema";
 
 import { downloadRecordFile, recordFileContentUrl } from "./record-file-links";
 import { RecordFileDocumentPreview } from "./record-file-document-preview";
+import { RecordFileNameInput } from "./record-file-name-input";
+import { type RecordFileRename } from "./record-file-rename";
 import { useRecordFileMeta } from "./record-file-meta";
 
 export type PreviewFile = Pick<RecordFileSummary, "id" | "name" | "mimeType"> &
@@ -44,7 +47,7 @@ function stepsWithin(target: EventTarget) {
   );
 }
 
-const HEADER_RAIL_CLASS: Record<number, string> = { 1: "pr-24", 2: "pr-32", 3: "pr-40", 4: "pr-52" };
+const HEADER_RAIL_CLASS: Record<number, string> = { 1: "pr-24", 2: "pr-32", 3: "pr-40", 4: "pr-52", 5: "pr-60" };
 
 function canShowPdf() {
   return typeof navigator === "undefined" || navigator.pdfViewerEnabled !== false;
@@ -58,13 +61,16 @@ const RecordFilePreview = observer(function RecordFilePreview({
   opener,
   open,
   layerClassName,
+  rename,
   onClose,
-}: Selection & { layerClassName?: string; onClose: () => void }) {
+}: Selection & { layerClassName?: string; rename?: RecordFileRename; onClose: () => void }) {
   const t = useTranslations();
   const [index, setIndex] = useState(Math.min(Math.max(initial, 0), files.length - 1));
   const [imageSize, setImageSize] = useState<{ id: string; size: ImageSize } | null>(null);
   const [showPdf] = useState(canShowPdf);
-  const file = files[index];
+  const [editing, setEditing] = useState(false);
+  const shown = files[index];
+  const file = rename ? { ...shown, name: rename.nameOf(shown) } : shown;
   const meta = useRecordFileMeta(file, {
     uploaderName,
     imageSize: imageSize?.id === file.id ? imageSize.size : null,
@@ -109,6 +115,16 @@ const RecordFilePreview = observer(function RecordFilePreview({
           },
         ]
       : []),
+    ...(rename
+      ? [
+          {
+            id: "rename-file",
+            icon: Pencil,
+            label: t("RecordModel.fileRename", { name: file.name }),
+            onClick: () => setEditing(true),
+          },
+        ]
+      : []),
     {
       id: "download-file",
       icon: Download,
@@ -141,7 +157,22 @@ const RecordFilePreview = observer(function RecordFilePreview({
           <FileTypeBadge mimeType={file.mimeType} name={file.name} />
 
           <div className="min-w-0 flex-1">
-            <AppModalTitle className="truncate text-sm font-semibold">{file.name}</AppModalTitle>
+            <AppModalTitle className={cn("truncate text-sm font-semibold", editing && rename && "sr-only")}>
+              {file.name}
+            </AppModalTitle>
+
+            {editing && rename && (
+              <RecordFileNameInput
+                key={file.id}
+                className="w-full"
+                label={t("RecordModel.fileNameLabel")}
+                name={file.name}
+                onDone={(value) => {
+                  setEditing(false);
+                  if (value !== null) runUserAction(() => rename.rename(shown, value));
+                }}
+              />
+            )}
 
             {many && (
               <p aria-live="polite" className="truncate text-xs text-muted-foreground" data-record-file-position="">
@@ -218,7 +249,10 @@ const RecordFilePreview = observer(function RecordFilePreview({
   );
 });
 
-export function useRecordFilePreview({ layerClassName }: { layerClassName?: string } = {}) {
+export function useRecordFilePreview({
+  layerClassName,
+  rename,
+}: { layerClassName?: string; rename?: RecordFileRename } = {}) {
   const [selection, setSelection] = useState<Selection | null>(null);
   return {
     openFiles: (set: RecordFileSet, opener?: HTMLElement | null) => {
@@ -235,6 +269,7 @@ export function useRecordFilePreview({ layerClassName }: { layerClassName?: stri
         key={selection.opening}
         {...selection}
         layerClassName={layerClassName}
+        rename={rename}
         onClose={() => setSelection((current) => current && { ...current, open: false })}
       />
     ) : null,

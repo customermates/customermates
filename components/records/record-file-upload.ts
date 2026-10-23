@@ -33,9 +33,13 @@ function parsed(text: string): unknown {
   }
 }
 
-async function postRecordFileRequest<T>(url: string, input: unknown): Promise<RecordFileRequest<T>> {
+async function postRecordFileRequest<T>(
+  url: string,
+  input: unknown,
+  method: "POST" | "PATCH" = "POST",
+): Promise<RecordFileRequest<T>> {
   const response = await fetch(url, {
-    method: "POST",
+    method,
     headers: { "content-type": "application/json" },
     body: JSON.stringify(input),
   });
@@ -52,6 +56,10 @@ export function startRecordFileUpload(input: { typeId: string; fieldId: string; 
     size: input.file.size,
     mimeType: input.file.type,
   });
+}
+
+export function renameRecordFile(fileId: string, name: string) {
+  return postRecordFileRequest<RecordFileDto>(`/api/v1/files/${encodeURIComponent(fileId)}`, { name }, "PATCH");
 }
 
 export function startChatFileUpload(file: File) {

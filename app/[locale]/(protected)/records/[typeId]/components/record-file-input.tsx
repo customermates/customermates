@@ -7,7 +7,7 @@ import type { RecordFieldView, RecordFileSummary, RecordMember } from "@/feature
 import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Download, ExternalLink, Plus, X } from "lucide-react";
+import { Download, ExternalLink, Pencil, Plus, X } from "lucide-react";
 
 import { FileTypeBadge } from "@/components/files/file-type-badge";
 import { useAppForm } from "@/components/forms/form-context";
@@ -16,7 +16,9 @@ import { FormLabel } from "@/components/forms/form-label";
 import { useFormFieldErrors } from "@/components/forms/use-form-field";
 import { downloadRecordFile, recordFileContentUrl } from "@/components/records/record-file-links";
 import { memberName, useRecordFileMeta } from "@/components/records/record-file-meta";
+import { RecordFileNameInput } from "@/components/records/record-file-name-input";
 import { useRecordFilePreview } from "@/components/records/record-file-preview";
+import { useRecordFileRename } from "@/components/records/record-file-rename";
 import { startRecordFileUpload } from "@/components/records/record-file-upload";
 import { type RecordFileUpload, RecordFileUploadQueue } from "@/components/records/record-file-upload-queue";
 import { useFileDrop } from "@/components/shared/use-file-drop";
@@ -24,6 +26,7 @@ import { WizardProgress } from "@/components/shared/wizard-progress";
 import { DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { IconButton } from "@/components/ui/icon-button";
 import { ItemActions, ItemActionsTrigger, ITEM_ACTIONS_TRIGGER_CLASS } from "@/components/ui/item-actions";
+import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
 import { INLINE_RECORD_FILE_TYPES } from "@/features/record-files/record-file-response";
@@ -46,6 +49,7 @@ const RecordFileRow = observer(function RecordFileRow({
   uploaderName,
   onOpen,
   onRemove,
+  onRename,
 }: {
   fileId: string;
   file: KnownFile | undefined;
@@ -53,14 +57,30 @@ const RecordFileRow = observer(function RecordFileRow({
   uploaderName: (userId: string) => string | null;
   onOpen: (opener: HTMLElement) => void;
   onRemove: () => void;
+  onRename: (name: string) => void;
 }) {
   const t = useTranslations();
   const [imageSize, setImageSize] = useState<ImageSize | null>(null);
+  const [editing, setEditing] = useState(false);
+  const renameRequested = useRef(false);
+  const nameButton = useRef<HTMLButtonElement>(null);
   const meta = useRecordFileMeta(file, { uploaderName, imageSize });
   const name = file?.name ?? t("RecordModel.fileUnavailable");
   const inline = file ? INLINE_RECORD_FILE_TYPES.has(file.mimeType) : false;
   const menu = file && (
     <>
+      {!readOnly && (
+        <DropdownMenuItem
+          onSelect={() => {
+            renameRequested.current = true;
+          }}
+        >
+          <Pencil aria-hidden />
+
+          {t("RecordModel.fileRename", { name: file.name })}
+        </DropdownMenuItem>
+      )}
+
       {inline && (
         <DropdownMenuItem asChild>
           <a href={recordFileContentUrl(file.id)} rel="noopener noreferrer" target="_blank">
@@ -92,7 +112,16 @@ const RecordFileRow = observer(function RecordFileRow({
   );
   return (
     <li data-record-file={fileId} data-record-file-kind={file ? undefined : "unavailable"}>
-      <ItemActions label={name} menu={menu}>
+      <ItemActions
+        label={name}
+        menu={menu}
+        onCloseAutoFocus={(event) => {
+          if (!renameRequested.current) return;
+          renameRequested.current = false;
+          event.preventDefault();
+          setEditing(true);
+        }}
+      >
         <div className={cn(ROW_CLASS, file && "transition-colors hover:bg-accent/60")}>
           <FileTypeBadge
             mimeType={file?.mimeType}
@@ -102,8 +131,19 @@ const RecordFileRow = observer(function RecordFileRow({
           />
 
           <div className="min-w-0 flex-1">
-            {file ? (
+            {file && editing ? (
+              <RecordFileNameInput
+                label={t("RecordModel.fileNameLabel")}
+                name={file.name}
+                onDone={(value) => {
+                  setEditing(false);
+                  if (value !== null) onRename(value);
+                  requestAnimationFrame(() => nameButton.current?.focus());
+                }}
+              />
+            ) : file ? (
               <button
+                ref={nameButton}
                 className="block w-full truncate text-left text-sm font-medium outline-none before:absolute before:inset-0 before:rounded-[inherit] focus-visible:before:ring-2 focus-visible:before:ring-ring/70 focus-visible:before:ring-inset"
                 data-record-file-name=""
                 type="button"
@@ -117,7 +157,7 @@ const RecordFileRow = observer(function RecordFileRow({
               </span>
             )}
 
-            {meta && (
+            {meta && !editing && (
               <p className="truncate text-xs text-muted-foreground" data-record-file-meta="">
                 {meta}
               </p>
@@ -222,13 +262,14 @@ export const RecordFileInput = observer(function RecordFileInput({
   const t = useTranslations();
   const store = useAppForm();
   const root = useRootStore();
-  const { openFiles, preview } = useRecordFilePreview();
+  const readOnly = !store || store.isDisabled;
+  const renaming = useRecordFileRename();
+  const { openFiles, preview } = useRecordFilePreview({ rename: readOnly ? undefined : renaming });
   const picker = useRef<HTMLInputElement>(null);
   const [queue] = useState(() => new RecordFileUploadQueue());
   const [uploaded, setUploaded] = useState<KnownFile[]>([]);
   const { hasError, message } = useFormFieldErrors(id);
   const ids = fileIdsOf(store?.getValue(id));
-  const readOnly = !store || store.isDisabled;
   const limit = field.multiple ? MAX_RECORD_FILES : 1;
   const full = field.multiple && ids.length + queue.pending >= limit;
   const domId = inputId ?? id;
@@ -278,8 +319,10 @@ export const RecordFileInput = observer(function RecordFileInput({
       ids.filter((existing) => existing !== fileId),
     );
 
-  const details = (fileId: string) =>
-    files.find((file) => file.id === fileId) ?? uploaded.find((file) => file.id === fileId);
+  const details = (fileId: string) => {
+    const file = files.find((entry) => entry.id === fileId) ?? uploaded.find((entry) => entry.id === fileId);
+    return file && { ...file, name: renaming.nameOf(file) };
+  };
   const known = ids.flatMap((fileId) => {
     const file = details(fileId);
     return file ? [file] : [];
@@ -318,11 +361,14 @@ export const RecordFileInput = observer(function RecordFileInput({
                 readOnly={readOnly}
                 uploaderName={uploaderName}
                 onOpen={(opener) => {
-                  const file = details(fileId);
-                  if (file)
-                    openFiles({ files: known, index: known.indexOf(file), group: fieldLabel, uploaderName }, opener);
+                  const index = known.findIndex((file) => file.id === fileId);
+                  if (index >= 0) openFiles({ files: known, index, group: fieldLabel, uploaderName }, opener);
                 }}
                 onRemove={() => remove(fileId)}
+                onRename={(name) => {
+                  const file = details(fileId);
+                  if (file) runUserAction(() => renaming.rename(file, name));
+                }}
               />
             ))}
 

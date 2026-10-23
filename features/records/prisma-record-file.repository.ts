@@ -372,6 +372,14 @@ export class PrismaRecordFileRepo
     return row ? { ...row, size: Number(row.size) } : null;
   }
 
+  async renameFileCompanyWide(fileId: string, name: string): Promise<boolean> {
+    const result = await this.prisma.recordFile.updateMany({
+      where: { companyId: this.companyId, id: fileId, status: { not: "detached" } },
+      data: { name },
+    });
+    return result.count === 1;
+  }
+
   async markFileUploaded(fileId: string, upload: { size: number; sha256: string }): Promise<boolean> {
     const result = await this.prisma.recordFile.updateMany({
       where: { companyId: this.companyId, id: fileId, status: "pending" },
