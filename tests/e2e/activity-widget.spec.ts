@@ -52,7 +52,10 @@ test("creates a custom-type activity widget, previews history, edits it and pres
   // The filter summary sits in the info tooltip after the title; the hover edit button opens the editor.
   await expect(card.locator('[data-slot="widget-title"]')).toContainText("Filters, 1 active");
   await card.hover();
-  await page.getByRole("button", { name: "Edit Tender activity", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Edit Tender activity", exact: true })
+    .and(page.locator(':not([data-slot="widget-card-open"])'))
+    .click();
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Tender history");
   const askMate = dialog.getByRole("button", { name: "Ask Mate", exact: true });
   if (e2eAppMode() === "self-hosted") {
