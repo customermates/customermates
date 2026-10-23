@@ -31,10 +31,18 @@ export type SolutionWorkspace = {
   companyId: string;
 };
 
+export type SolutionNavPreviewTarget =
+  | { kind: "dashboard" }
+  | { kind: "configure" }
+  | { kind: "view"; view: string }
+  | { kind: "record"; list: string; key: string }
+  | { kind: "inbox"; account: "linkedin" | "whatsapp"; link?: string };
+
 type SolutionDefinition = {
   id: SolutionId;
   group: SolutionGroup;
   landingPath: string;
+  navPreview: SolutionNavPreviewTarget;
   navLabelKey: string;
   previewRoute: string;
   workspaces: Record<SolutionDataLocale, SolutionWorkspace>;
@@ -51,6 +59,7 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     id: "smb",
     group: "team",
     landingPath: "/for/smb",
+    navPreview: { kind: "dashboard" },
     navLabelKey: "smb",
     previewRoute: "/dashboard",
     workspaces: {
@@ -62,6 +71,7 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     id: "consultants",
     group: "team",
     landingPath: "/for/consultants",
+    navPreview: { kind: "record", list: "deal", key: "fairhavenReview" },
     navLabelKey: "consultants",
     previewRoute: "/dashboard",
     workspaces: {
@@ -73,6 +83,7 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     id: "agencies",
     group: "team",
     landingPath: "/for/agencies",
+    navPreview: { kind: "view", view: "pitchBoard" },
     navLabelKey: "agencies",
     previewRoute: "/dashboard",
     workspaces: {
@@ -84,6 +95,7 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     id: "freelancers",
     group: "team",
     landingPath: "/for/freelancers",
+    navPreview: { kind: "record", list: "organization", key: "tidewater" },
     navLabelKey: "freelancers",
     previewRoute: "/dashboard",
     workspaces: {
@@ -95,6 +107,7 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     id: "startups",
     group: "team",
     landingPath: "/for/startups",
+    navPreview: { kind: "dashboard" },
     navLabelKey: "startups",
     previewRoute: "/dashboard",
     workspaces: {
@@ -106,6 +119,7 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     id: "client-management",
     group: "workflow",
     landingPath: "/features/contact-management",
+    navPreview: { kind: "record", list: "organization", key: "halverson" },
     navLabelKey: "clientManagement",
     previewRoute: "/dashboard",
     workspaces: {
@@ -117,6 +131,7 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     id: "sales-pipeline",
     group: "workflow",
     landingPath: "/features/pipeline",
+    navPreview: { kind: "view", view: "pipeline" },
     navLabelKey: "salesPipeline",
     previewRoute: "/dashboard",
     workspaces: {
@@ -128,6 +143,7 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     id: "linkedin-crm",
     group: "workflow",
     landingPath: "/features/linkedin-integration",
+    navPreview: { kind: "inbox", account: "linkedin", link: "deal:hollisProgram" },
     navLabelKey: "linkedinCrm",
     previewRoute: "/dashboard",
     workspaces: {
@@ -139,6 +155,7 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     id: "whatsapp-crm",
     group: "workflow",
     landingPath: "/features/whatsapp-integration",
+    navPreview: { kind: "inbox", account: "whatsapp", link: "deal:copperCounter" },
     navLabelKey: "whatsappCrm",
     previewRoute: "/dashboard",
     workspaces: {
