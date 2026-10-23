@@ -170,7 +170,6 @@ describe("resolvePublicNavGroups", () => {
     for (const link of previewed) {
       expect(link.preview?.description).toMatch(/^NavigationBar\.public\.solutionSummaries\./u);
       expect(link.preview?.exampleHref).toMatch(/^https:\/\/demo\.customermates\.com\/en\/w\/[^/]+\/dashboard$/u);
-      expect(link.preview?.tagline).toMatch(/^NavigationBar\.public\.solutionTaglines\./u);
       expect(link.preview?.exampleLabel).toBe("NavigationBar.public.openExampleWorkspace");
     }
 

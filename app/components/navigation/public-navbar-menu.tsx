@@ -26,7 +26,6 @@ export type PublicNavPreview = {
   exampleHref: string;
   exampleLabel: string;
   light: PublicNavPreviewImage;
-  tagline: string;
 };
 
 type PublicNavLinkBase = {
@@ -262,9 +261,8 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
     onNavigate();
   }
 
-  function renderPanelLink(group: PublicNavGroup, link: PublicNavLink, expanded: boolean) {
+  function renderPanelLink(group: PublicNavGroup, link: PublicNavLink, expanded: boolean, tall = false) {
     const linkActive = isCurrentPage(pathname, link.href) && isPrimaryPublicNavLink(groups, link);
-    const summary = link.footer ? undefined : link.preview?.tagline;
 
     return (
       <AppLink
@@ -272,7 +270,7 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
         aria-current={linkActive ? "page" : undefined}
         className={cn(
           "group/link flex gap-2 rounded-md px-2 text-[13px] leading-none outline-none transition-colors duration-150 hover:bg-foreground/[0.05] hover:text-foreground focus-visible:bg-foreground/[0.05] focus-visible:text-foreground motion-reduce:transition-none",
-          summary ? "h-11 items-start py-1.5" : "h-[30px] items-center",
+          tall ? "h-9 items-center" : "h-[30px] items-center",
           linkActive ? "bg-foreground/[0.05] text-foreground" : "text-subdued",
         )}
         data-public-nav-link={link.href}
@@ -285,27 +283,23 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
       >
         {link.mark ? <PublicNavLinkMark mark={link.mark} /> : <PublicNavLinkIcon icon={link.icon} />}
 
-        {summary ? (
-          <span className="grid min-w-0 gap-0.5">
-            <span className="truncate leading-[18px]">{link.title}</span>
-
-            <span data-public-nav-summary className="truncate text-xs leading-4 text-muted-foreground">
-              {summary}
-            </span>
-          </span>
-        ) : (
-          <span className="min-w-0 truncate">{link.title}</span>
-        )}
+        <span className="min-w-0 truncate">{link.title}</span>
       </AppLink>
     );
   }
 
-  function renderLinkList(group: PublicNavGroup, links: PublicNavLink[], expanded: boolean, className?: string) {
+  function renderLinkList(
+    group: PublicNavGroup,
+    links: PublicNavLink[],
+    expanded: boolean,
+    className?: string,
+    tall = false,
+  ) {
     return (
       <ul className={cn("grid gap-px", className)}>
         {links.map((link) => (
           <li key={`${link.href}-${link.title}`} className="min-w-0">
-            {renderPanelLink(group, link, expanded)}
+            {renderPanelLink(group, link, expanded, tall)}
           </li>
         ))}
       </ul>
@@ -327,7 +321,7 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
 
     return (
       <div
-        className="hidden w-[22rem] shrink-0 flex-col gap-2 rounded-xl bg-foreground/[0.025] p-1.5 pb-2.5 xl:flex"
+        className="hidden w-[19rem] shrink-0 flex-col gap-2 rounded-xl bg-foreground/[0.025] p-1.5 pb-2.5 xl:flex"
         data-public-nav-preview={link.href}
       >
         <div aria-hidden className="relative aspect-[16/10] overflow-hidden rounded-lg border border-border bg-sidebar">
@@ -385,25 +379,29 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
           <div className="grid grid-cols-2 gap-x-1">
             {sections.map((section) => (
               <div key={section.id} className="min-w-0" data-public-nav-section={section.id}>
-                <p className="px-2 py-1.5 text-xs leading-4 text-muted-foreground">{section.title}</p>
+                <p className="p-2 text-xs leading-4 text-muted-foreground">{section.title}</p>
 
                 {renderLinkList(
                   group,
                   group.links.filter((link) => link.section === section.id && !link.footer),
                   expanded,
+                  undefined,
+                  true,
                 )}
               </div>
             ))}
           </div>
 
           {footerLinks.length > 0 ? (
-            <div data-public-nav-footer className="mt-2 grid grid-cols-2 gap-x-1 border-t border-border pt-2">
+            <div data-public-nav-footer className="mt-2.5 grid grid-cols-2 gap-x-1 border-t border-border pt-2.5">
               {sections.map((section) => (
                 <div key={section.id} className="min-w-0">
                   {renderLinkList(
                     group,
                     footerLinks.filter((link) => link.section === section.id),
                     expanded,
+                    undefined,
+                    true,
                   )}
                 </div>
               ))}

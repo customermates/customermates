@@ -2923,26 +2923,15 @@
       "smallBusiness": "Kleine Unternehmen",
       "solutions": "Lösungen",
       "solutionSummaries": {
-        "agencies": "Kunden, Pitches und Retainer an einem Ort",
-        "clientManagement": "Jeder Kontakt mit Verlauf und Deals",
+        "agencies": "Pitches, Projekte und Retainer",
+        "clientManagement": "Jeder Kunde mit Kontakten und Verträgen",
         "consultants": "Mandate vom Erstgespräch bis zum Angebot",
         "freelancers": "Kunden, Projekte und nächste Schritte",
-        "linkedinCrm": "LinkedIn-Nachrichten bei Kontakten und Deals",
-        "salesPipeline": "Deals nach Phase, Wert und nächstem Schritt",
+        "linkedinCrm": "LinkedIn-Nachrichten zu Deals",
+        "salesPipeline": "Deals nach Phase mit nächstem Schritt",
         "smallBusiness": "Kunden, Deals und Wiedervorlagen im Team",
-        "startups": "Gründervertrieb vom Lead bis zum Abschluss",
-        "whatsappCrm": "WhatsApp-Chats bei Kontakten und Deals"
-      },
-      "solutionTaglines": {
-        "agencies": "Pitches, Projekte, Retainer",
-        "clientManagement": "Jeder Kunde auf einer Seite",
-        "consultants": "Mandate bis zur Unterschrift",
-        "freelancers": "Kunden und Projekte",
-        "linkedinCrm": "LinkedIn-Chats zu Deals",
-        "salesPipeline": "Deals nach Phase",
-        "smallBusiness": "Kunden, Deals, Wiedervorlagen",
-        "startups": "Vertrieb durch Gründer",
-        "whatsappCrm": "WhatsApp-Chats zu Kunden"
+        "startups": "Gründervertrieb bis zum Abschluss",
+        "whatsappCrm": "WhatsApp-Chats passend zu Kunden"
       },
       "startups": "Startups",
       "taskManagement": "Aufgabenverwaltung",
