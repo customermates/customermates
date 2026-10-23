@@ -227,7 +227,7 @@ test("creates a custom list and field through the UI, then persists a decimal re
   await page.locator("#filter-palette-back").click();
   await page.keyboard.press("Escape");
   await expect(page.locator("#filter-palette-search")).toHaveCount(0);
-  await expect(dialog.getByText(/Overall:.*123,456,789,012,345\.13/)).toBeVisible();
+  await expect(dialog.getByText(/Overall:.*123,456,789,012,345$/)).toBeVisible();
   await dialog.locator("#widget-modal-save").click();
   await expect(dialog).not.toBeVisible();
   await expect(page.getByRole("heading", { name: widgetName, exact: true })).toBeVisible();

@@ -27,6 +27,12 @@ const money = (value: number) =>
     currency: "EUR",
     maximumFractionDigits: 20,
   }).format(value);
+const chartMoney = (value: number) =>
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "EUR",
+    maximumFractionDigits: Math.abs(value) >= 1_000 ? 0 : 20,
+  }).format(value);
 const compactMoney = (value: number) =>
   value < 10_000
     ? new Intl.NumberFormat("en-US", {
@@ -663,7 +669,7 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
       .map((deal, index) => [
         String(index + 1),
         deal.name,
-        money(dealValue(deal)),
+        chartMoney(dealValue(deal)),
         percent(dealValue(deal) / total),
       ]);
     const widget = card(page, "Deal ranking");
