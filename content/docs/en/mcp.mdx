@@ -264,13 +264,13 @@ Restore Trash items (or every item of one delete by its batchId), preview exactl
 
 #### `export_crm_records`
 
-Export one list as the JSON document of the list page's Export as JSON: every readable record matching the search, filters and sort, with sub-list rows, assignments, channel identities and links, up to 5,000 records. Formatted text arrives between untrusted-content markers. Excel export stays a REST download.
+Export one list as the JSON document of the list page's Export as JSON: every readable record matching the search, filters and sort, with sub-list rows, assignments, channel identities and links, up to 5,000 records, or page by page with page and pageSize. Formatted text arrives between untrusted-content markers. Excel export stays a REST download.
 
-**Read-only.** Required: `typeId`. Optional: `search`, `filters`, `relatedFilters`, `relationships`, `sort`.
+**Read-only.** Required: `typeId`. Optional: `search`, `filters`, `relatedFilters`, `relationships`, `sort`, `page`, `pageSize`.
 
 #### `import_crm_records`
 
-Create or update up to 100 records and 500 links of one list from an export document in one atomic call (mode create or update), checked against the current schema revision. An invalid row rejects the whole document. Needs create or edit access on the list.
+Create or update up to 100 records and 500 links or unlinks of one list in one atomic call (mode create or update), checked against the current schema revision. Rows are sparse: omitted fields stay empty on create and unchanged on update, and update mode patches different values per record. An invalid row rejects the whole document. Needs create or edit access on the list.
 
 **Can delete data.** Required: `document`, `mode`, `idempotencyKey`.
 {/* /mcp-catalog */}

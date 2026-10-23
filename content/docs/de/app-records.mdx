@@ -29,6 +29,36 @@ Jede Liste hat dieselbe Toolbar: **Mate fragen** (das Funkel-Symbol), **Filter**
 - **Aus Datei hinzufügen** öffnet **Datensätze importieren**: **Datei wählen**, einen JSON-Export derselben Liste auswählen, **Mit exportierten IDs erstellen** oder **Übereinstimmende IDs aktualisieren** wählen, dann **Datensätze importieren**. Dateien einer anderen Liste, von vor einer Strukturänderung oder mit mehr als 100 Datensätzen oder 500 Verknüpfungen werden abgelehnt. Dafür brauchen Sie die Erstellen-Berechtigung.
 - Mit einer Excel-Arbeitsmappe startet ein Assistent: Tabellenblatt wählen, Spalten zuordnen, Vorschau prüfen, **Neue Datensätze** oder **Vorhandene Datensätze** wählen, importieren. Fehlgeschlagene Zeilen werden mit Grund aufgeführt.
 
+### Wie importiere oder ändere ich viele Datensätze über die API oder MCP? [#bulk-import-over-the-api]
+
+`POST /api/v1/records/import` und das MCP-Tool `import_crm_records` nehmen dasselbe Dokument wie der JSON-Export. Zeilen sind sparsam: Eine Zeile braucht nur `ref` und die zu setzenden Felder. Ein weggelassenes Feld bleibt beim Erstellen leer und beim Aktualisieren unverändert; `{ "state": "missing" }` leert es. Jede Anfrage schreibt höchstens 100 Datensätze und 500 Verknüpfungen und Entknüpfungen, ganz oder gar nicht, und eine Wiederholung mit demselben `idempotencyKey` liefert das erste Ergebnis, statt doppelt zu schreiben.
+
+```json
+{
+  "mode": "update",
+  "idempotencyKey": "contacts-batch-0001",
+  "document": {
+    "format": "customermates-records",
+    "version": 1,
+    "typeId": "<ID der Kontaktliste>",
+    "schemaRevision": 12,
+    "records": [
+      {
+        "ref": { "typeId": "<ID der Kontaktliste>", "recordId": "<Datensatz-ID>" },
+        "version": 3,
+        "fields": [{ "fieldId": "<ID des Nachnamen-Felds>", "result": { "state": "value", "value": { "kind": "text", "value": "Lovelace" } } }]
+      }
+    ],
+    "links": [{ "relationId": "<Beziehungs-ID>", "source": { "typeId": "<ID der Kontaktliste>", "recordId": "<Datensatz-ID>" }, "target": { "typeId": "<ID der Organisationsliste>", "recordId": "<ID der neuen Organisation>" } }],
+    "unlinks": [{ "relationId": "<Beziehungs-ID>", "source": { "typeId": "<ID der Kontaktliste>", "recordId": "<Datensatz-ID>" }, "target": { "typeId": "<ID der Organisationsliste>", "recordId": "<ID der alten Organisation>" } }]
+  }
+}
+```
+
+- **Aktualisieren** ändert jeden aufgeführten Datensatz mit seinen eigenen Werten, eine Anfrage ist also ein Massen-Patch. Mit `version` wird ein Datensatz, der sich seitdem geändert hat, abgelehnt, und nichts aus der Anfrage wird geschrieben; ohne `version` überschreiben die gesendeten Felder die aktuellen Werte. `unlinks` geht nur im Aktualisieren-Modus.
+- **Mehr als 100 Datensätze:** Senden Sie nacheinander Anfragen mit bis zu 100 Zeilen, jede mit eigenem `idempotencyKey`, und halten Sie Unterlisten-Zeilen in derselben Anfrage wie ihre übergeordnete Zeile. Eine fehlgeschlagene Anfrage schreibt nichts; korrigieren Sie sie und senden Sie sie erneut.
+- **Große Exporte:** `POST /api/v1/records/export` und `export_crm_records` nehmen `page` (ab 1) und `pageSize` (bis 500). Jede Seite liefert ihre Datensätze mit Unterlisten-Zeilen und Verknüpfungen sowie `total` und `nextPage`; wiederholen Sie mit derselben Abfrage und Sortierung, bis `nextPage` `null` ist. Eine Seite lässt sich unverändert wieder importieren.
+
 ## Wie funktionieren gespeicherte Ansichten, und kann ich eine mit dem Team teilen? [#how-do-saved-views-work]
 
 Eine gespeicherte Ansicht merkt sich Filter, Sortierung, Gruppierung mit ihren Übersichten, Layout, Seitengröße und Spalten; eine Suche gilt nur für Ihre Browsersitzung und wird nur gespeichert, wenn **Als Ansicht speichern** aus **Alle** eine Ansicht anlegt. Ohne Ansicht und ohne Änderungen zeigt die Liste jedes Feld in seiner konfigurierten Reihenfolge als Tabelle, Formatierter-Text-Felder ausgeblendet, ohne Gruppierung und Sortierung. Ansichten sind persönlich: Die Chips unter der oberen Leiste beginnen mit **Alle**, benannt nach der Liste, zum Beispiel **Alle Deals**, danach folgen Ihre gespeicherten Ansichten. **Alle** zeigt immer jeden Datensatz, den Sie sehen dürfen: Der Tab behält Ihr Layout, Ihre Sortierung, Gruppierung und Seitengröße, aber nie einen Filter oder eine Suche. **Neue Ansicht** speichert die aktuelle Einstellung, und sobald Sie eine Ansicht haben, öffnet V **Ansicht wechseln**. Klicken Sie **Alle** an oder wählen Sie es in **Ansicht wechseln**, um zur vollständigen Liste zurückzukehren; ein erneuter Klick auf den ausgewählten Chip bewirkt nichts. **Alle** lässt sich nicht umbenennen, verschieben oder löschen; sein Menü kopiert nur den Link. Im Menü einer Ansicht bearbeiten, duplizieren, verschieben oder löschen Sie sie oder kopieren ihren Link. Der Link enthält Filter, Sortierung, Gruppierung, Layout, Seitengröße und Spalten der Ansicht, nicht die Ansicht selbst: Ihr eigener Link öffnet die Ansicht, und wer ihn sonst öffnet, sieht diese Einstellung als ungespeicherte Änderungen, ohne Listen und Felder, die er nicht lesen darf; **Speichern** legt sie als eigene Ansicht an, ohne Ihre zu ändern. **Mate fragen** öffnet Mate mit der Ansicht als Kontext, ohne schon etwas zu senden.

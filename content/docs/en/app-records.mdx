@@ -29,6 +29,36 @@ Open **More actions** in the toolbar of the list, for example on your contacts l
 - **Add from file** opens **Import records**: **Choose file**, pick a JSON export of the same list, choose **Create with exported IDs** or **Update matching IDs**, then **Import records**. Files from another list, from before a structure change, or with more than 100 records or 500 links are rejected. This needs create access.
 - An Excel workbook starts a wizard: pick the sheet, map columns, check the preview, choose **New records** or **Existing records**, then import. Failed rows are listed with their reason.
 
+### How do I import or update many records over the API or MCP? [#bulk-import-over-the-api]
+
+`POST /api/v1/records/import` and the MCP tool `import_crm_records` take the same document as the JSON export. Rows are sparse: a row needs only `ref` and the fields to set. A field you leave out stays empty on create and unchanged on update; `{ "state": "missing" }` clears it. Each request writes at most 100 records and 500 links and unlinks, all or nothing, and repeating it with the same `idempotencyKey` returns the first result instead of writing twice.
+
+```json
+{
+  "mode": "update",
+  "idempotencyKey": "contacts-batch-0001",
+  "document": {
+    "format": "customermates-records",
+    "version": 1,
+    "typeId": "<contact list id>",
+    "schemaRevision": 12,
+    "records": [
+      {
+        "ref": { "typeId": "<contact list id>", "recordId": "<record id>" },
+        "version": 3,
+        "fields": [{ "fieldId": "<last name field id>", "result": { "state": "value", "value": { "kind": "text", "value": "Lovelace" } } }]
+      }
+    ],
+    "links": [{ "relationId": "<relationship id>", "source": { "typeId": "<contact list id>", "recordId": "<record id>" }, "target": { "typeId": "<organization list id>", "recordId": "<new organization id>" } }],
+    "unlinks": [{ "relationId": "<relationship id>", "source": { "typeId": "<contact list id>", "recordId": "<record id>" }, "target": { "typeId": "<organization list id>", "recordId": "<old organization id>" } }]
+  }
+}
+```
+
+- **Update** changes each listed record with its own values, so one request is a bulk patch. With `version`, a record that changed since then is refused and nothing in the request is written; without it, the fields you send overwrite the current values. `unlinks` works only in update mode.
+- **More than 100 records:** send consecutive requests of up to 100 rows, each with its own `idempotencyKey`, and keep sub-list rows in the same request as their parent row. A failed request writes nothing, so fix it and send it again.
+- **Large exports:** `POST /api/v1/records/export` and `export_crm_records` take `page` (from 1) and `pageSize` (up to 500). Each page returns its records with their sub-list rows and links, plus `total` and `nextPage`; repeat with the same query and sort until `nextPage` is `null`. A page can be imported back as it is.
+
 ## How do saved views work, and can I share one with my team? [#how-do-saved-views-work]
 
 A saved view remembers filters, sorting, grouping with its summaries, layout, page size and columns; a search stays for your browser session and is saved only when **Save as view** creates a view from **All**. Without a view and without changes, the list shows every field in its configured order as a table, with Formatted text fields hidden, ungrouped and unsorted. Views are personal: the chips below the top bar start with **All**, named after the list, for example **All deals**, followed by your saved views. **All** always shows every record you may see: it keeps your layout, sorting, grouping and page size, but never a filter or a search. **New view** saves the current setup, and once you have a view, V opens **Switch view**. Click **All**, or choose it in **Switch view**, to go back to the full list; clicking the selected chip again does nothing. **All** cannot be renamed, moved or deleted; its menu only copies its link. A view's menu edits, duplicates, moves, deletes it or copies its link. The link carries the view's filters, sorting, grouping, layout, page size and columns, not the view itself: you open your own link as the view, and a colleague sees that setup as unsaved changes, leaving out lists and fields they cannot read, and **Save** keeps it as their own view without changing yours. **Ask Mate** opens Mate with the view attached, without sending anything yet.

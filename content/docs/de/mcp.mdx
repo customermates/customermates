@@ -264,13 +264,13 @@ Elemente aus dem Papierkorb wiederherstellen (oder alle Elemente eines Löschvor
 
 #### `export_crm_records`
 
-Exportiert eine Liste als JSON-Dokument wie Als JSON exportieren auf der Listenseite: alle lesbaren Datensätze, die zu Suche, Filtern und Sortierung passen, mit Unterlisten-Zeilen, Zuweisungen, Kanal-Identitäten und Verknüpfungen, bis 5.000 Datensätze. Formatierter Text kommt zwischen Markern für nicht vertrauenswürdige Inhalte. Der Excel-Export bleibt ein REST-Download.
+Exportiert eine Liste als JSON-Dokument wie Als JSON exportieren auf der Listenseite: alle lesbaren Datensätze, die zu Suche, Filtern und Sortierung passen, mit Unterlisten-Zeilen, Zuweisungen, Kanal-Identitäten und Verknüpfungen, bis 5.000 Datensätze oder seitenweise mit page und pageSize. Formatierter Text kommt zwischen Markern für nicht vertrauenswürdige Inhalte. Der Excel-Export bleibt ein REST-Download.
 
-**Nur lesend.** Pflicht: `typeId`. Optional: `search`, `filters`, `relatedFilters`, `relationships`, `sort`.
+**Nur lesend.** Pflicht: `typeId`. Optional: `search`, `filters`, `relatedFilters`, `relationships`, `sort`, `page`, `pageSize`.
 
 #### `import_crm_records`
 
-Erstellt oder aktualisiert bis zu 100 Datensätze und 500 Verknüpfungen einer Liste aus einem Export-Dokument in einem atomaren Aufruf (mode create oder update), geprüft gegen die aktuelle Schema-Revision. Eine ungültige Zeile weist das ganze Dokument ab. Braucht Erstellen- oder Bearbeiten-Rechte auf der Liste.
+Erstellt oder aktualisiert bis zu 100 Datensätze und 500 Verknüpfungen oder Entknüpfungen einer Liste in einem atomaren Aufruf (mode create oder update), geprüft gegen die aktuelle Schema-Revision. Zeilen sind sparsam: Weggelassene Felder bleiben beim Erstellen leer und beim Aktualisieren unverändert, und der Aktualisieren-Modus setzt je Datensatz eigene Werte. Eine ungültige Zeile weist das ganze Dokument ab. Braucht Erstellen- oder Bearbeiten-Rechte auf der Liste.
 
 **Kann Daten löschen.** Pflicht: `document`, `mode`, `idempotencyKey`.
 {/* /mcp-catalog */}
