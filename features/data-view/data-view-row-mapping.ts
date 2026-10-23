@@ -23,7 +23,6 @@ type DataViewStateColumns = {
   columnOrder: NullableJson;
   columnWidths: NullableJson;
   hiddenColumns: NullableJson;
-  showRecordPictures: boolean | null;
   pageSize: number | null;
 };
 
@@ -37,7 +36,6 @@ type StoredStateRow = {
   columnOrder: unknown;
   columnWidths: unknown;
   hiddenColumns: unknown;
-  showRecordPictures?: boolean | null;
   pageSize: number | null;
 };
 
@@ -63,7 +61,6 @@ export type PersonalizationStateWrite = {
   columnOrder?: string[];
   columnWidths?: Record<string, number>;
   hiddenColumns?: string[];
-  showRecordPictures?: boolean;
 };
 
 export function readPersonalizationState(state: PersonalizationStateWrite): DataViewState {
@@ -77,7 +74,6 @@ export function readPersonalizationState(state: PersonalizationStateWrite): Data
     ...(state.columnOrder !== undefined ? { columnOrder: state.columnOrder } : {}),
     ...(state.columnWidths !== undefined ? { columnWidths: state.columnWidths } : {}),
     ...(state.hiddenColumns !== undefined ? { hiddenColumns: state.hiddenColumns } : {}),
-    ...(state.showRecordPictures !== undefined ? { showRecordPictures: state.showRecordPictures } : {}),
   };
 }
 
@@ -112,7 +108,6 @@ export function readStoredState(row: StoredStateRow): DataViewState {
   if (Array.isArray(row.columnOrder)) state.columnOrder = row.columnOrder as string[];
   if (isPlainObject(row.columnWidths)) state.columnWidths = row.columnWidths as Record<string, number>;
   if (Array.isArray(row.hiddenColumns)) state.hiddenColumns = row.hiddenColumns as string[];
-  if (typeof row.showRecordPictures === "boolean") state.showRecordPictures = row.showRecordPictures;
 
   return state;
 }
@@ -133,7 +128,6 @@ export function readStoredPersonalizationState({
     columnOrder: [],
     columnWidths: {},
     hiddenColumns: [],
-    showRecordPictures: true,
   };
   return Object.fromEntries(
     DATA_VIEW_STATE_FIELDS.filter((key) => keys.has(key)).map((key) => [key, state[key] ?? clear[key]]),
@@ -154,7 +148,6 @@ export function writeStoredState(state: DataViewState): DataViewStateColumns {
     columnOrder: json(state.columnOrder),
     columnWidths: json(state.columnWidths),
     hiddenColumns: json(state.hiddenColumns),
-    showRecordPictures: state.showRecordPictures ?? null,
     pageSize: state.pageSize === undefined ? null : state.pageSize,
   };
 }
@@ -184,7 +177,6 @@ export function writePersonalizationState(state: DataViewState): Personalization
   if (state.columnOrder !== undefined) write.columnOrder = state.columnOrder;
   if (state.columnWidths !== undefined) write.columnWidths = state.columnWidths;
   if (state.hiddenColumns !== undefined) write.hiddenColumns = state.hiddenColumns;
-  if (state.showRecordPictures !== undefined) write.showRecordPictures = state.showRecordPictures;
 
   return write;
 }

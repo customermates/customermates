@@ -89,12 +89,6 @@ async function choosePicture(page: Page, label: string) {
   await page.getByRole("option", { name: label, exact: true }).click();
 }
 
-async function closeAppearance(page: Page, mobile: boolean) {
-  if (mobile) await page.locator('[data-slot="drawer-close"]').click();
-  else await page.keyboard.press("Escape");
-  await expect(page.getByRole("switch", { name: "Show record pictures", exact: true })).toHaveCount(0);
-}
-
 test("configures a picture source in General, explains the field, and disables pictures without deleting values", async ({
   page,
   database,
@@ -138,109 +132,6 @@ test("configures a picture source in General, explains the field, and disables p
   await expect(pictures(page)).toHaveCount(0);
   await page.locator("#records-display-options").click();
   await expect(page.getByRole("switch", { name: "Show record pictures", exact: true })).toHaveCount(0);
-  expect(errors).toEqual([]);
-});
-
-test("saves picture visibility per view, cancels drafts, and keeps it across table and board reloads", async ({
-  page,
-  database,
-  companyId,
-}, testInfo) => {
-  test.setTimeout(240000);
-  const errors = collectPageErrors(page);
-  const { typeId, first } = await contacts(page, database, companyId);
-  const mobile = testInfo.project.name === "mobile";
-  const toggle = () => page.getByRole("switch", { name: "Show record pictures", exact: true });
-  const save = () => page.locator("#records-display-options-view-save");
-  const cancel = () => page.locator("#records-display-options-view-cancel");
-  await page.goto(`/en/records/${typeId}`);
-  await expect(pictures(page).locator("img")).toHaveAttribute("src", first);
-  await page.locator("#records-display-options").click();
-  await toggle().click();
-  await expect(toggle()).not.toBeChecked();
-  await expect(save()).toBeVisible();
-  await cancel().click();
-  await expect(toggle()).toBeChecked();
-  await expect(save()).toHaveCount(0);
-  await toggle().click();
-  await save().click();
-  await expect(save()).toHaveCount(0);
-  await expect
-    .poll(
-      async () =>
-        (
-          await database.query('SELECT "showRecordPictures" FROM "P13n" WHERE "companyId"=$1 AND "p13nId"=$2', [
-            companyId,
-            `records:${typeId}`,
-          ])
-        ).rows[0]?.showRecordPictures,
-    )
-    .toBe(false);
-  await closeAppearance(page, mobile);
-  await page.reload();
-  await expect(pictureRecord(page, "Picture Record")).toBeVisible();
-  await expect(pictures(page)).toHaveCount(0);
-  const { viewKey } = await postOk(page, "/api/v1/data-views/create", {
-    surfaceKey: `records:${typeId}`,
-    name: "With pictures",
-    state: { showRecordPictures: true },
-  });
-  await page.goto(`/en/records/${typeId}?view=${viewKey}`);
-  await expect(pictures(page).locator("img")).toHaveAttribute("src", first);
-  await page.locator("#records-display-options").click();
-  await toggle().click();
-  await save().click();
-  await expect(save()).toHaveCount(0);
-  await expect
-    .poll(
-      async () =>
-        (await database.query('SELECT "showRecordPictures" FROM "DataView" WHERE id=$1', [viewKey])).rows[0]
-          ?.showRecordPictures,
-    )
-    .toBe(false);
-  await closeAppearance(page, mobile);
-  await page.reload();
-  await expect(pictureRecord(page, "Picture Record")).toBeVisible();
-  await expect(pictures(page)).toHaveCount(0);
-  await page.locator("#records-display-options").click();
-  await toggle().click();
-  await save().click();
-  await expect(save()).toHaveCount(0);
-  await closeAppearance(page, mobile);
-  await page.locator(`#global-data-views [data-focus-target="view:${viewKey}"][aria-current="page"]`).click();
-  await expect
-    .poll(
-      async () =>
-        (
-          await database.query('SELECT "activeViewKey" FROM "P13n" WHERE "companyId"=$1 AND "p13nId"=$2', [
-            companyId,
-            `records:${typeId}`,
-          ])
-        ).rows[0]?.activeViewKey,
-    )
-    .toBe("__all__");
-  await expect(pictureRecord(page, "Picture Record")).toBeVisible();
-  await expect(pictures(page)).toHaveCount(0);
-  await page.locator("#records-display-options").click();
-  await page.locator("#records-layout-board").click();
-  await page.getByRole("combobox", { name: "Group By", exact: true }).click();
-  await page.getByRole("option", { name: "Stage", exact: true }).click();
-  await save().click();
-  await expect(save()).toHaveCount(0);
-  await closeAppearance(page, mobile);
-  await page.reload();
-  await expect(pictureRecord(page, "Picture Record")).toBeVisible();
-  await expect(pictures(page)).toHaveCount(0);
-  await page.locator("#records-display-options").click();
-  await toggle().click();
-  await save().click();
-  await expect(save()).toHaveCount(0);
-  await closeAppearance(page, mobile);
-  await expect(pictures(page).locator("img")).toHaveAttribute("src", first);
-  await expect(pictures(page, "Initials Record")).toHaveText("IR");
-  await page.reload();
-  await expect(pictures(page).locator("img")).toHaveAttribute("src", first);
-  await page.screenshot({ path: testInfo.outputPath("record-pictures-board.png"), animations: "disabled" });
   expect(errors).toEqual([]);
 });
 

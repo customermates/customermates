@@ -41,7 +41,6 @@ export type ResolvedDataViewState = {
   columnOrder: string[];
   columnWidths: Record<string, number>;
   hiddenColumns: string[];
-  showRecordPictures: boolean;
 };
 
 type ResolveDataViewStateArgs = {
@@ -97,6 +96,5 @@ export function resolveDataViewState({ params, base, defaults }: ResolveDataView
     columnOrder: (out.columnOrder as string[] | undefined) ?? [],
     columnWidths: (out.columnWidths as Record<string, number> | undefined) ?? {},
     hiddenColumns: (out.hiddenColumns as string[] | undefined) ?? [],
-    showRecordPictures: (out.showRecordPictures as boolean | undefined) ?? true,
   };
 }

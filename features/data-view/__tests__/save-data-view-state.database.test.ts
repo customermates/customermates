@@ -115,20 +115,6 @@ describeDatabase("data view state round trip on PostgreSQL", () => {
     );
   });
 
-  it("round trips picture visibility for All and named views, retaining it during unrelated writes", async () => {
-    for (const key of [ALL_VIEW_KEY, viewId]) {
-      expect((await save(key, { showRecordPictures: false })).ok).toBe(true);
-      await save(key, { searchTerm: "picture check" });
-    }
-    let surface = await asTenant(() => views().loadSurfaceState(SURFACE));
-    expect(surface.allState.showRecordPictures).toBe(false);
-    expect(surface.views.find(({ id }) => id === viewId)?.state.showRecordPictures).toBe(false);
-    await save(viewId, { showRecordPictures: true });
-    surface = await asTenant(() => views().loadSurfaceState(SURFACE));
-    expect(surface.allState.showRecordPictures).toBe(false);
-    expect(surface.views.find(({ id }) => id === viewId)?.state.showRecordPictures).toBe(true);
-  });
-
   it("leaves a key the payload omits alone on a named view and on the All tab alike", async () => {
     await save(viewId, { pageSize: 25, viewMode: ViewMode.card, columnWidths: { name: 240 } });
     await save(ALL_VIEW_KEY, { pageSize: 25, viewMode: ViewMode.card, columnWidths: { name: 240 } });

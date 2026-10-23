@@ -39,7 +39,6 @@ const Schema = z
       .refine((widths) => Object.keys(widths).length <= P13N_COLUMNS_MAX, "Too many column widths")
       .nullish(),
     hiddenColumns: z.array(z.string().min(1).max(P13N_KEY_MAX_LENGTH)).max(P13N_COLUMNS_MAX).optional(),
-    showRecordPictures: z.boolean().optional(),
     viewMode: z.enum(ViewMode).nullish(),
     grouping: GroupingSchema.nullish(),
     detailOptions: EntityDetailOptionsSchema.nullish(),

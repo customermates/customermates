@@ -28,7 +28,6 @@ export const AgentDataViewStateSchema = z
     columnOrder: z.array(z.string()).max(200).optional(),
     columnWidths: z.record(z.string(), z.number().finite().min(40).max(2000)).optional(),
     hiddenColumns: z.array(z.string()).max(200).optional(),
-    showRecordPictures: DataViewStateWireSchema.shape.showRecordPictures,
   })
   .strict();
 export type AgentDataViewState = Data<typeof AgentDataViewStateSchema>;

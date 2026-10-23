@@ -30,7 +30,6 @@ export interface P13nEntry {
   columnWidths?: Record<string, number>;
   columnOrder?: string[];
   hiddenColumns?: string[];
-  showRecordPictures?: boolean;
   viewMode?: ViewMode;
   grouping?: Grouping | null;
   detailOptions?: EntityDetailOptions;
@@ -59,7 +58,7 @@ function resetPersonalizationColumns(fields: StateField[]): Prisma.P13nUpdateMan
   for (const field of fields) {
     if (field === "pageSize") data.pagination = Prisma.DbNull;
     else if (field === "columnOrder" || field === "hiddenColumns") data[field] = [];
-    else if (field === "searchTerm" || field === "viewMode" || field === "showRecordPictures") data[field] = null;
+    else if (field === "searchTerm" || field === "viewMode") data[field] = null;
     else data[field] = Prisma.DbNull;
     if (field === "grouping") data.groupingColumnId = null;
   }
@@ -91,7 +90,6 @@ export class PrismaP13nRepo
       columnOrder,
       columnWidths,
       hiddenColumns,
-      showRecordPictures,
       viewMode,
       grouping,
       detailOptions,
@@ -108,7 +106,6 @@ export class PrismaP13nRepo
       columnWidths: (columnWidths as Record<string, number> | null) ?? undefined,
       columnOrder,
       hiddenColumns,
-      showRecordPictures: showRecordPictures ?? undefined,
       viewMode: (viewMode as ViewMode | null) ?? undefined,
       grouping: readStoredGrouping(grouping),
       detailOptions: normalizeDetailOptions(detailOptions),
@@ -165,7 +162,6 @@ export class PrismaP13nRepo
       columnWidths: data.columnWidths ?? Prisma.JsonNull,
       columnOrder: data.columnOrder ?? [],
       hiddenColumns: data.hiddenColumns ?? [],
-      showRecordPictures: data.showRecordPictures ?? null,
       viewMode: data.viewMode ?? null,
       groupingColumnId: groupingShadowColumnId(data.grouping),
       grouping: data.grouping ?? Prisma.DbNull,
@@ -188,7 +184,6 @@ export class PrismaP13nRepo
     if (data.columnWidths !== undefined) updateData.columnWidths = data.columnWidths ?? Prisma.JsonNull;
     if (data.columnOrder !== undefined) updateData.columnOrder = data.columnOrder ?? [];
     if (data.hiddenColumns !== undefined) updateData.hiddenColumns = data.hiddenColumns ?? [];
-    if (data.showRecordPictures !== undefined) updateData.showRecordPictures = data.showRecordPictures;
     if (data.viewMode !== undefined) updateData.viewMode = data.viewMode ?? null;
     if (data.grouping !== undefined) {
       updateData.groupingColumnId = groupingShadowColumnId(data.grouping);
@@ -216,7 +211,6 @@ export class PrismaP13nRepo
       columnWidths: (row.columnWidths as Record<string, number> | null) ?? undefined,
       columnOrder: row.columnOrder,
       hiddenColumns: row.hiddenColumns,
-      showRecordPictures: row.showRecordPictures ?? undefined,
       viewMode: (row.viewMode as ViewMode | null) ?? undefined,
       grouping: readStoredGrouping(row.grouping),
       detailOptions: normalizeDetailOptions(row.detailOptions),
@@ -294,7 +288,6 @@ export class PrismaP13nRepo
         ...(write.columnOrder !== undefined ? { columnOrder: write.columnOrder } : {}),
         ...(write.columnWidths !== undefined ? { columnWidths: write.columnWidths } : {}),
         ...(write.hiddenColumns !== undefined ? { hiddenColumns: write.hiddenColumns } : {}),
-        ...(write.showRecordPictures !== undefined ? { showRecordPictures: write.showRecordPictures } : {}),
       },
     });
   }

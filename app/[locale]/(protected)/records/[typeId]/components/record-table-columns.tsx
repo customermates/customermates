@@ -39,7 +39,7 @@ function recordOpener(record: RecordRow, open: (trigger: HTMLElement) => void): 
 }
 
 function recordAvatarFieldId(store: RecordsStore) {
-  return store.showRecordPictures ? store.recordPictureFieldId : undefined;
+  return store.recordPictureFieldId;
 }
 
 export function useRecordTableColumns(

@@ -101,11 +101,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
     currentSortDirection === "asc" ? t("Common.sort.ascending") : t("Common.sort.descending");
   const currentGroupingId = store.currentGroupableFieldId;
   const hasActiveOption =
-    active ??
-    (Boolean(currentSortField) ||
-      Boolean(store.grouping) ||
-      store.hiddenColumns.length > 0 ||
-      Boolean(store.recordPictureFieldId && !store.showRecordPictures));
+    active ?? (Boolean(currentSortField) || Boolean(store.grouping) || store.hiddenColumns.length > 0);
 
   const currentLayout: DataViewMode = store.viewMode === ViewMode.card && canBoard ? "board" : "table";
   const boardGrouped = currentLayout === "board" && Boolean(store.grouping && store.groupingResult);
@@ -277,26 +273,6 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
             {!canBoard && (
               <p className="mt-1.5 text-xs text-muted-foreground">{t("Common.ariaLabels.switchToBoardViewDisabled")}</p>
             )}
-          </Section>
-        )}
-
-        {store.recordPictureFieldId && (
-          <Section label={t("DataView.recordPictures")}>
-            <Label
-              className="flex items-center justify-between gap-2 text-sm font-normal"
-              htmlFor={id ? `${id}-record-pictures` : "record-pictures"}
-            >
-              {t("DataView.showRecordPictures")}
-
-              <Switch
-                checked={store.showRecordPictures}
-                id={id ? `${id}-record-pictures` : "record-pictures"}
-                size="sm"
-                onCheckedChange={(checked) => store.setViewOptions({ showRecordPictures: checked })}
-              />
-            </Label>
-
-            <p className="mt-1.5 text-xs text-muted-foreground">{t("DataView.recordPicturesHelp")}</p>
           </Section>
         )}
 

@@ -1036,64 +1036,6 @@ describe("temporary appearance changes", () => {
     vi.useRealTimers();
   });
 
-  it("keeps record pictures temporary through refresh and resets them with the shared appearance draft", async () => {
-    const store = new TestStore(rootStore());
-    vi.spyOn(store, "supportsRecordPictures", "get").mockReturnValue(true);
-    store.setItems(serverEcho());
-    store.setViewOptions({ showRecordPictures: false });
-    await vi.advanceTimersByTimeAsync(1500);
-    expect(store.showRecordPictures).toBe(false);
-    expect(store.isAppearanceModified).toBe(true);
-    expect(saveDataViewStateAction).not.toHaveBeenCalled();
-    await store.refresh();
-    expect(store.showRecordPictures).toBe(false);
-    expect(store.isAppearanceModified).toBe(true);
-    store.resetViewChanges();
-    expect(store.showRecordPictures).toBe(true);
-    expect(store.isViewModified).toBe(false);
-  });
-
-  it("saves explicit picture visibility and restores each view independently", async () => {
-    const store = new TestStore(rootStore());
-    vi.spyOn(store, "supportsRecordPictures", "get").mockReturnValue(true);
-    store.setItems(serverEcho());
-    store.setViewOptions({ showRecordPictures: false });
-    await store.saveViewChanges();
-    expect(saveDataViewStateAction).toHaveBeenCalledWith(
-      expect.objectContaining({
-        viewKey: ALL_VIEW_KEY,
-        state: expect.objectContaining({ showRecordPictures: false }),
-      }),
-    );
-    expect(store.isViewModified).toBe(false);
-    store.setItems({ ...serverEcho(), showRecordPictures: false });
-    expect(store.showRecordPictures).toBe(false);
-    store.applyView(VIEW_ID);
-    await vi.advanceTimersByTimeAsync(0);
-    expect(store.showRecordPictures).toBe(true);
-  });
-
-  it.each([false, true])(
-    "keeps a completed picture save with a pre-existing draft=%s when an older refresh finishes",
-    async (draftBeforeRefresh) => {
-      const store = new TestStore(rootStore());
-      vi.spyOn(store, "supportsRecordPictures", "get").mockReturnValue(true);
-      store.setItems({ ...serverEcho(), showRecordPictures: true });
-      if (draftBeforeRefresh) store.setViewOptions({ showRecordPictures: false });
-      const response = deferred<GetResult<Item>>();
-      store.nextRefresh = () => response.promise;
-      const refresh = store.refresh();
-      if (!draftBeforeRefresh) store.setViewOptions({ showRecordPictures: false });
-      await store.saveViewChanges();
-      expect(store.isViewModified).toBe(false);
-      response.resolve({ ...serverEcho(), showRecordPictures: true });
-      await refresh;
-      expect(store.showRecordPictures).toBe(false);
-      expect(store.allViewState.showRecordPictures).toBe(false);
-      expect(store.isViewModified).toBe(false);
-    },
-  );
-
   async function savedView(): Promise<TestStore> {
     const store = hydrated();
     store.applyView(VIEW_ID);

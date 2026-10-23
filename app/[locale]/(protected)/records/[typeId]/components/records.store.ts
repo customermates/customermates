@@ -79,9 +79,6 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   override get supportsBoard() {
     return true;
   }
-  override get supportsRecordPictures() {
-    return true;
-  }
   override get recordPictureFieldId() {
     const fieldId = this.presentation.model.capabilities
       .find((binding) => binding.kind === "avatar" && binding.typeId === this.presentation.typeId)
@@ -363,15 +360,7 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
     const result = await resetRecordViewAction({
       surfaceKey: recordSurfaceKey(this.presentation.typeId),
       viewKey: this.activeViewKey,
-      fields: [
-        "columnOrder",
-        "columnWidths",
-        "hiddenColumns",
-        "viewMode",
-        "grouping",
-        "sortDescriptor",
-        "showRecordPictures",
-      ],
+      fields: ["columnOrder", "columnWidths", "hiddenColumns", "viewMode", "grouping", "sortDescriptor"],
     });
     if (!result.ok) {
       toastZodErrorTree(result.error);
@@ -433,7 +422,6 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       !deepEqual(columns(order), columns(defaults.columnOrder)) ||
       !deepEqual(new Set(columns(this.hiddenColumns)), new Set(columns(defaults.hiddenColumns))) ||
       Object.keys(this.columnWidths).length > 0 ||
-      !this.showRecordPictures ||
       this.viewMode !== defaults.viewMode ||
       !deepEqual(grouping(this.grouping), grouping(defaults.grouping)) ||
       !deepEqual(sort(this.sortDescriptor), sort(defaults.sortDescriptor))

@@ -53401,10 +53401,6 @@
                                 "items": {
                                   "type": "string"
                                 }
-                              },
-                              "showRecordPictures": {
-                                "type": "boolean",
-                                "description": "Show pictures beside record names in tables and boards; defaults to true."
                               }
                             },
                             "additionalProperties": false
@@ -53840,10 +53836,6 @@
                           "items": {
                             "type": "string"
                           }
-                        },
-                        "showRecordPictures": {
-                          "type": "boolean",
-                          "description": "Show pictures beside record names in tables and boards; defaults to true."
                         }
                       },
                       "additionalProperties": false
@@ -54250,10 +54242,6 @@
                           "items": {
                             "type": "string"
                           }
-                        },
-                        "showRecordPictures": {
-                          "type": "boolean",
-                          "description": "Show pictures beside record names in tables and boards; defaults to true."
                         }
                       },
                       "additionalProperties": false
@@ -54976,10 +54964,6 @@
                                 "items": {
                                   "type": "string"
                                 }
-                              },
-                              "showRecordPictures": {
-                                "type": "boolean",
-                                "description": "Show pictures beside record names in tables and boards; defaults to true."
                               }
                             },
                             "additionalProperties": false
@@ -55415,10 +55399,6 @@
                           "items": {
                             "type": "string"
                           }
-                        },
-                        "showRecordPictures": {
-                          "type": "boolean",
-                          "description": "Show pictures beside record names in tables and boards; defaults to true."
                         }
                       },
                       "additionalProperties": false
@@ -55825,10 +55805,6 @@
                           "items": {
                             "type": "string"
                           }
-                        },
-                        "showRecordPictures": {
-                          "type": "boolean",
-                          "description": "Show pictures beside record names in tables and boards; defaults to true."
                         }
                       },
                       "additionalProperties": false
@@ -56540,10 +56516,6 @@
                                 "items": {
                                   "type": "string"
                                 }
-                              },
-                              "showRecordPictures": {
-                                "type": "boolean",
-                                "description": "Show pictures beside record names in tables and boards; defaults to true."
                               }
                             },
                             "additionalProperties": false
@@ -56979,10 +56951,6 @@
                           "items": {
                             "type": "string"
                           }
-                        },
-                        "showRecordPictures": {
-                          "type": "boolean",
-                          "description": "Show pictures beside record names in tables and boards; defaults to true."
                         }
                       },
                       "additionalProperties": false
@@ -57389,10 +57357,6 @@
                           "items": {
                             "type": "string"
                           }
-                        },
-                        "showRecordPictures": {
-                          "type": "boolean",
-                          "description": "Show pictures beside record names in tables and boards; defaults to true."
                         }
                       },
                       "additionalProperties": false
@@ -58102,10 +58066,6 @@
                                 "items": {
                                   "type": "string"
                                 }
-                              },
-                              "showRecordPictures": {
-                                "type": "boolean",
-                                "description": "Show pictures beside record names in tables and boards; defaults to true."
                               }
                             },
                             "additionalProperties": false
@@ -58541,10 +58501,6 @@
                           "items": {
                             "type": "string"
                           }
-                        },
-                        "showRecordPictures": {
-                          "type": "boolean",
-                          "description": "Show pictures beside record names in tables and boards; defaults to true."
                         }
                       },
                       "additionalProperties": false
@@ -58951,10 +58907,6 @@
                           "items": {
                             "type": "string"
                           }
-                        },
-                        "showRecordPictures": {
-                          "type": "boolean",
-                          "description": "Show pictures beside record names in tables and boards; defaults to true."
                         }
                       },
                       "additionalProperties": false
@@ -59514,10 +59466,6 @@
                         "items": {
                           "type": "string"
                         }
-                      },
-                      "showRecordPictures": {
-                        "type": "boolean",
-                        "description": "Show pictures beside record names in tables and boards; defaults to true."
                       }
                     },
                     "additionalProperties": false
@@ -60049,10 +59997,6 @@
                                 "items": {
                                   "type": "string"
                                 }
-                              },
-                              "showRecordPictures": {
-                                "type": "boolean",
-                                "description": "Show pictures beside record names in tables and boards; defaults to true."
                               }
                             },
                             "additionalProperties": false
@@ -60488,10 +60432,6 @@
                           "items": {
                             "type": "string"
                           }
-                        },
-                        "showRecordPictures": {
-                          "type": "boolean",
-                          "description": "Show pictures beside record names in tables and boards; defaults to true."
                         }
                       },
                       "additionalProperties": false
@@ -60898,10 +60838,6 @@
                           "items": {
                             "type": "string"
                           }
-                        },
-                        "showRecordPictures": {
-                          "type": "boolean",
-                          "description": "Show pictures beside record names in tables and boards; defaults to true."
                         }
                       },
                       "additionalProperties": false
@@ -61472,10 +61408,6 @@
                         "items": {
                           "type": "string"
                         }
-                      },
-                      "showRecordPictures": {
-                        "type": "boolean",
-                        "description": "Show pictures beside record names in tables and boards; defaults to true."
                       }
                     },
                     "additionalProperties": false
@@ -62006,10 +61938,6 @@
                                 "items": {
                                   "type": "string"
                                 }
-                              },
-                              "showRecordPictures": {
-                                "type": "boolean",
-                                "description": "Show pictures beside record names in tables and boards; defaults to true."
                               }
                             },
                             "additionalProperties": false
@@ -62445,10 +62373,6 @@
                           "items": {
                             "type": "string"
                           }
-                        },
-                        "showRecordPictures": {
-                          "type": "boolean",
-                          "description": "Show pictures beside record names in tables and boards; defaults to true."
                         }
                       },
                       "additionalProperties": false
@@ -62855,10 +62779,6 @@
                           "items": {
                             "type": "string"
                           }
-                        },
-                        "showRecordPictures": {
-                          "type": "boolean",
-                          "description": "Show pictures beside record names in tables and boards; defaults to true."
                         }
                       },
                       "additionalProperties": false
@@ -63568,10 +63488,6 @@
                                 "items": {
                                   "type": "string"
                                 }
-                              },
-                              "showRecordPictures": {
-                                "type": "boolean",
-                                "description": "Show pictures beside record names in tables and boards; defaults to true."
                               }
                             },
                             "additionalProperties": false
@@ -64007,10 +63923,6 @@
                           "items": {
                             "type": "string"
                           }
-                        },
-                        "showRecordPictures": {
-                          "type": "boolean",
-                          "description": "Show pictures beside record names in tables and boards; defaults to true."
                         }
                       },
                       "additionalProperties": false
@@ -64417,10 +64329,6 @@
                           "items": {
                             "type": "string"
                           }
-                        },
-                        "showRecordPictures": {
-                          "type": "boolean",
-                          "description": "Show pictures beside record names in tables and boards; defaults to true."
                         }
                       },
                       "additionalProperties": false
@@ -64592,7 +64500,7 @@
                   },
                   "fields": {
                     "minItems": 1,
-                    "maxItems": 10,
+                    "maxItems": 9,
                     "type": "array",
                     "items": {
                       "type": "string",
@@ -64605,8 +64513,7 @@
                         "grouping",
                         "columnOrder",
                         "columnWidths",
-                        "hiddenColumns",
-                        "showRecordPictures"
+                        "hiddenColumns"
                       ]
                     }
                   }
@@ -65137,10 +65044,6 @@
                                 "items": {
                                   "type": "string"
                                 }
-                              },
-                              "showRecordPictures": {
-                                "type": "boolean",
-                                "description": "Show pictures beside record names in tables and boards; defaults to true."
                               }
                             },
                             "additionalProperties": false
@@ -65576,10 +65479,6 @@
                           "items": {
                             "type": "string"
                           }
-                        },
-                        "showRecordPictures": {
-                          "type": "boolean",
-                          "description": "Show pictures beside record names in tables and boards; defaults to true."
                         }
                       },
                       "additionalProperties": false
@@ -65986,10 +65885,6 @@
                           "items": {
                             "type": "string"
                           }
-                        },
-                        "showRecordPictures": {
-                          "type": "boolean",
-                          "description": "Show pictures beside record names in tables and boards; defaults to true."
                         }
                       },
                       "additionalProperties": false
@@ -66696,10 +66591,6 @@
                                 "items": {
                                   "type": "string"
                                 }
-                              },
-                              "showRecordPictures": {
-                                "type": "boolean",
-                                "description": "Show pictures beside record names in tables and boards; defaults to true."
                               }
                             },
                             "additionalProperties": false
@@ -67135,10 +67026,6 @@
                           "items": {
                             "type": "string"
                           }
-                        },
-                        "showRecordPictures": {
-                          "type": "boolean",
-                          "description": "Show pictures beside record names in tables and boards; defaults to true."
                         }
                       },
                       "additionalProperties": false
@@ -67545,10 +67432,6 @@
                           "items": {
                             "type": "string"
                           }
-                        },
-                        "showRecordPictures": {
-                          "type": "boolean",
-                          "description": "Show pictures beside record names in tables and boards; defaults to true."
                         }
                       },
                       "additionalProperties": false

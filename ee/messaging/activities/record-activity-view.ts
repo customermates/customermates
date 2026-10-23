@@ -51,7 +51,6 @@ export function activityViewStateValid(state: DataViewState) {
     state.grouping ||
     state.columnOrder?.length ||
     state.hiddenColumns?.length ||
-    state.showRecordPictures === false ||
     Object.keys(state.columnWidths ?? {}).length ||
     (state.viewMode && state.viewMode !== ViewMode.table)
   )

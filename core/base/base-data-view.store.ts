@@ -92,15 +92,7 @@ function filterSignature(filters: Filter[]): string[] {
   return filters.map(canonicalJson).sort();
 }
 
-const APPEARANCE_KEYS = [
-  "sortDescriptor",
-  "pageSize",
-  "viewMode",
-  "grouping",
-  "columnOrder",
-  "hiddenColumns",
-  "showRecordPictures",
-] as const;
+const APPEARANCE_KEYS = ["sortDescriptor", "pageSize", "viewMode", "grouping", "columnOrder", "hiddenColumns"] as const;
 
 type AppearanceKey = (typeof APPEARANCE_KEYS)[number];
 
@@ -134,8 +126,6 @@ function appearanceSignature(key: AppearanceKey, state: DataViewState | undefine
       return canonicalJson(state?.columnOrder ?? []);
     case "hiddenColumns":
       return canonicalJson([...(state?.hiddenColumns ?? [])].sort());
-    case "showRecordPictures":
-      return canonicalJson(state?.showRecordPictures ?? true);
   }
 }
 
@@ -157,7 +147,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   columnOrder: string[] = [];
   columnWidths: Record<string, number> = {};
   hiddenColumns: string[] = [];
-  showRecordPictures = true;
   views: DataViewChipDto[] = [];
   allViewState: DataViewState = {};
   activeViewKey: string = ALL_VIEW_KEY;
@@ -204,9 +193,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return true;
   }
   get supportsManualOrder(): boolean {
-    return false;
-  }
-  get supportsRecordPictures(): boolean {
     return false;
   }
   get recordPictureFieldId(): string | undefined {
@@ -300,7 +286,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
       p13nId: observable,
       hiddenColumns: observable,
-      showRecordPictures: observable,
       columnOrder: observable,
       columnWidths: observable,
       views: observable,
@@ -447,7 +432,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     grouping: toJS(this.grouping) ?? null,
     columnOrder: toJS(this.columnOrder),
     hiddenColumns: toJS(this.hiddenColumns),
-    ...(this.supportsRecordPictures ? { showRecordPictures: this.showRecordPictures } : {}),
   });
 
   viewStateSnapshot = ({ includeQuery }: { includeQuery: boolean }): DataViewState => {
@@ -471,7 +455,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       columnOrder: toJS(this.columnOrder),
       columnWidths: toJS(this.columnWidths),
       hiddenColumns: toJS(this.hiddenColumns),
-      ...(this.supportsRecordPictures ? { showRecordPictures: this.showRecordPictures } : {}),
     };
   };
 
@@ -484,7 +467,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     if (appearance.columnOrder) this.columnOrder = appearance.columnOrder.filter((uid) => uid !== this.primaryColumnId);
     if (appearance.hiddenColumns)
       this.hiddenColumns = appearance.hiddenColumns.filter((uid) => uid !== this.primaryColumnId);
-    if (appearance.showRecordPictures !== undefined) this.showRecordPictures = appearance.showRecordPictures;
     if (groupingBefore === this.groupingKey) return;
     this.resetGroupedTakeOverrides();
     this.collapsedGroupKeys.clear();
@@ -734,7 +716,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.filters = this.withKnownFields(args.filters);
     this.columnWidths = args.columnWidths || {};
     this.hiddenColumns = (args.hiddenColumns ?? []).filter((uid) => uid !== this.primaryColumnId);
-    this.showRecordPictures = args.showRecordPictures ?? true;
     this.columnOrder = (args.columnOrder ?? []).filter((uid) => uid !== this.primaryColumnId);
     this.viewMode = args.viewMode ?? ViewMode.table;
     this.grouping = args.grouping?.grouping ?? null;
@@ -890,7 +871,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     columnWidth?: { uid: string; width: number };
     columnWidths?: Record<string, number>;
     hiddenColumns?: string[];
-    showRecordPictures?: boolean;
     viewMode?: ViewMode;
     grouping?: Grouping | null;
   }) => {
@@ -937,10 +917,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     }
 
     const viewModeChanged = "viewMode" in updates && this.viewMode !== updates.viewMode;
-    if (updates.showRecordPictures !== undefined && this.showRecordPictures !== updates.showRecordPictures) {
-      this.showRecordPictures = updates.showRecordPictures;
-      hasChanges = true;
-    }
     if (viewModeChanged) {
       this.viewMode = updates.viewMode ?? ViewMode.table;
       hasChanges = true;
@@ -1076,7 +1052,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       this.columnOrder = (state.columnOrder ?? []).filter((uid) => uid !== this.primaryColumnId);
       this.columnWidths = state.columnWidths ?? {};
       this.hiddenColumns = (state.hiddenColumns ?? []).filter((uid) => uid !== this.primaryColumnId);
-      this.showRecordPictures = state.showRecordPictures ?? true;
       this.pagination = this.pagination
         ? {
             ...this.pagination,
@@ -1346,7 +1321,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       columnOrder: toJS(this.columnOrder),
       columnWidths: toJS(this.columnWidths),
       hiddenColumns: toJS(this.hiddenColumns),
-      showRecordPictures: this.showRecordPictures,
     };
     const pendingProjectionAtStart =
       !resolveFromServer &&
@@ -1415,12 +1389,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     runInAction(() => {
       const localAllState = this.allViewState;
       const localViews = this.views;
-      const savedPictureVisibility = this.savedAppearance?.showRecordPictures ?? true;
       const localProjection = {
         columnOrder: toJS(this.columnOrder),
         columnWidths: toJS(this.columnWidths),
         hiddenColumns: toJS(this.hiddenColumns),
-        showRecordPictures: this.showRecordPictures,
       };
       const sameProjectionScope =
         wasInitialized &&
@@ -1438,11 +1410,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       const keepHidden =
         sameProjectionScope &&
         (pendingProjectionAtStart || !deepEqual(localProjection.hiddenColumns, projectionBeforeRequest.hiddenColumns));
-      const keepPictures =
-        sameProjectionScope &&
-        (pendingProjectionAtStart ||
-          (this.viewStateWrites.get(this.activeViewKey) ?? 0) > writeSeqBeforeRequest ||
-          localProjection.showRecordPictures !== projectionBeforeRequest.showRecordPictures);
 
       this.onRefreshAccepted(result);
       this.resolvingSavedView = resolveFromServer;
@@ -1463,10 +1430,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
         this.hiddenColumns = localProjection.hiddenColumns.filter(
           (id) => available.has(id) && id !== this.primaryColumnId,
         );
-      }
-      if (keepPictures) {
-        this.showRecordPictures = localProjection.showRecordPictures;
-        this.savedAppearance = { ...this.savedAppearance, showRecordPictures: savedPictureVisibility };
       }
       this.restoreViewStateWrittenDuringRequest(writeSeqBeforeRequest, localAllState, localViews);
       if (resolveFromServer) this.syncQueryDraft();

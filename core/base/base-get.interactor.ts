@@ -46,7 +46,6 @@ export interface GetResult<T> {
   columnOrder?: string[];
   columnWidths?: Record<string, number>;
   hiddenColumns?: string[];
-  showRecordPictures?: boolean;
   viewMode?: ViewMode;
   grouping?: GroupingResult;
   groupableFields?: GroupableFieldDto[];
@@ -384,7 +383,6 @@ function viewResult(resolved: ResolvedDataViewState, context: ViewContext) {
     columnOrder: resolved.columnOrder,
     columnWidths: resolved.columnWidths,
     hiddenColumns: resolved.hiddenColumns,
-    showRecordPictures: resolved.showRecordPictures,
     viewMode: resolved.viewMode,
     views: context.views,
     activeViewKey: context.activeViewKey,

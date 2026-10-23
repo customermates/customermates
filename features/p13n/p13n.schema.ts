@@ -23,7 +23,6 @@ export const P13nEntrySchema = z.object({
   columnWidths: z.record(z.string(), z.number()).optional(),
   columnOrder: z.array(z.string()).optional(),
   hiddenColumns: z.array(z.string()).optional(),
-  showRecordPictures: z.boolean().optional(),
   viewMode: z.string().optional(),
   grouping: z.any().optional(),
   detailOptions: EntityDetailOptionsSchema.optional(),

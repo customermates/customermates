@@ -25,13 +25,7 @@ export class RecordExplorationStore extends RecordsStore {
     return this.layoutKey !== this.initialLayout;
   }
   private get layoutKey() {
-    return JSON.stringify([
-      this.columnOrder,
-      this.hiddenColumns,
-      this.sortDescriptor,
-      this.grouping,
-      this.showRecordPictures,
-    ]);
+    return JSON.stringify([this.columnOrder, this.hiddenColumns, this.sortDescriptor, this.grouping]);
   }
   protected override canPersistViewState() {
     return false;

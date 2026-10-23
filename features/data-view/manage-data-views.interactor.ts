@@ -154,7 +154,6 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
             "columnOrder",
             "columnWidths",
             "hiddenColumns",
-            ...(data.surfaceKey.startsWith("records:") ? ["showRecordPictures"] : []),
           ];
       const filterableFields = config.filterableFields.map((field) => {
         const valueKind = filterValueKind(field.field);
