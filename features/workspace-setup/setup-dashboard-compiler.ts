@@ -12,6 +12,7 @@ import { widgetDisplayTypeIssue } from "@/features/widget/widget-display-rules";
 import { DisplayType } from "@/features/widget/widget-display.schema";
 import { structuredDashboardLayout } from "@/features/widget/widget-grid";
 
+import { brandAccent } from "./brand-colors";
 import { setupIdempotencyKey } from "./setup-references";
 
 export function setupDashboardLayouts(widgets: readonly SetupWidget[], occupied: readonly GridRect[] = []): GridRect[] {
@@ -108,7 +109,7 @@ export function compileSetupDashboard(
       measure,
       displayOptions: {
         displayType: widget.display,
-        ...(context.brandChart ? { barColors: [context.brandChart] } : {}),
+        ...(context.brandChart ? { barColors: [brandAccent(context.brandChart)] } : {}),
         useGroupColors: false,
         palette: "accent" as const,
       },

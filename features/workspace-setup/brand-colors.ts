@@ -1,6 +1,6 @@
 import type { ChipColor } from "@/constants/chip-colors";
 import { chartAccentSwatches, colorPalettes } from "@/styles/color-palettes";
-import type { ChartColor } from "@/features/widget/widget-display.schema";
+import { ChartColor } from "@/features/widget/widget-display.schema";
 
 type BrandColorSource = "themeColor" | "manifest" | "customProperty" | "button";
 type BrandColorCandidate = { hex: string; source: BrandColorSource; score: number };
@@ -190,6 +190,10 @@ function hueAngle(lab: Lab): number {
   return Math.atan2(lab.b, lab.a);
 }
 
+export function brandAccent(color: ChartColor): ChartColor {
+  return color === ChartColor.warning1 ? ChartColor.violet1 : color;
+}
+
 export function nearestChartColor(hex: string): ChartColor {
   const target = parseCssColor(hex);
   if (!target) throw new Error("Invalid brand colour.");
@@ -203,7 +207,7 @@ export function nearestChartColor(hex: string): ChartColor {
     if (!best || gap < best.gap) best = { key, gap };
   }
   if (!best) throw new Error("No reference colours.");
-  return best.key;
+  return brandAccent(best.key);
 }
 
 export function mapBrandColors(input: BrandColorInput): BrandColorMapping | null {
