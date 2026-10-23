@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 
+import { appPath } from "./app-paths";
 import { BrowserDiagnostics, expectNotFoundDocuments } from "./browser-diagnostics";
 import { collectPageErrors, expect, test } from "./fixtures";
 import { localE2eEnvironment } from "./local-environment";
@@ -66,7 +67,7 @@ test("an expected 404 document and sandboxed requests leave unrelated API and ch
 
 // Chromium and WebKit log most failed loads to the console, Firefox none. The diagnostics read the responses instead,
 // so a server error behind a page fails the test on every target the same way.
-test("an injected server error fails the test on every browser", async ({ page, diagnostics }, testInfo) => {
+test("an injected server error fails the test on every browser", async ({ page, diagnostics, slug }, testInfo) => {
   await page.route("**/api/v1/diagnostics-probe-error", (route) =>
     route.fulfill({ status: 500, contentType: "application/json", body: '{"error":"injected"}' }),
   );
@@ -74,7 +75,7 @@ test("an injected server error fails the test on every browser", async ({ page, 
     route.fulfill({ status: 500, contentType: "text/html", body: "<!doctype html><title>Injected</title>" }),
   );
   // The page is signed in, so a public page such as the sign-in would redirect away; the dashboard stays put.
-  await page.goto("/en/dashboard");
+  await page.goto(appPath(slug, "/dashboard"));
   await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
   const status = await page.evaluate(async () => {
     const answer = await fetch("/api/v1/diagnostics-probe-error", { method: "POST", body: "{}" });

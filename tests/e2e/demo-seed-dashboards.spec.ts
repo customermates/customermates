@@ -1,9 +1,11 @@
 import { WIDGET_GRID_MARGIN } from "../../features/widget/widget-grid";
 
+import { appPath } from "./app-paths";
 import {
   DEMO_COMPANY_ID,
   DEMO_DASHBOARDS,
   DEMO_MEMBERS,
+  DEMO_SLUG,
   displayedNumber,
   expect,
   paintedFrames,
@@ -43,7 +45,7 @@ for (const dashboard of DEMO_DASHBOARDS) {
       await page.setViewportSize({ width: 1440, height: 2600 });
     // Sales is the main dashboard, so /en/dashboard opens on it; the other dashboards are views.
     await page.goto(
-      dashboard.id ? `/en/dashboard?view=${dashboard.id}` : "/en/dashboard",
+      dashboard.id ? appPath(DEMO_SLUG, `/dashboard?view=${dashboard.id}`) : appPath(DEMO_SLUG, "/dashboard"),
     );
     const rail = page.locator("[data-joins-top-bar]");
     for (const other of DEMO_DASHBOARDS.filter(({ id }) => id))
@@ -154,7 +156,7 @@ for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     for (const dashboard of DEMO_DASHBOARDS) {
       await page.goto(
-        dashboard.id ? `/en/dashboard?view=${dashboard.id}` : "/en/dashboard",
+        dashboard.id ? appPath(DEMO_SLUG, `/dashboard?view=${dashboard.id}`) : appPath(DEMO_SLUG, "/dashboard"),
       );
       const numbers = page.locator('[data-slot="widget-number"]');
       await expect(

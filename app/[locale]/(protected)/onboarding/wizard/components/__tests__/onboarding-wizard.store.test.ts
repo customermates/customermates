@@ -10,7 +10,7 @@ const actions = vi.hoisted(() => ({
 const assign = vi.hoisted(() => vi.fn());
 
 vi.mock("../../actions", () => actions);
-vi.mock("@/app/[locale]/(protected)/settings/(account)/actions", () => ({ createApiKeyAction: vi.fn() }));
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/settings/(account)/actions", () => ({ createApiKeyAction: vi.fn() }));
 vi.mock("@/core/errors/report-application-error", () => ({ reportApplicationError: vi.fn() }));
 
 import { OnboardingWizardStore, WIZARD_STEPS } from "../onboarding-wizard.store";

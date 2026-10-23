@@ -4,6 +4,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { configureDrawer, openConfigure, openConfigureTab } from "./configure";
 import { expect, test, collectPageErrors } from "./fixtures";
 import { readModel } from "./api";
+import { companyPath, companyUrlPattern } from "./app-paths";
 
 async function savedExpanded(database: Client, companyId: string) {
   const result = await database.query(
@@ -23,7 +24,10 @@ test("graph nodes share one structure with an Add menu and in-place expansion", 
   await openConfigure(page);
   const deal = page.locator(`[data-configure-node="${dealId}"]`);
   await expect(deal).toBeVisible();
-  await expect(deal.getByRole("link", { name: /\d+\s*records?/ })).toHaveAttribute("href", `/en/records/${dealId}`);
+  await expect(deal.getByRole("link", { name: /\d+\s*records?/ })).toHaveAttribute(
+    "href",
+    companyPath(companyId, `/records/${dealId}`),
+  );
   await expect(deal.getByRole("button", { name: "Add field to Deals" })).toHaveCount(0);
 
   const more = page.locator(`[data-configure-more="${dealId}"]`);
@@ -105,7 +109,7 @@ test("creates a sub-list from the parent's Add menu and groups it with the paren
   });
   // Saving a new list opens it: a sub-list, which has no record page of its own, opens in Configure. A navigation
   // started before that one lands is cancelled by it.
-  await expect(page).toHaveURL(new RegExp(`/en/configure\\?typeId=${milestone?.id}$`));
+  await expect(page).toHaveURL(companyUrlPattern(companyId, `/configure\\?typeId=${milestone?.id}$`));
   await expect(page.locator("[data-configure-list-pane]")).toBeVisible();
 
   await openConfigure(page);

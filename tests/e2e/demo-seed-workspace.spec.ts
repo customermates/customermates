@@ -1,7 +1,8 @@
 import type { Locator } from "@playwright/test";
 
+import { appPath, appUrlPattern } from "./app-paths";
 import { expectBlockedEmailScripts } from "./browser-diagnostics";
-import { DEMO_COMPANY_ID, expect, paintedFrames, test } from "./demo-seed";
+import { DEMO_COMPANY_ID, DEMO_SLUG, expect, paintedFrames, test } from "./demo-seed";
 import { e2eAppMode } from "./workspace-switching";
 
 /** The seeded workspace beyond records: webhooks and deliveries, the inbox, the Knowledge Base and routines. */
@@ -31,7 +32,7 @@ test("webhooks show the healthy ERP bridge with successful deliveries and the pa
     { url: PAUSED_URL, status: "failed", count: 8 },
   ]);
 
-  await page.goto("/en/settings/webhooks");
+  await page.goto(appPath(DEMO_SLUG, "/settings/webhooks"));
   const healthy = page.getByRole("row").filter({ hasText: HEALTHY_URL });
   const paused = page.getByRole("row").filter({ hasText: PAUSED_URL });
   await expect(healthy).toContainText("Send deal and subscription changes to the ERP bridge");
@@ -40,7 +41,7 @@ test("webhooks show the healthy ERP bridge with successful deliveries and the pa
   await expect(paused).toContainText("Ticket alerts for the on-call tool (paused while the receiver is down)");
   await expect(paused).toContainText(/Disabled|Paused/);
 
-  await page.goto("/en/settings/webhook-deliveries");
+  await page.goto(appPath(DEMO_SLUG, "/settings/webhook-deliveries"));
   const rows = page.getByRole("row");
   await expect(rows.filter({ hasText: HEALTHY_URL }).first()).toBeVisible();
   await expect(rows.filter({ hasText: PAUSED_URL }).first()).toBeVisible();
@@ -67,7 +68,7 @@ test("inbox threads are listed and linked to their deals, tickets and candidates
      ORDER BY "lastMessageAt" DESC NULLS LAST LIMIT 5`,
     [DEMO_COMPANY_ID],
   );
-  await page.goto("/en/inbox");
+  await page.goto(appPath(DEMO_SLUG, "/inbox"));
   for (const thread of threads) await expect(page.getByText(thread.title, { exact: true }).first()).toBeVisible();
 
   const { rows: links } = await database.query<{ threadId: string; list: string; record: string }>(
@@ -80,7 +81,7 @@ test("inbox threads are listed and linked to their deals, tickets and candidates
   );
   expect([...new Set(links.map(({ list }) => list))].sort()).toEqual(["Candidate", "Deal", "Ticket"]);
   for (const threadId of [...new Set(links.map((link) => link.threadId))]) {
-    await page.goto(`/en/inbox?threadId=${threadId}`);
+    await page.goto(appPath(DEMO_SLUG, `/inbox?threadId=${threadId}`));
     const settings = page
       .getByRole("button", { name: "Thread settings", exact: true })
       .and(page.locator('[data-slot="badge"]'));
@@ -132,7 +133,7 @@ test("email bodies follow the app theme, adaptive emails switch, and other exter
   const threadId = (subject: string) => threads.find((thread) => thread.subject === subject)?.id;
   for (const scheme of ["light", "dark"] as const) {
     await page.emulateMedia({ colorScheme: scheme });
-    await page.goto(`/en/inbox?threadId=${threadId("Service report baseline")}`);
+    await page.goto(appPath(DEMO_SLUG, `/inbox?threadId=${threadId("Service report baseline")}`));
     const own = page.locator('iframe[data-email-tone="own"]').first();
     const adaptive = page.locator('iframe[data-email-tone="adaptive"]').first();
     await expect(own).toBeVisible();
@@ -161,7 +162,7 @@ test("email bodies follow the app theme, adaptive emails switch, and other exter
     await paintedFrames(page);
     await page.screenshot({ path: testInfo.outputPath(`email-thread-${scheme}.png`), animations: "disabled" });
 
-    await page.goto(`/en/inbox?threadId=${threadId("Order form review: Northwind Field Enterprise")}`);
+    await page.goto(appPath(DEMO_SLUG, `/inbox?threadId=${threadId("Order form review: Northwind Field Enterprise")}`));
     const paper = page.locator('iframe[data-email-tone="paper"]').first();
     await expect(paper.contentFrame().getByText("Signature complete")).toBeVisible();
     await expect(paper).toHaveCSS("color-scheme", "light");
@@ -190,7 +191,7 @@ test("the Knowledge Base lists the Operating Guide and the procedures, and a pro
 
   const procedure = procedures.find(({ title }) => title === "Support SLA and Escalation") ?? procedures[0];
   if (testInfo.project.use.isMobile) {
-    await page.goto("/en/wiki");
+    await page.goto(appPath(DEMO_SLUG, "/wiki"));
     const trigger = page.locator("#wiki-document-panel button[aria-expanded]").first();
     const sheet = page.getByRole("dialog", { name: "Knowledge Base pages" });
     // A click before hydration can leave the trigger closed on mobile.
@@ -213,7 +214,7 @@ test("the Knowledge Base lists the Operating Guide and the procedures, and a pro
     await sheet.getByText(procedure.title, { exact: true }).first().click();
     await expect(sheet).not.toBeVisible();
   } else {
-    await page.goto("/en/wiki");
+    await page.goto(appPath(DEMO_SLUG, "/wiki"));
     const list = page
       .getByRole("navigation", { name: "Knowledge Base pages" })
       .or(page.getByLabel("Knowledge Base pages"));
@@ -242,7 +243,7 @@ test("routines are listed with their owners and triggers", async ({ page, databa
   );
   expect(routines.length).toBeGreaterThanOrEqual(10);
   expect(new Set(routines.map(({ trigger }) => trigger))).toEqual(new Set(["event", "schedule"]));
-  await page.goto("/en/routines");
+  await page.goto(appPath(DEMO_SLUG, "/routines"));
   for (const routine of routines) {
     const row = page.getByRole("row").filter({ has: page.getByText(routine.name, { exact: true }) });
     await expect(row, routine.name).toBeVisible();
@@ -262,9 +263,9 @@ test("self-hosted keeps the seeded Inbox and routines out of reach and sends the
   errors,
 }, testInfo) => {
   test.skip(e2eAppMode() !== "self-hosted", "The Inbox and routines are available on Customermates Cloud");
-  for (const path of ["/en/inbox", "/en/routines"]) {
+  for (const path of [appPath(DEMO_SLUG, "/inbox"), appPath(DEMO_SLUG, "/routines")]) {
     await page.goto(path);
-    await expect(page).toHaveURL(/\/en\/dashboard$/);
+    await expect(page).toHaveURL(appUrlPattern(DEMO_SLUG, "/dashboard$"));
   }
   // The phone sidebar is a closed sheet; the desktop sidebar shows the navigation without either entry.
   if (!testInfo.project.use.isMobile) {

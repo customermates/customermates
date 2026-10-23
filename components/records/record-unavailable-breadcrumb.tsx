@@ -5,9 +5,10 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { stripWorkspacePrefix } from "@/core/navigation/workspace-paths";
 
 export function RecordUnavailableBreadcrumb({ kind }: { kind: "denied" | "missing" }) {
-  const pathname = usePathname();
+  const pathname = stripWorkspacePrefix(usePathname());
   const t = useTranslations();
   const root = useRootStore();
   const [, records, typeId, recordId, extra] = pathname.split("/").filter(Boolean);

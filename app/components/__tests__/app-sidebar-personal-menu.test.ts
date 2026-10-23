@@ -28,8 +28,8 @@ vi.mock("@/i18n/navigation", () => ({
 }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => harness.rootStore }));
-vi.mock("@/app/[locale]/(protected)/dashboard/actions", () => ({ updatePreferencesAction: vi.fn() }));
-vi.mock("@/app/[locale]/(protected)/settings/(account)/actions", () => ({
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/dashboard/actions", () => ({ updatePreferencesAction: vi.fn() }));
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/settings/(account)/actions", () => ({
   updateUserAction: harness.updateUserAction,
   resendVerificationEmailFromAppAction: vi.fn(),
 }));
@@ -64,9 +64,9 @@ vi.mock("../navigation/nav-user", () => ({
 }));
 
 const { AppSidebar } = await import("../app-sidebar");
-const { UserStore } = await import("@/app/[locale]/(protected)/settings/(account)/components/user.store");
+const { UserStore } = await import("@/app/[locale]/(protected)/w/[workspace]/settings/(account)/components/user.store");
 const { ProfileSettingsStore } = await import(
-  "@/app/[locale]/(protected)/settings/(account)/components/profile-settings.store"
+  "@/app/[locale]/(protected)/w/[workspace]/settings/(account)/components/profile-settings.store"
 );
 
 const signedIn = createMockUser({

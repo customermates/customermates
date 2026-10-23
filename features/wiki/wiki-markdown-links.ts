@@ -1,6 +1,6 @@
 import { parseMarkdownToJSON, serializeJSONToMarkdown } from "@/components/editor/editor.utils";
 
-import { parseWikiPageHref, wikiPageFetchId, wikiPagePath, wikiPageUrl } from "./wiki-links";
+import { isWikiTargetInWorkspace, parseWikiPageHref, wikiPageFetchId, wikiPagePath, wikiPageUrl } from "./wiki-links";
 
 const MARKDOWN_LINK_PATTERN = /\[((?:\\.|[^\]\\\r\n])*)\]\(\s*(<?)([^)>\s]+)(>?)(?:\s+["'][^\r\n]*?["'])?\s*\)/giu;
 const WIKI_LINK_LABEL_MAX_LENGTH = 120;
@@ -41,7 +41,7 @@ export function hasInvalidWikiPageLinks(markdown: string, baseUrl: string): bool
         const url = new URL(href, baseUrl);
         if (
           url.origin === origin &&
-          /^\/+(?:[a-z]{2}\/)?wiki(?:\/|$)/iu.test(url.pathname) &&
+          /^\/+(?:[a-z]{2}\/)?(?:w\/[^/]+\/)?wiki(?:\/|$)/iu.test(url.pathname) &&
           (/\/wiki\/.+/iu.test(url.pathname) ||
             [...url.searchParams.keys()].some((key) => key.toLowerCase() === "page")) &&
           !parseWikiPageHref(href, baseUrl)
@@ -55,7 +55,12 @@ export function hasInvalidWikiPageLinks(markdown: string, baseUrl: string): bool
   return invalid;
 }
 
-export function extractWikiPageLinks(markdown: string, baseUrl: string, limit = 25): WikiPageLink[] {
+export function extractWikiPageLinks(
+  markdown: string,
+  baseUrl: string,
+  workspaceSlug: string,
+  limit = 25,
+): WikiPageLink[] {
   const document = parseMarkdownToJSON(markdown) as MarkdownNode;
   const links: WikiPageLink[] = [];
   const seen = new Set<string>();
@@ -63,26 +68,26 @@ export function extractWikiPageLinks(markdown: string, baseUrl: string, limit = 
     if (links.length >= limit) return;
     const href = node.marks?.find((mark) => mark.type === "link")?.attrs?.href;
     const target = typeof href === "string" ? parseWikiPageHref(href, baseUrl) : null;
-    if (!target || seen.has(target.id)) return;
+    if (!target || !isWikiTargetInWorkspace(target, workspaceSlug) || seen.has(target.id)) return;
     seen.add(target.id);
     links.push({
       id: target.id,
       label: boundedLinkLabel(node.text),
       path: wikiPagePath(target.id),
-      url: wikiPageUrl(baseUrl, target.id),
+      url: wikiPageUrl(baseUrl, workspaceSlug, target.id),
       fetchId: wikiPageFetchId(target.id),
     });
   });
   return links;
 }
 
-export function externalizeWikiPageLinks(markdown: string, baseUrl: string): string {
+export function externalizeWikiPageLinks(markdown: string, baseUrl: string, workspaceSlug: string): string {
   const document = parseMarkdownToJSON(markdown) as MarkdownNode;
   visit(document, (node) => {
     for (const mark of node.marks ?? []) {
       const href = mark.type === "link" ? mark.attrs?.href : null;
       const target = typeof href === "string" ? parseWikiPageHref(href, baseUrl) : null;
-      if (target && mark.attrs) mark.attrs.href = wikiPageUrl(baseUrl, target.id);
+      if (target && mark.attrs) mark.attrs.href = wikiPageUrl(baseUrl, target.slug ?? workspaceSlug, target.id);
     }
   });
   return serializeJSONToMarkdown(document);

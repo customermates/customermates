@@ -45,8 +45,8 @@ describe("synthetic Knowledge Base fixtures", () => {
       expect(page.markdown).toMatch(/^\S.+\n\n## /u);
       expect(wikiExcerpt(page.markdown).length, page.title).toBeGreaterThan(70);
       if (result.success) {
-        expect(extractWikiPageLinks(result.data.markdown, "http://localhost:4000")).toEqual(
-          extractWikiPageLinks(page.markdown, "http://localhost:4000"),
+        expect(extractWikiPageLinks(result.data.markdown, "http://localhost:4000", "small-business")).toEqual(
+          extractWikiPageLinks(page.markdown, "http://localhost:4000", "small-business"),
         );
       }
     }
@@ -59,7 +59,7 @@ describe("synthetic Knowledge Base fixtures", () => {
   it("links only to existing fixture pages and leaves a custom guide replaceable", () => {
     const titles = new Map(SYNTHETIC_WIKI_PAGE_DEFINITIONS.map(({ id, title }) => [id, title]));
     for (const page of SYNTHETIC_WIKI_PAGE_DEFINITIONS) {
-      const links = extractWikiPageLinks(page.markdown, "http://localhost:4000");
+      const links = extractWikiPageLinks(page.markdown, "http://localhost:4000", "small-business");
       expect(links.length, page.title).toBeGreaterThan(0);
       for (const link of links) {
         expect(titles.get(link.id), page.title).toBe(link.label);

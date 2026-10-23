@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { presetId } from "../../features/records/crm-preset";
+import { companyPath } from "./app-paths";
 import { expectNotFoundDocuments } from "./browser-diagnostics";
 import { collectPageErrors, expect, test } from "./fixtures";
 import {
@@ -41,15 +42,16 @@ async function expectNotFoundPage(page: Page) {
 
 test("shows the not-found page for an unknown or foreign list instead of the error page", async ({
   page,
+  companyId,
 }) => {
   test.setTimeout(120000);
   const errors = allowNotFoundDocuments(page);
 
   for (const typeId of [randomUUID(), presetId(randomUUID(), "deal")]) {
-    await page.goto(`/en/records/${typeId}`);
+    await page.goto(companyPath(companyId, `/records/${typeId}`));
     await expectNotFoundPage(page);
 
-    await page.goto(`/en/records/${typeId}/${randomUUID()}`);
+    await page.goto(companyPath(companyId, `/records/${typeId}/${randomUUID()}`));
     await expectNotFoundPage(page);
     const breadcrumb = page.getByRole("navigation", { name: "Breadcrumb" });
     await expect(breadcrumb.getByText(englishMessages.NotFoundPage.title, { exact: true })).toBeVisible();
@@ -83,7 +85,7 @@ test("falls back to the All view and drops an unknown or foreign view id from th
   expect(selected.status(), await selected.text()).toBe(200);
 
   for (const viewId of [randomUUID(), contactView]) {
-    await page.goto(`/en/records/${dealTypeId}?view=${viewId}&searchTerm=zz`);
+    await page.goto(companyPath(companyId, `/records/${dealTypeId}?view=${viewId}&searchTerm=zz`));
     await expect
       .poll(() => {
         const url = new URL(page.url());
@@ -94,7 +96,7 @@ test("falls back to the All view and drops an unknown or foreign view id from th
         };
       })
       .toEqual({
-        path: `/en/records/${dealTypeId}`,
+        path: companyPath(companyId, `/records/${dealTypeId}`),
         searchTerm: "zz",
         view: null,
       });
@@ -108,11 +110,11 @@ test("falls back to the All view and drops an unknown or foreign view id from th
     ).toHaveCount(0);
   }
 
-  await page.goto(`/en/records/${dealTypeId}?view=${ownView}`);
+  await page.goto(companyPath(companyId, `/records/${dealTypeId}?view=${ownView}`));
   await expect(page.locator("#records-add")).toBeVisible();
   await expect(page).toHaveURL(new RegExp(`[?&]view=${ownView}`));
 
-  await page.goto(`/en/dashboard?view=${randomUUID()}`);
+  await page.goto(companyPath(companyId, `/dashboard?view=${randomUUID()}`));
   await expect(page.locator("[data-joins-top-bar]")).toBeVisible();
   await expect(page.locator("#global-data-views-new")).toBeVisible();
   await expect(
@@ -158,7 +160,7 @@ test("shows a trashed list as In Trash with restore for schema managers, as not 
   const memberErrors = allowNotFoundDocuments(member.page);
   try {
     const dealTypeId = presetId(companyId, "deal");
-    await member.page.goto(`/en/records/${dealTypeId}`);
+    await member.page.goto(companyPath(companyId, `/records/${dealTypeId}`));
     await expect(
       member.page.getByRole("heading", { name: englishMessages.NotFoundPage.title,
         exact: true,
@@ -186,7 +188,7 @@ test("shows a trashed list as In Trash with restore for schema managers, as not 
     })) as { refs: Array<{ typeId: string; recordId: string }> };
     const hidden = created.refs.find((ref) => ref.typeId === dealTypeId);
     if (!hidden) throw new Error("The deal fixture is missing");
-    await member.page.goto(`/en/records/${dealTypeId}/${hidden.recordId}`);
+    await member.page.goto(companyPath(companyId, `/records/${dealTypeId}/${hidden.recordId}`));
     await expect(
       member.page.getByRole("heading", { name: englishMessages.AccessDeniedPage.title,
         exact: true,
@@ -201,7 +203,7 @@ test("shows a trashed list as In Trash with restore for schema managers, as not 
       }),
     ).toHaveCount(0);
     await expect(member.page.getByText("Hidden partner deal")).toHaveCount(0);
-    await member.page.goto(`/en/records/${dealTypeId}/${randomUUID()}`);
+    await member.page.goto(companyPath(companyId, `/records/${dealTypeId}/${randomUUID()}`));
     await expect(
       member.page.getByRole("heading", { name: englishMessages.NotFoundPage.title,
         exact: true,
@@ -214,7 +216,7 @@ test("shows a trashed list as In Trash with restore for schema managers, as not 
     await deleteSelectedList(page);
     await expect(page.locator(`[id="nav-records:${typeId}"]`)).toHaveCount(0);
 
-    await page.goto(`/en/records/${typeId}`);
+    await page.goto(companyPath(companyId, `/records/${typeId}`));
     const trashState = page.locator("[data-record-list-trash]");
     await expect(trashState).toContainText(name);
     await expect(trashState).toContainText(englishMessages.Trash.inTrash);
@@ -222,7 +224,7 @@ test("shows a trashed list as In Trash with restore for schema managers, as not 
       0,
     );
 
-    await member.page.goto(`/en/records/${typeId}`);
+    await member.page.goto(companyPath(companyId, `/records/${typeId}`));
     await expect(
       member.page.getByRole("heading", { name: englishMessages.NotFoundPage.title,
         exact: true,

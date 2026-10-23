@@ -28,6 +28,7 @@ import {
   signInLogin,
   switcherWorkspaces,
 } from "./workspace-switching";
+import { companyPath, companyUrlPattern } from "./app-paths";
 
 test.skip(e2eAppMode() === "demo", "Demo mode signs every visitor in as the shared demo account");
 
@@ -43,7 +44,7 @@ async function joinByLink(page: Page, link: string) {
 async function switchTo(page: Page, companyId: string, name: string) {
   const menu = await openWorkspaceSwitcher(page);
   await menu.locator(`[data-workspace-id="${companyId}"]`).click();
-  await expect(page).toHaveURL(/\/en\/dashboard$/);
+  await expect(page).toHaveURL(companyUrlPattern(companyId, "/dashboard$"));
   await expectCurrentWorkspace(page, name);
 }
 
@@ -82,7 +83,7 @@ test("a member joins, withdraws, rejoins, works, leaves and is removed across th
         .getByRole("alertdialog", { name: "Withdraw your request to join Hoffmann Consulting?" })
         .getByRole("button", { name: englishMessages.PendingCard.withdrawShort, exact: true })
         .click();
-      await expect(page).toHaveURL(/\/en\/dashboard$/);
+      await expect(page).toHaveURL(companyUrlPattern(workspace.companyId, "/dashboard$"));
       await expectCurrentWorkspace(page, "Browser workspace");
       expect(await membership()).toMatchObject({ status: "inactive", left: true });
       expect(await pendingRequestCount(database, hoffmann.companyId, email)).toBe(0);
@@ -93,7 +94,7 @@ test("a member joins, withdraws, rejoins, works, leaves and is removed across th
       await joinByLink(page, link);
       expect(await membership()).toMatchObject({ status: "pendingAuthorization", left: false });
 
-      await admin.page.goto("/en/settings/members");
+      await admin.page.goto(companyPath(hoffmann.companyId, "/settings/members"));
       await runRowAction(admin.page, memberItem(admin.page, MEMBER), MEMBER, "Open details");
       const member = admin.page.getByRole("dialog", { name: "User", exact: true });
       await expect(member.locator("#member-modal-email")).toHaveValue(email);
@@ -107,7 +108,7 @@ test("a member joins, withdraws, rejoins, works, leaves and is removed across th
       expect(await pendingRequestCount(database, hoffmann.companyId, email)).toBe(0);
 
       await clickHydrated(page.getByRole("button", { name: englishMessages.Common.actions.refresh, exact: true }));
-      await expect(page).toHaveURL(/\/en\/dashboard$/);
+      await expect(page).toHaveURL(companyUrlPattern(hoffmann.companyId, "/dashboard$"));
       await expectCurrentWorkspace(page, "Hoffmann Consulting");
       await page.goto(organizationList(hoffmann.companyId));
       await addOrganization(page, "Keller Logistik");
@@ -124,7 +125,7 @@ test("a member joins, withdraws, rejoins, works, leaves and is removed across th
       await expect(page.getByText("Keller Logistik", { exact: true })).toHaveCount(0);
       await switchTo(page, hoffmann.companyId, "Hoffmann Consulting");
 
-      await page.goto("/en/settings/api-keys");
+      await page.goto(companyPath(hoffmann.companyId, "/settings/api-keys"));
       await expect(page.getByText("These keys only access the Hoffmann Consulting workspace.").first()).toBeVisible();
       await clickHydrated(page.locator("#settings-api-keys-generate"));
       const keyDialog = page.getByRole("dialog");
@@ -137,14 +138,14 @@ test("a member joins, withdraws, rejoins, works, leaves and is removed across th
       const memberId = (await membership())?.id;
       expect(await apiKeyRequest(playwright, key)).toEqual({ status: 200, id: memberId });
 
-      await page.goto("/en/settings/general");
+      await page.goto(companyPath(hoffmann.companyId, "/settings/general"));
       await expect(page.locator("#settings-general-name")).toHaveValue("Hoffmann Consulting");
       await clickHydrated(page.locator("#settings-general-leave"));
       await page
         .getByRole("alertdialog", { name: "Leave Hoffmann Consulting?" })
         .getByRole("button", { name: englishMessages.Workspaces.leaveShort, exact: true })
         .click();
-      await expect(page).toHaveURL(/\/en\/dashboard$/);
+      await expect(page).toHaveURL(companyUrlPattern(workspace.companyId, "/dashboard$"));
       await expectCurrentWorkspace(page, "Browser workspace");
       expect(await membership()).toMatchObject({ status: "inactive", left: true });
       expect((await apiKeyRequest(playwright, key)).status).toBe(401);
@@ -158,7 +159,7 @@ test("a member joins, withdraws, rejoins, works, leaves and is removed across th
       expect(await membership()).toMatchObject({ status: "pendingAuthorization", left: false });
       await expect.poll(() => pendingRequestCount(database, hoffmann.companyId, email)).toBe(1);
 
-      await admin.page.goto("/en/settings/members");
+      await admin.page.goto(companyPath(hoffmann.companyId, "/settings/members"));
       const row = memberItem(admin.page, MEMBER);
       await expect(row).toContainText(englishMessages.Common.userStatuses.pendingAuthorization);
       await runRowAction(admin.page, row, MEMBER, "Remove from workspace");
@@ -174,7 +175,7 @@ test("a member joins, withdraws, rejoins, works, leaves and is removed across th
 
       await expect(page.getByRole("heading", { level: 1, name: englishMessages.PendingCard.title })).toBeVisible();
       await clickHydrated(page.getByRole("button", { name: englishMessages.Common.actions.refresh, exact: true }));
-      await expect(page).toHaveURL(/\/en\/dashboard$/);
+      await expect(page).toHaveURL(companyUrlPattern(workspace.companyId, "/dashboard$"));
       await expectCurrentWorkspace(page, "Browser workspace");
       const menu = await openWorkspaceSwitcher(page);
       await expect(switcherWorkspaces(menu)).toHaveText([/Browser workspace/]);
@@ -186,7 +187,7 @@ test("a member joins, withdraws, rejoins, works, leaves and is removed across th
       expect(((await me.json()) as { id: string }).id).toBe(workspace.userId);
       await shot(page, "after-removal");
 
-      await colleague.page.goto("/en/settings/members");
+      await colleague.page.goto(companyPath(hoffmann.companyId, "/settings/members"));
       await expect(memberItem(colleague.page, "Anna Hoffmann")).toBeVisible();
       await expect(memberItem(colleague.page, MEMBER)).toHaveCount(0);
       await colleague.page.goto(organizationList(hoffmann.companyId));

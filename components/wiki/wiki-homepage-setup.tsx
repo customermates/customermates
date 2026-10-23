@@ -8,7 +8,7 @@ import type {
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
-import { getWikiHomepageSetupStateAction } from "@/app/[locale]/(protected)/wiki/actions";
+import { getWikiHomepageSetupStateAction } from "@/app/[locale]/(protected)/w/[workspace]/wiki/actions";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { hasWorkspaceChanged, notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { isClientTransportError } from "@/core/errors/client-transport-error";

@@ -5,13 +5,14 @@ import { collectPageErrors, expect, test } from "./fixtures";
 import { secondUser } from "./second-user";
 import { openMenu, openSidebar } from "./sidebar";
 import { e2eAppMode, expectHydrated } from "./workspace-switching";
+import { appPath, appUrlPattern, companyPath, companyUrlPattern, pagePath } from "./app-paths";
 
 test("settings live in one area reached from the workspace menu, with Back to the work page", async ({
   page,
   companyId,
 }) => {
   const errors = collectPageErrors(page);
-  const deals = `/en/records/${presetId(companyId, "deal")}`;
+  const deals = companyPath(companyId, `/records/${presetId(companyId, "deal")}`);
   await page.goto(deals);
   await page.waitForLoadState("networkidle");
 
@@ -38,7 +39,7 @@ test("settings live in one area reached from the workspace menu, with Back to th
       e2eAppMode() === "self-hosted" ? items : [...items, expect.stringMatching(/^Billing/)],
     );
     await menu.getByRole("menuitem", { name: "Settings", exact: true }).click();
-    await expect(page).toHaveURL(/\/en\/settings\/profile$/);
+    await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/profile$"));
     await openSidebar(page);
     const nav = page.locator("[data-area-nav]");
     await expect(nav.locator('[data-area-nav-group="account"]')).toContainText("Profile & preferences");
@@ -58,11 +59,11 @@ test("settings live in one area reached from the workspace menu, with Back to th
       "nav-settings-webhook-deliveries",
     ]);
     await page.locator("#nav-settings-webhooks").click();
-    await expect(page).toHaveURL(/\/en\/settings\/webhooks$/);
+    await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/webhooks$"));
     await expect(page.locator('[data-slot="segmented-control-list"]')).toHaveCount(0);
     await openSidebar(page);
     await page.locator("#nav-settings-webhook-deliveries").click();
-    await expect(page).toHaveURL(/\/en\/settings\/webhook-deliveries$/);
+    await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/webhook-deliveries$"));
     await openSidebar(page);
     await expect(page.locator("#nav-settings-webhook-deliveries")).toHaveAttribute("data-active", "true");
     await expect(page.locator("#nav-settings-webhooks")).toHaveAttribute("data-active", "false");
@@ -97,7 +98,7 @@ test("the personal menu holds profile, theme, language, docs, feedback and custo
   workspace,
 }) => {
   const errors = collectPageErrors(page);
-  await page.goto("/en/dashboard");
+  await page.goto(appPath(workspace.slug, "/dashboard"));
   await page.waitForLoadState("networkidle");
 
   let menu = await openMenu(page, "#nav-personal-menu");
@@ -132,12 +133,12 @@ test("the personal menu holds profile, theme, language, docs, feedback and custo
 
   menu = await openMenu(page, "#nav-personal-menu");
   await menu.getByRole("menuitem", { name: "Profile & preferences", exact: true }).click();
-  await expect(page).toHaveURL(/\/en\/settings\/profile$/);
+  await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/settings/profile$"));
 
   menu = await openMenu(page, "#nav-personal-menu");
   await menu.getByRole("menuitem", { name: /^Language/ }).click();
   await page.getByRole("menuitemradio", { name: "German", exact: true }).click();
-  await expect(page).toHaveURL(/\/de\/settings\/profile$/);
+  await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/settings/profile$", "de"));
   await expect
     .poll(
       async () =>
@@ -153,7 +154,7 @@ test("the personal menu holds profile, theme, language, docs, feedback and custo
 
 test("profile settings show the unsaved-changes bar only while edits are pending", async ({ page }) => {
   const errors = collectPageErrors(page);
-  await page.goto("/en/settings/profile");
+  await page.goto(pagePath(page, "/settings/profile"));
   await page.waitForLoadState("networkidle");
   const firstName = page.locator("#settings-profile-first-name");
   await expectHydrated(firstName);
@@ -212,7 +213,7 @@ test("a member whose role has no Users & Roles access opens and saves Profile & 
   const roleId = ((await saved.json()) as { role: { id: string } }).role.id;
   const member = await secondUser(browser, database, companyId, testInfo, roleId);
   try {
-    await member.page.goto("/en/settings/profile");
+    await member.page.goto(companyPath(companyId, "/settings/profile"));
     await member.page.waitForLoadState("networkidle");
     const firstName = member.page.locator("#settings-profile-first-name");
     await expectHydrated(firstName);

@@ -3,7 +3,7 @@ import { join, sep } from "node:path";
 import { describe, expect, it } from "vitest";
 import { REPO_ROOT, walkFiles } from "./walk";
 const read = (path: string) => readFileSync(join(REPO_ROOT, path), "utf8");
-const component = (name: string) => read(`app/[locale]/(protected)/dashboard/components/${name}`);
+const component = (name: string) => read(`app/[locale]/(protected)/w/[workspace]/dashboard/components/${name}`);
 const sources = (dir: string) =>
   walkFiles(join(REPO_ROOT, dir), (path) => /\.tsx?$/.test(path) && !path.includes(`${sep}__tests__${sep}`));
 
@@ -65,7 +65,7 @@ describe("generic dashboard widget UI", () => {
   it("keeps widget filter drafts local until the editor is saved", () => {
     const store = component("widget-modal.store.ts");
     expect(store).toContain("onSubmit = async (event?: FormEvent<HTMLFormElement>)");
-    const autoApplying = sources("app/[locale]/(protected)/dashboard").filter((file) =>
+    const autoApplying = sources("app/[locale]/(protected)/w/[workspace]/dashboard").filter((file) =>
       /filter-palette|FILTER_AUTO_APPLY_DELAY_MS/.test(readFileSync(file, "utf8")),
     );
     expect(autoApplying).toEqual([]);

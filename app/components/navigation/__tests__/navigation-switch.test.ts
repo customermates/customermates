@@ -22,7 +22,6 @@ const state = vi.hoisted(() => ({
   setUser: vi.fn(),
   setRecordNavigation: vi.fn(),
   setWorkspaces: vi.fn(),
-  verifyCurrent: vi.fn(() => Promise.resolve(true)),
 }));
 
 state.setUser.mockImplementation((user: { id: string } | null) => {
@@ -49,7 +48,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
     recordWorkspaceStore: { setNavigation: state.setRecordNavigation },
     sidebarLayoutStore: { setLayout: () => undefined },
     keyboardShortcutsStore: { setPreferences: () => undefined },
-    workspacesStore: { setWorkspaces: state.setWorkspaces, verifyCurrent: state.verifyCurrent },
+    workspacesStore: { setWorkspaces: state.setWorkspaces },
     userStore: {
       get user() {
         return state.currentUser;
@@ -94,8 +93,8 @@ vi.mock("@/components/shared/app-locale-preference-sync", () => ({
 vi.mock("../protected-enhancements-context", () => ({
   ProtectedEnhancementsProvider: ({ children }: { children: ReactNode }) => children,
 }));
-vi.mock("@/app/components/workspaces/workspace-tab-guard", () => ({
-  WorkspaceTabGuard: () => jsx("span", { "data-workspace-tab-guard": true }),
+vi.mock("@/app/components/workspaces/workspace-unavailable-dialog", () => ({
+  WorkspaceUnavailableDialog: () => jsx("span", { "data-workspace-unavailable-dialog": true }),
 }));
 
 import { NavigationSwitch } from "../navigation-switch";
@@ -181,7 +180,6 @@ beforeEach(() => {
   state.navigationGuard = new NavigationGuardController();
   state.pathname = "/dashboard";
   state.searchParams = {};
-  state.verifyCurrent.mockResolvedValue(true);
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
@@ -246,6 +244,7 @@ describe("NavigationSwitch account-state refresh", () => {
       {
         companyId: "company-1",
         name: "Acme",
+        slug: "acme",
         status: "active",
         roleName: "Admin",
         isAdmin: true,
@@ -262,7 +261,7 @@ describe("NavigationSwitch account-state refresh", () => {
     });
 
     expect(state.setWorkspaces).toHaveBeenLastCalledWith(workspaces);
-    expect(container.querySelector("[data-workspace-tab-guard]")).not.toBeNull();
+    expect(container.querySelector("[data-workspace-unavailable-dialog]")).not.toBeNull();
 
     act(() => {
       root.render(
@@ -276,7 +275,7 @@ describe("NavigationSwitch account-state refresh", () => {
     });
 
     expect(state.setWorkspaces).toHaveBeenLastCalledWith([]);
-    expect(container.querySelector("[data-workspace-tab-guard]")).not.toBeNull();
+    expect(container.querySelector("[data-workspace-unavailable-dialog]")).not.toBeNull();
   });
 
   it("uses the normal app shell for an allowed operator route", () => {
@@ -427,19 +426,6 @@ describe("NavigationSwitch account-state refresh", () => {
     document.dispatchEvent(new Event("visibilitychange"));
     await vi.waitFor(() => expect(state.refresh).toHaveBeenCalledOnce());
     guard.unregister(form as unknown as BaseFormStore);
-  });
-
-  it("does not refresh a tab that comes back to a workspace that was deleted or changed meanwhile", async () => {
-    const visibility = vi.spyOn(document, "visibilityState", "get");
-    state.verifyCurrent.mockResolvedValue(false);
-    act(() => root.render(jsx(NavigationSwitch, { ...allowedProps(), children: "page" })));
-
-    visibility.mockReturnValue("visible");
-    document.dispatchEvent(new Event("visibilitychange"));
-
-    await vi.waitFor(() => expect(state.verifyCurrent).toHaveBeenCalledOnce());
-    await settle();
-    expect(state.refresh).not.toHaveBeenCalled();
   });
 
   it("keeps the top bar and page content in the same vertical scrollport", () => {

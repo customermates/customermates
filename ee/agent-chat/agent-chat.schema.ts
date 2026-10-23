@@ -89,6 +89,7 @@ export function clientSafeAgentMessageParts(
   options: {
     sanitizeText?: boolean;
     wikiBaseUrl?: string;
+    workspaceSlug?: string | null;
     allowContext?: boolean;
     surface?: AgentSurface;
   } = {},
@@ -103,7 +104,9 @@ export function clientSafeAgentMessageParts(
       return [
         {
           type: "text",
-          text: options.sanitizeText ? sanitizeAgentVisibleText(part.text, options.wikiBaseUrl) : part.text,
+          text: options.sanitizeText
+            ? sanitizeAgentVisibleText(part.text, options.wikiBaseUrl, options.workspaceSlug)
+            : part.text,
         },
       ];
     }

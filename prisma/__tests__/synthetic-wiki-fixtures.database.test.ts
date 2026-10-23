@@ -151,7 +151,7 @@ describeDatabase("synthetic Knowledge Base persistence", { timeout: 120_000 }, (
       });
       const pageIds = new Set(pages.map(({ id }) => id));
       for (const page of pages) {
-        for (const link of extractWikiPageLinks(page.markdown, "http://localhost:4000"))
+        for (const link of extractWikiPageLinks(page.markdown, "http://localhost:4000", "small-business"))
           expect(pageIds.has(link.id)).toBe(true);
       }
     });

@@ -1,4 +1,5 @@
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
+import { appPath, appUrlPattern } from "./app-paths";
 import { collectPageErrors, expect, test } from "./fixtures";
 import { createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
 import {
@@ -43,9 +44,9 @@ test("a person withdraws a pending request from the waiting screen and the admin
 
     const admin = await signInLogin(browser, database, inviter, testInfo);
     try {
-      await admin.page.goto("/en/dashboard");
+      await admin.page.goto(appPath(inviter.slug, "/dashboard"));
       await expect(workspaceMenu(admin.page)).toHaveAttribute("aria-label", /1 member waiting for approval/);
-      await admin.page.goto("/en/settings/members");
+      await admin.page.goto(appPath(inviter.slug, "/settings/members"));
       await expect(memberItem(admin.page, "Jonas Keller")).toContainText(
         englishMessages.Common.userStatuses.pendingAuthorization,
       );
@@ -56,14 +57,11 @@ test("a person withdraws a pending request from the waiting screen and the admin
       await page.screenshot({ path: testInfo.outputPath(`ws-withdraw-confirm-${testInfo.project.name}.png`) });
       await confirm.getByRole("button", { name: englishMessages.PendingCard.withdrawShort, exact: true }).click();
 
-      await expect(page).toHaveURL(/\/en\/dashboard$/);
+      await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/dashboard$"));
       await expectCurrentWorkspace(page, "Browser workspace");
       expect(await membershipIn(database, inviter.companyId, email)).toMatchObject({ status: "inactive", left: true });
       expect(await pendingRequestCount(database, inviter.companyId, email)).toBe(0);
-      expect(await activeWorkspaceOf(database, workspace)).toEqual({
-        session: workspace.companyId,
-        lastUsed: workspace.companyId,
-      });
+      expect(await activeWorkspaceOf(database, workspace)).toEqual({ lastUsed: workspace.companyId });
       const menu = await openWorkspaceSwitcher(page);
       await expect(switcherWorkspaces(menu)).toHaveText([/Browser workspace/]);
       await page.keyboard.press("Escape");
@@ -75,7 +73,7 @@ test("a person withdraws a pending request from the waiting screen and the admin
         path: testInfo.outputPath(`ws-withdraw-admin-members-${testInfo.project.name}.png`),
       });
 
-      await admin.page.goto("/en/dashboard");
+      await admin.page.goto(appPath(inviter.slug, "/dashboard"));
       await expect(workspaceMenu(admin.page)).not.toHaveAttribute("aria-label", /waiting for approval/);
       expect(admin.errors).toEqual([]);
     } finally {

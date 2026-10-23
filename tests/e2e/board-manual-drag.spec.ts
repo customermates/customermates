@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 
 import type { Locator, Page, TestInfo } from "@playwright/test";
 
+import { pagePath } from "./app-paths";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { postOk } from "./api";
 import { secondUser } from "./second-user";
@@ -31,7 +32,7 @@ async function dragCard(page: Page, source: Locator, target: Locator, side: "abo
 }
 
 async function openManualBoard(page: Page, typeId: string, testInfo: TestInfo) {
-  await page.goto(`/en/records/${typeId}?sort=system%3Amanual%3Aasc`);
+  await page.goto(pagePath(page, `/records/${typeId}?sort=system%3Amanual%3Aasc`));
   await expect(page.locator("#records-add")).toBeEnabled();
   await page.getByRole("button", { name: "Appearance", exact: true }).click();
   await page.locator("#records-layout-board").click();
@@ -53,7 +54,7 @@ test("reorders board cards by dragging within and across columns in manual order
   const errors = collectPageErrors(page);
   const id = (key: string) => presetId(companyId, key);
   const typeId = id("deal");
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(pagePath(page, `/records/${typeId}`));
   const names = new Map<string, string>();
   const deal = async (name: string, stage: string) => {
     const model = RecordModelSchema.parse(await postOk(page, "/api/v1/model/read", {}));

@@ -324,7 +324,7 @@ describe("proxy locale routing", () => {
     expect(contentOnly.location).toContain("/en/dashboard");
     expect(contentOnly.location).not.toContain("/nl/auth/signin");
 
-    const germanRecords = await call("/de/records/40000000-0000-4000-8000-000000000002");
+    const germanRecords = await call("/de/w/small-business/records/40000000-0000-4000-8000-000000000002");
     expect(germanRecords.status).toBe(307);
     expect(germanRecords.location).toContain("/de/auth/signin");
   });
@@ -354,7 +354,11 @@ describe("proxy locale routing", () => {
   });
 
   it("matches a percent-encoded protected path on its decoded form and fails closed on broken encoding", async () => {
-    for (const path of ["/en/%64ashboard", "/en/%72ecords/40000000-0000-4000-8000-000000000002", "/en/dash%E0%A4%A"]) {
+    for (const path of [
+      "/en/%64ashboard",
+      "/en/%77/small-business/records/40000000-0000-4000-8000-000000000002",
+      "/en/dash%E0%A4%A",
+    ]) {
       const { status, location } = await call(path);
       expect(status, `${path} should redirect to sign-in`).toBe(307);
       expect(location, path).toContain("/en/auth/signin");

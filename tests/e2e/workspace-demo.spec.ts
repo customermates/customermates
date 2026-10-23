@@ -1,5 +1,6 @@
 import { SYNTHETIC_SEED_USER } from "../../core/config/synthetic-seed-user";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
+import { BERGMANN_STEUERN_SLUG, NORTHWIND_SLUG, appPath, appUrlPattern } from "./app-paths";
 import { collectPageErrors, expect, test } from "./fixtures";
 import {
   clickHydrated,
@@ -29,7 +30,7 @@ test("the demo switches between the seeded workspaces but cannot create, rename 
   const [northwind, bergmann] = memberships.rows;
   await database.query('UPDATE "AuthUser" SET "companyId"=$2 WHERE id=$1', [authUserId, northwind.companyId]);
   try {
-    await page.goto("/en/settings/workspaces");
+    await page.goto(appPath(NORTHWIND_SLUG, "/settings/workspaces"));
     await expect(page.locator(`li[data-workspace-id="${northwind.companyId}"]`)).toContainText("Current");
     await expect(page.getByRole("button", { name: "Create workspace", exact: true })).toHaveCount(0);
     await expect(page.locator("#settings-workspaces-leave")).toHaveCount(0);
@@ -39,18 +40,18 @@ test("the demo switches between the seeded workspaces but cannot create, rename 
     await page.screenshot({ path: testInfo.outputPath("ws-demo-switcher.png") });
     await menu.locator(`[data-workspace-id="${bergmann.companyId}"]`).click();
 
-    await expect(page).toHaveURL(/\/en\/dashboard$/);
+    await expect(page).toHaveURL(appUrlPattern(BERGMANN_STEUERN_SLUG, "/dashboard$"));
     await expectCurrentWorkspace(page, "Bergmann Steuern");
-    await page.goto("/en/settings/general");
+    await page.goto(appPath(BERGMANN_STEUERN_SLUG, "/settings/general"));
     const name = page.locator("#settings-general-name");
     await expect(name).toHaveValue("Bergmann Steuern");
     await expect(name).toHaveAttribute("readonly", "");
     await expect(page.getByRole("heading", { name: englishMessages.Workspaces.dangerZone })).toHaveCount(0);
     await expect(page.locator("#settings-general-leave")).toHaveCount(0);
 
-    await page.goto("/en/settings/workspaces");
+    await page.goto(appPath(BERGMANN_STEUERN_SLUG, "/settings/workspaces"));
     await clickHydrated(page.getByRole("button", { name: "Switch to Northwind Labs", exact: true }));
-    await expect(page).toHaveURL(/\/en\/dashboard$/);
+    await expect(page).toHaveURL(appUrlPattern(NORTHWIND_SLUG, "/dashboard$"));
     await expectCurrentWorkspace(page, "Northwind Labs");
   } finally {
     await database.query('UPDATE "AuthUser" SET "companyId"=$2 WHERE id=$1', [authUserId, lastUsed]);

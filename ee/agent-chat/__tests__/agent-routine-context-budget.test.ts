@@ -53,6 +53,7 @@ import { AGENT_MODELS, type AgentModelEntry } from "@/ee/agent-chat/model-catalo
 import { SendAgentMessageInteractor } from "@/ee/agent-chat/send-agent-message.interactor";
 import { agentSystemPromptParts, routineTriggerEventOf } from "@/ee/agent-chat/system-prompt";
 import type { AgentTurnWorkflowPayload } from "@/workflows/agent-turn";
+import { WorkspaceSlugResolver } from "@/features/workspace/workspace-slug-resolver";
 
 const COMPANY_ID = SEED_IDS.company;
 const THREAD = {
@@ -103,16 +104,19 @@ function northwindWikiCatalog() {
   const procedures = pages
     .filter((page) => page.kind === "procedure")
     .toSorted((left, right) => left.title.localeCompare(right.title));
-  return new GetWikiCatalogInteractor({
-    listCatalogPages: ({ page }: { page: number }) =>
-      Promise.resolve({ items: knowledge.slice((page - 1) * 10, page * 10), total: knowledge.length }),
-    loadOperatingPages: (limit: number) =>
-      Promise.resolve({
-        guide: pages.find((page) => page.kind === "guide") ?? null,
-        procedures: procedures.slice(0, limit),
-        proceduresTotal: procedures.length,
-      }),
-  } as never);
+  return new GetWikiCatalogInteractor(
+    {
+      listCatalogPages: ({ page }: { page: number }) =>
+        Promise.resolve({ items: knowledge.slice((page - 1) * 10, page * 10), total: knowledge.length }),
+      loadOperatingPages: (limit: number) =>
+        Promise.resolve({
+          guide: pages.find((page) => page.kind === "guide") ?? null,
+          procedures: procedures.slice(0, limit),
+          proceduresTotal: procedures.length,
+        }),
+    } as never,
+    new WorkspaceSlugResolver({ findWorkspaceSlugUnscoped: () => Promise.resolve("acme") }),
+  );
 }
 
 function triggerOf(routine: Pick<SeedRoutine, "trigger">) {

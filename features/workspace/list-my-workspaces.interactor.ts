@@ -33,6 +33,7 @@ export class ListMyWorkspacesInteractor {
         return {
           companyId: row.companyId,
           name: row.company.name,
+          slug: row.company.slug,
           status: row.status,
           roleName: row.role?.name ?? null,
           isAdmin: row.role?.isSystemRole ?? false,

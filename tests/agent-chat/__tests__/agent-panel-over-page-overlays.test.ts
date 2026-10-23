@@ -41,7 +41,7 @@ vi.mock("@/app/components/agent-chat/agent-conversation", () => ({
   AgentConversationLog: () => null,
 }));
 vi.mock("next/navigation", () => ({ usePathname: () => "/settings/webhooks" }));
-vi.mock("@/app/[locale]/(protected)/search/actions", () => ({ globalSearchAction: vi.fn() }));
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/search/actions", () => ({ globalSearchAction: vi.fn() }));
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
   useHydratedIntlStore: () => ({
     formatDayMonth: () => "1 Oct",

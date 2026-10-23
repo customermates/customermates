@@ -87,7 +87,7 @@ describe("Ask AI and overlay header controls (rule 62)", () => {
       /ACTION_KIND_ORDER[^{]*\{\s*assistant: 0,/,
     );
     const configureActions = read(
-      "app/[locale]/(protected)/configure/components/configure-actions.tsx",
+      "app/[locale]/(protected)/w/[workspace]/configure/components/configure-actions.tsx",
     );
     const groups = configureActions
       .split('<div className="flex shrink-0 items-center gap-1">')

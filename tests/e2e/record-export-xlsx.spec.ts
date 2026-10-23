@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 
 import ExcelJS from "exceljs";
 
+import { companyPath } from "./app-paths";
 import { test, expect } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 
@@ -25,7 +26,7 @@ test("downloads a list as an Excel workbook from the menu and the record API", a
   companyId,
 }) => {
   const typeId = presetId(companyId, "service");
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   await page.locator("#records-add").click();
   const editor = page.getByRole("dialog");
   await editor

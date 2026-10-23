@@ -1,8 +1,18 @@
 import type { Page } from "@playwright/test";
 import type { Client } from "pg";
 
-import { DEMO_COMPANY_ID, DEMO_MEMBERS, type DemoMember, demoId, expect, memberPage, test } from "./demo-seed";
+import {
+  DEMO_COMPANY_ID,
+  DEMO_MEMBERS,
+  DEMO_SLUG,
+  type DemoMember,
+  demoId,
+  expect,
+  memberPage,
+  test,
+} from "./demo-seed";
 import { openSidebar } from "./sidebar";
+import { appPath } from "./app-paths";
 
 /**
  * The seeded roles: each member sees the lists their role grants, deals follow the role's visibility, fields of
@@ -47,7 +57,7 @@ async function expectSidebarLists(page: Page, visible: string[]) {
 
 /** Configure opens as a read-only map for members: no list or field can be added and no list has actions. */
 async function expectReadOnlyConfigure(page: Page) {
-  await page.goto("/en/configure");
+  await page.goto(appPath(DEMO_SLUG, "/configure"));
   await expect(page.getByRole("button", { name: "Zoom in", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Add", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: /^Add to / })).toHaveCount(0);
@@ -55,7 +65,7 @@ async function expectReadOnlyConfigure(page: Page) {
 }
 
 async function openRecord(page: Page, typeKey: string, recordId: string) {
-  await page.goto(`/en/records/${demoId(typeKey)}/${recordId}`);
+  await page.goto(appPath(DEMO_SLUG, `/records/${demoId(typeKey)}/${recordId}`));
   const main = page.getByRole("main");
   const overview = main.getByRole("tab", { name: "Overview", exact: true });
   if (await overview.isVisible()) await overview.click();
@@ -83,7 +93,7 @@ test("the sales lead sees every deal, campaigns and partners, and reads subscrip
 }, testInfo) => {
   const member = await memberPage(browser, database, "sofiaRossi", testInfo);
   try {
-    await member.page.goto("/en/dashboard");
+    await member.page.goto(appPath(DEMO_SLUG, "/dashboard"));
     await expectSidebarLists(member.page, [
       "Contacts",
       "Organizations",
@@ -118,7 +128,7 @@ test("an account executive works only their own deals and reads subscriptions", 
   expect(own).toBeGreaterThan(5);
   const member = await memberPage(browser, database, "claraNeumann", testInfo);
   try {
-    await member.page.goto("/en/dashboard");
+    await member.page.goto(appPath(DEMO_SLUG, "/dashboard"));
     await expectSidebarLists(member.page, [
       "Contacts",
       "Organizations",
@@ -129,7 +139,7 @@ test("an account executive works only their own deals and reads subscriptions", 
       "Campaigns",
       "Partners",
     ]);
-    await member.page.goto(`/en/records/${demoId("deal")}`);
+    await member.page.goto(appPath(DEMO_SLUG, `/records/${demoId("deal")}`));
     const rowsShown = member.page.locator("[data-row-id], [data-item-id]");
     await expect(rowsShown.first()).toBeVisible();
     await expect(rowsShown, "only the deals assigned to Clara").toHaveCount(own);
@@ -144,7 +154,7 @@ test("an account executive works only their own deals and reads subscriptions", 
       `SELECT "textValue" AS name FROM "RecordValue" WHERE "companyId"=$1 AND "recordId"=$2 AND "fieldId"=$3`,
       [DEMO_COMPANY_ID, foreign, demoId("deal.name")],
     );
-    await member.page.goto(`/en/records/${demoId("deal")}/${foreign}`);
+    await member.page.goto(appPath(DEMO_SLUG, `/records/${demoId("deal")}/${foreign}`));
     await expect(member.page.getByRole("main")).toBeVisible();
     await expect(member.page.getByText(names[0].name, { exact: true })).toHaveCount(0);
   } finally {
@@ -155,7 +165,7 @@ test("an account executive works only their own deals and reads subscriptions", 
 test("customer success runs subscriptions and tickets and reads deals", async ({ browser, database }, testInfo) => {
   const member = await memberPage(browser, database, "elenaHoffmann", testInfo);
   try {
-    await member.page.goto("/en/dashboard");
+    await member.page.goto(appPath(DEMO_SLUG, "/dashboard"));
     await expectSidebarLists(member.page, [
       "Contacts",
       "Organizations",
@@ -182,7 +192,7 @@ test("support handles tickets and reads the accounts behind them, without deals"
 }, testInfo) => {
   const member = await memberPage(browser, database, "kianRahimi", testInfo);
   try {
-    await member.page.goto("/en/dashboard");
+    await member.page.goto(appPath(DEMO_SLUG, "/dashboard"));
     await expectSidebarLists(member.page, ["Contacts", "Organizations", "Tasks", "Subscriptions", "Tickets"]);
     await expectEditable(member.page, "ticket", await firstRecord(database, "ticket"));
     await expectReadOnly(member.page, "organization", await firstRecord(database, "organization"));
@@ -197,7 +207,7 @@ test("support handles tickets and reads the accounts behind them, without deals"
 test("people and operations run hiring without customer or deal data", async ({ browser, database }, testInfo) => {
   const member = await memberPage(browser, database, "lauraFischer", testInfo);
   try {
-    await member.page.goto("/en/dashboard");
+    await member.page.goto(appPath(DEMO_SLUG, "/dashboard"));
     await expectSidebarLists(member.page, ["Tasks", "Open roles", "Candidates"]);
     await expectEditable(member.page, "candidate", await firstRecord(database, "candidate"));
     await expectEditable(member.page, "openRole", await firstRecord(database, "openRole"));
@@ -209,12 +219,12 @@ test("people and operations run hiring without customer or deal data", async ({ 
 });
 
 test("the admin sees every list and can change the configuration", async ({ page, errors }) => {
-  await page.goto("/en/dashboard");
+  await page.goto(appPath(DEMO_SLUG, "/dashboard"));
   await openSidebar(page);
   for (const list of LISTS)
     await expect(page.locator("[data-sidebar-item]").getByText(list, { exact: true })).toBeVisible();
   await expect(page.locator("[data-sidebar-item]").getByText("Configure", { exact: true })).toBeVisible();
-  await page.goto("/en/configure");
+  await page.goto(appPath(DEMO_SLUG, "/configure"));
   await expect(page.getByRole("button", { name: "Add to Deals", exact: true })).toBeVisible();
   expect(errors).toEqual([]);
 });

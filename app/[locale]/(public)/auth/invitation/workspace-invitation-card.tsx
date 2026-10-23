@@ -55,10 +55,7 @@ export function WorkspaceInvitationCard({
         agreeToTerms: termsStore.form.agreeToTerms,
       });
       if (result.ok) {
-        workspacesStore.enter(
-          { companyId: result.data.companyId, name: workspaceName },
-          joinedWorkspacePath(result.data),
-        );
+        workspacesStore.enter(joinedWorkspacePath(result.data));
         isNavigating = true;
       } else termsStore.setError(result.error);
     } finally {

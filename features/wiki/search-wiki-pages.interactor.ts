@@ -24,6 +24,7 @@ import { fuseFullTextAndSemantic, keepsResults, rerankSections } from "@/core/re
 import { RetrievalStopwatch } from "@/core/retrieval/retrieval-stopwatch";
 
 import { externalizeWikiPageLinks } from "./wiki-markdown-links";
+import type { WorkspaceSlugResolver } from "@/features/workspace/workspace-slug-resolver";
 import { boundedWikiSectionLabel, wikiSectionOffsetIn } from "./wiki-markdown-sections";
 import { WIKI_EXCERPT_MAX_LENGTH, wikiExcerpt } from "./wiki-content";
 import { WikiPageSearchResultSchema, WikiPageSearchSchema } from "./wiki.schema";
@@ -73,6 +74,7 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
     private offsets: "stored" | "externalized",
     private semantic: WikiSemanticRetrieval | null = null,
     private orders: WikiSearchOrders = new WikiSearchOrders(),
+    private slugs: WorkspaceSlugResolver | null = null,
   ) {
     super();
   }
@@ -112,11 +114,12 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
       ]);
       const pageById = new Map(pages.map((page) => [page.id, page]));
       const sectionById = new Map(sections.map((section) => [section.id, section]));
+      const slug = this.offsets === "externalized" && pages.length > 0 ? await this.workspaceSlug() : null;
       const items = selectedIds.flatMap((id) => {
         const page = pageById.get(id);
         if (!page) return [];
         const sectionId = order.sections.get(id);
-        return [this.searchResult(page, sectionId ? sectionById.get(sectionId) : undefined, matchedText)];
+        return [this.searchResult(page, sectionId ? sectionById.get(sectionId) : undefined, matchedText, slug)];
       });
       return {
         items,
@@ -267,7 +270,16 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
     return rerankSections({ query, stopwatch, candidates, ranker, relevance });
   }
 
-  private searchResult(page: WikiPageDto, section: WikiSectionHit | undefined, query: string): WikiSearchResult {
+  private async workspaceSlug(): Promise<string | null> {
+    return this.user.company?.slug ?? (await this.slugs?.slugFor(this.user.companyId)) ?? null;
+  }
+
+  private searchResult(
+    page: WikiPageDto,
+    section: WikiSectionHit | undefined,
+    query: string,
+    slug: string | null,
+  ): WikiSearchResult {
     const { markdown, ...item } = page;
     const offset = section?.offset ?? 0;
     const located = {
@@ -281,10 +293,10 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
           }
         : {}),
     };
-    if (this.offsets === "stored" || !offset) return located;
+    if (this.offsets === "stored" || !offset || !slug) return located;
     return {
       ...located,
-      offset: wikiSectionOffsetIn(markdown, offset, externalizeWikiPageLinks(markdown, env.BASE_URL)),
+      offset: wikiSectionOffsetIn(markdown, offset, externalizeWikiPageLinks(markdown, env.BASE_URL, slug)),
     };
   }
 }

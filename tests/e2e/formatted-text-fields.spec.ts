@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { Page } from "@playwright/test";
+import { pagePath } from "./app-paths";
 import { test, expect, collectPageErrors } from "./fixtures";
 import {
   openRecordDetails,
@@ -23,7 +24,7 @@ test("edits two formatted text fields inline in the overview, collapses long tex
   test.setTimeout(240000);
   const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "organization");
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(pagePath(page, `/records/${typeId}`));
   const current = await post(page, "/api/v1/model/read", {});
   const summaryId = randomUUID();
   const applied = await post(page, "/api/v1/model/apply", {
@@ -171,7 +172,7 @@ test("edits two formatted text fields inline in the overview, collapses long tex
     (ref: { typeId: string }) => ref.typeId === dealTypeId,
   ).recordId;
   await page.goto(
-    `/en/records/${dealTypeId}?viewMode=card&groupBy=${presetId(companyId, "deal.stage")}`,
+    pagePath(page, `/records/${dealTypeId}?viewMode=card&groupBy=${presetId(companyId, "deal.stage")}`),
   );
   const card = page.locator(`[data-item-id="${dealId}"]`);
   await expect(card).toBeVisible();
@@ -201,7 +202,7 @@ test("keeps a bulk-edited formatted text on Escape and follows links in display 
   test.setTimeout(240000);
   const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "organization");
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(pagePath(page, `/records/${typeId}`));
   const suffix = randomUUID().slice(0, 6);
   const names = [`Bulk A ${suffix}`, `Bulk B ${suffix}`];
   const linked = `Linked ${suffix}`;
@@ -325,7 +326,7 @@ test("shows the formatting toolbar at rest and formats from it without leaving e
   test.setTimeout(240000);
   const errors = collectPageErrors(page);
   const dealTypeId = presetId(companyId, "deal");
-  await page.goto(`/en/records/${dealTypeId}`);
+  await page.goto(pagePath(page, `/records/${dealTypeId}`));
   const current = await post(page, "/api/v1/model/read", {});
   const created = await post(page, "/api/v1/records/mutate", {
     expectedRevision: current.revision,
@@ -344,7 +345,7 @@ test("shows the formatting toolbar at rest and formats from it without leaving e
   const dealId = created.refs.find(
     (ref: { typeId: string }) => ref.typeId === dealTypeId,
   ).recordId;
-  await page.goto(`/en/records/${dealTypeId}/${dealId}`);
+  await page.goto(pagePath(page, `/records/${dealTypeId}/${dealId}`));
   const main = page.getByRole("main");
   const notes = main.getByRole("textbox", { name: "Notes", exact: true });
   const field = main

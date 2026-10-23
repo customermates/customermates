@@ -4,6 +4,7 @@ import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordExportSchema, type RecordExport } from "../../features/data-transfer/record-transfer.schema";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
+import { pagePath } from "./app-paths";
 import { test, expect, collectPageErrors } from "./fixtures";
 
 function isImportCall(body: string | null) {
@@ -33,7 +34,7 @@ test("rejects malformed and invalid typed imports without partial records and ac
   const typeId = presetId(companyId, "service");
   const titleId = presetId(companyId, "service.name");
   const priceId = presetId(companyId, "service.amount");
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(pagePath(page, `/records/${typeId}`));
   await page.locator("#records-add").click();
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Import source service");

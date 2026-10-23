@@ -7,7 +7,10 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { ArrowUp, Loader2, Square } from "lucide-react";
 
-import { MessageDateSeparator, isSameDay } from "@/app/[locale]/(protected)/inbox/components/message-date-separator";
+import {
+  MessageDateSeparator,
+  isSameDay,
+} from "@/app/[locale]/(protected)/w/[workspace]/inbox/components/message-date-separator";
 import { MessagesScrollContainer } from "@/components/scroll/messages-scroll-container";
 
 import { Button } from "@/components/ui/button";

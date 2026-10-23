@@ -12,6 +12,7 @@ import { mintApiKey } from "./api-key";
 import { localE2eEnvironment } from "./local-environment";
 import { createConfiguredList, openConfigure, configureTopBar } from "./configure";
 import { restoreFromTrash } from "./trash";
+import { appPath, companyPath, companyUrlPattern, pagePath } from "./app-paths";
 
 test("resizing one stacked metric persists without moving untouched metrics or writing on responsive reloads", async ({
   page,
@@ -45,12 +46,12 @@ test("resizing one stacked metric persists without moving untouched metrics or w
     (await database.query('SELECT id,version,layout FROM "Widget" WHERE "companyId"=$1 ORDER BY name', [companyId]))
       .rows;
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/en/dashboard");
+  await page.goto(pagePath(page, "/dashboard"));
   const first = page.locator(`[data-focus-target="widget:${ids[0]}"]`);
   await expect(first.locator('[data-slot="widget-number-value"]')).toHaveText("0");
   await expect(first.locator('[data-slot="widget-subtitle"]')).not.toContainText("0");
   const writes: string[] = [];
-  const save = serverActionIds("app/[locale]/(protected)/dashboard/actions.ts", "updateWidgetLayoutsAction");
+  const save = serverActionIds("app/[locale]/(protected)/w/[workspace]/dashboard/actions.ts", "updateWidgetLayoutsAction");
   page.on("request", (request) => {
     if (invokesServerAction(request, save)) writes.push(request.url());
   });
@@ -153,7 +154,7 @@ test("record names and ordinary rows open the drawer while direct cell editing s
 }, testInfo) => {
   const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "service");
-  const path = `/en/records/${typeId}`;
+  const path = companyPath(companyId, `/records/${typeId}`);
   await page.goto(path);
   await page.locator("#records-add").click();
   const drawer = page.getByRole("dialog");
@@ -213,19 +214,19 @@ test("record names and ordinary rows open the drawer while direct cell editing s
   await page.keyboard.press("Escape");
   await expect(drawer).not.toBeVisible();
   const dealType = presetId(companyId, "deal");
-  await page.goto(`/en/records/${dealType}`);
+  await page.goto(pagePath(page, `/records/${dealType}`));
   await page.locator("#records-add").click();
   await drawer.getByRole("textbox", { name: "Name", exact: false }).fill("Drawer test deal");
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer).not.toBeVisible();
-  await page.goto(`/en/records/${dealType}?viewMode=card&groupBy=${presetId(companyId, "deal.stage")}`);
+  await page.goto(pagePath(page, `/records/${dealType}?viewMode=card&groupBy=${presetId(companyId, "deal.stage")}`));
   const card = page.locator("[data-item-id]").filter({ hasText: "Drawer test deal" }).first();
   await expect(card).toBeVisible();
   await card.focus();
   await card.press("Enter");
   await expect(drawer).toBeVisible();
   await expect(drawer.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Drawer test deal");
-  await expect(page).toHaveURL(new RegExp(`/en/records/${dealType}\\?`));
+  await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${dealType}\\?`));
   await page.keyboard.press("Escape");
   await expect(drawer).not.toBeVisible();
   await card.locator(":scope > a").click({ position: { x: 8, y: 8 } });
@@ -256,7 +257,7 @@ test("website headings stay clean when a new workspace reads, edits and saves it
     });
     expect(response.ok(), await response.text()).toBe(true);
     const [created] = await response.json();
-    await page.goto(`/en/wiki?page=${created.id}`);
+    await page.goto(appPath(workspace.slug, `/wiki?page=${created.id}`));
     const headings = page.locator(".tiptap h2");
     await expect(headings).toHaveText(["Getting started", "Our product"]);
     await headings.first().click();
@@ -266,7 +267,7 @@ test("website headings stay clean when a new workspace reads, edits and saves it
     const pending = new Set<Request>();
     page.on("request", (request) => {
       const headers = request.headers();
-      if (headers["rsc"] !== "1" || headers["next-router-prefetch"] || new URL(request.url()).pathname !== "/en/wiki")
+      if (headers["rsc"] !== "1" || headers["next-router-prefetch"] || new URL(request.url()).pathname !== appPath(workspace.slug, "/wiki"))
         return;
       refreshes.push(request);
       pending.add(request);
@@ -335,7 +336,7 @@ test("widgets delete independently and deleting a measured list moves its charts
         JSON.stringify({ lg: { i: id, x: 0, y: index * 2, w: 12, h: index === 2 ? 4 : 2 } }),
       ],
     );
-  await page.goto("/en/dashboard");
+  await page.goto(pagePath(page, "/dashboard"));
   const dialog = page.getByRole("dialog");
   const edit = page.getByRole("button", { name: "Edit Independent count", exact: true });
   await edit.focus();
@@ -375,12 +376,12 @@ test("widgets delete independently and deleting a measured list moves its charts
     (await database.query('SELECT id FROM "Widget" WHERE "companyId"=$1 AND "deletedAt" IS NULL', [companyId]))
       .rowCount,
   ).toBe(0);
-  await page.goto("/en/dashboard");
+  await page.goto(pagePath(page, "/dashboard"));
   await expect(page.locator('[data-focus-target^="widget:"]')).toHaveCount(0);
   await restoreFromTrash(page, "Measured items");
   await restoreFromTrash(page, "Dependent count", { configuration: false });
   await restoreFromTrash(page, "Dependent activity", { configuration: false });
-  await page.goto("/en/dashboard");
+  await page.goto(pagePath(page, "/dashboard"));
   await expect(page.locator(`[data-focus-target="widget:${ids[1]}"]`)).toBeVisible();
   await expect(page.locator(`[data-focus-target="widget:${ids[2]}"]`)).toBeVisible();
   await expect(page.locator(`[data-focus-target="widget:${ids[0]}"]`)).toHaveCount(0);

@@ -9,6 +9,7 @@ import { NextRequest } from "next/server";
 import { Client } from "pg";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
+import { WORKSPACE_HEADER } from "@/core/navigation/workspace-paths";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import {
   type LemonSqueezyCustomData,
@@ -286,7 +287,9 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
     const { getCreateCheckoutSessionInteractor } = await import("@/core/di");
     const { isRedirect } = await import("@/features/auth/auth-outcome");
     const { env } = await import("@/env");
+    const paid = await client.query<{ slug: string }>('SELECT "slug" FROM "Company" WHERE "id" = $1', [companies.paid]);
     asSession();
+    requestContext.headers.set(WORKSPACE_HEADER, paid.rows[0].slug);
 
     const result = await getCreateCheckoutSessionInteractor().invoke({ plan: "pro", cadence: "monthly" });
 
@@ -298,7 +301,7 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
       custom: signed(companies.paid),
       variantQuantities: [{ variant_id: Number(localLemonSqueezyVariants.pro), quantity: 2 }],
       productName: "Paid plan paid",
-      redirectUrl: `${env.BASE_URL}/en/settings/billing`,
+      redirectUrl: `${env.BASE_URL}/en/w/${paid.rows[0].slug}/settings/billing`,
       skipTrial: true,
     });
     expect(await storedSubscription("paid")).toMatchObject({ status: "expired", lemonSqueezyId: null });

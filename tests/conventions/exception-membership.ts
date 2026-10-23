@@ -101,7 +101,7 @@ const REVIEWED_EXCEPTION_ALLOWLIST: Readonly<Record<string, string>> = {
     "unresolved C01: email documents render without the app color tokens",
   "design-system.test.ts#COLOR_EXEMPTIONS: features/messaging/email-frame.tsx":
     "unresolved C01: email documents render without the app color tokens",
-  "design-system.test.ts#INLINE_SVG_EXEMPTIONS: app/[locale]/(protected)/dashboard/components/widget-display-type-picker.tsx":
+  "design-system.test.ts#INLINE_SVG_EXEMPTIONS: app/[locale]/(protected)/w/[workspace]/dashboard/components/widget-display-type-picker.tsx":
     "unresolved C01: data graphic or illustration, not an icon",
   "design-system.test.ts#INLINE_SVG_EXEMPTIONS: app/[locale]/(protected)/onboarding/wizard/components/onboarding-artwork.tsx":
     "unresolved C01: data graphic or illustration, not an icon",
@@ -115,7 +115,7 @@ const REVIEWED_EXCEPTION_ALLOWLIST: Readonly<Record<string, string>> = {
     "unresolved C02: owner decides the operator row menu for guarded deletion",
   "design-unification.test.ts#TABLE_ROW_MENU_EXEMPTIONS: app/[locale]/(protected)/operator/components/workspaces/operator-workspaces-page-view.tsx":
     "unresolved C02: owner decides the operator row menu for guarded deletion",
-  "design-unification.test.ts#NON_STANDARD_CHIP_ALLOWLIST: app/[locale]/(protected)/inbox/components/thread-settings.tsx":
+  "design-unification.test.ts#NON_STANDARD_CHIP_ALLOWLIST: app/[locale]/(protected)/w/[workspace]/inbox/components/thread-settings.tsx":
     "unresolved C02: owner decides chip or Button; a fix changes the toolbar look",
   "design-unification.test.ts#HAND_BUILT_REVEAL_ALLOWLIST: components/data-view/column-resize-handle.tsx":
     "unresolved C02: resize and row-menu reveals need active-drag and coarse-pointer states",
@@ -123,13 +123,13 @@ const REVIEWED_EXCEPTION_ALLOWLIST: Readonly<Record<string, string>> = {
     "unresolved C02: resize and row-menu reveals need active-drag and coarse-pointer states",
   "design-unification.test.ts#HAND_BUILT_REVEAL_ALLOWLIST: components/layout/resizable-panels.tsx":
     "unresolved C02: resize and row-menu reveals need active-drag and coarse-pointer states",
-  "form-footer-actions.test.ts#EXEMPT: app/[locale]/(protected)/inbox/components/thread-reply-composer.tsx [rules: submit-button]":
+  "form-footer-actions.test.ts#EXEMPT: app/[locale]/(protected)/w/[workspace]/inbox/components/thread-reply-composer.tsx [rules: submit-button]":
     "unresolved C03: message composer whose submit sends the message",
-  "form-footer-actions.test.ts#EXEMPT: app/[locale]/(protected)/settings/(account)/components/connect-upsell-modal.tsx [rules: cancel-label]":
+  "form-footer-actions.test.ts#EXEMPT: app/[locale]/(protected)/w/[workspace]/settings/(account)/components/connect-upsell-modal.tsx [rules: cancel-label]":
     "unresolved C03: upgrade prompt; ConfirmDialog would replace its mobile drawer",
-  "form-footer-actions.test.ts#EXEMPT: app/[locale]/(protected)/settings/(account)/components/connect-upsell-modal.tsx [rules: footer-primitive]":
+  "form-footer-actions.test.ts#EXEMPT: app/[locale]/(protected)/w/[workspace]/settings/(account)/components/connect-upsell-modal.tsx [rules: footer-primitive]":
     "unresolved C03: upgrade prompt; ConfirmDialog would replace its mobile drawer",
-  "form-footer-actions.test.ts#EXEMPT: app/[locale]/(protected)/test/overlays/overlay-gallery.tsx [rules: confirm-primitive]":
+  "form-footer-actions.test.ts#EXEMPT: app/[locale]/(protected)/w/[workspace]/test/overlays/overlay-gallery.tsx [rules: confirm-primitive]":
     "unresolved C03: test gallery that renders the raw confirm primitive",
   "form-footer-actions.test.ts#SAVE_LIKE_KEY_EXEMPT: DataTransfer.recordImport.update":
     "unresolved C03: labels a different action than Save",

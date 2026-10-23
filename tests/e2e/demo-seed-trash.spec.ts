@@ -1,7 +1,8 @@
 import type { Page } from "@playwright/test";
 
+import { appPath } from "./app-paths";
 import { configureDrawer, confirmDeletion, openConfigure, openConfigureRow } from "./configure";
-import { DEMO_COMPANY_ID, demoId, expect, test } from "./demo-seed";
+import { DEMO_COMPANY_ID, DEMO_SLUG, demoId, expect, test } from "./demo-seed";
 import { runNamedRowAction } from "./record-rows";
 import { openTrash, trashRow } from "./trash";
 
@@ -71,11 +72,11 @@ test("the seeded Trash lists records, a view and a field that restore and move b
 
     // Restored: the records open, the view is back on Deals and the field is back on Organizations.
     for (const item of items.filter(({ kind }) => kind === "record")) {
-      await page.goto(`/en/records/${item.typeId}/${item.targetId}`);
+      await page.goto(appPath(DEMO_SLUG, `/records/${item.typeId}/${item.targetId}`));
       await expect(page.getByRole("main").getByText(item.label, { exact: true }).first()).toBeVisible();
     }
     const view = items.find(({ kind }) => kind === "view") as TrashedItem;
-    await page.goto(`/en/records/${demoId("deal")}?view=${view.targetId}`);
+    await page.goto(appPath(DEMO_SLUG, `/records/${demoId("deal")}?view=${view.targetId}`));
     await expect(page.locator("[data-joins-top-bar]").getByText(view.label, { exact: true })).toBeVisible();
     const field = items.find(({ kind }) => kind === "field") as TrashedItem;
     await openConfigure(page, field.typeId);
@@ -94,13 +95,13 @@ test("the seeded Trash lists records, a view and a field that restore and move b
     for (const item of items) {
       if (!(await live(item))) continue;
       if (item.kind === "record") {
-        await page.goto(`/en/records/${item.typeId}/${item.targetId}`);
+        await page.goto(appPath(DEMO_SLUG, `/records/${item.typeId}/${item.targetId}`));
         await page.getByRole("main").getByRole("button", { name: "Delete", exact: true }).click();
         await confirmDeletion(page);
         // The app leaves the deleted record; wait for that before navigating on.
         await expect(page).not.toHaveURL(new RegExp(item.targetId));
       } else if (item.kind === "view") {
-        await page.goto(`/en/records/${item.typeId}?view=${item.targetId}`);
+        await page.goto(appPath(DEMO_SLUG, `/records/${item.typeId}?view=${item.targetId}`));
         // The menu opens once the rail is interactive; retry the trigger until it does.
         const remove = page.getByRole("menuitem", { name: "Delete view", exact: true });
         await expect(async () => {

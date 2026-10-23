@@ -3,6 +3,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { copyGenericWorkspace } from "../helpers/copy-generic-workspace";
 import { applyConfigurableRecordsMigration, createLegacyMigrationDatabase } from "../helpers/legacy-migration-database";
 import { legacyRecordFixture } from "../helpers/legacy-record-fixture";
+import { appPath, appUrlPattern, workspaceSlugOf } from "./app-paths";
 import { test as base, expect, collectPageErrors } from "./fixtures";
 import { removeBrowserWorkspace } from "./workspace";
 import { openRecordDetails, openRecordLink } from "./record-rows";
@@ -16,6 +17,7 @@ const test = base.extend({
       companyId: legacy.companyId,
       userId: legacy.userId,
       authUserId,
+      slug: "",
     };
     try {
       for (const dealId of [legacy.recordId, legacy.otherDeal])
@@ -34,6 +36,7 @@ const test = base.extend({
       );
       await applyConfigurableRecordsMigration(upgrade.client);
       await copyGenericWorkspace(upgrade.client, database, legacy.companyId);
+      workspace.slug = await workspaceSlugOf(database, legacy.companyId);
       await use(workspace);
     } finally {
       try {
@@ -49,11 +52,12 @@ test("opens upgraded records with persisted values, totals and links", async ({
   page,
   database,
   companyId,
+  slug,
 }, testInfo) => {
   test.setTimeout(240000);
   const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "deal");
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(appPath(slug, `/records/${typeId}`));
   await expect(page.locator("header")).toContainText("Deals");
   await expect(page.getByRole("link", { name: "Synthetic deal", exact: true })).toHaveCount(2);
   await openRecordDetails(page, "Synthetic deal");
@@ -84,7 +88,7 @@ test("opens upgraded records with persisted values, totals and links", async ({
   const personType = presetId(companyId, "contact");
   const contacts = await page.goto("/en/contacts");
   expect(contacts?.status()).toBe(200);
-  await expect(page).toHaveURL(new RegExp(`/en/records/${personType}$`));
+  await expect(page).toHaveURL(appUrlPattern(slug, `/records/${personType}$`));
   await expect(page.locator("header")).toContainText("Contacts");
   const person = (
     await database.query('SELECT id FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 LIMIT 1', [
@@ -95,7 +99,7 @@ test("opens upgraded records with persisted values, totals and links", async ({
   await openRecordLink(page.getByRole("link", { name: "Synthetic Person", exact: true }).first());
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.getByRole("dialog").getByRole("link", { name: "Open page", exact: true }).click();
-  await expect(page).toHaveURL(new RegExp(`/en/records/${personType}/${person.id}$`));
+  await expect(page).toHaveURL(appUrlPattern(slug, `/records/${personType}/${person.id}$`));
   await expect(page.getByText("Organization A", { exact: true }).first()).toBeVisible();
   expect(errors).toEqual([]);
 });

@@ -1,6 +1,7 @@
 import type { Page } from "@playwright/test";
 
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
+import { pagePath } from "./app-paths";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { runNamedRowAction } from "./record-rows";
 import { e2eAppMode } from "./workspace-switching";
@@ -18,7 +19,7 @@ test("moves a routine to Trash, stops listing it and restores it from Trash", as
      VALUES (gen_random_uuid(), $1, $2, 'Weekly digest', 'Summarize', false, 'schedule', '0 9 * * 1', 'Europe/Berlin', NOW())`,
     [companyId, workspace.userId],
   );
-  await page.goto("/en/routines");
+  await page.goto(pagePath(page, "/routines"));
   const row = page.getByRole("row").filter({ hasText: "Weekly digest" });
   const confirmation = page.getByRole("alertdialog");
   await expect(async () => {
@@ -34,14 +35,14 @@ test("moves a routine to Trash, stops listing it and restores it from Trash", as
     page.locator("[data-sonner-toast]").filter({ hasText: englishMessages.Trash.movedToTrash }),
   ).toBeVisible();
 
-  await page.goto("/en/trash");
+  await page.goto(pagePath(page, "/trash"));
   const trashed = page.getByRole("row").filter({ hasText: "Weekly digest" });
   await expect(trashed).toContainText(englishMessages.Trash.kinds.routine);
   await runNamedRowAction(page, trashed, "Weekly digest", englishMessages.Trash.restore);
   await expect(page.locator("[data-sonner-toast]").filter({ hasText: "1 item restored" })).toBeVisible();
   await expect(trashed).toHaveCount(0);
 
-  await page.goto("/en/routines");
+  await page.goto(pagePath(page, "/routines"));
   await expect(page.getByRole("row").filter({ hasText: "Weekly digest" })).toBeVisible();
   await page.getByRole("button", { name: "Weekly digest", exact: true }).click();
   const routineModal = page.getByRole("dialog", { name: "Routine", exact: true });
@@ -58,7 +59,7 @@ test("undoes a Knowledge Base page delete from the toast", async ({ page, databa
     [companyId],
   );
   const pageId = created.rows[0].id as string;
-  await page.goto(`/en/wiki?page=${pageId}`);
+  await page.goto(pagePath(page, `/wiki?page=${pageId}`));
   await expect(page.getByText("Refunds take five days.").first()).toBeVisible();
   await page.getByRole("button", { name: englishMessages.Wiki.pageActions, exact: true }).click();
   await page.getByRole("menuitem", { name: englishMessages.Wiki.delete, exact: true }).click();

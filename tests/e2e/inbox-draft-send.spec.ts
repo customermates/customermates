@@ -5,6 +5,7 @@ import { createHmac, randomUUID } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 
 import { assertPublishedResponse } from "../helpers/openapi-validator";
+import { pagePath } from "./app-paths";
 import { postOk } from "./api";
 import { expectBlockedEmailScripts } from "./browser-diagnostics";
 import { collectPageErrors, expect, test } from "./fixtures";
@@ -100,7 +101,7 @@ function sendAgain(page: Page, draft: SavedDraft, subject: string, target: SendT
 }
 
 async function openDraftConversation(page: Page, draft: SavedDraft) {
-  await page.goto(`/en/inbox?threadId=${draft.messagingThreadId}`);
+  await page.goto(pagePath(page, `/inbox?threadId=${draft.messagingThreadId}`));
   const draftActions = page.locator("[data-message-actions]");
   await expect(draftActions.getByRole("button", { name: "Send draft", exact: true })).toBeVisible();
   return draftActions;
@@ -224,7 +225,7 @@ test("shows a draft as sent once its copy syncs after the provider accepted it a
   ]);
   expect((await database.query('SELECT 1 FROM "MessagingMessage" WHERE id=$1', [draft.id])).rowCount).toBe(0);
 
-  await page.goto(`/en/inbox?threadId=${copy.rows[0].messagingThreadId}`);
+  await page.goto(pagePath(page, `/inbox?threadId=${copy.rows[0].messagingThreadId}`));
   await expect(
     page.frameLocator('iframe[title="Email content"]').getByText("Draft prepared by an agent", { exact: true }),
   ).toBeVisible();

@@ -4,6 +4,7 @@ import { serializeSignedCookie } from "better-call";
 import { Client } from "pg";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
+import { WORKSPACE_HEADER } from "@/core/navigation/workspace-paths";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
 const requestContext = vi.hoisted(() => ({ headers: new Headers() }));
@@ -50,12 +51,12 @@ describeDatabase("joining another workspace by invitation with an existing login
   let fixture: Fixture;
   let joinedMemberId = "";
 
-  function asSession() {
-    requestContext.headers = new Headers({ cookie: fixture.cookie });
+  function asSession(extra: Record<string, string> = {}) {
+    requestContext.headers = new Headers({ cookie: fixture.cookie, ...extra });
   }
 
-  async function whoAmI() {
-    asSession();
+  async function whoAmI(extra: Record<string, string> = {}) {
+    asSession(extra);
     const response = await me();
     const body = (await response.json()) as { id?: string };
     return {
@@ -79,18 +80,11 @@ describeDatabase("joining another workspace by invitation with an existing login
   }
 
   async function login() {
-    const session = await client.query<{ activeCompanyId: string | null }>(
-      'SELECT "activeCompanyId" FROM "AuthSession" WHERE "id" = $1',
-      [fixture.sessionId],
-    );
     const authUser = await client.query<{ companyId: string | null }>(
       'SELECT "companyId" FROM "AuthUser" WHERE "id" = $1',
       [fixture.authUserId],
     );
-    return {
-      activeCompanyId: session.rows[0]?.activeCompanyId,
-      lastUsedCompanyId: authUser.rows[0]?.companyId,
-    };
+    return { lastUsedCompanyId: authUser.rows[0]?.companyId };
   }
 
   async function pendingConsent() {
@@ -285,7 +279,6 @@ describeDatabase("joining another workspace by invitation with an existing login
       status: "active",
     });
     expect(await login()).toEqual({
-      activeCompanyId: fixture.companies.invited,
       lastUsedCompanyId: fixture.companies.invited,
     });
 
@@ -354,8 +347,7 @@ describeDatabase("joining another workspace by invitation with an existing login
   });
 
   it("opens the invited workspace after an admin approves the member", async () => {
-    const { getJoinWorkspaceInteractor, getListMcpConsentWorkspacesInteractor, getSwitchWorkspaceInteractor } =
-      await import("@/core/di");
+    const { getJoinWorkspaceInteractor, getListMcpConsentWorkspacesInteractor } = await import("@/core/di");
 
     expect(
       await approveAsInvitedAdmin({
@@ -365,10 +357,10 @@ describeDatabase("joining another workspace by invitation with an existing login
     ).toMatchObject({
       ok: true,
     });
-    asSession();
-    await getSwitchWorkspaceInteractor().invoke({
-      companyId: fixture.companies.own,
-    });
+    await client.query('UPDATE "AuthUser" SET "companyId" = $2 WHERE "id" = $1', [
+      fixture.authUserId,
+      fixture.companies.own,
+    ]);
     expect(await whoAmI()).toEqual({
       status: 200,
       userId: fixture.members.own,
@@ -500,15 +492,17 @@ describeDatabase("joining another workspace by invitation with an existing login
       leftAt: expect.any(Date),
     });
     expect(await login()).toEqual({
-      activeCompanyId: fixture.companies.invited,
       lastUsedCompanyId: fixture.companies.own,
     });
     expect(await whoAmI()).toEqual({
       status: 200,
       userId: fixture.members.own,
     });
+    const invited = await client.query<{ slug: string }>('SELECT "slug" FROM "Company" WHERE "id" = $1', [
+      fixture.companies.invited,
+    ]);
+    expect((await whoAmI({ [WORKSPACE_HEADER]: invited.rows[0].slug })).status).toBe(409);
     expect(await login()).toEqual({
-      activeCompanyId: fixture.companies.own,
       lastUsedCompanyId: fixture.companies.own,
     });
 

@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 
 import { choosePaletteValue } from "./filter-palette";
+import { companyPath } from "./app-paths";
 import { expect, test, collectPageErrors } from "./fixtures";
 
 test("saved webhook delivery filters resolve subscriptions beyond the first option page on desktop and phone", async ({
@@ -27,7 +28,7 @@ test("saved webhook delivery filters resolve subscriptions beyond the first opti
   }
 
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto("/en/settings/webhook-deliveries");
+  await page.goto(companyPath(companyId, "/settings/webhook-deliveries"));
   await choosePaletteValue(page, "settings-webhook-deliveries-filter", "webhookId", urls[0]);
   await expect(page.locator("#global-data-views-menu")).toHaveAttribute("data-view-modified", "");
   await page.locator("#settings-webhook-deliveries-filter").click();

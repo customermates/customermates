@@ -12,7 +12,7 @@ describe("WorkspaceChangedError", () => {
     const error = new WorkspaceChangedError();
 
     expect(error).toBeInstanceOf(ForbiddenError);
-    expect(error.message).toContain("Reload the page");
+    expect(error.message).toContain("not available");
     expect(error.digest).toBe(WORKSPACE_CHANGED_DIGEST);
     expect(isExpectedError(error)).toBe(true);
     expect(isWorkspaceChangedError(error)).toBe(true);

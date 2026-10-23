@@ -1,3 +1,4 @@
+import { pagePath } from "./app-paths";
 import { setPaletteText } from "./filter-palette";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
@@ -11,7 +12,7 @@ test("keeps source totals separate from filtered widget groups across save and r
   const errors = collectPageErrors(page);
   const dialogs = page.getByRole("dialog");
   const typeId = presetId(companyId, "service");
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(pagePath(page, `/records/${typeId}`));
   for (const [name, price] of [
     ["Shown service", "25"],
     ["Other service", "75"],
@@ -23,7 +24,7 @@ test("keeps source totals separate from filtered widget groups across save and r
     await expect(dialogs).not.toBeVisible();
     await expect(page.getByText(name, { exact: true })).toBeVisible();
   }
-  await page.goto("/en/dashboard");
+  await page.goto(pagePath(page, "/dashboard"));
   await page.locator("#dashboard-add-widget").click();
   await dialogs.locator("#widget-starter-verticalBarChart").click();
   await dialogs.getByRole("textbox", { name: "Name", exact: false }).fill("Selected service prices");

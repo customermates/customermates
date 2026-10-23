@@ -14,7 +14,7 @@ const harness = vi.hoisted(() => ({
 
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 
-vi.mock("@/app/[locale]/(protected)/records/actions", () => ({
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/records/actions", () => ({
   getRecordOperationAction: harness.getRecordOperationAction,
   cancelRecordOperationAction: harness.cancelRecordOperationAction,
   resumeRecordOperationAction: harness.resumeRecordOperationAction,

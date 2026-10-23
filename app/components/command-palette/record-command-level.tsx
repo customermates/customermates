@@ -1,7 +1,7 @@
 "use client";
 
 import type { PaletteLevel } from "@/app/components/global-search-modal.store";
-import type { RecordEditorStore } from "@/app/[locale]/(protected)/records/[typeId]/components/record-editor.store";
+import type { RecordEditorStore } from "@/app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-editor.store";
 import type { RecordMember } from "@/features/records/record-model.schema";
 import type { RecordChoice } from "@/features/records/get-record-choices.interactor";
 
@@ -18,7 +18,7 @@ import { toChipColor } from "@/constants/chip-colors";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
-import { getActiveUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
+import { getActiveUsersAction } from "@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/actions";
 import { useRecordChoices } from "@/components/records/use-record-choices";
 import { foldText } from "./command-palette-search";
 import { actionData } from "@/core/utils/action-data";

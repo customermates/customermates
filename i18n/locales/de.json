@@ -1293,7 +1293,7 @@
       "wikiProposalReviewed": "Dieser Vorschlag wurde bereits geprüft.",
       "wikiProposalStale": "Die Seite wurde geändert, nachdem Mate diesen Vorschlag gemacht hat. Lehne ihn ab oder bitte Mate, die Änderung neu vorzuschlagen.",
       "wikiWhenToUseRequired": "Ein Verfahren braucht eine kurze Beschreibung, wann es gilt.",
-      "workspaceChanged": "Dein Workspace hat sich in einem anderen Tab oder auf einem anderen Gerät geändert. Lade die Seite neu, bevor du weitermachst.",
+      "workspaceChanged": "Dieser Workspace ist nicht mehr verfügbar. Er wurde gelöscht, seine URL wurde geändert oder dein Zugriff wurde entfernt.",
       "workspaceCreationUnavailable": "Hier können keine neuen Workspaces erstellt werden.",
       "workspaceDeleteAdminRequired": "Nur ein Admin kann diesen Workspace löschen.",
       "workspaceDeleteBillingActive": "Dieser Workspace hat noch ein Abo, das abgerechnet oder fortgesetzt werden kann. Kündige es und warte, bis es endet, oder wende dich an den Support.",
@@ -1315,7 +1315,8 @@
       "workspaceSetupAnswerInvalid": "Diese Antwort passt nicht zur Frage. Prüfe sie und versuche es erneut.",
       "workspaceSetupConflict": "Die Workspace-Einrichtung ist gerade mit einem anderen Schritt beschäftigt. Lade sie neu und versuche es erneut.",
       "workspaceSetupNotFound": "Für diesen Workspace wurde keine Einrichtung gefunden.",
-      "workspaceSetupUnavailable": "Die KI-Einrichtung des Workspace ist hier nicht verfügbar."
+      "workspaceSetupUnavailable": "Die KI-Einrichtung des Workspace ist hier nicht verfügbar.",
+      "workspaceSlugTaken": "Ein anderer Workspace verwendet diese URL bereits. Wähle eine andere."
     },
     "events": {
       "connected_account": {
@@ -3064,11 +3065,6 @@
         "email": "E-Mails senden",
         "link": "Link teilen"
       }
-    },
-    "linkedWorkspace": {
-      "description": "Dieser Link öffnet die Einrichtung von {workspace}. Du arbeitest gerade in einem anderen Workspace; der Wechsel gilt für alle deine offenen Tabs.",
-      "switch": "Workspace wechseln",
-      "title": "In {workspace} weitermachen"
     },
     "milestones": {
       "ai": "KI-Tools",
@@ -4856,17 +4852,17 @@
     "nameDescription": "Alle Mitglieder sehen diesen Namen im Workspace-Menü.",
     "nameLabel": "Workspace-Name",
     "noPlan": "Kein Tarif",
-    "otherTab": {
-      "description": "Dieser Tab zeigt noch {current}. Lade ihn neu, damit nichts im falschen Workspace gespeichert wird.",
-      "reload": "Neu laden",
-      "title": "Du hast in einem anderen Tab den Workspace gewechselt",
-      "titleChanged": "Dein Workspace hat sich geändert",
-      "titleDeleted": "Dieser Workspace wurde gelöscht",
-      "titleNamed": "Du hast in einem anderen Tab zu {name} gewechselt"
-    },
     "renameReadOnly": "Nur Mitglieder, die den Workspace verwalten dürfen, können den Namen ändern.",
+    "slugDescription": "Links zu diesem Workspace verwenden {path}. Verwende Kleinbuchstaben, Ziffern und Bindestriche. Alte Links funktionieren nach einer Änderung nicht mehr.",
+    "slugLabel": "Workspace-URL",
+    "slugReadOnly": "Links zu diesem Workspace verwenden {path}. Nur Mitglieder, die den Workspace verwalten dürfen, können sie ändern.",
     "switch": "Wechseln",
     "switchTo": "Zu {name} wechseln",
+    "unavailable": {
+      "description": "Er wurde gelöscht, seine URL wurde geändert oder dein Zugriff wurde entfernt. Öffne dein Dashboard, um weiterzumachen.",
+      "open": "Zum Dashboard",
+      "title": "Dieser Workspace ist nicht verfügbar"
+    },
     "unnamedCreated": "{name} (erstellt am {date})",
     "unnamedPrompt": {
       "description": "Er hat noch keinen Namen, deshalb zeigt das Workspace-Menü nur „Workspace“. Mit einem Namen können alle Mitglieder deine Workspaces auseinanderhalten.",

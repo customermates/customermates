@@ -1,3 +1,4 @@
+import { companyUrlPattern, pagePath } from "./app-paths";
 import { addFromConfigure, openConfigure } from "./configure";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { e2eAppMode } from "./workspace-switching";
@@ -17,14 +18,14 @@ test("creates a custom-type activity widget, previews history, edits it and pres
   await addFromConfigure(page, "List");
   await dialog.getByRole("textbox", { name: "Name", exact: false }).first().fill("Tenders");
   await dialog.getByRole("button", { name: "Save", exact: true }).first().click();
-  await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
+  await expect(page).toHaveURL(companyUrlPattern(companyId, "/records/[a-f0-9-]+$"));
   await expect(dialog).not.toBeVisible();
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
   await page.locator("#records-add").click();
   await dialog.getByRole("textbox", { name: "Tenders", exact: false }).fill("Harbour renewal");
   await dialog.getByRole("button", { name: "Save", exact: true }).click();
   await expect(dialog).not.toBeVisible();
-  await page.goto("/en/dashboard");
+  await page.goto(pagePath(page, "/dashboard"));
   await page.locator("#dashboard-add-widget").click();
   await dialog.locator("#widget-kind-activityTimeline").click();
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Tender activity");

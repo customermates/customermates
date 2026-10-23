@@ -2,9 +2,12 @@ import {
   getMessagingThreadsAction,
   getMessagingThreadAction,
   getIdentityRecordChoicesAction,
-} from "@/app/[locale]/(protected)/inbox/actions";
-import { getRecordChoicesAction, getRecordNavigationAction } from "@/app/[locale]/(protected)/records/actions";
-import { resolveSearchReferencesAction } from "@/app/[locale]/(protected)/search/actions";
+} from "@/app/[locale]/(protected)/w/[workspace]/inbox/actions";
+import {
+  getRecordChoicesAction,
+  getRecordNavigationAction,
+} from "@/app/[locale]/(protected)/w/[workspace]/records/actions";
+import { resolveSearchReferencesAction } from "@/app/[locale]/(protected)/w/[workspace]/search/actions";
 import type { GetResult } from "@/core/base/base-get.interactor";
 import type { Filter, FilterOption, GetQueryParams } from "@/core/base/base-get.schema";
 import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
@@ -38,12 +41,12 @@ import {
   getWebhooksAction,
   resolveWebhookOptionsAction,
   resolveUserOptionsAction,
-} from "@/app/[locale]/(protected)/settings/(workspace)/actions";
-import { SUBSCRIPTION_STATUS_COLOR_MAP } from "@/app/[locale]/(protected)/settings/(workspace)/components/subscription/subscription-panel";
+} from "@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/actions";
+import { SUBSCRIPTION_STATUS_COLOR_MAP } from "@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/subscription/subscription-panel";
 import {
   THREAD_STATE_CHIP_COLOR,
   ThreadStateDot,
-} from "@/app/[locale]/(protected)/inbox/components/thread-state-visuals";
+} from "@/app/[locale]/(protected)/w/[workspace]/inbox/components/thread-state-visuals";
 import {
   getOperatorWorkspacesAction,
   getOperatorWorkspaceTagsAction,

@@ -1,7 +1,8 @@
 import type { Page } from "@playwright/test";
 import type { Client } from "pg";
 
-import { DEMO_COMPANY_ID, demoId, displayedNumber, expect, test } from "./demo-seed";
+import { appPath } from "./app-paths";
+import { DEMO_COMPANY_ID, DEMO_SLUG, demoId, displayedNumber, expect, test } from "./demo-seed";
 
 /**
  * Calculated fields of the seeded workspace match a direct database computation from their inputs, and the record
@@ -66,7 +67,7 @@ const days = (from: Date, to: Date) => Math.round((to.getTime() - from.getTime()
  * manual override.
  */
 async function shown(page: Page, typeKey: string, recordId: string, fieldKey: string) {
-  await page.goto(`/en/records/${demoId(typeKey)}/${recordId}`);
+  await page.goto(appPath(DEMO_SLUG, `/records/${demoId(typeKey)}/${recordId}`));
   const main = page.getByRole("main");
   const overview = main.getByRole("tab", { name: "Overview", exact: true });
   if (await overview.isVisible()) await overview.click();
@@ -251,7 +252,7 @@ test("won deals snapshot their contract value; discount, days to close and indus
   );
   const label = rows[0].options.find((option) => option.id === wonRow["deal.industry"]?.text)?.label;
   expect(label, "the won deal has an industry").toBeTruthy();
-  await page.goto(`/en/records/${demoId("deal")}/${wonId}`);
+  await page.goto(appPath(DEMO_SLUG, `/records/${demoId("deal")}/${wonId}`));
   await expect(page.getByRole("main").locator(`[data-entity-field="${demoId("deal.industry")}"]`)).toContainText(
     label as string,
   );

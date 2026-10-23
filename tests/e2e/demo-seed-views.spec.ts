@@ -4,6 +4,7 @@ import { ALL_VIEW_KEY } from "../../core/data-view/data-view-keys";
 import {
   DEMO_COMPANY_ID,
   DEMO_MEMBERS,
+  DEMO_SLUG,
   type DemoMember,
   demoId,
   expect,
@@ -11,6 +12,7 @@ import {
   test,
 } from "./demo-seed";
 import { openSidebar } from "./sidebar";
+import { appPath } from "./app-paths";
 
 type SeededView = {
   id: string;
@@ -37,7 +39,7 @@ async function expectViewShowsData(
   view: SeededView,
   isMobile: boolean,
 ) {
-  await page.goto(`/en/records/${view.typeId}?view=${view.id}`);
+  await page.goto(appPath(DEMO_SLUG, `/records/${view.typeId}?view=${view.id}`));
   await expect(
     page
       .locator("[data-joins-top-bar]")
@@ -153,7 +155,7 @@ test("the All view of every list shows records for the admin", async ({
     [...LISTS].sort(),
   );
   for (const list of rows) {
-    await page.goto(`/en/records/${list.id}?view=${ALL_VIEW_KEY}`);
+    await page.goto(appPath(DEMO_SLUG, `/records/${list.id}?view=${ALL_VIEW_KEY}`));
     await expect(
       page.getByText(/^No records yet$|^No records match/),
     ).toHaveCount(0);
@@ -215,7 +217,7 @@ test("seeded views and pins stay curated for an overview: at most five card chip
     `SELECT id FROM "DataView" WHERE "companyId"=$1 AND "surfaceKey"=$2 AND name='Pipeline' AND "userId"=$3`,
     [DEMO_COMPANY_ID, `records:${deals}`, DEMO_MEMBERS.maxBergmann.userId],
   );
-  await page.goto(`/en/records/${deals}?view=${pipeline[0]?.id}`);
+  await page.goto(appPath(DEMO_SLUG, `/records/${deals}?view=${pipeline[0]?.id}`));
   const card = page.locator("[data-item-id], [data-row-id]").first();
   await expect(card).toBeVisible();
   await expect(card.locator("[data-chip-column]").first()).toBeVisible();
@@ -234,7 +236,7 @@ test("seeded views and pins stay curated for an overview: at most five card chip
     `SELECT id FROM "DataView" WHERE "companyId"=$1 AND "surfaceKey"=$2 AND name='Forecast'`,
     [DEMO_COMPANY_ID, `records:${deals}`],
   );
-  await page.goto(`/en/records/${deals}?view=${forecast[0]?.id}`);
+  await page.goto(appPath(DEMO_SLUG, `/records/${deals}?view=${forecast[0]?.id}`));
   await expect(page.locator("[data-row-id]").first()).toBeVisible();
   await page.screenshot({
     path: testInfo.outputPath("deals-forecast-table.png"),
@@ -258,7 +260,7 @@ test("seeded views and pins stay curated for an overview: at most five card chip
     `SELECT "recordId" AS id FROM "RecordValue" WHERE "companyId"=$1 AND "fieldId"=$2 ORDER BY "recordId" LIMIT 1`,
     [DEMO_COMPANY_ID, demoId("deal.closeDate")],
   );
-  await page.goto(`/en/records/${deals}/${record[0]?.id}`);
+  await page.goto(appPath(DEMO_SLUG, `/records/${deals}/${record[0]?.id}`));
   // Pinned fields show even when empty, so the band settles on exactly the deal pins.
   const dealPins =
     pins.find(({ p13nId }) => p13nId === `record-detail:${deals}`)?.pinned ?? 0;
@@ -290,12 +292,12 @@ test("opening a list and switching its views updates no component while another 
     views.length,
     "Deals has saved views to switch",
   ).toBeGreaterThanOrEqual(2);
-  await page.goto("/en/dashboard");
+  await page.goto(appPath(DEMO_SLUG, "/dashboard"));
   await openSidebar(page);
   await page.locator(`[id="nav-records:${deals}"]`).click();
   await expect
     .poll(() => new URL(page.url()).pathname)
-    .toBe(`/en/records/${deals}`);
+    .toBe(appPath(DEMO_SLUG, `/records/${deals}`));
   const rail = page.locator("#global-data-views");
   const records = page.locator("[data-row-id], [data-item-id]");
   await expect(records.first()).toBeVisible();
@@ -316,7 +318,7 @@ test("opening a list and switching its views updates no component while another 
   const refreshed = page.waitForResponse(
     (response) =>
       response.request().headers()["rsc"] === "1" &&
-      new URL(response.url()).pathname === `/en/records/${deals}`,
+      new URL(response.url()).pathname === appPath(DEMO_SLUG, `/records/${deals}`),
   );
   await page.evaluate(() =>
     document.dispatchEvent(new Event("visibilitychange")),

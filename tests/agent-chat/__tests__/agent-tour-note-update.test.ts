@@ -7,7 +7,7 @@ import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
-vi.mock("@/app/[locale]/(protected)/records/actions", () => ({
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/records/actions", () => ({
   getRecordAction: vi.fn(),
   getRecordNavigationAction: vi.fn(),
 }));

@@ -4,7 +4,7 @@ import type { CreateWorkspaceData } from "@/features/workspace/create-workspace.
 
 import { action, makeObservable } from "mobx";
 
-import { createWorkspaceAction } from "@/app/[locale]/(protected)/settings/(account)/workspaces/actions";
+import { createWorkspaceAction } from "@/app/[locale]/(protected)/w/[workspace]/settings/(account)/workspaces/actions";
 import { BaseModalStore } from "@/core/base/base-modal.store";
 
 export class CreateWorkspaceModalStore extends BaseModalStore<CreateWorkspaceData> {
@@ -45,7 +45,9 @@ export class CreateWorkspaceModalStore extends BaseModalStore<CreateWorkspaceDat
       }
 
       created = true;
-      this.rootStore.workspacesStore.enter({ companyId: res.data.companyId, name: this.form.name.trim() }, "/");
+      const { workspacesStore } = this.rootStore;
+      if (res.data.slug) workspacesStore.openWorkspace(res.data.slug);
+      else workspacesStore.enter("/dashboard");
     } finally {
       if (!created) this.setIsLoading(false);
     }

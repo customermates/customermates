@@ -10,6 +10,7 @@ export const WorkspaceNameSchema = z.string().trim().min(1).max(WORKSPACE_NAME_M
 export const WorkspaceSummarySchema = z.object({
   companyId: z.string(),
   name: z.string().nullable(),
+  slug: z.string(),
   status: z.enum(Status),
   roleName: z.string().nullable(),
   isAdmin: z.boolean(),

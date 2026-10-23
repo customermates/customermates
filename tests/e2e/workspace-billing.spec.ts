@@ -5,6 +5,7 @@ import type { Client as Database } from "pg";
 
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { lemonSqueezyTimestamp } from "../helpers/lemonsqueezy-subscription";
+import { appPath, appUrlPattern, slugFromUrl } from "./app-paths";
 import { mintApiKey } from "./api-key";
 import { collectPageErrors, expect, test } from "./fixtures";
 import {
@@ -79,9 +80,9 @@ async function loginEmailOf(database: Database, authUserId: string) {
   return rows[0].email;
 }
 
-async function expectBilling(page: Page, plan: string, status: string, seats: number) {
-  await page.goto("/en/settings/billing");
-  await expect(page).toHaveURL(/\/en\/settings\/billing$/);
+async function expectBilling(page: Page, slug: string, plan: string, status: string, seats: number) {
+  await page.goto(appPath(slug, "/settings/billing"));
+  await expect(page).toHaveURL(appUrlPattern(slug, "/settings/billing$"));
   const planField = page.getByRole("textbox", { name: englishMessages.Subscription.plan, exact: true });
   await expect(planField).toContainText(plan);
   await expect(planField).toContainText(status);
@@ -130,8 +131,8 @@ async function mcpInitialize(request: APIRequestContext, key: string) {
   };
 }
 
-async function approveMember(page: Page, name: string, status: "Active" | "Inactive") {
-  await page.goto("/en/settings/members");
+async function approveMember(page: Page, slug: string, name: string, status: "Active" | "Inactive") {
+  await page.goto(appPath(slug, "/settings/members"));
   await clickHydrated(page.locator('[data-slot="data-row-open"]').filter({ hasText: name }));
   const member = page.getByRole("dialog", { name: "User", exact: true });
   if (status === "Active") {
@@ -164,7 +165,7 @@ test("paying Business for an extra workspace activates only it in the real event
   const firstKey = await mintApiKey(database, workspace, "Browser bookkeeping");
   const checkoutPages = await stubCheckoutPage(page);
 
-  await createWorkspaceFromSettings(page, steuernName);
+  const steuernSlug = (await createWorkspaceFromSettings(page, steuernName)) ?? slugFromUrl(page.url());
   const steuern = await workspaceNamed(database, steuernName);
   expect(await subscriptionOf(database, steuern.companyId)).toEqual({
     status: "expired",
@@ -198,7 +199,7 @@ test("paying Business for an extra workspace activates only it in the real event
     variantQuantities: [{ variant_id: Number(localLemonSqueezyVariants.business), quantity: 1 }],
     enabledVariants: [Number(localLemonSqueezyVariants.business)],
     productName: steuernName,
-    redirectUrl: `${baseUrl}/en/settings/billing`,
+    redirectUrl: `${baseUrl}${appPath(steuernSlug, "/settings/billing")}`,
     skipTrial: true,
   });
   expect(checkoutsFor(workspace.companyId)).toEqual([]);
@@ -208,7 +209,7 @@ test("paying Business for an extra workspace activates only it in the real event
     email: await loginEmailOf(database, workspace.authUserId),
   });
   await page.goto(checkout.redirectUrl as string);
-  await expect(page).toHaveURL(/\/en\/subscription-expired$/);
+  await expect(page).toHaveURL(appUrlPattern(steuernSlug, "/subscription-expired$"));
   await expect(
     page.getByRole("heading", { level: 1, name: `Choose a plan for ${steuernName}`, exact: true }),
   ).toBeVisible();
@@ -280,14 +281,14 @@ test("paying Business for an extra workspace activates only it in the real event
   expect(await boundWorkspaces(database, paid.id)).toEqual([steuern.companyId]);
   expect(await subscriptionOf(database, workspace.companyId)).toEqual(firstBefore);
 
-  await expect(page).toHaveURL(/\/en\/onboarding\/wizard$/);
+  await expect(page).toHaveURL(/\/en(?:\/w\/[a-z0-9-]+)?\/onboarding\/wizard$/);
   await page.screenshot({ path: testInfo.outputPath("ws-billing-onboarding.png"), fullPage: true });
   await finishOnboarding(page);
   await expectCurrentWorkspace(page, steuernName);
   await page.screenshot({ path: testInfo.outputPath("ws-billing-dashboard.png"), fullPage: true });
-  await page.goto("/en/subscription-expired");
-  await expect(page).toHaveURL(/\/en\/settings\/billing$/);
-  await expectBilling(page, "Business", "Active", 1);
+  await page.goto(appPath(steuernSlug, "/subscription-expired"));
+  await expect(page).toHaveURL(appUrlPattern(steuernSlug, "/settings/billing$"));
+  await expectBilling(page, steuernSlug, "Business", "Active", 1);
   await expect(
     page.getByRole("textbox", { name: englishMessages.Subscription.currentPeriodEnd, exact: true }),
   ).toContainText(String(renewsAt.getUTCFullYear()));
@@ -307,7 +308,7 @@ test("paying Business for an extra workspace activates only it in the real event
   expect(await whoAmI(request, firstKey.key)).toEqual({ status: 200, id: workspace.userId, code: null });
   expect(await mcpWorkspaceName(firstKey.key)).toEqual({ id: workspace.companyId, name: "Browser workspace" });
 
-  await page.goto("/en/settings/billing");
+  await page.goto(appPath(steuernSlug, "/settings/billing"));
   await clickHydrated(page.locator("#settings-billing-manage"));
   await expect(page).toHaveURL(paid.attributes.urls.customer_portal);
   expect(checkoutPages.at(-1)).toBe(paid.attributes.urls.customer_portal);
@@ -315,7 +316,7 @@ test("paying Business for an extra workspace activates only it in the real event
   const coAdmin = await secondUser(browser, database, steuern.companyId, testInfo);
   try {
     const coAdminPages = await stubCheckoutPage(coAdmin.page);
-    await coAdmin.page.goto("/en/settings/billing");
+    await coAdmin.page.goto(appPath(steuernSlug, "/settings/billing"));
     await clickHydrated(coAdmin.page.locator("#settings-billing-manage"));
     await expect(coAdmin.page).toHaveURL(paid.attributes.urls.update_payment_method);
     expect(coAdminPages).toEqual([paid.attributes.urls.update_payment_method]);
@@ -324,7 +325,7 @@ test("paying Business for an extra workspace activates only it in the real event
     await coAdmin.close();
   }
 
-  await page.goto("/en/settings/workspaces");
+  await page.goto(appPath(steuernSlug, "/settings/workspaces"));
   await expect(page.locator(`li[data-workspace-id="${steuern.companyId}"]`)).toContainText("Business");
   await expect(page.locator(`li[data-workspace-id="${workspace.companyId}"]`)).toContainText(/Trial/);
   await page.screenshot({ path: testInfo.outputPath("ws-billing-workspaces.png"), fullPage: true });
@@ -336,10 +337,10 @@ test("paying Business for an extra workspace activates only it in the real event
   expect(await subscriptionOf(database, steuern.companyId)).toEqual(activated);
 
   await switchFromBlockedPage(page, workspace.companyId);
-  await expect(page).toHaveURL(/\/en\/dashboard$/);
+  await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/dashboard$"));
   await expectCurrentWorkspace(page, "Browser workspace");
-  await expectBilling(page, "Pro", "Trial", 1);
-  await page.goto("/en/settings/api-keys");
+  await expectBilling(page, workspace.slug, "Pro", "Trial", 1);
+  await page.goto(appPath(workspace.slug, "/settings/api-keys"));
   await expect(page.getByText("Browser bookkeeping", { exact: true })).toBeVisible();
   await expect(page.getByText("Steuern sync", { exact: true })).toHaveCount(0);
   expect(await subscriptionOf(database, workspace.companyId)).toEqual(firstBefore);
@@ -365,8 +366,8 @@ test("a reversed and replayed delivery of the subscription events activates the 
     [randomUUID(), second.companyId, second.userId, `e2e-${randomUUID()}`],
   );
   await setActiveWorkspace(database, workspace, second.companyId);
-  await page.goto("/en/dashboard");
-  await expect(page).toHaveURL(/\/en\/subscription-expired$/);
+  await page.goto(appPath(second.slug, "/dashboard"));
+  await expect(page).toHaveURL(appUrlPattern(second.slug, "/subscription-expired$"));
   await expect(page.locator("#settings-billing-plan-picker")).toBeVisible();
 
   const paid = startProviderSubscription(second.companyId, "business", 1, {
@@ -395,9 +396,9 @@ test("a reversed and replayed delivery of the subscription events activates the 
   expect(await subscriptionOf(database, workspace.companyId)).toEqual(firstBefore);
 
   await page.reload();
-  await expect(page).toHaveURL(/\/en\/settings\/billing$/);
+  await expect(page).toHaveURL(appUrlPattern(second.slug, "/settings/billing$"));
   await expectCurrentWorkspace(page, "Bergmann Steuern");
-  await expectBilling(page, "Business", "Active", 1);
+  await expectBilling(page, second.slug, "Business", "Active", 1);
   await page.screenshot({ path: testInfo.outputPath(`ws-billing-reversed-${testInfo.project.name}.png`) });
   expect(errors).toEqual([]);
 });
@@ -456,8 +457,8 @@ test("a signed event naming another or an unknown workspace activates neither an
   expect(await boundWorkspaces(database, stray.id)).toEqual([]);
   expect(await subscriptionOf(database, workspace.companyId)).toEqual(firstBefore);
 
-  await expectBilling(page, "Pro", "Trial", 1);
-  await page.goto("/en/settings/workspaces");
+  await expectBilling(page, workspace.slug, "Pro", "Trial", 1);
+  await page.goto(appPath(workspace.slug, "/settings/workspaces"));
   await expect(page.locator(`li[data-workspace-id="${second.companyId}"]`)).toContainText("Business");
   await expect(page.locator(`li[data-workspace-id="${workspace.companyId}"]`)).toContainText(/Trial/);
   expect(errors).toEqual([]);
@@ -486,8 +487,8 @@ test("each paid workspace bills its own seats when members are approved or deact
   );
   await setActiveWorkspace(database, workspace, second.companyId);
   await stubCheckoutPage(page);
-  await page.goto("/en/dashboard");
-  await expect(page).toHaveURL(/\/en\/subscription-expired$/);
+  await page.goto(appPath(second.slug, "/dashboard"));
+  await expect(page).toHaveURL(appUrlPattern(second.slug, "/subscription-expired$"));
   await choosePlan(page, "Business");
   await expect.poll(() => checkoutsFor(second.companyId).length).toBe(1);
   await expect(page).toHaveURL(checkoutsFor(second.companyId)[0].url);
@@ -502,9 +503,9 @@ test("each paid workspace bills its own seats when members are approved or deact
     quantity: 2,
   });
 
-  await approveMember(page, "Mara Lind", "Active");
+  await approveMember(page, second.slug, "Mara Lind", "Active");
   await expect.poll(() => providerSubscription(paid.id).quantity).toBe(3);
-  await approveMember(page, "Mara Lind", "Inactive");
+  await approveMember(page, second.slug, "Mara Lind", "Inactive");
   await expect.poll(() => providerSubscription(paid.id).quantityUpdates).toEqual([3, 2]);
   expect(providerSubscription(first.id).quantity).toBe(1);
   expect(providerSubscription(first.id).quantityUpdates).toBeUndefined();
@@ -544,8 +545,8 @@ test("a lapsed paid workspace keeps its integrations through the grace, asks to 
     changeProviderSubscription(paid.id, { status: "past_due" }),
   );
   expect((await subscriptionOf(database, second.companyId)).status).toBe("pastDue");
-  await page.goto("/en/dashboard");
-  await expect(page).toHaveURL(/\/en\/dashboard$/);
+  await page.goto(appPath(second.slug, "/dashboard"));
+  await expect(page).toHaveURL(appUrlPattern(second.slug, "/dashboard$"));
   await expectCurrentWorkspace(page, "Bergmann Steuern");
   expect(await whoAmI(request, key.key)).toEqual({ status: 200, id: second.userId, code: null });
 
@@ -560,8 +561,8 @@ test("a lapsed paid workspace keeps its integrations through the grace, asks to 
     lemonSqueezyId: paid.id,
     trialEndDate: null,
   });
-  await page.goto("/en/dashboard");
-  await expect(page).toHaveURL(/\/en\/subscription-expired$/);
+  await page.goto(appPath(second.slug, "/dashboard"));
+  await expect(page).toHaveURL(appUrlPattern(second.slug, "/subscription-expired$"));
   await expect(
     page.getByRole("heading", { level: 1, name: englishMessages.SubscriptionExpiredView.title, exact: true }),
   ).toBeVisible();
@@ -574,7 +575,7 @@ test("a lapsed paid workspace keeps its integrations through the grace, asks to 
   expect(await mcpWorkspaceName(key.key)).toEqual({ id: second.companyId, name: "Bergmann Steuern" });
 
   await switchFromBlockedPage(page, workspace.companyId);
-  await expect(page).toHaveURL(/\/en\/dashboard$/);
+  await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/dashboard$"));
   await expectCurrentWorkspace(page, "Browser workspace");
 
   await setActiveWorkspace(database, workspace, second.companyId);
@@ -589,7 +590,7 @@ test("a lapsed paid workspace keeps its integrations through the grace, asks to 
   );
   expect((await subscriptionOf(database, second.companyId)).status).toBe("active");
   await page.goto("/en/dashboard");
-  await expect(page).toHaveURL(/\/en\/dashboard$/);
+  await expect(page).toHaveURL(appUrlPattern(second.slug, "/dashboard$"));
   await expectCurrentWorkspace(page, "Bergmann Steuern");
   expect(await subscriptionOf(database, workspace.companyId)).toMatchObject({ status: "active", lemonSqueezyId: null });
   expect(errors).toEqual([]);

@@ -8,6 +8,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
 import { secondUser } from "./second-user";
+import { companyPath } from "./app-paths";
 
 const SYSTEM_COLUMNS = ["Assigned to", "Created at", "Updated at"];
 
@@ -62,7 +63,7 @@ test("each person picks their own sub-list columns and the default leaves out sy
   const errors = collectPageErrors(page);
   const isMobile = Boolean(testInfo.project.use.isMobile);
   const id = (key: string) => presetId(companyId, key);
-  await page.goto(`/en/records/${id("deal")}`);
+  await page.goto(companyPath(companyId, `/records/${id("deal")}`));
   const deal = await create(page, {
     typeId: id("deal"),
     fields: [{ fieldId: id("deal.name"), value: { kind: "text", value: "Columns deal" } }],
@@ -72,7 +73,7 @@ test("each person picks their own sub-list columns and the default leaves out sy
     fields: [{ fieldId: id("lineItem.name"), value: { kind: "text", value: "Columns line" } }],
     links: [{ relationId: id("lineItem.deal"), direction: "outgoing", record: deal }],
   });
-  const url = `/en/records/${deal.typeId}/${deal.recordId}`;
+  const url = companyPath(companyId, `/records/${deal.typeId}/${deal.recordId}`);
 
   let lines = await openLineItems(page, url);
   if (!isMobile) {

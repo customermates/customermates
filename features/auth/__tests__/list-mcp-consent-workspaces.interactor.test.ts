@@ -20,6 +20,7 @@ function workspace(companyId: string, overrides: Partial<WorkspaceSummary> = {})
   return {
     companyId,
     name: `Workspace ${companyId}`,
+    slug: `ws-${companyId}`,
     status: Status.active,
     roleName: "Admin",
     isAdmin: true,

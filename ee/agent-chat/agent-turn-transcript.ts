@@ -51,8 +51,9 @@ export class AgentTurnTranscript {
   constructor(
     private readonly emit: AgentTranscriptEmit,
     private readonly appBaseUrl?: string,
+    private readonly workspaceSlug?: string | null,
   ) {
-    this.sanitizer = new AgentVisibleTextStreamSanitizer(appBaseUrl);
+    this.sanitizer = new AgentVisibleTextStreamSanitizer(appBaseUrl, workspaceSlug);
   }
 
   get replyParts(): AgentMessagePart[] {
@@ -92,7 +93,7 @@ export class AgentTurnTranscript {
 
   finishTextSegment() {
     this.appendText(this.sanitizer.finish());
-    this.sanitizer = new AgentVisibleTextStreamSanitizer(this.appBaseUrl);
+    this.sanitizer = new AgentVisibleTextStreamSanitizer(this.appBaseUrl, this.workspaceSlug);
   }
 
   beginToolCall(call: { toolCallId: string; toolName: string; activity: AgentActivityDescriptor }) {

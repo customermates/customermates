@@ -1,6 +1,6 @@
 # Overlay contract
 
-Customermates composes its overlays from the shadcn `new-york-v4` primitives in this directory. The wrappers add the repository's mobile viewport, safe-area, collision, scrolling, dismissal, and focus-return contract. Mechanically decidable rules are enforced by [the convention suite](../../tests/conventions/overlay-contract.test.ts); runtime behavior is exercised in the [overlay gallery](<../../app/[locale]/(protected)/test/overlays/page.tsx>).
+Customermates composes its overlays from the shadcn `new-york-v4` primitives in this directory. The wrappers add the repository's mobile viewport, safe-area, collision, scrolling, dismissal, and focus-return contract. Mechanically decidable rules are enforced by [the convention suite](../../tests/conventions/overlay-contract.test.ts); runtime behavior is exercised in the [overlay gallery](<../../app/[locale]/(protected)/w/[workspace]/test/overlays/page.tsx>).
 
 ## Decision matrix
 

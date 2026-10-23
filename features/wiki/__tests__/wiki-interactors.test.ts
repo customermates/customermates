@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { WorkspaceSlugResolver } from "@/features/workspace/workspace-slug-resolver";
 import { Action, Resource } from "@/generated/prisma";
 import { ForbiddenError } from "@/core/errors/app-errors";
 import { runWithTenant } from "@/core/decorators/tenant-context";
@@ -330,6 +331,9 @@ describe("SearchWikiPagesInteractor", () => {
           }),
         },
         offsets,
+        null,
+        undefined,
+        new WorkspaceSlugResolver({ findWorkspaceSlugUnscoped: () => Promise.resolve("acme") }),
       ).invoke({ query: "approves", page: 1, pageSize: 5 }),
     );
 
@@ -347,7 +351,7 @@ describe("SearchWikiPagesInteractor", () => {
   it("maps offsets onto the link-externalized Markdown from the searched page without another read", async () => {
     const result = await search("externalized");
     if (!result.ok) throw new Error("Expected a search result.");
-    const externalized = markdown.replace("/wiki?page=", "http://localhost:4000/wiki?page=");
+    const externalized = markdown.replace("/wiki?page=", "http://localhost:4000/w/acme/wiki?page=");
     expect(result.data.items[0].offset).toBe(externalized.indexOf("## Approval"));
     expect(result.data.items[0]).not.toHaveProperty("markdown");
   });

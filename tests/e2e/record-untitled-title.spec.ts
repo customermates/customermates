@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
 import { deleteFromDrawer, openConfigure, openConfigureRow } from "./configure";
+import { companyPath, companyUrlPattern } from "./app-paths";
 import { expect, test } from "./fixtures";
 import { openRecordLink } from "./record-rows";
 
@@ -14,7 +15,7 @@ test("keeps an Untitled title column that opens the record after the only name f
   await openConfigureRow(page, "Fields", "Name");
   await deleteFromDrawer(page, "Delete field");
 
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   if (testInfo.project.name === "mobile") {
     const row = page.locator("[data-phone-rows] [data-row-id]").first();
     await expect(row).toContainText("Untitled Organization");
@@ -28,7 +29,7 @@ test("keeps an Untitled title column that opens the record after the only name f
   await openRecordLink(page.getByRole("link", { name: "Untitled Organization", exact: true }).first());
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.getByRole("dialog").getByRole("link", { name: "Open page", exact: true }).click();
-  await expect(page).toHaveURL(new RegExp(`/records/${typeId}/[0-9a-f-]{36}$`));
+  await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${typeId}/[0-9a-f-]{36}$`));
   await expect(page.getByRole("navigation", { name: "Breadcrumb" })).toContainText("Untitled Organization");
 });
 
@@ -54,7 +55,7 @@ test("shows Untitled on board cards after the only name field is deleted", async
   });
   expect(created.ok(), await created.text()).toBe(true);
 
-  await page.goto(`/en/records/${typeId}?viewMode=card&groupBy=${presetId(companyId, "deal.stage")}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}?viewMode=card&groupBy=${presetId(companyId, "deal.stage")}`));
   const card = page.locator("[data-item-id]").first();
   await expect(card).toBeVisible();
   await expect(card).toContainText("Untitled Deal");

@@ -1,5 +1,6 @@
 import germanMessages from "../../i18n/locales/de.json" with { type: "json" };
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
+import { appPath, appUrlPattern } from "./app-paths";
 import { mintApiKey } from "./api-key";
 import { expectNotFoundDocuments } from "./browser-diagnostics";
 import { collectPageErrors, expect, test } from "./fixtures";
@@ -55,7 +56,7 @@ test("the member dialog never offers removing yourself and explains why the last
         { resource: "users", action: "update" },
       ],
     });
-    await page.goto("/en/settings/members");
+    await page.goto(appPath(workspace.slug, "/settings/members"));
     const own = memberItem(page, "Browser Administrator");
     await expect(async () => {
       expect(await rowActionLabels(page, own, "Browser Administrator")).toEqual(["Open details"]);
@@ -75,7 +76,7 @@ test("the member dialog never offers removing yourself and explains why the last
     await setActiveWorkspace(database, mara, workspace.companyId);
     const lead = await signInLogin(browser, database, mara, testInfo);
     try {
-      await lead.page.goto("/en/settings/members");
+      await lead.page.goto(appPath(workspace.slug, "/settings/members"));
       await runRowAction(
         lead.page,
         memberItem(lead.page, "Browser Administrator"),
@@ -127,7 +128,7 @@ test("removing a member who waits for approval declines the request", async ({
       await expect(requester.page).toHaveURL(/\/en\/auth\/pending$/);
       await expect.poll(() => pendingRequestCount(database, workspace.companyId, email)).toBe(1);
 
-      await page.goto("/en/settings/members");
+      await page.goto(appPath(workspace.slug, "/settings/members"));
       const row = memberItem(page, "Petra Wolf");
       await expect(row).toContainText(englishMessages.Common.userStatuses.pendingAuthorization);
       await runRowAction(page, row, "Petra Wolf", REMOVE);
@@ -148,7 +149,7 @@ test("removing a member who waits for approval declines the request", async ({
       await clickHydrated(
         requester.page.getByRole("button", { name: englishMessages.Common.actions.refresh, exact: true }),
       );
-      await expect(requester.page).toHaveURL(/\/en\/dashboard$/);
+      await expect(requester.page).toHaveURL(appUrlPattern(petra.slug, "/dashboard$"));
       await expectCurrentWorkspace(requester.page, "Petra Studio");
       expect(requester.errors).toEqual([]);
     } finally {
@@ -179,7 +180,7 @@ test("a removed member's API key for the workspace stops working while the key o
     expect(await apiKeyRequest(playwright, teamKey.key)).toEqual({ status: 200, id: membership.userId });
     expect(await apiKeyRequest(playwright, ownKey.key)).toEqual({ status: 200, id: rita.userId });
 
-    await page.goto("/en/settings/members");
+    await page.goto(appPath(workspace.slug, "/settings/members"));
     await runRowAction(page, memberItem(page, "Rita Vogel"), "Rita Vogel", "Open details");
     const member = page.getByRole("dialog", { name: "User", exact: true });
     await expect(member.locator("#member-modal-email")).toHaveValue(/@example\.test$/);
@@ -220,7 +221,7 @@ test("a removed member gets one removal e-mail in their own language with a sign
     const email = await loginEmail(database, rita);
     await database.query('UPDATE "User" SET "displayLanguage"=\'de\' WHERE email=$1', [email]);
     await addMembership(database, rita, workspace.companyId, { admin: true });
-    await page.goto("/en/settings/members");
+    await page.goto(appPath(workspace.slug, "/settings/members"));
     await runRowAction(page, memberItem(page, "Rita Vogel"), "Rita Vogel", REMOVE);
     const confirm = page.getByRole("alertdialog", { name: "Remove Rita Vogel from Browser workspace?" });
     await expect(confirm).toContainText(englishMessages.MemberRemoval.consequences.notified);
@@ -254,7 +255,7 @@ test("a removed member gets one removal e-mail in their own language with a sign
   expect(errors).toEqual([]);
 });
 
-test("a member removed while a page is open meets the workspace-changed dialog and lands in their own workspace", async ({
+test("a member removed while a page is open meets the workspace-unavailable dialog and lands in their own workspace", async ({
   browser,
   page,
   database,
@@ -279,7 +280,7 @@ test("a member removed while a page is open meets the workspace-changed dialog a
       await removed.page.waitForLoadState("networkidle");
       if (e2eAppMode() === "cloud") await expect.poll(() => unreadPolls.length).toBeGreaterThan(0);
 
-      await page.goto("/en/settings/members");
+      await page.goto(appPath(workspace.slug, "/settings/members"));
       await runRowAction(page, memberItem(page, "Rita Vogel"), "Rita Vogel", REMOVE);
       await page
         .getByRole("alertdialog", { name: "Remove Rita Vogel from Browser workspace?" })
@@ -288,7 +289,7 @@ test("a member removed while a page is open meets the workspace-changed dialog a
       await expect(memberItem(page, "Rita Vogel")).toContainText(englishMessages.WorkspaceMembership.left);
       const removedAt = Date.now();
 
-      const notice = removed.page.getByRole("alertdialog", { name: englishMessages.Workspaces.otherTab.titleChanged });
+      const notice = removed.page.getByRole("alertdialog", { name: englishMessages.Workspaces.unavailable.title });
       if (e2eAppMode() === "cloud") {
         await expect(notice).toBeVisible({ timeout: 20_000 });
         const shownAt = Date.now();
@@ -308,9 +309,9 @@ test("a member removed while a page is open meets the workspace-changed dialog a
         .poll(() => refused.some(({ status, workspaceChanged }) => status === 200 && workspaceChanged))
         .toBe(true);
       expect(refused.filter(({ status }) => status >= 500)).toEqual([]);
-      await notice.getByRole("button", { name: englishMessages.Workspaces.otherTab.reload, exact: true }).click();
+      await notice.getByRole("button", { name: englishMessages.Workspaces.unavailable.open, exact: true }).click();
 
-      await expect(removed.page).toHaveURL(/\/en\/dashboard$/);
+      await expect(removed.page).toHaveURL(appUrlPattern(rita.slug, "/dashboard$"));
       await expectCurrentWorkspace(removed.page, "Rita Labs");
       await removed.page.goto(organizationList(workspace.companyId));
       await expect(
@@ -341,10 +342,10 @@ test("a member removed from their only workspace starts over on onboarding and c
     const removed = await signInLogin(browser, database, tom, testInfo);
     await setActiveWorkspace(database, tom, workspace.companyId);
     try {
-      await removed.page.goto("/en/dashboard");
+      await removed.page.goto(appPath(workspace.slug, "/dashboard"));
       await expectCurrentWorkspace(removed.page, "Browser workspace");
 
-      await page.goto("/en/settings/members");
+      await page.goto(appPath(workspace.slug, "/settings/members"));
       await runRowAction(page, memberItem(page, "Tom Solo"), "Tom Solo", REMOVE);
       await page
         .getByRole("alertdialog", { name: "Remove Tom Solo from Browser workspace?" })
@@ -354,7 +355,7 @@ test("a member removed from their only workspace starts over on onboarding and c
 
       await removed.page.goto("/en/dashboard");
       await expect(removed.page).toHaveURL(/\/en\/onboarding$/);
-      expect(await activeWorkspaceOf(database, tom)).toMatchObject({ session: null });
+      expect(await activeWorkspaceOf(database, tom)).toMatchObject({ lastUsed: null });
 
       await clickHydrated(
         removed.page.getByRole("button", { name: new RegExp(englishMessages.OnboardingChoice.create.title) }),
@@ -378,10 +379,7 @@ test("a member removed from their only workspace starts over on onboarding and c
         ["Tom Fresh Start", tom.authUserId],
       );
       expect(created.rows).toHaveLength(1);
-      expect(await activeWorkspaceOf(database, tom)).toEqual({
-        session: created.rows[0].id,
-        lastUsed: created.rows[0].id,
-      });
+      expect(await activeWorkspaceOf(database, tom)).toEqual({ lastUsed: created.rows[0].id });
       expect(removed.errors).toEqual([]);
     } finally {
       await removed.close();

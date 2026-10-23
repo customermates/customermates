@@ -24,8 +24,8 @@ const LIFECYCLE_HANDLER_NAMES = new Set([
   "onWaiting",
 ]);
 const INTENTIONAL_UNHANDLED_USER_ACTIONS = new Set([
-  "app/[locale]/(protected)/test/error/error-test-card.tsx:onClick:void errorTestStore.triggerUnexpectedServerError()",
-  "app/[locale]/(protected)/test/error/error-test-card.tsx:onClick:void handleWorkflowError()",
+  "app/[locale]/(protected)/w/[workspace]/test/error/error-test-card.tsx:onClick:void errorTestStore.triggerUnexpectedServerError()",
+  "app/[locale]/(protected)/w/[workspace]/test/error/error-test-card.tsx:onClick:void handleWorkflowError()",
 ]);
 
 type Finding = {

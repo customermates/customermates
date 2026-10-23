@@ -7,14 +7,14 @@ const { getWebhooksAction, resolveWebhookOptionsAction } = vi.hoisted(() => ({
   resolveWebhookOptionsAction: vi.fn(),
 }));
 
-vi.mock("@/app/[locale]/(protected)/settings/(workspace)/actions", () => ({
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/actions", () => ({
   getWebhooksAction,
   resolveWebhookOptionsAction,
 }));
 
 const inbox = vi.hoisted(() => ({ getMessagingThreadsAction: vi.fn() }));
 
-vi.mock("@/app/[locale]/(protected)/inbox/actions", () => ({
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/inbox/actions", () => ({
   getMessagingThreadsAction: inbox.getMessagingThreadsAction,
 }));
 

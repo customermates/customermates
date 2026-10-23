@@ -23,14 +23,13 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppLocalePreferenceSync } from "@/components/shared/app-locale-preference-sync";
-import { reportApplicationError } from "@/core/errors/report-application-error";
 
 import { ProtectedEnhancementsProvider } from "./protected-enhancements-context";
 import { accountStateForPath } from "./account-state-for-path";
 import { resolveNavigationShell } from "./navigation-shell";
 import { PublicScrollport } from "./public-scrollport";
 import { ControlFocus } from "@/components/focus/control-focus";
-import { WorkspaceTabGuard } from "@/app/components/workspaces/workspace-tab-guard";
+import { WorkspaceUnavailableDialog } from "@/app/components/workspaces/workspace-unavailable-dialog";
 
 const AppSidebar = dynamic(() => import("../app-sidebar").then((mod) => ({ default: mod.AppSidebar })));
 const AppTopBar = dynamic(() => import("../app-topbar").then((mod) => ({ default: mod.AppTopBar })));
@@ -115,13 +114,7 @@ export function NavigationSwitch({
     const handleVisibilityChange = () => {
       if (document.visibilityState !== "visible") return;
       navigationGuard.requestRouteRefreshWhenSafe(() => {
-        if (!active || document.visibilityState !== "visible") return;
-        void workspacesStore
-          .verifyCurrent()
-          .then((unchanged) => {
-            if (unchanged && active && document.visibilityState === "visible") router.refresh();
-          })
-          .catch(reportApplicationError);
+        if (active && document.visibilityState === "visible") router.refresh();
       });
     };
 
@@ -130,7 +123,7 @@ export function NavigationSwitch({
       active = false;
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [navigationGuard, router, workspacesStore]);
+  }, [navigationGuard, router]);
 
   useLayoutEffect(() => {
     Sentry.setUser(identifiedUser ? { id: identifiedUser.id } : null);
@@ -220,7 +213,7 @@ export function NavigationSwitch({
 
       {shell}
 
-      <WorkspaceTabGuard />
+      <WorkspaceUnavailableDialog />
     </ProtectedEnhancementsProvider>
   );
 }

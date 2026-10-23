@@ -3,7 +3,7 @@
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { RecordEditor } from "@/app/[locale]/(protected)/records/[typeId]/components/record-editor";
+import { RecordEditor } from "@/app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-editor";
 import { AppModal } from "@/components/modal/app-modal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RecordAccessDeniedNotice } from "@/components/records/record-access-denied";

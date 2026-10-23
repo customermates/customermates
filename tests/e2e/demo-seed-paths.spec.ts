@@ -1,4 +1,5 @@
-import { DEMO_COMPANY_ID, demoId, expect, test } from "./demo-seed";
+import { appPath } from "./app-paths";
+import { DEMO_COMPANY_ID, DEMO_SLUG, demoId, expect, test } from "./demo-seed";
 
 /** Sub-lists and relationship paths of the seeded workspace: deal line items, and the Deals path of a service. */
 test("a deal shows its line items with Max's curated line item columns", async ({ page, database, errors }, testInfo) => {
@@ -18,7 +19,7 @@ test("a deal shows its line items with Max's curated line item columns", async (
     [DEMO_COMPANY_ID, demoId("lineItem.deal"), demoId("lineItem.quantity"), deal.id],
   );
 
-  await page.goto(`/en/records/${demoId("deal")}/${deal.id}`);
+  await page.goto(appPath(DEMO_SLUG, `/records/${demoId("deal")}/${deal.id}`));
   const main = page.getByRole("main");
   const overview = main.getByRole("tab", { name: "Overview", exact: true });
   if (await overview.isVisible()) await overview.click();
@@ -60,7 +61,7 @@ test("a service lists the deals that sell it and explains the full path in the i
   const deals = new Set(rows.filter((row) => row.serviceId === serviceId).map((row) => row.deal));
   expect(deals.size).toBeGreaterThan(0);
 
-  await page.goto(`/en/records/${demoId("service")}/${serviceId}`);
+  await page.goto(appPath(DEMO_SLUG, `/records/${demoId("service")}/${serviceId}`));
   const main = page.getByRole("main");
   const overview = main.getByRole("tab", { name: "Overview", exact: true });
   if (await overview.isVisible()) await overview.click();

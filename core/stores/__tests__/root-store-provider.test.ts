@@ -108,6 +108,7 @@ const initialState: RootStoreInitialState = {
     {
       companyId: "company-1",
       name: "Acme",
+      slug: "acme",
       status: Status.active,
       roleName: "Admin",
       isAdmin: true,

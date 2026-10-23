@@ -29,6 +29,7 @@ const mutableEnv = MOCK_ENV_MODULE.env as unknown as { APP_MODE: "cloud" | "demo
 const owner = {
   id: "owner-1",
   companyId: "company-new",
+  company: { slug: "taxes" },
   email: "ben@example.com",
   firstName: "Max",
   lastName: "Bergmann",
@@ -46,10 +47,7 @@ function track<T>(name: string, value: T) {
 }
 
 describe("CreateWorkspaceInteractor", () => {
-  let authService: {
-    getInteractiveSession: ReturnType<typeof vi.fn>;
-    setSessionActiveCompany: ReturnType<typeof vi.fn>;
-  };
+  let authService: { getInteractiveSession: ReturnType<typeof vi.fn> };
   let repo: Record<string, ReturnType<typeof vi.fn>>;
   let registration: { createCompanyAndUser: ReturnType<typeof vi.fn> };
   let eventService: { publish: ReturnType<typeof vi.fn> };
@@ -71,7 +69,6 @@ describe("CreateWorkspaceInteractor", () => {
       getInteractiveSession: vi
         .fn()
         .mockResolvedValue({ session: { id: "session-1" }, user: { id: "login-1", email: "ben@example.com" } }),
-      setSessionActiveCompany: track("switchSession", undefined),
     };
     repo = {
       findMembershipProfileUnscoped: vi.fn().mockResolvedValue({
@@ -96,7 +93,7 @@ describe("CreateWorkspaceInteractor", () => {
   it("locks the login, decides the trial and creates the workspace and its events in one transaction", async () => {
     const result = await interactor().invoke({ name: "Taxes", agreeToTerms: true });
 
-    expect(result).toEqual({ ok: true, data: { companyId: "company-new", trial: false } });
+    expect(result).toEqual({ ok: true, data: { companyId: "company-new", slug: "taxes", trial: false } });
     expect(calls.order).toEqual([
       "timeout:15000",
       "begin",
@@ -109,13 +106,11 @@ describe("CreateWorkspaceInteractor", () => {
       "publish",
       "publish",
       "commit",
-      "switchSession",
     ]);
     expect(repo.findAuthUserCompanyIdForUpdateUnscoped).toHaveBeenCalledWith("login-1");
     expect(registration.createCompanyAndUser).toHaveBeenCalledWith(
       expect.objectContaining({ workspace: { name: "Taxes", createdByAuthUserId: "login-1", trial: false } }),
     );
-    expect(authService.setSessionActiveCompany).toHaveBeenCalledWith("session-1", "company-new");
   });
 
   it("refuses a further cloud workspace once the login created the limit", async () => {
@@ -126,7 +121,7 @@ describe("CreateWorkspaceInteractor", () => {
     expect(result.ok).toBe(false);
     if (!result.ok) expect(interactorFailureCodes(result.error)).toEqual([CustomErrorCode.workspaceLimitReached]);
     expect(registration.createCompanyAndUser).not.toHaveBeenCalled();
-    expect(authService.setSessionActiveCompany).not.toHaveBeenCalled();
+    expect(repo.setLastUsedCompanyUnscoped).not.toHaveBeenCalled();
   });
 
   it("does not limit how many workspaces a self-hosted login creates", async () => {

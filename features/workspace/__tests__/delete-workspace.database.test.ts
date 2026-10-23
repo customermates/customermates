@@ -4,6 +4,7 @@ import { serializeSignedCookie } from "better-call";
 import { Client } from "pg";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
+import { WORKSPACE_HEADER } from "@/core/navigation/workspace-paths";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
 const requestContext = vi.hoisted(() => ({ headers: new Headers() }));
@@ -33,6 +34,7 @@ type Subscription = { status: string; lemonSqueezyId?: string | null; plan?: str
 describeDatabase("deleting a workspace on PostgreSQL", { timeout: 240_000 }, () => {
   const client = new Client({ connectionString: databaseUrl ?? undefined });
   const companies: string[] = [];
+  const openTabs = new Map<string, string>();
   const logins: string[] = [];
   let previousAppMode: string;
   let previousVariants: Record<"starter" | "pro" | "business" | "max", string | undefined>;
@@ -158,13 +160,24 @@ describeDatabase("deleting a workspace on PostgreSQL", { timeout: 240_000 }, () 
     return { companyId, users, roles };
   }
 
-  async function open(login: Login, companyId: string | null) {
-    await client.query('UPDATE "AuthSession" SET "activeCompanyId" = $1 WHERE "id" = $2', [companyId, login.sessionId]);
-    await client.query('UPDATE "AuthUser" SET "companyId" = $1 WHERE "id" = $2', [companyId, login.id]);
+  async function slugOf(companyId: string) {
+    const result = await client.query<{ slug: string }>('SELECT "slug" FROM "Company" WHERE "id" = $1', [companyId]);
+    return result.rows[0]?.slug ?? null;
   }
 
-  function as(login: Login, kind: Record<string, string> = SERVER_ACTION) {
-    requestContext.headers = new Headers({ cookie: login.cookie, ...kind });
+  async function open(login: Login, companyId: string | null) {
+    await client.query('UPDATE "AuthUser" SET "companyId" = $1 WHERE "id" = $2', [companyId, login.id]);
+    const slug = companyId ? await slugOf(companyId) : null;
+    if (slug) openTabs.set(login.id, slug);
+    else openTabs.delete(login.id);
+  }
+
+  function as(login: Login, kind: Record<string, string> = SERVER_ACTION, slug = openTabs.get(login.id) ?? null) {
+    requestContext.headers = new Headers({
+      cookie: login.cookie,
+      ...kind,
+      ...(slug ? { [WORKSPACE_HEADER]: slug } : {}),
+    });
   }
 
   async function remove(login: Login, companyId: string) {
@@ -197,14 +210,6 @@ describeDatabase("deleting a workspace on PostgreSQL", { timeout: 240_000 }, () 
       [id],
     );
     return result.rows[0];
-  }
-
-  async function activeCompany(sessionId: string) {
-    const result = await client.query<{ activeCompanyId: string | null }>(
-      'SELECT "activeCompanyId" FROM "AuthSession" WHERE "id" = $1',
-      [sessionId],
-    );
-    return result.rows[0]?.activeCompanyId ?? null;
   }
 
   async function companyScopedCounts(companyId: string) {
@@ -345,8 +350,6 @@ describeDatabase("deleting a workspace on PostgreSQL", { timeout: 240_000 }, () 
 
     expect(await login(creator.id)).toMatchObject({ companyId: home.companyId, trialConsumedAt: expect.any(Date) });
     expect((await login(colleague.id)).companyId).toBe(home.companyId);
-    expect(await activeCompany(creator.sessionId)).toBe(home.companyId);
-    expect(await activeCompany(colleague.sessionId)).toBe(doomed.companyId);
   });
 
   it("shows a member's open tab the workspace-changed notice and opens their other workspace on reload", async () => {
@@ -370,9 +373,12 @@ describeDatabase("deleting a workspace on PostgreSQL", { timeout: 240_000 }, () 
     await expect(getGetUserDetailsInteractor().invoke()).rejects.toBeInstanceOf(WorkspaceChangedError);
 
     as(colleague, PAGE_LOAD);
+    await expect(getRouteGuardService().resolveAccountState()).rejects.toBeInstanceOf(WorkspaceChangedError);
+
+    as(colleague, PAGE_LOAD, null);
     const resolution = await getRouteGuardService().resolveAccountState();
     expect(resolution.user?.companyId).toBe(home.companyId);
-    expect(await activeCompany(colleague.sessionId)).toBe(home.companyId);
+    expect((await login(colleague.id)).companyId).toBe(home.companyId);
   });
 
   it("sends a deleter without any other workspace to create one", async () => {
@@ -384,10 +390,9 @@ describeDatabase("deleting a workspace on PostgreSQL", { timeout: 240_000 }, () 
 
     expect(result).toEqual({ ok: true, data: { companyId: doomed.companyId, nextCompanyId: null } });
     expect(await login(creator.id)).toMatchObject({ companyId: null });
-    expect(await activeCompany(creator.sessionId)).toBeNull();
 
     const { getRouteGuardService } = await import("@/core/di");
-    as(creator, PAGE_LOAD);
+    as(creator, PAGE_LOAD, null);
     expect((await getRouteGuardService().resolveAccountState()).state).toBe("unregistered");
   });
 
@@ -409,10 +414,12 @@ describeDatabase("deleting a workspace on PostgreSQL", { timeout: 240_000 }, () 
     expect(first).toMatchObject({ ok: true, data: { trial: true } });
     if (!first.ok) return;
     companies.push(first.data.companyId);
+    await open(creator, first.data.companyId);
     expect((await login(creator.id)).trialConsumedAt).toBeInstanceOf(Date);
     expect(await refusal(creator)).toBeNull();
 
     expect((await remove(creator, first.data.companyId)).ok).toBe(true);
+    await open(creator, home.companyId);
 
     as(creator);
     const second = await getCreateWorkspaceInteractor().invoke({ name: "Second", agreeToTerms: true });
@@ -836,8 +843,11 @@ describeDatabase("deleting a workspace on PostgreSQL", { timeout: 240_000 }, () 
     const refused = results.find((result) => !result.ok);
     expect(refused ? await codes(refused) : []).toEqual([CustomErrorCode.workspaceChanged]);
     expect(await exists(doomed.companyId)).toBe(false);
-    expect(await activeCompany(creator.sessionId)).toBe(home.companyId);
+    expect((await login(creator.id)).companyId).toBe(home.companyId);
 
+    const { WorkspaceChangedError } = await import("@/core/errors/workspace-changed-error");
+    await expect(remove(creator, doomed.companyId)).rejects.toBeInstanceOf(WorkspaceChangedError);
+    await open(creator, home.companyId);
     await expect(remove(creator, doomed.companyId)).resolves.toMatchObject({ ok: false });
   });
 

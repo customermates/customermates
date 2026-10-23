@@ -3,6 +3,7 @@ import { randomBytes, randomUUID } from "node:crypto";
 import { hashPassword } from "better-auth/crypto";
 
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
+import { appPath, appUrlPattern } from "./app-paths";
 import { collectPageErrors, expect, test } from "./fixtures";
 import { addBrowserWorkspace, createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
 import { inviteToken, joinFromInvitation } from "./workspace-membership";
@@ -60,10 +61,7 @@ test("an existing login joins another workspace by invitation, waits for approva
     await expect(page).toHaveURL(/\/en\/auth\/pending$/);
     await expect(page.getByRole("heading", { level: 1, name: englishMessages.PendingCard.title })).toBeVisible();
     expect(await joined()).toEqual([{ firstName: "Jonas", status: "pendingAuthorization", roleId: null }]);
-    expect(await activeWorkspaceOf(database, workspace)).toEqual({
-      session: inviter.companyId,
-      lastUsed: inviter.companyId,
-    });
+    expect(await activeWorkspaceOf(database, workspace)).toEqual({ lastUsed: inviter.companyId });
     await page.screenshot({ path: testInfo.outputPath("ws-join-pending.png"), fullPage: true });
     const switcher = await openBlockedPageSwitcher(page);
     await expect(switcher.locator(`[data-workspace-id="${workspace.companyId}"]`)).toBeVisible();
@@ -78,7 +76,7 @@ test("an existing login joins another workspace by invitation, waits for approva
 
     const admin = await signInLogin(browser, database, inviter, testInfo);
     try {
-      await admin.page.goto("/en/settings/members");
+      await admin.page.goto(appPath(inviter.slug, "/settings/members"));
       await clickHydrated(admin.page.locator('[data-slot="data-row-open"]').filter({ hasText: "Jonas Keller" }));
       const member = admin.page.getByRole("dialog", { name: "User", exact: true });
       await expect(member.locator("#member-modal-role")).toContainText("Admin");
@@ -94,12 +92,12 @@ test("an existing login joins another workspace by invitation, waits for approva
     }
 
     await clickHydrated(page.getByRole("button", { name: englishMessages.Common.actions.refresh, exact: true }));
-    await expect(page).toHaveURL(/\/en\/dashboard$/);
+    await expect(page).toHaveURL(appUrlPattern(inviter.slug, "/dashboard$"));
     await expectCurrentWorkspace(page, "Hoffmann Consulting");
     const menu = await openWorkspaceSwitcher(page);
     await expect(switcherWorkspaces(menu)).toHaveText([/Browser workspace/, /Hoffmann Consulting/]);
     await menu.locator(`[data-workspace-id="${workspace.companyId}"]`).click();
-    await expect.poll(async () => (await activeWorkspaceOf(database, workspace)).session).toBe(workspace.companyId);
+    await expect.poll(async () => (await activeWorkspaceOf(database, workspace)).lastUsed).toBe(workspace.companyId);
     await expectCurrentWorkspace(page, "Browser workspace");
   } finally {
     await removeBrowserWorkspace(database, inviter);
@@ -164,12 +162,9 @@ test("an invitation to a workspace the login already belongs to opens that works
   ).toBeVisible();
   await clickHydrated(page.getByRole("button", { name: "Open workspace", exact: true }));
 
-  await expect(page).toHaveURL(/\/en\/dashboard$/);
+  await expect(page).toHaveURL(appUrlPattern(second.slug, "/dashboard$"));
   await expectCurrentWorkspace(page, "Bergmann Steuern");
-  expect(await activeWorkspaceOf(database, workspace)).toEqual({
-    session: second.companyId,
-    lastUsed: second.companyId,
-  });
+  expect(await activeWorkspaceOf(database, workspace)).toEqual({ lastUsed: second.companyId });
   const memberships = await database.query<{ count: number }>(
     'SELECT COUNT(*)::integer AS count FROM "User" WHERE "companyId"=$1',
     [second.companyId],

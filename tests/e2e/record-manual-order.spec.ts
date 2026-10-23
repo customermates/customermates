@@ -8,6 +8,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
+import { companyPath } from "./app-paths";
 
 async function mutate(page: Page, mutation: unknown) {
   const model = RecordModelSchema.parse(await postOk(page, "/api/v1/model/read", {}));
@@ -29,7 +30,7 @@ test("sorts a list in manual order from display options and follows placements",
   const errors = collectPageErrors(page);
   const id = (key: string) => presetId(companyId, key);
   const typeId = id("deal");
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   const deal = async (name: string) => {
     const result = await mutate(page, {
       action: "create",
@@ -88,7 +89,7 @@ test("sorts a list in manual order from display options and follows placements",
   await page.locator("#records-layout-table").click();
   await closeAppearance();
 
-  await page.goto(`/en/records/${typeId}?sort=${encodeURIComponent("system:manual:asc")}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}?sort=${encodeURIComponent("system:manual:asc")}`));
   await expect.poll(rowOrder).toEqual(["Manual third", "Manual second", "Manual first"]);
   await openAppearance();
   await expect(sortSelect).toContainText(englishMessages.Common.sort.manual);

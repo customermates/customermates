@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
+import { companyPath } from "./app-paths";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { postOk } from "./api";
 import { applyPaletteSearch, clearPaletteSearch } from "./filter-palette";
@@ -15,7 +16,7 @@ test("selects records, bulk-edits exact decimals, previews cascades, and deletes
   const typeId = presetId(companyId, "service");
   const priceId = presetId(companyId, "service.amount");
   const errors = collectPageErrors(page);
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   const dialog = page.getByRole("dialog");
   for (const [name, price] of [
     ["Selected A", "10"],
@@ -84,7 +85,7 @@ test("shows a conflict and leaves every selected record unchanged when another t
 }) => {
   test.skip(Boolean(test.info().project.use.isMobile), "Bulk selection uses the desktop table's row checkboxes; phone rows have no selection");
   const typeId = presetId(companyId, "service");
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   const dialog = page.getByRole("dialog");
   for (const name of ["Concurrent A", "Concurrent B"]) {
     await page.locator("#records-add").click();
@@ -103,7 +104,7 @@ test("shows a conflict and leaves every selected record unchanged when another t
   ).rows[0].recordId;
   const other = await context.newPage();
   await other.bringToFront();
-  await other.goto(`/en/records/${typeId}/${ref}`);
+  await other.goto(companyPath(companyId, `/records/${typeId}/${ref}`));
   const price = other.getByRole("main").getByRole("textbox", { name: "Price", exact: false });
   await expect(price).toHaveValue("10");
   await price.click();
@@ -211,7 +212,7 @@ test("retains off-view selections, keeps visible rows, clears selection and clea
     ).rows;
   const initial = await read();
   expect(initial).toHaveLength(3);
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   const selection = page.locator("[data-record-mass-actions]");
   const row = (name: string) => page.getByRole("row").filter({ has: page.getByRole("link", { name, exact: true }) });
   const selectPair = async () => {

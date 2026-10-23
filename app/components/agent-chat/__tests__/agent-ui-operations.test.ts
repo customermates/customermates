@@ -4,8 +4,8 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { AppMode } from "@/core/config/environment";
 
 import { Resource } from "@/generated/prisma";
-import { getRecordAction, getRecordNavigationAction } from "@/app/[locale]/(protected)/records/actions";
-vi.mock("@/app/[locale]/(protected)/records/actions", () => ({
+import { getRecordAction, getRecordNavigationAction } from "@/app/[locale]/(protected)/w/[workspace]/records/actions";
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/records/actions", () => ({
   getRecordAction: vi.fn(),
   getRecordNavigationAction: vi.fn(),
 }));

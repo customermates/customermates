@@ -16,7 +16,7 @@ import {
   getRecordActivityPresentationAction,
   getRecordActivitiesAction,
   getTrashedRecordActivitiesAction,
-} from "@/app/[locale]/(protected)/records/actions";
+} from "@/app/[locale]/(protected)/w/[workspace]/records/actions";
 import { activityViewFilters } from "@/ee/messaging/activities/record-activity-view";
 import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { activityEntryKey } from "./activity-entry-key";

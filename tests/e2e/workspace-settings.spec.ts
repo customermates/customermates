@@ -13,6 +13,7 @@ import {
   setActiveWorkspace,
   switcherWorkspaces,
 } from "./workspace-switching";
+import { appPath, appUrlPattern } from "./app-paths";
 
 test.skip(e2eAppMode() === "demo", "Demo mode signs every visitor in as the shared demo account");
 
@@ -23,7 +24,7 @@ test("renaming the current workspace updates the switcher and the workspaces lis
 }) => {
   const errors = collectPageErrors(page);
   await addBrowserWorkspace(database, workspace, "Bergmann Steuern");
-  await page.goto("/en/settings/general");
+  await page.goto(appPath(workspace.slug, "/settings/general"));
   const name = page.locator("#settings-general-name");
   await expect(name).toHaveValue("Browser workspace");
   await expect(page.getByText(englishMessages.Workspaces.nameDescription, { exact: true })).toBeVisible();
@@ -43,7 +44,7 @@ test("renaming the current workspace updates the switcher and the workspaces lis
     )
     .toBe("Northwind Labs");
   await expectCurrentWorkspace(page, "Northwind Labs");
-  await page.goto("/en/settings/workspaces");
+  await page.goto(appPath(workspace.slug, "/settings/workspaces"));
   await expect(page.locator(`li[data-workspace-id="${workspace.companyId}"]`)).toContainText("Northwind Labs");
   await expect(page.locator(`li[data-workspace-id="${workspace.companyId}"]`)).toContainText("Current");
   expect(errors).toEqual([]);
@@ -58,7 +59,7 @@ test("a member who cannot manage the workspace sees its name read-only and can s
   const second = await addBrowserWorkspace(database, workspace, "Bergmann Steuern");
   await giveMemberRole(database, second, "Assistant");
   await setActiveWorkspace(database, workspace, second.companyId);
-  await page.goto("/en/settings/general");
+  await page.goto(appPath(second.slug, "/settings/general"));
   const name = page.locator("#settings-general-name");
   await expect(name).toHaveValue("Bergmann Steuern");
   await expect(name).toHaveAttribute("readonly", "");
@@ -68,7 +69,7 @@ test("a member who cannot manage the workspace sees its name read-only and can s
   await clickHydrated(page.locator("#settings-general-leave"));
   const confirm = page.getByRole("alertdialog", { name: "Leave Bergmann Steuern?" });
   await confirm.getByRole("button", { name: "Leave", exact: true }).click();
-  await expect(page).toHaveURL(/\/en\/dashboard$/);
+  await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/dashboard$"));
   await expectCurrentWorkspace(page, "Browser workspace");
   expect(errors).toEqual([]);
 });
@@ -100,7 +101,7 @@ test("leaving the current workspace lands in another one and revokes the API key
     { id: keptKey, companyId: workspace.companyId },
   ]);
 
-  await page.goto("/en/settings/workspaces");
+  await page.goto(appPath(second.slug, "/settings/workspaces"));
   const rows = page.locator("li[data-workspace-id]");
   await expect(rows).toHaveCount(2);
   await expect(page.locator("#settings-workspaces-leave")).toHaveCount(1);
@@ -116,7 +117,7 @@ test("leaving the current workspace lands in another one and revokes the API key
   await expect(confirm).toContainText(englishMessages.Workspaces.leaveConfirmDescription);
   await confirm.getByRole("button", { name: "Leave", exact: true }).click();
 
-  await expect(page).toHaveURL(/\/en\/dashboard$/);
+  await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/dashboard$"));
   await expectCurrentWorkspace(page, "Browser workspace");
   const membership = await database.query<{ status: string; left: boolean }>(
     'SELECT status::text,"leftAt" IS NOT NULL AS left FROM "User" WHERE id=$1',
@@ -124,10 +125,7 @@ test("leaving the current workspace lands in another one and revokes the API key
   );
   expect(membership.rows).toEqual([{ status: "inactive", left: true }]);
   expect(await keyWorkspaces()).toEqual([{ id: keptKey, companyId: workspace.companyId }]);
-  expect(await activeWorkspaceOf(database, workspace)).toEqual({
-    session: workspace.companyId,
-    lastUsed: workspace.companyId,
-  });
+  expect(await activeWorkspaceOf(database, workspace)).toEqual({ lastUsed: workspace.companyId });
   const menu = await openWorkspaceSwitcher(page);
   await expect(switcherWorkspaces(menu)).toHaveText([/Browser workspace/]);
   expect(errors).toEqual([]);
@@ -144,7 +142,7 @@ test("the API keys page lists only the keys of the current workspace and names i
   await setActiveWorkspace(database, workspace, second.companyId);
   await mintApiKey(database, { authUserId: workspace.authUserId, companyId: second.companyId }, "Bergmann bookkeeping");
 
-  await page.goto("/en/settings/api-keys");
+  await page.goto(appPath(second.slug, "/settings/api-keys"));
   await expect(
     page.getByText("These keys only access the Bergmann Steuern workspace.", { exact: false }),
   ).toBeVisible();
@@ -153,8 +151,8 @@ test("the API keys page lists only the keys of the current workspace and names i
 
   const menu = await openWorkspaceSwitcher(page);
   await menu.locator(`[data-workspace-id="${workspace.companyId}"]`).click();
-  await expect(page).toHaveURL(/\/en\/dashboard$/);
-  await page.goto("/en/settings/api-keys");
+  await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/dashboard$"));
+  await page.goto(appPath(workspace.slug, "/settings/api-keys"));
   await expect(
     page.getByText("These keys only access the Browser workspace workspace.", { exact: false }),
   ).toBeVisible();
@@ -183,11 +181,15 @@ test("the only admin of a workspace cannot leave it, which both pages say before
 }, testInfo) => {
   const errors = collectPageErrors(page);
   await addBrowserWorkspace(database, workspace, "Bergmann Steuern");
-  await page.goto("/en/settings/general");
+  await page.goto(appPath(workspace.slug, "/settings/general"));
   await expect(page.locator("#settings-general-name")).toHaveValue("Browser workspace");
   for (const [path, id, label] of [
-    ["/en/settings/general", "#settings-general-leave", englishMessages.Workspaces.leave],
-    ["/en/settings/workspaces", "#settings-workspaces-leave", englishMessages.Workspaces.leaveShort],
+    [appPath(workspace.slug, "/settings/general"), "#settings-general-leave", englishMessages.Workspaces.leave],
+    [
+      appPath(workspace.slug, "/settings/workspaces"),
+      "#settings-workspaces-leave",
+      englishMessages.Workspaces.leaveShort,
+    ],
   ]) {
     await page.goto(path);
     const leave = page.locator(id);

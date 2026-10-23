@@ -16,6 +16,7 @@ import {
 } from "../../features/widget/widget-display-rules";
 import { expect, test, collectPageErrors } from "./fixtures";
 import { postOk } from "./api";
+import { pagePath } from "./app-paths";
 
 const TIME_ZONE = "Europe/Berlin";
 test.use({ timezoneId: TIME_ZONE });
@@ -498,7 +499,7 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
   test.setTimeout(420000);
   const errors = collectPageErrors(page);
   const dialog = page.getByRole("dialog");
-  await page.goto("/en/dashboard");
+  await page.goto(pagePath(page, "/dashboard"));
   const { id, closeDateId } = await seedPipeline(
     page,
     database,
@@ -816,7 +817,7 @@ test("starts a widget from every display type card with that type preset on the 
 }) => {
   const errors = collectPageErrors(page);
   const dialog = page.getByRole("dialog");
-  await page.goto("/en/dashboard");
+  await page.goto(pagePath(page, "/dashboard"));
   for (const displayType of WIDGET_STARTER_DISPLAY_TYPES) {
     await page.locator("#dashboard-add-widget").click();
     await expect(dialog.locator("#widget-gallery-heading")).toHaveCount(0);
