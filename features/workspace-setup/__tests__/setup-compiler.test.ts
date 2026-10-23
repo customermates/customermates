@@ -408,7 +408,7 @@ describe("workspace setup compiler", () => {
     }
   });
 
-  it("packs metrics into the first rows and charts into equal pairs below", () => {
+  it("lays out four numbers, then three charts and two wider charts below them", () => {
     const [metric, chart] = [agencyPlan.dashboard.widgets[0], agencyPlan.dashboard.widgets[2]];
     const widgets = [
       chart,
@@ -418,23 +418,41 @@ describe("workspace setup compiler", () => {
       metric,
       chart,
       metric,
-      metric,
+      chart,
       chart,
     ];
     expect(setupDashboardLayouts(widgets, [{ x: 0, y: 0, w: 12, h: 3 }])).toEqual([
-      { x: 0, y: 12, w: 6, h: 5 },
+      { x: 0, y: 5, w: 4, h: 5 },
       { x: 0, y: 3, w: 3, h: 2 },
-      { x: 0, y: 7, w: 12, h: 5 },
+      { x: 0, y: 10, w: 6, h: 5 },
       { x: 3, y: 3, w: 3, h: 2 },
       { x: 6, y: 3, w: 3, h: 2 },
-      { x: 6, y: 12, w: 6, h: 5 },
+      { x: 4, y: 5, w: 4, h: 5 },
       { x: 9, y: 3, w: 3, h: 2 },
-      { x: 0, y: 5, w: 12, h: 2 },
-      { x: 0, y: 17, w: 12, h: 5 },
+      { x: 8, y: 5, w: 4, h: 5 },
+      { x: 6, y: 10, w: 6, h: 5 },
     ]);
   });
 
-  it("creates the widgets in layout order so a lone chart is never placed below a later wide one", async () => {
+  it("fills every row when a dashboard has fewer or more widgets", () => {
+    const [metric, chart] = [agencyPlan.dashboard.widgets[0], agencyPlan.dashboard.widgets[2]];
+    expect(setupDashboardLayouts([metric, metric, chart, chart, chart, chart])).toEqual([
+      { x: 0, y: 0, w: 6, h: 2 },
+      { x: 6, y: 0, w: 6, h: 2 },
+      { x: 0, y: 2, w: 6, h: 5 },
+      { x: 6, y: 2, w: 6, h: 5 },
+      { x: 0, y: 7, w: 6, h: 5 },
+      { x: 6, y: 7, w: 6, h: 5 },
+    ]);
+    expect(setupDashboardLayouts([chart])).toEqual([{ x: 0, y: 0, w: 12, h: 5 }]);
+    const many = setupDashboardLayouts([...Array(6).fill(metric), ...Array(6).fill(chart)]);
+    expect(many.slice(0, 6).map(({ w }) => w)).toEqual([4, 4, 4, 4, 4, 4]);
+    expect(many.slice(6).map(({ w }) => w)).toEqual([4, 4, 4, 4, 4, 4]);
+    for (const [index, rect] of many.entries())
+      for (const other of many.slice(index + 1)) expect(rectsOverlap(rect, other)).toBe(false);
+  });
+
+  it("creates the widgets in layout order and gives a wide chart one of the two wider places", async () => {
     const chart = agencyPlan.dashboard.widgets[2];
     const { plan, prepared, resolver } = await build({
       ...agencyPlan,
@@ -443,7 +461,6 @@ describe("workspace setup compiler", () => {
         widgets: [
           ...agencyPlan.dashboard.widgets,
           { ...chart, key: "secondChart", title: "Second chart" },
-          { ...chart, key: "thirdChart", title: "Third chart" },
           { ...chart, key: "trend", title: "Trend", size: "wide" as const },
         ],
       },
@@ -458,7 +475,8 @@ describe("workspace setup compiler", () => {
     expect(widgets.data.map((widget) => widget.name).sort()).toEqual(
       plan.dashboard.widgets.map((widget) => widget.title).sort(),
     );
-    expect(layouts.at(-1)).toMatchObject({ x: 0, w: 12 });
+    expect(layouts.map(({ w }) => w)).toEqual([6, 6, 4, 4, 4, 6, 6]);
+    expect(widgets.data.find((widget) => widget.name === "Trend")?.layout).toEqual({ x: 0, y: 7, w: 6, h: 5 });
   });
 
   it("puts the first ranked numbers on the top row", async () => {
