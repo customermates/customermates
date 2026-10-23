@@ -70,15 +70,8 @@ export function solutionWorkspaceSlugs(): Array<{ companyId: string; slug: strin
   return SOLUTION_WORKSPACES.map(({ companyId, slug }) => ({ companyId, slug }));
 }
 
-/**
- * Gives every demo workspace its catalog slug once the `Company.slug` column exists; without the column it does
- * nothing. Not called by the seed yet: it is wired in when the workspace URL change lands.
- */
+/** Gives every demo workspace its catalog slug and returns how many workspaces it changed (none on a rerun). */
 export async function assignSolutionWorkspaceSlugs(prisma: PrismaClient): Promise<number> {
-  const columns = await prisma.$queryRaw<Array<{ count: bigint }>>`
-    SELECT count(*) AS count FROM information_schema.columns
-    WHERE table_schema = current_schema() AND table_name = 'Company' AND column_name = 'slug'`;
-  if (!columns[0] || Number(columns[0].count) === 0) return 0;
   let assigned = 0;
   for (const { companyId, slug } of solutionWorkspaceSlugs()) {
     assigned +=

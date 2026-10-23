@@ -24,6 +24,7 @@ async function main(): Promise<void> {
     const started = Date.now();
     const report = await runSyntheticSeed(context, { includeLocalOperatorAccess });
     if (report.reset.length) console.log(`Rebuilt workspaces on an older model: ${report.reset.join(", ")}`);
+    if (report.slugsAssigned) console.log(`Gave ${report.slugsAssigned} demo workspaces their catalog slug`);
     for (const workspace of report.workspaces) {
       console.log(
         `  ${workspace.slug}: ${workspace.created} created, ${workspace.updated} updated, ${workspace.deleted} deleted, ${workspace.unchanged} unchanged (${workspace.durationMs} ms)`,

@@ -49,6 +49,14 @@ function seed(fixture: Fixture) {
   );
 }
 
+async function catalogSlugs(fixture: Fixture) {
+  const companies = await fixture.prisma.company.findMany({
+    where: { id: { in: DEMO_COMPANIES } },
+    select: { id: true, slug: true },
+  });
+  return DEMO_COMPANIES.map((id) => companies.find((company) => company.id === id));
+}
+
 const BILLING_USAGE_LEDGER_TABLES = new Set(["BillingUsageInterval", "BillingUsageWorkspace"]);
 
 async function tenantTables(client: ClientBase) {
@@ -128,6 +136,9 @@ suite("synthetic seed on an existing synthetic workspace", { timeout: 900000 }, 
     );
     for (const demo of DEMO_COMPANIES)
       expect(await fresh.prisma.crmRecord.count({ where: { companyId: demo } }), demo).toBeGreaterThan(30);
+    expect(await catalogSlugs(fresh)).toEqual(
+      SOLUTION_WORKSPACES.map(({ companyId, slug }) => ({ id: companyId, slug })),
+    );
     for (const key of TEAM_TYPES) {
       expect(freshState.records.filter((record) => record.typeId === presetId(companyId, key)).length).toBeGreaterThan(
         0,
@@ -137,7 +148,9 @@ suite("synthetic seed on an existing synthetic workspace", { timeout: 900000 }, 
 
   it("leaves the workspace unchanged when the seed runs again", async () => {
     const before = await workspaceContent(fresh);
-    await seed(fresh);
+    const slugs = await catalogSlugs(fresh);
+    expect((await seed(fresh)).slugsAssigned).toBe(0);
+    expect(await catalogSlugs(fresh)).toEqual(slugs);
     expect(await workspaceState(fresh, companyId)).toEqual(freshState);
     expect(await workspaceContent(fresh)).toEqual(before);
   });

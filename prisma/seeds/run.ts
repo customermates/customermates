@@ -12,6 +12,7 @@ import { seedIdentity } from "./identity";
 import { initializeOperatorFixtureModels } from "./records";
 import { seedRoutines } from "./routines";
 import {
+  assignSolutionWorkspaceSlugs,
   resetOutdatedSolutionWorkspaces,
   seedSolutionWorkspaces,
   solutionWorkspacePlans,
@@ -19,7 +20,7 @@ import {
 import { seedTrash } from "./trash";
 import { seedWebhooks } from "./webhooks";
 
-export type SyntheticSeedReport = { reset: string[]; workspaces: SolutionSeedCounts[] };
+export type SyntheticSeedReport = { reset: string[]; slugsAssigned: number; workspaces: SolutionSeedCounts[] };
 
 /**
  * Seeds the demo: one workspace per solution and data locale for Max Bergmann, plus the team fixtures of the
@@ -40,6 +41,7 @@ export async function runSyntheticSeed(
   await initializeOperatorFixtureModels(context);
 
   const workspaces = await seedSolutionWorkspaces(context, plans);
+  const slugsAssigned = await assignSolutionWorkspaceSlugs(context.prisma);
 
   await seedWebhooks(context);
   await seedTrash(context);
@@ -49,5 +51,5 @@ export async function runSyntheticSeed(
   await context.prisma
     .$executeRaw`SELECT setval(pg_get_serial_sequence('"AgentMessage"', 'sequence'), (SELECT COALESCE(MAX(sequence), 1) FROM "AgentMessage"))`;
 
-  return { reset, workspaces };
+  return { reset, slugsAssigned, workspaces };
 }
