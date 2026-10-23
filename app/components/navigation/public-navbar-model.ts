@@ -8,10 +8,13 @@ import {
   Boxes,
   Cable,
   CheckCircle2,
+  FileText,
   GitCompareArrows,
   Github,
   Inbox,
+  SquareKanban,
   LayoutGrid,
+  Newspaper,
   Plug,
   Server,
   TrendingUp,
@@ -103,7 +106,7 @@ export function resolvePublicNavGroups(t: ReturnType<typeof useTranslations>, lo
           title: t("NavigationBar.public.contactManagement"),
         },
         {
-          icon: TrendingUp,
+          icon: SquareKanban,
           href: "/features/pipeline",
           title: t("NavigationBar.public.pipeline"),
         },
@@ -152,7 +155,7 @@ export function resolvePublicNavGroups(t: ReturnType<typeof useTranslations>, lo
     },
     {
       activeHref: "/features/integrations",
-      columns: 2,
+      columns: 3,
       icon: Plug,
       id: "integrations",
       links: [
@@ -250,12 +253,12 @@ export function resolvePublicNavGroups(t: ReturnType<typeof useTranslations>, lo
       id: "resources",
       links: [
         {
-          icon: BookOpen,
+          icon: FileText,
           href: "/docs",
           title: t("NavigationBar.docs"),
         },
         {
-          icon: BookOpen,
+          icon: Newspaper,
           href: "/blog",
           title: t("NavigationBar.public.blog"),
         },

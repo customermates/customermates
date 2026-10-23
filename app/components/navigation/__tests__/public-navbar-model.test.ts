@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
 
-import { resolvePublicNavbarActions } from "../public-navbar-model";
+import type { PublicNavLink } from "../public-navbar-menu";
+import type { useTranslations } from "next-intl";
+
+import { resolvePublicNavbarActions, resolvePublicNavGroups } from "../public-navbar-model";
+
+const translate = ((key: string) => key) as unknown as ReturnType<typeof useTranslations>;
+
+function visualOf(link: PublicNavLink): unknown {
+  return link.icon ?? `${link.mark?.kind}:${link.mark?.provider}`;
+}
 
 describe("resolvePublicNavbarActions", () => {
   it.each([
@@ -139,5 +148,34 @@ describe("resolvePublicNavbarActions", () => {
       showContact: true,
       signOut: "default",
     });
+  });
+});
+
+describe("resolvePublicNavGroups", () => {
+  const groups = resolvePublicNavGroups(translate, "en");
+
+  it("gives every destination of a menu its own icon", () => {
+    for (const group of groups) {
+      const visuals = group.links.map(visualOf);
+      expect(new Set(visuals).size, group.id).toBe(visuals.length);
+    }
+  });
+
+  it("previews each solution with a summary and its example workspace, and ends both columns with a footer link", () => {
+    const solutions = groups.find((group) => group.id === "solutions");
+    if (!solutions) throw new Error("solutions menu missing");
+
+    const previewed = solutions.links.filter((link) => link.preview);
+    expect(previewed.length).toBeGreaterThan(0);
+    for (const link of previewed) {
+      expect(link.preview?.description).toMatch(/^NavigationBar\.public\.solutionSummaries\./u);
+      expect(link.preview?.exampleHref).toMatch(/^https:\/\/demo\.customermates\.com\/en\/w\/[^/]+\/dashboard$/u);
+      expect(link.preview?.exampleLabel).toBe("NavigationBar.public.openExampleWorkspace");
+    }
+
+    expect(solutions.links.filter((link) => link.footer).map((link) => [link.section, link.href])).toEqual([
+      ["team", "/for/professional-services"],
+      ["workflow", "/for"],
+    ]);
   });
 });

@@ -76,8 +76,11 @@ const groups: PublicNavGroup[] = [
 ];
 
 const preview = (name: string) => ({
-  dark: { height: 450, src: `/captures/solutions/dark/${name}-en-nav.webp`, width: 720 },
-  light: { height: 450, src: `/captures/solutions/light/${name}-en-nav.webp`, width: 720 },
+  dark: { height: 600, src: `/captures/solutions/dark/${name}-en-nav.webp`, width: 960 },
+  description: `${name} summary`,
+  exampleHref: `https://demo.customermates.com/en/w/${name}/dashboard`,
+  exampleLabel: "Open this example workspace",
+  light: { height: 600, src: `/captures/solutions/light/${name}-en-nav.webp`, width: 960 },
 });
 
 const sectionedGroups: PublicNavGroup[] = [
@@ -96,9 +99,19 @@ const sectionedGroups: PublicNavGroup[] = [
         section: "workflow",
         title: "Sales pipeline",
       },
-      { href: "/for", icon: UsersRound, section: "more", title: "All solutions" },
+      {
+        footer: true,
+        href: "/for/professional-services",
+        icon: Boxes,
+        section: "team",
+        title: "Professional services",
+      },
+      { footer: true, href: "/for", icon: UsersRound, section: "workflow", title: "All solutions" },
     ],
-    sections: [{ id: "team", title: "By team" }, { id: "workflow", title: "By workflow" }, { id: "more" }],
+    sections: [
+      { id: "team", title: "By team" },
+      { id: "workflow", title: "By workflow" },
+    ],
     title: "Solutions",
   },
 ];
@@ -179,6 +192,9 @@ describe("PublicNavbarMenu", () => {
 
     expect(icon.getAttribute("aria-hidden")).toBe("true");
     expect(icon.classList.contains("text-primary")).toBe(false);
+    expect(icon.classList.contains("text-muted-foreground")).toBe(true);
+    expect(icon.querySelector("svg")?.getAttribute("stroke-width")).toBe("1.75");
+    expect(link.classList.contains("h-[30px]")).toBe(true);
     expect(icon.querySelector("svg")).not.toBeNull();
     expect(link.querySelector("[data-public-nav-mark]")).toBeNull();
     expect(link.textContent).toContain("Self-hosted");
@@ -684,10 +700,22 @@ describe("PublicNavbarMenu", () => {
 
     const panel = () => container?.querySelector<HTMLElement>("[data-public-nav-preview]");
     const images = () => [...(panel()?.querySelectorAll("img") ?? [])].map((image) => image.getAttribute("src"));
-    expect(panel()?.getAttribute("aria-hidden")).toBe("true");
+    expect(panel()?.querySelector("img")?.parentElement?.getAttribute("aria-hidden")).toBe("true");
     expect(panel()?.className).toContain("xl:flex");
     expect(images()).toEqual(["/captures/solutions/light/smb-en-nav.webp", "/captures/solutions/dark/smb-en-nav.webp"]);
     expect(container?.querySelectorAll("[data-public-nav-preview]")).toHaveLength(1);
+    expect(panel()?.textContent).toContain("smb summary");
+    const example = panel()?.querySelector<HTMLAnchorElement>("[data-public-nav-example]");
+    expect(example?.getAttribute("href")).toBe("https://demo.customermates.com/en/w/smb/dashboard");
+    expect(example?.textContent).toBe("Open this example workspace");
+
+    const footer = container?.querySelector<HTMLElement>("[data-public-nav-footer]");
+    expect(
+      [...(footer?.querySelectorAll<HTMLAnchorElement>("a[href]") ?? [])].map((link) => link.getAttribute("href")),
+    ).toEqual(["/for/professional-services", "/for"]);
+    expect(
+      container?.querySelector('[data-public-nav-section="team"] a[href="/for/professional-services"]'),
+    ).toBeNull();
 
     const agencies = container?.querySelector<HTMLAnchorElement>('a[href="/for/agencies"]');
     act(() => {
@@ -697,6 +725,7 @@ describe("PublicNavbarMenu", () => {
 
     act(() => container?.querySelector<HTMLAnchorElement>('a[href="/features/pipeline"]')?.focus());
     expect(images()[0]).toBe("/captures/solutions/light/sales-pipeline-en-nav.webp");
+    expect(panel()?.textContent).toContain("Sales pipeline");
 
     act(() => container?.querySelector<HTMLAnchorElement>('a[href="/for"]')?.focus());
     expect(panel()?.getAttribute("data-public-nav-preview")).toBe("/features/pipeline");
