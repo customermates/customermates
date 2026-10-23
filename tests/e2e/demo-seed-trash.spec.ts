@@ -26,11 +26,11 @@ const ARCHIVED_FIELD = DEMO_CONTENT.fields.find(({ archived }) => archived);
 if (!DUPLICATE_OF || !ARCHIVED_FIELD) throw new Error("The team workspace lost its Trash fixtures");
 
 const SEEDED = [
-  { label: `${DUPLICATE_OF} (duplicate)`, kind: "Record in Organizations", by: "Sofia Rossi" },
+  { label: `${DUPLICATE_OF} (duplicate)`, kind: "Record in Companies", by: "Sofia Rossi" },
   { label: "Badge Scan", kind: "Record in Contacts", by: "Clara Neumann" },
   { label: "Call back about the cancelled site visit", kind: "Record in Tasks", by: "Marco Silva" },
   { label: "Q1 pipeline (old)", kind: "View in Deals", by: "Max Bergmann" },
-  { label: ARCHIVED_FIELD.label, kind: "Field in Organizations", by: "Max Bergmann" },
+  { label: ARCHIVED_FIELD.label, kind: "Field in Companies", by: "Max Bergmann" },
 ];
 
 async function restore(page: Page, label: string) {
@@ -136,16 +136,18 @@ test("the seeded Trash lists records, a view and a field that restore and move b
          WHERE "companyId"=$1 AND kind::text=$2 AND "targetId"=$3`,
         [DEMO_COMPANY_ID, item.kind, item.targetId, item.deletedById, item.deletedAt, item.expiresAt],
       );
-      if (item.kind === "record")
+      if (item.kind === "record") {
         await database.query(
           `UPDATE "CrmRecord" SET "deletedAt"=$3 WHERE "companyId"=$1 AND id=$2 AND "deletedAt" IS NOT NULL`,
           [DEMO_COMPANY_ID, item.targetId, item.deletedAt],
         );
-      if (item.kind === "view")
+      }
+      if (item.kind === "view") {
         await database.query(
           `UPDATE "DataView" SET "deletedAt"=$3 WHERE "companyId"=$1 AND id=$2 AND "deletedAt" IS NOT NULL`,
           [DEMO_COMPANY_ID, item.targetId, item.deletedAt],
         );
+      }
     }
   }
   await openTrash(page);

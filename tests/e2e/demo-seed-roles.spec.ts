@@ -36,10 +36,11 @@ async function firstRecord(database: Client, typeKey: string, assignee?: DemoMem
 async function expectSidebarLists(page: Page, visible: string[]) {
   await openSidebar(page);
   const items = page.locator("[data-sidebar-item]");
-  for (const list of LISTS)
+  for (const list of LISTS) {
     await expect(items.filter({ has: page.getByText(list, { exact: true }) }), list).toHaveCount(
       visible.includes(list) ? 1 : 0,
     );
+  }
   await expect(items.filter({ has: page.getByText("Configure", { exact: true }) })).toHaveCount(0);
 }
 
@@ -80,7 +81,7 @@ test("the sales lead manages every deal and reads the price list", async ({ brow
   const member = await memberPage(browser, database, "sofiaRossi", testInfo);
   try {
     await member.page.goto(appPath(DEMO_SLUG, "/dashboard"));
-    await expectSidebarLists(member.page, ["Contacts", "Organizations", "Deals", "Services", "Tasks"]);
+    await expectSidebarLists(member.page, ["Companies", "Contacts", "Deals", "Services", "Tasks"]);
     await expectEditable(member.page, "deal", await firstRecord(database, "deal", "claraNeumann"));
     await expectEditable(member.page, "organization", await firstRecord(database, "organization"));
     await expectReadOnly(member.page, "service", await firstRecord(database, "service"));
@@ -106,7 +107,7 @@ test("an account executive works only their own deals on shared accounts and rea
   const member = await memberPage(browser, database, "claraNeumann", testInfo);
   try {
     await member.page.goto(appPath(DEMO_SLUG, "/dashboard"));
-    await expectSidebarLists(member.page, ["Contacts", "Organizations", "Deals", "Services", "Tasks"]);
+    await expectSidebarLists(member.page, ["Companies", "Contacts", "Deals", "Services", "Tasks"]);
     await member.page.goto(appPath(DEMO_SLUG, `/records/${demoId("deal")}`));
     const rowsShown = member.page.locator("[data-row-id], [data-item-id]");
     await expect(rowsShown.first()).toBeVisible();
@@ -138,7 +139,7 @@ test("customer success manages customers, contacts and tasks and reads deals and
   const member = await memberPage(browser, database, "elenaHoffmann", testInfo);
   try {
     await member.page.goto(appPath(DEMO_SLUG, "/dashboard"));
-    await expectSidebarLists(member.page, ["Contacts", "Organizations", "Deals", "Services", "Tasks"]);
+    await expectSidebarLists(member.page, ["Companies", "Contacts", "Deals", "Services", "Tasks"]);
     await expectEditable(member.page, "organization", await firstRecord(database, "organization"));
     await expectEditable(member.page, "contact", await firstRecord(database, "contact"));
     await expectEditable(member.page, "task", await firstRecord(database, "task"));
@@ -158,7 +159,7 @@ test("support contributes tasks and reads the customers behind them, without dea
   const member = await memberPage(browser, database, "kianRahimi", testInfo);
   try {
     await member.page.goto(appPath(DEMO_SLUG, "/dashboard"));
-    await expectSidebarLists(member.page, ["Contacts", "Organizations", "Tasks"]);
+    await expectSidebarLists(member.page, ["Companies", "Contacts", "Tasks"]);
     await expectEditable(member.page, "task", await firstRecord(database, "task", "kianRahimi"));
     await expectReadOnly(member.page, "organization", await firstRecord(database, "organization"));
     await expectReadOnly(member.page, "contact", await firstRecord(database, "contact"));

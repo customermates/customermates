@@ -13,23 +13,7 @@ const HEALTHY_URL = "https://accounting-bridge.harborlane-it.example/hooks/crm";
 const HEALTHY_DESCRIPTION = "Send deal and organization changes to the accounting bridge";
 const PAUSED_URL = "https://dispatch.harborlane-it.example/hooks/tasks";
 const PAUSED_DESCRIPTION = "Task changes for the dispatch board (paused while the receiver is down)";
-const ROUTINES = [
-  "Check deal line items",
-  "Check in with quiet customers",
-  "Check service pricing and deal totals",
-  "Draft replies to new emails",
-  "Enrich new contacts",
-  "Find duplicate CRM records",
-  "Flag messages from unknown contacts",
-  "Follow up on stale deals",
-  "Kickoff task when a deal is won",
-  "Log deal stage changes",
-  "Research new LinkedIn connections",
-  "Task for overdue next steps",
-  "Weekly pipeline summary",
-  "Weekly sales report",
-  "Weekly workspace health check",
-];
+const ROUTINES = ["Draft replies to new emails", "Follow up on stale deals", "Morning pipeline briefing"];
 const THREADS = DEMO_CONTENT.messaging?.threads ?? [];
 
 test("webhooks show the healthy accounting bridge with successful deliveries and the paused dispatch hook with failures", async ({

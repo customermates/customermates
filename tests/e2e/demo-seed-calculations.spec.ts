@@ -36,13 +36,14 @@ async function load(database: Client, typeKey: string, fieldKeys: string[], comp
   const records = new Map<string, Row>();
   for (const row of rows) {
     const record = records.get(row.recordId) ?? {};
-    if (row.fieldId)
+    if (row.fieldId) {
       record[fieldKeys[ids.indexOf(row.fieldId)]] = {
         decimal: row.decimal === null ? null : Number(row.decimal),
         text: row.text,
         instant: row.instant,
         bool: row.bool,
       };
+    }
     records.set(row.recordId, record);
   }
   return records;
@@ -123,11 +124,12 @@ test("a line item's amount is its quantity times the price of its service", asyn
   for (const [id, row] of lineItems) {
     const price = amount(services.get(serviceOf.get(id) ?? ""), "service.amount");
     expect(price, `service price of line item ${id}`).not.toBeNull();
-    if (row["lineItem.pricingMode"]?.text !== "saved")
+    if (row["lineItem.pricingMode"]?.text !== "saved") {
       expect(amount(row, "lineItem.effectivePrice"), `unit price of line item ${id}`).toBeCloseTo(
         price ?? Number.NaN,
         2,
       );
+    }
     expect(amount(row, "lineItem.amount"), `amount of line item ${id}`).toBeCloseTo(
       (amount(row, "lineItem.quantity") ?? 0) * (amount(row, "lineItem.effectivePrice") ?? 0),
       2,
@@ -145,10 +147,11 @@ test("a line item's amount is its quantity times the price of its service", asyn
     .locator(`[data-row-id="${lineId}"], [data-item-id="${lineId}"]`);
   await expect(row).toBeVisible();
   // Phones show the sub-list as rows without the amount column; the shown amount is a desktop check.
-  if (!testInfo.project.use.isMobile)
+  if (!testInfo.project.use.isMobile) {
     await expect
       .poll(async () => numbers(await row.innerText()).some((number) => Math.abs(number - expected) < 0.01))
       .toBe(true);
+  }
   expect(errors).toEqual([]);
 });
 
@@ -168,11 +171,12 @@ test("weighted value is the deal value times the probability of its stage", asyn
 test("without a Services list a deal keeps its entered value, and its weighted value follows the stage", async ({
   database,
 }) => {
-  const solution = SOLUTION_CATALOG.find(({ id }) => id === "sales-pipeline");
-  if (!solution) throw new Error("The catalog has no sales pipeline solution");
+  const solution = SOLUTION_CATALOG.find(({ id }) => id === "whatsapp-crm");
+  if (!solution) throw new Error("The catalog has no WhatsApp solution");
   const companyId = solution.companyIds.en;
   const content = solutionContent(SOLUTION_DEFINITIONS[solution.id], "en");
   expect(content.lists.map(({ key }) => key)).not.toContain("service");
+  expect(content.dealValue).toBeUndefined();
   const probabilities = new Map(
     content.stages.map((stage) => [presetId(companyId, `deal.stage.${stage.key}`), stage.probability ?? 0]),
   );
@@ -185,6 +189,27 @@ test("without a Services list a deal keeps its entered value, and its weighted v
     const probability = probabilities.get(row["deal.stage"]?.text ?? "") ?? Number.NaN;
     expect(amount(row, "deal.weightedValue") ?? 0, `weighted value of deal ${id}`).toBeCloseTo(
       ((amount(row, "deal.totalValue") ?? 0) * probability) / 100,
+      2,
+    );
+  }
+});
+
+test("a consultants engagement calculates its fee from day rate and days", async ({ database }) => {
+  const solution = SOLUTION_CATALOG.find(({ id }) => id === "consultants");
+  if (!solution) throw new Error("The catalog has no consultants solution");
+  const companyId = solution.companyIds.en;
+  const content = solutionContent(SOLUTION_DEFINITIONS[solution.id], "en");
+  expect(content.dealValue).toEqual({ kind: "product", left: "deal.dayRate", right: "deal.daysEstimated" });
+  const deals = await load(
+    database,
+    "deal",
+    ["deal.dayRate", "deal.daysEstimated", "deal.totalValue", "deal.weightedValue"],
+    companyId,
+  );
+  expect(deals.size).toBe(content.records.deal?.length);
+  for (const [id, row] of deals) {
+    expect(amount(row, "deal.totalValue") ?? 0, `fee of engagement ${id}`).toBeCloseTo(
+      (amount(row, "deal.dayRate") ?? 0) * (amount(row, "deal.daysEstimated") ?? 0),
       2,
     );
   }
