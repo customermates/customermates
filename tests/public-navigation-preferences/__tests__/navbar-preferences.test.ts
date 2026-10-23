@@ -7,17 +7,21 @@ import {
   Boxes,
   BriefcaseBusiness,
   Cable,
-  CheckCircle2,
+  CircleCheck,
+  Compass,
+  FileText,
   GitCompareArrows,
   Github,
   Laptop,
   Inbox,
   LayoutGrid,
   Megaphone,
+  Newspaper,
   Plug,
   Presentation,
   Rocket,
   Server,
+  SquareKanban,
   Store,
   TrendingUp,
   Users,
@@ -131,7 +135,7 @@ describe("public navigation preferences", () => {
     expect(groupShape).toEqual([
       ["product", "/features", 3, Boxes, "NavigationBar.public.product"],
       ["solutions", "/for", 2, UsersRound, "NavigationBar.public.solutions"],
-      ["integrations", "/features/integrations", 2, Plug, "NavigationBar.public.integrations"],
+      ["integrations", "/features/integrations", 3, Plug, "NavigationBar.public.integrations"],
       ["resources", "/blog", 2, BookOpen, "NavigationBar.public.resources"],
     ]);
 
@@ -154,7 +158,7 @@ describe("public navigation preferences", () => {
       );
       for (const link of group.links) {
         expect(
-          ["activeMatch", "href", "icon", "mark", "preview", "section", "title"],
+          ["activeMatch", "footer", "href", "icon", "mark", "preview", "section", "title"],
           `${link.href} carries a field the flat map does not render`,
         ).toEqual(expect.arrayContaining(Object.keys(link)));
       }
@@ -167,9 +171,9 @@ describe("public navigation preferences", () => {
     expect(iconLinks("product")).toEqual([
       ["/features/unified-inbox", Inbox],
       ["/features/contact-management", Users],
-      ["/features/pipeline", TrendingUp],
+      ["/features/pipeline", SquareKanban],
       ["/features/sales", TrendingUp],
-      ["/features/task-management", CheckCircle2],
+      ["/features/task-management", CircleCheck],
       ["/features/cloud-crm", LayoutGrid],
       ["/features/self-hosted", Server],
       ["/docs/mcp", Cable],
@@ -177,8 +181,8 @@ describe("public navigation preferences", () => {
     ]);
     expect(publicNavGroup("solutions").links.map((link) => [link.href, link.section])).toEqual([
       ...SOLUTION_CATALOG.map((solution) => [solution.landingPath, solution.group]),
-      ["/for/professional-services", "more"],
-      ["/for", "more"],
+      ["/for/professional-services", "team"],
+      ["/for", "workflow"],
     ]);
     expect(iconLinks("solutions").slice(0, 5)).toEqual([
       ["/for/smb", Store],
@@ -189,7 +193,7 @@ describe("public navigation preferences", () => {
     ]);
     expect(iconLinks("solutions").slice(-2)).toEqual([
       ["/for/professional-services", BriefcaseBusiness],
-      ["/for", UsersRound],
+      ["/for", Compass],
     ]);
     expect(publicNavGroup("solutions").links.filter((link) => link.preview)).toHaveLength(SOLUTION_CATALOG.length);
     expect(hrefs).not.toContain("/for/recruiting");
@@ -207,8 +211,8 @@ describe("public navigation preferences", () => {
       ]);
     }
     expect(iconLinks("resources")).toEqual([
-      ["/docs", BookOpen],
-      ["/blog", BookOpen],
+      ["/docs", FileText],
+      ["/blog", Newspaper],
       ["/compare", GitCompareArrows],
       ["/blog/agentic-crm", Bot],
       ["/blog/open-source-crm", Github],
@@ -264,9 +268,10 @@ describe("public navigation preferences", () => {
     expect(navbar).not.toContain("group.sections");
     expect(navbar).not.toContain("group.description");
 
-    expect(menu).toContain("group.links.map");
-    expect(menu).toContain('group.columns === 3 ? "grid-cols-3" : "grid-cols-2"');
-    expect(menu).toContain("group.sections ? renderSectionedPanel(group, expanded) : renderGridPanel(group, expanded)");
+    expect(menu).toContain("links.map((link) =>");
+    expect(menu).toContain('group.columns === 3 ? "grid-cols-3 gap-x-1" : "grid-cols-2 gap-x-1"');
+    expect(menu).toContain("? renderSectionedPanel(group, group.sections, expanded)");
+    expect(menu).toContain(": renderGridPanel(group, expanded)");
     expect(publicNavGroups.filter((group) => group.sections).map((group) => group.id)).toEqual(["solutions"]);
     expect(menu).not.toContain("group.description");
     expect(menu).not.toContain("<section");
@@ -282,9 +287,9 @@ describe("public navigation preferences", () => {
     expect(menu).toContain('<span className="min-w-0 truncate">{link.title}</span>');
     expect(menu).not.toContain("group.featured");
     expect(menu).toContain('"floating-panel overflow-hidden rounded-2xl p-1.5"');
-    expect(menu).toContain('"grid gap-0.5"');
-    expect(menu).toContain('"flex h-full min-h-11 items-center gap-2.5 rounded-xl');
-    expect(menu).toContain('linkActive && "bg-foreground/[0.07]"');
+    expect(menu).toContain('"grid gap-px"');
+    expect(menu).toContain('"group/link flex gap-2 rounded-md px-2');
+    expect(menu).toContain('linkActive ? "bg-foreground/[0.05] text-foreground" : "text-subdued"');
     expect(menu).not.toContain("mark-glow");
     expect(menu).toContain('href="/docs"');
 
