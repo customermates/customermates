@@ -10,8 +10,10 @@ import { ViewMode } from "@/core/base/base-query-builder";
 import { addCalendarDays } from "@/features/record-calendar/calendar-date";
 import { zonedDate } from "@/features/record-calendar/zoned-time";
 import { calendarEditChanges } from "@/features/record-calendar/calendar-entries";
+import { recordContributionFilter } from "@/features/records/record-contribution-link";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
+import { calendarWidgetDayMeasure } from "../record-calendar-widget-window";
 
 vi.mock("@/env", () => ({
   env: {
@@ -340,6 +342,25 @@ describeDatabase("calendar and map widgets on PostgreSQL", () => {
     expect(berlin.data.data.items.map(({ date: day }) => day)).toEqual(["2026-03-29", "2026-03-29"]);
     const utc = await month("UTC");
     expect(utc.ok && utc.data.data.days.map(({ date: day }) => day)).toEqual(["2026-03-28", "2026-03-29"]);
+
+    const dayRecords = async (day: string, timeZone: string) => {
+      const query = f.calendarQuery({ dateFieldId: f.fields.meetingAt.id, layout: "month", timeZone });
+      const filter = recordContributionFilter({
+        measure: calendarWidgetDayMeasure(query, f.fields.meetingAt, day),
+        group: null,
+        title: "Meetings",
+        groupLabel: day,
+      });
+      const listed = await f.run(() => f.presentation.invoke({ typeId: f.deal, params: { filters: [filter] } }));
+      if (!listed.ok) throw new Error(JSON.stringify(listed));
+      return listed.data.result.items
+        .map(({ fields }) => fields.find(({ fieldId }) => fieldId === f.fields.name)?.result)
+        .map((result) => (result?.state === "value" && result.value.kind === "text" ? result.value.value : null))
+        .sort();
+    };
+    expect(await dayRecords("2026-03-29", ZONE)).toEqual(["Late on the 28th in UTC", "Morning of the 29th"]);
+    expect(await dayRecords("2026-03-28", "UTC")).toEqual(["Late on the 28th in UTC"]);
+    expect(await dayRecords("2026-03-28", ZONE)).toEqual([]);
   });
 
   it("shows a member only the records and widgets their access allows", async () => {

@@ -3,6 +3,7 @@
 import type { RecordContributionGroup } from "@/features/records/record-contribution.schema";
 import type { CalendarWidgetWindow } from "@/features/widget/record-calendar-widget.schema";
 import type { WidgetDto } from "@/features/widget/widget.schema";
+import type { CalendarDaySelect } from "./calendar-widget-month";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
@@ -31,6 +32,7 @@ import { WIDGET_INTERACTIVE_ATTRIBUTE, openWidgetEditor } from "./widget-interac
 type Props = {
   widget: WidgetDto;
   onInspect?: (group: RecordContributionGroup | null, label: string | null) => void;
+  onInspectDay?: CalendarDaySelect;
 };
 
 async function readCalendarWindow(id: string, window: CalendarWidgetWindow) {
@@ -41,7 +43,7 @@ async function readCalendarWindow(id: string, window: CalendarWidgetWindow) {
   return { data: result.data.data, fields: result.data.fields };
 }
 
-export const WidgetCard = observer(({ widget, onInspect }: Props) => {
+export const WidgetCard = observer(({ widget, onInspect, onInspectDay }: Props) => {
   const t = useTranslations();
   const { widgetModalStore, recordWorkspaceStore } = useRootStore();
   const listLabels = (typeId: string) => recordWorkspaceStore.navigation?.types.find((type) => type.id === typeId);
@@ -59,6 +61,7 @@ export const WidgetCard = observer(({ widget, onInspect }: Props) => {
       recordHref={recordPageHref}
       status={widget.status}
       onOpenFilters={() => runUserAction(() => widgetModalStore.openWithFilter(widget.id, "filters"))}
+      onSelectDay={onInspectDay}
     />
   ) : isRecordMapWidget(widget) ? (
     <RecordMapWidgetCard

@@ -40,23 +40,6 @@ vi.mock("@/components/records/record-value", async (importOriginal) => ({
   RecordValue: ({ result }: { result: { state: string; value?: { value: string } } }) =>
     createElement("span", { "data-amount": "" }, result.state === "value" ? result.value?.value : "-"),
 }));
-vi.mock("@/components/ui/popover", () => ({
-  Popover: ({
-    children,
-    open,
-    onOpenChange,
-  }: {
-    children: ReactNode;
-    open?: boolean;
-    onOpenChange?: (open: boolean) => void;
-  }) =>
-    createElement("div", { "data-open": open ? "" : undefined, onClickCapture: () => onOpenChange?.(!open) }, children),
-  PopoverTrigger: ({ children }: { children: ReactNode }) => children,
-  PopoverContent: ({ children }: { children: ReactNode }) => createElement("div", { "data-popover": "" }, children),
-  PopoverHeader: ({ children }: { children: ReactNode }) => children,
-  PopoverTitle: ({ children }: { children: ReactNode }) => children,
-  PopoverDescription: ({ children }: { children: ReactNode }) => children,
-}));
 vi.mock("next/dynamic", () => ({
   default: () => (props: Record<string, unknown>) => {
     spy.mapProps = props;
@@ -219,7 +202,7 @@ describe("month overview widget", () => {
     total: { count: 2, result: decimal("500") },
   });
 
-  it("colours the days by their sum, opens a day's records and loads the next month", async () => {
+  it("colours the days by their sum, hands a clicked day to the records drawer and loads the next month", async () => {
     const next = data({
       window: { from: "2026-11-01", to: "2026-11-30" },
       items: [],
@@ -229,6 +212,7 @@ describe("month overview widget", () => {
       total: { count: 0, result: decimal("0") },
     });
     const loadWindow = vi.fn().mockResolvedValue({ data: next, fields });
+    const onSelectDay = vi.fn();
     const host = render(
       createElement(RecordCalendarWidgetCard, {
         name: "Closing this month",
@@ -239,6 +223,7 @@ describe("month overview widget", () => {
         fields,
         loadWindow,
         recordHref: (ref) => `/records/${ref.typeId}/${ref.recordId}`,
+        onSelectDay,
       }),
     );
     expect(host.querySelectorAll("[data-calendar-day]")).toHaveLength(31);
@@ -249,18 +234,13 @@ describe("month overview widget", () => {
     expect(host.querySelector('[data-calendar-day="2026-10-18"]')?.getAttribute("tabindex")).toBe("0");
     expect(host.textContent).toContain("RecordCalendarWidgets.sumTotal");
 
-    await act(async () => {
-      must(host.querySelector<HTMLElement>('[data-calendar-day="2026-10-12"]')).click();
-      await Promise.resolve();
-    });
-    const records = host.querySelector('[data-calendar-day-records="2026-10-12"]');
-    const link = must(records?.querySelector("a"));
-    expect(link.getAttribute("href")).toBe("/records/deal/a");
+    const day = must(host.querySelector<HTMLButtonElement>('[data-calendar-day="2026-10-12"]'));
+    expect(day.tagName).toBe("BUTTON");
+    expect(day.getAttribute("aria-label")).toBe("RecordCalendarWidgets.dayLabelWithSum:Monday, 12 October 2026,1,€400");
+    act(() => day.click());
+    expect(onSelectDay).toHaveBeenCalledWith("2026-10-12", "Monday, 12 October 2026", day);
+    expect(host.querySelector("[data-popover]")).toBeNull();
     expect(loadWindow).not.toHaveBeenCalled();
-    spy.open.mockClear();
-    const day = host.querySelector('[data-calendar-day="2026-10-12"]');
-    act(() => link.click());
-    expect(spy.open).toHaveBeenCalledWith({ typeId: "deal", recordId: "a" }, link, day);
 
     await act(async () => {
       must(host.querySelector<HTMLElement>('[aria-label="RecordCalendarWidgets.nextMonth"]')).click();
@@ -271,6 +251,24 @@ describe("month overview widget", () => {
       "2026-11-01",
     );
     expect(host.querySelectorAll("[data-calendar-day]")).toHaveLength(30);
+  });
+
+  it("shows the days without a drill-down where no drawer is available, as in the editor preview", () => {
+    const host = render(
+      createElement(RecordCalendarWidgetCard, {
+        name: "Closing this month",
+        calendarQuery: query({ layout: "month" }),
+        displayOptions: { showFilters: false },
+        status: "ready",
+        data: month,
+        fields,
+        loadWindow: vi.fn(),
+      }),
+    );
+    const day = must(host.querySelector('[data-calendar-day="2026-10-12"]'));
+    expect(day.tagName).toBe("DIV");
+    expect(day.getAttribute("aria-label")).toBe("RecordCalendarWidgets.dayLabel:Monday, 12 October 2026,1");
+    expect(host.querySelector("[data-calendar-day] button, button[data-calendar-day]")).toBeNull();
   });
 });
 

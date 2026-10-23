@@ -10,9 +10,10 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { isRecordWidget } from "@/features/widget/widget.schema";
+import { isRecordCalendarWidget, isRecordWidget } from "@/features/widget/widget.schema";
 import { WidgetDataDrawer, type WidgetDataSelection } from "./widget-data-drawer";
 import type { RecordContributionGroup } from "@/features/records/record-contribution.schema";
+import type { CalendarDate } from "@/features/record-calendar/calendar-date";
 
 import "@/styles/react-grid-layout.css";
 
@@ -73,19 +74,32 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
   const navigation = recordWorkspaceStore.navigation;
   const needsFirstList = navigation?.canManageSchema === true && !navigation.hasLists;
   const router = useRouter();
-  const [dataSelection, setDataSelection] = useState<WidgetDataSelection | null>(null);
+  const [data, setData] = useState<{ selection: WidgetDataSelection; open: boolean; opening: number } | null>(null);
+  const openData = useCallback(
+    (selection: WidgetDataSelection) =>
+      setData((current) => ({ selection, open: true, opening: (current?.opening ?? 0) + 1 })),
+    [],
+  );
   const inspectWidget = useCallback(
     (id: string, group: RecordContributionGroup | null = null, label: string | null = null) => {
       const widget = widgetsStore.items.find((item) => item.id === id);
       if (!widget || !isRecordWidget(widget)) return runUserAction(() => openWidgetEditor(widgetModalStore, id));
-      setDataSelection({
+      openData({
+        kind: "measure",
         widget,
         group,
         label,
         opener: document.activeElement instanceof HTMLElement ? document.activeElement : null,
       });
     },
-    [widgetsStore, widgetModalStore],
+    [widgetsStore, widgetModalStore, openData],
+  );
+  const inspectCalendarDay = useCallback(
+    (id: string, date: CalendarDate, label: string, opener: HTMLElement) => {
+      const widget = widgetsStore.items.find((item) => item.id === id);
+      if (widget && isRecordCalendarWidget(widget)) openData({ kind: "calendarDay", widget, date, label, opener });
+    },
+    [widgetsStore, openData],
   );
   useEffect(() => {
     if (recordTypes) widgetModalStore.setRecordTypes(recordTypes);
@@ -292,6 +306,7 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
                 onInspect={
                   isRecordWidget(widget) ? (group, label) => inspectWidget(widget.id, group, label) : undefined
                 }
+                onInspectDay={(date, label, opener) => inspectCalendarDay(widget.id, date, label, opener)}
               />
             </div>
           ))}
@@ -306,11 +321,19 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
 
   return (
     <>
-      {dataSelection && (
+      {data && (
         <WidgetDataDrawer
-          selection={dataSelection}
-          onClose={() => setDataSelection(null)}
-          onSelect={(group, label) => setDataSelection((current) => (current ? { ...current, group, label } : null))}
+          key={data.opening}
+          open={data.open}
+          selection={data.selection}
+          onClose={() => setData((current) => current && { ...current, open: false })}
+          onSelect={(group, label) =>
+            setData((current) =>
+              current?.selection.kind === "measure"
+                ? { ...current, selection: { ...current.selection, group, label } }
+                : current,
+            )
+          }
         />
       )}
 

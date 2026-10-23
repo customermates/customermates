@@ -25,6 +25,7 @@ import {
   CALENDAR_WIDGET_OVERDUE_LIMIT,
   CALENDAR_WIDGET_WINDOW_DAYS,
 } from "./record-calendar-widget.schema";
+import { calendarWidgetWindowFilter } from "./record-calendar-widget-window";
 import { calendarWidgetQueryIssue } from "./record-widget-query-validation";
 
 type CalendarRead = { data: CalendarWidgetData; fields: RecordCalendarWidgetDto["fields"] };
@@ -75,12 +76,7 @@ export class RecordCalendarWidgetReader {
     const amountField = model.fields.find((field) => field.id === query.amountFieldId);
     const today = zonedDate(new Date(), query.timeZone);
     const range = calendarWidgetRange(query, today, window);
-    const windowFilter: RecordFilter = {
-      fieldId: dateField.id,
-      operator: "between",
-      value: null,
-      values: windowEndpoints(dateField, { ...range, timeZone: query.timeZone }),
-    };
+    const windowFilter = calendarWidgetWindowFilter(dateField, range, query.timeZone);
     const fields = [type.primaryFieldId, dateField.id, amountField?.id].filter((id): id is string => Boolean(id));
     const listQuery = (filters: RecordFilter[], pageSize: number) => ({
       ...query.source,

@@ -58,7 +58,7 @@ test("the map widget draws its basemap and pins from the app's own origin", asyn
   expect(errors).toEqual([]);
 });
 
-test("the calendar widgets list upcoming records and open a day of the month overview", async ({
+test("the calendar widgets list upcoming records and open a day of the month overview in the records drawer", async ({
   page,
   errors,
 }) => {
@@ -70,10 +70,36 @@ test("the calendar widgets list upcoming records and open a day of the month ove
   await month.scrollIntoViewIfNeeded();
   const busyDay = month.locator('[data-calendar-day]:not([data-heat="0"])').first();
   await expect(busyDay).toBeVisible();
+  const label = (await busyDay.getAttribute("aria-label")) ?? "";
   const date = await busyDay.getAttribute("data-calendar-day");
+  const [, day, count] = /^(.+): (\d+) records?/u.exec(label) ?? [];
   await busyDay.click();
-  await expect(page.locator(`[data-calendar-day-records="${date}"] a`).first()).toBeVisible();
+  // A day opens the right-hand records drawer, as a chart segment does, listing exactly that day's records.
+  const drawer = page.getByRole("dialog", { name: `Deals closing this month · ${day}` });
+  await expect(drawer).toBeVisible();
+  await expect(drawer.locator(`[data-widget-detail-day="${date}"]`)).toContainText(day);
+  await expect(drawer.locator("[data-widget-records] h3")).toHaveText(
+    `${count} contributing record${count === "1" ? "" : "s"}`,
+  );
+  await expect(drawer.locator("[data-widget-data-table] [data-row-id]")).toHaveCount(Math.min(Number(count), 10));
   await page.keyboard.press("Escape");
+  await expect(drawer).toHaveCount(0);
+  await expect(busyDay).toBeFocused();
+  // The day cells stay keyboard operable: arrow keys move between days and Enter opens the drawer.
+  await page.keyboard.press("ArrowRight");
+  const next = month.locator("[data-calendar-day]:focus");
+  await expect(next).toHaveCount(1);
+  const nextDay = /^(.+): /u.exec((await next.getAttribute("aria-label")) ?? "")?.[1];
+  const nextCell = month.locator(`[data-calendar-day="${await next.getAttribute("data-calendar-day")}"]`);
+  await page.keyboard.press("Enter");
+  const nextDrawer = page.getByRole("dialog", { name: `Deals closing this month · ${nextDay}` });
+  await expect(nextDrawer).toBeVisible();
+  // Keyboard focus shows the close button's tooltip, which takes the first Escape.
+  await expect(async () => {
+    await page.keyboard.press("Escape");
+    await expect(nextDrawer).toHaveCount(0, { timeout: 1000 });
+  }).toPass();
+  await expect(nextCell).toBeFocused();
   const shown = await month.getAttribute("data-calendar-month");
   await month.getByRole("button", { name: "Next month" }).click();
   await expect(month).not.toHaveAttribute("data-calendar-month", shown ?? "");

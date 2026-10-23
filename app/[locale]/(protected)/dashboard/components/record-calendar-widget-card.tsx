@@ -19,7 +19,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { useRecordValueFormat } from "@/components/records/record-value";
 import { cn } from "@/core/utils/cn";
 
-import { CalendarWidgetMonth } from "./calendar-widget-month";
+import { type CalendarDaySelect, CalendarWidgetMonth } from "./calendar-widget-month";
 import { CalendarWidgetUpcoming } from "./calendar-widget-upcoming";
 import { WIDGET_CARD_BODY_CLASS, WIDGET_CARD_HEADER_CLASS, WIDGET_CARD_TITLE_CLASS } from "./widget-card-frame";
 import { WidgetSourceSummary } from "./widget-source-summary";
@@ -37,6 +37,7 @@ export type RecordCalendarWidgetCardProps = {
   loadWindow: (window: CalendarWidgetWindow) => Promise<CalendarWidgetPreview>;
   recordHref?: (record: RecordRef) => string;
   onOpenFilters?: () => void;
+  onSelectDay?: CalendarDaySelect;
 };
 
 export function recordPageHref(record: RecordRef) {
@@ -54,6 +55,7 @@ export const RecordCalendarWidgetCard = observer(function RecordCalendarWidgetCa
   loadWindow,
   recordHref,
   onOpenFilters,
+  onSelectDay,
 }: RecordCalendarWidgetCardProps) {
   const t = useTranslations();
   const valueFormat = useRecordValueFormat();
@@ -120,14 +122,7 @@ export const RecordCalendarWidgetCard = observer(function RecordCalendarWidgetCa
             timeZone={calendarQuery.timeZone}
           />
         ) : (
-          <CalendarWidgetMonth
-            amountField={amountField}
-            data={data}
-            loadWindow={loadWindow}
-            query={calendarQuery}
-            recordHref={recordHref}
-            singular={listLabels?.label}
-          />
+          <CalendarWidgetMonth data={data} loadWindow={loadWindow} query={calendarQuery} onSelectDay={onSelectDay} />
         )}
       </AppCardBody>
     </AppCard>
