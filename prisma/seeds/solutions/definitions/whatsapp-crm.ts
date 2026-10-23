@@ -1,13 +1,22 @@
 import { DisplayType } from "@/features/widget/widget-display.schema";
 
-import { day, defineSolution, photo, type RecordSpec, type ThreadSpec, phoneNumber } from "../define-solution";
+import {
+  day,
+  defineSolution,
+  photo,
+  type RecordSpec,
+  type RoutineSpec,
+  type ThreadSpec,
+  phoneNumber,
+} from "../define-solution";
 
 /**
- * WhatsApp CRM: a small workshop that builds and installs counters, seating, shelving and office furniture for cafés,
- * restaurants and offices. Most customers message the owner on WhatsApp. The chats come from Max's own WhatsApp
- * account connected through the inbox; a person links each chat to the opportunity or organization it is about, and
- * one new chat is not linked yet. Opportunities carry their value directly; tasks and next-step dates are ordinary
- * fields, so nobody is reminded automatically.
+ * WhatsApp customers: a small workshop that builds and installs counters, seating, shelving and office furniture for
+ * cafés, restaurants and offices. Most customers message the owner on WhatsApp. The chats come from Max's own WhatsApp
+ * account connected through the inbox; a person links each chat to the project or customer it is about, and one new
+ * chat is not linked yet. A chat status on each contact shows who waits for an answer, projects carry their value
+ * directly and calculate the lead time from the accepted offer to the installation, and two routines prepare drafts
+ * and tasks without sending anything.
  */
 
 const ORGANIZATIONS = [
@@ -48,9 +57,9 @@ const CONTACTS = [
 type ContactKey = (typeof CONTACTS)[number];
 const DEALS = [
   "copperCounter",
-  "copperShelves",
   "marloweBenches",
   "ninebeanBar",
+  "lindenCafe",
   "riverbendBooths",
   "riverbendKitchen",
   "lanternSeating",
@@ -58,19 +67,12 @@ const DEALS = [
   "saltpineBar",
   "brightwellOffice",
   "fieldstoneLibrary",
+  "hearthShelves",
   "lindenDisplay",
-  "riverbendDesks",
   "hearthCounter",
   "oakleafReception",
   "copperBench",
-  "hearthShelves",
   "oakleafStorage",
-  "riverbendLockers",
-  "hearthStools",
-  "copperMenu",
-  "oakleafChairs",
-  "hearthBench",
-  "lindenShelf",
 ] as const;
 type DealKey = (typeof DEALS)[number];
 const TASKS = [
@@ -84,11 +86,10 @@ const TASKS = [
   "saltpineVisit",
   "brightwellLayout",
   "greylineFinish",
-  "lindenTouchUp",
-  "orderWalnut",
 ] as const;
 type TaskKey = (typeof TASKS)[number];
-type ThreadKey = "copper" | "marlowe" | "ninebean" | "riverbend" | "lantern" | "saltpine" | "brightwell" | "greyline";
+type ThreadKey = "copper" | "marlowe" | "ninebean" | "riverbend" | "linden" | "saltpine" | "brightwell" | "greyline";
+type RoutineKey = "unknownSenders" | "morningChats";
 
 const en = {
   company: "Birch & Bolt Workshop",
@@ -97,9 +98,9 @@ const en = {
   phones: { mobile: { templates: ["+1 412 555 01##"], start: 10 } },
   selfTitle: "Owner",
   lists: {
-    organization: ["Organization", "Organizations", "Cafés, restaurants and offices we build for or talk to."],
-    contact: ["Contact", "Contacts", "Owners, managers and architects we work with."],
-    deal: ["Opportunity", "Opportunities", "Jobs we are discussing, from the first message to the installation."],
+    organization: ["Customer", "Customers", "Cafés, restaurants, shops and offices we build for or talk to."],
+    contact: ["Contact", "Contacts", "Owners, managers and architects we work with, with the status of their chat."],
+    deal: ["Project", "Projects", "Jobs from the first message through the offer to the installation."],
     task: ["Task", "Tasks", "Next actions with a due date."],
   },
   fields: {
@@ -118,6 +119,8 @@ const en = {
     nextStepDate: "Next step date",
     openingDate: "Opening date",
     installationDate: "Installation date",
+    offerAccepted: "Offer accepted",
+    leadTime: "Lead time (days)",
     lostReason: "Lost reason",
     dueDate: "Due date",
     priority: "Priority",
@@ -186,12 +189,12 @@ const en = {
   } satisfies Record<ContactKey, readonly [string, string, string]>,
   deals: {
     copperCounter: ["Copper Kettle – new counter and back bar", "Drop off the walnut sample and confirm the top"],
-    copperShelves: ["Copper Kettle – retail shelving for coffee beans", "Installed"],
     marloweBenches: ["Marlowe's – terrace benches with planters", "Send the revised bench drawing with storage"],
     ninebeanBar: [
       "Nine Bean – brew bar and window seating",
       "Site visit with Jake and Priya, measure the brew bar wall",
     ],
+    lindenCafe: ["Linden Corner – café corner with window seating", "Measure the window corner with Rosa"],
     riverbendBooths: ["Riverbend – phone booth desks for the second floor", "Installation day with Victor"],
     riverbendKitchen: ["Riverbend – community kitchen counter", "Measure the kitchen during the booth installation"],
     lanternSeating: ["Lantern Street – booth seating refurbishment", "Sal confirms the two-step installation"],
@@ -202,19 +205,12 @@ const en = {
       "Send the updated offer with four standing desks",
     ],
     fieldstoneLibrary: ["Fieldstone Law – library shelving and meeting table", "Closed lost"],
+    hearthShelves: ["Hearth & Crumb – wall shelves for bread", "Closed lost"],
     lindenDisplay: ["Linden Corner – bread display and counter", "Installed"],
-    riverbendDesks: ["Riverbend – hot desks for the first floor", "Installed"],
     hearthCounter: ["Hearth & Crumb – shop counter with pastry display", "Installed"],
     oakleafReception: ["Oakleaf Dental – reception desk and waiting area", "Installed"],
     copperBench: ["Copper Kettle – window bench with cushions", "Installed"],
-    hearthShelves: ["Hearth & Crumb – wall shelves for bread", "Installed"],
     oakleafStorage: ["Oakleaf Dental – storage wall for the treatment rooms", "Installation booked"],
-    riverbendLockers: ["Riverbend – member lockers", "Installed"],
-    hearthStools: ["Hearth & Crumb – window bar with stools", "Installed"],
-    copperMenu: ["Copper Kettle – menu board and cup shelf", "Installed"],
-    oakleafChairs: ["Oakleaf Dental – waiting room bench", "Installed"],
-    hearthBench: ["Hearth & Crumb – outdoor bench", "Installed"],
-    lindenShelf: ["Linden Corner – shelf for jams and preserves", "Installed"],
   } satisfies Record<DealKey, readonly [string, string]>,
   tasks: {
     walnutSample: "Drop off the walnut sample at Copper Kettle",
@@ -227,25 +223,22 @@ const en = {
     saltpineVisit: "Book a site visit at Salt & Pine",
     brightwellLayout: "Check the 12-desk layout against Brightwell's floor plan",
     greylineFinish: "Ask Greyline for the laminate finish code",
-    lindenTouchUp: "Touch up the varnish on the Linden bread display",
-    orderWalnut: "Order walnut worktops for the Copper Kettle counter",
   } satisfies Record<TaskKey, string>,
   views: {
     pipeline: "Pipeline",
-    nextSteps: "Next steps",
+    chats: "Chats to answer",
     installations: "Installations and openings",
     customers: "Customers",
-    allContacts: "All contacts",
     dueSoon: "Due soon",
   },
   widgets: {
     openPipeline: "Open pipeline",
     won: "Won in the last 12 months",
     awaitingReply: "Chats awaiting our reply",
-    overdueTasks: "Overdue tasks",
+    leadTime: "Average lead time (days)",
     byStage: "Pipeline by stage",
     chatsByStatus: "Chats by status",
-    wonBySource: "Won value by source",
+    leadTimeByType: "Lead time by project type (days)",
     wonByMonth: "Won value by month",
     topCustomers: "Top customers by won value",
   },
@@ -256,19 +249,25 @@ const en = {
         "Birch & Bolt Workshop builds and installs counters, seating, shelving and office furniture for cafés, restaurants and offices around Pittsburgh. This workspace is demo data; every company and person in it is fictional.",
         "",
         "## How we use the CRM",
-        "- **Organizations** are the cafés, restaurants and offices we build for or talk to. **Contacts** are the people there; most have a mobile number because they prefer WhatsApp.",
-        "- **Opportunities** are jobs we are discussing. The stage shows where the job stands; the value is typed in from our offer. Opening and installation dates are fields on the opportunity.",
-        "- **Tasks** are next actions with a due date. Tasks and next step dates are ordinary fields: nobody is reminded automatically, so check the Next steps and Due soon views every morning.",
+        "- **Customers** are the cafés, restaurants, shops and offices we build for or talk to. **Contacts** are the people there; most have a mobile number because they prefer WhatsApp.",
+        "- Every contact has a **Chat status**: New message, Waiting for us, Waiting for customer or Done. We set it by hand, and the board Chats to answer shows who is waiting for us.",
+        "- **Projects** are jobs from the first message to the installation. The stage shows where the job stands; the value is typed in from our offer. The lead time is calculated from the day the offer was accepted to the installation date.",
+        "- **Tasks** are next actions with a due date. Tasks and next step dates are ordinary fields: nobody is reminded automatically, so check the Pipeline and Due soon views every morning.",
         "",
         "## WhatsApp and email",
         "- The WhatsApp chats come from Max's own WhatsApp account, connected in the inbox. It is his normal account, not a business API connection.",
         "- Every message is written and sent by a person, one chat at a time.",
-        "- A chat belongs to an opportunity or organization only when someone links it. Nothing is linked automatically: the new chat with Jordan from Salt & Pine is not linked yet.",
-        "- Emails from Max's mailbox work the same way.",
+        "- A chat belongs to a project or customer only when someone links it. Nothing is linked automatically: the new chat with Jordan from Salt & Pine is not linked yet.",
+        "- Emails from Max's mailbox and the café messages on Instagram work the same way.",
+        "",
+        "## Routines",
+        "- **Flag messages from unknown contacts** creates a task when a message comes from a number that matches no contact.",
+        "- **Morning chat summary** lists the chats waiting for us and saves reply drafts. Max reads every draft and sends it himself; routines never send.",
         "",
         "## Working rules",
-        "- Every open opportunity has a next step and a next step date.",
-        "- What we agree in a chat (measurements, wood, dates) also goes into the opportunity notes.",
+        "- Every open project has a next step and a next step date.",
+        "- After answering a chat, update the contact's chat status.",
+        "- What we agree in a chat (measurements, wood, dates) also goes into the project notes.",
         "- Accounting, drawings and material orders stay in their own tools.",
       ],
     },
@@ -278,24 +277,45 @@ const en = {
         "Every job moves through the same stages, from the first WhatsApp message or email to the installation on site.",
         "",
         "## Stages",
-        "1. **New inquiry:** someone messages or emails about a job. Add the organization, the person and the opportunity.",
+        "1. **New inquiry:** someone messages or emails about a job. Add the customer, the person and the project.",
         "2. **Site visit:** we measure on site and note what the customer wants.",
         "3. **Drawings shared:** we send a drawing and agree on materials and dimensions.",
-        "4. **Offer sent:** the price is in the offer and typed into the opportunity value.",
-        "5. **Won or Lost:** record the outcome, the installation date and, when lost, the reason.",
+        "4. **Offer sent:** the price is in the offer and typed into the project value.",
+        "5. **Won or Lost:** record the outcome. When won, enter the day the offer was accepted and the installation date; when lost, the reason.",
       ],
     },
     whatsappToOpportunity: {
-      title: "From WhatsApp chat to opportunity",
+      title: "From WhatsApp chat to project",
       whenToUse: "When a customer or a new contact writes to Max on WhatsApp about a job.",
       markdown: [
-        "New jobs usually start as a WhatsApp chat on Max's phone. This is how a chat becomes an opportunity the team can see.",
+        "New jobs usually start as a WhatsApp chat on Max's phone. This is how a chat becomes a project the team can see.",
         "",
         "## Steps",
-        "1. Open the chat in the inbox and check whether the person is already a contact. If not, add the contact with the mobile number and the organization.",
-        "2. If the chat is about a new job, create the opportunity in New inquiry with a next step and a next step date.",
-        "3. Link the chat to the opportunity, and to the organization when it concerns the customer in general.",
-        "4. Copy agreed measurements, materials and dates from the chat into the opportunity.",
+        "1. Open the chat in the inbox and check whether the person is already a contact. If not, add the contact with the mobile number and the customer.",
+        "2. If the chat is about a new job, create the project in New inquiry with a next step and a next step date.",
+        "3. Link the chat to the project, and to the customer when it concerns the customer in general.",
+        "4. Copy agreed measurements, materials and dates from the chat into the project.",
+        "5. Set the contact's chat status to Waiting for customer once you have answered.",
+      ],
+    },
+    siteVisit: {
+      title: "Site visit checklist",
+      whenToUse: "When a project moves to Site visit and Max goes to measure at the customer's premises.",
+      markdown: [
+        "A site visit decides whether the drawing fits on the first try. Take this list to every visit and note the results in the project.",
+        "",
+        "## Before the visit",
+        "1. Confirm the time in the chat and ask who decides on materials.",
+        "2. Read the project notes and the chat for wishes and photos the customer already sent.",
+        "",
+        "## On site",
+        "1. Measure walls, floor height differences, sockets, water and drains.",
+        "2. Check access: doors, stairs and parking for delivery.",
+        "3. Ask about the opening date and the days the venue can close for the installation.",
+        "",
+        "## Afterwards",
+        "1. Enter the measurements and wishes in the project notes and move the project to Drawings shared once the drawing is out.",
+        "2. Set the next step and its date, and create a task for every promise made on site.",
       ],
     },
   },
@@ -334,12 +354,11 @@ const en = {
         "Amazing, thank you!",
       ],
     },
-    lantern: {
+    linden: {
       messages: [
-        "Hi Sal, did you get a chance to look at the offer for the booth seating? It includes new foam and the darker vinyl you picked.",
-        "Yes, looks good. Can you do it in two steps so we don't have to close the whole restaurant?",
-        "We can: left side on a Monday, right side the Monday after. Each side takes one day.",
-        "Ok, let me talk to my brother and I'll confirm this week.",
+        "Hi Max, we love the bread display you built! We want to turn the window corner into a small café corner with seating. Could you have a look?",
+        "Hi Rosa, thank you! Happy to. Would Wednesday morning work for measuring the corner?",
+        "Wednesday at 9 is perfect, before the second bake.",
       ],
     },
     saltpine: {
@@ -366,6 +385,28 @@ const en = {
       ],
     },
   } satisfies Record<ThreadKey, { name?: string; subject?: string; messages: string[] }>,
+  routines: {
+    unknownSenders: {
+      name: "Flag messages from unknown contacts",
+      task: "Review the inbound message identified by routine_trigger and match its sender through accessible CRM identity channels. If the sender has no matching contact, create one ordinary task asking Max to review the unknown sender, with only the necessary message context in its notes. Avoid a duplicate task for the same conversation. Do not create a contact from unverified message content, alter identities or send a message.",
+      runs: [
+        "The sender matched the contact Jordan Ellis at Salt & Pine Kitchen, so no task was needed.",
+        "Created 1 task to review a WhatsApp message from a number that matches no contact.",
+      ],
+      failure:
+        "I could not reach the model provider on this attempt, so I stopped before reading or changing anything. Nothing was modified.",
+    },
+    morningChats: {
+      name: "Morning chat summary",
+      task: "Every morning, list the contacts whose Chat status is Waiting for us or New message, newest message first. For each, read the latest conversation with the available messaging tools and the linked project, and save one short reply draft with save_message_draft when the request is clear. Keep existing drafts. Never send a message and change no CRM record: Max reviews and sends every draft himself. Report the chats, what each customer asked and whether a draft was saved.",
+      runs: [
+        "3 chats are waiting for us: Claire at Copper Kettle, Tom at Marlowe's and Jake at Nine Bean. Saved 2 reply drafts for review.",
+        "2 chats were waiting for us. Saved 1 reply draft; Rachel's message needs a decision on the visit date first.",
+      ],
+      failure:
+        "I could not reach the model provider on this attempt, so I stopped before reading anything. No draft was saved.",
+    },
+  } satisfies Record<RoutineKey, { name: string; task: string; runs: string[]; failure: string }>,
 };
 
 type Strings = typeof en;
@@ -378,16 +419,16 @@ const de: Strings = {
   selfTitle: "Inhaber und Tischlermeister",
   lists: {
     organization: [
-      "Organisation",
-      "Organisationen",
-      "Cafés, Restaurants und Büros, für die wir bauen oder mit denen wir sprechen.",
+      "Kunde",
+      "Kunden",
+      "Cafés, Restaurants, Läden und Büros, für die wir bauen oder mit denen wir sprechen.",
     ],
-    contact: ["Kontakt", "Kontakte", "Inhaber, Betriebsleitungen und Architekten, mit denen wir arbeiten."],
-    deal: [
-      "Auftrag in Aussicht",
-      "Aufträge in Aussicht",
-      "Aufträge, über die wir sprechen, von der ersten Nachricht bis zur Montage.",
+    contact: [
+      "Kontakt",
+      "Kontakte",
+      "Inhaber, Betriebsleitungen und Architekten, mit denen wir arbeiten, mit dem Status ihres Chats.",
     ],
+    deal: ["Auftrag", "Aufträge", "Aufträge von der ersten Nachricht über das Angebot bis zur Montage."],
     task: ["Aufgabe", "Aufgaben", "Nächste Schritte mit Fälligkeitsdatum."],
   },
   fields: {
@@ -406,6 +447,8 @@ const de: Strings = {
     nextStepDate: "Datum nächster Schritt",
     openingDate: "Eröffnungstermin",
     installationDate: "Montagetermin",
+    offerAccepted: "Angebot angenommen",
+    leadTime: "Vorlaufzeit (Tage)",
     lostReason: "Verlustgrund",
     dueDate: "Fällig am",
     priority: "Priorität",
@@ -477,7 +520,6 @@ const de: Strings = {
       "Café Kupferkessel – neue Theke und Rückbuffet",
       "Nussbaum-Muster vorbeibringen und Platte festlegen",
     ],
-    copperShelves: ["Café Kupferkessel – Verkaufsregal für Kaffeebohnen", "Montiert"],
     marloweBenches: [
       "Bistro Marlene – Terrassenbänke mit Pflanzkästen",
       "Überarbeitete Bankzeichnung mit Stauraum schicken",
@@ -486,6 +528,7 @@ const de: Strings = {
       "Röstbar Neunbohne – Brühbar und Fensterplätze",
       "Aufmaß mit Jakob und Pia, Wand für die Brühbar ausmessen",
     ],
+    lindenCafe: ["Bäckerei Lindeneck – Café-Ecke mit Fensterplätzen", "Fensterecke mit Rosa ausmessen"],
     riverbendBooths: ["Coworking Spreebogen – Telefonkabinen-Tische im 2. OG", "Montagetag mit Viktor"],
     riverbendKitchen: [
       "Coworking Spreebogen – Theke für die Gemeinschaftsküche",
@@ -505,19 +548,12 @@ const de: Strings = {
       "Neues Angebot mit vier Steh-Sitz-Tischen senden",
     ],
     fieldstoneLibrary: ["Kanzlei Feldstein – Bibliotheksregal und Besprechungstisch", "Verloren"],
+    hearthShelves: ["Backstube Herdfeuer – Wandregale für Brot", "Verloren"],
     lindenDisplay: ["Bäckerei Lindeneck – Brotregal und Verkaufstheke", "Montiert"],
-    riverbendDesks: ["Coworking Spreebogen – flexible Arbeitsplätze im 1. OG", "Montiert"],
     hearthCounter: ["Backstube Herdfeuer – Ladentheke mit Kuchenvitrine", "Montiert"],
     oakleafReception: ["Zahnarztpraxis Eichblatt – Empfang und Wartebereich", "Montiert"],
     copperBench: ["Café Kupferkessel – Fensterbank mit Polstern", "Montiert"],
-    hearthShelves: ["Backstube Herdfeuer – Wandregale für Brot", "Montiert"],
     oakleafStorage: ["Zahnarztpraxis Eichblatt – Schrankwand für die Behandlungsräume", "Montage geplant"],
-    riverbendLockers: ["Coworking Spreebogen – Schließfächer für Mitglieder", "Montiert"],
-    hearthStools: ["Backstube Herdfeuer – Fenstertresen mit Hockern", "Montiert"],
-    copperMenu: ["Café Kupferkessel – Menütafel und Tassenregal", "Montiert"],
-    oakleafChairs: ["Zahnarztpraxis Eichblatt – Sitzbank für das Wartezimmer", "Montiert"],
-    hearthBench: ["Backstube Herdfeuer – Bank vor dem Laden", "Montiert"],
-    lindenShelf: ["Bäckerei Lindeneck – Regal für Marmeladen", "Montiert"],
   },
   tasks: {
     walnutSample: "Nussbaum-Muster im Café Kupferkessel vorbeibringen",
@@ -530,25 +566,22 @@ const de: Strings = {
     saltpineVisit: "Aufmaßtermin bei Salz & Kiefer vereinbaren",
     brightwellLayout: "Aufteilung der 12 Tische mit dem Grundriss von Hellbrunn abgleichen",
     greylineFinish: "Bei Graulinie den Dekorcode des Laminats erfragen",
-    lindenTouchUp: "Lack am Brotregal der Bäckerei Lindeneck ausbessern",
-    orderWalnut: "Nussbaum-Arbeitsplatten für die Theke im Café Kupferkessel bestellen",
   },
   views: {
     pipeline: "Pipeline",
-    nextSteps: "Nächste Schritte",
+    chats: "Chats zum Beantworten",
     installations: "Montagen und Eröffnungen",
     customers: "Kunden",
-    allContacts: "Alle Kontakte",
     dueSoon: "Bald fällig",
   },
   widgets: {
     openPipeline: "Offene Pipeline",
     won: "Gewonnen in 12 Monaten",
     awaitingReply: "Unbeantwortete Chats",
-    overdueTasks: "Überfällige Aufgaben",
+    leadTime: "Ø Vorlaufzeit (Tage)",
     byStage: "Pipeline nach Phase",
     chatsByStatus: "Chats nach Status",
-    wonBySource: "Gewonnener Wert nach Quelle",
+    leadTimeByType: "Vorlaufzeit nach Auftragsart (Tage)",
     wonByMonth: "Gewonnener Wert pro Monat",
     topCustomers: "Top-Kunden nach gewonnenem Wert",
   },
@@ -559,18 +592,24 @@ const de: Strings = {
         "Die Tischlerei Birkenholz baut und montiert Theken, Sitzbänke, Regale und Büromöbel für Cafés, Restaurants und Büros in Berlin und Potsdam. Dieser Arbeitsbereich enthält Demodaten; alle Firmen und Personen sind erfunden.",
         "",
         "## So nutzen wir das CRM",
-        "- **Organisationen** sind die Cafés, Restaurants und Büros, für die wir bauen oder mit denen wir sprechen. **Kontakte** sind die Menschen dort; die meisten haben eine Mobilnummer, weil sie lieber per WhatsApp schreiben.",
-        "- **Aufträge in Aussicht** sind Aufträge, über die wir sprechen. Die Phase zeigt, wo der Auftrag steht; den Wert tragen wir aus unserem Angebot von Hand ein. Eröffnungs- und Montagetermin sind Felder am Auftrag.",
-        "- **Aufgaben** sind nächste Schritte mit Fälligkeitsdatum. Aufgaben und das Datum des nächsten Schritts sind normale Felder: Niemand wird automatisch erinnert, deshalb jeden Morgen die Ansichten „Nächste Schritte“ und „Bald fällig“ prüfen.",
+        "- **Kunden** sind die Cafés, Restaurants, Läden und Büros, für die wir bauen oder mit denen wir sprechen. **Kontakte** sind die Menschen dort; die meisten haben eine Mobilnummer, weil sie lieber per WhatsApp schreiben.",
+        "- Jeder Kontakt hat einen **Chat-Status**: Neue Nachricht, Wartet auf uns, Wartet auf Kunden oder Erledigt. Wir setzen ihn von Hand, und das Board „Chats zum Beantworten“ zeigt, wer auf uns wartet.",
+        "- **Aufträge** reichen von der ersten Nachricht bis zur Montage. Die Phase zeigt, wo der Auftrag steht; den Wert tragen wir aus unserem Angebot von Hand ein. Die Vorlaufzeit wird vom Tag der Angebotsannahme bis zum Montagetermin berechnet.",
+        "- **Aufgaben** sind nächste Schritte mit Fälligkeitsdatum. Aufgaben und das Datum des nächsten Schritts sind normale Felder: Niemand wird automatisch erinnert, deshalb jeden Morgen die Ansichten „Pipeline“ und „Bald fällig“ prüfen.",
         "",
         "## WhatsApp und E-Mail",
         "- Die WhatsApp-Chats kommen aus Max' eigenem WhatsApp-Konto, das im Posteingang verbunden ist. Es ist sein normales Konto, keine Anbindung über eine Business-API.",
         "- Jede Nachricht schreibt und sendet ein Mensch, ein Chat nach dem anderen.",
-        "- Ein Chat gehört nur dann zu einem Auftrag oder einer Organisation, wenn jemand ihn verknüpft. Nichts wird automatisch verknüpft: Der neue Chat mit Jonas von Salz & Kiefer ist noch nicht verknüpft.",
-        "- E-Mails aus Max' Postfach funktionieren genauso.",
+        "- Ein Chat gehört nur dann zu einem Auftrag oder Kunden, wenn jemand ihn verknüpft. Nichts wird automatisch verknüpft: Der neue Chat mit Jonas von Salz & Kiefer ist noch nicht verknüpft.",
+        "- E-Mails aus Max' Postfach und die Café-Nachrichten auf Instagram funktionieren genauso.",
+        "",
+        "## Routinen",
+        "- **Nachrichten unbekannter Absender markieren** legt eine Aufgabe an, wenn eine Nachricht von einer Nummer kommt, die zu keinem Kontakt passt.",
+        "- **Chat-Übersicht am Morgen** listet die Chats, die auf uns warten, und speichert Antwortentwürfe. Max liest jeden Entwurf und sendet ihn selbst; Routinen senden nie.",
         "",
         "## Arbeitsregeln",
         "- Jeder offene Auftrag hat einen nächsten Schritt mit Datum.",
+        "- Nach dem Antworten den Chat-Status des Kontakts aktualisieren.",
         "- Was wir im Chat vereinbaren (Maße, Holz, Termine), kommt auch in die Notizen des Auftrags.",
         "- Buchhaltung, Zeichnungen und Materialbestellungen bleiben in ihren eigenen Programmen.",
       ],
@@ -581,11 +620,11 @@ const de: Strings = {
         "Jeder Auftrag durchläuft dieselben Phasen, von der ersten WhatsApp-Nachricht oder E-Mail bis zur Montage vor Ort.",
         "",
         "## Phasen",
-        "1. **Neue Anfrage:** Jemand schreibt per WhatsApp oder E-Mail wegen eines Auftrags. Organisation, Person und Auftrag anlegen.",
+        "1. **Neue Anfrage:** Jemand schreibt per WhatsApp oder E-Mail wegen eines Auftrags. Kunde, Person und Auftrag anlegen.",
         "2. **Aufmaß vor Ort:** Wir messen vor Ort und notieren, was sich der Kunde wünscht.",
         "3. **Entwurf geschickt:** Wir schicken eine Zeichnung und stimmen Material und Maße ab.",
         "4. **Angebot gesendet:** Der Preis steht im Angebot und wird als Wert im Auftrag eingetragen.",
-        "5. **Gewonnen oder Verloren:** Ergebnis und Montagetermin festhalten, bei Verlust mit Grund.",
+        "5. **Gewonnen oder Verloren:** Ergebnis festhalten. Bei Gewinn den Tag der Angebotsannahme und den Montagetermin eintragen, bei Verlust den Grund.",
       ],
     },
     whatsappToOpportunity: {
@@ -595,10 +634,31 @@ const de: Strings = {
         "Neue Aufträge beginnen meist als WhatsApp-Chat auf Max' Handy. So wird aus einem Chat ein Auftrag, den das ganze Team sieht.",
         "",
         "## Schritte",
-        "1. Den Chat im Posteingang öffnen und prüfen, ob die Person schon als Kontakt angelegt ist. Wenn nicht, Kontakt mit Mobilnummer und Organisation anlegen.",
+        "1. Den Chat im Posteingang öffnen und prüfen, ob die Person schon als Kontakt angelegt ist. Wenn nicht, Kontakt mit Mobilnummer und Kunde anlegen.",
         "2. Geht es um einen neuen Auftrag, ihn in der Phase „Neue Anfrage“ mit nächstem Schritt und Datum anlegen.",
-        "3. Den Chat mit dem Auftrag verknüpfen, und mit der Organisation, wenn es um den Kunden allgemein geht.",
+        "3. Den Chat mit dem Auftrag verknüpfen, und mit dem Kunden, wenn es um den Kunden allgemein geht.",
         "4. Vereinbarte Maße, Materialien und Termine aus dem Chat in den Auftrag übernehmen.",
+        "5. Nach der Antwort den Chat-Status des Kontakts auf „Wartet auf Kunden“ setzen.",
+      ],
+    },
+    siteVisit: {
+      title: "Checkliste für das Aufmaß",
+      whenToUse: "Wenn ein Auftrag in die Phase Aufmaß vor Ort wechselt und Max beim Kunden ausmessen fährt.",
+      markdown: [
+        "Das Aufmaß entscheidet, ob die Zeichnung beim ersten Mal passt. Diese Liste gehört zu jedem Termin, die Ergebnisse kommen in den Auftrag.",
+        "",
+        "## Vor dem Termin",
+        "1. Uhrzeit im Chat bestätigen und fragen, wer über die Materialien entscheidet.",
+        "2. Notizen des Auftrags und den Chat nach Wünschen und Fotos durchsehen, die der Kunde schon geschickt hat.",
+        "",
+        "## Vor Ort",
+        "1. Wände, Höhenunterschiede im Boden, Steckdosen, Wasser und Abflüsse ausmessen.",
+        "2. Zugang prüfen: Türen, Treppen und Parkplatz für die Anlieferung.",
+        "3. Nach dem Eröffnungstermin fragen und nach den Tagen, an denen der Betrieb für die Montage schließen kann.",
+        "",
+        "## Danach",
+        "1. Maße und Wünsche in die Notizen des Auftrags eintragen und ihn auf „Entwurf geschickt“ setzen, sobald die Zeichnung raus ist.",
+        "2. Nächsten Schritt mit Datum setzen und für jedes Versprechen vor Ort eine Aufgabe anlegen.",
       ],
     },
   },
@@ -637,12 +697,11 @@ const de: Strings = {
         "Super, danke dir!",
       ],
     },
-    lantern: {
+    linden: {
       messages: [
-        "Hallo Salvatore, konntest du dir das Angebot für die Sitznischen schon ansehen? Neuer Schaumstoff und das dunklere Kunstleder, das du ausgesucht hast, sind drin.",
-        "Ja, sieht gut aus. Geht das in zwei Schritten, damit wir nicht das ganze Restaurant schließen müssen?",
-        "Geht: die linke Seite an einem Montag, die rechte am Montag darauf. Jede Seite dauert einen Tag.",
-        "Ok, ich spreche mit meinem Bruder und sage dir diese Woche Bescheid.",
+        "Hallo Max, wir lieben das Brotregal, das du gebaut hast! Jetzt wollen wir aus der Fensterecke eine kleine Café-Ecke mit Sitzplätzen machen. Schaust du dir das mal an?",
+        "Hallo Rosa, danke dir! Sehr gern. Passt dir Mittwochvormittag zum Ausmessen?",
+        "Mittwoch um 9 ist perfekt, vor dem zweiten Backen.",
       ],
     },
     saltpine: {
@@ -667,6 +726,28 @@ const de: Strings = {
         "Sehr geehrter Herr Bergmann,\n\nfür das neue Büro eines Bauherrn brauchen wir einen Empfangstresen, etwa 2,40 m breit, mit einem abgesenkten Bereich für Rollstuhlnutzer. Können Sie ihn mit dem Laminat aus unserer Materialliste anbieten?\n\nViele Grüße\nMaja Petersen",
         "Sehr geehrte Frau Petersen,\n\ngern. Schicken Sie mir bitte den Dekorcode des Laminats? Dann prüfe ich die Verfügbarkeit und melde mich mit Zeichnung und Preis.\n\nViele Grüße\nMax Bergmann",
       ],
+    },
+  },
+  routines: {
+    unknownSenders: {
+      name: "Nachrichten unbekannter Absender markieren",
+      task: "Prüfe die eingegangene Nachricht aus routine_trigger und ordne den Absender über die zugänglichen Identitätskanäle im CRM zu. Gibt es keinen passenden Kontakt, lege eine normale Aufgabe an, in der Max gebeten wird, den unbekannten Absender zu prüfen, mit nur dem nötigen Kontext der Nachricht in den Notizen. Lege für dasselbe Gespräch keine zweite Aufgabe an. Lege keinen Kontakt aus ungeprüften Nachrichteninhalten an, ändere keine Identitäten und sende keine Nachricht.",
+      runs: [
+        "Der Absender passt zum Kontakt Jonas Ehlers vom Restaurant Salz & Kiefer, eine Aufgabe war nicht nötig.",
+        "1 Aufgabe angelegt, um eine WhatsApp-Nachricht von einer Nummer ohne passenden Kontakt zu prüfen.",
+      ],
+      failure:
+        "Ich konnte den Modellanbieter bei diesem Versuch nicht erreichen und habe angehalten, bevor ich etwas gelesen oder geändert habe. Nichts wurde verändert.",
+    },
+    morningChats: {
+      name: "Chat-Übersicht am Morgen",
+      task: "Liste jeden Morgen die Kontakte, deren Chat-Status „Wartet auf uns“ oder „Neue Nachricht“ ist, die neueste Nachricht zuerst. Lies für jeden das letzte Gespräch mit den verfügbaren Messaging-Werkzeugen und den verknüpften Auftrag, und speichere mit save_message_draft einen kurzen Antwortentwurf, wenn die Anfrage klar ist. Bestehende Entwürfe bleiben erhalten. Sende nie eine Nachricht und ändere keinen Datensatz im CRM: Max prüft und sendet jeden Entwurf selbst. Berichte die Chats, was jeder Kunde gefragt hat und ob ein Entwurf gespeichert wurde.",
+      runs: [
+        "3 Chats warten auf uns: Clara vom Café Kupferkessel, Thomas vom Bistro Marlene und Jakob von der Röstbar Neunbohne. 2 Antwortentwürfe zur Prüfung gespeichert.",
+        "2 Chats warteten auf uns. 1 Antwortentwurf gespeichert; für Rahels Nachricht muss erst der Besuchstermin feststehen.",
+      ],
+      failure:
+        "Ich konnte den Modellanbieter bei diesem Versuch nicht erreichen und habe angehalten, bevor ich etwas gelesen habe. Kein Entwurf wurde gespeichert.",
     },
   },
 };
@@ -694,6 +775,7 @@ const CONTACT_FACTS: Record<
     chat?: string;
     createdDaysAgo: number;
     mobile?: boolean;
+    instagram?: string;
     avatar?: Parameters<typeof photo>[0];
   }
 > = {
@@ -749,7 +831,7 @@ const CONTACT_FACTS: Record<
   sal: {
     organization: "lantern",
     channel: "whatsapp",
-    chat: "waitingForUs",
+    chat: "waitingForCustomer",
     createdDaysAgo: 45,
     mobile: true,
     avatar: "amir-haddad",
@@ -767,7 +849,14 @@ const CONTACT_FACTS: Record<
   mike: { organization: "brightwell", channel: "email", createdDaysAgo: 35 },
   helen: { organization: "fieldstone", channel: "email", createdDaysAgo: 300 },
   tyler: { organization: "fieldstone", channel: "email", createdDaysAgo: 290 },
-  rosa: { organization: "linden", channel: "whatsapp", chat: "done", createdDaysAgo: 95, mobile: true },
+  rosa: {
+    organization: "linden",
+    channel: "whatsapp",
+    chat: "waitingForCustomer",
+    createdDaysAgo: 95,
+    mobile: true,
+    instagram: "lindencorner.bakery",
+  },
   ana: { organization: "hearth", channel: "whatsapp", chat: "done", createdDaysAgo: 298, mobile: true },
   ben: { organization: "oakleaf", channel: "whatsapp", chat: "waitingForCustomer", createdDaysAgo: 272, mobile: true },
 };
@@ -785,6 +874,7 @@ type DealFacts = {
   opening?: number;
   installation?: number;
   lost?: string;
+  accepted?: number;
   history?: Array<{ daysAgo: number; stage: string }>;
 };
 
@@ -806,18 +896,6 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
       { daysAgo: 20, stage: "drawings" },
       { daysAgo: 9, stage: "offerSent" },
     ],
-  },
-  copperShelves: {
-    organization: "copper",
-    contacts: ["claire"],
-    stage: "won",
-    source: "whatsapp",
-    projectType: "shelving",
-    value: 4200,
-    createdDaysAgo: 230,
-    close: -200,
-    installation: -185,
-    history: [{ daysAgo: 215, stage: "offerSent" }],
   },
   marloweBenches: {
     organization: "marlowe",
@@ -847,6 +925,18 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     next: 2,
     opening: 55,
     history: [{ daysAgo: 6, stage: "siteVisit" }],
+  },
+  lindenCafe: {
+    organization: "linden",
+    contacts: ["rosa"],
+    stage: "siteVisit",
+    source: "existing",
+    projectType: "seating",
+    value: 6800,
+    createdDaysAgo: 4,
+    close: 25,
+    next: 2,
+    history: [{ daysAgo: 1, stage: "siteVisit" }],
   },
   riverbendBooths: {
     organization: "riverbend",
@@ -959,21 +1049,6 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
       { daysAgo: 66, stage: "offerSent" },
     ],
   },
-  riverbendDesks: {
-    organization: "riverbend",
-    contacts: ["rachel"],
-    stage: "won",
-    source: "website",
-    projectType: "office",
-    value: 15600,
-    createdDaysAgo: 360,
-    close: -330,
-    installation: -310,
-    history: [
-      { daysAgo: 352, stage: "siteVisit" },
-      { daysAgo: 340, stage: "offerSent" },
-    ],
-  },
   hearthCounter: {
     organization: "hearth",
     contacts: ["ana"],
@@ -1020,13 +1095,13 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
   hearthShelves: {
     organization: "hearth",
     contacts: ["ana"],
-    stage: "won",
+    stage: "lost",
     source: "whatsapp",
     projectType: "shelving",
     value: 4600,
     createdDaysAgo: 120,
-    close: -100,
-    installation: -85,
+    close: -96,
+    lost: "price",
     history: [{ daysAgo: 108, stage: "offerSent" }],
   },
   oakleafStorage: {
@@ -1043,78 +1118,6 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
       { daysAgo: 38, stage: "siteVisit" },
       { daysAgo: 30, stage: "offerSent" },
     ],
-  },
-  riverbendLockers: {
-    organization: "riverbend",
-    contacts: ["rachel"],
-    stage: "won",
-    source: "existing",
-    projectType: "office",
-    value: 6200,
-    createdDaysAgo: 320,
-    close: -305,
-    installation: -291,
-    history: [{ daysAgo: 313, stage: "offerSent" }],
-  },
-  hearthStools: {
-    organization: "hearth",
-    contacts: ["ana"],
-    stage: "won",
-    source: "whatsapp",
-    projectType: "seating",
-    value: 4800,
-    createdDaysAgo: 285,
-    close: -278,
-    installation: -264,
-    history: [{ daysAgo: 286, stage: "offerSent" }],
-  },
-  copperMenu: {
-    organization: "copper",
-    contacts: ["claire"],
-    stage: "won",
-    source: "whatsapp",
-    projectType: "shelving",
-    value: 4400,
-    createdDaysAgo: 140,
-    close: -125,
-    installation: -111,
-    history: [{ daysAgo: 133, stage: "offerSent" }],
-  },
-  oakleafChairs: {
-    organization: "oakleaf",
-    contacts: ["ben"],
-    stage: "won",
-    source: "existing",
-    projectType: "seating",
-    value: 3800,
-    createdDaysAgo: 250,
-    close: -230,
-    installation: -216,
-    history: [{ daysAgo: 238, stage: "offerSent" }],
-  },
-  hearthBench: {
-    organization: "hearth",
-    contacts: ["ana"],
-    stage: "won",
-    source: "whatsapp",
-    projectType: "seating",
-    value: 3500,
-    createdDaysAgo: 195,
-    close: -175,
-    installation: -161,
-    history: [{ daysAgo: 183, stage: "offerSent" }],
-  },
-  lindenShelf: {
-    organization: "linden",
-    contacts: ["rosa"],
-    stage: "won",
-    source: "whatsapp",
-    projectType: "shelving",
-    value: 3300,
-    createdDaysAgo: 90,
-    close: -75,
-    installation: -61,
-    history: [{ daysAgo: 83, stage: "offerSent" }],
   },
 };
 
@@ -1198,23 +1201,13 @@ const TASK_FACTS: Record<
     done: 6,
   },
   greylineFinish: {
-    status: "onHold",
+    status: "open",
     priority: "medium",
     due: -4,
     deal: "greylineReception",
     contact: "maya",
     createdDaysAgo: 10,
   },
-  lindenTouchUp: {
-    status: "done",
-    priority: "low",
-    due: -14,
-    deal: "lindenDisplay",
-    contact: "rosa",
-    createdDaysAgo: 25,
-    done: 15,
-  },
-  orderWalnut: { status: "onHold", priority: "medium", due: 8, deal: "copperCounter", createdDaysAgo: 1 },
 };
 
 function mailbox(name: string): string {
@@ -1277,6 +1270,7 @@ export default defineSolution<Strings>({
         channels: {
           email: `${mailbox(firstName)}.${mailbox(lastName)}@${domain}`,
           ...(mobile ? { phone: mobile } : {}),
+          ...(facts.instagram ? { instagram: facts.instagram } : {}),
         },
         ...(facts.avatar ? { avatar: photo(facts.avatar) } : {}),
         createdDaysAgo: facts.createdDaysAgo,
@@ -1301,6 +1295,7 @@ export default defineSolution<Strings>({
           ...(facts.next === undefined ? {} : { nextStepDate: day(facts.next) }),
           ...(facts.opening === undefined ? {} : { openingDate: day(facts.opening) }),
           ...(facts.installation === undefined ? {} : { installationDate: day(facts.installation) }),
+          ...(facts.stage === "won" ? { offerAccepted: day(facts.close) } : {}),
           ...(facts.lost ? { lostReason: facts.lost } : {}),
         },
         links: { "deal.organizations": facts.organization, "deal.contacts": facts.contacts },
@@ -1338,13 +1333,79 @@ export default defineSolution<Strings>({
       senders: readonly string[],
       extra: Record<number, { draft?: boolean; reaction?: { from: string; value: string } }> = {},
     ) => t.threads[thread].messages.map((text, index) => ({ from: senders[index], text, ...extra[index] }));
+    const failed = (key: RoutineKey, startedHoursAgo: number) => ({
+      status: "failed" as const,
+      startedHoursAgo,
+      durationSeconds: 12,
+      credits: 2,
+      error: "providerUnavailable" as const,
+      note: t.routines[key].failure,
+    });
+    const routines: RoutineSpec[] = [
+      {
+        key: "unknownSenders",
+        name: t.routines.unknownSenders.name,
+        task: t.routines.unknownSenders.task,
+        owner: "maxBergmann",
+        trigger: {
+          kind: "event",
+          events: ["messaging.message.received"],
+          debounceSeconds: 900,
+          sample: { thread: 1 },
+        },
+        runs: [
+          {
+            status: "succeeded",
+            startedHoursAgo: 2,
+            durationSeconds: 38,
+            credits: 6,
+            summary: t.routines.unknownSenders.runs[0],
+          },
+          failed("unknownSenders", 30),
+          {
+            status: "succeeded",
+            startedHoursAgo: 75,
+            durationSeconds: 46,
+            credits: 7,
+            summary: t.routines.unknownSenders.runs[1],
+          },
+        ],
+      },
+      {
+        key: "morningChats",
+        name: t.routines.morningChats.name,
+        task: t.routines.morningChats.task,
+        owner: "maxBergmann",
+        trigger: { kind: "schedule", cron: "30 7 * * *" },
+        runs: [
+          {
+            status: "succeeded",
+            startedHoursAgo: 4,
+            durationSeconds: 71,
+            credits: 11,
+            summary: t.routines.morningChats.runs[0],
+          },
+          {
+            status: "succeeded",
+            startedHoursAgo: 28,
+            durationSeconds: 64,
+            credits: 10,
+            summary: t.routines.morningChats.runs[1],
+          },
+          failed("morningChats", 52),
+        ],
+      },
+    ];
+
     const threads: ThreadSpec[] = [
       {
         account: "whatsapp",
         with: ["claire"],
         state: "unread",
         latestMinutesAgo: 35,
-        messages: messages("copper", ["claire", "self", "claire", "self", "claire"]),
+        messages: messages("copper", ["claire", "self", "claire", "self", "claire"], {
+          3: { reaction: { from: "claire", value: "❤️" } },
+        }),
         links: ["deal:copperCounter", "organization:copper"],
       },
       {
@@ -1391,12 +1452,12 @@ export default defineSolution<Strings>({
         links: ["organization:riverbend"],
       },
       {
-        account: "whatsapp",
-        with: ["sal"],
+        account: "instagram",
+        with: ["rosa"],
         state: "open",
         latestMinutesAgo: 3 * 24 * 60,
-        messages: messages("lantern", ["self", "sal", "self", "sal"]),
-        links: ["deal:lanternSeating", "organization:lantern"],
+        messages: messages("linden", ["rosa", "self", "rosa"]),
+        links: ["deal:lindenCafe", "organization:linden"],
       },
       {
         account: "google",
@@ -1485,6 +1546,13 @@ export default defineSolution<Strings>({
         { key: "deal.nextStepDate", label: t.fields.nextStepDate, type: "date" },
         { key: "deal.openingDate", label: t.fields.openingDate, type: "date" },
         { key: "deal.installationDate", label: t.fields.installationDate, type: "date" },
+        { key: "deal.offerAccepted", label: t.fields.offerAccepted, type: "date" },
+        {
+          key: "deal.leadTime",
+          label: t.fields.leadTime,
+          type: "number",
+          formula: { kind: "daysBetween", from: "deal.offerAccepted", to: "deal.installationDate" },
+        },
         {
           key: "deal.lostReason",
           label: t.fields.lostReason,
@@ -1515,24 +1583,33 @@ export default defineSolution<Strings>({
           name: t.views.pipeline,
           mode: "board",
           groupBy: "stage",
-          columns: ["totalValue", "deal.organizations", "nextStepDate", "projectType"],
+          columns: ["totalValue", "deal.organizations", "nextStep", "nextStepDate"],
           filters: [{ field: "stage", notIn: ["lost"] }],
         },
         {
-          key: "nextSteps",
-          list: "deal",
-          name: t.views.nextSteps,
-          mode: "table",
-          columns: ["stage", "nextStep", "nextStepDate", "totalValue", "deal.organizations", "deal.contacts"],
-          filters: [{ field: "stage", in: open }],
-          sort: { field: "nextStepDate", direction: "asc" },
+          key: "chats",
+          list: "contact",
+          name: t.views.chats,
+          mode: "board",
+          groupBy: "chatStatus",
+          columns: ["contact.organizations", "preferredChannel", "phone"],
+          filters: [{ field: "chatStatus", in: ["new", "waitingForUs", "waitingForCustomer", "done"] }],
         },
         {
           key: "installations",
           list: "deal",
           name: t.views.installations,
           mode: "table",
-          columns: ["stage", "installationDate", "openingDate", "projectType", "deal.organizations", "totalValue"],
+          columns: [
+            "stage",
+            "installationDate",
+            "openingDate",
+            "offerAccepted",
+            "leadTime",
+            "projectType",
+            "deal.organizations",
+            "totalValue",
+          ],
           filters: [{ field: "stage", in: ["drawings", "offerSent", "won"] }],
           sort: { field: "installationDate", direction: "asc" },
         },
@@ -1543,20 +1620,6 @@ export default defineSolution<Strings>({
           mode: "table",
           columns: ["customerStatus", "venueType", "city", "contact.organizations", "deal.organizations"],
           sort: { field: "customerStatus", direction: "asc" },
-        },
-        {
-          key: "allContacts",
-          list: "contact",
-          name: t.views.allContacts,
-          mode: "table",
-          columns: [
-            "jobTitle",
-            "contact.organizations",
-            "chatStatus",
-            "preferredChannel",
-            "phone",
-            "capability.identity",
-          ],
         },
         {
           key: "dueSoon",
@@ -1595,13 +1658,11 @@ export default defineSolution<Strings>({
           },
           {
             kind: "kpi",
-            title: t.widgets.overdueTasks,
-            list: "task",
-            aggregation: "count",
-            filters: [
-              { field: "status", notIn: ["done", "archived"] },
-              { field: "dueDate", olderThanDays: 1 },
-            ],
+            title: t.widgets.leadTime,
+            list: "deal",
+            aggregation: "average",
+            field: "leadTime",
+            filters: wonLastYear,
           },
           {
             kind: "chart",
@@ -1624,12 +1685,12 @@ export default defineSolution<Strings>({
           },
           {
             kind: "chart",
-            title: t.widgets.wonBySource,
+            title: t.widgets.leadTimeByType,
             display: DisplayType.horizontalBarChartWithLabels,
             list: "deal",
-            aggregation: "sum",
-            field: "totalValue",
-            groupBy: { field: "source" },
+            aggregation: "average",
+            field: "leadTime",
+            groupBy: { field: "projectType" },
             filters: wonLastYear,
           },
           {
@@ -1664,13 +1725,21 @@ export default defineSolution<Strings>({
           whenToUse: t.wiki.whatsappToOpportunity.whenToUse,
           markdown: t.wiki.whatsappToOpportunity.markdown,
         },
+        {
+          key: "siteVisit",
+          kind: "procedure",
+          title: t.wiki.siteVisit.title,
+          whenToUse: t.wiki.siteVisit.whenToUse,
+          markdown: t.wiki.siteVisit.markdown,
+        },
       ],
       messaging: {
-        accounts: ["whatsapp", "google"],
+        accounts: ["whatsapp", "google", "instagram"],
         selfTitle: t.selfTitle,
         website: t.website,
         threads,
       },
+      routines,
     };
   },
 });
