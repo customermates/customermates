@@ -361,7 +361,7 @@ test("wraps and expands plain text, edits it directly, and preserves the saved v
   await page.goto(`/en/records/${typeId}/${recordId}`);
   await expect(field.getByRole("button", { name: "Show more", exact: true })).toBeVisible();
   const name = page.getByRole("main").getByRole("heading").getByRole("textbox", { name: "Name", exact: true });
-  const longName = text.replace("\n", " ");
+  const longName = text.replaceAll("\n", " ");
   await name.fill(longName);
   await expect(name).toBeFocused();
   await expect(name).toHaveValue(longName);
