@@ -65,6 +65,7 @@ export const RecordNameHeading = observer(function RecordNameHeading({
         label={null}
         placeholder={placeholder}
         required={field.required}
+        title={String(store.getValue(`values.${field.id}`) ?? "") || undefined}
       />
     </div>
   );
