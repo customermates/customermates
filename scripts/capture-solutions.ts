@@ -4,7 +4,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 import sharp from "sharp";
-import { chromium, type Browser } from "@playwright/test";
+import { chromium, type Browser, type Page } from "@playwright/test";
 
 import { assertLocalDatabaseEnvironment } from "./local-database-safety";
 import {
@@ -36,6 +36,8 @@ const PROVENANCE_PATH = join(ROOT, "core", "solutions", "solution-capture-proven
 const MAIN_WEBP_QUALITY = 82;
 const NAV_WEBP_QUALITY = 78;
 const READY_TIMEOUT_MS = 30_000;
+const STABLE_SAMPLES = 3;
+const STABLE_SAMPLE_INTERVAL_MS = 400;
 
 function sha256(buffer: Buffer): string {
   return createHash("sha256").update(new Uint8Array(buffer)).digest("hex");
@@ -115,8 +117,29 @@ async function writePlaceholders(): Promise<void> {
 
 function resetDatabase(): void {
   assertLocalDatabaseEnvironment(process.env);
-  execFileSync("npx", ["prisma", "migrate", "reset", "--force", "--skip-seed"], { cwd: ROOT, stdio: "inherit" });
+  execFileSync("npx", ["prisma", "migrate", "reset", "--force"], { cwd: ROOT, stdio: "inherit" });
   execFileSync("npx", ["prisma", "db", "seed"], { cwd: ROOT, stdio: "inherit" });
+}
+
+async function waitForStableGeometry(page: Page): Promise<void> {
+  const deadline = Date.now() + READY_TIMEOUT_MS;
+  let previous = "";
+  let stableSamples = 0;
+  while (stableSamples < STABLE_SAMPLES) {
+    if (Date.now() > deadline) throw new Error(`${page.url()}: charts kept moving for ${READY_TIMEOUT_MS} ms`);
+    await page.waitForTimeout(STABLE_SAMPLE_INTERVAL_MS);
+    const current = await page.evaluate(() =>
+      Array.from(document.querySelectorAll("main svg path, main svg rect, main svg circle"))
+        .map(
+          (node) =>
+            `${node.getAttribute("d") ?? ""}|${node.getAttribute("height") ?? ""}|${node.getAttribute("r") ?? ""}`,
+        )
+        .join(";"),
+    );
+    stableSamples = current === previous ? stableSamples + 1 : 0;
+    previous = current;
+  }
+  await page.mouse.move(0, 0);
 }
 
 async function captureItem(browser: Browser, baseUrl: string, item: SolutionCapturePlanItem) {
@@ -143,7 +166,7 @@ async function captureItem(browser: Browser, baseUrl: string, item: SolutionCapt
       undefined,
       { timeout: READY_TIMEOUT_MS },
     );
-    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    await waitForStableGeometry(page);
 
     const png = await page.screenshot({ animations: "disabled", caret: "hide", type: "png" });
     const main = await sharp(png).webp({ quality: MAIN_WEBP_QUALITY }).toBuffer({ resolveWithObject: true });
