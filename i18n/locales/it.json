@@ -1110,6 +1110,7 @@
       "connectedAccountNotFound": "ID canale non trovato o non accessibile.",
       "customFieldInvalidDate": "La data non è valida. Deve essere nel formato ISO 8601 (ad esempio 2024-01-15) o nel formato data-ora ISO 8601 (ad esempio 2024-01-15T00:00:00Z).",
       "dataViewAllNameImmutable": "La vista Tutte non può essere rinominata. Ometti name e aggiorna solo le impostazioni richieste in state. Consulta config per le impostazioni supportate e list per lo stato attuale prima di riprovare.",
+      "dataViewAllQueryImmutable": "La vista Tutte mostra sempre tutti i record e non può contenere filtri né una ricerca. Crea invece una vista con questi filtri.",
       "dataViewNameMismatch": "Il nome non corrisponde a questa vista salvata. Leggi la vista e conferma il nome esatto prima di eliminarla.",
       "dataViewNotFound": "Questa vista salvata non è stata trovata.",
       "dataViewUpdateEmpty": "Indica un nome o almeno un'impostazione della vista da aggiornare.",
@@ -2182,6 +2183,19 @@
       "activityCount": "{count, plural, one {# attività} other {# attività}}",
       "aiLabel": "Chiedi a Mate sulla vista {name}",
       "all": "Tutte",
+      "allTab": {
+        "activity": "Tutte le attività",
+        "auditEntries": "Tutte le voci",
+        "conversations": "Tutte le conversazioni",
+        "deliveries": "Tutte le consegne",
+        "members": "Tutti i membri",
+        "records": "Tutti: {list}",
+        "roles": "Tutti i ruoli",
+        "routines": "Tutte le routine",
+        "users": "Tutti gli utenti",
+        "webhooks": "Tutti i webhook",
+        "workspaces": "Tutte le aree di lavoro"
+      },
       "applied": "Visualizzazione di {name}",
       "askAi": "Chiedi a Mate",
       "conversationCount": "{count, plural, one {# conversazione} other {# conversazioni}}",
@@ -2198,6 +2212,7 @@
       "modified": "Modifiche non salvate",
       "moveLeft": "Sposta a sinistra",
       "moveRight": "Sposta a destra",
+      "myFilters": "I miei filtri",
       "name": "Nome",
       "namePlaceholder": "Nome della vista",
       "nameRequired": "Inserisci un nome per la vista.",
@@ -2206,7 +2221,8 @@
       "pickerTitle": "Cambia vista",
       "railLabel": "Viste salvate",
       "recordCount": "{count, plural, one {# record} other {# record}}",
-      "resetChanges": "Ripristina modifiche"
+      "resetChanges": "Ripristina modifiche",
+      "saveAsView": "Salva come vista"
     }
   },
   "Diagrams": {

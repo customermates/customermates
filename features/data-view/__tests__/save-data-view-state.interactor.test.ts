@@ -66,19 +66,22 @@ describe("SaveDataViewStateInteractor", () => {
     expect(SaveDataViewStateResultSchema.safeParse({ viewKey: "not-a-view" }).success).toBe(false);
   });
 
-  it("routes the All tab into the caller's personalization row and never near a view", async () => {
+  it("routes the All tab into the caller's personalization row, never near a view and never with filters or a search", async () => {
     const { interactor, views, personalization } = doubles();
 
     const result = await runWithTenant(mockUser, () =>
       interactor.invoke({ surfaceKey: SURFACE, viewKey: ALL_VIEW_KEY, state: totalState }),
     );
+    const layout = { ...totalState };
+    delete layout.filters;
+    delete layout.searchTerm;
 
-    expect(result).toEqual({ ok: true, data: { viewKey: ALL_VIEW_KEY, state: totalState } });
+    expect(result).toEqual({ ok: true, data: { viewKey: ALL_VIEW_KEY, state: layout } });
     expect(views.updateOwnedState).not.toHaveBeenCalled();
     expect(personalization.upsertP13n).toHaveBeenCalledWith({
       p13nId: SURFACE,
-      filters: totalState.filters,
-      searchTerm: "acme",
+      filters: [],
+      searchTerm: "",
       sortDescriptor: totalState.sortDescriptor,
       pagination: { pageSize: 25 },
       viewMode: ViewMode.card,
@@ -127,7 +130,12 @@ describe("SaveDataViewStateInteractor", () => {
       interactor.invoke({ surfaceKey: SURFACE, viewKey: ALL_VIEW_KEY, state: { pageSize: 10 } }),
     );
 
-    expect(personalization.upsertP13n).toHaveBeenCalledWith({ p13nId: SURFACE, pagination: { pageSize: 10 } });
+    expect(personalization.upsertP13n).toHaveBeenCalledWith({
+      p13nId: SURFACE,
+      filters: [],
+      searchTerm: "",
+      pagination: { pageSize: 10 },
+    });
     expect(personalization.upsertP13n.mock.calls[0][0].pagination).not.toHaveProperty("page");
   });
 

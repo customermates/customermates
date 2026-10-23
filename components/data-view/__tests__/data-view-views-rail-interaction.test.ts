@@ -146,6 +146,19 @@ vi.mock("@/components/ui/dropdown-menu", () => ({
 }));
 
 vi.mock("@/app/components/agent-chat/chat-ui", () => ({ focusAgentComposer: vi.fn() }));
+vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
+  useHydratedIntlStore: () => ({ formatNumericalShortDate: () => "date" }),
+}));
+vi.mock("@/components/data-view/filter-modal/inputs/use-filter-select-items", () => ({
+  useFilterSelectItems: () => ({
+    items: [
+      { key: "cursor", value: "cursor", textValue: "Cursor" },
+      { key: "open", value: "open", textValue: "Open" },
+    ],
+    getItems: undefined,
+    isLoading: false,
+  }),
+}));
 
 import { DataViewViewsRail } from "../views/data-view-views-rail";
 import { focusAgentComposer } from "@/app/components/agent-chat/chat-ui";
@@ -192,6 +205,15 @@ function store(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDataViewSt
     viewMode: "table",
     views: VIEWS,
     isViewModified: false,
+    canSaveAsView: false,
+    get canSaveViewChanges() {
+      return Boolean(this.isViewModified);
+    },
+    registerSaveAsView: vi.fn((opener: () => void) => {
+      fake.openSaveAsView = opener;
+      return () => undefined;
+    }),
+    openSaveAsView: vi.fn(),
     saveViewChanges: vi.fn(() => Promise.resolve()),
     resetViewChanges: vi.fn(),
     forgetQueryDraft: vi.fn(),
@@ -533,43 +555,45 @@ describe("data view rail interaction", () => {
     const host = render(store({ activeViewKey: "v-b" }));
     const links = chips(host);
 
-    expect(links).toHaveLength(3);
+    expect(links).toHaveLength(4);
     expect(host.querySelectorAll('[tabindex="0"]')).toHaveLength(1);
-    expect(links[1].getAttribute("tabindex")).toBe("0");
+    expect(links[2].getAttribute("tabindex")).toBe("0");
 
-    links[1].focus();
-    press(links[1], "ArrowRight");
+    links[2].focus();
+    press(links[2], "ArrowRight");
+    expect(document.activeElement).toBe(links[3]);
+
+    press(links[3], "ArrowLeft");
     expect(document.activeElement).toBe(links[2]);
 
-    press(links[2], "ArrowLeft");
-    expect(document.activeElement).toBe(links[1]);
+    press(links[2], "End");
+    expect(document.activeElement).toBe(links[3]);
 
-    press(links[1], "End");
-    expect(document.activeElement).toBe(links[2]);
-
-    press(links[2], "Home");
+    press(links[3], "Home");
     expect(document.activeElement).toBe(links[0]);
+    expect(links[0].id).toBe("global-data-views-all");
 
     press(links[0], "ArrowLeft");
     expect(document.activeElement).toBe(links[0]);
     expect(host.querySelectorAll('[tabindex="0"]')).toHaveLength(1);
   });
 
-  it("keeps the first view as the tab stop while no view is active", () => {
+  it("puts the All tab first and keeps it as the tab stop while it is active", () => {
     const host = render(store());
     const links = chips(host);
 
-    expect(links.map((link) => link.textContent)).toEqual(["Ada", "Open deals", "Closing"]);
-    expect(host.querySelector("#global-data-views-all")).toBeNull();
-    expect(host.querySelector('[aria-current="page"]')).toBeNull();
-    expect(links.map((link) => link.getAttribute("tabindex"))).toEqual(["0", "-1", "-1"]);
+    expect(links.map((link) => link.textContent)).toEqual(["DataView.views.all", "Ada", "Open deals", "Closing"]);
+    expect(host.querySelector("#global-data-views-all")).toBe(links[0]);
+    expect(host.querySelector('[aria-current="page"]')).toBe(links[0]);
+    expect(links[0].getAttribute("href")).toBe("/en/records/10000000-0000-4000-8000-000000000103");
+    expect(links.map((link) => link.getAttribute("tabindex"))).toEqual(["0", "-1", "-1", "-1"]);
   });
 
   it("applies a view on a plain click and pushes the url afterwards, and defers to the browser otherwise", () => {
     const value = store();
     const host = render(value);
     const pushState = vi.spyOn(window.history, "pushState");
-    const target = chips(host)[0];
+    const target = chips(host)[1];
 
     act(() => target.click());
 
@@ -597,7 +621,7 @@ describe("data view rail interaction", () => {
     const host = render(value, "threadId");
     const pushState = vi.spyOn(window.history, "pushState");
 
-    act(() => chips(host)[0].click());
+    act(() => chips(host)[1].click());
 
     expect(harness.routerPush).toHaveBeenCalledExactlyOnceWith(
       "/records/10000000-0000-4000-8000-000000000103?view=v-a",
@@ -611,17 +635,17 @@ describe("data view rail interaction", () => {
     const value = store();
     const host = render(value, "threadId");
 
-    act(() => chips(host)[0].click());
+    act(() => chips(host)[1].click());
 
     expect(harness.routerPush).not.toHaveBeenCalled();
     expect(value.applyView).toHaveBeenCalledExactlyOnceWith("v-a");
   });
 
-  it("returns to the list without a view when the active tab is selected again, and defers to the browser otherwise", () => {
+  it("does nothing when the active tab is selected again, and returns to All only through its tab", () => {
     const value = store({ activeViewKey: OPEN.id });
     const host = render(value);
     const pushState = vi.spyOn(window.history, "pushState");
-    const active = chips(host)[1];
+    const active = chips(host)[2];
 
     expect(active.getAttribute("aria-current")).toBe("page");
     expect(active.getAttribute("href")).toBe(`/en/records/10000000-0000-4000-8000-000000000103?view=${OPEN.id}`);
@@ -629,12 +653,23 @@ describe("data view rail interaction", () => {
     act(() => {
       active.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, ctrlKey: true }));
     });
-    expect(value.applyView).not.toHaveBeenCalled();
-
     act(() => active.click());
+    expect(value.applyView).not.toHaveBeenCalled();
+    expect(pushState).not.toHaveBeenCalled();
+
+    act(() => chips(host)[0].click());
 
     expect(value.applyView).toHaveBeenCalledExactlyOnceWith(ALL_VIEW_KEY);
     expect(pushState).toHaveBeenCalledExactlyOnceWith(null, "", "/en/records/10000000-0000-4000-8000-000000000103");
+  });
+
+  it("does nothing when the active All tab is selected again", () => {
+    const value = store();
+    const host = render(value);
+
+    act(() => chips(host)[0].click());
+
+    expect(value.applyView).not.toHaveBeenCalled();
   });
 
   it("closes an open detail onto the active view instead of leaving it", () => {
@@ -642,7 +677,7 @@ describe("data view rail interaction", () => {
     const value = store({ activeViewKey: OPEN.id });
     const host = render(value, "threadId");
 
-    act(() => chips(host)[1].click());
+    act(() => chips(host)[2].click());
 
     expect(harness.routerPush).toHaveBeenCalledExactlyOnceWith(
       `/records/10000000-0000-4000-8000-000000000103?view=${OPEN.id}`,
@@ -659,14 +694,15 @@ describe("data view rail interaction", () => {
     const host = render(value);
 
     expect(host.querySelector("#global-data-views-proposed")?.textContent).toContain("Assigned to me");
-    expect(chips(host)[1].getAttribute("aria-current")).toBeNull();
+    expect(chips(host)[2].getAttribute("aria-current")).toBeNull();
+    expect(chips(host)[0].getAttribute("aria-current")).toBeNull();
 
-    act(() => chips(host)[1].click());
+    act(() => chips(host)[2].click());
 
     expect(value.applyView).toHaveBeenCalledExactlyOnceWith(OPEN.id);
   });
 
-  it("offers Switch view only once views exist, lists just them and clears the active view when it is chosen again", () => {
+  it("offers Switch view only once views exist, lists All first and ignores choosing the active view again", () => {
     const empty = store({ views: [] });
     render(empty);
     act(() => root?.render(createElement(DataViewViewsRail<Item>, { joinsTopBar: true, store: empty })));
@@ -675,9 +711,17 @@ describe("data view rail interaction", () => {
     const value = store({ activeViewKey: OPEN.id });
     act(() => root?.render(createElement(DataViewViewsRail<Item>, { joinsTopBar: true, store: value })));
     expect(harness.viewPicker.register).toHaveBeenCalledOnce();
-    expect(harness.viewPicker.surface?.options().map((option) => option.id)).toEqual([ADA.id, OPEN.id, CLOSING.id]);
+    expect(harness.viewPicker.surface?.options().map((option) => option.id)).toEqual([
+      ALL_VIEW_KEY,
+      ADA.id,
+      OPEN.id,
+      CLOSING.id,
+    ]);
+    expect(harness.viewPicker.surface?.options()[0]).toEqual({ id: ALL_VIEW_KEY, name: "DataView.views.all" });
 
     act(() => harness.viewPicker.surface?.select(OPEN.id));
+    expect(value.applyView).not.toHaveBeenCalled();
+    act(() => harness.viewPicker.surface?.select(ALL_VIEW_KEY));
     expect(value.applyView).toHaveBeenLastCalledWith(ALL_VIEW_KEY);
     act(() => harness.viewPicker.surface?.select(ADA.id));
     expect(value.applyView).toHaveBeenLastCalledWith(ADA.id);
@@ -712,7 +756,7 @@ describe("data view rail interaction", () => {
     expect(draft?.className).not.toContain("bg-secondary");
     expect(draft?.className).toContain("shadow-none");
     expect(draft?.className).not.toContain("rounded-md");
-    expect(chips(host)).toHaveLength(3);
+    expect(chips(host)).toHaveLength(4);
 
     const input = host.querySelector<HTMLInputElement>("#view-editor-name");
     expect(input).not.toBeNull();
@@ -805,26 +849,31 @@ describe("data view rail interaction", () => {
     expect(menuLabels(host)).not.toContain("Common.actions.save");
   });
 
-  it("offers only Ask AI while no view is active and nothing waits to be saved", () => {
+  it("offers Ask AI and the All tab's Copy link while All is clean", () => {
     const host = render(store());
 
-    expect(menuLabels(host)).toEqual(["DataView.views.askAi"]);
+    expect(menuLabels(host)).toEqual(["DataView.views.askAi", "DataView.views.copyLink"]);
     expect(host.querySelector("#global-data-views-menu")?.hasAttribute("data-view-modified")).toBe(false);
     expect(host.querySelector("[data-view-menu] hr")).toBeNull();
   });
 
-  it("marks the view menu while the list without a view has unsaved changes and offers Save and Reset changes", () => {
+  it("marks the All tab while its layout has unsaved changes and offers Save and Reset changes", () => {
     const value = store({ isViewModified: true } as Partial<BaseDataViewStore<Item>>);
     const host = render(value);
     const menu = host.querySelector<HTMLButtonElement>("#global-data-views-menu");
-    const describedBy = menu?.getAttribute("aria-describedby");
 
-    expect(menu?.hasAttribute("data-view-modified")).toBe(true);
-    expect(describedBy).toBeTruthy();
-    expect(document.getElementById(describedBy ?? "")?.textContent).toBe("DataView.views.modified");
+    expect(menu?.hasAttribute("data-view-modified")).toBe(false);
+    expect(menu?.hasAttribute("aria-describedby")).toBe(false);
     expect(host.querySelectorAll("[data-view-modified]")).toHaveLength(1);
-    expect(menuLabels(host)).toEqual(["DataView.views.askAi", "Common.actions.save", "DataView.views.resetChanges"]);
-    expect(host.querySelector("[data-view-menu] hr")).toBeNull();
+    expect(host.querySelector("#global-data-views-all")?.hasAttribute("data-view-modified")).toBe(true);
+    expect(host.querySelector("#global-data-views-all")?.textContent).toContain("DataView.views.modified");
+    expect(menuLabels(host)).toEqual([
+      "DataView.views.askAi",
+      "Common.actions.save",
+      "DataView.views.resetChanges",
+      "DataView.views.copyLink",
+    ]);
+    expect(host.querySelector("[data-view-menu] hr")).not.toBeNull();
 
     act(() => byText(host, "Common.actions.save").click());
     expect(value.saveViewChanges).toHaveBeenCalledOnce();
@@ -833,13 +882,70 @@ describe("data view rail interaction", () => {
     expect(value.resetViewChanges).toHaveBeenCalledOnce();
   });
 
-  it("hides the view menu when no view is active, nothing waits to be saved and hosted chat is disabled", () => {
+  it("keeps the view menu for the All tab's link when hosted chat is disabled", () => {
     harness.agent.enabled = false;
     const host = render(store());
 
-    expect(host.querySelector("#global-data-views-menu")).toBeNull();
+    expect(host.querySelector("#global-data-views-menu")).not.toBeNull();
+    expect(menuLabels(host)).toEqual(["DataView.views.copyLink"]);
     expect(host.querySelector("#global-data-views-new")).not.toBeNull();
-    expect(chips(host)).toHaveLength(3);
+    expect(chips(host)).toHaveLength(4);
+  });
+
+  it("offers Save as view instead of Save while All has filters, naming the view after them", async () => {
+    const filters = [
+      { field: "provider", operator: "in", value: ["cursor"] },
+      { field: "status", operator: "equals", value: "open" },
+    ];
+    const value = store({
+      canSaveAsView: true,
+      canSaveViewChanges: false,
+      filterColumns: [
+        { id: "provider", label: "Provider" },
+        { id: "status", label: "Status" },
+      ],
+      filters,
+      isViewModified: true,
+      searchTerm: "acme",
+    } as unknown as Partial<BaseDataViewStore<Item>>);
+    const host = render(value);
+
+    expect(menuLabels(host)).toEqual([
+      "DataView.views.askAi",
+      "DataView.views.saveAsView",
+      "DataView.views.resetChanges",
+      "DataView.views.copyLink",
+    ]);
+    expect(host.querySelector("#global-data-views-all")?.hasAttribute("data-view-modified")).toBe(true);
+
+    const closed = chooseFromMenu(host, "DataView.views.saveAsView");
+    expect(closed.defaultPrevented).toBe(true);
+    expect(host.querySelector<HTMLInputElement>("#view-editor-name")?.value).toBe(
+      'Provider: Cursor · Status: Open · "acme"',
+    );
+
+    await submitMetaForm(host);
+
+    expect(harness.upsertDataViewAction).toHaveBeenCalledExactlyOnceWith({
+      name: 'Provider: Cursor · Status: Open · "acme"',
+      state: expect.objectContaining({ filters, searchTerm: "acme" }),
+      surfaceKey: "records:10000000-0000-4000-8000-000000000103",
+    });
+    expect(value.forgetQueryDraft).toHaveBeenCalledWith(ALL_VIEW_KEY);
+    expect(harness.calls).toEqual(["upsertDataViewAction", "refresh", "applyView"]);
+    expect(value.applyView).toHaveBeenCalledExactlyOnceWith("v-new");
+  });
+
+  it("registers Save as view for the filter and display bars and falls back to My filters without a readable filter", () => {
+    const value = store({ canSaveAsView: true, filters: [], isViewModified: true } as unknown as Partial<
+      BaseDataViewStore<Item>
+    >);
+    const host = render(value);
+
+    expect(value.registerSaveAsView).toHaveBeenCalled();
+    act(() => value.openSaveAsView());
+
+    expect(host.querySelector<HTMLInputElement>("#view-editor-name")?.value).toBe("DataView.views.myFilters");
   });
 
   it("opens the overlay only once the menu has closed, so the closing menu cannot dismiss it, and focuses the name", () => {

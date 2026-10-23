@@ -1,7 +1,8 @@
 import { test, expect, collectPageErrors } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
+import { submitViewEditor } from "./view-changes";
 
-test("restores relationship, assignment and date filters with labels after reloading the generic list", async ({
+test("saves relationship, assignment and date filters as a view and restores them with labels after reloading the generic list", async ({
   page,
   database,
   companyId,
@@ -50,18 +51,19 @@ test("restores relationship, assignment and date filters with labels after reloa
   await expect(page.getByRole("heading", { name: "Filters", exact: true })).not.toBeVisible();
   await expect(page.getByRole("link", { name: "Linked opportunity", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Unlinked opportunity", exact: true })).not.toBeVisible();
-  const unsavedWithoutView = page.locator("#global-data-views-menu[data-view-modified]");
-  await expect(page.locator("#global-data-views-menu")).toHaveAttribute("data-view-modified", "");
+  const unsavedChanges = page.locator("#global-data-views [data-view-modified]");
+  await expect(page.locator("#global-data-views-all")).toHaveAttribute("data-view-modified", "");
   await page.locator("#records-filter").click();
   await page.locator("#records-filter-save").click();
-  await page.keyboard.press("Escape");
-  await expect(unsavedWithoutView).toHaveCount(0);
+  await expect(page.locator("#view-editor-name")).toHaveValue(/Example organization/);
+  const viewName = await submitViewEditor(page);
+  await expect(unsavedChanges).toHaveCount(0);
   await expect
     .poll(async () => {
-      const stored = await database.query('SELECT filters FROM "P13n" WHERE "companyId"=$1 AND "p13nId"=$2', [
-        companyId,
-        `records:${typeId}`,
-      ]);
+      const stored = await database.query(
+        'SELECT filters FROM "DataView" WHERE "companyId"=$1 AND "surfaceKey"=$2 AND name=$3',
+        [companyId, `records:${typeId}`, viewName],
+      );
       return stored.rows[0]?.filters;
     })
     .toEqual([
@@ -70,9 +72,13 @@ test("restores relationship, assignment and date filters with labels after reloa
       { field: "system:updatedAt", operator: "inLastDays", value: 7 },
     ]);
   await page.reload();
+  await expect(page.locator("#global-data-views").getByRole("link", { name: viewName, exact: true })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
   await expect(page.getByRole("link", { name: "Linked opportunity", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Unlinked opportunity", exact: true })).not.toBeVisible();
-  await expect(unsavedWithoutView).toHaveCount(0);
+  await expect(unsavedChanges).toHaveCount(0);
   await page.getByRole("button", { name: "Filters", exact: true }).click();
   const active = page.locator("[data-palette-active-filters]");
   await expect(active).toContainText("Example organization");

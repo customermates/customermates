@@ -326,7 +326,7 @@ describe("PrismaDataViewRepo stored state", () => {
     const surface = await asTenant(() => new PrismaDataViewRepo(UNUSED_OWNERS).loadSurfaceState(SURFACE));
 
     expect(surface.views[0].state.filters).toEqual(malformed);
-    expect(surface.allState.filters).toEqual(malformed);
+    expect(surface.allState).not.toHaveProperty("filters");
   });
 
   it("distinguishes an unset column from a cleared value", async () => {
@@ -372,7 +372,7 @@ describe("PrismaDataViewRepo stored state", () => {
     expect(surface).toEqual({ activeViewKey: null, views: [], allState: {} });
   });
 
-  it("reads the All tab state from the personalization list columns through the shared mapping", async () => {
+  it("reads the All tab layout from the personalization list columns and drops stored filters and search", async () => {
     p13nFindUnique.mockResolvedValue(
       storedPersonalization({
         activeViewKey: A_VIEW_ID,
@@ -393,8 +393,6 @@ describe("PrismaDataViewRepo stored state", () => {
 
     expect(surface.activeViewKey).toBe(A_VIEW_ID);
     expect(surface.allState).toEqual({
-      filters: [{ field: "firstName", operator: FilterOperatorKey.contains, value: "ada" }],
-      searchTerm: "acme",
       sortDescriptor: { field: "createdAt", direction: "desc" },
       pageSize: 25,
       viewMode: "card",

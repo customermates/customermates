@@ -30,6 +30,7 @@ import {
 } from "@/core/base/grouping/grouping.schema";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { resolveDataViewState } from "@/core/data-view/resolve-data-view-state";
+import { allViewLayout } from "@/core/data-view/all-view-state";
 import { env } from "@/env";
 import { runPrecheck } from "../validation/run-precheck";
 import { acceptSingleValueEquals } from "./filter-value";
@@ -207,8 +208,8 @@ export abstract class BaseGetInteractor<T> {
       activeViewKey,
       views: surface.views,
       view,
-      base: view ? view.state : surface.allState,
-      allState: surface.allState,
+      base: view ? view.state : { ...allViewLayout(surface.allState), filters: [], searchTerm: "" },
+      allState: allViewLayout(surface.allState),
     };
   }
 

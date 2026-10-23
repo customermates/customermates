@@ -1110,6 +1110,7 @@
       "connectedAccountNotFound": "Channel ID not found or not accessible.",
       "customFieldInvalidDate": "The date value is invalid. Must be in ISO 8601 date format (e.g., 2024-01-15) or ISO 8601 datetime format (e.g., 2024-01-15T00:00:00Z).",
       "dataViewAllNameImmutable": "The All view cannot be renamed. Omit name and update only the requested state settings. Read config for supported settings and list for the current state before retrying.",
+      "dataViewAllQueryImmutable": "The All view always shows every record and cannot hold filters or a search. Create a view with these filters instead.",
       "dataViewNameMismatch": "The name does not match this saved view. Read the view and confirm its exact name before deleting it.",
       "dataViewNotFound": "This saved view was not found.",
       "dataViewUpdateEmpty": "Provide a name or at least one view setting to update.",
@@ -2182,6 +2183,19 @@
       "activityCount": "{count, plural, one {# activity} other {# activities}}",
       "aiLabel": "Ask Mate about {name}",
       "all": "All",
+      "allTab": {
+        "activity": "All activity",
+        "auditEntries": "All entries",
+        "conversations": "All conversations",
+        "deliveries": "All deliveries",
+        "members": "All members",
+        "records": "All {list}",
+        "roles": "All roles",
+        "routines": "All routines",
+        "users": "All users",
+        "webhooks": "All webhooks",
+        "workspaces": "All workspaces"
+      },
       "applied": "Showing {name}",
       "askAi": "Ask Mate",
       "conversationCount": "{count, plural, one {# conversation} other {# conversations}}",
@@ -2198,6 +2212,7 @@
       "modified": "Unsaved changes",
       "moveLeft": "Move left",
       "moveRight": "Move right",
+      "myFilters": "My filters",
       "name": "Name",
       "namePlaceholder": "View name",
       "nameRequired": "Enter a name for the view.",
@@ -2206,7 +2221,8 @@
       "pickerTitle": "Switch view",
       "railLabel": "Saved views",
       "recordCount": "{count, plural, one {# record} other {# records}}",
-      "resetChanges": "Reset changes"
+      "resetChanges": "Reset changes",
+      "saveAsView": "Save as view"
     }
   },
   "Diagrams": {

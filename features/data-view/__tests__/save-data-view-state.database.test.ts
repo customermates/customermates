@@ -124,10 +124,12 @@ describeDatabase("data view state round trip on PostgreSQL", () => {
 
     const surface = await asTenant(() => views().loadSurfaceState(SURFACE));
     const view = surface.views.find(({ id }) => id === viewId);
-    const kept = { pageSize: 25, viewMode: ViewMode.card, columnWidths: { name: 240 }, filters: [], searchTerm: "" };
+    const kept = { pageSize: 25, viewMode: ViewMode.card, columnWidths: { name: 240 } };
 
-    expect(view?.state).toMatchObject(kept);
+    expect(view?.state).toMatchObject({ ...kept, filters: [], searchTerm: "" });
     expect(surface.allState).toMatchObject(kept);
+    expect(surface.allState).not.toHaveProperty("filters");
+    expect(surface.allState).not.toHaveProperty("searchTerm");
   });
 
   it("returns the complete persisted All state from the transaction that finishes last", async () => {
@@ -139,7 +141,7 @@ describeDatabase("data view state round trip on PostgreSQL", () => {
     const completions: Awaited<ReturnType<typeof save>>[] = [];
 
     await Promise.all([
-      save(ALL_VIEW_KEY, { searchTerm: "renewal" }).then((result) => {
+      save(ALL_VIEW_KEY, { pageSize: 10 }).then((result) => {
         completions.push(result);
       }),
       save(ALL_VIEW_KEY, { viewMode: ViewMode.card }).then((result) => {
@@ -147,7 +149,7 @@ describeDatabase("data view state round trip on PostgreSQL", () => {
       }),
     ]);
 
-    const expected = { searchTerm: "renewal", viewMode: ViewMode.card };
+    const expected = { pageSize: 10, viewMode: ViewMode.card };
     expect((await asTenant(() => views().loadSurfaceState(SURFACE))).allState).toMatchObject(expected);
     expect(completions).toHaveLength(2);
     expect(completions.at(-1)).toEqual({
@@ -156,27 +158,39 @@ describeDatabase("data view state round trip on PostgreSQL", () => {
     });
   });
 
-  it("persists an emptied filter list on the All tab into personalization and resolves it to no filters", async () => {
-    await save(ALL_VIEW_KEY, { filters: [viewFilter], pageSize: 10 });
-    expect((await asTenant(() => views().loadSurfaceState(SURFACE))).allState).toMatchObject({
-      filters: [viewFilter],
-      pageSize: 10,
-    });
+  it("never writes filters or a search into the All tab, whatever the payload carries", async () => {
+    const result = await save(ALL_VIEW_KEY, { filters: [viewFilter], searchTerm: "acme", pageSize: 10 });
 
-    await save(ALL_VIEW_KEY, { filters: [], pageSize: 10 });
-
+    expect(result).toMatchObject({ ok: true, data: { viewKey: ALL_VIEW_KEY, state: { pageSize: 10 } } });
+    expect(result.ok && result.data).not.toHaveProperty("state.filters");
+    expect(result.ok && result.data).not.toHaveProperty("state.searchTerm");
     const stored = await client.query(
-      'SELECT "filters", "pagination" FROM "P13n" WHERE "companyId" = $1 AND "userId" = $2 AND "p13nId" = $3',
+      'SELECT "filters", "searchTerm", "pagination" FROM "P13n" WHERE "companyId" = $1 AND "userId" = $2 AND "p13nId" = $3',
       [companyId, userId, SURFACE],
     );
-    expect(stored.rows[0]).toEqual({ filters: [], pagination: { pageSize: 10 } });
+    expect(stored.rows[0]).toEqual({ filters: [], searchTerm: "", pagination: { pageSize: 10 } });
 
     const surface = await asTenant(() => views().loadSurfaceState(SURFACE));
-    expect(surface.allState.filters).toEqual([]);
-    expect(resolveDataViewState({ base: surface.allState, defaults: surfaceDefaults }).filters).toEqual([]);
+    expect(surface.allState).toMatchObject({ pageSize: 10 });
+    expect(surface.allState).not.toHaveProperty("filters");
+    expect(resolveDataViewState({ base: surface.allState }).filters).toEqual([]);
   });
 
-  it("saves an unsorted All search through the validated transaction and retains it on reload", async () => {
+  it("ignores filters and a search stored on the All tab before the All tab stopped holding them", async () => {
+    await save(ALL_VIEW_KEY, { pageSize: 10 });
+    await client.query(
+      'UPDATE "P13n" SET "filters" = $4::jsonb, "searchTerm" = $5 WHERE "companyId" = $1 AND "userId" = $2 AND "p13nId" = $3',
+      [companyId, userId, SURFACE, JSON.stringify([viewFilter]), "acme"],
+    );
+
+    const surface = await asTenant(() => views().loadSurfaceState(SURFACE));
+
+    expect(surface.allState).toMatchObject({ pageSize: 10 });
+    expect(surface.allState).not.toHaveProperty("filters");
+    expect(surface.allState).not.toHaveProperty("searchTerm");
+  });
+
+  it("saves an unsorted All layout through the validated transaction and drops the search on reload", async () => {
     await client.query('DELETE FROM "P13n" WHERE "companyId" = $1 AND "userId" = $2 AND "p13nId" = $3', [
       companyId,
       userId,
@@ -184,14 +198,15 @@ describeDatabase("data view state round trip on PostgreSQL", () => {
     ]);
     const result = await save(ALL_VIEW_KEY, { searchTerm: "Roche", sortDescriptor: null, grouping: null });
 
-    expect(result).toMatchObject({ ok: true, data: { viewKey: ALL_VIEW_KEY, state: { searchTerm: "Roche" } } });
+    expect(result).toMatchObject({ ok: true, data: { viewKey: ALL_VIEW_KEY } });
+    expect(result.ok && result.data).not.toHaveProperty("state.searchTerm");
     const surface = await asTenant(() => views().loadSurfaceState(SURFACE));
-    expect(surface.allState.searchTerm).toBe("Roche");
+    expect(surface.allState).not.toHaveProperty("searchTerm");
     expect(resolveDataViewState({ base: surface.allState }).sortDescriptor).toBeUndefined();
     expect(resolveDataViewState({ base: surface.allState }).grouping).toBeUndefined();
   });
 
-  it("clears existing All sorting and grouping without losing search or layout preferences", async () => {
+  it("clears existing All sorting and grouping without losing layout preferences", async () => {
     await save(ALL_VIEW_KEY, {
       searchTerm: "renewal",
       sortDescriptor: { field: "name", direction: "desc" },
@@ -205,10 +220,10 @@ describeDatabase("data view state round trip on PostgreSQL", () => {
 
     const surface = await asTenant(() => views().loadSurfaceState(SURFACE));
     expect(surface.allState).toMatchObject({
-      searchTerm: "renewal",
       viewMode: ViewMode.card,
       hiddenColumns: ["updatedAt"],
     });
+    expect(surface.allState).not.toHaveProperty("searchTerm");
     const resolved = resolveDataViewState({ base: surface.allState });
     expect(resolved.sortDescriptor).toBeUndefined();
     expect(resolved.grouping).toBeUndefined();

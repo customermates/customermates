@@ -1,5 +1,7 @@
 import type { DataViewChipDto } from "@/core/data-view/data-view-state.schema";
 
+import { DATA_VIEW_NAME_MAX_LENGTH } from "@/core/data-view/data-view-limits";
+
 type RailChip = { view: DataViewChipDto; isActive: boolean };
 
 export type ViewMenuItemId = "copyLink" | "delete" | "duplicate" | "edit" | "moveLeft" | "moveRight";
@@ -43,4 +45,23 @@ export function viewMenuItems(ctx: ViewMenuContext): ViewMenuItem[] {
     actionItem("copyLink"),
     actionItem("delete", { isDestructive: true }),
   ];
+}
+
+export function allViewMenuItems(): ViewMenuItem[] {
+  return [actionItem("copyLink")];
+}
+
+export function suggestedViewName(parts: readonly string[], fallback: string): string {
+  let name = "";
+  for (const part of parts.map((entry) => entry.trim()).filter(Boolean)) {
+    const candidate = name ? `${name} · ${part}` : part;
+    if (candidate.length <= DATA_VIEW_NAME_MAX_LENGTH) {
+      name = candidate;
+      continue;
+    }
+    if (!name) name = `${part.slice(0, DATA_VIEW_NAME_MAX_LENGTH - 1).trimEnd()}…`;
+    break;
+  }
+
+  return name || fallback;
 }

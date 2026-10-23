@@ -1110,6 +1110,7 @@
       "connectedAccountNotFound": "Kanal-ID nicht gefunden oder nicht zugänglich.",
       "customFieldInvalidDate": "Der Datumswert ist ungültig. Muss im ISO 8601 Datumsformat sein (z.B. 2024-01-15) oder im ISO 8601 Datums-/Zeitformat (z.B. 2024-01-15T00:00:00Z).",
       "dataViewAllNameImmutable": "Die Ansicht Alle kann nicht umbenannt werden. Lasse name weg und ändere nur die angeforderten Einstellungen in state. Lies vor einem erneuten Versuch config für unterstützte Einstellungen und list für den aktuellen Zustand.",
+      "dataViewAllQueryImmutable": "Die Ansicht Alle zeigt immer alle Datensätze und kann keine Filter oder Suche enthalten. Erstelle stattdessen eine Ansicht mit diesen Filtern.",
       "dataViewNameMismatch": "Der Name stimmt nicht mit dieser gespeicherten Ansicht überein. Lies die Ansicht und bestätige ihren genauen Namen vor dem Löschen.",
       "dataViewNotFound": "Diese gespeicherte Ansicht wurde nicht gefunden.",
       "dataViewUpdateEmpty": "Gib einen Namen oder mindestens eine Ansichtseinstellung an, die aktualisiert werden soll.",
@@ -2182,6 +2183,19 @@
       "activityCount": "{count, plural, one {# Aktivität} other {# Aktivitäten}}",
       "aiLabel": "Mate zu {name} fragen",
       "all": "Alle",
+      "allTab": {
+        "activity": "Alle Aktivitäten",
+        "auditEntries": "Alle Einträge",
+        "conversations": "Alle Unterhaltungen",
+        "deliveries": "Alle Zustellungen",
+        "members": "Alle Mitglieder",
+        "records": "Alle {list}",
+        "roles": "Alle Rollen",
+        "routines": "Alle Routinen",
+        "users": "Alle Benutzer",
+        "webhooks": "Alle Webhooks",
+        "workspaces": "Alle Workspaces"
+      },
       "applied": "{name} wird angezeigt",
       "askAi": "Mate fragen",
       "conversationCount": "{count, plural, one {# Unterhaltung} other {# Unterhaltungen}}",
@@ -2198,6 +2212,7 @@
       "modified": "Ungespeicherte Änderungen",
       "moveLeft": "Nach links verschieben",
       "moveRight": "Nach rechts verschieben",
+      "myFilters": "Meine Filter",
       "name": "Name",
       "namePlaceholder": "Name der Ansicht",
       "nameRequired": "Gib einen Namen für die Ansicht ein.",
@@ -2206,7 +2221,8 @@
       "pickerTitle": "Ansicht wechseln",
       "railLabel": "Gespeicherte Ansichten",
       "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}",
-      "resetChanges": "Änderungen zurücksetzen"
+      "resetChanges": "Änderungen zurücksetzen",
+      "saveAsView": "Als Ansicht speichern"
     }
   },
   "Diagrams": {

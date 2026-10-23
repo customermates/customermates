@@ -1,8 +1,9 @@
 import { test, expect, collectPageErrors } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 import { openSidebar } from "./sidebar";
+import { submitViewEditor } from "./view-changes";
 
-test("keeps filter changes temporary until saved to the view, resets them and keeps them for the browser session", async ({
+test("keeps filter changes on All temporary until saved as a view, resets them and keeps them for the browser session", async ({
   page,
   database,
   companyId,
@@ -22,12 +23,12 @@ test("keeps filter changes temporary until saved to the view, resets them and ke
         [companyId, `records:${typeId}`],
       )
     ).rows[0]?.filters ?? [];
-  const viewsMenu = page.locator("#global-data-views-menu");
-  const unsavedWithoutView = page.locator("#global-data-views-menu[data-view-modified]");
+  const allView = page.locator("#global-data-views-all");
+  const unsavedWithoutView = page.locator("#global-data-views-all[data-view-modified]");
   const withoutView = async (target = page) => {
     await expect(target.locator("#global-data-views-new")).toBeVisible();
-    await expect(target.locator('#global-data-views [data-focus-target^="view:"][aria-current="page"]')).toHaveCount(0);
-    await expect(target.locator("#global-data-views-menu[data-view-modified]")).toHaveCount(0);
+    await expect(target.locator("#global-data-views-all")).toHaveAttribute("aria-current", "page");
+    await expect(target.locator("#global-data-views-all[data-view-modified]")).toHaveCount(0);
   };
   const cancel = page.locator("#records-filter-cancel");
   const save = page.locator("#records-filter-save");
@@ -42,12 +43,12 @@ test("keeps filter changes temporary until saved to the view, resets them and ke
   await withoutView();
 
   await applyAssignee();
-  await expect(viewsMenu).toHaveAttribute("data-view-modified", "");
-  await expect(viewsMenu.locator('span[aria-hidden="true"]')).toBeInViewport({ ratio: 1 });
+  await expect(allView).toHaveAttribute("data-view-modified", "");
+  await expect(allView.locator('span[aria-hidden="true"]')).toBeInViewport({ ratio: 1 });
   await expect(save).toBeVisible();
   const filterBar = page.locator('[role="dialog"] [data-slot="unsaved-changes-bar"]');
   await expect(filterBar).toBeVisible();
-  await expect(filterBar.getByRole("button", { name: "Save", exact: true })).toBeInViewport({ ratio: 1 });
+  await expect(filterBar.getByRole("button", { name: "Save as view", exact: true })).toBeInViewport({ ratio: 1 });
   await expect(filterBar.getByRole("button", { name: "Cancel", exact: true })).toBeInViewport({ ratio: 1 });
   await expect(page.locator('[role="dialog"] [data-view-changes-notice]')).toHaveCount(0);
   await page.screenshot({ path: testInfo.outputPath("view-modified-light.png"), animations: "disabled" });
@@ -65,7 +66,7 @@ test("keeps filter changes temporary until saved to the view, resets them and ke
 
   await applyAssignee();
   await page.keyboard.press("Escape");
-  await expect(viewsMenu).toHaveAttribute("data-view-modified", "");
+  await expect(allView).toHaveAttribute("data-view-modified", "");
   const sidebarLink = (name: string) =>
     page
       .locator('[data-sidebar="menu-button"]')
@@ -78,10 +79,10 @@ test("keeps filter changes temporary until saved to the view, resets them and ke
   await openSidebar(page);
   await sidebarLink("Deals").click();
   await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}(?:\\?.*)?$`));
-  await expect(viewsMenu).toHaveAttribute("data-view-modified", "");
+  await expect(allView).toHaveAttribute("data-view-modified", "");
   await expect(page).toHaveURL((url) => url.searchParams.has("filters"));
   await page.reload();
-  await expect(viewsMenu).toHaveAttribute("data-view-modified", "");
+  await expect(allView).toHaveAttribute("data-view-modified", "");
   expect(await storedFilters()).toEqual([]);
 
   const otherSession = await page.context().newPage();
@@ -91,29 +92,46 @@ test("keeps filter changes temporary until saved to the view, resets them and ke
 
   await page.locator("#records-filter").click();
   await save.click();
-  await expect(unsavedWithoutView).toHaveCount(0);
   await expect(save).toHaveCount(0);
+  const viewName = await submitViewEditor(page);
+  await expect(unsavedWithoutView).toHaveCount(0);
+  await expect(page.locator("#global-data-views [data-view-modified]")).toHaveCount(0);
+  const createdView = async () =>
+    (
+      await database.query('SELECT id, filters FROM "DataView" WHERE "companyId"=$1 AND "surfaceKey"=$2 AND name=$3', [
+        companyId,
+        `records:${typeId}`,
+        viewName,
+      ])
+    ).rows;
   await expect
-    .poll(storedFilters)
-    .toEqual([{ field: "system:assignedTo", operator: "in", value: [member] }]);
+    .poll(async () => (await createdView()).map((row) => row.filters))
+    .toEqual([[{ field: "system:assignedTo", operator: "in", value: [member] }]]);
+  expect(await storedFilters()).toEqual([]);
   await page.screenshot({
     path: testInfo.outputPath("view-saved.png"),
     animations: "disabled",
   });
-  await page.keyboard.press("Escape");
 
   const savedSession = await page.context().newPage();
-  await savedSession.goto(`/en/records/${typeId}`);
-  await withoutView(savedSession);
+  await savedSession.goto(`/en/records/${typeId}?view=${(await createdView())[0].id}`);
+  await expect(
+    savedSession.locator("#global-data-views").getByRole("link", { name: viewName, exact: true }),
+  ).toHaveAttribute("aria-current", "page");
   await savedSession.locator("#records-filter").click();
   await expect(
     savedSession.locator("[data-palette-active-filters]"),
   ).toBeVisible();
+  await savedSession.keyboard.press("Escape");
+  await savedSession.locator("#global-data-views-all").click();
+  await withoutView(savedSession);
+  await savedSession.locator("#records-filter").click();
+  await expect(savedSession.locator("[data-palette-active-filters]")).toHaveCount(0);
   await savedSession.close();
   expect(errors).toEqual([]);
 });
 
-test("keeps an Activities rail filter temporary with the modified dot on the views menu, Reset and Save in it", async ({
+test("keeps an Activities rail filter temporary with the modified dot on the All tab, Reset and Save as view in the views menu", async ({
   page,
   database,
   companyId,
@@ -137,10 +155,12 @@ test("keeps an Activities rail filter temporary with the modified dot on the vie
   const history = page.locator('main [data-detail-panel="activities"]');
   if (!(await history.isVisible())) await page.getByRole("tab", { name: "Activities", exact: true }).click();
   const menu = history.locator("#global-data-views-menu");
-  const unsavedWithoutView = history.locator("#global-data-views-menu[data-view-modified]");
+  const allView = history.locator("#global-data-views-all");
+  const unsavedWithoutView = history.locator("#global-data-views-all[data-view-modified]");
   await expect(history.locator("#global-data-views-new")).toBeVisible();
-  await expect(history.locator('[data-focus-target^="view:"][aria-current="page"]')).toHaveCount(0);
+  await expect(allView).toHaveAttribute("aria-current", "page");
   await expect(unsavedWithoutView).toHaveCount(0);
+  await expect(menu).not.toHaveAttribute("data-view-modified");
   const storedFilters = async () =>
     (
       await database.query('SELECT filters FROM "P13n" WHERE "companyId"=$1 AND "userId"=$2 AND "p13nId"=$3', [
@@ -148,44 +168,54 @@ test("keeps an Activities rail filter temporary with the modified dot on the vie
         workspace.userId,
         "entity-timeline",
       ])
-    ).rows[0]?.filters ?? null;
+    ).rows[0]?.filters ?? [];
   const filterMessages = async () => {
     await history.getByRole("button", { name: "Filters", exact: true }).click();
     await page.locator('[data-palette-field="timelineKind"]').click();
     await page.locator('[data-palette-value="messages"]').click();
     await page.locator("#filter-palette-back").click();
     await page.keyboard.press("Escape");
-    await expect(menu).toHaveAttribute("data-view-modified", "");
+    await expect(allView).toHaveAttribute("data-view-modified", "");
+    await expect(menu).not.toHaveAttribute("data-view-modified");
   };
   const viewsMenu = async () => {
     await menu.click();
-    await expect(page.locator("#global-data-views-save")).toBeVisible();
+    await expect(page.locator("#global-data-views-save-as")).toBeVisible();
     await expect(page.locator("#global-data-views-reset")).toBeVisible();
+    await expect(page.locator("#global-data-views-save")).toHaveCount(0);
   };
 
   await filterMessages();
   await viewsMenu();
   await page.locator("#global-data-views-reset").click();
   await expect(unsavedWithoutView).toHaveCount(0);
-  expect(await storedFilters()).toBeNull();
+  expect(await storedFilters()).toEqual([]);
 
   await filterMessages();
   await viewsMenu();
-  await page.locator("#global-data-views-save").click();
-  await expect(unsavedWithoutView).toHaveCount(0);
+  await page.locator("#global-data-views-save-as").click();
+  const viewName = await submitViewEditor(page, "Messages only", history);
+  await expect(history.locator("#global-data-views [data-view-modified]")).toHaveCount(0);
   await expect
-    .poll(storedFilters)
-    .toEqual([{ field: "timelineKind", operator: "in", value: ["messages"] }]);
-  if ((await menu.count()) > 0) {
-    await menu.click();
-    await expect(page.locator("#global-data-views-save")).toHaveCount(0);
-    await expect(page.locator("#global-data-views-reset")).toHaveCount(0);
-    await page.keyboard.press("Escape");
-  }
+    .poll(async () =>
+      (
+        await database.query(
+          'SELECT filters FROM "DataView" WHERE "companyId"=$1 AND "userId"=$2 AND "surfaceKey"=$3 AND name=$4',
+          [companyId, workspace.userId, "entity-timeline", viewName],
+        )
+      ).rows,
+    )
+    .toEqual([{ filters: [{ field: "timelineKind", operator: "in", value: ["messages"] }] }]);
+  expect(await storedFilters()).toEqual([]);
+  await menu.click();
+  await expect(page.locator("#global-data-views-save")).toHaveCount(0);
+  await expect(page.locator("#global-data-views-save-as")).toHaveCount(0);
+  await expect(page.locator("#global-data-views-reset")).toHaveCount(0);
+  await page.keyboard.press("Escape");
   expect(errors).toEqual([]);
 });
 
-test("opens an assistant proposal in the modified state and saves it as an update and as a new view", async ({
+test("opens an assistant proposal in the modified state and saves All layout, offers Save as view for All filters and saves a new view", async ({
   page,
   database,
   companyId,
@@ -197,38 +227,56 @@ test("opens an assistant proposal in the modified state and saves it as an updat
   const surfaceKey = `records:${typeId}`;
   const members = await database.query('SELECT id FROM "User" WHERE "companyId"=$1', [companyId]);
   const assignee = { field: "system:assignedTo", operator: "in", value: [members.rows[0].id] };
-  const propose = (viewKey: string, proposal: Record<string, unknown>) =>
+  const propose = (
+    viewKey: string,
+    proposal: Record<string, unknown>,
+    state: Record<string, unknown> = { filters: [assignee] },
+  ) =>
     page.evaluate(
       ([key, value]) => window.sessionStorage.setItem(key, value),
       [
         `customermates:view-query-draft:${companyId}:${workspace.userId}:${surfaceKey}:${viewKey}`,
-        JSON.stringify({ filters: [assignee], proposal: { state: { filters: [assignee] }, ...proposal } }),
+        JSON.stringify({ ...(state.filters ? { filters: state.filters } : {}), proposal: { state, ...proposal } }),
       ] as const,
     );
   const viewsMenu = page.locator("#global-data-views-menu");
+  const allView = page.locator("#global-data-views-all");
   const activeView = page.locator('#global-data-views [data-focus-target^="view:"][aria-current="page"]');
+  const storedAll = async () =>
+    (
+      await database.query(
+        'SELECT filters, pagination FROM "P13n" WHERE "companyId"=$1 AND "userId"=$2 AND "p13nId"=$3',
+        [companyId, workspace.userId, surfaceKey],
+      )
+    ).rows[0];
 
   await page.goto(`/en/records/${typeId}`);
   await expect(page.locator("#global-data-views-new")).toBeVisible();
-  await expect(activeView).toHaveCount(0);
+  await expect(allView).toHaveAttribute("aria-current", "page");
   await page.waitForLoadState("networkidle");
-  await propose("__all__", { isNew: false });
+  await propose("__all__", { isNew: false }, { pageSize: 5 });
   await page.reload();
-  await expect(viewsMenu).toHaveAttribute("data-view-modified", "");
+  await expect(allView).toHaveAttribute("data-view-modified", "");
+  await expect(viewsMenu).not.toHaveAttribute("data-view-modified");
   await viewsMenu.click();
+  await expect(page.locator("#global-data-views-save-as")).toHaveCount(0);
   await page.locator("#global-data-views-save").click();
-  await expect(page.locator("#global-data-views-menu[data-view-modified]")).toHaveCount(0);
-  await expect
-    .poll(async () =>
-      (
-        await database.query('SELECT filters FROM "P13n" WHERE "companyId"=$1 AND "userId"=$2 AND "p13nId"=$3', [
-          companyId,
-          workspace.userId,
-          surfaceKey,
-        ])
-      ).rows[0]?.filters,
-    )
-    .toEqual([assignee]);
+  await expect(page.locator("#global-data-views-all[data-view-modified]")).toHaveCount(0);
+  await expect.poll(async () => (await storedAll())?.pagination).toMatchObject({ pageSize: 5 });
+  expect((await storedAll())?.filters ?? []).toEqual([]);
+
+  await page.waitForLoadState("networkidle");
+  await propose("__all__", { isNew: true });
+  await page.reload();
+  await expect(allView).toHaveAttribute("data-view-modified", "");
+  await expect(allView).toHaveAttribute("aria-current", "page");
+  await expect(page.locator("#global-data-views-proposed")).toHaveCount(0);
+  await viewsMenu.click();
+  await expect(page.locator("#global-data-views-save-as")).toBeVisible();
+  await expect(page.locator("#global-data-views-save")).toHaveCount(0);
+  await page.locator("#global-data-views-reset").click();
+  await expect(page.locator("#global-data-views-all[data-view-modified]")).toHaveCount(0);
+  expect((await storedAll())?.filters ?? []).toEqual([]);
 
   await page.waitForLoadState("networkidle");
   await propose("__all__", { isNew: true, name: "Assigned to me" });
@@ -239,7 +287,7 @@ test("opens an assistant proposal in the modified state and saves it as an updat
   await expect(proposed.locator('span[aria-hidden="true"]')).toBeInViewport({ ratio: 1 });
   await expect(proposed).toHaveAttribute("aria-current", "page");
   await expect(activeView).toHaveCount(0);
-  await expect(page.locator("#global-data-views-menu[data-view-modified]")).toHaveCount(0);
+  await expect(page.locator("#global-data-views-all[data-view-modified]")).toHaveCount(0);
   await page.screenshot({ path: testInfo.outputPath("proposal-new-view-light.png"), animations: "disabled" });
   await page.emulateMedia({ colorScheme: "dark" });
   await page.screenshot({ path: testInfo.outputPath("proposal-new-view-dark.png"), animations: "disabled" });
@@ -304,12 +352,12 @@ test("keeps appearance changes temporary with the shared bottom save bar and the
         `records:${typeId}`,
       ])
     ).rows[0]?.grouping ?? null;
-  const viewsMenu = page.locator("#global-data-views-menu");
-  const unsavedWithoutView = page.locator("#global-data-views-menu[data-view-modified]");
+  const allView = page.locator("#global-data-views-all");
+  const unsavedWithoutView = page.locator("#global-data-views-all[data-view-modified]");
   const withoutView = async (target = page) => {
     await expect(target.locator("#global-data-views-new")).toBeVisible();
-    await expect(target.locator('#global-data-views [data-focus-target^="view:"][aria-current="page"]')).toHaveCount(0);
-    await expect(target.locator("#global-data-views-menu[data-view-modified]")).toHaveCount(0);
+    await expect(target.locator("#global-data-views-all")).toHaveAttribute("aria-current", "page");
+    await expect(target.locator("#global-data-views-all[data-view-modified]")).toHaveCount(0);
   };
   const groupBy = page.getByRole("combobox", { name: "Group By", exact: true });
   const appearanceSave = page.locator("#records-display-options-view-save");
@@ -341,7 +389,7 @@ test("keeps appearance changes temporary with the shared bottom save bar and the
   await closeAppearance();
 
   await groupByStage();
-  await expect(viewsMenu).toHaveAttribute("data-view-modified", "");
+  await expect(allView).toHaveAttribute("data-view-modified", "");
   await expect(appearanceSave).toBeVisible();
   await expect(appearanceCancel).toBeVisible();
   await expect(appearanceBar).toBeVisible();
@@ -375,7 +423,7 @@ test("keeps appearance changes temporary with the shared bottom save bar and the
   expect(await storedGrouping()).toBeNull();
 
   await page.reload();
-  await expect(viewsMenu).toHaveAttribute("data-view-modified", "");
+  await expect(allView).toHaveAttribute("data-view-modified", "");
   await openAppearance();
   await expect(groupBy).toContainText("Stage");
   await appearanceSave.click();
@@ -386,7 +434,7 @@ test("keeps appearance changes temporary with the shared bottom save bar and the
 
   await groupBy.click();
   await page.getByRole("option", { name: "None", exact: true }).click();
-  await expect(viewsMenu).toHaveAttribute("data-view-modified", "");
+  await expect(allView).toHaveAttribute("data-view-modified", "");
   await appearanceCancel.click();
   await expect(groupBy).toContainText("Stage");
   await expect(unsavedWithoutView).toHaveCount(0);

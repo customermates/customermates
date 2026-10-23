@@ -111,7 +111,7 @@ describe("persistViewState rejection handling", () => {
     expect(saveDataViewStateAction).toHaveBeenCalledExactlyOnceWith({
       surfaceKey: SURFACE.routines,
       viewKey: ALL_VIEW_KEY,
-      state: { filters: [], searchTerm: "", columnWidths: { title: 300 } },
+      state: { columnWidths: { title: 300 } },
     });
 
     saveDataViewStateAction.mockClear();

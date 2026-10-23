@@ -11,6 +11,7 @@ import { Transaction } from "@/core/decorators/transaction.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
+import { allViewLayout } from "@/core/data-view/all-view-state";
 import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { readPersonalizationState, writePersonalizationState } from "./data-view-row-mapping";
@@ -39,12 +40,12 @@ export class SaveDataViewStateInteractor extends AuthenticatedInteractor<
     if (viewKey === ALL_VIEW_KEY) {
       const persisted = await this.personalization.upsertP13n({
         p13nId: surfaceKey,
-        ...writePersonalizationState(state),
+        ...writePersonalizationState({ ...allViewLayout(state), filters: [], searchTerm: "" }),
       });
 
       return {
         ok: true as const,
-        data: { viewKey, state: readPersonalizationState(persisted) },
+        data: { viewKey, state: allViewLayout(readPersonalizationState(persisted)) },
       };
     }
 

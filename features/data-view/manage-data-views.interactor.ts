@@ -34,6 +34,7 @@ import {
 import { activityViewFilterableFields } from "@/ee/messaging/activities/record-activity-view";
 import { ACTIVITY_KINDS, CHANGE_ACTIVITY_KINDS } from "@/ee/messaging/activities/activities.schema";
 import { ALL_VIEW_KEY, SURFACE, isActivitySurface } from "@/core/data-view/data-view-keys";
+import { carriesViewQuery } from "@/core/data-view/all-view-state";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
@@ -388,6 +389,12 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
 
     if (data.viewKey === ALL_VIEW_KEY && data.name !== undefined)
       return fail(CustomErrorCode.dataViewAllNameImmutable, ["name"]);
+    if (data.viewKey === ALL_VIEW_KEY && data.state && carriesViewQuery(data.state)) {
+      return fail(CustomErrorCode.dataViewAllQueryImmutable, [
+        "state",
+        (data.state.filters?.length ?? 0) > 0 ? "filters" : "searchTerm",
+      ]);
+    }
     const currentState = owned?.state ?? surfaceState.allState;
     const name = data.name !== undefined && data.name !== owned?.name ? data.name : undefined;
 

@@ -213,15 +213,16 @@ describe("BaseDataViewStore.applyView", () => {
     expect(store.hiddenColumns).toEqual(["owner"]);
   });
 
-  it("applies the remembered All state instead of hard defaults when the All tab is selected", () => {
+  it("applies the remembered All layout but never its filters or search when the All tab is selected", () => {
     const store = hydrated(chip(), ALL_STATE);
 
     store.applyView(VIEW_ID);
     store.applyView(ALL_VIEW_KEY);
 
     expect(store.activeViewKey).toBe(ALL_VIEW_KEY);
-    expect(store.filters).toEqual([filter("owner", "me")]);
-    expect(store.searchTerm).toBe("acme");
+    expect(store.filters).toEqual([]);
+    expect(store.searchTerm).toBeUndefined();
+    expect(store.isFilterModified).toBe(false);
     expect(store.viewMode).toBe(ViewMode.card);
     expect(store.grouping).toEqual({ field: "stage" });
     expect(store.hiddenColumns).toEqual(["owner"]);
@@ -233,8 +234,8 @@ describe("BaseDataViewStore.applyView", () => {
     store.applyView("2b1f0f7e-1111-4222-8333-444444444444");
 
     expect(store.activeViewKey).toBe(ALL_VIEW_KEY);
-    expect(store.filters).toEqual([filter("owner", "me")]);
-    expect(store.searchTerm).toBe("acme");
+    expect(store.filters).toEqual([]);
+    expect(store.searchTerm).toBeUndefined();
     expect(store.viewMode).toBe(ViewMode.card);
 
     await settle();

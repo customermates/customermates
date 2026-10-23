@@ -8146,7 +8146,7 @@
                           "rank": {
                             "type": "integer",
                             "minimum": 0,
-                            "maximum": 3
+                            "maximum": 4
                           }
                         },
                         "required": [
@@ -8614,7 +8614,7 @@
                             "rank": {
                               "type": "integer",
                               "minimum": 0,
-                              "maximum": 3
+                              "maximum": 4
                             }
                           },
                           "required": [
@@ -117563,6 +117563,7 @@
                         "dataViewNotFound",
                         "dataViewNameMismatch",
                         "dataViewAllNameImmutable",
+                        "dataViewAllQueryImmutable",
                         "dataViewUpdateEmpty",
                         "emailNotVerified",
                         "invalidCredentials",
