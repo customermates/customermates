@@ -3,7 +3,7 @@
  * Migration matrix, all on throwaway databases in this worktree's own PostgreSQL containers:
  *   fresh-pg17 / fresh-pg16  every migration on an empty database, seed twice, `migrate status` up to date and an empty
  *                            `migrate diff` against prisma/schema.prisma (PostgreSQL 16 reports its diff for information)
- *   upgrade-from-<ref>       a database migrated and seeded by <ref>'s own code (default origin/main, checked out in a
+ *   upgrade-from-<ref>       on PostgreSQL 17 and 16: a database migrated and seeded by <ref>'s own code (default origin/main, checked out in a
  *                            temporary git worktree), then upgraded by this branch: only the new migrations apply, in
  *                            order, the seed converges twice and the schema matches
  *
@@ -62,8 +62,8 @@ async function fresh(major) {
   };
 }
 
-async function upgrade() {
-  const name = `upgrade-from-${options.from.replace(/^origin\//, "")}`;
+async function upgrade(version) {
+  const name = `upgrade-from-${options.from.replace(/^origin\//, "")}${version === 17 ? "" : `-pg${version}`}`;
   const log = resolve(directory, `${name}.log`);
   const started = Date.now();
   // Outside the worktree, so test runners and file scans of the worktree never pick up the snapshot's files.
@@ -75,7 +75,7 @@ async function upgrade() {
   if (added.code !== 0) return { check: name, result: "ERROR", detail: `could not check out ${options.from}`, time: "-", log };
   try {
     const sameLock = readFileSync(resolve(snapshot, "yarn.lock"), "utf8") === readFileSync(resolve(REPO_ROOT, "yarn.lock"), "utf8");
-    const cluster = await ensureCluster(17);
+    const cluster = await ensureCluster(version);
     const url = await recreateDatabase(cluster, "crm_verify_migrations_upgrade");
     const install = sameLock
       ? await run("cp", ["-al", resolve(REPO_ROOT, "node_modules"), resolve(snapshot, "node_modules")], { log })
@@ -120,7 +120,14 @@ async function upgrade() {
   }
 }
 
-const checks = await Promise.all([fresh(17), ...(options.skipPg16 ? [] : [fresh(16)]), ...(options.skipUpgrade ? [] : [upgrade()])]);
+async function upgrades() {
+  if (options.skipUpgrade) return [];
+  const results = [await upgrade(17)];
+  if (!options.skipPg16) results.push(await upgrade(16));
+  return results;
+}
+
+const checks = (await Promise.all([fresh(17), ...(options.skipPg16 ? [] : [fresh(16)]), upgrades()])).flat();
 console.log(`\nMigration matrix (${formatDuration(seconds(startedAt))})`);
 console.log(table(checks.map((check) => ({ ...check, log: relative(REPO_ROOT, check.log) })), ["check", "result", "detail", "time", "log"]));
 process.exit(checks.every((check) => check.result === "pass") ? 0 : 1);

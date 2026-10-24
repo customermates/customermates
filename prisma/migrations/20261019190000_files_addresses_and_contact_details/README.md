@@ -65,7 +65,7 @@ workspace that was still running ends as failed with `recordSchemaChanged`; its 
 A phone or email field the contact details field cannot take over becomes a text field with all its values and loses
 its click action. The reason is the first that applies:
 
-| Reason (in the notice) | Case |
+| Reason (in the inventory) | Case |
 | --- | --- |
 | field in Trash | The field is in Trash; as text it stays restorable. |
 | list in Trash | Its list is in Trash. |
@@ -93,18 +93,11 @@ id: its values are read and written through the record's `identities` on the con
 `valueType` of `phone` or `email` is refused with a message that points to the contact details field. Record history
 from before the move still reads these fields, shown as text.
 
-### Notices and counts
+### Counts
 
-The deployment log shows one notice per field kept as text and summaries with the counts:
-
-```text
-NOTICE:  <Phone|Email> field <field id> of list <list id> in workspace <workspace id> stays a text field: <reason>
-NOTICE:  Phone fields: <n> moved into contact details with <n> numbers on <n> records, <n> kept as text
-NOTICE:  Email fields: <n> moved into contact details with <n> addresses on <n> records, <n> kept as text
-NOTICE:  Contact details fields: <n> new, <n> renamed from a former default name
-```
-
-Notices name ids only, never labels or values.
+The migration is plain SQL and reports nothing itself. The read-only inventory below lists before deploying which
+fields move and which stay text, with the reason and how many records hold a value; it names ids only, never labels
+or values.
 
 ### Before deploying
 
@@ -189,16 +182,9 @@ FROM contact
 ORDER BY contact.company_id, list_id, field_id;
 ```
 
-### Refusals
+### Lock timeout
 
-The migration checks its own result before it commits and rolls everything back with one of these messages, which
-point to a defect of the migration rather than to the data. Report them:
-
-- `A phone number or email address was not linked to its record`
-- `A phone or email field is still stored`
-- `A changed field definition does not match its record model`
-
-A lock that is not granted within 60 seconds also rolls the migration back, for example while a long import holds its
+A lock that is not granted within 60 seconds rolls the migration back, for example while a long import holds its
 workspace. The database then stays as it was, but Prisma records the migration as failed and refuses every further
 `prisma migrate deploy` (P3009) until it is marked as rolled back. Mark it once, then deploy again, after a lock
 timeout preferably while fewer people work:

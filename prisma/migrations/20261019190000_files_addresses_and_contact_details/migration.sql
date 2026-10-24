@@ -10,8 +10,8 @@
 --      knows it); the field is renamed from its former default name; the database refuses phone and email fields
 --      from then on.
 --
--- prisma migrate deploy runs the file as one implicit transaction. See README.md next to this file for the fallbacks,
--- the notices and a read-only inventory to run before deploying.
+-- prisma migrate deploy runs the file as one implicit transaction. See README.md next to this file for the lock timeout
+-- and a read-only inventory to run before deploying.
 -- =============================================================================================
 
 SET LOCAL TIME ZONE 'UTC';
@@ -21,14 +21,8 @@ SET LOCAL jit = off;
 -- The record engine's per-workspace lock of every workspace, in id order, before any table lock: a configuration or
 -- record write of the previous release that holds its workspace's lock then finishes instead of waiting for a table
 -- this file has already locked, and no such write runs while phone and email fields move.
-DO $$
-DECLARE
-  v_workspace record;
-BEGIN
-  FOR v_workspace IN SELECT id FROM "Company" ORDER BY id LOOP
-    PERFORM pg_advisory_xact_lock(hashtextextended(v_workspace.id, 0));
-  END LOOP;
-END $$;
+SELECT pg_advisory_xact_lock(hashtextextended(workspace.id, 0))
+FROM (SELECT id FROM "Company" ORDER BY id) workspace;
 
 -- ---------------------------------------------------------------------------------------------
 -- 1. Record files
@@ -476,465 +470,377 @@ LANGUAGE sql IMMUTABLE AS $fn$
     '{valueType}', '"text"')
 $fn$;
 
-CREATE TEMP TABLE contact_details_field (
-  company_id text NOT NULL,
-  field_id text NOT NULL,
-  type_id text NOT NULL,
-  value_type text NOT NULL,
-  position integer NOT NULL,
-  reason text
-) ON COMMIT DROP;
-CREATE TEMP TABLE contact_details_value (
-  company_id text NOT NULL,
-  type_id text NOT NULL,
-  record_id text NOT NULL,
-  channel_class text NOT NULL,
-  value text NOT NULL
-) ON COMMIT DROP;
-CREATE TEMP TABLE contact_details_target (
-  company_id text NOT NULL,
-  type_id text NOT NULL,
-  field_id text NOT NULL,
-  created boolean NOT NULL
-) ON COMMIT DROP;
-CREATE TEMP TABLE contact_details_renamed (company_id text NOT NULL, field_id text NOT NULL, label text NOT NULL) ON COMMIT DROP;
+-- The workspaces whose current record model has a phone or email field or a contact details field that still carries
+-- a former default name, with that model and the language new fields are named in: the first administrator's, English
+-- when it follows the browser.
+CREATE TEMP TABLE contact_details_workspace ON COMMIT DROP AS
+SELECT state."companyId" AS company_id, state.revision, revision.snapshot AS model,
+  coalesce((
+    SELECT nullif(member."displayLanguage"::text, 'system')
+    FROM "User" member
+    JOIN "UserRole" role ON role.id = member."roleId" AND role."isSystemRole"
+    WHERE member."companyId" = state."companyId"
+    ORDER BY member."createdAt", member.id
+    LIMIT 1
+  ), 'en') AS language
+FROM "RecordSchemaState" state
+JOIN "RecordSchemaRevision" revision ON revision."companyId" = state."companyId" AND revision.revision = state.revision
+WHERE EXISTS (
+  SELECT 1 FROM jsonb_array_elements(revision.snapshot -> 'fields') AS field(value)
+  WHERE field.value ->> 'valueType' IN ('phone', 'email')
+    OR (field.value ->> 'valueType' = 'channels' AND pg_temp.contact_details_former_language(field.value ->> 'label') IS NOT NULL)
+);
 
-DO $$
-DECLARE
-  v_workspace record;
-  v_company text;
-  v_revision integer;
-  v_model jsonb;
-  v_language text;
-  v_type record;
-  v_ids text[];
-  v_target text;
-  v_taken text[];
-  v_field jsonb;
-  v_created jsonb;
-  v_operations jsonb;
-  v_failed record;
-BEGIN
-  FOR v_workspace IN
-    SELECT state."companyId" AS company_id, state.revision, revision.snapshot
-    FROM "RecordSchemaState" state
-    JOIN "RecordSchemaRevision" revision ON revision."companyId" = state."companyId" AND revision.revision = state.revision
-    WHERE EXISTS (
-      SELECT 1 FROM jsonb_array_elements(revision.snapshot -> 'fields') AS field(value)
-      WHERE field.value ->> 'valueType' IN ('phone', 'email')
-        OR (field.value ->> 'valueType' = 'channels' AND pg_temp.contact_details_former_language(field.value ->> 'label') IS NOT NULL)
-    )
-    ORDER BY state."companyId"
-  LOOP
-    v_company := v_workspace.company_id;
-    v_revision := v_workspace.revision;
-    v_model := v_workspace.snapshot;
-    v_created := '[]'::jsonb;
-    -- New fields are named in the language of the workspace's first administrator, English when it follows the
-    -- browser.
-    SELECT coalesce((
-      SELECT nullif(member."displayLanguage"::text, 'system')
-      FROM "User" member
-      JOIN "UserRole" role ON role.id = member."roleId" AND role."isSystemRole"
-      WHERE member."companyId" = v_company
-      ORDER BY member."createdAt", member.id
-      LIMIT 1
-    ), 'en') INTO v_language;
+-- Contact details fields that still carry a former default name ("Channels" in any app language) get the new default
+-- name of the same language, unless another field of the list (also one in Trash) already has it.
+CREATE TEMP TABLE contact_details_renamed ON COMMIT DROP AS
+SELECT workspace.company_id, field.value ->> 'id' AS field_id,
+  pg_temp.contact_details_label(pg_temp.contact_details_former_language(field.value ->> 'label')) AS label
+FROM contact_details_workspace workspace
+CROSS JOIN LATERAL jsonb_array_elements(workspace.model -> 'fields') AS field(value)
+WHERE field.value ->> 'valueType' = 'channels'
+  AND pg_temp.contact_details_former_language(field.value ->> 'label') IS NOT NULL
+  AND NOT EXISTS (
+    SELECT 1 FROM jsonb_array_elements(workspace.model -> 'fields') AS other(value)
+    WHERE other.value ->> 'typeId' = field.value ->> 'typeId' AND other.value ->> 'id' <> field.value ->> 'id'
+      AND pg_temp.contact_details_name_key(other.value ->> 'label') = pg_temp.contact_details_name_key(
+        pg_temp.contact_details_label(pg_temp.contact_details_former_language(field.value ->> 'label')))
+  );
 
-    -- Contact details fields that still carry a former default name ("Channels" in any app language) get the new
-    -- default name of the same language, unless another field of the list (also one in Trash) already has it.
-    FOR v_field IN
-      SELECT field.value FROM jsonb_array_elements(v_model -> 'fields') AS field(value)
-      WHERE field.value ->> 'valueType' = 'channels'
-        AND pg_temp.contact_details_former_language(field.value ->> 'label') IS NOT NULL
-        AND NOT EXISTS (
-          SELECT 1 FROM jsonb_array_elements(v_model -> 'fields') AS other(value)
-          WHERE other.value ->> 'typeId' = field.value ->> 'typeId' AND other.value ->> 'id' <> field.value ->> 'id'
-            AND pg_temp.contact_details_name_key(other.value ->> 'label') = pg_temp.contact_details_name_key(
-              pg_temp.contact_details_label(pg_temp.contact_details_former_language(field.value ->> 'label')))
-        )
-      ORDER BY field.value ->> 'id'
-    LOOP
-      INSERT INTO contact_details_renamed (company_id, field_id, label)
-      VALUES (v_company, v_field ->> 'id',
-        pg_temp.contact_details_label(pg_temp.contact_details_former_language(v_field ->> 'label')));
-    END LOOP;
+-- Every phone and email field, with the reason it stays a text field, or no reason when the contact details field
+-- takes it over. The first matching reason applies; README.md's inventory lists the same before deploying.
+CREATE TEMP TABLE contact_details_field ON COMMIT DROP AS
+SELECT workspace.company_id, field.value ->> 'id' AS field_id, field.value ->> 'typeId' AS type_id,
+  field.value ->> 'valueType' AS value_type, coalesce((field.value ->> 'position')::integer, 0) AS position, CASE
+  WHEN coalesce((field.value ->> 'archived')::boolean, false) THEN 'field in Trash'
+  WHEN list.value IS NULL OR coalesce((list.value ->> 'archived')::boolean, false) THEN 'list in Trash'
+  WHEN coalesce((list.value ->> 'embedded')::boolean, false) THEN 'sub-list'
+  WHEN field.value #>> '{behavior,kind}' IS DISTINCT FROM 'input' THEN 'calculated field'
+  WHEN list.value ->> 'primaryFieldId' = field.value ->> 'id' THEN 'name field of the list'
+  WHEN EXISTS (
+    SELECT 1 FROM jsonb_array_elements(workspace.model -> 'fields') AS other(value)
+    WHERE other.value ->> 'id' <> field.value ->> 'id'
+      AND pg_temp.contact_details_mentions(other.value -> 'behavior', ARRAY[field.value ->> 'id'])
+  ) THEN 'used by a calculation'
+  WHEN EXISTS (
+    SELECT 1 FROM jsonb_array_elements(coalesce(workspace.model -> 'capabilities', '[]'::jsonb)) AS binding(value)
+    CROSS JOIN LATERAL jsonb_array_elements(binding.value -> 'fields') AS entry(value)
+    WHERE entry.value ->> 'fieldId' = field.value ->> 'id'
+  ) THEN 'used by a binding'
+  WHEN EXISTS (
+    SELECT 1 FROM "RecordEventSubscription" subscription
+    WHERE subscription."companyId" = workspace.company_id
+      AND (field.value ->> 'id' = ANY (subscription."changedFieldIds")
+        OR pg_temp.contact_details_mentions(subscription.query, ARRAY[field.value ->> 'id'])
+        OR pg_temp.contact_details_mentions(subscription.sources, ARRAY[field.value ->> 'id']))
+  ) OR EXISTS (
+    SELECT 1 FROM "Routine" routine
+    WHERE routine."companyId" = workspace.company_id
+      AND pg_temp.contact_details_mentions(routine."triggerFilters", ARRAY[field.value ->> 'id'])
+  ) OR EXISTS (
+    SELECT 1 FROM "Webhook" webhook
+    WHERE webhook."companyId" = workspace.company_id AND webhook."bodyTemplate" LIKE '%' || (field.value ->> 'id') || '%'
+  ) THEN 'used by a routine or webhook'
+  WHEN EXISTS (
+    SELECT 1 FROM jsonb_array_elements(workspace.model -> 'fields') AS other(value)
+    WHERE other.value ->> 'typeId' = field.value ->> 'typeId' AND other.value ->> 'valueType' = 'channels'
+      AND coalesce((other.value ->> 'archived')::boolean, false)
+  ) THEN 'contact details field in Trash'
+  WHEN EXISTS (
+    SELECT 1 FROM "RecordValue" value
+    CROSS JOIN LATERAL unnest(CASE WHEN value."textValue" IS NOT NULL THEN ARRAY[value."textValue"] ELSE value."textListValue" END) AS entry
+    WHERE value."companyId" = workspace.company_id AND value."typeId" = field.value ->> 'typeId'
+      AND value."fieldId" = field.value ->> 'id' AND value.state = 'value'
+      AND pg_temp.contact_details_identity_value(field.value ->> 'valueType', entry) IS NULL
+  ) THEN CASE field.value ->> 'valueType'
+    WHEN 'phone' THEN 'values that are not phone numbers'
+    ELSE 'values that are not email addresses'
+  END
+END AS reason
+FROM contact_details_workspace workspace
+CROSS JOIN LATERAL jsonb_array_elements(workspace.model -> 'fields') AS field(value)
+LEFT JOIN LATERAL (
+  SELECT list.value FROM jsonb_array_elements(workspace.model -> 'types') AS list(value)
+  WHERE list.value ->> 'id' = field.value ->> 'typeId'
+) list ON true
+WHERE field.value ->> 'valueType' IN ('phone', 'email');
 
-    -- Which phone and email fields the contact details field can take over. The first matching reason keeps a field
-    -- as text.
-    INSERT INTO contact_details_field (company_id, field_id, type_id, value_type, position, reason)
-    SELECT v_company, field.value ->> 'id', field.value ->> 'typeId', field.value ->> 'valueType',
-      coalesce((field.value ->> 'position')::integer, 0), CASE
-      WHEN coalesce((field.value ->> 'archived')::boolean, false) THEN 'field in Trash'
-      WHEN list.value IS NULL OR coalesce((list.value ->> 'archived')::boolean, false) THEN 'list in Trash'
-      WHEN coalesce((list.value ->> 'embedded')::boolean, false) THEN 'sub-list'
-      WHEN field.value #>> '{behavior,kind}' IS DISTINCT FROM 'input' THEN 'calculated field'
-      WHEN list.value ->> 'primaryFieldId' = field.value ->> 'id' THEN 'name field of the list'
-      WHEN EXISTS (
-        SELECT 1 FROM jsonb_array_elements(v_model -> 'fields') AS other(value)
-        WHERE other.value ->> 'id' <> field.value ->> 'id'
-          AND pg_temp.contact_details_mentions(other.value -> 'behavior', ARRAY[field.value ->> 'id'])
-      ) THEN 'used by a calculation'
-      WHEN EXISTS (
-        SELECT 1 FROM jsonb_array_elements(coalesce(v_model -> 'capabilities', '[]'::jsonb)) AS binding(value)
-        CROSS JOIN LATERAL jsonb_array_elements(binding.value -> 'fields') AS entry(value)
-        WHERE entry.value ->> 'fieldId' = field.value ->> 'id'
-      ) THEN 'used by a binding'
-      WHEN EXISTS (
-        SELECT 1 FROM "RecordEventSubscription" subscription
-        WHERE subscription."companyId" = v_company
-          AND (field.value ->> 'id' = ANY (subscription."changedFieldIds")
-            OR pg_temp.contact_details_mentions(subscription.query, ARRAY[field.value ->> 'id'])
-            OR pg_temp.contact_details_mentions(subscription.sources, ARRAY[field.value ->> 'id']))
-      ) OR EXISTS (
-        SELECT 1 FROM "Routine" routine
-        WHERE routine."companyId" = v_company
-          AND pg_temp.contact_details_mentions(routine."triggerFilters", ARRAY[field.value ->> 'id'])
-      ) OR EXISTS (
-        SELECT 1 FROM "Webhook" webhook
-        WHERE webhook."companyId" = v_company AND webhook."bodyTemplate" LIKE '%' || (field.value ->> 'id') || '%'
-      ) THEN 'used by a routine or webhook'
-      WHEN EXISTS (
-        SELECT 1 FROM jsonb_array_elements(v_model -> 'fields') AS other(value)
-        WHERE other.value ->> 'typeId' = field.value ->> 'typeId' AND other.value ->> 'valueType' = 'channels'
-          AND coalesce((other.value ->> 'archived')::boolean, false)
-      ) THEN 'contact details field in Trash'
-      WHEN EXISTS (
-        SELECT 1 FROM "RecordValue" value
-        CROSS JOIN LATERAL unnest(CASE WHEN value."textValue" IS NOT NULL THEN ARRAY[value."textValue"] ELSE value."textListValue" END) AS entry
-        WHERE value."companyId" = v_company AND value."typeId" = field.value ->> 'typeId'
-          AND value."fieldId" = field.value ->> 'id' AND value.state = 'value'
-          AND pg_temp.contact_details_identity_value(field.value ->> 'valueType', entry) IS NULL
-      ) THEN CASE field.value ->> 'valueType'
-        WHEN 'phone' THEN 'values that are not phone numbers'
-        ELSE 'values that are not email addresses'
-      END
-    END
-    FROM jsonb_array_elements(v_model -> 'fields') AS field(value)
-    LEFT JOIN LATERAL (
-      SELECT list.value FROM jsonb_array_elements(v_model -> 'types') AS list(value)
-      WHERE list.value ->> 'id' = field.value ->> 'typeId'
-    ) list ON true
-    WHERE field.value ->> 'valueType' IN ('phone', 'email');
+-- A workspace whose only candidate keeps its name, because the new name is taken, stays as it is.
+DELETE FROM contact_details_workspace workspace
+WHERE NOT EXISTS (SELECT 1 FROM contact_details_renamed renamed WHERE renamed.company_id = workspace.company_id)
+  AND NOT EXISTS (SELECT 1 FROM contact_details_field field WHERE field.company_id = workspace.company_id);
 
-    -- A workspace whose only candidate keeps its name, because the new name is taken, stays as it is.
-    IF NOT EXISTS (SELECT 1 FROM contact_details_renamed WHERE company_id = v_company)
-      AND NOT EXISTS (SELECT 1 FROM contact_details_field WHERE company_id = v_company) THEN
-      CONTINUE;
-    END IF;
+-- A background operation of the previous revision would fail with recordSchemaChanged on its next step anyway; end it
+-- now and release the workspace.
+WITH ended AS (
+  UPDATE "RecordOperation" operation
+  SET state = 'failed', "errorCode" = 'recordSchemaChanged', "leaseUntil" = NULL, "updatedAt" = now()
+  FROM contact_details_workspace workspace
+  WHERE operation."companyId" = workspace.company_id AND operation.state IN ('pending', 'staging')
+  RETURNING operation."companyId", operation.id
+)
+DELETE FROM "RecordStageRow" row USING ended
+WHERE row."companyId" = ended."companyId" AND row."operationId" = ended.id;
 
-    -- A background operation of the previous revision would fail with recordSchemaChanged on its next step anyway;
-    -- end it now and release the workspace.
-    FOR v_failed IN
-      UPDATE "RecordOperation"
-      SET state = 'failed', "errorCode" = 'recordSchemaChanged', "leaseUntil" = NULL, "updatedAt" = now()
-      WHERE "companyId" = v_company AND state IN ('pending', 'staging')
-      RETURNING id
-    LOOP
-      DELETE FROM "RecordStageRow" WHERE "companyId" = v_company AND "operationId" = v_failed.id;
-      RAISE NOTICE 'Background record operation % of workspace % ended: the record model changed', v_failed.id, v_company;
-    END LOOP;
-    UPDATE "RecordSchemaState" SET "activeOperationId" = NULL WHERE "companyId" = v_company;
+UPDATE "RecordSchemaState" state SET "activeOperationId" = NULL
+FROM contact_details_workspace workspace WHERE state."companyId" = workspace.company_id;
 
-    v_model := jsonb_set(v_model, '{fields}', coalesce((
-      SELECT jsonb_agg(CASE WHEN renamed.field_id IS NULL THEN field.value
-          ELSE jsonb_set(field.value, '{label}', to_jsonb(renamed.label)) END ORDER BY field.ordinality)
-      FROM jsonb_array_elements(v_model -> 'fields') WITH ORDINALITY AS field(value, ordinality)
-      LEFT JOIN contact_details_renamed renamed ON renamed.company_id = v_company AND renamed.field_id = field.value ->> 'id'
-    ), '[]'::jsonb));
-    UPDATE "RecordFieldDefinition" definition SET
-      definition = jsonb_set(definition.definition, '{label}', to_jsonb(renamed.label)),
-      "updatedAt" = now()
-    FROM contact_details_renamed renamed
-    WHERE definition."companyId" = v_company AND renamed.company_id = v_company AND definition.id = renamed.field_id;
+UPDATE contact_details_workspace workspace SET model = jsonb_set(workspace.model, '{fields}', coalesce((
+  SELECT jsonb_agg(CASE WHEN renamed.field_id IS NULL THEN field.value
+      ELSE jsonb_set(field.value, '{label}', to_jsonb(renamed.label)) END ORDER BY field.ordinality)
+  FROM jsonb_array_elements(workspace.model -> 'fields') WITH ORDINALITY AS field(value, ordinality)
+  LEFT JOIN contact_details_renamed renamed
+    ON renamed.company_id = workspace.company_id AND renamed.field_id = field.value ->> 'id'
+), '[]'::jsonb))
+WHERE EXISTS (SELECT 1 FROM contact_details_renamed renamed WHERE renamed.company_id = workspace.company_id);
 
-    -- Every list that takes over a phone or email field keeps its values in its contact details field: the one it
-    -- has, or a new one after its other fields, named like the configuration service names new definitions.
-    FOR v_type IN
-      SELECT type_id FROM contact_details_field
-      WHERE company_id = v_company AND reason IS NULL
-      GROUP BY type_id
-      ORDER BY type_id
-    LOOP
-      SELECT other.value ->> 'id' INTO v_target
-      FROM jsonb_array_elements(v_model -> 'fields') AS other(value)
-      WHERE other.value ->> 'typeId' = v_type.type_id AND other.value ->> 'valueType' = 'channels';
-      IF v_target IS NOT NULL THEN
-        INSERT INTO contact_details_target (company_id, type_id, field_id, created) VALUES (v_company, v_type.type_id, v_target, false);
-        CONTINUE;
-      END IF;
+UPDATE "RecordFieldDefinition" definition SET
+  definition = jsonb_set(definition.definition, '{label}', to_jsonb(renamed.label)),
+  "updatedAt" = now()
+FROM contact_details_renamed renamed
+WHERE definition."companyId" = renamed.company_id AND definition.id = renamed.field_id;
 
-      SELECT coalesce(array_agg(pg_temp.contact_details_name_key(other.value ->> 'label')), ARRAY[]::text[])
-      INTO v_taken
-      FROM jsonb_array_elements(v_model -> 'fields') AS other(value)
-      WHERE other.value ->> 'typeId' = v_type.type_id
+-- Every list that takes over a phone or email field keeps its values in its contact details field: the one it has,
+-- or a new one after its other fields, named like the configuration service names new definitions. A click action the
+-- moved fields agree on carries over; the field otherwise opens a value.
+CREATE TEMP TABLE contact_details_target ON COMMIT DROP AS
+WITH lists AS (
+  SELECT DISTINCT company_id, type_id FROM contact_details_field WHERE reason IS NULL
+)
+SELECT lists.company_id, lists.type_id, existing.field_id, NULL::jsonb AS created
+FROM lists
+JOIN contact_details_workspace workspace ON workspace.company_id = lists.company_id
+CROSS JOIN LATERAL (
+  SELECT other.value ->> 'id' AS field_id
+  FROM jsonb_array_elements(workspace.model -> 'fields') WITH ORDINALITY AS other(value, ordinality)
+  WHERE other.value ->> 'typeId' = lists.type_id AND other.value ->> 'valueType' = 'channels'
+  ORDER BY other.ordinality
+  LIMIT 1
+) existing
+UNION ALL
+SELECT lists.company_id, lists.type_id, created.field ->> 'id', created.field
+FROM lists
+JOIN contact_details_workspace workspace ON workspace.company_id = lists.company_id
+CROSS JOIN LATERAL (
+  SELECT jsonb_build_object(
+    'id', gen_random_uuid()::text,
+    'typeId', lists.type_id,
+    'label', pg_temp.contact_details_free_name(pg_temp.contact_details_label(workspace.language), coalesce((
+      SELECT array_agg(pg_temp.contact_details_name_key(other.value ->> 'label'))
+      FROM jsonb_array_elements(workspace.model -> 'fields') AS other(value)
+      WHERE other.value ->> 'typeId' = lists.type_id
         AND NOT EXISTS (
           SELECT 1 FROM contact_details_field moved
-          WHERE moved.company_id = v_company AND moved.field_id = other.value ->> 'id' AND moved.reason IS NULL
-        );
-      v_field := jsonb_build_object(
-        'id', gen_random_uuid()::text,
-        'typeId', v_type.type_id,
-        'label', pg_temp.contact_details_free_name(pg_temp.contact_details_label(v_language), v_taken),
-        'valueType', 'channels',
-        'behavior', '{"kind":"input"}'::jsonb,
-        'required', false,
-        -- A click action the moved fields agree on carries over; the field otherwise opens a value.
-        'format', jsonb_build_object('providerAvatar', false) || coalesce((
-          SELECT jsonb_build_object('onClick', min(field.value #>> '{format,onClick}'))
-          FROM contact_details_field moved
-          JOIN jsonb_array_elements(v_model -> 'fields') AS field(value) ON field.value ->> 'id' = moved.field_id
-          WHERE moved.company_id = v_company AND moved.type_id = v_type.type_id AND moved.reason IS NULL
-          HAVING count(DISTINCT coalesce(field.value #>> '{format,onClick}', 'open')) = 1
-            AND min(field.value #>> '{format,onClick}') IS NOT NULL
-        ), '{}'::jsonb),
-        'archived', false,
-        'publishedSummary', false,
-        'options', '[]'::jsonb,
-        'position', (
-          SELECT coalesce(max((other.value ->> 'position')::integer), -1) + 1
-          FROM jsonb_array_elements(v_model -> 'fields') AS other(value)
-          WHERE other.value ->> 'typeId' = v_type.type_id
-        ));
-      v_created := v_created || jsonb_build_array(v_field);
-      INSERT INTO contact_details_target (company_id, type_id, field_id, created) VALUES (v_company, v_type.type_id, v_field ->> 'id', true);
-      INSERT INTO "RecordFieldDefinition" ("companyId", "typeId", id, "valueType", behavior, archived, definition, "createdAt", "updatedAt")
-      VALUES (v_company, v_type.type_id, v_field ->> 'id', 'channels', 'input', false, v_field, now(), now());
-    END LOOP;
-
-    -- The values: one identity per number or address of the workspace, reused when it exists (a number also as a
-    -- WhatsApp identity, an address also as a Gmail or Outlook identity), linked to every record that has it, trashed
-    -- records included.
-    INSERT INTO contact_details_value (company_id, type_id, record_id, channel_class, value)
-    SELECT DISTINCT v_company, value."typeId", value."recordId", moved.value_type,
-      pg_temp.contact_details_identity_value(moved.value_type, entry)
-    FROM contact_details_field moved
-    JOIN "RecordValue" value ON value."companyId" = v_company AND value."typeId" = moved.type_id
-      AND value."fieldId" = moved.field_id AND value.state = 'value'
-    CROSS JOIN LATERAL unnest(CASE WHEN value."textValue" IS NOT NULL THEN ARRAY[value."textValue"] ELSE value."textListValue" END) AS entry
-    WHERE moved.company_id = v_company AND moved.reason IS NULL;
-
-    WITH missing AS (
-      SELECT DISTINCT channel_class, value FROM contact_details_value wanted
-      WHERE wanted.company_id = v_company
-        AND NOT EXISTS (
-          SELECT 1 FROM "RecordIdentityKey" known
-          WHERE known."companyId" = v_company AND known."channelClass" = wanted.channel_class AND known.value = wanted.value
+          WHERE moved.company_id = lists.company_id AND moved.field_id = other.value ->> 'id' AND moved.reason IS NULL
         )
-    ), created AS (
-      INSERT INTO "RecordIdentity" ("companyId", id, provider, "channelClass", value, "messagingId", "displayName", "profileUrl", "createdAt", "updatedAt")
-      SELECT v_company, gen_random_uuid()::text,
-        (CASE channel_class WHEN 'phone' THEN 'phone' ELSE 'mail' END)::"RecordIdentityProvider",
-        channel_class, value, NULL, NULL, NULL, now(), now()
-      FROM missing
-      RETURNING id, "channelClass", value
-    )
-    INSERT INTO "RecordIdentityKey" ("companyId", "channelClass", value, "identityId")
-    SELECT v_company, "channelClass", value, id FROM created;
-
-    INSERT INTO "RecordIdentityLink" ("companyId", "identityId", "typeId", "recordId", "createdAt")
-    SELECT DISTINCT v_company, known."identityId", wanted.type_id, wanted.record_id, now()
-    FROM contact_details_value wanted
-    JOIN "RecordIdentityKey" known
-      ON known."companyId" = v_company AND known."channelClass" = wanted.channel_class AND known.value = wanted.value
-    WHERE wanted.company_id = v_company
-    ON CONFLICT DO NOTHING;
-
-    -- Remove the moved fields with their values. Their saved-view, layout and widget references move to the contact
-    -- details field where it can stand in for them and are cleaned like a field deletion cleans them otherwise.
-    DELETE FROM "RecordFieldDefinition" definition
-    USING contact_details_field moved
-    WHERE definition."companyId" = v_company AND moved.company_id = v_company AND moved.reason IS NULL
-      AND definition.id = moved.field_id;
-
-    FOR v_type IN
-      SELECT moved.type_id, target.field_id AS target_id,
-        array_agg(moved.field_id ORDER BY moved.position, moved.field_id) AS field_ids
+    ), ARRAY[]::text[])),
+    'valueType', 'channels',
+    'behavior', '{"kind":"input"}'::jsonb,
+    'required', false,
+    'format', jsonb_build_object('providerAvatar', false) || coalesce((
+      SELECT jsonb_build_object('onClick', min(field.value #>> '{format,onClick}'))
       FROM contact_details_field moved
-      JOIN contact_details_target target ON target.company_id = v_company AND target.type_id = moved.type_id
-      WHERE moved.company_id = v_company AND moved.reason IS NULL
-      GROUP BY moved.type_id, target.field_id
-      ORDER BY moved.type_id
-    LOOP
-      v_ids := v_type.field_ids;
-      v_target := v_type.target_id;
-      UPDATE "DataView" view SET
-        "columnOrder" = pg_temp.contact_details_repoint_ids(view."columnOrder", v_ids, v_target),
-        "hiddenColumns" = pg_temp.contact_details_without_ids(view."hiddenColumns", v_ids),
-        "columnWidths" = pg_temp.contact_details_repoint_widths(view."columnWidths", v_ids, v_target),
-        filters = pg_temp.contact_details_repoint_filters(view.filters, 'field', v_ids, v_target),
-        "sortDescriptor" = CASE WHEN view."sortDescriptor" ->> 'field' = ANY (v_ids) THEN '{}'::jsonb ELSE view."sortDescriptor" END,
-        grouping = pg_temp.contact_details_grouping(view.grouping, v_ids),
-        "groupingColumnId" = CASE WHEN view."groupingColumnId" = ANY (v_ids) THEN NULL ELSE view."groupingColumnId" END,
-        "updatedAt" = now()
-      WHERE view."companyId" = v_company AND view."surfaceKey" = 'records:' || v_type.type_id
-        AND pg_temp.contact_details_mentions(to_jsonb(view) - 'name', v_ids);
+      JOIN jsonb_array_elements(workspace.model -> 'fields') AS field(value) ON field.value ->> 'id' = moved.field_id
+      WHERE moved.company_id = lists.company_id AND moved.type_id = lists.type_id AND moved.reason IS NULL
+      HAVING count(DISTINCT coalesce(field.value #>> '{format,onClick}', 'open')) = 1
+        AND min(field.value #>> '{format,onClick}') IS NOT NULL
+    ), '{}'::jsonb),
+    'archived', false,
+    'publishedSummary', false,
+    'options', '[]'::jsonb,
+    'position', (
+      SELECT coalesce(max((other.value ->> 'position')::integer), -1) + 1
+      FROM jsonb_array_elements(workspace.model -> 'fields') AS other(value)
+      WHERE other.value ->> 'typeId' = lists.type_id
+    )) AS field
+) created
+WHERE NOT EXISTS (
+  SELECT 1 FROM jsonb_array_elements(workspace.model -> 'fields') AS other(value)
+  WHERE other.value ->> 'typeId' = lists.type_id AND other.value ->> 'valueType' = 'channels'
+);
 
-      UPDATE "P13n" personalization SET
-        "columnOrder" = pg_temp.contact_details_repoint_columns(personalization."columnOrder", v_ids, v_target),
-        "hiddenColumns" = pg_temp.contact_details_without_columns(personalization."hiddenColumns", v_ids),
-        "columnWidths" = pg_temp.contact_details_repoint_widths(personalization."columnWidths", v_ids, v_target),
-        filters = pg_temp.contact_details_repoint_filters(personalization.filters, 'field', v_ids, v_target),
-        "sortDescriptor" = CASE WHEN personalization."sortDescriptor" ->> 'field' = ANY (v_ids) THEN '{}'::jsonb ELSE personalization."sortDescriptor" END,
-        grouping = pg_temp.contact_details_grouping(personalization.grouping, v_ids),
-        "groupingColumnId" = CASE WHEN personalization."groupingColumnId" = ANY (v_ids) THEN NULL ELSE personalization."groupingColumnId" END,
-        "updatedAt" = now()
-      WHERE personalization."companyId" = v_company AND personalization."p13nId" = 'records:' || v_type.type_id
-        AND pg_temp.contact_details_mentions(to_jsonb(personalization), v_ids);
+INSERT INTO "RecordFieldDefinition" ("companyId", "typeId", id, "valueType", behavior, archived, definition, "createdAt", "updatedAt")
+SELECT company_id, type_id, field_id, 'channels', 'input', false, created, now(), now()
+FROM contact_details_target WHERE created IS NOT NULL;
 
-      UPDATE "P13n" personalization SET
-        "detailOptions" = personalization."detailOptions" || jsonb_build_object(
-          'starredFieldIds', pg_temp.contact_details_repoint_ids(coalesce(personalization."detailOptions" -> 'starredFieldIds', '[]'::jsonb), v_ids, v_target),
-          'hiddenFieldIds', pg_temp.contact_details_without_ids(coalesce(personalization."detailOptions" -> 'hiddenFieldIds', '[]'::jsonb), v_ids),
-          'fieldOrder', pg_temp.contact_details_repoint_ids(
-            coalesce(personalization."detailOptions" -> 'fieldOrder', to_jsonb(personalization."columnOrder"), '[]'::jsonb), v_ids, v_target)),
-        "updatedAt" = now()
-      WHERE personalization."companyId" = v_company AND personalization."p13nId" = 'record-detail:' || v_type.type_id
-        AND jsonb_typeof(personalization."detailOptions") = 'object'
-        AND pg_temp.contact_details_mentions(jsonb_build_array(
-          personalization."detailOptions" -> 'starredFieldIds',
-          personalization."detailOptions" -> 'hiddenFieldIds',
-          coalesce(personalization."detailOptions" -> 'fieldOrder', to_jsonb(personalization."columnOrder"))), v_ids);
+-- The values: one identity per number or address of the workspace, reused when it exists (a number also as a WhatsApp
+-- identity, an address also as a Gmail or Outlook identity), linked to every record that has it, trashed records
+-- included.
+CREATE TEMP TABLE contact_details_value ON COMMIT DROP AS
+SELECT DISTINCT moved.company_id, value."typeId" AS type_id, value."recordId" AS record_id,
+  moved.value_type AS channel_class, pg_temp.contact_details_identity_value(moved.value_type, entry) AS value
+FROM contact_details_field moved
+JOIN "RecordValue" value ON value."companyId" = moved.company_id AND value."typeId" = moved.type_id
+  AND value."fieldId" = moved.field_id AND value.state = 'value'
+CROSS JOIN LATERAL unnest(CASE WHEN value."textValue" IS NOT NULL THEN ARRAY[value."textValue"] ELSE value."textListValue" END) AS entry
+WHERE moved.reason IS NULL;
 
-      UPDATE "Widget" widget SET
-        measure = pg_temp.contact_details_measure(widget.measure, v_ids, v_target),
-        version = widget.version + 1,
-        "updatedAt" = now()
-      WHERE widget."companyId" = v_company AND jsonb_typeof(widget.measure) = 'object'
-        AND pg_temp.contact_details_mentions(widget.measure, v_ids);
-    END LOOP;
+WITH missing AS (
+  SELECT DISTINCT company_id, channel_class, value FROM contact_details_value wanted
+  WHERE NOT EXISTS (
+    SELECT 1 FROM "RecordIdentityKey" known
+    WHERE known."companyId" = wanted.company_id AND known."channelClass" = wanted.channel_class AND known.value = wanted.value
+  )
+), created AS (
+  INSERT INTO "RecordIdentity" ("companyId", id, provider, "channelClass", value, "messagingId", "displayName", "profileUrl", "createdAt", "updatedAt")
+  SELECT company_id, gen_random_uuid()::text,
+    (CASE channel_class WHEN 'phone' THEN 'phone' ELSE 'mail' END)::"RecordIdentityProvider",
+    channel_class, value, NULL, NULL, NULL, now(), now()
+  FROM missing
+  RETURNING "companyId", id, "channelClass", value
+)
+INSERT INTO "RecordIdentityKey" ("companyId", "channelClass", value, "identityId")
+SELECT "companyId", "channelClass", value, id FROM created;
 
-    -- The fields the contact details field cannot take over become text fields with their values.
-    UPDATE "RecordFieldDefinition" definition SET
-      "valueType" = 'text',
-      definition = pg_temp.contact_details_as_text(field.value),
-      "updatedAt" = now()
-    FROM contact_details_field kept
-    JOIN jsonb_array_elements(v_model -> 'fields') AS field(value) ON field.value ->> 'id' = kept.field_id
-    WHERE definition."companyId" = v_company AND kept.company_id = v_company AND kept.reason IS NOT NULL
-      AND definition.id = kept.field_id;
+INSERT INTO "RecordIdentityLink" ("companyId", "identityId", "typeId", "recordId", "createdAt")
+SELECT DISTINCT wanted.company_id, known."identityId", wanted.type_id, wanted.record_id, now()
+FROM contact_details_value wanted
+JOIN "RecordIdentityKey" known
+  ON known."companyId" = wanted.company_id AND known."channelClass" = wanted.channel_class AND known.value = wanted.value
+ON CONFLICT DO NOTHING;
 
-    -- Configuration revision: the new model and a history entry that names every change.
-    SELECT coalesce(jsonb_agg(entry.operation ORDER BY entry.sort, entry.ordinality), '[]'::jsonb)
-    INTO v_operations
-    FROM (
-      SELECT 1 AS sort, field.ordinality,
-        jsonb_build_object('operation', 'putField', 'field', field.value - 'publishedSummary' - 'archived') AS operation
-      FROM jsonb_array_elements(v_model -> 'fields') WITH ORDINALITY AS field(value, ordinality)
-      JOIN contact_details_renamed renamed ON renamed.company_id = v_company AND renamed.field_id = field.value ->> 'id'
-      UNION ALL
-      SELECT 2, created.ordinality,
-        jsonb_build_object('operation', 'putField', 'field', created.value - 'publishedSummary')
-      FROM jsonb_array_elements(v_created) WITH ORDINALITY AS created(value, ordinality)
-      UNION ALL
-      SELECT 3, field.ordinality,
-        CASE WHEN moved.reason IS NULL
-          THEN jsonb_build_object('operation', 'deletePermanently', 'target', jsonb_build_object('kind', 'field', 'id', moved.field_id))
-          ELSE jsonb_build_object('operation', 'putField', 'field', pg_temp.contact_details_as_text(field.value) - 'publishedSummary' - 'archived')
-        END
-      FROM jsonb_array_elements(v_model -> 'fields') WITH ORDINALITY AS field(value, ordinality)
-      JOIN contact_details_field moved ON moved.company_id = v_company AND moved.field_id = field.value ->> 'id'
-    ) entry;
+-- Remove the moved fields with their values. Their saved-view, layout and widget references move to the contact
+-- details field where it can stand in for them and are cleaned like a field deletion cleans them otherwise.
+DELETE FROM "RecordFieldDefinition" definition
+USING contact_details_field moved
+WHERE definition."companyId" = moved.company_id AND definition.id = moved.field_id AND moved.reason IS NULL;
 
-    v_model := jsonb_set(jsonb_set(v_model, '{revision}', to_jsonb(v_revision + 1)), '{fields}', coalesce((
-      SELECT jsonb_agg(CASE WHEN kept.reason IS NOT NULL THEN pg_temp.contact_details_as_text(field.value) ELSE field.value END
-        ORDER BY field.ordinality)
-      FROM jsonb_array_elements(v_model -> 'fields') WITH ORDINALITY AS field(value, ordinality)
-      LEFT JOIN contact_details_field kept ON kept.company_id = v_company AND kept.field_id = field.value ->> 'id'
-      WHERE kept.field_id IS NULL OR kept.reason IS NOT NULL
-    ), '[]'::jsonb) || v_created);
+CREATE TEMP TABLE contact_details_moved ON COMMIT DROP AS
+SELECT moved.company_id, moved.type_id, target.field_id AS target_id,
+  array_agg(moved.field_id ORDER BY moved.position, moved.field_id) AS ids,
+  row_number() OVER (PARTITION BY moved.company_id ORDER BY moved.type_id) AS step
+FROM contact_details_field moved
+JOIN contact_details_target target ON target.company_id = moved.company_id AND target.type_id = moved.type_id
+WHERE moved.reason IS NULL
+GROUP BY moved.company_id, moved.type_id, target.field_id;
 
-    INSERT INTO "RecordSchemaRevision" ("companyId", revision, "actorId", snapshot, change, "createdAt")
-    VALUES (v_company, v_revision + 1, 'system:contact-details-upgrade', v_model, jsonb_build_object(
-      'version', 1,
-      'source', jsonb_build_object('kind', 'configuration'),
-      'causeId', 'contact-details-upgrade',
-      'expectedRevision', v_revision,
-      'configuration', jsonb_build_object(
-        'expectedRevision', v_revision,
-        'idempotencyKey', 'contact-details-upgrade',
-        'operations', v_operations),
-      'references', '[]'::jsonb,
-      'grants', '[]'::jsonb), now());
-    UPDATE "RecordSchemaState" SET revision = v_revision + 1 WHERE "companyId" = v_company;
-  END LOOP;
-END $$;
+UPDATE "DataView" view SET
+  "columnOrder" = pg_temp.contact_details_repoint_ids(view."columnOrder", moved.ids, moved.target_id),
+  "hiddenColumns" = pg_temp.contact_details_without_ids(view."hiddenColumns", moved.ids),
+  "columnWidths" = pg_temp.contact_details_repoint_widths(view."columnWidths", moved.ids, moved.target_id),
+  filters = pg_temp.contact_details_repoint_filters(view.filters, 'field', moved.ids, moved.target_id),
+  "sortDescriptor" = CASE WHEN view."sortDescriptor" ->> 'field' = ANY (moved.ids) THEN '{}'::jsonb ELSE view."sortDescriptor" END,
+  grouping = pg_temp.contact_details_grouping(view.grouping, moved.ids),
+  "groupingColumnId" = CASE WHEN view."groupingColumnId" = ANY (moved.ids) THEN NULL ELSE view."groupingColumnId" END,
+  "updatedAt" = now()
+FROM contact_details_moved moved
+WHERE view."companyId" = moved.company_id AND view."surfaceKey" = 'records:' || moved.type_id
+  AND pg_temp.contact_details_mentions(to_jsonb(view) - 'name', moved.ids);
 
--- Every value is linked, no phone or email field is left in a current model or definition, and every definition
--- matches its model; otherwise nothing of this file is kept.
-DO $$
-DECLARE
-  v_kept record;
-BEGIN
-  IF EXISTS (
-    SELECT 1 FROM contact_details_value wanted
-    WHERE NOT EXISTS (
-      SELECT 1 FROM "RecordIdentityKey" known
-      JOIN "RecordIdentityLink" link ON link."companyId" = known."companyId" AND link."identityId" = known."identityId"
-      WHERE known."companyId" = wanted.company_id AND known."channelClass" = wanted.channel_class AND known.value = wanted.value
-        AND link."typeId" = wanted.type_id AND link."recordId" = wanted.record_id
+UPDATE "P13n" personalization SET
+  "columnOrder" = pg_temp.contact_details_repoint_columns(personalization."columnOrder", moved.ids, moved.target_id),
+  "hiddenColumns" = pg_temp.contact_details_without_columns(personalization."hiddenColumns", moved.ids),
+  "columnWidths" = pg_temp.contact_details_repoint_widths(personalization."columnWidths", moved.ids, moved.target_id),
+  filters = pg_temp.contact_details_repoint_filters(personalization.filters, 'field', moved.ids, moved.target_id),
+  "sortDescriptor" = CASE WHEN personalization."sortDescriptor" ->> 'field' = ANY (moved.ids) THEN '{}'::jsonb ELSE personalization."sortDescriptor" END,
+  grouping = pg_temp.contact_details_grouping(personalization.grouping, moved.ids),
+  "groupingColumnId" = CASE WHEN personalization."groupingColumnId" = ANY (moved.ids) THEN NULL ELSE personalization."groupingColumnId" END,
+  "updatedAt" = now()
+FROM contact_details_moved moved
+WHERE personalization."companyId" = moved.company_id AND personalization."p13nId" = 'records:' || moved.type_id
+  AND pg_temp.contact_details_mentions(to_jsonb(personalization), moved.ids);
+
+UPDATE "P13n" personalization SET
+  "detailOptions" = personalization."detailOptions" || jsonb_build_object(
+    'starredFieldIds', pg_temp.contact_details_repoint_ids(coalesce(personalization."detailOptions" -> 'starredFieldIds', '[]'::jsonb), moved.ids, moved.target_id),
+    'hiddenFieldIds', pg_temp.contact_details_without_ids(coalesce(personalization."detailOptions" -> 'hiddenFieldIds', '[]'::jsonb), moved.ids),
+    'fieldOrder', pg_temp.contact_details_repoint_ids(
+      coalesce(personalization."detailOptions" -> 'fieldOrder', to_jsonb(personalization."columnOrder"), '[]'::jsonb), moved.ids, moved.target_id)),
+  "updatedAt" = now()
+FROM contact_details_moved moved
+WHERE personalization."companyId" = moved.company_id AND personalization."p13nId" = 'record-detail:' || moved.type_id
+  AND jsonb_typeof(personalization."detailOptions") = 'object'
+  AND pg_temp.contact_details_mentions(jsonb_build_array(
+    personalization."detailOptions" -> 'starredFieldIds',
+    personalization."detailOptions" -> 'hiddenFieldIds',
+    coalesce(personalization."detailOptions" -> 'fieldOrder', to_jsonb(personalization."columnOrder"))), moved.ids);
+
+-- A widget measure can mention moved fields of several lists: it passes through each list's move in turn, and its
+-- version counts every change.
+WITH RECURSIVE pass (id, measure, step, changes) AS (
+  SELECT widget.id, widget.measure, 0::bigint, 0
+  FROM "Widget" widget
+  WHERE jsonb_typeof(widget.measure) = 'object'
+    AND EXISTS (
+      SELECT 1 FROM contact_details_moved moved
+      WHERE moved.company_id = widget."companyId" AND pg_temp.contact_details_mentions(widget.measure, moved.ids)
     )
-  ) THEN
-    RAISE EXCEPTION 'A phone number or email address was not linked to its record';
-  END IF;
-  IF EXISTS (
-    SELECT 1 FROM "RecordSchemaState" state
-    JOIN "RecordSchemaRevision" revision ON revision."companyId" = state."companyId" AND revision.revision = state.revision
-    WHERE jsonb_path_exists(revision.snapshot, '$.fields[*] ? (@.valueType == "phone" || @.valueType == "email")')
-  ) OR EXISTS (
-    SELECT 1 FROM "RecordFieldDefinition"
-    WHERE "valueType" IN ('phone', 'email') OR definition ->> 'valueType' IN ('phone', 'email')
-  ) THEN
-    RAISE EXCEPTION 'A phone or email field is still stored';
-  END IF;
-  IF EXISTS (
-    SELECT 1
-    FROM (
-      SELECT company_id, field_id, CASE WHEN reason IS NULL THEN 'removed' ELSE 'text' END AS expected FROM contact_details_field
-      UNION ALL
-      SELECT company_id, field_id, 'channels' FROM contact_details_target WHERE created
-      UNION ALL
-      SELECT company_id, field_id, 'channels' FROM contact_details_renamed
-    ) touched
-    JOIN "RecordSchemaState" state ON state."companyId" = touched.company_id
-    JOIN "RecordSchemaRevision" revision ON revision."companyId" = state."companyId" AND revision.revision = state.revision
-    LEFT JOIN LATERAL (
-      SELECT field.value FROM jsonb_array_elements(revision.snapshot -> 'fields') AS field(value)
-      WHERE field.value ->> 'id' = touched.field_id
-    ) current ON true
-    LEFT JOIN "RecordFieldDefinition" stored ON stored."companyId" = touched.company_id AND stored.id = touched.field_id
-    WHERE CASE touched.expected
-      WHEN 'removed' THEN current.value IS NOT NULL OR stored.id IS NOT NULL
-      ELSE current.value ->> 'valueType' IS DISTINCT FROM touched.expected
-        OR (stored.id IS NOT NULL AND (stored."valueType" IS DISTINCT FROM touched.expected OR stored.definition IS DISTINCT FROM current.value))
-        OR (touched.expected = 'channels' AND stored.id IS NULL)
-    END
-  ) THEN
-    RAISE EXCEPTION 'A changed field definition does not match its record model';
-  END IF;
+  UNION ALL
+  SELECT pass.id,
+    CASE WHEN pg_temp.contact_details_mentions(pass.measure, moved.ids)
+      THEN pg_temp.contact_details_measure(pass.measure, moved.ids, moved.target_id) ELSE pass.measure END,
+    moved.step,
+    pass.changes + CASE WHEN pg_temp.contact_details_mentions(pass.measure, moved.ids) THEN 1 ELSE 0 END
+  FROM pass
+  JOIN "Widget" widget ON widget.id = pass.id
+  JOIN contact_details_moved moved ON moved.company_id = widget."companyId" AND moved.step = pass.step + 1
+)
+UPDATE "Widget" widget SET measure = last.measure, version = widget.version + last.changes, "updatedAt" = now()
+FROM (SELECT DISTINCT ON (id) id, measure, changes FROM pass ORDER BY id, step DESC) last
+WHERE widget.id = last.id AND last.changes > 0;
 
-  FOR v_kept IN
-    SELECT company_id, type_id, field_id, value_type, reason FROM contact_details_field WHERE reason IS NOT NULL
-    ORDER BY company_id, type_id, field_id
-  LOOP
-    RAISE NOTICE '% field % of list % in workspace % stays a text field: %',
-      CASE v_kept.value_type WHEN 'phone' THEN 'Phone' ELSE 'Email' END,
-      v_kept.field_id, v_kept.type_id, v_kept.company_id, v_kept.reason;
-  END LOOP;
-  RAISE NOTICE 'Phone fields: % moved into contact details with % numbers on % records, % kept as text',
-    (SELECT count(*) FROM contact_details_field WHERE value_type = 'phone' AND reason IS NULL),
-    (SELECT count(DISTINCT (company_id, value)) FROM contact_details_value WHERE channel_class = 'phone'),
-    (SELECT count(DISTINCT (company_id, type_id, record_id)) FROM contact_details_value WHERE channel_class = 'phone'),
-    (SELECT count(*) FROM contact_details_field WHERE value_type = 'phone' AND reason IS NOT NULL);
-  RAISE NOTICE 'Email fields: % moved into contact details with % addresses on % records, % kept as text',
-    (SELECT count(*) FROM contact_details_field WHERE value_type = 'email' AND reason IS NULL),
-    (SELECT count(DISTINCT (company_id, value)) FROM contact_details_value WHERE channel_class = 'email'),
-    (SELECT count(DISTINCT (company_id, type_id, record_id)) FROM contact_details_value WHERE channel_class = 'email'),
-    (SELECT count(*) FROM contact_details_field WHERE value_type = 'email' AND reason IS NOT NULL);
-  RAISE NOTICE 'Contact details fields: % new, % renamed from a former default name',
-    (SELECT count(*) FROM contact_details_target WHERE created),
-    (SELECT count(*) FROM contact_details_renamed);
-END $$;
+-- The fields the contact details field cannot take over become text fields with their values.
+UPDATE "RecordFieldDefinition" definition SET
+  "valueType" = 'text',
+  definition = pg_temp.contact_details_as_text(field.value),
+  "updatedAt" = now()
+FROM contact_details_field kept
+JOIN contact_details_workspace workspace ON workspace.company_id = kept.company_id
+CROSS JOIN LATERAL jsonb_array_elements(workspace.model -> 'fields') AS field(value)
+WHERE field.value ->> 'id' = kept.field_id AND kept.reason IS NOT NULL
+  AND definition."companyId" = kept.company_id AND definition.id = kept.field_id;
+
+-- Configuration revision of every changed workspace: the new model and a history entry that names every change.
+INSERT INTO "RecordSchemaRevision" ("companyId", revision, "actorId", snapshot, change, "createdAt")
+SELECT workspace.company_id, workspace.revision + 1, 'system:contact-details-upgrade',
+  jsonb_set(jsonb_set(workspace.model, '{revision}', to_jsonb(workspace.revision + 1)), '{fields}', coalesce((
+    SELECT jsonb_agg(CASE WHEN kept.reason IS NOT NULL THEN pg_temp.contact_details_as_text(field.value) ELSE field.value END
+      ORDER BY field.ordinality)
+    FROM jsonb_array_elements(workspace.model -> 'fields') WITH ORDINALITY AS field(value, ordinality)
+    LEFT JOIN contact_details_field kept ON kept.company_id = workspace.company_id AND kept.field_id = field.value ->> 'id'
+    WHERE kept.field_id IS NULL OR kept.reason IS NOT NULL
+  ), '[]'::jsonb) || coalesce((
+    SELECT jsonb_agg(target.created ORDER BY target.type_id)
+    FROM contact_details_target target WHERE target.company_id = workspace.company_id AND target.created IS NOT NULL
+  ), '[]'::jsonb)),
+  jsonb_build_object(
+    'version', 1,
+    'source', jsonb_build_object('kind', 'configuration'),
+    'causeId', 'contact-details-upgrade',
+    'expectedRevision', workspace.revision,
+    'configuration', jsonb_build_object(
+      'expectedRevision', workspace.revision,
+      'idempotencyKey', 'contact-details-upgrade',
+      'operations', coalesce((
+        SELECT jsonb_agg(entry.operation ORDER BY entry.sort, entry.ordinality)
+        FROM (
+          SELECT 1 AS sort, field.ordinality,
+            jsonb_build_object('operation', 'putField', 'field', field.value - 'publishedSummary' - 'archived') AS operation
+          FROM jsonb_array_elements(workspace.model -> 'fields') WITH ORDINALITY AS field(value, ordinality)
+          JOIN contact_details_renamed renamed
+            ON renamed.company_id = workspace.company_id AND renamed.field_id = field.value ->> 'id'
+          UNION ALL
+          SELECT 2, row_number() OVER (ORDER BY target.type_id),
+            jsonb_build_object('operation', 'putField', 'field', target.created - 'publishedSummary')
+          FROM contact_details_target target
+          WHERE target.company_id = workspace.company_id AND target.created IS NOT NULL
+          UNION ALL
+          SELECT 3, field.ordinality,
+            CASE WHEN moved.reason IS NULL
+              THEN jsonb_build_object('operation', 'deletePermanently', 'target', jsonb_build_object('kind', 'field', 'id', moved.field_id))
+              ELSE jsonb_build_object('operation', 'putField', 'field', pg_temp.contact_details_as_text(field.value) - 'publishedSummary' - 'archived')
+            END
+          FROM jsonb_array_elements(workspace.model -> 'fields') WITH ORDINALITY AS field(value, ordinality)
+          JOIN contact_details_field moved ON moved.company_id = workspace.company_id AND moved.field_id = field.value ->> 'id'
+        ) entry
+      ), '[]'::jsonb)),
+    'references', '[]'::jsonb,
+    'grants', '[]'::jsonb),
+  now()
+FROM contact_details_workspace workspace;
+
+UPDATE "RecordSchemaState" state SET revision = workspace.revision + 1
+FROM contact_details_workspace workspace WHERE state."companyId" = workspace.company_id;
 
 DROP FUNCTION pg_temp.contact_details_as_text(jsonb);
 DROP FUNCTION pg_temp.contact_details_measure(jsonb, text[], text);

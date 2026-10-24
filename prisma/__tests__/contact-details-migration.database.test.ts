@@ -48,15 +48,12 @@ async function previousRelease() {
 }
 
 async function migrate(client: Client) {
-  const notices: string[] = [];
-  const collect = (notice: { message?: string }) => notices.push(notice.message ?? "");
-  client.on("notice", collect);
-  try {
-    await client.query(await readMigration(CONTACT_DETAILS_MIGRATION));
-  } finally {
-    client.off("notice", collect);
-  }
-  return notices;
+  await client.query(await readMigration(CONTACT_DETAILS_MIGRATION));
+}
+
+async function fieldTypes(client: Client, companyId: string, ids: string[]) {
+  const model = await currentModel(client, companyId);
+  return Object.fromEntries(ids.map((id) => [id, model.fields.find((field) => field.id === id)?.valueType ?? null]));
 }
 
 async function inventory(client: Client) {
@@ -456,7 +453,7 @@ describeDatabase("contact details migration", { timeout: 240000 }, () => {
     );
 
     const predicted = await inventory(client);
-    const notices = await migrate(client);
+    await migrate(client);
 
     expect(predicted).toEqual(
       expect.arrayContaining(
@@ -483,26 +480,19 @@ describeDatabase("contact details migration", { timeout: 240000 }, () => {
     );
     expect(predicted).toHaveLength(8);
 
-    for (const [field, reason] of [
-      [fields.oldPhone, "field in Trash"],
-      [fields.itemPhone, "sub-list"],
-      [fields.hotline, "used by a calculation"],
-      [fields.fax, "used by a routine or webhook"],
-      [fields.supportLine, "values that are not phone numbers"],
-      [fields.deskNumber, "name field of the list"],
-    ] as const) {
-      expect(notices).toContain(
-        `Phone field ${field.id} of list ${field.typeId} in workspace ${companyId} stays a text field: ${reason}`,
-      );
-    }
-    expect(notices).toContain("Phone fields: 2 moved into contact details with 4 numbers on 4 records, 6 kept as text");
-    expect(notices).toContain(
-      "Email fields: 0 moved into contact details with 0 addresses on 0 records, 0 kept as text",
+    const kept = [fields.oldPhone, fields.itemPhone, fields.hotline, fields.fax, fields.supportLine, fields.deskNumber];
+    expect(
+      await fieldTypes(client, companyId, [...kept.map((field) => field.id), fields.mobile.id, fields.orgPhones.id]),
+    ).toEqual(
+      Object.fromEntries([
+        ...kept.map((field) => [field.id, "text"]),
+        [fields.mobile.id, null],
+        [fields.orgPhones.id, null],
+      ]),
     );
-    expect(notices).toContain("Contact details fields: 1 new, 1 renamed from a former default name");
-    expect(notices).toContain(
-      `Background record operation ${operation} of workspace ${companyId} ended: the record model changed`,
-    );
+    expect(
+      await rows(client, 'SELECT state::text AS state, "errorCode" FROM "RecordOperation" WHERE id = $1', [operation]),
+    ).toEqual([{ state: "failed", errorCode: "recordSchemaChanged" }]);
 
     expect(
       await rows(client, 'SELECT revision, "activeOperationId" FROM "RecordSchemaState" WHERE "companyId" = $1', [
@@ -937,7 +927,7 @@ describeDatabase("contact details migration", { timeout: 240000 }, () => {
     );
 
     const predicted = await inventory(client);
-    const notices = await migrate(client);
+    await migrate(client);
 
     expect(predicted.filter((row) => row.company_id === companyId)).toEqual(
       expect.arrayContaining(
@@ -960,13 +950,19 @@ describeDatabase("contact details migration", { timeout: 240000 }, () => {
         })),
       ),
     );
-    expect(notices).toContain(
-      `Email field ${fields.billing.id} of list ${fields.billing.typeId} in workspace ${companyId} stays a text field: values that are not email addresses`,
-    );
-    expect(notices).toContain(
-      "Email fields: 3 moved into contact details with 4 addresses on 4 records, 3 kept as text",
-    );
-    expect(notices).toContain("Contact details fields: 1 new, 1 renamed from a former default name");
+    expect(
+      await fieldTypes(client, companyId, [
+        fields.billing.id,
+        fields.oldEmail.id,
+        fields.notifyEmail.id,
+        fields.email.id,
+      ]),
+    ).toEqual({
+      [fields.billing.id]: "text",
+      [fields.oldEmail.id]: "text",
+      [fields.notifyEmail.id]: "text",
+      [fields.email.id]: null,
+    });
 
     const model = await currentModel(client, companyId);
     expect(validateRecordModel(model).issues).toEqual([]);
@@ -1126,7 +1122,13 @@ describeDatabase("contact details migration", { timeout: 240000 }, () => {
         custom.companyId,
       ]),
     );
-    expect(await migrate(client)).toContain("Contact details fields: 0 new, 2 renamed from a former default name");
+    await migrate(client);
+    expect(
+      (await currentModel(client, numbered.companyId)).fields.find(
+        (field) => field.id === numbered.id("capability.identity"),
+      )?.label,
+    ).toBe("Contact details");
+    expect((await currentModel(client, custom.companyId)).revision).toBe(1);
 
     const renamed = await currentModel(client, french.companyId);
     expect(renamed.revision).toBe(2);
