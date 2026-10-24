@@ -1,3 +1,5 @@
+import { CalendarWidgetQuerySchema } from "@/features/widget/record-calendar-widget.schema";
+import { MapWidgetQuerySchema } from "@/features/widget/record-map-widget.schema";
 import type { PrismaClient } from "@/generated/prisma";
 
 import { describe, expect, it, vi } from "vitest";
@@ -60,7 +62,16 @@ describe("synthetic dashboards", () => {
   it("keeps the number cards at two rows and every widget below them compact", () => {
     for (const { widgets } of dashboards) {
       for (const widget of widgets) {
-        const expected = widget.kind === "activityTimeline" ? 6 : widget.displayType === DisplayType.number ? 2 : 4;
+        const expected =
+          widget.kind === "activityTimeline"
+            ? 6
+            : widget.kind === "calendar"
+              ? 7
+              : widget.kind === "map"
+                ? 8
+                : widget.displayType === DisplayType.number
+                  ? 2
+                  : 4;
         expect(widget.lg.h).toBe(expected);
       }
     }
@@ -102,7 +113,11 @@ describe("synthetic dashboards", () => {
       if (widget.kind === WidgetKind.chart) {
         expect(RecordMeasureSchema.safeParse(widget.measure).success, widget.name).toBe(true);
         expect(WidgetDisplayOptionsSchema.safeParse(widget.displayOptions).success, widget.name).toBe(true);
-      } else expect(RecordActivityQuerySchema.safeParse(widget.activityQuery).success, widget.name).toBe(true);
+      } else if (widget.kind === WidgetKind.calendar)
+        expect(CalendarWidgetQuerySchema.safeParse(widget.calendarQuery).success, widget.name).toBe(true);
+      else if (widget.kind === WidgetKind.map)
+        expect(MapWidgetQuerySchema.safeParse(widget.mapQuery).success, widget.name).toBe(true);
+      else expect(RecordActivityQuerySchema.safeParse(widget.activityQuery).success, widget.name).toBe(true);
     }
   });
 
@@ -140,6 +155,22 @@ describe("synthetic dashboards", () => {
       new Set(["in", "notIn", "eq", "inLastDays", "notInLastDays", "notEmpty"]),
     );
     expect(widgets.filter(({ kind }) => kind === WidgetKind.activityTimeline)).toHaveLength(2);
+  });
+
+  it("shows both calendar layouts on Sales and the customers on a map in Revenue and renewals", () => {
+    const calendars = dashboards.flatMap(({ key, widgets: items }) =>
+      items.flatMap((item) => (item.kind === "calendar" ? [{ key, ...item }] : [])),
+    );
+    expect(calendars.map(({ key, name, calendarQuery }) => [key, name, calendarQuery.layout])).toEqual([
+      ["sales", "Deals closing this month", "month"],
+      ["sales", "Tasks due in the next 14 days", "upcoming"],
+    ]);
+    const maps = dashboards.flatMap(({ key, widgets: items }) =>
+      items.flatMap((item) => (item.kind === "map" ? [{ key, ...item }] : [])),
+    );
+    expect(maps.map(({ key, name, mapQuery }) => [key, name, mapQuery.addressFieldId])).toEqual([
+      ["revenue", "Customers by location", model.fields.organization.address],
+    ]);
   });
 
   it("lays every dashboard out on each breakpoint in full rows without overlaps or holes", () => {

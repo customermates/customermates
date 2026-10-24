@@ -47,8 +47,11 @@ export async function openItemContextMenu(page: Page, area: Locator) {
 }
 
 export async function runItemAction(page: Page, trigger: Locator, label: string) {
-  const menu = await openItemMenu(page, trigger);
-  await menu.getByRole("menuitem", { name: label, exact: true }).click();
+  // A row that re-renders while its menu opens (a nested create reloads its parent) closes the menu; open it again.
+  await expect(async () => {
+    const menu = await openItemMenu(page, trigger);
+    await menu.getByRole("menuitem", { name: label, exact: true }).click({ timeout: 3000 });
+  }).toPass({ timeout: 30000 });
 }
 
 export async function itemMenuLabels(page: Page, menu: Locator) {

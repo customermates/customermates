@@ -11,6 +11,7 @@ test("creates, unlinks and relinks a generic person from the inbox", async ({
   companyId,
   workspace,
 }, testInfo) => {
+  test.skip(process.env.APP_MODE === "self-hosted", "Messaging is part of the cloud service only");
   test.setTimeout(180000);
   const errors = collectPageErrors(page);
   const accountId = randomUUID();
@@ -118,7 +119,7 @@ test("creates, unlinks and relinks a generic person from the inbox", async ({
   );
   await page.waitForLoadState("networkidle");
   await page.goto(`/en/records/${stored.rows[0].typeId}/${stored.rows[0].recordId}`);
-  const channelInput = page.getByRole("combobox", { name: "Add channel", exact: true });
+  const channelInput = page.getByRole("combobox", { name: "Add phone, email or profile", exact: true });
   await channelInput.click();
   await channelInput.fill("Suggested Channel");
   await expect(channelInput).toHaveValue("Suggested Channel");

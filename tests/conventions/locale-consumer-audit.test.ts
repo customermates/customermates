@@ -98,9 +98,6 @@ const ALLOWED_VISIBLE_COPY_SITES = new Map<string, VisibleCopyException>([
     'components/emails/new-user-notification.tsx :: jsx-label :: "User"',
     'components/emails/new-user-notification.tsx :: jsx-label :: "Provider"',
   ]),
-  ...reviewedVisibleCopy("The parser enables this only when Intl selects the ASCII AM/PM time grammar.", [
-    'components/forms/time-input.tsx :: jsx-placeholder :: "12:00:00 AM"',
-  ]),
 ]);
 
 const VISIBLE_JSX_ATTRIBUTES = new Set([

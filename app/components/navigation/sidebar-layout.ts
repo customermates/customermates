@@ -105,7 +105,14 @@ export function resolveSidebar(defaults: SidebarDefaultEntry[], layout: SidebarL
   for (const item of known) {
     if (!place(item)) continue;
     if (item.startsWith(LIST_ITEM_PREFIX)) insertAfterLastList(entries, item, isAnchor);
-    else entries.push({ kind: "item", id: item });
+    else {
+      const group = defaults.find((entry) => entry.kind === "section" && entry.items.includes(item));
+      const section = group && entries.find((entry) => entry.kind === "section" && entry.id === group.id);
+      if (section?.kind === "section" && group?.kind === "section") {
+        const next = group.items.slice(group.items.indexOf(item) + 1).find((id) => section.items.includes(id));
+        section.items.splice(next ? section.items.indexOf(next) : section.items.length, 0, item);
+      } else entries.push({ kind: "item", id: item });
+    }
   }
 
   return { entries, hidden };

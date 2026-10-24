@@ -19,17 +19,21 @@ export function FormAutocompleteCountryItem({ countryKey, label, size = "md" }: 
   return (
     <div className="flex w-full gap-2 items-center justify-start">
       <Avatar className={size === "sm" ? "size-3" : "size-5"}>
-        {appMode === "self-hosted" ? (
-          <AvatarFallback aria-hidden className="bg-transparent text-[0.75em]">
-            {emojiFlag(countryKey)}
-          </AvatarFallback>
-        ) : (
+        {appMode !== "self-hosted" && (
           <AvatarImage
             alt={t("Common.imageAlt.countryFlag", { country: label })}
             className="rounded-[inherit] object-cover"
             src={`https://flagcdn.com/${countryKey.toLowerCase()}.svg`}
           />
         )}
+
+        <AvatarFallback
+          aria-hidden
+          className="bg-transparent text-[0.75em]"
+          delayMs={appMode === "self-hosted" ? undefined : 600}
+        >
+          {emojiFlag(countryKey)}
+        </AvatarFallback>
       </Avatar>
 
       <span className="truncate">{label}</span>

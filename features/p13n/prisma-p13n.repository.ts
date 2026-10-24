@@ -3,6 +3,7 @@ import { CONFIGURATION_CONSUMER_PAGE } from "@/features/records/record.repo";
 import type { Filter, SortDescriptor, PaginationRequest } from "@/core/base/base-get.schema";
 import type { ViewMode } from "@/core/base/base-query-builder";
 import type { Grouping } from "@/core/base/grouping/grouping.schema";
+import type { CalendarViewConfig } from "@/core/data-view/calendar-view-config.schema";
 import type { UpsertP13nRepo } from "./upsert-p13n.repo";
 import type { GetP13nRepo } from "./get-p13n.interactor";
 import type { RecordPersonalizationRepo } from "./record-personalization.repo";
@@ -11,6 +12,7 @@ import type { DataViewState } from "@/core/data-view/data-view-state.schema";
 import type { RecordDetailLayout } from "@/features/records/record-detail-layout.schema";
 
 import { DATA_VIEW_STATE_FIELDS } from "@/core/data-view/data-view-state.schema";
+import { CalendarViewConfigSchema } from "@/core/data-view/calendar-view-config.schema";
 import { readStoredPersonalizationState, writePersonalizationState } from "@/features/data-view/data-view-row-mapping";
 import { Prisma } from "@/generated/prisma";
 
@@ -32,6 +34,7 @@ export interface P13nEntry {
   hiddenColumns?: string[];
   viewMode?: ViewMode;
   grouping?: Grouping | null;
+  calendar?: CalendarViewConfig | null;
   detailOptions?: EntityDetailOptions;
   settings?: P13nSettings;
 }
@@ -44,6 +47,11 @@ function normalizeStoredPagination(value: unknown): Pick<PaginationRequest, "pag
   const pageSize = typeof value === "object" && value !== null ? (value as { pageSize?: unknown }).pageSize : undefined;
 
   return typeof pageSize === "number" ? { pageSize: pageSize as PaginationRequest["pageSize"] } : undefined;
+}
+
+function normalizeCalendar(value: unknown): CalendarViewConfig | undefined {
+  const parsed = CalendarViewConfigSchema.safeParse(value);
+  return parsed.success ? parsed.data : undefined;
 }
 
 function normalizeDetailOptions(value: unknown): EntityDetailOptions | undefined {
@@ -92,6 +100,7 @@ export class PrismaP13nRepo
       hiddenColumns,
       viewMode,
       grouping,
+      calendar,
       detailOptions,
       settings,
     } = res;
@@ -108,6 +117,7 @@ export class PrismaP13nRepo
       hiddenColumns,
       viewMode: (viewMode as ViewMode | null) ?? undefined,
       grouping: readStoredGrouping(grouping),
+      calendar: normalizeCalendar(calendar),
       detailOptions: normalizeDetailOptions(detailOptions),
       settings: readP13nSettings(p13nId, settings) ?? undefined,
       ...(Array.isArray(res.viewStateKeys) ? this.explicitViewState(res) : {}),
@@ -165,6 +175,7 @@ export class PrismaP13nRepo
       viewMode: data.viewMode ?? null,
       groupingColumnId: groupingShadowColumnId(data.grouping),
       grouping: data.grouping ?? Prisma.DbNull,
+      calendar: data.calendar ?? Prisma.DbNull,
       detailOptions: data.detailOptions ?? Prisma.JsonNull,
       settings: data.settings ?? Prisma.JsonNull,
     };
@@ -189,6 +200,7 @@ export class PrismaP13nRepo
       updateData.groupingColumnId = groupingShadowColumnId(data.grouping);
       updateData.grouping = data.grouping ?? Prisma.DbNull;
     }
+    if (data.calendar !== undefined) updateData.calendar = data.calendar ?? Prisma.DbNull;
     if (data.detailOptions !== undefined) updateData.detailOptions = data.detailOptions ?? Prisma.JsonNull;
     if (data.settings !== undefined) updateData.settings = data.settings ?? Prisma.JsonNull;
 
@@ -213,6 +225,7 @@ export class PrismaP13nRepo
       hiddenColumns: row.hiddenColumns,
       viewMode: (row.viewMode as ViewMode | null) ?? undefined,
       grouping: readStoredGrouping(row.grouping),
+      calendar: normalizeCalendar(row.calendar),
       detailOptions: normalizeDetailOptions(row.detailOptions),
       settings: readP13nSettings(p13nId, row.settings) ?? undefined,
       ...(Array.isArray(row.viewStateKeys) ? this.explicitViewState(row) : {}),
@@ -288,6 +301,9 @@ export class PrismaP13nRepo
         ...(write.columnOrder !== undefined ? { columnOrder: write.columnOrder } : {}),
         ...(write.columnWidths !== undefined ? { columnWidths: write.columnWidths } : {}),
         ...(write.hiddenColumns !== undefined ? { hiddenColumns: write.hiddenColumns } : {}),
+        ...(write.calendar !== undefined
+          ? { calendar: write.calendar === null ? Prisma.DbNull : (write.calendar as Prisma.InputJsonValue) }
+          : {}),
       },
     });
   }

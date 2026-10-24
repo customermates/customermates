@@ -38,7 +38,7 @@ async function dragBetween(page: Page, from: { x: number; y: number }, to: { x: 
   await page.mouse.up();
 }
 
-test("drags the Channels field in Configure and renames it like any field", async ({ page, database, companyId }) => {
+test("drags the contact details field in Configure and renames it like any field", async ({ page, database, companyId }) => {
   test.setTimeout(180000);
   const errors = collectPageErrors(page);
   const id = (key: string) => presetId(companyId, key);
@@ -53,11 +53,13 @@ test("drags the Channels field in Configure and renames it like any field", asyn
   await openConfigure(page, id("contact"));
   await openConfigureTab(page, "Fields");
   const fields = page.getByRole("region", { name: "Fields", exact: true });
-  await expect(configureRow(page, "Fields", "Channels")).toContainText("Channels · Entered manually");
+  await expect(configureRow(page, "Fields", "Contact details")).toContainText(
+    "Phone, email & social · Entered manually",
+  );
   const channelsRow = fields.locator(`[data-configure-field="${channelsId}"]`);
   const nameRow = fields.locator(`[data-configure-field="${id("contact.name")}"]`);
   await channelsRow.hover();
-  const handle = channelsRow.getByRole("button", { name: "Drag to reorder: Channels", exact: true });
+  const handle = channelsRow.getByRole("button", { name: "Drag to reorder: Contact details", exact: true });
   await expect(handle).toBeVisible();
   const start = await center(handle);
   await dragBetween(page, start, { x: start.x, y: (await center(nameRow)).y - 12 });
@@ -76,11 +78,11 @@ test("drags the Channels field in Configure and renames it like any field", asyn
     .map((field) => field.position);
   expect(new Set(positions).size).toBe(positions.length);
 
-  await openConfigureRow(page, "Fields", "Channels");
+  await openConfigureRow(page, "Fields", "Contact details");
   const drawer = page.getByRole("dialog");
   await expect(drawer.getByRole("combobox", { name: "Value type", exact: true })).toBeDisabled();
   await expect(drawer).toContainText(
-    "Email addresses, WhatsApp phone numbers and social accounts that match messages to this record.",
+    "Phone numbers, email addresses and social profiles that match messages to this record.",
   );
   await expect(drawer.getByRole("switch", { name: "Required", exact: true })).toHaveCount(0);
   await drawer.getByRole("textbox", { name: "Name", exact: false }).fill("Reach");
@@ -92,12 +94,12 @@ test("drags the Channels field in Configure and renames it like any field", asyn
     valueType: "channels",
   });
   await configureTopBar(page).getByRole("button", { name: "Add", exact: true }).click();
-  await expect(page.getByRole("menuitem", { name: "Channels", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("menuitem", { name: "Contact details", exact: true })).toHaveCount(0);
   await page.keyboard.press("Escape");
   expect(errors).toEqual([]);
 });
 
-test("edits Channels inline on a record, pins it and copies on click", async ({ page, database, companyId }) => {
+test("edits contact details inline on a record, pins it and copies on click", async ({ page, database, companyId }) => {
   test.setTimeout(180000);
   const errors = collectPageErrors(page);
   const id = (key: string) => presetId(companyId, key);
@@ -107,7 +109,7 @@ test("edits Channels inline on a record, pins it and copies on click", async ({ 
   const drawer = page.getByRole("dialog", { name: "Contact", exact: true });
   await drawer.getByRole("textbox", { name: "First name", exact: false }).fill("Inline");
   await drawer.getByRole("textbox", { name: "Last name", exact: false }).fill("Channels");
-  const channel = drawer.getByRole("combobox", { name: "Add channel", exact: true });
+  const channel = drawer.getByRole("combobox", { name: "Add phone, email or profile", exact: true });
   await channel.fill("inline@example.test");
   await page.getByRole("option").filter({ hasText: "inline@example.test" }).click();
   await expect(drawer.getByText("inline@example.test", { exact: true })).toBeVisible();
@@ -131,9 +133,9 @@ test("edits Channels inline on a record, pins it and copies on click", async ({ 
   const field = drawer.locator(`[data-entity-field="${channelsId}"]`);
   await expect(field).toContainText("inline@example.test");
   await expect(field.locator('[data-contact-action="open"]')).toHaveCount(1);
-  await expect(drawer.getByRole("button", { name: "Pin Channels to the overview", exact: true })).toHaveCount(0);
+  await expect(drawer.getByRole("button", { name: "Pin Contact details to the overview", exact: true })).toHaveCount(0);
   await drawer.getByRole("button", { name: "Customize", exact: true }).click();
-  await drawer.getByRole("button", { name: "Pin Channels to the overview", exact: true }).click();
+  await drawer.getByRole("button", { name: "Pin Contact details to the overview", exact: true }).click();
   await drawer.getByRole("button", { name: "Done", exact: true }).click();
   await expect(drawer.locator(`[data-chip-column="${channelsId}"]`)).toContainText("inline@example.test");
   await expect
@@ -150,7 +152,7 @@ test("edits Channels inline on a record, pins it and copies on click", async ({ 
 
   await openConfigure(page, id("contact"));
   await openConfigureTab(page, "Fields");
-  await openConfigureRow(page, "Fields", "Channels");
+  await openConfigureRow(page, "Fields", "Contact details");
   const settings = page.getByRole("dialog");
   await settings.getByRole("combobox", { name: "On click", exact: true }).click();
   await page.getByRole("option", { name: "Copy", exact: true }).click();

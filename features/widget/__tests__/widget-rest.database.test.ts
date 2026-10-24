@@ -27,6 +27,9 @@ const routes = {
   remove: await restRoute("/v1/widgets/delete"),
   layout: await restRoute("/v1/widgets/layout"),
   createView: await restRoute("/v1/data-views/create"),
+  read: await restRoute("/v1/widgets/read"),
+  apply: await restRoute("/v1/model/apply"),
+  mutate: await restRoute("/v1/records/mutate"),
 };
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
@@ -75,6 +78,92 @@ const everywhere = (i: string, lg: { x: number; y: number; w: number; h: number 
 });
 
 describeDatabase("widget REST routes on PostgreSQL", () => {
+  it("saves, lists and reads calendar and map widgets, the calendar for another window", async () => {
+    const w = await workspace();
+    const field = (typeKey: string, label: string, valueType: "date" | "address") => ({
+      id: randomUUID(),
+      typeId: w.id(typeKey),
+      label,
+      valueType,
+      behavior: { kind: "input" },
+      required: false,
+      archived: false,
+      options: [],
+      position: 500,
+    });
+    const closes = field("deal", "Closes", "date");
+    const site = field("organization", "Site", "address");
+    const applied = await postAs(w, w.admin, routes.apply, {
+      expectedRevision: await w.revision(),
+      idempotencyKey: randomUUID(),
+      operations: [closes, site].map((definition) => ({ operation: "putField", field: definition })),
+    });
+    expect(applied).toMatchObject({ status: 200 });
+    const created = await postAs(w, w.admin, routes.mutate, {
+      expectedRevision: await w.revision(),
+      idempotencyKey: randomUUID(),
+      mutation: {
+        action: "create",
+        typeId: w.id("deal"),
+        fields: [
+          { fieldId: w.id("deal.name"), value: { kind: "text", value: "Closing in November" } },
+          { fieldId: closes.id, value: { kind: "date", value: "2026-11-12" } },
+        ],
+      },
+    });
+    expect(created).toMatchObject({ status: 200 });
+    const save = async (body: Record<string, unknown>) => {
+      const result = await postAs(w, w.admin, routes.save, {
+        expectedRevision: await w.revision(),
+        idempotencyKey: randomUUID(),
+        displayOptions: { showFilters: true },
+        isTemplate: false,
+        viewId: null,
+        ...body,
+      });
+      expect(result.status).toBe(200);
+      return result.body.id as string;
+    };
+    const calendar = await save({
+      kind: "calendar",
+      name: "Closing",
+      calendarQuery: {
+        source: { typeId: w.id("deal"), filters: [], relationships: [] },
+        dateFieldId: closes.id,
+        layout: "month",
+        timeZone: "Europe/Berlin",
+        days: 14,
+        showOverdue: true,
+        amountFieldId: null,
+        aggregation: "count",
+      },
+    });
+    const map = await save({
+      kind: "map",
+      name: "Sites",
+      mapQuery: {
+        source: { typeId: w.id("organization"), filters: [], relationships: [] },
+        addressFieldId: site.id,
+        colorFieldId: null,
+        sizeFieldId: null,
+        detailFieldId: null,
+      },
+    });
+    expect((await listed(w, w.admin)).map(({ id }) => id)).toEqual(expect.arrayContaining([calendar, map]));
+    const november = await postAs(w, w.admin, routes.read, {
+      id: calendar,
+      window: { from: "2026-11-01", to: "2026-11-30" },
+    });
+    expect(november).toMatchObject({
+      status: 200,
+      body: { kind: "calendar", data: { window: { from: "2026-11-01", to: "2026-11-30" }, total: { count: 1 } } },
+    });
+    expect(await postAs(w, w.admin, routes.read, { id: map })).toMatchObject({ status: 200, body: { kind: "map" } });
+    expect(
+      await postAs(w, w.admin, routes.read, { id: map, window: { from: "2026-11-01", to: "2026-11-30" } }),
+    ).toMatchObject({ status: 400 });
+  });
+
   it("lists widgets of every dashboard view, re-lays them out in one batch and deletes one to Trash", async () => {
     const w = await workspace();
     const view = await postAs(w, w.admin, routes.createView, { surfaceKey: "dashboard", name: "Berlin", state: {} });

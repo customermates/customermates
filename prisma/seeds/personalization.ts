@@ -375,7 +375,7 @@ export function buildSyntheticP13nFixtures(
     detailFixture(
       SYNTHETIC_P13N_IDS.contactDetail,
       "contact",
-      [customFieldIds.contactSalesPipeline, customFieldIds.contactPhone],
+      [customFieldIds.contactSalesPipeline, id("capability.identity")],
       [
         f.contact.jobTitle,
         relationship("contact.organizations", "outgoing"),
@@ -389,7 +389,6 @@ export function buildSyntheticP13nFixtures(
         customFieldIds.contactSalesPipeline,
         relationship("contact.organizations", "outgoing"),
         id("capability.identity"),
-        customFieldIds.contactPhone,
         relationship("deal.contacts", "incoming"),
         relationship("task.contacts", "incoming"),
       ],

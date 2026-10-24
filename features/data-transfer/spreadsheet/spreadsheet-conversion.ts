@@ -14,6 +14,7 @@ import type {
 } from "./spreadsheet.schema";
 
 import { parseMarkdownToJSON } from "@/components/editor/editor.utils";
+import { normalizePhoneNumber } from "@/core/utils/phone-number";
 import { channelClass } from "@/ee/messaging/provider";
 import { RECORD_IMPORT_LIMIT, RECORD_IMPORT_LINK_LIMIT } from "@/features/data-transfer/record-transfer.schema";
 import { RecordScalarSchema } from "@/features/records/record-model.schema";
@@ -24,7 +25,6 @@ import {
   loneNameParts,
   matchOptionKey,
   normalizeEmail,
-  normalizePhone,
   normalizeUrl,
   parseDateText,
   parseDateTimeText,
@@ -163,10 +163,6 @@ function invalidCode(field: RecordField): SpreadsheetRowErrorCode {
       return "invalidDateTime";
     case "select":
       return "unknownOption";
-    case "email":
-      return "invalidEmail";
-    case "phone":
-      return "invalidPhone";
     case "url":
       return "invalidUrl";
     default:
@@ -182,14 +178,12 @@ function optionId(field: RecordField, text: string): string | null {
   return option?.id ?? null;
 }
 
-function contactValue(field: RecordField, text: string, mapping: SpreadsheetMapping): string | null {
-  if (field.valueType === "email") return normalizeEmail(text);
-  if (field.valueType === "phone") return normalizePhone(text, mapping.phoneCountryCode);
+function contactValue(field: RecordField, text: string): string | null {
   if (field.valueType === "url") return normalizeUrl(text);
   return text;
 }
 
-function listValue(field: RecordField, cell: SpreadsheetCell, mapping: SpreadsheetMapping): Converted {
+function listValue(field: RecordField, cell: SpreadsheetCell): Converted {
   const text = cellText(cell);
   if (field.valueType === "select") {
     const whole = optionId(field, text);
@@ -201,7 +195,7 @@ function listValue(field: RecordField, cell: SpreadsheetCell, mapping: Spreadshe
   }
   const parts = splitListValues(text, field.valueType === "text" ? /\n/ : CONTACT_SEPARATORS);
   if (parts.length > MAX_LIST_VALUES) return { error: "tooManyValues" };
-  const values = parts.map((part) => contactValue(field, part, mapping));
+  const values = parts.map((part) => contactValue(field, part));
   if (values.some((value) => value === null)) return { error: invalidCode(field) };
   return { value: { kind: "textList", value: [...new Set(values as string[])] } };
 }
@@ -250,10 +244,8 @@ function singleValue(
       const id = optionId(field, text);
       return id === null ? invalid : { value: { kind: "select", value: id } };
     }
-    case "email":
-    case "phone":
     case "url": {
-      const value = contactValue(field, text, mapping);
+      const value = contactValue(field, text);
       return value === null ? invalid : { value: { kind: "text", value } };
     }
     default:
@@ -269,7 +261,7 @@ function convertCell(
 ): Converted {
   const converted =
     field.multiple && field.valueType !== "richText"
-      ? listValue(field, cell, mapping)
+      ? listValue(field, cell)
       : singleValue(field, cell, column, mapping);
   if ("error" in converted || converted.value === null) return converted;
   const parsed = RecordScalarSchema.safeParse(converted.value);
@@ -288,8 +280,8 @@ function spreadsheetChannelIdentity(
 ): Pick<RecordIdentity, "provider" | "value"> | null {
   const email = normalizeEmail(part);
   if (email) return { provider: "mail", value: email };
-  const phone = normalizePhone(part, phoneCountryCode);
-  return phone ? { provider: "whatsapp", value: phone } : null;
+  const phone = normalizePhoneNumber(part, null, phoneCountryCode);
+  return phone ? { provider: "phone", value: phone } : null;
 }
 
 function channelIdentities(

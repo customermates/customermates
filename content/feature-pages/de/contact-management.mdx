@@ -11,7 +11,7 @@ relatedHrefs:
 
 hero:
   title: "Kontaktverwaltung, die Personen, Firmen und Gespräche zusammenhält"
-  description: Customermates speichert jeden Kontakt mit den Organisationen, für die er arbeitet, mit Deals, Aufgaben, Notizen und Kanälen. Sie importieren Ihre Excel-Liste, legen eigene Felder an und sehen ab Pro E-Mails, LinkedIn- und WhatsApp-Nachrichten direkt am Kontakt.
+  description: Customermates speichert jeden Kontakt mit den Organisationen, für die er arbeitet, mit Deals, Aufgaben, Notizen und Kontaktdaten. Sie importieren Ihre Excel-Liste, legen eigene Felder an und sehen ab Pro E-Mails, LinkedIn- und WhatsApp-Nachrichten direkt am Kontakt.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -20,7 +20,7 @@ hero:
 
 cta:
   action: Die eigene Kontaktliste im Test übernehmen
-  description: Speichern Sie Ihren Export aus Outlook, Google oder Excel als .xlsx, ordnen Sie die Spalten Feldern und Kanälen zu und prüfen Sie im kostenlosen Testzeitraum, ob Ihr Team Kontakte schneller findet.
+  description: Speichern Sie Ihren Export aus Outlook, Google oder Excel als .xlsx, ordnen Sie die Spalten Feldern und Kontaktdaten zu und prüfen Sie im kostenlosen Testzeitraum, ob Ihr Team Kontakte schneller findet.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -35,7 +35,7 @@ Ob Sie es Kontaktverwaltung, Kundenverwaltung oder Kundendatenbank nennen: Diese
 <ArticleSummary title="Auf einen Blick">
   <SummaryItem label="In jedem Plan">Kontakte und Organisationen, typisierte eigene Felder, Filter, persönliche Ansichten, Tabelle oder Board, Rollen, Excel-Import und -Export, REST, Webhooks und MCP.</SummaryItem>
   <SummaryItem label="Ab Pro">E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Gespräche am Kontakt. Nur in der Cloud.</SummaryItem>
-  <SummaryItem label="Nicht enthalten">Kein Adressbuch-Abgleich, kein Zusammenführen von Dubletten, keine Tags, keine Dateianhänge an Datensätzen, keine Erinnerungen.</SummaryItem>
+  <SummaryItem label="Nicht enthalten">Kein Adressbuch-Abgleich, kein Zusammenführen von Dubletten, keine Tags, keine Erinnerungen.</SummaryItem>
 </ArticleSummary>
 
 ## Was ein Kontakt und eine Organisation speichern
@@ -43,13 +43,13 @@ Ob Sie es Kontaktverwaltung, Kundenverwaltung oder Kundendatenbank nennen: Diese
 | | Kontakt | Organisation |
 |---|---|---|
 | Feste Felder | Name, Notizen | Name, Notizen |
-| Kanäle | E-Mail-Adressen, WhatsApp-Nummer, LinkedIn-, Instagram- und Telegram-Konto | Zunächst keine; ein Feld Kanäle lässt sich ergänzen |
+| Kontaktdaten | E-Mail-Adressen, Telefonnummern, LinkedIn-, Instagram- und Telegram-Konto | Zunächst keine; ein Feld Kontaktdaten lässt sich ergänzen |
 | Verknüpfungen | Organisationen (auch mehrere), Deals, Aufgaben, zugewiesene Nutzer | Kontakte, Deals, Aufgaben, zugewiesene Nutzer |
 | Eigene Felder | Felder jedes Typs | Felder jedes Typs |
 
-Die Feldtypen heißen Text, Formatierter Text, Zahl, Geldbetrag, Ja oder nein, Datum, Datum und Uhrzeit, Datumsbereich, Datums- und Zeitbereich, Einzelauswahl, Mehrfachauswahl, E-Mail, Telefon, Webadresse und Mitglied. Eine Festnetz- oder Mobilnummer ohne WhatsApp kommt in ein Feld vom Typ Telefon. Notizen sind ein Feld vom Typ Formatierter Text, auch mit Tabellen und Bildern.
+Die Feldtypen heißen Text, Formatierter Text, Zahl, Geldbetrag, Ja oder nein, Datum, Datum und Uhrzeit, Datumsbereich, Datums- und Zeitbereich, Einzelauswahl, Mehrfachauswahl, Webadresse, Mitglied, Adresse, Datei und Telefon, E-Mail & Social Media. Telefonnummern, ob Festnetz oder mobil, und E-Mail-Adressen kommen in das Feld Kontaktdaten; eine Nummer dort lässt sich anrufen und ordnet auch WhatsApp-Chats derselben Nummer zu. Ein Feld vom Typ Adresse enthält eine Postadresse: Customermates prüft sie nach dem Adressformat ihres Landes, schlägt zur Postleitzahl Ort und Region vor und öffnet die Adresse per Klick in Karten; ein Feld vom Typ Datei fasst bis zu 20 Dateien mit je bis zu 25 MB. Notizen sind ein Feld vom Typ Formatierter Text, auch mit Tabellen und Bildern.
 
-Eine E-Mail-Adresse oder ein Konto kann zu mehreren Datensätzen gehören, etwa zu einem Kontakt und einer Organisation. Die globale Suche (Cmd/Strg+K) findet Kontakte über den Namen, jede Kanaladresse und die verknüpfte Organisation, eigene Felder erreichen Sie über Filter.
+Eine E-Mail-Adresse oder ein Konto kann zu mehreren Datensätzen gehören, etwa zu einem Kontakt und einer Organisation. Die globale Suche (Cmd/Strg+K) findet Kontakte über den Namen, ihre Kontaktdaten und die verknüpfte Organisation, eigene Felder erreichen Sie über Filter.
 
 ## Firmenkontakte und Accounts zentral verwalten
 
@@ -75,17 +75,17 @@ Für die Betreuung von Kundenfirmen reichen drei Bausteine. Ein Einzelauswahlfel
   <Step title="Exportieren und umwandeln">Outlook und Google Kontakte liefern ihre Exportdatei als kommagetrennte Textdatei (Google auch als vCard). Öffnen Sie sie in Excel und speichern Sie sie als .xlsx, denn CSV-Dateien importiert Customermates nicht.</Step>
   <Step title="Vorher aufräumen">Entfernen Sie doppelte Zeilen und teilen Sie die Liste in eine Arbeitsmappe für Organisationen und eine für Kontakte. Ein Import lässt sich nicht rückgängig machen.</Step>
   <Step title="Organisationen importieren">Öffnen Sie unter **Organisationen** das Menü **Weitere Aktionen › Aus Datei hinzufügen**, wählen Sie die Arbeitsmappe, ordnen Sie die Spalten zu und importieren Sie.</Step>
-  <Step title="Kontakte importieren">Ordnen Sie den Namen zu, die E-Mail-Spalte dem Feld **Kanäle**, die Firmenspalte den **Organisationen** und den Rest Ihren Feldern. Fehlgeschlagene Zeilen werden mit Grund aufgeführt.</Step>
+  <Step title="Kontakte importieren">Ordnen Sie den Namen zu, die E-Mail- und Telefonspalten dem Feld **Kontaktdaten**, die Firmenspalte den **Organisationen** und den Rest Ihren Feldern. Fehlgeschlagene Zeilen werden mit Grund aufgeführt.</Step>
   <Step title="In großen Mengen korrigieren">Exportieren Sie die Liste, bearbeiten Sie sie in Excel und importieren Sie sie erneut als **Vorhandene Datensätze**: So werden bestehende Datensätze aktualisiert, statt neue anzulegen.</Step>
 </Steps>
 
-Eine Datei fasst derzeit bis zu 10.000 Zeilen und 10 MB. Kanäle übernimmt der Import nur bei neuen Kontakten. Einen laufenden Abgleich gibt es nicht, nach dem Import sind Ihr Outlook- oder Google-Adressbuch und Customermates getrennte Listen.
+Eine Datei fasst derzeit bis zu 10.000 Zeilen und 10 MB. Kontaktdaten übernimmt der Import nur bei neuen Kontakten. Einen laufenden Abgleich gibt es nicht, nach dem Import sind Ihr Outlook- oder Google-Adressbuch und Customermates getrennte Listen.
 
 ## Gespräche am Kontakt (ab Pro)
 
-In Customermates Cloud verbinden Sie ab Pro Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram oder Telegram, und Gespräche werden über die Kanäle dem richtigen Kontakt zugeordnet. Schreibt eine unbekannte Adresse, klicken Sie im Posteingang bei dieser Person auf **Verknüpfen** und wählen den Kontakt oder legen ihn an. Danach erscheint jedes Gespräch mit dieser Adresse, nicht nur das aktuelle, im Verlauf des Kontakts.
+In Customermates Cloud verbinden Sie ab Pro Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram oder Telegram, und Gespräche werden über die Kontaktdaten dem richtigen Kontakt zugeordnet. Schreibt eine unbekannte Adresse, klicken Sie im Posteingang bei dieser Person auf **Verknüpfen** und wählen den Kontakt oder legen ihn an. Danach erscheint jedes Gespräch mit dieser Adresse, nicht nur das aktuelle, im Verlauf des Kontakts.
 
-Sie sehen Gespräche aus Ihren eigenen Kanälen und die, die Kolleginnen und Kollegen mit dem CRM teilen. Im Business-Plan lässt sich ein ganzer Kanal teilen, dann stehen die Gespräche mehrerer Teammitglieder mit einem Kunden im selben Verlauf. Im Starter-Plan und selbst gehostet speichern und durchsuchen Sie Kanäle, einen Posteingang gibt es dort nicht.
+Sie sehen Gespräche aus Ihren eigenen Kanälen und die, die Kolleginnen und Kollegen mit dem CRM teilen. Im Business-Plan lässt sich ein ganzer Kanal teilen, dann stehen die Gespräche mehrerer Teammitglieder mit einem Kunden im selben Verlauf. Im Starter-Plan und selbst gehostet speichern und durchsuchen Sie Kontaktdaten, einen Posteingang gibt es dort nicht.
 
 ## KI in der Kontaktverwaltung: Mate und MCP
 
@@ -110,7 +110,7 @@ In Customermates Cloud ist die Produktivdatenbank in der AWS-Region Frankfurt ko
 - Kein Abgleich mit Outlook, Google oder dem Adressbuch im Smartphone, in keine Richtung.
 - Kein Zusammenführen von Dubletten. Bereinigen Sie die Liste vor dem Import.
 - Keine Tags. Für mehrere Werte pro Datensatz nutzen Sie ein Feld vom Typ Mehrfachauswahl.
-- Keine Dateianhänge an Datensätzen. Anhänge von Nachrichten bleiben im Gespräch im Posteingang.
+- Anhänge von Nachrichten bleiben im Gespräch im Posteingang, nicht am Kontakt. Dateien für den Datensatz legen Sie in einem Feld vom Typ Datei ab.
 - Keine Erinnerungen, Fälligkeitsdaten oder Wiedervorlagen. Daten speichern Sie in eigenen Feldern, eine Routine in der Cloud listet die verstrichenen auf.
 - Keine Newsletter, Massenmails, Sequenzen oder Anreicherung von Firmendaten.
 - Keine App für iOS oder Android. Customermates läuft im Browser.

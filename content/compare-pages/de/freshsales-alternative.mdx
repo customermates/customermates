@@ -45,7 +45,7 @@ comparison:
         source: Kontakte, Organisationen, Deals, Services, Aufgaben, dazu eigene Listen
         competitor: Kontakte, Accounts, Deals; bis zu 10 eigene Module in Enterprise
       - name: Eigene Felder
-        source: Fünfzehn Feldtypen und berechnete Felder in jedem Tarif
+        source: Sechzehn Feldtypen und berechnete Felder in jedem Tarif
         competitor: Einfache Felder in jedem Tarif; Formel- und Lookup-Felder ab Pro
       - name: Pipelines
         source: Board nach jedem Einzelauswahl-Feld gruppierbar; ein Phasenfeld mit Gewinnwahrscheinlichkeiten
@@ -191,7 +191,7 @@ Customermates ist ein Open-Source-KI-CRM für kleine Teams mit Kundenkontakt: Be
 
 Prüfen Sie diese Punkte vor der Testphase:
 
-- **Keine Telefonie.** Es gibt keinen Dialer, keine Gesprächsaufzeichnung und keine SMS. Telefonnummern stehen in einem eigenen Feld, telefoniert wird über Ihre eigene Telefonanlage.
+- **Keine Telefonie.** Es gibt keinen Dialer, keine Gesprächsaufzeichnung und keine SMS. Telefonnummern stehen im Feld Kontaktdaten, telefoniert wird über Ihre eigene Telefonanlage.
 - **Keine Sequenzen und keine Serien-E-Mails.** Nachrichten verschicken Sie einzeln, selbst geschrieben oder von Mate entworfen.
 - **Kein Chat-Widget und keine Webformulare.** Anfragen von Ihrer Website kommen über die REST-API oder einen Workflow in einer selbst betriebenen n8n-Instanz ins CRM.
 - **Keine Lead-Bewertung, keine Datenanreicherung, keine KI-Prognosen.** Die gewichtete Pipeline multipliziert den Wert jedes Deals mit der Wahrscheinlichkeit seiner Phase. Das ist Arithmetik mit Ihren eigenen Zahlen und keine Vorhersage.
@@ -211,7 +211,7 @@ Nehmen wir eine Beratung mit vier Personen, die Beratungsprojekte verkauft. Zwei
 | Lifecycle-Phase des Kontakts | Ein Einzelauswahl-Feld „Lifecycle-Phase“ und je eine gespeicherte Ansicht pro bearbeiteter Phase |
 | Tags | Ein Einzelauswahl-Feld, denn Customermates kennt keine Tags |
 | Aufgaben | Aufgaben mit einem eigenen Datumsfeld „Fällig am“, da Aufgaben kein eingebautes Fälligkeitsdatum haben |
-| Telefonnummern und Anrufprotokolle | Ein eigenes Feld „Telefon“; Anrufe werden nicht protokolliert |
+| Telefonnummern und Anrufprotokolle | Das Feld Kontaktdaten des Kontakts; Anrufe werden nicht protokolliert |
 
 In Konfigurieren für Deals benennt das Team die Optionen des Felds „Phase“ in Lead, Qualifiziert, Angebot gesendet, Verhandlung, Gewonnen und Verloren um und setzt ihre Wahrscheinlichkeit % auf 10 %, 25 %, 50 %, 75 %, 100 % und 0 %. Jeder Berater speichert ein Board mit seinen eigenen Deals, gruppiert nach Phase. Die Partnerin führt eine Tabelle aller offenen Deals, gruppiert nach „Zugewiesen“.
 
@@ -226,8 +226,8 @@ Für Freshsales-Sequenzen gibt es kein Gegenstück. Stattdessen richtet jeder Be
 <Steps>
   <Step title="Aus Freshsales exportieren">Laut Hilfe-Center von Freshworks öffnet ein Admin Admin Settings › Account, klickt auf Export data und wählt die gewünschten Datensatztypen. Freshworks schickt den Export als ZIP-Datei per E-Mail. Sie können bis zu fünfmal täglich exportieren, den gesamten Zeitraum aber nur einmal.</Step>
   <Step title="Jede Datei als Excel-Arbeitsmappe speichern">Customermates importiert ausschließlich .xlsx-Arbeitsmappen; CSV-Dateien werden nicht angenommen. Öffnen Sie jede Datei in Excel oder LibreOffice und speichern Sie sie als .xlsx, eine Liste pro Arbeitsmappe.</Step>
-  <Step title="Arbeitsbereich vorbereiten">Benennen Sie Listen in Konfigurieren bei Bedarf um, legen Sie eigene Felder für die Freshsales-Felder an, die Sie behalten, etwa Lifecycle-Phase, Telefon und Lead-Quelle, und richten Sie das Phasenfeld mit seinen Wahrscheinlichkeiten ein.</Step>
-  <Step title="Eine Liste nach der anderen importieren">Öffnen Sie in jeder Liste Weitere Aktionen, dann Aus Datei hinzufügen: zuerst Organisationen, dann Kontakte, dann Deals. Enthält Ihr Export keine Datei mit Accounts, erstellen Sie die Arbeitsmappe für Organisationen aus der Account-Spalte der Kontaktdatei. Verknüpfungsspalten werden über den Namen zugeordnet, sodass die Account-Spalte eines Kontakts die zuvor importierte Organisation findet. E-Mail-Adressen und WhatsApp-Nummern ordnen Sie den Kanälen des Kontakts zu. Größenlimits stehen in der [Dokumentation zu Datensätzen](/docs/app-records).</Step>
+  <Step title="Arbeitsbereich vorbereiten">Benennen Sie Listen in Konfigurieren bei Bedarf um, legen Sie eigene Felder für die Freshsales-Felder an, die Sie behalten, etwa Lifecycle-Phase und Lead-Quelle, und richten Sie das Phasenfeld mit seinen Wahrscheinlichkeiten ein.</Step>
+  <Step title="Eine Liste nach der anderen importieren">Öffnen Sie in jeder Liste Weitere Aktionen, dann Aus Datei hinzufügen: zuerst Organisationen, dann Kontakte, dann Deals. Enthält Ihr Export keine Datei mit Accounts, erstellen Sie die Arbeitsmappe für Organisationen aus der Account-Spalte der Kontaktdatei. Verknüpfungsspalten werden über den Namen zugeordnet, sodass die Account-Spalte eines Kontakts die zuvor importierte Organisation findet. E-Mail-Adressen und Telefonnummern ordnen Sie dem Feld Kontaktdaten des Kontakts zu. Größenlimits stehen in der [Dokumentation zu Datensätzen](/docs/app-records).</Step>
   <Step title="Kanäle und KI verbinden">Im Pro-Tarif oder während der Testphase verbinden Sie unter Einstellungen › Kanäle ein Postfach, LinkedIn oder WhatsApp. Der E-Mail-Verlauf aus dem Export wird nicht importiert; der Posteingang zeigt die Gespräche der Konten, die Sie verbinden. Danach richten Sie Routinen ein oder verbinden Ihren eigenen KI-Client per MCP.</Step>
 </Steps>
 

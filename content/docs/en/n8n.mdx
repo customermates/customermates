@@ -52,6 +52,8 @@ Use an **HTTP Request** node with an `x-api-key` credential and JSON matching th
 
 **Breaking change:** these routes replaced the former entity-specific endpoints, which were removed. Update HTTP Request nodes that still call a contact, organization, deal, service or task endpoint.
 
+**Breaking change:** Email and Phone are no longer field types. When the contact details update is installed, each former Email or Phone field moves into its list's contact details field (the field type Phone, email & social, value type `channels`): the old field ID disappears from records, the record model, exports and webhook events, and its addresses and numbers are read and written as `identities` of the record, with `provider` `mail` or `phone` and the address or number as `value`. Update n8n workflows, HTTP Request nodes and other REST clients that read, filter or write the old field IDs: send `identities` inside the `create` or `update` mutation of `POST /api/v1/records/mutate`, with the identities to keep, and read them from `identities` in record responses and `data.record.identities` in webhook events. A field that could not be moved stays a Text field with its ID, for example one that a webhook body template names.
+
 The base URL is the address at which you open Customermates. A mutation carries a stable `typeId`, an idempotency key and the expected configuration revision; updates and deletes also carry the record reference and expected version. Fields are typed assignments, and links name a relationship definition. A deletion may require a current impact preview hash. See [filter syntax](/docs/filter-syntax) for query shapes.
 
 ## How do I call MCP tools from n8n? [#how-do-i-call-mcp-tools-from-n8n]

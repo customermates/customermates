@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const invokes = vi.hoisted(() => Array.from({ length: 15 }, () => vi.fn(() => Promise.resolve())));
+const invokes = vi.hoisted(() => Array.from({ length: 17 }, () => vi.fn(() => Promise.resolve())));
 const sentry = vi.hoisted(() => ({ captureException: vi.fn() }));
 const mockEnv = vi.hoisted(() => ({
   APP_MODE: "cloud" as "cloud" | "demo" | "self-hosted",
@@ -36,11 +36,13 @@ vi.mock("@/core/di", () => ({
   getPruneDraftSendsInteractor: () => ({ invoke: invokes[12] }),
   getPruneWikiKnowledgeGapsInteractor: () => ({ invoke: invokes[13] }),
   getSyncStaleWikiSectionsInteractor: () => ({ invoke: invokes[14] }),
+  getPurgeExpiredRecordFilesInteractor: () => ({ invoke: invokes[15] }),
+  getNormalizePhoneIdentitiesInteractor: () => ({ invoke: invokes[16] }),
 }));
 
 import { GET } from "../route";
 
-const RETENTION_STEPS = [8, 10, 11, 12, 13, 14];
+const RETENTION_STEPS = [8, 10, 11, 12, 13, 14, 15, 16];
 const UNIPILE_STEPS = [5, 6, 7];
 
 function callLifecycle() {
@@ -140,6 +142,8 @@ describe("lifecycle cron", () => {
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ ok: true });
     expect(invokes.every((invoke) => invoke.mock.calls.length === 1)).toBe(true);
-    expect(sentry.captureException).toHaveBeenCalledWith(failure, { tags: { kind: "wiki-section-cron-sync" } });
+    expect(sentry.captureException).toHaveBeenCalledWith(failure, {
+      tags: { kind: "wiki-section-cron-sync" },
+    });
   });
 });

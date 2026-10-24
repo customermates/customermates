@@ -11,6 +11,8 @@ import { WidgetDisplayOptionsSchema } from "@/features/widget/widget.schema";
 import { WidgetPlacementSchema, occupiedGrid } from "@/features/widget/widget-grid";
 import { desktopPlacement } from "@/features/widget/widget-placement";
 import { RecordActivityQuerySchema } from "@/ee/messaging/activities/record-activities.schema";
+import { CalendarWidgetQuerySchema, CalendarWidgetWindowSchema } from "@/features/widget/record-calendar-widget.schema";
+import { MapWidgetQuerySchema } from "@/features/widget/record-map-widget.schema";
 import {
   formatDatesInResponse,
   mcpInteractorFailure,
@@ -26,7 +28,9 @@ const ManageWidgetsSchema = z
     kind: z
       .enum(WidgetKind)
       .optional()
-      .describe("Widget kind on create: chart (default) or activityTimeline. A saved widget keeps its kind."),
+      .describe(
+        "Widget kind on create: chart (default), activityTimeline, calendar or map. A saved widget keeps its kind.",
+      ),
     id: z.uuid().optional(),
     ids: z.array(z.uuid()).min(1).max(100).optional(),
     name: z.string().trim().min(1).max(255).optional(),
@@ -54,11 +58,22 @@ const ManageWidgetsSchema = z
     displayOptions: WidgetDisplayOptionsSchema.optional(),
     isTemplate: z.boolean().optional(),
     activityQuery: RecordActivityQuerySchema.optional(),
+    calendarQuery: CalendarWidgetQuerySchema.optional().describe(
+      "Calendar widgets: the records (source), the date field that puts them on days, layout upcoming or month and the IANA time zone.",
+    ),
+    mapQuery: MapWidgetQuerySchema.optional().describe(
+      "Map widgets: the records (source) and the address field whose stored location places them, with optional color, size and detail fields.",
+    ),
     showFilters: z
       .boolean()
       .optional()
-      .describe("Activity timeline appearance only. Chart options belong in displayOptions."),
+      .describe(
+        "Activity timeline, calendar and map appearance: show the filter summary on the card. Chart options belong in displayOptions.",
+      ),
     layout: WidgetPlacementSchema.optional(),
+    window: CalendarWidgetWindowSchema.optional().describe(
+      "get only, calendar widgets: read these days instead of the widget's own range.",
+    ),
     viewId: z
       .uuid()
       .nullable()
@@ -73,7 +88,7 @@ export const manageWidgetsTool = {
   name: "manage_widgets",
   title: "Manage widgets",
   description:
-    "Use this when the user asks to see, create, change or delete their dashboard widgets. A widget you create stays on their dashboard, so never create or update one to work out an answer; answer data questions with query_crm_measure or query_crm_records instead. Dashboard widgets. list returns IDs, names, each widget's dashboard view (viewId, null for the main dashboard) and its current layout within that view; get (ids) returns saved configuration and access-filtered results. Create a chart with name, measure, displayOptions, expectedRevision and idempotencyKey. Discover type and field IDs first. displayOptions.displayType must fit the measure: number needs groupBy null, areaChart needs groupBy.dateInterval, rankedTable needs a grouping and funnelChart needs a single-choice grouping field; other chart styles accept any grouping. Update a chart with id, expectedVersion, expectedRevision, idempotencyKey and changed fields; measure and displayOptions replace the complete previous value. Results preserve exact decimal strings and missing, restricted or error states. Activity timelines use kind activityTimeline, name, activityQuery, expectedRevision, idempotencyKey and showFilters. activityQuery scopes stable record/type IDs and combines typed inclusion/exclusion filters; updates also require expectedVersion. isTemplate controls sharing of configuration; viewers still need access to the underlying data. Position and size: layout {x, y, w, h} on the 12-column desktop grid (rows of 54 px with 12 px gaps) is optional on create and update; omit it to auto-place a new widget in the first free spot with a size that fits its display type, or to keep an existing widget where it is. A layout that overlaps another widget is refused, widgets float up into empty rows above them, and the result returns the saved layout. Dashboard views are saved views of manage_data_views surface dashboard; viewId puts a widget on one (default: the caller's current view on create, unchanged on update) and layouts are per view. To build a dashboard, list or get the existing widgets first and place new ones beside them. Delete requires id and moves the widget to Trash, where it is deleted permanently after 30 days unless manage_trash restores it with the returned trashBatchId; it never touches its source records.",
+    "Use this when the user asks to see, create, change or delete their dashboard widgets. A widget you create stays on their dashboard, so never create or update one to work out an answer; answer data questions with query_crm_measure or query_crm_records instead. Dashboard widgets. list returns IDs, names, each widget's dashboard view (viewId, null for the main dashboard) and its current layout within that view; get (ids) returns saved configuration and access-filtered results. Create a chart with name, measure, displayOptions, expectedRevision and idempotencyKey. Discover type and field IDs first. displayOptions.displayType must fit the measure: number needs groupBy null, areaChart needs groupBy.dateInterval, rankedTable needs a grouping and funnelChart needs a single-choice grouping field; other chart styles accept any grouping. Update a chart with id, expectedVersion, expectedRevision, idempotencyKey and changed fields; measure and displayOptions replace the complete previous value. Results preserve exact decimal strings and missing, restricted or error states. Activity timelines use kind activityTimeline, name, activityQuery, expectedRevision, idempotencyKey and showFilters. activityQuery scopes stable record/type IDs and combines typed inclusion/exclusion filters; updates also require expectedVersion. Calendar widgets use kind calendar and calendarQuery: layout upcoming lists the records of the next days (days, today included) with an overdue section for earlier dates (showOverdue; filter out finished records so only open ones count) and an optional amount column; layout month shows each day of the current month as a heat grid with a count, or the sum of amountFieldId with aggregation sum. dateFieldId must be a date or date-time field of the source list; timeZone sets today and the day of date-time values. get with a calendar widget also accepts window {from, to} (at most 42 days) to read another month or one day. Map widgets use kind map and mapQuery: each record appears at the location stored with its address field (the building after an address lookup, otherwise the centre of its postal code), colorFieldId colors pins by a single-choice field, sizeFieldId sizes them by a number or currency field, detailFieldId adds a field to the popover; results report records without a location. Both read the same filters as chart sources and return only records and values the viewer may read. isTemplate controls sharing of configuration; viewers still need access to the underlying data. Position and size: layout {x, y, w, h} on the 12-column desktop grid (rows of 54 px with 12 px gaps) is optional on create and update; omit it to auto-place a new widget in the first free spot with a size that fits its display type, or to keep an existing widget where it is. A layout that overlaps another widget is refused, widgets float up into empty rows above them, and the result returns the saved layout. Dashboard views are saved views of manage_data_views surface dashboard; viewId puts a widget on one (default: the caller's current view on create, unchanged on update) and layouts are per view. To build a dashboard, list or get the existing widgets first and place new ones beside them. Delete requires id and moves the widget to Trash, where it is deleted permanently after 30 days unless manage_trash restores it with the returned trashBatchId; it never touches its source records.",
   annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
   inputSchema: ManageWidgetsSchema,
   outputSchema: z.looseObject({
@@ -117,13 +132,17 @@ export const manageWidgetsTool = {
     }
     if (params.action === "get") {
       const valid = z
-        .object({ action: z.literal("get"), ids: z.array(z.uuid()).min(1).max(100) })
+        .object({
+          action: z.literal("get"),
+          ids: z.array(z.uuid()).min(1).max(100),
+          window: CalendarWidgetWindowSchema.optional(),
+        })
         .strict()
         .safeParse(params);
       if (!valid.success) return mcpValidationFailure(valid.error);
       const items = await Promise.all(
         valid.data.ids.map(async (id) => {
-          const result = await getGetRecordWidgetInteractor().invoke({ id });
+          const result = await getGetRecordWidgetInteractor().invoke({ id, window: valid.data.window });
           return result.ok ? result.data : { id, error: nestedValidationErrorText(result.error) };
         }),
       );
@@ -140,7 +159,8 @@ export const manageWidgetsTool = {
         ? toonResult({ id: valid.data.id, deleted: true, trashBatchId: result.data.trashBatchId })
         : mcpInteractorFailure(result.error);
     }
-    const { action, showFilters, displayOptions, ...change } = params;
+    const { action, showFilters, displayOptions, window, ...change } = params;
+    if (window) return mcpMessageFailure("window is only read by get.", ["window"]);
     if (action === "create" && (change.id || change.expectedVersion))
       return mcpMessageFailure("Creation cannot supply an existing widget ID or version.");
     if (action === "update" && !change.id) return mcpMessageFailure("An update requires the widget ID.", ["id"]);

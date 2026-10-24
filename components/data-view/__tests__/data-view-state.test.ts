@@ -73,4 +73,12 @@ describe("data-view page state", () => {
     expect(resolveDataViewView(ViewMode.card, false)).toBe("table");
     expect(resolveDataViewView(ViewMode.table, false)).toBe("table");
   });
+
+  it("renders the calendar only for a calendar view mode on a surface whose calendar settings resolve", () => {
+    expect(resolveDataViewView(ViewMode.calendar, true, true)).toBe("calendar");
+    expect(resolveDataViewView(ViewMode.calendar, false, true)).toBe("calendar");
+    expect(resolveDataViewView(ViewMode.calendar, true, false)).toBe("table");
+    expect(resolveDataViewView(ViewMode.calendar, true)).toBe("table");
+    expect(resolveDataViewView(ViewMode.card, true, true)).toBe("board");
+  });
 });

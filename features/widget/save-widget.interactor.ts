@@ -1,5 +1,9 @@
 import type { UpsertRecordActivityWidgetInteractor } from "./record-activity-widget.interactor";
 import type { RecordActivityWidgetInput } from "./record-activity-widget.schema";
+import type { UpsertRecordCalendarWidgetInteractor } from "./record-calendar-widget.interactor";
+import type { RecordCalendarWidgetInput } from "./record-calendar-widget.schema";
+import type { UpsertRecordMapWidgetInteractor } from "./record-map-widget.interactor";
+import type { RecordMapWidgetInput } from "./record-map-widget.schema";
 import type { UpsertRecordWidgetInteractor } from "./record-widget.interactor";
 import type { GenericRecordWidgetDto, RecordWidgetInput } from "./record-widget.schema";
 import type { Validated } from "@/core/validation/validation.utils";
@@ -26,6 +30,8 @@ export class SaveWidgetInteractor extends AuthenticatedInteractor<SaveWidgetInpu
     private widgets: FindOwnedWidgetKindRepo,
     private charts: UpsertRecordWidgetInteractor,
     private timelines: UpsertRecordActivityWidgetInteractor,
+    private calendars: UpsertRecordCalendarWidgetInteractor,
+    private maps: UpsertRecordMapWidgetInteractor,
   ) {
     super();
   }
@@ -37,8 +43,15 @@ export class SaveWidgetInteractor extends AuthenticatedInteractor<SaveWidgetInpu
     if (stored && input.kind && input.kind !== stored) return fail(CustomErrorCode.widgetKindImmutable, ["kind"]);
     const kind = stored ?? input.kind ?? WidgetKind.chart;
 
-    return kind === WidgetKind.activityTimeline
-      ? this.timelines.invoke({ ...input, kind } as RecordActivityWidgetInput)
-      : this.charts.invoke({ ...input, kind } as RecordWidgetInput);
+    switch (kind) {
+      case WidgetKind.activityTimeline:
+        return this.timelines.invoke({ ...input, kind } as RecordActivityWidgetInput);
+      case WidgetKind.calendar:
+        return this.calendars.invoke({ ...input, kind } as RecordCalendarWidgetInput);
+      case WidgetKind.map:
+        return this.maps.invoke({ ...input, kind } as RecordMapWidgetInput);
+      default:
+        return this.charts.invoke({ ...input, kind } as RecordWidgetInput);
+    }
   }
 }

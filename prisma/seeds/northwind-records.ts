@@ -2,7 +2,9 @@ import { presetId } from "@/features/records/crm-preset";
 import type { RecordScalar } from "@/features/records/record-model.schema";
 
 import { fixtureId } from "./helpers";
+import { northwindOrganizationAddress } from "./northwind-addresses";
 import { type MemberKey, northwindAt, northwindDataset, northwindDay, northwindDocument } from "./northwind-data";
+import { northwindRecordFiles } from "./northwind-files";
 import { northwindUpdatedAt } from "./northwind-history";
 import { NORTHWIND_MEMBER_IDS, NORTHWIND_RECORD_ID_PREFIXES } from "./northwind-model";
 
@@ -42,6 +44,11 @@ const range = (start: number, end: number): RecordScalar => ({
   kind: "range",
   start: northwindDay(start),
   end: northwindDay(end),
+});
+const instantRange = (start: number, end: number): RecordScalar => ({
+  kind: "range",
+  start: northwindAt(start).toISOString(),
+  end: northwindAt(end).toISOString(),
 });
 const member = (key: MemberKey): RecordScalar => ({ kind: "member", value: NORTHWIND_MEMBER_IDS[key] });
 const document = (lines: readonly string[] | string): RecordScalar => ({
@@ -125,11 +132,17 @@ export function buildNorthwindRecords(companyId: string) {
   // Organizations, contacts, services, deals, tasks: the fields the demo adds -----------------------------------------
   const lastOwner = new Map<number, MemberKey>();
   for (const deal of data.deals) if (deal.type !== "renewal") lastOwner.set(deal.organizationIndex, deal.ownerKey);
+  const documents = new Map<number, string[]>();
+  for (const file of northwindRecordFiles())
+    documents.set(file.organizationIndex, [...(documents.get(file.organizationIndex) ?? []), file.id]);
   for (const organization of data.organizations) {
+    const files = documents.get(organization.index);
     set("organization", organization.id, [
       ["industry", option("organization.industry", organization.industry)],
       ["companySize", number(organization.companySize)],
       ["segment", option("organization.segment", organization.segment)],
+      ["address", { kind: "address", value: northwindOrganizationAddress(organization) }],
+      ["documents", files ? { kind: "file", value: files } : null],
       ["notes", organization.notes ? document(organization.notes) : null],
     ]);
     const customer = organization.profile === "legacyCustomer" || organization.profile === "newCustomer";
@@ -192,6 +205,7 @@ export function buildNorthwindRecords(companyId: string) {
     set("task", task.id, [
       ["team", option("task.team", task.team)],
       ["dueDate", date(task.dueMs)],
+      ["scheduled", task.scheduled ? instantRange(task.scheduled.startMs, task.scheduled.endMs) : null],
     ]);
     for (const [kind, indexes] of [
       ["contact", task.contactIndexes],
@@ -333,7 +347,6 @@ export function buildNorthwindRecords(companyId: string) {
       ["name", text(candidate.name)],
       ["stage", option("candidate.stage", candidate.stage)],
       ["source", option("candidate.source", candidate.source)],
-      ["email", text(candidate.email)],
       ["appliedOn", date(candidate.appliedMs)],
       ["salaryExpectation", money(candidate.salaryExpectation)],
       ["interviewers", candidate.interviewerKey ? member(candidate.interviewerKey) : null],
@@ -363,14 +376,14 @@ export const NORTHWIND_RECORD_PREFIXES: ReadonlyArray<readonly [typeKey: string,
   ...Object.entries(NORTHWIND_RECORD_ID_PREFIXES).map(([typeKey, prefix]) => [typeKey, `${prefix}-`] as const),
 ];
 
-/** Mail, LinkedIn and organization channel identities, as [identity id, type key, record id, provider, value]. */
+/** Contact details of contacts, organizations and candidates: mail, LinkedIn and phone identities. */
 export function buildNorthwindIdentities() {
   const data = northwindDataset();
   const identities: Array<{
     id: string;
     typeKey: string;
     recordId: string;
-    provider: "mail" | "linkedin";
+    provider: "mail" | "linkedin" | "phone";
     value: string;
   }> = [];
   for (const contact of data.contacts) {
@@ -390,6 +403,13 @@ export function buildNorthwindIdentities() {
         value: contact.linkedin,
       });
     }
+    identities.push({
+      id: fixtureId("b0000000", 3000 + contact.index + 1),
+      typeKey: "contact",
+      recordId: contact.id,
+      provider: "phone",
+      value: contact.phone,
+    });
   }
   for (const organization of data.organizations) {
     identities.push({
@@ -400,5 +420,14 @@ export function buildNorthwindIdentities() {
       value: `service@${organization.domain}`,
     });
   }
+  data.candidates.forEach((candidate, index) => {
+    identities.push({
+      id: fixtureId("b0000000", 4000 + index + 1),
+      typeKey: "candidate",
+      recordId: candidate.id,
+      provider: "mail",
+      value: candidate.email,
+    });
+  });
   return identities;
 }

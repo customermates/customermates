@@ -13,6 +13,7 @@ const testEnvironment = {
   APP_MODE: "self-hosted",
   BASE_URL: "http://localhost:4000",
   BETTER_AUTH_SECRET: "vitest-secret",
+  POSTAL_CODE_DATA_URL: "off",
 };
 export const nodeTestInclude = [
   "**/__tests__/**/*.test.ts",
@@ -76,6 +77,7 @@ export const domTestFiles = [
   "core/utils/__tests__/background-poll.dom.test.ts",
   "components/focus/__tests__/focus-target.dom.test.ts",
   "components/records/__tests__/record-operation-progress.dom.test.ts",
+  "components/records/__tests__/record-file-preview.dom.test.ts",
   "components/records/__tests__/contact-value.dom.test.ts",
   "core/utils/__tests__/use-is-truncated.test.ts",
   "components/data-view/__tests__/is-interactive-click.test.ts",
@@ -106,9 +108,11 @@ export const domTestFiles = [
   "components/editor/__tests__/editor-menu.dom.test.ts",
   "app/[locale]/(protected)/records/[typeId]/components/__tests__/record-channels.dom.test.ts",
   "app/[locale]/(protected)/records/[typeId]/components/__tests__/record-input-member.dom.test.ts",
+  "app/[locale]/(protected)/records/[typeId]/components/__tests__/record-file-input.dom.test.ts",
   "app/[locale]/(protected)/records/[typeId]/components/__tests__/record-detail-personalization.dom.test.ts",
   "app/[locale]/(protected)/records/[typeId]/components/__tests__/record-detail-page-handoff.dom.test.ts",
   "app/[locale]/(protected)/records/[typeId]/components/__tests__/record-relationship-editor.dom.test.ts",
+  "app/[locale]/(protected)/records/[typeId]/components/__tests__/record-name-heading.dom.test.ts",
   "app/[locale]/(protected)/records/[typeId]/components/__tests__/record-inline-assignees.dom.test.tsx",
   "components/editor/__tests__/editor-link-picker.test.ts",
   "app/**/onboarding/wizard/components/setup/__tests__/*.dom.test.ts",
@@ -130,6 +134,7 @@ export const domTestFiles = [
   "app/[locale]/(protected)/settings/(account)/components/__tests__/account-signature-behavior.test.ts",
   "app/[locale]/(protected)/routines/components/__tests__/routine-modal.render.test.tsx",
   "app/[locale]/(protected)/routines/components/__tests__/routine-runs-pane.render.test.tsx",
+  "app/[locale]/(protected)/operator/components/workspaces/__tests__/operator-workspace-modal.render.test.tsx",
   "features/messaging/__tests__/email-frame.test.ts",
   "features/messaging/__tests__/email-frame-theme.test.ts",
   "app/[locale]/(protected)/inbox/components/__tests__/thread-reply-composer-navigation.test.ts",
@@ -141,6 +146,9 @@ export const domTestFiles = [
   "components/keyboard/__tests__/key-matching-context.dom.test.ts",
   "app/components/keyboard-shortcuts/__tests__/global-keyboard-shortcuts.dom.test.ts",
   "components/ui/__tests__/overlay-focus-return.dom.test.ts",
+  "components/map/__tests__/map-view.dom.test.tsx",
+  "app/**/records/**/components/__tests__/record-calendar-view.dom.test.tsx",
+  "app/**/dashboard/components/__tests__/calendar-map-widget-cards.dom.test.tsx",
 ];
 
 export default defineConfig({

@@ -6,6 +6,7 @@ import { Client } from "pg";
 import { afterAll, describe, expect, it } from "vitest";
 import { identityLookupValue } from "@/ee/messaging/identity-lookup";
 import { presetId } from "@/features/records/crm-preset";
+import { historicalRecordModel } from "@/features/records/historical-record-model";
 import { RecordModelSchema } from "@/features/records/record-model.schema";
 import { validateRecordModel } from "@/features/records/record-model-validation";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
@@ -478,13 +479,21 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
       start: "2026-09-28T10:34:56.123456",
       end: "2026-09-28T14:34:56.654321",
     });
-    expect(await custom(f.contacts.solo, f.columns.emails)).toMatchObject({
-      textListValue: ["one@example.test", " two@example.test"],
-    });
-    expect(await custom(f.contacts.solo, f.columns.phone)).toMatchObject({
-      state: "missing",
-      textValue: null,
-    });
+    // The later contact details migration moves the legacy email and phone columns into the contacts' contact details.
+    expect(await custom(f.contacts.solo, f.columns.emails)).toBeUndefined();
+    expect(await custom(f.contacts.solo, f.columns.phone)).toBeUndefined();
+    expect(
+      (
+        await rows<{ value: string; provider: string }>(
+          client,
+          'SELECT identity.value, identity.provider::text AS provider FROM "RecordIdentityLink" link JOIN "RecordIdentity" identity ON identity."companyId" = link."companyId" AND identity.id = link."identityId" WHERE link."companyId" = $1 AND link."recordId" = $2 AND identity."channelClass" = $3',
+          [f.companyId, f.contacts.solo, "email"],
+        )
+      ).sort((left, right) => left.value.localeCompare(right.value)),
+    ).toEqual([
+      { value: "one@example.test", provider: "mail" },
+      { value: "two@example.test", provider: "mail" },
+    ]);
     expect(await custom(f.services.a, f.columns.note)).toMatchObject({
       textValue: "with, comma",
     });
@@ -589,22 +598,34 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     ))
       expect(participant.identityLookupValue).toBe(identityLookupValue(participant.provider, participant.identifier));
 
-    // Configuration: one revision holding a valid record model with the legacy custom columns.
+    // Configuration: revision 1 holds the record model with the legacy custom columns; the phone channels migration
+    // then removes the phone column in revision 2. Both are valid record models.
     expect(
-      await rows(client, 'SELECT revision, "actorId" FROM "RecordSchemaRevision" WHERE "companyId"=$1', [f.companyId]),
-    ).toEqual([{ revision: 1, actorId: "system:configurable-records-upgrade" }]);
+      await rows(
+        client,
+        'SELECT revision, "actorId" FROM "RecordSchemaRevision" WHERE "companyId"=$1 ORDER BY revision',
+        [f.companyId],
+      ),
+    ).toEqual([
+      { revision: 1, actorId: "system:configurable-records-upgrade" },
+      { revision: 2, actorId: "system:contact-details-upgrade" },
+    ]);
     expect(
       await rows(client, 'SELECT revision, "activeOperationId" FROM "RecordSchemaState" WHERE "companyId"=$1', [
         f.companyId,
       ]),
-    ).toEqual([{ revision: 1, activeOperationId: null }]);
-    const [revision] = await rows<{ snapshot: unknown }>(
+    ).toEqual([{ revision: 2, activeOperationId: null }]);
+    const [converted, revision] = await rows<{ snapshot: unknown }>(
       client,
-      'SELECT snapshot FROM "RecordSchemaRevision" WHERE "companyId"=$1',
+      'SELECT snapshot FROM "RecordSchemaRevision" WHERE "companyId"=$1 ORDER BY revision',
       [f.companyId],
+    );
+    expect(RecordModelSchema.parse(historicalRecordModel(converted.snapshot)).fields).toContainEqual(
+      expect.objectContaining({ id: f.columns.phone, label: "Phone", typeId: id("contact") }),
     );
     const model = RecordModelSchema.parse(revision.snapshot);
     expect(validateRecordModel(model).issues).toEqual([]);
+    expect(model.fields.some((field) => field.id === f.columns.phone)).toBe(false);
     expect(model.types.find((type) => type.id === id("contact"))).toMatchObject({
       label: "Contact",
       pluralLabel: "Contacts",
@@ -789,7 +810,10 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
         cronExpression: "0 9 * * *",
       },
     ]);
-    for (const columnId of Object.values(empty.columns)) {
+    expect(
+      await rows(client, 'SELECT 1 FROM "RecordFieldDefinition" WHERE id=$1', [empty.columns.jsonNullOptions]),
+    ).toEqual([]);
+    for (const columnId of Object.values(empty.columns).filter((id) => id !== empty.columns.jsonNullOptions)) {
       expect(
         (
           await rows<{

@@ -1,130 +1,18 @@
+import { RecordQueryBaseSchema } from "./record-query-base.schema";
+import { RecordContributionSchema } from "./record-contribution.schema";
 import { z } from "zod";
-import { FORMATTING_LOCALES, type FormattingLocale } from "@/i18n/locale-registry";
 
-import {
-  RecordFieldAssignmentSchema,
-  RecordFieldUpdateSchema,
-  RecordRefSchema,
-  RecordScalarSchema,
-  RecordGroupSummaryDefinitionSchema,
-} from "./record-model.schema";
-import { RecordFieldKeySchema, RecordRelationshipSelectionSchema, RecordSortKeySchema } from "./record-column.schema";
+import { RecordFieldAssignmentSchema, RecordFieldUpdateSchema, RecordRefSchema } from "./record-model.schema";
+import { RecordRelationshipSelectionSchema } from "./record-column.schema";
 import { RecordIdentityInputsSchema } from "./record-identity.schema";
 import { RecordPathSelectionSchema } from "./record-relationship-path.schema";
-import { GroupingSchema, GroupPageRequestSchema } from "@/core/base/grouping/grouping.schema";
 import { DeletionCleanupSchema } from "./configuration.schema";
 
-const RecordFilterSchema = z
-  .object({
-    fieldId: RecordFieldKeySchema,
-    operator: z
-      .enum([
-        "eq",
-        "ne",
-        "contains",
-        "startsWith",
-        "gt",
-        "gte",
-        "lt",
-        "lte",
-        "empty",
-        "notEmpty",
-        "in",
-        "notIn",
-        "all",
-        "between",
-        "inLastDays",
-        "notInLastDays",
-      ])
-      .describe(
-        "For multiple choice fields in, all and notIn take option values and match records holding any, all or none of them. between uses two inclusive date endpoints in values; inLastDays and notInLastDays use a positive whole day count in value as a decimal without currency. Range contains tests a point; gt/gte test its start, lt/lte its end. Relative windows begin at UTC midnight that many days before the query clock: inLastDays includes later dates, notInLastDays matches only earlier ones.",
-      ),
-    value: RecordScalarSchema.nullable(),
-    values: z.array(RecordScalarSchema).max(100).optional(),
-  })
-  .strict();
-
-const RecordRelationshipFilterSchema = z
-  .object({
-    relationId: z.uuid(),
-    direction: z.enum(["outgoing", "incoming"]),
-    operator: z.enum(["any", "none"]),
-    recordIds: z.array(z.uuid()).max(100).nullable(),
-  })
-  .strict();
-
-const RecordRelatedFilterSchema = z
-  .object({
-    path: z
-      .array(
-        z
-          .object({
-            relationId: z.uuid(),
-            direction: z.enum(["outgoing", "incoming"]),
-          })
-          .strict(),
-      )
-      .min(1)
-      .max(6),
-    operator: z.enum(["any", "none"]),
-    filters: z.array(RecordFilterSchema).max(50),
-    relationships: z.array(RecordRelationshipFilterSchema).max(50).default([]),
-    search: z.string().trim().max(500).optional(),
-    recordIds: z
-      .array(z.uuid())
-      .max(100)
-      .optional()
-      .describe("Match these terminal record identities after following the path; all steps require record access."),
-  })
-  .strict();
-
-export const RecordQuerySchema = z
-  .object({
-    typeId: z.uuid(),
-    locale: z.enum([...FORMATTING_LOCALES] as [FormattingLocale, ...FormattingLocale[]]).optional(),
-    fields: z.array(z.uuid()).max(100).optional(),
-    includeRelationships: z.array(RecordRelationshipSelectionSchema).max(32).optional(),
-    includePaths: z.array(RecordPathSelectionSchema).max(32).optional(),
-    includeIdentities: z
-      .boolean()
-      .optional()
-      .describe("Include registered identifiers for returned records of a list with a Channels field."),
-    search: z.string().trim().max(500).optional(),
-    filters: z.array(RecordFilterSchema).max(50).default([]),
-    relatedFilters: z.array(RecordRelatedFilterSchema).max(16).optional(),
-    relationships: z.array(RecordRelationshipFilterSchema).max(50).default([]),
-    sort: z
-      .array(
-        z
-          .object({
-            fieldId: RecordSortKeySchema.describe(
-              "A sortable field id, system:createdAt, system:updatedAt, or system:manual (the list's manual order, asc only).",
-            ),
-            direction: z.enum(["asc", "desc"]),
-          })
-          .strict(),
-      )
-      .max(5)
-      .default([]),
-    page: z.number().int().min(1).max(100000).default(1),
-    pageSize: z.number().int().min(1).max(500).default(25),
-    grouping: GroupingSchema.omit({ summaries: true })
-      .optional()
-      .describe(
-        "Group by a field, system column or relationship column. Date buckets use UTC boundaries; weeks start on Sunday. At most 50 value groups and one empty group are supported per query; narrow filters for larger axes.",
-      ),
-    groupPage: GroupPageRequestSchema.optional().describe(
-      "Requires grouping. Defaults to 10 records per group, at most 25 materialized groups and 1000 unique records. Use a returned group key in only and overrides to load another page; collapsed groups retain counts without loading records.",
-    ),
-    groupSummaries: z
-      .array(RecordGroupSummaryDefinitionSchema)
-      .max(8)
-      .optional()
-      .describe(
-        "Requires grouping. Aggregate numeric fields over every record in each group, independent of pagination. Relationship groups use full attribution; a source record contributes once per group. Restricted inputs hide the entire summary.",
-      ),
-  })
-  .strict();
+export const RecordQuerySchema = RecordQueryBaseSchema.extend({
+  contribution: RecordContributionSchema.optional().describe(
+    "Restrict the list to the exact source records contributing to a chart or one of its groups.",
+  ),
+});
 export type RecordQuery = z.infer<typeof RecordQuerySchema>;
 
 export const RecordReadSchema = RecordRefSchema.extend({
@@ -176,7 +64,7 @@ const ExpectedImpactHashSchema = z
   );
 
 const RECORD_MUTATION_DESCRIPTION =
-  "create requires typeId and fields; update requires ref, expectedVersion and fields, where a field entry is { fieldId, value } or, for Formatted text and Text fields, { fieldId, append } to add text after the current value (an update that only appends never conflicts with a newer version); an update may carry placement to move the record in the list's manual order; delete requires ref and expectedVersion and moves the record (with its sub-list rows and cascaded records) to Trash, where it stays restorable for 30 days; permanent: true deletes it permanently right away and erases its values from history. link/unlink require relationId, source and target. updateMany/deleteMany require targets with each ref and expectedVersion; updateMany requires fields and applies the same patch to every target atomically; deleteMany moves every target to Trash (permanent: true deletes them permanently). Use only fields for that action.";
+  "create requires typeId and fields; update requires ref, expectedVersion and fields, where a field entry is { fieldId, value } or, for Formatted text and Text fields, { fieldId, append } to add text after the current value (an update that only appends never conflicts with a newer version); an update may carry placement to move the record in the list's manual order; delete requires ref and expectedVersion and moves the record (with its sub-list rows and cascaded records) to Trash, where it stays restorable for 30 days; permanent: true deletes it permanently right away and erases its values from history. link/unlink require relationId, source and target. updateMany/deleteMany require targets with each ref and expectedVersion; updateMany requires fields and applies the same patch to every target atomically; deleteMany moves every target to Trash (permanent: true deletes them permanently). Use only fields for that action. Phone numbers, email addresses and social profiles are not fields: create and update carry them as identities inside this mutation object (with fields: [] when nothing else changes), and the list replaces the record's contact details, so include the ones to keep.";
 
 const ValidatedRecordMutationSchema = z.discriminatedUnion("action", [
   z
@@ -328,6 +216,34 @@ export const RestoreSummarySchema = z
   })
   .strict();
 
+const RECORD_WRITE_WARNING_CODES = [
+  "countryMissing",
+  "partMissing",
+  "regionUnknown",
+  "postalCodeRegionMismatch",
+  "cityMismatch",
+] as const;
+
+export const RecordWriteWarningSchema = z
+  .object({
+    code: z
+      .enum(RECORD_WRITE_WARNING_CODES)
+      .describe(
+        "Address check that did not block the write: countryMissing (a postal code or region without a country, so neither was checked), partMissing (an address with a street lacks a part the country's postal format needs), regionUnknown (not one of the country's regions), postalCodeRegionMismatch (the postal code belongs to another region), cityMismatch (the city does not belong to the postal code in the postal code directory).",
+      ),
+    fieldId: z.string(),
+    recordIds: z.array(z.string()).min(1).max(20).describe("The records it applies to, at most 20."),
+    part: z.enum(["street", "postalCode", "city", "region", "countryCode"]).describe("The address part concerned."),
+    expected: z
+      .array(z.string())
+      .max(5)
+      .optional()
+      .describe("cityMismatch: cities of the postal code; postalCodeRegionMismatch: its region keys."),
+    message: z.string().describe("The warning as an English sentence."),
+  })
+  .strict();
+export type RecordWriteWarning = z.infer<typeof RecordWriteWarningSchema>;
+
 export const RecordOperationResultSchema = z.discriminatedUnion("status", [
   z
     .object({
@@ -344,6 +260,12 @@ export const RecordOperationResultSchema = z.discriminatedUnion("status", [
         .optional()
         .describe("Data model deletion only: views, layouts and widgets changed automatically."),
       restore: RestoreSummarySchema.optional(),
+      warnings: z
+        .array(RecordWriteWarningSchema)
+        .optional()
+        .describe(
+          "Address values were saved but look incomplete or implausible; correct them with another update where the user agrees.",
+        ),
     })
     .strict(),
   z

@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
 import { GroupingSchema } from "@/core/base/grouping/grouping.schema";
+import { CalendarViewConfigSchema } from "@/core/data-view/calendar-view-config.schema";
 import { ViewMode } from "@/core/base/base-query-builder";
 import { AiManageableDataViewSurfaceKeySchema } from "@/core/data-view/ai-manageable-surfaces";
 import { dataViewPath } from "@/core/data-view/data-view-paths";
@@ -28,6 +29,11 @@ export const AgentDataViewStateSchema = z
     columnOrder: z.array(z.string()).max(200).optional(),
     columnWidths: z.record(z.string(), z.number().finite().min(40).max(2000)).optional(),
     hiddenColumns: z.array(z.string()).max(200).optional(),
+    calendar: CalendarViewConfigSchema.nullable()
+      .optional()
+      .describe(
+        "Record lists only. Settings of the calendar layout (viewMode calendar): dateFieldId is a date, date-time or date range field from config appearance, the optional endDateFieldId a second field of the same date or date-time type, colorFieldId a single-choice field, mode month, week or agenda. Null removes them.",
+      ),
   })
   .strict();
 export type AgentDataViewState = Data<typeof AgentDataViewStateSchema>;

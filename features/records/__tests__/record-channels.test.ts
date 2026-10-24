@@ -99,7 +99,12 @@ describe("Channels field type", () => {
     if (!formula) throw new Error("Missing weighted value");
     formula.behavior = { kind: "formula", expression: { kind: "field", fieldId: operationId } };
     expect(validateRecordModel(model).issues).toContainEqual({ code: "channels_not_calculable", fieldId: formula.id });
-    expect(recordFilterOperators({ valueType: "channels", multiple: false })).toEqual([]);
+    expect(recordFilterOperators({ valueType: "channels", multiple: false })).toEqual([
+      "contains",
+      "startsWith",
+      "empty",
+      "notEmpty",
+    ]);
     const field = recordInvariant(model.fields.find((candidate) => candidate.id === operationId));
     expect(isRecordFieldWritable(field)).toBe(false);
     expect(

@@ -83,7 +83,7 @@ describe("agent model budget boundary", () => {
     expect(embeddings).toContain("disallowPromptTraining: true");
     expect(embeddings).toContain("readAgentProviderCharge(metadata, WIKI_EMBEDDING_SERVING_PROVIDER)");
     expect(service).toContain("this.usage.prepareRetrieval(payer.id)");
-    expect(service).toContain("this.usage.prepareWorkspaceIndexing(companyId)");
+    expect(service).toContain("this.usage.prepareWorkspaceIndexing(companyId, purpose)");
     expect(service).toContain("await reserveWikiIndexSpend(this.usage, {");
     expect(service).toContain('await spend.settle(embedded.charge, used() ? "grant" : "platform")');
     expect(service).toContain('await spend.settle(attemptedCharge, "platform")');

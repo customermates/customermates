@@ -9,6 +9,7 @@ import { recordFilterOperators } from "./record-filter";
 import { isTemporalRecordType, temporalFilterIsValid } from "./record-temporal-filter";
 import { resolveRecordGrouping } from "./record-grouping";
 import { resolveRecordPath } from "./record-relationship-path";
+import { recordMeasureIssue } from "./record-measure-validation";
 
 export function invalidRecordQueryPart(
   query: RecordQuery,
@@ -24,7 +25,13 @@ export function invalidRecordQueryPart(
   | "relatedFilters"
   | "grouping"
   | "groupSummaries"
+  | "contribution"
   | null {
+  if (
+    query.contribution &&
+    (query.contribution.measure.source.typeId !== query.typeId || recordMeasureIssue(query.contribution.measure, model))
+  )
+    return "contribution";
   if (query.includeIdentities && !recordChannelsEnabled(model, query.typeId)) return "includeIdentities";
   if ((query.groupPage || query.groupSummaries) && !query.grouping) return "grouping";
   if (query.grouping && !resolveRecordGrouping(query.typeId, query.grouping, model)) return "grouping";
@@ -67,7 +74,10 @@ export function invalidRecordQueryPart(
       continue;
     }
     if (["contains", "startsWith"].includes(filter.operator)) {
-      if (filter.value?.kind !== "text" || !["text", "email", "phone", "url", "richText"].includes(field.valueType))
+      if (
+        filter.value?.kind !== "text" ||
+        !["text", "url", "richText", "address", "channels"].includes(field.valueType)
+      )
         return "filters";
       continue;
     }
@@ -174,7 +184,7 @@ export function keepValidQueryParts<T extends Partial<QueryParts> & { typeId: st
 
 export function isRecordSortField(field: Pick<RecordField, "multiple" | "valueType">): boolean {
   return (
-    !["richText", "dateRange", "dateTimeRange", "channels"].includes(field.valueType) &&
+    !["richText", "dateRange", "dateTimeRange", "channels", "file"].includes(field.valueType) &&
     !(field.valueType === "select" && field.multiple)
   );
 }

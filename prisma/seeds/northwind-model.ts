@@ -101,6 +101,8 @@ export const NORTHWIND_FIELD_KEYS = {
     companySize: "organization.companySize",
     segment: "organization.segment",
     channels: "organization.channels",
+    address: "organization.address",
+    documents: "organization.documents",
     arr: "organization.arr",
     licensedSeats: "organization.licensedSeats",
     openPipeline: "organization.openPipeline",
@@ -132,6 +134,7 @@ export const NORTHWIND_FIELD_KEYS = {
   task: {
     team: "task.team",
     dueDate: "task.dueDate",
+    scheduled: "task.scheduled",
   },
   subscription: {
     name: "subscription.name",
@@ -209,7 +212,7 @@ export const NORTHWIND_FIELD_KEYS = {
     notes: "candidate.notes",
     stage: "candidate.stage",
     source: "candidate.source",
-    email: "candidate.email",
+    channels: "candidate.channels",
     appliedOn: "candidate.appliedOn",
     salaryExpectation: "candidate.salaryExpectation",
     interviewers: "candidate.interviewers",

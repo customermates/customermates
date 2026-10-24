@@ -38,12 +38,8 @@ import { GenericRecordWidgetInputSchema, GenericRecordWidgetDtoSchema } from "@/
 import { RecordWidgetReadSchema } from "@/features/widget/record-widget.schema";
 import { RecordDtoSchema } from "./record-model.schema";
 import { ConfigurationContractSchema, ConfigurationPreviewSchema } from "./configuration.schema";
-import {
-  RecordQuerySchema,
-  MutateRecordRequestSchema,
-  RecordOperationResultSchema,
-  RecordReadSchema,
-} from "./record-query.schema";
+import { MutateRecordRequestSchema, RecordOperationResultSchema, RecordReadSchema } from "./record-query.schema";
+import { RecordQueryBaseSchema } from "./record-query-base.schema";
 import { RecordQueryResultSchema } from "./record-query-result.schema";
 import { RecordMeasureSchema, RecordMeasureResultSchema } from "./record-measure.schema";
 import { RecordOperationInputSchema, RecordOperationStatusSchema } from "./record-operation.schema";
@@ -459,6 +455,7 @@ export const recordApiPaths = {
       {
         tag: "widgets",
         requires: "an active workspace member; widgets are personal and show only readable values.",
+        description: `${WRITE_DESCRIPTION} kind chart (the default for new widgets) aggregates a measure, activityTimeline lists activity, calendar shows the records of one date or date-time field as the upcoming days or as a month heat grid, and map places records at the location stored with an address field. A saved widget keeps its kind.`,
       },
     ),
   },
@@ -472,6 +469,8 @@ export const recordApiPaths = {
         tag: "widgets",
         read: true,
         requires: "read access to the widget's lists; restricted values stay hidden.",
+        description:
+          "Returns one widget of the caller, or a template shared in the workspace, with results computed for the caller's read access. A calendar widget also accepts `window` with `from` and `to` (at most 42 days) to read another month or a single day instead of its own range; other kinds refuse a window.",
       },
     ),
   },
@@ -509,7 +508,7 @@ export const recordApiPaths = {
     }),
   },
   "/v1/records/query": {
-    post: operation("queryRecords", "Query records", RecordQuerySchema, RecordQueryResultSchema, {
+    post: operation("queryRecords", "Query records", RecordQueryBaseSchema, RecordQueryResultSchema, {
       read: true,
       requires: "read access to the list; only readable records and values are returned.",
       examples: recordApiExamples.query,

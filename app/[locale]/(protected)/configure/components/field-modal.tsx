@@ -9,7 +9,12 @@ import { Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import type { RootStore } from "@/core/stores/root.store";
-import type { CalculationExpression, RecordField, RecordModelView } from "@/features/records/record-model.schema";
+import type {
+  CalculationExpression,
+  RecordField,
+  RecordModelView,
+  RecordValueType,
+} from "@/features/records/record-model.schema";
 import type { ConfigurationChange, ConfigurationPreview } from "@/features/records/configuration.schema";
 
 import { RecordConfigurationPreview } from "@/components/records/record-configuration-preview";
@@ -58,7 +63,7 @@ import {
 import { RecordInputField } from "../../records/[typeId]/components/record-input-field";
 import { recordDraftValue, recordInputValue } from "@/features/records/record-input-value";
 import {
-  CONTACT_VALUE_TYPES,
+  CLICK_ACTION_VALUE_TYPES,
   MULTIPLE_VALUE_TYPES,
   calculationResultType,
   expressionRelationshipDependencies,
@@ -169,7 +174,16 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
     return this.form.valueType === "channels";
   }
   get lockedType() {
-    return Boolean(this.original) && this.isChannels;
+    return Boolean(this.original) && (this.isChannels || this.original?.valueType === "file");
+  }
+  get canChooseFile() {
+    return !this.original || this.original.valueType === "file";
+  }
+  get sourceOptions(): readonly ValueSource[] {
+    if (this.form.valueType === "file" || (this.form.valueType === "select" && this.form.multiple)) return ["input"];
+    if (this.form.valueType === "address")
+      return VALUE_SOURCES.filter((source) => source === "input" || source === "lookup");
+    return VALUE_SOURCES;
   }
   get canChooseChannels() {
     const type = this.model.types.find((candidate) => candidate.id === this.typeId);
@@ -289,7 +303,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
   }
   get derivedType() {
     const derived = this.isCalculated ? derivedValueType(this.form.expression, this.typeId, this.model) : null;
-    if (derived?.valueType === "text" && CONTACT_VALUE_TYPES.includes(this.form.valueType))
+    if (derived?.valueType === "text" && this.form.valueType === "url")
       return { ...derived, valueType: this.form.valueType };
     return derived;
   }
@@ -376,7 +390,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
         field.typeId === this.typeId &&
         !field.archived &&
         !field.multiple &&
-        field.valueType !== "channels" &&
+        !["channels", "file", "address"].includes(field.valueType) &&
         field.behavior.kind === "input",
     );
   }
@@ -498,7 +512,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
           ["number", "currency"].includes(valueType) && form.decimalPlaces.trim() !== ""
             ? Number(form.decimalPlaces)
             : null,
-        onClick: CONTACT_VALUE_TYPES.includes(valueType) || valueType === "channels" ? form.onClick : null,
+        onClick: CLICK_ACTION_VALUE_TYPES.includes(valueType) ? form.onClick : null,
         ...(valueType === "channels" ? { providerAvatar: form.providerAvatar } : {}),
       },
       options:
@@ -529,6 +543,12 @@ export const FieldModal = observer(function FieldModal({
     create: t("RecordModel.calculationFlow.updateModes.create"),
     whenChanged: t("RecordModel.calculationFlow.updateModes.whenChanged"),
     explicit: t("RecordModel.calculationFlow.updateModes.explicit"),
+  };
+  const typeHints: Partial<Record<RecordValueType, string>> = {
+    richText: t("RecordModel.typeHints.richText"),
+    file: t("RecordModel.typeHints.file"),
+    address: t("RecordModel.typeHints.address"),
+    channels: t("RecordModel.typeHints.channels"),
   };
   useEffect(() => {
     store.triggerMessages = {
@@ -601,12 +621,10 @@ export const FieldModal = observer(function FieldModal({
               {!store.isChannels && (
                 <FormSelect
                   id="source"
-                  items={(store.form.valueType === "select" && store.form.multiple ? ["input"] : VALUE_SOURCES).map(
-                    (value) => ({
-                      value,
-                      label: t(`RecordModel.behaviors.${value}`),
-                    }),
-                  )}
+                  items={store.sourceOptions.map((value) => ({
+                    value,
+                    label: t(`RecordModel.behaviors.${value}`),
+                  }))}
                   label={t("RecordModel.behavior")}
                   onValueChange={(source) => store.chooseSource(source as ValueSource)}
                 />
@@ -618,7 +636,11 @@ export const FieldModal = observer(function FieldModal({
                   id="valueType"
                   items={RecordValueTypeSchema.options
                     .filter((value) =>
-                      value === "channels" ? store.isChannels || store.canChooseChannels : !store.lockedType,
+                      value === "channels"
+                        ? store.isChannels || store.canChooseChannels
+                        : value === "file"
+                          ? store.canChooseFile
+                          : !store.lockedType,
                     )
                     .flatMap((value) =>
                       value === "select"
@@ -630,7 +652,7 @@ export const FieldModal = observer(function FieldModal({
                             {
                               value,
                               label: t(`RecordModel.types.${value}`),
-                              ...(value === "richText" ? { description: t("RecordModel.typeHints.richText") } : {}),
+                              description: typeHints[value],
                             },
                           ],
                     )}
@@ -657,7 +679,7 @@ export const FieldModal = observer(function FieldModal({
               <FormAutocompleteCurrency required id="currency" label={t("RecordModel.currency")} />
             )}
 
-            {(CONTACT_VALUE_TYPES.includes(store.valueType) || store.isChannels) && (
+            {CLICK_ACTION_VALUE_TYPES.includes(store.valueType) && (
               <FormSelect
                 id="onClick"
                 items={(["open", "copy"] as const).map((value) => ({
@@ -681,7 +703,7 @@ export const FieldModal = observer(function FieldModal({
               />
             )}
 
-            {!store.isCalculated && !store.isChannels && (
+            {!store.isCalculated && !store.isChannels && !["file", "address"].includes(store.valueType) && (
               <div className="space-y-3">
                 <FormSwitch id="hasDefaultValue" label={t("RecordModel.setDefaultValue")} />
 
@@ -697,7 +719,7 @@ export const FieldModal = observer(function FieldModal({
 
             {!store.isChannels && <FormSwitch id="required" label={t("RecordModel.required")} />}
 
-            {!store.isCalculated && ["text", "email", "phone", "url"].includes(store.form.valueType) && (
+            {!store.isCalculated && ["text", "url", "file"].includes(store.form.valueType) && (
               <FormSwitch id="multiple" label={t("RecordModel.multipleValues")} />
             )}
           </>

@@ -7,7 +7,7 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { RecordPresentationResult } from "@/features/records/get-record-presentation.interactor";
 import type { RecordRow } from "@/features/records/record-presentation";
 import type { MutateRecordInput, RecordLinkChange } from "@/features/records/record-query.schema";
-import type { RecordFieldView, RecordScalar } from "@/features/records/record-model.schema";
+import type { RecordFieldView, RecordScalarInput } from "@/features/records/record-model.schema";
 import type { RecordFieldSaveOutcome } from "./record-field-value-editor";
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
@@ -23,6 +23,26 @@ import { getRecordPresentationAction, mutateRecordAction, resetRecordViewAction 
 import { movedToTrashOr, movingToTrash } from "@/features/trash/moved-to-trash";
 import { focusHref } from "@/components/focus/focus-href";
 import { actionData } from "@/core/utils/action-data";
+import type { CalendarDate } from "@/features/record-calendar/calendar-date";
+import type { CalendarRange, CalendarViewMode, CalendarWindow } from "@/core/data-view/calendar-view-config.schema";
+import { calendarViewMode } from "@/core/data-view/calendar-view-config.schema";
+import { ViewMode } from "@/core/base/base-query-builder";
+import {
+  isCalendarColorField,
+  isCalendarDateField,
+  isCalendarEndField,
+  isCalendarRangeField,
+  resolveCalendarFields,
+} from "@/features/record-calendar/record-calendar-query";
+import type { CalendarEdit } from "@/features/record-calendar/calendar-entries";
+import {
+  calendarCreateValues,
+  calendarEditChanges,
+  calendarEntryResizable,
+} from "@/features/record-calendar/calendar-entries";
+import { calendarWindowRange } from "@/features/record-calendar/calendar-window";
+import { zonedDate } from "@/features/record-calendar/zoned-time";
+import { browserTimeZone } from "@/core/utils/time-zone";
 
 export const UNTITLED_COLUMN_ID = "record:title";
 export const NUMBER_VALUE_TYPES: RecordFieldView["valueType"][] = ["number", "currency"];
@@ -31,6 +51,11 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   presentation: RecordPresentationResult;
   pendingBoardOperation: string | null = null;
   pendingBulkOperation: string | null = null;
+  calendarAnchor: CalendarDate | null = null;
+  calendarDisplayMode: CalendarViewMode | null = null;
+  calendarTimeZoneOverride: string | null = null;
+  calendarRange: CalendarRange | null = null;
+  calendarResultSeq = 0;
   isBulkMutating = false;
   private bulkRefreshGeneration = 0;
   private awaitingBulkRefresh: number | null = null;
@@ -61,6 +86,22 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       moveItemBetweenGroups: action.bound,
       pendingBoardOperation: observable,
       setBoardOperation: action,
+      calendarAnchor: observable,
+      calendarDisplayMode: observable,
+      calendarTimeZoneOverride: observable,
+      calendarRange: observable.ref,
+      calendarResultSeq: observable,
+      calendarFields: computed,
+      calendarDateFields: computed,
+      calendarColorFields: computed,
+      calendarWindow: computed,
+      canCalendar: computed,
+      calendarMode: computed,
+      calendarFieldOptions: computed,
+      canCreateCalendarRecord: computed,
+      setCalendarAnchor: action,
+      setCalendarDisplayMode: action,
+      setCalendarTimeZone: action,
       pendingBulkOperation: observable,
       isBulkMutating: observable,
       awaitingBulkRefresh: observable,
@@ -79,6 +120,109 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   override get supportsBoard() {
     return true;
   }
+  get calendarTimeZone() {
+    return this.calendarTimeZoneOverride ?? browserTimeZone();
+  }
+  setCalendarTimeZone = (timeZone: string | null) => {
+    this.calendarTimeZoneOverride = timeZone;
+  };
+  get calendarDateFields() {
+    return this.fields.filter(isCalendarDateField);
+  }
+  get calendarColorFields() {
+    return this.fields.filter(isCalendarColorField);
+  }
+  override get supportsCalendar() {
+    return true;
+  }
+  override get canCalendar() {
+    return this.calendarDateFields.length > 0;
+  }
+  override get defaultCalendar() {
+    const dateField = this.calendarDateFields[0];
+    return dateField
+      ? { dateFieldId: dateField.id, endDateFieldId: null, colorFieldId: null, mode: "month" as const }
+      : null;
+  }
+  override get calendarFieldOptions() {
+    const choice = (field: RecordFieldView) => ({ id: field.id, label: field.label });
+    return {
+      dates: this.calendarDateFields.map(choice),
+      endsFor: (dateFieldId: string) => {
+        const start = this.fields.find((field) => field.id === dateFieldId);
+        if (!start || isCalendarRangeField(start)) return [];
+        return this.fields.filter((field) => field.id !== start.id && isCalendarEndField(field, start)).map(choice);
+      },
+      colors: this.calendarColorFields.map(choice),
+    };
+  }
+  get calendarMode(): CalendarViewMode {
+    return this.calendarDisplayMode ?? calendarViewMode(this.calendar);
+  }
+  get calendarFocusDate(): CalendarDate {
+    return this.calendarAnchor ?? zonedDate(new Date(), this.calendarTimeZone);
+  }
+  override get calendarFieldIds() {
+    return new Set([...this.calendarDateFields, ...this.calendarColorFields].map((field) => field.id));
+  }
+  get calendarFields() {
+    return this.calendar ? resolveCalendarFields(this.presentation.typeId, this.calendar, this.fields) : null;
+  }
+  get calendarWindow(): CalendarWindow | null {
+    if (!this.calendarFields) return null;
+    return { ...calendarWindowRange(this.calendarMode, this.calendarFocusDate), timeZone: this.calendarTimeZone };
+  }
+  setCalendarAnchor = (anchor: CalendarDate) => {
+    if (anchor === this.calendarAnchor) return;
+    this.calendarAnchor = anchor;
+    if (this.viewMode === ViewMode.calendar) void this.refreshQuery().catch(reportApplicationError);
+  };
+  setCalendarDisplayMode = (mode: CalendarViewMode | null) => {
+    if (mode === this.calendarDisplayMode) return;
+    this.calendarDisplayMode = mode;
+    if (this.viewMode === ViewMode.calendar) void this.refreshQuery().catch(reportApplicationError);
+  };
+  protected override extraQueryParams() {
+    const window = this.viewMode === ViewMode.calendar ? this.calendarWindow : null;
+    return window ? { calendarWindow: window } : {};
+  }
+  canMoveCalendarRecord(record: RecordRow) {
+    const fields = this.calendarFields;
+    return Boolean(
+      fields &&
+        this.canUpdateRecord(record) &&
+        !this.movingRecords.has(record.id) &&
+        [fields.start, fields.end].every((field) => !field || field.behavior.kind === "input"),
+    );
+  }
+  canResizeCalendarRecord(record: RecordRow) {
+    const fields = this.calendarFields;
+    return Boolean(fields && calendarEntryResizable(fields) && this.canMoveCalendarRecord(record));
+  }
+  moveCalendarRecord = async (record: RecordRow, edit: CalendarEdit): Promise<RecordFieldSaveOutcome> => {
+    const fields = this.calendarFields;
+    if (!fields || !this.canMoveCalendarRecord(record)) return { saved: false };
+    const changes = calendarEditChanges(record, fields, edit, this.calendarTimeZone);
+    if (!changes) return { saved: false };
+    if (!changes.length) return { saved: true };
+    return this.updateRecord(record, { fields: changes });
+  };
+  get canCreateCalendarRecord() {
+    const fields = this.calendarFields;
+    return Boolean(
+      fields &&
+        this.presentation.permittedActions.includes("create") &&
+        [fields.start, fields.end].every((field) => !field || field.behavior.kind === "input"),
+    );
+  }
+  createCalendarRecord = (date: CalendarDate, minutes: number | null, opener?: HTMLElement | null) => {
+    const fields = this.calendarFields;
+    if (!fields || !this.canCreateCalendarRecord) return;
+    this.rootStore.recordWorkspaceStore.open(
+      { typeId: this.presentation.typeId, values: calendarCreateValues(fields, date, minutes, this.calendarTimeZone) },
+      opener,
+    );
+  };
   override get recordPictureFieldId() {
     const fieldId = this.presentation.model.capabilities
       .find((binding) => binding.kind === "avatar" && binding.typeId === this.presentation.typeId)
@@ -174,7 +318,7 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       this.setBulkState(false);
     }
   };
-  bulkUpdateField = async (fieldId: string, value: RecordScalar | null) =>
+  bulkUpdateField = async (fieldId: string, value: RecordScalarInput | null) =>
     Boolean(
       await this.bulkMutation({
         action: "updateMany",
@@ -190,7 +334,7 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       !this.pendingBoardOperation
     );
   }
-  updateRecordField = (record: RecordRow, fieldId: string, value: RecordScalar | null) =>
+  updateRecordField = (record: RecordRow, fieldId: string, value: RecordScalarInput | null) =>
     this.updateRecord(record, { fields: [{ fieldId, value }] });
   updateRecordLinks = (record: RecordRow, linkChanges: RecordLinkChange[]) =>
     this.updateRecord(record, { fields: [], linkChanges });
@@ -199,7 +343,7 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   private updateRecord = async (
     record: RecordRow,
     changes: {
-      fields: { fieldId: string; value: RecordScalar | null }[];
+      fields: { fieldId: string; value: RecordScalarInput | null }[];
       linkChanges?: RecordLinkChange[];
       assignedUserIds?: string[];
     },
@@ -513,6 +657,8 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
     for (const row of args.items) if (this.selectedIds.has(row.id)) this.selectionRows.set(row.id, row);
   }
   protected onRefreshAccepted(result: GetResult<RecordRow>) {
+    this.calendarRange = result.calendarRange ?? null;
+    this.calendarResultSeq += 1;
     const loaded = this.loaded.get(result);
     if (loaded) this.setPresentation(loaded.presentation);
     if (loaded?.bulkRefreshGeneration === this.awaitingBulkRefresh && !result.grouping?.partial) {

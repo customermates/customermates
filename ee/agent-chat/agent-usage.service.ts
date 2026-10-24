@@ -42,8 +42,10 @@ type AgentRetrievalReservation = {
   reservedAt: Date;
 };
 
+export type WorkspaceIndexingPurpose = "wikiIndexing" | "fileIndexing";
+
 export type AgentRetrievalGrant = {
-  purpose: "wikiRetrieval" | "wikiIndexing" | "wikiSynthesis" | "calculationDraft" | "commandResolve";
+  purpose: "wikiRetrieval" | WorkspaceIndexingPurpose | "wikiSynthesis" | "calculationDraft" | "commandResolve";
   companyId: string;
   userId: string | null;
   planSnapshot: SubscriptionPlan;
@@ -151,6 +153,10 @@ type ResolvedUsageState = {
 function usagePct(used: number, limit: number) {
   if (limit <= 0) return 0;
   return Math.min(100, Math.round((used / limit) * 100));
+}
+
+function isWorkspaceIndexing(purpose: AgentRetrievalGrant["purpose"]) {
+  return purpose === "wikiIndexing" || purpose === "fileIndexing";
 }
 
 function assertMicrocentCount(value: number, description: string) {
@@ -372,7 +378,11 @@ export class AgentUsageService {
     return state.remainingMicrocents < Math.max(1, worstCaseMicrocents) ? "credits" : "unavailable";
   }
 
-  async prepareWorkspaceIndexing(companyId: string, now = new Date()): Promise<AgentRetrievalGrant | null> {
+  async prepareWorkspaceIndexing(
+    companyId: string,
+    purpose: WorkspaceIndexingPurpose = "wikiIndexing",
+    now = new Date(),
+  ): Promise<AgentRetrievalGrant | null> {
     if (env.APP_MODE === "self-hosted") return null;
     const pool = await this.repo.getWorkspaceCreditPoolUnscoped(companyId, now);
     if (!pool?.usable) return null;
@@ -381,7 +391,7 @@ export class AgentUsageService {
     if (pool.usedMicrocents >= pool.limitMicrocents) return null;
     if (!(await this.repo.admitsHostedAiRetrievalUnscoped(now))) return null;
     return {
-      purpose: "wikiIndexing",
+      purpose,
       companyId,
       userId: null,
       planSnapshot: pool.plan,
@@ -473,7 +483,7 @@ export class AgentUsageService {
     now?: Date;
   }): Promise<AgentRetrievalReservation | null> {
     assertMicrocentCount(args.worstCaseMicrocents, "Retrieval reservation");
-    if ((args.grant.purpose === "wikiIndexing") !== (args.grant.userId === null))
+    if (isWorkspaceIndexing(args.grant.purpose) !== (args.grant.userId === null))
       throw new Error("Retrieval grant payer is invalid.");
     const reservedMicrocents = Math.max(1, args.worstCaseMicrocents);
     const reservedAt = args.now ?? new Date();

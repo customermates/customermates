@@ -14,6 +14,8 @@ import {
   getPruneRoutineRunsInteractor,
   getPruneDraftSendsInteractor,
   getPurgeExpiredTrashInteractor,
+  getPurgeExpiredRecordFilesInteractor,
+  getNormalizePhoneIdentitiesInteractor,
   getPruneWikiKnowledgeGapsInteractor,
   getSyncStaleWikiSectionsInteractor,
 } from "@/core/di";
@@ -30,6 +32,8 @@ function concurrentSteps(): LifecycleStep[] {
     ["pruneRoutineRuns", () => getPruneRoutineRunsInteractor().invoke()],
     ["pruneDraftSends", () => getPruneDraftSendsInteractor().invoke()],
     ["purgeExpiredTrash", () => getPurgeExpiredTrashInteractor().invoke()],
+    ["purgeExpiredRecordFiles", () => getPurgeExpiredRecordFilesInteractor().invoke()],
+    ["normalizePhoneIdentities", () => getNormalizePhoneIdentitiesInteractor().invoke()],
     ["pruneWikiKnowledgeGaps", () => getPruneWikiKnowledgeGapsInteractor().invoke()],
     [
       "syncStaleWikiSections",

@@ -26,11 +26,13 @@ import { seedIdentity } from "./identity";
 import { seedDemoMessagingFixtures } from "./messaging/seed";
 import { seedOrganizations } from "./organizations";
 import { seedPersonalization } from "./personalization";
+import { seedRecordFiles } from "./record-files";
 import { seedRecordHistory } from "./record-history";
 import { seedRelationships } from "./relationships";
 import { seedRoutines } from "./routines";
 import { seedSecondWorkspace } from "./second-workspace";
 import { seedServices } from "./services";
+import { seedPlanners } from "./planner";
 import { seedSidebars } from "./sidebar";
 import { seedSublistColumns } from "./sublist-columns";
 import { seedTasks } from "./tasks";
@@ -67,12 +69,14 @@ export async function runSyntheticSeed(
   await seedHostedAiOperatorUserTableFixtures(context, options);
 
   await seedRecordFixtures(context, entities, customFieldData);
+  await seedRecordFiles(context);
   await seedRelationships(context, entities);
   await calculateSyntheticRecords(context.prisma, context.ids.company);
   await seedWidgets(context, customFieldData);
   await seedDataViews(context, customFieldData);
   await seedPersonalization(context, customFieldData);
   await seedSidebars(context);
+  await seedPlanners(context);
   await seedSublistColumns(context);
   await seedDemoMessagingFixtures(context.prisma, {
     companyId: context.ids.company,

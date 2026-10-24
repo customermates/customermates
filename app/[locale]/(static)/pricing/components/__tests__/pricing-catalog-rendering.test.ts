@@ -141,6 +141,7 @@ describe("catalog-backed pricing rendering", () => {
             { label: "Price", catalogFact: "monthlyPrice" },
             { label: "Accounts", catalogFact: "includedAccountsPerUser" },
             { label: "Mate usage", catalogFact: "hostedAiUsage" },
+            { label: "Storage", catalogFact: "fileStoragePerActiveUser" },
           ],
         },
       ],
@@ -151,6 +152,7 @@ describe("catalog-backed pricing rendering", () => {
       { label: "Price", values: ["€12", "€29", "€69", "€149", "Custom"] },
       { label: "Accounts", values: ["0", "1", "3", "10", "Unlimited"] },
       { label: "Mate usage", values: ["1x", "3x", "10x", "20x", "Custom"] },
+      { label: "Storage", values: ["1 GB", "5 GB", "20 GB", "50 GB", "Custom"] },
     ]);
   });
 

@@ -8,6 +8,7 @@ import { ViewMode } from "@/core/base/base-query-builder";
 import { zx } from "@/core/validation/validation.utils";
 
 import { SurfaceKeySchema } from "./data-view-identity.schema";
+import { CalendarViewConfigSchema } from "./calendar-view-config.schema";
 
 export { SurfaceKeySchema, ViewKeySchema, type ViewKey } from "./data-view-identity.schema";
 
@@ -36,6 +37,7 @@ export const DataViewStateWireSchema = z
     columnOrder: z.array(z.string()),
     columnWidths: z.record(z.string(), z.number()),
     hiddenColumns: z.array(z.string()),
+    calendar: CalendarViewConfigSchema.nullable(),
   })
   .partial()
   .strict();
@@ -54,6 +56,7 @@ export const DATA_VIEW_STATE_FIELDS = [
   "columnOrder",
   "columnWidths",
   "hiddenColumns",
+  "calendar",
 ] as const satisfies readonly (keyof DataViewState)[];
 
 export const DataViewChipDtoSchema = z.object({

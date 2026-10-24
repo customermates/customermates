@@ -453,6 +453,12 @@ export const PRIMARY_NAV_PAGES: PrimaryNavPage[] = [
     labelKeys: ["NavigationBar.dashboard"],
   },
   {
+    key: "calendar",
+    route: "/calendar",
+    description: "Sidebar link to the combined calendar with record dates and connected events",
+    labelKeys: ["Planner.title"],
+  },
+  {
     key: "wiki",
     route: "/wiki",
     description: "Sidebar link to the Knowledge Base, the workspace's own pages that Mate reads as reference",

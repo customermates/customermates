@@ -348,3 +348,57 @@ describe("display options", () => {
     expect(setViewOptions).toHaveBeenCalledWith({ grouping: { field: "system:assignedTo", summaries } });
   });
 });
+
+describe("calendar layout", () => {
+  const calendar = { dateFieldId: "close", endDateFieldId: null, colorFieldId: null, mode: "month" as const };
+  const calendarFieldOptions = {
+    dates: [
+      { id: "close", label: "Close date" },
+      { id: "start", label: "Start" },
+    ],
+    endsFor: (id: string) => (id === "start" ? [{ id: "end", label: "End" }] : []),
+    colors: [{ id: "stage", label: "Stage" }],
+  };
+
+  it("offers the calendar next to table and board and explains when a list has no date field", () => {
+    const html = render(store({ supportsCalendar: true, canCalendar: false } as never), "records");
+
+    expect(html).toContain('id="records-layout-calendar"');
+    expect(html).toContain("Common.table.layouts.calendar");
+    expect(html).toContain("Common.ariaLabels.switchToCalendarViewDisabled");
+    expect(render(store(), "records")).not.toContain("records-layout-calendar");
+  });
+
+  it("switches to the calendar with the list's default date field", () => {
+    const setViewOptions = vi.fn();
+    render(
+      store({ supportsCalendar: true, canCalendar: true, defaultCalendar: calendar, setViewOptions } as never),
+      "records",
+    );
+    harness.onLayoutChange?.("calendar");
+
+    expect(setViewOptions).toHaveBeenCalledWith({ viewMode: ViewMode.calendar, calendar });
+  });
+
+  it("shows the calendar fields instead of grouping and columns while the calendar is shown", () => {
+    const html = render(
+      store({
+        supportsCalendar: true,
+        canCalendar: true,
+        calendar: { ...calendar, dateFieldId: "start" },
+        calendarFieldOptions,
+        viewMode: ViewMode.calendar,
+        groupableFields: [STAGE],
+        orderedColumns: [{ uid: "name", label: "Name" }],
+      } as never),
+      "records",
+    );
+
+    expect(html).toContain('aria-label="DataView.calendar.dateField"');
+    expect(html).toContain('aria-label="DataView.calendar.endDateField"');
+    expect(html).toContain('aria-label="DataView.calendar.colorField"');
+    expect(html).toContain('data-value="end"');
+    expect(html).not.toContain('aria-label="Common.table.groupBy"');
+    expect(html).not.toContain("Common.table.fields");
+  });
+});

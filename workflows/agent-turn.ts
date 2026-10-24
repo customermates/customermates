@@ -544,6 +544,18 @@ async function normalizeAgentToolInput(
 }
 normalizeAgentToolInput.maxRetries = 0;
 
+async function loadAgentNativeFiles(payload: AgentTurnWorkflowPayload): Promise<ReplayMessage[]> {
+  "use step";
+  const { getAgentNativeFileLoader } = await import("@/core/di");
+  const { getTenantUser } = await import("@/core/decorators/tenant-context");
+  return runAsBackgroundTenant(payload.userId, () =>
+    getTenantUser().companyId === payload.companyId
+      ? getAgentNativeFileLoader().load(payload.messages)
+      : payload.messages.map(({ files: _files, ...message }) => message),
+  );
+}
+loadAgentNativeFiles.maxRetries = 2;
+
 async function publishTranscriptEvents(events: AgentTranscriptEvent[]): Promise<void> {
   "use step";
   if (events.length === 0) return;
@@ -1065,10 +1077,13 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         initialToolsets: toolsets,
         messages: stepMessages,
       });
+    const providerMessages = payload.messages.some((message) => message.files?.length)
+      ? await loadAgentNativeFiles(payload)
+      : payload.messages;
     const providerContextFor = (degradation: AgentContextDegradation | null) =>
       buildAgentProviderContext(
         degradation ? systemPromptFor(degradation.toolsets) : systemPrompt,
-        degradation ? degradedAgentReplayMessages(payload.messages, degradation) : payload.messages,
+        degradation ? degradedAgentReplayMessages(providerMessages, degradation) : providerMessages,
         toolDefinitions.filter((definition) =>
           activeToolNamesFor([], degradation?.toolsets ?? initialToolsets)?.includes(definition.name),
         ),

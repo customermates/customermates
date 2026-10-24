@@ -54,7 +54,7 @@ describe("sample record tables", () => {
       model,
       anchors,
     );
-    expect(contact.columns.map((column) => column.label)).toEqual(["Contact", "Job title", "Email"]);
+    expect(contact.columns.map((column) => column.label)).toEqual(["Contact", "Job title"]);
   });
 
   it("keeps only links to records that were generated and maps every column for the importer", async () => {

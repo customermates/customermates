@@ -1,6 +1,5 @@
 "use client";
 
-import type { ChipColor } from "@/constants/chip-colors";
 import type { DiagramDataPoint, WidgetDisplayOptions } from "@/features/widget/widget.schema";
 import type { ChartDataPoint } from "./chart.types";
 
@@ -9,17 +8,14 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
 import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
-import { getChartColors, getChartRankShades, getChartStrokeColors, getChartTextColors } from "@/constants/chart-colors";
+import {
+  chipChartColor,
+  getChartColors,
+  getChartRankShades,
+  getChartStrokeColors,
+  getChartTextColors,
+} from "@/constants/chart-colors";
 import { widgetDataPointLabel } from "./widget-label";
-
-const CHIP_TO_CHART_COLOR: Record<ChipColor, ChartColor> = {
-  default: ChartColor.default1,
-  secondary: ChartColor.secondary1,
-  destructive: ChartColor.danger1,
-  success: ChartColor.success1,
-  warning: ChartColor.warning1,
-  info: ChartColor.primary1,
-};
 
 const RANK_SHADED_TYPES = new Set<DisplayType>([
   DisplayType.verticalBarChart,
@@ -77,7 +73,13 @@ const RadarChartComponent = dynamic(
 
 type Props = {
   currency?: string | null;
-  data: (DiagramDataPoint & { formattedValue?: string; axisLabel?: string; detail?: string; missing?: boolean })[];
+  data: (DiagramDataPoint & {
+    formattedValue?: string;
+    axisLabel?: string;
+    detail?: string;
+    missing?: boolean;
+    onSelect?: () => void;
+  })[];
   displayOptions?: WidgetDisplayOptions | null;
   integerValues?: boolean;
   shadeByRank?: boolean;
@@ -102,7 +104,7 @@ export const WidgetChart = observer(
         : null;
     const chartData: ChartDataPoint[] = data.map((item, index) => {
       const fallbackKey = configuredBarColors[index % configuredBarColors.length] ?? ChartColor.primary1;
-      const colorKey = useGroupColors && item.optionColor ? CHIP_TO_CHART_COLOR[item.optionColor] : fallbackKey;
+      const colorKey = useGroupColors && item.optionColor ? chipChartColor(item.optionColor) : fallbackKey;
 
       return {
         label: widgetDataPointLabel(item, t),
@@ -111,6 +113,7 @@ export const WidgetChart = observer(
         axisLabel: item.axisLabel,
         detail: item.detail,
         missing: item.missing,
+        onSelect: item.onSelect,
         fill: shades?.[index] ?? chartColors[colorKey],
         color: shades?.[index] ?? chartColors[colorKey],
         labelColor: chartTextColors[colorKey],

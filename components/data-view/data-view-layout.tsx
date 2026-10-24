@@ -9,6 +9,8 @@ import { useCallback, useRef } from "react";
 import { ScrollReturnButton } from "@/components/scroll/scroll-return-button";
 import { useScrollReturn } from "@/components/scroll/use-scroll-return";
 
+import { DATA_VIEW_PAGE_CLASS_NAME } from "./data-view-geometry";
+
 import { DataViewPagination } from "./header/pagination";
 import { DataViewViewsRail } from "./views/data-view-views-rail";
 
@@ -35,7 +37,7 @@ export function DataViewLayout<E extends HasId>({ children, showPagination, stor
   });
 
   return (
-    <div className="flex h-[calc(100svh-4rem)] min-h-0 flex-col md:h-[calc(100svh-5rem)]">
+    <div className={DATA_VIEW_PAGE_CLASS_NAME}>
       <DataViewViewsRail joinsTopBar store={store} />
 
       <div

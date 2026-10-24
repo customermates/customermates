@@ -20,13 +20,23 @@ describe("generic dashboard widget UI", () => {
     expect(modal).toContain('id="displayOptions.reverseYAxis"');
     expect(modal).not.toContain("function requestClose");
   });
-  it("summarizes activity counts and active filters in the heading", () => {
+  it("summarizes activity counts in the subtitle and active filters in the title's info tooltip", () => {
     const card = component("record-activity-widget-card.tsx");
     const header = card.slice(card.indexOf("<AppCardHeader"), card.indexOf("</AppCardHeader>"));
-    expect(header).toContain('t("Dashboard.activityWidget.activityCount", { count: timeline.items.length })');
-    expect(header).toContain("widget.displayOptions.showFilters");
-    expect(header).toContain('openWithFilter(widget.id, "activityFilters")');
+    expect(header).toContain(
+      '<WidgetSubtitle text={t("Dashboard.activityWidget.activityCount", { count: timeline.items.length })} />',
+    );
+    expect(header).toContain("<WidgetTitle");
+    expect(header).toContain('widget.displayOptions.showFilters ? [t("Dashboard.widgetEditor.tabs.filtersLabel", { count })]');
     expect(card).toContain("recordActivityFilterCount(query)");
+  });
+  it("keeps the widget header's top-right corner free for the hover edit button", () => {
+    for (const file of ["record-calendar-widget-card.tsx", "record-map-widget-card.tsx", "record-widget-chart.tsx"]) {
+      const card = component(file);
+      const header = card.slice(card.indexOf("<AppCardHeader"), card.indexOf("</AppCardHeader>"));
+      expect(header, file).toContain("<WidgetTitle");
+      expect(header, file).not.toContain("AppChip");
+    }
   });
   it("keeps linked-record chips in the activity detail header", () => {
     const chips = read("features/messaging/activities/activity-record-chips.tsx");
@@ -44,13 +54,16 @@ describe("generic dashboard widget UI", () => {
   });
   it("uses host-owned shared palettes for chart, activity and trigger filters", () => {
     const chart = component("record-widget-editor.tsx");
+    const editorLayout = component("widget-editor-layout.tsx");
     const activity = component("record-activity-widget-editor.tsx");
     const queryHost = read("components/records/record-query-filters.tsx");
     const activityHost = read("components/records/record-activity-filters.tsx");
     const trigger = read("components/records/record-trigger-fields.tsx");
-    expect(chart.match(/<RecordQueryFilters/g)).toHaveLength(2);
-    expect(chart).toContain('anchorId="widget-source-filters"');
-    expect(chart).toContain('anchorId="widget-group-filters"');
+    expect(chart.match(/<RecordQueryFilters/g)).toHaveLength(1);
+    expect(chart).toContain("<WidgetSourceFilters");
+    expect(editorLayout).toContain('anchorId="widget-source-filters"');
+    expect(chart).toMatch(/<RecordQueryFilters\s+inline\s+anchorId="widget-group-filters"/);
+    expect(editorLayout).toMatch(/<RecordQueryFilters\s+inline\s+anchorId="widget-source-filters"/);
     expect(activity).toContain("<RecordActivityFilters");
     expect(trigger).toContain("<RecordQueryFilters");
     for (const host of [queryHost, activityHost]) {
@@ -73,9 +86,9 @@ describe("generic dashboard widget UI", () => {
   it("previews both widget kinds as their real dashboard cards, keyed to the current draft", () => {
     const chart = component("record-widget-editor.tsx");
     const activity = component("record-activity-widget-editor.tsx");
-    expect(component("widget-modal.store.ts")).toContain(
-      "await this.runPreview(() => previewRecordWidgetAction(parsed.data))",
-    );
+    const store = component("widget-modal.store.ts");
+    expect(store).toContain("() => previewRecordWidgetAction(parsed.data)");
+    expect(store).toContain("await this.runPreview(call)");
     expect(chart).toContain("<RecordWidgetCard");
     expect(chart).toContain("preview?.key === key");
     expect(activity).toContain("<RecordActivityWidgetCard");
@@ -85,6 +98,9 @@ describe("generic dashboard widget UI", () => {
     const panel = read("features/messaging/activities/record-activities-panel.tsx");
     expect(card).toContain("<ActivityTimelineSkeleton />");
     expect(card).toContain("<ActivityTimelineSkeleton animated={false}");
+    // The card header already names the widget, so the empty state's heading says why there is nothing to show.
+    expect(card).toContain("title={t(`Dashboard.activityWidget.${state}`)}");
+    expect(card).not.toContain("title={widget.name}");
     expect(panel).toContain("ActivityTimelineSkeleton");
     expect(panel).toContain("TimelineEmptyState");
     expect(panel).toContain('t("ErrorCard.retry")');

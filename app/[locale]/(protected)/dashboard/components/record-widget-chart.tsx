@@ -4,6 +4,7 @@ import type { RecordWidgetDto } from "@/features/widget/record-widget.schema";
 import type { CalculatedValue } from "@/features/records/record-model.schema";
 import type { ChipColor } from "@/constants/chip-colors";
 import type { ReactNode } from "react";
+import type { RecordContributionGroup } from "@/features/records/record-contribution.schema";
 import { useLocale, useTranslations } from "next-intl";
 import { ChartNoAxesColumn } from "lucide-react";
 import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
@@ -18,10 +19,10 @@ import { RankedTable } from "./ranked-table";
 import { WidgetChart } from "./widget-chart";
 import { WidgetNumber } from "./widget-number";
 import { formatWidgetNumber, inlineListLabel, widgetNumberAverage } from "./widget-number-format";
-import { WidgetNotes, WidgetSubtitle } from "./widget-subtitle";
-import { WIDGET_CARD_BODY_CLASS, WIDGET_CARD_HEADER_CLASS, WIDGET_CARD_TITLE_CLASS } from "./widget-card-frame";
+import { WidgetEmptyState, WidgetSubtitle, WidgetTitle } from "./widget-subtitle";
+import { WIDGET_CARD_BODY_CLASS, WIDGET_CARD_HEADER_CLASS } from "./widget-card-frame";
+import { WIDGET_INTERACTIVE_ATTRIBUTE } from "./widget-interaction";
 import { AppCardHeader } from "@/components/card/app-card-header";
-import { TruncatedText } from "@/components/shared/truncated-text";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { cn } from "@/core/utils/cn";
 import {
@@ -44,6 +45,8 @@ export type RecordWidgetChartProps = Pick<
 > & {
   name: string;
   listLabels?: { label: string; pluralLabel: string } | null;
+  embedded?: boolean;
+  onInspectGroup?: (group: RecordContributionGroup | null, label: string | null) => void;
 };
 
 type ChartRow = {
@@ -57,6 +60,8 @@ type ChartRow = {
   bucketStart: string | null;
   optionColor?: ChipColor;
   missingLabel: boolean;
+  selection?: RecordContributionGroup | null;
+  inspectable?: boolean;
 };
 
 export function RecordWidgetChart({
@@ -68,6 +73,8 @@ export function RecordWidgetChart({
   name,
   decimalPlaces,
   listLabels = null,
+  embedded = false,
+  onInspectGroup,
 }: RecordWidgetChartProps) {
   const t = useTranslations();
   const language = useLocale();
@@ -117,7 +124,7 @@ export function RecordWidgetChart({
         ...(String(value.value).length === 10 ? { timeZone: "UTC" } : {}),
       });
     }
-    if (["text", "email", "phone", "url"].includes(value.kind) && "value" in value) return String(value.value);
+    if (["text", "url"].includes(value.kind) && "value" in value) return String(value.value);
     return t("RecordModel.missing");
   };
   const infoNotes = [
@@ -126,25 +133,30 @@ export function RecordWidgetChart({
       : []),
     ...(hasRecordMeasureGroupFilter(measure) ? [t("RecordWidgets.groupFilterSummary")] : []),
   ];
-  const frame = (body: ReactNode, subtitle: string | null = null, bodyClassName?: string, reserve = true) => (
-    <>
-      <AppCardHeader className={WIDGET_CARD_HEADER_CLASS}>
-        <div className="flex w-full min-w-0 items-center gap-1.5">
-          <h2 className={cn(WIDGET_CARD_TITLE_CLASS, "min-w-0 flex-1")}>
-            <TruncatedText>{name}</TruncatedText>
-          </h2>
+  const frame = (body: ReactNode, subtitle: string | null = null, bodyClassName?: string, reserve = true) =>
+    embedded ? (
+      <div className="flex min-h-0 flex-1 flex-col gap-2" data-widget-chart-embedded="">
+        {subtitle && <WidgetSubtitle text={subtitle} />}
 
-          <WidgetNotes notes={infoNotes} />
+        <div className={cn("flex min-h-0 flex-1 flex-col overflow-visible recharts-no-focus-outline", bodyClassName)}>
+          {body}
         </div>
+      </div>
+    ) : (
+      <>
+        <AppCardHeader className={WIDGET_CARD_HEADER_CLASS}>
+          <WidgetTitle name={name} notes={infoNotes} />
 
-        <WidgetSubtitle reserve={reserve} text={subtitle} />
-      </AppCardHeader>
+          <WidgetSubtitle reserve={reserve} text={subtitle} />
+        </AppCardHeader>
 
-      <AppCardBody className={cn(WIDGET_CARD_BODY_CLASS, "overflow-visible recharts-no-focus-outline", bodyClassName)}>
-        {body}
-      </AppCardBody>
-    </>
-  );
+        <AppCardBody
+          className={cn(WIDGET_CARD_BODY_CLASS, "overflow-visible recharts-no-focus-outline", bodyClassName)}
+        >
+          {body}
+        </AppCardBody>
+      </>
+    );
   if (status === "unavailable" || !data) {
     return frame(
       <p className="text-sm text-muted-foreground" role="status">
@@ -194,18 +206,8 @@ export function RecordWidgetChart({
   }
 
   const overall = displayOptions.showFilters !== false ? t("RecordWidgets.overall", { value: format(total) }) : null;
-  if (data.total.count === 0) {
-    return frame(
-      <div
-        className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 text-center"
-        data-slot="widget-empty"
-      >
-        <ChartNoAxesColumn aria-hidden className="size-6 text-muted-foreground/60" />
+  if (data.total.count === 0) return frame(<WidgetEmptyState icon={ChartNoAxesColumn} text={t("Diagrams.noData")} />);
 
-        <p className="text-sm text-muted-foreground">{t("Diagrams.noData")}</p>
-      </div>,
-    );
-  }
   const groupedRows: ChartRow[] = data.groups.map((group) => {
     const optionId =
       group.label.state === "value" && group.label.value.kind === "select" ? String(group.label.value.value) : null;
@@ -233,6 +235,9 @@ export function RecordWidgetChart({
       bucketStart,
       optionColor: option?.color ? toChipColor(option.color) : undefined,
       missingLabel: Boolean(measure.groupBy) && group.label.state === "missing",
+      selection:
+        measure.groupBy && group.label.state !== "restricted" ? { record: group.record, label: group.label } : null,
+      inspectable: group.label.state !== "restricted",
     };
   });
   const rows = orderByOptionPosition(
@@ -248,6 +253,25 @@ export function RecordWidgetChart({
     value: row.value ?? 0,
     formattedValue: row.formatted,
     optionColor: row.optionColor,
+    onSelect:
+      row.inspectable !== false && onInspectGroup
+        ? () => {
+            const selection =
+              row.selection ??
+              (row.bucketStart
+                ? {
+                    record: null,
+                    label: { state: "value" as const, value: { kind: "date" as const, value: row.bucketStart } },
+                  }
+                : row.optionId
+                  ? {
+                      record: null,
+                      label: { state: "value" as const, value: { kind: "select" as const, value: row.optionId } },
+                    }
+                  : null);
+            onInspectGroup(selection, row.label);
+          }
+        : undefined,
     ...extra,
   });
   const fillsWithZero = measure.aggregation === "count" || measure.aggregation === "sum";
@@ -271,6 +295,7 @@ export function RecordWidgetChart({
         hiddenCount={Math.max(0, ranked.length - RANKED_TABLE_ROW_LIMIT)}
         rows={visible.map((row, index) => ({
           key: `${index}:${row.label}`,
+          onSelect: point(row).onSelect,
           label: row.label,
           formattedValue: row.formatted,
           share: shares ? shareOfTotal(row.value, totalValue) : null,
@@ -394,7 +419,20 @@ export function RecordWidgetChart({
           <dl className="space-y-1 text-sm">
             {rows.map((row, index) => (
               <div key={index} className="flex justify-between gap-4">
-                <dt>{row.label}</dt>
+                <dt>
+                  {point(row).onSelect ? (
+                    <button
+                      className="text-left hover:underline focus-visible:underline"
+                      {...{ [WIDGET_INTERACTIVE_ATTRIBUTE]: "true" }}
+                      type="button"
+                      onClick={point(row).onSelect}
+                    >
+                      {row.label}
+                    </button>
+                  ) : (
+                    row.label
+                  )}
+                </dt>
 
                 <dd className="tabular-nums">{row.formatted}</dd>
               </div>

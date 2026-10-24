@@ -2,7 +2,7 @@
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import type { RecordFieldView, RecordMember } from "@/features/records/record-model.schema";
+import type { RecordFieldView, RecordFileSummary, RecordMember } from "@/features/records/record-model.schema";
 import { useAppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { FormDecimalInput } from "@/components/forms/form-decimal-input";
@@ -21,6 +21,9 @@ import { FormattedTextField } from "@/components/editor/formatted-text-field";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { getActiveUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 import { actionData } from "@/core/utils/action-data";
+
+import { RecordAddressField } from "./record-address-field";
+import { RecordFileInput } from "./record-file-input";
 
 type KnownMember = Pick<RecordMember, "id" | "firstName" | "lastName"> & { avatarUrl?: string | null };
 
@@ -45,6 +48,7 @@ export const RecordInputField = observer(function RecordInputField({
   inputId,
   label = field.label,
   members = [],
+  files,
   onDatePicked,
   onSelectOpenChange,
   collapsibleText = false,
@@ -55,6 +59,7 @@ export const RecordInputField = observer(function RecordInputField({
   inputId?: string;
   label?: string | null;
   members?: RecordMember[];
+  files?: RecordFileSummary[];
   onDatePicked?: () => void;
   onSelectOpenChange?: (open: boolean) => void;
   collapsibleText?: boolean;
@@ -181,6 +186,20 @@ export const RecordInputField = observer(function RecordInputField({
     );
   }
 
+  if (field.valueType === "file") {
+    return (
+      <RecordFileInput
+        field={field}
+        files={files}
+        flush={flush}
+        id={id}
+        inputId={inputId}
+        label={label}
+        members={members}
+      />
+    );
+  }
+
   if (field.multiple) {
     return (
       <FormTextarea
@@ -200,7 +219,9 @@ export const RecordInputField = observer(function RecordInputField({
       />
     );
   }
-  if (field.valueType === "email" || field.valueType === "phone" || field.valueType === "url") {
+  if (field.valueType === "address")
+    return <RecordAddressField field={field} id={id} inputId={inputId} label={label} />;
+  if (field.valueType === "url") {
     const value = store?.getValue(id);
     const endContent =
       typeof value === "string" && value.trim() ? (

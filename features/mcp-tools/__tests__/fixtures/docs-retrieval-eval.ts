@@ -56,7 +56,10 @@ export const DOCS_LIVE_CASE_LABELS: readonly DocsRetrievalEvalItem[] = [
     query: "Wo stelle ich die Währung für unseren Workspace ein?",
     slug: "app-company",
     anchors: ["app-company#settings-tab"],
-    alternatives: ["app-company#who-can-change-the-currency-and-the-other-settings"],
+    alternatives: [
+      "app-company#who-can-change-the-currency-and-the-other-settings",
+      "app-company#where-is-the-currency-set",
+    ],
   },
   {
     id: "D7",

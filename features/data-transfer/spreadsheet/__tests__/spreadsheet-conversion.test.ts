@@ -45,8 +45,6 @@ function model(): RecordModel {
       multiple: true,
       options: [option("b2b", "B2B"), option("saas", "SaaS"), option("eu", "EU")],
     }),
-    field("organization.phone", "Phone", "phone"),
-    field("organization.emails", "Emails", "email", { multiple: true }),
     field("organization.website", "Website", "url"),
   );
   return preset;
@@ -80,8 +78,6 @@ const organizationColumns: Array<[string, string]> = [
   ["Kunde", "organization.customer"],
   ["Stufe", "organization.tier"],
   ["Tags", "organization.tags"],
-  ["Telefon", "organization.phone"],
-  ["E-Mail", "organization.emails"],
   ["Web", "organization.website"],
   ["Notizen", "organization.notes"],
 ];
@@ -134,11 +130,6 @@ describe("convertSpreadsheet", () => {
       state: "value",
       value: { kind: "selectList", value: ["b2b", "saas"] },
     });
-    expect(alpha[id("organization.phone")]).toEqual({ state: "value", value: { kind: "text", value: "+49301234567" } });
-    expect(alpha[id("organization.emails")]).toEqual({
-      state: "value",
-      value: { kind: "textList", value: ["a@alpha.de", "b@alpha.de"] },
-    });
     expect(alpha[id("organization.website")]).toEqual({
       state: "value",
       value: { kind: "text", value: "https://alpha.de" },
@@ -161,8 +152,6 @@ describe("convertSpreadsheet", () => {
       { rowNumber: 5, column: "Gegründet", code: "invalidDate" },
       { rowNumber: 5, column: "Kunde", code: "invalidBoolean" },
       { rowNumber: 5, column: "Stufe", code: "unknownOption" },
-      { rowNumber: 5, column: "Telefon", code: "invalidPhone" },
-      { rowNumber: 5, column: "E-Mail", code: "invalidEmail" },
       { rowNumber: 6, column: "Firma", code: "required" },
     ]);
   });
@@ -308,9 +297,9 @@ describe("convertSpreadsheet", () => {
         record.identities?.map(({ provider, value, channelClass }) => `${provider}:${value}:${channelClass}`),
       ),
     ).toEqual([
-      ["mail:ada@example.com:email", "whatsapp:+49301234567:phone"],
-      ["whatsapp:+442079460958:phone"],
-      ["mail:alan@example.com:email", "whatsapp:+14155550100:phone"],
+      ["mail:ada@example.com:email", "phone:+49301234567:phone"],
+      ["phone:+442079460958:phone"],
+      ["mail:alan@example.com:email", "phone:+14155550100:phone"],
     ]);
   });
 

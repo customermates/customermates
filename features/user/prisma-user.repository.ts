@@ -51,6 +51,7 @@ function recordActorSelect(companyId: string) {
   return {
     id: true,
     status: true,
+    country: true,
     role: {
       select: {
         id: true,
@@ -203,6 +204,7 @@ export class PrismaUserRepo
       firstName: true,
       lastName: true,
       companyId: true,
+      country: true,
       roleId: true,
       status: true,
       displayLanguage: true,

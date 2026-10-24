@@ -3,6 +3,7 @@ import type { AppLocale } from "@/i18n/locale-registry";
 import type { RecordRepo, RecordRepoOwners } from "@/features/records/record.repo";
 import { RecordAccessPolicy } from "@/features/records/record-access";
 import type { RecordConfigurationService } from "@/features/records/configuration.service";
+import type { RecordFileAttachmentService } from "@/features/records/record-file-attachment.service";
 import type { WebhookPauseNotifier } from "@/features/webhook/webhook-pause-notifier";
 import type { RecordWidgetConfigurationRepo } from "@/features/widget/record-widget-configuration.repo";
 import type { ViewWidgetPurgeRepo } from "@/features/widget/view-widget-purge.repo";
@@ -23,6 +24,7 @@ import { PrismaWikiPageRepo } from "@/features/wiki/prisma-wiki-page.repository"
 import { PrismaRoutineEventAccess } from "@/ee/routines/prisma-routine-event-access.repository";
 import { PrismaUserRepo } from "@/features/user/prisma-user.repository";
 import { PrismaRoleRepo } from "@/features/role/prisma-role.repository";
+import { PrismaRecordFileRepo } from "@/features/records/prisma-record-file.repository";
 import { RecordCalculationService } from "@/features/records/record-calculation.service";
 import { RecordConfigurationWriter } from "@/features/records/record-configuration-writer";
 import { RecordOperationService } from "@/features/records/record-operation.service";
@@ -51,6 +53,10 @@ const widgets: RecordWidgetConfigurationRepo & ViewWidgetPurgeRepo = {
   getMeasuresCompanyWide: async (companyId, afterId) => (await widgetRepo()).getMeasuresCompanyWide(companyId, afterId),
   rewriteMeasureCompanyWide: async (companyId, id, measure) =>
     (await widgetRepo()).rewriteMeasureCompanyWide(companyId, id, measure),
+  getRecordWidgetQueriesCompanyWide: async (companyId, afterId) =>
+    (await widgetRepo()).getRecordWidgetQueriesCompanyWide(companyId, afterId),
+  rewriteRecordWidgetQueryCompanyWide: async (companyId, id, kind, query) =>
+    (await widgetRepo()).rewriteRecordWidgetQueryCompanyWide(companyId, id, kind, query),
   trashCompanyWide: async (companyId, id) => (await widgetRepo()).trashCompanyWide(companyId, id),
   purgeOnTrashedViewsCompanyWide: async (companyId, viewIds) =>
     (await widgetRepo()).purgeOnTrashedViewsCompanyWide(companyId, viewIds),
@@ -91,6 +97,7 @@ function createTestRecordRepoOwners(): RecordRepoOwners {
     members: new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
     roles: new PrismaRoleRepo(new PrismaBillingUsageRepo()),
     subscriptions,
+    files: new PrismaRecordFileRepo(),
   };
 }
 
@@ -100,6 +107,7 @@ export const createTestRecordOperationService = (
   configurations: RecordConfigurationService,
   webhooks: WebhookPauseNotifier,
   systemCompanyId?: string,
+  files?: Pick<RecordFileAttachmentService, "attach">,
 ) =>
   new RecordOperationService(
     records,
@@ -107,7 +115,7 @@ export const createTestRecordOperationService = (
     configurations,
     webhooks,
     new RecordCalculationService(records),
-    new RecordWriteService(records, policy, new RecordCalculationService(records)),
+    new RecordWriteService(records, policy, new RecordCalculationService(records), undefined, files),
     new RecordConfigurationWriter(records, new RecordCalculationService(records), webhooks),
     new RecordTrashService(records, new RecordCalculationService(records)),
     systemCompanyId,

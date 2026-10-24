@@ -67,7 +67,7 @@ const fields = [
       { id: "partner", label: "Partner", color: null, attributes: [] },
     ],
   }),
-  field(20, "Emails", "email", { multiple: true }),
+  field(20, "Aliases", "text", { multiple: true }),
   field(21, "Owner", "member"),
   field(22, "Weighted", "currency", {
     behavior: { kind: "formula", expression: { kind: "field", fieldId: uuid(13) } },
@@ -278,7 +278,7 @@ describe("record workbook", () => {
       "Campaign (Until)",
       "Stage",
       "Tags",
-      "Emails",
+      "Aliases",
       "Owner",
       "Weighted",
       "Channels",
@@ -332,7 +332,7 @@ describe("record workbook", () => {
     expect(cell("Campaign (Until)").value).toEqual(new Date("2026-03-31T00:00:00.000Z"));
     expect(cell("Stage").value).toBe("Won");
     expect(cell("Tags").value).toBe("VIP, Partner");
-    expect(cell("Emails").value).toBe("a@example.test, b@example.test");
+    expect(cell("Aliases").value).toBe("a@example.test, b@example.test");
     expect(cell("Owner").value).toBe("Max Weber");
     expect(cell("Weighted").value).toBe(6250.25);
     expect(cell("Weighted").numFmt).toBe('#,##0.00 "USD"');

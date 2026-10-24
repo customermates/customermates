@@ -583,6 +583,8 @@ export type NorthwindTask = {
   priority: "low" | "medium" | "high";
   assigneeKey: MemberKey | null;
   dueMs: number;
+  /** The planned work slot (authored instants), or null when the task has none. */
+  scheduled: { startMs: number; endMs: number } | null;
   createdAtMs: number;
   contactIndexes: number[];
   organizationIndexes: number[];
@@ -1224,7 +1226,10 @@ export function buildNorthwindDataset(): NorthwindDataset {
       type: "renewal",
       organizationIndex: subscription.organizationIndex,
       createdAtMs,
-      closeAtMs: workTime(rng, Math.max(subscription.renewalMs - 10 * DAY, END + 3 * DAY)),
+      closeAtMs: workTime(
+        rng,
+        Math.max(subscription.renewalMs - 10 * DAY, END + (3 + (subscription.index % 12)) * DAY),
+      ),
       status: "open",
       stage: subscription.renewalMs - END < 45 * DAY ? "proposal" : "qualified",
       previousStage: null,
@@ -1499,7 +1504,7 @@ export function buildNorthwindDataset(): NorthwindDataset {
   const tasks: NorthwindTask[] = [];
   type TaskInput = Omit<
     NorthwindTask,
-    "index" | "id" | "contactIndexes" | "organizationIndexes" | "dealIndexes" | "serviceIndexes"
+    "index" | "id" | "scheduled" | "contactIndexes" | "organizationIndexes" | "dealIndexes" | "serviceIndexes"
   > &
     Partial<Pick<NorthwindTask, "contactIndexes" | "organizationIndexes" | "dealIndexes" | "serviceIndexes">>;
   const addTask = (task: TaskInput) =>
@@ -1508,6 +1513,7 @@ export function buildNorthwindDataset(): NorthwindDataset {
       organizationIndexes: [],
       dealIndexes: [],
       serviceIndexes: [],
+      scheduled: null,
       ...task,
       createdAtMs: Math.min(task.createdAtMs, END - HOUR),
       index: tasks.length,
@@ -1730,6 +1736,23 @@ export function buildNorthwindDataset(): NorthwindDataset {
     if (task.status === "done" || task.status === "archived") continue;
     if (task.index % 8 === 0) task.dueMs = Math.min(task.dueMs, END - (1 + (task.index % 5)) * DAY);
     else task.dueMs = Math.max(task.dueMs, END + (7 + (task.index % 14)) * DAY);
+  }
+
+  // Open tasks that are not overdue get work slots on the workdays from the week before the story's end to three weeks
+  // after it, one a day, so the calendars show timed entries without crowding a day. The slots derive from the order
+  // alone (no random draw shifts the rest of the story) and end before the task is due.
+  const monday = Math.floor(END / DAY) * DAY - ((new Date(END).getUTCDay() + 6) % 7) * DAY;
+  const workdays = Array.from({ length: 28 }, (_, offset) => monday + (offset - 7) * DAY).filter(
+    (day) => new Date(day).getUTCDay() % 6 !== 0,
+  );
+  const planned = tasks
+    .filter((task) => (task.status === "open" || task.status === "inProgress") && task.dueMs > END)
+    .filter((_, index) => index % 2 === 0);
+  for (const [index, day] of workdays.entries()) {
+    const startMs = day + (7 + ((index * 3) % 8)) * HOUR + (index % 2) * 30 * 60_000;
+    const endMs = startMs + [30, 45, 60, 90, 120][index % 5] * 60_000;
+    const task = planned.find((candidate) => !candidate.scheduled && candidate.dueMs > endMs);
+    if (task) task.scheduled = { startMs, endMs };
   }
 
   // Notes on key records -------------------------------------------------------------------------------------------------

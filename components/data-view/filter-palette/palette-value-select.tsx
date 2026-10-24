@@ -102,7 +102,7 @@ export const PaletteValueSelect = observer(function PaletteValueSelect({
 
   return (
     <>
-      <CommandList aria-busy={loading || undefined} className="max-h-none! overflow-visible">
+      <CommandList aria-busy={loading || undefined}>
         {loading && <SelectionOptionsSkeleton label={t("Loading.text")} />}
 
         {!loading && optionError && (

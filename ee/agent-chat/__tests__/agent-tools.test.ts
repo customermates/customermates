@@ -76,7 +76,7 @@ import {
 } from "../agent-budget-policy";
 import { SendAgentMessageSchema } from "../agent-chat.schema";
 import { buildAgentProviderContext, conservativeAgentInitialContextBytes } from "../agent-provider-context";
-import { toolsetsForRequest } from "../agent-toolset-routing";
+import { AGENT_ON_DEMAND_TOOLSETS, toolsetsForRequest } from "../agent-toolset-routing";
 import { ANALYZE_RECORDS_TOOL_NAME } from "../agent-toolset-routing";
 import { WIKI_REFERENCE_MAX_BYTES, agentWikiReferenceBytes, serializeAgentWikiCatalog } from "../agent-wiki-context";
 import { AGENT_MODELS } from "../model-catalog";
@@ -394,11 +394,11 @@ describe("agent tools", () => {
     expect(hasNonTransactionalEffect("manage_team", { action: "invite_link" })).toBe(false);
   });
 
-  it("exposes the MCP registry without the deep-research pair, plus the interface tools, load_toolset and analyze_records", () => {
+  it("exposes the MCP registry without the deep-research pair and the address lookup, plus the interface tools, load_toolset and analyze_records", () => {
     const names = Object.keys(getAgentAiTools(deps()));
-    const deepResearch = new Set(MCP_ALWAYS_ON_TOOLS.map((agentTool) => agentTool.name));
+    const excluded = new Set([...MCP_ALWAYS_ON_TOOLS.map((agentTool) => agentTool.name), "lookup_address"]);
     const expected = new Set([
-      ...ALL_MCP_TOOLS.filter((agentTool) => !deepResearch.has(agentTool.name)).map((agentTool) => agentTool.name),
+      ...ALL_MCP_TOOLS.filter((agentTool) => !excluded.has(agentTool.name)).map((agentTool) => agentTool.name),
       ...AGENT_UI_TOOL_NAMES,
       "load_toolset",
       ANALYZE_RECORDS_TOOL_NAME,
@@ -407,6 +407,8 @@ describe("agent tools", () => {
     expect(names.toSorted()).toEqual([...expected].toSorted());
     expect(names).not.toContain("search");
     expect(names).not.toContain("fetch");
+    expect(names).not.toContain("lookup_address");
+    expect(names).toContain("check_address");
     expect(names).toContain("load_toolset");
     expect(names).not.toContain("click_ui_target");
     expect(names.filter((name) => name === "request_support")).toHaveLength(1);
@@ -490,6 +492,38 @@ describe("agent tools", () => {
     expect(requestBodies.length).toBeGreaterThan(16);
     expect(result.text).toBe("All eighteen checks are complete.");
     expect(result.finishReason).toBe("stop");
+  });
+
+  it("admits a turn with any one on-demand toolset, and with contact details wording on a record or the dashboard", () => {
+    const model = AGENT_MODELS.chat;
+    const contextLimitBytes = agentContextTokensToBytes(model.maxContextTokens);
+    const systemPrompt = buildAgentSystemPrompt({ userName: "Ada Lovelace", locale: "en", surface: "chat" });
+    const turnTools = agentToolDefinitionsForTurn({ surface: "chat" });
+    const requests = [
+      ...AGENT_ON_DEMAND_TOOLSETS.map((toolset) => ({ label: toolset, toolsets: [toolset], route: "/en/records" })),
+      ...[
+        ["/en/dashboard", "hi"],
+        [
+          "/en/records/10000000-0000-4000-8000-000000000102",
+          "Add the email address ada@example.test to her contact details.",
+        ],
+        ["/en/dashboard", "What is the email address of Ada and the address of her organization?"],
+      ].map(([route, text]) => ({
+        label: `${route} ${text}`,
+        toolsets: [...toolsetsForRequest({ text, pageRoute: route, contexts: [], surface: "chat" })],
+        route,
+      })),
+    ];
+    for (const { label, toolsets, route } of requests) {
+      const required = conservativeAgentInitialContextBytes({
+        systemPrompt,
+        currentText: label,
+        pageRoute: route,
+        toolDefinitions: agentToolDefinitionsForToolsets(turnTools, toolsets),
+      });
+      expect(required, label).not.toBeNull();
+      expect(required ?? Number.POSITIVE_INFINITY, label).toBeLessThan(contextLimitBytes);
+    }
   });
 
   it("keeps the request's initially active tools inside the conservative provider envelope", () => {

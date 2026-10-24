@@ -1,6 +1,7 @@
 "use client";
 
 import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
+import type { FileStorageUsageDto } from "@/features/record-files/record-file.schema";
 import type { ChipColor } from "@/constants/chip-colors";
 
 import { observer } from "mobx-react-lite";
@@ -12,6 +13,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { FormOutputField } from "@/components/forms/form-output-field";
 import { AppChip } from "@/components/chip/app-chip";
+import { useRecordFileSize } from "@/components/records/record-file-meta";
 import { Alert } from "@/components/shared/alert";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { startBackgroundPoll } from "@/core/utils/background-poll";
@@ -21,6 +23,7 @@ import { PlanSelection } from "./plan-selection";
 
 type Props = {
   initialSubscription: SubscriptionDto | null;
+  storage: FileStorageUsageDto | null;
 };
 
 export const SUBSCRIPTION_STATUS_COLOR_MAP: Record<SubscriptionStatus, ChipColor> = {
@@ -32,7 +35,7 @@ export const SUBSCRIPTION_STATUS_COLOR_MAP: Record<SubscriptionStatus, ChipColor
   [SubscriptionStatus.cancelled]: "secondary",
 };
 
-export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
+export const SubscriptionPanel = observer(({ initialSubscription, storage }: Props) => {
   const t = useTranslations();
   const { subscriptionStore, loadingOverlayStore, userStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
@@ -59,6 +62,7 @@ export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
     : hasBillingPortal
       ? t("Subscription.fieldHelp.currentPeriodEndManage", { billing: t("Subscription.manageWithLemonSqueezy") })
       : t("Subscription.fieldHelp.currentPeriodEndUnavailable");
+  const sizeLabel = useRecordFileSize();
   const trialEndHelp = !hasActiveSubscription
     ? canManageCompany
       ? t("Subscription.fieldHelp.trialEndsPicker")
@@ -66,6 +70,11 @@ export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
     : !canManageCompany
       ? t("Subscription.fieldHelp.trialEndsReadOnly")
       : t("Subscription.fieldHelp.trialEndsManage", { billing: t("Subscription.manageWithLemonSqueezy") });
+  const storageRow = storage?.limitBytes ? (
+    <FormOutputField help={t("Subscription.fieldHelp.fileStorage")} label={t("Subscription.fileStorage")}>
+      {t("Subscription.fileStorageUsage", { used: sizeLabel(storage.usedBytes), limit: sizeLabel(storage.limitBytes) })}
+    </FormOutputField>
+  ) : null;
 
   useEffect(() => {
     if (!awaitingPayment) return;
@@ -94,6 +103,8 @@ export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
         </span>
       </FormOutputField>
 
+      {isManaged && storageRow}
+
       {!isManaged && (
         <>
           <div className="grid w-full grid-cols-1 gap-3">
@@ -116,6 +127,8 @@ export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
             >
               {seats.toString()}
             </FormOutputField>
+
+            {storageRow}
           </div>
 
           {!hasActiveSubscription && canManageCompany && (

@@ -39,11 +39,15 @@ const CUSTOM_COLUMN_OPERATORS: Record<CustomColumnType, FilterOperatorKey[]> = {
   dateTime: dates,
   dateRange: [...dates, FilterOperatorKey.contains],
   dateTimeRange: [...dates, FilterOperatorKey.contains],
-  email: text,
-  phone: text,
-  link: text,
   plain: text,
   singleSelect: [FilterOperatorKey.in, FilterOperatorKey.notIn, FilterOperatorKey.isNull, FilterOperatorKey.isNotNull],
+  file: [FilterOperatorKey.isNull, FilterOperatorKey.isNotNull],
+  address: [
+    FilterOperatorKey.contains,
+    FilterOperatorKey.startsWith,
+    FilterOperatorKey.isNull,
+    FilterOperatorKey.isNotNull,
+  ],
 };
 
 const CUSTOM_COLUMN_IDS: Record<CustomColumnType, string> = {
@@ -52,11 +56,10 @@ const CUSTOM_COLUMN_IDS: Record<CustomColumnType, string> = {
   [CustomColumnType.dateRange]: "33333333-3333-4333-8333-333333333333",
   [CustomColumnType.dateTime]: "44444444-4444-4444-8444-444444444444",
   [CustomColumnType.dateTimeRange]: "55555555-5555-4555-8555-555555555555",
-  [CustomColumnType.email]: "66666666-6666-4666-8666-666666666666",
-  [CustomColumnType.link]: "77777777-7777-4777-8777-777777777777",
-  [CustomColumnType.phone]: "88888888-8888-4888-8888-888888888888",
   [CustomColumnType.plain]: "99999999-9999-4999-8999-999999999999",
   [CustomColumnType.singleSelect]: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+  [CustomColumnType.file]: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+  [CustomColumnType.address]: "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
 };
 
 const STANDARD_FIELDS: FilterableField[] = Object.entries(FILTER_FIELD_DEFAULT_OPERATORS).map(([field, operators]) => ({
@@ -157,11 +160,10 @@ const EXPECTED_CUSTOM: Record<CustomColumnType, Expected> = {
     impliedOperator: FilterOperatorKey.contains,
     pageKind: "date",
   },
-  [CustomColumnType.email]: TEXT,
-  [CustomColumnType.link]: TEXT,
-  [CustomColumnType.phone]: TEXT,
   [CustomColumnType.plain]: TEXT,
   [CustomColumnType.singleSelect]: SELECT,
+  [CustomColumnType.file]: OPERATOR_ONLY,
+  [CustomColumnType.address]: TEXT,
 };
 
 const planFor = (field: string) => palettePlan(field, FILTERABLE_FIELDS, CUSTOM_COLUMNS);

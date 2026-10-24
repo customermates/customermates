@@ -18,6 +18,7 @@ import {
   Inbox,
   Plus,
   LayoutGrid,
+  CalendarDays,
   Repeat,
   ShieldCheck,
   UserPlus,
@@ -217,6 +218,13 @@ const FullAppSidebar = observer(
               href: "/wiki",
               icon: BookOpen,
               visible: canAccess(Resource.wiki),
+            },
+            {
+              key: "calendar",
+              title: t("Planner.title"),
+              href: "/calendar",
+              icon: CalendarDays,
+              visible: true,
             },
             {
               key: "inbox",

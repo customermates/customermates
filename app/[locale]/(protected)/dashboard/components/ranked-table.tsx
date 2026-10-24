@@ -6,8 +6,11 @@ import { EmptyValue } from "@/components/shared/empty-value";
 import { TruncatedText } from "@/components/shared/truncated-text";
 import { useRecordValueFormat } from "@/components/records/record-value";
 
+import { WIDGET_INTERACTIVE_ATTRIBUTE } from "./widget-interaction";
+
 export type RankedTableRow = {
   key: string;
+  onSelect?: () => void;
   label: string;
   formattedValue: string;
   share: number | null;
@@ -53,7 +56,18 @@ export function RankedTable({ hiddenCount, rows }: Props) {
               <td className="py-1 pr-2 tabular-nums text-muted-foreground">{index + 1}</td>
 
               <th className="w-full max-w-0 py-1 text-left font-normal" scope="row">
-                <TruncatedText>{row.label}</TruncatedText>
+                {row.onSelect ? (
+                  <button
+                    className="block w-full text-left hover:underline focus-visible:underline"
+                    {...{ [WIDGET_INTERACTIVE_ATTRIBUTE]: "true" }}
+                    type="button"
+                    onClick={row.onSelect}
+                  >
+                    <TruncatedText>{row.label}</TruncatedText>
+                  </button>
+                ) : (
+                  <TruncatedText>{row.label}</TruncatedText>
+                )}
 
                 <span aria-hidden className="mt-1.5 block h-1 overflow-hidden rounded-full bg-muted">
                   <span

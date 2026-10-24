@@ -1,4 +1,5 @@
-import { getTransactionClient, transactionStorage } from "../decorators/transaction-context";
+import { afterCommit } from "../decorators/after-commit";
+import { getTransactionClient } from "../decorators/transaction-context";
 import { runInTransaction } from "../decorators/transaction-runner";
 
 import { UserAccessor } from "./user-accessor";
@@ -10,10 +11,8 @@ export abstract class TenantRepository extends UserAccessor {
     return getTransactionClient<typeof prisma>() ?? prisma;
   }
 
-  protected async runAfterCommit(fn: () => Promise<void>): Promise<void> {
-    const store = transactionStorage.getStore();
-    if (store) store.afterCommit.push(fn);
-    else await fn();
+  protected runAfterCommit(fn: () => Promise<void>): Promise<void> {
+    return afterCommit(fn);
   }
 
   protected withCompanyTransaction<T>(companyId: string, fn: () => Promise<T>): Promise<T> {

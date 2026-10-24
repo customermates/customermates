@@ -8447,6 +8447,103 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     },
   );
 
+  it("stores typed phone numbers as one phone identity that WhatsApp conversations match", async () => {
+    const { PrismaMessagingRepo } = await import("@/ee/messaging/persistence/prisma-messaging.repository");
+    const { FilterOperatorKey } = await import("@/core/base/base-query-builder");
+    const f = await fixture();
+    const contact = async (
+      firstName: string,
+      identities: NonNullable<Extract<RecordMutation, { action: "create" }>["identities"]>,
+    ) => {
+      const created = await f.mutation({
+        action: "create",
+        typeId: f.id("contact"),
+        fields: [{ fieldId: f.id("contact.firstName"), value: textValue(firstName) }],
+        identities,
+      });
+      if (!created.ok || created.data.status !== "completed") throw new Error(JSON.stringify(created));
+      return recordInvariant(created.data.refs.find((ref) => ref.typeId === f.id("contact")));
+    };
+    const typed = await contact("Typed", [{ provider: "phone", value: "0621 123456" }]);
+    const [stored] = recordInvariant((await f.readRecord(typed)).identities);
+    expect(stored).toMatchObject({
+      provider: "phone",
+      channelClass: "phone",
+      value: "+49621123456",
+      messagingId: null,
+    });
+    const synced = await contact("Synced", [{ provider: "whatsapp", value: "0049 621 123456" }]);
+    expect((await f.readRecord(synced)).identities).toEqual([stored]);
+    expect(
+      await f.mutation({
+        action: "create",
+        typeId: f.id("contact"),
+        fields: [],
+        identities: [{ provider: "phone", value: "+49 621 123456 ext. 9" }],
+      }),
+    ).toMatchObject({ ok: false });
+
+    const account = await f.run(() =>
+      prisma.connectedAccount.create({
+        data: {
+          companyId: f.company.id,
+          userId: f.admin.id,
+          unipileAccountId: randomUUID(),
+          provider: "whatsapp",
+          status: "ok",
+        },
+      }),
+    );
+    const thread = await f.run(() =>
+      prisma.messagingThread.create({
+        data: {
+          companyId: f.company.id,
+          connectedAccountId: account.id,
+          provider: "whatsapp",
+          unipileThreadId: randomUUID(),
+          lastMessageAt: new Date(),
+        },
+      }),
+    );
+    const inbox = new PrismaMessagingRepo(
+      getRecordRepo(),
+      getRecordAccessPolicy(),
+      getRecordIdentityReader(),
+      getConnectedAccountRepo(),
+    );
+    await inbox.upsertThreadParticipantsUnscoped({
+      companyId: f.company.id,
+      messagingThreadId: thread.id,
+      provider: "whatsapp",
+      participants: [
+        { attendeeId: "provider-person", identifier: "49621123456@s.whatsapp.net", displayName: null, records: [] },
+      ],
+    });
+    const participant = await f.run(() =>
+      prisma.messagingThreadParticipant.findFirstOrThrow({
+        where: { companyId: f.company.id, messagingThreadId: thread.id },
+      }),
+    );
+    expect(participant.identityLookupValue).toBe("+49621123456");
+    const filtered = (ref: RecordRef): GetQueryParams => ({
+      filters: [
+        { field: "participantContactId", operator: FilterOperatorKey.in, value: [`${ref.typeId}:${ref.recordId}`] },
+      ],
+    });
+    expect(await f.run(() => inbox.getCount(filtered(typed)))).toBe(1);
+    expect(await f.run(() => inbox.getCount(filtered(synced)))).toBe(1);
+    const records = (await f.run(() => inbox.getItems(filtered(typed))))[0]?.participants[0]?.records ?? [];
+    expect(records.map((record) => record.ref)).toEqual(expect.arrayContaining([typed, synced]));
+    const lookup = new ResolveRecordIdentitiesInteractor(f.policy, new RecordIdentityReader(f.repo, f.policy));
+    const resolved = await f.run(() =>
+      lookup.invoke({ identifiers: [{ provider: "phone", value: "+49 (0) 621 123456" }] }),
+    );
+    if (!resolved.ok) throw new Error(JSON.stringify(resolved.error));
+    expect(resolved.data.matches[0].records.map((record) => record.ref)).toEqual(
+      expect.arrayContaining([typed, synced]),
+    );
+  });
+
   it("discovers navigation from metadata without truncating types or granting schema managers record access", async () => {
     const f = await fixture();
     const service = recordInvariant(f.model.types.find((type) => type.id === f.id("service")));
@@ -9260,7 +9357,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         idempotencyKey: randomUUID(),
         operations: [
           ...[
-            { id: emails, valueType: "email" as const, multiple: true },
+            { id: emails, valueType: "text" as const, multiple: true },
             { id: instant, valueType: "dateTime" as const, multiple: false },
           ].map((entry) => ({
             operation: "putField" as const,
@@ -15449,7 +15546,13 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
 
   it("merges partial widget updates in the interactors and keeps each saved widget's kind", async () => {
     const f = await fixture();
-    const save = new SaveWidgetInteractor(new PrismaWidgetRepo(), f.writeWidget, f.writeActivityWidget);
+    const save = new SaveWidgetInteractor(
+      new PrismaWidgetRepo(),
+      f.writeWidget,
+      f.writeActivityWidget,
+      { invoke: vi.fn() } as never,
+      { invoke: vi.fn() } as never,
+    );
     const measure = RecordMeasureSchema.parse({
       source: { typeId: f.id("service") },
       aggregation: "count",
@@ -18554,7 +18657,7 @@ describeDatabase("value type conversion of populated fields", { timeout: 60000 }
     expect(await stored(ref, tier.id)).toEqual({ state: "value", value: textValue("Gold") });
   });
 
-  it("converts text to number, date, phone and choices when every value parses", async () => {
+  it("converts text to number, date and choices when every value parses, never to the retired phone type", async () => {
     const { apply, add, record, stored, option } = await retypeFixture();
     const count = await add("count", "text");
     const since = await add("since", "text");
@@ -18574,7 +18677,9 @@ describeDatabase("value type conversion of populated fields", { timeout: 60000 }
     ]);
     expect(await apply({ ...count, valueType: "number" })).toMatchObject({ valid: true });
     expect(await apply({ ...since, valueType: "date" })).toMatchObject({ valid: true });
-    expect(await apply({ ...phone, valueType: "phone" })).toMatchObject({ valid: true });
+    await expect(apply({ ...phone, valueType: "phone" })).rejects.toMatchObject({
+      issues: [expect.objectContaining({ message: expect.stringContaining("phone numbers are channel identities") })],
+    });
     const options = [option("food", "Food"), option("hosp", "Hospitality")];
     expect(await apply({ ...industry, valueType: "select", options })).toMatchObject({ valid: true });
     expect(
@@ -18589,7 +18694,7 @@ describeDatabase("value type conversion of populated fields", { timeout: 60000 }
       value: { kind: "decimal", value: "7.5", currency: null },
     });
     expect(await stored(first, since.id)).toEqual({ state: "value", value: { kind: "date", value: "2026-01-15" } });
-    expect(await stored(first, phone.id)).toEqual({ state: "value", value: textValue("+49301234567") });
+    expect(await stored(first, phone.id)).toEqual({ state: "value", value: textValue("+49 30 1234567") });
     expect(await stored(first, industry.id)).toEqual({ state: "value", value: { kind: "select", value: "food" } });
     expect(await stored(second, industry.id)).toEqual({ state: "value", value: { kind: "select", value: "hosp" } });
     expect(await stored(first, labels.id)).toEqual({

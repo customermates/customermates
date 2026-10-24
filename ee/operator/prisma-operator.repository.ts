@@ -15,6 +15,7 @@ import {
   workspaceIndexingShareMicrocents,
 } from "@/ee/agent-chat/agent-credit-policy";
 import { env } from "@/env";
+import { GIB } from "@/core/commercial/plan-catalog";
 import type { AgentUsageRepo } from "@/ee/agent-chat/agent-usage.repo";
 import { isAwaitingFirstPlan } from "@/ee/subscription/entitlements";
 
@@ -46,6 +47,8 @@ import {
   type ResetOperatorUserCreditsData,
   type ResetOperatorUserCreditsResultDto,
   type UpdateHostedAiEnterpriseAllowanceData,
+  type UpdateEnterpriseFileStorageData,
+  type EnterpriseFileStorageDto,
   type UpdateOperatorSubscriptionTermsData,
   type UpdateOperatorUserPlatformAccessData,
   type UpdateOperatorUserStatusData,
@@ -861,6 +864,38 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
         const result = await this.companySnapshot(data.companyId, now);
         if (!result) throw new Error("Updated Enterprise subscription could not be read.");
         return result;
+      },
+      { companyId: data.companyId },
+    );
+  }
+
+  @BypassTenantGuard
+  async updateEnterpriseFileStorageUnscoped(
+    data: UpdateEnterpriseFileStorageData,
+  ): Promise<EnterpriseFileStorageDto | OperatorRefusal> {
+    return runInTransaction(
+      async () => {
+        const subscription = await this.prisma.subscription.findUnique({
+          where: { companyId: data.companyId },
+          select: { plan: true, enterpriseFileStorageBytesPerUser: true },
+        });
+        if (!subscription) return "notFound";
+        if (subscription.plan !== SubscriptionPlan.enterprise) return "conflict";
+        const bytesPerUser = data.gigabytesPerUser * GIB;
+        await this.owners.companies.setEnterpriseFileStorageUnscoped(data.companyId, bytesPerUser);
+        await this.createAudit({
+          action: OPERATOR_AUDIT_ACTION.enterpriseFileStorageUpdate,
+          targetCompanyId: data.companyId,
+          reason: data.reason ?? null,
+          metadata: {
+            bytesPerUser,
+            previousBytesPerUser:
+              subscription.enterpriseFileStorageBytesPerUser === null
+                ? null
+                : Number(subscription.enterpriseFileStorageBytesPerUser),
+          },
+        });
+        return { companyId: data.companyId, enterpriseFileStorageBytesPerUser: bytesPerUser };
       },
       { companyId: data.companyId },
     );

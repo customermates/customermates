@@ -1,7 +1,7 @@
 import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
-import { Status, Locale, Theme } from "@/generated/prisma";
+import { CountryCode, Status, Locale, Theme } from "@/generated/prisma";
 
 import { RoleDtoSchema } from "@/features/role/role.schema";
 
@@ -29,6 +29,7 @@ export const UserByIdResponseSchema = z.object({
 
 export const TenantUserSchema = UserDtoSchema.extend({
   companyId: z.string(),
+  country: z.enum(CountryCode).optional(),
   displayLanguage: z.enum(Locale),
   formattingLocale: z.enum(Locale),
   theme: z.enum(Theme),

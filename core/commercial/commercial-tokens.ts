@@ -6,6 +6,7 @@ import {
   formatCommercialAmount,
   getCommercialOfferOrThrow,
   getPlanDefinition,
+  GIB,
   isPlanId,
   totalPriceAmountMinor,
 } from "./plan-catalog";
@@ -74,8 +75,19 @@ function resolveEntitlementToken(parts: string[], locale: string): string {
   return value === "unlimited" ? localizedUnlimited(locale) : String(value);
 }
 
+function resolveStorageToken(parts: string[], locale: string): string {
+  const [, rawPlan] = parts;
+  if (parts.length !== 2 || !rawPlan || !isPlanId(rawPlan))
+    throw new Error(`Invalid commercial storage token: ${parts.join(".")}`);
+  const bytes = getPlanDefinition(rawPlan).entitlements.fileStorageBytesPerActiveUser;
+  if (bytes === "contract") return locale.startsWith("de") ? "individuell" : "custom";
+  if (bytes === null) return localizedUnlimited(locale);
+  return `${new Intl.NumberFormat(locale).format(bytes / GIB)} GB`;
+}
+
 function resolveCommercialToken(token: string, locale: string): string {
   const parts = token.split(".");
+  if (parts[0] === "storage") return resolveStorageToken(parts, locale);
   if (parts[0] === "price") return resolvePriceToken(parts, locale);
   if (token === "trial.days") return String(CLOUD_TRIAL.days);
   if (token === "workspaces.creationLimit") return String(CLOUD_WORKSPACE_CREATION_LIMIT);

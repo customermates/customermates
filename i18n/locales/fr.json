@@ -509,6 +509,13 @@
       "stopFailed": "Mate n’a pas pu être arrêté. La reconnexion est en cours pour vous permettre de réessayer.",
       "turnFailed": "Mate a rencontré une erreur."
     },
+    "files": {
+      "attach": "Joindre des fichiers",
+      "dropHint": "Déposez des fichiers pour les joindre",
+      "failed": "{name} : {message}",
+      "limit": "Vous pouvez joindre au maximum {count, plural, one {# fichier} other {# fichiers}} à un message.",
+      "reading": "Lecture…"
+    },
     "greeting": {
       "headline": "Bonjour, je suis Mate",
       "subtitle": "Posez-moi toutes vos questions sur votre espace de travail, ou dites-moi quoi faire et je m'en occupe.",
@@ -996,6 +1003,7 @@
       "selectOption": "Sélectionner une option",
       "showPassword": "Afficher le mot de passe",
       "switchToBoardViewDisabled": "Cette liste ne contient aucun champ de regroupement",
+      "switchToCalendarViewDisabled": "Cette liste ne contient aucun champ de date pour un calendrier",
       "themeSwitcher": "Sélecteur de thème",
       "tooltipFields": "Apparence",
       "tooltipFilters": "Filtres"
@@ -1091,6 +1099,8 @@
       "title": "Aucun élément « {plural} » pour le moment"
     },
     "errors": {
+      "addressLookupRateLimited": "Trop de recherches d'adresse en peu de temps. Patientez quelques secondes, puis réessayez.",
+      "addressLookupUnavailable": "La recherche d'adresse n'est pas disponible pour le moment. Saisissez l'adresse vous-même ou réessayez plus tard.",
       "agentApprovalUnavailable": "Cette demande d’approbation n’est pas disponible ou a expiré.",
       "agentConversationNotFound": "Cette conversation est introuvable ou n’est plus accessible.",
       "agentLimitReached": "Il ne reste pas assez de crédits IA pour lancer une autre demande.",
@@ -1103,8 +1113,11 @@
       "apiKeyNotFound": "Cette clé API est introuvable dans cet espace de travail.",
       "billingPortalUnavailable": "Le portail de facturation n’est pas disponible pour cet espace de travail. Contactez l’assistance pour effectuer des modifications.",
       "calendarEventNotFound": "ID d'évènement d'agenda introuvable ou inaccessible.",
+      "calendarExportIncomplete": "Cette période contient plus d'entrées qu'un export ne peut en inclure. Choisissez une période plus courte ou des filtres de source plus précis.",
       "calendarNotFound": "ID d'agenda introuvable ou inaccessible.",
-      "channelAlreadyLinked": "Ce canal est déjà lié à un autre contact.",
+      "calendarSubscriptionLimitReached": "Vous pouvez avoir jusqu'à {limit} abonnements d'agenda. Révoquez-en un pour en créer un autre.",
+      "calendarSubscriptionNotFound": "Cet abonnement d'agenda n'existe plus.",
+      "channelAlreadyLinked": "Ce numéro de téléphone, cette adresse e-mail ou ce profil est déjà lié à une autre fiche.",
       "chatThreadRequired": "Ceci est un fil d'e-mails. Répondez par e-mail plutôt que par un message de chat.",
       "connectedAccountEmailChangeRequired": "Indiquez une signature, des paramètres d'e-mail ou les deux.",
       "connectedAccountNotFound": "ID de canal introuvable ou inaccessible.",
@@ -1150,7 +1163,6 @@
       "invalidFilterValue": "Valeur de filtre invalide. La valeur doit correspondre au type du champ et à l'opérateur (par exemple un nombre pour gt/lt, une date ISO pour les champs de date, ou un id pour in/notIn).",
       "invalidGroupingField": "Ce champ ne peut pas regrouper la vue. Les champs à choix multiple et les champs sans valeurs fixes ne peuvent pas regrouper une liste. Champs regroupables : {validValues}.",
       "invalidJsonBody": "Le corps de la requête n'est pas un JSON valide.",
-      "invalidPhone": "Saisissez un numéro de téléphone au format international, par exemple +4930123456.",
       "invalidSortField": "Champ de tri introuvable ou inaccessible. Champs disponibles : {validValues}.",
       "invalidUrl": "Saisissez une URL valide.",
       "legalNoticeNotDelivered": "La mise à jour juridique actuelle n’a pas encore été remise à cet espace de travail.",
@@ -1177,11 +1189,22 @@
       "passwordMismatch": "Les mots de passe doivent correspondre.",
       "permissionDenied": "Cette action n’est pas disponible avec vos autorisations actuelles.",
       "privacyAcknowledgementRequired": "Veuillez confirmer que vous avez lu la politique de confidentialité.",
+      "recordAddressCandidateInvalid": "Cette suggestion d'adresse n'est plus valide. Recherchez à nouveau l'adresse.",
+      "recordAddressCountryInvalid": "Dans {field}, {country} n'est pas un code de pays.",
+      "recordAddressPostalCodeInvalid": "Dans {field}, {postalCode} n'est pas un code postal du pays choisi. Les codes postaux y ressemblent à {example}.",
+      "recordAddressRegionInvalid": "Dans {field}, {region} n'est pas une région du pays choisi.",
       "recordCalculationBudget": "Cette modification nécessite un recalcul en arrière-plan.",
       "recordConfigurationInvalid": "Vérifie les champs et les relations de cette configuration.",
       "recordDateInvalid": "Saisissez une date valide.",
       "recordDateRangeInvalid": "Saisissez une période valide dont la fin n’est pas antérieure au début.",
       "recordDependencies": "Mets d’abord à jour les champs, vues, widgets ou associations dépendants.",
+      "recordFileContentInvalid": "Envoyez le contenu du fichier en base64.",
+      "recordFileLinkInvalid": "Ce lien de fichier n'est pas valide ou a expiré. Ouvrez à nouveau le fichier pour obtenir un nouveau lien.",
+      "recordFileNameInvalid": "Saisissez un nom de fichier sans dossier.",
+      "recordFileNotFound": "Ce fichier est indisponible.",
+      "recordFileTooLarge": "Un fichier peut faire au maximum {limit}.",
+      "recordFileUnavailable": "Un fichier de cette valeur n'est pas disponible ou appartient à un autre enregistrement. Téléversez-le à nouveau.",
+      "recordFileUploadIncomplete": "Le téléversement ne contenait pas exactement les {size} octets annoncés. Téléversez à nouveau le fichier.",
       "recordIdempotencyConflict": "Cette clé de requête a été utilisée pour une autre modification. Crée une nouvelle requête.",
       "recordIdUnavailable": "Cet identifiant appartenait déjà à un enregistrement précédent. Importe l’enregistrement avec un nouvel identifiant.",
       "recordMarkedTextChanged": "Le texte formaté marqué ne peut être importé que sans modification depuis l'enregistrement stocké ; envoyez le texte formaté nouveau ou modifié comme valeur richText avec documentJson.",
@@ -1237,6 +1260,7 @@
       "serviceBusy": "L'espace de travail est occupé par une autre modification, comme une importation. Réessayez dans un instant.",
       "socialActionRequiresSocialAccount": "Cette action nécessite un compte LinkedIn ou Instagram connecté, or ce compte est {provider}.",
       "socialPostsRequireSocialAccount": "Les publications sociales nécessitent un compte LinkedIn ou Instagram connecté, or ce compte est {provider}.",
+      "storageQuotaExceeded": "Votre espace de travail utilise {used} sur {limit} de stockage de fichiers. Supprimez des fichiers ou changez de forfait pour en téléverser davantage.",
       "subjectRequired": "Ajoutez un objet.",
       "termsNotAgreed": "Vous devez accepter les conditions générales.",
       "threadNotFound": "ID de conversation introuvable ou inaccessible.",
@@ -1548,6 +1572,7 @@
       "secret": "Secret",
       "status": "Statut",
       "theme": "Thème",
+      "time": "Heure",
       "triggerEvents": "Évènements",
       "triggerFilters": "Filtres d’enregistrement",
       "triggerKind": "Déclencheur",
@@ -1611,6 +1636,7 @@
       "linkedin": "LinkedIn",
       "mail": "E-mail",
       "outlook": "Outlook",
+      "phone": "Téléphone",
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
     },
@@ -1640,7 +1666,7 @@
         "allowance": "Allocation",
         "amount": "Montant",
         "avatarUrl": "Avatar",
-        "channels": "Canaux",
+        "channels": "Coordonnées",
         "createdAt": "Créé le",
         "credits": "Crédits",
         "description": "Description",
@@ -1690,6 +1716,7 @@
       "layout": "Disposition",
       "layouts": {
         "board": "Board",
+        "calendar": "Calendrier",
         "table": "Tableau"
       },
       "nextPage": "Page suivante",
@@ -1966,7 +1993,8 @@
         "colorOption": "Couleur {number}",
         "colors": "Couleurs",
         "showFilters": "Afficher le nombre d'activités et les filtres",
-        "showMetricAndFilters": "Afficher l'indicateur et les filtres"
+        "showMetricAndFilters": "Afficher l'indicateur et les filtres",
+        "showSourceAndFilters": "Afficher la source et les filtres"
       },
       "danger": {
         "deleteLabel": "Supprimer le widget {name}"
@@ -1999,6 +2027,16 @@
           "description": "Montrer l’évolution d’une valeur dans le temps.",
           "title": "Aire dans le temps"
         },
+        "calendar": {
+          "month": {
+            "description": "Voir combien d’enregistrements tombent sur chaque jour d’un mois.",
+            "title": "Vue du mois"
+          },
+          "upcoming": {
+            "description": "Lister les enregistrements des prochains jours, ceux en retard d’abord.",
+            "title": "À venir"
+          }
+        },
         "doughnutChart": {
           "description": "Montrer comment un total se répartit.",
           "title": "Anneau"
@@ -2010,6 +2048,10 @@
         "horizontalBarChart": {
           "description": "Comparer des groupes aux noms plus longs.",
           "title": "Barres horizontales"
+        },
+        "map": {
+          "description": "Placer les enregistrements sur une carte selon leur adresse.",
+          "title": "Carte"
         },
         "number": {
           "description": "Un total, comme un décompte ou une somme.",
@@ -2074,6 +2116,13 @@
       "update": "Mettre à jour les ID correspondants"
     },
     "xlsxImport": {
+      "addressWarnings": {
+        "cityMismatch": "{field} : la ville ne correspond pas au code postal ({expected}).",
+        "countryMissing": "{field} : sans pays, le code postal et la région n’ont pas pu être vérifiés.",
+        "partMissing": "{field} : {part} manque.",
+        "postalCodeRegionMismatch": "{field} : le code postal appartient à une autre région ({expected}).",
+        "regionUnknown": "{field} : la région ne fait pas partie des régions du pays."
+      },
       "assignedTo": "Attribué à",
       "column": "Colonne {name}",
       "create": "Nouvelles fiches",
@@ -2091,11 +2140,11 @@
         "ambiguousRecord": "Plusieurs fiches s’appellent « {value} ».",
         "currencyMismatch": "« {value} » utilise une autre devise que ce champ.",
         "duplicateMatch": "Une autre ligne met déjà à jour la même fiche.",
+        "fileNotImportable": "Les fichiers ne peuvent pas être importés depuis un tableur. Téléversez-les plutôt sur l’enregistrement.",
         "invalidBoolean": "« {value} » n’est ni oui ni non.",
+        "invalidChannel": "« {value} » n’est ni une adresse e-mail, ni un numéro de téléphone, ni un lien de profil.",
         "invalidDate": "« {value} » n’est pas une date.",
-        "invalidEmail": "« {value} » n’est pas une adresse e-mail.",
         "invalidNumber": "« {value} » n’est pas un nombre.",
-        "invalidPhone": "« {value} » n’est pas un numéro de téléphone au format international.",
         "invalidRecordId": "« {value} » n’est pas un ID de fiche.",
         "invalidUrl": "« {value} » n’est pas une adresse web commençant par http:// ou https://.",
         "invalidValue": "« {value} » n’est pas une valeur valide.",
@@ -2105,6 +2154,7 @@
         "required": "{value} est obligatoire.",
         "restricted": "Vous ne pouvez pas lire tous les champs de la fiche correspondante.",
         "tooManyValues": "Une cellule peut contenir au plus 100 valeurs.",
+        "unknownCountry": "« {value} » n’est pas un pays.",
         "unknownMember": "Aucun membre ne correspond à « {value} ».",
         "unknownOption": "« {value} » n’est pas une option de ce champ.",
         "unknownRecord": "Aucune fiche liée ne s’appelle « {value} »."
@@ -2114,8 +2164,9 @@
       "matchBy": "Faire correspondre les fiches par",
       "matchHint": "Les lignes sans fiche correspondante sont ignorées. Les cellules vides conservent la valeur actuelle.",
       "moreFailures": "{count, plural, one {# autre ligne en échec n’est pas affichée} other {# autres lignes en échec ne sont pas affichées}}.",
+      "moreWarnings": "{count, plural, one {# autre ligne avec un avertissement d’adresse n’est pas affichée} other {# autres lignes avec des avertissements d’adresse ne sont pas affichées}}.",
       "next": "Suivant",
-      "noMatchColumn": "Associez l’ID de la fiche ou un champ texte, e-mail, téléphone, URL ou nombre pour retrouver les fiches existantes.",
+      "noMatchColumn": "Associez l’ID de la fiche ou un champ texte, URL ou nombre pour retrouver les fiches existantes.",
       "other": "Autres",
       "previewHint": "{count, plural, =0 {Les {rows} premières lignes ne posent aucun problème.} one {# des {rows} premières lignes pose un problème.} other {# des {rows} premières lignes posent problème.}} Les lignes en erreur ne sont pas importées.",
       "problems": {
@@ -2142,7 +2193,8 @@
       },
       "stepsLabel": "Étapes de l’importation",
       "update": "Fiches existantes",
-      "updated": "{count, plural, one {# fiche mise à jour} other {# fiches mises à jour}}"
+      "updated": "{count, plural, one {# fiche mise à jour} other {# fiches mises à jour}}",
+      "warned": "{count, plural, one {# ligne importée avec un avertissement d’adresse} other {# lignes importées avec des avertissements d’adresse}}"
     }
   },
   "DataView": {
@@ -2158,6 +2210,31 @@
     "boardMoveRequested": "Déplacement vers {group} demandé.",
     "boardMoveTarget": "Déplacer l’enregistrement vers {group}.",
     "boardPickedUp": "Enregistrement saisi.",
+    "calendar": {
+      "colorField": "Couleur selon",
+      "createOn": "Nouvel enregistrement le {date}",
+      "dateField": "Champ de date",
+      "emptyRange": "Rien de prévu sur cette période.",
+      "endDateField": "Champ de date de fin",
+      "entryLabel": "{name}, {date}",
+      "keyboardInstructions": "Appuyez sur Entrée pour ouvrir un enregistrement et sur Espace pour le saisir. Choisissez un autre jour avec les flèches, puis appuyez sur Espace pour l'y déplacer. Appuyez sur Échap pour annuler.",
+      "mode": "Vue du calendrier",
+      "modes": {
+        "agenda": "Agenda",
+        "month": "Mois",
+        "week": "Semaine"
+      },
+      "more": "+{count} de plus",
+      "moreLabel": "{count, plural, one {# autre enregistrement} other {# autres enregistrements}} le {date}",
+      "movableEntry": "enregistrement déplaçable",
+      "moveRequested": "Déplacement au {date} demandé.",
+      "moveTarget": "Déplacer l'enregistrement au {date}.",
+      "nextMonth": "Mois suivant",
+      "nextWeek": "Semaine suivante",
+      "previousMonth": "Mois précédent",
+      "previousWeek": "Semaine précédente",
+      "truncated": "{shown} enregistrements sur {total} affichés pour cette période. Affinez les filtres pour voir le reste."
+    },
     "collapseColumn": "Réduire la colonne",
     "collapseGroup": "Réduire le groupe {group}",
     "dragToReorderNamed": "Faire glisser pour réorganiser : {name}",
@@ -2257,6 +2334,7 @@
   "DocsSidebar": {
     "apiKeys": "Clés API",
     "appAssistant": "Assistant",
+    "appCalendar": "Calendrier",
     "appCompany": "Entreprise",
     "appDashboard": "Tableau de bord",
     "appGuide": "Guide de l'application",
@@ -2338,20 +2416,25 @@
       "addAsLabel": "Ajouter comme",
       "noResults": "Aucune correspondance.",
       "searching": "Recherche…",
-      "searchPlaceholder": "Rechercher ou coller un e-mail, un téléphone ou un identifiant…",
+      "searchPlaceholder": "Rechercher ou coller un e-mail, un numéro de téléphone ou un compte social…",
       "sourceConversations": "Depuis vos conversations",
       "sourceLookup": "Trouvé par recherche",
-      "trigger": "Ajouter un canal"
+      "trigger": "Ajouter un téléphone, un e-mail ou un profil"
     },
     "ariaStartThread": "Rédiger un message {provider}",
-    "ariaUnlink": "Dissocier le canal {provider}",
+    "ariaUnlink": "Dissocier {provider}",
     "compose": {
       "noAccount": "Aucun compte {provider} utilisable n'est connecté. Connectez-en un dans Mon profil."
     },
-    "emptyHint": "Aucun canal pour le moment. Adresses e-mail, numéros de téléphone WhatsApp et comptes sociaux qui associent les messages à cette fiche.",
+    "emptyHint": "Aucune coordonnée pour le moment. Numéros de téléphone, adresses e-mail et profils sociaux qui associent les messages à cette fiche.",
+    "groups": {
+      "email": "E-mail",
+      "phone": "Téléphone",
+      "social": "Réseaux sociaux"
+    },
     "tooltipOpenInbox": "Aller à la boîte de réception",
     "tooltipStartNewThread": "Nouveau message",
-    "tooltipUnlinkChannel": "Dissocier le canal",
+    "tooltipUnlinkChannel": "Dissocier",
     "tooltipUnverified": "Ce profil n'a pas encore été confirmé. Il est vérifié automatiquement lors de l'envoi de votre premier message.",
     "unverified": "Non vérifié"
   },
@@ -2432,6 +2515,22 @@
       "title": "Partagez votre avis"
     },
     "success": "Retour bien reçu. Vous faites officiellement partie de l'équipe."
+  },
+  "FileTypes": {
+    "archive": "Archive compressée",
+    "audio": "Fichier audio",
+    "csv": "Fichier CSV",
+    "document": "Document texte",
+    "html": "Fichier HTML",
+    "image": "Image",
+    "json": "Fichier JSON",
+    "markdown": "Fichier Markdown",
+    "other": "Fichier",
+    "pdf": "Document PDF",
+    "presentation": "Présentation",
+    "spreadsheet": "Feuille de calcul",
+    "text": "Fichier texte brut",
+    "video": "Fichier vidéo"
   },
   "Footer": {
     "about": "À propos",
@@ -2579,11 +2678,6 @@
     "edited": "(modifié)",
     "emailActions": "Actions de l’e-mail",
     "emptyState": "Aucun message pour l'instant. Connectez un canal dans votre profil pour commencer à recevoir des messages.",
-    "fileTypeExcel": "Feuille de calcul Excel",
-    "fileTypeImage": "Fichier image",
-    "fileTypePdf": "Document PDF",
-    "fileTypePowerpoint": "Présentation PowerPoint",
-    "fileTypeWord": "Document Word",
     "folders": {
       "messageLocations": "Dossiers et libellés de cet e-mail",
       "messageOptions": "Options des dossiers : {folders}",
@@ -3132,6 +3226,7 @@
         "creditAdjustmentCreate": "Correction de crédits enregistrée",
         "creditBalanceReset": "Solde de crédits réinitialisé",
         "enterpriseAllowanceUpdate": "Allocation Enterprise mise à jour",
+        "enterpriseFileStorageUpdate": "Stockage de fichiers Enterprise mis à jour",
         "overviewRead": "Vue d’ensemble Hosted-AI consultée",
         "subscriptionSnapshotCorrect": "Abonnement de l’espace de travail corrigé",
         "subscriptionTermsUpdate": "Conditions d'abonnement mises à jour",
@@ -3153,6 +3248,7 @@
     "confirm": {
       "allowance": "Définir l'allocation Enterprise de {name} à {value} crédits par utilisateur ? Cela s'applique à tout l'espace de travail.",
       "changes": "Enregistrer ces modifications pour {name} ? Elles s'appliquent à tout l'espace de travail.",
+      "fileStorage": "Définir le stockage de fichiers Enterprise de {name} à {value} Go par utilisateur ? Cela s'applique à tout l'espace de travail.",
       "plan": "Définir le forfait de {name} sur {value} ? Cela s’applique à tout l’espace de travail.",
       "subscription": "Définir le statut d’abonnement de {name} sur {value} ? Cela s’applique à tout l’espace de travail et ne contacte aucun prestataire de facturation.",
       "tags": "Définir les étiquettes de {name} sur {value} ? Cela s'applique à tout l'espace de travail.",
@@ -3325,6 +3421,11 @@
     },
     "emptyBody": "Ajustez la recherche ou les filtres pour élargir la liste.",
     "emptyTitle": "Aucun espace ne correspond à ces filtres",
+    "fileStorage": {
+      "description": "Le stockage que chaque utilisateur actif ajoute au stockage de fichiers partagé de l’espace. Sans valeur, chaque utilisateur ajoute 50 Go.",
+      "label": "Stockage de fichiers par utilisateur (Go)",
+      "title": "Stockage de fichiers Enterprise"
+    },
     "modal": {
       "subscription": "Abonnement",
       "workspaceId": "ID de l'espace de travail"
@@ -3373,6 +3474,54 @@
     "withdrawConfirmTitle": "Retirer votre demande pour rejoindre {name} ?",
     "withdrawShort": "Retirer"
   },
+  "Planner": {
+    "addSource": "Ajouter une source de dates",
+    "calendarSync": "Exporter et s’abonner",
+    "connectCalendar": "Connecter un calendrier",
+    "copyLink": "Copier le lien",
+    "createSubscription": "Créer l’URL d’abonnement",
+    "download": "Télécharger .ics",
+    "endDate": "Date de fin",
+    "entryCount": "{count, plural, one {# entrée} other {# entrées}}",
+    "event": "Événement",
+    "filterCount": "{count, plural, one {# filtre} other {# filtres}}",
+    "filters": "Filtres",
+    "includePersonal": "Inclure les événements connectés sélectionnés (peut créer des doublons).",
+    "list": "Liste",
+    "modes": {
+      "quarter": "Trimestre",
+      "timeline": "Chronologie"
+    },
+    "next": "Période suivante",
+    "noEndDate": "Date unique",
+    "noSources": "Choisissez des dates dans vos listes pour créer votre calendrier.",
+    "openList": "Ouvrir dans la liste",
+    "openProvider": "Ouvrir le calendrier connecté",
+    "personalCalendars": "Mes calendriers connectés",
+    "previous": "Période précédente",
+    "privateUrl": "URL privée d’abonnement",
+    "privateUrlDescription": "Toute personne disposant du lien peut lire ces événements tant que vous y avez accès. Copiez-le maintenant ; il n’est affiché qu’une fois. Révoquez-le pour arrêter les actualisations.",
+    "quarterLabel": "{number}e trimestre · {year}",
+    "readOnlyEvent": "Cet événement provient d’un calendrier connecté. Modifiez-le dans son calendrier d’origine.",
+    "removeSource": "Retirer la source",
+    "revokeSubscription": "Révoquer l’abonnement",
+    "snapshot": "Télécharger un instantané",
+    "snapshotDescription": "Téléchargez la période affichée et les sources actives. Le fichier ne se met pas à jour automatiquement.",
+    "sourceActions": "Actions pour {source}",
+    "sourceColor": "Couleur de la source",
+    "sources": "Sources de dates",
+    "sourceSettings": "Configurer la source",
+    "sourceUnavailable": "Une source est indisponible. Vérifiez ses champs, filtres et autorisations.",
+    "startDate": "Début ou période",
+    "subscription": "S’abonner aux mises à jour",
+    "subscriptionCreated": "Créé le {date}",
+    "subscriptionDescription": "Créez une URL privée pour les sources et filtres actifs. Elle couvre les 30 derniers jours et les 335 prochains. Votre application choisit la fréquence d’actualisation. Les modifications ultérieures nécessitent une nouvelle URL.",
+    "syncDescription": "Utilisez ce calendrier dans Apple Calendrier, Outlook, Google Agenda ou une autre application. Les mises à jour vont de Customermates vers l’application ; modifiez les fiches dans Customermates.",
+    "timeZone": "Fuseau horaire",
+    "title": "Calendrier",
+    "truncated": "Certains événements dépassent la limite. Réduisez la période ou filtrez une source. Les exports exigent des résultats complets.",
+    "unavailableSource": "Source indisponible"
+  },
   "ProfileSections": {
     "apiKeysDescription": "Clés API de longue durée pour un accès programmatique."
   },
@@ -3388,6 +3537,57 @@
     "scopeHelp": "Sans sélection, toutes les activités accessibles sont affichées. Les types et enregistrements sélectionnés sont réunis ; tous les filtres supplémentaires doivent correspondre.",
     "types": "Types d’enregistrements"
   },
+  "RecordCalendarWidgets": {
+    "amountColumn": "Colonne de montant",
+    "countPerDay": "Enregistrements par jour",
+    "dayLabel": "{date} : {count, plural, =0 {aucun enregistrement} one {# enregistrement} other {# enregistrements}}",
+    "dayLabelWithSum": "{date} : {count, plural, one {# enregistrement} other {# enregistrements}}, {sum}",
+    "days": "Jours à venir",
+    "itemLabel": "{name}, {date}",
+    "layout": "Disposition",
+    "layouts": {
+      "month": "Vue du mois",
+      "upcoming": "À venir"
+    },
+    "monthFailed": "Ce mois n’a pas pu être chargé.",
+    "moreOverdue": "{count, plural, one {# autre enregistrement en retard} other {# autres enregistrements en retard}}",
+    "nextDays": "{count, plural, one {Aujourd’hui} other {# prochains jours}}",
+    "nextMonth": "Afficher le mois suivant",
+    "noDateField": "{list} n’a pas encore de champ de type Date ou Date et heure. Ajoutez-en un dans Configurer ou choisissez une autre liste.",
+    "noUpcoming": "{count, plural, one {Aucun enregistrement aujourd’hui.} other {Aucun enregistrement dans les # prochains jours.}}",
+    "overdue": "En retard",
+    "overdueBy": "{count, plural, one {En retard de # jour} other {En retard de # jours}}",
+    "previousMonth": "Afficher le mois précédent",
+    "scale": "Moins <swatches></swatches> plus",
+    "scaleSum": "Moins <swatches></swatches> plus",
+    "showOverdue": "Afficher les enregistrements en retard",
+    "showOverdueHelp": "Les enregistrements datés d’avant aujourd’hui apparaissent en premier. Excluez les enregistrements terminés, par exemple par un statut terminé, pour ne compter que ceux encore ouverts.",
+    "sumOf": "Somme de {field}",
+    "truncated": "Affichage des {count} premiers enregistrements. Affinez les filtres pour tous les voir.",
+    "unavailable": "Ce calendrier est indisponible. Vérifiez sa configuration ou vos accès."
+  },
+  "RecordMapWidgets": {
+    "addressField": "Champ d’adresse",
+    "attribution": "Données cartographiques : Natural Earth",
+    "cluster": "{count, plural, one {# enregistrement, zoomer} other {# enregistrements, zoomer}}",
+    "colorBy": "Colorer par",
+    "colorSummary": "coloré par {field}",
+    "detailField": "Champ de détail",
+    "failed": "La carte n’a pas pu être chargée.",
+    "label": "Carte de {name}",
+    "loading": "Chargement de la carte…",
+    "mixed": "Mixte",
+    "noAddressField": "{list} n’a pas encore de champ de type Adresse. Ajoutez-en un dans Configurer ou choisissez une autre liste.",
+    "noPoints": "Aucun enregistrement localisé pour le moment.",
+    "openRecord": "Ouvrir l’enregistrement",
+    "point": "{name}, {address}",
+    "postcodePrecision": "Placé au centre de son code postal",
+    "sizeBy": "Taille selon",
+    "sizeSummary": "taille selon {field}",
+    "truncated": "{count, plural, other {Affichage des # premiers enregistrements localisés.}}",
+    "unavailable": "Cette carte est indisponible. Vérifiez sa configuration ou vos accès.",
+    "withoutLocation": "{count, plural, one {# enregistrement sans localisation} other {# enregistrements sans localisation}}"
+  },
   "RecordModel": {
     "access": "Accès",
     "accessDescription": "Seuls les administrateurs ont accès à cette liste, sauf si vous sélectionnez un accès prédéfini approuvé.",
@@ -3398,7 +3598,7 @@
     "addInput": "Ajouter une entrée",
     "addMenu": {
       "calculation": "Champ calculé",
-      "channels": "Canaux",
+      "channels": "Coordonnées",
       "field": "Champ",
       "list": "Liste",
       "relationship": "Relation",
@@ -3408,6 +3608,63 @@
     "addPathStep": "Ajouter une étape de relation",
     "addProperty": "Ajouter une propriété",
     "addRelationship": "Ajouter une relation",
+    "addressCheck": {
+      "action": "Vérifier l’adresse",
+      "checking": "Vérification de l’adresse",
+      "keep": "Garder telle quelle",
+      "suggestion": "Adresse suggérée",
+      "use": "Utiliser l’adresse suggérée"
+    },
+    "addressIssues": {
+      "cityMismatch": "Cette ville ne correspond pas au code postal {postalCode}.",
+      "countryMissing": "Choisissez un pays pour vérifier le code postal et la région.",
+      "countryUnknown": "Choisissez un pays dans la liste.",
+      "partMissing": "{part} manque. Les adresses en {country} en ont besoin.",
+      "postalCodeInvalid": "Ce n’est pas un code postal de {country}. Les codes postaux y ressemblent à {example}.",
+      "postalCodeRegionMismatch": "Le code postal {postalCode} appartient à une autre région.",
+      "regionInvalid": "{region} n’est pas un code de région de {country}.",
+      "regionUnknown": "{region} ne fait pas partie des régions de {country}."
+    },
+    "addressLabels": {
+      "area": "Zone",
+      "county": "Comté",
+      "department": "Département",
+      "district": "District",
+      "doSi": "Province ou ville",
+      "eircode": "Eircode",
+      "emirate": "Émirat",
+      "island": "Île",
+      "oblast": "Oblast",
+      "parish": "Paroisse",
+      "pin": "Code PIN",
+      "postTown": "Ville postale",
+      "prefecture": "Préfecture",
+      "province": "Province",
+      "state": "État ou territoire",
+      "suburb": "Quartier",
+      "zip": "Code ZIP"
+    },
+    "addressParts": {
+      "city": "Ville",
+      "country": "Pays",
+      "line2": "Ligne d’adresse 2",
+      "postalCode": "Code postal",
+      "region": "État ou région",
+      "street": "Rue et numéro"
+    },
+    "addressPlaces": {
+      "attribution": "Codes postaux : GeoNames (CC BY 4.0)",
+      "choose": "Villes avec ce code postal :",
+      "use": "Utiliser {value}"
+    },
+    "addressSearch": {
+      "empty": "Aucune adresse correspondante trouvée.",
+      "hint": "Saisissez au moins {count} caractères pour lancer la recherche.",
+      "placeholder": "Rue et numéro, code postal ou ville",
+      "trigger": "Rechercher une adresse"
+    },
+    "addressUnverified": "Non vérifiée",
+    "addressVerified": "Adresse vérifiée",
     "addValue": "Ajouter {field}",
     "aggregation": "Agrégation",
     "assignedTo": "Attribué à",
@@ -3558,10 +3815,14 @@
       "oneToOne": "Un à un"
     },
     "changeBlocked": "Cette modification ne peut pas encore être appliquée",
-    "channelsHelp": "Adresses e-mail, numéros de téléphone WhatsApp et comptes sociaux qui associent les messages à cette fiche. Les numéros de téléphone ne sont associés que pour les discussions WhatsApp. Un identifiant peut être lié à plusieurs fiches.",
+    "channelsHelp": "Numéros de téléphone, adresses e-mail et profils sociaux qui associent les messages à cette fiche. Un numéro de téléphone associe aussi les discussions WhatsApp du même numéro. Chaque coordonnée peut être liée à plusieurs fiches.",
     "chooseOption": "Choisissez l’une des options du champ.",
     "clickAction": "Au clic",
     "clickActions": {
+      "address": {
+        "copy": "Copier l’adresse",
+        "open": "Ouvrir dans une carte"
+      },
       "channels": {
         "copy": "Copier",
         "open": "Ouvrir l’e-mail, l’appel ou le profil"
@@ -3680,6 +3941,42 @@
     "fieldTabs": {
       "calculation": "Calcul"
     },
+    "fileAddedBy": "Ajouté par {name}",
+    "fileAddRow": "{mode, select, many {Ajoutez des fichiers ou déposez-les ici} other {Ajoutez un fichier ou déposez-le ici}}",
+    "fileCancelUpload": "Annuler le téléversement de {name}",
+    "fileDimensions": "{width} × {height}",
+    "fileDocumentPreviewUnavailable": "Aperçu indisponible",
+    "fileDownload": "Télécharger le fichier",
+    "fileDownloadNamed": "Télécharger {name}",
+    "fileDropOverlay": "Déposez pour ajouter à {field}",
+    "fileLimit": "Ce champ contient au maximum {count, plural, one {# fichier} other {# fichiers}}.",
+    "fileNameLabel": "Nom du fichier",
+    "fileNext": "Fichier suivant",
+    "fileOpen": "Ouvrir {name} ({size})",
+    "filePages": "{count, plural, one {# page} other {# pages}}",
+    "filePosition": "{position} sur {count}",
+    "filePositionIn": "{position} sur {count} dans {group}",
+    "filePreview": "Aperçu de {name}",
+    "filePreviewDocumentContent": "Contenu du document. La mise en page et la mise en forme peuvent différer de l’original.",
+    "filePreviewLoading": "Chargement de l’aperçu du fichier",
+    "filePreviewReason": {
+      "empty": "Aucun contenu lisible trouvé. Téléchargez le fichier original pour le consulter.",
+      "tooLarge": "Ce fichier est trop volumineux pour l’aperçu. Téléchargez-le pour voir son contenu.",
+      "unreadable": "Impossible d’afficher un aperçu de ce fichier. Téléchargez-le pour l’ouvrir dans son application d’origine.",
+      "unsupported": "Téléchargez ce fichier pour l’ouvrir dans une application compatible."
+    },
+    "filePreviewRow": "Ligne",
+    "filePreviewSheets": "Feuilles de calcul",
+    "filePreviewTruncated": "Seule une partie de ce fichier est affichée. Téléchargez-le pour voir le fichier complet.",
+    "filePreviewUnavailable": "L’aperçu PDF n’est pas disponible dans ce navigateur",
+    "filePreviewUnavailableDescription": "Téléchargez le fichier pour l’ouvrir dans votre application PDF.",
+    "filePrevious": "Fichier précédent",
+    "fileRemove": "Retirer {name}",
+    "fileRename": "Renommer {name}",
+    "fileRenameFailed": "Le fichier n’a pas pu être renommé.",
+    "fileUnavailable": "Fichier indisponible",
+    "fileUploadFailed": "Le téléversement a échoué. Réessayez.",
+    "fileUploading": "Téléversement… {progress, number, percent}",
     "general": "Général",
     "graph": {
       "accountEdge": "Synchronise les conversations dans {list}",
@@ -3812,7 +4109,7 @@
       "wrench": "Maintenance"
     },
     "iconSearch": "Rechercher des icônes",
-    "identityChannels": "Canaux",
+    "identityChannels": "Coordonnées",
     "invalidConfiguration": "Cette modification doit être vérifiée avant son application.",
     "lineFields": {
       "amount": "Montant",
@@ -3923,7 +4220,7 @@
       "cardinality": "Nombre d’enregistrements liés",
       "labelRequired": "Saisissez un libellé.",
       "listRequired": "Choisissez une liste à lier.",
-      "messagesHelp": "Les messages proviennent d’éléments liés avec des canaux ou de conversations liées. Les droits sur les éléments et les messages s’appliquent toujours.",
+      "messagesHelp": "Les messages proviennent d’éléments liés avec des coordonnées ou de conversations liées. Les droits sur les éléments et les messages s’appliquent toujours.",
       "onDelete": "À la suppression",
       "otherList": "la liste liée",
       "pathRequired": "Ajoutez au moins une étape de relation.",
@@ -3998,21 +4295,24 @@
     "triggerField": "Quand ce champ change",
     "triggerValue": "À cette valeur",
     "typeHints": {
+      "address": "Adresses postales avec pays",
+      "channels": "Numéros de téléphone, adresses e-mail et profils sociaux",
+      "file": "Documents, images, contrats",
       "richText": "Notes, descriptions, résumés"
     },
     "types": {
+      "address": "Adresse",
       "boolean": "Oui ou non",
-      "channels": "Canaux",
+      "channels": "Téléphone, e-mail et réseaux sociaux",
       "currency": "Montant",
       "date": "Date",
       "dateRange": "Période",
       "dateTime": "Date et heure",
       "dateTimeRange": "Période avec heures",
-      "email": "E-mail",
+      "file": "Fichier",
       "member": "Membre",
       "multiSelect": "Choix multiple",
       "number": "Nombre",
-      "phone": "Téléphone",
       "richText": "Texte enrichi",
       "select": "Choix unique",
       "text": "Texte",
@@ -4023,7 +4323,7 @@
     "unlinkRecord": "Dissocier {name}",
     "untitledRecord": "{singular} sans nom",
     "updatedAt": "Mis à jour le",
-    "useChannelAvatar": "Utiliser la photo de profil du canal",
+    "useChannelAvatar": "Utiliser la photo d’un profil social",
     "usedBy": {
       "blocking": "Bloquerait la suppression",
       "blockingCount": "{count, plural, one {# bloquerait la suppression} other {# bloqueraient la suppression}}",
@@ -4048,6 +4348,9 @@
   },
   "RecordWidgets": {
     "attribution": "Un enregistrement peut apparaître dans plusieurs groupes. Leur somme peut dépasser le total.",
+    "contributingCount": "{count, plural, one {# fiche sous-jacente} other {# fiches sous-jacentes}}",
+    "contributingRecords": "Sélection du graphique",
+    "dataTitle": "Données de {name}",
     "funnelClosedStage": "{label} : {value}, une étape perdue affichée hors de l’entonnoir.",
     "funnelTooltip": "{value} ({conversion} de l’étape précédente)",
     "group": "Grouper par",
@@ -4090,6 +4393,7 @@
     "unavailableMember": "Utilisateur indisponible",
     "unplacedGroups": "Certains enregistrements sont restreints ou n’ont pas pu être calculés et ne sont pas affichés.",
     "value": "Champ de valeur",
+    "viewData": "Voir les données",
     "weekOf": "Semaine du {date}",
     "weekShort": "S{week} {year}",
     "withoutDate": "{count, plural, one {# enregistrement n’a pas de date et n’est pas affiché.} other {# enregistrements n’ont pas de date et ne sont pas affichés.}}",
@@ -4395,6 +4699,7 @@
       "currentPeriodEndManage": "Définie par le cycle de facturation actuel. Utilisez « {billing} » pour modifier l’abonnement.",
       "currentPeriodEndReadOnly": "Définie par le cycle de facturation actuel. Demandez les modifications à un administrateur de l’espace de travail.",
       "currentPeriodEndUnavailable": "Définie par le cycle de facturation actuel. Contactez l’assistance pour la modifier.",
+      "fileStorage": "Tous les fichiers des champs de fichiers comptent ici, les fichiers retirés encore 30 jours. Chaque utilisateur actif ajoute du stockage à l’espace ; à la limite, les nouveaux téléversements sont refusés et rien n’est supprimé.",
       "planManage": "Synchronisé avec la facturation. Utilisez « {billing} » pour le modifier.",
       "planPicker": "Choisissez une offre ci-dessous pour démarrer ou modifier l’abonnement.",
       "planReadOnly": "Synchronisé avec la facturation. Demandez les modifications à un administrateur de l’espace de travail.",
@@ -4403,6 +4708,8 @@
       "trialEndsPicker": "Définie par la période d’essai. Choisissez une offre avant cette date pour continuer sans interruption.",
       "trialEndsReadOnly": "Définie par la période d’essai. Demandez à un administrateur de l’espace de travail de gérer l’abonnement."
     },
+    "fileStorage": "Stockage de fichiers",
+    "fileStorageUsage": "{used} sur {limit}",
     "managedExternallyNote": "Cet espace de travail utilise une formule Enterprise réglée sur facture. Contactez votre gestionnaire de compte pour toute modification.",
     "manageWithLemonSqueezy": "Gérer avec Lemon Squeezy",
     "picker": {

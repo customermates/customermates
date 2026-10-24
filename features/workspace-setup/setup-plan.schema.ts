@@ -42,8 +42,6 @@ export const SETUP_FIELD_VALUE_TYPES = [
   "date",
   "dateTime",
   "select",
-  "email",
-  "phone",
   "url",
   "member",
 ] as const;
@@ -230,7 +228,7 @@ export const SetupNewFieldSchema = z
   .superRefine((field, context) => {
     if ((field.valueType === "select") !== field.options.length > 0)
       context.addIssue({ code: "custom", path: ["options"], message: "Only choice fields have options." });
-    if (field.multiple && !["select", "text", "email", "phone", "url"].includes(field.valueType))
+    if (field.multiple && !["select", "text", "url"].includes(field.valueType))
       context.addIssue({ code: "custom", path: ["multiple"], message: "This kind of field holds one value." });
   });
 export type SetupNewField = z.infer<typeof SetupNewFieldSchema>;

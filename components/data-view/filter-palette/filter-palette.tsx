@@ -9,10 +9,11 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef } from "react";
 
-import { AppForm } from "@/components/forms/form-context";
+import { AppForm, AppFormProvider } from "@/components/forms/form-context";
 import { Button } from "@/components/ui/button";
 import { Command, CommandInput } from "@/components/ui/command";
 import { FilterOperatorKey as OperatorKey, isStandaloneOperator } from "@/core/base/base-query-builder";
+import { cn } from "@/core/utils/cn";
 import { PaletteOperatorMenu } from "@/components/data-view/filter-palette/palette-operator-menu";
 import { hasValidFilterConfiguration } from "@/components/data-view/table-view.utils";
 import { resolveFilterValueClass } from "@/components/data-view/filter-modal/filter-value-class";
@@ -34,9 +35,10 @@ type Props = {
   store: FilterTarget;
   palette: FilterPaletteStore;
   search?: FilterPaletteSearch;
+  inline?: boolean;
 };
 
-export const FilterPalette = observer(function FilterPalette({ store: host, palette, search }: Props) {
+export const FilterPalette = observer(function FilterPalette({ store: host, palette, search, inline = false }: Props) {
   const t = useTranslations();
   const store = palette.activeTarget ?? host;
   const paletteRef = useRef<HTMLDivElement>(null);
@@ -173,10 +175,18 @@ export const FilterPalette = observer(function FilterPalette({ store: host, pale
     );
   }
 
+  const Form = inline ? AppFormProvider : AppForm;
   return (
     <FilterOptionsProvider fields={store.filterableFields}>
-      <AppForm store={palette}>
-        <div ref={paletteRef} className="flex min-h-0 flex-col" onKeyDownCapture={handleKeyDownCapture}>
+      <Form store={palette}>
+        <div
+          ref={paletteRef}
+          className={cn(
+            "flex min-h-0 flex-col",
+            !inline && "**:data-[slot=command-list]:max-h-none! **:data-[slot=command-list]:overflow-visible!",
+          )}
+          onKeyDownCapture={handleKeyDownCapture}
+        >
           {(!isRoot || palette.pages.length > 1) && (
             <div className="flex shrink-0 items-center gap-1.5 px-2 pt-2 pb-1">
               <Button
@@ -226,7 +236,7 @@ export const FilterPalette = observer(function FilterPalette({ store: host, pale
             renderPage()
           )}
         </div>
-      </AppForm>
+      </Form>
     </FilterOptionsProvider>
   );
 });

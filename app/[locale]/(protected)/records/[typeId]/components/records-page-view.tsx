@@ -44,6 +44,8 @@ import { useRecordRouteReady } from "@/components/records/use-record-route-ready
 import { RecordOperationProgress } from "@/components/records/record-operation-progress";
 import { useRecordExport } from "@/features/data-transfer/export/use-record-export";
 import { RecordImportDialog } from "./record-import-dialog";
+import { RecordCalendarView } from "./record-calendar-view";
+import { useClientReady } from "@/hooks/use-client-ready";
 import { RecordMassActions } from "./record-mass-actions";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
@@ -62,6 +64,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
   const t = useTranslations();
   const [store] = useState(() => new RecordsStore(root, presentation));
   const [importOpen, setImportOpen] = useState(false);
+  const clientReady = useClientReady();
   useApplyOnChange(presentation, store.setPresentation);
   useDataViewSync(store, presentation.result);
   useEffect(
@@ -95,7 +98,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
     [openEditor],
   );
   const recordHref = useCallback((record: RecordRow) => `/records/${record.ref.typeId}/${record.ref.recordId}`, []);
-  const view = resolveDataViewView(store.viewMode, store.canBoard);
+  const view = resolveDataViewView(store.viewMode, store.canBoard, Boolean(store.calendarFields));
   const columns = useRecordTableColumns(store, openRelated, { openRecord });
   const { recordColumns, firstNumberColumnId } = store;
   const primaryColumnId = store.type?.primaryFieldId ?? store.primaryColumnId;
@@ -191,6 +194,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
     request: store.dataRequest,
     total: store.pagination?.total,
   });
+  const recordName = useCallback((record: RecordRow) => recordRowName(store, record, t), [store, t]);
   let body: ReactNode;
   switch (pageState) {
     case "loading":
@@ -239,7 +243,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
           renderCard={renderCard}
           rowActions={rowActions}
           rowHref={recordHref}
-          rowLabel={(record) => recordRowName(store, record, t)}
+          rowLabel={recordName}
           store={store}
           view={view}
           onRowClick={openRecord}
@@ -251,9 +255,17 @@ const RecordsPageViewContent = observer(function RecordsPageView({
       body = exhaustive;
     }
   }
+  if (view === "calendar" && pageState !== "error") {
+    const calendarReady = clientReady && store.isReady && (pageState !== "loading" || store.calendarRange !== null);
+    body = calendarReady ? (
+      <RecordCalendarView recordName={recordName} store={store} onOpenRecord={openRecord} />
+    ) : (
+      <PageState background={<RecordsPageSkeleton view={view} />} label={t("PageState.loading")} state="loading" />
+    );
+  }
   return (
     <>
-      <DataViewLayout showPagination={pageState === "content" && view !== "board" && !store.isGrouped} store={store}>
+      <DataViewLayout showPagination={pageState === "content" && view === "table" && !store.isGrouped} store={store}>
         <RecordMassActions store={store} />
 
         {store.pendingBulkOperation && (

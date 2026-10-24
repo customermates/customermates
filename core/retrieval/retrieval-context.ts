@@ -3,6 +3,8 @@ import type { LocaleCode } from "@/i18n/locale-registry";
 
 export type RetrievalCorpus = "docs" | "wiki";
 
+export type RetrievalTimingCorpus = RetrievalCorpus | "files";
+
 export type RankableSection = {
   id: number;
   locale?: LocaleCode;
@@ -19,7 +21,7 @@ export type RetrievalEmbeddingOutcome = "used" | "unavailable" | "timeout" | "no
 export type RetrievalRerankOutcome = "used" | "unavailable" | "failed" | "none";
 
 export type RetrievalTiming = {
-  corpus: RetrievalCorpus;
+  corpus: RetrievalTimingCorpus;
   totalMs: number;
   fullTextMs: number | null;
   embedding: RetrievalEmbeddingOutcome;

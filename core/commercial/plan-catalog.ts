@@ -20,8 +20,10 @@ export type PlanEntitlements = {
   sharedAccounts: boolean;
   hostedAiUsageMultiplier: number | "contract" | null;
   hostedAiCreditsPerActiveUser: number | "contract" | null;
+  fileStorageBytesPerActiveUser: number | "contract" | null;
 };
 
+export const GIB = 1024 ** 3;
 export const HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER = 100;
 
 function hostedAiUsage<const Multiplier extends number>(multiplier: Multiplier) {
@@ -83,6 +85,7 @@ export const PLAN_CATALOG = {
       includedRoutinesPerUser: 1,
       sharedAccounts: false,
       ...hostedAiUsage(1),
+      fileStorageBytesPerActiveUser: Number(GIB),
     },
     offers: {
       monthly: {
@@ -107,6 +110,7 @@ export const PLAN_CATALOG = {
       includedRoutinesPerUser: 5,
       sharedAccounts: false,
       ...hostedAiUsage(3),
+      fileStorageBytesPerActiveUser: 5 * GIB,
     },
     offers: {
       monthly: {
@@ -131,6 +135,7 @@ export const PLAN_CATALOG = {
       includedRoutinesPerUser: "unlimited",
       sharedAccounts: true,
       ...hostedAiUsage(10),
+      fileStorageBytesPerActiveUser: 20 * GIB,
     },
     offers: {
       monthly: {
@@ -155,6 +160,7 @@ export const PLAN_CATALOG = {
       includedRoutinesPerUser: "unlimited",
       sharedAccounts: true,
       ...hostedAiUsage(20),
+      fileStorageBytesPerActiveUser: 50 * GIB,
     },
     offers: {
       monthly: {
@@ -180,6 +186,7 @@ export const PLAN_CATALOG = {
       sharedAccounts: true,
       hostedAiUsageMultiplier: "contract",
       hostedAiCreditsPerActiveUser: "contract",
+      fileStorageBytesPerActiveUser: "contract",
     },
     offers: {},
   },

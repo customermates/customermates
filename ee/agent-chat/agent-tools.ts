@@ -49,6 +49,7 @@ import { AGENT_UI_TOOL_NAMES, toAgentUiCommandInput } from "./agent-ui-command";
 import { isReadOnlyTool, requiresApprovalOnSurface } from "./gated-tools";
 import { importWebsiteTool } from "@/ee/wiki-crawl/wiki-import-tool";
 import { recordToolRisk } from "./record-tool-risk";
+import { shareRepeatedSubschemas } from "./shared-subschemas";
 import { internalToolIdentity, WIKI_WEBSITE_IMPORT_TOOL_NAME } from "./tool-identity";
 import { NavigateInputSchema } from "./ui-operations";
 import {
@@ -374,30 +375,32 @@ const CANONICAL_UUID_PATTERN_MARK = "[0-9a-fA-F]{8}-";
 
 function providerSafeSchema<TSchema extends z.ZodType>(inputSchema: TSchema) {
   return jsonSchema<z.infer<TSchema>>(
-    z.toJSONSchema(inputSchema as never, {
-      io: "input",
-      target: "draft-07",
-      override: (ctx) => {
-        const schema = ctx.jsonSchema as {
-          pattern?: string;
-          format?: string;
-          const?: unknown;
-          title?: unknown;
-        };
-        if (schema.const !== undefined && schema.title === String(schema.const)) delete schema.title;
-        if (typeof schema.pattern === "string" && UNSUPPORTED_PATTERN.test(schema.pattern)) delete schema.pattern;
-        if (typeof schema.pattern === "string" && schema.pattern.includes(CANONICAL_UUID_PATTERN_MARK))
-          schema.pattern = AGENT_WIRE_UUID_PATTERN;
+    shareRepeatedSubschemas(
+      z.toJSONSchema(inputSchema as never, {
+        io: "input",
+        target: "draft-07",
+        override: (ctx) => {
+          const schema = ctx.jsonSchema as {
+            pattern?: string;
+            format?: string;
+            const?: unknown;
+            title?: unknown;
+          };
+          if (schema.const !== undefined && schema.title === String(schema.const)) delete schema.title;
+          if (typeof schema.pattern === "string" && UNSUPPORTED_PATTERN.test(schema.pattern)) delete schema.pattern;
+          if (typeof schema.pattern === "string" && schema.pattern.includes(CANONICAL_UUID_PATTERN_MARK))
+            schema.pattern = AGENT_WIRE_UUID_PATTERN;
 
-        const format = schema.format;
-        delete schema.format;
-        if (format === "date" || format === "date-time") schema.pattern = PROVIDER_SAFE_FORMAT_PATTERNS[format];
-        if (schema.pattern === undefined && format !== undefined) {
-          const fallback = PROVIDER_SAFE_FORMAT_PATTERNS[format];
-          if (fallback) schema.pattern = fallback;
-        }
-      },
-    }) as never,
+          const format = schema.format;
+          delete schema.format;
+          if (format === "date" || format === "date-time") schema.pattern = PROVIDER_SAFE_FORMAT_PATTERNS[format];
+          if (schema.pattern === undefined && format !== undefined) {
+            const fallback = PROVIDER_SAFE_FORMAT_PATTERNS[format];
+            if (fallback) schema.pattern = fallback;
+          }
+        },
+      }),
+    ) as never,
     {
       validate: async (value) => {
         const result = await inputSchema.safeParseAsync(value);
@@ -773,9 +776,9 @@ function loadToolsetTool() {
 }
 
 function hostedMcpTools() {
-  return ALL_MCP_TOOLS.filter((mcp) => mcp.name !== "request_support" && !isDeepResearchTool(mcp.name)).map((mcp) =>
-    mcp.name === "get_workspace_context" ? hostedWorkspaceContextTool() : mcp,
-  );
+  return ALL_MCP_TOOLS.filter(
+    (mcp) => mcp.name !== "request_support" && mcp.name !== "lookup_address" && !isDeepResearchTool(mcp.name),
+  ).map((mcp) => (mcp.name === "get_workspace_context" ? hostedWorkspaceContextTool() : mcp));
 }
 
 function isWikiWebsiteSetupTurn(options: Pick<AgentToolOptions, "wikiWebsiteSetup" | "surface">) {

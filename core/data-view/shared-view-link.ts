@@ -30,6 +30,7 @@ export type SharedViewScope = {
   groupings: readonly Grouping[];
   sortableColumnIds: ReadonlySet<string>;
   supportsBoard: boolean;
+  calendarFieldIds?: ReadonlySet<string>;
 };
 
 export function encodeSharedView(view: SharedView): string {
@@ -59,13 +60,25 @@ export function scopeSharedViewState(state: DataViewState, scope: SharedViewScop
       ? state.grouping
       : null;
   const sort = state.sortDescriptor;
+  const calendarFields = scope.calendarFieldIds;
+  const calendar =
+    state.calendar &&
+    calendarFields?.has(state.calendar.dateFieldId) &&
+    [state.calendar.endDateFieldId, state.calendar.colorFieldId].every((id) => !id || calendarFields.has(id))
+      ? state.calendar
+      : null;
 
   return {
     filters: (state.filters ?? []).filter((filter) => !scope.filterFields || scope.filterFields.has(filter.field)),
     searchTerm: state.searchTerm ?? "",
     sortDescriptor: sort && scope.sortableColumnIds.has(sort.field) ? sort : null,
     ...(state.pageSize ? { pageSize: state.pageSize } : {}),
-    viewMode: state.viewMode === ViewMode.card && scope.supportsBoard ? ViewMode.card : ViewMode.table,
+    viewMode:
+      (state.viewMode === ViewMode.card && scope.supportsBoard) ||
+      (state.viewMode === ViewMode.calendar && calendar !== null)
+        ? state.viewMode
+        : ViewMode.table,
+    calendar,
     grouping,
     columnOrder: columns(state.columnOrder),
     columnWidths: Object.fromEntries(

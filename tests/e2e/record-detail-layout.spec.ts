@@ -518,7 +518,7 @@ test("edits header links with the card picker, keeps contact values outside edit
   await expect(drawer).not.toBeVisible();
   await openRecordDetails(page, firstName);
 
-  for (const field of ["Organizations", "Avatar", "Channels"]) {
+  for (const field of ["Organizations", "Avatar", "Contact details"]) {
     await drawer.getByRole("button", { name: "Pin or unpin fields", exact: true }).click();
     await page.getByRole("menuitemcheckbox", { name: field, exact: true }).click();
     await page.keyboard.press("Escape");
@@ -560,12 +560,12 @@ test("edits header links with the card picker, keeps contact values outside edit
   ).toHaveCount(0);
   await page.keyboard.press("Escape");
 
-  const channels = chips.getByRole("group", { name: "Channels", exact: true });
+  const channels = chips.getByRole("group", { name: "Contact details", exact: true });
   await expect(channels.locator("[data-placeholder-chip]")).toBeVisible();
-  await channels.getByRole("button", { name: "Edit Channels", exact: true }).click();
+  await channels.getByRole("button", { name: "Edit Contact details", exact: true }).click();
   await expect(
     picker.getByRole("button", {
-      name: "Unpin Channels from the overview",
+      name: "Unpin Contact details from the overview",
       exact: true,
     }),
   ).toHaveCount(0);

@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { PaginationRequestSchema } from "@/core/base/base-get.schema";
+import { CalendarViewConfigSchema } from "@/core/data-view/calendar-view-config.schema";
 
 import { P13nSettingsSchema } from "./p13n-settings.schema";
 
@@ -25,6 +26,7 @@ export const P13nEntrySchema = z.object({
   hiddenColumns: z.array(z.string()).optional(),
   viewMode: z.string().optional(),
   grouping: z.any().optional(),
+  calendar: CalendarViewConfigSchema.nullable().optional(),
   detailOptions: EntityDetailOptionsSchema.optional(),
   settings: P13nSettingsSchema.optional(),
 });

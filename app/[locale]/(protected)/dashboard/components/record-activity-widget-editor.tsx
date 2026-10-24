@@ -203,7 +203,7 @@ export const RecordActivityWidgetEditor = observer(
         ))}
       </div>
     );
-    const filtersContent = <RecordActivityFilters store={store} types={typeNames} />;
+    const filtersContent = <RecordActivityFilters inline store={store} types={typeNames} />;
     if (section === "data") return dataContent;
     if (section === "preview") return previewContent;
     return (

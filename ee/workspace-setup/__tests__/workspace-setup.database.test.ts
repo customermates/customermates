@@ -1581,7 +1581,6 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     const model = await ws.run(() => createTestRecordRepo().getModel());
     const required = (ref: string) => model.fields.find((field) => field.id === reference(ref))?.required;
     expect(required("$field.contact.jobTitle")).toBe(false);
-    expect(required("$field.contact.email")).toBe(false);
     expect(required("$list.contact.name")).toBe(true);
     expect(required("$field.project.budget")).toBe(true);
   });

@@ -241,6 +241,7 @@ export async function seedHostedAiOperatorFixtures(context: SeedContext, now = n
   };
   await prisma.subscription.upsert({
     where: { companyId: ids.hostedAiFixtureCompany },
+    select: { id: true },
     update: subscription,
     create: {
       id: ids.hostedAiFixtureSubscription,
@@ -374,6 +375,7 @@ export async function seedHostedAiOperatorUserTableFixtures(
     const { id, ...subscription } = definition.subscription;
     await prisma.subscription.upsert({
       where: { companyId: definition.companyId },
+      select: { id: true },
       update: subscription,
       create: { id, companyId: definition.companyId, ...subscription },
     });

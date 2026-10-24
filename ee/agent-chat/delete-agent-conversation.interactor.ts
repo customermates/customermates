@@ -7,6 +7,7 @@ import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
+import type { AgentChatFileService } from "./agent-chat-files.service";
 import { failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
@@ -23,6 +24,7 @@ export class DeleteAgentConversationInteractor extends AuthenticatedInteractor<
   constructor(
     private repo: PrismaAgentChatRepo,
     private entitlements: EntitlementService,
+    private chatFiles?: Pick<AgentChatFileService, "expireConversation">,
   ) {
     super();
   }
@@ -38,6 +40,7 @@ export class DeleteAgentConversationInteractor extends AuthenticatedInteractor<
 
     const deleted = await this.repo.deleteArchivedConversation(data.conversationId);
     if (!deleted) return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
+    await this.chatFiles?.expireConversation(data.conversationId);
 
     return { ok: true as const, data: { deleted: true as const } };
   }

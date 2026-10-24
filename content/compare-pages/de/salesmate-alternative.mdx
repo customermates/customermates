@@ -48,7 +48,7 @@ comparison:
         source: Kontakte, Organisationen, Deals, Services, Aufgaben, dazu eigene Listen
         competitor: Kontakte, Unternehmen, Deals, Aktivitäten; Produkte ab Pro; eigene Module ab Business
       - name: Eigene Felder
-        source: Fünfzehn Feldtypen und berechnete Felder in jedem Tarif
+        source: Sechzehn Feldtypen und berechnete Felder in jedem Tarif
         competitor: Eigene Felder in Basic; Formelfelder ab Pro; berechnete Felder ab Business
       - name: Sequenzen und Kampagnen
         source: false
@@ -190,7 +190,7 @@ Customermates ist ein in Deutschland entwickeltes Open-Source-KI-CRM für kleine
 
 ## Wann Customermates nicht passt
 
-- **Keine Telefonie und keine SMS.** Es gibt keinen Dialer, keine Gesprächsaufzeichnung und keine Transkription. Telefonnummern stehen in einem Feld vom Typ Telefon.
+- **Keine Telefonie und keine SMS.** Es gibt keinen Dialer, keine Gesprächsaufzeichnung und keine Transkription. Telefonnummern stehen im Feld Kontaktdaten.
 - **Keine Sequenzen und keine Kampagnen.** Jede Nachricht schreiben oder prüfen Sie selbst und verschicken sie einzeln.
 - **Kein Helpdesk.** Es gibt keine Tickets, kein Live-Chat-Widget, keine Chatbots und keine Umfragen.
 - **Keine Webformulare und kein Terminplaner.** Anfragen von Ihrer Website kommen über die REST-API oder eine [selbst betriebene n8n-Instanz](/features/workflow-automation) ins CRM. Pro liest Ihren Kalender, bucht aber keine Termine.
@@ -204,7 +204,7 @@ Nehmen wir eine Agentur für Marke und Web mit fünf Personen. Die beiden Kunden
 
 | In Salesmate | In Customermates |
 |---|---|
-| Kontakte | Kontakte; E-Mail-Adresse, WhatsApp-Nummer und LinkedIn-Profil werden als Kanäle gespeichert, eine Festnetznummer kommt in ein Feld vom Typ Telefon |
+| Kontakte | Kontakte; E-Mail-Adresse, Telefonnummer (Festnetz oder mobil) und LinkedIn-Profil werden im Feld Kontaktdaten gespeichert |
 | Unternehmen | Organisationen, in Konfigurieren in „Unternehmen“ umbenannt |
 | Deals in der Pipeline | Deals mit dem Feld „Phase“ und Gewinnwahrscheinlichkeiten |
 | Produkte | Services, umbenannt in „Produkte“, als Positionen mit Menge im Deal |
@@ -226,7 +226,7 @@ Jede Kundenberaterin richtet außerdem eine Routine für ihre eigenen Deals ein.
   <Step title="Vor der Kündigung aus Salesmate exportieren">In Salesmate wählen Sie die gewünschten Spalten aus, starten den Export und erhalten einen Download-Link, sobald er fertig ist. Laut Sicherheitsseite löscht Salesmate die Daten 30 Tage nach Ende der Testphase oder nach der Kündigung. Exportieren Sie deshalb zuerst.</Step>
   <Step title="Jede Datei als Excel-Arbeitsmappe speichern">Customermates importiert ausschließlich .xlsx-Arbeitsmappen. Öffnen Sie jede exportierte Datei in Excel oder LibreOffice und speichern Sie sie als .xlsx, eine Liste pro Arbeitsmappe.</Step>
   <Step title="Workspace vorbereiten">Benennen Sie Listen in Konfigurieren um, legen Sie eigene Felder für die Salesmate-Felder an, die Sie behalten, etwa eine Lead-Quelle, und richten Sie das Feld „Phase“ mit seinen Wahrscheinlichkeiten ein.</Step>
-  <Step title="Eine Liste nach der anderen importieren">Öffnen Sie in jeder Liste Weitere Aktionen, dann Aus Datei hinzufügen: zuerst Organisationen, dann Kontakte, dann Deals. Verknüpfungsspalten werden über den Namen zugeordnet, sodass die Unternehmensspalte eines Kontakts die zuvor importierte Organisation findet. E-Mail-Adressen und WhatsApp-Nummern ordnen Sie den Kanälen des Kontakts zu. Größenlimits stehen in der [Dokumentation zu Datensätzen](/docs/app-records).</Step>
+  <Step title="Eine Liste nach der anderen importieren">Öffnen Sie in jeder Liste Weitere Aktionen, dann Aus Datei hinzufügen: zuerst Organisationen, dann Kontakte, dann Deals. Verknüpfungsspalten werden über den Namen zugeordnet, sodass die Unternehmensspalte eines Kontakts die zuvor importierte Organisation findet. E-Mail-Adressen und Telefonnummern ordnen Sie dem Feld Kontaktdaten des Kontakts zu. Größenlimits stehen in der [Dokumentation zu Datensätzen](/docs/app-records).</Step>
   <Step title="Kanäle und KI verbinden">Im Pro-Tarif oder während der Testphase verbinden Sie unter Einstellungen › Kanäle ein Postfach, LinkedIn oder WhatsApp. Der Nachrichtenverlauf aus Salesmate wird nicht übernommen; der Posteingang zeigt die Gespräche der Konten, die Sie verbinden. Danach richten Sie Routinen ein oder verbinden Ihren eigenen KI-Client per MCP.</Step>
 </Steps>
 

@@ -36,9 +36,9 @@ export const fields = {
   kickoff: field("Kickoff", "dateTime"),
   period: field("Period", "dateRange"),
   active: field("Active", "boolean"),
-  email: field("Email", "email"),
+  email: field("Email", "text"),
   website: field("Website", "url"),
-  phone: field("Phone", "phone"),
+  channels: field("Contact details", "channels"),
   status: field("Status", "select", {
     options: [
       { id: "open", label: "Open", color: null, attributes: [] },
@@ -116,8 +116,22 @@ export const model: RecordModelView = {
   capabilities: [],
 };
 
-export const labels = { recordId: "Record ID", assignedTo: "Assigned to", rangeStart: "From", rangeEnd: "Until" };
+export const labels = {
+  recordId: "Record ID",
+  assignedTo: "Assigned to",
+  rangeStart: "From",
+  rangeEnd: "Until",
+  addressParts: {
+    street: "Street and number",
+    line2: "Address line 2",
+    postalCode: "Postal code",
+    city: "City",
+    region: "State or region",
+    countryCode: "Country",
+  },
+};
 
+export const addressField = field("Office", "address");
 export const PERSON = "10000000-0000-4000-8000-000000000004";
 
 export const personFields = {
@@ -127,7 +141,7 @@ export const personFields = {
   }),
   first: field("First name", "text", { typeId: PERSON }),
   last: field("Last name", "text", { typeId: PERSON }),
-  email: field("Email", "email", { typeId: PERSON }),
+  email: field("Email", "text", { typeId: PERSON }),
 };
 
 export const personModel: RecordModelView = {

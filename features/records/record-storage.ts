@@ -3,7 +3,7 @@ import { recordInvariant } from "./record-invariant";
 import { Prisma } from "@/generated/prisma";
 
 import type { RecordValue } from "@/generated/prisma";
-import type { CalculatedValue, RecordField, RecordScalar } from "./record-model.schema";
+import type { CalculatedValue, RecordAddress, RecordField, RecordScalar } from "./record-model.schema";
 
 import { CalculatedValueSchema } from "./record-model.schema";
 
@@ -47,7 +47,12 @@ export function encodeRecordValue(result: CalculatedValue) {
   switch (scalar.kind) {
     case "textList":
     case "selectList":
+    case "file":
       row.textListValue = scalar.value;
+      break;
+    case "address":
+      row.jsonValue = recordJson(scalar.value);
+      row.textValue = scalar.value.formatted;
       break;
     case "decimal":
       row.decimalValue = new Prisma.Decimal(scalar.value);
@@ -78,6 +83,8 @@ export function encodeRecordValue(result: CalculatedValue) {
 export function decodeRecordValue(row: RecordValue | undefined, field: RecordField): CalculatedValue {
   if (!row || row.state === "missing") return { state: "missing" };
   if (row.state === "error") return CalculatedValueSchema.parse({ state: "error", code: row.errorCode });
+  if (field.valueType === "file")
+    return CalculatedValueSchema.parse({ state: "value", value: { kind: "file", value: row.textListValue } });
   if (field.multiple) {
     return CalculatedValueSchema.parse({
       state: "value",
@@ -124,6 +131,9 @@ export function decodeRecordValue(row: RecordValue | undefined, field: RecordFie
       break;
     case "member":
       value = { kind: "member", value: recordInvariant(row.textValue) };
+      break;
+    case "address":
+      value = { kind: "address", value: recordInvariant(row.jsonValue) as RecordAddress };
       break;
     default:
       value = { kind: "text", value: recordInvariant(row.textValue) };
