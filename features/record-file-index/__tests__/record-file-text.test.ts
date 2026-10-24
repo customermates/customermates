@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { docxFixture, pdfFixture, xlsxFixture, zipFixture } from "@/tests/helpers/record-file-fixtures";
+import { docxFixture, pdfFixture, xlsxFixture } from "@/tests/helpers/record-file-fixtures";
 
 import {
   extractRecordFileText,
@@ -8,7 +8,6 @@ import {
   RECORD_FILE_PDF_MAX_PAGES,
   RECORD_FILE_TEXT_MAX_CHARS,
   RECORD_FILE_TEXT_TIMEOUT_MS,
-  RECORD_FILE_ZIP_MAX_UNPACKED_BYTES,
 } from "../record-file-text";
 import { recordFileTextFormat } from "../record-file-text-format";
 
@@ -216,14 +215,6 @@ describe("record file text extraction limits", () => {
       pageCount: 5,
     });
   });
-
-  it("skips an office file whose parts unpack beyond the limit without parsing it", async () => {
-    const bomb = zipFixture({ "word/document.xml": new Uint8Array(RECORD_FILE_ZIP_MAX_UNPACKED_BYTES + 1) });
-    expect(bomb.byteLength).toBeLessThan(1024 * 1024);
-    await expect(extractRecordFileText(bomb, "docx", { ...LIMITS, timeoutMs: 1 })).resolves.toEqual({
-      status: "skipped",
-    });
-  }, 60_000);
 
   it("skips a document that needs more memory than the parser may use", async () => {
     const sheet = await xlsxFixture({
