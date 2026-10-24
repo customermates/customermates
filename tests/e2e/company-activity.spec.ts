@@ -137,7 +137,7 @@ test("shows admin and configuration history on the workspace activity page and f
   }).toPass();
   await expect(page.getByRole("button", { name: /Role Created/ })).toHaveCount(0);
   await expect(configuration).toBeVisible();
-  await expect(page.locator("#global-data-views-menu")).toHaveAttribute("data-view-modified", "");
+  await expect(page.locator("#global-data-views-all")).toHaveAttribute("data-view-modified", "");
   await expect
     .poll(async () => {
       const stored = await database.query(
@@ -150,7 +150,7 @@ test("shows admin and configuration history on the workspace activity page and f
   await page.getByRole("button", { name: "Filters", exact: true }).click();
   await page.getByRole("dialog", { name: "Filters" }).getByRole("button", { name: "Save", exact: true }).click();
   await page.keyboard.press("Escape");
-  await expect(page.locator("#global-data-views-menu[data-view-modified]")).toHaveCount(0);
+  await expect(page.locator("#global-data-views [data-view-modified]")).toHaveCount(0);
 
   await expect
     .poll(async () => {

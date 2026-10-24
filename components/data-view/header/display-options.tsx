@@ -22,6 +22,7 @@ import { useColumnLabel } from "@/components/data-view/use-column-label";
 import { useGroupableFieldLabel } from "@/components/data-view/use-groupable-field-label";
 import { useGroupLabel } from "@/components/data-view/group-label";
 import { useViewAi } from "@/components/data-view/views/use-view-ai";
+import { useViewSaveAction } from "@/components/data-view/views/view-changes-notice";
 import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { AppModalActionRail } from "@/components/modal/app-modal-action";
 import { useAskAiAction } from "@/components/ui/ask-ai-action";
@@ -89,6 +90,10 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
     entry: "appearance",
   });
   const pendingAi = useRef<(() => void) | null>(null);
+  const save = useViewSaveAction(store, () => {
+    pendingAi.current = store.openSaveAsView;
+    setIsOpen(false);
+  });
   const columnLabel = useColumnLabel();
   const groupableLabel = useGroupableFieldLabel();
   const orderedColumns = store.orderedColumns;
@@ -197,8 +202,9 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
             compact
             anchorScope={id ? `${id}-view` : undefined}
             placement="sticky"
+            saveLabel={save.saveLabel}
             onCancel={() => runUserAction(store.resetViewChanges)}
-            onSave={store.saveViewChanges}
+            onSave={save.onSave}
           />
         ) : null
       }

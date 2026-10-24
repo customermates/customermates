@@ -15,7 +15,7 @@ import {
   toolsetsFromActivities,
   toolsetsUsedInMessages,
 } from "../agent-toolset-routing";
-import { coreToolNames, onDemandToolsetOfTool, toolNamesOfToolset } from "../agent-toolsets";
+import { AGENT_TOOLSET_TOOL_NAMES, coreToolNames, onDemandToolsetOfTool, toolNamesOfToolset } from "../agent-toolsets";
 
 const TOOLS = [
   { name: "query_crm_records", toolset: null },
@@ -32,7 +32,9 @@ const TOOLS = [
 
 describe("toolset partition", () => {
   it("covers every registry group exactly once between core and on-demand sets", () => {
-    const partitioned = [...AGENT_CORE_TOOLSETS, ...AGENT_ON_DEMAND_TOOLSETS].toSorted();
+    const partitioned = [...AGENT_CORE_TOOLSETS, ...AGENT_ON_DEMAND_TOOLSETS]
+      .filter((toolset) => !Object.hasOwn(AGENT_TOOLSET_TOOL_NAMES, toolset))
+      .toSorted();
     expect(partitioned).toEqual(Object.keys(MCP_TOOL_GROUPS).toSorted());
     expect(new Set(partitioned).size).toBe(partitioned.length);
   });
@@ -41,11 +43,13 @@ describe("toolset partition", () => {
     for (const toolset of AGENT_ON_DEMAND_TOOLSETS)
       for (const name of toolNamesOfToolset(toolset)) expect(onDemandToolsetOfTool(name)).toBe(toolset);
     for (const name of coreToolNames()) expect(onDemandToolsetOfTool(name)).toBeNull();
-    expect(coreToolNames().size).toBe(23);
+    expect(coreToolNames().size).toBe(21);
     expect(coreToolNames().has("get_activities")).toBe(true);
     expect(coreToolNames().has("manage_wiki_pages")).toBe(true);
     expect(coreToolNames().has("manage_data_views")).toBe(false);
     expect(onDemandToolsetOfTool("manage_data_views")).toBe("views");
+    expect(onDemandToolsetOfTool("import_crm_records")).toBe("data-transfer");
+    expect(onDemandToolsetOfTool("export_crm_records")).toBe("data-transfer");
   });
 });
 
@@ -83,6 +87,17 @@ describe("toolsetsForRequest", () => {
     ])
       expect(toolsetsForRequest({ text, pageRoute: null }).has("views")).toBe(true);
     expect(onDemandToolsetOfTool("manage_record_detail_layout")).toBe("views");
+  });
+  it("loads bulk import and export only when a request asks for them", () => {
+    for (const text of [
+      "Import these 300 contacts",
+      "Exportiere die Firmenliste",
+      "Exporta la lista de contactos",
+      "Importer ce fichier CSV",
+      "Esporta i contatti",
+    ])
+      expect(toolsetsForRequest({ text, pageRoute: null }).has("data-transfer")).toBe(true);
+    expect(toolsetsForRequest({ text: "Find the Cursor provider", pageRoute: null }).has("data-transfer")).toBe(false);
   });
   it("loads record configuration tools for stable contexts regardless of route or label", () => {
     for (const reference of [

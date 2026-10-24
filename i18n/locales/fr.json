@@ -520,7 +520,7 @@
     "runner": {
       "cancelled": "Cette réponse a été arrêtée.",
       "contentFilter": "Le fournisseur d'IA a bloqué une partie de cette réponse. Rien d'autre n'a été modifié. Essayez de reformuler la demande.",
-      "contextLimit": "J'ai dû m'arrêter car cette conversation a dépassé la limite de contexte du modèle. Aucune autre action n'a été effectuée ; vérifiez l'activité ci-dessus avant de réessayer.",
+      "contextLimit": "J'ai dû m'arrêter car cette demande nécessitait plus d'espace de travail que je n'en ai pour une réponse. Aucune autre action n'a été effectuée ; vérifiez l'activité ci-dessus, puis demandez une étape plus petite ou ouvrez une nouvelle conversation.",
       "creditLimit": "J'ai traité une partie de cette demande, puis je me suis arrêté car vos crédits Assistant sont épuisés. Le travail effectué est conservé ; les crédits sont réinitialisés au début de votre prochaine période.",
       "creditLimitNoWrite": "Je me suis arrêté avant toute modification car vos crédits Assistant sont épuisés. Rien n'a été créé, mis à jour ni envoyé. Les crédits sont réinitialisés au début de votre prochaine période.",
       "emptyReply": "Je n'ai pas pu générer de réponse. Veuillez réessayer.",
@@ -2182,6 +2182,19 @@
       "activityCount": "{count, plural, one {# activité} other {# activités}}",
       "aiLabel": "Interroger Mate sur {name}",
       "all": "Toutes",
+      "allTab": {
+        "activity": "Toute l’activité",
+        "auditEntries": "Toutes les entrées",
+        "conversations": "Toutes les discussions",
+        "deliveries": "Toutes les livraisons",
+        "members": "Tous les membres",
+        "records": "Tous : {list}",
+        "roles": "Tous les rôles",
+        "routines": "Toutes les routines",
+        "users": "Tous les utilisateurs",
+        "webhooks": "Tous les webhooks",
+        "workspaces": "Tous les espaces de travail"
+      },
       "applied": "Affichage de {name}",
       "askAi": "Demander à Mate",
       "conversationCount": "{count, plural, one {# discussion} other {# discussions}}",
@@ -2198,6 +2211,7 @@
       "modified": "Modifications non enregistrées",
       "moveLeft": "Déplacer vers la gauche",
       "moveRight": "Déplacer vers la droite",
+      "myFilters": "Mes filtres",
       "name": "Nom",
       "namePlaceholder": "Nom de la vue",
       "nameRequired": "Saisissez un nom pour la vue.",
@@ -2206,7 +2220,8 @@
       "pickerTitle": "Changer de vue",
       "railLabel": "Vues enregistrées",
       "recordCount": "{count, plural, one {# enregistrement} other {# enregistrements}}",
-      "resetChanges": "Réinitialiser les modifications"
+      "resetChanges": "Réinitialiser les modifications",
+      "saveAsView": "Enregistrer comme vue"
     }
   },
   "Diagrams": {

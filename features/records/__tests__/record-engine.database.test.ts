@@ -1,5 +1,6 @@
 import { PermissionService } from "@/core/base/permission.service";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
+import { ImportRecordsSchema } from "@/features/data-transfer/record-transfer.schema";
 import { FilterOperatorKey as FilterOperator } from "@/core/base/base-query-builder";
 import { recordInvariant } from "../record-invariant";
 
@@ -1081,6 +1082,163 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       state: "value",
       value: decimal("123.45"),
     });
+  });
+
+  it("imports sparse rows: omitted fields stay unset on create and unchanged on update, missing clears them", async () => {
+    const f = await fixture();
+    const importer = new ImportRecordsInteractor(
+      f.repo,
+      f.policy,
+      new RecordWriteService(f.repo, f.policy, new RecordCalculationService(f.repo)),
+    );
+    const contact = { typeId: f.id("contact"), recordId: randomUUID() };
+    const text = (fieldKey: string, value: string) => ({
+      fieldId: f.id(fieldKey),
+      result: { state: "value" as const, value: textValue(value) },
+    });
+    const run = (mode: "create" | "update", records: unknown[]) =>
+      f.run(() =>
+        importer.invoke(
+          ImportRecordsSchema.parse({
+            mode,
+            idempotencyKey: randomUUID(),
+            document: {
+              format: "customermates-records",
+              version: 1,
+              typeId: f.id("contact"),
+              schemaRevision: 1,
+              records,
+            },
+          }),
+        ),
+      );
+
+    expect(await run("create", [{ ref: contact, fields: [text("contact.firstName", "Ada")] }])).toMatchObject({
+      ok: true,
+      data: { created: 1, updated: 0 },
+    });
+    expect(await f.value(contact, "contact.firstName")).toEqual({ state: "value", value: textValue("Ada") });
+    expect(await f.value(contact, "contact.lastName")).toMatchObject({ state: "missing" });
+
+    expect(await run("update", [{ ref: contact, fields: [text("contact.lastName", "Lovelace")] }])).toMatchObject({
+      ok: true,
+      data: { created: 0, updated: 1 },
+    });
+    expect(await f.value(contact, "contact.firstName")).toEqual({ state: "value", value: textValue("Ada") });
+    expect(await f.value(contact, "contact.lastName")).toEqual({ state: "value", value: textValue("Lovelace") });
+    expect((await f.readRecord(contact)).assignedUserIds).toEqual([f.admin.id]);
+
+    expect(
+      await run("update", [
+        { ref: contact, fields: [{ fieldId: f.id("contact.lastName"), result: { state: "missing" } }] },
+      ]),
+    ).toMatchObject({ ok: true });
+    expect(await f.value(contact, "contact.lastName")).toMatchObject({ state: "missing" });
+    expect(await f.value(contact, "contact.firstName")).toEqual({ state: "value", value: textValue("Ada") });
+
+    expect(
+      await run("update", [{ ref: contact, version: 1, fields: [text("contact.firstName", "Grace")] }]),
+    ).toMatchObject({ ok: false });
+    expect(await f.value(contact, "contact.firstName")).toEqual({ state: "value", value: textValue("Ada") });
+    const { version } = await f.readRecord(contact);
+    expect(
+      await run("update", [{ ref: contact, version, fields: [text("contact.firstName", "Grace")] }]),
+    ).toMatchObject({
+      ok: true,
+    });
+    expect(await f.value(contact, "contact.firstName")).toEqual({ state: "value", value: textValue("Grace") });
+  });
+
+  it("patches different values per record with links and unlinks in one atomic import", async () => {
+    const f = await fixture();
+    const importer = new ImportRecordsInteractor(
+      f.repo,
+      f.policy,
+      new RecordWriteService(f.repo, f.policy, new RecordCalculationService(f.repo)),
+    );
+    const relationId = f.id("contact.organizations");
+    const first = await f.create("organization", "First organization");
+    const second = await f.create("organization", "Second organization");
+    const contact = async (
+      firstName: string,
+      links?: Array<{ relationId: string; direction: "outgoing"; record: RecordRef }>,
+    ) => {
+      const created = await f.mutation({
+        action: "create",
+        typeId: f.id("contact"),
+        fields: [{ fieldId: f.id("contact.firstName"), value: textValue(firstName) }],
+        links,
+      });
+      if (!created.ok || created.data.status !== "completed") throw new Error("Fixture creation failed");
+      return recordInvariant(created.data.refs.find((ref) => ref.typeId === f.id("contact")));
+    };
+    const moving = await contact("Moving", [{ relationId, direction: "outgoing", record: first }]);
+    const renamed = await contact("Renamed");
+    const document = {
+      format: "customermates-records" as const,
+      version: 1 as const,
+      typeId: f.id("contact"),
+      schemaRevision: 1,
+      records: [
+        { ref: moving, fields: [] },
+        {
+          ref: renamed,
+          fields: [
+            { fieldId: f.id("contact.firstName"), result: { state: "value" as const, value: textValue("Bea") } },
+          ],
+        },
+      ],
+      links: [{ relationId, source: moving, target: second }],
+      unlinks: [{ relationId, source: moving, target: first }],
+    };
+
+    const request = (mode: "create" | "update") =>
+      ImportRecordsSchema.parse({ mode, idempotencyKey: randomUUID(), document });
+    expect(await f.run(() => importer.invoke(request("create")))).toMatchObject({ ok: false });
+    const patched = await f.run(() => importer.invoke(request("update")));
+    expect(patched, JSON.stringify(patched)).toMatchObject({
+      ok: true,
+      data: { created: 0, updated: 2, linked: 1, unlinked: 1 },
+    });
+    const targets = await f.run(() => f.repo.linkedRecordsCompanyWide(moving, relationId, "outgoing"));
+    expect(targets.map((target) => target.recordId)).toEqual([second.recordId]);
+    expect(await f.value(moving, "contact.firstName")).toEqual({ state: "value", value: textValue("Moving") });
+    expect(await f.value(renamed, "contact.firstName")).toEqual({ state: "value", value: textValue("Bea") });
+  });
+
+  it("exports large lists page by page and accepts a page back as an import document", async () => {
+    const f = await fixture();
+    for (const name of ["Paged A", "Paged B", "Paged C"]) await f.create("service", name);
+    const exporter = new ExportRecordsInteractor(f.repo, f.policy, getEventService());
+    const importer = new ImportRecordsInteractor(
+      f.repo,
+      f.policy,
+      new RecordWriteService(f.repo, f.policy, new RecordCalculationService(f.repo)),
+    );
+    const page = (number: number) =>
+      f.run(() =>
+        exporter.invoke({
+          typeId: f.id("service"),
+          search: "Paged",
+          filters: [],
+          relationships: [],
+          sort: [{ fieldId: f.id("service.name"), direction: "asc" }],
+          page: number,
+          pageSize: 2,
+        }),
+      );
+    const firstPage = await page(1);
+    const secondPage = await page(2);
+    if (!firstPage.ok || !secondPage.ok) throw new Error("Paged export failed");
+    expect(firstPage.data).toMatchObject({ total: 3, nextPage: 2 });
+    expect(secondPage.data).toMatchObject({ total: 3, nextPage: null });
+    const ids = [...firstPage.data.records, ...secondPage.data.records].map((row) => row.ref.recordId);
+    expect(new Set(ids).size).toBe(3);
+
+    const reimported = await f.run(() =>
+      importer.invoke({ mode: "update", idempotencyKey: randomUUID(), document: firstPage.data }),
+    );
+    expect(reimported, JSON.stringify(reimported)).toMatchObject({ ok: true, data: { updated: 2 } });
   });
 
   it("restores readable links and rolls back an import when the target is inaccessible", async () => {
@@ -15726,6 +15884,63 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         ),
       ),
     ).toMatchObject({ ok: false });
+  });
+
+  it("ranks title matches above newer records that only mention the term, across cursor pages", async () => {
+    const f = await fixture();
+    const model = await f.run(() => f.repo.getModel());
+    const organization = recordInvariant(model.types.find((type) => type.id === f.id("organization")));
+    const titled = [
+      ["Cursor", "2026-09-28T10:00:01.000Z"],
+      ["Cursor Pro", "2026-09-28T10:00:02.000Z"],
+      ["Paid cursor plan", "2026-09-28T10:00:03.000Z"],
+      ["Plan (cursor)", "2026-09-28T10:00:04.000Z"],
+      ["Precursor", "2026-09-28T10:00:05.000Z"],
+    ] as const;
+    const ids = new Map<string, string>();
+    await f.run(() =>
+      runInTransaction(async () => {
+        for (const [title] of titled) {
+          const recordId = randomUUID();
+          ids.set(title, recordId);
+          await f.repo.create({ typeId: organization.id, recordId }, []);
+          await f.repo.setValue(
+            { typeId: organization.id, recordId },
+            recordInvariant(organization.primaryFieldId),
+            { state: "value", value: textValue(title) },
+            1,
+          );
+        }
+      }),
+    );
+    for (const [title, createdAt] of titled) {
+      await f.run(() =>
+        prisma.crmRecord.updateMany({
+          where: { companyId: f.company.id, id: ids.get(title) },
+          data: { createdAt: new Date(createdAt) },
+        }),
+      );
+    }
+    const expected = ["Cursor", "Cursor Pro", "Plan (cursor)", "Paid cursor plan", "Precursor"].map((title) =>
+      ids.get(title),
+    );
+    const first = await f.run(() => f.search.invoke(RecordSearchSchema.parse({ searchTerm: "cursor", limit: 10 })));
+    if (!first.ok) throw first.error;
+    expect(first.data.results.map((hit) => hit.ref.recordId)).toEqual(expected);
+    const paged: string[] = [];
+    let cursor: RecordSearch["cursor"] = null;
+    do {
+      const result = await f.run(() =>
+        f.search.invoke(RecordSearchSchema.parse({ searchTerm: "cursor", limit: 1, cursor })),
+      );
+      if (!result.ok) throw result.error;
+      paged.push(...result.data.results.map((hit) => hit.ref.recordId));
+      cursor = result.data.nextCursor;
+    } while (cursor);
+    expect(paged).toEqual(expected);
+    const literal = await f.run(() => f.search.invoke(RecordSearchSchema.parse({ searchTerm: "(cursor", limit: 10 })));
+    if (!literal.ok) throw literal.error;
+    expect(literal.data.results.map((hit) => hit.ref.recordId)).toEqual([ids.get("Plan (cursor)")]);
   });
 
   it("applies own/all/none and tenant access again for search and recent references", async () => {

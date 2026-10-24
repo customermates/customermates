@@ -179,6 +179,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   private backgroundRefreshQueued = false;
   private requestState: DataViewRequestState = { status: "uninitialized" };
   private onChangesCallbacks: (() => void | Promise<void>)[] = [];
+  private saveAsViewOpener?: () => void;
 
   schemaSettingsHref?: string;
   viewPathname?: string;
@@ -308,6 +309,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       savedAppearance: observable.ref,
       savedQuery: computed,
       canSaveQuery: computed,
+      canSaveViewChanges: computed,
+      canSaveAsView: computed,
       isFilterModified: computed,
       isAppearanceModified: computed,
       isViewModified: computed,
@@ -410,6 +413,32 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
     return this.isFilterModified || this.isAppearanceModified;
   }
+
+  get canSaveViewChanges(): boolean {
+    if (!this.isViewModified) return false;
+    if (this.proposal) return !this.proposal.isNew || Boolean(this.proposal.name);
+
+    return true;
+  }
+
+  get canSaveAsView(): boolean {
+    if (!this.isReady || !this.canSaveQuery || this.activeViewKey !== ALL_VIEW_KEY) return false;
+    if (this.proposal) return this.proposal.isNew && !this.proposal.name;
+
+    return this.isFilterModified || this.hasSessionSearch;
+  }
+
+  registerSaveAsView = (opener: () => void): (() => void) => {
+    this.saveAsViewOpener = opener;
+
+    return () => {
+      if (this.saveAsViewOpener === opener) this.saveAsViewOpener = undefined;
+    };
+  };
+
+  openSaveAsView = (): void => {
+    this.saveAsViewOpener?.();
+  };
 
   private get hasSessionQuery(): boolean {
     if (!this.isReady || !this.canSaveQuery) return false;
@@ -1079,7 +1108,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   };
 
   saveViewChanges = async (): Promise<void> => {
-    if (!this.isViewModified) return;
+    if (!this.canSaveViewChanges) return;
 
     this.cancelPendingPersist();
     if (this.proposal?.isNew) {

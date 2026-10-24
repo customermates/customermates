@@ -52,7 +52,11 @@ export class ExportRecordWorkbookInteractor extends AuthenticatedInteractor<Expo
       runInTransaction(
         async () => {
           const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
-          const exported = await collectRecordExport(this.records, policy, model, input);
+          const exported = await collectRecordExport(this.records, policy, model, {
+            ...input,
+            page: undefined,
+            pageSize: undefined,
+          });
           if (!exported.ok) return exported;
           const access = policy.access(model.types.filter((type) => !type.archived).map((type) => type.id));
           const summaries = new Map<string, RecordDto["relationships"]>();

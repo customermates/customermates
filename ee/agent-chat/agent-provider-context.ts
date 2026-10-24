@@ -42,12 +42,16 @@ export function conservativeAgentInitialContextBytes(args: {
   pageRoute: string | null;
   toolDefinitions: AgentAiToolDefinition[];
   wikiCatalog?: string | null;
+  replayHistory?: boolean;
 }): number | null {
   const worstCaseMessageChars = agentReplayWorstCaseMessageChars();
-  const priorMessages = Array.from({ length: AGENT_REPLAY_COUNT - 1 }, (_, index) => ({
-    role: index % 2 === 0 ? "user" : "assistant",
-    text: "x".repeat(worstCaseMessageChars),
-  }));
+  const priorMessages = Array.from(
+    { length: args.replayHistory === false ? 0 : AGENT_REPLAY_COUNT - 1 },
+    (_, index) => ({
+      role: index % 2 === 0 ? "user" : "assistant",
+      text: "x".repeat(worstCaseMessageChars),
+    }),
+  );
   const pageContext = agentPageContextPrefix(args.pageRoute);
   const selectedContexts = agentContextProviderPrefix(args.contexts ?? []);
   const context = buildAgentProviderContext(
@@ -57,4 +61,15 @@ export function conservativeAgentInitialContextBytes(args: {
     args.wikiCatalog,
   );
   return serializedAgentContextBytes(context);
+}
+
+export function agentAdmissionContextBytes(args: {
+  fullContextBytes: number | null;
+  minimalContextBytes: number | null;
+  maxContextBytes: number;
+}): number | null {
+  const { fullContextBytes, minimalContextBytes, maxContextBytes } = args;
+  if (fullContextBytes === null || fullContextBytes <= maxContextBytes) return fullContextBytes;
+  if (minimalContextBytes === null || minimalContextBytes > maxContextBytes) return fullContextBytes;
+  return maxContextBytes;
 }

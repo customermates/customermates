@@ -34,7 +34,12 @@ import {
 } from "@/ee/agent-chat/agent-approval-resume";
 import { agentUiCommandHookToken, isAgentPanelTool, toAgentUiCommandInput } from "@/ee/agent-chat/agent-ui-command";
 import { activeAgentToolNames } from "@/ee/agent-chat/agent-toolset-routing";
-import { buildAgentProviderContext } from "@/ee/agent-chat/agent-provider-context";
+import { buildAgentProviderContext, type AgentProviderContext } from "@/ee/agent-chat/agent-provider-context";
+import {
+  agentContextDegradationLadder,
+  degradedAgentReplayMessages,
+  type AgentContextDegradation,
+} from "@/ee/agent-chat/agent-context-degradation";
 import { agentSystemPromptParts, routineTriggerEventOf } from "@/ee/agent-chat/system-prompt";
 import type { AgentAiToolDefinition, AgentToolOptions } from "@/ee/agent-chat/agent-tools";
 import { getAgentProviderOptions } from "@/ee/agent-chat/agent-provider-options";
@@ -146,6 +151,7 @@ export type AgentTurnWorkflowPayload = {
   tenant: WorkflowTenant;
   surface?: AgentTurnSurface;
   toolsets?: string[];
+  requestToolsets?: string[];
   wikiWebsiteSetup?: { userHomepages: string[] };
   wikiCatalog?: string | null;
   webSearchEnabled?: boolean;
@@ -1036,32 +1042,46 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     }, payload.appBaseUrl);
 
     const initialToolsets = payload.toolsets ?? [];
-    const systemPrompt = agentSystemPromptParts({
-      userName: payload.userName,
-      locale: payload.locale,
-      surface,
-      loadedToolsets: initialToolsets,
-      schemaDigest: payload.schemaDigest ?? null,
-      triggerEvent: routineTriggerEventOf(payload.messages.findLast((message) => message.role === "user")?.text),
-      wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
-      webSearchEnabled: payload.webSearchEnabled,
-    });
+    let loadedToolsets: readonly string[] = initialToolsets;
+    const systemPromptFor = (toolsets: readonly string[]) =>
+      agentSystemPromptParts({
+        userName: payload.userName,
+        locale: payload.locale,
+        surface,
+        loadedToolsets: [...toolsets],
+        schemaDigest: payload.schemaDigest ?? null,
+        triggerEvent: routineTriggerEventOf(payload.messages.findLast((message) => message.role === "user")?.text),
+        wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
+        webSearchEnabled: payload.webSearchEnabled,
+      });
+    const systemPrompt = systemPromptFor(initialToolsets);
     const toolDefinitions = shells.map(
       ({ annotations: _annotations, gated: _gated, toolset: _toolset, ...definition }) => definition,
     );
     const toolsCacheBreakpoint = agentToolsCacheBreakpoint(shells);
-    const activeToolNamesFor = (stepMessages: readonly unknown[]) =>
+    const activeToolNamesFor = (stepMessages: readonly unknown[], toolsets: readonly string[] = loadedToolsets) =>
       activeAgentToolNames({
         tools: shells,
-        initialToolsets,
+        initialToolsets: toolsets,
         messages: stepMessages,
       });
-    const providerContext = buildAgentProviderContext(
-      systemPrompt,
-      payload.messages,
-      toolDefinitions.filter((definition) => activeToolNamesFor([])?.includes(definition.name)),
-      started.wikiCatalog,
-    );
+    const providerContextFor = (degradation: AgentContextDegradation | null) =>
+      buildAgentProviderContext(
+        degradation ? systemPromptFor(degradation.toolsets) : systemPrompt,
+        degradation ? degradedAgentReplayMessages(payload.messages, degradation) : payload.messages,
+        toolDefinitions.filter((definition) =>
+          activeToolNamesFor([], degradation?.toolsets ?? initialToolsets)?.includes(definition.name),
+        ),
+        started.wikiCatalog,
+      );
+    let providerContext = providerContextFor(null);
+    const degradationLadder = agentContextDegradationLadder({
+      messages: payload.messages,
+      toolsets: initialToolsets,
+      requestToolsets: payload.requestToolsets,
+    });
+    let degradationLevel = -1;
+    let degradationNotice = null as AgentContextDegradation | null;
     const auxiliaryCharges: ClassifierCharge[] = [];
     const retrievalTimings: RetrievalTiming[] = [];
 
@@ -1572,21 +1592,20 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     let compactedContinuationCount = -1;
     let compactedRetainedResponseSteps = AGENT_CONTINUATION_RETAINED_RESPONSE_STEPS + 1;
 
-    const compactForNextSegment = (continueOutput: boolean): boolean => {
-      const minimumRetainedSteps = continueOutput ? 1 : 0;
-      const maximumRetainedSteps =
-        compactedContinuationCount === continuationSteps.length
-          ? compactedRetainedResponseSteps - 1
-          : AGENT_CONTINUATION_RETAINED_RESPONSE_STEPS;
-
+    const compactWithin = (
+      base: AgentProviderContext,
+      toolsets: readonly string[],
+      continueOutput: boolean,
+      maximumRetainedSteps: number,
+    ) => {
       for (
         let retainedResponseSteps = Math.min(maximumRetainedSteps, continuationSteps.length);
-        retainedResponseSteps >= minimumRetainedSteps;
+        retainedResponseSteps >= (continueOutput ? 1 : 0);
         retainedResponseSteps -= 1
       ) {
         const compacted = compactAgentContinuationContext({
-          system: providerContext.system,
-          initialMessages: providerContext.messages,
+          system: base.system,
+          initialMessages: base.messages,
           steps: continuationSteps,
           retainedResponseSteps,
           resultDigest: true,
@@ -1601,11 +1620,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
               },
             ]
           : [...compacted.messages];
-        const activeForCandidate = activeToolNamesFor(candidateMessages);
+        const activeForCandidate = activeToolNamesFor(candidateMessages, toolsets);
         if (
-          !isAgentStepContextWithinBudget(
+          isAgentStepContextWithinBudget(
             {
-              ...providerContext,
+              ...base,
               system: compacted.system,
               tools: activeForCandidate
                 ? toolDefinitions.filter((definition) => activeForCandidate.includes(definition.name))
@@ -1615,13 +1634,45 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             payload.turnBudget.maxContextBytes,
           )
         )
-          continue;
+          return { system: compacted.system, messages: candidateMessages, retainedResponseSteps };
+      }
+      return null;
+    };
 
-        instructions = compacted.system;
-        messages = candidateMessages;
+    const compactForNextSegment = (continueOutput: boolean): boolean => {
+      const apply = (fitted: { system: string; messages: ModelMessage[]; retainedResponseSteps: number }) => {
+        instructions = fitted.system;
+        messages = fitted.messages;
         compactedContinuationCount = continuationSteps.length;
-        compactedRetainedResponseSteps = retainedResponseSteps;
+        compactedRetainedResponseSteps = fitted.retainedResponseSteps;
         return true;
+      };
+
+      const fitted = compactWithin(
+        providerContext,
+        loadedToolsets,
+        continueOutput,
+        compactedContinuationCount === continuationSteps.length
+          ? compactedRetainedResponseSteps - 1
+          : AGENT_CONTINUATION_RETAINED_RESPONSE_STEPS,
+      );
+      if (fitted) return apply(fitted);
+
+      for (let level = degradationLevel + 1; level < degradationLadder.length; level += 1) {
+        const degradation = degradationLadder[level];
+        const base = providerContextFor(degradation);
+        const degraded = compactWithin(
+          base,
+          degradation.toolsets,
+          continueOutput,
+          AGENT_CONTINUATION_RETAINED_RESPONSE_STEPS,
+        );
+        if (!degraded) continue;
+        providerContext = base;
+        loadedToolsets = degradation.toolsets;
+        degradationLevel = level;
+        degradationNotice = degradation;
+        return apply(degraded);
       }
 
       return false;
@@ -1641,6 +1692,15 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     };
 
     while (!abandoned && !cancelled && !budgetStop && !hostedAiStop && providerStop === null && roundFailure === null) {
+      if (degradationNotice) {
+        const { toolsets, omittedHistory, contextOmitted } = degradationNotice;
+        degradationNotice = null;
+        await reportWarning(
+          WORKFLOW_NAME,
+          `Agent context did not fit its provider budget, so the turn continued with on-demand tool sets [${toolsets.join(", ")}] of [${initialToolsets.join(", ")}], ${omittedHistory} earlier message(s) left out${contextOmitted ? " and the attached page context left out" : ""}.`,
+          payload.tenant,
+        );
+      }
       streamSegment += 1;
       const agent = new WorkflowAgent({
         id: WORKFLOW_NAME,
@@ -1839,7 +1899,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         }
         if (error === AGENT_CONTEXT_COMPACTION_REQUIRED) {
           const continueOutput = continuationSteps.at(-1)?.finishReason === "length";
-          if (continuationSteps.length === 0 || !compactForNextSegment(continueOutput)) {
+          if (!compactForNextSegment(continueOutput)) {
             if (!answerMissingViewAfterCompaction()) {
               roundFailure = toWorkflowFailure(
                 new Error("Agent context could not be compacted within its provider budget."),

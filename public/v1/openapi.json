@@ -8086,7 +8086,7 @@
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 200,
-                    "description": "Text to find in titles and searchable fields; a record id finds that record. Wrap a phrase in double quotes to match it only as written. Otherwise, when nothing matches, records with a similarly spelled title are returned, best first and without nextCursor."
+                    "description": "Text to find in titles and searchable fields; a record id finds that record. Records whose title equals, starts with or contains the text come first. Wrap a phrase in double quotes to match it only as written. Otherwise, when nothing matches, records with a similarly spelled title are returned, best first and without nextCursor."
                   },
                   "typeIds": {
                     "minItems": 1,
@@ -8142,6 +8142,11 @@
                               "recordId"
                             ],
                             "additionalProperties": false
+                          },
+                          "rank": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 4
                           }
                         },
                         "required": [
@@ -8605,6 +8610,11 @@
                                 "recordId"
                               ],
                               "additionalProperties": false
+                            },
+                            "rank": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 4
                             }
                           },
                           "required": [
@@ -8727,7 +8737,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Exports the selected type's filtered and sorted records with their readable embedded descendants from one consistent workspace snapshot. Maximum 5,000 records and 50,000 candidate links. format json (default) returns a document with stable type, field, relationship and record IDs, readable outbound links and the current schema revision; restricted values remain marked restricted, and import accepts it. format xlsx returns an Excel workbook with one sheet per exported list: readable fields in field order headed by their labels, then relationship columns with linked record names, assignees, timestamps and a hidden record ID. Dates are spreadsheet dates, numbers and money are numbers with the currency in the header, multiple choice and links are comma-separated names, and formatted text is plain text. A field the caller cannot read on any exported record is left out. Incoming links from records outside the selection are not included.\n\nRequires: read access to the list.",
+        "description": "Exports the selected type's filtered and sorted records with their readable embedded descendants from one consistent workspace snapshot. Maximum 5,000 records and 50,000 candidate links; with page and pageSize (up to 500) json returns one page of top-level records with their descendants and links, plus total and nextPage, so larger lists can be exported page by page. format json (default) returns a document with stable type, field, relationship and record IDs, readable outbound links and the current schema revision; restricted values remain marked restricted, and import accepts it. format xlsx returns an Excel workbook with one sheet per exported list: readable fields in field order headed by their labels, then relationship columns with linked record names, assignees, timestamps and a hidden record ID. Dates are spreadsheet dates, numbers and money are numbers with the currency in the header, multiple choice and links are comma-separated names, and formatted text is plain text. A field the caller cannot read on any exported record is left out. Incoming links from records outside the selection are not included.\n\nRequires: read access to the list.",
         "requestBody": {
           "required": true,
           "content": {
@@ -9441,6 +9451,18 @@
                       "xlsx"
                     ],
                     "description": "json (default) returns the schema-aware record document that import accepts; xlsx returns an Excel workbook with one sheet per list."
+                  },
+                  "page": {
+                    "description": "JSON only: export one page of top-level records with their sub-list rows and links. Starts at 1.",
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "pageSize": {
+                    "description": "JSON only: top-level records per page (default 250 when page is set).",
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 500
                   }
                 },
                 "required": [
@@ -10975,6 +10997,25 @@
                         ],
                         "additionalProperties": false
                       }
+                    },
+                    "total": {
+                      "description": "Paged exports only: how many top-level records match in total.",
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "nextPage": {
+                      "description": "Paged exports only: the page to request next with the same query, or null after the last page.",
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
                   },
                   "required": [
@@ -11094,7 +11135,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Creates records with their exported IDs or updates matching IDs in one transaction. Embedded descendants are created after their parents, saved-price snapshots are preserved, and readable outbound links are merged. The document must match the current workspace's type IDs and schema revision. Maximum 100 records and 500 links per request. Create rejects existing IDs; update checks each exported record version. Retries of the identical request use its idempotency key.\n\nRequires: create access to the list in create mode, edit access in update mode.",
+        "description": "Creates records with their exported IDs or updates matching IDs in one transaction. Embedded descendants are created after their parents, saved-price snapshots are preserved, and readable outbound links are merged. The document must match the current workspace's type IDs and schema revision. Maximum 100 records and 500 links and unlinks per request. Rows are sparse: a row needs only ref and the fields to set; an omitted field stays empty on create and unchanged on update, and state missing clears it. Create rejects existing IDs; update checks the version of a row when given, so one request can patch different values per record, and unlinks (update only) removes links. For more records, send consecutive requests of up to 100 rows with their own idempotency keys. Retries of the identical request use its idempotency key.\n\nRequires: create access to the list in create mode, edit access in update mode.",
         "requestBody": {
           "required": true,
           "content": {
@@ -11175,6 +11216,7 @@
                               "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
                             },
                             "fields": {
+                              "default": [],
                               "type": "array",
                               "items": {
                                 "type": "object",
@@ -11986,19 +12028,94 @@
                             }
                           },
                           "required": [
-                            "ref",
-                            "version",
-                            "schemaRevision",
-                            "createdAt",
-                            "updatedAt",
-                            "fields",
-                            "assignedUserIds"
+                            "ref"
                           ],
                           "additionalProperties": false
                         }
                       },
                       "links": {
+                        "default": [],
                         "maxItems": 50000,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "relationId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "source": {
+                              "type": "object",
+                              "properties": {
+                                "typeId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "recordId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                }
+                              },
+                              "required": [
+                                "typeId",
+                                "recordId"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "target": {
+                              "type": "object",
+                              "properties": {
+                                "typeId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "recordId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                }
+                              },
+                              "required": [
+                                "typeId",
+                                "recordId"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "relationId",
+                            "source",
+                            "target"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "total": {
+                        "description": "Paged exports only: how many top-level records match in total.",
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "nextPage": {
+                        "description": "Paged exports only: the page to request next with the same query, or null after the last page.",
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "exclusiveMinimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "unlinks": {
+                        "description": "Update mode only: links to remove from the listed records.",
+                        "maxItems": 500,
                         "type": "array",
                         "items": {
                           "type": "object",
@@ -12063,9 +12180,7 @@
                       "version",
                       "typeId",
                       "schemaRevision",
-                      "exportedAt",
-                      "records",
-                      "links"
+                      "records"
                     ],
                     "additionalProperties": false
                   },
@@ -12111,6 +12226,11 @@
                       "maximum": 9007199254740991
                     },
                     "linked": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "unlinked": {
                       "type": "integer",
                       "minimum": 0,
                       "maximum": 9007199254740991

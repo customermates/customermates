@@ -38,7 +38,7 @@ import { agentSystemPromptParts, routineTriggerEventOf } from "./system-prompt";
 import { agentToolDefinitionsForToolsets, agentToolDefinitionsForTurn } from "./agent-tools";
 import { toolsetsForRequest, toolsetsFromActivities } from "./agent-toolset-routing";
 import { AgentActivityDescriptorSchema, type AgentActivityDescriptor } from "./agent-activity";
-import { conservativeAgentInitialContextBytes } from "./agent-provider-context";
+import { agentAdmissionContextBytes, conservativeAgentInitialContextBytes } from "./agent-provider-context";
 import { renderAgentSchemaDigest } from "./agent-schema-digest";
 import { agentPageContextPrefix } from "./agent-page-context";
 import { AGENT_REPLAY_COUNT, budgetAgentReplayHistory } from "./agent-replay-budget";
@@ -56,7 +56,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { GetWikiCatalogInteractor } from "@/features/wiki/get-wiki-catalog.interactor";
 import type { UserService } from "@/features/user/user.service";
 import { AppErrorCode, appErrorDetails } from "@/core/errors/app-errors";
-import { agentWebSearchReserveMicrocents } from "./agent-budget-policy";
+import { agentContextTokensToBytes, agentWebSearchReserveMicrocents } from "./agent-budget-policy";
 import { agentMicrocentsFromStorage } from "./agent-credit-policy";
 import { agentWebSearchCallLimit } from "./agent-web-search";
 import { serializeAgentWikiCatalog } from "./agent-wiki-context";
@@ -325,7 +325,8 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
 
     const userName = `${user.firstName} ${user.lastName}`.trim();
     const requestedToolsets = toolsetsForRequest({ text: data.text, pageRoute, contexts, surface });
-    const requiredContextBytes = conservativeAgentInitialContextBytes({
+    const turnToolDefinitions = agentToolDefinitionsForTurn(toolOptions);
+    const initialContext = {
       systemPrompt: agentSystemPromptParts({
         userName,
         locale,
@@ -338,10 +339,19 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       currentText: data.text,
       contexts,
       pageRoute,
-      toolDefinitions: agentToolDefinitionsForToolsets(agentToolDefinitionsForTurn(toolOptions), [
-        ...requestedToolsets,
-      ]),
       wikiCatalog,
+    };
+    const requiredContextBytes = agentAdmissionContextBytes({
+      fullContextBytes: conservativeAgentInitialContextBytes({
+        ...initialContext,
+        toolDefinitions: agentToolDefinitionsForToolsets(turnToolDefinitions, [...requestedToolsets]),
+      }),
+      minimalContextBytes: conservativeAgentInitialContextBytes({
+        ...initialContext,
+        toolDefinitions: agentToolDefinitionsForToolsets(turnToolDefinitions, []),
+        replayHistory: false,
+      }),
+      maxContextBytes: agentContextTokensToBytes(turnModel.maxContextTokens),
     });
     if (requiredContextBytes === null) throw new Error("The Assistant request context could not be measured safely.");
 
@@ -512,6 +522,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         tenant: { userId: user.id, companyId: user.companyId },
         surface,
         toolsets,
+        requestToolsets: [...requestedToolsets],
         ...(schemaDigest ? { schemaDigest } : {}),
         ...(wikiWebsiteSetup
           ? {

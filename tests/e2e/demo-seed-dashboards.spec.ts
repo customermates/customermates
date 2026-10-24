@@ -50,7 +50,7 @@ for (const dashboard of DEMO_DASHBOARDS) {
       await expect(rail.getByText(other.name, { exact: true })).toBeVisible();
     const active = rail.locator('[data-focus-target^="view:"][aria-current="page"]');
     if (dashboard.id) await expect(active).toHaveText(dashboard.name);
-    else await expect(active).toHaveCount(0);
+    else await expect(active).toHaveText("Main");
 
     for (const widget of widgets) {
       const card = page.locator(`[data-focus-target="widget:${widget.id}"]`);

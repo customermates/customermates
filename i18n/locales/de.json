@@ -520,7 +520,7 @@
     "runner": {
       "cancelled": "Diese Antwort wurde gestoppt.",
       "contentFilter": "Der KI-Anbieter hat einen Teil dieser Antwort blockiert. Es wurde nichts weiter geändert. Formuliere die Anfrage anders.",
-      "contextLimit": "Ich musste stoppen, weil diese Unterhaltung die Kontextgrenze des Modells überschritten hat. Es wurde nichts Weiteres geändert; prüfe die Aktivitäten oben, bevor du es erneut versuchst.",
+      "contextLimit": "Ich musste stoppen, weil diese Anfrage mehr Arbeitsspeicher brauchte, als mir für eine Antwort zur Verfügung steht. Es wurde nichts Weiteres geändert; prüfe die Aktivitäten oben und bitte dann um einen kleineren Schritt oder starte einen neuen Chat.",
       "creditLimit": "Ich habe einen Teil dieser Anfrage erledigt, dann aber gestoppt, weil deine Assistant-Credits aufgebraucht sind. Erledigte Arbeit bleibt bestehen; die Credits werden zu Beginn deiner nächsten Periode zurückgesetzt.",
       "creditLimitNoWrite": "Ich habe gestoppt, bevor etwas geändert wurde, weil deine Assistant-Credits aufgebraucht sind. Es wurde nichts erstellt, geändert oder gesendet. Die Credits werden zu Beginn deiner nächsten Periode zurückgesetzt.",
       "emptyReply": "Ich konnte keine Antwort erstellen. Bitte versuche es erneut.",
@@ -2182,6 +2182,19 @@
       "activityCount": "{count, plural, one {# Aktivität} other {# Aktivitäten}}",
       "aiLabel": "Mate zu {name} fragen",
       "all": "Alle",
+      "allTab": {
+        "activity": "Alle Aktivitäten",
+        "auditEntries": "Alle Einträge",
+        "conversations": "Alle Unterhaltungen",
+        "deliveries": "Alle Zustellungen",
+        "members": "Alle Mitglieder",
+        "records": "Alle {list}",
+        "roles": "Alle Rollen",
+        "routines": "Alle Routinen",
+        "users": "Alle Benutzer",
+        "webhooks": "Alle Webhooks",
+        "workspaces": "Alle Workspaces"
+      },
       "applied": "{name} wird angezeigt",
       "askAi": "Mate fragen",
       "conversationCount": "{count, plural, one {# Unterhaltung} other {# Unterhaltungen}}",
@@ -2198,6 +2211,7 @@
       "modified": "Ungespeicherte Änderungen",
       "moveLeft": "Nach links verschieben",
       "moveRight": "Nach rechts verschieben",
+      "myFilters": "Meine Filter",
       "name": "Name",
       "namePlaceholder": "Name der Ansicht",
       "nameRequired": "Gib einen Namen für die Ansicht ein.",
@@ -2206,7 +2220,8 @@
       "pickerTitle": "Ansicht wechseln",
       "railLabel": "Gespeicherte Ansichten",
       "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}",
-      "resetChanges": "Änderungen zurücksetzen"
+      "resetChanges": "Änderungen zurücksetzen",
+      "saveAsView": "Als Ansicht speichern"
     }
   },
   "Diagrams": {

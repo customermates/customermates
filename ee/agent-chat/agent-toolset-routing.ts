@@ -6,6 +6,7 @@ export const AGENT_CORE_TOOLSETS = ["records", "workspace", "wiki", "docs", "sup
 export const AGENT_ON_DEMAND_TOOLSETS = [
   "record-model",
   "views",
+  "data-transfer",
   "messaging",
   "social",
   "widgets",
@@ -24,6 +25,7 @@ export const ANALYZE_RECORDS_TOOL_NAME = "analyze_records";
 export const AGENT_TOOLSET_SUMMARY: Record<AgentOnDemandToolset, string> = {
   "record-model": "configure CRM types, fields, relationships, calculations, access presets and operation recovery",
   views: "saved views, filters, sorting, grouping and personal detail pins, hidden fields and ordering",
+  "data-transfer": "export a whole list as a JSON document and import or update up to 100 records of one list from one",
   messaging: "inbox, email, chat, calendar and connected messaging accounts",
   social: "LinkedIn, Instagram, posts, profiles, engagement and Sales Navigator",
   widgets: "dashboard widgets",
@@ -107,6 +109,14 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
       "crea una vista",
     ],
   },
+  "data-transfer": {
+    any: ["csv", "json"],
+    en: ["import", "export", "migrate", "migration", "bulk", "backup"],
+    de: ["importier", "exportier", "import", "export", "migration", "migrier", "sicherung"],
+    es: ["importa", "exporta", "migra", "copia de seguridad"],
+    fr: ["import", "export", "migr", "sauvegarde"],
+    it: ["importa", "esporta", "migra", "backup"],
+  },
   messaging: {
     any: ["whatsapp", "telegram"],
     en: ["email", "e-mail", "mail", "inbox", "thread", "message", "calendar", "meeting"],
@@ -173,6 +183,7 @@ const TOOLSET_TERMS = new Map(
 const TOOLSET_ROUTES: Record<AgentOnDemandToolset, readonly string[]> = {
   "record-model": ["/records", "/configure"],
   views: [],
+  "data-transfer": [],
   messaging: ["/inbox", "/calendar"],
   social: ["/social"],
   widgets: ["/dashboard"],

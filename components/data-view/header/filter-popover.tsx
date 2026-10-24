@@ -16,7 +16,7 @@ export const FilterPopover = observer(function FilterPopover({ store, compact, s
   const ai = useViewAi(store, { registerPageContext: false, entry: "filters" });
   const askAiAction = useAskAiAction();
   const { keyboardShortcutsStore } = useRootStore();
-  const pendingAi = useRef<(() => void) | null>(null);
+  const pendingHandoff = useRef<(() => void) | null>(null);
   const registerOpener = useCallback(
     (open: () => void) => {
       keyboardShortcutsStore.registerFilterOpener(open);
@@ -43,7 +43,7 @@ export const FilterPopover = observer(function FilterPopover({ store, compact, s
                   askAiAction({
                     anchorId: id ? `${id}-ask-ai` : undefined,
                     onClick: () => {
-                      pendingAi.current = ai.openCurrent;
+                      pendingHandoff.current = ai.openCurrent;
                       close();
                     },
                   }),
@@ -53,15 +53,24 @@ export const FilterPopover = observer(function FilterPopover({ store, compact, s
         />
       )}
       id={id}
-      notice={<ViewChangesNotice anchorScope={id} store={store} />}
+      notice={(close) => (
+        <ViewChangesNotice
+          anchorScope={id}
+          store={store}
+          onSaveAsView={() => {
+            pendingHandoff.current = store.openSaveAsView;
+            close();
+          }}
+        />
+      )}
       registerOpener={compact ? undefined : registerOpener}
       search={search}
       store={store}
       onCloseAutoFocus={(event) => {
-        const handoff = pendingAi.current;
+        const handoff = pendingHandoff.current;
         if (!handoff) return;
         event.preventDefault();
-        pendingAi.current = null;
+        pendingHandoff.current = null;
         handoff();
       }}
     />

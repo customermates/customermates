@@ -520,7 +520,7 @@
     "runner": {
       "cancelled": "This response was stopped.",
       "contentFilter": "The AI provider blocked part of this response. Nothing further was changed. Try rephrasing the request.",
-      "contextLimit": "I had to stop because this conversation grew beyond the model's context limit. No further action was taken; check the activity above before trying again.",
+      "contextLimit": "I had to stop because this request needed more working space than I have for one answer. No further action was taken; check the activity above, then ask for a smaller step or start a new chat.",
       "creditLimit": "I completed part of this request, but stopped because your Assistant credits ran out. Completed work remains in place; credits reset at the start of your next period.",
       "creditLimitNoWrite": "I stopped before making any changes because your Assistant credits ran out. Nothing was created, updated, or sent. Credits reset at the start of your next period.",
       "emptyReply": "I couldn't produce a response. Please try again.",
@@ -2182,6 +2182,19 @@
       "activityCount": "{count, plural, one {# activity} other {# activities}}",
       "aiLabel": "Ask Mate about {name}",
       "all": "All",
+      "allTab": {
+        "activity": "All activity",
+        "auditEntries": "All entries",
+        "conversations": "All conversations",
+        "deliveries": "All deliveries",
+        "members": "All members",
+        "records": "All {list}",
+        "roles": "All roles",
+        "routines": "All routines",
+        "users": "All users",
+        "webhooks": "All webhooks",
+        "workspaces": "All workspaces"
+      },
       "applied": "Showing {name}",
       "askAi": "Ask Mate",
       "conversationCount": "{count, plural, one {# conversation} other {# conversations}}",
@@ -2198,6 +2211,7 @@
       "modified": "Unsaved changes",
       "moveLeft": "Move left",
       "moveRight": "Move right",
+      "myFilters": "My filters",
       "name": "Name",
       "namePlaceholder": "View name",
       "nameRequired": "Enter a name for the view.",
@@ -2206,7 +2220,8 @@
       "pickerTitle": "Switch view",
       "railLabel": "Saved views",
       "recordCount": "{count, plural, one {# record} other {# records}}",
-      "resetChanges": "Reset changes"
+      "resetChanges": "Reset changes",
+      "saveAsView": "Save as view"
     }
   },
   "Diagrams": {

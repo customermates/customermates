@@ -133,6 +133,8 @@ const REVIEWED_EXCEPTION_ALLOWLIST: Readonly<Record<string, string>> = {
     "unresolved C03: test gallery that renders the raw confirm primitive",
   "form-footer-actions.test.ts#SAVE_LIKE_KEY_EXEMPT: DataTransfer.recordImport.update":
     "unresolved C03: labels a different action than Save",
+  "form-footer-actions.test.ts#SAVE_LIKE_KEY_EXEMPT: DataView.views.saveAsView":
+    "unresolved C03: labels a different action than Save",
   "form-footer-actions.test.ts#SAVE_LIKE_KEY_EXEMPT: Editor.confirm":
     "unresolved C03: labels a different action than Save",
   "form-footer-actions.test.ts#SAVE_LIKE_KEY_EXEMPT: Inbox.compose.saveDraft":

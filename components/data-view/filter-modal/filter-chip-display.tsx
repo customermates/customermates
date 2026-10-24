@@ -30,6 +30,65 @@ function findLabelForValue(value: string, items: FilterSelectItem[]): string | u
   return items.find((it) => it.value === value || it.key === value)?.textValue;
 }
 
+export type FilterValueText =
+  | { kind: "standalone" }
+  | { kind: "loading" }
+  | { kind: "unavailable"; text: string }
+  | { kind: "value"; text: string };
+
+export function useFilterValueText(filter: Filter, customColumns: ColumnPresentation[] | undefined): FilterValueText {
+  const t = useTranslations();
+  const { items, getItems, isLoading } = useFilterSelectItems(filter, customColumns);
+  const intlStore = useHydratedIntlStore();
+
+  if (isStandaloneOperator(filter.operator)) return { kind: "standalone" };
+  if (isLoading) return { kind: "loading" };
+
+  if (filter.operator === FilterOperatorKey.inLastDays || filter.operator === FilterOperatorKey.notInLastDays) {
+    const count = Number("value" in filter ? filter.value : 0) || 0;
+    return {
+      kind: "value",
+      text:
+        filter.operator === FilterOperatorKey.notInLastDays
+          ? t("Common.filters.daysCount", { count })
+          : t("Common.filters.daysPreset", { count }),
+    };
+  }
+
+  const customColumn = isCustomField(filter.field)
+    ? customColumns?.find((column) => column.id === filter.field)
+    : undefined;
+  const valueKind = filterValueKind(filter.field);
+  const requiresResolvedLabel =
+    Boolean(getItems) ||
+    items.length > 0 ||
+    valueKind?.kind === "entityId" ||
+    valueKind?.kind === "enum" ||
+    valueKind?.kind === "event" ||
+    (isCustomField(filter.field) &&
+      (customColumn === undefined || customColumn.type === CustomColumnType.singleSelect));
+  const values = normalizeValues("value" in filter ? filter.value : undefined);
+  const unavailable = t("Common.filters.unavailableValue");
+  const labels = values.map((value) => {
+    const dateParse = z.iso.datetime().safeParse(value);
+    if (dateParse.success) {
+      const normalized =
+        resolveFilterDateGranularity(filter.field, customColumns) === "day" && dateParse.data.endsWith("Z")
+          ? dateParse.data.slice(0, -1)
+          : dateParse.data;
+      return intlStore.formatNumericalShortDate(new Date(normalized));
+    }
+    const resolved = findLabelForValue(value, items);
+    if (resolved !== undefined) return resolved;
+    return requiresResolvedLabel ? unavailable : value;
+  });
+
+  if (values.length > 0 && labels.every((value) => value === unavailable))
+    return { kind: "unavailable", text: unavailable };
+
+  return { kind: "value", text: labels.join(", ") };
+}
+
 export const FilterChipValue = observer(
   ({
     filter,
@@ -43,8 +102,7 @@ export const FilterChipValue = observer(
     operator?: ReactNode;
   }) => {
     const t = useTranslations();
-    const { items, getItems, isLoading } = useFilterSelectItems(filter, customColumns);
-    const intlStore = useHydratedIntlStore();
+    const value = useFilterValueText(filter, customColumns);
 
     const prefix = (
       <>
@@ -54,68 +112,29 @@ export const FilterChipValue = observer(
       </>
     );
 
-    if (isStandaloneOperator(filter.operator)) return prefix;
-    if (isLoading) {
-      return (
-        <>
-          {prefix}
+    switch (value.kind) {
+      case "standalone":
+        return prefix;
+      case "loading":
+        return (
+          <>
+            {prefix}
 
-          <span data-filter-value-loading aria-label={t("Loading.text")} role="status">
-            <SelectionValueSkeleton barClassName="h-2.5 w-14 rounded-full" className="h-3" tone="current" />
-          </span>
-        </>
-      );
+            <span data-filter-value-loading aria-label={t("Loading.text")} role="status">
+              <SelectionValueSkeleton barClassName="h-2.5 w-14 rounded-full" className="h-3" tone="current" />
+            </span>
+          </>
+        );
+      case "unavailable":
+        return <>{value.text}</>;
+      case "value":
+        return (
+          <>
+            {prefix}
+
+            {value.text}
+          </>
+        );
     }
-
-    if (filter.operator === FilterOperatorKey.inLastDays || filter.operator === FilterOperatorKey.notInLastDays) {
-      const count = Number("value" in filter ? filter.value : 0) || 0;
-      return (
-        <>
-          {prefix}
-
-          {filter.operator === FilterOperatorKey.notInLastDays
-            ? t("Common.filters.daysCount", { count })
-            : t("Common.filters.daysPreset", { count })}
-        </>
-      );
-    }
-
-    const customColumn = isCustomField(filter.field)
-      ? customColumns?.find((column) => column.id === filter.field)
-      : undefined;
-    const valueKind = filterValueKind(filter.field);
-    const requiresResolvedLabel =
-      Boolean(getItems) ||
-      items.length > 0 ||
-      valueKind?.kind === "entityId" ||
-      valueKind?.kind === "enum" ||
-      valueKind?.kind === "event" ||
-      (isCustomField(filter.field) &&
-        (customColumn === undefined || customColumn.type === CustomColumnType.singleSelect));
-    const values = normalizeValues("value" in filter ? filter.value : undefined);
-    const unavailable = t("Common.filters.unavailableValue");
-    const labels = values.map((value) => {
-      const dateParse = z.iso.datetime().safeParse(value);
-      if (dateParse.success) {
-        const normalized =
-          resolveFilterDateGranularity(filter.field, customColumns) === "day" && dateParse.data.endsWith("Z")
-            ? dateParse.data.slice(0, -1)
-            : dateParse.data;
-        return intlStore.formatNumericalShortDate(new Date(normalized));
-      }
-      const resolved = findLabelForValue(value, items);
-      if (resolved !== undefined) return resolved;
-      return requiresResolvedLabel ? unavailable : value;
-    });
-
-    if (values.length > 0 && labels.every((value) => value === unavailable)) return <>{unavailable}</>;
-
-    return (
-      <>
-        {prefix}
-
-        {labels.join(", ")}
-      </>
-    );
   },
 );
