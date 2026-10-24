@@ -20,9 +20,10 @@ export class PrismaCalendarSubscriptionRepo extends TenantRepository implements 
     });
   }
   async revoke(id: string) {
-    await this.prisma.calendarSubscription.deleteMany({
+    const { count } = await this.prisma.calendarSubscription.deleteMany({
       where: { id, companyId: this.companyId, userId: this.userId },
     });
+    return count > 0;
   }
   @BypassTenantGuard
   async findByTokenHashUnscoped(tokenHash: string): Promise<CalendarSubscription | null> {

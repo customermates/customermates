@@ -31,6 +31,6 @@ export type CalendarSubscription = {
 export interface CalendarSubscriptionRepo {
   create(tokenHash: string, config: PlannerConfig, includePersonalEvents: boolean): Promise<CalendarSubscription>;
   list(): Promise<Array<Pick<CalendarSubscription, "id" | "createdAt">>>;
-  revoke(id: string): Promise<void>;
+  revoke(id: string): Promise<boolean>;
   findByTokenHashUnscoped(tokenHash: string): Promise<CalendarSubscription | null>;
 }

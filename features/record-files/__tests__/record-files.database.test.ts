@@ -59,6 +59,8 @@ const { PreviewRecordFileInteractor } = await import("../preview-record-file.int
 const { DownloadRecordFileByGrantInteractor } = await import("../download-record-file-by-grant.interactor");
 const { UploadRecordFileInteractor } = await import("../upload-record-file.interactor");
 const { PurgeCompanyRecordFilesInteractor } = await import("../purge-company-record-files.interactor");
+const { ExportRecordsInteractor } = await import("@/features/data-transfer/export/export-records.interactor");
+const { ImportRecordsInteractor } = await import("@/features/data-transfer/import/import-records.interactor");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -282,6 +284,8 @@ async function workspace() {
   return {
     companyId,
     typeId,
+    policy,
+    writer: new RecordWriteService(repo, policy, calculations, undefined, attacher),
     multiple,
     single,
     admin,
@@ -602,6 +606,48 @@ describeDatabase("record files", () => {
     const refused = await start({ size: 1001 });
     expect(failure(refused)).toMatchObject({ code: "storageQuotaExceeded", kind: "conflict" });
     expect(data(await start({ size: 1000 })).fileId).toBeTruthy();
+  });
+
+  it("round-trips file values through a bulk update and leaves the files on their record when an export is copied", async () => {
+    const f = await workspace();
+    const ref = await f.createDeal();
+    const { fileId } = await f.uploaded(16);
+    data(await f.setFiles(ref, f.multiple, [fileId]));
+    const exporter = new ExportRecordsInteractor(f.repo, f.policy, { publish: () => Promise.resolve() } as never);
+    const importer = new ImportRecordsInteractor(f.repo, f.policy, f.writer);
+    const exported = data(
+      await f.as(f.admin, () => exporter.invoke({ typeId: f.typeId, filters: [], relationships: [], sort: [] })),
+    );
+    const row = exported.records.find((record) => record.ref.recordId === ref.recordId);
+    expect(row?.fields.find((field) => field.fieldId === f.multiple)?.result).toMatchObject({
+      state: "value",
+      value: { kind: "file", value: [fileId] },
+    });
+    const document = {
+      ...exported,
+      records: exported.records.filter((record) => record.ref.recordId === ref.recordId),
+    };
+
+    expect(
+      data(await f.as(f.admin, () => importer.invoke({ document, mode: "update", idempotencyKey: randomUUID() }))),
+    ).toMatchObject({ updated: 1 });
+    expect((await f.row(fileId))?.recordId).toBe(ref.recordId);
+
+    const copy = { typeId: f.typeId, recordId: randomUUID() };
+    expect(
+      data(
+        await f.as(f.admin, () =>
+          importer.invoke({
+            document: { ...document, records: document.records.map((record) => ({ ...record, ref: copy })) },
+            mode: "create",
+            idempotencyKey: randomUUID(),
+          }),
+        ),
+      ),
+    ).toMatchObject({ created: 1 });
+    const copied = await f.as(f.admin, () => f.repo.getRecordCompanyWide(copy));
+    expect(copied?.values.find((value) => value.fieldId === f.multiple)?.state ?? "missing").not.toBe("value");
+    expect((await f.row(fileId))?.recordId).toBe(ref.recordId);
   });
 
   it("refuses a file that is already attached to another record", async () => {

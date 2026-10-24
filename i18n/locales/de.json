@@ -1116,6 +1116,7 @@
       "calendarExportIncomplete": "Dieser Zeitraum enthält mehr Einträge, als ein Export aufnehmen kann. Wähle einen kürzeren Zeitraum oder engere Filter für die Datumsquellen.",
       "calendarNotFound": "Kalender-ID nicht gefunden oder nicht zugänglich.",
       "calendarSubscriptionLimitReached": "Du kannst bis zu {limit} Kalenderabonnements haben. Widerrufe eines, um ein neues zu erstellen.",
+      "calendarSubscriptionNotFound": "Dieses Kalenderabonnement gibt es nicht mehr.",
       "channelAlreadyLinked": "Diese Telefonnummer, E-Mail-Adresse oder dieses Profil ist bereits mit einem anderen Datensatz verknüpft.",
       "chatThreadRequired": "Dies ist ein E-Mail-Verlauf. Antworte darauf mit einer E-Mail statt mit einer Chatnachricht.",
       "connectedAccountEmailChangeRequired": "Übergeben Sie eine Signatur, E-Mail-Einstellungen oder beides.",

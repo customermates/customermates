@@ -5,8 +5,10 @@ import {
   getCreateRecordFileUploadInteractor,
   getReadRecordFileInteractor,
   getRenameRecordFileInteractor,
+  getSearchRecordFilesInteractor,
   getUploadRecordFileInteractor,
 } from "@/core/di";
+import { RecordFileSearchSchema } from "@/features/record-file-index/record-file-index.schema";
 import {
   AttachRecordFileSchema,
   CreateRecordFileUploadSchema,
@@ -18,13 +20,13 @@ import {
 import { untrustedText } from "./untrusted-record-content";
 import { formatDatesInResponse, mcpValidationFailure, runInteractor, toonResult, untrustedToonResult } from "./utils";
 
-const RECORD_FILE_ACTIONS = ["upload", "create_upload", "read", "attach", "rename"] as const;
+const RECORD_FILE_ACTIONS = ["upload", "create_upload", "read", "attach", "rename", "search"] as const;
 
 const ManageRecordFilesSchema = z.object({
   action: z
     .enum(RECORD_FILE_ACTIONS)
     .describe(
-      "upload: typeId, fieldId, name, mimeType, content, recordId, mode, expectedVersion; create_upload: typeId, fieldId, name, mimeType, size; read: fileId, offset; attach: fileId, typeId, recordId, fieldId, mode, expectedVersion; rename: fileId, name.",
+      "upload: typeId, fieldId, name, mimeType, content, recordId, mode, expectedVersion; create_upload: typeId, fieldId, name, mimeType, size; read: fileId, offset; attach: fileId, typeId, recordId, fieldId, mode, expectedVersion; rename: fileId, name; search: query, limit.",
     ),
   typeId: z.uuid().optional().describe("List (typeId) of the file field."),
   fieldId: z.uuid().optional().describe("File field that receives the file."),
@@ -73,6 +75,8 @@ const ManageRecordFilesSchema = z.object({
     .min(0)
     .optional()
     .describe("read: character offset into the extracted text, 0 or the prior nextOffset."),
+  query: z.string().max(200).optional().describe("search: words to find in the text of the files you can read."),
+  limit: z.coerce.number().int().min(1).optional().describe("search: how many files to return, at most 10."),
 });
 type ManageRecordFilesInput = z.infer<typeof ManageRecordFilesSchema>;
 
@@ -87,6 +91,7 @@ const CreateUploadSchema = z.object({
 const ReadSchema = z.object(ReadRecordFileSchema.shape);
 const AttachSchema = z.object(AttachRecordFileSchema.shape);
 const RenameSchema = z.object(RenameRecordFileSchema.shape);
+const SearchSchema = z.object(RecordFileSearchSchema.shape);
 
 const RecordFileOutputSchema = z.looseObject({
   id: z.string(),
@@ -131,6 +136,13 @@ const ManageRecordFilesOutputSchema = z.looseObject({
   offset: z.number().optional(),
   nextOffset: z.number().nullable().optional(),
   totalChars: z.number().optional(),
+  items: z
+    .array(z.looseObject({ id: z.string(), name: z.string(), snippet: z.string(), offset: z.number() }))
+    .optional()
+    .describe(
+      "search: matching files, best first, each with its record, a snippet between untrusted-content markers and the offset to read from.",
+    ),
+  didYouMean: z.array(z.string()).optional(),
   untrustedTextHandling: z
     .string()
     .optional()
@@ -146,7 +158,7 @@ export const manageRecordFilesTool = {
   name: "manage_record_files",
   title: "Upload, attach and read record files",
   description:
-    "Upload files into a file field and read files. upload sends the content as base64 (at most 3 MB) and, with recordId, writes the file into that record's file field at once; mode append adds it after the existing files (default when the field holds several), replace keeps only the new file (default for single-file fields). Without recordId the file stays pending: write its id into the field with mutate_crm_record within 24 hours, sending the full list of file ids. create_upload is for larger files and coding agents: it returns a PUT URL with headers that accepts exactly size bytes for 15 minutes and a curl command; then write the returned fileId into the field with mutate_crm_record. attach writes a pending file you uploaded into a record's file field: a file the user attached to a chat message (its fileId is in the message) or an upload without recordId. It is a record update like upload with recordId (mode append or replace, expectedVersion); a file already in that field is returned unchanged, and once attached the record's and field's access rules apply to it. read takes a fileId from a file value, a record's files list or a chat attachment and returns the file's details, a downloadUrl that works for 15 minutes and, once text extraction has run, the file's text in chunks: start with offset 0 and pass nextOffset until it is null. rename gives a file a new name (folders are refused; a name without an extension keeps the current one); for a file in a record's file field it is a record update that needs edit access to the field and shows in the record's activity. Uploads count against the workspace storage and the size limit per file.",
+    "Upload files into a file field and read files. upload sends the content as base64 (at most 3 MB) and, with recordId, writes the file into that record's file field at once; mode append adds it after the existing files (default when the field holds several), replace keeps only the new file (default for single-file fields). Without recordId the file stays pending: write its id into the field with mutate_crm_record within 24 hours, sending the full list of file ids. create_upload is for larger files and coding agents: it returns a PUT URL with headers that accepts exactly size bytes for 15 minutes and a curl command; then write the returned fileId into the field with mutate_crm_record. attach writes a pending file you uploaded into a record's file field: a file the user attached to a chat message (its fileId is in the message) or an upload without recordId. It is a record update like upload with recordId (mode append or replace, expectedVersion); a file already in that field is returned unchanged, and once attached the record's and field's access rules apply to it. read takes a fileId from a file value, a record's files list or a chat attachment and returns the file's details, a downloadUrl that works for 15 minutes and, once text extraction has run, the file's text in chunks: start with offset 0 and pass nextOffset until it is null. rename gives a file a new name (folders are refused; a name without an extension keeps the current one); for a file in a record's file field it is a record update that needs edit access to the field and shows in the record's activity. search finds files you can read by the words in their extracted text and returns each with its record, a snippet and the offset to pass to read. To remove a file from a record, write the field's list without its id with mutate_crm_record. Uploads count against the workspace storage and the size limit per file.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
   inputSchema: ManageRecordFilesSchema,
   outputSchema: ManageRecordFilesOutputSchema,
@@ -177,6 +189,21 @@ export const manageRecordFilesTool = {
       if (!parsed.success) return mcpValidationFailure(parsed.error);
       return runInteractor(getRenameRecordFileInteractor().invoke(parsed.data), (file) =>
         toonResult(formatDatesInResponse({ action: "rename", file })),
+      );
+    }
+    if (params.action === "search") {
+      const parsed = SearchSchema.safeParse(params);
+      if (!parsed.success) return mcpValidationFailure(parsed.error);
+      return runInteractor(getSearchRecordFilesInteractor().invoke(parsed.data), (data) =>
+        untrustedToonResult({
+          action: "search",
+          items: data.items.map((item) => ({
+            ...item,
+            snippet: untrustedText(item.snippet),
+            ...(item.section ? { section: untrustedText(item.section) } : {}),
+          })),
+          ...(data.didYouMean ? { didYouMean: data.didYouMean } : {}),
+        }),
       );
     }
     const parsed = ReadSchema.safeParse(params);

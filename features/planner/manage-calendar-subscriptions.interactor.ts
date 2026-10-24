@@ -6,7 +6,8 @@ import { env } from "@/env";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
-import { failConflict } from "@/core/validation/interactor-failure-server";
+import { INTERACTIVE_COMPANY_LOCK_WAIT_MS, runInTransaction } from "@/core/decorators/transaction-runner";
+import { failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import { calendarSubscriptionTokenHash } from "./calendar-subscription-tenant";
@@ -29,20 +30,23 @@ export class ManageCalendarSubscriptionsInteractor extends AuthenticatedInteract
   async invoke(input: ManageCalendarSubscriptionsInput): Validated<SubscriptionList> {
     let created: SubscriptionList["created"];
     if (input.action === "create") {
-      if ((await this.repo.list()).length >= CALENDAR_SUBSCRIPTION_LIMIT) {
+      const token = randomBytes(32).toString("base64url");
+      const row = await runInTransaction(
+        async () =>
+          (await this.repo.list()).length >= CALENDAR_SUBSCRIPTION_LIMIT
+            ? null
+            : this.repo.create(calendarSubscriptionTokenHash(token), input.config, input.includePersonalEvents),
+        { companyLockWait: INTERACTIVE_COMPANY_LOCK_WAIT_MS },
+      );
+      if (!row) {
         return failConflict(CustomErrorCode.calendarSubscriptionLimitReached, [], {
           limit: CALENDAR_SUBSCRIPTION_LIMIT,
         });
       }
-      const token = randomBytes(32).toString("base64url");
-      const row = await this.repo.create(
-        calendarSubscriptionTokenHash(token),
-        input.config,
-        input.includePersonalEvents,
-      );
       created = { id: row.id, url: `${env.BASE_URL.replace(/\/$/u, "")}/api/calendar/subscriptions/${token}` };
     }
-    if (input.action === "revoke") await this.repo.revoke(input.id);
+    if (input.action === "revoke" && !(await this.repo.revoke(input.id)))
+      return failNotFound(CustomErrorCode.calendarSubscriptionNotFound, ["id"]);
     return {
       ok: true,
       data: {

@@ -6,6 +6,10 @@ import { StructuredApiResponses } from "@/core/api/structured-interactor-handler
 import { structuredOperation } from "@/core/openapi/structured-operation";
 import { RecordFilePreviewSchema } from "./record-file-preview.schema";
 import {
+  RecordFileSearchResultSchema,
+  RecordFileSearchSchema,
+} from "@/features/record-file-index/record-file-index.schema";
+import {
   AttachRecordFileTargetSchema,
   CreateRecordFileUploadResultSchema,
   CreateRecordFileUploadSchema,
@@ -17,7 +21,7 @@ import {
 } from "./record-file.schema";
 
 const FILE_CONTRACT =
-  "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{id}/attach`. Access to a file follows read access to its record and field.";
+  "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{id}/attach`. To remove a file, write the field's list without its id with `/v1/records/mutate`. Access to a file follows read access to its record and field.";
 
 const FileIdPathSchema = z.object({ id: z.uuid().describe("Id of the file.") });
 const FileTokenSchema = z
@@ -178,8 +182,21 @@ const attachOperation: ZodOpenApiOperationObject = {
   },
 };
 
+const searchOperation = structuredOperation({
+  operationId: "searchFiles",
+  summary: "Search the text of files",
+  description: `${FILE_CONTRACT} Searches the extracted text of the files you can read, ranked by relevance, and returns each hit with its record, a snippet and the character offset of the matching passage. A file's text is searchable once its text extraction has run.`,
+  requires: "read access to the record and the file field",
+  tag: "files",
+  input: RecordFileSearchSchema,
+  output: RecordFileSearchResultSchema,
+  outputDescription: "The matching files, best first.",
+  example: { query: "termination notice", limit: 5 },
+});
+
 export const recordFileApiPaths = {
   "/v1/files/uploads": { post: createUploadOperation },
+  "/v1/files/search": { post: searchOperation },
   "/v1/files/{id}": { get: getFileOperation, patch: renameFileOperation },
   "/v1/files/{id}/preview": { get: previewFileOperation },
   "/v1/files/{id}/attach": { post: attachOperation },

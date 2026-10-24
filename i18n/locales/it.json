@@ -1116,6 +1116,7 @@
       "calendarExportIncomplete": "Questo periodo contiene più voci di quante un'esportazione possa includerne. Scegli un periodo più breve o filtri delle origini più restrittivi.",
       "calendarNotFound": "ID del calendario non trovato o non accessibile.",
       "calendarSubscriptionLimitReached": "Puoi avere fino a {limit} abbonamenti al calendario. Revocane uno per crearne un altro.",
+      "calendarSubscriptionNotFound": "Questo abbonamento al calendario non esiste più.",
       "channelAlreadyLinked": "Questo numero di telefono, indirizzo e-mail o profilo è già collegato a un altro record.",
       "chatThreadRequired": "Questo è un thread email. Rispondi con un'email invece che con un messaggio di chat.",
       "connectedAccountEmailChangeRequired": "Indica una firma, le impostazioni email o entrambe.",

@@ -73,6 +73,7 @@ function inputAssignments(row: ImportRow, fields: RecordField[], mode: ImportRec
       continue;
     }
     if (field.behavior.kind !== "input") continue;
+    if (field.valueType === "file" && mode === "create") continue;
     if (unreadable) return { ok: false, path: ["fields", index, "result"] };
     assignments.push({
       fieldId: field.id,

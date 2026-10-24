@@ -155,6 +155,7 @@ export enum CustomErrorCode {
   calendarNotFound = "calendarNotFound",
   calendarExportIncomplete = "calendarExportIncomplete",
   calendarSubscriptionLimitReached = "calendarSubscriptionLimitReached",
+  calendarSubscriptionNotFound = "calendarSubscriptionNotFound",
   connectedAccountNotFound = "connectedAccountNotFound",
   connectedAccountEmailChangeRequired = "connectedAccountEmailChangeRequired",
   roleNotFound = "roleNotFound",

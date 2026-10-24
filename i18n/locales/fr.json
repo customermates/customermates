@@ -1116,6 +1116,7 @@
       "calendarExportIncomplete": "Cette période contient plus d'entrées qu'un export ne peut en inclure. Choisissez une période plus courte ou des filtres de source plus précis.",
       "calendarNotFound": "ID d'agenda introuvable ou inaccessible.",
       "calendarSubscriptionLimitReached": "Vous pouvez avoir jusqu'à {limit} abonnements d'agenda. Révoquez-en un pour en créer un autre.",
+      "calendarSubscriptionNotFound": "Cet abonnement d'agenda n'existe plus.",
       "channelAlreadyLinked": "Ce numéro de téléphone, cette adresse e-mail ou ce profil est déjà lié à une autre fiche.",
       "chatThreadRequired": "Ceci est un fil d'e-mails. Répondez par e-mail plutôt que par un message de chat.",
       "connectedAccountEmailChangeRequired": "Indiquez une signature, des paramètres d'e-mail ou les deux.",

@@ -97942,7 +97942,7 @@
       "post": {
         "operationId": "createFileUpload",
         "summary": "Start a file upload",
-        "description": "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{id}/attach`. Access to a file follows read access to its record and field. Checks the file field, your create or update access to its list, the size limit and the workspace storage. Returns a pending fileId and where to send the bytes within 15 minutes: send exactly size bytes with the given method and headers. The URL is either this API's content route or a presigned URL of the workspace's object store. A pending file that is never written into a file field is deleted after 24 hours.\n\nRequires: create or update access to the list",
+        "description": "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{id}/attach`. To remove a file, write the field's list without its id with `/v1/records/mutate`. Access to a file follows read access to its record and field. Checks the file field, your create or update access to its list, the size limit and the workspace storage. Returns a pending fileId and where to send the bytes within 15 minutes: send exactly size bytes with the given method and headers. The URL is either this API's content route or a presigned URL of the workspace's object store. A pending file that is never written into a file field is deleted after 24 hours.\n\nRequires: create or update access to the list",
         "tags": [
           "files"
         ],
@@ -98153,11 +98153,655 @@
         }
       }
     },
+    "/v1/files/search": {
+      "post": {
+        "operationId": "searchFiles",
+        "summary": "Search the text of files",
+        "description": "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{id}/attach`. To remove a file, write the field's list without its id with `/v1/records/mutate`. Access to a file follows read access to its record and field. Searches the extracted text of the files you can read, ranked by relevance, and returns each hit with its record, a snippet and the character offset of the matching passage. A file's text is searchable once its text extraction has run.\n\nRequires: read access to the record and the file field",
+        "tags": [
+          "files"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "query": "termination notice",
+                "limit": 5
+              },
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "limit": {
+                    "default": 5,
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10
+                  }
+                },
+                "required": [
+                  "query"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The matching files, best first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                            "description": "Id of the file; read it with GET /v1/files/{id} or manage_record_files read."
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "mimeType": {
+                            "type": "string"
+                          },
+                          "fieldId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                            "description": "File field that holds the file."
+                          },
+                          "record": {
+                            "type": "object",
+                            "properties": {
+                              "ref": {
+                                "type": "object",
+                                "properties": {
+                                  "typeId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  "recordId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  }
+                                },
+                                "required": [
+                                  "typeId",
+                                  "recordId"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "title": {
+                                "oneOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "state": {
+                                        "type": "string",
+                                        "const": "value"
+                                      },
+                                      "value": {
+                                        "oneOf": [
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "kind": {
+                                                "type": "string",
+                                                "const": "text"
+                                              },
+                                              "value": {
+                                                "type": "string",
+                                                "maxLength": 100000,
+                                                "pattern": "^[^\\u0000]*$"
+                                              }
+                                            },
+                                            "required": [
+                                              "kind",
+                                              "value"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "kind": {
+                                                "type": "string",
+                                                "const": "textList"
+                                              },
+                                              "value": {
+                                                "minItems": 1,
+                                                "maxItems": 100,
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "string",
+                                                  "maxLength": 100000,
+                                                  "pattern": "^[^\\u0000]*$"
+                                                }
+                                              }
+                                            },
+                                            "required": [
+                                              "kind",
+                                              "value"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "kind": {
+                                                "type": "string",
+                                                "const": "decimal"
+                                              },
+                                              "value": {
+                                                "type": "string",
+                                                "maxLength": 128,
+                                                "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                              },
+                                              "currency": {
+                                                "anyOf": [
+                                                  {
+                                                    "type": "string",
+                                                    "pattern": "^[A-Z]{3}$"
+                                                  },
+                                                  {
+                                                    "type": "null"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            "required": [
+                                              "kind",
+                                              "value",
+                                              "currency"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "kind": {
+                                                "type": "string",
+                                                "const": "boolean"
+                                              },
+                                              "value": {
+                                                "type": "boolean"
+                                              }
+                                            },
+                                            "required": [
+                                              "kind",
+                                              "value"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "kind": {
+                                                "type": "string",
+                                                "const": "date"
+                                              },
+                                              "value": {
+                                                "anyOf": [
+                                                  {
+                                                    "type": "string",
+                                                    "format": "date",
+                                                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                                                  },
+                                                  {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            "required": [
+                                              "kind",
+                                              "value"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "kind": {
+                                                "type": "string",
+                                                "const": "dateTime"
+                                              },
+                                              "value": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                                              }
+                                            },
+                                            "required": [
+                                              "kind",
+                                              "value"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "kind": {
+                                                "type": "string",
+                                                "const": "range"
+                                              },
+                                              "start": {
+                                                "anyOf": [
+                                                  {
+                                                    "type": "string",
+                                                    "pattern": "^[^\\u0000]*$"
+                                                  },
+                                                  {
+                                                    "type": "null"
+                                                  }
+                                                ]
+                                              },
+                                              "end": {
+                                                "anyOf": [
+                                                  {
+                                                    "type": "string",
+                                                    "pattern": "^[^\\u0000]*$"
+                                                  },
+                                                  {
+                                                    "type": "null"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            "required": [
+                                              "kind",
+                                              "start",
+                                              "end"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "kind": {
+                                                "type": "string",
+                                                "const": "select"
+                                              },
+                                              "value": {
+                                                "type": "string",
+                                                "minLength": 1,
+                                                "maxLength": 200,
+                                                "pattern": "^[^\\u0000]*$"
+                                              }
+                                            },
+                                            "required": [
+                                              "kind",
+                                              "value"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "kind": {
+                                                "type": "string",
+                                                "const": "selectList"
+                                              },
+                                              "value": {
+                                                "minItems": 1,
+                                                "maxItems": 100,
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "string",
+                                                  "minLength": 1,
+                                                  "maxLength": 200,
+                                                  "pattern": "^[^\\u0000]*$"
+                                                }
+                                              }
+                                            },
+                                            "required": [
+                                              "kind",
+                                              "value"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "kind": {
+                                                "type": "string",
+                                                "const": "member"
+                                              },
+                                              "value": {
+                                                "type": "string",
+                                                "format": "uuid",
+                                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                              }
+                                            },
+                                            "required": [
+                                              "kind",
+                                              "value"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "kind": {
+                                                "type": "string",
+                                                "const": "file"
+                                              },
+                                              "value": {
+                                                "minItems": 1,
+                                                "maxItems": 20,
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "string",
+                                                  "format": "uuid",
+                                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                                }
+                                              }
+                                            },
+                                            "required": [
+                                              "kind",
+                                              "value"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "kind": {
+                                                "type": "string",
+                                                "const": "richText"
+                                              },
+                                              "documentJson": {
+                                                "type": "string",
+                                                "maxLength": 1000000,
+                                                "pattern": "^[^\\u0000]*$",
+                                                "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
+                                              }
+                                            },
+                                            "required": [
+                                              "kind",
+                                              "documentJson"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "kind": {
+                                                "type": "string",
+                                                "const": "address"
+                                              },
+                                              "value": {
+                                                "$ref": "#/components/schemas/RecordAddress"
+                                              }
+                                            },
+                                            "required": [
+                                              "kind",
+                                              "value"
+                                            ],
+                                            "additionalProperties": false
+                                          }
+                                        ],
+                                        "type": "object"
+                                      }
+                                    },
+                                    "required": [
+                                      "state",
+                                      "value"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "state": {
+                                        "type": "string",
+                                        "const": "missing"
+                                      }
+                                    },
+                                    "required": [
+                                      "state"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "state": {
+                                        "type": "string",
+                                        "const": "restricted"
+                                      }
+                                    },
+                                    "required": [
+                                      "state"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "state": {
+                                        "type": "string",
+                                        "const": "error"
+                                      },
+                                      "code": {
+                                        "type": "string",
+                                        "enum": [
+                                          "division_by_zero",
+                                          "type_mismatch",
+                                          "currency_mismatch",
+                                          "invalid_date",
+                                          "out_of_range",
+                                          "dependency_error"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "state",
+                                      "code"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                ],
+                                "type": "object"
+                              },
+                              "typeLabel": {
+                                "type": "string"
+                              },
+                              "typePluralLabel": {
+                                "type": "string"
+                              },
+                              "icon": {
+                                "type": "string"
+                              },
+                              "pictureUrl": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "canEdit": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "ref",
+                              "title",
+                              "typeLabel",
+                              "typePluralLabel",
+                              "icon",
+                              "pictureUrl"
+                            ],
+                            "additionalProperties": false,
+                            "description": "The record whose file field holds the file."
+                          },
+                          "snippet": {
+                            "type": "string",
+                            "description": "The matching passage of the file's text."
+                          },
+                          "section": {
+                            "description": "The heading or sheet of the matching passage.",
+                            "type": "string"
+                          },
+                          "offset": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991,
+                            "description": "Character offset of the passage; pass it as offset to read from there."
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "mimeType",
+                          "fieldId",
+                          "record",
+                          "snippet",
+                          "offset"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "didYouMean": {
+                      "description": "Corrected spellings the results were found with.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "retrieval": {
+                      "type": "string",
+                      "enum": [
+                        "semantic",
+                        "keyword"
+                      ],
+                      "description": "semantic when meaning-based ranking was used."
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "retrieval"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
     "/v1/files/{id}": {
       "get": {
         "operationId": "getFile",
         "summary": "Read file details",
-        "description": "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{id}/attach`. Access to a file follows read access to its record and field. Returns the file's metadata and a downloadUrl that works without other credentials for 15 minutes. A pending file is visible only to the person who uploaded it. A file of another workspace, of a record in Trash or removed from its field answers 404.\n\nRequires: read access to the record and the file field",
+        "description": "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{id}/attach`. To remove a file, write the field's list without its id with `/v1/records/mutate`. Access to a file follows read access to its record and field. Returns the file's metadata and a downloadUrl that works without other credentials for 15 minutes. A pending file is visible only to the person who uploaded it. A file of another workspace, of a record in Trash or removed from its field answers 404.\n\nRequires: read access to the record and the file field",
         "tags": [
           "files"
         ],
@@ -98399,7 +99043,7 @@
       "patch": {
         "operationId": "renameFile",
         "summary": "Rename a file",
-        "description": "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{id}/attach`. Access to a file follows read access to its record and field. Changes the name a file shows and downloads with. Folders are refused, control characters are removed and the name is cut to 255 characters; a name without an extension keeps the file's current one, so \"Offer\" renames \"Draft.pdf\" to \"Offer.pdf\". Renaming a file in a record's file field is a record update: it appears in the record's activity like any change of the field, but leaves the record version unchanged. Renaming a pending file is possible for the person who uploaded it. An empty or invalid name answers 400 with recordFileNameInvalid.\n\nRequires: update access to the record and the file field, or ownership of a pending upload",
+        "description": "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{id}/attach`. To remove a file, write the field's list without its id with `/v1/records/mutate`. Access to a file follows read access to its record and field. Changes the name a file shows and downloads with. Folders are refused, control characters are removed and the name is cut to 255 characters; a name without an extension keeps the file's current one, so \"Offer\" renames \"Draft.pdf\" to \"Offer.pdf\". Renaming a file in a record's file field is a record update: it appears in the record's activity like any change of the field, but leaves the record version unchanged. Renaming a pending file is possible for the person who uploaded it. An empty or invalid name answers 400 with recordFileNameInvalid.\n\nRequires: update access to the record and the file field, or ownership of a pending upload",
         "tags": [
           "files"
         ],
@@ -98656,7 +99300,7 @@
       "get": {
         "operationId": "previewFile",
         "summary": "Preview a document or spreadsheet",
-        "description": "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{id}/attach`. Access to a file follows read access to its record and field. Returns readable Word (.docx), TXT, Markdown or JSON content, or read-only Excel (.xlsx) and CSV sheets. Independent of background indexing and embeddings. Files up to 25 MiB are read; previews contain at most 100,000 characters, 10 sheets, 200 rows and 50 columns per sheet, and 2,000 characters per cell. truncated identifies a partial preview. Formatting, embedded images and charts are not reproduced; formulas use their stored results. Unsupported, empty, oversized or unreadable files return kind unavailable. Requires a session or API key; signed content links do not authorize this endpoint.\n\nRequires: read access to the record and file field, or ownership of a pending upload",
+        "description": "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{id}/attach`. To remove a file, write the field's list without its id with `/v1/records/mutate`. Access to a file follows read access to its record and field. Returns readable Word (.docx), TXT, Markdown or JSON content, or read-only Excel (.xlsx) and CSV sheets. Independent of background indexing and embeddings. Files up to 25 MiB are read; previews contain at most 100,000 characters, 10 sheets, 200 rows and 50 columns per sheet, and 2,000 characters per cell. truncated identifies a partial preview. Formatting, embedded images and charts are not reproduced; formulas use their stored results. Unsupported, empty, oversized or unreadable files return kind unavailable. Requires a session or API key; signed content links do not authorize this endpoint.\n\nRequires: read access to the record and file field, or ownership of a pending upload",
         "tags": [
           "files"
         ],
@@ -98893,7 +99537,7 @@
       "post": {
         "operationId": "attachFile",
         "summary": "Attach a pending file to a record",
-        "description": "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{id}/attach`. Access to a file follows read access to its record and field. Writes a pending file you uploaded into a record's file field: a pending upload of that field, or a file you gave to Mate in a chat, which is not in any field yet. This is a record update, checked like `/v1/records/mutate`: mode append adds the file after the existing ones, replace keeps only this file, and expectedVersion guards against a concurrent change. Attaching a file that is already in that field returns it unchanged; a file in another record or field is refused with recordFileUnavailable. Once attached, access follows the record and the field. When the write continues in the background, operationId names the operation to read.\n\nRequires: update access to the record and the file field",
+        "description": "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{id}/attach`. To remove a file, write the field's list without its id with `/v1/records/mutate`. Access to a file follows read access to its record and field. Writes a pending file you uploaded into a record's file field: a pending upload of that field, or a file you gave to Mate in a chat, which is not in any field yet. This is a record update, checked like `/v1/records/mutate`: mode append adds the file after the existing ones, replace keeps only this file, and expectedVersion guards against a concurrent change. Attaching a file that is already in that field returns it unchanged; a file in another record or field is refused with recordFileUnavailable. Once attached, access follows the record and the field. When the write continues in the background, operationId names the operation to read.\n\nRequires: update access to the record and the file field",
         "tags": [
           "files"
         ],
@@ -99199,7 +99843,7 @@
       "get": {
         "operationId": "downloadFileContent",
         "summary": "Download a file",
-        "description": "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{id}/attach`. Access to a file follows read access to its record and field. Streams the file with its stored media type. PDFs and PNG, JPEG, GIF and WebP images open in the browser unless download is 1; every other type downloads. Supports a single byte range. Access is checked on every request, also for a signed downloadUrl.\n\nRequires: read access to the record and the file field, or a valid download token",
+        "description": "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{id}/attach`. To remove a file, write the field's list without its id with `/v1/records/mutate`. Access to a file follows read access to its record and field. Streams the file with its stored media type. PDFs and PNG, JPEG, GIF and WebP images open in the browser unless download is 1; every other type downloads. Supports a single byte range. Access is checked on every request, also for a signed downloadUrl.\n\nRequires: read access to the record and the file field, or a valid download token",
         "tags": [
           "files"
         ],
@@ -99369,7 +100013,7 @@
       "put": {
         "operationId": "uploadFileContent",
         "summary": "Send the bytes of a pending file",
-        "description": "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{id}/attach`. Access to a file follows read access to its record and field. The upload URL that `/v1/files/uploads` returns for workspaces that keep files in their database points here and carries a token, so no other credentials are needed. Send exactly the announced number of bytes; a shorter or longer body is refused with recordFileUploadIncomplete. Only the uploader can send the bytes, and only while the file is pending.\n\nRequires: the upload token or the uploader's API key",
+        "description": "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{id}/attach`. To remove a file, write the field's list without its id with `/v1/records/mutate`. Access to a file follows read access to its record and field. The upload URL that `/v1/files/uploads` returns for workspaces that keep files in their database points here and carries a token, so no other credentials are needed. Send exactly the announced number of bytes; a shorter or longer body is refused with recordFileUploadIncomplete. Only the uploader can send the bytes, and only while the file is pending.\n\nRequires: the upload token or the uploader's API key",
         "tags": [
           "files"
         ],
@@ -137561,6 +138205,7 @@
                         "calendarNotFound",
                         "calendarExportIncomplete",
                         "calendarSubscriptionLimitReached",
+                        "calendarSubscriptionNotFound",
                         "connectedAccountNotFound",
                         "connectedAccountEmailChangeRequired",
                         "roleNotFound",
