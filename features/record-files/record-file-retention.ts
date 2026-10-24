@@ -4,9 +4,9 @@ import { TRASH_RETENTION_DAYS } from "@/features/trash/trash-retention";
 
 const HOUR = 60 * 60 * 1000;
 
-export const PENDING_RECORD_FILE_HOURS = 24;
-export const DETACHED_RECORD_FILE_DAYS = TRASH_RETENTION_DAYS;
-export const CHAT_FILE_RETENTION_DAYS = TRASH_RETENTION_DAYS;
+const PENDING_RECORD_FILE_HOURS = 24;
+const DETACHED_RECORD_FILE_DAYS = TRASH_RETENTION_DAYS;
+const CHAT_FILE_RETENTION_DAYS = TRASH_RETENTION_DAYS;
 
 export function recordFileExpiry(now: Date): RecordFileExpiry {
   return {

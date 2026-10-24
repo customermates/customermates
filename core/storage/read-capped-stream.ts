@@ -43,3 +43,7 @@ export function totalSizeOfContentRange(header: string | null): number | null {
   const total = header ? /\/(\d+)\s*$/u.exec(header)?.[1] : undefined;
   return total === undefined ? null : Number(total);
 }
+
+export function storedFileRangeHeader(range: { start: number; end?: number }): string {
+  return `bytes=${Math.max(0, range.start)}-${range.end === undefined ? "" : range.end}`;
+}

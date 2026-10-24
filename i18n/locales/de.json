@@ -2226,12 +2226,10 @@
       "more": "+{count} weitere",
       "moreLabel": "{count, plural, one {# weiterer Datensatz} other {# weitere Datensätze}} am {date}",
       "movableEntry": "verschiebbarer Datensatz",
-      "moveCancelled": "Verschieben abgebrochen.",
       "moveRequested": "Verschieben auf {date} angefordert.",
       "moveTarget": "Datensatz auf {date} verschieben.",
       "nextMonth": "Nächster Monat",
       "nextWeek": "Nächste Woche",
-      "pickedUp": "Datensatz aufgenommen.",
       "previousMonth": "Vorheriger Monat",
       "previousWeek": "Vorherige Woche",
       "truncated": "{shown} von {total} Datensätzen in diesem Zeitraum werden angezeigt. Grenze die Filter ein, um den Rest zu sehen."
@@ -3526,8 +3524,6 @@
   "RecordCalendarWidgets": {
     "amountColumn": "Betragsspalte",
     "countPerDay": "Datensätze pro Tag",
-    "dateField": "Datumsfeld",
-    "dayCount": "{count, plural, one {# Tag} other {# Tage}}",
     "dayLabel": "{date}: {count, plural, =0 {keine Datensätze} one {# Datensatz} other {# Datensätze}}",
     "dayLabelWithSum": "{date}: {count, plural, one {# Datensatz} other {# Datensätze}}, {sum}",
     "days": "Tage im Voraus",
@@ -3546,7 +3542,6 @@
     "overdue": "Überfällig",
     "overdueBy": "{count, plural, one {# Tag überfällig} other {# Tage überfällig}}",
     "previousMonth": "Vorherigen Monat anzeigen",
-    "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}",
     "scale": "Weniger <swatches></swatches> mehr",
     "scaleSum": "Weniger <swatches></swatches> mehr",
     "showOverdue": "Überfällige Datensätze anzeigen",
@@ -3601,7 +3596,6 @@
       "action": "Adresse prüfen",
       "checking": "Adresse wird geprüft",
       "keep": "Wie eingegeben behalten",
-      "noMatch": "Keine passende Adresse gefunden.",
       "suggestion": "Vorgeschlagene Adresse",
       "use": "Vorschlag übernehmen"
     },

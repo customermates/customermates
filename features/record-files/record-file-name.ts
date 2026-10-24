@@ -1,5 +1,5 @@
 export const RECORD_FILE_NAME_MAX_LENGTH = 255;
-export const DEFAULT_RECORD_FILE_MIME_TYPE = "application/octet-stream";
+const DEFAULT_RECORD_FILE_MIME_TYPE = "application/octet-stream";
 
 const UNSAFE_CHARACTERS = /[\u0000-\u001f\u007f-\u009f\u200e\u200f\u202a-\u202e\u2066-\u2069]/gu;
 const MIME_TYPE = /^[a-z0-9][a-z0-9!#$&^_.+-]{0,126}\/[a-z0-9][a-z0-9!#$&^_.+-]{0,126}$/u;

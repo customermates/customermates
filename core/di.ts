@@ -615,18 +615,18 @@ export const getRecordWriteService = (records: RecordRepo = getRecordRepo()) =>
     getRecordFileAttachmentService(),
     getAddressCheckService(),
   );
-export const getAddressCandidateVerifier = () => new SignedAddressCandidateVerifier(env.BETTER_AUTH_SECRET);
-export const getRecordFileRepo = (companyId?: string) => new PrismaRecordFileRepo(companyId);
-export const getRecordFileAttachmentService = () =>
+const getAddressCandidateVerifier = () => new SignedAddressCandidateVerifier(env.BETTER_AUTH_SECRET);
+const getRecordFileRepo = (companyId?: string) => new PrismaRecordFileRepo(companyId);
+const getRecordFileAttachmentService = () =>
   new RecordFileAttachmentService(
     getRecordFileRepo(),
     { drivers: getFileStorageDriver, maxBytes: recordFileMaxUploadBytes(env.APP_MODE, env.FILE_MAX_UPLOAD_BYTES) },
     getBackgroundTaskService(),
   );
-export const getFileContentRepo = (companyId?: string) => new PrismaFileContentRepo(companyId);
-export const getDatabaseFileStorageDriver = (companyId?: string) =>
+const getFileContentRepo = (companyId?: string) => new PrismaFileContentRepo(companyId);
+const getDatabaseFileStorageDriver = (companyId?: string) =>
   new DatabaseFileStorageDriver(getFileContentRepo(companyId), env.BASE_URL);
-export const getFileStorageDriver = (name: string = env.FILE_STORAGE_DRIVER, companyId?: string): FileStorageDriver => {
+const getFileStorageDriver = (name: string = env.FILE_STORAGE_DRIVER, companyId?: string): FileStorageDriver => {
   if (name === "database") return getDatabaseFileStorageDriver(companyId);
   if (name === "s3") return new S3FileStorageDriver(s3FileStorageConfig(env));
   if (name === "vercel-blob") return new VercelBlobFileStorageDriver(vercelBlobClient);
@@ -695,7 +695,7 @@ export const getRenameRecordFileInteractor = () =>
     getRecordWriteService(),
     getRecordFileRepo(),
   );
-export const getAgentChatFileService = () =>
+const getAgentChatFileService = () =>
   new AgentChatFileService(getRecordFileAccessService(), getRecordFileRepo(), getBackgroundTaskService());
 export const getAgentNativeFileLoader = () =>
   new AgentNativeFileLoader(getRecordFileAccessService(), getFileStorageDriver);
@@ -1128,12 +1128,12 @@ import { SearchRecordFilesInteractor } from "@/features/record-file-index/search
 import { SweepRecordFileIndexInteractor } from "@/features/record-file-index/sweep-record-file-index.interactor";
 import { RecordFileSemanticIndexScheduler } from "@/ee/record-file-index/record-file-semantic-index-scheduler";
 import { RecordFileSemanticIndexService } from "@/ee/record-file-index/record-file-semantic-index.service";
-export const getRecordFileSearchRepo = () => new PrismaRecordFileSearchRepo();
+const getRecordFileSearchRepo = () => new PrismaRecordFileSearchRepo();
 const getRecordFileIndexStorage =
   (companyId: string): RecordFileStorageResolver =>
   (driver) =>
     driver === "database" || driver === env.FILE_STORAGE_DRIVER ? getFileStorageDriver(driver, companyId) : null;
-export const getRecordFileIndexService = (companyId: string) =>
+const getRecordFileIndexService = (companyId: string) =>
   new RecordFileIndexService(
     getRecordFileRepo(companyId),
     getRecordFileIndexStorage(companyId),
@@ -2284,9 +2284,9 @@ export const getGetRecordWidgetInteractor = () =>
     getRecordMapWidgetReader(),
   );
 
-export const getRecordCalendarWidgetReader = () =>
+const getRecordCalendarWidgetReader = () =>
   new RecordCalendarWidgetReader(getRecordRepo(), getQueryRecordsInteractor(), getQueryRecordMeasureInteractor());
-export const getRecordMapWidgetReader = () => new RecordMapWidgetReader(getRecordRepo(), getQueryRecordsInteractor());
+const getRecordMapWidgetReader = () => new RecordMapWidgetReader(getRecordRepo(), getQueryRecordsInteractor());
 export const getUpsertRecordCalendarWidgetInteractor = () =>
   new UpsertRecordCalendarWidgetInteractor(
     getWidgetRepo(),
@@ -2392,7 +2392,7 @@ export const getPostalCodeService = () =>
     (countryCode) => getBackgroundTaskService().dispatch("load-postal-codes", { countryCode }),
     downloadPostalCodeFile,
   );
-export const getAddressCheckService = () => new AddressCheckService(getPostalCodeService());
+const getAddressCheckService = () => new AddressCheckService(getPostalCodeService());
 export const getCheckAddressInteractor = () => new CheckAddressInteractor(getAddressCheckService());
 
 import { PrismaWorkspaceSetupRepo } from "@/ee/workspace-setup/prisma-workspace-setup.repository";
@@ -2494,7 +2494,7 @@ export const getRetryWorkspaceSetupPhaseInteractor = () =>
     getEntitlementService(),
   );
 
-import { PrismaPlannerPersonalEvents } from "@/ee/calendar/planner-personal-events";
+import { PrismaPlannerPersonalEvents } from "@/ee/calendar/prisma-planner-personal-events.repository";
 import { ReadPlannerInteractor } from "@/features/planner/read-planner.interactor";
 import { GetPlannerOptionsInteractor } from "@/features/planner/get-planner-options.interactor";
 import { PrismaCalendarSubscriptionRepo } from "@/features/planner/prisma-calendar-subscription.repository";
@@ -2503,7 +2503,7 @@ import { ManageCalendarSubscriptionsInteractor } from "@/features/planner/manage
 import { ReadCalendarSubscriptionInteractor } from "@/features/planner/read-calendar-subscription.interactor";
 import { CalendarSubscriptionTenant } from "@/features/planner/calendar-subscription-tenant";
 
-export const getPlannerPersonalEvents = () => new PrismaPlannerPersonalEvents();
+const getPlannerPersonalEvents = () => new PrismaPlannerPersonalEvents();
 export const getReadPlannerInteractor = () =>
   new ReadPlannerInteractor(getGetRecordPresentationInteractor(), getPlannerPersonalEvents(), getEntitlementService());
 export const getGetPlannerOptionsInteractor = () =>
@@ -2513,7 +2513,7 @@ export const getGetPlannerOptionsInteractor = () =>
     getPlannerPersonalEvents(),
     getEntitlementService(),
   );
-export const getCalendarSubscriptionRepo = () => new PrismaCalendarSubscriptionRepo();
+const getCalendarSubscriptionRepo = () => new PrismaCalendarSubscriptionRepo();
 export const getExportPlannerInteractor = () => new ExportPlannerInteractor(getReadPlannerInteractor());
 export const getManageCalendarSubscriptionsInteractor = () =>
   new ManageCalendarSubscriptionsInteractor(getCalendarSubscriptionRepo());

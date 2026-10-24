@@ -34,7 +34,7 @@ import {
   opensWidgetFilters,
   useWidgetAutoPreview,
 } from "./widget-editor-layout";
-import { widgetSourceFilterCount } from "./widget-source-summary";
+import { widgetSourceFilterCount } from "./widget-card-frame";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { WidgetPreviewFrame } from "./widget-preview-frame";
 import { cn } from "@/core/utils/cn";

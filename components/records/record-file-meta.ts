@@ -12,7 +12,7 @@ import { formatBytes } from "@/core/utils/format-bytes";
 type MetaFile = Pick<RecordFileSummary, "name" | "mimeType"> &
   Partial<Pick<RecordFileSummary, "size" | "uploadedAt" | "uploadedById" | "pageCount">>;
 
-export function memberName(members: Array<Pick<RecordMember, "id" | "firstName" | "lastName">>) {
+export function uploaderNameOf(members: Array<Pick<RecordMember, "id" | "firstName" | "lastName">>) {
   return (userId: string) => {
     const member = members.find((candidate) => candidate.id === userId);
     return member ? `${member.firstName} ${member.lastName}`.trim() || null : null;

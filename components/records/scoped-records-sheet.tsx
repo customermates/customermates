@@ -95,7 +95,7 @@ const ScopedRecordsTable = observer(function ScopedRecordsTable({
   );
 });
 
-export type ScopedRecordsSheetProps = {
+type ScopedRecordsSheetProps = {
   open: boolean;
   title: string;
   summary: (store: RecordExplorationStore | null) => ReactNode;

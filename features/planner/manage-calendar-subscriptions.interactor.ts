@@ -1,13 +1,15 @@
 import type { CalendarSubscriptionRepo } from "./planner.repo";
 import type { Validated } from "@/core/validation/validation.utils";
 
-import { createHash, randomBytes } from "node:crypto";
+import { randomBytes } from "node:crypto";
 import { env } from "@/env";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { failConflict } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+
+import { calendarSubscriptionTokenHash } from "./calendar-subscription-tenant";
 
 import {
   CALENDAR_SUBSCRIPTION_LIMIT,
@@ -34,7 +36,7 @@ export class ManageCalendarSubscriptionsInteractor extends AuthenticatedInteract
       }
       const token = randomBytes(32).toString("base64url");
       const row = await this.repo.create(
-        createHash("sha256").update(token).digest("hex"),
+        calendarSubscriptionTokenHash(token),
         input.config,
         input.includePersonalEvents,
       );

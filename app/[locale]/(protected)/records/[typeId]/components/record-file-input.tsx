@@ -15,7 +15,7 @@ import { FormFieldError } from "@/components/forms/form-field-error";
 import { FormLabel } from "@/components/forms/form-label";
 import { useFormFieldErrors } from "@/components/forms/use-form-field";
 import { downloadRecordFile, recordFileContentUrl } from "@/components/records/record-file-links";
-import { memberName, useRecordFileMeta } from "@/components/records/record-file-meta";
+import { uploaderNameOf, useRecordFileMeta } from "@/components/records/record-file-meta";
 import { RecordFileNameInput } from "@/components/records/record-file-name-input";
 import { useRecordFilePreview } from "@/components/records/record-file-preview";
 import { useRecordFileRename } from "@/components/records/record-file-rename";
@@ -278,7 +278,7 @@ export const RecordFileInput = observer(function RecordFileInput({
   const errorId = `${domId}-error`;
   const fieldLabel = label ?? field.label;
   const viewer = root.userStore.user;
-  const uploaderName = memberName(
+  const uploaderName = uploaderNameOf(
     viewer && !members.some((member) => member.id === viewer.id) ? [...members, viewer] : members,
   );
 

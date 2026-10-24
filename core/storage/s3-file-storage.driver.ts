@@ -12,7 +12,7 @@ import { createHash } from "node:crypto";
 
 import { AwsV4Signer } from "aws4fetch";
 
-import { readCappedStream, streamOfBytes, totalSizeOfContentRange } from "./read-capped-stream";
+import { readCappedStream, storedFileRangeHeader, streamOfBytes, totalSizeOfContentRange } from "./read-capped-stream";
 
 export type S3FileStorageConfig = {
   endpoint: string;
@@ -160,9 +160,7 @@ export class S3FileStorageDriver implements FileStorageDriver {
   }
 
   async read(key: string, range?: StoredFileRange): Promise<StoredFileRead | null> {
-    const headers: Record<string, string> = range
-      ? { range: `bytes=${Math.max(0, range.start)}-${range.end === undefined ? "" : range.end}` }
-      : {};
+    const headers: Record<string, string> = range ? { range: storedFileRangeHeader(range) } : {};
     const response = await this.send(this.objectUrl(key), "GET", headers);
     if (response.status === 404) {
       await response.body?.cancel();

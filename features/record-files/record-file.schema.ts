@@ -35,7 +35,7 @@ export type CreateRecordFileUpload = z.infer<typeof CreateRecordFileUploadSchema
 export const CreateChatFileUploadSchema = CreateRecordFileUploadSchema.omit({ typeId: true, fieldId: true }).strict();
 export type CreateChatFileUpload = z.infer<typeof CreateChatFileUploadSchema>;
 
-export const RecordFileUploadTargetSchema = z
+const RecordFileUploadTargetSchema = z
   .object({
     url: z.url().describe("Send the bytes here with the given method and headers before expiresAt."),
     method: z.literal("PUT"),
@@ -67,13 +67,13 @@ export const UploadRecordFileContentSchema = z
   .strict();
 export type UploadRecordFileContent = z.infer<typeof UploadRecordFileContentSchema>;
 
-export const RecordFileStatusSchema = z
+const RecordFileStatusSchema = z
   .enum(["pending", "ready"])
   .describe(
     "pending: uploaded or awaiting its bytes but not yet in a file field, such as a file given to Mate in a chat; ready: in a record's file field.",
   );
 
-export const RecordFileExtractionStatusSchema = z
+const RecordFileExtractionStatusSchema = z
   .enum(RecordFileExtractionStatus)
   .describe(
     "Text extraction for search: pending, done, noText (no text layer), unsupported, failed or skipped when indexing is off.",

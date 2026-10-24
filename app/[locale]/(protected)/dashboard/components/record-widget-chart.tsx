@@ -19,7 +19,7 @@ import { RankedTable } from "./ranked-table";
 import { WidgetChart } from "./widget-chart";
 import { WidgetNumber } from "./widget-number";
 import { formatWidgetNumber, inlineListLabel, widgetNumberAverage } from "./widget-number-format";
-import { WidgetSubtitle, WidgetTitle } from "./widget-subtitle";
+import { WidgetEmptyState, WidgetSubtitle, WidgetTitle } from "./widget-subtitle";
 import { WIDGET_CARD_BODY_CLASS, WIDGET_CARD_HEADER_CLASS } from "./widget-card-frame";
 import { WIDGET_INTERACTIVE_ATTRIBUTE } from "./widget-interaction";
 import { AppCardHeader } from "@/components/card/app-card-header";
@@ -206,18 +206,8 @@ export function RecordWidgetChart({
   }
 
   const overall = displayOptions.showFilters !== false ? t("RecordWidgets.overall", { value: format(total) }) : null;
-  if (data.total.count === 0) {
-    return frame(
-      <div
-        className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 text-center"
-        data-slot="widget-empty"
-      >
-        <ChartNoAxesColumn aria-hidden className="size-6 text-muted-foreground/60" />
+  if (data.total.count === 0) return frame(<WidgetEmptyState icon={ChartNoAxesColumn} text={t("Diagrams.noData")} />);
 
-        <p className="text-sm text-muted-foreground">{t("Diagrams.noData")}</p>
-      </div>,
-    );
-  }
   const groupedRows: ChartRow[] = data.groups.map((group) => {
     const optionId =
       group.label.state === "value" && group.label.value.kind === "select" ? String(group.label.value.value) : null;

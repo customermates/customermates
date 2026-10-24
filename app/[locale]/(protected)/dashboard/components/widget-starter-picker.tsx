@@ -11,6 +11,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { cn } from "@/core/utils/cn";
 import { DisplayType } from "@/features/widget/widget.schema";
 import { WIDGET_STARTER_DISPLAY_TYPES } from "@/features/widget/widget-display-rules";
+import { CALENDAR_HEAT_CLASS, type CalendarHeatLevel } from "./calendar-widget-view";
 import { ChartTypeIllustration } from "./widget-display-type-picker";
 
 export type WidgetStarterChoice = { displayType?: DisplayType; calendarLayout?: CalendarWidgetLayout };
@@ -23,8 +24,9 @@ type Props = {
   onSelectTemplate: (id: string) => void;
 };
 
-const HEAT_CELLS = [0, 1, 0, 2, 0, 0, 1, 3, 0, 1, 0, 4, 2, 0, 0, 2, 1, 0, 3, 0, 1, 1, 0, 0, 2, 0, 4, 0];
-const HEAT_CELL_CLASS = ["bg-border", "bg-primary/25", "bg-primary/45", "bg-primary/70", "bg-primary"];
+const HEAT_CELLS: CalendarHeatLevel[] = [
+  0, 1, 0, 2, 0, 0, 1, 3, 0, 1, 0, 4, 2, 0, 0, 2, 1, 0, 3, 0, 1, 1, 0, 0, 2, 0, 4, 0,
+];
 const MAP_PINS = [
   { position: "left-[22%] top-[30%]", color: "bg-(--chart-1)" },
   { position: "left-[48%] top-[22%]", color: "bg-(--chart-2)" },
@@ -86,7 +88,11 @@ function CalendarMonthIllustration({ className }: { className?: string }) {
         {HEAT_CELLS.map((level, index) => (
           <span
             key={index}
-            className={cn("aspect-square rounded-[2px]", HEAT_CELL_CLASS[level], index === 11 && "ring-1 ring-ring")}
+            className={cn(
+              "aspect-square rounded-[2px]",
+              CALENDAR_HEAT_CLASS[level],
+              index === 11 && "ring-1 ring-ring",
+            )}
           />
         ))}
       </div>

@@ -72,7 +72,7 @@ export const CalendarWidgetWindowSchema = z
   );
 export type CalendarWidgetWindow = z.infer<typeof CalendarWidgetWindowSchema>;
 
-export const CalendarWidgetItemSchema = z
+const CalendarWidgetItemSchema = z
   .object({
     record: RecordRefSchema,
     title: CalculatedValueSchema,
@@ -83,7 +83,7 @@ export const CalendarWidgetItemSchema = z
   .strict();
 export type CalendarWidgetItem = z.infer<typeof CalendarWidgetItemSchema>;
 
-export const CalendarWidgetDaySchema = z
+const CalendarWidgetDaySchema = z
   .object({
     date: z.iso.date(),
     count: z.number().int().nullable(),
@@ -91,7 +91,7 @@ export const CalendarWidgetDaySchema = z
   })
   .strict();
 
-export const CalendarWidgetDataSchema = z
+const CalendarWidgetDataSchema = z
   .object({
     schemaRevision: z.number().int(),
     today: z.iso.date().describe("Today in the widget time zone."),

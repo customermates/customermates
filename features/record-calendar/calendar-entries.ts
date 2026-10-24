@@ -117,7 +117,7 @@ function shiftInstant(instant: string, days: number, minutes: number, timeZone: 
   return minutes ? formatZonedInstant(new Date(new Date(moved).getTime() + minutes * MINUTE_MS), timeZone) : moved;
 }
 
-export function clampCalendarEdit(entry: CalendarEntry, edit: CalendarEdit): CalendarEdit {
+function clampCalendarEdit(entry: CalendarEntry, edit: CalendarEdit): CalendarEdit {
   if (edit.edge === "move") return edit;
   const sign = edit.edge === "start" ? 1 : -1;
   if (entry.time && entry.endTime) {

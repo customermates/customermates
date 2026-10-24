@@ -4,7 +4,7 @@ import type { RecordSearchHit } from "@/features/records/record-search.schema";
 
 import { z } from "zod";
 
-export const RECORD_FILE_SEARCH_MAX_RESULTS = 10;
+const RECORD_FILE_SEARCH_MAX_RESULTS = 10;
 
 export const RecordFileSearchSchema = z
   .object({

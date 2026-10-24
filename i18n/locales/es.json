@@ -2226,12 +2226,10 @@
       "more": "+{count} más",
       "moreLabel": "{count, plural, one {# registro más} other {# registros más}} el {date}",
       "movableEntry": "registro movible",
-      "moveCancelled": "Movimiento cancelado.",
       "moveRequested": "Movimiento al {date} solicitado.",
       "moveTarget": "Mover el registro al {date}.",
       "nextMonth": "Mes siguiente",
       "nextWeek": "Semana siguiente",
-      "pickedUp": "Registro seleccionado.",
       "previousMonth": "Mes anterior",
       "previousWeek": "Semana anterior",
       "truncated": "Se muestran {shown} de {total} registros de este periodo. Acota los filtros para ver el resto."
@@ -3526,8 +3524,6 @@
   "RecordCalendarWidgets": {
     "amountColumn": "Columna de importe",
     "countPerDay": "Registros por día",
-    "dateField": "Campo de fecha",
-    "dayCount": "{count, plural, one {# día} other {# días}}",
     "dayLabel": "{date}: {count, plural, =0 {ningún registro} one {# registro} other {# registros}}",
     "dayLabelWithSum": "{date}: {count, plural, one {# registro} other {# registros}}, {sum}",
     "days": "Próximos días",
@@ -3546,7 +3542,6 @@
     "overdue": "Vencidos",
     "overdueBy": "{count, plural, one {Vencido hace # día} other {Vencido hace # días}}",
     "previousMonth": "Mostrar el mes anterior",
-    "recordCount": "{count, plural, one {# registro} other {# registros}}",
     "scale": "Menos <swatches></swatches> más",
     "scaleSum": "Menos <swatches></swatches> más",
     "showOverdue": "Mostrar los registros vencidos",
@@ -3601,7 +3596,6 @@
       "action": "Comprobar dirección",
       "checking": "Comprobando la dirección",
       "keep": "Mantener tal como está",
-      "noMatch": "No se encontró ninguna dirección coincidente.",
       "suggestion": "Dirección sugerida",
       "use": "Usar la dirección sugerida"
     },

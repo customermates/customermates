@@ -23,6 +23,7 @@ import { actionData } from "@/core/utils/action-data";
 import { runUserAction, reportApplicationError } from "@/core/errors/report-application-error";
 import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { serializedFailureErrorTree } from "@/core/validation/validation.utils";
 import { CALENDAR_SUBSCRIPTION_LIMIT } from "@/features/planner/calendar-subscription.schema";
 import { calendarSubscriptionsAction, exportPlannerAction } from "../actions";
@@ -47,6 +48,7 @@ export function PlannerSubscriptionsModal({
   onClose: () => void;
 }) {
   const t = useTranslations();
+  const copy = useCopyToClipboard();
   const format = useRecordValueFormat();
   const [includePersonalEvents, setIncludePersonalEvents] = useState(false);
   const [state, setState] = useState<SubscriptionList | null>(null);
@@ -160,7 +162,7 @@ export function PlannerSubscriptionsModal({
                   <IconButton
                     icon={Copy}
                     label={t("Planner.copyLink")}
-                    onClick={() => runUserAction(() => navigator.clipboard.writeText(state.created?.url ?? ""))}
+                    onClick={() => runUserAction(() => copy(state.created?.url ?? ""))}
                   />
                 </div>
 

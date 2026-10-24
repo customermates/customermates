@@ -8,7 +8,7 @@ import { SystemInteractor } from "@/core/decorators/system-interactor.decorator"
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { orphanedRecordFileCutoff, recordFileExpiry } from "./record-file-retention";
 
-export const RECORD_FILE_PURGE_BATCH_SIZE = 100;
+const RECORD_FILE_PURGE_BATCH_SIZE = 100;
 const RECORD_FILE_PURGE_TIMEOUT_MS = 60_000;
 
 const PurgeCompanyRecordFilesSchema = z

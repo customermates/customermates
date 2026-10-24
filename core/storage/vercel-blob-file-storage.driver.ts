@@ -21,7 +21,7 @@ import {
   put,
 } from "@vercel/blob";
 
-import { readCappedStream, streamOfBytes, totalSizeOfContentRange } from "./read-capped-stream";
+import { readCappedStream, storedFileRangeHeader, streamOfBytes, totalSizeOfContentRange } from "./read-capped-stream";
 
 export type VercelBlobClient = {
   issueSignedToken: typeof issueSignedToken;
@@ -93,9 +93,7 @@ export class VercelBlobFileStorageDriver implements FileStorageDriver {
   }
 
   async read(key: string, range?: StoredFileRange): Promise<StoredFileRead | null> {
-    const headers = range
-      ? { range: `bytes=${Math.max(0, range.start)}-${range.end === undefined ? "" : range.end}` }
-      : undefined;
+    const headers = range ? { range: storedFileRangeHeader(range) } : undefined;
     try {
       const result = await this.blob.get(key, { access: "private", useCache: false, ...(headers ? { headers } : {}) });
       if (!result || result.statusCode !== 200) return null;

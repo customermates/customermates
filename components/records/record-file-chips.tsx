@@ -8,7 +8,7 @@ import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { FileTypeBadge } from "@/components/files/file-type-badge";
 
 import { recordFileContentUrl } from "./record-file-links";
-import { memberName, useRecordFileSize } from "./record-file-meta";
+import { uploaderNameOf, useRecordFileSize } from "./record-file-meta";
 import { useRecordFilePreview } from "./record-file-preview";
 
 export function RecordFileChips({
@@ -52,7 +52,7 @@ export function RecordFileChips({
         onChipClick={(item, opener) => {
           if (item.file) {
             openFiles(
-              { files: known, index: known.indexOf(item.file), group, uploaderName: memberName(members) },
+              { files: known, index: known.indexOf(item.file), group, uploaderName: uploaderNameOf(members) },
               opener,
             );
           }

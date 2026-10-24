@@ -15,8 +15,8 @@ import { xlsxCellText, xlsxCellValue } from "@/features/data-transfer/import/xls
 import { readCsvRows } from "@/features/data-transfer/spreadsheet/spreadsheet-csv";
 
 export const RECORD_FILE_PREVIEW_MAX_CHARS = 100_000;
-export const RECORD_FILE_PREVIEW_MAX_ROWS = 200;
-export const RECORD_FILE_PREVIEW_MAX_COLUMNS = 50;
+const RECORD_FILE_PREVIEW_MAX_ROWS = 200;
+const RECORD_FILE_PREVIEW_MAX_COLUMNS = 50;
 const MAX_CELL_CHARS = 2_000;
 const LIMITS: RecordFileParserLimits = {
   timeoutMs: 15_000,

@@ -5,7 +5,7 @@ import { RecordContributionSchema, type RecordContribution } from "./record-cont
 export const RECORD_CONTRIBUTION_FILTER = "system:chartContribution";
 const MAX_TOKEN_LENGTH = 24_000;
 
-export function encodeRecordContribution(value: RecordContribution): string {
+function encodeRecordContribution(value: RecordContribution): string {
   const bytes = new TextEncoder().encode(JSON.stringify(RecordContributionSchema.parse(value)));
   let binary = "";
   for (const byte of bytes) binary += String.fromCharCode(byte);
@@ -14,7 +14,7 @@ export function encodeRecordContribution(value: RecordContribution): string {
   return token;
 }
 
-export function decodeRecordContribution(token: unknown): RecordContribution | null {
+function decodeRecordContribution(token: unknown): RecordContribution | null {
   if (typeof token !== "string" || token.length > MAX_TOKEN_LENGTH || !/^[\w-]+$/u.test(token)) return null;
   try {
     const bytes = Uint8Array.from(atob(token.replace(/-/gu, "+").replace(/_/gu, "/")), (char) => char.charCodeAt(0));

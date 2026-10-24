@@ -1,7 +1,16 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const notice = vi.hoisted(() => ({ notifyWorkspaceChanged: vi.fn() }));
-vi.mock("@/core/errors/workspace-changed-notice", () => notice);
+vi.mock("@/core/errors/workspace-changed-notice", async () => {
+  const { isWorkspaceChangedFailure } = await import("@/core/errors/workspace-changed");
+  return {
+    notifyIfWorkspaceChanged: (failure: unknown) => {
+      if (!isWorkspaceChangedFailure(failure)) return false;
+      notice.notifyWorkspaceChanged();
+      return true;
+    },
+  };
+});
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 

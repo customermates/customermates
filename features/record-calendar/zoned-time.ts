@@ -59,7 +59,7 @@ export function zonedDate(instant: Date | string, timeZone: string): CalendarDat
   return calendarDateOf(parts.year, parts.month, parts.day);
 }
 
-export function zonedWallTime(instant: Date | string, timeZone: string): WallTime {
+function zonedWallTime(instant: Date | string, timeZone: string): WallTime {
   const { hour, minute, second, millisecond } = zonedParts(
     typeof instant === "string" ? new Date(instant) : instant,
     timeZone,

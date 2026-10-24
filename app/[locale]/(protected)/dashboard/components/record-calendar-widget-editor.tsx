@@ -141,7 +141,7 @@ export const RecordCalendarWidgetEditor = observer(
           disabled={!model || dateFields.length === 0}
           id="calendarQuery.dateFieldId"
           items={dateFields.map((field) => ({ value: field.id, label: field.label }))}
-          label={t("RecordCalendarWidgets.dateField")}
+          label={t("DataView.calendar.dateField")}
         />
 
         <FormSelect
@@ -159,7 +159,7 @@ export const RecordCalendarWidgetEditor = observer(
               id="calendarQuery.days"
               items={[...new Set([...DAY_CHOICES, query.days])]
                 .sort((left, right) => left - right)
-                .map((days) => ({ value: String(days), label: t("RecordCalendarWidgets.dayCount", { count: days }) }))}
+                .map((days) => ({ value: String(days), label: t("Common.filters.daysCount", { count: days }) }))}
               label={t("RecordCalendarWidgets.days")}
               value={String(query.days)}
               onValueChange={(value) => store.onChange("calendarQuery.days", Number(value))}

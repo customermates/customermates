@@ -1,6 +1,6 @@
 "use client";
 
-import { Info } from "lucide-react";
+import { Info, type LucideIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { TruncatedText } from "@/components/shared/truncated-text";
@@ -57,5 +57,18 @@ export function WidgetNotes({ notes }: { notes: string[] }) {
 
       <span className="sr-only">{notes.join(" ")}</span>
     </>
+  );
+}
+
+export function WidgetEmptyState({ icon: Icon, text }: { icon: LucideIcon; text: string }) {
+  return (
+    <div
+      className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 text-center"
+      data-slot="widget-empty"
+    >
+      <Icon aria-hidden className="size-6 text-muted-foreground/60" />
+
+      <p className="text-sm text-muted-foreground">{text}</p>
+    </div>
   );
 }

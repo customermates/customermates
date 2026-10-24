@@ -51,7 +51,6 @@ vi.mock("@/app/[locale]/(protected)/dashboard/components/widget-data-drawer", ()
 vi.mock("@/app/[locale]/(protected)/dashboard/components/widget-modal", () => ({ WidgetModal: () => null }));
 vi.mock("@/app/[locale]/(protected)/dashboard/components/record-calendar-widget-card", () => ({
   RecordCalendarWidgetCard: () => null,
-  recordPageHref: () => "",
 }));
 vi.mock("@/app/[locale]/(protected)/dashboard/components/record-map-widget-card", () => ({ RecordMapWidgetCard: () => null }));
 vi.mock("@/app/[locale]/(protected)/dashboard/actions", () => ({ readCalendarWidgetWindowAction: vi.fn() }));

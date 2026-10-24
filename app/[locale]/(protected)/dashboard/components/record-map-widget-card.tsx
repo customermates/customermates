@@ -24,10 +24,14 @@ import { IntlLink } from "@/i18n/navigation";
 
 import { MapWidgetSkeleton } from "./dashboard-page-skeleton";
 import { mapLegend, mapViewPoints } from "./map-widget-view";
-import { WIDGET_CARD_BODY_CLASS, WIDGET_CARD_HEADER_CLASS } from "./widget-card-frame";
+import {
+  recordPageHref,
+  WIDGET_CARD_BODY_CLASS,
+  WIDGET_CARD_HEADER_CLASS,
+  widgetSourceFilterCount,
+} from "./widget-card-frame";
 import { WIDGET_INTERACTIVE_ATTRIBUTE } from "./widget-interaction";
-import { widgetSourceFilterCount } from "./widget-source-summary";
-import { WidgetSubtitle, WidgetTitle } from "./widget-subtitle";
+import { WidgetEmptyState, WidgetSubtitle, WidgetTitle } from "./widget-subtitle";
 
 const MapView = dynamic(() => import("@/components/map/map-view"), {
   ssr: false,
@@ -127,7 +131,7 @@ export const RecordMapWidgetCard = observer(function RecordMapWidgetCard({
         {openRecords && (
           <Button asChild className="self-start" size="sm" variant="secondary">
             <IntlLink
-              href={`/records/${point.record.typeId}/${point.record.recordId}`}
+              href={recordPageHref(point.record)}
               onClick={(event) => {
                 if (event.metaKey || event.ctrlKey || event.shiftKey || event.button === 1) return;
                 event.preventDefault();
@@ -167,14 +171,7 @@ export const RecordMapWidgetCard = observer(function RecordMapWidgetCard({
             {t("RecordMapWidgets.unavailable")}
           </p>
         ) : points.length === 0 ? (
-          <div
-            className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 text-center"
-            data-slot="widget-empty"
-          >
-            <MapPin aria-hidden className="size-6 text-muted-foreground/60" />
-
-            <p className="text-sm text-muted-foreground">{t("RecordMapWidgets.noPoints")}</p>
-          </div>
+          <WidgetEmptyState icon={MapPin} text={t("RecordMapWidgets.noPoints")} />
         ) : (
           <div ref={mapRef} className="relative min-h-0 flex-1" data-map-widget="">
             <MapView

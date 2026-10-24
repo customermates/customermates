@@ -30,7 +30,7 @@ export const MapWidgetQuerySchema = z
   .strict();
 export type MapWidgetQuery = z.infer<typeof MapWidgetQuerySchema>;
 
-export const MapWidgetPointSchema = z
+const MapWidgetPointSchema = z
   .object({
     record: RecordRefSchema,
     title: CalculatedValueSchema,
@@ -45,7 +45,7 @@ export const MapWidgetPointSchema = z
   .strict();
 export type MapWidgetPoint = z.infer<typeof MapWidgetPointSchema>;
 
-export const MapWidgetDataSchema = z
+const MapWidgetDataSchema = z
   .object({
     schemaRevision: z.number().int(),
     points: z.array(MapWidgetPointSchema).describe(`Located records, at most ${MAP_WIDGET_POINT_LIMIT}.`),

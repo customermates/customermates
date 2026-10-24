@@ -20,8 +20,7 @@ import { cn } from "@/core/utils/cn";
 
 import { type CalendarDaySelect, CalendarWidgetMonth } from "./calendar-widget-month";
 import { CalendarWidgetUpcoming } from "./calendar-widget-upcoming";
-import { WIDGET_CARD_BODY_CLASS, WIDGET_CARD_HEADER_CLASS } from "./widget-card-frame";
-import { widgetSourceFilterCount } from "./widget-source-summary";
+import { WIDGET_CARD_BODY_CLASS, WIDGET_CARD_HEADER_CLASS, widgetSourceFilterCount } from "./widget-card-frame";
 import { WidgetSubtitle, WidgetTitle } from "./widget-subtitle";
 import { WIDGET_INTERACTIVE_ATTRIBUTE } from "./widget-interaction";
 
@@ -37,10 +36,6 @@ export type RecordCalendarWidgetCardProps = {
   recordHref?: (record: RecordRef) => string;
   onSelectDay?: CalendarDaySelect;
 };
-
-export function recordPageHref(record: RecordRef) {
-  return `/records/${record.typeId}/${record.recordId}`;
-}
 
 export const RecordCalendarWidgetCard = observer(function RecordCalendarWidgetCard({
   name,
@@ -82,7 +77,7 @@ export const RecordCalendarWidgetCard = observer(function RecordCalendarWidgetCa
           value:
             calendarQuery.aggregation === "sum" && total?.state === "value" && total.value.kind === "decimal"
               ? valueFormat.decimal(total.value.value, { currency: total.value.currency ?? null, compact: true })
-              : t("RecordCalendarWidgets.recordCount", { count: data.total.count }),
+              : t("DataView.views.recordCount", { count: data.total.count }),
         });
 
   return (

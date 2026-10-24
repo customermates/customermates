@@ -257,14 +257,14 @@ export function CalendarDrag({
         accessibility={{
           screenReaderInstructions: { draggable: t("DataView.calendar.keyboardInstructions") },
           announcements: {
-            onDragStart: () => t("DataView.calendar.pickedUp"),
+            onDragStart: () => t("DataView.boardPickedUp"),
             onDragOver: ({ over }) =>
               over ? t("DataView.calendar.moveTarget", { date: fullDate(String(over.id)) }) : undefined,
             onDragEnd: ({ over }) =>
               over
                 ? t("DataView.calendar.moveRequested", { date: fullDate(String(over.id)) })
-                : t("DataView.calendar.moveCancelled"),
-            onDragCancel: () => t("DataView.calendar.moveCancelled"),
+                : t("DataView.boardMoveCancelled"),
+            onDragCancel: () => t("DataView.boardMoveCancelled"),
           },
         }}
         collisionDetection={collisions}

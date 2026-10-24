@@ -27,7 +27,7 @@ export const FILE_KINDS = [
   "archive",
   "other",
 ] as const;
-export type FileKind = (typeof FILE_KINDS)[number];
+type FileKind = (typeof FILE_KINDS)[number];
 
 const KIND_BY_MIME_TYPE: Record<string, FileKind> = {
   "application/pdf": "pdf",
@@ -84,7 +84,7 @@ const KIND_BY_EXTENSION: Record<string, FileKind> = {
   "7z": "archive",
 };
 
-export function fileExtension(name: string | null | undefined): string {
+function fileExtension(name: string | null | undefined): string {
   return /\.([a-z0-9]+)$/iu.exec(name?.trim() ?? "")?.[1]?.toLowerCase() ?? "";
 }
 

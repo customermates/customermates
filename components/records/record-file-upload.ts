@@ -1,7 +1,6 @@
 import type { CreateRecordFileUploadResult, RecordFileDto } from "@/features/record-files/record-file.schema";
 
-import { isWorkspaceChangedFailure } from "@/core/errors/workspace-changed";
-import { notifyWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 
 export type RecordFileRequest<T> = { ok: true; data: T } | { ok: false; message: string | null };
 
@@ -20,9 +19,7 @@ function failureMessage(body: unknown): string | null {
 }
 
 function workspaceChanged(status: number, body: unknown) {
-  if (status !== 409 || !isWorkspaceChangedFailure(body)) return false;
-  notifyWorkspaceChanged();
-  return true;
+  return status === 409 && notifyIfWorkspaceChanged(body);
 }
 
 function parsed(text: string): unknown {

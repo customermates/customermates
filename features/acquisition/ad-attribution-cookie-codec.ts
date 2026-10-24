@@ -1,13 +1,12 @@
 import type { PublicAdAttributionCookie } from "./ad-attribution.schema";
 
-import { hmacSha256Hex, verifyHmacSha256Hex } from "@/core/utils/hmac";
+import { hmacSha256Hex, purposeSigningSecret, verifyHmacSha256Hex } from "@/core/utils/hmac";
 import { PublicAdAttributionCookieSchema } from "./ad-attribution.schema";
 
 const AD_ATTRIBUTION_COOKIE_VALUE_MAX_BYTES = 4_096;
 
 export function adAttributionSigningSecret(secret: string | undefined): string | null {
-  const trimmed = secret?.trim();
-  return trimmed ? `ad-attribution:v1:${trimmed}` : null;
+  return purposeSigningSecret("ad-attribution", secret);
 }
 
 export function encodePublicAdAttributionCookie(value: PublicAdAttributionCookie, secret: string): string | null {

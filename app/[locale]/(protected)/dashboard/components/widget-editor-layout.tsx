@@ -19,7 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { actionData } from "@/core/utils/action-data";
 import { cn } from "@/core/utils/cn";
-import { widgetSourceFilterCount } from "./widget-source-summary";
+import { widgetSourceFilterCount } from "./widget-card-frame";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 
 import { discoverWidgetRecordTypesAction } from "../actions";

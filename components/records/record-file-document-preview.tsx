@@ -11,8 +11,7 @@ import { SkeletonShape } from "@/components/page-state/skeleton-shape";
 import { Button } from "@/components/ui/button";
 import { SegmentedControl, SegmentedControlPanel } from "@/components/ui/segmented-control";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { isWorkspaceChangedFailure } from "@/core/errors/workspace-changed";
-import { notifyWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { cn } from "@/core/utils/cn";
 import { RecordFilePreviewSchema } from "@/features/record-files/record-file-preview.schema";
 import { downloadRecordFile } from "./record-file-links";
@@ -31,7 +30,7 @@ export function RecordFileDocumentPreview({ file }: { file: File }) {
     })
       .then(async (response) => {
         const body: unknown = await response.json().catch(() => null);
-        if (response.status === 409 && isWorkspaceChangedFailure(body)) notifyWorkspaceChanged();
+        if (response.status === 409) notifyIfWorkspaceChanged(body);
         if (!response.ok) throw new Error("The file preview could not be loaded");
         return RecordFilePreviewSchema.parse(body);
       })

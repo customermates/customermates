@@ -24,7 +24,8 @@ import {
 } from "@/features/widget/widget.schema";
 import { readCalendarWidgetWindowAction } from "../actions";
 import { RecordActivityWidgetCard } from "./record-activity-widget-card";
-import { RecordCalendarWidgetCard, recordPageHref } from "./record-calendar-widget-card";
+import { RecordCalendarWidgetCard } from "./record-calendar-widget-card";
+import { recordPageHref } from "./widget-card-frame";
 import { RecordMapWidgetCard } from "./record-map-widget-card";
 import { RecordWidgetCard } from "./record-widget-card";
 import { WIDGET_INTERACTIVE_ATTRIBUTE, openWidgetEditor } from "./widget-interaction";

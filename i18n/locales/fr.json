@@ -2226,12 +2226,10 @@
       "more": "+{count} de plus",
       "moreLabel": "{count, plural, one {# autre enregistrement} other {# autres enregistrements}} le {date}",
       "movableEntry": "enregistrement déplaçable",
-      "moveCancelled": "Déplacement annulé.",
       "moveRequested": "Déplacement au {date} demandé.",
       "moveTarget": "Déplacer l'enregistrement au {date}.",
       "nextMonth": "Mois suivant",
       "nextWeek": "Semaine suivante",
-      "pickedUp": "Enregistrement saisi.",
       "previousMonth": "Mois précédent",
       "previousWeek": "Semaine précédente",
       "truncated": "{shown} enregistrements sur {total} affichés pour cette période. Affinez les filtres pour voir le reste."
@@ -3526,8 +3524,6 @@
   "RecordCalendarWidgets": {
     "amountColumn": "Colonne de montant",
     "countPerDay": "Enregistrements par jour",
-    "dateField": "Champ de date",
-    "dayCount": "{count, plural, one {# jour} other {# jours}}",
     "dayLabel": "{date} : {count, plural, =0 {aucun enregistrement} one {# enregistrement} other {# enregistrements}}",
     "dayLabelWithSum": "{date} : {count, plural, one {# enregistrement} other {# enregistrements}}, {sum}",
     "days": "Jours à venir",
@@ -3546,7 +3542,6 @@
     "overdue": "En retard",
     "overdueBy": "{count, plural, one {En retard de # jour} other {En retard de # jours}}",
     "previousMonth": "Afficher le mois précédent",
-    "recordCount": "{count, plural, one {# enregistrement} other {# enregistrements}}",
     "scale": "Moins <swatches></swatches> plus",
     "scaleSum": "Moins <swatches></swatches> plus",
     "showOverdue": "Afficher les enregistrements en retard",
@@ -3601,7 +3596,6 @@
       "action": "Vérifier l’adresse",
       "checking": "Vérification de l’adresse",
       "keep": "Garder telle quelle",
-      "noMatch": "Aucune adresse correspondante trouvée.",
       "suggestion": "Adresse suggérée",
       "use": "Utiliser l’adresse suggérée"
     },

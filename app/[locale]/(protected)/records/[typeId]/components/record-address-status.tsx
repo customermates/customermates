@@ -63,7 +63,7 @@ export const RecordAddressStatus = observer(function RecordAddressStatus({
           </Button>
         )}
 
-        {check?.status === "noMatch" && <span role="status">{t("RecordModel.addressCheck.noMatch")}</span>}
+        {check?.status === "noMatch" && <span role="status">{t("RecordModel.addressSearch.empty")}</span>}
 
         {check?.status === "failed" && (
           <span role="alert">

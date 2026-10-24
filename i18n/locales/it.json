@@ -2226,12 +2226,10 @@
       "more": "+{count} altri",
       "moreLabel": "{count, plural, one {# altro record} other {# altri record}} il {date}",
       "movableEntry": "record spostabile",
-      "moveCancelled": "Spostamento annullato.",
       "moveRequested": "Spostamento al {date} richiesto.",
       "moveTarget": "Sposta il record al {date}.",
       "nextMonth": "Mese successivo",
       "nextWeek": "Settimana successiva",
-      "pickedUp": "Record selezionato.",
       "previousMonth": "Mese precedente",
       "previousWeek": "Settimana precedente",
       "truncated": "Vengono mostrati {shown} di {total} record di questo periodo. Restringi i filtri per vedere il resto."
@@ -3526,8 +3524,6 @@
   "RecordCalendarWidgets": {
     "amountColumn": "Colonna dell'importo",
     "countPerDay": "Record al giorno",
-    "dateField": "Campo data",
-    "dayCount": "{count, plural, one {# giorno} other {# giorni}}",
     "dayLabel": "{date}: {count, plural, =0 {nessun record} one {# record} other {# record}}",
     "dayLabelWithSum": "{date}: {count, plural, one {# record} other {# record}}, {sum}",
     "days": "Prossimi giorni",
@@ -3546,7 +3542,6 @@
     "overdue": "Scaduti",
     "overdueBy": "{count, plural, one {Scaduto da # giorno} other {Scaduto da # giorni}}",
     "previousMonth": "Mostra il mese precedente",
-    "recordCount": "{count, plural, one {# record} other {# record}}",
     "scale": "Meno <swatches></swatches> più",
     "scaleSum": "Meno <swatches></swatches> più",
     "showOverdue": "Mostra i record scaduti",
@@ -3601,7 +3596,6 @@
       "action": "Verifica indirizzo",
       "checking": "Verifica dell'indirizzo in corso",
       "keep": "Mantieni come inserito",
-      "noMatch": "Nessun indirizzo corrispondente trovato.",
       "suggestion": "Indirizzo suggerito",
       "use": "Usa l'indirizzo suggerito"
     },

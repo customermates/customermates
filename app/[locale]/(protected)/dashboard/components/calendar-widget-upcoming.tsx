@@ -19,6 +19,7 @@ import { calendarDateInstant } from "@/features/record-calendar/calendar-date";
 import { recordDisplayName } from "@/features/records/record-display-name";
 
 import { calendarMonthKey, calendarOverdueDays, calendarWidgetEntry } from "./calendar-widget-view";
+import { WidgetEmptyState } from "./widget-subtitle";
 
 type Props = {
   data: CalendarWidgetData;
@@ -134,18 +135,8 @@ export const CalendarWidgetUpcoming = observer(function CalendarWidgetUpcoming({
     );
   }
 
-  if (data.items.length === 0 && data.overdue.length === 0) {
-    return (
-      <div
-        className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 text-center"
-        data-slot="widget-empty"
-      >
-        <CalendarDays aria-hidden className="size-6 text-muted-foreground/60" />
-
-        <p className="text-sm text-muted-foreground">{t("RecordCalendarWidgets.noUpcoming", { count: days })}</p>
-      </div>
-    );
-  }
+  if (data.items.length === 0 && data.overdue.length === 0)
+    return <WidgetEmptyState icon={CalendarDays} text={t("RecordCalendarWidgets.noUpcoming", { count: days })} />;
 
   return (
     <div
