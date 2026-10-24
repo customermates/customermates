@@ -82,6 +82,9 @@ function paged<T>(items: readonly T[], page: number, pageSize: number) {
   };
 }
 
+const RELATED_RECORD_FILTER_NOTE =
+  "Linked records: in/notIn take the linked record ids (find them with search_crm_records); hasSome/hasNone test whether any link exists.";
+
 @AllowInDemoMode
 @TenantInteractor()
 export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDataViewsData, ManageDataViewsResult> {
@@ -169,7 +172,11 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
               : valueKind?.kind === "event"
                 ? Object.values(DomainEvent)
                 : undefined);
-        const description = filterFieldAgentNote(field.field);
+        const description =
+          filterFieldAgentNote(field.field) ??
+          (field.field.startsWith("relationship:") || field.field.startsWith("path:")
+            ? RELATED_RECORD_FILTER_NOTE
+            : undefined);
         return {
           ...field,
           ...(values ? { values } : {}),
@@ -504,7 +511,12 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
           field,
         }));
       return {
-        filterableFields: recordFilterableFields(fields),
+        filterableFields: recordFilterableFields(
+          fields,
+          description?.relationships,
+          description?.type.id,
+          description?.type.relationshipPaths,
+        ),
         filterValues: new Map(
           fields
             .filter((field) => field.valueType === "select" && !field.multiple)

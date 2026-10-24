@@ -132,6 +132,7 @@ const SAVE_LIKE_KEY_EXEMPT: Record<string, string> = {
   "Inbox.compose.updateDraft": "keeps a message as a draft instead of sending it, a different action than Save",
   "Editor.confirm": "inserts a link into the text being edited; nothing is persisted",
   "DataTransfer.recordImport.update": "names an import mode option, not a button",
+  "DataView.views.saveAsView": "creates a new saved view from the All tab's filters, a different action than Save",
 };
 const SAVE_LIKE_KEY_NOT_YET_MIGRATED = new Set<string>([]);
 

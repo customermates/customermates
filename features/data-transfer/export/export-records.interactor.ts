@@ -37,7 +37,22 @@ export const ExportRecordsSchema = RecordQuerySchema.pick({
   relatedFilters: true,
   relationships: true,
   sort: true,
-}).extend({ format: RecordExportFormatSchema.optional() });
+}).extend({
+  format: RecordExportFormatSchema.optional(),
+  page: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .describe("JSON only: export one page of top-level records with their sub-list rows and links. Starts at 1."),
+  pageSize: z
+    .number()
+    .int()
+    .min(1)
+    .max(500)
+    .optional()
+    .describe(`JSON only: top-level records per page (default ${PAGE_SIZE} when page is set).`),
+});
 export type ExportRecordsInput = z.infer<typeof ExportRecordsSchema>;
 
 type LoadedRecordAccess = Awaited<ReturnType<RecordAccessPolicy["load"]>>;
@@ -93,9 +108,10 @@ export async function collectRecordExport(
     relatedFilters: input.relatedFilters,
     relationships: input.relationships,
     sort: input.sort,
-    page: 1,
-    pageSize: PAGE_SIZE,
+    page: input.page ?? 1,
+    pageSize: input.pageSize ?? PAGE_SIZE,
   });
+  const paged = input.page !== undefined || input.pageSize !== undefined;
   const invalid = invalidRecordQueryPart(query, model);
   if (invalid) return fail(CustomErrorCode.recordValueInvalid, [invalid]);
   const access = policy.access(model.types.filter((item) => !item.archived).map((item) => item.id));
@@ -157,11 +173,19 @@ export async function collectRecordExport(
     return true;
   };
 
-  for (let page = 1; ; page += 1) {
-    const result = await repo.query({ ...query, page }, model, access, policy.memberScope);
-    if (result.total > RECORD_EXPORT_LIMIT || !(await appendPage(type.id, result.records, result.visibleFields)))
+  let total = 0;
+  if (paged) {
+    const result = await repo.query(query, model, access, policy.memberScope);
+    total = result.total;
+    if (!(await appendPage(type.id, result.records, result.visibleFields)))
       return fail(CustomErrorCode.recordCalculationBudget);
-    if (records.length >= result.total || result.records.length === 0) break;
+  } else {
+    for (let page = 1; ; page += 1) {
+      const result = await repo.query({ ...query, page }, model, access, policy.memberScope);
+      if (result.total > RECORD_EXPORT_LIMIT || !(await appendPage(type.id, result.records, result.visibleFields)))
+        return fail(CustomErrorCode.recordCalculationBudget);
+      if (records.length >= result.total || result.records.length === 0) break;
+    }
   }
 
   const visitedTypes = new Set([type.id]);
@@ -227,6 +251,7 @@ export async function collectRecordExport(
       exportedAt: new Date().toISOString(),
       records,
       links,
+      ...(paged ? { total, nextPage: query.page * query.pageSize < total ? query.page + 1 : null } : {}),
     },
   };
 }

@@ -51,6 +51,7 @@ export class RecordViewPolicy implements DataViewPolicy {
         ),
       },
       fields: model.fields.filter((field) => field.typeId === typeId && !field.archived),
+      relationships,
       columns: recordColumns(typeId, { ...model, relationships }),
     };
   }

@@ -85,6 +85,7 @@ export class SearchRecordsInteractor extends AuthenticatedInteractor<RecordSearc
                     revision: model.revision,
                     createdAt: last.createdAt,
                     ref: { typeId: last.typeId, recordId: last.recordId },
+                    rank: last.rank,
                   }
                 : null,
           },

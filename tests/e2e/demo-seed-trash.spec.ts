@@ -101,6 +101,10 @@ test("the seeded Trash lists records, a view and a field that restore and move b
         await expect(page).not.toHaveURL(new RegExp(item.targetId));
       } else if (item.kind === "view") {
         await page.goto(`/en/records/${item.typeId}?view=${item.targetId}`);
+        await expect(page.locator(`[data-focus-target="view:${item.targetId}"]`)).toHaveAttribute(
+          "aria-current",
+          "page",
+        );
         // The menu opens once the rail is interactive; retry the trigger until it does.
         const remove = page.getByRole("menuitem", { name: "Delete view", exact: true });
         await expect(async () => {

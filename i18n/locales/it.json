@@ -527,7 +527,7 @@
     "runner": {
       "cancelled": "Questa risposta è stata interrotta.",
       "contentFilter": "Il fornitore di IA ha bloccato parte di questa risposta. Non è stato modificato altro. Prova a riformulare la richiesta.",
-      "contextLimit": "Ho dovuto fermarmi perché la conversazione ha superato il limite di contesto del modello. Non sono state eseguite altre azioni; controlla le attività qui sopra prima di riprovare.",
+      "contextLimit": "Ho dovuto fermarmi perché questa richiesta richiedeva più spazio di lavoro di quello che ho per una risposta. Non sono state eseguite altre azioni; controlla le attività qui sopra, poi chiedi un passaggio più piccolo o avvia una nuova chat.",
       "creditLimit": "Ho completato una parte di questa richiesta, ma mi sono fermato perché i tuoi crediti Assistant sono esauriti. Il lavoro completato resta valido; i crediti si azzerano all'inizio del prossimo periodo.",
       "creditLimitNoWrite": "Mi sono fermato prima di apportare modifiche perché i tuoi crediti Assistant sono esauriti. Non è stato creato, aggiornato o inviato nulla. I crediti si azzerano all'inizio del tuo prossimo periodo.",
       "emptyReply": "Non sono riuscito a generare una risposta. Riprova.",
@@ -2258,6 +2258,19 @@
       "activityCount": "{count, plural, one {# attività} other {# attività}}",
       "aiLabel": "Chiedi a Mate sulla vista {name}",
       "all": "Tutte",
+      "allTab": {
+        "activity": "Tutte le attività",
+        "auditEntries": "Tutte le voci",
+        "conversations": "Tutte le conversazioni",
+        "deliveries": "Tutte le consegne",
+        "members": "Tutti i membri",
+        "records": "Tutti: {list}",
+        "roles": "Tutti i ruoli",
+        "routines": "Tutte le routine",
+        "users": "Tutti gli utenti",
+        "webhooks": "Tutti i webhook",
+        "workspaces": "Tutte le aree di lavoro"
+      },
       "applied": "Visualizzazione di {name}",
       "askAi": "Chiedi a Mate",
       "conversationCount": "{count, plural, one {# conversazione} other {# conversazioni}}",
@@ -2274,6 +2287,7 @@
       "modified": "Modifiche non salvate",
       "moveLeft": "Sposta a sinistra",
       "moveRight": "Sposta a destra",
+      "myFilters": "I miei filtri",
       "name": "Nome",
       "namePlaceholder": "Nome della vista",
       "nameRequired": "Inserisci un nome per la vista.",
@@ -2282,7 +2296,8 @@
       "pickerTitle": "Cambia vista",
       "railLabel": "Viste salvate",
       "recordCount": "{count, plural, one {# record} other {# record}}",
-      "resetChanges": "Ripristina modifiche"
+      "resetChanges": "Ripristina modifiche",
+      "saveAsView": "Salva come vista"
     }
   },
   "Diagrams": {

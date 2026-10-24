@@ -306,7 +306,7 @@ test("opening a list and switching its views updates no component while another 
   await expect(records.first()).toBeVisible();
   for (const view of views) {
     const chip = rail
-      .locator("a[data-view-chip]", { hasText: view.name })
+      .locator("a[data-view-chip]:not(#global-data-views-all)", { hasText: view.name })
       .first();
     await chip.click();
     await expect(chip).toHaveAttribute("aria-current", "page");
@@ -315,7 +315,11 @@ test("opening a list and switching its views updates no component while another 
   const active = rail.locator('a[data-view-chip][aria-current="page"]');
   await expect(active).toHaveCount(1);
   await active.click();
-  await expect(rail.locator('[data-focus-target^="view:"][aria-current="page"]')).toHaveCount(0);
+  await expect(active).toHaveCount(1);
+  await expect(rail.locator("#global-data-views-all")).not.toHaveAttribute("aria-current", "page");
+  await rail.locator("#global-data-views-all").click();
+  await expect(rail.locator("#global-data-views-all")).toHaveAttribute("aria-current", "page");
+  await expect(active).toHaveCount(1);
   await expect(records.first()).toBeVisible();
   // Becoming visible again refreshes the route; wait for that refresh of this list.
   const refreshed = page.waitForResponse(
