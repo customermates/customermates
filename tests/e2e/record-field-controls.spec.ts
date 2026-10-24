@@ -222,8 +222,8 @@ test("configures and persists every field type, multiple values and calendar con
     const calendar = page.locator('[data-slot="popover-content"][data-state="open"]');
     await calendar.getByRole("button", { name: "Today", exact: true }).click();
     if (label === "Calendar time") {
-      await page.getByRole("textbox", { name: "Start time", exact: true }).fill("14:35:27");
-      await page.getByRole("textbox", { name: "Start time", exact: true }).press("Enter");
+      await page.getByRole("textbox", { name: "Time", exact: true }).fill("14:35:27");
+      await page.getByRole("textbox", { name: "Time", exact: true }).press("Enter");
     }
     if (label === "Calendar time range") {
       await page.getByRole("textbox", { name: "Start time", exact: true }).fill("09:10:11");
