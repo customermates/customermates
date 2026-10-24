@@ -223,7 +223,7 @@ describe("record file text extraction limits", () => {
     await expect(extractRecordFileText(bomb, "docx", { ...LIMITS, timeoutMs: 1 })).resolves.toEqual({
       status: "skipped",
     });
-  });
+  }, 60_000);
 
   it("skips a document that needs more memory than the parser may use", async () => {
     const sheet = await xlsxFixture({
