@@ -2,10 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { AddressCandidate } from "@/features/addresses/address-lookup.schema";
 
-vi.mock("@/app/[locale]/(protected)/records/actions", () => ({
-  lookupAddressAction: vi.fn(),
-  verifyAddressAction: vi.fn(),
-}));
+const actions = vi.hoisted(() => ({ lookupAddressAction: vi.fn(), verifyAddressAction: vi.fn() }));
+vi.mock("@/app/[locale]/(protected)/records/actions", () => actions);
 
 import { registerWorkspaceChangedHandler } from "@/core/errors/workspace-changed-notice";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -45,9 +43,13 @@ function deferred<T>() {
 }
 
 function store() {
-  const lookup = vi.fn();
-  const verify = vi.fn();
-  return { lookup, verify, instance: new RecordAddressLookupStore({ lookup, verify }) };
+  actions.lookupAddressAction.mockReset();
+  actions.verifyAddressAction.mockReset();
+  return {
+    lookup: actions.lookupAddressAction,
+    verify: actions.verifyAddressAction,
+    instance: new RecordAddressLookupStore(),
+  };
 }
 
 beforeEach(() => {
@@ -59,7 +61,7 @@ afterEach(() => {
 });
 
 describe("address search store", () => {
-  it("waits for three characters and 250 ms before it searches", async () => {
+  it("waits for three characters and 300 ms before it searches", async () => {
     const { lookup, instance } = store();
     lookup.mockResolvedValue({
       ok: true,
@@ -70,7 +72,7 @@ describe("address search store", () => {
     instance.setQuery("Hau");
     instance.setQuery("Haupt");
     expect(instance.status).toBe("searching");
-    await vi.advanceTimersByTimeAsync(249);
+    await vi.advanceTimersByTimeAsync(299);
     expect(lookup).not.toHaveBeenCalled();
     await vi.advanceTimersByTimeAsync(1);
     expect(lookup).toHaveBeenCalledExactlyOnceWith({ query: "Haupt", limit: 5 });
@@ -85,7 +87,7 @@ describe("address search store", () => {
     const unregister = registerWorkspaceChangedHandler(changed);
     lookup.mockResolvedValue({ ok: false, code: CustomErrorCode.workspaceChanged });
     instance.setQuery("Hauptstraße 5");
-    await vi.advanceTimersByTimeAsync(250);
+    await vi.advanceTimersByTimeAsync(300);
     expect(changed).toHaveBeenCalledTimes(1);
     expect(instance.status).toBe("searching");
     unregister();
@@ -99,9 +101,9 @@ describe("address search store", () => {
       data: { available: true, attribution: "© OpenStreetMap contributors", candidates: [] },
     });
     instance.setQuery("Hauptstraße");
-    await vi.advanceTimersByTimeAsync(250);
+    await vi.advanceTimersByTimeAsync(300);
     instance.setQuery("Hauptstraße 5");
-    await vi.advanceTimersByTimeAsync(250);
+    await vi.advanceTimersByTimeAsync(300);
     slow.resolve({ ok: true, data: { available: true, attribution: null, candidates: [CANDIDATE] } });
     await vi.runAllTimersAsync();
     expect(instance.candidates).toEqual([]);
@@ -114,11 +116,11 @@ describe("address search store", () => {
       .mockResolvedValueOnce({ ok: false, error: {}, code: "addressLookupRateLimited" })
       .mockRejectedValueOnce(new Error("offline"));
     instance.setQuery("Hauptstraße");
-    await vi.advanceTimersByTimeAsync(250);
+    await vi.advanceTimersByTimeAsync(300);
     expect(instance.status).toBe("failed");
     expect(instance.failure).toBe("addressLookupRateLimited");
     await instance.retry();
-    await vi.advanceTimersByTimeAsync(250);
+    await vi.advanceTimersByTimeAsync(300);
     expect(instance.status).toBe("failed");
     expect(instance.failure).toBeNull();
     instance.reset();

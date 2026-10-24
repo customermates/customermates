@@ -1,11 +1,11 @@
 "use client";
 
 import type { PlannerOptions } from "@/features/planner/get-planner-options.interactor";
-import type { PlannerSource } from "@/features/planner/planner.schema";
+import type { PlannerQuery, PlannerSource } from "@/features/planner/planner.schema";
 import type { PlannerResult } from "@/features/planner/read-planner.interactor";
 import type { PlannerEntry } from "@/features/planner/planner-entries";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import {
@@ -50,8 +50,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { useRecordValueFormat } from "@/components/records/record-value";
 import { recordDisplayName } from "@/features/records/record-display-name";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { actionData } from "@/core/utils/action-data";
-import { runUserAction, reportApplicationError } from "@/core/errors/report-application-error";
+import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { encodeGetParams } from "@/core/utils/get-params";
 import { ViewMode } from "@/core/base/base-query-builder";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
@@ -71,7 +70,6 @@ import { RecordCalendarView } from "../../records/[typeId]/components/record-cal
 import { RecordExplorationStore } from "../../records/[typeId]/components/record-exploration.store";
 import { calendarSwatchStyle } from "../../records/[typeId]/components/record-calendar-layout";
 import { cn } from "@/core/utils/cn";
-import { readPlannerAction } from "../actions";
 import { plannerCalendarAdapter, plannerEntryColors } from "./planner-calendar-adapter";
 import { PlannerSettingsStore } from "./planner-settings.store";
 import { PlannerSourceModal } from "./planner-source-modal";
@@ -115,9 +113,7 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
   const config = settings.config;
   const setConfig = settings.setConfig;
   const [anchor, setAnchor] = useState(() => zonedDate(new Date(), options.config.timeZone));
-  const [data, setData] = useState<PlannerResult | null>(null);
-  const [refreshing, setRefreshing] = useState(false);
-  const [failed, setFailed] = useState(false);
+  const { data, refreshing, failed } = settings;
   const [sourceEditor, setSourceEditor] = useState<{ source: PlannerSource; creating: boolean } | null>(null);
   const [sourcesOpen, setSourcesOpen] = useState(false);
   const [jumping, setJumping] = useState(false);
@@ -129,7 +125,6 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
     opener: HTMLElement | null;
     rect: DOMRect | null;
   } | null>(null);
-  const request = useRef(0);
   const mode = wide ? config.mode : "agenda";
   const windowMode = mode === "quarter" || mode === "timeline" ? "quarter" : mode;
   const range = useMemo(() => calendarWindowRange(windowMode, anchor), [windowMode, anchor]);
@@ -142,28 +137,11 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
     },
     window: range,
   });
-  const refresh = useCallback(async () => {
-    const current = ++request.current;
-    setRefreshing(true);
-    setFailed(false);
-    try {
-      const value = await actionData(readPlannerAction(JSON.parse(fetchKey)));
-      if (current === request.current) setData(value);
-    } catch (error) {
-      if (current === request.current) {
-        setFailed(true);
-        reportApplicationError(error);
-      }
-    } finally {
-      if (current === request.current) setRefreshing(false);
-    }
-  }, [fetchKey]);
+  const refresh = useCallback(() => settings.load(JSON.parse(fetchKey) as PlannerQuery), [settings, fetchKey]);
   useEffect(() => {
     void refresh().catch(reportApplicationError);
-    return () => {
-      request.current += 1;
-    };
-  }, [refresh]);
+    return settings.cancel;
+  }, [refresh, settings]);
   useEffect(() => root.recordWorkspaceStore.subscribe(refresh), [root, refresh]);
   useEffect(() => {
     window.addEventListener("pagehide", settings.flush);

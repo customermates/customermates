@@ -1,5 +1,5 @@
 import type { CalendarWindow } from "@/core/data-view/calendar-view-config.schema";
-import type { PlannerPersonalEvents } from "@/features/planner/planner.repo";
+import type { PlannerPersonalEventsRepo } from "@/features/planner/planner.repo";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { calendarAccessWhere, calendarEventAccessWhere } from "@/ee/messaging/messaging-access";
@@ -7,7 +7,7 @@ import { calendarDateInstant } from "@/features/record-calendar/calendar-date";
 import { zonedDayStartText, zonedDayEndText } from "@/features/record-calendar/zoned-time";
 import { expandPlannerEvents } from "./expand-planner-events";
 
-export class PrismaPlannerPersonalEvents extends TenantRepository implements PlannerPersonalEvents {
+export class PrismaPlannerPersonalEventsRepo extends TenantRepository implements PlannerPersonalEventsRepo {
   async calendars() {
     const rows = await this.prisma.calendar.findMany({
       where: calendarAccessWhere(this.companyId, this.userId),

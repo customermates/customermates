@@ -4,14 +4,12 @@ import type { AddressDraftParts } from "@/features/records/record-input-value";
 import { action, makeObservable, observable, runInAction } from "mobx";
 
 import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
-import { Debouncer } from "@/core/utils/debounce";
+import { Debouncer, SEARCH_DEBOUNCE_MS } from "@/core/utils/debounce";
 import { lookupAddressAction, verifyAddressAction } from "../../actions";
 
 export const ADDRESS_SEARCH_MIN_LENGTH = 3;
 const ADDRESS_SEARCH_LIMIT = 5;
-const ADDRESS_SEARCH_DEBOUNCE_MS = 250;
 
-type AddressLookupActions = { lookup: typeof lookupAddressAction; verify: typeof verifyAddressAction };
 type ActionFailure = { ok: false; code?: string };
 
 type AddressSearchStatus = "idle" | "searching" | "ready" | "failed";
@@ -40,11 +38,9 @@ export class RecordAddressLookupStore {
   check: AddressCheckState = { status: "idle" };
   private generation = 0;
   private checkGeneration = 0;
-  private debouncer = new Debouncer(ADDRESS_SEARCH_DEBOUNCE_MS);
+  private debouncer = new Debouncer(SEARCH_DEBOUNCE_MS);
 
-  constructor(
-    private readonly actions: AddressLookupActions = { lookup: lookupAddressAction, verify: verifyAddressAction },
-  ) {
+  constructor() {
     makeObservable(this, {
       query: observable,
       candidates: observable.ref,
@@ -88,9 +84,9 @@ export class RecordAddressLookupStore {
   };
 
   private search = async (generation: number, query: string) => {
-    let result: Awaited<ReturnType<AddressLookupActions["lookup"]>> | null = null;
+    let result: Awaited<ReturnType<typeof lookupAddressAction>> | null = null;
     try {
-      result = await this.actions.lookup({ query, limit: ADDRESS_SEARCH_LIMIT });
+      result = await lookupAddressAction({ query, limit: ADDRESS_SEARCH_LIMIT });
     } catch (error) {
       if (notifyIfWorkspaceChanged(error)) return;
     }
@@ -115,9 +111,9 @@ export class RecordAddressLookupStore {
     runInAction(() => {
       this.check = { status: "checking", key };
     });
-    let result: Awaited<ReturnType<AddressLookupActions["verify"]>> | null = null;
+    let result: Awaited<ReturnType<typeof verifyAddressAction>> | null = null;
     try {
-      result = await this.actions.verify(parts);
+      result = await verifyAddressAction(parts);
     } catch (error) {
       if (notifyIfWorkspaceChanged(error)) return;
     }

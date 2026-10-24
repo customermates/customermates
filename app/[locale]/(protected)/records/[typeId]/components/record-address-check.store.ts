@@ -25,7 +25,7 @@ export class RecordAddressCheckStore {
   private debouncer = new Debouncer(ADDRESS_CHECK_DEBOUNCE_MS);
   private retry: ReturnType<typeof setTimeout> | null = null;
 
-  constructor(private readonly check: typeof checkAddressAction = checkAddressAction) {
+  constructor() {
     makeObservable(this, { current: observable.ref, reset: action });
   }
 
@@ -64,7 +64,7 @@ export class RecordAddressCheckStore {
   private run = async (generation: number, key: string, parts: AddressDraftParts, attempt: number) => {
     let result: Awaited<ReturnType<typeof checkAddressAction>> | null = null;
     try {
-      result = await this.check(parts);
+      result = await checkAddressAction(parts);
     } catch (error) {
       if (notifyIfWorkspaceChanged(error)) return;
     }

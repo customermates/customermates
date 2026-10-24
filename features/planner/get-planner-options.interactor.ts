@@ -2,7 +2,7 @@ import type { GetRecordModelInteractor } from "@/features/records/get-record-mod
 import type { RecordModelView } from "@/features/records/record-model.schema";
 import type { GetP13nRepo } from "@/features/p13n/get-p13n.interactor";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
-import type { PlannerPersonalEvents, PersonalCalendar } from "./planner.repo";
+import type { PlannerPersonalEventsRepo, PersonalCalendar } from "./planner.repo";
 import type { PlannerConfig } from "./planner.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 
@@ -26,7 +26,7 @@ export class GetPlannerOptionsInteractor extends AuthenticatedInteractor<void, P
   constructor(
     private models: GetRecordModelInteractor,
     private settings: GetP13nRepo,
-    private personal: PlannerPersonalEvents,
+    private personal: PlannerPersonalEventsRepo,
     private entitlements: Pick<EntitlementService, "require">,
   ) {
     super();

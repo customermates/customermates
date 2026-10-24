@@ -16,7 +16,7 @@ export type PersonalCalendarEvent = {
   provider: string;
 };
 export type PersonalCalendarWindow = { events: PersonalCalendarEvent[]; truncated: boolean };
-export interface PlannerPersonalEvents {
+export interface PlannerPersonalEventsRepo {
   calendars(): Promise<PersonalCalendar[]>;
   events(calendarIds: string[], window: CalendarWindow): Promise<PersonalCalendarWindow>;
 }

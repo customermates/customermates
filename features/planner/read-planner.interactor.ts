@@ -3,7 +3,7 @@ import type {
   RecordPresentationResult,
 } from "@/features/records/get-record-presentation.interactor";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
-import type { PlannerPersonalEvents, PersonalCalendarEvent } from "./planner.repo";
+import type { PlannerPersonalEventsRepo, PersonalCalendarEvent } from "./planner.repo";
 import type { PlannerQuery, PlannerSource } from "./planner.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 
@@ -32,7 +32,7 @@ export type PlannerResult = {
 export class ReadPlannerInteractor extends AuthenticatedInteractor<PlannerQuery, PlannerResult> {
   constructor(
     private records: GetRecordPresentationInteractor,
-    private personal: PlannerPersonalEvents,
+    private personal: PlannerPersonalEventsRepo,
     private entitlements: Pick<EntitlementService, "require">,
   ) {
     super();

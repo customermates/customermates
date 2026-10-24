@@ -23,3 +23,6 @@ export type SubscriptionList = {
 export const ExportPlannerSchema = PlannerQuerySchema.extend({
   includePersonalEvents: schema.boolean().default(false),
 });
+
+export const ReadCalendarSubscriptionSchema = schema.object({ token: schema.string().regex(/^[\w-]{43}$/u) }).strict();
+export type ReadCalendarSubscription = z.infer<typeof ReadCalendarSubscriptionSchema>;

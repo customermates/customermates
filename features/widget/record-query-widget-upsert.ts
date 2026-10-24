@@ -83,7 +83,7 @@ export async function upsertQueryWidget<K extends QueryWidgetKind>(
   }
   const state = await deps.records.getState();
   if (state?.activeOperationId) return failConflict(CustomErrorCode.recordWritePaused);
-  if (state?.revision !== input.expectedRevision) return failConflict(CustomErrorCode.recordSchemaChanged);
+  if ((state?.revision ?? 0) !== input.expectedRevision) return failConflict(CustomErrorCode.recordSchemaChanged);
   const current = input.id ? await deps.widgets.findOwnedRecordWidget(kind, input.id) : null;
   if (input.id) {
     if (!current) return failNotFound(CustomErrorCode.widgetNotFound);

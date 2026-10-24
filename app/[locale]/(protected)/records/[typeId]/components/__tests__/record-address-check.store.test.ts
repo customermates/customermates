@@ -2,11 +2,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { AddressCheckResult } from "@/features/addresses/address-check.schema";
 
-vi.mock("@/app/[locale]/(protected)/records/actions", () => ({
+const actions = vi.hoisted(() => ({
   checkAddressAction: vi.fn(),
   lookupAddressAction: vi.fn(),
   verifyAddressAction: vi.fn(),
 }));
+vi.mock("@/app/[locale]/(protected)/records/actions", () => actions);
 
 import { registerWorkspaceChangedHandler } from "@/core/errors/workspace-changed-notice";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -46,8 +47,8 @@ afterEach(() => {
 
 describe("address check store", () => {
   it("checks the parts 400 ms after the last change and only shows the result for the same parts", async () => {
-    const check = vi.fn().mockResolvedValue({ ok: true, data: result("ready") });
-    const store = new RecordAddressCheckStore(check);
+    const check = actions.checkAddressAction.mockReset().mockResolvedValue({ ok: true, data: result("ready") });
+    const store = new RecordAddressCheckStore();
     store.schedule({ ...PARTS, postalCode: "6825" });
     await vi.advanceTimersByTimeAsync(200);
     store.schedule(PARTS);
@@ -62,8 +63,8 @@ describe("address check store", () => {
   });
 
   it("does not ask the server about a street or city alone", async () => {
-    const check = vi.fn();
-    const store = new RecordAddressCheckStore(check);
+    const check = actions.checkAddressAction.mockReset();
+    const store = new RecordAddressCheckStore();
     store.schedule({ ...PARTS, postalCode: null, countryCode: null, street: "Hauptstraße 5", city: "Mannheim" });
     await vi.advanceTimersByTimeAsync(1000);
     expect(check).not.toHaveBeenCalled();
@@ -71,11 +72,11 @@ describe("address check store", () => {
   });
 
   it("asks again while the country's postal codes are still loading", async () => {
-    const check = vi
-      .fn()
+    const check = actions.checkAddressAction
+      .mockReset()
       .mockResolvedValueOnce({ ok: true, data: result("loading") })
       .mockResolvedValueOnce({ ok: true, data: result("ready") });
-    const store = new RecordAddressCheckStore(check);
+    const store = new RecordAddressCheckStore();
     store.schedule(PARTS);
     await vi.advanceTimersByTimeAsync(400);
     expect(store.resultFor(PARTS)?.postalCode.status).toBe("loading");
@@ -87,8 +88,10 @@ describe("address check store", () => {
   it("reports a switched workspace instead of showing a check", async () => {
     const changed = vi.fn();
     const unregister = registerWorkspaceChangedHandler(changed);
-    const check = vi.fn().mockResolvedValue({ ok: false, code: CustomErrorCode.workspaceChanged });
-    const store = new RecordAddressCheckStore(check);
+    const check = actions.checkAddressAction
+      .mockReset()
+      .mockResolvedValue({ ok: false, code: CustomErrorCode.workspaceChanged });
+    const store = new RecordAddressCheckStore();
     store.schedule(PARTS);
     await vi.advanceTimersByTimeAsync(400);
     expect(changed).toHaveBeenCalledTimes(1);
@@ -100,13 +103,13 @@ describe("address check store", () => {
 
   it("drops an answer that arrives after the parts changed or the store was reset", async () => {
     let answer: (value: unknown) => void = () => undefined;
-    const check = vi.fn().mockImplementation(
+    actions.checkAddressAction.mockReset().mockImplementation(
       () =>
         new Promise((resolve) => {
           answer = resolve;
         }),
     );
-    const store = new RecordAddressCheckStore(check);
+    const store = new RecordAddressCheckStore();
     store.schedule(PARTS);
     await vi.advanceTimersByTimeAsync(400);
     store.reset();

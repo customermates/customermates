@@ -2494,7 +2494,7 @@ export const getRetryWorkspaceSetupPhaseInteractor = () =>
     getEntitlementService(),
   );
 
-import { PrismaPlannerPersonalEvents } from "@/ee/calendar/prisma-planner-personal-events.repository";
+import { PrismaPlannerPersonalEventsRepo } from "@/ee/calendar/prisma-planner-personal-events.repository";
 import { ReadPlannerInteractor } from "@/features/planner/read-planner.interactor";
 import { GetPlannerOptionsInteractor } from "@/features/planner/get-planner-options.interactor";
 import { PrismaCalendarSubscriptionRepo } from "@/features/planner/prisma-calendar-subscription.repository";
@@ -2503,14 +2503,18 @@ import { ManageCalendarSubscriptionsInteractor } from "@/features/planner/manage
 import { ReadCalendarSubscriptionInteractor } from "@/features/planner/read-calendar-subscription.interactor";
 import { CalendarSubscriptionTenant } from "@/features/planner/calendar-subscription-tenant";
 
-const getPlannerPersonalEvents = () => new PrismaPlannerPersonalEvents();
+const getPlannerPersonalEventsRepo = () => new PrismaPlannerPersonalEventsRepo();
 export const getReadPlannerInteractor = () =>
-  new ReadPlannerInteractor(getGetRecordPresentationInteractor(), getPlannerPersonalEvents(), getEntitlementService());
+  new ReadPlannerInteractor(
+    getGetRecordPresentationInteractor(),
+    getPlannerPersonalEventsRepo(),
+    getEntitlementService(),
+  );
 export const getGetPlannerOptionsInteractor = () =>
   new GetPlannerOptionsInteractor(
     getGetRecordModelInteractor(),
     getP13nRepo(),
-    getPlannerPersonalEvents(),
+    getPlannerPersonalEventsRepo(),
     getEntitlementService(),
   );
 const getCalendarSubscriptionRepo = () => new PrismaCalendarSubscriptionRepo();
