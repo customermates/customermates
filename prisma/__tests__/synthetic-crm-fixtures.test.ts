@@ -175,15 +175,18 @@ describe("Northwind Labs demo fixture contract", () => {
     );
   });
 
-  it("schedules timed work slots on open tasks in the story's current week, each ending before the task is due", () => {
+  it("schedules one timed work slot a workday around the story's end on open tasks, each ending before the task is due", () => {
     const scheduled = data.tasks.filter((task) => task.scheduled);
-    expect(scheduled.length).toBeGreaterThanOrEqual(10);
+    expect(scheduled.length).toBeGreaterThanOrEqual(15);
+    const days = scheduled.map((task) => Math.floor((task.scheduled as { startMs: number }).startMs / 86_400_000));
+    expect(new Set(days).size).toBe(days.length);
     for (const task of scheduled) {
       const slot = task.scheduled as { startMs: number; endMs: number };
       expect(["open", "inProgress"]).toContain(task.status);
       expect(slot.endMs).toBeGreaterThan(slot.startMs);
       expect(slot.endMs).toBeLessThan(task.dueMs);
-      expect(Math.abs(slot.startMs - NORTHWIND_STORY_END_MS)).toBeLessThan(7 * 86_400_000);
+      expect(slot.startMs).toBeGreaterThan(NORTHWIND_STORY_END_MS - 14 * 86_400_000);
+      expect(slot.startMs).toBeLessThan(NORTHWIND_STORY_END_MS + 21 * 86_400_000);
     }
   });
 

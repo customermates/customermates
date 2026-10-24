@@ -3545,7 +3545,6 @@
     "noUpcoming": "{count, plural, one {Heute gibt es keine Datensätze.} other {In den nächsten # Tagen gibt es keine Datensätze.}}",
     "overdue": "Überfällig",
     "overdueBy": "{count, plural, one {# Tag überfällig} other {# Tage überfällig}}",
-    "overdueCount": "{count, plural, one {# überfällig} other {# überfällig}}",
     "previousMonth": "Vorherigen Monat anzeigen",
     "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}",
     "scale": "Weniger <swatches></swatches> mehr",

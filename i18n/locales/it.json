@@ -3545,7 +3545,6 @@
     "noUpcoming": "{count, plural, one {Nessun record oggi.} other {Nessun record nei prossimi # giorni.}}",
     "overdue": "Scaduti",
     "overdueBy": "{count, plural, one {Scaduto da # giorno} other {Scaduto da # giorni}}",
-    "overdueCount": "{count, plural, one {# scaduto} other {# scaduti}}",
     "previousMonth": "Mostra il mese precedente",
     "recordCount": "{count, plural, one {# record} other {# record}}",
     "scale": "Meno <swatches></swatches> più",

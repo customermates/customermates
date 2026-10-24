@@ -1226,7 +1226,10 @@ export function buildNorthwindDataset(): NorthwindDataset {
       type: "renewal",
       organizationIndex: subscription.organizationIndex,
       createdAtMs,
-      closeAtMs: workTime(rng, Math.max(subscription.renewalMs - 10 * DAY, END + 3 * DAY)),
+      closeAtMs: workTime(
+        rng,
+        Math.max(subscription.renewalMs - 10 * DAY, END + (3 + (subscription.index % 12)) * DAY),
+      ),
       status: "open",
       stage: subscription.renewalMs - END < 45 * DAY ? "proposal" : "qualified",
       previousStage: null,
@@ -1735,18 +1738,21 @@ export function buildNorthwindDataset(): NorthwindDataset {
     else task.dueMs = Math.max(task.dueMs, END + (7 + (task.index % 14)) * DAY);
   }
 
-  // Every third open task that is not overdue has a work slot in the story's current week or the following Monday,
-  // so the calendars show timed entries. The slots derive from the order alone (no random draw shifts the rest of
-  // the story) and end before the task is due.
+  // Open tasks that are not overdue get work slots on the workdays from the week before the story's end to three weeks
+  // after it, one a day, so the calendars show timed entries without crowding a day. The slots derive from the order
+  // alone (no random draw shifts the rest of the story) and end before the task is due.
   const monday = Math.floor(END / DAY) * DAY - ((new Date(END).getUTCDay() + 6) % 7) * DAY;
-  const workdays = [0, 1, 2, 3, 4, 7].map((offset) => monday + offset * DAY);
+  const workdays = Array.from({ length: 28 }, (_, offset) => monday + (offset - 7) * DAY).filter(
+    (day) => new Date(day).getUTCDay() % 6 !== 0,
+  );
   const planned = tasks
     .filter((task) => (task.status === "open" || task.status === "inProgress") && task.dueMs > END)
-    .filter((_, index) => index % 3 === 0)
-    .slice(0, 14);
-  for (const [index, task] of planned.entries()) {
-    const startMs = workdays[index % workdays.length] + (6 + ((index * 5) % 8)) * HOUR + (index % 2) * 30 * 60_000;
-    task.scheduled = { startMs, endMs: startMs + [30, 45, 60, 90, 120][index % 5] * 60_000 };
+    .filter((_, index) => index % 2 === 0);
+  for (const [index, day] of workdays.entries()) {
+    const startMs = day + (7 + ((index * 3) % 8)) * HOUR + (index % 2) * 30 * 60_000;
+    const endMs = startMs + [30, 45, 60, 90, 120][index % 5] * 60_000;
+    const task = planned.find((candidate) => !candidate.scheduled && candidate.dueMs > endMs);
+    if (task) task.scheduled = { startMs, endMs };
   }
 
   // Notes on key records -------------------------------------------------------------------------------------------------

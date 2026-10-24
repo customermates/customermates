@@ -32,6 +32,7 @@ import { seedRelationships } from "./relationships";
 import { seedRoutines } from "./routines";
 import { seedSecondWorkspace } from "./second-workspace";
 import { seedServices } from "./services";
+import { seedPlanners } from "./planner";
 import { seedSidebars } from "./sidebar";
 import { seedSublistColumns } from "./sublist-columns";
 import { seedTasks } from "./tasks";
@@ -75,6 +76,7 @@ export async function runSyntheticSeed(
   await seedDataViews(context, customFieldData);
   await seedPersonalization(context, customFieldData);
   await seedSidebars(context);
+  await seedPlanners(context);
   await seedSublistColumns(context);
   await seedDemoMessagingFixtures(context.prisma, {
     companyId: context.ids.company,

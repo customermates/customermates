@@ -108,8 +108,10 @@ export function resolveSidebar(defaults: SidebarDefaultEntry[], layout: SidebarL
     else {
       const group = defaults.find((entry) => entry.kind === "section" && entry.items.includes(item));
       const section = group && entries.find((entry) => entry.kind === "section" && entry.id === group.id);
-      if (section?.kind === "section") section.items.push(item);
-      else entries.push({ kind: "item", id: item });
+      if (section?.kind === "section" && group?.kind === "section") {
+        const next = group.items.slice(group.items.indexOf(item) + 1).find((id) => section.items.includes(id));
+        section.items.splice(next ? section.items.indexOf(next) : section.items.length, 0, item);
+      } else entries.push({ kind: "item", id: item });
     }
   }
 

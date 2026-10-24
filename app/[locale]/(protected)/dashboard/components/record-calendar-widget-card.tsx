@@ -84,17 +84,13 @@ export const RecordCalendarWidgetCard = observer(function RecordCalendarWidgetCa
               ? valueFormat.decimal(total.value.value, { currency: total.value.currency ?? null, compact: true })
               : t("RecordCalendarWidgets.recordCount", { count: data.total.count }),
         });
-  const overdue =
-    ready && upcoming && data.overdueCount > 0
-      ? t("RecordCalendarWidgets.overdueCount", { count: data.overdueCount })
-      : null;
 
   return (
     <AppCard className="h-full cursor-pointer overflow-hidden" data-widget-kind="calendar">
       <AppCardHeader className={WIDGET_CARD_HEADER_CLASS}>
         <WidgetTitle name={name} notes={notes} />
 
-        <WidgetSubtitle reserve text={overdue ?? overall} tone={overdue ? "destructive" : "muted"} />
+        <WidgetSubtitle reserve text={overall} />
       </AppCardHeader>
 
       <AppCardBody

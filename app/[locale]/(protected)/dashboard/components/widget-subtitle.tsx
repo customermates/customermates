@@ -22,24 +22,10 @@ export function WidgetTitle({ name, notes }: { name: string; notes: string[] }) 
   );
 }
 
-export function WidgetSubtitle({
-  text,
-  reserve = false,
-  tone = "muted",
-}: {
-  text: string | null;
-  reserve?: boolean;
-  tone?: "muted" | "destructive";
-}) {
+export function WidgetSubtitle({ text, reserve = false }: { text: string | null; reserve?: boolean }) {
   if (!text) return reserve ? <div aria-hidden className="h-4" /> : null;
   return (
-    <div
-      className={cn(
-        "flex w-full min-w-0 items-center gap-1.5 text-xs",
-        tone === "destructive" ? "text-destructive" : "text-muted-foreground",
-      )}
-      data-slot="widget-subtitle"
-    >
+    <div className="flex w-full min-w-0 items-center gap-1.5 text-xs text-muted-foreground" data-slot="widget-subtitle">
       <TruncatedText className="min-w-0">{text}</TruncatedText>
     </div>
   );

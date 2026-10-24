@@ -3545,7 +3545,6 @@
     "noUpcoming": "{count, plural, one {No records today.} other {No records in the next # days.}}",
     "overdue": "Overdue",
     "overdueBy": "{count, plural, one {Overdue # day} other {Overdue # days}}",
-    "overdueCount": "{count, plural, one {# overdue} other {# overdue}}",
     "previousMonth": "Show previous month",
     "recordCount": "{count, plural, one {# record} other {# records}}",
     "scale": "Fewer <swatches></swatches> more",

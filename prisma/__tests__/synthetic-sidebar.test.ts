@@ -45,11 +45,15 @@ describe("synthetic sidebar layouts", () => {
 
   it("leaves Configure and Trash where the app places them", () => {
     const defaults = [
-      { kind: "section" as const, id: "overview", items: ["dashboard", "wiki", "inbox", "routines"] },
+      { kind: "section" as const, id: "overview", items: ["dashboard", "wiki", "calendar", "inbox", "routines"] },
       { kind: "section" as const, id: "data", items: [list("deal"), "configure-records"] },
       { kind: "item" as const, id: "trash" },
     ];
     const resolved = resolveSidebar(defaults, northwindSidebarLayout(SEED_IDS.company, "maxBergmann"));
+    expect(resolved.entries[0]).toMatchObject({
+      id: "overview",
+      items: ["dashboard", "wiki", "calendar", "inbox", "routines"],
+    });
     expect(resolved.entries.slice(-2)).toEqual([
       { kind: "item", id: "configure-records" },
       { kind: "item", id: "trash" },

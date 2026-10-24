@@ -134,9 +134,7 @@ describe("upcoming calendar widget", () => {
         recordHref: (ref) => `/records/${ref.typeId}/${ref.recordId}`,
       }),
     );
-    const subtitle = must(host.querySelector<HTMLElement>('[data-slot="card-header"] [data-slot="widget-subtitle"]'));
-    expect(subtitle.textContent).toBe("RecordCalendarWidgets.overdueCount:3");
-    expect(subtitle.className).toContain("text-destructive");
+    expect(host.querySelector('[data-slot="card-header"] [data-slot="widget-subtitle"]')).toBeNull();
     const overdue = must(host.querySelector('[data-calendar-section="overdue"]'));
     expect(overdue.querySelector('[data-calendar-item="late"]')?.hasAttribute("data-overdue")).toBe(true);
     expect(overdue.textContent).toContain("RecordCalendarWidgets.overdueBy:10");

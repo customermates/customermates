@@ -40,6 +40,16 @@ describe("personal sidebar layout", () => {
     ]);
     const saved = sidebarLayoutOf(resolveSidebar(defaults, null));
     expect(sectionsOf(resolveSidebar(withCalendar, saved))[0].items).toEqual(["dashboard", "inbox", "calendar"]);
+    const beforeInbox = sidebarDefaults([
+      { ...groups[0], items: [{ key: "dashboard" }, { key: "calendar" }, { key: "inbox" }] },
+      ...groups.slice(1),
+    ]);
+    expect(sectionsOf(resolveSidebar(beforeInbox, saved))[0].items).toEqual(["dashboard", "calendar", "inbox"]);
+    const reordered = {
+      ...saved,
+      entries: [{ id: "overview", items: ["inbox", "dashboard"] }, ...saved.entries.slice(1)],
+    };
+    expect(sectionsOf(resolveSidebar(beforeInbox, reordered))[0].items).toEqual(["calendar", "inbox", "dashboard"]);
     expect(
       shape(resolveSidebar(withCalendar, { ...saved, entries: [...saved.entries, { item: "calendar" }] })),
     ).toContain("calendar");

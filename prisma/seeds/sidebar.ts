@@ -24,7 +24,7 @@ const SECTIONS: Record<
 > = {
   overview: {
     id: "overview",
-    items: [{ item: "dashboard" }, { item: "wiki" }, { item: "inbox" }, { item: "routines" }],
+    items: [{ item: "dashboard" }, { item: "wiki" }, { item: "calendar" }, { item: "inbox" }, { item: "routines" }],
   },
   sales: {
     id: "custom:sales",
@@ -60,7 +60,7 @@ const ALL_LISTS = Object.values(SECTIONS).flatMap(({ items }) =>
   items.flatMap((entry) => ("list" in entry ? [entry.list] : [])),
 );
 
-function readableLists(member: MemberKey): Set<ListKey> {
+export function readableLists(member: MemberKey): Set<ListKey> {
   const roleId = NORTHWIND_MEMBER_ROLES[member];
   if (roleId === NORTHWIND_ROLE_IDS.admin) return new Set(ALL_LISTS);
   const role = SYNTHETIC_ROLE_DEFINITIONS.find(({ id }) => id === roleId);

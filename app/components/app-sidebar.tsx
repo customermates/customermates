@@ -213,18 +213,18 @@ const FullAppSidebar = observer(
               visible: true,
             },
             {
-              key: "calendar",
-              title: t("Planner.title"),
-              href: "/calendar",
-              icon: CalendarDays,
-              visible: true,
-            },
-            {
               key: "wiki",
               title: t("NavigationBar.wiki"),
               href: "/wiki",
               icon: BookOpen,
               visible: canAccess(Resource.wiki),
+            },
+            {
+              key: "calendar",
+              title: t("Planner.title"),
+              href: "/calendar",
+              icon: CalendarDays,
+              visible: true,
             },
             {
               key: "inbox",

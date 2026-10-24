@@ -3545,7 +3545,6 @@
     "noUpcoming": "{count, plural, one {No hay registros hoy.} other {No hay registros en los próximos # días.}}",
     "overdue": "Vencidos",
     "overdueBy": "{count, plural, one {Vencido hace # día} other {Vencido hace # días}}",
-    "overdueCount": "{count, plural, one {# vencido} other {# vencidos}}",
     "previousMonth": "Mostrar el mes anterior",
     "recordCount": "{count, plural, one {# registro} other {# registros}}",
     "scale": "Menos <swatches></swatches> más",
