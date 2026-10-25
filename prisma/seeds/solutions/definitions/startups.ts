@@ -326,6 +326,7 @@ const en = {
     seedRound: "Investors by round status",
     newByMonth: "New opportunities per month",
     byAccount: "Late-stage ARR by company",
+    tasksMonth: "Open tasks this month",
   },
   wiki: {
     guide: {
@@ -813,6 +814,7 @@ const de: Strings = {
     seedRound: "Investoren nach Rundenstatus",
     newByMonth: "Neue Verkaufschancen pro Monat",
     byAccount: "ARR ab Demo nach Firma",
+    tasksMonth: "Offene Aufgaben im Monat",
   },
   wiki: {
     guide: {
@@ -2001,6 +2003,14 @@ export default defineSolution<Strings>({
             list: "deal",
             aggregation: "count",
             groupBy: { month: "system:createdAt" },
+          },
+          {
+            kind: "calendar",
+            title: t.widgets.tasksMonth,
+            list: "task",
+            layout: "month",
+            date: "dueDate",
+            filters: [{ field: "status", notIn: ["done", "archived"] }],
           },
           {
             kind: "chart",

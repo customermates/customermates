@@ -181,8 +181,8 @@ export type WidgetGroupSpec =
   | { records: true };
 
 /**
- * The dashboard has a fixed shape: four number cards, then three widgets in a row and two wider widgets below them, so a
- * solution lists exactly four `kpi` widgets followed by five chart, calendar, map or activity widgets.
+ * The dashboard has a fixed shape: four number cards, then two rows of three widgets, so a solution lists exactly four
+ * `kpi` widgets followed by six chart, calendar, map or activity widgets.
  */
 export type WidgetSpec =
   | {

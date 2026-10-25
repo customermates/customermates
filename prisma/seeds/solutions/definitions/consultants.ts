@@ -302,6 +302,7 @@ const en = {
     nextSteps: "Next steps, next 14 days",
     wonByMonth: "Won fees by month",
     topClients: "Top clients by won fees",
+    meetingsMonth: "Client meetings this month",
   },
   wiki: {
     guide: {
@@ -815,6 +816,7 @@ const de: Strings = {
     nextSteps: "Nächste Schritte, 14 Tage",
     wonByMonth: "Gewonnene Honorare pro Monat",
     topClients: "Top-Kunden nach gewonnenen Honoraren",
+    meetingsMonth: "Kundentermine im Monat",
   },
   wiki: {
     guide: {
@@ -2029,6 +2031,13 @@ export default defineSolution<Strings>({
             field: "totalValue",
             groupBy: { month: "decisionDate" },
             filters: wonLastYear,
+          },
+          {
+            kind: "calendar",
+            title: t.widgets.meetingsMonth,
+            list: "contact",
+            layout: "month",
+            date: "lastMeeting",
           },
           {
             kind: "chart",

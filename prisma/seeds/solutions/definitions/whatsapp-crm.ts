@@ -246,6 +246,7 @@ const en = {
     leadTimeByType: "Lead time by project type (days)",
     wonByMonth: "Won value by month",
     siteVisits: "Site visits, next 14 days",
+    nextStepsMonth: "Next steps this month",
   },
   wiki: {
     guide: {
@@ -673,6 +674,7 @@ const de: Strings = {
     leadTimeByType: "Vorlaufzeit nach Auftragsart (Tage)",
     wonByMonth: "Gewonnener Wert pro Monat",
     siteVisits: "Aufmaßtermine, nächste 14 Tage",
+    nextStepsMonth: "Nächste Schritte im Monat",
   },
   wiki: {
     guide: {
@@ -1922,6 +1924,14 @@ export default defineSolution<Strings>({
             field: "totalValue",
             groupBy: { month: "closeDate" },
             filters: wonLastYear,
+          },
+          {
+            kind: "calendar",
+            title: t.widgets.nextStepsMonth,
+            list: "deal",
+            layout: "month",
+            date: "nextStepDate",
+            filters: [{ field: "stage", in: open }],
           },
           {
             kind: "chart",

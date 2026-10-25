@@ -488,6 +488,7 @@ const en = {
     closingThisMonth: "Closing this month",
     wonByMonth: "Won value by month",
     accountsMap: "Accounts on the map",
+    nextSteps: "Next steps, next 14 days",
   },
   wiki: {
     guide: {
@@ -1040,6 +1041,7 @@ const de: Strings = {
     closingThisMonth: "Abschlüsse diesen Monat",
     wonByMonth: "Gewonnener Wert pro Monat",
     accountsMap: "Firmenkunden auf der Karte",
+    nextSteps: "Nächste Schritte, nächste 14 Tage",
   },
   wiki: {
     guide: {
@@ -2374,10 +2376,10 @@ export default defineSolution<Strings>({
           },
           {
             kind: "calendar",
-            title: t.widgets.closingThisMonth,
+            title: t.widgets.nextSteps,
             list: "deal",
-            layout: "month",
-            date: "closeDate",
+            layout: "upcoming",
+            date: "nextStepDate",
             amount: "totalValue",
             filters: [{ field: "stage", in: open }],
           },
@@ -2390,6 +2392,15 @@ export default defineSolution<Strings>({
             field: "totalValue",
             groupBy: { month: "closeDate" },
             filters: wonLastYear,
+          },
+          {
+            kind: "calendar",
+            title: t.widgets.closingThisMonth,
+            list: "deal",
+            layout: "month",
+            date: "closeDate",
+            amount: "totalValue",
+            filters: [{ field: "stage", in: open }],
           },
           {
             kind: "map",

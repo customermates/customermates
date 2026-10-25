@@ -361,6 +361,7 @@ const en = {
     presentations: "Pitch presentations, next 14 days",
     wonByMonth: "Won value by month",
     mrrByClient: "Retainer MRR by client",
+    nextStepsMonth: "Next steps this month",
   },
   members: {
     colleagueA: ["Hannah", "Price", "hannah.price@fernhill-creative.example"],
@@ -882,6 +883,7 @@ const de: Strings = {
     presentations: "Präsentationen, 14 Tage",
     wonByMonth: "Gewonnener Wert pro Monat",
     mrrByClient: "Retainer pro Monat nach Kunde",
+    nextStepsMonth: "Nächste Schritte im Monat",
   },
   members: {
     colleagueA: ["Mia", "Schneider", "mia.schneider@kranich-kommunikation.example"],
@@ -2344,6 +2346,14 @@ export default defineSolution<Strings>({
               { field: "stage", in: ["won"] },
               { field: "closeDate", withinDays: 365 },
             ],
+          },
+          {
+            kind: "calendar",
+            title: t.widgets.nextStepsMonth,
+            list: "deal",
+            layout: "month",
+            date: "nextStepDate",
+            filters: [{ field: "stage", in: open }],
           },
           {
             kind: "chart",

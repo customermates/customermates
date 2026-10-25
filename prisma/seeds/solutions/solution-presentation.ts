@@ -163,7 +163,7 @@ const SOLUTION_ACCENTS: Record<SolutionWorkspace["solution"]["id"], ChartColor> 
   "whatsapp-crm": ChartColor.success1,
 };
 
-const DASHBOARD_SHAPE = { kpi: 4, chart: 5 } as const;
+const DASHBOARD_SHAPE = { kpi: 4, chart: 6 } as const;
 
 function fieldKey(companyId: string, list: string, field: string): string {
   return field.startsWith("system:") ? field : presetId(companyId, `${list}.${field}`);
@@ -223,8 +223,8 @@ function widgetGroupBy(
 }
 
 /**
- * The workspace's main dashboard in its fixed shape: four number cards in the first row, three widgets in the second
- * and two wider widgets in the third, every row filling the grid at one height. Charts, calendars and maps use the
+ * The workspace's main dashboard in its fixed shape: four number cards in the first row and three widgets in each of
+ * the second and third, every row filling the grid at one height. Charts, calendars and maps use the
  * workspace's accent hue and time zone.
  */
 export function buildSolutionWidgets(workspace: SolutionWorkspace, content: SolutionContent): SolutionWidgetRow[] {
@@ -236,7 +236,7 @@ export function buildSolutionWidgets(workspace: SolutionWorkspace, content: Solu
     ...Array<string>(DASHBOARD_SHAPE.kpi).fill("kpi"),
     ...Array<string>(DASHBOARD_SHAPE.chart).fill("chart"),
   ].join(",");
-  if (shape !== expected) throw new Error(`${workspace.slug}: the dashboard needs four kpi then five other widgets`);
+  if (shape !== expected) throw new Error(`${workspace.slug}: the dashboard needs four kpi then six other widgets`);
   const rects = structuredDashboardLayout(widgets.map((widget) => ({ metric: widget.kind === "kpi" })));
   const source = (list: string, filters?: readonly WidgetFilterSpec[]): RecordMeasure["source"] => ({
     typeId: presetId(companyId, list),

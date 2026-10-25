@@ -216,6 +216,7 @@ const en = {
     byClient: "Project fees by client",
     feesByMonth: "Project fees by start month",
     nextActions: "Next actions this fortnight",
+    tasksMonth: "Open tasks this month",
   },
   files: {
     fernhillBrief: {
@@ -613,6 +614,7 @@ const de: Strings = {
     byClient: "Honorare nach Kunde",
     feesByMonth: "Honorare nach Startmonat",
     nextActions: "Nächste Schritte, 14 Tage",
+    tasksMonth: "Offene Aufgaben im Monat",
   },
   files: {
     fernhillBrief: {
@@ -1570,6 +1572,14 @@ export default defineSolution<Strings>({
             field: "fee",
             groupBy: { month: "start" },
             filters: [{ field: "start", withinDays: 365 }],
+          },
+          {
+            kind: "calendar",
+            title: t.widgets.tasksMonth,
+            list: "task",
+            layout: "month",
+            date: "dueDate",
+            filters: [{ field: "status", notIn: ["done", "archived"] }],
           },
           {
             kind: "chart",

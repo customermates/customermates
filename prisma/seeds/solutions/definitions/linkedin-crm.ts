@@ -265,6 +265,7 @@ const en = {
     byStage: "Pipeline by stage",
     wonByMonth: "Won value by month",
     latestChats: "Latest LinkedIn conversations",
+    chatsMonth: "LinkedIn chats this month",
   },
   wiki: {
     guide: {
@@ -677,6 +678,7 @@ const de: Strings = {
     byStage: "Pipeline nach Phase",
     wonByMonth: "Gewonnener Wert pro Monat",
     latestChats: "Neueste LinkedIn-Gespräche",
+    chatsMonth: "LinkedIn-Gespräche im Monat",
   },
   wiki: {
     guide: {
@@ -1772,7 +1774,6 @@ export default defineSolution<Strings>({
             aggregation: "count",
             groupBy: { field: "howWeMet" },
           },
-          { kind: "activity", title: t.widgets.latestChats, providers: ["linkedin"] },
           {
             kind: "chart",
             title: t.widgets.wonByMonth,
@@ -1783,6 +1784,14 @@ export default defineSolution<Strings>({
             groupBy: { month: "closeDate" },
             filters: wonLastYear,
           },
+          {
+            kind: "calendar",
+            title: t.widgets.chatsMonth,
+            list: "contact",
+            layout: "month",
+            date: "lastLinkedinChat",
+          },
+          { kind: "activity", title: t.widgets.latestChats, providers: ["linkedin"] },
         ],
       },
       wiki: [

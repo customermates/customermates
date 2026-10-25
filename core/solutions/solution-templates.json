@@ -9,6 +9,7 @@
       "Pitch presentations, next 14 days",
       "Projects by status",
       "Won value by month",
+      "Next steps this month",
       "Retainer MRR by client"
     ],
     "knowledgeBase": ["Operating Guide", "Pitch process", "After a pitch presentation", "Retainer renewal checklist"],
@@ -82,10 +83,11 @@
       "No contact in 30 days",
       "Overdue tasks",
       "Clients by relationship status",
-      "Annual value by service",
       "Reviews in the next 30 days",
+      "Top clients by annual value",
+      "Client actions this month",
       "Sites we serve",
-      "Top clients by annual value"
+      "Latest client activity"
     ],
     "knowledgeBase": [
       "Operating Guide",
@@ -155,6 +157,7 @@
       "Next steps, next 14 days",
       "Won engagements by delivery",
       "Won fees by month",
+      "Client meetings this month",
       "Top clients by won fees"
     ],
     "knowledgeBase": [
@@ -218,6 +221,7 @@
       "Next actions this fortnight",
       "Projects by status",
       "Project fees by start month",
+      "Open tasks this month",
       "Project fees by client"
     ],
     "knowledgeBase": ["Operating Guide", "Stages of an inquiry", "After a first call", "My rates and terms"],
@@ -278,8 +282,9 @@
       "Prospects by connection status",
       "Pipeline by stage",
       "Prospects by how we met",
-      "Latest LinkedIn conversations",
-      "Won value by month"
+      "Won value by month",
+      "LinkedIn chats this month",
+      "Latest LinkedIn conversations"
     ],
     "knowledgeBase": [
       "Operating Guide",
@@ -335,8 +340,9 @@
       "Avg. sales cycle, won (days)",
       "Open opportunities by stage",
       "Open pipeline by owner",
-      "Closing this month",
+      "Next steps, next 14 days",
       "Won value by month",
+      "Closing this month",
       "Accounts on the map"
     ],
     "knowledgeBase": ["Operating Guide", "Sales stages", "After a site visit", "Discount and approval rules"],
@@ -388,10 +394,11 @@
       "Average won deal",
       "Overdue tasks",
       "Pipeline by stage",
-      "Customers on the map",
       "Next steps, next 14 days",
+      "Latest activity",
       "Won value by month",
-      "Won value by source"
+      "Appointments this month",
+      "Customers on the map"
     ],
     "knowledgeBase": ["Operating Guide", "Sales Process", "Follow-up after a site visit", "Price list and discounts"],
     "lists": [
@@ -442,6 +449,7 @@
       "Investor meetings, next 14 days",
       "Investors by round status",
       "New opportunities per month",
+      "Open tasks this month",
       "Late-stage ARR by company"
     ],
     "knowledgeBase": [
@@ -511,6 +519,7 @@
       "Site visits, next 14 days",
       "Chats by status",
       "Won value by month",
+      "Next steps this month",
       "Lead time by project type (days)"
     ],
     "knowledgeBase": ["Operating Guide", "Sales Process", "From WhatsApp chat to project", "Site visit checklist"],
