@@ -95,6 +95,7 @@ test("the questions mark missing answers, suggest steps that reorder by dragging
   await expect.poll(() => entries(page)).toEqual(setup.suggestedSteps.dealsClients.split("|"));
 
   const steps = question(page, "mainSteps");
+  await steps.evaluate((element) => element.scrollIntoView({ block: "center" }));
   const handles = steps.getByRole("button", { name: /^Drag to reorder/ });
   const from = await handles.nth(1).boundingBox();
   const to = await handles.nth(0).boundingBox();

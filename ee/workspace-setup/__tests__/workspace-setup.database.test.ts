@@ -336,7 +336,7 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
       ["dashboard", "completed", 1],
     ]);
     expect(view.results.pages.map((page) => page.title)).toEqual(["About the agency", "Operating Guide"]);
-    expect(view.knowledgeBase).toMatchObject({ crawlStatus: null, pagesPlanned: 7, pagesWritten: 2 });
+    expect(view.knowledgeBase).toMatchObject({ crawlStatus: null, pagesPlanned: 4, pagesWritten: 2 });
     const [about, guide] = await runWithoutTenant(() =>
       Promise.all(view.results.pages.map((page) => prisma.wikiPage.findUniqueOrThrow({ where: { id: page.id } }))),
     );
@@ -969,9 +969,9 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
         setupKey: "overview",
         outline: ["What we do", "How we work"],
       }),
+      expect.objectContaining({ title: "Voice and tone", role: "voice_and_tone" }),
       expect.objectContaining({ title: "Frequently asked questions", role: "faq" }),
       expect.objectContaining({ title: "Processes", role: "procedure" }),
-      expect.objectContaining({ title: "Voice and tone", role: "voice_and_tone" }),
       expect.objectContaining({ title: "Operating Guide", role: "operating_guide" }),
     ]);
   });
