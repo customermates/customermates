@@ -22,6 +22,7 @@ type SeededWidget = {
   calendarLayout: string | null;
   aggregation: string | null;
   sources: string[] | null;
+  kinds: string[] | null;
 };
 
 /** Messages, logged activities and meetings come from connected accounts, which are available on Customermates Cloud only. */
@@ -37,7 +38,8 @@ for (const dashboard of DEMO_DASHBOARDS) {
       `SELECT id, name, kind::text AS kind, "displayOptions"->>'displayType' AS "displayType", measure->>'aggregation' AS aggregation,
        "calendarQuery"->>'layout' AS "calendarLayout",
        (SELECT array_agg(source) FROM jsonb_array_elements("activityQuery"->'filters') AS f,
-         jsonb_array_elements_text(f->'values') AS source WHERE f->>'kind' = 'source') AS sources FROM "Widget"
+         jsonb_array_elements_text(f->'values') AS source WHERE f->>'kind' = 'source') AS sources,
+       (SELECT array_agg(activity_kind) FROM jsonb_array_elements_text("activityQuery"->'kinds') AS activity_kind) AS kinds FROM "Widget"
        WHERE "companyId"=$1 AND "userId"=$2 AND id LIKE '15000000-%' AND "viewId" IS NOT DISTINCT FROM $3
        AND "deletedAt" IS NULL ORDER BY id`,
       [DEMO_COMPANY_ID, DEMO_MEMBERS.maxBergmann.userId, dashboard.id],
@@ -64,11 +66,13 @@ for (const dashboard of DEMO_DASHBOARDS) {
       ).toBeVisible();
       await expect(card.getByText(/is unavailable|Calculation unavailable|could not be loaded/)).toHaveCount(0);
       await expect(card.locator('[data-slot="widget-empty"]')).toHaveCount(0);
+      // Without a source filter, the widget's activity kinds decide where its activity comes from.
+      const sources = widget.sources?.length ? widget.sources : widget.kinds;
       if (
         widget.kind === "activityTimeline" &&
         e2eAppMode() === "self-hosted" &&
-        widget.sources?.length &&
-        widget.sources.every((source) => CLOUD_ACTIVITY_SOURCES.has(source))
+        sources?.length &&
+        sources.every((source) => CLOUD_ACTIVITY_SOURCES.has(source))
       ) {
         // Self-hosted reads no messaging or calendar activity, so the widget shows its empty state instead.
         await expect(card.locator('[data-page-state="empty"]')).toBeVisible();
