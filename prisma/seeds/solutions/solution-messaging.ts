@@ -105,7 +105,7 @@ export function buildSolutionMessaging(
     calendar: messaging.calendar
       ? {
           name: messaging.calendar.name,
-          timezone: "Europe/Berlin",
+          timezone: content.timeZone,
           events: messaging.calendar.events.map((event) => ({
             title: event.title,
             attendees: event.with.map((person) => ({ person, responseStatus: "yes" as const })),

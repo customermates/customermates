@@ -1,3 +1,4 @@
+import { solutionFileValues } from "./solution-files";
 import { SOLUTION_DATA_LOCALES, findSolution } from "@/core/solutions/solution-catalog";
 import { ROUTINE_NAME_MAX_CHARS, ROUTINE_PROMPT_MAX_CHARS } from "@/ee/routines/routine.schema";
 import {
@@ -96,6 +97,17 @@ function structure(content: SolutionContent) {
     })),
     webhooks: (content.webhooks ?? []).map((hook) => ({ ...hook, description: null, url: null })),
     apiKeys: (content.apiKeys ?? []).map((key) => key.createdDaysAgo),
+    files: (content.files ?? []).map((file) => [
+      file.key,
+      file.record,
+      file.field,
+      file.kind,
+      file.photo ?? null,
+      file.uploadedDaysAgo,
+    ]),
+    planner: content.planner ?? null,
+    trash: (content.trash ?? []).map((item) => [item.list, item.daysAgo]),
+    mateChats: (content.mateChats ?? []).map((chat) => [chat.endedHoursAgo, chat.messages.map((m) => m.role)]),
   };
 }
 
@@ -185,6 +197,7 @@ export function validateSolutionDefinition(
       buildSolutionWidgets(workspace, content);
       buildSolutionWiki(workspace, content);
       buildSolutionMessaging(workspace, content, data);
+      solutionFileValues(workspace, content, data);
       const count = data.records.length;
       if (count < SOLUTION_RECORD_BOUNDS.min || count > SOLUTION_RECORD_BOUNDS.max) {
         problems.push(

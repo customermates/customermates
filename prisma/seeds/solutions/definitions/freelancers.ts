@@ -975,6 +975,10 @@ function organizationOf(facts: { organization?: OrganizationKey; deal?: DealKey 
 export default defineSolution<Strings>({
   id: "freelancers",
   strings: { en, de },
+  story: {
+    en: { currency: "USD", timeZone: "America/New_York" },
+    de: { currency: "EUR", timeZone: "Europe/Berlin" },
+  },
   build: (t) => {
     const phone = (index: number) => phoneNumber(t.phones.mobile, index);
     const open = ["inquiry", "firstCall", "proposal"];

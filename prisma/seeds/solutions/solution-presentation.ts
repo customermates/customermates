@@ -88,8 +88,19 @@ export function buildSolutionViews(
     const surfaceKey = `records:${typeId}`;
     const position = positions.get(surfaceKey) ?? 0;
     positions.set(surfaceKey, position + 1);
+    if ((view.mode === "calendar") !== Boolean(view.calendar))
+      throw new Error(`${workspace.slug}: view ${view.key} needs a calendar exactly when it is a calendar`);
+    const calendar = view.calendar
+      ? {
+          dateFieldId: columnKey(companyId, model, view.list, view.calendar.date),
+          ...(view.calendar.end ? { endDateFieldId: columnKey(companyId, model, view.list, view.calendar.end) } : {}),
+          ...(view.calendar.color ? { colorFieldId: columnKey(companyId, model, view.list, view.calendar.color) } : {}),
+          mode: view.calendar.mode,
+        }
+      : null;
     const state: DataViewState = {
-      viewMode: view.mode === "board" ? ViewMode.card : ViewMode.table,
+      viewMode: view.mode === "board" ? ViewMode.card : view.mode === "calendar" ? ViewMode.calendar : ViewMode.table,
+      ...(calendar ? { calendar } : {}),
       ...(groupField
         ? {
             grouping: {
@@ -134,6 +145,9 @@ export type SolutionWidgetRow = {
   isTemplate: boolean;
   layout: Prisma.InputJsonValue;
   measure?: Prisma.InputJsonValue;
+  activityQuery?: Prisma.InputJsonValue;
+  calendarQuery?: Prisma.InputJsonValue;
+  mapQuery?: Prisma.InputJsonValue;
 };
 
 /** One accent hue per solution: every widget of its dashboards uses that hue, multi-value charts its shades. */
@@ -183,13 +197,18 @@ function widgetFilters(
   });
 }
 
-function widgetGroupBy(companyId: string, list: string, group: WidgetGroupSpec): NonNullable<RecordMeasure["groupBy"]> {
+function widgetGroupBy(
+  companyId: string,
+  list: string,
+  group: WidgetGroupSpec,
+  timeZone: string,
+): NonNullable<RecordMeasure["groupBy"]> {
   if ("month" in group) {
     return {
       path: [],
       fieldId: fieldKey(companyId, list, group.month),
       dateInterval: "month",
-      timeZone: "Europe/Berlin",
+      timeZone,
     };
   }
   if ("relation" in group) {
@@ -204,48 +223,95 @@ function widgetGroupBy(companyId: string, list: string, group: WidgetGroupSpec):
 }
 
 /**
- * The workspace's main dashboard in its fixed shape: four number cards in the first row, three charts in the second
- * and two wider charts in the third, every row filling the grid at one height.
+ * The workspace's main dashboard in its fixed shape: four number cards in the first row, three widgets in the second
+ * and two wider widgets in the third, every row filling the grid at one height. Charts, calendars and maps use the
+ * workspace's accent hue and time zone.
  */
 export function buildSolutionWidgets(workspace: SolutionWorkspace, content: SolutionContent): SolutionWidgetRow[] {
   const { companyId } = workspace;
   const accent = SOLUTION_ACCENTS[workspace.solution.id];
   const widgets = content.dashboard.widgets;
-  const shape = widgets.map((widget) => widget.kind).join(",");
+  const shape = widgets.map((widget) => (widget.kind === "kpi" ? "kpi" : "chart")).join(",");
   const expected = [
     ...Array<string>(DASHBOARD_SHAPE.kpi).fill("kpi"),
     ...Array<string>(DASHBOARD_SHAPE.chart).fill("chart"),
   ].join(",");
-  if (shape !== expected) throw new Error(`${workspace.slug}: the dashboard needs four kpi then five chart widgets`);
+  if (shape !== expected) throw new Error(`${workspace.slug}: the dashboard needs four kpi then five other widgets`);
   const rects = structuredDashboardLayout(widgets.map((widget) => ({ metric: widget.kind === "kpi" })));
-  const definitions: WidgetDefinition[] = widgets.map((widget, index) => {
-    const source: RecordMeasure["source"] = {
-      typeId: presetId(companyId, widget.list),
-      filters: widgetFilters(companyId, widget.list, widget.filters),
-      relationships: [],
-      relatedFilters: [],
-    };
-    return {
-      kind: "chart",
-      name: widget.title,
-      displayType: widget.kind === "kpi" ? DisplayType.number : widget.display,
-      measure: {
-        source,
-        aggregation: widget.aggregation,
-        valueFieldId: widget.field ? fieldKey(companyId, widget.list, widget.field) : null,
-        groupBy: widget.kind === "kpi" ? null : widgetGroupBy(companyId, widget.list, widget.groupBy),
-        groupLimit: 1000,
-      },
-      barColors: [accent],
-      useGroupColors: false,
-      lg: rects[index],
-    };
+  const source = (list: string, filters?: readonly WidgetFilterSpec[]): RecordMeasure["source"] => ({
+    typeId: presetId(companyId, list),
+    filters: widgetFilters(companyId, list, filters),
+    relationships: [],
+    relatedFilters: [],
+  });
+  const definitions: WidgetDefinition[] = widgets.map((widget, index): WidgetDefinition => {
+    const lg = rects[index];
+    switch (widget.kind) {
+      case "calendar":
+        return {
+          kind: "calendar",
+          name: widget.title,
+          calendarQuery: {
+            source: source(widget.list, widget.filters),
+            dateFieldId: fieldKey(companyId, widget.list, widget.date),
+            layout: widget.layout,
+            timeZone: content.timeZone,
+            days: widget.days ?? 14,
+            showOverdue: widget.overdue ?? widget.layout === "upcoming",
+            amountFieldId: widget.amount ? fieldKey(companyId, widget.list, widget.amount) : null,
+            aggregation: widget.layout === "month" && widget.amount ? "sum" : "count",
+          },
+          lg,
+        };
+      case "map":
+        return {
+          kind: "map",
+          name: widget.title,
+          mapQuery: {
+            source: source(widget.list, widget.filters),
+            addressFieldId: fieldKey(companyId, widget.list, widget.address),
+            colorFieldId: widget.color ? fieldKey(companyId, widget.list, widget.color) : null,
+            sizeFieldId: widget.size ? fieldKey(companyId, widget.list, widget.size) : null,
+            detailFieldId: widget.detail ? fieldKey(companyId, widget.list, widget.detail) : null,
+          },
+          lg,
+        };
+      case "activity":
+        return {
+          kind: "activityTimeline",
+          name: widget.title,
+          activityQuery: {
+            scope: { records: [], typeIds: [] },
+            kinds: ["message"],
+            ...(widget.providers?.length
+              ? { filters: [{ kind: "provider" as const, operator: "in" as const, values: [...widget.providers] }] }
+              : {}),
+          },
+          lg,
+        };
+      default:
+        return {
+          kind: "chart",
+          name: widget.title,
+          displayType: widget.kind === "kpi" ? DisplayType.number : widget.display,
+          measure: {
+            source: source(widget.list, widget.filters),
+            aggregation: widget.aggregation,
+            valueFieldId: widget.field ? fieldKey(companyId, widget.list, widget.field) : null,
+            groupBy:
+              widget.kind === "kpi" ? null : widgetGroupBy(companyId, widget.list, widget.groupBy, content.timeZone),
+            groupLimit: 1000,
+          },
+          barColors: [accent],
+          useGroupColors: false,
+          lg,
+        };
+    }
   });
   const ids = definitions.map((_, index) => workspaceFixtureId(SOLUTION_WIDGET_GROUP, workspace.tag, index + 1));
   const layouts = dashboardLayouts(ids, definitions);
   return definitions.map((widget, index) => {
-    if (widget.kind !== "chart") throw new Error("Solution dashboards hold chart widgets only");
-    return {
+    const base = {
       id: ids[index],
       companyId,
       userId: workspace.memberId,
@@ -253,19 +319,46 @@ export function buildSolutionWidgets(workspace: SolutionWorkspace, content: Solu
       name: widget.name,
       isTemplate: false,
       layout: layouts[index] as Prisma.InputJsonValue,
-      kind: WidgetKind.chart,
-      displayOptions: {
-        barColors: widget.barColors,
-        displayType: widget.displayType,
-        reverseXAxis: false,
-        reverseYAxis: false,
-        showFilters: widget.measure.source.filters.length > 0,
-        showLegend: widget.displayType === DisplayType.doughnutChart,
-        useGroupColors: widget.useGroupColors,
-        palette: "accent",
-      },
-      measure: widget.measure as Prisma.InputJsonValue,
     };
+    switch (widget.kind) {
+      case "calendar":
+        return {
+          ...base,
+          kind: WidgetKind.calendar,
+          displayOptions: { showFilters: widget.calendarQuery.source.filters.length > 0 },
+          calendarQuery: widget.calendarQuery as Prisma.InputJsonValue,
+        };
+      case "map":
+        return {
+          ...base,
+          kind: WidgetKind.map,
+          displayOptions: { showFilters: widget.mapQuery.source.filters.length > 0 },
+          mapQuery: widget.mapQuery as Prisma.InputJsonValue,
+        };
+      case "activityTimeline":
+        return {
+          ...base,
+          kind: WidgetKind.activityTimeline,
+          displayOptions: { showFilters: true },
+          activityQuery: widget.activityQuery as Prisma.InputJsonValue,
+        };
+      default:
+        return {
+          ...base,
+          kind: WidgetKind.chart,
+          displayOptions: {
+            barColors: widget.barColors,
+            displayType: widget.displayType,
+            reverseXAxis: false,
+            reverseYAxis: false,
+            showFilters: widget.measure.source.filters.length > 0,
+            showLegend: widget.displayType === DisplayType.doughnutChart,
+            useGroupColors: widget.useGroupColors,
+            palette: "accent",
+          },
+          measure: widget.measure as Prisma.InputJsonValue,
+        };
+    }
   });
 }
 

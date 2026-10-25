@@ -1232,6 +1232,10 @@ function organizationOf(facts: { organization?: OrganizationKey; deal?: DealKey 
 export default defineSolution<Strings>({
   id: "linkedin-crm",
   strings: { en, de },
+  story: {
+    en: { currency: "GBP", timeZone: "Europe/London" },
+    de: { currency: "EUR", timeZone: "Europe/Berlin" },
+  },
   build: (t) => {
     const open = ["identified", "conversation", "meetingBooked", "proposal"];
     const wonLastYear = [

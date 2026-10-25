@@ -33,6 +33,11 @@ const VALUE_TYPES: Record<FieldSpec["type"], RecordField["valueType"]> = {
   multiSelect: "select",
   url: "url",
   member: "member",
+  dateTime: "dateTime",
+  dateRange: "dateRange",
+  dateTimeRange: "dateTimeRange",
+  address: "address",
+  file: "file",
 };
 
 function formulaExpression(formula: FormulaSpec, id: (key: string) => string): CalculationExpression {
@@ -89,7 +94,10 @@ function formulaExpression(formula: FormulaSpec, id: (key: string) => string): C
 export function buildSolutionModel(
   companyId: string,
   locale: SolutionDataLocale,
-  content: Pick<SolutionContent, "lists" | "fields" | "stages" | "relationships" | "dealValue" | "valueLabels">,
+  content: Pick<
+    SolutionContent,
+    "lists" | "fields" | "stages" | "relationships" | "dealValue" | "valueLabels" | "currency"
+  >,
 ): RecordModel {
   const id = (key: string) => presetId(companyId, key);
   const t = solutionTranslator(locale);
@@ -205,8 +213,8 @@ export function buildSolutionModel(
       valueType: VALUE_TYPES[spec.type],
       behavior: spec.formula ? { kind: "formula", expression: formulaExpression(spec.formula, id) } : { kind: "input" },
       required: false,
-      ...(spec.type === "multiSelect" ? { multiple: true } : {}),
-      ...(spec.type === "currency" ? { format: { currency: "EUR" } } : {}),
+      ...(spec.type === "multiSelect" || spec.type === "file" ? { multiple: true } : {}),
+      ...(spec.type === "address" ? { format: { onClick: "open" as const } } : {}),
       ...(spec.formula?.kind === "daysBetween" ? { format: { decimalPlaces: 0 } } : {}),
       archived: spec.archived === true,
       publishedSummary: false,
@@ -221,6 +229,17 @@ export function buildSolutionModel(
       })),
       position: fields.filter((field) => field.typeId === typeId).length,
     });
+  }
+
+  for (const field of fields) {
+    if (field.valueType !== "currency") continue;
+    field.format = { ...field.format, currency: content.currency };
+    if (field.behavior.kind === "input" && field.behavior.defaultValue?.kind === "decimal") {
+      field.behavior = {
+        ...field.behavior,
+        defaultValue: { ...field.behavior.defaultValue, currency: content.currency },
+      };
+    }
   }
 
   const relationships = preset.relationships

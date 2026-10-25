@@ -1530,6 +1530,10 @@ function organizationOf(facts: { organization?: OrganizationKey; deal?: DealKey 
 export default defineSolution<Strings>({
   id: "agencies",
   strings: { en, de },
+  story: {
+    en: { currency: "USD", timeZone: "America/Chicago" },
+    de: { currency: "EUR", timeZone: "Europe/Berlin" },
+  },
   build: (t) => {
     const office = (index: number) => phoneNumber(t.phones.office, index);
     const open = ["inquiry", "briefing", "pitchPreparation", "proposal", "negotiation"];

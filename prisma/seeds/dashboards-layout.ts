@@ -1,6 +1,8 @@
 import type { RecordActivityQuery } from "@/ee/messaging/activities/record-activities.schema";
 import type { RecordMeasure } from "@/features/records/record-measure.schema";
 import type { WidgetLayout, ChartColor } from "@/features/widget/widget-display.schema";
+import type { CalendarWidgetQuery } from "@/features/widget/record-calendar-widget.schema";
+import type { MapWidgetQuery } from "@/features/widget/record-map-widget.schema";
 
 import { DisplayType } from "@/features/widget/widget-display.schema";
 import { packBreakpointLayout, type GridRect } from "@/features/widget/widget-grid";
@@ -22,7 +24,25 @@ export type ActivityWidgetDefinition = {
   lg: GridRect;
 };
 
-export type WidgetDefinition = ChartWidgetDefinition | ActivityWidgetDefinition;
+export type CalendarWidgetDefinition = {
+  kind: "calendar";
+  name: string;
+  calendarQuery: CalendarWidgetQuery;
+  lg: GridRect;
+};
+
+export type MapWidgetDefinition = {
+  kind: "map";
+  name: string;
+  mapQuery: MapWidgetQuery;
+  lg: GridRect;
+};
+
+export type WidgetDefinition =
+  | ChartWidgetDefinition
+  | ActivityWidgetDefinition
+  | CalendarWidgetDefinition
+  | MapWidgetDefinition;
 
 const BREAKPOINTS = { md: 8, sm: 4, xs: 2 } as const;
 

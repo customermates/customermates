@@ -1,14 +1,17 @@
 import { channelClass } from "@/ee/messaging/provider";
 import { presetId } from "@/features/records/crm-preset";
 import { identityKeys, normalizedIdentity } from "@/features/records/record-identity";
-import type { RecordModel, RecordScalar } from "@/features/records/record-model.schema";
+import type { RecordAddress, RecordModel, RecordScalar } from "@/features/records/record-model.schema";
 import type { RecordIdentityProvider } from "@/generated/prisma";
 
 import { fixtureId, workspaceFixtureId } from "../helpers";
 import { TEAM_MEMBER_IDS } from "../team";
 import { storyDay, storyMoment } from "../timeline";
+import { zonedInstant } from "@/features/record-calendar/zoned-time";
+import { unverifiedRecordAddress } from "@/features/records/record-address";
 import {
   COLLEAGUE_KEYS,
+  type AddressInput,
   type ColleagueKey,
   type FieldInput,
   type MemberKey,
@@ -123,7 +126,46 @@ export function solutionRecordPrefixes(content: SolutionContent): Array<readonly
   return lists.map((list) => [list, recordPrefix(content, list)] as const);
 }
 
-function scalar(workspace: SolutionWorkspace, model: RecordModel, fieldKey: string, input: FieldInput): RecordScalar {
+type Story = Pick<SolutionContent, "currency" | "timeZone">;
+
+function wallTime(text: string) {
+  const match = /^(\d{2}):(\d{2})$/.exec(text);
+  if (!match) throw new Error(`Local time ${text} is not HH:mm`);
+  return { hour: Number(match[1]), minute: Number(match[2]), second: 0, millisecond: 0 };
+}
+
+/** The instant of a local time on a story day in the story's time zone. */
+export function storyInstant(story: Pick<Story, "timeZone">, day: number, time: string): Date {
+  return zonedInstant(storyDay(day), wallTime(time), story.timeZone);
+}
+
+function storyAddress(input: AddressInput): RecordAddress {
+  const address = unverifiedRecordAddress({
+    street: input.street,
+    line2: input.line2 ?? null,
+    postalCode: input.postalCode,
+    city: input.city,
+    region: input.region ?? null,
+    countryCode: input.countryCode,
+    formatted: "",
+    location: null,
+    verification: { status: "unverified", provider: null, checkedAt: null },
+  });
+  if (!address) throw new Error(`Address ${input.street} has no parts`);
+  const round = (value: number) => Math.round(value * 1e5) / 1e5;
+  return { ...address, location: { lat: round(input.lat), lon: round(input.lon), precision: "postcode" } };
+}
+
+const isObject = (input: FieldInput): input is Exclude<FieldInput, string | number | boolean | readonly string[]> =>
+  typeof input === "object" && input !== null && !Array.isArray(input);
+
+function scalar(
+  workspace: SolutionWorkspace,
+  model: RecordModel,
+  story: Story,
+  fieldKey: string,
+  input: FieldInput,
+): RecordScalar {
   const id = (key: string) => presetId(workspace.companyId, key);
   const field = model.fields.find((candidate) => candidate.id === id(fieldKey));
   if (!field) throw new Error(`${workspace.slug}: unknown field ${fieldKey}`);
@@ -148,13 +190,32 @@ function scalar(workspace: SolutionWorkspace, model: RecordModel, fieldKey: stri
     case "number":
       return typeof input === "number" ? { kind: "decimal", value: String(input), currency: null } : fail();
     case "currency":
-      return typeof input === "number" ? { kind: "decimal", value: String(input), currency: "EUR" } : fail();
+      return typeof input === "number" ? { kind: "decimal", value: String(input), currency: story.currency } : fail();
     case "boolean":
       return typeof input === "boolean" ? { kind: "boolean", value: input } : fail();
     case "date":
-      return typeof input === "object" && input !== null && "day" in input
+      return isObject(input) && "day" in input && !("at" in input)
         ? { kind: "date", value: storyDay(input.day) }
         : fail();
+    case "dateTime":
+      return isObject(input) && "at" in input && !("minutes" in input)
+        ? { kind: "dateTime", value: storyInstant(story, input.day, input.at).toISOString() }
+        : fail();
+    case "dateRange":
+      return isObject(input) && "from" in input
+        ? { kind: "range", start: storyDay(input.from), end: storyDay(input.to) }
+        : fail();
+    case "dateTimeRange": {
+      if (!isObject(input) || !("minutes" in input)) return fail();
+      const start = storyInstant(story, input.day, input.at);
+      return {
+        kind: "range",
+        start: start.toISOString(),
+        end: new Date(start.getTime() + input.minutes * 60_000).toISOString(),
+      };
+    }
+    case "address":
+      return isObject(input) && "postalCode" in input ? { kind: "address", value: storyAddress(input) } : fail();
     case "select":
       if (field.multiple) return Array.isArray(input) ? { kind: "selectList", value: input.map(option) } : fail();
       return typeof input === "string" ? { kind: "select", value: option(input) } : fail();
@@ -223,7 +284,7 @@ export function buildSolutionRecordData(
           typeId,
           recordId,
           fieldId: id(`${list}.${fieldName}`),
-          value: scalar(workspace, model, `${list}.${fieldName}`, input),
+          value: scalar(workspace, model, content, `${list}.${fieldName}`, input),
         });
       }
       if (spec.avatar) {
@@ -344,7 +405,7 @@ export function buildSolutionRecordData(
       for (const [fieldName, input] of Object.entries(change.previous)) {
         const fieldId = id(`${list}.${fieldName}`);
         if (!firstValues.has(fieldId))
-          firstValues.set(fieldId, scalar(workspace, model, `${list}.${fieldName}`, input));
+          firstValues.set(fieldId, scalar(workspace, model, content, `${list}.${fieldName}`, input));
       }
     }
     data.history.push({
@@ -367,7 +428,7 @@ export function buildSolutionRecordData(
         values: new Map(
           Object.entries(change.previous).map(([fieldName, input]) => [
             id(`${list}.${fieldName}`),
-            scalar(workspace, model, `${list}.${fieldName}`, input),
+            scalar(workspace, model, content, `${list}.${fieldName}`, input),
           ]),
         ),
       });

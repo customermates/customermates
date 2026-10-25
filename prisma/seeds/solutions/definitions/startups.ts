@@ -1343,6 +1343,10 @@ function mailbox(name: string): string {
 export default defineSolution<Strings>({
   id: "startups",
   strings: { en, de },
+  story: {
+    en: { currency: "USD", timeZone: "America/Chicago" },
+    de: { currency: "EUR", timeZone: "Europe/Berlin" },
+  },
   build: (t) => {
     const phone = (index: number) => phoneNumber(t.phones.mobile, index);
     const open = ["identified", "conversation", "demo", "pilot", "decision"];

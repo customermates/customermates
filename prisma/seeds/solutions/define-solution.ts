@@ -25,7 +25,12 @@ export type FieldType =
   | "select"
   | "multiSelect"
   | "url"
-  | "member";
+  | "member"
+  | "dateTime"
+  | "dateRange"
+  | "dateTimeRange"
+  | "address"
+  | "file";
 
 export type OptionSpec = { key: string; label: string; color: ChipColor; probability?: number };
 
@@ -71,7 +76,48 @@ export type RelationshipSpec = {
 export type DayRef = { day: number };
 export const day = (offset: number): DayRef => ({ day: offset });
 
-export type FieldInput = string | number | boolean | DayRef | readonly string[];
+/** A local time on a story day, `HH:mm` in the workspace's time zone. */
+export type AtRef = { day: number; at: string };
+export const at = (offset: number, time: string): AtRef => ({ day: offset, at: time });
+
+/** A span of whole story days, both ends included. */
+export type RangeRef = { from: number; to: number };
+export const range = (from: number, to: number): RangeRef => ({ from, to });
+
+/** A span that starts at a local time on a story day and lasts `minutes`. */
+export type RangeAtRef = { day: number; at: string; minutes: number };
+export const rangeAt = (offset: number, time: string, minutes: number): RangeAtRef => ({
+  day: offset,
+  at: time,
+  minutes,
+});
+
+/**
+ * A typed-in address: real city and postal code with a common street, stored unverified at the approximate centre of
+ * its postal code (`lat`/`lon`), as the server stores a typed address; maps place it there.
+ */
+export type AddressInput = {
+  street: string;
+  line2?: string;
+  postalCode: string;
+  city: string;
+  region?: string;
+  countryCode: string;
+  lat: number;
+  lon: number;
+};
+export const address = (input: AddressInput): AddressInput => input;
+
+export type FieldInput =
+  | string
+  | number
+  | boolean
+  | DayRef
+  | AtRef
+  | RangeRef
+  | RangeAtRef
+  | AddressInput
+  | readonly string[];
 
 export type ChannelSpec = {
   email?: string;
@@ -103,7 +149,9 @@ export type ViewSpec = {
   key: string;
   list: string;
   name: string;
-  mode: "board" | "table";
+  mode: "board" | "table" | "calendar";
+  /** Calendar views: the field that places each record, an optional end field, a select that colours the entries. */
+  calendar?: { date: string; end?: string; color?: string; mode: "month" | "week" | "agenda" };
   groupBy?: string;
   columns: readonly string[];
   filters?: readonly ViewFilterSpec[];
@@ -133,8 +181,8 @@ export type WidgetGroupSpec =
   | { records: true };
 
 /**
- * The dashboard has a fixed shape: four number cards, then three charts in a row and two wider charts below them, so a
- * solution lists exactly four `kpi` widgets followed by five `chart` widgets.
+ * The dashboard has a fixed shape: four number cards, then three widgets in a row and two wider widgets below them, so a
+ * solution lists exactly four `kpi` widgets followed by five chart, calendar, map or activity widgets.
  */
 export type WidgetSpec =
   | {
@@ -154,6 +202,34 @@ export type WidgetSpec =
       field?: string;
       groupBy: WidgetGroupSpec;
       filters?: readonly WidgetFilterSpec[];
+    }
+  | {
+      /** Upcoming lists the records of the next `days` with an overdue section; month is a heat grid of the month. */
+      kind: "calendar";
+      title: string;
+      list: string;
+      layout: "upcoming" | "month";
+      date: string;
+      days?: number;
+      amount?: string;
+      overdue?: boolean;
+      filters?: readonly WidgetFilterSpec[];
+    }
+  | {
+      kind: "map";
+      title: string;
+      list: string;
+      address: string;
+      color?: string;
+      size?: string;
+      detail?: string;
+      filters?: readonly WidgetFilterSpec[];
+    }
+  | {
+      /** The latest messages of the workspace's conversations, optionally of some channels only. */
+      kind: "activity";
+      title: string;
+      providers?: readonly MessagingProvider[];
     };
 
 export type WikiPageSpec = {
@@ -256,6 +332,56 @@ export type WebhookSpec = {
 /** An API key on Max's profile, shown in the settings; it cannot authenticate. */
 export type ApiKeySpec = { name: string; createdDaysAgo: number };
 
+export type FileKind = "pdf" | "docx" | "xlsx" | "csv" | "md" | "jpg";
+
+/**
+ * A file on a record's file field. Documents are generated from their text: `lines` for PDF, Word and Markdown (a line
+ * starting with `# ` or `## ` is a heading, a line starting with `| ` a table row), `rows` for spreadsheets and CSV,
+ * `photo` for a committed JPG of `assets/photos`. Every byte is derived from the spec, so reseeds store the same files.
+ */
+export type FileSpec = {
+  key: string;
+  /** `<list>:<record key>` */
+  record: string;
+  /** The file field, `<list>.<field>`. */
+  field: string;
+  name: string;
+  kind: FileKind;
+  lines?: readonly string[];
+  rows?: ReadonlyArray<ReadonlyArray<string | number>>;
+  photo?: string;
+  uploadedDaysAgo: number;
+  by?: MemberKey;
+};
+
+/** A source of the combined calendar: a list's date field, optional end field, filters and the entries' colour. */
+export type PlannerSourceSpec = {
+  list: string;
+  date: string;
+  end?: string;
+  filters?: readonly ViewFilterSpec[];
+  color: ChipColor;
+};
+
+/** Max's combined calendar: record sources, the connected calendar when the workspace has one, and its mode. */
+export type PlannerSpec = {
+  sources: readonly PlannerSourceSpec[];
+  connectedCalendar?: boolean;
+  mode: "month" | "week" | "quarter" | "timeline" | "agenda";
+  /** A private calendar feed Max subscribed to on their phone. */
+  feed?: string;
+};
+
+/** A record Max deleted a few days ago; it waits in Trash. */
+export type TrashSpec = { list: string; name: string; daysAgo: number };
+
+/** A finished Mate conversation of Max. */
+export type MateChatSpec = {
+  title: string;
+  endedHoursAgo: number;
+  messages: ReadonlyArray<{ role: "user" | "assistant"; text: string }>;
+};
+
 export type SolutionContent = {
   /** The workspace name: the solution name, so the workspace reads as an example. */
   workspaceName: string;
@@ -279,12 +405,26 @@ export type SolutionContent = {
   routines?: readonly RoutineSpec[];
   webhooks?: readonly WebhookSpec[];
   apiKeys?: readonly ApiKeySpec[];
+  /** The currency of every amount: USD for US stories, GBP for UK stories, EUR for German ones. */
+  currency: "USD" | "GBP" | "EUR";
+  /** The time zone of the story: dashboards, calendars and local times of date-time values. */
+  timeZone: string;
+  files?: readonly FileSpec[];
+  planner?: PlannerSpec;
+  /** Records in Trash; the team workspace keeps its own Trash fixtures. */
+  trash?: readonly TrashSpec[];
+  /** Mate conversations; the team workspace keeps its own. */
+  mateChats?: readonly MateChatSpec[];
 };
+
+/** Where a story is set: the currency of its amounts and its time zone, per data locale. */
+export type SolutionStory = Pick<SolutionContent, "currency" | "timeZone">;
 
 export type SolutionDefinition<Strings> = {
   id: SolutionId;
   strings: Record<SolutionDataLocale, Strings>;
-  build: (strings: Strings, locale: SolutionDataLocale) => SolutionContent;
+  story: Record<SolutionDataLocale, SolutionStory>;
+  build: (strings: Strings, locale: SolutionDataLocale) => Omit<SolutionContent, keyof SolutionStory>;
 };
 
 /**
@@ -299,12 +439,16 @@ export function defineSolution<Strings>(definition: SolutionDefinition<Strings>)
 export type AnySolutionDefinition = {
   id: SolutionId;
   strings: Record<SolutionDataLocale, unknown>;
-  build: (strings: never, locale: SolutionDataLocale) => SolutionContent;
+  story: Record<SolutionDataLocale, SolutionStory>;
+  build: (strings: never, locale: SolutionDataLocale) => Omit<SolutionContent, keyof SolutionStory>;
 };
 
 export function solutionContent(definition: AnySolutionDefinition, locale: SolutionDataLocale): SolutionContent {
-  const build = definition.build as (strings: unknown, locale: SolutionDataLocale) => SolutionContent;
-  return build(definition.strings[locale], locale);
+  const build = definition.build as (
+    strings: unknown,
+    locale: SolutionDataLocale,
+  ) => Omit<SolutionContent, keyof SolutionStory>;
+  return { ...build(definition.strings[locale], locale), ...definition.story[locale] };
 }
 
 export { demoContactPhoto as photo, type DemoContactPhoto } from "../avatars";

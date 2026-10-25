@@ -26,6 +26,8 @@ import {
   solutionColleagueId,
   type SolutionRecordData,
 } from "./solution-data";
+import { seedSolutionMateChats, seedSolutionPlanner, seedSolutionTrash } from "./solution-extras";
+import { seedSolutionFiles, solutionFileValues } from "./solution-files";
 import { buildSolutionMessaging } from "./solution-messaging";
 import {
   SOLUTION_VIEW_GROUP,
@@ -489,7 +491,13 @@ async function writePresentation(
   await upsertFixturesById(widgets, (widget) =>
     prisma.widget.upsert({
       where: { id: widget.id },
-      update: { ...widget, activityQuery: Prisma.DbNull },
+      update: {
+        ...widget,
+        measure: widget.measure ?? Prisma.DbNull,
+        activityQuery: widget.activityQuery ?? Prisma.DbNull,
+        calendarQuery: widget.calendarQuery ?? Prisma.DbNull,
+        mapQuery: widget.mapQuery ?? Prisma.DbNull,
+      },
       create: widget,
     }),
   );
@@ -565,7 +573,9 @@ export async function seedSolutionWorkspace(
     throw new Error(`${workspace.slug}: the stored record model differs from the solution`);
 
   const data = buildSolutionRecordData(workspace, content, model);
+  data.values.push(...solutionFileValues(workspace, content, data));
   const counts = await writeRecords(prisma, workspace, content, model, data);
+  await seedSolutionFiles(prisma, workspace, content, data);
   const events = await prisma.eventLog.count({
     where: { companyId, id: { startsWith: `${SOLUTION_RECORD_EVENT_PREFIX}-` } },
   });
@@ -589,6 +599,9 @@ export async function seedSolutionWorkspace(
   );
   await seedSolutionRoutines(prisma, workspace, content, data);
   await seedSolutionApiKeys(prisma, workspace, content);
+  await seedSolutionPlanner(prisma, workspace, content);
+  await seedSolutionTrash(prisma, workspace, content);
+  await seedSolutionMateChats(prisma, workspace, content);
 
   return {
     slug: workspace.slug,

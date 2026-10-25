@@ -1395,6 +1395,10 @@ function organizationOf(facts: { organization?: OrganizationKey; deal?: DealKey 
 export default defineSolution<Strings>({
   id: "smb",
   strings: { en, de },
+  story: {
+    en: { currency: "USD", timeZone: "America/Los_Angeles" },
+    de: { currency: "EUR", timeZone: "Europe/Berlin" },
+  },
   build: (t) => {
     const phone = (suffix: string) => phoneNumber(t.phones.mobile, Number(suffix));
     const office = (index: number) => phoneNumber(t.phones.office, index);
