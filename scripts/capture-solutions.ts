@@ -33,7 +33,7 @@ const ROOT = process.cwd();
 const PUBLIC_ROOT = join(ROOT, "public");
 const MANIFEST_PATH = join(ROOT, "core", "solutions", "solution-capture-manifest.json");
 const PROVENANCE_PATH = join(ROOT, "core", "solutions", "solution-capture-provenance.json");
-const MAIN_WEBP_QUALITY = 82;
+const MAIN_WEBP_QUALITY = 74;
 const NAV_WEBP_QUALITY = 78;
 
 function publicFile(src: string): string {

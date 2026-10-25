@@ -3,13 +3,13 @@
     {
       "locale": "en",
       "main": {
-        "bytes": 147620,
+        "bytes": 147946,
         "height": 1800,
         "src": "/captures/solutions/light/smb-en.webp",
         "width": 2880
       },
       "nav": {
-        "bytes": 30000,
+        "bytes": 35484,
         "height": 600,
         "src": "/captures/solutions/light/smb-en-nav.webp",
         "width": 960
@@ -21,13 +21,13 @@
     {
       "locale": "en",
       "main": {
-        "bytes": 143654,
+        "bytes": 144766,
         "height": 1800,
         "src": "/captures/solutions/dark/smb-en.webp",
         "width": 2880
       },
       "nav": {
-        "bytes": 28960,
+        "bytes": 34862,
         "height": 600,
         "src": "/captures/solutions/dark/smb-en-nav.webp",
         "width": 960
@@ -39,13 +39,13 @@
     {
       "locale": "de",
       "main": {
-        "bytes": 160264,
+        "bytes": 154862,
         "height": 1800,
         "src": "/captures/solutions/light/smb-de.webp",
         "width": 2880
       },
       "nav": {
-        "bytes": 32390,
+        "bytes": 38654,
         "height": 600,
         "src": "/captures/solutions/light/smb-de-nav.webp",
         "width": 960
@@ -57,13 +57,13 @@
     {
       "locale": "de",
       "main": {
-        "bytes": 156330,
+        "bytes": 151932,
         "height": 1800,
         "src": "/captures/solutions/dark/smb-de.webp",
         "width": 2880
       },
       "nav": {
-        "bytes": 31300,
+        "bytes": 37890,
         "height": 600,
         "src": "/captures/solutions/dark/smb-de-nav.webp",
         "width": 960
@@ -75,13 +75,13 @@
     {
       "locale": "fr",
       "main": {
-        "bytes": 161626,
+        "bytes": 159164,
         "height": 1800,
         "src": "/captures/solutions/light/smb-fr.webp",
         "width": 2880
       },
       "nav": {
-        "bytes": 32858,
+        "bytes": 38794,
         "height": 600,
         "src": "/captures/solutions/light/smb-fr-nav.webp",
         "width": 960
@@ -93,13 +93,13 @@
     {
       "locale": "fr",
       "main": {
-        "bytes": 157154,
+        "bytes": 155828,
         "height": 1800,
         "src": "/captures/solutions/dark/smb-fr.webp",
         "width": 2880
       },
       "nav": {
-        "bytes": 31770,
+        "bytes": 37982,
         "height": 600,
         "src": "/captures/solutions/dark/smb-fr-nav.webp",
         "width": 960
@@ -111,7 +111,7 @@
     {
       "locale": "en",
       "main": {
-        "bytes": 156588,
+        "bytes": 141878,
         "height": 1800,
         "src": "/captures/solutions/light/consultants-en.webp",
         "width": 2880
@@ -129,7 +129,7 @@
     {
       "locale": "en",
       "main": {
-        "bytes": 154626,
+        "bytes": 139474,
         "height": 1800,
         "src": "/captures/solutions/dark/consultants-en.webp",
         "width": 2880
@@ -147,7 +147,7 @@
     {
       "locale": "de",
       "main": {
-        "bytes": 177524,
+        "bytes": 157564,
         "height": 1800,
         "src": "/captures/solutions/light/consultants-de.webp",
         "width": 2880
@@ -165,7 +165,7 @@
     {
       "locale": "de",
       "main": {
-        "bytes": 174590,
+        "bytes": 154454,
         "height": 1800,
         "src": "/captures/solutions/dark/consultants-de.webp",
         "width": 2880
@@ -183,7 +183,7 @@
     {
       "locale": "en",
       "main": {
-        "bytes": 155764,
+        "bytes": 142058,
         "height": 1800,
         "src": "/captures/solutions/light/agencies-en.webp",
         "width": 2880
@@ -201,7 +201,7 @@
     {
       "locale": "en",
       "main": {
-        "bytes": 152920,
+        "bytes": 139348,
         "height": 1800,
         "src": "/captures/solutions/dark/agencies-en.webp",
         "width": 2880
@@ -219,7 +219,7 @@
     {
       "locale": "de",
       "main": {
-        "bytes": 170358,
+        "bytes": 153356,
         "height": 1800,
         "src": "/captures/solutions/light/agencies-de.webp",
         "width": 2880
@@ -237,7 +237,7 @@
     {
       "locale": "de",
       "main": {
-        "bytes": 166876,
+        "bytes": 150808,
         "height": 1800,
         "src": "/captures/solutions/dark/agencies-de.webp",
         "width": 2880
@@ -255,7 +255,7 @@
     {
       "locale": "fr",
       "main": {
-        "bytes": 170212,
+        "bytes": 152522,
         "height": 1800,
         "src": "/captures/solutions/light/agencies-fr.webp",
         "width": 2880
@@ -273,7 +273,7 @@
     {
       "locale": "fr",
       "main": {
-        "bytes": 166370,
+        "bytes": 149750,
         "height": 1800,
         "src": "/captures/solutions/dark/agencies-fr.webp",
         "width": 2880
@@ -291,7 +291,7 @@
     {
       "locale": "en",
       "main": {
-        "bytes": 144886,
+        "bytes": 132602,
         "height": 1800,
         "src": "/captures/solutions/light/freelancers-en.webp",
         "width": 2880
@@ -309,7 +309,7 @@
     {
       "locale": "en",
       "main": {
-        "bytes": 144014,
+        "bytes": 130862,
         "height": 1800,
         "src": "/captures/solutions/dark/freelancers-en.webp",
         "width": 2880
@@ -327,7 +327,7 @@
     {
       "locale": "de",
       "main": {
-        "bytes": 159368,
+        "bytes": 145008,
         "height": 1800,
         "src": "/captures/solutions/light/freelancers-de.webp",
         "width": 2880
@@ -345,7 +345,7 @@
     {
       "locale": "de",
       "main": {
-        "bytes": 157002,
+        "bytes": 143232,
         "height": 1800,
         "src": "/captures/solutions/dark/freelancers-de.webp",
         "width": 2880
@@ -363,13 +363,13 @@
     {
       "locale": "en",
       "main": {
-        "bytes": 159106,
+        "bytes": 144556,
         "height": 1800,
         "src": "/captures/solutions/light/startups-en.webp",
         "width": 2880
       },
       "nav": {
-        "bytes": 33428,
+        "bytes": 34526,
         "height": 600,
         "src": "/captures/solutions/light/startups-en-nav.webp",
         "width": 960
@@ -381,13 +381,13 @@
     {
       "locale": "en",
       "main": {
-        "bytes": 158776,
+        "bytes": 143968,
         "height": 1800,
         "src": "/captures/solutions/dark/startups-en.webp",
         "width": 2880
       },
       "nav": {
-        "bytes": 33344,
+        "bytes": 34446,
         "height": 600,
         "src": "/captures/solutions/dark/startups-en-nav.webp",
         "width": 960
@@ -399,13 +399,13 @@
     {
       "locale": "de",
       "main": {
-        "bytes": 176892,
+        "bytes": 157984,
         "height": 1800,
         "src": "/captures/solutions/light/startups-de.webp",
         "width": 2880
       },
       "nav": {
-        "bytes": 36470,
+        "bytes": 37542,
         "height": 600,
         "src": "/captures/solutions/light/startups-de-nav.webp",
         "width": 960
@@ -417,13 +417,13 @@
     {
       "locale": "de",
       "main": {
-        "bytes": 174494,
+        "bytes": 157074,
         "height": 1800,
         "src": "/captures/solutions/dark/startups-de.webp",
         "width": 2880
       },
       "nav": {
-        "bytes": 36412,
+        "bytes": 37552,
         "height": 600,
         "src": "/captures/solutions/dark/startups-de-nav.webp",
         "width": 960
@@ -435,7 +435,7 @@
     {
       "locale": "en",
       "main": {
-        "bytes": 146904,
+        "bytes": 154680,
         "height": 1800,
         "src": "/captures/solutions/light/client-management-en.webp",
         "width": 2880
@@ -453,7 +453,7 @@
     {
       "locale": "en",
       "main": {
-        "bytes": 145198,
+        "bytes": 152874,
         "height": 1800,
         "src": "/captures/solutions/dark/client-management-en.webp",
         "width": 2880
@@ -471,7 +471,7 @@
     {
       "locale": "de",
       "main": {
-        "bytes": 155946,
+        "bytes": 164638,
         "height": 1800,
         "src": "/captures/solutions/light/client-management-de.webp",
         "width": 2880
@@ -489,7 +489,7 @@
     {
       "locale": "de",
       "main": {
-        "bytes": 153690,
+        "bytes": 162400,
         "height": 1800,
         "src": "/captures/solutions/dark/client-management-de.webp",
         "width": 2880
@@ -507,7 +507,7 @@
     {
       "locale": "fr",
       "main": {
-        "bytes": 159470,
+        "bytes": 164158,
         "height": 1800,
         "src": "/captures/solutions/light/client-management-fr.webp",
         "width": 2880
@@ -525,7 +525,7 @@
     {
       "locale": "fr",
       "main": {
-        "bytes": 157050,
+        "bytes": 161780,
         "height": 1800,
         "src": "/captures/solutions/dark/client-management-fr.webp",
         "width": 2880
@@ -543,7 +543,7 @@
     {
       "locale": "en",
       "main": {
-        "bytes": 152396,
+        "bytes": 141540,
         "height": 1800,
         "src": "/captures/solutions/light/sales-pipeline-en.webp",
         "width": 2880
@@ -561,7 +561,7 @@
     {
       "locale": "en",
       "main": {
-        "bytes": 148564,
+        "bytes": 137610,
         "height": 1800,
         "src": "/captures/solutions/dark/sales-pipeline-en.webp",
         "width": 2880
@@ -579,7 +579,7 @@
     {
       "locale": "de",
       "main": {
-        "bytes": 168552,
+        "bytes": 157690,
         "height": 1800,
         "src": "/captures/solutions/light/sales-pipeline-de.webp",
         "width": 2880
@@ -597,7 +597,7 @@
     {
       "locale": "de",
       "main": {
-        "bytes": 164552,
+        "bytes": 153580,
         "height": 1800,
         "src": "/captures/solutions/dark/sales-pipeline-de.webp",
         "width": 2880
@@ -615,7 +615,7 @@
     {
       "locale": "fr",
       "main": {
-        "bytes": 163936,
+        "bytes": 152262,
         "height": 1800,
         "src": "/captures/solutions/light/sales-pipeline-fr.webp",
         "width": 2880
@@ -633,7 +633,7 @@
     {
       "locale": "fr",
       "main": {
-        "bytes": 159638,
+        "bytes": 147610,
         "height": 1800,
         "src": "/captures/solutions/dark/sales-pipeline-fr.webp",
         "width": 2880
@@ -651,13 +651,13 @@
     {
       "locale": "en",
       "main": {
-        "bytes": 156686,
+        "bytes": 134160,
         "height": 1800,
         "src": "/captures/solutions/light/linkedin-crm-en.webp",
         "width": 2880
       },
       "nav": {
-        "bytes": 51036,
+        "bytes": 50870,
         "height": 600,
         "src": "/captures/solutions/light/linkedin-crm-en-nav.webp",
         "width": 960
@@ -669,13 +669,13 @@
     {
       "locale": "en",
       "main": {
-        "bytes": 154516,
+        "bytes": 132324,
         "height": 1800,
         "src": "/captures/solutions/dark/linkedin-crm-en.webp",
         "width": 2880
       },
       "nav": {
-        "bytes": 51226,
+        "bytes": 51012,
         "height": 600,
         "src": "/captures/solutions/dark/linkedin-crm-en-nav.webp",
         "width": 960
@@ -687,13 +687,13 @@
     {
       "locale": "de",
       "main": {
-        "bytes": 173264,
+        "bytes": 148860,
         "height": 1800,
         "src": "/captures/solutions/light/linkedin-crm-de.webp",
         "width": 2880
       },
       "nav": {
-        "bytes": 57630,
+        "bytes": 57454,
         "height": 600,
         "src": "/captures/solutions/light/linkedin-crm-de-nav.webp",
         "width": 960
@@ -705,13 +705,13 @@
     {
       "locale": "de",
       "main": {
-        "bytes": 171160,
+        "bytes": 146878,
         "height": 1800,
         "src": "/captures/solutions/dark/linkedin-crm-de.webp",
         "width": 2880
       },
       "nav": {
-        "bytes": 58130,
+        "bytes": 57966,
         "height": 600,
         "src": "/captures/solutions/dark/linkedin-crm-de-nav.webp",
         "width": 960
@@ -723,13 +723,13 @@
     {
       "locale": "en",
       "main": {
-        "bytes": 139866,
+        "bytes": 130646,
         "height": 1800,
         "src": "/captures/solutions/light/whatsapp-crm-en.webp",
         "width": 2880
       },
       "nav": {
-        "bytes": 41190,
+        "bytes": 41204,
         "height": 600,
         "src": "/captures/solutions/light/whatsapp-crm-en-nav.webp",
         "width": 960
@@ -741,13 +741,13 @@
     {
       "locale": "en",
       "main": {
-        "bytes": 138948,
+        "bytes": 129086,
         "height": 1800,
         "src": "/captures/solutions/dark/whatsapp-crm-en.webp",
         "width": 2880
       },
       "nav": {
-        "bytes": 41156,
+        "bytes": 41204,
         "height": 600,
         "src": "/captures/solutions/dark/whatsapp-crm-en-nav.webp",
         "width": 960
@@ -759,13 +759,13 @@
     {
       "locale": "de",
       "main": {
-        "bytes": 154158,
+        "bytes": 142402,
         "height": 1800,
         "src": "/captures/solutions/light/whatsapp-crm-de.webp",
         "width": 2880
       },
       "nav": {
-        "bytes": 43620,
+        "bytes": 43684,
         "height": 600,
         "src": "/captures/solutions/light/whatsapp-crm-de-nav.webp",
         "width": 960
@@ -777,13 +777,13 @@
     {
       "locale": "de",
       "main": {
-        "bytes": 152854,
+        "bytes": 140624,
         "height": 1800,
         "src": "/captures/solutions/dark/whatsapp-crm-de.webp",
         "width": 2880
       },
       "nav": {
-        "bytes": 43662,
+        "bytes": 43644,
         "height": 600,
         "src": "/captures/solutions/dark/whatsapp-crm-de-nav.webp",
         "width": 960
