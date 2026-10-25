@@ -1073,7 +1073,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
   },
   marloweBenches: {
     organization: "marlowe",
-    visit: [9, "10:30"],
+    visit: [1, "10:30"],
     contacts: ["tom", "nina"],
     stage: "drawings",
     source: "referral",
@@ -1145,7 +1145,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
   },
   lanternSeating: {
     organization: "lantern",
-    visit: [10, "16:00"],
+    visit: [-1, "16:00"],
     contacts: ["sal"],
     stage: "offerSent",
     source: "whatsapp",
@@ -1161,7 +1161,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
   },
   greylineReception: {
     organization: "greyline",
-    visit: [11, "09:00"],
+    visit: [0, "11:00"],
     contacts: ["maya"],
     stage: "drawings",
     source: "website",
