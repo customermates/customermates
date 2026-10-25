@@ -169,7 +169,7 @@ describeDatabase("record editor embedded sub-lists", { timeout: 120_000 }, () =>
     const forMember = await f.run(() => f.editor.invoke(deal), f.member);
     if (!forMember.ok) throw new Error("The member could not read the deal");
     const memberPage = forMember.data.embedded?.[lineItem];
-    expect(memberPage?.rows.total).toBe(11);
+    expect(memberPage?.rows.total).toBe(EMBEDDED_PAGE_SIZE + 1);
     expect(forMember.data.model.relationships.some((relation) => relation.id === f.id("lineItem.service"))).toBe(false);
     expect(memberPage?.rows.records.every((record) => record.relationships.length === 0)).toBe(true);
 

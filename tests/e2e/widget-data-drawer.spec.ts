@@ -1,8 +1,9 @@
 import type { Page } from "@playwright/test";
 
-import { DEMO_COMPANY_ID, demoId, expect, test } from "./demo-seed";
+import { DEMO_COMPANY_ID, DEMO_MEMBERS, demoId, expect, test } from "./demo-seed";
 
 const DEAL_SURFACE = `records:${demoId("deal")}`;
+const USER_ID = DEMO_MEMBERS.maxBergmann.userId;
 
 type Database = { query: (sql: string, params: unknown[]) => Promise<{ rows: Record<string, unknown>[] }> };
 
@@ -35,15 +36,20 @@ test("a single-number widget drawer shows the count once and pages 25 records", 
 
 test("a widget drawer keeps its table appearance after a reload", async ({ page, database, errors }) => {
   test.setTimeout(180000);
+  const snapshot = await database.query(
+    'SELECT row_to_json(p) AS row FROM "P13n" p WHERE "companyId"=$1 AND "p13nId"=$2 AND "userId"=$3',
+    [DEMO_COMPANY_ID, DEAL_SURFACE, USER_ID],
+  );
   const before = await database.query(
-    'SELECT id, "hiddenColumns", "columnOrder" FROM "P13n" WHERE "companyId"=$1 AND "p13nId"=$2',
-    [DEMO_COMPANY_ID, DEAL_SURFACE],
+    'SELECT id, "hiddenColumns", "columnOrder", "viewMode", grouping, filters FROM "P13n" WHERE "companyId"=$1 AND "p13nId"=$2 AND "userId"=$3',
+    [DEMO_COMPANY_ID, DEAL_SURFACE, USER_ID],
   );
   const savedHidden = async () =>
     (
-      await database.query('SELECT "hiddenColumns" FROM "P13n" WHERE "companyId"=$1 AND "p13nId"=$2', [
+      await database.query('SELECT "hiddenColumns" FROM "P13n" WHERE "companyId"=$1 AND "p13nId"=$2 AND "userId"=$3', [
         DEMO_COMPANY_ID,
         DEAL_SURFACE,
+        USER_ID,
       ])
     ).rows[0]?.hiddenColumns as string[] | undefined;
   try {
@@ -59,6 +65,12 @@ test("a widget drawer keeps its table appearance after a reload", async ({ page,
     await expect(headers).toHaveCount(visibleBefore - 1);
     const hiddenBefore = (before.rows[0]?.hiddenColumns as string[] | undefined)?.length ?? 0;
     await expect.poll(async () => (await savedHidden())?.length ?? 0).toBeGreaterThan(hiddenBefore);
+    const listState = await database.query(
+      'SELECT "viewMode", grouping, filters FROM "P13n" WHERE "companyId"=$1 AND "p13nId"=$2 AND "userId"=$3',
+      [DEMO_COMPANY_ID, DEAL_SURFACE, USER_ID],
+    );
+    const { viewMode, grouping, filters } = before.rows[0] ?? {};
+    if (before.rows[0]) expect(listState.rows[0]).toEqual({ viewMode, grouping, filters });
 
     await page.reload();
     drawer = await openKpiDrawer(page, database, "Open pipeline");
@@ -68,14 +80,14 @@ test("a widget drawer keeps its table appearance after a reload", async ({ page,
     await page.keyboard.press("Escape");
     expect(errors).toEqual([]);
   } finally {
-    const [row] = before.rows as { id: string; hiddenColumns: string[]; columnOrder: string[] }[];
-    if (row)
-      await database.query('UPDATE "P13n" SET "hiddenColumns"=$2, "columnOrder"=$3 WHERE id=$1', [
-        row.id,
-        row.hiddenColumns,
-        row.columnOrder,
+    await database.query('DELETE FROM "P13n" WHERE "companyId"=$1 AND "p13nId"=$2 AND "userId"=$3', [
+      DEMO_COMPANY_ID,
+      DEAL_SURFACE,
+      USER_ID,
+    ]);
+    for (const { row } of snapshot.rows)
+      await database.query('INSERT INTO "P13n" SELECT * FROM json_populate_record(NULL::"P13n", $1::json)', [
+        JSON.stringify(row),
       ]);
-    else
-      await database.query('DELETE FROM "P13n" WHERE "companyId"=$1 AND "p13nId"=$2', [DEMO_COMPANY_ID, DEAL_SURFACE]);
   }
 });

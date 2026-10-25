@@ -67,7 +67,6 @@ export class RecordExplorationStore extends RecordsStore {
     const state = {
       ...toJS(this.allViewState),
       sortDescriptor: toJS(this.sortDescriptor) ?? null,
-      grouping: toJS(this.grouping) ?? null,
       columnOrder: toJS(this.columnOrder),
       hiddenColumns: toJS(this.hiddenColumns),
       columnWidths: toJS(this.columnWidths),
