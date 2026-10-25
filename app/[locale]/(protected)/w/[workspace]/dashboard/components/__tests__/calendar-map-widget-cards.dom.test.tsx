@@ -144,7 +144,10 @@ describe("upcoming calendar widget", () => {
       [...upcoming.querySelectorAll("[data-calendar-item]")].map((row) => row.getAttribute("data-calendar-item")),
     ).toEqual(["a", "b"]);
     expect(upcoming.querySelector('[data-calendar-month="2026-11"]')).not.toBeNull();
-    expect([...upcoming.querySelectorAll("[data-amount]")].map((amount) => amount.textContent)).toEqual(["100", "50"]);
+    expect([...upcoming.querySelectorAll("[data-amount]")].map((amount) => amount.textContent)).toEqual([
+      "€100.00",
+      "€50.00",
+    ]);
     const link = must(host.querySelector<HTMLAnchorElement>('[data-calendar-item="a"] a'));
     expect(link.getAttribute("href")).toBe("/records/deal/a");
     spy.open.mockClear();

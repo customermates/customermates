@@ -130,7 +130,7 @@ export const CalendarWidgetUpcoming = observer(function CalendarWidgetUpcoming({
         {amountField && (
           <span className="shrink-0 text-sm font-medium">
             {item.amount?.state === "value" && item.amount.value.kind === "decimal" ? (
-              <span className="tabular-nums">
+              <span className="tabular-nums" data-amount="">
                 {formatWidgetAmount(
                   String(item.amount.value.value),
                   { currency: item.amount.value.currency ?? null, fractionDigits: 2 },
