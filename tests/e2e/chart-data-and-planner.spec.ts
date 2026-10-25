@@ -3,7 +3,8 @@ import { readFile } from "node:fs/promises";
 
 import { e2eAppMode } from "./workspace-switching";
 import germanMessages from "../../i18n/locales/de.json" with { type: "json" };
-import { DEMO_COMPANY_ID, DEMO_MEMBERS, demoId, expect, test } from "./demo-seed";
+import { appPath } from "./app-paths";
+import { DEMO_COMPANY_ID, DEMO_MEMBERS, DEMO_SLUG, demoId, expect, test } from "./demo-seed";
 
 test("chart bars open their records and carry the same selection to the overview list", async ({
   page,
@@ -13,16 +14,16 @@ test("chart bars open their records and carry the same selection to the overview
   test.setTimeout(180000);
   const widgets = await database.query(
     'SELECT id FROM "Widget" WHERE "companyId"=$1 AND name=$2 AND "deletedAt" IS NULL',
-    [DEMO_COMPANY_ID, "Open pipeline by stage"],
+    [DEMO_COMPANY_ID, "Pipeline by stage"],
   );
   const id = widgets.rows[0].id as string;
-  await page.goto("/en/dashboard");
+  await page.goto(appPath(DEMO_SLUG, "/dashboard"));
   const card = page.locator(`[data-focus-target="widget:${id}"]`);
   await expect(card).toBeVisible();
   const bar = card.locator("[data-chart-point]").first();
   await expect(bar).toBeVisible();
   await bar.click();
-  const drawer = page.getByRole("dialog", { name: "Open pipeline by stage", exact: true });
+  const drawer = page.getByRole("dialog", { name: "Pipeline by stage", exact: true });
   await expect(drawer).toBeVisible();
   await expect(drawer.locator("[data-widget-detail-chart] [data-widget-chart-embedded]")).toBeVisible();
   await expect(drawer.locator("[data-linked-records-summary]")).toContainText(/ · \d+ contributing records?$/u);
@@ -43,7 +44,7 @@ test("chart bars open their records and carry the same selection to the overview
   await expect(page).toHaveURL(new RegExp(`/records/${demoId("deal")}`));
   await expect(page.locator('[data-slot="calendar-root"]')).toHaveCount(0);
   await page.getByRole("button", { name: "Filters", exact: true }).click();
-  await expect(page.getByText("Open pipeline by stage · New", { exact: false }).first()).toBeVisible();
+  await expect(page.getByText("Pipeline by stage · New", { exact: false }).first()).toBeVisible();
   expect(errors).toEqual([]);
 });
 
@@ -73,7 +74,7 @@ test("combined calendar adds two lists, toggles sources, opens records, exports 
          FROM "Calendar" c WHERE c."companyId"=$2 AND c.name='Customer meetings' LIMIT 1`,
         [recurringEventId, DEMO_COMPANY_ID],
       );
-    await page.goto("/en/calendar");
+    await page.goto(appPath(DEMO_SLUG, "/calendar"));
     await expect(page.locator("[data-planner-page]")).toBeVisible();
     async function add(list: string, dateField: string) {
       await page.getByRole("button", { name: "Add date source", exact: true }).first().click();
@@ -243,7 +244,7 @@ test("German chart appearance labels fit and edit stays available through the lo
 }, testInfo) => {
   const widgets = await database.query(
     'SELECT id FROM "Widget" WHERE "companyId"=$1 AND name=$2 AND "deletedAt" IS NULL',
-    [DEMO_COMPANY_ID, "Open pipeline by stage"],
+    [DEMO_COMPANY_ID, "Pipeline by stage"],
   );
   const priorLanguage = await database.query('SELECT "displayLanguage" FROM "User" WHERE id=$1 AND "companyId"=$2', [
     DEMO_MEMBERS.maxBergmann.userId,
@@ -258,10 +259,10 @@ test("German chart appearance labels fit and edit stays available through the lo
     await page.goto("/de/dashboard");
     const card = page.locator(`[data-focus-target="widget:${widgets.rows[0].id}"]`);
     await expect(card.locator("[data-chart-point]").first()).toBeVisible();
-    const edit = germanMessages.Dashboard.widgetEditor.editTitle.replace("{name}", "Open pipeline by stage");
+    const edit = germanMessages.Dashboard.widgetEditor.editTitle.replace("{name}", "Pipeline by stage");
     await expect(card.getByRole("button", { name: edit, exact: true })).toHaveCount(1);
     await expect(card.getByRole("button", {
-      name: germanMessages.RecordModel.moreActions.replace("{name}", "Open pipeline by stage"),
+      name: germanMessages.RecordModel.moreActions.replace("{name}", "Pipeline by stage"),
       exact: true,
     })).toHaveCount(0);
     if (testInfo.project.name === "mobile") await card.getByRole("button", { name: edit, exact: true }).first().click();

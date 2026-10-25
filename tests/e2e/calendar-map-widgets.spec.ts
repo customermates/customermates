@@ -1,10 +1,13 @@
 import type { Page } from "@playwright/test";
 
+import { findSolution } from "../../core/solutions/solution-catalog";
 import { appPath } from "./app-paths";
 import { DEMO_COMPANY_ID, DEMO_MEMBERS, DEMO_SLUG, expect, test } from "./demo-seed";
 import { localE2eEnvironment } from "./local-environment";
 
 const DASHBOARD = appPath(DEMO_SLUG, "/dashboard");
+
+const SALES_DASHBOARD = appPath(findSolution("sales-pipeline").workspaceSlugs.en, "/dashboard");
 
 /** Requests the page sends to another origin. Seeded avatar photos point at the public website. */
 function externalRequests(page: Page) {
@@ -67,6 +70,7 @@ test("the calendar widgets list upcoming records and open a day of the month ove
   const upcoming = page.locator('[data-calendar-layout="upcoming"]');
   await upcoming.scrollIntoViewIfNeeded();
   await expect(upcoming.locator("[data-calendar-item]").first()).toBeVisible();
+  await page.goto(SALES_DASHBOARD);
   const month = page.locator('[data-calendar-layout="month"]');
   await month.scrollIntoViewIfNeeded();
   const busyDay = month.locator('[data-calendar-day]:not([data-heat="0"])').first();
@@ -79,7 +83,7 @@ test("the calendar widgets list upcoming records and open a day of the month ove
   await expect(drawer).toBeVisible();
   await expect(drawer.getByRole("heading", { name: day, exact: true })).toBeVisible();
   await expect(drawer.locator("[data-linked-records-summary]")).toHaveText(
-    `Deals closing this month · ${count} contributing record${count === "1" ? "" : "s"}`,
+    `Closing this month · ${count} contributing record${count === "1" ? "" : "s"}`,
   );
   await expect(drawer.locator("[data-linked-records-table] [data-row-id]")).toHaveCount(Math.min(Number(count), 10));
   await page.keyboard.press("Escape");
