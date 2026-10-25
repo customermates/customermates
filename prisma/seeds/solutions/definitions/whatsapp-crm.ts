@@ -1,9 +1,12 @@
 import { DisplayType } from "@/features/widget/widget-display.schema";
 
 import {
+  address,
+  at,
   day,
   defineSolution,
   photo,
+  type FileSpec,
   type RecordSpec,
   type RoutineSpec,
   type ThreadSpec,
@@ -106,10 +109,9 @@ const en = {
   fields: {
     venueType: "Venue type",
     customerStatus: "Customer status",
-    city: "City",
+    address: "Address",
     website: "Website",
     jobTitle: "Job title",
-    phone: "Mobile",
     preferredChannel: "Preferred channel",
     chatStatus: "Chat status",
     projectType: "Project type",
@@ -119,6 +121,8 @@ const en = {
     nextStepDate: "Next step date",
     openingDate: "Opening date",
     installationDate: "Installation date",
+    siteVisit: "Site visit",
+    drawingsAndPhotos: "Drawings and photos",
     offerAccepted: "Offer accepted",
     leadTime: "Lead time (days)",
     lostReason: "Lost reason",
@@ -230,6 +234,7 @@ const en = {
     installations: "Installations and openings",
     customers: "Customers",
     dueSoon: "Due soon",
+    workshopCalendar: "Workshop calendar",
   },
   widgets: {
     openPipeline: "Open pipeline",
@@ -240,7 +245,7 @@ const en = {
     chatsByStatus: "Chats by status",
     leadTimeByType: "Lead time by project type (days)",
     wonByMonth: "Won value by month",
-    topCustomers: "Top customers by won value",
+    siteVisits: "Site visits, next 14 days",
   },
   wiki: {
     guide: {
@@ -268,7 +273,7 @@ const en = {
         "- Every open project has a next step and a next step date.",
         "- After answering a chat, update the contact's chat status.",
         "- What we agree in a chat (measurements, wood, dates) also goes into the project notes.",
-        "- Accounting, drawings and material orders stay in their own tools.",
+        "- Photos, drawings and offers sit as files on the project; accounting stays in its own tool.",
       ],
     },
     process: {
@@ -407,6 +412,88 @@ const en = {
         "I could not reach the model provider on this attempt, so I stopped before reading anything. No draft was saved.",
     },
   } satisfies Record<RoutineKey, { name: string; task: string; runs: string[]; failure: string }>,
+  countryCode: "us",
+  addresses: {
+    copper: ["3721 Butler Street", "15201", "PA", 40.4718, -79.9589],
+    marlowe: ["1820 Penn Avenue", "15222", "PA", 40.4497, -79.9932],
+    ninebean: ["412 Beaver Street", "15143", "PA", 40.5368, -80.1843],
+    riverbend: ["2100 East Carson Street", "15203", "PA", 40.4284, -79.9762],
+    lantern: ["650 Washington Road", "15228", "PA", 40.3739, -80.0452],
+    greyline: ["301 Grant Street", "15219", "PA", 40.4406, -79.9959],
+    saltpine: ["5900 Penn Avenue", "15206", "PA", 40.4669, -79.9221],
+    brightwell: ["5280 Library Road", "15102", "PA", 40.3243, -80.0394],
+    fieldstone: ["436 Seventh Avenue", "15219", "PA", 40.4417, -79.9981],
+    linden: ["520 Broad Street", "15143", "PA", 40.5379, -80.182],
+    hearth: ["4600 Liberty Avenue", "15224", "PA", 40.464, -79.9483],
+    oakleaf: ["10500 Perry Highway", "15090", "PA", 40.6262, -80.0557],
+  } satisfies Record<OrganizationKey, readonly [string, string, string, number, number]>,
+  files: {
+    copperDrawing: {
+      name: "Counter drawing v2.pdf",
+      lines: [
+        "# Copper Kettle Café: counter and back bar, drawing v2",
+        "Revised after the site visit with Claire and Leo. Counter front in oak veneer with a black steel kick plate; top in solid walnut, as Claire chose in the chat.",
+        "## Dimensions",
+        "| Part | Size | Material |",
+        "| Counter | 4.20 m × 0.75 m, height 1.05 m | Oak veneer front, walnut top |",
+        "| Pastry display niche | 1.20 m wide | Walnut, glass front |",
+        "| Back bar | 3.60 m, two open shelves | Oak veneer, steel brackets |",
+        "## Site notes",
+        "Water and drain under the left end. Leave 90 cm between counter and back bar for two baristas.",
+      ],
+    },
+    copperOffer: {
+      name: "Offer – copper counter.pdf",
+      lines: [
+        "# Offer: new counter and back bar for Copper Kettle Café",
+        "Built in our workshop and installed on the Monday and Tuesday before the opening.",
+        "## Price",
+        "| Item | Price |",
+        "| Counter, oak veneer front with walnut top | $8,900 |",
+        "| Back bar with shelves | $3,700 |",
+        "| Pastry display niche | $1,200 |",
+        "| Delivery and installation | $1,000 |",
+        "| Total | $14,800 |",
+        "Valid for 30 days. 40% deposit on order, the rest after installation.",
+      ],
+    },
+    marloweDrawing: {
+      name: "Terrace benches drawing.pdf",
+      lines: [
+        "# Marlowe's Bistro: terrace benches with planters",
+        "Two benches along the terrace wall with cushion storage underneath and lined planter boxes at both ends.",
+        "## Dimensions",
+        "| Part | Size | Material |",
+        "| Bench | 2 × 3.20 m, seat height 45 cm | Thermo-treated ash |",
+        "| Planter box | 4 × 50 cm, lined | Ash with oak veneer trim inside the storage lids |",
+        "| Free corner | 60 cm for stacked chairs | – |",
+        "## Price",
+        "Benches, planters, delivery and installation: $9,600.",
+      ],
+    },
+    brightwellOffer: {
+      name: "Offer – 12 workstations.pdf",
+      lines: [
+        "# Offer: desks and storage for Brightwell Insurance Agency",
+        "Updated offer: four of the twelve desks are height-adjustable, all with the same oak veneer tops.",
+        "## Price",
+        "| Item | Quantity | Price |",
+        "| Desk, fixed height, oak veneer top | 8 | $6,400 |",
+        "| Desk, height-adjustable, oak veneer top | 4 | $5,200 |",
+        "| Storage cabinets | 6 | $3,900 |",
+        "| Delivery and assembly | 1 | $1,400 |",
+        "| Total |  | $16,900 |",
+      ],
+    },
+  },
+  trash: { contact: "Claire Donovan (duplicate)", deal: "Hearth & Crumb – window bench" },
+  mateChat: {
+    title: "Café counter photo from Claire",
+    messages: [
+      "Here is the photo Claire sent of the café counter. Add it to the Copper counter project and draft a reply with two site-visit slots.",
+      'I added the photo to Drawings and photos on "Copper Kettle – new counter and back bar" ($14,800, offer sent). The project already has the counter drawing v2 (oak veneer front, walnut top) and two more site photos.\n\nI saved this reply as a draft in your WhatsApp chat with Claire; it is not sent:\n\n"Hi Claire, thanks for the photo! I\'d like to check the wall behind the back bar before we build. Would Thursday at 7:30 or Friday at 7:30 work, before you open? It takes about 30 minutes."\n\nOnce Claire picks a slot, set the Site visit on the project so it shows on the dashboard.',
+    ],
+  },
 };
 
 type Strings = typeof en;
@@ -434,10 +521,9 @@ const de: Strings = {
   fields: {
     venueType: "Art des Betriebs",
     customerStatus: "Kundenstatus",
-    city: "Ort",
+    address: "Adresse",
     website: "Website",
     jobTitle: "Position",
-    phone: "Mobilnummer",
     preferredChannel: "Bevorzugter Kanal",
     chatStatus: "Chat-Status",
     projectType: "Art des Auftrags",
@@ -447,6 +533,8 @@ const de: Strings = {
     nextStepDate: "Datum nächster Schritt",
     openingDate: "Eröffnungstermin",
     installationDate: "Montagetermin",
+    siteVisit: "Aufmaßtermin",
+    drawingsAndPhotos: "Zeichnungen und Fotos",
     offerAccepted: "Angebot angenommen",
     leadTime: "Vorlaufzeit (Tage)",
     lostReason: "Verlustgrund",
@@ -573,6 +661,7 @@ const de: Strings = {
     installations: "Montagen und Eröffnungen",
     customers: "Kunden",
     dueSoon: "Bald fällig",
+    workshopCalendar: "Werkstattkalender",
   },
   widgets: {
     openPipeline: "Offene Pipeline",
@@ -583,7 +672,7 @@ const de: Strings = {
     chatsByStatus: "Chats nach Status",
     leadTimeByType: "Vorlaufzeit nach Auftragsart (Tage)",
     wonByMonth: "Gewonnener Wert pro Monat",
-    topCustomers: "Top-Kunden nach gewonnenem Wert",
+    siteVisits: "Aufmaßtermine, nächste 14 Tage",
   },
   wiki: {
     guide: {
@@ -611,7 +700,7 @@ const de: Strings = {
         "- Jeder offene Auftrag hat einen nächsten Schritt mit Datum.",
         "- Nach dem Antworten den Chat-Status des Kontakts aktualisieren.",
         "- Was wir im Chat vereinbaren (Maße, Holz, Termine), kommt auch in die Notizen des Auftrags.",
-        "- Buchhaltung, Zeichnungen und Materialbestellungen bleiben in ihren eigenen Programmen.",
+        "- Fotos, Zeichnungen und Angebote liegen als Dateien am Auftrag; Buchhaltung bleibt extern.",
       ],
     },
     process: {
@@ -750,6 +839,88 @@ const de: Strings = {
         "Ich konnte den Modellanbieter bei diesem Versuch nicht erreichen und habe angehalten, bevor ich etwas gelesen habe. Kein Entwurf wurde gespeichert.",
     },
   },
+  countryCode: "de",
+  addresses: {
+    copper: ["Wrangelstraße 41", "10997", "Berlin", 52.5011, 13.4339],
+    marlowe: ["Kastanienallee 12", "10435", "Berlin", 52.5378, 13.4086],
+    ninebean: ["Lindenstraße 48", "14467", "Brandenburg", 52.3989, 13.0544],
+    riverbend: ["Holzmarktstraße 25", "10243", "Berlin", 52.5118, 13.4232],
+    lantern: ["Weserstraße 160", "12045", "Berlin", 52.483, 13.4369],
+    greyline: ["Linienstraße 140", "10115", "Berlin", 52.5296, 13.3925],
+    saltpine: ["Boxhagener Straße 76", "10245", "Berlin", 52.504, 13.4606],
+    brightwell: ["Potsdamer Straße 30", "14513", "Brandenburg", 52.4011, 13.2701],
+    fieldstone: ["Kurfürstendamm 52", "10707", "Berlin", 52.5, 13.3138],
+    linden: ["Brandenburger Straße 19", "14467", "Brandenburg", 52.4006, 13.0558],
+    hearth: ["Schönhauser Allee 98", "10439", "Berlin", 52.5485, 13.4126],
+    oakleaf: ["Hohe Kiefer 14", "14532", "Brandenburg", 52.4013, 13.2268],
+  },
+  files: {
+    copperDrawing: {
+      name: "Thekenzeichnung v2.pdf",
+      lines: [
+        "# Café Kupferkessel: Theke und Rückbuffet, Zeichnung v2",
+        "Überarbeitet nach dem Aufmaß mit Clara und Leo. Thekenfront in Eiche furniert (oak veneer) mit Sockelblende aus Schwarzstahl; Platte in massivem Nussbaum, wie Clara im Chat entschieden hat.",
+        "## Maße",
+        "| Teil | Maß | Material |",
+        "| Theke | 4,20 m × 0,75 m, Höhe 1,05 m | Front Eiche furniert, Platte Nussbaum |",
+        "| Kuchennische | 1,20 m breit | Nussbaum, Glasfront |",
+        "| Rückbuffet | 3,60 m, zwei offene Böden | Eiche furniert, Stahlkonsolen |",
+        "## Hinweise vom Aufmaß",
+        "Wasser und Abfluss unter dem linken Ende. 90 cm Abstand zwischen Theke und Rückbuffet für zwei Baristas.",
+      ],
+    },
+    copperOffer: {
+      name: "Angebot – Kupfertheke.pdf",
+      lines: [
+        "# Angebot: neue Theke und Rückbuffet für das Café Kupferkessel",
+        "Gefertigt in unserer Werkstatt, Montage am Montag und Dienstag vor der Eröffnung.",
+        "## Preis",
+        "| Position | Preis |",
+        "| Theke, Front Eiche furniert, Platte Nussbaum | 8.900 € |",
+        "| Rückbuffet mit Böden | 3.700 € |",
+        "| Kuchennische | 1.200 € |",
+        "| Lieferung und Montage | 1.000 € |",
+        "| Summe | 14.800 € |",
+        "Gültig 30 Tage. 40 % Anzahlung bei Auftrag, der Rest nach der Montage.",
+      ],
+    },
+    marloweDrawing: {
+      name: "Zeichnung Terrassenbänke.pdf",
+      lines: [
+        "# Bistro Marlene: Terrassenbänke mit Pflanzkästen",
+        "Zwei Bänke an der Terrassenwand mit Stauraum für Polster und ausgekleideten Pflanzkästen an beiden Enden.",
+        "## Maße",
+        "| Teil | Maß | Material |",
+        "| Bank | 2 × 3,20 m, Sitzhöhe 45 cm | Thermoesche |",
+        "| Pflanzkasten | 4 × 50 cm, ausgekleidet | Esche, Deckel innen Eiche furniert (oak veneer) |",
+        "| Freie Ecke | 60 cm für gestapelte Stühle | – |",
+        "## Preis",
+        "Bänke, Pflanzkästen, Lieferung und Montage: 9.600 €.",
+      ],
+    },
+    brightwellOffer: {
+      name: "Angebot – 12 Arbeitsplätze.pdf",
+      lines: [
+        "# Angebot: Tische und Schränke für das Versicherungsbüro Hellbrunn",
+        "Aktualisiertes Angebot: vier der zwölf Tische sind höhenverstellbar, alle mit denselben Platten in Eiche furniert (oak veneer).",
+        "## Preis",
+        "| Position | Menge | Preis |",
+        "| Tisch, feste Höhe, Platte Eiche furniert | 8 | 6.400 € |",
+        "| Tisch, höhenverstellbar, Platte Eiche furniert | 4 | 5.200 € |",
+        "| Schränke | 6 | 3.900 € |",
+        "| Lieferung und Montage | 1 | 1.400 € |",
+        "| Summe |  | 16.900 € |",
+      ],
+    },
+  },
+  trash: { contact: "Clara Dorn (Duplikat)", deal: "Backstube Herdfeuer – Fensterbank" },
+  mateChat: {
+    title: "Thekenfoto von Clara",
+    messages: [
+      "Hier ist das Foto, das Clara von der Café-Theke geschickt hat. Hänge es an den Auftrag Kupfertheke und entwirf eine Antwort mit zwei Aufmaßterminen.",
+      "Ich habe das Foto unter „Zeichnungen und Fotos“ an „Café Kupferkessel – neue Theke und Rückbuffet“ (14.800 €, Angebot verschickt) gehängt. Am Auftrag liegen schon die Thekenzeichnung v2 (Front Eiche furniert, Platte Nussbaum) und zwei weitere Fotos vom Aufmaß.\n\nDiese Antwort liegt als Entwurf in deinem WhatsApp-Chat mit Clara; sie ist nicht gesendet:\n\n„Hallo Clara, danke für das Foto! Ich würde mir die Wand hinter dem Rückbuffet gern noch einmal ansehen, bevor wir bauen. Passt Donnerstag um 7:30 oder Freitag um 7:30, vor der Öffnung? Es dauert etwa 30 Minuten.“\n\nSobald Clara einen Termin wählt, trag den Aufmaßtermin am Auftrag ein, dann erscheint er auf dem Dashboard.",
+    ],
+  },
 };
 
 const ORGANIZATION_FACTS: Record<OrganizationKey, { venueType: string; status: string; createdDaysAgo: number }> = {
@@ -873,6 +1044,8 @@ type DealFacts = {
   next?: number;
   opening?: number;
   installation?: number;
+  /** The site visit: story day and local time. */
+  visit?: readonly [number, string];
   lost?: string;
   accepted?: number;
   history?: Array<{ daysAgo: number; stage: string }>;
@@ -881,6 +1054,7 @@ type DealFacts = {
 const DEAL_FACTS: Record<DealKey, DealFacts> = {
   copperCounter: {
     organization: "copper",
+    visit: [13, "07:30"],
     contacts: ["claire", "leo"],
     stage: "offerSent",
     source: "existing",
@@ -899,6 +1073,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
   },
   marloweBenches: {
     organization: "marlowe",
+    visit: [9, "10:30"],
     contacts: ["tom", "nina"],
     stage: "drawings",
     source: "referral",
@@ -915,6 +1090,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
   },
   ninebeanBar: {
     organization: "ninebean",
+    visit: [3, "08:00"],
     contacts: ["jake", "priya"],
     stage: "siteVisit",
     source: "whatsapp",
@@ -928,6 +1104,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
   },
   lindenCafe: {
     organization: "linden",
+    visit: [2, "09:00"],
     contacts: ["rosa"],
     stage: "siteVisit",
     source: "existing",
@@ -956,6 +1133,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
   },
   riverbendKitchen: {
     organization: "riverbend",
+    visit: [6, "15:30"],
     contacts: ["rachel"],
     stage: "inquiry",
     source: "existing",
@@ -967,6 +1145,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
   },
   lanternSeating: {
     organization: "lantern",
+    visit: [10, "16:00"],
     contacts: ["sal"],
     stage: "offerSent",
     source: "whatsapp",
@@ -982,6 +1161,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
   },
   greylineReception: {
     organization: "greyline",
+    visit: [11, "09:00"],
     contacts: ["maya"],
     stage: "drawings",
     source: "website",
@@ -994,6 +1174,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
   },
   saltpineBar: {
     organization: "saltpine",
+    visit: [6, "14:30"],
     contacts: ["jordan"],
     stage: "inquiry",
     source: "referral",
@@ -1246,9 +1427,16 @@ export default defineSolution<Strings>({
     const organization: RecordSpec[] = ORGANIZATIONS.map((key) => {
       const facts = ORGANIZATION_FACTS[key];
       const [name, city, domain] = t.organizations[key];
+      const [street, postalCode, region, lat, lon] = t.addresses[key];
       return {
         key,
-        values: { name, venueType: facts.venueType, customerStatus: facts.status, city, website: `https://${domain}` },
+        values: {
+          name,
+          venueType: facts.venueType,
+          customerStatus: facts.status,
+          address: address({ street, postalCode, city, region, countryCode: t.countryCode, lat, lon }),
+          website: `https://${domain}`,
+        },
         owner: "maxBergmann",
         channels: { email: `hello@${domain}` },
         createdDaysAgo: facts.createdDaysAgo,
@@ -1298,6 +1486,7 @@ export default defineSolution<Strings>({
           ...(facts.next === undefined ? {} : { nextStepDate: day(facts.next) }),
           ...(facts.opening === undefined ? {} : { openingDate: day(facts.opening) }),
           ...(facts.installation === undefined ? {} : { installationDate: day(facts.installation) }),
+          ...(facts.visit ? { siteVisit: at(facts.visit[0], facts.visit[1]) } : {}),
           ...(facts.stage === "won" ? { offerAccepted: day(facts.close) } : {}),
           ...(facts.lost ? { lostReason: facts.lost } : {}),
         },
@@ -1473,6 +1662,25 @@ export default defineSolution<Strings>({
       },
     ];
 
+    const photoFile = (key: string, dealKey: DealKey, photo: string, uploadedDaysAgo: number): FileSpec => ({
+      key,
+      record: `deal:${dealKey}`,
+      field: "deal.drawingsAndPhotos",
+      name: photo,
+      kind: "jpg",
+      photo,
+      uploadedDaysAgo,
+    });
+    const docFile = (key: keyof Strings["files"], dealKey: DealKey, uploadedDaysAgo: number): FileSpec => ({
+      key,
+      record: `deal:${dealKey}`,
+      field: "deal.drawingsAndPhotos",
+      name: t.files[key].name,
+      kind: "pdf",
+      lines: t.files[key].lines,
+      uploadedDaysAgo,
+    });
+
     return {
       workspaceName: t.workspaceName,
       companyName: t.company,
@@ -1501,7 +1709,7 @@ export default defineSolution<Strings>({
           type: "select",
           options: label(t.options.customerStatus, { prospect: "info", customer: "success", former: "secondary" }),
         },
-        { key: "organization.city", label: t.fields.city, type: "text" },
+        { key: "organization.address", label: t.fields.address, type: "address" },
         { key: "organization.website", label: t.fields.website, type: "url" },
         { key: "contact.jobTitle", label: t.fields.jobTitle, type: "text" },
         {
@@ -1548,6 +1756,8 @@ export default defineSolution<Strings>({
         { key: "deal.nextStepDate", label: t.fields.nextStepDate, type: "date" },
         { key: "deal.openingDate", label: t.fields.openingDate, type: "date" },
         { key: "deal.installationDate", label: t.fields.installationDate, type: "date" },
+        { key: "deal.siteVisit", label: t.fields.siteVisit, type: "dateTime" },
+        { key: "deal.drawingsAndPhotos", label: t.fields.drawingsAndPhotos, type: "file" },
         { key: "deal.offerAccepted", label: t.fields.offerAccepted, type: "date" },
         {
           key: "deal.leadTime",
@@ -1620,7 +1830,7 @@ export default defineSolution<Strings>({
           list: "organization",
           name: t.views.customers,
           mode: "table",
-          columns: ["customerStatus", "venueType", "city", "contact.organizations", "deal.organizations"],
+          columns: ["customerStatus", "venueType", "address", "contact.organizations", "deal.organizations"],
           sort: { field: "customerStatus", direction: "asc" },
         },
         {
@@ -1631,6 +1841,14 @@ export default defineSolution<Strings>({
           columns: ["dueDate", "status", "priority", "task.deals", "task.contacts"],
           filters: [{ field: "status", notIn: ["done", "archived"] }],
           sort: { field: "dueDate", direction: "asc" },
+        },
+        {
+          key: "workshopCalendar",
+          list: "deal",
+          name: t.views.workshopCalendar,
+          mode: "calendar",
+          calendar: { date: "installationDate", color: "projectType", mode: "week" },
+          columns: ["stage", "projectType", "totalValue", "deal.organizations"],
         },
       ],
       dashboard: {
@@ -1677,6 +1895,16 @@ export default defineSolution<Strings>({
             filters: [{ field: "stage", in: open }],
           },
           {
+            kind: "calendar",
+            title: t.widgets.siteVisits,
+            list: "deal",
+            layout: "upcoming",
+            date: "siteVisit",
+            days: 14,
+            amount: "totalValue",
+            filters: [{ field: "stage", in: open }],
+          },
+          {
             kind: "chart",
             title: t.widgets.chatsByStatus,
             display: DisplayType.doughnutChart,
@@ -1684,16 +1912,6 @@ export default defineSolution<Strings>({
             aggregation: "count",
             groupBy: { field: "chatStatus" },
             filters: [{ field: "chatStatus", in: ["new", "waitingForUs", "waitingForCustomer", "done"] }],
-          },
-          {
-            kind: "chart",
-            title: t.widgets.leadTimeByType,
-            display: DisplayType.horizontalBarChartWithLabels,
-            list: "deal",
-            aggregation: "average",
-            field: "leadTime",
-            groupBy: { field: "projectType" },
-            filters: wonLastYear,
           },
           {
             kind: "chart",
@@ -1707,12 +1925,12 @@ export default defineSolution<Strings>({
           },
           {
             kind: "chart",
-            title: t.widgets.topCustomers,
-            display: DisplayType.rankedTable,
+            title: t.widgets.leadTimeByType,
+            display: DisplayType.horizontalBarChartWithLabels,
             list: "deal",
-            aggregation: "sum",
-            field: "totalValue",
-            groupBy: { relation: "deal.organizations" },
+            aggregation: "average",
+            field: "leadTime",
+            groupBy: { field: "projectType" },
             filters: wonLastYear,
           },
         ],
@@ -1733,6 +1951,39 @@ export default defineSolution<Strings>({
           title: t.wiki.siteVisit.title,
           whenToUse: t.wiki.siteVisit.whenToUse,
           markdown: t.wiki.siteVisit.markdown,
+        },
+      ],
+      files: [
+        photoFile("copperWall", "copperCounter", "cafe-brick-wall.jpg", 32),
+        photoFile("copperEvening", "copperCounter", "cafe-counter-evening.jpg", 32),
+        photoFile("copperPastries", "copperCounter", "cafe-counter-pastries.jpg", 1),
+        docFile("copperDrawing", "copperCounter", 19),
+        docFile("copperOffer", "copperCounter", 9),
+        photoFile("marloweBench", "marloweBenches", "bench-in-park.jpg", 20),
+        photoFile("marloweTable", "marloweBenches", "table-and-bench.jpg", 20),
+        docFile("marloweDrawing", "marloweBenches", 4),
+        docFile("brightwellOffer", "brightwellOffice", 2),
+      ],
+      planner: {
+        sources: [
+          { list: "deal", date: "siteVisit", filters: [{ field: "stage", in: open }], color: "info" },
+          { list: "deal", date: "installationDate", color: "success" },
+          { list: "deal", date: "openingDate", color: "warning" },
+        ],
+        mode: "week",
+      },
+      trash: [
+        { list: "contact", name: t.trash.contact, daysAgo: 6 },
+        { list: "deal", name: t.trash.deal, daysAgo: 17 },
+      ],
+      mateChats: [
+        {
+          title: t.mateChat.title,
+          endedHoursAgo: 3,
+          messages: [
+            { role: "user", text: t.mateChat.messages[0] },
+            { role: "assistant", text: t.mateChat.messages[1] },
+          ],
         },
       ],
       messaging: {
