@@ -1,6 +1,16 @@
 import { DisplayType } from "@/features/widget/widget-display.schema";
 
-import { day, defineSolution, photo, type RecordSpec, phoneNumber } from "../define-solution";
+import {
+  address,
+  at,
+  day,
+  defineSolution,
+  photo,
+  range,
+  type FileSpec,
+  type RecordSpec,
+  phoneNumber,
+} from "../define-solution";
 
 /**
  * Startups: an early-stage B2B software company whose co-founder still sells. It offers quality inspection software
@@ -110,11 +120,10 @@ const en = {
     weightedValue: "Weighted ARR",
     industry: "Industry",
     fit: "Fit",
-    city: "City",
+    address: "Address",
     website: "Website",
     employees: "Employees",
     jobTitle: "Job title",
-    phone: "Phone",
     buyingRole: "Buying role",
     source: "Source",
     closeDate: "Expected close",
@@ -129,7 +138,9 @@ const en = {
     leadInvestor: "Lead investor",
     introBy: "Intro by",
     lastConversation: "Last conversation",
-    nextTouchpoint: "Next touchpoint",
+    nextMeeting: "Next meeting",
+    pilotPeriod: "Pilot period",
+    documents: "Documents",
     focus: "Focus",
     dueDate: "Due date",
     priority: "Priority",
@@ -231,7 +242,7 @@ const en = {
     coatingsExpansion: ["Tolland Coatings – all lines", "Usage review with Janet"],
     gearsInspection: ["Lakeview Gear Works – gear inspection", "Signed"],
     moldsPilot: ["Pioneer Moldworks – tool shop pilot", "Closed lost"],
-    springsExpansion: ["Redwater Springs – all four lines", "Decision meeting with Susan"],
+    springsExpansion: ["Redwater Springs – all four lines", "Agree on the line count with Susan"],
   } satisfies Record<DealKey, readonly [string, string]>,
   investors: {
     seedFund: [
@@ -303,15 +314,16 @@ const en = {
     nextSteps: "Next steps",
     investors: "Investor touchpoints",
     dueSoon: "Due soon",
+    pilots: "Pilots",
   },
   widgets: {
     openPipeline: "Open pipeline ARR",
     weighted: "Weighted pipeline ARR",
     won: "Won ARR",
     committed: "Committed to the seed round",
-    byStage: "Open ARR by stage",
+    byStage: "Opportunities by stage",
+    meetings: "Investor meetings, next 14 days",
     seedRound: "Investors by round status",
-    bySource: "Opportunities by source",
     newByMonth: "New opportunities per month",
     byAccount: "Late-stage ARR by company",
   },
@@ -324,7 +336,8 @@ const en = {
         "## How we use the CRM",
         "- **Companies** are the manufacturers we sell to. **Contacts** are the people there, plus the people at our investors.",
         "- **Opportunities** carry the number of production lines and the price per line and year. Their value is calculated from both: our annual recurring revenue (ARR) if the deal closes. The weighted value is that value times the stage probability.",
-        "- **Investors** are the funds and angels of our seed round. The Seed round board groups them by round status; ticket size, lead investor and next touchpoint are ordinary fields.",
+        "- **Investors** are the funds and angels of our seed round. The Seed round board groups them by round status; ticket size, lead investor and the next meeting (date and time) are ordinary fields. The dashboard lists the investor meetings of the next 14 days.",
+        "- **Pilots** carry a pilot period; the Pilots view shows them on a calendar.",
         "- **Tasks** and next step dates are ordinary fields. Nobody is reminded automatically, so check the Next steps and Due soon views every morning.",
         "- An email or LinkedIn chat belongs to an opportunity, company or investor only when someone links it there.",
         "- Max uses Claude Desktop through MCP to look up and update records; see the page about the AI client.",
@@ -333,7 +346,7 @@ const en = {
         "- Every open opportunity has a next step and a next step date.",
         "- Write down the lost reason when an opportunity is lost.",
         "- Sales and fundraising stay in separate lists, so investor talks never show up in the sales numbers.",
-        "- Contracts, billing and the product backlog stay in their own tools.",
+        "- Pilot agreements, pricing, security questionnaires and term sheets sit as files in the Documents field of the opportunity or investor, so search finds their text. Billing and the product backlog stay in their own tools.",
       ],
     },
     process: {
@@ -444,7 +457,7 @@ const en = {
       subject: "Catching up after the quarter",
       messages: [
         "Hi Max,\n\ngood to see the pilot at Brennan going well. How many paying customers do you have now, and what does the pipeline look like for the next quarter?\n\nBest,\nElena",
-        "Hi Elena,\n\ntwo paying customers, a third expected this month, and four opportunities in pilot or decision. Happy to walk you through it over coffee.\n\nBest,\nMax",
+        "Hi Elena,\n\ntwo paying customers, a third expected this month, and three opportunities in pilot or decision. Happy to walk you through it over coffee.\n\nBest,\nMax",
         "Coffee sounds good. Josh will send a few times.",
       ],
     },
@@ -464,6 +477,106 @@ const en = {
       "Coffee with Northbeam Ventures",
     ],
   },
+  countryCode: "us",
+  addresses: {
+    precision: ["2150 Superior Avenue", "44114", "OH", 41.5098, -81.6829],
+    castings: ["1400 South 1st Street", "53204", "WI", 43.0186, -87.9265],
+    plastics: ["620 Monroe Avenue NW", "49503", "MI", 42.9634, -85.6681],
+    valves: ["455 Summit Street", "43604", "OH", 41.6528, -83.5379],
+    packaging: ["880 Cleveland Avenue", "43215", "OH", 39.9667, -83.0042],
+    springs: ["300 East Monument Avenue", "45402", "OH", 39.7621, -84.1878],
+    pumps: ["1150 East Washington Street", "46204", "IN", 39.7713, -86.1572],
+    optics: ["90 Mill Street", "14604", "NY", 43.1583, -77.6078],
+    furniture: ["410 Columbia Avenue", "49423", "MI", 42.7764, -86.1037],
+    coatings: ["725 East Exchange Street", "44308", "OH", 41.0814, -81.5126],
+    gears: ["1520 East 12th Street", "16501", "PA", 42.1283, -80.0866],
+    molds: ["2210 North Pitcher Street", "49007", "MI", 42.3015, -85.5853],
+  } satisfies Record<OrganizationKey, readonly [string, string, string, number, number]>,
+  files: {
+    questionnaire: {
+      name: "IT security questionnaire.xlsx",
+      rows: [
+        ["Question", "Answer", "Status"],
+        ["Where is the data hosted?", "AWS us-east-2 (Ohio), encrypted at rest", "Answered"],
+        ["Do you support single sign-on (SSO)?", "Yes: SSO with Microsoft Entra ID or Okta via SAML", "Answered"],
+        ["Who at Gaugewise can access our data?", "The two founders and one support engineer, logged", "Answered"],
+        ["Penetration test in the last 12 months?", "Planned for next quarter", "Open"],
+        ["Can inspection photos be deleted on request?", "Yes, within 30 days", "Answered"],
+      ],
+    },
+    pilotAgreement: {
+      name: "Pilot agreement.pdf",
+      lines: [
+        "# Pilot agreement: Brennan Castings and Gaugewise",
+        "Brennan Castings runs Gaugewise on the finishing line for four weeks. Gaugewise provides the software, setup and one training session per shift free of charge.",
+        "## Scope",
+        "| Item | Detail |",
+        "| Line | Finishing line, plant 1 |",
+        "| Duration | 4 weeks |",
+        "| Users | Up to 12 inspectors, sign-in with SSO |",
+        "| Success criteria | 95% of inspections logged on the line, no paper checklists |",
+        "## After the pilot",
+        "If the success criteria are met, both lines move to the annual plan at $6,000 per line and year.",
+      ],
+    },
+    pricing: {
+      name: "Pricing – three lines.pdf",
+      lines: [
+        "# Pricing for Harlow Precision Machining",
+        "Annual plan for three production lines, prepared for the decision meeting with Diane Harlow and Aaron Whitfield.",
+        "## First year",
+        "| Item | Quantity | Price | Total |",
+        "| Production line, annual plan | 3 | $6,000 | $18,000 |",
+        "| Training for the second shift | 2 sessions | included | $0 |",
+        "| SSO and audit log | 1 | included | $0 |",
+        "| First-year total |  |  | $18,000 |",
+        "## Start",
+        "Line one goes live two weeks after signing; lines two and three follow one month apart.",
+      ],
+    },
+    termSheet: {
+      name: "Term sheet (draft).pdf",
+      lines: [
+        "# Term sheet (draft): Gaugewise seed round",
+        "Draft for discussion with Northbeam Ventures. Not binding.",
+        "## Key terms",
+        "| Term | Draft |",
+        "| Round size | $1,500,000 |",
+        "| Lead investor | Northbeam Ventures, $750,000 |",
+        "| Instrument | Preferred shares, 1x non-participating |",
+        "| Board | Two founders, one investor seat |",
+        "| Option pool | 10% after the round |",
+        "## Open points",
+        "Northbeam wants to see the next quarter's revenue before signing. Harlow Precision (three lines) is in decision.",
+      ],
+    },
+    onePager: {
+      name: "One-pager.pdf",
+      lines: [
+        "# Gaugewise in one page",
+        "Quality inspection software for mid-sized manufacturers: every inspection recorded on the line, ready for the next customer audit.",
+        "## Traction",
+        "| Metric | Today |",
+        "| Paying customers | 3 |",
+        "| Won ARR | $29,200 |",
+        "| Open pipeline ARR | $165,600 |",
+        "| Pilots running or planned | 3 |",
+        "## Why now",
+        "Customer audits now ask for inspection records per part. Plants with 50 to 500 people still use paper. Gaugewise runs on a tablet at the line, with SSO for IT and no on-site server.",
+        "## The round",
+        "Raising $1,500,000 seed; $125,000 committed by two angels.",
+      ],
+    },
+  },
+  trash: { contact: "Aaron Whitfield (duplicate)", deal: "Halsted Tooling – pilot" },
+  mateChat: {
+    title: "Draft this month's investor update",
+    messages: [
+      "Draft this month's investor update and save it as a wiki page.",
+      'I saved the draft as the wiki page "Investor update (draft)". The numbers come from the records:\n\n- **Won ARR:** $29,200 from three customers: Lakeview Gear Works ($16,000), Redwater Springs ($7,200) and Tolland Coatings ($6,000).\n- **Open pipeline:** $165,600 ARR in ten opportunities; the largest are Copperline Plastics and Redwater Springs (all four lines) at $24,000 each.\n- **Pilots:** Brennan Castings is in week three on the finishing line; Ashby Pump Systems starts once the IT security questionnaire is signed off (SSO is answered); Kiln Creek Packaging plans a two-line pilot.\n- **Seed round:** $125,000 committed by Robert Kincaid and Thomas Reyes. Northbeam Ventures ($750,000, lead) is in follow-up; your next meeting with them is in the Investor meetings widget.\n\nRisk to mention: Harlow Precision ($18,000) decides after the pricing for three lines. The page is a draft; nothing was sent.',
+    ],
+  },
+  extraEvents: ["Security call with Ashby Pump Systems", "Usage review with Redwater Springs"],
 };
 
 type Strings = typeof en;
@@ -486,11 +599,10 @@ const de: Strings = {
     weightedValue: "Gewichteter ARR",
     industry: "Branche",
     fit: "Passung",
-    city: "Ort",
+    address: "Adresse",
     website: "Website",
     employees: "Mitarbeitende",
     jobTitle: "Position",
-    phone: "Telefon",
     buyingRole: "Rolle im Kauf",
     source: "Quelle",
     closeDate: "Erwarteter Abschluss",
@@ -505,7 +617,9 @@ const de: Strings = {
     leadInvestor: "Lead-Investor",
     introBy: "Vorgestellt durch",
     lastConversation: "Letztes Gespräch",
-    nextTouchpoint: "Nächster Kontakt",
+    nextMeeting: "Nächster Termin",
+    pilotPeriod: "Pilotzeitraum",
+    documents: "Dokumente",
     focus: "Schwerpunkt",
     dueDate: "Fällig am",
     priority: "Priorität",
@@ -615,7 +729,7 @@ const de: Strings = {
     coatingsExpansion: ["Oberflächentechnik Neuhaus – alle Linien", "Nutzung mit Frau Kolb durchgehen"],
     gearsInspection: ["Getriebebau Seewald – Zahnradprüfung", "Unterschrieben"],
     moldsPilot: ["Formenbau Pionier – Pilot im Werkzeugbau", "Verloren"],
-    springsExpansion: ["Federnfabrik Rauscher – alle vier Linien", "Entscheidungstermin mit Frau Rauscher"],
+    springsExpansion: ["Federnfabrik Rauscher – alle vier Linien", "Linienzahl mit Frau Rauscher abstimmen"],
   },
   investors: {
     seedFund: [
@@ -687,15 +801,16 @@ const de: Strings = {
     nextSteps: "Nächste Schritte",
     investors: "Investorentermine",
     dueSoon: "Bald fällig",
+    pilots: "Piloten",
   },
   widgets: {
     openPipeline: "Offene Pipeline (ARR)",
     weighted: "Gewichtete Pipeline (ARR)",
     won: "Gewonnener ARR",
     committed: "Zusagen für die Seed-Runde",
-    byStage: "Offener ARR nach Phase",
+    byStage: "Verkaufschancen nach Phase",
+    meetings: "Investorentermine, nächste 14 Tage",
     seedRound: "Investoren nach Rundenstatus",
-    bySource: "Verkaufschancen nach Quelle",
     newByMonth: "Neue Verkaufschancen pro Monat",
     byAccount: "ARR ab Demo nach Firma",
   },
@@ -708,7 +823,8 @@ const de: Strings = {
         "## So nutzen wir das CRM",
         "- **Firmen** sind die Betriebe, an die wir verkaufen. **Kontakte** sind die Menschen dort und die Ansprechpartner bei unseren Investoren.",
         "- **Verkaufschancen** haben die Zahl der Produktionslinien und den Preis pro Linie und Jahr. Ihr Wert wird aus beidem berechnet: unser wiederkehrender Jahresumsatz (ARR), wenn der Abschluss kommt. Der gewichtete Wert ist dieser Wert mal der Wahrscheinlichkeit der Phase.",
-        "- **Investoren** sind die Fonds und Business Angels unserer Seed-Runde. Das Board „Seed-Runde“ ordnet sie nach Rundenstatus; Ticketgröße, Lead-Investor und nächster Kontakt sind normale Felder.",
+        "- **Investoren** sind die Fonds und Business Angels unserer Seed-Runde. Das Board „Seed-Runde“ ordnet sie nach Rundenstatus; Ticketgröße, Lead-Investor und der nächste Termin (Datum und Uhrzeit) sind normale Felder. Das Dashboard zeigt die Investorentermine der nächsten 14 Tage.",
+        "- **Piloten** haben einen Pilotzeitraum; die Ansicht „Piloten“ zeigt sie im Kalender.",
         "- **Aufgaben** und Termine für nächste Schritte sind normale Felder. Niemand wird automatisch erinnert, deshalb jeden Morgen die Ansichten „Nächste Schritte“ und „Bald fällig“ prüfen.",
         "- Eine E-Mail oder ein LinkedIn-Chat gehört nur dann zu einer Verkaufschance, einer Firma oder einem Investor, wenn jemand ihn dort verknüpft.",
         "- Max nutzt Claude Desktop über MCP, um Datensätze nachzuschlagen und zu ändern; siehe die Seite zum KI-Client.",
@@ -717,7 +833,7 @@ const de: Strings = {
         "- Jede offene Verkaufschance hat einen nächsten Schritt mit Datum.",
         "- Bei verlorenen Verkaufschancen den Verlustgrund eintragen.",
         "- Vertrieb und Finanzierungsrunde bleiben in getrennten Listen, damit Investorengespräche nie in den Vertriebszahlen landen.",
-        "- Verträge, Abrechnung und Produkt-Backlog bleiben in ihren eigenen Programmen.",
+        "- Pilotvereinbarungen, Preisblätter, IT-Fragebögen und Term Sheets liegen als Dateien im Feld „Dokumente“ der Verkaufschance oder des Investors, damit die Suche ihren Text findet. Abrechnung und Produkt-Backlog bleiben in ihren eigenen Programmen.",
       ],
     },
     process: {
@@ -829,7 +945,7 @@ const de: Strings = {
       subject: "Austausch nach dem Quartal",
       messages: [
         "Hallo Herr Bergmann,\n\nschön zu sehen, dass der Pilot bei Brenner gut läuft. Wie viele zahlende Kunden haben Sie inzwischen, und wie sieht die Pipeline für das nächste Quartal aus?\n\nViele Grüße\nElena Marquardt",
-        "Hallo Frau Marquardt,\n\nzwei zahlende Kunden, ein dritter voraussichtlich diesen Monat, und vier Verkaufschancen in Pilotphase oder Entscheidung. Ich erzähle Ihnen gern bei einem Kaffee mehr.\n\nViele Grüße\nMax Bergmann",
+        "Hallo Frau Marquardt,\n\nzwei zahlende Kunden, ein dritter voraussichtlich diesen Monat, und drei Verkaufschancen in Pilotphase oder Entscheidung. Ich erzähle Ihnen gern bei einem Kaffee mehr.\n\nViele Grüße\nMax Bergmann",
         "Ein Kaffee klingt gut. Herr Petersen schickt Ihnen ein paar Termine.",
       ],
     },
@@ -849,6 +965,114 @@ const de: Strings = {
       "Kaffee mit Nordlicht Seed",
     ],
   },
+  countryCode: "de",
+  addresses: {
+    precision: ["Habermehlstraße 12", "75172", "Baden-Württemberg", 48.8916, 8.6986],
+    castings: ["Salzstraße 88", "74072", "Baden-Württemberg", 49.1427, 9.2109],
+    plastics: ["Wiesentalstraße 21", "79539", "Baden-Württemberg", 47.6141, 7.6637],
+    valves: ["Sandstraße 140", "57072", "Nordrhein-Westfalen", 50.8748, 8.0243],
+    packaging: ["Rottachstraße 9", "87435", "Bayern", 47.7286, 10.3158],
+    springs: ["Baarstraße 54", "58636", "Nordrhein-Westfalen", 51.3747, 7.6964],
+    pumps: ["Nürnberger Straße 77", "97070", "Bayern", 49.7913, 9.9373],
+    optics: ["Göschwitzer Straße 30", "07743", "Thüringen", 50.9374, 11.5843],
+    furniture: ["Eckendorfer Straße 18", "33602", "Nordrhein-Westfalen", 52.0254, 8.5371],
+    coatings: ["Merscheider Straße 105", "42651", "Nordrhein-Westfalen", 51.1735, 7.0846],
+    gears: ["Allmandstraße 6", "88045", "Baden-Württemberg", 47.6533, 9.4783],
+    molds: ["Heedfelder Straße 41", "58507", "Nordrhein-Westfalen", 51.2193, 7.6311],
+  },
+  files: {
+    questionnaire: {
+      name: "IT-Sicherheitsfragebogen.xlsx",
+      rows: [
+        ["Frage", "Antwort", "Status"],
+        [
+          "Wo werden die Daten gehostet?",
+          "Rechenzentrum in Frankfurt am Main, verschlüsselt gespeichert",
+          "Beantwortet",
+        ],
+        ["Unterstützen Sie Single Sign-on (SSO)?", "Ja: SSO mit Microsoft Entra ID oder Okta über SAML", "Beantwortet"],
+        [
+          "Wer bei Messwerk kann auf unsere Daten zugreifen?",
+          "Die zwei Gründer und ein Support-Ingenieur, protokolliert",
+          "Beantwortet",
+        ],
+        ["Penetrationstest in den letzten 12 Monaten?", "Für das nächste Quartal geplant", "Offen"],
+        ["Werden Prüffotos auf Wunsch gelöscht?", "Ja, innerhalb von 30 Tagen", "Beantwortet"],
+      ],
+    },
+    pilotAgreement: {
+      name: "Pilotvereinbarung.pdf",
+      lines: [
+        "# Pilotvereinbarung: Gießerei Brenner und Messwerk",
+        "Die Gießerei Brenner nutzt Messwerk vier Wochen lang in der Putzerei. Messwerk stellt Software, Einrichtung und eine Schulung pro Schicht kostenlos bereit.",
+        "## Umfang",
+        "| Punkt | Inhalt |",
+        "| Linie | Putzerei, Werk 1 |",
+        "| Dauer | 4 Wochen |",
+        "| Nutzer | Bis zu 12 Prüfer, Anmeldung per SSO |",
+        "| Erfolgskriterium | 95 % der Prüfungen an der Linie erfasst, keine Papier-Checklisten |",
+        "## Nach dem Pilot",
+        "Sind die Kriterien erfüllt, gehen beide Linien in den Jahresplan zu 6.000 € pro Linie und Jahr.",
+      ],
+    },
+    pricing: {
+      name: "Preise – drei Linien.pdf",
+      lines: [
+        "# Preise für Hartmann Präzisionstechnik",
+        "Jahresplan für drei Produktionslinien, vorbereitet für die Entscheidungsrunde mit Dorothea Hartmann und Andreas Vogt.",
+        "## Erstes Jahr",
+        "| Position | Menge | Preis | Summe |",
+        "| Produktionslinie, Jahresplan | 3 | 6.000 € | 18.000 € |",
+        "| Schulung für die Spätschicht | 2 Termine | inklusive | 0 € |",
+        "| SSO und Prüfprotokoll | 1 | inklusive | 0 € |",
+        "| Summe erstes Jahr |  |  | 18.000 € |",
+        "## Start",
+        "Linie eins startet zwei Wochen nach Unterschrift; Linie zwei und drei folgen im Abstand von je einem Monat.",
+      ],
+    },
+    termSheet: {
+      name: "Term Sheet (Entwurf).pdf",
+      lines: [
+        "# Term Sheet (Entwurf): Seed-Runde Messwerk",
+        "Entwurf zur Diskussion mit Nordlicht Seed. Nicht bindend.",
+        "## Eckpunkte",
+        "| Punkt | Entwurf |",
+        "| Rundengröße | 1.500.000 € |",
+        "| Lead-Investor | Nordlicht Seed, 750.000 € |",
+        "| Instrument | Vorzugsanteile, 1x Liquidationspräferenz ohne Teilnahme |",
+        "| Beirat | Zwei Gründer, ein Investorensitz |",
+        "| Mitarbeiterbeteiligung | 10 % nach der Runde |",
+        "## Offene Punkte",
+        "Nordlicht Seed möchte vor der Unterschrift den Umsatz des nächsten Quartals sehen. Hartmann Präzisionstechnik (drei Linien) ist in der Entscheidung.",
+      ],
+    },
+    onePager: {
+      name: "Onepager.pdf",
+      lines: [
+        "# Messwerk auf einer Seite",
+        "Software für die Qualitätsprüfung im industriellen Mittelstand: jede Prüfung an der Linie erfasst und bereit für das nächste Kundenaudit.",
+        "## Zugkraft",
+        "| Kennzahl | Heute |",
+        "| Zahlende Kunden | 3 |",
+        "| Gewonnener ARR | 29.200 € |",
+        "| Offene Pipeline (ARR) | 165.600 € |",
+        "| Laufende oder geplante Piloten | 3 |",
+        "## Warum jetzt",
+        "Kundenaudits verlangen Prüfnachweise pro Teil. Betriebe mit 50 bis 500 Beschäftigten arbeiten noch mit Papier. Messwerk läuft auf einem Tablet an der Linie, mit SSO für die IT und ohne Server vor Ort.",
+        "## Die Runde",
+        "Seed-Runde über 1.500.000 €; 125.000 € von zwei Business Angels zugesagt.",
+      ],
+    },
+  },
+  trash: { contact: "Andreas Vogt (Duplikat)", deal: "Werkzeugbau Halstedt – Pilot" },
+  mateChat: {
+    title: "Investoren-Update für diesen Monat entwerfen",
+    messages: [
+      "Entwirf das Investoren-Update für diesen Monat und speichere es als Wiki-Seite.",
+      "Ich habe den Entwurf als Wiki-Seite „Investoren-Update (Entwurf)“ gespeichert. Die Zahlen stammen aus den Datensätzen:\n\n- **Gewonnener ARR:** 29.200 € von drei Kunden: Getriebebau Seewald (16.000 €), Federnfabrik Rauscher (7.200 €) und Oberflächentechnik Neuhaus (6.000 €).\n- **Offene Pipeline:** 165.600 € ARR in zehn Verkaufschancen; am größten sind Kunststofftechnik Wiesental und Federnfabrik Rauscher (alle vier Linien) mit je 24.000 €.\n- **Piloten:** Die Gießerei Brenner ist in Woche drei in der Putzerei; Pumpenbau Hollerbach startet, sobald der IT-Sicherheitsfragebogen freigegeben ist (SSO ist beantwortet); Verpackungen Lindau plant einen Pilot auf zwei Linien.\n- **Seed-Runde:** 125.000 € zugesagt von zwei Business Angels. Nordlicht Seed (750.000 €, Lead) ist im Follow-up; der nächste Termin steht im Widget „Investorentermine“.\n\nRisiko für das Update: Hartmann Präzisionstechnik (18.000 €) entscheidet nach den Preisen für drei Linien. Die Seite ist ein Entwurf; es wurde nichts versendet.",
+    ],
+  },
+  extraEvents: ["Sicherheitstermin mit Pumpenbau Hollerbach", "Nutzungsbesprechung mit der Federnfabrik Rauscher"],
 };
 
 const ORGANIZATION_FACTS: Record<
@@ -918,6 +1142,8 @@ type DealFacts = {
   createdDaysAgo: number;
   close: number;
   next?: number;
+  /** The pilot period as story days, start and end included. */
+  pilot?: readonly [number, number];
   lost?: string;
   history?: Array<{ daysAgo: number; stage: string }>;
 };
@@ -933,6 +1159,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     createdDaysAgo: 90,
     close: 14,
     next: 3,
+    pilot: [-30, -5],
     history: [
       { daysAgo: 70, stage: "conversation" },
       { daysAgo: 50, stage: "demo" },
@@ -950,6 +1177,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     createdDaysAgo: 68,
     close: 30,
     next: 5,
+    pilot: [-16, 12],
     history: [
       { daysAgo: 55, stage: "conversation" },
       { daysAgo: 35, stage: "demo" },
@@ -974,14 +1202,13 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
   valvesInspection: {
     organization: "valves",
     contacts: ["valvesQm"],
-    stage: "conversation",
+    stage: "identified",
     source: "event",
     lines: 2,
     price: 4800,
     createdDaysAgo: 20,
     close: 60,
     next: 6,
-    history: [{ daysAgo: 10, stage: "conversation" }],
   },
   packagingLines: {
     organization: "packaging",
@@ -993,6 +1220,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     createdDaysAgo: 24,
     close: 50,
     next: 1,
+    pilot: [10, 37],
     history: [
       { daysAgo: 15, stage: "conversation" },
       { daysAgo: 3, stage: "demo" },
@@ -1023,6 +1251,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     createdDaysAgo: 52,
     close: 25,
     next: 4,
+    pilot: [6, 34],
     history: [
       { daysAgo: 40, stage: "conversation" },
       { daysAgo: 28, stage: "demo" },
@@ -1065,6 +1294,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     price: 6000,
     createdDaysAgo: 175,
     close: -55,
+    pilot: [-110, -82],
     history: [
       { daysAgo: 150, stage: "conversation" },
       { daysAgo: 120, stage: "demo" },
@@ -1128,18 +1358,14 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
   springsExpansion: {
     organization: "springs",
     contacts: ["springsCeo"],
-    stage: "decision",
+    stage: "conversation",
     source: "founderNetwork",
     lines: 4,
     price: 6000,
     createdDaysAgo: 16,
-    close: 10,
+    close: 35,
     next: 2,
-    history: [
-      { daysAgo: 12, stage: "conversation" },
-      { daysAgo: 8, stage: "pilot" },
-      { daysAgo: 1, stage: "decision" },
-    ],
+    history: [{ daysAgo: 12, stage: "conversation" }],
   },
 };
 
@@ -1152,7 +1378,8 @@ const INVESTOR_FACTS: Record<
     lead?: boolean;
     introBy?: InvestorKey | ContactKey;
     last?: number;
-    next?: number;
+    /** The next meeting: story day and local time. */
+    meeting?: readonly [number, string];
     contacts: ContactKey[];
     createdDaysAgo: number;
     history?: Array<{ daysAgo: number; status: string }>;
@@ -1165,7 +1392,7 @@ const INVESTOR_FACTS: Record<
     lead: true,
     introBy: "angel",
     last: -6,
-    next: 8,
+    meeting: [8, "09:30"],
     contacts: ["seedPartner", "seedAssociate"],
     createdDaysAgo: 200,
     history: [
@@ -1178,7 +1405,7 @@ const INVESTOR_FACTS: Record<
     status: "committed",
     ticket: 50000,
     last: -20,
-    next: 10,
+    meeting: [11, "17:00"],
     contacts: ["angel"],
     createdDaysAgo: 340,
     history: [{ daysAgo: 40, status: "followUp" }],
@@ -1189,7 +1416,7 @@ const INVESTOR_FACTS: Record<
     ticket: 75000,
     introBy: "precisionCeo",
     last: -9,
-    next: 21,
+    meeting: [13, "12:00"],
     contacts: [],
     createdDaysAgo: 70,
     history: [
@@ -1201,7 +1428,7 @@ const INVESTOR_FACTS: Record<
     firmType: "syndicate",
     status: "toContact",
     ticket: 150000,
-    next: 12,
+    meeting: [12, "18:30"],
     contacts: ["syndicateLead"],
     createdDaysAgo: 15,
   },
@@ -1210,7 +1437,6 @@ const INVESTOR_FACTS: Record<
     status: "introRequested",
     ticket: 250000,
     introBy: "angel",
-    next: 5,
     contacts: [],
     createdDaysAgo: 11,
     history: [{ daysAgo: 4, status: "toContact" }],
@@ -1221,7 +1447,6 @@ const INVESTOR_FACTS: Record<
     ticket: 500000,
     introBy: "seedPartner",
     last: -45,
-    next: 40,
     contacts: ["ventureVp"],
     createdDaysAgo: 90,
     history: [{ daysAgo: 45, status: "firstMeeting" }],
@@ -1231,7 +1456,7 @@ const INVESTOR_FACTS: Record<
     status: "firstMeeting",
     ticket: 300000,
     last: -3,
-    next: 9,
+    meeting: [9, "08:30"],
     contacts: ["corporatePrincipal"],
     createdDaysAgo: 35,
     history: [{ daysAgo: 3, status: "introRequested" }],
@@ -1358,13 +1583,14 @@ export default defineSolution<Strings>({
     const organization: RecordSpec[] = ORGANIZATIONS.map((key) => {
       const facts = ORGANIZATION_FACTS[key];
       const [name, city, domain] = t.organizations[key];
+      const [street, postalCode, region, lat, lon] = t.addresses[key];
       return {
         key,
         values: {
           name,
           industry: facts.industry,
           fit: facts.fit,
-          city,
+          address: address({ street, postalCode, city, region, countryCode: t.countryCode, lat, lon }),
           website: `https://${domain}`,
           employees: facts.employees,
         },
@@ -1417,6 +1643,7 @@ export default defineSolution<Strings>({
           closeDate: day(facts.close),
           nextStep,
           ...(facts.next === undefined ? {} : { nextStepDate: day(facts.next) }),
+          ...(facts.pilot ? { pilotPeriod: range(facts.pilot[0], facts.pilot[1]) } : {}),
           ...(facts.lost ? { lostReason: facts.lost } : {}),
         },
         links: { "deal.organizations": facts.organization, "deal.contacts": facts.contacts },
@@ -1453,7 +1680,7 @@ export default defineSolution<Strings>({
           focus,
           notes,
           ...(facts.last === undefined ? {} : { lastConversation: day(facts.last) }),
-          ...(facts.next === undefined ? {} : { nextTouchpoint: day(facts.next) }),
+          ...(facts.meeting ? { nextMeeting: at(facts.meeting[0], facts.meeting[1]) } : {}),
         },
         links: facts.contacts.length ? { "investor.contact": facts.contacts } : undefined,
         owner: "maxBergmann",
@@ -1480,6 +1707,31 @@ export default defineSolution<Strings>({
         ...(facts.done === undefined ? {} : { history: [{ daysAgo: facts.done, previous: { status: "open" } }] }),
       };
     });
+
+    const file = (
+      key: keyof Strings["files"],
+      record: string,
+      kind: FileSpec["kind"],
+      uploadedDaysAgo: number,
+    ): FileSpec => {
+      const spec = t.files[key];
+      return {
+        key,
+        record,
+        field: `${record.split(":")[0]}.documents`,
+        name: spec.name,
+        kind,
+        ...("rows" in spec ? { rows: spec.rows } : { lines: spec.lines }),
+        uploadedDaysAgo,
+      };
+    };
+    const files: FileSpec[] = [
+      file("questionnaire", "deal:pumpsQuality", "xlsx", 2),
+      file("pilotAgreement", "deal:castingsPilot", "pdf", 18),
+      file("pricing", "deal:precisionRollout", "pdf", 3),
+      file("termSheet", "investor:seedFund", "pdf", 6),
+      file("onePager", "investor:seedFund", "pdf", 9),
+    ];
 
     return {
       workspaceName: t.workspaceName,
@@ -1515,7 +1767,7 @@ export default defineSolution<Strings>({
           type: "select",
           options: label(t.options.fit, { strong: "success", medium: "info", weak: "secondary" }),
         },
-        { key: "organization.city", label: t.fields.city, type: "text" },
+        { key: "organization.address", label: t.fields.address, type: "address" },
         { key: "organization.website", label: t.fields.website, type: "url" },
         { key: "organization.employees", label: t.fields.employees, type: "number" },
         { key: "contact.jobTitle", label: t.fields.jobTitle, type: "text" },
@@ -1547,6 +1799,8 @@ export default defineSolution<Strings>({
         { key: "deal.closeDate", label: t.fields.closeDate, type: "date" },
         { key: "deal.nextStep", label: t.fields.nextStep, type: "text" },
         { key: "deal.nextStepDate", label: t.fields.nextStepDate, type: "date" },
+        { key: "deal.pilotPeriod", label: t.fields.pilotPeriod, type: "dateRange" },
+        { key: "deal.documents", label: t.fields.documents, type: "file" },
         {
           key: "deal.lostReason",
           label: t.fields.lostReason,
@@ -1587,7 +1841,8 @@ export default defineSolution<Strings>({
         { key: "investor.leadInvestor", label: t.fields.leadInvestor, type: "boolean" },
         { key: "investor.introBy", label: t.fields.introBy, type: "text" },
         { key: "investor.lastConversation", label: t.fields.lastConversation, type: "date" },
-        { key: "investor.nextTouchpoint", label: t.fields.nextTouchpoint, type: "date" },
+        { key: "investor.nextMeeting", label: t.fields.nextMeeting, type: "dateTime" },
+        { key: "investor.documents", label: t.fields.documents, type: "file" },
         { key: "investor.focus", label: t.fields.focus, type: "text" },
         { key: "task.dueDate", label: t.fields.dueDate, type: "date" },
         {
@@ -1632,7 +1887,7 @@ export default defineSolution<Strings>({
           name: t.views.seedRound,
           mode: "board",
           groupBy: "roundStatus",
-          columns: ["ticketSize", "firmType", "leadInvestor", "nextTouchpoint"],
+          columns: ["ticketSize", "firmType", "leadInvestor", "nextMeeting"],
         },
         {
           key: "nextSteps",
@@ -1656,9 +1911,9 @@ export default defineSolution<Strings>({
           list: "investor",
           name: t.views.investors,
           mode: "table",
-          columns: ["roundStatus", "ticketSize", "firmType", "nextTouchpoint", "lastConversation", "investor.contact"],
+          columns: ["roundStatus", "ticketSize", "firmType", "nextMeeting", "lastConversation", "investor.contact"],
           filters: [{ field: "roundStatus", notIn: ["passed"] }],
-          sort: { field: "nextTouchpoint", direction: "asc" },
+          sort: { field: "nextMeeting", direction: "asc" },
         },
         {
           key: "dueSoon",
@@ -1668,6 +1923,14 @@ export default defineSolution<Strings>({
           columns: ["dueDate", "status", "priority", "task.deals", "task.contacts"],
           filters: [{ field: "status", notIn: ["done", "archived"] }],
           sort: { field: "dueDate", direction: "asc" },
+        },
+        {
+          key: "pilots",
+          list: "deal",
+          name: t.views.pilots,
+          mode: "calendar",
+          calendar: { date: "pilotPeriod", color: "stage", mode: "month" },
+          columns: ["stage", "totalValue", "deal.organizations"],
         },
       ],
       dashboard: {
@@ -1707,12 +1970,21 @@ export default defineSolution<Strings>({
           {
             kind: "chart",
             title: t.widgets.byStage,
-            display: DisplayType.verticalBarChart,
+            display: DisplayType.funnelChart,
             list: "deal",
-            aggregation: "sum",
-            field: "totalValue",
+            aggregation: "count",
             groupBy: { field: "stage" },
             filters: [{ field: "stage", in: open }],
+          },
+          {
+            kind: "calendar",
+            title: t.widgets.meetings,
+            list: "investor",
+            layout: "upcoming",
+            date: "nextMeeting",
+            days: 14,
+            amount: "ticketSize",
+            filters: [{ field: "roundStatus", notIn: ["passed"] }],
           },
           {
             kind: "chart",
@@ -1721,14 +1993,6 @@ export default defineSolution<Strings>({
             list: "investor",
             aggregation: "count",
             groupBy: { field: "roundStatus" },
-          },
-          {
-            kind: "chart",
-            title: t.widgets.bySource,
-            display: DisplayType.horizontalBarChartWithLabels,
-            list: "deal",
-            aggregation: "count",
-            groupBy: { field: "source" },
           },
           {
             kind: "chart",
@@ -1763,6 +2027,35 @@ export default defineSolution<Strings>({
         { key: "mcp", kind: "knowledge", title: t.mcp.title, markdown: t.mcp.markdown },
       ],
       dealValue: { kind: "product", left: "deal.productionLines", right: "deal.pricePerLine" },
+      files,
+      planner: {
+        sources: [
+          {
+            list: "investor",
+            date: "nextMeeting",
+            filters: [{ field: "roundStatus", notIn: ["passed"] }],
+            color: "info",
+          },
+          { list: "deal", date: "pilotPeriod", color: "warning" },
+          { list: "deal", date: "closeDate", filters: [{ field: "stage", in: open }], color: "success" },
+        ],
+        connectedCalendar: true,
+        mode: "month",
+      },
+      trash: [
+        { list: "contact", name: t.trash.contact, daysAgo: 4 },
+        { list: "deal", name: t.trash.deal, daysAgo: 12 },
+      ],
+      mateChats: [
+        {
+          title: t.mateChat.title,
+          endedHoursAgo: 20,
+          messages: [
+            { role: "user", text: t.mateChat.messages[0] },
+            { role: "assistant", text: t.mateChat.messages[1] },
+          ],
+        },
+      ],
       webhooks: [
         {
           key: "onboarding",
@@ -1937,6 +2230,13 @@ export default defineSolution<Strings>({
               durationMinutes: 60,
             },
             { title: t.calendar.events[2], with: ["seedPartner"], startsMinutesAgo: -8 * 24 * 60, durationMinutes: 45 },
+            {
+              title: t.extraEvents[0],
+              with: ["pumpsIt", "pumpsQm"],
+              startsMinutesAgo: -(24 * 60 + 2 * 60),
+              durationMinutes: 30,
+            },
+            { title: t.extraEvents[1], with: ["springsCeo"], startsMinutesAgo: -10 * 24 * 60, durationMinutes: 45 },
           ],
         },
       },
