@@ -51,7 +51,7 @@ export type WidgetPlacement = z.infer<typeof WidgetPlacementSchema>;
 
 const WIDGET_MINIMUM_SIZE: Record<WidgetKindName, { w: number; h: number }> = {
   chart: { w: 1, h: 2 },
-  activityTimeline: { w: 2, h: 6 },
+  activityTimeline: { w: 2, h: 5 },
   calendar: { w: 2, h: 5 },
   map: { w: 3, h: 5 },
 };
@@ -251,7 +251,7 @@ export function withLargePlacement(id: string, layout: WidgetLayout | null, plac
 
 export const DASHBOARD_METRICS_PER_ROW = 4;
 export const DASHBOARD_CHART_HEIGHT = 5;
-const DASHBOARD_CHART_ROW_PATTERN = [3, 2] as const;
+const DASHBOARD_CHART_ROW_PATTERN = [3] as const;
 
 export type DashboardLayoutItem = { metric: boolean; wide?: boolean };
 

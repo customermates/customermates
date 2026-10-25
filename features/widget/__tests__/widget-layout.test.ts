@@ -38,7 +38,7 @@ describe("widgetLayoutGeometry", () => {
       w: 6,
       h: 6,
       minW: 2,
-      minH: 6,
+      minH: 5,
     });
   });
 
@@ -47,16 +47,16 @@ describe("widgetLayoutGeometry", () => {
       w: 2,
       h: 6,
       minW: 2,
-      minH: 6,
+      minH: 5,
     });
   });
 
   it("clamps undersized persisted activity layouts", () => {
     expect(widgetLayoutGeometry(WidgetKind.activityTimeline, 8, { w: 1, h: 1 })).toEqual({
       w: 2,
-      h: 6,
+      h: 5,
       minW: 2,
-      minH: 6,
+      minH: 5,
     });
   });
 
@@ -72,9 +72,9 @@ describe("widgetLayoutGeometry", () => {
     });
     expect(widgetLayoutGeometry(WidgetKind.activityTimeline, cols, { w: 20, h: 2 })).toEqual({
       w: cols,
-      h: 6,
+      h: 5,
       minW: minimumWidth,
-      minH: 6,
+      minH: 5,
     });
   });
 });

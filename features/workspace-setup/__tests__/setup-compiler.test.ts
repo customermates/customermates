@@ -408,7 +408,7 @@ describe("workspace setup compiler", () => {
     }
   });
 
-  it("lays out four numbers, then three charts and two wider charts below them", () => {
+  it("lays out four numbers, then two rows of three charts with the wider charts in the last row", () => {
     const [metric, chart] = [agencyPlan.dashboard.widgets[0], agencyPlan.dashboard.widgets[2]];
     const widgets = [
       chart,
@@ -420,17 +420,19 @@ describe("workspace setup compiler", () => {
       metric,
       chart,
       chart,
+      chart,
     ];
     expect(setupDashboardLayouts(widgets, [{ x: 0, y: 0, w: 12, h: 3 }])).toEqual([
       { x: 0, y: 5, w: 4, h: 5 },
       { x: 0, y: 3, w: 3, h: 2 },
-      { x: 0, y: 10, w: 6, h: 5 },
+      { x: 8, y: 10, w: 4, h: 5 },
       { x: 3, y: 3, w: 3, h: 2 },
       { x: 6, y: 3, w: 3, h: 2 },
       { x: 4, y: 5, w: 4, h: 5 },
       { x: 9, y: 3, w: 3, h: 2 },
       { x: 8, y: 5, w: 4, h: 5 },
-      { x: 6, y: 10, w: 6, h: 5 },
+      { x: 0, y: 10, w: 4, h: 5 },
+      { x: 4, y: 10, w: 4, h: 5 },
     ]);
   });
 
