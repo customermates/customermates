@@ -235,6 +235,7 @@
     "prepare": "husky",
     "raw-docs:generate": "tsx scripts/generate-raw-docs-manifest.ts",
     "routines:tick": "tsx --tsconfig tsconfig.json scripts/routines-tick.ts",
+    "solution-templates:generate": "tsx scripts/generate-solution-templates.ts && eslint --fix -c .eslintrc.json core/solutions/solution-templates.json",
     "start": "next start -p 4000",
     "test": "vitest run",
     "test:e2e": "playwright test",

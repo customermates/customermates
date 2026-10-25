@@ -1,0 +1,560 @@
+{
+  "agencies": {
+    "dashboard": [
+      "Retainer MRR",
+      "Open pitch value",
+      "Won in the last 12 months",
+      "Hours left on running projects",
+      "Open pitch value by stage",
+      "Pitch presentations, next 14 days",
+      "Projects by status",
+      "Won value by month",
+      "Retainer MRR by client"
+    ],
+    "knowledgeBase": ["Operating Guide", "Pitch process", "After a pitch presentation", "Retainer renewal checklist"],
+    "lists": [
+      {
+        "fields": [
+          "Industry (Retail and consumer goods, Food and drink, Healthcare, Hospitality, Technology, Insurance and finance, Culture, Education, Manufacturing)",
+          "Relationship (Prospect, Client, Former client)",
+          "Address",
+          "Website",
+          "Employees",
+          "Retainer MRR"
+        ],
+        "name": "Clients"
+      },
+      {
+        "fields": ["Job title", "Decision role (Decision maker, Marketing lead, Procurement)"],
+        "name": "Contacts"
+      },
+      {
+        "fields": [
+          "Source (Referral, Existing client, Website inquiry, Pitch invitation, Industry event)",
+          "Services in scope (Brand strategy, Visual identity, Website, Content production, Packaging, Social media, Print and reports)",
+          "Agencies in the pitch",
+          "Pitch presentation",
+          "Decision expected",
+          "Next step",
+          "Next step date",
+          "Documents",
+          "Lost reason (Budget, Chose another agency, Project postponed, Not the right fit)"
+        ],
+        "name": "Pitches"
+      },
+      {
+        "fields": [
+          "Status (Kickoff, In production, Client review, Delivered)",
+          "Budget",
+          "Hours budget",
+          "Hours used",
+          "Hours left",
+          "Deadline",
+          "Production window"
+        ],
+        "name": "Projects"
+      },
+      {
+        "fields": [
+          "Status (Active, Renewal due, Paused, Ended)",
+          "Monthly fee",
+          "Term (months)",
+          "Contract value",
+          "Start date",
+          "Renewal date",
+          "Scope",
+          "Signed agreement"
+        ],
+        "name": "Retainers"
+      },
+      {
+        "fields": ["Due date", "Priority (Low, Medium, High)"],
+        "name": "Tasks"
+      }
+    ],
+    "stages": ["Inquiry", "Briefing", "Pitch preparation", "Proposal sent", "Negotiation", "Won", "Lost"],
+    "workspace": "Agencies"
+  },
+  "client-management": {
+    "dashboard": [
+      "Annual contract value",
+      "Contracts up for review",
+      "No contact in 30 days",
+      "Overdue tasks",
+      "Clients by relationship status",
+      "Annual value by service",
+      "Reviews in the next 30 days",
+      "Sites we serve",
+      "Top clients by annual value"
+    ],
+    "knowledgeBase": [
+      "Operating Guide",
+      "What a complete client record holds",
+      "Moving clients from a spreadsheet",
+      "Yearly review"
+    ],
+    "lists": [
+      {
+        "fields": [
+          "Relationship status (New relationship, Active discussion, Customer, Dormant)",
+          "Segment (Small office (under 50), Mid-size office (50–250), Large site (250+), Coworking space)",
+          "Account manager",
+          "Last contact",
+          "Next action date",
+          "Preferred channel (Email, Phone, WhatsApp)",
+          "Sites",
+          "Annual value",
+          "Head office",
+          "Website",
+          "Client since"
+        ],
+        "name": "Clients"
+      },
+      {
+        "fields": ["Job title", "Role (Office manager, Purchasing, Management)"],
+        "name": "Contacts"
+      },
+      {
+        "fields": [
+          "Service (Coffee machines, Breakroom supplies, Catering, Water dispensers)",
+          "Site address",
+          "Monthly fee",
+          "Annual value",
+          "Start date",
+          "Review date",
+          "Status (Active, Review due, Cancelled)",
+          "Signed contract"
+        ],
+        "name": "Contracts"
+      },
+      {
+        "fields": [
+          "Type (New client, New site or service, Yearly review)",
+          "Expected decision",
+          "Next step",
+          "Next step date",
+          "Documents"
+        ],
+        "name": "Opportunities"
+      },
+      {
+        "fields": ["Due date", "Scheduled", "Priority (Low, Medium, High)"],
+        "name": "Tasks"
+      }
+    ],
+    "stages": ["Identified", "Offer sent", "Tasting / trial", "Agreed", "Not now"],
+    "workspace": "Clients"
+  },
+  "consultants": {
+    "dashboard": [
+      "Proposals out",
+      "Won in the last 12 months",
+      "Days booked in delivery",
+      "Not met in 60+ days",
+      "Open pipeline by stage",
+      "Next steps, next 14 days",
+      "Won engagements by delivery",
+      "Won fees by month",
+      "Top clients by won fees"
+    ],
+    "knowledgeBase": [
+      "Operating Guide",
+      "How engagements move",
+      "Prepare a relationship brief",
+      "Day rates and fee options"
+    ],
+    "lists": [
+      {
+        "fields": [
+          "Industry (Manufacturing, Logistics, Software, Packaging, Engineering, Wholesale, Medical technology, Facility services, Food ingredients, Legal, Chemicals)",
+          "Relationship (Prospect, Client, Former client, Referral partner)",
+          "Address",
+          "Website",
+          "Employees"
+        ],
+        "name": "Clients"
+      },
+      {
+        "fields": [
+          "Job title",
+          "Role in engagement (Sponsor, Day-to-day contact, Signs off)",
+          "Relationship strength (Strong, Warm, New)",
+          "Last meeting"
+        ],
+        "name": "Contacts"
+      },
+      {
+        "fields": [
+          "Referral source (Client referral, Peer or partner referral, Talk or roundtable, Article or LinkedIn post, Existing client)",
+          "Day rate",
+          "Days estimated",
+          "Decision date",
+          "Start",
+          "End",
+          "Duration (days)",
+          "Delivery (Not started, In delivery, Wrapping up, Completed)",
+          "Next step",
+          "Next step date",
+          "Documents",
+          "Lost reason (Timing, Budget, Handled in-house, Chose another advisor)"
+        ],
+        "name": "Engagements"
+      },
+      {
+        "fields": ["Due date", "Priority (Low, Medium, High)"],
+        "name": "Tasks"
+      }
+    ],
+    "stages": ["Introduction", "Discovery", "Scoping", "Proposal sent", "Decision", "Won", "Lost"],
+    "workspace": "Consultants"
+  },
+  "freelancers": {
+    "dashboard": [
+      "Open proposals",
+      "Fees of running projects",
+      "Project fees in the last 12 months",
+      "Overdue tasks",
+      "Inquiry value by stage",
+      "Next actions this fortnight",
+      "Projects by status",
+      "Project fees by start month",
+      "Project fees by client"
+    ],
+    "knowledgeBase": ["Operating Guide", "Stages of an inquiry", "After a first call", "My rates and terms"],
+    "lists": [
+      {
+        "fields": [
+          "Working relationship (Ongoing, Occasional, New)",
+          "Client since",
+          "Next action",
+          "Next action date",
+          "Total project fees",
+          "Address",
+          "Website"
+        ],
+        "name": "Clients"
+      },
+      {
+        "fields": ["Job title"],
+        "name": "Contacts"
+      },
+      {
+        "fields": [
+          "Type of work (User research, Product design, Design system, UX review)",
+          "Source (Existing client, Referral, Website, Network)",
+          "Decision date",
+          "Next action",
+          "Next action date",
+          "Brief"
+        ],
+        "name": "Inquiries"
+      },
+      {
+        "fields": [
+          "Status (Planned, In progress, Waiting for feedback, Done, Billed)",
+          "Day rate",
+          "Days",
+          "Fee",
+          "Start",
+          "Deadline",
+          "Files"
+        ],
+        "name": "Projects"
+      },
+      {
+        "fields": ["Due date"],
+        "name": "Tasks"
+      }
+    ],
+    "stages": ["Inquiry", "First call", "Proposal sent", "Won", "Lost"],
+    "workspace": "Freelancers"
+  },
+  "linkedin-crm": {
+    "dashboard": [
+      "Open pipeline",
+      "Won in the last 12 months",
+      "Chatted in the last 7 days",
+      "Meetings booked",
+      "Prospects by connection status",
+      "Pipeline by stage",
+      "Prospects by how we met",
+      "Latest LinkedIn conversations",
+      "Won value by month"
+    ],
+    "knowledgeBase": [
+      "Operating Guide",
+      "Opportunity stages",
+      "Linking a LinkedIn conversation",
+      "Connection requests and first messages"
+    ],
+    "lists": [
+      {
+        "fields": [
+          "Job title",
+          "How we met (Event, Introduction, LinkedIn conversation, Inbound)",
+          "Connection status (Connected, Messaged, Replied, Meeting booked, Client)",
+          "Last LinkedIn conversation"
+        ],
+        "name": "Prospects"
+      },
+      {
+        "fields": [
+          "Industry (Logistics, Insurance, Healthcare, Manufacturing, Legal, Engineering, Retail, Housing, Accounting)",
+          "Address",
+          "Website",
+          "Employees",
+          "Opportunity value"
+        ],
+        "name": "Companies"
+      },
+      {
+        "fields": [
+          "Offering (Baseline training, Annual awareness program, Phishing exercises, Leadership workshop)",
+          "Expected close",
+          "Next step",
+          "Next step date",
+          "Training sessions",
+          "Proposal",
+          "Lost reason (Price, Timing, Solved in-house)"
+        ],
+        "name": "Opportunities"
+      },
+      {
+        "fields": ["Due date", "Priority (Low, Medium, High)"],
+        "name": "Tasks"
+      }
+    ],
+    "stages": ["Identified", "Conversation", "Meeting booked", "Proposal sent", "Won", "Lost"],
+    "workspace": "LinkedIn sales"
+  },
+  "sales-pipeline": {
+    "dashboard": [
+      "Open pipeline",
+      "Weighted pipeline",
+      "Won in the last 12 months",
+      "Avg. sales cycle, won (days)",
+      "Open opportunities by stage",
+      "Open pipeline by owner",
+      "Closing this month",
+      "Won value by month",
+      "Accounts on the map"
+    ],
+    "knowledgeBase": ["Operating Guide", "Sales stages", "After a site visit", "Discount and approval rules"],
+    "lists": [
+      {
+        "fields": [
+          "Industry (Packaging, Metalworking, Food and beverage, Plastics, Printing, Furniture, Medical devices, Glass, Textiles)",
+          "Account status (Prospect, Customer)",
+          "Address",
+          "Website",
+          "Employees"
+        ],
+        "name": "Accounts"
+      },
+      {
+        "fields": ["Job title", "Buying role (Decision maker, Technical buyer, Purchasing, User)"],
+        "name": "Contacts"
+      },
+      {
+        "fields": [
+          "First contact",
+          "Expected close date",
+          "Sales cycle (days)",
+          "Next step",
+          "Next step date",
+          "Documents",
+          "Source (Referral, Website inquiry, Trade show, Existing customer, Outbound call)",
+          "Competitor (Nordwind Air, Kessler Kompressoren, Pneumatec, None known)",
+          "Lost reason (Price, Went with another supplier, Timing, No budget)"
+        ],
+        "name": "Opportunities"
+      },
+      {
+        "fields": [],
+        "name": "Products"
+      },
+      {
+        "fields": ["Due date", "Scheduled", "Priority (Low, Medium, High)"],
+        "name": "Tasks"
+      }
+    ],
+    "stages": ["New", "Qualified", "Discovery", "Proposal sent", "Negotiation", "Won", "Lost"],
+    "workspace": "Sales pipeline"
+  },
+  "smb": {
+    "dashboard": [
+      "Open pipeline",
+      "Won in the last 12 months",
+      "Average won deal",
+      "Overdue tasks",
+      "Pipeline by stage",
+      "Customers on the map",
+      "Next steps, next 14 days",
+      "Won value by month",
+      "Won value by source"
+    ],
+    "knowledgeBase": ["Operating Guide", "Sales Process", "Follow-up after a site visit", "Price list and discounts"],
+    "lists": [
+      {
+        "fields": [
+          "Industry (Healthcare, Legal, Architecture, Accounting, Hospitality, Logistics, Retail and food, Marketing, Engineering, Property)",
+          "Customer status (Prospect, Customer, Former customer)",
+          "Address",
+          "Website",
+          "Employees"
+        ],
+        "name": "Companies"
+      },
+      {
+        "fields": ["Job title", "Decision role (Decision maker, Influencer, User)"],
+        "name": "Contacts"
+      },
+      {
+        "fields": [
+          "Source (Referral, Website inquiry, Local business event, Existing customer)",
+          "Expected close",
+          "Next step",
+          "Next step date",
+          "Documents",
+          "Lost reason (Price, Timing, Solved in-house)"
+        ],
+        "name": "Deals"
+      },
+      {
+        "fields": [],
+        "name": "Services"
+      },
+      {
+        "fields": ["Due date", "Scheduled", "Priority (Low, Medium, High)"],
+        "name": "Tasks"
+      }
+    ],
+    "stages": ["New", "Qualified", "Conversation", "Proposal sent", "Won", "Lost"],
+    "workspace": "Small business"
+  },
+  "startups": {
+    "dashboard": [
+      "Open pipeline ARR",
+      "Weighted pipeline ARR",
+      "Won ARR",
+      "Committed to the seed round",
+      "Opportunities by stage",
+      "Investor meetings, next 14 days",
+      "Investors by round status",
+      "New opportunities per month",
+      "Late-stage ARR by company"
+    ],
+    "knowledgeBase": [
+      "Operating Guide",
+      "Founder Sales Process",
+      "After a demo",
+      "Using the CRM from your AI client (MCP)"
+    ],
+    "lists": [
+      {
+        "fields": [
+          "Industry (Metalworking, Plastics, Machinery and pumps, Packaging, Optics, Furniture, Surface treatment)",
+          "Fit (Strong, Medium, Weak)",
+          "Address",
+          "Website",
+          "Employees"
+        ],
+        "name": "Companies"
+      },
+      {
+        "fields": ["Job title", "Buying role (Champion, Decision maker, Evaluator, User)"],
+        "name": "Contacts"
+      },
+      {
+        "fields": [
+          "Source (Founder network, Inbound, LinkedIn, Trade fair, Investor intro)",
+          "Production lines",
+          "Price per line / year",
+          "Expected close",
+          "Next step",
+          "Next step date",
+          "Pilot period",
+          "Documents",
+          "Lost reason (Timing, No budget, Built in-house, Chose another tool)"
+        ],
+        "name": "Opportunities"
+      },
+      {
+        "fields": [
+          "Firm type (Business angel, Angel network, Seed fund, Venture fund, Corporate venture)",
+          "Round status (To contact, Intro requested, First meeting, Follow-up, Committed, Passed)",
+          "Ticket size",
+          "Lead investor",
+          "Intro by",
+          "Last conversation",
+          "Next meeting",
+          "Documents",
+          "Focus"
+        ],
+        "name": "Investors"
+      },
+      {
+        "fields": ["Due date", "Priority (Low, Medium, High)"],
+        "name": "Tasks"
+      }
+    ],
+    "stages": ["Identified", "Conversation", "Demo", "Pilot", "Decision", "Won", "Lost"],
+    "workspace": "Startups"
+  },
+  "whatsapp-crm": {
+    "dashboard": [
+      "Open pipeline",
+      "Won in the last 12 months",
+      "Chats awaiting our reply",
+      "Average lead time (days)",
+      "Pipeline by stage",
+      "Site visits, next 14 days",
+      "Chats by status",
+      "Won value by month",
+      "Lead time by project type (days)"
+    ],
+    "knowledgeBase": ["Operating Guide", "Sales Process", "From WhatsApp chat to project", "Site visit checklist"],
+    "lists": [
+      {
+        "fields": [
+          "Venue type (Café, Restaurant, Office, Shop or bakery)",
+          "Customer status (Prospect, Customer, Former customer)",
+          "Address",
+          "Website"
+        ],
+        "name": "Customers"
+      },
+      {
+        "fields": [
+          "Job title",
+          "Preferred channel (WhatsApp, Email, Phone call)",
+          "Chat status (New message, Waiting for us, Waiting for customer, Done)"
+        ],
+        "name": "Contacts"
+      },
+      {
+        "fields": [
+          "Project type (Counter and bar, Seating, Shelving and display, Office furniture)",
+          "Source (Referral, WhatsApp message, Website, Existing customer)",
+          "Expected decision",
+          "Next step",
+          "Next step date",
+          "Opening date",
+          "Installation date",
+          "Site visit",
+          "Drawings and photos",
+          "Offer accepted",
+          "Lead time (days)",
+          "Lost reason (Price, Timing, Went with another workshop)"
+        ],
+        "name": "Projects"
+      },
+      {
+        "fields": ["Due date", "Priority (Low, Medium, High)"],
+        "name": "Tasks"
+      }
+    ],
+    "stages": ["New inquiry", "Site visit", "Drawings shared", "Offer sent", "Won", "Lost"],
+    "workspace": "WhatsApp CRM"
+  }
+}
