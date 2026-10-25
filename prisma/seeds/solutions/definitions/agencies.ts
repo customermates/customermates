@@ -1,6 +1,16 @@
 import { DisplayType } from "@/features/widget/widget-display.schema";
 
-import { day, defineSolution, photo, type RecordSpec, phoneNumber } from "../define-solution";
+import {
+  address,
+  at,
+  day,
+  defineSolution,
+  photo,
+  range,
+  type FileSpec,
+  type RecordSpec,
+  phoneNumber,
+} from "../define-solution";
 
 /**
  * Agencies: a brand and content agency team wins pitches, turns them into projects and retainers, and sees the monthly
@@ -123,16 +133,18 @@ const en = {
   fields: {
     industry: "Industry",
     relationship: "Relationship",
-    city: "City",
+    address: "Address",
     website: "Website",
     employees: "Employees",
     jobTitle: "Job title",
-    phone: "Phone",
     decisionRole: "Decision role",
     source: "Source",
     services: "Services in scope",
     competitors: "Agencies in the pitch",
     pitchDate: "Pitch presentation",
+    documents: "Documents",
+    signedAgreement: "Signed agreement",
+    productionWindow: "Production window",
     closeDate: "Decision expected",
     nextStep: "Next step",
     nextStepDate: "Next step date",
@@ -222,6 +234,20 @@ const en = {
     pinewood: ["Pinewood Schools Foundation", "Evanston", "pinewood-foundation.example"],
     greenmile: ["Green Mile Cycles", "Chicago", "greenmile-cycles.example"],
   } satisfies Record<OrganizationKey, readonly [string, string, string]>,
+  addresses: {
+    harlow: ["1550 W Carroll Ave", "60607", "IL", 41.87561, -87.66417],
+    bramble: ["912 Davis St", "60201", "IL", 42.05176, -87.69263],
+    meridian: ["2240 N Clark St", "60614", "IL", 41.92228, -87.64897],
+    quarry: ["2120 S 1st St", "53207", "WI", 42.97543, -87.89912],
+    tidewell: ["200 W Monroe St", "60606", "IL", 41.88232, -87.63736],
+    orchard: ["1018 Lake St", "60301", "IL", 41.88834, -87.79952],
+    copperleaf: ["540 N Michigan Ave", "60611", "IL", 41.89451, -87.62218],
+    lumen: ["1755 Park St", "60563", "IL", 41.79855, -88.16947],
+    wexford: ["1001 Monroe Ave NW", "49503", "MI", 42.96513, -85.67306],
+    northshore: ["3300 N Lake Shore Dr", "60657", "IL", 41.93977, -87.64425],
+    pinewood: ["1800 Sherman Ave", "60201", "IL", 42.05176, -87.69263],
+    greenmile: ["2453 N Milwaukee Ave", "60647", "IL", 41.92076, -87.70135],
+  } satisfies Record<OrganizationKey, readonly [string, string, string, number, number]>,
   contacts: {
     rachel: ["Rachel", "Donovan", "Marketing director"],
     tom: ["Tom", "Whitaker", "Brand manager"],
@@ -322,6 +348,7 @@ const en = {
     clients: "Clients",
     allContacts: "All contacts",
     dueSoon: "Due soon",
+    production: "Production calendar",
   },
   widgets: {
     retainerMrr: "Retainer MRR",
@@ -330,7 +357,7 @@ const en = {
     hoursLeft: "Hours left on running projects",
     byStage: "Open pitch value by stage",
     projectsByStatus: "Projects by status",
-    byDiscipline: "Open pitches by discipline",
+    presentations: "Pitch presentations, next 14 days",
     wonByMonth: "Won value by month",
     mrrByClient: "Retainer MRR by client",
   },
@@ -377,6 +404,7 @@ const en = {
         "- Every pitch, project and retainer has an owner: Max, Hannah (account director) or Daniel (creative director).",
         "- When a pitch is lost, record the reason and ask for feedback.",
         "- Time tracking and billing stay in their own tools; hours used on a project are updated by hand every Friday.",
+        "- Briefs and proposals are files in the pitch's Documents field, signed agreements sit on the retainer; search and Mate find them by their text.",
       ],
     },
     process: {
@@ -387,10 +415,10 @@ const en = {
         "## Stages",
         "1. **Inquiry:** someone asks about working with us. Add the client and the person who asked.",
         "2. **Briefing:** we have the brief or a briefing call, know the budget range, the deadline and who decides.",
-        "3. **Pitch preparation:** the team works on the idea and the deck. Enter the presentation date and the number of agencies in the pitch.",
+        "3. **Pitch preparation:** the team works on the idea and the deck. Enter the date and time of the presentation and the number of agencies in the pitch; attach the brief to Documents.",
         "4. **Proposal sent:** the presentation is done and the written proposal with scope and fees is with the client.",
         "5. **Negotiation:** scope, fee and terms are being agreed.",
-        "6. **Won or Lost:** record the outcome. Won pitches become a project, ongoing work also gets a retainer record.",
+        "6. **Won or Lost:** record the outcome. Won pitches become a project with a production window from kickoff to delivery (see the Production calendar); ongoing work also gets a retainer record.",
       ],
     },
     afterPitch: {
@@ -470,9 +498,122 @@ const en = {
       ],
     },
   },
+  files: {
+    tidewellBrief: {
+      name: "Tidewell – client brief.pdf",
+      lines: [
+        "# Tidewell Insurance – agency brief",
+        "Brand identity and website. Issued by Diane Foster, Marketing director, to three invited agencies.",
+        "## Background",
+        "Tidewell sells home and small-business insurance in the Midwest. Customers trust us after a claim, but our brand looks like every other insurer before it.",
+        "## What we ask for",
+        "A new visual identity, a tone of voice that sounds calm and plain in every letter and claim email, and a new website.",
+        "## Budget and timing",
+        "| Item | Detail |",
+        "| Budget range | $80,000–$90,000 in the first year, website included |",
+        "| Presentation | 60 minutes including questions |",
+        "| Launch | Before the spring renewal season |",
+        "## Who decides",
+        "The CEO decides with Diane Foster; Kevin Lowe from procurement checks the terms.",
+      ],
+    },
+    tidewellProposal: {
+      name: "Tidewell – pitch proposal.pdf",
+      lines: [
+        "# Fernhill Creative – proposal for Tidewell Insurance",
+        "## Our idea",
+        "Insurance that talks like a neighbor: a tone of voice built from real claim conversations, carried into the identity and the website.",
+        "## Scope and fees",
+        "| Phase | Work | Fee |",
+        "| 1 | Brand strategy and tone of voice | $18,000 |",
+        "| 2 | Visual identity and guidelines | $32,000 |",
+        "| 3 | Website design and build | $35,000 |",
+        "| Total | First year | $85,000 |",
+        "## Timeline",
+        "Twelve weeks from kickoff to the new website, with the tone of voice ready for the claim letters after four weeks.",
+      ],
+    },
+    meridianProposal: {
+      name: "Meridian – brand refresh proposal.pdf",
+      lines: [
+        "# Proposal – Meridian Health brand refresh",
+        "Six clinics, one brand. Prepared for Laura Kim and Greg Holt.",
+        "## Scope",
+        "| Phase | Work | Fee |",
+        "| 1 | Brand strategy, tone of voice and identity | $26,000 |",
+        "| 2 | Signage for the three downtown clinics | $11,000 |",
+        "| 3 | Signage for the other three clinics | $11,000 |",
+        "| Total | | $48,000 |",
+        "Phase 3 can move to next year without changing the fees of phases 1 and 2.",
+      ],
+    },
+    harlowBrief: {
+      name: "Spring collection brief.docx",
+      lines: [
+        "# Harlow Outdoor – spring collection brief",
+        "## Goal",
+        "Launch the spring trail collection with the newsletter first, then Instagram.",
+        "## Content",
+        "Trail portraits of real customers, product details, a short film for the shop page.",
+        "## Tone of voice",
+        "Warm and outdoorsy, never technical; the product speaks through the people wearing it.",
+        "## Timing",
+        "Shoot before the end of February; budget about $22,000.",
+      ],
+    },
+    harlowAgreement: {
+      name: "Retainer agreement – Harlow Outdoor.pdf",
+      lines: [
+        "# Retainer agreement – Harlow Outdoor Co.",
+        "Between Harlow Outdoor Co. and Fernhill Creative.",
+        "## Scope",
+        "Product photography with two shoots per quarter, monthly social content for Instagram and the newsletter, in Harlow's tone of voice.",
+        "## Fee and term",
+        "| Monthly fee | Term | Notice |",
+        "| $4,500 | 12 months | 60 days before renewal |",
+        "Signed by Rachel Donovan and Max for Fernhill Creative.",
+      ],
+    },
+    brambleAgreement: {
+      name: "Retainer agreement – Bramble & Rye.pdf",
+      lines: [
+        "# Retainer agreement – Bramble & Rye Bakery",
+        "## Scope",
+        "Three posts a week, seasonal menu boards and one shop photo session per quarter, following the bakery's tone of voice guide.",
+        "## Fee and term",
+        "| Monthly fee | Term | Notice |",
+        "| $1,500 | 12 months | 60 days before renewal |",
+        "Signed by Nina Patel and Max for Fernhill Creative.",
+      ],
+    },
+    greenmileAgreement: {
+      name: "Retainer agreement – Green Mile Cycles.pdf",
+      lines: [
+        "# Retainer agreement – Green Mile Cycles",
+        "## Scope",
+        "Brand guardian role including the tone of voice, social content for the new shop and event graphics for group rides.",
+        "## Fee and term",
+        "| Monthly fee | Term | Notice |",
+        "| $2,500 | 12 months | 60 days before renewal |",
+        "Signed by Ben Carlisle and Max for Fernhill Creative.",
+      ],
+    },
+  },
+  trash: { contact: "Laura Kim", deal: "Lumen Robotics – trade show booth" },
+  mate: {
+    title: "Tidewell brief and open questions",
+    question: "Summarize the Tidewell brief and list open questions for Thursday's presentation.",
+    answer:
+      '**Tidewell brief (Tidewell – client brief.pdf, on the pitch Tidewell Insurance – brand identity and website):**\n- Tidewell sells home and small-business insurance in the Midwest. Customers trust them after a claim, but the brand looks like every other insurer.\n- They ask for a new visual identity, a tone of voice that sounds calm and plain in letters and claim emails, and a new website.\n- Budget range: $80,000–$90,000 in the first year, website included. Our proposal is $85,000, the value on the pitch.\n- 60 minutes including questions; three agencies are invited. Launch before the spring renewal season.\n- Diane Foster\'s email adds that the CEO and Kevin Lowe from procurement join the presentation.\n\n**Open questions for Thursday:**\n1. Which claim letters and emails should the new tone of voice cover first?\n2. Does the website have to launch together with the identity, or can it follow after the twelve weeks?\n3. Which payment and contract terms will Kevin Lowe expect?\n4. Who signs off the tone of voice: Diane Foster or the CEO?\n\nThe tasks "Finish the pitch deck for Tidewell" and "Rehearse the Tidewell presentation with the team" are still open.',
+  },
   calendar: {
     name: "Pitch dates",
-    events: ["Tidewell pitch presentation", "Call with Meridian about the rollout"],
+    events: [
+      "Tidewell pitch presentation",
+      "Call with Meridian about the rollout",
+      "Copperleaf terms call",
+      "Quarry Lane retainer review",
+    ],
   },
 };
 
@@ -503,16 +644,18 @@ const de: Strings = {
   fields: {
     industry: "Branche",
     relationship: "Beziehung",
-    city: "Ort",
+    address: "Adresse",
     website: "Website",
     employees: "Mitarbeitende",
     jobTitle: "Position",
-    phone: "Telefon",
     decisionRole: "Rolle in der Entscheidung",
     source: "Quelle",
     services: "Leistungsumfang",
     competitors: "Agenturen im Pitch",
     pitchDate: "Präsentationstermin",
+    documents: "Dokumente",
+    signedAgreement: "Unterschriebener Vertrag",
+    productionWindow: "Produktionszeitraum",
     closeDate: "Entscheidung erwartet",
     nextStep: "Nächster Schritt",
     nextStepDate: "Datum nächster Schritt",
@@ -601,6 +744,20 @@ const de: Strings = {
     northshore: ["Kunsthalle Nordufer", "Magdeburg", "kunsthalle-nordufer.example"],
     pinewood: ["Bildungsstiftung Waldblick", "Leipzig", "stiftung-waldblick.example"],
     greenmile: ["Grünweg Fahrräder", "Leipzig", "gruenweg-fahrraeder.example"],
+  },
+  addresses: {
+    harlow: ["Karl-Heine-Straße 82", "04229", "", 51.32562, 12.32941],
+    bramble: ["Karl-Liebknecht-Straße 47", "04275", "", 51.31911, 12.37503],
+    meridian: ["Leipziger Straße 61", "06108", "", 51.48367, 11.97134],
+    quarry: ["Zwickauer Straße 140", "09116", "", 50.81873, 12.88654],
+    tidewell: ["Wiener Platz 4", "01069", "", 51.03991, 13.73452],
+    orchard: ["Rathausstraße 12", "04416", "", 51.27843, 12.37712],
+    copperleaf: ["Neumarkt 9", "01067", "", 51.05341, 13.73112],
+    lumen: ["Carl-Zeiss-Promenade 10", "07745", "", 50.90786, 11.57233],
+    wexford: ["Am Kalkreiß 2", "99085", "", 50.99283, 11.05514],
+    northshore: ["Otto-von-Guericke-Straße 68", "39104", "", 52.12405, 11.63221],
+    pinewood: ["Gohliser Straße 22", "04155", "", 51.36301, 12.36623],
+    greenmile: ["Eisenbahnstraße 101", "04315", "", 51.34651, 12.41236],
   },
   contacts: {
     rachel: ["Katrin", "Vogt", "Marketingleiterin"],
@@ -711,6 +868,7 @@ const de: Strings = {
     clients: "Kunden",
     allContacts: "Alle Kontakte",
     dueSoon: "Bald fällig",
+    production: "Produktionskalender",
   },
   widgets: {
     retainerMrr: "Retainer pro Monat",
@@ -719,7 +877,7 @@ const de: Strings = {
     hoursLeft: "Reststunden laufender Projekte",
     byStage: "Offenes Pitch-Volumen nach Phase",
     projectsByStatus: "Projekte nach Status",
-    byDiscipline: "Offene Pitches nach Leistung",
+    presentations: "Präsentationen, 14 Tage",
     wonByMonth: "Gewonnener Wert pro Monat",
     mrrByClient: "Retainer pro Monat nach Kunde",
   },
@@ -766,6 +924,7 @@ const de: Strings = {
         "- Jeder Pitch, jedes Projekt und jeder Retainer hat einen Verantwortlichen: Max, Mia (Beratung) oder Felix (Kreation).",
         "- Ist ein Pitch verloren, den Grund eintragen und um Feedback bitten.",
         "- Zeiterfassung und Abrechnung bleiben in ihren eigenen Programmen; die verbrauchten Stunden eines Projekts tragen wir jeden Freitag von Hand nach.",
+        "- Briefings und Angebote liegen im Feld „Dokumente“ des Pitches, unterschriebene Verträge am Retainer; Suche und Mate finden sie über ihren Text.",
       ],
     },
     process: {
@@ -776,10 +935,10 @@ const de: Strings = {
         "## Phasen",
         "1. **Anfrage:** Jemand möchte mit uns arbeiten. Kunde und anfragende Person anlegen.",
         "2. **Briefing:** Das Briefing liegt vor oder das Briefinggespräch ist geführt; Budgetrahmen, Termin und Entscheider sind bekannt.",
-        "3. **Pitch-Vorbereitung:** Das Team arbeitet an Idee und Präsentation. Präsentationstermin und Anzahl der Agenturen im Pitch eintragen.",
+        "3. **Pitch-Vorbereitung:** Das Team arbeitet an Idee und Präsentation. Datum und Uhrzeit der Präsentation und die Anzahl der Agenturen im Pitch eintragen; das Briefing unter „Dokumente“ anhängen.",
         "4. **Angebot gesendet:** Die Präsentation ist gehalten, das schriftliche Angebot mit Umfang und Honorar liegt beim Kunden.",
         "5. **Verhandlung:** Umfang, Honorar und Konditionen werden abgestimmt.",
-        "6. **Gewonnen oder Verloren:** Ergebnis festhalten. Gewonnene Pitches werden zum Projekt, laufende Arbeit bekommt zusätzlich einen Retainer.",
+        "6. **Gewonnen oder Verloren:** Ergebnis festhalten. Gewonnene Pitches werden zum Projekt mit einem Produktionszeitraum vom Kick-off bis zur Abgabe (siehe Produktionskalender); laufende Arbeit bekommt zusätzlich einen Retainer.",
       ],
     },
     afterPitch: {
@@ -861,9 +1020,122 @@ const de: Strings = {
       ],
     },
   },
+  files: {
+    tidewellBrief: {
+      name: "Gezeiten – Briefing.pdf",
+      lines: [
+        "# Gezeiten Versicherung AG – Agenturbriefing",
+        "Markenauftritt und Website. Von Dagmar Fuchs, Marketingleiterin, an drei eingeladene Agenturen.",
+        "## Ausgangslage",
+        "Gezeiten versichert Haushalte und kleine Betriebe in Sachsen und Thüringen. Nach einem Schaden vertrauen uns die Kunden, aber unsere Marke sieht aus wie jede andere Versicherung.",
+        "## Aufgabe",
+        "Ein neues Erscheinungsbild, eine Tonalität, die in jedem Brief und jeder Schadenmail ruhig und klar klingt, und eine neue Website.",
+        "## Budget und Zeitplan",
+        "| Punkt | Angabe |",
+        "| Budgetrahmen | 80.000–90.000 € im ersten Jahr, Website inklusive |",
+        "| Präsentation | 60 Minuten einschließlich Fragen |",
+        "| Start | Vor der Verlängerungssaison im Frühjahr |",
+        "## Entscheidung",
+        "Der Vorstandsvorsitzende entscheidet mit Dagmar Fuchs; Kevin Lorenz aus dem Einkauf prüft die Konditionen.",
+      ],
+    },
+    tidewellProposal: {
+      name: "Gezeiten – Pitch-Angebot.pdf",
+      lines: [
+        "# Kranich Kommunikation – Angebot für die Gezeiten Versicherung",
+        "## Unsere Idee",
+        "Eine Versicherung, die spricht wie ein guter Nachbar: eine Tonalität aus echten Schadengesprächen, getragen von Erscheinungsbild und Website.",
+        "## Umfang und Honorar",
+        "| Phase | Leistung | Honorar |",
+        "| 1 | Markenstrategie und Tonalität | 18.000 € |",
+        "| 2 | Erscheinungsbild und Gestaltungsrichtlinien | 32.000 € |",
+        "| 3 | Gestaltung und Umsetzung der Website | 35.000 € |",
+        "| Gesamt | Erstes Jahr | 85.000 € |",
+        "## Zeitplan",
+        "Zwölf Wochen vom Kick-off bis zur neuen Website; die Tonalität für die Schadenbriefe steht nach vier Wochen.",
+      ],
+    },
+    meridianProposal: {
+      name: "Meridian – Angebot Markenauffrischung.pdf",
+      lines: [
+        "# Angebot – Markenauffrischung Meridian Gesundheitszentren",
+        "Sechs Standorte, eine Marke. Erstellt für Laura Kühn und Gerd Holtmann.",
+        "## Umfang",
+        "| Phase | Leistung | Honorar |",
+        "| 1 | Markenstrategie, Tonalität und Erscheinungsbild | 26.000 € |",
+        "| 2 | Beschilderung der drei Standorte in der Innenstadt | 11.000 € |",
+        "| 3 | Beschilderung der übrigen drei Standorte | 11.000 € |",
+        "| Gesamt | | 48.000 € |",
+        "Phase 3 kann ins nächste Jahr wandern, ohne dass sich das Honorar der Phasen 1 und 2 ändert.",
+      ],
+    },
+    harlowBrief: {
+      name: "Briefing Frühjahrskollektion.docx",
+      lines: [
+        "# Hartmann Outdoor – Briefing Frühjahrskollektion",
+        "## Ziel",
+        "Die Trail-Kollektion für das Frühjahr zuerst im Newsletter, dann auf Instagram vorstellen.",
+        "## Inhalte",
+        "Trail-Porträts echter Kundinnen und Kunden, Produktdetails, ein kurzer Film für die Shopseite.",
+        "## Tonalität",
+        "Warm und draußen, nie technisch; das Produkt spricht durch die Menschen, die es tragen.",
+        "## Zeitplan",
+        "Shooting bis Ende Februar; Budget etwa 22.000 €.",
+      ],
+    },
+    harlowAgreement: {
+      name: "Retainervertrag – Hartmann Outdoor.pdf",
+      lines: [
+        "# Retainervertrag – Hartmann Outdoor GmbH",
+        "Zwischen der Hartmann Outdoor GmbH und Kranich Kommunikation.",
+        "## Umfang",
+        "Produktfotografie mit zwei Shootings pro Quartal, monatlicher Social-Media-Content für Instagram und Newsletter in der Tonalität von Hartmann.",
+        "## Honorar und Laufzeit",
+        "| Monatshonorar | Laufzeit | Kündigung |",
+        "| 4.500 € | 12 Monate | 60 Tage vor Verlängerung |",
+        "Unterschrieben von Katrin Vogt und Max Bergmann für Kranich Kommunikation.",
+      ],
+    },
+    brambleAgreement: {
+      name: "Retainervertrag – Backhaus Brombeere.pdf",
+      lines: [
+        "# Retainervertrag – Backhaus Brombeere",
+        "## Umfang",
+        "Drei Beiträge pro Woche, saisonale Menütafeln und ein Fotoshooting im Laden pro Quartal, nach dem Tonalitäts-Leitfaden der Bäckerei.",
+        "## Honorar und Laufzeit",
+        "| Monatshonorar | Laufzeit | Kündigung |",
+        "| 1.500 € | 12 Monate | 60 Tage vor Verlängerung |",
+        "Unterschrieben von Nina Seidel und Max Bergmann für Kranich Kommunikation.",
+      ],
+    },
+    greenmileAgreement: {
+      name: "Retainervertrag – Grünweg Fahrräder.pdf",
+      lines: [
+        "# Retainervertrag – Grünweg Fahrräder",
+        "## Umfang",
+        "Markenbetreuung einschließlich Tonalität, Social-Media-Content für den neuen Laden und Grafiken für gemeinsame Ausfahrten.",
+        "## Honorar und Laufzeit",
+        "| Monatshonorar | Laufzeit | Kündigung |",
+        "| 2.500 € | 12 Monate | 60 Tage vor Verlängerung |",
+        "Unterschrieben von Benedikt Kaiser und Max Bergmann für Kranich Kommunikation.",
+      ],
+    },
+  },
+  trash: { contact: "Laura Kühn", deal: "Lumen Robotik – Messestand" },
+  mate: {
+    title: "Gezeiten-Briefing und offene Fragen",
+    question: "Fasse das Gezeiten-Briefing zusammen und liste offene Fragen für die Präsentation am Donnerstag auf.",
+    answer:
+      "**Gezeiten-Briefing (Gezeiten – Briefing.pdf, am Pitch „Gezeiten Versicherung – Markenauftritt und Website“):**\n- Gezeiten versichert Haushalte und kleine Betriebe in Sachsen und Thüringen. Nach einem Schaden vertrauen die Kunden der Versicherung, aber die Marke sieht aus wie jede andere.\n- Gewünscht sind ein neues Erscheinungsbild, eine Tonalität, die in Briefen und Schadenmails ruhig und klar klingt, und eine neue Website.\n- Budgetrahmen: 80.000–90.000 € im ersten Jahr, Website inklusive. Unser Angebot liegt bei 85.000 €, dem Wert am Pitch.\n- 60 Minuten einschließlich Fragen; drei Agenturen sind eingeladen. Start vor der Verlängerungssaison im Frühjahr.\n- Laut der Mail von Dagmar Fuchs sind der Vorstandsvorsitzende und Kevin Lorenz aus dem Einkauf bei der Präsentation dabei.\n\n**Offene Fragen für Donnerstag:**\n1. Welche Schadenbriefe und Mails soll die neue Tonalität zuerst abdecken?\n2. Muss die Website zusammen mit dem Erscheinungsbild starten, oder darf sie nach den zwölf Wochen folgen?\n3. Welche Zahlungs- und Vertragskonditionen erwartet Herr Lorenz?\n4. Wer gibt die Tonalität frei: Frau Fuchs oder der Vorstandsvorsitzende?\n\nDie Aufgaben „Pitch-Präsentation für die Gezeiten Versicherung fertigstellen“ und „Präsentation für die Gezeiten Versicherung mit dem Team proben“ sind noch offen.",
+  },
   calendar: {
     name: "Pitch-Termine",
-    events: ["Pitch-Präsentation Gezeiten Versicherung", "Telefonat mit Meridian zu den Ausbaustufen"],
+    events: [
+      "Pitch-Präsentation Gezeiten Versicherung",
+      "Telefonat mit Meridian zu den Ausbaustufen",
+      "Konditionen mit Kupferblatt besprechen",
+      "Retainer-Überprüfung mit der Brauerei Steinbruch",
+    ],
   },
 };
 
@@ -954,7 +1226,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     services: ["strategy", "identity", "website"],
     value: 85000,
     competitors: 3,
-    pitch: 6,
+    pitch: 9,
     createdDaysAgo: 28,
     close: 30,
     next: 6,
@@ -989,6 +1261,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     source: "inbound",
     services: ["strategy", "website"],
     value: 42000,
+    pitch: 8,
     createdDaysAgo: 20,
     close: 45,
     next: 5,
@@ -1001,6 +1274,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     source: "referral",
     services: ["website"],
     value: 14000,
+    pitch: 12,
     createdDaysAgo: 3,
     close: 60,
     next: 2,
@@ -1012,6 +1286,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     source: "inbound",
     services: ["print"],
     value: 12000,
+    pitch: 14,
     createdDaysAgo: 8,
     close: 40,
     next: 6,
@@ -1040,6 +1315,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     source: "existing",
     services: ["packaging"],
     value: 9500,
+    pitch: 10,
     createdDaysAgo: 14,
     close: 35,
     next: 9,
@@ -1306,6 +1582,7 @@ const PROJECT_FACTS: Record<
     hours: number;
     used: number;
     deadline: number;
+    kickoff: number;
     owner: Member;
     createdDaysAgo: number;
     history?: Array<{ daysAgo: number; status: string }>;
@@ -1319,6 +1596,7 @@ const PROJECT_FACTS: Record<
     hours: 240,
     used: 150,
     deadline: 25,
+    kickoff: -12,
     owner: "colleagueA",
     createdDaysAgo: 19,
     history: [{ daysAgo: 12, status: "kickoff" }],
@@ -1331,6 +1609,7 @@ const PROJECT_FACTS: Record<
     hours: 80,
     used: 6,
     deadline: 30,
+    kickoff: -2,
     owner: "colleagueB",
     createdDaysAgo: 4,
   },
@@ -1342,6 +1621,7 @@ const PROJECT_FACTS: Record<
     hours: 100,
     used: 92,
     deadline: 4,
+    kickoff: -40,
     owner: "colleagueA",
     createdDaysAgo: 45,
     history: [
@@ -1357,6 +1637,7 @@ const PROJECT_FACTS: Record<
     hours: 210,
     used: 218,
     deadline: -95,
+    kickoff: -118,
     owner: "colleagueB",
     createdDaysAgo: 124,
     history: [
@@ -1372,6 +1653,7 @@ const PROJECT_FACTS: Record<
     hours: 160,
     used: 151,
     deadline: -140,
+    kickoff: -170,
     owner: "colleagueB",
     createdDaysAgo: 174,
     history: [
@@ -1386,6 +1668,7 @@ const PROJECT_FACTS: Record<
     hours: 40,
     used: 22,
     deadline: 12,
+    kickoff: -9,
     owner: "maxBergmann",
     createdDaysAgo: 16,
     history: [{ daysAgo: 9, status: "kickoff" }],
@@ -1534,7 +1817,7 @@ export default defineSolution<Strings>({
     en: { currency: "USD", timeZone: "America/Chicago" },
     de: { currency: "EUR", timeZone: "Europe/Berlin" },
   },
-  build: (t) => {
+  build: (t, locale) => {
     const office = (index: number) => phoneNumber(t.phones.office, index);
     const open = ["inquiry", "briefing", "pitchPreparation", "proposal", "negotiation"];
     const label = <K extends string>(
@@ -1546,13 +1829,22 @@ export default defineSolution<Strings>({
     const organization: RecordSpec[] = ORGANIZATIONS.map((key) => {
       const facts = ORGANIZATION_FACTS[key];
       const [name, city, domain] = t.organizations[key];
+      const [street, postalCode, region, lat, lon] = t.addresses[key];
       return {
         key,
         values: {
           name,
           industry: facts.industry,
           relationship: facts.relationship,
-          city,
+          address: address({
+            street,
+            postalCode,
+            city,
+            ...(region ? { region } : {}),
+            countryCode: locale === "de" ? "de" : "us",
+            lat,
+            lon,
+          }),
           website: `https://${domain}`,
           employees: facts.employees,
         },
@@ -1592,7 +1884,9 @@ export default defineSolution<Strings>({
           closeDate: day(facts.close),
           nextStep,
           ...(facts.competitors === undefined ? {} : { competitors: facts.competitors }),
-          ...(facts.pitch === undefined ? {} : { pitchDate: day(facts.pitch) }),
+          ...(facts.pitch === undefined
+            ? {}
+            : { pitchPresentation: at(facts.pitch, facts.pitch > 0 ? "10:00" : "14:00") }),
           ...(facts.next === undefined ? {} : { nextStepDate: day(facts.next) }),
           ...(facts.lost ? { lostReason: facts.lost } : {}),
         },
@@ -1651,6 +1945,7 @@ export default defineSolution<Strings>({
           hoursBudget: facts.hours,
           hoursUsed: facts.used,
           deadline: day(facts.deadline),
+          productionWindow: range(facts.kickoff, facts.deadline),
         },
         links: {
           "project.organization": facts.organization,
@@ -1688,6 +1983,15 @@ export default defineSolution<Strings>({
       };
     });
 
+    const file = (key: keyof Strings["files"], record: string, field: string, uploadedDaysAgo: number): FileSpec => ({
+      key,
+      record,
+      field,
+      name: t.files[key].name,
+      kind: "pdf",
+      lines: t.files[key].lines,
+      uploadedDaysAgo,
+    });
     const thread = (key: keyof Strings["threads"], from: readonly string[]) =>
       t.threads[key].messages.map((text, index) => ({ from: from[index], text }));
 
@@ -1731,7 +2035,7 @@ export default defineSolution<Strings>({
           type: "select",
           options: label(t.options.relationship, { prospect: "info", client: "success", former: "secondary" }),
         },
-        { key: "organization.city", label: t.fields.city, type: "text" },
+        { key: "organization.address", label: t.fields.address, type: "address" },
         { key: "organization.website", label: t.fields.website, type: "url" },
         { key: "organization.employees", label: t.fields.employees, type: "number" },
         {
@@ -1774,10 +2078,11 @@ export default defineSolution<Strings>({
           }),
         },
         { key: "deal.competitors", label: t.fields.competitors, type: "number" },
-        { key: "deal.pitchDate", label: t.fields.pitchDate, type: "date" },
+        { key: "deal.pitchPresentation", label: t.fields.pitchDate, type: "dateTime" },
         { key: "deal.closeDate", label: t.fields.closeDate, type: "date" },
         { key: "deal.nextStep", label: t.fields.nextStep, type: "text" },
         { key: "deal.nextStepDate", label: t.fields.nextStepDate, type: "date" },
+        { key: "deal.documents", label: t.fields.documents, type: "file" },
         {
           key: "deal.lostReason",
           label: t.fields.lostReason,
@@ -1810,6 +2115,7 @@ export default defineSolution<Strings>({
           formula: { kind: "difference", left: "project.hoursBudget", right: "project.hoursUsed" },
         },
         { key: "project.deadline", label: t.fields.deadline, type: "date" },
+        { key: "project.productionWindow", label: t.fields.productionWindow, type: "dateRange" },
         {
           key: "retainer.status",
           label: t.fields.retainerStatus,
@@ -1832,6 +2138,7 @@ export default defineSolution<Strings>({
         { key: "retainer.startDate", label: t.fields.startDate, type: "date" },
         { key: "retainer.renewalDate", label: t.fields.renewalDate, type: "date" },
         { key: "retainer.scope", label: t.fields.scope, type: "text" },
+        { key: "retainer.signedAgreement", label: t.fields.signedAgreement, type: "file" },
         { key: "task.dueDate", label: t.fields.dueDate, type: "date" },
         {
           key: "task.priority",
@@ -1887,7 +2194,7 @@ export default defineSolution<Strings>({
           name: t.views.pitchBoard,
           mode: "board",
           groupBy: "stage",
-          columns: ["totalValue", "deal.organizations", "pitchDate", "nextStepDate", "system:assignedTo"],
+          columns: ["totalValue", "deal.organizations", "pitchPresentation", "nextStepDate", "system:assignedTo"],
           filters: [{ field: "stage", notIn: ["lost"] }],
         },
         {
@@ -1929,7 +2236,7 @@ export default defineSolution<Strings>({
           list: "organization",
           name: t.views.clients,
           mode: "table",
-          columns: ["relationship", "retainerMrr", "industry", "city", "contact.organizations", "system:assignedTo"],
+          columns: ["relationship", "retainerMrr", "industry", "address", "contact.organizations", "system:assignedTo"],
           sort: { field: "relationship", direction: "asc" },
         },
         {
@@ -1947,6 +2254,14 @@ export default defineSolution<Strings>({
           columns: ["dueDate", "status", "priority", "task.deals", "task.organizations", "system:assignedTo"],
           filters: [{ field: "status", notIn: ["done", "archived"] }],
           sort: { field: "dueDate", direction: "asc" },
+        },
+        {
+          key: "production",
+          list: "project",
+          name: t.views.production,
+          mode: "calendar",
+          calendar: { date: "productionWindow", color: "status", mode: "month" },
+          columns: ["status", "project.organization", "deadline", "system:assignedTo"],
         },
       ],
       dashboard: {
@@ -1997,21 +2312,23 @@ export default defineSolution<Strings>({
             filters: [{ field: "stage", in: open }],
           },
           {
+            kind: "calendar",
+            title: t.widgets.presentations,
+            list: "deal",
+            layout: "upcoming",
+            date: "pitchPresentation",
+            days: 14,
+            amount: "totalValue",
+            overdue: true,
+            filters: [{ field: "stage", in: ["inquiry", "briefing", "pitchPreparation"] }],
+          },
+          {
             kind: "chart",
             title: t.widgets.projectsByStatus,
             display: DisplayType.doughnutChart,
             list: "project",
             aggregation: "count",
             groupBy: { field: "status" },
-          },
-          {
-            kind: "chart",
-            title: t.widgets.byDiscipline,
-            display: DisplayType.horizontalBarChartWithLabels,
-            list: "deal",
-            aggregation: "count",
-            groupBy: { field: "disciplines" },
-            filters: [{ field: "stage", in: open }],
           },
           {
             kind: "chart",
@@ -2198,9 +2515,53 @@ export default defineSolution<Strings>({
               durationMinutes: 60,
             },
             { title: t.calendar.events[1], with: ["laura"], startsMinutesAgo: -24 * 60, durationMinutes: 30 },
+            {
+              title: t.calendar.events[2],
+              with: ["michael", "erin"],
+              startsMinutesAgo: -3 * 24 * 60,
+              durationMinutes: 45,
+            },
+            { title: t.calendar.events[3], with: ["jake"], startsMinutesAgo: 2 * 24 * 60, durationMinutes: 60 },
           ],
         },
       },
+      files: [
+        file("tidewellBrief", "deal:tidewellIdentity", "deal.documents", 26),
+        file("tidewellProposal", "deal:tidewellIdentity", "deal.documents", 2),
+        file("meridianProposal", "deal:meridianBrand", "deal.documents", 8),
+        { ...file("harlowBrief", "deal:harlowSpring", "deal.documents", 17), kind: "docx" },
+        file("harlowAgreement", "retainer:harlowRetainer", "retainer.signedAgreement", 290),
+        file("brambleAgreement", "retainer:brambleRetainer", "retainer.signedAgreement", 190),
+        file("greenmileAgreement", "retainer:greenmileRetainer", "retainer.signedAgreement", 11),
+      ],
+      planner: {
+        sources: [
+          { list: "project", date: "productionWindow", color: "info" },
+          {
+            list: "deal",
+            date: "pitchPresentation",
+            filters: [{ field: "stage", notIn: ["lost"] }],
+            color: "warning",
+          },
+          { list: "retainer", date: "renewalDate", filters: [{ field: "status", notIn: ["ended"] }], color: "success" },
+        ],
+        connectedCalendar: true,
+        mode: "month",
+      },
+      trash: [
+        { list: "contact", name: t.trash.contact, daysAgo: 4 },
+        { list: "deal", name: t.trash.deal, daysAgo: 13 },
+      ],
+      mateChats: [
+        {
+          title: t.mate.title,
+          endedHoursAgo: 3,
+          messages: [
+            { role: "user", text: t.mate.question },
+            { role: "assistant", text: t.mate.answer },
+          ],
+        },
+      ],
     };
   },
 });
