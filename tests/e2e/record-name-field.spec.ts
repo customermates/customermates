@@ -83,8 +83,8 @@ test("opens the record from its name and renames it in place, on cards and in th
   await heading.fill("Title name");
   await page.getByRole("dialog").getByRole("button", { name: "Save", exact: true }).click();
   await expect.poll(persisted).toBe("Title name");
-  await expect(heading).toHaveValue("Title name");
-  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(item).toContainText("Title name");
   if (!isMobile) {
     await page.goto(`/en/records/${typeId}?viewMode=card&groupBy=${stageId}`);
     const card = page.locator(`[data-item-id="${recordId}"]`);
