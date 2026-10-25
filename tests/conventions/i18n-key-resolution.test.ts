@@ -15,6 +15,7 @@ import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { AGENT_ACTIVITY_COPY_KINDS, AGENT_APPROVAL_COPY_KINDS } from "@/ee/agent-chat/agent-activity";
 import { ACCOUNT_REMOVAL_REASONS } from "@/ee/messaging/connect/account-removal-reason";
+import { CHANNEL_GROUPS } from "@/ee/messaging/provider";
 import { SignatureTemplate } from "@/ee/messaging/email-settings";
 import { BILLING_SOURCES } from "@/ee/operator/billing-usage.schema";
 import { OPERATOR_AUDIT_ACTION } from "@/ee/operator/operator.schema";
@@ -34,9 +35,9 @@ import { DeletionBlockerSchema } from "@/features/records/configuration.schema";
 import { DIAGRAM_SYSTEM_LABEL_KEYS, DisplayType } from "@/features/widget/widget.schema";
 import {
   ConnectedAccountStatus,
-  MessagingProvider,
   MessagingMessageDirection,
   MessagingThreadState,
+  RecordIdentityProvider,
   Resource,
   RoutineRunStatus,
   RoutineTriggerKind,
@@ -63,7 +64,7 @@ const ACTIVITY_EVENTS = [
 ];
 const DOMAIN_EVENT_KEYS = ACTIVITY_EVENTS.map((event) => `Common.events.${event}`);
 const LEGACY_EVENT_KEYS = LEGACY_DOMAIN_EVENTS.map((event) => `Common.legacyEvents.${event}`);
-const CLICK_ACTION_KEYS = ["email", "phone", "url", "channels"].flatMap((kind) =>
+const CLICK_ACTION_KEYS = ["email", "phone", "url", "channels", "address"].flatMap((kind) =>
   ["open", "copy"].map((action) => `RecordModel.clickActions.${kind}.${action}`),
 );
 const RECORD_VALUE_TYPE_KEYS = [...RecordValueTypeSchema.options, "multiSelect"].map(
@@ -297,7 +298,8 @@ const TABLE_COLUMN_KEYS = [
   "Common.table.columns.workspace",
 ] as const;
 
-const PROVIDER_KEYS = Object.values(MessagingProvider).map((provider) => `Common.providers.${provider}`);
+const PROVIDER_KEYS = Object.values(RecordIdentityProvider).map((provider) => `Common.providers.${provider}`);
+const CHANNEL_GROUP_KEYS = CHANNEL_GROUPS.map((group) => `EntityChannels.groups.${group}`);
 const USER_STATUS_KEYS = Object.values(Status).map((status) => `Common.userStatuses.${status}`);
 const LOCALE_KEYS = [...ROUTING_LOCALES, "system"].map((locale) => `Common.locales.${locale}`);
 const THEME_KEYS = Object.values(Theme).map((theme) => `Common.themes.${theme}`);
@@ -559,6 +561,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["Common.locales.${*}", LOCALE_KEYS],
   ["LegalDocumentNotice.documents.${*}", LEGAL_DOCUMENT_KEYS],
   ["Common.providers.${*}", PROVIDER_KEYS],
+  ["EntityChannels.groups.${*}", CHANNEL_GROUP_KEYS],
   ["Common.themes.${*}", THEME_KEYS],
   ["Common.userStatuses.${*}", USER_STATUS_KEYS],
   ["Trash.kinds.${*}", TRASH_KIND_KEYS],
@@ -739,10 +742,12 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/w/[workspace]/settings/(account)/components/user-details-avatar.tsx :: t :: Common.userStatuses.${status}",
   "app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/contact-compose-popover.tsx :: t :: Common.providers.${provider}",
   "app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-channels.tsx :: t :: Common.providers.${channelLabelKey(identifier.provider)}",
+  "app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-channels.tsx :: t :: Common.providers.${channelLabelKey(composeProvider)}",
   "app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-detail-chip-row.tsx :: t :: RecordModel.${column.label}",
   "app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-detail-overview.tsx :: t :: RecordModel.${column.label}",
   "app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-field-value-editor.tsx :: getTranslation :: Common.errors.${code}",
   "app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-identity-editor.tsx :: t :: Common.providers.${channelLabelKey(provider)}",
+  "app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-identity-editor.tsx :: t :: EntityChannels.groups.${group}",
   "app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-inline-field.tsx :: t :: RecordModel.operators.${operator}",
   "app/[locale]/(protected)/w/[workspace]/routines/components/routine-configuration-pane.tsx :: t :: Common.userStatuses.${form.owner.status}",
   "app/[locale]/(protected)/w/[workspace]/routines/components/routine-configuration-pane.tsx :: t :: RoutineSchedulePreset.${value}",
@@ -895,6 +900,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     'components/records/record-activity-filters.tsx :: t :: isChangeActivityKind(id) ? `EntityTimeline.types.${id}` : id === "message" ? "EntityTimeline.types.messages" : id === "calendar_event" ? "ContactHistory.calendarMeeting" : "EntityTimeline.types.activities"',
     1,
   ],
+  ["components/records/record-file-meta.ts :: t :: fileTypeLabelKey(kind)", 1],
   ["app/[locale]/(protected)/w/[workspace]/inbox/components/attachment-classify.ts :: t :: typeLabelKey", 2],
   ["app/[locale]/(protected)/w/[workspace]/inbox/components/email-message-header.tsx :: t :: labelKey", 1],
   ["app/[locale]/(protected)/w/[workspace]/inbox/components/thread-row.tsx :: t :: PREVIEW_KIND_LABEL[thread.previewKind]", 1],
@@ -1115,13 +1121,22 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
     ],
   },
   {
-    file: "app/[locale]/(protected)/w/[workspace]/inbox/components/attachment-classify.ts",
+    file: "components/files/file-kind.ts",
     keys: [
-      "Inbox.fileTypeExcel",
-      "Inbox.fileTypeImage",
-      "Inbox.fileTypePdf",
-      "Inbox.fileTypePowerpoint",
-      "Inbox.fileTypeWord",
+      "FileTypes.archive",
+      "FileTypes.audio",
+      "FileTypes.csv",
+      "FileTypes.document",
+      "FileTypes.html",
+      "FileTypes.image",
+      "FileTypes.json",
+      "FileTypes.markdown",
+      "FileTypes.other",
+      "FileTypes.pdf",
+      "FileTypes.presentation",
+      "FileTypes.spreadsheet",
+      "FileTypes.text",
+      "FileTypes.video",
     ],
   },
   {

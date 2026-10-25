@@ -19,6 +19,7 @@ type SeededWidget = {
   name: string;
   kind: string;
   displayType: string | null;
+  calendarLayout: string | null;
   aggregation: string | null;
   sources: string[] | null;
 };
@@ -34,6 +35,7 @@ for (const dashboard of DEMO_DASHBOARDS) {
   }, testInfo) => {
     const { rows: widgets } = await database.query<SeededWidget>(
       `SELECT id, name, kind::text AS kind, "displayOptions"->>'displayType' AS "displayType", measure->>'aggregation' AS aggregation,
+       "calendarQuery"->>'layout' AS "calendarLayout",
        (SELECT array_agg(source) FROM jsonb_array_elements("activityQuery"->'filters') AS f,
          jsonb_array_elements_text(f->'values') AS source WHERE f->>'kind' = 'source') AS sources FROM "Widget"
        WHERE "companyId"=$1 AND "userId"=$2 AND id LIKE '15000000-%' AND "viewId" IS NOT DISTINCT FROM $3
@@ -52,7 +54,7 @@ for (const dashboard of DEMO_DASHBOARDS) {
       await expect(rail.getByText(other.name, { exact: true })).toBeVisible();
     const active = rail.locator('[data-focus-target^="view:"][aria-current="page"]');
     if (dashboard.id) await expect(active).toHaveText(dashboard.name);
-    else await expect(active).toHaveCount(0);
+    else await expect(active).toHaveText("Main");
 
     for (const widget of widgets) {
       const card = page.locator(`[data-focus-target="widget:${widget.id}"]`);
@@ -60,7 +62,7 @@ for (const dashboard of DEMO_DASHBOARDS) {
       await expect(
         card.locator('[data-slot="card-header"]').getByRole("heading", { name: widget.name, exact: true }),
       ).toBeVisible();
-      await expect(card.getByText(/measure is unavailable|Calculation unavailable|could not be loaded/)).toHaveCount(0);
+      await expect(card.getByText(/is unavailable|Calculation unavailable|could not be loaded/)).toHaveCount(0);
       await expect(card.locator('[data-slot="widget-empty"]')).toHaveCount(0);
       if (
         widget.kind === "activityTimeline" &&
@@ -77,6 +79,19 @@ for (const dashboard of DEMO_DASHBOARDS) {
         // The count reads "0 activities" until the timeline loaded.
         await expect(card.getByText(/^[1-9]\d* activit(y|ies)$/), widget.name).toBeVisible();
         await expect(card.getByText(/No activity|Connect a messaging/)).toHaveCount(0);
+        continue;
+      }
+      if (widget.kind === "calendar") {
+        // Upcoming lists record rows; the month overview colours the days that have records.
+        const data =
+          widget.calendarLayout === "upcoming"
+            ? card.locator("[data-calendar-item]")
+            : card.locator('[data-calendar-day]:not([data-heat="0"])');
+        await expect(data.first(), `${widget.name} shows its records`).toBeVisible();
+        continue;
+      }
+      if (widget.kind === "map") {
+        await expect(card.locator("[data-map-marker]").first(), `${widget.name} places pins or clusters`).toBeVisible();
         continue;
       }
       if (widget.displayType === "number") {

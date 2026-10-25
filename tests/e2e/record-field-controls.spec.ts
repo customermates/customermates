@@ -40,9 +40,9 @@ async function createList(page: Page, name: string) {
 }
 
 async function addField(page: Page, name: string, valueType: string, behavior?: string) {
-  await addFromConfigure(page, "Field");
+  await addFromConfigure(page, valueType === "Contact details" ? "Contact details" : "Field");
   await page.getByRole("dialog").getByRole("textbox", { name: "Name", exact: false }).fill(name);
-  await choose(page, "Value type", valueType);
+  if (valueType !== "Contact details") await choose(page, "Value type", valueType);
   if (behavior) await choose(page, "Value source", behavior);
   if (behavior && behavior !== "Entered manually") await openDrawerTab(page, "Calculation");
   else if (valueType === "Single choice") await openDrawerTab(page, "Options");
@@ -91,7 +91,7 @@ async function list(page: Page, typeId: string) {
   await expect(page).toHaveURL(appUrlPattern(pageSlug(page), `/records/${typeId}$`));
 }
 
-test("configures and persists all fourteen field types, multiple values and calendar controls through the UI", async ({
+test("configures and persists every field type, multiple values and calendar controls through the UI", async ({
   page,
   database,
   companyId,
@@ -111,8 +111,7 @@ test("configures and persists all fourteen field types, multiple values and cale
     ["Calendar range", "Date range"],
     ["Calendar time range", "Date and time range"],
     ["Choice", "Single choice"],
-    ["Email addresses", "Email"],
-    ["Phone numbers", "Phone"],
+    ["Contact details", "Contact details"],
     ["Web addresses", "Web address"],
     ["Responsible member", "Member"],
     ["Notes", "Formatted text"],
@@ -121,7 +120,7 @@ test("configures and persists all fourteen field types, multiple values and cale
   for (const [label, valueType] of definitions) {
     await test.step(`configure ${valueType}`, async () => {
       await addField(page, label, valueType);
-      if (["Email", "Phone", "Web address"].includes(valueType))
+      if (valueType === "Web address")
         await dialog.getByRole("switch", { name: "Allow several values", exact: true }).check();
       if (valueType === "Single choice") {
         const popover = page.locator('[data-slot="popover-content"]');
@@ -174,7 +173,7 @@ test("configures and persists all fourteen field types, multiple values and cale
     ).rows[0].snapshot,
   );
   const fields = model.fields.filter((field) => field.typeId === typeId);
-  expect(new Set(fields.map((field) => field.valueType)).size).toBe(14);
+  expect(new Set(fields.map((field) => field.valueType)).size).toBe(13);
   expect(fields.find((field) => field.label === "Choice")?.options).toEqual([
     expect.objectContaining({
       label: "Accepted",
@@ -206,10 +205,13 @@ test("configures and persists all fourteen field types, multiple values and cale
   await dialog.getByRole("textbox", { name: "Exact money", exact: true }).fill("0.000125");
   await row("Enabled").getByRole("switch").check();
   await choose(page, "Choice", "Accepted");
-  await dialog
-    .getByRole("textbox", { name: "Email addresses", exact: true })
-    .fill("one@example.test\ntwo@example.test");
-  await dialog.getByRole("textbox", { name: "Phone numbers", exact: true }).fill("+49123456789\n+441234567890");
+  const addContact = dialog.getByRole("combobox", { name: "Add phone, email or profile", exact: true });
+  for (const email of ["one@example.test", "two@example.test"]) {
+    await addContact.fill(email);
+    await expect(page.getByRole("option", { name: `Add "${email}" as Email`, exact: true })).toHaveAttribute("aria-selected", "true");
+    await addContact.press("Enter");
+    await expect(row("Contact details").getByRole("link", { name: email, exact: true })).toHaveAttribute("href", `mailto:${email}`);
+  }
   await dialog
     .getByRole("textbox", { name: "Web addresses", exact: true })
     .fill("https://example.test/a\nhttps://example.test/b");
@@ -221,8 +223,8 @@ test("configures and persists all fourteen field types, multiple values and cale
     const calendar = page.locator('[data-slot="popover-content"][data-state="open"]');
     await calendar.getByRole("button", { name: "Today", exact: true }).click();
     if (label === "Calendar time") {
-      await page.getByRole("textbox", { name: "Start time", exact: true }).fill("14:35:27");
-      await page.getByRole("textbox", { name: "Start time", exact: true }).press("Enter");
+      await page.getByRole("textbox", { name: "Time", exact: true }).fill("14:35:27");
+      await page.getByRole("textbox", { name: "Time", exact: true }).press("Enter");
     }
     if (label === "Calendar time range") {
       await page.getByRole("textbox", { name: "Start time", exact: true }).fill("09:10:11");
@@ -265,12 +267,15 @@ test("configures and persists all fourteen field types, multiple values and cale
   expect(value("Enabled").booleanValue).toBe(true);
   expect(value("Choice").textValue).toBe(field("Choice").options[0].id);
   expect(value("Responsible member").textValue).toBe(workspace.userId);
-  for (const [label, expected] of [
-    ["Email addresses", ["one@example.test", "two@example.test"]],
-    ["Phone numbers", ["+49123456789", "+441234567890"]],
-    ["Web addresses", ["https://example.test/a", "https://example.test/b"]],
-  ] as const)
-    expect(value(label).textListValue).toEqual(expected);
+  expect(value("Web addresses").textListValue).toEqual(["https://example.test/a", "https://example.test/b"]);
+  const identities = await database.query(
+    'SELECT i.provider::text AS provider, i.value FROM "RecordIdentity" i JOIN "RecordIdentityLink" l ON l."companyId"=i."companyId" AND l."identityId"=i.id WHERE i."companyId"=$1 AND l."typeId"=$2 ORDER BY i.value',
+    [companyId, typeId],
+  );
+  expect(identities.rows).toEqual([
+    { provider: "mail", value: "one@example.test" },
+    { provider: "mail", value: "two@example.test" },
+  ]);
   expect(value("Calendar date").lexicalValue).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   const localTime = async (stored: string) =>
     page.evaluate((iso) => {
@@ -289,9 +294,8 @@ test("configures and persists all fourteen field types, multiple values and cale
     "Formatted notes survive typed storage",
   );
   await dialog.getByRole("tab", { name: "Overview", exact: true }).click();
-  await expect(dialog.getByRole("textbox", { name: "Email addresses", exact: true })).toHaveValue(
-    "one@example.test\ntwo@example.test",
-  );
+  for (const email of ["one@example.test", "two@example.test"])
+    await expect(row("Contact details").getByRole("link", { name: email, exact: true })).toHaveAttribute("href", `mailto:${email}`);
   await expect(row("Enabled").getByRole("switch")).toBeChecked();
   await expect(dialog.getByRole("combobox", { name: "Choice", exact: true })).toContainText("Accepted");
   await page.screenshot({

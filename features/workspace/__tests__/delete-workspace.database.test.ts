@@ -352,6 +352,89 @@ describeDatabase("deleting a workspace on PostgreSQL", { timeout: 240_000 }, () 
     expect((await login(colleague.id)).companyId).toBe(home.companyId);
   });
 
+  async function populateFilesAndViews(companyId: string, ownerUserId: string) {
+    const files = { chat: randomUUID(), field: randomUUID() };
+    const keys = { chat: `${companyId}/${files.chat}/synthetic`, field: `${companyId}/${files.field}/synthetic` };
+    await client.query(
+      'INSERT INTO "RecordFile" ("id", "companyId", "conversationId", "storageDriver", "storageKey", "name", "mimeType", "size", "uploadedById") VALUES ($1, $2, $3, \'blob\', $4, \'chat.txt\', \'text/plain\', 4, $5)',
+      [files.chat, companyId, randomUUID(), keys.chat, ownerUserId],
+    );
+    await client.query(
+      'INSERT INTO "RecordFile" ("id", "companyId", "typeId", "fieldId", "recordId", "storageDriver", "storageKey", "name", "mimeType", "size", "status", "extractionStatus", "extractedText", "attachedAt") VALUES ($1, $2, $3, $4, $5, \'database\', $6, \'offer.txt\', \'text/plain\', 4, \'ready\', \'done\', \'offer\', CURRENT_TIMESTAMP)',
+      [files.field, companyId, randomUUID(), randomUUID(), randomUUID(), keys.field],
+    );
+    await client.query(
+      'INSERT INTO "RecordFileContent" ("fileKey", "part", "companyId", "data") VALUES ($1, 0, $2, \'\\x6f666572\'::bytea)',
+      [keys.field, companyId],
+    );
+    await client.query(
+      'INSERT INTO "RecordFileChunk" ("id", "companyId", "fileId", "ordinal", "offset", "text", "contentHash") VALUES ($1, $2, $3, 0, 0, \'offer\', \'synthetic\')',
+      [randomUUID(), companyId, files.field],
+    );
+    for (const [kind, column] of [
+      ["calendar", "calendarQuery"],
+      ["map", "mapQuery"],
+    ] as const) {
+      await client.query(
+        `INSERT INTO "Widget" ("id", "userId", "companyId", "name", "kind", "${column}", "updatedAt") VALUES ($1, $2, $3, $4, $5::"WidgetKind", '{}'::jsonb, CURRENT_TIMESTAMP)`,
+        [randomUUID(), ownerUserId, companyId, `Synthetic ${kind}`, kind],
+      );
+    }
+    await client.query(
+      'INSERT INTO "DataView" ("id", "companyId", "userId", "surfaceKey", "name", "viewMode", "calendar", "updatedAt") VALUES ($1, $2, $3, \'records:synthetic\', \'Calendar\', \'calendar\', \'{}\'::jsonb, CURRENT_TIMESTAMP)',
+      [randomUUID(), companyId, ownerUserId],
+    );
+    return keys;
+  }
+
+  it("removes record files, chat files, file text, calendar and map views and their stored bytes, but keeps the shared postal codes", async () => {
+    const creator = await createLogin("creator");
+    const doomed = await createWorkspace({ name: "Doomed files", createdBy: creator, admins: [creator] });
+    await open(creator, doomed.companyId);
+    const ownerUserId = doomed.users.get(creator.id) ?? "";
+    await populateFilesAndViews(doomed.companyId, ownerUserId);
+    const country = `x${String.fromCharCode(97 + Math.floor(Math.random() * 26))}`;
+    await client.query(
+      'INSERT INTO "PostalCodeCountry" ("countryCode", "status", "version", "rowCount", "attemptedAt") VALUES ($1, \'ready\', \'synthetic\', 1, CURRENT_TIMESTAMP) ON CONFLICT DO NOTHING',
+      [country],
+    );
+    await client.query(
+      'INSERT INTO "PostalCode" ("countryCode", "postalKey", "ordinal", "postalCode", "latitude", "longitude") VALUES ($1, \'10115\', 0, \'10115\', 52.53, 13.38) ON CONFLICT DO NOTHING',
+      [country],
+    );
+    const { BackgroundTaskService } = await import("@/core/utils/background-task.service");
+    const dispatch = vi.spyOn(BackgroundTaskService.prototype, "dispatch").mockResolvedValue(undefined);
+    const before = await companyScopedCounts(doomed.companyId);
+    expect(before).toMatchObject({ RecordFile: 2, RecordFileContent: 1, RecordFileChunk: 1, Widget: 2 });
+    expect(before.DataView).toBeGreaterThan(0);
+
+    expect(await remove(creator, doomed.companyId)).toMatchObject({ ok: true });
+
+    const after = await companyScopedCounts(doomed.companyId);
+    expect(
+      Object.entries(after).filter(
+        ([model, count]) => count > 0 && model !== "BillingUsageInterval" && model !== "BillingUsageWorkspace",
+      ),
+    ).toEqual([]);
+    expect(dispatch).toHaveBeenCalledWith("purge-company-files", { companyId: doomed.companyId });
+    const postalCodes = await client.query('SELECT 1 FROM "PostalCode" WHERE "countryCode" = $1', [country]);
+    expect(postalCodes.rowCount).toBe(1);
+    await client.query('DELETE FROM "PostalCode" WHERE "countryCode" = $1', [country]);
+    await client.query('DELETE FROM "PostalCodeCountry" WHERE "countryCode" = $1', [country]);
+  });
+
+  it("finishes the delete when the stored-file cleanup cannot be started", async () => {
+    const creator = await createLogin("creator");
+    const doomed = await createWorkspace({ name: "Doomed cleanup", createdBy: creator, admins: [creator] });
+    await open(creator, doomed.companyId);
+    await populateFilesAndViews(doomed.companyId, doomed.users.get(creator.id) ?? "");
+    const { BackgroundTaskService } = await import("@/core/utils/background-task.service");
+    vi.spyOn(BackgroundTaskService.prototype, "dispatch").mockRejectedValue(new Error("workflow queue unavailable"));
+
+    expect(await remove(creator, doomed.companyId)).toMatchObject({ ok: true });
+    expect(await exists(doomed.companyId)).toBe(false);
+  });
+
   it("shows a member's open tab the workspace-changed notice and opens their other workspace on reload", async () => {
     const creator = await createLogin("creator");
     const colleague = await createLogin("colleague");

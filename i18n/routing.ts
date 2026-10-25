@@ -94,6 +94,7 @@ export const PROTECTED_ROUTES = [
   "/operator/usage",
   "/operator/users",
   "/operator/workspaces",
+  "/w/:workspace/calendar",
   "/w/:workspace/configure",
   "/w/:workspace/dashboard",
   "/w/:workspace/inbox",

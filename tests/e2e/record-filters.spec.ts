@@ -52,8 +52,8 @@ test("restores relationship, assignment and date filters with labels after reloa
   await expect(page.getByRole("heading", { name: "Filters", exact: true })).not.toBeVisible();
   await expect(recordItem(page, "Linked opportunity")).toBeVisible();
   await expect(recordItem(page, "Unlinked opportunity")).toHaveCount(0);
-  const unsavedWithoutView = page.locator("#global-data-views-menu[data-view-modified]");
-  await expect(page.locator("#global-data-views-menu")).toHaveAttribute("data-view-modified", "");
+  const unsavedWithoutView = page.locator("#global-data-views [data-view-modified]");
+  await expect(page.locator("#global-data-views-all")).toHaveAttribute("data-view-modified", "");
   await page.locator("#records-filter").click();
   await page.locator("#records-filter-save").click();
   await page.keyboard.press("Escape");

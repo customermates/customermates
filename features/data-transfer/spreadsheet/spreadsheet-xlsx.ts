@@ -3,11 +3,9 @@ import ExcelJS from "exceljs";
 import type { SpreadsheetCell } from "./spreadsheet.schema";
 import type { RawSpreadsheetRow } from "./spreadsheet-table";
 
-import { SPREADSHEET_MAX_COLUMNS, SPREADSHEET_MAX_ROWS, SPREADSHEET_MAX_SHEETS } from "./spreadsheet.schema";
+import { zipEntries } from "@/core/utils/zip";
 
-const END_OF_CENTRAL_DIRECTORY = 0x06054b50;
-const CENTRAL_DIRECTORY_ENTRY = 0x02014b50;
-const ZIP64_MARKER = 0xffffffff;
+import { SPREADSHEET_MAX_COLUMNS, SPREADSHEET_MAX_ROWS, SPREADSHEET_MAX_SHEETS } from "./spreadsheet.schema";
 
 type ZipInventory = { entries: string[]; unpackedBytes: number };
 
@@ -20,33 +18,13 @@ export function isLegacyWorkbook(bytes: Uint8Array): boolean {
 }
 
 export function inspectZip(bytes: Uint8Array): ZipInventory | null {
-  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-  let end = -1;
-  for (let index = bytes.length - 22; index >= Math.max(0, bytes.length - 22 - 65535); index -= 1) {
-    if (view.getUint32(index, true) === END_OF_CENTRAL_DIRECTORY) {
-      end = index;
-      break;
-    }
-  }
-  if (end < 0) return null;
-  const count = view.getUint16(end + 10, true);
-  let offset = view.getUint32(end + 16, true);
-  const entries: string[] = [];
-  let unpackedBytes = 0;
-  const decoder = new TextDecoder("utf-8");
-  for (let entry = 0; entry < count; entry += 1) {
-    if (offset + 46 > bytes.length || view.getUint32(offset, true) !== CENTRAL_DIRECTORY_ENTRY) return null;
-    const unpacked = view.getUint32(offset + 24, true);
-    if (unpacked === ZIP64_MARKER) return null;
-    const nameLength = view.getUint16(offset + 28, true);
-    const extraLength = view.getUint16(offset + 30, true);
-    const commentLength = view.getUint16(offset + 32, true);
-    if (offset + 46 + nameLength > bytes.length) return null;
-    entries.push(decoder.decode(bytes.subarray(offset + 46, offset + 46 + nameLength)));
-    unpackedBytes += unpacked;
-    offset += 46 + nameLength + extraLength + commentLength;
-  }
-  return { entries, unpackedBytes };
+  const entries = zipEntries(bytes);
+  return entries
+    ? {
+        entries: entries.map((entry) => entry.name),
+        unpackedBytes: entries.reduce((sum, entry) => sum + entry.size, 0),
+      }
+    : null;
 }
 
 export function hasMacros(inventory: ZipInventory): boolean {

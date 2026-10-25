@@ -42,13 +42,13 @@ comparison:
         source: Stage field with probabilities from sign-up, weighted value per deal
         competitor: Build with a Status or Select property and a formula
       - name: Field types
-        source: 15 field types, plus calculated fields
+        source: 16 field types, plus calculated fields
         competitor: More than 20 property types, including formula, rollup and multi-select
       - name: Your own record types
         source: Your own lists, with fields and relationships
         competitor: Any database you create
       - name: Files on records
-        source: false
+        source: File fields, up to 20 files per field and 25 MB per file
         competitor: Files property; 5 MB per file on Free
   - title: Conversations
     features:
@@ -165,7 +165,6 @@ Customermates is an open-source, AI-native CRM for small client-facing teams: co
 ## Where Customermates is the wrong choice
 
 - **No docs or wiki.** Each record has one rich-text notes field that can hold images and tables. Proposals and handbooks stay in Notion.
-- **No files on records.** Attachments exist only inside inbox conversations; put a file's address in a Web address field.
 - **No reminders and no task due dates.** Add a Date field and sort a saved view by it, or let a routine check it.
 - **No native mobile apps, no SSO, no shared views and no free plan.** Customermates runs in the phone's browser, saved views are personal, and a [[commercial.trial.days]]-day trial leads to a paid plan.
 
@@ -184,7 +183,7 @@ The consultancy's Notion CRM has three databases, Clients, Contacts and Deals, w
 | Next step (Date) | A Date field, plus a saved view sorted by it |
 | Weighted value (Formula) | The built-in weighted value |
 | Pipeline per client (Rollup) | A dashboard chart summing deal value, grouped by organization |
-| Proposal PDF (Files) | A Web address field pointing to the file |
+| Proposal PDF (Files) | A File field; upload the PDFs after the import |
 | Page body with meeting notes | The record's notes |
 
 Each consultant saves a board of their own deals grouped by stage, and the founder keeps a table grouped by assigned user. On Pro, each person connects the mailbox or WhatsApp account clients use, at [[commercial.price.pro.monthly.seats.4]] a month for the team. One routine per person replaces the Monday filter they used in Notion. It runs as its owner in Customermates Cloud and uses hosted AI credits:
@@ -197,7 +196,7 @@ Each consultant saves a board of their own deals grouped by stage, and the found
   <Step title="Export each database">In Notion, open the database's ••• menu, choose Export and pick Markdown & CSV. A full-page database comes out as one table file plus a Markdown file for every page.</Step>
   <Step title="Save it as a workbook">Customermates does not read CSV, so open the file in Excel, Numbers or LibreOffice and save it as .xlsx. Split names into first and last name, because new contacts need both.</Step>
   <Step title="Prepare the workspace">Rename lists in Configure, adjust the Stage options and probabilities, and add the fields from the table above.</Step>
-  <Step title="Import one list at a time">Under More actions, choose Add from file: organizations first, then contacts, services and deals. Link columns match records by name, ignoring case. Map email addresses and WhatsApp numbers to the contact's channels. The [records guide](/docs/app-records) lists the file limits.</Step>
+  <Step title="Import one list at a time">Under More actions, choose Add from file: organizations first, then contacts, services and deals. Link columns match records by name, ignoring case. Map email addresses and phone numbers to the contact's Contact details field. The [records guide](/docs/app-records) lists the file limits.</Step>
   <Step title="Bring over notes and views">Meeting notes are in the Markdown files, not the table. Paste the ones you need into each record's notes, or have an AI client write them over MCP. Then rebuild your views; each person saves their own.</Step>
 </Steps>
 

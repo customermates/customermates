@@ -26,8 +26,8 @@ import { composeEmailBodies } from "@/ee/messaging/outbound/email-signature";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
+import { formatBytes } from "@/core/utils/format-bytes";
 
-import { formatBytes } from "./attachment-classify";
 import { MAX_ATTACHMENTS_BYTES, toAttachmentInput } from "./attachment-input";
 
 export type NewThreadTarget = {

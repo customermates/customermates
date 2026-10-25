@@ -1551,12 +1551,12 @@ export default defineSolution<Strings>({
       const phone = facts.mobile ? mobile(facts.mobile) : office(index);
       return {
         key,
-        values: { firstName, lastName, jobTitle, role: facts.role, phone },
+        values: { firstName, lastName, jobTitle, role: facts.role },
         links: { "contact.organizations": facts.organization },
         owner: manager(facts.organization),
         channels: {
           email: `${mailbox(firstName)}.${mailbox(lastName)}@${domain}`,
-          ...(facts.whatsapp ? { phone } : {}),
+          phone,
         },
         ...(facts.avatar ? { avatar: photo(facts.avatar) } : {}),
         createdDaysAgo: facts.createdDaysAgo,
@@ -1698,7 +1698,6 @@ export default defineSolution<Strings>({
           type: "select",
           options: label(t.options.role, { officeManager: "info", purchasing: "warning", management: "success" }),
         },
-        { key: "contact.phone", label: t.fields.phone, type: "phone" },
         {
           key: "contract.service",
           label: t.fields.service,
@@ -1812,7 +1811,7 @@ export default defineSolution<Strings>({
           list: "contact",
           name: t.views.allContacts,
           mode: "table",
-          columns: ["jobTitle", "role", "contact.organizations", "phone", "capability.identity"],
+          columns: ["jobTitle", "role", "contact.organizations", "capability.identity"],
         },
         {
           key: "dueSoon",

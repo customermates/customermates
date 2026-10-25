@@ -35,7 +35,7 @@ async function createList(page: Page, name: string) {
   return typeId;
 }
 
-test("adds Channels as a field, keeps its settings, deletes, restores and permanently deletes it", async ({
+test("adds contact details as a field, keeps its settings, deletes, restores and permanently deletes it", async ({
   page,
   database,
   companyId,
@@ -55,18 +55,20 @@ test("adds Channels as a field, keeps its settings, deletes, restores and perman
   await expect(page).toHaveURL(companyUrlPattern(companyId, "/configure$"));
   await expect(
     page.locator(`[data-configure-graph-field="${presetId(companyId, "capability.identity")}"]`),
-  ).toContainText("Channels");
+  ).toContainText("Contact details");
   await page.locator("[data-configure-graph]").getByRole("button", { name: "Contacts", exact: true }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Contacts", exact: true })).toBeVisible();
   const general = page.getByRole("region", { name: "General", exact: true });
   await expect(general.getByRole("switch", { name: "Enable channels", exact: true })).toHaveCount(0);
-  await expect(general.getByRole("switch", { name: "Use channel profile picture", exact: true })).toHaveCount(0);
+  await expect(general.getByRole("switch", { name: "Use a social profile's picture", exact: true })).toHaveCount(0);
   const before = await channelsOf(contactTypeId);
   expect(before).toMatchObject({ valueType: "channels", archived: false, format: { providerAvatar: true } });
-  await openConfigureRow(page, "Fields", "Channels");
-  await expect(dialog.getByRole("combobox", { name: "Value type", exact: true })).toContainText("Channels");
+  await openConfigureRow(page, "Fields", "Contact details");
+  await expect(dialog.getByRole("combobox", { name: "Value type", exact: true })).toContainText(
+    "Phone, email & social",
+  );
   await expect(dialog.getByRole("combobox", { name: "Value type", exact: true })).toBeDisabled();
-  await dialog.getByRole("switch", { name: "Use channel profile picture", exact: true }).uncheck();
+  await dialog.getByRole("switch", { name: "Use a social profile's picture", exact: true }).uncheck();
   await saveDrawer(page);
   expect(await channelsOf(contactTypeId)).toMatchObject({ ...before, format: { providerAvatar: false } });
 
@@ -74,48 +76,48 @@ test("adds Channels as a field, keeps its settings, deletes, restores and perman
   expect(await channelsOf(customTypeId)).toBeUndefined();
   await addChannelsField(page, customTypeId);
   expect(await channelsOf(customTypeId)).toMatchObject({
-    label: "Channels",
+    label: "Contact details",
     valueType: "channels",
     archived: false,
     format: { onClick: "open", providerAvatar: false },
   });
   await configureTopBar(page).getByRole("button", { name: "Add", exact: true }).click();
   await expect(page.getByRole("menuitem", { name: "Relationship", exact: true })).toBeVisible();
-  await expect(page.getByRole("menuitem", { name: "Channels", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("menuitem", { name: "Contact details", exact: true })).toHaveCount(0);
   await page.keyboard.press("Escape");
 
   await openConfigureTab(page, "Fields");
-  await openConfigureRow(page, "Fields", "Channels");
+  await openConfigureRow(page, "Fields", "Contact details");
   await dialog.getByRole("button", { name: "Delete field", exact: true }).click();
-  await expect(confirmation).toContainText("Delete Channels?");
+  await expect(confirmation).toContainText("Delete Contact details?");
   await confirmation.getByRole("button", { name: "Delete", exact: true }).click();
   await expect(dialog).not.toBeVisible();
   await expect.poll(async () => (await channelsOf(customTypeId))?.archived).toBe(true);
-  await expect(configureRow(page, "Fields", "Channels")).toHaveCount(0);
+  await expect(configureRow(page, "Fields", "Contact details")).toHaveCount(0);
   await openRecordList(page, customTypeId);
   await page.locator("#records-add").click();
-  await expect(dialog.getByRole("combobox", { name: "Add channel", exact: true })).toHaveCount(0);
+  await expect(dialog.getByRole("combobox", { name: "Add phone, email or profile", exact: true })).toHaveCount(0);
   await page.keyboard.press("Escape");
   await expect(dialog).not.toBeVisible();
 
-  await restoreFromTrash(page, "Channels");
+  await restoreFromTrash(page, "Contact details");
   await expect.poll(async () => (await channelsOf(customTypeId))?.archived).toBe(false);
   await openRecordList(page, customTypeId);
   await page.locator("#records-add").click();
-  await expect(dialog.getByRole("combobox", { name: "Add channel", exact: true })).toBeVisible();
+  await expect(dialog.getByRole("combobox", { name: "Add phone, email or profile", exact: true })).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(dialog).not.toBeVisible();
 
   await followConfigureLink(page);
   await openConfigureTab(page, "Fields");
-  await openConfigureRow(page, "Fields", "Channels");
+  await openConfigureRow(page, "Fields", "Contact details");
   await deleteFromDrawer(page, "Delete field");
   await expect.poll(async () => (await channelsOf(customTypeId))?.archived).toBe(true);
-  await deleteFromTrashPermanently(page, "Channels");
+  await deleteFromTrashPermanently(page, "Contact details");
   await expect.poll(async () => channelsOf(customTypeId)).toBeUndefined();
   await openConfigure(page, customTypeId);
   await openConfigureTab(page, "Fields");
-  await expect(configureRow(page, "Fields", "Channels")).toHaveCount(0);
+  await expect(configureRow(page, "Fields", "Contact details")).toHaveCount(0);
   await page.screenshot({ path: testInfo.outputPath("channels-field-deleted.png"), animations: "disabled" });
   expect(errors).toEqual([]);
 });

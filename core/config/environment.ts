@@ -60,12 +60,58 @@ export function resolveOptionalBigInt(name: string, value: string | undefined): 
   return BigInt(normalized);
 }
 
+export type FileStorageDriverName = "database" | "s3" | "vercel-blob";
+
+export function resolveFileStorageDriver(value: string | undefined): FileStorageDriverName {
+  const normalized = value?.trim();
+  if (!normalized) return "database";
+  if (normalized !== "database" && normalized !== "s3" && normalized !== "vercel-blob")
+    throw new Error("FILE_STORAGE_DRIVER must be database, s3, or vercel-blob");
+  return normalized;
+}
+
+export function resolvePositiveInteger(name: string, value: string | undefined, fallback: number): number {
+  const normalized = value?.trim();
+  if (!normalized) return fallback;
+  if (!/^[1-9]\d*$/u.test(normalized) || !Number.isSafeInteger(Number(normalized)))
+    throw new Error(`${name} must be configured as a positive whole number`);
+  return Number(normalized);
+}
+
+export function resolveOptionalHttpUrl(name: string, value: string | undefined): string | undefined {
+  const normalized = value?.trim();
+  if (!normalized) return undefined;
+  let url: URL;
+  try {
+    url = new URL(normalized);
+  } catch {
+    throw new Error(`${name} must be a valid URL`);
+  }
+  if (url.protocol !== "http:" && url.protocol !== "https:") throw new Error(`${name} must use http or https`);
+  return normalized.replace(/\/+$/u, "");
+}
+
+const DEFAULT_POSTAL_CODE_DATA_URL = "https://download.geonames.org/export/zip";
+
+export function resolvePostalCodeDataUrl(value: string | undefined): string | null {
+  const normalized = value?.trim();
+  if (!normalized) return DEFAULT_POSTAL_CODE_DATA_URL;
+  if (normalized.toLowerCase() === "off") return null;
+  return resolveOptionalHttpUrl("POSTAL_CODE_DATA_URL", normalized) ?? null;
+}
+
 export function resolveAppMode(source: Environment): AppMode {
   const appMode = source.APP_MODE?.trim();
   if (!appMode) throw new Error("APP_MODE must be configured as self-hosted, cloud, or demo");
   if (appMode !== "self-hosted" && appMode !== "cloud" && appMode !== "demo")
     throw new Error("APP_MODE must be self-hosted, cloud, or demo");
   return appMode;
+}
+
+export function frameAncestorsPolicy(appMode: AppMode): string {
+  return appMode === "demo"
+    ? "frame-ancestors 'self' https://customermates.com https://*.customermates.com"
+    : "frame-ancestors 'self'";
 }
 
 export function normalizeBaseUrl(rawValue: string, variableName = "BASE_URL"): string {

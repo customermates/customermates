@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PlannerConfigSchema, PLANNER_P13N_ID } from "@/features/planner/planner.schema";
 
 import { KEYBOARD_P13N_ID, KeyboardPreferencesSchema } from "./keyboard-preferences.schema";
 import { SIDEBAR_P13N_ID, SidebarLayoutSchema } from "./sidebar-layout.schema";
@@ -23,6 +24,7 @@ const ConfigureGraphLayoutSchema = z
 export type ConfigureGraphLayout = z.infer<typeof ConfigureGraphLayoutSchema>;
 
 const P13N_SETTINGS_SCHEMAS = {
+  [PLANNER_P13N_ID]: PlannerConfigSchema,
   [SIDEBAR_P13N_ID]: SidebarLayoutSchema,
   [CONFIGURE_GRAPH_P13N_ID]: ConfigureGraphLayoutSchema,
   [KEYBOARD_P13N_ID]: KeyboardPreferencesSchema,
@@ -33,6 +35,7 @@ type P13nSettingsId = keyof typeof P13N_SETTINGS_SCHEMAS;
 type P13nSettingsOf<Id extends P13nSettingsId> = z.infer<(typeof P13N_SETTINGS_SCHEMAS)[Id]>;
 
 export const P13nSettingsSchema = z.union([
+  PlannerConfigSchema,
   SidebarLayoutSchema,
   ConfigureGraphLayoutSchema,
   KeyboardPreferencesSchema,

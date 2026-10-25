@@ -8,6 +8,10 @@ describe("contact targets", () => {
     expect(contactHref("phone", "+49 (151) 123-45678")).toBe("tel:+4915112345678");
     expect(contactHref("url", "https://example.test/path?q=1#top")).toBe("https://example.test/path?q=1#top");
     expect(contactHref("url", "example.test")).toBe("https://example.test");
+    expect(contactHref("address", " Hauptstraße 5, 68159 Mannheim, Germany ")).toBe(
+      "https://www.openstreetmap.org/search?query=Hauptstra%C3%9Fe+5%2C+68159+Mannheim%2C+Germany",
+    );
+    expect(contactHref("address", "  ")).toBeNull();
   });
 
   it("never build a target from an unsafe or malformed value", () => {

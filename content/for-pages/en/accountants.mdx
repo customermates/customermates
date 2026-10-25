@@ -44,8 +44,8 @@ Accounting firms looking for a CRM often need two different things. Practice man
     using hosted AI credits. Or connect your own AI client through MCP.
   </SummaryItem>
   <SummaryItem label="Not included">
-    No deadline reminders, time tracking, billing, e-signatures, client portal
-    or file storage on records.
+    No deadline reminders, time tracking, billing, e-signatures or client
+    portal.
   </SummaryItem>
 </ArticleSummary>
 
@@ -65,7 +65,7 @@ A new workspace starts without lists: you create the lists you need (contacts, o
 |---|---|---|
 | Organizations | Client businesses and households | Entity type (Single choice: Individual, Sole proprietor, Partnership, S corp, C corp, Nonprofit), Fiscal year end (Date) |
 | Contacts | People at the client | Role (Single choice: Owner, Bookkeeper, Spouse, Referral source), Referred by |
-| Deals | Each engagement and each cycle, for example "Miller LLC: 2026 return" | Stage, Engagement type, Documents (Single choice: Complete, Partial, Missing), Documents requested on, Filing due (Date), Engagement letter (Web address) |
+| Deals | Each engagement and each cycle, for example "Miller LLC: 2026 return" | Stage, Engagement type, Documents (Single choice: Complete, Partial, Missing), Documents requested on, Filing due (Date), Engagement letter (File) |
 | Services | What you sell, each with a price | Monthly bookkeeping, Payroll, Individual return, Business return, Advisory hour |
 | Tasks | Next steps for a person | A "Due on" date field you add, because tasks have no built-in due date |
 
@@ -116,8 +116,8 @@ For next year's cycle you can ask Mate in the chat: "Create a new deal for every
 ## What Customermates does not do for accountants
 
 - **No deadline control.** Tasks have no due dates, reminders or notifications. A Filing due field and a sorted view show what is coming; binding deadline tracking belongs in your practice or tax software.
-- No time tracking, billing, proposals or e-signatures. Store the link to the signed engagement letter on the deal.
-- No client portal and no file storage on records.
+- No time tracking, billing, proposals or e-signatures. Add the signed engagement letter to a File field on the deal.
+- No client portal.
 - No recurring engagements created on a schedule by the CRM itself; use Mate, an MCP client, or the REST API with an n8n workflow you run separately.
 - No native QuickBooks or Xero integration. Connect them through the [REST API and webhooks](/features/workflow-automation).
 - No mobile app.
@@ -192,7 +192,7 @@ Usually in practice management or tax software that keeps the deadline list. A C
 </FaqItem>
 
 <FaqItem question="Can Customermates handle engagement letters?">
-It tracks them. Use a stage for Engagement letter signed, a date field for when you sent it and a web address field for the signed file. Writing, sending and signing the letter happens in a tool such as Ignition or your practice software.
+It tracks them. Use a stage for Engagement letter signed, a date field for when you sent it and a File field for the signed letter. Writing, sending and signing the letter happens in a tool such as Ignition or your practice software.
 </FaqItem>
 
 <FaqItem question="Does a small accounting firm need a CRM?">

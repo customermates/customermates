@@ -779,6 +779,24 @@ describe("agent saved-view management", () => {
     expect(subject.save.invoke).toHaveBeenCalledTimes(1);
   });
 
+  it("saves filters and a search on All like on any other view", async () => {
+    const subject = setup();
+    const filters = [{ field: "name", operator: FilterOperatorKey.contains as const, value: "ada" }];
+    const result = await subject.run({
+      action: "update",
+      surfaceKey: SURFACE.users,
+      viewKey: ALL_VIEW_KEY,
+      state: { filters, searchTerm: "ada" },
+    });
+
+    expect(result.ok).toBe(true);
+    expect(subject.save.invoke).toHaveBeenCalledWith({
+      surfaceKey: SURFACE.users,
+      viewKey: ALL_VIEW_KEY,
+      state: expect.objectContaining({ filters, searchTerm: "ada" }),
+    });
+  });
+
   it("returns the post-transaction All state instead of rebuilding it from the earlier surface read", async () => {
     const subject = setup();
     subject.save.invoke.mockResolvedValueOnce({
@@ -948,6 +966,40 @@ describe("agent saved-view management", () => {
     });
     expect(recordViews.unsupportedGrouping).toHaveBeenCalledWith(surfaceKey, { field: roleId });
     expect(subject.upsert.invoke).not.toHaveBeenCalled();
+  });
+
+  it("lists linked-record filters for record views with how to fill them", async () => {
+    const typeId = "10000000-0000-4000-8000-000000000001";
+    const relationId = "30000000-0000-4000-8000-000000000001";
+    const recordViews = {
+      list: vi.fn().mockResolvedValue([]),
+      describe: vi.fn().mockResolvedValue({
+        type: { id: typeId, pluralLabel: "Bookings", relationshipPaths: [] },
+        fields: [],
+        relationships: [
+          {
+            id: relationId,
+            sourceTypeId: typeId,
+            targetTypeId: "10000000-0000-4000-8000-000000000002",
+            sourceLabel: "Provider",
+            targetLabel: "Bookings",
+            archived: false,
+          },
+        ],
+        columns: [],
+      }),
+      validate: vi.fn().mockResolvedValue(null),
+    };
+    const subject = setup(recordViews);
+    const result = await subject.run({ action: "config", surfaceKey: `records:${typeId}`, section: "filters" });
+    expect(result.ok && result.data.items).toContainEqual(
+      expect.objectContaining({
+        field: `relationship:${relationId}:outgoing`,
+        label: "Provider",
+        operators: expect.arrayContaining(["in", "notIn"]),
+        description: expect.stringContaining("linked record ids"),
+      }),
+    );
   });
 
   it("reads record views with the filter values of deleted options left out", async () => {

@@ -37,7 +37,9 @@ import type { WidgetDisplayRequirement } from "@/features/widget/widget-display-
 import { widgetDisplayTypeIssue } from "@/features/widget/widget-display-rules";
 
 import { runUserAction } from "@/core/errors/report-application-error";
-import { isRecordWidgetForm } from "./record-widget-form";
+import { isRecordCalendarWidgetForm, isRecordWidgetForm } from "./record-widget-form";
+import { RecordCalendarWidgetEditor } from "./record-calendar-widget-editor";
+import { RecordMapWidgetEditor } from "./record-map-widget-editor";
 import { RecordWidgetEditor } from "./record-widget-editor";
 import { WidgetDisplayTypePicker } from "./widget-display-type-picker";
 import { WIDGET_EDITOR_GRID_CLASS } from "./widget-editor-layout";
@@ -71,6 +73,11 @@ export const WidgetModal = observer(() => {
   const { widgetModalStore } = useRootStore();
   const { showTrashConfirmation } = useDeleteConfirmation();
   const { form, canManage, isDisabled, companyWideWidgets } = widgetModalStore;
+  const saveWidget = () => {
+    const active = document.activeElement;
+    if (active instanceof HTMLElement && active.closest("[data-widget-editor]")) active.blur();
+    return widgetModalStore.onSubmit();
+  };
   const askAction = useRecordAiAction({
     context: { reference: { kind: "widget", widgetId: form.id ?? "" }, label: form.name },
     active: widgetModalStore.isOpen && Boolean(form.id),
@@ -143,7 +150,9 @@ export const WidgetModal = observer(() => {
   function goBackToKindStep() {
     const selectedCard = isRecordWidgetForm(form)
       ? `widget-starter-${form.displayOptions.displayType}`
-      : `widget-kind-${form.kind}`;
+      : isRecordCalendarWidgetForm(form)
+        ? `widget-kind-calendar-${form.calendarQuery.layout}`
+        : `widget-kind-${form.kind}`;
     widgetModalStore.setCreationStep("choose");
     requestAnimationFrame(() => document.getElementById(selectedCard)?.focus());
   }
@@ -160,6 +169,26 @@ export const WidgetModal = observer(() => {
       </section>
     );
     const nameField = <FormInput id="name" label={t("Common.inputs.name")} />;
+    if (form.kind === WidgetKind.calendar) {
+      return (
+        <RecordCalendarWidgetEditor
+          appearance={appearance}
+          section="all"
+          settingsHeader={nameField}
+          store={widgetModalStore}
+        />
+      );
+    }
+    if (form.kind === WidgetKind.map) {
+      return (
+        <RecordMapWidgetEditor
+          appearance={appearance}
+          section="all"
+          settingsHeader={nameField}
+          store={widgetModalStore}
+        />
+      );
+    }
     return form.kind === WidgetKind.chart ? (
       <RecordWidgetEditor appearance={appearance} section="all" settingsHeader={nameField} store={widgetModalStore} />
     ) : (
@@ -319,7 +348,9 @@ export const WidgetModal = observer(() => {
           label={
             form.kind === WidgetKind.chart
               ? t("Dashboard.widgetEditor.appearance.showMetricAndFilters")
-              : t("Dashboard.widgetEditor.appearance.showFilters")
+              : form.kind === WidgetKind.activityTimeline
+                ? t("Dashboard.widgetEditor.appearance.showFilters")
+                : t("Dashboard.widgetEditor.appearance.showSourceAndFilters")
           }
         />
 
@@ -340,7 +371,7 @@ export const WidgetModal = observer(() => {
       store={widgetModalStore}
       title={dialogTitle}
     >
-      <AppForm store={widgetModalStore}>
+      <AppForm store={widgetModalStore} onSubmit={saveWidget}>
         <AppCard className="relative">
           <AppCardHeader>
             <h2 className="min-w-0 break-words text-base font-semibold">{dialogTitle}</h2>
@@ -360,10 +391,10 @@ export const WidgetModal = observer(() => {
                   availableKinds={widgetModalStore.availableKinds}
                   disabled={isDisabled}
                   templates={companyWideWidgets}
-                  onSelectKind={(kind, displayType) =>
+                  onSelectKind={(kind, choice) =>
                     widgetModalStore.startFromKind(kind, {
                       activityName: t("Dashboard.activityWidget.title"),
-                      displayType,
+                      ...choice,
                     })
                   }
                   onSelectTemplate={(id) => runUserAction(() => widgetModalStore.loadTemplate(id))}
@@ -379,7 +410,7 @@ export const WidgetModal = observer(() => {
               anchorScope="widget-modal"
               creating={isCreate}
               store={widgetModalStore}
-              onSave={widgetModalStore.onSubmit}
+              onSave={saveWidget}
             />
           )}
         </AppCard>

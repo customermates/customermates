@@ -53,6 +53,7 @@ The REST API works on every list of the CRM. A new workspace starts without list
 | Create, update, delete, link or unlink | `POST /api/v1/records/mutate` |
 | Update or delete up to 100 records | `POST /api/v1/records/mutate` with `updateMany` or `deleteMany` |
 | Export a list, or import up to 100 records | `POST /api/v1/records/export` or `POST /api/v1/records/import` |
+| Upload a file into a File field | `POST /api/v1/files/uploads`, then `POST /api/v1/records/mutate` |
 | Sum or count a field, such as pipeline value | `POST /api/v1/reports/query` |
 
 A record is addressed by a reference, `{ "typeId": "...", "recordId": "..." }`, not by its URL. The base URL is the address you open Customermates at, in the cloud and on your own server. Further routes cover users (`/api/v1/users/me`, `/api/v1/users/search`), webhooks, and the inbox: threads, drafts, sending email and chat messages, activities and read-only calendars.
@@ -106,7 +107,6 @@ Mate, the assistant inside Customermates Cloud, is a separate feature. It runs o
 
 - **No PUT or PATCH on records.** Every record change is a `POST` to `/api/v1/records/mutate`.
 - **No OR across filter rules.** Filter rules combine with AND. For OR, run two queries or use the `in` operator on one field.
-- **No file uploads to records.** Records have no file attachments; notes hold rich text.
 - **No published request quota.** A busy workspace answers `429` with a `Retry-After` header. Split bulk jobs into batches of 100.
 - **No CSV export endpoint and no whole-account export.** The app imports and exports XLSX and JSON, one list at a time. Anything larger runs through your own API script.
 - **No inbox and no Mate when self-hosted.** The REST record routes, webhooks and MCP work there; the messaging routes need Customermates Cloud on Pro or higher.

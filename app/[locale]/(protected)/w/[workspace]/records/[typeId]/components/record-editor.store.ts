@@ -7,6 +7,7 @@ import type {
   RecordDto,
   RecordFieldView,
   RecordScalar,
+  RecordScalarInput,
   RecordRef,
   CalculatedValue,
 } from "@/features/records/record-model.schema";
@@ -18,7 +19,12 @@ import type { RecordIdentityInput } from "@/features/records/record-identity.sch
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { rebaseModelChangeDraft } from "@/app/[locale]/(protected)/w/[workspace]/configure/components/model-change-rebase";
-import { isRecordFieldWritable, recordDraftValue, recordInputValue } from "@/features/records/record-input-value";
+import {
+  isRecordFieldWritable,
+  recordDraftValue,
+  recordInputValue,
+  recordWriteValue,
+} from "@/features/records/record-input-value";
 import { recordChannelsEnabled } from "@/features/records/record-channels";
 import { RecordScalarSchema } from "@/features/records/record-model.schema";
 import { recordFieldErrors, recordValuesErrorTree } from "@/features/records/record-mutation-failure";
@@ -237,6 +243,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
                 : !record && field.behavior.kind === "input"
                   ? (seed[field.id] ?? field.behavior.defaultValue ?? null)
                   : null,
+              field,
             ),
           ];
         }),
@@ -468,6 +475,9 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
   private scalar(field: RecordFieldView): RecordScalar | null {
     return recordInputValue(toJS(this.form.values[field.id]), field);
   }
+  private writeValue(field: RecordFieldView): RecordScalarInput | null {
+    return recordWriteValue(toJS(this.form.values[field.id]), field);
+  }
   previewValue = (field: RecordFieldView): CalculatedValue => {
     const stored = this.record?.fields.find((value) => value.fieldId === field.id)?.result;
     if (stored?.state === "restricted") return stored;
@@ -529,7 +539,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
               action: "update",
               ref: toJS(this.record.ref),
               expectedVersion: this.record.version,
-              fields: fields.map(({ fieldId, value }) => ({ fieldId, value })),
+              fields: fields.map(({ field, fieldId }) => ({ fieldId, value: this.writeValue(field) })),
               ...identities,
               ...(this.form.captureFieldIds.length ? { captureFieldIds: toJS(this.form.captureFieldIds) } : {}),
               linkChanges: toJS(this.form.linkChanges).map(({ action, relationId, direction, record }) => ({
@@ -545,7 +555,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
           : {
               action: "create",
               typeId: this.presentation.typeId,
-              fields: fields.map(({ fieldId, value }) => ({ fieldId, value })),
+              fields: fields.map(({ field, fieldId }) => ({ fieldId, value: this.writeValue(field) })),
               ...identities,
               ...(!this.presentation.model.types.find((type) => type.id === this.presentation.typeId)?.embedded
                 ? { assignedUserIds: toJS(this.form.assignedUserIds) }

@@ -1,3 +1,5 @@
+export const DATA_VIEW_PAGE_CLASS_NAME = "flex h-[calc(100svh-4rem)] min-h-0 flex-col md:h-[calc(100svh-5rem)]";
+
 export const DATA_KANBAN_ROOT_CLASS_NAME =
   "flex min-h-0 snap-x snap-mandatory flex-col overflow-auto data-dragging:snap-none sm:snap-none";
 export const DATA_KANBAN_TRACK_CLASS_NAME = "flex min-w-max flex-1 items-stretch gap-4 px-4 pb-2";

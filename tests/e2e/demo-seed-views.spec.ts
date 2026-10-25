@@ -29,6 +29,10 @@ async function expectViewShowsData(page: Page, view: SeededView, isMobile: boole
   await page.goto(appPath(DEMO_SLUG, `/records/${view.typeId}?view=${view.id}`));
   await expect(page.locator("[data-joins-top-bar]").getByText(view.name, { exact: true }).first()).toBeVisible();
   await expect(page.getByText(/^No records yet$|^No records match/)).toHaveCount(0);
+  if (view.viewMode === "calendar") {
+    await expect(page.locator('[data-slot="calendar-root"]'), `${view.name} shows a calendar`).toBeVisible();
+    return;
+  }
   const records = page.locator("[data-row-id], [data-item-id]");
   await expect(records.first(), `${view.name} shows records`).toBeVisible();
   // Phone rows show no group bands or group summaries (an accepted gap), so the phone checks stop at the records.
@@ -167,10 +171,10 @@ test("opening a list and switching its views updates no component while another 
   await page.locator(`[id="nav-records:${deals}"]`).click();
   await expect.poll(() => new URL(page.url()).pathname).toBe(appPath(DEMO_SLUG, `/records/${deals}`));
   const rail = page.locator("#global-data-views");
-  const records = page.locator("[data-row-id], [data-item-id]");
+  const records = page.locator("[data-row-id], [data-item-id], [data-calendar-entry]");
   await expect(records.first()).toBeVisible();
   for (const view of views) {
-    const chip = rail.locator("a[data-view-chip]", { hasText: view.name }).first();
+    const chip = rail.locator("a[data-view-chip]:not(#global-data-views-all)", { hasText: view.name }).first();
     await chip.click();
     await expect(chip).toHaveAttribute("aria-current", "page");
     await expect(records.first(), `${view.name} shows records`).toBeVisible();
@@ -178,7 +182,11 @@ test("opening a list and switching its views updates no component while another 
   const active = rail.locator('a[data-view-chip][aria-current="page"]');
   await expect(active).toHaveCount(1);
   await active.click();
-  await expect(rail.locator('[data-focus-target^="view:"][aria-current="page"]')).toHaveCount(0);
+  await expect(active).toHaveCount(1);
+  await expect(rail.locator("#global-data-views-all")).not.toHaveAttribute("aria-current", "page");
+  await rail.locator("#global-data-views-all").click();
+  await expect(rail.locator("#global-data-views-all")).toHaveAttribute("aria-current", "page");
+  await expect(active).toHaveCount(1);
   await expect(records.first()).toBeVisible();
   // Becoming visible again refreshes the route; wait for that refresh of this list.
   const refreshed = page.waitForResponse(

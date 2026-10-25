@@ -37,6 +37,7 @@ test("keeps source totals separate from filtered widget groups across save and r
   await page.getByRole("option", { name: "Price", exact: true }).click();
   await dialogs.getByRole("combobox", { name: "Group by", exact: true }).click();
   await page.getByRole("option", { name: "Each record", exact: true }).click();
+  await dialogs.locator("#widget-config-group-filters").click();
   await setPaletteText(page, "widget-group-filters", presetId(companyId, "service.name"), "Shown service", "=");
   await expect(dialogs.getByText("Overall: €100.00", { exact: true })).toBeVisible();
   await expect(dialogs.locator("dt").filter({ hasText: "Shown service" })).toHaveCount(1);

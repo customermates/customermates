@@ -35,7 +35,8 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 vi.mock("@/ee/agent-chat/agent-tools", () => ({
   agentToolDefinitionsForTurn: definitions,
-  agentToolDefinitionsForToolsets: (tools: unknown) => tools,
+  agentToolDefinitionsForToolsets: (tools: { toolset?: string | null }[], toolsets: string[]) =>
+    tools.filter((tool) => !tool.toolset || toolsets.includes(tool.toolset)),
 }));
 vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve({ raw: (key: string) => key }),
@@ -47,7 +48,7 @@ vi.mock("@sentry/nextjs", () => ({
 }));
 
 import { SendAgentMessageInteractor } from "@/ee/agent-chat/send-agent-message.interactor";
-import { resolveAgentTurnBudget } from "@/ee/agent-chat/agent-budget-policy";
+import { agentContextTokensToBytes, resolveAgentTurnBudget } from "@/ee/agent-chat/agent-budget-policy";
 import {
   conservativeAgentInitialContextBytes,
   buildAgentProviderContext,
@@ -277,6 +278,25 @@ describe("Workspace Wiki admission bootstrap", () => {
     expect(state.repo.admitAgentTurnOrThrow.mock.calls[1][0]).toMatchObject({ wikiCatalogSnapshot: captured });
     expect(state.payload().wikiCatalog).toBe(captured);
     expect(definitions).toHaveBeenLastCalledWith(expect.objectContaining({ wikiWebsiteSetup: false }));
+  });
+
+  it("admits a request whose requested tool sets exceed the context envelope at the full envelope", async () => {
+    const state = fixture();
+    definitions.mockReturnValueOnce([
+      { name: "manage_widgets", description: "x".repeat(250_000), inputSchema: { type: "object" }, toolset: "widgets" },
+    ]);
+
+    const result = await state.interactor.invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      text: "Add a dashboard widget",
+      retry: false,
+      locale: "en" as const,
+    });
+
+    expect(result).toMatchObject({ ok: true, data: { disposition: "run" } });
+    const admission = state.usage.prepareTurn.mock.calls[0][2];
+    expect(admission.requiredContextBytes).toBe(agentContextTokensToBytes(admission.model.maxContextTokens));
+    expect(state.payload().requestToolsets).toEqual(["widgets"]);
   });
 
   it.each(["chat", "routine"] as const)("loads and measures the current catalog for a %s turn", async (surface) => {

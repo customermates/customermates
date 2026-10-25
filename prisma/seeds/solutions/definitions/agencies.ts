@@ -1562,10 +1562,13 @@ export default defineSolution<Strings>({
       const [firstName, lastName, jobTitle] = t.contacts[key];
       return {
         key,
-        values: { firstName, lastName, jobTitle, decisionRole: facts.role, phone: office(index) },
+        values: { firstName, lastName, jobTitle, decisionRole: facts.role },
         links: { "contact.organizations": facts.organization },
         owner: ORGANIZATION_OWNERS[facts.organization] ?? OWNER,
-        channels: { email: `${mailbox(firstName)}.${mailbox(lastName)}@${domainOf(facts.organization)}` },
+        channels: {
+          email: `${mailbox(firstName)}.${mailbox(lastName)}@${domainOf(facts.organization)}`,
+          phone: office(index),
+        },
         ...(facts.avatar ? { avatar: photo(facts.avatar) } : {}),
         createdDaysAgo: facts.createdDaysAgo,
       };
@@ -1734,7 +1737,6 @@ export default defineSolution<Strings>({
           formula: { kind: "rollupSum", relation: "retainer.organization", field: "retainer.monthlyFee" },
         },
         { key: "contact.jobTitle", label: t.fields.jobTitle, type: "text" },
-        { key: "contact.phone", label: t.fields.phone, type: "phone" },
         {
           key: "contact.decisionRole",
           label: t.fields.decisionRole,
@@ -1931,7 +1933,7 @@ export default defineSolution<Strings>({
           list: "contact",
           name: t.views.allContacts,
           mode: "table",
-          columns: ["jobTitle", "contact.organizations", "decisionRole", "phone", "capability.identity"],
+          columns: ["jobTitle", "contact.organizations", "decisionRole", "capability.identity"],
         },
         {
           key: "dueSoon",

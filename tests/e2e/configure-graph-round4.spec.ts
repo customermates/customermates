@@ -50,7 +50,7 @@ test("graph nodes share one structure with an Add menu and in-place expansion", 
     "Field",
     "Calculated field",
     "Relationship",
-    "Channels",
+    "Contact details",
     "Sub-list",
   ]);
   await page.getByRole("menuitem", { name: "Relationship", exact: true }).click();

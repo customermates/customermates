@@ -2,7 +2,7 @@ import { Resource } from "@/generated/prisma";
 
 import { SubscriptionView } from "../components/subscription/subscription-view";
 
-import { getGetSubscriptionInteractor } from "@/core/di";
+import { getGetFileStorageUsageInteractor, getGetSubscriptionInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
 import { redirect } from "next/navigation";
 import { appRedirectHref } from "@/features/auth/next/app-redirect";
@@ -15,11 +15,14 @@ export default async function CompanySubscriptionPage() {
 
   if (env.APP_MODE === "self-hosted") redirect(await appRedirectHref("/dashboard"));
 
-  const subscription = await unwrapPage(getGetSubscriptionInteractor().invoke());
+  const [subscription, storage] = await Promise.all([
+    unwrapPage(getGetSubscriptionInteractor().invoke()),
+    unwrapPage(getGetFileStorageUsageInteractor().invoke()),
+  ]);
 
   return (
     <PageContainer>
-      <SubscriptionView initialSubscription={subscription} />
+      <SubscriptionView initialSubscription={subscription} storage={storage} />
     </PageContainer>
   );
 }

@@ -1382,13 +1382,13 @@ export default defineSolution<Strings>({
           firstName,
           lastName,
           jobTitle,
-          phone: phone(index),
           ...(facts.role ? { buyingRole: facts.role } : {}),
         },
         links: facts.organization ? { "contact.organizations": facts.organization } : undefined,
         owner: "maxBergmann",
         channels: {
           email: `${mailbox(firstName)}.${mailbox(lastName)}@${domain}`,
+          phone: phone(index),
           ...(facts.linkedin
             ? { linkedin: `${handle}.linkedin.example`, linkedinUrl: `https://linkedin.example/in/${handle}` }
             : {}),
@@ -1515,7 +1515,6 @@ export default defineSolution<Strings>({
         { key: "organization.website", label: t.fields.website, type: "url" },
         { key: "organization.employees", label: t.fields.employees, type: "number" },
         { key: "contact.jobTitle", label: t.fields.jobTitle, type: "text" },
-        { key: "contact.phone", label: t.fields.phone, type: "phone" },
         {
           key: "contact.buyingRole",
           label: t.fields.buyingRole,

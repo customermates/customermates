@@ -1,7 +1,17 @@
 import type { RecordFieldView, RecordRef, RecordScalar } from "@/features/records/record-model.schema";
+import type { RecordIdentityInput } from "@/features/records/record-identity.schema";
 import type { XlsxCell } from "./xlsx-workbook";
 
-import { normalizePhoneNumber, scalarMatchesType } from "@/features/records/record-model-validation";
+import { channelClass } from "@/ee/messaging/provider";
+import { inferChannelProviders, normalizeChannelValue } from "@/features/records/channel-value";
+import { scalarMatchesType } from "@/features/records/record-model-validation";
+import {
+  addressFromText,
+  cleanAddressPart,
+  RECORD_ADDRESS_PART_LIMITS,
+  type RecordAddressPart,
+} from "@/features/records/record-address-value";
+import { countryCodeFromText } from "@/features/addresses/address-country-name";
 
 import { normalizeXlsxHeader } from "./xlsx-mapping";
 import { xlsxCellText } from "./xlsx-workbook";
@@ -12,9 +22,8 @@ export type XlsxIssueCode =
   | "currencyMismatch"
   | "invalidDate"
   | "invalidBoolean"
-  | "invalidEmail"
   | "invalidUrl"
-  | "invalidPhone"
+  | "invalidChannel"
   | "invalidValue"
   | "unknownOption"
   | "unknownMember"
@@ -28,7 +37,9 @@ export type XlsxIssueCode =
   | "duplicateMatch"
   | "missingMatchValue"
   | "restricted"
-  | "lookupUnavailable";
+  | "lookupUnavailable"
+  | "fileNotImportable"
+  | "unknownCountry";
 
 type XlsxParsed<T> = { ok: true; value: T } | { ok: false; code: XlsxIssueCode; value?: string };
 
@@ -196,11 +207,8 @@ export function plainTextDocument(text: string): string {
 }
 
 function textScalar(text: string, field: RecordFieldView): XlsxParsed<string> {
-  const value = field.valueType === "phone" ? normalizePhoneNumber(text) : text;
-  if (scalarMatchesType({ kind: "text", value }, field.valueType)) return ok(value);
-  if (field.valueType === "email") return issue("invalidEmail", text);
+  if (scalarMatchesType({ kind: "text", value: text }, field.valueType)) return ok(text);
   if (field.valueType === "url") return issue("invalidUrl", text);
-  if (field.valueType === "phone") return issue("invalidPhone", text);
   return issue("invalidValue", text);
 }
 
@@ -216,6 +224,14 @@ function dateScalar(cell: XlsxCell, kind: "date" | "dateTime"): XlsxParsed<strin
   const parsed = parseXlsxDate(cell);
   if (!parsed) return issue("invalidDate", xlsxCellText(cell));
   return ok(kind === "date" ? utcDate(parsed.date) : parsed.date.toISOString());
+}
+
+export function parseRecordAddressPart(cell: XlsxCell, part: RecordAddressPart): XlsxParsed<string | null> {
+  const text = xlsxCellText(cell).trim();
+  if (!text) return ok(null);
+  if (part !== "countryCode") return ok(cleanAddressPart(text, RECORD_ADDRESS_PART_LIMITS[part]));
+  const code = countryCodeFromText(text);
+  return code ? ok(code) : issue("unknownCountry", text);
 }
 
 export function parseXlsxRangePart(cell: XlsxCell, field: RecordFieldView): XlsxParsed<string | null> {
@@ -294,9 +310,13 @@ export function parseXlsxFieldCell(
     }
     case "richText":
       return ok({ kind: "richText", documentJson: plainTextDocument(text) });
+    case "address": {
+      const address = addressFromText(text);
+      return ok(address && { kind: "address", value: address });
+    }
+    case "file":
+      return issue("fileNotImportable", text);
     case "text":
-    case "email":
-    case "phone":
     case "url": {
       if (!field.multiple) {
         const parsed = textScalar(text, field);
@@ -315,6 +335,25 @@ export function parseXlsxFieldCell(
     default:
       return issue("invalidValue", text);
   }
+}
+
+export function parseXlsxChannelsCell(cell: XlsxCell, region: string | null): XlsxParsed<RecordIdentityInput[]> {
+  const text = xlsxCellText(cell);
+  if (!text) return ok([]);
+  const identities: RecordIdentityInput[] = [];
+  for (const part of splitXlsxList(text)) {
+    const providers = inferChannelProviders(part, region);
+    const value = providers.length === 1 ? normalizeChannelValue(providers[0], part, region) : null;
+    if (!value) return issue("invalidChannel", part);
+    const provider = providers[0];
+    if (
+      !identities.some(
+        (identity) => identity.value === value && channelClass(identity.provider) === channelClass(provider),
+      )
+    )
+      identities.push({ provider, value });
+  }
+  return identities.length > 100 ? issue("tooManyValues", text) : ok(identities);
 }
 
 export function parseXlsxRelationshipCell(cell: XlsxCell, index: XlsxRecordIndex | null): XlsxParsed<RecordRef[]> {

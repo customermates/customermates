@@ -80,3 +80,62 @@ export function DashboardPageSkeleton({ animated = true }: Props) {
     </div>
   );
 }
+
+const MONTH_SKELETON_CELLS = Array.from({ length: 35 }, (_, index) => index);
+const UPCOMING_SKELETON_ROWS = ["w-3/5", "w-2/5", "w-1/2", "w-2/3"];
+
+export function CalendarWidgetSkeleton({ animated = true, layout }: Props & { layout: "upcoming" | "month" }) {
+  return (
+    <div
+      aria-hidden="true"
+      className="flex h-full min-h-0 flex-col gap-3"
+      data-page-skeleton-empty={!animated || undefined}
+      data-page-skeleton-loading={animated || undefined}
+      data-skeleton-kind="calendar-widget"
+    >
+      {layout === "month" ? (
+        <>
+          <Shape breathe animated={animated} className="mx-auto h-3.5 w-28" />
+
+          <div className="grid min-h-0 flex-1 grid-cols-7 grid-rows-5 gap-1">
+            {MONTH_SKELETON_CELLS.map((cell) => (
+              <Shape key={cell} animated={animated} className="size-full rounded-md" motionPhase={cell % 2 ? 1 : 2} />
+            ))}
+          </div>
+        </>
+      ) : (
+        UPCOMING_SKELETON_ROWS.map((width, index) => (
+          <div key={width} className="flex items-center gap-3">
+            <Shape animated={animated} breathe={index === 0} className="size-9 shrink-0 rounded-md" />
+
+            <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+              <Shape animated={animated} className={cn("h-3", width)} motionPhase={1} />
+
+              <Shape animated={animated} className="h-2.5 w-1/4" motionPhase={2} />
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+  );
+}
+
+export function MapWidgetSkeleton({ animated = true }: Props) {
+  return (
+    <div
+      aria-hidden="true"
+      className="flex h-full min-h-0 flex-col gap-2"
+      data-page-skeleton-empty={!animated || undefined}
+      data-page-skeleton-loading={animated || undefined}
+      data-skeleton-kind="map-widget"
+    >
+      <Shape breathe animated={animated} className="min-h-0 w-full flex-1 rounded-lg" />
+
+      <div className="flex gap-3">
+        {["w-16", "w-12", "w-20"].map((width, index) => (
+          <Shape key={width} animated={animated} className={cn("h-2.5", width)} motionPhase={index < 2 ? 1 : 2} />
+        ))}
+      </div>
+    </div>
+  );
+}

@@ -77,6 +77,7 @@ export function RecordCell({
     return (
       <RecordValue
         field={column.field}
+        files={record.files}
         identities={record.identities}
         members={record.memberUsers}
         overflowMenu={!inTrigger}

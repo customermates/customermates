@@ -206,9 +206,11 @@ test("paginates and retries record and widget history, restores a personal timel
   await expect(view).toHaveAttribute("aria-current", "page");
   await expect(history.getByText(english.Common.emptyState.genericFilteredBody, { exact: true })).toBeVisible();
   await view.click();
+  await expect(view).toHaveAttribute("aria-current", "page");
+  await history.locator("#global-data-views-all").click();
   await expect(view).not.toHaveAttribute("aria-current", "page");
-  await expect(history.locator('[data-focus-target^="view:"][aria-current="page"]')).toHaveCount(0);
-  await expect(history.locator("#global-data-views-menu[data-view-modified]")).toHaveCount(0);
+  await expect(history.locator("#global-data-views-all")).toHaveAttribute("aria-current", "page");
+  await expect(history.locator("#global-data-views-all[data-view-modified]")).toHaveCount(0);
   await expect(rows).toHaveCount(25);
   await expect(older).toBeVisible();
   expect(await storedView()).toEqual([savedView]);
@@ -228,9 +230,9 @@ test("paginates and retries record and widget history, restores a personal timel
             'SELECT "activeViewKey",filters FROM "P13n" WHERE "companyId"=$1 AND "userId"=$2 AND "p13nId"=$3',
             [companyId, workspace.userId, SURFACE.entityTimeline],
           )
-        ).rows[0],
+        ).rows.map((row) => ({ activeViewKey: row.activeViewKey, filters: row.filters ?? [] }))[0],
     )
-    .toEqual({ activeViewKey: ALL_VIEW_KEY, filters: null });
+    .toEqual({ activeViewKey: ALL_VIEW_KEY, filters: [] });
   const linkedPage = await page.context().newPage();
   const linkedEvidence = transportEvidence(linkedPage);
   await linkedPage.goto(copiedHref);
@@ -311,7 +313,7 @@ test("paginates and retries record and widget history, restores a personal timel
   await page.getByRole("alertdialog").locator("#confirm-delete").click();
   await expect(page.getByRole("alertdialog")).toHaveCount(0);
   await expect(drawerHistory.getByRole("link", { name: temporaryViewName, exact: true })).toHaveCount(0);
-  await expect(drawerHistory.locator('[data-focus-target^="view:"][aria-current="page"]')).toHaveCount(0);
+  await expect(drawerHistory.locator("#global-data-views-all")).toHaveAttribute("aria-current", "page");
   await expect(drawerHistory.locator("#global-data-views-new")).toBeFocused();
   await expect(page).toHaveURL(parentUrl);
   expect(await storedView()).toEqual([savedView]);
@@ -887,7 +889,7 @@ test("uses explicit activity record scope, event kinds, positive and negative re
       await page.getByRole("option", { name: record, exact: true }).click();
     }
     await page.locator("#filter-palette-back").click();
-    await page.keyboard.press("Escape");
+    await expect(page.locator("#widget-activity-filters [data-palette-field]").first()).toBeVisible();
   };
   await editRecordFilter("hasSome");
   await activityPreview(page, [entries[0].body], [entries[1].body]);
@@ -916,7 +918,7 @@ test("uses explicit activity record scope, event kinds, positive and negative re
   await toggleMultiple(page, '[id="activityQuery.kinds"]', english.EntityTimeline.types.record);
   await openFilterPalette(page, "widget-activity-filters");
   await page.locator('[data-palette-remove-filter="0"]').click();
-  await page.keyboard.press("Escape");
+  await expect(page.locator("#widget-activity-filters [data-palette-field]").first()).toBeVisible();
   await activityPreview(
     page,
     entries.map((entry) => entry.body),
@@ -1217,7 +1219,7 @@ test("retains readable list content after a failed refresh and retries the empty
   await expect(error).toHaveCount(0);
   expect(matchingReads).toBe(2);
   expect((await values()).rows).toEqual(before);
-  await expect(page.locator("#global-data-views-menu[data-view-modified]")).toHaveCount(0);
+  await expect(page.locator("#global-data-views-all[data-view-modified]")).toHaveCount(0);
   await page.unrouteAll({ behavior: "wait" });
   await expect(page).toHaveURL((url) => url.searchParams.get("searchTerm") === name);
   await page.reload();

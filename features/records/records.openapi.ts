@@ -38,12 +38,8 @@ import { GenericRecordWidgetInputSchema, GenericRecordWidgetDtoSchema } from "@/
 import { RecordWidgetReadSchema } from "@/features/widget/record-widget.schema";
 import { RecordDtoSchema } from "./record-model.schema";
 import { ConfigurationContractSchema, ConfigurationPreviewSchema } from "./configuration.schema";
-import {
-  RecordQuerySchema,
-  MutateRecordRequestSchema,
-  RecordOperationResultSchema,
-  RecordReadSchema,
-} from "./record-query.schema";
+import { MutateRecordRequestSchema, RecordOperationResultSchema, RecordReadSchema } from "./record-query.schema";
+import { RecordQueryBaseSchema } from "./record-query-base.schema";
 import { RecordQueryResultSchema } from "./record-query-result.schema";
 import { RecordMeasureSchema, RecordMeasureResultSchema } from "./record-measure.schema";
 import { RecordOperationInputSchema, RecordOperationStatusSchema } from "./record-operation.schema";
@@ -422,7 +418,7 @@ export const recordApiPaths = {
           read: true,
           requires: "read access to the list.",
           description:
-            "Exports the selected type's filtered and sorted records with their readable embedded descendants from one consistent workspace snapshot. Maximum 5,000 records and 50,000 candidate links. format json (default) returns a document with stable type, field, relationship and record IDs, readable outbound links and the current schema revision; restricted values remain marked restricted, and import accepts it. format xlsx returns an Excel workbook with one sheet per exported list: readable fields in field order headed by their labels, then relationship columns with linked record names, assignees, timestamps and a hidden record ID. Dates are spreadsheet dates, numbers and money are numbers with the currency in the header, multiple choice and links are comma-separated names, and formatted text is plain text. A field the caller cannot read on any exported record is left out. Incoming links from records outside the selection are not included.",
+            "Exports the selected type's filtered and sorted records with their readable embedded descendants from one consistent workspace snapshot. Maximum 5,000 records and 50,000 candidate links; with page and pageSize (up to 500) json returns one page of top-level records with their descendants and links, plus total and nextPage, so larger lists can be exported page by page. format json (default) returns a document with stable type, field, relationship and record IDs, readable outbound links and the current schema revision; restricted values remain marked restricted, and import accepts it. format xlsx returns an Excel workbook with one sheet per exported list: readable fields in field order headed by their labels, then relationship columns with linked record names, assignees, timestamps and a hidden record ID. Dates are spreadsheet dates, numbers and money are numbers with the currency in the header, multiple choice and links are comma-separated names, and formatted text is plain text. A field the caller cannot read on any exported record is left out. Incoming links from records outside the selection are not included.",
           examples: recordApiExamples.export,
         },
       ),
@@ -437,7 +433,7 @@ export const recordApiPaths = {
       {
         requires: "create access to the list in create mode, edit access in update mode.",
         description:
-          "Creates records with their exported IDs or updates matching IDs in one transaction. Embedded descendants are created after their parents, saved-price snapshots are preserved, and readable outbound links are merged. The document must match the current workspace's type IDs and schema revision. Maximum 100 records and 500 links per request. Create rejects existing IDs; update checks each exported record version. Retries of the identical request use its idempotency key.",
+          "Creates records with their exported IDs or updates matching IDs in one transaction. Embedded descendants are created after their parents, saved-price snapshots are preserved, and readable outbound links are merged. The document must match the current workspace's type IDs and schema revision. Maximum 100 records and 500 links and unlinks per request. Rows are sparse: a row needs only ref and the fields to set; an omitted field stays empty on create and unchanged on update, and state missing clears it. Create rejects existing IDs; update checks the version of a row when given, so one request can patch different values per record, and unlinks (update only) removes links. For more records, send consecutive requests of up to 100 rows with their own idempotency keys. Retries of the identical request use its idempotency key.",
       },
     ),
   },
@@ -459,6 +455,7 @@ export const recordApiPaths = {
       {
         tag: "widgets",
         requires: "an active workspace member; widgets are personal and show only readable values.",
+        description: `${WRITE_DESCRIPTION} kind chart (the default for new widgets) aggregates a measure, activityTimeline lists activity, calendar shows the records of one date or date-time field as the upcoming days or as a month heat grid, and map places records at the location stored with an address field. A saved widget keeps its kind.`,
       },
     ),
   },
@@ -472,6 +469,8 @@ export const recordApiPaths = {
         tag: "widgets",
         read: true,
         requires: "read access to the widget's lists; restricted values stay hidden.",
+        description:
+          "Returns one widget of the caller, or a template shared in the workspace, with results computed for the caller's read access. A calendar widget also accepts `window` with `from` and `to` (at most 42 days) to read another month or a single day instead of its own range; other kinds refuse a window.",
       },
     ),
   },
@@ -509,7 +508,7 @@ export const recordApiPaths = {
     }),
   },
   "/v1/records/query": {
-    post: operation("queryRecords", "Query records", RecordQuerySchema, RecordQueryResultSchema, {
+    post: operation("queryRecords", "Query records", RecordQueryBaseSchema, RecordQueryResultSchema, {
       read: true,
       requires: "read access to the list; only readable records and values are returned.",
       examples: recordApiExamples.query,

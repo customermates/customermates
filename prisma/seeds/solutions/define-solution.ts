@@ -24,8 +24,6 @@ export type FieldType =
   | "date"
   | "select"
   | "multiSelect"
-  | "email"
-  | "phone"
   | "url"
   | "member";
 

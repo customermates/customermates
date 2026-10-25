@@ -109,7 +109,7 @@ So sieht dieselbe Planung in Customermates aus, eingerichtet nach dem heutigen S
 
 **Listen.** Öffnen Sie in Konfigurieren die Liste Kontakte und ändern Sie unter **Allgemein** **Name** und **Pluralname** in Kunde und Kunden, dann benennen Sie Deals ebenso in Projekte um. Jeder Name ist möglich. Organisationen, Services und Aufgaben behalten ihre Namen.
 
-**Felder.** Jedes Feld hat einen Typ: Text, Formatierter Text, Zahl, Geldbetrag, Ja oder nein, Datum, Datum und Uhrzeit, Datumsbereich, Datums- und Zeitbereich, Einzelauswahl, Mehrfachauswahl, E-Mail, Telefon, Webadresse oder Mitglied.
+**Felder.** Jedes Feld hat einen Typ: Text, Formatierter Text, Zahl, Geldbetrag, Ja oder nein, Datum, Datum und Uhrzeit, Datumsbereich, Datums- und Zeitbereich, Einzelauswahl, Mehrfachauswahl, Webadresse, Mitglied, Adresse, Datei oder Telefon, E-Mail & Social Media.
 
 | Liste | Feld | Typ |
 |---|---|---|
@@ -124,7 +124,7 @@ So sieht dieselbe Planung in Customermates aus, eingerichtet nach dem heutigen S
 
 **Phasen.** Phasen sind nicht voreingestellt: Sie legen ein Feld Phase an (etwa Akquise, Qualifizierung, Demo, Angebot, Verhandlung, Gewonnen, Verloren) und in Konfigurieren je Phase eine Abschlusswahrscheinlichkeit fest. Die gewichtete Pipeline ergibt sich rein rechnerisch aus diesen Prozentsätzen und ist keine Vorhersage.
 
-**Eindeutiges Merkmal.** E-Mail-Adressen gehören in das Feld Kanäle des Kunden, das eingehende Nachrichten dem Datensatz zuordnet. Eine Adresse kann zu mehreren Datensätzen gehören, entfernen Sie Dubletten deshalb vor dem Import. Die globale Suche (Cmd/Strg+K) findet einen Kunden über den Namen oder über jede E-Mail-Adresse und Telefonnummer in seinen Kanälen.
+**Eindeutiges Merkmal.** E-Mail-Adressen gehören in das Feld Kontaktdaten des Kunden, das eingehende Nachrichten dem Datensatz zuordnet. Eine Adresse kann zu mehreren Datensätzen gehören, entfernen Sie Dubletten deshalb vor dem Import. Die globale Suche (Cmd/Strg+K) findet einen Kunden über den Namen oder über jede E-Mail-Adresse und Telefonnummer in seinen Kontaktdaten.
 
 **Import.** Über Weitere Aktionen › Aus Datei hinzufügen lesen Sie eine .xlsx-Arbeitsmappe ein, eine Liste pro Import, in der Reihenfolge Organisationen, Kunden, Projekte. Verknüpfungsspalten werden über den Datensatznamen zugeordnet. CSV-Dateien werden nicht akzeptiert, speichern Sie sie vorher als .xlsx. Alle Importregeln stehen in der [Dokumentation zu Datensätzen](/docs/app-records).
 
@@ -160,7 +160,6 @@ Für Customermates Cloud ist der [Auftragsverarbeitungsvertrag](/dpa) öffentlic
 
 ## Wann Customermates nicht die richtige Datenbank ist
 
-- **Sie möchten Dokumente am Datensatz ablegen.** Datensätze haben keine Dateianhänge; Notizen können Bilder und Tabellen enthalten.
 - **Sie brauchen Berechtigungen pro Feld.** Berechtigungen gelten pro Liste und Aktion, nicht pro Feld.
 - **Sie wollen alles mit einem Klick exportieren.** Der Export läuft je Liste, als Excel oder JSON.
 - **Sie verschicken Newsletter aus Ihrem Kundenstamm.** Massenversand gibt es nicht; dafür ist ein E-Mail-Marketing-Tool da.

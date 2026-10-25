@@ -87,6 +87,7 @@ export class MutateRecordInteractor extends AuthenticatedInteractor<MutateRecord
           refs,
           schemaRevision: model.revision,
           ...(changed.trashBatchId && !permanent ? { trashBatchId: changed.trashBatchId } : {}),
+          ...(changed.warnings?.length ? { warnings: changed.warnings } : {}),
         };
         await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, data);
         return { ok: true, data };

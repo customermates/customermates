@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 
-import { orderChips, viewMenuItems } from "../view-rail-model";
+import { allViewMenuItems, orderChips, suggestedViewName, viewMenuItems } from "../view-rail-model";
 
 function chip(overrides: Partial<DataViewChipDto> & { id: string }): DataViewChipDto {
   return {
@@ -85,5 +85,25 @@ describe("view rail model", () => {
     expect(last.find((item) => item.id === "moveLeft")?.isDisabled).toBe(false);
     expect(last.find((item) => item.id === "moveRight")?.isDisabled).toBe(true);
     expect(only.filter((item) => item.isDisabled).map((item) => item.id)).toEqual(["moveLeft", "moveRight"]);
+  });
+
+  it("offers only Copy link for the All tab, which cannot be edited, moved, duplicated or deleted", () => {
+    expect(allViewMenuItems().map((item) => item.id)).toEqual(["copyLink"]);
+  });
+
+  it("names a view after its filters, capped at the view name limit on a part boundary", () => {
+    expect(suggestedViewName(["Provider: Cursor", " Status: Open "], "My filters")).toBe(
+      "Provider: Cursor · Status: Open",
+    );
+    expect(suggestedViewName(["", "  "], "My filters")).toBe("My filters");
+    expect(suggestedViewName([], "My filters")).toBe("My filters");
+
+    const long = suggestedViewName(["Owner: Ada Lovelace", "Stage: Qualified, Proposal", "Region: Europe, Asia"], "x");
+    expect(long).toBe("Owner: Ada Lovelace · Stage: Qualified, Proposal");
+    expect(long.length).toBeLessThanOrEqual(60);
+
+    const single = suggestedViewName(["Company: " + "A".repeat(80)], "x");
+    expect(single).toHaveLength(60);
+    expect(single.endsWith("…")).toBe(true);
   });
 });

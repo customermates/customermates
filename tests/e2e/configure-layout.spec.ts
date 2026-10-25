@@ -110,7 +110,7 @@ test("adds and edits definitions in a side drawer and reorders fields with drag 
     "Field",
     "Calculated field",
     "Relationship",
-    "Channels",
+    "Contact details",
     "Sub-list",
   ]);
   await page.keyboard.press("Escape");

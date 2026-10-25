@@ -36,7 +36,7 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => (key === "Diagrams.noGroup" ? "No group" : key),
 }));
 
-vi.mock("@/constants/chart-colors", () => {
+vi.mock("@/constants/chart-colors", async (importOriginal) => {
   const palette = (prefix: string) => ({
     [ChartColor.primary1]: `${prefix}-primary1`,
     [ChartColor.primary2]: `${prefix}-primary2`,
@@ -46,6 +46,7 @@ vi.mock("@/constants/chart-colors", () => {
   });
 
   return {
+    ...(await importOriginal<object>()),
     getChartColors: () => palette("fill"),
     getChartStrokeColors: () => palette("stroke"),
     getChartTextColors: () => palette("text"),

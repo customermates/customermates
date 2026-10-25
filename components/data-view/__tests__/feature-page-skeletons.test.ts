@@ -43,4 +43,14 @@ describe("feature-owned collection skeletons", () => {
     expect(html).not.toContain("data-page-skeleton-loading");
     expect(html).not.toContain("animate-pulse");
   });
+
+  it("draws the record calendar skeleton as a month grid without pagination", () => {
+    const html = renderToStaticMarkup(createElement(RecordsPageSkeleton, { view: "calendar" }));
+
+    expect(html).toContain('data-skeleton-view="calendar"');
+    expect(html).toContain('data-skeleton-variant="calendar"');
+    expect(html).toContain('data-skeleton-scroll-owner="calendar"');
+    expect(html.match(/border-r border-b p-1\.5/g)).toHaveLength(35);
+    expect(html).not.toContain("data-skeleton-pagination");
+  });
 });

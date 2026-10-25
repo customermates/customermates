@@ -4,12 +4,15 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
-  getChartColors,
+  chipChartColor,
   getChartMatchedColors,
+  getChartColors,
   getChartRankShades,
   getChartStrokeColors,
   getChartTextColors,
+  getChartTintColors,
 } from "@/constants/chart-colors";
+import { CHIP_COLORS } from "@/constants/chip-colors";
 import { chartAccentSwatches } from "@/styles/color-palettes";
 import { ChartColor } from "@/features/widget/widget.schema";
 
@@ -185,6 +188,29 @@ describe("chart colors", () => {
       const fills = getChartMatchedColors(color, [4, 3, 2, 1]);
       expect(new Set(fills).size).toBe(4);
       for (const fill of fills) for (const theme of THEME_NAMES) expect(resolve(fill, theme)).toMatch(/^#/);
+    }
+  });
+
+  it("give every option colour its own hue, matching the colour of its chip", () => {
+    expect(CHIP_COLORS.map(chipChartColor)).toEqual([
+      ChartColor.primary1,
+      ChartColor.default1,
+      ChartColor.danger1,
+      ChartColor.success1,
+      ChartColor.warning1,
+      ChartColor.secondary1,
+    ]);
+    for (const theme of THEME_NAMES)
+      expect(resolve(getChartColors()[chipChartColor("default")], theme)).toBe(resolve("var(--primary)", theme));
+  });
+
+  it("keep the label colour of each hue readable on its tint in both themes", () => {
+    for (const theme of THEME_NAMES) {
+      for (const color of COLORS) {
+        const tint = resolve(getChartTintColors()[color], theme);
+        expect(tint).toBe(PREVIOUS_RAMPS[color.replace(/\d$/, "")][theme][2]);
+        expect(contrast(tint, resolve(getChartTextColors()[color], theme))).toBeGreaterThanOrEqual(4.5);
+      }
     }
   });
 

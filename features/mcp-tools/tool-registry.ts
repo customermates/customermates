@@ -20,6 +20,7 @@ import {
 import { getDocsPageTool, searchDocsTool } from "@/features/mcp-tools/docs.mcp-tools";
 import { getWorkspaceContextTool, listUsersTool } from "@/features/mcp-tools/workspace.mcp-tools";
 import { fetchTool, searchTool } from "@/features/mcp-tools/deep-research.mcp-tools";
+import { checkAddressTool, lookupAddressTool } from "@/features/mcp-tools/address.mcp-tools";
 import { manageTeamTool, updateMyProfileTool } from "@/features/mcp-tools/admin.mcp-tools";
 import { manageWebhooksTool } from "@/features/mcp-tools/webhook.mcp-tools";
 import { manageWidgetsTool } from "@/features/mcp-tools/widget.mcp-tools";
@@ -28,6 +29,7 @@ import { requestSupportTool } from "@/features/mcp-tools/support.mcp-tools";
 import { getOperatorUsageTool } from "@/features/mcp-tools/operator.mcp-tools";
 import { manageWikiPagesTool } from "@/features/mcp-tools/wiki.mcp-tools";
 import { exportCrmRecordsTool, importCrmRecordsTool } from "@/features/mcp-tools/data-transfer.mcp-tools";
+import { manageRecordFilesTool } from "@/features/mcp-tools/record-file.mcp-tools";
 import { manageConnectedAccountsTool } from "@/features/mcp-tools/connected-account.mcp-tools";
 import {
   connectMessagingAccountTool,
@@ -58,6 +60,8 @@ import {
 import type { McpTool } from "@/features/mcp-tools/mcp-tool";
 import type { AppMode } from "@/core/config/environment";
 
+import { env } from "@/env";
+
 export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
   records: [
     discoverRecordTypesV2Tool,
@@ -65,6 +69,8 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
     queryRecordsV2Tool,
     searchRecordsV2Tool,
     resolveRecordIdentifiersV2Tool,
+    lookupAddressTool,
+    checkAddressTool,
     readRecordV2Tool,
     mutateRecordV2Tool,
     previewRecordDeletionV2Tool,
@@ -76,6 +82,7 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
     manageTrashTool,
     exportCrmRecordsTool,
     importCrmRecordsTool,
+    manageRecordFilesTool,
   ],
   "record-model": [configureRecordModelV2Tool],
   workspace: [getWorkspaceContextTool, listUsersTool],
@@ -123,13 +130,16 @@ const CLOUD_ONLY_MCP_TOOLS: ReadonlySet<McpTool> = new Set([
   ...MCP_TOOL_GROUPS.routines,
 ]);
 
-export function mcpToolGroupsForAppMode(appMode: AppMode): Record<string, McpTool[]> {
-  if (appMode !== "self-hosted") return MCP_TOOL_GROUPS;
+function isMcpToolOffered(tool: McpTool, appMode: AppMode): boolean {
+  if (appMode === "self-hosted" && CLOUD_ONLY_MCP_TOOLS.has(tool)) return false;
+  return tool !== lookupAddressTool || Boolean(env.ADDRESS_LOOKUP_URL);
+}
 
+export function mcpToolGroupsForAppMode(appMode: AppMode): Record<string, McpTool[]> {
   return Object.fromEntries(
     Object.entries(MCP_TOOL_GROUPS).map(([key, tools]) => [
       key,
-      tools.filter((tool) => !CLOUD_ONLY_MCP_TOOLS.has(tool)),
+      tools.filter((tool) => isMcpToolOffered(tool, appMode)),
     ]),
   );
 }

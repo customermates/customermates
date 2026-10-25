@@ -49,6 +49,12 @@ import { SaveWidgetInteractor } from "@/features/widget/save-widget.interactor";
 import { RecordWidgetReader } from "@/features/widget/record-widget-reader";
 import { WidgetDtoReader } from "@/features/widget/widget-dto-reader";
 import { PreviewRecordWidgetInteractor } from "@/features/widget/preview-record-widget.interactor";
+import { RecordCalendarWidgetReader } from "@/features/widget/record-calendar-widget-reader";
+import { RecordMapWidgetReader } from "@/features/widget/record-map-widget-reader";
+import { UpsertRecordCalendarWidgetInteractor } from "@/features/widget/record-calendar-widget.interactor";
+import { UpsertRecordMapWidgetInteractor } from "@/features/widget/record-map-widget.interactor";
+import { PreviewRecordCalendarWidgetInteractor } from "@/features/widget/preview-record-calendar-widget.interactor";
+import { PreviewRecordMapWidgetInteractor } from "@/features/widget/preview-record-map-widget.interactor";
 import { wikiWebsiteNetwork } from "@/ee/wiki-crawl/wiki-website-network";
 /**
  * Application dependency injection - single source of truth for everything wired
@@ -156,6 +162,41 @@ import { GetRecordOperationInteractor } from "@/features/records/get-record-oper
 import { CancelRecordOperationInteractor } from "@/features/records/cancel-record-operation.interactor";
 import { RecordOperationService } from "@/features/records/record-operation.service";
 import { RecordWriteService } from "@/features/records/record-write.service";
+import type { FileStorageDriver } from "@/core/storage/file-storage-driver";
+import { DatabaseFileStorageDriver } from "@/core/storage/database-file-storage.driver";
+import { PrismaFileContentRepo } from "@/core/storage/prisma-file-content.repository";
+import { RecordFileAttachmentService } from "@/features/records/record-file-attachment.service";
+import { PrismaRecordFileRepo } from "@/features/records/prisma-record-file.repository";
+import { S3FileStorageDriver, s3FileStorageConfig } from "@/core/storage/s3-file-storage.driver";
+import { VercelBlobFileStorageDriver, vercelBlobClient } from "@/core/storage/vercel-blob-file-storage.driver";
+import { RecordFileLinks } from "@/features/record-files/record-file-links";
+import { RecordFileQuotaService } from "@/features/record-files/record-file-quota.service";
+import { RecordFileUploadService } from "@/features/record-files/record-file-upload.service";
+import { RecordFileAccessService } from "@/features/record-files/record-file-access.service";
+import { RecordFileGrantTenant } from "@/features/record-files/record-file-grant-tenant";
+import { recordFileMaxUploadBytes } from "@/features/record-files/record-file-limits";
+import { frameAncestorsPolicy } from "@/core/config/environment";
+import { CreateRecordFileUploadInteractor } from "@/features/record-files/create-record-file-upload.interactor";
+import { UploadRecordFileContentInteractor } from "@/features/record-files/upload-record-file-content.interactor";
+import { UploadRecordFileContentByGrantInteractor } from "@/features/record-files/upload-record-file-content-by-grant.interactor";
+import { GetRecordFileInteractor } from "@/features/record-files/get-record-file.interactor";
+import { DownloadRecordFileInteractor } from "@/features/record-files/download-record-file.interactor";
+import { PreviewRecordFileInteractor } from "@/features/record-files/preview-record-file.interactor";
+import { DownloadRecordFileByGrantInteractor } from "@/features/record-files/download-record-file-by-grant.interactor";
+import { UploadRecordFileInteractor } from "@/features/record-files/upload-record-file.interactor";
+import { AttachRecordFileInteractor } from "@/features/record-files/attach-record-file.interactor";
+import { RenameRecordFileInteractor } from "@/features/record-files/rename-record-file.interactor";
+import { AgentChatFileService } from "@/ee/agent-chat/agent-chat-files.service";
+import { AgentNativeFileLoader } from "@/ee/agent-chat/agent-native-file-loader";
+import { CompleteAgentChatFileUploadInteractor } from "@/ee/agent-chat/complete-agent-chat-file-upload.interactor";
+import { CreateAgentChatFileUploadInteractor } from "@/ee/agent-chat/create-agent-chat-file-upload.interactor";
+import { GetFileStorageUsageInteractor } from "@/features/record-files/get-file-storage-usage.interactor";
+import { PurgeExpiredRecordFilesInteractor } from "@/features/record-files/purge-expired-record-files.interactor";
+import { PurgeCompanyRecordFilesInteractor } from "@/features/record-files/purge-company-record-files.interactor";
+import { NormalizePhoneIdentitiesInteractor } from "@/features/records/normalize-phone-identities.interactor";
+import { NormalizeCompanyPhoneIdentitiesInteractor } from "@/features/records/normalize-company-phone-identities.interactor";
+import { PurgeCompanyFileObjectsInteractor } from "@/features/record-files/purge-company-file-objects.interactor";
+import { ReadRecordFileInteractor } from "@/features/record-files/read-record-file.interactor";
 import { PrismaRoleRepo } from "@/features/role/prisma-role.repository";
 import { PrismaUserRepo } from "@/features/user/prisma-user.repository";
 import { PrismaWebhookDeliveryRepo } from "@/features/webhook/prisma-webhook-delivery.repository";
@@ -454,6 +495,7 @@ import { PrismaOperatorWorkspacesRepo } from "@/ee/operator/prisma-operator-work
 import { PrismaOperatorRepo } from "@/ee/operator/prisma-operator.repository";
 import { ResetOperatorUserCreditsInteractor } from "@/ee/operator/reset-operator-user-credits.interactor";
 import { UpdateHostedAiEnterpriseAllowanceInteractor } from "@/ee/operator/update-hosted-ai-enterprise-allowance.interactor";
+import { UpdateEnterpriseFileStorageInteractor } from "@/ee/operator/update-enterprise-file-storage.interactor";
 import { UpdateOperatorSubscriptionTermsInteractor } from "@/ee/operator/update-operator-subscription-terms.interactor";
 import { UpdateOperatorUserPlatformAccessInteractor } from "@/ee/operator/update-operator-user-platform-access.interactor";
 import { UpdateOperatorUserStatusInteractor } from "@/ee/operator/update-operator-user-status.interactor";
@@ -501,6 +543,7 @@ const getRecordRepoOwners = (): RecordRepoOwners => ({
   members: getUserRepo(),
   roles: getRoleRepo(),
   subscriptions: getRecordEventSubscriptionRepo(),
+  files: getRecordFileRepo(),
 });
 export const createPrismaRecordRepo = (companyId?: string, background?: Pick<BackgroundTaskService, "dispatch">) =>
   new PrismaRecordRepo(getRecordRepoOwners, companyId, background);
@@ -564,7 +607,135 @@ export const getRecordTrashService = (records: RecordRepo = getRecordRepo()) =>
 export const getPreviewCalculationInteractor = () =>
   new PreviewCalculationInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordCalculationService());
 export const getRecordWriteService = (records: RecordRepo = getRecordRepo()) =>
-  new RecordWriteService(records, getRecordAccessPolicy(), getRecordCalculationService(records));
+  new RecordWriteService(
+    records,
+    getRecordAccessPolicy(),
+    getRecordCalculationService(records),
+    getAddressCandidateVerifier(),
+    getRecordFileAttachmentService(),
+    getAddressCheckService(),
+  );
+const getAddressCandidateVerifier = () => new SignedAddressCandidateVerifier(env.BETTER_AUTH_SECRET);
+const getRecordFileRepo = (companyId?: string) => new PrismaRecordFileRepo(companyId);
+const getRecordFileAttachmentService = () =>
+  new RecordFileAttachmentService(
+    getRecordFileRepo(),
+    { drivers: getFileStorageDriver, maxBytes: recordFileMaxUploadBytes(env.APP_MODE, env.FILE_MAX_UPLOAD_BYTES) },
+    getBackgroundTaskService(),
+  );
+const getFileContentRepo = (companyId?: string) => new PrismaFileContentRepo(companyId);
+const getDatabaseFileStorageDriver = (companyId?: string) =>
+  new DatabaseFileStorageDriver(getFileContentRepo(companyId), env.BASE_URL);
+const getFileStorageDriver = (name: string = env.FILE_STORAGE_DRIVER, companyId?: string): FileStorageDriver => {
+  if (name === "database") return getDatabaseFileStorageDriver(companyId);
+  if (name === "s3") return new S3FileStorageDriver(s3FileStorageConfig(env));
+  if (name === "vercel-blob") return new VercelBlobFileStorageDriver(vercelBlobClient);
+  throw new Error(`The ${name} file storage driver is unknown`);
+};
+// Record files: uploads, downloads, storage quota and lifecycle
+const getRecordFileLinks = () => new RecordFileLinks(env.BETTER_AUTH_SECRET, env.BASE_URL);
+const getRecordFileQuotaService = () =>
+  new RecordFileQuotaService(
+    {
+      subscription: () => getCompanyRepo().findFileStoragePlan(),
+      activeUsers: () => getUserRepo().countActiveUsers(),
+      usedBytes: () => getRecordFileRepo().storageUsageCompanyWide(),
+    },
+    env.APP_MODE,
+  );
+const getRecordFileUploadService = () =>
+  new RecordFileUploadService(
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getRecordFileRepo(),
+    getRecordFileQuotaService(),
+    {
+      maxBytes: recordFileMaxUploadBytes(env.APP_MODE, env.FILE_MAX_UPLOAD_BYTES),
+      driver: env.FILE_STORAGE_DRIVER,
+    },
+  );
+const getRecordFileAccessService = () =>
+  new RecordFileAccessService(getRecordRepo(), getRecordAccessPolicy(), getRecordFileRepo());
+const getRecordFileGrantTenant = () => new RecordFileGrantTenant(getRecordFileLinks(), getUserService());
+export const getCreateRecordFileUploadInteractor = () =>
+  new CreateRecordFileUploadInteractor(getRecordFileUploadService(), getFileStorageDriver, getRecordFileLinks());
+export const getUploadRecordFileContentInteractor = () =>
+  new UploadRecordFileContentInteractor(getRecordFileRepo(), getFileStorageDriver);
+export const getUploadRecordFileContentByGrantInteractor = () =>
+  new UploadRecordFileContentByGrantInteractor(getRecordFileGrantTenant(), getUploadRecordFileContentInteractor());
+export const getGetRecordFileInteractor = () =>
+  new GetRecordFileInteractor(getRecordFileAccessService(), getRecordFileLinks());
+export const getDownloadRecordFileInteractor = () =>
+  new DownloadRecordFileInteractor(
+    getRecordFileAccessService(),
+    getFileStorageDriver,
+    frameAncestorsPolicy(env.APP_MODE),
+  );
+export const getPreviewRecordFileInteractor = () =>
+  new PreviewRecordFileInteractor(getRecordFileAccessService(), getFileStorageDriver);
+export const getDownloadRecordFileByGrantInteractor = () =>
+  new DownloadRecordFileByGrantInteractor(getRecordFileGrantTenant(), getDownloadRecordFileInteractor());
+export const getUploadRecordFileInteractor = () =>
+  new UploadRecordFileInteractor(
+    getRecordFileUploadService(),
+    getRecordFileRepo(),
+    getFileStorageDriver,
+    getRecordRepo(),
+    getMutateRecordInteractor(),
+  );
+export const getAttachRecordFileInteractor = () =>
+  new AttachRecordFileInteractor(getRecordFileRepo(), getRecordFileAccessService(), {
+    records: getRecordRepo(),
+    mutate: getMutateRecordInteractor(),
+  });
+export const getRenameRecordFileInteractor = () =>
+  new RenameRecordFileInteractor(
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getRecordWriteService(),
+    getRecordFileRepo(),
+  );
+const getAgentChatFileService = () =>
+  new AgentChatFileService(getRecordFileAccessService(), getRecordFileRepo(), getBackgroundTaskService());
+export const getAgentNativeFileLoader = () =>
+  new AgentNativeFileLoader(getRecordFileAccessService(), getFileStorageDriver);
+export const getCreateAgentChatFileUploadInteractor = () =>
+  new CreateAgentChatFileUploadInteractor(
+    getEntitlementService(),
+    getRecordFileUploadService(),
+    getFileStorageDriver,
+    getRecordFileLinks(),
+  );
+export const getCompleteAgentChatFileUploadInteractor = () =>
+  new CompleteAgentChatFileUploadInteractor(
+    getEntitlementService(),
+    getRecordFileRepo(),
+    getFileStorageDriver,
+    getRecordFileIndexService,
+    recordFileMaxUploadBytes(env.APP_MODE, env.FILE_MAX_UPLOAD_BYTES),
+  );
+export const getReadRecordFileInteractor = () =>
+  new ReadRecordFileInteractor(getGetRecordFileInteractor(), getRecordFileSearchRepo());
+export const getGetFileStorageUsageInteractor = () => new GetFileStorageUsageInteractor(getRecordFileQuotaService());
+export const getPurgeExpiredRecordFilesInteractor = () =>
+  new PurgeExpiredRecordFilesInteractor(getRecordFileRepo(), getBackgroundTaskService());
+export const getPurgeCompanyRecordFilesInteractor = () =>
+  new PurgeCompanyRecordFilesInteractor(
+    (companyId) => getRecordFileRepo(companyId),
+    (companyId) => (name) => getFileStorageDriver(name, companyId),
+  );
+export const getNormalizePhoneIdentitiesInteractor = () =>
+  new NormalizePhoneIdentitiesInteractor(
+    getRecordRepo(),
+    (companyId) => createPrismaRecordRepo(companyId),
+    getBackgroundTaskService(),
+  );
+export const getNormalizeCompanyPhoneIdentitiesInteractor = () =>
+  new NormalizeCompanyPhoneIdentitiesInteractor((companyId) => createPrismaRecordRepo(companyId));
+export const getPurgeCompanyFileObjectsInteractor = () =>
+  new PurgeCompanyFileObjectsInteractor(() =>
+    env.FILE_STORAGE_DRIVER === "database" ? [] : [getFileStorageDriver(env.FILE_STORAGE_DRIVER)],
+  );
 export const getRecordConfigurationService = (records: RecordRepo = getRecordRepo()) =>
   new RecordConfigurationService(records);
 export const getRecordConfigurationWriter = (records: RecordRepo = getRecordRepo(), companyId?: string) =>
@@ -795,6 +966,8 @@ export const getDataViewStateRepo = () => createPrismaDataViewRepo();
 export const getWidgetDtoReaders = (): WidgetDtoReaders => ({
   chart: getRecordWidgetReader(),
   activityTimeline: getRecordActivityWidgetReader(),
+  calendar: getRecordCalendarWidgetReader(),
+  map: getRecordMapWidgetReader(),
 });
 export const getWidgetRepo = () => new PrismaWidgetRepo();
 export const getWebhookRepo = () =>
@@ -946,6 +1119,47 @@ const getWikiSemanticRetrieval = () => ({
   scheduler: getWikiSemanticIndexDispatcher("search"),
   gaps: getWikiKnowledgeGapRepo(),
 });
+
+import { IndexRecordFilesInteractor } from "@/features/record-file-index/index-record-files.interactor";
+import { PrismaRecordFileSearchRepo } from "@/features/record-file-index/prisma-record-file-search.repository";
+import { ReadRecordFileContentInteractor } from "@/features/record-file-index/read-record-file-content.interactor";
+import type { RecordFileStorageResolver } from "@/features/record-file-index/record-file-index.service";
+import { RecordFileIndexService } from "@/features/record-file-index/record-file-index.service";
+import { SearchRecordFilesInteractor } from "@/features/record-file-index/search-record-files.interactor";
+import { SweepRecordFileIndexInteractor } from "@/features/record-file-index/sweep-record-file-index.interactor";
+import { RecordFileSemanticIndexScheduler } from "@/ee/record-file-index/record-file-semantic-index-scheduler";
+import { RecordFileSemanticIndexService } from "@/ee/record-file-index/record-file-semantic-index.service";
+const getRecordFileSearchRepo = () => new PrismaRecordFileSearchRepo();
+const getRecordFileIndexStorage =
+  (companyId: string): RecordFileStorageResolver =>
+  (driver) =>
+    driver === "database" || driver === env.FILE_STORAGE_DRIVER ? getFileStorageDriver(driver, companyId) : null;
+const getRecordFileIndexService = (companyId: string) =>
+  new RecordFileIndexService(
+    getRecordFileRepo(companyId),
+    getRecordFileIndexStorage(companyId),
+    new RecordFileSemanticIndexService(getRecordFileRepo(companyId), getWikiEmbeddingService(), companyId),
+  );
+export const getIndexRecordFilesInteractor = () => new IndexRecordFilesInteractor(getRecordFileIndexService);
+export const getSweepRecordFileIndexInteractor = () =>
+  new SweepRecordFileIndexInteractor(getRecordFileRepo(), getBackgroundTaskService());
+const getRecordFileSemanticRetrieval = () => ({
+  embedder: new WikiSemanticQueryEmbedder(getWikiEmbeddingService()),
+  scheduler: new RecordFileSemanticIndexScheduler(
+    getRecordFileRepo(),
+    getWikiEmbeddingService(),
+    getBackgroundTaskService(),
+  ),
+});
+export const getSearchRecordFilesInteractor = () =>
+  new SearchRecordFilesInteractor(
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getRecordFileSearchRepo(),
+    getRecordFileSemanticRetrieval(),
+  );
+export const getReadRecordFileContentInteractor = () =>
+  new ReadRecordFileContentInteractor(getRecordFileAccessService(), getRecordFileSearchRepo());
 
 const EXPECTED_EVENT_LISTENERS = [
   {
@@ -1114,6 +1328,7 @@ export const getDeleteWorkspaceInteractor = () =>
     getDeleteAccountForBillingService(),
     getUnipileWebhookRepo(),
     getUnrecordedSubscriptionCheck(),
+    getBackgroundTaskService(),
   );
 
 export const getUnrecordedSubscriptionCheck = () =>
@@ -1884,6 +2099,7 @@ export const getSendAgentMessageInteractor = () =>
     getGetWikiCatalogInteractor(),
     getUserService(),
     getWikiWebsiteCrawlRepo(),
+    getAgentChatFileService(),
   );
 
 export const getGetRoutinesInteractor = () =>
@@ -1954,7 +2170,7 @@ export const getListAgentConversationsInteractor = () =>
   new ListAgentConversationsInteractor(getAgentChatRepo(), getEntitlementService());
 
 export const getDeleteAgentConversationInteractor = () =>
-  new DeleteAgentConversationInteractor(getAgentChatRepo(), getEntitlementService());
+  new DeleteAgentConversationInteractor(getAgentChatRepo(), getEntitlementService(), getAgentChatFileService());
 
 export const getArchiveAgentConversationInteractor = () =>
   new ArchiveAgentConversationInteractor(getAgentChatRepo(), getEntitlementService());
@@ -1973,10 +2189,13 @@ export const getGetOperatorConsoleVisibilityInteractor = () =>
 export const getGetHostedAiOperatorOverviewInteractor = () =>
   new GetHostedAiOperatorOverviewInteractor(getOperatorRepo());
 
+export const getUpdateEnterpriseFileStorageInteractor = () =>
+  new UpdateEnterpriseFileStorageInteractor(getOperatorRepo());
 export const getUpdateHostedAiEnterpriseAllowanceInteractor = () =>
   new UpdateHostedAiEnterpriseAllowanceInteractor(getOperatorRepo());
 
-export const getDeleteOperatorWorkspaceInteractor = () => new DeleteOperatorWorkspaceInteractor(getOperatorRepo());
+export const getDeleteOperatorWorkspaceInteractor = () =>
+  new DeleteOperatorWorkspaceInteractor(getOperatorRepo(), getBackgroundTaskService());
 
 export const getUpdateOperatorSubscriptionTermsInteractor = () =>
   new UpdateOperatorSubscriptionTermsInteractor(getOperatorRepo());
@@ -2063,7 +2282,33 @@ export const getGetRecordWidgetInteractor = () =>
     getRecordWidgetReader(),
     getRecordAccessPolicy(),
     getRecordActivityWidgetReader(),
+    getRecordCalendarWidgetReader(),
+    getRecordMapWidgetReader(),
   );
+
+const getRecordCalendarWidgetReader = () =>
+  new RecordCalendarWidgetReader(getRecordRepo(), getQueryRecordsInteractor(), getQueryRecordMeasureInteractor());
+const getRecordMapWidgetReader = () => new RecordMapWidgetReader(getRecordRepo(), getQueryRecordsInteractor());
+export const getUpsertRecordCalendarWidgetInteractor = () =>
+  new UpsertRecordCalendarWidgetInteractor(
+    getWidgetRepo(),
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getRecordCalendarWidgetReader(),
+    getDataViewStateRepo(),
+  );
+export const getUpsertRecordMapWidgetInteractor = () =>
+  new UpsertRecordMapWidgetInteractor(
+    getWidgetRepo(),
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getRecordMapWidgetReader(),
+    getDataViewStateRepo(),
+  );
+export const getPreviewRecordCalendarWidgetInteractor = () =>
+  new PreviewRecordCalendarWidgetInteractor(getRecordCalendarWidgetReader(), getRecordAccessPolicy());
+export const getPreviewRecordMapWidgetInteractor = () =>
+  new PreviewRecordMapWidgetInteractor(getRecordMapWidgetReader(), getRecordAccessPolicy());
 
 export const getWidgetDtoReader = () => new WidgetDtoReader(getWidgetDtoReaders);
 export const getRecordActivityWidgetReader = () =>
@@ -2083,6 +2328,8 @@ export const getSaveWidgetInteractor = () =>
     getWidgetRepo(),
     getUpsertRecordWidgetInteractor(),
     getUpsertRecordActivityWidgetInteractor(),
+    getUpsertRecordCalendarWidgetInteractor(),
+    getUpsertRecordMapWidgetInteractor(),
   );
 
 export const getManageDataViewsInteractor = () =>
@@ -2108,6 +2355,47 @@ export const getManageDataViewsInteractor = () =>
 import { MutateThreadRecordsInteractor } from "@/ee/messaging/thread-records/thread-records.interactor";
 import { ReadThreadRecordsInteractor } from "@/ee/messaging/thread-records/read-thread-records.interactor";
 import { PrismaThreadRecordsRepo } from "@/ee/messaging/thread-records/prisma-thread-records.repository";
+import { AddressLookupCache } from "@/features/addresses/address-lookup-cache";
+import { AddressLookupRateLimiter } from "@/features/addresses/address-lookup-rate-limiter";
+import { AddressLookupService } from "@/features/addresses/address-lookup.service";
+import { LookupAddressInteractor } from "@/features/addresses/lookup-address.interactor";
+import { PhotonAddressLookupProvider } from "@/features/addresses/photon-address-lookup.provider";
+import { SignedAddressCandidateVerifier } from "@/features/addresses/signed-address-candidate-verifier";
+import { VerifyAddressInteractor } from "@/features/addresses/verify-address.interactor";
+
+const addressLookupRateLimiter = new AddressLookupRateLimiter();
+const addressLookupCache = new AddressLookupCache();
+export const getAddressLookupService = () =>
+  new AddressLookupService(
+    env.ADDRESS_LOOKUP_URL ? new PhotonAddressLookupProvider(env.ADDRESS_LOOKUP_URL) : null,
+    env.BETTER_AUTH_SECRET,
+    addressLookupRateLimiter,
+    addressLookupCache,
+  );
+export const getLookupAddressInteractor = () => new LookupAddressInteractor(getAddressLookupService());
+export const getVerifyAddressInteractor = () => new VerifyAddressInteractor(getAddressLookupService());
+import { ADDRESS_METADATA, addressFormatOf } from "@/features/addresses/address-metadata";
+import { PostalCodeCache } from "@/features/addresses/postal-codes/postal-code-cache";
+import { downloadPostalCodeFile } from "@/features/addresses/postal-codes/postal-code-download";
+import { POSTAL_CODE_LOADER_VERSION } from "@/features/addresses/postal-codes/postal-code-sources";
+import { PostalCodeService } from "@/features/addresses/postal-codes/postal-code.service";
+import { PrismaPostalCodeRepo } from "@/features/addresses/postal-codes/prisma-postal-code.repository";
+import { AddressCheckService } from "@/features/addresses/address-check.service";
+import { CheckAddressInteractor } from "@/features/addresses/check-address.interactor";
+
+const postalCodeCache = new PostalCodeCache();
+export const getPostalCodeService = () =>
+  new PostalCodeService(
+    new PrismaPostalCodeRepo(),
+    postalCodeCache,
+    env.POSTAL_CODE_DATA_URL,
+    `${POSTAL_CODE_LOADER_VERSION}:${ADDRESS_METADATA.source.retrievedOn}`,
+    addressFormatOf,
+    (countryCode) => getBackgroundTaskService().dispatch("load-postal-codes", { countryCode }),
+    downloadPostalCodeFile,
+  );
+const getAddressCheckService = () => new AddressCheckService(getPostalCodeService());
+export const getCheckAddressInteractor = () => new CheckAddressInteractor(getAddressCheckService());
 
 import { PrismaWorkspaceSetupRepo } from "@/ee/workspace-setup/prisma-workspace-setup.repository";
 import { WorkspaceSetupModelService } from "@/ee/workspace-setup/workspace-setup-model.service";
@@ -2206,4 +2494,38 @@ export const getRetryWorkspaceSetupPhaseInteractor = () =>
     getWorkspaceSetupCrawlStarter(),
     getBackgroundTaskService(),
     getEntitlementService(),
+  );
+
+import { PrismaPlannerPersonalEventsRepo } from "@/ee/calendar/prisma-planner-personal-events.repository";
+import { ReadPlannerInteractor } from "@/features/planner/read-planner.interactor";
+import { GetPlannerOptionsInteractor } from "@/features/planner/get-planner-options.interactor";
+import { PrismaCalendarSubscriptionRepo } from "@/features/planner/prisma-calendar-subscription.repository";
+import { ExportPlannerInteractor } from "@/features/planner/export-planner.interactor";
+import { ManageCalendarSubscriptionsInteractor } from "@/features/planner/manage-calendar-subscriptions.interactor";
+import { ReadCalendarSubscriptionInteractor } from "@/features/planner/read-calendar-subscription.interactor";
+import { CalendarSubscriptionTenant } from "@/features/planner/calendar-subscription-tenant";
+
+const getPlannerPersonalEventsRepo = () => new PrismaPlannerPersonalEventsRepo();
+export const getReadPlannerInteractor = () =>
+  new ReadPlannerInteractor(
+    getGetRecordPresentationInteractor(),
+    getPlannerPersonalEventsRepo(),
+    getEntitlementService(),
+  );
+export const getGetPlannerOptionsInteractor = () =>
+  new GetPlannerOptionsInteractor(
+    getGetRecordModelInteractor(),
+    getP13nRepo(),
+    getPlannerPersonalEventsRepo(),
+    getEntitlementService(),
+  );
+const getCalendarSubscriptionRepo = () => new PrismaCalendarSubscriptionRepo();
+export const getExportPlannerInteractor = () =>
+  new ExportPlannerInteractor(getReadPlannerInteractor(), getWorkspaceSlugResolver());
+export const getManageCalendarSubscriptionsInteractor = () =>
+  new ManageCalendarSubscriptionsInteractor(getCalendarSubscriptionRepo());
+export const getReadCalendarSubscriptionInteractor = () =>
+  new ReadCalendarSubscriptionInteractor(
+    new CalendarSubscriptionTenant(getCalendarSubscriptionRepo(), getUserService()),
+    getExportPlannerInteractor(),
   );

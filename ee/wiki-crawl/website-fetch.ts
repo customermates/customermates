@@ -1,50 +1,19 @@
-import type { IncomingMessage, RequestOptions } from "node:http";
-import type { TcpSocketConnectOpts } from "node:net";
-
-import { lookup as lookupAddress } from "node:dns";
-import { lookup } from "node:dns/promises";
-import { request as httpsRequest } from "node:https";
-import { BlockList, isIP } from "node:net";
+import type { IncomingMessage } from "node:http";
 
 import { parsePublicPageUrl } from "@/features/wiki/wiki-homepage";
+import {
+  abortable,
+  bareHostname,
+  pinnedAddress,
+  pinnedRequestFailure,
+  readCappedBody,
+  sendPinnedRequest,
+} from "@/core/network/pinned-request";
 
 const MAX_BODY_BYTES = 512_000;
 const MAX_REDIRECTS = 3;
 const MAX_READ_MS = 15_000;
 const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
-const IPV4_RESERVED = new BlockList();
-const IPV6_GLOBAL = new BlockList();
-const IPV6_RESERVED = new BlockList();
-
-for (const [address, prefix] of [
-  ["0.0.0.0", 8],
-  ["10.0.0.0", 8],
-  ["100.64.0.0", 10],
-  ["127.0.0.0", 8],
-  ["169.254.0.0", 16],
-  ["172.16.0.0", 12],
-  ["192.0.0.0", 24],
-  ["192.0.2.0", 24],
-  ["192.88.99.0", 24],
-  ["192.168.0.0", 16],
-  ["198.18.0.0", 15],
-  ["198.51.100.0", 24],
-  ["203.0.113.0", 24],
-  ["224.0.0.0", 4],
-  ["240.0.0.0", 4],
-] as const)
-  IPV4_RESERVED.addSubnet(address, prefix, "ipv4");
-
-IPV4_RESERVED.addAddress("168.63.129.16", "ipv4");
-IPV6_GLOBAL.addSubnet("2000::", 3, "ipv6");
-for (const [address, prefix] of [
-  ["2001::", 23],
-  ["2001:db8::", 32],
-  ["2002::", 16],
-  ["3ffe::", 16],
-  ["3fff::", 20],
-] as const)
-  IPV6_RESERVED.addSubnet(address, prefix, "ipv6");
 
 type WebsiteFetchFailure =
   | "invalid_url"
@@ -57,48 +26,9 @@ type WebsiteFetchFailure =
   | "timeout"
   | "robots";
 
-type WebsiteFetchErrorCause = { kind: "websiteFetch"; reason: WebsiteFetchFailure };
-
-function websiteFetchError(reason: WebsiteFetchFailure) {
-  return new Error("Website resource could not be read.", {
-    cause: { kind: "websiteFetch", reason } satisfies WebsiteFetchErrorCause,
-  });
-}
-
 function websiteFetchFailureReason(error: unknown): WebsiteFetchFailure | null {
-  if (!(error instanceof Error) || typeof error.cause !== "object" || error.cause === null) return null;
-  if (!("kind" in error.cause) || error.cause.kind !== "websiteFetch" || !("reason" in error.cause)) return null;
-  const reason = error.cause.reason;
-  switch (reason) {
-    case "invalid_url":
-    case "outside_domain":
-    case "blocked_address":
-    case "unavailable":
-    case "redirect_limit":
-    case "unsupported_content":
-    case "too_large":
-    case "timeout":
-    case "robots":
-      return reason;
-    default:
-      return null;
-  }
-}
-
-export function isPublicWebsiteAddress(address: string): boolean {
-  const family = isIP(address);
-  if (family === 4) return !IPV4_RESERVED.check(address, "ipv4");
-  return family === 6 && IPV6_GLOBAL.check(address, "ipv6") && !IPV6_RESERVED.check(address, "ipv6");
-}
-
-function abortable<T>(operation: Promise<T>, signal: AbortSignal): Promise<T> {
-  return new Promise((resolve, reject) => {
-    const onAbort = () => reject(websiteFetchError("timeout"));
-    if (signal.aborted) onAbort();
-    else signal.addEventListener("abort", onAbort, { once: true });
-
-    operation.then(resolve, reject).finally(() => signal.removeEventListener("abort", onAbort));
-  });
+  const reason = pinnedRequestFailure(error);
+  return reason === "blocked" ? "blocked_address" : reason;
 }
 
 async function requestPage(
@@ -107,60 +37,8 @@ async function requestPage(
   accept: readonly string[],
   userAgent: string,
 ): Promise<IncomingMessage> {
-  const addresses = await abortable(lookup(url.hostname, { all: true, verbatim: true }), signal);
-  if (
-    !addresses.length ||
-    addresses.some(({ address, family }) => isIP(address) !== family || !isPublicWebsiteAddress(address))
-  )
-    throw websiteFetchError("blocked_address");
-  if (signal.aborted) throw websiteFetchError("timeout");
-
-  const address = addresses[0];
-  return new Promise((resolve, reject) => {
-    const requestOptions: RequestOptions & Pick<TcpSocketConnectOpts, "autoSelectFamily"> = {
-      agent: false,
-      autoSelectFamily: false,
-      family: address.family,
-      maxHeaderSize: 16_384,
-      signal,
-      headers: {
-        Accept: accept.join(", "),
-        "Accept-Encoding": "identity",
-        "User-Agent": userAgent,
-      },
-      lookup: (_hostname, options, callback) => lookupAddress(address.address, options, callback),
-    };
-    const request = httpsRequest(url, requestOptions, resolve);
-    request.on("error", reject);
-    request.end();
-  });
-}
-
-async function readBody(
-  response: IncomingMessage,
-  signal: AbortSignal,
-  truncate: boolean,
-): Promise<{ body: Buffer; truncated: boolean }> {
-  const encoding = response.headers["content-encoding"]?.trim().toLowerCase();
-  if (encoding && encoding !== "identity") throw websiteFetchError("unsupported_content");
-  const declaredLength = response.headers["content-length"];
-  if (!truncate && declaredLength && Number(declaredLength) > MAX_BODY_BYTES) throw websiteFetchError("too_large");
-
-  let size = 0;
-  const chunks: Uint8Array[] = [];
-  for await (const chunk of response) {
-    if (signal.aborted) throw websiteFetchError("timeout");
-    const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
-    if (size + buffer.byteLength > MAX_BODY_BYTES) {
-      if (!truncate) throw websiteFetchError("too_large");
-      const kept = buffer.subarray(0, MAX_BODY_BYTES - size);
-      chunks.push(new Uint8Array(kept.buffer, kept.byteOffset, kept.byteLength));
-      return { body: Buffer.concat(chunks), truncated: true };
-    }
-    size += buffer.byteLength;
-    chunks.push(new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength));
-  }
-  return { body: Buffer.concat(chunks), truncated: false };
+  const address = await pinnedAddress(bareHostname(url), { signal });
+  return sendPinnedRequest(url, address, { signal, accept: accept.join(", "), userAgent });
 }
 
 function textDecoder(label: string | undefined): TextDecoder {
@@ -239,7 +117,11 @@ export async function fetchWebsiteResource(
         const contentTypeHeader = response.headers["content-type"] ?? "";
         const contentType = contentTypeHeader.split(";", 1)[0].trim().toLowerCase();
         if (!input.accept.includes(contentType)) return { ok: false, reason: "unsupported_content" };
-        const read = await readBody(response, signal, input.truncateOversized === true);
+        const read = await readCappedBody(response, {
+          maxBytes: MAX_BODY_BYTES,
+          signal,
+          truncate: input.truncateOversized === true,
+        });
         const body = decodeBody(read.body, contentType, contentTypeHeader);
         return { ok: true, url: currentUrl, contentType, body, truncated: read.truncated };
       } finally {

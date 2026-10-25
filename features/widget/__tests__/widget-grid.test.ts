@@ -10,6 +10,8 @@ import {
   placeWidgets,
   rectsOverlap,
   widgetDefaultSize,
+  widgetLayoutGeometry,
+  widgetMinimumSize,
   withLargePlacement,
 } from "../widget-grid";
 
@@ -70,6 +72,20 @@ describe("grid geometry", () => {
     expect(widgetDefaultSize("chart", DisplayType.verticalBarChart)).toEqual({ w: 4, h: 5 });
     expect(widgetDefaultSize("chart")).toEqual({ w: 4, h: 6 });
     expect(widgetDefaultSize("activityTimeline")).toEqual({ w: 6, h: 6 });
+    expect(widgetDefaultSize("calendar")).toEqual({ w: 4, h: 6 });
+    expect(widgetDefaultSize("map")).toEqual({ w: 6, h: 6 });
+  });
+
+  it("keeps calendars and maps large enough to read", () => {
+    expect(widgetMinimumSize("calendar")).toEqual({ w: 2, h: 5 });
+    expect(widgetMinimumSize("map")).toEqual({ w: 3, h: 5 });
+    expect(widgetLayoutGeometry("map", 12)).toEqual({ w: 6, h: 6, minW: 3, minH: 5 });
+    expect(widgetLayoutGeometry("map", 2)).toEqual({ w: 2, h: 6, minW: 2, minH: 5 });
+    expect(widgetLayoutGeometry("calendar", 12, { w: 1, h: 3 })).toEqual({ w: 2, h: 5, minW: 2, minH: 5 });
+    expect(placeWidget({ id: "map", kind: "map", requested: { x: 0, y: 0, w: 2, h: 8 }, widgets: [] })).toEqual({
+      ok: false,
+      reason: "tooSmall",
+    });
   });
 });
 

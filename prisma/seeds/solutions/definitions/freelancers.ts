@@ -1016,12 +1016,12 @@ export default defineSolution<Strings>({
       const mobile = phone(index);
       return {
         key,
-        values: { firstName, lastName, jobTitle, phone: mobile },
+        values: { firstName, lastName, jobTitle },
         links: { "contact.organizations": facts.organization },
         owner: "maxBergmann",
         channels: {
           email: `${mailbox(firstName)}.${mailbox(lastName)}@${domain}`,
-          ...(facts.whatsapp ? { phone: mobile } : {}),
+          phone: mobile,
         },
         ...(facts.avatar ? { avatar: photo(facts.avatar) } : {}),
         createdDaysAgo: facts.createdDaysAgo,
@@ -1121,7 +1121,6 @@ export default defineSolution<Strings>({
         { key: "organization.city", label: t.fields.city, type: "text" },
         { key: "organization.website", label: t.fields.website, type: "url" },
         { key: "contact.jobTitle", label: t.fields.jobTitle, type: "text" },
-        { key: "contact.phone", label: t.fields.phone, type: "phone" },
         {
           key: "deal.workType",
           label: t.fields.workType,

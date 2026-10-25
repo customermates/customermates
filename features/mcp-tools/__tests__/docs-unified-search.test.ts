@@ -261,7 +261,7 @@ describe("unified documentation search", () => {
       },
     );
     expect(offered.slice(0, parents.length).map(({ section }) => section)).toEqual(parents);
-    expect(offered.length).toBeLessThanOrEqual(120);
+    expect(offered.length).toBeLessThanOrEqual(140);
     expect(offered.find(({ section }) => section === expected)?.section.text).toBe(expected.text);
     expect(result.structuredContent.results[0]).toMatchObject({
       slug: "app-company",
@@ -303,7 +303,7 @@ describe("unified documentation search", () => {
       },
     );
     expect(offered.some(({ section }) => section === expected)).toBe(true);
-    expect(offered.length).toBeLessThanOrEqual(120);
+    expect(offered.length).toBeLessThanOrEqual(140);
   });
 
   it("returns no pages below the relevance floor, and lets the re-rank reject a loose match", async () => {

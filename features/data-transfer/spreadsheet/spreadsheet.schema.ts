@@ -162,8 +162,6 @@ export const SpreadsheetRowErrorCodeSchema = z.enum([
   "invalidBoolean",
   "invalidDate",
   "invalidDateTime",
-  "invalidEmail",
-  "invalidPhone",
   "invalidUrl",
   "unknownOption",
   "tooManyValues",

@@ -2,7 +2,7 @@ import { channelClass } from "@/ee/messaging/provider";
 import { presetId } from "@/features/records/crm-preset";
 import { identityKeys, normalizedIdentity } from "@/features/records/record-identity";
 import type { RecordModel, RecordScalar } from "@/features/records/record-model.schema";
-import type { MessagingProvider as PrismaMessagingProvider } from "@/generated/prisma";
+import type { RecordIdentityProvider } from "@/generated/prisma";
 
 import { fixtureId, workspaceFixtureId } from "../helpers";
 import { TEAM_MEMBER_IDS } from "../team";
@@ -44,7 +44,7 @@ export type SolutionIdentityRow = {
   id: string;
   typeId: string;
   recordId: string;
-  provider: PrismaMessagingProvider;
+  provider: RecordIdentityProvider;
   channelClass: string;
   value: string;
   messagingId: string | null;
@@ -138,8 +138,6 @@ function scalar(workspace: SolutionWorkspace, model: RecordModel, fieldKey: stri
   };
   switch (field.valueType) {
     case "text":
-    case "email":
-    case "phone":
     case "url":
       if (field.multiple && Array.isArray(input)) return { kind: "textList", value: [...(input as string[])] };
       return typeof input === "string" ? { kind: "text", value: input } : fail();
@@ -308,10 +306,10 @@ export function buildSolutionRecordData(
         list === "contact"
           ? `${String(spec.values.firstName)} ${String(spec.values.lastName)}`
           : String(spec.values.name);
-      const channels: Array<[PrismaMessagingProvider, string | undefined, string | undefined]> = [
+      const channels: Array<[RecordIdentityProvider, string | undefined, string | undefined]> = [
         ["mail", spec.channels?.email, undefined],
         ["linkedin", spec.channels?.linkedin, spec.channels?.linkedinUrl],
-        ["whatsapp", spec.channels?.phone, undefined],
+        ["phone", spec.channels?.phone, undefined],
       ];
       for (const [provider, raw, profileUrl] of channels) {
         if (!raw) continue;

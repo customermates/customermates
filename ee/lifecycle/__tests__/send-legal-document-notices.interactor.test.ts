@@ -417,8 +417,8 @@ describe("SendLegalDocumentNoticesInteractor", () => {
     expect(props.documents.map((document) => document.version)).toEqual([
       "1. September 2026",
       "16. Oktober 2026",
-      "16. Oktober 2026",
-      "16. Oktober 2026",
+      "19. Oktober 2026",
+      "19. Oktober 2026",
     ]);
   });
 
@@ -522,14 +522,14 @@ describe("SendLegalDocumentNoticesInteractor", () => {
   it("suppresses historical information for later users but sends conservatively on the release day", async () => {
     recipients = [
       recipient("later-member", false, {
-        createdAt: new Date("2026-10-17T00:00:00.000Z"),
+        createdAt: new Date("2026-10-20T00:00:00.000Z"),
       }),
       recipient("same-day-member", false, {
-        createdAt: new Date("2026-10-16T23:59:59.000Z"),
+        createdAt: new Date("2026-10-19T23:59:59.000Z"),
       }),
     ];
 
-    await invoke(new Date("2026-10-17T09:00:00.000Z"));
+    await invoke(new Date("2026-10-20T09:00:00.000Z"));
 
     expect(emailService.send).toHaveBeenCalledOnce();
     expect(emailService.send.mock.calls[0][0].to).toBe("same-day-member@example.com");

@@ -17,6 +17,7 @@ export type RecordSearchRow = {
   title: string | null;
   errorCode: string | null;
   pictureUrl: string | null;
+  rank: number;
 };
 
 export const SIMILAR_TITLE_MIN_LENGTH = 4;
@@ -44,6 +45,8 @@ export function compileRecordSearch(
           (!request.search.typeIds || request.search.typeIds.includes(type.id))),
   );
   const cursor = "search" in request ? request.search.cursor : null;
+  const cursorRank = cursor?.rank ?? 0;
+  const rankedTerm = "search" in request && !request.similarTitles ? request.search.searchTerm : null;
   const similarTerm = "search" in request && request.similarTitles ? request.search.searchTerm : null;
   const pageLimit = "search" in request ? request.search.limit + 1 : request.refs.length;
   const branches = types.map((type) => {
@@ -52,6 +55,18 @@ export function compileRecordSearch(
     const avatarValue = recordPictureSql(companyId, type.id, model, access, root);
     const scope = access.get(type.id) ?? { access: "none" as const, userId: "" };
     const similar = similarTerm !== null && title ? similarTerm : null;
+    const rank =
+      rankedTerm !== null && title
+        ? Prisma.sql`CASE WHEN ${titleAccess} THEN COALESCE((SELECT CASE WHEN title.text = term.text THEN 0
+          WHEN starts_with(title.text, term.text) THEN 1
+          WHEN title.text ~ ('[^[:alnum:]]' || regexp_replace(term.text, '([^[:alnum:]])', '\\\\\\1', 'g')) THEN 2
+          WHEN position(term.text IN title.text) > 0 THEN 3 ELSE 4 END
+          FROM (SELECT lower(${rankedTerm}) AS text) term, (SELECT lower(value."textValue") AS text FROM "RecordValue" value
+            WHERE value."companyId" = ${companyId} AND value."typeId" = ${type.id} AND value."recordId" = record.id
+              AND value."fieldId" = ${title.id} AND value.state = 'value') title), 4) ELSE 4 END`
+        : rankedTerm !== null
+          ? Prisma.sql`4`
+          : Prisma.sql`0`;
     const matching =
       "refs" in request
         ? Prisma.sql`SELECT id FROM "CrmRecord" WHERE "companyId" = ${companyId} AND "typeId" = ${type.id} AND "deletedAt" IS NULL
@@ -68,10 +83,10 @@ export function compileRecordSearch(
               access,
             ).matching;
     const after = cursor
-      ? Prisma.sql`(record."createdAt" < (${cursor.createdAt}::timestamptz AT TIME ZONE 'UTC') OR (record."createdAt" = (${cursor.createdAt}::timestamptz AT TIME ZONE 'UTC') AND (${type.id}, record.id) > (${cursor.ref.typeId}, ${cursor.ref.recordId})))`
+      ? Prisma.sql`(${rank} > ${cursorRank} OR (${rank} = ${cursorRank} AND (record."createdAt" < (${cursor.createdAt}::timestamptz AT TIME ZONE 'UTC') OR (record."createdAt" = (${cursor.createdAt}::timestamptz AT TIME ZONE 'UTC') AND (${type.id}, record.id) > (${cursor.ref.typeId}, ${cursor.ref.recordId})))))`
       : Prisma.sql`TRUE`;
     const candidates = Prisma.sql`WITH matches AS MATERIALIZED (${matching})
-      SELECT record.id, record."typeId", record."createdAt", record.version FROM matches matched
+      SELECT record.id, record."typeId", record."createdAt", record.version, ${rank} AS rank FROM matches matched
       JOIN LATERAL (
         SELECT id, "companyId", "typeId", "createdAt", version FROM "CrmRecord"
         WHERE "companyId" = ${companyId} AND "typeId" = ${type.id} AND id = matched.id AND "deletedAt" IS NULL
@@ -80,9 +95,9 @@ export function compileRecordSearch(
       WHERE record."companyId" = ${companyId} AND record."typeId" = ${type.id}
         AND ${recordReadPredicate(companyId, scope, root)} AND ${after}
         ${similar !== null ? Prisma.sql`AND ${titleAccess}` : Prisma.empty}
-      ORDER BY ${similar !== null ? Prisma.sql`matched.similarity DESC,` : Prisma.empty} record."createdAt" DESC, record.id ASC
+      ORDER BY ${similar !== null ? Prisma.sql`matched.similarity DESC,` : Prisma.empty} rank ASC, record."createdAt" DESC, record.id ASC
       LIMIT ${pageLimit}`;
-    return Prisma.sql`SELECT record."typeId", record.id AS "recordId", record."createdAt", record.version,
+    return Prisma.sql`SELECT record."typeId", record.id AS "recordId", record."createdAt", record.version, record.rank,
       CASE WHEN ${titleAccess} THEN COALESCE(title.state, 'missing') ELSE 'restricted' END AS state,
       CASE WHEN ${titleAccess} AND title.state = 'value' THEN title."textValue" ELSE NULL END AS title,
       CASE WHEN ${titleAccess} AND title.state = 'error' THEN title."errorCode" ELSE NULL END AS "errorCode",
@@ -93,11 +108,11 @@ export function compileRecordSearch(
   });
   if (!branches.length) return null;
   const after = cursor
-    ? Prisma.sql`("createdAt" < (${cursor.createdAt}::timestamptz AT TIME ZONE 'UTC') OR ("createdAt" = (${cursor.createdAt}::timestamptz AT TIME ZONE 'UTC') AND ("typeId", "recordId") > (${cursor.ref.typeId}, ${cursor.ref.recordId})))`
+    ? Prisma.sql`(rank > ${cursorRank} OR (rank = ${cursorRank} AND ("createdAt" < (${cursor.createdAt}::timestamptz AT TIME ZONE 'UTC') OR ("createdAt" = (${cursor.createdAt}::timestamptz AT TIME ZONE 'UTC') AND ("typeId", "recordId") > (${cursor.ref.typeId}, ${cursor.ref.recordId})))))`
     : Prisma.sql`TRUE`;
-  const sql = Prisma.sql`SELECT "typeId", "recordId", to_char("createdAt", 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "createdAt", version, state, title, "errorCode", "pictureUrl"
+  const sql = Prisma.sql`SELECT "typeId", "recordId", to_char("createdAt", 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "createdAt", version, state, title, "errorCode", "pictureUrl", rank::int AS rank
     FROM (${Prisma.join(branches, " UNION ALL ")}) records WHERE ${after}
-    ORDER BY ${similarTerm !== null ? Prisma.sql`COALESCE(word_similarity(${similarTerm}, title), 0) DESC,` : Prisma.empty} "createdAt" DESC, "typeId" ASC, "recordId" ASC LIMIT ${"search" in request ? request.search.limit + 1 : request.refs.length}`;
+    ORDER BY ${similarTerm !== null ? Prisma.sql`COALESCE(word_similarity(${similarTerm}, title), 0) DESC,` : Prisma.empty} rank ASC, "createdAt" DESC, "typeId" ASC, "recordId" ASC LIMIT ${"search" in request ? request.search.limit + 1 : request.refs.length}`;
   if (sql.values.length > 12000 || sql.sql.length > 1500000)
     throw unwindFailure(CustomErrorCode.recordCalculationBudget);
   return sql;

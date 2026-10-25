@@ -30,11 +30,12 @@ export type RootStoreInitialState = {
   locale: RoutingLocale;
   user: TenantUser | null;
   subscription: SubscriptionDto | null;
+  addressLookupAvailable?: boolean;
   workspaces?: WorkspaceSummary[];
 };
 
 function createRootStore(agentChatEnabled: boolean, appMode: AppMode, initialState: RootStoreInitialState): RootStore {
-  const rootStore = new RootStore(appMode, agentChatEnabled);
+  const rootStore = new RootStore(appMode, agentChatEnabled, initialState.addressLookupAvailable ?? false);
   rootStore.localeStore.setLocale(initialState.locale);
   rootStore.userStore.setUser(initialState.user);
   rootStore.subscriptionStore.setSubscription(initialState.subscription);

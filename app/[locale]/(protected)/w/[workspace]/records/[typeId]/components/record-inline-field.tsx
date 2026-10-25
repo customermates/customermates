@@ -1,5 +1,6 @@
 "use client";
 
+import { IN_PLACE_EDITOR_CLASS } from "@/components/records/inline-edit-classes";
 import type { KeyboardEvent, MouseEvent, PointerEvent, ReactNode } from "react";
 import type {
   RecordFieldView,
@@ -45,7 +46,7 @@ import { useDataViewItemLayout } from "@/components/data-view/data-view-item-lay
 import { recordDisplayName } from "@/features/records/record-display-name";
 import { cn } from "@/core/utils/cn";
 import { ITEM_REVEAL_CLASS } from "@/components/ui/item-actions";
-import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
+import { CLICK_ACTION_VALUE_TYPES } from "@/features/records/record-model-validation";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { actionData } from "@/core/utils/action-data";
 import { getActiveUsersAction } from "@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/actions";
@@ -72,9 +73,7 @@ const EDIT_TARGET_CLASS = cn(
 export const EDIT_SPACE_BUTTON_CLASS = "sr-only";
 export const EDIT_SPACE_FOCUS_CLASS =
   "rounded-md has-[[data-edit-target]:focus-visible]:ring-2 has-[[data-edit-target]:focus-visible]:ring-ring/70";
-const IN_PLACE_VALUE_TYPES: RecordFieldView["valueType"][] = ["text", "number", "currency", ...CONTACT_VALUE_TYPES];
-const IN_PLACE_EDITOR_CLASS =
-  "-mx-2 min-w-0 flex-1 [&_input]:h-7 [&_input]:border-ring/60 [&_input]:bg-background [&_input]:px-[7px] [&_input]:py-0 [&_input]:[font:inherit] [&_input]:shadow-[0_0_0_3px_color-mix(in_oklab,var(--ring)_16%,transparent)] [&_input]:focus-visible:border-ring/60 [&_input]:focus-visible:ring-0";
+const IN_PLACE_VALUE_TYPES: RecordFieldView["valueType"][] = ["text", "number", "currency", "url"];
 
 const DATE_VALUE_TYPES: RecordFieldView["valueType"][] = ["date", "dateTime", "dateRange", "dateTimeRange"];
 
@@ -238,8 +237,8 @@ function useFieldValueStore(records: RecordsStore, record: RecordRow, field: Rec
     return new RecordFieldValueStore(
       records.rootStore,
       field,
-      recordDraftValue(result?.state === "value" ? result.value : null),
-      (value) => records.updateRecordField(record, field.id, value),
+      recordDraftValue(result?.state === "value" ? result.value : null, field),
+      (value) => records.updateRecordField(latestRow(records, record), field.id, value),
       onDone,
     );
   });
@@ -259,7 +258,14 @@ const InlineFieldForm = observer(function InlineFieldForm({
 }) {
   const store = useFieldValueStore(records, record, field, onDone);
   return (
-    <RecordFieldValueEditor saveOnDatePick label={null} members={record.memberUsers} store={store} onCancel={onDone} />
+    <RecordFieldValueEditor
+      saveOnDatePick
+      files={record.files}
+      label={null}
+      members={record.memberUsers}
+      store={store}
+      onCancel={onDone}
+    />
   );
 });
 
@@ -426,7 +432,14 @@ const InPlaceFieldInput = observer(function InPlaceFieldInput({
           {field.label}
         </label>
 
-        <RecordInputField field={field} id="value" inputId={inputId} label={null} members={record.memberUsers} />
+        <RecordInputField
+          field={field}
+          files={record.files}
+          id="value"
+          inputId={inputId}
+          label={null}
+          members={record.memberUsers}
+        />
       </AppFormProvider>
     </div>
   );
@@ -549,7 +562,7 @@ const InPlaceField = observer(function InPlaceField({
   const anchor = useRef<HTMLSpanElement>(null);
   const restoreFocus = useRef(false);
   const empty = isEmptyResult(fieldResult(record, field));
-  const contact = CONTACT_VALUE_TYPES.includes(field.valueType);
+  const contact = field.valueType === "url";
   const label = t("RecordModel.editValue", { field: field.label });
   useEffect(() => {
     if (editing || !restoreFocus.current) return;
@@ -675,7 +688,7 @@ const PopoverField = observer(function PopoverField({
     onOpenChange?.(value);
   };
   const empty = isEmptyResult(fieldResult(record, field));
-  const contact = CONTACT_VALUE_TYPES.includes(field.valueType) && !empty;
+  const contact = CLICK_ACTION_VALUE_TYPES.includes(field.valueType) && !empty;
   const label = t("RecordModel.editValue", { field: field.label });
   const trigger = (
     <button

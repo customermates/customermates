@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { hmacSha256Hex, verifyHmacSha256Hex } from "@/core/utils/hmac";
+import { hmacSha256Hex, purposeSigningSecret, verifyHmacSha256Hex } from "@/core/utils/hmac";
 
 export const ONBOARDING_INTENT_MAX_AGE_MS = 2 * 60 * 60 * 1_000;
 export const ONBOARDING_INTENT_VALUE_MAX_BYTES = 2_048;
@@ -34,8 +34,7 @@ type DecodedOnboardingIntent =
   | { payload: OnboardingIntentPayload; status: "valid" };
 
 export function onboardingIntentSigningSecret(secret: string | undefined): string | null {
-  const trimmed = secret?.trim();
-  return trimmed ? `onboarding-intent:v1:${trimmed}` : null;
+  return purposeSigningSecret("onboarding-intent", secret);
 }
 
 function encodePayload(payload: OnboardingIntentPayload, secret: string): string | null {

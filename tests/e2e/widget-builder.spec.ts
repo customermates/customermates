@@ -32,7 +32,12 @@ async function openWidgetForEdit(page: Page, name: string, id: string) {
       response.request().method() === "POST" &&
       Boolean(response.request().postData()?.includes(id)),
   );
-  await page.getByRole("heading", { name, exact: true }).click();
+  const card = page.locator(`[data-focus-target="widget:${id}"]`);
+  await card.hover();
+  await card.locator("[data-widget-interactive]").getByRole("button", {
+    name: englishMessages.Dashboard.widgetEditor.editTitle.replace("{name}", name),
+    exact: true,
+  }).first().click();
   await widgetLoaded;
   await expect(page.locator("#name")).toBeEnabled();
   await expect(page.locator("#name")).toHaveValue(name);
@@ -90,6 +95,15 @@ test("starts from a recommended starter, previews it live at dashboard size and 
   expect(size && size.height).toBeLessThan(
     (page.viewportSize()?.height ?? 0) * 0.8,
   );
+
+  await dialog.locator("#widget-config-filters").click();
+  const inlineFilters = dialog.locator("#widget-source-filters");
+  const filterList = inlineFilters.locator('[data-slot="command-list"]');
+  await expect(filterList).toBeVisible();
+  await expect(filterList).toHaveCSS("overflow-y", "auto");
+  expect((await filterList.boundingBox())?.height).toBeLessThanOrEqual(301);
+  await expect(inlineFilters.getByRole("button", { name: "Filters", exact: true })).toHaveCount(0);
+  await dialog.locator("#widget-config-filters").click();
 
   await dialog
     .getByRole("textbox", { name: "Name", exact: false })
@@ -170,7 +184,7 @@ test("starts from a recommended starter, previews it live at dashboard size and 
   expect(errors).toEqual([]);
 });
 
-for (const action of ["outside", "save", "cancel"] as const) {
+for (const action of ["outside", "save", "keyboard", "collapse", "cancel"] as const) {
   test(`pending scalar array token: ${action}`, async ({
     page,
     database,
@@ -224,6 +238,12 @@ for (const action of ["outside", "save", "cancel"] as const) {
       await page.locator("#widget-modal-save").click();
     }
     if (action === "save") await page.locator("#widget-modal-save").click();
+    if (action === "collapse") {
+      await page.locator("#widget-config-filters").click();
+      await expect(page.locator("#widget-source-filters")).toHaveCount(0);
+      await page.locator("#widget-modal-save").click();
+    }
+    if (action === "keyboard") await page.locator('[id="draft.value"]').press("Control+Enter");
     if (action === "cancel") {
       await page.getByRole("dialog").getByRole("button", { name: "Close", exact: true }).click();
       await page.locator("#discard-changes").click();

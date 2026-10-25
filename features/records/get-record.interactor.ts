@@ -13,7 +13,7 @@ import { fail, failAuthorization, failNotFound, unwoundFailure } from "@/core/va
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordQuerySchema, RecordReadSchema } from "./record-query.schema";
 import { invalidRecordQueryPart } from "./record-query-validation";
-import { recordDto, withMemberUsers } from "./record-dto";
+import { recordDto, withMemberUsersAndFiles } from "./record-dto";
 
 @AllowInDemoMode
 @TenantInteractor()
@@ -47,7 +47,7 @@ export class GetRecordInteractor extends AuthenticatedInteractor<RecordRead, Rec
         if (invalid) return fail(CustomErrorCode.recordValueInvalid, [invalid]);
         const access = policy.access(model.types.filter((type) => !type.archived).map((type) => type.id));
         const visible = await this.records.getVisibleFields(ref, model, access);
-        const [data] = await withMemberUsers(
+        const [data] = await withMemberUsersAndFiles(
           [recordDto(record, model, visible, policy.memberScope)],
           this.records,
           policy.memberScope,

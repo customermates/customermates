@@ -1404,7 +1404,6 @@ export default defineSolution<Strings>({
           firstName,
           lastName,
           jobTitle,
-          phone: phone(index),
           role: facts.role,
           strength: facts.strength,
           lastMeeting: day(facts.lastMeeting),
@@ -1412,6 +1411,7 @@ export default defineSolution<Strings>({
         links: { "contact.organizations": facts.organization },
         channels: {
           email: `${mailbox(firstName)}.${mailbox(lastName)}@${domain(facts.organization)}`,
+          phone: phone(index),
           ...(facts.linkedin
             ? { linkedin: `${handle}.linkedin.example`, linkedinUrl: `https://linkedin.example/in/${handle}` }
             : {}),
@@ -1519,7 +1519,6 @@ export default defineSolution<Strings>({
         { key: "organization.website", label: t.fields.website, type: "url" },
         { key: "organization.employees", label: t.fields.employees, type: "number" },
         { key: "contact.jobTitle", label: t.fields.jobTitle, type: "text" },
-        { key: "contact.phone", label: t.fields.phone, type: "phone" },
         {
           key: "contact.role",
           label: t.fields.role,

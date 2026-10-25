@@ -20,7 +20,7 @@ export const PaletteValueOperator = observer(function PaletteValueOperator({ ope
   const operatorLabel = useFilterOperatorLabel();
 
   return (
-    <CommandList className="max-h-none! overflow-visible">
+    <CommandList>
       <CommandEmpty>{t("Common.inputs.emptyContent")}</CommandEmpty>
 
       <CommandGroup>

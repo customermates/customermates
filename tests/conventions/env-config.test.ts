@@ -180,12 +180,28 @@ describe("environment configuration", () => {
 
   it("allows only Production and its branch domains to frame Demo builds", () => {
     const config = readFileSync(new URL("../../next.config.ts", import.meta.url), "utf8");
-    expect(config).toContain('env.APP_MODE === "demo"');
-    expect(config).toContain(`? "frame-ancestors 'self' https://customermates.com https://*.customermates.com"`);
-    expect(config).toContain(`: "frame-ancestors 'self'"`);
-    expect(config).not.toContain("test.customermates.com");
-    expect(config).not.toContain("frame-ancestors *");
-    expect(config).not.toContain("*.vercel.app");
+    const policy = readFileSync(new URL("../../core/config/environment.ts", import.meta.url), "utf8");
+    expect(config).toContain("frameAncestorsPolicy(env.APP_MODE)");
+    expect(policy).toContain('appMode === "demo"');
+    expect(policy).toContain(`? "frame-ancestors 'self' https://customermates.com https://*.customermates.com"`);
+    expect(policy).toContain(`: "frame-ancestors 'self'"`);
+    for (const source of [config, policy]) {
+      expect(source).not.toContain("test.customermates.com");
+      expect(source).not.toContain("frame-ancestors *");
+      expect(source).not.toContain("*.vercel.app");
+    }
+  });
+
+  it("leaves record file content its own policy so inline images stay sandboxed and PDFs keep the viewer", () => {
+    const config = readFileSync(new URL("../../next.config.ts", import.meta.url), "utf8");
+    const headers = readFileSync(new URL("../../features/record-files/record-file-response.ts", import.meta.url), "utf8");
+    const di = readFileSync(new URL("../../core/di.ts", import.meta.url), "utf8");
+    expect(config).toContain('source: "/:path((?!api/v1/files/[^/]+/content$).*)"');
+    expect(config).not.toContain('source: "/:path*"');
+    expect(headers).toContain(
+      'file.inline && file.mimeType !== "application/pdf" ? `sandbox; ${file.frameAncestors}` : file.frameAncestors',
+    );
+    expect(di).toContain("frameAncestorsPolicy(env.APP_MODE)");
   });
 
   it("uses the Better Auth host allowlist and dedicated OAuth proxy secret", () => {

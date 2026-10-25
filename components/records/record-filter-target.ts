@@ -258,6 +258,8 @@ function toPaletteFilter(filter: RecordFilter, field: string): Filter | null {
         operator: FilterOperatorKey[filter.operator],
         value: (filter.values ?? []).map(scalarText),
       };
+    case "overlaps":
+      return null;
     case "inLastDays":
     case "notInLastDays":
       return {
@@ -276,6 +278,7 @@ function toPaletteFilter(filter: RecordFilter, field: string): Filter | null {
 
 function representable(filter: RecordRelatedFilter) {
   if (filter.search || filter.relationships.length) return false;
+  if (filter.filters.some((entry) => entry.operator === "overlaps")) return false;
   if (filter.recordIds) return filter.filters.length === 0;
   return filter.filters.length === 0 ? true : filter.operator === "any";
 }

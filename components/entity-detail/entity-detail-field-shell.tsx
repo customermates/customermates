@@ -17,7 +17,7 @@ type Props = {
   action?: ReactNode;
   locked?: boolean;
 } & (
-  | { children: ReactNode; inputId?: string; required?: boolean }
+  | { children: ReactNode; inputId?: string; required?: boolean; labelSuffix?: ReactNode }
   | { value: ReactNode; help?: ReactNode; derivation?: ReactNode }
 );
 
@@ -59,6 +59,8 @@ export function EntityDetailFieldShell(props: Props) {
         <div className="flex items-center gap-1.5">
           <FormLabel htmlFor={props.inputId}>
             {label}
+
+            {props.labelSuffix}
 
             {props.required && <span className="text-destructive"> *</span>}
           </FormLabel>

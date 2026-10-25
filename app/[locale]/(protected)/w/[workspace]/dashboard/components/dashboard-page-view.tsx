@@ -9,7 +9,11 @@ import { BarChart3 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { isRecordCalendarWidget, isRecordWidget } from "@/features/widget/widget.schema";
+import { WidgetDataDrawer, type WidgetDataSelection } from "./widget-data-drawer";
+import type { RecordContributionGroup } from "@/features/records/record-contribution.schema";
+import type { CalendarDate } from "@/features/record-calendar/calendar-date";
 
 import "@/styles/react-grid-layout.css";
 
@@ -70,6 +74,33 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
   const navigation = recordWorkspaceStore.navigation;
   const needsFirstList = navigation?.canManageSchema === true && !navigation.hasLists;
   const router = useRouter();
+  const [data, setData] = useState<{ selection: WidgetDataSelection; open: boolean; opening: number } | null>(null);
+  const openData = useCallback(
+    (selection: WidgetDataSelection) =>
+      setData((current) => ({ selection, open: true, opening: (current?.opening ?? 0) + 1 })),
+    [],
+  );
+  const inspectWidget = useCallback(
+    (id: string, group: RecordContributionGroup | null = null, label: string | null = null) => {
+      const widget = widgetsStore.items.find((item) => item.id === id);
+      if (!widget || !isRecordWidget(widget)) return runUserAction(() => openWidgetEditor(widgetModalStore, id));
+      openData({
+        kind: "measure",
+        widget,
+        group,
+        label,
+        opener: document.activeElement instanceof HTMLElement ? document.activeElement : null,
+      });
+    },
+    [widgetsStore, widgetModalStore, openData],
+  );
+  const inspectCalendarDay = useCallback(
+    (id: string, date: CalendarDate, label: string, opener: HTMLElement) => {
+      const widget = widgetsStore.items.find((item) => item.id === id);
+      if (widget && isRecordCalendarWidget(widget)) openData({ kind: "calendarDay", widget, date, label, opener });
+    },
+    [widgetsStore, openData],
+  );
   useEffect(() => {
     if (recordTypes) widgetModalStore.setRecordTypes(recordTypes);
   }, [recordTypes, widgetModalStore]);
@@ -133,14 +164,18 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
         })
       ) {
         opener?.focus({ preventScroll: true });
-        runUserAction(() => openWidgetEditor(widgetModalStore, id));
+        inspectWidget(id);
       }
     }
     document.addEventListener("pointerup", onPointerUp);
     return () => document.removeEventListener("pointerup", onPointerUp);
-  }, [widgetModalStore]);
+  }, [inspectWidget]);
 
   const handlePointerDown = useCallback((id: string, event: React.PointerEvent) => {
+    if (event.button !== 0 || !(event.target instanceof Node) || !event.currentTarget.contains(event.target)) {
+      pointerStart.current = null;
+      return;
+    }
     pointerStart.current = {
       id,
       x: event.clientX,
@@ -266,7 +301,13 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
               data-focus-target={`widget:${widget.id}`}
               onPointerDown={(event) => handlePointerDown(widget.id, event)}
             >
-              <WidgetCard widget={widget} />
+              <WidgetCard
+                widget={widget}
+                onInspect={
+                  isRecordWidget(widget) ? (group, label) => inspectWidget(widget.id, group, label) : undefined
+                }
+                onInspectDay={(date, label, opener) => inspectCalendarDay(widget.id, date, label, opener)}
+              />
             </div>
           ))}
         </ResponsiveGridLayout>
@@ -280,6 +321,22 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
 
   return (
     <>
+      {data && (
+        <WidgetDataDrawer
+          key={data.opening}
+          open={data.open}
+          selection={data.selection}
+          onClose={() => setData((current) => current && { ...current, open: false })}
+          onSelect={(group, label) =>
+            setData((current) =>
+              current?.selection.kind === "measure"
+                ? { ...current, selection: { ...current.selection, group, label } }
+                : current,
+            )
+          }
+        />
+      )}
+
       <DataViewViewsRail
         joinsTopBar
         allLabel={t("Dashboard.mainView")}

@@ -33,6 +33,13 @@ vi.mock("@/components/chip/app-chip", async () => {
     }) => React.createElement("span", { className, "data-chip-size": size }, children, endContent),
   };
 });
+vi.mock("../agent-composer-file-chip", async () => {
+  const React = await import("react");
+  return {
+    AgentComposerFileChip: ({ context, removeButton }: { context: { label: string }; removeButton?: ReactNode }) =>
+      React.createElement("span", { "data-file-chip": context.label }, context.label, removeButton),
+  };
+});
 vi.mock("../chat-ui", () => ({
   focusAgentComposer: harness.focusAgentComposer,
 }));
@@ -120,6 +127,33 @@ describe("AgentComposerContexts", () => {
 
     expect(container.querySelector('[data-testid="agent-composer-contexts"]')).toBeNull();
     expect(harness.focusAgentComposer).toHaveBeenCalledOnce();
+  });
+
+  it("keeps the pointer press from moving focus, so hiding the placeholder cannot shift the chip away", () => {
+    act(() => root.render(createElement(ContextHarness)));
+    const press = new MouseEvent("mousedown", { bubbles: true, cancelable: true });
+    container.querySelector<HTMLButtonElement>('[data-agent-context-remove="true"]')?.dispatchEvent(press);
+    expect(press.defaultPrevented).toBe(true);
+  });
+
+  it("renders a file context as a file chip that removes like any context", async () => {
+    const file = {
+      reference: {
+        kind: "file" as const,
+        fileId: "10000000-0000-4000-8000-000000000009",
+        mimeType: "image/png",
+        size: 4,
+      },
+      label: "Card.png",
+    };
+    const removed = vi.fn();
+    act(() => root.render(createElement(AgentComposerContexts, { contexts: [file], onRemove: removed })));
+    expect(container.querySelector('[data-file-chip="Card.png"]')).not.toBeNull();
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>('[aria-label="Remove Card.png"]')?.click();
+      await new Promise((resolve) => window.setTimeout(resolve, 1));
+    });
+    expect(removed).toHaveBeenCalledWith("file:10000000-0000-4000-8000-000000000009");
   });
 
   it("removes focused chips with Backspace and Delete while preserving logical focus", async () => {

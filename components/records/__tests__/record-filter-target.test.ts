@@ -259,4 +259,20 @@ describe("record filter target", () => {
     expect(palette).toEqual({ filters: [], retained: [searched, negated] });
     expect(paletteFiltersToRecordQuery([], palette.retained, model).relatedFilters).toEqual([searched, negated]);
   });
+
+  it("never turns an overlaps condition into a between filter", () => {
+    const overlaps = {
+      fieldId: "system:createdAt",
+      operator: "overlaps" as const,
+      value: null,
+      values: [
+        { kind: "dateTime" as const, value: "2026-10-01T00:00:00.000Z" },
+        { kind: "dateTime" as const, value: "2026-10-31T23:59:59.000Z" },
+      ],
+    };
+    const linked = { path: [toDeal], operator: "any" as const, filters: [overlaps], relationships: [] };
+    const palette = recordQueryToPaletteFilters({ filters: [overlaps], relationships: [], relatedFilters: [linked] });
+    expect(palette).toEqual({ filters: [], retained: [linked] });
+    expect(paletteFiltersToRecordQuery([], palette.retained, model).relatedFilters).toEqual([linked]);
+  });
 });

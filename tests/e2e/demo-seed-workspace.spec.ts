@@ -108,8 +108,9 @@ test("inbox threads are listed and linked to the records they were explicitly li
       if (!(await dialog.isVisible())) await settings.click();
       await expect(dialog).toBeVisible({ timeout: 1000 });
     }).toPass();
+    const conversation = dialog.getByRole("region", { name: "Conversation records", exact: true });
     for (const link of links.filter((candidate) => candidate.threadId === threadId)) {
-      await expect(dialog.getByRole("button", { name: `Open record: ${link.record}`, exact: true })).toBeVisible();
+      await expect(conversation.getByRole("button", { name: `Open record: ${link.record}`, exact: true })).toBeVisible();
       await expect(dialog).toContainText(link.record);
     }
     await page.keyboard.press("Escape");

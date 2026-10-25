@@ -31,8 +31,6 @@ const VALUE_TYPES: Record<FieldSpec["type"], RecordField["valueType"]> = {
   date: "date",
   select: "select",
   multiSelect: "select",
-  email: "email",
-  phone: "phone",
   url: "url",
   member: "member",
 };

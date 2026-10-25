@@ -1,6 +1,8 @@
 import type { RecordFieldView, RecordModelView } from "@/features/records/record-model.schema";
 
 import { isRecordFieldWritable } from "@/features/records/record-input-value";
+import { recordChannelsEnabled, recordChannelsField } from "@/features/records/record-channels";
+import { RECORD_ADDRESS_PARTS, type RecordAddressPart } from "@/features/records/record-address-value";
 
 type XlsxTarget =
   | { kind: "skip" }
@@ -8,14 +10,52 @@ type XlsxTarget =
   | { kind: "assignedTo" }
   | { kind: "field"; fieldId: string }
   | { kind: "rangePart"; fieldId: string; part: "start" | "end" }
+  | { kind: "addressPart"; fieldId: string; part: RecordAddressPart }
   | { kind: "nameParts"; firstFieldId: string; lastFieldId: string }
-  | { kind: "relationship"; relationId: string; targetTypeId: string };
+  | { kind: "relationship"; relationId: string; targetTypeId: string }
+  | { kind: "channels" };
 
 export type XlsxTargetOption = { key: string; label: string; target: XlsxTarget };
 
 export const XLSX_SKIP_KEY = "skip";
 
-export type XlsxTargetLabels = { recordId: string; assignedTo: string; rangeStart: string; rangeEnd: string };
+export const XLSX_CHANNELS_KEY = "channels";
+
+export type XlsxTargetLabels = {
+  recordId: string;
+  assignedTo: string;
+  rangeStart: string;
+  rangeEnd: string;
+  addressParts: Readonly<Record<RecordAddressPart, string>>;
+};
+
+const PHONE_SYNONYMS = [
+  "phone",
+  "phonenumber",
+  "telephone",
+  "telefon",
+  "telefonnummer",
+  "telefono",
+  "mobile",
+  "mobil",
+  "mobilnummer",
+  "handy",
+  "cellphone",
+  "cellulare",
+  "movil",
+];
+
+const EMAIL_SYNONYMS = ["email", "emailaddress", "mail", "emailadresse", "correo", "courriel"];
+
+const CHANNEL_SYNONYMS = [
+  ...PHONE_SYNONYMS,
+  ...EMAIL_SYNONYMS,
+  "contactdetails",
+  "kontaktdaten",
+  "datosdecontacto",
+  "coordonnees",
+  "recapiti",
+];
 
 const FIRST_NAME_WORDS = ["firstname", "givenname", "vorname", "prenom", "nombre", "nome"];
 
@@ -36,8 +76,8 @@ const SYNONYM_GROUPS: string[][] = [
   ["organizations", "organisations", "companies", "accounts", "organisationen", "firmen", "empresas", "aziende"],
   ["services", "products", "leistungen", "servicios", "servizi", "produkte"],
   ["tasks", "todos", "aufgaben", "tareas", "attivita", "taches"],
-  ["email", "emailaddress", "mail", "emailadresse", "correo", "courriel"],
-  ["phone", "phonenumber", "telephone", "telefon", "telefono", "mobile", "handy"],
+  EMAIL_SYNONYMS,
+  PHONE_SYNONYMS,
   ["website", "url", "homepage", "webseite", "sitioweb", "siteweb", "sitoweb"],
   ["stage", "phase", "status", "etape", "etapa", "fase"],
 ];
@@ -55,6 +95,27 @@ const ASSIGNED_SYNONYMS = [
 ];
 
 const RECORD_ID_SYNONYMS = ["id", "recordid", "customermatesid"];
+
+const ADDRESS_PART_SYNONYMS: Readonly<Record<RecordAddressPart, readonly string[]>> = {
+  street: [
+    "street",
+    "streetaddress",
+    "addressline1",
+    "address1",
+    "strasse",
+    "straße",
+    "anschrift",
+    "calle",
+    "direccion",
+    "rue",
+    "via",
+  ],
+  line2: ["addressline2", "address2", "line2", "adresszusatz", "zusatz"],
+  postalCode: ["postalcode", "postcode", "zip", "zipcode", "plz", "postleitzahl", "codigopostal", "codepostal", "cap"],
+  city: ["city", "town", "ort", "stadt", "ciudad", "localidad", "ville", "citta", "comune"],
+  region: ["region", "state", "province", "county", "bundesland", "provincia", "estado", "departement"],
+  countryCode: ["country", "countrycode", "land", "pais", "pays", "paese", "nazione"],
+};
 
 export function normalizeXlsxHeader(header: string): string {
   return header
@@ -83,7 +144,10 @@ function synonymMatch(header: string, label: string): boolean {
 
 export function xlsxImportFields(model: RecordModelView, typeId: string): RecordFieldView[] {
   return model.fields
-    .filter((field) => field.typeId === typeId && !field.archived && isRecordFieldWritable(field))
+    .filter(
+      (field) =>
+        field.typeId === typeId && !field.archived && field.valueType !== "file" && isRecordFieldWritable(field),
+    )
     .sort((left, right) => left.position - right.position);
 }
 
@@ -101,6 +165,13 @@ export function xlsxTargetOptions(
           key: `field:${field.id}:${part}`,
           label: `${field.label} (${part === "start" ? labels.rangeStart : labels.rangeEnd})`,
           target: { kind: "rangePart", fieldId: field.id, part },
+        }))
+      : []),
+    ...(field.valueType === "address"
+      ? RECORD_ADDRESS_PARTS.map<XlsxTargetOption>((part) => ({
+          key: `field:${field.id}:${part}`,
+          label: `${field.label} (${labels.addressParts[part]})`,
+          target: { kind: "addressPart", fieldId: field.id, part },
         }))
       : []),
   ]);
@@ -126,8 +197,10 @@ export function xlsxTargetOptions(
       label: relation.sourceLabel,
       target: { kind: "relationship", relationId: relation.id, targetTypeId: relation.targetTypeId },
     }));
+  const channels = recordChannelsEnabled(model, typeId) ? recordChannelsField(model, typeId) : undefined;
   return [
     ...fields,
+    ...(channels ? [{ key: XLSX_CHANNELS_KEY, label: channels.label, target: { kind: "channels" as const } }] : []),
     ...nameParts,
     ...relationships,
     { key: "assignedTo", label: labels.assignedTo, target: { kind: "assignedTo" } },
@@ -137,10 +210,16 @@ export function xlsxTargetOptions(
 
 function matchScore(header: string, option: XlsxTargetOption): number {
   const label = normalizeXlsxHeader(option.label);
+  if (option.target.kind === "channels")
+    return (label && sameWord(label, header)) || CHANNEL_SYNONYMS.some((word) => sameWord(word, header)) ? 90 : 0;
   if (option.target.kind === "recordId" && RECORD_ID_SYNONYMS.includes(header)) return 100;
   if (option.target.kind === "assignedTo" && ASSIGNED_SYNONYMS.some((word) => sameWord(word, header))) return 95;
   if (option.target.kind === "nameParts") return inGroup(PERSON_NAME_WORDS, header) ? 85 : 0;
   if (label && sameWord(label, header)) return 100;
+  if (option.target.kind === "addressPart") {
+    const part = option.target.part;
+    return ADDRESS_PART_SYNONYMS[part].some((word) => sameWord(word, header)) ? 70 : 0;
+  }
   if (label && inGroup(PERSON_NAME_WORDS, header) && inGroup(PERSON_NAME_WORDS, label)) return 90;
   if (label && synonymMatch(header, label)) return 80;
   return 0;
@@ -171,7 +250,7 @@ export function autoMapXlsxColumns(headers: string[], options: XlsxTargetOption[
     const best = list[0];
     if (!best) continue;
     if (list.filter((candidate) => candidate.score === best.score).length > 1) continue;
-    for (const key of writtenTargets(best.option.key)) taken.add(key);
+    if (best.option.key !== XLSX_CHANNELS_KEY) for (const key of writtenTargets(best.option.key)) taken.add(key);
     result[index] = best.option.key;
   }
   return result;
@@ -185,7 +264,7 @@ function writtenTargets(key: string): string[] {
 }
 
 export function duplicateXlsxTargets(mapping: string[]): string[] {
-  const keys = mapping.filter((key) => key !== XLSX_SKIP_KEY);
+  const keys = mapping.filter((key) => key !== XLSX_SKIP_KEY && key !== XLSX_CHANNELS_KEY);
   const counts = new Map<string, number>();
   for (const target of keys.flatMap(writtenTargets)) counts.set(target, (counts.get(target) ?? 0) + 1);
   return [...new Set(keys.filter((key) => writtenTargets(key).some((target) => (counts.get(target) ?? 0) > 1)))];

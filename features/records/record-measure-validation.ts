@@ -65,7 +65,7 @@ export function isRecordMeasureGroupField(field: Pick<RecordField, "archived" | 
   return (
     !field.archived &&
     (!field.multiple || field.valueType === "select") &&
-    !["richText", "dateRange", "dateTimeRange", "channels"].includes(field.valueType)
+    !["richText", "dateRange", "dateTimeRange", "channels", "file", "address"].includes(field.valueType)
   );
 }
 

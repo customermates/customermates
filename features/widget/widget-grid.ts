@@ -11,7 +11,7 @@ export const WIDGET_GRID_MARGIN = 12;
 const WIDGET_GRID_MAX_HEIGHT = 24;
 export const WIDGET_GRID_MAX_ROW = 1000;
 
-type WidgetKindName = "chart" | "activityTimeline";
+type WidgetKindName = "chart" | "activityTimeline" | "calendar" | "map";
 export type GridRect = { x: number; y: number; w: number; h: number };
 type PlacedRect = GridRect & { id: string };
 
@@ -49,8 +49,15 @@ export const WidgetPlacementSchema = z
   );
 export type WidgetPlacement = z.infer<typeof WidgetPlacementSchema>;
 
+const WIDGET_MINIMUM_SIZE: Record<WidgetKindName, { w: number; h: number }> = {
+  chart: { w: 1, h: 2 },
+  activityTimeline: { w: 2, h: 6 },
+  calendar: { w: 2, h: 5 },
+  map: { w: 3, h: 5 },
+};
+
 export function widgetMinimumSize(kind: WidgetKindName, _displayType?: DisplayType): { w: number; h: number } {
-  return kind === "activityTimeline" ? { w: 2, h: 6 } : { w: 1, h: 2 };
+  return WIDGET_MINIMUM_SIZE[kind];
 }
 
 export type WidgetLayoutGeometry = { w: number; h: number; minW?: number; minH?: number };
@@ -65,8 +72,9 @@ export function widgetLayoutGeometry(
   if (kind === "chart")
     return { w: Math.min(persisted?.w ?? 4, cols), h: Math.max(minimum.h, persisted?.h ?? 6), minH: minimum.h };
   const minW = Math.min(minimum.w, cols);
+  const fallbackW = kind === "activityTimeline" ? (cols >= 12 ? 6 : 4) : widgetDefaultSize(kind).w;
   return {
-    w: Math.max(minW, Math.min(persisted?.w ?? Math.min(cols >= 12 ? 6 : 4, cols), cols)),
+    w: Math.max(minW, Math.min(persisted?.w ?? Math.min(fallbackW, cols), cols)),
     h: Math.max(minimum.h, persisted?.h ?? 6),
     minW,
     minH: minimum.h,
@@ -75,6 +83,8 @@ export function widgetLayoutGeometry(
 
 export function widgetDefaultSize(kind: WidgetKindName, displayType?: DisplayType): { w: number; h: number } {
   if (kind === "activityTimeline") return { w: 6, h: 6 };
+  if (kind === "calendar") return { w: 4, h: 6 };
+  if (kind === "map") return { w: 6, h: 6 };
   switch (displayType) {
     case DisplayType.number:
       return { w: 3, h: 2 };

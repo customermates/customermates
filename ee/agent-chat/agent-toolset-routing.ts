@@ -6,6 +6,7 @@ export const AGENT_CORE_TOOLSETS = ["records", "workspace", "wiki", "docs", "sup
 export const AGENT_ON_DEMAND_TOOLSETS = [
   "record-model",
   "views",
+  "data-transfer",
   "messaging",
   "social",
   "widgets",
@@ -24,6 +25,7 @@ export const ANALYZE_RECORDS_TOOL_NAME = "analyze_records";
 export const AGENT_TOOLSET_SUMMARY: Record<AgentOnDemandToolset, string> = {
   "record-model": "configure CRM types, fields, relationships, calculations, access presets and operation recovery",
   views: "saved views, filters, sorting, grouping and personal detail pins, hidden fields and ordering",
+  "data-transfer": "export a whole list as a JSON document and import or update up to 100 records of one list from one",
   messaging: "inbox, email, chat, calendar and connected messaging accounts",
   social: "LinkedIn, Instagram, posts, profiles, engagement and Sales Navigator",
   widgets: "dashboard widgets",
@@ -67,6 +69,8 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
       "create a view",
       "update a view",
       "delete a view",
+      "calendar view",
+      "calendar layout",
     ],
     de: [
       "detailansicht",
@@ -78,6 +82,8 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
       "meine ansicht",
       "ansicht erstellen",
       "ansicht löschen",
+      "kalenderansicht",
+      "kalenderlayout",
     ],
     es: [
       "vista de detalle",
@@ -87,6 +93,7 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
       "nueva vista",
       "mi vista",
       "crear una vista",
+      "vista de calendario",
     ],
     fr: [
       "fiche détaillée",
@@ -96,6 +103,7 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
       "nouvelle vue",
       "ma vue",
       "créer une vue",
+      "vue calendrier",
     ],
     it: [
       "dettagli del record",
@@ -105,7 +113,16 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
       "nuova vista",
       "mia vista",
       "crea una vista",
+      "vista calendario",
     ],
+  },
+  "data-transfer": {
+    any: ["csv", "json"],
+    en: ["import", "export", "migrate", "migration", "bulk", "backup"],
+    de: ["importier", "exportier", "import", "export", "migration", "migrier", "sicherung"],
+    es: ["importa", "exporta", "migra", "copia de seguridad"],
+    fr: ["import", "export", "migr", "sauvegarde"],
+    it: ["importa", "esporta", "migra", "backup"],
   },
   messaging: {
     any: ["whatsapp", "telegram"],
@@ -170,9 +187,16 @@ const TOOLSET_TERMS = new Map(
   AGENT_ON_DEMAND_TOOLSETS.map((toolset) => [toolset, Object.values(AGENT_TOOLSET_LEXICON[toolset]).flat()]),
 );
 
+const VIEW_TERMS = TOOLSET_TERMS.get("views") ?? [];
+
+function withoutViewTerms(text: string): string {
+  return VIEW_TERMS.reduce((current, term) => current.replaceAll(term, " ".repeat(term.length)), text);
+}
+
 const TOOLSET_ROUTES: Record<AgentOnDemandToolset, readonly string[]> = {
   "record-model": ["/records", "/configure"],
   views: [],
+  "data-transfer": [],
   messaging: ["/inbox", "/calendar"],
   social: ["/social"],
   widgets: ["/dashboard"],
@@ -216,9 +240,21 @@ function normalizeText(value: string): string {
 
 const WORD_CHARACTER = /[\p{L}\p{N}]/u;
 
+const SHORT_TERM_LENGTH = 4;
+
+function endsWordAt(text: string, end: number): boolean {
+  if (!WORD_CHARACTER.test(text.charAt(end))) return true;
+  return text.charAt(end) === "s" && !WORD_CHARACTER.test(text.charAt(end + 1));
+}
+
 function startsWordIn(text: string, term: string): boolean {
-  for (let index = text.indexOf(term); index !== -1; index = text.indexOf(term, index + 1))
-    if (!WORD_CHARACTER.test(text.charAt(index - 1))) return true;
+  for (let index = text.indexOf(term); index !== -1; index = text.indexOf(term, index + 1)) {
+    if (
+      !WORD_CHARACTER.test(text.charAt(index - 1)) &&
+      (term.length > SHORT_TERM_LENGTH || endsWordAt(text, index + term.length))
+    )
+      return true;
+  }
   return false;
 }
 
@@ -243,8 +279,10 @@ export function toolsetsForRequest(args: {
     )
   )
     matched.add("record-model");
+  const outsideViewTerms = withoutViewTerms(text);
   for (const toolset of AGENT_ON_DEMAND_TOOLSETS) {
-    if (TOOLSET_TERMS.get(toolset)?.some((term) => startsWordIn(text, term))) matched.add(toolset);
+    const searched = toolset === "views" ? text : outsideViewTerms;
+    if (TOOLSET_TERMS.get(toolset)?.some((term) => startsWordIn(searched, term))) matched.add(toolset);
     if (route && TOOLSET_ROUTES[toolset].some((prefix) => route === prefix || route.startsWith(`${prefix}/`)))
       matched.add(toolset);
   }

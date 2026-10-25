@@ -15,7 +15,7 @@ import {
   toolsetsFromActivities,
   toolsetsUsedInMessages,
 } from "../agent-toolset-routing";
-import { coreToolNames, onDemandToolsetOfTool, toolNamesOfToolset } from "../agent-toolsets";
+import { AGENT_TOOLSET_TOOL_NAMES, coreToolNames, onDemandToolsetOfTool, toolNamesOfToolset } from "../agent-toolsets";
 
 const TOOLS = [
   { name: "query_crm_records", toolset: null },
@@ -32,7 +32,9 @@ const TOOLS = [
 
 describe("toolset partition", () => {
   it("covers every registry group exactly once between core and on-demand sets", () => {
-    const partitioned = [...AGENT_CORE_TOOLSETS, ...AGENT_ON_DEMAND_TOOLSETS].toSorted();
+    const partitioned = [...AGENT_CORE_TOOLSETS, ...AGENT_ON_DEMAND_TOOLSETS]
+      .filter((toolset) => !Object.hasOwn(AGENT_TOOLSET_TOOL_NAMES, toolset))
+      .toSorted();
     expect(partitioned).toEqual(Object.keys(MCP_TOOL_GROUPS).toSorted());
     expect(new Set(partitioned).size).toBe(partitioned.length);
   });
@@ -41,11 +43,15 @@ describe("toolset partition", () => {
     for (const toolset of AGENT_ON_DEMAND_TOOLSETS)
       for (const name of toolNamesOfToolset(toolset)) expect(onDemandToolsetOfTool(name)).toBe(toolset);
     for (const name of coreToolNames()) expect(onDemandToolsetOfTool(name)).toBeNull();
-    expect(coreToolNames().size).toBe(23);
+    expect(coreToolNames().size).toBe(24);
+    expect(coreToolNames().has("lookup_address")).toBe(true);
+    expect(coreToolNames().has("check_address")).toBe(true);
     expect(coreToolNames().has("get_activities")).toBe(true);
     expect(coreToolNames().has("manage_wiki_pages")).toBe(true);
     expect(coreToolNames().has("manage_data_views")).toBe(false);
     expect(onDemandToolsetOfTool("manage_data_views")).toBe("views");
+    expect(onDemandToolsetOfTool("import_crm_records")).toBe("data-transfer");
+    expect(onDemandToolsetOfTool("export_crm_records")).toBe("data-transfer");
   });
 });
 
@@ -84,6 +90,17 @@ describe("toolsetsForRequest", () => {
       expect(toolsetsForRequest({ text, pageRoute: null }).has("views")).toBe(true);
     expect(onDemandToolsetOfTool("manage_record_detail_layout")).toBe("views");
   });
+  it("loads bulk import and export only when a request asks for them", () => {
+    for (const text of [
+      "Import these 300 contacts",
+      "Exportiere die Firmenliste",
+      "Exporta la lista de contactos",
+      "Importer ce fichier CSV",
+      "Esporta i contatti",
+    ])
+      expect(toolsetsForRequest({ text, pageRoute: null }).has("data-transfer")).toBe(true);
+    expect(toolsetsForRequest({ text: "Find the Cursor provider", pageRoute: null }).has("data-transfer")).toBe(false);
+  });
   it("loads record configuration tools for stable contexts regardless of route or label", () => {
     for (const reference of [
       { kind: "dataModel" as const },
@@ -109,6 +126,18 @@ describe("toolsetsForRequest", () => {
     expect([...toolsetsForRequest({ text: "Lade Anna als Teammitglied ein", pageRoute: null })]).toEqual(["admin"]);
     expect([...toolsetsForRequest({ text: "Update my current view", pageRoute: null })]).toEqual(["views"]);
     expect([...toolsetsForRequest({ text: "Passe meine aktuelle Ansicht an", pageRoute: null })]).toEqual(["views"]);
+    expect([
+      ...toolsetsForRequest({ text: "Show the deals in a calendar view by close date", pageRoute: null }),
+    ]).toEqual(["views"]);
+    expect([...toolsetsForRequest({ text: "Erstelle eine Kalenderansicht der Aufgaben", pageRoute: null })]).toEqual([
+      "views",
+    ]);
+    expect([...toolsetsForRequest({ text: "What is in my calendar tomorrow?", pageRoute: null })]).toEqual([
+      "messaging",
+    ]);
+    expect([...toolsetsForRequest({ text: "Add a map widget of our customers", pageRoute: null })]).toEqual([
+      "widgets",
+    ]);
   });
 
   it("routes by user vocabulary in Spanish, French and Italian", () => {
@@ -303,5 +332,16 @@ describe("toolsetIndexSentence", () => {
     const sentence = toolsetIndexSentence([...AGENT_ON_DEMAND_TOOLSETS]);
     expect(sentence).toContain("nothing left to load");
     expect(sentence).not.toContain("load_toolset");
+  });
+});
+
+describe("short request words", () => {
+  const toolsets = (text: string) => [...toolsetsForRequest({ text, pageRoute: null, contexts: [] })];
+
+  it("match a whole word or its plural, not the start of a longer word", () => {
+    expect(toolsets("What postal address is stored on Haldern?")).not.toContain("social");
+    expect(toolsets("Show my latest posts")).toContain("social");
+    expect(toolsets("Draft a LinkedIn post")).toContain("social");
+    expect(toolsets("Send a mail to Ada")).toContain("messaging");
   });
 });

@@ -34,6 +34,7 @@ import { recordRequestHash } from "@/features/records/record-request-hash";
 import { RecordJournal } from "@/features/records/record-journal";
 import { decodeRecordValue } from "@/features/records/record-storage";
 import { sameRecordResult } from "@/features/records/record-write.service";
+import { mergeRecordWriteWarnings } from "@/features/records/record-address-warnings";
 
 type ImportRow = ImportRecordsInput["document"]["records"][number];
 type MarkedImportRow = ImportMarkedRecordsInput["document"]["records"][number];
@@ -72,16 +73,13 @@ function inputAssignments(row: ImportRow, fields: RecordField[], mode: ImportRec
       continue;
     }
     if (field.behavior.kind !== "input") continue;
+    if (field.valueType === "file" && mode === "create") continue;
     if (unreadable) return { ok: false, path: ["fields", index, "result"] };
     assignments.push({
       fieldId: field.id,
       value: entry.result.state === "value" ? entry.result.value : null,
     });
   }
-  const missing = fields.find(
-    (field) => field.behavior.kind === "input" && field.valueType !== "channels" && !seen.has(field.id),
-  );
-  if (missing) return { ok: false, path: ["fields", missing.id] };
   return { ok: true, assignments, captured };
 }
 
@@ -125,9 +123,14 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportMarke
         const resolved = await this.resolveMarkedText(input.document.records, model, policy);
         if (!resolved.ok)
           return fail(CustomErrorCode.recordMarkedTextChanged, ["document", "records", ...resolved.path]);
-        const document = { ...input.document, records: resolved.rows };
-        if (document.records.length > RECORD_IMPORT_LIMIT || document.links.length > RECORD_IMPORT_LINK_LIMIT)
+        const document = { ...input.document, records: resolved.rows, unlinks: input.document.unlinks ?? [] };
+        if (
+          document.records.length > RECORD_IMPORT_LIMIT ||
+          document.links.length + document.unlinks.length > RECORD_IMPORT_LINK_LIMIT
+        )
           return fail(CustomErrorCode.recordCalculationBudget);
+        if (input.mode === "create" && document.unlinks.length)
+          return fail(CustomErrorCode.recordRelationConflict, ["document", "unlinks"]);
         const type = model.types.find((candidate) => candidate.id === document.typeId && !candidate.archived);
         if (!type || type.embedded) return failNotFound(CustomErrorCode.recordTypeNotFound);
         if (!policy.allowed(type.id, input.mode === "create" ? "create" : "update"))
@@ -154,7 +157,7 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportMarke
           const rowPath = ["document", "records", index];
           if (depth(row.ref.typeId) === null)
             return fail(CustomErrorCode.recordValueInvalid, [...rowPath, "ref", "typeId"]);
-          if (row.schemaRevision !== model.revision)
+          if (row.schemaRevision !== undefined && row.schemaRevision !== model.revision)
             return fail(CustomErrorCode.recordValueInvalid, [...rowPath, "schemaRevision"]);
           const key = recordKey(row.ref);
           if (assignments.has(key)) return fail(CustomErrorCode.recordValueInvalid, [...rowPath, "ref", "recordId"]);
@@ -189,6 +192,20 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportMarke
               return fail(CustomErrorCode.recordRelationConflict);
             parentLinks.set(sourceKey, link);
           }
+        }
+        for (const link of document.unlinks) {
+          if (
+            !assignments.has(recordKey(link.source)) ||
+            types.get(link.source.typeId)?.parentRelationshipId === link.relationId ||
+            !model.relationships.some(
+              (relation) =>
+                relation.id === link.relationId &&
+                !relation.archived &&
+                relation.sourceTypeId === link.source.typeId &&
+                relation.targetTypeId === link.target.typeId,
+            )
+          )
+            return fail(CustomErrorCode.recordRelationConflict);
         }
         for (const row of document.records) {
           const itemType = types.get(row.ref.typeId);
@@ -253,7 +270,7 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportMarke
               {
                 action: "update",
                 ref: row.ref,
-                expectedVersion: row.version,
+                expectedVersion: row.version ?? existing.version,
                 fields: assignments.get(recordKey(row.ref)) ?? [],
                 assignedUserIds: row.assignedUserIds,
                 identities: row.identities?.map(({ provider, value, messagingId, displayName, profileUrl }) => ({
@@ -284,15 +301,30 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportMarke
           );
           linked += 1;
         }
+        let unlinked = 0;
+        for (const link of document.unlinks) {
+          const existing = await this.records.linkedRecordsCompanyWide(link.source, link.relationId, "outgoing");
+          if (
+            !existing.some((target) => target.typeId === link.target.typeId && target.recordId === link.target.recordId)
+          )
+            continue;
+          writes.push(
+            await writer.apply({ action: "unlink", ...link }, model, policy, undefined, { skipCalculations: true }),
+          );
+          unlinked += 1;
+        }
         await writer.recalculateWrites(model, writes);
         await journal.flush(model, this.userId, input.idempotencyKey, {
           kind: "mutation",
         });
+        const warnings = mergeRecordWriteWarnings(writes.map((write) => write.warnings));
         const data: ImportRecordsResult = {
           created: input.mode === "create" ? document.records.length : 0,
           updated: input.mode === "update" ? document.records.length : 0,
           linked,
+          unlinked,
           schemaRevision: model.revision,
+          ...(warnings.length ? { warnings } : {}),
         };
         await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, data);
         return { ok: true as const, data };

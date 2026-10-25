@@ -34,6 +34,9 @@ import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
 
 import { BaseStore } from "@/core/base/base.store";
 
+import { completeChatFileUpload, startChatFileUpload } from "@/components/records/record-file-upload";
+import { RecordFileUploadQueue } from "@/components/records/record-file-upload-queue";
+
 import {
   getAgentConfigAction,
   getAgentConversationAction,
@@ -49,9 +52,11 @@ import { appLocaleOrDefault } from "@/i18n/locale-registry";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
 import {
   AGENT_CONTEXT_ATTACHMENT_LIMIT,
+  AGENT_FILE_ATTACHMENT_LIMIT,
   AgentContextAttachmentSchema,
   agentContextAttachmentKey,
   agentContextsFromMessageParts,
+  isAgentFileContext,
   type AgentContextAttachment,
 } from "@/ee/agent-chat/agent-context";
 import { AgentViewContext, type AgentViewChange } from "./agent-view-context";
@@ -302,6 +307,7 @@ export class AgentChatStore extends BaseStore {
   composerDraft = "";
   private composerStarterDraft: string | null = null;
   composerContexts: AgentContextAttachment[] = [];
+  readonly composerUploadQueue = new RecordFileUploadQueue();
   queuedPrompt: string | null = null;
   queuedPromptNeedsAttention = false;
   routeRefreshRevision = 0;
@@ -403,6 +409,7 @@ export class AgentChatStore extends BaseStore {
       conversationTitle: computed,
       isAwaitingAssistantResponse: computed,
       isContinuingAfterApproval: computed,
+      hasPendingComposerUploads: computed,
       canApplyRouteReload: computed,
       canInterrupt: computed,
       hasPendingRouteReload: computed,
@@ -418,6 +425,8 @@ export class AgentChatStore extends BaseStore {
       addComposerContext: action,
       removeComposerContext: action,
       removeLastComposerContext: action,
+      addComposerFiles: action,
+      removeComposerUpload: action,
       submitDraft: action,
       editQueuedPrompt: action,
       removeQueuedPrompt: action,
@@ -486,6 +495,14 @@ export class AgentChatStore extends BaseStore {
 
   get isAwaitingAssistantResponse() {
     return this.isWorking && this.items.at(-1)?.kind === "user";
+  }
+
+  get composerUploads() {
+    return this.composerUploadQueue.uploads;
+  }
+
+  get hasPendingComposerUploads() {
+    return this.composerUploadQueue.pending > 0;
   }
 
   get isContinuingAfterApproval() {
@@ -574,6 +591,7 @@ export class AgentChatStore extends BaseStore {
     this.composerDraft = "";
     this.composerContexts = [];
     this.composerContextPageRoute = null;
+    this.composerUploadQueue.clear();
     this.isHistoryOpen = false;
   }
 
@@ -623,9 +641,11 @@ export class AgentChatStore extends BaseStore {
       normalizedContext.reference.kind === "dataView"
         ? [...withoutSame.filter((candidate) => candidate.reference.kind !== "dataView"), normalizedContext]
         : [...withoutSame, normalizedContext];
-    if (next.length > AGENT_CONTEXT_ATTACHMENT_LIMIT) {
+    const others = next.filter((candidate) => !isAgentFileContext(candidate));
+    if (others.length > AGENT_CONTEXT_ATTACHMENT_LIMIT) {
       if (!options.replaceOldestAtLimit) return;
-      next = next.slice(-AGENT_CONTEXT_ATTACHMENT_LIMIT);
+      const dropped = new Set(others.slice(0, others.length - AGENT_CONTEXT_ATTACHMENT_LIMIT));
+      next = next.filter((candidate) => !dropped.has(candidate));
     }
     this.composerContexts = next;
     if (normalizedContext.reference.kind === "dataView") this.composerContextPageRoute = pageRoute ?? null;
@@ -650,10 +670,42 @@ export class AgentChatStore extends BaseStore {
     return true;
   };
 
+  addComposerFiles = (files: readonly File[]) => {
+    const attached = this.composerContexts.filter(isAgentFileContext).length;
+    this.composerUploadQueue.add(files, {
+      room: Math.max(0, AGENT_FILE_ATTACHMENT_LIMIT - attached - this.composerUploadQueue.pending),
+      refusal: this.t("AgentChat.files.limit", { count: AGENT_FILE_ATTACHMENT_LIMIT }),
+      failure: this.t("RecordModel.fileUploadFailed"),
+      start: startChatFileUpload,
+      complete: async (fileId) => {
+        const completed = await completeChatFileUpload(fileId);
+        if (!completed.ok) return completed;
+        const context = AgentContextAttachmentSchema.safeParse({
+          reference: {
+            kind: "file",
+            fileId: completed.data.id,
+            mimeType: completed.data.mimeType,
+            size: completed.data.size,
+          },
+          label: completed.data.name,
+        });
+        return context.success ? { ok: true as const, data: context.data } : { ok: false as const, message: null };
+      },
+      completed: (context) => {
+        this.composerContexts = [...this.composerContexts, context];
+      },
+    });
+  };
+
+  removeComposerUpload = (key: string) => {
+    this.composerUploadQueue.remove(key);
+  };
+
   submitDraft = () => {
     const text = this.composerDraft.trim();
-    if (!text || this.usage?.blockedReason || this.queuedPrompt) return;
+    if (!text || this.usage?.blockedReason || this.queuedPrompt || this.hasPendingComposerUploads) return;
     const contexts = [...this.composerContexts];
+    this.composerUploadQueue.clear();
     const pageRoute = this.composerContextPageRoute ?? this.currentPageRoute();
     if (this.isWorking) {
       if (this.queuedPrompt) return;

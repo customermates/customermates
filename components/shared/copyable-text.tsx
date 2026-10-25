@@ -19,6 +19,7 @@ type Props = {
   copyLabel?: string;
   link?: { href: string | null; external?: boolean };
   wrap?: boolean;
+  multiline?: boolean;
 };
 
 const containerClass = "group/copyable-text relative inline-flex min-w-0 max-w-full items-center align-baseline";
@@ -29,12 +30,22 @@ const labelClass =
 const actionClass =
   "absolute top-1/2 right-0 -translate-y-1/2 opacity-0 transition-[opacity,scale] duration-150 group-hover/copyable-text:opacity-60 group-focus-within/copyable-text:opacity-60 motion-safe:group-active/copyable-text:scale-90 motion-reduce:transition-none";
 
-export function CopyableText({ value, label, className, buttonRef, ariaLabel, copyLabel, link, wrap = false }: Props) {
+export function CopyableText({
+  value,
+  label,
+  className,
+  buttonRef,
+  ariaLabel,
+  copyLabel,
+  link,
+  wrap = false,
+  multiline = false,
+}: Props) {
   const t = useTranslations();
   const copy = useCopyToClipboard();
   if (!value) return null;
   const actionLabel = copyLabel ?? t("Common.actions.copy");
-  const textClass = wrap ? "break-all whitespace-normal" : "truncate";
+  const textClass = wrap ? (multiline ? "whitespace-pre-line break-words" : "break-all whitespace-normal") : "truncate";
 
   const copyButton = (
     <Tooltip>
@@ -64,7 +75,9 @@ export function CopyableText({ value, label, className, buttonRef, ariaLabel, co
         </button>
       </TooltipTrigger>
 
-      <TooltipContent>{link ? actionLabel : value}</TooltipContent>
+      <TooltipContent className={cn(!link && multiline && "whitespace-pre-line")}>
+        {link ? actionLabel : value}
+      </TooltipContent>
     </Tooltip>
   );
 
@@ -93,7 +106,7 @@ export function CopyableText({ value, label, className, buttonRef, ariaLabel, co
           )}
         </TooltipTrigger>
 
-        <TooltipContent>{value}</TooltipContent>
+        <TooltipContent className={cn(multiline && "whitespace-pre-line")}>{value}</TooltipContent>
       </Tooltip>
 
       {copyButton}

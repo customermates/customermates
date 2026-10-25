@@ -2,6 +2,7 @@ import type { Filter, SortDescriptor } from "@/core/base/base-get.schema";
 import type { Grouping } from "@/core/base/grouping/grouping.schema";
 import { sameGrouping } from "@/core/base/grouping/grouping.schema";
 import type { DataViewState } from "./data-view-state.schema";
+import type { CalendarViewConfig } from "./calendar-view-config.schema";
 
 import { ViewMode } from "@/core/base/base-query-builder";
 
@@ -18,6 +19,7 @@ const PARAM_CARRIED_FIELDS = new Set<keyof DataViewState>([
   "pageSize",
   "viewMode",
   "grouping",
+  "calendar",
 ]);
 
 export type DataViewParamsLayer = {
@@ -27,6 +29,7 @@ export type DataViewParamsLayer = {
   pageSize?: DataViewPageSize;
   viewMode?: ViewMode;
   grouping?: Grouping | null;
+  calendar?: CalendarViewConfig | null;
 };
 
 export type DataViewDefaultsLayer = DataViewState;
@@ -41,6 +44,7 @@ export type ResolvedDataViewState = {
   columnOrder: string[];
   columnWidths: Record<string, number>;
   hiddenColumns: string[];
+  calendar: CalendarViewConfig | undefined;
 };
 
 type ResolveDataViewStateArgs = {
@@ -96,5 +100,6 @@ export function resolveDataViewState({ params, base, defaults }: ResolveDataView
     columnOrder: (out.columnOrder as string[] | undefined) ?? [],
     columnWidths: (out.columnWidths as Record<string, number> | undefined) ?? {},
     hiddenColumns: (out.hiddenColumns as string[] | undefined) ?? [],
+    calendar: (out.calendar as CalendarViewConfig | null | undefined) ?? undefined,
   };
 }

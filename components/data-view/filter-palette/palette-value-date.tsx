@@ -60,7 +60,7 @@ export const PaletteValueDate = observer(function PaletteValueDate({
   const marker = <CheckIcon className="ml-auto size-3.5" data-palette-current="true" />;
 
   return (
-    <CommandList className="max-h-none! overflow-visible">
+    <CommandList>
       <CommandEmpty>{t("Common.inputs.emptyContent")}</CommandEmpty>
 
       <CommandGroup>

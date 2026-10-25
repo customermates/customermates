@@ -1,5 +1,10 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
+export function purposeSigningSecret(purpose: string, secret: string | undefined): string | null {
+  const trimmed = secret?.trim();
+  return trimmed ? `${purpose}:v1:${trimmed}` : null;
+}
+
 export function hmacSha256Hex(secret: string, data: string): string {
   return createHmac("sha256", secret).update(data).digest("hex");
 }

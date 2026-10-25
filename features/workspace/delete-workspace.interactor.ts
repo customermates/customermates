@@ -6,6 +6,7 @@ import type { WorkspaceDeletionRepo } from "./workspace-deletion.repo";
 import type { WorkspaceDeletionSubject } from "./workspace-deletion-refusal";
 import type { WorkspaceMembershipRepo } from "./workspace-membership.repo";
 import type { UnrecordedSubscriptionCheck } from "@/ee/subscription/unrecorded-subscription-check";
+import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 
 import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
@@ -48,6 +49,7 @@ type ConnectedAccounts = Pick<DeleteAccountsForPlanConnectedAccountRepo, "listAc
 type ChannelRemoval = Pick<DeleteAccountForBillingService, "deleteForBillingOrThrow">;
 type InboundEvents = { deleteCompanyInboundEventsUnscoped(companyId: string): Promise<void> };
 type ProviderBilling = Pick<UnrecordedSubscriptionCheck, "findUnscoped">;
+type BackgroundTasks = Pick<BackgroundTaskService, "dispatch">;
 
 @TenantInteractor()
 export class DeleteWorkspaceInteractor extends AuthenticatedInteractor<DeleteWorkspaceData, DeleteWorkspaceResult> {
@@ -59,6 +61,7 @@ export class DeleteWorkspaceInteractor extends AuthenticatedInteractor<DeleteWor
     private readonly channelRemoval: ChannelRemoval,
     private readonly inboundEvents: InboundEvents,
     private readonly providerBilling: ProviderBilling,
+    private readonly background: BackgroundTasks,
   ) {
     super();
   }
@@ -100,6 +103,7 @@ export class DeleteWorkspaceInteractor extends AuthenticatedInteractor<DeleteWor
     }
     if (!deleted.ok) return deleted;
 
+    await this.purgeStoredFiles();
     logAuditEvent("workspace-deleted", {
       companyId,
       appMode: env.APP_MODE,
@@ -207,6 +211,14 @@ export class DeleteWorkspaceInteractor extends AuthenticatedInteractor<DeleteWor
     if (outcome === "found") return fail(CustomErrorCode.workspaceDeleteBillingActive);
     if (outcome === "unverified") return failUnavailable(CustomErrorCode.workspaceDeleteBillingUnverified);
     return null;
+  }
+
+  private async purgeStoredFiles(): Promise<void> {
+    try {
+      await this.background.dispatch("purge-company-files", { companyId: this.companyId });
+    } catch (error) {
+      Sentry.captureException(error, { tags: { kind: "workspace-delete-files", companyId: this.companyId } });
+    }
   }
 
   private async disconnectChannels(): Promise<void> {

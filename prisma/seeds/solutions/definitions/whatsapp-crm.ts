@@ -1263,7 +1263,6 @@ export default defineSolution<Strings>({
           jobTitle,
           preferredChannel: facts.channel,
           ...(facts.chat ? { chatStatus: facts.chat } : {}),
-          ...(mobile ? { phone: mobile } : {}),
         },
         links: { "contact.organizations": facts.organization },
         owner: "maxBergmann",
@@ -1501,7 +1500,6 @@ export default defineSolution<Strings>({
         { key: "organization.city", label: t.fields.city, type: "text" },
         { key: "organization.website", label: t.fields.website, type: "url" },
         { key: "contact.jobTitle", label: t.fields.jobTitle, type: "text" },
-        { key: "contact.phone", label: t.fields.phone, type: "phone" },
         {
           key: "contact.preferredChannel",
           label: t.fields.preferredChannel,
@@ -1592,7 +1590,7 @@ export default defineSolution<Strings>({
           name: t.views.chats,
           mode: "board",
           groupBy: "chatStatus",
-          columns: ["contact.organizations", "preferredChannel", "phone"],
+          columns: ["contact.organizations", "preferredChannel", "capability.identity"],
           filters: [{ field: "chatStatus", in: ["new", "waitingForUs", "waitingForCustomer", "done"] }],
         },
         {

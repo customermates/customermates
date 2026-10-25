@@ -53,6 +53,7 @@ Die REST-API arbeitet mit jeder Liste des CRM. Ein neuer Workspace startet ohne 
 | Anlegen, ändern, löschen, verknüpfen oder Verknüpfung lösen | `POST /api/v1/records/mutate` |
 | Bis zu 100 Datensätze ändern oder löschen | `POST /api/v1/records/mutate` mit `updateMany` oder `deleteMany` |
 | Eine Liste exportieren oder bis zu 100 Datensätze importieren | `POST /api/v1/records/export` oder `POST /api/v1/records/import` |
+| Eine Datei in ein Feld vom Typ Datei hochladen | `POST /api/v1/files/uploads`, dann `POST /api/v1/records/mutate` |
 | Ein Feld summieren oder zählen, etwa den Pipeline-Wert | `POST /api/v1/reports/query` |
 
 Ein Datensatz wird über eine Referenz adressiert, `{ "typeId": "...", "recordId": "..." }`, nicht über seine URL. Die Basis-URL ist die Adresse, unter der Sie Customermates öffnen, in der Cloud wie auf dem eigenen Server. Weitere Routen gibt es für Nutzer (`/api/v1/users/me`, `/api/v1/users/search`), für Webhooks und für die Inbox: Threads, Entwürfe, Versand von E-Mails und Chatnachrichten, Aktivitäten und lesender Kalenderzugriff.
@@ -106,7 +107,6 @@ Mate, der Assistent in Customermates Cloud, ist eine eigene Funktion. Er nutzt g
 
 - **Kein PUT oder PATCH auf Datensätzen.** Jede Änderung ist ein `POST` an `/api/v1/records/mutate`.
 - **Kein ODER zwischen Filterregeln.** Filterregeln werden mit UND verknüpft. Für ODER führen Sie zwei Abfragen aus oder nutzen den Operator `in` auf einem Feld.
-- **Kein Datei-Upload an Datensätze.** Datensätze haben keine Dateianhänge, Notizen enthalten Rich Text.
 - **Keine veröffentlichte Anfragequote.** Ein ausgelasteter Workspace antwortet mit `429` und einem `Retry-After`-Header. Teilen Sie Bulk-Jobs in Stapel zu 100 auf.
 - **Kein CSV-Export-Endpunkt und kein Export des gesamten Kontos.** Die App importiert und exportiert XLSX und JSON, jeweils eine Liste. Größere Mengen laufen über Ihr eigenes API-Skript.
 - **Keine Inbox und kein Mate beim Self-Hosting.** REST-Routen für Datensätze, Webhooks und MCP funktionieren dort, die Messaging-Routen brauchen Customermates Cloud ab Pro.

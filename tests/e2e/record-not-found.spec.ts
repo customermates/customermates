@@ -119,7 +119,8 @@ test("falls back to the All view and drops an unknown or foreign view id from th
   await expect(page.locator("#global-data-views-new")).toBeVisible();
   await expect(
     page.locator('#global-data-views [data-focus-target^="view:"][aria-current="page"]'),
-  ).toHaveCount(0);
+  ).toHaveCount(1);
+  await expect(page.locator("#global-data-views-all")).toHaveAttribute("aria-current", "page");
   await expect(page.getByText(englishMessages.ErrorCard.title)).toHaveCount(0);
 
   expect(errors).toEqual([]);

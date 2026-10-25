@@ -1,9 +1,13 @@
-import type { MessagingProvider } from "@/generated/prisma";
+import type { MessagingProvider, RecordIdentityProvider } from "@/generated/prisma";
 import type { ProviderAvatars } from "./inbound-avatar";
 
 import { identityLookupValue } from "../identity-lookup";
 
-export type KnownIdentity = { provider: MessagingProvider; value: string; messagingId?: string | null };
+export type KnownIdentity = { provider: RecordIdentityProvider; value: string; messagingId?: string | null };
+
+function pictureProvider(provider: RecordIdentityProvider): MessagingProvider {
+  return provider === "phone" ? "whatsapp" : provider;
+}
 
 export type KnownPictures = {
   findLatestParticipantPictureUnscoped(
@@ -21,14 +25,15 @@ export async function synchronizeKnownAvatars(
   identities: KnownIdentity[],
 ) {
   for (const identity of identities) {
-    const lookup = identityLookupValue(identity.provider, identity.value);
+    const provider = pictureProvider(identity.provider);
+    const lookup = identityLookupValue(provider, identity.value);
     if (!lookup) continue;
     const pictureUrl = await pictures.findLatestParticipantPictureUnscoped(
       companyId,
-      identity.provider,
+      provider,
       lookup,
       identity.messagingId ?? null,
     );
-    if (pictureUrl) await avatars(companyId).synchronize(identity.provider, identity.value, pictureUrl);
+    if (pictureUrl) await avatars(companyId).synchronize(provider, identity.value, pictureUrl);
   }
 }

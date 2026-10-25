@@ -1433,12 +1433,12 @@ export default defineSolution<Strings>({
       const mobile = facts.phone ? phone(facts.phone) : undefined;
       return {
         key,
-        values: { firstName, lastName, jobTitle, decisionRole: facts.role, phone: mobile ?? office(index) },
+        values: { firstName, lastName, jobTitle, decisionRole: facts.role },
         links: { "contact.organizations": facts.organization },
         owner: ORGANIZATION_FACTS[facts.organization].owner,
         channels: {
           email: `${mailbox(firstName)}.${mailbox(lastName)}@${domain}`,
-          ...(facts.whatsapp && mobile ? { phone: mobile } : {}),
+          phone: mobile ?? office(index),
           ...(facts.linkedin
             ? {
                 linkedin: `${key}-${facts.organization}.linkedin.example`,
@@ -1544,7 +1544,6 @@ export default defineSolution<Strings>({
         { key: "organization.employees", label: t.fields.employees, type: "number" },
         ...t.archivedFields.map((field) => ({ ...field, type: "text" as const, archived: true })),
         { key: "contact.jobTitle", label: t.fields.jobTitle, type: "text" },
-        { key: "contact.phone", label: t.fields.phone, type: "phone" },
         {
           key: "contact.decisionRole",
           label: t.fields.decisionRole,
@@ -1621,7 +1620,7 @@ export default defineSolution<Strings>({
           list: "contact",
           name: t.views.allContacts,
           mode: "table",
-          columns: ["jobTitle", "contact.organizations", "decisionRole", "phone", "capability.identity"],
+          columns: ["jobTitle", "contact.organizations", "decisionRole", "capability.identity"],
         },
         {
           key: "dueSoon",

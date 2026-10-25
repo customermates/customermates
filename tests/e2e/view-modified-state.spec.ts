@@ -23,12 +23,11 @@ test("keeps filter changes temporary until saved to the view, resets them and ke
         [companyId, `records:${typeId}`],
       )
     ).rows[0]?.filters ?? [];
-  const viewsMenu = page.locator("#global-data-views-menu");
-  const unsavedWithoutView = page.locator("#global-data-views-menu[data-view-modified]");
+  const unsavedWithoutView = page.locator("#global-data-views-all[data-view-modified]");
   const withoutView = async (target = page) => {
     await expect(target.locator("#global-data-views-new")).toBeVisible();
-    await expect(target.locator('#global-data-views [data-focus-target^="view:"][aria-current="page"]')).toHaveCount(0);
-    await expect(target.locator("#global-data-views-menu[data-view-modified]")).toHaveCount(0);
+    await expect(target.locator('#global-data-views [data-focus-target^="view:"]:not(#global-data-views-all)[aria-current="page"]')).toHaveCount(0);
+    await expect(target.locator("#global-data-views-all[data-view-modified]")).toHaveCount(0);
   };
   const cancel = page.locator("#records-filter-cancel");
   const save = page.locator("#records-filter-save");
@@ -43,8 +42,8 @@ test("keeps filter changes temporary until saved to the view, resets them and ke
   await withoutView();
 
   await applyAssignee();
-  await expect(viewsMenu).toHaveAttribute("data-view-modified", "");
-  await expect(viewsMenu.locator('span[aria-hidden="true"]')).toBeInViewport({ ratio: 1 });
+  await expect(page.locator("#global-data-views-all")).toHaveAttribute("data-view-modified", "");
+  await expect(page.locator("#global-data-views-all").locator('span[aria-hidden="true"]')).toBeInViewport({ ratio: 1 });
   await expect(save).toBeVisible();
   const filterBar = page.locator('[role="dialog"] [data-slot="unsaved-changes-bar"]');
   await expect(filterBar).toBeVisible();
@@ -66,7 +65,7 @@ test("keeps filter changes temporary until saved to the view, resets them and ke
 
   await applyAssignee();
   await page.keyboard.press("Escape");
-  await expect(viewsMenu).toHaveAttribute("data-view-modified", "");
+  await expect(page.locator("#global-data-views-all")).toHaveAttribute("data-view-modified", "");
   const sidebarLink = (name: string) =>
     page
       .locator('[data-sidebar="menu-button"]')
@@ -79,10 +78,10 @@ test("keeps filter changes temporary until saved to the view, resets them and ke
   await openSidebar(page);
   await sidebarLink("Deals").click();
   await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${typeId}(?:\\?.*)?$`));
-  await expect(viewsMenu).toHaveAttribute("data-view-modified", "");
+  await expect(page.locator("#global-data-views-all")).toHaveAttribute("data-view-modified", "");
   await expect(page).toHaveURL((url) => url.searchParams.has("filters"));
   await page.reload();
-  await expect(viewsMenu).toHaveAttribute("data-view-modified", "");
+  await expect(page.locator("#global-data-views-all")).toHaveAttribute("data-view-modified", "");
   expect(await storedFilters()).toEqual([]);
 
   const otherSession = await page.context().newPage();
@@ -138,9 +137,9 @@ test("keeps an Activities rail filter temporary with the modified dot on the vie
   const history = page.locator('main [data-detail-panel="activities"]');
   if (!(await history.isVisible())) await page.getByRole("tab", { name: "Activities", exact: true }).click();
   const menu = history.locator("#global-data-views-menu");
-  const unsavedWithoutView = history.locator("#global-data-views-menu[data-view-modified]");
+  const unsavedWithoutView = history.locator("#global-data-views-all[data-view-modified]");
   await expect(history.locator("#global-data-views-new")).toBeVisible();
-  await expect(history.locator('[data-focus-target^="view:"][aria-current="page"]')).toHaveCount(0);
+  await expect(history.locator('[data-focus-target^="view:"]:not(#global-data-views-all)[aria-current="page"]')).toHaveCount(0);
   await expect(unsavedWithoutView).toHaveCount(0);
   const storedFilters = async () =>
     (
@@ -156,7 +155,7 @@ test("keeps an Activities rail filter temporary with the modified dot on the vie
     await page.locator('[data-palette-value="messages"]').click();
     await page.locator("#filter-palette-back").click();
     await page.keyboard.press("Escape");
-    await expect(menu).toHaveAttribute("data-view-modified", "");
+    await expect(history.locator("#global-data-views-all")).toHaveAttribute("data-view-modified", "");
   };
   const viewsMenu = async () => {
     await menu.click();
@@ -207,7 +206,7 @@ test("opens an assistant proposal in the modified state and saves it as an updat
       ] as const,
     );
   const viewsMenu = page.locator("#global-data-views-menu");
-  const activeView = page.locator('#global-data-views [data-focus-target^="view:"][aria-current="page"]');
+  const activeView = page.locator('#global-data-views [data-focus-target^="view:"]:not(#global-data-views-all)[aria-current="page"]');
 
   await page.goto(companyPath(companyId, `/records/${typeId}`));
   await expect(page.locator("#global-data-views-new")).toBeVisible();
@@ -215,10 +214,10 @@ test("opens an assistant proposal in the modified state and saves it as an updat
   await page.waitForLoadState("networkidle");
   await propose("__all__", { isNew: false });
   await page.reload();
-  await expect(viewsMenu).toHaveAttribute("data-view-modified", "");
+  await expect(page.locator("#global-data-views-all")).toHaveAttribute("data-view-modified", "");
   await viewsMenu.click();
   await page.locator("#global-data-views-save").click();
-  await expect(page.locator("#global-data-views-menu[data-view-modified]")).toHaveCount(0);
+  await expect(page.locator("#global-data-views-all[data-view-modified]")).toHaveCount(0);
   await expect
     .poll(async () =>
       (
@@ -240,7 +239,7 @@ test("opens an assistant proposal in the modified state and saves it as an updat
   await expect(proposed.locator('span[aria-hidden="true"]')).toBeInViewport({ ratio: 1 });
   await expect(proposed).toHaveAttribute("aria-current", "page");
   await expect(activeView).toHaveCount(0);
-  await expect(page.locator("#global-data-views-menu[data-view-modified]")).toHaveCount(0);
+  await expect(page.locator("#global-data-views-all[data-view-modified]")).toHaveCount(0);
   await page.screenshot({ path: testInfo.outputPath("proposal-new-view-light.png"), animations: "disabled" });
   await page.emulateMedia({ colorScheme: "dark" });
   await page.screenshot({ path: testInfo.outputPath("proposal-new-view-dark.png"), animations: "disabled" });
@@ -305,12 +304,11 @@ test("keeps appearance changes temporary with the shared bottom save bar and the
         `records:${typeId}`,
       ])
     ).rows[0]?.grouping ?? null;
-  const viewsMenu = page.locator("#global-data-views-menu");
-  const unsavedWithoutView = page.locator("#global-data-views-menu[data-view-modified]");
+  const unsavedWithoutView = page.locator("#global-data-views-all[data-view-modified]");
   const withoutView = async (target = page) => {
     await expect(target.locator("#global-data-views-new")).toBeVisible();
-    await expect(target.locator('#global-data-views [data-focus-target^="view:"][aria-current="page"]')).toHaveCount(0);
-    await expect(target.locator("#global-data-views-menu[data-view-modified]")).toHaveCount(0);
+    await expect(target.locator('#global-data-views [data-focus-target^="view:"]:not(#global-data-views-all)[aria-current="page"]')).toHaveCount(0);
+    await expect(target.locator("#global-data-views-all[data-view-modified]")).toHaveCount(0);
   };
   const groupBy = page.getByRole("combobox", { name: "Group By", exact: true });
   const appearanceSave = page.locator("#records-display-options-view-save");
@@ -342,7 +340,7 @@ test("keeps appearance changes temporary with the shared bottom save bar and the
   await closeAppearance();
 
   await groupByStage();
-  await expect(viewsMenu).toHaveAttribute("data-view-modified", "");
+  await expect(page.locator("#global-data-views-all")).toHaveAttribute("data-view-modified", "");
   await expect(appearanceSave).toBeVisible();
   await expect(appearanceCancel).toBeVisible();
   await expect(appearanceBar).toBeVisible();
@@ -376,7 +374,7 @@ test("keeps appearance changes temporary with the shared bottom save bar and the
   expect(await storedGrouping()).toBeNull();
 
   await page.reload();
-  await expect(viewsMenu).toHaveAttribute("data-view-modified", "");
+  await expect(page.locator("#global-data-views-all")).toHaveAttribute("data-view-modified", "");
   await openAppearance();
   await expect(groupBy).toContainText("Stage");
   await appearanceSave.click();
@@ -387,7 +385,7 @@ test("keeps appearance changes temporary with the shared bottom save bar and the
 
   await groupBy.click();
   await page.getByRole("option", { name: "None", exact: true }).click();
-  await expect(viewsMenu).toHaveAttribute("data-view-modified", "");
+  await expect(page.locator("#global-data-views-all")).toHaveAttribute("data-view-modified", "");
   await appearanceCancel.click();
   await expect(groupBy).toContainText("Stage");
   await expect(unsavedWithoutView).toHaveCount(0);

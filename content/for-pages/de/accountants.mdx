@@ -47,7 +47,7 @@ In vielen Steuerkanzleien ist die fachliche Arbeit längst organisiert: DATEV od
   </SummaryItem>
   <SummaryItem label="Nicht enthalten">
     Keine Fristenkontrolle, keine Leistungserfassung oder Honorarabrechnung,
-    keine GwG-Prüfung, kein Mandantenportal und keine Dateiablage am Datensatz.
+    keine GwG-Prüfung und kein Mandantenportal.
   </SummaryItem>
 </ArticleSummary>
 
@@ -67,7 +67,7 @@ Ein neuer Workspace startet ohne Listen: Sie legen die benötigten Listen (Konta
 |---|---|---|
 | Organisationen | Mandantenunternehmen und Privatmandanten | Rechtsform (Einzelauswahl: Privatperson, Einzelunternehmen, GbR, GmbH, UG, Verein), Wirtschaftsjahr-Ende (Datum), DATEV-Mandantennummer (Text) |
 | Kontakte | Personen beim Mandanten | Rolle (Einzelauswahl: Geschäftsführung, Buchhaltung, Ehepartner, Empfehlungsgeber), Empfohlen von |
-| Deals bzw. Aufträge | Jeder Auftrag je Periode, etwa „Müller GmbH: Jahresabschluss 2026“ | Phase, Auftragsart, Unterlagen (Einzelauswahl: Vollständig, Teilweise, Ausstehend), Unterlagen angefordert am, Abgabe bis (Datum), Auftragsbestätigung (Webadresse) |
+| Deals bzw. Aufträge | Jeder Auftrag je Periode, etwa „Müller GmbH: Jahresabschluss 2026“ | Phase, Auftragsart, Unterlagen (Einzelauswahl: Vollständig, Teilweise, Ausstehend), Unterlagen angefordert am, Abgabe bis (Datum), Auftragsbestätigung (Datei) |
 | Leistungen | Ihr Leistungsangebot mit Preis | Laufende Fibu, Lohnabrechnung, Jahresabschluss, Einkommensteuererklärung, Beratungsstunde |
 | Aufgaben | Nächste Schritte für eine Person | Ein selbst angelegtes Datumsfeld „Erledigen bis“, weil Aufgaben kein eingebautes Fälligkeitsdatum haben |
 
@@ -122,9 +122,9 @@ Für die nächste Periode genügt eine Bitte im Chat: „Lege für jeden Auftrag
 ## Was Customermates für Steuerkanzleien nicht leistet
 
 - **Keine Fristenkontrolle.** Aufgaben haben weder Fälligkeitsdatum noch Erinnerung oder Benachrichtigung. Ein Feld „Abgabe bis“ und eine sortierte Ansicht zeigen, was ansteht; die verbindliche Fristenkontrolle gehört in Ihre Kanzleisoftware.
-- Keine Leistungserfassung, keine Honorarabrechnung nach StBVV, keine Angebote und keine elektronische Unterschrift. Den Link zur unterschriebenen Auftragsbestätigung legen Sie am Auftrag ab.
+- Keine Leistungserfassung, keine Honorarabrechnung nach StBVV, keine Angebote und keine elektronische Unterschrift. Die unterschriebene Auftragsbestätigung legen Sie in einem Feld vom Typ Datei am Auftrag ab.
 - Keine Prüfung nach dem Geldwäschegesetz: Identifizierung und Risikoeinstufung bildet Customermates nicht ab.
-- Kein Mandantenportal und keine Dateiablage am Datensatz.
+- Kein Mandantenportal.
 - Keine fertige DATEV-Schnittstelle. Abgleiche bauen Sie über [REST-API und Webhooks](/features/workflow-automation) mit einem separat betriebenen n8n, soweit die Gegenseite eine Schnittstelle bietet.
 - Keine Mobile-App.
 

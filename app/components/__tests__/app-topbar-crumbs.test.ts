@@ -6,6 +6,11 @@ const translate = (key: string) => key;
 const OPAQUE_ID = "bcad5c22-5549-4847-93e4-c17296828b76";
 
 describe("app topbar crumbs", () => {
+  it("names the calendar in the shared app topbar", () => {
+    expect(buildAppTopbarCrumbs("/en/calendar", translate, null).crumbs).toEqual([
+      { label: "Planner.title", href: "/calendar" },
+    ]);
+  });
   it("uses stable generic type and record identities through loading, renaming and navigation", () => {
     const read = (path: string, identity: Parameters<typeof buildAppTopbarCrumbs>[2]) =>
       buildAppTopbarCrumbs(path, translate, identity);

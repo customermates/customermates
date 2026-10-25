@@ -10,15 +10,27 @@ import type {
   ImportRecordsResult,
   RecordExportLink,
 } from "@/features/data-transfer/record-transfer.schema";
+import type { RecordIdentity, RecordIdentityInput } from "@/features/records/record-identity.schema";
+import type { RecordWriteWarning } from "@/features/records/record-query.schema";
 import type { XlsxTargetOption } from "./xlsx-mapping";
 import type { XlsxIssueCode, XlsxMember, XlsxRecordIndex } from "./xlsx-values";
 import type { XlsxRow } from "./xlsx-workbook";
 
 import { RECORD_IMPORT_LIMIT, RECORD_IMPORT_LINK_LIMIT } from "@/features/data-transfer/record-transfer.schema";
+import { channelClass } from "@/ee/messaging/provider";
+import {
+  addressDisplayText,
+  cleanAddressPart,
+  unverifiedAddressScalar,
+  type RecordAddressPart,
+} from "@/features/records/record-address-value";
+import { REGISTERED_LOCALES } from "@/i18n/locale-registry";
 import { requiredNamePart, splitPersonName } from "@/features/data-transfer/spreadsheet/spreadsheet-values";
 
-import { normalizeXlsxHeader, xlsxImportFields, XLSX_SKIP_KEY } from "./xlsx-mapping";
+import { normalizeXlsxHeader, xlsxImportFields, XLSX_CHANNELS_KEY, XLSX_SKIP_KEY } from "./xlsx-mapping";
 import {
+  parseRecordAddressPart,
+  parseXlsxChannelsCell,
   parseXlsxFieldCell,
   parseXlsxMembersCell,
   parseXlsxRangePart,
@@ -60,11 +72,18 @@ export type XlsxPlanInput = {
   mapping: string[];
   options: XlsxTargetOption[];
   lookups: XlsxLookups;
+  region?: string | null;
 };
 
 type XlsxRowFailure = { sheetRow: number; reasons: string[] };
 
-export type XlsxImportSummary = { created: number; updated: number; skipped: number; failed: XlsxRowFailure[] };
+export type XlsxImportSummary = {
+  created: number;
+  updated: number;
+  skipped: number;
+  failed: XlsxRowFailure[];
+  warned: XlsxRowFailure[];
+};
 
 export type XlsxImportPort = (
   input: ImportRecordsInput,
@@ -76,6 +95,7 @@ type ParsedRow = {
   links: Array<{ relationId: string; targets: RecordRef[] }>;
   assignedUserIds: string[] | null;
   recordId: string | null;
+  identities: RecordIdentityInput[];
   issues: XlsxIssue[];
 };
 
@@ -83,6 +103,42 @@ const MISSING: CalculatedValue = { state: "missing" };
 
 function valueResult(value: RecordScalar | null): CalculatedValue {
   return value ? { state: "value", value } : MISSING;
+}
+
+function repeatsStoredAddress(value: RecordScalar, stored: CalculatedValue): boolean {
+  if (value.kind !== "address" || stored.state !== "value" || stored.value.kind !== "address") return false;
+  const address = stored.value.value;
+  return [address.formatted, ...REGISTERED_LOCALES.map((locale) => addressDisplayText(address, locale))].some(
+    (text) => cleanAddressPart(text, 500) === value.value.formatted,
+  );
+}
+
+const identityKey = (identity: Pick<RecordIdentityInput, "provider" | "value">) =>
+  `${channelClass(identity.provider)}:${identity.value}`;
+
+function withIdentities(
+  existing: RecordIdentity[],
+  added: RecordIdentityInput[],
+  newId: () => string,
+  now: string,
+): RecordIdentity[] {
+  const known = new Set(existing.map(identityKey));
+  return [
+    ...existing,
+    ...added
+      .filter((identity) => !known.has(identityKey(identity)))
+      .map((identity) => ({
+        id: newId(),
+        provider: identity.provider,
+        value: identity.value,
+        channelClass: channelClass(identity.provider),
+        messagingId: null,
+        displayName: null,
+        profileUrl: null,
+        createdAt: now,
+        updatedAt: now,
+      })),
+  ];
 }
 
 export function parseXlsxRows(input: XlsxPlanInput, rows: XlsxRow[] = input.rows): ParsedRow[] {
@@ -95,9 +151,11 @@ export function parseXlsxRows(input: XlsxPlanInput, rows: XlsxRow[] = input.rows
       links: [],
       assignedUserIds: null,
       recordId: null,
+      identities: [],
       issues: [],
     };
     const ranges = new Map<string, { start: string | null; end: string | null }>();
+    const addresses = new Map<string, Partial<Record<RecordAddressPart, string | null>>>();
     input.mapping.forEach((key, column) => {
       if (key === XLSX_SKIP_KEY) return;
       const target = options.get(key)?.target;
@@ -128,6 +186,13 @@ export function parseXlsxRows(input: XlsxPlanInput, rows: XlsxRow[] = input.rows
         }
         const current = ranges.get(field.id) ?? { start: null, end: null };
         ranges.set(field.id, { ...current, [target.part]: result.value });
+      } else if (target.kind === "addressPart") {
+        const result = parseRecordAddressPart(cell, target.part);
+        if (!result.ok) {
+          report(result.code, result.value);
+          return;
+        }
+        addresses.set(target.fieldId, { ...addresses.get(target.fieldId), [target.part]: result.value });
       } else if (target.kind === "nameParts") {
         const name = splitPersonName(
           xlsxCellText(cell),
@@ -156,12 +221,20 @@ export function parseXlsxRows(input: XlsxPlanInput, rows: XlsxRow[] = input.rows
         const result = parseXlsxRecordId(cell);
         if (result.ok) parsed.recordId = result.value;
         else report(result.code, result.value);
+      } else if (target.kind === "channels") {
+        const result = parseXlsxChannelsCell(cell, input.region ?? null);
+        if (!result.ok) report(result.code, result.value);
+        else {
+          const known = new Set(parsed.identities.map(identityKey));
+          parsed.identities.push(...result.value.filter((identity) => !known.has(identityKey(identity))));
+        }
       }
     });
     for (const [fieldId, range] of ranges) {
       if (!parsed.values.has(fieldId))
         parsed.values.set(fieldId, range.start || range.end ? { kind: "range", ...range } : null);
     }
+    for (const [fieldId, address] of addresses) parsed.values.set(fieldId, unverifiedAddressScalar(address));
     return parsed;
   });
 }
@@ -253,6 +326,7 @@ export function planXlsxImport(
         assignedUsers: [],
         memberUsers: [],
         relationships: [],
+        ...(row.identities.length ? { identities: withIdentities([], row.identities, newId, now) } : {}),
       };
       return { sheetRow: row.sheetRow, record, links: linksOf(row, ref), issues: [], skipped: null };
     }
@@ -272,13 +346,22 @@ export function planXlsxImport(
     claimed.add(match.ref.recordId);
     if (match.fields.some((field) => field.result.state === "restricted"))
       return failed([rowIssue("restricted", null)]);
+    if (row.identities.length && !match.identities) {
+      const channels = input.headers[input.mapping.indexOf(XLSX_CHANNELS_KEY)] ?? "";
+      return failed([{ ...rowIssue("lookupUnavailable", channels), value: channels }]);
+    }
     const record: RecordDto = {
       ...match,
       fields: match.fields.map((field) => {
         const value = row.values.get(field.fieldId);
-        return value ? { fieldId: field.fieldId, result: valueResult(value) } : field;
+        return value && !repeatsStoredAddress(value, field.result)
+          ? { fieldId: field.fieldId, result: valueResult(value) }
+          : field;
       }),
       assignedUserIds: row.assignedUserIds ?? match.assignedUserIds,
+      ...(row.identities.length
+        ? { identities: withIdentities(match.identities ?? [], row.identities, newId, now) }
+        : {}),
     };
     return { sheetRow: row.sheetRow, record, links: linksOf(row, match.ref), issues: [], skipped: null };
   });
@@ -328,9 +411,11 @@ export async function runXlsxImport(options: {
   now: string;
   importRecords: XlsxImportPort;
   describeIssue: (issue: XlsxIssue) => string;
+  describeWarning?: (warning: RecordWriteWarning) => string;
   onProgress?: (processed: number, total: number) => void;
 }): Promise<XlsxImportSummary> {
-  const summary: XlsxImportSummary = { created: 0, updated: 0, skipped: 0, failed: [] };
+  const summary: XlsxImportSummary = { created: 0, updated: 0, skipped: 0, failed: [], warned: [] };
+  const warned = new Map<number, string[]>();
   for (const row of options.rows) {
     if (row.skipped) summary.skipped += 1;
     else if (!row.record)
@@ -351,6 +436,16 @@ export async function runXlsxImport(options: {
       summary.created += result.data.created;
       summary.updated += result.data.updated;
       summary.skipped += options.mode === "update" ? rows.length - result.data.updated : 0;
+      const sheetRows = new Map(rows.flatMap((row) => (row.record ? [[row.record.ref.recordId, row.sheetRow]] : [])));
+      for (const warning of result.data.warnings ?? []) {
+        for (const recordId of warning.recordIds) {
+          const sheetRow = sheetRows.get(recordId);
+          if (sheetRow === undefined) continue;
+          const reasons = warned.get(sheetRow) ?? [];
+          reasons.push(options.describeWarning?.(warning) ?? warning.message);
+          warned.set(sheetRow, reasons);
+        }
+      }
     }
     return result;
   };
@@ -391,5 +486,8 @@ export async function runXlsxImport(options: {
     options.onProgress?.(processed, total);
   }
   summary.failed.sort((left, right) => left.sheetRow - right.sheetRow);
+  summary.warned = [...warned.entries()]
+    .sort(([left], [right]) => left - right)
+    .map(([sheetRow, reasons]) => ({ sheetRow, reasons }));
   return summary;
 }

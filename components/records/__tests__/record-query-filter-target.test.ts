@@ -135,6 +135,30 @@ describe("record query palette host", () => {
     expect(f.read().filters).toEqual([]);
   });
 
+  it("keeps overlaps conditions the palette cannot show while other filters change", () => {
+    const overlaps = {
+      fieldId: "system:createdAt",
+      operator: "overlaps" as const,
+      value: null,
+      values: [
+        { kind: "dateTime" as const, value: "2026-10-01T00:00:00.000Z" },
+        { kind: "dateTime" as const, value: "2026-10-31T23:59:59.000Z" },
+      ],
+    };
+    const group = { path, operator: "any" as const, filters: [condition("Kept"), overlaps], relationships: [] };
+    const f = fixture({ filters: [overlaps], relationships: [], relatedFilters: [group] });
+    expect(f.target.filters).toEqual([]);
+    f.target.setQueryOptions({ filters: [{ field: "query:search", operator: Op.contains, value: "Deal" }] });
+    expect(f.read().filters).toEqual([overlaps]);
+    expect(f.read().relatedFilters).toEqual([group]);
+    const editable = recordInvariant(f.target.groups?.[0]);
+    expect(editable.target.filters).toHaveLength(1);
+    editable.target.setQueryOptions({
+      filters: [{ field: id("organization.name"), operator: Op.equals, value: "Changed" }],
+    });
+    expect(f.read().relatedFilters?.[0].filters).toEqual([condition("Changed"), overlaps]);
+  });
+
   it("blocks all host mutation paths when the form becomes read only", () => {
     const initial = {
       filters: [],

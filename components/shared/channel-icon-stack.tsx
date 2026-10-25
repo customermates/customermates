@@ -15,7 +15,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { runUserAction } from "@/core/errors/report-application-error";
 import { contactHref } from "@/core/utils/contact-href";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
-import { channelLabelKey } from "@/ee/messaging/provider";
+import { byChannelGroup, channelLabelKey } from "@/ee/messaging/provider";
 import { getChannelIcon } from "@/ee/messaging/provider-icon";
 import { channelContact } from "@/ee/messaging/thread-display";
 
@@ -36,7 +36,8 @@ export const ChannelIconStack = observer(function ChannelIconStack({
   const t = useTranslations();
   const intl = useHydratedIntlStore();
   const copy = useCopyToClipboard();
-  const channels = [...new Map(identifiers.map((id) => [channelLabelKey(id.provider), id.provider])).values()];
+  const rows = byChannelGroup(identifiers);
+  const channels = [...new Map(rows.map((id) => [channelLabelKey(id.provider), id.provider])).values()];
 
   return (
     <OverlappingStack
@@ -103,7 +104,7 @@ export const ChannelIconStack = observer(function ChannelIconStack({
         );
       }}
       rowKey={(id) => id.id}
-      rows={identifiers}
+      rows={rows}
       triggerLabel={intl.formatList(channels.map((provider) => t(`Common.providers.${channelLabelKey(provider)}`)))}
     />
   );

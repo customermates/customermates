@@ -18,6 +18,10 @@ vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => ({ use
 vi.mock("@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/actions", () => ({
   getActiveUsersAction: vi.fn(),
 }));
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/records/actions", () => ({
+  lookupAddressAction: vi.fn(),
+  verifyAddressAction: vi.fn(),
+}));
 vi.mock("@/components/forms/form-autocomplete-avatar", async () => {
   const React = await import("react");
   return {

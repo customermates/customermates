@@ -1,16 +1,19 @@
 "use client";
 
+import { RECORD_NAME_HEADING_CLASS } from "@/components/records/inline-edit-classes";
 import { withFormulaReferences } from "@/features/records/formula-references";
-import { useId } from "react";
+import { useId, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { isRecordFieldWritable } from "@/features/records/record-input-value";
 import { useTranslations } from "next-intl";
 import { Camera, Link2, Sigma } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { RecordEditorStore } from "./record-editor.store";
 import type { RecordField, RecordFieldView } from "@/features/records/record-model.schema";
 import { EntityDetailFieldShell } from "@/components/entity-detail/entity-detail-field-shell";
 import { RecordValue, useRecordValueFormat } from "@/components/records/record-value";
+import { RecordFileCount } from "./record-file-input";
 import { RecordInputField } from "./record-input-field";
 import { FormattedTextField } from "@/components/editor/formatted-text-field";
 import { ConfirmationSentenceView, referenceSentence } from "@/components/modal/confirmation-sentence";
@@ -27,8 +30,6 @@ import { FormInput } from "@/components/forms/form-input";
 import { cn } from "@/core/utils/cn";
 
 const DERIVATION_ICONS = { calculation: Sigma, lookup: Link2, saved: Camera } as const;
-const RECORD_NAME_HEADING_CLASS =
-  "-mx-2 min-w-0 flex-1 [&_input]:h-9 [&_input]:border-transparent [&_input]:bg-transparent [&_input]:px-[7px] [&_input]:text-lg [&_input]:font-semibold [&_input]:shadow-none [&_input]:hover:bg-foreground/5 [&_input]:read-only:hover:bg-transparent [&_input]:focus-visible:border-ring/60 [&_input]:focus-visible:bg-background [&_input]:focus-visible:shadow-[0_0_0_3px_color-mix(in_oklab,var(--ring)_16%,transparent)] [&_input]:focus-visible:ring-0";
 
 export function recordNameField(store: RecordEditorStore) {
   const type = store.presentation.model.types.find((type) => type.id === store.presentation.typeId);
@@ -47,26 +48,43 @@ export const RecordNameHeading = observer(function RecordNameHeading({
   className?: string;
 }) {
   const field = recordNameField(store);
+  const headingRef = useRef<HTMLDivElement>(null);
+  const [fullNameShown, setFullNameShown] = useState(false);
   const result = store.record?.fields.find((value) => value.fieldId === field?.id)?.result;
   if (!field || result?.state === "restricted" || !isRecordFieldWritable(field))
     return <h2 className={cn("min-w-0 flex-1 truncate text-lg font-semibold", className)}>{name}</h2>;
 
+  const value = String(store.getValue(`values.${field.id}`) ?? "");
+  const showFullName = (open: boolean) => {
+    const input = headingRef.current?.querySelector("input");
+    if (!input) return setFullNameShown(false);
+    setFullNameShown(open && input !== document.activeElement && input.scrollWidth > input.clientWidth);
+  };
+
   return (
-    <div
-      aria-level={2}
-      className={cn(RECORD_NAME_HEADING_CLASS, className)}
-      data-record-name-heading={field.id}
-      role="heading"
-    >
-      <FormInput
-        showErrorMessage
-        aria-label={field.label}
-        id={`values.${field.id}`}
-        label={null}
-        placeholder={placeholder}
-        required={field.required}
-      />
-    </div>
+    <Tooltip open={fullNameShown && Boolean(value)} onOpenChange={showFullName}>
+      <TooltipTrigger asChild>
+        <div
+          ref={headingRef}
+          aria-level={2}
+          className={cn(RECORD_NAME_HEADING_CLASS, className)}
+          data-record-name-heading={field.id}
+          role="heading"
+          onFocusCapture={() => setFullNameShown(false)}
+        >
+          <FormInput
+            showErrorMessage
+            aria-label={field.label}
+            id={`values.${field.id}`}
+            label={null}
+            placeholder={placeholder}
+            required={field.required}
+          />
+        </div>
+      </TooltipTrigger>
+
+      <TooltipContent className="max-w-md">{value}</TooltipContent>
+    </Tooltip>
   );
 });
 
@@ -174,7 +192,15 @@ export const RecordEditorField = observer(function RecordEditorField({
         fieldId={field.id}
         label={field.label}
         locked={restricted}
-        value={<RecordValue field={field} members={store.record.memberUsers} result={result} />}
+        value={
+          <RecordValue
+            field={field}
+            files={store.record.files}
+            members={store.record.memberUsers}
+            result={result}
+            wrap={field.valueType === "address"}
+          />
+        }
       />
     );
   }
@@ -184,12 +210,14 @@ export const RecordEditorField = observer(function RecordEditorField({
       fieldId={field.id}
       inputId={field.valueType === "richText" ? undefined : inputId}
       label={field.label}
+      labelSuffix={field.valueType === "file" ? <RecordFileCount id={id} /> : undefined}
       locked={permissionReadOnly}
       required={field.required}
     >
       <RecordInputField
         collapsibleText
         field={field}
+        files={store.record?.files}
         id={id}
         inputId={inputId}
         label={null}

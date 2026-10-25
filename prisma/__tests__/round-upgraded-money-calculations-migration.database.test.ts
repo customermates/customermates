@@ -60,7 +60,11 @@ async function legacyWorkspace(client: Client, currency = "eur") {
 
 async function upgrade(
   client: Client,
-  { thenRound = true, between }: { thenRound?: boolean; between?: () => Promise<void> } = {},
+  {
+    thenRound = true,
+    between,
+    roundingOnly = false,
+  }: { thenRound?: boolean; between?: () => Promise<void>; roundingOnly?: boolean } = {},
 ) {
   for (const migration of await migrationDirectories(
     (name) => name >= DYNAMIC_RECORD_MODEL_MIGRATION && name < MIGRATION,
@@ -68,7 +72,9 @@ async function upgrade(
     await client.query(await readMigration(migration));
   await between?.();
   if (thenRound) {
-    for (const migration of await migrationDirectories((name) => name >= MIGRATION))
+    for (const migration of await migrationDirectories(
+      (name) => name >= MIGRATION && (!roundingOnly || name === MIGRATION),
+    ))
       await client.query(await readMigration(migration));
   }
 }
@@ -115,6 +121,9 @@ async function recalculateWithEngine(source: Client, companyId: string) {
   const destination = new Client({ connectionString: databaseUrl ?? undefined });
   await destination.connect();
   try {
+    const provider = await source.query("SELECT 1 FROM pg_type WHERE typname = 'RecordIdentityProvider'");
+    if (!provider.rowCount)
+      await source.query(await readMigration("20261019190000_files_addresses_and_contact_details"));
     await copyGenericWorkspace(source, destination, companyId);
     // A source upgraded without this migration still holds the membership capability that its part 4 removes.
     await destination.query(
@@ -322,6 +331,7 @@ describeDatabase("rounding the money calculations of upgraded workspaces", () =>
     let rounding = 0;
     try {
       await upgrade(database.client, {
+        roundingOnly: true,
         between: async () => {
           await holder.query("SELECT pg_advisory_lock(hashtextextended($1, 0))", [busy.companyId]);
           rounding = Date.now();

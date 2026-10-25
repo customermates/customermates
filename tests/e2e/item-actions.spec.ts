@@ -99,7 +99,6 @@ test.describe("item menus on touch", () => {
     workspace,
   }) => {
     const errors = collectPageErrors(page);
-    // A list has no view chip until it has a saved view: the rail has no built-in "All" chip.
     await database.query(
       'INSERT INTO "DataView" (id, "companyId", "userId", "surfaceKey", name, position, "updatedAt") VALUES ($1, $2, $3, $4, $5, 0, NOW())',
       [randomUUID(), companyId, workspace.userId, `records:${presetId(companyId, "organization")}`, "Key accounts"],
@@ -118,7 +117,7 @@ test.describe("item menus on touch", () => {
     const rowMenu = await openItemContextMenu(page, row);
     expect(await itemMenuLabels(page, rowMenu)).toEqual(["Open in new tab", "Open details", "Delete"]);
 
-    const chip = page.locator("[data-view-chip]").first();
+    const chip = page.locator("[data-view-chip]", { hasText: "Key accounts" });
     await expect(chip).toBeVisible();
     await expect(chip.locator("button")).toHaveCount(0);
     await expect(page.locator("[data-data-view-rail] [data-item-actions-trigger]")).toHaveCount(0);

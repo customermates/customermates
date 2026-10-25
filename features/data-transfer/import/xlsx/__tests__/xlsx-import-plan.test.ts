@@ -7,8 +7,9 @@ import type { XlsxImportPort, XlsxPlanInput } from "../xlsx-import-plan";
 import { RecordExportSchema } from "@/features/data-transfer/record-transfer.schema";
 
 import { planXlsxImport, runXlsxImport, xlsxImportBatches } from "../xlsx-import-plan";
-import { xlsxTargetOptions } from "../xlsx-mapping";
+import { xlsxTargetOptions, XLSX_CHANNELS_KEY } from "../xlsx-mapping";
 import {
+  addressField,
   COMPANY,
   fields,
   labels,
@@ -230,6 +231,87 @@ describe("xlsx import planning", () => {
     expect(plan[2].issues.map((issue) => issue.code)).toEqual(["duplicateMatch"]);
   });
 
+  it("adds the numbers of Channels columns as identities and keeps a record's other identities", () => {
+    const created = planXlsxImport(
+      {
+        ...input(
+          ["Name", "Phone", "Mobile"],
+          [`field:${fields.name.id}`, XLSX_CHANNELS_KEY, XLSX_CHANNELS_KEY],
+          [{ sheetRow: 2, cells: ["Atlas", "0621 123456", "+49 621 123456; ada@example.test"] }],
+        ),
+        region: "de",
+      },
+      "create",
+      null,
+      null,
+      newId,
+      now,
+    );
+    expect(
+      created[0].record?.identities?.map(({ provider, value, channelClass }) => ({ provider, value, channelClass })),
+    ).toEqual([
+      { provider: "phone", value: "+49621123456", channelClass: "phone" },
+      { provider: "mail", value: "ada@example.test", channelClass: "email" },
+    ]);
+    expect(
+      RecordExportSchema.safeParse({
+        format: "customermates-records",
+        version: 1,
+        typeId: PROJECT,
+        schemaRevision: model.revision,
+        exportedAt: now,
+        records: [created[0].record],
+        links: [],
+      }).success,
+    ).toBe(true);
+
+    const whatsapp = {
+      id: "70000000-0000-4000-8000-000000000001",
+      provider: "whatsapp" as const,
+      value: "+491701234567",
+      channelClass: "phone",
+      messagingId: null,
+      displayName: "Atlas",
+      profileUrl: null,
+      createdAt: now,
+      updatedAt: now,
+    };
+    const existing: RecordDto = {
+      ref: { typeId: PROJECT, recordId: "60000000-0000-4000-8000-000000000002" },
+      version: 2,
+      schemaRevision: model.revision,
+      createdAt: now,
+      updatedAt: now,
+      fields: [{ fieldId: fields.name.id, result: { state: "value", value: { kind: "text", value: "Atlas" } } }],
+      assignedUserIds: [],
+      assignedUsers: [],
+      memberUsers: [],
+      relationships: [],
+      identities: [whatsapp],
+    };
+    const update = (record: RecordDto, cells: string[]) =>
+      planXlsxImport(
+        {
+          ...input(["Name", "Phone"], [`field:${fields.name.id}`, XLSX_CHANNELS_KEY], [{ sheetRow: 2, cells }]),
+          region: "de",
+        },
+        "update",
+        `field:${fields.name.id}`,
+        { records: [record] },
+        newId,
+        now,
+      )[0];
+    expect(update(existing, ["Atlas", "0170 1234567, 0621 123456"]).record?.identities).toEqual([
+      whatsapp,
+      expect.objectContaining({ provider: "phone", value: "+49621123456" }),
+    ]);
+    expect(update(existing, ["Atlas", ""]).record?.identities).toEqual([whatsapp]);
+    expect(update({ ...existing, identities: undefined }, ["Atlas", "0621 123456"])).toMatchObject({
+      record: null,
+      issues: [{ code: "lookupUnavailable", column: "Phone", value: "Phone" }],
+    });
+  });
+
   it("splits large imports into batches of at most 100 records and 500 links", () => {
     const rows = Array.from({ length: 250 }, (_, index) => ({
       sheetRow: index + 2,
@@ -289,6 +371,7 @@ describe("xlsx import planning", () => {
         { sheetRow: 3, reasons: ["Name must be unique"] },
         { sheetRow: 9, reasons: ["required"] },
       ],
+      warned: [],
     });
     expect(calls.map((call) => call.idempotencyKey)).toEqual([
       "session-key:0",
@@ -312,5 +395,109 @@ describe("xlsx import planning", () => {
       ["No permission"],
       ["No permission"],
     ]);
+  });
+
+  it("joins address part columns into one address value and refuses an unknown country", () => {
+    const withAddress = { ...model, fields: [...model.fields, addressField] };
+    const options = xlsxTargetOptions(withAddress, PROJECT, labels);
+    const part = (name: string) => `field:${addressField.id}:${name}`;
+    const plan = planXlsxImport(
+      {
+        ...input([], [], []),
+        model: withAddress,
+        options,
+        headers: ["Name", "Street", "ZIP", "City", "Country"],
+        mapping: [`field:${fields.name.id}`, part("street"), part("postalCode"), part("city"), part("countryCode")],
+        rows: [
+          { sheetRow: 2, cells: ["Atlas", "Hauptstraße 5", "68259", "Mannheim", "Deutschland"] },
+          { sheetRow: 3, cells: ["Borealis", null, null, null, null] },
+          { sheetRow: 4, cells: ["Cygnus", "1 Infinite Loop", "95014", "Cupertino", "Atlantis"] },
+        ],
+      },
+      "create",
+      null,
+      null,
+      newId,
+      now,
+    );
+    expect(plan[0].record?.fields).toContainEqual({
+      fieldId: addressField.id,
+      result: {
+        state: "value",
+        value: {
+          kind: "address",
+          value: {
+            street: "Hauptstraße 5",
+            line2: null,
+            postalCode: "68259",
+            city: "Mannheim",
+            region: null,
+            countryCode: "de",
+            formatted: "",
+            location: null,
+            verification: { status: "unverified", provider: null, checkedAt: null },
+          },
+        },
+      },
+    });
+    expect(plan[1].record?.fields).toContainEqual({ fieldId: addressField.id, result: { state: "missing" } });
+    expect(plan[2]).toMatchObject({
+      record: null,
+      issues: [{ sheetRow: 4, column: "Country", code: "unknownCountry", value: "Atlantis" }],
+    });
+  });
+
+  it("reports the address warnings of imported rows by sheet row", async () => {
+    const plan = planXlsxImport(
+      input(
+        ["Name"],
+        [`field:${fields.name.id}`],
+        [
+          { sheetRow: 2, cells: ["Atlas"] },
+          { sheetRow: 3, cells: ["Borealis"] },
+        ],
+      ),
+      "create",
+      null,
+      null,
+      newId,
+      now,
+    );
+    const second = plan[1].record?.ref.recordId ?? "";
+    const summary = await runXlsxImport({
+      rows: plan,
+      mode: "create",
+      typeId: PROJECT,
+      schemaRevision: 7,
+      sessionKey: "warnings",
+      now,
+      importRecords: () =>
+        Promise.resolve({
+          ok: true,
+          data: {
+            created: 2,
+            updated: 0,
+            linked: 0,
+            schemaRevision: 7,
+            warnings: [
+              {
+                code: "cityMismatch",
+                fieldId: "office",
+                recordIds: [second],
+                part: "city",
+                expected: ["Mannheim"],
+                message: "Office: the city does not match the postal code, which belongs to Mannheim.",
+              },
+            ],
+          },
+        }),
+      describeIssue,
+      describeWarning: (warning) => `${warning.code}:${(warning.expected ?? []).join(",")}`,
+    });
+    expect(summary).toMatchObject({
+      created: 2,
+      failed: [],
+      warned: [{ sheetRow: 3, reasons: ["cityMismatch:Mannheim"] }],
+    });
   });
 });

@@ -7,6 +7,7 @@ import type {
   GroupingResult,
 } from "@/core/base/grouping/grouping.schema";
 import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
+import type { CalendarViewConfig } from "@/core/data-view/calendar-view-config.schema";
 import type { DataViewSurfaceKey } from "@/core/data-view/data-view-keys";
 import type { DataViewChipDto, DataViewState } from "@/core/data-view/data-view-state.schema";
 import { isPersistedColumnWidthKey } from "@/core/data-view/data-view-state.schema";
@@ -92,7 +93,22 @@ function filterSignature(filters: Filter[]): string[] {
   return filters.map(canonicalJson).sort();
 }
 
-const APPEARANCE_KEYS = ["sortDescriptor", "pageSize", "viewMode", "grouping", "columnOrder", "hiddenColumns"] as const;
+export type CalendarFieldChoice = { id: string; label: string };
+export type CalendarFieldOptions = {
+  dates: CalendarFieldChoice[];
+  endsFor: (dateFieldId: string) => CalendarFieldChoice[];
+  colors: CalendarFieldChoice[];
+};
+
+const APPEARANCE_KEYS = [
+  "sortDescriptor",
+  "pageSize",
+  "viewMode",
+  "grouping",
+  "columnOrder",
+  "hiddenColumns",
+  "calendar",
+] as const;
 
 type AppearanceKey = (typeof APPEARANCE_KEYS)[number];
 
@@ -126,6 +142,19 @@ function appearanceSignature(key: AppearanceKey, state: DataViewState | undefine
       return canonicalJson(state?.columnOrder ?? []);
     case "hiddenColumns":
       return canonicalJson([...(state?.hiddenColumns ?? [])].sort());
+    case "calendar": {
+      const calendar = state?.calendar;
+      return canonicalJson(
+        calendar
+          ? {
+              dateFieldId: calendar.dateFieldId,
+              endDateFieldId: calendar.endDateFieldId ?? null,
+              colorFieldId: calendar.colorFieldId ?? null,
+              mode: calendar.mode ?? "month",
+            }
+          : null,
+      );
+    }
   }
 }
 
@@ -152,6 +181,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   activeViewKey: string = ALL_VIEW_KEY;
   viewPersistable = true;
   viewMode: ViewMode = ViewMode.table;
+  calendar?: CalendarViewConfig | null;
   grouping?: Grouping | null;
   groupingResult?: GroupingResult;
   groupableFields: GroupableFieldDto[] = [];
@@ -179,6 +209,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   private backgroundRefreshQueued = false;
   private requestState: DataViewRequestState = { status: "uninitialized" };
   private onChangesCallbacks: (() => void | Promise<void>)[] = [];
+  private saveAsViewOpener?: () => void;
 
   schemaSettingsHref?: string;
   viewPathname?: string;
@@ -188,6 +219,21 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   }
   get supportsBoard(): boolean {
     return false;
+  }
+  get calendarFieldIds(): ReadonlySet<string> | undefined {
+    return undefined;
+  }
+  get supportsCalendar(): boolean {
+    return false;
+  }
+  get canCalendar(): boolean {
+    return false;
+  }
+  get defaultCalendar(): CalendarViewConfig | null {
+    return null;
+  }
+  get calendarFieldOptions(): CalendarFieldOptions | null {
+    return null;
   }
   get sharesViewState(): boolean {
     return true;
@@ -293,6 +339,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       activeViewKey: observable,
       viewPersistable: observable,
       viewMode: observable,
+      calendar: observable.ref,
       grouping: observable,
       groupingResult: observable.ref,
       groupableFields: observable,
@@ -308,6 +355,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       savedAppearance: observable.ref,
       savedQuery: computed,
       canSaveQuery: computed,
+      canSaveViewChanges: computed,
+      canSaveAsView: computed,
       isFilterModified: computed,
       isAppearanceModified: computed,
       isViewModified: computed,
@@ -411,6 +460,32 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return this.isFilterModified || this.isAppearanceModified;
   }
 
+  get canSaveViewChanges(): boolean {
+    if (!this.isViewModified) return false;
+    if (this.proposal) return !this.proposal.isNew || Boolean(this.proposal.name);
+
+    return true;
+  }
+
+  get canSaveAsView(): boolean {
+    if (!this.isReady || !this.canSaveQuery || this.activeViewKey !== ALL_VIEW_KEY) return false;
+    if (this.proposal) return this.proposal.isNew && !this.proposal.name;
+
+    return this.isFilterModified || this.hasSessionSearch;
+  }
+
+  registerSaveAsView = (opener: () => void): (() => void) => {
+    this.saveAsViewOpener = opener;
+
+    return () => {
+      if (this.saveAsViewOpener === opener) this.saveAsViewOpener = undefined;
+    };
+  };
+
+  openSaveAsView = (): void => {
+    this.saveAsViewOpener?.();
+  };
+
   private get hasSessionQuery(): boolean {
     if (!this.isReady || !this.canSaveQuery) return false;
 
@@ -432,6 +507,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     grouping: toJS(this.grouping) ?? null,
     columnOrder: toJS(this.columnOrder),
     hiddenColumns: toJS(this.hiddenColumns),
+    calendar: this.calendar ?? null,
   });
 
   viewStateSnapshot = ({ includeQuery }: { includeQuery: boolean }): DataViewState => {
@@ -455,6 +531,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       columnOrder: toJS(this.columnOrder),
       columnWidths: toJS(this.columnWidths),
       hiddenColumns: toJS(this.hiddenColumns),
+      calendar: this.calendar ?? null,
     };
   };
 
@@ -467,6 +544,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     if (appearance.columnOrder) this.columnOrder = appearance.columnOrder.filter((uid) => uid !== this.primaryColumnId);
     if (appearance.hiddenColumns)
       this.hiddenColumns = appearance.hiddenColumns.filter((uid) => uid !== this.primaryColumnId);
+    if ("calendar" in appearance) this.calendar = appearance.calendar ?? null;
     if (groupingBefore === this.groupingKey) return;
     this.resetGroupedTakeOverrides();
     this.collapsedGroupKeys.clear();
@@ -718,6 +796,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.hiddenColumns = (args.hiddenColumns ?? []).filter((uid) => uid !== this.primaryColumnId);
     this.columnOrder = (args.columnOrder ?? []).filter((uid) => uid !== this.primaryColumnId);
     this.viewMode = args.viewMode ?? ViewMode.table;
+    this.calendar = args.calendar ?? null;
     this.grouping = args.grouping?.grouping ?? null;
     this.groupingResult = args.grouping;
     this.groupableFields = args.groupableFields ?? [];
@@ -873,10 +952,12 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     hiddenColumns?: string[];
     viewMode?: ViewMode;
     grouping?: Grouping | null;
+    calendar?: CalendarViewConfig | null;
   }) => {
     let hasChanges = false;
     let widthsChanged = false;
     const groupingBefore = this.groupingKey;
+    const calendarModeBefore = this.viewMode === ViewMode.calendar;
 
     if (updates.columnOrder) {
       const newColumnOrder = updates.columnOrder.filter((uid) => uid !== this.primaryColumnId);
@@ -922,6 +1003,17 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       hasChanges = true;
     }
 
+    const calendarChanged =
+      "calendar" in updates &&
+      !sameAppearanceValue("calendar", { calendar: this.calendar ?? null }, { calendar: updates.calendar ?? null });
+    if (calendarChanged) {
+      this.calendar = updates.calendar ?? null;
+      hasChanges = true;
+    }
+    const calendarQueryChanged =
+      (viewModeChanged && (calendarModeBefore || this.viewMode === ViewMode.calendar)) ||
+      (calendarChanged && this.viewMode === ViewMode.calendar);
+
     if ("grouping" in updates && !sameGrouping(this.grouping, updates.grouping)) {
       this.grouping = updates.grouping ?? null;
       hasChanges = true;
@@ -937,7 +1029,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
     if (hasChanges) this.appearanceChanged();
     if (widthsChanged) this.persistViewState();
-    if (groupingChanged) this.refreshQueryInBackground();
+    if (groupingChanged || calendarQueryChanged) this.refreshQueryInBackground();
     else if (viewModeChanged && this.viewMode === ViewMode.card && this.grouping) this.refreshInBackground();
   };
 
@@ -1048,6 +1140,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       this.searchTerm = draft ? draft.searchTerm : state.searchTerm;
       this.sortDescriptor = state.sortDescriptor ?? undefined;
       this.viewMode = state.viewMode ?? ViewMode.table;
+      this.calendar = state.calendar ?? null;
       this.grouping = state.grouping ?? null;
       this.columnOrder = (state.columnOrder ?? []).filter((uid) => uid !== this.primaryColumnId);
       this.columnWidths = state.columnWidths ?? {};
@@ -1079,7 +1172,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   };
 
   saveViewChanges = async (): Promise<void> => {
-    if (!this.isViewModified) return;
+    if (!this.canSaveViewChanges) return;
 
     this.cancelPendingPersist();
     if (this.proposal?.isNew) {
@@ -1133,6 +1226,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       groupings: this.groupableFields.map((field) => field.grouping),
       sortableColumnIds: this.sortableColumnIds,
       supportsBoard: this.supportsBoard,
+      calendarFieldIds: this.calendarFieldIds,
     });
 
     this.writeQueryDraft(ALL_VIEW_KEY, {
@@ -1352,6 +1446,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
               }),
           viewMode: this.viewMode,
           grouping: toJS(this.grouping),
+          calendar: this.calendar,
+          ...this.extraQueryParams(),
         };
 
     runInAction(() => {
@@ -1567,6 +1663,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
   protected canPersistViewState(): boolean {
     return true;
+  }
+
+  protected extraQueryParams(): Partial<GetQueryParams> {
+    return {};
   }
 
   protected refreshAction(_params?: GetQueryParams): Promise<GetResult<Entity>> {

@@ -7,11 +7,24 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useAppForm } from "@/components/forms/form-context";
 import { FilterTargetPopover } from "@/components/data-view/filter-palette/filter-target-popover";
+import { FilterPaletteInline } from "@/components/data-view/filter-palette/filter-palette-inline";
 import { createRecordQueryFilterTarget } from "./record-query-filter-target";
 
-type Props = { id: string; anchorId: string; model: RecordModelView | null | undefined; typeId: string };
+type Props = {
+  id: string;
+  anchorId: string;
+  model: RecordModelView | null | undefined;
+  typeId: string;
+  inline?: boolean;
+};
 
-export const RecordQueryFilters = observer(function RecordQueryFilters({ id, anchorId, model, typeId }: Props) {
+export const RecordQueryFilters = observer(function RecordQueryFilters({
+  id,
+  anchorId,
+  model,
+  typeId,
+  inline = false,
+}: Props) {
   const store = useAppForm();
   const t = useTranslations();
   const target = useMemo(
@@ -38,5 +51,11 @@ export const RecordQueryFilters = observer(function RecordQueryFilters({ id, anc
         : null,
     [model, store, id, typeId, t],
   );
-  return target ? <FilterTargetPopover id={anchorId} store={target} /> : null;
+  return target ? (
+    inline ? (
+      <FilterPaletteInline id={anchorId} store={target} />
+    ) : (
+      <FilterTargetPopover id={anchorId} store={target} />
+    )
+  ) : null;
 });

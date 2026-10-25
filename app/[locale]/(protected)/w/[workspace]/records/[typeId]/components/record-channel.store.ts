@@ -1,19 +1,19 @@
 import type { ChannelCandidateDto } from "@/ee/messaging/inbox/search-channel-candidates.interactor";
 import type { RecordIdentityInput } from "@/features/records/record-identity.schema";
-import type { MessagingProvider } from "@/generated/prisma";
+import type { RecordIdentityProvider } from "@/generated/prisma";
 import type { RecordEditorStore } from "./record-editor.store";
 
 import { action, computed, makeObservable, observable, runInAction } from "mobx";
 import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { Debouncer, SEARCH_DEBOUNCE_MS } from "@/core/utils/debounce";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
-import { channelClass, isHandleProvider } from "@/ee/messaging/provider";
+import { channelClass, isHandleProvider, messagingProviderFor } from "@/ee/messaging/provider";
 import { inferChannelProviders, normalizeChannelValue, parseChannelHandle } from "@/features/records/channel-value";
 import { checkRecordIdentityAction, searchRecordChannelsAction } from "../../actions";
 import { resolveProviderProfileAction } from "../../../inbox/actions";
 
 type Candidate = { candidate: ChannelCandidateDto; source: "conversation" | "lookup" };
-const key = (provider: MessagingProvider, value: string) => `${channelClass(provider)}:${value}`;
+const key = (provider: RecordIdentityProvider, value: string) => `${channelClass(provider)}:${value}`;
 
 export class RecordChannelStore {
   open = false;
@@ -46,6 +46,9 @@ export class RecordChannelStore {
     });
   }
 
+  private get region() {
+    return this.editor.rootStore.userStore.user?.country ?? null;
+  }
   private get channelKeys() {
     return new Set(
       this.editor.form.identities.flatMap((row) => [
@@ -64,8 +67,8 @@ export class RecordChannelStore {
   }
   get addAsNewOptions() {
     const candidates = new Set(this.mergedCandidates.map(({ candidate }) => key(candidate.provider, candidate.value)));
-    return inferChannelProviders(this.query).filter((provider) => {
-      const value = normalizeChannelValue(provider, this.query);
+    return inferChannelProviders(this.query, this.region).filter((provider) => {
+      const value = normalizeChannelValue(provider, this.query, this.region);
       return value && !this.channelKeys.has(key(provider, value)) && !candidates.has(key(provider, value));
     });
   }
@@ -99,7 +102,7 @@ export class RecordChannelStore {
     return Promise.resolve();
   };
   private handleProvider(query: string) {
-    const providers = inferChannelProviders(query);
+    const providers = inferChannelProviders(query, this.region);
     return providers.length === 1 && isHandleProvider(providers[0]) ? providers[0] : null;
   }
   private current(generation: number, query: string) {
@@ -127,10 +130,10 @@ export class RecordChannelStore {
       });
     }
   };
-  private resolve = async (provider: MessagingProvider, query: string) => {
+  private resolve = async (provider: RecordIdentityProvider, query: string) => {
     const accounts = this.editor.rootStore.connectedAccountsStore;
     await accounts.ensureLoaded();
-    const [account] = accounts.usableSendersFor(provider);
+    const [account] = accounts.usableSendersFor(messagingProviderFor(provider));
     if (!account) return null;
     return resolveProviderProfileAction({
       connectedAccountId: account.id,
@@ -178,25 +181,30 @@ export class RecordChannelStore {
       messagingId: candidate.messagingId ?? (isHandleProvider(candidate.provider) ? candidate.value : null),
     });
   };
-  addAsNew = async (provider: MessagingProvider) => {
+  addAsNew = async (provider: RecordIdentityProvider) => {
     if (this.editor.isDisabled || this.isAdding) return;
     const query = this.query.trim(),
       generation = this.generation;
-    const value = normalizeChannelValue(provider, query);
+    const value = normalizeChannelValue(provider, query, this.region);
     if (!value) return;
     let identity: RecordIdentityInput = { provider, value };
     if (isHandleProvider(provider) && this.editor.rootStore.userStore.can("inboxMessages", "create")) {
-      const resolved = await this.resolve(provider, query);
-      if (notifyIfWorkspaceChanged(resolved) || !this.current(generation, query)) return;
-      if (resolved?.ok) {
-        identity = {
-          provider,
-          value: resolved.data.publicIdentifier ?? value,
-          messagingId: resolved.data.providerId,
-          displayName: resolved.data.displayName,
-          profileUrl: resolved.data.profileUrl,
-        };
+      try {
+        const resolved = await this.resolve(provider, query);
+        if (notifyIfWorkspaceChanged(resolved)) return;
+        if (resolved?.ok) {
+          identity = {
+            provider,
+            value: resolved.data.publicIdentifier ?? value,
+            messagingId: resolved.data.providerId,
+            displayName: resolved.data.displayName,
+            profileUrl: resolved.data.profileUrl,
+          };
+        }
+      } catch (error) {
+        if (notifyIfWorkspaceChanged(error)) return;
       }
+      if (!this.current(generation, query)) return;
     }
     await this.add(identity);
   };

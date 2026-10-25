@@ -19,14 +19,14 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { env } from "@/env";
 
 import { currentSectionRanker } from "@/core/retrieval/retrieval-context";
-import { retrievalExcerpt } from "@/core/retrieval/retrieval-excerpt";
 import { fuseFullTextAndSemantic, keepsResults, rerankSections } from "@/core/retrieval/retrieval-pipeline";
 import { RetrievalStopwatch } from "@/core/retrieval/retrieval-stopwatch";
 
 import { externalizeWikiPageLinks } from "./wiki-markdown-links";
 import type { WorkspaceSlugResolver } from "@/features/workspace/workspace-slug-resolver";
 import { boundedWikiSectionLabel, wikiSectionOffsetIn } from "./wiki-markdown-sections";
-import { WIKI_EXCERPT_MAX_LENGTH, wikiExcerpt } from "./wiki-content";
+import { wikiExcerpt } from "./wiki-content";
+import { wikiSectionSnippet } from "./wiki-section-snippet";
 import { WikiPageSearchResultSchema, WikiPageSearchSchema } from "./wiki.schema";
 
 const WIKI_RERANK_CANDIDATES = 10;
@@ -54,17 +54,6 @@ type WikiSemanticRetrieval = {
   gaps?: WikiKnowledgeGapRecorder;
   relevanceFloor?: RelevanceFloor | null;
 };
-
-function wikiSectionSnippet(text: string, query: string): string {
-  const excerpt = retrievalExcerpt({
-    heading: "",
-    markdown: text,
-    query,
-    maxChars: WIKI_EXCERPT_MAX_LENGTH,
-  });
-  const compact = excerpt.replace(/\s+/gu, " ").trim();
-  return compact || (text ? wikiExcerpt(text) : "");
-}
 
 @AllowInDemoMode
 @TenantInteractor({ resource: Resource.wiki, read: "all" })

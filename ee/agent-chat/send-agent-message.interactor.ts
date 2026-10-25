@@ -25,11 +25,23 @@ import {
   partsToText,
 } from "./agent-chat.schema";
 import {
+  AgentContextAttachmentSchema,
   agentContextAttachmentsEqual,
   agentContextProviderPrefix,
   agentContextsFromMessageParts,
+  isAgentFileContext,
   type AgentContextAttachment,
 } from "./agent-context";
+import {
+  AGENT_ATTACHED_TEXT_MAX_CHARS,
+  AGENT_ATTACHMENT_HEADROOM_BYTES,
+  agentAttachmentContextBytes,
+  NO_AGENT_ATTACHMENTS,
+  planAgentAttachments,
+  type AgentAttachmentPlan,
+} from "./agent-attachments";
+import type { AgentChatFileService } from "./agent-chat-files.service";
+import type { AgentTurnFile } from "./agent-native-files";
 import type { AgentRunContext } from "./agent-run-context";
 import type { AgentUsageService } from "./agent-usage.service";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
@@ -38,7 +50,7 @@ import { agentSystemPromptParts, routineTriggerEventOf } from "./system-prompt";
 import { agentToolDefinitionsForToolsets, agentToolDefinitionsForTurn } from "./agent-tools";
 import { toolsetsForRequest, toolsetsFromActivities } from "./agent-toolset-routing";
 import { AgentActivityDescriptorSchema, type AgentActivityDescriptor } from "./agent-activity";
-import { conservativeAgentInitialContextBytes } from "./agent-provider-context";
+import { agentAdmissionContextBytes, conservativeAgentInitialContextBytes } from "./agent-provider-context";
 import { renderAgentSchemaDigest } from "./agent-schema-digest";
 import { agentPageContextPrefix } from "./agent-page-context";
 import { AGENT_REPLAY_COUNT, budgetAgentReplayHistory } from "./agent-replay-budget";
@@ -56,7 +68,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { GetWikiCatalogInteractor } from "@/features/wiki/get-wiki-catalog.interactor";
 import type { UserService } from "@/features/user/user.service";
 import { AppErrorCode, appErrorDetails } from "@/core/errors/app-errors";
-import { agentWebSearchReserveMicrocents } from "./agent-budget-policy";
+import { agentContextTokensToBytes, agentWebSearchReserveMicrocents } from "./agent-budget-policy";
 import { agentMicrocentsFromStorage } from "./agent-credit-policy";
 import { agentWebSearchCallLimit } from "./agent-web-search";
 import { serializeAgentWikiCatalog } from "./agent-wiki-context";
@@ -64,6 +76,7 @@ import { userWebsiteHomepages } from "./user-website-homepages";
 
 type AdmittedAgentRun = { disposition: "run"; externalRunId: string } & Omit<AgentRunContext, "appBaseUrl">;
 type AgentInvocationMode = "interactive" | "routine";
+type AgentTurnAttachments = { plan: AgentAttachmentPlan; contextBytes: number };
 
 export type SendAgentMessageResult =
   | AdmittedAgentRun
@@ -88,6 +101,30 @@ export type SendAgentMessageResult =
       userMessageId?: string;
       retryAllowed: boolean;
     };
+
+function withStoredFileDetails(
+  contexts: readonly AgentContextAttachment[],
+  files: readonly AgentTurnFile[],
+): AgentContextAttachment[] {
+  return contexts.map((context) => {
+    const file = isAgentFileContext(context) ? files.find((entry) => entry.id === context.reference.fileId) : null;
+    if (!file) return context;
+    return AgentContextAttachmentSchema.parse({
+      reference: { kind: "file", fileId: file.id, mimeType: file.mimeType, size: file.size },
+      label: file.name,
+    });
+  });
+}
+
+function fileIdsInMessages(messages: readonly { role: string; parts: unknown }[]): string[] {
+  return messages
+    .filter((message) => message.role === "user")
+    .flatMap((message) =>
+      agentContextsFromMessageParts(message.parts).flatMap((context) =>
+        isAgentFileContext(context) ? [context.reference.fileId] : [],
+      ),
+    );
+}
 
 function activitiesInMessages(messages: readonly { parts: unknown }[]): AgentActivityDescriptor[] {
   const activities: AgentActivityDescriptor[] = [];
@@ -116,8 +153,47 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     private wikiCrawls?: {
       findLatestCrawl(): Promise<{ pendingHosts: string[] } | null>;
     },
+    private chatFiles?: AgentChatFileService,
   ) {
     super();
+  }
+
+  private async resolveTurnFiles(
+    contexts: readonly AgentContextAttachment[],
+    conversationId: string | null,
+  ): Validated<AgentTurnFile[]> {
+    if (!contexts.some(isAgentFileContext)) return { ok: true, data: [] };
+    if (!this.chatFiles) return failNotFound(CustomErrorCode.recordFileNotFound, ["contexts"]);
+    return this.chatFiles.resolve(contexts, conversationId);
+  }
+
+  private async planTurnAttachments(
+    files: readonly AgentTurnFile[],
+    model: { modelId: string; maxContextTokens: number },
+    baseContextBytes: number,
+    currentText: string,
+  ): Promise<AgentTurnAttachments> {
+    if (!files.length || !this.chatFiles) return { plan: NO_AGENT_ATTACHMENTS, contextBytes: 0 };
+    const roomBytes =
+      agentContextTokensToBytes(model.maxContextTokens) - baseContextBytes - AGENT_ATTACHMENT_HEADROOM_BYTES;
+    const excerpts = await this.chatFiles.excerpts(
+      files.filter((file) => file.extractionStatus === "done").map((file) => file.id),
+      AGENT_ATTACHED_TEXT_MAX_CHARS,
+    );
+    const plan = planAgentAttachments({ files, excerpts, modelId: model.modelId, roomBytes });
+    const contextBytes = agentAttachmentContextBytes(currentText, plan);
+    if (contextBytes > roomBytes + AGENT_ATTACHMENT_HEADROOM_BYTES)
+      return { plan: NO_AGENT_ATTACHMENTS, contextBytes: 0 };
+    return { plan, contextBytes };
+  }
+
+  private async bindTurnFiles(conversationId: string, fileIds: string[]) {
+    if (!fileIds.length || !this.chatFiles) return;
+    try {
+      await this.chatFiles.bind(conversationId, fileIds);
+    } catch (error) {
+      Sentry.captureException(error, { tags: { kind: "agent-chat-file-binding" } });
+    }
   }
 
   private async wikiWebsiteSetupAvailable() {
@@ -302,6 +378,10 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     if (mode === "routine" && conversation?.origin !== AgentConversationOrigin.routine)
       return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
+    const turnFiles = await this.resolveTurnFiles(contexts, conversation?.id ?? null);
+    if (!turnFiles.ok) return turnFiles;
+    const admittedContexts = withStoredFileDetails(contexts, turnFiles.data);
+
     const surface: "routine" | "chat" = mode === "routine" ? "routine" : "chat";
 
     const storedModelKey = conversation?.modelKey ?? null;
@@ -326,7 +406,8 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
 
     const userName = `${user.firstName} ${user.lastName}`.trim();
     const requestedToolsets = toolsetsForRequest({ text: data.text, pageRoute, contexts, surface });
-    const requiredContextBytes = conservativeAgentInitialContextBytes({
+    const turnToolDefinitions = agentToolDefinitionsForTurn(toolOptions);
+    const initialContext = {
       systemPrompt: agentSystemPromptParts({
         userName,
         locale,
@@ -337,14 +418,29 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         webSearchEnabled: true,
       }),
       currentText: data.text,
-      contexts,
+      contexts: admittedContexts,
       pageRoute,
-      toolDefinitions: agentToolDefinitionsForToolsets(agentToolDefinitionsForTurn(toolOptions), [
-        ...requestedToolsets,
-      ]),
       wikiCatalog,
+    };
+    const requiredContextBytes = agentAdmissionContextBytes({
+      fullContextBytes: conservativeAgentInitialContextBytes({
+        ...initialContext,
+        toolDefinitions: agentToolDefinitionsForToolsets(turnToolDefinitions, [...requestedToolsets]),
+      }),
+      minimalContextBytes: conservativeAgentInitialContextBytes({
+        ...initialContext,
+        toolDefinitions: agentToolDefinitionsForToolsets(turnToolDefinitions, []),
+        replayHistory: false,
+      }),
+      maxContextBytes: agentContextTokensToBytes(turnModel.maxContextTokens),
     });
     if (requiredContextBytes === null) throw new Error("The Assistant request context could not be measured safely.");
+    const turnAttachments = await this.planTurnAttachments(
+      turnFiles.data,
+      turnModel,
+      requiredContextBytes,
+      `${agentPageContextPrefix(pageRoute)}${agentContextProviderPrefix(admittedContexts)}${data.text}`,
+    );
 
     const creditCeilingMicrocents =
       mode === "routine" && conversation
@@ -363,7 +459,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         const phaseOneAt = new Date();
         const creditAdmission = await this.usageService.prepareTurn(user.id, phaseOneAt, {
           model: turnModel,
-          requiredContextBytes,
+          requiredContextBytes: requiredContextBytes + turnAttachments.contextBytes,
           creditCeilingMicrocents,
           webSearchReserveMicrocents: agentWebSearchReserveMicrocents(agentWebSearchCallLimit(surface)),
         });
@@ -430,7 +526,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
                   turnRequestId,
                   clientRequestId: data.clientRequestId,
                   text: data.text,
-                  contexts,
+                  contexts: admittedContexts,
                   pageRoute,
                   userMessageId,
                 },
@@ -487,10 +583,14 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         };
       });
       const budgeted = budgetAgentReplayHistory(replayInputs);
+      const { attachedText, nativeFiles } = turnAttachments.plan;
       const messages = replayInputs
         .map((message, index) => ({
           role: message.role,
           text: budgeted[index],
+          ...(admission.recentMessages[index]?.id === userMessageId
+            ? { ...(attachedText ? { attachedText } : {}), ...(nativeFiles.length ? { files: nativeFiles } : {}) }
+            : {}),
         }))
         .filter((message) => message.text);
       const appBaseUrl =
@@ -514,6 +614,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         tenant: { userId: user.id, companyId: user.companyId },
         surface,
         toolsets,
+        requestToolsets: [...requestedToolsets],
         ...(schemaDigest ? { schemaDigest } : {}),
         ...(wikiWebsiteSetup
           ? {
@@ -530,6 +631,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         webSearchEnabled: true,
       });
       await this.repo.recordAgentTurnExternalRun(turnRequestId, runId, externalRunId);
+      await this.bindTurnFiles(admission.conversationId, fileIdsInMessages(admission.recentMessages));
 
       return {
         ok: true as const,

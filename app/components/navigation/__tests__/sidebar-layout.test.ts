@@ -33,6 +33,28 @@ function shape(resolved: ReturnType<typeof resolveSidebar>) {
 }
 
 describe("personal sidebar layout", () => {
+  it("adds calendar to an existing Overview section while keeping a moved or hidden calendar as saved", () => {
+    const withCalendar = sidebarDefaults([
+      { ...groups[0], items: [...groups[0].items, { key: "calendar" }] },
+      ...groups.slice(1),
+    ]);
+    const saved = sidebarLayoutOf(resolveSidebar(defaults, null));
+    expect(sectionsOf(resolveSidebar(withCalendar, saved))[0].items).toEqual(["dashboard", "inbox", "calendar"]);
+    const beforeInbox = sidebarDefaults([
+      { ...groups[0], items: [{ key: "dashboard" }, { key: "calendar" }, { key: "inbox" }] },
+      ...groups.slice(1),
+    ]);
+    expect(sectionsOf(resolveSidebar(beforeInbox, saved))[0].items).toEqual(["dashboard", "calendar", "inbox"]);
+    const reordered = {
+      ...saved,
+      entries: [{ id: "overview", items: ["inbox", "dashboard"] }, ...saved.entries.slice(1)],
+    };
+    expect(sectionsOf(resolveSidebar(beforeInbox, reordered))[0].items).toEqual(["calendar", "inbox", "dashboard"]);
+    expect(
+      shape(resolveSidebar(withCalendar, { ...saved, entries: [...saved.entries, { item: "calendar" }] })),
+    ).toContain("calendar");
+    expect(resolveSidebar(withCalendar, { ...saved, hidden: ["calendar"] }).hidden.has("calendar")).toBe(true);
+  });
   it("seeds Overview and Data with built-in top-level pages at the end when nothing is stored", () => {
     expect(shape(resolveSidebar(defaults, null))).toEqual([
       ["overview", null, ["dashboard", "inbox"]],

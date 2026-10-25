@@ -101,8 +101,7 @@ async function todayBound(page: Page, key: "after" | "before", time: string) {
   await expect(calendar).toHaveCount(0);
   await page.locator("#filter-palette-back").click();
   await page.locator("#filter-palette-back").click();
-  await page.keyboard.press("Escape");
-  await expect(page.locator("#filter-palette-search")).toHaveCount(0);
+  await expect(page.locator("#widget-activity-filters #filter-palette-search")).toBeVisible();
 }
 
 test("shows contact messages on organizations and applies provider, channel, conversation and date filters to a persisted widget", async ({
@@ -111,6 +110,7 @@ test("shows contact messages on organizations and applies provider, channel, con
   companyId,
   workspace,
 }, testInfo) => {
+  test.skip(process.env.APP_MODE === "self-hosted", "Messaging is part of the cloud service only");
   test.setTimeout(300000);
   const errors = collectPageErrors(page);
   const organizationTypeId = presetId(companyId, "organization");
@@ -292,8 +292,7 @@ test("shows contact messages on organizations and applies provider, channel, con
   );
   await expect(page.locator(`[data-palette-value="${selectedThread}"]`)).toContainText(threads[0].subject);
   await page.locator("#filter-palette-back").click();
-  await page.keyboard.press("Escape");
-  await expect(page.locator("#filter-palette-search")).toHaveCount(0);
+  await expect(page.locator("#widget-activity-filters #filter-palette-search")).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(dialog).toHaveCount(0);
   await page.screenshot({ path: testInfo.outputPath("activity-widget-persisted-filters.png"), fullPage: true });

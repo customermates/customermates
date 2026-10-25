@@ -35,7 +35,9 @@ const DESCRIPTION_CLASS = "text-xs font-normal leading-relaxed text-muted-foregr
 export function SelectableCard(props: Props) {
   const { description, disabled, id, label, labelClassName, leading, selectionMode, visual } = props;
   const controlClassName = "peer absolute left-3 top-3 z-10";
-  const title = <span className="text-sm font-medium text-foreground">{label}</span>;
+  const title = (
+    <span className="min-w-0 max-w-full text-sm leading-snug font-medium wrap-anywhere text-foreground">{label}</span>
+  );
   const control =
     selectionMode === "single" ? (
       <RadioGroupItem className={controlClassName} disabled={disabled} id={id} value={props.value} />
@@ -57,7 +59,7 @@ export function SelectableCard(props: Props) {
 
       <Label
         className={cn(
-          "interactive-surface flex h-full cursor-pointer flex-col items-start gap-1 rounded-md border border-input bg-input-background py-2.5 pl-10 pr-3 text-left shadow-xs",
+          "interactive-surface flex h-full min-w-0 max-w-full cursor-pointer flex-col items-start gap-1 rounded-md border border-input bg-input-background py-2.5 pl-10 pr-3 text-left shadow-xs *:max-w-full",
           "peer-data-[state=checked]:bg-primary/5",
           "peer-data-[state=indeterminate]:bg-primary/5",
           "peer-focus-visible:ring-[3px] peer-focus-visible:ring-ring/50",

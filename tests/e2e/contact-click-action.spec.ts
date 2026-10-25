@@ -5,7 +5,7 @@ import { test, expect } from "./fixtures";
 import { postOk, readModel } from "./api";
 import { companyPath, pagePath } from "./app-paths";
 
-test("opens or copies contact values and edits them from empty cell space", async ({
+test("copies contact details, opens links and edits them from empty cell space", async ({
   page,
   context,
   companyId,
@@ -15,21 +15,23 @@ test("opens or copies contact values and edits them from empty cell space", asyn
   if (testInfo.project.name === "chromium") await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   const typeId = presetId(companyId, "organization");
   const suffix = randomUUID().slice(0, 6);
-  const emailLabel = `Billing email ${suffix}`;
+  const contactLabel = `Billing contact ${suffix}`;
   const siteLabel = `Homepage ${suffix}`;
 
   await openConfigure(page, typeId);
   for (const [label, type, action] of [
-    [emailLabel, "Email", "Copy address"],
+    [contactLabel, "Contact details", "Copy"],
     [siteLabel, "Web address", null],
   ] as const) {
-    await addFromConfigure(page, "Field");
+    await addFromConfigure(page, type === "Contact details" ? "Contact details" : "Field");
     const drawer = page.getByRole("dialog");
     await drawer.getByRole("textbox", { name: "Name", exact: false }).fill(label);
-    await drawer.getByRole("combobox", { name: "Value type", exact: true }).click();
-    await page.getByRole("option", { name: type, exact: true }).click();
+    if (type !== "Contact details") {
+      await drawer.getByRole("combobox", { name: "Value type", exact: true }).click();
+      await page.getByRole("option", { name: type, exact: true }).click();
+    }
     const onClick = drawer.getByRole("combobox", { name: "On click", exact: true });
-    await expect(onClick).toContainText(type === "Email" ? "Open in mail app" : "Open link");
+    await expect(onClick).toContainText(type === "Contact details" ? "Open email, call or profile" : "Open link");
     if (action) {
       await onClick.click();
       await page.getByRole("option", { name: action, exact: true }).click();
@@ -43,9 +45,12 @@ test("opens or copies contact values and edits them from empty cell space", asyn
   const recordDrawer = page.getByRole("dialog", { name: "Organization", exact: true });
   await page.locator("#records-add").click();
   await recordDrawer.getByRole("textbox", { name: "Name", exact: false }).fill(`Contact ${suffix}`);
-  await recordDrawer.getByRole("textbox", { name: emailLabel, exact: true }).fill(email);
+  const addContact = recordDrawer.getByRole("combobox", { name: "Add phone, email or profile", exact: true });
+  await addContact.fill(email);
+  await expect(page.getByRole("option", { name: `Add "${email}" as Email`, exact: true })).toHaveAttribute("aria-selected", "true");
+  await addContact.press("Enter");
+  await expect(recordDrawer.getByRole("button", { name: email, exact: true })).toBeVisible();
   await recordDrawer.getByRole("textbox", { name: siteLabel, exact: true }).fill(site);
-  await expect(recordDrawer.getByRole("button", { name: "Copy address", exact: true })).toBeVisible();
   await expect(recordDrawer.getByRole("link", { name: "Open link", exact: true })).toHaveAttribute("href", site);
   await recordDrawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(recordDrawer).not.toBeVisible();
@@ -57,20 +62,21 @@ test("opens or copies contact values and edits them from empty cell space", asyn
   await expect(link).toHaveAttribute("rel", "noopener noreferrer");
   await expect(row.getByRole("link", { name: email, exact: true })).toHaveCount(0);
 
-  await row.getByRole("button", { name: email, exact: true }).click();
+  await row.getByRole("button", { name: "Email", exact: true }).click();
+  await page.getByRole("menuitem").filter({ hasText: email }).click();
   await expect(page.getByText(`${email} copied to clipboard`, { exact: true })).toBeVisible();
   if (testInfo.project.name === "chromium")
     expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(email);
   await expect(recordDrawer).not.toBeVisible();
 
-  const space = row.locator(`[data-inline-edit-space]`).filter({ hasText: email });
+  const space = row.locator(`[data-inline-edit-space]`).filter({ hasText: site });
   await space.scrollIntoViewIfNeeded();
   const box = await space.boundingBox();
-  if (!box) throw new Error("The email cell is not rendered");
+  if (!box) throw new Error("The web address cell is not rendered");
   await page.mouse.click(box.x + box.width - 4, box.y + box.height / 2);
   const editor = row.locator("[data-in-place-editor]");
-  await expect(editor.getByRole("textbox", { name: emailLabel, exact: true })).toHaveValue(email);
-  await expect(editor.getByRole("textbox", { name: emailLabel, exact: true })).toBeFocused();
+  await expect(editor.getByRole("textbox", { name: siteLabel, exact: true })).toHaveValue(site);
+  await expect(editor.getByRole("textbox", { name: siteLabel, exact: true })).toBeFocused();
   await expect(recordDrawer).not.toBeVisible();
   await page.keyboard.press("Escape");
   await expect(editor).toHaveCount(0);
@@ -95,17 +101,17 @@ test("contact chips reuse inline copy actions without reserved space across deta
   const fields = [
     {
       id: randomUUID(),
-      label: "Billing",
-      valueType: "email",
+      label: "Billing portal",
+      valueType: "url",
       action: "copy",
-      value: "billing.person.with.a.long.name@regional-service.example.test",
+      value: "https://billing.regional-service.example.test/accounts/a-long-customer-name",
     },
     {
       id: randomUUID(),
-      label: "Support",
-      valueType: "email",
+      label: "Support portal",
+      valueType: "url",
       action: "open",
-      value: "support.person.with.a.long.name@regional-service.example.test",
+      value: "https://support.regional-service.example.test/tickets/a-long-customer-name",
     },
     {
       id: randomUUID(),
@@ -114,7 +120,6 @@ test("contact chips reuse inline copy actions without reserved space across deta
       action: "open",
       value: "https://example.test/a/long/path/for/the/regional/customer/support/guide",
     },
-    { id: randomUUID(), label: "Telephone", valueType: "phone", action: "open", value: "+493012345678" },
   ];
   await page.goto(pagePath(page, `/records/${typeId}`));
   const model = await readModel(database, companyId);
@@ -192,7 +197,7 @@ test("contact chips reuse inline copy actions without reserved space across deta
         if (fineHover && field.action === "open") {
           await action.hover();
           await expect(page.getByRole("tooltip")).toHaveText(
-            field.valueType === "phone" ? "Copy number" : field.valueType === "url" ? "Copy link" : "Copy address",
+            "Copy link",
           );
         }
         await action.focus();

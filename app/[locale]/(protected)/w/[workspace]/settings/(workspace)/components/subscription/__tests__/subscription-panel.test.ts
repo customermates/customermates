@@ -52,6 +52,8 @@ vi.mock("@/core/stores/root-store.provider", () => ({
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
   useHydratedIntlStore: () => ({
     formatDescriptiveLongDate: (value: Date) => `date:${value.toISOString()}`,
+    formatNumber: (value: number) => String(value),
+    formattingLocale: "en-GB",
   }),
 }));
 vi.mock("../plan-picker", () => ({
@@ -85,7 +87,7 @@ describe("SubscriptionPanel read-only fields", () => {
       trialEndDate: new Date("2026-09-01T00:00:00.000Z"),
     };
 
-    const markup = renderToStaticMarkup(createElement(SubscriptionPanel, { initialSubscription }));
+    const markup = renderToStaticMarkup(createElement(SubscriptionPanel, { initialSubscription, storage: null }));
 
     expect(markup).toContain("date:2026-09-01T00:00:00.000Z");
     expect(markup).toContain("date:2026-09-30T00:00:00.000Z");
@@ -114,8 +116,50 @@ describe("SubscriptionPanel read-only fields", () => {
     expect(harness.outputs.at(-1)?.description).toBe("Subscription.seatBillingNote");
   });
 
+  it("shows the workspace file storage against its limit and hides it without one", () => {
+    const initialSubscription: SubscriptionDto = {
+      activeUsers: 3,
+      checkout: "none",
+      currentPeriodEnd: null,
+      hasBillingPortal: false,
+      hasActiveSubscription: true,
+      plan: SubscriptionPlan.business,
+      quantity: 3,
+      status: SubscriptionStatus.active,
+      trialEndDate: null,
+    };
+    const storage = { usedBytes: 1.25 * 1024 ** 3, limitBytes: 60 * 1024 ** 3 };
+
+    renderToStaticMarkup(createElement(SubscriptionPanel, { initialSubscription, storage }));
+
+    expect(harness.outputs.map(({ label }) => label)).toEqual([
+      "Subscription.plan",
+      "Subscription.quantity",
+      "Subscription.fileStorage",
+    ]);
+    expect(harness.translationCalls).toContainEqual({
+      key: "Subscription.fileStorageUsage",
+      values: { used: "1.3 GB", limit: "60 GB" },
+    });
+
+    harness.outputs.length = 0;
+    renderToStaticMarkup(
+      createElement(SubscriptionPanel, {
+        initialSubscription: { ...initialSubscription, plan: SubscriptionPlan.enterprise },
+        storage,
+      }),
+    );
+    expect(harness.outputs.map(({ label }) => label)).toEqual(["Subscription.plan", "Subscription.fileStorage"]);
+
+    harness.outputs.length = 0;
+    renderToStaticMarkup(
+      createElement(SubscriptionPanel, { initialSubscription, storage: { usedBytes: 10, limitBytes: null } }),
+    );
+    expect(harness.outputs.map(({ label }) => label)).not.toContain("Subscription.fileStorage");
+  });
+
   it("only references the plan picker when it is available", () => {
-    renderToStaticMarkup(createElement(SubscriptionPanel, { initialSubscription: null }));
+    renderToStaticMarkup(createElement(SubscriptionPanel, { initialSubscription: null, storage: null }));
 
     expect(harness.translationCalls).toContainEqual({ key: "Subscription.fieldHelp.planPicker", values: undefined });
     expect(harness.translationCalls.some(({ key }) => key === "Subscription.fieldHelp.planManage")).toBe(false);
@@ -125,7 +169,7 @@ describe("SubscriptionPanel read-only fields", () => {
   it("hides checkout and uses administrator guidance for a read-only workspace", () => {
     harness.userCanManage = false;
 
-    renderToStaticMarkup(createElement(SubscriptionPanel, { initialSubscription: null }));
+    renderToStaticMarkup(createElement(SubscriptionPanel, { initialSubscription: null, storage: null }));
 
     expect(harness.translationCalls).toContainEqual({
       key: "Subscription.fieldHelp.planReadOnly",
@@ -151,6 +195,7 @@ describe("SubscriptionPanel read-only fields", () => {
           status: SubscriptionStatus.active,
           trialEndDate: null,
         },
+        storage: null,
       }),
     );
 
@@ -178,6 +223,7 @@ describe("SubscriptionPanel read-only fields", () => {
           status: SubscriptionStatus.expired,
           trialEndDate: null,
         },
+        storage: null,
       }),
     );
 
@@ -206,13 +252,15 @@ describe("SubscriptionPanel plan selection", () => {
   });
 
   it("offers the plans to a billing manager when no checkout was started", () => {
-    renderToStaticMarkup(createElement(SubscriptionPanel, { initialSubscription: unpaid("none") }));
+    renderToStaticMarkup(createElement(SubscriptionPanel, { initialSubscription: unpaid("none"), storage: null }));
 
     expect(harness.planPickerRenders).toBe(1);
   });
 
   it("shows that the payment is being processed instead of the plans while a checkout is pending", () => {
-    const markup = renderToStaticMarkup(createElement(SubscriptionPanel, { initialSubscription: unpaid("pending") }));
+    const markup = renderToStaticMarkup(
+      createElement(SubscriptionPanel, { initialSubscription: unpaid("pending"), storage: null }),
+    );
 
     expect(harness.planPickerRenders).toBe(0);
     expect(markup).toContain("CheckoutPending.title");
@@ -220,7 +268,9 @@ describe("SubscriptionPanel plan selection", () => {
   });
 
   it("brings the plans back once the pending payment is overdue", () => {
-    const markup = renderToStaticMarkup(createElement(SubscriptionPanel, { initialSubscription: unpaid("overdue") }));
+    const markup = renderToStaticMarkup(
+      createElement(SubscriptionPanel, { initialSubscription: unpaid("overdue"), storage: null }),
+    );
 
     expect(harness.planPickerRenders).toBe(1);
     expect(markup).not.toContain("CheckoutPending.title");
@@ -229,7 +279,9 @@ describe("SubscriptionPanel plan selection", () => {
   it("shows neither the plans nor the notice to a member who cannot manage billing", () => {
     harness.userCanManage = false;
 
-    const markup = renderToStaticMarkup(createElement(SubscriptionPanel, { initialSubscription: unpaid("pending") }));
+    const markup = renderToStaticMarkup(
+      createElement(SubscriptionPanel, { initialSubscription: unpaid("pending"), storage: null }),
+    );
 
     expect(harness.planPickerRenders).toBe(0);
     expect(markup).not.toContain("CheckoutPending.title");

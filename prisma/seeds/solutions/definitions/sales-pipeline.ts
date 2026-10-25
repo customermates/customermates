@@ -1572,10 +1572,10 @@ export default defineSolution<Strings>({
       const domain = ORGANIZATION_FACTS[facts.organization].domain;
       return {
         key,
-        values: { firstName, lastName, jobTitle, decisionRole: facts.role, phone: office(index) },
+        values: { firstName, lastName, jobTitle, decisionRole: facts.role },
         links: { "contact.organizations": facts.organization },
         owner: ACCOUNT_OWNERS[facts.organization],
-        channels: { email: `${mailbox(firstName)}.${mailbox(lastName)}@${domain}` },
+        channels: { email: `${mailbox(firstName)}.${mailbox(lastName)}@${domain}`, phone: office(index) },
         ...(facts.avatar ? { avatar: photo(facts.avatar) } : {}),
         createdDaysAgo: facts.createdDaysAgo,
       };
@@ -1683,7 +1683,6 @@ export default defineSolution<Strings>({
         { key: "organization.website", label: t.fields.website, type: "url" },
         { key: "organization.employees", label: t.fields.employees, type: "number" },
         { key: "contact.jobTitle", label: t.fields.jobTitle, type: "text" },
-        { key: "contact.phone", label: t.fields.phone, type: "phone" },
         {
           key: "contact.decisionRole",
           label: t.fields.decisionRole,
@@ -1830,7 +1829,7 @@ export default defineSolution<Strings>({
           list: "contact",
           name: t.views.contacts,
           mode: "table",
-          columns: ["jobTitle", "contact.organizations", "decisionRole", "phone", "capability.identity"],
+          columns: ["jobTitle", "contact.organizations", "decisionRole", "capability.identity"],
         },
         {
           key: "dueSoon",

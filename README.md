@@ -180,3 +180,5 @@ Other first-party files in `ee/` are source-available under the [Customermates C
 The official Community image at `ghcr.io/customermates/customermates` is built from the shared codebase and contains compiled Commercial Software. The limited Community Build permission allows anyone to run its unmodified commercial support components where documented `APP_MODE=self-hosted` operation necessarily executes them; it does not license Enterprise Feature use.
 
 Contributor terms are available in [`.github/CLA.md`](./.github/CLA.md).
+
+Third-party data keeps its own license: the address formats from Google libaddressinput that ship with Customermates and the postal codes it downloads from GeoNames are licensed under CC BY 4.0, see [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md).

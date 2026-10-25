@@ -16,6 +16,8 @@ import type {
   UpdateOperatorUserPlatformAccessData,
   UpdateOperatorUserStatusData,
   UpdateHostedAiEnterpriseAllowanceData,
+  UpdateEnterpriseFileStorageData,
+  EnterpriseFileStorageDto,
   UpdateOperatorWorkspaceTagsData,
   OperatorWorkspaceTagsDto,
 } from "./operator.schema";
@@ -34,6 +36,9 @@ export abstract class OperatorRepo {
     data: UpdateHostedAiEnterpriseAllowanceData,
     now?: Date,
   ): Promise<HostedAiOperatorCompanyDto | OperatorRefusal>;
+  abstract updateEnterpriseFileStorageUnscoped(
+    data: UpdateEnterpriseFileStorageData,
+  ): Promise<EnterpriseFileStorageDto | OperatorRefusal>;
   abstract createCreditAdjustmentUnscoped(
     data: CreateAgentCreditAdjustmentData,
     now?: Date,

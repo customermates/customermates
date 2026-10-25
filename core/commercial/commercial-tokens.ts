@@ -14,6 +14,7 @@ import {
   formatCommercialAmount,
   getCommercialOfferOrThrow,
   getPlanDefinition,
+  GIB,
   isPlanId,
   totalPriceAmountMinor,
 } from "./plan-catalog";
@@ -22,6 +23,8 @@ const TOKEN_PATTERN = /\[\[commercial\.([^\]]+)\]\]/g;
 const MARKETING_LOCALE_PATTERN = new RegExp(`(?:^|[/\\\\])(${MARKETING_LOCALES.join("|")})(?:[/\\\\])`);
 
 const UNLIMITED_LABEL = { translationKey: "Common.unlimited" } as const;
+
+const CONTRACT_LABEL = { translationKey: "Common.unlimitedByContract" } as const;
 
 const MARKETING_MESSAGES: Record<MarketingLocale, unknown> = { de: deMessages, en: enMessages, fr: frMessages };
 
@@ -47,6 +50,10 @@ function localizedUnlimited(locale: string): string {
     MARKETING_MESSAGES[marketingLocaleOrDefault(locale.split("-")[0])],
     UNLIMITED_LABEL.translationKey,
   );
+}
+
+function localizedContract(locale: string): string {
+  return catalogText(MARKETING_MESSAGES[marketingLocaleOrDefault(locale.split("-")[0])], CONTRACT_LABEL.translationKey);
 }
 
 function resolvePriceToken(parts: string[], locale: string): string {
@@ -100,8 +107,19 @@ function resolveEntitlementToken(parts: string[], locale: string): string {
   return value === "unlimited" ? localizedUnlimited(locale) : String(value);
 }
 
+function resolveStorageToken(parts: string[], locale: string): string {
+  const [, rawPlan] = parts;
+  if (parts.length !== 2 || !rawPlan || !isPlanId(rawPlan))
+    throw new Error(`Invalid commercial storage token: ${parts.join(".")}`);
+  const bytes = getPlanDefinition(rawPlan).entitlements.fileStorageBytesPerActiveUser;
+  if (bytes === "contract") return localizedContract(locale);
+  if (bytes === null) return localizedUnlimited(locale);
+  return `${new Intl.NumberFormat(locale).format(bytes / GIB)} GB`;
+}
+
 function resolveCommercialToken(token: string, locale: string): string {
   const parts = token.split(".");
+  if (parts[0] === "storage") return resolveStorageToken(parts, locale);
   if (parts[0] === "price") return resolvePriceToken(parts, locale);
   if (token === "trial.days") return String(CLOUD_TRIAL.days);
   if (token === "workspaces.creationLimit") return String(CLOUD_WORKSPACE_CREATION_LIMIT);

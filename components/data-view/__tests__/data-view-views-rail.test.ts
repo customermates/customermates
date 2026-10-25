@@ -95,7 +95,7 @@ function restingTabs(html: string): string[] {
   return tabs(html).filter((tab) => !classesOf(tab).includes("bg-primary/20"));
 }
 
-const ANCHOR_IDS = ["global-data-views", "global-data-views-menu", "global-data-views-new"];
+const ANCHOR_IDS = ["global-data-views", "global-data-views-all", "global-data-views-menu", "global-data-views-new"];
 
 describe("data view rail", () => {
   beforeEach(() => {
@@ -114,29 +114,28 @@ describe("data view rail", () => {
     expect(render(store(), false)).not.toContain("data-joins-top-bar");
   });
 
-  it("renders only the create control on an empty workspace, with no All tab and no empty view menu", () => {
+  it("renders the All tab, the create control and the view menu on an empty workspace", () => {
     const html = render(store());
 
-    expect(tabs(html)).toHaveLength(0);
-    expect(html).not.toContain('id="global-data-views-all"');
-    expect(html).not.toContain(">DataView.views.all<");
+    expect(tabs(html)).toHaveLength(1);
+    expect(tabs(html)[0]).toContain('id="global-data-views-all"');
+    expect(tabs(html)[0]).toContain('aria-current="page"');
+    expect(html).toContain(">DataView.views.all<");
     expect(html).toContain('id="global-data-views-new"');
-    expect(html).not.toContain('id="global-data-views-menu"');
-    expect(countOf(html, 'id="global-data-views')).toBe(2);
+    expect(html).toContain('id="global-data-views-menu"');
+    expect(countOf(html, 'id="global-data-views')).toBe(4);
     expect(controlOf(html, "global-data-views-new")).toContain("DataView.views.createTitle");
     expect(controlOf(html, "global-data-views-new")).not.toContain("aria-label");
   });
 
-  it("never renders an All tab next to saved views, whatever view is active", () => {
+  it("always renders the All tab first, before the saved views, whatever view is active", () => {
     for (const activeViewKey of [ALL_VIEW_KEY, "v-b", "gone"]) {
       const html = render(store({ activeViewKey, views: THREE_VIEWS }));
 
-      expect(tabs(html), activeViewKey).toHaveLength(3);
-      expect(html, activeViewKey).not.toContain('id="global-data-views-all"');
-      expect(
-        tabs(html).some((tab) => tab.includes('href="/en/deals"')),
-        activeViewKey,
-      ).toBe(false);
+      expect(tabs(html), activeViewKey).toHaveLength(4);
+      expect(tabs(html)[0], activeViewKey).toContain('id="global-data-views-all"');
+      expect(tabs(html)[0], activeViewKey).toContain('href="/en/deals"');
+      expect(countOf(html, 'id="global-data-views-all"'), activeViewKey).toBe(1);
     }
     const labelled = renderToStaticMarkup(
       createElement(DataViewViewsRail<Item>, {
@@ -149,9 +148,26 @@ describe("data view rail", () => {
         store: BaseDataViewStore<Item>;
       }) as ReactNode,
     );
-    expect(tabs(labelled)).toHaveLength(3);
-    expect(labelled).not.toContain(">Main<");
+    expect(tabs(labelled)).toHaveLength(4);
+    expect(labelled).toContain(">Main<");
     expect(labelled).toContain("DataView.views.applied(Main)");
+  });
+
+  it("names the All tab after the list, falling back to a plain All", () => {
+    const records = render(
+      store({ recordLabels: { singular: "Booking", plural: "Bookings" } } as Partial<BaseDataViewStore<Item>>),
+    );
+    const members = render(store({ p13nId: "users-card-store" }));
+    const inbox = render(store({ p13nId: "messaging-threads-card-store" }));
+
+    expect(records).toMatch(
+      /id="global-data-views-all"[^>]*><span class="truncate">DataView\.views\.allTab\.records\(Bookings\)</,
+    );
+    expect(members).toMatch(/id="global-data-views-all"[^>]*><span class="truncate">DataView\.views\.allTab\.members</);
+    expect(inbox).toMatch(
+      /id="global-data-views-all"[^>]*><span class="truncate">DataView\.views\.allTab\.conversations</,
+    );
+    expect(render(store())).toMatch(/id="global-data-views-all"[^>]*><span class="truncate">DataView\.views\.all</);
   });
 
   it("renders every view as a tab in position order and marks only the active one", () => {
@@ -160,8 +176,8 @@ describe("data view rail", () => {
 
     expect(order.every((index) => index >= 0)).toBe(true);
     expect([...order].sort((a, b) => a - b)).toEqual(order);
-    expect(tabs(html)).toHaveLength(3);
-    expect(countOf(html, "<a ")).toBe(3);
+    expect(tabs(html)).toHaveLength(4);
+    expect(countOf(html, "<a ")).toBe(4);
     expect(countOf(html, 'aria-current="page"')).toBe(1);
     expect(html).toMatch(/<a[^>]*aria-current="page"[^>]*>(?:(?!<\/a>).)*Open deals/s);
     const selected = tabs(html).filter((tab) => classesOf(tab).includes("bg-primary/20"));
@@ -170,9 +186,9 @@ describe("data view rail", () => {
     expect(classesOf(selected[0])).toContain("text-primary-soft-foreground");
     expect(classesOf(selected[0])).toContain("border-primary/40");
     expect(classesOf(selected[0])).not.toContain("text-muted-foreground");
-    expect(tabs(html).filter((tab) => classesOf(tab).includes("text-muted-foreground"))).toHaveLength(2);
+    expect(tabs(html).filter((tab) => classesOf(tab).includes("text-muted-foreground"))).toHaveLength(3);
     const unselected = restingTabs(html);
-    expect(unselected).toHaveLength(2);
+    expect(unselected).toHaveLength(3);
     expect(unselected.every((tab) => classesOf(tab).includes("bg-secondary"))).toBe(true);
     expect(unselected.every((tab) => tab.includes("hover:bg-accent hover:text-foreground"))).toBe(true);
     expect(unselected.every((tab) => classesOf(tab).includes("shadow-xs"))).toBe(true);
@@ -185,7 +201,7 @@ describe("data view rail", () => {
   it("gives every tab the pill geometry and a visible boundary", () => {
     const html = render(store({ activeViewKey: "v-b", views: THREE_VIEWS }));
 
-    expect(tabs(html)).toHaveLength(3);
+    expect(tabs(html)).toHaveLength(4);
     for (const tab of tabs(html)) {
       expect(tab).toContain("h-7");
       expect(tab).toContain("rounded-full");
@@ -320,19 +336,19 @@ describe("data view rail", () => {
     expect(html).toMatch(/<a[^>]*aria-current="page"[^>]*href="\/en\/deals\?view=v-b"/);
   });
 
-  it("keeps exactly one tab tabbable and points it at the active view, or the first view without one", () => {
+  it("keeps exactly one tab tabbable and points it at the active view, or the All tab", () => {
     const active = render(store({ activeViewKey: "v-b", views: THREE_VIEWS }));
     expect(countOf(active, 'tabindex="0"')).toBe(1);
     expect(active).toMatch(/<a[^>]*tabindex="0"[^>]*>(?:(?!<\/a>).)*Open deals/s);
-    expect(countOf(active, 'tabindex="-1"')).toBe(2);
+    expect(countOf(active, 'tabindex="-1"')).toBe(3);
 
-    const none = render(store({ views: THREE_VIEWS }));
-    expect(countOf(none, 'tabindex="0"')).toBe(1);
-    expect(countOf(none, 'aria-current="page"')).toBe(0);
-    expect(none).toMatch(/<a[^>]*tabindex="0"[^>]*>(?:(?!<\/a>).)*Ada/s);
+    const all = render(store({ views: THREE_VIEWS }));
+    expect(countOf(all, 'tabindex="0"')).toBe(1);
+    expect(countOf(all, 'aria-current="page"')).toBe(1);
+    expect(all).toMatch(/<a[^>]*aria-current="page"[^>]*id="global-data-views-all"[^>]*tabindex="0"/s);
   });
 
-  it("renders exactly the three reserved anchor ids once each on a rail with an active view", () => {
+  it("renders exactly the four reserved anchor ids once each on a rail with an active view", () => {
     const html = render(store({ activeViewKey: "v-a", views: THREE_VIEWS }));
 
     for (const id of ANCHOR_IDS) expect(countOf(html, `id="${id}"`), id).toBe(1);
@@ -340,25 +356,21 @@ describe("data view rail", () => {
     expect(html).toContain("data-data-view-rail=");
   });
 
-  it("offers the view menu while a view is active or unsaved changes wait, and hides it when it would be empty", () => {
+  it("always offers the view menu, on All and on a saved view", () => {
     expect(render(store({ activeViewKey: "v-a", views: THREE_VIEWS }))).toContain('id="global-data-views-menu"');
-    expect(render(store({ views: THREE_VIEWS }))).not.toContain('id="global-data-views-menu"');
-    expect(render(store())).not.toContain('id="global-data-views-menu"');
-    expect(render(store({ isViewModified: true } as Partial<BaseDataViewStore<Item>>))).toContain(
-      'id="global-data-views-menu"',
-    );
+    expect(render(store({ views: THREE_VIEWS }))).toContain('id="global-data-views-menu"');
+    expect(render(store())).toContain('id="global-data-views-menu"');
   });
 
-  it("puts the modified dot on the view menu while the list without a view has unsaved changes", () => {
+  it("puts the modified dot on the All tab while All has unsaved changes", () => {
     const html = render(store({ isViewModified: true, views: THREE_VIEWS } as Partial<BaseDataViewStore<Item>>));
     const menu = html.match(/<button[^>]*id="global-data-views-menu"[^>]*>/)?.[0] ?? "";
-    const describedBy = menu.match(/aria-describedby="([^"]+)"/)?.[1];
+    const modified = tabs(html).filter((tab) => tab.includes("data-view-modified"));
 
-    expect(menu).toContain("data-view-modified");
-    expect(describedBy).toBeDefined();
-    expect(controlOf(html, "global-data-views-menu")).toContain("size-2 rounded-full bg-primary");
-    expect(html).toContain(`id="${describedBy}">DataView.views.modified</span>`);
-    expect(tabs(html).some((tab) => tab.includes("data-view-modified"))).toBe(false);
+    expect(menu).not.toContain("data-view-modified");
+    expect(menu).not.toContain("aria-describedby");
+    expect(modified).toHaveLength(1);
+    expect(modified[0]).toContain('id="global-data-views-all"');
   });
 
   it("keeps the modified dot on the active view's tab instead of the menu", () => {
@@ -383,7 +395,7 @@ describe("data view rail", () => {
     harness.appMode.current = "demo";
     const html = render(store({ activeViewKey: "v-a", views: THREE_VIEWS }));
 
-    expect(tabs(html)).toHaveLength(3);
+    expect(tabs(html)).toHaveLength(4);
     expect(html).toContain("Open deals");
     expect(html).toContain('id="global-data-views-new"');
     expect(html).toContain('id="global-data-views-menu"');
@@ -402,9 +414,9 @@ describe("data view rail", () => {
   it("marks no tab active for an active key that matches no view", () => {
     const html = render(store({ activeViewKey: "gone", views: THREE_VIEWS }));
 
-    expect(tabs(html)).toHaveLength(3);
+    expect(tabs(html)).toHaveLength(4);
     expect(html).not.toContain('aria-current="page"');
-    expect(html).not.toContain('id="global-data-views-menu"');
+    expect(html).toContain('id="global-data-views-menu"');
     expect(html).toContain("DataView.views.applied(DataView.views.all)");
   });
 

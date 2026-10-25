@@ -11,6 +11,7 @@ import { compileRecordQuery, fieldReadPredicate } from "./record-query";
 import { RecordQuerySchema } from "./record-query.schema";
 import { recordPathJoins } from "./record-path-query";
 import { hasRecordMeasureGroupFilter } from "./record-measure.schema";
+import type { RecordContributionGroup } from "./record-contribution.schema";
 
 export type MeasureRow = {
   groupRecordId: string | null;
@@ -25,6 +26,8 @@ export type MeasureRow = {
 };
 
 function scalarJson(field: RecordField, value: Prisma.Sql): Prisma.Sql {
+  if (field.valueType === "file" || field.valueType === "address")
+    throw unwindFailure(CustomErrorCode.recordValueInvalid);
   if (field.multiple)
     return Prisma.sql`jsonb_build_object('kind', 'textList', 'value', to_jsonb(${value}."textListValue"))`;
   if (field.valueType === "currency" || field.valueType === "number")
@@ -45,6 +48,7 @@ export function compileRecordMeasure(
   measure: RecordMeasure,
   model: RecordModel,
   access: RecordAccessMap,
+  selection?: RecordContributionGroup | null,
 ): Prisma.Sql {
   const query = RecordQuerySchema.parse(measure.source);
   const eligible = compileRecordQuery(companyId, query, model, access).matching;
@@ -181,12 +185,31 @@ export function compileRecordMeasure(
     max: "MAX",
   } as const;
   const aggregate = Prisma.sql`${Prisma.raw(operators[measure.aggregation])}(value)`;
-  return Prisma.sql`WITH eligible AS (${eligible}), contributions AS (
+  const contributions = Prisma.sql`WITH eligible AS (${eligible}), contributions AS (
     SELECT DISTINCT grain.id, ${groupByRecord ? Prisma.sql`${group}.id` : Prisma.sql`NULL::text`} AS "groupRecordId", ${groupByRecord ? Prisma.sql`${group}."typeId"` : Prisma.sql`NULL::text`} AS "groupTypeId", ${groupField ? Prisma.sql`${groupField.id}::text` : systemField ? Prisma.sql`${systemField}::text` : Prisma.sql`NULL::text`} AS "groupFieldId",
       ${groupState} AS "groupState", ${groupValue} AS "groupValue", ${groupSort} AS "groupSort", ${amountState} AS state, ${amountValue} AS value, ${amountCurrency} AS currency
     FROM eligible JOIN "CrmRecord" grain ON grain."companyId" = ${companyId} AND grain."typeId" = ${measure.source.typeId} AND grain.id = eligible.id ${joins.length ? Prisma.join(joins, " ") : Prisma.empty}
     WHERE ${groupSelection}
-  ) SELECT "groupRecordId", "groupTypeId", "groupFieldId", "groupState", "groupValue", COUNT(*)::integer AS count,
+  )`;
+  if (selection !== undefined) {
+    let predicate = Prisma.sql`TRUE`;
+    if (selection) {
+      const label = selection.label;
+      const value = label.state === "value" ? label.value : null;
+      const sameValue =
+        value?.kind === "decimal"
+          ? Prisma.sql`"groupValue"->>'kind' = 'decimal' AND ("groupValue"->>'value')::numeric = ${value.value}::numeric AND "groupValue"->>'currency' IS NOT DISTINCT FROM ${value.currency ?? null}::text`
+          : value
+            ? Prisma.sql`"groupValue" = ${JSON.stringify(value)}::jsonb`
+            : Prisma.sql`"groupValue" IS NULL`;
+      predicate =
+        groupByRecord && selection.record
+          ? Prisma.sql`"groupRecordId" = ${selection.record.recordId} AND "groupTypeId" = ${selection.record.typeId} AND "groupState" <> 'restricted'`
+          : Prisma.sql`"groupState" = ${label.state} AND ${sameValue}`;
+    }
+    return Prisma.sql`${contributions} SELECT DISTINCT id FROM contributions WHERE ${predicate}`;
+  }
+  return Prisma.sql`${contributions} SELECT "groupRecordId", "groupTypeId", "groupFieldId", "groupState", "groupValue", COUNT(*)::integer AS count,
     CASE WHEN BOOL_OR(state = 'restricted') THEN 'restricted' WHEN BOOL_OR(state = 'error') THEN 'error' WHEN COUNT(DISTINCT currency) > 1 THEN 'currency_mismatch' WHEN COUNT(value) = 0 THEN 'missing' ELSE 'value' END AS "resultState",
     ${["sum", "count"].includes(measure.aggregation) ? Prisma.sql`COALESCE(${aggregate}, 0)::text` : Prisma.sql`${aggregate}::text`} AS "resultValue",
     ${field?.valueType === "currency" && measure.aggregation !== "count" ? Prisma.sql`COALESCE(MAX(currency), ${recordInvariant(field.format?.currency)})` : Prisma.sql`NULL::text`} AS "resultCurrency"

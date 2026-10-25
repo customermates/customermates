@@ -60,10 +60,11 @@ export async function createViewFromCurrent<E extends HasId>(
   store: BaseDataViewStore<E>,
   args: { name: string },
 ): Promise<DataViewChipDto | null> {
+  const state = store.viewStateSnapshot({ includeQuery: true });
   const created = unwrap(
     await upsertDataViewAction({
       name: args.name,
-      state: store.viewStateSnapshot({ includeQuery: true }),
+      state: store.activeViewKey === ALL_VIEW_KEY ? { ...state, searchTerm: store.searchTerm ?? "" } : state,
       surfaceKey: surfaceKeyOf(store),
     }),
   );

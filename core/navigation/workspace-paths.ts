@@ -9,6 +9,7 @@ export const WORKSPACE_LANDING_PATH = "/dashboard";
 export const WORKSPACE_ENTRY_TARGET_PARAM = "open";
 
 export const WORKSPACE_APP_ROOTS = [
+  "/calendar",
   "/configure",
   "/dashboard",
   "/inbox",

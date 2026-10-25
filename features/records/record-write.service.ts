@@ -12,17 +12,22 @@ import type {
   RecordModel,
   RecordRef,
   RecordScalar,
+  RecordScalarInput,
+  RecordAddress,
   RecordField,
   RecordFieldUpdate,
 } from "./record-model.schema";
-import type { RecordMutation } from "./record-query.schema";
+import type { SignedAddressCandidateVerifier } from "@/features/addresses/signed-address-candidate-verifier";
+import type { AddressIssue } from "@/features/addresses/address-check";
+import type { RecordMutation, RecordWriteWarning } from "./record-query.schema";
+import type { RecordFileAttachmentService } from "./record-file-attachment.service";
 import type { InteractorFailureKind } from "@/core/validation/validation.utils";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { unwindFailure } from "@/core/validation/failure-unwind";
 import { MAX_RICH_TEXT_JSON_SIZE, validateRichTextDocument } from "@/core/validation/rich-text-document";
 import { parseMarkdownToJSON, serializeJSONToMarkdown } from "@/components/editor/editor.utils";
-import { normalizeRecordInput, recordValueIssue, recordValueIssueValues } from "./record-model-validation";
+import { recordValueIssue, recordValueIssueValues } from "./record-model-validation";
 import { valueResult } from "./calculation";
 import { decodeRecordValue } from "./record-storage";
 import type { CalculationLinkChange, RecordCalculationService } from "./record-calculation.service";
@@ -32,6 +37,10 @@ import { identityKeys, normalizedIdentity, normalizedIdentityAssociation } from 
 import { channelClass } from "@/ee/messaging/provider";
 import { canonicalRecordJson, compareRecordKey } from "./record-json";
 import { recordTrashLabel } from "./record-trash-label";
+import { sameAddressParts, unverifiedRecordAddress } from "./record-address";
+import { AddressCheckService } from "@/features/addresses/address-check.service";
+import { isBlockingAddressIssue } from "@/features/addresses/address-check";
+import { addressWarnings, mergeRecordWriteWarnings, type FieldAddressIssues } from "./record-address-warnings";
 
 type Policy = Awaited<ReturnType<RecordAccessPolicy["load"]>>;
 function reject(
@@ -56,16 +65,15 @@ export function normalizeRecordScalar(
     if (field.required) required();
     return null;
   }
-  const value = normalizeRecordInput(input, field.valueType);
-  const issue = recordValueIssue(value, field);
-  if (issue) reject(issue, "validation", path, recordValueIssueValues(issue, value, field));
-  if (field.required && value.kind === "text" && !value.value.trim()) required();
-  if (value.kind === "richText") {
-    const document = validateRichTextDocument(value.documentJson);
+  const issue = recordValueIssue(input, field);
+  if (issue) reject(issue, "validation", path, recordValueIssueValues(issue, input, field));
+  if (field.required && input.kind === "text" && !input.value.trim()) required();
+  if (input.kind === "richText") {
+    const document = validateRichTextDocument(input.documentJson);
     if (!document) reject(CustomErrorCode.notesInvalidFormat, "validation", path);
     return { kind: "richText", documentJson: JSON.stringify(document) };
   }
-  return value;
+  return input;
 }
 
 const MAX_TEXT_LENGTH = 100_000;
@@ -95,6 +103,19 @@ function appendedRecordValue(field: RecordField, current: CalculatedValue, appen
 
 function isAppend(update: RecordFieldUpdate): update is Extract<RecordFieldUpdate, { append: string }> {
   return "append" in update;
+}
+
+function storedFileIds(row: StoredRecord | undefined, fieldId: string): string[] {
+  const stored = row?.values.find((value) => value.fieldId === fieldId);
+  return stored?.state === "value" ? stored.textListValue : [];
+}
+
+function storedAddress(row: StoredRecord | undefined, field: RecordField): RecordAddress | null {
+  const result = decodeRecordValue(
+    row?.values.find((value) => value.fieldId === field.id),
+    field,
+  );
+  return result.state === "value" && result.value.kind === "address" ? result.value.value : null;
 }
 
 function storedMemberIds(row: StoredRecord | null, fieldId: string): string[] {
@@ -149,6 +170,13 @@ export type RecordWrite = {
   links: CalculationLinkChange[];
   unchanged: string[];
   trashBatchId?: string;
+  warnings?: RecordWriteWarning[];
+};
+
+const ADDRESS_ERROR_CODES: Partial<Record<AddressIssue["code"], CustomErrorCode>> = {
+  countryUnknown: CustomErrorCode.recordAddressCountryInvalid,
+  postalCodeInvalid: CustomErrorCode.recordAddressPostalCodeInvalid,
+  regionInvalid: CustomErrorCode.recordAddressRegionInvalid,
 };
 
 export class RecordWriteService {
@@ -156,10 +184,61 @@ export class RecordWriteService {
     private records: RecordRepo,
     private policy: RecordAccessPolicy,
     private calculations: RecordCalculationService,
+    private addresses: Pick<SignedAddressCandidateVerifier, "verify"> = { verify: () => Promise.resolve(null) },
+    private files: Pick<RecordFileAttachmentService, "attach"> = {
+      attach: () => Promise.reject(new Error("File values need a file attacher")),
+    },
+    private addressChecker: Pick<AddressCheckService, "check"> = new AddressCheckService(),
   ) {}
 
   withRepository(records: RecordRepo): RecordWriteService {
-    return new RecordWriteService(records, this.policy, this.calculations.withRepository(records));
+    return new RecordWriteService(
+      records,
+      this.policy,
+      this.calculations.withRepository(records),
+      this.addresses,
+      this.files,
+      this.addressChecker,
+    );
+  }
+
+  private async addressValue(
+    input: RecordScalar | null,
+    stored: RecordAddress | null,
+    field: RecordField,
+    path: Array<string | number>,
+  ): Promise<{ value: RecordScalar | null; issues: AddressIssue[] }> {
+    if (input?.kind !== "address") return { value: input, issues: [] };
+    const address = unverifiedRecordAddress(input.value);
+    if (!address) return { value: null, issues: [] };
+    if (stored && sameAddressParts(stored, address)) return { value: { kind: "address", value: stored }, issues: [] };
+    const checked = await this.addressChecker.check(address);
+    const blocking = checked.issues.find(isBlockingAddressIssue);
+    const errorCode = blocking && ADDRESS_ERROR_CODES[blocking.code];
+    if (blocking && errorCode) {
+      reject(errorCode, "validation", [...path, blocking.part], {
+        field: field.label,
+        country: address.countryCode ?? "",
+        postalCode: checked.address.postalCode ?? "",
+        region: checked.address.region ?? "",
+        example: blocking.example ?? "",
+      });
+    }
+    if (stored && sameAddressParts(stored, checked.address))
+      return { value: { kind: "address", value: stored }, issues: [] };
+    return { value: { kind: "address", value: checked.address }, issues: checked.issues };
+  }
+
+  private async verifiedInput(
+    input: RecordScalarInput | null,
+    path: Array<string | number>,
+  ): Promise<{ value: RecordScalar | null; verified: boolean }> {
+    if (!input || input.kind !== "address") return { value: input, verified: false };
+    if (!input.candidateToken)
+      return { value: { kind: "address", value: recordInvariant(input.value) }, verified: false };
+    const address = await this.addresses.verify(input.candidateToken);
+    if (!address) reject(CustomErrorCode.recordAddressCandidateInvalid, "validation", path);
+    return { value: { kind: "address", value: address }, verified: true };
   }
 
   async recalculateWrites(
@@ -365,6 +444,7 @@ export class RecordWriteService {
       const captures = new Map<string, Set<string>>();
       const links: CalculationLinkChange[] = [];
       const propagating = new Set<string>();
+      const warnings: Array<RecordWriteWarning[] | undefined> = [];
       for (const target of mutation.targets) {
         const result = await this.apply(
           {
@@ -380,6 +460,7 @@ export class RecordWriteService {
           { skipCalculations: true, skipTouches: true },
         );
         for (const ref of result.refs) seeds.set(recordKey(ref), ref);
+        warnings.push(result.warnings);
         const unchanged = new Set(result.unchanged);
         for (const ref of result.refs) if (!unchanged.has(recordKey(ref))) propagating.add(recordKey(ref));
         links.push(...result.links);
@@ -414,6 +495,7 @@ export class RecordWriteService {
         })),
         links,
         unchanged: [...seeds.keys()].filter((key) => !propagating.has(key)),
+        ...(warnings.some((list) => list?.length) ? { warnings: mergeRecordWriteWarnings(warnings) } : {}),
       };
     }
     const fields = new Map(model.fields.filter((field) => !field.archived).map((field) => [field.id, field]));
@@ -424,13 +506,15 @@ export class RecordWriteService {
     const captures = new Map<string, Set<string>>();
     const deleted = new Set<string>();
     const fresh = new Set<string>();
+    const addressIssues: FieldAddressIssues[] = [];
     let trashBatchId: string | undefined;
     const assignIdentities = async (ref: RecordRef, inputs: RecordIdentityInput[] | undefined) => {
       if (!inputs) return;
       if (!recordChannelsEnabled(model, ref.typeId))
         reject(CustomErrorCode.recordProtected, "authorization", ["identities"]);
 
-      const aliases = inputs.filter((input) => !normalizedIdentity(input));
+      const region = policy.actor?.country;
+      const aliases = inputs.filter((input) => !normalizedIdentity(input, region));
       const known = aliases.length
         ? await this.records.getIdentityChannelsCompanyWide(
             aliases.flatMap((input) =>
@@ -443,7 +527,7 @@ export class RecordWriteService {
         : [];
       const normalized: RecordIdentityInput[] = [];
       for (const [index, input] of inputs.entries()) {
-        const row = normalizedIdentityAssociation(input, known);
+        const row = normalizedIdentityAssociation(input, known, region);
         if (!row) reject(CustomErrorCode.invalidChannelValue, "validation", ["identities", index, "value"]);
         normalized.push(row);
       }
@@ -501,13 +585,19 @@ export class RecordWriteService {
     };
     const assignFields = async (
       ref: RecordRef,
-      assignments: Array<{ fieldId: string; value: RecordScalar | null }>,
+      assignments: Array<{ fieldId: string; value: RecordScalarInput | null }>,
       create: boolean,
       existing?: StoredRecord,
     ) => {
       if (new Set(assignments.map((assignment) => assignment.fieldId)).size !== assignments.length)
         reject(CustomErrorCode.recordValueInvalid, "validation", ["fields"]);
-      const supplied = new Map(assignments.map((assignment) => [assignment.fieldId, assignment.value]));
+      const supplied = new Map<string, RecordScalar | null>();
+      const verified = new Set<string>();
+      for (const [index, assignment] of assignments.entries()) {
+        const input = await this.verifiedInput(assignment.value, ["mutation", "fields", index, "value"]);
+        supplied.set(assignment.fieldId, input.value);
+        if (input.verified) verified.add(assignment.fieldId);
+      }
       for (const [fieldId] of supplied) {
         const field = fields.get(fieldId);
         if (!field || field.typeId !== ref.typeId || field.valueType === "channels")
@@ -528,15 +618,16 @@ export class RecordWriteService {
         if (!create && !supplied.has(field.id)) continue;
         const index = assignments.findIndex((assignment) => assignment.fieldId === field.id);
         const path = index < 0 ? ["mutation", "fields"] : ["mutation", "fields", index, "value"];
-        const value = normalizeRecordScalar(
-          supplied.has(field.id)
-            ? (supplied.get(field.id) ?? null)
-            : field.behavior.kind === "input"
-              ? (field.behavior.defaultValue ?? null)
-              : null,
-          field,
-          path,
-        );
+        const input = supplied.has(field.id)
+          ? (supplied.get(field.id) ?? null)
+          : field.behavior.kind === "input"
+            ? (field.behavior.defaultValue ?? null)
+            : null;
+        const addressed = verified.has(field.id)
+          ? { value: input, issues: [] }
+          : await this.addressValue(input, storedAddress(existing, field), field, path);
+        if (addressed.issues.length) addressIssues.push({ recordId: ref.recordId, field, issues: addressed.issues });
+        const value = normalizeRecordScalar(addressed.value, field, path);
         const next = valueResult(value);
         if (
           existing &&
@@ -550,6 +641,15 @@ export class RecordWriteService {
         )
           continue;
         if (value?.kind === "member") await this.requireAssignable(policy, [value.value], path);
+        if (field.valueType === "file") {
+          const attached = await this.files.attach({
+            ref,
+            fieldId: field.id,
+            fileIds: value?.kind === "file" ? value.value : [],
+            previousFileIds: storedFileIds(existing, field.id),
+          });
+          if (!attached) reject(CustomErrorCode.recordFileUnavailable, "validation", path);
+        }
         await this.records.setValue(ref, field.id, next, model.revision);
         await this.records.setValueDependencies(ref, field.id, []);
         changedFields.add(field.id);
@@ -752,6 +852,7 @@ export class RecordWriteService {
       links,
       unchanged: [...seeds.keys()].filter((key) => !propagating.has(key)),
       ...(trashBatchId ? { trashBatchId } : {}),
+      ...(addressIssues.length ? { warnings: addressWarnings(addressIssues) } : {}),
     };
   }
 }

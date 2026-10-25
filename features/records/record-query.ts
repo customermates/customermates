@@ -12,6 +12,8 @@ import { isTemporalRecordType } from "./record-temporal-filter";
 import { recordCollation } from "./record-collation";
 import { MANUAL_ORDER_SORT_KEY } from "./record-column.schema";
 import { recordManualOrderKey } from "./record-rank";
+import { recordFileContentMatch } from "@/features/record-file-index/record-file-content-query";
+import { compileRecordMeasure } from "./record-measure";
 
 function alias(index: number): Prisma.Sql {
   return Prisma.raw(`"record_${index}"`);
@@ -119,7 +121,7 @@ export function fieldReadPredicate(
 const RICH_TEXT_NODES = Prisma.sql`jsonb_path_query(value."jsonValue", 'strict $.**.text') node(text)`;
 
 function storageColumn(field: RecordField): Prisma.Sql {
-  if (field.multiple) return Prisma.sql`array_to_string(value."textListValue", ',')`;
+  if (field.multiple || field.valueType === "file") return Prisma.sql`array_to_string(value."textListValue", ',')`;
   if (["number", "currency"].includes(field.valueType)) return Prisma.sql`value."decimalValue"`;
   if (["date", "dateTime"].includes(field.valueType)) return Prisma.sql`value."instantValue"`;
   if (field.valueType === "boolean") return Prisma.sql`value."booleanValue"`;
@@ -139,7 +141,9 @@ function scalarParameter(value: RecordScalar): Prisma.Sql {
       throw new Error("Collection filters must use an element value");
     case "range":
     case "richText":
-      throw new Error("Range and document query values must be rejected before compilation");
+    case "file":
+    case "address":
+      throw new Error("Range, document, file and address query values must be rejected before compilation");
     default:
       return Prisma.sql`${value.value}`;
   }
@@ -151,10 +155,12 @@ function temporalFilter(filter: RecordQuery["filters"][number], start: Prisma.Sq
     const cutoff = Prisma.sql`date_trunc('day', transaction_timestamp() AT TIME ZONE 'UTC') - ${filter.value.value}::integer * INTERVAL '1 day'`;
     return filter.operator === "inLastDays" ? Prisma.sql`${end} >= ${cutoff}` : Prisma.sql`${end} < ${cutoff}`;
   }
-  if (filter.operator === "between") {
+  if (filter.operator === "between" || filter.operator === "overlaps") {
     const [from, until] = filter.values ?? [];
     if (!from || !until) throw new Error("Date window requires two endpoints");
-    return Prisma.sql`(${start} >= ${scalarParameter(from)} AND ${end} <= ${scalarParameter(until)})`;
+    return filter.operator === "between"
+      ? Prisma.sql`(${start} >= ${scalarParameter(from)} AND ${end} <= ${scalarParameter(until)})`
+      : Prisma.sql`(COALESCE(${start}, ${end}) <= ${scalarParameter(until)} AND COALESCE(${end}, ${start}) >= ${scalarParameter(from)})`;
   }
   if (filter.operator === "in" || filter.operator === "notIn") {
     const choices = filter.values ?? [];
@@ -221,9 +227,7 @@ export function compileRecordQuery(
   ];
   let searchSource = Prisma.empty;
   if (query.search) {
-    const searchable = [...fields.values()].filter((field) =>
-      ["text", "email", "phone", "url"].includes(field.valueType),
-    );
+    const searchable = [...fields.values()].filter((field) => ["text", "url", "address"].includes(field.valueType));
     const search = `%${query.search.replace(/[\\%_]/g, "\\$&")}%`;
     const matches: Prisma.Sql[] = [];
     const searchRecord = Prisma.sql`search_record`;
@@ -264,6 +268,29 @@ export function compileRecordQuery(
       matches.push(Prisma.sql`SELECT id FROM "CrmRecord"
         WHERE "companyId" = ${companyId} AND "typeId" = ${query.typeId} AND id = ${query.search}`);
     }
+    const fileFields = [...fields.values()].filter((field) => field.valueType === "file");
+    if (fileFields.length) {
+      const permitted = fileFields.map(
+        (field) =>
+          Prisma.sql`(value."fieldId" = ${field.id} AND ${fieldReadPredicate(companyId, field, model, access, searchRecord)})`,
+      );
+      const listed = Prisma.sql`EXISTS (SELECT 1 FROM "RecordValue" listed WHERE listed."companyId" = ${companyId}
+        AND listed."typeId" = ${query.typeId} AND listed."recordId" = value."recordId"
+        AND listed."fieldId" = value."fieldId" AND listed.state = 'value' AND value.id = ANY(listed."textListValue"))`;
+      matches.push(Prisma.sql`SELECT value."recordId" AS id FROM "RecordFile" value
+        ${searchRecordSource}
+        WHERE value."companyId" = ${companyId} AND value."typeId" = ${query.typeId} AND value.status = 'ready'
+          AND value.name ILIKE ${search} AND ${listed} AND (${Prisma.join(permitted, " OR ")})`);
+      const content = recordFileContentMatch(query.search, Prisma.sql`chunk`);
+      if (content) {
+        matches.push(Prisma.sql`SELECT value."recordId" AS id FROM "RecordFile" value
+          ${searchRecordSource}
+          WHERE value."companyId" = ${companyId} AND value."typeId" = ${query.typeId} AND value.status = 'ready'
+            AND EXISTS (SELECT 1 FROM "RecordFileChunk" chunk
+              WHERE chunk."companyId" = ${companyId} AND chunk."fileId" = value.id AND ${content})
+            AND ${listed} AND (${Prisma.join(permitted, " OR ")})`);
+      }
+    }
     const richTextFields = [...fields.values()].filter((field) => field.valueType === "richText");
     if (richTextFields.length) {
       const permitted = richTextFields.map(
@@ -298,6 +325,17 @@ export function compileRecordQuery(
     if (!field) throw new Error("Query field must be validated before compilation");
     conditions.push(fieldReadPredicate(companyId, field, model, access, record));
     const expression = scalar(field);
+    if (field.valueType === "channels") {
+      const linked = (match: Prisma.Sql) =>
+        Prisma.sql`EXISTS (SELECT 1 FROM "RecordIdentityLink" association JOIN "RecordIdentity" identity ON identity."companyId" = ${companyId} AND identity.id = association."identityId" WHERE association."companyId" = ${companyId} AND association."typeId" = ${query.typeId} AND association."recordId" = ${record}.id ${match})`;
+      if (filter.operator === "empty") conditions.push(Prisma.sql`NOT ${linked(Prisma.empty)}`);
+      else if (filter.operator === "notEmpty") conditions.push(linked(Prisma.empty));
+      else if ((filter.operator === "contains" || filter.operator === "startsWith") && filter.value?.kind === "text") {
+        const pattern = `${filter.operator === "contains" ? "%" : ""}${filter.value.value.replace(/[\\%_]/g, "\\$&")}%`;
+        conditions.push(linked(Prisma.sql`AND identity.value ILIKE ${pattern}`));
+      } else throw new Error("Contact details query must be validated before compilation");
+      continue;
+    }
     if (filter.operator === "empty" || filter.operator === "notEmpty") {
       const valueState = Prisma.sql`(SELECT value.state FROM "RecordValue" value WHERE value."companyId" = ${companyId} AND value."typeId" = ${query.typeId} AND value."recordId" = ${record}.id AND value."fieldId" = ${field.id})`;
       conditions.push(
@@ -316,7 +354,12 @@ export function compileRecordQuery(
       );
       continue;
     }
-    if (filter.operator === "between" || filter.operator === "inLastDays" || filter.operator === "notInLastDays")
+    if (
+      filter.operator === "between" ||
+      filter.operator === "overlaps" ||
+      filter.operator === "inLastDays" ||
+      filter.operator === "notInLastDays"
+    )
       throw new Error("Temporal operator requires a date field");
     if (field.valueType === "select" && field.multiple) {
       if (filter.operator !== "in" && filter.operator !== "notIn" && filter.operator !== "all")
@@ -467,6 +510,18 @@ export function compileRecordQuery(
     const related = Prisma.sql`EXISTS (SELECT 1 FROM ${Prisma.join(joins, " ")} WHERE ${Prisma.join(predicates, " AND ")})`;
     conditions.push(filter.operator === "none" ? Prisma.sql`NOT (${related})` : related);
   }
+  if (query.contribution) {
+    const { measure, group } = query.contribution;
+    conditions.push(
+      Prisma.sql`${record}.id IN (${compileRecordMeasure(
+        companyId,
+        group ? measure : { ...measure, groupBy: null },
+        model,
+        access,
+        group,
+      )})`,
+    );
+  }
   const ordering = query.sort.map((sort) => {
     if (sort.fieldId === MANUAL_ORDER_SORT_KEY) return Prisma.sql`${recordManualOrderKey(record)} ASC`;
     if (sort.fieldId === "system:createdAt" || sort.fieldId === "system:updatedAt") {
@@ -476,7 +531,7 @@ export function compileRecordQuery(
     }
     const field = fields.get(sort.fieldId);
     if (!field) throw new Error("Sort field must be validated before compilation");
-    const collation = ["text", "email", "phone", "url", "select", "member"].includes(field.valueType)
+    const collation = ["text", "url", "select", "member", "address"].includes(field.valueType)
       ? Prisma.sql`COLLATE ${recordCollation(query.locale)}`
       : Prisma.empty;
     const visibleMember =

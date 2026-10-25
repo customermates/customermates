@@ -1,15 +1,32 @@
-import type { ReactNode } from "react";
+"use client";
 
-import { useState } from "react";
+import type { ReactNode } from "react";
+import type { RecordModelView } from "@/features/records/record-model.schema";
+import type { WidgetModalStore } from "./widget-modal.store";
+
+import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
+import { FormAutocomplete } from "@/components/forms/form-autocomplete";
+import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
 import { useAppForm } from "@/components/forms/form-context";
+import { RecordQueryFilters } from "@/components/records/record-query-filters";
+import { Button } from "@/components/ui/button";
+import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { SegmentedControl, SegmentedControlPanel } from "@/components/ui/segmented-control";
 import { Skeleton } from "@/components/ui/skeleton";
+import { runUserAction } from "@/core/errors/report-application-error";
+import { actionData } from "@/core/utils/action-data";
 import { cn } from "@/core/utils/cn";
+import { widgetSourceFilterCount } from "./widget-card-frame";
+import { useDebouncedValue } from "@/core/utils/use-debounced-value";
+
+import { discoverWidgetRecordTypesAction } from "../actions";
 
 type WidgetEditorSegment = "data" | "appearance";
+
+const AUTO_PREVIEW_DELAY_MS = 600;
 
 export const WIDGET_EDITOR_GRID_CLASS =
   "grid min-w-0 gap-6 lg:grid-cols-[minmax(0,24rem)_minmax(0,1fr)] lg:items-start xl:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]";
@@ -103,3 +120,120 @@ export function initialWidgetEditorSegment(section: string): WidgetEditorSegment
 export function opensWidgetFilters(section: string) {
   return ["filters", "activityFilters"].includes(section);
 }
+
+export function useWidgetAutoPreview(store: WidgetModalStore, enabled: boolean, run: () => Promise<void>) {
+  const model = store.recordModel;
+  const previewKey = store.recordQueryKey;
+  const form = store.form;
+  const autoPreviewKey = enabled && previewKey && model && store.isOpen ? `${model.revision}:${previewKey}` : null;
+  const debouncedAutoPreviewKey = useDebouncedValue(autoPreviewKey, AUTO_PREVIEW_DELAY_MS);
+  useEffect(() => {
+    if (!debouncedAutoPreviewKey || debouncedAutoPreviewKey !== autoPreviewKey) return;
+    runUserAction(run);
+  }, [debouncedAutoPreviewKey, autoPreviewKey, form, run]);
+}
+
+export const WidgetModelStatus = observer(function WidgetModelStatus({ store }: { store: WidgetModalStore }) {
+  const t = useTranslations();
+  if (store.recordModel === undefined) {
+    return (
+      <p className="text-sm text-muted-foreground" role="status">
+        {t("RecordWidgets.loadingSchema")}
+      </p>
+    );
+  }
+  if (store.recordModel === null) {
+    return (
+      <Button type="button" variant="secondary" onClick={() => runUserAction(store.loadRecordModel)}>
+        {t("ErrorCard.retry")}
+      </Button>
+    );
+  }
+  return null;
+});
+
+export function WidgetPreviewError({ onRetry }: { onRetry: () => Promise<void> }) {
+  const t = useTranslations();
+  return (
+    <>
+      <p className="text-center text-sm text-destructive" role="alert">
+        {t("RecordWidgets.previewFailed")}
+      </p>
+
+      <Button type="button" variant="secondary" onClick={() => runUserAction(onRetry)}>
+        {t("ErrorCard.retry")}
+      </Button>
+    </>
+  );
+}
+
+export function WidgetPreviewPlaceholder({ incomplete, children }: { incomplete: boolean; children: ReactNode }) {
+  const t = useTranslations();
+  return (
+    <div className="flex h-full flex-col justify-center rounded-xl border border-dashed border-border p-6">
+      {incomplete ? (
+        <p className="text-center text-sm text-muted-foreground">{t("Dashboard.widgetEditor.preview.incomplete")}</p>
+      ) : (
+        children
+      )}
+    </div>
+  );
+}
+
+export function WidgetSourcePicker({
+  id,
+  model,
+  typeId,
+}: {
+  id: string;
+  model: RecordModelView | null | undefined;
+  typeId: string;
+}) {
+  const t = useTranslations();
+  const sourceType = model?.types.find((type) => type.id === typeId);
+  return (
+    <FormAutocomplete<{ id: string; pluralLabel: string }>
+      getItems={(params) => actionData(discoverWidgetRecordTypesAction(params))}
+      id={id}
+      items={sourceType ? [{ id: sourceType.id, pluralLabel: sourceType.pluralLabel }] : []}
+      label={t("RecordWidgets.source")}
+      renderValue={(items) => items.map((item) => item.data?.pluralLabel ?? t("Loading.text")).join(", ")}
+    >
+      {(type) => <FormAutocompleteItem textValue={type.pluralLabel}>{type.pluralLabel}</FormAutocompleteItem>}
+    </FormAutocomplete>
+  );
+}
+
+export const WidgetSourceFilters = observer(function WidgetSourceFilters({
+  store,
+  id,
+  source,
+  typeId,
+  open,
+  onOpenChange,
+}: {
+  store: WidgetModalStore;
+  id: string;
+  source: Parameters<typeof widgetSourceFilterCount>[0];
+  typeId: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}) {
+  const t = useTranslations();
+  return (
+    <CollapsibleSection
+      defaultOpen={opensWidgetFilters(store.expandedSection)}
+      id="widget-config-filters"
+      open={open}
+      summary={t("Dashboard.widgetEditor.sections.activeFilters", { count: widgetSourceFilterCount(source) })}
+      title={t("Dashboard.widgetEditor.sections.filters")}
+      onOpenChange={onOpenChange}
+    >
+      <div className="space-y-4">
+        <WidgetModelStatus store={store} />
+
+        <RecordQueryFilters inline anchorId="widget-source-filters" id={id} model={store.recordModel} typeId={typeId} />
+      </div>
+    </CollapsibleSection>
+  );
+});

@@ -84,9 +84,9 @@ Ein neuer Workspace startet ohne Listen: Sie legen die benötigten Listen (Konta
 
 | Datensatztyp | Wofür | Beispiele für eigene Felder |
 |---|---|---|
-| Kontakte (Kunden) | Eigentümer, Mieter, Ansprechpartner vor Ort | Kundenart (Einzelauswahl: Privat, Vermieter, Gewerbe), Objektadresse (Text), Nächste Wartung (Datum) |
+| Kontakte (Kunden) | Eigentümer, Mieter, Ansprechpartner vor Ort | Kundenart (Einzelauswahl: Privat, Vermieter, Gewerbe), Objektadresse (Adresse), Nächste Wartung (Datum) |
 | Organisationen | Hausverwaltungen, Wohnungsgesellschaften, Generalunternehmer | Art (Einzelauswahl), Zahlungsziel (Text) |
-| Deals (Aufträge) | Jede Anfrage und jeder Auftrag | Phase, Auftragsart (Einzelauswahl), Objektadresse, Angebot versendet am (Datum), Geplant für (Datum), Fotos und Unterlagen (Webadresse) |
+| Deals (Aufträge) | Jede Anfrage und jeder Auftrag | Phase, Auftragsart (Einzelauswahl), Objektadresse, Angebot versendet am (Datum), Geplant für (Datum), Fotos und Unterlagen (Datei) |
 | Services (umbenennbar in Leistungen) | Ihre Standardleistungen mit Preis | Heizungswartung, Steckdose setzen, Anfahrtspauschale |
 | Aufgaben | Nächste Schritte, einer Person zugewiesen | Ein Datumsfeld „Erledigen bis“, das Sie anlegen, denn Aufgaben haben kein eingebautes Fälligkeitsdatum |
 
@@ -107,9 +107,9 @@ Gespeicherte Ansichten sind persönlich, deshalb legt jede Person mit denselben 
 
 ### WhatsApp und E-Mail in einem Posteingang (ab Pro)
 
-In Customermates Cloud holt der [einheitliche Posteingang](/features/unified-inbox) ab Pro E-Mail aus Gmail, Outlook oder IMAP, WhatsApp, Instagram, Telegram und LinkedIn zusammen. Sie antworten auf dem Kanal, über den die Nachricht kam. Der Filter **Teilnehmer: nicht vollständig verknüpft** zeigt Absender, die noch keinem Kontakt zugeordnet sind, im Handwerk meist neue Anfragen. Verknüpfen Sie den Absender einmal, und jedes Gespräch mit dieser Nummer oder Adresse erscheint in der Kundenhistorie. Fotos, die ein Kunde schickt, bleiben im Gespräch; Datensätze haben keine Dateianhänge.
+In Customermates Cloud holt der [einheitliche Posteingang](/features/unified-inbox) ab Pro E-Mail aus Gmail, Outlook oder IMAP, WhatsApp, Instagram, Telegram und LinkedIn zusammen. Sie antworten auf dem Kanal, über den die Nachricht kam. Der Filter **Teilnehmer: nicht vollständig verknüpft** zeigt Absender, die noch keinem Kontakt zugeordnet sind, im Handwerk meist neue Anfragen. Verknüpfen Sie den Absender einmal, und jedes Gespräch mit dieser Nummer oder Adresse erscheint in der Kundenhistorie. Fotos, die ein Kunde schickt, bleiben im Gespräch; die für den Auftrag nötigen legen Sie in einem Feld vom Typ Datei ab.
 
-Zwei Punkte entscheiden über den Tarif. Pro enthält [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer. Ein Ein-Mann-Betrieb, der WhatsApp und ein E-Mail-Postfach im Posteingang haben will, braucht Business mit [[commercial.entitlement.business.includedAccountsPerUser]] Konten. Im Team mit Pro lässt sich das aufteilen: Das Büro verbindet WhatsApp, der Chef sein E-Mail-Postfach. Außerdem bleiben Gespräche privat, bis die Person, die das Konto verbunden hat, ein Gespräch teilt; ein ganzes Konto teilen geht ab Business. Telefon und SMS gehören nicht zu den Kanälen.
+Zwei Punkte entscheiden über den Tarif. Pro enthält [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer. Ein Ein-Mann-Betrieb, der WhatsApp und ein E-Mail-Postfach im Posteingang haben will, braucht Business mit [[commercial.entitlement.business.includedAccountsPerUser]] Konten. Im Team mit Pro lässt sich das aufteilen: Das Büro verbindet WhatsApp, der Chef sein E-Mail-Postfach. Außerdem bleiben Gespräche privat, bis die Person, die das Konto verbunden hat, ein Gespräch teilt; ein ganzes Konto teilen geht ab Business. Anrufe und SMS gehören nicht zu den Kanälen.
 
 ### Abends die Anfragen sortieren lassen (Customermates Cloud)
 
@@ -145,7 +145,7 @@ Starter enthält [[commercial.entitlement.starter.includedRoutinesPerUser]] Rout
 | Elektro | Auftragsart mit Störung, Sanierung, Zählerschrank, Wallbox, Prüfung; „Nächster E-Check“ als Datum am Kunden |
 | Sanitär und Heizung | Auftragsart mit Reparatur, Heizungstausch, Bad, Wartung; „Nächste Wartung“; Hausverwaltungen als Organisationen |
 | Klima und Kälte | Eigene Werte für Reparatur und Neuanlage in der Auftragsart, damit die Angebote für Neuanlagen eine eigene Ansicht bekommen; Wartungsvertrag als Einzelauswahl |
-| Solar und PV | Phasen für Vor-Ort-Termin, Angebot versendet, Finanzierung, Netzanmeldung, Installiert; Link zur Planung |
+| Solar und PV | Phasen für Vor-Ort-Termin, Angebot versendet, Finanzierung, Netzanmeldung, Installiert; die Planung in einem Feld vom Typ Datei |
 | Bau und Ausbau | „Abgabe bis“ (Datum) und Quelle der Ausschreibung am Auftrag; Nachunternehmer als Kontakte ihrer eigenen Organisation |
 | Gebäudereinigung | Vertragsart (Einzelauswahl: einmalig, wöchentlich, monatlich), Verlängerung am (Datum); ein Auftrag je Vertrag |
 | Kfz-Werkstatt | Kennzeichen und Fahrzeug als Textfelder am Auftrag, „Nächste HU“ als Datum am Kunden |

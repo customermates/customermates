@@ -63,13 +63,14 @@ export const WidgetPreviewFrame = observer(({ children, error, geometry: layout,
   const geometry = layout ?? widgetLayoutGeometry(kind, GRID_COLS.lg);
   const size = widgetPixelSize(useDashboardGridWidth(), geometry.w, geometry.h);
   const [measure, columnWidth] = useElementWidth();
-  const scale = columnWidth
+  const fit = columnWidth
     ? Math.min(
         columnWidth / size.width,
         (window.innerHeight * MAX_PREVIEW_VIEWPORT_SHARE) / size.height,
         MAX_PREVIEW_SCALE,
       )
     : 1;
+  const stage = { width: Math.round(size.width * fit), height: Math.round(size.height * fit) };
 
   return (
     <section aria-labelledby="widget-preview-heading" className="min-w-0" data-slot="widget-preview-frame">
@@ -100,17 +101,9 @@ export const WidgetPreviewFrame = observer(({ children, error, geometry: layout,
           data-preview-height={size.height}
           data-preview-width={size.width}
           data-slot="widget-preview"
-          style={{
-            width: size.width * scale,
-            height: size.height * scale,
-            visibility: columnWidth ? "visible" : "hidden",
-          }}
+          style={{ ...stage, visibility: columnWidth ? "visible" : "hidden" }}
         >
-          <div
-            inert
-            className={cn("absolute left-0 top-0 origin-top-left", STAGE_RESET_CLASS)}
-            style={{ width: size.width, height: size.height, transform: `scale(${scale})` }}
-          >
+          <div inert className={cn("absolute inset-0", STAGE_RESET_CLASS)}>
             {children}
           </div>
 

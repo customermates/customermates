@@ -66,7 +66,7 @@ export function recordColumns<F extends RecordFieldView = RecordField>(
       id: field.id,
       label: field.label,
       sortable:
-        !["richText", "dateRange", "dateTimeRange", "channels"].includes(field.valueType) &&
+        !["richText", "dateRange", "dateTimeRange", "channels", "file"].includes(field.valueType) &&
         !(field.valueType === "select" && field.multiple),
       field,
     }));

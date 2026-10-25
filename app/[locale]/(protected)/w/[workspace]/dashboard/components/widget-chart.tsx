@@ -10,6 +10,7 @@ import { useTranslations } from "next-intl";
 
 import { ChartColor, DisplayType, widgetUsesGroupColors } from "@/features/widget/widget.schema";
 import {
+  chipChartColor,
   getChartColors,
   getChartMatchedColors,
   getChartRankShades,
@@ -26,8 +27,6 @@ const CHIP_TO_CHART_COLOR: Record<ChipColor, ChartColor> = {
   warning: ChartColor.warning1,
   info: ChartColor.info1,
 };
-
-const LEGACY_CHIP_TO_CHART_COLOR: Record<ChipColor, ChartColor> = { ...CHIP_TO_CHART_COLOR, info: ChartColor.primary1 };
 
 const RANK_SHADED_TYPES = new Set<DisplayType>([
   DisplayType.verticalBarChart,
@@ -91,6 +90,7 @@ type Props = {
     detail?: string;
     missing?: boolean;
     neutral?: boolean;
+    onSelect?: () => void;
   })[];
   displayOptions?: WidgetDisplayOptions | null;
   integerValues?: boolean;
@@ -103,7 +103,7 @@ export const WidgetChart = observer(
     const configuredBarColors = displayOptions?.barColors?.length ? displayOptions.barColors : [ChartColor.primary1];
     const accent = displayOptions?.palette === "accent";
     const useGroupColors = widgetUsesGroupColors(displayOptions);
-    const chipColors = accent ? CHIP_TO_CHART_COLOR : LEGACY_CHIP_TO_CHART_COLOR;
+    const chipColor = (color: ChipColor) => (accent ? CHIP_TO_CHART_COLOR[color] : chipChartColor(color));
     const chartColors = getChartColors();
     const chartTextColors = getChartTextColors();
     const chartStrokeColors = getChartStrokeColors();
@@ -119,7 +119,7 @@ export const WidgetChart = observer(
         : null;
     const chartData: ChartDataPoint[] = data.map((item, index) => {
       const fallbackKey = configuredBarColors[index % configuredBarColors.length] ?? ChartColor.primary1;
-      const colorKey = useGroupColors && item.optionColor ? chipColors[item.optionColor] : fallbackKey;
+      const colorKey = useGroupColors && item.optionColor ? chipColor(item.optionColor) : fallbackKey;
 
       return {
         label: widgetDataPointLabel(item, t),
@@ -128,6 +128,7 @@ export const WidgetChart = observer(
         axisLabel: item.axisLabel,
         detail: item.detail,
         missing: item.missing,
+        onSelect: item.onSelect,
         fill: shades?.[index] ?? chartColors[colorKey],
         color: shades?.[index] ?? chartColors[colorKey],
         labelColor: chartTextColors[colorKey],

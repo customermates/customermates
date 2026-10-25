@@ -606,6 +606,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
   it("credits a synonym only to the query word it is a synonym of", async () => {
     const [logs] = await searchHits("Where are the logs of my self-hosted instance?");
     expect([
+      "self-hosting#where-are-the-logs-and-how-do-i-troubleshoot",
       "self-hosting#how-do-i-connect-an-ai-client-to-my-self-hosted-instance",
       "architecture-security#do-logs-or-error-reports-contain-secrets",
     ]).toContain(`${logs?.slug}#${logs?.anchor}`);

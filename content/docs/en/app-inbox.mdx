@@ -40,7 +40,7 @@ Roles are edited on [Roles](app:settings/roles). The Inbox uses the **Inbox mess
 | Change the state, move an email, **Refresh**, **Resync thread**, load older messages, share a conversation | **Inbox messages**: **Edit**                                          |
 | Match a participant's address to a record, or create a record from it                                      | Read and edit access to that record; create access for a new record   |
 | Link a record to this one conversation                                                                     | **Inbox messages**: **Edit**, plus read and edit access to the record |
-| Add a Channels field to a list                                                                             | **Data model**                                                        |
+| Add a Contact details field to a list                                                                      | **Data model**                                                        |
 
 Without **Create** the reply box is hidden. Without **Edit** the move action is hidden, the state is a read-only chip, and opening an unread conversation leaves it **Unread**. Sharing a single conversation also requires that you own its channel.
 
@@ -54,11 +54,11 @@ The top bar of the [Inbox](app:inbox) holds:
 
 **Email folder** groups folders under their account, so folders with the same name stay apart; **in** finds conversations with a visible message in any selected folder, **not in** excludes them. **Last message** and **Last message date** use the latest real sent or received message; drafts, deleted messages and system events do not count. For mail from three to seven days ago, add two **Last message date** conditions: **Older than…** 3 days and **7 days**. **Last activity** includes saved drafts. All filters respect account sharing and the enabled folders.
 
-The views row shows your personal saved views; click the selected one again to show the inbox without a view. The list shows 25 conversations per page (5, 10, 25 or 100). The sidebar entry shows how many conversations you can see are **Unread**.
+The views row starts with **All conversations**, followed by your personal saved views; click **All conversations** to leave a view. The list shows 25 conversations per page (5, 10, 25 or 100). The sidebar entry shows how many conversations you can see are **Unread**.
 
 ## How do I open a specific conversation? [#how-do-i-open-a-specific-conversation]
 
-Click its row. The browser address then points to that conversation, so you can bookmark it or send it to a teammate who can see it; an address you cannot open brings you back to the Inbox. To find the conversations of one record, pick it in the **Linked records** filter: matching uses the record's Channels values and still checks your access to each conversation. Mate does not open a single conversation for you: it opens the Inbox and names the conversation.
+Click its row. The browser address then points to that conversation, so you can bookmark it or send it to a teammate who can see it; an address you cannot open brings you back to the Inbox. To find the conversations of one record, pick it in the **Linked records** filter: matching uses the record's contact details and still checks your access to each conversation. Mate does not open a single conversation for you: it opens the Inbox and names the conversation.
 
 With **Edit** on **Inbox messages**, scrolling to the top of a conversation fetches older messages from the provider, once per conversation until you reload. **Resync thread** in the header fetches the whole conversation again.
 
@@ -66,13 +66,13 @@ With **Edit** on **Inbox messages**, scrolling to the top of a conversation fetc
 
 Next to the conversation's name, left to right:
 
-| Control                                                  | What it does                                                                                         |
-| -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| **Move conversation to folder…** (IMAP and Outlook)      | Files the conversation in another folder; needs **Edit**                                             |
-| **Resync thread**                                        | Fetches the conversation again; needs **Edit**                                                       |
-| **Private Thread** or **Shared Thread** chip             | Opens **Thread settings**                                                                            |
-| **Some participants have no linked record you can read** | Opens **Thread settings**; shown when you can create or edit records in a list with a Channels field |
-| State chip                                               | **Unread**, **Open**, **Closed** or **Spam**                                                         |
+| Control                                                  | What it does                                                                                                |
+| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| **Move conversation to folder…** (IMAP and Outlook)      | Files the conversation in another folder; needs **Edit**                                                    |
+| **Resync thread**                                        | Fetches the conversation again; needs **Edit**                                                              |
+| **Private Thread** or **Shared Thread** chip             | Opens **Thread settings**                                                                                   |
+| **Some participants have no linked record you can read** | Opens **Thread settings**; shown when you can create or edit records in a list with a Contact details field |
+| State chip                                               | **Unread**, **Open**, **Closed** or **Spam**                                                                |
 
 On narrow screens the chips show icons only.
 
@@ -103,9 +103,9 @@ To share every conversation of a channel, switch on **Visibility** on the channe
 
 ## How do I link participants and records? [#how-do-i-link-a-participant]
 
-Messages are matched to records through the Channels field: a record whose Channels contain an email address, phone number or profile shows every conversation with that address. Open **Thread settings**. Under **People**, each participant shows the records you can see that match their address as chips. **Link** opens a search that adds the address to the Channels of a record in any list that has a Channels field; the **✕** on a chip removes only that match. One address can belong to several records, for example a contact and an organization, and every other conversation with the same address follows. Ordinary text fields are never used for matching.
+Messages are matched to records through their contact details: a record whose Contact details field contains an email address, phone number or profile shows every conversation with that address. A phone number also matches WhatsApp chats from the same number. Open **Thread settings**. Under **People**, each participant shows the records you can see that match their address as chips. **Link** opens a search that adds the address to the contact details of a record in any list that has a Contact details field; the **✕** on a chip removes only that match. One address can belong to several records, for example a contact and an organization, and every other conversation with the same address follows. Ordinary text fields are never used for matching.
 
-Under **Conversation records**, the field's picker (**Link record**) attaches only this conversation to a record, for example a deal in a list without a Channels field; other conversations with the participant stay separate. Linking never grants access to private messages or restricted records.
+Under **Conversation records**, the field's picker (**Link record**) attaches only this conversation to a record, for example a deal in a list without a Contact details field; other conversations with the participant stay separate. Linking never grants access to private messages or restricted records.
 
 ## How do I reply to a conversation? [#how-do-i-reply-to-a-conversation]
 
@@ -115,7 +115,7 @@ If sending fails, **Retry** appears only when trying again can help (rate limit,
 
 ## How do I start a new conversation or write a new email to a contact? [#how-do-i-start-a-new-conversation]
 
-The Inbox has no button for a new conversation. Open the person's record, for example in your contacts list, and click the **New message** icon next to an email address or handle in its Channels. When several of your channels can send, pick one under **From**; for LinkedIn with Sales Navigator or Recruiter, **Send as** chooses **Classic**, **Sales Navigator InMail** or **Recruiter InMail**. After **Send** the message goes out in the background (**Sending message**, then **Message sent.**). This needs Customermates Cloud and **Create** on **Inbox messages**.
+The Inbox has no button for a new conversation. Open the person's record, for example in your contacts list, and click the **New message** icon next to an email address or handle in its contact details. When several of your channels can send, pick one under **From**; for LinkedIn with Sales Navigator or Recruiter, **Send as** chooses **Classic**, **Sales Navigator InMail** or **Recruiter InMail**. After **Send** the message goes out in the background (**Sending message**, then **Message sent.**). This needs Customermates Cloud and **Create** on **Inbox messages**.
 
 ## How do drafts and attachments work? [#how-do-drafts-and-attachments-work]
 
@@ -133,7 +133,7 @@ The signature belongs to each email account you own: on [Channels](app:settings/
 
 ## For agents [#tips-for-agents]
 
-Prefer [MCP](/docs/mcp) tools over clicking: `get_messaging_threads` reads conversations, `update_messaging_thread` sets the state (REST `POST /api/v1/messaging/threads/{id}/state`), `move_email_thread` files an email (REST `POST /api/v1/messaging/threads/{id}/move`; it fails for a conversation shared from someone else's private channel), `send_email` and `send_chat_message` start conversations, and `save_message_draft` (REST `POST /api/v1/messaging/drafts`) prepares one for review; send or discard a draft with its message id and current `draftRevision`. `resolve_record_identifiers` finds the records that match an address, `manage_conversation_records` reads and changes the records linked to one conversation, and `mutate_crm_record` changes a record's Channels.
+Prefer [MCP](/docs/mcp) tools over clicking: `get_messaging_threads` reads conversations, `update_messaging_thread` sets the state (REST `POST /api/v1/messaging/threads/{id}/state`), `move_email_thread` files an email (REST `POST /api/v1/messaging/threads/{id}/move`; it fails for a conversation shared from someone else's private channel), `send_email` and `send_chat_message` start conversations, and `save_message_draft` (REST `POST /api/v1/messaging/drafts`) prepares one for review; send or discard a draft with its message id and current `draftRevision`. `resolve_record_identifiers` finds the records that match an address, `manage_conversation_records` reads and changes the records linked to one conversation, and `mutate_crm_record` changes a record's contact details.
 
 **Breaking change:** sending saved drafts through the REST API changed. `POST /api/v1/messaging/send-email` answers `200`, and `POST /api/v1/messaging/threads/{id}/messages` and `POST /api/v1/messaging/start-chat` answer `201`, once the sent message is recorded, also when the call repeats an earlier send of the same draft revision; such a repeat carries `repeated: true` and sends nothing. They answer `202` with a receipt only while the sent message is not recorded yet. A stale `draftRevision` or changed recipients answer `409` with customCode `draftChanged` or `draftRecipientsChanged` instead of `404`, and `DELETE /api/v1/messaging/drafts/{id}` with a stale `draftRevision` answers `409` with customCode `draftChanged` instead of `404`. `POST /api/v1/messaging/drafts`, like `save_message_draft` with `connectedAccountId`, creates a new conversation on every call; update a saved draft through its conversation with `POST /api/v1/messaging/threads/{id}/drafts` or `threadId`.
 

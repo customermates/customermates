@@ -16,7 +16,13 @@ import { FormControlRow } from "@/components/forms/form-control-row";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { channelLabelKey, isHandleProvider } from "@/ee/messaging/provider";
+import {
+  byChannelGroup,
+  channelGroup,
+  channelLabelKey,
+  isHandleProvider,
+  messagingProviderFor,
+} from "@/ee/messaging/provider";
 import { getChannelIcon } from "@/ee/messaging/provider-icon";
 import { channelContact } from "@/ee/messaging/thread-display";
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -59,6 +65,7 @@ export const RecordChannels = observer(
       userStore.can(Resource.inboxMessages, Action.create) &&
       rootStore.appMode !== "self-hosted";
     const identifiers = recordChannels.channels;
+    const entries = byChannelGroup(identifiers.map((identifier, index) => ({ ...identifier, index })));
     const inboxHref = recordChannels.inboxHref;
     const canOpenInbox = Boolean(
       inboxHref &&
@@ -104,11 +111,12 @@ export const RecordChannels = observer(
       if (!current()) return;
       const initialize = () => {
         if (!current()) return;
-        const [first] = connectedAccountsStore.usableSendersFor(identifier.provider);
+        const provider = messagingProviderFor(identifier.provider);
+        const [first] = connectedAccountsStore.usableSendersFor(provider);
         let ownsInitializedCompose = () => false;
         threadComposeStore.initializeNewThread({
           sourceContextKey: recordChannels.contextKey,
-          provider: identifier.provider,
+          provider,
           connectedAccountId: first?.id ?? "",
           recipients: [
             {
@@ -168,9 +176,15 @@ export const RecordChannels = observer(
           )}
 
           <div className="flex flex-col gap-2">
-            {identifiers.map((identifier, index) => {
+            {entries.map((identifier) => {
               const ProviderIcon = getChannelIcon(identifier.provider);
               const providerLabel = t(`Common.providers.${channelLabelKey(identifier.provider)}`);
+              const composeProvider = messagingProviderFor(identifier.provider);
+              const composeLabel = t(`Common.providers.${channelLabelKey(composeProvider)}`);
+              const canCompose =
+                canStartThread &&
+                (identifier.provider !== "phone" ||
+                  connectedAccountsStore.usableSendersFor(composeProvider).length > 0);
               const contact = channelContact(identifier.provider, identifier.value, identifier.profileUrl);
               const isUnverified = isHandleProvider(identifier.provider) && !identifier.messagingId;
               const channelKey = `${identifier.provider}:${identifier.value}`;
@@ -188,6 +202,7 @@ export const RecordChannels = observer(
                   <PopoverAnchor asChild>
                     <div
                       className="border-border bg-card flex items-center gap-3 rounded-md border px-3 py-2"
+                      data-record-channel-group={channelGroup(identifier.provider, identifier.value)}
                       data-record-channel-key={channelKey}
                     >
                       <ProviderIcon className="size-6 shrink-0" />
@@ -199,7 +214,7 @@ export const RecordChannels = observer(
 
                         <ContactValue
                           action={action}
-                          className="max-w-[18rem] text-sm font-medium"
+                          className="text-sm font-medium"
                           kind={contact.kind}
                           label={contact.label || identifier.displayName || providerLabel}
                           value={contact.value}
@@ -221,14 +236,14 @@ export const RecordChannels = observer(
                           </Tooltip>
                         )}
 
-                        {canStartThread && (
+                        {canCompose && (
                           <Tooltip>
                             <PopoverTrigger asChild>
                               <TooltipTrigger asChild>
                                 <Button
                                   aria-expanded={composing}
                                   aria-label={t("EntityChannels.ariaStartThread", {
-                                    provider: providerLabel,
+                                    provider: composeLabel,
                                   })}
                                   className={cn(
                                     "text-muted-foreground hover:text-foreground",
@@ -258,7 +273,7 @@ export const RecordChannels = observer(
                                 size="icon-sm"
                                 type="button"
                                 variant="ghost"
-                                onClick={() => recordChannels.remove(index)}
+                                onClick={() => recordChannels.remove(identifier.index)}
                               >
                                 <X aria-hidden />
                               </Button>
@@ -278,7 +293,7 @@ export const RecordChannels = observer(
                       if (threadComposeStore.hasUnsavedChanges || threadComposeStore.isLoading) event.preventDefault();
                     }}
                   >
-                    <ContactComposePopover provider={identifier.provider} />
+                    <ContactComposePopover provider={composeProvider} />
                   </PopoverContent>
                 </Popover>
               );

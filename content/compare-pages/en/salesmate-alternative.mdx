@@ -48,7 +48,7 @@ comparison:
         source: Contacts, organizations, deals, services, tasks, plus your own lists
         competitor: Contacts, companies, deals, activities; products from Pro; custom modules from Business
       - name: Custom fields
-        source: Fifteen field types and calculated fields on every plan
+        source: Sixteen field types and calculated fields on every plan
         competitor: Custom fields on Basic; formula fields from Pro; calculated fields from Business
       - name: Sequences and campaigns
         source: false
@@ -190,7 +190,7 @@ Customermates is an open-source, AI-native CRM built in Germany for small client
 
 ## Where Customermates is the wrong choice
 
-- **No telephony and no SMS.** No dialer, no call recording, no transcription. A phone number goes into a Phone field.
+- **No telephony and no SMS.** No dialer, no call recording, no transcription. A phone number goes into the Contact details field.
 - **No sequences and no campaigns.** You write or approve each message and send it on its own.
 - **No help desk.** No tickets, no live chat widget, no chatbots and no surveys.
 - **No web forms and no meeting scheduler.** Website leads arrive through the REST API or an [n8n instance you run yourself](/features/workflow-automation). Pro reads your calendar but does not book meetings.
@@ -204,7 +204,7 @@ Take a five-person brand and web agency. Two account managers hear from clients 
 
 | In Salesmate | In Customermates |
 |---|---|
-| Contacts | Contacts; email address, WhatsApp number and LinkedIn profile are stored as channels, a landline goes in a Phone field |
+| Contacts | Contacts; email address, phone number (landline or mobile) and LinkedIn profile are stored in the Contact details field |
 | Companies | Organizations, renamed "Companies" in Configure |
 | Deals in the pipeline | Deals with a Stage field and win probabilities |
 | Products | Services, renamed "Products", added to deals as line items with a quantity |
@@ -226,7 +226,7 @@ Each account manager also sets up a routine for their own deals. A routine runs 
   <Step title="Export from Salesmate before you cancel">In Salesmate you pick the columns you want, start the export and get a download link when it is ready. Salesmate's security page says data is deleted 30 days after a trial expires or a subscription is cancelled, so export first.</Step>
   <Step title="Save each export as an Excel workbook">Customermates imports .xlsx workbooks only. Open each exported file in Excel or LibreOffice and save it as .xlsx, one list per workbook.</Step>
   <Step title="Prepare the workspace">Rename lists in Configure, create custom fields for the Salesmate fields you keep, such as a lead source, and set the Stage field with its probabilities.</Step>
-  <Step title="Import one list at a time">On each list, open More actions, then Add from file: organizations first, then contacts, then deals. Link columns match records by name, so a contact's company column finds the organization imported before. Map email addresses and WhatsApp numbers to the contact's channels. Size limits are in the [records documentation](/docs/app-records).</Step>
+  <Step title="Import one list at a time">On each list, open More actions, then Add from file: organizations first, then contacts, then deals. Link columns match records by name, so a contact's company column finds the organization imported before. Map email addresses and phone numbers to the contact's Contact details field. Size limits are in the [records documentation](/docs/app-records).</Step>
   <Step title="Connect channels and AI">On Pro or during the trial, connect a mailbox, LinkedIn or WhatsApp under Settings › Channels. Message history stored in Salesmate does not come across; the inbox shows conversations from the accounts you connect. Then set up routines, or connect your own AI client through MCP.</Step>
 </Steps>
 
