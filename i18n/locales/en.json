@@ -4701,6 +4701,31 @@
     "switchToSignIn": "Already have an account? <signInLink>Sign in</signInLink>",
     "title": "Create a Customermates Account"
   },
+  "SolutionStage": {
+    "alt": "{area} in the example workspace, using demo data",
+    "captions": {
+      "calendar": "Dates from your records in one calendar",
+      "clientOverview": "Every client with status and owner at a glance",
+      "clients": "Every client with the work you are doing for them",
+      "dashboard": "Widgets built from the workspace's own lists and fields",
+      "engagements": "Every active engagement on one board",
+      "inbox": "Conversations next to the records they belong to, on Cloud from Pro",
+      "pipeline": "Deal value and stage on every card",
+      "pitchBoard": "Every pitch from brief to decision"
+    },
+    "label": "Product areas",
+    "livePrompt": "Try it live",
+    "tabs": {
+      "calendar": "Calendar",
+      "clientOverview": "Client overview",
+      "clients": "Clients",
+      "dashboard": "Dashboard",
+      "engagements": "Engagements",
+      "inbox": "Inbox",
+      "pipeline": "Pipeline",
+      "pitchBoard": "Pitch board"
+    }
+  },
   "StructuredData": {
     "breadcrumb": {
       "allFeatures": "All Features",

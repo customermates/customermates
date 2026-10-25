@@ -1,12 +1,23 @@
 "use client";
 
 import type { HomepageStageTab } from "@/core/fumadocs/schemas/homepage";
+import type { SolutionStageTabId } from "@/core/solutions/solution-catalog";
 import type { AppLocale, ContentLocale } from "@/i18n/locale-registry";
 
 import { type FocusEvent, type KeyboardEvent, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import { motion } from "framer-motion";
 import { preconnect } from "react-dom";
-import { Inbox, KanbanSquare, LayoutDashboard, Repeat, Settings2, UserRound } from "lucide-react";
+import {
+  CalendarDays,
+  Inbox,
+  KanbanSquare,
+  LayoutDashboard,
+  Presentation,
+  Repeat,
+  Settings2,
+  UserRound,
+  Users,
+} from "lucide-react";
 
 import { cn } from "@/core/utils/cn";
 
@@ -18,6 +29,8 @@ import {
 } from "@/components/marketing/product-demo-src";
 import { ProductWindow } from "@/components/marketing/product-window";
 import { useHomepageMotion } from "./homepage-motion";
+import { SolutionStageImage } from "./solution-stage-image";
+import { type ProductStageTab, isSolutionStageTab } from "./solution-stage-tab";
 import {
   type HomepageStageArea,
   PRODUCT_DEMO_ANCHOR,
@@ -37,6 +50,17 @@ const TAB_ICONS = {
   "homepage-routines": Repeat,
 } as const;
 
+const SOLUTION_TAB_ICONS = {
+  calendar: CalendarDays,
+  clientOverview: Users,
+  clients: Users,
+  dashboard: LayoutDashboard,
+  engagements: KanbanSquare,
+  inbox: Inbox,
+  pipeline: KanbanSquare,
+  pitchBoard: Presentation,
+} as const satisfies Record<SolutionStageTabId, unknown>;
+
 const MOBILE_CAPTURES = {
   "homepage-configure": "homepage-configure-mobile",
   "homepage-dashboard": "homepage-dashboard-mobile",
@@ -54,6 +78,18 @@ const STAGE_DEMO_PATHS = {
   pipeline: DEMO_RECORD_LIST_PATHS.deals,
   routines: "/routines",
 } as const satisfies Record<HomepageStageArea, string>;
+
+function tabKey(tab: ProductStageTab): string {
+  return isSolutionStageTab(tab) ? tab.id : tab.capture;
+}
+
+function tabArea(tab: ProductStageTab): HomepageStageArea | undefined {
+  return isSolutionStageTab(tab) ? tab.area : STAGE_AREAS[tab.capture];
+}
+
+function tabIcon(tab: ProductStageTab) {
+  return isSolutionStageTab(tab) ? SOLUTION_TAB_ICONS[tab.icon] : TAB_ICONS[tab.capture];
+}
 
 const LIVE_STAGE_MEDIA = "(min-width: 40rem)";
 
@@ -80,13 +116,14 @@ const STAGE_MAX_TILT_DEG = 12;
 const STAGE_MIN_SCALE = 0.94;
 
 type Props = {
+  className?: string;
   demoBaseUrl: string;
   demoLocale: AppLocale;
   embed?: boolean;
   label: string;
   live: { prompt: string };
   locale: ContentLocale;
-  tabs: HomepageStageTab[];
+  tabs: ProductStageTab[];
 };
 
 function StageProgressRing() {
@@ -111,6 +148,7 @@ function StageProgressRing() {
 }
 
 export function HomepageProductStage({
+  className,
   demoBaseUrl,
   demoLocale,
   embed = true,
@@ -144,6 +182,7 @@ export function HomepageProductStage({
   const activeTab = tabs[activeIndex];
   const liveReady = live && liveShown.has(activeIndex);
   const autoAdvance = shouldAnimate && !stopped && !hovered;
+  const phoneCaptures = !tabs.some(isSolutionStageTab);
 
   if (embed) preconnect(demoBaseUrl);
 
@@ -231,7 +270,7 @@ export function HomepageProductStage({
 
   useEffect(() => {
     function openArea(area: HomepageStageArea | null) {
-      const index = area ? tabs.findIndex((tab) => STAGE_AREAS[tab.capture] === area) : -1;
+      const index = area ? tabs.findIndex((tab) => tabArea(tab) === area) : -1;
 
       setStopped(true);
       if (index >= 0) setActiveIndex(index);
@@ -273,7 +312,14 @@ export function HomepageProductStage({
     return () => observer.disconnect();
   }, [live]);
 
-  function liveSrcFor(tab: HomepageStageTab) {
+  function liveSrcFor(tab: ProductStageTab) {
+    if (isSolutionStageTab(tab))
+      return `${demoBaseUrl}${tab.demoPath}${tab.demoPath.includes("?") ? "&" : "?"}agentChat=closed`;
+
+    return homepageLiveSrc(tab);
+  }
+
+  function homepageLiveSrc(tab: HomepageStageTab) {
     const path: string = STAGE_DEMO_PATHS[STAGE_AREAS[tab.capture]];
 
     return `${demoBaseUrl}${demoWorkspacePath(demoLocale, path)}${path.includes("?") ? "&" : "?"}agentChat=closed`;
@@ -316,7 +362,7 @@ export function HomepageProductStage({
   return (
     <div
       ref={ref}
-      className="mt-14 scroll-mt-20 sm:mt-16 lg:mt-20"
+      className={cn("mt-14 scroll-mt-20 sm:mt-16 lg:mt-20", className)}
       data-homepage-section="product-stage"
       id={PRODUCT_DEMO_ANCHOR}
       onFocus={stopOnVisitorFocus}
@@ -332,7 +378,10 @@ export function HomepageProductStage({
         <div
           ref={frameRef}
           data-homepage-stage-frame
-          className="relative mx-auto max-w-[19rem] origin-[50%_0%] transition-transform duration-200 ease-out will-change-transform motion-reduce:transition-none sm:max-w-none lg:[transform:rotateX(var(--stage-tilt,0deg))_scale(var(--stage-scale,1))]"
+          className={cn(
+            "relative mx-auto origin-[50%_0%] transition-transform duration-200 ease-out will-change-transform motion-reduce:transition-none sm:max-w-none lg:[transform:rotateX(var(--stage-tilt,0deg))_scale(var(--stage-scale,1))]",
+            phoneCaptures && "max-w-[19rem]",
+          )}
           data-homepage-stage-live={liveReady ? "ready" : live ? "loading" : "idle"}
         >
           <div
@@ -344,7 +393,7 @@ export function HomepageProductStage({
             <div ref={liveBoxRef} className="relative">
               {tabs.map((tab, index) => (
                 <div
-                  key={tab.capture}
+                  key={tabKey(tab)}
                   aria-labelledby={`${baseId}-tab-${index}`}
                   className={cn(
                     "transition-opacity duration-300 ease-out focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring motion-reduce:transition-none",
@@ -356,15 +405,25 @@ export function HomepageProductStage({
                   tabIndex={index === activeIndex ? 0 : -1}
                 >
                   {index === activeIndex || loadedTabs.has(index) ? (
-                    <HomepageCaptureImage
-                      alt={tab.alt}
-                      eager={index === 0}
-                      locale={locale}
-                      mobileName={MOBILE_CAPTURES[tab.capture]}
-                      mobileSizes="19rem"
-                      name={tab.capture}
-                      sizes="(min-width: 1280px) 1216px, 92vw"
-                    />
+                    isSolutionStageTab(tab) ? (
+                      <SolutionStageImage
+                        alt={tab.alt}
+                        eager={index === 0}
+                        name={tab.id}
+                        poster={tab.poster}
+                        sizes="(min-width: 1280px) 1216px, 92vw"
+                      />
+                    ) : (
+                      <HomepageCaptureImage
+                        alt={tab.alt}
+                        eager={index === 0}
+                        locale={locale}
+                        mobileName={MOBILE_CAPTURES[tab.capture]}
+                        mobileSizes="19rem"
+                        name={tab.capture}
+                        sizes="(min-width: 1280px) 1216px, 92vw"
+                      />
+                    )
                   ) : null}
                 </div>
               ))}
@@ -372,7 +431,7 @@ export function HomepageProductStage({
               {tabs.map((tab, index) =>
                 live && liveMounted.has(index) ? (
                   <iframe
-                    key={tab.capture}
+                    key={tabKey(tab)}
                     className={cn(
                       "absolute top-0 left-0 z-10 origin-top-left border-0 bg-sidebar transition-opacity duration-500 ease-out motion-reduce:transition-none",
                       index === activeIndex && liveShown.has(index) ? "opacity-100" : "pointer-events-none opacity-0",
@@ -406,12 +465,12 @@ export function HomepageProductStage({
         onPointerDown={() => setStopped(true)}
       >
         {tabs.map((tab, index) => {
-          const Icon = TAB_ICONS[tab.capture];
+          const Icon = tabIcon(tab);
           const isActive = index === activeIndex;
 
           return (
             <button
-              key={tab.capture}
+              key={tabKey(tab)}
               ref={(element) => {
                 tabRefs.current[index] = element;
               }}
@@ -421,7 +480,7 @@ export function HomepageProductStage({
                 "relative isolate inline-flex shrink-0 snap-start items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-medium text-muted-foreground transition-colors duration-300 hover:text-foreground focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring",
                 isActive && "text-foreground",
               )}
-              data-homepage-stage-tab={tab.capture}
+              data-homepage-stage-tab={tabKey(tab)}
               id={`${baseId}-tab-${index}`}
               role="tab"
               tabIndex={isActive ? 0 : -1}
@@ -452,7 +511,7 @@ export function HomepageProductStage({
       </div>
 
       <motion.p
-        key={activeTab.capture}
+        key={tabKey(activeTab)}
         animate={{ opacity: 1, y: 0 }}
         className="mt-4 text-center text-sm text-muted-foreground"
         initial={shouldReduceMotion ? false : { opacity: 0, y: 4 }}

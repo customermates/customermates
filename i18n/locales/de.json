@@ -4701,6 +4701,31 @@
     "switchToSignIn": "Bereits ein Konto? <signInLink>Anmelden</signInLink>",
     "title": "Customermates-Konto erstellen"
   },
+  "SolutionStage": {
+    "alt": "{area} im Beispiel-Arbeitsbereich, mit Beispieldaten",
+    "captions": {
+      "calendar": "Termine aus Ihren Datensätzen in einem Kalender",
+      "clientOverview": "Alle Kunden mit Status und Verantwortlichen auf einen Blick",
+      "clients": "Alle Kunden mit den Projekten für sie",
+      "dashboard": "Widgets aus den eigenen Listen und Feldern des Arbeitsbereichs",
+      "engagements": "Alle laufenden Mandate auf einem Board",
+      "inbox": "Konversationen neben den passenden Datensätzen, in der Cloud ab Pro",
+      "pipeline": "Wert und Phase auf jeder Karte",
+      "pitchBoard": "Jeder Pitch vom Briefing bis zur Entscheidung"
+    },
+    "label": "Produktbereiche",
+    "livePrompt": "Live ausprobieren",
+    "tabs": {
+      "calendar": "Kalender",
+      "clientOverview": "Kundenübersicht",
+      "clients": "Kunden",
+      "dashboard": "Dashboard",
+      "engagements": "Mandate",
+      "inbox": "Posteingang",
+      "pipeline": "Pipeline",
+      "pitchBoard": "Pitch-Board"
+    }
+  },
   "StructuredData": {
     "breadcrumb": {
       "allFeatures": "Alle Features",

@@ -4701,6 +4701,31 @@
     "switchToSignIn": "Vous avez déjà un compte ? <signInLink>Connectez-vous</signInLink>",
     "title": "Créer un compte Customermates"
   },
+  "SolutionStage": {
+    "alt": "{area} dans l'espace de travail d'exemple, avec des données de démonstration",
+    "captions": {
+      "calendar": "Les dates de vos fiches dans un seul calendrier",
+      "clientOverview": "Chaque client avec son statut et son responsable en un coup d'œil",
+      "clients": "Chaque client avec le travail en cours pour lui",
+      "dashboard": "Des widgets construits à partir des listes et champs de l'espace",
+      "engagements": "Chaque mission en cours sur un seul tableau",
+      "inbox": "Les conversations à côté des fiches concernées, sur Cloud dès Pro",
+      "pipeline": "Valeur et étape de l'affaire sur chaque carte",
+      "pitchBoard": "Chaque pitch, du brief à la décision"
+    },
+    "label": "Espaces du produit",
+    "livePrompt": "Essayer en direct",
+    "tabs": {
+      "calendar": "Calendrier",
+      "clientOverview": "Vue clients",
+      "clients": "Clients",
+      "dashboard": "Tableau de bord",
+      "engagements": "Missions",
+      "inbox": "Boîte de réception",
+      "pipeline": "Pipeline",
+      "pitchBoard": "Pitchs"
+    }
+  },
   "StructuredData": {
     "breadcrumb": {
       "allFeatures": "Toutes les fonctionnalités",

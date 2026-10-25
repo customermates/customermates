@@ -17,6 +17,7 @@ type HeroBaseProps = {
   badge?: string;
   description: string;
   showOpenSourceBadge?: boolean;
+  stage?: ReactNode;
   title: string;
   titleAccent?: string;
   visual?: ReactNode;
@@ -78,7 +79,7 @@ function hasHeroActions(props: Props): props is HeroBaseProps & HeroActions {
 }
 
 export function PageHero(props: Props) {
-  const { badge, title, titleAccent, description, showOpenSourceBadge = true, visual } = props;
+  const { badge, title, titleAccent, description, showOpenSourceBadge = true, stage, visual } = props;
   const actions = hasHeroActions(props) ? props : null;
 
   return (
@@ -88,7 +89,7 @@ export function PageHero(props: Props) {
       <MarketingContainer className="relative z-10">
         <div
           className={cn(
-            "py-16 sm:py-20 lg:py-28",
+            stage ? "pt-10 pb-6 sm:pt-16 lg:pt-14" : "py-16 sm:py-20 lg:py-28",
             visual ? "marketing-grid items-center gap-y-12" : "flex flex-col items-center text-center",
           )}
         >
@@ -135,6 +136,12 @@ export function PageHero(props: Props) {
           </div>
 
           {visual ? <div className="col-span-12 min-w-0 lg:col-span-6">{visual}</div> : null}
+
+          {stage ? (
+            <div data-page-hero-stage className="w-full">
+              {stage}
+            </div>
+          ) : null}
         </div>
       </MarketingContainer>
     </section>

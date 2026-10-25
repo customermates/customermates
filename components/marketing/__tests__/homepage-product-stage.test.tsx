@@ -1,3 +1,4 @@
+import type { ProductStageTab } from "@/app/[locale]/(static)/components/solution-stage-tab";
 import type { HomepageStageTab } from "@/core/fumadocs/schemas/homepage";
 import type * as ReactDOM from "react-dom";
 
@@ -66,7 +67,7 @@ afterEach(() => {
   resourceHints.preconnect.mockReset();
 });
 
-function render(stageTabs: HomepageStageTab[] = tabs, embed?: boolean) {
+function render(stageTabs: ProductStageTab[] = tabs, embed?: boolean) {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   const host = document.createElement("div");
   document.body.append(host);
@@ -548,4 +549,50 @@ it("opens the live data model focused on the deals list", () => {
   );
   loadAndReveal(activeIframe(host));
   expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("ready");
+});
+
+const poster = {
+  dark: { height: 1000, src: "/captures/solutions/stage/dark/consultants-calendar-en.webp", width: 1600 },
+  light: { height: 1000, src: "/captures/solutions/stage/light/consultants-calendar-en.webp", width: 1600 },
+};
+
+const solutionTabs: ProductStageTab[] = [
+  {
+    alt: "Calendar, using demo data",
+    caption: "Calendar caption",
+    demoPath: "/en/w/consultants/calendar",
+    icon: "calendar",
+    id: "calendar",
+    kind: "solution",
+    label: "Calendar",
+    poster,
+  },
+  {
+    alt: "Engagements, using demo data",
+    area: "pipeline",
+    caption: "Engagements caption",
+    demoPath: "/en/w/consultants/records/a?view=b",
+    icon: "engagements",
+    id: "engagements",
+    kind: "solution",
+    label: "Engagements",
+    poster,
+  },
+];
+
+it("shows solution posters full width and opens each solution tab in its own workspace", () => {
+  vi.useFakeTimers();
+  stubWideViewport(true);
+  const host = render(solutionTabs);
+
+  expect(host.querySelector("[data-solution-stage-capture=calendar]")).not.toBeNull();
+  expect(frame(host).className).not.toContain("max-w-[19rem]");
+  expect(activeIframe(host)?.getAttribute("src")).toBe(
+    "https://demo.example/en/w/consultants/calendar?agentChat=closed",
+  );
+  act(() => tabButtons(host)[1].click());
+  loadAndReveal(host.querySelectorAll<HTMLIFrameElement>("iframe")[1] ?? null);
+  expect(activeIframe(host)?.getAttribute("src")).toBe(
+    "https://demo.example/en/w/consultants/records/a?view=b&agentChat=closed",
+  );
 });
