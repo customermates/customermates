@@ -8,6 +8,7 @@ import {
 } from "../../features/record-calendar/calendar-date";
 import { presetId } from "../../features/records/crm-preset";
 import { postOk, readModel } from "./api";
+import { companyPath } from "./app-paths";
 import { collectPageErrors, expect, test } from "./fixtures";
 
 test("calendar ranges span weeks and months, keep midnight exclusive, reveal full titles and move by the dragged distance", async ({
@@ -102,7 +103,7 @@ test("calendar ranges span weeks and months, keep midnight exclusive, reveal ful
   );
   const entryId = `${sourceId}:${allDay.refs[0].recordId}`;
   const timedId = `${timeSourceId}:${timed.refs[0].recordId}`;
-  await page.goto("/en/calendar");
+  await page.goto(companyPath(companyId, "/calendar"));
   const calendar = page.locator("[data-planner-page]");
   await expect(calendar).toBeVisible();
   const entry = calendar.locator(`[data-calendar-entry="${entryId}"]`).first();
