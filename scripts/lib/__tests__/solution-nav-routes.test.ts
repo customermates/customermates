@@ -1,8 +1,15 @@
 import { describe, expect, it } from "vitest";
 
-import { SOLUTION_CATALOG, SOLUTION_DATA_LOCALES } from "@/core/solutions/solution-catalog";
+import { SOLUTION_CATALOG, SOLUTION_DATA_LOCALES, findSolution } from "@/core/solutions/solution-catalog";
 
-import { NAV_PREVIEW_FALLBACK_PATH, solutionNavPreview, solutionNavPreviewPath } from "../solution-nav-routes";
+import {
+  CALENDAR_PATH,
+  LATEST_INBOX_PATH,
+  NAV_PREVIEW_FALLBACK_PATH,
+  solutionNavPreview,
+  solutionNavPreviewPath,
+  solutionTargetPath,
+} from "../solution-nav-routes";
 
 const UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 
@@ -41,5 +48,24 @@ describe("solution navigation preview routes", () => {
     const [first, second] = SOLUTION_DATA_LOCALES.map((locale) => solutionNavPreviewPath(solution, locale));
     if (first.fallback || second.fallback) return;
     expect(first.path).not.toBe(second.path);
+  });
+
+  it("resolves the calendar and the latest conversation for stage tabs without a channel", () => {
+    const smb = findSolution("smb");
+    expect(solutionTargetPath(smb, { kind: "calendar" }, "en")).toEqual({ path: CALENDAR_PATH });
+    expect(solutionTargetPath(smb, { kind: "inbox" }, "de")).toEqual({ path: LATEST_INBOX_PATH });
+  });
+
+  it("resolves every stage tab from its seed definition without a fallback", () => {
+    for (const solution of SOLUTION_CATALOG) {
+      for (const tab of solution.stage) {
+        for (const dataLocale of SOLUTION_DATA_LOCALES) {
+          expect(
+            solutionTargetPath(solution, tab.target, dataLocale).fallback,
+            `${solution.id}:${tab.id}`,
+          ).toBeUndefined();
+        }
+      }
+    }
   });
 });

@@ -36,7 +36,32 @@ export type SolutionNavPreviewTarget =
   | { kind: "configure" }
   | { kind: "view"; view: string }
   | { kind: "record"; list: string; key: string }
-  | { kind: "inbox"; account: "linkedin" | "whatsapp"; link?: string };
+  | { kind: "inbox"; account?: "linkedin" | "whatsapp"; link?: string };
+
+export type SolutionStageTarget = SolutionNavPreviewTarget | { kind: "calendar" };
+
+export type SolutionStageTabId =
+  | "dashboard"
+  | "pipeline"
+  | "engagements"
+  | "pitchBoard"
+  | "clients"
+  | "clientOverview"
+  | "inbox"
+  | "calendar";
+
+export type SolutionStageTab = {
+  id: SolutionStageTabId;
+  target: SolutionStageTarget;
+};
+
+const DASHBOARD_TAB: SolutionStageTab = { id: "dashboard", target: { kind: "dashboard" } };
+
+const INBOX_TAB: SolutionStageTab = { id: "inbox", target: { kind: "inbox" } };
+
+const CALENDAR_TAB: SolutionStageTab = { id: "calendar", target: { kind: "calendar" } };
+
+const PIPELINE_TAB: SolutionStageTab = { id: "pipeline", target: { kind: "view", view: "pipeline" } };
 
 type SolutionDefinition = {
   id: SolutionId;
@@ -45,6 +70,7 @@ type SolutionDefinition = {
   navPreview: SolutionNavPreviewTarget;
   navLabelKey: string;
   previewRoute: string;
+  stage: readonly SolutionStageTab[];
   workspaces: Record<SolutionDataLocale, SolutionWorkspace>;
 };
 
@@ -62,6 +88,7 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     navPreview: { kind: "dashboard" },
     navLabelKey: "smb",
     previewRoute: "/dashboard",
+    stage: [DASHBOARD_TAB, PIPELINE_TAB, INBOX_TAB, CALENDAR_TAB],
     workspaces: {
       en: { slug: "small-business", companyId: "10000000-0000-4000-8000-000000000001" },
       de: { slug: "kleine-unternehmen", companyId: "10000000-0000-4000-8000-000000000202" },
@@ -74,6 +101,7 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     navPreview: { kind: "view", view: "active" },
     navLabelKey: "consultants",
     previewRoute: "/dashboard",
+    stage: [DASHBOARD_TAB, { id: "engagements", target: { kind: "view", view: "active" } }, INBOX_TAB, CALENDAR_TAB],
     workspaces: {
       en: { slug: "consultants", companyId: "10000000-0000-4000-8000-000000000203" },
       de: { slug: "beratung", companyId: "10000000-0000-4000-8000-000000000003" },
@@ -86,6 +114,7 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     navPreview: { kind: "view", view: "pitchBoard" },
     navLabelKey: "agencies",
     previewRoute: "/dashboard",
+    stage: [DASHBOARD_TAB, { id: "pitchBoard", target: { kind: "view", view: "pitchBoard" } }, INBOX_TAB, CALENDAR_TAB],
     workspaces: {
       en: { slug: "agencies", companyId: "10000000-0000-4000-8000-000000000205" },
       de: { slug: "agenturen", companyId: "10000000-0000-4000-8000-000000000206" },
@@ -98,6 +127,7 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     navPreview: { kind: "view", view: "clients" },
     navLabelKey: "freelancers",
     previewRoute: "/dashboard",
+    stage: [DASHBOARD_TAB, { id: "clients", target: { kind: "view", view: "clients" } }, INBOX_TAB, CALENDAR_TAB],
     workspaces: {
       en: { slug: "freelancers", companyId: "10000000-0000-4000-8000-000000000207" },
       de: { slug: "selbststaendige", companyId: "10000000-0000-4000-8000-000000000208" },
@@ -110,6 +140,7 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     navPreview: { kind: "dashboard" },
     navLabelKey: "startups",
     previewRoute: "/dashboard",
+    stage: [DASHBOARD_TAB, PIPELINE_TAB, INBOX_TAB, CALENDAR_TAB],
     workspaces: {
       en: { slug: "founder-sales", companyId: "10000000-0000-4000-8000-000000000209" },
       de: { slug: "gruender-vertrieb", companyId: "10000000-0000-4000-8000-000000000210" },
@@ -122,6 +153,12 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     navPreview: { kind: "view", view: "clientOverview" },
     navLabelKey: "clientManagement",
     previewRoute: "/dashboard",
+    stage: [
+      DASHBOARD_TAB,
+      { id: "clientOverview", target: { kind: "view", view: "clientOverview" } },
+      INBOX_TAB,
+      CALENDAR_TAB,
+    ],
     workspaces: {
       en: { slug: "client-management", companyId: "10000000-0000-4000-8000-000000000211" },
       de: { slug: "kundenverwaltung", companyId: "10000000-0000-4000-8000-000000000212" },
@@ -134,6 +171,7 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     navPreview: { kind: "view", view: "pipeline" },
     navLabelKey: "salesPipeline",
     previewRoute: "/dashboard",
+    stage: [DASHBOARD_TAB, PIPELINE_TAB, INBOX_TAB, CALENDAR_TAB],
     workspaces: {
       en: { slug: "sales-pipeline", companyId: "10000000-0000-4000-8000-000000000213" },
       de: { slug: "vertriebspipeline", companyId: "10000000-0000-4000-8000-000000000214" },
@@ -146,6 +184,12 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     navPreview: { kind: "inbox", account: "linkedin", link: "deal:hollisProgram" },
     navLabelKey: "linkedinCrm",
     previewRoute: "/dashboard",
+    stage: [
+      DASHBOARD_TAB,
+      { id: "inbox", target: { kind: "inbox", account: "linkedin", link: "deal:hollisProgram" } },
+      PIPELINE_TAB,
+      CALENDAR_TAB,
+    ],
     workspaces: {
       en: { slug: "linkedin-sales", companyId: "10000000-0000-4000-8000-000000000215" },
       de: { slug: "linkedin-vertrieb", companyId: "10000000-0000-4000-8000-000000000216" },
@@ -158,6 +202,12 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     navPreview: { kind: "inbox", account: "whatsapp", link: "deal:copperCounter" },
     navLabelKey: "whatsappCrm",
     previewRoute: "/dashboard",
+    stage: [
+      DASHBOARD_TAB,
+      { id: "inbox", target: { kind: "inbox", account: "whatsapp", link: "deal:copperCounter" } },
+      PIPELINE_TAB,
+      CALENDAR_TAB,
+    ],
     workspaces: {
       en: { slug: "whatsapp", companyId: "10000000-0000-4000-8000-000000000217" },
       de: { slug: "whatsapp-kundenkontakt", companyId: "10000000-0000-4000-8000-000000000218" },

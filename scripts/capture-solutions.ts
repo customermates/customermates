@@ -1,17 +1,13 @@
 import { execFileSync } from "node:child_process";
-import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 import sharp from "sharp";
-import { chromium, type Browser, type BrowserContext, type Page } from "@playwright/test";
+import { chromium, type Browser } from "@playwright/test";
 
 import { assertLocalDatabaseEnvironment } from "./local-database-safety";
-import {
-  captureNavigationUrl,
-  parseCaptureSolutionsArgs,
-  type CaptureSolutionsOptions,
-} from "./lib/capture-solutions-options";
+import { newCaptureContext, openReadyPage, sha256, withRetries } from "./lib/capture-page";
+import { parseCaptureSolutionsArgs, type CaptureSolutionsOptions } from "./lib/capture-solutions-options";
 import { solutionNavPreview, solutionNavRouteForPlanItem } from "./lib/solution-nav-routes";
 
 import { SIDEBAR_MIN_WIDTH, SIDEBAR_WIDTH_COOKIE_NAME } from "@/components/layout/sidebar-width";
@@ -31,7 +27,6 @@ import {
   checkSolutionCaptureManifest,
   solutionCapturePlan,
 } from "@/core/solutions/solution-captures";
-import { formattingTagFor, isLocaleCode } from "@/i18n/locale-registry";
 import { solutionDataLocaleForUiLocale } from "@/core/solutions/solution-catalog";
 
 const ROOT = process.cwd();
@@ -40,16 +35,6 @@ const MANIFEST_PATH = join(ROOT, "core", "solutions", "solution-capture-manifest
 const PROVENANCE_PATH = join(ROOT, "core", "solutions", "solution-capture-provenance.json");
 const MAIN_WEBP_QUALITY = 82;
 const NAV_WEBP_QUALITY = 78;
-const READY_TIMEOUT_MS = 60_000;
-const STABLE_SAMPLES = 3;
-const STABLE_SAMPLE_INTERVAL_MS = 400;
-const NAVIGATION_TIMEOUT_MS = 90_000;
-const CAPTURE_ATTEMPTS = 3;
-const HIDE_DEV_OVERLAY_CSS = "nextjs-portal { display: none !important; }";
-
-function sha256(buffer: Buffer): string {
-  return createHash("sha256").update(new Uint8Array(buffer)).digest("hex");
-}
 
 function publicFile(src: string): string {
   return join(PUBLIC_ROOT, src);
@@ -129,92 +114,12 @@ function resetDatabase(): void {
   execFileSync("npx", ["prisma", "db", "seed"], { cwd: ROOT, stdio: "inherit" });
 }
 
-async function waitForStableGeometry(page: Page): Promise<void> {
-  const deadline = Date.now() + READY_TIMEOUT_MS;
-  let previous = "";
-  let stableSamples = 0;
-  while (stableSamples < STABLE_SAMPLES) {
-    if (Date.now() > deadline) throw new Error(`${page.url()}: charts kept moving for ${READY_TIMEOUT_MS} ms`);
-    await page.waitForTimeout(STABLE_SAMPLE_INTERVAL_MS);
-    const current = await page.evaluate(() =>
-      Array.from(document.querySelectorAll("main svg path, main svg rect, main svg circle"))
-        .map(
-          (node) =>
-            `${node.getAttribute("d") ?? ""}|${node.getAttribute("height") ?? ""}|${node.getAttribute("r") ?? ""}`,
-        )
-        .join(";"),
-    );
-    stableSamples = current === previous ? stableSamples + 1 : 0;
-    previous = current;
-  }
-  await page.mouse.move(0, 0);
-}
-
 type CapturedImage = { asset: SolutionCaptureAsset; sha256: string };
-
-async function newCaptureContext(
-  browser: Browser,
-  item: SolutionCapturePlanItem,
-  viewport: { deviceScaleFactor: number; height: number; width: number },
-): Promise<BrowserContext> {
-  const context = await browser.newContext({
-    colorScheme: item.theme,
-    deviceScaleFactor: viewport.deviceScaleFactor,
-    locale: isLocaleCode(item.locale) ? formattingTagFor(item.locale) : undefined,
-    timezoneId: "Europe/Berlin",
-    viewport: { height: viewport.height, width: viewport.width },
-  });
-  await context.addInitScript((theme) => window.localStorage.setItem("theme", theme), item.theme);
-  return context;
-}
-
-async function openReadyPage(
-  context: BrowserContext,
-  baseUrl: string,
-  key: string,
-  route: string,
-  area?: { height: number; width: number },
-): Promise<Page> {
-  const page = await context.newPage();
-  await page.goto(captureNavigationUrl(baseUrl, route), { timeout: NAVIGATION_TIMEOUT_MS, waitUntil: "networkidle" });
-  const expected = new URL(route, `${baseUrl}/`).pathname;
-  const landed = new URL(page.url()).pathname;
-  if (landed !== expected) throw new Error(`${key}: landed on ${landed}, expected ${expected}`);
-
-  await page.addStyleTag({ content: HIDE_DEV_OVERLAY_CSS });
-  await page.waitForFunction(
-    (visible) =>
-      document.fonts.status === "loaded" &&
-      document.querySelector("main") !== null &&
-      Array.from(document.querySelectorAll('[aria-busy="true"], .animate-pulse')).every((node) => {
-        if (!visible) return false;
-        const box = node.getBoundingClientRect();
-        return box.left >= visible.width || box.top >= visible.height || box.width === 0 || box.height === 0;
-      }),
-    area ?? null,
-    { timeout: READY_TIMEOUT_MS },
-  );
-  await waitForStableGeometry(page);
-  return page;
-}
 
 function writeWebp(src: string, buffer: Buffer, width: number, height: number): CapturedImage {
   mkdirSync(dirname(publicFile(src)), { recursive: true });
   writeFileSync(publicFile(src), new Uint8Array(buffer));
   return { asset: { bytes: buffer.byteLength, height, src, width }, sha256: sha256(buffer) };
-}
-
-async function withRetries<T>(key: string, run: () => Promise<T>): Promise<T> {
-  for (let attempt = 1; ; attempt++) {
-    try {
-      return await run();
-    } catch (error) {
-      if (attempt >= CAPTURE_ATTEMPTS) throw error;
-      console.warn(
-        `${key}: attempt ${attempt} failed (${error instanceof Error ? error.message.split("\n")[0] : error})`,
-      );
-    }
-  }
 }
 
 async function captureMain(browser: Browser, baseUrl: string, item: SolutionCapturePlanItem): Promise<CapturedImage> {

@@ -1,0 +1,170 @@
+{
+  "capturedOn": null,
+  "entries": [],
+  "environment": null,
+  "routes": {
+    "agencies": {
+      "calendar": {
+        "de": "/calendar",
+        "en": "/calendar"
+      },
+      "dashboard": {
+        "de": "/dashboard",
+        "en": "/dashboard"
+      },
+      "inbox": {
+        "de": "/inbox?threadId=latest",
+        "en": "/inbox?threadId=latest"
+      },
+      "pitchBoard": {
+        "de": "/records/9d4fde54-a01d-8ab5-8004-6d8f8b1eaf2b?view=1f100000-5210-4000-8000-000000000001",
+        "en": "/records/7c9cb8af-257b-87ea-8a8e-6c5dec71d826?view=1f100000-5200-4000-8000-000000000001"
+      }
+    },
+    "client-management": {
+      "calendar": {
+        "de": "/calendar",
+        "en": "/calendar"
+      },
+      "clientOverview": {
+        "de": "/records/b745dd1d-13fb-8956-8daa-58f35c7e5cfd?view=1f100000-5510-4000-8000-000000000002",
+        "en": "/records/26318eee-a3d2-82bf-842f-f21a9897ed56?view=1f100000-5500-4000-8000-000000000002"
+      },
+      "dashboard": {
+        "de": "/dashboard",
+        "en": "/dashboard"
+      },
+      "inbox": {
+        "de": "/inbox?threadId=latest",
+        "en": "/inbox?threadId=latest"
+      }
+    },
+    "consultants": {
+      "calendar": {
+        "de": "/calendar",
+        "en": "/calendar"
+      },
+      "dashboard": {
+        "de": "/dashboard",
+        "en": "/dashboard"
+      },
+      "engagements": {
+        "de": "/records/08eef326-1d0b-8a53-8ec9-288aacd109e4?view=1f100000-5110-4000-8000-000000000002",
+        "en": "/records/7c0f67eb-0740-8230-8c6d-c63d21920ddd?view=1f100000-5100-4000-8000-000000000002"
+      },
+      "inbox": {
+        "de": "/inbox?threadId=latest",
+        "en": "/inbox?threadId=latest"
+      }
+    },
+    "freelancers": {
+      "calendar": {
+        "de": "/calendar",
+        "en": "/calendar"
+      },
+      "clients": {
+        "de": "/records/851871ee-f28b-8d31-8ae0-ba32234af792?view=1f100000-5310-4000-8000-000000000001",
+        "en": "/records/04b6c610-0f56-8e55-80e6-786ba78856e2?view=1f100000-5300-4000-8000-000000000001"
+      },
+      "dashboard": {
+        "de": "/dashboard",
+        "en": "/dashboard"
+      },
+      "inbox": {
+        "de": "/inbox?threadId=latest",
+        "en": "/inbox?threadId=latest"
+      }
+    },
+    "linkedin-crm": {
+      "calendar": {
+        "de": "/calendar",
+        "en": "/calendar"
+      },
+      "dashboard": {
+        "de": "/dashboard",
+        "en": "/dashboard"
+      },
+      "inbox": {
+        "de": "/inbox?threadId=17000000-5710-4000-8000-000000000001",
+        "en": "/inbox?threadId=17000000-5700-4000-8000-000000000001"
+      },
+      "pipeline": {
+        "de": "/records/db81fdaa-c3a7-861d-8f1d-413ff8739424?view=1f100000-5710-4000-8000-000000000003",
+        "en": "/records/f53ac0d4-2cf6-8225-8956-f7e508385f9e?view=1f100000-5700-4000-8000-000000000003"
+      }
+    },
+    "sales-pipeline": {
+      "calendar": {
+        "de": "/calendar",
+        "en": "/calendar"
+      },
+      "dashboard": {
+        "de": "/dashboard",
+        "en": "/dashboard"
+      },
+      "inbox": {
+        "de": "/inbox?threadId=latest",
+        "en": "/inbox?threadId=latest"
+      },
+      "pipeline": {
+        "de": "/records/f2cddf3a-2b98-8e74-89fb-3e9425f8c342?view=1f100000-5610-4000-8000-000000000001",
+        "en": "/records/9b774d19-a0a5-8e18-8549-908fabb6754b?view=1f100000-5600-4000-8000-000000000001"
+      }
+    },
+    "smb": {
+      "calendar": {
+        "de": "/calendar",
+        "en": "/calendar"
+      },
+      "dashboard": {
+        "de": "/dashboard",
+        "en": "/dashboard"
+      },
+      "inbox": {
+        "de": "/inbox?threadId=latest",
+        "en": "/inbox?threadId=latest"
+      },
+      "pipeline": {
+        "de": "/records/fe81a7a6-6bd5-8c33-8378-e97817774ef7?view=1f100000-5010-4000-8000-000000000001",
+        "en": "/records/3ba14418-0840-8ae7-8c7e-52a2a79a481d?view=1f100000-0000-4000-8000-000000000001"
+      }
+    },
+    "startups": {
+      "calendar": {
+        "de": "/calendar",
+        "en": "/calendar"
+      },
+      "dashboard": {
+        "de": "/dashboard",
+        "en": "/dashboard"
+      },
+      "inbox": {
+        "de": "/inbox?threadId=latest",
+        "en": "/inbox?threadId=latest"
+      },
+      "pipeline": {
+        "de": "/records/bf9f2192-7836-8952-86a1-8d2a0e89903b?view=1f100000-5410-4000-8000-000000000001",
+        "en": "/records/bfc1fea3-39ec-89d2-8ce4-fe23c28267bf?view=1f100000-5400-4000-8000-000000000001"
+      }
+    },
+    "whatsapp-crm": {
+      "calendar": {
+        "de": "/calendar",
+        "en": "/calendar"
+      },
+      "dashboard": {
+        "de": "/dashboard",
+        "en": "/dashboard"
+      },
+      "inbox": {
+        "de": "/inbox?threadId=17000000-5810-4000-8000-000000000001",
+        "en": "/inbox?threadId=17000000-5800-4000-8000-000000000001"
+      },
+      "pipeline": {
+        "de": "/records/fb449340-6498-83f4-8c17-8cafcaba0c38?view=1f100000-5810-4000-8000-000000000001",
+        "en": "/records/71ccb9f3-256a-82b0-88b8-699c1c5aa3b2?view=1f100000-5800-4000-8000-000000000001"
+      }
+    }
+  },
+  "sourceRevision": null
+}
