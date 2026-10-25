@@ -372,7 +372,7 @@ test("uploads, shows, downloads and removes record files and refuses uploads ove
   ).toEqual([0, 4]);
   await page.keyboard.type("plan final");
   const renamed = page.waitForResponse(
-    (response) => response.request().method() === "PATCH" && response.url().includes("/api/v1/files/"),
+    (response) => response.request().method() === "PATCH" && response.url().includes("/v1/files/"),
   );
   await page.keyboard.press("Enter");
   await expect(named("plan final.md")).toBeVisible();
