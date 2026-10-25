@@ -1,6 +1,16 @@
 import { DisplayType } from "@/features/widget/widget-display.schema";
 
-import { day, defineSolution, photo, type RecordSpec, phoneNumber } from "../define-solution";
+import {
+  address,
+  day,
+  defineSolution,
+  photo,
+  rangeAt,
+  type AddressInput,
+  type FileSpec,
+  type RecordSpec,
+  phoneNumber,
+} from "../define-solution";
 
 /**
  * Sales pipeline: a four-person B2B sales team that sells compressed-air systems, dryers and service contracts to
@@ -117,6 +127,8 @@ const TASKS = [
   "pembertonCall",
   "castlefordDebrief",
   "tradeShowList",
+  "ashbySurvey",
+  "northgateSurvey",
 ] as const;
 type TaskKey = (typeof TASKS)[number];
 
@@ -138,6 +150,7 @@ const en = {
     },
   },
   selfTitle: "Head of Sales",
+  money: (amount: number) => `$${amount.toLocaleString("en-US")}`,
   lists: {
     organization: ["Account", "Accounts", "Manufacturers we sell to or talk to."],
     contact: ["Contact", "Contacts", "People at our accounts: plant managers, engineers and buyers."],
@@ -152,11 +165,10 @@ const en = {
   fields: {
     industry: "Industry",
     customerStatus: "Account status",
-    city: "City",
+    address: "Address",
     website: "Website",
     employees: "Employees",
     jobTitle: "Job title",
-    phone: "Phone",
     decisionRole: "Buying role",
     source: "Source",
     competitor: "Competitor",
@@ -168,6 +180,8 @@ const en = {
     lostReason: "Lost reason",
     dueDate: "Due date",
     priority: "Priority",
+    documents: "Documents",
+    scheduled: "Scheduled",
   },
   options: {
     industry: {
@@ -229,6 +243,134 @@ const en = {
     northgate: ["Northgate Bottling", "Mansfield"],
     brookfield: ["Brookfield Coatings", "Dayton"],
   } satisfies Record<OrganizationKey, readonly [string, string]>,
+  addresses: {
+    halden: address({
+      street: "2600 Lockbourne Rd",
+      postalCode: "43207",
+      city: "Columbus",
+      region: "OH",
+      countryCode: "us",
+      lat: 39.896,
+      lon: -82.969,
+    }),
+    corwin: address({
+      street: "4800 Wadsworth Rd",
+      postalCode: "45414",
+      city: "Dayton",
+      region: "OH",
+      countryCode: "us",
+      lat: 39.818,
+      lon: -84.202,
+    }),
+    ashby: address({
+      street: "2100 State Ave",
+      postalCode: "45204",
+      city: "Cincinnati",
+      region: "OH",
+      countryCode: "us",
+      lat: 39.093,
+      lon: -84.569,
+    }),
+    lakemont: address({
+      street: "1600 Hill Ave",
+      postalCode: "43607",
+      city: "Toledo",
+      region: "OH",
+      countryCode: "us",
+      lat: 41.65,
+      lon: -83.603,
+    }),
+    pemberton: address({
+      street: "640 S Main St",
+      postalCode: "44311",
+      city: "Akron",
+      region: "OH",
+      countryCode: "us",
+      lat: 41.063,
+      lon: -81.52,
+    }),
+    redfern: address({
+      street: "1800 Harrisburg Rd NE",
+      postalCode: "44705",
+      city: "Canton",
+      region: "OH",
+      countryCode: "us",
+      lat: 40.825,
+      lon: -81.34,
+    }),
+    stoneleigh: address({
+      street: "400 W Rich St",
+      postalCode: "43215",
+      city: "Columbus",
+      region: "OH",
+      countryCode: "us",
+      lat: 39.9612,
+      lon: -82.9988,
+    }),
+    whitcombe: address({
+      street: "3100 Hamilton Ave",
+      postalCode: "44114",
+      city: "Cleveland",
+      region: "OH",
+      countryCode: "us",
+      lat: 41.51,
+      lon: -81.675,
+    }),
+    marlow: address({
+      street: "1500 Mill Park Dr",
+      postalCode: "43130",
+      city: "Lancaster",
+      region: "OH",
+      countryCode: "us",
+      lat: 39.715,
+      lon: -82.6,
+    }),
+    castleford: address({
+      street: "900 Poland Ave",
+      postalCode: "44502",
+      city: "Youngstown",
+      region: "OH",
+      countryCode: "us",
+      lat: 41.088,
+      lon: -80.643,
+    }),
+    eastbrook: address({
+      street: "3800 Stelzer Rd",
+      postalCode: "43219",
+      city: "Columbus",
+      region: "OH",
+      countryCode: "us",
+      lat: 40.009,
+      lon: -82.93,
+    }),
+    fairhaven: address({
+      street: "2200 E High St",
+      postalCode: "45505",
+      city: "Springfield",
+      region: "OH",
+      countryCode: "us",
+      lat: 39.912,
+      lon: -83.765,
+    }),
+    northgate: address({
+      street: "1250 Ashland Rd",
+      postalCode: "44903",
+      city: "Mansfield",
+      region: "OH",
+      countryCode: "us",
+      lat: 40.78,
+      lon: -82.52,
+    }),
+    brookfield: address({
+      street: "2000 Valley St",
+      postalCode: "45404",
+      city: "Dayton",
+      region: "OH",
+      countryCode: "us",
+      lat: 39.784,
+      lon: -84.164,
+    }),
+  } satisfies Record<OrganizationKey, AddressInput>,
   contacts: {
     rachel: ["Rachel", "Morgan", "Operations director"],
     tom: ["Tom", "Keane", "Maintenance manager"],
@@ -310,17 +452,19 @@ const en = {
   } satisfies Record<ProductKey, string>,
   tasks: {
     haldenSchedule: "Check the installation crew's availability for Halden",
-    corwinWalkthrough: "Prepare the proposal walkthrough for Corwin",
+    corwinWalkthrough: "Proposal walkthrough at Corwin with Peter and Brian",
     stoneleighMeasure: "Bring the flow meter to Stoneleigh's canning run",
     whitcombeTerms: "Draft response times for the Whitcombe renewal",
     eastbrookPrice: "Calculate the final price for Eastbrook",
     lakemontVisit: "Book the site visit at Lakemont",
-    marlowSensors: "Mark sensor positions on Marlow's piping plan",
+    marlowSensors: "Mark sensor positions on site at Marlow Dairy",
     haldenHandover: "Hand over the Halden service contract to the service team",
     redfernFollowUp: "Call Laura about the heat recovery proposal",
-    pembertonCall: "Call George at Pemberton Print Works",
+    pembertonCall: "Look at the compressor room with George at Pemberton Print Works",
     castlefordDebrief: "Write down why we lost the Castleford station",
     tradeShowList: "Go through the visitor list from the trade show",
+    ashbySurvey: "Air demand survey during Ashby's early shift",
+    northgateSurvey: "Site survey in Northgate's filling hall",
   } satisfies Record<TaskKey, string>,
   views: {
     pipeline: "Pipeline board",
@@ -330,6 +474,8 @@ const en = {
     contacts: "All contacts",
     dueSoon: "Tasks due soon",
     products: "Price list",
+    siteVisits: "Site visits",
+    closeCalendar: "Close calendar",
   },
   widgets: {
     openPipeline: "Open pipeline",
@@ -338,9 +484,9 @@ const en = {
     salesCycle: "Avg. sales cycle, won (days)",
     funnel: "Open opportunities by stage",
     byOwner: "Open pipeline by owner",
-    lostReasons: "Lost opportunities by reason",
+    closingThisMonth: "Closing this month",
     wonByMonth: "Won value by month",
-    topAccounts: "Top accounts by won value",
+    accountsMap: "Accounts on the map",
   },
   wiki: {
     guide: {
@@ -350,11 +496,11 @@ const en = {
         "",
         "## How we use the CRM",
         "- **Accounts** are the companies we sell to or talk to. **Contacts** are the people there, with their buying role.",
-        "- **Opportunities** are equipment and service deals. Each one has products as line items, a stage, an account, its contacts and an owner. The Pipeline board shows them by stage, with the sum of value and weighted value per column.",
+        "- **Opportunities** are equipment and service deals. Each one has products as line items, a stage, an account, its contacts and an owner. The Pipeline board shows them by stage, with the sum of value and weighted value per column. Quotes and air audit workbooks are attached in the Documents field.",
         "- **Products** is our price list. The value of an opportunity is the sum of its line items: quantity times unit price. Agreed prices stay on the line item.",
         "- The **weighted value** is the value multiplied by the probability of the stage (New 10 %, Qualified 25 %, Discovery 40 %, Proposal sent 60 %, Negotiation 80 %). It helps to compare opportunities; it is not a prediction.",
         "- The **sales cycle** is calculated from the first contact to the expected close date.",
-        "- **Next step** and **Next step date** are ordinary fields, and so are the due dates of **Tasks**. Nobody is reminded automatically: check the Next steps view and Tasks due soon every morning.",
+        "- **Next step** and **Next step date** are ordinary fields, and so are the due dates of **Tasks**. Nobody is reminded automatically: check the Next steps view and Tasks due soon every morning. Site surveys and air audits carry a Scheduled time and appear in the Site visits calendar.",
         "- An email belongs to an opportunity or account only when someone links it there.",
         "",
         "## Working rules",
@@ -460,7 +606,12 @@ const en = {
   },
   calendar: {
     name: "Customer meetings",
-    events: ["Proposal walkthrough with Corwin Precision", "Renewal call with Whitcombe Metal Finishing"],
+    events: [
+      "Proposal walkthrough with Corwin Precision",
+      "Renewal call with Whitcombe Metal Finishing",
+      "Air demand survey at Ashby Bakeries",
+      "Site survey at Northgate Bottling",
+    ],
   },
   members: {
     colleagueA: ["Jenna", "Brooks"],
@@ -489,6 +640,65 @@ const en = {
       ],
     },
   },
+  files: {
+    quote: {
+      title: "Quote",
+      preparedFor: "Brightwater Air Systems for",
+      lineItems: "Line items",
+      columns: ["Product", "Qty", "Unit price", "Amount"],
+      total: "Total",
+      notes: "Notes",
+      terms:
+        "Prices exclude freight and sales tax. Delivery within six weeks of the order; this quote is valid for 30 days.",
+    },
+    quotes: {
+      haldenCompressor: [
+        "Q-2026-0412",
+        "Quote Q-2026-0412 – Halden Packaging line 2 compressors.pdf",
+        "Two variable-speed screw compressors for line 2 and one refrigerated dryer sized for both. Installation over one weekend while line 2 is shut down; the final drawing of the compressor room follows separately.",
+      ],
+      corwinDryers: [
+        "Q-2026-0398",
+        "Quote Q-2026-0398 – Corwin Precision refrigerated dryers.pdf",
+        "Two refrigerated dryers. The larger frame size leaves room for a third compressor without changes to the piping.",
+      ],
+      eastbrookCleanAir: [
+        "Q-2026-0405",
+        "Quote Q-2026-0405 – Eastbrook clean-room air.pdf",
+        "Oil-free compressor with two desiccant dryers for the clean room and a pressure monitoring kit. Filtration stage and commissioning included; the air quality test is part of commissioning.",
+      ],
+      redfernHeat: [
+        "Q-2026-0371",
+        "Quote Q-2026-0371 – Redfern Furniture heat recovery.pdf",
+        "Two heat recovery units that feed compressor heat into the heating loop of the finishing hall.",
+      ],
+      brookfieldDryer: [
+        "Q-2026-0389",
+        "Quote Q-2026-0389 – Brookfield Coatings desiccant dryer.pdf",
+        "Desiccant dryer for the paint shop: a refrigerated dryer does not reach the dew point that powder coating needs. Includes a pressure monitoring kit.",
+      ],
+    },
+    audit: {
+      name: "Compressed-air audit – Halden.xlsx",
+      rows: [
+        ["Measurement point", "Pressure (psi)", "Flow (cfm)", "Running hours per week", "Note"],
+        ["Line 1 compressor", 102, 210, 118, "Variable speed, installed last year"],
+        ["Line 2 compressor (old)", 108, 245, 136, "Fixed speed, runs unloaded 30 % of the time"],
+        ["Line 1 refrigerated dryer", 100, 205, 118, "Dew point stable"],
+        ["Line 2 refrigerated dryer", 104, 240, 136, "Undersized for the new compressors"],
+        ["End of main header", 92, "", "", "Pressure drop 10 psi"],
+        ["Leak test, weekend", 95, 38, "", "About 15 % of demand is leakage"],
+      ],
+    },
+  },
+  trash: ["Peter Nolan (duplicate)", "Fairhaven Textiles – leak survey"],
+  mateChat: {
+    title: "Which opportunities close this month without a next step?",
+    messages: [
+      "Which opportunities close this month without a next step?",
+      "Two open opportunities with an expected close date around now have no current next step:\n\n| Opportunity | Stage | Value | Next step date |\n| --- | --- | --- | --- |\n| Brookfield Coatings – desiccant dryer for the paint shop | Proposal sent | $17,400 | two days overdue |\n| Redfern Furniture – heat recovery unit | Proposal sent | $23,000 | not set |\n\nBoth expected close dates passed four days ago, so the date or the stage needs an update. Jenna owns Brookfield and is waiting for Grace; Marcus owns Redfern, where Laura has not answered since the proposal went out. I would call Laura first and set new close dates after both calls. Every other opportunity closing in the next four weeks has a dated next step.",
+    ],
+  },
 };
 
 type Strings = typeof en;
@@ -499,6 +709,7 @@ const de: Strings = {
   website: "https://weserluft.example",
   phones: { office: { templates: ["+49 30 23125 5##"], start: 0 } },
   selfTitle: "Vertriebsleiter",
+  money: (amount: number) => `${amount.toLocaleString("de-DE")} €`,
   lists: {
     organization: ["Firmenkunde", "Firmenkunden", "Produktionsbetriebe, die wir beliefern oder ansprechen."],
     contact: ["Kontakt", "Kontakte", "Ansprechpartner bei unseren Firmenkunden: Werksleitung, Technik und Einkauf."],
@@ -513,11 +724,10 @@ const de: Strings = {
   fields: {
     industry: "Branche",
     customerStatus: "Kundenstatus",
-    city: "Ort",
+    address: "Adresse",
     website: "Website",
     employees: "Mitarbeitende",
     jobTitle: "Position",
-    phone: "Telefon",
     decisionRole: "Rolle im Einkauf",
     source: "Quelle",
     competitor: "Wettbewerber",
@@ -529,6 +739,8 @@ const de: Strings = {
     lostReason: "Verlustgrund",
     dueDate: "Fällig am",
     priority: "Priorität",
+    documents: "Dokumente",
+    scheduled: "Termin vor Ort",
   },
   options: {
     industry: {
@@ -577,13 +789,127 @@ const de: Strings = {
     pemberton: ["Druckerei Pfeiffer", "Bielefeld"],
     redfern: ["Rotfeld Möbelwerkstätten", "Detmold"],
     stoneleigh: ["Brauerei Steinhausen", "Kassel"],
-    whitcombe: ["Weißkamp Oberflächentechnik", "Hagen"],
+    whitcombe: ["Weißkamp Oberflächentechnik", "Gütersloh"],
     marlow: ["Molkerei Marlau eG", "Höxter"],
     castleford: ["Glashütte Kastel", "Warburg"],
     eastbrook: ["Ostbrück Medizintechnik GmbH", "Marburg"],
     fairhaven: ["Fahrenholz Textil", "Herford"],
     northgate: ["Nordtor Getränkeabfüllung GmbH", "Minden"],
     brookfield: ["Bachfeld Beschichtungen", "Lippstadt"],
+  },
+  addresses: {
+    halden: address({
+      street: "Sandershäuser Straße 34",
+      postalCode: "34123",
+      city: "Kassel",
+      countryCode: "de",
+      lat: 51.31,
+      lon: 9.53,
+    }),
+    corwin: address({
+      street: "Robert-Bosch-Breite 10",
+      postalCode: "37079",
+      city: "Göttingen",
+      countryCode: "de",
+      lat: 51.55,
+      lon: 9.905,
+    }),
+    ashby: address({
+      street: "Frankfurter Straße 120",
+      postalCode: "36043",
+      city: "Fulda",
+      countryCode: "de",
+      lat: 50.535,
+      lon: 9.69,
+    }),
+    lakemont: address({
+      street: "Barkhauser Straße 6",
+      postalCode: "33106",
+      city: "Paderborn",
+      countryCode: "de",
+      lat: 51.71,
+      lon: 8.715,
+    }),
+    pemberton: address({
+      street: "Eckendorfer Straße 40",
+      postalCode: "33609",
+      city: "Bielefeld",
+      countryCode: "de",
+      lat: 52.03,
+      lon: 8.57,
+    }),
+    redfern: address({
+      street: "Ohmstraße 7",
+      postalCode: "32758",
+      city: "Detmold",
+      countryCode: "de",
+      lat: 51.95,
+      lon: 8.89,
+    }),
+    stoneleigh: address({
+      street: "Wolfsschlucht 12",
+      postalCode: "34117",
+      city: "Kassel",
+      countryCode: "de",
+      lat: 51.315,
+      lon: 9.495,
+    }),
+    whitcombe: address({
+      street: "Herzebrocker Straße 80",
+      postalCode: "33334",
+      city: "Gütersloh",
+      countryCode: "de",
+      lat: 51.91,
+      lon: 8.39,
+    }),
+    marlow: address({
+      street: "Lütmarser Straße 30",
+      postalCode: "37671",
+      city: "Höxter",
+      countryCode: "de",
+      lat: 51.775,
+      lon: 9.38,
+    }),
+    castleford: address({
+      street: "Paderborner Tor 140",
+      postalCode: "34414",
+      city: "Warburg",
+      countryCode: "de",
+      lat: 51.49,
+      lon: 9.145,
+    }),
+    eastbrook: address({
+      street: "Ernst-Giller-Straße 20",
+      postalCode: "35039",
+      city: "Marburg",
+      countryCode: "de",
+      lat: 50.805,
+      lon: 8.77,
+    }),
+    fairhaven: address({
+      street: "Mindener Straße 80",
+      postalCode: "32049",
+      city: "Herford",
+      countryCode: "de",
+      lat: 52.13,
+      lon: 8.66,
+    }),
+    northgate: address({
+      street: "Ringstraße 40",
+      postalCode: "32427",
+      city: "Minden",
+      countryCode: "de",
+      lat: 52.29,
+      lon: 8.92,
+    }),
+    brookfield: address({
+      street: "Erwitter Straße 105",
+      postalCode: "59557",
+      city: "Lippstadt",
+      countryCode: "de",
+      lat: 51.67,
+      lon: 8.34,
+    }),
   },
   contacts: {
     rachel: ["Rebekka", "Sommer", "Betriebsleiterin"],
@@ -678,17 +1004,19 @@ const de: Strings = {
   },
   tasks: {
     haldenSchedule: "Verfügbarkeit des Montageteams für Haldenwerk prüfen",
-    corwinWalkthrough: "Angebotsbesprechung mit Korwin vorbereiten",
+    corwinWalkthrough: "Angebotsbesprechung bei Korwin mit Herrn Lorenz und Herrn Vogt",
     stoneleighMeasure: "Durchflussmesser zur Abfüllung bei Steinhausen mitnehmen",
     whitcombeTerms: "Reaktionszeiten für die Verlängerung bei Weißkamp entwerfen",
     eastbrookPrice: "Endpreis für Ostbrück kalkulieren",
     lakemontVisit: "Besichtigung bei Seeberg vereinbaren",
-    marlowSensors: "Sensorpositionen im Rohrleitungsplan der Molkerei markieren",
+    marlowSensors: "Sensorpositionen vor Ort in der Molkerei markieren",
     haldenHandover: "Wartungsvertrag Haldenwerk an den Kundendienst übergeben",
     redfernFollowUp: "Frau Engel wegen des Angebots zur Wärmerückgewinnung anrufen",
-    pembertonCall: "Herrn Pfeiffer von der Druckerei anrufen",
+    pembertonCall: "Kompressorraum mit Herrn Pfeiffer in der Druckerei ansehen",
     castlefordDebrief: "Festhalten, warum wir die Station bei Kastel verloren haben",
     tradeShowList: "Besucherliste von der Messe durchgehen",
+    ashbySurvey: "Luftbedarfsmessung in der Frühschicht bei Eschenbach",
+    northgateSurvey: "Besichtigung der Abfüllhalle bei Nordtor",
   },
   views: {
     pipeline: "Pipeline-Board",
@@ -698,6 +1026,8 @@ const de: Strings = {
     contacts: "Alle Kontakte",
     dueSoon: "Bald fällige Aufgaben",
     products: "Preisliste",
+    siteVisits: "Termine vor Ort",
+    closeCalendar: "Abschlusskalender",
   },
   widgets: {
     openPipeline: "Offene Pipeline",
@@ -706,9 +1036,9 @@ const de: Strings = {
     salesCycle: "Ø Verkaufszyklus, gewonnen (Tage)",
     funnel: "Offene Verkaufschancen nach Phase",
     byOwner: "Offene Pipeline nach Verantwortlichen",
-    lostReasons: "Verlorene Chancen nach Grund",
+    closingThisMonth: "Abschlüsse diesen Monat",
     wonByMonth: "Gewonnener Wert pro Monat",
-    topAccounts: "Top-Kunden nach gewonnenem Wert",
+    accountsMap: "Firmenkunden auf der Karte",
   },
   wiki: {
     guide: {
@@ -718,11 +1048,11 @@ const de: Strings = {
         "",
         "## So nutzen wir das CRM",
         "- **Firmenkunden** sind die Unternehmen, die wir beliefern oder ansprechen. **Kontakte** sind die Menschen dort, mit ihrer Rolle im Einkauf.",
-        "- **Verkaufschancen** sind Anlagen- und Wartungsgeschäfte. Jede hat Produkte als Positionen, eine Phase, einen Firmenkunden, die zugehörigen Kontakte und eine verantwortliche Person. Das Pipeline-Board zeigt sie nach Phase, mit der Summe aus Wert und gewichtetem Wert je Spalte.",
+        "- **Verkaufschancen** sind Anlagen- und Wartungsgeschäfte. Jede hat Produkte als Positionen, eine Phase, einen Firmenkunden, die zugehörigen Kontakte und eine verantwortliche Person. Das Pipeline-Board zeigt sie nach Phase, mit der Summe aus Wert und gewichtetem Wert je Spalte. Angebote und Druckluftmessungen hängen im Feld „Dokumente“.",
         "- **Produkte** ist unsere Preisliste. Der Wert einer Verkaufschance ist die Summe ihrer Positionen: Menge mal Stückpreis. Vereinbarte Preise bleiben an der Position stehen.",
         "- Der **gewichtete Wert** ist der Wert mal der Wahrscheinlichkeit der Phase (Neu 10 %, Qualifiziert 25 %, Bedarfsanalyse 40 %, Angebot gesendet 60 %, Verhandlung 80 %). Er hilft beim Vergleichen von Verkaufschancen und ist keine Vorhersage.",
         "- Der **Verkaufszyklus** wird vom Erstkontakt bis zum erwarteten Abschluss berechnet.",
-        "- **Nächster Schritt** und **Datum nächster Schritt** sind normale Felder, ebenso das Fälligkeitsdatum der **Aufgaben**. Niemand wird automatisch benachrichtigt: Jeden Morgen die Ansichten „Nächste Schritte“ und „Bald fällige Aufgaben“ prüfen.",
+        "- **Nächster Schritt** und **Datum nächster Schritt** sind normale Felder, ebenso das Fälligkeitsdatum der **Aufgaben**. Niemand wird automatisch benachrichtigt: Jeden Morgen die Ansichten „Nächste Schritte“ und „Bald fällige Aufgaben“ prüfen. Besichtigungen und Druckluftmessungen haben einen Termin vor Ort und erscheinen im Kalender „Termine vor Ort“.",
         "- Eine E-Mail gehört nur dann zu einer Verkaufschance oder einem Firmenkunden, wenn jemand sie dort verknüpft.",
         "",
         "## Arbeitsregeln",
@@ -829,7 +1159,12 @@ const de: Strings = {
   },
   calendar: {
     name: "Kundentermine",
-    events: ["Angebotsbesprechung mit Korwin Präzisionsteile", "Telefonat zur Verlängerung mit Weißkamp"],
+    events: [
+      "Angebotsbesprechung mit Korwin Präzisionsteile",
+      "Telefonat zur Verlängerung mit Weißkamp",
+      "Luftbedarfsmessung bei Bäckerei Eschenbach",
+      "Besichtigung bei Nordtor Getränkeabfüllung",
+    ],
   },
   members: {
     colleagueA: ["Lena", "Vogel"],
@@ -857,6 +1192,65 @@ const de: Strings = {
         "Aufgabe Vertriebsbericht angelegt: Reinraum-Druckluft bei Ostbrück ist in Verhandlung, keine Verkaufschance ging verloren.",
       ],
     },
+  },
+  files: {
+    quote: {
+      title: "Angebot",
+      preparedFor: "Weserluft Drucklufttechnik für",
+      lineItems: "Positionen",
+      columns: ["Produkt", "Menge", "Einzelpreis", "Betrag"],
+      total: "Summe",
+      notes: "Hinweise",
+      terms:
+        "Alle Preise zzgl. Fracht und MwSt. Lieferung innerhalb von sechs Wochen nach Auftrag; das Angebot gilt 30 Tage.",
+    },
+    quotes: {
+      haldenCompressor: [
+        "A-2026-0412",
+        "Angebot A-2026-0412 – Kompressoren Linie 2 Haldenwerk.pdf",
+        "Zwei drehzahlgeregelte Schraubenkompressoren für Linie 2 und ein Kältetrockner, ausgelegt für beide. Installation an einem Wochenende, während Linie 2 stillsteht; die finale Zeichnung des Kompressorraums folgt separat.",
+      ],
+      corwinDryers: [
+        "A-2026-0398",
+        "Angebot A-2026-0398 – Kältetrockner Korwin Präzisionsteile.pdf",
+        "Zwei Kältetrockner. Die größere Baugröße reicht auch für einen dritten Kompressor, ohne dass die Leitungen geändert werden müssen.",
+      ],
+      eastbrookCleanAir: [
+        "A-2026-0405",
+        "Angebot A-2026-0405 – Reinraum-Druckluft Ostbrück.pdf",
+        "Ölfreier Kompressor mit zwei Adsorptionstrocknern für den Reinraum und einem Drucküberwachungs-Set. Filterstufe und Inbetriebnahme enthalten; die Prüfung der Luftqualität ist Teil der Inbetriebnahme.",
+      ],
+      redfernHeat: [
+        "A-2026-0371",
+        "Angebot A-2026-0371 – Wärmerückgewinnung Rotfeld.pdf",
+        "Zwei Wärmerückgewinnungsmodule, die die Abwärme der Kompressoren in den Heizkreis der Endmontage einspeisen.",
+      ],
+      brookfieldDryer: [
+        "A-2026-0389",
+        "Angebot A-2026-0389 – Adsorptionstrockner Bachfeld.pdf",
+        "Adsorptionstrockner für die Lackiererei: Ein Kältetrockner erreicht den Taupunkt nicht, den die Pulverbeschichtung braucht. Inklusive Drucküberwachungs-Set.",
+      ],
+    },
+    audit: {
+      name: "Druckluftmessung – Haldenwerk.xlsx",
+      rows: [
+        ["Messpunkt", "Druck (bar)", "Volumenstrom (m³/min)", "Laufzeit pro Woche (h)", "Hinweis"],
+        ["Kompressor Linie 1", 7.0, 5.9, 118, "Drehzahlgeregelt, seit letztem Jahr"],
+        ["Kompressor Linie 2 (alt)", 7.4, 6.9, 136, "Festdrehzahl, 30 % der Zeit im Leerlauf"],
+        ["Kältetrockner Linie 1", 6.9, 5.8, 118, "Taupunkt stabil"],
+        ["Kältetrockner Linie 2", 7.2, 6.8, 136, "Zu klein für die neuen Kompressoren"],
+        ["Ende Hauptleitung", 6.3, "", "", "Druckabfall 0,7 bar"],
+        ["Leckagetest am Wochenende", 6.5, 1.1, "", "Rund 15 % des Bedarfs sind Leckagen"],
+      ],
+    },
+  },
+  trash: ["Peter Lorenz (Duplikat)", "Fahrenholz Textil – Leckageortung"],
+  mateChat: {
+    title: "Welche Verkaufschancen schließen diesen Monat ohne nächsten Schritt?",
+    messages: [
+      "Welche Verkaufschancen schließen diesen Monat ohne nächsten Schritt?",
+      "Zwei offene Verkaufschancen mit erwartetem Abschluss um diese Zeit haben keinen aktuellen nächsten Schritt:\n\n| Verkaufschance | Phase | Wert | Datum nächster Schritt |\n| --- | --- | --- | --- |\n| Bachfeld Beschichtungen – Adsorptionstrockner für die Lackiererei | Angebot gesendet | 17.400 € | seit zwei Tagen überfällig |\n| Rotfeld Möbelwerkstätten – Wärmerückgewinnung | Angebot gesendet | 23.000 € | nicht gesetzt |\n\nBeide erwarteten Abschlusstermine liegen vier Tage zurück, also braucht entweder das Datum oder die Phase ein Update. Lena betreut Bachfeld und wartet auf Frau Wolff; Jonas betreut Rotfeld, wo Frau Engel seit dem Angebot nicht geantwortet hat. Ich würde zuerst Frau Engel anrufen und nach beiden Telefonaten neue Abschlusstermine setzen. Alle anderen Verkaufschancen mit Abschluss in den nächsten vier Wochen haben einen datierten nächsten Schritt.",
+    ],
   },
 };
 
@@ -1032,7 +1426,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     ],
     competitor: "nordwind",
     createdDaysAgo: 90,
-    close: 14,
+    close: 10,
     next: 3,
     history: [
       { daysAgo: 75, stage: "qualified" },
@@ -1058,7 +1452,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     source: "existing",
     lines: [["monitoringKit", 3]],
     createdDaysAgo: 20,
-    close: 40,
+    close: 22,
     next: 12,
     history: [
       { daysAgo: 14, stage: "qualified" },
@@ -1073,7 +1467,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     lines: [["dryerRefrigerated", 2]],
     competitor: "kessler",
     createdDaysAgo: 70,
-    close: 30,
+    close: 17,
     next: 5,
     history: [
       { daysAgo: 55, stage: "qualified" },
@@ -1092,7 +1486,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     ],
     competitor: "pneumatec",
     createdDaysAgo: 35,
-    close: 45,
+    close: -12,
     next: 6,
     history: [
       { daysAgo: 22, stage: "qualified" },
@@ -1106,7 +1500,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     source: "existing",
     lines: [["serviceContract", 2]],
     createdDaysAgo: 30,
-    close: 15,
+    close: 6,
     next: 3,
     history: [
       { daysAgo: 24, stage: "qualified" },
@@ -1123,7 +1517,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
       ["heatRecovery", 1],
     ],
     createdDaysAgo: 18,
-    close: 60,
+    close: 10,
     next: 7,
     history: [{ daysAgo: 6, stage: "qualified" }],
   },
@@ -1157,7 +1551,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     source: "referral",
     lines: [["serviceContract", 1]],
     createdDaysAgo: 2,
-    close: 70,
+    close: 25,
     next: 10,
   },
   stoneleighOilFree: {
@@ -1167,7 +1561,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     source: "referral",
     lines: [["compressorOilFree", 1]],
     createdDaysAgo: 28,
-    close: 45,
+    close: 17,
     next: 8,
     history: [
       { daysAgo: 20, stage: "qualified" },
@@ -1181,8 +1575,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     source: "tradeShow",
     lines: [["heatRecovery", 2]],
     createdDaysAgo: 60,
-    close: 21,
-    next: 4,
+    close: -4,
     history: [
       { daysAgo: 45, stage: "qualified" },
       { daysAgo: 30, stage: "discovery" },
@@ -1212,7 +1605,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     ],
     competitor: "none",
     createdDaysAgo: 45,
-    close: 10,
+    close: 3,
     next: 1,
     history: [
       { daysAgo: 25, stage: "proposal" },
@@ -1226,7 +1619,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     source: "existing",
     lines: [["compressorVsd", 1]],
     createdDaysAgo: 25,
-    close: 50,
+    close: 24,
     next: 9,
     history: [{ daysAgo: 15, stage: "qualified" }],
   },
@@ -1250,8 +1643,8 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
       ["leakSurvey", 1],
     ],
     createdDaysAgo: 40,
-    close: 18,
-    next: 6,
+    close: 6,
+    next: 4,
     history: [
       { daysAgo: 25, stage: "qualified" },
       { daysAgo: 7, stage: "discovery" },
@@ -1289,7 +1682,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     ],
     competitor: "pneumatec",
     createdDaysAgo: 110,
-    close: 25,
+    close: -8,
     next: 2,
     history: [
       { daysAgo: 95, stage: "qualified" },
@@ -1367,7 +1760,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     source: "existing",
     lines: [["monitoringKit", 2]],
     createdDaysAgo: 5,
-    close: 80,
+    close: 21,
     next: 6,
   },
   marlowService: {
@@ -1387,7 +1780,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     source: "tradeShow",
     lines: [["compressorOilFree", 1]],
     createdDaysAgo: 16,
-    close: 55,
+    close: 20,
     next: 3,
     history: [{ daysAgo: 7, stage: "qualified" }],
   },
@@ -1402,7 +1795,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     ],
     competitor: "kessler",
     createdDaysAgo: 48,
-    close: 20,
+    close: -4,
     next: -2,
     history: [
       { daysAgo: 38, stage: "qualified" },
@@ -1423,6 +1816,8 @@ const TASK_FACTS: Record<
     contact?: ContactKey;
     createdDaysAgo: number;
     done?: number;
+    /** A site survey or air audit: story day, local start time and length in minutes. */
+    visit?: [number, string, number];
   }
 > = {
   haldenSchedule: {
@@ -1440,6 +1835,7 @@ const TASK_FACTS: Record<
     deal: "corwinDryers",
     contact: "peter",
     createdDaysAgo: 3,
+    visit: [4, "10:00", 60],
   },
   stoneleighMeasure: {
     status: "open",
@@ -1448,6 +1844,7 @@ const TASK_FACTS: Record<
     deal: "stoneleighOilFree",
     contact: "sam",
     createdDaysAgo: 5,
+    visit: [8, "07:00", 180],
   },
   whitcombeTerms: {
     status: "inProgress",
@@ -1473,6 +1870,7 @@ const TASK_FACTS: Record<
     contact: "nina",
     createdDaysAgo: 10,
     done: 5,
+    visit: [-4, "09:00", 120],
   },
   marlowSensors: {
     status: "open",
@@ -1481,6 +1879,7 @@ const TASK_FACTS: Record<
     deal: "marlowMonitoring",
     contact: "helen",
     createdDaysAgo: 4,
+    visit: [5, "10:00", 90],
   },
   haldenHandover: {
     status: "done",
@@ -1490,6 +1889,7 @@ const TASK_FACTS: Record<
     contact: "tom",
     createdDaysAgo: 12,
     done: 9,
+    visit: [-8, "14:00", 60],
   },
   redfernFollowUp: {
     status: "open",
@@ -1506,6 +1906,7 @@ const TASK_FACTS: Record<
     deal: "pembertonCompressor",
     contact: "george",
     createdDaysAgo: 2,
+    visit: [-1, "13:00", 90],
   },
   castlefordDebrief: {
     status: "done",
@@ -1517,6 +1918,24 @@ const TASK_FACTS: Record<
     done: 53,
   },
   tradeShowList: { status: "open", priority: "low", due: 14, createdDaysAgo: 9 },
+  ashbySurvey: {
+    status: "open",
+    priority: "high",
+    due: 2,
+    deal: "ashbyOilFree",
+    contact: "karen",
+    createdDaysAgo: 3,
+    visit: [2, "05:30", 150],
+  },
+  northgateSurvey: {
+    status: "open",
+    priority: "medium",
+    due: 11,
+    deal: "northgateCompressor",
+    contact: "owen",
+    createdDaysAgo: 2,
+    visit: [11, "09:00", 120],
+  },
 };
 
 function mailbox(name: string): string {
@@ -1554,14 +1973,14 @@ export default defineSolution<Strings>({
 
     const organization: RecordSpec[] = ORGANIZATIONS.map((key) => {
       const facts = ORGANIZATION_FACTS[key];
-      const [name, city] = t.organizations[key];
+      const [name] = t.organizations[key];
       return {
         key,
         values: {
           name,
           industry: facts.industry,
           customerStatus: facts.status,
-          city,
+          address: t.addresses[key],
           website: `https://${facts.domain}`,
           employees: facts.employees,
         },
@@ -1626,7 +2045,13 @@ export default defineSolution<Strings>({
       const organizationKey = organizationOf(facts);
       return {
         key,
-        values: { name: t.tasks[key], status: facts.status, priority: facts.priority, dueDate: day(facts.due) },
+        values: {
+          name: t.tasks[key],
+          status: facts.status,
+          priority: facts.priority,
+          dueDate: day(facts.due),
+          ...(facts.visit ? { scheduled: rangeAt(...facts.visit) } : {}),
+        },
         links: {
           ...(facts.deal ? { "task.deals": facts.deal } : {}),
           ...(organizationKey ? { "task.organizations": organizationKey } : {}),
@@ -1647,6 +2072,35 @@ export default defineSolution<Strings>({
       };
     };
     const halden = thread("haldenSchedule", "tom", "haldenCompressor");
+    const quote = (key: keyof Strings["files"]["quotes"], uploadedDaysAgo: number): FileSpec => {
+      const [number, name, note] = t.files.quotes[key];
+      const facts = DEAL_FACTS[key];
+      const q = t.files.quote;
+      const amounts = facts.lines.map(([product, quantity]) => PRODUCT_PRICES[product] * quantity);
+      return {
+        key: `quote-${key}`,
+        record: `deal:${key}`,
+        field: "deal.documents",
+        name,
+        kind: "pdf",
+        lines: [
+          `# ${q.title} ${number}`,
+          `${q.preparedFor} ${t.organizations[facts.organization][0]}, ${t.addresses[facts.organization].city}`,
+          `## ${q.lineItems}`,
+          `| ${q.columns.join(" | ")} |`,
+          ...facts.lines.map(
+            ([product, quantity], index) =>
+              `| ${t.products[product]} | ${quantity} | ${t.money(PRODUCT_PRICES[product])} | ${t.money(amounts[index])} |`,
+          ),
+          `| ${q.total} | | | ${t.money(amounts.reduce((sum, amount) => sum + amount, 0))} |`,
+          `## ${q.notes}`,
+          note,
+          q.terms,
+        ],
+        uploadedDaysAgo,
+        by: ACCOUNT_OWNERS[facts.organization],
+      };
+    };
 
     return {
       workspaceName: t.workspaceName,
@@ -1683,7 +2137,7 @@ export default defineSolution<Strings>({
           type: "select",
           options: label(t.options.customerStatus, { prospect: "info", customer: "success" }),
         },
-        { key: "organization.city", label: t.fields.city, type: "text" },
+        { key: "organization.address", label: t.fields.address, type: "address" },
         { key: "organization.website", label: t.fields.website, type: "url" },
         { key: "organization.employees", label: t.fields.employees, type: "number" },
         { key: "contact.jobTitle", label: t.fields.jobTitle, type: "text" },
@@ -1708,6 +2162,7 @@ export default defineSolution<Strings>({
         },
         { key: "deal.nextStep", label: t.fields.nextStep, type: "text" },
         { key: "deal.nextStepDate", label: t.fields.nextStepDate, type: "date" },
+        { key: "deal.documents", label: t.fields.documents, type: "file" },
         {
           key: "deal.source",
           label: t.fields.source,
@@ -1743,6 +2198,7 @@ export default defineSolution<Strings>({
           }),
         },
         { key: "task.dueDate", label: t.fields.dueDate, type: "date" },
+        { key: "task.scheduled", label: t.fields.scheduled, type: "dateTimeRange" },
         {
           key: "task.priority",
           label: t.fields.priority,
@@ -1812,7 +2268,7 @@ export default defineSolution<Strings>({
           columns: [
             "customerStatus",
             "industry",
-            "city",
+            "address",
             "employees",
             "contact.organizations",
             "deal.organizations",
@@ -1843,6 +2299,23 @@ export default defineSolution<Strings>({
           columns: ["dueDate", "status", "priority", "task.deals", "task.organizations", "system:assignedTo"],
           filters: [{ field: "status", notIn: ["done", "archived"] }],
           sort: { field: "dueDate", direction: "asc" },
+        },
+        {
+          key: "siteVisits",
+          list: "task",
+          name: t.views.siteVisits,
+          mode: "calendar",
+          calendar: { date: "scheduled", color: "priority", mode: "week" },
+          columns: ["status", "priority", "task.deals", "system:assignedTo"],
+        },
+        {
+          key: "closeCalendar",
+          list: "deal",
+          name: t.views.closeCalendar,
+          mode: "calendar",
+          calendar: { date: "closeDate", color: "stage", mode: "month" },
+          columns: ["totalValue", "deal.organizations", "system:assignedTo"],
+          filters: [{ field: "stage", in: open }],
         },
       ],
       dashboard: {
@@ -1899,13 +2372,13 @@ export default defineSolution<Strings>({
             filters: [{ field: "stage", in: open }],
           },
           {
-            kind: "chart",
-            title: t.widgets.lostReasons,
-            display: DisplayType.doughnutChart,
+            kind: "calendar",
+            title: t.widgets.closingThisMonth,
             list: "deal",
-            aggregation: "count",
-            groupBy: { field: "lostReason" },
-            filters: [{ field: "stage", in: ["lost"] }],
+            layout: "month",
+            date: "closeDate",
+            amount: "totalValue",
+            filters: [{ field: "stage", in: open }],
           },
           {
             kind: "chart",
@@ -1918,14 +2391,13 @@ export default defineSolution<Strings>({
             filters: wonLastYear,
           },
           {
-            kind: "chart",
-            title: t.widgets.topAccounts,
-            display: DisplayType.rankedTable,
-            list: "deal",
-            aggregation: "sum",
-            field: "totalValue",
-            groupBy: { relation: "deal.organizations" },
-            filters: wonLastYear,
+            kind: "map",
+            title: t.widgets.accountsMap,
+            list: "organization",
+            address: "address",
+            color: "customerStatus",
+            size: "employees",
+            detail: "industry",
           },
         ],
       },
@@ -1940,6 +2412,45 @@ export default defineSolution<Strings>({
           markdown: t.wiki.siteVisit.markdown,
         },
         { key: "discounts", kind: "knowledge", title: t.wiki.discounts.title, markdown: t.wiki.discounts.markdown },
+      ],
+      files: [
+        quote("haldenCompressor", 9),
+        quote("corwinDryers", 6),
+        quote("eastbrookCleanAir", 12),
+        quote("redfernHeat", 10),
+        quote("brookfieldDryer", 11),
+        {
+          key: "haldenAudit",
+          record: "deal:haldenCompressor",
+          field: "deal.documents",
+          name: t.files.audit.name,
+          kind: "xlsx",
+          rows: t.files.audit.rows,
+          uploadedDaysAgo: 52,
+          by: "colleagueA",
+        },
+      ],
+      planner: {
+        sources: [
+          { list: "task", date: "scheduled", color: "secondary" },
+          { list: "deal", date: "closeDate", filters: [{ field: "stage", in: open }], color: "success" },
+        ],
+        connectedCalendar: true,
+        mode: "week",
+      },
+      trash: [
+        { list: "contact", name: t.trash[0], daysAgo: 5 },
+        { list: "deal", name: t.trash[1], daysAgo: 13 },
+      ],
+      mateChats: [
+        {
+          title: t.mateChat.title,
+          endedHoursAgo: 4,
+          messages: t.mateChat.messages.map((text, index) => ({
+            role: index % 2 === 0 ? ("user" as const) : ("assistant" as const),
+            text,
+          })),
+        },
       ],
       messaging: {
         accounts: ["google"],
@@ -2004,6 +2515,18 @@ export default defineSolution<Strings>({
               with: ["diane", "paul"],
               startsMinutesAgo: -4 * 24 * 60,
               durationMinutes: 45,
+            },
+            {
+              title: t.calendar.events[2],
+              with: ["karen", "mike"],
+              startsMinutesAgo: -(24 * 60 - 90),
+              durationMinutes: 150,
+            },
+            {
+              title: t.calendar.events[3],
+              with: ["owen"],
+              startsMinutesAgo: -6 * 24 * 60,
+              durationMinutes: 120,
             },
           ],
         },
