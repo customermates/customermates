@@ -33,7 +33,7 @@ test("shows a relationship's linked records in a drawer table and opens them or 
   await expect(drawer.getByRole("heading", { name: "Deals", exact: true })).toBeVisible();
   await expect(drawer).toContainText("30 records linked to Drawer organization");
   await expect(drawer).toContainText("30 records");
-  await expect(linkedRecordOpeners(drawer)).toHaveCount(10);
+  await expect(linkedRecordOpeners(drawer)).toHaveCount(25);
   await page.screenshot({ path: testInfo.outputPath("linked-records-drawer.png"), animations: "disabled" });
   if (!isMobile) {
     const firstLink = drawer.locator('a[data-slot="data-row-open"]').first();
@@ -50,6 +50,6 @@ test("shows a relationship's linked records in a drawer table and opens them or 
   await drawer.getByRole("link", { name: "Open list", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/records/${dealTypeId}\\?`));
   await expect(drawer).toHaveCount(0);
-  await expect(page.getByText(isMobile ? /of 30/ : "1-30 of 30")).toBeVisible();
+  await expect(page.getByText(isMobile ? /of 30/ : "1-25 of 30")).toBeVisible();
   expect(errors).toEqual([]);
 });

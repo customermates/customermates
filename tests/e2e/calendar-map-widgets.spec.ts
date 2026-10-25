@@ -82,7 +82,10 @@ test("the calendar widgets list upcoming records and open a day of the month ove
   await expect(drawer.locator("[data-linked-records-summary]")).toHaveText(
     `Deals closing this month · ${count} contributing record${count === "1" ? "" : "s"}`,
   );
-  await expect(drawer.locator("[data-linked-records-table] [data-row-id]")).toHaveCount(Math.min(Number(count), 10));
+  await expect(drawer.locator("[data-linked-records-table] [data-row-id]")).toHaveCount(Math.min(Number(count), 25));
+  const preview = drawer.locator('[data-widget-detail-chart] [data-calendar-layout="month"]');
+  await expect(preview).toBeVisible();
+  await expect(preview.locator(`[data-calendar-day]:not([data-heat="0"])`).first()).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(drawer).toHaveCount(0);
   await expect(busyDay).toBeFocused();

@@ -4,10 +4,11 @@ import { FilterSchema } from "@/core/base/base-get.schema";
 import { FilterOperatorKey, ViewMode } from "../base/base-query-builder";
 import { decodeGroupingToken, encodeGroupingToken } from "../base/grouping/grouping.schema";
 import { normalizeFilterInput } from "../base/filter-value";
+import { DATA_VIEW_PAGE_SIZES, DEFAULT_DATA_VIEW_PAGE_SIZE } from "../data-view/data-view-state.schema";
 
 const DEFAULT_PAGE = 1;
-const DEFAULT_PAGE_SIZE = 25;
-const VALID_PAGE_SIZES = [5, 10, 25, 100];
+const DEFAULT_PAGE_SIZE = DEFAULT_DATA_VIEW_PAGE_SIZE;
+const VALID_PAGE_SIZES: readonly number[] = DATA_VIEW_PAGE_SIZES;
 const JSON_LIST_PREFIX = "json:";
 
 export const GET_PARAM_KEYS = [

@@ -96,8 +96,8 @@ test("a service lists the deals that sell it and explains the full path in the i
   await expect(drawer).toContainText(`${deals.size} records`);
   const drawerRows = linkedRecordOpeners(drawer);
   const seen: string[] = [];
-  for (let index = 0; index < Math.ceil(deals.size / 10); index++) {
-    await expect(drawerRows).toHaveCount(Math.min(10, deals.size - index * 10));
+  for (let index = 0; index < Math.ceil(deals.size / 25); index++) {
+    await expect(drawerRows).toHaveCount(Math.min(25, deals.size - index * 25));
     const names = await linkedRecordNames(drawer);
     seen.push(...names);
     if (seen.length < deals.size) {

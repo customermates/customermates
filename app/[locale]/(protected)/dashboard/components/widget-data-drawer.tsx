@@ -24,6 +24,8 @@ import { calendarWidgetDayMeasure } from "@/features/widget/record-calendar-widg
 import { getWidgetByIdAction } from "../actions";
 import { openWidgetEditor } from "./widget-interaction";
 import { RecordWidgetChart } from "./record-widget-chart";
+import { CalendarWidgetMonth } from "./calendar-widget-month";
+import { readCalendarWindow } from "./widget-card";
 
 export type WidgetDataSelection =
   | {
@@ -42,23 +44,26 @@ export type WidgetDataSelection =
     };
 
 const LEAD_HEIGHT_CLASS: Partial<Record<DisplayType, string>> = {
-  [DisplayType.number]: "h-24",
   [DisplayType.rankedTable]: "max-h-64",
 };
+
+const LEAD_FRAME_CLASS = "flex shrink-0 flex-col px-6 pb-4";
 
 export function WidgetDataDrawer({
   open,
   selection,
   onClose,
   onSelect,
+  onSelectDay,
 }: {
   open: boolean;
   selection: WidgetDataSelection;
   onClose: () => void;
   onSelect: (group: RecordContributionGroup | null, label: string | null) => void;
+  onSelectDay: (date: CalendarDate, label: string) => void;
 }) {
   return selection.kind === "calendarDay" ? (
-    <CalendarDayDataDrawer open={open} selection={selection} onClose={onClose} />
+    <CalendarDayDataDrawer open={open} selection={selection} onClose={onClose} onSelectDay={onSelectDay} />
   ) : (
     <MeasureDataDrawer open={open} selection={selection} onClose={onClose} onSelect={onSelect} />
   );
@@ -88,10 +93,12 @@ function CalendarDayDataDrawer({
   open,
   selection,
   onClose,
+  onSelectDay,
 }: {
   open: boolean;
   selection: Extract<WidgetDataSelection, { kind: "calendarDay" }>;
   onClose: () => void;
+  onSelectDay: (date: CalendarDate, label: string) => void;
 }) {
   const t = useTranslations();
   const count = useRecordCount();
@@ -114,10 +121,27 @@ function CalendarDayDataDrawer({
   }, [query, dateField, date, widget.name, label]);
   return (
     <ScopedRecordsSheet
+      persistAppearance
       actions={[editAction]}
       emptyTitle={t("Diagrams.noData")}
       filter={filter}
       idPrefix="widget-data"
+      lead={
+        query.layout === "month" ? (
+          <div className={cn(LEAD_FRAME_CLASS, "h-72")} data-widget-detail-chart="">
+            {widget.status === "ready" && widget.data ? (
+              <CalendarWidgetMonth
+                data={widget.data}
+                loadWindow={(window) => readCalendarWindow(widget.id, window)}
+                query={query}
+                onSelectDay={(day, dayLabel) => onSelectDay(day, dayLabel)}
+              />
+            ) : (
+              <PageState state="error" title={t("RecordCalendarWidgets.unavailable")} />
+            )}
+          </div>
+        ) : undefined
+      }
       open={open}
       opener={selection.opener}
       summary={(store) => [widget.name, count(store)].filter(Boolean).join(" · ")}
@@ -173,24 +197,24 @@ function MeasureDataDrawer({
   }, [widget.measure, widget.name, group, label]);
   return (
     <ScopedRecordsSheet
+      persistAppearance
       actions={[editAction]}
       emptyTitle={t("Diagrams.noData")}
       filter={filter}
       idPrefix="widget-data"
       lead={
-        <div
-          className={cn(
-            "flex shrink-0 flex-col px-6 pb-4",
-            LEAD_HEIGHT_CLASS[widget.displayOptions.displayType] ?? "h-56",
-          )}
-          data-widget-detail-chart=""
-        >
-          {chartFailed ? (
-            <PageState state="error" title={t("RecordWidgets.unavailable")} />
-          ) : (
-            <RecordWidgetChart {...widget} embedded onInspectGroup={onSelect} />
-          )}
-        </div>
+        widget.displayOptions.displayType === DisplayType.number ? undefined : (
+          <div
+            className={cn(LEAD_FRAME_CLASS, LEAD_HEIGHT_CLASS[widget.displayOptions.displayType] ?? "h-56")}
+            data-widget-detail-chart=""
+          >
+            {chartFailed ? (
+              <PageState state="error" title={t("RecordWidgets.unavailable")} />
+            ) : (
+              <RecordWidgetChart {...widget} embedded onInspectGroup={onSelect} />
+            )}
+          </div>
+        )
       }
       open={open}
       opener={selection.opener}

@@ -36,7 +36,7 @@ type Props = {
   onInspectDay?: CalendarDaySelect;
 };
 
-async function readCalendarWindow(id: string, window: CalendarWidgetWindow) {
+export async function readCalendarWindow(id: string, window: CalendarWidgetWindow) {
   const result = await readCalendarWidgetWindowAction(id, window);
   if (!result.ok) notifyIfWorkspaceChanged(result);
   if (!result.ok || !isRecordCalendarWidget(result.data) || !result.data.data)

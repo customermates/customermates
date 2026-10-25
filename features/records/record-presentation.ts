@@ -30,6 +30,7 @@ import { recordFilterOperators } from "./record-filter";
 import { RecordQuerySchema } from "./record-query.schema";
 import { unwindFailure } from "@/core/validation/failure-unwind";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { DEFAULT_DATA_VIEW_PAGE_SIZE } from "@/core/data-view/data-view-state.schema";
 import { selectedOptionIds } from "./record-model-validation";
 import type { RecordRelationshipPath } from "./record-relationship-path.schema";
 
@@ -154,6 +155,7 @@ export function recordDefaults(
     viewMode: ViewMode.table,
     grouping: null,
     sortDescriptor: null,
+    pageSize: DEFAULT_DATA_VIEW_PAGE_SIZE,
   };
 }
 export function filterScalar(

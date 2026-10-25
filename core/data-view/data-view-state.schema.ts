@@ -14,6 +14,8 @@ export { SurfaceKeySchema, ViewKeySchema, type ViewKey } from "./data-view-ident
 
 export const DATA_VIEW_PAGE_SIZES = [5, 10, 25, 100] as const;
 
+export const DEFAULT_DATA_VIEW_PAGE_SIZE = 25;
+
 export const DataViewPageSizeSchema = z.union([z.literal(5), z.literal(10), z.literal(25), z.literal(100)]);
 
 function dropUndefinedKeys<T extends Record<string, unknown>>(value: T): T {

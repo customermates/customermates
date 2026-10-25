@@ -9,6 +9,7 @@ import { PermissionService } from "@/core/base/permission.service";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
+import { EMBEDDED_PAGE_SIZE } from "@/features/records/embedded-sublist";
 
 vi.mock("@/env", () => ({
   env: {
@@ -140,13 +141,16 @@ describeDatabase("record editor embedded sub-lists", { timeout: 120_000 }, () =>
       parent(deal),
       { relationId: f.id("lineItem.service"), direction: "outgoing" as const, record: service },
     ];
-    for (let index = 0; index < 11; index++) await f.create("lineItem", `Line ${index}`, links);
+    for (let index = 0; index <= EMBEDDED_PAGE_SIZE; index++) await f.create("lineItem", `Line ${index}`, links);
 
     const forAdmin = await f.run(() => f.editor.invoke(deal));
     if (!forAdmin.ok) throw new Error("The admin could not read the deal");
     const page = forAdmin.data.embedded?.[lineItem];
-    expect(page).toMatchObject({ columns: null, rows: { total: 11, page: 1, pageSize: 10 } });
-    expect(page?.rows.records).toHaveLength(10);
+    expect(page).toMatchObject({
+      columns: null,
+      rows: { total: EMBEDDED_PAGE_SIZE + 1, page: 1, pageSize: EMBEDDED_PAGE_SIZE },
+    });
+    expect(page?.rows.records).toHaveLength(EMBEDDED_PAGE_SIZE);
     expect(page?.totals.length).toBeGreaterThan(0);
     expect(
       page?.rows.records.every((record) =>
