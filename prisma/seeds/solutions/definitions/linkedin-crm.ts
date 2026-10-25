@@ -1,6 +1,6 @@
 import { DisplayType } from "@/features/widget/widget-display.schema";
 
-import { day, defineSolution, photo, type RecordSpec } from "../define-solution";
+import { address, day, defineSolution, photo, rangeAt, type FileSpec, type RecordSpec } from "../define-solution";
 
 /**
  * LinkedIn conversations in your CRM relationship context: a small company that sells security awareness training to
@@ -111,7 +111,7 @@ const en = {
     lastLinkedinChat: "Last LinkedIn conversation",
     conversationStatus: "Connection status",
     industry: "Industry",
-    city: "City",
+    address: "Address",
     website: "Website",
     employees: "Employees",
     opportunityValue: "Opportunity value",
@@ -120,6 +120,8 @@ const en = {
     nextStep: "Next step",
     nextStepDate: "Next step date",
     lostReason: "Lost reason",
+    trainingSessions: "Training sessions",
+    proposal: "Proposal",
     dueDate: "Due date",
     priority: "Priority",
   },
@@ -251,17 +253,18 @@ const en = {
     pipeline: "Pipeline",
     nextSteps: "Next steps",
     dueSoon: "Due soon",
+    trainingCalendar: "Training calendar",
   },
   widgets: {
     openPipeline: "Open pipeline",
     won: "Won in the last 12 months",
     recentChats: "Chatted in the last 7 days",
-    overdueTasks: "Overdue tasks",
+    meetingsBooked: "Meetings booked",
     byStatus: "Prospects by connection status",
     byHowWeMet: "Prospects by how we met",
     byStage: "Pipeline by stage",
     wonByMonth: "Won value by month",
-    topClients: "Top clients by won value",
+    latestChats: "Latest LinkedIn conversations",
   },
   wiki: {
     guide: {
@@ -273,6 +276,7 @@ const en = {
         "- **Prospects** are the people we talk to. Each one shows how we met, the connection status and the date of the last LinkedIn conversation. The board Prospects by connection status shows who we are connected with, who we wrote to, who replied and who has a meeting.",
         "- **Companies** are the companies they work for; the opportunity value adds up the value of all their opportunities. **Opportunities** are trainings and programs we are discussing; the stage shows where the conversation is and the value is entered by hand.",
         "- **Tasks** and the next step date on an opportunity are ordinary fields. Nobody is reminded automatically, so check the Next steps and Due soon views every morning.",
+        "- Training sessions show in the Training calendar, proposals sit as files on the opportunity, and calls booked from LinkedIn go into Max's Google calendar.",
         "",
         "## LinkedIn conversations",
         "- The conversations come from Max's own connected LinkedIn account: what Max sent and received there, next to his email.",
@@ -401,6 +405,95 @@ const en = {
       ],
     },
   },
+  countryCode: "gb",
+  addresses: {
+    hollis: ["14 Pontefract Lane", "LS9 8AA", "West Yorkshire", 53.7961, -1.5163],
+    marlow: ["22 Victoria Street", "BS1 6AA", "Bristol", 51.4527, -2.5867],
+    cedarline: ["8 Norfolk Street", "S1 2HE", "South Yorkshire", 53.3803, -1.4672],
+    brightford: ["Unit 3, Sandy Lane", "CV1 4DX", "West Midlands", 52.4192, -1.5123],
+    quayside: ["5 Water Street", "L2 0RG", "Merseyside", 53.4056, -2.9935],
+    ashcombe: ["31 Pride Park Way", "DE24 8AA", "Derbyshire", 52.9152, -1.4508],
+    tidewell: ["40 Bargate Street", "SO14 1HF", "Hampshire", 50.9045, -1.4049],
+    kingsgate: ["17 Castle Boulevard", "NG7 1FB", "Nottinghamshire", 52.9476, -1.1555],
+    fenwick: ["9 Micklegate", "YO1 6JH", "North Yorkshire", 53.9568, -1.0866],
+    larchmont: ["60 Trafford Wharf Road", "M17 1AA", "Greater Manchester", 53.4681, -2.2965],
+    northmere: ["2 Grey Street", "NE1 6AE", "Tyne and Wear", 54.9714, -1.6114],
+    whitcombe: ["12 Prince of Wales Road", "NR1 1LB", "Norfolk", 52.6289, 1.3002],
+  } satisfies Record<OrganizationKey, readonly [string, string, string, number, number]>,
+  files: {
+    hollisProposal: {
+      name: "Proposal – Hollis Freight annual program.pdf",
+      lines: [
+        "# Proposal: annual awareness program for Hollis Freight",
+        "Prepared for Rachel Dawson and Simon Pryce. Twelve months of short modules for drivers, warehouse and office teams, with a quarterly phishing exercise.",
+        "## Plan",
+        "| Month | What happens |",
+        "| 1 | Drivers and warehouse: modules on shared tablets |",
+        "| 2 | Office teams join; first team briefing session |",
+        "| 3 | First phishing exercise and a one-page board summary with the click rate |",
+        "## Price",
+        "| Item | Price |",
+        "| Annual awareness program, up to 420 staff | £18,400 |",
+        "We report the click rate and the reporting rate after every exercise.",
+      ],
+    },
+    ashcombeProposal: {
+      name: "Proposal – Ashcombe Engineering three sites.pdf",
+      lines: [
+        "# Proposal: annual program for Ashcombe Engineering",
+        "Three sites, reports split by site, modules in English and Polish for the plant.",
+        "## Scope",
+        "| Site | Staff | Language |",
+        "| Derby head office | 120 | English |",
+        "| Derby plant | 110 | English and Polish |",
+        "| Burton workshop | 50 | English |",
+        "## Price",
+        "| Item | Price |",
+        "| Annual program, three sites | £24,500 |",
+        "Each quarter, every site gets its own click rate and the trend since the baseline.",
+      ],
+    },
+    quaysideProposal: {
+      name: "Proposal – Quayside Legal partner workshop.pdf",
+      lines: [
+        "# Proposal: partner workshop for Quayside Legal",
+        "A half-day workshop at your office for up to twelve partners: how attackers target law firms, fake payment requests and safe ways to confirm them.",
+        "## Agenda",
+        "| Time | Topic |",
+        "| 14:00 | Real cases from law firms |",
+        "| 15:00 | Live phishing example and what the click rate tells you |",
+        "| 16:00 | Payment request checks for the whole firm |",
+        "## Price",
+        "| Item | Price |",
+        "| Partner workshop, half day | £4,800 |",
+      ],
+    },
+    northmereResults: {
+      name: "Phishing exercise results – Q3.csv",
+      rows: [
+        ["Department", "Emails sent", "Clicked", "Click rate", "Reported"],
+        ["Underwriting", 64, 5, "7.8%", 31],
+        ["Claims", 82, 9, "11.0%", 28],
+        ["Customer service", 58, 4, "6.9%", 33],
+        ["Finance", 21, 1, "4.8%", 14],
+        ["Total", 225, 19, "8.4%", 106],
+      ],
+    },
+  },
+  trash: { contact: "Kate Morrison (duplicate)", deal: "Fenwick Accountants – phishing exercises" },
+  mateChat: {
+    title: "LinkedIn replies without an opportunity",
+    messages: [
+      "Who replied on LinkedIn this week and has no opportunity yet?",
+      "Nine prospects had a LinkedIn conversation in the last 7 days. Seven of them are already on an opportunity. Two are not:\n\n- **Zoe Hartley**, People partner at Larchmont Logistics: last LinkedIn conversation 2 days ago, connection status Messaged. Larchmont already has the opportunity \"Larchmont Logistics – training for new starters\" (£15,800) with Kate Morrison and Paul Heston, so Zoe could be added there.\n- **Ivy Chandler**, Office manager at Quayside Legal: last LinkedIn conversation 4 days ago, connection status Messaged. Quayside's only opportunity, the partner workshop (£4,800), is won; a baseline training for the office could be a next opportunity.\n\nAlso note: Kate Morrison's LinkedIn conversation is still not linked to the Larchmont opportunity. Shall I create a task for each?",
+    ],
+  },
+  events: [
+    "Call with Claire Whitaker and Joe Harper (Marlow Insurance)",
+    "Call with Fiona Blake about the leadership workshop",
+    "Call with Martin Ashby and Priya Nair (Cedarline Health)",
+  ],
+  calendarName: "Calls",
 };
 
 type Strings = typeof en;
@@ -430,7 +523,7 @@ const de: Strings = {
     lastLinkedinChat: "Letztes LinkedIn-Gespräch",
     conversationStatus: "Verbindungsstatus",
     industry: "Branche",
-    city: "Ort",
+    address: "Adresse",
     website: "Website",
     employees: "Mitarbeitende",
     opportunityValue: "Wert der Verkaufschancen",
@@ -439,6 +532,8 @@ const de: Strings = {
     nextStep: "Nächster Schritt",
     nextStepDate: "Datum nächster Schritt",
     lostReason: "Verlustgrund",
+    trainingSessions: "Schulungstermine",
+    proposal: "Angebot und Ergebnisse",
     dueDate: "Fällig am",
     priority: "Priorität",
   },
@@ -570,17 +665,18 @@ const de: Strings = {
     pipeline: "Pipeline",
     nextSteps: "Nächste Schritte",
     dueSoon: "Bald fällig",
+    trainingCalendar: "Schulungskalender",
   },
   widgets: {
     openPipeline: "Offene Pipeline",
     won: "Gewonnen in 12 Monaten",
     recentChats: "Gespräche der letzten 7 Tage",
-    overdueTasks: "Überfällige Aufgaben",
+    meetingsBooked: "Vereinbarte Termine",
     byStatus: "Interessenten nach Verbindungsstatus",
     byHowWeMet: "Interessenten nach Kennenlernweg",
     byStage: "Pipeline nach Phase",
     wonByMonth: "Gewonnener Wert pro Monat",
-    topClients: "Top-Kunden nach gewonnenem Wert",
+    latestChats: "Neueste LinkedIn-Gespräche",
   },
   wiki: {
     guide: {
@@ -592,6 +688,7 @@ const de: Strings = {
         "- **Interessenten** sind die Menschen, mit denen wir sprechen. Bei jedem stehen der Kennenlernweg, der Verbindungsstatus und das Datum des letzten LinkedIn-Gesprächs. Das Board „Interessenten nach Verbindungsstatus“ zeigt, mit wem wir vernetzt sind, wen wir angeschrieben haben, wer geantwortet hat und mit wem ein Termin steht.",
         "- **Firmen** sind die Unternehmen, für die sie arbeiten; der Wert der Verkaufschancen summiert alle ihre Verkaufschancen. **Verkaufschancen** sind Schulungen und Programme, über die wir sprechen; die Phase zeigt den Stand des Gesprächs, den Wert tragen wir von Hand ein.",
         "- **Aufgaben** und das Datum des nächsten Schritts sind normale Felder. Niemand wird automatisch erinnert, deshalb jeden Morgen die Ansichten „Nächste Schritte“ und „Bald fällig“ prüfen.",
+        "- Schulungstermine stehen im Schulungskalender, Angebote als Dateien an der Verkaufschance; Termine aus LinkedIn in Max' Google-Kalender.",
         "",
         "## LinkedIn-Gespräche",
         "- Die Gespräche stammen aus Max' eigenem verbundenen LinkedIn-Konto: was Max dort gesendet und empfangen hat, neben seinen E-Mails.",
@@ -721,6 +818,95 @@ const de: Strings = {
       ],
     },
   },
+  countryCode: "de",
+  addresses: {
+    hollis: ["Am Speicher XI 4", "28217", "Bremen", 53.0929, 8.7678],
+    marlow: ["Ballindamm 17", "20095", "Hamburg", 53.5527, 9.9968],
+    cedarline: ["Mönchebergstraße 41", "34125", "Hessen", 51.3233, 9.5052],
+    brightford: ["Eckendorfer Straße 92", "33609", "Nordrhein-Westfalen", 52.0336, 8.5559],
+    quayside: ["Am Sandtorkai 50", "20457", "Hamburg", 53.5432, 9.9887],
+    ashcombe: ["Heilbronner Straße 86", "70191", "Baden-Württemberg", 48.7971, 9.1841],
+    tidewell: ["Breite Straße 29", "23552", "Schleswig-Holstein", 53.8686, 10.6866],
+    kingsgate: ["Königstraße 44", "30175", "Niedersachsen", 52.3755, 9.7477],
+    fenwick: ["Ludgeristraße 56", "48143", "Nordrhein-Westfalen", 51.96, 7.6286],
+    larchmont: ["Am Güterverkehrszentrum 6", "99092", "Thüringen", 50.9701, 10.9604],
+    northmere: ["Holstenstraße 52", "24103", "Schleswig-Holstein", 54.3216, 10.1326],
+    whitcombe: ["Prager Straße 120", "04317", "Sachsen", 51.3277, 12.4086],
+  },
+  files: {
+    hollisProposal: {
+      name: "Angebot – Jahresprogramm Hollmann Spedition.pdf",
+      lines: [
+        "# Angebot: Awareness-Jahresprogramm für die Hollmann Spedition",
+        "Für Rebecca Dreyer und Simon Pfeiffer. Zwölf Monate kurze Module für Fahrer, Lager und Büro, mit einer Phishing-Übung pro Quartal.",
+        "## Ablauf",
+        "| Monat | Inhalt |",
+        "| 1 | Fahrer und Lager: Module auf gemeinsam genutzten Tablets |",
+        "| 2 | Die Büroteams kommen dazu; erste Teambesprechung |",
+        "| 3 | Erste Phishing-Übung und eine Seite für die Geschäftsführung mit der Klickrate |",
+        "## Preis",
+        "| Position | Preis |",
+        "| Awareness-Jahresprogramm, bis 420 Mitarbeitende | 18.400 € |",
+        "Nach jeder Übung berichten wir die Klickrate (click rate) und die Melderate.",
+      ],
+    },
+    ashcombeProposal: {
+      name: "Angebot – Aschenbach Ingenieure drei Standorte.pdf",
+      lines: [
+        "# Angebot: Jahresprogramm für Aschenbach Ingenieure",
+        "Drei Standorte, Berichte je Standort, Module auf Deutsch und Polnisch für das Werk.",
+        "## Umfang",
+        "| Standort | Mitarbeitende | Sprache |",
+        "| Zentrale Stuttgart | 120 | Deutsch |",
+        "| Werk Stuttgart | 110 | Deutsch und Polnisch |",
+        "| Werkstatt Esslingen | 50 | Deutsch |",
+        "## Preis",
+        "| Position | Preis |",
+        "| Jahresprogramm, drei Standorte | 24.500 € |",
+        "Jedes Quartal bekommt jeder Standort seine eigene Klickrate (click rate) und den Verlauf seit der Grundschulung.",
+      ],
+    },
+    quaysideProposal: {
+      name: "Angebot – Workshop Kanzlei am Kai.pdf",
+      lines: [
+        "# Angebot: Workshop für die Partner der Kanzlei am Kai",
+        "Ein halbtägiger Workshop in Ihren Räumen für bis zu zwölf Partner: wie Angreifer Kanzleien ins Visier nehmen, gefälschte Zahlungsaufforderungen und wie man sie sicher prüft.",
+        "## Ablauf",
+        "| Uhrzeit | Thema |",
+        "| 14:00 | Echte Fälle aus Kanzleien |",
+        "| 15:00 | Live-Beispiel und was die Klickrate (click rate) aussagt |",
+        "| 16:00 | Prüfung von Zahlungsaufforderungen für die ganze Kanzlei |",
+        "## Preis",
+        "| Position | Preis |",
+        "| Partner-Workshop, halber Tag | 4.800 € |",
+      ],
+    },
+    northmereResults: {
+      name: "Ergebnisse Phishing-Übung – Q3.csv",
+      rows: [
+        ["Abteilung", "Gesendete E-Mails", "Geklickt", "Klickrate (click rate)", "Gemeldet"],
+        ["Underwriting", 64, 5, "7,8 %", 31],
+        ["Schaden", 82, 9, "11,0 %", 28],
+        ["Kundenservice", 58, 4, "6,9 %", 33],
+        ["Finanzen", 21, 1, "4,8 %", 14],
+        ["Gesamt", 225, 19, "8,4 %", 106],
+      ],
+    },
+  },
+  trash: { contact: "Katrin Morawe (Duplikat)", deal: "Fehrmann & Partner – Phishing-Übungen" },
+  mateChat: {
+    title: "LinkedIn-Antworten ohne Verkaufschance",
+    messages: [
+      "Wer hat diese Woche auf LinkedIn geantwortet und hat noch keine Verkaufschance?",
+      "Neun Interessenten hatten in den letzten 7 Tagen ein LinkedIn-Gespräch. Sieben davon hängen schon an einer Verkaufschance. Zwei nicht:\n\n- **Zoe Hartung**, Personalreferentin bei Lärchenfeld Logistik: letztes LinkedIn-Gespräch vor 2 Tagen, Verbindungsstatus Angeschrieben. Lärchenfeld hat bereits die Verkaufschance „Lärchenfeld Logistik – Schulung für neue Mitarbeitende“ (15.800 €) mit Katrin Morawe und Paul Hesse; Frau Hartung ließe sich dort ergänzen.\n- **Iris Claßen**, Büroleiterin bei der Kanzlei am Kai: letztes LinkedIn-Gespräch vor 4 Tagen, Verbindungsstatus Angeschrieben. Die einzige Verkaufschance der Kanzlei, der Partner-Workshop (4.800 €), ist gewonnen; eine Grundschulung für das Büro wäre eine mögliche nächste.\n\nAußerdem: Das LinkedIn-Gespräch mit Katrin Morawe ist noch nicht mit der Verkaufschance von Lärchenfeld verknüpft. Soll ich für jeden Punkt eine Aufgabe anlegen?",
+    ],
+  },
+  events: [
+    "Telefonat mit Claudia Wittmann und Jonas Harms (Mahrenholz)",
+    "Telefonat mit Friederike Blank zum Führungskräfte-Workshop",
+    "Telefonat mit Martin Albers und Petra Nolte (Klinikverbund Zedernhof)",
+  ],
+  calendarName: "Termine",
 };
 
 const ORGANIZATION_FACTS: Record<OrganizationKey, { industry: string; employees: number; createdDaysAgo: number }> = {
@@ -914,6 +1100,8 @@ type DealFacts = {
   createdDaysAgo: number;
   close: number;
   next?: number;
+  /** A training session: story day, local start time and length in minutes. */
+  session?: readonly [number, string, number];
   lost?: string;
   /** Stage changes oldest first: `[days ago, stage before the change]`; the last change leads to the current stage. */
   moves?: Array<[number, string]>;
@@ -922,6 +1110,7 @@ type DealFacts = {
 const DEAL_FACTS: Record<DealKey, DealFacts> = {
   hollisProgram: {
     organization: "hollis",
+    session: [17, "09:00", 180],
     contacts: ["rachel", "simon"],
     stage: "proposal",
     offering: "annualProgram",
@@ -972,6 +1161,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
   },
   quaysideWorkshop: {
     organization: "quayside",
+    session: [-12, "14:00", 180],
     contacts: ["helen"],
     stage: "won",
     offering: "leadershipWorkshop",
@@ -987,6 +1177,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
   },
   ashcombeProgram: {
     organization: "ashcombe",
+    session: [12, "09:30", 240],
     contacts: ["george", "nina"],
     stage: "proposal",
     offering: "annualProgram",
@@ -1075,6 +1266,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
   },
   whitcombeProgram: {
     organization: "whitcombe",
+    session: [6, "10:00", 120],
     contacts: ["mark"],
     stage: "won",
     offering: "annualProgram",
@@ -1102,6 +1294,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
   },
   hollisBaseline: {
     organization: "hollis",
+    session: [-19, "08:30", 120],
     contacts: ["rachel"],
     stage: "won",
     offering: "baselineTraining",
@@ -1115,6 +1308,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
   },
   northmereRefresh: {
     organization: "northmere",
+    session: [3, "13:00", 90],
     contacts: ["lucy"],
     stage: "won",
     offering: "phishingExercise",
@@ -1250,9 +1444,16 @@ export default defineSolution<Strings>({
     const organization: RecordSpec[] = ORGANIZATIONS.map((key) => {
       const facts = ORGANIZATION_FACTS[key];
       const [name, city, domain] = t.organizations[key];
+      const [street, postalCode, region, lat, lon] = t.addresses[key];
       return {
         key,
-        values: { name, industry: facts.industry, city, website: `https://${domain}`, employees: facts.employees },
+        values: {
+          name,
+          industry: facts.industry,
+          address: address({ street, postalCode, city, region, countryCode: t.countryCode, lat, lon }),
+          website: `https://${domain}`,
+          employees: facts.employees,
+        },
         owner: "maxBergmann",
         channels: { email: `info@${domain}` },
         createdDaysAgo: facts.createdDaysAgo,
@@ -1299,6 +1500,7 @@ export default defineSolution<Strings>({
           ...(facts.next === undefined
             ? {}
             : { nextStep: t.nextSteps[key as OpenDealKey], nextStepDate: day(facts.next) }),
+          ...(facts.session ? { trainingSessions: rangeAt(...facts.session) } : {}),
           ...(facts.lost ? { lostReason: facts.lost } : {}),
         },
         links: { "deal.organizations": facts.organization, "deal.contacts": facts.contacts },
@@ -1335,6 +1537,19 @@ export default defineSolution<Strings>({
         ...(options.draftLast && index === texts.length - 1 ? { draft: true } : {}),
         ...(options.reaction === index ? { reaction: { from: contactKey, value: "👍" } } : {}),
       }));
+
+    const file = (key: keyof Strings["files"], dealKey: DealKey, kind: FileSpec["kind"], uploadedDaysAgo: number) => {
+      const spec = t.files[key];
+      return {
+        key,
+        record: `deal:${dealKey}`,
+        field: "deal.proposal",
+        name: spec.name,
+        kind,
+        ...("rows" in spec ? { rows: spec.rows } : { lines: spec.lines }),
+        uploadedDaysAgo,
+      } satisfies FileSpec;
+    };
 
     return {
       workspaceName: t.workspaceName,
@@ -1388,7 +1603,7 @@ export default defineSolution<Strings>({
             accounting: "secondary",
           }),
         },
-        { key: "organization.city", label: t.fields.city, type: "text" },
+        { key: "organization.address", label: t.fields.address, type: "address" },
         { key: "organization.website", label: t.fields.website, type: "url" },
         { key: "organization.employees", label: t.fields.employees, type: "number" },
         {
@@ -1411,6 +1626,8 @@ export default defineSolution<Strings>({
         { key: "deal.closeDate", label: t.fields.closeDate, type: "date" },
         { key: "deal.nextStep", label: t.fields.nextStep, type: "text" },
         { key: "deal.nextStepDate", label: t.fields.nextStepDate, type: "date" },
+        { key: "deal.trainingSessions", label: t.fields.trainingSessions, type: "dateTimeRange" },
+        { key: "deal.proposal", label: t.fields.proposal, type: "file" },
         {
           key: "deal.lostReason",
           label: t.fields.lostReason,
@@ -1485,6 +1702,14 @@ export default defineSolution<Strings>({
           filters: [{ field: "status", notIn: ["done", "archived"] }],
           sort: { field: "dueDate", direction: "asc" },
         },
+        {
+          key: "trainingCalendar",
+          list: "deal",
+          name: t.views.trainingCalendar,
+          mode: "calendar",
+          calendar: { date: "trainingSessions", color: "offering", mode: "month" },
+          columns: ["stage", "offering", "totalValue", "deal.organizations"],
+        },
       ],
       dashboard: {
         widgets: [
@@ -1513,13 +1738,10 @@ export default defineSolution<Strings>({
           },
           {
             kind: "kpi",
-            title: t.widgets.overdueTasks,
-            list: "task",
+            title: t.widgets.meetingsBooked,
+            list: "contact",
             aggregation: "count",
-            filters: [
-              { field: "status", notIn: ["done", "archived"] },
-              { field: "dueDate", olderThanDays: 1 },
-            ],
+            filters: [{ field: "conversationStatus", in: ["meetingBooked"] }],
           },
           {
             kind: "chart",
@@ -1534,14 +1756,6 @@ export default defineSolution<Strings>({
           },
           {
             kind: "chart",
-            title: t.widgets.byHowWeMet,
-            display: DisplayType.doughnutChart,
-            list: "contact",
-            aggregation: "count",
-            groupBy: { field: "howWeMet" },
-          },
-          {
-            kind: "chart",
             title: t.widgets.byStage,
             display: DisplayType.verticalBarChart,
             list: "deal",
@@ -1552,22 +1766,21 @@ export default defineSolution<Strings>({
           },
           {
             kind: "chart",
+            title: t.widgets.byHowWeMet,
+            display: DisplayType.doughnutChart,
+            list: "contact",
+            aggregation: "count",
+            groupBy: { field: "howWeMet" },
+          },
+          { kind: "activity", title: t.widgets.latestChats, providers: ["linkedin"] },
+          {
+            kind: "chart",
             title: t.widgets.wonByMonth,
             display: DisplayType.areaChart,
             list: "deal",
             aggregation: "sum",
             field: "totalValue",
             groupBy: { month: "closeDate" },
-            filters: wonLastYear,
-          },
-          {
-            kind: "chart",
-            title: t.widgets.topClients,
-            display: DisplayType.rankedTable,
-            list: "deal",
-            aggregation: "sum",
-            field: "totalValue",
-            groupBy: { relation: "deal.organizations" },
             filters: wonLastYear,
           },
         ],
@@ -1587,6 +1800,34 @@ export default defineSolution<Strings>({
           kind: "knowledge",
           title: t.wiki.firstMessages.title,
           markdown: t.wiki.firstMessages.markdown,
+        },
+      ],
+      files: [
+        file("hollisProposal", "hollisProgram", "pdf", 10),
+        file("ashcombeProposal", "ashcombeProgram", "pdf", 16),
+        file("quaysideProposal", "quaysideWorkshop", "pdf", 34),
+        file("northmereResults", "northmereRefresh", "csv", 8),
+      ],
+      planner: {
+        sources: [
+          { list: "deal", date: "trainingSessions", color: "success" },
+          { list: "deal", date: "nextStepDate", filters: [{ field: "stage", in: open }], color: "info" },
+        ],
+        connectedCalendar: true,
+        mode: "month",
+      },
+      trash: [
+        { list: "contact", name: t.trash.contact, daysAgo: 5 },
+        { list: "deal", name: t.trash.deal, daysAgo: 15 },
+      ],
+      mateChats: [
+        {
+          title: t.mateChat.title,
+          endedHoursAgo: 6,
+          messages: [
+            { role: "user", text: t.mateChat.messages[0] },
+            { role: "assistant", text: t.mateChat.messages[1] },
+          ],
         },
       ],
       routines: [
@@ -1727,6 +1968,19 @@ export default defineSolution<Strings>({
             links: ["deal:quaysideWorkshop", "organization:quayside"],
           },
         ],
+        calendar: {
+          name: t.calendarName,
+          events: [
+            { title: t.events[0], with: ["claire", "joe"], startsMinutesAgo: -(2 * 24 * 60 + 60), durationMinutes: 45 },
+            { title: t.events[1], with: ["fiona"], startsMinutesAgo: -(4 * 24 * 60 + 3 * 60), durationMinutes: 30 },
+            {
+              title: t.events[2],
+              with: ["martin", "priya"],
+              startsMinutesAgo: -(11 * 24 * 60 + 2 * 60),
+              durationMinutes: 45,
+            },
+          ],
+        },
       },
     };
   },
