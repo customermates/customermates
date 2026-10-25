@@ -171,8 +171,6 @@ const REVIEWED_EXCEPTION_ALLOWLIST: Readonly<Record<string, string>> = {
     "unresolved C08: German-only homonym the other locales do not distinguish",
   "ui-wording.test.ts#GERMAN_TERM_EXEMPTIONS: Number":
     "unresolved C08: German-only homonym the other locales do not distinguish",
-  "ui-wording.test.ts#GERMAN_TERM_EXEMPTIONS: Services":
-    "unresolved C08: German-only homonym the other locales do not distinguish",
   "prisma-tenant-fk.test.ts#TENANT_FK_ALLOWLIST: PostalCode":
     "unresolved C06: GeoNames postal codes are public reference data shared by every workspace; no tenant owns a postal code",
   "prisma-tenant-fk.test.ts#TENANT_FK_ALLOWLIST: PostalCodeCountry":

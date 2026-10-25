@@ -125,7 +125,6 @@ const GERMAN_TERM_EXEMPTIONS: Allowlist = {
   Contact: "the Contact list and the Contacted stage of a contact",
   Layout: "the table layout and an email signature template",
   Number: "the Number field type and the single-number widget display",
-  Services: "the Services starter list and the operator's service statistics",
 };
 
 const GERMAN_TERM_ALLOWLIST: Allowlist = {};

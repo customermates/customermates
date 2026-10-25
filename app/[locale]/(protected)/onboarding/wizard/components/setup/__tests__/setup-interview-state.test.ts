@@ -33,17 +33,16 @@ const website = (value: NonNullable<SetupAnswers[string]>["value"]) => ({
 const purpose = (...values: string[]) => user({ format: "multipleChoice", values, custom: [] });
 
 const WORKSPACE_SCREEN: SetupAnswers = {
-  purpose: purpose("clients"),
+  workWith: user({ format: "singleChoice", value: "clients" }),
+  purpose: purpose("deals", "projects"),
+  mainSteps: user({ format: "orderedList", items: [{ label: "Inquiry" }, { label: "Won" }] }),
+  pricing: user({ format: "singleChoice", value: "timeBased" }),
+  teamSize: user({ format: "singleChoice", value: "solo" }),
+  existingData: user({ format: "singleChoice", value: "sampleData" }),
   companyName: user({ format: "shortText", value: "Acme" }),
   country: user({ format: "singleChoice", value: "DE" }),
   language: user({ format: "singleChoice", value: "de" }),
   currency: user({ format: "singleChoice", value: "EUR" }),
-  offeringKinds: user({ format: "multipleChoice", values: ["services"], custom: [] }),
-  offerings: user({ format: "orderedList", items: [{ label: "Consulting" }] }),
-  customerKind: user({ format: "singleChoice", value: "consumers" }),
-  industries: user({ format: "multipleChoice", values: [], custom: [] }),
-  teamSize: user({ format: "singleChoice", value: "solo" }),
-  teamRoles: user({ format: "multipleChoice", values: [], custom: [] }),
 };
 
 describe("resolveSetupStage", () => {
@@ -90,20 +89,11 @@ describe("resolveSetupStage", () => {
 });
 
 describe("resumeScreenIndex", () => {
-  it("starts on the first screen while website guesses are unconfirmed", () => {
+  it("always resumes on the one screen", () => {
     expect(resumeScreenIndex({})).toBe(0);
-    expect(resumeScreenIndex({ companyName: website({ format: "shortText", value: "Acme" }) })).toBe(0);
-  });
-
-  it("lands on the screen after the last one the owner confirmed", () => {
-    expect(resumeScreenIndex(WORKSPACE_SCREEN, 1)).toBe(1);
-    expect(resumeScreenIndex(WORKSPACE_SCREEN, 4)).toBe(4);
-    expect(resumeScreenIndex(WORKSPACE_SCREEN, 9)).toBe(5);
-  });
-
-  it("goes back to a confirmed screen whose required answer is only a website suggestion", () => {
-    const suggested = website({ format: "multipleChoice", values: ["clients"], custom: [] });
-    expect(resumeScreenIndex({ ...WORKSPACE_SCREEN, purpose: suggested }, 4)).toBe(0);
+    expect(resumeScreenIndex(WORKSPACE_SCREEN, 1)).toBe(0);
+    expect(visibleScreenIndexes(WORKSPACE_SCREEN)).toEqual([0]);
+    expect(adjacentScreenIndex(0, WORKSPACE_SCREEN, 1)).toBeNull();
   });
 });
 
@@ -122,47 +112,29 @@ describe("mergeServerAnswers", () => {
   });
 
   it("keeps answers the owner confirmed earlier", () => {
-    const server: SetupAnswers = { teamSize: user({ format: "singleChoice", value: "medium" }) };
+    const server: SetupAnswers = { teamSize: user({ format: "singleChoice", value: "large" }) };
     expect(mergeServerAnswers({}, new Set(), server).teamSize).toEqual(server.teamSize);
   });
 });
 
 describe("visibility, completeness and payload", () => {
-  it("shows the customer size only for business customers, including both", () => {
-    const size = part("customerSize");
-    const clients = { purpose: purpose("clients") };
-    expect(partVisible(size, clients)).toBe(false);
-    expect(partVisible(size, { ...clients, customerKind: user({ format: "singleChoice", value: "both" }) })).toBe(true);
-    expect(partVisible(size, { ...clients, customerKind: user({ format: "singleChoice", value: "consumers" }) })).toBe(
-      false,
-    );
-    expect(partVisible(size, { customerKind: user({ format: "singleChoice", value: "both" }) })).toBe(false);
+  it("asks for steps and pricing only when they fit what the owner tracks and who they work with", () => {
+    const ownWork = { workWith: user({ format: "singleChoice", value: "ownWork" }), purpose: purpose("finances") };
+    expect(partVisible(part("mainSteps"), ownWork)).toBe(false);
+    expect(partVisible(part("pricing"), ownWork)).toBe(false);
+    expect(partVisible(part("teamSize"), ownWork)).toBe(true);
+    expect(partVisible(part("mainSteps"), WORKSPACE_SCREEN)).toBe(true);
+    expect(partVisible(part("pricing"), WORKSPACE_SCREEN)).toBe(true);
   });
 
-  it("asks the sales questions only for a workspace about clients", () => {
-    const taxes = { purpose: purpose("finances") };
-    expect(visibleScreenIndexes(taxes)).toEqual([0, 4, 5]);
-    expect(visibleScreenIndexes(WORKSPACE_SCREEN)).toEqual([0, 1, 2, 3, 4, 5]);
-    expect(adjacentScreenIndex(0, taxes, 1)).toBe(4);
-    expect(adjacentScreenIndex(4, taxes, -1)).toBe(0);
-    expect(adjacentScreenIndex(5, taxes, 1)).toBeNull();
-    expect(partVisible(part("customerKind"), taxes)).toBe(false);
-    expect(partVisible(part("teamSize"), taxes)).toBe(true);
-    expect(partVisible(part("competitors"), taxes)).toBe(false);
-  });
-
-  it("defaults pre-ticked options and the interface language", () => {
-    expect(displayedAnswerValue(part("knowledgePages"), WORKSPACE_SCREEN, "de")).toMatchObject({
-      values: ["overview", "productsPricing", "idealCustomer", "salesPlaybook", "faq", "processes"],
-    });
-    expect(displayedAnswerValue(part("knowledgePages"), { purpose: purpose("marketing") }, "de")).toMatchObject({
-      values: ["overview", "faq", "processes"],
-    });
+  it("defaults the language to the interface and the currency to the interface's usual one", () => {
     expect(displayedAnswerValue(part("language"), {}, "de")).toEqual({ format: "singleChoice", value: "de" });
+    expect(displayedAnswerValue(part("currency"), {}, "de")).toEqual({ format: "singleChoice", value: "EUR" });
+    expect(displayedAnswerValue(part("currency"), {}, "en")).toEqual({ format: "singleChoice", value: "USD" });
   });
 
-  it("lists every visible required answer still missing before Next", () => {
-    expect(missingScreenParts("workspace", {}, "en")).toContain("purpose");
+  it("lists every visible required answer still missing", () => {
+    expect(missingScreenParts("workspace", {}, "en")).toEqual(["workWith", "purpose", "existingData"]);
     expect(missingScreenParts("workspace", WORKSPACE_SCREEN, "en")).toEqual([]);
     expect(missingScreenParts("workspace", { ...WORKSPACE_SCREEN, purpose: purpose() }, "en")).toEqual(["purpose"]);
     const withoutName = Object.fromEntries(Object.entries(WORKSPACE_SCREEN).filter(([id]) => id !== "companyName"));
@@ -172,28 +144,14 @@ describe("visibility, completeness and payload", () => {
   it("clears answers to hidden questions and drops blank list entries", () => {
     const answers: SetupAnswers = {
       ...WORKSPACE_SCREEN,
-      customerSize: user({ format: "singleChoice", value: "small" }),
-      offerings: user({ format: "orderedList", items: [{ label: " Consulting " }, { label: "  " }] }),
+      workWith: user({ format: "singleChoice", value: "ownWork" }),
+      mainSteps: user({ format: "orderedList", items: [{ label: " Inquiry " }, { label: "  " }] }),
     };
 
     const payload = screenAnswersPayload("workspace", answers, "en");
 
-    expect(payload.customerSize).toBeNull();
-    expect(payload.offerings).toEqual({ format: "orderedList", items: [{ label: "Consulting" }] });
+    expect(payload.pricing).toBeNull();
+    expect(payload.mainSteps).toEqual({ format: "orderedList", items: [{ label: "Inquiry" }] });
     expect(payload.companyName).toEqual({ format: "shortText", value: "Acme" });
-  });
-
-  it("clears sales answers on other screens once the workspace is not about clients", () => {
-    const answers: SetupAnswers = {
-      ...WORKSPACE_SCREEN,
-      purpose: purpose("finances"),
-      leadSources: user({ format: "multipleChoice", values: ["referrals"], custom: [] }),
-    };
-
-    const payload = screenAnswersPayload("workspace", answers, "en");
-
-    expect(payload.leadSources).toBeNull();
-    expect(payload.customerKind).toBeNull();
-    expect(payload.purpose).toEqual({ format: "multipleChoice", values: ["finances"], custom: [] });
   });
 });

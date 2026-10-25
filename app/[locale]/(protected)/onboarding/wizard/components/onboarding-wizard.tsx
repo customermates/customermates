@@ -154,19 +154,26 @@ const OnboardingWizardContent = observer(
 
     const showFooterNav = currentStep === "invite";
     const planStage = currentStep === "setup" && setupStage === "plan";
-    const title = planStage ? t("WorkspaceSetup.plan.title") : t(`OnboardingWizard.steps.${currentStep}.title`);
+    const startStage = currentStep === "setup" && setupStage === "start";
+    const title = planStage
+      ? t("WorkspaceSetup.plan.title")
+      : startStage
+        ? t("OnboardingWizard.steps.setup.startTitle")
+        : t(`OnboardingWizard.steps.${currentStep}.title`);
     const planPending = currentStep === "setup" && (setupStage === "planning" || setupStage === "planFailed");
     const subtitle = planStage
       ? t("WorkspaceSetup.plan.subtitle")
       : planPending
         ? t("OnboardingWizard.steps.setup.planningSubtitle")
-        : currentStep === "profile" && isInvited
-          ? workspace
-            ? t("OnboardingWizard.steps.profile.invitedSubtitleNamed", { workspace })
-            : t("OnboardingWizard.steps.profile.invitedSubtitle")
-          : currentStep === "setup" && setupReady && !setupStore.setup?.websiteUrl
-            ? t("OnboardingWizard.steps.setup.withoutWebsiteSubtitle")
-            : t(`OnboardingWizard.steps.${currentStep}.subtitle`);
+        : startStage
+          ? t("OnboardingWizard.steps.setup.startSubtitle")
+          : currentStep === "profile" && isInvited
+            ? workspace
+              ? t("OnboardingWizard.steps.profile.invitedSubtitleNamed", { workspace })
+              : t("OnboardingWizard.steps.profile.invitedSubtitle")
+            : currentStep === "setup" && setupReady && !setupStore.setup?.websiteUrl
+              ? t("OnboardingWizard.steps.setup.withoutWebsiteSubtitle")
+              : t(`OnboardingWizard.steps.${currentStep}.subtitle`);
 
     return (
       <AppCard

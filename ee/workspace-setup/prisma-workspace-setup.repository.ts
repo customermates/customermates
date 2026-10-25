@@ -12,7 +12,7 @@ import { WIKI_CRAWL_MAX_PAGES } from "@/ee/wiki-crawl/website-discovery";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
 
-import { SetupAnswersSchema } from "@/features/workspace-setup/setup-answers.schema";
+import { storedSetupAnswers } from "@/features/workspace-setup/setup-answers.schema";
 import { SetupPlanSchema } from "@/features/workspace-setup/setup-plan.schema";
 import { WidgetPlacementSchema } from "@/features/widget/widget-grid";
 import {
@@ -58,7 +58,6 @@ function objectOf(value: Prisma.JsonValue): Record<string, unknown> {
 }
 
 function record(row: SetupRow): WorkspaceSetupRecord {
-  const answers = SetupAnswersSchema.safeParse(row.answers);
   const plan = row.plan === null ? null : SetupPlanSchema.safeParse(row.plan);
   return {
     id: row.id,
@@ -66,7 +65,7 @@ function record(row: SetupRow): WorkspaceSetupRecord {
     status: row.status,
     websiteUrl: row.websiteUrl,
     crawlId: row.crawlId,
-    answers: answers.success ? answers.data : {},
+    answers: storedSetupAnswers(row.answers),
     interview: StoredSetupInterviewSchema.parse(objectOf(row.interview)),
     plan: plan?.success ? plan.data : null,
     planRevision: row.planRevision,

@@ -49,12 +49,12 @@ function plannedView(overrides: Parameters<typeof setupView>[0] = {}) {
 }
 
 function answerWorkspaceScreen(store: WorkspaceSetupStore, companyName: string) {
-  store.setAnswer("purpose", { format: "multipleChoice", values: ["clients"], custom: [] });
+  store.setAnswer("workWith", { format: "singleChoice", value: "clients" });
+  store.setAnswer("purpose", { format: "multipleChoice", values: ["projects"], custom: [] });
+  store.setAnswer("existingData", { format: "singleChoice", value: "sampleData" });
   store.setAnswer("companyName", { format: "shortText", value: companyName });
   store.setAnswer("country", { format: "singleChoice", value: "DE" });
   store.setAnswer("currency", { format: "singleChoice", value: "EUR" });
-  store.setAnswer("offerings", { format: "orderedList", items: [{ label: "Consulting" }] });
-  store.setAnswer("customerKind", { format: "singleChoice", value: "consumers" });
   store.setAnswer("teamSize", { format: "singleChoice", value: "solo" });
 }
 
@@ -88,15 +88,10 @@ describe("WorkspaceSetupStore", () => {
     expect(store.answers.teamSize?.value).toEqual({ format: "singleChoice", value: "small" });
   });
 
-  it("saves a confirmed screen and moves to the next one", async () => {
+  it("saves the answers with the default language and asks for the plan", async () => {
     const store = storeWith();
-    store.setAnswer("purpose", { format: "multipleChoice", values: ["clients"], custom: [] });
-    store.setAnswer("companyName", { format: "shortText", value: "Acme" });
-    store.setAnswer("country", { format: "singleChoice", value: "DE" });
-    store.setAnswer("currency", { format: "singleChoice", value: "EUR" });
-    store.setAnswer("offerings", { format: "orderedList", items: [{ label: "Consulting" }] });
-    store.setAnswer("customerKind", { format: "singleChoice", value: "consumers" });
-    store.setAnswer("teamSize", { format: "singleChoice", value: "solo" });
+    answerWorkspaceScreen(store, "Acme");
+    expect(store.isLastScreen).toBe(true);
     expect(store.canConfirmScreen).toBe(true);
 
     await store.confirmScreen();
@@ -107,51 +102,33 @@ describe("WorkspaceSetupStore", () => {
         answers: expect.objectContaining({ language: { format: "singleChoice", value: "en" } }),
       }),
     );
-    expect(store.screenIndex).toBe(1);
-    expect(actions.planWorkspaceSetupAction).not.toHaveBeenCalled();
-  });
-
-  it("asks for the plan after the last screen", async () => {
-    const store = storeWith();
-    store.setAnswer("existingData", { format: "singleChoice", value: "sampleData" });
-    while (!store.isLastScreen) store.screenIndex += 1;
-
-    await store.confirmScreen();
-
-    expect(actions.saveWorkspaceSetupAnswersAction).toHaveBeenCalledOnce();
     expect(actions.planWorkspaceSetupAction).toHaveBeenCalledWith({ setupId: SETUP_ID });
     expect(actions.getWorkspaceSetupStatusAction).toHaveBeenCalled();
   });
 
-  it("shows the missing answers with a toast when Next is pressed too early and hides them on another screen", async () => {
+  it("shows the missing answers with a toast when the plan is asked for too early", () => {
     const store = storeWith();
-    store.setAnswer("purpose", { format: "multipleChoice", values: ["clients"], custom: [] });
-    expect(store.answerMissing("currency")).toBe(false);
+    store.setAnswer("purpose", { format: "multipleChoice", values: ["projects"], custom: [] });
+    expect(store.answerMissing("workWith")).toBe(false);
 
     expect(store.showMissingAnswers("Must not be blank.")).toBe(true);
 
     expect(toast).toHaveBeenCalledWith({ errors: ["Must not be blank."] });
-    expect(store.answerMissing("currency")).toBe(true);
+    expect(store.missingAnswers).toEqual(["workWith", "existingData"]);
+    expect(store.answerMissing("workWith")).toBe(true);
     expect(store.answerMissing("purpose")).toBe(false);
-    expect(store.answerMissing("country")).toBe(false);
-    store.setAnswer("currency", { format: "singleChoice", value: "EUR" });
     expect(store.answerMissing("currency")).toBe(false);
-    expect(store.missingAnswers).not.toContain("currency");
-    expect(store.answerMissing(store.missingAnswers[0])).toBe(true);
+    store.setAnswer("workWith", { format: "singleChoice", value: "customers" });
+    expect(store.answerMissing("workWith")).toBe(false);
 
     answerWorkspaceScreen(store, "Acme");
     expect(store.showMissingAnswers("Must not be blank.")).toBe(false);
     expect(toast).toHaveBeenCalledOnce();
-    await store.confirmScreen();
-    expect(store.screenIndex).toBe(1);
-    store.showMissingAnswers("Must not be blank.");
-    store.goToScreen(0);
-    expect(store.missingShown).toBe(false);
   });
 
-  it("blocks Next on the data screen until a chosen spreadsheet is uploaded", () => {
+  it("waits for a chosen spreadsheet to be uploaded", () => {
     const store = storeWith();
-    while (!store.isLastScreen) store.screenIndex += 1;
+    answerWorkspaceScreen(store, "Acme");
     store.setAnswer("existingData", { format: "singleChoice", value: "spreadsheet" });
     expect(store.canConfirmScreen).toBe(false);
     store.showMissingAnswers("Must not be blank.");
@@ -161,30 +138,52 @@ describe("WorkspaceSetupStore", () => {
     expect(store.canConfirmScreen).toBe(true);
   });
 
-  it("skips the sales screens for a workspace that is not about clients", async () => {
+  it("suggests the steps of the tracked work until the owner edits them", () => {
     const store = storeWith();
-    store.setAnswer("purpose", { format: "multipleChoice", values: ["finances"], custom: [] });
-    store.setAnswer("currency", { format: "singleChoice", value: "EUR" });
-    expect(store.visibleScreens).toEqual([0, 4, 5]);
-    expect(await store.confirmScreen()).toBe(true);
-    expect(store.screenIndex).toBe(4);
-    store.previousScreen();
-    expect(store.screenIndex).toBe(0);
+    store.suggestSteps("projects", ["Planned", "Done"]);
+    expect(store.answers.mainSteps?.value).toEqual({
+      format: "orderedList",
+      items: [{ label: "Planned" }, { label: "Done" }],
+    });
+
+    store.suggestSteps("deals", ["Inquiry", "Won"]);
+    expect(store.answers.mainSteps?.value).toMatchObject({ items: [{ label: "Inquiry" }, { label: "Won" }] });
+
+    store.suggestSteps(null, []);
+    expect(store.answers.mainSteps).toBeUndefined();
+
+    store.setAnswer("mainSteps", { format: "orderedList", items: [{ label: "Mine" }] });
+    store.suggestSteps("projects", ["Planned", "Done"]);
+    expect(store.answers.mainSteps?.value).toEqual({ format: "orderedList", items: [{ label: "Mine" }] });
   });
 
-  it("keeps Adjust changes in the browser until the last screen re-plans with every answer", async () => {
+  it("keeps steps from the website or confirmed earlier instead of suggesting others", () => {
+    const steps = { format: "orderedList" as const, items: [{ label: "From before" }] };
+    const confirmed = storeWith(
+      setupView({
+        interview: {
+          ...setupView().interview,
+          answers: { mainSteps: { source: "user", confidence: 1, value: steps } },
+        },
+      }),
+    );
+    confirmed.suggestSteps("projects", ["Planned", "Done"]);
+    expect(confirmed.answers.mainSteps?.value).toEqual(steps);
+
+    const prefilled = storeWith(
+      setupView({ interview: { ...setupView().interview, answers: { mainSteps: { ...website, value: steps } } } }),
+    );
+    prefilled.suggestSteps("projects", ["Planned", "Done"]);
+    expect(prefilled.answers.mainSteps?.value).toEqual(steps);
+  });
+
+  it("re-plans an adjusted plan with every answer", async () => {
     const store = storeWith(plannedView());
     expect(store.stage).toBe("plan");
 
     store.adjust();
     expect(store.stage).toBe("interview");
-    expect(store.screenIndex).toBe(0);
     answerWorkspaceScreen(store, "Acme Studio");
-    expect(await store.confirmScreen()).toBe(true);
-    expect(store.screenIndex).toBe(1);
-    expect(actions.saveWorkspaceSetupAnswersAction).not.toHaveBeenCalled();
-
-    while (!store.isLastScreen) store.screenIndex += 1;
     store.setAnswer("existingData", { format: "singleChoice", value: "empty" });
     await store.confirmScreen();
 
@@ -201,7 +200,7 @@ describe("WorkspaceSetupStore", () => {
     expect(store.adjusting).toBe(false);
   });
 
-  it("drops Adjust changes when the owner backs out to the plan", async () => {
+  it("drops Adjust changes when the owner backs out to the plan", () => {
     const confirmed = { source: "user" as const, confidence: 1 };
     const store = storeWith(
       plannedView({
@@ -214,8 +213,6 @@ describe("WorkspaceSetupStore", () => {
 
     store.adjust();
     answerWorkspaceScreen(store, "Renamed Ltd");
-    await store.confirmScreen();
-    store.previousScreen();
     store.previousScreen();
 
     expect(store.stage).toBe("plan");
@@ -228,7 +225,7 @@ describe("WorkspaceSetupStore", () => {
   it("saves and re-plans once a new spreadsheet has withdrawn the plan being adjusted", async () => {
     const store = storeWith(plannedView());
     store.adjust();
-    while (!store.isLastScreen) store.screenIndex += 1;
+    answerWorkspaceScreen(store, "Acme");
     store.setAnswer("existingData", { format: "singleChoice", value: "spreadsheet" });
     store.hydrate({
       available: true,
@@ -259,7 +256,7 @@ describe("WorkspaceSetupStore", () => {
     expect(store.stage).toBe("planFailed");
 
     store.adjust();
-    while (!store.isLastScreen) store.screenIndex += 1;
+    answerWorkspaceScreen(store, "Acme");
     store.setAnswer("existingData", { format: "singleChoice", value: "empty" });
     await store.confirmScreen();
 
@@ -369,33 +366,21 @@ describe("WorkspaceSetupStore", () => {
     expect(withoutWebsite.prefillRunning).toBe(false);
   });
 
-  it("resumes on the first unconfirmed screen and resets when a new setup appears", () => {
-    const confirmed = {
-      source: "user" as const,
-      confidence: 1,
-    };
+  it("loads the confirmed answers and resets when a new setup appears", () => {
+    const confirmed = { source: "user" as const, confidence: 1 };
     const store = storeWith(
       setupView({
         interview: {
           ...setupView().interview,
           answers: {
-            purpose: { ...confirmed, value: { format: "multipleChoice", values: ["clients"], custom: [] } },
             companyName: { ...confirmed, value: { format: "shortText", value: "Acme" } },
-            country: { ...confirmed, value: { format: "singleChoice", value: "DE" } },
-            language: { ...confirmed, value: { format: "singleChoice", value: "de" } },
-            currency: { ...confirmed, value: { format: "singleChoice", value: "EUR" } },
-            offeringKinds: { ...confirmed, value: { format: "multipleChoice", values: [], custom: [] } },
-            offerings: { ...confirmed, value: { format: "orderedList", items: [{ label: "A" }] } },
-            customerKind: { ...confirmed, value: { format: "singleChoice", value: "consumers" } },
-            industries: { ...confirmed, value: { format: "multipleChoice", values: [], custom: [] } },
-            teamSize: { ...confirmed, value: { format: "singleChoice", value: "solo" } },
-            teamRoles: { ...confirmed, value: { format: "multipleChoice", values: [], custom: [] } },
           },
           confirmedScreens: 1,
         },
       }),
     );
-    expect(store.screenIndex).toBe(1);
+    expect(store.screenIndex).toBe(0);
+    expect(store.answers.companyName?.value).toEqual({ format: "shortText", value: "Acme" });
 
     store.hydrate({ available: true, setup: setupView({ id: "0a7a2d6e-0c4f-4b8e-9f43-8f0f3b1f0b11" }) });
     expect(store.screenIndex).toBe(0);

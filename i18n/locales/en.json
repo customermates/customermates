@@ -3204,7 +3204,6 @@
     },
     "next": "Next",
     "profile": {
-      "websiteDescription": "Optional. We read your public website to suggest answers for setting up your workspace.",
       "websitePlaceholder": "example.com"
     },
     "progress": "Step {current} of {total}",
@@ -3226,9 +3225,11 @@
       },
       "setup": {
         "planningSubtitle": "Your answers are saved. Mate turns them into a plan for your workspace that you review before anything is built.",
-        "subtitle": "A few short questions about what this workspace is for. What we could read on your website is already filled in, so you mostly confirm.",
+        "startSubtitle": "We build your lists, steps, dashboard and a few Knowledge Base pages. You can change everything later.",
+        "startTitle": "How do you want to set up your workspace?",
+        "subtitle": "What we read on your website is already filled in. Check it and change anything that is off.",
         "title": "Set up your workspace",
-        "withoutWebsiteSubtitle": "A few short questions about what this workspace is for. Most are a quick choice, so this takes only a few minutes."
+        "withoutWebsiteSubtitle": "A few quick questions about what you want to keep track of. Most take one click."
       }
     }
   },
@@ -5253,7 +5254,7 @@
   },
   "WorkspaceSetup": {
     "actions": {
-      "addOwn": "Add your own",
+      "addOwn": "Something else",
       "continueAnyway": "Continue anyway",
       "fromWebsite": "Suggested from your website",
       "upload": "Upload a spreadsheet",
@@ -5315,7 +5316,7 @@
     "empty": {
       "action": "Start with an empty workspace",
       "confirm": "Start empty",
-      "description": "You skip the guided setup. No lists, pipeline, dashboard or Knowledge Base pages are created, so you build everything yourself. We recommend the guided setup.",
+      "description": "No lists, pipeline or dashboard are created. You can build them yourself or ask Mate to set them up later.",
       "title": "Start with an empty workspace?"
     },
     "failures": {
@@ -5334,19 +5335,20 @@
     },
     "interview": {
       "addEntry": "Add an entry",
-      "adjusting": "Change any answer, then confirm the last screen to draft a new plan.",
-      "customPlaceholder": "Your own answer",
+      "adjusting": "Change any answer, then show the plan again.",
+      "customPlaceholder": "Describe it in a few words",
       "days": "days",
       "entryLabel": "Entry {index}",
       "followUpsSubtitle": "Some answers could mean more than one thing. These questions settle it.",
       "followUpsTitle": "A few more details",
       "optionalPlaceholder": "Leave empty if nothing comes to mind",
+      "planHint": "You check the plan before anything is built",
       "prefillFailed": "We could not read your website, so nothing is filled in. The questions still take only a few minutes.",
       "rangeFrom": "From",
       "rangeTo": "Up to",
       "rankedHint": "{count} of {max} picked, in order of importance",
       "rankedOption": "Rank {rank}: {label}",
-      "stepProgress": "Part {current} of {total}",
+      "showPlan": "Show my workspace plan",
       "stepsLabel": "Setup questions",
       "uploadChoose": "Choose file",
       "uploadFailures": {
@@ -5368,119 +5370,40 @@
       "winChanceFor": "Win chance of entry {index}"
     },
     "options": {
-      "addressForm": {
-        "formal": "Formal",
-        "informal": "Informal"
-      },
-      "afterSale": {
-        "appointments": "Appointments",
-        "contractsRenewals": "Contracts and renewals",
-        "nothing": "Nothing further",
-        "ordersInvoices": "Orders and invoices",
-        "projects": "Projects",
-        "supportTickets": "Support tickets"
-      },
-      "customerKind": {
-        "both": "Both",
-        "businesses": "Businesses",
-        "consumers": "Consumers"
-      },
-      "customerSize": {
-        "large": "Large enterprises",
-        "medium": "Mid-sized companies",
-        "mixed": "A mix of sizes",
-        "small": "Small companies"
-      },
-      "dashboardAudience": {
-        "management": "Management",
-        "me": "Just me",
-        "team": "The whole team"
-      },
-      "dealDetails": {
-        "budget": "Budget",
-        "closeDate": "Expected close date",
-        "contractEnd": "Contract end",
-        "decisionMaker": "Decision-maker",
-        "lostReason": "Reason for losing",
-        "nextStep": "Next step",
-        "vatId": "VAT ID"
-      },
       "existingData": {
-        "empty": "Start empty",
-        "sampleData": "Start with sample data",
-        "spreadsheet": "Import a spreadsheet"
+        "empty": "No, start without records",
+        "sampleData": "Yes, add examples",
+        "spreadsheet": "Import my spreadsheet"
       },
-      "knowledgePages": {
-        "faq": "Frequently asked questions",
-        "idealCustomer": "Ideal customer",
-        "overview": "Overview",
-        "processes": "Processes",
-        "productsPricing": "Products and pricing",
-        "salesPlaybook": "Sales playbook and objections"
-      },
-      "leadSources": {
-        "ads": "Advertising",
-        "events": "Events and trade fairs",
-        "outbound": "Outbound outreach",
-        "partners": "Partners",
-        "referrals": "Referrals",
-        "socialMedia": "Social media",
-        "website": "Website"
-      },
-      "offeringKinds": {
-        "products": "Products",
-        "projects": "Projects",
-        "services": "Services",
-        "subscriptions": "Subscriptions"
+      "pricing": {
+        "fixedPrice": "A fixed price per job",
+        "free": "We don't charge",
+        "products": "Product prices",
+        "subscription": "A monthly or yearly fee",
+        "timeBased": "By the hour or day"
       },
       "purpose": {
-        "clients": "Clients and sales",
-        "finances": "Finances and taxes",
-        "hiring": "Hiring",
+        "chats": "Chats on WhatsApp, LinkedIn or email",
+        "contracts": "Client accounts, contracts and renewals",
+        "deals": "New inquiries until they say yes",
+        "finances": "Finances, taxes and deadlines",
+        "hiring": "Job applicants",
+        "investors": "Investors and fundraising",
         "marketing": "Marketing and content",
-        "projects": "Projects",
-        "support": "Customer support"
-      },
-      "renewalPeriod": {
-        "monthly": "Monthly",
-        "multiYear": "Every few years",
-        "quarterly": "Quarterly",
-        "yearly": "Yearly"
-      },
-      "revenueModel": {
-        "both": "Both",
-        "oneOff": "One-off payments",
-        "recurring": "Recurring payments"
-      },
-      "taskOrganisation": {
-        "perCustomer": "Per customer",
-        "perDeal": "Per deal",
-        "perProject": "Per project",
-        "recurring": "Recurring tasks"
-      },
-      "teamRoles": {
-        "accountManagement": "Account management",
-        "delivery": "Delivery",
-        "finance": "Finance",
-        "sales": "Sales",
-        "support": "Support"
+        "orders": "Orders and invoices",
+        "partners": "Partners and suppliers",
+        "projects": "Projects or jobs we deliver",
+        "support": "Support requests"
       },
       "teamSize": {
         "large": "More than 20 people",
-        "medium": "6 to 20 people",
-        "small": "2 to 5 people",
+        "small": "A small team",
         "solo": "Just me"
       },
-      "weeklyNumbers": {
-        "conversionByStage": "Conversion by stage",
-        "forecast": "Forecast",
-        "newLeads": "New leads",
-        "openTickets": "Open tickets",
-        "overdueTasks": "Overdue tasks",
-        "pipelineValue": "Pipeline value",
-        "recurringRevenue": "Recurring revenue",
-        "renewalsDue": "Renewals due",
-        "wonThisMonth": "Won this month"
+      "workWith": {
+        "clients": "Clients we do work for",
+        "customers": "Customers who buy from us",
+        "ownWork": "No customers, it is for our own work"
       }
     },
     "plan": {
@@ -5520,23 +5443,8 @@
       "winChanceValue": "{value} %"
     },
     "questions": {
-      "addressForm": {
-        "label": "How do you address people in writing?"
-      },
-      "afterSale": {
-        "label": "What follows a won deal?"
-      },
-      "anythingMissed": {
-        "label": "Anything we missed?"
-      },
-      "appointmentTypes": {
-        "label": "Your appointment types"
-      },
       "companyName": {
         "label": "Name of your business or project"
-      },
-      "competitors": {
-        "label": "Your main competitors"
       },
       "country": {
         "label": "Country"
@@ -5544,94 +5452,61 @@
       "currency": {
         "label": "Currency"
       },
-      "customerKind": {
-        "label": "Who are your customers?"
-      },
-      "customerSize": {
-        "label": "How large are your customers?"
-      },
-      "dashboardAudience": {
-        "label": "Who looks at the dashboard?"
-      },
-      "dealDetails": {
-        "label": "What must you know about a deal or customer?"
-      },
-      "dealSize": {
-        "label": "Typical deal size"
-      },
       "existingData": {
-        "label": "How do you want to start?"
-      },
-      "industries": {
-        "label": "Which industries are they in?"
-      },
-      "knowledgePages": {
-        "label": "Which Knowledge Base pages should we write?"
+        "label": "Add example records so you can try things out?"
       },
       "language": {
         "label": "Language"
       },
-      "leadSources": {
-        "label": "Where do your leads come from?"
+      "mainSteps": {
+        "label": "Which steps does this work go through? We suggested common ones: rename, add or remove them."
       },
-      "offeringKinds": {
-        "label": "What do you sell?"
-      },
-      "offerings": {
-        "label": "Your offerings"
-      },
-      "orderStatuses": {
-        "label": "Your order steps"
-      },
-      "projectPhases": {
-        "label": "Your project phases"
+      "pricing": {
+        "label": "How do you charge?"
       },
       "purpose": {
-        "label": "What will you use this workspace for?"
+        "label": "What do you want to keep track of? Contacts and to-dos are always included."
       },
       "purposeDetails": {
-        "label": "Describe it in a sentence",
-        "placeholder": "For example: my freelance clients, invoices and tax deadlines"
-      },
-      "renewalPeriod": {
-        "label": "How often do contracts renew?"
-      },
-      "revenueModel": {
-        "label": "Do customers pay once or regularly?"
-      },
-      "salesCycle": {
-        "label": "Typical sales cycle in days"
-      },
-      "salesSteps": {
-        "label": "What are your sales steps?"
-      },
-      "taskOrganisation": {
-        "label": "How are your tasks organised?"
-      },
-      "teamRoles": {
-        "label": "Who does what in your team?"
+        "label": "Anything else we should know?",
+        "placeholder": "For example: we build kitchens and follow every job from the first visit to the installation"
       },
       "teamSize": {
-        "label": "How big is your team?"
+        "label": "Just you, or a team?"
       },
-      "ticketPriorities": {
-        "label": "Your ticket priorities"
-      },
-      "weeklyNumbers": {
-        "label": "Which numbers do you check every week? Pick up to three."
+      "workWith": {
+        "label": "Who do you work with?"
       }
     },
     "screens": {
-      "afterSale": "After the sale",
-      "dashboard": "Your dashboard",
-      "data": "Your data",
-      "knowledge": "Knowledge",
-      "winning": "Winning customers",
-      "workspace": "About this workspace"
+      "workspace": "About your work"
     },
     "start": {
-      "start": "Start the setup",
+      "optionsLabel": "Ways to set up your workspace",
+      "questions": {
+        "description": "Up to six quick questions about what you want to keep track of. About 1 minute.",
+        "title": "Answer a few questions"
+      },
+      "website": {
+        "action": "Read my website",
+        "description": "We read your public website and fill in the answers for you. You only check them.",
+        "note": "About 2 minutes. We only read public pages.",
+        "recommended": "Recommended",
+        "title": "Use my website"
+      },
       "withoutWebsite": "Continue without a website"
+    },
+    "suggestedSteps": {
+      "contracts": "Onboarding|Active|Up for renewal|Renewed|Ended",
+      "deals": "New inquiry|Contacted|Offer sent|Won|Lost",
+      "dealsClients": "Inquiry|First call|Proposal sent|Won|Lost",
+      "hiring": "Applied|Interview|Offer|Hired|Rejected",
+      "investors": "Contacted|First meeting|Due diligence|Committed|Passed",
+      "marketing": "Idea|In progress|Ready|Published",
+      "orders": "New|Confirmed|Shipped|Paid",
+      "partners": "Contacted|In talks|Active|Paused",
+      "projects": "Planned|In progress|Review|Done",
+      "support": "New|In progress|Waiting for customer|Solved"
     },
     "website": {
       "change": "Change",

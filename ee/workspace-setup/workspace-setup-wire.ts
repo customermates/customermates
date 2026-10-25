@@ -9,8 +9,8 @@ import { CHIP_COLORS } from "@/constants/chip-colors";
 import { RECORD_MEASURE_DATE_INTERVALS } from "@/features/records/record-measure.schema";
 import { SetupAnswersSchema } from "@/features/workspace-setup/setup-answers.schema";
 import {
+  SETUP_ASKED_FOLLOW_UP_QUESTIONS,
   SETUP_QUESTION_FORMATS,
-  SETUP_MAX_FOLLOW_UP_QUESTIONS,
   setupPart,
 } from "@/features/workspace-setup/setup-interview";
 import {
@@ -31,14 +31,7 @@ const AnswerFields = {
   choice: z.string().nullable().describe("singleChoice: the option id."),
   choices: z.array(z.string()).describe("multipleChoice or rankedPick: option ids in order."),
   custom: z.array(z.string()).describe("multipleChoice: own entries when allowCustom."),
-  items: z
-    .array(
-      z.object({
-        label: z.string(),
-        winChance: z.number().nullable().describe("A percentage from 0 to 100, or null."),
-      }),
-    )
-    .describe("orderedList: entries in order."),
+  items: z.array(z.object({ label: z.string() })).describe("orderedList: entries in order."),
   min: z.number().nullable().describe("range: the number, or the lower bound."),
   max: z.number().nullable().describe("range: the upper bound, null for one number."),
   text: z.string().nullable().describe("shortText: the text."),
@@ -57,17 +50,8 @@ function wireAnswerValue(format: (typeof SETUP_QUESTION_FORMATS)[number], wire: 
       return { format, value: wire.choice ?? "" };
     case "multipleChoice":
       return { format, values: wire.choices, custom: wire.custom };
-    case "orderedList": {
-      const chances = wire.items.flatMap((item) => (item.winChance === null ? [] : [item.winChance]));
-      const scale = chances.some((chance) => chance > 0) && chances.every((chance) => chance <= 1) ? 100 : 1;
-      return {
-        format,
-        items: wire.items.map((item) => ({
-          label: item.label,
-          ...(item.winChance === null ? {} : { winChance: Math.round(item.winChance * scale) }),
-        })),
-      };
-    }
+    case "orderedList":
+      return { format, items: wire.items.map((item) => ({ label: item.label })) };
     case "rankedPick":
       return { format, values: wire.choices };
     case "range":
@@ -93,11 +77,7 @@ export function prefillAnswers(wire: PrefillWire): SetupAnswers {
   for (const entry of wire.answers) {
     const part = setupPart(entry.part);
     if (!part || part.prefill === "no" || answers[entry.part]) continue;
-    const ownEntriesOnly = part.format === "multipleChoice" && part.options.length === 0;
-    const value = wireAnswerValue(
-      part.format,
-      ownEntriesOnly ? { ...entry, choices: [], custom: [...entry.custom, ...entry.choices] } : entry,
-    );
+    const value = wireAnswerValue(part.format, entry);
     if (!optionSourceValid(entry.part, value)) continue;
     const candidate = {
       [entry.part]: { source: "website" as const, confidence: Math.min(1, Math.max(0, entry.confidence)), value },
@@ -132,7 +112,7 @@ type FollowUpWire = z.infer<typeof FollowUpWireSchema>;
 export function followUpQuestions(wire: FollowUpWire): SetupFollowUpQuestion[] {
   const questions: SetupFollowUpQuestion[] = [];
   for (const entry of wire.questions) {
-    if (questions.length >= SETUP_MAX_FOLLOW_UP_QUESTIONS) break;
+    if (questions.length >= SETUP_ASKED_FOLLOW_UP_QUESTIONS) break;
     const id = SETUP_FOLLOW_UP_IDS[questions.length];
     const base = { id, label: entry.label, format: entry.format };
     const candidate =

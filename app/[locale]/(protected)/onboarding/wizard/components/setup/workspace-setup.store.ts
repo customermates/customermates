@@ -40,7 +40,6 @@ import {
   sanitizeAnswerValue,
   screenAnswersPayload,
   unansweredFollowUps,
-  visibleScreenIndexes,
 } from "./setup-interview-state";
 
 type SetupCommand = "start" | "website" | "save" | "plan" | "followUps" | "build" | "retry" | "upload";
@@ -65,17 +64,18 @@ export class WorkspaceSetupStore {
   touched = observable.set<string>();
   followUpDrafts: Record<string, SetupAnswerValue> = {};
   screenIndex = 0;
-  furthestScreen = 0;
   adjusting = false;
   missingShown = false;
   spreadsheetRejection: SpreadsheetRejection | null = null;
   pending: SetupCommand | null = null;
+  private suggestedSteps: string | null = null;
   private hydratedSetupId: string | null | undefined = undefined;
   private refreshGeneration = 0;
 
   constructor(public readonly rootStore: RootStore) {
-    makeAutoObservable<this, "hydratedSetupId" | "refreshGeneration">(this, {
+    makeAutoObservable<this, "hydratedSetupId" | "refreshGeneration" | "suggestedSteps">(this, {
       rootStore: false,
+      suggestedSteps: false,
       hydratedSetupId: false,
       refreshGeneration: false,
     });
@@ -107,10 +107,6 @@ export class WorkspaceSetupStore {
     return adjacentScreenIndex(this.screenIndex, this.answers, 1) === null;
   }
 
-  get visibleScreens(): number[] {
-    return visibleScreenIndexes(this.answers);
-  }
-
   get isBusy(): boolean {
     return this.pending !== null;
   }
@@ -128,7 +124,7 @@ export class WorkspaceSetupStore {
         .map((question) => question.id);
     }
     const missing = missingScreenParts(this.screen, this.answers, this.locale);
-    return this.screen === "data" && this.needsSpreadsheet ? [...missing, "existingData"] : missing;
+    return this.needsSpreadsheet ? [...missing, "existingData"] : missing;
   }
 
   get canConfirmScreen(): boolean {
@@ -189,8 +185,8 @@ export class WorkspaceSetupStore {
       this.adjusting = false;
       this.missingShown = false;
       this.spreadsheetRejection = null;
+      this.suggestedSteps = null;
       this.screenIndex = resumeScreenIndex(this.answers, setup?.interview.confirmedScreens ?? 0);
-      this.furthestScreen = this.screenIndex;
       return;
     }
     if (setup) this.answers = mergeServerAnswers(this.answers, this.touched, setup.interview.answers);
@@ -199,6 +195,25 @@ export class WorkspaceSetupStore {
   setAnswer = (id: string, value: SetupAnswerValue) => {
     this.answers = touchAnswer(this.answers, id, value);
     this.touched.add(id);
+  };
+
+  suggestSteps = (key: string | null, labels: string[]) => {
+    const current = this.answers.mainSteps;
+    if (this.touched.has("mainSteps") || current?.source === "website") return;
+    if (current ? this.suggestedSteps === null || this.suggestedSteps === key : !key) return;
+    this.suggestedSteps = key;
+    const rest = { ...this.answers };
+    delete rest.mainSteps;
+    this.answers = key
+      ? {
+          ...rest,
+          mainSteps: {
+            source: "user",
+            confidence: 1,
+            value: { format: "orderedList", items: labels.map((label) => ({ label })) },
+          },
+        }
+      : rest;
   };
 
   setFollowUpAnswer = (id: string, value: SetupAnswerValue) => {
@@ -220,13 +235,6 @@ export class WorkspaceSetupStore {
     if (this.isBusy) return;
     this.adjusting = true;
     this.screenIndex = 0;
-    this.furthestScreen = this.visibleScreens.at(-1) ?? 0;
-  };
-
-  goToScreen = (index: number) => {
-    if (this.isBusy || index > this.furthestScreen || !this.visibleScreens.includes(index)) return;
-    this.missingShown = false;
-    this.screenIndex = index;
   };
 
   private belongsToOtherWorkspace(view: WorkspaceSetupStatusView) {
@@ -368,7 +376,6 @@ export class WorkspaceSetupStore {
   private advanceScreen() {
     this.missingShown = false;
     this.screenIndex = adjacentScreenIndex(this.screenIndex, this.answers, 1) ?? this.screenIndex;
-    this.furthestScreen = Math.max(this.furthestScreen, this.screenIndex);
   }
 
   private discardAdjustment() {

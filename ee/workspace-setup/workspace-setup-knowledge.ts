@@ -1,10 +1,6 @@
 import type { SetupAnswers } from "@/features/workspace-setup/setup-answers.schema";
 import type { SETUP_PAGE_KINDS, SetupPlan } from "@/features/workspace-setup/setup-plan.schema";
-import type {
-  WikiSynthesisAddressForm,
-  WikiSynthesisBrief,
-  WikiSynthesisBriefTopic,
-} from "@/ee/wiki-crawl/wiki-synthesis-brief";
+import type { WikiSynthesisBrief, WikiSynthesisBriefTopic } from "@/ee/wiki-crawl/wiki-synthesis-brief";
 import type { WikiSynthesisRole } from "@/ee/wiki-crawl/wiki-synthesis.schema";
 
 import { WIKI_SYNTHESIS_MAX_STORED_TOPICS } from "@/ee/wiki-crawl/wiki-synthesis.schema";
@@ -12,14 +8,8 @@ import { WIKI_SYNTHESIS_MAX_STORED_TOPICS } from "@/ee/wiki-crawl/wiki-synthesis
 export type SetupPageKind = (typeof SETUP_PAGE_KINDS)[number];
 export type SetupPageTitle = (kind: SetupPageKind, competitor?: string) => string;
 
-const CHOOSABLE_PAGE_KINDS = [
-  "overview",
-  "productsPricing",
-  "idealCustomer",
-  "salesPlaybook",
-  "faq",
-  "processes",
-] as const;
+const ALWAYS_PAGE_KINDS = ["overview", "faq", "processes"] as const;
+const CUSTOMER_PAGE_KINDS = ["productsPricing", "idealCustomer", "salesPlaybook"] as const;
 const SINGLE_PAGE_KINDS: ReadonlySet<SetupPageKind> = new Set([
   "overview",
   "idealCustomer",
@@ -37,35 +27,13 @@ const PAGE_ROLES: Record<SetupPageKind, WikiSynthesisRole> = {
   toneOfVoice: "voice_and_tone",
   competitor: "competitor",
 };
-const MAX_COMPETITORS = 10;
 const MAX_KEY_LENGTH = 40;
 
-function setupChosenPageKinds(answers: SetupAnswers): SetupPageKind[] {
-  const value = answers.knowledgePages?.value;
-  if (value?.format !== "multipleChoice") return [...CHOOSABLE_PAGE_KINDS];
-  return CHOOSABLE_PAGE_KINDS.filter((kind) => value.values.includes(kind));
-}
-
-export function setupAddressForm(answers: SetupAnswers): WikiSynthesisAddressForm | null {
-  const value = answers.addressForm?.value;
-  return value?.format === "singleChoice" && (value.value === "formal" || value.value === "informal")
-    ? value.value
-    : null;
-}
-
-function setupCompetitors(answers: SetupAnswers): string[] {
-  const value = answers.competitors?.value;
-  if (value?.format !== "orderedList") return [];
-  const seen = new Set<string>();
-  return value.items
-    .flatMap(({ label }) => {
-      const name = label.trim();
-      const key = name.toLocaleLowerCase();
-      if (!name || seen.has(key)) return [];
-      seen.add(key);
-      return [name];
-    })
-    .slice(0, MAX_COMPETITORS);
+export function setupPageKinds(answers: SetupAnswers): SetupPageKind[] {
+  const value = answers.workWith?.value;
+  const withCustomers = value?.format === "singleChoice" && (value.value === "customers" || value.value === "clients");
+  const [overview, ...rest] = ALWAYS_PAGE_KINDS;
+  return [overview, ...(withCustomers ? CUSTOMER_PAGE_KINDS : []), ...rest];
 }
 
 export function setupKnowledgeBrief(
@@ -74,10 +42,10 @@ export function setupKnowledgeBrief(
   title: SetupPageTitle,
 ): WikiSynthesisBrief {
   const pages = plan?.knowledgeBase.pages ?? [];
-  const chosen = setupChosenPageKinds(answers);
+  const chosen = setupPageKinds(answers);
   const keys = new Set<string>();
   const topics: WikiSynthesisBriefTopic[] = [];
-  const push = (key: string, kind: SetupPageKind, pageTitle: string, outline: string[], competitor?: string) => {
+  const push = (key: string, kind: SetupPageKind, pageTitle: string, outline: string[]) => {
     let unique = key.slice(0, MAX_KEY_LENGTH);
     for (let suffix = 2; keys.has(unique); suffix += 1) unique = `${key.slice(0, MAX_KEY_LENGTH - 3)}${suffix}`;
     keys.add(unique);
@@ -86,7 +54,6 @@ export function setupKnowledgeBrief(
       role: PAGE_ROLES[kind],
       title: pageTitle,
       outline,
-      ...(competitor ? { competitor } : {}),
     });
   };
   for (const kind of [...chosen, "toneOfVoice" as const]) {
@@ -95,24 +62,12 @@ export function setupKnowledgeBrief(
     for (const page of SINGLE_PAGE_KINDS.has(kind) ? planned.slice(0, 1) : planned)
       push(page.key, kind, page.title, page.sections);
   }
-  const comparisons = pages.filter((page) => page.kind === "competitor");
-  for (const [index, competitor] of setupCompetitors(answers).entries()) {
-    const name = competitor.toLocaleLowerCase();
-    const page = comparisons.find((candidate) => candidate.title.toLocaleLowerCase().includes(name));
-    push(
-      page?.key ?? `competitor${index + 1}`,
-      "competitor",
-      page?.title ?? title("competitor", competitor),
-      page?.sections ?? [],
-      competitor,
-    );
-  }
   return {
     topics: topics.slice(0, WIKI_SYNTHESIS_MAX_STORED_TOPICS - 1),
     extraRoles: [
       ...(chosen.includes("productsPricing") ? (["offering"] as const) : []),
       ...(chosen.includes("processes") ? (["procedure"] as const) : []),
     ],
-    addressForm: setupAddressForm(answers),
+    addressForm: null,
   };
 }

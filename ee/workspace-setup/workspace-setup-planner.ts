@@ -14,6 +14,7 @@ import type { PlanKnowledgeWire, PlanModelWire, PlanViewsWire, PlanWire } from "
 import { z } from "zod";
 
 import { UserAccessor } from "@/core/base/user-accessor";
+import { SOLUTION_TEMPLATES } from "@/core/solutions/solution-templates";
 import { setupAnchorFields } from "@/features/workspace-setup/setup-anchors";
 import { SETUP_PLAN_LIMITS } from "@/features/workspace-setup/setup-plan.schema";
 import { createSetupResolver } from "@/features/workspace-setup/setup-references";
@@ -21,9 +22,11 @@ import { compileSetupDashboard } from "@/features/workspace-setup/setup-dashboar
 import { compileSetupImportMapping } from "@/features/workspace-setup/setup-import-compiler";
 import { compileSetupRecordModel } from "@/features/workspace-setup/setup-model-compiler";
 import { compileSetupListDefaults } from "@/features/workspace-setup/setup-view-compiler";
+import { closestSetupSolution } from "@/features/workspace-setup/setup-solution-match";
 import { untrustedText } from "@/features/mcp-tools/untrusted-record-content";
 
 import { WORKSPACE_SETUP_FAILURES } from "./workspace-setup.schema";
+import { setupPageKinds } from "./workspace-setup-knowledge";
 import {
   EMPTY_PLAN_KNOWLEDGE_WIRE,
   EMPTY_PLAN_MODEL_WIRE,
@@ -207,6 +210,7 @@ export class WorkspaceSetupPlanner extends UserAccessor {
 
   private async context(input: SetupPlanInput) {
     const catalog = await setupInterviewCatalog();
+    const template = closestSetupSolution(input.answers);
     return [
       `Workspace language: ${setupLanguageName(input.language)}. Workspace currency: ${input.currency}.`,
       ...(input.answersLanguage && input.answersLanguage !== input.language
@@ -216,6 +220,7 @@ export class WorkspaceSetupPlanner extends UserAccessor {
       untrustedText(
         encodePromptJson({ answers: setupAnswerDigest(input.answers, catalog), followUps: input.followUps }),
       ),
+      ...(template ? [`Reference template: ${encodePromptJson(SOLUTION_TEMPLATES[template])}`] : []),
     ];
   }
 
@@ -261,6 +266,7 @@ export class WorkspaceSetupPlanner extends UserAccessor {
       system: SETUP_PLAN_KNOWLEDGE_INSTRUCTION,
       prompt: [
         ...context,
+        `Page kinds: ${encodePromptJson(setupPageKinds(input.answers))}`,
         ...(input.website ? this.website(input, KNOWLEDGE_WEBSITE) : [SETUP_PLAN_KNOWLEDGE_WITHOUT_WEBSITE]),
       ],
       check: async (planned) => {

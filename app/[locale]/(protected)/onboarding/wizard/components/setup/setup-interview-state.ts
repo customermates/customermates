@@ -11,6 +11,7 @@ import {
   setupPartVisible,
 } from "@/features/workspace-setup/setup-interview";
 import { mergeWebsitePrefill } from "@/features/workspace-setup/setup-prefill";
+import { localeDefaultCurrency } from "@/i18n/locale-registry";
 
 export type SetupStage =
   | "unavailable"
@@ -88,7 +89,10 @@ function defaultAnswerValue(
     case "shortText":
       return { format: "shortText", value: "" };
     case "singleChoice":
-      return part.optionSource === "locales" ? { format: "singleChoice", value: locale } : null;
+      if (part.optionSource === "locales") return { format: "singleChoice", value: locale };
+      return part.optionSource === "currencies"
+        ? { format: "singleChoice", value: localeDefaultCurrency(locale) }
+        : null;
     case "rankedPick":
     case "range":
       return null;

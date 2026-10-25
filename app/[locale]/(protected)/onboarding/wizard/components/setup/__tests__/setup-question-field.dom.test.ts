@@ -54,7 +54,7 @@ vi.mock("@/components/forms/form-autocomplete-currency", () => ({
 
 import { followUpDescriptor, partDescriptor } from "../setup-question-descriptor";
 import { SetupQuestionField } from "../setup-question-field";
-import { setupPart } from "@/features/workspace-setup/setup-interview";
+import { type SetupQuestionPart, setupPart } from "@/features/workspace-setup/setup-interview";
 
 let container: HTMLDivElement;
 let root: Root;
@@ -62,8 +62,74 @@ let onChange: ReturnType<typeof vi.fn<(value: SetupAnswerValue) => void>>;
 
 const t = (key: string) => key;
 
+const options = (part: string, ids: string[]) =>
+  ids.map((id) => ({ id, labelKey: `WorkspaceSetup.options.${part}.${id}` }));
+const labelKey = (part: string) => `WorkspaceSetup.questions.${part}.label`;
+
+const FORMAT_FIXTURES: Record<string, SetupQuestionPart> = {
+  customerKind: {
+    id: "customerKind",
+    labelKey: labelKey("customerKind"),
+    format: "singleChoice",
+    prefill: "yes",
+    options: options("customerKind", ["businesses", "consumers", "both"]),
+  },
+  leadSources: {
+    id: "leadSources",
+    labelKey: labelKey("leadSources"),
+    format: "multipleChoice",
+    allowCustom: true,
+    prefill: "partly",
+    options: options("leadSources", ["website", "referrals", "events"]),
+  },
+  salesSteps: {
+    id: "salesSteps",
+    labelKey: labelKey("salesSteps"),
+    format: "orderedList",
+    winChance: true,
+    maxItems: 12,
+    prefill: "suggested",
+  },
+  weeklyNumbers: {
+    id: "weeklyNumbers",
+    labelKey: labelKey("weeklyNumbers"),
+    format: "rankedPick",
+    maxPicks: 3,
+    prefill: "no",
+    options: options("weeklyNumbers", ["pipelineValue", "forecast", "newLeads", "overdueTasks"]),
+  },
+  dealSize: {
+    id: "dealSize",
+    labelKey: labelKey("dealSize"),
+    format: "range",
+    unit: "currency",
+    single: false,
+    min: 0,
+    max: 100_000_000,
+    prefill: "partly",
+  },
+  salesCycle: {
+    id: "salesCycle",
+    labelKey: labelKey("salesCycle"),
+    format: "range",
+    unit: "days",
+    single: true,
+    min: 0,
+    max: 1_000,
+    prefill: "partly",
+  },
+  anythingMissed: {
+    id: "anythingMissed",
+    optional: true,
+    labelKey: labelKey("anythingMissed"),
+    format: "shortText",
+    maxLength: 1_000,
+    prefill: "no",
+  },
+};
+
 function descriptorOf(id: string): SetupQuestionDescriptor {
-  const part = setupPart(id);
+  const part = FORMAT_FIXTURES[id] ?? setupPart(id);
   if (!part) throw new Error(`Unknown part ${id}`);
   return partDescriptor(part, t);
 }

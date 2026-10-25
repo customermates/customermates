@@ -94,3 +94,12 @@ export const SetupAnswersSchema = z
     }
   });
 export type SetupAnswers = z.infer<typeof SetupAnswersSchema>;
+
+export function storedSetupAnswers(value: unknown): SetupAnswers {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  return Object.fromEntries(
+    Object.entries(value).filter(([id, answer]) => SetupAnswersSchema.safeParse({ [id]: answer }).success),
+  ) as SetupAnswers;
+}
+
+export const StoredSetupAnswersSchema = z.unknown().transform(storedSetupAnswers);

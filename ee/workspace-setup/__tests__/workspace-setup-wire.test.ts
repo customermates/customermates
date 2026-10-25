@@ -33,8 +33,8 @@ describe("pre-fill answers from the website", () => {
         { ...blank, part: "country", confidence: 0.9, choice: "DE" },
         { ...blank, part: "currency", confidence: 0.9, choice: "EUR" },
         { ...blank, part: "language", confidence: 0.9, choice: "de" },
-        { ...blank, part: "offeringKinds", confidence: 0.8, choices: ["services"], custom: ["Workshops"] },
-        { ...blank, part: "salesSteps", confidence: 0.6, items: [{ label: "Erstgespräch", winChance: 10.4 }] },
+        { ...blank, part: "purpose", confidence: 0.8, choices: ["projects"], custom: ["Site visits"] },
+        { ...blank, part: "mainSteps", confidence: 0.6, items: [{ label: "Erstgespräch" }, { label: "Angebot" }] },
       ],
     });
     expect(answers.companyName).toEqual({
@@ -43,40 +43,22 @@ describe("pre-fill answers from the website", () => {
       value: { format: "shortText", value: "Example GmbH" },
     });
     expect(answers.country?.value).toEqual({ format: "singleChoice", value: "DE" });
-    expect(answers.offeringKinds?.value).toEqual({
+    expect(answers.purpose?.value).toEqual({
       format: "multipleChoice",
-      values: ["services"],
-      custom: ["Workshops"],
+      values: ["projects"],
+      custom: ["Site visits"],
     });
-    expect(answers.salesSteps?.value).toEqual({
+    expect(answers.mainSteps?.value).toEqual({
       format: "orderedList",
-      items: [{ label: "Erstgespräch", winChance: 10 }],
-    });
-  });
-
-  it("reads win chances given as fractions of one as percentages", () => {
-    const steps = [
-      { label: "Lead", winChance: 0.1 },
-      { label: "Proposal", winChance: 0.55 },
-      { label: "Won", winChance: 1 },
-    ];
-    const answers = prefillAnswers({ answers: [{ ...blank, part: "salesSteps", confidence: 0.8, items: steps }] });
-    expect(answers.salesSteps?.value).toEqual({
-      format: "orderedList",
-      items: [
-        { label: "Lead", winChance: 10 },
-        { label: "Proposal", winChance: 55 },
-        { label: "Won", winChance: 100 },
-      ],
+      items: [{ label: "Erstgespräch" }, { label: "Angebot" }],
     });
   });
 
   it("drops never-prefilled parts, unknown options, invalid codes, unknown parts and clamps confidence", () => {
     const answers = prefillAnswers({
       answers: [
-        { ...blank, part: "dashboardAudience", confidence: 1, choice: "team" },
         { ...blank, part: "existingData", confidence: 1, choice: "sampleData" },
-        { ...blank, part: "customerKind", confidence: 1, choice: "aliens" },
+        { ...blank, part: "workWith", confidence: 1, choice: "aliens" },
         { ...blank, part: "country", confidence: 1, choice: "Germany" },
         { ...blank, part: "currency", confidence: 1, choice: "euro" },
         { ...blank, part: "language", confidence: 1, choice: "xx" },
@@ -110,7 +92,7 @@ describe("follow-up questions", () => {
     ...overrides,
   });
 
-  it("keeps at most three valid questions in the interview formats and numbers them", () => {
+  it("keeps one valid question in the interview formats", () => {
     const questions = followUpQuestions({
       questions: [
         wire({}),
@@ -120,11 +102,7 @@ describe("follow-up questions", () => {
         wire({ format: "orderedList", suggestions: ["Kickoff"], maxItems: 5 }),
       ],
     });
-    expect(questions.map((question) => [question.id, question.format])).toEqual([
-      ["followUp1", "singleChoice"],
-      ["followUp2", "range"],
-      ["followUp3", "shortText"],
-    ]);
+    expect(questions.map((question) => [question.id, question.format])).toEqual([["followUp1", "singleChoice"]]);
   });
 
   it("checks a follow-up answer against its own question", () => {
@@ -283,17 +261,5 @@ describe("plan normalisation the model does not need to get right", () => {
     expect(lowerCamelKey("competitor-hubspot")).toBe("competitorHubspot");
     expect(lowerCamelKey("ruby Hotels")).toBe("rubyHotels");
     expect(lowerCamelKey("2024 pipeline")).toBe("pipeline");
-  });
-
-  it("files a pre-filled choice for a question that only takes own entries as an own entry", () => {
-    expect(
-      prefillAnswers({ answers: [{ ...blank, part: "industries", confidence: 0.8, choices: ["Retail"] }] }),
-    ).toEqual({
-      industries: {
-        source: "website",
-        confidence: 0.8,
-        value: { format: "multipleChoice", values: [], custom: ["Retail"] },
-      },
-    });
   });
 });

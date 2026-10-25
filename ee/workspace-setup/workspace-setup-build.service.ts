@@ -95,7 +95,6 @@ import {
   setupAnswerTopics,
   setupAnswersSourceText,
 } from "./workspace-setup-answer-pages";
-import { setupAddressForm } from "./workspace-setup-knowledge";
 import { setupPageTitles } from "./workspace-setup-knowledge-brief";
 import {
   SETUP_ANSWER_PAGE_GUIDANCE,
@@ -471,7 +470,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
       !(await recover(SETUP_ANSWER_GUIDE_KEY))
     ) {
       const guide = setupAnswerGuide({
-        addressForm: setupAddressForm(setup.answers),
+        addressForm: null,
         pages: done.pages.flatMap(({ key, title: pageTitle, pageId }) =>
           key !== SETUP_ANSWER_GUIDE_KEY && pageId ? [{ title: pageTitle, pageId }] : [],
         ),
@@ -821,9 +820,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     const lineItemType = live(model.types, setupListReference(SETUP_LINE_ITEM_LIST));
     const dealRelation = live(model.relationships, setupRelationshipReference(SETUP_LINE_ITEM_DEAL));
     const offeringRelation = live(model.relationships, setupRelationshipReference(SETUP_LINE_ITEM_OFFERING));
-    const field = (name: Parameters<typeof setupLineItemField>[0]) =>
-      live(model.fields, setupFieldReference(setupLineItemField(name)));
-    const [quantity, pricingMode, savedPrice] = [field("quantity"), field("pricingMode"), field("savedPrice")];
+    const quantity = live(model.fields, setupFieldReference(setupLineItemField("quantity")));
     const lineName = live(model.fields, setupNameReference(SETUP_LINE_ITEM_LIST));
     const deals = resolver.list(lineItems.deals);
     const offerings = resolver.list(lineItems.offerings);
@@ -833,24 +830,13 @@ export class WorkspaceSetupBuildService extends UserAccessor {
       setupId: setup.id,
       samples,
       imported: new Set(refs.map((ref) => ref.recordId)),
-      answers: setup.answers,
       deals,
       offerings: { typeId: offerings, priceFieldId: price, nameFieldId: resolver.field(`${lineItems.offerings}.name`) },
     });
     for (const item of items) {
-      if (item.unitPrice && !(pricingMode && savedPrice)) continue;
       const fields: Array<{ fieldId: string; value: RecordScalar }> = [
         { fieldId: quantity, value: { kind: "decimal", value: String(item.quantity), currency: null } },
         ...(item.name && lineName ? [{ fieldId: lineName, value: { kind: "text" as const, value: item.name } }] : []),
-        ...(item.unitPrice && pricingMode && savedPrice
-          ? [
-              { fieldId: pricingMode, value: { kind: "select" as const, value: "saved" } },
-              {
-                fieldId: savedPrice,
-                value: { kind: "decimal" as const, value: item.unitPrice, currency: plan.workspace.currency },
-              },
-            ]
-          : []),
       ];
       const created = await this.mutateRecord.invoke({
         expectedRevision: model.revision,
@@ -861,9 +847,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
           fields,
           links: [
             { relationId: dealRelation, direction: "outgoing", record: item.deal },
-            ...(item.offering
-              ? [{ relationId: offeringRelation, direction: "outgoing" as const, record: item.offering }]
-              : []),
+            { relationId: offeringRelation, direction: "outgoing", record: item.offering },
           ],
         },
       });

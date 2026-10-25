@@ -2,7 +2,6 @@ import type { Root } from "react-dom/client";
 
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
-import { runInAction } from "mobx";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const harness = vi.hoisted(() => ({ rootStore: null as unknown }));
@@ -30,8 +29,6 @@ vi.mock("../../../workspace-setup-actions", () => ({}));
 const toast = vi.hoisted(() => vi.fn());
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: toast }));
 
-import { SETUP_SCREENS } from "@/features/workspace-setup/setup-interview";
-
 import { WorkspaceSetupStore } from "../workspace-setup.store";
 import { SetupInterview } from "../setup-interview";
 import { setupView } from "./setup-view-fixture";
@@ -44,10 +41,10 @@ const wizard = { isSubmitting: false, startEmpty: vi.fn(() => Promise.resolve())
 function renderDataScreen(existingData: string) {
   const store = new WorkspaceSetupStore({ localeStore: { locale: "en" } } as never);
   store.hydrate({ available: true, setup: setupView() });
-  runInAction(() => {
-    store.screenIndex = SETUP_SCREENS.indexOf("data");
+  store.setAnswer("existingData", {
+    format: "singleChoice",
+    value: existingData,
   });
-  store.setAnswer("existingData", { format: "singleChoice", value: existingData });
   harness.rootStore = { workspaceSetupStore: store, onboardingWizardStore: wizard };
   act(() => root.render(createElement(SetupInterview)));
 }
@@ -89,14 +86,14 @@ describe("SetupInterview", () => {
 
     const upload = field("existingData").nextElementSibling;
     expect(upload?.querySelector("#setup-spreadsheet")).not.toBeNull();
-    expect(upload?.nextElementSibling).toBe(field("anythingMissed"));
+    expect(upload?.parentElement?.nextElementSibling?.contains(field("purposeDetails"))).toBe(true);
   });
 
   it("asks for no spreadsheet when the workspace starts with sample data", () => {
     renderDataScreen("sampleData");
 
     expect(container.querySelector("#setup-spreadsheet")).toBeNull();
-    expect(field("existingData").nextElementSibling).toBe(field("anythingMissed"));
+    expect(field("existingData").nextElementSibling).toBeNull();
   });
 
   it("shows how far the website has been read until its suggestions are in", () => {
@@ -150,17 +147,17 @@ describe("SetupInterview", () => {
     expect(container.querySelector('input[aria-label="Common.inputs.websiteUrl"]')).toBeNull();
   });
 
-  it("keeps Next enabled, marks the missing answers and focuses the first when it is pressed too early", async () => {
+  it("keeps the plan button enabled, marks the missing answers and focuses the first when it is pressed too early", async () => {
     renderWebsite(setupView());
     const next = [...container.querySelectorAll("button")].find((candidate) =>
-      candidate.textContent?.includes("OnboardingWizard.next"),
+      candidate.textContent?.includes("WorkspaceSetup.interview.showPlan"),
     );
     expect(next?.disabled).toBe(false);
     const bar = next?.closest<HTMLElement>('[data-slot="setup-action-bar"]');
     expect(bar?.className.split(" ")).toEqual(
       expect.arrayContaining(["sticky", "bottom-[calc(0.625rem+var(--safe-bottom))]"]),
     );
-    expect(bar?.textContent).toContain("WorkspaceSetup.interview.stepProgress");
+    expect(bar?.textContent).toContain("WorkspaceSetup.interview.planHint");
     expect(container.querySelector('[data-invalid="true"]')).toBeNull();
 
     act(() => next?.click());
@@ -189,17 +186,48 @@ describe("SetupInterview", () => {
     expect(wizard.startEmpty).toHaveBeenCalledOnce();
   });
 
-  it("offers to fill in the answers from a website on every part when none is given", () => {
+  it("asks the questions by hand without a website box when the owner chose the questions", () => {
     const text = renderWebsite(
       setupView({ websiteUrl: null, interview: { ...setupView().interview, prefill: "skipped" } }),
     );
-    expect(text).toContain("WorkspaceSetup.website.title");
-    expect(text).toContain("WorkspaceSetup.website.hint");
-    expect(text).toContain("WorkspaceSetup.website.read");
-    const callout = container.querySelector('[data-slot="alert"]');
-    expect(callout?.querySelector('input[aria-label="Common.inputs.websiteUrl"]')).not.toBeNull();
-    expect(callout?.querySelector('[data-slot="button"][data-variant="secondary"]')?.textContent).toBe(
-      "WorkspaceSetup.website.read",
+    expect(text).not.toContain("WorkspaceSetup.website.title");
+    expect(container.querySelector('input[aria-label="Common.inputs.websiteUrl"]')).toBeNull();
+    expect(field("workWith")).toBeDefined();
+    expect(field("purpose")).toBeDefined();
+  });
+
+  it("shows the business name, country, language and currency as one line until the owner changes them", () => {
+    const view = setupView({ websiteUrl: null, interview: { ...setupView().interview, prefill: "skipped" } });
+    renderWebsite(view);
+    const store = (harness.rootStore as { workspaceSetupStore: WorkspaceSetupStore }).workspaceSetupStore;
+    act(() => store.setAnswer("companyName", { format: "shortText", value: "Acme" }));
+    expect(container.querySelector('[aria-labelledby="setup-question-currency"]')).toBeNull();
+    expect(container.textContent).toContain("Acme");
+
+    const change = [...container.querySelectorAll("button")].find(
+      (candidate) => candidate.textContent === "WorkspaceSetup.website.change",
     );
+    act(() => change?.click());
+    expect(field("currency")).toBeDefined();
+    expect(field("companyName")).toBeDefined();
+  });
+
+  it("suggests steps for the tracked work and asks how the owner charges only with customers", () => {
+    renderWebsite(setupView({ websiteUrl: null, interview: { ...setupView().interview, prefill: "skipped" } }));
+    const store = (harness.rootStore as { workspaceSetupStore: WorkspaceSetupStore }).workspaceSetupStore;
+    expect(container.querySelector('[aria-labelledby="setup-question-mainSteps"]')).toBeNull();
+    expect(container.querySelector('[aria-labelledby="setup-question-pricing"]')).toBeNull();
+
+    act(() => {
+      store.setAnswer("workWith", { format: "singleChoice", value: "clients" });
+      store.setAnswer("purpose", { format: "multipleChoice", values: ["deals"], custom: [] });
+    });
+
+    expect(field("pricing")).toBeDefined();
+    expect(field("mainSteps")).toBeDefined();
+    expect(store.answers.mainSteps?.value).toEqual({
+      format: "orderedList",
+      items: [{ label: "WorkspaceSetup.suggestedSteps.dealsClients" }],
+    });
   });
 });

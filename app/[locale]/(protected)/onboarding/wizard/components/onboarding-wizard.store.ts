@@ -195,26 +195,7 @@ export class OnboardingWizardStore {
     }
   };
 
-  startEmpty = async (): Promise<void> => {
-    if (this.isSubmitting) return;
-    this.setIsSubmitting(true);
-    try {
-      const setupStep = await completeOnboardingSetupStepAction();
-      if (!setupStep.ok) {
-        toastZodErrorTree(serializedFailureErrorTree(setupStep.failure));
-        return;
-      }
-      const res = await completeOnboardingWizardAction();
-      if (!res.ok) {
-        toastZodErrorTree(serializedFailureErrorTree(res.failure));
-        return;
-      }
-
-      this.leaveWizard(res.data.redirectTo);
-    } finally {
-      this.setIsSubmitting(false);
-    }
-  };
+  startEmpty = (): Promise<void> => this.completeSetupStep();
 
   complete = async (): Promise<void> => {
     this.setIsSubmitting(true);

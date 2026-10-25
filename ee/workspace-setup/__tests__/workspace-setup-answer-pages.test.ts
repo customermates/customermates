@@ -19,9 +19,8 @@ const user = { source: "user" as const, confidence: 1 };
 const answers: SetupAnswers = {
   companyName: { ...user, value: { format: "shortText", value: "Studio Example" } },
   currency: { ...user, value: { format: "singleChoice", value: "EUR" } },
-  knowledgePages: { ...user, value: { format: "multipleChoice", values: ["overview", "faq"], custom: [] } },
-  addressForm: { ...user, value: { format: "singleChoice", value: "formal" } },
-  competitors: { ...user, value: { format: "orderedList", items: [{ label: "Studio North" }] } },
+  workWith: { ...user, value: { format: "singleChoice", value: "ownWork" } },
+  mainSteps: { ...user, value: { format: "orderedList", items: [{ label: "Briefing" }, { label: "Done" }] } },
 };
 const t = (key: string, values?: Record<string, string>) =>
   values ? `${key}(${Object.values(values).join(",")})` : key;
@@ -42,13 +41,12 @@ describe("Knowledge Base pages from the setup answers", () => {
     const lines = source.split("\n");
     expect(lines.every((line) => line.startsWith("- "))).toBe(true);
     expect(lines.some((line) => line.endsWith(" Studio Example"))).toBe(true);
-    expect(lines.some((line) => line.endsWith(" Studio North"))).toBe(true);
+    expect(lines.some((line) => line.includes("Briefing"))).toBe(true);
   });
 
-  it("writes the chosen pages without the FAQ and keeps the form of address on the voice page", () => {
+  it("writes the pages for the workspace without the FAQ and adds the voice page", () => {
     const topics = setupAnswerTopics(plan, answers, title);
-    expect(topics.map((topic) => topic.role)).toEqual(["company_overview", "voice_and_tone", "competitor"]);
-    expect(topics.find((topic) => topic.role === "voice_and_tone")?.addressForm).toBe("formal");
+    expect(topics.map((topic) => topic.role)).toEqual(["company_overview", "procedure", "voice_and_tone"]);
     expect(topics[0]).toMatchObject({ title: "About the agency", outline: ["What we do", "How we work"] });
   });
 
@@ -90,9 +88,7 @@ describe("Knowledge Base pages from the setup answers", () => {
     expect(page?.markdown).toContain("## sourcesHeading\n\n- answers of 2026-10-16");
     expect(page?.markdown).toContain("## gapsHeading\n\n- Who are the main customers?");
     expect(setupAnswerPage({ topic: overview, draft: null, copy, source: "answers of 2026-10-16" })).toBeNull();
-    expect(setupAnswerPage({ topic: voice, draft: null, copy, source: "answers of 2026-10-16" })?.markdown).toContain(
-      "## address.heading",
-    );
+    expect(setupAnswerPage({ topic: voice, draft: null, copy, source: "answers of 2026-10-16" })).toBeNull();
   });
 
   it("links the written pages from an Operating Guide", () => {

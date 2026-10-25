@@ -8,6 +8,7 @@ type LocaleCapabilities = {
   validationTag: string;
   textSearchConfig: TextSearchConfig;
   iso6393: string;
+  defaultCurrency: string;
 };
 
 export type TextSearchConfig = "english" | "german" | "french" | "italian" | "spanish";
@@ -23,6 +24,7 @@ export const LOCALE_REGISTRY = {
     validationTag: "en",
     textSearchConfig: "english",
     iso6393: "eng",
+    defaultCurrency: "USD",
   },
   de: {
     offeredAsDisplayLanguage: true,
@@ -34,6 +36,7 @@ export const LOCALE_REGISTRY = {
     validationTag: "de",
     textSearchConfig: "german",
     iso6393: "deu",
+    defaultCurrency: "EUR",
   },
   fr: {
     offeredAsDisplayLanguage: true,
@@ -53,6 +56,7 @@ export const LOCALE_REGISTRY = {
     validationTag: "fr",
     textSearchConfig: "french",
     iso6393: "fra",
+    defaultCurrency: "EUR",
   },
   it: {
     offeredAsDisplayLanguage: true,
@@ -64,6 +68,7 @@ export const LOCALE_REGISTRY = {
     validationTag: "it",
     textSearchConfig: "italian",
     iso6393: "ita",
+    defaultCurrency: "EUR",
   },
   es: {
     offeredAsDisplayLanguage: true,
@@ -75,6 +80,7 @@ export const LOCALE_REGISTRY = {
     validationTag: "es",
     textSearchConfig: "spanish",
     iso6393: "spa",
+    defaultCurrency: "EUR",
   },
 } as const satisfies Record<string, LocaleCapabilities>;
 
@@ -173,6 +179,10 @@ export function partialMarketingPaths(locale: PartialMarketingLocale): readonly 
 export const FORMATTING_LOCALES: readonly FormattingLocale[] = REGISTERED_LOCALES.filter(isFormattingLocale);
 
 export const ROUTING_LOCALES: readonly RoutingLocale[] = REGISTERED_LOCALES.filter(isRoutingLocale);
+
+export function localeDefaultCurrency(value: unknown): string {
+  return LOCALE_REGISTRY[isLocaleCode(value) ? value : DEFAULT_LOCALE].defaultCurrency;
+}
 
 export function appLocaleOrDefault(value: unknown): AppLocale {
   return isAppLocale(value) ? value : DEFAULT_LOCALE;

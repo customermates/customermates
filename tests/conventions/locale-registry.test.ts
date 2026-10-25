@@ -65,6 +65,7 @@ describe("locale registry", () => {
     for (const locale of ROUTING_LOCALES) {
       expect(LOCALE_REGISTRY[locale].formattingTag, `${locale} formattingTag`).toMatch(LOCALE_TAG);
       expect(LOCALE_REGISTRY[locale].flagCode, `${locale} flagCode`).toMatch(/^[a-z]{2}$/);
+      expect(LOCALE_REGISTRY[locale].defaultCurrency, `${locale} defaultCurrency`).toMatch(/^[A-Z]{3}$/);
     }
   });
 

@@ -22,6 +22,7 @@ import { OPERATOR_AUDIT_ACTION } from "@/ee/operator/operator.schema";
 import { ROUTINE_RUN_REASONS } from "@/ee/routines/routine-run-outcome";
 import { ROUTINE_SCHEDULE_PRESETS } from "@/ee/routines/routine-schedule-preset";
 import { RECORD_PRESET_KEYS } from "@/features/records/workspace-record-preset";
+import { SETUP_STEP_SUGGESTIONS } from "@/features/workspace-setup/setup-solution-match";
 import { DomainEvent } from "@/features/event/domain-events";
 import { LEGACY_DOMAIN_EVENTS } from "@/features/event/event-label";
 import { FeedbackType } from "@/features/feedback/send-feedback.schema";
@@ -130,6 +131,7 @@ const FEEDBACK_DESCRIPTION_KEYS = Object.values(FeedbackType).map((type) => `fee
 const FEEDBACK_TITLE_KEYS = Object.values(FeedbackType).map((type) => `feedback.${type}.title`);
 const CUSTOM_ERROR_CODE_KEYS = Object.values(CustomErrorCode).map((code) => `Common.errors.${code}`);
 const FILTER_FIELD_KEYS = Object.values(FilterFieldKey).map((field) => `Common.filters.fields.${field}`);
+const SETUP_STEP_SUGGESTION_KEYS = SETUP_STEP_SUGGESTIONS.map((key) => `WorkspaceSetup.suggestedSteps.${key}`);
 const ROLE_RESOURCE_KEYS = Object.values(Resource).map((resource) => `RoleModal.resources.${resource}`);
 const DISPLAY_TYPE_KEYS = Object.values(DisplayType).map((displayType) => `Dashboard.displayTypes.${displayType}`);
 const WIDGET_DISPLAY_REQUIREMENT_KEYS = WIDGET_DISPLAY_REQUIREMENTS.map(
@@ -608,6 +610,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
     "WorkspaceSetup.website.${*}",
     ["WorkspaceSetup.website.finding", "WorkspaceSetup.website.reading", "WorkspaceSetup.website.suggesting"],
   ],
+  ["WorkspaceSetup.suggestedSteps.${*}", SETUP_STEP_SUGGESTION_KEYS],
   ["RoleModal.resources.${*}", ROLE_RESOURCE_KEYS],
   ["Wiki.kind.${*}", WIKI_PAGE_KIND_KEYS],
   ["Subscription.picker.features.${*}", SUBSCRIPTION_FEATURE_KEYS],
@@ -825,6 +828,7 @@ export const DYNAMIC_KEY_SITES = [
   "components/shared/locale-menu.tsx :: t :: Common.locales.${locale}",
   "app/[locale]/(protected)/onboarding/wizard/components/setup/setup-question-field.tsx :: t :: Common.locales.${locale}",
   "app/[locale]/(protected)/onboarding/wizard/components/setup/setup-interview.tsx :: t :: WorkspaceSetup.website.${progress.stage}",
+  "app/[locale]/(protected)/onboarding/wizard/components/setup/setup-interview.tsx :: t :: WorkspaceSetup.suggestedSteps.${suggestion}",
   "app/[locale]/(protected)/onboarding/wizard/components/setup/setup-screen-summary.ts :: t :: Common.locales.${value.value}",
   "core/validation/zod-error-map-server.ts :: t.raw :: Common.errors.${code}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.approval.${copyKind}",
@@ -868,7 +872,6 @@ export const DYNAMIC_KEY_SITES = [
 ];
 
 const NONLITERAL_T_CALL_SITES = new Map<string, number>([
-  ["app/[locale]/(protected)/onboarding/wizard/components/setup/setup-interview.tsx :: t :: screen.titleKey", 1],
   ["app/[locale]/(protected)/onboarding/wizard/components/setup/setup-question-descriptor.ts :: t :: option.labelKey", 1],
   ["app/[locale]/(protected)/onboarding/wizard/components/setup/setup-question-descriptor.ts :: t :: part.labelKey", 1],
   ["app/[locale]/(protected)/onboarding/wizard/components/setup/setup-question-descriptor.ts :: t :: part.placeholderKey", 1],

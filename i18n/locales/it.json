@@ -3204,7 +3204,6 @@
     },
     "next": "Avanti",
     "profile": {
-      "websiteDescription": "Facoltativo. Leggiamo il tuo sito pubblico per suggerire le risposte durante la configurazione del tuo spazio di lavoro.",
       "websitePlaceholder": "esempio.it"
     },
     "progress": "Passaggio {current} di {total}",
@@ -3226,9 +3225,11 @@
       },
       "setup": {
         "planningSubtitle": "Le tue risposte sono salvate. Mate le trasforma in un piano per il tuo spazio di lavoro, che controlli prima che venga creato qualcosa.",
-        "subtitle": "Alcune brevi domande sull'uso di questo spazio di lavoro. Quello che abbiamo potuto leggere sul tuo sito è già compilato: per lo più devi solo confermare.",
+        "startSubtitle": "Creiamo le tue liste, i passaggi, la dashboard e alcune pagine della knowledge base. Potrai cambiare tutto in seguito.",
+        "startTitle": "Come vuoi configurare il tuo spazio di lavoro?",
+        "subtitle": "Quello che abbiamo letto sul tuo sito è già compilato. Controllalo e cambia ciò che non va.",
         "title": "Configura il tuo spazio di lavoro",
-        "withoutWebsiteSubtitle": "Alcune brevi domande sull'uso di questo spazio di lavoro. Quasi tutte si risolvono con una scelta rapida: bastano pochi minuti."
+        "withoutWebsiteSubtitle": "Alcune domande rapide su cosa vuoi tenere sotto controllo. Quasi tutte richiedono un solo clic."
       }
     }
   },
@@ -5253,7 +5254,7 @@
   },
   "WorkspaceSetup": {
     "actions": {
-      "addOwn": "Aggiungi una voce",
+      "addOwn": "Altro",
       "continueAnyway": "Continua comunque",
       "fromWebsite": "Suggerito dal tuo sito web",
       "upload": "Carica un foglio di calcolo",
@@ -5315,7 +5316,7 @@
     "empty": {
       "action": "Inizia con uno spazio di lavoro vuoto",
       "confirm": "Inizia vuoto",
-      "description": "Salti la configurazione guidata. Non vengono create liste, pipeline, dashboard né pagine della knowledge base, quindi costruisci tutto da solo. Ti consigliamo la configurazione guidata.",
+      "description": "Non vengono create liste, pipeline né dashboard. Puoi crearle tu oppure chiedere a Mate di configurarle più tardi.",
       "title": "Iniziare con uno spazio di lavoro vuoto?"
     },
     "failures": {
@@ -5334,19 +5335,20 @@
     },
     "interview": {
       "addEntry": "Aggiungi una voce",
-      "adjusting": "Modifica le risposte che vuoi, poi conferma l’ultima schermata per creare un nuovo piano.",
-      "customPlaceholder": "La tua risposta",
+      "adjusting": "Cambia le risposte che vuoi, poi mostra di nuovo il piano.",
+      "customPlaceholder": "Descrivilo in poche parole",
       "days": "giorni",
       "entryLabel": "Voce {index}",
       "followUpsSubtitle": "Alcune risposte si possono intendere in più modi. Queste domande lo chiariscono.",
       "followUpsTitle": "Ancora qualche dettaglio",
       "optionalPlaceholder": "Lascia vuoto se non ti viene in mente nulla",
+      "planHint": "Controlli il piano prima che venga creato qualcosa",
       "prefillFailed": "Non siamo riusciti a leggere il tuo sito, quindi nulla è precompilato. Le domande richiedono comunque solo pochi minuti.",
       "rangeFrom": "Da",
       "rangeTo": "Fino a",
       "rankedHint": "{count} di {max} scelti, in ordine di importanza",
       "rankedOption": "Posizione {rank}: {label}",
-      "stepProgress": "Parte {current} di {total}",
+      "showPlan": "Mostra il piano del mio spazio",
       "stepsLabel": "Domande di configurazione",
       "uploadChoose": "Scegli file",
       "uploadFailures": {
@@ -5368,119 +5370,40 @@
       "winChanceFor": "Probabilità di chiusura della voce {index}"
     },
     "options": {
-      "addressForm": {
-        "formal": "Formale (Lei)",
-        "informal": "Informale (tu)"
-      },
-      "afterSale": {
-        "appointments": "Appuntamenti",
-        "contractsRenewals": "Contratti e rinnovi",
-        "nothing": "Nient'altro",
-        "ordersInvoices": "Ordini e fatture",
-        "projects": "Progetti",
-        "supportTickets": "Ticket di assistenza"
-      },
-      "customerKind": {
-        "both": "Entrambi",
-        "businesses": "Aziende",
-        "consumers": "Privati"
-      },
-      "customerSize": {
-        "large": "Grandi imprese",
-        "medium": "Medie imprese",
-        "mixed": "Dimensioni miste",
-        "small": "Piccole aziende"
-      },
-      "dashboardAudience": {
-        "management": "Direzione",
-        "me": "Solo io",
-        "team": "Tutto il team"
-      },
-      "dealDetails": {
-        "budget": "Budget",
-        "closeDate": "Data di chiusura prevista",
-        "contractEnd": "Fine del contratto",
-        "decisionMaker": "Decisore",
-        "lostReason": "Motivo della perdita",
-        "nextStep": "Prossimo passo",
-        "vatId": "Partita IVA"
-      },
       "existingData": {
-        "empty": "Inizia da zero",
-        "sampleData": "Inizia con dati di esempio",
-        "spreadsheet": "Importa un foglio di calcolo"
+        "empty": "No, inizia senza record",
+        "sampleData": "Sì, aggiungi esempi",
+        "spreadsheet": "Importa il mio foglio di calcolo"
       },
-      "knowledgePages": {
-        "faq": "Domande frequenti",
-        "idealCustomer": "Cliente ideale",
-        "overview": "Panoramica",
-        "processes": "Processi",
-        "productsPricing": "Prodotti e prezzi",
-        "salesPlaybook": "Guida alla vendita e obiezioni"
-      },
-      "leadSources": {
-        "ads": "Pubblicità",
-        "events": "Eventi e fiere",
-        "outbound": "Contatto diretto",
-        "partners": "Partner",
-        "referrals": "Passaparola",
-        "socialMedia": "Social network",
-        "website": "Sito web"
-      },
-      "offeringKinds": {
-        "products": "Prodotti",
-        "projects": "Progetti",
-        "services": "Servizi",
-        "subscriptions": "Abbonamenti"
+      "pricing": {
+        "fixedPrice": "Un prezzo fisso per lavoro",
+        "free": "Non facciamo pagare",
+        "products": "Prezzi dei prodotti",
+        "subscription": "Un canone mensile o annuale",
+        "timeBased": "A ore o a giornata"
       },
       "purpose": {
-        "clients": "Clienti e vendite",
-        "finances": "Finanze e tasse",
-        "hiring": "Selezione del personale",
+        "chats": "Chat su WhatsApp, LinkedIn o via email",
+        "contracts": "Account clienti, contratti e rinnovi",
+        "deals": "Nuove richieste fino al sì",
+        "finances": "Finanze, tasse e scadenze",
+        "hiring": "Candidature",
+        "investors": "Investitori e raccolta fondi",
         "marketing": "Marketing e contenuti",
-        "projects": "Progetti",
-        "support": "Assistenza clienti"
-      },
-      "renewalPeriod": {
-        "monthly": "Mensile",
-        "multiYear": "Ogni qualche anno",
-        "quarterly": "Trimestrale",
-        "yearly": "Annuale"
-      },
-      "revenueModel": {
-        "both": "Entrambi",
-        "oneOff": "Pagamenti una tantum",
-        "recurring": "Pagamenti ricorrenti"
-      },
-      "taskOrganisation": {
-        "perCustomer": "Per cliente",
-        "perDeal": "Per trattativa",
-        "perProject": "Per progetto",
-        "recurring": "Attività ricorrenti"
-      },
-      "teamRoles": {
-        "accountManagement": "Gestione clienti",
-        "delivery": "Erogazione",
-        "finance": "Finanza",
-        "sales": "Vendite",
-        "support": "Assistenza"
+        "orders": "Ordini e fatture",
+        "partners": "Partner e fornitori",
+        "projects": "Progetti o lavori che realizziamo",
+        "support": "Richieste di assistenza"
       },
       "teamSize": {
         "large": "Più di 20 persone",
-        "medium": "Da 6 a 20 persone",
-        "small": "Da 2 a 5 persone",
+        "small": "Un piccolo team",
         "solo": "Solo io"
       },
-      "weeklyNumbers": {
-        "conversionByStage": "Conversione per fase",
-        "forecast": "Previsione",
-        "newLeads": "Nuovi contatti",
-        "openTickets": "Ticket aperti",
-        "overdueTasks": "Attività scadute",
-        "pipelineValue": "Valore della pipeline",
-        "recurringRevenue": "Ricavi ricorrenti",
-        "renewalsDue": "Rinnovi in scadenza",
-        "wonThisMonth": "Vinto questo mese"
+      "workWith": {
+        "clients": "Clienti per cui lavoriamo",
+        "customers": "Clienti che acquistano da noi",
+        "ownWork": "Nessun cliente, è per il nostro lavoro"
       }
     },
     "plan": {
@@ -5520,23 +5443,8 @@
       "winChanceValue": "{value} %"
     },
     "questions": {
-      "addressForm": {
-        "label": "Come ti rivolgi alle persone per iscritto?"
-      },
-      "afterSale": {
-        "label": "Che cosa segue a una trattativa vinta?"
-      },
-      "anythingMissed": {
-        "label": "Abbiamo dimenticato qualcosa?"
-      },
-      "appointmentTypes": {
-        "label": "I tuoi tipi di appuntamento"
-      },
       "companyName": {
         "label": "Nome della tua attività o del progetto"
-      },
-      "competitors": {
-        "label": "I tuoi principali concorrenti"
       },
       "country": {
         "label": "Paese"
@@ -5544,94 +5452,61 @@
       "currency": {
         "label": "Valuta"
       },
-      "customerKind": {
-        "label": "Chi sono i tuoi clienti?"
-      },
-      "customerSize": {
-        "label": "Quanto sono grandi i tuoi clienti?"
-      },
-      "dashboardAudience": {
-        "label": "Chi guarda la dashboard?"
-      },
-      "dealDetails": {
-        "label": "Che cosa devi sapere di una trattativa o di un cliente?"
-      },
-      "dealSize": {
-        "label": "Valore tipico di una trattativa"
-      },
       "existingData": {
-        "label": "Come vuoi iniziare?"
-      },
-      "industries": {
-        "label": "In quali settori operano?"
-      },
-      "knowledgePages": {
-        "label": "Quali pagine della base di conoscenza dobbiamo scrivere?"
+        "label": "Aggiungere record di esempio per provare tutto?"
       },
       "language": {
         "label": "Lingua"
       },
-      "leadSources": {
-        "label": "Da dove arrivano i tuoi contatti?"
+      "mainSteps": {
+        "label": "Quali passaggi attraversa questo lavoro? Abbiamo suggerito quelli più comuni: rinominali, aggiungine o toglili."
       },
-      "offeringKinds": {
-        "label": "Che cosa vendi?"
-      },
-      "offerings": {
-        "label": "Le tue offerte"
-      },
-      "orderStatuses": {
-        "label": "Le fasi dei tuoi ordini"
-      },
-      "projectPhases": {
-        "label": "Le fasi dei tuoi progetti"
+      "pricing": {
+        "label": "Come ti fai pagare?"
       },
       "purpose": {
-        "label": "Per cosa userai questo spazio di lavoro?"
+        "label": "Cosa vuoi tenere sotto controllo? Contatti e attività sono sempre inclusi."
       },
       "purposeDetails": {
-        "label": "Descrivilo in una frase",
-        "placeholder": "Per esempio: i miei clienti da freelance, le fatture e le scadenze fiscali"
-      },
-      "renewalPeriod": {
-        "label": "Ogni quanto si rinnovano i contratti?"
-      },
-      "revenueModel": {
-        "label": "I clienti pagano una volta o regolarmente?"
-      },
-      "salesCycle": {
-        "label": "Ciclo di vendita tipico in giorni"
-      },
-      "salesSteps": {
-        "label": "Quali sono le tue fasi di vendita?"
-      },
-      "taskOrganisation": {
-        "label": "Come sono organizzate le tue attività?"
-      },
-      "teamRoles": {
-        "label": "Chi fa cosa nel tuo team?"
+        "label": "C'è altro che dovremmo sapere?",
+        "placeholder": "Per esempio: costruiamo cucine e seguiamo ogni lavoro dal primo sopralluogo al montaggio"
       },
       "teamSize": {
-        "label": "Quanto è grande il tuo team?"
+        "label": "Solo tu o un team?"
       },
-      "ticketPriorities": {
-        "label": "Le priorità dei tuoi ticket"
-      },
-      "weeklyNumbers": {
-        "label": "Quali numeri controlli ogni settimana? Scegline fino a tre."
+      "workWith": {
+        "label": "Con chi lavori?"
       }
     },
     "screens": {
-      "afterSale": "Dopo la vendita",
-      "dashboard": "La tua dashboard",
-      "data": "I tuoi dati",
-      "knowledge": "Conoscenza",
-      "winning": "Acquisire clienti",
-      "workspace": "Su questo spazio di lavoro"
+      "workspace": "Il tuo lavoro"
     },
     "start": {
-      "start": "Avvia la configurazione",
+      "optionsLabel": "Modi per configurare il tuo spazio di lavoro",
+      "questions": {
+        "description": "Fino a sei domande rapide su cosa vuoi tenere sotto controllo. Circa 1 minuto.",
+        "title": "Rispondi ad alcune domande"
+      },
+      "website": {
+        "action": "Leggi il mio sito",
+        "description": "Leggiamo il tuo sito pubblico e compiliamo le risposte per te. Tu devi solo controllarle.",
+        "note": "Circa 2 minuti. Leggiamo solo pagine pubbliche.",
+        "recommended": "Consigliato",
+        "title": "Usa il mio sito web"
+      },
       "withoutWebsite": "Continua senza sito web"
+    },
+    "suggestedSteps": {
+      "contracts": "Onboarding|Attivo|Da rinnovare|Rinnovato|Concluso",
+      "deals": "Nuova richiesta|Contattato|Offerta inviata|Vinta|Persa",
+      "dealsClients": "Richiesta|Prima chiamata|Proposta inviata|Vinta|Persa",
+      "hiring": "Candidatura|Colloquio|Offerta|Assunto|Scartato",
+      "investors": "Contattato|Primo incontro|Due diligence|Impegnato|Rinunciato",
+      "marketing": "Idea|In corso|Pronto|Pubblicato",
+      "orders": "Nuovo|Confermato|Spedito|Pagato",
+      "partners": "Contattato|In trattativa|Attivo|In pausa",
+      "projects": "Pianificato|In corso|Revisione|Completato",
+      "support": "Nuova|In lavorazione|In attesa del cliente|Risolta"
     },
     "website": {
       "change": "Modifica",
