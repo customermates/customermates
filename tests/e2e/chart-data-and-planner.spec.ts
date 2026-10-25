@@ -86,7 +86,7 @@ test("combined calendar adds two lists, toggles sources, opens records, exports 
       await modal.getByRole("button", { name: "Save", exact: true }).click();
       await expect(modal).not.toBeVisible();
     }
-    await add("Deals", "Close date");
+    await add("Deals", "Expected close");
     await add("Tasks", "Due date");
     await page.getByRole("button", { name: "Date sources", exact: true }).click();
     const sources = page.getByRole("dialog", { name: "Date sources", exact: true });

@@ -101,11 +101,11 @@ test("gives Mate files by button, drop and paste, sends them with the message an
   const offlineMate = diagnostics.expect({
     kind: "console",
     text: /^Failed to load resource: the server responded with a status of 422/,
-    source: (url) => url.pathname === "/api/agent/messages",
+    source: (url) => /^\/api(?:\/w\/[^/]+)?\/agent\/messages$/u.test(url.pathname),
     page,
   });
   const sent = page.waitForResponse(
-    (response) => new URL(response.url()).pathname === "/api/agent/messages" && response.request().method() === "POST",
+    (response) => /^\/api(?:\/w\/[^/]+)?\/agent\/messages$/u.test(new URL(response.url()).pathname) && response.request().method() === "POST",
   );
   await page.locator("#agent-composer").focus();
   await page.keyboard.type("Attach the offer to Example organization and create a contact from the card");
@@ -125,7 +125,7 @@ test("gives Mate files by button, drop and paste, sends them with the message an
   // The offline e2e server has no hosted AI: the files pass Mate's checks and only the provider admission answers 422.
   expect(response.status()).toBe(422);
   await expect.poll(() => offlineMate.events.length).toBe(1);
-  const sentFiles = panel.locator('[role="log"] a[href^="/api/v1/files/"]');
+  const sentFiles = panel.locator('[role="log"] a[href*="/v1/files/"]');
   await expect(sentFiles).toHaveCount(2);
   await expect(sentFiles.filter({ hasText: "Offer.pdf" })).toHaveAttribute("aria-label", /^Open Offer\.pdf \(/);
   await expect(chips).toHaveCount(2);

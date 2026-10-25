@@ -47,7 +47,23 @@ test("the map widget draws its basemap and pins from the app's own origin", asyn
       .poll(async () => (await pin.count()) > 0 || (await viewport.getAttribute("data-zoom")) !== zoom)
       .toBe(true);
   }
-  await pin.click();
+  const frame = await viewport.boundingBox();
+  let target = pin;
+  for (const candidate of await card.locator('[data-map-marker="pin"]').all()) {
+    const box = await candidate.boundingBox();
+    const inside =
+      frame &&
+      box &&
+      box.x >= frame.x + 48 &&
+      box.y >= frame.y + 8 &&
+      box.x + box.width <= frame.x + frame.width - 8 &&
+      box.y + box.height <= frame.y + frame.height - 24;
+    if (inside) {
+      target = candidate;
+      break;
+    }
+  }
+  await target.click();
   const details = page.locator("[data-map-widget-popover]");
   await expect(details).toBeVisible();
   // A plain click opens the record drawer over the dashboard; the link keeps the record page for a new tab.
