@@ -69,6 +69,8 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
       "create a view",
       "update a view",
       "delete a view",
+      "calendar view",
+      "calendar layout",
     ],
     de: [
       "detailansicht",
@@ -80,6 +82,8 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
       "meine ansicht",
       "ansicht erstellen",
       "ansicht löschen",
+      "kalenderansicht",
+      "kalenderlayout",
     ],
     es: [
       "vista de detalle",
@@ -89,6 +93,7 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
       "nueva vista",
       "mi vista",
       "crear una vista",
+      "vista de calendario",
     ],
     fr: [
       "fiche détaillée",
@@ -98,6 +103,7 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
       "nouvelle vue",
       "ma vue",
       "créer une vue",
+      "vue calendrier",
     ],
     it: [
       "dettagli del record",
@@ -107,6 +113,7 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
       "nuova vista",
       "mia vista",
       "crea una vista",
+      "vista calendario",
     ],
   },
   "data-transfer": {
@@ -180,6 +187,12 @@ const TOOLSET_TERMS = new Map(
   AGENT_ON_DEMAND_TOOLSETS.map((toolset) => [toolset, Object.values(AGENT_TOOLSET_LEXICON[toolset]).flat()]),
 );
 
+const VIEW_TERMS = TOOLSET_TERMS.get("views") ?? [];
+
+function withoutViewTerms(text: string): string {
+  return VIEW_TERMS.reduce((current, term) => current.replaceAll(term, " ".repeat(term.length)), text);
+}
+
 const TOOLSET_ROUTES: Record<AgentOnDemandToolset, readonly string[]> = {
   "record-model": ["/records", "/configure"],
   views: [],
@@ -227,9 +240,21 @@ function normalizeText(value: string): string {
 
 const WORD_CHARACTER = /[\p{L}\p{N}]/u;
 
+const SHORT_TERM_LENGTH = 4;
+
+function endsWordAt(text: string, end: number): boolean {
+  if (!WORD_CHARACTER.test(text.charAt(end))) return true;
+  return text.charAt(end) === "s" && !WORD_CHARACTER.test(text.charAt(end + 1));
+}
+
 function startsWordIn(text: string, term: string): boolean {
-  for (let index = text.indexOf(term); index !== -1; index = text.indexOf(term, index + 1))
-    if (!WORD_CHARACTER.test(text.charAt(index - 1))) return true;
+  for (let index = text.indexOf(term); index !== -1; index = text.indexOf(term, index + 1)) {
+    if (
+      !WORD_CHARACTER.test(text.charAt(index - 1)) &&
+      (term.length > SHORT_TERM_LENGTH || endsWordAt(text, index + term.length))
+    )
+      return true;
+  }
   return false;
 }
 
@@ -254,8 +279,10 @@ export function toolsetsForRequest(args: {
     )
   )
     matched.add("record-model");
+  const outsideViewTerms = withoutViewTerms(text);
   for (const toolset of AGENT_ON_DEMAND_TOOLSETS) {
-    if (TOOLSET_TERMS.get(toolset)?.some((term) => startsWordIn(text, term))) matched.add(toolset);
+    const searched = toolset === "views" ? text : outsideViewTerms;
+    if (TOOLSET_TERMS.get(toolset)?.some((term) => startsWordIn(searched, term))) matched.add(toolset);
     if (route && TOOLSET_ROUTES[toolset].some((prefix) => route === prefix || route.startsWith(`${prefix}/`)))
       matched.add(toolset);
   }

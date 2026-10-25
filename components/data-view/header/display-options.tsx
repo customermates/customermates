@@ -22,6 +22,7 @@ import { useColumnLabel } from "@/components/data-view/use-column-label";
 import { useGroupableFieldLabel } from "@/components/data-view/use-groupable-field-label";
 import { useGroupLabel } from "@/components/data-view/group-label";
 import { useViewAi } from "@/components/data-view/views/use-view-ai";
+import { type DataViewView, resolveDataViewView } from "@/components/data-view/data-view-state";
 import { useViewSaveAction } from "@/components/data-view/views/view-changes-notice";
 import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
 import { AppModalActionRail } from "@/components/modal/app-modal-action";
@@ -29,11 +30,10 @@ import { useAskAiAction } from "@/components/ui/ask-ai-action";
 import { MANUAL_ORDER_SORT_KEY } from "@/features/records/record-column.schema";
 import { runUserAction } from "@/core/errors/report-application-error";
 
+import { CalendarDisplayOptions } from "./calendar-options";
 import { ColumnVisibilityList } from "./column-visibility-list";
 import { GroupSummaryOptions } from "./group-summary-options";
 import { PopoverSection as Section } from "./popover-section";
-
-type DataViewMode = "table" | "board";
 
 type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
@@ -108,7 +108,8 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
   const hasActiveOption =
     active ?? (Boolean(currentSortField) || Boolean(store.grouping) || store.hiddenColumns.length > 0);
 
-  const currentLayout: DataViewMode = store.viewMode === ViewMode.card && canBoard ? "board" : "table";
+  const canCalendar = store.canCalendar;
+  const currentLayout = resolveDataViewView(store.viewMode, canBoard, canCalendar && Boolean(store.calendar));
   const boardGrouped = currentLayout === "board" && Boolean(store.grouping && store.groupingResult);
   const hiddenGroupKeys = new Set(boardGrouped ? (store.grouping?.hidden ?? []) : []);
   const hiddenGroups = (store.groupingResult?.groups ?? []).filter((group) => hiddenGroupKeys.has(group.key));
@@ -121,8 +122,13 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
 
   function handleLayoutChange(next: string) {
     if (!next) return;
+    if ((next as DataViewView) === "calendar") {
+      const calendar = store.calendar ?? store.defaultCalendar;
+      if (calendar) store.setViewOptions({ viewMode: ViewMode.calendar, calendar });
+      return;
+    }
     store.setViewOptions({
-      viewMode: (next as DataViewMode) === "board" ? ViewMode.card : ViewMode.table,
+      viewMode: (next as DataViewView) === "board" ? ViewMode.card : ViewMode.table,
     });
   }
 
@@ -270,6 +276,17 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
                   disabled: !canBoard,
                   controls: false,
                 },
+                ...(store.supportsCalendar
+                  ? [
+                      {
+                        value: "calendar" as const,
+                        label: t("Common.table.layouts.calendar"),
+                        id: anchorScope ? `${anchorScope}-layout-calendar` : undefined,
+                        disabled: !canCalendar,
+                        controls: false as const,
+                      },
+                    ]
+                  : []),
               ]}
               label={t("Common.table.layout")}
               value={currentLayout}
@@ -279,10 +296,18 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
             {!canBoard && (
               <p className="mt-1.5 text-xs text-muted-foreground">{t("Common.ariaLabels.switchToBoardViewDisabled")}</p>
             )}
+
+            {store.supportsCalendar && !canCalendar && (
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                {t("Common.ariaLabels.switchToCalendarViewDisabled")}
+              </p>
+            )}
           </Section>
         )}
 
-        {store.groupableFields.length > 0 && (
+        {currentLayout === "calendar" && <CalendarDisplayOptions anchorScope={anchorScope} store={store} />}
+
+        {currentLayout !== "calendar" && store.groupableFields.length > 0 && (
           <Section label={t("Common.table.groupBy")}>
             <Select value={currentGroupingId || "__none__"} onValueChange={handleGroupingChange}>
               <SelectTrigger aria-label={t("Common.table.groupBy")} className="h-8 w-full" size="sm">
@@ -318,7 +343,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
           </Section>
         )}
 
-        <GroupSummaryOptions store={store} />
+        {currentLayout !== "calendar" && <GroupSummaryOptions store={store} />}
 
         {boardGrouped && hiddenGroups.length > 0 && <HiddenBoardColumns groups={hiddenGroups} store={store} />}
 
@@ -364,7 +389,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
           </Section>
         )}
 
-        {orderedColumns.length > 0 && (
+        {currentLayout !== "calendar" && orderedColumns.length > 0 && (
           <Section label={t("Common.table.fields")}>
             <ColumnVisibilityList
               items={orderedColumns.map((col) => ({

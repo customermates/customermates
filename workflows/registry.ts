@@ -3,14 +3,19 @@ import { backfillConnectedAccount } from "./backfill-connected-account";
 import { crawlWikiWebsite } from "./crawl-wiki-website";
 import { deliverWebhook } from "./deliver-webhook";
 import { indexDocsChunks } from "./index-docs-chunks";
+import { indexRecordFiles } from "./index-record-files";
 import { indexSearchCatalog } from "./index-search-catalog";
 import { indexWikiPages } from "./index-wiki-pages";
+import { loadPostalCodes } from "./load-postal-codes";
+import { normalizePhoneIdentities } from "./normalize-phone-identities";
 import { reconcileRoutineRuns } from "./reconcile-routine-runs";
 import { runRoutine } from "./run-routine";
 import { providerAvatarOperation } from "./provider-avatar-operation";
 import { recordOperation } from "./record-operation";
 import { processEvents } from "./process-events";
 import { purgeTrash } from "./purge-trash";
+import { purgeRecordFiles } from "./purge-record-files";
+import { purgeCompanyFiles } from "./purge-company-files";
 import { reconcileBillingUsage } from "./reconcile-billing-usage";
 import { triggerTestError } from "./trigger-test-error";
 import { buildWorkspaceSetup, planWorkspaceSetup, prepareWorkspaceSetup } from "./workspace-setup";
@@ -21,14 +26,19 @@ export const WORKFLOW_REGISTRY = {
   "crawl-wiki-website": crawlWikiWebsite,
   "deliver-webhook": deliverWebhook,
   "index-docs-chunks": indexDocsChunks,
+  "index-record-files": indexRecordFiles,
   "index-search-catalog": indexSearchCatalog,
   "index-wiki-pages": indexWikiPages,
+  "load-postal-codes": loadPostalCodes,
+  "normalize-phone-identities": normalizePhoneIdentities,
   "reconcile-routine-runs": reconcileRoutineRuns,
   "run-routine": runRoutine,
   "record-operation": recordOperation,
   "provider-avatar-operation": providerAvatarOperation,
   "process-events": processEvents,
   "purge-trash": purgeTrash,
+  "purge-record-files": purgeRecordFiles,
+  "purge-company-files": purgeCompanyFiles,
   "reconcile-billing-usage": reconcileBillingUsage,
   "trigger-test-error": triggerTestError,
   "prepare-workspace-setup": prepareWorkspaceSetup,

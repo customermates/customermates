@@ -1,11 +1,24 @@
 import { RecordActivityWidgetDtoSchema, RecordActivityWidgetInputSchema } from "./record-activity-widget.schema";
+import {
+  CalendarWidgetWindowSchema,
+  RecordCalendarWidgetDtoSchema,
+  RecordCalendarWidgetInputSchema,
+} from "./record-calendar-widget.schema";
+import { RecordMapWidgetDtoSchema, RecordMapWidgetInputSchema } from "./record-map-widget.schema";
 import { z } from "zod";
 import { WidgetPlacementSchema } from "./widget-grid";
 
 import { RecordMeasureSchema, RecordMeasureResultSchema } from "@/features/records/record-measure.schema";
 import { WidgetDisplayOptionsSchema, WidgetLayoutSchema } from "./widget-display.schema";
 
-export const RecordWidgetReadSchema = z.object({ id: z.uuid() }).strict();
+export const RecordWidgetReadSchema = z
+  .object({
+    id: z.uuid(),
+    window: CalendarWidgetWindowSchema.optional().describe(
+      "Calendar widgets only: read these days instead of the widget's own range, for example another month or one day.",
+    ),
+  })
+  .strict();
 
 const RecordWidgetFieldsSchema = z
   .object({
@@ -99,6 +112,13 @@ export type StoredRecordWidget = Omit<RecordWidgetDto, "data" | "status" | "grou
 export const GenericRecordWidgetDtoSchema = z.discriminatedUnion("kind", [
   RecordWidgetDtoSchema,
   RecordActivityWidgetDtoSchema,
+  RecordCalendarWidgetDtoSchema,
+  RecordMapWidgetDtoSchema,
 ]);
-export const GenericRecordWidgetInputSchema = z.union([RecordWidgetInputSchema, RecordActivityWidgetInputSchema]);
+export const GenericRecordWidgetInputSchema = z.union([
+  RecordWidgetInputSchema,
+  RecordActivityWidgetInputSchema,
+  RecordCalendarWidgetInputSchema,
+  RecordMapWidgetInputSchema,
+]);
 export type GenericRecordWidgetDto = z.infer<typeof GenericRecordWidgetDtoSchema>;

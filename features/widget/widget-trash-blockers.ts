@@ -5,6 +5,7 @@ import type { RecordRepo } from "@/features/records/record.repo";
 import type { StoredWidget } from "./record-widget-store.repo";
 
 import { recordMeasureIsValid } from "@/features/records/record-measure-validation";
+import { calendarWidgetQueryIssue, mapWidgetQueryIssue } from "./record-widget-query-validation";
 
 export class WidgetTrashBlockers implements TrashRestoreBlockerSource {
   constructor(
@@ -23,6 +24,10 @@ export class WidgetTrashBlockers implements TrashRestoreBlockerSource {
     for (const stored of await this.widgets.findTrashedWidgets(ids)) {
       if (stored.kind === "chart") {
         if (!recordMeasureIsValid(stored.widget.measure, model)) hidden.add(stored.widget.id);
+      } else if (stored.kind === "calendar") {
+        if (calendarWidgetQueryIssue(stored.widget.calendarQuery, model)) hidden.add(stored.widget.id);
+      } else if (stored.kind === "map") {
+        if (mapWidgetQueryIssue(stored.widget.mapQuery, model)) hidden.add(stored.widget.id);
       } else {
         const query = stored.widget.activityQuery;
         const typeIds = [

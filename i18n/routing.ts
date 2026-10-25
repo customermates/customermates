@@ -82,6 +82,7 @@ export const PROTECTED_ROUTES = [
   "/auth/mcp-consent",
   "/configure",
   "/dashboard",
+  "/calendar",
   "/inbox",
   "/legal-update",
   "/onboarding",

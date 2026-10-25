@@ -13,16 +13,14 @@ type CustomColumnOption = {
   weight?: number;
 };
 
-type ChipColumnOptions = { color: ChipColor; allowMultiple: boolean };
-
 export type CustomColumnDto = ColumnField &
   (
     | { type: "plain" }
+    | { type: "file" | "address" }
     | {
         type: "date" | "dateTime" | "dateRange" | "dateTimeRange";
         options?: { displayFormat: DateDisplayFormat } | null;
       }
-    | { type: "link" | "email" | "phone"; options: ChipColumnOptions }
     | { type: "currency"; options: { currency: string } }
     | { type: "singleSelect"; options: { options: CustomColumnOption[] } }
   );

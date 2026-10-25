@@ -1,0 +1,37 @@
+---
+title: "Combined Calendar"
+heading: "Dates from your lists and connected calendars"
+description: "Combine date sources, see a week, month, quarter or timeline, open the underlying records, and export or subscribe with iCalendar."
+---
+
+## How do I combine dates from different lists? [#combine-date-sources]
+
+Open [Calendar](app:calendar) and choose **Add date source**. Pick a list and a date, date-time or range field. A separate **End date** can extend a single date field into a span; both fields must have the same type. Choose a source color or a choice field's option colors. Add another source for a different list or another date in the same list. Each source has its own **Filters**, set with the same filter palette as a list. Up to 12 sources can be combined.
+
+**Date sources** in the top bar lists your sources and connected calendars. The checkboxes show or hide each source immediately. A source's menu opens **Date source settings** to change its dates, color and filters, **Open in list** to open that list with the source's filters, and **Remove date source**. Click an event to open its record in the normal record drawer. Calendar entries use your current record and field permissions. Missing or restricted dates are not placed on the calendar. If a field or filter becomes unavailable, the source is marked unavailable; its filters are not silently discarded.
+
+Your sources, enabled calendars, time zone and display mode are saved automatically and only for you. Changing your calendar does not change a list's saved view.
+
+## What do the different views show? [#calendar-views]
+
+**Month** shows date spans with a list of overflow events for busy days. **Week** shows all-day entries and entries lasting a day or longer above an hourly schedule for shorter timed records and connected events. **Quarter** fits the three months of a quarter on one screen in week columns. **Timeline** shows the same quarter day by day, scrolls sideways and shades weekends. Both group the entries by source, place entries that do not overlap on a shared row, and show a title beside a bar that is too short for it; a line marks today. They show date ranges without dependencies or automatic scheduling. On phones the calendar uses **Agenda**. A date range continues across weeks and months as one bar per week, the agenda lists it on every day it covers, and a bar cut off at the edge of the period has a square end. Hover over or focus an entry to see its full title, its dates and its source.
+
+A date-only value stays on its calendar date. Date-times use the time zone chosen in **Date sources**. Drag a CRM entry to another day in any view except the agenda, or use Space, the arrow keys and Space again. An entry moves by as many days as you drag it, wherever you grab a longer span, and its duration and time of day are preserved. In the hourly part of the week, dragging up or down also changes the time in steps of 15 minutes. An entry with a date range or an end date has a handle at each end: drag it to change only the start or only the end. While you drag, the entry shows its new dates. On a touch screen, press and hold an entry briefly before dragging it. Only writable input dates can change, and saves use the normal record version and permission checks; when a save is refused, the entry returns to its dates.
+
+To add a record on a date, double-click an empty day, a free spot in a timeline row or an hour of the week, or use **+** on a day of the month. The record opens with that date filled in. A date and time starts at the chosen hour, or at 9:00, and a date-time range lasts one hour; change both times in the date picker. With several sources, choose the list for the new record first. Click the period title to jump to another date.
+
+Each source displays up to 500 records in the requested period, and connected calendars up to 2,000 events. A notice explains when results are incomplete. Exports need a complete result: choose a shorter period or narrower source filters first.
+
+## Which meetings appear in my calendar? [#connected-calendar-events]
+
+Where connected messaging is available, **My connected calendars** lists your Google and Outlook calendars, including shared schedules under their usual sharing rules. Check the calendars to include. These meetings are read-only here; their detail opens the connected calendar for editing. Cancelled events are hidden. Imported recurring instances are shown, and recurring series rules are expanded for the displayed period, including time zones and exclusions. Invalid or unsupported recurrence rules are reported as incomplete results.
+
+Connected calendars require the existing messaging entitlement and inbox read permission. Self-hosted workspaces can use record dates, every calendar layout, exports and subscriptions without a calendar provider.
+
+## How do I use this calendar in another app? [#calendar-export-and-subscription]
+
+**Export & subscribe → Download .ics** downloads a snapshot of the displayed period and enabled sources. While the displayed period is incomplete, **Download .ics** and **Create subscription URL** are unavailable. Import it into Apple Calendar, Outlook, Google Calendar or another iCalendar-compatible app. A snapshot does not refresh. Connected events are excluded by default to avoid duplicates; you can explicitly include selected connected events.
+
+**Create subscription URL** creates a private read-only feed for the enabled sources, source filters and time zone at that moment. Paste the URL into your calendar app's “subscribe by URL” option. It covers the previous 30 days and next 335 days; your calendar app decides the refresh interval. A later source or filter change needs a new subscription URL. Up to ten subscriptions can be active; each one is listed with the date it was created.
+
+Copy the URL when it is created: it is shown only once. Anyone with it can read the selected events while you retain access. Every refresh checks your active membership and current permissions. **Revoke subscription** immediately stops future fetches; calendar apps may keep previously downloaded events. Changes flow from Customermates to the calendar app. Editing an imported event does not update its CRM record; this is not a two-way calendar connection.

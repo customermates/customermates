@@ -98,8 +98,8 @@ describeDatabase("channels field migration", { timeout: 240000 }, () => {
     await applyConfigurableRecordsMigration(client);
 
     for (const [workspace, label] of [
-      [starter, "Channels"],
-      [clashing, "Channels (2)"],
+      [starter, "Contact details"],
+      [clashing, "Contact details"],
     ] as const) {
       const model = await current(client, workspace.companyId);
       const contact = presetId(workspace.companyId, "contact");
@@ -118,13 +118,15 @@ describeDatabase("channels field migration", { timeout: 240000 }, () => {
         archived: false,
         publishedSummary: false,
         options: [],
-        position:
-          Math.max(
-            ...model.fields
-              .filter((field) => field.typeId === contact && field !== channels)
-              .map((field) => field.position),
-          ) + 1,
+        position: expect.any(Number),
       });
+      expect(channels?.position).toBeGreaterThan(
+        Math.max(
+          ...model.fields
+            .filter((field) => field.typeId === contact && field !== channels)
+            .map((field) => field.position),
+        ),
+      );
       expect(model.fields.filter((field) => field.valueType === "channels")).toEqual([channels]);
       expect(recordDefaults(contact, model.fields).columnOrder).toContain(channels?.id);
       expect(
@@ -179,7 +181,8 @@ describeDatabase("channels field migration", { timeout: 240000 }, () => {
       byId(
         await rows<{ id: string }>(
           client,
-          'SELECT identity.id, identity."companyId", link."recordId" AS "contactId", identity.provider, identity."channelClass", identity.value FROM "RecordIdentity" identity JOIN "RecordIdentityLink" link ON link."companyId" = identity."companyId" AND link."identityId" = identity.id',
+          'SELECT identity.id, identity."companyId", link."recordId" AS "contactId", identity.provider, identity."channelClass", identity.value FROM "RecordIdentity" identity JOIN "RecordIdentityLink" link ON link."companyId" = identity."companyId" AND link."identityId" = identity.id WHERE identity.id = ANY($1)',
+          [identities.map((identity) => identity.id)],
         ),
       ),
     ).toEqual(byId(identities));

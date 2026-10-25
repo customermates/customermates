@@ -1,0 +1,21 @@
+import type { RecordFileExpiry } from "@/features/records/record-file-cleanup.repo";
+
+import { TRASH_RETENTION_DAYS } from "@/features/trash/trash-retention";
+
+const HOUR = 60 * 60 * 1000;
+
+const PENDING_RECORD_FILE_HOURS = 24;
+const DETACHED_RECORD_FILE_DAYS = TRASH_RETENTION_DAYS;
+const CHAT_FILE_RETENTION_DAYS = TRASH_RETENTION_DAYS;
+
+export function recordFileExpiry(now: Date): RecordFileExpiry {
+  return {
+    pendingBefore: new Date(now.getTime() - PENDING_RECORD_FILE_HOURS * HOUR),
+    chatBefore: new Date(now.getTime() - CHAT_FILE_RETENTION_DAYS * 24 * HOUR),
+    detachedBefore: new Date(now.getTime() - DETACHED_RECORD_FILE_DAYS * 24 * HOUR),
+  };
+}
+
+export function orphanedRecordFileCutoff(now: Date): Date {
+  return new Date(now.getTime() - PENDING_RECORD_FILE_HOURS * HOUR);
+}

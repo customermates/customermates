@@ -13,6 +13,7 @@ import type {
 import type { RecordQuery } from "./record-query.schema";
 
 import { toChipColor, type ChipColor } from "@/constants/chip-colors";
+import { RECORD_CONTRIBUTION_FILTER, recordContributionFromFilter } from "./record-contribution-link";
 
 export type RecordLinkColors = Partial<Record<string, ChipColor>>;
 export type RecordLinkIcons = Partial<Record<string, string>>;
@@ -59,6 +60,7 @@ export function recordColumnPresentation(field: RecordFieldView): ColumnPresenta
     };
   }
   if (field.valueType === "member" || field.valueType === "boolean") return { ...base, type: field.valueType };
+  if (field.valueType === "file" || field.valueType === "address") return { ...base, type: field.valueType };
   if (field.valueType === "number" || field.valueType === "currency") return { ...base, type: "number" };
   if (["date", "dateTime", "dateRange", "dateTimeRange"].includes(field.valueType)) {
     return {
@@ -101,6 +103,7 @@ export function recordFilterableFields(
           if (operator === "eq") return [FilterOperatorKey.equals];
           if (operator === "empty") return [FilterOperatorKey.isNull];
           if (operator === "notEmpty") return [FilterOperatorKey.isNotNull];
+          if (operator === "overlaps") return [];
           if (field.valueType === "select" && field.multiple)
             return [MULTIPLE_CHOICE_OPERATORS[operator as keyof typeof MULTIPLE_CHOICE_OPERATORS]];
           return [FilterOperatorKey[operator as Exclude<typeof operator, "all">]];
@@ -185,6 +188,7 @@ export function presentationQuery(
   const filters: RecordQuery["filters"] = [];
   const relationships: RecordQuery["relationships"] = [];
   const relatedFilters: NonNullable<RecordQuery["relatedFilters"]> = [];
+  let contribution: RecordQuery["contribution"];
   const origins = { filters: [] as number[], relationships: [] as number[], relatedFilters: [] as number[] };
   const invalid = (params.filters ?? []).findIndex(
     (filter) => !presentationFiltersAreValid([filter], fields, relations, typeId, paths),
@@ -202,6 +206,13 @@ export function presentationQuery(
   } as const;
   for (const [index, filter] of (params.filters ?? []).entries()) {
     const at = ["filters", index];
+    if (filter.field === RECORD_CONTRIBUTION_FILTER) {
+      const decoded = recordContributionFromFilter(filter);
+      if (!decoded || contribution || decoded.measure.source.typeId !== typeId)
+        throw unwindFailure(CustomErrorCode.recordValueInvalid, "validation", at);
+      contribution = decoded;
+      continue;
+    }
     const pathId = parseRelationshipPathColumnKey(filter.field);
     if (pathId) {
       const definition = paths.find((path) => path.id === pathId && !path.archived);
@@ -300,6 +311,7 @@ export function presentationQuery(
   }
   const parsed = RecordQuerySchema.safeParse({
     typeId,
+    contribution,
     filters,
     relationships,
     ...(relatedFilters.length ? { relatedFilters } : {}),
@@ -340,6 +352,7 @@ export function presentationFiltersAreValid(
   );
   return filters.every(
     (filter) =>
+      (filter.field === RECORD_CONTRIBUTION_FILTER && Boolean(recordContributionFromFilter(filter))) ||
       definitions.some((field) => field.field === filter.field && field.operators.includes(filter.operator)) ||
       (convertedChoices.has(filter.field) &&
         (filter.operator === FilterOperatorKey.in || filter.operator === FilterOperatorKey.notIn)),

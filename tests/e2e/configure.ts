@@ -1,7 +1,7 @@
 import type { Page } from "@playwright/test";
 import { expect } from "./fixtures";
 
-export type ConfigureAddItem = "List" | "Field" | "Calculated field" | "Sub-list" | "Relationship" | "Channels";
+export type ConfigureAddItem = "List" | "Field" | "Calculated field" | "Sub-list" | "Relationship" | "Contact details";
 export type ConfigureSection = "Fields" | "Relationships";
 
 const escapePattern = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -170,13 +170,15 @@ export async function createConfiguredList(page: Page, name: string, { channels 
 
 export async function addChannelsField(page: Page, typeId: string) {
   await openConfigure(page, typeId);
-  await addFromConfigure(page, "Channels");
+  await addFromConfigure(page, "Contact details");
   const dialog = configureDrawer(page);
-  await expect(dialog.getByRole("combobox", { name: "Value type", exact: true })).toContainText("Channels");
-  await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Channels");
+  await expect(dialog.getByRole("combobox", { name: "Value type", exact: true })).toContainText(
+    "Phone, email & social",
+  );
+  await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Contact details");
   await saveDrawer(page);
   await openConfigureTab(page, "Fields");
-  await expect(configureRow(page, "Fields", "Channels")).toBeVisible();
+  await expect(configureRow(page, "Fields", "Contact details")).toBeVisible();
 }
 
 export async function followConfigureLink(page: Page) {

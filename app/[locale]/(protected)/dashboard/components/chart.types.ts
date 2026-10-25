@@ -5,6 +5,7 @@ export type ChartDataPoint = {
   axisLabel?: string;
   detail?: string;
   missing?: boolean;
+  onSelect?: () => void;
   fill: string;
   color: string;
   labelColor: string;

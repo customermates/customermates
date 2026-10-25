@@ -100,7 +100,7 @@ export function createCrmPreset(companyId: string): RecordModel {
   addField("contact", "contact.firstName", "First name", "text");
   addField("contact", "contact.lastName", "Last name", "text");
   addField("contact", "contact.avatarUrl", "Avatar", "url");
-  const channels = addField("contact", "capability.identity", "Channels", "channels");
+  const channels = addField("contact", "capability.identity", "Contact details", "channels");
   channels.format = { onClick: "open", providerAvatar: true };
   recordInvariant(fields.find((value) => value.id === id("contact.name"))).behavior = {
     kind: "formula",

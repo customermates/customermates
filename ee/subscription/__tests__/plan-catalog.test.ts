@@ -63,6 +63,7 @@ describe("commercial plan catalog", () => {
       sharedAccounts: false,
       hostedAiUsageMultiplier: 1,
       hostedAiCreditsPerActiveUser: 100,
+      fileStorageBytesPerActiveUser: 1024 ** 3,
     });
     expect(getPlanDefinition("max").entitlements).toEqual({
       agentChat: true,
@@ -72,6 +73,7 @@ describe("commercial plan catalog", () => {
       sharedAccounts: true,
       hostedAiUsageMultiplier: 20,
       hostedAiCreditsPerActiveUser: 2_000,
+      fileStorageBytesPerActiveUser: 50 * 1024 ** 3,
     });
     expect(getPlanDefinition("pro").entitlements.includedAccountsPerUser).toBe(1);
     expect(getPlanDefinition("business").entitlements.includedAccountsPerUser).toBe(3);
@@ -82,6 +84,9 @@ describe("commercial plan catalog", () => {
     expect(getPlanDefinition("pro").entitlements.hostedAiCreditsPerActiveUser).toBe(300);
     expect(getPlanDefinition("business").entitlements.hostedAiCreditsPerActiveUser).toBe(1_000);
     expect(getPlanDefinition("enterprise").entitlements.hostedAiCreditsPerActiveUser).toBe("contract");
+    expect(getPlanDefinition("pro").entitlements.fileStorageBytesPerActiveUser).toBe(5 * 1024 ** 3);
+    expect(getPlanDefinition("business").entitlements.fileStorageBytesPerActiveUser).toBe(20 * 1024 ** 3);
+    expect(getPlanDefinition("enterprise").entitlements.fileStorageBytesPerActiveUser).toBe("contract");
   });
 
   it("derives every self-serve allowance from the one base and the plan multiplier", () => {

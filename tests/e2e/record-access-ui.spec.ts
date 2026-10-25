@@ -2758,8 +2758,8 @@ test("keeps retained values restricted after a delegated manager converts fields
         field: {
           id: "$email",
           typeId: "$source",
-          label: "Private email",
-          valueType: "email",
+          label: "Private link",
+          valueType: "url",
           required: false,
           archived: false,
           options: [],
@@ -2772,8 +2772,8 @@ test("keeps retained values restricted after a delegated manager converts fields
         field: {
           id: "$linkedEmail",
           typeId: "$summary",
-          label: "Private email copy",
-          valueType: "email",
+          label: "Private link copy",
+          valueType: "url",
           required: false,
           archived: false,
           options: [],
@@ -2819,8 +2819,8 @@ test("keeps retained values restricted after a delegated manager converts fields
   const amount = model.fields.find((field) => field.label === "Private amount");
   const total = model.fields.find((field) => field.label === "Retained total");
   const memo = model.fields.find((field) => field.label === "Private memo");
-  const email = model.fields.find((field) => field.label === "Private email");
-  const linkedEmail = model.fields.find((field) => field.label === "Private email copy");
+  const email = model.fields.find((field) => field.label === "Private link");
+  const linkedEmail = model.fields.find((field) => field.label === "Private link copy");
   const relation = model.relationships.find(
     (entry) => entry.sourceLabel === "Private source",
   );
@@ -2840,7 +2840,7 @@ test("keeps retained values restricted after a delegated manager converts fields
     ],
   });
   const canary = `Private-${randomUUID()}`;
-  const emailCanary = `${canary.toLowerCase()}@example.test`;
+  const emailCanary = `https://example.test/${canary.toLowerCase()}`;
   const source = await mutate(page, {
     action: "create",
     typeId: sourceType.id,

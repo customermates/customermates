@@ -19,6 +19,7 @@ import { FilterOperatorKey, isStandaloneOperator } from "@/core/base/base-query-
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { filterValueKind } from "@/core/types/filter-field-value-kind";
 import { isCustomField } from "@/core/utils/custom-field";
+import { RECORD_CONTRIBUTION_FILTER, recordContributionFromFilter } from "@/features/records/record-contribution-link";
 
 function normalizeValues(value: unknown): string[] {
   if (Array.isArray(value)) return value.map(String);
@@ -34,6 +35,7 @@ export type FilterValueText =
   | { kind: "standalone" }
   | { kind: "loading" }
   | { kind: "unavailable"; text: string }
+  | { kind: "scope"; text: string }
   | { kind: "value"; text: string };
 
 export function useFilterValueText(filter: Filter, customColumns: ColumnPresentation[] | undefined): FilterValueText {
@@ -41,6 +43,12 @@ export function useFilterValueText(filter: Filter, customColumns: ColumnPresenta
   const { items, getItems, isLoading } = useFilterSelectItems(filter, customColumns);
   const intlStore = useHydratedIntlStore();
 
+  if (filter.field === RECORD_CONTRIBUTION_FILTER) {
+    const scope = recordContributionFromFilter(filter);
+    return scope
+      ? { kind: "scope", text: `${scope.title}${scope.groupLabel ? ` · ${scope.groupLabel}` : ""}` }
+      : { kind: "unavailable", text: t("Common.filters.unavailableValue") };
+  }
   if (isStandaloneOperator(filter.operator)) return { kind: "standalone" };
   if (isLoading) return { kind: "loading" };
 
@@ -126,6 +134,7 @@ export const FilterChipValue = observer(
           </>
         );
       case "unavailable":
+      case "scope":
         return <>{value.text}</>;
       case "value":
         return (

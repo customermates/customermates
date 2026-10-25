@@ -69,6 +69,7 @@ beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   agentChatStore = observable(
     {
+      addComposerFiles: vi.fn(),
       close: vi.fn(),
       conversationTitle: null,
       enabled: true,
@@ -84,7 +85,7 @@ beforeEach(() => {
       toggleHistory: vi.fn(),
       usage: null,
     },
-    { close: false, newConversation: false, toggleExpanded: false, toggleHistory: false },
+    { addComposerFiles: false, close: false, newConversation: false, toggleExpanded: false, toggleHistory: false },
     { deep: false },
   ) as typeof agentChatStore;
   testContext.rootStore = {
@@ -152,6 +153,41 @@ describe("AgentChat panel", () => {
     expect(document.getElementById("webhook-modal-secret")).not.toBeNull();
   });
 
+  it("takes files dropped anywhere on the panel, but no text and nothing while the history is open", () => {
+    renderPanel();
+    const panel = document.getElementById("agent-panel-dialog");
+    const composer = document.getElementById("agent-composer");
+    if (!panel || !composer) throw new Error("Expected the panel");
+    const file = new File(["Offer"], "Offer.pdf", { type: "application/pdf" });
+
+    expect(drag("dragover", composer, [], ["text/plain"]).defaultPrevented).toBe(false);
+    expect(panel.hasAttribute("data-dragging")).toBe(false);
+
+    expect(drag("dragover", composer, [file]).defaultPrevented).toBe(true);
+    expect(panel.getAttribute("data-dragging")).toBe("true");
+    expect(document.querySelector('[data-testid="agent-file-drop-overlay"]')?.textContent).toBe(
+      "AgentChat.files.dropHint",
+    );
+    drag("dragleave", composer, [file], ["Files"], panel);
+    expect(panel.getAttribute("data-dragging")).toBe("true");
+    drag("dragleave", panel, [file], ["Files"], null);
+    expect(panel.hasAttribute("data-dragging")).toBe(false);
+
+    drag("dragover", composer, [file]);
+    expect(drag("drop", composer, [file]).defaultPrevented).toBe(true);
+    expect(agentChatStore.addComposerFiles).toHaveBeenCalledWith([file]);
+    expect(panel.hasAttribute("data-dragging")).toBe(false);
+
+    act(() => {
+      runInAction(() => {
+        agentChatStore.isHistoryOpen = true;
+      });
+    });
+    expect(drag("dragover", panel, [file]).defaultPrevented).toBe(false);
+    expect(drag("drop", panel, [file]).defaultPrevented).toBe(false);
+    expect(agentChatStore.addComposerFiles).toHaveBeenCalledOnce();
+  });
+
   it("keeps an open dialog mounted and hands focus back to its field, unselected, when the panel closes", async () => {
     const getClientRects = Object.getOwnPropertyDescriptor(Element.prototype, "getClientRects");
     Object.defineProperty(Element.prototype, "getClientRects", {
@@ -205,6 +241,24 @@ function InviteContent() {
     createElement("button", { id: "invite-modal-tab-email", type: "button", onClick: () => setTab("email") }, "Email"),
     tab === "email" ? createElement("input", { "aria-label": "Emails", id: "invite-modal-emails" }) : null,
   );
+}
+
+function drag(
+  type: "dragover" | "dragleave" | "drop",
+  target: Element,
+  files: File[],
+  types: string[] = ["Files"],
+  relatedTarget: Element | null = null,
+) {
+  const event = new Event(type, { bubbles: true, cancelable: true });
+  Object.defineProperties(event, {
+    dataTransfer: { value: { dropEffect: "none", files, types } },
+    relatedTarget: { value: relatedTarget },
+  });
+  act(() => {
+    target.dispatchEvent(event);
+  });
+  return event;
 }
 
 function setPanelOpen(isOpen: boolean) {

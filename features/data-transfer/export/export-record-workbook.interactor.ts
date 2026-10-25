@@ -5,7 +5,7 @@ import type { Validated } from "@/core/validation/validation.utils";
 import type { ExportRecordsInput } from "./export-records.interactor";
 import type { EventService } from "@/features/event/event.service";
 
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -13,7 +13,7 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { unwoundFailure } from "@/core/validation/interactor-failure-server";
-import { withMemberUsers } from "@/features/records/record-dto";
+import { withMemberUsersAndFiles } from "@/features/records/record-dto";
 import { DomainEvent } from "@/features/event/domain-events";
 
 import { collectRecordExport, ExportRecordsSchema, recordsExportedEvent } from "./export-records.interactor";
@@ -79,7 +79,7 @@ export class ExportRecordWorkbookInteractor extends AuthenticatedInteractor<Expo
               for (const [recordId, value] of batch) summaries.set(recordId, value);
             }
           }
-          const records = await withMemberUsers(
+          const records = await withMemberUsersAndFiles(
             exported.data.records.map((record) => ({
               ...record,
               relationships: summaries.get(record.ref.recordId) ?? [],
@@ -106,6 +106,7 @@ export class ExportRecordWorkbookInteractor extends AuthenticatedInteractor<Expo
         rangeStart: t("RecordModel.rangeStart"),
         rangeEnd: t("RecordModel.rangeEnd"),
         recordId: t("RecordModel.recordId"),
+        locale: await getLocale(),
       },
       policy.canReadType,
     );

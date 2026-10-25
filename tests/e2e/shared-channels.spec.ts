@@ -11,6 +11,7 @@ import { e2eAppMode } from "./workspace-switching";
 test("shares an indexed identifier across lists, unlinks one association and links only one conversation", async ({
   page, database, companyId, workspace,
 }, testInfo) => {
+  test.skip(process.env.APP_MODE === "self-hosted", "Messaging is part of the cloud service only");
   test.setTimeout(240000);
   const errors = collectPageErrors(page);
   const typeId = (key: string) => presetId(companyId, key);

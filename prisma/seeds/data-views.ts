@@ -41,7 +41,8 @@ type ViewDraft = Omit<SyntheticDataViewFixture, "position" | "userId"> & {
  *
  * Every view is curated for an overview: a board card shows three to five chips (what it is, how big, who owns
  * it, when), a table shows the name plus four to six columns for that view's purpose, and a grouping totals at
- * most two values. Everything else stays available but hidden.
+ * most two values. Everything else stays available but hidden. Three calendars place deals by close date, tasks by
+ * due date and campaigns across their period, colored by a choice field.
  */
 export function buildSyntheticDataViewFixtures(
   context: Pick<SeedContext, "ids">,
@@ -114,6 +115,18 @@ export function buildSyntheticDataViewFixtures(
   ): DataViewState => ({
     viewMode: ViewMode.card,
     grouping: { field, ...extra },
+    columnOrder: visible,
+    hiddenColumns: columns.showOnly(type, visible),
+  });
+  /** A month calendar placing records by `dateFieldId`, colored by `colorFieldId`; `visible` is its table. */
+  const calendar = (
+    type: Parameters<typeof columns.showOnly>[0],
+    visible: string[],
+    dateFieldId: string,
+    colorFieldId: string,
+  ): DataViewState => ({
+    viewMode: ViewMode.calendar,
+    calendar: { dateFieldId, colorFieldId, mode: "month" },
     columnOrder: visible,
     hiddenColumns: columns.showOnly(type, visible),
   });
@@ -237,6 +250,21 @@ export function buildSyntheticDataViewFixtures(
         ),
         filters: [anyOf(f.deal.stage, [o["deal.stage"].won]), since(f.deal.closeDate, 365)],
         sortDescriptor: sorted(f.deal.closeDate, "desc"),
+      },
+    },
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.dealsCloseCalendar,
+      surfaceKey: surface("deal"),
+      name: "Close calendar",
+      state: {
+        ...calendar(
+          "deal",
+          [f.deal.stage, f.deal.closeDate, model.starter.dealTotalValue, dealOrganization, "system:assignedTo"],
+          f.deal.closeDate,
+          f.deal.stage,
+        ),
+        filters: [anyOf(f.deal.stage, openStages)],
+        sortDescriptor: sorted(model.starter.dealTotalValue, "desc"),
       },
     },
     {
@@ -468,6 +496,20 @@ export function buildSyntheticDataViewFixtures(
         ]),
         filters: [assignedTo(me)],
         sortDescriptor: sorted(f.task.dueDate, "asc"),
+      },
+    },
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.tasksDueCalendar,
+      surfaceKey: surface("task"),
+      name: "Due calendar",
+      state: {
+        ...calendar(
+          "task",
+          [f.task.dueDate, customFieldIds.taskPriority, customFieldIds.taskStatus, "system:assignedTo"],
+          f.task.dueDate,
+          customFieldIds.taskPriority,
+        ),
+        filters: [noneOf(customFieldIds.taskStatus, closedTasks)],
       },
     },
 
@@ -707,6 +749,17 @@ export function buildSyntheticDataViewFixtures(
         ),
         sortDescriptor: sorted(f.campaign.pipelineSourced, "desc"),
       },
+    },
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.campaignCalendar,
+      surfaceKey: surface("campaign"),
+      name: "Campaign calendar",
+      state: calendar(
+        "campaign",
+        [f.campaign.channel, f.campaign.period, f.campaign.budget, f.campaign.owner],
+        f.campaign.period,
+        f.campaign.channel,
+      ),
     },
 
     // Partners

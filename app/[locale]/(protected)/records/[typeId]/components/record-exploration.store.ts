@@ -49,4 +49,10 @@ export class RecordExplorationStore extends RecordsStore {
   override get supportsBoard() {
     return false;
   }
+  override get canCalendar() {
+    return false;
+  }
+  override get supportsCalendar() {
+    return false;
+  }
 }

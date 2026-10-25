@@ -1,5 +1,5 @@
 import type { CalculatedValue, RecordDto, RecordModelView, RecordRef } from "@/features/records/record-model.schema";
-import type { RecordQuery } from "@/features/records/record-query.schema";
+import type { RecordQuery, RecordWriteWarning } from "@/features/records/record-query.schema";
 import type { RecordQueryResult } from "@/features/records/record-query-result.schema";
 import type { XlsxTargetLabels, XlsxTargetOption } from "@/features/data-transfer/import/xlsx/xlsx-mapping";
 import type {
@@ -20,6 +20,7 @@ import {
   duplicateXlsxTargets,
   normalizeXlsxHeader,
   xlsxTargetOptions,
+  XLSX_CHANNELS_KEY,
   XLSX_SKIP_KEY,
 } from "@/features/data-transfer/import/xlsx/xlsx-mapping";
 import { parseXlsxRows, planXlsxImport, runXlsxImport } from "@/features/data-transfer/import/xlsx/xlsx-import-plan";
@@ -85,6 +86,7 @@ export class XlsxImportWizardStore {
     private typeId: string,
     private labels: XlsxTargetLabels,
     private ports: XlsxWizardPorts,
+    private region: string | null = null,
   ) {
     makeObservable<XlsxImportWizardStore, "model">(this, {
       step: observable,
@@ -149,6 +151,7 @@ export class XlsxImportWizardStore {
         mapping: this.mapping,
         options: this.options,
         lookups: this.lookups,
+        region: this.region,
       },
       rows,
     );
@@ -162,7 +165,7 @@ export class XlsxImportWizardStore {
       if (option.target.kind === "recordId") return true;
       if (option.target.kind !== "field") return false;
       const field = fields.get(option.target.fieldId);
-      return Boolean(field && !field.multiple && ["text", "email", "phone", "url", "number"].includes(field.valueType));
+      return Boolean(field && !field.multiple && ["text", "url", "number"].includes(field.valueType));
     });
   }
 
@@ -264,7 +267,10 @@ export class XlsxImportWizardStore {
     if (index > 0 && this.step !== "result") this.step = XLSX_WIZARD_STEPS[index - 1];
   }
 
-  async advance(describeIssue: (issue: XlsxIssue) => string) {
+  async advance(
+    describeIssue: (issue: XlsxIssue) => string,
+    describeWarning?: (warning: RecordWriteWarning) => string,
+  ) {
     if (!this.canAdvance) return;
     if (this.step === "file") {
       runInAction(() => (this.step = "mapping"));
@@ -292,7 +298,7 @@ export class XlsxImportWizardStore {
       });
       return;
     }
-    if (this.step === "mode") await this.run(describeIssue);
+    if (this.step === "mode") await this.run(describeIssue, describeWarning);
   }
 
   private defaultMatchKey() {
@@ -345,6 +351,7 @@ export class XlsxImportWizardStore {
         filters: [],
         relationships: [],
         sort: [],
+        ...(this.mapping.includes(XLSX_CHANNELS_KEY) ? { includeIdentities: true } : {}),
       });
       if (!result.ok) return null;
       records.push(...result.data.records);
@@ -371,7 +378,10 @@ export class XlsxImportWizardStore {
     return index;
   }
 
-  private async run(describeIssue: (issue: XlsxIssue) => string) {
+  private async run(
+    describeIssue: (issue: XlsxIssue) => string,
+    describeWarning?: (warning: RecordWriteWarning) => string,
+  ) {
     const sheet = this.sheet;
     const lookups = this.lookups;
     if (!sheet || !lookups) return;
@@ -401,6 +411,7 @@ export class XlsxImportWizardStore {
           mapping: this.mapping,
           options: this.options,
           lookups,
+          region: this.region,
         },
         this.mode,
         this.mode === "update" ? this.matchKey : null,
@@ -417,6 +428,7 @@ export class XlsxImportWizardStore {
         now,
         importRecords: this.ports.importRecords,
         describeIssue,
+        describeWarning,
         onProgress: (processed, total) => {
           if (generation !== this.generation) return;
           runInAction(() => {

@@ -1,5 +1,7 @@
 "use client";
 
+import { chartPointAction } from "./chart-point-action";
+
 import type { ChartDataPoint } from "./chart.types";
 
 import { Cell, Pie, PieChart } from "recharts";
@@ -47,7 +49,7 @@ export const DoughnutChart = observer(({ currency, chartData, showLegend = true 
                 strokeWidth={2}
               >
                 {chartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.fill} />
+                  <Cell key={`cell-${index}`} {...chartPointAction(entry)} fill={entry.fill} />
                 ))}
               </Pie>
             </PieChart>

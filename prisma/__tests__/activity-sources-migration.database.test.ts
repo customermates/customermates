@@ -2,6 +2,7 @@ import type { Client } from "pg";
 
 import { afterAll, describe, expect, it } from "vitest";
 import { createCrmPreset, presetId } from "@/features/records/crm-preset";
+import { historicalRecordModel } from "@/features/records/historical-record-model";
 import { RecordModelSchema, type RecordModel } from "@/features/records/record-model.schema";
 import { validateRecordModel } from "@/features/records/record-model-validation";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
@@ -52,10 +53,13 @@ describeDatabase("activity sources migration", { timeout: 240000 }, () => {
         'SELECT revision, snapshot, change FROM "RecordSchemaRevision" WHERE "companyId" = $1 ORDER BY revision',
         [companyId],
       );
-      expect(revisions.map(({ revision, change }) => ({ revision, change }))).toEqual([{ revision: 1, change: null }]);
+      // Revision 2 is the later phone channels upgrade of the legacy phone column; it leaves relationships alone.
+      expect(revisions.map(({ revision }) => revision)).toEqual([1, 2]);
+      expect(revisions[0].change).toBeNull();
       const [{ snapshot }] = revisions;
       expect(snapshot).not.toHaveProperty("activityPaths");
-      const model = RecordModelSchema.parse(snapshot);
+      expect(revisions[1].snapshot.relationships).toEqual(snapshot.relationships);
+      const model = RecordModelSchema.parse(historicalRecordModel(snapshot));
       expect(validateRecordModel(model).issues).toEqual([]);
       expect(switches(model)).toEqual(switches(createCrmPreset(companyId)));
       const id = (key: string) => presetId(companyId, key);

@@ -22,7 +22,6 @@ export const agencyPlan: SetupPlanInput = {
     ],
     fields: [
       { key: "contact.jobTitle", label: "Job title", valueType: "text" },
-      { key: "contact.email", label: "Email", valueType: "email" },
       {
         key: "deal.stage",
         label: "Stage",
@@ -499,7 +498,6 @@ export const fieldServicePlan: SetupPlanInput = {
         ],
       },
       { key: "ticket.openedOn", label: "Opened on", valueType: "date" },
-      { key: "customer.phone", label: "Phone", valueType: "phone" },
       { key: "job.dueDate", label: "Due date", valueType: "date" },
     ],
     relationships: [

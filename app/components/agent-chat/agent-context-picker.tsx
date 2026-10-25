@@ -22,7 +22,11 @@ import { reportApplicationError, runUserAction } from "@/core/errors/report-appl
 import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { cn } from "@/core/utils/cn";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
-import { AGENT_CONTEXT_ATTACHMENT_LIMIT, agentContextAttachmentKey } from "@/ee/agent-chat/agent-context";
+import {
+  AGENT_CONTEXT_ATTACHMENT_LIMIT,
+  agentContextAttachmentKey,
+  isAgentFileContext,
+} from "@/ee/agent-chat/agent-context";
 
 import type { AgentContextCandidate } from "./agent-context-registry";
 
@@ -189,7 +193,8 @@ export const AgentContextPicker = observer(function AgentContextPicker({
   const hasQuery = trimmedQuery.length > 0;
   const hasVisibleItems = visiblePageCandidates.length > 0 || recordCandidates.length > 0;
   const searchFailed = Boolean(debouncedQuery && matchingSearch?.status === "error");
-  const atLimit = store.composerContexts.length >= AGENT_CONTEXT_ATTACHMENT_LIMIT;
+  const atLimit =
+    store.composerContexts.filter((context) => !isAgentFileContext(context)).length >= AGENT_CONTEXT_ATTACHMENT_LIMIT;
   const candidateDisabled = (candidate: AgentContextCandidate, selected: boolean) =>
     selected || (atLimit && candidate.context.reference.kind !== "dataView");
 

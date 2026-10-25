@@ -13,7 +13,7 @@ import { DataViewSelectionBar } from "@/components/data-view/data-view-selection
 import { ResponsiveOverlay } from "@/components/modal/responsive-overlay";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRecordDeletion } from "./use-record-deletion";
-import { isRecordFieldWritable } from "@/features/records/record-input-value";
+import { isRecordFieldWritable, recordDraftValue } from "@/features/records/record-input-value";
 import { RecordFieldValueEditor, RecordFieldValueStore } from "./record-field-value-editor";
 
 const BulkFieldEditor = observer(function BulkFieldEditor({
@@ -32,7 +32,7 @@ const BulkFieldEditor = observer(function BulkFieldEditor({
       new RecordFieldValueStore(
         records.rootStore,
         field,
-        undefined,
+        recordDraftValue(null, field),
         async (value) => ({ saved: await records.bulkUpdateField(field.id, value) }),
         onApplied,
       ),
@@ -53,7 +53,7 @@ export const RecordMassActions = observer(function RecordMassActions({ store }: 
     onPending: (id) => store.setBulkState(false, id),
     mutateMany: store.bulkMutation,
   });
-  const fields = store.fields.filter(isRecordFieldWritable);
+  const fields = store.fields.filter((field) => isRecordFieldWritable(field) && field.valueType !== "file");
   const active = fields.find((field) => field.id === activeId);
   const close = () => {
     setOpen(false);

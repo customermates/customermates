@@ -6,6 +6,7 @@ import { createMockDiModule, MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-
 const mockUser = createMockUser();
 const mockEnv = vi.hoisted(() => ({
   APP_MODE: "self-hosted" as "cloud" | "self-hosted",
+  ADDRESS_LOOKUP_URL: "",
   BASE_URL: "http://localhost:4105",
   NODE_ENV: "test",
 }));
@@ -135,4 +136,28 @@ describe("the MCP endpoint", () => {
 
     expect(await listedToolNames(POST)).toEqual(expect.arrayContaining(CLOUD_ONLY_TOOLS));
   }, 60_000);
+
+  it.each(["cloud", "self-hosted"] as const)(
+    "offers lookup_address on %s only when the server has an address service",
+    async (appMode) => {
+      mockEnv.APP_MODE = appMode;
+      mockEnv.ADDRESS_LOOKUP_URL = "";
+      const { POST: withoutService } = await import("../route");
+
+      expect(await listedToolNames(withoutService)).toEqual(expect.arrayContaining(["check_address"]));
+      expect(await listedToolNames(withoutService)).not.toContain("lookup_address");
+      expect(JSON.stringify(await rpc(withoutService, requestBody("initialize", 1)))).not.toContain("lookup_address");
+
+      vi.resetModules();
+      mockEnv.ADDRESS_LOOKUP_URL = "http://photon:2322";
+      const { POST: withService } = await import("../route");
+
+      expect(await listedToolNames(withService)).toContain("lookup_address");
+      expect(JSON.stringify(await rpc(withService, requestBody("initialize", 1)))).toContain(
+        "candidateToken from lookup_address",
+      );
+      mockEnv.ADDRESS_LOOKUP_URL = "";
+    },
+    60_000,
+  );
 });

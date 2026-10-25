@@ -67,7 +67,10 @@ export function serializedFailureErrorTree(failure: SerializedInteractorFailure)
   return failure.issues.some((issue) => isWorkspaceChangedCode(issue.customCode)) ? markWorkspaceChanged(tree) : tree;
 }
 
-const AUTHENTICATION_FAILURE_CODES = new Set<CustomErrorCode>([CustomErrorCode.notAuthenticated]);
+const AUTHENTICATION_FAILURE_CODES = new Set<CustomErrorCode>([
+  CustomErrorCode.notAuthenticated,
+  CustomErrorCode.recordFileLinkInvalid,
+]);
 const AUTHORIZATION_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.userInactive,
   CustomErrorCode.emailVerificationRequired,
@@ -84,6 +87,7 @@ const NOT_FOUND_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.routineNotFound,
   CustomErrorCode.threadNotFound,
   CustomErrorCode.messageNotFound,
+  CustomErrorCode.recordFileNotFound,
   CustomErrorCode.unipileResourceNotFound,
   CustomErrorCode.userNotFound,
   CustomErrorCode.webhookDeliveryNotFound,
@@ -104,6 +108,7 @@ const CONFLICT_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.roleNameTaken,
   CustomErrorCode.roleSystemImmutable,
   CustomErrorCode.roleAccessPresetInUse,
+  CustomErrorCode.storageQuotaExceeded,
   CustomErrorCode.unipileProviderRejected,
   CustomErrorCode.unipileDisconnectedAccount,
   CustomErrorCode.unipileAccountRestricted,

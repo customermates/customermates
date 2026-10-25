@@ -35,8 +35,6 @@ export type E2eFieldDeclaration = {
     | "dateTime"
     | "dateRange"
     | "dateTimeRange"
-    | "email"
-    | "phone"
     | "link"
     | "singleSelect";
   options?: {

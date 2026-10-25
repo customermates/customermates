@@ -14,7 +14,7 @@ import { fail, failAuthorization, failNotFound, unwoundFailure } from "@/core/va
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordQuerySchema } from "./record-query.schema";
 import { invalidRecordQueryPart } from "./record-query-validation";
-import { recordDto, withMemberUsers } from "./record-dto";
+import { recordDto, withMemberUsersAndFiles } from "./record-dto";
 import type { RecordQueryResult } from "./record-query-result.schema";
 import { recordGroupableFields } from "./record-grouping";
 
@@ -83,7 +83,7 @@ export class QueryRecordsInteractor extends AuthenticatedInteractor<RecordQuery,
         return {
           ok: true as const,
           data: {
-            records: await withMemberUsers(
+            records: await withMemberUsersAndFiles(
               result.records.map((record) => ({
                 ...recordDto(
                   record,

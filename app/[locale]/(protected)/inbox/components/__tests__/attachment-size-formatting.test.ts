@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { attachmentSubtitle, formatBytes } from "../attachment-classify";
+import { formatBytes } from "@/core/utils/format-bytes";
+
+import { attachmentSubtitle } from "../attachment-classify";
 
 const german = (value: number | undefined, options?: { maximumFractionDigits?: number }) =>
   new Intl.NumberFormat("de-DE", {
@@ -31,7 +33,7 @@ describe("attachment size formatting", () => {
     const t = (key: string) => key;
     const input = { mime: "application/pdf", fileName: "invoice.pdf", size: 8_596_329 };
 
-    expect(attachmentSubtitle(t, input, german)).toBe("Inbox.fileTypePdf · 8,2 MB");
-    expect(attachmentSubtitle(t, input)).toBe("Inbox.fileTypePdf · 8.2 MB");
+    expect(attachmentSubtitle(t, input, german)).toBe("FileTypes.pdf · 8,2 MB");
+    expect(attachmentSubtitle(t, input)).toBe("FileTypes.pdf · 8.2 MB");
   });
 });

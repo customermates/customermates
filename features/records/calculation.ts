@@ -85,6 +85,10 @@ function scalarValue(value: RecordScalar): string | boolean {
       return JSON.stringify([value.start, value.end]);
     case "richText":
       return value.documentJson;
+    case "file":
+      return JSON.stringify(value.value);
+    case "address":
+      return value.value.formatted;
     default:
       return value.value;
   }

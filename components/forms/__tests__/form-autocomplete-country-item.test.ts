@@ -27,9 +27,10 @@ describe("FormAutocompleteCountryItem", () => {
     expect(markup()).toContain("Germany");
   });
 
-  it("keeps the flag image on cloud", () => {
+  it("keeps the flag image on cloud with the emoji flag as its fallback", () => {
     rootStore.appMode = "cloud";
 
     expect(markup()).toContain("https://flagcdn.com/de.svg");
+    expect(markup()).toContain("\u{1F1E9}\u{1F1EA}");
   });
 });

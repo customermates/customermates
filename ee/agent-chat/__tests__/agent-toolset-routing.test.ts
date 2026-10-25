@@ -43,7 +43,9 @@ describe("toolset partition", () => {
     for (const toolset of AGENT_ON_DEMAND_TOOLSETS)
       for (const name of toolNamesOfToolset(toolset)) expect(onDemandToolsetOfTool(name)).toBe(toolset);
     for (const name of coreToolNames()) expect(onDemandToolsetOfTool(name)).toBeNull();
-    expect(coreToolNames().size).toBe(21);
+    expect(coreToolNames().size).toBe(24);
+    expect(coreToolNames().has("lookup_address")).toBe(true);
+    expect(coreToolNames().has("check_address")).toBe(true);
     expect(coreToolNames().has("get_activities")).toBe(true);
     expect(coreToolNames().has("manage_wiki_pages")).toBe(true);
     expect(coreToolNames().has("manage_data_views")).toBe(false);
@@ -124,6 +126,18 @@ describe("toolsetsForRequest", () => {
     expect([...toolsetsForRequest({ text: "Lade Anna als Teammitglied ein", pageRoute: null })]).toEqual(["admin"]);
     expect([...toolsetsForRequest({ text: "Update my current view", pageRoute: null })]).toEqual(["views"]);
     expect([...toolsetsForRequest({ text: "Passe meine aktuelle Ansicht an", pageRoute: null })]).toEqual(["views"]);
+    expect([
+      ...toolsetsForRequest({ text: "Show the deals in a calendar view by close date", pageRoute: null }),
+    ]).toEqual(["views"]);
+    expect([...toolsetsForRequest({ text: "Erstelle eine Kalenderansicht der Aufgaben", pageRoute: null })]).toEqual([
+      "views",
+    ]);
+    expect([...toolsetsForRequest({ text: "What is in my calendar tomorrow?", pageRoute: null })]).toEqual([
+      "messaging",
+    ]);
+    expect([...toolsetsForRequest({ text: "Add a map widget of our customers", pageRoute: null })]).toEqual([
+      "widgets",
+    ]);
   });
 
   it("routes by user vocabulary in Spanish, French and Italian", () => {
@@ -318,5 +332,16 @@ describe("toolsetIndexSentence", () => {
     const sentence = toolsetIndexSentence([...AGENT_ON_DEMAND_TOOLSETS]);
     expect(sentence).toContain("nothing left to load");
     expect(sentence).not.toContain("load_toolset");
+  });
+});
+
+describe("short request words", () => {
+  const toolsets = (text: string) => [...toolsetsForRequest({ text, pageRoute: null, contexts: [] })];
+
+  it("match a whole word or its plural, not the start of a longer word", () => {
+    expect(toolsets("What postal address is stored on Haldern?")).not.toContain("social");
+    expect(toolsets("Show my latest posts")).toContain("social");
+    expect(toolsets("Draft a LinkedIn post")).toContain("social");
+    expect(toolsets("Send a mail to Ada")).toContain("messaging");
   });
 });

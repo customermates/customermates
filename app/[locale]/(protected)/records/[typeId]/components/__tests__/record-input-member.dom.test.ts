@@ -16,6 +16,10 @@ vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("@/components/forms/form-context", () => ({ useAppForm: () => ({ getValue: () => picker.value }) }));
 vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => ({ userStore: { user: VIEWER } }) }));
 vi.mock("@/app/[locale]/(protected)/settings/(workspace)/actions", () => ({ getActiveUsersAction: vi.fn() }));
+vi.mock("@/app/[locale]/(protected)/records/actions", () => ({
+  lookupAddressAction: vi.fn(),
+  verifyAddressAction: vi.fn(),
+}));
 vi.mock("@/components/forms/form-autocomplete-avatar", async () => {
   const React = await import("react");
   return {

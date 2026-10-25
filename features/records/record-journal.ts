@@ -41,7 +41,11 @@ function snapshotOf(
   dependencies: Map<string, RecordRef[]>,
   identities: Awaited<ReturnType<RecordRepo["getIdentitiesCompanyWide"]>>,
   model: RecordModel,
+  fileNames: ReadonlyMap<string, string>,
 ): RecordHistorySnapshot {
+  const fileFieldIds = new Set(
+    model.fields.filter((field) => field.typeId === row.typeId && field.valueType === "file").map((field) => field.id),
+  );
   return {
     version: row.version,
     assignedUserIds: row.assignments.map((assignment) => assignment.userId).sort(),
@@ -58,6 +62,14 @@ function snapshotOf(
           row.values.find((value) => value.fieldId === field.id),
           field,
         ),
+        ...(fileFieldIds.has(field.id)
+          ? {
+              files: (row.values.find((value) => value.fieldId === field.id)?.textListValue ?? []).map((id) => ({
+                id,
+                name: fileNames.get(id) ?? id,
+              })),
+            }
+          : {}),
         sources: (dependencies.get(field.id) ?? []).sort((a, b) => compareRecordKey(recordKey(a), recordKey(b))),
         publications: historyPublications(field, model),
         dependencyHash: calculationDependencyHash(field, model),
@@ -87,7 +99,17 @@ async function snapshot(
     (await records.getRecordDependenciesCompanyWide(ref)).map((entry) => [entry.fieldId, entry.sources]),
   );
   const identities = recordChannelsField(model, ref.typeId) ? await records.getIdentitiesCompanyWide(ref) : [];
-  return snapshotOf(row, dependencies, identities, model);
+  const fileFieldIds = new Set(model.fields.filter((field) => field.valueType === "file").map((field) => field.id));
+  const fileNames = new Map(
+    (
+      await records.getRecordFilesCompanyWide(
+        row.values.flatMap((value) =>
+          fileFieldIds.has(value.fieldId) && value.state === "value" ? value.textListValue : [],
+        ),
+      )
+    ).map((file) => [file.id, file.name]),
+  );
+  return snapshotOf(row, dependencies, identities, model, fileNames);
 }
 
 const SNAPSHOT_CHUNK = 500;
@@ -121,13 +143,34 @@ async function snapshots(
       for (const [recordId, entries] of found) identities.set(recordKey({ typeId, recordId }), entries);
     }
   }
+  const fileFieldIds = new Set(model.fields.filter((field) => field.valueType === "file").map((field) => field.id));
+  const fileIds = [
+    ...new Set(
+      [...rows.values()].flatMap((row) =>
+        row.values.flatMap((value) =>
+          fileFieldIds.has(value.fieldId) && value.state === "value" ? value.textListValue : [],
+        ),
+      ),
+    ),
+  ];
+  const fileNames = new Map<string, string>();
+  for (let offset = 0; offset < fileIds.length; offset += SNAPSHOT_CHUNK) {
+    for (const file of await records.getRecordFilesCompanyWide(fileIds.slice(offset, offset + SNAPSHOT_CHUNK)))
+      fileNames.set(file.id, file.name);
+  }
   const result = new Map<string, RecordHistorySnapshot | null>();
   for (const ref of refs) {
     const row = rows.get(recordKey(ref));
     result.set(
       recordKey(ref),
       row
-        ? snapshotOf(row, dependencies.get(recordKey(ref)) ?? new Map(), identities.get(recordKey(ref)) ?? [], model)
+        ? snapshotOf(
+            row,
+            dependencies.get(recordKey(ref)) ?? new Map(),
+            identities.get(recordKey(ref)) ?? [],
+            model,
+            fileNames,
+          )
         : null,
     );
   }

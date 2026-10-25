@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { RecordQueryFilters } from "@/components/records/record-query-filters";
 import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
@@ -16,31 +16,30 @@ import {
   RecordMeasureSchema,
 } from "@/features/records/record-measure.schema";
 import { widgetDisplayTypeIssue } from "@/features/widget/widget-display-rules";
-import { FormAutocomplete } from "@/components/forms/form-autocomplete";
-import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
 import { FormSelect } from "@/components/forms/form-select";
 import { Button } from "@/components/ui/button";
-import { runUserAction } from "@/core/errors/report-application-error";
-import { useDebouncedValue } from "@/core/utils/use-debounced-value";
-import { discoverWidgetRecordTypesAction } from "../actions";
 import { isRecordWidgetForm } from "./record-widget-form";
-import { browserTimeZone } from "./widget-time-zone";
+import { browserTimeZone } from "@/core/utils/time-zone";
 import { RecordWidgetCard } from "./record-widget-card";
 import {
   WidgetEditorColumns,
   WidgetEditorSegments,
+  WidgetModelStatus,
+  WidgetPreviewError,
+  WidgetPreviewPlaceholder,
   WidgetPreviewSkeleton,
+  WidgetSourceFilters,
+  WidgetSourcePicker,
   initialWidgetEditorSegment,
   opensWidgetFilters,
+  useWidgetAutoPreview,
 } from "./widget-editor-layout";
+import { widgetSourceFilterCount } from "./widget-card-frame";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { WidgetPreviewFrame } from "./widget-preview-frame";
 import { cn } from "@/core/utils/cn";
 import { widgetRelationshipChoices } from "./record-widget-filters";
 import { isRecordMeasureGroupField } from "@/features/records/record-measure-validation";
-import { actionData } from "@/core/utils/action-data";
-
-const AUTO_PREVIEW_DELAY_MS = 600;
 
 export const RecordWidgetEditor = observer(
   ({
@@ -56,26 +55,21 @@ export const RecordWidgetEditor = observer(
   }) => {
     const t = useTranslations();
     const model = store.recordModel;
-    const retry = () => runUserAction(store.loadRecordModel);
     const form = store.form;
     const preview = store.recordPreview;
     const loading = store.recordPreviewLoading;
     const previewError = store.recordPreviewFailed;
-    const previewKey = store.recordMeasureKey;
-    const autoPreviewKey =
+    const [openFilters, setOpenFilters] = useState<"source" | "group" | null>(() =>
+      opensWidgetFilters(store.expandedSection) ? "source" : null,
+    );
+    const toggleFilters = (section: "source" | "group") => (open: boolean) => setOpenFilters(open ? section : null);
+    useWidgetAutoPreview(
+      store,
       (section === "preview" || section === "all") &&
-      previewKey &&
-      model &&
-      store.isOpen &&
-      isRecordWidgetForm(form) &&
-      RecordMeasureSchema.safeParse(form.measure).success
-        ? `${model.revision}:${previewKey}`
-        : null;
-    const debouncedAutoPreviewKey = useDebouncedValue(autoPreviewKey, AUTO_PREVIEW_DELAY_MS);
-    useEffect(() => {
-      if (!debouncedAutoPreviewKey || debouncedAutoPreviewKey !== autoPreviewKey) return;
-      runUserAction(store.runRecordPreview);
-    }, [debouncedAutoPreviewKey, autoPreviewKey, form, store]);
+        isRecordWidgetForm(form) &&
+        RecordMeasureSchema.safeParse(form.measure).success,
+      store.runRecordPreview,
+    );
     const displayIssue =
       model && isRecordWidgetForm(form)
         ? widgetDisplayTypeIssue(form.displayOptions.displayType, form.measure, model)
@@ -98,34 +92,12 @@ export const RecordWidgetEditor = observer(
       groupFields.some(
         (field) => field.id === measure.groupBy?.fieldId && ["date", "dateTime"].includes(field.valueType),
       );
-    const status =
-      model === undefined ? (
-        <p className="text-sm text-muted-foreground" role="status">
-          {t("RecordWidgets.loadingSchema")}
-        </p>
-      ) : model === null ? (
-        <Button type="button" variant="secondary" onClick={retry}>
-          {t("ErrorCard.retry")}
-        </Button>
-      ) : null;
     const measureValid = RecordMeasureSchema.safeParse(measure).success;
     const shownPreview = preview && preview.result.schemaRevision === model?.revision ? preview : null;
     const previewContent = (
       <div className="min-w-0 space-y-3">
         <WidgetPreviewFrame
-          error={
-            previewError && !loading ? (
-              <>
-                <p className="text-center text-sm text-destructive" role="alert">
-                  {t("RecordWidgets.previewFailed")}
-                </p>
-
-                <Button type="button" variant="secondary" onClick={() => runUserAction(store.runRecordPreview)}>
-                  {t("ErrorCard.retry")}
-                </Button>
-              </>
-            ) : null
-          }
+          error={previewError && !loading ? <WidgetPreviewError onRetry={store.runRecordPreview} /> : null}
           geometry={store.previewGeometry}
           kind={form.kind}
           loading={loading || (model === undefined && !shownPreview)}
@@ -147,15 +119,9 @@ export const RecordWidgetEditor = observer(
               />
             </div>
           ) : (
-            <div className="flex h-full flex-col justify-center rounded-xl border border-dashed border-border p-6">
-              {!measureValid && model ? (
-                <p className="text-center text-sm text-muted-foreground">
-                  {t("Dashboard.widgetEditor.preview.incomplete")}
-                </p>
-              ) : (
-                <WidgetPreviewSkeleton />
-              )}
-            </div>
+            <WidgetPreviewPlaceholder incomplete={!measureValid && Boolean(model)}>
+              <WidgetPreviewSkeleton />
+            </WidgetPreviewPlaceholder>
           )}
         </WidgetPreviewFrame>
       </div>
@@ -171,37 +137,12 @@ export const RecordWidgetEditor = observer(
           null)
         : t("RecordWidgets.groupRecord")
       : t("RecordModel.noGrouping");
-    const filterCount =
-      measure.source.filters.length +
-      measure.source.relationships.length +
-      (measure.source.relatedFilters?.length ?? 0);
-    const filtersContent = (
-      <div className="space-y-4">
-        {status}
-
-        <RecordQueryFilters
-          anchorId="widget-source-filters"
-          id="measure.source"
-          model={model}
-          typeId={measure.source.typeId}
-        />
-      </div>
-    );
-    const sourceType = model?.types.find((type) => type.id === measure.source.typeId);
     const relations = widgetRelationshipChoices(model, groupTypeId);
     const dataContent = (
       <div className="space-y-4">
-        <FormAutocomplete<{ id: string; pluralLabel: string }>
-          getItems={(params) => actionData(discoverWidgetRecordTypesAction(params))}
-          id="measure.source.typeId"
-          items={sourceType ? [{ id: sourceType.id, pluralLabel: sourceType.pluralLabel }] : []}
-          label={t("RecordWidgets.source")}
-          renderValue={(items) => items.map((item) => item.data?.pluralLabel ?? t("Loading.text")).join(", ")}
-        >
-          {(type) => <FormAutocompleteItem textValue={type.pluralLabel}>{type.pluralLabel}</FormAutocompleteItem>}
-        </FormAutocomplete>
+        <WidgetSourcePicker id="measure.source.typeId" model={model} typeId={measure.source.typeId} />
 
-        {status}
+        <WidgetModelStatus store={store} />
 
         <FormSelect
           id="measure.aggregation"
@@ -337,19 +278,6 @@ export const RecordWidgetEditor = observer(
             }}
           />
         )}
-
-        {measure.groupBy && (
-          <section aria-label={t("RecordWidgets.groupFilters")} className="space-y-3">
-            <p className="text-xs text-muted-foreground">{t("RecordWidgets.groupFilterHelp")}</p>
-
-            <RecordQueryFilters
-              anchorId="widget-group-filters"
-              id="measure.groupBy.filter"
-              model={model}
-              typeId={groupTypeId}
-            />
-          </section>
-        )}
       </div>
     );
     if (section === "data") return dataContent;
@@ -367,14 +295,14 @@ export const RecordWidgetEditor = observer(
 
                 {dataContent}
 
-                <CollapsibleSection
-                  defaultOpen={opensWidgetFilters(store.expandedSection)}
-                  id="widget-config-filters"
-                  summary={t("Dashboard.widgetEditor.sections.activeFilters", { count: filterCount })}
-                  title={t("Dashboard.widgetEditor.sections.filters")}
-                >
-                  {filtersContent}
-                </CollapsibleSection>
+                <WidgetSourceFilters
+                  id="measure.source"
+                  open={openFilters === "source"}
+                  source={measure.source}
+                  store={store}
+                  typeId={measure.source.typeId}
+                  onOpenChange={toggleFilters("source")}
+                />
 
                 <CollapsibleSection
                   defaultOpen
@@ -384,6 +312,30 @@ export const RecordWidgetEditor = observer(
                 >
                   {groupingContent}
                 </CollapsibleSection>
+
+                {measure.groupBy && (
+                  <CollapsibleSection
+                    id="widget-config-group-filters"
+                    open={openFilters === "group"}
+                    summary={t("Dashboard.widgetEditor.sections.activeFilters", {
+                      count: measure.groupBy.filter ? widgetSourceFilterCount(measure.groupBy.filter) : 0,
+                    })}
+                    title={t("RecordWidgets.groupFilters")}
+                    onOpenChange={toggleFilters("group")}
+                  >
+                    <div className="space-y-3">
+                      <p className="text-xs text-muted-foreground">{t("RecordWidgets.groupFilterHelp")}</p>
+
+                      <RecordQueryFilters
+                        inline
+                        anchorId="widget-group-filters"
+                        id="measure.groupBy.filter"
+                        model={model}
+                        typeId={groupTypeId}
+                      />
+                    </div>
+                  </CollapsibleSection>
+                )}
               </>
             }
             dataFields={[

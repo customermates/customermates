@@ -1,3 +1,4 @@
+import { isCalendarDateField } from "@/features/record-calendar/record-calendar-query";
 import type { SortableField } from "@/core/base/base-query-builder";
 import { MANUAL_ORDER_SORT_KEY } from "@/features/records/record-column.schema";
 import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
@@ -157,6 +158,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
             "columnOrder",
             "columnWidths",
             "hiddenColumns",
+            ...(isRecordDataViewSurface(data.surfaceKey) ? ["calendar"] : []),
           ];
       const filterableFields = config.filterableFields.map((field) => {
         const valueKind = filterValueKind(field.field);
@@ -558,9 +560,11 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
                   : "dateTime",
         })),
         supportsSearch: true,
-        viewModes: fields.some((field) => field.valueType === "select" && !field.multiple)
-          ? [ViewMode.table, ViewMode.card]
-          : [ViewMode.table],
+        viewModes: [
+          ViewMode.table,
+          ...(fields.some((field) => field.valueType === "select" && !field.multiple) ? [ViewMode.card] : []),
+          ...(fields.some(isCalendarDateField) ? [ViewMode.calendar] : []),
+        ],
       };
     }
     if (isActivitySurface(surfaceKey)) {
@@ -620,6 +624,17 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
           : null;
       if (groupable)
         return fail(CustomErrorCode.invalidGroupingField, ["state", "grouping"], { validValues: groupable.join(", ") });
+      if (isActivitySurface(surfaceKey) && (state.calendar || state.viewMode === ViewMode.calendar))
+        return fail(CustomErrorCode.recordValueInvalid, ["state", "calendar"]);
+      const calendar =
+        isRecordDataViewSurface(surfaceKey) && state.calendar
+          ? await this.recordViews?.invalidCalendar(surfaceKey, state.calendar)
+          : null;
+      if (calendar) {
+        return fail(CustomErrorCode.invalidFilterField, ["state", "calendar", calendar.key], {
+          validValues: calendar.validValues.join(", "),
+        });
+      }
 
       const invalid =
         (await this.recordViews?.validate(surfaceKey, state)) ??

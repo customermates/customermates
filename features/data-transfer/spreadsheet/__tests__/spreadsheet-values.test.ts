@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 import {
   defaultDateOrder,
   normalizeEmail,
-  normalizePhone,
   normalizeUrl,
   numberToDecimal,
   parseDateText,
@@ -92,10 +91,6 @@ describe("spreadsheet value parsing", () => {
       false,
     ]);
     expect(parseSpreadsheetBoolean("maybe")).toBeNull();
-    expect(normalizePhone("+49 (0)30 1234-567")).toBe("+49301234567");
-    expect(normalizePhone("0049 30 1234567")).toBe("+49301234567");
-    expect(normalizePhone("030 1234567", "49")).toBe("+49301234567");
-    expect(normalizePhone("030 1234567")).toBeNull();
     expect(normalizeEmail(" mailto:Ada@Example.com ")).toBe("Ada@Example.com");
     expect(normalizeEmail("not an email")).toBeNull();
     expect(normalizeUrl("example.com/pricing")).toBe("https://example.com/pricing");

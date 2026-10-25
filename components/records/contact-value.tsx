@@ -2,7 +2,7 @@
 
 import type { ContactKind } from "@/core/utils/contact-href";
 
-import { Copy, ExternalLink, Mail, Phone } from "lucide-react";
+import { Copy, ExternalLink, Mail, MapPin, Phone } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { IconButton } from "@/components/ui/icon-button";
@@ -40,10 +40,11 @@ export function ContactValue({ value, kind, action = "open", label, className, w
           action === "open"
             ? {
                 href: contactHref(kind, value),
-                external: kind === "url",
+                external: kind === "url" || kind === "address",
               }
             : undefined
         }
+        multiline={kind === "address"}
         value={value}
         wrap={wrap}
       />
@@ -51,7 +52,7 @@ export function ContactValue({ value, kind, action = "open", label, className, w
   );
 }
 
-const OPEN_ICONS = { email: Mail, phone: Phone, url: ExternalLink } as const;
+const OPEN_ICONS = { email: Mail, phone: Phone, url: ExternalLink, address: MapPin } as const;
 
 export function ContactValueActions({ value, kind, action = "open" }: Omit<Props, "label" | "className" | "wrap">) {
   const t = useTranslations();

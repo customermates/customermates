@@ -45,7 +45,7 @@ comparison:
         source: Keine planabhängige Grenze
         competitor: 2.500 bis 20.000 pro Nutzer je nach Plan, höchstens 300.000
       - name: Eigene Felder
-        source: Fünfzehn Feldtypen und berechnete Felder, keine planabhängige Grenze
+        source: Sechzehn Feldtypen und berechnete Felder, keine planabhängige Grenze
         competitor: 30 (Lite) bis 500 (Ultimate) pro Unternehmen
       - name: Pipelines
         source: Ein Phasenfeld mit Phasenwahrscheinlichkeiten, als Tabelle oder Board
@@ -210,7 +210,7 @@ Nehmen wir eine Beratung mit drei Partnern und zwei Mitarbeitenden. Die Partner 
 | Labels | Ein Einzelauswahl-Feld, etwa „Quelle“ |
 | Aktivitäten | Aufgaben, mit einem eigenen Datumsfeld, wo das Datum zählt |
 | Notizen | Das Notizfeld des Datensatzes |
-| Dateien | Werden nicht übernommen; E-Mail-Anhänge bleiben in der Konversation im Posteingang |
+| Dateien | Werden nicht importiert; legen Sie sie danach in einem Feld vom Typ Datei ab. E-Mail-Anhänge bleiben in der Konversation im Posteingang |
 
 Die Optionen des Felds „Phase“ benennen sie in Lead, Qualifiziert, Angebot gesendet, Verhandlung, Gewonnen und Verloren um und geben ihnen in Konfigurieren für Deals Wahrscheinlichkeiten von 10, 25, 50, 75, 100 und 0 Prozent. Customermates multipliziert den Wert jedes Deals mit der Wahrscheinlichkeit seiner Phase, und ein Diagramm-Widget auf dem Dashboard summiert die gewichteten Werte. Das ist Rechnen mit den eigenen Zahlen und keine Prognose.
 
@@ -224,8 +224,8 @@ Jeder Partner besitzt eine Routine. Sie läuft als dieser Partner, sieht also se
 
 <Steps>
   <Step title="Aus Pipedrive exportieren">Öffnen Sie in Pipedrive „Tools und Apps“ › „Daten exportieren“ und laden Sie Organisationen, Personen, Deals und Produkte jeweils als Excel-Datei herunter. Notizen und Aktivitäten exportieren Sie getrennt. Exportieren dürfen nur globale Admins und Nutzer mit der passenden Berechtigung.</Step>
-  <Step title="Workspace vorbereiten">Richten Sie das Feld „Phase“ wie im Beispiel oben ein, legen Sie Einzelauswahl-Felder für Ihre Labels an und eigene Felder für alles, was Sie behalten wollen. Fünfzehn Feldtypen stehen bereit, darunter Geldbetrag, Datum, Webadresse und Telefon.</Step>
-  <Step title="Eine Liste nach der anderen importieren">Unter Weitere Aktionen › Aus Datei hinzufügen importieren Sie zuerst Organisationen, dann Kontakte, dann Leistungen und Deals. Eine Arbeitsmappe darf bis zu 10.000 Zeilen und 10 MB groß sein, und CSV-Dateien werden nicht angenommen; nutzen Sie also den Excel-Export von Pipedrive und teilen Sie große Dateien auf. Verknüpfungsspalten finden Datensätze über den Namen, die Organisationsspalte eines Deals also die zuvor importierte Organisation. Neue Kontakte brauchen Vor- und Nachnamen. Ordnen Sie E-Mail-Spalten den Kanälen des Kontakts zu; Kanäle werden nur bei neuen Kontakten ergänzt.</Step>
+  <Step title="Workspace vorbereiten">Richten Sie das Feld „Phase“ wie im Beispiel oben ein, legen Sie Einzelauswahl-Felder für Ihre Labels an und eigene Felder für alles, was Sie behalten wollen. Sechzehn Feldtypen stehen bereit, darunter Geldbetrag, Datum, Webadresse und Adresse; Telefonnummern und E-Mail-Adressen gehören in das Feld Kontaktdaten.</Step>
+  <Step title="Eine Liste nach der anderen importieren">Unter Weitere Aktionen › Aus Datei hinzufügen importieren Sie zuerst Organisationen, dann Kontakte, dann Leistungen und Deals. Eine Arbeitsmappe darf bis zu 10.000 Zeilen und 10 MB groß sein, und CSV-Dateien werden nicht angenommen; nutzen Sie also den Excel-Export von Pipedrive und teilen Sie große Dateien auf. Verknüpfungsspalten finden Datensätze über den Namen, die Organisationsspalte eines Deals also die zuvor importierte Organisation. Neue Kontakte brauchen Vor- und Nachnamen. Ordnen Sie E-Mail- und Telefonspalten dem Feld Kontaktdaten des Kontakts zu; Kontaktdaten werden nur bei neuen Kontakten ergänzt.</Step>
   <Step title="Notizen und offene Aktivitäten übernehmen">Jeder Datensatz hat ein Notizfeld. Ordnen Sie beim Import eine Notizspalte zu, oder lassen Sie einen KI-Client über MCP die exportierten Notizen an die passenden Datensätze anhängen. Offene Aktivitäten können Sie als Aufgaben importieren, mit einem eigenen Datumsfeld für das Datum.</Step>
   <Step title="Kanäle verbinden, dann Pipedrive kündigen">Ab Pro oder während der Testphase verbinden Sie unter Einstellungen › Kanäle ein Postfach, LinkedIn oder WhatsApp. Kündigen Sie Pipedrive erst, wenn Ihr Team die importierten Daten geprüft hat. Die [Dokumentation zu Datensätzen](/docs/app-records) erklärt jeden Schritt des Import-Assistenten.</Step>
 </Steps>

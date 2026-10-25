@@ -7,6 +7,7 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
+import type { RecordWriteWarning } from "@/features/records/record-query.schema";
 import type { RecordExport } from "@/features/data-transfer/record-transfer.schema";
 import type { RecordModelView } from "@/features/records/record-model.schema";
 
@@ -21,6 +22,7 @@ import { SegmentedControl } from "@/components/ui/segmented-control";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { AppModal } from "@/components/modal";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { useRootStore } from "@/core/stores/root-store.provider";
 import { importRecordsAction } from "../../actions";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardHeader } from "@/components/card/app-card-header";
@@ -50,7 +52,11 @@ export const RecordImportDialog = observer(function RecordImportDialog({
   onImported: () => Promise<void>;
 }) {
   const t = useTranslations();
-  const describeIssue = useXlsxImportText().issue;
+  const { userStore } = useRootStore();
+  const xlsxText = useXlsxImportText();
+  const describeIssue = xlsxText.issue;
+  const describeWarning = (warning: RecordWriteWarning) =>
+    xlsxText.warning(warning, model?.fields.find((field) => field.id === warning.fieldId)?.label ?? "");
   const fileInput = useRef<HTMLInputElement>(null);
   const key = useRef<string | null>(null);
   const selectionGeneration = useRef(0);
@@ -70,8 +76,17 @@ export const RecordImportDialog = observer(function RecordImportDialog({
             assignedTo: t("DataTransfer.xlsxImport.assignedTo"),
             rangeStart: t("RecordModel.rangeStart"),
             rangeEnd: t("RecordModel.rangeEnd"),
+            addressParts: {
+              street: t("RecordModel.addressParts.street"),
+              line2: t("RecordModel.addressParts.line2"),
+              postalCode: t("RecordModel.addressParts.postalCode"),
+              city: t("RecordModel.addressParts.city"),
+              region: t("RecordModel.addressParts.region"),
+              countryCode: t("RecordModel.addressParts.country"),
+            },
           },
           xlsxImportPorts(t("DataTransfer.recordImport.failed")),
+          userStore.user?.country ?? null,
         )
       : null,
   );
@@ -183,7 +198,7 @@ export const RecordImportDialog = observer(function RecordImportDialog({
       close(false);
       return;
     }
-    await wizard.advance(describeIssue);
+    await wizard.advance(describeIssue, describeWarning);
   };
 
   return (

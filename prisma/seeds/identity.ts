@@ -114,6 +114,7 @@ export async function seedIdentity(context: SeedContext): Promise<void> {
 
   await prisma.subscription.upsert({
     where: { companyId: ids.company },
+    select: { id: true },
     update: SYNTHETIC_SUBSCRIPTION,
     create: {
       id: ids.subscription,

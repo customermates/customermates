@@ -3,6 +3,7 @@
 import type {
   DeleteOperatorWorkspaceData,
   UpdateHostedAiEnterpriseAllowanceData,
+  UpdateEnterpriseFileStorageData,
   UpdateOperatorSubscriptionTermsData,
   GetOperatorWorkspaceStatsData,
   UpdateOperatorWorkspaceTagsData,
@@ -12,6 +13,7 @@ import type { GetOperatorBillingUsageData } from "@/ee/operator/billing-usage.sc
 import {
   getDeleteOperatorWorkspaceInteractor,
   getUpdateHostedAiEnterpriseAllowanceInteractor,
+  getUpdateEnterpriseFileStorageInteractor,
   getUpdateOperatorSubscriptionTermsInteractor,
   getGetOperatorWorkspaceStatsInteractor,
   getUpdateOperatorWorkspaceTagsInteractor,
@@ -21,6 +23,10 @@ import { serializeResult } from "@/core/utils/action-result";
 
 export async function updateOperatorEnterpriseAllowanceAction(data: UpdateHostedAiEnterpriseAllowanceData) {
   return serializeResult(getUpdateHostedAiEnterpriseAllowanceInteractor().invoke(data));
+}
+
+export async function updateOperatorEnterpriseFileStorageAction(data: UpdateEnterpriseFileStorageData) {
+  return serializeResult(getUpdateEnterpriseFileStorageInteractor().invoke(data));
 }
 
 export async function deleteOperatorWorkspaceAction(data: DeleteOperatorWorkspaceData) {

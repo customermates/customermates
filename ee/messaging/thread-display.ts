@@ -1,4 +1,4 @@
-import type { MessagingProvider, MessagingThreadType } from "@/generated/prisma";
+import type { MessagingProvider, MessagingThreadType, RecordIdentityProvider } from "@/generated/prisma";
 import type { MessagingAttendee } from "./messaging.schema";
 
 import { parseChannelHandle } from "@/features/records/channel-value";
@@ -38,7 +38,10 @@ export function isUnipileUnsupportedBody(text: string | null | undefined): boole
 const PHONE_JID_REGEX = /^(\d{6,15})@(?:s\.whatsapp\.net|c\.us)$/i;
 const PHONE_REGEX = /^\+?\d[\d\s\-()]*$/;
 
-export function formatChannelIdentifier(provider: MessagingProvider, identifier: string | null | undefined): string {
+export function formatChannelIdentifier(
+  provider: RecordIdentityProvider,
+  identifier: string | null | undefined,
+): string {
   const id = identifier?.trim() ?? "";
 
   if (!id) return "";
@@ -53,11 +56,15 @@ export function formatChannelIdentifier(provider: MessagingProvider, identifier:
   return id;
 }
 
-function channelUrl(provider: MessagingProvider, value: string, profileUrl?: string | null): string | null {
+function channelUrl(provider: RecordIdentityProvider, value: string, profileUrl?: string | null): string | null {
   return profileUrl ?? getProviderProfileUrl(provider, value);
 }
 
-export function channelDisplayLabel(provider: MessagingProvider, value: string, profileUrl?: string | null): string {
+export function channelDisplayLabel(
+  provider: RecordIdentityProvider,
+  value: string,
+  profileUrl?: string | null,
+): string {
   const url = channelUrl(provider, value, profileUrl);
   if (!url) return formatChannelIdentifier(provider, value);
 
@@ -86,7 +93,7 @@ export function messageSenderName(message: {
 }
 
 export function displayableIdentifier(
-  provider: MessagingProvider,
+  provider: RecordIdentityProvider,
   identifier: string | null | undefined,
 ): string | null {
   const id = identifier?.trim();
@@ -107,7 +114,10 @@ export function displayableIdentifier(
   return null;
 }
 
-export function identifierLabel(provider: MessagingProvider, identifier: string | null | undefined): string | null {
+export function identifierLabel(
+  provider: RecordIdentityProvider,
+  identifier: string | null | undefined,
+): string | null {
   const id = identifier?.trim();
 
   if (!id) return null;
@@ -245,7 +255,7 @@ export function participantAvatar(
 }
 
 export function channelContact(
-  provider: MessagingProvider,
+  provider: RecordIdentityProvider,
   value: string,
   profileUrl?: string | null,
 ): { kind: "email" | "phone" | "url"; value: string; label: string } {

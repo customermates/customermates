@@ -20,8 +20,8 @@ export function identityKeys(
   ];
 }
 
-export function normalizedIdentity(input: RecordIdentityInput): RecordIdentityInput | null {
-  const value = normalizeChannelValue(input.provider, input.value);
+export function normalizedIdentity(input: RecordIdentityInput, region?: string | null): RecordIdentityInput | null {
+  const value = normalizeChannelValue(input.provider, input.value, region);
   return value
     ? {
         ...input,
@@ -34,8 +34,9 @@ export function normalizedIdentity(input: RecordIdentityInput): RecordIdentityIn
 export function normalizedIdentityAssociation(
   input: RecordIdentityInput,
   known: RecordIdentity[],
+  region?: string | null,
 ): RecordIdentityInput | null {
-  const normalized = normalizedIdentity(input);
+  const normalized = normalizedIdentity(input, region);
   if (normalized) return normalized;
   const kind = channelClass(input.provider);
   if (!known.some((row) => row.channelClass === kind && identityKeys(row).includes(input.value.trim()))) return null;

@@ -4,7 +4,12 @@ import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
-import type { CalculatedValue, RecordFieldView, RecordMember } from "@/features/records/record-model.schema";
+import type {
+  CalculatedValue,
+  RecordFieldView,
+  RecordFileSummary,
+  RecordMember,
+} from "@/features/records/record-model.schema";
 import type { RecordIdentity } from "@/features/records/record-identity.schema";
 
 import { AppChip } from "@/components/chip/app-chip";
@@ -14,9 +19,11 @@ import { ContactValue } from "@/components/records/contact-value";
 import { ChannelIconStack } from "@/components/shared/channel-icon-stack";
 import { EmptyValue } from "@/components/shared/empty-value";
 import { toChipColor } from "@/constants/chip-colors";
-import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
 import { cn } from "@/core/utils/cn";
 import { currencyFractionDigits } from "@/features/records/derived-value-format";
+import { AddressValue } from "@/components/records/address-value";
+
+import { RecordFileChips } from "./record-file-chips";
 
 import { formattedTextExcerpt } from "@/features/records/record-presentation";
 
@@ -28,6 +35,7 @@ export function useRecordValueFormat() {
   const intl = useHydratedIntlStore();
   const locale = intl.formattingLocale;
   return {
+    locale,
     decimal: (
       value: string | number,
       { currency = null, compact = false, maximumFractionDigits }: DecimalFormat = {},
@@ -53,14 +61,19 @@ export const RecordValue = observer(function RecordValue({
   result,
   field,
   members = [],
+  files = [],
   identities,
   wrap = false,
   overflowMenu = true,
   compact = false,
 }: {
   result?: CalculatedValue;
-  field: RecordFieldView;
+  field: Pick<RecordFieldView, "valueType" | "format" | "multiple"> & {
+    label?: string;
+    options: ReadonlyArray<Pick<RecordFieldView["options"][number], "id" | "label" | "color">>;
+  };
   members?: RecordMember[];
+  files?: RecordFileSummary[];
   identities?: Array<Pick<RecordIdentity, "id" | "provider" | "value" | "displayName" | "profileUrl">>;
   wrap?: boolean;
   overflowMenu?: boolean;
@@ -102,8 +115,30 @@ export const RecordValue = observer(function RecordValue({
       />
     );
   }
+  if (value.kind === "file") {
+    return (
+      <RecordFileChips
+        compact={compact}
+        fileIds={value.value}
+        files={files}
+        group={field.label}
+        members={members}
+        overflowMenu={overflowMenu}
+      />
+    );
+  }
+  if (value.kind === "address") {
+    return (
+      <AddressValue
+        action={field.format?.onClick ?? "open"}
+        address={value.value}
+        locale={valueFormat.locale}
+        wrap={wrap}
+      />
+    );
+  }
   if (value.kind === "boolean") return <span>{value.value ? t("RecordModel.yes") : t("RecordModel.no")}</span>;
-  if ((value.kind === "text" || value.kind === "textList") && CONTACT_VALUE_TYPES.includes(field.valueType)) {
+  if ((value.kind === "text" || value.kind === "textList") && field.valueType === "url") {
     const values = value.kind === "text" ? [value.value] : value.value;
     return (
       <span className="inline-flex min-w-0 max-w-full flex-wrap items-center gap-x-2">
@@ -111,7 +146,7 @@ export const RecordValue = observer(function RecordValue({
           <ContactValue
             key={`${entry}-${index}`}
             action={field.format?.onClick ?? "open"}
-            kind={field.valueType as "email" | "phone" | "url"}
+            kind="url"
             value={entry}
             wrap={wrap}
           />

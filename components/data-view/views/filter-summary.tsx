@@ -32,13 +32,15 @@ const FilterSummaryPart = observer(function FilterSummaryPart({ customColumns, f
   const text =
     value.kind === "unavailable"
       ? null
-      : value.kind === "loading"
-        ? field
-        : value.kind === "standalone"
-          ? `${field} ${operator}`
-          : LABELLED_OPERATORS.has(filter.operator)
-            ? `${field}: ${value.text}`
-            : `${field} ${operator} ${value.text}`;
+      : value.kind === "scope"
+        ? value.text
+        : value.kind === "loading"
+          ? field
+          : value.kind === "standalone"
+            ? `${field} ${operator}`
+            : LABELLED_OPERATORS.has(filter.operator)
+              ? `${field}: ${value.text}`
+              : `${field} ${operator} ${value.text}`;
 
   useEffect(() => onText(text), [onText, text]);
 

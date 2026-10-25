@@ -15,6 +15,7 @@ type AppTopbarCrumb = {
 
 const PAGE_LABEL_KEYS: Record<string, string> = {
   dashboard: "NavigationBar.dashboard",
+  calendar: "Planner.title",
   inbox: "NavigationBar.inbox",
   wiki: "NavigationBar.wiki",
   routines: "NavigationBar.routines",

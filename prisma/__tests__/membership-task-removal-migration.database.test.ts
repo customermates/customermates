@@ -5,6 +5,7 @@ import { afterAll, describe, expect, it } from "vitest";
 
 import { presetId } from "@/features/records/crm-preset";
 import { RecordModelSchema } from "@/features/records/record-model.schema";
+import { historicalRecordModel } from "@/features/records/historical-record-model";
 import { validateRecordModel } from "@/features/records/record-model-validation";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { populateLegacyWorkspace } from "@/tests/helpers/legacy-crm-fixture";
@@ -200,7 +201,7 @@ describeDatabase("membership task removal migration", { timeout: 240000 }, () =>
     ]);
     expect(revisions.map((revision) => revision.revision)).toEqual([1, 2]);
     for (const revision of revisions) {
-      const model = RecordModelSchema.parse(revision.snapshot);
+      const model = RecordModelSchema.parse(historicalRecordModel(revision.snapshot));
       expect(model.capabilities.map((capability) => capability.kind)).toEqual(["avatar"]);
       expect(validateRecordModel(model).issues).toEqual([]);
     }
@@ -216,9 +217,9 @@ describeDatabase("membership task removal migration", { timeout: 240000 }, () =>
       `SELECT payload FROM "RecordStageRow" WHERE "companyId"=$1 AND "operationId"=$2 AND kind='schema' AND key='model'`,
       [companyId, operationId],
     );
-    expect(RecordModelSchema.parse(staged.payload).capabilities.map((capability) => capability.kind)).toEqual([
-      "avatar",
-    ]);
+    expect(
+      RecordModelSchema.parse(historicalRecordModel(staged.payload)).capabilities.map((capability) => capability.kind),
+    ).toEqual(["avatar"]);
     expect(await rows(client, 'SELECT revision FROM "RecordSchemaState" WHERE "companyId"=$1', [companyId])).toEqual([
       { revision: 2 },
     ]);

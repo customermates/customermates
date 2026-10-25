@@ -1,5 +1,7 @@
 "use client";
 
+import { chartPointAction } from "./chart-point-action";
+
 import type { ChartDataPoint } from "./chart.types";
 
 import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from "recharts";
@@ -73,7 +75,7 @@ export const HorizontalBarChart = observer(
             radius={reverseXAxis ? [4, 0, 0, 4] : [0, 4, 4, 0]}
           >
             {chartData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.fill} />
+              <Cell key={`cell-${index}`} {...chartPointAction(entry)} fill={entry.fill} />
             ))}
           </Bar>
         </BarChart>

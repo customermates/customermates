@@ -1,5 +1,6 @@
 import { PermissionService } from "@/core/base/permission.service";
 import type { RecordField, RecordRef, RecordScalar } from "../record-model.schema";
+import type { RecordContributionGroup } from "../record-contribution.schema";
 import type { RecordMeasure, RecordMeasureResult } from "../record-measure.schema";
 
 import { randomUUID } from "node:crypto";
@@ -36,6 +37,9 @@ const { MutateRecordInteractor } = await import("../mutate-record.interactor");
 const { RecordTrashService } = await import("../record-trash.service");
 const { QueryRecordMeasureInteractor } = await import("../query-record-measure.interactor");
 const { QueryRecordsInteractor } = await import("../query-records.interactor");
+const { RecordQuerySchema } = await import("../record-query.schema");
+const { recordContributionFilter } = await import("../record-contribution-link");
+const { presentationQuery } = await import("../record-presentation");
 const { RecordMeasureSchema } = await import("../record-measure.schema");
 const { createCrmPreset, presetId } = await import("../crm-preset");
 const { createWorkspaceRecordPreset } = await import("../workspace-record-preset");
@@ -200,6 +204,7 @@ async function fixture(preset: Preset = "crm") {
     reader,
     widgets,
     measure,
+    mutate,
   };
 }
 
@@ -968,4 +973,144 @@ describeDatabase("time-bucketed record measures", () => {
       "Sales total",
     ]);
   }, 120_000);
+});
+
+describeDatabase("chart contributing records", () => {
+  it("returns exact date buckets, decimals, missing groups and the ungrouped total with current permissions", async () => {
+    const f = await fixture();
+    const first = await f.createDeal(
+      [
+        [f.closedAt, instant("2026-03-31T22:30:00Z")],
+        [f.score, { kind: "decimal", value: "9.00", currency: null }],
+      ],
+      [f.member.id],
+    );
+    const second = await f.createDeal([
+      [f.closedAt, instant("2026-04-15T10:00:00Z")],
+      [f.score, { kind: "decimal", value: "9", currency: null }],
+    ]);
+    const previous = await f.createDeal([
+      [f.closedAt, instant("2026-03-15T10:00:00Z")],
+      [f.score, { kind: "decimal", value: "10", currency: null }],
+    ]);
+    const missing = await f.createDeal([]);
+    const query = new QueryRecordsInteractor(f.repo, f.policy);
+    const inspect = async (measure: RecordMeasure, group: RecordContributionGroup | null, as = f.admin) => {
+      const filter = recordContributionFilter({ measure, group, title: "Revenue", groupLabel: null });
+      const translated = presentationQuery(f.deal, f.model.fields, { filters: [filter] });
+      const result = await f.run(() => query.invoke(RecordQuerySchema.parse(translated)), as);
+      expect(result, JSON.stringify(result)).toMatchObject({ ok: true });
+      if (!result.ok) throw new Error("Contribution query failed");
+      return result.data.records.map((record) => record.ref.recordId).sort();
+    };
+    const timed = RecordMeasureSchema.parse({
+      source: { typeId: f.deal },
+      aggregation: "count",
+      valueFieldId: null,
+      groupBy: { path: [], fieldId: f.closedAt.id, dateInterval: "month", timeZone: "Europe/Berlin" },
+    });
+    const april = {
+      record: null,
+      label: { state: "value" as const, value: { kind: "date" as const, value: "2026-04-01" } },
+    };
+    expect(await inspect(timed, april)).toEqual([first.recordId, second.recordId].sort());
+    expect(await inspect(timed, { record: null, label: { state: "missing" } })).toEqual([missing.recordId]);
+    expect(await inspect(timed, null)).toEqual(
+      [first, second, previous, missing].map((record) => record.recordId).sort(),
+    );
+    expect(
+      await inspect(
+        { ...timed, groupBy: { path: [], fieldId: f.score.id } },
+        { record: null, label: { state: "value", value: { kind: "decimal", value: "9", currency: null } } },
+      ),
+    ).toEqual([first.recordId, second.recordId].sort());
+    await f.run(() =>
+      runInTransaction(() => f.repo.setGrants(f.deal, [{ roleId: f.memberRole.id, actions: ["readOwn"] }])),
+    );
+    expect(await inspect(timed, april, f.member)).toEqual([first.recordId]);
+  }, 180_000);
+});
+
+describeDatabase("relationship chart drill-down", () => {
+  it("returns each contributing source record once while allowing full attribution to several related groups", async () => {
+    const f = await fixture();
+    const organization = f.id("organization");
+    const relation = f.model.relationships.find(
+      (relation) =>
+        (relation.sourceTypeId === f.deal && relation.targetTypeId === organization) ||
+        (relation.targetTypeId === f.deal && relation.sourceTypeId === organization),
+    );
+    if (!relation) throw new Error("The CRM preset needs a deal/organization relationship");
+    const direction = relation.sourceTypeId === f.deal ? ("outgoing" as const) : ("incoming" as const);
+    async function createOrganization(name: string) {
+      const result = await f.run(async () =>
+        f.mutate.invoke({
+          expectedRevision: await f.revision(),
+          idempotencyKey: randomUUID(),
+          mutation: {
+            action: "create",
+            typeId: organization,
+            fields: [{ fieldId: f.id("organization.name"), value: { kind: "text", value: name } }],
+          },
+        }),
+      );
+      if (!result.ok || result.data.status !== "completed") throw new Error("Organization fixture failed");
+      const ref = result.data.refs.find((ref) => ref.typeId === organization);
+      if (!ref) throw new Error("Organization reference missing");
+      return ref;
+    }
+    const left = await createOrganization("Left");
+    const right = await createOrganization("Right");
+    const shared = await f.createDeal([]);
+    const single = await f.createDeal([]);
+    for (const [deal, group] of [
+      [shared, left],
+      [shared, right],
+      [single, right],
+    ]) {
+      const result = await f.run(async () =>
+        f.mutate.invoke({
+          expectedRevision: await f.revision(),
+          idempotencyKey: randomUUID(),
+          mutation: {
+            action: "link",
+            relationId: relation.id,
+            source: direction === "outgoing" ? deal : group,
+            target: direction === "outgoing" ? group : deal,
+          },
+        }),
+      );
+      expect(result, JSON.stringify(result)).toMatchObject({ ok: true });
+    }
+    const measure = RecordMeasureSchema.parse({
+      source: { typeId: f.deal },
+      aggregation: "count",
+      valueFieldId: null,
+      groupBy: { path: [{ relationId: relation.id, direction }], fieldId: null },
+    });
+    const aggregates = await f.run(() => f.measure.invoke(measure));
+    if (!aggregates.ok) throw new Error("Relationship measure failed");
+    const query = new QueryRecordsInteractor(f.repo, f.policy);
+    for (const group of aggregates.data.groups) {
+      const result = await f.run(() =>
+        query.invoke(
+          RecordQuerySchema.parse({
+            typeId: f.deal,
+            contribution: {
+              measure,
+              group: { record: group.record, label: group.label },
+              title: "By organization",
+              groupLabel: null,
+            },
+          }),
+        ),
+      );
+      expect(result, JSON.stringify(result)).toMatchObject({ ok: true });
+      if (!result.ok) continue;
+      expect(result.data.total).toBe(group.count);
+      expect(result.data.records.map((record) => record.ref.recordId).sort()).toEqual(
+        group.record?.recordId === left.recordId ? [shared.recordId] : [shared.recordId, single.recordId].sort(),
+      );
+    }
+  }, 180_000);
 });

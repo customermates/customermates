@@ -33,6 +33,11 @@ const TENANT_ENTRYPOINTS = AUTHENTICATED_TENANT_ENTRYPOINTS;
 const BACKGROUND_TENANT_DEFINITION = "core/decorators/background-tenant.ts";
 const BACKGROUND_TENANT_CALLER_PREFIX = "workflows/";
 
+const TOKEN_VERIFIED_STORED_USER_ENTRYPOINTS = [
+  "features/planner/calendar-subscription-tenant.ts",
+  "features/record-files/record-file-grant-tenant.ts",
+];
+
 function isTestPath(path: string) {
   return path.includes("__tests__") || path.startsWith("tests/");
 }
@@ -94,6 +99,12 @@ describe("background tenant boundary", () => {
       .map((file) => `${file} value-imports runAsBackgroundTenant outside ${BACKGROUND_TENANT_CALLER_PREFIX}`);
 
     expect(violations, violations.join("\n")).toEqual([]);
+  }, REPO_SCAN_TIMEOUT_MS);
+
+  it("runs as a stored user only behind a verified link or subscription token", () => {
+    expect(importersOf(BACKGROUND_TENANT_MODULE, "runAsStoredUser").sort()).toEqual(
+      TOKEN_VERIFIED_STORED_USER_ENTRYPOINTS,
+    );
   }, REPO_SCAN_TIMEOUT_MS);
 
   it("sees the identity-assuming surface it is meant to guard", () => {

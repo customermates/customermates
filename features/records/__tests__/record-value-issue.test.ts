@@ -4,10 +4,9 @@ import type { RecordField, RecordScalar } from "../record-model.schema";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { failureUnwindCause } from "@/core/validation/failure-unwind";
-import { normalizePhoneNumber, normalizeRecordInput, recordValueIssue } from "../record-model-validation";
+import { recordValueIssue } from "../record-model-validation";
 import { recordFieldErrors, recordValuesErrorTree } from "../record-mutation-failure";
 import { normalizeRecordScalar } from "../record-write.service";
-import { recordInputValue } from "../record-input-value";
 
 function field(valueType: RecordField["valueType"], overrides: Partial<RecordField> = {}): RecordField {
   return {
@@ -40,13 +39,12 @@ function unwound(run: () => unknown) {
 }
 
 describe("record value validation", () => {
-  it.each([
-    ["email", "bad-email", CustomErrorCode.invalidEmail],
-    ["url", "not a url", CustomErrorCode.invalidUrl],
-    ["phone", "030 1234567", CustomErrorCode.invalidPhone],
-  ] as const)("names the specific %s failure", (valueType, value, code) => {
-    expect(recordValueIssue(normalizeRecordInput(text(value), valueType), field(valueType))).toBe(code);
-  });
+  it.each([["url", "not a url", CustomErrorCode.invalidUrl]] as const)(
+    "names the specific %s failure",
+    (valueType, value, code) => {
+      expect(recordValueIssue(text(value), field(valueType))).toBe(code);
+    },
+  );
 
   it("names number, date, range and option failures", () => {
     expect(recordValueIssue({ kind: "decimal", value: "1e400", currency: null }, field("number"))).toBe(
@@ -64,31 +62,10 @@ describe("record value validation", () => {
     );
   });
 
-  it.each([
-    ["+49 30 1234567", "+49301234567"],
-    ["+49 (30) 123-45.67", "+49301234567"],
-    ["0049 30 1234567", "+49301234567"],
-    [" +1 (415) 555-0100 ", "+14155550100"],
-  ])("normalises the phone number %s", (input, expected) => {
-    expect(normalizePhoneNumber(input)).toBe(expected);
-    expect(recordValueIssue(normalizeRecordInput(text(input), "phone"), field("phone"))).toBeNull();
-  });
-
-  it("stores the normalised phone number from every writer", () => {
-    expect(normalizeRecordScalar(text("+49 30 1234567"), field("phone"))).toEqual(text("+49301234567"));
-    expect(
-      normalizeRecordScalar(
-        { kind: "textList", value: ["+49 30 1234567", "+44 20 7946 0000"] },
-        field("phone", { multiple: true }),
-      ),
-    ).toEqual({ kind: "textList", value: ["+49301234567", "+442079460000"] });
-    expect(recordInputValue("+49 30 1234567", field("phone") as never)).toEqual(text("+49301234567"));
-  });
-
   it("fails a write with the field path and a specific code", () => {
     const path = ["mutation", "fields", 2, "value"];
-    expect(unwound(() => normalizeRecordScalar(text("bad-email"), field("email"), path))).toMatchObject({
-      code: CustomErrorCode.invalidEmail,
+    expect(unwound(() => normalizeRecordScalar(text("not a url"), field("url"), path))).toMatchObject({
+      code: CustomErrorCode.invalidUrl,
       path,
     });
     expect(unwound(() => normalizeRecordScalar(null, field("text", { required: true }), path))).toMatchObject({
@@ -113,6 +90,31 @@ describe("record value validation", () => {
     expect(recordValuesErrorTree(errors)).toEqual({
       errors: ["Name needs a value."],
       properties: { values: { errors: [], properties: { second: { errors: ["Enter a valid email address."] } } } },
+    });
+  });
+
+  it("marks the refused part of an address as well as the address field", () => {
+    const message = "In Address, 6825 is not a postal code of the chosen country. Postal codes there look like 26133.";
+    const errors = recordFieldErrors(
+      {
+        kind: "validation",
+        issues: [{ code: "custom", path: ["mutation", "fields", 0, "value", "postalCode"], message }],
+      },
+      ["address"],
+    );
+    expect(errors).toEqual({
+      errors: [],
+      fields: { address: [message] },
+      parts: { address: { postalCode: [message] } },
+    });
+    expect(recordValuesErrorTree(errors)).toEqual({
+      errors: [],
+      properties: {
+        values: {
+          errors: [],
+          properties: { address: { errors: [message], properties: { postalCode: { errors: [message] } } } },
+        },
+      },
     });
   });
 

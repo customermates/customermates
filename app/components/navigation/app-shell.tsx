@@ -16,6 +16,7 @@ import {
   getGetUnreadThreadCountInteractor,
   getCountChannelsNeedingActionInteractor,
   getGetOperatorConsoleVisibilityInteractor,
+  getAddressLookupService,
   getListMyWorkspacesInteractor,
 } from "@/core/di";
 import { env } from "@/env";
@@ -97,6 +98,7 @@ export async function AppShell({ children, displayLanguage }: Props) {
           subscription: accountAllowed ? navigation.subscription : null,
           recordNavigation: accountAllowed ? navigation.records : null,
           sidebarLayout: accountAllowed ? navigation.sidebarLayout : null,
+          addressLookupAvailable: getAddressLookupService().enabled,
           workspaces: navigation.workspaces,
         }}
       >

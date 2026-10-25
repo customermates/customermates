@@ -12,8 +12,8 @@ import {
   FileText,
   Globe,
   Hash,
-  Mail,
-  Phone,
+  MapPin,
+  Paperclip,
   Type,
   UserRound,
 } from "lucide-react";
@@ -31,11 +31,11 @@ const VALUE_TYPE_ICONS: Record<RecordValueType, LucideIcon> = {
   dateRange: CalendarRange,
   dateTimeRange: CalendarRange,
   select: CircleDot,
-  email: Mail,
-  phone: Phone,
   url: Globe,
   member: UserRound,
   channels: AtSign,
+  file: Paperclip,
+  address: MapPin,
 };
 
 function recordValueTypeIcon(valueType: RecordValueType): LucideIcon {

@@ -41,7 +41,7 @@ export function ChartTypeIllustration({ className, type }: IllustrationProps) {
     return (
       <div className={cn("flex flex-col justify-center gap-1.5", className)}>
         {["w-full", "w-3/4", "w-1/2"].map((width, index) => (
-          <div key={width} className="flex items-center gap-1.5">
+          <div key={width} className="flex min-w-0 items-center gap-1.5">
             <span className="h-1.5 w-2 rounded-full bg-border-strong" />
 
             <span className="flex-1">
@@ -92,7 +92,7 @@ export function ChartTypeIllustration({ className, type }: IllustrationProps) {
           <div key={width} className="flex items-center gap-1.5">
             {withLabels && <span className="h-1.5 w-5 rounded-full bg-border-strong" />}
 
-            <span className={cn("h-2.5 rounded-sm bg-primary", width, index === 1 && "bg-primary/55")} />
+            <span className={cn("h-2.5 min-w-0 shrink rounded-sm bg-primary", width, index === 1 && "bg-primary/55")} />
           </div>
         ))}
       </div>
@@ -129,7 +129,7 @@ export function WidgetDisplayTypePicker({ disabled, unavailable = {}, value, onV
       </legend>
 
       <RadioGroup
-        className="grid grid-cols-2 gap-2 sm:grid-cols-3"
+        className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,11rem),1fr))] gap-2"
         disabled={disabled}
         value={value}
         onValueChange={(next) => onValueChange(next as DisplayType)}

@@ -53,6 +53,7 @@ type RouteOperation = {
   hasExactHandleErrorImport: boolean;
   hasExactMapperImport: boolean;
   jsonReaders: JsonReader[];
+  binaryReaders: JsonReader[];
   inspectionErrors: InspectionError[];
 };
 
@@ -228,6 +229,30 @@ function exactJsonParserBoundary(
   };
 }
 
+function exactBinaryBodyBoundary(
+  source: ts.SourceFile,
+  statement: ts.Statement,
+  requestParameter: ts.Identifier,
+): Omit<JsonParserBoundary, "mapper"> | undefined {
+  if (!ts.isVariableStatement(statement)) return undefined;
+  const declarationList = statement.declarationList;
+  if (!(declarationList.flags & ts.NodeFlags.Const) || declarationList.declarations.length !== 1) return undefined;
+  const [declaration] = declarationList.declarations;
+  const access = declaration.initializer;
+  if (
+    !ts.isIdentifier(declaration.name) ||
+    !access ||
+    !ts.isPropertyAccessExpression(access) ||
+    access.questionDotToken ||
+    access.name.text !== "body" ||
+    !ts.isIdentifier(access.expression) ||
+    access.expression.text !== requestParameter.text
+  ) {
+    return undefined;
+  }
+  return { line: lineOf(source, statement), requestReceiver: access.expression };
+}
+
 function lineOf(source: ts.SourceFile, node: ts.Node): number {
   return source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1;
 }
@@ -295,8 +320,9 @@ function analyzeJsonReaders(
   source: ts.SourceFile,
   body: ts.Block,
   parameters: ts.NodeArray<ts.ParameterDeclaration>,
-): { readers: JsonReader[]; inspectionErrors: InspectionError[] } {
+): { readers: JsonReader[]; binaryReaders: JsonReader[]; inspectionErrors: InspectionError[] } {
   const readers: JsonReader[] = [];
+  const binaryReaders: JsonReader[] = [];
   const inspectionErrors: InspectionError[] = [];
   const firstParameter = parameters[0];
   const requestParameter = firstParameter?.name;
@@ -306,10 +332,11 @@ function analyzeJsonReaders(
     !firstParameter.dotDotDotToken &&
     !firstParameter.questionToken &&
     !firstParameter.initializer;
-  if (!firstParameter) return { readers, inspectionErrors };
+  if (!firstParameter) return { readers, binaryReaders, inspectionErrors };
   if (!validRequestParameter) {
     return {
       readers,
+      binaryReaders,
       inspectionErrors: [
         {
           line: lineOf(source, firstParameter),
@@ -362,12 +389,17 @@ function analyzeJsonReaders(
 
   if (outerTry?.catchClause) {
     for (const [index, statement] of outerTry.tryBlock.statements.entries()) {
-      const boundary = exactJsonParserBoundary(source, statement, requestParameter);
-      if (!boundary) continue;
-
       const hasOnlyStraightLineDeclarationsBefore = outerTry.tryBlock.statements
         .slice(0, index)
         .every(ts.isVariableStatement);
+      const binary = exactBinaryBodyBoundary(source, statement, requestParameter);
+      if (binary && hasOnlyStraightLineDeclarationsBefore) {
+        binaryReaders.push({ line: binary.line });
+        allowedRequestIdentifiers.add(binary.requestReceiver);
+        continue;
+      }
+      const boundary = exactJsonParserBoundary(source, statement, requestParameter);
+      if (!boundary) continue;
       if (!hasOnlyStraightLineDeclarationsBefore) continue;
 
       readers.push({ line: boundary.line });
@@ -446,7 +478,7 @@ function analyzeJsonReaders(
     });
   }
 
-  return { readers, inspectionErrors };
+  return { readers, binaryReaders, inspectionErrors };
 }
 
 function inspectRouteSource(path: string, text: string): Map<string, RouteOperation> {
@@ -481,6 +513,7 @@ function inspectRouteSource(path: string, text: string): Map<string, RouteOperat
       hasExactHandleErrorImport,
       hasExactMapperImport,
       jsonReaders: analysis.readers,
+      binaryReaders: analysis.binaryReaders,
       inspectionErrors: analysis.inspectionErrors,
     });
   };
@@ -490,6 +523,7 @@ function inspectRouteSource(path: string, text: string): Map<string, RouteOperat
       hasExactHandleErrorImport,
       hasExactMapperImport,
       jsonReaders: [],
+      binaryReaders: [],
       inspectionErrors: [
         {
           line: lineOf(source, node),
@@ -623,6 +657,10 @@ function hasJsonRequestBody(operation: SpecOperation | undefined): boolean {
   return operation?.requestBody?.content?.["application/json"] !== undefined;
 }
 
+function hasBinaryRequestBody(operation: SpecOperation | undefined): boolean {
+  return operation?.requestBody?.content?.["application/octet-stream"] !== undefined;
+}
+
 function undocumentedRouteViolations(
   routes: ReadonlyMap<string, RouteOperation>,
   documented: ReadonlyMap<string, SpecOperation>,
@@ -667,10 +705,31 @@ function jsonContractViolations(
     }
   }
 
+  for (const [operation, spec] of documented) {
+    if (!hasBinaryRequestBody(spec)) continue;
+    if (spec.requestBody?.required !== true) {
+      violations.push(`${operation} must declare its binary requestBody as required`);
+    }
+    const route = routes.get(operation);
+    if (route && route.binaryReaders.length !== 1) {
+      violations.push(
+        `${operation} (${route.file}) must read its documented binary body exactly once; found ${route.binaryReaders.length}`,
+      );
+    }
+  }
+
   for (const [operation, route] of routes) {
     const spec = documented.get(operation);
     for (const inspectionError of route.inspectionErrors) {
       violations.push(`${operation} (${route.file}:${inspectionError.line}) ${inspectionError.message}`);
+    }
+    if (route.binaryReaders.length > 0 && (!hasBinaryRequestBody(spec) || route.jsonReaders.length > 0)) {
+      violations.push(
+        `${operation} (${route.file}) reads request.body without only an OpenAPI application/octet-stream requestBody, so it must not alias the request or access its body outside the one canonical JSON parser`,
+      );
+    }
+    if (route.binaryReaders.length > 0 && !route.hasExactHandleErrorImport) {
+      violations.push(`${operation} (${route.file}) must import handleError from the shared API boundary`);
     }
     if (route.jsonReaders.length > 0 && !hasJsonRequestBody(spec)) {
       violations.push(`${operation} (${route.file}) reads JSON without an OpenAPI application/json requestBody`);
@@ -692,7 +751,7 @@ const HANDLE_ERROR_IMPORT = `import { handleError } from "@/core/api/structured-
 const MAPPER_IMPORT = `import { mapRequestJsonError } from "@/core/api/request-json-error";`;
 const ROUTE_IMPORTS = `${HANDLE_ERROR_IMPORT}\n${MAPPER_IMPORT}`;
 
-type SyntheticSpecKind = "json" | "json-no-400" | "optional-json" | "none";
+type SyntheticSpecKind = "json" | "json-no-400" | "optional-json" | "binary" | "none";
 type SyntheticSpecs = Readonly<
   Partial<Record<"get" | "post" | "put" | "patch" | "delete" | "head" | "options", SyntheticSpecKind>>
 >;
@@ -703,19 +762,21 @@ function syntheticSpecOperations(specs: SyntheticSpecs): Map<string, SpecOperati
       `${verb} ${SYNTHETIC_SPEC_PATH}`,
       kind === "none"
         ? {}
-        : {
-            requestBody: {
-              required: kind !== "optional-json",
-              content: { "application/json": {} },
+        : kind === "binary"
+          ? { requestBody: { required: true, content: { "application/octet-stream": {} } } }
+          : {
+              requestBody: {
+                required: kind !== "optional-json",
+                content: { "application/json": {} },
+              },
+              ...(kind === "json-no-400"
+                ? {}
+                : {
+                    responses: {
+                      "400": { content: { "application/json": {} } },
+                    },
+                  }),
             },
-            ...(kind === "json-no-400"
-              ? {}
-              : {
-                  responses: {
-                    "400": { content: { "application/json": {} } },
-                  },
-                }),
-          },
     ]),
   );
 }
@@ -1240,6 +1301,42 @@ describe("REST route analyzer self-tests", () => {
     ],
   ] as const)("checks the %s failure branch in an app route", (_, source, expected) => {
     expect(appRouteFailureViolations("probe/route.ts", source)).toEqual(expected);
+  });
+
+  it("accepts one binary body read for an application/octet-stream operation", () => {
+    const source =
+      HANDLE_ERROR_IMPORT +
+      `export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) { try { const { id } = await params; const body = request.body; const range = request.headers.get("range"); return { id, body, range }; } catch (error) { return handleError(error); } }`;
+    expect(syntheticViolations(source, { put: "binary" })).toEqual([]);
+  });
+
+  it.each([
+    {
+      name: "a binary read without an octet-stream requestBody",
+      source: `export async function PUT(request: Request) { try { const body = request.body; return body; } catch (error) { return handleError(error); } }`,
+      specs: { put: "none" } as const,
+      expected: "reads request.body without only an OpenAPI application/octet-stream requestBody",
+    },
+    {
+      name: "an octet-stream operation that never reads its body",
+      source: `export async function PUT(request: Request) { try { return request.url; } catch (error) { return handleError(error); } }`,
+      specs: { put: "binary" } as const,
+      expected: "must read its documented binary body exactly once; found 0",
+    },
+    {
+      name: "a second binary read",
+      source: `export async function PUT(request: Request) { try { const body = request.body; const again = request.body; return [body, again]; } catch (error) { return handleError(error); } }`,
+      specs: { put: "binary" } as const,
+      expected: "must read its documented binary body exactly once; found 2",
+    },
+    {
+      name: "a binary read after branching code",
+      source: `export async function PUT(request: Request) { try { if (ready) return null; const body = request.body; return body; } catch (error) { return handleError(error); } }`,
+      specs: { put: "binary" } as const,
+      expected: "or access its body outside the one canonical JSON parser",
+    },
+  ])("rejects $name", ({ source, specs, expected }) => {
+    expect(syntheticViolations(HANDLE_ERROR_IMPORT + source, specs).join("\n")).toContain(expected);
   });
 
   it("reports an undocumented route operation", () => {
