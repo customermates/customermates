@@ -1,6 +1,17 @@
 import { DisplayType } from "@/features/widget/widget-display.schema";
 
-import { day, defineSolution, photo, type FieldInput, type RecordSpec, phoneNumber } from "../define-solution";
+import {
+  address,
+  day,
+  defineSolution,
+  photo,
+  rangeAt,
+  type AddressInput,
+  type FieldInput,
+  type FileSpec,
+  type RecordSpec,
+  phoneNumber,
+} from "../define-solution";
 
 /**
  * Client management: an office coffee, breakroom and catering service that looks after many ongoing client
@@ -102,6 +113,17 @@ const TASKS = [
 ] as const;
 type TaskKey = (typeof TASKS)[number];
 type ServiceKey = "coffeeMachines" | "breakroomSupplies" | "catering" | "waterDispensers";
+/** Contracts whose signed service agreement is attached. */
+const SIGNED_CONTRACTS = [
+  "halversonCoffee",
+  "halversonCatering",
+  "halversonWater",
+  "meridianCoffee",
+  "brightsideCoffee",
+  "riverbendCoffee",
+  "tallisCoffee",
+  "ashcombeCoffee",
+] as const satisfies readonly ContractKey[];
 
 const en = {
   company: "Hollis Office Services",
@@ -112,6 +134,7 @@ const en = {
     office: { templates: ["+1 614 555 01##", "+1 380 555 01##"], start: 40 },
   },
   selfTitle: "Owner and account manager",
+  money: (amount: number) => `$${amount.toLocaleString("en-US")}`,
   members: {
     colleagueA: ["Rachel", "Kim", "rachel.kim@hollis-office.example"],
     colleagueB: ["Daniel", "Brooks", "daniel.brooks@hollis-office.example"],
@@ -130,7 +153,7 @@ const en = {
   fields: {
     relationshipStatus: "Relationship status",
     segment: "Segment",
-    city: "City",
+    headOffice: "Head office",
     website: "Website",
     sites: "Sites",
     clientSince: "Client since",
@@ -140,10 +163,12 @@ const en = {
     nextActionDate: "Next action date",
     annualValue: "Annual value",
     jobTitle: "Job title",
-    phone: "Phone",
     role: "Role",
     service: "Service",
-    site: "Site",
+    siteAddress: "Site address",
+    signedContract: "Signed contract",
+    documents: "Documents",
+    scheduled: "Scheduled",
     monthlyFee: "Monthly fee",
     startDate: "Start date",
     reviewDate: "Review date",
@@ -196,11 +221,159 @@ const en = {
     riverbend: ["Riverbend Credit Union", "Westerville"],
     tallis: ["Tallis Software", "Columbus"],
     greystone: ["Greystone Property Management", "Grandview Heights"],
-    juniper: ["Juniper Architecture Studio", "Columbus"],
+    juniper: ["Juniper Architecture Studio", "Newark"],
     westmoor: ["Westmoor Logistics Park", "Grove City"],
-    ashcombe: ["Ashcombe Media", "Columbus"],
+    ashcombe: ["Ashcombe Media", "Marysville"],
     kingsley: ["Kingsley Medical Center", "Delaware"],
   } satisfies Record<OrganizationKey, readonly [string, string]>,
+  addresses: {
+    halverson: address({
+      street: "175 S Third St",
+      postalCode: "43215",
+      city: "Columbus",
+      region: "OH",
+      countryCode: "us",
+      lat: 39.9612,
+      lon: -82.9988,
+    }),
+    meridian: address({
+      street: "5500 Frantz Rd",
+      postalCode: "43017",
+      city: "Dublin",
+      region: "OH",
+      countryCode: "us",
+      lat: 40.11,
+      lon: -83.114,
+    }),
+    oakfield: address({
+      street: "6600 N High St",
+      postalCode: "43085",
+      city: "Worthington",
+      region: "OH",
+      countryCode: "us",
+      lat: 40.1,
+      lon: -83.017,
+    }),
+    brightside: address({
+      street: "1150 N High St",
+      postalCode: "43201",
+      city: "Columbus",
+      region: "OH",
+      countryCode: "us",
+      lat: 39.99,
+      lon: -83.006,
+    }),
+    larkspur: address({
+      street: "41 S High St",
+      postalCode: "43215",
+      city: "Columbus",
+      region: "OH",
+      countryCode: "us",
+      lat: 39.9612,
+      lon: -82.9988,
+    }),
+    riverbend: address({
+      street: "600 N State St",
+      postalCode: "43081",
+      city: "Westerville",
+      region: "OH",
+      countryCode: "us",
+      lat: 40.126,
+      lon: -82.929,
+    }),
+    tallis: address({
+      street: "1275 Kinnear Rd",
+      postalCode: "43212",
+      city: "Columbus",
+      region: "OH",
+      countryCode: "us",
+      lat: 39.987,
+      lon: -83.045,
+    }),
+    greystone: address({
+      street: "1500 W Third Ave",
+      postalCode: "43212",
+      city: "Grandview Heights",
+      region: "OH",
+      countryCode: "us",
+      lat: 39.987,
+      lon: -83.045,
+    }),
+    juniper: address({
+      street: "35 N Park Pl",
+      postalCode: "43055",
+      city: "Newark",
+      region: "OH",
+      countryCode: "us",
+      lat: 40.058,
+      lon: -82.401,
+    }),
+    westmoor: address({
+      street: "3700 Southpark Pl",
+      postalCode: "43123",
+      city: "Grove City",
+      region: "OH",
+      countryCode: "us",
+      lat: 39.881,
+      lon: -83.093,
+    }),
+    ashcombe: address({
+      street: "125 N Main St",
+      postalCode: "43040",
+      city: "Marysville",
+      region: "OH",
+      countryCode: "us",
+      lat: 40.236,
+      lon: -83.367,
+    }),
+    kingsley: address({
+      street: "564 W Central Ave",
+      postalCode: "43015",
+      city: "Delaware",
+      region: "OH",
+      countryCode: "us",
+      lat: 40.299,
+      lon: -83.068,
+    }),
+  } satisfies Record<OrganizationKey, AddressInput>,
+  extraSites: {
+    workshop: address({
+      street: "3800 Southwest Blvd",
+      postalCode: "43123",
+      city: "Grove City",
+      region: "OH",
+      countryCode: "us",
+      lat: 39.881,
+      lon: -83.093,
+    }),
+    cincinnati: address({
+      street: "312 Walnut St",
+      postalCode: "45202",
+      city: "Cincinnati",
+      region: "OH",
+      countryCode: "us",
+      lat: 39.107,
+      lon: -84.505,
+    }),
+    downtown: address({
+      street: "88 E Broad St",
+      postalCode: "43215",
+      city: "Columbus",
+      region: "OH",
+      countryCode: "us",
+      lat: 39.9612,
+      lon: -82.9988,
+    }),
+    south: address({
+      street: "1110 E Main St",
+      postalCode: "43130",
+      city: "Lancaster",
+      region: "OH",
+      countryCode: "us",
+      lat: 39.715,
+      lon: -82.6,
+    }),
+  } satisfies Record<"workshop" | "cincinnati" | "downtown" | "south", AddressInput>,
   contacts: {
     diane: ["Diane", "Mercer", "Managing partner"],
     tom: ["Tom", "Okafor", "Office manager"],
@@ -277,7 +450,7 @@ const en = {
     prepareReview: "Prepare the yearly review for Halverson (usage per site)",
     secondSiteTasting: "Bring two machines for the taste test in Cincinnati",
     descaleMachines: "Schedule descaling of the Columbus coffee machines at Halverson",
-    meridianMenu: "Put together two lunch menus for Meridian",
+    meridianMenu: "Lunch tasting with Karen: two menus for Meridian",
     riverbendOffer: "Write the per-branch offer for Riverbend",
     westmoorVisit: "Walk the break areas at Westmoor with Carl",
     westmoorOptions: "Work out shift-friendly options for Westmoor",
@@ -295,6 +468,7 @@ const en = {
     pipeline: "Opportunities by stage",
     allContacts: "All contacts",
     dueSoon: "Due soon",
+    reviewCalendar: "Review calendar",
   },
   widgets: {
     annualValue: "Annual contract value",
@@ -303,8 +477,8 @@ const en = {
     overdueTasks: "Overdue tasks",
     byStatus: "Clients by relationship status",
     byService: "Annual value by service",
-    byStage: "Open opportunities by stage",
-    reviewsByMonth: "Annual value up for review",
+    reviews: "Reviews in the next 30 days",
+    sitesMap: "Sites we serve",
     topClients: "Top clients by annual value",
   },
   routines: {
@@ -319,7 +493,7 @@ const en = {
     },
     contractReviews: {
       name: "Prepare contract reviews",
-      task: "On the first day of each month, find contracts whose Status is not Cancelled and whose Review date lies within the next 60 days. For each one, read its client, site, service and monthly fee and the client's other contracts and open opportunities. Append a dated usage summary of at most 120 words to the contract's notes, retaining prior notes. If the client has no open task named \"Prepare review: <contract name>\", create one ordinary task with that name for the client's Account manager, due two weeks before the Review date, linked to the client. Set the contract Status to Review due when it is Active. Do not change fees or dates and do not message the client.",
+      task: "On the first day of each month, find contracts whose Status is not Cancelled and whose Review date lies within the next 60 days. For each one, read its client, site address, service, monthly fee and the text of its signed contract file, and the client's other contracts and open opportunities. Append a dated usage summary of at most 120 words to the contract's notes, retaining prior notes. If the client has no open task named \"Prepare review: <contract name>\", create one ordinary task with that name for the client's Account manager, due two weeks before the Review date, linked to the client. Set the contract Status to Review due when it is Active. Do not change fees or dates and do not message the client.",
       runs: [
         "Found 3 contracts with a review in the next 60 days, added a usage summary to each and created 3 preparation tasks.",
         "Found 1 contract with a review in the next 60 days and created 1 preparation task.",
@@ -335,14 +509,14 @@ const en = {
         "## How we use the CRM",
         "- **Clients** are the offices we look after or talk to. Each client has a relationship status (New relationship, Active discussion, Customer, Dormant), an account manager, the last contact and the next action date. Its annual value adds up the annual value of its contracts.",
         "- **Contacts** are the people at a client, each linked to their client with their role.",
-        "- **Contracts** are one service at one site: monthly fee, start and review date, status. The annual value is the monthly fee times 12. Contracts do not create invoices; billing stays in our accounting tool.",
+        "- **Contracts** are one service at one site address: monthly fee, start and review date, status. The annual value is the monthly fee times 12. Contracts do not create invoices; billing stays in our accounting tool.",
         "- **Opportunities** are new clients, new sites or services and yearly reviews: Identified, Offer sent, Tasting / trial, then Agreed or Not now. The value is typed in by hand.",
         "- **Tasks** are next actions with an owner, a status and a due date. Tasks, the next action date and the next step date are ordinary fields: nobody is reminded automatically, so check the Due soon and No recent contact views every morning.",
         "- A conversation from the inbox belongs to a client or an opportunity only when someone links it there.",
         "",
         "## Working rules",
         "- Update Last contact after every call, visit or chat that mattered.",
-        "- Contracts, menus and delivery notes stay in our shared drive; records hold no file attachments.",
+        "- Signed contracts are attached to the contract in its Signed contract field, and yearly review workbooks to the opportunity's Documents. Menus and delivery notes stay in the delivery tool.",
         "- Every open opportunity has a next step and a next step date.",
         "- Billing and delivery planning stay in their own tools.",
       ],
@@ -354,7 +528,7 @@ const en = {
         "",
         "## A client is complete when",
         "- **Relationship status**, **Segment**, **Sites** and **Account manager** are filled in, so the Client overview shows who looks after whom.",
-        "- Every service we deliver is a **contract** linked to the client, with its site, monthly fee and review date. The client's **Annual value** is calculated from them.",
+        "- Every service we deliver is a **contract** linked to the client, with its site address, monthly fee, review date and signed contract. The client's **Annual value** is calculated from them.",
         "- **Last contact** and **Next action date** are kept current. The No recent contact view is sorted by the last contact.",
         "- At least the person who decides and the person who orders day to day are linked as contacts, each with their **Role**.",
         "- Open opportunities and the emails or chats about them are linked to the client.",
@@ -388,7 +562,7 @@ const en = {
         "1. Open the Upcoming reviews view and pick the contracts reviewing in the next 60 days; set their status to Review due.",
         "2. Open the client and read all of its contracts, so the review covers every site at once.",
         "3. Create a Yearly review opportunity for the client with the expected decision date and link the contacts who decide.",
-        "4. Prepare the usage per site for the last twelve months from the delivery tool and agree a date with the client.",
+        "4. Prepare the usage per site for the last twelve months from the delivery tool, attach the workbook to the opportunity's Documents and agree a date with the client.",
         "5. After the meeting, update the monthly fees and review dates on the contracts, move the opportunity to Agreed or Not now and set the next action date on the client.",
       ],
     },
@@ -444,6 +618,55 @@ const en = {
       ],
     },
   },
+  files: {
+    agreement: {
+      title: "Service agreement",
+      between: "Between Hollis Office Services and",
+      scope: "Scope",
+      columns: ["Service", "Site address", "Monthly fee", "Annual value"],
+      care: "Service levels",
+      clauses: {
+        coffeeMachines:
+          "Machines, installation and parts are included. Our technician handles descaling every four weeks and replaces the water filter twice a year; a breakdown is answered within one working day.",
+        breakroomSupplies:
+          "Weekly delivery of coffee beans, milk, tea, fruit and kitchen supplies, counted and restocked by our driver. Kettles and machines on site are part of the descaling round.",
+        catering:
+          "Lunch and snacks for meetings, ordered by noon on the day before. Coffee machines used at events follow the same descaling schedule as the office machines.",
+        waterDispensers:
+          "Dispensers, bottles and cups are included. Quarterly hygiene service with descaling and sanitising of every dispenser.",
+      } satisfies Record<ServiceKey, string>,
+      term: "Term",
+      termText:
+        "The agreement runs for twelve months from the start date and renews for another year unless either side cancels in writing one month before the yearly review. Fees are billed monthly by our accounting team.",
+      signed: "Signed for the client by",
+    },
+    workbook: {
+      name: "Yearly review – usage by site.xlsx",
+      rows: [
+        [
+          "Site",
+          "Service",
+          "Coffee cups per month",
+          "Catering events per month",
+          "Water bottles per month",
+          "Monthly fee ($)",
+        ],
+        ["Head office, Columbus", "Coffee machines", 3100, "", "", 420],
+        ["Head office, Columbus", "Meeting catering", "", 9, "", 950],
+        ["Workshop, Grove City", "Breakroom supplies", 650, "", "", 310],
+        ["Cincinnati office", "Water dispensers", "", "", 40, 120],
+        ["Total", "", 3750, 9, 40, 1800],
+      ],
+    },
+  },
+  trash: ["Tom Okafor (duplicate)", "Juniper Studio – breakroom supplies renewal"],
+  mateChat: {
+    title: "Prepare the Halverson yearly review",
+    messages: [
+      "Prepare the Halverson yearly review",
+      "Halverson Engineering Group has 4 contracts across 3 sites:\n\n| Contract | Site | Monthly fee |\n| --- | --- | --- |\n| Coffee machines | Head office, Columbus | $420 |\n| Meeting catering | Head office, Columbus | $950 |\n| Breakroom supplies | Workshop, Grove City | $310 |\n| Water dispensers | Cincinnati office | $120 |\n\nTogether that is $1,800 a month or $21,600 a year. The usage workbook on the review opportunity shows about 3,100 cups a month at the head office and 9 catering events a month; Cincinnati only started this month. The signed coffee machine agreement includes descaling every four weeks, and Tom reported the descaling light again on WhatsApp, so I would confirm the descaling visit before the meeting. The review opportunity is valued at $23,400 for next year.\n\nSuggested agenda for Diane and Greg: usage per site, the Cincinnati start, coffee and supplies for Cincinnati (the open $9,600 opportunity) and the new monthly fees.",
+    ],
+  },
 };
 
 type Strings = typeof en;
@@ -457,6 +680,7 @@ const de: Strings = {
     office: { templates: ["+49 30 23125 4##"], start: 0 },
   },
   selfTitle: "Inhaber und Kundenbetreuer",
+  money: (amount: number) => `${amount.toLocaleString("de-DE")} €`,
   members: {
     colleagueA: ["Lena", "Hartmann", "lena.hartmann@bohnenhaus-bueroservice.example"],
     colleagueB: ["Tobias", "Krüger", "tobias.krueger@bohnenhaus-bueroservice.example"],
@@ -479,7 +703,7 @@ const de: Strings = {
   fields: {
     relationshipStatus: "Beziehungsstatus",
     segment: "Segment",
-    city: "Ort",
+    headOffice: "Hauptsitz",
     website: "Website",
     sites: "Standorte",
     clientSince: "Kunde seit",
@@ -489,10 +713,12 @@ const de: Strings = {
     nextActionDate: "Nächste Aktion am",
     annualValue: "Jahreswert",
     jobTitle: "Position",
-    phone: "Telefon",
     role: "Rolle",
     service: "Leistung",
-    site: "Standort",
+    siteAddress: "Standortadresse",
+    signedContract: "Unterschriebener Vertrag",
+    documents: "Dokumente",
+    scheduled: "Termin",
     monthlyFee: "Monatspauschale",
     startDate: "Beginn",
     reviewDate: "Prüftermin",
@@ -549,10 +775,142 @@ const de: Strings = {
     riverbend: ["Elsteraue Kreditgenossenschaft eG", "Taucha"],
     tallis: ["Talwerk Software GmbH", "Leipzig"],
     greystone: ["Graustein Hausverwaltung", "Leipzig"],
-    juniper: ["Wacholder Architekten", "Leipzig"],
+    juniper: ["Wacholder Architekten", "Delitzsch"],
     westmoor: ["Logistikpark Schkeuditz Nord", "Schkeuditz"],
     ashcombe: ["Eschental Medien", "Halle (Saale)"],
     kingsley: ["Klinikum Königsau", "Halle (Saale)"],
+  },
+  addresses: {
+    halverson: address({
+      street: "Katharinenstraße 14",
+      postalCode: "04109",
+      city: "Leipzig",
+      countryCode: "de",
+      lat: 51.34,
+      lon: 12.373,
+    }),
+    meridian: address({
+      street: "Gerichtsweg 28",
+      postalCode: "04103",
+      city: "Leipzig",
+      countryCode: "de",
+      lat: 51.342,
+      lon: 12.39,
+    }),
+    oakfield: address({
+      street: "Rathausstraße 22",
+      postalCode: "04416",
+      city: "Markkleeberg",
+      countryCode: "de",
+      lat: 51.278,
+      lon: 12.37,
+    }),
+    brightside: address({
+      street: "Karl-Heine-Straße 93",
+      postalCode: "04229",
+      city: "Leipzig",
+      countryCode: "de",
+      lat: 51.328,
+      lon: 12.335,
+    }),
+    larkspur: address({
+      street: "Funkenburgstraße 4",
+      postalCode: "04105",
+      city: "Leipzig",
+      countryCode: "de",
+      lat: 51.35,
+      lon: 12.365,
+    }),
+    riverbend: address({
+      street: "Leipziger Straße 60",
+      postalCode: "04425",
+      city: "Taucha",
+      countryCode: "de",
+      lat: 51.38,
+      lon: 12.49,
+    }),
+    tallis: address({
+      street: "Karl-Liebknecht-Straße 120",
+      postalCode: "04275",
+      city: "Leipzig",
+      countryCode: "de",
+      lat: 51.32,
+      lon: 12.375,
+    }),
+    greystone: address({
+      street: "Georg-Schumann-Straße 20",
+      postalCode: "04155",
+      city: "Leipzig",
+      countryCode: "de",
+      lat: 51.365,
+      lon: 12.37,
+    }),
+    juniper: address({
+      street: "Dübener Straße 12",
+      postalCode: "04509",
+      city: "Delitzsch",
+      countryCode: "de",
+      lat: 51.526,
+      lon: 12.342,
+    }),
+    westmoor: address({
+      street: "Radefelder Allee 5",
+      postalCode: "04435",
+      city: "Schkeuditz",
+      countryCode: "de",
+      lat: 51.396,
+      lon: 12.222,
+    }),
+    ashcombe: address({
+      street: "Große Ulrichstraße 30",
+      postalCode: "06108",
+      city: "Halle (Saale)",
+      countryCode: "de",
+      lat: 51.483,
+      lon: 11.97,
+    }),
+    kingsley: address({
+      street: "Ernst-Grube-Straße 40",
+      postalCode: "06120",
+      city: "Halle (Saale)",
+      countryCode: "de",
+      lat: 51.498,
+      lon: 11.935,
+    }),
+  },
+  extraSites: {
+    workshop: address({
+      street: "Fritz-Haber-Straße 9",
+      postalCode: "06217",
+      city: "Merseburg",
+      countryCode: "de",
+      lat: 51.355,
+      lon: 11.993,
+    }),
+    cincinnati: address({
+      street: "Ostra-Allee 9",
+      postalCode: "01067",
+      city: "Dresden",
+      countryCode: "de",
+      lat: 51.054,
+      lon: 13.735,
+    }),
+    downtown: address({
+      street: "Petersstraße 36",
+      postalCode: "04109",
+      city: "Leipzig",
+      countryCode: "de",
+      lat: 51.34,
+      lon: 12.373,
+    }),
+    south: address({
+      street: "Leipziger Straße 25",
+      postalCode: "04442",
+      city: "Zwenkau",
+      countryCode: "de",
+      lat: 51.221,
+      lon: 12.325,
+    }),
   },
   contacts: {
     diane: ["Dagmar", "Meißner", "Geschäftsführende Gesellschafterin"],
@@ -633,7 +991,7 @@ const de: Strings = {
     prepareReview: "Jahresauswertung für Hollmann vorbereiten (Verbrauch je Standort)",
     secondSiteTasting: "Zwei Maschinen zur Verkostung nach Dresden mitnehmen",
     descaleMachines: "Entkalkung der Leipziger Kaffeemaschinen bei Hollmann einplanen",
-    meridianMenu: "Zwei Mittagsmenüs für Merkur zusammenstellen",
+    meridianMenu: "Mittagsverkostung mit Frau Dorn: zwei Menüs für Merkur",
     riverbendOffer: "Angebot je Filiale für die Elsteraue schreiben",
     westmoorVisit: "Pausenbereiche im Logistikpark mit Herrn Jahn begehen",
     westmoorOptions: "Schichttaugliche Varianten für den Logistikpark ausarbeiten",
@@ -651,6 +1009,7 @@ const de: Strings = {
     pipeline: "Verkaufschancen nach Phase",
     allContacts: "Alle Kontakte",
     dueSoon: "Bald fällig",
+    reviewCalendar: "Prüfkalender",
   },
   widgets: {
     annualValue: "Jahreswert der Verträge",
@@ -659,8 +1018,8 @@ const de: Strings = {
     overdueTasks: "Überfällige Aufgaben",
     byStatus: "Kunden nach Beziehungsstatus",
     byService: "Jahreswert nach Leistung",
-    byStage: "Offene Verkaufschancen nach Phase",
-    reviewsByMonth: "Jahreswert zur Prüfung",
+    reviews: "Prüftermine in 30 Tagen",
+    sitesMap: "Standorte, die wir beliefern",
     topClients: "Top-Kunden nach Jahreswert",
   },
   routines: {
@@ -675,7 +1034,7 @@ const de: Strings = {
     },
     contractReviews: {
       name: "Vertragsprüfungen vorbereiten",
-      task: "Suche am Ersten jedes Monats alle Verträge, deren Status nicht Gekündigt ist und deren Prüftermin in den nächsten 60 Tagen liegt. Lies für jeden Vertrag Kunde, Standort, Leistung und Monatspauschale sowie die übrigen Verträge und offenen Verkaufschancen des Kunden. Ergänze in den Notizen des Vertrags eine datierte Verbrauchsübersicht mit höchstens 120 Wörtern und behalte die bisherigen Notizen. Hat der Kunde keine offene Aufgabe „Prüfung vorbereiten: <Vertragsname>“, lege genau eine normale Aufgabe mit diesem Namen für die Kundenbetreuung an, fällig zwei Wochen vor dem Prüftermin, verknüpft mit dem Kunden. Setze den Status aktiver Verträge auf Prüfung fällig. Ändere keine Pauschalen oder Termine und schreibe dem Kunden nicht.",
+      task: "Suche am Ersten jedes Monats alle Verträge, deren Status nicht Gekündigt ist und deren Prüftermin in den nächsten 60 Tagen liegt. Lies für jeden Vertrag Kunde, Standortadresse, Leistung, Monatspauschale und den Text des unterschriebenen Vertrags sowie die übrigen Verträge und offenen Verkaufschancen des Kunden. Ergänze in den Notizen des Vertrags eine datierte Verbrauchsübersicht mit höchstens 120 Wörtern und behalte die bisherigen Notizen. Hat der Kunde keine offene Aufgabe „Prüfung vorbereiten: <Vertragsname>“, lege genau eine normale Aufgabe mit diesem Namen für die Kundenbetreuung an, fällig zwei Wochen vor dem Prüftermin, verknüpft mit dem Kunden. Setze den Status aktiver Verträge auf Prüfung fällig. Ändere keine Pauschalen oder Termine und schreibe dem Kunden nicht.",
       runs: [
         "Drei Verträge mit Prüftermin in den nächsten 60 Tagen gefunden, je eine Verbrauchsübersicht ergänzt und drei Aufgaben zur Vorbereitung angelegt.",
         "Einen Vertrag mit Prüftermin in den nächsten 60 Tagen gefunden und eine Aufgabe zur Vorbereitung angelegt.",
@@ -691,14 +1050,14 @@ const de: Strings = {
         "## So nutzen wir das CRM",
         "- **Kunden** sind die Büros, die wir betreuen oder ansprechen. Jeder Kunde hat einen Beziehungsstatus (Neue Beziehung, Im Gespräch, Kunde, Ruhend), eine Kundenbetreuung, den letzten Kontakt und das Datum der nächsten Aktion. Sein Jahreswert ist die Summe der Jahreswerte seiner Verträge.",
         "- **Kontakte** sind die Menschen bei einem Kunden, jeweils mit ihrem Kunden und ihrer Rolle verknüpft.",
-        "- **Verträge** sind eine Leistung an einem Standort: Monatspauschale, Beginn, Prüftermin und Status. Der Jahreswert ist die Monatspauschale mal 12. Verträge erzeugen keine Rechnungen; die Abrechnung bleibt in unserer Buchhaltung.",
+        "- **Verträge** sind eine Leistung an einer Standortadresse: Monatspauschale, Beginn, Prüftermin und Status. Der Jahreswert ist die Monatspauschale mal 12. Verträge erzeugen keine Rechnungen; die Abrechnung bleibt in unserer Buchhaltung.",
         "- **Verkaufschancen** sind Neukunden, neue Standorte oder Leistungen und Jahresgespräche: Erkannt, Angebot gesendet, Probephase, dann Vereinbart oder Nicht jetzt. Den Wert tragen wir von Hand ein.",
         "- **Aufgaben** sind nächste Schritte mit Verantwortlichen, Status und Fälligkeitsdatum. Aufgaben, das Datum der nächsten Aktion und das Datum des nächsten Schritts sind normale Felder: Niemand wird automatisch erinnert, deshalb jeden Morgen die Ansichten „Bald fällig“ und „Lange kein Kontakt“ prüfen.",
         "- Ein Gespräch aus dem Posteingang gehört nur dann zu einem Kunden oder einer Verkaufschance, wenn jemand es dort verknüpft.",
         "",
         "## Arbeitsregeln",
         "- Nach jedem wichtigen Anruf, Besuch oder Chat den letzten Kontakt aktualisieren.",
-        "- Verträge, Menüs und Lieferscheine bleiben auf unserem gemeinsamen Laufwerk; an Datensätzen hängen keine Dateien.",
+        "- Unterschriebene Verträge hängen im Feld „Unterschriebener Vertrag“ am Vertrag, Auswertungen fürs Jahresgespräch in den Dokumenten der Verkaufschance. Menüs und Lieferscheine bleiben im Lieferprogramm.",
         "- Jede offene Verkaufschance hat einen nächsten Schritt mit Datum.",
         "- Abrechnung und Lieferplanung bleiben in ihren eigenen Programmen.",
       ],
@@ -710,7 +1069,7 @@ const de: Strings = {
         "",
         "## Ein Kunde ist vollständig, wenn",
         "- **Beziehungsstatus**, **Segment**, **Standorte** und **Kundenbetreuung** ausgefüllt sind, damit die Kundenübersicht zeigt, wer wen betreut.",
-        "- jede Leistung, die wir liefern, ein mit dem Kunden verknüpfter **Vertrag** mit Standort, Monatspauschale und Prüftermin ist. Der **Jahreswert** des Kunden wird daraus berechnet.",
+        "- jede Leistung, die wir liefern, ein mit dem Kunden verknüpfter **Vertrag** mit Standortadresse, Monatspauschale, Prüftermin und unterschriebenem Vertrag ist. Der **Jahreswert** des Kunden wird daraus berechnet.",
         "- **Letzter Kontakt** und **Nächste Aktion am** aktuell sind. Die Ansicht „Lange kein Kontakt“ ist nach dem letzten Kontakt sortiert.",
         "- mindestens die entscheidende Person und die Person, die im Alltag bestellt, als Kontakte mit ihrer **Rolle** verknüpft sind.",
         "- offene Verkaufschancen und die E-Mails oder Chats dazu mit dem Kunden verknüpft sind.",
@@ -744,7 +1103,7 @@ const de: Strings = {
         "1. Die Ansicht „Anstehende Prüfungen“ öffnen, die Verträge mit Prüftermin in den nächsten 60 Tagen wählen und ihren Status auf Prüfung fällig setzen.",
         "2. Den Kunden öffnen und alle seine Verträge lesen, damit das Gespräch alle Standorte auf einmal abdeckt.",
         "3. Eine Verkaufschance der Art Jahresgespräch mit erwarteter Entscheidung anlegen und die entscheidenden Kontakte verknüpfen.",
-        "4. Den Verbrauch je Standort der letzten zwölf Monate aus dem Lieferprogramm zusammenstellen und einen Termin vereinbaren.",
+        "4. Den Verbrauch je Standort der letzten zwölf Monate aus dem Lieferprogramm zusammenstellen, die Arbeitsmappe an die Dokumente der Verkaufschance hängen und einen Termin vereinbaren.",
         "5. Nach dem Termin Monatspauschalen und Prüftermine der Verträge anpassen, die Verkaufschance auf Vereinbart oder Nicht jetzt setzen und beim Kunden das Datum der nächsten Aktion eintragen.",
       ],
     },
@@ -799,6 +1158,55 @@ const de: Strings = {
         "Na klar, Jonas. Ich packe am Freitag zwei zusätzliche Obstkisten dazu.",
       ],
     },
+  },
+  files: {
+    agreement: {
+      title: "Servicevertrag",
+      between: "Zwischen Bohnenhaus Büroservice und",
+      scope: "Leistungsumfang",
+      columns: ["Leistung", "Standortadresse", "Monatspauschale", "Jahreswert"],
+      care: "Servicezusagen",
+      clauses: {
+        coffeeMachines:
+          "Maschinen, Aufbau und Ersatzteile sind enthalten. Unser Techniker übernimmt die Entkalkung alle vier Wochen und tauscht den Wasserfilter zweimal im Jahr; auf eine Störung reagieren wir innerhalb eines Werktags.",
+        breakroomSupplies:
+          "Wöchentliche Lieferung von Kaffeebohnen, Milch, Tee, Obst und Küchenbedarf, gezählt und aufgefüllt von unserem Fahrer. Wasserkocher und Maschinen vor Ort gehören zur Entkalkungsrunde.",
+        catering:
+          "Mittagessen und Snacks für Besprechungen, bestellt bis 12 Uhr am Vortag. Kaffeemaschinen bei Veranstaltungen folgen demselben Entkalkungsplan wie die Büromaschinen.",
+        waterDispensers:
+          "Spender, Flaschen und Becher sind enthalten. Vierteljährlicher Hygieneservice mit Entkalkung und Desinfektion jedes Spenders.",
+      },
+      term: "Laufzeit",
+      termText:
+        "Der Vertrag läuft zwölf Monate ab Beginn und verlängert sich um ein weiteres Jahr, wenn keine Seite einen Monat vor dem Jahresgespräch schriftlich kündigt. Die Pauschalen rechnet unsere Buchhaltung monatlich ab.",
+      signed: "Für den Kunden unterschrieben von",
+    },
+    workbook: {
+      name: "Jahresgespräch – Verbrauch je Standort.xlsx",
+      rows: [
+        [
+          "Standort",
+          "Leistung",
+          "Tassen Kaffee pro Monat",
+          "Catering-Termine pro Monat",
+          "Wasserflaschen pro Monat",
+          "Monatspauschale (€)",
+        ],
+        ["Hauptsitz, Leipzig", "Kaffeemaschinen", 3100, "", "", 420],
+        ["Hauptsitz, Leipzig", "Besprechungscatering", "", 9, "", 950],
+        ["Werkstatt, Merseburg", "Teeküchenbedarf", 650, "", "", 310],
+        ["Büro Dresden", "Wasserspender", "", "", 40, 120],
+        ["Summe", "", 3750, 9, 40, 1800],
+      ],
+    },
+  },
+  trash: ["Thomas Ostermann (Duplikat)", "Wacholder Architekten – Verlängerung Teeküchenbedarf"],
+  mateChat: {
+    title: "Jahresgespräch mit Hollmann vorbereiten",
+    messages: [
+      "Bereite das Jahresgespräch mit Hollmann vor",
+      "Hollmann Ingenieure hat 4 Verträge an 3 Standorten:\n\n| Vertrag | Standort | Monatspauschale |\n| --- | --- | --- |\n| Kaffeemaschinen | Hauptsitz, Leipzig | 420 € |\n| Besprechungscatering | Hauptsitz, Leipzig | 950 € |\n| Teeküchenbedarf | Werkstatt, Merseburg | 310 € |\n| Wasserspender | Büro Dresden | 120 € |\n\nZusammen sind das 1.800 € im Monat oder 21.600 € im Jahr. Die Verbrauchsübersicht an der Verkaufschance zeigt rund 3.100 Tassen im Monat am Hauptsitz und 9 Catering-Termine im Monat; Dresden ist erst diesen Monat gestartet. Der unterschriebene Vertrag für die Kaffeemaschinen sieht eine Entkalkung alle vier Wochen vor, und Herr Ostermann hat per WhatsApp wieder die Entkalkungsanzeige gemeldet. Ich würde den Entkalkungstermin vor dem Gespräch bestätigen. Die Verkaufschance zum Jahresgespräch steht mit 23.400 € für das nächste Jahr.\n\nVorschlag für die Tagesordnung mit Frau Meißner und Herrn Lorenz: Verbrauch je Standort, der Start in Dresden, Kaffee und Teeküche für Dresden (die offene Verkaufschance über 9.600 €) und die neuen Monatspauschalen.",
+    ],
   },
 };
 
@@ -860,7 +1268,7 @@ const ORGANIZATION_FACTS: Record<OrganizationKey, OrganizationFacts> = {
     status: "customer",
     manager: "colleagueA",
     lastContact: -3,
-    nextAction: 40,
+    nextAction: 19,
     segment: "coworking",
     sites: 1,
     channel: "whatsapp",
@@ -1078,7 +1486,7 @@ const CONTRACT_FACTS: Record<
     site: "head",
     fee: 900,
     start: -610,
-    review: 75,
+    review: 17,
     status: "active",
   },
   meridianWater: {
@@ -1096,8 +1504,9 @@ const CONTRACT_FACTS: Record<
     site: "north",
     fee: 140,
     start: -200,
-    review: 165,
-    status: "active",
+    review: -3,
+    status: "reviewDue",
+    history: [{ daysAgo: 30, status: "active" }],
   },
   oakfieldWaterSouth: {
     organization: "oakfield",
@@ -1114,7 +1523,7 @@ const CONTRACT_FACTS: Record<
     site: "main",
     fee: 720,
     start: -480,
-    review: 48,
+    review: 26,
     status: "reviewDue",
     history: [{ daysAgo: 12, status: "active" }],
   },
@@ -1124,7 +1533,7 @@ const CONTRACT_FACTS: Record<
     site: "main",
     fee: 350,
     start: -480,
-    review: 48,
+    review: 26,
     status: "reviewDue",
     history: [{ daysAgo: 12, status: "active" }],
   },
@@ -1198,7 +1607,7 @@ const CONTRACT_FACTS: Record<
     site: "main",
     fee: 450,
     start: -680,
-    review: 10,
+    review: 12,
     status: "reviewDue",
     history: [{ daysAgo: 20, status: "active" }],
   },
@@ -1388,6 +1797,8 @@ const TASK_FACTS: Record<
     contact?: ContactKey;
     createdDaysAgo: number;
     done?: number;
+    /** A tasting or machine check: story day, local start time and length in minutes. */
+    visit?: [number, string, number];
   }
 > = {
   prepareReview: {
@@ -1405,6 +1816,7 @@ const TASK_FACTS: Record<
     deal: "halversonSecondSite",
     contact: "priya",
     createdDaysAgo: 8,
+    visit: [9, "10:00", 120],
   },
   descaleMachines: {
     status: "open",
@@ -1413,6 +1825,7 @@ const TASK_FACTS: Record<
     organization: "halverson",
     contact: "tom",
     createdDaysAgo: 9,
+    visit: [-3, "07:30", 90],
   },
   meridianMenu: {
     status: "open",
@@ -1421,6 +1834,7 @@ const TASK_FACTS: Record<
     deal: "meridianCatering",
     contact: "karen",
     createdDaysAgo: 6,
+    visit: [4, "12:00", 90],
   },
   riverbendOffer: {
     status: "inProgress",
@@ -1438,6 +1852,7 @@ const TASK_FACTS: Record<
     contact: "carl",
     createdDaysAgo: 20,
     done: 4,
+    visit: [-4, "10:00", 90],
   },
   westmoorOptions: {
     status: "open",
@@ -1474,7 +1889,7 @@ const TASK_FACTS: Record<
   brightsideReview: {
     status: "open",
     priority: "low",
-    due: 34,
+    due: 19,
     organization: "brightside",
     contact: "marcus",
     createdDaysAgo: 7,
@@ -1524,9 +1939,16 @@ export default defineSolution<Strings>({
       colors: Record<K, "default" | "secondary" | "destructive" | "success" | "warning" | "info">,
     ) => (Object.keys(options) as K[]).map((key) => ({ key, label: options[key], color: colors[key] }));
 
+    const siteAddress = (key: ContractKey): AddressInput => {
+      const facts = CONTRACT_FACTS[key];
+      return facts.site === "head" || facts.site === "main" || facts.site === "north"
+        ? t.addresses[facts.organization]
+        : t.extraSites[facts.site];
+    };
+
     const organization: RecordSpec[] = ORGANIZATIONS.map((key) => {
       const facts = ORGANIZATION_FACTS[key];
-      const [name, city] = t.organizations[key];
+      const [name] = t.organizations[key];
       return {
         key,
         values: {
@@ -1538,7 +1960,7 @@ export default defineSolution<Strings>({
           ...(facts.nextAction === undefined ? {} : { nextActionDate: day(facts.nextAction) }),
           preferredChannel: facts.channel,
           sites: facts.sites,
-          city,
+          headOffice: t.addresses[key],
           website: `https://${facts.domain}`,
           ...(facts.since === undefined ? {} : { clientSince: day(facts.since) }),
         },
@@ -1573,7 +1995,7 @@ export default defineSolution<Strings>({
         values: {
           name: t.contracts[key],
           service: facts.service,
-          site: t.sites[facts.site],
+          siteAddress: siteAddress(key),
           monthlyFee: facts.fee,
           startDate: day(facts.start),
           reviewDate: day(facts.review),
@@ -1619,7 +2041,13 @@ export default defineSolution<Strings>({
       const organizationKey = organizationOf(facts);
       return {
         key,
-        values: { name: t.tasks[key], status: facts.status, priority: facts.priority, dueDate: day(facts.due) },
+        values: {
+          name: t.tasks[key],
+          status: facts.status,
+          priority: facts.priority,
+          dueDate: day(facts.due),
+          ...(facts.visit ? { scheduled: rangeAt(...facts.visit) } : {}),
+        },
         links: {
           ...(facts.deal ? { "task.deals": facts.deal } : {}),
           "task.organizations": organizationKey,
@@ -1692,7 +2120,7 @@ export default defineSolution<Strings>({
           type: "currency",
           formula: { kind: "rollupSum", relation: "contract.client", field: "contract.annualValue" },
         },
-        { key: "organization.city", label: t.fields.city, type: "text" },
+        { key: "organization.headOffice", label: t.fields.headOffice, type: "address" },
         { key: "organization.website", label: t.fields.website, type: "url" },
         { key: "organization.clientSince", label: t.fields.clientSince, type: "date" },
         { key: "contact.jobTitle", label: t.fields.jobTitle, type: "text" },
@@ -1713,7 +2141,7 @@ export default defineSolution<Strings>({
             waterDispensers: "success",
           }),
         },
-        { key: "contract.site", label: t.fields.site, type: "text" },
+        { key: "contract.siteAddress", label: t.fields.siteAddress, type: "address" },
         { key: "contract.monthlyFee", label: t.fields.monthlyFee, type: "currency" },
         {
           key: "contract.annualValue",
@@ -1729,6 +2157,7 @@ export default defineSolution<Strings>({
           type: "select",
           options: label(t.options.contractStatus, { active: "success", reviewDue: "warning", cancelled: "secondary" }),
         },
+        { key: "contract.signedContract", label: t.fields.signedContract, type: "file" },
         {
           key: "deal.opportunityType",
           label: t.fields.opportunityType,
@@ -1738,7 +2167,9 @@ export default defineSolution<Strings>({
         { key: "deal.decisionDate", label: t.fields.decisionDate, type: "date" },
         { key: "deal.nextStep", label: t.fields.nextStep, type: "text" },
         { key: "deal.nextStepDate", label: t.fields.nextStepDate, type: "date" },
+        { key: "deal.documents", label: t.fields.documents, type: "file" },
         { key: "task.dueDate", label: t.fields.dueDate, type: "date" },
+        { key: "task.scheduled", label: t.fields.scheduled, type: "dateTimeRange" },
         {
           key: "task.priority",
           label: t.fields.priority,
@@ -1774,14 +2205,14 @@ export default defineSolution<Strings>({
           name: t.views.clientsByStatus,
           mode: "board",
           groupBy: "relationshipStatus",
-          columns: ["annualValue", "accountManager", "lastContact", "city"],
+          columns: ["annualValue", "accountManager", "lastContact", "headOffice"],
         },
         {
           key: "clientOverview",
           list: "organization",
           name: t.views.clientOverview,
           mode: "table",
-          columns: ["relationshipStatus", "segment", "annualValue", "lastContact", "accountManager", "city"],
+          columns: ["relationshipStatus", "segment", "annualValue", "lastContact", "accountManager", "headOffice"],
           sort: { field: "annualValue", direction: "desc" },
         },
         {
@@ -1789,7 +2220,7 @@ export default defineSolution<Strings>({
           list: "contract",
           name: t.views.upcomingReviews,
           mode: "table",
-          columns: ["reviewDate", "status", "contract.client", "site", "service", "annualValue"],
+          columns: ["reviewDate", "status", "contract.client", "siteAddress", "service", "annualValue"],
           filters: live,
           sort: { field: "reviewDate", direction: "asc" },
         },
@@ -1825,6 +2256,15 @@ export default defineSolution<Strings>({
           columns: ["dueDate", "status", "priority", "task.deals", "task.organizations", "system:assignedTo"],
           filters: [{ field: "status", notIn: ["done", "archived"] }],
           sort: { field: "dueDate", direction: "asc" },
+        },
+        {
+          key: "reviewCalendar",
+          list: "contract",
+          name: t.views.reviewCalendar,
+          mode: "calendar",
+          calendar: { date: "reviewDate", color: "service", mode: "month" },
+          columns: ["status", "contract.client", "annualValue"],
+          filters: live,
         },
       ],
       dashboard: {
@@ -1883,23 +2323,24 @@ export default defineSolution<Strings>({
             filters: live,
           },
           {
-            kind: "chart",
-            title: t.widgets.byStage,
-            display: DisplayType.verticalBarChart,
-            list: "deal",
-            aggregation: "sum",
-            field: "totalValue",
-            groupBy: { field: "stage" },
-            filters: [{ field: "stage", in: open }],
+            kind: "calendar",
+            title: t.widgets.reviews,
+            list: "contract",
+            layout: "upcoming",
+            date: "reviewDate",
+            days: 30,
+            amount: "annualValue",
+            overdue: true,
+            filters: live,
           },
           {
-            kind: "chart",
-            title: t.widgets.reviewsByMonth,
-            display: DisplayType.verticalBarChart,
+            kind: "map",
+            title: t.widgets.sitesMap,
             list: "contract",
-            aggregation: "sum",
-            field: "annualValue",
-            groupBy: { month: "reviewDate" },
+            address: "siteAddress",
+            color: "service",
+            size: "monthlyFee",
+            detail: "status",
             filters: live,
           },
           {
@@ -1990,6 +2431,74 @@ export default defineSolution<Strings>({
               summary: routine("contractReviews").runs[1],
             },
           ],
+        },
+      ],
+      files: [
+        ...SIGNED_CONTRACTS.map((key): FileSpec => {
+          const facts = CONTRACT_FACTS[key];
+          const a = t.files.agreement;
+          const client = t.organizations[facts.organization][0];
+          const signer = CONTACTS.find(
+            (contact) =>
+              CONTACT_FACTS[contact].organization === facts.organization &&
+              CONTACT_FACTS[contact].role === "management",
+          );
+          const place = siteAddress(key);
+          return {
+            key: `agreement-${key}`,
+            record: `contract:${key}`,
+            field: "contract.signedContract",
+            name: `${a.title} – ${client} – ${t.sites[facts.site]}.pdf`,
+            kind: "pdf",
+            lines: [
+              `# ${a.title}: ${t.contracts[key]}`,
+              `${a.between} ${client}.`,
+              `## ${a.scope}`,
+              `| ${a.columns.join(" | ")} |`,
+              `| ${t.options.service[facts.service]} | ${place.street}, ${place.postalCode} ${place.city} | ${t.money(facts.fee)} | ${t.money(facts.fee * 12)} |`,
+              `## ${a.care}`,
+              a.clauses[facts.service],
+              `## ${a.term}`,
+              a.termText,
+              ...(signer
+                ? [`${a.signed} ${t.contacts[signer][0]} ${t.contacts[signer][1]}, ${t.contacts[signer][2]}.`]
+                : []),
+            ],
+            uploadedDaysAgo: contract.find((record) => record.key === key)?.createdDaysAgo ?? 1,
+            by: manager(facts.organization),
+          };
+        }),
+        {
+          key: "halversonUsage",
+          record: "deal:halversonRenewal",
+          field: "deal.documents",
+          name: t.files.workbook.name,
+          kind: "xlsx",
+          rows: t.files.workbook.rows,
+          uploadedDaysAgo: 4,
+          by: "maxBergmann",
+        },
+      ],
+      planner: {
+        sources: [
+          { list: "contract", date: "reviewDate", filters: live, color: "warning" },
+          { list: "task", date: "scheduled", color: "info" },
+          { list: "deal", date: "decisionDate", filters: [{ field: "stage", in: open }], color: "success" },
+        ],
+        mode: "month",
+      },
+      trash: [
+        { list: "contact", name: t.trash[0], daysAgo: 6 },
+        { list: "deal", name: t.trash[1], daysAgo: 15 },
+      ],
+      mateChats: [
+        {
+          title: t.mateChat.title,
+          endedHoursAgo: 5,
+          messages: t.mateChat.messages.map((text, index) => ({
+            role: index % 2 === 0 ? ("user" as const) : ("assistant" as const),
+            text,
+          })),
         },
       ],
       messaging: {
