@@ -45,7 +45,9 @@ async function completeSetupStepInDatabase(page: Page) {
     );
     expect(updated.rowCount).toBe(1);
     const [member] = updated.rows;
-    const lists = await client.query('SELECT 1 FROM "RecordTypeDefinition" WHERE "companyId"=$1 LIMIT 1', [member.companyId]);
+    const lists = await client.query('SELECT 1 FROM "RecordTypeDefinition" WHERE "companyId"=$1 LIMIT 1', [
+      member.companyId,
+    ]);
     if (lists.rowCount === 0) await insertStarterModel(client, member.companyId, member.id);
   } finally {
     await client.end();
@@ -55,7 +57,9 @@ async function completeSetupStepInDatabase(page: Page) {
 export async function finishOnboarding(page: Page) {
   await expect(page).toHaveURL(/\/en(?:\/w\/[a-z0-9-]+)?\/onboarding\/wizard$/);
   const heading = (name: string) => page.getByRole("heading", { level: 1, name, exact: true });
-  const setup = heading(englishMessages.OnboardingWizard.steps.setup.title);
+  const setup = heading(englishMessages.OnboardingWizard.steps.setup.startTitle).or(
+    heading(englishMessages.OnboardingWizard.steps.setup.title),
+  );
   const invite = heading(englishMessages.OnboardingWizard.steps.invite.title);
   await expect(setup.or(invite)).toBeVisible();
   if (await setup.isVisible()) {

@@ -117,7 +117,7 @@ test("a legacy workspace another administrator set up leaves the login its trial
   // A new cloud workspace continues at the AI setup step, or at the invite step when AI setup is not configured.
   const stepHeading = (name: string) => page.getByRole("heading", { level: 1, name, exact: true });
   await expect(
-    stepHeading(englishMessages.OnboardingWizard.steps.setup.title).or(
+    stepHeading(englishMessages.OnboardingWizard.steps.setup.startTitle).or(
       stepHeading(englishMessages.OnboardingWizard.steps.invite.title),
     ),
   ).toBeVisible();
