@@ -27,7 +27,9 @@ function sourceIssue(source: WidgetSource, model: RecordModel, key: string): Wid
 }
 
 export function isCalendarWidgetDateField(field: Pick<RecordField, "valueType" | "multiple" | "archived">): boolean {
-  return !field.archived && !field.multiple && ["date", "dateTime"].includes(field.valueType);
+  return (
+    !field.archived && !field.multiple && ["date", "dateTime", "dateRange", "dateTimeRange"].includes(field.valueType)
+  );
 }
 
 export function isWidgetNumberField(field: Pick<RecordField, "valueType" | "multiple" | "archived">): boolean {

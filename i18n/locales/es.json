@@ -3571,7 +3571,7 @@
     "moreOverdue": "{count, plural, one {# registro vencido más} other {# registros vencidos más}}",
     "nextDays": "{count, plural, one {Hoy} other {Próximos # días}}",
     "nextMonth": "Mostrar el mes siguiente",
-    "noDateField": "{list} todavía no tiene un campo de tipo Fecha o Fecha y hora. Añade uno en Configurar o elige otra lista.",
+    "noDateField": "{list} todavía no tiene un campo de tipo Fecha, Fecha y hora, Intervalo de fechas o Intervalo de fechas y horas. Añade uno en Configurar o elige otra lista.",
     "noUpcoming": "{count, plural, one {No hay registros hoy.} other {No hay registros en los próximos # días.}}",
     "overdue": "Vencidos",
     "overdueBy": "{count, plural, one {Vencido hace # día} other {Vencido hace # días}}",

@@ -18,7 +18,11 @@ export const CALENDAR_WIDGET_OVERDUE_LIMIT = 20;
 export const CalendarWidgetQuerySchema = z
   .object({
     source: RecordWidgetSourceSchema,
-    dateFieldId: z.uuid().describe("Date or date-time field of the source list that puts each record on a day."),
+    dateFieldId: z
+      .uuid()
+      .describe(
+        "Date, date-time, date range or date-time range field of the source list that puts each record on a day. A range puts the record on the day its range starts.",
+      ),
     layout: z
       .enum(CALENDAR_WIDGET_LAYOUTS)
       .describe(
@@ -38,7 +42,7 @@ export const CalendarWidgetQuerySchema = z
       .boolean()
       .default(true)
       .describe(
-        "upcoming: also list records dated before today. Filter out finished records (for example a done status) so only open ones count as overdue.",
+        "upcoming: also list records dated before today; with a range field, records whose range ended before today. Filter out finished records (for example a done status) so only open ones count as overdue.",
       ),
     amountFieldId: z
       .uuid()
@@ -76,7 +80,9 @@ const CalendarWidgetItemSchema = z
   .object({
     record: RecordRefSchema,
     title: CalculatedValueSchema,
-    date: z.iso.date().describe("Day of the record in the widget time zone."),
+    date: z.iso
+      .date()
+      .describe("Day of the record in the widget time zone; for a range field, the day the range starts."),
     value: CalculatedValueSchema.describe("The date field's value."),
     amount: CalculatedValueSchema.nullable(),
   })

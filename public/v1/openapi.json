@@ -14784,7 +14784,7 @@
                             "type": "string",
                             "format": "uuid",
                             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                            "description": "Date or date-time field of the source list that puts each record on a day."
+                            "description": "Date, date-time, date range or date-time range field of the source list that puts each record on a day. A range puts the record on the day its range starts."
                           },
                           "layout": {
                             "type": "string",
@@ -14809,7 +14809,7 @@
                           },
                           "showOverdue": {
                             "default": true,
-                            "description": "upcoming: also list records dated before today. Filter out finished records (for example a done status) so only open ones count as overdue.",
+                            "description": "upcoming: also list records dated before today; with a range field, records whose range ended before today. Filter out finished records (for example a done status) so only open ones count as overdue.",
                             "type": "boolean"
                           },
                           "amountFieldId": {
@@ -23630,7 +23630,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Date or date-time field of the source list that puts each record on a day."
+                              "description": "Date, date-time, date range or date-time range field of the source list that puts each record on a day. A range puts the record on the day its range starts."
                             },
                             "layout": {
                               "type": "string",
@@ -23655,7 +23655,7 @@
                             },
                             "showOverdue": {
                               "default": true,
-                              "description": "upcoming: also list records dated before today. Filter out finished records (for example a done status) so only open ones count as overdue.",
+                              "description": "upcoming: also list records dated before today; with a range field, records whose range ended before today. Filter out finished records (for example a done status) so only open ones count as overdue.",
                               "type": "boolean"
                             },
                             "amountFieldId": {
@@ -24364,7 +24364,7 @@
                                         "type": "string",
                                         "format": "date",
                                         "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
-                                        "description": "Day of the record in the widget time zone."
+                                        "description": "Day of the record in the widget time zone; for a range field, the day the range starts."
                                       },
                                       "value": {
                                         "oneOf": [
@@ -25540,7 +25540,7 @@
                                         "type": "string",
                                         "format": "date",
                                         "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
-                                        "description": "Day of the record in the widget time zone."
+                                        "description": "Day of the record in the widget time zone; for a range field, the day the range starts."
                                       },
                                       "value": {
                                         "oneOf": [
@@ -37469,7 +37469,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Date or date-time field of the source list that puts each record on a day."
+                              "description": "Date, date-time, date range or date-time range field of the source list that puts each record on a day. A range puts the record on the day its range starts."
                             },
                             "layout": {
                               "type": "string",
@@ -37494,7 +37494,7 @@
                             },
                             "showOverdue": {
                               "default": true,
-                              "description": "upcoming: also list records dated before today. Filter out finished records (for example a done status) so only open ones count as overdue.",
+                              "description": "upcoming: also list records dated before today; with a range field, records whose range ended before today. Filter out finished records (for example a done status) so only open ones count as overdue.",
                               "type": "boolean"
                             },
                             "amountFieldId": {
@@ -38203,7 +38203,7 @@
                                         "type": "string",
                                         "format": "date",
                                         "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
-                                        "description": "Day of the record in the widget time zone."
+                                        "description": "Day of the record in the widget time zone; for a range field, the day the range starts."
                                       },
                                       "value": {
                                         "oneOf": [
@@ -39379,7 +39379,7 @@
                                         "type": "string",
                                         "format": "date",
                                         "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
-                                        "description": "Day of the record in the widget time zone."
+                                        "description": "Day of the record in the widget time zone; for a range field, the day the range starts."
                                       },
                                       "value": {
                                         "oneOf": [
@@ -87263,7 +87263,7 @@
                                     "type": "string",
                                     "format": "uuid",
                                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                    "description": "Date or date-time field of the source list that puts each record on a day."
+                                    "description": "Date, date-time, date range or date-time range field of the source list that puts each record on a day. A range puts the record on the day its range starts."
                                   },
                                   "layout": {
                                     "type": "string",
@@ -87288,7 +87288,7 @@
                                   },
                                   "showOverdue": {
                                     "default": true,
-                                    "description": "upcoming: also list records dated before today. Filter out finished records (for example a done status) so only open ones count as overdue.",
+                                    "description": "upcoming: also list records dated before today; with a range field, records whose range ended before today. Filter out finished records (for example a done status) so only open ones count as overdue.",
                                     "type": "boolean"
                                   },
                                   "amountFieldId": {
@@ -87997,7 +87997,7 @@
                                               "type": "string",
                                               "format": "date",
                                               "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
-                                              "description": "Day of the record in the widget time zone."
+                                              "description": "Day of the record in the widget time zone; for a range field, the day the range starts."
                                             },
                                             "value": {
                                               "oneOf": [
@@ -89173,7 +89173,7 @@
                                               "type": "string",
                                               "format": "date",
                                               "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
-                                              "description": "Day of the record in the widget time zone."
+                                              "description": "Day of the record in the widget time zone; for a range field, the day the range starts."
                                             },
                                             "value": {
                                               "oneOf": [

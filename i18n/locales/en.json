@@ -3571,7 +3571,7 @@
     "moreOverdue": "{count, plural, one {# more overdue record} other {# more overdue records}}",
     "nextDays": "{count, plural, one {Today} other {Next # days}}",
     "nextMonth": "Show next month",
-    "noDateField": "{list} does not have a Date or Date and time field yet. Add one in Configure or choose another list.",
+    "noDateField": "{list} does not have a Date, Date and time, Date range or Date and time range field yet. Add one in Configure or choose another list.",
     "noUpcoming": "{count, plural, one {No records today.} other {No records in the next # days.}}",
     "overdue": "Overdue",
     "overdueBy": "{count, plural, one {Overdue # day} other {Overdue # days}}",

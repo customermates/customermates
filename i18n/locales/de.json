@@ -3571,7 +3571,7 @@
     "moreOverdue": "{count, plural, one {# weiterer überfälliger Datensatz} other {# weitere überfällige Datensätze}}",
     "nextDays": "{count, plural, one {Heute} other {Nächste # Tage}}",
     "nextMonth": "Nächsten Monat anzeigen",
-    "noDateField": "{list} hat noch kein Feld vom Typ Datum oder Datum und Uhrzeit. Lege eines in Konfigurieren an oder wähle eine andere Liste.",
+    "noDateField": "{list} hat noch kein Feld vom Typ Datum, Datum und Uhrzeit, Datumsbereich oder Datums- und Zeitbereich. Lege eines in Konfigurieren an oder wähle eine andere Liste.",
     "noUpcoming": "{count, plural, one {Heute gibt es keine Datensätze.} other {In den nächsten # Tagen gibt es keine Datensätze.}}",
     "overdue": "Überfällig",
     "overdueBy": "{count, plural, one {# Tag überfällig} other {# Tage überfällig}}",

@@ -3571,7 +3571,7 @@
     "moreOverdue": "{count, plural, one {# autre enregistrement en retard} other {# autres enregistrements en retard}}",
     "nextDays": "{count, plural, one {Aujourd’hui} other {# prochains jours}}",
     "nextMonth": "Afficher le mois suivant",
-    "noDateField": "{list} n’a pas encore de champ de type Date ou Date et heure. Ajoutez-en un dans Configurer ou choisissez une autre liste.",
+    "noDateField": "{list} n’a pas encore de champ de type Date, Date et heure, Période ou Période avec heures. Ajoutez-en un dans Configurer ou choisissez une autre liste.",
     "noUpcoming": "{count, plural, one {Aucun enregistrement aujourd’hui.} other {Aucun enregistrement dans les # prochains jours.}}",
     "overdue": "En retard",
     "overdueBy": "{count, plural, one {En retard de # jour} other {En retard de # jours}}",
