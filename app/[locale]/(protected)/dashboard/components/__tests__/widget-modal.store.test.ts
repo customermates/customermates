@@ -16,6 +16,8 @@ const mocks = vi.hoisted(() => ({
   getWidgetByIdAction: vi.fn(),
   upsertRecordWidgetAction: vi.fn(),
   upsertRecordActivityWidgetAction: vi.fn(),
+  upsertRecordCalendarWidgetAction: vi.fn(),
+  upsertRecordMapWidgetAction: vi.fn(),
 }));
 vi.mock("../../actions", () => mocks);
 vi.mock("../../../records/actions", () => ({ getRecordModelAction: vi.fn(() => new Promise(() => undefined)) }));
@@ -82,6 +84,7 @@ function setup() {
     items: WidgetDto[] = [];
   const root = {
     registerModalStore: vi.fn(),
+    localeStore: { getTranslation: (key: string) => key },
     userStore: { canAccess: vi.fn(() => true) },
     widgetsStore: { items, refresh, removeItem },
   } as unknown as RootStore;
@@ -239,12 +242,27 @@ describe("generic widget modal", () => {
     await store.openWithFilter(old.id, "filters");
     expect(store.expandedSection).toBe("filters");
   });
-  it("requires a name before sending a mutation", async () => {
+  it.each([
+    [WidgetKind.chart, {}],
+    [WidgetKind.activityTimeline, { activityName: "Activity" }],
+    [WidgetKind.calendar, { calendarLayout: "upcoming" as const }],
+    [WidgetKind.map, {}],
+  ])("marks a blank %s name as required instead of saving", async (kind, options) => {
     const { store } = setup();
     store.add();
-    store.startFromKind(WidgetKind.chart);
+    store.startFromKind(kind, options);
+    store.onChange("name", "   ");
     await store.onSubmit();
-    expect(mocks.upsertRecordWidgetAction).not.toHaveBeenCalled();
+    expect(store.getError("name")).toEqual(["Common.errors.mustNotBeBlank"]);
+    expect(store.isOpen).toBe(true);
+    expect(store.isLoading).toBe(false);
+    for (const save of [
+      mocks.upsertRecordWidgetAction,
+      mocks.upsertRecordActivityWidgetAction,
+      mocks.upsertRecordCalendarWidgetAction,
+      mocks.upsertRecordMapWidgetAction,
+    ])
+      expect(save).not.toHaveBeenCalled();
   });
   it("ignores a duplicate submit while saving", async () => {
     const { store } = setup(),

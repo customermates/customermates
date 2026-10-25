@@ -1,5 +1,7 @@
 import type { Page } from "@playwright/test";
 
+import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
+
 import { DEMO_COMPANY_ID, DEMO_DASHBOARDS, DEMO_MEMBERS, expect, test } from "./demo-seed";
 import { localE2eEnvironment } from "./local-environment";
 
@@ -124,7 +126,14 @@ test("the widget builder creates a map widget and an upcoming calendar widget", 
       await page.locator("#dashboard-add-widget").click();
       await page.getByRole("dialog").locator(starter).click();
       const dialog = page.getByRole("dialog", { name: "Add widget", exact: true });
-      await dialog.getByRole("textbox", { name: "Name", exact: true }).fill(name);
+      const nameInput = dialog.locator("#name");
+      await expect(nameInput).toHaveValue("");
+      await dialog.getByRole("button", { name: "Save", exact: true }).click();
+      await expect(nameInput).toHaveAttribute("aria-invalid", "true");
+      await expect(dialog.locator("#name-error")).toHaveText(englishMessages.Common.errors.mustNotBeBlank);
+      await page.mouse.move(0, 0);
+      await expect(page.locator("[data-sonner-toast]")).toHaveCount(0);
+      await nameInput.fill(name);
       const preview = dialog.locator('[data-slot="widget-preview"]');
       await expect(
         preview.locator(starter === "#widget-kind-map" ? "[data-map-marker]" : "[data-calendar-layout]").first(),
