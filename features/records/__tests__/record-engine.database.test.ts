@@ -7119,11 +7119,14 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         cause: { code: CustomErrorCode.recordCalculationBudget, failureKind: "conflict" },
       });
       const reader = new RecordIdentityReader(f.repo, f.policy);
+      // A lookup over 10,000 shared records can outlast the default transaction timeout on a slow runner.
+      const resolve = (...args: Parameters<InstanceType<typeof RecordIdentityReader>["resolve"]>) =>
+        runInTransaction(() => reader.resolve(...args), { timeout: 60000 });
       const lookup = { provider: "mail" as const, value: "Heavily-Shared@example.test" };
-      const [display] = await f.run(() => reader.resolve([lookup]));
+      const [display] = await f.run(() => resolve([lookup]));
       expect(display.records).toHaveLength(IDENTITY_MATCH_DISPLAY_LIMIT);
       expect(display.moreRecords).toBe(true);
-      await expect(f.run(() => reader.resolve([lookup], undefined, { complete: true }))).rejects.toMatchObject({
+      await expect(f.run(() => resolve([lookup], undefined, { complete: true }))).rejects.toMatchObject({
         cause: { code: CustomErrorCode.recordCalculationBudget },
       });
       const memberAccess = (await f.run(() => f.policy.load(), f.member)).access([typeId]);
@@ -7133,7 +7136,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         ).map((owner) => owner.ref),
       ).toEqual([owned]);
       for (const options of [{}, { complete: true }]) {
-        const [member] = await f.run(() => reader.resolve([lookup], undefined, options), f.member);
+        const [member] = await f.run(() => resolve([lookup], undefined, options), f.member);
         expect(member.records.map((record) => record.ref)).toEqual([owned]);
         expect(member.moreRecords).toBeUndefined();
       }
