@@ -19,6 +19,7 @@ import { calendarDateInstant } from "@/features/record-calendar/calendar-date";
 import { recordDisplayName } from "@/features/records/record-display-name";
 
 import { calendarMonthKey, calendarOverdueDays, calendarWidgetEntry } from "./calendar-widget-view";
+import { formatWidgetAmount } from "./widget-number-format";
 import { WidgetEmptyState } from "./widget-subtitle";
 
 type Props = {
@@ -128,7 +129,17 @@ export const CalendarWidgetUpcoming = observer(function CalendarWidgetUpcoming({
 
         {amountField && (
           <span className="shrink-0 text-sm font-medium">
-            <RecordValue field={amountField} result={item.amount ?? { state: "missing" }} />
+            {item.amount?.state === "value" && item.amount.value.kind === "decimal" ? (
+              <span className="tabular-nums">
+                {formatWidgetAmount(
+                  String(item.amount.value.value),
+                  { currency: item.amount.value.currency ?? null, fractionDigits: 2 },
+                  valueFormat.decimal,
+                )}
+              </span>
+            ) : (
+              <RecordValue field={amountField} result={item.amount ?? { state: "missing" }} />
+            )}
           </span>
         )}
       </li>
