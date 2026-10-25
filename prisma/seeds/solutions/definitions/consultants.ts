@@ -94,6 +94,7 @@ type TaskKey = (typeof TASKS)[number];
 type StoryStage = "introduction" | "discovery" | "scoping" | "proposal" | "decision";
 
 const en = {
+  countryCode: "gb",
   company: "Ashcombe Advisory",
   workspaceName: "Consultants",
   website: "https://ashcombe-advisory.example",
@@ -581,6 +582,7 @@ const en = {
 type Strings = typeof en;
 
 const de: Strings = {
+  countryCode: "de",
   company: "Kronfeld Beratung",
   workspaceName: "Beratung",
   website: "https://kronfeld-beratung.example",
@@ -1637,7 +1639,7 @@ export default defineSolution<Strings>({
     en: { currency: "GBP", timeZone: "Europe/London" },
     de: { currency: "EUR", timeZone: "Europe/Berlin" },
   },
-  build: (t, locale) => {
+  build: (t) => {
     const phone = (index: number) => phoneNumber(t.phones.mobile, index);
     const open = ["introduction", "discovery", "scoping", "proposal", "decision"];
     const wonLastYear = [
@@ -1665,7 +1667,7 @@ export default defineSolution<Strings>({
             postalCode,
             city,
             ...(region ? { region } : {}),
-            countryCode: locale === "de" ? "de" : "gb",
+            countryCode: t.countryCode,
             lat,
             lon,
           }),

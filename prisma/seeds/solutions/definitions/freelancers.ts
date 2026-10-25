@@ -62,6 +62,7 @@ const TASKS = [
 type TaskKey = (typeof TASKS)[number];
 
 const en = {
+  countryCode: "us",
   company: "Linwood Product Design",
   workspaceName: "Freelancers",
   website: "https://linwood-design.example",
@@ -448,6 +449,7 @@ const en = {
 type Strings = typeof en;
 
 const de: Strings = {
+  countryCode: "de",
   company: "Feldmark Produktdesign",
   workspaceName: "Selbstständige",
   website: "https://feldmark-design.example",
@@ -1190,7 +1192,7 @@ export default defineSolution<Strings>({
     en: { currency: "USD", timeZone: "America/New_York" },
     de: { currency: "EUR", timeZone: "Europe/Berlin" },
   },
-  build: (t, locale) => {
+  build: (t) => {
     const phone = (index: number) => phoneNumber(t.phones.mobile, index);
     const open = ["inquiry", "firstCall", "proposal"];
     const label = <K extends string>(
@@ -1212,7 +1214,7 @@ export default defineSolution<Strings>({
             postalCode,
             city,
             ...(region ? { region } : {}),
-            countryCode: locale === "de" ? "de" : "us",
+            countryCode: t.countryCode,
             lat,
             lon,
           }),

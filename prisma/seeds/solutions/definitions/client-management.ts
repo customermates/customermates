@@ -1,6 +1,7 @@
 import { DisplayType } from "@/features/widget/widget-display.schema";
 
 import {
+  groupDigits,
   address,
   day,
   defineSolution,
@@ -134,7 +135,7 @@ const en = {
     office: { templates: ["+1 614 555 01##", "+1 380 555 01##"], start: 40 },
   },
   selfTitle: "Owner and account manager",
-  money: (amount: number) => `$${amount.toLocaleString("en-US")}`,
+  money: (amount: number) => `$${groupDigits(amount, ",")}`,
   members: {
     colleagueA: ["Rachel", "Kim", "rachel.kim@hollis-office.example"],
     colleagueB: ["Daniel", "Brooks", "daniel.brooks@hollis-office.example"],
@@ -680,7 +681,7 @@ const de: Strings = {
     office: { templates: ["+49 30 23125 4##"], start: 0 },
   },
   selfTitle: "Inhaber und Kundenbetreuer",
-  money: (amount: number) => `${amount.toLocaleString("de-DE")} €`,
+  money: (amount: number) => `${groupDigits(amount, ".", ",")} €`,
   members: {
     colleagueA: ["Lena", "Hartmann", "lena.hartmann@bohnenhaus-bueroservice.example"],
     colleagueB: ["Tobias", "Krüger", "tobias.krueger@bohnenhaus-bueroservice.example"],

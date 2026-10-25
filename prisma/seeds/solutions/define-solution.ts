@@ -461,3 +461,10 @@ export function phoneNumber(plan: PhonePlan, index: number): string {
   const digits = /#+$/.exec(template)?.[0].length ?? 0;
   return template.slice(0, template.length - digits) + String(plan.start + index).padStart(digits, "0");
 }
+
+/** An amount with grouped thousands, as the story's country writes it: `groupDigits(16400, ",")` is "16,400". */
+export function groupDigits(amount: number, thousands: string, decimal = "."): string {
+  const [whole, fraction] = String(Math.abs(amount)).split(".");
+  const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/gu, thousands);
+  return `${amount < 0 ? "-" : ""}${grouped}${fraction ? `${decimal}${fraction}` : ""}`;
+}

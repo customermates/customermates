@@ -1,6 +1,7 @@
 import { DisplayType } from "@/features/widget/widget-display.schema";
 
 import {
+  groupDigits,
   address,
   day,
   defineSolution,
@@ -123,7 +124,7 @@ const en = {
     label: string;
   }>,
   selfTitle: "Managing director",
-  money: (amount: number) => `$${amount.toLocaleString("en-US")}`,
+  money: (amount: number) => `$${groupDigits(amount, ",")}`,
   lists: {
     organization: ["Company", "Companies", "Offices and businesses we support or talk to."],
     contact: ["Contact", "Contacts", "People at our customers and prospects."],
@@ -668,7 +669,7 @@ const de: Strings = {
   threadAccounts: { harbourview: "google", willow: "whatsapp", cobalt: "whatsapp" },
   archivedFields: [],
   selfTitle: "Geschäftsführer",
-  money: (amount: number) => `${amount.toLocaleString("de-DE")} €`,
+  money: (amount: number) => `${groupDigits(amount, ".", ",")} €`,
   lists: {
     organization: ["Firma", "Firmen", "Praxen, Büros und Betriebe, die wir betreuen oder ansprechen."],
     contact: ["Kontakt", "Kontakte", "Ansprechpartner bei Kunden und Interessenten."],

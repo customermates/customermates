@@ -1,6 +1,7 @@
 import { DisplayType } from "@/features/widget/widget-display.schema";
 
 import {
+  groupDigits,
   address,
   day,
   defineSolution,
@@ -150,7 +151,7 @@ const en = {
     },
   },
   selfTitle: "Head of Sales",
-  money: (amount: number) => `$${amount.toLocaleString("en-US")}`,
+  money: (amount: number) => `$${groupDigits(amount, ",")}`,
   lists: {
     organization: ["Account", "Accounts", "Manufacturers we sell to or talk to."],
     contact: ["Contact", "Contacts", "People at our accounts: plant managers, engineers and buyers."],
@@ -709,7 +710,7 @@ const de: Strings = {
   website: "https://weserluft.example",
   phones: { office: { templates: ["+49 30 23125 5##"], start: 0 } },
   selfTitle: "Vertriebsleiter",
-  money: (amount: number) => `${amount.toLocaleString("de-DE")} €`,
+  money: (amount: number) => `${groupDigits(amount, ".", ",")} €`,
   lists: {
     organization: ["Firmenkunde", "Firmenkunden", "Produktionsbetriebe, die wir beliefern oder ansprechen."],
     contact: ["Kontakt", "Kontakte", "Ansprechpartner bei unseren Firmenkunden: Werksleitung, Technik und Einkauf."],
