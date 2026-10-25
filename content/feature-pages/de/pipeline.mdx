@@ -40,7 +40,9 @@ Eine Vertriebspipeline ordnet Ihre offenen Verkaufschancen nach Phasen, vom erst
 
 Der [Workspace „Pipeline“](https://demo.customermates.com/de/w/vertriebspipeline/dashboard) ist ein Beispiel mit erfundenen Daten, kein Kundenkonto. Er enthält fünf Listen: Firmenkunden, Kontakte, Verkaufschancen, Produkte und Aufgaben. Die Verkaufschancen durchlaufen die Phasen Neu, Qualifiziert, Bedarfsanalyse, Angebot gesendet, Verhandlung, Gewonnen und Verloren, und drei Vertriebsleute sind für sie verantwortlich.
 
-Das Board zeigt jede Phase mit ihrer Wahrscheinlichkeit, und jeder Spaltenkopf summiert Wert und gewichteten Wert. Der Wert einer Verkaufschance ergibt sich aus ihren Positionen: Produkte aus der Produktliste, Menge mal Stückpreis. Ein Klick auf eine Karte öffnet die Verkaufschance mit Firmenkunde, Kontakten, Positionen, Aufgaben und dem dort festgehaltenen nächsten Schritt.
+Das Board zeigt jede Phase mit ihrer Wahrscheinlichkeit, und jeder Spaltenkopf summiert Wert und gewichteten Wert. Der Wert einer Verkaufschance ergibt sich aus ihren Positionen: Produkte aus der Produktliste, Menge mal Stückpreis. Ein Klick auf eine Karte öffnet die Verkaufschance mit Firmenkunde, Kontakten, Positionen, Aufgaben und dem dort festgehaltenen nächsten Schritt. Angebote liegen als PDF in einem Feld vom Typ Datei an der Verkaufschance.
+
+Das Dashboard zeigt die erwarteten Abschlüsse des Monats in einem Widget **Monatsübersicht**, einem Kalender mit der Summe je Tag, sodass Sie sehen, welche Wochen den meisten Wert tragen, und setzt die Firmenkunden nach ihrer Adresse auf eine Karte. Eine Kalenderansicht der Verkaufschancen zeigt die erwarteten Abschlusstermine nach Monat, und die Kalenderseite stellt die Vor-Ort-Termine aus der Aufgabenliste daneben.
 
 Ihr eigener Workspace startet ohne diese Listen und Phasen, nämlich ganz ohne Listen. In Customermates Cloud baut die KI-Einrichtung aus Ihrer Beschreibung Listen, Phasen, ein Dashboard und Seiten der Wissensdatenbank. Sie läuft einmal beim Onboarding, ist durch ein Credit-Budget begrenzt und lässt sich mit **Mit einem leeren Workspace starten** überspringen. Andernfalls legen Personen mit Rechten zum Konfigurieren die Liste und ihr Phasenfeld unter **Konfigurieren** an. Selbst gehostet ist das der einzige Weg.
 
@@ -77,7 +79,7 @@ Diese Summe gewichtet Ihre eigenen Zahlen. Umsätze oder Abschlusstermine sagt s
 
 ## Der Kundenkontext neben dem Deal
 
-Eine Verkaufschance ist mit ihrem Account und ihren Ansprechpartnern verknüpft, Personen und Verlauf sind also einen Klick entfernt. In Customermates Cloud kommt ab Pro der [einheitliche Posteingang](/features/unified-inbox) für Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram und Telegram hinzu. Eine beteiligte Person wird über die Adresse im Feld Kanäle einem Ansprechpartner zugeordnet. Mit einer Verkaufschance oder einem Account wird ein Gespräch nur verknüpft, wenn Sie oder ein Agent das ausdrücklich tun. Automatisch landet nichts bei einem Deal.
+Eine Verkaufschance ist mit ihrem Account und ihren Ansprechpartnern verknüpft, Personen und Verlauf sind also einen Klick entfernt. In Customermates Cloud kommt ab Pro der [einheitliche Posteingang](/features/unified-inbox) für Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram und Telegram hinzu. Eine beteiligte Person wird über die Adresse im Feld Kontaktdaten einem Ansprechpartner zugeordnet. Mit einer Verkaufschance oder einem Account wird ein Gespräch nur verknüpft, wenn Sie oder ein Agent das ausdrücklich tun. Automatisch landet nichts bei einem Deal.
 
 Für den Posteingang gelten Planunterschiede. Im Starter-Plan und selbst gehostet gibt es keine verbundenen Messaging-Konten. Pro umfasst Ihre eigenen Konten, [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer inklusive, und einzeln geteilte Gespräche. Ein ganzes Konto mit dem Team teilen Sie ab Business, Max oder Enterprise.
 
@@ -106,7 +108,7 @@ Wer alle Verkaufschancen lesen darf, sieht dieselben Deals; mit Leserecht **Zuge
 ## Grenzen
 
 <AcquisitionCallout title="Was die Pipeline nicht kann" variant="boundary">
-  Der gewichtete Wert ist Ihr Wert mal Ihre Wahrscheinlichkeiten. Es gibt keine vorausschauende Umsatzprognose, keine Auswertung von Verweildauer, Konversion je Phase oder Pipeline-Geschwindigkeit und keine automatische Markierung liegengebliebener Deals. Keine geteilten oder Team-Ansichten, keine Rechte auf Feldebene, keine Dateianhänge an Datensätzen und keine native App fürs Smartphone.
+  Der gewichtete Wert ist Ihr Wert mal Ihre Wahrscheinlichkeiten. Es gibt keine vorausschauende Umsatzprognose, keine Auswertung von Verweildauer, Konversion je Phase oder Pipeline-Geschwindigkeit und keine automatische Markierung liegengebliebener Deals. Keine geteilten oder Team-Ansichten, keine Rechte auf Feldebene und keine native App fürs Smartphone.
 </AcquisitionCallout>
 
 Kennzahlen wie die Abschlussquote pro Person kann Mate in der Cloud aus Ihren Datensätzen berechnen, oder Sie exportieren die Liste als Excel-Arbeitsmappe. Diagramm-Optionen zeigt die Seite [Auswertungen](/features/reporting).
@@ -147,6 +149,6 @@ Ja, als getrennte Einzelauswahlfelder mit jeweils eigener Board-Ansicht.
 </FaqItem>
 
 <FaqItem question="Landen E-Mails automatisch beim Deal?">
-Nein. Ab Pro in der Cloud werden Gespräche über die Kanäle den Ansprechpartnern zugeordnet. Die Verknüpfung mit einer Verkaufschance ist ein ausdrücklicher Schritt durch Sie oder einen Agenten.
+Nein. Ab Pro in der Cloud werden Gespräche über die Kontaktdaten den Ansprechpartnern zugeordnet. Die Verknüpfung mit einer Verkaufschance ist ein ausdrücklicher Schritt durch Sie oder einen Agenten.
 </FaqItem>
 </Faq>

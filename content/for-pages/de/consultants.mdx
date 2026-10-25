@@ -28,7 +28,7 @@ cta:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 ---
 
-Ein **CRM für Berater** soll Ihnen zeigen, welche Kundenbeziehungen und offenen Mandate diese Woche Ihre Aufmerksamkeit brauchen, und Ihnen den Kontext dazu liefern. Customermates ist ein Open-Source-CRM mit KI, entwickelt in Deutschland. Es führt Kunden, deren Ansprechpartner, jedes Mandat und in Customermates Cloud ab dem Tarif Pro auch die Gespräche per E-Mail und LinkedIn zusammen. Es deckt die Akquise ab. Zeiterfassung, Rechnungsstellung, Angebotsdokumente und Projektabwicklung bleiben in anderen Tools.
+Ein **CRM für Berater** soll Ihnen zeigen, welche Kundenbeziehungen und offenen Mandate diese Woche Ihre Aufmerksamkeit brauchen, und Ihnen den Kontext dazu liefern. Customermates ist ein Open-Source-CRM mit KI, entwickelt in Deutschland. Es führt Kunden, deren Ansprechpartner, jedes Mandat und in Customermates Cloud ab dem Tarif Pro auch die Gespräche per E-Mail und LinkedIn zusammen. Es deckt die Akquise ab. Zeiterfassung, Rechnungsstellung, das Schreiben von Angeboten und Projektabwicklung bleiben in anderen Tools.
 
 Sie suchen eher eine CRM-Beratung, also jemanden, der ein CRM in Ihrem Unternehmen auswählt und einführt? Dann ist unser [Leitfaden zur CRM-Einführung](/blog/crm-implementation) der bessere Einstieg. Für Finanzberater gibt es eine eigene Seite: [CRM für Finanzberater](/for/financial-advisors).
 
@@ -47,7 +47,7 @@ Sie suchen eher eine CRM-Beratung, also jemanden, der ein CRM in Ihrem Unternehm
     MCP funktioniert in jedem Tarif, auch selbst gehostet.
   </SummaryItem>
   <SummaryItem label="Nicht enthalten">
-    Zeiterfassung, Rechnungsstellung, Angebotsdokumente, Projektabwicklung,
+    Zeiterfassung, Rechnungsstellung, Angebotserstellung, Projektabwicklung,
     Kundenportal, geteilte Team-Ansichten und Berechtigungen auf Feldebene.
   </SummaryItem>
 </ArticleSummary>
@@ -70,10 +70,14 @@ Der [Beratungs-Workspace](https://demo.customermates.com/de/w/beratung/dashboard
 
 - **Der Kunde** mit seinen Kontakten und ihrer Rolle im Mandat: Auftraggeber, Ansprechpartner und die Person, die unterschreibt.
 - **Das Honorar**, berechnet aus zwei Feldern, die Sie ausfüllen: geschätzte Tage mal Tagessatz. Jede Phase trägt eine Abschlusswahrscheinlichkeit; der gewichtete Wert ist diese Wahrscheinlichkeit angewandt auf das Honorar. Das ist eine Gewichtung der Pipeline, keine Prognose. Ein Feld für die Dauer zählt die Tage vom geplanten Beginn bis zum Ende.
-- **Die Gespräche.** Ein E-Mail-Verlauf und eine LinkedIn-Konversation mit dem Auftraggeber, verknüpft mit diesem Mandat. Kontakte werden über E-Mail-Adresse oder LinkedIn-Profil in einem Kanäle-Feld zugeordnet. Die Verknüpfung der Konversation mit Mandat oder Kunde hat eine Person bewusst gesetzt, sie entsteht nie automatisch.
+- **Die Gespräche.** Ein E-Mail-Verlauf und eine LinkedIn-Konversation mit dem Auftraggeber, verknüpft mit diesem Mandat. Kontakte werden über E-Mail-Adresse oder LinkedIn-Profil im Feld Kontaktdaten zugeordnet. Die Verknüpfung der Konversation mit Mandat oder Kunde hat eine Person bewusst gesetzt, sie entsteht nie automatisch.
 - **Ein Datum für den nächsten Schritt** in einem gewöhnlichen Datumsfeld, nach dem letzten Gespräch von Hand eingetragen. Ein eingebautes Fälligkeitsdatum oder eine Erinnerung hat die Aufgabenliste nicht; das Datum steht deshalb in einem eigenen Feld, und eine gespeicherte Ansicht sortiert danach.
 
-„Angebot gesendet“ ist eine Phase, kein Dokument. Das Angebot selbst liegt in Ihrer Dateiablage oder Ihrem Angebotstool; ein URL-Feld am Mandat kann den Link aufnehmen.
+- **Das Angebot** als PDF im Feld Dokumente des Mandats, einem Feld vom Typ Datei. Die Suche findet den Text darin, und Mate kann es vor einem Termin lesen.
+
+„Angebot gesendet“ ist eine Phase, kein Dokument: Sie schreiben das Angebot in Ihrem eigenen Tool und legen das PDF am Mandat ab.
+
+Gewonnene Mandate erscheinen außerdem in einer Kalenderansicht, jedes vom Start- bis zum Enddatum. Die Kalenderseite zeigt die Mandatszeiträume, die Termine der nächsten Schritte und die Termine aus dem verbundenen Google-Kalender auf einer Zeitleiste, und das Dashboard listet die nächsten Schritte der kommenden 14 Tage.
 
 ## Vom Kennenlernen zur Entscheidung
 
@@ -88,8 +92,8 @@ Der [Beratungs-Workspace](https://demo.customermates.com/de/w/beratung/dashboard
   </Step>
   <Step title="Angebot versenden">
     Setzen Sie die Phase Angebot gesendet und tragen Sie Entscheidungstermin
-    und nächsten Schritt in Ihre Datumsfelder ein. Das Dokument bleibt, wo Sie
-    Angebote schreiben.
+    und nächsten Schritt in Ihre Datumsfelder ein. Das Angebots-PDF legen Sie
+    am Mandat ab.
   </Step>
   <Step title="Persönlich nachfassen">
     Antworten Sie aus dem Posteingang im ursprünglichen E-Mail- oder
@@ -138,8 +142,8 @@ Sonst legen Personen mit Konfigurationsrechten Listen, Felder und Phasen unter K
 
 ## Was Customermates für Berater nicht leistet
 
-- Keine Zeiterfassung, keine Rechnungsstellung, keine Angebots- oder Vertragsdokumente, keine Projektabwicklung und kein Kundenportal.
-- Keine Dateianhänge an Datensätzen. Dokumente bleiben in Ihrer Ablage, der Link steht am Mandat.
+- Keine Zeiterfassung, keine Rechnungsstellung, keine Erstellung von Angeboten oder Verträgen, keine Projektabwicklung und kein Kundenportal.
+- Dateien in Nachrichten bleiben im Gespräch im Posteingang, nicht am Mandat. Das Angebot selbst legen Sie in einem Feld vom Typ Datei am Mandat ab.
 - Keine E-Mail-Sequenzen und kein Massenversand. Nachgefasst wird Konversation für Konversation.
 - Keine eingebaute Wiedervorlage mit Erinnerung, keine mobile App und keine Terminbuchung.
 - Keine Bewertung der Beziehungsstärke und keine Datenanreicherung von Kontakten.

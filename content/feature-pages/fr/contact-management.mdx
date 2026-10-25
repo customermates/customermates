@@ -5,7 +5,7 @@ featureName: "Gestion des contacts"
 
 hero:
   title: "Gestion des contacts et des clients, avec leur contexte"
-  description: "Un fichier client partagé où chaque entreprise garde ses interlocuteurs, ses opportunités et les conversations prises en charge. Ce n’est pas un carnet d’adresses de téléphone : il n’y a ni synchronisation des contacts du mobile, ni étiquettes, ni pièces jointes sur les fiches."
+  description: "Un fichier client partagé où chaque entreprise garde ses interlocuteurs, ses opportunités et les conversations prises en charge. Ce n’est pas un carnet d’adresses de téléphone : il n’y a ni synchronisation des contacts du mobile, ni étiquettes."
   buttonLeftText: "Commencer l’essai gratuit"
   buttonLeftHref: /auth/signup
   buttonRightText: "Explorer l’espace de travail"
@@ -40,7 +40,7 @@ Si vous cherchez une application pour ranger les contacts de votre téléphone, 
     être annulé.
   </SummaryItem>
   <SummaryItem label="Non inclus">
-    Pas d’étiquettes, pas de pièces jointes sur les fiches, pas de
+    Pas d’étiquettes, pas de
     synchronisation planifiée ni d’enrichissement automatique.
   </SummaryItem>
 </ArticleSummary>
@@ -49,19 +49,19 @@ Si vous cherchez une application pour ranger les contacts de votre téléphone, 
 
 L’espace de travail [« client-management »](https://demo.customermates.com/fr/w/client-management/dashboard) contient des données d’exemple, pas de vrais clients. L’interface est en français, les fiches d’exemple sont en anglais.
 
-Il comprend les listes Clients, Contacts, Contracts, Opportunities et Tasks. Chaque client porte un statut de relation (New relationship, Active discussion, Customer, Dormant) et un responsable de compte ; chaque contrat correspond à un service sur un site, avec un forfait mensuel et une date de révision, et un champ calculé en déduit la valeur annuelle du client. En ouvrant une fiche client, vous voyez les personnes liées, ses contrats, les opportunités en cours, les conversations prises en charge et un champ date configuré pour la prochaine action. C’est cette vue que l’on cherche dans un fichier client : tout ce qui concerne une entreprise, sans passer d’un outil à l’autre.
+Il comprend les listes Clients, Contacts, Contracts, Opportunities et Tasks. Chaque client porte un statut de relation (New relationship, Active discussion, Customer, Dormant) et un responsable de compte ; chaque contrat correspond à un service sur un site, avec un forfait mensuel et une date de révision, et un champ calculé en déduit la valeur annuelle du client. En ouvrant une fiche client, vous voyez les personnes liées, ses contrats, les opportunités en cours, les conversations prises en charge et un champ date configuré pour la prochaine action. Les contrats portent l’adresse du site et le contrat signé en PDF, le tableau de bord place les sites sur une carte et liste les révisions des 30 prochains jours, et une vue calendrier montre les dates de révision par mois. C’est cette vue que l’on cherche dans un fichier client : tout ce qui concerne une entreprise, sans passer d’un outil à l’autre.
 
 Ces listes sont un exemple et votre espace de travail ne les contient pas au départ. Un nouvel espace commence sans listes. Sur Customermates Cloud, la configuration IA construit les listes, les étapes, un tableau de bord et des pages de base de connaissances à partir de votre description, une seule fois à l’inscription et dans la limite de crédits prévue. Vous pouvez la passer avec « Commencer avec un espace de travail vide » et créer vos listes dans **Configurer**.
 
 ## Des fiches clients structurées
 
-Chaque liste a ses propres champs : texte, texte enrichi, nombre, montant, oui/non, date, date et heure, période, choix unique ou multiple, e-mail, téléphone, URL, membre et canaux. Les relations relient un contact à son entreprise ou une opportunité à son client, et des champs calculés font les totaux. Pour classer vos clients par secteur ou par source, utilisez un champ à choix multiple : il n’existe pas d’étiquettes séparées.
+Chaque liste a ses propres champs : texte, texte enrichi, nombre, montant, oui ou non, date, date et heure, période, période avec heures, choix unique, choix multiple, adresse web, membre, adresse, fichier et téléphone, e-mail et réseaux sociaux. Les numéros de téléphone et les adresses e-mail vont dans le champ Coordonnées ; un champ Adresse ouvre l’adresse dans une carte, et un champ Fichier garde jusqu’à 20 documents, comme un contrat ou un devis. Les relations relient un contact à son entreprise ou une opportunité à son client, et des champs calculés font les totaux. Pour classer vos clients par secteur ou par source, utilisez un champ à choix multiple : il n’existe pas d’étiquettes séparées.
 
 Chaque liste s’affiche en tableau ou en board. Les vues enregistrées gardent vos filtres, votre tri et vos colonnes. Elles sont personnelles : chaque collègue enregistre les siennes. Les filtres combinent plusieurs champs avec « et », pas avec « ou ».
 
 ## Les échanges à côté de la relation
 
-Sur Customermates Cloud, la boîte de réception unifiée réunit l’e-mail (Gmail, Outlook, IMAP), LinkedIn, WhatsApp, Instagram et Telegram. Un participant est associé à un contact quand son adresse e-mail, son numéro ou son identité LinkedIn figure dans le champ canaux de la fiche. Le lien d’une conversation avec un client ou une opportunité se fait explicitement, par vous ou par l’assistant Mate.
+Sur Customermates Cloud, la boîte de réception unifiée réunit l’e-mail (Gmail, Outlook, IMAP), LinkedIn, WhatsApp, Instagram et Telegram. Un participant est associé à un contact quand son adresse e-mail, son numéro ou son identité LinkedIn figure dans le champ Coordonnées de la fiche. Le lien d’une conversation avec un client ou une opportunité se fait explicitement, par vous ou par l’assistant Mate.
 
 | Offre | Messagerie connectée |
 |---|---|
@@ -120,7 +120,7 @@ Il n’y a pas d’étiquettes. Un champ à choix multiple, par exemple « Sect
 </FaqItem>
 
 <FaqItem question="Puis-je joindre des fichiers à une fiche client ?">
-Non. Les fiches n’acceptent pas de pièces jointes. Gardez vos documents dans votre stockage habituel et ajoutez au besoin un lien dans un champ URL.
+Oui. Ajoutez à la liste un champ de type Fichier : il garde jusqu’à 20 fichiers, et la recherche trouve le texte qu’ils contiennent. Les pièces jointes des messages restent dans leur conversation.
 </FaqItem>
 
 <FaqItem question="Quels formats puis-je importer ?">

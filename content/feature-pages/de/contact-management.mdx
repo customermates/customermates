@@ -11,7 +11,7 @@ relatedHrefs:
 
 hero:
   title: "Kontakt- und Kundenverwaltung mit dem passenden Kontext"
-  description: Für kleine Teams, die Kunden betreuen und nicht nur Telefonnummern sammeln. Customermates verknüpft jeden Kunden mit seinen Ansprechpartnern, Verkaufschancen, Aufgaben und, ab Pro in der Cloud, unterstützten Gesprächen. Listen und Felder richten Sie selbst ein. Tags und Dateianhänge an Datensätzen gibt es nicht, und ein Import lässt sich nicht rückgängig machen.
+  description: Für kleine Teams, die Kunden betreuen und nicht nur Telefonnummern sammeln. Customermates verknüpft jeden Kunden mit seinen Ansprechpartnern, Verkaufschancen, Aufgaben und, ab Pro in der Cloud, unterstützten Gesprächen. Listen und Felder richten Sie selbst ein. Tags gibt es nicht, und ein Import lässt sich nicht rückgängig machen.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Workspace ansehen
@@ -31,14 +31,14 @@ cta:
 Eine Kontaktverwaltung hält fest, mit welchen Personen und Firmen Ihr Unternehmen zu tun hat. Eine Kundenverwaltung beantwortet darüber hinaus die Fragen, die im Alltag zählen: Wer ist der Kunde, mit wem sprechen wir dort, was ist offen und was passiert als Nächstes? Customermates deckt beides für kleine Teams mit direktem Kundenkontakt ab. Es ist ein Open-Source-CRM mit KI aus Deutschland.
 
 <ArticleSummary title="Auf einen Blick">
-  <SummaryItem label="In jedem Plan">Eigene Listen für Kunden, Ansprechpartner und Verkaufschancen, typisierte Felder, Verknüpfungen, Filter, persönliche Ansichten, Tabelle oder Board, Rollen, Excel-Import und -Export, REST, Webhooks und MCP. Auch selbst gehostet.</SummaryItem>
+  <SummaryItem label="In jedem Plan">Eigene Listen für Kunden, Ansprechpartner und Verkaufschancen, typisierte Felder, Verknüpfungen, Filter, persönliche Ansichten, Tabelle, Board oder Kalender, Rollen, Excel-Import und -Export, REST, Webhooks und MCP. Auch selbst gehostet.</SummaryItem>
   <SummaryItem label="Ab Pro, nur in der Cloud">Gespräche aus E-Mail, LinkedIn, WhatsApp, Instagram und Telegram neben den beteiligten Personen.</SummaryItem>
-  <SummaryItem label="Nicht enthalten">Keine Tags (stattdessen ein Mehrfachauswahlfeld), keine Dateianhänge an Datensätzen, kein Rückgängigmachen von Importen, kein Adressbuch-Abgleich, kein Zusammenführen von Dubletten, keine Erinnerungen.</SummaryItem>
+  <SummaryItem label="Nicht enthalten">Keine Tags (stattdessen ein Mehrfachauswahlfeld), kein Rückgängigmachen von Importen, kein Adressbuch-Abgleich, kein Zusammenführen von Dubletten, keine Erinnerungen.</SummaryItem>
 </ArticleSummary>
 
 ## Ein Beispiel-Workspace zum Ausprobieren
 
-Der [Workspace Kunden](https://demo.customermates.com/de/w/kundenverwaltung/dashboard) ist ein Beispiel mit erfundenen Daten, kein Kundenkonto. Er enthält fünf Listen: Kunden, Kontakte, Verträge, Verkaufschancen und Aufgaben. Jeder Kunde trägt einen Beziehungsstatus (Neue Beziehung, Im Gespräch, Kunde, Ruhend), eine Kundenbetreuung und ein eingerichtetes Datumsfeld für die nächste Aktion. Jeder Vertrag ist eine Leistung an einem Standort mit Monatspauschale und Prüftermin, und ein berechnetes Feld summiert daraus den Jahreswert des Kunden.
+Der [Workspace Kunden](https://demo.customermates.com/de/w/kundenverwaltung/dashboard) ist ein Beispiel mit erfundenen Daten, kein Kundenkonto. Er enthält fünf Listen: Kunden, Kontakte, Verträge, Verkaufschancen und Aufgaben. Jeder Kunde trägt einen Beziehungsstatus (Neue Beziehung, Im Gespräch, Kunde, Ruhend), eine Kundenbetreuung und ein eingerichtetes Datumsfeld für die nächste Aktion. Jeder Vertrag ist eine Leistung an einem Standort mit Monatspauschale und Prüftermin, und ein berechnetes Feld summiert daraus den Jahreswert des Kunden. Verträge tragen die Standortadresse und den unterschriebenen Vertrag als PDF, das Dashboard zeigt die Standorte auf einer Karte und die Prüftermine der nächsten 30 Tage, und eine Kalenderansicht zeigt die Prüftermine nach Monat.
 
 Öffnen Sie einen Kunden, sehen Sie in einem Datensatz seine Ansprechpartner, Verträge, offene Verkaufschancen, Aufgaben und die unterstützten Gespräche der verknüpften Personen. Nichts davon liegt doppelt in einer zweiten Datenbank: Der Ansprechpartner im Kundendatensatz ist derselbe, den Sie suchen, filtern oder ändern.
 
@@ -46,11 +46,13 @@ Ihr eigener Workspace startet nicht mit diesen Listen, sondern leer. In Customer
 
 ## Kundendaten strukturiert erfassen
 
-Ein Kundendatensatz enthält die Felder, die Sie festlegen. Zur Wahl stehen Text, formatierter Text, Zahl, Geldbetrag, Ja/Nein, Datum, Datum mit Uhrzeit, Zeitraum, Einzel- oder Mehrfachauswahl, E-Mail, Telefon, URL, Mitglied und Kanäle. Berechnete Felder ergänzen Werte aus anderen Feldern oder verknüpften Datensätzen.
+Ein Kundendatensatz enthält die Felder, die Sie festlegen. Zur Wahl stehen Text, Formatierter Text, Zahl, Geldbetrag, Ja oder nein, Datum, Datum und Uhrzeit, Datumsbereich, Datums- und Zeitbereich, Einzelauswahl, Mehrfachauswahl, Webadresse, Mitglied, Adresse, Datei und Telefon, E-Mail & Social Media. Berechnete Felder ergänzen Werte aus anderen Feldern oder verknüpften Datensätzen.
 
-Ein Feld vom Typ **Kanäle** nimmt die E-Mail-Adressen, WhatsApp-Nummern und LinkedIn-, Instagram- und Telegram-Konten auf, über die Nachrichten einer Person zugeordnet werden. Eine Festnetznummer oder eine Mobilnummer ohne WhatsApp gehört in ein normales Telefonfeld. Eine Adresse kann zu mehreren Datensätzen gehören, etwa zu einem Ansprechpartner und einem Kunden.
+Das Feld **Kontaktdaten** nimmt die Telefonnummern, E-Mail-Adressen und LinkedIn-, Instagram- und Telegram-Konten auf, über die Nachrichten einer Person zugeordnet werden. Eine Nummer dort lässt sich anrufen und passt auch zu WhatsApp-Chats derselben Nummer. Eine Adresse kann zu mehreren Datensätzen gehören, etwa zu einem Ansprechpartner und einem Kunden.
 
-Notizen stehen an jedem Datensatz. Die globale Suche (Cmd/Strg+K) findet Datensätze über Namen und Kanalwerte, alle anderen Felder erreichen Sie über Filter.
+Ein Feld vom Typ **Adresse** enthält eine Postanschrift: Customermates prüft sie nach dem Adressformat ihres Landes, schlägt zur Postleitzahl Ort und Region vor und öffnet die Adresse per Klick in der Karte. Ein Feld vom Typ **Datei** nimmt Dokumente wie Verträge oder Angebote auf, bis zu 20 Dateien je Feld, und die Suche findet den Text darin.
+
+Notizen stehen an jedem Datensatz. Die globale Suche (Cmd/Strg+K) findet Datensätze über Namen und Kontaktdaten, alle anderen Felder erreichen Sie über Filter.
 
 ## Eine Kundendatenbank mit Verknüpfungen statt einer flachen Liste
 
@@ -77,9 +79,9 @@ Eingebaute Erinnerungen oder Wiedervorlagen hat Customermates nicht. Sie ergänz
 Viele Teams kommen mit einer Tabelle. Der Umzug ist gut machbar, passiert aber nicht von selbst:
 
 - **Format.** Eine Liste importieren Sie aus einer Excel-Arbeitsmappe (.xlsx) mit einem Assistenten: Blatt wählen, Spalten zuordnen, Vorschau prüfen, importieren. Eine Google-Tabelle oder einen Export aus Outlook oder Google Kontakte speichern Sie vorher als .xlsx. Auch ein JSON-Export derselben Liste lässt sich wieder einlesen.
-- **Reihenfolge.** Erst Kunden, dann Ansprechpartner, damit die Firmenspalte auf vorhandene Datensätze zeigt. E-Mail- und Messenger-Spalten ordnen Sie dem Feld **Kanäle** zu.
+- **Reihenfolge.** Erst Kunden, dann Ansprechpartner, damit die Firmenspalte auf vorhandene Datensätze zeigt. E-Mail-, Telefon- und Messenger-Spalten ordnen Sie dem Feld **Kontaktdaten** zu.
 - **Kein Zurück.** Ein Import lässt sich nicht rückgängig machen. Bereinigen Sie Dubletten vorher, denn ein Zusammenführen gibt es danach nicht. Testen Sie zuerst mit einer kleinen Datei.
-- **Keine Anhänge.** Verträge, PDFs und andere Dateien neben Ihrer Tabelle wandern nicht mit. Lassen Sie sie in Ihrer Dateiablage und hinterlegen Sie einen Link in einem URL-Feld.
+- **Keine Anhänge.** Verträge, PDFs und andere Dateien neben Ihrer Tabelle gehören nicht zum Import. Laden Sie die benötigten danach in ein Feld vom Typ Datei am Datensatz hoch.
 - **Sammelkorrekturen.** Liste exportieren, in Excel bearbeiten und als **Vorhandene Datensätze** wieder importieren.
 - **Kein laufender Abgleich.** Nach dem Import sind Ihre Tabelle und Customermates getrennte Bestände.
 
@@ -87,7 +89,7 @@ Grenzen und Optionen beschreibt die [Anleitung zu Datensätzen](/docs/app-record
 
 ## Gespräche direkt bei der Kundenbeziehung
 
-In Customermates Cloud verbinden Sie ab Pro Gmail, Outlook, IMAP, LinkedIn (auch unterstützte Sales-Navigator- und Recruiter-Chats), WhatsApp, Instagram und Telegram über den [einheitlichen Posteingang](/features/unified-inbox). Eine beteiligte Person wird über die Adresse im Feld Kanäle dem passenden Ansprechpartner zugeordnet. Schreibt eine unbekannte Adresse, verknüpfen Sie sie mit einem vorhandenen oder neuen Ansprechpartner. Mit einer Verkaufschance oder einem Kunden wird ein Gespräch nur verknüpft, wenn Sie oder ein Agent das ausdrücklich tun. Automatisch landet nichts bei einem Deal.
+In Customermates Cloud verbinden Sie ab Pro Gmail, Outlook, IMAP, LinkedIn (auch unterstützte Sales-Navigator- und Recruiter-Chats), WhatsApp, Instagram und Telegram über den [einheitlichen Posteingang](/features/unified-inbox). Eine beteiligte Person wird über die Adresse im Feld Kontaktdaten dem passenden Ansprechpartner zugeordnet. Schreibt eine unbekannte Adresse, verknüpfen Sie sie mit einem vorhandenen oder neuen Ansprechpartner. Mit einer Verkaufschance oder einem Kunden wird ein Gespräch nur verknüpft, wenn Sie oder ein Agent das ausdrücklich tun. Automatisch landet nichts bei einem Deal.
 
 Dabei gelten Planunterschiede. Im Starter-Plan und selbst gehostet gibt es keine verbundenen Messaging-Konten. Pro umfasst Ihre eigenen Konten, [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer inklusive, und einzeln geteilte Gespräche. Ein ganzes Konto mit dem Team teilen Sie ab Business, Max oder Enterprise.
 
@@ -110,7 +112,7 @@ In Customermates Cloud läuft die Datenbank in der AWS-Region Frankfurt. Die ein
 ## Was Customermates nicht kann
 
 <AcquisitionCallout title="Grenzen, die für Ihre Entscheidung zählen" variant="boundary">
-  Keine Tags, dafür ein Mehrfachauswahlfeld. Keine Dateianhänge an Datensätzen, Anhänge von Nachrichten bleiben im Gespräch. Import nur aus den dokumentierten Formaten und ohne Rückgängigmachen. Kein Zusammenführen von Dubletten, kein Abgleich mit Adressbüchern, keine Erinnerungen, keine Newsletter, Massenmails, Sequenzen oder Datenanreicherung, keine native App fürs Smartphone.
+  Keine Tags, dafür ein Mehrfachauswahlfeld. Anhänge von Nachrichten bleiben im Gespräch, Dateien für den Datensatz kommen in ein Feld vom Typ Datei. Import nur aus den dokumentierten Formaten und ohne Rückgängigmachen. Kein Zusammenführen von Dubletten, kein Abgleich mit Adressbüchern, keine Erinnerungen, keine Newsletter, Massenmails, Sequenzen oder Datenanreicherung, keine native App fürs Smartphone.
 </AcquisitionCallout>
 
 ## Kundenverwaltung oder Adressbuch im Handy?
@@ -139,7 +141,7 @@ Nein. Legen Sie stattdessen ein Mehrfachauswahlfeld an, etwa **Segment** mit den
 </FaqItem>
 
 <FaqItem question="Kann ich Dateien an einen Kunden hängen?">
-Nein. Datensätze haben keine Dateianhänge. Anhänge unterstützter Nachrichten bleiben im Gespräch im Posteingang. Dokumente bleiben in Ihrer Dateiablage, den Link speichern Sie in einem URL-Feld.
+Ja. Legen Sie in der Liste ein Feld vom Typ Datei an; es fasst bis zu 20 Dateien, und die Suche findet den Text darin. Anhänge unterstützter Nachrichten bleiben im Gespräch im Posteingang.
 </FaqItem>
 
 <FaqItem question="Kann ich meine Kundendatenbank aus Excel oder Google Tabellen übernehmen?">

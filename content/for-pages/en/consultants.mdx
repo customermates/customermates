@@ -28,7 +28,7 @@ cta:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-A **CRM for consultants** has one job: tell you which client relationships and open engagements need you this week, and give you the context to act. Customermates is an open-source, AI-native CRM made in Germany. It keeps clients, the people in them, each engagement and, in Customermates Cloud from the Pro plan, the email and LinkedIn conversations around them in one place. It covers winning the work. Time tracking, billing, proposal documents and project delivery stay in other tools.
+A **CRM for consultants** has one job: tell you which client relationships and open engagements need you this week, and give you the context to act. Customermates is an open-source, AI-native CRM made in Germany. It keeps clients, the people in them, each engagement and, in Customermates Cloud from the Pro plan, the email and LinkedIn conversations around them in one place. It covers winning the work. Time tracking, billing, writing proposals and project delivery stay in other tools.
 
 <ArticleSummary title="At a glance">
   <SummaryItem label="Fits">
@@ -45,7 +45,7 @@ A **CRM for consultants** has one job: tell you which client relationships and o
     every plan, self-hosted included.
   </SummaryItem>
   <SummaryItem label="Not included">
-    Time tracking, billing, proposal documents, project delivery, a client
+    Time tracking, billing, writing proposals, project delivery, a client
     portal, shared team views and field-level permissions.
   </SummaryItem>
 </ArticleSummary>
@@ -68,10 +68,14 @@ Open one engagement in Proposal sent and you see what a consultant checks before
 
 - **The client** with its contacts and their role in the engagement: the sponsor, the day-to-day contact and the person who signs off.
 - **The fee**, calculated from two fields you fill in: the estimated days times the day rate. Each stage has a win probability, and the weighted value is that probability applied to the fee. It is pipeline weighting, not a forecast. A duration field counts the days from the planned start to the end.
-- **The conversations.** An email thread and a LinkedIn conversation with the sponsor, linked to this engagement. Contacts are matched to conversations by their email address or LinkedIn identity in a channels field; the link from a conversation to the engagement or client was made explicitly by a person, never automatically.
+- **The conversations.** An email thread and a LinkedIn conversation with the sponsor, linked to this engagement. Contacts are matched to conversations by their email address or LinkedIn identity in the Contact details field; the link from a conversation to the engagement or client was made explicitly by a person, never automatically.
 - **A next-step date** in an ordinary date field, recorded by hand after the last call. Tasks have no built-in due dates or reminders, so the date lives in a field you configure and a saved view sorts by it.
 
-"Proposal sent" is a stage, not a document. The proposal itself stays in your file storage or proposal tool; a URL field on the engagement can hold the link.
+- **The proposal** as a PDF in the engagement's Documents field, a File field. Search finds the text inside it, and Mate can read it before a call.
+
+"Proposal sent" is a stage, not a document: you write the proposal in your own tool and add the PDF to the engagement.
+
+Won engagements also appear in a **Delivery calendar** view, each one spanning its start and end date. The Calendar page shows the engagement periods, the next-step dates and the meetings from the connected Google calendar on one timeline, and the dashboard lists the next steps of the coming 14 days.
 
 ## From introduction to decision
 
@@ -87,7 +91,7 @@ Open one engagement in Proposal sent and you see what a consultant checks before
   </Step>
   <Step title="Send the proposal">
     Move it to Proposal sent and set the decision date and next-step date in
-    your own date fields. Keep the document where you write proposals.
+    your own date fields. Add the proposal PDF to the engagement.
   </Step>
   <Step title="Follow up personally">
     Reply on the original email or LinkedIn thread from the inbox, or ask Mate
@@ -134,8 +138,8 @@ Otherwise, people with Configure rights create the lists, fields and stages in C
 
 ## What Customermates does not do for consultants
 
-- No time tracking, billing, proposal or contract documents, project delivery or client portal.
-- No file attachments on records. Keep documents in your file storage and the link on the engagement.
+- No time tracking, billing, proposal or contract writing, project delivery or client portal.
+- Files in messages stay in the inbox thread, not on the engagement. Add the proposal itself to a File field on the engagement.
 - No email sequences or bulk outreach. Follow-ups are written one conversation at a time.
 - No task due dates or reminders built in, no mobile app and no calendar booking.
 - No relationship-strength scoring or contact enrichment.

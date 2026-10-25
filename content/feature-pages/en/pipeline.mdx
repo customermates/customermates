@@ -40,7 +40,9 @@ Sales pipeline software puts your open opportunities on a board, one column per 
 
 The [sales pipeline workspace](https://demo.customermates.com/en/w/sales-pipeline/dashboard) is an example with sample data, not a customer account. It has five lists: Accounts, Contacts, Opportunities, Products and Tasks. Opportunities move through New, Qualified, Discovery, Proposal sent, Negotiation, Won and Lost, and three sales reps own them.
 
-The board shows each stage with its probability. Every column header sums the value and the weighted value of its opportunities. An opportunity's value comes from its line items: products from the Products list, quantity times unit price. Open a card and you are on the opportunity with its account, its contacts, its line items, its tasks and the next step recorded on it.
+The board shows each stage with its probability. Every column header sums the value and the weighted value of its opportunities. An opportunity's value comes from its line items: products from the Products list, quantity times unit price. Open a card and you are on the opportunity with its account, its contacts, its line items, its tasks and the next step recorded on it. Quotes sit on the opportunity as PDF files in a File field.
+
+The dashboard shows the expected closes of the month in a **Month overview** widget, a calendar that sums the value per day, so you see which weeks carry the most value, and places the accounts on a map by their address. A calendar view of the opportunities shows the expected close dates by month, and the Calendar page puts the site visits from the task list next to them.
 
 Your own workspace does not start with these lists or stages. A new workspace starts without lists. On Customermates Cloud, the AI workspace setup builds lists, stages, a dashboard and Knowledge Base pages from your description. It runs once during onboarding, is capped by setup credits, and you can skip it with **Start with an empty workspace**. Otherwise, people with Configure rights create the opportunities list and its stage field in **Configure**. When self-hosting, that is the only way.
 
@@ -77,7 +79,7 @@ That total weights your own numbers. It does not predict revenue or close dates.
 
 ## Customer context next to the deal
 
-An opportunity links to its account and contacts, so the people and the history are one click away. On Customermates Cloud, Pro and higher add the [unified inbox](/features/unified-inbox) for Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram and Telegram. A participant is matched to a contact by the identity in its Channels field. A conversation is linked to an opportunity or account only when you or an agent do it explicitly; nothing is filed to a deal automatically.
+An opportunity links to its account and contacts, so the people and the history are one click away. On Customermates Cloud, Pro and higher add the [unified inbox](/features/unified-inbox) for Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram and Telegram. A participant is matched to a contact by the identity in its Contact details field. A conversation is linked to an opportunity or account only when you or an agent do it explicitly; nothing is filed to a deal automatically.
 
 Inbox limits by plan: Starter and self-hosted have no connected messaging accounts. Pro covers your own accounts, with [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user included, plus threads shared individually. Sharing a whole account with the team needs Business, Max or Enterprise.
 
@@ -106,7 +108,7 @@ Everyone whose role reads all opportunities sees the same deals; with **Assigned
 ## Limits
 
 <AcquisitionCallout title="What the pipeline does not do" variant="boundary">
-  Weighted value is your value times your probabilities. There is no predictive forecast, no report of time in stage, stage conversion or pipeline velocity, and no automatic highlighting of idle deals. No shared or team views, no field-level permissions, no file attachments on records and no native mobile app.
+  Weighted value is your value times your probabilities. There is no predictive forecast, no report of time in stage, stage conversion or pipeline velocity, and no automatic highlighting of idle deals. No shared or team views, no field-level permissions and no native mobile app.
 </AcquisitionCallout>
 
 For a metric such as win rate per person, Mate in the cloud can calculate it from your records, or you export the list as an Excel workbook. Chart options are on the [reporting](/features/reporting) page.
@@ -147,6 +149,6 @@ Yes, as separate single choice fields, each with its own board view.
 </FaqItem>
 
 <FaqItem question="Are emails logged to the deal automatically?">
-No. On Pro and higher in the cloud, conversations are matched to contacts by their channels. Linking a conversation to an opportunity is an explicit step by you or an agent.
+No. On Pro and higher in the cloud, conversations are matched to contacts by their contact details. Linking a conversation to an opportunity is an explicit step by you or an agent.
 </FaqItem>
 </Faq>

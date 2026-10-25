@@ -43,7 +43,7 @@ Many small businesses agree appointments, quotes and changes with customers on W
     accounts.
   </SummaryItem>
   <SummaryItem label="CRM context">
-    Contacts are matched by the phone number in their Channels field. Linking a
+    Contacts are matched by the phone number in their Contact details field. Linking a
     chat to a deal or organization is an explicit step by a user or agent.
   </SummaryItem>
   <SummaryItem label="Not included">
@@ -54,9 +54,9 @@ Many small businesses agree appointments, quotes and changes with customers on W
 
 ## The example workspace: WhatsApp customer contact with sample data
 
-The demo above and the [example workspace](https://demo.customermates.com/en/w/whatsapp/dashboard) use sample data, not a customer. The workspace has lists for customers, contacts, projects and tasks. In the inbox, a WhatsApp chat sits beside the customer's contact record: the contact was matched by the phone number in its Channels field, and the chat was linked to an open project under **Conversation records**, on purpose and by hand. A Chat status field on each contact, set by hand, feeds a board of the chats still waiting for an answer.
+The demo above and the [example workspace](https://demo.customermates.com/en/w/whatsapp/dashboard) use sample data, not a customer. The workspace has lists for customers, contacts, projects and tasks. In the inbox, a WhatsApp chat sits beside the customer's contact record: the contact was matched by the phone number in its Contact details field, and the chat was linked to an open project under **Conversation records**, on purpose and by hand. A Chat status field on each contact, set by hand, feeds a board of the chats still waiting for an answer.
 
-These lists are an example. A new workspace starts without lists: on Customermates Cloud the AI workspace setup can build lists, stages, a dashboard and Knowledge Base pages from your description, once at onboarding and within its credit cap, or you skip it with **Start with an empty workspace**. Otherwise people with Configure rights create the lists and fields in Configure and import existing contacts from an Excel workbook. To match WhatsApp chats, the contacts list needs a Channels field.
+These lists are an example. A new workspace starts without lists: on Customermates Cloud the AI workspace setup can build lists, stages, a dashboard and Knowledge Base pages from your description, once at onboarding and within its credit cap, or you skip it with **Start with an empty workspace**. Otherwise people with Configure rights create the lists and fields in Configure and import existing contacts from an Excel workbook. To match WhatsApp chats, the contacts list needs the Contact details field.
 
 ## What the WhatsApp connection does
 
@@ -66,7 +66,7 @@ These lists are an example. A new workspace starts without lists: on Customermat
 
 **Start a chat from a phone number.** Start a new chat from a contact's phone number in international format, for example +49 followed by the number without the leading zero.
 
-**Contacts matched by phone number.** A phone number in a record's Channels field connects that record to the WhatsApp chats with that number. Ordinary phone fields are not used for matching. For a sender who has no record yet, open **Thread settings** and link the number to an existing contact or create one.
+**Contacts matched by phone number.** A phone number in a record's Contact details field connects that record to the WhatsApp chats with that number. The same number can also be called from the record. For a sender who has no record yet, open **Thread settings** and link the number to an existing contact or create one.
 
 **State kept in Customermates.** Mark a chat unread, open, closed or spam to organize the inbox. This state lives only in Customermates: closing a chat here does not archive or change it in WhatsApp.
 
@@ -80,7 +80,7 @@ These lists are an example. A new workspace starts without lists: on Customermat
     QR code with the WhatsApp app on your phone.
   </Step>
   <Step title="Match your contacts">
-    Add each customer's WhatsApp number to the Channels field of their contact
+    Add each customer's WhatsApp number to the Contact details field of their contact
     record, or link the sender from the chat's Thread settings.
   </Step>
   <Step title="Link the chat to a deal">
@@ -155,7 +155,7 @@ No. Self-hosted installations use the Starter feature set: no connected messagin
 </FaqItem>
 
 <FaqItem question="Are WhatsApp chats linked to deals automatically?">
-No. The contact is matched by the phone number in its Channels field. Linking a chat to a deal or organization is an explicit step under Conversation records, taken by a user or an agent.
+No. The contact is matched by the phone number in its Contact details field. Linking a chat to a deal or organization is an explicit step under Conversation records, taken by a user or an agent.
 </FaqItem>
 
 <FaqItem question="If I close a chat in Customermates, does it change in WhatsApp?">

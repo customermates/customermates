@@ -11,7 +11,7 @@ relatedHrefs:
 
 hero:
   title: "Contact and client management with the full relationship in context"
-  description: For small teams that look after clients, not just phone numbers. Customermates links each client to its people, opportunities, tasks and, on Pro and higher in the cloud, supported conversations. You shape the lists and fields yourself. There are no tags and no file attachments on records, and an import cannot be undone.
+  description: For small teams that look after clients, not just phone numbers. Customermates links each client to its people, opportunities, tasks and, on Pro and higher in the cloud, supported conversations. You shape the lists and fields yourself. There are no tags, and an import cannot be undone.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Explore the workspace
@@ -31,14 +31,14 @@ cta:
 Contact management software keeps every person and company you work with in one shared place, together with what is going on with them. Client management software goes one step further: it answers who the client is, who you talk to there, what is open and what happens next. Customermates covers both for small client-facing teams. It is an open-source, AI-native CRM made in Germany.
 
 <ArticleSummary title="At a glance">
-  <SummaryItem label="Every plan">Configurable lists for clients, contacts and opportunities, typed fields, relationships, filters, personal saved views, table or board, roles, Excel import and export, REST, webhooks and MCP. Self-hosted included.</SummaryItem>
+  <SummaryItem label="Every plan">Configurable lists for clients, contacts and opportunities, typed fields, relationships, filters, personal saved views, table, board or calendar, roles, Excel import and export, REST, webhooks and MCP. Self-hosted included.</SummaryItem>
   <SummaryItem label="Pro and higher, cloud only">Email, LinkedIn, WhatsApp, Instagram and Telegram conversations beside the people they involve.</SummaryItem>
-  <SummaryItem label="Not included">No tags (use a multiple-choice field), no file attachments on records, no import undo, no address-book sync, no merge function, no reminders.</SummaryItem>
+  <SummaryItem label="Not included">No tags (use a multiple-choice field), no import undo, no address-book sync, no merge function, no reminders.</SummaryItem>
 </ArticleSummary>
 
 ## See it in an example workspace
 
-The [client management workspace](https://demo.customermates.com/en/w/client-management/dashboard) is an example with sample data, not a customer account. It has five lists: Clients, Contacts, Contracts, Opportunities and Tasks. Each client carries a relationship status (New relationship, Active discussion, Customer, Dormant), an account manager and a configured date field for the next action. Each contract is one service at one site with a monthly fee and a review date, and a calculated field adds up the client's annual value from its contracts.
+The [client management workspace](https://demo.customermates.com/en/w/client-management/dashboard) is an example with sample data, not a customer account. It has five lists: Clients, Contacts, Contracts, Opportunities and Tasks. Each client carries a relationship status (New relationship, Active discussion, Customer, Dormant), an account manager and a configured date field for the next action. Each contract is one service at one site with a monthly fee and a review date, and a calculated field adds up the client's annual value from its contracts. Contracts carry the site address and the signed agreement as a PDF, the dashboard puts the sites on a map and lists the reviews due in the next 30 days, and a calendar view shows the review dates by month.
 
 Open one client and you see its people, its contracts, its open opportunities, its tasks and the supported conversations of the people linked to it, on one record. Nothing there is copied into a second data silo: the contact in the client record is the same contact you search for, filter on or update.
 
@@ -46,11 +46,13 @@ Your own workspace does not start with these lists. A new workspace starts witho
 
 ## Structured client details
 
-A client record holds the fields you decide on. The field types are text, rich text, number, currency, yes/no, date, date and time, date range, single or multiple choice, email, phone, URL, member and channels. Calculated fields add values from other fields or linked records.
+A client record holds the fields you decide on. The field types are Text, Formatted text, Number, Money, Yes or no, Date, Date and time, Date range, Date and time range, Single choice, Multiple choice, Web address, Member, Address, File and Phone, email & social. Calculated fields add values from other fields or linked records.
 
-A **Channels** field holds the email addresses, WhatsApp numbers and LinkedIn, Instagram and Telegram identities that match messages to a person. A landline or a mobile number without WhatsApp goes into an ordinary phone field. One address can belong to several records, for example a contact and a client.
+The **Contact details** field holds the phone numbers, email addresses and LinkedIn, Instagram and Telegram identities that match messages to a person. A number there can be called and also matches WhatsApp chats from the same number. One address can belong to several records, for example a contact and a client.
 
-Notes live on each record. Global search (Cmd/Ctrl+K) finds records by name and channel values; other fields are reached through filters.
+An **Address** field holds one postal address: Customermates checks it against the address format of its country, suggests city and region for the postal code and opens the address in maps on click. A **File** field holds documents such as contracts or proposals, up to 20 files per field, and the text of those files is found by search.
+
+Notes live on each record. Global search (Cmd/Ctrl+K) finds records by name and contact details; other fields are reached through filters.
 
 ## Linked records instead of a flat list
 
@@ -77,9 +79,9 @@ Customermates has no built-in reminders or due-date logic. You add a date field 
 Many teams arrive with a spreadsheet. Moving it is practical, but not automatic:
 
 - **Format.** A list imports from an Excel workbook (.xlsx) through a wizard: pick the sheet, map the columns, check the preview, import. Google Sheets files are not imported directly: download the sheet as .xlsx, and save an Outlook or Google Contacts download as .xlsx in Excel. A JSON export of the same list can also be imported again.
-- **Order.** Import clients before contacts so the company column links to existing records. Map email and messaging columns to the **Channels** field.
+- **Order.** Import clients before contacts so the company column links to existing records. Map email, phone and messaging columns to the **Contact details** field.
 - **No undo.** An import cannot be rolled back. Clean duplicates first, because there is no merge function afterwards. Test with a small file.
-- **No attachments.** Files that sit next to your spreadsheet, such as contracts or PDFs, do not move into Customermates. Keep them in your file storage and put a link in a URL field.
+- **No attachments.** Files that sit next to your spreadsheet, such as contracts or PDFs, are not part of the import. Upload the ones you need to a File field on the record afterwards.
 - **Corrections in bulk.** Export the list, edit it in Excel and import it again as **Existing records**.
 - **No ongoing sync.** After the import, your spreadsheet and Customermates are separate lists.
 
@@ -87,7 +89,7 @@ The [records guide](/docs/app-records#how-do-i-import-or-export-records) documen
 
 ## Conversations beside the relationship
 
-On Customermates Cloud, Pro and higher connect Gmail, Outlook, IMAP, LinkedIn (including supported Sales Navigator and Recruiter chats), WhatsApp, Instagram and Telegram through the [unified inbox](/features/unified-inbox). A participant is associated with a contact through the identity in its Channels field. When an unknown address writes, you link that participant to an existing or new contact. A conversation is linked to an opportunity or client only when you or an agent do it explicitly; nothing is filed to a deal automatically.
+On Customermates Cloud, Pro and higher connect Gmail, Outlook, IMAP, LinkedIn (including supported Sales Navigator and Recruiter chats), WhatsApp, Instagram and Telegram through the [unified inbox](/features/unified-inbox). A participant is associated with a contact through the identity in its Contact details field. When an unknown address writes, you link that participant to an existing or new contact. A conversation is linked to an opportunity or client only when you or an agent do it explicitly; nothing is filed to a deal automatically.
 
 Plan limits apply. Starter and self-hosted have no connected messaging accounts. Pro covers your own accounts, with [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user included, plus threads shared individually. Sharing a whole account with the team needs Business, Max or Enterprise.
 
@@ -110,7 +112,7 @@ On Customermates Cloud the database runs in the AWS Frankfurt region. Service pr
 ## What it does not do
 
 <AcquisitionCallout title="Limits that affect the decision" variant="boundary">
-  No tags: use a multiple-choice field. No file attachments on records; message attachments stay in their inbox thread. Import only from the documented formats, with no undo. No merge function, no address-book sync, no reminders or due-date alerts, no newsletters, mass email, sequences or data enrichment, no native mobile app.
+  No tags: use a multiple-choice field. Message attachments stay in their inbox thread; files you want on the record go into a File field. Import only from the documented formats, with no undo. No merge function, no address-book sync, no reminders or due-date alerts, no newsletters, mass email, sequences or data enrichment, no native mobile app.
 </AcquisitionCallout>
 
 ## Contact management software or a phone address book?
@@ -139,7 +141,7 @@ No. Add a multiple-choice field instead, for example **Segment** with the values
 </FaqItem>
 
 <FaqItem question="Can I attach files to a client or contact?">
-No. Records have no file attachments. Attachments of supported messages stay in their inbox thread. Store documents in your file storage and link them in a URL field.
+Yes. Add a File field to the list; it holds up to 20 files, and search finds the text inside them. Attachments of supported messages stay in their inbox thread.
 </FaqItem>
 
 <FaqItem question="Can I import from Excel, Google Sheets or Outlook?">

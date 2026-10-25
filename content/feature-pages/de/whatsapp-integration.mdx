@@ -43,7 +43,7 @@ In vielen kleinen Betrieben laufen Terminabsprachen, Angebote und Rückfragen ü
     Messaging-Konten.
   </SummaryItem>
   <SummaryItem label="CRM-Kontext">
-    Kontakte werden über die Telefonnummer in ihrem Kanäle-Feld zugeordnet. Die
+    Kontakte werden über die Telefonnummer im Feld Kontaktdaten zugeordnet. Die
     Verknüpfung eines Chats mit einem Deal oder einer Organisation setzt ein
     Nutzer oder Agent bewusst.
   </SummaryItem>
@@ -56,9 +56,9 @@ In vielen kleinen Betrieben laufen Terminabsprachen, Angebote und Rückfragen ü
 
 ## Der Beispiel-Workspace „WhatsApp-CRM“ mit Beispieldaten
 
-Die Demo oben und der [Beispiel-Workspace](https://demo.customermates.com/de/w/whatsapp-kundenkontakt/dashboard) arbeiten mit erfundenen Beispieldaten, nicht mit einem Kunden. Der Workspace enthält Listen für Kunden, Kontakte, Aufträge und Aufgaben. Im Postfach steht ein WhatsApp-Chat neben dem Kontaktdatensatz: Der Kontakt wurde über die Telefonnummer in seinem Kanäle-Feld zugeordnet, und unter **Datensätze dieser Unterhaltung** wurde der Chat bewusst von Hand mit einem offenen Auftrag verknüpft. Ein von Hand gesetzter Chat-Status an jedem Kontakt füllt ein Board mit den Chats, die noch auf eine Antwort warten.
+Die Demo oben und der [Beispiel-Workspace](https://demo.customermates.com/de/w/whatsapp-kundenkontakt/dashboard) arbeiten mit erfundenen Beispieldaten, nicht mit einem Kunden. Der Workspace enthält Listen für Kunden, Kontakte, Aufträge und Aufgaben. Im Postfach steht ein WhatsApp-Chat neben dem Kontaktdatensatz: Der Kontakt wurde über die Telefonnummer im Feld Kontaktdaten zugeordnet, und unter **Datensätze dieser Unterhaltung** wurde der Chat bewusst von Hand mit einem offenen Auftrag verknüpft. Ein von Hand gesetzter Chat-Status an jedem Kontakt füllt ein Board mit den Chats, die noch auf eine Antwort warten.
 
-Diese Listen sind ein Beispiel. Ein neuer Workspace startet ohne Listen. In Customermates Cloud kann die KI-Einrichtung aus Ihrer Beschreibung Listen, Phasen, ein Dashboard und Knowledge-Base-Seiten anlegen, einmalig beim Onboarding und mit begrenzten Credits. Sie können sie auch mit **Mit einem leeren Workspace starten** überspringen. Andernfalls legen Personen, die das Datenmodell verwalten, Listen und Felder unter **Konfigurieren** an und importieren vorhandene Kontakte aus einer Excel-Arbeitsmappe. Damit WhatsApp-Chats zugeordnet werden, braucht die Kontaktliste ein Kanäle-Feld.
+Diese Listen sind ein Beispiel. Ein neuer Workspace startet ohne Listen. In Customermates Cloud kann die KI-Einrichtung aus Ihrer Beschreibung Listen, Phasen, ein Dashboard und Knowledge-Base-Seiten anlegen, einmalig beim Onboarding und mit begrenzten Credits. Sie können sie auch mit **Mit einem leeren Workspace starten** überspringen. Andernfalls legen Personen, die das Datenmodell verwalten, Listen und Felder unter **Konfigurieren** an und importieren vorhandene Kontakte aus einer Excel-Arbeitsmappe. Damit WhatsApp-Chats zugeordnet werden, braucht die Kontaktliste das Feld Kontaktdaten.
 
 ## Was die WhatsApp-Verbindung leistet
 
@@ -68,7 +68,7 @@ Diese Listen sind ein Beispiel. Ein neuer Workspace startet ohne Listen. In Cust
 
 **Chat über eine Telefonnummer starten.** Einen neuen Chat starten Sie mit der Telefonnummer eines Kontakts im internationalen Format, also zum Beispiel +49 und die Nummer ohne führende Null.
 
-**Kontakte über die Telefonnummer.** Eine Telefonnummer im Kanäle-Feld eines Datensatzes verbindet ihn mit den WhatsApp-Chats dieser Nummer. Gewöhnliche Telefonfelder werden für die Zuordnung nicht verwendet. Hat ein Absender noch keinen Datensatz, öffnen Sie die **Konversationseinstellungen** und verknüpfen die Nummer mit einem vorhandenen Kontakt oder legen einen neuen an.
+**Kontakte über die Telefonnummer.** Eine Telefonnummer im Feld Kontaktdaten eines Datensatzes verbindet ihn mit den WhatsApp-Chats dieser Nummer. Dieselbe Nummer lässt sich vom Datensatz aus auch anrufen. Hat ein Absender noch keinen Datensatz, öffnen Sie die **Konversationseinstellungen** und verknüpfen die Nummer mit einem vorhandenen Kontakt oder legen einen neuen an.
 
 **Status bleibt in Customermates.** Markieren Sie einen Chat als ungelesen, offen, geschlossen oder Spam, um das Postfach zu ordnen. Dieser Status existiert nur in Customermates: Wenn Sie hier einen Chat schließen, wird er in WhatsApp weder archiviert noch verändert.
 
@@ -83,7 +83,7 @@ Diese Listen sind ein Beispiel. Ein neuer Workspace startet ohne Listen. In Cust
     und scannen Sie den QR-Code mit der WhatsApp-App auf Ihrem Telefon.
   </Step>
   <Step title="Kontakte zuordnen">
-    Tragen Sie die WhatsApp-Nummer jedes Kunden im Kanäle-Feld seines
+    Tragen Sie die WhatsApp-Nummer jedes Kunden im Feld Kontaktdaten seines
     Kontaktdatensatzes ein oder verknüpfen Sie den Absender in den
     Konversationseinstellungen des Chats.
   </Step>
@@ -161,7 +161,7 @@ Nein. Self-Hosted-Installationen nutzen den Funktionsumfang von Starter: keine v
 </FaqItem>
 
 <FaqItem question="Werden WhatsApp-Chats automatisch mit Deals verknüpft?">
-Nein. Der Kontakt wird über die Telefonnummer in seinem Kanäle-Feld zugeordnet. Die Verknüpfung eines Chats mit einem Deal oder einer Organisation ist ein bewusster Schritt unter „Datensätze dieser Unterhaltung“, den ein Nutzer oder Agent ausführt.
+Nein. Der Kontakt wird über die Telefonnummer im Feld Kontaktdaten zugeordnet. Die Verknüpfung eines Chats mit einem Deal oder einer Organisation ist ein bewusster Schritt unter „Datensätze dieser Unterhaltung“, den ein Nutzer oder Agent ausführt.
 </FaqItem>
 
 <FaqItem question="Ändert sich ein Chat in WhatsApp, wenn ich ihn in Customermates schließe?">
