@@ -265,7 +265,7 @@ describe("WidgetChart", () => {
     expect(call.props.colors).toEqual(["fill-success1", "fill-primary1"]);
   });
 
-  it("keeps option colors on legacy widgets without a palette and maps info options to primary", () => {
+  it("keeps option colors on legacy widgets without a palette and matches each option colour to its chip", () => {
     const call = renderChart(DisplayType.verticalBarChart, {
       data: [
         { labelKind: "literal", label: "Warm", optionColor: "info", value: 3 },
@@ -275,7 +275,7 @@ describe("WidgetChart", () => {
     });
 
     expect((call.props.chartData as Array<{ fill: string }>).map(({ fill }) => fill)).toEqual([
-      "fill-primary1",
+      "fill-secondary1",
       "fill-secondary1",
     ]);
   });

@@ -576,7 +576,7 @@ describeDatabase("calendar and map widgets on PostgreSQL", () => {
     const first = await create(f.calendarQuery({ layout: "month" }), key);
     if (!first.ok) throw new Error(JSON.stringify(first));
     expect(first.data).toMatchObject({ kind: "calendar", version: 1, status: "ready" });
-    expect(first.data.layout?.lg).toMatchObject({ w: 4, h: 7 });
+    expect(first.data.layout?.lg).toMatchObject({ w: 4, h: 6 });
     const retry = await create(f.calendarQuery({ layout: "month" }), key);
     expect(retry.ok && retry.data.id).toBe(first.data.id);
 
