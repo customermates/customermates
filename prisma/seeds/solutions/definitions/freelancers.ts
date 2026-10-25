@@ -1,6 +1,6 @@
 import { DisplayType } from "@/features/widget/widget-display.schema";
 
-import { day, defineSolution, photo, type RecordSpec, phoneNumber } from "../define-solution";
+import { address, day, defineSolution, photo, type FileSpec, type RecordSpec, phoneNumber } from "../define-solution";
 
 /**
  * Freelancers: Max works alone as a UX and product designer for a handful of B2B clients, most of them over several
@@ -82,10 +82,11 @@ const en = {
     nextAction: "Next action",
     nextActionDate: "Next action date",
     totalFees: "Total project fees",
-    city: "City",
+    address: "Address",
+    brief: "Brief",
+    files: "Files",
     website: "Website",
     jobTitle: "Job title",
-    phone: "Phone",
     workType: "Type of work",
     source: "Source",
     decisionDate: "Decision date",
@@ -141,6 +142,16 @@ const en = {
     atlas: ["Atlas Mobility", "Denver", "atlas-mobility.example", ""],
     juniper: ["Juniper Trails", "San Diego", "juniper-trails.example", "Ask Alex for current usage numbers"],
   } satisfies Record<OrganizationKey, readonly [string, string, string, string]>,
+  addresses: {
+    tidewater: ["60 Seaport Blvd", "02210", "MA", 42.34817, -71.04142],
+    brightpath: ["500 W 2nd St", "78701", "TX", 30.27045, -97.74212],
+    corvid: ["1000 W Fulton Market", "60607", "IL", 41.87561, -87.66417],
+    meadow: ["280 Trumbull St", "06103", "CT", 41.76712, -72.67521],
+    quill: ["101 S Jackson St", "98104", "WA", 47.60129, -122.32763],
+    fernhill: ["1300 NW Northrup St", "97209", "OR", 45.53071, -122.68459],
+    atlas: ["1550 Wewatta St", "80202", "CO", 39.75192, -104.99918],
+    juniper: ["600 W Broadway", "92101", "CA", 32.71925, -117.16302],
+  } satisfies Record<OrganizationKey, readonly [string, string, string, number, number]>,
   contacts: {
     priya: ["Priya", "Raman", "Head of Product"],
     marcus: ["Marcus", "Webb", "Engineering lead"],
@@ -192,6 +203,7 @@ const en = {
     projects: "Projects",
     nextActions: "Next actions",
     openTasks: "Open tasks",
+    calendar: "Project calendar",
   },
   widgets: {
     openQuotes: "Open proposals",
@@ -202,7 +214,99 @@ const en = {
     byStatus: "Projects by status",
     byClient: "Project fees by client",
     feesByMonth: "Project fees by start month",
-    bySource: "Inquiries by source",
+    nextActions: "Next actions this fortnight",
+  },
+  files: {
+    fernhillBrief: {
+      name: "Fernhill brief.pdf",
+      lines: [
+        "# Fernhill Energy – brief: tariff comparison page",
+        "From Sam Whitaker, Marketing manager.",
+        "## The problem",
+        "Many visitors leave our tariff comparison page on the second step, where they enter their annual usage.",
+        "| Step | Visitors | Continue |",
+        "| 1. Postcode | 10,000 | 74% |",
+        "| 2. Annual usage | 7,400 | 38% |",
+        "| 3. Choose a tariff | 2,800 | 61% |",
+        "## What we ask for",
+        "An outside view with a few user interviews, then a redesign of the tariff comparison that our developers can build.",
+        "## Timing and budget",
+        "Start within the next two months; budget around $6,000.",
+      ],
+    },
+    juniperBrief: {
+      name: "Trip planner brief.docx",
+      lines: [
+        "# Juniper Trails – trip planner refresh",
+        "## Goal",
+        "Fewer abandoned trip plans on mobile; the planner was last redesigned four years ago.",
+        "## Ask",
+        "A short UX review with concrete fixes, similar to the checkout audit, which used the same tariff comparison style of before-and-after tables.",
+        "## Budget",
+        "About $3,500.",
+      ],
+    },
+    tidewaterProposal: {
+      name: "Phase 2 proposal.pdf",
+      lines: [
+        "# Tidewater Analytics – dashboard redesign, phase 2",
+        "Prepared for Priya Raman and Marcus Webb.",
+        "## Scope",
+        "| Part | Days | Fee |",
+        "| Research: five customer interviews | 5 | $4,500 |",
+        "| Design of the new dashboard | 10 | $9,500 |",
+        "| Total | 15 | $14,000 |",
+        "With three interviews instead of five, research takes 3 days ($2,700).",
+      ],
+    },
+    tidewaterFindings: {
+      name: "Usability test findings.md",
+      lines: [
+        "# Usability test findings – design system audit",
+        "## What worked",
+        "Buttons and form fields are consistent across the product.",
+        "## What did not",
+        "Three different date pickers; tables use four spacing scales.",
+        "## Next",
+        "Merge the date pickers first; the report tables follow the tariff comparison layout we tested.",
+      ],
+    },
+    corvidFeedback: {
+      name: "First screens – feedback.md",
+      lines: [
+        "# First dispatcher screens – feedback",
+        "## Dan",
+        "The map view is the right default; the job list needs the driver's next stop.",
+        "## Chris",
+        "Filters should stay when switching days. Feedback on the shift view follows on Thursday.",
+      ],
+    },
+    interviews: {
+      name: "Interview schedule.xlsx",
+    },
+  },
+  interviewRows: [
+    ["Teacher", "School", "Day", "Time"],
+    ["Interview 1", "Riverside Middle School", "Monday", "15:30"],
+    ["Interview 2", "Oak Hill Elementary", "Tuesday", "16:00"],
+    ["Interview 3", "Lakeview High School", "Wednesday", "15:00"],
+    ["Interview 4", "Cedar Park Academy", "Thursday", "16:30"],
+  ],
+  calendar: {
+    name: "Client calls",
+    events: [
+      "Phase 2 walkthrough with Tidewater",
+      "Brightpath kick-off workshop",
+      "Scope call with Quill & Ledger",
+      "Feedback on the dispatcher screens with Corvid",
+    ],
+  },
+  trash: { contact: "Sam Whitaker", deal: "Atlas Mobility – driver app audit" },
+  mate: {
+    title: "Inquiry from the Fernhill brief",
+    question: "I attached Fernhill brief.pdf. Create an inquiry from this brief and suggest two start dates.",
+    answer:
+      'Done. I created the inquiry **Fernhill Energy – tariff comparison page** at the Inquiry stage, linked to Fernhill Energy and Sam Whitaker, with an estimated value of $6,000 and the source Referral (Sam found you through Meadowlark). Fernhill brief.pdf is attached to the inquiry\'s Brief field.\n\nFrom the brief: visitors drop off on step 2 of the tariff comparison (annual usage), where only 38% continue. Sam asks for a few user interviews and a redesign, starting within two months, budget around $6,000. At $900 per day for research and $950 for design, that is about 6–7 days.\n\n**Project calendar:**\n- Tidewater – design system audit runs until its deadline in about three and a half weeks.\n- Corvid – dispatcher dashboard waits for feedback and ends in about ten days.\n- Brightpath – teacher onboarding flow runs for another five to six weeks.\n\n**Two possible starts:**\n1. The Monday after the Corvid deadline, two days a week next to Brightpath and Tidewater.\n2. The Monday after the Tidewater audit is delivered, three days a week.\n\nI set the next action to "Reply to Sam with possible start dates". Your reply in the thread is still a draft, so nothing was sent.',
   },
   routines: {
     mondayPlan: {
@@ -216,7 +320,7 @@ const en = {
     },
     draftInquiryReply: {
       name: "Draft replies to new inquiries",
-      task: "Review the new email identified by routine_trigger. Continue only when the sender matches no existing contact through identity channels, or the email asks about new work. Read Projects with Status Planned, In progress or Waiting for feedback and their Start and Deadline to find the first free weeks. Save one short reply draft with save_message_draft that thanks the sender, asks for the goal, timing and budget range, and offers two possible start dates. Preserve an existing draft. The draft is for my review; never send it and do not change CRM records.",
+      task: "Review the new email identified by routine_trigger. Continue only when the sender matches no existing contact through identity channels, or the email asks about new work. Read the Project calendar: Projects with Status Planned, In progress or Waiting for feedback from Start to Deadline, to find the first free weeks. Save one short reply draft with save_message_draft that thanks the sender, asks for the goal, timing and budget range, and offers two possible start dates. Preserve an existing draft. The draft is for my review; never send it and do not change CRM records.",
       runs: [
         "Prepared a reply draft for Sam at Fernhill Energy with two possible start dates.",
         "The email came from an existing client about running work, so no draft was needed.",
@@ -248,6 +352,7 @@ const en = {
         "",
         "## What stays elsewhere",
         "- Billing and bookkeeping stay in the tools I already use. This workspace keeps the client relationships, the open inquiries and the running work.",
+        "- Briefs from clients sit in the inquiry's Brief field, proposals and project documents in the project's Files, so search and Mate find them by their text. The Project calendar shows every project from start to deadline.",
       ],
     },
     stages: {
@@ -282,9 +387,9 @@ const en = {
         "These are the rates and terms I quote, so every proposal and every project in this workspace uses the same numbers.",
         "",
         "## Day rates",
-        "- Product design and design systems: 950 per day.",
-        "- User research and workshops: 900 per day.",
-        "- UX reviews and audits: 850 per day.",
+        "- Product design and design systems: $950 per day.",
+        "- User research and workshops: $900 per day.",
+        "- UX reviews and audits: $850 per day.",
         "",
         "## Terms",
         "- I quote a number of days per project; the project fee is day rate times days.",
@@ -363,10 +468,11 @@ const de: Strings = {
     nextAction: "Nächster Schritt",
     nextActionDate: "Datum nächster Schritt",
     totalFees: "Honorare gesamt",
-    city: "Ort",
+    address: "Adresse",
+    brief: "Briefing",
+    files: "Dateien",
     website: "Website",
     jobTitle: "Position",
-    phone: "Telefon",
     workType: "Art der Arbeit",
     source: "Herkunft",
     decisionDate: "Entscheidungsdatum",
@@ -432,6 +538,16 @@ const de: Strings = {
       "Andreas Roth nach aktuellen Nutzungszahlen fragen",
     ],
   },
+  addresses: {
+    tidewater: ["Am Sandtorkai 41", "20457", "", 53.54331, 9.98912],
+    brightpath: ["Nikolaistraße 28", "04109", "", 51.34103, 12.37475],
+    corvid: ["Am Wall 175", "28195", "", 53.07768, 8.80572],
+    meadow: ["Königstraße 26", "70173", "", 48.77781, 9.17953],
+    quill: ["Zeil 81", "60311", "", 50.11174, 8.68332],
+    fernhill: ["Bertoldstraße 45", "79098", "", 47.99502, 7.84773],
+    atlas: ["Holstenstraße 64", "24103", "", 54.32118, 10.13221],
+    juniper: ["Sendlinger Straße 12", "80331", "", 48.13513, 11.57193],
+  },
   contacts: {
     priya: ["Katrin", "Vogt", "Leiterin Produkt"],
     marcus: ["Jan", "Petersen", "Leiter Entwicklung"],
@@ -483,6 +599,7 @@ const de: Strings = {
     projects: "Projekte",
     nextActions: "Nächste Schritte",
     openTasks: "Offene Aufgaben",
+    calendar: "Projektkalender",
   },
   widgets: {
     openQuotes: "Offene Angebote",
@@ -493,7 +610,100 @@ const de: Strings = {
     byStatus: "Projekte nach Status",
     byClient: "Honorare nach Kunde",
     feesByMonth: "Honorare nach Startmonat",
-    bySource: "Anfragen nach Herkunft",
+    nextActions: "Nächste Schritte, 14 Tage",
+  },
+  files: {
+    fernhillBrief: {
+      name: "Briefing Sonnenhang.pdf",
+      lines: [
+        "# Sonnenhang Energie – Briefing: Tarifvergleich",
+        "Von Sebastian Ott, Marketingleiter.",
+        "## Das Problem",
+        "Viele Besucher verlassen unseren Tarifvergleich im zweiten Schritt, wenn sie ihren Jahresverbrauch eingeben.",
+        "| Schritt | Besucher | Weiter |",
+        "| 1. Postleitzahl | 10.000 | 74 % |",
+        "| 2. Jahresverbrauch | 7.400 | 38 % |",
+        "| 3. Tarif wählen | 2.800 | 61 % |",
+        "## Was wir brauchen",
+        "Einen Blick von außen mit einigen Nutzerinterviews, danach ein Redesign des Tarifvergleichs, das unsere Entwickler umsetzen können.",
+        "## Zeitrahmen und Budget",
+        "Start in den nächsten zwei Monaten; Budget etwa 6.000 €.",
+      ],
+    },
+    juniperBrief: {
+      name: "Briefing Reiseplaner.docx",
+      lines: [
+        "# Wacholder Reisen – Auffrischung des Reiseplaners",
+        "## Ziel",
+        "Weniger abgebrochene Reisepläne auf dem Smartphone; der Planer wurde zuletzt vor vier Jahren überarbeitet.",
+        "## Auftrag",
+        "Ein kurzes UX-Review mit konkreten Verbesserungen, wie beim Audit des Bezahlvorgangs, mit Vorher-nachher-Tabellen im Stil eines Tarifvergleichs.",
+        "## Budget",
+        "Etwa 3.500 €.",
+      ],
+    },
+    tidewaterProposal: {
+      name: "Angebot Phase 2.pdf",
+      lines: [
+        "# Hafenblick Analytics – Redesign Dashboard, Phase 2",
+        "Erstellt für Katrin Vogt und Jan Petersen.",
+        "## Umfang",
+        "| Teil | Tage | Honorar |",
+        "| Nutzerforschung: fünf Kundeninterviews | 5 | 4.500 € |",
+        "| Gestaltung des neuen Dashboards | 10 | 9.500 € |",
+        "| Gesamt | 15 | 14.000 € |",
+        "Mit drei statt fünf Interviews dauert die Forschung 3 Tage (2.700 €).",
+      ],
+    },
+    tidewaterFindings: {
+      name: "Ergebnisse Usability-Test.md",
+      lines: [
+        "# Ergebnisse Usability-Test – Audit des Designsystems",
+        "## Was funktioniert",
+        "Buttons und Formularfelder sind im ganzen Produkt einheitlich.",
+        "## Was nicht",
+        "Drei verschiedene Datumsauswahlen; Tabellen nutzen vier Abstandsskalen.",
+        "## Als Nächstes",
+        "Zuerst die Datumsauswahlen zusammenführen; die Berichtstabellen folgen dem getesteten Layout aus dem Tarifvergleich.",
+      ],
+    },
+    corvidFeedback: {
+      name: "Erste Screens – Feedback.md",
+      lines: [
+        "# Erste Screens der Disposition – Feedback",
+        "## Stefan Brandt",
+        "Die Kartenansicht ist der richtige Einstieg; die Auftragsliste braucht den nächsten Halt des Fahrers.",
+        "## Christian Weiß",
+        "Filter sollen beim Tageswechsel erhalten bleiben. Feedback zur Schichtansicht folgt am Donnerstag.",
+      ],
+    },
+    interviews: {
+      name: "Interviewplan.xlsx",
+    },
+  },
+  interviewRows: [
+    ["Lehrkraft", "Schule", "Tag", "Uhrzeit"],
+    ["Interview 1", "Oberschule am Auwald", "Montag", "15:30"],
+    ["Interview 2", "Grundschule Lindenau", "Dienstag", "16:00"],
+    ["Interview 3", "Gymnasium am Rosental", "Mittwoch", "15:00"],
+    ["Interview 4", "Gemeinschaftsschule Connewitz", "Donnerstag", "16:30"],
+  ],
+  calendar: {
+    name: "Kundentermine",
+    events: [
+      "Angebot Phase 2 mit Hafenblick durchgehen",
+      "Kick-off-Workshop bei Lernpfad",
+      "Umfang klären mit Feder & Konto",
+      "Feedback zu den Dispositions-Screens mit Rabe",
+    ],
+  },
+  trash: { contact: "Sebastian Ott", deal: "Nordlicht – Audit der Fahrer-App" },
+  mate: {
+    title: "Anfrage aus dem Sonnenhang-Briefing",
+    question:
+      "Im Anhang ist das Briefing Sonnenhang.pdf. Lege daraus eine Anfrage an und schlage zwei Starttermine vor.",
+    answer:
+      "Erledigt. Ich habe die Anfrage **Sonnenhang – Tarifvergleich auf der Website** in der Phase Anfrage angelegt, verknüpft mit Sonnenhang Energie und Sebastian Ott, mit einem geschätzten Wert von 6.000 € und der Herkunft Empfehlung (Herr Ott kam über Wiesental zu Ihnen). Das Briefing Sonnenhang.pdf hängt im Feld „Briefing“ der Anfrage.\n\nAus dem Briefing: Im zweiten Schritt des Tarifvergleichs (Jahresverbrauch) machen nur 38 % weiter. Herr Ott wünscht einige Nutzerinterviews und ein Redesign, Start in den nächsten zwei Monaten, Budget etwa 6.000 €. Bei 900 € pro Tag für Forschung und 950 € für Gestaltung sind das etwa 6–7 Tage.\n\n**Projektkalender:**\n- Hafenblick – Audit des Designsystems läuft bis zur Abgabe in gut dreieinhalb Wochen.\n- Rabe – Dashboard für die Disposition wartet auf Feedback und endet in etwa zehn Tagen.\n- Lernpfad – Onboarding für Lehrkräfte läuft noch fünf bis sechs Wochen.\n\n**Zwei mögliche Starttermine:**\n1. Der Montag nach der Abgabe bei Rabe, zwei Tage pro Woche neben Lernpfad und Hafenblick.\n2. Der Montag nach der Abgabe des Hafenblick-Audits, drei Tage pro Woche.\n\nAls nächsten Schritt habe ich „Sebastian Ott mögliche Starttermine nennen“ eingetragen. Ihre Antwort im Verlauf ist noch ein Entwurf, es wurde nichts gesendet.",
   },
   routines: {
     mondayPlan: {
@@ -507,7 +717,7 @@ const de: Strings = {
     },
     draftInquiryReply: {
       name: "Antwortentwürfe für neue Anfragen",
-      task: "Prüfe die neue E-Mail aus routine_trigger. Fahre nur fort, wenn der Absender über seine Identitätskanäle keinem vorhandenen Kontakt entspricht oder die E-Mail nach neuer Arbeit fragt. Lies Projekte mit dem Status Geplant, In Arbeit oder Wartet auf Feedback mit Start und Abgabe, um die ersten freien Wochen zu finden. Speichere mit save_message_draft einen kurzen Antwortentwurf, der sich bedankt, nach Ziel, Zeitrahmen und Budgetrahmen fragt und zwei mögliche Starttermine nennt. Ein vorhandener Entwurf bleibt erhalten. Der Entwurf ist zu meiner Prüfung; sende ihn nie und ändere keine CRM-Daten.",
+      task: "Prüfe die neue E-Mail aus routine_trigger. Fahre nur fort, wenn der Absender über seine Identitätskanäle keinem vorhandenen Kontakt entspricht oder die E-Mail nach neuer Arbeit fragt. Lies den Projektkalender: Projekte mit dem Status Geplant, In Arbeit oder Wartet auf Feedback von Start bis Abgabe, um die ersten freien Wochen zu finden. Speichere mit save_message_draft einen kurzen Antwortentwurf, der sich bedankt, nach Ziel, Zeitrahmen und Budgetrahmen fragt und zwei mögliche Starttermine nennt. Ein vorhandener Entwurf bleibt erhalten. Der Entwurf ist zu meiner Prüfung; sende ihn nie und ändere keine CRM-Daten.",
       runs: [
         "Antwortentwurf für Sebastian Ott von Sonnenhang Energie mit zwei möglichen Startterminen vorbereitet.",
         "Die E-Mail kam von einem Bestandskunden zu laufender Arbeit, ein Entwurf war nicht nötig.",
@@ -539,6 +749,7 @@ const de: Strings = {
         "",
         "## Was woanders bleibt",
         "- Abrechnung und Buchhaltung bleiben in den Programmen, die ich schon nutze. Hier stehen die Kundenbeziehungen, die offenen Anfragen und die laufende Arbeit.",
+        "- Briefings von Kunden liegen im Feld „Briefing“ der Anfrage, Angebote und Projektunterlagen in den Dateien des Projekts, damit Suche und Mate sie über ihren Text finden. Der Projektkalender zeigt jedes Projekt von Start bis Abgabe.",
       ],
     },
     stages: {
@@ -573,9 +784,9 @@ const de: Strings = {
         "Das sind die Tagessätze und Konditionen, die ich anbiete, damit jedes Angebot und jedes Projekt hier mit denselben Zahlen rechnet.",
         "",
         "## Tagessätze",
-        "- Produktdesign und Designsysteme: 950 pro Tag.",
-        "- Nutzerforschung und Workshops: 900 pro Tag.",
-        "- UX-Reviews und Audits: 850 pro Tag.",
+        "- Produktdesign und Designsysteme: 950 € pro Tag.",
+        "- Nutzerforschung und Workshops: 900 € pro Tag.",
+        "- UX-Reviews und Audits: 850 € pro Tag.",
         "",
         "## Konditionen",
         "- Ich biete eine Anzahl Tage pro Projekt an; das Honorar ist Tagessatz mal Tage.",
@@ -699,7 +910,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     source: "repeat",
     createdDaysAgo: 40,
     decision: 14,
-    next: 3,
+    next: 9,
     moves: [
       [30, "inquiry"],
       [8, "firstCall"],
@@ -744,7 +955,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     source: "repeat",
     createdDaysAgo: 12,
     decision: 20,
-    next: 2,
+    next: 8,
     moves: [[5, "inquiry"]],
   },
   corvidDispatch: {
@@ -771,7 +982,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     source: "repeat",
     createdDaysAgo: 25,
     decision: 10,
-    next: 1,
+    next: -2,
     moves: [
       [20, "inquiry"],
       [9, "firstCall"],
@@ -801,7 +1012,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     source: "referral",
     createdDaysAgo: 18,
     decision: 25,
-    next: 4,
+    next: 13,
     moves: [[7, "inquiry"]],
   },
   fernhillTariff: {
@@ -813,7 +1024,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     source: "referral",
     createdDaysAgo: 2,
     decision: 30,
-    next: 1,
+    next: 7,
   },
   atlasRider: {
     organization: "atlas",
@@ -839,7 +1050,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     source: "repeat",
     createdDaysAgo: 6,
     decision: 30,
-    next: 6,
+    next: 10,
   },
 };
 
@@ -979,7 +1190,7 @@ export default defineSolution<Strings>({
     en: { currency: "USD", timeZone: "America/New_York" },
     de: { currency: "EUR", timeZone: "Europe/Berlin" },
   },
-  build: (t) => {
+  build: (t, locale) => {
     const phone = (index: number) => phoneNumber(t.phones.mobile, index);
     const open = ["inquiry", "firstCall", "proposal"];
     const label = <K extends string>(
@@ -990,12 +1201,21 @@ export default defineSolution<Strings>({
     const organization: RecordSpec[] = ORGANIZATIONS.map((key) => {
       const facts = ORGANIZATION_FACTS[key];
       const [name, city, domain, nextAction] = t.organizations[key];
+      const [street, postalCode, region, lat, lon] = t.addresses[key];
       return {
         key,
         values: {
           name,
           relationship: facts.relationship,
-          city,
+          address: address({
+            street,
+            postalCode,
+            city,
+            ...(region ? { region } : {}),
+            countryCode: locale === "de" ? "de" : "us",
+            lat,
+            lon,
+          }),
           website: `https://${domain}`,
           ...(facts.since === undefined ? {} : { clientSince: day(facts.since) }),
           ...(facts.next === undefined ? {} : { nextAction, nextActionDate: day(facts.next) }),
@@ -1091,6 +1311,20 @@ export default defineSolution<Strings>({
       };
     });
 
+    const file = (
+      key: Exclude<keyof Strings["files"], "interviews">,
+      record: string,
+      kind: FileSpec["kind"],
+      uploadedDaysAgo: number,
+    ): FileSpec => ({
+      key,
+      record,
+      field: record.startsWith("deal:") ? "deal.brief" : "project.files",
+      name: t.files[key].name,
+      kind,
+      lines: t.files[key].lines,
+      uploadedDaysAgo,
+    });
     const thread = t.threads;
     const routine = t.routines;
     return {
@@ -1122,7 +1356,7 @@ export default defineSolution<Strings>({
           type: "currency",
           formula: { kind: "rollupSum", relation: "project.client", field: "project.fee" },
         },
-        { key: "organization.city", label: t.fields.city, type: "text" },
+        { key: "organization.address", label: t.fields.address, type: "address" },
         { key: "organization.website", label: t.fields.website, type: "url" },
         { key: "contact.jobTitle", label: t.fields.jobTitle, type: "text" },
         {
@@ -1150,6 +1384,7 @@ export default defineSolution<Strings>({
         { key: "deal.decisionDate", label: t.fields.decisionDate, type: "date" },
         { key: "deal.nextAction", label: t.fields.nextAction, type: "text" },
         { key: "deal.nextActionDate", label: t.fields.nextActionDate, type: "date" },
+        { key: "deal.brief", label: t.fields.brief, type: "file" },
         {
           key: "project.status",
           label: t.fields.projectStatus,
@@ -1172,6 +1407,7 @@ export default defineSolution<Strings>({
         },
         { key: "project.start", label: t.fields.start, type: "date" },
         { key: "project.deadline", label: t.fields.deadline, type: "date" },
+        { key: "project.files", label: t.fields.files, type: "file" },
         { key: "task.dueDate", label: t.fields.dueDate, type: "date" },
       ],
       stages: [
@@ -1249,6 +1485,14 @@ export default defineSolution<Strings>({
           filters: [{ field: "status", notIn: ["done", "archived"] }],
           sort: { field: "dueDate", direction: "asc" },
         },
+        {
+          key: "calendar",
+          list: "project",
+          name: t.views.calendar,
+          mode: "calendar",
+          calendar: { date: "start", end: "deadline", color: "status", mode: "month" },
+          columns: ["status", "project.client", "fee"],
+        },
       ],
       dashboard: {
         widgets: [
@@ -1297,21 +1541,23 @@ export default defineSolution<Strings>({
             filters: [{ field: "stage", in: open }],
           },
           {
+            kind: "calendar",
+            title: t.widgets.nextActions,
+            list: "deal",
+            layout: "upcoming",
+            date: "nextActionDate",
+            days: 14,
+            amount: "totalValue",
+            overdue: true,
+            filters: [{ field: "stage", in: open }],
+          },
+          {
             kind: "chart",
             title: t.widgets.byStatus,
             display: DisplayType.doughnutChart,
             list: "project",
             aggregation: "count",
             groupBy: { field: "status" },
-          },
-          {
-            kind: "chart",
-            title: t.widgets.byClient,
-            display: DisplayType.horizontalBarChartWithLabels,
-            list: "project",
-            aggregation: "sum",
-            field: "fee",
-            groupBy: { relation: "project.client" },
           },
           {
             kind: "chart",
@@ -1325,11 +1571,12 @@ export default defineSolution<Strings>({
           },
           {
             kind: "chart",
-            title: t.widgets.bySource,
-            display: DisplayType.rankedTable,
-            list: "deal",
-            aggregation: "count",
-            groupBy: { field: "source" },
+            title: t.widgets.byClient,
+            display: DisplayType.horizontalBarChartWithLabels,
+            list: "project",
+            aggregation: "sum",
+            field: "fee",
+            groupBy: { relation: "project.client" },
           },
         ],
       },
@@ -1508,7 +1755,70 @@ export default defineSolution<Strings>({
             links: ["deal:corvidDispatch", "organization:corvid"],
           },
         ],
+        calendar: {
+          name: t.calendar.name,
+          events: [
+            {
+              title: t.calendar.events[0],
+              with: ["priya", "marcus"],
+              startsMinutesAgo: -3 * 24 * 60,
+              durationMinutes: 60,
+            },
+            {
+              title: t.calendar.events[1],
+              with: ["rachel", "tom"],
+              startsMinutesAgo: -5 * 24 * 60,
+              durationMinutes: 120,
+            },
+            { title: t.calendar.events[2], with: ["nina"], startsMinutesAgo: -6 * 24 * 60, durationMinutes: 30 },
+            {
+              title: t.calendar.events[3],
+              with: ["dan", "chris"],
+              startsMinutesAgo: -9 * 24 * 60,
+              durationMinutes: 45,
+            },
+          ],
+        },
       },
+      files: [
+        file("fernhillBrief", "deal:fernhillTariff", "pdf", 2),
+        file("juniperBrief", "deal:juniperRefresh", "docx", 6),
+        file("tidewaterProposal", "project:tidewaterAudit", "pdf", 9),
+        file("tidewaterFindings", "project:tidewaterAudit", "md", 4),
+        file("corvidFeedback", "project:corvidDispatchDesign", "md", 3),
+        {
+          key: "interviews",
+          record: "project:brightpathOnboardingFlow",
+          field: "project.files",
+          name: t.files.interviews.name,
+          kind: "xlsx",
+          rows: t.interviewRows,
+          uploadedDaysAgo: 5,
+        },
+      ],
+      planner: {
+        sources: [
+          { list: "project", date: "start", end: "deadline", color: "info" },
+          { list: "deal", date: "nextActionDate", filters: [{ field: "stage", in: open }], color: "warning" },
+          { list: "organization", date: "nextActionDate", color: "success" },
+        ],
+        connectedCalendar: true,
+        mode: "month",
+      },
+      trash: [
+        { list: "contact", name: t.trash.contact, daysAgo: 3 },
+        { list: "deal", name: t.trash.deal, daysAgo: 18 },
+      ],
+      mateChats: [
+        {
+          title: t.mate.title,
+          endedHoursAgo: 46,
+          messages: [
+            { role: "user", text: t.mate.question },
+            { role: "assistant", text: t.mate.answer },
+          ],
+        },
+      ],
     };
   },
 });
