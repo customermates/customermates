@@ -1,0 +1,35 @@
+name: Demo reseed
+
+# The demo's dated records (next steps, upcoming meetings, the month heat grid) follow the week of the last seed.
+# Redeploying the demo every night rebuilds it, which resets and seeds its database again.
+on:
+  schedule:
+    - cron: "40 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: demo-reseed
+  cancel-in-progress: false
+
+jobs:
+  redeploy-demo:
+    if: github.repository == 'customermates/customermates'
+    runs-on: ubuntu-latest
+    environment:
+      name: preview-domain-control
+      deployment: false
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.repository.default_branch }}
+      - name: Redeploy the demo
+        env:
+          DEMO_HOST: ${{ vars.DEMO_HOST }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+          VERCEL_TEAM_ID: ${{ vars.VERCEL_TEAM_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: bash scripts/redeploy-demo.sh
