@@ -7119,7 +7119,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         cause: { code: CustomErrorCode.recordCalculationBudget, failureKind: "conflict" },
       });
       const reader = new RecordIdentityReader(f.repo, f.policy);
-      // A lookup over 10,000 shared records can outlast the default transaction timeout on a slow runner.
       const resolve = (...args: Parameters<InstanceType<typeof RecordIdentityReader>["resolve"]>) =>
         runInTransaction(() => reader.resolve(...args), { timeout: 60000 });
       const lookup = { provider: "mail" as const, value: "Heavily-Shared@example.test" };
