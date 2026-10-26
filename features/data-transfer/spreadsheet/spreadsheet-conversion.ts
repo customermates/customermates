@@ -17,6 +17,7 @@ import { parseMarkdownToJSON } from "@/components/editor/editor.utils";
 import { normalizePhoneNumber } from "@/core/utils/phone-number";
 import { channelClass } from "@/ee/messaging/provider";
 import { RECORD_IMPORT_LIMIT, RECORD_IMPORT_LINK_LIMIT } from "@/features/data-transfer/record-transfer.schema";
+import { addressFromText } from "@/features/records/record-address-value";
 import { RecordScalarSchema } from "@/features/records/record-model.schema";
 import { scalarMatchesType } from "@/features/records/record-model-validation";
 import {
@@ -247,6 +248,10 @@ function singleValue(
     case "url": {
       const value = contactValue(field, text);
       return value === null ? invalid : { value: { kind: "text", value } };
+    }
+    case "address": {
+      const address = addressFromText(text);
+      return { value: address && { kind: "address", value: address } };
     }
     default:
       return invalid;

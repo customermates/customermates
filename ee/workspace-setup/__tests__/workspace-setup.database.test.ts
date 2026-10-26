@@ -50,7 +50,7 @@ const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository"
 const { PrismaBillingUsageRepo } = await import("@/features/billing-usage/prisma-billing-usage.repository");
 const { PrismaCompanyRepo } = await import("@/features/company/prisma-company.repository");
 const { RegisterUserInteractor } = await import("@/features/user/register/register-user.interactor");
-const { agencyPlan } = await import("@/features/workspace-setup/__tests__/setup-plan-fixtures");
+const { agencyDashboardPlan, agencyPlan } = await import("@/features/workspace-setup/__tests__/setup-plan-fixtures");
 const { planPartFor } = await import("./setup-wire-fixtures");
 const { WORKSPACE_SETUP_BUDGETS } = await import("../workspace-setup-spend");
 const { SETUP_BUILD_PHASE_ATTEMPTS } = await import("../workspace-setup-attempts");
@@ -111,6 +111,8 @@ function sampleValue(column: PromptColumn, index: number): string | null {
       return null;
     case "url":
       return `https://example.test/${index + 1}`;
+    case "address":
+      return `Hauptstraße ${index + 1}, 10115 Berlin`;
     default:
       return `Sample ${index + 1}`;
   }
@@ -857,6 +859,30 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(view.status).toBe("failed");
   });
 
+  it("fails the records phase when the import skips every drafted record", async () => {
+    state.plan = { ...agencyPlan, sampleData: { lists: [{ list: "organization", count: 3, kinds: [] }] } };
+    const ws = await workspace();
+    const { setupId, planRevision } = await planned(ws);
+    const replies = state.generate.getMockImplementation();
+    state.generate.mockImplementation(async (args: { label: string }) => {
+      const reply = await (replies?.(args) as Promise<{ output: { records?: Array<Record<string, string | null>> } }>);
+      if (args.label !== "Workspace setup sample records") return reply;
+      const records = (reply.output.records ?? []).map((row) =>
+        Object.fromEntries(Object.keys(row).map((column) => [column, column === "c1" ? "" : "Industry"])),
+      );
+      return { ...reply, output: { records } };
+    });
+    await ws.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision }));
+    await build(ws, setupId);
+
+    expect((await status(ws)).phases.find((phase) => phase.key === "records")).toMatchObject({
+      status: "failed",
+      error: "generation",
+    });
+    const setup = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
+    expect(setup?.created.sampleRecords).toEqual([]);
+  });
+
   it("waits for the website import and records the pages it wrote", async () => {
     const ws = await workspace();
     const { setupId, planRevision } = await planned(ws);
@@ -1381,6 +1407,29 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     );
     expect(await ws.run(() => service.runPhase(setupId, "records", false, RUN_ID))).toBe("settled");
     expect(await lineItems()).toBe(3);
+  });
+
+  it("writes the planned address of every sample record", async () => {
+    state.plan = {
+      ...agencyDashboardPlan,
+      sampleData: { lists: [{ list: "organization", count: 3, kinds: [] }] },
+    };
+    const ws = await workspace();
+    const { setupId, planRevision } = await planned(ws);
+    await ws.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision }));
+    const service = di.getWorkspaceSetupBuildService();
+    expect(await ws.run(() => service.runPhase(setupId, "dataModel", false, RUN_ID))).toBe("settled");
+    expect(await ws.run(() => service.runPhase(setupId, "records", false, RUN_ID))).toBe("settled");
+    expect((await status(ws)).phases.find((phase) => phase.key === "records")?.status).toBe("completed");
+    const setup = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
+    expect(setup?.results.records).toEqual([expect.objectContaining({ kind: "sample", count: 3, skippedRows: 0 })]);
+    const reference = await references(ws, setupId);
+    const addresses = await runWithoutTenant(() =>
+      prisma.recordValue.count({
+        where: { companyId: ws.companyId, fieldId: reference("$field.organization.address") },
+      }),
+    );
+    expect(addresses).toBe(3);
   });
 
   it("imports every spreadsheet row with its whole name, email and phone channels and the organization it names", async () => {
