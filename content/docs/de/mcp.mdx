@@ -418,9 +418,9 @@ Pflicht: `typeId`, `action`. Optional: `expectedRevision`, `idempotencyKey`, `la
 
 #### `manage_calendar`
 
-Ihren persönlichen Kalender lesen und ändern: options listet die Listen mit Datumsfeldern und Ihre verbundenen Kalender, read liefert die Konfiguration und ob noch die Voreinstellung gilt (das erste Datumsfeld jeder Liste, bis zu zwölf Listen), update ersetzt die übergebenen Datumsquellen, Kalender, Zeitzone oder Darstellung, nachdem jede Liste, jedes Feld, jeder Filter und jeder Kalender geprüft wurde, und reset kehrt zur Voreinstellung zurück. subscriptions listet Ihre Kalender-Abonnement-URLs und revoke deaktiviert eine davon endgültig. Datensätze, Kalendertermine und die Kalender anderer Nutzer ändern sich nie.
+Ihren persönlichen Kalender lesen und ändern: options listet die Listen mit Datumsfeldern und Ihre verbundenen Kalender, read liefert die Konfiguration und ob noch die Voreinstellung gilt (das erste einzelne Datumsfeld jeder Liste, sonst ihr erster Zeitraum, bis zu zwölf Listen), update erwartet eine config mit nur den zu ändernden Schlüsseln und prüft jede Liste, jedes Feld, jeden Filter und jeden Kalender, und reset kehrt zur Voreinstellung zurück. subscriptions listet Ihre Kalender-Abonnement-URLs und revoke deaktiviert eine davon per id endgültig. Datensätze, Kalendertermine und die Kalender anderer Nutzer ändern sich nie.
 
-**Kann Daten löschen.** Pflicht: `action`. Optional: `sources`, `calendarIds`, `timeZone`, `mode`, `subscriptionId`.
+**Kann Daten löschen.** Pflicht: `action`. Optional: `config`, `id`.
 {/* /mcp-catalog */}
 
 ### Wissensdatenbank [#workspace-wiki]

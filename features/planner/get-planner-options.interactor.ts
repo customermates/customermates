@@ -10,9 +10,9 @@ import type { Validated } from "@/core/validation/validation.utils";
 import { Resource } from "@/generated/prisma";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { roleCanRead } from "@/core/base/permission.service";
+import { recordSurfaceTypeId } from "@/core/data-view/data-view-keys";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { recordSurfaceTypeId } from "@/core/data-view/data-view-keys";
 import { readP13nSettings } from "@/features/p13n/p13n-settings.schema";
 import { defaultPlannerConfig, PLANNER_P13N_ID } from "./planner.schema";
 
@@ -20,7 +20,6 @@ export type PlannerOptions = {
   model: RecordModelView;
   config: PlannerConfig;
   saved: boolean;
-  readableTypeIds: string[];
   personalAvailable: boolean;
   calendars: PersonalCalendar[];
 };
@@ -46,19 +45,14 @@ export class GetPlannerOptionsInteractor extends AuthenticatedInteractor<void, P
     ]);
     const personalAvailable = roleCanRead(this.user.role, Resource.inboxMessages) && !denied;
     const config = readP13nSettings(PLANNER_P13N_ID, saved?.settings);
-    const readableTypeIds = readable.flatMap((view) => recordSurfaceTypeId(view.surfaceKey) ?? []);
+    const readableTypeIds = new Set(readable.map((view) => recordSurfaceTypeId(view.surfaceKey)));
+    const visible = { ...model.data, types: model.data.types.filter((type) => readableTypeIds.has(type.id)) };
     const calendars = personalAvailable ? await this.personal.calendars() : [];
     return {
       ok: true,
       data: {
-        model: model.data,
-        readableTypeIds,
-        config:
-          config ??
-          defaultPlannerConfig({
-            types: model.data.types.filter((type) => readableTypeIds.includes(type.id)),
-            fields: model.data.fields,
-          }),
+        model: visible,
+        config: config ?? defaultPlannerConfig(visible),
         saved: config !== null,
         personalAvailable,
         calendars,

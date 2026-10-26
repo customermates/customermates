@@ -119,6 +119,7 @@
       "consequence": {
         "accountConnect": "Conectar un canal de mensajería",
         "accountConnectTarget": "Conectar {target}",
+        "calendarSubscriptionRevoke": "Revocar la URL de suscripción de calendario seleccionada; las apps de calendario suscritas dejan de actualizarse",
         "chatSend": "Enviar a la conversación seleccionada",
         "draftDiscard": "Descartar de forma permanente el borrador guardado seleccionado",
         "draftSave": "Guardar un borrador en la conversación seleccionada",

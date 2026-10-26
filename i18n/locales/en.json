@@ -119,6 +119,7 @@
       "consequence": {
         "accountConnect": "Connect a messaging channel",
         "accountConnectTarget": "Connect {target}",
+        "calendarSubscriptionRevoke": "Revoke the selected calendar subscription URL; calendar apps subscribed to it stop updating",
         "chatSend": "Send to the selected conversation",
         "draftDiscard": "Permanently discard the selected saved draft",
         "draftSave": "Save a draft in the selected conversation",

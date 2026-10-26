@@ -1,6 +1,6 @@
 import { manageRolesTool } from "@/features/mcp-tools/role.mcp-tools";
 import { manageDataViewsTool } from "@/features/mcp-tools/data-view.mcp-tools";
-import { manageCalendarTool } from "@/features/mcp-tools/calendar.mcp-tools";
+import { manageCalendarTool } from "@/features/mcp-tools/planner.mcp-tools";
 import { manageTrashTool, readTrashTool } from "@/features/mcp-tools/trash.mcp-tools";
 import {
   discoverRecordTypesV2Tool,

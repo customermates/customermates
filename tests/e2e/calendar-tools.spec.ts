@@ -2,12 +2,12 @@ import { randomUUID } from "node:crypto";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 
-import { presetId } from "../../features/records/crm-preset";
 import { ManageCalendarResultSchema } from "../../features/planner/manage-calendar.schema";
 import { mintApiKey } from "./api-key";
-import { postOk, readModel } from "./api";
-import { collectPageErrors, expect, test } from "./fixtures";
 import { localE2eEnvironment } from "./local-environment";
+import { test, expect, collectPageErrors } from "./fixtures";
+import { presetId } from "../../features/records/crm-preset";
+import { postOk, readModel } from "./api";
 
 test("an agent sets the Calendar page over MCP, the page shows it, and reset returns to the derived default", async ({
   page,
@@ -77,9 +77,11 @@ test("an agent sets the Calendar page over MCP, the page shows it, and reset ret
 
     const updated = await call({
       action: "update",
-      sources: [{ typeId, calendar: { dateFieldId: dueOn }, filters: [], enabled: true, color: "success" }],
-      timeZone: "Europe/Berlin",
-      mode: "month",
+      config: {
+        sources: [{ typeId, calendar: { dateFieldId: dueOn }, color: "success" }],
+        timeZone: "Europe/Berlin",
+        mode: "month",
+      },
     });
     expect(updated).toMatchObject({ saved: true, config: { timeZone: "Europe/Berlin", mode: "month" } });
     const sourceId = updated.config?.sources[0]?.id;

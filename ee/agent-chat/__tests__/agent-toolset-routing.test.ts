@@ -89,6 +89,7 @@ describe("toolsetsForRequest", () => {
     ])
       expect(toolsetsForRequest({ text, pageRoute: null }).has("views")).toBe(true);
     expect(onDemandToolsetOfTool("manage_record_detail_layout")).toBe("views");
+    expect(onDemandToolsetOfTool("manage_calendar")).toBe("views");
   });
   it("loads bulk import and export only when a request asks for them", () => {
     for (const text of [

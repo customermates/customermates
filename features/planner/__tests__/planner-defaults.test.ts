@@ -13,7 +13,7 @@ const field = (id: string, typeId: string, valueType: string, overrides: Partial
 const uuid = (index: number) => `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`;
 
 describe("defaultPlannerConfig", () => {
-  it("takes the first usable date field of every active list in the list color", () => {
+  it("takes the first single date field of every active list, else its first range, in the list color", () => {
     const config = defaultPlannerConfig({
       types: [
         type(uuid(1), { color: "success" }),
@@ -24,6 +24,7 @@ describe("defaultPlannerConfig", () => {
       ],
       fields: [
         field(uuid(11), uuid(1), "text"),
+        field(uuid(15), uuid(1), "dateRange"),
         field(uuid(12), uuid(1), "date", { archived: true }),
         field(uuid(13), uuid(1), "dateTime"),
         field(uuid(14), uuid(1), "date"),

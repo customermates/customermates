@@ -418,9 +418,9 @@ Required: `typeId`, `action`. Optional: `expectedRevision`, `idempotencyKey`, `l
 
 #### `manage_calendar`
 
-Read and change your personal Calendar page: options lists the lists with date fields and your connected calendars, read returns the configuration and whether it is still the default (the first date field of each list, up to 12 lists), update replaces the date sources, calendars, time zone or display mode it receives after checking every list, field, filter and calendar, and reset returns to the default. subscriptions lists your calendar subscription URLs and revoke permanently disables one. Records, calendar events and other users’ calendars never change.
+Read and change your personal calendar: options lists the lists with date fields and your connected calendars, read returns the configuration and whether the default still applies (the first single date field of each list, else its first date range, up to 12 lists), update takes a config with only the keys to change and checks every list, field, filter and calendar, and reset returns to the default. subscriptions lists your calendar subscription URLs and revoke permanently disables one by id. Records, calendar events and other users’ calendars never change.
 
-**Can delete data.** Required: `action`. Optional: `sources`, `calendarIds`, `timeZone`, `mode`, `subscriptionId`.
+**Can delete data.** Required: `action`. Optional: `config`, `id`.
 {/* /mcp-catalog */}
 
 ### Knowledge Base [#workspace-wiki]

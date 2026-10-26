@@ -119,6 +119,7 @@
       "consequence": {
         "accountConnect": "Einen Nachrichtenkanal verbinden",
         "accountConnectTarget": "{target} verbinden",
+        "calendarSubscriptionRevoke": "Die ausgewählte Kalender-Abonnement-URL widerrufen; Kalender-Apps, die sie abonniert haben, aktualisieren sich nicht mehr",
         "chatSend": "Nachricht in der ausgewählten Unterhaltung senden",
         "draftDiscard": "Den ausgewählten gespeicherten Entwurf dauerhaft verwerfen",
         "draftSave": "Entwurf in der ausgewählten Unterhaltung speichern",
