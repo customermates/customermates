@@ -75,7 +75,8 @@ const SetupWebsiteContext = observer(function SetupWebsiteContext() {
   if (website && !editing) {
     const host = new URL(website).host;
     const progress = store.websiteReading;
-    const failed = store.setup?.interview.prefill === "failed";
+    const prefill = store.setup?.interview.prefill;
+    const failed = prefill === "failed";
     const stage = progress?.stage ?? null;
     const { sourcesFound, sourcesRead } = store.setup?.knowledgeBase ?? { sourcesFound: 0, sourcesRead: 0 };
     const rows: SetupTimelineRow[] = [
@@ -106,11 +107,11 @@ const SetupWebsiteContext = observer(function SetupWebsiteContext() {
         status: "running",
         label: t("WorkspaceSetup.website.suggesting", { website: host }),
       });
-    } else if (stage === null) {
+    } else if (stage === null && !failed && prefill !== "skipped") {
       rows.push({
         key: "suggesting",
-        status: failed ? "error" : "done",
-        label: failed ? t("WorkspaceSetup.interview.prefillFailed") : t("WorkspaceSetup.website.suggested"),
+        status: "done",
+        label: t("WorkspaceSetup.website.suggested"),
       });
     }
     const running = rows.find((row) => row.status === "running");
@@ -118,7 +119,9 @@ const SetupWebsiteContext = observer(function SetupWebsiteContext() {
       ? String(running.label)
       : failed
         ? t("WorkspaceSetup.interview.prefillFailed")
-        : t("WorkspaceSetup.website.suggestedHint");
+        : prefill === "skipped"
+          ? String(rows[rows.length - 1].label)
+          : t("WorkspaceSetup.website.suggestedHint");
 
     return (
       <div className="flex flex-col gap-1">
@@ -185,25 +188,23 @@ const SetupWebsiteContext = observer(function SetupWebsiteContext() {
               event.preventDefault();
               submit();
             }
-            if (event.key === "Escape" && editing) {
+            if (event.key === "Escape") {
               event.preventDefault();
               cancel();
             }
           }}
         />
 
-        {editing ? (
-          <Button
-            aria-label={t("Common.actions.close")}
-            disabled={store.isBusy}
-            size="icon"
-            type="button"
-            variant="ghost"
-            onClick={cancel}
-          >
-            <X aria-hidden />
-          </Button>
-        ) : null}
+        <Button
+          aria-label={t("Common.actions.close")}
+          disabled={store.isBusy}
+          size="icon"
+          type="button"
+          variant="ghost"
+          onClick={cancel}
+        >
+          <X aria-hidden />
+        </Button>
 
         <Button disabled={store.isBusy || !draft.trim()} type="button" variant="secondary" onClick={submit}>
           {reading ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : null}

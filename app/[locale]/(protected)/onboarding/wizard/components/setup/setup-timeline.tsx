@@ -3,7 +3,9 @@
 import type { ReactNode } from "react";
 import type { ActivityTimelineStatus } from "@/components/shared/activity-timeline";
 
-import { useActivityGroupState } from "@/app/components/agent-chat/use-activity-group-state";
+import { useState } from "react";
+
+import { useActivityGroupState } from "@/components/shared/use-activity-group-state";
 import { ActivityTimeline, ActivityTimelineRow } from "@/components/shared/activity-timeline";
 
 export type SetupTimelineRow = { key: string; status: ActivityTimelineStatus; label: ReactNode };
@@ -19,13 +21,16 @@ export function SetupTimeline({ action, rows, status, summary }: Props) {
   const running = status === "running";
   const failed = status === "error";
   const { open, setOpen } = useActivityGroupState({ hasRunning: running, hasError: failed, isWorking: running });
+  const stage = rows.find((row) => row.status === "running")?.key ?? status;
+  const [announcement, setAnnouncement] = useState({ stage, summary });
+  if (announcement.stage !== stage) setAnnouncement({ stage, summary });
 
   return (
     <>
       <ActivityTimeline
         action={action}
         destructive={failed}
-        hasDetails={rows.length > 1 || rows.some((row) => row.status === "error")}
+        hasDetails={rows.length > 1}
         open={open}
         status={status}
         summary={summary}
@@ -40,7 +45,7 @@ export function SetupTimeline({ action, rows, status, summary }: Props) {
       </ActivityTimeline>
 
       <span aria-live="polite" className="sr-only" role="status">
-        {summary}
+        {announcement.summary}
       </span>
     </>
   );

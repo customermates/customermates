@@ -121,8 +121,15 @@ describe("SetupInterview", () => {
 
   it("marks the timeline as failed when the website gave no suggestions", () => {
     const failed = renderWebsite(setupView({ interview: { ...setupView().interview, prefill: "failed" as const } }));
-    expect(failed).toContain("WorkspaceSetup.interview.prefillFailed");
-    expect(failed).not.toContain("WorkspaceSetup.website.suggestedHint");
+    const timeline = () => container.querySelector('[data-testid="setup-timeline"]')?.textContent ?? "";
+    expect(timeline().split("WorkspaceSetup.interview.prefillFailed")).toHaveLength(2);
+    expect(failed).not.toContain("WorkspaceSetup.website.suggested");
+  });
+
+  it("suggests nothing when the website had no pages to read", () => {
+    const skipped = renderWebsite(setupView({ interview: { ...setupView().interview, prefill: "skipped" as const } }));
+    expect(skipped).toContain("WorkspaceSetup.website.readPages 0");
+    expect(skipped).not.toContain("WorkspaceSetup.website.suggested");
   });
 
   it("keeps only the website status in the live region", () => {
@@ -132,6 +139,27 @@ describe("SetupInterview", () => {
     const live = container.querySelectorAll('[aria-live="polite"]');
     expect(live).toHaveLength(1);
     expect(live[0].textContent).toBe("WorkspaceSetup.website.finding example.com");
+  });
+
+  it("announces reading stages but not each page count", () => {
+    const idle = { interview: { ...setupView().interview, prefill: "idle" as const } };
+    const reading = (sourcesRead: number) => ({
+      ...idle,
+      knowledgeBase: { ...setupView().knowledgeBase, crawlStatus: "fetching", sourcesFound: 20, sourcesRead },
+    });
+    const store = new WorkspaceSetupStore({ localeStore: { locale: "en" } } as never);
+    store.hydrate({ available: true, setup: setupView(reading(5)) });
+    harness.rootStore = { workspaceSetupStore: store, onboardingWizardStore: wizard };
+    act(() => root.render(createElement(SetupInterview)));
+    const live = () => container.querySelector('[aria-live="polite"]')?.textContent;
+    expect(live()).toBe("WorkspaceSetup.website.reading example.com 5 20");
+
+    act(() => store.hydrate({ available: true, setup: setupView(reading(6)) }));
+    expect(container.textContent).toContain("WorkspaceSetup.website.reading example.com 6 20");
+    expect(live()).toBe("WorkspaceSetup.website.reading example.com 5 20");
+
+    act(() => store.hydrate({ available: true, setup: setupView() }));
+    expect(live()).toBe("WorkspaceSetup.website.suggestedHint");
   });
 
   it("cancels changing the website from Close or Escape", () => {

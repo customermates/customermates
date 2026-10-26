@@ -51,7 +51,7 @@ export const domTestFiles = [
   "app/**/dashboard/components/__tests__/widget-chart-components.dom.test.ts",
   "app/[locale]/(protected)/w/[workspace]/__tests__/protected-shell.test.ts",
   "app/**/onboarding/wizard/components/__tests__/onboarding-wizard.test.ts",
-  "app/components/agent-chat/__tests__/use-activity-group-state.test.ts",
+  "components/shared/__tests__/use-activity-group-state.test.ts",
   "app/components/agent-chat/__tests__/agent-chat-items.dom.test.ts",
   "app/components/agent-chat/__tests__/agent-composer-contexts.dom.test.ts",
   "app/components/agent-chat/__tests__/agent-composer-context-shortcut.dom.test.ts",

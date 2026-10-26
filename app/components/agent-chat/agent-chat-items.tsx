@@ -8,7 +8,7 @@ import type { AgentChatItem } from "./agent-chat.store";
 
 import { agentActivityCopy, agentActivityGroupSummary } from "@/ee/agent-chat/agent-activity";
 
-import { useActivityGroupState } from "./use-activity-group-state";
+import { useActivityGroupState } from "@/components/shared/use-activity-group-state";
 import { useSteadyLabel } from "./use-steady-label";
 import { useAgentChatStore, useAgentChatUiTargets } from "./agent-chat-store-context";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";

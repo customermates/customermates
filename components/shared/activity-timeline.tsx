@@ -14,7 +14,7 @@ export const ACTIVITY_TIMELINE_LINE_CLASS = cn(
   "before:origin-top before:animate-timeline-grow before:motion-reduce:animate-none",
 );
 
-export function ActivityStatusIcon({ className, status }: { className?: string; status: ActivityTimelineStatus }) {
+function ActivityStatusIcon({ className, status }: { className?: string; status: ActivityTimelineStatus }) {
   if (status === "running")
     return <Loader2 aria-hidden="true" className={cn("size-3.5 animate-spin motion-reduce:animate-none", className)} />;
   if (status === "error") return <X aria-hidden="true" className={cn("size-3.5", className)} />;
