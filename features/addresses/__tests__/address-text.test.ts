@@ -31,6 +31,21 @@ describe("addresses read from import text", () => {
     });
   });
 
+  it("reads a postal code written as its own part before or after the city", () => {
+    expect(addressFromImportText("210 Market Street, 94105, San Francisco, United States")).toMatchObject({
+      street: "210 Market Street",
+      postalCode: "94105",
+      city: "San Francisco",
+      countryCode: "us",
+    });
+    expect(addressFromImportText("Hauptstraße 5, Mannheim, 68159, Germany")).toMatchObject({
+      street: "Hauptstraße 5",
+      postalCode: "68159",
+      city: "Mannheim",
+      countryCode: "de",
+    });
+  });
+
   it("keeps text it cannot read as an address given only as text", () => {
     for (const text of ["Hauptstraße 5, Mannheim", "Hauptstraße 5, 1234567 Mannheim, Germany", "Somewhere, Atlantis"])
       expect(addressFromImportText(text)).toMatchObject({ postalCode: null, countryCode: null, formatted: text });
