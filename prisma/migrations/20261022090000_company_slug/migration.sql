@@ -1,7 +1,7 @@
 -- AlterTable
 ALTER TABLE "Company" ADD COLUMN "slug" TEXT;
 
--- Backfill readable, deterministic slugs from the workspace name
+-- Backfill readable, deterministic slugs from the workspace name; unnamed workspaces get a hex suffix like new ones
 WITH "normalized" AS (
   SELECT
     "id",
@@ -41,6 +41,7 @@ WITH "normalized" AS (
     "base",
     "rank",
     CASE
+      WHEN "base" = 'workspace' THEN 'workspace-' || substr(md5("id"), 1, 6)
       WHEN "rank" = 1 THEN "base"
       ELSE trim(BOTH '-' FROM left("base", 39 - length("rank"::text))) || '-' || "rank"::text
     END AS "candidate"
@@ -50,7 +51,7 @@ WITH "normalized" AS (
   SELECT
     "id",
     CASE
-      WHEN "rank" > 1 AND count(*) OVER (PARTITION BY "candidate") > 1
+      WHEN ("rank" > 1 OR "base" = 'workspace') AND count(*) OVER (PARTITION BY "candidate") > 1
         THEN trim(BOTH '-' FROM left("base", 31)) || '-' || substr(md5("id"), 1, 8)
       ELSE "candidate"
     END AS "slug"
