@@ -4,7 +4,7 @@ import { defineRouting } from "next-intl/routing";
 
 import { APP_LOCALES, CONTENT_LOCALES, DEFAULT_LOCALE, ROUTING_LOCALES, stripLocalePrefix } from "./locale-registry";
 
-import { legacyWorkspaceEntryHref, workspaceSlugFromPathname } from "../core/navigation/workspace-paths";
+import { legacyWorkspaceEntryHref, workspacePath, workspaceSlugFromPathname } from "../core/navigation/workspace-paths";
 
 export const NOINDEX_PUBLIC_ROUTES = [
   "/auth/signin",
@@ -185,9 +185,11 @@ export function isProtectedPathname(pathname: string) {
   const decoded = decodePathname(pathname);
   if (decoded === null) return true;
   if (workspaceSlugFromPathname(decoded) !== null) return true;
-  if (legacyWorkspaceEntryHref(stripLocalePrefix(decoded), "") !== null) return true;
 
-  for (const p of PROTECTED_ROUTES) if (buildLocaleAwareRegex(p).test(decoded)) return true;
+  const unprefixed = stripLocalePrefix(decoded);
+  const candidates =
+    legacyWorkspaceEntryHref(unprefixed, "") === null ? [decoded] : [decoded, workspacePath("_", unprefixed)];
+  for (const p of PROTECTED_ROUTES) if (candidates.some((path) => buildLocaleAwareRegex(p).test(path))) return true;
 
   return false;
 }

@@ -339,7 +339,7 @@ async function routePageRequest(
   }
 
   const legacyWorkspaceEntry = legacyWorkspaceEntryHref(stripLocalePrefix(pathname), req.nextUrl.search);
-  if (legacyWorkspaceEntry)
+  if (legacyWorkspaceEntry && isProtectedPage(req))
     return NextResponse.redirect(new URL(buildLocalePath(currentLocale, legacyWorkspaceEntry), base));
 
   return intlAppMiddleware(req);
