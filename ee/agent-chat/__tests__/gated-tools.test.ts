@@ -441,7 +441,7 @@ describe("gated-tools", () => {
       "record-model": 1,
       records: 19,
       workspace: 2,
-      views: 2,
+      views: 3,
       wiki: 1,
       messaging: 12,
       social: 8,

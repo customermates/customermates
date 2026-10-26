@@ -106,6 +106,7 @@ const AGENT_CONSEQUENCE_ACTIONS = [
   "routine.pause",
   "routine.run",
   "routine.delete",
+  "calendarSubscription.revoke",
   "records.delete",
   "workspace.configure",
   "account.connect",
@@ -328,7 +329,12 @@ function describeAgentToolAction(
       preview: safeText(details.body, 240),
     });
   }
-  if (toolName === "manage_record_detail_layout") {
+  if (toolName === "manage_calendar" && actionValue(details) === "revoke") {
+    return descriptor("generic", undefined, multiplexedRisk(toolName, details), [], {
+      action: "calendarSubscription.revoke",
+    });
+  }
+  if (toolName === "manage_record_detail_layout" || toolName === "manage_calendar") {
     const read = isMultiplexedRead(toolName, details);
     return descriptor(
       read ? "views.read" : "views.configure",
@@ -624,6 +630,8 @@ function agentConsequenceDetail(activity: AgentActivityDescriptor, t: AgentTrans
       return t("AgentChat.activity.consequence.routineRun");
     case "routine.delete":
       return t("AgentChat.activity.consequence.routineDelete");
+    case "calendarSubscription.revoke":
+      return t("AgentChat.activity.consequence.calendarSubscriptionRevoke");
     case "thread.update":
       return consequence.state
         ? t("AgentChat.activity.consequence.threadUpdateState", {

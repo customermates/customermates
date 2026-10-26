@@ -119,6 +119,7 @@
       "consequence": {
         "accountConnect": "Collegare un canale di messaggistica",
         "accountConnectTarget": "Collegare {target}",
+        "calendarSubscriptionRevoke": "Revoca l’URL di abbonamento al calendario selezionato; le app di calendario abbonate smettono di aggiornarsi",
         "chatSend": "Inviare alla conversazione selezionata",
         "draftDiscard": "Eliminare definitivamente la bozza salvata selezionata",
         "draftSave": "Salvare una bozza nella conversazione selezionata",

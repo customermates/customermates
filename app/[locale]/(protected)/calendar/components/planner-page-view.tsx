@@ -151,11 +151,11 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
     };
   }, [settings]);
   useEffect(() => {
-    if (!options.config.sources.length && !options.config.calendarIds.length && options.config.timeZone === UTC) {
+    if (!options.saved) {
       const timeZone = browserTimeZone();
       setConfig((current) => ({ ...current, timeZone }), { persist: false });
     }
-  }, [options.config, setConfig]);
+  }, [options.saved, setConfig]);
   const result = data ?? EMPTY_RESULT;
   const name = useCallback(
     (item: PlannerEntry) =>

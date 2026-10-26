@@ -119,6 +119,7 @@
       "consequence": {
         "accountConnect": "Connecter un canal de messagerie",
         "accountConnectTarget": "Connecter {target}",
+        "calendarSubscriptionRevoke": "Révoquer l’URL d’abonnement au calendrier sélectionnée ; les applications de calendrier abonnées ne se mettent plus à jour",
         "chatSend": "Envoyer le message dans la conversation sélectionnée",
         "draftDiscard": "Supprimer définitivement le brouillon enregistré sélectionné",
         "draftSave": "Enregistrer un brouillon dans la conversation sélectionnée",
