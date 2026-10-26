@@ -3,22 +3,11 @@
 import type { LucideIcon } from "lucide-react";
 import type { WorkspaceSetupPhase } from "@/ee/workspace-setup/workspace-setup.schema";
 import type { WorkspaceSetupView } from "@/ee/workspace-setup/workspace-setup-status";
-import type { BuildBoard, BuildPhaseState } from "./setup-build-state";
+import type { BuildBoard } from "./setup-build-state";
+import type { SetupTimelineRow } from "./setup-timeline";
 import type { SetupPreviewList } from "./setup-plan-summary";
 
-import {
-  BookOpen,
-  Check,
-  Circle,
-  FileText,
-  Kanban,
-  LayoutDashboard,
-  Loader2,
-  Minus,
-  RotateCcw,
-  Rows3,
-  X,
-} from "lucide-react";
+import { BookOpen, FileText, Kanban, LayoutDashboard, Loader2, RotateCcw, Rows3 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -61,30 +50,7 @@ import {
   PlaceholderLine,
   PreviewListChip,
 } from "./setup-preview-parts";
-
-const PHASE_ICONS: Record<BuildPhaseState, LucideIcon> = {
-  waiting: Circle,
-  active: Loader2,
-  done: Check,
-  failed: X,
-  skipped: Minus,
-};
-
-function PhaseIcon({ state }: { state: BuildPhaseState }) {
-  const Icon = PHASE_ICONS[state];
-  return (
-    <span aria-hidden className="flex size-5 shrink-0 items-center justify-center">
-      <Icon
-        className={cn(
-          "size-3.5 shrink-0",
-          state === "active" && "animate-spin motion-reduce:animate-none",
-          state === "failed" && "text-destructive",
-          (state === "waiting" || state === "skipped") && "text-muted-foreground",
-        )}
-      />
-    </span>
-  );
-}
+import { SetupTimeline } from "./setup-timeline";
 
 function listLabel(list: SetupPreviewList) {
   return list.label ?? list.key;
@@ -336,13 +302,6 @@ export const SetupBuildView = observer(function SetupBuildView({ onContinue, con
     records: t("WorkspaceSetup.build.phases.records"),
     dashboard: t("WorkspaceSetup.build.phases.dashboard"),
   };
-  const stateLabels: Record<BuildPhaseState, string> = {
-    waiting: t("WorkspaceSetup.build.states.waiting"),
-    active: t("WorkspaceSetup.build.states.active"),
-    done: t("WorkspaceSetup.build.states.done"),
-    failed: t("WorkspaceSetup.build.states.failed"),
-    skipped: t("WorkspaceSetup.build.states.skipped"),
-  };
   const lists = buildLists(setup);
   const board = buildBoard(setup, lists);
   const recordCount = buildRecordCount(setup);
@@ -377,7 +336,7 @@ export const SetupBuildView = observer(function SetupBuildView({ onContinue, con
       : t("WorkspaceSetup.build.actions.records"),
     dashboard: t("WorkspaceSetup.build.actions.dashboard"),
   };
-  const status =
+  const summary =
     outcome === "completed"
       ? t("WorkspaceSetup.build.completedBody")
       : outcome === "failed"
@@ -385,11 +344,96 @@ export const SetupBuildView = observer(function SetupBuildView({ onContinue, con
         : setup.currentPhase
           ? actions[setup.currentPhase]
           : t("WorkspaceSetup.build.actions.preparing");
+  const phaseWithState = (phase: WorkspaceSetupPhase, state: string) => (
+    <>
+      {phaseLabels[phase]}
+
+      <span className="ml-2 text-muted-foreground">{state}</span>
+    </>
+  );
+  const rows: SetupTimelineRow[] = setup.phases.flatMap((phase): SetupTimelineRow[] => {
+    const state = buildPhaseState(phase);
+    const background =
+      outcome !== "running" &&
+      phase.key === "knowledgeBase" &&
+      (phase.status === "running" || phase.status === "pending");
+    if (background) {
+      return [
+        {
+          key: phase.key,
+          status: "running",
+          label: phaseWithState(phase.key, t("WorkspaceSetup.build.states.background")),
+        },
+      ];
+    }
+    if (state === "waiting") return [];
+    if (state === "active") return [{ key: phase.key, status: "running", label: actions[phase.key] }];
+    if (state === "done") return [{ key: phase.key, status: "done", label: summaries[phase.key] }];
+    if (state === "skipped") {
+      return [
+        {
+          key: phase.key,
+          status: "cancelled",
+          label: phaseWithState(phase.key, t("WorkspaceSetup.build.states.skipped")),
+        },
+      ];
+    }
+    return [
+      {
+        key: phase.key,
+        status: "error",
+        label: (
+          <span className="flex flex-col gap-2">
+            <span>{phaseWithState(phase.key, t("WorkspaceSetup.build.states.failed"))}</span>
+
+            <span>{failureMessage(phase.error)}</span>
+
+            <span className="flex flex-wrap gap-2">
+              {canRetryPhase(phase) ? (
+                <Button
+                  disabled={store.isBusy}
+                  size="xs"
+                  type="button"
+                  variant="secondary"
+                  onClick={() => {
+                    setRetrying(phase.key);
+                    runUserAction(() => store.retryPhase(phase.key));
+                  }}
+                >
+                  {store.pending === "retry" && retrying === phase.key ? (
+                    <Loader2 className="animate-spin motion-reduce:animate-none" />
+                  ) : (
+                    <RotateCcw />
+                  )}
+
+                  {t("WorkspaceSetup.build.retry")}
+                </Button>
+              ) : null}
+
+              {phase.key === "knowledgeBase" && setup.websiteUrl ? (
+                <Button
+                  disabled={store.isBusy}
+                  size="xs"
+                  type="button"
+                  variant="ghost"
+                  onClick={() => runUserAction(() => store.retryPhase(phase.key, true))}
+                >
+                  {t("WorkspaceSetup.start.withoutWebsite")}
+                </Button>
+              ) : null}
+
+              {phase.error === "spendCap" ? <SetupSupportButton size="xs" /> : null}
+            </span>
+          </span>
+        ),
+      },
+    ];
+  });
 
   return (
     <section aria-busy={outcome === "running"} className="flex w-full max-w-6xl flex-col gap-6 py-2">
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="min-w-0 space-y-1.5">
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex min-w-0 flex-col gap-1.5">
           <h1 ref={heading} className="text-2xl font-semibold outline-none" tabIndex={-1}>
             {outcome === "completed"
               ? t("WorkspaceSetup.build.completedTitle")
@@ -398,13 +442,11 @@ export const SetupBuildView = observer(function SetupBuildView({ onContinue, con
                 : t("WorkspaceSetup.build.title")}
           </h1>
 
-          <p aria-live="polite" className="flex items-start gap-2 text-sm text-muted-foreground" role="status">
-            {outcome === "running" ? (
-              <Loader2 aria-hidden className="mt-0.5 size-4 shrink-0 animate-spin motion-reduce:animate-none" />
-            ) : null}
-
-            <span className="[overflow-wrap:anywhere]">{status}</span>
-          </p>
+          <SetupTimeline
+            rows={rows}
+            status={outcome === "failed" ? "error" : rows.some((row) => row.status === "running") ? "running" : "done"}
+            summary={summary}
+          />
 
           {outcome === "running" ? (
             <p className="text-xs text-muted-foreground">{t("WorkspaceSetup.build.keepsRunning")}</p>
@@ -433,94 +475,7 @@ export const SetupBuildView = observer(function SetupBuildView({ onContinue, con
         </div>
       </header>
 
-      <div className="grid gap-4 lg:grid-cols-[17rem_minmax(0,1fr)]">
-        <ol
-          aria-label={t("WorkspaceSetup.build.phasesLabel")}
-          className="flex flex-col gap-2 lg:sticky lg:top-4 lg:self-start"
-        >
-          {setup.phases.map((phase) => {
-            const state = buildPhaseState(phase);
-            const background =
-              outcome !== "running" &&
-              phase.key === "knowledgeBase" &&
-              (phase.status === "running" || phase.status === "pending");
-            return (
-              <li key={phase.key} aria-current={state === "active" ? "step" : undefined}>
-                <Card className="gap-0 py-3">
-                  <CardContent className="flex flex-col gap-1.5 px-3">
-                    <div className="flex items-center gap-2">
-                      <PhaseIcon state={state} />
-
-                      <span className="min-w-0 flex-1 text-sm font-medium [overflow-wrap:anywhere]">
-                        {phaseLabels[phase.key]}
-                      </span>
-
-                      <span className="shrink-0 text-xs text-muted-foreground">
-                        {background ? t("WorkspaceSetup.build.states.background") : stateLabels[state]}
-                      </span>
-                    </div>
-
-                    {state === "active" ? (
-                      <p className="pl-7 text-xs text-muted-foreground [overflow-wrap:anywhere]">
-                        {actions[phase.key]}
-                      </p>
-                    ) : null}
-
-                    {state === "done" ? (
-                      <p className="pl-7 text-xs text-muted-foreground">{summaries[phase.key]}</p>
-                    ) : null}
-
-                    {state === "failed" ? (
-                      <div className="flex flex-col gap-2 pl-7">
-                        <p className="text-xs text-destructive">{failureMessage(phase.error)}</p>
-
-                        <div className="flex flex-wrap gap-2">
-                          {canRetryPhase(phase) ? (
-                            <Button
-                              disabled={store.isBusy}
-                              size="xs"
-                              type="button"
-                              variant="secondary"
-                              onClick={() => {
-                                setRetrying(phase.key);
-                                runUserAction(() => store.retryPhase(phase.key));
-                              }}
-                            >
-                              {store.pending === "retry" && retrying === phase.key ? (
-                                <Loader2 className="animate-spin motion-reduce:animate-none" />
-                              ) : (
-                                <RotateCcw />
-                              )}
-
-                              {t("WorkspaceSetup.build.retry")}
-                            </Button>
-                          ) : null}
-
-                          {phase.key === "knowledgeBase" && setup.websiteUrl ? (
-                            <Button
-                              disabled={store.isBusy}
-                              size="xs"
-                              type="button"
-                              variant="ghost"
-                              onClick={() => runUserAction(() => store.retryPhase(phase.key, true))}
-                            >
-                              {t("WorkspaceSetup.start.withoutWebsite")}
-                            </Button>
-                          ) : null}
-
-                          {phase.error === "spendCap" ? <SetupSupportButton size="xs" /> : null}
-                        </div>
-                      </div>
-                    ) : null}
-                  </CardContent>
-                </Card>
-              </li>
-            );
-          })}
-        </ol>
-
-        <SetupAppFrame board={board} lists={lists} setup={setup} />
-      </div>
+      <SetupAppFrame board={board} lists={lists} setup={setup} />
     </section>
   );
 });

@@ -46,7 +46,7 @@ async function entries(page: Page) {
 
 const setup = englishMessages.WorkspaceSetup;
 
-test("the setup recommends the website, then offers the questions, with starting empty as the quietest choice", async ({
+test("the setup offers the website and the questions as two cards, with starting empty as the quiet footnote", async ({
   page,
   database,
   workspace,
@@ -54,17 +54,33 @@ test("the setup recommends the website, then offers the questions, with starting
   const errors = collectPageErrors(page);
   await openSetupOfNewWorkspace(page, database, workspace, uniqueWorkspaceName("Choice Studio"));
 
-  const website = page.getByText(setup.start.website.title, { exact: true });
-  const questions = page.getByRole("button", { name: new RegExp(`^${setup.start.questions.title}`) });
+  const choices = page.getByRole("group", { name: setup.start.optionsLabel, exact: true });
+  const website = choices.getByRole("button", { name: new RegExp(`^${setup.start.website.title}`) });
+  const questions = choices.getByRole("button", { name: new RegExp(`^${setup.start.questions.title}`) });
   const empty = page.getByRole("button", { name: setup.empty.action, exact: true });
-  await expect(page.getByText(setup.start.website.recommended, { exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: setup.start.website.action, exact: true })).toBeDisabled();
-  const tops = await Promise.all([website, questions, empty].map(async (target) => (await target.boundingBox())?.y));
-  expect(tops.every((top, index) => top !== undefined && (index === 0 || top > (tops[index - 1] ?? 0)))).toBe(true);
+  await expect(website).toContainText(setup.start.website.recommended);
+  await expect(website).toContainText(setup.start.website.note);
+  await expect(questions).toContainText(setup.start.questions.note);
+  await expect(page.getByText(setup.start.emptyPrompt, { exact: false })).toBeVisible();
+  await expect(page.locator("#setup-website")).toHaveCount(0);
+  const [websiteBox, questionsBox, emptyBox] = await Promise.all(
+    [website, questions, empty].map((target) => target.boundingBox()),
+  );
+  expect(websiteBox && questionsBox && Math.abs(websiteBox.y - questionsBox.y) < 1).toBe(true);
+  expect(websiteBox && emptyBox && emptyBox.y > websiteBox.y + websiteBox.height).toBe(true);
   await page.screenshot({ path: testInfo.outputPath("setup-start.png"), fullPage: true });
 
+  await clickHydrated(website);
+  await expect(page.locator("#setup-website")).toBeFocused();
+  const read = page.getByRole("button", { name: setup.start.website.action, exact: true });
+  await expect(read).toBeDisabled();
   await page.locator("#setup-website").fill("example.com");
-  await expect(page.getByRole("button", { name: setup.start.website.action, exact: true })).toBeEnabled();
+  await expect(read).toBeEnabled();
+  await page
+    .locator("button:not(#onboarding-back)", { hasText: new RegExp(`^${englishMessages.Common.actions.back}$`) })
+    .click();
+  await expect(page.locator("#setup-website")).toHaveCount(0);
+  await expect(website).toBeFocused();
   expect(errors).toEqual([]);
 });
 

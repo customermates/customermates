@@ -51,7 +51,6 @@ const FINDING_CRAWL = new Set(["queued", "discovering"]);
 
 type WebsiteReading = {
   stage: "finding" | "reading" | "suggesting";
-  progress: number;
   read: number;
   total: number;
 };
@@ -156,12 +155,12 @@ export class WorkspaceSetupStore {
     if (!setup || !this.prefillRunning) return null;
     const { crawlStatus, sourcesFound, sourcesRead } = setup.knowledgeBase;
     if (crawlStatus === null || FINDING_CRAWL.has(crawlStatus) || (crawlStatus === "fetching" && sourcesFound === 0))
-      return { stage: "finding", progress: 5, read: 0, total: 0 };
+      return { stage: "finding", read: 0, total: 0 };
     if (crawlStatus === "fetching") {
       const read = Math.min(sourcesRead, sourcesFound);
-      return { stage: "reading", progress: 10 + Math.round((70 * read) / sourcesFound), read, total: sourcesFound };
+      return { stage: "reading", read, total: sourcesFound };
     }
-    return { stage: "suggesting", progress: 85, read: sourcesRead, total: sourcesFound };
+    return { stage: "suggesting", read: sourcesRead, total: sourcesFound };
   }
 
   hydrate = (view: WorkspaceSetupStatusView) => {

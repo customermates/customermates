@@ -86,24 +86,43 @@ describe("SetupStart", () => {
     expect(harness.start).not.toHaveBeenCalled();
   });
 
-  it("recommends the website first, then the questions, with starting empty as the quietest choice", async () => {
+  it("offers the website and the questions as two cards, with starting empty as the quiet footnote", async () => {
     await renderStart();
 
     const text = container.textContent ?? "";
     const order = [
       "WorkspaceSetup.start.website.title",
       "WorkspaceSetup.start.questions.title",
+      "WorkspaceSetup.start.emptyPrompt",
       "WorkspaceSetup.empty.action",
     ].map((key) => text.indexOf(key));
     expect(order.every((index, position) => index >= 0 && (position === 0 || index > order[position - 1]))).toBe(true);
     expect(text).toContain("WorkspaceSetup.start.website.recommended");
-    expect(button("WorkspaceSetup.start.website.action").disabled).toBe(true);
+    expect(text).toContain("WorkspaceSetup.start.website.note");
+    expect(text).toContain("WorkspaceSetup.start.questions.note");
+    expect(container.querySelector("#setup-website")).toBeNull();
+    expect(button("WorkspaceSetup.start.website.title").getAttribute("data-variant")).toBe("secondary");
     expect(button("WorkspaceSetup.start.questions.title").getAttribute("data-variant")).toBe("secondary");
-    expect(button("WorkspaceSetup.empty.action").getAttribute("data-variant")).toBe("ghost");
+    expect(button("WorkspaceSetup.empty.action").getAttribute("data-variant")).toBe("link");
+  });
+
+  it("asks for the website in the card and goes back to both choices", async () => {
+    await renderStart();
+    act(() => button("WorkspaceSetup.start.website.title").click());
+
+    expect(document.activeElement).toBe(container.querySelector("#setup-website"));
+    expect(button("WorkspaceSetup.start.website.action").disabled).toBe(true);
+    expect(container.textContent).not.toContain("WorkspaceSetup.start.questions.title");
+
+    act(() => button("Common.actions.back").click());
+    expect(container.querySelector("#setup-website")).toBeNull();
+    expect(document.activeElement).toBe(button("WorkspaceSetup.start.website.title"));
+    expect(harness.start).not.toHaveBeenCalled();
   });
 
   it("starts with the website the owner entered", async () => {
     await renderStart();
+    act(() => button("WorkspaceSetup.start.website.title").click());
     typeWebsite("example.com");
 
     await act(async () => {

@@ -17,25 +17,22 @@ describe("plan progress", () => {
   it("starts with reading the answers while the plan is queued", () => {
     const progress = planProgress(planning({}, "queued"), start + 2_000, start);
     expect(progress.steps.map((step) => step.state)).toEqual(["active", "waiting", "waiting", "waiting"]);
-    expect(progress.percent).toBeLessThanOrEqual(10);
   });
 
-  it("moves with the time but never past the part that is still running", () => {
+  it("marks every running part and counts down the expected time", () => {
     const early = planProgress(planning({ model: "running", knowledge: "running" }), start + 20_000, start);
     const late = planProgress(planning({ model: "running", knowledge: "done" }), start + 80_000, start);
     expect(early.steps.map((step) => step.state)).toEqual(["done", "active", "active", "waiting"]);
-    expect(early.percent).toBeGreaterThan(10);
-    expect(late.percent).toBe(55);
+    expect(late.steps.map((step) => step.state)).toEqual(["done", "active", "done", "waiting"]);
     expect(late.remainingMs).toBe(PLAN_EXPECTED_MS - 80_000);
   });
 
-  it("jumps ahead once the record model is planned and reports a late plan as overdue", () => {
+  it("reports a late plan as overdue", () => {
     const views = planProgress(
       planning({ model: "done", knowledge: "done", views: "running" }),
       start + PLAN_EXPECTED_MS + 5_000,
       start,
     );
-    expect(views.percent).toBe(95);
     expect(views.overdue).toBe(true);
     expect(views.remainingMs).toBe(0);
   });

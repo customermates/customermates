@@ -9,7 +9,6 @@ import { useTranslations } from "next-intl";
 
 import { focusFirstInvalidField } from "@/components/forms/focus-first-invalid-field";
 import { Alert } from "@/components/shared/alert";
-import { WizardProgress } from "@/components/shared/wizard-progress";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -23,6 +22,7 @@ import { SetupQuestionField } from "./setup-question-field";
 import { partsSummary } from "./setup-screen-summary";
 import { SetupSpreadsheetUpload } from "./setup-spreadsheet-upload";
 import { SetupStartEmpty } from "./setup-start";
+import { SetupTimeline, type SetupTimelineRow } from "./setup-timeline";
 
 const SetupQuestionBlock = observer(function SetupQuestionBlock({ question }: { question: SetupQuestion }) {
   const t = useTranslations();
@@ -75,29 +75,61 @@ const SetupWebsiteContext = observer(function SetupWebsiteContext() {
   if (website && !editing) {
     const host = new URL(website).host;
     const progress = store.websiteReading;
-    const status = progress
-      ? t(`WorkspaceSetup.website.${progress.stage}`, { website: host, read: progress.read, total: progress.total })
-      : t("WorkspaceSetup.website.suggestedHint");
-    return (
-      <Alert
-        color="primary"
-        icon={progress ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : <Globe />}
-        role="note"
-        title={host}
-      >
-        <div className="flex flex-col gap-2">
-          <div className="flex items-start justify-between gap-3">
-            <span aria-live="polite" className="text-sm text-primary/90">
-              {status}
-            </span>
+    const failed = store.setup?.interview.prefill === "failed";
+    const stage = progress?.stage ?? null;
+    const { sourcesFound, sourcesRead } = store.setup?.knowledgeBase ?? { sourcesFound: 0, sourcesRead: 0 };
+    const rows: SetupTimelineRow[] = [
+      stage === "finding"
+        ? { key: "finding", status: "running", label: t("WorkspaceSetup.website.finding", { website: host }) }
+        : {
+            key: "finding",
+            status: "done",
+            label: t("WorkspaceSetup.website.found", { website: host, count: sourcesFound }),
+          },
+    ];
+    if (progress && stage === "reading") {
+      rows.push({
+        key: "reading",
+        status: "running",
+        label: t("WorkspaceSetup.website.reading", { website: host, read: progress.read, total: progress.total }),
+      });
+    } else if (stage !== "finding") {
+      rows.push({
+        key: "reading",
+        status: "done",
+        label: t("WorkspaceSetup.website.readPages", { count: sourcesRead }),
+      });
+    }
+    if (stage === "suggesting") {
+      rows.push({
+        key: "suggesting",
+        status: "running",
+        label: t("WorkspaceSetup.website.suggesting", { website: host }),
+      });
+    } else if (stage === null) {
+      rows.push({
+        key: "suggesting",
+        status: failed ? "error" : "done",
+        label: failed ? t("WorkspaceSetup.interview.prefillFailed") : t("WorkspaceSetup.website.suggested"),
+      });
+    }
+    const running = rows.find((row) => row.status === "running");
+    const summary = running
+      ? String(running.label)
+      : failed
+        ? t("WorkspaceSetup.interview.prefillFailed")
+        : t("WorkspaceSetup.website.suggestedHint");
 
-            {editable ? (
+    return (
+      <div className="flex flex-col gap-1">
+        <SetupTimeline
+          action={
+            editable ? (
               <Button
-                className="-my-1"
                 disabled={store.isBusy}
-                size="sm"
+                size="xs"
                 type="button"
-                variant="secondary"
+                variant="ghost"
                 onClick={() => {
                   setDraft(host);
                   setEditing(true);
@@ -105,18 +137,15 @@ const SetupWebsiteContext = observer(function SetupWebsiteContext() {
               >
                 {t("WorkspaceSetup.website.change")}
               </Button>
-            ) : null}
-          </div>
+            ) : null
+          }
+          rows={rows}
+          status={running ? "running" : failed ? "error" : "done"}
+          summary={summary}
+        />
 
-          {progress ? (
-            <div className="flex flex-col gap-1.5">
-              <WizardProgress current={progress.progress} label={host} total={100} valueText={status} />
-
-              <span className="text-xs text-primary/90">{t("WorkspaceSetup.website.eta")}</span>
-            </div>
-          ) : null}
-        </div>
-      </Alert>
+        {progress ? <p className="pl-5.5 text-xs text-muted-foreground">{t("WorkspaceSetup.website.eta")}</p> : null}
+      </div>
     );
   }
   if (!editable || !editing) return null;
@@ -216,8 +245,6 @@ export const SetupInterview = observer(function SetupInterview() {
   const t = useTranslations();
   const { workspaceSetupStore: store } = useRootStore();
   const section = useRef<HTMLElement>(null);
-  const setup = store.setup;
-  const prefillFailed = setup?.interview.prefill === "failed" && Boolean(setup.websiteUrl);
   const saving = store.pending === "save";
 
   return (
@@ -225,8 +252,6 @@ export const SetupInterview = observer(function SetupInterview() {
       <SetupWebsiteContext />
 
       {store.adjusting ? <Alert color="primary" description={t("WorkspaceSetup.interview.adjusting")} /> : null}
-
-      {prefillFailed ? <Alert color="warning" description={t("WorkspaceSetup.interview.prefillFailed")} /> : null}
 
       <div aria-label={t("WorkspaceSetup.interview.stepsLabel")} className="flex flex-col gap-6" role="group">
         {SETUP_QUESTIONS.map((question) =>

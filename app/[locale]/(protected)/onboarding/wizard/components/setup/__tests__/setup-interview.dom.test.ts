@@ -100,22 +100,29 @@ describe("SetupInterview", () => {
     expect(field("existingData").nextElementSibling).toBeNull();
   });
 
-  it("shows how far the website has been read until its suggestions are in", () => {
+  it("shows reading the website as a timeline until its suggestions are in", () => {
     const idle = { interview: { ...setupView().interview, prefill: "idle" as const } };
     const finding = renderWebsite(setupView(idle));
     expect(finding).toContain("WorkspaceSetup.website.finding example.com");
     expect(finding).toContain("WorkspaceSetup.website.eta");
+    expect(container.querySelector('[data-testid="setup-timeline"]')).not.toBeNull();
+    expect(container.querySelector('[role="progressbar"]')).toBeNull();
 
     const knowledgeBase = { ...setupView().knowledgeBase, crawlStatus: "fetching", sourcesFound: 20, sourcesRead: 5 };
     const reading = renderWebsite(setupView({ ...idle, knowledgeBase }));
+    expect(reading).toContain("WorkspaceSetup.website.found example.com 20");
     expect(reading).toContain("WorkspaceSetup.website.reading example.com 5 20");
-    expect(
-      container.querySelector('[role="progressbar"][aria-label="example.com"]')?.getAttribute("aria-valuenow"),
-    ).toBe("28");
 
     const done = renderWebsite(setupView());
     expect(done).toContain("WorkspaceSetup.website.suggestedHint");
+    expect(done).toContain("WorkspaceSetup.website.change");
     expect(done).not.toContain("WorkspaceSetup.website.eta");
+  });
+
+  it("marks the timeline as failed when the website gave no suggestions", () => {
+    const failed = renderWebsite(setupView({ interview: { ...setupView().interview, prefill: "failed" as const } }));
+    expect(failed).toContain("WorkspaceSetup.interview.prefillFailed");
+    expect(failed).not.toContain("WorkspaceSetup.website.suggestedHint");
   });
 
   it("keeps only the website status in the live region", () => {
@@ -124,7 +131,7 @@ describe("SetupInterview", () => {
 
     const live = container.querySelectorAll('[aria-live="polite"]');
     expect(live).toHaveLength(1);
-    expect(live[0].textContent).toBe("WorkspaceSetup.website.finding example.com 0 0");
+    expect(live[0].textContent).toBe("WorkspaceSetup.website.finding example.com");
   });
 
   it("cancels changing the website from Close or Escape", () => {

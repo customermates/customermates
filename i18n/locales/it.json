@@ -5289,18 +5289,14 @@
         "records": "Record",
         "views": "Viste delle liste"
       },
-      "phasesLabel": "Avanzamento della configurazione",
       "previewLabel": "Anteprima del tuo spazio di lavoro",
       "records": "Record",
       "retry": "Riprova",
       "sidebarLabel": "Anteprima della navigazione",
       "states": {
-        "active": "In corso",
         "background": "Continua in background",
-        "done": "Fatto",
         "failed": "Non completato",
-        "skipped": "Saltato",
-        "waiting": "In attesa"
+        "skipped": "Saltato"
       },
       "summaries": {
         "dashboard": "{count, plural, =0 {Nessun widget aggiunto} one {# widget aggiunto} other {# widget aggiunti}}",
@@ -5419,7 +5415,12 @@
       "pipeline": "Pipeline",
       "planningTitle": "Stiamo preparando il tuo piano",
       "progress": {
-        "label": "Avanzamento del piano",
+        "done": {
+          "answers": "Risposte lette",
+          "knowledge": "Pagine della knowledge base abbozzate",
+          "model": "Liste, campi e pipeline progettati",
+          "views": "Viste, dashboard e record di esempio pianificati"
+        },
         "minutesLeft": "{minutes, plural, one {Manca circa # minuto} other {Mancano circa # minuti}}",
         "overdue": "Ci vuole un po’ più del solito. Quasi fatto.",
         "steps": {
@@ -5428,7 +5429,6 @@
           "model": "Progettazione di liste, campi e pipeline",
           "views": "Pianificazione di viste, dashboard e record di esempio"
         },
-        "stepsLabel": "A cosa sta lavorando Mate",
         "typical": "Mate sta progettando il tuo spazio di lavoro dalle tue risposte. Di solito servono 1 o 2 minuti.",
         "underMinute": "Manca meno di un minuto"
       },
@@ -5476,15 +5476,17 @@
       }
     },
     "start": {
+      "emptyPrompt": "Preferisci configurare tutto da solo?",
       "optionsLabel": "Modi per configurare il tuo spazio di lavoro",
       "questions": {
-        "description": "Fino a sei domande rapide su cosa vuoi tenere sotto controllo. Circa 1 minuto.",
+        "description": "Fino a sei domande rapide su cosa vuoi tenere sotto controllo.",
+        "note": "Circa 1 minuto",
         "title": "Rispondi ad alcune domande"
       },
       "website": {
         "action": "Leggi il mio sito",
         "description": "Leggiamo il tuo sito pubblico e compiliamo le risposte per te. Tu devi solo controllarle.",
-        "note": "Circa 2 minuti. Leggiamo solo pagine pubbliche.",
+        "note": "Circa 2 minuti",
         "recommended": "Consigliato",
         "title": "Usa il mio sito web"
       },
@@ -5506,9 +5508,12 @@
       "change": "Modifica",
       "eta": "Di solito servono 1 o 2 minuti. Nel frattempo puoi iniziare a rispondere.",
       "finding": "Cerchiamo le pagine su {website}",
+      "found": "{count, plural, =0 {Nessuna pagina trovata su {website}} one {# pagina trovata su {website}} other {# pagine trovate su {website}}}",
       "hint": "Facoltativo. Leggiamo il tuo sito web pubblico e suggeriamo le risposte, così ti basta confermarle.",
       "read": "Leggi il sito web",
       "reading": "Leggiamo {website}: {read} di {total} pagine",
+      "readPages": "{count, plural, =0 {Nessuna pagina letta} one {# pagina letta} other {# pagine lette}}",
+      "suggested": "Risposte suggerite",
       "suggestedHint": "Controlla le risposte contrassegnate e cambia ciò che non va.",
       "suggesting": "Suggeriamo le risposte da {website}",
       "title": "Compila le risposte dal tuo sito web"

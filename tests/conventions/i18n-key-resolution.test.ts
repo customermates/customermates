@@ -608,10 +608,6 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["OnboardingWizard.ai.openai.methods.${*}.title", onboardingOpenAiMethodKeys("title")],
   ["OnboardingWizard.steps.${*}.subtitle", ONBOARDING_STEP_SUBTITLE_KEYS],
   ["OnboardingWizard.steps.${*}.title", ONBOARDING_STEP_TITLE_KEYS],
-  [
-    "WorkspaceSetup.website.${*}",
-    ["WorkspaceSetup.website.finding", "WorkspaceSetup.website.reading", "WorkspaceSetup.website.suggesting"],
-  ],
   ["WorkspaceSetup.suggestedSteps.${*}", SETUP_STEP_SUGGESTION_KEYS],
   ["RoleModal.resources.${*}", ROLE_RESOURCE_KEYS],
   ["Wiki.kind.${*}", WIKI_PAGE_KIND_KEYS],
@@ -829,7 +825,6 @@ export const DYNAMIC_KEY_SITES = [
   "components/shared/locale-menu.tsx :: t :: Common.locales.${currentLocale}",
   "components/shared/locale-menu.tsx :: t :: Common.locales.${locale}",
   "app/[locale]/(protected)/onboarding/wizard/components/setup/setup-question-field.tsx :: t :: Common.locales.${locale}",
-  "app/[locale]/(protected)/onboarding/wizard/components/setup/setup-interview.tsx :: t :: WorkspaceSetup.website.${progress.stage}",
   "app/[locale]/(protected)/onboarding/wizard/components/setup/setup-interview.tsx :: t.raw :: WorkspaceSetup.suggestedSteps.${suggestion}",
   "app/[locale]/(protected)/onboarding/wizard/components/setup/setup-screen-summary.ts :: t :: Common.locales.${value.value}",
   "core/validation/zod-error-map-server.ts :: t.raw :: Common.errors.${code}",

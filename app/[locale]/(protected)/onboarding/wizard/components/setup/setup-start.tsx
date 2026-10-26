@@ -1,18 +1,19 @@
 "use client";
 
-import { Globe, ListChecks, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { ConfirmDialog } from "@/components/modal/confirm-dialog";
+import { ChoiceCard } from "@/components/shared/choice-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
-export const SetupStartEmpty = observer(function SetupStartEmpty() {
+export const SetupStartEmpty = observer(function SetupStartEmpty({ inline = false }: { inline?: boolean }) {
   const t = useTranslations();
   const { workspaceSetupStore: store, onboardingWizardStore: wizard } = useRootStore();
   const [confirming, setConfirming] = useState(false);
@@ -20,11 +21,11 @@ export const SetupStartEmpty = observer(function SetupStartEmpty() {
   return (
     <>
       <Button
-        className="self-center text-muted-foreground"
+        className={inline ? "h-auto p-0 text-xs" : "self-center text-muted-foreground"}
         disabled={store.isBusy || wizard.isSubmitting}
         size="sm"
         type="button"
-        variant="ghost"
+        variant={inline ? "link" : "ghost"}
         onClick={() => setConfirming(true)}
       >
         {t("WorkspaceSetup.empty.action")}
@@ -44,90 +45,135 @@ export const SetupStartEmpty = observer(function SetupStartEmpty() {
   );
 });
 
-export const SetupStart = observer(function SetupStart() {
+const SetupStartWebsite = observer(function SetupStartWebsite({ onBack }: { onBack: () => void }) {
   const t = useTranslations();
   const { workspaceSetupStore: store } = useRootStore();
   const [website, setWebsite] = useState("");
-  const [startedWith, setStartedWith] = useState<"website" | "questions" | null>(null);
+  const input = useRef<HTMLInputElement>(null);
   const busy = store.isBusy;
   const readWebsite = () => {
     const url = website.trim();
     if (!url) return;
-    setStartedWith("website");
     runUserAction(() => store.start(url));
   };
 
+  useEffect(() => {
+    input.current?.focus();
+  }, []);
+
   return (
-    <div aria-label={t("WorkspaceSetup.start.optionsLabel")} className="flex flex-col gap-3" role="group">
-      <div className="flex flex-col gap-3 rounded-xl border-2 border-primary bg-primary/5 p-4 shadow-sm">
-        <div className="flex items-start justify-between gap-2">
-          <span className="flex items-center gap-2">
-            <Globe aria-hidden className="size-4 text-primary" />
+    <div className="flex flex-col gap-3 rounded-xl border-2 border-primary bg-primary/5 p-4 shadow-sm">
+      <span className="flex w-full items-start justify-between gap-2">
+        <span className="text-sm font-medium" id="setup-website-title">
+          {t("WorkspaceSetup.start.website.title")}
+        </span>
 
-            <span className="text-sm font-medium" id="setup-website-title">
-              {t("WorkspaceSetup.start.website.title")}
-            </span>
-          </span>
+        <Badge>{t("WorkspaceSetup.start.website.recommended")}</Badge>
+      </span>
 
-          <Badge>{t("WorkspaceSetup.start.website.recommended")}</Badge>
-        </div>
+      <span className="text-xs leading-relaxed text-muted-foreground">
+        {t("WorkspaceSetup.start.website.description")}
+      </span>
 
-        <p className="text-xs leading-relaxed text-muted-foreground">{t("WorkspaceSetup.start.website.description")}</p>
-
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <Input
-            aria-labelledby="setup-website-title"
-            autoComplete="url"
-            className="flex-1"
-            disabled={busy}
-            id="setup-website"
-            inputMode="url"
-            placeholder={t("OnboardingWizard.profile.websitePlaceholder")}
-            value={website}
-            onChange={(event) => setWebsite(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key !== "Enter") return;
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <Input
+          ref={input}
+          aria-labelledby="setup-website-title"
+          autoComplete="url"
+          className="flex-1"
+          disabled={busy}
+          id="setup-website"
+          inputMode="url"
+          placeholder={t("OnboardingWizard.profile.websitePlaceholder")}
+          value={website}
+          onChange={(event) => setWebsite(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
               event.preventDefault();
               readWebsite();
-            }}
-          />
+            }
+            if (event.key === "Escape" && !busy) {
+              event.preventDefault();
+              onBack();
+            }
+          }}
+        />
 
-          <Button disabled={busy || !website.trim()} type="button" onClick={readWebsite}>
-            {busy && startedWith === "website" ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : null}
+        <Button disabled={busy || !website.trim()} type="button" onClick={readWebsite}>
+          {busy ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : null}
 
-            {t("WorkspaceSetup.start.website.action")}
-          </Button>
-        </div>
-
-        <p className="text-[11px] text-muted-foreground">{t("WorkspaceSetup.start.website.note")}</p>
+          {t("WorkspaceSetup.start.website.action")}
+        </Button>
       </div>
 
-      <Button
-        className="h-auto w-full flex-col items-start justify-start gap-1 whitespace-normal rounded-xl p-4 text-left"
-        disabled={busy}
-        type="button"
-        variant="secondary"
-        onClick={() => {
-          setStartedWith("questions");
-          runUserAction(() => store.start(null));
-        }}
-      >
-        <span className="flex items-center gap-2">
-          {busy && startedWith === "questions" ? (
-            <Loader2 aria-hidden className="size-4 animate-spin motion-reduce:animate-none" />
-          ) : (
-            <ListChecks aria-hidden className="size-4" />
-          )}
+      <div>
+        <Button disabled={busy} type="button" variant="secondary" onClick={onBack}>
+          {t("Common.actions.back")}
+        </Button>
+      </div>
+    </div>
+  );
+});
 
-          <span className="text-sm font-medium">{t("WorkspaceSetup.start.questions.title")}</span>
-        </span>
+export const SetupStart = observer(function SetupStart() {
+  const t = useTranslations();
+  const { workspaceSetupStore: store } = useRootStore();
+  const [withWebsite, setWithWebsite] = useState(false);
+  const websiteChoice = useRef<HTMLButtonElement>(null);
+  const returning = useRef(false);
+  const busy = store.isBusy;
 
-        <span className="text-xs font-normal leading-relaxed text-muted-foreground">
-          {t("WorkspaceSetup.start.questions.description")}
-        </span>
-      </Button>
+  useEffect(() => {
+    if (withWebsite || !returning.current) return;
+    returning.current = false;
+    websiteChoice.current?.focus();
+  }, [withWebsite]);
 
-      <SetupStartEmpty />
+  return (
+    <div aria-busy={busy} className="flex flex-col gap-5">
+      {withWebsite ? (
+        <SetupStartWebsite
+          onBack={() => {
+            returning.current = true;
+            setWithWebsite(false);
+          }}
+        />
+      ) : (
+        <div
+          aria-label={t("WorkspaceSetup.start.optionsLabel")}
+          className="grid grid-cols-1 gap-3 sm:grid-cols-2"
+          role="group"
+        >
+          <ChoiceCard
+            ref={websiteChoice}
+            badge={<Badge>{t("WorkspaceSetup.start.website.recommended")}</Badge>}
+            className="border-2 border-primary bg-primary/5 shadow-sm"
+            description={t("WorkspaceSetup.start.website.description")}
+            disabled={busy}
+            note={t("WorkspaceSetup.start.website.note")}
+            title={t("WorkspaceSetup.start.website.title")}
+            onClick={() => setWithWebsite(true)}
+          />
+
+          <ChoiceCard
+            description={t("WorkspaceSetup.start.questions.description")}
+            disabled={busy}
+            note={t("WorkspaceSetup.start.questions.note")}
+            title={t("WorkspaceSetup.start.questions.title")}
+            onClick={() => runUserAction(() => store.start(null))}
+          />
+        </div>
+      )}
+
+      <span aria-live="polite" className="sr-only" role="status">
+        {busy ? t("PageState.loading") : ""}
+      </span>
+
+      <p className="flex flex-wrap items-center justify-center gap-1 text-center text-xs leading-relaxed text-muted-foreground">
+        <span>{t("WorkspaceSetup.start.emptyPrompt")}</span>
+
+        <SetupStartEmpty inline />
+      </p>
     </div>
   );
 });

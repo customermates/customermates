@@ -5289,18 +5289,14 @@
         "records": "Registros",
         "views": "Vistas de listas"
       },
-      "phasesLabel": "Progreso de la configuración",
       "previewLabel": "Vista previa de tu espacio de trabajo",
       "records": "Registros",
       "retry": "Reintentar",
       "sidebarLabel": "Vista previa de la navegación",
       "states": {
-        "active": "En curso",
         "background": "Continúa en segundo plano",
-        "done": "Hecho",
         "failed": "Sin terminar",
-        "skipped": "Omitido",
-        "waiting": "En espera"
+        "skipped": "Omitido"
       },
       "summaries": {
         "dashboard": "{count, plural, =0 {Ningún widget añadido} one {# widget añadido} other {# widgets añadidos}}",
@@ -5419,7 +5415,12 @@
       "pipeline": "Pipeline",
       "planningTitle": "Preparando tu plan",
       "progress": {
-        "label": "Progreso del plan",
+        "done": {
+          "answers": "Respuestas leídas",
+          "knowledge": "Páginas de la base de conocimientos esbozadas",
+          "model": "Listas, campos y pipeline diseñados",
+          "views": "Vistas, panel y registros de ejemplo planificados"
+        },
         "minutesLeft": "{minutes, plural, one {Queda aproximadamente # minuto} other {Quedan aproximadamente # minutos}}",
         "overdue": "Está tardando un poco más de lo habitual. Ya casi está.",
         "steps": {
@@ -5428,7 +5429,6 @@
           "model": "Diseñando tus listas, campos y pipeline",
           "views": "Planificando vistas, el panel y registros de ejemplo"
         },
-        "stepsLabel": "En qué está trabajando Mate",
         "typical": "Mate está diseñando tu espacio de trabajo a partir de tus respuestas. Suele tardar entre 1 y 2 minutos.",
         "underMinute": "Queda menos de un minuto"
       },
@@ -5476,15 +5476,17 @@
       }
     },
     "start": {
+      "emptyPrompt": "¿Prefieres configurarlo todo tú?",
       "optionsLabel": "Formas de configurar tu espacio de trabajo",
       "questions": {
-        "description": "Hasta seis preguntas rápidas sobre lo que quieres seguir. Alrededor de 1 minuto.",
+        "description": "Hasta seis preguntas rápidas sobre lo que quieres seguir.",
+        "note": "Alrededor de 1 minuto",
         "title": "Responder unas preguntas"
       },
       "website": {
         "action": "Leer mi sitio web",
         "description": "Leemos tu sitio web público y rellenamos las respuestas por ti. Solo tienes que revisarlas.",
-        "note": "Unos 2 minutos. Solo leemos páginas públicas.",
+        "note": "Unos 2 minutos",
         "recommended": "Recomendado",
         "title": "Usar mi sitio web"
       },
@@ -5506,9 +5508,12 @@
       "change": "Cambiar",
       "eta": "Suele tardar de 1 a 2 minutos. Mientras tanto, ya puedes empezar a responder.",
       "finding": "Buscando páginas en {website}",
+      "found": "{count, plural, =0 {No se encontraron páginas en {website}} one {# página encontrada en {website}} other {# páginas encontradas en {website}}}",
       "hint": "Opcional. Leemos tu sitio web público y sugerimos respuestas, así que casi solo tienes que confirmarlas.",
       "read": "Leer el sitio web",
       "reading": "Leyendo {website}: {read} de {total} páginas",
+      "readPages": "{count, plural, =0 {Ninguna página leída} one {# página leída} other {# páginas leídas}}",
+      "suggested": "Respuestas sugeridas",
       "suggestedHint": "Revisa las respuestas marcadas y cambia lo que no encaje.",
       "suggesting": "Sugiriendo respuestas a partir de {website}",
       "title": "Rellena las respuestas desde tu sitio web"
