@@ -18,12 +18,8 @@ export const SETUP_LABELS: SetupModelLabels = {
   lineItem: "Line item",
   lineItems: "Line items",
   quantity: "Quantity",
-  pricingMode: "Pricing",
-  savedPrice: "Saved unit price",
   effectivePrice: "Unit price",
   amount: "Amount",
-  livePrice: "Live price",
-  savedPriceMode: "Saved price",
 };
 
 const user = createMockUser({ companyId: SETUP_COMPANY_ID });
