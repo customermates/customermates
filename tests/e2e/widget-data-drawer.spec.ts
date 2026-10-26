@@ -1,6 +1,9 @@
 import type { Page } from "@playwright/test";
 
-import { DEMO_COMPANY_ID, DEMO_MEMBERS, demoId, expect, test } from "./demo-seed";
+import { appPath } from "./app-paths";
+import { DEMO_COMPANY_ID, DEMO_MEMBERS, DEMO_SLUG, demoId, expect, test } from "./demo-seed";
+
+const DASHBOARD = appPath(DEMO_SLUG, "/dashboard");
 
 const DEAL_SURFACE = `records:${demoId("deal")}`;
 const USER_ID = DEMO_MEMBERS.maxBergmann.userId;
@@ -9,8 +12,8 @@ type Database = { query: (sql: string, params: unknown[]) => Promise<{ rows: Rec
 
 async function openKpiDrawer(page: Page, database: Database, name: string) {
   const { rows } = await database.query(
-    'SELECT id FROM "Widget" WHERE "companyId"=$1 AND name=$2 AND "viewId" IS NULL AND "deletedAt" IS NULL',
-    [DEMO_COMPANY_ID, name],
+    'SELECT id FROM "Widget" WHERE "companyId"=$1 AND "userId"=$2 AND name=$3 AND "viewId" IS NULL AND "deletedAt" IS NULL',
+    [DEMO_COMPANY_ID, USER_ID, name],
   );
   const card = page.locator(`[data-focus-target="widget:${rows[0].id as string}"]`);
   await card.scrollIntoViewIfNeeded();
@@ -22,7 +25,7 @@ async function openKpiDrawer(page: Page, database: Database, name: string) {
 
 test("a single-number widget drawer shows the count once and pages 25 records", async ({ page, database, errors }) => {
   test.setTimeout(120000);
-  await page.goto("/en/dashboard");
+  await page.goto(DASHBOARD);
   const drawer = await openKpiDrawer(page, database, "Open pipeline");
   const summary = (await drawer.locator("[data-linked-records-summary]").textContent()) ?? "";
   const total = Number(/(\d+) contributing records?$/u.exec(summary)?.[1]);
@@ -53,7 +56,7 @@ test("a widget drawer keeps its table appearance after a reload", async ({ page,
       ])
     ).rows[0]?.hiddenColumns as string[] | undefined;
   try {
-    await page.goto("/en/dashboard");
+    await page.goto(DASHBOARD);
     let drawer = await openKpiDrawer(page, database, "Open pipeline");
     const headers = drawer.getByRole("columnheader");
     const visibleBefore = await headers.count();

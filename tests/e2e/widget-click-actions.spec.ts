@@ -1,6 +1,7 @@
 import type { Locator, Page } from "@playwright/test";
 
-import { DEMO_COMPANY_ID, DEMO_DASHBOARDS, DEMO_MEMBERS, expect, test } from "./demo-seed";
+import { appPath } from "./app-paths";
+import { DEMO_COMPANY_ID, DEMO_DASHBOARDS, DEMO_MEMBERS, DEMO_SLUG, expect, test } from "./demo-seed";
 import { e2eAppMode } from "./workspace-switching";
 
 type SeededWidget = {
@@ -87,7 +88,7 @@ for (const dashboard of DEMO_DASHBOARDS) {
     );
     expect(widgets.length).toBeGreaterThan(0);
     await page.setViewportSize({ width: 1440, height: 2600 });
-    await page.goto(dashboard.id ? `/en/dashboard?view=${dashboard.id}` : "/en/dashboard");
+    await page.goto(appPath(DEMO_SLUG, dashboard.id ? `/dashboard?view=${dashboard.id}` : "/dashboard"));
     const checked: string[] = [];
     for (const widget of widgets) {
       const card = page.locator(`[data-focus-target="widget:${widget.id}"]`);

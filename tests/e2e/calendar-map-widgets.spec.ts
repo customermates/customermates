@@ -119,7 +119,7 @@ test("the calendar widgets list upcoming records and open a day of the month ove
   const otherDrawer = page.getByRole("dialog", { name: otherName, exact: true });
   await expect(otherDrawer.getByRole("heading", { name: otherName, exact: true })).toBeVisible();
   await expect(otherDrawer.locator("[data-linked-records-summary]")).toHaveText(
-    `Deals closing this month · ${otherCount} contributing record${otherCount === "1" ? "" : "s"}`,
+    `Closing this month · ${otherCount} contributing record${otherCount === "1" ? "" : "s"}`,
   );
   await expect(otherDrawer.locator("[data-linked-records-table] [data-row-id]")).toHaveCount(
     Math.min(Number(otherCount), 25),
