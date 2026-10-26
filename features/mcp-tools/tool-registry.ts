@@ -1,5 +1,6 @@
 import { manageRolesTool } from "@/features/mcp-tools/role.mcp-tools";
 import { manageDataViewsTool } from "@/features/mcp-tools/data-view.mcp-tools";
+import { manageCalendarTool } from "@/features/mcp-tools/calendar.mcp-tools";
 import { manageTrashTool, readTrashTool } from "@/features/mcp-tools/trash.mcp-tools";
 import {
   discoverRecordTypesV2Tool,
@@ -86,7 +87,7 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
   ],
   "record-model": [configureRecordModelV2Tool],
   workspace: [getWorkspaceContextTool, listUsersTool],
-  views: [manageDataViewsTool, manageRecordDetailLayoutV2Tool],
+  views: [manageDataViewsTool, manageRecordDetailLayoutV2Tool, manageCalendarTool],
   wiki: [manageWikiPagesTool],
   messaging: [
     getMessagingThreadsTool,

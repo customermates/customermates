@@ -2500,6 +2500,7 @@ import { GetPlannerOptionsInteractor } from "@/features/planner/get-planner-opti
 import { PrismaCalendarSubscriptionRepo } from "@/features/planner/prisma-calendar-subscription.repository";
 import { ExportPlannerInteractor } from "@/features/planner/export-planner.interactor";
 import { ManageCalendarSubscriptionsInteractor } from "@/features/planner/manage-calendar-subscriptions.interactor";
+import { ManageCalendarInteractor } from "@/features/planner/manage-calendar.interactor";
 import { ReadCalendarSubscriptionInteractor } from "@/features/planner/read-calendar-subscription.interactor";
 import { CalendarSubscriptionTenant } from "@/features/planner/calendar-subscription-tenant";
 
@@ -2516,11 +2517,19 @@ export const getGetPlannerOptionsInteractor = () =>
     getP13nRepo(),
     getPlannerPersonalEventsRepo(),
     getEntitlementService(),
+    getRecordViewPolicy(),
   );
 const getCalendarSubscriptionRepo = () => new PrismaCalendarSubscriptionRepo();
 export const getExportPlannerInteractor = () => new ExportPlannerInteractor(getReadPlannerInteractor());
 export const getManageCalendarSubscriptionsInteractor = () =>
   new ManageCalendarSubscriptionsInteractor(getCalendarSubscriptionRepo());
+export const getManageCalendarInteractor = () =>
+  new ManageCalendarInteractor(
+    getGetPlannerOptionsInteractor(),
+    getRecordViewPolicy(),
+    getUpsertP13nInteractor(),
+    getManageCalendarSubscriptionsInteractor(),
+  );
 export const getReadCalendarSubscriptionInteractor = () =>
   new ReadCalendarSubscriptionInteractor(
     new CalendarSubscriptionTenant(getCalendarSubscriptionRepo(), getUserService()),

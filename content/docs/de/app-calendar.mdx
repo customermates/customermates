@@ -10,7 +10,9 @@ description: "Datumsquellen kombinieren, Woche, Monat, Quartal oder Zeitachse an
 
 **Datumsquellen** in der oberen Leiste listet Ihre Quellen und verbundenen Kalender auf. Die Kontrollkästchen blenden Quellen sofort ein und aus. Das Menü einer Quelle öffnet **Datumsquelle bearbeiten**, um Felder, Farbe und Filter zu ändern, **In Liste öffnen**, um die Liste mit den Filtern der Quelle zu öffnen, und **Datumsquelle entfernen**. Ein Klick auf einen Termin öffnet den Datensatz im üblichen Drawer. Es gelten Ihre aktuellen Datensatz- und Feldberechtigungen. Fehlende oder gesperrte Daten erscheinen nicht im Kalender. Wird ein Feld oder Filter ungültig, erscheint die Quelle als nicht verfügbar; ihre Filter werden nicht stillschweigend entfernt.
 
-Ihre Quellen, aktivierten Kalender, Zeitzone und Darstellung werden automatisch und nur für Sie gespeichert. Die Kalenderkonfiguration verändert keine gespeicherte Listenansicht.
+Solange Sie nichts ändern, zeigt der Kalender eine Voreinstellung: das erste Datumsfeld jeder Liste, bis zu zwölf Listen, in der Farbe der Liste. Ab Ihrer ersten Änderung werden Ihre Quellen, aktivierten Kalender, Zeitzone und Darstellung automatisch und nur für Sie gespeichert. Die Kalenderkonfiguration verändert keine gespeicherte Listenansicht.
+
+Mate und per MCP verbundene KI-Clients ändern denselben persönlichen Kalender mit `manage_calendar`: `options` listet die Listen mit Datumsfeldern und Ihre verbundenen Kalender, `read` liefert die aktuelle Konfiguration, `update` ersetzt die übergebenen Quellen, Kalender, Zeitzone oder Darstellung, und `reset` kehrt zur Voreinstellung zurück. `subscriptions` listet Ihre Abonnement-URLs und `revoke` widerruft eine davon.
 
 ## Was zeigen die verschiedenen Ansichten? [#calendar-views]
 

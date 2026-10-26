@@ -83,6 +83,28 @@ test("combined calendar adds two lists, toggles sources, opens records, exports 
       );
     await page.goto("/en/calendar");
     await expect(page.locator("[data-planner-page]")).toBeVisible();
+    await page.getByRole("button", { name: "Date sources", exact: true }).click();
+    const defaults = page.getByRole("dialog", { name: "Date sources", exact: true });
+    await expect(defaults.getByRole("checkbox", { name: "Tasks · Due date", exact: true })).toBeChecked();
+    await defaults.getByRole("button", { name: "Close", exact: true }).click();
+    await expect(defaults).toHaveCount(0);
+    const savedCount = await database.query(
+      'SELECT COUNT(*)::int AS count FROM "P13n" WHERE "companyId"=$1 AND "userId"=$2 AND "p13nId"=$3',
+      [DEMO_COMPANY_ID, userId, "combined-calendar"],
+    );
+    expect(savedCount.rows[0].count).toBe(0);
+    await database.query(
+      'INSERT INTO "P13n" (id,"companyId","userId","p13nId",settings,"updatedAt","columnOrder","hiddenColumns") VALUES ($4,$1,$2,$3,$5,NOW(),ARRAY[]::text[],ARRAY[]::text[])',
+      [
+        DEMO_COMPANY_ID,
+        userId,
+        "combined-calendar",
+        randomUUID(),
+        JSON.stringify({ sources: [], calendarIds: [], timeZone: "UTC", mode: "month" }),
+      ],
+    );
+    await page.reload();
+    await expect(page.locator("[data-planner-page]")).toBeVisible();
     async function add(list: string, dateField: string) {
       await page.getByRole("button", { name: "Add date source", exact: true }).first().click();
       const modal = page.getByRole("dialog", { name: "Add date source" });

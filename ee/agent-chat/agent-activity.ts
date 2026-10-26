@@ -328,7 +328,7 @@ function describeAgentToolAction(
       preview: safeText(details.body, 240),
     });
   }
-  if (toolName === "manage_record_detail_layout") {
+  if (toolName === "manage_record_detail_layout" || toolName === "manage_calendar") {
     const read = isMultiplexedRead(toolName, details);
     return descriptor(
       read ? "views.read" : "views.configure",

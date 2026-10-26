@@ -195,7 +195,7 @@ function withoutViewTerms(text: string): string {
 
 const TOOLSET_ROUTES: Record<AgentOnDemandToolset, readonly string[]> = {
   "record-model": ["/records", "/configure"],
-  views: [],
+  views: ["/calendar"],
   "data-transfer": [],
   messaging: ["/inbox", "/calendar"],
   social: ["/social"],

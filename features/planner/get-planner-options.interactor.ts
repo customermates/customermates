@@ -1,6 +1,7 @@
 import type { GetRecordModelInteractor } from "@/features/records/get-record-model.interactor";
 import type { RecordModelView } from "@/features/records/record-model.schema";
 import type { GetP13nRepo } from "@/features/p13n/get-p13n.interactor";
+import type { RecordViewPolicy } from "@/features/records/record-view-policy";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { PlannerPersonalEventsRepo, PersonalCalendar } from "./planner.repo";
 import type { PlannerConfig } from "./planner.schema";
@@ -11,12 +12,15 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { roleCanRead } from "@/core/base/permission.service";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { recordSurfaceTypeId } from "@/core/data-view/data-view-keys";
 import { readP13nSettings } from "@/features/p13n/p13n-settings.schema";
-import { emptyPlannerConfig, PLANNER_P13N_ID } from "./planner.schema";
+import { defaultPlannerConfig, PLANNER_P13N_ID } from "./planner.schema";
 
 export type PlannerOptions = {
   model: RecordModelView;
   config: PlannerConfig;
+  saved: boolean;
+  readableTypeIds: string[];
   personalAvailable: boolean;
   calendars: PersonalCalendar[];
 };
@@ -28,19 +32,37 @@ export class GetPlannerOptionsInteractor extends AuthenticatedInteractor<void, P
     private settings: GetP13nRepo,
     private personal: PlannerPersonalEventsRepo,
     private entitlements: Pick<EntitlementService, "require">,
+    private views: Pick<RecordViewPolicy, "list">,
   ) {
     super();
   }
   async invoke(): Validated<PlannerOptions> {
     const model = await this.models.invoke({});
     if (!model.ok) return model;
-    const [saved, denied] = await Promise.all([
+    const [saved, denied, readable] = await Promise.all([
       this.settings.getP13n(PLANNER_P13N_ID),
       this.entitlements.require("messaging"),
+      this.views.list(),
     ]);
     const personalAvailable = roleCanRead(this.user.role, Resource.inboxMessages) && !denied;
-    const config = readP13nSettings(PLANNER_P13N_ID, saved?.settings) ?? emptyPlannerConfig();
+    const config = readP13nSettings(PLANNER_P13N_ID, saved?.settings);
+    const readableTypeIds = readable.flatMap((view) => recordSurfaceTypeId(view.surfaceKey) ?? []);
     const calendars = personalAvailable ? await this.personal.calendars() : [];
-    return { ok: true, data: { model: model.data, config, personalAvailable, calendars } };
+    return {
+      ok: true,
+      data: {
+        model: model.data,
+        readableTypeIds,
+        config:
+          config ??
+          defaultPlannerConfig({
+            types: model.data.types.filter((type) => readableTypeIds.includes(type.id)),
+            fields: model.data.fields,
+          }),
+        saved: config !== null,
+        personalAvailable,
+        calendars,
+      },
+    };
   }
 }

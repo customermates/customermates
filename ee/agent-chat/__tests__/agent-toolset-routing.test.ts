@@ -164,6 +164,10 @@ describe("toolsetsForRequest", () => {
       "admin",
     ]);
     expect([...toolsetsForRequest({ text: "Summarize this", pageRoute: "/en/inbox" })]).toEqual(["messaging"]);
+    expect([...toolsetsForRequest({ text: "Only show my tasks here", pageRoute: "/en/calendar" })]).toEqual([
+      "views",
+      "messaging",
+    ]);
     expect([
       ...toolsetsForRequest({
         text: "Only show records with deals",
