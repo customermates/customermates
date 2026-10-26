@@ -1,6 +1,7 @@
 import type { RootStore } from "@/core/stores/root.store";
 import type { SerializedInteractorFailure } from "@/core/validation/validation.utils";
 import type { SetupAnswerValue, SetupAnswers } from "@/features/workspace-setup/setup-answers.schema";
+import type { SetupStepSuggestion } from "@/features/workspace-setup/setup-solution-match";
 import type { WorkspaceSetupStatusView, WorkspaceSetupView } from "@/ee/workspace-setup/workspace-setup-status";
 import type { WorkspaceSetupPhase } from "@/ee/workspace-setup/workspace-setup.schema";
 import type { SpreadsheetReadFailureCode } from "@/features/data-transfer/spreadsheet/spreadsheet.schema";
@@ -11,6 +12,7 @@ import { makeAutoObservable, observable, runInAction, toJS } from "mobx";
 import { SPREADSHEET_MAX_FILE_BYTES } from "@/features/data-transfer/spreadsheet/spreadsheet.schema";
 import { SETUP_SCREENS } from "@/features/workspace-setup/setup-interview";
 import { touchAnswer } from "@/features/workspace-setup/setup-prefill";
+import { setupStepSuggestion } from "@/features/workspace-setup/setup-solution-match";
 import { serializedFailureErrorTree } from "@/core/validation/validation.utils";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { notifyIfWorkspaceChanged, notifyWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
@@ -68,14 +70,12 @@ export class WorkspaceSetupStore {
   missingShown = false;
   spreadsheetRejection: SpreadsheetRejection | null = null;
   pending: SetupCommand | null = null;
-  private suggestedSteps: string | null = null;
   private hydratedSetupId: string | null | undefined = undefined;
   private refreshGeneration = 0;
 
   constructor(public readonly rootStore: RootStore) {
-    makeAutoObservable<this, "hydratedSetupId" | "refreshGeneration" | "suggestedSteps">(this, {
+    makeAutoObservable<this, "hydratedSetupId" | "refreshGeneration">(this, {
       rootStore: false,
-      suggestedSteps: false,
       hydratedSetupId: false,
       refreshGeneration: false,
     });
@@ -105,6 +105,10 @@ export class WorkspaceSetupStore {
 
   get isLastScreen(): boolean {
     return adjacentScreenIndex(this.screenIndex, this.answers, 1) === null;
+  }
+
+  get stepSuggestion(): SetupStepSuggestion | null {
+    return this.answers.mainSteps ? null : setupStepSuggestion(this.answers);
   }
 
   get isBusy(): boolean {
@@ -185,7 +189,6 @@ export class WorkspaceSetupStore {
       this.adjusting = false;
       this.missingShown = false;
       this.spreadsheetRejection = null;
-      this.suggestedSteps = null;
       this.screenIndex = resumeScreenIndex(this.answers, setup?.interview.confirmedScreens ?? 0);
       return;
     }
@@ -195,25 +198,6 @@ export class WorkspaceSetupStore {
   setAnswer = (id: string, value: SetupAnswerValue) => {
     this.answers = touchAnswer(this.answers, id, value);
     this.touched.add(id);
-  };
-
-  suggestSteps = (key: string | null, labels: string[]) => {
-    const current = this.answers.mainSteps;
-    if (this.touched.has("mainSteps") || current?.source === "website") return;
-    if (current ? this.suggestedSteps === null || this.suggestedSteps === key : !key) return;
-    this.suggestedSteps = key;
-    const rest = { ...this.answers };
-    delete rest.mainSteps;
-    this.answers = key
-      ? {
-          ...rest,
-          mainSteps: {
-            source: "user",
-            confidence: 1,
-            value: { format: "orderedList", items: labels.map((label) => ({ label })) },
-          },
-        }
-      : rest;
   };
 
   setFollowUpAnswer = (id: string, value: SetupAnswerValue) => {

@@ -5497,16 +5497,16 @@
       "withoutWebsite": "Ohne Website weiter"
     },
     "suggestedSteps": {
-      "contracts": "Onboarding|Aktiv|Verlängerung fällig|Verlängert|Beendet",
-      "deals": "Neue Anfrage|Kontaktiert|Angebot gesendet|Gewonnen|Verloren",
-      "dealsClients": "Anfrage|Erstgespräch|Angebot gesendet|Gewonnen|Verloren",
-      "hiring": "Beworben|Gespräch|Angebot|Eingestellt|Abgesagt",
-      "investors": "Kontaktiert|Erstes Treffen|Prüfung|Zugesagt|Abgesagt",
-      "marketing": "Idee|In Arbeit|Fertig|Veröffentlicht",
-      "orders": "Neu|Bestätigt|Versendet|Bezahlt",
-      "partners": "Kontaktiert|Im Gespräch|Aktiv|Pausiert",
-      "projects": "Geplant|In Arbeit|Abnahme|Erledigt",
-      "support": "Neu|In Bearbeitung|Wartet auf Kunden|Gelöst"
+      "contracts": ["Onboarding", "Aktiv", "Verlängerung fällig", "Verlängert", "Beendet"],
+      "deals": ["Neue Anfrage", "Kontaktiert", "Angebot gesendet", "Gewonnen", "Verloren"],
+      "dealsClients": ["Anfrage", "Erstgespräch", "Angebot gesendet", "Gewonnen", "Verloren"],
+      "hiring": ["Beworben", "Gespräch", "Angebot", "Eingestellt", "Abgesagt"],
+      "investors": ["Kontaktiert", "Erstes Treffen", "Prüfung", "Zugesagt", "Abgesagt"],
+      "marketing": ["Idee", "In Arbeit", "Fertig", "Veröffentlicht"],
+      "orders": ["Neu", "Bestätigt", "Versendet", "Bezahlt"],
+      "partners": ["Kontaktiert", "Im Gespräch", "Aktiv", "Pausiert"],
+      "projects": ["Geplant", "In Arbeit", "Abnahme", "Erledigt"],
+      "support": ["Neu", "In Bearbeitung", "Wartet auf Kunden", "Gelöst"]
     },
     "website": {
       "change": "Ändern",

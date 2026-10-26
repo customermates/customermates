@@ -92,7 +92,7 @@ test("the questions mark missing answers, suggest steps that reorder by dragging
   await expect(workWith).not.toHaveAttribute("data-invalid", "true");
   await question(page, "purpose").getByRole("checkbox", { name: setup.options.purpose.deals, exact: true }).click();
   await expect(question(page, "pricing")).toBeVisible();
-  await expect.poll(() => entries(page)).toEqual(setup.suggestedSteps.dealsClients.split("|"));
+  await expect.poll(() => entries(page)).toEqual(setup.suggestedSteps.dealsClients);
 
   const steps = question(page, "mainSteps");
   await steps.evaluate((element) => element.scrollIntoView({ block: "center" }));
@@ -105,7 +105,7 @@ test("the questions mark missing answers, suggest steps that reorder by dragging
   for (let step = 1; step <= 10; step += 1)
     await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2 + ((to.y - from.y - 6) * step) / 10);
   await page.mouse.up();
-  const [first, second, ...rest] = setup.suggestedSteps.dealsClients.split("|");
+  const [first, second, ...rest] = setup.suggestedSteps.dealsClients;
   await expect.poll(() => entries(page)).toEqual([second, first, ...rest]);
 
   await moveWithKeyboard(page, handles.nth(0), "ArrowDown");

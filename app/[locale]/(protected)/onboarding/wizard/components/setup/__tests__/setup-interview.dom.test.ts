@@ -7,8 +7,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const harness = vi.hoisted(() => ({ rootStore: null as unknown }));
 
 vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string, values?: Record<string, string | number>) =>
-    values ? `${key} ${Object.values(values).join(" ")}` : key,
+  useTranslations: () =>
+    Object.assign(
+      (key: string, values?: Record<string, string | number>) =>
+        values ? `${key} ${Object.values(values).join(" ")}` : key,
+      { raw: (key: string) => [`${key}.first`, `${key}.second`] },
+    ),
   useLocale: () => "en",
 }));
 vi.mock("@/components/ui/tooltip", () => ({
@@ -225,9 +229,7 @@ describe("SetupInterview", () => {
 
     expect(field("pricing")).toBeDefined();
     expect(field("mainSteps")).toBeDefined();
-    expect(store.answers.mainSteps?.value).toEqual({
-      format: "orderedList",
-      items: [{ label: "WorkspaceSetup.suggestedSteps.dealsClients" }],
-    });
+    expect(field("mainSteps").textContent).toContain("WorkspaceSetup.suggestedSteps.dealsClients.first");
+    expect(store.answers.mainSteps).toBeUndefined();
   });
 });

@@ -5497,16 +5497,16 @@
       "withoutWebsite": "Continuer sans site web"
     },
     "suggestedSteps": {
-      "contracts": "Intégration|Actif|À renouveler|Renouvelé|Terminé",
-      "deals": "Nouvelle demande|Contacté|Offre envoyée|Gagné|Perdu",
-      "dealsClients": "Demande|Premier échange|Proposition envoyée|Gagné|Perdu",
-      "hiring": "Candidature|Entretien|Offre|Embauché|Refusé",
-      "investors": "Contacté|Premier rendez-vous|Due diligence|Engagé|Décliné",
-      "marketing": "Idée|En cours|Prêt|Publié",
-      "orders": "Nouvelle|Confirmée|Expédiée|Payée",
-      "partners": "Contacté|En discussion|Actif|En pause",
-      "projects": "Planifié|En cours|Validation|Terminé",
-      "support": "Nouvelle|En cours|En attente du client|Résolue"
+      "contracts": ["Intégration", "Actif", "À renouveler", "Renouvelé", "Terminé"],
+      "deals": ["Nouvelle demande", "Contacté", "Offre envoyée", "Gagné", "Perdu"],
+      "dealsClients": ["Demande", "Premier échange", "Proposition envoyée", "Gagné", "Perdu"],
+      "hiring": ["Candidature", "Entretien", "Offre", "Embauché", "Refusé"],
+      "investors": ["Contacté", "Premier rendez-vous", "Due diligence", "Engagé", "Décliné"],
+      "marketing": ["Idée", "En cours", "Prêt", "Publié"],
+      "orders": ["Nouvelle", "Confirmée", "Expédiée", "Payée"],
+      "partners": ["Contacté", "En discussion", "Actif", "En pause"],
+      "projects": ["Planifié", "En cours", "Validation", "Terminé"],
+      "support": ["Nouvelle", "En cours", "En attente du client", "Résolue"]
     },
     "website": {
       "change": "Modifier",

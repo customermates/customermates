@@ -138,42 +138,48 @@ describe("WorkspaceSetupStore", () => {
     expect(store.canConfirmScreen).toBe(true);
   });
 
-  it("suggests the steps of the tracked work until the owner edits them", () => {
+  it("suggests the steps of the tracked work without saving them as an answer until the owner edits them", async () => {
     const store = storeWith();
-    store.suggestSteps("projects", ["Planned", "Done"]);
-    expect(store.answers.mainSteps?.value).toEqual({
-      format: "orderedList",
-      items: [{ label: "Planned" }, { label: "Done" }],
-    });
-
-    store.suggestSteps("deals", ["Inquiry", "Won"]);
-    expect(store.answers.mainSteps?.value).toMatchObject({ items: [{ label: "Inquiry" }, { label: "Won" }] });
-
-    store.suggestSteps(null, []);
+    expect(store.stepSuggestion).toBeNull();
+    answerWorkspaceScreen(store, "Acme");
+    expect(store.stepSuggestion).toBe("projects");
+    store.setAnswer("purpose", { format: "multipleChoice", values: ["deals"], custom: [] });
+    expect(store.stepSuggestion).toBe("dealsClients");
     expect(store.answers.mainSteps).toBeUndefined();
 
+    await store.confirmScreen();
+    const saved = actions.saveWorkspaceSetupAnswersAction.mock.calls[0][0] as { answers: Record<string, unknown> };
+    expect(saved.answers).not.toHaveProperty("mainSteps");
+
     store.setAnswer("mainSteps", { format: "orderedList", items: [{ label: "Mine" }] });
-    store.suggestSteps("projects", ["Planned", "Done"]);
-    expect(store.answers.mainSteps?.value).toEqual({ format: "orderedList", items: [{ label: "Mine" }] });
+    expect(store.stepSuggestion).toBeNull();
+    expect(store.answers.mainSteps?.source).toBe("user");
   });
 
   it("keeps steps from the website or confirmed earlier instead of suggesting others", () => {
     const steps = { format: "orderedList" as const, items: [{ label: "From before" }] };
+    const purpose = {
+      source: "user" as const,
+      confidence: 1,
+      value: { format: "multipleChoice" as const, values: ["projects"], custom: [] },
+    };
     const confirmed = storeWith(
       setupView({
         interview: {
           ...setupView().interview,
-          answers: { mainSteps: { source: "user", confidence: 1, value: steps } },
+          answers: { purpose, mainSteps: { source: "user", confidence: 1, value: steps } },
         },
       }),
     );
-    confirmed.suggestSteps("projects", ["Planned", "Done"]);
+    expect(confirmed.stepSuggestion).toBeNull();
     expect(confirmed.answers.mainSteps?.value).toEqual(steps);
 
     const prefilled = storeWith(
-      setupView({ interview: { ...setupView().interview, answers: { mainSteps: { ...website, value: steps } } } }),
+      setupView({
+        interview: { ...setupView().interview, answers: { purpose, mainSteps: { ...website, value: steps } } },
+      }),
     );
-    prefilled.suggestSteps("projects", ["Planned", "Done"]);
+    expect(prefilled.stepSuggestion).toBeNull();
     expect(prefilled.answers.mainSteps?.value).toEqual(steps);
   });
 

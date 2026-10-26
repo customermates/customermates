@@ -4,7 +4,7 @@ import type { SetupQuestion } from "@/features/workspace-setup/setup-interview";
 
 import { Globe, Loader2, X } from "lucide-react";
 import { observer } from "mobx-react-lite";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { focusFirstInvalidField } from "@/components/forms/focus-first-invalid-field";
@@ -15,7 +15,6 @@ import { Input } from "@/components/ui/input";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { SETUP_BASICS_QUESTION, SETUP_QUESTIONS } from "@/features/workspace-setup/setup-interview";
-import { setupStepSuggestion } from "@/features/workspace-setup/setup-solution-match";
 
 import { answerFromWebsite, displayedAnswerValue, partVisible } from "./setup-interview-state";
 import { SetupActionBar } from "./setup-plan-preview";
@@ -30,8 +29,11 @@ const SetupQuestionBlock = observer(function SetupQuestionBlock({ question }: { 
   const { workspaceSetupStore: store } = useRootStore();
   const parts = question.parts.filter((part) => partVisible(part, store.answers));
   if (!parts.length) return null;
+  const suggestion = store.stepSuggestion;
   const fields = parts.map((part) => {
     const answer = store.answers[part.id]?.value;
+    const steps =
+      part.id === "mainSteps" && suggestion ? (t.raw(`WorkspaceSetup.suggestedSteps.${suggestion}`) as string[]) : null;
     return (
       <Fragment key={part.id}>
         <SetupQuestionField
@@ -40,7 +42,11 @@ const SetupQuestionBlock = observer(function SetupQuestionBlock({ question }: { 
           disabled={store.isBusy}
           fromWebsite={answerFromWebsite(store.answers, part.id)}
           invalid={store.answerMissing(part.id)}
-          value={displayedAnswerValue(part, store.answers, store.locale)}
+          value={
+            steps
+              ? { format: "orderedList", items: steps.map((label) => ({ label })) }
+              : displayedAnswerValue(part, store.answers, store.locale)
+          }
           onChange={(value) => store.setAnswer(part.id, value)}
         />
 
@@ -213,13 +219,6 @@ export const SetupInterview = observer(function SetupInterview() {
   const setup = store.setup;
   const prefillFailed = setup?.interview.prefill === "failed" && Boolean(setup.websiteUrl);
   const saving = store.pending === "save";
-  const suggestion = setupStepSuggestion(store.answers);
-  const suggestedSteps = suggestion ? t(`WorkspaceSetup.suggestedSteps.${suggestion}`) : "";
-  const steps = store.answers.mainSteps;
-
-  useEffect(() => {
-    store.suggestSteps(suggestion, suggestedSteps ? suggestedSteps.split("|") : []);
-  }, [store, suggestion, suggestedSteps, steps]);
 
   return (
     <section ref={section} aria-busy={store.isBusy} className="flex flex-col gap-6">

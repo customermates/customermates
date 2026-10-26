@@ -5497,16 +5497,16 @@
       "withoutWebsite": "Continuar sin sitio web"
     },
     "suggestedSteps": {
-      "contracts": "Incorporación|Activo|Pendiente de renovación|Renovado|Finalizado",
-      "deals": "Nueva consulta|Contactado|Oferta enviada|Ganado|Perdido",
-      "dealsClients": "Consulta|Primera llamada|Propuesta enviada|Ganado|Perdido",
-      "hiring": "Candidatura|Entrevista|Oferta|Contratado|Descartado",
-      "investors": "Contactado|Primera reunión|Due diligence|Comprometido|Descartado",
-      "marketing": "Idea|En curso|Listo|Publicado",
-      "orders": "Nuevo|Confirmado|Enviado|Pagado",
-      "partners": "Contactado|En conversaciones|Activo|En pausa",
-      "projects": "Planificado|En curso|Revisión|Hecho",
-      "support": "Nueva|En curso|Esperando al cliente|Resuelta"
+      "contracts": ["Incorporación", "Activo", "Pendiente de renovación", "Renovado", "Finalizado"],
+      "deals": ["Nueva consulta", "Contactado", "Oferta enviada", "Ganado", "Perdido"],
+      "dealsClients": ["Consulta", "Primera llamada", "Propuesta enviada", "Ganado", "Perdido"],
+      "hiring": ["Candidatura", "Entrevista", "Oferta", "Contratado", "Descartado"],
+      "investors": ["Contactado", "Primera reunión", "Due diligence", "Comprometido", "Descartado"],
+      "marketing": ["Idea", "En curso", "Listo", "Publicado"],
+      "orders": ["Nuevo", "Confirmado", "Enviado", "Pagado"],
+      "partners": ["Contactado", "En conversaciones", "Activo", "En pausa"],
+      "projects": ["Planificado", "En curso", "Revisión", "Hecho"],
+      "support": ["Nueva", "En curso", "Esperando al cliente", "Resuelta"]
     },
     "website": {
       "change": "Cambiar",
