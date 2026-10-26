@@ -8,7 +8,6 @@ import { resolveCalendarFields } from "@/features/record-calendar/record-calenda
 
 type SetupCalendarSources = NonNullable<NonNullable<SavePlannerInput["config"]>["sources"]>;
 
-/** The Calendar page sources of the plan: a list's date field, optional end, open-record filters and colour. */
 export function compileSetupCalendar(
   plan: SetupPlan,
   resolver: SetupResolver,
