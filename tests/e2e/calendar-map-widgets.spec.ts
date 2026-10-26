@@ -86,6 +86,25 @@ test("the calendar widgets list upcoming records and open a day of the month ove
   const preview = drawer.locator('[data-widget-detail-chart] [data-calendar-layout="month"]');
   await expect(preview).toBeVisible();
   await expect(preview.locator(`[data-calendar-day]:not([data-heat="0"])`).first()).toBeVisible();
+  // Another busy day in the drawer's preview switches the drawer to that day's records, and back.
+  const busyKey = await busyDay.getAttribute("data-calendar-day");
+  const otherDay = preview
+    .locator(`[data-calendar-day]:not([data-heat="0"]):not([data-calendar-day="${busyKey}"])`)
+    .first();
+  await expect(otherDay).toBeVisible();
+  const [, otherName, otherCount] =
+    /^(.+): (\d+) records?/u.exec((await otherDay.getAttribute("aria-label")) ?? "") ?? [];
+  await otherDay.click();
+  const otherDrawer = page.getByRole("dialog", { name: otherName, exact: true });
+  await expect(otherDrawer.getByRole("heading", { name: otherName, exact: true })).toBeVisible();
+  await expect(otherDrawer.locator("[data-linked-records-summary]")).toHaveText(
+    `Deals closing this month · ${otherCount} contributing record${otherCount === "1" ? "" : "s"}`,
+  );
+  await expect(otherDrawer.locator("[data-linked-records-table] [data-row-id]")).toHaveCount(
+    Math.min(Number(otherCount), 25),
+  );
+  await otherDrawer.locator(`[data-widget-detail-chart] [data-calendar-day="${busyKey}"]`).click();
+  await expect(drawer.getByRole("heading", { name: day, exact: true })).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(drawer).toHaveCount(0);
   await expect(busyDay).toBeFocused();
