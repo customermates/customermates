@@ -5,10 +5,11 @@ import { useTranslations } from "next-intl";
 type Badge = {
   name: string;
   platform: string;
-  kind: "featured" | "reviews";
+  kind: "featured" | "reviews" | "listed";
   href: string;
-  light: string;
-  dark: string;
+  light?: string;
+  dark?: string;
+  rel?: string;
   width: number;
   height: number;
 };
@@ -74,6 +75,15 @@ const BADGES: Badge[] = [
     width: 200,
     height: 50,
   },
+  {
+    name: "open-source-alternatives",
+    platform: "Open Source Alternatives",
+    kind: "listed",
+    href: "https://www.opensourcealternatives.to/",
+    rel: "noopener",
+    width: 200,
+    height: 54,
+  },
 ];
 
 const MARQUEE_GAP_REM = 2.5;
@@ -105,33 +115,43 @@ type BadgeLinkProps = {
 
 function BadgeLink({ badge, label, ariaHidden }: BadgeLinkProps) {
   return (
+    // The listing condition asks for a followed link, so this badge keeps rel="noopener" without noreferrer.
+    // eslint-disable-next-line react/jsx-no-target-blank
     <a
       aria-hidden={ariaHidden || undefined}
       className="shrink-0 opacity-70 grayscale transition-[opacity,filter] duration-200 hover:opacity-100 hover:grayscale-0"
       href={badge.href}
-      rel="noopener noreferrer"
+      rel={badge.rel ?? "noopener noreferrer"}
       tabIndex={ariaHidden ? -1 : undefined}
       target="_blank"
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        alt={label}
-        className="h-8 w-auto dark:hidden"
-        height={badge.height}
-        loading="lazy"
-        src={badge.light}
-        width={badge.width}
-      />
+      {badge.light && badge.dark ? (
+        <>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          alt={label}
+          className="h-8 w-auto dark:hidden"
+          height={badge.height}
+          loading="lazy"
+          src={badge.light}
+          width={badge.width}
+        />
 
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        alt={label}
-        className="h-8 w-auto not-dark:hidden"
-        height={badge.height}
-        loading="lazy"
-        src={badge.dark}
-        width={badge.width}
-      />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          alt={label}
+          className="h-8 w-auto not-dark:hidden"
+          height={badge.height}
+          loading="lazy"
+          src={badge.dark}
+          width={badge.width}
+        />
+        </>
+      ) : (
+        <span className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs font-medium text-subdued">
+          {label}
+        </span>
+      )}
     </a>
   );
 }
@@ -152,7 +172,9 @@ export function FooterBadges() {
                 const label =
                   badge.kind === "reviews"
                     ? t("Footer.reviewsOnPlatform", { platform: badge.platform })
-                    : t("Footer.featuredOnPlatform", { platform: badge.platform });
+                    : badge.kind === "listed"
+                      ? t("Footer.listedOnPlatform", { platform: badge.platform })
+                      : t("Footer.featuredOnPlatform", { platform: badge.platform });
 
                 return (
                   <BadgeLink
