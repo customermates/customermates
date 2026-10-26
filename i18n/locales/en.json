@@ -5495,7 +5495,7 @@
       "deals": ["New inquiry", "Contacted", "Offer sent", "Won", "Lost"],
       "dealsClients": ["Inquiry", "First call", "Proposal sent", "Won", "Lost"],
       "hiring": ["Applied", "Interview", "Offer", "Hired", "Rejected"],
-      "investors": ["Contacted", "First meeting", "Due diligence", "Committed", "Passed"],
+      "investors": ["Contacted", "First meeting", "Checks", "Committed", "Passed"],
       "marketing": ["Idea", "Ongoing", "Ready", "Published"],
       "orders": ["New", "Confirmed", "Shipped", "Paid"],
       "partners": ["Contacted", "In talks", "Active", "Paused"],
