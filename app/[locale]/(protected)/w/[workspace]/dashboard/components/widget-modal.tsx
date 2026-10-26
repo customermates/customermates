@@ -168,7 +168,7 @@ export const WidgetModal = observer(() => {
         {renderAppearanceSettings(model)}
       </section>
     );
-    const nameField = <FormInput id="name" label={t("Common.inputs.name")} />;
+    const nameField = <FormInput required showErrorMessage id="name" label={t("Common.inputs.name")} />;
     if (form.kind === WidgetKind.calendar) {
       return (
         <RecordCalendarWidgetEditor

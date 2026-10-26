@@ -1028,7 +1028,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     }
 
     if (hasChanges) this.appearanceChanged();
-    if (widthsChanged) this.persistViewState();
+    if (widthsChanged) {
+      this.persistViewState();
+      if (!hasChanges) this.onAppearanceChange();
+    }
     if (groupingChanged || calendarQueryChanged) this.refreshQueryInBackground();
     else if (viewModeChanged && this.viewMode === ViewMode.card && this.grouping) this.refreshInBackground();
   };
@@ -1657,6 +1660,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
   protected onRefreshAccepted(_result: GetResult<Entity>): void {}
 
+  protected onAppearanceChange(): void {}
+
   protected get viewStateWriteOwner(): string | undefined {
     return undefined;
   }
@@ -1708,6 +1713,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   private appearanceChanged = () => {
     if (this.canSaveQuery) this.syncQueryDraft();
     else this.persistViewState();
+    this.onAppearanceChange();
   };
 
   private persistViewState = () => {

@@ -28,6 +28,14 @@ test("chart bars open their records and carry the same selection to the overview
   await expect(drawer.locator("[data-widget-detail-chart] [data-widget-chart-embedded]")).toBeVisible();
   await expect(drawer.locator("[data-linked-records-summary]")).toContainText(/ · \d+ contributing records?$/u);
   await expect(drawer.locator("[data-linked-records-table]")).toContainText(/.+/u);
+  // Another bar in the drawer's preview switches the drawer to that group's records, and back.
+  const summary = drawer.locator("[data-linked-records-summary]");
+  const firstSummary = (await summary.textContent()) ?? "";
+  await drawer.locator("[data-widget-detail-chart] [data-chart-point]").nth(1).click();
+  await expect(summary).not.toHaveText(firstSummary);
+  await expect(summary).toContainText(/ · \d+ contributing records?$/u);
+  await drawer.locator("[data-widget-detail-chart] [data-chart-point]").first().click();
+  await expect(summary).toHaveText(firstSummary);
   if (testInfo.project.name === "mobile") {
     const rows = drawer.locator("[data-linked-records-table]");
     await expect.poll(() => rows.evaluate((element) => element.scrollHeight > element.clientHeight)).toBe(true);
@@ -97,7 +105,6 @@ test("combined calendar adds two lists, toggles sources, opens records, exports 
       await expect(connected).toBeVisible();
       await connected.check();
       await expect(connected).toBeChecked();
-
     } else await expect(page.getByRole("heading", { name: "My connected calendars" })).toHaveCount(0);
     const toggle = page.getByRole("checkbox", { name: "Tasks · Due date", exact: true });
     await toggle.uncheck();
@@ -106,7 +113,10 @@ test("combined calendar adds two lists, toggles sources, opens records, exports 
     await sources.getByRole("button", { name: "Close", exact: true }).click();
     await expect(sources).toHaveCount(0);
     await expect(page.locator("[data-calendar-entry]").first()).toBeVisible();
-    if (e2eAppMode() !== "self-hosted") await expect(page.locator("[data-calendar-entry]").filter({ hasText: "Planner recurring meeting" }).first()).toBeVisible();
+    if (e2eAppMode() !== "self-hosted")
+      await expect(
+        page.locator("[data-calendar-entry]").filter({ hasText: "Planner recurring meeting" }).first(),
+      ).toBeVisible();
     if (testInfo.project.name !== "mobile") {
       await page.getByRole("tab", { name: "Week", exact: true }).click();
       await expect(page.locator("[data-planner-week-schedule]")).toBeVisible();
@@ -215,7 +225,10 @@ test("combined calendar adds two lists, toggles sources, opens records, exports 
     expect((await page.request.get(url, { timeout: 90000 })).status()).toBe(410);
     expect(errors).toEqual([]);
   } finally {
-    await database.query('DELETE FROM "CalendarEvent" WHERE id=$1 AND "companyId"=$2', [recurringEventId, DEMO_COMPANY_ID]);
+    await database.query('DELETE FROM "CalendarEvent" WHERE id=$1 AND "companyId"=$2', [
+      recurringEventId,
+      DEMO_COMPANY_ID,
+    ]);
     if (subscriptionUrl)
       await database.query('DELETE FROM "CalendarSubscription" WHERE "companyId"=$1 AND "userId"=$2', [
         DEMO_COMPANY_ID,
@@ -261,10 +274,12 @@ test("German chart appearance labels fit and edit stays available through the lo
     await expect(card.locator("[data-chart-point]").first()).toBeVisible();
     const edit = germanMessages.Dashboard.widgetEditor.editTitle.replace("{name}", "Pipeline by stage");
     await expect(card.getByRole("button", { name: edit, exact: true })).toHaveCount(1);
-    await expect(card.getByRole("button", {
-      name: germanMessages.RecordModel.moreActions.replace("{name}", "Pipeline by stage"),
-      exact: true,
-    })).toHaveCount(0);
+    await expect(
+      card.getByRole("button", {
+        name: germanMessages.RecordModel.moreActions.replace("{name}", "Pipeline by stage"),
+        exact: true,
+      }),
+    ).toHaveCount(0);
     if (testInfo.project.name === "mobile") await card.getByRole("button", { name: edit, exact: true }).first().click();
     else {
       await card.click({ button: "right" });

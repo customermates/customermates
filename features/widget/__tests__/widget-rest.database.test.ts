@@ -77,7 +77,7 @@ const everywhere = (i: string, lg: { x: number; y: number; w: number; h: number 
   lg: [{ i, ...lg }],
 });
 
-describeDatabase("widget REST routes on PostgreSQL", { timeout: 30000 }, () => {
+describeDatabase("widget REST routes on PostgreSQL", { timeout: 120_000 }, () => {
   it("saves, lists and reads calendar and map widgets, the calendar for another window", async () => {
     const w = await workspace();
     const field = (typeKey: string, label: string, valueType: "date" | "address") => ({

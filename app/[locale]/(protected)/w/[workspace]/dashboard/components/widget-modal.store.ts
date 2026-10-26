@@ -603,7 +603,13 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
 
   onSubmit = async (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
-    if (this.isLoading || !this.form.name.trim()) return;
+    if (this.isLoading) return;
+    const error = this.t("Common.errors.mustNotBeBlank");
+    const named = z.object({ name: z.string().trim().min(1, { error }) }).safeParse(this.form);
+    if (!named.success) {
+      this.setError(z.treeifyError(named.error));
+      return;
+    }
     const session = this.sessionGeneration;
     this.setIsLoading(true);
 

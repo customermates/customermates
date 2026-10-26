@@ -258,7 +258,7 @@ test("preserves widget previews and accessible draft confirmations across respon
     const widget = page.getByRole("dialog", { name: "Add widget", exact: true });
     await page.getByRole("dialog").locator("#widget-starter-verticalBarChart").click();
     await expect(widget).toHaveAttribute("data-overlay-surface", surface);
-    await widget.getByRole("textbox", { name: "Name", exact: true }).fill("Keep this responsive widget draft");
+    await widget.locator("#name").fill("Keep this responsive widget draft");
     await widget.getByRole("combobox", { name: "Records from", exact: true }).click();
     await page.getByRole("option", { name: "Services", exact: true }).click();
     await expect(preview).toBeVisible();
@@ -271,7 +271,7 @@ test("preserves widget previews and accessible draft confirmations across respon
     await guard.getByRole("button", { name: "Cancel", exact: true }).click();
     await expect(guard).toHaveCount(0);
     await expect(widget).toHaveAttribute("data-overlay-surface", surface);
-    await expect(widget.getByRole("textbox", { name: "Name", exact: true })).toHaveValue(
+    await expect(widget.locator("#name")).toHaveValue(
       "Keep this responsive widget draft",
     );
     await expect(preview).toBeVisible();

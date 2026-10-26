@@ -159,5 +159,9 @@ export function countMcpTools(tools: readonly Pick<McpTool, "name">[] = ALL_MCP_
 }
 
 export const MCP_TOOL_COUNT = countMcpTools();
+
+export function offeredMcpToolCount(appMode: AppMode): number {
+  return countMcpTools([...Object.values(mcpToolGroupsForAppMode(appMode)).flat(), ...MCP_ALWAYS_ON_TOOLS]);
+}
 export const MCP_GROUPED_TOOL_COUNT = Object.values(MCP_TOOL_GROUPS).flat().length;
 export const MCP_TOOLSET_COUNT = Object.keys(MCP_TOOL_GROUPS).length;

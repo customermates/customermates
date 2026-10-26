@@ -4,7 +4,7 @@ heading: "Connect AI clients to your CRM with MCP"
 description: Customermates exposes a native MCP endpoint at /api/v1/mcp so Claude, ChatGPT, Cursor, and other agent clients can read and write your CRM directly.
 ---
 
-Customermates exposes one MCP endpoint at `<BASE_URL>/api/v1/mcp`, where `<BASE_URL>` is the address you open Customermates at, and every workspace also has its own URL, `<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>`, with the same tools locked to that workspace. A connected client discovers all [[derived.mcp.tools.total]] CRM tools automatically. Two ways to connect:
+Customermates exposes one MCP endpoint at `<BASE_URL>/api/v1/mcp`, where `<BASE_URL>` is the address you open Customermates at, and every workspace also has its own URL, `<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>`, with the same tools locked to that workspace. A connected client discovers the CRM tools automatically. Two ways to connect:
 
 - **Custom connector (OAuth):** for Claude (web, desktop, mobile) and ChatGPT. Paste the URL, sign in, approve; no key to manage. See [Connect with a custom connector](/docs/connect-custom-connector).
 - **API key:** for CLI and editor clients (Claude Code, Codex, Cursor, Gemini CLI) and raw HTTP. Send the 64-character key in the `x-api-key` header or a config file.
@@ -46,7 +46,7 @@ Open [API keys](app:settings/api-keys) in Settings and click [Add](app:settings/
 Give the client `POST <BASE_URL>/api/v1/mcp` with the `x-api-key` header, or connect through OAuth where the client supports it. The guides in the table below carry the exact configuration.
 </Step>
 <Step title="Confirm the tools arrived">
-Ask the client to list its tools. All [[derived.mcp.tools.total]] should appear. `get_workspace_context` is the natural first call: it returns your user, company, roles, connected accounts and the Knowledge Base in one go; record-type labels come from `discover_record_types`.
+Ask the client to list its tools; `get_workspace_context` should be among them. It is the natural first call: it returns your user, company, roles, connected accounts and the Knowledge Base in one go; record-type labels come from `discover_record_types`.
 </Step>
 </Steps>
 
@@ -66,7 +66,7 @@ Ask the client to list its tools. All [[derived.mcp.tools.total]] should appear.
 
 When a client connects, the server sends workflow guidance: read the schema first, find ids before writing, change records and relations through `mutate_crm_record`, and get the user's confirmation, naming the exact records or recipients, before deleting or sending. This guidance is not a server-enforced confirmation gate, and whether a client passes it to the model depends on the client. Check how your client handles instructions and approvals before granting write, delete or messaging access. Clients that support MCP prompts can run the built-in `get-started` prompt, which summarizes the workspace for a personalized start; it is offered when both the `workspace` and `records` toolsets are active, as they are when the URL selects no `toolsets`.
 
-The full [[derived.mcp.tools.total]]-tool surface is the default. Append `?toolsets=` to the endpoint URL to narrow it, for example `/api/v1/mcp?toolsets=records,messaging`; see [Narrowing with ?toolsets=](/docs/mcp#narrowing-with-toolsets).
+The full tool surface is the default. Append `?toolsets=` to the endpoint URL to narrow it, for example `/api/v1/mcp?toolsets=records,messaging`; see [Narrowing with ?toolsets=](/docs/mcp#narrowing-with-toolsets).
 
 ## Shared Knowledge Base [#shared-workspace-wiki]
 
@@ -165,7 +165,7 @@ Both live at the same base URL: MCP at `/api/v1/mcp`, the OpenAPI spec at `/api/
 
 ## What can the MCP server do? Tool catalog [#tool-catalog]
 
-Customermates exposes [[derived.mcp.tools.total]] MCP tools, all enabled by default. They cover configurable records, record-model management, workspace, saved views, the Knowledge Base, messaging, social posts, documentation and deep research, widgets, routines, webhooks, admin and support. Read the relevant group below before calling a tool.
+Customermates exposes up to [[derived.mcp.tools.total]] MCP tools, all enabled by default. They cover configurable records, record-model management, workspace, saved views, the Knowledge Base, messaging, social posts, documentation and deep research, widgets, routines, webhooks, admin and support. `lookup_address` is listed only when the server has an address lookup service configured (see [Verified addresses](/docs/mcp#verified-addresses)), so Customermates Cloud lists one fewer. Read the relevant group below before calling a tool.
 
 ### Safety flags [#safety-flags]
 
@@ -181,7 +181,7 @@ Full JSON Schema for every tool is available live at `POST /api/v1/mcp` with `me
 
 ### Records
 
-The [[derived.mcp.tools.groups.records]] record tools serve every list in the workspace, whoever created it. Discover the type, read its current schema, then query or change its records. Fetch only the schemas the task needs; the catalog does not grow with customer fields.
+The record tools serve every list in the workspace, whoever created it. Discover the type, read its current schema, then query or change its records. Fetch only the schemas the task needs; the catalog does not grow with customer fields.
 
 Every record reference carries both `typeId` and `recordId`. `query_crm_records` pages through one type, `search_crm_records` finds accessible records, and `query_crm_measure` calculates totals across all matches. Never infer a complete total from one page, and inspect ambiguous search results before choosing a write target.
 
@@ -710,7 +710,7 @@ Required: `subject`, `body`.
 
 ### Narrowing with ?toolsets=
 
-All [[derived.mcp.tools.total]] tools are on by default. To expose only part of the surface, append `?toolsets=` with comma-separated group keys to the endpoint URL:
+All tools are on by default. To expose only part of the surface, append `?toolsets=` with comma-separated group keys to the endpoint URL:
 
 ```
 <BASE_URL>/api/v1/mcp?toolsets=records,messaging

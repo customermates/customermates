@@ -7,7 +7,9 @@ import { parseRelationshipColumnKey, relationshipColumnKey } from "./record-colu
 import { defaultHiddenColumns, recordColumns } from "./record-columns";
 import { RecordQuerySchema } from "./record-query.schema";
 
-export const EMBEDDED_PAGE_SIZE = 10;
+import { DEFAULT_DATA_VIEW_PAGE_SIZE } from "@/core/data-view/data-view-state.schema";
+
+export const EMBEDDED_PAGE_SIZE = DEFAULT_DATA_VIEW_PAGE_SIZE;
 
 export type EmbeddedSublistPage = {
   columns: string[] | null;

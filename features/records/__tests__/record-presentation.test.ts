@@ -207,6 +207,7 @@ describe("record view defaults", () => {
       viewMode: ViewMode.table,
       grouping: null,
       sortDescriptor: null,
+      pageSize: 25,
     });
     expect(recordDefaults(deal.id, model.fields, [], notes).columnOrder).toEqual([
       notes,

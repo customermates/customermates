@@ -23,6 +23,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { ViewMode } from "@/core/base/base-query-builder";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
+import { DEFAULT_DATA_VIEW_PAGE_SIZE } from "@/core/data-view/data-view-state.schema";
 import { actionData } from "@/core/utils/action-data";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { recordDisplayName } from "@/features/records/record-display-name";
@@ -108,6 +109,7 @@ type ScopedRecordsSheetProps = {
   lead?: ReactNode;
   actions?: AppModalActionProps[];
   closeOnOpen?: boolean;
+  persistAppearance?: boolean;
   onClose: () => void;
 };
 
@@ -124,6 +126,7 @@ export const ScopedRecordsSheet = observer(function ScopedRecordsSheet({
   lead,
   actions = [],
   closeOnOpen = false,
+  persistAppearance = false,
   onClose,
 }: ScopedRecordsSheetProps) {
   const root = useRootStore();
@@ -142,12 +145,13 @@ export const ScopedRecordsSheet = observer(function ScopedRecordsSheet({
         viewMode: ViewMode.table,
         grouping: null,
         page: 1,
-        pageSize: 10,
+        pageSize: DEFAULT_DATA_VIEW_PAGE_SIZE,
         viewId: ALL_VIEW_KEY,
       }),
     )
       .then((data) => {
-        if (active) setStore({ filter, store: new RecordExplorationStore(root, data, [filter]) });
+        if (active)
+          setStore({ filter, store: new RecordExplorationStore(root, data, [filter], { persistAppearance }) });
       })
       .catch((cause: unknown) => {
         if (active) {
@@ -158,7 +162,7 @@ export const ScopedRecordsSheet = observer(function ScopedRecordsSheet({
     return () => {
       active = false;
     };
-  }, [filter, root, typeId, attempt]);
+  }, [filter, root, typeId, attempt, persistAppearance]);
   const current = store && store.filter === filter ? store.store : null;
   const open = useCallback(
     (ref: RecordRef, trigger?: HTMLElement | null) => {

@@ -194,7 +194,7 @@ test("keeps 100 linked deals within three chip rows, pages and opens them in the
   await expect(drawer.getByRole("heading", { name: "Deals", exact: true })).toBeVisible();
   await expect(drawer).toContainText("100 records");
   const rows = linkedRecordOpeners(drawer);
-  await expect(rows).toHaveCount(10);
+  await expect(rows).toHaveCount(25);
   const [first] = await linkedRecordNames(drawer);
   await drawer.getByRole("button", { name: "Next page", exact: true }).click();
   await expect.poll(async () => (await linkedRecordNames(drawer)).includes(first)).toBe(false);
