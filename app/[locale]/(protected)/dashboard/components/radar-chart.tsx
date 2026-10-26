@@ -1,5 +1,7 @@
 "use client";
 
+import { chartPointAction } from "./chart-point-action";
+
 import type { ChartDataPoint } from "./chart.types";
 
 import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from "recharts";
@@ -32,8 +34,25 @@ export const RadarChartComponent = observer(({ currency, chartData, colors }: Pr
         <PolarGrid stroke="var(--border)" />
 
         <Radar
+          activeDot={{ pointerEvents: "none" }}
           dataKey="value"
-          dot={{ fillOpacity: 1, r: 3, stroke: "var(--background)", strokeWidth: 2 }}
+          dot={({ cx, cy, index, fill }: { cx?: number; cy?: number; index: number; fill?: string }) =>
+            cx == null || cy == null ? (
+              <g key={index} />
+            ) : (
+              <circle
+                key={index}
+                cx={cx}
+                cy={cy}
+                fill={fill}
+                fillOpacity={1}
+                r={3}
+                stroke="var(--background)"
+                strokeWidth={2}
+                {...(chartData[index] ? chartPointAction(chartData[index]) : {})}
+              />
+            )
+          }
           fill={colors[0]}
           fillOpacity={0.3}
           isAnimationActive={reducedMotion === false}
