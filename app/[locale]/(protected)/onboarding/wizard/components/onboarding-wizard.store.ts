@@ -195,8 +195,6 @@ export class OnboardingWizardStore {
     }
   };
 
-  startEmpty = (): Promise<void> => this.completeSetupStep();
-
   complete = async (): Promise<void> => {
     this.setIsSubmitting(true);
     try {

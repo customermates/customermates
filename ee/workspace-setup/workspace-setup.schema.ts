@@ -3,9 +3,9 @@ import { z } from "zod";
 import { CHIP_COLORS } from "@/constants/chip-colors";
 import { ChartColor } from "@/features/widget/widget-display.schema";
 import { RecordRefSchema } from "@/features/records/record-model.schema";
-import type { SetupAnswersSchema } from "@/features/workspace-setup/setup-answers.schema";
+import type { SetupAnswers } from "@/features/workspace-setup/setup-answers.schema";
 import { SetupAnswerValueSchema, StoredSetupAnswersSchema } from "@/features/workspace-setup/setup-answers.schema";
-import type { SetupPlanSchema } from "@/features/workspace-setup/setup-plan.schema";
+import type { SetupPlan } from "@/features/workspace-setup/setup-plan.schema";
 import { WIDGET_STARTER_DISPLAY_TYPES } from "@/features/widget/widget-display-rules";
 
 export const WORKSPACE_SETUP_STATUSES = [
@@ -214,9 +214,9 @@ export type WorkspaceSetupRecord = {
   status: WorkspaceSetupStatus;
   websiteUrl: string | null;
   crawlId: string | null;
-  answers: z.infer<typeof SetupAnswersSchema>;
+  answers: SetupAnswers;
   interview: StoredSetupInterview;
-  plan: z.infer<typeof SetupPlanSchema> | null;
+  plan: SetupPlan | null;
   planRevision: number;
   phases: StoredSetupPhases;
   artifacts: Record<string, unknown>;

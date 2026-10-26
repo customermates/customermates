@@ -8,7 +8,7 @@ const harness = vi.hoisted(() => ({
   rootStore: null as unknown,
   start: vi.fn(),
   status: vi.fn(),
-  startEmpty: vi.fn(),
+  completeSetupStep: vi.fn(),
 }));
 
 vi.mock("next-intl", () => ({
@@ -53,7 +53,7 @@ beforeEach(() => {
   store.hydrate({ available: true, setup: null });
   harness.rootStore = {
     workspaceSetupStore: store,
-    onboardingWizardStore: { isSubmitting: false, startEmpty: harness.startEmpty },
+    onboardingWizardStore: { isSubmitting: false, completeSetupStep: harness.completeSetupStep },
   };
 });
 

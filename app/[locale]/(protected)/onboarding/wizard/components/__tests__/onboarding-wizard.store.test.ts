@@ -310,7 +310,7 @@ describe("OnboardingWizardStore", () => {
     store.initialize(1, "owner-a");
     expect(store.currentStep).toBe("setup");
 
-    await store.startEmpty();
+    await store.completeSetupStep();
 
     expect(actions.completeOnboardingSetupStepAction).toHaveBeenCalledOnce();
     expect(actions.completeOnboardingWizardAction).not.toHaveBeenCalled();
@@ -327,7 +327,7 @@ describe("OnboardingWizardStore", () => {
     });
     const store = new OnboardingWizardStore(rootStore);
 
-    await store.startEmpty();
+    await store.completeSetupStep();
 
     expect(actions.completeOnboardingWizardAction).not.toHaveBeenCalled();
     expect(assign).not.toHaveBeenCalled();

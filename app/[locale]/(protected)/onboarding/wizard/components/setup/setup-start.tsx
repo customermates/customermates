@@ -38,7 +38,7 @@ export const SetupStartEmpty = observer(function SetupStartEmpty() {
         open={confirming}
         title={t("WorkspaceSetup.empty.title")}
         onCancel={() => setConfirming(false)}
-        onConfirm={wizard.startEmpty}
+        onConfirm={wizard.completeSetupStep}
       />
     </>
   );

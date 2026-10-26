@@ -251,7 +251,7 @@ export function withLargePlacement(id: string, layout: WidgetLayout | null, plac
 
 export const DASHBOARD_METRICS_PER_ROW = 4;
 export const DASHBOARD_CHART_HEIGHT = 5;
-const DASHBOARD_CHART_ROW_PATTERN = [3] as const;
+const DASHBOARD_CHARTS_PER_ROW = 3;
 
 export type DashboardLayoutItem = { metric: boolean; wide?: boolean };
 
@@ -266,14 +266,14 @@ function chartRowSizes(count: number): number[] {
   const sizes: number[] = [];
   let left = count;
   while (left > 0) {
-    const size = Math.min(DASHBOARD_CHART_ROW_PATTERN[sizes.length % DASHBOARD_CHART_ROW_PATTERN.length], left);
+    const size = Math.min(DASHBOARD_CHARTS_PER_ROW, left);
     sizes.push(size);
     left -= size;
   }
   if (sizes.length > 1 && sizes.at(-1) === 1) {
     sizes.pop();
     const previous = sizes.pop() ?? 0;
-    sizes.push(...(previous === 3 ? [2, 2] : [previous + 1]));
+    sizes.push(...(previous === DASHBOARD_CHARTS_PER_ROW ? [2, 2] : [previous + 1]));
   }
   return sizes;
 }
