@@ -757,13 +757,12 @@ describe("hub pagination and rendered reachability", () => {
   });
 
   it.skipIf(!E2E_BASE_URL)(
-    "answers a signed-out request for a path no route serves with a 404, and keeps protected routes behind sign-in",
+    "answers a signed-out request for a path no route serves with a 404, and keeps protected and unslugged app routes behind sign-in",
     async () => {
       for (const path of [
         "/en/this-page-does-not-exist",
         "/de/profile/nope",
         "/zz/nothing-here",
-        "/en/records/30000000-0000-4000-8000-000000000001/40000000-0000-4000-8000-000000000001",
       ]) {
         const response = await e2eResponse(path);
         expect(response.status, path).toBe(404);
@@ -772,6 +771,8 @@ describe("hub pagination and rendered reachability", () => {
 
       for (const path of [
         "/en/dashboard",
+        "/en/records/30000000-0000-4000-8000-000000000001/40000000-0000-4000-8000-000000000001?tab=notes",
+        "/en/settings/profile",
         "/en/w/small-business/records/30000000-0000-4000-8000-000000000001/40000000-0000-4000-8000-000000000001?tab=notes",
       ]) {
         const response = await e2eResponse(path);

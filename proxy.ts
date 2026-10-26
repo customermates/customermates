@@ -26,6 +26,7 @@ import contentSlugs from "./generated/content-slugs.json";
 import { SESSION_HINT_COOKIE_NAME, expiredSessionHintCookie, sessionHintCookie } from "./features/auth/session-hint";
 import {
   WORKSPACE_HEADER,
+  legacyWorkspaceEntryHref,
   stripWorkspaceApiPrefix,
   workspaceSlugFromApiPathname,
   workspaceSlugFromPathname,
@@ -336,6 +337,10 @@ async function routePageRequest(
 
     return NextResponse.redirect(signInUrl);
   }
+
+  const legacyWorkspaceEntry = legacyWorkspaceEntryHref(stripLocalePrefix(pathname), req.nextUrl.search);
+  if (legacyWorkspaceEntry)
+    return NextResponse.redirect(new URL(buildLocalePath(currentLocale, legacyWorkspaceEntry), base));
 
   return intlAppMiddleware(req);
 }

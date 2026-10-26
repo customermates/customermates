@@ -8,6 +8,7 @@ import {
   absoluteWorkspaceUrl,
   isWorkspaceAppPath,
   isWorkspaceSlugSegment,
+  legacyWorkspaceEntryHref,
   splitWorkspacePath,
   stripWorkspacePrefix,
   withWorkspaceHref,
@@ -87,6 +88,15 @@ describe("workspace path helpers", () => {
     for (const href of ["/auth/signin", "/pricing", "https://example.com/records/x", "//evil.example/records", "#x"])
       expect(withWorkspaceHref(href, "acme")).toBe(href);
     expect(withWorkspaceHref(RECORD, null)).toBe(RECORD);
+  });
+
+  it("routes only unslugged workspace app paths without their own page through the workspace entry", () => {
+    expect(legacyWorkspaceEntryHref(RECORD, "?tab=notes&open=/trash")).toBe(
+      `/dashboard?open=${encodeURIComponent(RECORD)}&tab=notes`,
+    );
+    expect(legacyWorkspaceEntryHref("/settings/profile", "")).toBe("/dashboard?open=%2Fsettings%2Fprofile");
+    for (const path of ["/dashboard", "/onboarding/wizard", `/w/acme${RECORD}`, "/pricing", "/auth/signin", "/inboxes"])
+      expect(legacyWorkspaceEntryHref(path, ""), path).toBeNull();
   });
 
   it("reads only a valid slug from the trusted request header", () => {

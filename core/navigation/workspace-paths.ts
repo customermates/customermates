@@ -123,3 +123,15 @@ export function workspaceEntryTarget(value: unknown): string {
   if (typeof value !== "string" || !value.startsWith("/") || value.startsWith("//")) return WORKSPACE_LANDING_PATH;
   return isWorkspaceAppPath(value) ? value : WORKSPACE_LANDING_PATH;
 }
+
+const UNSLUGGED_APP_ROUTES = [WORKSPACE_LANDING_PATH, "/onboarding/wizard"] as const;
+
+export function legacyWorkspaceEntryHref(unprefixedPath: string, search: string): string | null {
+  if (splitWorkspacePath(unprefixedPath) || !isWorkspaceAppPath(unprefixedPath)) return null;
+  if (UNSLUGGED_APP_ROUTES.some((route) => hasRoot(unprefixedPath, route))) return null;
+
+  const params = new URLSearchParams(search);
+  params.delete(WORKSPACE_ENTRY_TARGET_PARAM);
+  const rest = params.toString();
+  return `${workspaceEntryHref(unprefixedPath)}${rest ? `&${rest}` : ""}`;
+}

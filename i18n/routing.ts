@@ -2,9 +2,9 @@ import type { NextRequest } from "next/server";
 
 import { defineRouting } from "next-intl/routing";
 
-import { APP_LOCALES, CONTENT_LOCALES, DEFAULT_LOCALE, ROUTING_LOCALES } from "./locale-registry";
+import { APP_LOCALES, CONTENT_LOCALES, DEFAULT_LOCALE, ROUTING_LOCALES, stripLocalePrefix } from "./locale-registry";
 
-import { workspaceSlugFromPathname } from "../core/navigation/workspace-paths";
+import { legacyWorkspaceEntryHref, workspaceSlugFromPathname } from "../core/navigation/workspace-paths";
 
 export const NOINDEX_PUBLIC_ROUTES = [
   "/auth/signin",
@@ -185,6 +185,7 @@ export function isProtectedPathname(pathname: string) {
   const decoded = decodePathname(pathname);
   if (decoded === null) return true;
   if (workspaceSlugFromPathname(decoded) !== null) return true;
+  if (legacyWorkspaceEntryHref(stripLocalePrefix(decoded), "") !== null) return true;
 
   for (const p of PROTECTED_ROUTES) if (buildLocaleAwareRegex(p).test(decoded)) return true;
 
