@@ -1,8 +1,5 @@
 import type { SetupAnswers } from "./setup-answers.schema";
 
-export const SETUP_SCREENS = ["workspace"] as const;
-export type SetupScreen = (typeof SETUP_SCREENS)[number];
-
 export const SETUP_QUESTION_FORMATS = [
   "singleChoice",
   "multipleChoice",
@@ -18,8 +15,7 @@ type SetupPrefillLevel = (typeof SETUP_PREFILL_LEVELS)[number];
 export const SETUP_OPTION_SOURCES = ["countries", "currencies", "locales"] as const;
 export type SetupOptionSource = (typeof SETUP_OPTION_SOURCES)[number];
 
-export const SETUP_MAX_FOLLOW_UP_QUESTIONS = 3;
-export const SETUP_ASKED_FOLLOW_UP_QUESTIONS = 1;
+export const SETUP_FOLLOW_UP_QUESTIONS = 1;
 export const SETUP_PREFILL_CONFIDENCE = 0.7;
 
 export const SETUP_BASICS_QUESTION = "basics";
@@ -41,7 +37,7 @@ export type SetupQuestionPart = SetupPartBase &
     | { format: "singleChoice"; options: SetupOption[]; optionSource?: undefined; upload?: boolean }
     | { format: "singleChoice"; options: []; optionSource: SetupOptionSource; upload?: undefined }
     | { format: "multipleChoice"; options: SetupOption[]; allowCustom: boolean }
-    | { format: "orderedList"; winChance: boolean; maxItems: number }
+    | { format: "orderedList"; maxItems: number }
     | { format: "rankedPick"; options: SetupOption[]; maxPicks: number }
     | { format: "range"; unit: "currency" | "days"; single: boolean; min: number; max: number }
     | { format: "shortText"; maxLength: number; placeholderKey?: string }
@@ -50,23 +46,8 @@ export type SetupQuestionPart = SetupPartBase &
 export type SetupQuestion = {
   id: string;
   number: number;
-  screen: SetupScreen;
   visibleWhen?: SetupVisibility;
   parts: SetupQuestionPart[];
-};
-
-type SetupScreenDefinition = { id: SetupScreen; titleKey: string };
-
-export const SETUP_SCREEN_DEFINITIONS: SetupScreenDefinition[] = [
-  { id: "workspace", titleKey: "WorkspaceSetup.screens.workspace" },
-];
-
-export const SETUP_INTERVIEW_ACTIONS = {
-  confirm: { labelKey: "OnboardingWizard.next" },
-  addOwn: { labelKey: "WorkspaceSetup.actions.addOwn" },
-  upload: { labelKey: "WorkspaceSetup.actions.upload" },
-  fromWebsite: { labelKey: "WorkspaceSetup.actions.fromWebsite" },
-  winChance: { labelKey: "WorkspaceSetup.actions.winChance" },
 };
 
 export const SETUP_STEP_FLOWS = [
@@ -87,7 +68,6 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
   {
     id: "workWith",
     number: 1,
-    screen: "workspace",
     parts: [
       {
         id: "workWith",
@@ -105,7 +85,6 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
   {
     id: "purpose",
     number: 2,
-    screen: "workspace",
     parts: [
       {
         id: "purpose",
@@ -132,7 +111,6 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
   {
     id: "mainSteps",
     number: 3,
-    screen: "workspace",
     visibleWhen: { part: "purpose", anyOf: [...SETUP_STEP_FLOWS] },
     parts: [
       {
@@ -140,7 +118,6 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
         optional: true,
         labelKey: "WorkspaceSetup.questions.mainSteps.label",
         format: "orderedList",
-        winChance: false,
         maxItems: 12,
         prefill: "suggested",
       },
@@ -149,7 +126,6 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
   {
     id: "pricing",
     number: 4,
-    screen: "workspace",
     visibleWhen: WITH_CUSTOMERS,
     parts: [
       {
@@ -171,7 +147,6 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
   {
     id: "team",
     number: 5,
-    screen: "workspace",
     parts: [
       {
         id: "teamSize",
@@ -190,7 +165,6 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
   {
     id: "existingData",
     number: 6,
-    screen: "workspace",
     parts: [
       {
         id: "existingData",
@@ -209,7 +183,6 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
   {
     id: "purposeDetails",
     number: 7,
-    screen: "workspace",
     parts: [
       {
         id: "purposeDetails",
@@ -225,7 +198,6 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
   {
     id: SETUP_BASICS_QUESTION,
     number: 8,
-    screen: "workspace",
     parts: [
       {
         id: "companyName",

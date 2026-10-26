@@ -56,7 +56,6 @@ export type WorkspaceSetupView = {
     followUps: SetupGenerationState;
     followUpQuestions: SetupFollowUpQuestion[];
     followUpAnswers: Array<{ id: string; value: SetupAnswerValue }>;
-    confirmedScreens: number;
   };
   plan: {
     status: SetupGenerationState;
@@ -127,7 +126,6 @@ export function workspaceSetupView(
       followUps: setup.interview.followUps,
       followUpQuestions: setup.interview.followUpQuestions,
       followUpAnswers: setup.interview.followUpAnswers,
-      confirmedScreens: setup.interview.confirmedScreens,
     },
     plan: {
       status: planStalled ? "failed" : setup.interview.plan,

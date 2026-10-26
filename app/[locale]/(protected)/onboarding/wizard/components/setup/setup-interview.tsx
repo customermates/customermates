@@ -240,7 +240,7 @@ export const SetupInterview = observer(function SetupInterview() {
 
       <SetupActionBar hint={t("WorkspaceSetup.interview.planHint")}>
         {store.adjusting ? (
-          <Button disabled={store.isBusy} type="button" variant="secondary" onClick={store.previousScreen}>
+          <Button disabled={store.isBusy} type="button" variant="secondary" onClick={store.discardAdjustment}>
             {t("Common.actions.back")}
           </Button>
         ) : null}

@@ -17,16 +17,7 @@ export const SetupAnswerValueSchema = z.discriminatedUnion("format", [
   z
     .object({
       format: z.literal("orderedList"),
-      items: z
-        .array(
-          z
-            .object({
-              label: CustomTextSchema,
-              winChance: z.number().int().min(0).max(100).optional(),
-            })
-            .strict(),
-        )
-        .max(20),
+      items: z.array(z.object({ label: CustomTextSchema })).max(20),
     })
     .strict(),
   z.object({ format: z.literal("rankedPick"), values: z.array(ChoiceIdSchema).min(1).max(3) }).strict(),
@@ -75,8 +66,6 @@ export const SetupAnswersSchema = z
       }
       if (value.format === "orderedList" && part.format === "orderedList") {
         if (value.items.length > part.maxItems) issue("Too many entries.");
-        if (!part.winChance && value.items.some((item) => item.winChance !== undefined))
-          issue("This list has no win chance.");
       }
       if (value.format === "rankedPick" && part.format === "rankedPick") {
         if (value.values.length > part.maxPicks) issue("Too many picks.");

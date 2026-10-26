@@ -1161,7 +1161,6 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
         setupId,
         answers: { companyName: { format: "shortText", value: "Typed by owner" } },
         followUpAnswers: [],
-        confirmedScreen: 0,
       }),
     );
     expect(saved.ok).toBe(true);
@@ -1184,7 +1183,7 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     const setup = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
     expect(setup).toMatchObject({
       websiteUrl: "https://studio-example.com/",
-      interview: { prefill: "idle", confirmedScreens: 1 },
+      interview: { prefill: "idle" },
     });
     expect(setup?.crawlId).toEqual(expect.any(String));
     expect(Object.keys(setup?.answers ?? {})).toEqual(["companyName"]);

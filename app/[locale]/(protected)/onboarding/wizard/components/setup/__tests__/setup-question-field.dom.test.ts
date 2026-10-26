@@ -86,7 +86,6 @@ const FORMAT_FIXTURES: Record<string, SetupQuestionPart> = {
     id: "salesSteps",
     labelKey: labelKey("salesSteps"),
     format: "orderedList",
-    winChance: true,
     maxItems: 12,
     prefill: "suggested",
   },
@@ -228,16 +227,12 @@ describe("SetupQuestionField", () => {
     expect(onChange).toHaveBeenLastCalledWith({ format: "multipleChoice", values: ["website"], custom: [] });
   });
 
-  it("edits, drags to reorder and removes ordered list entries with win chances", () => {
+  it("edits, drags to reorder and removes ordered list entries", () => {
     render(descriptorOf("salesSteps"), {
       format: "orderedList",
-      items: [
-        { label: "Lead", winChance: 10 },
-        { label: "Offer", winChance: 60 },
-      ],
+      items: [{ label: "Lead" }, { label: "Offer" }],
     });
 
-    expect(container.querySelectorAll('input[type="number"]')).toHaveLength(2);
     const handles = container.querySelectorAll('button[aria-label^="DataView.dragToReorderNamed"]');
     expect(handles).toHaveLength(2);
     expect([...handles].every((handle) => handle.parentElement?.lastElementChild === handle)).toBe(true);
@@ -247,20 +242,17 @@ describe("SetupQuestionField", () => {
     act(() => dndSpy.onDragEnd?.({ active: { id: offer }, over: { id: lead } } as DragEndEvent));
     expect(onChange).toHaveBeenLastCalledWith({
       format: "orderedList",
-      items: [
-        { label: "Offer", winChance: 60 },
-        { label: "Lead", winChance: 10 },
-      ],
+      items: [{ label: "Offer" }, { label: "Lead" }],
     });
 
     act(() => button("WorkspaceSetup.interview.addEntry").click());
     expect(onChange).toHaveBeenLastCalledWith({
       format: "orderedList",
-      items: [{ label: "Lead", winChance: 10 }, { label: "Offer", winChance: 60 }, { label: "" }],
+      items: [{ label: "Lead" }, { label: "Offer" }, { label: "" }],
     });
 
     act(() => container.querySelectorAll<HTMLButtonElement>('button[aria-label="Common.actions.remove"]')[0].click());
-    expect(onChange).toHaveBeenLastCalledWith({ format: "orderedList", items: [{ label: "Offer", winChance: 60 }] });
+    expect(onChange).toHaveBeenLastCalledWith({ format: "orderedList", items: [{ label: "Offer" }] });
   });
 
   it("ranks up to three picks in order and locks the rest", () => {

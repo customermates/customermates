@@ -10,7 +10,6 @@ import type { SetupStage } from "./setup-interview-state";
 import { makeAutoObservable, observable, runInAction, toJS } from "mobx";
 
 import { SPREADSHEET_MAX_FILE_BYTES } from "@/features/data-transfer/spreadsheet/spreadsheet.schema";
-import { SETUP_SCREENS } from "@/features/workspace-setup/setup-interview";
 import { touchAnswer } from "@/features/workspace-setup/setup-prefill";
 import { setupStepSuggestion } from "@/features/workspace-setup/setup-solution-match";
 import { serializedFailureErrorTree } from "@/core/validation/validation.utils";
@@ -31,16 +30,13 @@ import {
 } from "../../workspace-setup-actions";
 
 import {
-  adjacentScreenIndex,
   answerComplete,
+  answersPayload,
   displayedFollowUpValue,
-  interviewAnswersPayload,
   mergeServerAnswers,
-  missingScreenParts,
+  missingParts,
   resolveSetupStage,
-  resumeScreenIndex,
   sanitizeAnswerValue,
-  screenAnswersPayload,
   unansweredFollowUps,
 } from "./setup-interview-state";
 
@@ -65,7 +61,6 @@ export class WorkspaceSetupStore {
   answers: SetupAnswers = {};
   touched = observable.set<string>();
   followUpDrafts: Record<string, SetupAnswerValue> = {};
-  screenIndex = 0;
   adjusting = false;
   missingShown = false;
   spreadsheetRejection: SpreadsheetRejection | null = null;
@@ -99,14 +94,6 @@ export class WorkspaceSetupStore {
     return this.adjusting && ADJUSTABLE_STAGES.has(stage) ? "interview" : stage;
   }
 
-  get screen() {
-    return SETUP_SCREENS[this.screenIndex];
-  }
-
-  get isLastScreen(): boolean {
-    return adjacentScreenIndex(this.screenIndex, this.answers, 1) === null;
-  }
-
   get stepSuggestion(): SetupStepSuggestion | null {
     return this.answers.mainSteps ? null : setupStepSuggestion(this.answers);
   }
@@ -127,7 +114,7 @@ export class WorkspaceSetupStore {
         .filter((question) => !answerComplete(question, displayedFollowUpValue(question, setup, this.followUpDrafts)))
         .map((question) => question.id);
     }
-    const missing = missingScreenParts(this.screen, this.answers, this.locale);
+    const missing = missingParts(this.answers, this.locale);
     return this.needsSpreadsheet ? [...missing, "existingData"] : missing;
   }
 
@@ -189,7 +176,6 @@ export class WorkspaceSetupStore {
       this.adjusting = false;
       this.missingShown = false;
       this.spreadsheetRejection = null;
-      this.screenIndex = resumeScreenIndex(this.answers, setup?.interview.confirmedScreens ?? 0);
       return;
     }
     if (setup) this.answers = mergeServerAnswers(this.answers, this.touched, setup.interview.answers);
@@ -204,21 +190,17 @@ export class WorkspaceSetupStore {
     this.followUpDrafts = { ...this.followUpDrafts, [id]: value };
   };
 
-  previousScreen = () => {
-    if (this.isBusy) return;
-    const previous = adjacentScreenIndex(this.screenIndex, this.answers, -1);
-    if (previous === null) {
-      if (this.adjusting) this.discardAdjustment();
-      return;
-    }
-    this.missingShown = false;
-    this.screenIndex = previous;
-  };
-
   adjust = () => {
     if (this.isBusy) return;
     this.adjusting = true;
-    this.screenIndex = 0;
+  };
+
+  discardAdjustment = () => {
+    if (this.isBusy || !this.adjusting) return;
+    this.adjusting = false;
+    this.missingShown = false;
+    this.answers = this.setup?.interview.answers ?? {};
+    this.touched.clear();
   };
 
   private belongsToOtherWorkspace(view: WorkspaceSetupStatusView) {
@@ -257,27 +239,15 @@ export class WorkspaceSetupStore {
       return result;
     });
 
-  confirmScreen = () => {
-    if (this.adjusting && !this.isLastScreen) return Promise.resolve(this.nextAdjustedScreen());
-    return this.run("save", async () => {
+  confirmScreen = () =>
+    this.run("save", async () => {
       const setup = this.setup;
       if (!setup || !this.canConfirmScreen) return null;
       if (this.adjusting) return this.submitAdjustment(setup);
-      const answers = toJS(screenAnswersPayload(this.screen, toJS(this.answers), this.locale));
-      const saved = await saveWorkspaceSetupAnswersAction({
-        setupId: setup.id,
-        answers,
-        followUpAnswers: [],
-        confirmedScreen: this.screenIndex,
-      });
-      if (!saved.ok) return saved;
-      if (!this.isLastScreen) {
-        runInAction(() => this.advanceScreen());
-        return saved;
-      }
-      return this.requestPlan(setup.id);
+      const answers = toJS(answersPayload(toJS(this.answers), this.locale));
+      const saved = await saveWorkspaceSetupAnswersAction({ setupId: setup.id, answers, followUpAnswers: [] });
+      return saved.ok ? this.requestPlan(setup.id) : saved;
     });
-  };
 
   confirmFollowUps = () =>
     this.run("followUps", async () => {
@@ -351,25 +321,8 @@ export class WorkspaceSetupStore {
     return isAppLocale(this.locale) ? this.locale : undefined;
   }
 
-  private nextAdjustedScreen(): boolean {
-    if (this.isBusy || !this.setup || !this.canConfirmScreen) return false;
-    this.advanceScreen();
-    return true;
-  }
-
-  private advanceScreen() {
-    this.missingShown = false;
-    this.screenIndex = adjacentScreenIndex(this.screenIndex, this.answers, 1) ?? this.screenIndex;
-  }
-
-  private discardAdjustment() {
-    this.adjusting = false;
-    this.answers = this.setup?.interview.answers ?? {};
-    this.touched.clear();
-  }
-
   private async submitAdjustment(setup: WorkspaceSetupView) {
-    const answers = toJS(interviewAnswersPayload(toJS(this.answers), this.locale));
+    const answers = toJS(answersPayload(toJS(this.answers), this.locale));
     if (setup.status !== "planned") {
       const saved = await saveWorkspaceSetupAnswersAction({ setupId: setup.id, answers, followUpAnswers: [] });
       return saved.ok ? this.requestPlan(setup.id) : saved;

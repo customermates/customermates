@@ -5257,8 +5257,7 @@
       "addOwn": "Altro",
       "continueAnyway": "Continua comunque",
       "fromWebsite": "Suggerito dal tuo sito web",
-      "upload": "Carica un foglio di calcolo",
-      "winChance": "Probabilità di chiusura"
+      "upload": "Carica un foglio di calcolo"
     },
     "anchors": {
       "price": "Prezzo",
@@ -5366,8 +5365,7 @@
       "uploadKept": "La configurazione continua a usare {fileName}.",
       "uploadReady": "Pronto per l’importazione nelle tue nuove liste.",
       "uploadRejected": "Impossibile importare {fileName}. {reason}",
-      "uploadReplace": "Scegli un altro file",
-      "winChanceFor": "Probabilità di chiusura della voce {index}"
+      "uploadReplace": "Scegli un altro file"
     },
     "options": {
       "existingData": {
@@ -5477,9 +5475,6 @@
       "workWith": {
         "label": "Con chi lavori?"
       }
-    },
-    "screens": {
-      "workspace": "Il tuo lavoro"
     },
     "start": {
       "optionsLabel": "Modi per configurare il tuo spazio di lavoro",

@@ -20,7 +20,6 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { FormAutocompleteCountry } from "@/components/forms/form-autocomplete-country";
 import { FormAutocompleteCurrency } from "@/components/forms/form-autocomplete-currency";
-import { FormControlRow } from "@/components/forms/form-control-row";
 import { FormLabel } from "@/components/forms/form-label";
 import { DragHandle } from "@/components/shared/drag-handle";
 import { Button } from "@/components/ui/button";
@@ -166,7 +165,6 @@ function OrderedListRow({
   rowKey,
   item,
   index,
-  winChance,
   disabled,
   invalid,
   onChange,
@@ -175,7 +173,6 @@ function OrderedListRow({
   rowKey: string;
   item: OrderedItem;
   index: number;
-  winChance: boolean;
   disabled?: boolean;
   invalid?: boolean;
   onChange: (item: OrderedItem) => void;
@@ -201,34 +198,6 @@ function OrderedListRow({
         value={item.label}
         onChange={(event) => onChange({ ...item, label: event.target.value })}
       />
-
-      {winChance ? (
-        <FormControlRow>
-          <Input
-            aria-label={t("WorkspaceSetup.interview.winChanceFor", { index: index + 1 })}
-            className="pr-7 text-right"
-            disabled={disabled}
-            inputMode="numeric"
-            max={100}
-            min={0}
-            type="number"
-            value={item.winChance ?? ""}
-            onChange={(event) => {
-              const raw = event.target.value;
-              const parsed = Math.round(Number(raw));
-              const next = raw === "" || Number.isNaN(parsed) ? undefined : Math.min(100, Math.max(0, parsed));
-              onChange({ label: item.label, winChance: next });
-            }}
-          />
-
-          <span
-            aria-hidden
-            className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-muted-foreground"
-          >
-            %
-          </span>
-        </FormControlRow>
-      ) : null}
 
       <IconButton fieldAction disabled={disabled} icon={X} label={t("Common.actions.remove")} onClick={onRemove} />
 
@@ -272,21 +241,10 @@ function OrderedListField({
     if (from === -1 || to === -1) return;
     update(arrayMove(items, from, to), arrayMove(keys, from, to));
   };
-  const rowGrid = descriptor.winChance
-    ? "grid-cols-[minmax(0,1fr)_6rem_auto_auto]"
-    : "grid-cols-[minmax(0,1fr)_auto_auto]";
 
   return (
     <div className="flex flex-col gap-2">
-      <div className={cn("grid items-center gap-x-2", rowGrid)}>
-        {descriptor.winChance && items.length > 0 ? (
-          <div aria-hidden className="col-span-full grid grid-cols-subgrid pb-1">
-            <span className="col-start-2 truncate text-right text-xs font-medium text-muted-foreground">
-              {t("WorkspaceSetup.actions.winChance")}
-            </span>
-          </div>
-        ) : null}
-
+      <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-x-2">
         <DndContext collisionDetection={closestCenter} id={dndId} sensors={sensors} onDragEnd={handleDragEnd}>
           <SortableContext items={keys} strategy={verticalListSortingStrategy}>
             <ol aria-label={descriptor.label} className="col-span-full grid grid-cols-subgrid gap-y-2">
@@ -298,7 +256,6 @@ function OrderedListField({
                   invalid={invalid}
                   item={item}
                   rowKey={keys[index]}
-                  winChance={descriptor.winChance}
                   onChange={(next) =>
                     update(
                       items.map((entry, at) => (at === index ? next : entry)),

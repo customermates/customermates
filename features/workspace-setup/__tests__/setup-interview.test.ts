@@ -8,16 +8,7 @@ import { describe, expect, it } from "vitest";
 import { APP_LOCALES } from "@/i18n/locale-registry";
 
 import { SetupAnswersSchema, storedSetupAnswers } from "../setup-answers.schema";
-import {
-  SETUP_INTERVIEW_ACTIONS,
-  SETUP_PARTS,
-  SETUP_QUESTIONS,
-  SETUP_SCREEN_DEFINITIONS,
-  SETUP_SCREENS,
-  setupPart,
-  setupPartVisible,
-  setupVisibleAnswers,
-} from "../setup-interview";
+import { SETUP_PARTS, SETUP_QUESTIONS, setupPart, setupPartVisible, setupVisibleAnswers } from "../setup-interview";
 import { mergeWebsitePrefill, touchAnswer } from "../setup-prefill";
 
 function catalog(locale: string): Record<string, unknown> {
@@ -34,10 +25,8 @@ function lookup(messages: Record<string, unknown>, key: string): unknown {
 }
 
 describe("workspace setup interview", () => {
-  it("asks eight short questions on one screen in order", () => {
+  it("asks eight short questions in order", () => {
     expect(SETUP_QUESTIONS.map((question) => question.number)).toEqual(Array.from({ length: 8 }, (_, i) => i + 1));
-    expect(SETUP_SCREEN_DEFINITIONS.map((screen) => screen.id)).toEqual([...SETUP_SCREENS]);
-    expect(SETUP_SCREENS).toEqual(["workspace"]);
     expect(new Set(SETUP_PARTS.map((part) => part.id)).size).toBe(SETUP_PARTS.length);
   });
 
@@ -49,7 +38,7 @@ describe("workspace setup interview", () => {
       "language",
       "currency",
     ]);
-    expect(setupPart("mainSteps")).toMatchObject({ format: "orderedList", winChance: false, prefill: "suggested" });
+    expect(setupPart("mainSteps")).toMatchObject({ format: "orderedList", prefill: "suggested" });
     expect(setupPart("existingData")).toMatchObject({ format: "singleChoice", upload: true, prefill: "no" });
     expect(SETUP_QUESTIONS.at(-1)?.parts.map((part) => part.id)).toEqual([
       "companyName",
@@ -80,8 +69,6 @@ describe("workspace setup interview", () => {
   it.each(APP_LOCALES)("has every label in %s", (locale) => {
     const messages = catalog(locale);
     const keys = [
-      ...SETUP_SCREEN_DEFINITIONS.map((screen) => screen.titleKey),
-      ...Object.values(SETUP_INTERVIEW_ACTIONS).map((action) => action.labelKey),
       ...SETUP_PARTS.flatMap((part) => [
         part.labelKey,
         ...("options" in part ? part.options.map((option) => option.labelKey) : []),
@@ -175,16 +162,6 @@ describe("workspace setup answers", () => {
       },
     ],
     [
-      "a win chance on the steps",
-      {
-        mainSteps: {
-          source: "user",
-          confidence: 1,
-          value: { format: "orderedList", items: [{ label: "Audit", winChance: 50 }] },
-        },
-      },
-    ],
-    [
       "a website answer to a question never pre-filled",
       { existingData: { source: "website", confidence: 1, value: { format: "singleChoice", value: "empty" } } },
     ],
@@ -192,6 +169,18 @@ describe("workspace setup answers", () => {
     ["a confidence above one", { companyName: website(1.5, "Northwind") }],
   ])("rejects %s", (_name, answers) => {
     expect(SetupAnswersSchema.safeParse(answers).success).toBe(false);
+  });
+
+  it("reads stored steps that still carry a win chance", () => {
+    expect(
+      storedSetupAnswers({
+        mainSteps: {
+          source: "user",
+          confidence: 1,
+          value: { format: "orderedList", items: [{ label: "Audit", winChance: 50 }] },
+        },
+      }).mainSteps?.value,
+    ).toEqual({ format: "orderedList", items: [{ label: "Audit" }] });
   });
 
   it("keeps the stored answers that still fit when a question was removed", () => {

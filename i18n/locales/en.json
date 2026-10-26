@@ -5257,8 +5257,7 @@
       "addOwn": "Something else",
       "continueAnyway": "Continue anyway",
       "fromWebsite": "Suggested from your website",
-      "upload": "Upload a spreadsheet",
-      "winChance": "Win chance"
+      "upload": "Upload a spreadsheet"
     },
     "anchors": {
       "price": "Price",
@@ -5366,8 +5365,7 @@
       "uploadKept": "The setup keeps {fileName}.",
       "uploadReady": "Ready to import into your new lists.",
       "uploadRejected": "{fileName} cannot be imported. {reason}",
-      "uploadReplace": "Choose another file",
-      "winChanceFor": "Win chance of entry {index}"
+      "uploadReplace": "Choose another file"
     },
     "options": {
       "existingData": {
@@ -5477,9 +5475,6 @@
       "workWith": {
         "label": "Who do you work with?"
       }
-    },
-    "screens": {
-      "workspace": "About your work"
     },
     "start": {
       "optionsLabel": "Ways to set up your workspace",

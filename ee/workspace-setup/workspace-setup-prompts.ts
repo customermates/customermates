@@ -2,7 +2,7 @@ import type { SetupAnswers } from "@/features/workspace-setup/setup-answers.sche
 import type { SetupQuestionPart } from "@/features/workspace-setup/setup-interview";
 import type { WikiSynthesisRole } from "@/ee/wiki-crawl/wiki-synthesis.schema";
 
-import { SETUP_ASKED_FOLLOW_UP_QUESTIONS, SETUP_PARTS } from "@/features/workspace-setup/setup-interview";
+import { SETUP_FOLLOW_UP_QUESTIONS, SETUP_PARTS } from "@/features/workspace-setup/setup-interview";
 import { SETUP_PLAN_LIMITS } from "@/features/workspace-setup/setup-plan.schema";
 import { getTranslator } from "@/i18n/get-translator";
 
@@ -28,7 +28,7 @@ export const SETUP_PREFILL_INSTRUCTION = [
 
 export const SETUP_FOLLOW_UP_INSTRUCTION = [
   "You review the answers to a workspace onboarding interview before the workspace is configured from them.",
-  `Ask at most ${SETUP_ASKED_FOLLOW_UP_QUESTIONS} follow-up question. The interview is deliberately short, so the plan fills gaps with what is typical for this kind of work.`,
+  `Ask at most ${SETUP_FOLLOW_UP_QUESTIONS} follow-up question. The interview is deliberately short, so the plan fills gaps with what is typical for this kind of work.`,
   "Ask only when an answer is genuinely ambiguous or contradictory in a way that would change which lists, steps, fields or dashboard tiles get built, for example an own entry under purpose whose steps are unclear, and return no questions when the answers are clear enough.",
   "Write the question in plain everyday words, without sales or software terms.",
   "Each question uses one of the given formats and offers concrete options or suggestions wherever possible. Write in the interview language.",
@@ -171,7 +171,7 @@ function partDescription(part: SetupQuestionPart, label: (key: string) => string
         })),
       };
     case "orderedList":
-      return { ...base, maxItems: part.maxItems, winChance: part.winChance };
+      return { ...base, maxItems: part.maxItems };
     case "range":
       return {
         ...base,

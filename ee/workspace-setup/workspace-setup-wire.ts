@@ -9,7 +9,7 @@ import { CHIP_COLORS } from "@/constants/chip-colors";
 import { RECORD_MEASURE_DATE_INTERVALS } from "@/features/records/record-measure.schema";
 import { SetupAnswersSchema } from "@/features/workspace-setup/setup-answers.schema";
 import {
-  SETUP_ASKED_FOLLOW_UP_QUESTIONS,
+  SETUP_FOLLOW_UP_QUESTIONS,
   SETUP_QUESTION_FORMATS,
   setupPart,
 } from "@/features/workspace-setup/setup-interview";
@@ -95,7 +95,6 @@ export const FollowUpWireSchema = z.object({
       format: z.enum(SETUP_QUESTION_FORMATS),
       options: z.array(z.object({ id: z.string(), label: z.string() })),
       allowCustom: z.boolean(),
-      winChance: z.boolean(),
       maxItems: z.number().nullable(),
       maxPicks: z.number().nullable(),
       suggestions: z.array(z.string()),
@@ -112,7 +111,7 @@ type FollowUpWire = z.infer<typeof FollowUpWireSchema>;
 export function followUpQuestions(wire: FollowUpWire): SetupFollowUpQuestion[] {
   const questions: SetupFollowUpQuestion[] = [];
   for (const entry of wire.questions) {
-    if (questions.length >= SETUP_ASKED_FOLLOW_UP_QUESTIONS) break;
+    if (questions.length >= SETUP_FOLLOW_UP_QUESTIONS) break;
     const id = SETUP_FOLLOW_UP_IDS[questions.length];
     const base = { id, label: entry.label, format: entry.format };
     const candidate =
@@ -123,7 +122,6 @@ export function followUpQuestions(wire: FollowUpWire): SetupFollowUpQuestion[] {
           : entry.format === "orderedList"
             ? {
                 ...base,
-                winChance: entry.winChance,
                 maxItems: Math.round(entry.maxItems ?? 10),
                 suggestions: entry.suggestions,
               }
@@ -159,8 +157,6 @@ export function followUpAnswerIssue(question: SetupFollowUpQuestion, value: Setu
   }
   if (value.format === "orderedList" && question.format === "orderedList") {
     if (value.items.length > question.maxItems) return "Too many entries.";
-    if (!question.winChance && value.items.some((item) => item.winChance !== undefined))
-      return "This list has no win chance.";
   }
   if (value.format === "range" && question.format === "range") {
     if (question.single && value.max !== null) return "This question takes one number.";

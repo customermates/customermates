@@ -5,15 +5,12 @@ import { describe, expect, it } from "vitest";
 import { setupPart } from "@/features/workspace-setup/setup-interview";
 
 import {
-  adjacentScreenIndex,
+  answersPayload,
   displayedAnswerValue,
   mergeServerAnswers,
+  missingParts,
   partVisible,
   resolveSetupStage,
-  resumeScreenIndex,
-  missingScreenParts,
-  screenAnswersPayload,
-  visibleScreenIndexes,
 } from "../setup-interview-state";
 import { PLAN_PROGRESS, setupView } from "./setup-view-fixture";
 
@@ -32,7 +29,7 @@ const website = (value: NonNullable<SetupAnswers[string]>["value"]) => ({
 
 const purpose = (...values: string[]) => user({ format: "multipleChoice", values, custom: [] });
 
-const WORKSPACE_SCREEN: SetupAnswers = {
+const ANSWERS: SetupAnswers = {
   workWith: user({ format: "singleChoice", value: "clients" }),
   purpose: purpose("deals", "projects"),
   mainSteps: user({ format: "orderedList", items: [{ label: "Inquiry" }, { label: "Won" }] }),
@@ -88,15 +85,6 @@ describe("resolveSetupStage", () => {
   });
 });
 
-describe("resumeScreenIndex", () => {
-  it("always resumes on the one screen", () => {
-    expect(resumeScreenIndex({})).toBe(0);
-    expect(resumeScreenIndex(WORKSPACE_SCREEN, 1)).toBe(0);
-    expect(visibleScreenIndexes(WORKSPACE_SCREEN)).toEqual([0]);
-    expect(adjacentScreenIndex(0, WORKSPACE_SCREEN, 1)).toBeNull();
-  });
-});
-
 describe("mergeServerAnswers", () => {
   it("takes late website guesses for untouched questions but never overwrites a touched answer", () => {
     const local: SetupAnswers = { companyName: user({ format: "shortText", value: "Typed by owner" }) };
@@ -123,8 +111,8 @@ describe("visibility, completeness and payload", () => {
     expect(partVisible(part("mainSteps"), ownWork)).toBe(false);
     expect(partVisible(part("pricing"), ownWork)).toBe(false);
     expect(partVisible(part("teamSize"), ownWork)).toBe(true);
-    expect(partVisible(part("mainSteps"), WORKSPACE_SCREEN)).toBe(true);
-    expect(partVisible(part("pricing"), WORKSPACE_SCREEN)).toBe(true);
+    expect(partVisible(part("mainSteps"), ANSWERS)).toBe(true);
+    expect(partVisible(part("pricing"), ANSWERS)).toBe(true);
   });
 
   it("defaults the language to the interface and the currency to the interface's usual one", () => {
@@ -134,21 +122,21 @@ describe("visibility, completeness and payload", () => {
   });
 
   it("lists every visible required answer still missing", () => {
-    expect(missingScreenParts("workspace", {}, "en")).toEqual(["workWith", "purpose", "existingData"]);
-    expect(missingScreenParts("workspace", WORKSPACE_SCREEN, "en")).toEqual([]);
-    expect(missingScreenParts("workspace", { ...WORKSPACE_SCREEN, purpose: purpose() }, "en")).toEqual(["purpose"]);
-    const withoutName = Object.fromEntries(Object.entries(WORKSPACE_SCREEN).filter(([id]) => id !== "companyName"));
-    expect(missingScreenParts("workspace", withoutName, "en")).toEqual([]);
+    expect(missingParts({}, "en")).toEqual(["workWith", "purpose", "existingData"]);
+    expect(missingParts(ANSWERS, "en")).toEqual([]);
+    expect(missingParts({ ...ANSWERS, purpose: purpose() }, "en")).toEqual(["purpose"]);
+    const withoutName = Object.fromEntries(Object.entries(ANSWERS).filter(([id]) => id !== "companyName"));
+    expect(missingParts(withoutName, "en")).toEqual([]);
   });
 
   it("clears answers to hidden questions and drops blank list entries", () => {
     const answers: SetupAnswers = {
-      ...WORKSPACE_SCREEN,
+      ...ANSWERS,
       workWith: user({ format: "singleChoice", value: "ownWork" }),
       mainSteps: user({ format: "orderedList", items: [{ label: " Inquiry " }, { label: "  " }] }),
     };
 
-    const payload = screenAnswersPayload("workspace", answers, "en");
+    const payload = answersPayload(answers, "en");
 
     expect(payload.pricing).toBeNull();
     expect(payload.mainSteps).toEqual({ format: "orderedList", items: [{ label: "Inquiry" }] });

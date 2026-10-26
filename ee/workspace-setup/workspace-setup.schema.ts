@@ -3,7 +3,6 @@ import { z } from "zod";
 import { CHIP_COLORS } from "@/constants/chip-colors";
 import { ChartColor } from "@/features/widget/widget-display.schema";
 import { RecordRefSchema } from "@/features/records/record-model.schema";
-import { SETUP_MAX_FOLLOW_UP_QUESTIONS } from "@/features/workspace-setup/setup-interview";
 import type { SetupAnswersSchema } from "@/features/workspace-setup/setup-answers.schema";
 import { SetupAnswerValueSchema, StoredSetupAnswersSchema } from "@/features/workspace-setup/setup-answers.schema";
 import type { SetupPlanSchema } from "@/features/workspace-setup/setup-plan.schema";
@@ -101,7 +100,6 @@ export const SetupFollowUpQuestionSchema = z.discriminatedUnion("format", [
     id: z.enum(SETUP_FOLLOW_UP_IDS),
     label: FollowUpLabelSchema,
     format: z.literal("orderedList"),
-    winChance: z.boolean(),
     maxItems: z.number().int().min(1).max(20),
     suggestions: z.array(z.string().trim().min(1).max(80)).max(20),
   }),
@@ -143,13 +141,12 @@ export const StoredSetupInterviewSchema = z.object({
   prefillError: z.enum(WORKSPACE_SETUP_FAILURES).nullable().default(null),
   prefillDraft: StoredSetupAnswersSchema.nullable().default(null),
   followUps: GenerationStateSchema.default("idle"),
-  followUpQuestions: z.array(SetupFollowUpQuestionSchema).max(SETUP_MAX_FOLLOW_UP_QUESTIONS).default([]),
-  followUpAnswers: z.array(SetupFollowUpAnswerSchema).max(SETUP_MAX_FOLLOW_UP_QUESTIONS).default([]),
+  followUpQuestions: z.array(SetupFollowUpQuestionSchema).max(SETUP_FOLLOW_UP_IDS.length).default([]),
+  followUpAnswers: z.array(SetupFollowUpAnswerSchema).max(SETUP_FOLLOW_UP_IDS.length).default([]),
   plan: GenerationStateSchema.default("idle"),
   planError: z.enum(WORKSPACE_SETUP_FAILURES).nullable().default(null),
   planClaimedAt: IsoDateSchema.nullable().default(null),
   planQueuedAt: IsoDateSchema.nullable().default(null),
-  confirmedScreens: z.number().int().min(0).default(0),
 });
 export type StoredSetupInterview = z.infer<typeof StoredSetupInterviewSchema>;
 

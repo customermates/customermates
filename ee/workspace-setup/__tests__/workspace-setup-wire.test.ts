@@ -80,7 +80,6 @@ describe("follow-up questions", () => {
       { id: "yearly", label: "Yearly" },
     ],
     allowCustom: false,
-    winChance: false,
     maxItems: null,
     maxPicks: null,
     suggestions: [],

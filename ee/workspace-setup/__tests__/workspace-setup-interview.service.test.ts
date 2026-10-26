@@ -132,7 +132,6 @@ describe("workspace setup interview", () => {
               { id: "yearly", label: "Yearly" },
             ],
             allowCustom: false,
-            winChance: false,
             maxItems: null,
             maxPicks: null,
             suggestions: [],

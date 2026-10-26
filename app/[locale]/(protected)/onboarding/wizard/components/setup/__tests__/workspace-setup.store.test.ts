@@ -91,7 +91,6 @@ describe("WorkspaceSetupStore", () => {
   it("saves the answers with the default language and asks for the plan", async () => {
     const store = storeWith();
     answerWorkspaceScreen(store, "Acme");
-    expect(store.isLastScreen).toBe(true);
     expect(store.canConfirmScreen).toBe(true);
 
     await store.confirmScreen();
@@ -219,7 +218,7 @@ describe("WorkspaceSetupStore", () => {
 
     store.adjust();
     answerWorkspaceScreen(store, "Renamed Ltd");
-    store.previousScreen();
+    store.discardAdjustment();
 
     expect(store.stage).toBe("plan");
     expect(store.answers.companyName?.value).toEqual({ format: "shortText", value: "Acme" });
@@ -258,7 +257,7 @@ describe("WorkspaceSetupStore", () => {
 
     store.adjust();
     expect(store.stage).toBe("interview");
-    store.previousScreen();
+    store.discardAdjustment();
     expect(store.stage).toBe("planFailed");
 
     store.adjust();
@@ -381,15 +380,12 @@ describe("WorkspaceSetupStore", () => {
           answers: {
             companyName: { ...confirmed, value: { format: "shortText", value: "Acme" } },
           },
-          confirmedScreens: 1,
         },
       }),
     );
-    expect(store.screenIndex).toBe(0);
     expect(store.answers.companyName?.value).toEqual({ format: "shortText", value: "Acme" });
 
     store.hydrate({ available: true, setup: setupView({ id: "0a7a2d6e-0c4f-4b8e-9f43-8f0f3b1f0b11" }) });
-    expect(store.screenIndex).toBe(0);
     expect(store.answers).toEqual({});
   });
 

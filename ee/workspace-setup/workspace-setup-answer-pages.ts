@@ -45,11 +45,7 @@ function answerText(answer: unknown): string {
   if (typeof answer === "string" || typeof answer === "number") return String(answer);
   if (Array.isArray(answer)) return answer.map(answerText).filter(Boolean).join(", ");
   if (!answer || typeof answer !== "object") return "";
-  if ("label" in answer && typeof answer.label === "string") {
-    return "winChance" in answer && typeof answer.winChance === "number"
-      ? `${answer.label} (${answer.winChance} %)`
-      : answer.label;
-  }
+  if ("label" in answer && typeof answer.label === "string") return answer.label;
   if ("chosen" in answer) {
     const own = "own" in answer && Array.isArray(answer.own) ? answer.own : [];
     return answerText([...(answer.chosen as unknown[]), ...own]);

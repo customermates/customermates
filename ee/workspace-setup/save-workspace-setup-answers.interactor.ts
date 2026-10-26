@@ -55,14 +55,10 @@ export class SaveWorkspaceSetupAnswersInteractor extends AuthenticatedInteractor
         ),
         ...data.followUpAnswers,
       ];
-      const confirmedScreens =
-        data.confirmedScreen === undefined
-          ? current.interview.confirmedScreens
-          : Math.max(current.interview.confirmedScreens, data.confirmedScreen + 1);
       return {
         status: "interview",
         answers: parsed.data,
-        interview: { ...current.interview, followUpAnswers, confirmedScreens },
+        interview: { ...current.interview, followUpAnswers },
       };
     });
     if (!saved?.changed) return failConflict(CustomErrorCode.workspaceSetupConflict);

@@ -5257,8 +5257,7 @@
       "addOwn": "Autre chose",
       "continueAnyway": "Continuer quand même",
       "fromWebsite": "Suggéré d'après votre site web",
-      "upload": "Importer un tableur",
-      "winChance": "Probabilité de gain"
+      "upload": "Importer un tableur"
     },
     "anchors": {
       "price": "Prix",
@@ -5366,8 +5365,7 @@
       "uploadKept": "La configuration conserve {fileName}.",
       "uploadReady": "Prêt à être importé dans vos nouvelles listes.",
       "uploadRejected": "Impossible d’importer {fileName}. {reason}",
-      "uploadReplace": "Choisir un autre fichier",
-      "winChanceFor": "Probabilité de gain de l’entrée {index}"
+      "uploadReplace": "Choisir un autre fichier"
     },
     "options": {
       "existingData": {
@@ -5477,9 +5475,6 @@
       "workWith": {
         "label": "Avec qui travaillez-vous ?"
       }
-    },
-    "screens": {
-      "workspace": "À propos de votre activité"
     },
     "start": {
       "optionsLabel": "Façons de configurer votre espace de travail",

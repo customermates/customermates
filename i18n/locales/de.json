@@ -5257,8 +5257,7 @@
       "addOwn": "Etwas anderes",
       "continueAnyway": "Trotzdem weiter",
       "fromWebsite": "Von deiner Website vorgeschlagen",
-      "upload": "Tabelle hochladen",
-      "winChance": "Abschlusschance"
+      "upload": "Tabelle hochladen"
     },
     "anchors": {
       "price": "Preis",
@@ -5366,8 +5365,7 @@
       "uploadKept": "Die Einrichtung verwendet weiter {fileName}.",
       "uploadReady": "Bereit für den Import in deine neuen Listen.",
       "uploadRejected": "{fileName} kann nicht importiert werden. {reason}",
-      "uploadReplace": "Andere Datei wählen",
-      "winChanceFor": "Abschlusschance von Eintrag {index}"
+      "uploadReplace": "Andere Datei wählen"
     },
     "options": {
       "existingData": {
@@ -5477,9 +5475,6 @@
       "workWith": {
         "label": "Mit wem arbeitest du?"
       }
-    },
-    "screens": {
-      "workspace": "Über deine Arbeit"
     },
     "start": {
       "optionsLabel": "Wege, deinen Workspace einzurichten",
