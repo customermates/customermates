@@ -89,6 +89,7 @@ describe("toolsetsForRequest", () => {
     ])
       expect(toolsetsForRequest({ text, pageRoute: null }).has("views")).toBe(true);
     expect(onDemandToolsetOfTool("manage_record_detail_layout")).toBe("views");
+    expect(onDemandToolsetOfTool("manage_calendar")).toBe("views");
   });
   it("loads bulk import and export only when a request asks for them", () => {
     for (const text of [
@@ -164,6 +165,10 @@ describe("toolsetsForRequest", () => {
       "admin",
     ]);
     expect([...toolsetsForRequest({ text: "Summarize this", pageRoute: "/en/inbox" })]).toEqual(["messaging"]);
+    expect([...toolsetsForRequest({ text: "Only show my tasks here", pageRoute: "/en/calendar" })]).toEqual([
+      "views",
+      "messaging",
+    ]);
     expect([
       ...toolsetsForRequest({
         text: "Only show records with deals",

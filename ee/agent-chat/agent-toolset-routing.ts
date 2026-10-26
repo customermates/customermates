@@ -24,7 +24,8 @@ export const ANALYZE_RECORDS_TOOL_NAME = "analyze_records";
 
 export const AGENT_TOOLSET_SUMMARY: Record<AgentOnDemandToolset, string> = {
   "record-model": "configure CRM types, fields, relationships, calculations, access presets and operation recovery",
-  views: "saved views, filters, sorting, grouping and personal detail pins, hidden fields and ordering",
+  views:
+    "saved views, filters, sorting, grouping, personal detail pins, hidden fields and ordering, and the personal Calendar page and its subscription URLs",
   "data-transfer": "export a whole list as a JSON document and import or update up to 100 records of one list from one",
   messaging: "inbox, email, chat, calendar and connected messaging accounts",
   social: "LinkedIn, Instagram, posts, profiles, engagement and Sales Navigator",
@@ -71,6 +72,8 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
       "delete a view",
       "calendar view",
       "calendar layout",
+      "calendar page",
+      "date source",
     ],
     de: [
       "detailansicht",
@@ -84,6 +87,8 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
       "ansicht löschen",
       "kalenderansicht",
       "kalenderlayout",
+      "kalenderseite",
+      "datumsquelle",
     ],
     es: [
       "vista de detalle",
@@ -94,6 +99,7 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
       "mi vista",
       "crear una vista",
       "vista de calendario",
+      "fuente de fechas",
     ],
     fr: [
       "fiche détaillée",
@@ -104,6 +110,7 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
       "ma vue",
       "créer une vue",
       "vue calendrier",
+      "source de dates",
     ],
     it: [
       "dettagli del record",
@@ -114,6 +121,7 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
       "mia vista",
       "crea una vista",
       "vista calendario",
+      "fonte di date",
     ],
   },
   "data-transfer": {
@@ -195,7 +203,7 @@ function withoutViewTerms(text: string): string {
 
 const TOOLSET_ROUTES: Record<AgentOnDemandToolset, readonly string[]> = {
   "record-model": ["/records", "/configure"],
-  views: [],
+  views: ["/calendar"],
   "data-transfer": [],
   messaging: ["/inbox", "/calendar"],
   social: ["/social"],

@@ -51,6 +51,10 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
     approvalFreeActions: ["read", "save", "reset"],
     readOnlyActions: ["read"],
   },
+  manage_calendar: {
+    approvalFreeActions: ["options", "read", "update", "reset", "subscriptions"],
+    readOnlyActions: ["options", "read", "subscriptions"],
+  },
   manage_conversation_records: {
     approvalFreeActions: ["read", "link", "unlink"],
     readOnlyActions: ["read"],

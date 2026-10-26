@@ -60,6 +60,7 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
 [
   "configure_record_model",
   "import_crm_records",
+  "manage_calendar",
   "manage_conversation_records",
   "manage_record_detail_layout",
   "manage_record_files",
@@ -77,6 +78,13 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
     "list",
     "browse",
     "save",
+  ],
+  "manage_calendar": [
+    "options",
+    "read",
+    "update",
+    "reset",
+    "subscriptions",
   ],
   "manage_connected_accounts": [
     "list",

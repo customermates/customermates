@@ -174,7 +174,7 @@ Customermates exposes up to [[derived.mcp.tools.total]] MCP tools, all enabled b
 {/* mcp-catalog:flags */}
 **Read-only:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `lookup_address`, `check_address`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `read_trash`, `export_crm_records`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
 
-**Can delete data:** `mutate_crm_record`, `manage_trash`, `import_crm_records`, `manage_data_views`, `manage_wiki_pages`, `discard_message_draft`, `manage_connected_accounts`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_team`, `manage_roles`
+**Can delete data:** `mutate_crm_record`, `manage_trash`, `import_crm_records`, `manage_data_views`, `manage_calendar`, `manage_wiki_pages`, `discard_message_draft`, `manage_connected_accounts`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_team`, `manage_roles`
 {/* /mcp-catalog */}
 
 Full JSON Schema for every tool is available live at `POST /api/v1/mcp` with `method: "tools/list"`.
@@ -415,6 +415,12 @@ Discover, inspect, create, update, select, reset and delete personal saved views
 Read, save or reset your personal record-detail layout with stable type and field IDs. Read returns accessible field choices, pins, hidden fields, field order and the configuration revision. Save requires the complete layout, expectedRevision and an idempotencyKey. Reset removes your layout: every field shows in its configured order and none is pinned. It does not change records or other users’ preferences.
 
 Required: `typeId`, `action`. Optional: `expectedRevision`, `idempotencyKey`, `layout`.
+
+#### `manage_calendar`
+
+Read and change your personal calendar: options lists the lists with date fields and your connected calendars, read returns the configuration and whether the default still applies (the first single date field of each list, else its first date range, up to 12 lists), update takes a config with only the keys to change and checks every list, field, filter and calendar, and reset returns to the default. subscriptions lists your calendar subscription URLs and revoke permanently disables one by id. Records, calendar events and other users’ calendars never change.
+
+**Can delete data.** Required: `action`. Optional: `config`, `id`.
 {/* /mcp-catalog */}
 
 ### Knowledge Base [#workspace-wiki]
