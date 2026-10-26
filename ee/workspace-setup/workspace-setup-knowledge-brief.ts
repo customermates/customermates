@@ -3,7 +3,6 @@ import type { WikiSynthesisBriefState } from "@/ee/wiki-crawl/wiki-synthesis-bri
 import type { WorkspaceSetupRepo } from "./workspace-setup.repo";
 import type { WorkspaceSetupStatus } from "./workspace-setup.schema";
 import type { SetupPageKind, SetupPageTitle } from "./workspace-setup-knowledge";
-import type { WikiSynthesisTranslate } from "@/ee/wiki-crawl/wiki-website-synthesis.service";
 
 import { WikiSynthesisBriefSource } from "@/ee/wiki-crawl/wiki-synthesis-brief";
 import { getTranslator } from "@/i18n/get-translator";
@@ -13,7 +12,6 @@ import { setupKnowledgeBrief } from "./workspace-setup-knowledge";
 import { setupLanguage } from "./workspace-setup-inputs";
 
 export type SetupPageCopy = {
-  t: WikiSynthesisTranslate;
   title: SetupPageTitle;
   operatingGuide: string;
   sourcesHeading: string;
@@ -25,7 +23,7 @@ export type SetupPageCopy = {
 export async function setupPageTitles(locale: string): Promise<SetupPageCopy> {
   const appLocale = appLocaleOrDefault(locale);
   const t = await getTranslator(appLocale, "WikiSetup.generated");
-  const titles: Record<Exclude<SetupPageKind, "competitor">, string> = {
+  const titles: Record<SetupPageKind, string> = {
     overview: t("roles.company_overview"),
     idealCustomer: t("roles.customers_and_use_cases"),
     salesPlaybook: t("roles.sales_messaging"),
@@ -35,14 +33,12 @@ export async function setupPageTitles(locale: string): Promise<SetupPageCopy> {
     processes: t("setupPages.processes"),
   };
   return {
-    t,
     operatingGuide: t("roles.operating_guide"),
     sourcesHeading: t("sourcesHeading"),
     gapsHeading: t("gapsHeading"),
     pagesHeading: t("pagesHeading"),
     answersSource: (date) => t("answersSource", { date }),
-    title: (kind, competitor) =>
-      kind === "competitor" ? t("setupPages.competitor", { competitor: competitor ?? "" }) : titles[kind],
+    title: (kind) => titles[kind],
   };
 }
 

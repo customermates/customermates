@@ -22,7 +22,7 @@ const answers: SetupAnswers = {
     value: { format: "singleChoice", value: "ownWork" },
   },
 };
-const title = (kind: string, competitor?: string) => (competitor ? `Compared with ${competitor}` : `Default ${kind}`);
+const title = (kind: string) => `Default ${kind}`;
 
 function setup(overrides: Partial<WorkspaceSetupRecord> = {}): WorkspaceSetupRecord {
   return {

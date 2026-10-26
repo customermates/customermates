@@ -22,10 +22,7 @@ const answers: SetupAnswers = {
   workWith: { ...user, value: { format: "singleChoice", value: "ownWork" } },
   mainSteps: { ...user, value: { format: "orderedList", items: [{ label: "Briefing" }, { label: "Done" }] } },
 };
-const t = (key: string, values?: Record<string, string>) =>
-  values ? `${key}(${Object.values(values).join(",")})` : key;
 const copy = {
-  t,
   title: (kind: string) => kind,
   operatingGuide: "Guide",
   sourcesHeading: "sourcesHeading",
@@ -33,7 +30,7 @@ const copy = {
   pagesHeading: "pagesHeading",
   answersSource: (date: string) => `answers of ${date}`,
 };
-const title = (kind: string, competitor?: string) => (competitor ? `${kind}:${competitor}` : kind);
+const title = (kind: string) => kind;
 
 describe("Knowledge Base pages from the setup answers", () => {
   it("renders each answer as one line the page can quote", async () => {
@@ -71,7 +68,7 @@ describe("Knowledge Base pages from the setup answers", () => {
     expect(setupAnswerDraftIssues(draft, source)).toEqual([2, 3, 4]);
   });
 
-  it("cites the setup answers and keeps owner sections when no section is supported", () => {
+  it("cites the setup answers and writes no page when no section is supported", () => {
     const [overview, voice] = setupAnswerTopics(plan, answers, title);
     const page = setupAnswerPage({
       topic: overview,
@@ -93,10 +90,9 @@ describe("Knowledge Base pages from the setup answers", () => {
 
   it("links the written pages from an Operating Guide", () => {
     const pageId = "0f8f6c1e-7b52-4f0a-a7a4-1d3c2b9e8f70";
-    expect(setupAnswerGuide({ addressForm: null, pages: [], copy })).toBeNull();
-    const guide = setupAnswerGuide({ addressForm: "informal", pages: [{ title: "About", pageId }], copy });
+    expect(setupAnswerGuide({ pages: [], copy })).toBeNull();
+    const guide = setupAnswerGuide({ pages: [{ title: "About", pageId }], copy });
     expect(guide).toMatchObject({ title: "Guide", kind: "guide" });
-    expect(guide?.markdown).toContain("address.informal");
     expect(guide?.markdown).toContain(pageId);
   });
 });

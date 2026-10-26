@@ -262,7 +262,6 @@ export const SETUP_PAGE_KINDS = [
   "faq",
   "processes",
   "toneOfVoice",
-  "competitor",
 ] as const;
 
 export const SetupPlanSchema = z
@@ -306,7 +305,8 @@ export const SetupPlanSchema = z
             z
               .object({
                 key: SetupKeySchema,
-                kind: z.enum(SETUP_PAGE_KINDS),
+                // Stored plans may still list competitor pages, which the Knowledge Base skips.
+                kind: z.enum([...SETUP_PAGE_KINDS, "competitor"]),
                 title: z.string().trim().min(1).max(120),
                 sections: z.array(z.string().trim().min(1).max(200)).min(1).max(SETUP_PLAN_LIMITS.pageSections),
               })

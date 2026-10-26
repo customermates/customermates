@@ -4,9 +4,10 @@ import type { WikiSynthesisBrief, WikiSynthesisBriefTopic } from "@/ee/wiki-craw
 import type { WikiSynthesisRole } from "@/ee/wiki-crawl/wiki-synthesis.schema";
 
 import { WIKI_SYNTHESIS_MAX_STORED_TOPICS } from "@/ee/wiki-crawl/wiki-synthesis.schema";
+import { WITH_CUSTOMERS, conditionMet } from "@/features/workspace-setup/setup-interview";
 
 export type SetupPageKind = (typeof SETUP_PAGE_KINDS)[number];
-export type SetupPageTitle = (kind: SetupPageKind, competitor?: string) => string;
+export type SetupPageTitle = (kind: SetupPageKind) => string;
 
 const ALWAYS_PAGE_KINDS = ["overview", "faq", "processes"] as const;
 const CUSTOMER_PAGE_KINDS = ["productsPricing", "idealCustomer", "salesPlaybook"] as const;
@@ -25,15 +26,12 @@ const PAGE_ROLES: Record<SetupPageKind, WikiSynthesisRole> = {
   faq: "faq",
   processes: "procedure",
   toneOfVoice: "voice_and_tone",
-  competitor: "competitor",
 };
 const MAX_KEY_LENGTH = 40;
 
 export function setupPageKinds(answers: SetupAnswers): SetupPageKind[] {
-  const value = answers.workWith?.value;
-  const withCustomers = value?.format === "singleChoice" && (value.value === "customers" || value.value === "clients");
   const [overview, ...rest] = ALWAYS_PAGE_KINDS;
-  return [overview, ...(withCustomers ? CUSTOMER_PAGE_KINDS : []), ...rest];
+  return [overview, ...(conditionMet(WITH_CUSTOMERS, answers) ? CUSTOMER_PAGE_KINDS : []), ...rest];
 }
 
 export function setupKnowledgeBrief(

@@ -62,7 +62,7 @@ export const SETUP_STEP_FLOWS = [
   "marketing",
 ] as const;
 
-const WITH_CUSTOMERS: SetupVisibility = { part: "workWith", anyOf: ["customers", "clients"] };
+export const WITH_CUSTOMERS: SetupVisibility = { part: "workWith", anyOf: ["customers", "clients"] };
 
 export const SETUP_QUESTIONS: SetupQuestion[] = [
   {
@@ -248,7 +248,7 @@ function setupQuestionOf(partId: string): SetupQuestion | undefined {
   return SETUP_QUESTIONS.find((question) => question.parts.some((part) => part.id === partId));
 }
 
-function conditionMet(condition: SetupVisibility | undefined, answers: SetupAnswers): boolean {
+export function conditionMet(condition: SetupVisibility | undefined, answers: SetupAnswers): boolean {
   if (!condition) return true;
   if (!setupPartVisible(condition.part, answers)) return false;
   const value = answers[condition.part]?.value;

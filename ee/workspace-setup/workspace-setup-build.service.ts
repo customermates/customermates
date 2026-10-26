@@ -26,8 +26,9 @@ import type { SetupModelOutcome, WorkspaceSetupModelService } from "./workspace-
 import type { GeneratedSampleList, SampleListSpec } from "./workspace-setup-samples";
 import type { CreateWikiPagesInteractor } from "@/features/wiki/create-wiki-pages.interactor";
 import type { WikiPageInput } from "@/features/wiki/wiki.schema";
-import type { SetupAnswerPages, SetupAnswerTopic } from "./workspace-setup-answer-pages";
+import type { SetupAnswerPages } from "./workspace-setup-answer-pages";
 import type { WikiSynthesisDraft } from "@/ee/wiki-crawl/wiki-synthesis.schema";
+import type { WikiSynthesisBriefTopic } from "@/ee/wiki-crawl/wiki-synthesis-brief";
 
 import { z } from "zod";
 
@@ -470,7 +471,6 @@ export class WorkspaceSetupBuildService extends UserAccessor {
       !(await recover(SETUP_ANSWER_GUIDE_KEY))
     ) {
       const guide = setupAnswerGuide({
-        addressForm: null,
         pages: done.pages.flatMap(({ key, title: pageTitle, pageId }) =>
           key !== SETUP_ANSWER_GUIDE_KEY && pageId ? [{ title: pageTitle, pageId }] : [],
         ),
@@ -483,14 +483,13 @@ export class WorkspaceSetupBuildService extends UserAccessor {
   }
 
   private async answerDraft(
-    topic: SetupAnswerTopic,
+    topic: WikiSynthesisBriefTopic,
     source: string,
     language: string,
   ): Promise<WikiSynthesisDraft | "spendCap" | "aiUnavailable" | null> {
     const prompt = [
       `Knowledge Base language: ${setupLanguageName(language)}.`,
       `Page title: ${topic.title}`,
-      ...(topic.competitor ? [`Competitor: ${encodePromptJson(topic.competitor)}`] : []),
       ...(topic.outline.length
         ? [`Planned sections: ${encodePromptJson(topic.outline)}. Use them where the answers support them.`]
         : []),
