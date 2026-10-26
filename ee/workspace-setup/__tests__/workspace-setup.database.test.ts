@@ -811,6 +811,52 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(retried[0]?.prompt).toContain("records: expected array");
   });
 
+  it("drafts the sample records of a list again when the model answered without records", async () => {
+    const ws = await workspace();
+    const { setupId, planRevision } = await planned(ws);
+    const replies = state.generate.getMockImplementation();
+    const emptyOnce = new Set<string>();
+    state.generate.mockImplementation((args: { label: string; prompt: string; model: { modelId: string } }) => {
+      const list = args.prompt.split("\n").find((line) => line.startsWith("List: ")) ?? "";
+      if (args.label === "Workspace setup sample records" && !emptyOnce.has(list)) {
+        emptyOnce.add(list);
+        return Promise.resolve({ output: { records: [] }, charge: { ...CHARGE, model: args.model.modelId } });
+      }
+      return replies?.(args) as never;
+    });
+    await ws.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision }));
+    await build(ws, setupId);
+
+    const setup = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
+    expect(setup?.results.records.map((entry) => [entry.kind, entry.count])).toEqual(
+      Array(emptyOnce.size).fill(["sample", 3]),
+    );
+    const retried = state.generate.mock.calls
+      .map(([args]) => args as { label: string; prompt: string })
+      .filter((args) => args.label === "Workspace setup sample records" && args.prompt.includes("no records"));
+    expect(retried).toHaveLength(emptyOnce.size);
+  });
+
+  it("fails the records phase instead of finishing without records when no answer holds any", async () => {
+    const ws = await workspace();
+    const { setupId, planRevision } = await planned(ws);
+    const replies = state.generate.getMockImplementation();
+    state.generate.mockImplementation((args: { label: string; prompt: string; model: { modelId: string } }) =>
+      args.label === "Workspace setup sample records"
+        ? Promise.resolve({ output: { records: [] }, charge: { ...CHARGE, model: args.model.modelId } })
+        : (replies?.(args) as never),
+    );
+    await ws.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision }));
+    await build(ws, setupId);
+
+    const view = await status(ws);
+    expect(view.phases.find((phase) => phase.key === "records")).toMatchObject({
+      status: "failed",
+      error: "generation",
+    });
+    expect(view.status).toBe("failed");
+  });
+
   it("waits for the website import and records the pages it wrote", async () => {
     const ws = await workspace();
     const { setupId, planRevision } = await planned(ws);

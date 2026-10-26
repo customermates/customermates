@@ -799,6 +799,10 @@ export class WorkspaceSetupBuildService extends UserAccessor {
         skippedRows: imported.data.errorCount,
       });
     }
+    if (refs.length === 0) {
+      await this.clearArtifact(setup.id, "samples");
+      throw phaseFailure("generation");
+    }
     await this.sampleLineItems(setup, plan, samples, refs);
     const patch = (current: WorkspaceSetupRecord): WorkspaceSetupPatch => ({
       created: { ...current.created, sampleRecords: refs },
@@ -896,8 +900,12 @@ export class WorkspaceSetupBuildService extends UserAccessor {
             : []),
         ].join("\n"),
       });
-      if (result.ok)
-        return generatedSampleList({ ...spec, count }, result.value.records, titles, plan.workspace.currency);
+      if (result.ok) {
+        const list = generatedSampleList({ ...spec, count }, result.value.records, titles, plan.workspace.currency);
+        if (list.table.rows.length) return list;
+        rejection = `The answer held no records with a name. Write ${count} records.`;
+        continue;
+      }
       if (result.failure !== "generation") return result.failure === "spendCap" ? "spendCap" : null;
       rejection = result.rejection;
     }
