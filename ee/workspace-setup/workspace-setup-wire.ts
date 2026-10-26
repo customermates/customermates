@@ -294,6 +294,24 @@ const WidgetsWireShape = {
   ),
 };
 
+const CalendarSourcesWireShape = {
+  calendarSources: z
+    .array(
+      z.object({
+        list: z.string(),
+        dateField: z.string().describe("A date field of list whose dates the owner acts on."),
+        endField: z
+          .string()
+          .describe("Optional date field of list that ends each record's span; an empty string leaves it out."),
+        color: z.enum(CHIP_COLORS),
+        filters: z
+          .array(z.object({ operator: z.enum(["in", "notIn"]), field: z.string(), options: z.array(z.string()) }))
+          .describe("Optional single-choice filters, such as only open stages."),
+      }),
+    )
+    .describe("The date fields the Calendar page shows, one entry per list and date field."),
+};
+
 const WorkspaceWireShape = {
   currency: z.string().describe("ISO 4217 code."),
   dashboardAudience: z.enum(["me", "team", "management"]),
@@ -312,6 +330,7 @@ export const PlanViewsWireSchema = z.object({
     }),
   ),
   ...WidgetsWireShape,
+  ...CalendarSourcesWireShape,
   importMapping: z
     .object({ list: z.string(), columns: z.array(z.object({ column: z.string(), field: z.string().nullable() })) })
     .nullable(),
@@ -336,6 +355,7 @@ export const PlanWireSchema = z.object({
   ...ListDefaultsWireShape,
   sampleData: z.object({ lists: PlanViewsWireSchema.shape.sampleLists }),
   dashboard: z.object(WidgetsWireShape),
+  calendar: z.object({ sources: CalendarSourcesWireShape.calendarSources }),
   importMapping: PlanViewsWireSchema.shape.importMapping,
   knowledgeBase: PlanKnowledgeWireSchema,
 });
@@ -353,6 +373,7 @@ export const EMPTY_PLAN_VIEWS_WIRE: PlanViewsWire = {
   listDefaults: [],
   sampleLists: [],
   widgets: [],
+  calendarSources: [],
   importMapping: null,
 };
 export const EMPTY_PLAN_KNOWLEDGE_WIRE: PlanKnowledgeWire = { pages: [] };
@@ -362,6 +383,7 @@ const PART_PATHS: Array<[string, string]> = [
   ["recordModel.", ""],
   ["sampleData.lists", "sampleLists"],
   ["dashboard.widgets", "widgets"],
+  ["calendar.sources", "calendarSources"],
   ["knowledgeBase.", ""],
 ];
 
@@ -378,6 +400,7 @@ export function planWireFromParts(model: PlanModelWire, views: PlanViewsWire, kn
     listDefaults: views.listDefaults,
     sampleData: { lists: views.sampleLists },
     dashboard: { widgets: views.widgets },
+    calendar: { sources: views.calendarSources },
     importMapping: views.importMapping,
     knowledgeBase: knowledge,
   };
@@ -514,6 +537,9 @@ export function planFromWire(
           filters,
         };
       }),
+    },
+    calendar: {
+      sources: wire.calendar.sources.map((source) => ({ ...source, endField: source.endField || null })),
     },
     knowledgeBase: {
       pages: wire.knowledgeBase.pages.map((page) => ({

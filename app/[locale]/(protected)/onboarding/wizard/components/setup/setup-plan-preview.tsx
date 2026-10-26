@@ -21,7 +21,7 @@ import { setupWidgetSketch } from "@/features/workspace-setup/setup-plan.schema"
 import { supportMailHref } from "@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/subscription/support-mail-href";
 
 import { planProgress } from "./setup-plan-progress";
-import { planBoards, planLists } from "./setup-plan-summary";
+import { planBoards, planCalendarSources, planLists } from "./setup-plan-summary";
 import {
   DashboardSketch,
   KnowledgePageList,
@@ -223,6 +223,7 @@ export const SetupPlanPreview = observer(function SetupPlanPreview() {
   const boards = planBoards(plan);
   const listName = (key: string) => lists.find((candidate) => candidate.key === key)?.label ?? key;
   const withFields = lists.filter((list) => list.fields.length > 0);
+  const calendarSources = planCalendarSources(plan, lists);
   const sampleTotal = lists.reduce((total, list) => total + list.sampleCount, 0);
   const spreadsheet = store.setup?.spreadsheet;
 
@@ -281,6 +282,12 @@ export const SetupPlanPreview = observer(function SetupPlanPreview() {
           ) : (
             <p className="text-xs text-muted-foreground">{t("WorkspaceSetup.plan.noDashboard")}</p>
           )}
+
+          {calendarSources.length ? (
+            <p className="text-xs text-muted-foreground">
+              {t("WorkspaceSetup.plan.calendarSources", { sources: calendarSources.join(" · ") })}
+            </p>
+          ) : null}
         </PreviewPanel>
 
         <PreviewPanel icon={BookOpen} title={t("WorkspaceSetup.plan.knowledgeBase")}>

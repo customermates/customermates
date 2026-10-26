@@ -18,6 +18,7 @@ import { SOLUTION_TEMPLATES } from "@/core/solutions/solution-templates";
 import { setupAnchorFields } from "@/features/workspace-setup/setup-anchors";
 import { SETUP_PLAN_LIMITS } from "@/features/workspace-setup/setup-plan.schema";
 import { createSetupResolver } from "@/features/workspace-setup/setup-references";
+import { compileSetupCalendar } from "@/features/workspace-setup/setup-calendar-compiler";
 import { compileSetupDashboard, setupDashboardShapeIssues } from "@/features/workspace-setup/setup-dashboard-compiler";
 import { compileSetupImportMapping } from "@/features/workspace-setup/setup-import-compiler";
 import { compileSetupRecordModel } from "@/features/workspace-setup/setup-model-compiler";
@@ -300,7 +301,7 @@ export class WorkspaceSetupPlanner extends UserAccessor {
         ...(sheet.length ? sheet : ["No spreadsheet was uploaded: importMapping is null."]),
       ],
       check: async (value) => {
-        const owned = ["listDefaults", "sampleData", "dashboard", "importMapping"];
+        const owned = ["listDefaults", "sampleData", "dashboard", "calendar", "importMapping"];
         const wire = (views: PlanViewsWire) => planWireFromParts(model, views, knowledge ?? EMPTY_PLAN_KNOWLEDGE_WIRE);
         const shape = (views: PlanViewsWire) => {
           const converted = planFromWire(wire(views));
@@ -388,6 +389,7 @@ export class WorkspaceSetupPlanner extends UserAccessor {
     const results = [
       compileSetupListDefaults(plan, resolver, prepared.model),
       compileSetupDashboard(plan, resolver, prepared.model, { setupId, expectedRevision: prepared.model.revision }),
+      compileSetupCalendar(plan, resolver, prepared.model),
       compileSetupImportMapping(plan, resolver, prepared.model),
     ];
     return results.flatMap((result) =>

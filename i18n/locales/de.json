@@ -5410,6 +5410,7 @@
     "plan": {
       "adjust": "Antworten anpassen",
       "build": "Workspace aufbauen",
+      "calendarSources": "Kalender: {sources}",
       "dashboard": "Dashboard",
       "failedTitle": "Der Plan konnte nicht erstellt werden",
       "importSummary": "Importiert {fileName} in {list}.",

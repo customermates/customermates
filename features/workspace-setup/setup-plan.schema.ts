@@ -16,6 +16,7 @@ export const SETUP_PLAN_LIMITS = {
   listDefaults: 16,
   columns: 20,
   widgets: 12,
+  calendarSources: 6,
   widgetFilters: 4,
   sampleLists: 16,
   sampleRecords: 10,
@@ -242,6 +243,27 @@ export function setupWidgetKind(widget: Pick<SetupWidget, "kind">): SetupWidgetK
   return widget.kind ?? "chart";
 }
 
+const SetupCalendarSourceSchema = z
+  .object({
+    list: SetupKeySchema,
+    dateField: SetupFieldKeySchema,
+    endField: SetupFieldKeySchema.nullable(),
+    color: ChipColorSchema,
+    filters: z
+      .array(
+        z
+          .object({
+            operator: z.enum(["in", "notIn"]),
+            field: SetupFieldKeySchema,
+            options: z.array(SetupKeySchema).min(1).max(SETUP_PLAN_LIMITS.options),
+          })
+          .strict(),
+      )
+      .max(SETUP_PLAN_LIMITS.widgetFilters),
+  })
+  .strict();
+export type SetupCalendarSource = z.infer<typeof SetupCalendarSourceSchema>;
+
 const SetupListDefaultSchema = z
   .object({
     list: SetupKeySchema,
@@ -360,6 +382,10 @@ export const SetupPlanSchema = z
       })
       .strict(),
     dashboard: z.object({ widgets: z.array(SetupWidgetSchema).max(SETUP_PLAN_LIMITS.widgets) }).strict(),
+    calendar: z
+      .object({ sources: z.array(SetupCalendarSourceSchema).max(SETUP_PLAN_LIMITS.calendarSources) })
+      .strict()
+      .default({ sources: [] }),
     knowledgeBase: z
       .object({
         pages: z
@@ -446,6 +472,12 @@ export const SetupPlanSchema = z
     });
     if (new Set(plan.dashboard.widgets.map((widget) => widget.key)).size !== plan.dashboard.widgets.length)
       issue(["dashboard", "widgets"], "Widget keys repeat.");
+    plan.calendar.sources.forEach((source, index) => {
+      if (!lists.has(source.list)) issue(["calendar", "sources", index, "list"], "Unknown list.");
+      const fields = [source.dateField, source.endField, ...source.filters.map((filter) => filter.field)];
+      if (fields.some((field) => field && field.split(".")[0] !== source.list))
+        issue(["calendar", "sources", index], "Use fields of the source's own list.");
+    });
     plan.sampleData.lists.forEach((value, index) => {
       if (!lists.has(value.list)) issue(["sampleData", "lists", index, "list"], "Unknown list.");
     });

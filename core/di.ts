@@ -2450,6 +2450,7 @@ export const getWorkspaceSetupBuildService = () =>
     getUpdateUserDetailsInteractor(),
     getMutateRecordInteractor(),
     getCreateWikiPagesInteractor(),
+    getSavePlannerInteractor(),
   );
 export const getStartWorkspaceSetupInteractor = () =>
   new StartWorkspaceSetupInteractor(

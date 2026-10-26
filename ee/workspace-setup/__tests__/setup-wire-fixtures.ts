@@ -77,6 +77,9 @@ export function planToWire(input: SetupPlanInput): PlanWire {
         };
       }),
     },
+    calendar: {
+      sources: plan.calendar.sources.map((source) => ({ ...source, endField: source.endField ?? "" })),
+    },
     knowledgeBase: {
       pages: plan.knowledgeBase.pages.flatMap((page) =>
         page.kind === "competitor" ? [] : [{ ...page, kind: page.kind }],
@@ -98,6 +101,7 @@ export function planToWireParts(input: SetupPlanInput): {
       listDefaults: wire.listDefaults,
       sampleLists: wire.sampleData.lists,
       widgets: wire.dashboard.widgets,
+      calendarSources: wire.calendar.sources,
       importMapping: wire.importMapping,
     },
     knowledge: wire.knowledgeBase,

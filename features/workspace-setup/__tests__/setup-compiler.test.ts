@@ -9,6 +9,7 @@ import { validateRecordModel } from "@/features/records/record-model-validation"
 import { WIDGET_GRID_BREAKPOINT_COLUMNS, rectsOverlap } from "@/features/widget/widget-grid";
 import { ChartColor, DisplayType } from "@/features/widget/widget-display.schema";
 
+import { compileSetupCalendar } from "../setup-calendar-compiler";
 import { compileSetupDashboard, setupDashboardLayouts, setupDashboardShapeIssues } from "../setup-dashboard-compiler";
 import { compileSetupImportMapping, setupImportList, withOptionalImportFields } from "../setup-import-compiler";
 import { compileSetupRecordModel } from "../setup-model-compiler";
@@ -619,6 +620,57 @@ describe("workspace setup compiler", () => {
         { code: "invalid_widget", path: "dashboard.widgets.7.addressField" },
       ],
     });
+  });
+
+  it("compiles the calendar sources to date fields, open-stage filters and colours", async () => {
+    const { plan, prepared, resolver, reference } = await build(agencyPlan);
+    const compiled = compileSetupCalendar(plan, resolver, prepared.model);
+    expect(compiled).toEqual({
+      ok: true,
+      data: [
+        {
+          typeId: reference("$list.project"),
+          calendar: {
+            dateFieldId: reference("$field.project.startDate"),
+            endDateFieldId: reference("$field.project.dueDate"),
+          },
+          filters: [],
+          enabled: true,
+          color: "info",
+        },
+        {
+          typeId: reference("$list.deal"),
+          calendar: { dateFieldId: reference("$field.deal.closeDate") },
+          filters: [
+            {
+              field: reference("$field.deal.stage"),
+              operator: "in",
+              value: ["lead", "briefing", "proposal"].map((key) => resolver.option("deal.stage", key)),
+            },
+          ],
+          enabled: true,
+          color: "success",
+        },
+      ],
+    });
+  });
+
+  it("reports a calendar source on a field that holds no date", async () => {
+    const input = structuredClone(agencyPlan);
+    input.calendar = {
+      sources: [{ list: "project", dateField: "project.phase", endField: null, color: "info", filters: [] }],
+    };
+    const { plan, prepared, resolver } = await build(input);
+    expect(compileSetupCalendar(plan, resolver, prepared.model)).toEqual({
+      ok: false,
+      issues: [{ code: "invalid_calendar_field", path: "calendar.sources.0.dateField" }],
+    });
+  });
+
+  it("reads a stored plan without calendar sources", () => {
+    const stored: SetupPlanInput = { ...agencyPlan };
+    delete stored.calendar;
+    expect(SetupPlanSchema.parse(stored).calendar).toEqual({ sources: [] });
   });
 
   it("compiles the import mapping to fields of the target list", async () => {

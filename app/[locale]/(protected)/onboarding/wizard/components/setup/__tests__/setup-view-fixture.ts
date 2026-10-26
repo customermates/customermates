@@ -85,6 +85,7 @@ export function setupPlan(): SetupPlan {
       ],
     },
     knowledgeBase: { pages: [{ key: "overview", kind: "overview", title: "Company overview", sections: ["About"] }] },
+    calendar: { sources: [] },
     importMapping: null,
   } as SetupPlan;
 }

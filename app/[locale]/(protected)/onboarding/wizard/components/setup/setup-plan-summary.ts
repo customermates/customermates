@@ -104,3 +104,14 @@ export function previewLists(plan: SetupPlan | null, results: StoredSetupResults
     };
   });
 }
+
+export function planCalendarSources(plan: SetupPlan, lists: PlanListSummary[]): string[] {
+  const fields = new Map(
+    [...plan.recordModel.fields, ...plan.recordModel.calculations].map((field) => [field.key, field.label]),
+  );
+  return plan.calendar.sources.map((source) => {
+    const list = lists.find((candidate) => candidate.key === source.list)?.label ?? source.list;
+    const dates = [source.dateField, source.endField].flatMap((key) => (key ? [fields.get(key) ?? key] : []));
+    return `${list}: ${dates.join(" – ")}`;
+  });
+}

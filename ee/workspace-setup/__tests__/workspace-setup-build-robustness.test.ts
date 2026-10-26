@@ -130,6 +130,7 @@ function buildService(repo: ReturnType<typeof memoryRepo>) {
     unused,
     unused,
     createPages as never,
+    unused,
   );
   return { service, models, records, createPages };
 }

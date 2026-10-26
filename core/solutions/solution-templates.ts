@@ -7,6 +7,7 @@ export type SolutionTemplate = {
   lists: { name: string; fields: string[] }[];
   stages: string[];
   dashboard: string[];
+  calendar: string[];
   knowledgeBase: string[];
 };
 

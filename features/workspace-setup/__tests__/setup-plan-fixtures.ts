@@ -262,6 +262,18 @@ export const agencyPlan: SetupPlanInput = {
       },
     ],
   },
+  calendar: {
+    sources: [
+      { list: "project", dateField: "project.startDate", endField: "project.dueDate", color: "info", filters: [] },
+      {
+        list: "deal",
+        dateField: "deal.closeDate",
+        endField: null,
+        color: "success",
+        filters: [{ operator: "in", field: "deal.stage", options: ["lead", "briefing", "proposal"] }],
+      },
+    ],
+  },
   knowledgeBase: {
     pages: [{ key: "overview", kind: "overview", title: "About the agency", sections: ["What we do", "How we work"] }],
   },

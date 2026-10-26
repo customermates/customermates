@@ -23,6 +23,11 @@ export function solutionTemplatesFromSeeds(): Record<SolutionId, SolutionTemplat
         })),
         stages: content.stages.map((stage) => stage.label),
         dashboard: content.dashboard.widgets.map((widget) => widget.title),
+        calendar: (content.planner?.sources ?? []).map((source) => {
+          const list = content.lists.find((candidate) => candidate.key === source.list);
+          const label = (key: string) => fields.find((field) => field.key === `${source.list}.${key}`)?.label ?? key;
+          return `${list?.pluralLabel ?? source.list}: ${[source.date, ...(source.end ? [source.end] : [])].map(label).join(" to ")}`;
+        }),
         knowledgeBase: content.wiki.map((page) => page.title),
       };
       return [id, template];

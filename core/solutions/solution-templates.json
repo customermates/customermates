@@ -1,5 +1,6 @@
 {
   "agencies": {
+    "calendar": ["Projects: Production window", "Pitches: Pitch presentation", "Retainers: Renewal date"],
     "dashboard": [
       "Retainer MRR",
       "Open pitch value",
@@ -77,6 +78,7 @@
     "workspace": "Agencies"
   },
   "client-management": {
+    "calendar": ["Contracts: Review date", "Tasks: Scheduled", "Opportunities: Expected decision"],
     "dashboard": [
       "Annual contract value",
       "Contracts up for review",
@@ -148,6 +150,7 @@
     "workspace": "Clients"
   },
   "consultants": {
+    "calendar": ["Engagements: Start to End", "Engagements: Next step date"],
     "dashboard": [
       "Proposals out",
       "Won in the last 12 months",
@@ -212,6 +215,7 @@
     "workspace": "Consultants"
   },
   "freelancers": {
+    "calendar": ["Projects: Start to Deadline", "Inquiries: Next action date", "Clients: Next action date"],
     "dashboard": [
       "Open proposals",
       "Fees of running projects",
@@ -274,6 +278,7 @@
     "workspace": "Freelancers"
   },
   "linkedin-crm": {
+    "calendar": ["Opportunities: Training sessions", "Opportunities: Next step date"],
     "dashboard": [
       "Open pipeline",
       "Won in the last 12 months",
@@ -333,6 +338,7 @@
     "workspace": "LinkedIn sales"
   },
   "sales-pipeline": {
+    "calendar": ["Tasks: Scheduled", "Opportunities: Expected close date"],
     "dashboard": [
       "Open pipeline",
       "Weighted pipeline",
@@ -388,6 +394,7 @@
     "workspace": "Sales pipeline"
   },
   "smb": {
+    "calendar": ["Tasks: Scheduled", "Deals: Expected close"],
     "dashboard": [
       "Open pipeline",
       "Won in the last 12 months",
@@ -440,6 +447,7 @@
     "workspace": "Small business"
   },
   "startups": {
+    "calendar": ["Investors: Next meeting", "Opportunities: Pilot period", "Opportunities: Expected close"],
     "dashboard": [
       "Open pipeline ARR",
       "Weighted pipeline ARR",
@@ -510,6 +518,7 @@
     "workspace": "Startups"
   },
   "whatsapp-crm": {
+    "calendar": ["Projects: Site visit", "Projects: Installation date", "Projects: Opening date"],
     "dashboard": [
       "Open pipeline",
       "Won in the last 12 months",

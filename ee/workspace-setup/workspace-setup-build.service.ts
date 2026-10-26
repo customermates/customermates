@@ -6,6 +6,7 @@ import type { ImportSpreadsheetInteractor } from "@/features/data-transfer/sprea
 import type { SpreadsheetMapping } from "@/features/data-transfer/spreadsheet/spreadsheet.schema";
 import type { UpsertDataViewInteractor } from "@/features/data-view/upsert-data-view.interactor";
 import type { SaveWidgetInteractor } from "@/features/widget/save-widget.interactor";
+import type { SavePlannerInteractor } from "@/features/planner/save-planner.interactor";
 import type { UpdateUserDetailsInteractor } from "@/features/user/upsert/update-user-details.interactor";
 import type { MutateRecordInteractor } from "@/features/records/mutate-record.interactor";
 import type { RecordScalar } from "@/features/records/record-model.schema";
@@ -49,6 +50,7 @@ import {
   setupLineItems,
   setupRoleList,
 } from "@/features/workspace-setup/setup-anchors";
+import { compileSetupCalendar } from "@/features/workspace-setup/setup-calendar-compiler";
 import { compileSetupDashboard, setupWidgetCreationOrder } from "@/features/workspace-setup/setup-dashboard-compiler";
 import { setupWidgetSketch } from "@/features/workspace-setup/setup-plan.schema";
 import {
@@ -180,6 +182,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     private settings: Pick<UpdateUserDetailsInteractor, "invoke">,
     private mutateRecord: Pick<MutateRecordInteractor, "invoke">,
     private createPages: Pick<CreateWikiPagesInteractor, "invoke">,
+    private savePlanner: Pick<SavePlannerInteractor, "invoke">,
   ) {
     super();
   }
@@ -683,7 +686,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
   }
 
   private async dashboard(setup: WorkspaceSetupRecord, plan: SetupPlan): Promise<PhaseOutcome> {
-    if (plan.dashboard.widgets.length === 0) return { status: "skipped" };
+    if (plan.dashboard.widgets.length === 0 && plan.calendar.sources.length === 0) return { status: "skipped" };
     let widgets = artifact(setup, "widgets", SetupWidgetInputsSchema);
     if (!widgets) {
       const { model, resolver } = await this.resolver(setup, plan);
@@ -722,6 +725,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
         display,
       });
     }
+    await this.calendar(setup, plan);
     return {
       status: "completed",
       patch: (current) => ({
@@ -729,6 +733,15 @@ export class WorkspaceSetupBuildService extends UserAccessor {
         results: { ...current.results, widgets: created },
       }),
     };
+  }
+
+  private async calendar(setup: WorkspaceSetupRecord, plan: SetupPlan) {
+    if (plan.calendar.sources.length === 0) return;
+    const { model, resolver } = await this.resolver(setup, plan);
+    const compiled = compileSetupCalendar(plan, resolver, model);
+    if (!compiled.ok) throw phaseFailure("invalidPlan");
+    const saved = await this.savePlanner.invoke({ config: { sources: compiled.data } });
+    if (!saved.ok) throw phaseFailure(failureOf(saved.error));
   }
 
   private async recordsPhase(setup: WorkspaceSetupRecord, plan: SetupPlan): Promise<PhaseOutcome> {

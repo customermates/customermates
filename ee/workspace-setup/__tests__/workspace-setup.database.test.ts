@@ -422,6 +422,26 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
       ),
     ).toBe(0);
 
+    const planner = await runWithoutTenant(() =>
+      prisma.p13n.findMany({ where: { companyId: ws.companyId, p13nId: "combined-calendar" } }),
+    );
+    expect(planner.map((entry) => entry.userId)).toEqual([ws.owner.id]);
+    expect((planner[0].settings as { sources: unknown[] }).sources).toMatchObject([
+      {
+        typeId: reference("$list.project"),
+        calendar: {
+          dateFieldId: reference("$field.project.startDate"),
+          endDateFieldId: reference("$field.project.dueDate"),
+        },
+        color: "info",
+      },
+      {
+        typeId: reference("$list.deal"),
+        calendar: { dateFieldId: reference("$field.deal.closeDate") },
+        color: "success",
+      },
+    ]);
+
     const service = di.getWorkspaceSetupBuildService();
     await ws.run(() =>
       di.getWorkspaceSetupRepo().mutate(setupId, (current) => ({

@@ -5410,6 +5410,7 @@
     "plan": {
       "adjust": "Adjust answers",
       "build": "Build my workspace",
+      "calendarSources": "Calendar: {sources}",
       "dashboard": "Dashboard",
       "failedTitle": "The plan could not be drafted",
       "importSummary": "Imports {fileName} into {list}.",
