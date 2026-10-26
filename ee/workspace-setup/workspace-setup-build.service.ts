@@ -171,10 +171,15 @@ function artifact<T>(setup: WorkspaceSetupRecord, key: string, schema: z.ZodType
 
 function sampleCalendarDates(plan: SetupPlan, resolver: SetupResolver): SampleCalendarDates {
   const starts = new Set<string>();
+  const months = new Set<string>();
+  const upcoming = new Set<string>();
   const ends = new Map<string, string>();
   for (const widget of plan.dashboard.widgets) {
-    const field = widget.kind === "calendar" ? resolver.field(widget.dateField) : null;
-    if (field) starts.add(field);
+    if (widget.kind !== "calendar") continue;
+    const field = resolver.field(widget.dateField);
+    if (!field) continue;
+    starts.add(field);
+    (widget.layout === "month" ? months : upcoming).add(field);
   }
   for (const source of plan.calendar.sources) {
     const field = resolver.field(source.dateField);
@@ -183,7 +188,8 @@ function sampleCalendarDates(plan: SetupPlan, resolver: SetupResolver): SampleCa
     starts.add(field);
     if (end) ends.set(field, end);
   }
-  return { starts, ends, today: new Date() };
+  for (const field of months) upcoming.delete(field);
+  return { starts, upcoming, ends, today: new Date() };
 }
 
 export class WorkspaceSetupBuildService extends UserAccessor {

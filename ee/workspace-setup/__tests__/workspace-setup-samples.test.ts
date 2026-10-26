@@ -166,6 +166,7 @@ describe("sample record tables", () => {
     rows[3][start] = "";
     const projects = generatedSampleList(project, rows, new Map(), "EUR", {
       starts: new Set([resolver.field("project.startDate") ?? ""]),
+      upcoming: new Set(),
       ends: new Map([[resolver.field("project.startDate") ?? "", resolver.field("project.dueDate") ?? ""]]),
       today: new Date("2026-10-26T12:00:00Z"),
     });
@@ -188,6 +189,7 @@ describe("sample record tables", () => {
       "EUR",
       {
         starts: new Set([field("project.dueDate"), field("project.startDate")]),
+        upcoming: new Set(),
         ends: new Map([[field("project.startDate"), field("project.dueDate")]]),
         today: new Date("2026-10-26T12:00:00Z"),
       },
@@ -195,5 +197,32 @@ describe("sample record tables", () => {
     const cells = projects.table.rows[0].cells;
     expect(cells[projects.table.headers.indexOf(due)]).toBe("2026-10-16");
     expect(cells[projects.table.headers.indexOf(start)]).toBe("2026-09-01");
+  });
+
+  it("puts upcoming dates mostly into the next two weeks, also when the month is nearly over", async () => {
+    const { model, resolver, list } = await agency();
+    const [[deal]] = sampleListSpecs([{ list: "deal", typeId: list("deal"), count: 6, kinds: [] }], model);
+    const closeDate = resolver.field("deal.closeDate") ?? "";
+    const column = deal.columns.find((entry) => entry.fieldId === closeDate)?.column ?? "";
+    const deals = generatedSampleList(
+      deal,
+      ["A", "B", "C", "D", "E", "F"].map((title) => ({ [deal.titleColumns[0]]: title, [column]: "2026-03-01" })),
+      new Map(),
+      "EUR",
+      {
+        starts: new Set([closeDate]),
+        upcoming: new Set([closeDate]),
+        ends: new Map(),
+        today: new Date("2026-10-29T08:00:00Z"),
+      },
+    );
+    expect(deals.table.rows.map((row) => row.cells[deals.table.headers.indexOf(column)])).toEqual([
+      "2026-10-27",
+      "2026-10-30",
+      "2026-11-02",
+      "2026-11-04",
+      "2026-11-07",
+      "2026-11-10",
+    ]);
   });
 });
