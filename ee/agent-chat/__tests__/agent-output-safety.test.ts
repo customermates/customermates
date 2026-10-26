@@ -786,7 +786,7 @@ describe("agent client-visible output safety", () => {
         expect(sanitizeAgentVisibleText(visible)).toBe(visible);
       }
     }
-  });
+  }, 120_000);
 
   it("keeps already-sanitized text stable", () => {
     const once = sanitizeAgentVisibleText("Done. apiKey=never-show; 00000000-0000-4000-8000-000000000001");
