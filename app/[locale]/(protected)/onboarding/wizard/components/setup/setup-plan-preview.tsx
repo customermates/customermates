@@ -17,6 +17,7 @@ import { IconContainer } from "@/components/shared/icon-container";
 import { Button } from "@/components/ui/button";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { setupWidgetSketch } from "@/features/workspace-setup/setup-plan.schema";
 import { supportMailHref } from "@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/subscription/support-mail-href";
 
 import { planProgress } from "./setup-plan-progress";
@@ -273,8 +274,8 @@ export const SetupPlanPreview = observer(function SetupPlanPreview() {
               tiles={plan.dashboard.widgets.map((widget) => ({
                 key: widget.key,
                 title: widget.title,
-                display: widget.display,
-                size: widget.size,
+                display: setupWidgetSketch(widget),
+                size: "size" in widget ? widget.size : null,
               }))}
             />
           ) : (

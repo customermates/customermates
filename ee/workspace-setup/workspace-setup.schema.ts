@@ -6,7 +6,7 @@ import { RecordRefSchema } from "@/features/records/record-model.schema";
 import type { SetupAnswers } from "@/features/workspace-setup/setup-answers.schema";
 import { SetupAnswerValueSchema, StoredSetupAnswersSchema } from "@/features/workspace-setup/setup-answers.schema";
 import type { SetupPlan } from "@/features/workspace-setup/setup-plan.schema";
-import { WIDGET_STARTER_DISPLAY_TYPES } from "@/features/widget/widget-display-rules";
+import { SETUP_WIDGET_SKETCHES } from "@/features/workspace-setup/setup-plan.schema";
 
 export const WORKSPACE_SETUP_STATUSES = [
   "interview",
@@ -201,9 +201,7 @@ export const StoredSetupResultsSchema = z.object({
       }),
     )
     .default([]),
-  widgets: z
-    .array(z.object({ id: z.uuid(), title: z.string(), display: z.enum(WIDGET_STARTER_DISPLAY_TYPES) }))
-    .default([]),
+  widgets: z.array(z.object({ id: z.uuid(), title: z.string(), display: z.enum(SETUP_WIDGET_SKETCHES) })).default([]),
   pages: z.array(z.object({ id: z.uuid(), title: z.string() })).default([]),
 });
 export type StoredSetupResults = z.infer<typeof StoredSetupResultsSchema>;

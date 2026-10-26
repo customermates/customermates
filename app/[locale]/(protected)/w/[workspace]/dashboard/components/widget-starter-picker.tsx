@@ -34,7 +34,7 @@ const MAP_PINS = [
   { position: "left-[36%] top-[64%]", color: "bg-(--chart-4)" },
 ];
 
-function ActivityTimelineIllustration({ className }: { className?: string }) {
+export function ActivityTimelineIllustration({ className }: { className?: string }) {
   return (
     <div aria-hidden className={cn("flex flex-col justify-center gap-2", className)}>
       {["w-4/5", "w-3/5", "w-2/3"].map((width, index) => (
@@ -52,7 +52,7 @@ function ActivityTimelineIllustration({ className }: { className?: string }) {
   );
 }
 
-function CalendarUpcomingIllustration({ className }: { className?: string }) {
+export function CalendarUpcomingIllustration({ className }: { className?: string }) {
   return (
     <div aria-hidden className={cn("flex flex-col justify-center gap-2", className)}>
       {["w-4/5", "w-3/5", "w-2/3"].map((width, index) => (
@@ -81,7 +81,7 @@ function CalendarUpcomingIllustration({ className }: { className?: string }) {
   );
 }
 
-function CalendarMonthIllustration({ className }: { className?: string }) {
+export function CalendarMonthIllustration({ className }: { className?: string }) {
   return (
     <div aria-hidden className={cn("flex items-center justify-center", className)}>
       <div className="grid w-24 grid-cols-7 gap-0.5">
@@ -100,7 +100,7 @@ function CalendarMonthIllustration({ className }: { className?: string }) {
   );
 }
 
-function MapIllustration({ className }: { className?: string }) {
+export function MapIllustration({ className }: { className?: string }) {
   return (
     <div aria-hidden className={cn("flex items-center justify-center", className)}>
       <div className="relative h-14 w-24 overflow-hidden rounded-md bg-info/10">

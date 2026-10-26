@@ -5330,6 +5330,12 @@
     "interview": {
       "addEntry": "Aggiungi una voce",
       "adjusting": "Cambia le risposte che vuoi, poi mostra di nuovo il piano.",
+      "answerYourself": {
+        "cancel": "Aspetta il sito",
+        "confirm": "Rispondo io",
+        "description": "Stiamo compilando queste risposte dal tuo sito proprio ora. Dovrai solo controllarle quando abbiamo finito.",
+        "title": "Rispondere da solo?"
+      },
       "customPlaceholder": "Descrivilo in poche parole",
       "days": "giorni",
       "entryLabel": "Voce {index}",
@@ -5338,6 +5344,7 @@
       "optionalPlaceholder": "Lascia vuoto se non ti viene in mente nulla",
       "planHint": "Controlli il piano prima che venga creato qualcosa",
       "prefillFailed": "Non siamo riusciti a leggere il tuo sito, quindi nulla è precompilato. Le domande richiedono comunque solo pochi minuti.",
+      "prefillPending": "Le risposte qui sotto vengono compilate automaticamente dal tuo sito. Puoi aspettare e controllarle quando abbiamo finito.",
       "rangeFrom": "Da",
       "rangeTo": "Fino a",
       "rankedHint": "{count} di {max} scelti, in ordine di importanza",
@@ -5506,7 +5513,7 @@
     },
     "website": {
       "change": "Modifica",
-      "eta": "Di solito servono 1 o 2 minuti. Nel frattempo puoi iniziare a rispondere.",
+      "eta": "Di solito servono 1 o 2 minuti.",
       "finding": "Cerchiamo le pagine su {website}",
       "found": "{count, plural, =0 {Nessuna pagina trovata su {website}} one {# pagina trovata su {website}} other {# pagine trovate su {website}}}",
       "hint": "Facoltativo. Leggiamo il tuo sito web pubblico e suggeriamo le risposte, così ti basta confermarle.",

@@ -11,7 +11,7 @@ import {
 } from "@/features/data-transfer/spreadsheet/spreadsheet.schema";
 import { RecordSurfaceKeySchema } from "@/core/data-view/data-view-identity.schema";
 import { AgentDataViewStateSchema } from "@/features/data-view/manage-data-views.schema";
-import { RecordWidgetInputSchema } from "@/features/widget/record-widget.schema";
+import { GenericRecordWidgetInputSchema } from "@/features/widget/record-widget.schema";
 import { setupListReference } from "@/features/workspace-setup/setup-references";
 
 export const SetupViewDraftsSchema: z.ZodType<SetupViewDraft[]> = z.array(
@@ -25,7 +25,7 @@ export const SetupViewDraftsSchema: z.ZodType<SetupViewDraft[]> = z.array(
     .strict(),
 );
 
-export const SetupWidgetInputsSchema = z.array(RecordWidgetInputSchema);
+export const SetupWidgetInputsSchema = z.array(GenericRecordWidgetInputSchema);
 
 export const SetupSamplesSchema = z.array(
   z

@@ -371,6 +371,55 @@ describe("WorkspaceSetupStore", () => {
     expect(withoutWebsite.prefillRunning).toBe(false);
   });
 
+  it("holds the first answer to a part the website pre-fill fills until the owner chooses to answer it", () => {
+    const store = storeWith(setupView({ interview: { ...setupView().interview, prefill: "running" } }));
+    store.setAnswer("existingData", { format: "singleChoice", value: "sampleData" });
+    expect(store.heldAnswer).toBeNull();
+    expect(store.touched.has("existingData")).toBe(true);
+
+    store.setAnswer("companyName", { format: "shortText", value: "A" });
+    expect(store.heldAnswer).toEqual({ id: "companyName", value: { format: "shortText", value: "A" } });
+    expect(store.answers.companyName).toBeUndefined();
+    expect(store.touched.has("companyName")).toBe(false);
+
+    store.answerDuringPrefill();
+    expect(store.heldAnswer).toBeNull();
+    expect(store.answers.companyName).toEqual({
+      source: "user",
+      confidence: 1,
+      value: { format: "shortText", value: "A" },
+    });
+    expect(store.touched.has("companyName")).toBe(true);
+    store.setAnswer("country", { format: "singleChoice", value: "DE" });
+    expect(store.heldAnswer).toBeNull();
+    expect(store.answers.country?.source).toBe("user");
+  });
+
+  it("drops the held answer when the owner waits for the website and asks only once per setup", () => {
+    const running = setupView({ interview: { ...setupView().interview, prefill: "queued" } });
+    const store = storeWith(running);
+    store.setAnswer("teamSize", { format: "singleChoice", value: "solo" });
+    store.waitForPrefill();
+    expect(store.heldAnswer).toBeNull();
+    expect(store.answers.teamSize).toBeUndefined();
+    expect(store.touched.has("teamSize")).toBe(false);
+
+    store.setAnswer("teamSize", { format: "singleChoice", value: "small" });
+    expect(store.heldAnswer).toBeNull();
+    expect(store.answers.teamSize?.value).toEqual({ format: "singleChoice", value: "small" });
+
+    store.hydrate({ available: true, setup: { ...running, id: "00000000-0000-4000-8000-000000000999" } });
+    store.setAnswer("teamSize", { format: "singleChoice", value: "solo" });
+    expect(store.heldAnswer?.id).toBe("teamSize");
+  });
+
+  it("applies answers right away once the website pre-fill has finished", () => {
+    const store = storeWith(setupView({ interview: { ...setupView().interview, prefill: "completed" } }));
+    store.setAnswer("companyName", { format: "shortText", value: "Acme" });
+    expect(store.heldAnswer).toBeNull();
+    expect(store.answers.companyName?.source).toBe("user");
+  });
+
   it("loads the confirmed answers and resets when a new setup appears", () => {
     const confirmed = { source: "user" as const, confidence: 1 };
     const store = storeWith(

@@ -5330,6 +5330,12 @@
     "interview": {
       "addEntry": "Añadir una entrada",
       "adjusting": "Cambia las respuestas que quieras y vuelve a ver el plan.",
+      "answerYourself": {
+        "cancel": "Esperar al sitio web",
+        "confirm": "Responder yo mismo",
+        "description": "Estamos rellenando estas respuestas a partir de tu sitio web ahora mismo. Solo tendrás que revisarlas cuando terminemos.",
+        "title": "¿Responder tú mismo?"
+      },
       "customPlaceholder": "Descríbelo en pocas palabras",
       "days": "días",
       "entryLabel": "Entrada {index}",
@@ -5338,6 +5344,7 @@
       "optionalPlaceholder": "Déjalo vacío si no se te ocurre nada",
       "planHint": "Revisas el plan antes de que se cree nada",
       "prefillFailed": "No pudimos leer tu sitio web, así que no hay nada rellenado. Las preguntas solo llevan unos minutos.",
+      "prefillPending": "Las respuestas de abajo se rellenan automáticamente a partir de tu sitio web. Puedes esperar y revisarlas cuando terminemos.",
       "rangeFrom": "Desde",
       "rangeTo": "Hasta",
       "rankedHint": "{count} de {max} elegidos, por orden de importancia",
@@ -5506,7 +5513,7 @@
     },
     "website": {
       "change": "Cambiar",
-      "eta": "Suele tardar de 1 a 2 minutos. Mientras tanto, ya puedes empezar a responder.",
+      "eta": "Suele tardar de 1 a 2 minutos.",
       "finding": "Buscando páginas en {website}",
       "found": "{count, plural, =0 {No se encontraron páginas en {website}} one {# página encontrada en {website}} other {# páginas encontradas en {website}}}",
       "hint": "Opcional. Leemos tu sitio web público y sugerimos respuestas, así que casi solo tienes que confirmarlas.",

@@ -22,6 +22,7 @@ import {
 } from "@/features/workspace-setup/setup-plan.schema";
 import { SETUP_LIST_ROLES } from "@/features/workspace-setup/setup-anchors";
 import { RECORD_TYPE_ICON_KEYS } from "@/components/records/record-type-icon";
+import { CALENDAR_WIDGET_LAYOUTS } from "@/features/widget/record-calendar-widget.schema";
 import { WIDGET_STARTER_DISPLAY_TYPES } from "@/features/widget/widget-display-rules";
 import { APP_LOCALES } from "@/i18n/locale-registry";
 import { SETUP_FOLLOW_UP_IDS, SetupFollowUpQuestionSchema } from "./workspace-setup.schema";
@@ -244,8 +245,32 @@ const WidgetsWireShape = {
   widgets: z.array(
     z.object({
       key: z.string().describe("lowerCamelCase letters and digits only."),
+      kind: z
+        .enum(["chart", "calendar", "map", "activity"])
+        .describe(
+          "chart: a number or chart of aggregation, valueField, groupBy and display. calendar: the records of list on the days of a date field, set in calendar. map: the records of list at their address field, set in map. activity: the latest messages of the workspace; list is ignored.",
+        ),
       title: z.string(),
       list: z.string(),
+      calendar: z
+        .object({
+          layout: z
+            .enum(CALENDAR_WIDGET_LAYOUTS)
+            .describe("upcoming lists the next two weeks with overdue records; month is a heat grid of the month."),
+          dateField: z.string().describe("A date field of list."),
+          amountField: z.string().nullable().describe("Optional number or currency field of list to show or sum."),
+        })
+        .nullable()
+        .describe("Only for kind calendar, otherwise null."),
+      map: z
+        .object({
+          addressField: z.string().describe("An address field of list."),
+          colorField: z.string().nullable().describe("Optional single-choice field of list that colors the pins."),
+          sizeField: z.string().nullable().describe("Optional number or currency field of list that sizes the pins."),
+          detailField: z.string().nullable().describe("Optional field of list shown in a pin's popover."),
+        })
+        .nullable()
+        .describe("Only for kind map, otherwise null."),
       aggregation: z.enum(["count", "sum", "average", "min", "max"]),
       valueField: z.string().nullable(),
       groupBy: z
@@ -463,25 +488,32 @@ export function planFromWire(
       })),
     },
     dashboard: {
-      widgets: wire.dashboard.widgets.map((widget) => ({
-        ...widget,
-        key: lowerCamelKey(widget.key),
-        size: present(widget.size),
-        groupBy: widget.groupBy
-          ? {
-              path: widget.groupBy.path,
-              field: widget.groupBy.field,
-              ...(widget.groupBy.dateInterval ? { dateInterval: widget.groupBy.dateInterval } : {}),
-            }
-          : null,
-        filters: widget.filters.map((filter) =>
+      widgets: wire.dashboard.widgets.map(({ kind, calendar, map, ...widget }) => {
+        const key = lowerCamelKey(widget.key);
+        const filters = widget.filters.map((filter) =>
           filter.operator === "in" || filter.operator === "notIn"
             ? { operator: filter.operator, field: filter.field, options: filter.options }
             : filter.operator === "inLastDays" || filter.operator === "notInLastDays"
               ? { operator: filter.operator, field: filter.field, days: Math.round(filter.days ?? 30) }
               : { operator: filter.operator, field: filter.field },
-        ),
-      })),
+        );
+        if (kind === "activity") return { kind, key, title: widget.title };
+        if (kind === "calendar") return { kind, key, title: widget.title, list: widget.list, ...calendar, filters };
+        if (kind === "map") return { kind, key, title: widget.title, list: widget.list, ...map, filters };
+        return {
+          ...widget,
+          key,
+          size: present(widget.size),
+          groupBy: widget.groupBy
+            ? {
+                path: widget.groupBy.path,
+                field: widget.groupBy.field,
+                ...(widget.groupBy.dateInterval ? { dateInterval: widget.groupBy.dateInterval } : {}),
+              }
+            : null,
+          filters,
+        };
+      }),
     },
     knowledgeBase: {
       pages: wire.knowledgeBase.pages.map((page) => ({

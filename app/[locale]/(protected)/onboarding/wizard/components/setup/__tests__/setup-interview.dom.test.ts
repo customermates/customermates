@@ -225,6 +225,30 @@ describe("SetupInterview", () => {
     expect(wizard.completeSetupStep).toHaveBeenCalledOnce();
   });
 
+  it("says the website fills the answers and asks before the owner answers one by hand", () => {
+    const running = setupView({ interview: { ...setupView().interview, prefill: "running" as const } });
+    const text = renderWebsite(running);
+    expect(text).toContain("WorkspaceSetup.interview.prefillPending");
+    const store = () => (harness.rootStore as { workspaceSetupStore: WorkspaceSetupStore }).workspaceSetupStore;
+    const choose = () =>
+      act(() => field("workWith").querySelector<HTMLElement>('[role="radio"], input[type="radio"]')?.click());
+    const button = (label: string) =>
+      [...document.body.querySelectorAll("button")].find((candidate) => candidate.textContent?.includes(label));
+
+    choose();
+    expect(document.body.textContent).toContain("WorkspaceSetup.interview.answerYourself.description");
+    expect(store().answers.workWith).toBeUndefined();
+    act(() => button("WorkspaceSetup.interview.answerYourself.cancel")?.click());
+    expect(document.body.textContent).not.toContain("WorkspaceSetup.interview.answerYourself.description");
+    expect(store().answers.workWith).toBeUndefined();
+
+    renderWebsite(running);
+    choose();
+    act(() => button("WorkspaceSetup.interview.answerYourself.confirm")?.click());
+    expect(store().answers.workWith?.source).toBe("user");
+    expect(renderWebsite(setupView())).not.toContain("WorkspaceSetup.interview.prefillPending");
+  });
+
   it("asks the questions by hand without a website box when the owner chose the questions", () => {
     const text = renderWebsite(
       setupView({ websiteUrl: null, interview: { ...setupView().interview, prefill: "skipped" } }),

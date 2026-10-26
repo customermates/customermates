@@ -1,6 +1,7 @@
 import type { SetupPlan, SetupPlanInput } from "@/features/workspace-setup/setup-plan.schema";
 import type { PlanKnowledgeWire, PlanModelWire, PlanViewsWire, PlanWire } from "../workspace-setup-wire";
 
+import { DisplayType } from "@/features/widget/widget-display.schema";
 import { SetupPlanSchema } from "@/features/workspace-setup/setup-plan.schema";
 
 type Option = SetupPlan["recordModel"]["fields"][number]["options"][number];
@@ -36,23 +37,45 @@ export function planToWire(input: SetupPlanInput): PlanWire {
     listDefaults: plan.listDefaults,
     sampleData: plan.sampleData,
     dashboard: {
-      widgets: plan.dashboard.widgets.map((widget) => ({
-        ...widget,
-        size: widget.size ?? null,
-        groupBy: widget.groupBy
-          ? {
-              path: widget.groupBy.path,
-              field: widget.groupBy.field,
-              dateInterval: widget.groupBy.dateInterval ?? null,
-            }
-          : null,
-        filters: widget.filters.map((filter) => ({
-          operator: filter.operator,
-          field: filter.field,
-          options: "options" in filter ? filter.options : [],
-          days: "days" in filter ? filter.days : null,
-        })),
-      })),
+      widgets: plan.dashboard.widgets.map((widget) => {
+        const chart = widget.kind === undefined || widget.kind === "chart" ? widget : null;
+        return {
+          key: widget.key,
+          kind: widget.kind ?? "chart",
+          title: widget.title,
+          list: "list" in widget ? widget.list : "",
+          calendar:
+            widget.kind === "calendar"
+              ? { layout: widget.layout, dateField: widget.dateField, amountField: widget.amountField }
+              : null,
+          map:
+            widget.kind === "map"
+              ? {
+                  addressField: widget.addressField,
+                  colorField: widget.colorField,
+                  sizeField: widget.sizeField,
+                  detailField: widget.detailField,
+                }
+              : null,
+          aggregation: chart?.aggregation ?? "count",
+          valueField: chart?.valueField ?? null,
+          display: chart?.display ?? DisplayType.number,
+          size: chart?.size ?? null,
+          groupBy: chart?.groupBy
+            ? {
+                path: chart.groupBy.path,
+                field: chart.groupBy.field,
+                dateInterval: chart.groupBy.dateInterval ?? null,
+              }
+            : null,
+          filters: ("filters" in widget ? widget.filters : []).map((filter) => ({
+            operator: filter.operator,
+            field: filter.field,
+            options: "options" in filter ? filter.options : [],
+            days: "days" in filter ? filter.days : null,
+          })),
+        };
+      }),
     },
     knowledgeBase: {
       pages: plan.knowledgeBase.pages.flatMap((page) =>

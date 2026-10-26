@@ -5330,6 +5330,12 @@
     "interview": {
       "addEntry": "Add an entry",
       "adjusting": "Change any answer, then show the plan again.",
+      "answerYourself": {
+        "cancel": "Wait for the website",
+        "confirm": "Answer myself",
+        "description": "We are filling in these answers from your website right now. You only need to check them when we are done.",
+        "title": "Answer this yourself?"
+      },
       "customPlaceholder": "Describe it in a few words",
       "days": "days",
       "entryLabel": "Entry {index}",
@@ -5338,6 +5344,7 @@
       "optionalPlaceholder": "Leave empty if nothing comes to mind",
       "planHint": "You check the plan before anything is built",
       "prefillFailed": "We could not read your website, so nothing is filled in. The questions still take only a few minutes.",
+      "prefillPending": "The answers below are filled in from your website automatically. You can wait and check them when we are done.",
       "rangeFrom": "From",
       "rangeTo": "Up to",
       "rankedHint": "{count} of {max} picked, in order of importance",
@@ -5506,7 +5513,7 @@
     },
     "website": {
       "change": "Change",
-      "eta": "Usually takes 1 to 2 minutes. You can start answering in the meantime.",
+      "eta": "Usually takes 1 to 2 minutes.",
       "finding": "Finding pages on {website}",
       "found": "{count, plural, =0 {No pages found on {website}} one {Found # page on {website}} other {Found # pages on {website}}}",
       "hint": "Optional. We read your public website and suggest answers, so you mostly just confirm.",

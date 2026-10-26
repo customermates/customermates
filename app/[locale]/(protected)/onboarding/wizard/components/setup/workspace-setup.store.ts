@@ -10,7 +10,7 @@ import type { SetupStage } from "./setup-interview-state";
 import { makeAutoObservable, observable, runInAction, toJS } from "mobx";
 
 import { SPREADSHEET_MAX_FILE_BYTES } from "@/features/data-transfer/spreadsheet/spreadsheet.schema";
-import { touchAnswer } from "@/features/workspace-setup/setup-prefill";
+import { touchAnswer, websitePrefillFills } from "@/features/workspace-setup/setup-prefill";
 import { setupStepSuggestion } from "@/features/workspace-setup/setup-solution-match";
 import { serializedFailureErrorTree } from "@/core/validation/validation.utils";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
@@ -60,6 +60,8 @@ export class WorkspaceSetupStore {
   answers: SetupAnswers = {};
   touched = observable.set<string>();
   followUpDrafts: Record<string, SetupAnswerValue> = {};
+  heldAnswer: { id: string; value: SetupAnswerValue } | null = null;
+  answerDuringPrefillAsked = false;
   adjusting = false;
   missingShown = false;
   spreadsheetRejection: SpreadsheetRejection | null = null;
@@ -172,6 +174,8 @@ export class WorkspaceSetupStore {
       this.answers = setup?.interview.answers ?? {};
       this.touched.clear();
       this.followUpDrafts = {};
+      this.heldAnswer = null;
+      this.answerDuringPrefillAsked = false;
       this.adjusting = false;
       this.missingShown = false;
       this.spreadsheetRejection = null;
@@ -181,8 +185,24 @@ export class WorkspaceSetupStore {
   };
 
   setAnswer = (id: string, value: SetupAnswerValue) => {
+    if (!this.answerDuringPrefillAsked && this.prefillRunning && websitePrefillFills(id)) {
+      this.heldAnswer = { id, value };
+      return;
+    }
     this.answers = touchAnswer(this.answers, id, value);
     this.touched.add(id);
+  };
+
+  answerDuringPrefill = () => {
+    const held = this.heldAnswer;
+    this.answerDuringPrefillAsked = true;
+    this.heldAnswer = null;
+    if (held) this.setAnswer(held.id, held.value);
+  };
+
+  waitForPrefill = () => {
+    this.answerDuringPrefillAsked = true;
+    this.heldAnswer = null;
   };
 
   setFollowUpAnswer = (id: string, value: SetupAnswerValue) => {

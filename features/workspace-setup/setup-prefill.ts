@@ -17,6 +17,11 @@ export function mergeWebsitePrefill(
   return merged;
 }
 
+export function websitePrefillFills(id: string): boolean {
+  const prefill = setupPart(id)?.prefill;
+  return prefill !== undefined && prefill !== "no";
+}
+
 export function touchAnswer(
   answers: SetupAnswers,
   id: keyof SetupAnswers,

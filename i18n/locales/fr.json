@@ -5330,6 +5330,12 @@
     "interview": {
       "addEntry": "Ajouter une entrée",
       "adjusting": "Modifiez les réponses souhaitées, puis affichez à nouveau le plan.",
+      "answerYourself": {
+        "cancel": "Attendre le site",
+        "confirm": "Répondre moi-même",
+        "description": "Nous remplissons ces réponses à partir de votre site en ce moment. Vous n’aurez qu’à les vérifier une fois terminé.",
+        "title": "Répondre vous-même ?"
+      },
       "customPlaceholder": "Décrivez-le en quelques mots",
       "days": "jours",
       "entryLabel": "Entrée {index}",
@@ -5338,6 +5344,7 @@
       "optionalPlaceholder": "Laissez vide si rien ne vous vient à l’esprit",
       "planHint": "Vous vérifiez le plan avant que quoi que ce soit ne soit créé",
       "prefillFailed": "Nous n’avons pas pu lire votre site, rien n’est donc prérempli. Les questions ne prennent que quelques minutes.",
+      "prefillPending": "Les réponses ci-dessous sont remplies automatiquement à partir de votre site. Vous pouvez attendre et les vérifier une fois terminé.",
       "rangeFrom": "De",
       "rangeTo": "Jusqu’à",
       "rankedHint": "{count} sur {max} choisis, par ordre d’importance",
@@ -5506,7 +5513,7 @@
     },
     "website": {
       "change": "Modifier",
-      "eta": "Cela prend généralement 1 à 2 minutes. Vous pouvez commencer à répondre en attendant.",
+      "eta": "Cela prend généralement 1 à 2 minutes.",
       "finding": "Recherche des pages sur {website}",
       "found": "{count, plural, =0 {Aucune page trouvée sur {website}} one {# page trouvée sur {website}} other {# pages trouvées sur {website}}}",
       "hint": "Facultatif. Nous lisons votre site web public et suggérons des réponses que vous n’avez plus qu’à confirmer.",

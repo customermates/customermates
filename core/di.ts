@@ -2444,7 +2444,7 @@ export const getWorkspaceSetupBuildService = () =>
     getPreviewRecordConfigurationInteractor(),
     getApplyRecordConfigurationInteractor(),
     getUpsertDataViewInteractor(),
-    getUpsertRecordWidgetInteractor(),
+    getSaveWidgetInteractor(),
     getImportSpreadsheetInteractor(),
     websiteBrandFetch,
     getUpdateUserDetailsInteractor(),

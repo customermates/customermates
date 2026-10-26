@@ -18,7 +18,7 @@ import { SOLUTION_TEMPLATES } from "@/core/solutions/solution-templates";
 import { setupAnchorFields } from "@/features/workspace-setup/setup-anchors";
 import { SETUP_PLAN_LIMITS } from "@/features/workspace-setup/setup-plan.schema";
 import { createSetupResolver } from "@/features/workspace-setup/setup-references";
-import { compileSetupDashboard } from "@/features/workspace-setup/setup-dashboard-compiler";
+import { compileSetupDashboard, setupDashboardShapeIssues } from "@/features/workspace-setup/setup-dashboard-compiler";
 import { compileSetupImportMapping } from "@/features/workspace-setup/setup-import-compiler";
 import { compileSetupRecordModel } from "@/features/workspace-setup/setup-model-compiler";
 import { compileSetupListDefaults } from "@/features/workspace-setup/setup-view-compiler";
@@ -98,7 +98,7 @@ type PlanPart<T> = {
   schema: z.ZodType<T>;
   system: string;
   prompt: string[];
-  check: (value: T) => Promise<{ value: T; issues: SetupPlanIssue[] }>;
+  check: (value: T) => Promise<{ value: T; issues: SetupPlanIssue[]; advice?: SetupPlanIssue[] }>;
 };
 
 function owns(prefixes: string[]) {
@@ -302,10 +302,19 @@ export class WorkspaceSetupPlanner extends UserAccessor {
       check: async (value) => {
         const owned = ["listDefaults", "sampleData", "dashboard", "importMapping"];
         const wire = (views: PlanViewsWire) => planWireFromParts(model, views, knowledge ?? EMPTY_PLAN_KNOWLEDGE_WIRE);
+        const shape = (views: PlanViewsWire) => {
+          const converted = planFromWire(wire(views));
+          return converted.ok
+            ? setupDashboardShapeIssues(converted.plan).map((issue) => ({
+                path: planPartPath(issue.path),
+                message: issue.code,
+              }))
+            : [];
+        };
         const issues = await this.wireIssues(input, wire(value), owned);
         const pruned = withoutUnknownColumns(value, issues);
-        if (pruned === value) return { value, issues };
-        return { value: pruned, issues: await this.wireIssues(input, wire(pruned), owned) };
+        if (pruned === value) return { value, issues, advice: shape(value) };
+        return { value: pruned, issues: await this.wireIssues(input, wire(pruned), owned), advice: shape(pruned) };
       },
     };
   }
@@ -329,7 +338,9 @@ export class WorkspaceSetupPlanner extends UserAccessor {
         failure: final ? "generation" : null,
       };
     }
-    const { value, issues } = await part.check(result.value);
+    const checked = await part.check(result.value);
+    const { value } = checked;
+    const issues = final ? checked.issues : [...checked.issues, ...(checked.advice ?? [])];
     if (issues.length === 0) return { ...state, attempts, value, repair: [], failure: null };
     return {
       ...state,

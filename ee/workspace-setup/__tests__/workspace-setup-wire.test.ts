@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import { SetupPlanSchema } from "@/features/workspace-setup/setup-plan.schema";
-import { agencyPlan, fieldServicePlan, saasPlan } from "@/features/workspace-setup/__tests__/setup-plan-fixtures";
+import {
+  agencyDashboardPlan,
+  agencyPlan,
+  fieldServicePlan,
+  saasPlan,
+} from "@/features/workspace-setup/__tests__/setup-plan-fixtures";
 
 import { STRUCTURED_OUTPUT_MAX_UNION_TYPES, structuredOutputUnionTypes } from "@/ee/agent-chat/structured-model-call";
 
@@ -117,6 +122,7 @@ describe("plan wire format", () => {
     ["agency", agencyPlan],
     ["subscription", saasPlan],
     ["field service", fieldServicePlan],
+    ["agency dashboard", agencyDashboardPlan],
   ])("round-trips the %s plan without recursion or constraints on the wire", (_name, input) => {
     const converted = planFromWire(planToWire(input));
     expect(converted).toEqual({ ok: true, plan: SetupPlanSchema.parse(input) });

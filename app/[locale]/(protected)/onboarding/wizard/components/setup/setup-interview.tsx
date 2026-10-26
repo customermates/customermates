@@ -8,6 +8,7 @@ import { Fragment, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { focusFirstInvalidField } from "@/components/forms/focus-first-invalid-field";
+import { ConfirmDialog } from "@/components/modal/confirm-dialog";
 import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -254,6 +255,15 @@ export const SetupInterview = observer(function SetupInterview() {
 
       {store.adjusting ? <Alert color="primary" description={t("WorkspaceSetup.interview.adjusting")} /> : null}
 
+      {store.prefillRunning && !store.adjusting ? (
+        <Alert
+          color="primary"
+          description={t("WorkspaceSetup.interview.prefillPending")}
+          icon={<Globe />}
+          role="status"
+        />
+      ) : null}
+
       <div aria-label={t("WorkspaceSetup.interview.stepsLabel")} className="flex flex-col gap-6" role="group">
         {SETUP_QUESTIONS.map((question) =>
           question.id === SETUP_BASICS_QUESTION ? (
@@ -286,6 +296,18 @@ export const SetupInterview = observer(function SetupInterview() {
       </SetupActionBar>
 
       {store.adjusting ? null : <SetupStartEmpty />}
+
+      <ConfirmDialog
+        anchorScope="setup-answer-yourself"
+        cancelLabel={t("WorkspaceSetup.interview.answerYourself.cancel")}
+        confirmLabel={t("WorkspaceSetup.interview.answerYourself.confirm")}
+        confirmVariant="default"
+        description={t("WorkspaceSetup.interview.answerYourself.description")}
+        open={store.heldAnswer !== null}
+        title={t("WorkspaceSetup.interview.answerYourself.title")}
+        onCancel={store.waitForPrefill}
+        onConfirm={store.answerDuringPrefill}
+      />
     </section>
   );
 });

@@ -1,5 +1,6 @@
 import type { RecordModel } from "@/features/records/record-model.schema";
-import type { SetupPlanInput } from "../setup-plan.schema";
+import type { RecordWidgetInput } from "@/features/widget/record-widget.schema";
+import type { SetupChartWidget, SetupPlanInput } from "../setup-plan.schema";
 
 import { describe, expect, it } from "vitest";
 
@@ -8,14 +9,16 @@ import { validateRecordModel } from "@/features/records/record-model-validation"
 import { WIDGET_GRID_BREAKPOINT_COLUMNS, rectsOverlap } from "@/features/widget/widget-grid";
 import { ChartColor, DisplayType } from "@/features/widget/widget-display.schema";
 
-import { compileSetupDashboard, setupDashboardLayouts } from "../setup-dashboard-compiler";
+import { compileSetupDashboard, setupDashboardLayouts, setupDashboardShapeIssues } from "../setup-dashboard-compiler";
 import { compileSetupImportMapping, setupImportList, withOptionalImportFields } from "../setup-import-compiler";
 import { compileSetupRecordModel } from "../setup-model-compiler";
 import { SETUP_PLAN_LIMITS, SetupPlanSchema } from "../setup-plan.schema";
 import { createSetupResolver, setupIdempotencyKey } from "../setup-references";
 import { compileSetupListDefaults } from "../setup-view-compiler";
 import { SETUP_ID, SETUP_LABELS, emptyWorkspaceModel, prepareConfiguration } from "./setup-harness";
-import { agencyPlan, fieldServicePlan, saasPlan } from "./setup-plan-fixtures";
+import { agencyDashboardPlan, agencyPlan, fieldServicePlan, saasPlan } from "./setup-plan-fixtures";
+
+const agencyCharts = agencyPlan.dashboard.widgets as SetupChartWidget[];
 
 async function build(
   input: SetupPlanInput,
@@ -400,14 +403,14 @@ describe("workspace setup compiler", () => {
     }
     expect(new Set(widgets.data.map((widget) => widget.idempotencyKey)).size).toBe(widgets.data.length);
     for (const widget of widgets.data) {
-      expect(widget.displayOptions?.barColors).toEqual([ChartColor.secondary2]);
+      expect((widget as RecordWidgetInput).displayOptions?.barColors).toEqual([ChartColor.secondary2]);
       expect(widget.isTemplate).toBe(plan.workspace.dashboardAudience !== "me");
       expect(JSON.stringify(widget)).not.toContain("$");
     }
   });
 
   it("lays out four numbers, then two rows of three charts with the wider charts in the last row", () => {
-    const [metric, chart] = [agencyPlan.dashboard.widgets[0], agencyPlan.dashboard.widgets[2]];
+    const [metric, chart] = [agencyCharts[0], agencyCharts[2]];
     const widgets = [
       chart,
       metric,
@@ -435,7 +438,7 @@ describe("workspace setup compiler", () => {
   });
 
   it("fills every row when a dashboard has fewer or more widgets", () => {
-    const [metric, chart] = [agencyPlan.dashboard.widgets[0], agencyPlan.dashboard.widgets[2]];
+    const [metric, chart] = [agencyCharts[0], agencyCharts[2]];
     expect(setupDashboardLayouts([metric, metric, chart, chart, chart, chart])).toEqual([
       { x: 0, y: 0, w: 6, h: 2 },
       { x: 6, y: 0, w: 6, h: 2 },
@@ -453,7 +456,7 @@ describe("workspace setup compiler", () => {
   });
 
   it("creates the widgets in layout order and gives a wide chart one of the two wider places", async () => {
-    const chart = agencyPlan.dashboard.widgets[2];
+    const chart = agencyCharts[2];
     const { plan, prepared, resolver } = await build({
       ...agencyPlan,
       dashboard: {
@@ -490,7 +493,7 @@ describe("workspace setup compiler", () => {
       { x: 0, y: 0, w: 6, h: 2 },
       { x: 6, y: 0, w: 6, h: 2 },
     ]);
-    expect(widgets.data[1].measure?.source.filters).toEqual([
+    expect((widgets.data[1] as RecordWidgetInput).measure?.source.filters).toEqual([
       {
         fieldId: resolver.field("deal.stage"),
         operator: "in",
@@ -503,12 +506,12 @@ describe("workspace setup compiler", () => {
         value: { kind: "decimal", value: "30", currency: null },
       },
     ]);
-    expect(widgets.data[2].displayOptions?.useGroupColors).toBe(false);
+    expect((widgets.data[2] as RecordWidgetInput).displayOptions?.useGroupColors).toBe(false);
   });
 
   it("reports a widget whose display type does not fit its measure", async () => {
     const input = structuredClone(agencyPlan);
-    input.dashboard.widgets = [{ ...agencyPlan.dashboard.widgets[2], display: DisplayType.number }];
+    input.dashboard.widgets = [{ ...agencyCharts[2], display: DisplayType.number }];
     const { plan, prepared, resolver } = await build(input);
     const widgets = compileSetupDashboard(plan, resolver, prepared.model, {
       setupId: SETUP_ID,
@@ -517,6 +520,104 @@ describe("workspace setup compiler", () => {
     expect(widgets).toEqual({
       ok: false,
       issues: [{ code: "display_mismatch", path: "dashboard.widgets.0.display" }],
+    });
+  });
+
+  it("builds calendar, map and activity widgets in the seeded four, three, three shape", async () => {
+    const { plan, prepared, resolver } = await build(agencyDashboardPlan);
+    const widgets = compileSetupDashboard(plan, resolver, prepared.model, {
+      setupId: SETUP_ID,
+      expectedRevision: prepared.model.revision,
+      timeZone: "Europe/Berlin",
+    });
+    if (!widgets.ok) throw new Error(JSON.stringify(widgets.issues));
+    const byName = new Map(widgets.data.map((widget) => [widget.name, widget]));
+    const rows = new Map<number, number[]>();
+    for (const widget of widgets.data) {
+      const layout = widget.layout ?? { x: 0, y: -1, w: 0, h: 0 };
+      rows.set(layout.y, [...(rows.get(layout.y) ?? []), layout.w]);
+    }
+    expect([...rows.values()]).toEqual([
+      [3, 3, 3, 3],
+      [4, 4, 4],
+      [4, 4, 4],
+    ]);
+    expect(byName.get("Due this month")).toMatchObject({
+      kind: "calendar",
+      displayOptions: { showFilters: true },
+      calendarQuery: {
+        source: { typeId: resolver.list("task") },
+        dateFieldId: resolver.field("task.dueDate"),
+        layout: "month",
+        timeZone: "Europe/Berlin",
+        showOverdue: false,
+        amountFieldId: null,
+        aggregation: "count",
+      },
+    });
+    expect(byName.get("Closing soon")).toMatchObject({
+      kind: "calendar",
+      calendarQuery: {
+        layout: "upcoming",
+        showOverdue: true,
+        amountFieldId: resolver.field("deal.value"),
+        aggregation: "count",
+      },
+    });
+    expect(byName.get("Clients on the map")).toMatchObject({
+      kind: "map",
+      displayOptions: { showFilters: false },
+      mapQuery: {
+        source: { typeId: resolver.list("organization") },
+        addressFieldId: resolver.field("organization.address"),
+        colorFieldId: null,
+        sizeFieldId: resolver.field("organization.projectBudget"),
+        detailFieldId: resolver.field("organization.industry"),
+      },
+    });
+    expect(byName.get("Latest messages")).toMatchObject({
+      kind: "activityTimeline",
+      activityQuery: { scope: { records: [], typeIds: [] }, kinds: ["message"] },
+      displayOptions: { showFilters: true },
+    });
+    expect(setupDashboardShapeIssues(plan)).toEqual([]);
+  });
+
+  it("asks for four numbers, six widgets, a calendar on a date field and a map on an address field", () => {
+    expect(setupDashboardShapeIssues(SetupPlanSchema.parse(agencyPlan)).map((issue) => issue.code)).toEqual([
+      "four_numbers",
+      "six_widgets",
+      "calendar_missing",
+    ]);
+    const withoutMap = structuredClone(agencyDashboardPlan);
+    withoutMap.dashboard.widgets = withoutMap.dashboard.widgets.map((widget) =>
+      widget.kind === "map" ? { kind: "activity", key: "messages", title: "Messages" } : widget,
+    );
+    expect(setupDashboardShapeIssues(SetupPlanSchema.parse(withoutMap)).map((issue) => issue.code)).toEqual([
+      "map_missing",
+    ]);
+  });
+
+  it("reports a calendar on a field that holds no date and a map on a field that holds no address", async () => {
+    const input = structuredClone(agencyDashboardPlan);
+    input.dashboard.widgets = input.dashboard.widgets.map((widget) =>
+      widget.kind === "calendar" && widget.key === "dueThisMonth"
+        ? { ...widget, dateField: "task.status" }
+        : widget.kind === "map"
+          ? { ...widget, addressField: "organization.industry" }
+          : widget,
+    );
+    const { plan, prepared, resolver } = await build(input);
+    const widgets = compileSetupDashboard(plan, resolver, prepared.model, {
+      setupId: SETUP_ID,
+      expectedRevision: 1,
+    });
+    expect(widgets).toEqual({
+      ok: false,
+      issues: [
+        { code: "invalid_widget", path: "dashboard.widgets.5.dateField" },
+        { code: "invalid_widget", path: "dashboard.widgets.7.addressField" },
+      ],
     });
   });
 

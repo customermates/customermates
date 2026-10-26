@@ -1,4 +1,4 @@
-import type { SetupPlanInput } from "../setup-plan.schema";
+import type { SetupChartWidget, SetupPlanInput } from "../setup-plan.schema";
 
 import { DisplayType } from "@/features/widget/widget-display.schema";
 
@@ -624,6 +624,68 @@ export const fieldServicePlan: SetupPlanInput = {
       { column: "Subject", field: "ticket.name" },
       { column: "Priority", field: "ticket.priority" },
       { column: "Opened", field: "ticket.openedOn" },
+    ],
+  },
+};
+
+export const agencyDashboardPlan: SetupPlanInput = {
+  ...agencyPlan,
+  recordModel: {
+    ...agencyPlan.recordModel,
+    fields: [...agencyPlan.recordModel.fields, { key: "organization.address", label: "Address", valueType: "address" }],
+  },
+  dashboard: {
+    widgets: [
+      ...agencyPlan.dashboard.widgets.slice(0, 2),
+      {
+        ...(agencyPlan.dashboard.widgets[0] as SetupChartWidget),
+        key: "openDeals",
+        title: "Open opportunities",
+        aggregation: "count",
+        valueField: null,
+      },
+      {
+        ...(agencyPlan.dashboard.widgets[0] as SetupChartWidget),
+        key: "projectBudget",
+        title: "Project budget",
+        list: "project",
+        valueField: "project.budget",
+        filters: [],
+      },
+      agencyPlan.dashboard.widgets[2],
+      {
+        kind: "calendar",
+        key: "dueThisMonth",
+        title: "Due this month",
+        list: "task",
+        layout: "month",
+        dateField: "task.dueDate",
+        amountField: null,
+        filters: [{ operator: "notIn", field: "task.status", options: ["done"] }],
+      },
+      {
+        kind: "calendar",
+        key: "closingSoon",
+        title: "Closing soon",
+        list: "deal",
+        layout: "upcoming",
+        dateField: "deal.closeDate",
+        amountField: "deal.value",
+        filters: [],
+      },
+      {
+        kind: "map",
+        key: "clientMap",
+        title: "Clients on the map",
+        list: "organization",
+        addressField: "organization.address",
+        colorField: null,
+        sizeField: "organization.projectBudget",
+        detailField: "organization.industry",
+        filters: [],
+      },
+      { kind: "activity", key: "latestMessages", title: "Latest messages" },
+      agencyPlan.dashboard.widgets[3],
     ],
   },
 };

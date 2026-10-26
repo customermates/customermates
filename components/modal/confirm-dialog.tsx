@@ -31,6 +31,7 @@ type ConfirmDialogProps = {
   description: ReactNode;
   children?: ReactNode;
   confirmLabel?: ReactNode;
+  cancelLabel?: ReactNode;
   confirmVariant?: "default" | "destructive";
   confirmDisabled?: boolean;
   confirmationText?: string;
@@ -47,6 +48,7 @@ export function ConfirmDialog({
   description,
   children,
   confirmLabel,
+  cancelLabel,
   confirmVariant = "destructive",
   confirmDisabled = false,
   confirmationText,
@@ -137,7 +139,7 @@ export function ConfirmDialog({
           <AppCardFooter data-slot="confirm-dialog-actions">
             {onCancel ? (
               <AlertDialogCancel disabled={busy} id={anchorScope ? `${anchorScope}-cancel` : undefined}>
-                {onConfirm ? t("Common.actions.cancel") : t("Common.actions.close")}
+                {cancelLabel ?? (onConfirm ? t("Common.actions.cancel") : t("Common.actions.close"))}
               </AlertDialogCancel>
             ) : null}
 

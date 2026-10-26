@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { CHIP_COLORS } from "@/constants/chip-colors";
+import { CALENDAR_WIDGET_LAYOUTS } from "@/features/widget/record-calendar-widget.schema";
 import { WIDGET_STARTER_DISPLAY_TYPES } from "@/features/widget/widget-display-rules";
 import { RECORD_MEASURE_DATE_INTERVALS } from "@/features/records/record-measure.schema";
 
@@ -44,6 +45,7 @@ export const SETUP_FIELD_VALUE_TYPES = [
   "select",
   "url",
   "member",
+  "address",
 ] as const;
 
 export const SetupOptionSchema = z
@@ -152,8 +154,9 @@ const SetupWidgetFilterSchema = z.discriminatedUnion("operator", [
   z.object({ operator: z.enum(["empty", "notEmpty"]), field: FieldOrSystemSchema }).strict(),
 ]);
 
-export const SetupWidgetSchema = z
+const SetupChartWidgetSchema = z
   .object({
+    kind: z.literal("chart").optional(),
     key: SetupKeySchema,
     title: LabelSchema,
     list: SetupKeySchema,
@@ -178,7 +181,66 @@ export const SetupWidgetSchema = z
     if (widget.aggregation === "count" ? widget.valueField !== null : widget.valueField === null)
       context.addIssue({ code: "custom", path: ["valueField"], message: "Only a count has no value field." });
   });
+
+const SetupCalendarWidgetSchema = z
+  .object({
+    kind: z.literal("calendar"),
+    key: SetupKeySchema,
+    title: LabelSchema,
+    list: SetupKeySchema,
+    layout: z.enum(CALENDAR_WIDGET_LAYOUTS),
+    dateField: SetupFieldKeySchema,
+    amountField: SetupFieldKeySchema.nullable(),
+    filters: z.array(SetupWidgetFilterSchema).max(SETUP_PLAN_LIMITS.widgetFilters),
+  })
+  .strict();
+
+const SetupMapWidgetSchema = z
+  .object({
+    kind: z.literal("map"),
+    key: SetupKeySchema,
+    title: LabelSchema,
+    list: SetupKeySchema,
+    addressField: SetupFieldKeySchema,
+    colorField: SetupFieldKeySchema.nullable(),
+    sizeField: SetupFieldKeySchema.nullable(),
+    detailField: SetupFieldKeySchema.nullable(),
+    filters: z.array(SetupWidgetFilterSchema).max(SETUP_PLAN_LIMITS.widgetFilters),
+  })
+  .strict();
+
+const SetupActivityWidgetSchema = z
+  .object({ kind: z.literal("activity"), key: SetupKeySchema, title: LabelSchema })
+  .strict();
+
+export const SetupWidgetSchema = z.discriminatedUnion("kind", [
+  SetupChartWidgetSchema,
+  SetupCalendarWidgetSchema,
+  SetupMapWidgetSchema,
+  SetupActivityWidgetSchema,
+]);
 export type SetupWidget = z.infer<typeof SetupWidgetSchema>;
+export type SetupChartWidget = z.infer<typeof SetupChartWidgetSchema>;
+export type SetupWidgetKind = NonNullable<SetupWidget["kind"]>;
+
+export const SETUP_WIDGET_SKETCHES = [
+  ...WIDGET_STARTER_DISPLAY_TYPES,
+  "calendarUpcoming",
+  "calendarMonth",
+  "map",
+  "activity",
+] as const;
+export type SetupWidgetSketch = (typeof SETUP_WIDGET_SKETCHES)[number];
+
+export function setupWidgetSketch(widget: SetupWidget): SetupWidgetSketch {
+  if (widget.kind === "calendar") return widget.layout === "month" ? "calendarMonth" : "calendarUpcoming";
+  if (widget.kind === "map" || widget.kind === "activity") return widget.kind;
+  return widget.display;
+}
+
+export function setupWidgetKind(widget: Pick<SetupWidget, "kind">): SetupWidgetKind {
+  return widget.kind ?? "chart";
+}
 
 const SetupListDefaultSchema = z
   .object({
@@ -380,7 +442,7 @@ export const SetupPlanSchema = z
     if (new Set(plan.listDefaults.map((value) => value.list)).size !== plan.listDefaults.length)
       issue(["listDefaults"], "Each list has one default.");
     plan.dashboard.widgets.forEach((widget, index) => {
-      if (!lists.has(widget.list)) issue(["dashboard", "widgets", index, "list"], "Unknown list.");
+      if ("list" in widget && !lists.has(widget.list)) issue(["dashboard", "widgets", index, "list"], "Unknown list.");
     });
     if (new Set(plan.dashboard.widgets.map((widget) => widget.key)).size !== plan.dashboard.widgets.length)
       issue(["dashboard", "widgets"], "Widget keys repeat.");

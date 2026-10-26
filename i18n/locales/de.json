@@ -5330,6 +5330,12 @@
     "interview": {
       "addEntry": "Eintrag hinzufügen",
       "adjusting": "Ändere beliebige Antworten und lass dir den Plan dann neu zeigen.",
+      "answerYourself": {
+        "cancel": "Auf die Website warten",
+        "confirm": "Selbst beantworten",
+        "description": "Wir füllen diese Antworten gerade aus deiner Website aus. Du musst sie nur prüfen, wenn wir fertig sind.",
+        "title": "Selbst beantworten?"
+      },
       "customPlaceholder": "Beschreib es in ein paar Worten",
       "days": "Tage",
       "entryLabel": "Eintrag {index}",
@@ -5338,6 +5344,7 @@
       "optionalPlaceholder": "Leer lassen, wenn dir nichts einfällt",
       "planHint": "Du prüfst den Plan, bevor etwas angelegt wird",
       "prefillFailed": "Wir konnten deine Website nicht lesen, deshalb ist nichts ausgefüllt. Die Fragen dauern trotzdem nur wenige Minuten.",
+      "prefillPending": "Die Antworten unten werden automatisch aus deiner Website ausgefüllt. Du kannst warten und sie prüfen, wenn wir fertig sind.",
       "rangeFrom": "Von",
       "rangeTo": "Bis",
       "rankedHint": "{count} von {max} gewählt, nach Wichtigkeit geordnet",
@@ -5506,7 +5513,7 @@
     },
     "website": {
       "change": "Ändern",
-      "eta": "Dauert meist 1 bis 2 Minuten. Du kannst schon anfangen zu antworten.",
+      "eta": "Dauert meist 1 bis 2 Minuten.",
       "finding": "Wir suchen Seiten auf {website}",
       "found": "{count, plural, =0 {Keine Seiten auf {website} gefunden} one {# Seite auf {website} gefunden} other {# Seiten auf {website} gefunden}}",
       "hint": "Optional. Wir lesen deine öffentliche Website und schlagen Antworten vor, die du meist nur noch bestätigst.",

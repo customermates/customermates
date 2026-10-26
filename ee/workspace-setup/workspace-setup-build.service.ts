@@ -5,7 +5,7 @@ import type { RecordRepo } from "@/features/records/record.repo";
 import type { ImportSpreadsheetInteractor } from "@/features/data-transfer/spreadsheet/import-spreadsheet.interactor";
 import type { SpreadsheetMapping } from "@/features/data-transfer/spreadsheet/spreadsheet.schema";
 import type { UpsertDataViewInteractor } from "@/features/data-view/upsert-data-view.interactor";
-import type { UpsertRecordWidgetInteractor } from "@/features/widget/record-widget.interactor";
+import type { SaveWidgetInteractor } from "@/features/widget/save-widget.interactor";
 import type { UpdateUserDetailsInteractor } from "@/features/user/upsert/update-user-details.interactor";
 import type { MutateRecordInteractor } from "@/features/records/mutate-record.interactor";
 import type { RecordScalar } from "@/features/records/record-model.schema";
@@ -50,6 +50,7 @@ import {
   setupRoleList,
 } from "@/features/workspace-setup/setup-anchors";
 import { compileSetupDashboard, setupWidgetCreationOrder } from "@/features/workspace-setup/setup-dashboard-compiler";
+import { setupWidgetSketch } from "@/features/workspace-setup/setup-plan.schema";
 import {
   compileSetupImportMapping,
   setupImportList,
@@ -173,7 +174,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     private previewConfiguration: Pick<PreviewRecordConfigurationInteractor, "invoke">,
     private applyConfiguration: Pick<ApplyRecordConfigurationInteractor, "invoke">,
     private upsertView: Pick<UpsertDataViewInteractor, "invoke">,
-    private upsertWidget: Pick<UpsertRecordWidgetInteractor, "invoke">,
+    private saveWidget: Pick<SaveWidgetInteractor, "invoke">,
     private importSpreadsheet: Pick<ImportSpreadsheetInteractor, "invoke">,
     private brandFetch: (scope: { registrableDomain: string }) => BrandFetch,
     private settings: Pick<UpdateUserDetailsInteractor, "invoke">,
@@ -692,20 +693,24 @@ export class WorkspaceSetupBuildService extends UserAccessor {
         expectedRevision: model.revision,
         brandChart: brand?.chart ?? null,
         occupied: await this.repo.ownedWidgetLayouts(),
+        timeZone: "UTC",
       });
       if (!compiled.ok) throw phaseFailure("invalidPlan");
       widgets = await this.storeArtifact(setup.id, "widgets", compiled.data, SetupWidgetInputsSchema);
     }
     const displays = new Map(
-      plan.dashboard.widgets.map((entry) => [setupIdempotencyKey(setup.id, `widget:${entry.key}`), entry.display]),
+      plan.dashboard.widgets.map((entry) => [
+        setupIdempotencyKey(setup.id, `widget:${entry.key}`),
+        setupWidgetSketch(entry),
+      ]),
     );
     const created: StoredSetupResults["widgets"] = [];
     for (const widget of setupWidgetCreationOrder(widgets)) {
       const display = displays.get(widget.idempotencyKey);
       if (!display) throw phaseFailure("invalidPlan");
-      let saved = await this.upsertWidget.invoke(widget);
+      let saved = await this.saveWidget.invoke(widget);
       if (!saved.ok && interactorFailureCodes(saved.error).includes(CustomErrorCode.widgetLayoutOverlap))
-        saved = await this.upsertWidget.invoke({ ...widget, layout: undefined });
+        saved = await this.saveWidget.invoke({ ...widget, layout: undefined });
       if (!saved.ok) {
         const failure = failureOf(saved.error);
         if (failure === "schemaChanged") await this.clearArtifact(setup.id, "widgets");
