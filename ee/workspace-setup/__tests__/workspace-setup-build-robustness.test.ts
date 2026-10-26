@@ -109,13 +109,17 @@ function memoryRepo(initial: WorkspaceSetupRecord) {
   return repo;
 }
 
-function buildService(repo: ReturnType<typeof memoryRepo>) {
+function buildService(
+  repo: ReturnType<typeof memoryRepo>,
+  postalCodes = { lookup: vi.fn(() => Promise.resolve({ status: "unavailable" as const })) },
+) {
   const models = { generate: vi.fn(), drainWarnings: () => [] };
   const records = {
     getModel: vi.fn(() => Promise.resolve({ revision: 1, types: [], fields: [], relationships: [] })),
     getOperation: vi.fn(),
   };
   const createPages = { invoke: vi.fn() };
+  const importSpreadsheet = { invoke: vi.fn() };
   const unused = { invoke: vi.fn() } as never;
   const service = new WorkspaceSetupBuildService(
     repo as never,
@@ -125,14 +129,15 @@ function buildService(repo: ReturnType<typeof memoryRepo>) {
     unused,
     unused,
     unused,
-    unused,
+    importSpreadsheet as never,
     () => vi.fn() as never,
     unused,
     unused,
     createPages as never,
     unused,
+    postalCodes as never,
   );
-  return { service, models, records, createPages };
+  return { service, models, records, createPages, importSpreadsheet };
 }
 
 const run = <T>(fn: () => Promise<T>) => runWithTenant(createMockUser(), fn);
@@ -516,5 +521,65 @@ describe("finishing a build", () => {
     expect(workspaceSetupView(settled(failed), null, { usedMicrocents: 0, heldMicrocents: 0 }, 1).status).toBe(
       "failed",
     );
+  });
+});
+
+describe("sample records with addresses", () => {
+  it("waits for the postal codes of the sample addresses to load before importing them, unless it gives up", async () => {
+    const [TYPE_ID, NAME_FIELD, ADDRESS_FIELD] = [
+      "0b7e7c5a-1d2e-4f3a-8b9c-0d1e2f3a4b5c",
+      "1c8f8d6b-2e3f-4a4b-9c0d-1e2f3a4b5c6d",
+      "2d9a9e7c-3f4a-4b5c-8d1e-2f3a4b5c6d7e",
+    ];
+    const sample = {
+      list: "organization",
+      typeId: TYPE_ID,
+      table: {
+        sheetName: "organization",
+        headers: ["c1", "c2"],
+        rows: [{ rowNumber: 2, cells: ["Alpha GmbH", "Hauptstraße 5, 68159 Mannheim, Germany"] }],
+      },
+      mapping: {
+        typeId: TYPE_ID,
+        locale: "en",
+        timeZone: "UTC",
+        columns: [
+          { column: "c1", fieldId: NAME_FIELD },
+          { column: "c2", fieldId: ADDRESS_FIELD },
+        ],
+        relationships: [],
+      },
+      titles: ["Alpha GmbH"],
+    };
+    const repo = memoryRepo(
+      setupRecord({
+        answers: { ...answers, existingData: undefined } as unknown as WorkspaceSetupRecord["answers"],
+        plan: { ...plan, sampleData: { lists: [{ list: "organization", count: 1, kinds: [] }] } },
+        artifacts: { samples: [sample] },
+        phases: {
+          knowledgeBase: phase(),
+          dataModel: phase({ status: "completed" }),
+          views: phase({ status: "completed" }),
+          records: phase(),
+          dashboard: phase(),
+        },
+      }),
+    );
+    const lookup = vi.fn(() => Promise.resolve({ status: "pending" as const }));
+    const { service, records, importSpreadsheet } = buildService(repo, { lookup } as never);
+    records.getModel.mockResolvedValue({
+      revision: 1,
+      types: [],
+      fields: [{ id: ADDRESS_FIELD, valueType: "address" }],
+      relationships: [],
+    } as never);
+    importSpreadsheet.invoke.mockResolvedValue({ ok: true, data: { records: [], created: 0, errorCount: 1 } });
+
+    expect(await run(() => service.runPhase(SETUP_ID, "records", false, RUN_ID))).toBe("wait");
+    expect(lookup).toHaveBeenCalledWith("de", "68159");
+    expect(importSpreadsheet.invoke).not.toHaveBeenCalled();
+
+    await run(() => service.runPhase(SETUP_ID, "records", true, RUN_ID));
+    expect(importSpreadsheet.invoke).toHaveBeenCalledTimes(1);
   });
 });

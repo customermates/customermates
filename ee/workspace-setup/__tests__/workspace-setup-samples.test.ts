@@ -151,4 +151,27 @@ describe("sample record tables", () => {
       [null, "Alpha GmbH"],
     ]);
   });
+
+  it("spreads the calendar dates over the current month and keeps the span to an end date", async () => {
+    const { model, resolver, list } = await agency();
+    const [[project]] = sampleListSpecs([{ list: "project", typeId: list("project"), count: 4, kinds: [] }], model);
+    const column = (ref: string) =>
+      project.columns.find((entry) => entry.fieldId === resolver.field(ref))?.column ?? "";
+    const [start, due, name] = [column("project.startDate"), column("project.dueDate"), project.titleColumns[0]];
+    const rows = ["A", "B", "C", "D"].map((title, index) => ({
+      [name]: title,
+      [start]: `2027-0${index + 2}-10`,
+      [due]: `2027-0${index + 2}-17`,
+    }));
+    rows[3][start] = "";
+    const projects = generatedSampleList(project, rows, new Map(), "EUR", {
+      starts: new Set([resolver.field("project.startDate") ?? ""]),
+      ends: new Map([[resolver.field("project.startDate") ?? "", resolver.field("project.dueDate") ?? ""]]),
+      today: new Date("2026-10-26T12:00:00Z"),
+    });
+    const cells = (header: string) =>
+      projects.table.rows.map((row) => row.cells[projects.table.headers.indexOf(header)]);
+    expect(cells(start)).toEqual(["2026-10-04", "2026-10-12", "2026-10-20", null]);
+    expect(cells(due)).toEqual(["2026-10-11", "2026-10-19", "2026-10-27", "2027-05-17"]);
+  });
 });

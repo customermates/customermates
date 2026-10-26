@@ -111,7 +111,7 @@ export const SETUP_SAMPLE_RECORDS_INSTRUCTION = [
   "You write realistic sample records for one list of a new workspace so its owner can see how the workspace will look.",
   "Invent plausible but clearly fictitious names, companies and amounts that fit the workspace's purposes and the owner's work; never use real people's personal data.",
   "Dates fit the given date of today: finished or paid work lies in the past few months, open work and deadlines in the coming weeks.",
-  "Fill every column with a value in the expected format: dates as YYYY-MM-DD, numbers without thousands separators, currency amounts as plain numbers, choice columns with exactly one of the listed option labels.",
+  "Fill every column with a value in the expected format: dates as YYYY-MM-DD, numbers without thousands separators, currency amounts as plain numbers, choice columns with exactly one of the listed option labels, addresses as street and house number, postal code and city, country, separated by commas, with real postal codes of the city.",
   "Give every record of the list its own distinct name, so links can tell the records apart.",
   "A link column names records of the other list exactly as listed, or stays empty.",
   "Write every text value in the workspace language, including record names such as order, project and offering names, even when the owner works in another language; only names of people and companies keep their own spelling. Leave a column empty with an empty string.",

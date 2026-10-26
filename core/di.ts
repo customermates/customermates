@@ -2451,6 +2451,7 @@ export const getWorkspaceSetupBuildService = () =>
     getMutateRecordInteractor(),
     getCreateWikiPagesInteractor(),
     getSavePlannerInteractor(),
+    getPostalCodeService(),
   );
 export const getStartWorkspaceSetupInteractor = () =>
   new StartWorkspaceSetupInteractor(

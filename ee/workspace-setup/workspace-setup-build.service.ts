@@ -24,7 +24,8 @@ import type {
   WorkspaceSetupRecord,
 } from "./workspace-setup.schema";
 import type { SetupModelOutcome, WorkspaceSetupModelService } from "./workspace-setup-model.service";
-import type { GeneratedSampleList, SampleListSpec } from "./workspace-setup-samples";
+import type { GeneratedSampleList, SampleCalendarDates, SampleListSpec } from "./workspace-setup-samples";
+import type { PostalCodeService } from "@/features/addresses/postal-codes/postal-code.service";
 import type { CreateWikiPagesInteractor } from "@/features/wiki/create-wiki-pages.interactor";
 import type { WikiPageInput } from "@/features/wiki/wiki.schema";
 import type { SetupAnswerPages } from "./workspace-setup-answer-pages";
@@ -59,8 +60,10 @@ import {
   withOptionalImportFields,
 } from "@/features/workspace-setup/setup-import-compiler";
 import { compileSetupRecordModel } from "@/features/workspace-setup/setup-model-compiler";
+import { addressFromImportText } from "@/features/addresses/address-text";
 import {
   createSetupResolver,
+  type SetupResolver,
   setupFieldReference,
   setupIdempotencyKey,
   setupListReference,
@@ -166,6 +169,23 @@ function artifact<T>(setup: WorkspaceSetupRecord, key: string, schema: z.ZodType
   return parsed.success ? parsed.data : undefined;
 }
 
+function sampleCalendarDates(plan: SetupPlan, resolver: SetupResolver): SampleCalendarDates {
+  const starts = new Set<string>();
+  const ends = new Map<string, string>();
+  for (const widget of plan.dashboard.widgets) {
+    const field = widget.kind === "calendar" ? resolver.field(widget.dateField) : null;
+    if (field) starts.add(field);
+  }
+  for (const source of plan.calendar.sources) {
+    const field = resolver.field(source.dateField);
+    const end = source.endField ? resolver.field(source.endField) : null;
+    if (!field) continue;
+    starts.add(field);
+    if (end) ends.set(field, end);
+  }
+  return { starts, ends, today: new Date() };
+}
+
 export class WorkspaceSetupBuildService extends UserAccessor {
   private readonly warnings: string[] = [];
 
@@ -183,6 +203,9 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     private mutateRecord: Pick<MutateRecordInteractor, "invoke">,
     private createPages: Pick<CreateWikiPagesInteractor, "invoke">,
     private savePlanner: Pick<SavePlannerInteractor, "invoke">,
+    private postalCodes: Pick<PostalCodeService, "lookup"> = {
+      lookup: () => Promise.resolve({ status: "unavailable" }),
+    },
   ) {
     super();
   }
@@ -364,7 +387,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
       case "views":
         return this.views(setup, plan);
       case "records":
-        return this.recordsPhase(setup, plan);
+        return this.recordsPhase(setup, plan, giveUp);
       case "dashboard":
         return this.dashboard(setup, plan);
     }
@@ -744,14 +767,36 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     if (!saved.ok) throw phaseFailure(failureOf(saved.error));
   }
 
-  private async recordsPhase(setup: WorkspaceSetupRecord, plan: SetupPlan): Promise<PhaseOutcome> {
+  private async recordsPhase(setup: WorkspaceSetupRecord, plan: SetupPlan, giveUp: boolean): Promise<PhaseOutcome> {
     const choice = setupDataChoice(setup.answers);
     if (choice === "empty") return { status: "skipped" };
     if (choice === "spreadsheet") return this.importRecords(setup, plan);
-    return this.sampleRecords(setup, plan);
+    return this.sampleRecords(setup, plan, giveUp);
   }
 
-  private async sampleRecords(setup: WorkspaceSetupRecord, plan: SetupPlan): Promise<PhaseOutcome> {
+  private async postalCodesLoading(samples: GeneratedSampleList[], model: RecordModel): Promise<boolean> {
+    const addressFields = new Set(
+      model.fields.filter((field) => field.valueType === "address").map((field) => field.id),
+    );
+    const lookups = new Map<string, string>();
+    for (const sample of samples) {
+      for (const column of sample.mapping.columns) {
+        const index = addressFields.has(column.fieldId) ? sample.table.headers.indexOf(column.column) : -1;
+        if (index < 0) continue;
+        for (const row of sample.table.rows) {
+          const cell = row.cells[index];
+          const address = typeof cell === "string" ? addressFromImportText(cell) : null;
+          if (address?.countryCode && address.postalCode) lookups.set(address.countryCode, address.postalCode);
+        }
+      }
+    }
+    const states = await Promise.all(
+      [...lookups].map(([countryCode, postalCode]) => this.postalCodes.lookup(countryCode, postalCode)),
+    );
+    return states.some((state) => state.status === "pending");
+  }
+
+  private async sampleRecords(setup: WorkspaceSetupRecord, plan: SetupPlan, giveUp: boolean): Promise<PhaseOutcome> {
     if (plan.sampleData.lists.length === 0) return { status: "skipped" };
     let samples = artifact(setup, "samples", SetupSamplesSchema);
     let capped = false;
@@ -766,10 +811,13 @@ export class WorkspaceSetupBuildService extends UserAccessor {
         (people ? [`${people}.channels`, `${people}.avatar`] : []).flatMap((ref) => resolver.field(ref) ?? []),
       );
       const facts = setupSampleFacts(setup.answers, await setupInterviewCatalog());
+      const dates = sampleCalendarDates(plan, resolver);
       const generated: GeneratedSampleList[] = [];
       const titles = new Map<string, string[]>();
       for (const level of sampleListSpecs(entries, model, anchors)) {
-        const results = await Promise.all(level.map((spec) => this.generateSamples(setup, plan, spec, titles, facts)));
+        const results = await Promise.all(
+          level.map((spec) => this.generateSamples(setup, plan, spec, titles, facts, dates)),
+        );
         for (const result of results) {
           if (result === "spendCap") capped = true;
           else if (result) {
@@ -784,6 +832,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     const refs: RecordRef[] = [];
     const results: StoredSetupResults["records"] = [];
     const model = await this.records.getModel();
+    if (!giveUp && (await this.postalCodesLoading(samples, model))) return { status: "wait" };
     for (const sample of samples) {
       const idempotencyKey = setupIdempotencyKey(setup.id, `sample:${sample.list}`);
       const imported = await this.importSpreadsheet.invoke(
@@ -884,6 +933,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     spec: SampleListSpec,
     titles: ReadonlyMap<string, string[]>,
     facts: unknown,
+    dates: SampleCalendarDates,
   ): Promise<GeneratedSampleList | "spendCap" | null> {
     const headers = [...spec.columns.map((column) => column.column), ...spec.links.map((link) => link.column)];
     const prompt = (count: number) =>
@@ -914,7 +964,13 @@ export class WorkspaceSetupBuildService extends UserAccessor {
         ].join("\n"),
       });
       if (result.ok) {
-        const list = generatedSampleList({ ...spec, count }, result.value.records, titles, plan.workspace.currency);
+        const list = generatedSampleList(
+          { ...spec, count },
+          result.value.records,
+          titles,
+          plan.workspace.currency,
+          dates,
+        );
         if (list.table.rows.length) return list;
         rejection = `The answer held no records with a name. Write ${count} records.`;
         continue;
