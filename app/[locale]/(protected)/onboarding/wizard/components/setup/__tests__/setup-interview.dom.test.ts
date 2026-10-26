@@ -229,7 +229,10 @@ describe("SetupInterview", () => {
 
     expect(field("pricing")).toBeDefined();
     expect(field("mainSteps")).toBeDefined();
-    expect(field("mainSteps").textContent).toContain("WorkspaceSetup.suggestedSteps.dealsClients.first");
+    expect([...field("mainSteps").querySelectorAll("input")].map((input) => input.value)).toEqual([
+      "WorkspaceSetup.suggestedSteps.dealsClients.first",
+      "WorkspaceSetup.suggestedSteps.dealsClients.second",
+    ]);
     expect(store.answers.mainSteps).toBeUndefined();
   });
 });

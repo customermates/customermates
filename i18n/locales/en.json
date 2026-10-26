@@ -5496,11 +5496,11 @@
       "dealsClients": ["Inquiry", "First call", "Proposal sent", "Won", "Lost"],
       "hiring": ["Applied", "Interview", "Offer", "Hired", "Rejected"],
       "investors": ["Contacted", "First meeting", "Due diligence", "Committed", "Passed"],
-      "marketing": ["Idea", "In progress", "Ready", "Published"],
+      "marketing": ["Idea", "Ongoing", "Ready", "Published"],
       "orders": ["New", "Confirmed", "Shipped", "Paid"],
       "partners": ["Contacted", "In talks", "Active", "Paused"],
-      "projects": ["Planned", "In progress", "Review", "Done"],
-      "support": ["New", "In progress", "Waiting for customer", "Solved"]
+      "projects": ["Planned", "Ongoing", "Review", "Completed"],
+      "support": ["New", "Ongoing", "Waiting for customer", "Solved"]
     },
     "website": {
       "change": "Change",

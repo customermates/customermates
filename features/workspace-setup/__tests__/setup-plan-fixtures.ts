@@ -263,10 +263,7 @@ export const agencyPlan: SetupPlanInput = {
     ],
   },
   knowledgeBase: {
-    pages: [
-      { key: "overview", kind: "overview", title: "About the agency", sections: ["What we do", "How we work"] },
-      { key: "competitorA", kind: "competitor", title: "Compared with Studio North", sections: ["Where we win"] },
-    ],
+    pages: [{ key: "overview", kind: "overview", title: "About the agency", sections: ["What we do", "How we work"] }],
   },
   importMapping: {
     list: "organization",

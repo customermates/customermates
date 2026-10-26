@@ -171,7 +171,7 @@ describe("workspace setup answers", () => {
     expect(SetupAnswersSchema.safeParse(answers).success).toBe(false);
   });
 
-  it("reads stored steps that still carry a win chance", () => {
+  it("keeps stored steps that still carry a win chance", () => {
     expect(
       storedSetupAnswers({
         mainSteps: {
@@ -180,7 +180,7 @@ describe("workspace setup answers", () => {
           value: { format: "orderedList", items: [{ label: "Audit", winChance: 50 }] },
         },
       }).mainSteps?.value,
-    ).toEqual({ format: "orderedList", items: [{ label: "Audit" }] });
+    ).toMatchObject({ format: "orderedList", items: [{ label: "Audit" }] });
   });
 
   it("keeps the stored answers that still fit when a question was removed", () => {

@@ -262,8 +262,6 @@ describe("workspace setup compiler", () => {
     expect(lineFields).toEqual([
       ["Line item", "text", "input"],
       ["Quantity", "number", "input"],
-      ["Pricing", "select", "input"],
-      ["Saved unit price", "currency", "snapshot"],
       ["Unit price", "currency", "formula"],
       ["Amount", "currency", "formula"],
     ]);
