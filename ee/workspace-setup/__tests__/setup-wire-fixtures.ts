@@ -54,7 +54,11 @@ export function planToWire(input: SetupPlanInput): PlanWire {
         })),
       })),
     },
-    knowledgeBase: plan.knowledgeBase,
+    knowledgeBase: {
+      pages: plan.knowledgeBase.pages.flatMap((page) =>
+        page.kind === "competitor" ? [] : [{ ...page, kind: page.kind }],
+      ),
+    },
     importMapping: plan.importMapping,
   };
 }

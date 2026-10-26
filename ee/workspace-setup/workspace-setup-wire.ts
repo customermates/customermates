@@ -155,9 +155,8 @@ export function followUpAnswerIssue(question: SetupFollowUpQuestion, value: Setu
     if (value.values.some((id) => !known(id))) return "Unknown option.";
     if (value.values.length > question.maxPicks) return "Too many picks.";
   }
-  if (value.format === "orderedList" && question.format === "orderedList") {
-    if (value.items.length > question.maxItems) return "Too many entries.";
-  }
+  if (value.format === "orderedList" && question.format === "orderedList" && value.items.length > question.maxItems)
+    return "Too many entries.";
   if (value.format === "range" && question.format === "range") {
     if (question.single && value.max !== null) return "This question takes one number.";
     if (value.min < question.min || value.min > question.max || (value.max !== null && value.max > question.max))

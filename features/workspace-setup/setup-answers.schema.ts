@@ -64,9 +64,8 @@ export const SetupAnswersSchema = z
         if (!part.options.length && value.values.length) issue("This question only takes your own entries.");
         if (!part.allowCustom && value.custom.length) issue("This question takes no own entries.");
       }
-      if (value.format === "orderedList" && part.format === "orderedList") {
-        if (value.items.length > part.maxItems) issue("Too many entries.");
-      }
+      if (value.format === "orderedList" && part.format === "orderedList" && value.items.length > part.maxItems)
+        issue("Too many entries.");
       if (value.format === "rankedPick" && part.format === "rankedPick") {
         if (value.values.length > part.maxPicks) issue("Too many picks.");
         if (new Set(value.values).size !== value.values.length) issue("Each option can be picked once.");
