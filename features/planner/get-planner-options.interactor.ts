@@ -46,7 +46,10 @@ export class GetPlannerOptionsInteractor extends AuthenticatedInteractor<void, P
     const personalAvailable = roleCanRead(this.user.role, Resource.inboxMessages) && !denied;
     const config = readP13nSettings(PLANNER_P13N_ID, saved?.settings);
     const readableTypeIds = new Set(readable.map((view) => recordSurfaceTypeId(view.surfaceKey)));
-    const visible = { ...model.data, types: model.data.types.filter((type) => readableTypeIds.has(type.id)) };
+    const visible = {
+      ...model.data,
+      types: model.data.types.filter((type) => type.archived || type.embedded || readableTypeIds.has(type.id)),
+    };
     const calendars = personalAvailable ? await this.personal.calendars() : [];
     return {
       ok: true,
