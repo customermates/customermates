@@ -167,14 +167,27 @@ function inCurrentMonth(
   if (!pairs.length) return rows;
   return rows.map((row, index) => {
     const next = { ...row };
-    pairs.forEach(({ start, end }, offset) => {
+    const spread = new Set(pairs.map((pair) => pair.start));
+    const ordered = pairs.map((pair, offset) => ({
+      ...pair,
+      offset,
+      ended: Boolean(pair.end && spread.has(pair.end)),
+    }));
+    for (const { start, end, offset, ended } of ordered.sort(
+      (left, right) => Number(left.ended) - Number(right.ended),
+    )) {
       const from = dayOf(row[start]);
-      if (from === null) return;
+      const until = end ? dayOf(row[end]) : null;
+      if (from === null) continue;
+      const span = until === null ? 0 : Math.max(0, until - from);
+      if (ended && end && until !== null) {
+        next[start] = withDay(row[start] ?? "", (dayOf(next[end]) ?? until) - span);
+        continue;
+      }
       const day = first + (Math.floor(((index + 0.5) * days) / rows.length + offset) % days) * DAY_MS;
       next[start] = withDay(row[start] ?? "", day);
-      const until = end ? dayOf(row[end]) : null;
-      if (end && until !== null) next[end] = withDay(row[end] ?? "", day + Math.max(0, until - from));
-    });
+      if (end && until !== null) next[end] = withDay(row[end] ?? "", day + span);
+    }
     return next;
   });
 }

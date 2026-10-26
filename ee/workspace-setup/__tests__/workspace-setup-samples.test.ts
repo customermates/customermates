@@ -174,4 +174,26 @@ describe("sample record tables", () => {
     expect(cells(start)).toEqual(["2026-10-04", "2026-10-12", "2026-10-20", null]);
     expect(cells(due)).toEqual(["2026-10-11", "2026-10-19", "2026-10-27", "2027-05-17"]);
   });
+
+  it("keeps a spread end date in the month and moves its start date back by the span", async () => {
+    const { model, resolver, list } = await agency();
+    const [[project]] = sampleListSpecs([{ list: "project", typeId: list("project"), count: 1, kinds: [] }], model);
+    const field = (ref: string) => resolver.field(ref) ?? "";
+    const column = (ref: string) => project.columns.find((entry) => entry.fieldId === field(ref))?.column ?? "";
+    const [start, due] = [column("project.startDate"), column("project.dueDate")];
+    const projects = generatedSampleList(
+      project,
+      [{ [project.titleColumns[0]]: "A", [start]: "2027-01-01", [due]: "2027-02-15" }],
+      new Map(),
+      "EUR",
+      {
+        starts: new Set([field("project.dueDate"), field("project.startDate")]),
+        ends: new Map([[field("project.startDate"), field("project.dueDate")]]),
+        today: new Date("2026-10-26T12:00:00Z"),
+      },
+    );
+    const cells = projects.table.rows[0].cells;
+    expect(cells[projects.table.headers.indexOf(due)]).toBe("2026-10-16");
+    expect(cells[projects.table.headers.indexOf(start)]).toBe("2026-09-01");
+  });
 });
