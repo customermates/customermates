@@ -334,6 +334,13 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
                 : current,
             )
           }
+          onSelectDay={(date, label) =>
+            setData((current) =>
+              current?.selection.kind === "calendarDay"
+                ? { ...current, selection: { ...current.selection, date, label } }
+                : current,
+            )
+          }
         />
       )}
 

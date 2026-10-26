@@ -1,10 +1,14 @@
 "use client";
 
+import { chartPointAction } from "./chart-point-action";
+
 import type { ChartDataPoint } from "./chart.types";
 
 import { observer } from "mobx-react-lite";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+
+import { cn } from "@/core/utils/cn";
 
 import { useChartFormatter } from "./use-chart-formatter";
 
@@ -24,16 +28,28 @@ export const HorizontalBarChartWithLabels = observer(({ currency, chartData, rev
   const zero = (-minimum / range) * 100;
 
   return (
-    <div aria-hidden className="h-full min-h-0 overflow-y-auto pr-1" data-slot="widget-bar-list">
+    <div
+      aria-hidden={rows.some((row) => row.onSelect) ? undefined : true}
+      className="h-full min-h-0 overflow-y-auto pr-1"
+      data-slot="widget-bar-list"
+    >
       <ul className="flex flex-col gap-3">
         {rows.map((row, index) => {
           const value = row.formattedValue ?? formatValue(row.value);
           const width = (Math.abs(row.value) / range) * 100;
           const start = row.value < 0 ? zero - width : zero;
+          const action = chartPointAction(row);
           return (
             <Tooltip key={`${index}:${row.label}`}>
               <TooltipTrigger asChild>
-                <li className="min-w-0 space-y-1" data-slot="widget-bar-row">
+                <li
+                  {...action}
+                  className={cn(
+                    "min-w-0 space-y-1 rounded-sm focus-visible:ring-2 focus-visible:ring-ring/50",
+                    action.className,
+                  )}
+                  data-slot="widget-bar-row"
+                >
                   <div className="flex min-w-0 items-baseline justify-between gap-3 text-xs">
                     <span className="min-w-0 truncate text-foreground">{row.label}</span>
 

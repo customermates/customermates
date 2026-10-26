@@ -9,9 +9,8 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/core/utils/cn";
+import { DATA_VIEW_PAGE_SIZES } from "@/core/data-view/data-view-state.schema";
 import { DATA_VIEW_PAGINATION_RAIL_CLASS_NAME } from "../data-view-geometry";
-
-const PAGE_SIZE_OPTIONS = [5, 10, 25, 100] as const;
 
 type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
@@ -67,7 +66,7 @@ export const DataViewPagination = observer(function DataViewPagination<E extends
           </SelectTrigger>
 
           <SelectContent align="end">
-            {PAGE_SIZE_OPTIONS.map((size) => (
+            {DATA_VIEW_PAGE_SIZES.map((size) => (
               <SelectItem key={size} value={String(size)}>
                 {size}
               </SelectItem>

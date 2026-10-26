@@ -74,7 +74,7 @@ test("returns to a valid relationship, path and embedded page after deleting its
     { fieldId: id("service.name"), value: { kind: "text", value: "Paged service" } },
     { fieldId: id("service.amount"), value: { kind: "decimal", value: "2", currency: "EUR" } },
   ]);
-  for (let index = 1; index <= 11; index += 1) {
+  for (let index = 1; index <= 26; index += 1) {
     await create(
       "lineItem",
       [
@@ -114,15 +114,14 @@ test("returns to a valid relationship, path and embedded page after deleting its
   await more.click();
   await expect(drawer.getByRole("heading", { name: "Organizations", exact: true })).toBeVisible();
   await expect(drawer).toContainText("26 records");
-  await expect(rows).toHaveCount(10);
+  await expect(rows).toHaveCount(25);
   await page.keyboard.press("Escape");
   await expect(drawer).toHaveCount(0);
   await projectedMore.click();
   await expect(drawer.getByRole("heading", { name: "Connected organizations", exact: true })).toBeVisible();
   await expect(drawer).toContainText("26 records");
   await drawer.getByRole("button", { name: "Next page", exact: true }).click();
-  await drawer.getByRole("button", { name: "Next page", exact: true }).click();
-  await expect(rows).toHaveCount(6);
+  await expect(rows).toHaveCount(1);
   const title = (await linkedRecordNames(drawer)).at(-1) ?? "";
   await rows.last().focus();
   await page.keyboard.press("Enter");
@@ -161,7 +160,7 @@ test("returns to a valid relationship, path and embedded page after deleting its
   await row.hover({ position: { x: 4, y: 4 } });
   await runNamedRowAction(page, row, await recordRowName(row), "Delete");
   await page.getByRole("alertdialog").locator("#confirm-delete").click();
-  await expect(recordRows(embedded)).toHaveCount(10);
+  await expect(recordRows(embedded)).toHaveCount(25);
   await expect(embedded.getByRole("button", { name: "Next page", exact: true })).toHaveCount(0);
   expect(
     (
@@ -170,7 +169,7 @@ test("returns to a valid relationship, path and embedded page after deleting its
         id("lineItem"),
       ])
     ).rows,
-  ).toEqual([{ count: 10 }]);
+  ).toEqual([{ count: 25 }]);
   expect(
     (
       await database.query(
@@ -178,7 +177,7 @@ test("returns to a valid relationship, path and embedded page after deleting its
         [companyId, deal.typeId, deal.recordId, id("deal.totalValue")],
       )
     ).rows,
-  ).toEqual([{ amount: "20" }]);
+  ).toEqual([{ amount: "50" }]);
   await page.screenshot({
     path: testInfo.outputPath("valid-pages-after-last-row-deletion.png"),
     animations: "disabled",
@@ -196,6 +195,6 @@ test("returns to a valid relationship, path and embedded page after deleting its
   await expect(drawer).toContainText("25 records");
   await page.keyboard.press("Escape");
   await expect(drawer).toHaveCount(0);
-  await expect(recordRows(embedded)).toHaveCount(10);
+  await expect(recordRows(embedded)).toHaveCount(25);
   expect(errors).toEqual([]);
 });

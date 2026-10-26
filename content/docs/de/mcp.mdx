@@ -4,7 +4,7 @@ heading: "KI-Clients per MCP mit dem CRM verbinden"
 description: "Customermates bietet einen MCP-Endpoint unter /api/v1/mcp, über den Claude, ChatGPT, Cursor und weitere Agent-Clients das CRM direkt lesen und schreiben."
 ---
 
-Customermates bietet einen MCP-Endpoint unter `<BASE_URL>/api/v1/mcp`, wobei `<BASE_URL>` die Adresse ist, unter der Sie Customermates öffnen, und jeder Workspace hat zusätzlich eine eigene URL, `<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>`, mit denselben Tools, fest an diesen Workspace gebunden. Ein verbundener Client entdeckt automatisch alle [[derived.mcp.tools.total]] CRM-Tools. Zwei Wege zu verbinden:
+Customermates bietet einen MCP-Endpoint unter `<BASE_URL>/api/v1/mcp`, wobei `<BASE_URL>` die Adresse ist, unter der Sie Customermates öffnen, und jeder Workspace hat zusätzlich eine eigene URL, `<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>`, mit denselben Tools, fest an diesen Workspace gebunden. Ein verbundener Client entdeckt die CRM-Tools automatisch. Zwei Wege zu verbinden:
 
 - **Custom Connector (OAuth):** für Claude (Web, Desktop, Mobile) und ChatGPT. URL einfügen, anmelden, freigeben; kein Key zu verwalten. Siehe [Mit einem Custom Connector verbinden](/docs/connect-custom-connector).
 - **API-Key:** für CLI- und Editor-Clients (Claude Code, Codex, Cursor, Gemini CLI) und rohe HTTP-Aufrufe. Den 64-Zeichen-Key im Header `x-api-key` oder in einer Konfigurationsdatei senden.
@@ -46,7 +46,7 @@ Um einen Client mit API-Key zu verbinden, beginnen Sie bei [API-Schlüsseln](app
 Dem Client `POST <BASE_URL>/api/v1/mcp` mit dem `x-api-key`-Header geben, oder per OAuth verbinden, wo der Client das unterstützt. Die Guides in der Tabelle unten enthalten die genaue Konfiguration.
 </Step>
 <Step title="Prüfen, ob die Tools ankommen">
-Den Client nach seinen Tools fragen. Alle [[derived.mcp.tools.total]] sollten erscheinen. `get_workspace_context` ist der natürliche erste Aufruf: Er liefert User, Unternehmen, Rollen, verbundene Accounts und die Wissensdatenbank auf einmal; die Bezeichnungen der Datensatztypen liefert `discover_record_types`.
+Den Client nach seinen Tools fragen; `get_workspace_context` sollte darunter sein. Es ist der natürliche erste Aufruf: Er liefert User, Unternehmen, Rollen, verbundene Accounts und die Wissensdatenbank auf einmal; die Bezeichnungen der Datensatztypen liefert `discover_record_types`.
 </Step>
 </Steps>
 
@@ -66,7 +66,7 @@ Den Client nach seinen Tools fragen. Alle [[derived.mcp.tools.total]] sollten er
 
 Beim Verbinden sendet der Server Hinweise zum Ablauf: zuerst das Schema lesen, IDs vor dem Schreiben suchen, Datensätze und Beziehungen über `mutate_crm_record` ändern und vor dem Löschen oder Senden die Bestätigung der Nutzerin oder des Nutzers einholen und dabei die genauen Datensätze oder Empfänger nennen. Diese Hinweise sind keine serverseitig erzwungene Freigabe, und ob ein Client sie an das Modell weitergibt, hängt vom Client ab. Prüfen Sie, wie Ihr Client Anweisungen und Freigaben behandelt, bevor Sie Schreib-, Lösch- oder Messaging-Zugriff gewähren. Clients mit MCP-Prompt-Unterstützung können den eingebauten `get-started`-Prompt ausführen, der den Workspace für einen personalisierten Einstieg zusammenfasst; er wird angeboten, wenn die Toolsets `workspace` und `records` beide aktiv sind, wie ohne `toolsets` in der URL.
 
-Die volle [[derived.mcp.tools.total]]-Tool-Oberfläche ist der Standard. Hängen Sie `?toolsets=` an die Endpoint-URL, um sie einzugrenzen, zum Beispiel `/api/v1/mcp?toolsets=records,messaging`; siehe [Eingrenzen mit ?toolsets=](/docs/mcp#narrowing-with-toolsets).
+Die volle Tool-Oberfläche ist der Standard. Hängen Sie `?toolsets=` an die Endpoint-URL, um sie einzugrenzen, zum Beispiel `/api/v1/mcp?toolsets=records,messaging`; siehe [Eingrenzen mit ?toolsets=](/docs/mcp#narrowing-with-toolsets).
 
 ## Gemeinsame Wissensdatenbank [#shared-workspace-wiki]
 
@@ -165,7 +165,7 @@ Beide liegen an derselben Basis-URL: MCP unter `/api/v1/mcp`, die OpenAPI-Spezif
 
 ## Welche Tools bietet der MCP-Server? Tool-Katalog [#tool-catalog]
 
-Customermates bietet [[derived.mcp.tools.total]] MCP-Tools, standardmäßig alle aktiviert. Sie decken konfigurierbare Datensätze, Datenmodell-Verwaltung, Workspace, Ansichten, die Wissensdatenbank, Messaging, Social Posts, Dokumentation und Deep Research, Widgets, Routinen, Webhooks, Administration und Support ab. Lesen Sie vor dem Aufruf die passende Gruppe unten.
+Customermates bietet bis zu [[derived.mcp.tools.total]] MCP-Tools, standardmäßig alle aktiviert. Sie decken konfigurierbare Datensätze, Datenmodell-Verwaltung, Workspace, Ansichten, die Wissensdatenbank, Messaging, Social Posts, Dokumentation und Deep Research, Widgets, Routinen, Webhooks, Administration und Support ab. `lookup_address` erscheint nur, wenn auf dem Server ein Adresssuchdienst eingerichtet ist (siehe [Bestätigte Adressen](/docs/mcp#verified-addresses)); Customermates Cloud listet daher eines weniger. Lesen Sie vor dem Aufruf die passende Gruppe unten.
 
 ### Sicherheitskennzeichen [#safety-flags]
 
@@ -181,7 +181,7 @@ Das volle JSON-Schema jedes Tools liegt live an `POST /api/v1/mcp` mit `method: 
 
 ### Records [#records]
 
-Die [[derived.mcp.tools.groups.records]] Datensatz-Tools bedienen jede Liste im Workspace, gleich wer sie angelegt hat. Zuerst den Typ ermitteln und sein aktuelles Schema lesen, dann Datensätze abfragen oder ändern. Nur die für den Auftrag nötigen Schemas laden; der Katalog wächst nicht mit Kundenfeldern.
+Die Datensatz-Tools bedienen jede Liste im Workspace, gleich wer sie angelegt hat. Zuerst den Typ ermitteln und sein aktuelles Schema lesen, dann Datensätze abfragen oder ändern. Nur die für den Auftrag nötigen Schemas laden; der Katalog wächst nicht mit Kundenfeldern.
 
 Jede Datensatzreferenz enthält `typeId` und `recordId`. `query_crm_records` liest einen Typ seitenweise, `search_crm_records` findet zugängliche Datensätze, `query_crm_measure` berechnet Summen über alle Treffer. Eine Seite ist nie eine vollständige Gesamtsumme, und mehrdeutige Suchtreffer klären Sie vor einer Änderung.
 
@@ -710,7 +710,7 @@ Pflicht: `subject`, `body`.
 
 ### Eingrenzen mit ?toolsets= [#narrowing-with-toolsets]
 
-Alle [[derived.mcp.tools.total]] Tools sind standardmäßig an. Um nur einen Teil der Oberfläche anzubieten, hängen Sie `?toolsets=` mit kommagetrennten Gruppen-Keys an die Endpoint-URL:
+Alle Tools sind standardmäßig an. Um nur einen Teil der Oberfläche anzubieten, hängen Sie `?toolsets=` mit kommagetrennten Gruppen-Keys an die Endpoint-URL:
 
 ```
 <BASE_URL>/api/v1/mcp?toolsets=records,messaging

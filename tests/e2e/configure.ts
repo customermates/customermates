@@ -66,8 +66,10 @@ export async function openDrawerTab(page: Page, name: string) {
   }
   const section = drawer.locator('[data-slot="collapsible-section-trigger"]').filter({ hasText: name });
   if (!(await section.count())) return;
-  if ((await section.getAttribute("aria-expanded")) !== "true") await section.click();
-  await expect(section).toHaveAttribute("aria-expanded", "true");
+  await expect(async () => {
+    if ((await section.getAttribute("aria-expanded")) !== "true") await section.click();
+    await expect(section).toHaveAttribute("aria-expanded", "true", { timeout: 2000 });
+  }).toPass();
 }
 
 export async function openDrawerSection(page: Page, name: string) {

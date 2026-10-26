@@ -2,7 +2,7 @@ import rawManifest from "@/generated/raw-docs-manifest.json";
 
 import { env } from "@/env";
 import { DOC_NAV_GROUPS } from "@/features/docs/docs-nav";
-import { MCP_TOOL_COUNT } from "@/features/mcp-tools/tool-registry";
+import { offeredMcpToolCount } from "@/features/mcp-tools/tool-registry";
 import { CONTENT_LOCALES, DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
 type ManifestPage = { title: string; description: string; content: string };
@@ -21,7 +21,7 @@ export function GET() {
   const lines: string[] = [
     "# Customermates",
     "",
-    `> Customermates is an open-source, AI-native CRM with configurable lists that each workspace shapes around its own business, kept fresh by the AI you already use. Native MCP endpoint: ${env.BASE_URL}/api/v1/mcp (${MCP_TOOL_COUNT} tools). Every link below is the raw-markdown twin of an HTML page at ${env.BASE_URL}/${DEFAULT_LOCALE}/docs/<slug>, except intro-page, whose HTML page is ${env.BASE_URL}/${DEFAULT_LOCALE}/docs.${translationNote}`,
+    `> Customermates is an open-source, AI-native CRM with configurable lists that each workspace shapes around its own business, kept fresh by the AI you already use. Native MCP endpoint: ${env.BASE_URL}/api/v1/mcp (${offeredMcpToolCount(env.APP_MODE)} tools). Every link below is the raw-markdown twin of an HTML page at ${env.BASE_URL}/${DEFAULT_LOCALE}/docs/<slug>, except intro-page, whose HTML page is ${env.BASE_URL}/${DEFAULT_LOCALE}/docs.${translationNote}`,
     "",
   ];
 

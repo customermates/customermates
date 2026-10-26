@@ -104,6 +104,14 @@ test("starts from a recommended starter, previews it live at dashboard size and 
   await expect(inlineFilters.getByRole("button", { name: "Filters", exact: true })).toHaveCount(0);
   await dialog.locator("#widget-config-filters").click();
 
+  await expect(dialog.locator("#name")).toHaveValue("");
+  await dialog.locator("#widget-modal-save").click();
+  await expect(dialog.locator("#name")).toHaveAttribute("aria-invalid", "true");
+  await expect(dialog.locator("#name-error")).toHaveText(
+    englishMessages.Common.errors.mustNotBeBlank,
+  );
+  await page.mouse.move(0, 0);
+  await expect(page.locator("[data-sonner-toast]")).toHaveCount(0);
   await dialog
     .getByRole("textbox", { name: "Name", exact: false })
     .fill("Open value overview");

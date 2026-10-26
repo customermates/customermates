@@ -1,5 +1,7 @@
 "use client";
 
+import { chartPointAction } from "./chart-point-action";
+
 import type { ChartDataPoint } from "./chart.types";
 
 import { useId } from "react";
@@ -68,10 +70,26 @@ export const AreaTimeChart = observer(
           <ChartTooltip currency={currency} cursor={chartLineCursor} filterNull={false} />
 
           <Area
-            activeDot={{ r: 4, fill: stroke, stroke: "var(--background)", strokeWidth: 2 }}
+            activeDot={{ r: 4, fill: stroke, stroke: "var(--background)", strokeWidth: 2, pointerEvents: "none" }}
             connectNulls={false}
             dataKey="value"
-            dot={data.length === 1 ? { r: 4, fill: stroke, stroke: "var(--background)", strokeWidth: 2 } : false}
+            dot={({ cx, cy, index }: { cx?: number; cy?: number; index: number }) => {
+              const point = chartData[index];
+              if (cx == null || cy == null || !point || (data.length > 1 && !point.onSelect)) return <g key={index} />;
+              const visible = data.length === 1;
+              return (
+                <circle
+                  key={index}
+                  cx={cx}
+                  cy={cy}
+                  fill={visible ? stroke : "transparent"}
+                  r={visible ? 4 : 8}
+                  stroke={visible ? "var(--background)" : "none"}
+                  strokeWidth={2}
+                  {...chartPointAction(point)}
+                />
+              );
+            }}
             fill={`url(#${gradientId})`}
             fillOpacity={1}
             isAnimationActive={reducedMotion === false}

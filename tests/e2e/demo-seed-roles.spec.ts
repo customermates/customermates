@@ -142,7 +142,7 @@ test("an account executive works only their own deals and reads subscriptions", 
     await member.page.goto(`/en/records/${demoId("deal")}`);
     const rowsShown = member.page.locator("[data-row-id], [data-item-id]");
     await expect(rowsShown.first()).toBeVisible();
-    await expect(rowsShown, "only the deals assigned to Clara").toHaveCount(own);
+    await expect(rowsShown, "only the deals assigned to Clara").toHaveCount(Math.min(own, 25));
     await expectEditable(member.page, "deal", await firstRecord(database, "deal", "claraNeumann"));
     await expectReadOnly(member.page, "subscription", await firstRecord(database, "subscription"));
     await expectReadOnlyConfigure(member.page);
