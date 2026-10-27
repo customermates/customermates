@@ -17,6 +17,7 @@ import {
 import { isContentPathname, isMarketingPathname, isPublicPathname } from "@/i18n/routing";
 import { leavesContentTree } from "@/i18n/content-links";
 import { cn } from "@/core/utils/cn";
+import { externalLinkRel } from "@/components/marketing/product-demo-src";
 
 type BaseProps = {
   appearance?: "default" | "inline" | "unstyled";
@@ -94,7 +95,7 @@ export function AppLink(props: Props) {
     return (
       <NextLink
         className={mergedClassName}
-        rel="noopener noreferrer"
+        rel={typeof rest.href === "string" ? externalLinkRel(rest.href) : "noopener noreferrer"}
         target="_blank"
         {...(rest as ComponentProps<typeof NextLink>)}
       />

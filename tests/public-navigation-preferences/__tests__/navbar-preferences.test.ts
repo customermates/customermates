@@ -104,14 +104,7 @@ describe("public navigation preferences", () => {
     const footer = read(FOOTER);
     expect(footer, "the header menu already links every locale").not.toContain("<LocaleMenu");
     expect(footer, "the theme switcher belongs to the header shells").not.toContain("<ThemeSwitcher");
-    for (const href of [
-      "https://viesearch.com/",
-      "https://www.promotebusinessdirectory.com/",
-      "https://www.usawebsitesdirectory.com/computers_and_internet/",
-      "https://www.bestsitesindex.com/submit.php",
-    ]) {
-      expect(footer, `${href} is missing below the Featured On rail`).toContain(href);
-    }
+    expect(footer, "https://viesearch.com/ is missing below the Featured On rail").toContain("https://viesearch.com/");
     expect(footer.indexOf("<FooterBadges />")).toBeLessThan(footer.indexOf("https://viesearch.com/"));
     expect(footer, "comparison details belong behind the comparison hub").not.toContain("CompetitorLinks");
     expect(footer, "the resource column should use concise directory labels").toContain(
@@ -341,7 +334,7 @@ describe("public navigation preferences", () => {
       "https://b.sf-syn.com/badge_img/3954503/light-default?variant_id=sf",
       "https://twelve.tools/badge2-light.svg",
       "https://wired.business/badge1-dark.svg",
-      "https://startupfa.me/badges/featured/light.webp",
+      "/images/light/startup-fame-badge.webp",
       "https://open-launch.com/api/badge/e6753e76-e978-4100-b29f-a3048622b9a6/featured-dark.svg",
     ]) {
       expect(badges, `${badgeAsset} is missing from the official badge rail`).toContain(badgeAsset);

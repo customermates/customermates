@@ -5,6 +5,7 @@ import { ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ORGANIZATION_NAME } from "@/core/seo/schemas";
 import { AppLink } from "@/components/shared/app-link";
+import { externalLinkRel } from "@/components/marketing/product-demo-src";
 
 import { MarketingSection } from "./marketing-section";
 import { SectionGlow } from "./section-glow";
@@ -62,7 +63,7 @@ export function CTASection({
                   appearance="unstyled"
                   href={buttonRightHref}
                   prefetch={contentLinkPrefetch(buttonRightHref)}
-                  rel={buttonRightIsExternal ? "noopener noreferrer" : undefined}
+                  rel={buttonRightIsExternal ? externalLinkRel(buttonRightHref) : undefined}
                   target={buttonRightIsExternal ? "_blank" : undefined}
                 >
                   {buttonRightText}

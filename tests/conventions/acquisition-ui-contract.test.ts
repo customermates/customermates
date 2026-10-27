@@ -214,8 +214,7 @@ describe("public acquisition UI contract", () => {
     expect(hero).toContain("type HeroWithoutActions");
     expect(hero).toContain("function hasHeroActions");
     expect(hero).toContain("function isExternalHref");
-    expect(hero).toContain('target="_blank"');
-    expect(hero).toContain('rel="noopener noreferrer"');
+    expect(hero).toContain('<AppLink external appearance="unstyled" href={href}>');
     expect(hero).toContain("{actions ? (");
 
     const closing = source("components/marketing/cta-section.tsx");
@@ -232,7 +231,7 @@ describe("public acquisition UI contract", () => {
       'target={buttonRightIsExternal ? "_blank" : undefined}',
     );
     expect(closing).toContain(
-      'rel={buttonRightIsExternal ? "noopener noreferrer" : undefined}',
+      "rel={buttonRightIsExternal ? externalLinkRel(buttonRightHref) : undefined}",
     );
   });
 

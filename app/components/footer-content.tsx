@@ -312,39 +312,6 @@ export function FooterContent({ appMode, blogPosts = [], className, featureLinks
                 Viesearch - The Human-curated Search Engine
               </a>
             </li>
-
-            <li>
-              <a
-                className={FOOTER_LINK_CLASS}
-                href="https://www.promotebusinessdirectory.com/"
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                https://www.promotebusinessdirectory.com/
-              </a>
-            </li>
-
-            <li>
-              <a
-                className={FOOTER_LINK_CLASS}
-                href="https://www.usawebsitesdirectory.com/computers_and_internet/"
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                https://www.usawebsitesdirectory.com/computers_and_internet/
-              </a>
-            </li>
-
-            <li>
-              <a
-                className={FOOTER_LINK_CLASS}
-                href="https://www.bestsitesindex.com/submit.php"
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                https://www.bestsitesindex.com/submit.php
-              </a>
-            </li>
           </ul>
         </div>
       </MarketingContainer>
