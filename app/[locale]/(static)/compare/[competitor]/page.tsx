@@ -12,7 +12,8 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { comparePagesSource } from "@/core/fumadocs/source";
 import { getMDXComponents } from "@/core/fumadocs/mdx-components";
-import { breadcrumbListSchema } from "@/core/seo/schemas";
+import { breadcrumbListSchema, webPageSchema } from "@/core/seo/schemas";
+import { resolvePageLastModified } from "@/core/seo/sitemap";
 import { enableStaticLocale } from "@/i18n/static-locale";
 import { localizedSlugParams } from "@/core/fumadocs/static-params";
 
@@ -53,14 +54,23 @@ export default async function CompetitorComparePage({ params }: Props) {
   return (
     <div className="flex flex-col items-center justify-center" data-marketing-flow="continuous">
       <JsonLd
-        schema={breadcrumbListSchema([
-          { name: t("home"), path: `/${locale}` },
-          { name: t("compare"), path: `/${locale}/compare` },
-          {
-            name: page.data.competitorName,
+        schema={[
+          breadcrumbListSchema([
+            { name: t("home"), path: `/${locale}` },
+            { name: t("compare"), path: `/${locale}/compare` },
+            {
+              name: page.data.competitorName,
+              path: `/${locale}/compare/${competitor}`,
+            },
+          ]),
+          webPageSchema({
+            name: page.data.title,
+            description: page.data.description ?? "",
+            locale,
             path: `/${locale}/compare/${competitor}`,
-          },
-        ])}
+            dateModified: resolvePageLastModified(page.data),
+          }),
+        ]}
       />
 
       <PageHero {...page.data.hero} />
