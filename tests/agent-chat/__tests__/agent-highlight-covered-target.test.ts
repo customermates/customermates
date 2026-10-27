@@ -5,7 +5,7 @@ import type { RootStore } from "@/core/stores/root.store";
 import { reaction } from "mobx";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("@/app/[locale]/(protected)/records/actions", () => ({
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/records/actions", () => ({
   getRecordAction: vi.fn(),
   getRecordNavigationAction: vi.fn(),
 }));

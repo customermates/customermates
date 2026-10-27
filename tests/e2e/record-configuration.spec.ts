@@ -5,6 +5,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { recordChannelsField } from "../../features/records/record-channels";
 import { addChannelsField, addFromConfigure, configureListCard, configureRow, configureTopBar, deleteFromDrawer, deleteSelectedList, followConfigureLink, openConfigure, openConfigureRow, openConfigureTab, openDrawerTab, saveDrawer, saveGeneral, selectConfigureList } from "./configure";
 import { calculationChip, calculationFlow, chooseValueSource, pickFixedValue, pickOption } from "./calculation-flow";
+import { anyWorkspaceUrlPattern, companyPath, companyUrlPattern } from "./app-paths";
 import { expect, test, collectPageErrors } from "./fixtures";
 import { readModel } from "./api";
 import { recordItem } from "./record-rows";
@@ -17,7 +18,7 @@ async function openRecordList(page: Page, typeId: string) {
   const link = page.locator(`[id="nav-records:${typeId}"]`);
   if (!(await link.isVisible())) await page.locator("#sidebar-trigger").click();
   await link.click();
-  await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}$`));
+  await expect(page).toHaveURL(anyWorkspaceUrlPattern(`/records/${typeId}$`));
 }
 
 async function createList(page: Page, name: string) {
@@ -28,7 +29,7 @@ async function createList(page: Page, name: string) {
   await expect(dialog.getByRole("switch", { name: "Enable channels", exact: true })).toHaveCount(0);
   await dialog.getByRole("button", { name: "Save", exact: true }).first().click();
   await expect(dialog).not.toBeVisible();
-  await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
+  await expect(page).toHaveURL(anyWorkspaceUrlPattern("/records/[a-f0-9-]+$"));
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
   if (!typeId) throw new Error("The created list route did not contain its identity");
   return typeId;
@@ -45,13 +46,13 @@ test("adds contact details as a field, keeps its settings, deletes, restores and
   const dialog = page.getByRole("dialog");
   const confirmation = page.getByRole("alertdialog");
   const channelsOf = async (typeId: string) => recordChannelsField(await readModel(database, companyId), typeId);
-  await page.goto(`/en/records/${contactTypeId}`);
+  await page.goto(companyPath(companyId, `/records/${contactTypeId}`));
   const configure = page
     .getByRole("link", { name: "Configure", exact: true })
     .and(page.locator("#nav-configure-records"));
   if (!(await configure.isVisible())) await page.locator("#sidebar-trigger").click();
   await configure.click();
-  await expect(page).toHaveURL(/\/en\/configure$/);
+  await expect(page).toHaveURL(companyUrlPattern(companyId, "/configure$"));
   await expect(
     page.locator(`[data-configure-graph-field="${presetId(companyId, "capability.identity")}"]`),
   ).toContainText("Contact details");

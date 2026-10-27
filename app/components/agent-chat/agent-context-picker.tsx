@@ -10,13 +10,14 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
-import { globalSearchAction } from "@/app/[locale]/(protected)/search/actions";
+import { globalSearchAction } from "@/app/[locale]/(protected)/w/[workspace]/search/actions";
 import { assistantSurfaceProps } from "@/components/modal/assistant-surface";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { stripWorkspacePrefix } from "@/core/navigation/workspace-paths";
 import { recordSearchKey } from "@/features/records/record-search.schema";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
@@ -75,7 +76,7 @@ export const AgentContextPicker = observer(function AgentContextPicker({
   const request = useRef(0);
   const [loadingMore, setLoadingMore] = useState(false);
   const uiTargets = useAgentChatUiTargets();
-  const pathname = usePathname();
+  const pathname = stripWorkspacePrefix(usePathname());
   const t = useTranslations();
   const [query, setQuery] = useState("");
   const [searchState, setSearchState] = useState<SearchState | null>(null);

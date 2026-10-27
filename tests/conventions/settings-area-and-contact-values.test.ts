@@ -150,7 +150,7 @@ function handBuiltContactLinkFindings(sources: SourceFile[]) {
 }
 const CONTACT_VALUE_SURFACES = [
   "components/records/record-value.tsx",
-  "app/[locale]/(protected)/records/[typeId]/components/record-channels.tsx",
+  "app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-channels.tsx",
 ];
 
 const CONTACT_LINK_EXEMPTIONS: Allowlist = {};

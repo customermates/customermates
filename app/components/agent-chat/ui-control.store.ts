@@ -1,4 +1,4 @@
-import { getRecordAction, getRecordNavigationAction } from "@/app/[locale]/(protected)/records/actions";
+import { getRecordAction, getRecordNavigationAction } from "@/app/[locale]/(protected)/w/[workspace]/records/actions";
 import { makeObservable, observable, action } from "mobx";
 
 import type { RootStore } from "@/core/stores/root.store";
@@ -14,6 +14,7 @@ import {
   type AgentUiTarget,
 } from "@/ee/agent-chat/ui-targets";
 import { stripLocalePrefix } from "@/i18n/locale-registry";
+import { stripWorkspacePrefix } from "@/core/navigation/workspace-paths";
 import { isResolvedAppLinkPath } from "@/features/docs/app-links";
 import { focusTargetOfHref } from "@/components/focus/focus-href";
 import { NavigateRecordTargetSchema } from "@/ee/agent-chat/ui-operations";
@@ -53,7 +54,7 @@ function describeNavigationInput(input: Record<string, unknown>) {
 
 function currentAppPathname() {
   if (typeof window === "undefined") return null;
-  const pathname = stripLocalePrefix(window.location.pathname);
+  const pathname = stripWorkspacePrefix(stripLocalePrefix(window.location.pathname));
   return pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
 }
 

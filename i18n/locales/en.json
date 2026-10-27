@@ -1318,7 +1318,7 @@
       "wikiProposalReviewed": "Someone already reviewed this proposal.",
       "wikiProposalStale": "The page changed after Mate made this proposal. Reject the proposal, or ask Mate to propose the change again.",
       "wikiWhenToUseRequired": "A procedure needs a short description of when to use it.",
-      "workspaceChanged": "Your workspace changed in another tab or on another device. Reload the page before you continue.",
+      "workspaceChanged": "This workspace is not available any more. It was deleted, its URL changed or your access was removed.",
       "workspaceCreationUnavailable": "New workspaces cannot be created here.",
       "workspaceDeleteAdminRequired": "Only an admin can delete this workspace.",
       "workspaceDeleteBillingActive": "This workspace still has a subscription that can be billed or resumed. Cancel it and wait until it ends, or contact support.",
@@ -1340,7 +1340,8 @@
       "workspaceSetupAnswerInvalid": "This answer does not fit the question. Check it and try again.",
       "workspaceSetupConflict": "The workspace setup is busy with another step. Reload it and try again.",
       "workspaceSetupNotFound": "No workspace setup was found for this workspace.",
-      "workspaceSetupUnavailable": "The AI workspace setup is not available here."
+      "workspaceSetupUnavailable": "The AI workspace setup is not available here.",
+      "workspaceSlugTaken": "Another workspace already uses this URL. Choose a different one."
     },
     "events": {
       "connected_account": {
@@ -1732,6 +1733,8 @@
       "light": "Light",
       "system": "System"
     },
+    "unlimited": "unlimited",
+    "unlimitedByContract": "custom",
     "unnamed": "Unnamed",
     "unsavedChanges": "Unsaved changes",
     "updatedOn": "Updated {date}",
@@ -2562,6 +2565,11 @@
     "sendCta": "Send reset link",
     "title": "Forgot password"
   },
+  "ForHub": {
+    "allGuides": "All industry guides",
+    "byTeam": "By team",
+    "byWorkflow": "By workflow"
+  },
   "GlobalSearch": {
     "askMateWith": "Ask Mate: {question}",
     "emptyDescription": "Find records across the lists you can access.",
@@ -2580,7 +2588,7 @@
       "badge": "Popular",
       "compareText": "Compare plans",
       "ctaText": "Start free",
-      "featureBusiness": "Business: {accounts, plural, one {# account per user} other {# accounts per user}}, shared accounts & priority support",
+      "featureBusiness": "Business: {accounts, plural, one {# account per user} other {# accounts per user}}, whole-account inbox sharing & priority support",
       "featurePro": "Pro: unified inbox, {accounts, plural, one {# connected account per user} other {# connected accounts per user}}",
       "featureStarter": "Starter: the core CRM",
       "period": "/ user / month",
@@ -2604,7 +2612,7 @@
       "featureUsers": "Workspace users",
       "period": "under AGPL",
       "price": "Free core",
-      "tag": "Run the AGPL core app and PostgreSQL on your server with Docker Compose at Starter scope. External services stay separate.",
+      "tag": "Run the AGPL core app and PostgreSQL on your server with Docker Compose at Starter scope, without the inbox and hosted AI. External services stay separate.",
       "title": "Self-Hosted"
     },
     "subtitle": "Transparent tiers, no hidden costs. Self-host the AGPL core for free; external services stay separate. Or start on Cloud with no credit card.",
@@ -2986,6 +2994,9 @@
       "allSolutions": "All solutions",
       "articlesAndGuides": "Articles and guides",
       "blog": "Blog",
+      "byTeam": "By team",
+      "byWorkflow": "By workflow",
+      "clientManagement": "Client management",
       "cloudCrm": "Cloud CRM",
       "compare": "Comparisons",
       "consultants": "Consultants",
@@ -2993,9 +3004,10 @@
       "emailAndGmail": "Email and Gmail",
       "freelancers": "Freelancers",
       "integrations": "Integrations",
-      "lawFirms": "Law firms",
+      "linkedinCrm": "LinkedIn CRM",
       "mcp": "MCP",
       "n8n": "n8n automation",
+      "openExampleWorkspace": "Open this example workspace",
       "openSourceCrm": "Open-source CRM",
       "pipeline": "Sales pipeline",
       "primaryNavigation": "Primary navigation",
@@ -3015,15 +3027,26 @@
       "providerSlack": "Slack",
       "providerTelegram": "Telegram",
       "providerWhatsApp": "WhatsApp",
-      "recruiting": "Recruiting",
       "resources": "Resources",
       "salesTracking": "Sales tracking",
       "selfHosted": "Self-hosted CRM",
       "smallBusiness": "Small business",
       "solutions": "Solutions",
+      "solutionSummaries": {
+        "agencies": "Pitches, projects and retainers",
+        "clientManagement": "Each client with contacts and contracts",
+        "consultants": "Engagements from first call to proposal",
+        "freelancers": "Clients, projects and next steps",
+        "linkedinCrm": "LinkedIn conversations linked to deals",
+        "salesPipeline": "Deals by stage with value and next steps",
+        "smallBusiness": "Customers, deals and follow-ups",
+        "startups": "Founder-led sales from lead to close",
+        "whatsappCrm": "WhatsApp chats matched to customers"
+      },
       "startups": "Startups",
       "taskManagement": "Task management",
-      "unifiedInbox": "Unified inbox"
+      "unifiedInbox": "Unified inbox",
+      "whatsappCrm": "WhatsApp CRM"
     },
     "routines": "Routines",
     "search": "Search",
@@ -3174,11 +3197,6 @@
         "link": "Share link"
       }
     },
-    "linkedWorkspace": {
-      "description": "This link opens the setup of {workspace}. You are working in another workspace right now; switching applies to all your open tabs.",
-      "switch": "Switch workspace",
-      "title": "Continue in {workspace}"
-    },
     "milestones": {
       "ai": "AI tools",
       "invite": "Team",
@@ -3187,7 +3205,6 @@
     },
     "next": "Next",
     "profile": {
-      "websiteDescription": "Optional. We read your public website to suggest answers for setting up your workspace.",
       "websitePlaceholder": "example.com"
     },
     "progress": "Step {current} of {total}",
@@ -3209,9 +3226,11 @@
       },
       "setup": {
         "planningSubtitle": "Your answers are saved. Mate turns them into a plan for your workspace that you review before anything is built.",
-        "subtitle": "A few short questions about what this workspace is for. What we could read on your website is already filled in, so you mostly confirm.",
+        "startSubtitle": "We build your lists, steps, dashboard and a few Knowledge Base pages. You can change everything later.",
+        "startTitle": "How do you want to set up your workspace?",
+        "subtitle": "What we read on your website is already filled in. Check it and change anything that is off.",
         "title": "Set up your workspace",
-        "withoutWebsiteSubtitle": "A few short questions about what this workspace is for. Most are a quick choice, so this takes only a few minutes."
+        "withoutWebsiteSubtitle": "A few quick questions about what you want to keep track of. Most take one click."
       }
     }
   },
@@ -3554,7 +3573,7 @@
     "moreOverdue": "{count, plural, one {# more overdue record} other {# more overdue records}}",
     "nextDays": "{count, plural, one {Today} other {Next # days}}",
     "nextMonth": "Show next month",
-    "noDateField": "{list} does not have a Date or Date and time field yet. Add one in Configure or choose another list.",
+    "noDateField": "{list} does not have a Date, Date and time, Date range or Date and time range field yet. Add one in Configure or choose another list.",
     "noUpcoming": "{count, plural, one {No records today.} other {No records in the next # days.}}",
     "overdue": "Overdue",
     "overdueBy": "{count, plural, one {Overdue # day} other {Overdue # days}}",
@@ -4684,6 +4703,31 @@
     "switchToSignIn": "Already have an account? <signInLink>Sign in</signInLink>",
     "title": "Create a Customermates Account"
   },
+  "SolutionStage": {
+    "alt": "{area} in the example workspace, using demo data",
+    "captions": {
+      "calendar": "Dates from your records in one calendar",
+      "clientOverview": "Every client with status and owner at a glance",
+      "clients": "Every client with the work you are doing for them",
+      "dashboard": "Widgets built from the workspace's own lists and fields",
+      "engagements": "Every active engagement on one board",
+      "inbox": "Conversations next to the records they belong to, on Cloud from Pro",
+      "pipeline": "Deal value and stage on every card",
+      "pitchBoard": "Every pitch from brief to decision"
+    },
+    "label": "Product areas",
+    "livePrompt": "Try it live",
+    "tabs": {
+      "calendar": "Calendar",
+      "clientOverview": "Client overview",
+      "clients": "Clients",
+      "dashboard": "Dashboard",
+      "engagements": "Engagements",
+      "inbox": "Inbox",
+      "pipeline": "Pipeline",
+      "pitchBoard": "Pitch board"
+    }
+  },
   "StructuredData": {
     "breadcrumb": {
       "allFeatures": "All Features",
@@ -5080,7 +5124,6 @@
         "voice_and_tone": "Voice and tone"
       },
       "setupPages": {
-        "competitor": "Compared with {competitor}",
         "faq": "Frequently asked questions",
         "processes": "Processes",
         "productsPricing": "Products and pricing"
@@ -5192,17 +5235,17 @@
     "nameDescription": "Everyone in this workspace sees this name in the workspace menu.",
     "nameLabel": "Workspace name",
     "noPlan": "No plan",
-    "otherTab": {
-      "description": "This tab still shows {current}. Reload it so nothing is saved to the wrong workspace.",
-      "reload": "Reload",
-      "title": "You switched workspaces in another tab",
-      "titleChanged": "Your workspace changed",
-      "titleDeleted": "This workspace was deleted",
-      "titleNamed": "You switched to {name} in another tab"
-    },
     "renameReadOnly": "Only members who can manage the workspace can change its name.",
+    "slugDescription": "Links to this workspace use {path}. Use lowercase letters, numbers and hyphens. Old links stop working when you change it.",
+    "slugLabel": "Workspace URL",
+    "slugReadOnly": "Links to this workspace use {path}. Only members who can manage the workspace can change it.",
     "switch": "Switch",
     "switchTo": "Switch to {name}",
+    "unavailable": {
+      "description": "It was deleted, its URL changed or your access was removed. Go to your dashboard to continue.",
+      "open": "Go to dashboard",
+      "title": "This workspace is not available"
+    },
     "unnamedCreated": "{name} (created {date})",
     "unnamedPrompt": {
       "description": "It has no name yet, so the workspace menu only shows \"Workspace\". A name helps every member tell your workspaces apart.",
@@ -5211,11 +5254,10 @@
   },
   "WorkspaceSetup": {
     "actions": {
-      "addOwn": "Add your own",
+      "addOwn": "Something else",
       "continueAnyway": "Continue anyway",
       "fromWebsite": "Suggested from your website",
-      "upload": "Upload a spreadsheet",
-      "winChance": "Win chance"
+      "upload": "Upload a spreadsheet"
     },
     "anchors": {
       "price": "Price",
@@ -5248,18 +5290,14 @@
         "records": "Records",
         "views": "List views"
       },
-      "phasesLabel": "Setup progress",
       "previewLabel": "Preview of your workspace",
       "records": "Records",
       "retry": "Retry",
       "sidebarLabel": "Navigation preview",
       "states": {
-        "active": "In progress",
         "background": "Continues in the background",
-        "done": "Done",
         "failed": "Not finished",
-        "skipped": "Skipped",
-        "waiting": "Waiting"
+        "skipped": "Skipped"
       },
       "summaries": {
         "dashboard": "{count, plural, =0 {No widgets added} one {# widget added} other {# widgets added}}",
@@ -5273,7 +5311,7 @@
     "empty": {
       "action": "Start with an empty workspace",
       "confirm": "Start empty",
-      "description": "You skip the guided setup. No lists, pipeline, dashboard or Knowledge Base pages are created, so you build everything yourself. We recommend the guided setup.",
+      "description": "No lists, pipeline or dashboard are created. You can build them yourself or ask Mate to set them up later.",
       "title": "Start with an empty workspace?"
     },
     "failures": {
@@ -5292,19 +5330,27 @@
     },
     "interview": {
       "addEntry": "Add an entry",
-      "adjusting": "Change any answer, then confirm the last screen to draft a new plan.",
-      "customPlaceholder": "Your own answer",
+      "adjusting": "Change any answer, then show the plan again.",
+      "answerYourself": {
+        "cancel": "Wait for the website",
+        "confirm": "Answer myself",
+        "description": "We are filling in these answers from your website right now. You only need to check them when we are done.",
+        "title": "Answer this yourself?"
+      },
+      "customPlaceholder": "Describe it in a few words",
       "days": "days",
       "entryLabel": "Entry {index}",
       "followUpsSubtitle": "Some answers could mean more than one thing. These questions settle it.",
       "followUpsTitle": "A few more details",
       "optionalPlaceholder": "Leave empty if nothing comes to mind",
+      "planHint": "You check the plan before anything is built",
       "prefillFailed": "We could not read your website, so nothing is filled in. The questions still take only a few minutes.",
+      "prefillPending": "The answers below are filled in from your website automatically. You can wait and check them when we are done.",
       "rangeFrom": "From",
       "rangeTo": "Up to",
       "rankedHint": "{count} of {max} picked, in order of importance",
       "rankedOption": "Rank {rank}: {label}",
-      "stepProgress": "Part {current} of {total}",
+      "showPlan": "Show my workspace plan",
       "stepsLabel": "Setup questions",
       "uploadChoose": "Choose file",
       "uploadFailures": {
@@ -5322,128 +5368,49 @@
       "uploadKept": "The setup keeps {fileName}.",
       "uploadReady": "Ready to import into your new lists.",
       "uploadRejected": "{fileName} cannot be imported. {reason}",
-      "uploadReplace": "Choose another file",
-      "winChanceFor": "Win chance of entry {index}"
+      "uploadReplace": "Choose another file"
     },
     "options": {
-      "addressForm": {
-        "formal": "Formal",
-        "informal": "Informal"
-      },
-      "afterSale": {
-        "appointments": "Appointments",
-        "contractsRenewals": "Contracts and renewals",
-        "nothing": "Nothing further",
-        "ordersInvoices": "Orders and invoices",
-        "projects": "Projects",
-        "supportTickets": "Support tickets"
-      },
-      "customerKind": {
-        "both": "Both",
-        "businesses": "Businesses",
-        "consumers": "Consumers"
-      },
-      "customerSize": {
-        "large": "Large enterprises",
-        "medium": "Mid-sized companies",
-        "mixed": "A mix of sizes",
-        "small": "Small companies"
-      },
-      "dashboardAudience": {
-        "management": "Management",
-        "me": "Just me",
-        "team": "The whole team"
-      },
-      "dealDetails": {
-        "budget": "Budget",
-        "closeDate": "Expected close date",
-        "contractEnd": "Contract end",
-        "decisionMaker": "Decision-maker",
-        "lostReason": "Reason for losing",
-        "nextStep": "Next step",
-        "vatId": "VAT ID"
-      },
       "existingData": {
-        "empty": "Start empty",
-        "sampleData": "Start with sample data",
-        "spreadsheet": "Import a spreadsheet"
+        "empty": "No, start without records",
+        "sampleData": "Yes, add examples",
+        "spreadsheet": "Import my spreadsheet"
       },
-      "knowledgePages": {
-        "faq": "Frequently asked questions",
-        "idealCustomer": "Ideal customer",
-        "overview": "Overview",
-        "processes": "Processes",
-        "productsPricing": "Products and pricing",
-        "salesPlaybook": "Sales playbook and objections"
-      },
-      "leadSources": {
-        "ads": "Advertising",
-        "events": "Events and trade fairs",
-        "outbound": "Outbound outreach",
-        "partners": "Partners",
-        "referrals": "Referrals",
-        "socialMedia": "Social media",
-        "website": "Website"
-      },
-      "offeringKinds": {
-        "products": "Products",
-        "projects": "Projects",
-        "services": "Services",
-        "subscriptions": "Subscriptions"
+      "pricing": {
+        "fixedPrice": "A fixed price per job",
+        "free": "We don't charge",
+        "products": "Product prices",
+        "subscription": "A monthly or yearly fee",
+        "timeBased": "By the hour or day"
       },
       "purpose": {
-        "clients": "Clients and sales",
-        "finances": "Finances and taxes",
-        "hiring": "Hiring",
+        "chats": "Chats on WhatsApp, LinkedIn or email",
+        "contracts": "Client accounts, contracts and renewals",
+        "deals": "New inquiries until they say yes",
+        "finances": "Finances, taxes and deadlines",
+        "hiring": "Job applicants",
+        "investors": "Investors and fundraising",
         "marketing": "Marketing and content",
-        "projects": "Projects",
-        "support": "Customer support"
-      },
-      "renewalPeriod": {
-        "monthly": "Monthly",
-        "multiYear": "Every few years",
-        "quarterly": "Quarterly",
-        "yearly": "Yearly"
-      },
-      "revenueModel": {
-        "both": "Both",
-        "oneOff": "One-off payments",
-        "recurring": "Recurring payments"
-      },
-      "taskOrganisation": {
-        "perCustomer": "Per customer",
-        "perDeal": "Per deal",
-        "perProject": "Per project",
-        "recurring": "Recurring tasks"
-      },
-      "teamRoles": {
-        "accountManagement": "Account management",
-        "delivery": "Delivery",
-        "finance": "Finance",
-        "sales": "Sales",
-        "support": "Support"
+        "orders": "Orders and invoices",
+        "partners": "Partners and suppliers",
+        "projects": "Projects or jobs we deliver",
+        "support": "Support requests"
       },
       "teamSize": {
         "large": "More than 20 people",
-        "medium": "6 to 20 people",
-        "small": "2 to 5 people",
+        "small": "A small team",
         "solo": "Just me"
       },
-      "weeklyNumbers": {
-        "conversionByStage": "Conversion by stage",
-        "forecast": "Forecast",
-        "newLeads": "New leads",
-        "openTickets": "Open tickets",
-        "overdueTasks": "Overdue tasks",
-        "pipelineValue": "Pipeline value",
-        "recurringRevenue": "Recurring revenue",
-        "renewalsDue": "Renewals due",
-        "wonThisMonth": "Won this month"
+      "workWith": {
+        "clients": "Clients we do work for",
+        "customers": "Customers who buy from us",
+        "ownWork": "No customers, it is for our own work"
       }
     },
     "plan": {
       "adjust": "Adjust answers",
       "build": "Build my workspace",
+      "calendarSources": "Calendar: {sources}",
       "dashboard": "Dashboard",
       "failedTitle": "The plan could not be drafted",
       "importSummary": "Imports {fileName} into {list}.",
@@ -5457,7 +5424,12 @@
       "pipeline": "Pipeline",
       "planningTitle": "Drafting your plan",
       "progress": {
-        "label": "Plan progress",
+        "done": {
+          "answers": "Read your answers",
+          "knowledge": "Outlined your Knowledge Base pages",
+          "model": "Designed your lists, fields and pipeline",
+          "views": "Planned views, the dashboard and sample records"
+        },
         "minutesLeft": "{minutes, plural, one {About # minute left} other {About # minutes left}}",
         "overdue": "Taking a little longer than usual. Almost there.",
         "steps": {
@@ -5466,7 +5438,6 @@
           "model": "Designing your lists, fields and pipeline",
           "views": "Planning views, the dashboard and sample records"
         },
-        "stepsLabel": "What Mate is working on",
         "typical": "Mate is designing your workspace from your answers. This usually takes 1 to 2 minutes.",
         "underMinute": "Less than a minute left"
       },
@@ -5478,23 +5449,8 @@
       "winChanceValue": "{value} %"
     },
     "questions": {
-      "addressForm": {
-        "label": "How do you address people in writing?"
-      },
-      "afterSale": {
-        "label": "What follows a won deal?"
-      },
-      "anythingMissed": {
-        "label": "Anything we missed?"
-      },
-      "appointmentTypes": {
-        "label": "Your appointment types"
-      },
       "companyName": {
         "label": "Name of your business or project"
-      },
-      "competitors": {
-        "label": "Your main competitors"
       },
       "country": {
         "label": "Country"
@@ -5502,102 +5458,71 @@
       "currency": {
         "label": "Currency"
       },
-      "customerKind": {
-        "label": "Who are your customers?"
-      },
-      "customerSize": {
-        "label": "How large are your customers?"
-      },
-      "dashboardAudience": {
-        "label": "Who looks at the dashboard?"
-      },
-      "dealDetails": {
-        "label": "What must you know about a deal or customer?"
-      },
-      "dealSize": {
-        "label": "Typical deal size"
-      },
       "existingData": {
-        "label": "How do you want to start?"
-      },
-      "industries": {
-        "label": "Which industries are they in?"
-      },
-      "knowledgePages": {
-        "label": "Which Knowledge Base pages should we write?"
+        "label": "Add example records so you can try things out?"
       },
       "language": {
         "label": "Language"
       },
-      "leadSources": {
-        "label": "Where do your leads come from?"
+      "mainSteps": {
+        "label": "Which steps does this work go through? We suggested common ones: rename, add or remove them."
       },
-      "offeringKinds": {
-        "label": "What do you sell?"
-      },
-      "offerings": {
-        "label": "Your offerings"
-      },
-      "orderStatuses": {
-        "label": "Your order steps"
-      },
-      "projectPhases": {
-        "label": "Your project phases"
+      "pricing": {
+        "label": "How do you charge?"
       },
       "purpose": {
-        "label": "What will you use this workspace for?"
+        "label": "What do you want to keep track of? Contacts and to-dos are always included."
       },
       "purposeDetails": {
-        "label": "Describe it in a sentence",
-        "placeholder": "For example: my freelance clients, invoices and tax deadlines"
-      },
-      "renewalPeriod": {
-        "label": "How often do contracts renew?"
-      },
-      "revenueModel": {
-        "label": "Do customers pay once or regularly?"
-      },
-      "salesCycle": {
-        "label": "Typical sales cycle in days"
-      },
-      "salesSteps": {
-        "label": "What are your sales steps?"
-      },
-      "taskOrganisation": {
-        "label": "How are your tasks organised?"
-      },
-      "teamRoles": {
-        "label": "Who does what in your team?"
+        "label": "Anything else we should know?",
+        "placeholder": "For example: we build kitchens and follow every job from the first visit to the installation"
       },
       "teamSize": {
-        "label": "How big is your team?"
+        "label": "Just you, or a team?"
       },
-      "ticketPriorities": {
-        "label": "Your ticket priorities"
-      },
-      "weeklyNumbers": {
-        "label": "Which numbers do you check every week? Pick up to three."
+      "workWith": {
+        "label": "Who do you work with?"
       }
     },
-    "screens": {
-      "afterSale": "After the sale",
-      "dashboard": "Your dashboard",
-      "data": "Your data",
-      "knowledge": "Knowledge",
-      "winning": "Winning customers",
-      "workspace": "About this workspace"
-    },
     "start": {
-      "start": "Start the setup",
+      "emptyPrompt": "Prefer to set things up yourself?",
+      "optionsLabel": "Ways to set up your workspace",
+      "questions": {
+        "description": "Up to six quick questions about what you want to keep track of.",
+        "note": "About 1 minute",
+        "title": "Answer a few questions"
+      },
+      "website": {
+        "action": "Read my website",
+        "description": "We read your public website and fill in the answers for you. You only check them.",
+        "note": "About 2 minutes",
+        "recommended": "Recommended",
+        "title": "Use my website"
+      },
       "withoutWebsite": "Continue without a website"
+    },
+    "suggestedSteps": {
+      "contracts": ["Onboarding", "Active", "Up for renewal", "Renewed", "Ended"],
+      "deals": ["New inquiry", "Contacted", "Offer sent", "Won", "Lost"],
+      "dealsClients": ["Inquiry", "First call", "Proposal sent", "Won", "Lost"],
+      "hiring": ["Applied", "Interview", "Offer", "Hired", "Rejected"],
+      "investors": ["Contacted", "First meeting", "Checks", "Committed", "Passed"],
+      "marketing": ["Idea", "Ongoing", "Ready", "Published"],
+      "orders": ["New", "Confirmed", "Shipped", "Paid"],
+      "partners": ["Contacted", "In talks", "Active", "Paused"],
+      "projects": ["Planned", "Ongoing", "Review", "Completed"],
+      "support": ["New", "Ongoing", "Waiting for customer", "Solved"]
     },
     "website": {
       "change": "Change",
-      "eta": "Usually takes 1 to 2 minutes. You can start answering in the meantime.",
+      "eta": "Usually takes 1 to 2 minutes.",
       "finding": "Finding pages on {website}",
+      "found": "{count, plural, =0 {No pages found on {website}} one {Found # page on {website}} other {Found # pages on {website}}}",
       "hint": "Optional. We read your public website and suggest answers, so you mostly just confirm.",
       "read": "Read website",
       "reading": "Reading {website}: {read} of {total} pages",
+      "readPages": "{count, plural, =0 {No pages read} one {Read # page} other {Read # pages}}",
+      "suggested": "Suggested answers",
       "suggestedHint": "Check the marked answers and change anything that's off.",
       "suggesting": "Suggesting answers from {website}",
       "title": "Fill in answers from your website"

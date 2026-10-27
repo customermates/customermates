@@ -2,10 +2,14 @@ import type { Page } from "@playwright/test";
 
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 
-import { DEMO_COMPANY_ID, DEMO_DASHBOARDS, DEMO_MEMBERS, expect, test } from "./demo-seed";
+import { findSolution } from "../../core/solutions/solution-catalog";
+import { appPath } from "./app-paths";
+import { DEMO_COMPANY_ID, DEMO_MEMBERS, DEMO_SLUG, expect, test } from "./demo-seed";
 import { localE2eEnvironment } from "./local-environment";
 
-const REVENUE = DEMO_DASHBOARDS.find((dashboard) => dashboard.name === "Revenue and renewals")!.id;
+const DASHBOARD = appPath(DEMO_SLUG, "/dashboard");
+
+const SALES_DASHBOARD = appPath(findSolution("sales-pipeline").workspaceSlugs.en, "/dashboard");
 
 /** Requests the page sends to another origin. Seeded avatar photos point at the public website. */
 function externalRequests(page: Page) {
@@ -25,7 +29,7 @@ test("the map widget draws its basemap and pins from the app's own origin", asyn
   page.on("response", (response) => {
     if (new URL(response.url()).pathname === "/maps/v1/world.json") basemap.push(response.status());
   });
-  await page.goto(`/en/dashboard?view=${REVENUE}`);
+  await page.goto(DASHBOARD);
   const card = page.locator('[data-widget-kind="map"]');
   await card.scrollIntoViewIfNeeded();
   await expect.poll(() => basemap, { message: "the world basemap loads from public/maps" }).toEqual([200]);
@@ -45,7 +49,23 @@ test("the map widget draws its basemap and pins from the app's own origin", asyn
       .poll(async () => (await pin.count()) > 0 || (await viewport.getAttribute("data-zoom")) !== zoom)
       .toBe(true);
   }
-  await pin.click();
+  const frame = await viewport.boundingBox();
+  let target = pin;
+  for (const candidate of await card.locator('[data-map-marker="pin"]').all()) {
+    const box = await candidate.boundingBox();
+    const inside =
+      frame &&
+      box &&
+      box.x >= frame.x + 48 &&
+      box.y >= frame.y + 8 &&
+      box.x + box.width <= frame.x + frame.width - 8 &&
+      box.y + box.height <= frame.y + frame.height - 24;
+    if (inside) {
+      target = candidate;
+      break;
+    }
+  }
+  await target.click();
   const details = page.locator("[data-map-widget-popover]");
   await expect(details).toBeVisible();
   // A plain click opens the record drawer over the dashboard; the link keeps the record page for a new tab.
@@ -64,10 +84,11 @@ test("the calendar widgets list upcoming records and open a day of the month ove
   page,
   errors,
 }) => {
-  await page.goto("/en/dashboard");
+  await page.goto(DASHBOARD);
   const upcoming = page.locator('[data-calendar-layout="upcoming"]');
   await upcoming.scrollIntoViewIfNeeded();
   await expect(upcoming.locator("[data-calendar-item]").first()).toBeVisible();
+  await page.goto(SALES_DASHBOARD);
   const month = page.locator('[data-calendar-layout="month"]');
   await month.scrollIntoViewIfNeeded();
   const busyDay = month.locator('[data-calendar-day]:not([data-heat="0"])').first();
@@ -80,7 +101,7 @@ test("the calendar widgets list upcoming records and open a day of the month ove
   await expect(drawer).toBeVisible();
   await expect(drawer.getByRole("heading", { name: day, exact: true })).toBeVisible();
   await expect(drawer.locator("[data-linked-records-summary]")).toHaveText(
-    `Deals closing this month · ${count} contributing record${count === "1" ? "" : "s"}`,
+    `Closing this month · ${count} contributing record${count === "1" ? "" : "s"}`,
   );
   await expect(drawer.locator("[data-linked-records-table] [data-row-id]")).toHaveCount(Math.min(Number(count), 25));
   const preview = drawer.locator('[data-widget-detail-chart] [data-calendar-layout="month"]');
@@ -98,7 +119,7 @@ test("the calendar widgets list upcoming records and open a day of the month ove
   const otherDrawer = page.getByRole("dialog", { name: otherName, exact: true });
   await expect(otherDrawer.getByRole("heading", { name: otherName, exact: true })).toBeVisible();
   await expect(otherDrawer.locator("[data-linked-records-summary]")).toHaveText(
-    `Deals closing this month · ${otherCount} contributing record${otherCount === "1" ? "" : "s"}`,
+    `Closing this month · ${otherCount} contributing record${otherCount === "1" ? "" : "s"}`,
   );
   await expect(otherDrawer.locator("[data-linked-records-table] [data-row-id]")).toHaveCount(
     Math.min(Number(otherCount), 25),
@@ -140,7 +161,7 @@ test("the widget builder creates a map widget and an upcoming calendar widget", 
   test.setTimeout(180000);
   const names = [`Map from the builder ${Date.now()}`, `Upcoming from the builder ${Date.now()}`];
   try {
-    await page.goto(`/en/dashboard?view=${REVENUE}`);
+    await page.goto(DASHBOARD);
     for (const [starter, name] of [
       ["#widget-kind-map", names[0]],
       ["#widget-kind-calendar-upcoming", names[1]],

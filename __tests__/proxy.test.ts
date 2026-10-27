@@ -385,6 +385,39 @@ describe("automatic demo authentication proxy", () => {
     expect(response.headers.get("location")).toBe(location);
   });
 
+  it.each([
+    ["/en/inbox?threadId=t1", "/en/dashboard?open=%2Finbox&threadId=t1"],
+    [
+      "/en/records/30000000-0000-4000-8000-000000000001/40000000-0000-4000-8000-000000000001?tab=notes",
+      "/en/dashboard?open=%2Frecords%2F30000000-0000-4000-8000-000000000001%2F40000000-0000-4000-8000-000000000001&tab=notes",
+    ],
+    ["/en/settings/billing", "/en/dashboard?open=%2Fsettings%2Fbilling"],
+    ["/en/wiki?page=p1", "/en/dashboard?open=%2Fwiki&page=p1"],
+  ])("sends the unslugged app link %s through the workspace entry", async (path, location) => {
+    mockEnv.APP_MODE = "cloud";
+    mocks.getSession.mockResolvedValue({
+      session: { expiresAt: new Date(Date.now() + 60_000) },
+      user: { email: "member@example.com" },
+    });
+
+    const response = await proxy(request(path, "app.session_token=member"));
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(`http://localhost:4000${location}`);
+    expect(mocks.intlMiddleware).not.toHaveBeenCalled();
+  });
+
+  it("sends a signed-out unslugged app link to sign-in with the original path as callback", async () => {
+    mockEnv.APP_MODE = "cloud";
+
+    const response = await proxy(request("/en/settings/profile?x=1"));
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(
+      `http://localhost:4000/en/auth/signin?callbackURL=${encodeURIComponent("http://localhost:4000/en/settings/profile?x=1")}`,
+    );
+  });
+
   it("prefers the signed-in reader's saved locale over the root they finished onboarding on", async () => {
     mockEnv.APP_MODE = "cloud";
     mocks.getSession.mockResolvedValue({

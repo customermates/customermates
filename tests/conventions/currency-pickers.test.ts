@@ -8,7 +8,7 @@ import { REPO_ROOT } from "./walk";
 describe("currency picker catalog", () => {
   it("uses the shared searchable currency autocomplete on the field picker", () => {
     const customColumn = readFileSync(
-      join(REPO_ROOT, "app/[locale]/(protected)/configure/components/field-modal.tsx"),
+      join(REPO_ROOT, "app/[locale]/(protected)/w/[workspace]/configure/components/field-modal.tsx"),
       "utf8",
     );
     const currencyAutocomplete = readFileSync(

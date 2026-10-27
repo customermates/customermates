@@ -24,6 +24,7 @@ import { MoveWikiPageSchema } from "@/features/wiki/move-wiki-page.interactor";
 import { env } from "@/env";
 
 import { UNTRUSTED_RECORD_TEXT_HANDLING, untrustedText } from "./untrusted-record-content";
+import { mcpWorkspaceSlug } from "./mcp-workspace-slug";
 
 import {
   formatDatesInResponse,
@@ -202,11 +203,12 @@ function wikiPageSummary(
     createdAt: Date;
     updatedAt: Date;
   } & WikiPageKindFields,
+  slug: string,
 ) {
   return {
     id: page.id,
     title: page.title,
-    url: wikiPageUrl(env.BASE_URL, page.id),
+    url: wikiPageUrl(env.BASE_URL, slug, page.id),
     ...wikiPageKindOutput(page),
     createdAt: page.createdAt,
     updatedAt: page.updatedAt,
@@ -221,6 +223,7 @@ function wikiPageChunk(
     createdAt: Date;
     updatedAt: Date;
   } & WikiPageKindFields,
+  slug: string,
   requestedOffset: number,
   section?: { end: number; label: string },
 ) {
@@ -229,6 +232,7 @@ function wikiPageChunk(
   const discoveredLinks = extractWikiPageLinks(
     section ? source.slice(requestedOffset) : page.markdown,
     env.BASE_URL,
+    slug,
     6,
   );
   let links = discoveredLinks.slice(0, 5);
@@ -237,7 +241,7 @@ function wikiPageChunk(
     formatDatesInResponse({
       id: page.id,
       title: page.title,
-      url: wikiPageUrl(env.BASE_URL, page.id),
+      url: wikiPageUrl(env.BASE_URL, slug, page.id),
       ...wikiPageKindOutput(page),
       ...(section ? { section: section.label } : {}),
       offset,
@@ -404,10 +408,16 @@ export const manageWikiPagesTool = {
           `Unknown section anchor "${parsed.data.anchor}". Anchors: ${anchored.anchors.slice(0, WIKI_MCP_ANCHOR_HINTS).join(", ")}`,
         );
       }
+      const slug = await mcpWorkspaceSlug();
       const chunk =
         anchored?.offset !== undefined
-          ? wikiPageChunk(outcome.data, Math.max(anchored.offset, Math.min(parsed.data.offset, anchored.end)), anchored)
-          : wikiPageChunk(outcome.data, parsed.data.offset);
+          ? wikiPageChunk(
+              outcome.data,
+              slug,
+              Math.max(anchored.offset, Math.min(parsed.data.offset, anchored.end)),
+              anchored,
+            )
+          : wikiPageChunk(outcome.data, slug, parsed.data.offset);
       return chunk ? toonResult(chunk) : mcpMessageFailure(WIKI_CHUNK_SIZE_FAILURE);
     }
 
@@ -424,23 +434,23 @@ export const manageWikiPagesTool = {
     if (params.action === "create") {
       const parsed = CreateSchema.safeParse(params);
       if (!parsed.success) return mcpValidationFailure(parsed.error);
-      return runInteractor(getCreateWikiPagesInteractor().invoke(parsed.data), (pages) =>
-        toonResult({
-          items: formatDatesInResponse(pages.map(wikiPageSummary)),
-        }),
-      );
+      const outcome = await getCreateWikiPagesInteractor().invoke(parsed.data);
+      if (!outcome.ok) return mcpInteractorFailure(outcome.error);
+      const slug = await mcpWorkspaceSlug();
+      return toonResult({
+        items: formatDatesInResponse(outcome.data.map((page) => wikiPageSummary(page, slug))),
+      });
     }
 
     if (params.action === "update") {
       const parsed = UpdateSchema.safeParse(params);
       if (!parsed.success) return mcpValidationFailure(parsed.error);
-      return runInteractor(
-        getUpdateWikiPageInteractor().invoke({
-          ...parsed.data,
-          expectedUpdatedAt: new Date(parsed.data.expectedUpdatedAt),
-        }),
-        (page) => toonResult(formatDatesInResponse(wikiPageSummary(page))),
-      );
+      const outcome = await getUpdateWikiPageInteractor().invoke({
+        ...parsed.data,
+        expectedUpdatedAt: new Date(parsed.data.expectedUpdatedAt),
+      });
+      if (!outcome.ok) return mcpInteractorFailure(outcome.error);
+      return toonResult(formatDatesInResponse(wikiPageSummary(outcome.data, await mcpWorkspaceSlug())));
     }
 
     if (params.action === "move") {

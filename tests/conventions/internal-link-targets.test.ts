@@ -22,12 +22,15 @@ import { LANDING_HUBS } from "@/core/seo/landing-hubs";
 import {
   CONTENT_LOCALES,
   DEFAULT_LOCALE,
-  type ContentLocale,
+  MARKETING_LOCALES,
+  type MarketingLocale,
   type RoutingLocale,
   isContentLocale,
+  isMarketingLocale,
+  isMarketingPathPublished,
   routingLocaleFromUrlSegment,
 } from "@/i18n/locale-registry";
-import { PUBLIC_ROUTES } from "@/i18n/routing";
+import { PUBLIC_ROUTES, isMarketingPathname } from "@/i18n/routing";
 
 vi.mock("@/core/fumadocs/source", async () => {
   const { existsSync, readdirSync } = await import("node:fs");
@@ -109,7 +112,7 @@ const MARKDOWN_DEFINITION = /^\s*\[[^\]\r\n]+\]:\s*(?:<([^>\r\n]+)>|(\S+))/gmu;
 type ContentLink = {
   file: string;
   line: number;
-  sourceLocale: ContentLocale;
+  sourceLocale: MarketingLocale;
   target: string;
 };
 
@@ -179,7 +182,7 @@ function frontmatterHref(raw: string, file: string, line: number): string {
 function linksInDocument(
   source: string,
   file: string,
-  sourceLocale: ContentLocale,
+  sourceLocale: MarketingLocale,
 ): ContentLink[] {
   const links: ContentLink[] = [];
   const seen = new Set<string>();
@@ -241,10 +244,12 @@ export function normalizeTarget(target: string): NormalizedTarget | null {
   };
 }
 
-function contentBackedTargets(locale: ContentLocale): Set<string> {
+function contentBackedTargets(locale: MarketingLocale): Set<string> {
   const targets = new Set<string>(
     Object.keys(CODE_BACKED_ROUTE_FILES).filter(
-      (route) => !route.includes(":"),
+      (route) =>
+        !route.includes(":") &&
+        (isContentLocale(locale) || !isMarketingPathname(route)),
     ),
   );
 
@@ -264,7 +269,13 @@ function contentBackedTargets(locale: ContentLocale): Set<string> {
     }
   }
 
-  return targets;
+  return new Set(
+    [...targets].filter(
+      (target) =>
+        !isMarketingPathname(target) ||
+        isMarketingPathPublished(locale, target),
+    ),
+  );
 }
 
 function hasValidHubTarget(target: NormalizedTarget): boolean {
@@ -292,15 +303,29 @@ function matchesCodeBackedRoute(path: string): boolean {
   });
 }
 
+function linkTargetLocale(
+  normalized: NormalizedTarget,
+  sourceLocale: MarketingLocale,
+): MarketingLocale | null {
+  if (normalized.locale)
+    return isMarketingPathPublished(normalized.locale, normalized.path)
+      ? normalized.locale
+      : null;
+  return isMarketingPathPublished(sourceLocale, normalized.path)
+    ? sourceLocale
+    : DEFAULT_LOCALE;
+}
+
 function targetResolves(
   target: string,
-  sourceLocale: ContentLocale,
-  targetsByLocale: Map<ContentLocale, Set<string>>,
+  sourceLocale: MarketingLocale,
+  targetsByLocale: Map<MarketingLocale, Set<string>>,
 ) {
   const normalized = normalizeTarget(target);
   if (!normalized) return true;
-  if (normalized.locale && !isContentLocale(normalized.locale)) return false;
-  const targetLocale = normalized.locale ?? sourceLocale;
+  if (normalized.locale && !isMarketingLocale(normalized.locale)) return false;
+  const targetLocale = linkTargetLocale(normalized, sourceLocale);
+  if (!targetLocale) return false;
   const published =
     targetsByLocale.get(targetLocale)?.has(normalized.path) ||
     matchesCodeBackedRoute(normalized.path);
@@ -317,7 +342,7 @@ function contentLinks(): ContentLink[] {
     const source = readFileSync(path, "utf8");
     const file = relative(REPO_ROOT, path).split(sep).join("/");
     const localeSegment = relative(CONTENT_ROOT, path).split(sep)[1];
-    if (!isContentLocale(localeSegment))
+    if (!isMarketingLocale(localeSegment))
       throw new Error(`${file} is outside a registered content locale`);
     found.push(...linksInDocument(source, file, localeSegment));
   }
@@ -325,7 +350,7 @@ function contentLinks(): ContentLink[] {
   return found;
 }
 
-function collectionSlugs(collection: string, locale: ContentLocale): string[] {
+function collectionSlugs(collection: string, locale: MarketingLocale): string[] {
   const directory = join(CONTENT_ROOT, collection, locale);
   if (!existsSync(directory)) return [];
 
@@ -354,7 +379,7 @@ describe("internal link targets", () => {
   it("resolves every literal internal link in MDX, including frontmatter CTAs", () => {
     const links = contentLinks();
     const targetsByLocale = new Map(
-      CONTENT_LOCALES.map((locale) => [locale, contentBackedTargets(locale)]),
+      MARKETING_LOCALES.map((locale) => [locale, contentBackedTargets(locale)]),
     );
     const problems = links
       .filter(
@@ -483,7 +508,7 @@ describe("internal link targets", () => {
 
   it("accepts only published paginated hub paths and rejects the legacy page query", () => {
     const targetsByLocale = new Map(
-      CONTENT_LOCALES.map((locale) => [locale, contentBackedTargets(locale)]),
+      MARKETING_LOCALES.map((locale) => [locale, contentBackedTargets(locale)]),
     );
 
     expect(
@@ -501,9 +526,28 @@ describe("internal link targets", () => {
     expect(targetResolves("/contact", DEFAULT_LOCALE, targetsByLocale)).toBe(
       true,
     );
-    expect(targetResolves("/fr/pricing", DEFAULT_LOCALE, targetsByLocale)).toBe(
+    expect(targetResolves("/es/pricing", DEFAULT_LOCALE, targetsByLocale)).toBe(
       false,
     );
+  });
+
+  it("resolves partial-locale links inside their scope or through the default-locale fallback", () => {
+    const targetsByLocale = new Map(
+      MARKETING_LOCALES.map((locale) => [locale, contentBackedTargets(locale)]),
+    );
+    const resolves = (target: string, source: MarketingLocale) =>
+      targetResolves(target, source, targetsByLocale);
+
+    expect(resolves("/fr/pricing", DEFAULT_LOCALE)).toBe(true);
+    expect(resolves("/fr/features/pipeline", DEFAULT_LOCALE)).toBe(true);
+    expect(resolves("/fr/blog", DEFAULT_LOCALE)).toBe(false);
+    expect(resolves("/fr/for/consultants", DEFAULT_LOCALE)).toBe(false);
+    expect(resolves("/fr/contact", DEFAULT_LOCALE)).toBe(false);
+    expect(resolves("/for/agencies", "fr")).toBe(true);
+    expect(resolves("/docs/app-records", "fr")).toBe(true);
+    expect(resolves("/for/consultants", "fr")).toBe(true);
+    expect(resolves("/auth/signup", "fr")).toBe(true);
+    expect(resolves("/for/not-a-page", "fr")).toBe(false);
   });
 
   it("normalizes locale prefixes, fragments, and trailing slashes without losing queries", () => {

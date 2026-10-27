@@ -37,7 +37,11 @@ function title(entry: PlannerEntry): string {
     : entry.sourceLabel;
 }
 
-export function plannerICalendar(entries: PlannerEntry[], baseUrl: string, stamp: Date): string {
+export function plannerICalendar(
+  entries: PlannerEntry[],
+  recordUrl: (typeId: string, recordId: string) => string,
+  stamp: Date,
+): string {
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
@@ -67,8 +71,7 @@ export function plannerICalendar(entries: PlannerEntry[], baseUrl: string, stamp
       );
     }
 
-    if (item.record)
-      lines.push(`URL:${baseUrl.replace(/\/$/u, "")}/records/${item.record.ref.typeId}/${item.record.ref.recordId}`);
+    if (item.record) lines.push(`URL:${recordUrl(item.record.ref.typeId, item.record.ref.recordId)}`);
     if (item.location) lines.push(`LOCATION:${escapeText(item.location)}`);
     lines.push("END:VEVENT");
   }

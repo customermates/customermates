@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { collectPageErrors, expect, test } from "./fixtures";
 import { invokesServerAction, serverActionIds } from "./server-actions";
 import { e2eAppMode } from "./workspace-switching";
+import { pagePath } from "./app-paths";
 
 test.skip(e2eAppMode() === "self-hosted", "The Inbox is available on Customermates Cloud only");
 
@@ -36,10 +37,10 @@ test("losing Inbox permission leaves the thread private without generic backgrou
     limit: 20,
   });
   const accountActionIds = serverActionIds(
-    "app/[locale]/(protected)/settings/(account)/channels/actions.ts",
+    "app/[locale]/(protected)/w/[workspace]/settings/(account)/channels/actions.ts",
     "refreshConnectedAccountsAction",
   );
-  const detailActionIds = serverActionIds("app/[locale]/(protected)/inbox/actions.ts", "getMessagingThreadAction");
+  const detailActionIds = serverActionIds("app/[locale]/(protected)/w/[workspace]/inbox/actions.ts", "getMessagingThreadAction");
   let releaseAccountLoad!: () => void;
   const accountLoadHeld = new Promise<void>((resolve) => (releaseAccountLoad = resolve));
   let signalAccountLoad!: () => void;
@@ -66,7 +67,7 @@ test("losing Inbox permission leaves the thread private without generic backgrou
       }).observe(document.documentElement, { childList: true, subtree: true, characterData: true });
     });
   });
-  await page.goto(`/de/inbox?threadId=${threadId}`);
+  await page.goto(pagePath(page, `/inbox?threadId=${threadId}`, "de"));
   await accountLoadStarted;
   await page
     .getByRole("button", { name: /Thread-Einstellungen|Konversationseinstellungen|Einstellungen/i })

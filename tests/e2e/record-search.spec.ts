@@ -1,5 +1,6 @@
 import { recordItem } from "./record-rows";
 import { randomUUID } from "node:crypto";
+import { anyWorkspaceUrlPattern } from "./app-paths";
 import { addFromConfigure, openConfigure } from "./configure";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
@@ -17,7 +18,7 @@ test("searches custom records across pages, opens generic drawers, and attaches 
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("textbox", { name: "Name", exact: false }).first().fill("Projects");
   await dialog.getByRole("button", { name: "Save", exact: true }).first().click();
-  await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
+  await expect(page).toHaveURL(anyWorkspaceUrlPattern("/records/[a-f0-9-]+$"));
   await expect(dialog).not.toBeVisible();
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
   await page.locator("#records-add").click();

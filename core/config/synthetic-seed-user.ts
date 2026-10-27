@@ -19,7 +19,9 @@ export const SYNTHETIC_COMPANY_USERS = {
   },
 } as const;
 
-export const SYNTHETIC_SECOND_WORKSPACE_NAME = "Bergmann Steuern";
+export function fixtureWorkspaceSlug(companyId: string): string {
+  return `ws-${companyId.replace(/-/g, "").toLowerCase()}`;
+}
 
 export const SYNTHETIC_SHARED_USER_PASSWORD = "local-demo-password";
 

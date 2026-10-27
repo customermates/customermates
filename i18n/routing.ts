@@ -2,7 +2,9 @@ import type { NextRequest } from "next/server";
 
 import { defineRouting } from "next-intl/routing";
 
-import { APP_LOCALES, CONTENT_LOCALES, DEFAULT_LOCALE, ROUTING_LOCALES } from "./locale-registry";
+import { APP_LOCALES, CONTENT_LOCALES, DEFAULT_LOCALE, ROUTING_LOCALES, stripLocalePrefix } from "./locale-registry";
+
+import { legacyWorkspaceEntryHref, workspacePath, workspaceSlugFromPathname } from "../core/navigation/workspace-paths";
 
 export const NOINDEX_PUBLIC_ROUTES = [
   "/auth/signin",
@@ -80,10 +82,7 @@ export const PUBLIC_ROUTES = [
 
 export const PROTECTED_ROUTES = [
   "/auth/mcp-consent",
-  "/configure",
   "/dashboard",
-  "/calendar",
-  "/inbox",
   "/legal-update",
   "/onboarding",
   "/onboarding/join",
@@ -95,25 +94,30 @@ export const PROTECTED_ROUTES = [
   "/operator/usage",
   "/operator/users",
   "/operator/workspaces",
-  "/records/:typeId",
-  "/records/:typeId/:recordId",
-  "/routines",
-  "/settings/activity",
-  "/settings/api-keys",
-  "/settings/channels",
-  "/settings/general",
-  "/settings/members",
-  "/settings/billing",
-  "/settings/profile",
-  "/settings/roles",
-  "/settings/webhooks",
-  "/settings/webhook-deliveries",
-  "/settings/workspaces",
-  "/subscription-expired",
-  "/test/error",
-  "/test/overlays",
-  "/trash",
-  "/wiki",
+  "/w/:workspace/calendar",
+  "/w/:workspace/configure",
+  "/w/:workspace/dashboard",
+  "/w/:workspace/inbox",
+  "/w/:workspace/onboarding/wizard",
+  "/w/:workspace/records/:typeId",
+  "/w/:workspace/records/:typeId/:recordId",
+  "/w/:workspace/routines",
+  "/w/:workspace/settings/activity",
+  "/w/:workspace/settings/api-keys",
+  "/w/:workspace/settings/billing",
+  "/w/:workspace/settings/channels",
+  "/w/:workspace/settings/general",
+  "/w/:workspace/settings/members",
+  "/w/:workspace/settings/profile",
+  "/w/:workspace/settings/roles",
+  "/w/:workspace/settings/webhook-deliveries",
+  "/w/:workspace/settings/webhooks",
+  "/w/:workspace/settings/workspaces",
+  "/w/:workspace/subscription-expired",
+  "/w/:workspace/test/error",
+  "/w/:workspace/test/overlays",
+  "/w/:workspace/trash",
+  "/w/:workspace/wiki",
 ] as const;
 
 const CONTENT_ROUTES = [
@@ -180,8 +184,12 @@ export function isProtectedPage(req: NextRequest) {
 export function isProtectedPathname(pathname: string) {
   const decoded = decodePathname(pathname);
   if (decoded === null) return true;
+  if (workspaceSlugFromPathname(decoded) !== null) return true;
 
-  for (const p of PROTECTED_ROUTES) if (buildLocaleAwareRegex(p).test(decoded)) return true;
+  const unprefixed = stripLocalePrefix(decoded);
+  const candidates =
+    legacyWorkspaceEntryHref(unprefixed, "") === null ? [decoded] : [decoded, workspacePath("_", unprefixed)];
+  for (const p of PROTECTED_ROUTES) if (candidates.some((path) => buildLocaleAwareRegex(p).test(path))) return true;
 
   return false;
 }

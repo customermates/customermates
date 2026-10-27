@@ -80,15 +80,15 @@ function isSaveCancelEditor(source: string, messages: ReadonlyMap<string, string
 }
 
 const EXEMPT: Record<string, { rules: Rule[]; reason: string }> = {
-  "app/[locale]/(protected)/test/overlays/overlay-gallery.tsx": {
+  "app/[locale]/(protected)/w/[workspace]/test/overlays/overlay-gallery.tsx": {
     rules: ["confirm-primitive"],
     reason: "test-only gallery that renders the raw overlay primitives",
   },
-  "app/[locale]/(protected)/inbox/components/thread-reply-composer.tsx": {
+  "app/[locale]/(protected)/w/[workspace]/inbox/components/thread-reply-composer.tsx": {
     rules: ["submit-button"],
     reason: "message composer whose submit sends the message",
   },
-  "app/[locale]/(protected)/settings/(account)/components/connect-upsell-modal.tsx": {
+  "app/[locale]/(protected)/w/[workspace]/settings/(account)/components/connect-upsell-modal.tsx": {
     rules: ["footer-primitive", "cancel-label"],
     reason: "upgrade prompt with a plans call to action, not a save form",
   },

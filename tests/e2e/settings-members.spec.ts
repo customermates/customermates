@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { pagePath } from "./app-paths";
 import { collectPageErrors, expect, test } from "./fixtures";
 import { openItemMenu } from "./item-actions";
 import { rowActionLabels, runRowAction } from "./record-rows";
@@ -23,7 +24,7 @@ test("the members row menu removes another member from the workspace after a con
     [pendingId, workspace.companyId, `pending-${pendingId}@example.test`],
   );
 
-  await page.goto("/en/settings/members");
+  await page.goto(pagePath(page, "/settings/members"));
   const memberRow = (name: string) => page.locator("tr[data-row-id], li[data-row-id]").filter({ hasText: name });
   await expect(async () => {
     expect(await rowActionLabels(page, memberRow("Invited Member"), "Invited Member")).toEqual([

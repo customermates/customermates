@@ -79,13 +79,14 @@ describe("calendar widget queries", () => {
     expect(CalendarWidgetQuerySchema.safeParse({ ...calendar(), days: 91 }).success).toBe(false);
   });
 
-  it("accepts date and date-time fields and a number amount for sums only", () => {
+  it("accepts date, date-time and range fields and a number amount for sums only", () => {
     expect(calendarWidgetQueryIssue(calendar(), model())).toBeNull();
     expect(calendarWidgetQueryIssue(calendar({ dateFieldId: FIELDS.meeting.id }), model())).toBeNull();
+    expect(calendarWidgetQueryIssue(calendar({ dateFieldId: FIELDS.period.id }), model())).toBeNull();
     expect(
       calendarWidgetQueryIssue(calendar({ aggregation: "sum", amountFieldId: FIELDS.amount.id }), model()),
     ).toBeNull();
-    for (const dateFieldId of [FIELDS.period.id, FIELDS.name.id, FIELDS.archived.id]) {
+    for (const dateFieldId of [FIELDS.name.id, FIELDS.archived.id]) {
       expect(calendarWidgetQueryIssue(calendar({ dateFieldId }), model())).toEqual({
         code: CustomErrorCode.recordValueInvalid,
         path: ["calendarQuery", "dateFieldId"],

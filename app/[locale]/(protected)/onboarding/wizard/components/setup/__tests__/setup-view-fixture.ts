@@ -85,6 +85,7 @@ export function setupPlan(): SetupPlan {
       ],
     },
     knowledgeBase: { pages: [{ key: "overview", kind: "overview", title: "Company overview", sections: ["About"] }] },
+    calendar: { sources: [] },
     importMapping: null,
   } as SetupPlan;
 }
@@ -118,7 +119,6 @@ export function setupView(overrides: Partial<WorkspaceSetupView> = {}): Workspac
       prefill: "completed",
       prefillError: null,
       followUps: "idle",
-      confirmedScreens: 0,
       followUpQuestions: [],
       followUpAnswers: [],
     },

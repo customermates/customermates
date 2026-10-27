@@ -328,10 +328,6 @@ export const auth = betterAuth({
   ],
 });
 
-export async function setSessionActiveCompany(sessionId: string, companyId: string | null): Promise<void> {
-  await prisma.authSession.updateMany({ where: { id: sessionId }, data: { activeCompanyId: companyId } });
-}
-
 export async function bindApiKeyToCompany(keyId: string, authUserId: string, companyId: string): Promise<boolean> {
   const bound = await prisma.apikey.updateMany({
     where: { id: keyId, referenceId: authUserId, companyId: null },

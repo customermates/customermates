@@ -1,7 +1,8 @@
 import type { Page } from "@playwright/test";
 
+import { appPath } from "./app-paths";
 import { configureDrawer, confirmDeletion, openConfigure, openConfigureRow } from "./configure";
-import { DEMO_COMPANY_ID, demoId, expect, test } from "./demo-seed";
+import { DEMO_COMPANY_ID, DEMO_SLUG, DEMO_CONTENT, demoId, expect, test } from "./demo-seed";
 import { runNamedRowAction } from "./record-rows";
 import { openTrash, trashRow } from "./trash";
 
@@ -20,12 +21,16 @@ type TrashedItem = {
   deletedBy: string;
 };
 
+const DUPLICATE_OF = DEMO_CONTENT.records.organization?.find(({ key }) => key === "kessler")?.values.name;
+const ARCHIVED_FIELD = DEMO_CONTENT.fields.find(({ archived }) => archived);
+if (!DUPLICATE_OF || !ARCHIVED_FIELD) throw new Error("The team workspace lost its Trash fixtures");
+
 const SEEDED = [
-  { label: "Hansen Elevator Service (duplicate)", kind: "Record in Organizations", by: "Sofia Rossi" },
+  { label: `${DUPLICATE_OF} (duplicate)`, kind: "Record in Companies", by: "Sofia Rossi" },
   { label: "Badge Scan", kind: "Record in Contacts", by: "Clara Neumann" },
-  { label: "Call back about the cancelled pilot", kind: "Record in Tasks", by: "Marco Silva" },
+  { label: "Call back about the cancelled site visit", kind: "Record in Tasks", by: "Marco Silva" },
   { label: "Q1 pipeline (old)", kind: "View in Deals", by: "Max Bergmann" },
-  { label: "Legacy account ID", kind: "Field in Organizations", by: "Max Bergmann" },
+  { label: ARCHIVED_FIELD.label, kind: "Field in Companies", by: "Max Bergmann" },
 ];
 
 async function restore(page: Page, label: string) {
@@ -53,7 +58,7 @@ test("the seeded Trash lists records, a view and a field that restore and move b
      WHERE t."companyId"=$1
        AND (t."targetId" LIKE '4d000000-%' OR t."targetId" LIKE '4d100000-%' OR t."targetId"=$2)
      ORDER BY t."targetId"`,
-    [DEMO_COMPANY_ID, demoId("organization.legacyAccountId")],
+    [DEMO_COMPANY_ID, demoId(ARCHIVED_FIELD.key)],
   );
   expect(items.map(({ label }) => label).sort()).toEqual(SEEDED.map(({ label }) => label).sort());
 
@@ -71,11 +76,11 @@ test("the seeded Trash lists records, a view and a field that restore and move b
 
     // Restored: the records open, the view is back on Deals and the field is back on Organizations.
     for (const item of items.filter(({ kind }) => kind === "record")) {
-      await page.goto(`/en/records/${item.typeId}/${item.targetId}`);
+      await page.goto(appPath(DEMO_SLUG, `/records/${item.typeId}/${item.targetId}`));
       await expect(page.getByRole("main").getByText(item.label, { exact: true }).first()).toBeVisible();
     }
     const view = items.find(({ kind }) => kind === "view") as TrashedItem;
-    await page.goto(`/en/records/${demoId("deal")}?view=${view.targetId}`);
+    await page.goto(appPath(DEMO_SLUG, `/records/${demoId("deal")}?view=${view.targetId}`));
     await expect(page.locator("[data-joins-top-bar]").getByText(view.label, { exact: true })).toBeVisible();
     const field = items.find(({ kind }) => kind === "field") as TrashedItem;
     await openConfigure(page, field.typeId);
@@ -94,13 +99,13 @@ test("the seeded Trash lists records, a view and a field that restore and move b
     for (const item of items) {
       if (!(await live(item))) continue;
       if (item.kind === "record") {
-        await page.goto(`/en/records/${item.typeId}/${item.targetId}`);
+        await page.goto(appPath(DEMO_SLUG, `/records/${item.typeId}/${item.targetId}`));
         await page.getByRole("main").getByRole("button", { name: "Delete", exact: true }).click();
         await confirmDeletion(page);
         // The app leaves the deleted record; wait for that before navigating on.
         await expect(page).not.toHaveURL(new RegExp(item.targetId));
       } else if (item.kind === "view") {
-        await page.goto(`/en/records/${item.typeId}?view=${item.targetId}`);
+        await page.goto(appPath(DEMO_SLUG, `/records/${item.typeId}?view=${item.targetId}`));
         await expect(page.locator(`[data-focus-target="view:${item.targetId}"]`)).toHaveAttribute(
           "aria-current",
           "page",
@@ -116,7 +121,7 @@ test("the seeded Trash lists records, a view and a field that restore and move b
       } else {
         await openConfigure(page, item.typeId);
         await openConfigureRow(page, "Fields", item.label);
-        // Deleting the field also cleans it out of three seeded views, which takes a while on the demo workspace.
+        // Deleting a field also cleans it out of the views that show it, which can take a while.
         await configureDrawer(page).getByRole("button", { name: "Delete field", exact: true }).click();
         const confirmation = page.getByRole("alertdialog");
         const confirm = confirmation.getByRole("button", { name: "Delete", exact: true });
@@ -135,16 +140,18 @@ test("the seeded Trash lists records, a view and a field that restore and move b
          WHERE "companyId"=$1 AND kind::text=$2 AND "targetId"=$3`,
         [DEMO_COMPANY_ID, item.kind, item.targetId, item.deletedById, item.deletedAt, item.expiresAt],
       );
-      if (item.kind === "record")
+      if (item.kind === "record") {
         await database.query(
           `UPDATE "CrmRecord" SET "deletedAt"=$3 WHERE "companyId"=$1 AND id=$2 AND "deletedAt" IS NOT NULL`,
           [DEMO_COMPANY_ID, item.targetId, item.deletedAt],
         );
-      if (item.kind === "view")
+      }
+      if (item.kind === "view") {
         await database.query(
           `UPDATE "DataView" SET "deletedAt"=$3 WHERE "companyId"=$1 AND id=$2 AND "deletedAt" IS NOT NULL`,
           [DEMO_COMPANY_ID, item.targetId, item.deletedAt],
         );
+      }
     }
   }
   await openTrash(page);

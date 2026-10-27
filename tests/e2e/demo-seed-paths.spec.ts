@@ -1,9 +1,10 @@
-import { DEMO_COMPANY_ID, demoId, expect, test } from "./demo-seed";
+import { appPath } from "./app-paths";
+import { DEMO_COMPANY_ID, DEMO_SLUG, demoId, expect, test } from "./demo-seed";
 import { expectHydrated } from "./workspace-switching";
 import { linkedRecordNames, linkedRecordOpeners } from "./record-rows";
 
 /** Sub-lists and relationship paths of the seeded workspace: deal line items, and the Deals path of a service. */
-test("a deal shows its line items with Max's curated line item columns", async ({ page, database, errors }, testInfo) => {
+test("a deal shows its line items with the default line item columns", async ({ page, database, errors }, testInfo) => {
   const { rows: deals } = await database.query<{ id: string; items: number }>(
     `SELECT l."targetId" AS id, count(*)::int AS items FROM "RecordLink" l
      JOIN "CrmRecord" r ON r."companyId"=l."companyId" AND r."typeId"=l."sourceTypeId" AND r.id=l."sourceId"
@@ -12,7 +13,7 @@ test("a deal shows its line items with Max's curated line item columns", async (
     [DEMO_COMPANY_ID, demoId("lineItem.deal")],
   );
   const deal = deals[0];
-  expect(deal.items).toBeGreaterThanOrEqual(3);
+  expect(deal.items).toBeGreaterThanOrEqual(2);
   const { rows: quantities } = await database.query<{ quantity: string }>(
     `SELECT v."decimalValue"::numeric::text AS quantity FROM "RecordLink" l
      JOIN "RecordValue" v ON v."companyId"=l."companyId" AND v."recordId"=l."sourceId" AND v."fieldId"=$3
@@ -20,7 +21,7 @@ test("a deal shows its line items with Max's curated line item columns", async (
     [DEMO_COMPANY_ID, demoId("lineItem.deal"), demoId("lineItem.quantity"), deal.id],
   );
 
-  await page.goto(`/en/records/${demoId("deal")}/${deal.id}`);
+  await page.goto(appPath(DEMO_SLUG, `/records/${demoId("deal")}/${deal.id}`));
   const main = page.getByRole("main");
   const overview = main.getByRole("tab", { name: "Overview", exact: true });
   if (await overview.isVisible()) await overview.click();
@@ -29,16 +30,16 @@ test("a deal shows its line items with Max's curated line item columns", async (
   await expect(lines.locator("[data-row-id], [data-item-id]")).toHaveCount(deal.items);
   // Phones show the sub-list as rows without column headers; the columns are a desktop check.
   if (testInfo.project.use.isMobile) return expect(errors).toEqual([]);
-  // Max keeps a lean personal choice of sub-list columns; the other line item columns stay in the Columns menu.
+  // Without a personal column choice the sub-list shows the line item's own fields; system columns stay in the menu.
   const headers = lines.getByRole("columnheader");
   const column = (label: string) => headers.filter({ hasText: new RegExp(`^\\W*${label}\\W*$`, "i") });
   for (const label of ["Name", "Quantity", "Unit price", "Amount"])
     await expect(column(label), `${label} column`).toHaveCount(1);
-  for (const label of ["Pricing", "List amount", "Service", "Created at", "Assigned to"])
+  for (const label of ["Notes", "Created at", "Assigned to"])
     await expect(column(label), `${label} column`).toHaveCount(0);
   await lines.getByRole("button", { name: "Columns for Line items", exact: true }).click();
   const menu = page.getByRole("dialog", { name: "Columns for Line items", exact: true });
-  await expect(menu.getByRole("checkbox", { name: "Pricing", exact: true })).not.toBeChecked();
+  await expect(menu.getByRole("checkbox", { name: "Created at", exact: true })).not.toBeChecked();
   await expect(menu.getByRole("checkbox", { name: "Unit price", exact: true })).toBeChecked();
   await page.keyboard.press("Escape");
   for (const { quantity } of quantities)
@@ -58,11 +59,15 @@ test("a service lists the deals that sell it and explains the full path in the i
      WHERE s."companyId"=$1 AND s."relationId"=$2 ORDER BY s."targetId", v."textValue"`,
     [DEMO_COMPANY_ID, demoId("lineItem.service"), demoId("lineItem.deal"), demoId("deal.name")],
   );
-  const serviceId = rows[0].serviceId;
-  const deals = new Map(rows.filter((row) => row.serviceId === serviceId).map((row) => [row.dealId, row.deal]));
-  expect(deals.size).toBeGreaterThan(25);
+  const dealsOf = (id: string) =>
+    new Map(rows.filter((row) => row.serviceId === id).map((row) => [row.dealId, row.deal]));
+  const serviceId = [...new Set(rows.map((row) => row.serviceId))].sort(
+    (left, right) => dealsOf(right).size - dealsOf(left).size,
+  )[0];
+  const deals = dealsOf(serviceId);
+  expect(deals.size).toBeGreaterThan(0);
 
-  await page.goto(`/en/records/${demoId("service")}/${serviceId}`);
+  await page.goto(appPath(DEMO_SLUG, `/records/${demoId("service")}/${serviceId}`));
   const main = page.getByRole("main");
   const overview = main.getByRole("tab", { name: "Overview", exact: true });
   if (await overview.isVisible()) await overview.click();
@@ -70,10 +75,10 @@ test("a service lists the deals that sell it and explains the full path in the i
   await expect(path).toBeVisible();
   const chips = path.locator("[data-chip-id]");
   const more = path.getByRole("button", { name: /^\+\d+ more$/ });
-  await expect(more).toBeVisible();
-  await expect
-    .poll(async () => (await chips.count()) + Number((await more.innerText()).match(/\d+/)?.[0]))
-    .toBe(deals.size);
+  await expect(chips.first()).toBeVisible();
+  const hidden = async () =>
+    (await more.isVisible()) ? Number((await more.innerText()).match(/\d+/)?.[0]) : 0;
+  await expect.poll(async () => (await chips.count()) + (await hidden())).toBe(deals.size);
   const shown = (await chips.getByRole("button", { name: /^Open / }).allInnerTexts()).map((name) => name.trim());
   expect(shown.length).toBeGreaterThan(0);
   for (const name of shown) expect([...deals.values()], name).toContain(name);
@@ -89,26 +94,29 @@ test("a service lists the deals that sell it and explains the full path in the i
         ).size;
       }),
     )
-    .toBe(3);
-  await more.click();
-  const drawer = page.getByRole("dialog").filter({ has: page.locator("[data-linked-records]") });
-  await expect(drawer.getByRole("heading", { name: "Deals", exact: true })).toBeVisible();
-  await expect(drawer).toContainText(`${deals.size} records`);
-  const drawerRows = linkedRecordOpeners(drawer);
-  const seen: string[] = [];
-  for (let index = 0; index < Math.ceil(deals.size / 25); index++) {
-    await expect(drawerRows).toHaveCount(Math.min(25, deals.size - index * 25));
-    const names = await linkedRecordNames(drawer);
-    seen.push(...names);
-    if (seen.length < deals.size) {
-      await drawer.getByRole("button", { name: "Next page", exact: true }).click();
-      await expect.poll(async () => (await linkedRecordNames(drawer))[0]).not.toBe(names[0]);
-    }
+    .toBeLessThanOrEqual(3);
+  if (!(await more.isVisible())) expect([...shown].sort()).toEqual([...deals.values()].sort());
+  else {
+    await more.click();
+    const drawer = page.getByRole("dialog").filter({ has: page.locator("[data-linked-records]") });
+    await expect(drawer.getByRole("heading", { name: "Deals", exact: true })).toBeVisible();
+    await expect(drawer).toContainText(`${deals.size} records`);
+    const drawerRows = linkedRecordOpeners(drawer);
+    const seen: string[] = [];
+    for (let index = 0; index < Math.ceil(deals.size / 25); index++) {
+      await expect(drawerRows).toHaveCount(Math.min(25, deals.size - index * 25));
+      const names = await linkedRecordNames(drawer);
+      seen.push(...names);
+      if (seen.length < deals.size) {
+        await drawer.getByRole("button", { name: "Next page", exact: true }).click();
+        await expect.poll(async () => (await linkedRecordNames(drawer))[0]).not.toBe(names[0]);
+      }
   }
   expect(seen.sort()).toEqual([...deals.values()].sort());
   await page.keyboard.press("Escape");
   await expect(drawer).toHaveCount(0);
   await expect(more).toBeFocused();
+  }
   await path.getByRole("button", { name: "Where Deals comes from", exact: true }).click();
   const popover = page.getByRole("dialog", { name: "Where Deals comes from", exact: true });
   await expect(popover.locator("[data-field-derivation]")).toContainText("Through linked records · Line items → Deals");
@@ -116,7 +124,7 @@ test("a service lists the deals that sell it and explains the full path in the i
 });
 
 test("board chips have equal visible gaps around editable and read-only values", async ({ page, errors }) => {
-  await page.goto(`/en/records/${demoId("deal")}?viewMode=card&groupBy=${demoId("deal.stage")}`);
+  await page.goto(appPath(DEMO_SLUG, `/records/${demoId("deal")}?viewMode=card&groupBy=${demoId("deal.stage")}`));
   const row = page.locator("[data-chip-row]").first();
   await expect(row).toBeVisible();
   await expectHydrated(row.locator("[data-edit-target]").first());

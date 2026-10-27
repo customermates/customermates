@@ -6,6 +6,7 @@ import { addFromConfigure, openConfigure, openConfigureRow, openDrawerTab, saveD
 import { expect, test, collectPageErrors } from "./fixtures";
 import { readModel } from "./api";
 import { e2eAppMode } from "./workspace-switching";
+import { companyPath } from "./app-paths";
 
 async function selectOption(page: Page, label: string, option: string) {
   await page.getByRole("dialog").getByRole("combobox", { name: label, exact: true }).click();
@@ -277,7 +278,7 @@ test("lines up formula, lookup and rollup flows the same way", async ({ page, co
       await page.setViewportSize({ width, height: width > 400 ? 900 : 844 });
       await page.goto("about:blank");
       const typeId = presetId(companyId, example.list);
-      await page.goto(`/en/configure?typeId=${typeId}`);
+      await page.goto(companyPath(companyId, `/configure?typeId=${typeId}`));
       await expectSingleConfigurePage(page, typeId);
       if (example.field) {
         await openConfigureRow(page, "Fields", example.field);

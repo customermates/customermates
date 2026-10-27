@@ -1,6 +1,4 @@
-import type { NextRequest } from "next/server";
-
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import createMiddleware from "next-intl/middleware";
 
 import {
@@ -8,6 +6,8 @@ import {
   buildLocalePath,
   isAppLocale,
   isContentLocale,
+  isMarketingPathPublished,
+  isPartialMarketingLocale,
   routingLocaleFromPathname,
   routingLocaleFromUrlSegment,
   stripLocalePrefix,
@@ -24,6 +24,13 @@ import { LANDING_HUBS } from "./core/seo/landing-hubs";
 import { NOT_FOUND_PAGE_PATH, isMissingContentPage, type ContentSlugManifest } from "./core/seo/missing-content-page";
 import contentSlugs from "./generated/content-slugs.json";
 import { SESSION_HINT_COOKIE_NAME, expiredSessionHintCookie, sessionHintCookie } from "./features/auth/session-hint";
+import {
+  WORKSPACE_HEADER,
+  legacyWorkspaceEntryHref,
+  stripWorkspaceApiPrefix,
+  workspaceSlugFromApiPathname,
+  workspaceSlugFromPathname,
+} from "./core/navigation/workspace-paths";
 
 const intlAppMiddleware = createMiddleware(appRouting);
 const intlContentMiddleware = createMiddleware(contentRouting);
@@ -88,6 +95,35 @@ function hasNestedLocalePrefix(pathname: string): boolean {
   return routingLocaleFromUrlSegment(secondSegment) !== null;
 }
 
+function isPrefetchRequest(req: NextRequest): boolean {
+  return req.headers.has("next-router-prefetch") || req.headers.get("purpose") === "prefetch";
+}
+
+function withTrustedWorkspaceHeader(req: NextRequest): NextRequest {
+  const pathname = req.nextUrl.pathname;
+  const slug = pathname.startsWith("/api/")
+    ? workspaceSlugFromApiPathname(pathname)
+    : workspaceSlugFromPathname(pathname);
+  const headers = new Headers(req.headers);
+  headers.delete(WORKSPACE_HEADER);
+  if (slug) headers.set(WORKSPACE_HEADER, slug);
+
+  return new NextRequest(req.url, { headers, method: req.method });
+}
+
+function forward(req: NextRequest): NextResponse {
+  return NextResponse.next({ request: { headers: req.headers } });
+}
+
+function forwardApi(req: NextRequest): NextResponse {
+  const slug = workspaceSlugFromApiPathname(req.nextUrl.pathname);
+  if (!slug) return forward(req);
+
+  const target = req.nextUrl.clone();
+  target.pathname = stripWorkspaceApiPrefix(req.nextUrl.pathname, slug);
+  return NextResponse.rewrite(target, { request: { headers: req.headers } });
+}
+
 function hasSessionCookie(req: NextRequest): boolean {
   return (req.headers.get("cookie") ?? "").includes("app.session_token=");
 }
@@ -145,8 +181,12 @@ function syncSessionHint(req: NextRequest, response: NextResponse, isAuthenticat
   return response;
 }
 
-export default async function proxy(req: NextRequest) {
+export default async function proxy(incoming: NextRequest) {
+  const req = withTrustedWorkspaceHeader(incoming);
   const pathname = req.nextUrl.pathname;
+
+  if (isPrefetchRequest(req)) return forward(req);
+
   const base = resolveRequestOrigin(req.nextUrl.origin, env.AUTH_ALLOWED_HOSTS, env.BASE_URL);
 
   const isApiRoute = pathname.startsWith("/api");
@@ -175,7 +215,7 @@ export default async function proxy(req: NextRequest) {
     if (req.nextUrl.searchParams.get("prompt") !== "consent") return NextResponse.redirect(authorizeWithConsent);
   }
 
-  if (isApiRoute) return malformedRequestPathResponse(pathname) ?? NextResponse.next();
+  if (isApiRoute) return malformedRequestPathResponse(pathname) ?? forwardApi(req);
 
   if (req.method === "OPTIONS") return new NextResponse(null, { status: 204, headers: { allow: PAGE_METHODS } });
 
@@ -259,6 +299,12 @@ async function routePageRequest(
   }
 
   if (isContentPage(req)) {
+    if (isPartialMarketingLocale(currentLocale)) {
+      return isMarketingPathPublished(currentLocale, stripLocalePrefix(pathname))
+        ? intlAppMiddleware(req)
+        : notFoundResponse(req, currentLocale);
+    }
+
     if (!isContentLocale(currentLocale))
       return localeRedirect(DEFAULT_LOCALE, stripLocalePrefix(pathname), base, req.nextUrl.search);
 
@@ -292,6 +338,10 @@ async function routePageRequest(
     return NextResponse.redirect(signInUrl);
   }
 
+  const legacyWorkspaceEntry = legacyWorkspaceEntryHref(stripLocalePrefix(pathname), req.nextUrl.search);
+  if (legacyWorkspaceEntry && isProtectedPage(req))
+    return NextResponse.redirect(new URL(buildLocalePath(currentLocale, legacyWorkspaceEntry), base));
+
   return intlAppMiddleware(req);
 }
 
@@ -308,17 +358,10 @@ export const config = {
        * - Files with extensions (images, scripts, etc.), except API paths such as attachment file names
        * - favicon.ico, sitemap.xml, robots.txt (metadata files)
        *
-       * Exclude prefetch requests:
-       * - Requests with "next-router-prefetch" header
-       * - Requests with "purpose: prefetch" header
-       *
+       * Prefetch requests also pass through so their workspace header is derived from the URL.
        */
       source:
         "/((?!og(?:/|$)|monitoring(?:/|$)|\\.well-known(?:/|$)|_next/static|_next/image|_vercel|favicon\\.ico|sitemap\\.xml|robots\\.txt|(?!api/).*\\.[a-z0-9]+$).*)",
-      missing: [
-        { type: "header", key: "next-router-prefetch" },
-        { type: "header", key: "purpose", value: "prefetch" },
-      ],
     },
   ],
 };

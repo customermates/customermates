@@ -2,6 +2,7 @@ import type { Page } from "@playwright/test";
 import { presetId } from "../../features/records/crm-preset";
 import { addFromConfigure, configureDrawer, openConfigure } from "./configure";
 import { expect, test } from "./fixtures";
+import { pagePath } from "./app-paths";
 
 
 async function refreshRoute(page: Page) {
@@ -32,7 +33,7 @@ test("keeps an open Configure drawer and its unsaved edits through a route refre
 });
 
 test("keeps an unsaved Knowledge Base draft through a route refresh", async ({ page }) => {
-  await page.goto("/en/wiki");
+  await page.goto(pagePath(page, "/wiki"));
   await page.locator("header").getByRole("button", { name: "New page", exact: true }).click();
   const title = page.getByRole("textbox", { name: "Page title", exact: true });
   await expect(title).toBeVisible();

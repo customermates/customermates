@@ -3,6 +3,7 @@ import type { BrandIllustrationBrief, VisualLocale, VisualPlacement } from "./vi
 import { getGoldenVisualBrief, type GoldenVisualBrief } from "./goldens";
 import { GoldenStoryVisual, type GoldenStoryVisualTheme } from "./story-visual";
 import { VISUAL_PLACEMENTS } from "./visual-contract";
+import { contentLocaleOrDefault } from "@/i18n/locale-registry";
 
 const REVIEW_PLACEMENT_LAYOUTS: Record<VisualPlacement, string> = {
   wide: "grid gap-4",
@@ -80,7 +81,7 @@ function GoldenThemePair({
 }
 
 export function GoldenBenchmarkReviewSheet({ brief }: { brief: GoldenVisualBrief }) {
-  const copy = REVIEW_COPY[brief.locale];
+  const copy = REVIEW_COPY[contentLocaleOrDefault(brief.locale)];
 
   return (
     <main className="mx-auto max-w-marketing bg-background p-8 text-foreground">
@@ -100,8 +101,9 @@ export function GoldenBenchmarkReviewSheet({ brief }: { brief: GoldenVisualBrief
 }
 
 export function VisualBriefReferenceSheet({ brief }: { brief: BrandIllustrationBrief }) {
-  const benchmark = getGoldenVisualBrief(brief.pathway, brief.locale);
-  const copy = REVIEW_COPY[brief.locale];
+  const reviewLocale = contentLocaleOrDefault(brief.locale);
+  const benchmark = getGoldenVisualBrief(brief.pathway, reviewLocale);
+  const copy = REVIEW_COPY[reviewLocale];
 
   return (
     <main className="mx-auto max-w-marketing bg-background p-8 text-foreground">

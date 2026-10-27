@@ -33,6 +33,7 @@ COPY --from=builder /app/next.config.ts ./next.config.ts
 COPY --from=builder /app/env.ts ./env.ts
 COPY --from=builder /app/core/config/environment.ts ./core/config/environment.ts
 COPY --from=builder /app/core/seo/route-aliases.ts ./core/seo/route-aliases.ts
+COPY --from=builder /app/core/navigation/workspace-paths.ts ./core/navigation/workspace-paths.ts
 COPY --from=builder /app/features/record-file-index/record-file-parser-packages.ts ./features/record-file-index/record-file-parser-packages.ts
 COPY --from=builder /app/i18n ./i18n
 COPY --from=builder /app/instrumentation.ts ./instrumentation.ts

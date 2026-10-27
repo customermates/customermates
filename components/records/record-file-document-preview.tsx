@@ -15,6 +15,7 @@ import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice
 import { cn } from "@/core/utils/cn";
 import { RecordFilePreviewSchema } from "@/features/record-files/record-file-preview.schema";
 import { downloadRecordFile } from "./record-file-links";
+import { workspaceApiUrl } from "@/core/navigation/workspace-api-url";
 
 type File = { id: string; name: string };
 type LoadState = { kind: "loading" } | { kind: "error" } | { kind: "ready"; data: RecordFilePreview };
@@ -24,7 +25,7 @@ export function RecordFileDocumentPreview({ file }: { file: File }) {
   const [state, setState] = useState<LoadState>({ kind: "loading" });
   useEffect(() => {
     const controller = new AbortController();
-    void fetch(`/api/v1/files/${encodeURIComponent(file.id)}/preview`, {
+    void fetch(workspaceApiUrl(`/api/v1/files/${encodeURIComponent(file.id)}/preview`), {
       signal: controller.signal,
       cache: "no-store",
     })

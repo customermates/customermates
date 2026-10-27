@@ -5,6 +5,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { isDraftThreadId } from "../../ee/messaging/provider";
 import { decodeGetParams } from "../../core/utils/get-params";
 import type { RecordRef } from "../../features/records/record-model.schema";
+import { companyPath, companyUrlPattern, pagePath } from "./app-paths";
 import { expectBlockedEmailScripts } from "./browser-diagnostics";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { postOk } from "./api";
@@ -116,7 +117,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
     const link = page.locator(`[id="nav-records:${id}"]`);
     if (!(await link.isVisible())) await page.locator("#sidebar-trigger").click();
     await link.click();
-    await expect(page).toHaveURL(new RegExp(`/en/records/${id}$`));
+    await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${id}$`));
     if (testInfo.project.name === "mobile") await expect(mobileSidebar).toHaveCount(0);
     await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
   };
@@ -140,7 +141,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   let activeRecipient = recipients[0];
   const openRecord = async (index: number) => {
     activeRecipient = recipients[index];
-    await page.goto(`/en/records/${typeId}/${records[index].recordId}`);
+    await page.goto(pagePath(page, `/records/${typeId}/${records[index].recordId}`));
     await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
   };
   await openRecord(0);
@@ -153,7 +154,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
     if (testInfo.project.name === "webkit") await link.press("Enter");
     else if (testInfo.project.name === "mobile") await link.tap();
     else await link.click();
-    await expect(page).toHaveURL(/\/en\/inbox\?/);
+    await expect(page).toHaveURL(companyUrlPattern(companyId, "/inbox\\?"));
   };
   if (testInfo.project.name === "chromium") await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.bringToFront();
@@ -180,7 +181,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
     const headers = request.headers();
     return (
       new URL(response.url()).origin === applicationOrigin &&
-      new URL(response.url()).pathname === "/en/settings/channels" &&
+      new URL(response.url()).pathname === companyPath(companyId, "/settings/channels") &&
       request.method() === "GET" &&
       headers["next-router-prefetch"] === "1" &&
       headers["next-router-state-tree"] !== undefined &&
@@ -308,7 +309,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
       !holdLinkedChoices ||
       request.method() !== "POST" ||
       !request.headers()["next-action"] ||
-      new URL(request.url()).pathname !== `/en/records/${typeId}/${records[1].recordId}`
+      new URL(request.url()).pathname !== companyPath(companyId, `/records/${typeId}/${records[1].recordId}`)
     )
       return route.fallback();
     let args: unknown;
@@ -511,7 +512,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await navigateType(typeId);
   await openRecordDetails(page, "Channel company 1");
   await drawer.getByRole("link", { name: "Open page", exact: true }).click();
-  await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}/${records[0].recordId}$`));
+  await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${typeId}/${records[0].recordId}$`));
   await expect(drawer).toHaveCount(0);
   await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
   await activateCompose(start());
@@ -528,7 +529,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await expect(page).not.toHaveURL(recordPageUrl);
   await expect(recovered).toHaveCount(0);
   await expect.poll(async () => (await readDrafts()).length).toBe(0);
-  if (new URL(page.url()).pathname !== `/en/records/${typeId}`) await navigateType(typeId);
+  if (new URL(page.url()).pathname !== companyPath(companyId, `/records/${typeId}`)) await navigateType(typeId);
   await openRecordDetails(page, "Channel company 1");
   await waitForRelationshipReads(drawer);
   await activateCompose(
@@ -540,7 +541,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await drawer.getByRole("link", { name: "Open page", exact: true }).click();
   await expect(guard).toBeVisible();
   await guard.getByRole("button", { name: "Discard", exact: true }).click();
-  await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}/${records[0].recordId}$`));
+  await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${typeId}/${records[0].recordId}$`));
   await expect(drawer).toHaveCount(0);
   await expect(recovered).not.toBeVisible();
   await expect(popover).not.toBeVisible();
@@ -556,7 +557,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
     .getByRole("button", { name: "Open record: Channel company 1", exact: true })
     .click();
   await drawer.getByRole("link", { name: "Open page", exact: true }).click();
-  await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}/${records[0].recordId}$`));
+  await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${typeId}/${records[0].recordId}$`));
   await expect(drawer).toHaveCount(0);
   await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
   await activateCompose(start());

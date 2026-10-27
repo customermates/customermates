@@ -5,7 +5,8 @@ import type { RecordRepo } from "@/features/records/record.repo";
 import type { ImportSpreadsheetInteractor } from "@/features/data-transfer/spreadsheet/import-spreadsheet.interactor";
 import type { SpreadsheetMapping } from "@/features/data-transfer/spreadsheet/spreadsheet.schema";
 import type { UpsertDataViewInteractor } from "@/features/data-view/upsert-data-view.interactor";
-import type { UpsertRecordWidgetInteractor } from "@/features/widget/record-widget.interactor";
+import type { SaveWidgetInteractor } from "@/features/widget/save-widget.interactor";
+import type { SavePlannerInteractor } from "@/features/planner/save-planner.interactor";
 import type { UpdateUserDetailsInteractor } from "@/features/user/upsert/update-user-details.interactor";
 import type { MutateRecordInteractor } from "@/features/records/mutate-record.interactor";
 import type { RecordScalar } from "@/features/records/record-model.schema";
@@ -23,11 +24,13 @@ import type {
   WorkspaceSetupRecord,
 } from "./workspace-setup.schema";
 import type { SetupModelOutcome, WorkspaceSetupModelService } from "./workspace-setup-model.service";
-import type { GeneratedSampleList, SampleListSpec } from "./workspace-setup-samples";
+import type { GeneratedSampleList, SampleCalendarDates, SampleListSpec } from "./workspace-setup-samples";
+import type { PostalCodeService } from "@/features/addresses/postal-codes/postal-code.service";
 import type { CreateWikiPagesInteractor } from "@/features/wiki/create-wiki-pages.interactor";
 import type { WikiPageInput } from "@/features/wiki/wiki.schema";
-import type { SetupAnswerPages, SetupAnswerTopic } from "./workspace-setup-answer-pages";
+import type { SetupAnswerPages } from "./workspace-setup-answer-pages";
 import type { WikiSynthesisDraft } from "@/ee/wiki-crawl/wiki-synthesis.schema";
+import type { WikiSynthesisBriefTopic } from "@/ee/wiki-crawl/wiki-synthesis-brief";
 
 import { z } from "zod";
 
@@ -48,15 +51,19 @@ import {
   setupLineItems,
   setupRoleList,
 } from "@/features/workspace-setup/setup-anchors";
+import { compileSetupCalendar } from "@/features/workspace-setup/setup-calendar-compiler";
 import { compileSetupDashboard, setupWidgetCreationOrder } from "@/features/workspace-setup/setup-dashboard-compiler";
+import { setupWidgetSketch } from "@/features/workspace-setup/setup-plan.schema";
 import {
   compileSetupImportMapping,
   setupImportList,
   withOptionalImportFields,
 } from "@/features/workspace-setup/setup-import-compiler";
 import { compileSetupRecordModel } from "@/features/workspace-setup/setup-model-compiler";
+import { addressFromImportText } from "@/features/addresses/address-text";
 import {
   createSetupResolver,
+  type SetupResolver,
   setupFieldReference,
   setupIdempotencyKey,
   setupListReference,
@@ -95,7 +102,6 @@ import {
   setupAnswerTopics,
   setupAnswersSourceText,
 } from "./workspace-setup-answer-pages";
-import { setupAddressForm } from "./workspace-setup-knowledge";
 import { setupPageTitles } from "./workspace-setup-knowledge-brief";
 import {
   SETUP_ANSWER_PAGE_GUIDANCE,
@@ -163,6 +169,29 @@ function artifact<T>(setup: WorkspaceSetupRecord, key: string, schema: z.ZodType
   return parsed.success ? parsed.data : undefined;
 }
 
+function sampleCalendarDates(plan: SetupPlan, resolver: SetupResolver): SampleCalendarDates {
+  const starts = new Set<string>();
+  const months = new Set<string>();
+  const upcoming = new Set<string>();
+  const ends = new Map<string, string>();
+  for (const widget of plan.dashboard.widgets) {
+    if (widget.kind !== "calendar") continue;
+    const field = resolver.field(widget.dateField);
+    if (!field) continue;
+    starts.add(field);
+    (widget.layout === "month" ? months : upcoming).add(field);
+  }
+  for (const source of plan.calendar.sources) {
+    const field = resolver.field(source.dateField);
+    const end = source.endField ? resolver.field(source.endField) : null;
+    if (!field) continue;
+    starts.add(field);
+    if (end) ends.set(field, end);
+  }
+  for (const field of months) upcoming.delete(field);
+  return { starts, upcoming, ends, today: new Date() };
+}
+
 export class WorkspaceSetupBuildService extends UserAccessor {
   private readonly warnings: string[] = [];
 
@@ -173,12 +202,16 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     private previewConfiguration: Pick<PreviewRecordConfigurationInteractor, "invoke">,
     private applyConfiguration: Pick<ApplyRecordConfigurationInteractor, "invoke">,
     private upsertView: Pick<UpsertDataViewInteractor, "invoke">,
-    private upsertWidget: Pick<UpsertRecordWidgetInteractor, "invoke">,
+    private saveWidget: Pick<SaveWidgetInteractor, "invoke">,
     private importSpreadsheet: Pick<ImportSpreadsheetInteractor, "invoke">,
     private brandFetch: (scope: { registrableDomain: string }) => BrandFetch,
     private settings: Pick<UpdateUserDetailsInteractor, "invoke">,
     private mutateRecord: Pick<MutateRecordInteractor, "invoke">,
     private createPages: Pick<CreateWikiPagesInteractor, "invoke">,
+    private savePlanner: Pick<SavePlannerInteractor, "invoke">,
+    private postalCodes: Pick<PostalCodeService, "lookup"> = {
+      lookup: () => Promise.resolve({ status: "unavailable" }),
+    },
   ) {
     super();
   }
@@ -360,7 +393,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
       case "views":
         return this.views(setup, plan);
       case "records":
-        return this.recordsPhase(setup, plan);
+        return this.recordsPhase(setup, plan, giveUp);
       case "dashboard":
         return this.dashboard(setup, plan);
     }
@@ -471,7 +504,6 @@ export class WorkspaceSetupBuildService extends UserAccessor {
       !(await recover(SETUP_ANSWER_GUIDE_KEY))
     ) {
       const guide = setupAnswerGuide({
-        addressForm: setupAddressForm(setup.answers),
         pages: done.pages.flatMap(({ key, title: pageTitle, pageId }) =>
           key !== SETUP_ANSWER_GUIDE_KEY && pageId ? [{ title: pageTitle, pageId }] : [],
         ),
@@ -484,14 +516,13 @@ export class WorkspaceSetupBuildService extends UserAccessor {
   }
 
   private async answerDraft(
-    topic: SetupAnswerTopic,
+    topic: WikiSynthesisBriefTopic,
     source: string,
     language: string,
   ): Promise<WikiSynthesisDraft | "spendCap" | "aiUnavailable" | null> {
     const prompt = [
       `Knowledge Base language: ${setupLanguageName(language)}.`,
       `Page title: ${topic.title}`,
-      ...(topic.competitor ? [`Competitor: ${encodePromptJson(topic.competitor)}`] : []),
       ...(topic.outline.length
         ? [`Planned sections: ${encodePromptJson(topic.outline)}. Use them where the answers support them.`]
         : []),
@@ -684,7 +715,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
   }
 
   private async dashboard(setup: WorkspaceSetupRecord, plan: SetupPlan): Promise<PhaseOutcome> {
-    if (plan.dashboard.widgets.length === 0) return { status: "skipped" };
+    if (plan.dashboard.widgets.length === 0 && plan.calendar.sources.length === 0) return { status: "skipped" };
     let widgets = artifact(setup, "widgets", SetupWidgetInputsSchema);
     if (!widgets) {
       const { model, resolver } = await this.resolver(setup, plan);
@@ -694,20 +725,24 @@ export class WorkspaceSetupBuildService extends UserAccessor {
         expectedRevision: model.revision,
         brandChart: brand?.chart ?? null,
         occupied: await this.repo.ownedWidgetLayouts(),
+        timeZone: "UTC",
       });
       if (!compiled.ok) throw phaseFailure("invalidPlan");
       widgets = await this.storeArtifact(setup.id, "widgets", compiled.data, SetupWidgetInputsSchema);
     }
     const displays = new Map(
-      plan.dashboard.widgets.map((entry) => [setupIdempotencyKey(setup.id, `widget:${entry.key}`), entry.display]),
+      plan.dashboard.widgets.map((entry) => [
+        setupIdempotencyKey(setup.id, `widget:${entry.key}`),
+        setupWidgetSketch(entry),
+      ]),
     );
     const created: StoredSetupResults["widgets"] = [];
     for (const widget of setupWidgetCreationOrder(widgets)) {
       const display = displays.get(widget.idempotencyKey);
       if (!display) throw phaseFailure("invalidPlan");
-      let saved = await this.upsertWidget.invoke(widget);
+      let saved = await this.saveWidget.invoke(widget);
       if (!saved.ok && interactorFailureCodes(saved.error).includes(CustomErrorCode.widgetLayoutOverlap))
-        saved = await this.upsertWidget.invoke({ ...widget, layout: undefined });
+        saved = await this.saveWidget.invoke({ ...widget, layout: undefined });
       if (!saved.ok) {
         const failure = failureOf(saved.error);
         if (failure === "schemaChanged") await this.clearArtifact(setup.id, "widgets");
@@ -719,6 +754,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
         display,
       });
     }
+    await this.calendar(setup, plan);
     return {
       status: "completed",
       patch: (current) => ({
@@ -728,14 +764,45 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     };
   }
 
-  private async recordsPhase(setup: WorkspaceSetupRecord, plan: SetupPlan): Promise<PhaseOutcome> {
+  private async calendar(setup: WorkspaceSetupRecord, plan: SetupPlan) {
+    if (plan.calendar.sources.length === 0) return;
+    const { model, resolver } = await this.resolver(setup, plan);
+    const compiled = compileSetupCalendar(plan, resolver, model);
+    if (!compiled.ok) throw phaseFailure("invalidPlan");
+    const saved = await this.savePlanner.invoke({ config: { sources: compiled.data } });
+    if (!saved.ok) throw phaseFailure(failureOf(saved.error));
+  }
+
+  private async recordsPhase(setup: WorkspaceSetupRecord, plan: SetupPlan, giveUp: boolean): Promise<PhaseOutcome> {
     const choice = setupDataChoice(setup.answers);
     if (choice === "empty") return { status: "skipped" };
     if (choice === "spreadsheet") return this.importRecords(setup, plan);
-    return this.sampleRecords(setup, plan);
+    return this.sampleRecords(setup, plan, giveUp);
   }
 
-  private async sampleRecords(setup: WorkspaceSetupRecord, plan: SetupPlan): Promise<PhaseOutcome> {
+  private async postalCodesLoading(samples: GeneratedSampleList[], model: RecordModel): Promise<boolean> {
+    const addressFields = new Set(
+      model.fields.filter((field) => field.valueType === "address").map((field) => field.id),
+    );
+    const lookups = new Map<string, string>();
+    for (const sample of samples) {
+      for (const column of sample.mapping.columns) {
+        const index = addressFields.has(column.fieldId) ? sample.table.headers.indexOf(column.column) : -1;
+        if (index < 0) continue;
+        for (const row of sample.table.rows) {
+          const cell = row.cells[index];
+          const address = typeof cell === "string" ? addressFromImportText(cell) : null;
+          if (address?.countryCode && address.postalCode) lookups.set(address.countryCode, address.postalCode);
+        }
+      }
+    }
+    const states = await Promise.all(
+      [...lookups].map(([countryCode, postalCode]) => this.postalCodes.lookup(countryCode, postalCode)),
+    );
+    return states.some((state) => state.status === "pending");
+  }
+
+  private async sampleRecords(setup: WorkspaceSetupRecord, plan: SetupPlan, giveUp: boolean): Promise<PhaseOutcome> {
     if (plan.sampleData.lists.length === 0) return { status: "skipped" };
     let samples = artifact(setup, "samples", SetupSamplesSchema);
     let capped = false;
@@ -750,10 +817,13 @@ export class WorkspaceSetupBuildService extends UserAccessor {
         (people ? [`${people}.channels`, `${people}.avatar`] : []).flatMap((ref) => resolver.field(ref) ?? []),
       );
       const facts = setupSampleFacts(setup.answers, await setupInterviewCatalog());
+      const dates = sampleCalendarDates(plan, resolver);
       const generated: GeneratedSampleList[] = [];
       const titles = new Map<string, string[]>();
       for (const level of sampleListSpecs(entries, model, anchors)) {
-        const results = await Promise.all(level.map((spec) => this.generateSamples(setup, plan, spec, titles, facts)));
+        const results = await Promise.all(
+          level.map((spec) => this.generateSamples(setup, plan, spec, titles, facts, dates)),
+        );
         for (const result of results) {
           if (result === "spendCap") capped = true;
           else if (result) {
@@ -768,6 +838,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     const refs: RecordRef[] = [];
     const results: StoredSetupResults["records"] = [];
     const model = await this.records.getModel();
+    if (!giveUp && (await this.postalCodesLoading(samples, model))) return { status: "wait" };
     for (const sample of samples) {
       const idempotencyKey = setupIdempotencyKey(setup.id, `sample:${sample.list}`);
       const imported = await this.importSpreadsheet.invoke(
@@ -796,6 +867,10 @@ export class WorkspaceSetupBuildService extends UserAccessor {
         skippedRows: imported.data.errorCount,
       });
     }
+    if (refs.length === 0) {
+      await this.clearArtifact(setup.id, "samples");
+      throw phaseFailure("generation");
+    }
     await this.sampleLineItems(setup, plan, samples, refs);
     const patch = (current: WorkspaceSetupRecord): WorkspaceSetupPatch => ({
       created: { ...current.created, sampleRecords: refs },
@@ -821,9 +896,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     const lineItemType = live(model.types, setupListReference(SETUP_LINE_ITEM_LIST));
     const dealRelation = live(model.relationships, setupRelationshipReference(SETUP_LINE_ITEM_DEAL));
     const offeringRelation = live(model.relationships, setupRelationshipReference(SETUP_LINE_ITEM_OFFERING));
-    const field = (name: Parameters<typeof setupLineItemField>[0]) =>
-      live(model.fields, setupFieldReference(setupLineItemField(name)));
-    const [quantity, pricingMode, savedPrice] = [field("quantity"), field("pricingMode"), field("savedPrice")];
+    const quantity = live(model.fields, setupFieldReference(setupLineItemField("quantity")));
     const lineName = live(model.fields, setupNameReference(SETUP_LINE_ITEM_LIST));
     const deals = resolver.list(lineItems.deals);
     const offerings = resolver.list(lineItems.offerings);
@@ -833,24 +906,13 @@ export class WorkspaceSetupBuildService extends UserAccessor {
       setupId: setup.id,
       samples,
       imported: new Set(refs.map((ref) => ref.recordId)),
-      answers: setup.answers,
       deals,
       offerings: { typeId: offerings, priceFieldId: price, nameFieldId: resolver.field(`${lineItems.offerings}.name`) },
     });
     for (const item of items) {
-      if (item.unitPrice && !(pricingMode && savedPrice)) continue;
       const fields: Array<{ fieldId: string; value: RecordScalar }> = [
         { fieldId: quantity, value: { kind: "decimal", value: String(item.quantity), currency: null } },
         ...(item.name && lineName ? [{ fieldId: lineName, value: { kind: "text" as const, value: item.name } }] : []),
-        ...(item.unitPrice && pricingMode && savedPrice
-          ? [
-              { fieldId: pricingMode, value: { kind: "select" as const, value: "saved" } },
-              {
-                fieldId: savedPrice,
-                value: { kind: "decimal" as const, value: item.unitPrice, currency: plan.workspace.currency },
-              },
-            ]
-          : []),
       ];
       const created = await this.mutateRecord.invoke({
         expectedRevision: model.revision,
@@ -861,9 +923,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
           fields,
           links: [
             { relationId: dealRelation, direction: "outgoing", record: item.deal },
-            ...(item.offering
-              ? [{ relationId: offeringRelation, direction: "outgoing" as const, record: item.offering }]
-              : []),
+            { relationId: offeringRelation, direction: "outgoing", record: item.offering },
           ],
         },
       });
@@ -879,6 +939,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     spec: SampleListSpec,
     titles: ReadonlyMap<string, string[]>,
     facts: unknown,
+    dates: SampleCalendarDates,
   ): Promise<GeneratedSampleList | "spendCap" | null> {
     const headers = [...spec.columns.map((column) => column.column), ...spec.links.map((link) => link.column)];
     const prompt = (count: number) =>
@@ -908,8 +969,18 @@ export class WorkspaceSetupBuildService extends UserAccessor {
             : []),
         ].join("\n"),
       });
-      if (result.ok)
-        return generatedSampleList({ ...spec, count }, result.value.records, titles, plan.workspace.currency);
+      if (result.ok) {
+        const list = generatedSampleList(
+          { ...spec, count },
+          result.value.records,
+          titles,
+          plan.workspace.currency,
+          dates,
+        );
+        if (list.table.rows.length) return list;
+        rejection = `The answer held no records with a name. Write ${count} records.`;
+        continue;
+      }
       if (result.failure !== "generation") return result.failure === "spendCap" ? "spendCap" : null;
       rejection = result.rejection;
     }

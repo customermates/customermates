@@ -2,14 +2,17 @@ import type { Root } from "react-dom/client";
 
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
-import { runInAction } from "mobx";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const harness = vi.hoisted(() => ({ rootStore: null as unknown }));
 
 vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string, values?: Record<string, string | number>) =>
-    values ? `${key} ${Object.values(values).join(" ")}` : key,
+  useTranslations: () =>
+    Object.assign(
+      (key: string, values?: Record<string, string | number>) =>
+        values ? `${key} ${Object.values(values).join(" ")}` : key,
+      { raw: (key: string) => [`${key}.first`, `${key}.second`] },
+    ),
   useLocale: () => "en",
 }));
 vi.mock("@/components/ui/tooltip", () => ({
@@ -30,8 +33,6 @@ vi.mock("../../../workspace-setup-actions", () => ({}));
 const toast = vi.hoisted(() => vi.fn());
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: toast }));
 
-import { SETUP_SCREENS } from "@/features/workspace-setup/setup-interview";
-
 import { WorkspaceSetupStore } from "../workspace-setup.store";
 import { SetupInterview } from "../setup-interview";
 import { setupView } from "./setup-view-fixture";
@@ -39,15 +40,15 @@ import { setupView } from "./setup-view-fixture";
 let container: HTMLDivElement;
 let root: Root;
 const scrollIntoView = Object.getOwnPropertyDescriptor(Element.prototype, "scrollIntoView");
-const wizard = { isSubmitting: false, startEmpty: vi.fn(() => Promise.resolve()) };
+const wizard = { isSubmitting: false, completeSetupStep: vi.fn(() => Promise.resolve()) };
 
 function renderDataScreen(existingData: string) {
   const store = new WorkspaceSetupStore({ localeStore: { locale: "en" } } as never);
   store.hydrate({ available: true, setup: setupView() });
-  runInAction(() => {
-    store.screenIndex = SETUP_SCREENS.indexOf("data");
+  store.setAnswer("existingData", {
+    format: "singleChoice",
+    value: existingData,
   });
-  store.setAnswer("existingData", { format: "singleChoice", value: existingData });
   harness.rootStore = { workspaceSetupStore: store, onboardingWizardStore: wizard };
   act(() => root.render(createElement(SetupInterview)));
 }
@@ -89,32 +90,46 @@ describe("SetupInterview", () => {
 
     const upload = field("existingData").nextElementSibling;
     expect(upload?.querySelector("#setup-spreadsheet")).not.toBeNull();
-    expect(upload?.nextElementSibling).toBe(field("anythingMissed"));
+    expect(upload?.parentElement?.nextElementSibling?.contains(field("purposeDetails"))).toBe(true);
   });
 
   it("asks for no spreadsheet when the workspace starts with sample data", () => {
     renderDataScreen("sampleData");
 
     expect(container.querySelector("#setup-spreadsheet")).toBeNull();
-    expect(field("existingData").nextElementSibling).toBe(field("anythingMissed"));
+    expect(field("existingData").nextElementSibling).toBeNull();
   });
 
-  it("shows how far the website has been read until its suggestions are in", () => {
+  it("shows reading the website as a timeline until its suggestions are in", () => {
     const idle = { interview: { ...setupView().interview, prefill: "idle" as const } };
     const finding = renderWebsite(setupView(idle));
     expect(finding).toContain("WorkspaceSetup.website.finding example.com");
     expect(finding).toContain("WorkspaceSetup.website.eta");
+    expect(container.querySelector('[data-testid="setup-timeline"]')).not.toBeNull();
+    expect(container.querySelector('[role="progressbar"]')).toBeNull();
 
     const knowledgeBase = { ...setupView().knowledgeBase, crawlStatus: "fetching", sourcesFound: 20, sourcesRead: 5 };
     const reading = renderWebsite(setupView({ ...idle, knowledgeBase }));
+    expect(reading).toContain("WorkspaceSetup.website.found example.com 20");
     expect(reading).toContain("WorkspaceSetup.website.reading example.com 5 20");
-    expect(
-      container.querySelector('[role="progressbar"][aria-label="example.com"]')?.getAttribute("aria-valuenow"),
-    ).toBe("28");
 
     const done = renderWebsite(setupView());
     expect(done).toContain("WorkspaceSetup.website.suggestedHint");
+    expect(done).toContain("WorkspaceSetup.website.change");
     expect(done).not.toContain("WorkspaceSetup.website.eta");
+  });
+
+  it("marks the timeline as failed when the website gave no suggestions", () => {
+    const failed = renderWebsite(setupView({ interview: { ...setupView().interview, prefill: "failed" as const } }));
+    const timeline = () => container.querySelector('[data-testid="setup-timeline"]')?.textContent ?? "";
+    expect(timeline().split("WorkspaceSetup.interview.prefillFailed")).toHaveLength(2);
+    expect(failed).not.toContain("WorkspaceSetup.website.suggested");
+  });
+
+  it("suggests nothing when the website had no pages to read", () => {
+    const skipped = renderWebsite(setupView({ interview: { ...setupView().interview, prefill: "skipped" as const } }));
+    expect(skipped).toContain("WorkspaceSetup.website.readPages 0");
+    expect(skipped).not.toContain("WorkspaceSetup.website.suggested");
   });
 
   it("keeps only the website status in the live region", () => {
@@ -123,7 +138,28 @@ describe("SetupInterview", () => {
 
     const live = container.querySelectorAll('[aria-live="polite"]');
     expect(live).toHaveLength(1);
-    expect(live[0].textContent).toBe("WorkspaceSetup.website.finding example.com 0 0");
+    expect(live[0].textContent).toBe("WorkspaceSetup.website.finding example.com");
+  });
+
+  it("announces reading stages but not each page count", () => {
+    const idle = { interview: { ...setupView().interview, prefill: "idle" as const } };
+    const reading = (sourcesRead: number) => ({
+      ...idle,
+      knowledgeBase: { ...setupView().knowledgeBase, crawlStatus: "fetching", sourcesFound: 20, sourcesRead },
+    });
+    const store = new WorkspaceSetupStore({ localeStore: { locale: "en" } } as never);
+    store.hydrate({ available: true, setup: setupView(reading(5)) });
+    harness.rootStore = { workspaceSetupStore: store, onboardingWizardStore: wizard };
+    act(() => root.render(createElement(SetupInterview)));
+    const live = () => container.querySelector('[aria-live="polite"]')?.textContent;
+    expect(live()).toBe("WorkspaceSetup.website.reading example.com 5 20");
+
+    act(() => store.hydrate({ available: true, setup: setupView(reading(6)) }));
+    expect(container.textContent).toContain("WorkspaceSetup.website.reading example.com 6 20");
+    expect(live()).toBe("WorkspaceSetup.website.reading example.com 5 20");
+
+    act(() => store.hydrate({ available: true, setup: setupView() }));
+    expect(live()).toBe("WorkspaceSetup.website.suggestedHint");
   });
 
   it("cancels changing the website from Close or Escape", () => {
@@ -150,17 +186,17 @@ describe("SetupInterview", () => {
     expect(container.querySelector('input[aria-label="Common.inputs.websiteUrl"]')).toBeNull();
   });
 
-  it("keeps Next enabled, marks the missing answers and focuses the first when it is pressed too early", async () => {
+  it("keeps the plan button enabled, marks the missing answers and focuses the first when it is pressed too early", async () => {
     renderWebsite(setupView());
     const next = [...container.querySelectorAll("button")].find((candidate) =>
-      candidate.textContent?.includes("OnboardingWizard.next"),
+      candidate.textContent?.includes("WorkspaceSetup.interview.showPlan"),
     );
     expect(next?.disabled).toBe(false);
     const bar = next?.closest<HTMLElement>('[data-slot="setup-action-bar"]');
     expect(bar?.className.split(" ")).toEqual(
       expect.arrayContaining(["sticky", "bottom-[calc(0.625rem+var(--safe-bottom))]"]),
     );
-    expect(bar?.textContent).toContain("WorkspaceSetup.interview.stepProgress");
+    expect(bar?.textContent).toContain("WorkspaceSetup.interview.planHint");
     expect(container.querySelector('[data-invalid="true"]')).toBeNull();
 
     act(() => next?.click());
@@ -181,25 +217,81 @@ describe("SetupInterview", () => {
 
     act(() => skip?.click());
     expect(document.body.textContent).toContain("WorkspaceSetup.empty.description");
-    expect(wizard.startEmpty).not.toHaveBeenCalled();
+    expect(wizard.completeSetupStep).not.toHaveBeenCalled();
     const confirm = [...document.body.querySelectorAll("button")].find((candidate) =>
       candidate.textContent?.includes("WorkspaceSetup.empty.confirm"),
     );
     act(() => confirm?.click());
-    expect(wizard.startEmpty).toHaveBeenCalledOnce();
+    expect(wizard.completeSetupStep).toHaveBeenCalledOnce();
   });
 
-  it("offers to fill in the answers from a website on every part when none is given", () => {
+  it("says the website fills the answers and asks before the owner answers one by hand", () => {
+    const running = setupView({ interview: { ...setupView().interview, prefill: "running" as const } });
+    const text = renderWebsite(running);
+    expect(text).toContain("WorkspaceSetup.interview.prefillPending");
+    const store = () => (harness.rootStore as { workspaceSetupStore: WorkspaceSetupStore }).workspaceSetupStore;
+    const choose = () =>
+      act(() => field("workWith").querySelector<HTMLElement>('[role="radio"], input[type="radio"]')?.click());
+    const button = (label: string) =>
+      [...document.body.querySelectorAll("button")].find((candidate) => candidate.textContent?.includes(label));
+
+    choose();
+    expect(document.body.textContent).toContain("WorkspaceSetup.interview.answerYourself.description");
+    expect(store().answers.workWith).toBeUndefined();
+    act(() => button("WorkspaceSetup.interview.answerYourself.cancel")?.click());
+    expect(document.body.textContent).not.toContain("WorkspaceSetup.interview.answerYourself.description");
+    expect(store().answers.workWith).toBeUndefined();
+
+    renderWebsite(running);
+    choose();
+    act(() => button("WorkspaceSetup.interview.answerYourself.confirm")?.click());
+    expect(store().answers.workWith?.source).toBe("user");
+    expect(renderWebsite(setupView())).not.toContain("WorkspaceSetup.interview.prefillPending");
+  });
+
+  it("asks the questions by hand without a website box when the owner chose the questions", () => {
     const text = renderWebsite(
       setupView({ websiteUrl: null, interview: { ...setupView().interview, prefill: "skipped" } }),
     );
-    expect(text).toContain("WorkspaceSetup.website.title");
-    expect(text).toContain("WorkspaceSetup.website.hint");
-    expect(text).toContain("WorkspaceSetup.website.read");
-    const callout = container.querySelector('[data-slot="alert"]');
-    expect(callout?.querySelector('input[aria-label="Common.inputs.websiteUrl"]')).not.toBeNull();
-    expect(callout?.querySelector('[data-slot="button"][data-variant="secondary"]')?.textContent).toBe(
-      "WorkspaceSetup.website.read",
+    expect(text).not.toContain("WorkspaceSetup.website.title");
+    expect(container.querySelector('input[aria-label="Common.inputs.websiteUrl"]')).toBeNull();
+    expect(field("workWith")).toBeDefined();
+    expect(field("purpose")).toBeDefined();
+  });
+
+  it("shows the business name, country, language and currency as one line until the owner changes them", () => {
+    const view = setupView({ websiteUrl: null, interview: { ...setupView().interview, prefill: "skipped" } });
+    renderWebsite(view);
+    const store = (harness.rootStore as { workspaceSetupStore: WorkspaceSetupStore }).workspaceSetupStore;
+    act(() => store.setAnswer("companyName", { format: "shortText", value: "Acme" }));
+    expect(container.querySelector('[aria-labelledby="setup-question-currency"]')).toBeNull();
+    expect(container.textContent).toContain("Acme");
+
+    const change = [...container.querySelectorAll("button")].find(
+      (candidate) => candidate.textContent === "WorkspaceSetup.website.change",
     );
+    act(() => change?.click());
+    expect(field("currency")).toBeDefined();
+    expect(field("companyName")).toBeDefined();
+  });
+
+  it("suggests steps for the tracked work and asks how the owner charges only with customers", () => {
+    renderWebsite(setupView({ websiteUrl: null, interview: { ...setupView().interview, prefill: "skipped" } }));
+    const store = (harness.rootStore as { workspaceSetupStore: WorkspaceSetupStore }).workspaceSetupStore;
+    expect(container.querySelector('[aria-labelledby="setup-question-mainSteps"]')).toBeNull();
+    expect(container.querySelector('[aria-labelledby="setup-question-pricing"]')).toBeNull();
+
+    act(() => {
+      store.setAnswer("workWith", { format: "singleChoice", value: "clients" });
+      store.setAnswer("purpose", { format: "multipleChoice", values: ["deals"], custom: [] });
+    });
+
+    expect(field("pricing")).toBeDefined();
+    expect(field("mainSteps")).toBeDefined();
+    expect([...field("mainSteps").querySelectorAll("input")].map((input) => input.value)).toEqual([
+      "WorkspaceSetup.suggestedSteps.dealsClients.first",
+      "WorkspaceSetup.suggestedSteps.dealsClients.second",
+    ]);
+    expect(store.answers.mainSteps).toBeUndefined();
   });
 });

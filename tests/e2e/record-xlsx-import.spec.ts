@@ -1,9 +1,9 @@
 import ExcelJS from "exceljs";
 
+import { companyPath } from "./app-paths";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { openRecordDetails } from "./record-rows";
 import { presetId } from "../../features/records/crm-preset";
-
 
 async function workbook(rows: unknown[][], sheetName = "Deals"): Promise<Buffer> {
   const book = new ExcelJS.Workbook();
@@ -21,7 +21,7 @@ test("imports an Excel workbook through the column-mapping wizard and reports th
   const organizationTypeId = presetId(companyId, "organization");
   const dealTypeId = presetId(companyId, "deal");
 
-  await page.goto(`/en/records/${organizationTypeId}`);
+  await page.goto(companyPath(companyId, `/records/${organizationTypeId}`));
   await page.locator("#records-add").click();
   const editor = page.getByRole("dialog");
   await editor
@@ -39,7 +39,7 @@ test("imports an Excel workbook through the column-mapping wizard and reports th
     ).rows[0]?.count as number;
   const before = await countDeals();
 
-  await page.goto(`/en/records/${dealTypeId}`);
+  await page.goto(companyPath(companyId, `/records/${dealTypeId}`));
   await page.locator("#records-more").click();
   await page
     .getByRole("menuitem", { name: "Add from file", exact: true })
@@ -123,7 +123,7 @@ test("imports the email and phone columns of an Excel file into contact details"
   test.setTimeout(180000);
   const errors = collectPageErrors(page);
   const contact = presetId(companyId, "contact");
-  await page.goto(`/en/records/${contact}`);
+  await page.goto(companyPath(companyId, `/records/${contact}`));
   await page.locator("#records-more").click();
   await page.getByRole("menuitem", { name: "Add from file", exact: true }).click();
   const dialog = page.getByRole("dialog");

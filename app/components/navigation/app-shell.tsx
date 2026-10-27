@@ -20,6 +20,7 @@ import {
   getListMyWorkspacesInteractor,
 } from "@/core/di";
 import { env } from "@/env";
+import { demoWorkspacesForUiLocale } from "@/core/solutions/demo-workspace-filter";
 import { resolveRequestAccountState } from "@/features/auth/next/resolve-account-state";
 import { isAgentChatAvailable } from "@/ee/agent-chat/agent-availability";
 import { RootStoreProvider } from "@/core/stores/root-store.provider";
@@ -79,7 +80,10 @@ export async function AppShell({ children, displayLanguage }: Props) {
       }
     },
     channelsNeedingActionCount: async () => (await getCountChannelsNeedingActionInteractor().invoke()).data,
-    workspaces: async () => (await getListMyWorkspacesInteractor().invoke()).data,
+    workspaces: async () => {
+      const workspaces = (await getListMyWorkspacesInteractor().invoke()).data;
+      return env.APP_MODE === "demo" ? demoWorkspacesForUiLocale(workspaces, displayLanguage) : workspaces;
+    },
   });
 
   const initialSidebarOpen = parseSidebarOpen(cookiesStore.get(SIDEBAR_OPEN_COOKIE_NAME)?.value);

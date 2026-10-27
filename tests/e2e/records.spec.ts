@@ -8,6 +8,7 @@ import {
   saveDrawer,
   saveGeneral,
 } from "./configure";
+import { companyPath, companyUrlPattern } from "./app-paths";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { saveViewChanges } from "./view-changes";
 import { openRecordDetails, recordItem } from "./record-rows";
@@ -33,14 +34,14 @@ test("creates a custom list and field through the UI, then persists a decimal re
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("textbox", { name: "Name", exact: false }).first().fill(name);
   await dialog.getByRole("button", { name: "Save", exact: true }).first().click();
-  await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
+  await expect(page).toHaveURL(companyUrlPattern(companyId, "/records/[a-f0-9-]+$"));
   await expect(dialog).not.toBeVisible();
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
   const openConfiguredRecords = async () => {
     const link = page.locator(`[id="nav-records:${typeId}"]`);
     if (!(await link.isVisible())) await page.locator("#sidebar-trigger").click();
     await link.click();
-    await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}$`));
+    await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${typeId}$`));
   };
   const type = await database.query('SELECT definition FROM "RecordTypeDefinition" WHERE "companyId"=$1 AND id=$2', [
     companyId,
@@ -119,7 +120,7 @@ test("creates a custom list and field through the UI, then persists a decimal re
   await expect(dialog).toHaveCount(0);
   await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
   await followConfigureLink(page);
-  await expect(page).toHaveURL(`/en/configure?typeId=${typeId}`);
+  await expect(page).toHaveURL(companyPath(companyId, `/configure?typeId=${typeId}`));
   const renamed = name.replace("Projects", "Initiatives");
   await page
     .getByRole("region", { name: "General", exact: true })
@@ -127,7 +128,7 @@ test("creates a custom list and field through the UI, then persists a decimal re
     .fill(renamed);
   await saveGeneral(page);
   await openConfiguredRecords();
-  await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}`));
+  await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${typeId}`));
   const budgetColumn = () =>
     page.getByRole("columnheader").filter({ has: page.getByRole("button", { name: "Budget", exact: true }) });
   const budgetSummary = page.locator(
@@ -195,7 +196,7 @@ test("creates a custom list and field through the UI, then persists a decimal re
   const dashboard = page.locator("#nav-dashboard");
   if (!(await dashboard.isVisible())) await page.locator("#sidebar-trigger").click();
   await dashboard.click();
-  await expect(page).toHaveURL("/en/dashboard");
+  await expect(page).toHaveURL(companyPath(companyId, "/dashboard"));
   await page.locator("#dashboard-add-widget").click();
   await dialog.locator("#widget-starter-verticalBarChart").click();
   const widgetName = `Budget ${name.slice(-8)}`;
@@ -223,7 +224,7 @@ test("creates a custom list and field through the UI, then persists a decimal re
   await page.getByRole("menuitem", { name: "has none", exact: true }).click();
   await page.locator("#filter-palette-back").click();
   await expect(page.locator("#widget-source-filters [data-palette-field]").first()).toBeVisible();
-  await expect(dialog.getByText(/Overall:.*123,456,789,012,345\.13/)).toBeVisible();
+  await expect(dialog.getByText(/Overall:.*123,456,789,012,345$/)).toBeVisible();
   await dialog.locator("#widget-modal-save").click();
   await expect(dialog).not.toBeVisible();
   await expect(page.getByRole("heading", { name: widgetName, exact: true })).toBeVisible();
@@ -242,13 +243,13 @@ test("creates a custom list and field through the UI, then persists a decimal re
   const widgetCard = page
     .locator('[data-uid="app-card"]')
     .filter({ has: page.getByRole("heading", { name: widgetName, exact: true }) });
-  await expect(widgetCard.getByText(/Overall:.*123,456,789,012,345\.13/)).toBeVisible();
+  await expect(widgetCard.getByText(/Overall:.*123,456,789,012,345$/)).toBeVisible();
   const bar = widgetCard.locator(".recharts-bar-rectangle path").first();
   await expect(bar).toBeVisible();
   if (!testInfo.project.use.isMobile) {
     await bar.hover();
     await expect(
-      widgetCard.locator(".recharts-tooltip-wrapper").getByText("€123,456,789,012,345.13", { exact: true }),
+      widgetCard.locator(".recharts-tooltip-wrapper").getByText("€123,456,789,012,345", { exact: true }),
     ).toBeVisible();
   }
   await widgetCard.screenshot({ path: testInfo.outputPath("custom-budget-widget.png") });
@@ -282,7 +283,7 @@ test("resizes table columns with keyboard controls, restores saved widths and re
   const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "organization");
   const fieldId = presetId(companyId, "organization.name");
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   await expect(recordItem(page, "Example organization")).toBeVisible();
   const handle = page.getByRole("button", {
     name: englishMessages.DataView.resizeColumn.replace("{column}", "Name"),

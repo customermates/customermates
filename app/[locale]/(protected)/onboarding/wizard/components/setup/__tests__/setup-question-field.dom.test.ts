@@ -54,7 +54,7 @@ vi.mock("@/components/forms/form-autocomplete-currency", () => ({
 
 import { followUpDescriptor, partDescriptor } from "../setup-question-descriptor";
 import { SetupQuestionField } from "../setup-question-field";
-import { setupPart } from "@/features/workspace-setup/setup-interview";
+import { type SetupQuestionPart, setupPart } from "@/features/workspace-setup/setup-interview";
 
 let container: HTMLDivElement;
 let root: Root;
@@ -62,8 +62,73 @@ let onChange: ReturnType<typeof vi.fn<(value: SetupAnswerValue) => void>>;
 
 const t = (key: string) => key;
 
+const options = (part: string, ids: string[]) =>
+  ids.map((id) => ({ id, labelKey: `WorkspaceSetup.options.${part}.${id}` }));
+const labelKey = (part: string) => `WorkspaceSetup.questions.${part}.label`;
+
+const FORMAT_FIXTURES: Record<string, SetupQuestionPart> = {
+  customerKind: {
+    id: "customerKind",
+    labelKey: labelKey("customerKind"),
+    format: "singleChoice",
+    prefill: "yes",
+    options: options("customerKind", ["businesses", "consumers", "both"]),
+  },
+  leadSources: {
+    id: "leadSources",
+    labelKey: labelKey("leadSources"),
+    format: "multipleChoice",
+    allowCustom: true,
+    prefill: "partly",
+    options: options("leadSources", ["website", "referrals", "events"]),
+  },
+  salesSteps: {
+    id: "salesSteps",
+    labelKey: labelKey("salesSteps"),
+    format: "orderedList",
+    maxItems: 12,
+    prefill: "suggested",
+  },
+  weeklyNumbers: {
+    id: "weeklyNumbers",
+    labelKey: labelKey("weeklyNumbers"),
+    format: "rankedPick",
+    maxPicks: 3,
+    prefill: "no",
+    options: options("weeklyNumbers", ["pipelineValue", "forecast", "newLeads", "overdueTasks"]),
+  },
+  dealSize: {
+    id: "dealSize",
+    labelKey: labelKey("dealSize"),
+    format: "range",
+    unit: "currency",
+    single: false,
+    min: 0,
+    max: 100_000_000,
+    prefill: "partly",
+  },
+  salesCycle: {
+    id: "salesCycle",
+    labelKey: labelKey("salesCycle"),
+    format: "range",
+    unit: "days",
+    single: true,
+    min: 0,
+    max: 1_000,
+    prefill: "partly",
+  },
+  anythingMissed: {
+    id: "anythingMissed",
+    optional: true,
+    labelKey: labelKey("anythingMissed"),
+    format: "shortText",
+    maxLength: 1_000,
+    prefill: "no",
+  },
+};
+
 function descriptorOf(id: string): SetupQuestionDescriptor {
-  const part = setupPart(id);
+  const part = FORMAT_FIXTURES[id] ?? setupPart(id);
   if (!part) throw new Error(`Unknown part ${id}`);
   return partDescriptor(part, t);
 }
@@ -162,16 +227,12 @@ describe("SetupQuestionField", () => {
     expect(onChange).toHaveBeenLastCalledWith({ format: "multipleChoice", values: ["website"], custom: [] });
   });
 
-  it("edits, drags to reorder and removes ordered list entries with win chances", () => {
+  it("edits, drags to reorder and removes ordered list entries", () => {
     render(descriptorOf("salesSteps"), {
       format: "orderedList",
-      items: [
-        { label: "Lead", winChance: 10 },
-        { label: "Offer", winChance: 60 },
-      ],
+      items: [{ label: "Lead" }, { label: "Offer" }],
     });
 
-    expect(container.querySelectorAll('input[type="number"]')).toHaveLength(2);
     const handles = container.querySelectorAll('button[aria-label^="DataView.dragToReorderNamed"]');
     expect(handles).toHaveLength(2);
     expect([...handles].every((handle) => handle.parentElement?.lastElementChild === handle)).toBe(true);
@@ -181,20 +242,17 @@ describe("SetupQuestionField", () => {
     act(() => dndSpy.onDragEnd?.({ active: { id: offer }, over: { id: lead } } as DragEndEvent));
     expect(onChange).toHaveBeenLastCalledWith({
       format: "orderedList",
-      items: [
-        { label: "Offer", winChance: 60 },
-        { label: "Lead", winChance: 10 },
-      ],
+      items: [{ label: "Offer" }, { label: "Lead" }],
     });
 
     act(() => button("WorkspaceSetup.interview.addEntry").click());
     expect(onChange).toHaveBeenLastCalledWith({
       format: "orderedList",
-      items: [{ label: "Lead", winChance: 10 }, { label: "Offer", winChance: 60 }, { label: "" }],
+      items: [{ label: "Lead" }, { label: "Offer" }, { label: "" }],
     });
 
     act(() => container.querySelectorAll<HTMLButtonElement>('button[aria-label="Common.actions.remove"]')[0].click());
-    expect(onChange).toHaveBeenLastCalledWith({ format: "orderedList", items: [{ label: "Offer", winChance: 60 }] });
+    expect(onChange).toHaveBeenLastCalledWith({ format: "orderedList", items: [{ label: "Offer" }] });
   });
 
   it("ranks up to three picks in order and locks the rest", () => {

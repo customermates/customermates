@@ -6,7 +6,7 @@ import type { WorkspaceSetupRecord } from "../workspace-setup.schema";
 import { SetupPlanSchema } from "@/features/workspace-setup/setup-plan.schema";
 import { agencyPlan } from "@/features/workspace-setup/__tests__/setup-plan-fixtures";
 
-import { setupKnowledgeBrief } from "../workspace-setup-knowledge";
+import { setupKnowledgeBrief, setupPageKinds } from "../workspace-setup-knowledge";
 import { WorkspaceSetupKnowledgeBrief } from "../workspace-setup-knowledge-brief";
 import {
   StoredSetupCreatedSchema,
@@ -15,24 +15,14 @@ import {
 } from "../workspace-setup.schema";
 
 const plan = SetupPlanSchema.parse(agencyPlan);
-const user = (value: SetupAnswers[string]) => value;
 const answers: SetupAnswers = {
-  knowledgePages: user({
+  workWith: {
     source: "user",
     confidence: 1,
-    value: { format: "multipleChoice", values: ["overview", "faq"], custom: [] },
-  }),
-  addressForm: user({ source: "user", confidence: 1, value: { format: "singleChoice", value: "formal" } }),
-  competitors: user({
-    source: "user",
-    confidence: 1,
-    value: {
-      format: "orderedList",
-      items: [{ label: "Studio North" }, { label: "Pixel & Co" }, { label: "studio north" }],
-    },
-  }),
+    value: { format: "singleChoice", value: "ownWork" },
+  },
 };
-const title = (kind: string, competitor?: string) => (competitor ? `Compared with ${competitor}` : `Default ${kind}`);
+const title = (kind: string) => `Default ${kind}`;
 
 function setup(overrides: Partial<WorkspaceSetupRecord> = {}): WorkspaceSetupRecord {
   return {
@@ -59,33 +49,33 @@ function setup(overrides: Partial<WorkspaceSetupRecord> = {}): WorkspaceSetupRec
 }
 
 describe("Knowledge Base brief from the setup plan and answers", () => {
-  it("keeps the chosen pages with the plan's outlines, adds tone of voice and one comparison per competitor", () => {
+  it("writes the overview, FAQ and process pages with the plan's outlines and tone of voice without customers", () => {
     const brief = setupKnowledgeBrief(plan, answers, title);
     expect(brief.topics).toEqual([
       { key: "overview", role: "company_overview", title: "About the agency", outline: ["What we do", "How we work"] },
       { key: "faq", role: "faq", title: "Default faq", outline: [] },
-      { key: "toneOfVoice", role: "voice_and_tone", title: "Default toneOfVoice", outline: [] },
       {
-        key: "competitorA",
-        role: "competitor",
-        title: "Compared with Studio North",
-        outline: ["Where we win"],
-        competitor: "Studio North",
+        key: "processes",
+        role: "procedure",
+        title: "Default processes",
+        outline: [],
       },
       {
-        key: "competitor2",
-        role: "competitor",
-        title: "Compared with Pixel & Co",
+        key: "toneOfVoice",
+        role: "voice_and_tone",
+        title: "Default toneOfVoice",
         outline: [],
-        competitor: "Pixel & Co",
       },
     ]);
-    expect(brief.extraRoles).toEqual([]);
-    expect(brief.addressForm).toBe("formal");
+    expect(brief.extraRoles).toEqual(["procedure"]);
+    expect(brief.addressForm).toBeNull();
   });
 
-  it("writes every page kind and lets the website add offerings and processes when nothing was chosen yet", () => {
-    const brief = setupKnowledgeBrief(null, {}, title);
+  it("adds the pages about offerings, customers and selling when the owner has customers or clients", () => {
+    const clients: SetupAnswers = {
+      workWith: { source: "user", confidence: 1, value: { format: "singleChoice", value: "clients" } },
+    };
+    const brief = setupKnowledgeBrief(null, clients, title);
     expect(brief.topics.map(({ key }) => key)).toEqual([
       "overview",
       "productsPricing",
@@ -96,19 +86,16 @@ describe("Knowledge Base brief from the setup plan and answers", () => {
       "toneOfVoice",
     ]);
     expect(brief.extraRoles).toEqual(["offering", "procedure"]);
-    expect(brief.addressForm).toBeNull();
+    expect(setupPageKinds({})).toEqual(["overview", "faq", "processes"]);
   });
 
-  it("keeps page keys unique when a fallback key repeats a planned key", () => {
+  it("keeps page keys unique when a planned key repeats a fallback key", () => {
     const repeated = SetupPlanSchema.parse({
       ...agencyPlan,
-      knowledgeBase: { pages: [{ key: "competitor1", kind: "overview", title: "About", sections: ["What"] }] },
+      knowledgeBase: { pages: [{ key: "faq", kind: "overview", title: "About", sections: ["What"] }] },
     });
-    const brief = setupKnowledgeBrief(repeated, { competitors: answers.competitors }, title);
-    expect(brief.topics.filter(({ role }) => role === "competitor").map(({ key }) => key)).toEqual([
-      "competitor12",
-      "competitor2",
-    ]);
+    const brief = setupKnowledgeBrief(repeated, answers, title);
+    expect(brief.topics.map(({ key }) => key)).toEqual(["faq", "faq2", "processes", "toneOfVoice"]);
   });
 });
 
@@ -141,9 +128,8 @@ describe("Workspace setup brief for its website import", () => {
     expect(state.brief.topics.map(({ title: pageTitle }) => pageTitle)).toEqual([
       "About the agency",
       "Frequently asked questions",
+      "Processes",
       "Voice and tone",
-      "Compared with Studio North",
-      "Compared with Pixel & Co",
     ]);
   });
 
@@ -159,9 +145,8 @@ describe("Workspace setup brief for its website import", () => {
     expect(state.brief.topics.map(({ title: pageTitle }) => pageTitle)).toEqual([
       "About the agency",
       "Häufig gestellte Fragen",
+      "Abläufe",
       "Sprache und Tonalität",
-      "Compared with Studio North",
-      "Im Vergleich: Pixel & Co",
     ]);
   });
 });

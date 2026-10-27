@@ -108,10 +108,11 @@ describe("SetupBuildView", () => {
     expect(status?.textContent).toContain("WorkspaceSetup.build.actions.pipeline");
     expect(status?.textContent).toContain("Lead → Demo → Won");
     expect(container.querySelector("h1")?.textContent).toBe("WorkspaceSetup.build.title");
-    expect(container.querySelectorAll("button")).toHaveLength(0);
-    expect(container.querySelector('[aria-current="step"]')?.textContent).toContain(
-      "WorkspaceSetup.build.phases.knowledgeBase",
-    );
+    const buttons = [...container.querySelectorAll("button")];
+    expect(buttons.every((candidate) => candidate.hasAttribute("aria-expanded"))).toBe(true);
+    const timeline = container.querySelector('[data-testid="setup-timeline"]');
+    expect(timeline?.textContent).toContain("WorkspaceSetup.build.actions.pipeline");
+    expect(timeline?.textContent).not.toContain("WorkspaceSetup.build.actions.views");
     expect(harness.requestRefresh).not.toHaveBeenCalled();
   });
 
@@ -323,7 +324,7 @@ describe("SetupBuildView", () => {
     });
   });
 
-  it("shows every part as a platform card, with its retry inside the card", () => {
+  it("shows the reached parts as one timeline, with the retry inside the failed row", () => {
     render(
       building({
         status: "failed",
@@ -332,22 +333,19 @@ describe("SetupBuildView", () => {
           phaseView("dataModel", "completed"),
           phaseView("views", "completed"),
           phaseView("records", "failed", "generation"),
-          phaseView("dashboard", "completed"),
+          phaseView("dashboard"),
         ],
       }),
     );
 
-    const list = container.querySelector('ol[aria-label="WorkspaceSetup.build.phasesLabel"]');
-    expect(list?.className.split(" ")).toEqual(expect.arrayContaining(["lg:sticky", "lg:top-4", "lg:self-start"]));
-    const rows = container.querySelectorAll('ol[aria-label="WorkspaceSetup.build.phasesLabel"] > li');
-    expect(rows).toHaveLength(5);
-    for (const row of rows) {
-      expect(row.children).toHaveLength(1);
-      expect(row.firstElementChild?.getAttribute("data-slot")).toBe("card");
-    }
-    const failed = rows[3].querySelector('[data-slot="card-content"]');
+    const timeline = container.querySelector('[data-testid="setup-timeline"]');
+    const rows = timeline?.querySelectorAll('[data-slot="collapsible-content"] > div') ?? [];
+    expect(rows).toHaveLength(4);
+    const failed = rows[3];
+    expect(failed?.className).toContain("text-destructive");
     expect(failed?.textContent).toContain("WorkspaceSetup.failures.generation");
     expect(failed?.querySelector("button")?.textContent).toContain("WorkspaceSetup.build.retry");
+    expect(container.querySelector('[aria-label="WorkspaceSetup.build.previewLabel"]')).not.toBeNull();
   });
 
   it("states what a finished or skipped part added instead of leaving placeholders", () => {

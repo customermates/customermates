@@ -2,7 +2,10 @@ import type { z } from "zod";
 import type { ReadPlannerInteractor } from "./read-planner.interactor";
 import type { Validated } from "@/core/validation/validation.utils";
 
+import type { WorkspaceSlugResolver } from "@/features/workspace/workspace-slug-resolver";
+
 import { env } from "@/env";
+import { absoluteWorkspaceUrl } from "@/core/navigation/workspace-paths";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -16,7 +19,10 @@ import { ExportPlannerSchema } from "./calendar-subscription.schema";
 @AllowInDemoMode
 @TenantInteractor()
 export class ExportPlannerInteractor extends AuthenticatedInteractor<z.infer<typeof ExportPlannerSchema>, string> {
-  constructor(private reader: ReadPlannerInteractor) {
+  constructor(
+    private reader: ReadPlannerInteractor,
+    private slugs: WorkspaceSlugResolver,
+  ) {
     super();
   }
   @Validate(ExportPlannerSchema)
@@ -27,9 +33,12 @@ export class ExportPlannerInteractor extends AuthenticatedInteractor<z.infer<typ
     });
     if (!result.ok) return result;
     if (plannerIsTruncated(result.data)) return fail(CustomErrorCode.calendarExportIncomplete, ["window"]);
+    const slug = await this.slugs.requireSlugOf(this.user);
+    const recordUrl = (typeId: string, recordId: string) =>
+      absoluteWorkspaceUrl(env.BASE_URL, null, slug, `/records/${typeId}/${recordId}`);
     return {
       ok: true,
-      data: plannerICalendar(plannerEntries(result.data, query.config.timeZone), env.BASE_URL, new Date()),
+      data: plannerICalendar(plannerEntries(result.data, query.config.timeZone), recordUrl, new Date()),
     };
   }
 }

@@ -2,6 +2,7 @@ import { recordItem } from "./record-rows";
 import { randomUUID } from "node:crypto";
 
 import { presetId } from "../../features/records/crm-preset";
+import { companyPath, companyUrlPattern } from "./app-paths";
 import { followConfigureLink, saveGeneral } from "./configure";
 import { expect, test, collectPageErrors } from "./fixtures";
 import { e2eAppMode } from "./workspace-switching";
@@ -21,7 +22,7 @@ test("sends the removed fixed-entity routes to the pages of their type", async (
     expect(retiredRecord.headers().location, path).toBe(`/en/open/records/${preset}/${recordId}`);
     const response = await page.goto(`/en/${path}`);
     expect(response?.status(), path).toBe(200);
-    await expect(page).toHaveURL(new RegExp(`/en/records/${presetId(companyId, preset)}$`));
+    await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${presetId(companyId, preset)}$`));
   }
   expect(errors).toEqual([]);
 });
@@ -33,7 +34,7 @@ test("uses configured navigation, quick creation, rename-safe routes, and hidden
 }, testInfo) => {
   const errors = collectPageErrors(page);
   const serviceId = presetId(companyId, "service");
-  await page.goto(`/en/records/${serviceId}`);
+  await page.goto(companyPath(companyId, `/records/${serviceId}`));
   const openSidebar = async () => {
     if (!(await page.locator("#nav-add").isVisible())) await page.locator("#sidebar-trigger").click();
     await expect(page.locator("#nav-add")).toBeVisible();
@@ -48,7 +49,7 @@ test("uses configured navigation, quick creation, rename-safe routes, and hidden
   ]) {
     const link = page.locator(`[id="nav-records:${presetId(companyId, key)}"]`);
     await expect(link).toHaveText(label);
-    await expect(link).toHaveAttribute("href", `/en/records/${presetId(companyId, key)}`);
+    await expect(link).toHaveAttribute("href", companyPath(companyId, `/records/${presetId(companyId, key)}`));
   }
   await page.locator("#nav-add").click();
   await page.getByRole("dialog").getByRole("button", { name: "Add Service", exact: true }).click();
@@ -67,14 +68,14 @@ test("uses configured navigation, quick creation, rename-safe routes, and hidden
   await page.getByRole("dialog").getByRole("button", { name: "Create list", exact: true }).click();
   await editor.getByRole("textbox", { name: "Name", exact: false }).first().fill("Projects");
   await editor.getByRole("button", { name: "Save", exact: true }).first().click();
-  await expect(page).toHaveURL(/\/records\/[a-f0-9-]+$/);
+  await expect(page).toHaveURL(companyUrlPattern(companyId, "/records/[a-f0-9-]+$"));
   await expect(editor).not.toBeVisible();
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
   const navLink = page.locator(`[id="nav-records:${typeId}"]`);
   await openSidebar();
   await expect(navLink).toHaveText("Projects");
   await navLink.click();
-  await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}$`));
+  await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${typeId}$`));
   await expect(page.locator("#records-add")).toBeVisible();
   await followConfigureLink(page);
   const general = page.getByRole("region", { name: "General", exact: true });
@@ -83,9 +84,9 @@ test("uses configured navigation, quick creation, rename-safe routes, and hidden
   await saveGeneral(page);
   await openSidebar();
   await expect(navLink).toHaveText("Engagements");
-  await expect(navLink).toHaveAttribute("href", `/en/records/${typeId}`);
+  await expect(navLink).toHaveAttribute("href", companyPath(companyId, `/records/${typeId}`));
   await navLink.click();
-  await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}$`));
+  await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${typeId}$`));
   await expect(page.locator("#records-add")).toBeVisible();
   await followConfigureLink(page);
   await general.getByRole("switch", { name: "Show in navigation", exact: true }).uncheck();
@@ -93,7 +94,7 @@ test("uses configured navigation, quick creation, rename-safe routes, and hidden
   await openSidebar();
   await expect(navLink).toHaveCount(0);
   await page.waitForLoadState("networkidle");
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   await expect(page.locator("#records-add")).toBeVisible();
   await openSidebar();
   if (e2eAppMode() === "self-hosted") await expect(page.locator("#nav-assistant")).toHaveCount(0);

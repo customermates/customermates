@@ -5,6 +5,7 @@ import type { Client } from "pg";
 import type { BrowserWorkspace } from "./workspace";
 
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
+import { expectNotFoundDocuments } from "./browser-diagnostics";
 import { collectPageErrors, expect, test } from "./fixtures";
 import { openSidebar } from "./sidebar";
 import { addBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
@@ -29,6 +30,7 @@ import {
   signInLogin,
   switcherWorkspaces,
 } from "./workspace-switching";
+import { appPath, appUrlPattern, pagePath } from "./app-paths";
 
 test.skip(e2eAppMode() === "demo", "Demo mode signs every visitor in as the shared demo account");
 
@@ -109,7 +111,7 @@ test("the creator deletes an unpaid extra workspace from its plan page, lands in
   await leaveTrialUnused(database, workspace);
   const redirects = recordRedirects(page);
 
-  await page.goto("/en/settings/workspaces");
+  await page.goto(appPath(workspace.slug, "/settings/workspaces"));
   await clickHydrated(page.getByRole("button", { name: "Create workspace", exact: true }));
   const dialog = page.getByRole("dialog", { name: "Create workspace" });
   await dialog.locator("#create-workspace-name").fill(trialName);
@@ -121,7 +123,7 @@ test("the creator deletes an unpaid extra workspace from its plan page, lands in
   expect(trial).toMatchObject({ subscription: "trial", trialEndDate: expect.any(Date) });
   expect(await trialConsumedAt(database, workspace)).toBeInstanceOf(Date);
 
-  await page.goto("/en/settings/general");
+  await page.goto(pagePath(page, "/settings/general"));
   await expect(page.locator("#settings-general-delete")).toBeEnabled();
   await page.screenshot({
     path: testInfo.outputPath(`ws-delete-general-${testInfo.project.name}.png`),
@@ -129,13 +131,10 @@ test("the creator deletes an unpaid extra workspace from its plan page, lands in
   });
   await clickHydrated(page.locator("#settings-general-delete"));
   await confirmDeletion(page, "settings-general-delete-confirm", trialName);
-  await expect(page).toHaveURL(/\/en\/dashboard$/);
+  await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/dashboard$"));
   await expectCurrentWorkspace(page, "Browser workspace");
   expect(await workspaceRow(database, trialName, workspace.authUserId)).toEqual([]);
-  expect(await activeWorkspaceOf(database, workspace)).toEqual({
-    session: workspace.companyId,
-    lastUsed: workspace.companyId,
-  });
+  expect(await activeWorkspaceOf(database, workspace)).toEqual({ lastUsed: workspace.companyId });
 
   await createWorkspaceFromSettings(page, paidName);
   const [unpaid] = await workspaceRow(database, paidName, workspace.authUserId);
@@ -155,7 +154,7 @@ test("the creator deletes an unpaid extra workspace from its plan page, lands in
   await clickHydrated(page.locator("#subscription-expired-delete"));
   await confirmDeletion(page, "subscription-expired-delete-confirm", paidName);
 
-  await expect(page).toHaveURL(/\/en\/dashboard$/);
+  await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/dashboard$"));
   await expectCurrentWorkspace(page, "Browser workspace");
   expect(await workspaceRow(database, paidName, workspace.authUserId)).toEqual([]);
   expect(errors).toEqual([]);
@@ -187,26 +186,27 @@ test("a member's open page of a deleted workspace shows the workspace-changed di
     const toasts = await recordToasts(member.page);
     const sentry = recordSentryRequests(member.page);
     try {
-      await member.page.goto("/en/dashboard");
+      await member.page.goto(appPath(second.slug, "/dashboard"));
       await openSidebar(member.page);
       await expectCurrentWorkspace(member.page, name);
 
-      await page.goto("/en/settings/general");
+      await page.goto(appPath(second.slug, "/settings/general"));
       await clickHydrated(page.locator("#settings-general-delete"));
       await confirmDeletion(page, "settings-general-delete-confirm", name);
-      await expect(page).toHaveURL(/\/en\/dashboard$/);
+      await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/dashboard$"));
       await expectCurrentWorkspace(page, "Browser workspace");
 
-      const notice = member.page.getByRole("alertdialog", { name: messages.otherTab.titleDeleted });
+      const notice = member.page.getByRole("alertdialog", { name: messages.unavailable.title });
       await clickHydrated(member.page.locator("#nav-workspace-menu"));
       await expect(notice).toBeVisible({ timeout: 20_000 });
       expect(await toasts()).toEqual([]);
       expect(sentry).toEqual([]);
       await member.page.screenshot({ path: testInfo.outputPath(`ws-delete-member-tab-${testInfo.project.name}.png`) });
-      await notice.getByRole("button", { name: messages.otherTab.reload, exact: true }).click();
+      await notice.getByRole("button", { name: messages.unavailable.open, exact: true }).click();
 
-      await expect(member.page).toHaveURL(/\/en\/dashboard$/);
-      await expect.poll(async () => (await activeWorkspaceOf(database, rita)).session).toBe(rita.companyId);
+      await expect(member.page).toHaveURL(appUrlPattern(rita.slug, "/dashboard$"));
+      await expect.poll(async () => (await activeWorkspaceOf(database, rita)).lastUsed).toBe(rita.companyId);
+      expectNotFoundDocuments(member.page);
       await member.page.goto(organizationList(second.companyId));
       await expect(
         member.page.getByRole("heading", { name: englishMessages.NotFoundPage.title, exact: true }),
@@ -249,16 +249,29 @@ test("deleting the login's only workspace blocks its other tab, stops its polls 
   const sentry = recordSentryRequests(other);
   const toasts = await recordToasts(other);
 
-  await other.goto("/en/settings/members");
+  await other.goto(appPath(workspace.slug, "/settings/members"));
   await openSidebar(other);
   await other.waitForLoadState("networkidle");
-  await page.goto("/en/settings/general");
+  await page.goto(appPath(workspace.slug, "/settings/general"));
   await clickHydrated(page.locator("#settings-general-delete"));
   await confirmDeletion(page, "settings-general-delete-confirm", "Browser workspace");
   await expect(page).toHaveURL(/\/en\/onboarding$/);
-  expect(await activeWorkspaceOf(database, workspace)).toMatchObject({ session: null });
+  expect(await activeWorkspaceOf(database, workspace)).toMatchObject({ lastUsed: null });
 
-  const notice = other.getByRole("alertdialog", { name: messages.otherTab.titleDeleted });
+  if (e2eAppMode() !== "cloud") {
+    // Self-hosted has no background poll to notice the deletion; the tab's next load finds its address gone.
+    expectNotFoundDocuments(other);
+    await other.reload();
+    await expect(other.getByRole("heading", { level: 1 })).toHaveText(englishMessages.NotFoundPage.title);
+    await other.goto("/en/dashboard");
+    await expect(other).toHaveURL(/\/en\/onboarding$/);
+    expect(failures).toEqual([]);
+    expect(await toasts()).toEqual([]);
+    expect(sentry).toEqual([]);
+    expect(errors).toEqual([]);
+    return;
+  }
+  const notice = other.getByRole("alertdialog", { name: messages.unavailable.title });
   await expect(notice).toBeVisible({ timeout: 20_000 });
   const shownAt = Date.now();
   await other.waitForTimeout(12_000);
@@ -268,7 +281,7 @@ test("deleting the login's only workspace blocks its other tab, stops its polls 
   expect(sentry).toEqual([]);
   await other.screenshot({ path: testInfo.outputPath(`ws-delete-last-other-tab-${testInfo.project.name}.png`) });
 
-  await notice.getByRole("button", { name: messages.otherTab.reload, exact: true }).click();
+  await notice.getByRole("button", { name: messages.unavailable.open, exact: true }).click();
   await expect(other).toHaveURL(/\/en\/onboarding$/);
   const create = other.getByRole("button", { name: new RegExp(englishMessages.OnboardingChoice.create.title) });
   await expect(create).toBeVisible();
@@ -292,14 +305,14 @@ test("a workspace with an active subscription cannot be deleted and says why", a
     [workspace.companyId, `ls-${randomUUID()}`],
   );
 
-  await page.goto("/en/settings/general");
+  await page.goto(appPath(workspace.slug, "/settings/general"));
   await expectBlockedDelete(page, testInfo, "settings-general-delete", messages.deleteBlocked.billingActive);
   await page.screenshot({
     path: testInfo.outputPath(`ws-delete-blocked-${testInfo.project.name}.png`),
     fullPage: true,
   });
   await expect(page.locator("#settings-general-leave")).toBeVisible();
-  expect(await activeWorkspaceOf(database, workspace)).toMatchObject({ session: workspace.companyId });
+  expect(await activeWorkspaceOf(database, workspace)).toMatchObject({ lastUsed: workspace.companyId });
   expect(errors).toEqual([]);
 });
 
@@ -316,7 +329,7 @@ test("an admin who did not create a cloud workspace cannot delete it and says wh
   ]);
   await database.query('UPDATE "Subscription" SET status=\'expired\' WHERE "companyId"=$1', [workspace.companyId]);
 
-  await page.goto("/en/subscription-expired");
+  await page.goto(appPath(workspace.slug, "/subscription-expired"));
   await expectBlockedDelete(page, testInfo, "subscription-expired-delete", messages.deleteBlocked.notCreator);
   expect(errors).toEqual([]);
 });
@@ -329,12 +342,12 @@ test("any self-hosted admin deletes a workspace and lands in another one", async
   await database.query('UPDATE "Company" SET "createdByAuthUserId"=$2 WHERE id=$1', [second.companyId, randomUUID()]);
   await setActiveWorkspace(database, workspace, second.companyId);
 
-  await page.goto("/en/settings/general");
+  await page.goto(appPath(second.slug, "/settings/general"));
   await expect(page.locator("#settings-general-delete")).toBeEnabled();
   await clickHydrated(page.locator("#settings-general-delete"));
   await confirmDeletion(page, "settings-general-delete-confirm", name);
 
-  await expect(page).toHaveURL(/\/en\/dashboard$/);
+  await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/dashboard$"));
   await expectCurrentWorkspace(page, "Browser workspace");
   const remaining = await database.query('SELECT 1 FROM "Company" WHERE id=$1', [second.companyId]);
   expect(remaining.rowCount).toBe(0);
@@ -343,14 +356,18 @@ test("any self-hosted admin deletes a workspace and lands in another one", async
 
 test("a signed-in visit to the locale root opens the dashboard in that locale without an unlocalized hop", async ({
   page,
+  workspace,
 }) => {
   const errors = collectPageErrors(page);
   const redirects = recordRedirects(page);
 
   await page.goto("/en");
 
-  await expect(page).toHaveURL(/\/en\/dashboard$/);
-  expect(redirects).toContain("/en/dashboard");
+  await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/dashboard$"));
+  expect(
+    redirects.filter((path) => path === "/en/dashboard" || path === appPath(workspace.slug, "/dashboard")),
+  ).not.toEqual([]);
   expect(redirects).not.toContain("/dashboard");
+  expect(redirects).not.toContain(`/w/${workspace.slug}/dashboard`);
   expect(errors).toEqual([]);
 });

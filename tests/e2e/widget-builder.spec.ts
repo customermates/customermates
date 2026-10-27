@@ -7,6 +7,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { expect, test, collectPageErrors } from "./fixtures";
 import { openFilterPalette } from "./filter-palette";
+import { pagePath } from "./app-paths";
 
 async function revision(page: Page) {
   const response = await page.request.post("/api/v1/model/read", {
@@ -27,7 +28,7 @@ async function editWidgetName(page: Page, value: string) {
 async function openWidgetForEdit(page: Page, name: string, id: string) {
   const widgetLoaded = page.waitForResponse(
     (response) =>
-      response.url().includes("/en/dashboard") &&
+      new URL(response.url()).pathname === pagePath(page, "/dashboard") &&
       response.request().method() === "POST" &&
       Boolean(response.request().postData()?.includes(id)),
   );
@@ -53,7 +54,7 @@ test("starts from a recommended starter, previews it live at dashboard size and 
   test.setTimeout(240000);
   const errors = collectPageErrors(page);
   const dialog = page.getByRole("dialog");
-  await page.goto("/en/dashboard");
+  await page.goto(pagePath(page, "/dashboard"));
   await page.locator("#dashboard-add-widget").click();
 
   await expect(dialog.locator("#widget-gallery-heading")).toHaveCount(0);
@@ -233,7 +234,7 @@ for (const action of ["outside", "save", "keyboard", "collapse", "cancel"] as co
     const widget = await response.json();
     expect(response.status(), JSON.stringify(widget)).toBe(200);
     expect(widget.id).toEqual(expect.any(String));
-    await page.goto("/en/dashboard");
+    await page.goto(pagePath(page, "/dashboard"));
     await openWidgetForEdit(page, name, widget.id);
     await editWidgetName(page, name + " changed");
     await page.locator("#widget-config-filters").click();
@@ -329,7 +330,7 @@ for (const valueKind of ["decimal", "dateTime"] as const) {
       const widget = await response.json();
       expect(response.status(), JSON.stringify(widget)).toBe(200);
       expect(widget.id).toEqual(expect.any(String));
-      await page.goto("/en/dashboard");
+      await page.goto(pagePath(page, "/dashboard"));
       await openWidgetForEdit(page, name, widget.id);
       await editWidgetName(page, name + " changed");
       await page.locator("#widget-config-filters").click();

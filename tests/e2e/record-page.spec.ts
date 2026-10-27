@@ -1,4 +1,5 @@
 import type { Locator } from "@playwright/test";
+import { companyUrlPattern, pagePath } from "./app-paths";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { openRecordDetails, editFormattedText } from "./record-rows";
 import { presetId } from "../../features/records/crm-preset";
@@ -36,7 +37,7 @@ test("opens a stable record page, preserves its draft alongside the assistant, a
     await expect(services.getByRole("status")).toHaveCount(0);
     await expect(services.getByRole("alert")).toHaveCount(0);
   };
-  await page.goto(`/en/records/${typeId("deal")}`);
+  await page.goto(pagePath(page, `/records/${typeId("deal")}`));
   await page.locator("#records-add").click();
   await dialogs.getByRole("textbox", { name: "Name", exact: false }).fill("Local opportunity");
   await dialogs.getByRole("button", { name: "Save", exact: true }).click();
@@ -44,7 +45,7 @@ test("opens a stable record page, preserves its draft alongside the assistant, a
   await openRecordDetails(page, "Local opportunity");
   await waitForDealReads(dialogs);
   await dialogs.getByRole("link", { name: "Open page", exact: true }).click();
-  await expect(page).toHaveURL(new RegExp(`/records/${typeId("deal")}/[a-f0-9-]+$`));
+  await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${typeId("deal")}/[a-f0-9-]+$`));
   await expect(dialogs).not.toBeVisible();
   const main = page.getByRole("main");
   await main.getByRole("textbox", { name: "Name", exact: false }).fill("Opportunity with notes");
@@ -115,7 +116,7 @@ test("opens a stable record page, preserves its draft alongside the assistant, a
   const confirmation = page.getByRole("alertdialog");
   await expect(confirmation).toContainText("Deals: 1");
   await confirmation.getByRole("button", { name: "Delete", exact: true }).click();
-  await expect(page).toHaveURL(new RegExp(`/records/${typeId("deal")}(?:\\?.*)?$`));
+  await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${typeId("deal")}(?:\\?.*)?$`));
   const remaining = await database.query(
     'SELECT COUNT(*)::integer AS count FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 AND "deletedAt" IS NULL',
     [companyId, typeId("deal")],

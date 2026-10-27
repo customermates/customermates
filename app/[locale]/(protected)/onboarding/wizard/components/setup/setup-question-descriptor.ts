@@ -12,7 +12,7 @@ export type SetupQuestionDescriptor = DescriptorBase &
   (
     | { format: "singleChoice"; options: SetupChoice[]; optionSource: SetupOptionSource | null }
     | { format: "multipleChoice"; options: SetupChoice[]; allowCustom: boolean }
-    | { format: "orderedList"; winChance: boolean; maxItems: number }
+    | { format: "orderedList"; maxItems: number }
     | { format: "rankedPick"; options: SetupChoice[]; maxPicks: number }
     | { format: "range"; unit: "currency" | "days"; single: boolean; min: number; max: number }
     | { format: "shortText"; maxLength: number; placeholder?: string }
@@ -39,7 +39,7 @@ export function partDescriptor(
     case "multipleChoice":
       return { ...base, format: "multipleChoice", options: choices(part.options), allowCustom: part.allowCustom };
     case "orderedList":
-      return { ...base, format: "orderedList", winChance: part.winChance, maxItems: part.maxItems };
+      return { ...base, format: "orderedList", maxItems: part.maxItems };
     case "rankedPick":
       return { ...base, format: "rankedPick", options: choices(part.options), maxPicks: part.maxPicks };
     case "range":
@@ -62,7 +62,7 @@ export function followUpDescriptor(question: SetupFollowUpQuestion): SetupQuesti
     case "multipleChoice":
       return { ...base, format: "multipleChoice", options: question.options, allowCustom: question.allowCustom };
     case "orderedList":
-      return { ...base, format: "orderedList", winChance: question.winChance, maxItems: question.maxItems };
+      return { ...base, format: "orderedList", maxItems: question.maxItems };
     case "rankedPick":
       return { ...base, format: "rankedPick", options: question.options, maxPicks: question.maxPicks };
     case "range":

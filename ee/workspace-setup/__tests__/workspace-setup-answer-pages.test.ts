@@ -19,14 +19,10 @@ const user = { source: "user" as const, confidence: 1 };
 const answers: SetupAnswers = {
   companyName: { ...user, value: { format: "shortText", value: "Studio Example" } },
   currency: { ...user, value: { format: "singleChoice", value: "EUR" } },
-  knowledgePages: { ...user, value: { format: "multipleChoice", values: ["overview", "faq"], custom: [] } },
-  addressForm: { ...user, value: { format: "singleChoice", value: "formal" } },
-  competitors: { ...user, value: { format: "orderedList", items: [{ label: "Studio North" }] } },
+  workWith: { ...user, value: { format: "singleChoice", value: "ownWork" } },
+  mainSteps: { ...user, value: { format: "orderedList", items: [{ label: "Briefing" }, { label: "Done" }] } },
 };
-const t = (key: string, values?: Record<string, string>) =>
-  values ? `${key}(${Object.values(values).join(",")})` : key;
 const copy = {
-  t,
   title: (kind: string) => kind,
   operatingGuide: "Guide",
   sourcesHeading: "sourcesHeading",
@@ -34,7 +30,7 @@ const copy = {
   pagesHeading: "pagesHeading",
   answersSource: (date: string) => `answers of ${date}`,
 };
-const title = (kind: string, competitor?: string) => (competitor ? `${kind}:${competitor}` : kind);
+const title = (kind: string) => kind;
 
 describe("Knowledge Base pages from the setup answers", () => {
   it("renders each answer as one line the page can quote", async () => {
@@ -42,13 +38,12 @@ describe("Knowledge Base pages from the setup answers", () => {
     const lines = source.split("\n");
     expect(lines.every((line) => line.startsWith("- "))).toBe(true);
     expect(lines.some((line) => line.endsWith(" Studio Example"))).toBe(true);
-    expect(lines.some((line) => line.endsWith(" Studio North"))).toBe(true);
+    expect(lines.some((line) => line.includes("Briefing"))).toBe(true);
   });
 
-  it("writes the chosen pages without the FAQ and keeps the form of address on the voice page", () => {
+  it("writes the pages for the workspace without the FAQ and adds the voice page", () => {
     const topics = setupAnswerTopics(plan, answers, title);
-    expect(topics.map((topic) => topic.role)).toEqual(["company_overview", "voice_and_tone", "competitor"]);
-    expect(topics.find((topic) => topic.role === "voice_and_tone")?.addressForm).toBe("formal");
+    expect(topics.map((topic) => topic.role)).toEqual(["company_overview", "procedure", "voice_and_tone"]);
     expect(topics[0]).toMatchObject({ title: "About the agency", outline: ["What we do", "How we work"] });
   });
 
@@ -73,7 +68,7 @@ describe("Knowledge Base pages from the setup answers", () => {
     expect(setupAnswerDraftIssues(draft, source)).toEqual([2, 3, 4]);
   });
 
-  it("cites the setup answers and keeps owner sections when no section is supported", () => {
+  it("cites the setup answers and writes no page when no section is supported", () => {
     const [overview, voice] = setupAnswerTopics(plan, answers, title);
     const page = setupAnswerPage({
       topic: overview,
@@ -90,17 +85,14 @@ describe("Knowledge Base pages from the setup answers", () => {
     expect(page?.markdown).toContain("## sourcesHeading\n\n- answers of 2026-10-16");
     expect(page?.markdown).toContain("## gapsHeading\n\n- Who are the main customers?");
     expect(setupAnswerPage({ topic: overview, draft: null, copy, source: "answers of 2026-10-16" })).toBeNull();
-    expect(setupAnswerPage({ topic: voice, draft: null, copy, source: "answers of 2026-10-16" })?.markdown).toContain(
-      "## address.heading",
-    );
+    expect(setupAnswerPage({ topic: voice, draft: null, copy, source: "answers of 2026-10-16" })).toBeNull();
   });
 
   it("links the written pages from an Operating Guide", () => {
     const pageId = "0f8f6c1e-7b52-4f0a-a7a4-1d3c2b9e8f70";
-    expect(setupAnswerGuide({ addressForm: null, pages: [], copy })).toBeNull();
-    const guide = setupAnswerGuide({ addressForm: "informal", pages: [{ title: "About", pageId }], copy });
+    expect(setupAnswerGuide({ pages: [], copy })).toBeNull();
+    const guide = setupAnswerGuide({ pages: [{ title: "About", pageId }], copy });
     expect(guide).toMatchObject({ title: "Guide", kind: "guide" });
-    expect(guide?.markdown).toContain("address.informal");
     expect(guide?.markdown).toContain(pageId);
   });
 });

@@ -4,7 +4,7 @@ import { WORKSPACE_CHANGED_DIGEST } from "./workspace-changed";
 const WORKSPACE_CHANGED_BRAND = Symbol.for("customermates.workspaceChanged");
 
 export const WORKSPACE_CHANGED_MESSAGE =
-  "The workspace of this browser session changed in another tab or on another device. Reload the page before you continue.";
+  "This workspace is not available to you. It may have been deleted, renamed or your access was removed.";
 
 export class WorkspaceChangedError extends ForbiddenError {
   readonly digest = WORKSPACE_CHANGED_DIGEST;

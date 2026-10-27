@@ -18,6 +18,7 @@ import { localE2eEnvironment } from "./local-environment";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { invokesServerAction, serverActionIds } from "./server-actions";
 import { e2eAppMode, expectHydrated } from "./workspace-switching";
+import { companyPath, companySlug } from "./app-paths";
 
 const DiscoverySchema = z.object({
   schemaRevision: z.number().int(),
@@ -289,7 +290,7 @@ test("configures a type, formula, saved view and widget over authenticated MCP a
     page.on("request", (request) => {
       if (
         request.method() !== "POST" ||
-        !new URL(request.url()).pathname.startsWith("/en/records/")
+        !new URL(request.url()).pathname.startsWith(companyPath(companyId, "/records/"))
       )
         return;
       pendingActions.add(request);
@@ -297,7 +298,7 @@ test("configures a type, formula, saved view and widget over authenticated MCP a
     page.on("requestfinished", settleAction);
     page.on("requestfailed", settleAction);
     const unreadIds = serverActionIds(
-      "app/[locale]/(protected)/inbox/actions.ts",
+      "app/[locale]/(protected)/w/[workspace]/inbox/actions.ts",
       "getUnreadThreadCountAction",
     );
     // Once hydrated, the sidebar polls the Inbox unread count. Self-hosted has no Inbox (it is Cloud-only), so there
@@ -310,6 +311,7 @@ test("configures a type, formula, saved view and widget over authenticated MCP a
           );
     expect(view.link).toMatch(/^https?:\/\//);
     const viewUrl = new URL(view.link ?? "");
+    expect(viewUrl.pathname).toContain(`/w/${companySlug(companyId)}/records/`);
     await page.goto(`/en${viewUrl.pathname}${viewUrl.search}`);
     await expect(
       recordItem(page, "Protocol project"),
@@ -335,7 +337,7 @@ test("configures a type, formula, saved view and widget over authenticated MCP a
         recordItem(page, "Protocol project"),
       );
     await expect.poll(() => pendingActions.size, { timeout: 30000 }).toBe(0);
-    await page.goto("/en/dashboard");
+    await page.goto(companyPath(companyId, "/dashboard"));
     const widget = page
       .locator('[data-uid="app-card"]')
       .filter({

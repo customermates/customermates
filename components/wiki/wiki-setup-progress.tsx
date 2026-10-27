@@ -11,7 +11,7 @@ import type {
 import { Check, ChevronDown, Circle, Loader2, Minus, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { useActivityGroupState } from "@/app/components/agent-chat/use-activity-group-state";
+import { useActivityGroupState } from "@/components/shared/use-activity-group-state";
 import { cn } from "@/core/utils/cn";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 

@@ -1,3 +1,4 @@
+import { companyPath, companyUrlPattern, pagePath } from "./app-paths";
 import { openFilterPalette, pickPaletteField, choosePaletteValue } from "./filter-palette";
 import { randomUUID } from "node:crypto";
 import type { Page, Locator } from "@playwright/test";
@@ -216,7 +217,7 @@ test("shows contact messages on organizations and applies provider, channel, con
       ],
     );
   }
-  await page.goto("/en/dashboard");
+  await page.goto(pagePath(page, "/dashboard"));
   await page.locator("#dashboard-add-widget").click();
   await dialog.locator("#widget-kind-activityTimeline").click();
   const widgetName = "Filtered client conversations";
@@ -303,15 +304,15 @@ test("shows contact messages on organizations and applies provider, channel, con
     const dashboard = page.getByRole("link", { name: "Dashboard", exact: true });
     if (!(await dashboard.isVisible())) await page.locator("#sidebar-trigger").click();
     await dashboard.click();
-    await expect(page).toHaveURL(/\/en\/dashboard$/);
+    await expect(page).toHaveURL(companyUrlPattern(companyId, "/dashboard$"));
     await expect(card.getByText(selectedBody, { exact: true })).toBeVisible();
   };
   await selectedHistoryRow.click();
   await expect(messageDetail.getByText(selectedBody, { exact: true })).toBeVisible();
-  const primaryRecordChip = messageDetail.locator(`a[href="/records/${person.typeId}/${person.recordId}"]`);
+  const primaryRecordChip = messageDetail.locator(`a[href$="/records/${person.typeId}/${person.recordId}"]`);
   await expect(primaryRecordChip).toBeVisible();
   await primaryRecordChip.click();
-  await expect(page).toHaveURL(new RegExp(`/en/records/${person.typeId}/${person.recordId}$`));
+  await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${person.typeId}/${person.recordId}$`));
   await expect(messageDetail).toHaveCount(0);
   for (const [field, label, value] of [
     ["contact.firstName", "First name", "Activity"],
@@ -329,10 +330,10 @@ test("shows contact messages on organizations and applies provider, channel, con
   await returnToDashboard();
   await selectedHistoryRow.click();
   await expect(messageDetail.getByText(selectedBody, { exact: true })).toBeVisible();
-  await expect(openInInbox).toHaveAttribute("href", `/en/inbox?threadId=${selectedThread}`);
+  await expect(openInInbox).toHaveAttribute("href", companyPath(companyId, `/inbox?threadId=${selectedThread}`));
   await openInInbox.click();
   await expect(page).toHaveURL(
-    (url) => url.pathname === "/en/inbox" && url.searchParams.get("threadId") === selectedThread,
+    (url) => url.pathname === companyPath(companyId, "/inbox") && url.searchParams.get("threadId") === selectedThread,
   );
   await expect(messageDetail).toHaveCount(0);
   await expect(page.getByText(selectedBody, { exact: true })).toBeVisible();
@@ -342,11 +343,11 @@ test("shows contact messages on organizations and applies provider, channel, con
   await returnToDashboard();
   await page.screenshot({ path: testInfo.outputPath("activity-message-inbox-return.png"), fullPage: true });
   await showContactMessagesOnOrganizations(page, database, companyId, false);
-  await page.goto("/en/dashboard");
+  await page.goto(pagePath(page, "/dashboard"));
   await expect(card.getByText(englishMessages.Dashboard.activityWidget.noMatches, { exact: true })).toBeVisible();
   await expect(card.getByText(selectedBody, { exact: true })).toHaveCount(0);
   await showContactMessagesOnOrganizations(page, database, companyId, true);
-  await page.goto("/en/dashboard");
+  await page.goto(pagePath(page, "/dashboard"));
   await expect(card.getByText(selectedBody, { exact: true })).toBeVisible();
   const unchangedWidget = (
     await database.query('SELECT version,"activityQuery" FROM "Widget" WHERE "companyId"=$1 AND id=$2', [

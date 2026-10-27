@@ -4,6 +4,7 @@ import { test, expect, collectPageErrors } from "./fixtures";
 import { openRecordDetails } from "./record-rows";
 import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
+import { companyPath, companyUrlPattern } from "./app-paths";
 
 test("keeps migrated multi-type webhook sources when editing delivery settings", async ({
   page,
@@ -26,7 +27,7 @@ test("keeps migrated multi-type webhook sources when editing delivery settings",
     'INSERT INTO "RecordEventSubscription" ("companyId", id, kind, "ownerUserId", "typeId", events, "changedFieldIds", query, sources, revision, enabled) VALUES ($1, $2, $3, $4, NULL, $5, $6, NULL, $7::jsonb, 1, true)',
     [companyId, id, "webhook", workspace.userId, ["record.updated"], [], JSON.stringify(sources)],
   );
-  await page.goto("/en/settings/webhooks");
+  await page.goto(companyPath(companyId, "/settings/webhooks"));
   await page.getByRole("button", { name: url, exact: true }).click();
   const modal = page.getByRole("dialog");
   await expect(modal.getByText(/Services · Record updated/)).toBeVisible();
@@ -55,7 +56,7 @@ test("persists a webhook for a customer-created type with an explicit owner and 
   const creation = page.getByRole("dialog");
   await creation.getByRole("textbox", { name: "Name", exact: false }).first().fill("Projects");
   await creation.getByRole("button", { name: "Save", exact: true }).first().click();
-  await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
+  await expect(page).toHaveURL(companyUrlPattern(companyId, "/records/[a-f0-9-]+$"));
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
   const field = await database.query(
     `SELECT f.id, f.definition->>'label' AS label FROM "RecordFieldDefinition" f JOIN "RecordTypeDefinition" t ON t."companyId"=f."companyId" AND t.id=f."typeId" AND t.definition->>'primaryFieldId'=f.id WHERE f."companyId"=$1 AND f."typeId"=$2`,
@@ -63,7 +64,7 @@ test("persists a webhook for a customer-created type with an explicit owner and 
   );
   expect(field.rows).toHaveLength(1);
   const receiverUrl = "http://127.0.0.1:49999/project-events";
-  await page.goto("/en/settings/webhooks");
+  await page.goto(companyPath(companyId, "/settings/webhooks"));
   await page.locator("#settings-webhooks-add").click();
   const webhook = page.getByRole("dialog");
   await webhook.locator("#webhook-modal-url").fill(receiverUrl);
@@ -100,7 +101,7 @@ test("persists a webhook for a customer-created type with an explicit owner and 
     .screenshot({ path: testInfo.outputPath("custom-type-webhook.png"), animations: "disabled" });
   await page.keyboard.press("Escape");
   await expect(webhook).not.toBeVisible();
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   await page.locator("#records-add").click();
   const record = page.getByRole("dialog");
   await record.getByRole("textbox", { name: field.rows[0].label, exact: false }).fill("Draft project");
@@ -125,7 +126,7 @@ test("labels migrated legacy webhook deliveries without missing translations", a
     `INSERT INTO "WebhookDelivery" (id, url, "companyId", event, "requestBody", "nextAttemptAt", "statusCode", success, status, "deliveredAt", "createdAt") VALUES ($1, $2, $3, 'contact.created', '{}'::jsonb, NULL, 200, true, 'success', NOW(), NOW()), ($4, $2, $3, 'acme.widget.synced', '{}'::jsonb, NULL, 200, true, 'success', NOW(), NOW() - INTERVAL '1 minute')`,
     [randomUUID(), url, companyId, randomUUID()],
   );
-  await page.goto("/en/settings/webhook-deliveries");
+  await page.goto(companyPath(companyId, "/settings/webhook-deliveries"));
   const legacyRow = page.getByRole("row").filter({ hasText: "Contact created (legacy)" });
   await expect(legacyRow).toHaveCount(1);
   await expect(page.getByRole("row").filter({ hasText: "acme.widget.synced" })).toHaveCount(1);

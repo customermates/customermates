@@ -1,12 +1,12 @@
 import type { MetadataRoute } from "next";
-import type { ContentLocale } from "@/i18n/locale-registry";
+import type { MarketingLocale } from "@/i18n/locale-registry";
 
 import { buildLocalePath } from "@/i18n/locale-registry";
 
 import { buildAlternateLanguages } from "./alternates";
 
 export type LocalizedRoute = {
-  locale: ContentLocale;
+  locale: MarketingLocale;
   routePath: string;
   lastModified?: Date;
 };
@@ -29,7 +29,7 @@ export function latestDate(dates: readonly (Date | undefined)[]): Date | undefin
 }
 
 export function assembleSitemap(localizedRoutes: readonly LocalizedRoute[], baseUrl: string): MetadataRoute.Sitemap {
-  const localesByRoutePath = new Map<string, ContentLocale[]>();
+  const localesByRoutePath = new Map<string, MarketingLocale[]>();
 
   for (const { routePath, locale } of localizedRoutes) {
     const known = localesByRoutePath.get(routePath);

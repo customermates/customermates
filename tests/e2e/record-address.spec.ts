@@ -4,6 +4,7 @@ import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
 import { geonamesLine, zipFixture } from "../../features/addresses/postal-codes/__tests__/zip-fixture";
 import { addFromConfigure, openConfigure, saveDrawer } from "./configure";
+import { companyPath } from "./app-paths";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { openRecordDetails } from "./record-rows";
 
@@ -133,7 +134,7 @@ async function addAddressField(page: Page, companyId: string) {
 }
 
 async function newContact(page: Page, companyId: string, firstName: string) {
-  await page.goto(`/en/records/${presetId(companyId, "contact")}`);
+  await page.goto(companyPath(companyId, `/records/${presetId(companyId, "contact")}`));
   await page.locator("#records-add").click();
   const drawer = page.getByRole("dialog", { name: "Contact", exact: true });
   await drawer.getByRole("textbox", { name: "First name", exact: false }).fill(firstName);

@@ -217,6 +217,7 @@ export class PrismaUserRepo
       onboardingWikiStepCompletedAt: true,
       createdAt: true,
       updatedAt: true,
+      company: { select: { slug: true } },
       role: {
         select: {
           id: true,
@@ -593,6 +594,14 @@ export class PrismaUserRepo
   }
 
   @BypassTenantGuard
+  async findMembershipBySlugUnscoped(email: string, slug: string) {
+    return this.prisma.user.findFirst({
+      where: { email, leftAt: null, company: { slug } },
+      select: this.tenantUserSelect,
+    });
+  }
+
+  @BypassTenantGuard
   async findAnyMembershipUnscoped(email: string) {
     return this.prisma.user.findFirst({
       where: { email, leftAt: null },
@@ -624,6 +633,7 @@ export class PrismaUserRepo
         company: {
           select: {
             name: true,
+            slug: true,
             createdAt: true,
             subscription: {
               select: { status: true, plan: true, trialEndDate: true },

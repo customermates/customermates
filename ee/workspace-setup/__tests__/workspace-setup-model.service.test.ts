@@ -108,6 +108,21 @@ describe("workspace setup model calls", () => {
     expect(service.drainWarnings()).toEqual(["Plan model call failed."]);
   });
 
+  it("names why the answer could not be read next to the failure", async () => {
+    const { service } = harness();
+    model.generate.mockResolvedValue({
+      output: null,
+      charge: null,
+      failure: "Plan model call failed: AI_NoObjectGeneratedError.",
+      failureScope: "request",
+      rejection: "The answer did not match the required structure: records.0.c1: Invalid input.",
+    });
+    await expect(runWithTenant(owner, () => service.generate(call))).resolves.toMatchObject({ ok: false });
+    expect(service.drainWarnings()).toEqual([
+      "Plan model call failed: AI_NoObjectGeneratedError. The answer did not match the required structure: records.0.c1: Invalid input.",
+    ]);
+  });
+
   it("charges the build to its own smaller budget, so plan retries can never use it up", async () => {
     const { usage, service } = harness("build");
     model.generate.mockResolvedValue({

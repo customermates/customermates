@@ -5,7 +5,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const createWorkspaceAction = vi.hoisted(() => vi.fn());
 const toastZodErrorTree = vi.hoisted(() => vi.fn());
 
-vi.mock("@/app/[locale]/(protected)/settings/(account)/workspaces/actions", () => ({ createWorkspaceAction }));
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/settings/(account)/workspaces/actions", () => ({
+  createWorkspaceAction,
+}));
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree }));
 
 import { NavigationGuardController } from "@/core/stores/navigation-guard.controller";
@@ -13,7 +15,7 @@ import { NavigationGuardController } from "@/core/stores/navigation-guard.contro
 import { CreateWorkspaceModalStore } from "../create-workspace-modal.store";
 
 function storeFor(canCreate = true) {
-  const workspacesStore = { canCreate, enter: vi.fn() };
+  const workspacesStore = { canCreate, enter: vi.fn(), openWorkspace: vi.fn() };
   const navigationGuard = new NavigationGuardController();
   const rootStore = { workspacesStore, navigationGuard, userStore: { user: null, can: () => true } };
   return {
@@ -54,17 +56,21 @@ describe("CreateWorkspaceModalStore", () => {
     expect(store.isOpen).toBe(true);
   });
 
-  it("creates the workspace and enters it through a full reload of the root", async () => {
+  it("creates the workspace and opens its dashboard under the new workspace URL with a full reload", async () => {
     const { store, workspacesStore } = storeFor();
     store.start();
     store.onChange("name", "  Taxes ");
     store.onChange("agreeToTerms", true);
-    createWorkspaceAction.mockResolvedValue({ ok: true, data: { companyId: "company-new", trial: false } });
+    createWorkspaceAction.mockResolvedValue({
+      ok: true,
+      data: { companyId: "company-new", slug: "taxes", trial: false },
+    });
 
     await store.onSubmit();
 
     expect(createWorkspaceAction).toHaveBeenCalledWith({ name: "  Taxes ", agreeToTerms: true });
-    expect(workspacesStore.enter).toHaveBeenCalledWith({ companyId: "company-new", name: "Taxes" }, "/");
+    expect(workspacesStore.openWorkspace).toHaveBeenCalledWith("taxes");
+    expect(workspacesStore.enter).not.toHaveBeenCalled();
     expect(store.isLoading).toBe(true);
 
     store.close();
@@ -80,6 +86,7 @@ describe("CreateWorkspaceModalStore", () => {
     await store.onSubmit();
 
     expect(workspacesStore.enter).not.toHaveBeenCalled();
+    expect(workspacesStore.openWorkspace).not.toHaveBeenCalled();
     expect(store.error).toEqual(error);
     expect(store.getError("agreeToTerms")).toEqual(["Common.errors.termsNotAgreed"]);
     expect(store.isLoading).toBe(false);

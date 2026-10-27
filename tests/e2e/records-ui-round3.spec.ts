@@ -3,6 +3,7 @@ import type { Locator, Page } from "@playwright/test";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
+import { anyWorkspaceUrlPattern, companyPath, companyUrlPattern, pagePath } from "./app-paths";
 import { expect, test, collectPageErrors } from "./fixtures";
 import { postOk } from "./api";
 import { openItemMenu } from "./item-actions";
@@ -113,7 +114,7 @@ test("rows and cards open the record drawer and keep the existing row actions", 
 }) => {
   const typeId = presetId(companyId, "organization");
   const name = `Round three ${randomUUID().slice(0, 8)}`;
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   await page.locator("#records-add").click();
   const drawer = page.getByRole("dialog");
   await drawer.getByRole("textbox", { name: "Name", exact: false }).fill(name);
@@ -126,12 +127,12 @@ test("rows and cards open the record drawer and keep the existing row actions", 
   expect(await rowActionLabels(page, row, name)).toEqual(["Open in new tab", "Open details", "Delete"]);
   await runRowAction(page, row, name, "Open details");
   await expect(page.getByRole("dialog")).toBeVisible();
-  await expect(page).toHaveURL(new RegExp(`/records/${typeId}(\\?|$)`));
+  await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${typeId}(\\?|$)`));
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).not.toBeVisible();
 
   await runRowAction(page, row, name, "Open details");
-  await expect(page).toHaveURL(new RegExp(`/records/${typeId}(\\?|$)`));
+  await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${typeId}(\\?|$)`));
   await expect(drawer).toBeVisible();
   await expect(drawer.getByRole("textbox", { name: "Name", exact: false })).toHaveValue(name);
   await expect(drawer.getByRole("heading", { name, exact: true })).toBeVisible();
@@ -146,7 +147,7 @@ test("record drawer shows an unsaved-changes bar only while edits are pending an
   const name = `Cancel guard ${randomUUID().slice(0, 8)}`;
   const draft = `${name} unsaved`;
   const saved = `${name} saved`;
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   await page.locator("#records-add").click();
   const drawer = page.getByRole("dialog");
   const input = drawer.getByRole("textbox", { name: "Name", exact: false });
@@ -221,7 +222,7 @@ test("record drawer takes focus without a browser outline while controls keep th
   companyId,
 }) => {
   const typeId = presetId(companyId, "organization");
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   await page.locator("#records-add").click();
   const drawer = page.locator('[role="dialog"][data-state="open"]');
   await expect(drawer).toBeVisible();
@@ -263,9 +264,9 @@ test("edits every field type inline in rows and on board cards, with validation,
 }, testInfo) => {
   test.skip(isMobile, "Table cells edit in place on the desktop table; phone rows render no table cells");
   test.setTimeout(240000);
-  await page.goto(`/en/records/${presetId(companyId, "contact")}`);
+  await page.goto(companyPath(companyId, `/records/${presetId(companyId, "contact")}`));
   const typeId = await createLabList(page, presetId(companyId, "contact"));
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   await expect(page.locator("#records-add")).toBeEnabled();
   await page.waitForLoadState("networkidle");
   const errors = collectPageErrors(page);
@@ -399,7 +400,7 @@ test("edits every field type inline in rows and on board cards, with validation,
 
   const choice = (await readModel(page)).fields.find((field) => field.typeId === typeId && field.label === "Choice");
   if (!choice) throw new Error("The lab choice field is missing");
-  await page.goto(`/en/records/${typeId}?viewMode=card&groupBy=${choice.id}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}?viewMode=card&groupBy=${choice.id}`));
   const card = page.locator("[data-item-id]").first();
   await expect(card).toBeVisible();
   await page.waitForLoadState("networkidle");
@@ -415,7 +416,7 @@ test("edits every field type inline in rows and on board cards, with validation,
   await cardEditor.press("Enter");
   await expect(cardEditor).toHaveCount(0);
   await expect(card).toContainText("80");
-  await expect(page).toHaveURL(new RegExp(`/records/${typeId}\\?`));
+  await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${typeId}\\?`));
   expect(errors).toEqual([]);
 });
 
@@ -424,7 +425,7 @@ test("board cards show one chip row with icons, hide empty and grouped values an
   companyId,
 }) => {
   test.setTimeout(180000);
-  await page.goto(`/en/records/${presetId(companyId, "contact")}`);
+  await page.goto(companyPath(companyId, `/records/${presetId(companyId, "contact")}`));
   const typeId = await createLabList(page, presetId(companyId, "contact"));
   const model = await readModel(page);
   const labField = (label: string) => {
@@ -448,7 +449,7 @@ test("board cards show one chip row with icons, hide empty and grouped values an
       ],
     },
   });
-  await page.goto(`/en/records/${typeId}?viewMode=card&groupBy=${choice.id}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}?viewMode=card&groupBy=${choice.id}`));
   const errors = collectPageErrors(page);
   const card = page.locator("[data-item-id]").filter({ hasText: "Lab card" });
   await expect(card).toBeVisible();
@@ -491,7 +492,7 @@ test("board cards show one chip row with icons, hide empty and grouped values an
   await editor.locator("input").first().press("Enter");
   await expect(editor).toHaveCount(0);
   await expect(chip("Text")).toHaveText("Card text");
-  await expect(page).toHaveURL(new RegExp(`/records/${typeId}\\?`));
+  await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${typeId}\\?`));
   expect(errors).toEqual([]);
 });
 
@@ -502,7 +503,7 @@ test("rows keep the row click on calculated values, toggle in selection mode and
 }) => {
   test.skip(isMobile, "Row selection and in-place cell editing belong to the desktop table; phone rows have neither");
   test.setTimeout(180000);
-  await page.goto(`/en/records/${presetId(companyId, "contact")}`);
+  await page.goto(companyPath(companyId, `/records/${presetId(companyId, "contact")}`));
   const typeId = await createLabList(page, presetId(companyId, "contact"));
   const model = await readModel(page);
   const type = model.types.find((candidate) => candidate.id === typeId)!;
@@ -511,7 +512,7 @@ test("rows keep the row click on calculated values, toggle in selection mode and
     idempotencyKey: randomUUID(),
     mutation: { action: "create", typeId, fields: [{ fieldId: type.primaryFieldId, value: { kind: "text", value: "Lab two" } }] },
   });
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   await expect(page.locator("#records-add")).toBeEnabled();
   await page.waitForLoadState("networkidle");
   const errors = collectPageErrors(page);
@@ -544,14 +545,14 @@ test("rows keep the row click on calculated values, toggle in selection mode and
   await expect(editor.locator("textarea")).toHaveValue("https://first.example.test\nhttps://second.example.test");
   await page.keyboard.press("Escape");
   await expect(editor).toHaveCount(0);
-  await expect(page).toHaveURL(new RegExp(`/records/${typeId}(\\?|$)`));
+  await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${typeId}(\\?|$)`));
 
   await row("Lab one").getByRole("button", { name: "Edit Number", exact: true }).click();
   await row("Lab one").locator("[data-in-place-editor] input").fill("3");
   await row("Lab one").locator("[data-in-place-editor] input").press("Enter");
   await expect(row("Lab one").locator("[data-calculated-field]")).toHaveText("6");
   await row("Lab one").locator("[data-calculated-field]").click();
-  await expect(page).toHaveURL(new RegExp(`/records/${typeId}(\\?|$)`));
+  await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${typeId}(\\?|$)`));
   await expect(page.getByRole("dialog")).toBeVisible();
   expect(errors).toEqual([]);
 });
@@ -563,7 +564,7 @@ test("grouped tables show a quiet group band that adds into the group and hide t
 }) => {
   test.skip(isMobile, "The group band with Add and the hidden grouped column belong to the desktop table");
   test.setTimeout(180000);
-  await page.goto(`/en/records/${presetId(companyId, "contact")}`);
+  await page.goto(companyPath(companyId, `/records/${presetId(companyId, "contact")}`));
   const typeId = await createLabList(page, presetId(companyId, "contact"));
   const model = await readModel(page);
   const type = model.types.find((candidate) => candidate.id === typeId)!;
@@ -580,7 +581,7 @@ test("grouped tables show a quiet group band that adds into the group and hide t
       ],
     },
   });
-  await page.goto(`/en/records/${typeId}?viewMode=table&groupBy=${choice.id}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}?viewMode=table&groupBy=${choice.id}`));
   await expect(page.locator("#records-add")).toBeEnabled();
   const band = page.locator('[data-slot="group-header-row"]').filter({ hasText: choice.options[0].label });
   await expect(band).toBeVisible();
@@ -597,7 +598,7 @@ test("grouped tables show a quiet group band that adds into the group and hide t
 
 test("phone rows show the title and the card chip row instead of table columns", async ({ page, companyId }) => {
   test.setTimeout(180000);
-  await page.goto(`/en/records/${presetId(companyId, "contact")}`);
+  await page.goto(companyPath(companyId, `/records/${presetId(companyId, "contact")}`));
   const typeId = await createLabList(page, presetId(companyId, "contact"));
   const model = await readModel(page);
   const type = model.types.find((candidate) => candidate.id === typeId)!;
@@ -615,7 +616,7 @@ test("phone rows show the title and the card chip row instead of table columns",
     },
   });
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   await expect(page.locator("#records-add")).toBeEnabled();
   const rows = page.locator("[data-phone-rows]");
   await expect(rows).toBeVisible();
@@ -624,7 +625,7 @@ test("phone rows show the title and the card chip row instead of table columns",
   await expect(item.locator(`[data-chip-column="${money.id}"]`)).toHaveText("€342K");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await item.getByRole("link", { name: "Lab phone", exact: true }).click({ position: { x: 2, y: 2 } });
-  await expect(page).toHaveURL(new RegExp(`/records/${typeId}(\\?|$)`));
+  await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${typeId}(\\?|$)`));
   await expect(page.getByRole("dialog")).toBeVisible();
 });
 
@@ -634,7 +635,7 @@ test("board columns keep a one-line header, one fixed width and collapse into st
 }, testInfo) => {
   await page.setViewportSize({ width: 720, height: 900 });
   const typeId = presetId(companyId, "deal");
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   const model = await readModel(page);
   const deal = model.types.find((type) => type.id === typeId);
   if (!deal) throw new Error("The deal list is missing");
@@ -688,7 +689,7 @@ test("edits built-in assignees across table, card, phone and pinned detail contr
   workspace,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
-  await page.goto(`/en/records/${presetId(companyId, "contact")}`);
+  await page.goto(pagePath(page, `/records/${presetId(companyId, "contact")}`));
   const typeId = await createLabList(page, presetId(companyId, "contact"));
   const model = await readModel(page);
   const choice = model.fields.find((field) => field.typeId === typeId && field.label === "Choice");
@@ -713,7 +714,7 @@ test("edits built-in assignees across table, card, phone and pinned detail contr
   const errors = collectPageErrors(page);
   for (const [mode, width] of [["row", 1280], ["card", 1280], ["row", 390]] as const) {
     await page.setViewportSize({ width, height: 900 });
-    await page.goto(`/en/records/${typeId}?viewMode=${mode}${mode === "card" ? `&groupBy=${choice.id}` : ""}`);
+    await page.goto(pagePath(page, `/records/${typeId}?viewMode=${mode}${mode === "card" ? `&groupBy=${choice.id}` : ""}`));
     await page.getByRole("button", { name: "Appearance", exact: true }).click();
     await page.getByRole("checkbox", { name: "Assigned to", exact: true }).check();
     if (width < 768) await page.locator('[data-slot="drawer-close"]').click();
@@ -735,7 +736,7 @@ test("edits built-in assignees across table, card, phone and pinned detail contr
     await expect(editor).not.toBeVisible();
     await expect.poll(assignedIds).toEqual([workspace.userId, colleagueId].sort());
     await expect(trigger).toContainText("Assigned Colleague");
-    expect(new URL(page.url()).pathname).toBe(`/en/records/${typeId}`);
+    expect(new URL(page.url()).pathname).toBe(pagePath(page, `/records/${typeId}`));
     await trigger.click();
     await editor.getByRole("option").filter({ hasText: "Assigned Colleague" }).click();
     if (mode === "row" && width === 1280) {
@@ -775,7 +776,7 @@ test("edits built-in assignees across table, card, phone and pinned detail contr
   await page.goto("/en/dashboard");
   await openSidebar(page);
   await page.locator(`[id="nav-records:${typeId}"]`).click();
-  await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}(\\?|$)`));
+  await expect(page).toHaveURL(anyWorkspaceUrlPattern(`/records/${typeId}(\\?|$)`));
   await page.getByRole("button", { name: "Appearance", exact: true }).click();
   await page.getByRole("checkbox", { name: "Assigned to", exact: true }).check();
   await page.locator('[data-slot="drawer-close"]').click();
@@ -812,7 +813,7 @@ test("edits built-in assignees across table, card, phone and pinned detail contr
   await page.getByRole("alertdialog").getByRole("button", { name: "Discard", exact: true }).click();
   await remoteAssign([workspace.userId]);
   await page.setViewportSize({ width: 1280, height: 900 });
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(pagePath(page, `/records/${typeId}`));
   await openRecordDetails(page, "Lab one");
   const drawer = page.getByRole("dialog", { name: "Lab item", exact: true });
   await drawer.getByRole("button", { name: "Pin or unpin fields", exact: true }).click();
@@ -844,7 +845,7 @@ test("edits formatted notes inline with the shared editor in rows, cards and pho
       Object.defineProperty(navigator, "platform", { get: () => "iPhone" });
   });
   await page.setViewportSize({ width: 1280, height: 900 });
-  await page.goto(`/en/records/${presetId(companyId, "contact")}`);
+  await page.goto(pagePath(page, `/records/${presetId(companyId, "contact")}`));
   const typeId = await createLabList(page, presetId(companyId, "contact"));
   const model = await readModel(page);
   const notesId = randomUUID();
@@ -874,7 +875,7 @@ test("edits formatted notes inline with the shared editor in rows, cards and pho
   let saved = "";
   for (const [mode, width] of [["row", 1280], ["card", 1280], ["row", 390]] as const) {
     await page.setViewportSize({ width, height: 900 });
-    await page.goto(`/en/records/${typeId}?viewMode=${mode}${mode === "card" ? `&groupBy=${choice.id}` : ""}`);
+    await page.goto(pagePath(page, `/records/${typeId}?viewMode=${mode}${mode === "card" ? `&groupBy=${choice.id}` : ""}`));
     await page.getByRole("button", { name: "Appearance", exact: true }).click();
     await page.getByRole("checkbox", { name: "Notes", exact: true }).check();
     if (width < 768) await page.locator('[data-slot="drawer-close"]').click();
@@ -906,7 +907,7 @@ test("edits formatted notes inline with the shared editor in rows, cards and pho
     await expect.poll(notesValue).toContain(draft);
     saved = draft;
     await expect(item).toContainText(saved);
-    expect(new URL(page.url()).pathname).toBe(`/en/records/${typeId}`);
+    expect(new URL(page.url()).pathname).toBe(pagePath(page, `/records/${typeId}`));
     await page.reload();
     await expect(item).toContainText(saved);
     if (mode === "card") {
@@ -942,7 +943,7 @@ test("short chips stay readable and long chips truncate across table, card and p
   companyId,
   database,
 }, testInfo) => {
-  await page.goto(`/en/records/${presetId(companyId, "contact")}`);
+  await page.goto(companyPath(companyId, `/records/${presetId(companyId, "contact")}`));
   const typeId = await createLabList(page, presetId(companyId, "contact"));
   const model = await readModel(page);
   const choice = model.fields.find((field) => field.typeId === typeId && field.label === "Choice");
@@ -1020,7 +1021,7 @@ test("short chips stay readable and long chips truncate across table, card and p
   for (const mode of ["row", "card"]) {
     for (const width of [390, 820, 1280]) {
       await page.setViewportSize({ width, height: 900 });
-      await page.goto(`/en/records/${typeId}?viewMode=${mode}${mode === "card" ? `&groupBy=${groupId}` : ""}`);
+      await page.goto(companyPath(companyId, `/records/${typeId}?viewMode=${mode}${mode === "card" ? `&groupBy=${groupId}` : ""}`));
       const shortRecord = page.locator("[data-row-id], [data-item-id]").filter({ hasText: "Lab short chips" }).first();
       for (const label of ["Choice", "Text", "Date"]) {
         const short = shortRecord.getByRole("button", { name: `Edit ${label}`, exact: true });

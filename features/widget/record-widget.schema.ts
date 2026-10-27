@@ -122,3 +122,4 @@ export const GenericRecordWidgetInputSchema = z.union([
   RecordMapWidgetInputSchema,
 ]);
 export type GenericRecordWidgetDto = z.infer<typeof GenericRecordWidgetDtoSchema>;
+export type GenericRecordWidgetInput = z.infer<typeof GenericRecordWidgetInputSchema>;

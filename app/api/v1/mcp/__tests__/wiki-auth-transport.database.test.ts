@@ -112,6 +112,7 @@ async function initialize(apiKey: string, endpoint = MCP_URL) {
 describeDatabase("Workspace Wiki authenticated MCP transport", () => {
   const client = new Client({ connectionString: databaseUrl ?? undefined });
   const companyId = randomUUID();
+  const companySlug = `wiki-mcp-${companyId.slice(0, 8)}`;
   const foreignCompanyId = randomUUID();
   const managerRoleId = randomUUID();
   const readerRoleId = randomUUID();
@@ -139,8 +140,8 @@ describeDatabase("Workspace Wiki authenticated MCP transport", () => {
   beforeAll(async () => {
     await client.connect();
     await client.query(
-      'INSERT INTO "Company" ("id", "updatedAt") VALUES ($1, CURRENT_TIMESTAMP), ($2, CURRENT_TIMESTAMP)',
-      [companyId, foreignCompanyId],
+      'INSERT INTO "Company" ("id", "slug", "updatedAt") VALUES ($1, $3, CURRENT_TIMESTAMP), ($2, DEFAULT, CURRENT_TIMESTAMP)',
+      [companyId, foreignCompanyId, companySlug],
     );
     await client.query(
       'INSERT INTO "UserRole" ("id", "name", "isSystemRole", "companyId", "updatedAt") VALUES ($1, $2, TRUE, $3, CURRENT_TIMESTAMP), ($4, $5, FALSE, $3, CURRENT_TIMESTAMP)',
@@ -377,7 +378,7 @@ describeDatabase("Workspace Wiki authenticated MCP transport", () => {
         items: expect.arrayContaining([
           expect.objectContaining({
             id: readablePageId,
-            url: `http://localhost:4000/wiki?page=${readablePageId}`,
+            url: `http://localhost:4000/w/${companySlug}/wiki?page=${readablePageId}`,
           }),
         ]),
       },

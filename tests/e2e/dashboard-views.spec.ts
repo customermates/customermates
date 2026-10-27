@@ -7,6 +7,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { expect, test, collectPageErrors } from "./fixtures";
 import { openItemContextMenu } from "./item-actions";
+import { pagePath } from "./app-paths";
 
 async function revision(page: Page) {
   const response = await page.request.post("/api/v1/model/read", {
@@ -25,7 +26,7 @@ test("keeps separate widget sets per dashboard view and targets a view through t
   const errors = collectPageErrors(page);
   const dialog = page.getByRole("dialog");
   const rail = page.locator("[data-joins-top-bar]");
-  await page.goto("/en/dashboard");
+  await page.goto(pagePath(page, "/dashboard"));
   await expect(rail).toBeVisible();
 
   await rail
@@ -115,7 +116,7 @@ test("keeps separate widget sets per dashboard view and targets a view through t
     englishMessages.Common.errors.dataViewNotFound,
   );
 
-  await page.goto(`/en/dashboard?view=${viewId}`);
+  await page.goto(pagePath(page, `/dashboard?view=${viewId}`));
   await expect(
     page.getByRole("heading", { name: "Berlin via API", exact: true }),
   ).toBeVisible();
@@ -193,7 +194,7 @@ test("names the widgets of a view that is not shown and renames it from its chip
   const errors = collectPageErrors(page);
   const dialog = page.getByRole("dialog");
   const rail = page.locator("[data-joins-top-bar]");
-  await page.goto("/en/dashboard");
+  await page.goto(pagePath(page, "/dashboard"));
   await expect(rail).toBeVisible();
   await rail
     .getByRole("button", {

@@ -1,5 +1,6 @@
 import type { RecordModel } from "@/features/records/record-model.schema";
-import type { SetupPlanInput } from "../setup-plan.schema";
+import type { RecordWidgetInput } from "@/features/widget/record-widget.schema";
+import type { SetupChartWidget, SetupPlanInput } from "../setup-plan.schema";
 
 import { describe, expect, it } from "vitest";
 
@@ -8,14 +9,17 @@ import { validateRecordModel } from "@/features/records/record-model-validation"
 import { WIDGET_GRID_BREAKPOINT_COLUMNS, rectsOverlap } from "@/features/widget/widget-grid";
 import { ChartColor, DisplayType } from "@/features/widget/widget-display.schema";
 
-import { compileSetupDashboard, setupDashboardLayouts } from "../setup-dashboard-compiler";
+import { compileSetupCalendar } from "../setup-calendar-compiler";
+import { compileSetupDashboard, setupDashboardLayouts, setupDashboardShapeIssues } from "../setup-dashboard-compiler";
 import { compileSetupImportMapping, setupImportList, withOptionalImportFields } from "../setup-import-compiler";
 import { compileSetupRecordModel } from "../setup-model-compiler";
 import { SETUP_PLAN_LIMITS, SetupPlanSchema } from "../setup-plan.schema";
 import { createSetupResolver, setupIdempotencyKey } from "../setup-references";
 import { compileSetupListDefaults } from "../setup-view-compiler";
 import { SETUP_ID, SETUP_LABELS, emptyWorkspaceModel, prepareConfiguration } from "./setup-harness";
-import { agencyPlan, fieldServicePlan, saasPlan } from "./setup-plan-fixtures";
+import { agencyDashboardPlan, agencyPlan, fieldServicePlan, saasPlan } from "./setup-plan-fixtures";
+
+const agencyCharts = agencyPlan.dashboard.widgets as SetupChartWidget[];
 
 async function build(
   input: SetupPlanInput,
@@ -262,8 +266,6 @@ describe("workspace setup compiler", () => {
     expect(lineFields).toEqual([
       ["Line item", "text", "input"],
       ["Quantity", "number", "input"],
-      ["Pricing", "select", "input"],
-      ["Saved unit price", "currency", "snapshot"],
       ["Unit price", "currency", "formula"],
       ["Amount", "currency", "formula"],
     ]);
@@ -402,14 +404,14 @@ describe("workspace setup compiler", () => {
     }
     expect(new Set(widgets.data.map((widget) => widget.idempotencyKey)).size).toBe(widgets.data.length);
     for (const widget of widgets.data) {
-      expect(widget.displayOptions?.barColors).toEqual([ChartColor.secondary2]);
+      expect((widget as RecordWidgetInput).displayOptions?.barColors).toEqual([ChartColor.secondary2]);
       expect(widget.isTemplate).toBe(plan.workspace.dashboardAudience !== "me");
       expect(JSON.stringify(widget)).not.toContain("$");
     }
   });
 
-  it("packs metrics into the first rows and charts into equal pairs below", () => {
-    const [metric, chart] = [agencyPlan.dashboard.widgets[0], agencyPlan.dashboard.widgets[2]];
+  it("lays out four numbers, then two rows of three charts with the wider charts in the last row", () => {
+    const [metric, chart] = [agencyCharts[0], agencyCharts[2]];
     const widgets = [
       chart,
       metric,
@@ -418,24 +420,44 @@ describe("workspace setup compiler", () => {
       metric,
       chart,
       metric,
-      metric,
+      chart,
+      chart,
       chart,
     ];
     expect(setupDashboardLayouts(widgets, [{ x: 0, y: 0, w: 12, h: 3 }])).toEqual([
-      { x: 0, y: 13, w: 6, h: 6 },
+      { x: 0, y: 5, w: 4, h: 5 },
       { x: 0, y: 3, w: 3, h: 2 },
-      { x: 0, y: 7, w: 12, h: 6 },
+      { x: 8, y: 10, w: 4, h: 5 },
       { x: 3, y: 3, w: 3, h: 2 },
       { x: 6, y: 3, w: 3, h: 2 },
-      { x: 6, y: 13, w: 6, h: 6 },
+      { x: 4, y: 5, w: 4, h: 5 },
       { x: 9, y: 3, w: 3, h: 2 },
-      { x: 0, y: 5, w: 12, h: 2 },
-      { x: 0, y: 19, w: 12, h: 6 },
+      { x: 8, y: 5, w: 4, h: 5 },
+      { x: 0, y: 10, w: 4, h: 5 },
+      { x: 4, y: 10, w: 4, h: 5 },
     ]);
   });
 
-  it("creates the widgets in layout order so a lone chart is never placed below a later wide one", async () => {
-    const chart = agencyPlan.dashboard.widgets[2];
+  it("fills every row when a dashboard has fewer or more widgets", () => {
+    const [metric, chart] = [agencyCharts[0], agencyCharts[2]];
+    expect(setupDashboardLayouts([metric, metric, chart, chart, chart, chart])).toEqual([
+      { x: 0, y: 0, w: 6, h: 2 },
+      { x: 6, y: 0, w: 6, h: 2 },
+      { x: 0, y: 2, w: 6, h: 5 },
+      { x: 6, y: 2, w: 6, h: 5 },
+      { x: 0, y: 7, w: 6, h: 5 },
+      { x: 6, y: 7, w: 6, h: 5 },
+    ]);
+    expect(setupDashboardLayouts([chart])).toEqual([{ x: 0, y: 0, w: 12, h: 5 }]);
+    const many = setupDashboardLayouts([...Array(6).fill(metric), ...Array(6).fill(chart)]);
+    expect(many.slice(0, 6).map(({ w }) => w)).toEqual([4, 4, 4, 4, 4, 4]);
+    expect(many.slice(6).map(({ w }) => w)).toEqual([4, 4, 4, 4, 4, 4]);
+    for (const [index, rect] of many.entries())
+      for (const other of many.slice(index + 1)) expect(rectsOverlap(rect, other)).toBe(false);
+  });
+
+  it("creates the widgets in layout order and gives a wide chart one of the two wider places", async () => {
+    const chart = agencyCharts[2];
     const { plan, prepared, resolver } = await build({
       ...agencyPlan,
       dashboard: {
@@ -443,7 +465,6 @@ describe("workspace setup compiler", () => {
         widgets: [
           ...agencyPlan.dashboard.widgets,
           { ...chart, key: "secondChart", title: "Second chart" },
-          { ...chart, key: "thirdChart", title: "Third chart" },
           { ...chart, key: "trend", title: "Trend", size: "wide" as const },
         ],
       },
@@ -458,7 +479,8 @@ describe("workspace setup compiler", () => {
     expect(widgets.data.map((widget) => widget.name).sort()).toEqual(
       plan.dashboard.widgets.map((widget) => widget.title).sort(),
     );
-    expect(layouts.at(-1)).toMatchObject({ x: 0, w: 12 });
+    expect(layouts.map(({ w }) => w)).toEqual([6, 6, 4, 4, 4, 6, 6]);
+    expect(widgets.data.find((widget) => widget.name === "Trend")?.layout).toEqual({ x: 0, y: 7, w: 6, h: 5 });
   });
 
   it("puts the first ranked numbers on the top row", async () => {
@@ -472,7 +494,7 @@ describe("workspace setup compiler", () => {
       { x: 0, y: 0, w: 6, h: 2 },
       { x: 6, y: 0, w: 6, h: 2 },
     ]);
-    expect(widgets.data[1].measure?.source.filters).toEqual([
+    expect((widgets.data[1] as RecordWidgetInput).measure?.source.filters).toEqual([
       {
         fieldId: resolver.field("deal.stage"),
         operator: "in",
@@ -485,12 +507,12 @@ describe("workspace setup compiler", () => {
         value: { kind: "decimal", value: "30", currency: null },
       },
     ]);
-    expect(widgets.data[2].displayOptions?.useGroupColors).toBe(true);
+    expect((widgets.data[2] as RecordWidgetInput).displayOptions?.useGroupColors).toBe(false);
   });
 
   it("reports a widget whose display type does not fit its measure", async () => {
     const input = structuredClone(agencyPlan);
-    input.dashboard.widgets = [{ ...agencyPlan.dashboard.widgets[2], display: DisplayType.number }];
+    input.dashboard.widgets = [{ ...agencyCharts[2], display: DisplayType.number }];
     const { plan, prepared, resolver } = await build(input);
     const widgets = compileSetupDashboard(plan, resolver, prepared.model, {
       setupId: SETUP_ID,
@@ -500,6 +522,155 @@ describe("workspace setup compiler", () => {
       ok: false,
       issues: [{ code: "display_mismatch", path: "dashboard.widgets.0.display" }],
     });
+  });
+
+  it("builds calendar, map and activity widgets in the seeded four, three, three shape", async () => {
+    const { plan, prepared, resolver } = await build(agencyDashboardPlan);
+    const widgets = compileSetupDashboard(plan, resolver, prepared.model, {
+      setupId: SETUP_ID,
+      expectedRevision: prepared.model.revision,
+      timeZone: "Europe/Berlin",
+    });
+    if (!widgets.ok) throw new Error(JSON.stringify(widgets.issues));
+    const byName = new Map(widgets.data.map((widget) => [widget.name, widget]));
+    const rows = new Map<number, number[]>();
+    for (const widget of widgets.data) {
+      const layout = widget.layout ?? { x: 0, y: -1, w: 0, h: 0 };
+      rows.set(layout.y, [...(rows.get(layout.y) ?? []), layout.w]);
+    }
+    expect([...rows.values()]).toEqual([
+      [3, 3, 3, 3],
+      [4, 4, 4],
+      [4, 4, 4],
+    ]);
+    expect(byName.get("Due this month")).toMatchObject({
+      kind: "calendar",
+      displayOptions: { showFilters: true },
+      calendarQuery: {
+        source: { typeId: resolver.list("task") },
+        dateFieldId: resolver.field("task.dueDate"),
+        layout: "month",
+        timeZone: "Europe/Berlin",
+        showOverdue: false,
+        amountFieldId: null,
+        aggregation: "count",
+      },
+    });
+    expect(byName.get("Closing soon")).toMatchObject({
+      kind: "calendar",
+      calendarQuery: {
+        layout: "upcoming",
+        showOverdue: true,
+        amountFieldId: resolver.field("deal.value"),
+        aggregation: "count",
+      },
+    });
+    expect(byName.get("Clients on the map")).toMatchObject({
+      kind: "map",
+      displayOptions: { showFilters: false },
+      mapQuery: {
+        source: { typeId: resolver.list("organization") },
+        addressFieldId: resolver.field("organization.address"),
+        colorFieldId: null,
+        sizeFieldId: resolver.field("organization.projectBudget"),
+        detailFieldId: resolver.field("organization.industry"),
+      },
+    });
+    expect(byName.get("Latest messages")).toMatchObject({
+      kind: "activityTimeline",
+      activityQuery: { scope: { records: [], typeIds: [] }, kinds: ["message"] },
+      displayOptions: { showFilters: true },
+    });
+    expect(setupDashboardShapeIssues(plan)).toEqual([]);
+  });
+
+  it("asks for four numbers, six widgets, a calendar on a date field and a map on an address field", () => {
+    expect(setupDashboardShapeIssues(SetupPlanSchema.parse(agencyPlan)).map((issue) => issue.code)).toEqual([
+      "four_numbers",
+      "six_widgets",
+      "calendar_missing",
+    ]);
+    const withoutMap = structuredClone(agencyDashboardPlan);
+    withoutMap.dashboard.widgets = withoutMap.dashboard.widgets.map((widget) =>
+      widget.kind === "map" ? { kind: "activity", key: "messages", title: "Messages" } : widget,
+    );
+    expect(setupDashboardShapeIssues(SetupPlanSchema.parse(withoutMap)).map((issue) => issue.code)).toEqual([
+      "map_missing",
+    ]);
+  });
+
+  it("reports a calendar on a field that holds no date and a map on a field that holds no address", async () => {
+    const input = structuredClone(agencyDashboardPlan);
+    input.dashboard.widgets = input.dashboard.widgets.map((widget) =>
+      widget.kind === "calendar" && widget.key === "dueThisMonth"
+        ? { ...widget, dateField: "task.status" }
+        : widget.kind === "map"
+          ? { ...widget, addressField: "organization.industry" }
+          : widget,
+    );
+    const { plan, prepared, resolver } = await build(input);
+    const widgets = compileSetupDashboard(plan, resolver, prepared.model, {
+      setupId: SETUP_ID,
+      expectedRevision: 1,
+    });
+    expect(widgets).toEqual({
+      ok: false,
+      issues: [
+        { code: "invalid_widget", path: "dashboard.widgets.5.dateField" },
+        { code: "invalid_widget", path: "dashboard.widgets.7.addressField" },
+      ],
+    });
+  });
+
+  it("compiles the calendar sources to date fields, open-stage filters and colours", async () => {
+    const { plan, prepared, resolver, reference } = await build(agencyPlan);
+    const compiled = compileSetupCalendar(plan, resolver, prepared.model);
+    expect(compiled).toEqual({
+      ok: true,
+      data: [
+        {
+          typeId: reference("$list.project"),
+          calendar: {
+            dateFieldId: reference("$field.project.startDate"),
+            endDateFieldId: reference("$field.project.dueDate"),
+          },
+          filters: [],
+          enabled: true,
+          color: "info",
+        },
+        {
+          typeId: reference("$list.deal"),
+          calendar: { dateFieldId: reference("$field.deal.closeDate") },
+          filters: [
+            {
+              field: reference("$field.deal.stage"),
+              operator: "in",
+              value: ["lead", "briefing", "proposal"].map((key) => resolver.option("deal.stage", key)),
+            },
+          ],
+          enabled: true,
+          color: "success",
+        },
+      ],
+    });
+  });
+
+  it("reports a calendar source on a field that holds no date", async () => {
+    const input = structuredClone(agencyPlan);
+    input.calendar = {
+      sources: [{ list: "project", dateField: "project.phase", endField: null, color: "info", filters: [] }],
+    };
+    const { plan, prepared, resolver } = await build(input);
+    expect(compileSetupCalendar(plan, resolver, prepared.model)).toEqual({
+      ok: false,
+      issues: [{ code: "invalid_calendar_field", path: "calendar.sources.0.dateField" }],
+    });
+  });
+
+  it("reads a stored plan without calendar sources", () => {
+    const stored: SetupPlanInput = { ...agencyPlan };
+    delete stored.calendar;
+    expect(SetupPlanSchema.parse(stored).calendar).toEqual({ sources: [] });
   });
 
   it("compiles the import mapping to fields of the target list", async () => {

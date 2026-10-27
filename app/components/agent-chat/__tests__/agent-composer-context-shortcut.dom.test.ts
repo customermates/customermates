@@ -27,7 +27,7 @@ vi.mock("@/core/utils/background-task.service", () => ({}));
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
   useHydratedIntlStore: () => ({ rendersZonedValues: true }),
 }));
-vi.mock("@/app/[locale]/(protected)/inbox/components/message-date-separator", () => ({
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/inbox/components/message-date-separator", () => ({
   MessageDateSeparator: () => null,
   isSameDay: () => false,
 }));

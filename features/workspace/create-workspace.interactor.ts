@@ -34,7 +34,7 @@ export type CreateWorkspaceData = Data<typeof Schema>;
 
 const CREATE_TRANSACTION_TIMEOUT_MS = 15_000;
 
-const OutputSchema = z.object({ companyId: z.string(), trial: z.boolean() });
+const OutputSchema = z.object({ companyId: z.string(), slug: z.string().nullable(), trial: z.boolean() });
 type CreateWorkspaceResult = Data<typeof OutputSchema>;
 
 @SystemInteractor
@@ -64,10 +64,6 @@ export class CreateWorkspaceInteractor {
       () => this.createLocked({ authUserId: session.user.id, email: session.user.email }, data, profile),
       { timeout: CREATE_TRANSACTION_TIMEOUT_MS },
     ).catch(unwoundFailure);
-    if (!created.ok) return created;
-
-    await this.authService.setSessionActiveCompany(session.session.id, created.data.companyId);
-
     return created;
   }
 
@@ -124,6 +120,6 @@ export class CreateWorkspaceInteractor {
       });
     });
 
-    return { ok: true as const, data: { companyId: owner.companyId, trial } };
+    return { ok: true as const, data: { companyId: owner.companyId, slug: owner.company?.slug ?? null, trial } };
   }
 }

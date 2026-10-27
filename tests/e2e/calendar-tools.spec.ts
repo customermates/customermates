@@ -8,6 +8,7 @@ import { localE2eEnvironment } from "./local-environment";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 import { postOk, readModel } from "./api";
+import { companyPath } from "./app-paths";
 
 test("an agent sets the Calendar page over MCP, the page shows it, and reset returns to the derived default", async ({
   page,
@@ -87,7 +88,7 @@ test("an agent sets the Calendar page over MCP, the page shows it, and reset ret
     const sourceId = updated.config?.sources[0]?.id;
     expect(updated.config?.sources).toHaveLength(1);
 
-    await page.goto("/en/calendar");
+    await page.goto(companyPath(companyId, "/calendar"));
     const calendar = page.locator("[data-planner-page]");
     await expect(calendar).toBeVisible();
     await expect(

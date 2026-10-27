@@ -12,6 +12,7 @@ import { localE2eEnvironment } from "./local-environment";
 import { invokesServerAction, serverActionIds } from "./server-actions";
 import { createBrowserWorkspace } from "./workspace";
 import { clickHydrated, e2eAppMode } from "./workspace-switching";
+import { companyPath, pagePath } from "./app-paths";
 
 type Permission = { resource: string; action: string };
 
@@ -102,7 +103,7 @@ export function workspaceMenu(page: Page) {
 }
 
 export function organizationList(companyId: string) {
-  return `/en/records/${presetId(companyId, "organization")}`;
+  return companyPath(companyId, `/records/${presetId(companyId, "organization")}`);
 }
 
 export function memberItem(page: Page, name: string) {
@@ -110,7 +111,7 @@ export function memberItem(page: Page, name: string) {
 }
 
 export async function readInvitationLink(page: Page) {
-  await page.goto("/en/settings/members");
+  await page.goto(pagePath(page, "/settings/members"));
   await clickHydrated(page.locator("#settings-members-add"));
   const dialog = page.getByRole("dialog");
   const link = dialog.locator("#invite-modal-link");
@@ -169,7 +170,7 @@ export async function expectRefusedPageAction(page: Page, path: string) {
 }
 
 export function recordUnreadCountPolls(page: Page) {
-  const actionIds = serverActionIds("app/[locale]/(protected)/inbox/actions.ts", "getUnreadThreadCountAction");
+  const actionIds = serverActionIds("app/[locale]/(protected)/w/[workspace]/inbox/actions.ts", "getUnreadThreadCountAction");
   const sentAt: number[] = [];
   page.on("request", (request) => {
     if (invokesServerAction(request, actionIds)) sentAt.push(Date.now());

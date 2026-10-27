@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 
+import { companyPath, companyUrlPattern } from "./app-paths";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { saveViewChanges } from "./view-changes";
 import { openItemMenu } from "./item-actions";
@@ -15,7 +16,7 @@ test("board columns add a record with the column value, open the option, and col
   const id = (key: string) => presetId(companyId, key);
   const typeId = id("deal");
   const column = (option: string) => page.locator(`[data-group-key="value:${id(`deal.stage.${option}`)}"]`);
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   const model = await (await page.request.post("/api/v1/model/read", { data: {} })).json();
   const created = await page.request.post("/api/v1/records/mutate", {
     data: {
@@ -152,12 +153,12 @@ test("board columns add a record with the column value, open the option, and col
   const optionRow = page.locator(`[data-focus-target="option:${id("deal.stage")}.${id("deal.stage.new")}"]`);
   await openItemMenu(page, open.getByRole("button", { name: "More actions for New", exact: true }));
   await page.getByRole("menuitem", { name: "Edit option", exact: true }).click();
-  await expect(page).toHaveURL(new RegExp(`/configure\\?typeId=${typeId}&tab=fields`));
+  await expect(page).toHaveURL(companyUrlPattern(companyId, `/configure\\?typeId=${typeId}&tab=fields`));
   await expect(optionRow).toBeVisible();
   await expect(optionRow).toHaveAttribute("data-focus-highlight", "");
   await page.screenshot({ path: testInfo.outputPath("board-edit-option.png"), animations: "disabled" });
 
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   const chip = open.locator("[data-kanban-edit-option]");
   await expect(chip).toHaveText("New");
   await open.hover();

@@ -5,7 +5,7 @@ import type { LucideIcon } from "lucide-react";
 import type { VisualProviderFixtureId } from "@/components/marketing/visuals/native-fixtures";
 import type { KeyboardEvent as ReactKeyboardEvent, ReactNode } from "react";
 
-import { ChevronDown, Slack } from "lucide-react";
+import { ArrowUpRight, ChevronDown, Slack } from "lucide-react";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 import { AiClientLogo } from "@/components/ai-connection/ai-client-logo";
@@ -14,9 +14,26 @@ import { ProviderMark } from "@/components/marketing/visuals/native-visual-primi
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import { cn } from "@/core/utils/cn";
 
+export type PublicNavPreviewImage = {
+  height: number;
+  src: string;
+  width: number;
+};
+
+export type PublicNavPreview = {
+  dark: PublicNavPreviewImage;
+  description: string;
+  exampleHref: string;
+  exampleLabel: string;
+  light: PublicNavPreviewImage;
+};
+
 type PublicNavLinkBase = {
   activeMatch?: boolean;
+  footer?: boolean;
   href: string;
+  preview?: PublicNavPreview;
+  section?: string;
   title: string;
 };
 
@@ -31,8 +48,13 @@ type PublicNavAgentProvider = Extract<
 export type PublicNavMark =
   | { kind: "agent"; provider: PublicNavAgentProvider }
   | { kind: "automation"; provider: "n8n" }
-  | { kind: "channel"; provider: VisualProviderFixtureId }
+  | { kind: "channel"; muted?: boolean; provider: VisualProviderFixtureId }
   | { kind: "provider"; provider: "slack" };
+
+export type PublicNavSection = {
+  id: string;
+  title: string;
+};
 
 export type PublicNavGroup = {
   activeHref: string;
@@ -40,6 +62,7 @@ export type PublicNavGroup = {
   icon: LucideIcon;
   id: string;
   links: PublicNavLink[];
+  sections?: PublicNavSection[];
   title: string;
 };
 
@@ -105,22 +128,27 @@ function PublicNavLinkMark({ mark }: { mark: PublicNavMark }) {
   const hydrated = useSyncExternalStore(subscribeToHydration, clientHydrationSnapshot, serverHydrationSnapshot);
   let icon: ReactNode = null;
 
-  if (mark.kind === "channel") icon = <ProviderMark decorative provider={mark.provider} size={18} />;
+  if (mark.kind === "channel") icon = <ProviderMark decorative provider={mark.provider} size={15} />;
 
-  if (mark.kind === "agent") icon = <AiClientLogo className="size-[18px]" provider={mark.provider} />;
+  if (mark.kind === "agent") icon = <AiClientLogo className="size-[15px]" provider={mark.provider} />;
 
   if (mark.kind === "automation") {
     icon = (
       // eslint-disable-next-line @next/next/no-img-element -- the allowlisted n8n mark is a bundled local SVG.
-      <img aria-hidden alt="n8n" className="h-4 w-[22px] shrink-0 object-contain" src="/icons/integrations/n8n.svg" />
+      <img aria-hidden alt="n8n" className="h-3.5 w-5 shrink-0 object-contain" src="/icons/integrations/n8n.svg" />
     );
   }
 
-  if (mark.kind === "provider") icon = <Slack aria-hidden className="size-[18px] text-[#4a154b] dark:text-[#e01e5a]" />;
+  if (mark.kind === "provider") icon = <Slack aria-hidden className="size-[15px] text-[#4a154b] dark:text-[#e01e5a]" />;
 
   return (
     <span
-      className="grid h-[18px] w-[22px] shrink-0 place-items-center"
+      className={cn(
+        "grid size-5 shrink-0 place-items-center",
+        mark.kind === "channel" &&
+          mark.muted &&
+          "opacity-60 grayscale transition-opacity duration-150 group-hover/link:opacity-90 group-focus-visible/link:opacity-90 motion-reduce:transition-none",
+      )}
       data-public-nav-mark={`${mark.kind}:${mark.provider}`}
     >
       {hydrated ? icon : null}
@@ -128,16 +156,26 @@ function PublicNavLinkMark({ mark }: { mark: PublicNavMark }) {
   );
 }
 
+const PREVIEW_THEMES = [
+  { className: "dark:hidden", theme: "light" },
+  { className: "not-dark:hidden", theme: "dark" },
+] as const;
+
 function PublicNavLinkIcon({ icon: LinkIcon }: { icon: LucideIcon }) {
   return (
-    <span aria-hidden className="grid h-[18px] w-[22px] shrink-0 place-items-center" data-public-nav-icon="true">
-      <LinkIcon className="size-4" />
+    <span
+      aria-hidden
+      className="grid size-5 shrink-0 place-items-center text-muted-foreground transition-colors duration-150 group-hover/link:text-subdued group-focus-visible/link:text-subdued group-aria-[current=page]/link:text-subdued motion-reduce:transition-none"
+      data-public-nav-icon="true"
+    >
+      <LinkIcon className="size-[15px]" strokeWidth={1.75} />
     </span>
   );
 }
 
 export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pathname, pricingLabel }: Props) {
   const [openGroup, setOpenGroup] = useState("");
+  const [previewHref, setPreviewHref] = useState("");
   const hydrated = useSyncExternalStore(subscribeToHydration, clientHydrationSnapshot, serverHydrationSnapshot);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -148,7 +186,6 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
   const activeGroupId = resolveActivePublicNavGroup(pathname, groups);
   const visibleGroup = groups.find((group) => group.id === openGroup);
   const visibleColumnCount = visibleGroup?.columns ?? Math.max(2, ...groups.map((group) => group.columns));
-  const visibleLinkCount = visibleGroup?.links.length ?? Math.max(1, ...groups.map((group) => group.links.length));
 
   function cancelScheduledClose() {
     if (!closeTimerRef.current) return;
@@ -222,6 +259,159 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
   function navigate() {
     close();
     onNavigate();
+  }
+
+  function renderPanelLink(group: PublicNavGroup, link: PublicNavLink, expanded: boolean, tall = false) {
+    const linkActive = isCurrentPage(pathname, link.href) && isPrimaryPublicNavLink(groups, link);
+
+    return (
+      <AppLink
+        appearance="unstyled"
+        aria-current={linkActive ? "page" : undefined}
+        className={cn(
+          "group/link flex gap-2 rounded-md px-2 text-[13px] leading-none outline-none transition-colors duration-150 hover:bg-foreground/[0.05] hover:text-foreground focus-visible:bg-foreground/[0.05] focus-visible:text-foreground motion-reduce:transition-none",
+          tall ? "h-9 items-center" : "h-[30px] items-center",
+          linkActive ? "bg-foreground/[0.05] text-foreground" : "text-subdued",
+        )}
+        data-public-nav-link={link.href}
+        href={link.href}
+        tabIndex={expanded ? undefined : -1}
+        onFocus={link.preview ? () => setPreviewHref(link.href) : undefined}
+        onKeyDown={(event) => handlePanelLinkKeyDown(event, group.id)}
+        onNavigate={navigate}
+        onPointerEnter={link.preview ? () => setPreviewHref(link.href) : undefined}
+      >
+        {link.mark ? <PublicNavLinkMark mark={link.mark} /> : <PublicNavLinkIcon icon={link.icon} />}
+
+        <span className="min-w-0 truncate">{link.title}</span>
+      </AppLink>
+    );
+  }
+
+  function renderLinkList(
+    group: PublicNavGroup,
+    links: PublicNavLink[],
+    expanded: boolean,
+    className?: string,
+    tall = false,
+  ) {
+    return (
+      <ul className={cn("grid gap-px", className)}>
+        {links.map((link) => (
+          <li key={`${link.href}-${link.title}`} className="min-w-0">
+            {renderPanelLink(group, link, expanded, tall)}
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
+  function renderGridPanel(group: PublicNavGroup, expanded: boolean) {
+    return renderLinkList(
+      group,
+      group.links,
+      expanded,
+      group.columns === 3 ? "grid-cols-3 gap-x-1" : "grid-cols-2 gap-x-1",
+    );
+  }
+
+  function renderPreviewCard(group: PublicNavGroup, link: PublicNavLink | undefined, expanded: boolean) {
+    const preview = link?.preview;
+    if (!link || !preview) return null;
+
+    return (
+      <div
+        className="hidden w-[19rem] shrink-0 flex-col gap-2 rounded-xl bg-foreground/[0.025] p-1.5 pb-2.5 xl:flex"
+        data-public-nav-preview={link.href}
+      >
+        <div aria-hidden className="relative aspect-[16/10] overflow-hidden rounded-lg border border-border bg-sidebar">
+          {PREVIEW_THEMES.map(({ className, theme }) => (
+            // eslint-disable-next-line @next/next/no-img-element -- one decorative capture, loaded only for the selected entry
+            <img
+              key={`${link.href}-${theme}`}
+              alt=""
+              className={cn("absolute inset-0 size-full object-cover object-left-top", className)}
+              data-public-nav-preview-theme={theme}
+              decoding="async"
+              height={preview[theme].height}
+              src={preview[theme].src}
+              width={preview[theme].width}
+            />
+          ))}
+        </div>
+
+        <div className="grid gap-0.5 px-1.5">
+          <p className="truncate text-[13px] leading-5 font-medium text-foreground">{link.title}</p>
+
+          <p className="truncate text-[13px] leading-5 text-muted-foreground" title={preview.description}>
+            {preview.description}
+          </p>
+        </div>
+
+        <AppLink
+          external
+          appearance="unstyled"
+          className="mx-1.5 inline-flex w-fit items-center gap-1 rounded-sm text-[13px] leading-5 font-medium text-subdued outline-none transition-colors duration-150 hover:text-foreground focus-visible:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 motion-reduce:transition-none"
+          data-public-nav-example={preview.exampleHref}
+          href={preview.exampleHref}
+          prefetch={false}
+          tabIndex={expanded ? undefined : -1}
+          onClick={() => close()}
+          onKeyDown={(event) => handlePanelLinkKeyDown(event, group.id)}
+        >
+          {preview.exampleLabel}
+
+          <ArrowUpRight aria-hidden className="size-3.5" strokeWidth={1.75} />
+        </AppLink>
+      </div>
+    );
+  }
+
+  function renderSectionedPanel(group: PublicNavGroup, sections: PublicNavSection[], expanded: boolean) {
+    const previewLinks = group.links.filter((link) => link.preview);
+    const currentPreview = previewLinks.find((link) => isCurrentPage(pathname, link.href));
+    const selectedPreview = previewLinks.find((link) => link.href === previewHref) ?? currentPreview ?? previewLinks[0];
+    const footerLinks = group.links.filter((link) => link.footer);
+
+    return (
+      <div className="flex gap-2">
+        <div className="flex min-w-0 flex-1 flex-col">
+          <div className="grid grid-cols-2 gap-x-1">
+            {sections.map((section) => (
+              <div key={section.id} className="min-w-0" data-public-nav-section={section.id}>
+                <p className="p-2 text-xs leading-4 text-muted-foreground">{section.title}</p>
+
+                {renderLinkList(
+                  group,
+                  group.links.filter((link) => link.section === section.id && !link.footer),
+                  expanded,
+                  undefined,
+                  true,
+                )}
+              </div>
+            ))}
+          </div>
+
+          {footerLinks.length > 0 ? (
+            <div data-public-nav-footer className="mt-2.5 grid grid-cols-2 gap-x-1 border-t border-border pt-2.5">
+              {sections.map((section) => (
+                <div key={section.id} className="min-w-0">
+                  {renderLinkList(
+                    group,
+                    footerLinks.filter((link) => link.section === section.id),
+                    expanded,
+                    undefined,
+                    true,
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </div>
+
+        {expanded && hydrated ? renderPreviewCard(group, selectedPreview, expanded) : null}
+      </div>
+    );
   }
 
   useEffect(
@@ -355,11 +545,11 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
             aria-labelledby={openGroup ? `public-nav-trigger-${openGroup}` : undefined}
             className={cn(
               "max-h-[min(34rem,calc(100svh-5rem))] overflow-y-auto overscroll-contain rounded-lg border-0 bg-transparent p-0 shadow-none transition-[width] duration-200 ease-marketing data-[state=closed]:pointer-events-none data-[state=closed]:invisible data-[state=closed]:animate-none data-[state=open]:animate-none motion-reduce:transition-none",
-              visibleColumnCount === 3
-                ? "w-[min(48rem,calc(100vw-2rem))]"
-                : visibleLinkCount <= 4
-                  ? "w-[min(28rem,calc(100vw-2rem))]"
-                  : "w-[min(34rem,calc(100vw-2rem))]",
+              visibleGroup?.sections
+                ? "w-[min(54rem,calc(100vw-2rem))]"
+                : visibleColumnCount === 3
+                  ? "w-[min(37.5rem,calc(100vw-2rem))]"
+                  : "w-[min(26rem,calc(100vw-2rem))]",
             )}
             id="public-nav-popover"
             portalled={false}
@@ -391,48 +581,9 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
                   data-public-nav-surface={group.id}
                   data-state={expanded ? "open" : "closed"}
                 >
-                  <ul className={cn("grid gap-0.5", group.columns === 3 ? "grid-cols-3" : "grid-cols-2")}>
-                    {group.links.map((link, index) => {
-                      const linkActive = isCurrentPage(pathname, link.href) && isPrimaryPublicNavLink(groups, link);
-
-                      return (
-                        <li
-                          key={`${link.href}-${link.title}`}
-                          className={cn(
-                            "min-w-0",
-                            index === group.links.length - 1 &&
-                              group.links.length % (group.columns === 3 ? 3 : 2) === 1 &&
-                              "col-span-full",
-                            index === group.links.length - 1 &&
-                              group.columns === 3 &&
-                              group.links.length % 3 === 2 &&
-                              "col-span-2",
-                          )}
-                        >
-                          <AppLink
-                            appearance="unstyled"
-                            aria-current={linkActive ? "page" : undefined}
-                            className={cn(
-                              "flex h-full min-h-11 items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] font-medium text-foreground transition-colors duration-200 hover:bg-foreground/[0.07] focus-visible:bg-foreground/[0.07] motion-reduce:transition-none",
-                              linkActive && "bg-foreground/[0.07]",
-                            )}
-                            href={link.href}
-                            tabIndex={expanded ? undefined : -1}
-                            onKeyDown={(event) => handlePanelLinkKeyDown(event, group.id)}
-                            onNavigate={navigate}
-                          >
-                            {link.mark ? (
-                              <PublicNavLinkMark mark={link.mark} />
-                            ) : (
-                              <PublicNavLinkIcon icon={link.icon} />
-                            )}
-
-                            <span className="min-w-0 truncate">{link.title}</span>
-                          </AppLink>
-                        </li>
-                      );
-                    })}
-                  </ul>
+                  {group.sections
+                    ? renderSectionedPanel(group, group.sections, expanded)
+                    : renderGridPanel(group, expanded)}
                 </div>
               );
             })}

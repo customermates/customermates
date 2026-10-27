@@ -35,7 +35,7 @@ Von Grund auf programmieren müssen Sie so eine Datenbank fast nie. Sie wählen 
   <SummaryItem label="Was sie ist">Verknüpfte Datensätze zu Personen, Unternehmen, Deals und Aufgaben, mit typisierten Feldern und einer Aktivitätshistorie. Eine Tabelle enthält Zeilen, eine CRM-Datenbank enthält Beziehungen.</SummaryItem>
   <SummaryItem label="Aufbau">Erst die Datensatztypen festlegen, dann die Felder, nach denen Sie filtern, dann ein eindeutiges Merkmal pro Person. Vor dem Import bereinigen, Unternehmen vor Personen importieren.</SummaryItem>
   <SummaryItem label="Woran sie scheitert">Dubletten, Freitextfelder, die eigentlich Auswahllisten sein sollten, und niemand, der für die Datenpflege zuständig ist.</SummaryItem>
-  <SummaryItem label="Customermates">Startet mit fünf Listen (Kontakte, Organisationen, Deals, Services, Aufgaben), Sie können eigene anlegen, mit typisierten Feldern und Beziehungen, in der Cloud ab [[commercial.price.starter.monthly]] pro Nutzer und Monat oder selbst gehostet unter AGPL.</SummaryItem>
+  <SummaryItem label="Customermates">Startet ohne Listen: Sie legen die benötigten an (Kontakte, Organisationen, Deals oder eigene), mit typisierten Feldern und Beziehungen, in der Cloud ab [[commercial.price.starter.monthly]] pro Nutzer und Monat oder selbst gehostet unter AGPL.</SummaryItem>
 </ArticleSummary>
 
 ## Was in einer CRM-Datenbank steht
@@ -65,7 +65,7 @@ An den Datensatztypen sieht man, wofür ein CRM gebaut wurde. Die Tabelle vergle
 | [Pipedrive](https://support.pipedrive.com/en/article/how-is-pipedrive-data-organized) | Leads, Deals, Personen, Organisationen, Aktivitäten, Produkte, Projekte und E-Mails | Der verlinkte Artikel nennt keinen eigenen Objekttyp; Projekte sind bis einschließlich Growth als Add-on erhältlich und in Premium und Ultimate enthalten |
 | Customermates | Kontakte, Organisationen, Deals, Services und Aufgaben, jeweils frei umbenennbar | Eigene Listen mit typisierten Feldern, Beziehungen und berechneten Feldern |
 
-Kurz gesagt: HubSpot und Salesforce erlauben eigene Objekttypen, die Sie selbst konfigurieren, bei HubSpot mit einem Enterprise-Abo. Die Datenelemente von Pipedrive bleiben nah am Vertriebsprozess. Customermates startet mit fünf Listen, lässt Sie jede umbenennen, sodass im ganzen Workspace etwa „Kunden" statt „Kontakte" und „Projekte" statt „Deals" steht, und eigene hinzufügen.
+Kurz gesagt: HubSpot und Salesforce erlauben eigene Objekttypen, die Sie selbst konfigurieren, bei HubSpot mit einem Enterprise-Abo. Die Datenelemente von Pipedrive bleiben nah am Vertriebsprozess. Customermates startet ohne Listen: Sie legen die benötigten an und benennen jede selbst, sodass im ganzen Workspace etwa „Kunden" statt „Kontakte" und „Projekte" statt „Deals" steht, und können sie später umbenennen.
 
 ## CRM-Datenbank, Excel oder eigene Datenbank?
 
@@ -122,7 +122,7 @@ So sieht dieselbe Planung in Customermates aus, eingerichtet nach dem heutigen S
 
 **Verknüpfungen.** Ein Kunde kann mit mehreren Organisationen verknüpft sein, ein Projekt mit mehreren Kunden, Organisationen und zugewiesenen Nutzern. Der Wert eines Projekts ist die Summe seiner Positionen, jeweils Service-Preis mal Menge. „Strategie-Workshop" einmal und „Monatlicher Retainer" sechsmal ergeben den Projektwert also von selbst.
 
-**Phasen.** Ein neuer Workspace startet mit einem Feld Phase (Akquise, Qualifizierung, Demo, Angebot, Verhandlung, Gewonnen, Verloren), für das Sie in Konfigurieren je Phase eine Abschlusswahrscheinlichkeit festlegen. Die gewichtete Pipeline ergibt sich rein rechnerisch aus diesen Prozentsätzen und ist keine Vorhersage.
+**Phasen.** Phasen sind nicht voreingestellt: Sie legen ein Feld Phase an (etwa Akquise, Qualifizierung, Demo, Angebot, Verhandlung, Gewonnen, Verloren) und in Konfigurieren je Phase eine Abschlusswahrscheinlichkeit fest. Die gewichtete Pipeline ergibt sich rein rechnerisch aus diesen Prozentsätzen und ist keine Vorhersage.
 
 **Eindeutiges Merkmal.** E-Mail-Adressen gehören in das Feld Kontaktdaten des Kunden, das eingehende Nachrichten dem Datensatz zuordnet. Eine Adresse kann zu mehreren Datensätzen gehören, entfernen Sie Dubletten deshalb vor dem Import. Die globale Suche (Cmd/Strg+K) findet einen Kunden über den Namen oder über jede E-Mail-Adresse und Telefonnummer in seinen Kontaktdaten.
 

@@ -11,6 +11,7 @@ import {
 import { test, expect, collectPageErrors } from "./fixtures";
 import { readModel } from "./api";
 import { e2eAppMode } from "./workspace-switching";
+import { pagePath } from "./app-paths";
 
 async function mutation(page: Page, database: Client, companyId: string, change: RecordMutation) {
   const response = await page.request.post("/api/v1/records/mutate", {
@@ -39,7 +40,7 @@ async function createRecord(page: Page, database: Client, companyId: string, key
 }
 
 async function timeline(page: Page, ref: RecordRef) {
-  await page.goto(`/en/records/${ref.typeId}/${ref.recordId}`);
+  await page.goto(pagePath(page, `/records/${ref.typeId}/${ref.recordId}`));
   const history = page.locator('main [data-detail-panel="activities"]');
   if (!(await history.isVisible())) await page.getByRole("tab", { name: "Activities", exact: true }).click();
   await expect(history).toBeVisible();

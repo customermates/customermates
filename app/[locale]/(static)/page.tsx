@@ -20,8 +20,13 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { homepageSource } from "@/core/fumadocs/source";
 import { buildHomepageMetadata } from "@/core/seo/homepage-metadata";
 import { organizationSchema, softwareApplicationSchema } from "@/core/seo/schemas";
-import { CONTENT_LOCALES, contentLocaleOrDefault, isContentLocale } from "@/i18n/locale-registry";
-import { enableStaticLocale, type StaticLocaleProps } from "@/i18n/static-locale";
+import {
+  appLocaleOrDefault,
+  contentLocaleOrDefault,
+  isMarketingPathPublished,
+  marketingLocalesForPath,
+} from "@/i18n/locale-registry";
+import { enableMarketingLocale, type StaticLocaleProps } from "@/i18n/static-locale";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -30,14 +35,14 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
 
-  if (!isContentLocale(locale)) return {};
+  if (!isMarketingPathPublished(locale, "/")) return {};
 
   const homepagePage = homepageSource.getPage(["homepage"], locale);
 
   if (!homepagePage) return {};
 
-  const translatedLocales = CONTENT_LOCALES.filter(
-    (contentLocale) => homepageSource.getPage(["homepage"], contentLocale) !== undefined,
+  const translatedLocales = marketingLocalesForPath("/").filter(
+    (marketingLocale) => homepageSource.getPage(["homepage"], marketingLocale) !== undefined,
   );
 
   return buildHomepageMetadata({
@@ -48,7 +53,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function HomePage({ params }: StaticLocaleProps) {
-  await enableStaticLocale(params);
+  await enableMarketingLocale(params, "/");
 
   const locale = await getLocale();
   const homepagePage = homepageSource.getPage(["homepage"], locale);
@@ -86,7 +91,7 @@ export default async function HomePage({ params }: StaticLocaleProps) {
         })}
       />
 
-      <HomepageHero heroSection={hero} locale={contentLocale} />
+      <HomepageHero demoLocale={appLocaleOrDefault(locale)} heroSection={hero} locale={contentLocale} />
 
       <HomepageFacts benefitsSection={benefits} />
 

@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { REPO_ROOT } from "./walk";
 const read = (path: string) => readFileSync(join(REPO_ROOT, path), "utf8");
-const summary = read("app/[locale]/(protected)/records/[typeId]/components/record-detail-chip-row.tsx");
+const summary = read("app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-detail-chip-row.tsx");
 describe("generic record detail pinned summaries", () => {
   it("uses the same metadata columns for built-in and customer-created types", () => {
     expect(summary).toContain("recordColumns(store.presentation.typeId, store.presentation.model)");
@@ -16,7 +16,7 @@ describe("generic record detail pinned summaries", () => {
     expect(summary).toContain("recordChipRowModel(pinned, row, { keepEmpty: true })");
   });
   it("keeps assignees and identity channels actionable", () => {
-    const chips = read("app/[locale]/(protected)/records/[typeId]/components/record-chip.tsx");
+    const chips = read("app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-chip.tsx");
     expect(summary).toContain("userModalStore.loadById(item.id)");
     expect(summary).toContain("<IdentityChips");
     expect(chips).toContain("channelDisplayLabel(identity.provider, identity.value, identity.profileUrl)");

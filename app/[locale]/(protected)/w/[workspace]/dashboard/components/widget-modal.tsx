@@ -1,0 +1,420 @@
+"use client";
+
+import { useEffect } from "react";
+import { RecordActivityWidgetEditor } from "./record-activity-widget-editor";
+
+import { WidgetKind } from "@/generated/prisma";
+import { ArrowLeft, ChevronsUpDownIcon, Trash2 } from "lucide-react";
+import { observer } from "mobx-react-lite";
+import { useTranslations } from "next-intl";
+
+import { AppCard } from "@/components/card/app-card";
+import { AppCardBody } from "@/components/card/app-card-body";
+import { AppCardHeader } from "@/components/card/app-card-header";
+import { AppForm } from "@/components/forms/form-context";
+import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
+import { FormLabel } from "@/components/forms/form-label";
+import { FormInput } from "@/components/forms/form-input";
+import { FormSwitch } from "@/components/forms/form-switch";
+import { AppModal } from "@/components/modal";
+import type { AppModalActionProps } from "@/components/modal/app-modal-action";
+import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getChartColors, getChartTextColors } from "@/constants/chart-colors";
+import { useRootStore } from "@/core/stores/root-store.provider";
+import { useRecordAiAction } from "@/app/components/agent-chat/record-ai-action";
+import { ChartColor } from "@/features/widget/widget.schema";
+import { DisplayType, widgetUsesGroupColors } from "@/features/widget/widget.schema";
+import type { RecordModelView } from "@/features/records/record-model.schema";
+import type { WidgetDisplayRequirement } from "@/features/widget/widget-display-rules";
+import { widgetDisplayTypeIssue } from "@/features/widget/widget-display-rules";
+
+import { runUserAction } from "@/core/errors/report-application-error";
+import { isRecordCalendarWidgetForm, isRecordWidgetForm } from "./record-widget-form";
+import { RecordCalendarWidgetEditor } from "./record-calendar-widget-editor";
+import { RecordMapWidgetEditor } from "./record-map-widget-editor";
+import { RecordWidgetEditor } from "./record-widget-editor";
+import { WidgetDisplayTypePicker } from "./widget-display-type-picker";
+import { WIDGET_EDITOR_GRID_CLASS } from "./widget-editor-layout";
+import { WidgetStarterPicker } from "./widget-starter-picker";
+import { cn } from "@/core/utils/cn";
+
+function WidgetModalSkeleton() {
+  const t = useTranslations();
+
+  return (
+    <div className={cn(WIDGET_EDITOR_GRID_CLASS, "min-h-96")} role="status">
+      <span className="sr-only">{t("Loading.text")}</span>
+
+      <div className="space-y-4">
+        <Skeleton className="h-9 w-full" />
+
+        <Skeleton className="h-24 w-full" />
+
+        <Skeleton className="h-24 w-full" />
+
+        <Skeleton className="h-40 w-full" />
+      </div>
+
+      <Skeleton className="h-80 w-full rounded-xl" />
+    </div>
+  );
+}
+
+export const WidgetModal = observer(() => {
+  const t = useTranslations();
+  const { widgetModalStore } = useRootStore();
+  const { showTrashConfirmation } = useDeleteConfirmation();
+  const { form, canManage, isDisabled, companyWideWidgets } = widgetModalStore;
+  const saveWidget = () => {
+    const active = document.activeElement;
+    if (active instanceof HTMLElement && active.closest("[data-widget-editor]")) active.blur();
+    return widgetModalStore.onSubmit();
+  };
+  const askAction = useRecordAiAction({
+    context: { reference: { kind: "widget", widgetId: form.id ?? "" }, label: form.name },
+    active: widgetModalStore.isOpen && Boolean(form.id),
+  });
+  const chartColors = getChartColors();
+  const isCreate = !form.id;
+  const canDeleteWidget = !isCreate && canManage && Boolean(form.id);
+  const isChooseStep = isCreate && widgetModalStore.creationStep === "choose";
+  const dialogTitle = isChooseStep
+    ? t("Dashboard.widgetEditor.kind.title")
+    : isCreate
+      ? t("Dashboard.widgetEditor.addTitle")
+      : t("Dashboard.widgetEditor.editTitle", { name: form.name });
+  const deleteAction: AppModalActionProps | null = canDeleteWidget
+    ? {
+        id: "delete-widget",
+        label: t("Dashboard.widgetEditor.danger.deleteLabel", { name: form.name }),
+        icon: Trash2,
+        variant: "destructive",
+        disabled: isDisabled,
+        onClick: () =>
+          showTrashConfirmation(
+            () => widgetModalStore.delete(),
+            form.name,
+            undefined,
+            () => widgetModalStore.rootStore.widgetsStore.refresh(),
+          ),
+      }
+    : null;
+  const backAction: AppModalActionProps | null =
+    isCreate && widgetModalStore.creationStep === "configure"
+      ? {
+          id: "widget-kind-back",
+          kind: "navigate",
+          label: t("Dashboard.widgetEditor.kind.change"),
+          icon: ArrowLeft,
+          disabled: isDisabled,
+          onClick: goBackToKindStep,
+        }
+      : null;
+  const modalActions: AppModalActionProps[] = [
+    ...(backAction ? [backAction] : []),
+    ...(askAction ? [askAction] : []),
+    ...(deleteAction ? [deleteAction] : []),
+  ];
+
+  useEffect(() => {
+    if (
+      !widgetModalStore.isOpen ||
+      widgetModalStore.isHydrating ||
+      isChooseStep ||
+      widgetModalStore.expandedSection === "config"
+    )
+      return;
+    const frame = requestAnimationFrame(() => {
+      const id = widgetModalStore.expandedSection === "display" ? "widget-config-appearance" : "widget-config-filters";
+      const section = document.getElementById(id);
+      section?.scrollIntoView({ block: "start" });
+      section?.querySelector<HTMLElement>("input, button, [tabindex='0']")?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [
+    widgetModalStore,
+    widgetModalStore.isOpen,
+    widgetModalStore.isHydrating,
+    widgetModalStore.expandedSection,
+    isChooseStep,
+  ]);
+
+  function goBackToKindStep() {
+    const selectedCard = isRecordWidgetForm(form)
+      ? `widget-starter-${form.displayOptions.displayType}`
+      : isRecordCalendarWidgetForm(form)
+        ? `widget-kind-calendar-${form.calendarQuery.layout}`
+        : `widget-kind-${form.kind}`;
+    widgetModalStore.setCreationStep("choose");
+    requestAnimationFrame(() => document.getElementById(selectedCard)?.focus());
+  }
+  function renderDataSettings() {
+    const appearance = (model?: RecordModelView | null) => (
+      <section
+        aria-label={t("Dashboard.widgetEditor.tabs.appearance")}
+        className="space-y-4"
+        id="widget-config-appearance"
+      >
+        <h3 className="sr-only">{t("Dashboard.widgetEditor.tabs.appearance")}</h3>
+
+        {renderAppearanceSettings(model)}
+      </section>
+    );
+    const nameField = <FormInput required showErrorMessage id="name" label={t("Common.inputs.name")} />;
+    if (form.kind === WidgetKind.calendar) {
+      return (
+        <RecordCalendarWidgetEditor
+          appearance={appearance}
+          section="all"
+          settingsHeader={nameField}
+          store={widgetModalStore}
+        />
+      );
+    }
+    if (form.kind === WidgetKind.map) {
+      return (
+        <RecordMapWidgetEditor
+          appearance={appearance}
+          section="all"
+          settingsHeader={nameField}
+          store={widgetModalStore}
+        />
+      );
+    }
+    return form.kind === WidgetKind.chart ? (
+      <RecordWidgetEditor appearance={appearance} section="all" settingsHeader={nameField} store={widgetModalStore} />
+    ) : (
+      <RecordActivityWidgetEditor
+        appearance={appearance()}
+        section="all"
+        settingsHeader={nameField}
+        store={widgetModalStore}
+      />
+    );
+  }
+
+  function groupColorsApply() {
+    if (form.kind !== WidgetKind.chart) return false;
+    const displayType = form.displayOptions?.displayType ?? DisplayType.verticalBarChart;
+    return (
+      Boolean(form.measure.groupBy?.fieldId) &&
+      !form.measure.groupBy?.dateInterval &&
+      ![DisplayType.number, DisplayType.areaChart, DisplayType.rankedTable].includes(displayType)
+    );
+  }
+  function renderColorPicker() {
+    if (form.kind !== WidgetKind.chart) return null;
+    const singleColor = form.displayOptions?.displayType === DisplayType.number;
+    if (groupColorsApply() && widgetUsesGroupColors(form.displayOptions)) return null;
+    const colors = Object.entries(chartColors).filter(([key]) => !singleColor || key.endsWith("1"));
+
+    return (
+      <div className="space-y-1.5">
+        <FormLabel htmlFor="displayOptions.barColors">{t("Dashboard.widgetEditor.appearance.colors")}</FormLabel>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              aria-label={t("Dashboard.widgetEditor.appearance.colors")}
+              className="w-full justify-between font-normal"
+              disabled={isDisabled}
+              id="displayOptions.barColors"
+              type="button"
+              variant="field"
+            >
+              <span className="flex flex-wrap items-center gap-1">
+                {(singleColor
+                  ? [form.displayOptions?.barColors?.[0] ?? ChartColor.primary1]
+                  : (form.displayOptions?.barColors ?? [])
+                ).map((key) => (
+                  <span
+                    key={key}
+                    className="inline-flex size-4 rounded-full"
+                    style={{
+                      backgroundColor: chartColors[key as keyof typeof chartColors],
+                    }}
+                  />
+                ))}
+              </span>
+
+              <ChevronsUpDownIcon className="ml-2 size-4 opacity-50" />
+            </Button>
+          </DropdownMenuTrigger>
+
+          <DropdownMenuContent
+            align="start"
+            aria-labelledby="displayOptions.barColors"
+            className="w-(--radix-dropdown-menu-trigger-width)"
+          >
+            {colors.map(([key, color], index) => {
+              const selected = singleColor
+                ? getChartTextColors()[form.displayOptions?.barColors?.[0] ?? ChartColor.primary1] ===
+                  getChartTextColors()[key as ChartColor]
+                : (form.displayOptions?.barColors ?? []).includes(key as ChartColor);
+              const label = t("Dashboard.widgetEditor.appearance.colorOption", { number: index + 1 });
+              return (
+                <DropdownMenuCheckboxItem
+                  key={key}
+                  checked={selected}
+                  disabled={isDisabled}
+                  onCheckedChange={(checked) => {
+                    if (singleColor) {
+                      if (checked) widgetModalStore.onChange("displayOptions.barColors", [key as ChartColor]);
+                      return;
+                    }
+                    const current = form.displayOptions?.barColors ?? [];
+                    const next = checked
+                      ? [...current, key as ChartColor]
+                      : current.filter((colorKey) => colorKey !== (key as ChartColor));
+                    if (next.length === 0) return;
+                    widgetModalStore.onChange("displayOptions.barColors", next);
+                  }}
+                  onSelect={(event) => event.preventDefault()}
+                >
+                  <span className="inline-flex size-4 rounded-full" style={{ backgroundColor: color }} />
+
+                  <span>{label}</span>
+                </DropdownMenuCheckboxItem>
+              );
+            })}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    );
+  }
+
+  function renderChartAppearance(model?: RecordModelView | null) {
+    if (form.kind !== WidgetKind.chart) return null;
+    const measure = form.measure;
+    const displayType = form.displayOptions?.displayType ?? DisplayType.verticalBarChart;
+    const supportsAxes = ![
+      DisplayType.doughnutChart,
+      DisplayType.radarChart,
+      DisplayType.number,
+      DisplayType.rankedTable,
+      DisplayType.funnelChart,
+    ].includes(displayType);
+    const unavailable: Partial<Record<DisplayType, WidgetDisplayRequirement>> = {};
+    for (const type of Object.values(DisplayType)) {
+      const requirement = widgetDisplayTypeIssue(type, measure, model);
+      if (requirement) unavailable[type] = requirement;
+    }
+
+    return (
+      <div className="flex min-w-0 flex-col gap-4">
+        <WidgetDisplayTypePicker
+          disabled={isDisabled}
+          unavailable={unavailable}
+          value={displayType}
+          onValueChange={(next) => widgetModalStore.onChange("displayOptions.displayType", next)}
+        />
+
+        {groupColorsApply() && (
+          <FormSwitch id="displayOptions.useGroupColors" label={t("Common.inputs.displayOptions.useGroupColors")} />
+        )}
+
+        {renderColorPicker()}
+
+        {displayType === DisplayType.doughnutChart && (
+          <FormSwitch id="displayOptions.showLegend" label={t("Common.inputs.displayOptions.showLegend")} />
+        )}
+
+        {supportsAxes && (
+          <>
+            <FormSwitch id="displayOptions.reverseXAxis" label={t("Common.inputs.displayOptions.reverseXAxis")} />
+
+            <FormSwitch id="displayOptions.reverseYAxis" label={t("Common.inputs.displayOptions.reverseYAxis")} />
+          </>
+        )}
+      </div>
+    );
+  }
+
+  function renderAppearanceSettings(model?: RecordModelView | null) {
+    return (
+      <div className="flex min-w-0 flex-col gap-6">
+        {renderChartAppearance(model)}
+
+        <FormSwitch
+          id="displayOptions.showFilters"
+          label={
+            form.kind === WidgetKind.chart
+              ? t("Dashboard.widgetEditor.appearance.showMetricAndFilters")
+              : form.kind === WidgetKind.activityTimeline
+                ? t("Dashboard.widgetEditor.appearance.showFilters")
+                : t("Dashboard.widgetEditor.appearance.showSourceAndFilters")
+          }
+        />
+
+        <FormSwitch id="isTemplate" label={t("Dashboard.widgetEditor.sharing.template")} />
+      </div>
+    );
+  }
+
+  return (
+    <AppModal
+      actions={modalActions}
+      description={
+        isCreate && widgetModalStore.creationStep === "choose"
+          ? t("Dashboard.widgetEditor.steps.chooseDescription")
+          : t("Dashboard.widgetEditor.steps.configureDescription")
+      }
+      size={isChooseStep ? "3xl" : "5xl"}
+      store={widgetModalStore}
+      title={dialogTitle}
+    >
+      <AppForm store={widgetModalStore} onSubmit={saveWidget}>
+        <AppCard className="relative">
+          <AppCardHeader>
+            <h2 className="min-w-0 break-words text-base font-semibold">{dialogTitle}</h2>
+          </AppCardHeader>
+
+          <AppCardBody
+            className={cn(
+              "pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]",
+              isChooseStep ? "md:flex-initial" : "md:min-h-96 [scrollbar-gutter:stable]",
+            )}
+          >
+            {widgetModalStore.isHydrating ? (
+              <WidgetModalSkeleton />
+            ) : isChooseStep ? (
+              <div className="mx-auto w-full max-w-3xl">
+                <WidgetStarterPicker
+                  availableKinds={widgetModalStore.availableKinds}
+                  disabled={isDisabled}
+                  templates={companyWideWidgets}
+                  onSelectKind={(kind, choice) =>
+                    widgetModalStore.startFromKind(kind, {
+                      activityName: t("Dashboard.activityWidget.title"),
+                      ...choice,
+                    })
+                  }
+                  onSelectTemplate={(id) => runUserAction(() => widgetModalStore.loadTemplate(id))}
+                />
+              </div>
+            ) : (
+              renderDataSettings()
+            )}
+          </AppCardBody>
+
+          {!isChooseStep && (
+            <UnsavedChangesBar
+              anchorScope="widget-modal"
+              creating={isCreate}
+              store={widgetModalStore}
+              onSave={saveWidget}
+            />
+          )}
+        </AppCard>
+      </AppForm>
+    </AppModal>
+  );
+});

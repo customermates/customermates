@@ -9,8 +9,8 @@ import { CHIP_COLORS } from "@/constants/chip-colors";
 import { RECORD_MEASURE_DATE_INTERVALS } from "@/features/records/record-measure.schema";
 import { SetupAnswersSchema } from "@/features/workspace-setup/setup-answers.schema";
 import {
+  SETUP_FOLLOW_UP_QUESTIONS,
   SETUP_QUESTION_FORMATS,
-  SETUP_MAX_FOLLOW_UP_QUESTIONS,
   setupPart,
 } from "@/features/workspace-setup/setup-interview";
 import {
@@ -22,6 +22,7 @@ import {
 } from "@/features/workspace-setup/setup-plan.schema";
 import { SETUP_LIST_ROLES } from "@/features/workspace-setup/setup-anchors";
 import { RECORD_TYPE_ICON_KEYS } from "@/components/records/record-type-icon";
+import { CALENDAR_WIDGET_LAYOUTS } from "@/features/widget/record-calendar-widget.schema";
 import { WIDGET_STARTER_DISPLAY_TYPES } from "@/features/widget/widget-display-rules";
 import { APP_LOCALES } from "@/i18n/locale-registry";
 import { SETUP_FOLLOW_UP_IDS, SetupFollowUpQuestionSchema } from "./workspace-setup.schema";
@@ -31,14 +32,7 @@ const AnswerFields = {
   choice: z.string().nullable().describe("singleChoice: the option id."),
   choices: z.array(z.string()).describe("multipleChoice or rankedPick: option ids in order."),
   custom: z.array(z.string()).describe("multipleChoice: own entries when allowCustom."),
-  items: z
-    .array(
-      z.object({
-        label: z.string(),
-        winChance: z.number().nullable().describe("A percentage from 0 to 100, or null."),
-      }),
-    )
-    .describe("orderedList: entries in order."),
+  items: z.array(z.object({ label: z.string() })).describe("orderedList: entries in order."),
   min: z.number().nullable().describe("range: the number, or the lower bound."),
   max: z.number().nullable().describe("range: the upper bound, null for one number."),
   text: z.string().nullable().describe("shortText: the text."),
@@ -57,17 +51,8 @@ function wireAnswerValue(format: (typeof SETUP_QUESTION_FORMATS)[number], wire: 
       return { format, value: wire.choice ?? "" };
     case "multipleChoice":
       return { format, values: wire.choices, custom: wire.custom };
-    case "orderedList": {
-      const chances = wire.items.flatMap((item) => (item.winChance === null ? [] : [item.winChance]));
-      const scale = chances.some((chance) => chance > 0) && chances.every((chance) => chance <= 1) ? 100 : 1;
-      return {
-        format,
-        items: wire.items.map((item) => ({
-          label: item.label,
-          ...(item.winChance === null ? {} : { winChance: Math.round(item.winChance * scale) }),
-        })),
-      };
-    }
+    case "orderedList":
+      return { format, items: wire.items.map((item) => ({ label: item.label })) };
     case "rankedPick":
       return { format, values: wire.choices };
     case "range":
@@ -93,11 +78,7 @@ export function prefillAnswers(wire: PrefillWire): SetupAnswers {
   for (const entry of wire.answers) {
     const part = setupPart(entry.part);
     if (!part || part.prefill === "no" || answers[entry.part]) continue;
-    const ownEntriesOnly = part.format === "multipleChoice" && part.options.length === 0;
-    const value = wireAnswerValue(
-      part.format,
-      ownEntriesOnly ? { ...entry, choices: [], custom: [...entry.custom, ...entry.choices] } : entry,
-    );
+    const value = wireAnswerValue(part.format, entry);
     if (!optionSourceValid(entry.part, value)) continue;
     const candidate = {
       [entry.part]: { source: "website" as const, confidence: Math.min(1, Math.max(0, entry.confidence)), value },
@@ -115,7 +96,6 @@ export const FollowUpWireSchema = z.object({
       format: z.enum(SETUP_QUESTION_FORMATS),
       options: z.array(z.object({ id: z.string(), label: z.string() })),
       allowCustom: z.boolean(),
-      winChance: z.boolean(),
       maxItems: z.number().nullable(),
       maxPicks: z.number().nullable(),
       suggestions: z.array(z.string()),
@@ -132,7 +112,7 @@ type FollowUpWire = z.infer<typeof FollowUpWireSchema>;
 export function followUpQuestions(wire: FollowUpWire): SetupFollowUpQuestion[] {
   const questions: SetupFollowUpQuestion[] = [];
   for (const entry of wire.questions) {
-    if (questions.length >= SETUP_MAX_FOLLOW_UP_QUESTIONS) break;
+    if (questions.length >= SETUP_FOLLOW_UP_QUESTIONS) break;
     const id = SETUP_FOLLOW_UP_IDS[questions.length];
     const base = { id, label: entry.label, format: entry.format };
     const candidate =
@@ -143,7 +123,6 @@ export function followUpQuestions(wire: FollowUpWire): SetupFollowUpQuestion[] {
           : entry.format === "orderedList"
             ? {
                 ...base,
-                winChance: entry.winChance,
                 maxItems: Math.round(entry.maxItems ?? 10),
                 suggestions: entry.suggestions,
               }
@@ -177,11 +156,8 @@ export function followUpAnswerIssue(question: SetupFollowUpQuestion, value: Setu
     if (value.values.some((id) => !known(id))) return "Unknown option.";
     if (value.values.length > question.maxPicks) return "Too many picks.";
   }
-  if (value.format === "orderedList" && question.format === "orderedList") {
-    if (value.items.length > question.maxItems) return "Too many entries.";
-    if (!question.winChance && value.items.some((item) => item.winChance !== undefined))
-      return "This list has no win chance.";
-  }
+  if (value.format === "orderedList" && question.format === "orderedList" && value.items.length > question.maxItems)
+    return "Too many entries.";
   if (value.format === "range" && question.format === "range") {
     if (question.single && value.max !== null) return "This question takes one number.";
     if (value.min < question.min || value.min > question.max || (value.max !== null && value.max > question.max))
@@ -269,8 +245,32 @@ const WidgetsWireShape = {
   widgets: z.array(
     z.object({
       key: z.string().describe("lowerCamelCase letters and digits only."),
+      kind: z
+        .enum(["chart", "calendar", "map", "activity"])
+        .describe(
+          "chart: a number or chart of aggregation, valueField, groupBy and display. calendar: the records of list on the days of a date field, set in calendar. map: the records of list at their address field, set in map. activity: the latest messages of the workspace; list is ignored.",
+        ),
       title: z.string(),
       list: z.string(),
+      calendar: z
+        .object({
+          layout: z
+            .enum(CALENDAR_WIDGET_LAYOUTS)
+            .describe("upcoming lists the next two weeks with overdue records; month is a heat grid of the month."),
+          dateField: z.string().describe("A date field of list."),
+          amountField: z.string().nullable().describe("Optional number or currency field of list to show or sum."),
+        })
+        .nullable()
+        .describe("Only for kind calendar, otherwise null."),
+      map: z
+        .object({
+          addressField: z.string().describe("An address field of list."),
+          colorField: z.string().nullable().describe("Optional single-choice field of list that colors the pins."),
+          sizeField: z.string().nullable().describe("Optional number or currency field of list that sizes the pins."),
+          detailField: z.string().nullable().describe("Optional field of list shown in a pin's popover."),
+        })
+        .nullable()
+        .describe("Only for kind map, otherwise null."),
       aggregation: z.enum(["count", "sum", "average", "min", "max"]),
       valueField: z.string().nullable(),
       groupBy: z
@@ -294,6 +294,24 @@ const WidgetsWireShape = {
   ),
 };
 
+const CalendarSourcesWireShape = {
+  calendarSources: z
+    .array(
+      z.object({
+        list: z.string(),
+        dateField: z.string().describe("A date field of list whose dates the owner acts on."),
+        endField: z
+          .string()
+          .describe("Optional date field of list that ends each record's span; an empty string leaves it out."),
+        color: z.enum(CHIP_COLORS),
+        filters: z
+          .array(z.object({ operator: z.enum(["in", "notIn"]), field: z.string(), options: z.array(z.string()) }))
+          .describe("Optional single-choice filters, such as only open stages."),
+      }),
+    )
+    .describe("The date fields the Calendar page shows, one entry per list and date field."),
+};
+
 const WorkspaceWireShape = {
   currency: z.string().describe("ISO 4217 code."),
   dashboardAudience: z.enum(["me", "team", "management"]),
@@ -312,6 +330,7 @@ export const PlanViewsWireSchema = z.object({
     }),
   ),
   ...WidgetsWireShape,
+  ...CalendarSourcesWireShape,
   importMapping: z
     .object({ list: z.string(), columns: z.array(z.object({ column: z.string(), field: z.string().nullable() })) })
     .nullable(),
@@ -336,6 +355,7 @@ export const PlanWireSchema = z.object({
   ...ListDefaultsWireShape,
   sampleData: z.object({ lists: PlanViewsWireSchema.shape.sampleLists }),
   dashboard: z.object(WidgetsWireShape),
+  calendar: z.object({ sources: CalendarSourcesWireShape.calendarSources }),
   importMapping: PlanViewsWireSchema.shape.importMapping,
   knowledgeBase: PlanKnowledgeWireSchema,
 });
@@ -353,6 +373,7 @@ export const EMPTY_PLAN_VIEWS_WIRE: PlanViewsWire = {
   listDefaults: [],
   sampleLists: [],
   widgets: [],
+  calendarSources: [],
   importMapping: null,
 };
 export const EMPTY_PLAN_KNOWLEDGE_WIRE: PlanKnowledgeWire = { pages: [] };
@@ -362,6 +383,7 @@ const PART_PATHS: Array<[string, string]> = [
   ["recordModel.", ""],
   ["sampleData.lists", "sampleLists"],
   ["dashboard.widgets", "widgets"],
+  ["calendar.sources", "calendarSources"],
   ["knowledgeBase.", ""],
 ];
 
@@ -378,6 +400,7 @@ export function planWireFromParts(model: PlanModelWire, views: PlanViewsWire, kn
     listDefaults: views.listDefaults,
     sampleData: { lists: views.sampleLists },
     dashboard: { widgets: views.widgets },
+    calendar: { sources: views.calendarSources },
     importMapping: views.importMapping,
     knowledgeBase: knowledge,
   };
@@ -488,25 +511,35 @@ export function planFromWire(
       })),
     },
     dashboard: {
-      widgets: wire.dashboard.widgets.map((widget) => ({
-        ...widget,
-        key: lowerCamelKey(widget.key),
-        size: present(widget.size),
-        groupBy: widget.groupBy
-          ? {
-              path: widget.groupBy.path,
-              field: widget.groupBy.field,
-              ...(widget.groupBy.dateInterval ? { dateInterval: widget.groupBy.dateInterval } : {}),
-            }
-          : null,
-        filters: widget.filters.map((filter) =>
+      widgets: wire.dashboard.widgets.map(({ kind, calendar, map, ...widget }) => {
+        const key = lowerCamelKey(widget.key);
+        const filters = widget.filters.map((filter) =>
           filter.operator === "in" || filter.operator === "notIn"
             ? { operator: filter.operator, field: filter.field, options: filter.options }
             : filter.operator === "inLastDays" || filter.operator === "notInLastDays"
               ? { operator: filter.operator, field: filter.field, days: Math.round(filter.days ?? 30) }
               : { operator: filter.operator, field: filter.field },
-        ),
-      })),
+        );
+        if (kind === "activity") return { kind, key, title: widget.title };
+        if (kind === "calendar") return { kind, key, title: widget.title, list: widget.list, ...calendar, filters };
+        if (kind === "map") return { kind, key, title: widget.title, list: widget.list, ...map, filters };
+        return {
+          ...widget,
+          key,
+          size: present(widget.size),
+          groupBy: widget.groupBy
+            ? {
+                path: widget.groupBy.path,
+                field: widget.groupBy.field,
+                ...(widget.groupBy.dateInterval ? { dateInterval: widget.groupBy.dateInterval } : {}),
+              }
+            : null,
+          filters,
+        };
+      }),
+    },
+    calendar: {
+      sources: wire.calendar.sources.map((source) => ({ ...source, endField: source.endField || null })),
     },
     knowledgeBase: {
       pages: wire.knowledgeBase.pages.map((page) => ({

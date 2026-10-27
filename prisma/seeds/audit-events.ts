@@ -13,7 +13,7 @@ import { WebhookDtoSchema } from "@/features/webhook/webhook.schema";
 import type { SeedContext } from "./context";
 
 import { fixtureId } from "./helpers";
-import { NORTHWIND_MEMBER_IDS, NORTHWIND_ROLE_IDS } from "./northwind-model";
+import { TEAM_MEMBER_IDS, TEAM_ROLE_IDS } from "./team";
 
 export const SYNTHETIC_AUDIT_EVENT_ID_PREFIX = "1e000000";
 
@@ -246,7 +246,7 @@ async function loadSyntheticAuditSnapshot(prisma: PrismaClient, context: SeedCon
     prisma.user.findMany({
       where: {
         id: {
-          in: Object.values(NORTHWIND_MEMBER_IDS),
+          in: Object.values(TEAM_MEMBER_IDS),
         },
         companyId: context.ids.company,
       },
@@ -266,7 +266,7 @@ async function loadSyntheticAuditSnapshot(prisma: PrismaClient, context: SeedCon
     prisma.userRole.findMany({
       where: {
         id: {
-          in: Object.values(NORTHWIND_ROLE_IDS).filter((id) => id !== NORTHWIND_ROLE_IDS.admin),
+          in: Object.values(TEAM_ROLE_IDS).filter((id) => id !== TEAM_ROLE_IDS.admin),
         },
         companyId: context.ids.company,
       },
@@ -319,8 +319,8 @@ async function loadSyntheticAuditSnapshot(prisma: PrismaClient, context: SeedCon
     }),
   ]);
 
-  assertSnapshotCount("users", users.length, Object.keys(NORTHWIND_MEMBER_IDS).length);
-  assertSnapshotCount("roles", roles.length, Object.keys(NORTHWIND_ROLE_IDS).length - 1);
+  assertSnapshotCount("users", users.length, Object.keys(TEAM_MEMBER_IDS).length);
+  assertSnapshotCount("roles", roles.length, Object.keys(TEAM_ROLE_IDS).length - 1);
   assertSnapshotCount("webhooks", webhooks.length, 2);
   assertSnapshotCount("connected accounts", connectedAccounts.length, 3);
 

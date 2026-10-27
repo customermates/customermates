@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { Page, Route } from "@playwright/test";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
+import { appApiPath, companyUrlPattern, pagePath } from "./app-paths";
 import { collectPageErrors, test, expect } from "./fixtures";
 import { invokesServerAction, serverActionIds } from "./server-actions";
 import { e2eAppMode } from "./workspace-switching";
@@ -43,7 +44,7 @@ test("finds a list with its views, opens a view, and deep links a setting with a
     [randomUUID(), companyId, workspace.userId, `records:${deals}`],
   );
 
-  await page.goto("/en/dashboard");
+  await page.goto(pagePath(page, "/dashboard"));
   const dialog = page.getByRole("dialog");
   const input = await openPalette(page);
   await input.fill("Deals");
@@ -55,7 +56,7 @@ test("finds a list with its views, opens a view, and deep links a setting with a
   await page.keyboard.press("ArrowDown");
   await expect(best.nth(1)).toHaveAttribute("aria-selected", "true");
   await page.keyboard.press("Enter");
-  await expect(page).toHaveURL(new RegExp(`/en/records/${deals}\\?.*view=${views[0]}`));
+  await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${deals}\\?.*view=${views[0]}`));
   await expect(
     page.getByRole("link", { name: "Open pipeline" }).or(page.getByText("Open pipeline")).first(),
   ).toBeVisible();
@@ -74,7 +75,7 @@ test("finds a list with its views, opens a view, and deep links a setting with a
   const theme = options.filter({ hasText: "Profile & preferences" }).filter({ hasText: "Theme" });
   await expect(theme).toBeVisible();
   await theme.click();
-  await expect(page).toHaveURL(/\/en\/settings\/profile/);
+  await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/profile"));
   await expect(page.locator("#settings-profile-theme")).toHaveAttribute("data-focus-highlight", "");
 
   const recent = await openPalette(page);
@@ -110,7 +111,7 @@ test("changes a record field and links a record from a second palette level", as
   const deal = await create("deal", `Palette deal ${suffix}`);
   await create("organization", `Palette organization ${suffix}`);
 
-  await page.goto(`/en/records/${deal.typeId}/${deal.recordId}`);
+  await page.goto(pagePath(page, `/records/${deal.typeId}/${deal.recordId}`));
   await expect(page.getByText(`Palette deal ${suffix}`).first()).toBeVisible({
     timeout: 60000,
   });
@@ -157,7 +158,7 @@ test("changes a record field and links a record from a second palette level", as
 });
 
 test("keeps Ask Mate as the last fallback row and reports no matches plainly", async ({ page }) => {
-  await page.goto("/en/dashboard");
+  await page.goto(pagePath(page, "/dashboard"));
   const dialog = page.getByRole("dialog");
   const input = await openPalette(page);
   await input.fill("zzqxv");
@@ -173,7 +174,7 @@ test("keeps Ask Mate as the last fallback row and reports no matches plainly", a
 });
 
 test("centres the close button inside the search row with the search icon inset", async ({ page }) => {
-  await page.goto("/en/dashboard");
+  await page.goto(pagePath(page, "/dashboard"));
   await openPalette(page);
   const dialog = page.getByRole("dialog");
   const row = dialog.locator("[data-slot=command-input-wrapper]");
@@ -213,8 +214,10 @@ test.describe("Ask Mate fallback", () => {
     page,
     companyId,
     diagnostics,
+    slug,
   }) => {
     test.setTimeout(180000);
+    const messagesPath = appApiPath(slug, "/api/agent/messages");
     const id = (key: string) => presetId(companyId, key);
     const model = RecordModelSchema.parse(await api(page, "/api/v1/model/read", {}));
     const suffix = randomUUID().slice(0, 6);
@@ -237,7 +240,10 @@ test.describe("Ask Mate fallback", () => {
           ],
         },
       });
-    const resolverIds = serverActionIds("app/[locale]/(protected)/search/actions.ts", "resolveCommandAction");
+    const resolverIds = serverActionIds(
+      "app/[locale]/(protected)/w/[workspace]/search/actions.ts",
+      "resolveCommandAction",
+    );
     const answers: unknown[] = [
       {
         kind: "list",
@@ -262,10 +268,10 @@ test.describe("Ask Mate fallback", () => {
     const offlineMate = diagnostics.expect({
       kind: "console",
       text: /^Failed to load resource: the server responded with a status of 422/,
-      source: (url) => url.pathname === "/api/agent/messages",
+      source: (url) => url.pathname === messagesPath,
       page,
     });
-    await page.goto("/en/dashboard");
+    await page.goto(pagePath(page, "/dashboard"));
     const dialog = page.getByRole("dialog");
     const input = await openPalette(page);
     await input.fill(`won deals ${suffix}`);
@@ -273,7 +279,7 @@ test.describe("Ask Mate fallback", () => {
     await expect(resolve).toBeVisible();
     await expect(resolve).toHaveAttribute("aria-selected", "false");
     await resolve.click();
-    await expect(page).toHaveURL(new RegExp(`/en/records/${id("deal")}\\?.*filters=`));
+    await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${id("deal")}\\?.*filters=`));
     await expect(page.getByText(`Won resolver deal ${suffix}`).first()).toBeVisible({ timeout: 30000 });
     await expect(page.getByText(`Open resolver deal ${suffix}`)).toHaveCount(0);
     await expect(page.locator("#global-data-views-all")).toHaveAttribute("data-view-modified", "");
@@ -286,8 +292,7 @@ test.describe("Ask Mate fallback", () => {
     await again.fill("something nobody configured here");
     await expect(dialog.getByRole("option").first()).toContainText("Go to");
     const mateRequest = page.waitForResponse(
-      (response) =>
-        new URL(response.url()).pathname === "/api/agent/messages" && response.request().method() === "POST",
+      (response) => new URL(response.url()).pathname === messagesPath && response.request().method() === "POST",
     );
     await page.keyboard.press("Enter");
     await expect(page.locator("#global-search-input")).toHaveCount(0);
@@ -325,14 +330,17 @@ test("opens a record on Enter for a two-word partial name without calling the re
       ],
     },
   });
-  const resolverIds = serverActionIds("app/[locale]/(protected)/search/actions.ts", "resolveCommandAction");
+  const resolverIds = serverActionIds(
+    "app/[locale]/(protected)/w/[workspace]/search/actions.ts",
+    "resolveCommandAction",
+  );
   let resolverCalls = 0;
   await page.route("**/*", async (route) => {
     if (invokesServerAction(route.request(), resolverIds)) resolverCalls += 1;
     await route.fallback();
   });
 
-  await page.goto("/en/dashboard");
+  await page.goto(pagePath(page, "/dashboard"));
   const input = await openPalette(page);
   await input.fill(`Anna${suffix} Schm`);
   const record = page

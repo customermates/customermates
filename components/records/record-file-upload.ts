@@ -1,6 +1,7 @@
 import type { CreateRecordFileUploadResult, RecordFileDto } from "@/features/record-files/record-file.schema";
 
 import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
+import { workspaceApiUrl } from "@/core/navigation/workspace-api-url";
 
 export type RecordFileRequest<T> = { ok: true; data: T } | { ok: false; message: string | null };
 
@@ -35,7 +36,7 @@ async function postRecordFileRequest<T>(
   input: unknown,
   method: "POST" | "PATCH" = "POST",
 ): Promise<RecordFileRequest<T>> {
-  const response = await fetch(url, {
+  const response = await fetch(workspaceApiUrl(url), {
     method,
     headers: { "content-type": "application/json" },
     body: JSON.stringify(input),

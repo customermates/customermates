@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { openRecordDetails } from "./record-rows";
+import { companyPath } from "./app-paths";
 
 function chip(scope: Locator, label: string) {
   return scope.locator('[data-slot="badge"]').filter({ hasText: new RegExp(`^${label}$`) });
@@ -40,7 +41,7 @@ test("renders change values with the shared value renderers on every activity su
     [memberId, companyId, roleId, `${memberId}@example.test`],
   );
 
-  await page.goto("/en/settings/members");
+  await page.goto(companyPath(companyId, "/settings/members"));
   await page.locator('[data-slot="data-row-open"]').filter({ hasText: "Invited Member" }).click();
   const member = page.getByRole("dialog", { name: "User", exact: true });
   await member.locator("#member-modal-status").click();
@@ -49,7 +50,7 @@ test("renders change values with the shared value renderers on every activity su
   await expect(member).not.toBeVisible();
 
   const receiverUrl = `http://127.0.0.1:49999/${randomUUID()}`;
-  await page.goto("/en/settings/webhooks");
+  await page.goto(companyPath(companyId, "/settings/webhooks"));
   await page.locator("#settings-webhooks-add").click();
   const webhook = page.getByRole("dialog");
   await webhook.locator("#webhook-modal-url").fill(receiverUrl);
@@ -63,7 +64,7 @@ test("renders change values with the shared value renderers on every activity su
   await webhook.getByRole("button", { name: "Save", exact: true }).click();
   await expect(webhook).not.toBeVisible();
 
-  await page.goto("/en/settings/roles");
+  await page.goto(companyPath(companyId, "/settings/roles"));
   await page.locator("#settings-roles-add").click();
   const role = page.getByRole("dialog", { name: "Role", exact: true });
   await role.getByRole("textbox", { name: "Name", exact: false }).fill("Value readers");
@@ -77,7 +78,7 @@ test("renders change values with the shared value renderers on every activity su
   await expect(role).not.toBeVisible();
 
   const dealTypeId = presetId(companyId, "deal");
-  await page.goto(`/en/records/${dealTypeId}`);
+  await page.goto(companyPath(companyId, `/records/${dealTypeId}`));
   await page.locator("#records-add").click();
   const record = page.getByRole("dialog");
   await record.getByRole("textbox", { name: "Name", exact: false }).fill("Value renderer deal");
@@ -94,7 +95,7 @@ test("renders change values with the shared value renderers on every activity su
   );
   const wonColor = won?.color ?? "secondary";
 
-  await page.goto("/en/settings/activity");
+  await page.goto(companyPath(companyId, "/settings/activity"));
   const feed = page.locator('[data-slot="feed-container"]');
 
   const { detail: userEntry, ...userEntryOpened } = await openEntry(page, feed, /User Updated .*Invited Member/);
@@ -139,7 +140,7 @@ test("renders change values with the shared value renderers on every activity su
   await recordEntry.screenshot({ path: testInfo.outputPath("record-created.png"), animations: "disabled" });
   await closeEntry(page, recordEntryOpened);
 
-  await page.goto("/en/dashboard");
+  await page.goto(companyPath(companyId, "/dashboard"));
   await page.locator("#dashboard-add-widget").click();
   const editor = page.getByRole("dialog");
   await editor.locator("#widget-kind-activityTimeline").click();
@@ -162,7 +163,7 @@ test("renders change values with the shared value renderers on every activity su
   await expect(widgetEntry.getByRole("button", { name: "Browser Administrator", exact: true })).toBeVisible();
   await closeEntry(page, widgetEntryOpened);
 
-  await page.goto(`/en/records/${dealTypeId}`);
+  await page.goto(companyPath(companyId, `/records/${dealTypeId}`));
   await openRecordDetails(page, "Value renderer deal");
   const drawer = page.getByRole("dialog").first();
   await drawer.getByRole("tab", { name: "Activities", exact: true }).click();

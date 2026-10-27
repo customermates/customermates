@@ -1,12 +1,11 @@
+import { MarketingShell } from "@/app/components/navigation/marketing-shell";
 import { NotFoundPageView } from "@/components/shared/not-found-page-view";
-import { RecordUnavailableBreadcrumb } from "@/components/records/record-unavailable-breadcrumb";
+import { env } from "@/env";
 
-export default function NotFound() {
+export default function ProtectedNotFound() {
   return (
-    <>
-      <RecordUnavailableBreadcrumb kind="missing" />
-
-      <NotFoundPageView />
-    </>
+    <MarketingShell appMode={env.APP_MODE}>
+      <NotFoundPageView variant="marketing" />
+    </MarketingShell>
   );
 }

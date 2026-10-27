@@ -12,6 +12,10 @@ const sentry = vi.hoisted(() => ({ captureException: vi.fn() }));
 
 vi.mock("@/env", () => ({ env: { BASE_URL: "http://localhost:4105" } }));
 vi.mock("@sentry/nextjs", () => sentry);
+vi.mock("@/features/mcp-tools/mcp-workspace-slug", async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  mcpWorkspaceSlug: () => Promise.resolve("acme"),
+}));
 vi.mock("@/core/di", () => ({
   getGetWikiCatalogInteractor: () => ({ invoke: calls.catalog }),
   getGetWikiPageInteractor: () => ({ invoke: calls.get }),
@@ -63,7 +67,7 @@ const catalog = {
       id: PAGE_ID,
       title: page.title,
       excerpt: "Use plain language.",
-      url: `http://localhost:4105/wiki?page=${PAGE_ID}`,
+      url: `http://localhost:4105/w/acme/wiki?page=${PAGE_ID}`,
       createdAt: CREATED_AT,
       updatedAt: UPDATED_AT,
     },
@@ -204,7 +208,7 @@ describe("Wiki MCP transport", () => {
     );
     const catalogContent = (catalogRead.data?.result as { contents: Array<{ text: string }> }).contents[0];
     expect(JSON.parse(catalogContent?.text ?? "{}")).toMatchObject({
-      items: [{ id: PAGE_ID, url: `http://localhost:4105/wiki?page=${PAGE_ID}` }],
+      items: [{ id: PAGE_ID, url: `http://localhost:4105/w/acme/wiki?page=${PAGE_ID}` }],
       nextPage: null,
     });
     expect(calls.catalog).toHaveBeenCalledWith({ page: 1 });
@@ -217,7 +221,7 @@ describe("Wiki MCP transport", () => {
       sessionId,
     );
     const pageContent = (pageRead.data?.result as { contents: Array<{ text: string }> }).contents[0];
-    expect(pageContent?.text).toContain(`http://localhost:4105/wiki?page=${LINKED_ID}`);
+    expect(pageContent?.text).toContain(`http://localhost:4105/w/acme/wiki?page=${LINKED_ID}`);
     expect(calls.get).toHaveBeenCalledWith({ id: PAGE_ID });
   });
 
@@ -253,7 +257,7 @@ describe("Wiki MCP transport", () => {
       {
         id: `wiki:${PAGE_ID}`,
         title: page.title,
-        url: `http://localhost:4105/wiki?page=${PAGE_ID}`,
+        url: `http://localhost:4105/w/acme/wiki?page=${PAGE_ID}`,
         snippet: "**plain** language",
         offset: 0,
       },
@@ -275,11 +279,11 @@ describe("Wiki MCP transport", () => {
       };
       content: Array<{ type: string; text?: string }>;
     };
-    expect(fetchResult.structuredContent.text).toContain(`http://localhost:4105/wiki?page=${LINKED_ID}`);
+    expect(fetchResult.structuredContent.text).toContain(`http://localhost:4105/w/acme/wiki?page=${LINKED_ID}`);
     const outgoing = JSON.parse(fetchResult.structuredContent.metadata.outgoingWikiLinks) as Array<{ url: string }>;
     expect(outgoing).toEqual([
       expect.objectContaining({
-        url: `http://localhost:4105/wiki?page=${LINKED_ID}`,
+        url: `http://localhost:4105/w/acme/wiki?page=${LINKED_ID}`,
       }),
     ]);
     expect(fetchResult.content).toEqual([{ type: "text", text: JSON.stringify(fetchResult.structuredContent) }]);
@@ -316,7 +320,7 @@ describe("Wiki MCP transport", () => {
   });
 
   it.each([
-    `http://localhost:4105/wiki?page=${PAGE_ID}`,
+    `http://localhost:4105/w/acme/wiki?page=${PAGE_ID}`,
     `customermates://wiki/page/${PAGE_ID}/extra`,
     `customermates://wiki/page/${PAGE_ID}?other=true`,
     `customermates://wiki/page/${PAGE_ID}#fragment`,

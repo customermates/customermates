@@ -6,8 +6,10 @@ import type { Client } from "pg";
 import { hashPassword } from "better-auth/crypto";
 import { z } from "zod";
 
+import { presetId } from "../../features/records/crm-preset";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { mintApiKey } from "./api-key";
+import { anyWorkspaceUrlPattern, appPath, appUrlPattern, pagePath, slugFromUrl, workspaceSlugOf } from "./app-paths";
 import { expectNotFoundDocuments } from "./browser-diagnostics";
 import { collectPageErrors, expect, test } from "./fixtures";
 import {
@@ -34,7 +36,6 @@ import {
   memberItem,
   membershipIn,
   nameLogin,
-  organizationList,
   readInvitationLink,
 } from "./workspace-membership";
 import { uniqueWorkspaceName } from "./workspace-names";
@@ -62,6 +63,10 @@ async function workspaceIdNamed(database: Client, name: string) {
   const { rows } = await database.query<{ id: string }>('SELECT id FROM "Company" WHERE name=$1', [name]);
   if (rows.length !== 1) throw new Error(`Expected one workspace named ${name}`);
   return rows[0].id;
+}
+
+function organizationsOf(slug: string, companyId: string) {
+  return appPath(slug, `/records/${presetId(companyId, "organization")}`);
 }
 
 async function subscriptionOf(database: Client, companyId: string) {
@@ -128,7 +133,7 @@ async function createSecondWorkspace(page: Page, request: APIRequestContext, dat
     });
     const paid = startProviderSubscription(companyId, "business", 1, { name: MEMBER, email });
     await page.goto(checkout.redirectUrl as string);
-    await expect(page).toHaveURL(/\/en\/subscription-expired$/);
+    await expect(page).toHaveURL(anyWorkspaceUrlPattern("/subscription-expired$"));
     await expect(page.locator("#settings-billing-payment-pending")).toBeVisible();
     await deliverSubscriptionWebhook(request, "subscription_created", paid);
     await deliverSubscriptionWebhook(request, "subscription_updated", changeProviderSubscription(paid.id, {}));
@@ -143,10 +148,10 @@ async function createSecondWorkspace(page: Page, request: APIRequestContext, dat
   return companyId;
 }
 
-async function switchTo(page: Page, companyId: string, name: string) {
+async function switchTo(page: Page, slug: string, companyId: string, name: string) {
   const menu = await openWorkspaceSwitcher(page);
   await menu.locator(`[data-workspace-id="${companyId}"]`).click();
-  await expect(page).toHaveURL(/\/en\/dashboard$/);
+  await expect(page).toHaveURL(appUrlPattern(slug, "/dashboard$"));
   await expectCurrentWorkspace(page, name);
 }
 
@@ -158,7 +163,7 @@ async function joinByLink(page: Page, link: string) {
 }
 
 async function approve(admin: Page, email: string) {
-  await admin.goto("/en/settings/members");
+  await admin.goto(pagePath(admin, "/settings/members"));
   const row = memberItem(admin, MEMBER);
   await expect(row).toContainText(englishMessages.Common.userStatuses.pendingAuthorization);
   await runRowAction(admin, row, MEMBER, "Open details");
@@ -172,9 +177,9 @@ async function approve(admin: Page, email: string) {
   await expect(member).not.toBeVisible();
 }
 
-async function enterApprovedWorkspace(page: Page) {
+async function enterApprovedWorkspace(page: Page, slug: string) {
   await clickHydrated(page.getByRole("button", { name: englishMessages.Common.actions.refresh, exact: true }));
-  await expect(page).toHaveURL(/\/en\/dashboard$/);
+  await expect(page).toHaveURL(appUrlPattern(slug, "/dashboard$"));
   await expectCurrentWorkspace(page, INVITER);
 }
 
@@ -194,13 +199,13 @@ async function createWikiPage(
   return WikiPages.parse(created.body)[0];
 }
 
-async function expectWikiPage(page: Page, pageId: string, text: string) {
-  await page.goto(`/en/wiki?page=${pageId}`);
+async function expectWikiPage(page: Page, slug: string, pageId: string, text: string) {
+  await page.goto(appPath(slug, `/wiki?page=${pageId}`));
   await expect(page.getByText(text, { exact: false }).first()).toBeVisible();
 }
 
-async function expectWikiPageUnavailable(page: Page, pageId: string, text: string) {
-  await page.goto(`/en/wiki?page=${pageId}`);
+async function expectWikiPageUnavailable(page: Page, slug: string, pageId: string, text: string) {
+  await page.goto(appPath(slug, `/wiki?page=${pageId}`));
   await expect(page.getByText(englishMessages.Wiki.unavailableTitle, { exact: true })).toBeVisible();
   await expect(page.getByText(text, { exact: false })).toHaveCount(0);
 }
@@ -243,9 +248,10 @@ test("one person is invited, signs in, pays for a second workspace, keeps every 
       await page.goto("/en/dashboard");
       await expectCurrentWorkspace(page, "Browser workspace");
       const keller = await createSecondWorkspace(page, request, database, email);
+      const kellerSlug = await workspaceSlugOf(database, keller);
       await shot(page, "second-workspace");
       if (cloud) {
-        await page.goto("/en/settings/billing");
+        await page.goto(appPath(kellerSlug, "/settings/billing"));
         const plan = page.getByRole("textbox", { name: englishMessages.Subscription.plan, exact: true });
         await expect(plan).toContainText("Business");
         await expect(plan).toContainText("Active");
@@ -255,7 +261,7 @@ test("one person is invited, signs in, pays for a second workspace, keeps every 
       const kellerMember = await membershipIn(database, keller, email);
       if (!cloud && kellerMember) await insertStarterModel(database, keller, kellerMember.id);
 
-      await page.goto(organizationList(keller));
+      await page.goto(organizationsOf(kellerSlug, keller));
       await addOrganization(page, "Steuerkanzlei Keller");
       const kellerKey = await createApiKeyInSettings(page, SECOND, "Keller Steuern sync");
       const checklistText = "Belege bis Ende Mai an die Kanzlei geben.";
@@ -263,18 +269,18 @@ test("one person is invited, signs in, pays for a second workspace, keeps every 
         title: "Steuer-Checkliste",
         markdown: `${checklistText} keller-steuern-journey`,
       });
-      await expectWikiPage(page, checklist.id, checklistText);
+      await expectWikiPage(page, kellerSlug, checklist.id, checklistText);
       await shot(page, "second-workspace-wiki");
 
-      await switchTo(page, workspace.companyId, "Browser workspace");
-      await page.goto(organizationList(workspace.companyId));
+      await switchTo(page, workspace.slug, workspace.companyId, "Browser workspace");
+      await page.goto(organizationsOf(workspace.slug, workspace.companyId));
       await expect(page.getByText("Example organization", { exact: true }).first()).toBeVisible();
       await expect(page.getByText("Steuerkanzlei Keller", { exact: true })).toHaveCount(0);
-      await page.goto(organizationList(keller));
+      await page.goto(organizationsOf(workspace.slug, keller));
       await expect(page.getByRole("heading", { name: englishMessages.NotFoundPage.title, exact: true })).toBeVisible();
-      await expectWikiPageUnavailable(page, checklist.id, checklistText);
+      await expectWikiPageUnavailable(page, workspace.slug, checklist.id, checklistText);
       const browserKey = (await mintApiKey(database, workspace, "Browser bookkeeping")).key;
-      await page.goto("/en/settings/api-keys");
+      await page.goto(appPath(workspace.slug, "/settings/api-keys"));
       await expect(page.getByText("Browser bookkeeping", { exact: true })).toBeVisible();
       await expect(page.getByText("Keller Steuern sync", { exact: true })).toHaveCount(0);
       expect(await apiKeyRequest(playwright, kellerKey)).toEqual({ status: 200, id: kellerMember?.id });
@@ -290,7 +296,7 @@ test("one person is invited, signs in, pays for a second workspace, keeps every 
       await joinByLink(page, link);
       expect(await membership()).toMatchObject({ status: "pendingAuthorization", left: false });
       await expect.poll(() => pendingRequestCount(database, hoffmann.companyId, email)).toBe(1);
-      await admin.page.goto("/en/settings/members");
+      await admin.page.goto(appPath(hoffmann.slug, "/settings/members"));
       await expect(memberItem(admin.page, MEMBER)).toContainText(
         englishMessages.Common.userStatuses.pendingAuthorization,
       );
@@ -300,11 +306,11 @@ test("one person is invited, signs in, pays for a second workspace, keeps every 
         .getByRole("alertdialog", { name: `Withdraw your request to join ${INVITER}?` })
         .getByRole("button", { name: englishMessages.PendingCard.withdrawShort, exact: true })
         .click();
-      await expect(page).toHaveURL(/\/en\/dashboard$/);
+      await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/dashboard$"));
       await expectCurrentWorkspace(page, "Browser workspace");
       expect(await membership()).toMatchObject({ status: "inactive", left: true });
       expect(await pendingRequestCount(database, hoffmann.companyId, email)).toBe(0);
-      await admin.page.goto("/en/settings/members");
+      await admin.page.goto(appPath(hoffmann.slug, "/settings/members"));
       await expect(memberItem(admin.page, "Anna Hoffmann")).toBeVisible();
       await expect(memberItem(admin.page, MEMBER)).toHaveCount(0);
 
@@ -312,15 +318,15 @@ test("one person is invited, signs in, pays for a second workspace, keeps every 
       await approve(admin.page, email);
       await expect.poll(async () => (await membership())?.status).toBe("active");
       expect(await pendingRequestCount(database, hoffmann.companyId, email)).toBe(0);
-      await enterApprovedWorkspace(page);
+      await enterApprovedWorkspace(page, hoffmann.slug);
       const guideText = "Neue Mandanten zuerst im Kanzleiprogramm anlegen.";
       const guide = await createWikiPage(playwright, (await mintApiKey(database, hoffmann, "Anna laptop")).key, {
         title: "Hoffmann Leitfaden",
         markdown: guideText,
       });
-      await expectWikiPage(page, guide.id, guideText);
-      await expectWikiPageUnavailable(page, checklist.id, checklistText);
-      await page.goto(organizationList(hoffmann.companyId));
+      await expectWikiPage(page, hoffmann.slug, guide.id, guideText);
+      await expectWikiPageUnavailable(page, hoffmann.slug, checklist.id, checklistText);
+      await page.goto(organizationsOf(hoffmann.slug, hoffmann.companyId));
       await addOrganization(page, "Keller Logistik");
       const hoffmannKey = await createApiKeyInSettings(page, INVITER, "Keller laptop");
       const hoffmannMember = await membership();
@@ -328,18 +334,18 @@ test("one person is invited, signs in, pays for a second workspace, keeps every 
       expect(await wikiPageIds(playwright, hoffmannKey)).toEqual(expect.arrayContaining([guide.id]));
       expect(await wikiPageIds(playwright, hoffmannKey)).not.toContain(checklist.id);
       expect(await wikiPageIds(playwright, kellerKey)).not.toContain(guide.id);
-      await admin.page.goto(organizationList(hoffmann.companyId));
+      await admin.page.goto(organizationsOf(hoffmann.slug, hoffmann.companyId));
       await expect(admin.page.getByText("Keller Logistik", { exact: true }).first()).toBeVisible();
-      await switchTo(page, keller, SECOND);
-      await page.goto(organizationList(keller));
+      await switchTo(page, kellerSlug, keller, SECOND);
+      await page.goto(organizationsOf(kellerSlug, keller));
       await expect(page.getByText("Steuerkanzlei Keller", { exact: true }).first()).toBeVisible();
       await expect(page.getByText("Keller Logistik", { exact: true })).toHaveCount(0);
-      await expectWikiPageUnavailable(page, guide.id, guideText);
+      await expectWikiPageUnavailable(page, kellerSlug, guide.id, guideText);
       await shot(page, "three-workspaces-apart");
       expect(sentEmailsTo(email)).toEqual([]);
 
       await page.goto("about:blank");
-      await admin.page.goto("/en/settings/members");
+      await admin.page.goto(appPath(hoffmann.slug, "/settings/members"));
       await runRowAction(admin.page, memberItem(admin.page, MEMBER), MEMBER, englishMessages.MemberRemoval.action);
       const confirm = admin.page.getByRole("alertdialog", { name: `Remove ${MEMBER} from ${INVITER}?` });
       await expect(confirm).toContainText(`${MEMBER} loses access to this workspace on every device.`);
@@ -381,39 +387,41 @@ test("one person is invited, signs in, pays for a second workspace, keeps every 
       expect(await apiKeyRequest(playwright, kellerKey)).toEqual({ status: 200, id: kellerMember?.id });
 
       await page.goto("/en/dashboard");
-      await expect(page).toHaveURL(/\/en\/dashboard$/);
+      await expect(page).toHaveURL(anyWorkspaceUrlPattern("/dashboard$"));
+      const currentSlug = slugFromUrl(page.url());
+      expect([workspace.slug, kellerSlug]).toContain(currentSlug);
       const menu = await openWorkspaceSwitcher(page);
       await expect(switcherWorkspaces(menu)).toHaveCount(2);
       await expect(menu.locator(`[data-workspace-id="${workspace.companyId}"]`)).toBeVisible();
       await expect(menu.locator(`[data-workspace-id="${keller}"]`)).toBeVisible();
       await expect(menu.locator(`[data-workspace-id="${hoffmann.companyId}"]`)).toHaveCount(0);
       await page.keyboard.press("Escape");
-      await page.goto(organizationList(hoffmann.companyId));
+      await page.goto(organizationsOf(hoffmann.slug, hoffmann.companyId));
       await expect(page.getByRole("heading", { name: englishMessages.NotFoundPage.title, exact: true })).toBeVisible();
-      await expectWikiPageUnavailable(page, guide.id, guideText);
+      await expectWikiPageUnavailable(page, currentSlug, guide.id, guideText);
       await shot(page, "after-removal");
 
       await joinByLink(page, link);
       await approve(admin.page, email);
       await expect.poll(async () => (await membership())?.status).toBe("active");
-      await enterApprovedWorkspace(page);
-      await page.goto("/en/settings/general");
+      await enterApprovedWorkspace(page, hoffmann.slug);
+      await page.goto(appPath(hoffmann.slug, "/settings/general"));
       await expect(page.locator("#settings-general-name")).toHaveValue(INVITER);
       await clickHydrated(page.locator("#settings-general-leave"));
       await page
         .getByRole("alertdialog", { name: `Leave ${INVITER}?` })
         .getByRole("button", { name: englishMessages.Workspaces.leaveShort, exact: true })
         .click();
-      await expect(page).toHaveURL(/\/en\/dashboard$/);
+      await expect(page).toHaveURL(anyWorkspaceUrlPattern("/dashboard$"));
       expect(await membership()).toMatchObject({ status: "inactive", left: true });
-      await admin.page.goto("/en/settings/members");
+      await admin.page.goto(appPath(hoffmann.slug, "/settings/members"));
       await expect(memberItem(admin.page, MEMBER)).toContainText(englishMessages.WorkspaceMembership.left);
 
       const invitation = await readInvitationLink(admin.page);
       await joinByLink(page, invitation);
       expect(await membership()).toMatchObject({ status: "pendingAuthorization", left: false });
       await expect.poll(() => pendingRequestCount(database, hoffmann.companyId, email)).toBe(1);
-      await admin.page.goto("/en/settings/members");
+      await admin.page.goto(appPath(hoffmann.slug, "/settings/members"));
       await expect(memberItem(admin.page, MEMBER)).toContainText(
         englishMessages.Common.userStatuses.pendingAuthorization,
       );

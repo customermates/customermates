@@ -42,6 +42,7 @@ import { e2eAppMode } from "./workspace-switching";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { RecordIdentityReferenceSchema } from "../../features/records/record-identity-reference.schema";
 import { recordInvariant } from "../../features/records/record-invariant";
+import { anyWorkspaceUrlPattern, companyPath, companySlug, companyUrlPattern, pagePath, rememberWorkspaceSlug } from "./app-paths";
 
 async function readModel(page: Page) {
   return RecordModelSchema.parse(
@@ -122,6 +123,7 @@ async function secondaryUser(
     reducedMotion: "reduce",
   });
   BrowserDiagnostics.of(testInfo).watch(context);
+  rememberWorkspaceSlug(context, companySlug(companyId));
   await context.addCookies([
     {
       name: "app.session_token",
@@ -247,7 +249,7 @@ test("admits an assigned-record writer and separately delegates schema configura
       ],
       assignedUserIds: [workspace.userId],
     });
-    await member.page.goto(`/en/records/${type.id}`);
+    await member.page.goto(companyPath(companyId, `/records/${type.id}`));
     await expect(
       recordItem(member.page, "Assigned project"),
     ).toBeVisible();
@@ -300,7 +302,7 @@ test("admits an assigned-record writer and separately delegates schema configura
           [companyId, type.id, unassigned.recordId],
         )
       ).rows.map((row: { userId: string }) => row.userId);
-    await page.goto(`/en/records/${type.id}`);
+    await page.goto(companyPath(companyId, `/records/${type.id}`));
     await openRecordDetails(page, "Other member project");
     const administratorEditor = page.getByRole("dialog", {
       name: "Project",
@@ -463,10 +465,10 @@ test("admits an assigned-record writer and separately delegates schema configura
     if (e2eAppMode() === "self-hosted")
       await expect(member.page.locator("#nav-assistant")).toHaveCount(0);
     else await expect(member.page.locator("#nav-assistant")).toBeVisible();
-    await expect(configure).toHaveAttribute("href", "/en/configure");
+    await expect(configure).toHaveAttribute("href", companyPath(companyId, "/configure"));
     await configure.click();
     await expect(member.page).toHaveURL(
-      /\/en\/configure(?:\?typeId=[a-f0-9-]+)?$/,
+      companyUrlPattern(companyId, "/configure(?:\\?typeId=[a-f0-9-]+)?$"),
     );
     await addFromConfigure(member.page, "List");
     const creation = member.page.getByRole("dialog");
@@ -480,7 +482,7 @@ test("admits an assigned-record writer and separately delegates schema configura
       .first()
       .click();
     await expect(creation).not.toBeVisible();
-    await expect(member.page).toHaveURL(/\/en\/configure\?typeId=[a-f0-9-]+$/);
+    await expect(member.page).toHaveURL(companyUrlPattern(companyId, "/configure\\?typeId=[a-f0-9-]+$"));
     await expect(
       member.page.getByRole("heading", {
         name: "Delegated records",
@@ -577,7 +579,7 @@ test("admits an assigned-record writer and separately delegates schema configura
     if (!approved)
       throw new Error("Expected the delegated type with approved grants");
     await expect(member.page).toHaveURL(
-      new RegExp(`/en/records/${approved.id}$`),
+      companyUrlPattern(companyId, `/records/${approved.id}$`),
     );
     expect(
       (
@@ -794,7 +796,7 @@ test("renders dependency-restricted calculated widget values as a secondary read
         },
       });
     };
-    await member.page.goto("/en/dashboard");
+    await member.page.goto(companyPath(companyId, "/dashboard"));
     await expectRestricted();
     await member.page.screenshot({
       path: testInfo.outputPath("restricted-calculated-widget.png"),
@@ -1004,7 +1006,7 @@ test("keeps shared Inbox participants permission-scoped across genuine readers a
         exact: true,
       });
       const openSettings = async (actorPage: Page) => {
-        await actorPage.goto(`/en/inbox?threadId=${threadId}`);
+        await actorPage.goto(companyPath(companyId, `/inbox?threadId=${threadId}`));
         await actorPage
           .getByRole("button", { name: settingsName, exact: true })
           .and(actorPage.locator('[data-slot="badge"]'))
@@ -1109,7 +1111,7 @@ test("keeps shared Inbox participants permission-scoped across genuine readers a
         await expect(member.page.locator("#nav-configure-records")).toHaveCount(
           0,
         );
-        await member.page.goto(`/en/inbox?threadId=${threadId}`);
+        await member.page.goto(companyPath(companyId, `/inbox?threadId=${threadId}`));
         await expect(
           member.page.getByText(body, { exact: true }).last(),
         ).toBeVisible();
@@ -1128,7 +1130,7 @@ test("keeps shared Inbox participants permission-scoped across genuine readers a
         )
         .toEqual([{ sharedToCrm: false }]);
       for (const member of [noAccess, reader]) {
-        await member.page.goto("/en/inbox");
+        await member.page.goto(companyPath(companyId, "/inbox"));
         await expect(
           member.page
             .locator("#inbox-thread-list")
@@ -1218,7 +1220,7 @@ test("keeps shared Inbox participants permission-scoped across genuine readers a
           })
         ).status(),
       ).toBe(404);
-    await foreign.page.goto(`/en/records/${foreignContactTypeId}`);
+    await foreign.page.goto(companyPath(foreignWorkspace.companyId, `/records/${foreignContactTypeId}`));
     await expect(
       recordItem(foreign.page, "Foreign CRM Ada"),
     ).toBeVisible();
@@ -1275,7 +1277,7 @@ async function relationshipCreateTypeUi(page: Page, name: string) {
     .first()
     .click();
   await expect(dialog).not.toBeVisible();
-  await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
+  await expect(page).toHaveURL(anyWorkspaceUrlPattern("/records/[a-f0-9-]+$"));
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
   const type = (await readModel(page)).types.find(
     (candidate) => candidate.id === typeId,
@@ -1355,7 +1357,7 @@ async function relationshipCreateUi(
 
 async function relationshipEditUi(page: Page, typeId: string, label: string) {
   await followConfigureLink(page);
-  await expect(page).toHaveURL(`/en/configure?typeId=${typeId}`);
+  await expect(page).toHaveURL(new RegExp(`${pagePath(page, "/configure")}\\?typeId=${typeId}$`));
   await openConfigureTab(page, "Relationships");
   await expect(
     page.getByRole("region", {
@@ -1377,7 +1379,7 @@ async function relationshipOpenRecordUi(
   title: string,
 ) {
   await page.waitForLoadState("networkidle");
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(pagePath(page, `/records/${typeId}`));
   await openRecordDetails(page, title);
   const editor = page.getByRole("dialog", { name: typeLabel, exact: true });
   await expect(editor).toBeVisible();
@@ -2177,7 +2179,7 @@ test("keeps personal views separate from the list layout, groups and summarises 
         [companyId, userId, surfaceKey],
       )
     ).rows;
-  await page.goto(`/en/records/${type.id}`);
+  await page.goto(companyPath(companyId, `/records/${type.id}`));
   await presentationAppearanceUi(page);
   await page
     .getByRole("combobox", {
@@ -2226,7 +2228,7 @@ test("keeps personal views separate from the list layout, groups and summarises 
     sortDescriptor: { field: type.primaryFieldId, direction: "asc" },
     hiddenColumns: [budgetId],
   });
-  await page.goto(`/en/records/${type.id}`);
+  await page.goto(companyPath(companyId, `/records/${type.id}`));
   await expect(
     page
       .locator("#global-data-views")
@@ -2295,7 +2297,7 @@ test("keeps personal views separate from the list layout, groups and summarises 
     await expect(target.locator('[data-slot="group-header-row"]')).toHaveCount(0);
   };
   try {
-    await reader.page.goto(`/en/records/${type.id}`);
+    await reader.page.goto(companyPath(companyId, `/records/${type.id}`));
     await assertListLayout(reader.page);
     await expect(reader.page.locator("#global-data-views-new")).toBeVisible();
     await expect(
@@ -2402,7 +2404,7 @@ test("keeps personal views separate from the list layout, groups and summarises 
       await page.evaluate(() => navigator.clipboard.readText()),
     );
     expect(copied.origin).toBe(localE2eEnvironment().baseUrl);
-    expect(copied.pathname).toBe(`/en/records/${type.id}`);
+    expect(copied.pathname).toBe(companyPath(companyId, `/records/${type.id}`));
     expect([...copied.searchParams.keys()]).toEqual(["view", "viewShare"]);
     expect(copied.searchParams.get("view")).toBe(duplicateId);
     expect(decodeSharedView(copied.searchParams.get("viewShare"))).toMatchObject({
@@ -2994,7 +2996,7 @@ test("keeps retained values restricted after a delegated manager converts fields
         expect(
           dto.fields.find((entry) => entry.fieldId === field.id)?.result,
         ).toEqual({ state: "restricted" });
-      await reader.page.goto(`/en/records/${summaryType.id}`);
+      await reader.page.goto(companyPath(companyId, `/records/${summaryType.id}`));
       const row = recordItem(reader.page, "Readable archive summary");
       if (!test.info().project.use.isMobile)
         await expect(
@@ -3070,7 +3072,7 @@ test("keeps retained values restricted after a delegated manager converts fields
       await reader.page.waitForLoadState("networkidle");
       await editor.getByRole("button", { name: "Close", exact: true }).click();
       await expect(editor).not.toBeVisible();
-      await reader.page.goto("/en/dashboard");
+      await reader.page.goto(companyPath(companyId, "/dashboard"));
       const card = reader.page
         .locator('[data-uid="app-card"]')
         .filter({
@@ -3281,7 +3283,7 @@ test("publishes and withdraws a private-input summary through the field UI witho
       await postOk(member.page, "/api/v1/records/read", deal),
     ).fields.find((field) => field.fieldId === summary.id)?.result;
   const openReader = async () => {
-    await member.page.goto(`/en/records/${deal.typeId}`);
+    await member.page.goto(companyPath(companyId, `/records/${deal.typeId}`));
     await openRecordDetails(member.page, "Summary publication deal");
     return member.page.getByRole("dialog", { name: "Deal", exact: true });
   };
@@ -3572,7 +3574,7 @@ test("copies another member's widget template into an independent owned widget w
   const overall = englishMessages.RecordWidgets.overall.replace("{value}", "2");
   const sourceName = "Owner service template";
   const copyName = "Reader copied service chart";
-  await page.goto("/en/dashboard");
+  await page.goto(companyPath(companyId, "/dashboard"));
   await page.locator("#dashboard-add-widget").click();
   const dialog = page.getByRole("dialog");
   await dialog.locator("#widget-starter-verticalBarChart").click();
@@ -3617,7 +3619,7 @@ test("copies another member's widget template into an independent owned widget w
     testInfo,
   );
   try {
-    await member.page.goto("/en/dashboard");
+    await member.page.goto(companyPath(companyId, "/dashboard"));
     await expect(member.page.locator("#dashboard-add-widget")).toBeVisible();
     await expect(
       member.page.getByRole("heading", { name: sourceName, exact: true }),
@@ -3805,7 +3807,7 @@ test("enforces partial system manage actions for a restricted member in the API 
       ).status(),
     ).toBe(403);
 
-    await member.page.goto("/en/settings/webhooks");
+    await member.page.goto(companyPath(companyId, "/settings/webhooks"));
     await expect(member.page.locator("#settings-webhooks-add")).toBeVisible();
     await member.page
       .getByText("https://receiver.example.test/member", { exact: true })
@@ -3847,7 +3849,7 @@ test("lets a read-only member pin and unpin header fields with the pin menu", as
   });
   const reader = await secondaryUser(browser, database, companyId, role.role.id, testInfo);
   try {
-    await reader.page.goto(`/en/records/${contactTypeId}`);
+    await reader.page.goto(companyPath(companyId, `/records/${contactTypeId}`));
     await expect(reader.page.getByRole("button", { name: "Edit Assigned to", exact: true })).toHaveCount(0);
     await openRecordDetails(reader.page, `${firstName} Reader`);
     const drawer = reader.page.getByRole("dialog", { name: "Contact", exact: true });
@@ -3924,7 +3926,7 @@ test("names another member in a member field on the record page and shows access
       assignedUserIds: [workspace.userId],
     });
 
-    await page.goto(`/en/records/${dealTypeId}/${other.recordId}`);
+    await page.goto(companyPath(companyId, `/records/${dealTypeId}/${other.recordId}`));
     await expect(page.getByText("Secondary Browser User").first()).toBeVisible();
     await expect(page.getByText(englishMessages.Common.inputs.unavailableSelection)).toHaveCount(0);
 
@@ -3932,7 +3934,7 @@ test("names another member in a member field on the record page and shows access
       [other.recordId, englishMessages.AccessDeniedPage.title, englishMessages.NotFoundPage.title],
       [randomUUID(), englishMessages.NotFoundPage.title, englishMessages.AccessDeniedPage.title],
     ]) {
-      await member.page.goto(`/en/records/${dealTypeId}/${recordId}`);
+      await member.page.goto(companyPath(companyId, `/records/${dealTypeId}/${recordId}`));
       await expect(member.page.getByRole("heading", { name: title, exact: true })).toBeVisible();
       const breadcrumb = member.page.getByRole("navigation", { name: "Breadcrumb" });
       await expect(breadcrumb.getByText(title, { exact: true })).toBeVisible();
@@ -3948,7 +3950,7 @@ test("names another member in a member field on the record page and shows access
       fields: [{ fieldId: recordInvariant(deal.primaryFieldId), value: { kind: "text", value: "Reassigned rep deal" } }],
       assignedUserIds: [member.userId],
     });
-    await member.page.goto(`/en/records/${dealTypeId}`);
+    await member.page.goto(companyPath(companyId, `/records/${dealTypeId}`));
     await expect(recordItem(member.page, "Reassigned rep deal")).toBeVisible();
     await postOk(page, "/api/v1/records/mutate", {
       expectedRevision: (await readModel(page)).revision,

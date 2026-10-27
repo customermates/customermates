@@ -16,8 +16,9 @@ export async function copyGenericWorkspace(source: ClientBase, destination: Clie
       if (!columns.length) throw new Error("Missing browser fixture table");
       const rows = (await source.query(`SELECT * FROM "${table}" WHERE "${table === "Company" ? "id" : "companyId"}"=$1`, [companyId])).rows;
       for (const row of rows) {
-        const keys = columns.map((column) => column.column_name);
-        const values = columns.map((column) => column.data_type === "jsonb" && row[column.column_name] !== null ? JSON.stringify(row[column.column_name]) : row[column.column_name]);
+        const copied = columns.filter((column) => column.column_name in row);
+        const keys = copied.map((column) => column.column_name);
+        const values = copied.map((column) => column.data_type === "jsonb" && row[column.column_name] !== null ? JSON.stringify(row[column.column_name]) : row[column.column_name]);
         await destination.query(`INSERT INTO "${table}" (${keys.map((key) => `"${key}"`).join(",")}) VALUES (${keys.map((_, index) => `$${index + 1}`).join(",")})`, values);
       }
     }

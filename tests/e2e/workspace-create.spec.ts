@@ -5,6 +5,7 @@ import type { Client } from "pg";
 import type { BrowserWorkspace } from "./workspace";
 
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
+import { anyWorkspaceUrlPattern, appPath, appUrlPattern, slugFromUrl, workspaceSlugOf } from "./app-paths";
 import { collectPageErrors, expect, test } from "./fixtures";
 import { uniqueWorkspaceName } from "./workspace-names";
 import {
@@ -57,7 +58,7 @@ test("an extra cloud workspace asks for a plan before its onboarding and the pla
   test.skip(e2eAppMode() !== "cloud", "Plans and the trial exist in the cloud only");
   const name = uniqueWorkspaceName("Steuern 2026");
   const errors = collectPageErrors(page);
-  await page.goto("/en/dashboard");
+  await page.goto(appPath(workspace.slug, "/dashboard"));
   const menu = await openWorkspaceSwitcher(page);
   await menu.getByRole("menuitem", { name: "Create workspace", exact: true }).click();
   const dialog = await fillCreateWorkspace(page, name);
@@ -72,7 +73,7 @@ test("an extra cloud workspace asks for a plan before its onboarding and the pla
   await dialog.locator("#create-workspace-terms").click();
   await dialog.getByRole("button", { name: "Create workspace", exact: true }).click();
 
-  await expect(page).toHaveURL(/\/en\/subscription-expired$/);
+  await expect(page).toHaveURL(anyWorkspaceUrlPattern("/subscription-expired$"));
   await expect(page.getByRole("heading", { level: 1, name: `Choose a plan for ${name}`, exact: true })).toBeVisible();
   await expect(page.getByText(englishMessages.Workspaces.firstPlan.subtitle, { exact: true })).toBeVisible();
   const [created] = await createdWorkspace(database, name);
@@ -85,12 +86,13 @@ test("an extra cloud workspace asks for a plan before its onboarding and the pla
     onboardingWizardCompletedAt: null,
     isSystemRole: true,
   });
-  expect(await activeWorkspaceOf(database, workspace)).toEqual({ session: created.id, lastUsed: created.id });
+  expect(slugFromUrl(page.url())).toBe(await workspaceSlugOf(database, created.id));
+  expect(await activeWorkspaceOf(database, workspace)).toEqual({ lastUsed: created.id });
   await expect(page.getByRole("heading", { name: "Switch workspace", exact: true })).toHaveCount(0);
   await page.screenshot({ path: testInfo.outputPath("ws-first-plan.png"), fullPage: true });
   await switchFromBlockedPage(page, workspace.companyId);
 
-  await expect(page).toHaveURL(/\/en\/dashboard$/);
+  await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/dashboard$"));
   await expectCurrentWorkspace(page, "Browser workspace");
   expect(errors).toEqual([]);
 });
@@ -105,17 +107,17 @@ test("a legacy workspace another administrator set up leaves the login its trial
   const errors = collectPageErrors(page);
   await database.query('UPDATE "Company" SET "createdByAuthUserId"=NULL WHERE id=$1', [workspace.companyId]);
   await addEarlierAdministrator(database, workspace);
-  await page.goto("/en/settings/workspaces");
+  await page.goto(appPath(workspace.slug, "/settings/workspaces"));
   await clickHydrated(page.getByRole("button", { name: "Create workspace", exact: true }));
   const dialog = await fillCreateWorkspace(page, name);
   await dialog.locator("#create-workspace-terms").click();
   await dialog.getByRole("button", { name: "Create workspace", exact: true }).click();
 
-  await expect(page).toHaveURL(/\/en\/onboarding\/wizard$/);
+  await expect(page).toHaveURL(/\/en(?:\/w\/[a-z0-9-]+)?\/onboarding\/wizard$/);
   // A new cloud workspace continues at the AI setup step, or at the invite step when AI setup is not configured.
   const stepHeading = (name: string) => page.getByRole("heading", { level: 1, name, exact: true });
   await expect(
-    stepHeading(englishMessages.OnboardingWizard.steps.setup.title).or(
+    stepHeading(englishMessages.OnboardingWizard.steps.setup.startTitle).or(
       stepHeading(englishMessages.OnboardingWizard.steps.invite.title),
     ),
   ).toBeVisible();
@@ -128,7 +130,7 @@ test("a legacy workspace another administrator set up leaves the login its trial
     isSystemRole: true,
   });
   expect(created.trialEndDate?.getTime()).toBeGreaterThan(Date.now() + 6 * 24 * 60 * 60 * 1000);
-  expect((await activeWorkspaceOf(database, workspace)).session).toBe(created.id);
+  expect((await activeWorkspaceOf(database, workspace)).lastUsed).toBe(created.id);
   expect(errors).toEqual([]);
 });
 
@@ -141,14 +143,14 @@ test("a legacy workspace the login set up as its first administrator counts as i
   const name = uniqueWorkspaceName("Kraus Planung");
   const errors = collectPageErrors(page);
   await database.query('UPDATE "Company" SET "createdByAuthUserId"=NULL WHERE id=$1', [workspace.companyId]);
-  await page.goto("/en/settings/workspaces");
+  await page.goto(appPath(workspace.slug, "/settings/workspaces"));
   await clickHydrated(page.getByRole("button", { name: "Create workspace", exact: true }));
   const dialog = await fillCreateWorkspace(page, name);
   await expect(dialog).toContainText(englishMessages.Workspaces.billingNote);
   await dialog.locator("#create-workspace-terms").click();
   await dialog.getByRole("button", { name: "Create workspace", exact: true }).click();
 
-  await expect(page).toHaveURL(/\/en\/subscription-expired$/);
+  await expect(page).toHaveURL(anyWorkspaceUrlPattern("/subscription-expired$"));
   await expect(page.getByRole("heading", { level: 1, name: `Choose a plan for ${name}`, exact: true })).toBeVisible();
   const [created] = await createdWorkspace(database, name);
   expect(created).toMatchObject({
@@ -158,7 +160,8 @@ test("a legacy workspace the login set up as its first administrator counts as i
     memberStatus: "active",
     isSystemRole: true,
   });
-  expect((await activeWorkspaceOf(database, workspace)).session).toBe(created.id);
+  expect((await activeWorkspaceOf(database, workspace)).lastUsed).toBe(created.id);
+  expect(slugFromUrl(page.url())).toBe(await workspaceSlugOf(database, created.id));
   expect(errors).toEqual([]);
 });
 
@@ -170,7 +173,7 @@ test("a self-hosted workspace is ready to use at once and continues in its onboa
   test.skip(e2eAppMode() !== "self-hosted", "Runs against a server started with APP_MODE=self-hosted");
   const name = uniqueWorkspaceName("Selbst gehostet");
   const errors = collectPageErrors(page);
-  await page.goto("/en/settings/workspaces");
+  await page.goto(appPath(workspace.slug, "/settings/workspaces"));
   await expect(page.locator(`li[data-workspace-id="${workspace.companyId}"]`)).toContainText("Current");
   await expect(page.getByText(englishMessages.Workspaces.noPlan)).toHaveCount(0);
   await clickHydrated(page.getByRole("button", { name: "Create workspace", exact: true }));
@@ -180,7 +183,7 @@ test("a self-hosted workspace is ready to use at once and continues in its onboa
   await page.screenshot({ path: testInfo.outputPath("ws-create-modal-self-hosted.png") });
   await dialog.getByRole("button", { name: "Create workspace", exact: true }).click();
 
-  await expect(page).toHaveURL(/\/en\/onboarding\/wizard$/);
+  await expect(page).toHaveURL(/\/en(?:\/w\/[a-z0-9-]+)?\/onboarding\/wizard$/);
   // Self-hosted workspaces have no AI setup step: the wizard continues at the invite step.
   await expect(
     page.getByRole("heading", { level: 1, name: englishMessages.OnboardingWizard.steps.invite.title, exact: true }),
@@ -194,6 +197,6 @@ test("a self-hosted workspace is ready to use at once and continues in its onboa
     onboardingWizardCompletedAt: null,
     isSystemRole: true,
   });
-  expect(await activeWorkspaceOf(database, workspace)).toEqual({ session: created.id, lastUsed: created.id });
+  expect(await activeWorkspaceOf(database, workspace)).toEqual({ lastUsed: created.id });
   expect(errors).toEqual([]);
 });

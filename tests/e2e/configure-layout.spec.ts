@@ -1,5 +1,6 @@
 import type { Locator, Page } from "@playwright/test";
 import type { Client } from "pg";
+import { companyPath } from "./app-paths";
 import { restoreFromTrash } from "./trash";
 import { presetId } from "../../features/records/crm-preset";
 import { addFromConfigure, backToConfigureGraph, openConfigureTab, configureDrawer, configureSaveBar, configureListCard, configureRow, configureTopBar, createConfiguredList, deleteSelectedList, openConfigure, openConfigureRow, saveDrawer, saveGeneral } from "./configure";
@@ -289,7 +290,7 @@ test("shows the data model graph and edits lists, fields and relationships from 
   };
 
   await test.step("the graph is the default view with list cards, counts, fields and relationships", async () => {
-    await page.goto("/en/configure");
+    await page.goto(companyPath(companyId, "/configure"));
     await expect(page.locator("[data-configure-page]")).toBeVisible();
     await expect(graph.locator("[data-configure-node]")).toHaveCount(6);
     const model = await readModel(database, companyId);

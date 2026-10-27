@@ -151,6 +151,7 @@ async function fixture() {
     endDate: field("End date", "date"),
     meetingAt: field("Meeting at", "dateTime"),
     period: field("Period", "dateRange"),
+    slot: field("Slot", "dateTimeRange"),
     amount: field("Amount", "currency"),
     address: field("Address", "address"),
     note: field("Note", "text"),
@@ -363,6 +364,96 @@ describeDatabase("calendar and map widgets on PostgreSQL", () => {
     expect(await dayRecords("2026-03-28", ZONE)).toEqual([]);
   });
 
+  it("puts range records on the day their range starts and lists exactly those for a clicked day", async () => {
+    const f = await fixture();
+    const today = zonedDate(new Date(), ZONE);
+    const span = (start: string, end: string | null): RecordScalar => ({ kind: "range", start, end });
+    await f.createDeal("Ended", [
+      [f.fields.period, span(addCalendarDays(today, -5), addCalendarDays(today, -1))],
+      [f.fields.amount, money("10")],
+    ]);
+    await f.createDeal("Running", [[f.fields.period, span(addCalendarDays(today, -3), addCalendarDays(today, 3))]]);
+    await f.createDeal("Starts today", [
+      [f.fields.period, span(today, addCalendarDays(today, 30))],
+      [f.fields.amount, money("20")],
+    ]);
+    await f.createDeal("Starts soon", [
+      [f.fields.period, span(addCalendarDays(today, 2), null)],
+      [f.fields.amount, money("5.5")],
+    ]);
+    await f.createDeal("Also soon", [
+      [f.fields.period, span(addCalendarDays(today, 2), addCalendarDays(today, 4))],
+      [f.fields.amount, money("4.5")],
+    ]);
+    await f.createDeal("Far", [[f.fields.period, span(addCalendarDays(today, 40), addCalendarDays(today, 41))]]);
+
+    const upcoming = await f.run(() =>
+      f.calendarReader.preview(f.calendarQuery({ dateFieldId: f.fields.period.id, days: 7 })),
+    );
+    if (!upcoming.ok) throw new Error(JSON.stringify(upcoming));
+    expect(names(upcoming.data.data.items)).toEqual(["Starts today", "Starts soon", "Also soon"]);
+    expect(upcoming.data.data.items.map(({ date: day }) => day)).toEqual([
+      today,
+      addCalendarDays(today, 2),
+      addCalendarDays(today, 2),
+    ]);
+    expect(names(upcoming.data.data.overdue)).toEqual(["Ended"]);
+    expect(upcoming.data.data.overdueCount).toBe(1);
+    expect(upcoming.data.data.truncated).toBe(false);
+    expect(upcoming.data.data.total.count).toBe(3);
+
+    const month = await f.run(() =>
+      f.calendarReader.preview(
+        f.calendarQuery({
+          dateFieldId: f.fields.period.id,
+          layout: "month",
+          aggregation: "sum",
+          amountFieldId: f.fields.amount.id,
+        }),
+        { from: today, to: addCalendarDays(today, 6) },
+      ),
+    );
+    if (!month.ok) throw new Error(JSON.stringify(month));
+    expect(month.data.data.days).toEqual([
+      { date: today, count: 1, result: { state: "value", value: { kind: "decimal", value: "20", currency: "EUR" } } },
+      {
+        date: addCalendarDays(today, 2),
+        count: 2,
+        result: { state: "value", value: { kind: "decimal", value: "10", currency: "EUR" } },
+      },
+    ]);
+    expect(month.data.data.total).toMatchObject({ count: 3, result: { state: "value", value: { value: "30" } } });
+
+    const dayRecords = async (day: string) => {
+      const query = f.calendarQuery({ dateFieldId: f.fields.period.id, layout: "month" });
+      const filter = recordContributionFilter({
+        measure: calendarWidgetDayMeasure(query, f.fields.period, day),
+        group: null,
+        title: "Periods",
+        groupLabel: day,
+      });
+      const listed = await f.run(() => f.presentation.invoke({ typeId: f.deal, params: { filters: [filter] } }));
+      if (!listed.ok) throw new Error(JSON.stringify(listed));
+      return listed.data.result.items
+        .map(({ fields }) => fields.find(({ fieldId }) => fieldId === f.fields.name)?.result)
+        .map((result) => (result?.state === "value" && result.value.kind === "text" ? result.value.value : null))
+        .sort();
+    };
+    expect(await dayRecords(addCalendarDays(today, 2))).toEqual(["Also soon", "Starts soon"]);
+    expect(await dayRecords(addCalendarDays(today, 1))).toEqual([]);
+
+    await f.createDeal("Slot late on the 28th in UTC", [
+      [f.fields.slot, span("2026-03-28T23:30:00.000Z", "2026-03-30T08:00:00.000Z")],
+    ]);
+    const slots = await f.run(() =>
+      f.calendarReader.preview(f.calendarQuery({ dateFieldId: f.fields.slot.id, layout: "month" }), {
+        from: "2026-03-01",
+        to: "2026-03-31",
+      }),
+    );
+    expect(slots.ok && slots.data.data.days.map(({ date: day, count }) => [day, count])).toEqual([["2026-03-29", 1]]);
+  });
+
   it("shows a member only the records and widgets their access allows", async () => {
     const f = await fixture();
     const today = zonedDate(new Date(), ZONE);
@@ -485,7 +576,7 @@ describeDatabase("calendar and map widgets on PostgreSQL", () => {
     const first = await create(f.calendarQuery({ layout: "month" }), key);
     if (!first.ok) throw new Error(JSON.stringify(first));
     expect(first.data).toMatchObject({ kind: "calendar", version: 1, status: "ready" });
-    expect(first.data.layout?.lg).toMatchObject({ w: 4, h: 7 });
+    expect(first.data.layout?.lg).toMatchObject({ w: 4, h: 6 });
     const retry = await create(f.calendarQuery({ layout: "month" }), key);
     expect(retry.ok && retry.data.id).toBe(first.data.id);
 

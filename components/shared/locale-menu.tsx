@@ -2,7 +2,7 @@
 
 import type { MouseEvent as ReactMouseEvent } from "react";
 import type { AppMode } from "@/core/config/environment";
-import type { ContentLocale } from "@/i18n/locale-registry";
+import type { MarketingLocale } from "@/i18n/locale-registry";
 
 import { useEffect, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
@@ -11,7 +11,13 @@ import { Button } from "@/components/ui/button";
 import { useNavigationGuard } from "@/core/stores/navigation-guard.context";
 import { cn } from "@/core/utils/cn";
 import { emojiFlag } from "@/core/utils/emoji-flag";
-import { CONTENT_LOCALES, buildLocalePath, contentLocaleOrDefault, flagCodeFor } from "@/i18n/locale-registry";
+import {
+  buildLocalePath,
+  flagCodeFor,
+  isContentLocale,
+  marketingLocaleOrDefault,
+  marketingLocalesForPath,
+} from "@/i18n/locale-registry";
 import { contentLocaleCookie } from "@/i18n/locale-preference";
 import { usePathname } from "@/i18n/navigation";
 import { preserveAdClickInHref } from "@/features/acquisition/ad-click-url";
@@ -26,7 +32,8 @@ type Props = {
 export function LocaleMenu({ align = "start", appMode, className, side = "bottom" }: Props) {
   const t = useTranslations();
   const pathname = usePathname();
-  const currentLocale = contentLocaleOrDefault(useLocale());
+  const currentLocale = marketingLocaleOrDefault(useLocale());
+  const offeredLocales = marketingLocalesForPath(pathname);
   const currentLocaleLabel = t(`Common.locales.${currentLocale}`);
   const navigationGuard = useNavigationGuard();
   const menuRef = useRef<HTMLDetailsElement>(null);
@@ -57,8 +64,8 @@ export function LocaleMenu({ align = "start", appMode, className, side = "bottom
     };
   }, []);
 
-  function handleSelect(event: ReactMouseEvent<HTMLAnchorElement>, locale: ContentLocale) {
-    document.cookie = contentLocaleCookie(locale);
+  function handleSelect(event: ReactMouseEvent<HTMLAnchorElement>, locale: MarketingLocale) {
+    if (isContentLocale(locale)) document.cookie = contentLocaleCookie(locale);
     const destination = preserveAdClickInHref(buildLocalePath(locale, pathname), {
       search: window.location.search,
     });
@@ -79,7 +86,7 @@ export function LocaleMenu({ align = "start", appMode, className, side = "bottom
     else navigate();
   }
 
-  function preservePendingClick(event: ReactMouseEvent<HTMLAnchorElement>, locale: ContentLocale) {
+  function preservePendingClick(event: ReactMouseEvent<HTMLAnchorElement>, locale: MarketingLocale) {
     event.currentTarget.href = preserveAdClickInHref(buildLocalePath(locale, pathname), {
       search: window.location.search,
     });
@@ -110,7 +117,7 @@ export function LocaleMenu({ align = "start", appMode, className, side = "bottom
           align === "end" ? "right-0" : "left-0",
         )}
       >
-        {CONTENT_LOCALES.map((locale) => {
+        {offeredLocales.map((locale) => {
           const label = t(`Common.locales.${locale}`);
           const isSelected = locale === currentLocale;
 

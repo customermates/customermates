@@ -12,6 +12,7 @@ import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/
 import { z } from "zod";
 
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
+import { appPath } from "./app-paths";
 import { mintApiKey } from "./api-key";
 import { collectPageErrors, expect, test } from "./fixtures";
 import { localE2eEnvironment } from "./local-environment";
@@ -142,7 +143,7 @@ test("the Claude quick connection shows the current workspace's own MCP URL", as
   const errors = collectPageErrors(page);
   const mcpUrl = workspaceMcpUrl(workspace.companyId);
 
-  await page.goto("/en/settings/api-keys");
+  await page.goto(appPath(workspace.slug, "/settings/api-keys"));
   await clickHydrated(page.locator("#settings-api-keys-generate"));
   const dialog = page.getByRole("dialog");
   await dialog.locator("[data-provider='claude']").click();

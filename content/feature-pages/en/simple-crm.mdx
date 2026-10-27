@@ -1,48 +1,42 @@
 ---
 title: "Simple CRM for Small Client-Facing Teams"
-description: "A simple CRM that starts with a working deal pipeline, five starter lists and XLSX import. From [[commercial.price.starter.monthly]] per user per month, open-source core."
+description: "A simple CRM with an open-source core: lists built by the cloud AI setup or by you, plus Excel import. From [[commercial.price.starter.monthly]] per user per month."
 featureName: Simple CRM
 
 relatedHrefs:
   - /features/pipeline
-  - /features/contact-management
+  - /for/smb
   - /blog/excel-crm-template
   - /blog/crm-for-small-business
 
 hero:
-  title: A simple CRM that starts with a working pipeline
-  description: A new Customermates workspace already has deal stages with win probabilities, a sales status for contacts and a status field for tasks. Rename what doesn't fit, import your spreadsheet and start working.
+  title: A simple CRM you shape around your work
+  description: A new Customermates workspace starts without lists. On Customermates Cloud, the AI workspace setup builds lists, stages and a dashboard from your description, or you create them yourself in Configure. Rename what doesn't fit, import your spreadsheet and start working.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
-  buttonRightHref: https://demo.customermates.com
+  buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
   action: Ready to try a simpler CRM?
-  description: Start the trial, import one record type from an XLSX workbook and see whether the default pipeline fits your work before you invite the team.
+  description: Start the trial, set up your lists, import one record type from an XLSX workbook and see whether the pipeline fits your work before you invite the team.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
-  buttonRightHref: https://demo.customermates.com
+  buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-A simple CRM is one your team keeps updating because there is little to learn and nothing to configure before the first deal. Customermates gets there with a small data model that starts with contacts, organizations, deals, services and tasks, plus a deal pipeline that exists the moment you create the workspace. It suits small client-facing teams such as consultants, agencies and founders, and it costs [[commercial.price.starter.monthly]] per user per month on Starter.
+A simple CRM is one your team keeps updating because there is little to learn and the structure matches how you already work. Customermates gets there with a small data model: lists such as contacts, organizations, deals, services and tasks, fields you choose, and a deal pipeline with stages you name. It suits small client-facing teams such as consultants, agencies and founders, and it costs [[commercial.price.starter.monthly]] per user per month on Starter. This page covers ease of use and setup; if you are evaluating Customermates for a small service business, the [small business CRM](/for/smb) page shows the commercial picture and an example workspace.
 
 Simple also means some things are missing on purpose. The limits are listed further down, so you can rule Customermates out quickly if you need them.
 
-## What a new workspace already contains
+## What a new workspace contains
 
-Most "simple CRM" pages promise a short setup. Here is what you actually find after sign-up, before you change anything. Each item is a Single choice field, so you can rename options, add new ones or delete the field. None of them is fixed: tasks, for example, have no status of their own beyond this starting field.
+Most "simple CRM" pages promise a short setup. Here is what actually happens after sign-up. A new workspace starts without lists. On Customermates Cloud, the AI workspace setup asks about your business and builds lists, fields, deal stages, a dashboard and Knowledge Base pages from your answers. It runs once during onboarding, within a credit cap. You can skip it with **Start with an empty workspace** and build everything yourself. Self-hosted installations have no AI setup, so you create the lists in **Configure**, which needs the Admin role or **Edit** on the **Data model** row.
 
-| List | Field | Starting options |
-|---|---|---|
-| Deals | Stage | Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100%, Lost 0% |
-| Contacts | Sales Pipeline | New, Contact, Qualified, In Progress, Won, Lost |
-| Tasks | Status | Open, In Progress, Blocked, On Hold, Done, Archived |
-
-The percentages are win probabilities. They drive a deterministic weighted value per deal and a weighted pipeline total; they are stage weights you set, not a prediction. You adjust them as **Probability %** on the Stage field in **Configure**, which needs the Admin role or **Edit** on the **Data model** row.
+Whatever the setup produced is a starting point, not a fixed template. Stages are options of a single choice field, so you rename them, add new ones or delete them. A stage can carry a win probability, set as **Probability %** on the field in **Configure**. Customermates uses it for a deterministic weighted value per deal and a weighted pipeline total; it is a stage weight you set, not a prediction.
 
 What else keeps the setup short:
 
@@ -65,10 +59,10 @@ A three-person team on Starter pays [[commercial.price.starter.monthly.seats.3]]
 
 <Steps>
 <Step title="Create the workspace">
-Sign up and enter your name and country in the profile step, the only required step of the onboarding wizard. The Knowledge Base, team invite and AI client steps can be skipped and done later.
+Sign up and complete the profile step. On Customermates Cloud, describe your business to the AI workspace setup, or choose **Start with an empty workspace** to skip it.
 </Step>
-<Step title="Rename to match your business">
-Open **Configure**, rename the lists your team calls differently under **General**, and edit the Stage options and probabilities on Deals if your sales steps differ. A consultancy might use Projects with the stages Enquiry, Scoping, Proposal sent, Won and Lost.
+<Step title="Shape the lists to your business">
+Open **Configure** and create or rename lists under **General** so they use your team's words, then edit the stage options and probabilities on your deals list. A consultancy might use Projects with the stages Enquiry, Scoping, Proposal sent, Won and Lost.
 </Step>
 <Step title="Import one record type">
 Use **More actions › Add from file** on the contacts list and map the spreadsheet columns to fields. The wizard reads `.xlsx` workbooks, not CSV, so save other spreadsheet formats as `.xlsx` first. Import organizations before contacts and deals, so the links can match by name. Our [Excel CRM template guide](/blog/excel-crm-template) shows a sheet layout that maps cleanly.
@@ -101,7 +95,7 @@ Customermates publishes this page. The table describes each tool by what its ven
 | OnePageCRM | Next Actions with reminder notifications and native Android and iOS apps on every plan, 21-day trial | Follow-up reminders and a phone app matter most |
 | CentralStationCRM | Free Starter package for up to 3 users and 200 contacts; customer data and attachments kept in Germany by the vendor | You want a free German tool and a small contact base |
 | HubSpot free CRM | Free with no expiration for up to two users and 1,000 contacts | You need a free CRM and may later buy HubSpot's marketing tools |
-| Customermates | Open-source core, preset pipeline, inbox from Pro, Mate in Cloud, MCP for your own AI client | Client conversations and AI help on the records matter most to you |
+| Customermates | Open-source core, AI workspace setup in Cloud, inbox from Pro, Mate in Cloud, MCP for your own AI client | Client conversations and AI help on the records matter most to you |
 
 ## How it connects when you need more
 
@@ -111,7 +105,7 @@ The simple start does not lock anything away. The REST API and webhooks are on e
 
 <Faq>
 <FaqItem question="What is the easiest CRM to use?">
-The easiest one is the one whose structure already matches your work. Look for a ready pipeline, few required fields and import from the spreadsheet you have. Customermates starts with deal stages plus single choice status fields for contacts and tasks, which you can edit like any custom field, and lets you rename lists to your own terms. Test any CRM with your real data during the trial rather than judging the demo.
+The easiest one is the one whose structure already matches your work. Look for a pipeline you can name in your own terms, few required fields and import from the spreadsheet you have. On Customermates Cloud, the AI workspace setup builds a first set of lists and stages from your description; you can edit them like any custom field and rename lists to your own terms. Test any CRM with your real data during the trial rather than judging the demo.
 </FaqItem>
 
 <FaqItem question="Is there a free version of Customermates?">

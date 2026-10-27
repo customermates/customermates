@@ -23,7 +23,7 @@ import { unwrapValidated } from "@/core/validation/validation.utils";
 import { buildLocalePath } from "@/i18n/locale-registry";
 
 export async function readMarketingAccountAction(): Promise<MarketingAccount> {
-  return marketingAccountOf(await getRouteGuardService().resolveAccountState());
+  return marketingAccountOf(await getRouteGuardService().resolveAccountState({ ignoreRequestedWorkspace: true }));
 }
 
 export async function signOutAction() {

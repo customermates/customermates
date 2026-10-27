@@ -10,7 +10,10 @@ import { describe, expect, it, vi } from "vitest";
 import { REPO_ROOT } from "./walk";
 
 const { JSDOM } = createRequire(import.meta.url)("jsdom") as {
-  JSDOM: new (html: string, options?: { contentType?: string }) => { window: { document: Document } };
+  JSDOM: new (
+    html: string,
+    options?: { contentType?: string },
+  ) => { window: { document: Document } };
 };
 
 vi.mock("@/components/shared/app-link", () => ({
@@ -25,7 +28,11 @@ vi.mock("@/components/shared/app-link", () => ({
 }));
 
 const routeFixtures = vi.hoisted(() => {
-  const pages = (basePath: string, count: number, data: (slug: string) => Record<string, unknown>) =>
+  const pages = (
+    basePath: string,
+    count: number,
+    data: (slug: string) => Record<string, unknown>,
+  ) =>
     Array.from({ length: count }, (_, index) => {
       const slug = `page-${String(index + 1).padStart(3, "0")}`;
       return { data: data(slug), url: `${basePath}/${slug}` };
@@ -54,7 +61,11 @@ const routeFixtures = vi.hoisted(() => {
 });
 
 vi.mock("@/core/fumadocs/source", () => {
-  const collection = (pages: readonly unknown[]) => ({ getPages: () => pages });
+  const collection = (pages: readonly { url: string }[]) => ({
+    getPage: ([slug]: string[]) =>
+      pages.find((page) => page.url.endsWith(`/${slug}`)),
+    getPages: () => pages,
+  });
   const hub = (title: string) => ({
     getPage: () => ({
       data: {
@@ -116,24 +127,36 @@ vi.mock("@/components/seo/json-ld", () => ({ JsonLd: () => null }));
 vi.mock("@/components/marketing/hub-grid", async () => {
   const { createElement } = await import("react");
   return {
-    HubGrid: ({ hero, items }: { hero: { title: string }; items: { href: string }[] }) =>
+    HubGrid: ({
+      hero,
+      items,
+    }: {
+      hero: { title: string };
+      items: { href: string }[];
+    }) =>
       createElement(
         "div",
         { "data-hub-results": "" },
         createElement("h1", null, hero.title),
-        items.map((item) => createElement("a", { href: item.href, key: item.href }, item.href)),
+        items.map((item) =>
+          createElement("a", { href: item.href, key: item.href }, item.href),
+        ),
       ),
   };
 });
 vi.mock("@/app/[locale]/(static)/blog/blog-post-card", async () => {
   const { createElement } = await import("react");
   return {
-    BlogPostCard: ({ url }: { url: string }) => createElement("a", { href: url }, url),
+    BlogPostCard: ({ url }: { url: string }) =>
+      createElement("a", { href: url }, url),
   };
 });
 
 import { HubPagination } from "@/components/marketing/hub-pagination";
-import { FOOTER_RENDERED_COLLECTION_SIZE, selectFooterSlugs } from "@/app/components/footer-selection";
+import {
+  FOOTER_RENDERED_COLLECTION_SIZE,
+  selectFooterSlugs,
+} from "@/app/components/footer-selection";
 import {
   HUB_PAGE_SEGMENT,
   hubPageCount,
@@ -149,12 +172,15 @@ import {
 import { LANDING_HUBS } from "@/core/seo/landing-hubs";
 import { isRetiredRoutePath } from "@/core/seo/route-aliases";
 import {
+  APP_LOCALES,
   CONTENT_LOCALES,
   DEFAULT_LOCALE,
+  PARTIAL_MARKETING_LOCALES,
   ROUTING_LOCALES,
   type ContentLocale,
   type RoutingLocale,
   buildLocalePath,
+  isMarketingLocale,
 } from "@/i18n/locale-registry";
 import { HUB_PAGE_ROUTES, PUBLIC_ROUTES } from "@/i18n/routing";
 
@@ -162,7 +188,9 @@ const NOT_FOUND_DOCUMENT_TITLES = Object.fromEntries(
   ROUTING_LOCALES.map((locale) => [
     locale,
     (
-      JSON.parse(readFileSync(join(REPO_ROOT, "i18n/locales", `${locale}.json`), "utf8")) as {
+      JSON.parse(
+        readFileSync(join(REPO_ROOT, "i18n/locales", `${locale}.json`), "utf8"),
+      ) as {
         NotFoundPage: { documentTitle: string };
       }
     ).NotFoundPage.documentTitle,
@@ -200,7 +228,11 @@ function publishedHubPageCount(collection: string): number {
   return hubPageCount(collectionSlugs(collection, DEFAULT_LOCALE).length);
 }
 
-function renderedPagerHrefs(basePath: string, page: number, pageCount: number): string[] {
+function renderedPagerHrefs(
+  basePath: string,
+  page: number,
+  pageCount: number,
+): string[] {
   const html = renderToStaticMarkup(
     createElement(HubPagination, {
       basePath,
@@ -212,17 +244,25 @@ function renderedPagerHrefs(basePath: string, page: number, pageCount: number): 
     }),
   );
 
-  return [...html.matchAll(/\shref="([^"]+)"/gu)].map((match) => match[1].replaceAll("&amp;", "&"));
+  return [...html.matchAll(/\shref="([^"]+)"/gu)].map((match) =>
+    match[1].replaceAll("&amp;", "&"),
+  );
 }
 
-type HubPageComponent = (props: { params: Promise<{ locale: string }> }) => Promise<ReactNode>;
-type PaginatedHubPageComponent = (props: { params: Promise<{ locale: string; page: string }> }) => Promise<ReactNode>;
+type HubPageComponent = (props: {
+  params: Promise<{ locale: string }>;
+}) => Promise<ReactNode>;
+type PaginatedHubPageComponent = (props: {
+  params: Promise<{ locale: string; page: string }>;
+}) => Promise<ReactNode>;
 
 type LandingHubPath = (typeof LANDING_HUBS)[number]["hubPath"];
 type HubPageModule = { default: HubPageComponent };
 type PaginatedHubPageModule = {
   default: PaginatedHubPageComponent;
-  generateStaticParams: (props: { params: { locale: string } }) => { page: string }[];
+  generateStaticParams: (props: {
+    params: { locale: string };
+  }) => { page: string }[];
 };
 
 const HUB_PAGE_LOADERS = {
@@ -235,14 +275,20 @@ const HUB_PAGE_LOADERS = {
 const PAGINATED_HUB_PAGE_LOADERS = {
   "/blog": () => import("@/app/[locale]/(static)/blog/page/[page]/page"),
   "/compare": () => import("@/app/[locale]/(static)/compare/page/[page]/page"),
-  "/features/all": () => import("@/app/[locale]/(static)/features/all/page/[page]/page"),
+  "/features/all": () =>
+    import("@/app/[locale]/(static)/features/all/page/[page]/page"),
   "/for": () => import("@/app/[locale]/(static)/for/page/[page]/page"),
 } satisfies Record<LandingHubPath, () => Promise<PaginatedHubPageModule>>;
 
-async function renderProductionHub(hubPath: LandingHubPath, page: number): Promise<string> {
+async function renderProductionHub(
+  hubPath: LandingHubPath,
+  page: number,
+): Promise<string> {
   const node =
     page === 1
-      ? await (await HUB_PAGE_LOADERS[hubPath]()).default({ params: Promise.resolve({ locale: "en" }) })
+      ? await (
+          await HUB_PAGE_LOADERS[hubPath]()
+        ).default({ params: Promise.resolve({ locale: "en" }) })
       : await (
           await PAGINATED_HUB_PAGE_LOADERS[hubPath]()
         ).default({
@@ -256,30 +302,47 @@ function isPagerHref(href: string, hubPath: string): boolean {
 }
 
 function hrefsIn(document: Document, selector: string): string[] {
-  return [...document.querySelectorAll<HTMLAnchorElement>(selector)].map((anchor) => anchor.getAttribute("href") ?? "");
+  return [...document.querySelectorAll<HTMLAnchorElement>(selector)].map(
+    (anchor) => anchor.getAttribute("href") ?? "",
+  );
 }
 
-function buildPagerGraph(basePath: string, pageCount: number): Map<string, string[]> {
+function buildPagerGraph(
+  basePath: string,
+  pageCount: number,
+): Map<string, string[]> {
   const graph = new Map<string, string[]>();
 
   for (let page = 1; page <= pageCount; page++) {
-    graph.set(hubPageHref(basePath, page), renderedPagerHrefs(basePath, page, pageCount));
+    graph.set(
+      hubPageHref(basePath, page),
+      renderedPagerHrefs(basePath, page, pageCount),
+    );
   }
   return graph;
 }
 
-function landingRouteCollisions(slugsByHub: ReadonlyMap<string, readonly string[]>): string[] {
-  const reservedRoutes = new Set<string>(PUBLIC_ROUTES.filter((route) => !route.includes(":")));
+function landingRouteCollisions(
+  slugsByHub: ReadonlyMap<string, readonly string[]>,
+): string[] {
+  const reservedRoutes = new Set<string>(
+    PUBLIC_ROUTES.filter((route) => !route.includes(":")),
+  );
 
   return LANDING_HUBS.flatMap(({ detailPath, hubPath }) =>
     (slugsByHub.get(hubPath) ?? [])
       .map((slug) => `${detailPath}/${slug}`)
       .filter((detailRoute) => reservedRoutes.has(detailRoute))
-      .map((detailRoute) => `${detailRoute} collides with a static public route`),
+      .map(
+        (detailRoute) => `${detailRoute} collides with a static public route`,
+      ),
   );
 }
 
-function clickDepths(graph: ReadonlyMap<string, readonly string[]>, start: string = "/"): Map<string, number> {
+function clickDepths(
+  graph: ReadonlyMap<string, readonly string[]>,
+  start: string = "/",
+): Map<string, number> {
   const depths = new Map<string, number>([[start, 0]]);
   let frontier = [start];
 
@@ -311,7 +374,10 @@ function sameOriginPath(href: string, baseUrl: string): string | null {
   return url.origin === base.origin ? pathWithQuery(url.href, baseUrl) : null;
 }
 
-async function e2eResponse(path: string, init: RequestInit = {}): Promise<Response> {
+async function e2eResponse(
+  path: string,
+  init: RequestInit = {},
+): Promise<Response> {
   if (!E2E_BASE_URL) throw new Error("HUB_E2E_BASE_URL is required");
   return fetch(new URL(path, E2E_BASE_URL), {
     redirect: "manual",
@@ -320,7 +386,10 @@ async function e2eResponse(path: string, init: RequestInit = {}): Promise<Respon
   });
 }
 
-async function semanticRedirectPath(response: Response, label: string): Promise<string> {
+async function semanticRedirectPath(
+  response: Response,
+  label: string,
+): Promise<string> {
   // permanentRedirect() must reach the client as a 308 with a Location header. The former
   // [200, 308] tolerance accepted a 200 carrying <meta http-equiv="refresh">, which is what a
   // Suspense boundary above the locale segment produced once the status had already been
@@ -335,66 +404,113 @@ async function semanticRedirectPath(response: Response, label: string): Promise<
   return path;
 }
 
-async function expectSemanticNotFound(response: Response, label: string, _locale: ContentLocale): Promise<void> {
+async function expectSemanticNotFound(
+  response: Response,
+  label: string,
+  _locale: ContentLocale,
+): Promise<void> {
   // A missing page must answer 404, not a 200 carrying a not-found card. The previous [200, 404]
   // tolerance described a defect rather than a contract: a loading boundary above the locale
   // segment committed the status before the body could throw, so every mistyped URL under
   // /blog, /compare, /for, /features and /docs answered 200 and read to a crawler as a live page.
   expect(response.status, `${label} status`).toBe(404);
-  expect(response.headers.get("content-type"), `${label} content type`).toContain("text/html");
+  expect(
+    response.headers.get("content-type"),
+    `${label} content type`,
+  ).toContain("text/html");
 
   // A genuine 404 renders Next's not-found shell rather than the locale layout, so the document
   // element carries no lang attribute. The localized copy is still served in the body; what a
   // crawler acts on is the status, the noindex directive and the absent canonical, all asserted
   // here. Restoring the locale shell on a 404 is tracked separately.
   const document = new JSDOM(await response.text()).window.document;
-  expect(document.querySelector('meta[name="robots"]')?.getAttribute("content"), `${label} robots metadata`).toContain(
-    "noindex",
-  );
-  expect(document.querySelector('link[rel="canonical"]'), `${label} canonical`).toBeNull();
+  expect(
+    document.querySelector('meta[name="robots"]')?.getAttribute("content"),
+    `${label} robots metadata`,
+  ).toContain("noindex");
+  expect(
+    document.querySelector('link[rel="canonical"]'),
+    `${label} canonical`,
+  ).toBeNull();
 }
 
-async function expectCanonicalResponse(response: Response, expectedPath: string, label: string): Promise<void> {
+async function expectCanonicalResponse(
+  response: Response,
+  expectedPath: string,
+  label: string,
+): Promise<void> {
   expect(response.status, `${label} final status`).toBe(200);
-  expect(response.headers.get("content-type"), `${label} content type`).toContain("text/html");
+  expect(
+    response.headers.get("content-type"),
+    `${label} content type`,
+  ).toContain("text/html");
 
   const document = new JSDOM(await response.text()).window.document;
-  const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.href;
+  const canonical = document.querySelector<HTMLLinkElement>(
+    'link[rel="canonical"]',
+  )?.href;
   expect(canonical, `${label} canonical`).toBeDefined();
   const canonicalUrl = new URL(canonical as string, E2E_BASE_URL as string);
-  expect(canonicalUrl.origin, `${label} canonical origin`).toBe(new URL(E2E_BASE_URL as string).origin);
-  expect(pathWithQuery(canonicalUrl.href, E2E_BASE_URL as string), `${label} canonical`).toBe(expectedPath);
+  expect(canonicalUrl.origin, `${label} canonical origin`).toBe(
+    new URL(E2E_BASE_URL as string).origin,
+  );
   expect(
-    document.querySelector('meta[name="robots"]')?.getAttribute("content") ?? "",
+    pathWithQuery(canonicalUrl.href, E2E_BASE_URL as string),
+    `${label} canonical`,
+  ).toBe(expectedPath);
+  expect(
+    document.querySelector('meta[name="robots"]')?.getAttribute("content") ??
+      "",
     `${label} robots metadata`,
   ).not.toContain("noindex");
 }
 
 describe("hub pagination and rendered reachability", () => {
-  it.each(["/blog", "/compare", "/for"] as const)("gives %s pages distinct visible headings", async (hubPath) => {
-    const first = await (await HUB_PAGE_LOADERS[hubPath]()).default({ params: Promise.resolve({ locale: "en" }) });
-    const second = await (
-      await PAGINATED_HUB_PAGE_LOADERS[hubPath]()
-    ).default({ params: Promise.resolve({ locale: "en", page: "2" }) });
-    const heading = (element: ReactNode) =>
-      new JSDOM(renderToStaticMarkup(element)).window.document.querySelector("h1")?.textContent;
-    expect(heading(first)).toBeTruthy();
-    expect(heading(second)).toBe(`${heading(first)} - Page 2`);
-  });
+  it.each(["/blog", "/compare", "/for"] as const)(
+    "gives %s pages distinct visible headings",
+    async (hubPath) => {
+      const first = await (
+        await HUB_PAGE_LOADERS[hubPath]()
+      ).default({ params: Promise.resolve({ locale: "en" }) });
+      const second = await (
+        await PAGINATED_HUB_PAGE_LOADERS[hubPath]()
+      ).default({ params: Promise.resolve({ locale: "en", page: "2" }) });
+      const heading = (element: ReactNode) =>
+        new JSDOM(renderToStaticMarkup(element)).window.document.querySelector(
+          "h1",
+        )?.textContent;
+      expect(heading(first)).toBeTruthy();
+      expect(heading(second)).toBe(`${heading(first)} - Page 2`);
+    },
+  );
 
   it("strictly resolves the page path segment", () => {
     expect(resolveHubPageSegment("2", 3)).toEqual({ kind: "page", page: 2 });
     expect(resolveHubPageSegment("3", 3)).toEqual({ kind: "page", page: 3 });
 
-    for (const invalid of ["1", "", "0", "01", "+2", "2.0", "2junk", "4", "9007199254740992"]) {
-      expect(resolveHubPageSegment(invalid, 3), invalid).toEqual({ kind: "not-found" });
+    for (const invalid of [
+      "1",
+      "",
+      "0",
+      "01",
+      "+2",
+      "2.0",
+      "2junk",
+      "4",
+      "9007199254740992",
+    ]) {
+      expect(resolveHubPageSegment(invalid, 3), invalid).toEqual({
+        kind: "not-found",
+      });
     }
   });
 
   it("declares exactly the paginated pages after the first, and answers any other page segment with a 404", async () => {
     expect(hubPageStaticParams(1)).toEqual([]);
     expect(hubPageStaticParams(3)).toEqual([{ page: "2" }, { page: "3" }]);
-    expect(HUB_PAGE_ROUTES).toEqual(LANDING_HUBS.map(({ hubPath }) => hubPageRoute(hubPath)));
+    expect(HUB_PAGE_ROUTES).toEqual(
+      LANDING_HUBS.map(({ hubPath }) => hubPageRoute(hubPath)),
+    );
 
     const fixtureCounts = new Map<string, number>([
       ["/blog", routeFixtures.blog.length],
@@ -406,34 +522,59 @@ describe("hub pagination and rendered reachability", () => {
     for (const { hubPath } of LANDING_HUBS) {
       const pageCount = hubPageCount(fixtureCounts.get(hubPath) ?? 0);
       const hubModule = await PAGINATED_HUB_PAGE_LOADERS[hubPath]();
-      const props = (page: string) => ({ params: Promise.resolve({ locale: "en", page }) });
+      const props = (page: string) => ({
+        params: Promise.resolve({ locale: "en", page }),
+      });
 
-      expect(hubModule.generateStaticParams({ params: { locale: "en" } }), `${hubPath} static params`).toEqual(
-        hubPageStaticParams(pageCount),
-      );
-      expect(hubModule.generateStaticParams({ params: { locale: "fr" } }), `${hubPath} app-only locale`).toEqual([]);
-      await expect(hubModule.default(props(String(pageCount + 1))), `${hubPath} invalid page`).rejects.toThrow(
-        "unexpected notFound",
-      );
-      await expect(hubModule.default(props("1")), `${hubPath} page one`).rejects.toThrow("unexpected notFound");
-      await expect(hubModule.default(props("2junk")), `${hubPath} malformed page`).rejects.toThrow(
-        "unexpected notFound",
-      );
+      expect(
+        hubModule.generateStaticParams({ params: { locale: "en" } }),
+        `${hubPath} static params`,
+      ).toEqual(hubPageStaticParams(pageCount));
+      expect(
+        hubModule.generateStaticParams({ params: { locale: "fr" } }),
+        `${hubPath} app-only locale`,
+      ).toEqual([]);
+      await expect(
+        hubModule.default(props(String(pageCount + 1))),
+        `${hubPath} invalid page`,
+      ).rejects.toThrow("unexpected notFound");
+      await expect(
+        hubModule.default(props("1")),
+        `${hubPath} page one`,
+      ).rejects.toThrow("unexpected notFound");
+      await expect(
+        hubModule.default(props("2junk")),
+        `${hubPath} malformed page`,
+      ).rejects.toThrow("unexpected notFound");
     }
   });
 
   it("redirects a legacy page query to its path, preserving unrelated and repeated query values", () => {
-    const legacy = (query: string) => legacyHubPageRedirect("/blog", new URLSearchParams(query));
+    const legacy = (query: string) =>
+      legacyHubPageRedirect("/blog", new URLSearchParams(query));
 
     expect(legacy("tag=sales")).toBeNull();
     expect(legacy("page=1&tag=sales&tag=crm&utm_source=proof")).toEqual({
       kind: "redirect",
       href: "/blog?tag=sales&tag=crm&utm_source=proof",
     });
-    expect(legacy("page=3&utm_source=proof")).toEqual({ kind: "redirect", href: "/blog/page/3?utm_source=proof" });
-    expect(legacy("page=2")).toEqual({ kind: "redirect", href: "/blog/page/2" });
+    expect(legacy("page=3&utm_source=proof")).toEqual({
+      kind: "redirect",
+      href: "/blog/page/3?utm_source=proof",
+    });
+    expect(legacy("page=2")).toEqual({
+      kind: "redirect",
+      href: "/blog/page/2",
+    });
 
-    for (const invalid of ["page=2&page=3", "page=", "page=0", "page=01", "page=2junk", "page=9007199254740992"]) {
+    for (const invalid of [
+      "page=2&page=3",
+      "page=",
+      "page=0",
+      "page=01",
+      "page=2junk",
+      "page=9007199254740992",
+    ]) {
       expect(legacy(invalid), invalid).toEqual({ kind: "not-found" });
     }
   });
@@ -465,11 +606,16 @@ describe("hub pagination and rendered reachability", () => {
   it("keeps the square-root pager link budget sublinear at backlog scale", () => {
     const pageCount = hubPageCount(2_256);
     const maximumLinks = Math.max(
-      ...Array.from({ length: pageCount }, (_, index) => renderedPagerHrefs("/blog", index + 1, pageCount).length),
+      ...Array.from(
+        { length: pageCount },
+        (_, index) => renderedPagerHrefs("/blog", index + 1, pageCount).length,
+      ),
     );
 
     expect(pageCount).toBe(94);
-    expect(maximumLinks).toBeLessThanOrEqual(2 * Math.ceil(Math.sqrt(pageCount)) + 2);
+    expect(maximumLinks).toBeLessThanOrEqual(
+      2 * Math.ceil(Math.sqrt(pageCount)) + 2,
+    );
     expect(hubPagerModel(1, pageCount).pageNumbers).toContain(91);
   });
 
@@ -482,25 +628,27 @@ describe("hub pagination and rendered reachability", () => {
       label: `localized-${slug}`,
       url: `/items/${slug}`,
     }));
-    const compare = (a: { slug: string }, b: { slug: string }) => (a.slug < b.slug ? -1 : a.slug > b.slug ? 1 : 0);
+    const compare = (a: { slug: string }, b: { slug: string }) =>
+      a.slug < b.slug ? -1 : a.slug > b.slug ? 1 : 0;
 
-    expect(paginateLocalizedHubPages(reference, reference, 1, compare).items.map(({ slug }) => slug)).toEqual([
-      "a",
-      "b",
-      "c",
-      "d",
-    ]);
-    expect(paginateLocalizedHubPages(reference, localized, 1, compare).items.map(({ slug }) => slug)).toEqual([
-      "a",
-      "b",
-      "c",
-      "d",
-    ]);
+    expect(
+      paginateLocalizedHubPages(reference, reference, 1, compare).items.map(
+        ({ slug }) => slug,
+      ),
+    ).toEqual(["a", "b", "c", "d"]);
+    expect(
+      paginateLocalizedHubPages(reference, localized, 1, compare).items.map(
+        ({ slug }) => slug,
+      ),
+    ).toEqual(["a", "b", "c", "d"]);
   });
 
   it("partitions collections into complete, non-overlapping 24-card pages", () => {
     const slugs = Array.from({ length: 50 }, (_, index) => `slug-${index}`);
-    const pages = Array.from({ length: hubPageCount(slugs.length) }, (_, index) => paginateHub(slugs, index + 1));
+    const pages = Array.from(
+      { length: hubPageCount(slugs.length) },
+      (_, index) => paginateHub(slugs, index + 1),
+    );
 
     expect(pages.flatMap(({ items }) => items)).toEqual(slugs);
     expect(pages.map(({ items }) => items.length)).toEqual([24, 24, 2]);
@@ -517,31 +665,50 @@ describe("hub pagination and rendered reachability", () => {
 
     for (const { detailPath, hubPath } of LANDING_HUBS) {
       const pageCount = hubPageCount((fixturePages.get(hubPath) ?? []).length);
-      const expected = new Set((fixturePages.get(hubPath) ?? []).map(({ url }) => url));
+      const expected = new Set(
+        (fixturePages.get(hubPath) ?? []).map(({ url }) => url),
+      );
       const renderedCards = new Set<string>();
       const graph = new Map<string, string[]>();
 
       for (let page = 1; page <= pageCount; page++) {
         const html = await renderProductionHub(hubPath, page);
         const document = new JSDOM(html).window.document;
-        const cards = hrefsIn(document, "[data-hub-results] a[href]").filter((href) =>
-          href.startsWith(`${detailPath}/`),
+        const cards = hrefsIn(document, "[data-hub-results] a[href]").filter(
+          (href) => href.startsWith(`${detailPath}/`),
         );
-        const pager = hrefsIn(document, "nav a[href]").filter((href) => isPagerHref(href, hubPath));
+        const pager = hrefsIn(document, "nav a[href]").filter((href) =>
+          isPagerHref(href, hubPath),
+        );
 
-        expect(cards.length, `${hubPath} page ${page} card count`).toBeLessThanOrEqual(24);
-        expect(new Set(cards).size, `${hubPath} page ${page} repeats a card`).toBe(cards.length);
+        expect(
+          cards.length,
+          `${hubPath} page ${page} card count`,
+        ).toBeLessThanOrEqual(24);
+        expect(
+          new Set(cards).size,
+          `${hubPath} page ${page} repeats a card`,
+        ).toBe(cards.length);
         for (const href of cards) {
-          expect(renderedCards.has(href), `${hubPath} repeats ${href} across pages`).toBe(false);
+          expect(
+            renderedCards.has(href),
+            `${hubPath} repeats ${href} across pages`,
+          ).toBe(false);
           renderedCards.add(href);
         }
         graph.set(hubPageHref(hubPath, page), [...cards, ...pager]);
       }
 
-      expect(renderedCards, `${hubPath} did not render its complete collection`).toEqual(expected);
+      expect(
+        renderedCards,
+        `${hubPath} did not render its complete collection`,
+      ).toEqual(expected);
       const depths = clickDepths(graph, hubPath);
       for (const href of expected) {
-        expect(depths.get(href), `${href} is not reachable through the production pager`).toBeLessThanOrEqual(3);
+        expect(
+          depths.get(href),
+          `${href} is not reachable through the production pager`,
+        ).toBeLessThanOrEqual(3);
       }
     }
   });
@@ -551,15 +718,25 @@ describe("hub pagination and rendered reachability", () => {
 
     for (const locale of CONTENT_LOCALES) {
       const slugsByHub = new Map(
-        LANDING_HUBS.map(({ collection, hubPath }) => [hubPath, collectionSlugs(collection, locale)] as const),
+        LANDING_HUBS.map(
+          ({ collection, hubPath }) =>
+            [hubPath, collectionSlugs(collection, locale)] as const,
+        ),
       );
-      problems.push(...landingRouteCollisions(slugsByHub).map((problem) => `${locale} ${problem}`));
+      problems.push(
+        ...landingRouteCollisions(slugsByHub).map(
+          (problem) => `${locale} ${problem}`,
+        ),
+      );
     }
 
-    expect(problems, `landing pages hidden behind static routes:\n${problems.join("\n")}`).toEqual([]);
-    expect(landingRouteCollisions(new Map([["/features/all", ["all"]]]))).toEqual([
-      "/features/all collides with a static public route",
-    ]);
+    expect(
+      problems,
+      `landing pages hidden behind static routes:\n${problems.join("\n")}`,
+    ).toEqual([]);
+    expect(
+      landingRouteCollisions(new Map([["/features/all", ["all"]]])),
+    ).toEqual(["/features/all collides with a static public route"]);
   });
 
   it(`models the pager topology needed for a ${CLICK_BOUND}-click bound at 2,256 items`, () => {
@@ -567,7 +744,10 @@ describe("hub pagination and rendered reachability", () => {
     const graph = buildPagerGraph("/blog", pageCount);
     const depths = clickDepths(graph, "/blog");
     const worstListPage = Math.max(
-      ...Array.from({ length: pageCount }, (_, index) => depths.get(hubPageHref("/blog", index + 1)) ?? Infinity),
+      ...Array.from(
+        { length: pageCount },
+        (_, index) => depths.get(hubPageHref("/blog", index + 1)) ?? Infinity,
+      ),
     );
 
     expect(pageCount).toBe(94);
@@ -577,15 +757,24 @@ describe("hub pagination and rendered reachability", () => {
   });
 
   it.skipIf(!E2E_BASE_URL)(
-    "answers a signed-out request for a path no route serves with a 404, and keeps protected routes behind sign-in",
+    "answers a signed-out request for a path no route serves with a 404, and keeps protected and unslugged app routes behind sign-in",
     async () => {
-      for (const path of ["/en/this-page-does-not-exist", "/de/profile/nope", "/zz/nothing-here"]) {
+      for (const path of [
+        "/en/this-page-does-not-exist",
+        "/de/profile/nope",
+        "/zz/nothing-here",
+      ]) {
         const response = await e2eResponse(path);
         expect(response.status, path).toBe(404);
         expect(response.headers.get("location"), path).toBeNull();
       }
 
-      for (const path of ["/en/dashboard", "/en/records/30000000-0000-4000-8000-000000000001/40000000-0000-4000-8000-000000000001?tab=notes"]) {
+      for (const path of [
+        "/en/dashboard",
+        "/en/records/30000000-0000-4000-8000-000000000001/40000000-0000-4000-8000-000000000001?tab=notes",
+        "/en/settings/profile",
+        "/en/w/small-business/records/30000000-0000-4000-8000-000000000001/40000000-0000-4000-8000-000000000001?tab=notes",
+      ]) {
         const response = await e2eResponse(path);
         expect(response.status, path).toBe(307);
         const location = response.headers.get("location") ?? "";
@@ -619,16 +808,25 @@ describe("hub pagination and rendered reachability", () => {
         const response = await e2eResponse(path);
         expect(response.status, path).toBe(404);
         expect(response.headers.get("location"), path).toBeNull();
-        expect(response.headers.get("content-type"), path).toContain("text/html");
+        expect(response.headers.get("content-type"), path).toContain(
+          "text/html",
+        );
 
         const document = new JSDOM(await response.text()).window.document;
-        expect(document.title, `${path} title`).toBe(NOT_FOUND_DOCUMENT_TITLES[locale]);
+        expect(document.title, `${path} title`).toBe(
+          NOT_FOUND_DOCUMENT_TITLES[locale],
+        );
         expect(document.querySelector("h1"), `${path} heading`).not.toBeNull();
         expect(
-          document.querySelector('meta[name="robots"]')?.getAttribute("content"),
+          document
+            .querySelector('meta[name="robots"]')
+            ?.getAttribute("content"),
           `${path} robots metadata`,
         ).toContain("noindex");
-        expect(document.querySelector('link[rel="canonical"]'), `${path} canonical`).toBeNull();
+        expect(
+          document.querySelector('link[rel="canonical"]'),
+          `${path} canonical`,
+        ).toBeNull();
       }
     },
     60_000,
@@ -637,14 +835,30 @@ describe("hub pagination and rendered reachability", () => {
   it.skipIf(!E2E_BASE_URL)(
     "permanently sends unprefixed content paths to the default locale and negotiates only the root",
     async () => {
-      for (const path of ["/docs", "/docs/self-hosting", "/blog?page=2", "/pricing"]) {
-        const response = await e2eResponse(path, { headers: { "accept-language": "de-DE,de;q=0.9" } });
-        expect(await semanticRedirectPath(response, path), path).toBe(buildLocalePath(DEFAULT_LOCALE, path));
+      for (const path of [
+        "/docs",
+        "/docs/self-hosting",
+        "/blog?page=2",
+        "/pricing",
+      ]) {
+        const response = await e2eResponse(path, {
+          headers: { "accept-language": "de-DE,de;q=0.9" },
+        });
+        expect(await semanticRedirectPath(response, path), path).toBe(
+          buildLocalePath(DEFAULT_LOCALE, path),
+        );
       }
 
-      const root = await e2eResponse("/", { headers: { "accept-language": "de-DE,de;q=0.9" } });
+      const root = await e2eResponse("/", {
+        headers: { "accept-language": "de-DE,de;q=0.9" },
+      });
       expect(root.status, "the x-default root negotiates").toBe(307);
-      expect(sameOriginPath(root.headers.get("location") ?? "", E2E_BASE_URL as string)).toBe("/de");
+      expect(
+        sameOriginPath(
+          root.headers.get("location") ?? "",
+          E2E_BASE_URL as string,
+        ),
+      ).toBe("/de");
     },
     60_000,
   );
@@ -671,53 +885,71 @@ describe("hub pagination and rendered reachability", () => {
             .filter((href): href is string => Boolean(href)),
         );
         for (const path of PRIORITY_NAV_PATHS) {
-          expect(renderedHeaderLinks, `${locale} header is missing ${path} in server HTML`).toContain(
-            buildLocalePath(locale, path),
-          );
+          expect(
+            renderedHeaderLinks,
+            `${locale} header is missing ${path} in server HTML`,
+          ).toContain(buildLocalePath(locale, path));
         }
-        const localizedHubs = new Set(LANDING_HUBS.map(({ hubPath }) => buildLocalePath(locale, hubPath)));
+        const localizedHubs = new Set(
+          LANDING_HUBS.map(({ hubPath }) => buildLocalePath(locale, hubPath)),
+        );
         graph.set(
           homePath,
           hrefsIn(homeDocument, "a[href]")
             .map((href) => sameOriginPath(href, E2E_BASE_URL as string))
-            .filter((href): href is string => Boolean(href && localizedHubs.has(href))),
+            .filter((href): href is string =>
+              Boolean(href && localizedHubs.has(href)),
+            ),
         );
 
         const publishedFooterDetails = new Set<string>();
         const expectedFooterDetails = new Set<string>(
-          FOOTER_UTILITY_DETAIL_PATHS.map((path) => buildLocalePath(locale, path)),
+          FOOTER_UTILITY_DETAIL_PATHS.map((path) =>
+            buildLocalePath(locale, path),
+          ),
         );
         for (const { collection, detailPath } of LANDING_HUBS) {
           const slugs = collectionSlugs(collection, locale);
           for (const slug of slugs) {
-            publishedFooterDetails.add(buildLocalePath(locale, `${detailPath}/${slug}`));
+            publishedFooterDetails.add(
+              buildLocalePath(locale, `${detailPath}/${slug}`),
+            );
           }
           if (!(collection in FOOTER_RENDERED_COLLECTION_SIZE)) continue;
 
-          const footerCollection = collection as keyof typeof FOOTER_RENDERED_COLLECTION_SIZE;
+          const footerCollection =
+            collection as keyof typeof FOOTER_RENDERED_COLLECTION_SIZE;
           for (const slug of selectFooterSlugs(
             footerCollection,
             slugs,
             FOOTER_RENDERED_COLLECTION_SIZE[footerCollection],
           )) {
-            expectedFooterDetails.add(buildLocalePath(locale, `${detailPath}/${slug}`));
+            expectedFooterDetails.add(
+              buildLocalePath(locale, `${detailPath}/${slug}`),
+            );
           }
         }
         const renderedFooterDetails = hrefsIn(homeDocument, "footer a[href]")
           .map((href) => sameOriginPath(href, E2E_BASE_URL as string))
-          .filter((href): href is string => Boolean(href && publishedFooterDetails.has(href)))
+          .filter((href): href is string =>
+            Boolean(href && publishedFooterDetails.has(href)),
+          )
           .sort();
-        expect(renderedFooterDetails, `${locale} rendered footer landing links`).toEqual(
-          [...expectedFooterDetails].sort(),
-        );
-        expect(new Set(renderedFooterDetails).size, `${locale} duplicate footer landing links`).toBe(
-          renderedFooterDetails.length,
-        );
+        expect(
+          renderedFooterDetails,
+          `${locale} rendered footer landing links`,
+        ).toEqual([...expectedFooterDetails].sort());
+        expect(
+          new Set(renderedFooterDetails).size,
+          `${locale} duplicate footer landing links`,
+        ).toBe(renderedFooterDetails.length);
 
         for (const { collection, detailPath, hubPath } of LANDING_HUBS) {
           const pageCount = publishedHubPageCount(collection);
           const expected = new Set(
-            collectionSlugs(collection, locale).map((slug) => buildLocalePath(locale, `${detailPath}/${slug}`)),
+            collectionSlugs(collection, locale).map((slug) =>
+              buildLocalePath(locale, `${detailPath}/${slug}`),
+            ),
           );
           const rendered = new Set<string>();
 
@@ -731,29 +963,54 @@ describe("hub pagination and rendered reachability", () => {
             const detailPrefix = buildLocalePath(locale, `${detailPath}/`);
             const cards = hrefsIn(document, "[data-hub-results] a[href]")
               .map((href) => sameOriginPath(href, E2E_BASE_URL as string))
-              .filter((href): href is string => Boolean(href?.startsWith(detailPrefix)));
+              .filter((href): href is string =>
+                Boolean(href?.startsWith(detailPrefix)),
+              );
             const pager = hrefsIn(document, "nav a[href]")
               .map((href) => sameOriginPath(href, E2E_BASE_URL as string))
-              .filter((href): href is string => Boolean(href && isPagerHref(href, buildLocalePath(locale, hubPath))));
+              .filter((href): href is string =>
+                Boolean(
+                  href && isPagerHref(href, buildLocalePath(locale, hubPath)),
+                ),
+              );
 
             expect(cards.length, `${route} card count`).toBeGreaterThan(0);
             expect(cards.length, `${route} card count`).toBeLessThanOrEqual(24);
-            expect(new Set(cards).size, `${route} duplicate cards`).toBe(cards.length);
+            expect(new Set(cards).size, `${route} duplicate cards`).toBe(
+              cards.length,
+            );
             maxCards = Math.max(maxCards, cards.length);
             for (const card of cards) {
-              expect(rendered.has(card), `${card} appears on multiple ${hubPath} pages`).toBe(false);
+              expect(
+                rendered.has(card),
+                `${card} appears on multiple ${hubPath} pages`,
+              ).toBe(false);
               rendered.add(card);
               details.push(card);
             }
             graph.set(route, [...cards, ...pager]);
 
-            const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.href;
+            const canonical = document.querySelector<HTMLLinkElement>(
+              'link[rel="canonical"]',
+            )?.href;
             expect(canonical, `${route} canonical`).toBeDefined();
-            const canonicalUrl = new URL(canonical as string, E2E_BASE_URL as string);
-            expect(canonicalUrl.origin, `${route} canonical origin`).toBe(new URL(E2E_BASE_URL as string).origin);
-            expect(pathWithQuery(canonicalUrl.href, E2E_BASE_URL as string), `${route} canonical`).toBe(route);
+            const canonicalUrl = new URL(
+              canonical as string,
+              E2E_BASE_URL as string,
+            );
+            expect(canonicalUrl.origin, `${route} canonical origin`).toBe(
+              new URL(E2E_BASE_URL as string).origin,
+            );
+            expect(
+              pathWithQuery(canonicalUrl.href, E2E_BASE_URL as string),
+              `${route} canonical`,
+            ).toBe(route);
 
-            const alternateLinks = [...document.querySelectorAll<HTMLLinkElement>('link[rel="alternate"][hreflang]')];
+            const alternateLinks = [
+              ...document.querySelectorAll<HTMLLinkElement>(
+                'link[rel="alternate"][hreflang]',
+              ),
+            ];
             const alternates = new Map(
               alternateLinks.map((link) => [
                 link.getAttribute("hreflang"),
@@ -761,18 +1018,23 @@ describe("hub pagination and rendered reachability", () => {
               ]),
             );
             for (const link of alternateLinks) {
-              expect(new URL(link.href, E2E_BASE_URL as string).origin, `${route} alternate canonical origin`).toBe(
-                canonicalUrl.origin,
-              );
+              expect(
+                new URL(link.href, E2E_BASE_URL as string).origin,
+                `${route} alternate canonical origin`,
+              ).toBe(canonicalUrl.origin);
             }
             for (const alternateLocale of CONTENT_LOCALES) {
-              expect(alternates.get(alternateLocale), `${route} ${alternateLocale} alternate`).toBe(
+              expect(
+                alternates.get(alternateLocale),
+                `${route} ${alternateLocale} alternate`,
+              ).toBe(
                 buildLocalePath(alternateLocale, hubPageHref(hubPath, page)),
               );
             }
-            expect(alternates.get("x-default"), `${route} x-default alternate`).toBe(
-              buildLocalePath("en", hubPageHref(hubPath, page)),
-            );
+            expect(
+              alternates.get("x-default"),
+              `${route} x-default alternate`,
+            ).toBe(buildLocalePath("en", hubPageHref(hubPath, page)));
 
             memberships.set(
               `${locale}:${hubPath}:${page}`,
@@ -780,34 +1042,71 @@ describe("hub pagination and rendered reachability", () => {
             );
           }
 
-          expect(rendered, `${locale} ${hubPath} rendered membership`).toEqual(expected);
+          expect(rendered, `${locale} ${hubPath} rendered membership`).toEqual(
+            expected,
+          );
 
-          const pageOne = await e2eResponse(`${buildLocalePath(locale, hubPath)}?page=1&utm_source=e2e&tag=a&tag=b`);
-          expect(pageOne.status, `${locale} ${hubPath} page-one transport`).toBe(308);
-          const pageOneLocation = await semanticRedirectPath(pageOne, `${locale} ${hubPath} page one`);
-          expect(pageOneLocation).toBe(`${buildLocalePath(locale, hubPath)}?utm_source=e2e&tag=a&tag=b`);
+          const pageOne = await e2eResponse(
+            `${buildLocalePath(locale, hubPath)}?page=1&utm_source=e2e&tag=a&tag=b`,
+          );
+          expect(
+            pageOne.status,
+            `${locale} ${hubPath} page-one transport`,
+          ).toBe(308);
+          const pageOneLocation = await semanticRedirectPath(
+            pageOne,
+            `${locale} ${hubPath} page one`,
+          );
+          expect(pageOneLocation).toBe(
+            `${buildLocalePath(locale, hubPath)}?utm_source=e2e&tag=a&tag=b`,
+          );
           await expectCanonicalResponse(
             await e2eResponse(pageOneLocation),
             buildLocalePath(locale, hubPath),
             `${locale} ${hubPath} page one destination`,
           );
 
-          const legacyPage = await e2eResponse(`${buildLocalePath(locale, hubPath)}?page=2&utm_source=e2e`);
-          expect(await semanticRedirectPath(legacyPage, `${locale} ${hubPath} legacy page query`)).toBe(
+          const legacyPage = await e2eResponse(
+            `${buildLocalePath(locale, hubPath)}?page=2&utm_source=e2e`,
+          );
+          expect(
+            await semanticRedirectPath(
+              legacyPage,
+              `${locale} ${hubPath} legacy page query`,
+            ),
+          ).toBe(
             `${buildLocalePath(locale, hubPageHref(hubPath, 2))}?utm_source=e2e`,
           );
 
           let invalidPageNumber = pageCount + 1;
-          while (isRetiredRoutePath(`${hubPath}/page/${invalidPageNumber}`)) invalidPageNumber++;
-          const invalidPage = await e2eResponse(buildLocalePath(locale, `${hubPath}/page/${invalidPageNumber}`));
-          await expectSemanticNotFound(invalidPage, `${locale} ${hubPath} invalid page`, locale);
-          const pageOnePath = await e2eResponse(buildLocalePath(locale, `${hubPath}/page/1`));
-          await expectSemanticNotFound(pageOnePath, `${locale} ${hubPath} page one path`, locale);
+          while (isRetiredRoutePath(`${hubPath}/page/${invalidPageNumber}`))
+            invalidPageNumber++;
+          const invalidPage = await e2eResponse(
+            buildLocalePath(locale, `${hubPath}/page/${invalidPageNumber}`),
+          );
+          await expectSemanticNotFound(
+            invalidPage,
+            `${locale} ${hubPath} invalid page`,
+            locale,
+          );
+          const pageOnePath = await e2eResponse(
+            buildLocalePath(locale, `${hubPath}/page/1`),
+          );
+          await expectSemanticNotFound(
+            pageOnePath,
+            `${locale} ${hubPath} page one path`,
+            locale,
+          );
         }
 
         const depths = clickDepths(graph, homePath);
-        for (const detail of details.filter((path) => path.startsWith(`/${locale}/`))) {
-          expect(depths.get(detail), `${detail} rendered click depth`).toBeLessThanOrEqual(CLICK_BOUND);
+        for (const detail of details.filter((path) =>
+          path.startsWith(`/${locale}/`),
+        )) {
+          expect(
+            depths.get(detail),
+            `${detail} rendered click depth`,
+          ).toBeLessThanOrEqual(CLICK_BOUND);
         }
       }
 
@@ -816,9 +1115,10 @@ describe("hub pagination and rendered reachability", () => {
         for (let page = 1; page <= pageCount; page++) {
           const reference = memberships.get(`en:${hubPath}:${page}`);
           for (const locale of CONTENT_LOCALES) {
-            expect(memberships.get(`${locale}:${hubPath}:${page}`), `${locale} ${hubPath} page ${page}`).toEqual(
-              reference,
-            );
+            expect(
+              memberships.get(`${locale}:${hubPath}:${page}`),
+              `${locale} ${hubPath} page ${page}`,
+            ).toEqual(reference);
           }
         }
       }
@@ -828,16 +1128,51 @@ describe("hub pagination and rendered reachability", () => {
       const repeated = await e2eResponse("/en/blog?page=2&page=3");
       await expectSemanticNotFound(repeated, "repeated page query", "en");
 
-      const appOnly = await e2eResponse("/fr/blog?page=1&utm_source=e2e");
+      for (const partialLocale of PARTIAL_MARKETING_LOCALES) {
+        const outOfScope = await e2eResponse(
+          `/${partialLocale}/blog?page=1&utm_source=e2e`,
+        );
+        await expectSemanticNotFound(
+          outOfScope,
+          `${partialLocale} hub outside its scope`,
+          DEFAULT_LOCALE,
+        );
+      }
+
+      const appOnlyLocale = APP_LOCALES.find(
+        (locale) => !isMarketingLocale(locale),
+      );
+      if (!appOnlyLocale)
+        throw new Error(
+          "the registry needs an application-only locale for this fallback check",
+        );
+      const appOnly = await e2eResponse(
+        `/${appOnlyLocale}/blog?page=1&utm_source=e2e`,
+      );
       expect(appOnly.status).toBe(307);
-      expect(sameOriginPath(appOnly.headers.get("location") ?? "", E2E_BASE_URL as string)).toBe(
+      expect(
+        sameOriginPath(
+          appOnly.headers.get("location") ?? "",
+          E2E_BASE_URL as string,
+        ),
+      ).toBe("/en/blog?page=1&utm_source=e2e");
+      const contentLocalePageOne = await e2eResponse(
         "/en/blog?page=1&utm_source=e2e",
       );
-      const contentLocalePageOne = await e2eResponse("/en/blog?page=1&utm_source=e2e");
-      expect(contentLocalePageOne.status, "content-locale page-one transport").toBe(308);
-      const finalLocation = await semanticRedirectPath(contentLocalePageOne, "content-locale page one");
+      expect(
+        contentLocalePageOne.status,
+        "content-locale page-one transport",
+      ).toBe(308);
+      const finalLocation = await semanticRedirectPath(
+        contentLocalePageOne,
+        "content-locale page one",
+      );
       expect(finalLocation).toBe("/en/blog?utm_source=e2e");
-      await expectCanonicalResponse(await e2eResponse(finalLocation), "/en/blog", "app-only locale destination");
+      await expectCanonicalResponse(
+        await e2eResponse(finalLocation),
+        "/en/blog",
+        "app-only locale destination",
+      );
 
       for (let offset = 0; offset < details.length; offset += 16) {
         await Promise.all(
@@ -854,14 +1189,20 @@ describe("hub pagination and rendered reachability", () => {
       const sitemapDocument = new JSDOM(sitemap, {
         contentType: "application/xml",
       }).window.document;
-      const sitemapPaths = [...sitemapDocument.querySelectorAll("loc")].map((loc) => {
-        const url = new URL(loc.textContent ?? "");
-        return `${url.pathname}${url.search}`;
-      });
-      const actualPaginatedPaths = sitemapPaths.filter((path) => path.includes(`/${HUB_PAGE_SEGMENT}/`));
+      const sitemapPaths = [...sitemapDocument.querySelectorAll("loc")].map(
+        (loc) => {
+          const url = new URL(loc.textContent ?? "");
+          return `${url.pathname}${url.search}`;
+        },
+      );
+      const actualPaginatedPaths = sitemapPaths.filter((path) =>
+        path.includes(`/${HUB_PAGE_SEGMENT}/`),
+      );
       const expectedPaginatedPaths = CONTENT_LOCALES.flatMap((locale) =>
         LANDING_HUBS.flatMap(({ collection, hubPath }) => {
-          const pageCount = hubPageCount(collectionSlugs(collection, locale).length);
+          const pageCount = hubPageCount(
+            collectionSlugs(collection, locale).length,
+          );
           return Array.from({ length: pageCount - 1 }, (_, index) =>
             buildLocalePath(locale, hubPageHref(hubPath, index + 2)),
           );
@@ -869,17 +1210,23 @@ describe("hub pagination and rendered reachability", () => {
       ).sort();
 
       expect(actualPaginatedPaths.sort()).toEqual(expectedPaginatedPaths);
-      expect(new Set(actualPaginatedPaths).size).toBe(actualPaginatedPaths.length);
-      expect(actualPaginatedPaths.some((path) => path.endsWith(`/${HUB_PAGE_SEGMENT}/1`) || path.includes("?"))).toBe(
-        false,
+      expect(new Set(actualPaginatedPaths).size).toBe(
+        actualPaginatedPaths.length,
       );
+      expect(
+        actualPaginatedPaths.some(
+          (path) =>
+            path.endsWith(`/${HUB_PAGE_SEGMENT}/1`) || path.includes("?"),
+        ),
+      ).toBe(false);
 
       const robotsResponse = await e2eResponse("/robots.txt");
       expect(robotsResponse.status).toBe(200);
       const robots = await robotsResponse.text();
       expect(robots).not.toContain("Crawl-delay");
       const hostname = new URL(E2E_BASE_URL as string).hostname;
-      if (hostname === "localhost" || /^127(?:\.\d{1,3}){3}$/u.test(hostname)) expect(robots).toContain("Allow: /");
+      if (hostname === "localhost" || /^127(?:\.\d{1,3}){3}$/u.test(hostname))
+        expect(robots).toContain("Allow: /");
       else expect(robots).toContain("Disallow: /");
       expect(maxCards).toBe(24);
       expect(maxHtmlBytes).toBeGreaterThan(0);

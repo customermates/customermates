@@ -463,7 +463,7 @@ describe("overlay contract", () => {
 
   it("keeps task-overlay headers and action footers divider-free", () => {
     const entityDetail = readFileSync(
-      join(REPO_ROOT, "app/[locale]/(protected)/records/[typeId]/components/record-editor-content.tsx"),
+      join(REPO_ROOT, "app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-editor-content.tsx"),
       "utf8",
     );
     const responsiveOverlay = readFileSync(join(REPO_ROOT, "components/modal/responsive-overlay.tsx"), "utf8");
@@ -502,7 +502,7 @@ describe("overlay contract", () => {
     expect(focusTarget).toContain("element.focus({ preventScroll: true })");
 
     const entityDrawer = readFileSync(
-      join(REPO_ROOT, "app/[locale]/(protected)/records/[typeId]/components/record-editor.tsx"),
+      join(REPO_ROOT, "app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-editor.tsx"),
       "utf8",
     );
     expect(entityDrawer).toContain("focusReturnTarget={store.focusReturnTarget}");

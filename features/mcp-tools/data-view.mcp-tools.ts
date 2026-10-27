@@ -10,6 +10,7 @@ import { DATA_VIEW_NAME_MAX_LENGTH } from "@/core/data-view/data-view-limits";
 import { ViewKeySchema } from "@/core/data-view/data-view-state.schema";
 import { getZodParseContext } from "@/core/validation/zod-error-map-server";
 import { env } from "@/env";
+import { withWorkspaceHref } from "@/core/navigation/workspace-paths";
 import {
   AgentDataViewStateSchema,
   DataViewConfigSectionSchema,
@@ -22,13 +23,16 @@ import {
 
 import { mcpInteractorFailure, mcpValidationFailure } from "./mcp-tool";
 import { toonResult } from "./utils";
+import { mcpWorkspaceSlug } from "./mcp-workspace-slug";
 
 function isExternalMcpRequest(transport: unknown): boolean {
   return typeof transport === "object" && transport !== null && "requestId" in transport;
 }
 
-function withAbsoluteLink<T extends { link?: string | null }>(result: T): T {
-  return result.link ? { ...result, link: new URL(result.link, env.BASE_URL).toString() } : result;
+async function withAbsoluteLink<T extends { link?: string | null }>(result: T): Promise<T> {
+  if (!result.link) return result;
+  const link = withWorkspaceHref(result.link, await mcpWorkspaceSlug());
+  return { ...result, link: new URL(link, env.BASE_URL).toString() };
 }
 
 function withoutRenderedMessage(issue: $ZodIssue): $ZodRawIssue {
@@ -119,7 +123,7 @@ export const manageDataViewsTool = {
     if (!parsed.success) return mcpValidationFailure(parsed.error);
     const result = await getManageDataViewsInteractor().invoke(parsed.data);
     if (!result.ok) return mcpInteractorFailure(result.error);
-    return toonResult(isExternalMcpRequest(transport) ? withAbsoluteLink(result.data) : result.data);
+    return toonResult(isExternalMcpRequest(transport) ? await withAbsoluteLink(result.data) : result.data);
   },
 } satisfies McpTool;
 

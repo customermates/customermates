@@ -64,7 +64,7 @@ export class WorkspaceSetupModelService extends UserAccessor {
         salvageArrays: call.salvageArrays,
       });
       charge = result.charge;
-      if (result.failure) this.warnings.push(result.failure);
+      if (result.failure) this.warnings.push([result.failure, result.rejection].filter(Boolean).join(" "));
       if (result.output === null) {
         return {
           ok: false,

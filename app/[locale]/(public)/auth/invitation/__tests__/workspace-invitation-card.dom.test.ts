@@ -112,10 +112,7 @@ describe("WorkspaceInvitationCard", () => {
       intent: "signed-intent",
       agreeToTerms: true,
     });
-    expect(harness.enter).toHaveBeenCalledExactlyOnceWith(
-      { companyId: "invited-company", name: "Bergmann Steuern" },
-      "/auth/pending",
-    );
+    expect(harness.enter).toHaveBeenCalledExactlyOnceWith("/auth/pending");
   });
 
   it("opens a workspace the login already belongs to", async () => {
@@ -133,10 +130,7 @@ describe("WorkspaceInvitationCard", () => {
       intent: "signed-intent",
       agreeToTerms: false,
     });
-    expect(harness.enter).toHaveBeenCalledExactlyOnceWith(
-      { companyId: "invited-company", name: "Bergmann Steuern" },
-      "/",
-    );
+    expect(harness.enter).toHaveBeenCalledExactlyOnceWith("/dashboard");
   });
 
   it("keeps the card usable and reports a failed join", async () => {

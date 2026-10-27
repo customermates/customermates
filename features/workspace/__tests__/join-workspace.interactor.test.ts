@@ -33,7 +33,6 @@ const member = {
 describe("JoinWorkspaceInteractor", () => {
   let authService: {
     getInteractiveSession: ReturnType<typeof vi.fn>;
-    setSessionActiveCompany: ReturnType<typeof vi.fn>;
     revokeMembershipCredentials: ReturnType<typeof vi.fn>;
   };
   let memberships: Record<string, ReturnType<typeof vi.fn>>;
@@ -60,7 +59,6 @@ describe("JoinWorkspaceInteractor", () => {
         session: { id: "session-1" },
         user: { id: "login-1", email: "ben@example.com", emailVerified: true, createdAt: new Date() },
       }),
-      setSessionActiveCompany: vi.fn().mockResolvedValue(undefined),
       revokeMembershipCredentials: vi.fn().mockResolvedValue(0),
     };
     memberships = {
@@ -87,7 +85,7 @@ describe("JoinWorkspaceInteractor", () => {
       expect(result.error.issues[0]?.path).toEqual(["agreeToTerms"]);
     }
     expect(repo.registerExistingCompany).not.toHaveBeenCalled();
-    expect(authService.setSessionActiveCompany).not.toHaveBeenCalled();
+    expect(memberships.setLastUsedCompanyUnscoped).not.toHaveBeenCalled();
     expect(eventService.publish).not.toHaveBeenCalled();
   });
 
@@ -101,7 +99,7 @@ describe("JoinWorkspaceInteractor", () => {
     expect(repo.registerExistingCompany).toHaveBeenCalledWith(
       expect.objectContaining({ email: "ben@example.com", companyId: "company-invited", agreeToTerms: true }),
     );
-    expect(authService.setSessionActiveCompany).toHaveBeenCalledWith("session-1", "company-invited");
+    expect(memberships.setLastUsedCompanyUnscoped).toHaveBeenCalledWith("login-1", "company-invited");
   });
 
   it("opens a workspace the login already belongs to without asking for the terms again", async () => {
@@ -138,7 +136,7 @@ describe("JoinWorkspaceInteractor", () => {
     });
     expect(repo.registerExistingCompany).not.toHaveBeenCalled();
     expect(eventService.publish).not.toHaveBeenCalled();
-    expect(authService.setSessionActiveCompany).toHaveBeenCalledWith("session-1", "company-invited");
+    expect(memberships.setLastUsedCompanyUnscoped).toHaveBeenCalledWith("login-1", "company-invited");
   });
 
   it("revokes credentials bound to the workspace after leaving before it revives the left membership", async () => {

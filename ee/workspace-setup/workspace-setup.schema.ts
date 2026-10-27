@@ -3,10 +3,10 @@ import { z } from "zod";
 import { CHIP_COLORS } from "@/constants/chip-colors";
 import { ChartColor } from "@/features/widget/widget-display.schema";
 import { RecordRefSchema } from "@/features/records/record-model.schema";
-import { SETUP_MAX_FOLLOW_UP_QUESTIONS } from "@/features/workspace-setup/setup-interview";
-import { SetupAnswerValueSchema, SetupAnswersSchema } from "@/features/workspace-setup/setup-answers.schema";
-import type { SetupPlanSchema } from "@/features/workspace-setup/setup-plan.schema";
-import { WIDGET_STARTER_DISPLAY_TYPES } from "@/features/widget/widget-display-rules";
+import type { SetupAnswers } from "@/features/workspace-setup/setup-answers.schema";
+import { SetupAnswerValueSchema, StoredSetupAnswersSchema } from "@/features/workspace-setup/setup-answers.schema";
+import type { SetupPlan } from "@/features/workspace-setup/setup-plan.schema";
+import { SETUP_WIDGET_SKETCHES } from "@/features/workspace-setup/setup-plan.schema";
 
 export const WORKSPACE_SETUP_STATUSES = [
   "interview",
@@ -100,7 +100,6 @@ export const SetupFollowUpQuestionSchema = z.discriminatedUnion("format", [
     id: z.enum(SETUP_FOLLOW_UP_IDS),
     label: FollowUpLabelSchema,
     format: z.literal("orderedList"),
-    winChance: z.boolean(),
     maxItems: z.number().int().min(1).max(20),
     suggestions: z.array(z.string().trim().min(1).max(80)).max(20),
   }),
@@ -140,15 +139,14 @@ export const StoredSetupInterviewSchema = z.object({
   prefill: GenerationStateSchema.default("idle"),
   prefillClaimedAt: IsoDateSchema.nullable().default(null),
   prefillError: z.enum(WORKSPACE_SETUP_FAILURES).nullable().default(null),
-  prefillDraft: SetupAnswersSchema.nullable().default(null),
+  prefillDraft: StoredSetupAnswersSchema.nullable().default(null),
   followUps: GenerationStateSchema.default("idle"),
-  followUpQuestions: z.array(SetupFollowUpQuestionSchema).max(SETUP_MAX_FOLLOW_UP_QUESTIONS).default([]),
-  followUpAnswers: z.array(SetupFollowUpAnswerSchema).max(SETUP_MAX_FOLLOW_UP_QUESTIONS).default([]),
+  followUpQuestions: z.array(SetupFollowUpQuestionSchema).max(SETUP_FOLLOW_UP_IDS.length).default([]),
+  followUpAnswers: z.array(SetupFollowUpAnswerSchema).max(SETUP_FOLLOW_UP_IDS.length).default([]),
   plan: GenerationStateSchema.default("idle"),
   planError: z.enum(WORKSPACE_SETUP_FAILURES).nullable().default(null),
   planClaimedAt: IsoDateSchema.nullable().default(null),
   planQueuedAt: IsoDateSchema.nullable().default(null),
-  confirmedScreens: z.number().int().min(0).default(0),
 });
 export type StoredSetupInterview = z.infer<typeof StoredSetupInterviewSchema>;
 
@@ -203,9 +201,7 @@ export const StoredSetupResultsSchema = z.object({
       }),
     )
     .default([]),
-  widgets: z
-    .array(z.object({ id: z.uuid(), title: z.string(), display: z.enum(WIDGET_STARTER_DISPLAY_TYPES) }))
-    .default([]),
+  widgets: z.array(z.object({ id: z.uuid(), title: z.string(), display: z.enum(SETUP_WIDGET_SKETCHES) })).default([]),
   pages: z.array(z.object({ id: z.uuid(), title: z.string() })).default([]),
 });
 export type StoredSetupResults = z.infer<typeof StoredSetupResultsSchema>;
@@ -216,9 +212,9 @@ export type WorkspaceSetupRecord = {
   status: WorkspaceSetupStatus;
   websiteUrl: string | null;
   crawlId: string | null;
-  answers: z.infer<typeof SetupAnswersSchema>;
+  answers: SetupAnswers;
   interview: StoredSetupInterview;
-  plan: z.infer<typeof SetupPlanSchema> | null;
+  plan: SetupPlan | null;
   planRevision: number;
   phases: StoredSetupPhases;
   artifacts: Record<string, unknown>;

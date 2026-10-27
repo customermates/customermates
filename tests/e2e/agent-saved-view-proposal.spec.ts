@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
 import { collectPageErrors, expect, test } from "./fixtures";
 import { e2eAppMode } from "./workspace-switching";
+import { companyPath, companyUrlPattern } from "./app-paths";
 
 test.skip(e2eAppMode() === "self-hosted", "The assistant Mate is cloud-only");
 
@@ -50,11 +51,11 @@ test("reviews Mate's proposed Deals view and saves a DataView row", async ({
     ],
   );
 
-  await page.goto("/en/dashboard?agentChat=open");
+  await page.goto(companyPath(companyId, "/dashboard?agentChat=open"));
   const review = page.getByRole("link", { name: "Review and save view" });
   await expect(review).toBeVisible();
   await review.click();
-  await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}`));
+  await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${typeId}`));
   await expect(page.locator("#global-data-views-proposed")).toContainText(name);
   await page.locator("#global-data-views-menu").click();
   await page.locator("#global-data-views-save").click();

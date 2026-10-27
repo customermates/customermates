@@ -146,6 +146,7 @@ export enum CustomErrorCode {
   workspaceSetupConflict = "workspaceSetupConflict",
   workspaceSetupNotFound = "workspaceSetupNotFound",
   workspaceSetupUnavailable = "workspaceSetupUnavailable",
+  workspaceSlugTaken = "workspaceSlugTaken",
   threadNotFound = "threadNotFound",
   messageNotFound = "messageNotFound",
   emailFolderNotFound = "emailFolderNotFound",

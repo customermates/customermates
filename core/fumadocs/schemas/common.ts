@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { VisualBriefSchema } from "@/components/marketing/visuals/visual-contract";
-import { CONTENT_LOCALES } from "@/i18n/locale-registry";
+import { MARKETING_LOCALES } from "@/i18n/locale-registry";
 
 const metaSchema = z.object({
   description: z.string(),
@@ -136,7 +136,7 @@ export const relatedHrefsSchema = z
 export const acquisitionPageSchema = z.strictObject({
   clusterId: z.enum(["ai-agentic-mcp", "open-source-self-hosted", "professional-services", "unified-inbox"]),
   cta: ctaSchema,
-  locale: z.enum(CONTENT_LOCALES),
+  locale: z.enum(MARKETING_LOCALES),
   metadata: metaSchema,
   primaryIntent: z.string().trim().min(8).max(120),
   proof: z.strictObject({

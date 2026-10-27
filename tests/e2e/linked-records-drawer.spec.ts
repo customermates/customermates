@@ -4,6 +4,7 @@ import { postOk, readModel } from "./api";
 import { presetId } from "../../features/records/crm-preset";
 import { clickHydrated } from "./workspace-switching";
 import { linkedRecordOpeners } from "./record-rows";
+import { pagePath } from "./app-paths";
 
 test("shows a relationship's linked records in a drawer table and opens them or the filtered list", async ({ page, database, companyId, isMobile }, testInfo) => {
   test.setTimeout(240000);
@@ -26,7 +27,7 @@ test("shows a relationship's linked records in a drawer table and opens them or 
       { relationId: presetId(companyId, "deal.organizations"), direction: "outgoing", record: { typeId: organizationTypeId, recordId: organizationId } },
     ]);
   }
-  await page.goto(`/en/records/${organizationTypeId}/${organizationId}`);
+  await page.goto(pagePath(page, `/records/${organizationTypeId}/${organizationId}`));
   const more = page.getByRole("button", { name: /^\+\d+ more$/ });
   await clickHydrated(more);
   const drawer = page.getByRole("dialog").filter({ has: page.locator("[data-linked-records]") });

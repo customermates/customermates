@@ -1,6 +1,7 @@
 import { test, expect, collectPageErrors } from "./fixtures";
 import { openRecordDetails, recordItem, rowActionFocusTarget } from "./record-rows";
 import { presetId } from "../../features/records/crm-preset";
+import { companyPath } from "./app-paths";
 
 test("edits identity channels in the generic drawer and searches persisted channels", async ({
   page,
@@ -10,7 +11,7 @@ test("edits identity channels in the generic drawer and searches persisted chann
   test.setTimeout(180000);
   const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "contact");
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   await page.locator("#records-add").click();
   const dialog = page.getByRole("dialog", { name: "Contact", exact: true });
   await dialog.getByRole("textbox", { name: "First name", exact: false }).fill("Identity");

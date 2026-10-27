@@ -29,6 +29,10 @@ vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
 }));
 vi.mock("@/env", () => ({ env: { BASE_URL: "http://localhost:4105" } }));
+vi.mock("../mcp-workspace-slug", async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  mcpWorkspaceSlug: () => Promise.resolve("acme"),
+}));
 vi.mock("../docs.mcp-tools", () => ({
   searchDocsHits: () => Promise.resolve([]),
   getDocsPageRaw: () => null,
@@ -95,7 +99,7 @@ describe("file results in MCP search", () => {
     expect(results[0]).toEqual({
       id: `file:${FILE_ID}`,
       title: "Quarterly.pdf",
-      url: `http://localhost:4105/records/${TOOL_TYPE_ID}/${TOOL_RECORD_ID}`,
+      url: `http://localhost:4105/w/acme/records/${TOOL_TYPE_ID}/${TOOL_RECORD_ID}`,
       snippet: `${UNTRUSTED_RECORD_TEXT_OPEN}\nThe subscription **renews** every twelve months\n${UNTRUSTED_RECORD_TEXT_CLOSE}`,
       section: `${UNTRUSTED_RECORD_TEXT_OPEN}\nPage 2\n${UNTRUSTED_RECORD_TEXT_CLOSE}`,
       offset: 62,
@@ -174,7 +178,7 @@ describe("fetching file text", () => {
     expect(output).toMatchObject({
       id: `file:${FILE_ID}`,
       title: "Quarterly.pdf",
-      url: `http://localhost:4105/records/${TOOL_TYPE_ID}/${TOOL_RECORD_ID}`,
+      url: `http://localhost:4105/w/acme/records/${TOOL_TYPE_ID}/${TOOL_RECORD_ID}`,
       offset: 0,
       totalChars: longText.length,
       metadata: {

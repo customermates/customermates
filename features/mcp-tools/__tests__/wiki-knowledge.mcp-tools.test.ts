@@ -19,6 +19,10 @@ const calls = vi.hoisted(() => ({
   fetchRecord: vi.fn(),
 }));
 vi.mock("@/env", () => MOCK_ENV_MODULE);
+vi.mock("../mcp-workspace-slug", async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  mcpWorkspaceSlug: () => Promise.resolve("acme"),
+}));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve({ raw: (key: string) => key }),
@@ -85,7 +89,7 @@ const catalog = {
       id,
       title: page.title,
       excerpt: "A short description",
-      url: `http://localhost:4000/wiki?page=${id}`,
+      url: `http://localhost:4000/w/acme/wiki?page=${id}`,
     },
   ],
   total: 11,
@@ -138,7 +142,7 @@ describe("read-only Wiki search and fetch compatibility", () => {
       {
         id: `wiki:${id}`,
         title: page.title,
-        url: `http://localhost:4000/wiki?page=${id}`,
+        url: `http://localhost:4000/w/acme/wiki?page=${id}`,
         snippet: "Current **content**",
         offset: 0,
       },
@@ -166,7 +170,7 @@ describe("read-only Wiki search and fetch compatibility", () => {
             snippet: "The finance lead **approves** refunds.",
             section: "Approval",
             anchor: "approval",
-            offset: externalizeWikiPageLinks(markdown, "http://localhost:4000").indexOf("## Approval"),
+            offset: externalizeWikiPageLinks(markdown, "http://localhost:4000", "acme").indexOf("## Approval"),
           },
         ],
         total: 1,
@@ -229,7 +233,7 @@ describe("read-only Wiki search and fetch compatibility", () => {
       expect(result.structuredContent.nextOffset).toBeGreaterThan(offset);
       offset = result.structuredContent.nextOffset;
     }
-    expect(complete).toBe(externalizeWikiPageLinks(markdown, "http://localhost:4000"));
+    expect(complete).toBe(externalizeWikiPageLinks(markdown, "http://localhost:4000", "acme"));
   });
 
   it("returns every character of long Markdown through bounded external fetch chunks", async () => {
@@ -247,7 +251,7 @@ describe("read-only Wiki search and fetch compatibility", () => {
       expect(result.structuredContent).toMatchObject({
         id: `wiki:${id}`,
         title: page.title,
-        url: `http://localhost:4000/wiki?page=${id}`,
+        url: `http://localhost:4000/w/acme/wiki?page=${id}`,
         offset,
         totalChars: markdown.length,
         metadata: {
@@ -286,14 +290,14 @@ describe("read-only Wiki search and fetch compatibility", () => {
     });
     if (!("structuredContent" in result)) throw new Error("Expected Wiki content.");
     expect(calls.get).toHaveBeenCalledWith({ id });
-    expect(result.structuredContent.text).toContain(`http://localhost:4000/wiki?page=${linkedId}`);
+    expect(result.structuredContent.text).toContain(`http://localhost:4000/w/acme/wiki?page=${linkedId}`);
     expect(result.structuredContent.text).toContain(`\`/wiki?page=${linkedId}\``);
     expect(JSON.parse(String((result.structuredContent.metadata as Record<string, string>).outgoingWikiLinks))).toEqual(
       [
         {
           id: linkedId,
           label: "Support",
-          url: `http://localhost:4000/wiki?page=${linkedId}`,
+          url: `http://localhost:4000/w/acme/wiki?page=${linkedId}`,
           fetchId: `wiki:${linkedId}`,
         },
       ],

@@ -8,6 +8,7 @@ const harness = vi.hoisted(() => ({
   rootStore: null as unknown,
   start: vi.fn(),
   status: vi.fn(),
+  completeSetupStep: vi.fn(),
 }));
 
 vi.mock("next-intl", () => ({
@@ -28,8 +29,6 @@ vi.mock("../../../workspace-setup-actions", () => ({
 
 import { WorkspaceSetupStore } from "../workspace-setup.store";
 import { SetupStart } from "../setup-start";
-
-const FOOTER_CLASSES = ["flex-col-reverse", "sm:flex-row", "sm:justify-end"];
 
 let container: HTMLDivElement;
 let root: Root;
@@ -52,7 +51,10 @@ beforeEach(() => {
   harness.status.mockResolvedValue({ ok: true, data: { available: true, setup: null } });
   const store = new WorkspaceSetupStore({ localeStore: { locale: "en" } } as never);
   store.hydrate({ available: true, setup: null });
-  harness.rootStore = { workspaceSetupStore: store };
+  harness.rootStore = {
+    workspaceSetupStore: store,
+    onboardingWizardStore: { isSubmitting: false, completeSetupStep: harness.completeSetupStep },
+  };
 });
 
 afterEach(() => {
@@ -60,54 +62,86 @@ afterEach(() => {
   container.remove();
 });
 
-const FAILED_START = { ok: false, failure: { kind: "validation", issues: [] } };
-
-async function renderAfterFailedStart() {
-  harness.start.mockResolvedValueOnce(FAILED_START);
+async function renderStart() {
   await act(async () => {
     root.render(createElement(SetupStart));
     await Promise.resolve();
   });
 }
 
+const nativeValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
+
+function typeWebsite(value: string) {
+  const input = container.querySelector<HTMLInputElement>("#setup-website");
+  if (!input) throw new Error("The website field did not render.");
+  act(() => {
+    nativeValue?.set?.call(input, value);
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+}
+
 describe("SetupStart", () => {
-  it("starts the setup by itself without a website, which the interview asks for instead", async () => {
-    await act(async () => {
-      root.render(createElement(SetupStart));
-      await Promise.resolve();
-    });
-    expect(harness.start).toHaveBeenCalledTimes(1);
-    expect(harness.start).toHaveBeenCalledWith({ websiteUrl: null, locale: expect.any(String) });
+  it("waits for the owner to choose how to set up instead of starting by itself", async () => {
+    await renderStart();
+    expect(harness.start).not.toHaveBeenCalled();
   });
 
-  it("offers the start form instead of spinning on when the setup started but could not be reloaded", async () => {
-    harness.status.mockResolvedValueOnce({ ok: false, failure: { kind: "unavailable", issues: [] } });
-    await act(async () => {
-      root.render(createElement(SetupStart));
-      await Promise.resolve();
-    });
+  it("offers the website and the questions as two cards, with starting empty as the quiet footnote", async () => {
+    await renderStart();
 
-    expect(button("WorkspaceSetup.start.start")).toBeTruthy();
+    const text = container.textContent ?? "";
+    const order = [
+      "WorkspaceSetup.start.website.title",
+      "WorkspaceSetup.start.questions.title",
+      "WorkspaceSetup.start.emptyPrompt",
+      "WorkspaceSetup.empty.action",
+    ].map((key) => text.indexOf(key));
+    expect(order.every((index, position) => index >= 0 && (position === 0 || index > order[position - 1]))).toBe(true);
+    expect(text).toContain("WorkspaceSetup.start.website.recommended");
+    expect(text).toContain("WorkspaceSetup.start.website.note");
+    expect(text).toContain("WorkspaceSetup.start.questions.note");
+    expect(container.querySelector("#setup-website")).toBeNull();
+    expect(button("WorkspaceSetup.start.website.title").getAttribute("data-variant")).toBe("secondary");
+    expect(button("WorkspaceSetup.start.questions.title").getAttribute("data-variant")).toBe("secondary");
+    expect(button("WorkspaceSetup.empty.action").getAttribute("data-variant")).toBe("link");
   });
 
-  it("ends in the setup footer, with Start the setup first on phones", async () => {
-    await renderAfterFailedStart();
+  it("asks for the website in the card and goes back to both choices", async () => {
+    await renderStart();
+    act(() => button("WorkspaceSetup.start.website.title").click());
 
-    const footer = button("WorkspaceSetup.start.start").parentElement;
-    expect(footer?.className.split(" ")).toEqual(expect.arrayContaining(FOOTER_CLASSES));
-    expect([...(footer?.children ?? [])].map((child) => child.textContent)).toEqual([
-      "WorkspaceSetup.start.withoutWebsite",
-      "WorkspaceSetup.start.start",
-    ]);
+    expect(document.activeElement).toBe(container.querySelector("#setup-website"));
+    expect(button("WorkspaceSetup.start.website.action").disabled).toBe(true);
+    expect(container.textContent).not.toContain("WorkspaceSetup.start.questions.title");
+
+    act(() => button("Common.actions.back").click());
+    expect(container.querySelector("#setup-website")).toBeNull();
+    expect(document.activeElement).toBe(button("WorkspaceSetup.start.website.title"));
+    expect(harness.start).not.toHaveBeenCalled();
   });
 
-  it("starts without a website from the secondary action", async () => {
-    await renderAfterFailedStart();
+  it("starts with the website the owner entered", async () => {
+    await renderStart();
+    act(() => button("WorkspaceSetup.start.website.title").click());
+    typeWebsite("example.com");
 
     await act(async () => {
-      button("WorkspaceSetup.start.withoutWebsite").click();
+      button("WorkspaceSetup.start.website.action").click();
       await Promise.resolve();
     });
-    expect(harness.start).toHaveBeenLastCalledWith({ websiteUrl: null, locale: expect.any(String) });
+    expect(harness.start).toHaveBeenLastCalledWith({ websiteUrl: "example.com", locale: expect.any(String) });
+  });
+
+  it("starts the questions without a website", async () => {
+    await renderStart();
+
+    await act(async () => {
+      button("WorkspaceSetup.start.questions.title").click();
+      await Promise.resolve();
+    });
+    expect(harness.start).toHaveBeenLastCalledWith({
+      websiteUrl: null,
+      locale: expect.any(String),
+    });
   });
 });

@@ -23,7 +23,7 @@ import { checkoutExpiresAt, checkoutPendingSince } from "./checkout-state";
 import { hasLiveSubscription, isSubscriptionExpired } from "./entitlements";
 import { signCheckoutWorkspace } from "./checkout-workspace-signature";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
-import { buildLocalePath } from "@/i18n/locale-registry";
+import { workspaceReturnUrl } from "@/features/workspace/workspace-return-url";
 import { getRequestAppLocale } from "@/i18n/request-app-locale";
 
 const Schema = z.object({
@@ -75,7 +75,12 @@ export class CreateCheckoutSessionInteractor extends UserAccessor {
 
       const requestOrigin = (await headers()).get("origin") ?? env.BASE_URL;
       const baseUrl = resolveRequestOrigin(requestOrigin, env.AUTH_ALLOWED_HOSTS, env.BASE_URL);
-      const redirectUrl = `${baseUrl}${buildLocalePath(await getRequestAppLocale(), settingsHref("billing"))}`;
+      const redirectUrl = workspaceReturnUrl(
+        baseUrl,
+        this.user.company?.slug,
+        settingsHref("billing"),
+        await getRequestAppLocale(),
+      );
       const checkout = await this.lemonSqueezyService.createCheckoutOrThrow({
         offer,
         quantity: activeUsersCount,

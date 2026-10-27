@@ -7,17 +7,8 @@ import { describe, expect, it } from "vitest";
 
 import { APP_LOCALES } from "@/i18n/locale-registry";
 
-import { SetupAnswersSchema } from "../setup-answers.schema";
-import {
-  SETUP_INTERVIEW_ACTIONS,
-  SETUP_PARTS,
-  SETUP_QUESTIONS,
-  SETUP_SCREEN_DEFINITIONS,
-  SETUP_SCREENS,
-  setupPart,
-  setupPartVisible,
-  setupVisibleAnswers,
-} from "../setup-interview";
+import { SetupAnswersSchema, storedSetupAnswers } from "../setup-answers.schema";
+import { SETUP_PARTS, SETUP_QUESTIONS, setupPart, setupPartVisible, setupVisibleAnswers } from "../setup-interview";
 import { mergeWebsitePrefill, touchAnswer } from "../setup-prefill";
 
 function catalog(locale: string): Record<string, unknown> {
@@ -34,34 +25,50 @@ function lookup(messages: Record<string, unknown>, key: string): unknown {
 }
 
 describe("workspace setup interview", () => {
-  it("asks seventeen questions on six screens in order", () => {
-    expect(SETUP_QUESTIONS.map((question) => question.number)).toEqual(Array.from({ length: 17 }, (_, i) => i + 1));
-    expect(SETUP_SCREEN_DEFINITIONS.map((screen) => screen.id)).toEqual([...SETUP_SCREENS]);
-    expect([...new Set(SETUP_QUESTIONS.map((question) => question.screen))]).toEqual([...SETUP_SCREENS]);
+  it("asks eight short questions in order", () => {
+    expect(SETUP_QUESTIONS.map((question) => question.number)).toEqual(Array.from({ length: 8 }, (_, i) => i + 1));
     expect(new Set(SETUP_PARTS.map((part) => part.id)).size).toBe(SETUP_PARTS.length);
   });
 
-  it("matches the formats and pre-fill levels of the design", () => {
-    const byNumber = (number: number) => SETUP_QUESTIONS.find((question) => question.number === number)?.parts ?? [];
-    expect(byNumber(6)).toMatchObject([{ format: "orderedList", winChance: true, prefill: "suggested" }]);
-    expect(byNumber(12)).toMatchObject([{ format: "rankedPick", maxPicks: 3, prefill: "no" }]);
-    expect(byNumber(7).map((part) => part.format)).toEqual(["range", "range", "singleChoice"]);
-    expect(byNumber(17)[0]).toMatchObject({ format: "singleChoice", upload: true, prefill: "no" });
-    expect(byNumber(14)[0]).toMatchObject({ format: "multipleChoice", prefill: "yes" });
-    expect(
-      SETUP_QUESTIONS.flatMap((question) => question.parts)
-        .filter((part) => !part.optional)
-        .map((part) => part.id),
-    ).toEqual(["purpose", "language", "currency", "customerKind", "existingData"]);
-    for (const part of byNumber(10)) expect(part.visibleWhen?.part).toBe("afterSale");
-    for (const number of [11, 12, 13, 17]) for (const part of byNumber(number)) expect(part.prefill).toBe("no");
+  it("requires only who the owner works with, what they track, the data start, language and currency", () => {
+    expect(SETUP_PARTS.filter((part) => !part.optional).map((part) => part.id)).toEqual([
+      "workWith",
+      "purpose",
+      "existingData",
+      "language",
+      "currency",
+    ]);
+    expect(setupPart("mainSteps")).toMatchObject({ format: "orderedList", prefill: "suggested" });
+    expect(setupPart("existingData")).toMatchObject({ format: "singleChoice", upload: true, prefill: "no" });
+    expect(SETUP_QUESTIONS.at(-1)?.parts.map((part) => part.id)).toEqual([
+      "companyName",
+      "country",
+      "language",
+      "currency",
+    ]);
+  });
+
+  it("offers every common way to use a workspace and an own entry", () => {
+    const purpose = setupPart("purpose");
+    expect(purpose).toMatchObject({ format: "multipleChoice", allowCustom: true });
+    expect(purpose && "options" in purpose ? purpose.options.map((option) => option.id) : []).toEqual([
+      "deals",
+      "projects",
+      "contracts",
+      "orders",
+      "chats",
+      "support",
+      "hiring",
+      "investors",
+      "partners",
+      "finances",
+      "marketing",
+    ]);
   });
 
   it.each(APP_LOCALES)("has every label in %s", (locale) => {
     const messages = catalog(locale);
     const keys = [
-      ...SETUP_SCREEN_DEFINITIONS.map((screen) => screen.titleKey),
-      ...Object.values(SETUP_INTERVIEW_ACTIONS).map((action) => action.labelKey),
       ...SETUP_PARTS.flatMap((part) => [
         part.labelKey,
         ...("options" in part ? part.options.map((option) => option.labelKey) : []),
@@ -79,32 +86,24 @@ describe("workspace setup purpose", () => {
     value,
   });
   const purpose = (...values: string[]) => user({ format: "multipleChoice", values, custom: [] });
+  const workWith = (value: string) => user({ format: "singleChoice", value });
 
-  it("starts with what the workspace is for and keeps the name optional", () => {
-    expect(SETUP_QUESTIONS[0].parts.map((part) => part.id).slice(0, 3)).toEqual([
-      "purpose",
-      "purposeDetails",
-      "companyName",
-    ]);
-    expect(setupPart("companyName")?.optional).toBe(true);
+  it("asks for steps only when tracked work moves through steps", () => {
+    expect(setupPartVisible("mainSteps", {})).toBe(false);
+    expect(setupPartVisible("mainSteps", { purpose: purpose("chats", "finances") })).toBe(false);
+    expect(setupPartVisible("mainSteps", { purpose: purpose("hiring") })).toBe(true);
   });
 
-  it("keeps only the answers and options that fit the workspace's purpose", () => {
+  it("asks how the owner charges only when the owner has customers or clients", () => {
+    expect(setupPartVisible("pricing", { workWith: workWith("ownWork") })).toBe(false);
+    expect(setupPartVisible("pricing", { workWith: workWith("clients") })).toBe(true);
+
     const answers: SetupAnswers = {
-      purpose: purpose("finances"),
+      workWith: workWith("ownWork"),
+      pricing: user({ format: "singleChoice", value: "timeBased" }),
       companyName: user({ format: "shortText", value: "Ada Lovelace" }),
-      leadSources: user({ format: "multipleChoice", values: ["referrals"], custom: [] }),
-      knowledgePages: user({ format: "multipleChoice", values: ["overview", "salesPlaybook"], custom: [] }),
     };
-
-    const visible = setupVisibleAnswers(answers);
-
-    expect(Object.keys(visible)).toEqual(["purpose", "companyName", "knowledgePages"]);
-    expect(visible.knowledgePages?.value).toEqual({ format: "multipleChoice", values: ["overview"], custom: [] });
-    expect(setupVisibleAnswers({ ...answers, purpose: purpose("clients", "finances") }).leadSources).toEqual(
-      answers.leadSources,
-    );
-    expect(setupPartVisible("leadSources", {})).toBe(false);
+    expect(Object.keys(setupVisibleAnswers(answers))).toEqual(["workWith", "companyName"]);
   });
 });
 
@@ -119,75 +118,52 @@ describe("workspace setup answers", () => {
     const parsed = SetupAnswersSchema.safeParse({
       companyName: website(0.9, "Northwind"),
       currency: { source: "website", confidence: 0.8, value: { format: "singleChoice", value: "EUR" } },
-      customerKind: { source: "user", confidence: 1, value: { format: "singleChoice", value: "businesses" } },
-      leadSources: {
+      workWith: {
         source: "user",
         confidence: 1,
-        value: { format: "multipleChoice", values: ["website", "events"], custom: ["Trade press"] },
+        value: { format: "singleChoice", value: "clients" },
       },
-      salesSteps: {
+      purpose: {
+        source: "user",
+        confidence: 1,
+        value: { format: "multipleChoice", values: ["deals", "projects"], custom: ["Site visits"] },
+      },
+      mainSteps: {
         source: "website",
         confidence: 0.75,
         value: {
           format: "orderedList",
-          items: [
-            { label: "Lead", winChance: 10 },
-            { label: "Won", winChance: 100 },
-          ],
+          items: [{ label: "Inquiry" }, { label: "Won" }],
         },
       },
-      weeklyNumbers: {
-        source: "user",
-        confidence: 1,
-        value: { format: "rankedPick", values: ["forecast", "newLeads", "overdueTasks"] },
-      },
-      dealSize: { source: "user", confidence: 1, value: { format: "range", min: 1000, max: 20000 } },
-      salesCycle: { source: "user", confidence: 1, value: { format: "range", min: 30, max: null } },
     });
     expect(parsed.error?.issues).toBeUndefined();
   });
 
   it.each([
-    ["a format mismatch", { teamSize: { source: "user", confidence: 1, value: { format: "shortText", value: "5" } } }],
+    [
+      "a format mismatch",
+      {
+        teamSize: {
+          source: "user",
+          confidence: 1,
+          value: { format: "shortText", value: "5" },
+        },
+      },
+    ],
     [
       "an unknown option",
-      { teamSize: { source: "user", confidence: 1, value: { format: "singleChoice", value: "huge" } } },
-    ],
-    [
-      "own entries where none are allowed",
       {
-        afterSale: {
+        teamSize: {
           source: "user",
           confidence: 1,
-          value: { format: "multipleChoice", values: [], custom: ["Bills"] },
+          value: { format: "singleChoice", value: "huge" },
         },
       },
     ],
-    [
-      "more than three picks",
-      {
-        weeklyNumbers: {
-          source: "user",
-          confidence: 1,
-          value: { format: "rankedPick", values: ["forecast", "newLeads", "overdueTasks", "openTickets"] },
-        },
-      },
-    ],
-    [
-      "a win chance outside the sales steps",
-      {
-        offerings: {
-          source: "user",
-          confidence: 1,
-          value: { format: "orderedList", items: [{ label: "Audit", winChance: 50 }] },
-        },
-      },
-    ],
-    ["a reversed range", { dealSize: { source: "user", confidence: 1, value: { format: "range", min: 10, max: 5 } } }],
-    ["a second number", { salesCycle: { source: "user", confidence: 1, value: { format: "range", min: 1, max: 5 } } }],
     [
       "a website answer to a question never pre-filled",
-      { dashboardAudience: { source: "website", confidence: 1, value: { format: "singleChoice", value: "me" } } },
+      { existingData: { source: "website", confidence: 1, value: { format: "singleChoice", value: "empty" } } },
     ],
     ["an unknown question", { favouriteColour: website(1, "Blue") }],
     ["a confidence above one", { companyName: website(1.5, "Northwind") }],
@@ -195,24 +171,51 @@ describe("workspace setup answers", () => {
     expect(SetupAnswersSchema.safeParse(answers).success).toBe(false);
   });
 
+  it("keeps stored steps that still carry a win chance", () => {
+    expect(
+      storedSetupAnswers({
+        mainSteps: {
+          source: "user",
+          confidence: 1,
+          value: { format: "orderedList", items: [{ label: "Audit", winChance: 50 }] },
+        },
+      }).mainSteps?.value,
+    ).toMatchObject({ format: "orderedList", items: [{ label: "Audit" }] });
+  });
+
+  it("keeps the stored answers that still fit when a question was removed", () => {
+    expect(
+      storedSetupAnswers({
+        companyName: website(0.9, "Northwind"),
+        purpose: {
+          source: "user",
+          confidence: 1,
+          value: { format: "multipleChoice", values: ["clients"], custom: [] },
+        },
+        weeklyNumbers: { source: "user", confidence: 1, value: { format: "rankedPick", values: ["forecast"] } },
+      }),
+    ).toEqual({ companyName: website(0.9, "Northwind") });
+    expect(storedSetupAnswers(null)).toEqual({});
+  });
+
   it("pre-fills only confident website answers to untouched questions", () => {
     const answers = touchAnswer({}, "companyName", { format: "shortText", value: "Northwind GmbH" });
     const merged = mergeWebsitePrefill(answers, {
       companyName: website(0.99, "Northwind Traders"),
-      industries: {
+      purpose: {
         source: "website",
         confidence: 0.9,
-        value: { format: "multipleChoice", values: [], custom: ["Logistics"] },
+        value: { format: "multipleChoice", values: ["projects"], custom: [] },
       },
-      offerings: { source: "website", confidence: 0.4, value: { format: "orderedList", items: [{ label: "Audit" }] } },
+      mainSteps: { source: "website", confidence: 0.4, value: { format: "orderedList", items: [{ label: "Audit" }] } },
     });
     expect(merged.companyName).toEqual({
       source: "user",
       confidence: 1,
       value: { format: "shortText", value: "Northwind GmbH" },
     });
-    expect(merged.industries?.source).toBe("website");
-    expect(merged.offerings).toBeUndefined();
+    expect(merged.purpose?.source).toBe("website");
+    expect(merged.mainSteps).toBeUndefined();
   });
 
   it("lets a later crawl replace an earlier pre-fill but never a user answer", () => {
@@ -228,7 +231,7 @@ describe("workspace setup answers", () => {
       {},
       {
         companyName: { source: "user", confidence: 1, value: { format: "shortText", value: "Spoofed" } },
-        anythingMissed: website(1, "Draft"),
+        existingData: { source: "website", confidence: 1, value: { format: "singleChoice", value: "empty" } },
       },
     );
     expect(merged).toEqual({});

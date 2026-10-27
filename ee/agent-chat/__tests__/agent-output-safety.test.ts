@@ -652,6 +652,39 @@ describe("agent client-visible output safety", () => {
     expect(agentPlainTextPreview(sanitizeAgentVisibleText(values[0] ?? ""), 140)).toBe("Record: CRM Rollout");
   });
 
+  it("accepts workspace-qualified links of the bound workspace and rejects other workspaces", () => {
+    const dealId = "80000000-0000-4000-8000-000000000003";
+    const typeId = "60000000-0000-4000-8000-000000000002";
+    const pageId = "10000000-0000-4000-8000-000000000001";
+    const base = "https://app.customermates.com";
+    const own = `Record: [CRM Rollout](/w/acme/records/${typeId}/${dealId}) and [Guide](/de/w/acme/wiki?page=${pageId}).`;
+    const expected = `Record: [CRM Rollout](/records/${typeId}/${dealId}) and [Guide](/de/wiki?page=${pageId}).`;
+    expect(sanitizeAgentVisibleText(own, base, "acme")).toBe(expected);
+    expect(sanitizeAgentVisibleTextForApp(`[Deal](${base}/en/w/acme/records/${typeId}/${dealId})`, base, "acme")).toBe(
+      "Deal",
+    );
+
+    for (let split = 0; split <= own.length; split += 1) {
+      const sanitizer = new AgentVisibleTextStreamSanitizer(base, "acme");
+      const visible = `${sanitizer.push(own.slice(0, split))}${sanitizer.push(own.slice(split))}${sanitizer.finish()}`;
+      expect(visible).toBe(expected);
+    }
+
+    const foreign = `Record: [CRM Rollout](/w/beratung/records/${typeId}/${dealId}) and [Guide](/w/beratung/wiki?page=${pageId}).`;
+    for (const visible of [
+      sanitizeAgentVisibleText(foreign, base, "acme"),
+      sanitizeAgentVisibleText(own.replaceAll("acme", "beratung"), base),
+      sanitizeAgentVisibleText(own, base),
+    ]) {
+      expect(visible).not.toContain(dealId);
+      expect(visible).not.toContain(pageId);
+      expect(visible).not.toContain("/w/");
+    }
+    expect(sanitizeAgentVisibleText(`See /w/acme-old/records/${typeId}`, base, "acme")).toBe(
+      "See /w/acme-old/records/[internal reference]",
+    );
+  });
+
   it("collapses other links to a record id to their label, redacts visible ids and stays stable when sanitized again", () => {
     const dealId = "80000000-0000-4000-8000-000000000003";
     const cases = [

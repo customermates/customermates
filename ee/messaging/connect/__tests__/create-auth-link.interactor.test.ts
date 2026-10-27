@@ -7,7 +7,7 @@ import {
   MOCK_PRISMA_DB_MODULE,
 } from "@/tests/helpers/interactor-test-setup";
 
-const mockUser = createMockUser();
+const mockUser = createMockUser({ company: { slug: "acme" } });
 const request = vi.hoisted(() => ({ origin: "https://feat-inbox.customermates.com" }));
 
 vi.mock("@/env", () => ({
@@ -113,7 +113,7 @@ describe("CreateAuthLinkInteractor", () => {
 
     expect(messagingService.createAuthLink).toHaveBeenCalledWith(
       expect.objectContaining({
-        redirectUri: "https://feat-inbox.customermates.com/settings/channels",
+        redirectUri: "https://feat-inbox.customermates.com/w/acme/settings/channels",
       }),
     );
   });
@@ -127,7 +127,7 @@ describe("CreateAuthLinkInteractor", () => {
 
     expect(messagingService.createAuthLink).toHaveBeenCalledWith(
       expect.objectContaining({
-        redirectUri: "https://customermates-git-feat-inbox-customermates.vercel.app/settings/channels",
+        redirectUri: "https://customermates-git-feat-inbox-customermates.vercel.app/w/acme/settings/channels",
       }),
     );
   });

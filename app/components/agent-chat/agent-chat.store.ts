@@ -64,6 +64,7 @@ import { AgentContextRegistry } from "./agent-context-registry";
 import { DataViewProposalSchema } from "@/core/data-view/data-view-proposal.schema";
 import { rememberViewProposal } from "@/core/data-view/view-query-drafts";
 import { actionData, actionDataOrNull } from "@/core/utils/action-data";
+import { workspaceApiUrl } from "@/core/navigation/workspace-api-url";
 
 type AgentConversationSnapshot = Extract<Awaited<ReturnType<typeof getAgentConversationAction>>, { ok: true }>["data"];
 
@@ -1606,7 +1607,7 @@ export class AgentChatStore extends BaseStore {
       if (controller.signal.aborted) throw new DOMException("Aborted", "AbortError");
       if (turnGeneration !== this.activeTurnGeneration || turnLoadVersion !== this.conversationLoadVersion) return;
       const response = await fetchWithDeadline(
-        "/api/agent/messages",
+        workspaceApiUrl("/api/agent/messages"),
         {
           method: "POST",
           headers: { "content-type": "application/json" },
@@ -2162,7 +2163,9 @@ export class AgentChatStore extends BaseStore {
       this.abortController = controller;
       try {
         const response = await fetchWithDeadline(
-          `/api/agent/conversations/${conversationId}/stream?startIndex=${this.activeTurnNextStreamIndex}`,
+          workspaceApiUrl(
+            `/api/agent/conversations/${conversationId}/stream?startIndex=${this.activeTurnNextStreamIndex}`,
+          ),
           {},
           controller,
           AGENT_RECONNECT_TIMEOUT_MS,

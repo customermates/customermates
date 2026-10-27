@@ -10,7 +10,7 @@ const actions = vi.hoisted(() => ({
 const assign = vi.hoisted(() => vi.fn());
 
 vi.mock("../../actions", () => actions);
-vi.mock("@/app/[locale]/(protected)/settings/(account)/actions", () => ({ createApiKeyAction: vi.fn() }));
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/settings/(account)/actions", () => ({ createApiKeyAction: vi.fn() }));
 vi.mock("@/core/errors/report-application-error", () => ({ reportApplicationError: vi.fn() }));
 
 import { OnboardingWizardStore, WIZARD_STEPS } from "../onboarding-wizard.store";
@@ -304,17 +304,19 @@ describe("OnboardingWizardStore", () => {
     expect(store.isSubmitting).toBe(false);
   });
 
-  it("starts an empty workspace by closing the setup step and the wizard, then leaves for the app", async () => {
-    const store = new OnboardingWizardStore(rootStore);
+  it("starts an empty workspace by closing only the setup step, then continues to the team step", async () => {
+    const ai = new AiConnectionStore({} as RootStore);
+    const store = new OnboardingWizardStore({ stepAiStore: ai, localeStore: { locale: "de" } } as RootStore);
+    store.initialize(1, "owner-a");
+    expect(store.currentStep).toBe("setup");
 
-    await store.startEmpty();
+    await store.completeSetupStep();
 
     expect(actions.completeOnboardingSetupStepAction).toHaveBeenCalledOnce();
-    expect(actions.completeOnboardingWizardAction).toHaveBeenCalledOnce();
-    expect(actions.completeOnboardingSetupStepAction.mock.invocationCallOrder[0]).toBeLessThan(
-      actions.completeOnboardingWizardAction.mock.invocationCallOrder[0],
-    );
-    expect(assign).toHaveBeenCalledExactlyOnceWith("/de/dashboard");
+    expect(actions.completeOnboardingWizardAction).not.toHaveBeenCalled();
+    expect(assign).not.toHaveBeenCalled();
+    expect(store.currentStep).toBe("invite");
+    expect(store.isFirstStep).toBe(true);
     expect(store.isSubmitting).toBe(false);
   });
 
@@ -325,7 +327,7 @@ describe("OnboardingWizardStore", () => {
     });
     const store = new OnboardingWizardStore(rootStore);
 
-    await store.startEmpty();
+    await store.completeSetupStep();
 
     expect(actions.completeOnboardingWizardAction).not.toHaveBeenCalled();
     expect(assign).not.toHaveBeenCalled();

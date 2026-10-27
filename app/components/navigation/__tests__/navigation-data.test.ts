@@ -9,6 +9,7 @@ import { loadNavigationData, type NavigationDataLoaders } from "../navigation-da
 const WORKSPACE: WorkspaceSummary = {
   companyId: "company-1",
   name: "Acme",
+  slug: "acme",
   status: "active",
   roleName: "Admin",
   isAdmin: true,

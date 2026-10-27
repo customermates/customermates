@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
 import { postOk } from "./api";
+import { companyPath } from "./app-paths";
 import { test, expect, collectPageErrors } from "./fixtures";
 
 test("restored records show in the workspace activity and keep older activity reachable", async ({
@@ -63,7 +64,7 @@ test("restored records show in the workspace activity and keep older activity re
   expect(events.slice(0, 30)).toEqual(Array.from({ length: 30 }, () => "record.restored"));
   expect(events.filter((event) => event === "record.deleted")).toHaveLength(30);
   expect(events.filter((event) => event === "record.created")).toHaveLength(30);
-  await page.goto("/en/settings/activity");
+  await page.goto(companyPath(companyId, "/settings/activity"));
   const rows = page.getByRole("button", { name: /Activity restore/ });
   await expect(rows.first()).toBeVisible();
   const shown = await rows.count();
@@ -82,7 +83,7 @@ test("shows admin and configuration history on the workspace activity page and f
   test.setTimeout(180000);
   const errors = collectPageErrors(page);
 
-  await page.goto("/en/settings/roles");
+  await page.goto(companyPath(companyId, "/settings/roles"));
   await page.locator("#settings-roles-add").click();
   const role = page.getByRole("dialog", { name: "Role", exact: true });
   await role.getByRole("textbox", { name: "Name", exact: false }).fill("Activity auditors");
@@ -99,7 +100,7 @@ test("shows admin and configuration history on the workspace activity page and f
   await role.getByRole("button", { name: "Save", exact: true }).click();
   await expect(role).not.toBeVisible();
 
-  await page.goto("/en/settings/activity");
+  await page.goto(companyPath(companyId, "/settings/activity"));
   const admin = page.getByRole("button", { name: /Role Created/ }).first();
   const configuration = page.getByRole("button", { name: /Record access changed .*Activity auditors/ }).first();
   await expect(admin).toBeVisible();

@@ -1,4 +1,12 @@
-import { CONTENT_LOCALES, isContentLocale, type ContentLocale } from "@/i18n/locale-registry";
+import deMessages from "@/i18n/locales/de.json";
+import enMessages from "@/i18n/locales/en.json";
+import frMessages from "@/i18n/locales/fr.json";
+import {
+  MARKETING_LOCALES,
+  isMarketingLocale,
+  marketingLocaleOrDefault,
+  type MarketingLocale,
+} from "@/i18n/locale-registry";
 
 import {
   CLOUD_TRIAL,
@@ -12,16 +20,40 @@ import {
 } from "./plan-catalog";
 
 const TOKEN_PATTERN = /\[\[commercial\.([^\]]+)\]\]/g;
-const CONTENT_LOCALE_PATTERN = new RegExp(`(?:^|[/\\\\])(${CONTENT_LOCALES.join("|")})(?:[/\\\\])`);
+const MARKETING_LOCALE_PATTERN = new RegExp(`(?:^|[/\\\\])(${MARKETING_LOCALES.join("|")})(?:[/\\\\])`);
 
-export function contentLocaleFromPath(filePath: string): ContentLocale {
-  const locale = filePath.match(CONTENT_LOCALE_PATTERN)?.[1];
-  if (isContentLocale(locale)) return locale;
+const UNLIMITED_LABEL = { translationKey: "Common.unlimited" } as const;
+
+const CONTRACT_LABEL = { translationKey: "Common.unlimitedByContract" } as const;
+
+const MARKETING_MESSAGES: Record<MarketingLocale, unknown> = { de: deMessages, en: enMessages, fr: frMessages };
+
+function catalogText(messages: unknown, key: string): string {
+  const value = key
+    .split(".")
+    .reduce<unknown>(
+      (node, segment) => (node && typeof node === "object" ? (node as Record<string, unknown>)[segment] : undefined),
+      messages,
+    );
+  if (typeof value !== "string") throw new Error(`Missing message ${key}`);
+  return value;
+}
+
+export function contentLocaleFromPath(filePath: string): MarketingLocale {
+  const locale = filePath.match(MARKETING_LOCALE_PATTERN)?.[1];
+  if (isMarketingLocale(locale)) return locale;
   throw new Error(`Cannot resolve commercial-token locale from ${filePath}`);
 }
 
 function localizedUnlimited(locale: string): string {
-  return locale.startsWith("de") ? "unbegrenzt" : "unlimited";
+  return catalogText(
+    MARKETING_MESSAGES[marketingLocaleOrDefault(locale.split("-")[0])],
+    UNLIMITED_LABEL.translationKey,
+  );
+}
+
+function localizedContract(locale: string): string {
+  return catalogText(MARKETING_MESSAGES[marketingLocaleOrDefault(locale.split("-")[0])], CONTRACT_LABEL.translationKey);
 }
 
 function resolvePriceToken(parts: string[], locale: string): string {
@@ -80,7 +112,7 @@ function resolveStorageToken(parts: string[], locale: string): string {
   if (parts.length !== 2 || !rawPlan || !isPlanId(rawPlan))
     throw new Error(`Invalid commercial storage token: ${parts.join(".")}`);
   const bytes = getPlanDefinition(rawPlan).entitlements.fileStorageBytesPerActiveUser;
-  if (bytes === "contract") return locale.startsWith("de") ? "individuell" : "custom";
+  if (bytes === "contract") return localizedContract(locale);
   if (bytes === null) return localizedUnlimited(locale);
   return `${new Intl.NumberFormat(locale).format(bytes / GIB)} GB`;
 }

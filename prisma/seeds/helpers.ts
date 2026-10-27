@@ -51,3 +51,8 @@ export async function upsertFixturesById<T extends { id: string }>(
     await Promise.all(batch.map((fixture) => upsert(fixture)));
   }
 }
+
+/** A fixture id inside one workspace's namespace, for tables whose ids are unique across workspaces. */
+export function workspaceFixtureId(group: string, tag: string, index: number): string {
+  return `${group}-${tag}-4000-8000-${String(index).padStart(12, "0")}`;
+}

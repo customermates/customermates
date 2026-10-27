@@ -5,6 +5,8 @@ import { importableSpreadsheetField } from "@/features/data-transfer/spreadsheet
 import { SETUP_PLAN_LIMITS } from "@/features/workspace-setup/setup-plan.schema";
 
 const MAX_COLUMNS = 24;
+const DAY_MS = 86_400_000;
+const ISO_DAY = /^\d{4}-\d{2}-\d{2}/;
 const LINK_SEPARATOR = "; ";
 
 export type SampleColumn = {
@@ -135,14 +137,84 @@ function withDistinctTitles(spec: SampleListSpec, rows: Array<Record<string, str
   });
 }
 
+const UPCOMING_PAST_DAYS = 3;
+const UPCOMING_DAYS = 14;
+
+export type SampleCalendarDates = {
+  starts: ReadonlySet<string>;
+  upcoming: ReadonlySet<string>;
+  ends: ReadonlyMap<string, string>;
+  today: Date;
+};
+
+function dayOf(value: string | null | undefined): number | null {
+  const day = value?.trim().match(ISO_DAY)?.[0];
+  const time = day ? Date.parse(`${day}T00:00:00Z`) : Number.NaN;
+  return Number.isNaN(time) ? null : time;
+}
+
+function withDay(value: string, time: number): string {
+  return value.trim().replace(ISO_DAY, new Date(time).toISOString().slice(0, 10));
+}
+
+function inCurrentMonth(
+  spec: SampleListSpec,
+  rows: Array<Record<string, string | null>>,
+  dates: SampleCalendarDates,
+): Array<Record<string, string | null>> {
+  const year = dates.today.getUTCFullYear();
+  const month = dates.today.getUTCMonth();
+  const first = Date.UTC(year, month, 1);
+  const today = Date.UTC(year, month, dates.today.getUTCDate());
+  const days = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+  const columnOf = new Map(spec.columns.map((column) => [column.fieldId, column.column]));
+  const pairs = [...dates.starts].flatMap((fieldId) => {
+    const start = columnOf.get(fieldId);
+    const endField = dates.ends.get(fieldId);
+    const upcoming = dates.upcoming.has(fieldId);
+    return start ? [{ start, upcoming, end: endField ? columnOf.get(endField) : undefined }] : [];
+  });
+  if (!pairs.length) return rows;
+  return rows.map((row, index) => {
+    const next = { ...row };
+    const spread = new Set(pairs.map((pair) => pair.start));
+    const ordered = pairs.map((pair, offset) => ({
+      ...pair,
+      offset,
+      ended: Boolean(pair.end && spread.has(pair.end)),
+    }));
+    for (const { start, end, offset, ended, upcoming } of ordered.sort(
+      (left, right) => Number(left.ended) - Number(right.ended),
+    )) {
+      const from = dayOf(row[start]);
+      const until = end ? dayOf(row[end]) : null;
+      if (from === null) continue;
+      const span = until === null ? 0 : Math.max(0, until - from);
+      if (ended && end && until !== null) {
+        next[start] = withDay(row[start] ?? "", (dayOf(next[end]) ?? until) - span);
+        continue;
+      }
+      const day = upcoming
+        ? today +
+          (Math.floor(((index + 0.5) * (UPCOMING_PAST_DAYS + UPCOMING_DAYS)) / rows.length) - UPCOMING_PAST_DAYS) *
+            DAY_MS
+        : first + (Math.floor(((index + 0.5) * days) / rows.length + offset) % days) * DAY_MS;
+      next[start] = withDay(row[start] ?? "", day);
+      if (end && until !== null) next[end] = withDay(row[end] ?? "", day + span);
+    }
+    return next;
+  });
+}
+
 export function generatedSampleList(
   spec: SampleListSpec,
   rows: Array<Record<string, string | null>>,
   titlesByList: ReadonlyMap<string, string[]>,
   currency: string,
+  dates: SampleCalendarDates = { starts: new Set(), upcoming: new Set(), ends: new Map(), today: new Date() },
 ): GeneratedSampleList {
   const headers = [...spec.columns.map((column) => column.column), ...spec.links.map((link) => link.column)];
-  const kept = withDistinctTitles(spec, rows.slice(0, spec.count));
+  const kept = inCurrentMonth(spec, withDistinctTitles(spec, rows.slice(0, spec.count)), dates);
   const linked = new Map(spec.links.map((link) => [link.column, new Set<string>()]));
   const table: SpreadsheetTable = {
     sheetName: spec.list,

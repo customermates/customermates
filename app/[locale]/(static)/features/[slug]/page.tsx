@@ -15,9 +15,12 @@ import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { featurePagesSource } from "@/core/fumadocs/source";
 import { getMDXComponents } from "@/core/fumadocs/mdx-components";
 import { breadcrumbListSchema } from "@/core/seo/schemas";
-import { contentLocaleOrDefault } from "@/i18n/locale-registry";
-import { enableStaticLocale } from "@/i18n/static-locale";
+import { findSolutionByLandingPath } from "@/core/solutions/solution-catalog";
+import { marketingLocaleOrDefault } from "@/i18n/locale-registry";
+import { enableMarketingLocale } from "@/i18n/static-locale";
 import { localizedSlugParams } from "@/core/fumadocs/static-params";
+
+import { SolutionProductStage } from "../../components/solution-product-stage";
 
 interface Props {
   params: Promise<{
@@ -41,14 +44,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function FeaturePage({ params }: Props) {
-  await enableStaticLocale(params);
+  const { slug } = await params;
+  await enableMarketingLocale(params, `/features/${slug}`);
 
-  const [rawLocale, t, { slug }] = await Promise.all([
-    getLocale(),
-    getTranslations("StructuredData.breadcrumb"),
-    params,
-  ]);
-  const locale = contentLocaleOrDefault(rawLocale);
+  const [rawLocale, t] = await Promise.all([getLocale(), getTranslations("StructuredData.breadcrumb")]);
+  const locale = marketingLocaleOrDefault(rawLocale);
   const page = featurePagesSource.getPage([slug], locale);
 
   if (!page) notFound();
@@ -56,6 +56,7 @@ export default async function FeaturePage({ params }: Props) {
   const MDX = page.data.body;
   const components = getMDXComponents();
   const demo = productDemoForFeature(slug);
+  const solution = findSolutionByLandingPath(`/features/${slug}`);
   const visual =
     page.data.acquisition?.visual.kind === "brand-illustration" ? (
       <AcquisitionStoryVisual brief={page.data.acquisition.visual} locale={locale} />
@@ -71,9 +72,13 @@ export default async function FeaturePage({ params }: Props) {
         ])}
       />
 
-      <PageHero {...page.data.hero} visual={visual} />
+      <PageHero
+        {...page.data.hero}
+        stage={solution ? <SolutionProductStage locale={locale} solutionId={solution.id} /> : undefined}
+        visual={solution ? undefined : visual}
+      />
 
-      {demo ? <ProductDemoSection {...demo} /> : null}
+      {demo && !solution ? <ProductDemoSection {...demo} /> : null}
 
       <LandingArticle founderContact items={page.data.toc}>
         <MDX components={components} />

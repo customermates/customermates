@@ -38,6 +38,7 @@ const { createCrmPreset, presetId } = await import("@/features/records/crm-prese
 const { createTestRecordRepo, preloadTestRecordRepo } = await import("@/tests/helpers/record-repository");
 const { AddressCheckService } = await import("../address-check.service");
 const { addressFormatOf } = await import("../address-metadata");
+const { addressFromImportText } = await import("../address-text");
 const { PostalCodeCache } = await import("../postal-codes/postal-code-cache");
 const { PostalCodeService } = await import("../postal-codes/postal-code.service");
 const { PrismaPostalCodeRepo } = await import("../postal-codes/prisma-postal-code.repository");
@@ -393,5 +394,22 @@ describeDatabase("address checks on record writes", () => {
     const result = completed(await f.create(address({ formatted: "Bahnhofstrasse 1, 8001 Zürich" })));
     expect(result.warnings).toBeUndefined();
     expect(await f.stored(result.refs[0].recordId)).toEqual(address({ formatted: "Bahnhofstrasse 1, 8001 Zürich" }));
+  });
+
+  it("places an imported address text at its postal code and keeps it unverified", async () => {
+    const f = await fixture();
+    const imported = addressFromImportText("Bahnhofstrasse 1, 8001 Zürich, Switzerland");
+    if (!imported) throw new Error("no address");
+    const result = completed(await f.create(imported));
+    expect(await f.stored(result.refs[0].recordId)).toEqual(
+      address({
+        street: "Bahnhofstrasse 1",
+        postalCode: "8001",
+        city: "Zürich",
+        countryCode: "ch",
+        formatted: "Bahnhofstrasse 1, 8001 Zürich",
+        location: { lat: 47.3769, lon: 8.5417, precision: "postcode" },
+      }),
+    );
   });
 });

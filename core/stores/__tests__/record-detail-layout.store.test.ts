@@ -12,7 +12,7 @@ const mocks = vi.hoisted(() => ({
   report: vi.fn(),
   toast: vi.fn(),
 }));
-vi.mock("@/app/[locale]/(protected)/records/actions", () => mocks);
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/records/actions", () => mocks);
 vi.mock("@/core/errors/report-application-error", () => ({ reportApplicationError: mocks.report }));
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: mocks.toast }));
 const workspace = vi.hoisted(() => ({ notify: vi.fn() }));

@@ -2,14 +2,31 @@ import type { Locator, Page } from "@playwright/test";
 
 import { addCalendarDays, calendarWeekdayIndex } from "../../features/record-calendar/calendar-date";
 import { moveWithKeyboard } from "./keyboard-drag";
-import { demoId, expect, test } from "./demo-seed";
+import type { Client } from "pg";
 
-// The seeded "Close calendar" view of deals: open deals by close date in a month calendar, colored by stage.
-const CLOSE_CALENDAR = "1f100000-0000-4000-8000-000000000043";
-const calendarUrl = () => `/en/records/${demoId("deal")}?view=${CLOSE_CALENDAR}`;
+import { presetId } from "../../features/records/crm-preset";
+import { findSolution } from "../../core/solutions/solution-catalog";
+import { appPath } from "./app-paths";
+import { expect, test } from "./demo-seed";
+
+const SALES = findSolution("sales-pipeline");
+const SALES_COMPANY_ID = SALES.companyIds.en;
+
+/** The seeded "Close calendar" view of the sales workspace: open opportunities by close date, coloured by stage. */
+async function closeCalendarUrl(database: Client) {
+  const { rows } = await database.query<{ id: string }>(
+    'SELECT id FROM "DataView" WHERE "companyId"=$1 AND name=$2 AND "deletedAt" IS NULL',
+    [SALES_COMPANY_ID, "Close calendar"],
+  );
+  const view = rows[0]?.id;
+  if (!view) throw new Error("The sales workspace has no Close calendar view");
+  return appPath(SALES.workspaceSlugs.en, `/records/${presetId(SALES_COMPANY_ID, "deal")}?view=${view}`);
+}
+
+let calendarUrl = "";
 
 async function openCalendar(page: Page) {
-  await page.goto(calendarUrl());
+  await page.goto(calendarUrl);
   const root = page.locator('[data-slot="calendar-root"]');
   await expect(root).toBeVisible();
   return root;
@@ -44,6 +61,10 @@ async function dragTo(page: Page, source: Locator, target: Locator) {
   await page.mouse.up();
   expect((await saved).ok()).toBe(true);
 }
+
+test.beforeEach(async ({ database }) => {
+  calendarUrl = await closeCalendarUrl(database);
+});
 
 test("a calendar view moves a deal to another day by dragging and back with the keyboard", async ({
   page,

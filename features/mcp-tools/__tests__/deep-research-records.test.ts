@@ -22,6 +22,10 @@ vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
 }));
 vi.mock("@/env", () => ({ env: { BASE_URL: "http://localhost:4105" } }));
+vi.mock("../mcp-workspace-slug", async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  mcpWorkspaceSlug: () => Promise.resolve("acme"),
+}));
 vi.mock("../docs.mcp-tools", () => ({
   searchDocsHits: () => Promise.resolve([]),
   getDocsPageRaw: () => null,
@@ -96,7 +100,7 @@ describe("generic MCP research records", () => {
           {
             id: `record:${TOOL_TYPE_ID}:${TOOL_RECORD_ID}`,
             title: "Project Mercury",
-            url: `http://localhost:4105/records/${TOOL_TYPE_ID}/${TOOL_RECORD_ID}`,
+            url: `http://localhost:4105/w/acme/records/${TOOL_TYPE_ID}/${TOOL_RECORD_ID}`,
           },
         ],
       },

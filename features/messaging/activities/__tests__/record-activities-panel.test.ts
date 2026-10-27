@@ -9,6 +9,7 @@ const mocked = vi.hoisted(() => ({
   listeners: new Set<() => unknown>(),
   params: new URLSearchParams(),
   paramListeners: new Set<() => void>(),
+  slug: "acme" as string | null,
 }));
 function setParams(params: Record<string, string>) {
   mocked.params = new URLSearchParams(params);
@@ -49,9 +50,12 @@ vi.mock("next-intl", () => ({
   useLocale: () => "en",
   useTranslations: () => (key: string) => key,
 }));
-vi.mock("@/app/[locale]/(protected)/records/actions", () => ({
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/records/actions", () => ({
   getRecordActivitiesAction: mocked.action,
   getRecordActivityPresentationAction: mocked.presentation,
+}));
+vi.mock("@/i18n/navigation", () => ({
+  useWorkspaceSlug: () => mocked.slug,
 }));
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => rootStore,
@@ -88,7 +92,7 @@ vi.mock("@/components/ui/dropdown-menu", () => {
   };
 });
 
-import { RecordActivitiesPanel } from "../record-activities-panel";
+import { RecordActivitiesPanel, useRecordActivityViews } from "../record-activities-panel";
 
 const record = {
   typeId: "00000000-0000-4000-8000-000000000001",
@@ -278,5 +282,30 @@ describe("record activity view selection from the URL", () => {
     expect([...mocked.listeners][0]).toBe(listener);
     expect(mocked.presentation.mock.calls[1][0].params.viewId).toBe("second");
     await act(() => vi.waitFor(() => expect(container.textContent).toContain("second-view")));
+  });
+});
+
+describe("record activity view pathname", () => {
+  function capture(recordRef: typeof record | null) {
+    const seen: string[] = [];
+    function Probe() {
+      seen.push(useRecordActivityViews(recordRef, true).viewPathname ?? "");
+      return null;
+    }
+    return { Probe, seen };
+  }
+
+  it("qualifies the record timeline pathname with the tab's workspace slug", async () => {
+    mocked.presentation.mockResolvedValue({ ok: true, data: presentation("a") });
+    const { Probe, seen } = capture(record);
+    await settle(() => root.render(createElement(Probe)));
+    expect(seen[0]).toBe(`/en/w/acme/records/${record.typeId}/${record.recordId}`);
+  });
+
+  it("qualifies the workspace activity settings pathname", async () => {
+    mocked.presentation.mockResolvedValue({ ok: true, data: presentation("a") });
+    const { Probe, seen } = capture(null);
+    await settle(() => root.render(createElement(Probe)));
+    expect(seen[0]).toBe("/en/w/acme/settings/activity");
   });
 });

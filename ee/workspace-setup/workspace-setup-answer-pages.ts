@@ -10,7 +10,6 @@ import type { SetupPageCopy } from "./workspace-setup-knowledge-brief";
 import { z } from "zod";
 
 import { wikiSynthesisSectionMarkdown } from "@/ee/wiki-crawl/wiki-synthesis-markdown";
-import { wikiOwnerSections } from "@/ee/wiki-crawl/wiki-website-synthesis.service";
 import { wikiPageMarkdownLink } from "@/features/wiki/wiki-links";
 import { WIKI_WHEN_TO_USE_MAX_LENGTH, wikiPageKindIssue } from "@/features/wiki/wiki.schema";
 
@@ -39,17 +38,11 @@ export const SetupAnswerPagesSchema = z
   .strict();
 export type SetupAnswerPages = z.infer<typeof SetupAnswerPagesSchema>;
 
-export type SetupAnswerTopic = WikiSynthesisBriefTopic & { addressForm?: "formal" | "informal" };
-
 function answerText(answer: unknown): string {
   if (typeof answer === "string" || typeof answer === "number") return String(answer);
   if (Array.isArray(answer)) return answer.map(answerText).filter(Boolean).join(", ");
   if (!answer || typeof answer !== "object") return "";
-  if ("label" in answer && typeof answer.label === "string") {
-    return "winChance" in answer && typeof answer.winChance === "number"
-      ? `${answer.label} (${answer.winChance} %)`
-      : answer.label;
-  }
+  if ("label" in answer && typeof answer.label === "string") return answer.label;
   if ("chosen" in answer) {
     const own = "own" in answer && Array.isArray(answer.own) ? answer.own : [];
     return answerText([...(answer.chosen as unknown[]), ...own]);
@@ -72,13 +65,8 @@ export function setupAnswerTopics(
   plan: SetupPlan | null,
   answers: SetupAnswers,
   title: SetupPageTitle,
-): SetupAnswerTopic[] {
-  const brief = setupKnowledgeBrief(plan, answers, title);
-  return brief.topics
-    .filter((topic) => topic.role !== "faq")
-    .map((topic) =>
-      topic.role === "voice_and_tone" && brief.addressForm ? { ...topic, addressForm: brief.addressForm } : topic,
-    );
+): WikiSynthesisBriefTopic[] {
+  return setupKnowledgeBrief(plan, answers, title).topics.filter((topic) => topic.role !== "faq");
 }
 
 export function setupAnswerDraftIssues(draft: WikiSynthesisDraft, source: string): number[] {
@@ -99,22 +87,19 @@ export function setupAnswerDraftIssues(draft: WikiSynthesisDraft, source: string
 }
 
 export function setupAnswerPage(args: {
-  topic: SetupAnswerTopic;
+  topic: WikiSynthesisBriefTopic;
   draft: WikiSynthesisDraft | null;
   copy: SetupPageCopy;
   source: string;
 }): WikiPageInput | null {
   const { topic, draft, copy } = args;
-  const owner = wikiOwnerSections(topic, copy.t);
   const sections = (draft?.sections ?? [])
     .filter(({ heading, content }) => heading.trim() && content.trim())
     .map(({ heading, content }) => `## ${heading.trim()}\n\n${wikiSynthesisSectionMarkdown(content.trim())}`);
-  if (sections.length === 0 && owner.lead.length === 0 && owner.tail.length === 0) return null;
+  if (sections.length === 0) return null;
   const gaps = (draft?.gaps ?? []).map((gap) => gap.trim()).filter(Boolean);
   const markdown = [
-    ...owner.lead,
     ...sections,
-    ...owner.tail,
     `## ${copy.sourcesHeading}\n\n- ${args.source}`,
     ...(gaps.length ? [`## ${copy.gapsHeading}\n\n${gaps.map((gap) => `- ${gap}`).join("\n")}`] : []),
   ].join("\n\n");
@@ -129,18 +114,13 @@ export function setupAnswerPage(args: {
 }
 
 export function setupAnswerGuide(args: {
-  addressForm: "formal" | "informal" | null;
   pages: Array<{ title: string; pageId: string }>;
   copy: SetupPageCopy;
 }): WikiPageInput | null {
   if (args.pages.length === 0) return null;
-  const owner = wikiOwnerSections({ addressForm: args.addressForm ?? undefined }, args.copy.t);
   return {
     title: args.copy.operatingGuide,
     kind: "guide",
-    markdown: [
-      ...owner.lead,
-      `## ${args.copy.pagesHeading}\n\n${args.pages.map(({ title, pageId }) => `- ${wikiPageMarkdownLink(title, pageId)}`).join("\n")}`,
-    ].join("\n\n"),
+    markdown: `## ${args.copy.pagesHeading}\n\n${args.pages.map(({ title, pageId }) => `- ${wikiPageMarkdownLink(title, pageId)}`).join("\n")}`,
   };
 }

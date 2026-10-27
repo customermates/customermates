@@ -1,6 +1,7 @@
 import { test, expect, collectPageErrors } from "./fixtures";
 import { recordItem, openRecordDetails } from "./record-rows";
 import { presetId } from "../../features/records/crm-preset";
+import { companyPath } from "./app-paths";
 
 test("creates, edits, connects, assigns, reloads, and deletes all five starter types without legacy storage", async ({
   page,
@@ -12,7 +13,7 @@ test("creates, edits, connects, assigns, reloads, and deletes all five starter t
   const errors = collectPageErrors(page);
   const dialog = page.getByRole("dialog");
   const navigateToType = async (typeId: string) => {
-    const href = `/en/records/${typeId}`;
+    const href = companyPath(companyId, `/records/${typeId}`);
     if (new URL(page.url()).pathname === href) return;
     if (!(await page.locator(`[id="nav-records:${typeId}"]`).isVisible()))
       await page.locator("#sidebar-trigger").click();
@@ -21,7 +22,7 @@ test("creates, edits, connects, assigns, reloads, and deletes all five starter t
     await expect(page.locator("#records-add")).toBeVisible();
   };
   const records = new Map<string, { id: string; typeId: string; title: string }>();
-  await page.goto(`/en/records/${presetId(companyId, "contact")}`);
+  await page.goto(companyPath(companyId, `/records/${presetId(companyId, "contact")}`));
   for (const [kind, label] of [
     ["contact", "Contact"],
     ["organization", "Organization"],

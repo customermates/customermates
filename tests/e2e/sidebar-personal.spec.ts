@@ -2,6 +2,7 @@ import type { Locator, Page } from "@playwright/test";
 import type { Client } from "pg";
 
 import { presetId } from "../../features/records/crm-preset";
+import { companyPath } from "./app-paths";
 import { openConfigure, saveGeneral } from "./configure";
 import { secondUser } from "./second-user";
 import { collectPageErrors, expect, test } from "./fixtures";
@@ -38,7 +39,7 @@ test("each person customizes their own sidebar and others keep the default", asy
 }, testInfo) => {
   const errors = collectPageErrors(page);
   const touch = testInfo.project.name === "mobile";
-  await page.goto("/en/dashboard");
+  await page.goto(companyPath(companyId, "/dashboard"));
   await page.waitForLoadState("networkidle");
   await openSidebar(page);
   const initial = await sidebarOrder(page);
@@ -109,7 +110,7 @@ test("each person customizes their own sidebar and others keep the default", asy
 
   const other = await secondUser(browser, database, companyId, testInfo);
   try {
-    await other.page.goto("/en/dashboard");
+    await other.page.goto(companyPath(companyId, "/dashboard"));
     await other.page.waitForLoadState("networkidle");
     await openSidebar(other.page);
     expect(await sidebarOrder(other.page)).toEqual(initial);

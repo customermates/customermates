@@ -144,6 +144,7 @@ export type AgentTurnWorkflowPayload = {
   userName: string;
   locale: string;
   appBaseUrl: string;
+  workspaceSlug?: string | null;
   pageRoute: string | null;
   messages: ReplayMessage[];
   turnBudget: AgentTurnBudget;
@@ -1027,7 +1028,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     });
     if (!started.providerStarted) {
       const message = await resolveRunnerMessage(payload.locale, "hostedAiUnavailable");
-      const transcript = new AgentTurnTranscript(() => undefined, payload.appBaseUrl);
+      const transcript = new AgentTurnTranscript(() => undefined, payload.appBaseUrl, payload.workspaceSlug);
       transcript.appendText(message);
       await publishAssistantText(message);
       await finalizeTurn(payload, {
@@ -1049,9 +1050,13 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const writable = getWritable();
 
     const queued: AgentTranscriptEvent[] = [];
-    const transcript = new AgentTurnTranscript((event) => {
-      if ((AGENT_TRANSCRIPT_FORWARDED_EVENTS as readonly string[]).includes(event.type)) queued.push(event);
-    }, payload.appBaseUrl);
+    const transcript = new AgentTurnTranscript(
+      (event) => {
+        if ((AGENT_TRANSCRIPT_FORWARDED_EVENTS as readonly string[]).includes(event.type)) queued.push(event);
+      },
+      payload.appBaseUrl,
+      payload.workspaceSlug,
+    );
 
     const initialToolsets = payload.toolsets ?? [];
     let loadedToolsets: readonly string[] = initialToolsets;

@@ -6,8 +6,9 @@ import { EmailText } from "@/components/emails/base/email-text";
 import { PREVIEW_EMAIL_LAYOUT_PROPS } from "@/components/emails/preview-layout-props";
 import { env } from "@/env";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
+import { absoluteWorkspaceUrl } from "@/core/navigation/workspace-paths";
 
-const CONNECTED_ACCOUNTS_HREF = `${env.BASE_URL}${settingsHref("channels")}`;
+const PREVIEW_CONNECTED_ACCOUNTS_HREF = absoluteWorkspaceUrl(env.BASE_URL, null, "acme", settingsHref("channels"));
 
 type Props = EmailLayoutSharedProps & {
   greeting: string;
@@ -16,7 +17,7 @@ type Props = EmailLayoutSharedProps & {
   signoff: string;
   subject: string;
   title: string;
-  href?: string;
+  href: string;
 };
 
 export default function AccountsRemovedNotice({
@@ -36,7 +37,7 @@ export default function AccountsRemovedNotice({
       <EmailText>{body}</EmailText>
 
       <EmailSection>
-        <EmailButton href={href ?? CONNECTED_ACCOUNTS_HREF}>{cta}</EmailButton>
+        <EmailButton href={href}>{cta}</EmailButton>
       </EmailSection>
 
       <EmailText className="whitespace-pre-line">{signoff}</EmailText>
@@ -57,5 +58,5 @@ AccountsRemovedNotice.PreviewProps = {
   signoff: t.signoff,
   subject: t.subject,
   title: t.title,
-  href: CONNECTED_ACCOUNTS_HREF,
+  href: PREVIEW_CONNECTED_ACCOUNTS_HREF,
 } satisfies Props;

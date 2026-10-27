@@ -6,6 +6,7 @@ import { MOCK_ENV_MODULE } from "@/tests/helpers/interactor-test-setup";
 vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env } }));
 
 const { DeleteAccountsForPlanInteractor } = await import("../delete-accounts-for-plan.interactor");
+const { WorkspaceSlugResolver } = await import("@/features/workspace/workspace-slug-resolver");
 
 function account(overrides: Partial<Record<string, unknown>> = {}) {
   return {
@@ -41,6 +42,10 @@ function makeEmailService() {
   return { send: vi.fn().mockResolvedValue(undefined) };
 }
 
+function makeSlugResolver() {
+  return new WorkspaceSlugResolver({ findWorkspaceSlugUnscoped: vi.fn().mockResolvedValue("acme") });
+}
+
 beforeEach(() => vi.clearAllMocks());
 
 describe("DeleteAccountsForPlanInteractor", () => {
@@ -54,6 +59,7 @@ describe("DeleteAccountsForPlanInteractor", () => {
       userRepo as never,
       deleteService as never,
       emailService as never,
+      makeSlugResolver(),
     );
 
     await service.invoke({ companyId: "company-1", plan: "enterprise" });
@@ -77,6 +83,7 @@ describe("DeleteAccountsForPlanInteractor", () => {
       userRepo as never,
       deleteService as never,
       emailService as never,
+      makeSlugResolver(),
     );
 
     await service.invoke({ companyId: "company-1", plan: "pro" });
@@ -99,6 +106,7 @@ describe("DeleteAccountsForPlanInteractor", () => {
       userRepo as never,
       deleteService as never,
       emailService as never,
+      makeSlugResolver(),
     );
 
     await service.invoke({ companyId: "company-1", plan: "pro" });
@@ -132,6 +140,7 @@ describe("DeleteAccountsForPlanInteractor", () => {
       userRepo as never,
       deleteService as never,
       emailService as never,
+      makeSlugResolver(),
     );
 
     await service.invoke({ companyId: "company-1", plan: "starter" });
@@ -146,5 +155,6 @@ describe("DeleteAccountsForPlanInteractor", () => {
     expect(germanHtml).toContain("E-Mail (Inbox)");
     expect(germanHtml).toContain("Dein Plan wurde auf Starter umgestellt");
     expect(germanHtml).not.toContain("mail (Inbox)");
+    expect(englishHtml).toContain(`${MOCK_ENV_MODULE.env.BASE_URL}/w/acme/settings/channels`);
   });
 });

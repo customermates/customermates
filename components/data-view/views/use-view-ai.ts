@@ -12,6 +12,7 @@ import { isAiManageableDataViewSurface } from "@/core/data-view/ai-manageable-su
 import { SURFACE } from "@/core/data-view/data-view-keys";
 import { SurfaceKeySchema } from "@/core/data-view/data-view-identity.schema";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { stripWorkspacePrefix } from "@/core/navigation/workspace-paths";
 
 import { viewAiTypeLabel } from "./view-ai-type-label";
 
@@ -27,7 +28,7 @@ type Options = {
 function viewRoute(pathname: string, surfaceKey: string, viewKey: string, action?: "create" | "update") {
   const query = new URLSearchParams({ view: viewKey, viewSurface: surfaceKey });
   if (action) query.set("viewAction", action);
-  return `${pathname}?${query}`;
+  return `${stripWorkspacePrefix(pathname)}?${query}`;
 }
 
 export function useViewAi<E extends HasId>(

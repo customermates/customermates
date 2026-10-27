@@ -3,6 +3,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { addFromConfigure, openConfigure, openDrawerTab, saveDrawer } from "./configure";
 import { test, expect } from "./fixtures";
+import { companyPath } from "./app-paths";
 
 
 test("creates a multiple choice field and edits, filters, bulk edits and groups its values", async ({
@@ -36,7 +37,7 @@ test("creates a multiple choice field and edits, filters, bulk edits and groups 
   if (!field) throw new Error("The multiple choice field was not created");
   const optionId = (name: string) => field.options.find((option) => option.label === name)?.id ?? "";
 
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   const recordDrawer = page.getByRole("dialog", { name: "Organization", exact: true });
   const create = async (name: string, options: string[]) => {
     await page.locator("#records-add").click();

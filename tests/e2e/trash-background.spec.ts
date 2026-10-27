@@ -4,13 +4,14 @@ import { randomUUID } from "node:crypto";
 
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { presetId } from "../../features/records/crm-preset";
+import { pagePath } from "./app-paths";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { recordItem, runNamedRowAction } from "./record-rows";
 
 const SERVICE = "Shared live catalogue price";
 
 async function deleteService(page: Page, typeId: string) {
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(pagePath(page, `/records/${typeId}`));
   await runNamedRowAction(
     page,
     recordItem(page, SERVICE),
@@ -31,7 +32,7 @@ test("moves a high fan-out delete to Trash in the background with one toast that
   test.setTimeout(600000);
   const errors = collectPageErrors(page);
   const id = (key: string) => presetId(companyId, key);
-  await page.goto(`/en/records/${id("service")}`);
+  await page.goto(pagePath(page, `/records/${id("service")}`));
   await page.locator("#records-add").click();
   const editor = page.getByRole("dialog");
   await editor.getByRole("textbox", { name: "Name", exact: false }).fill("Shared live catalogue price");
@@ -117,7 +118,7 @@ test("moves a high fan-out delete to Trash in the background with one toast that
 
   await expect(undoToast.getByRole("button", { name: englishMessages.Trash.undo, exact: true })).toBeVisible();
 
-  await page.goto(`/en/records/${id("service")}/${service}`);
+  await page.goto(pagePath(page, `/records/${id("service")}/${service}`));
   const banner = page.locator("[data-record-trash-banner]");
   await expect(banner).toContainText(englishMessages.Trash.inTrash);
   await page.getByRole("button", { name: englishMessages.Trash.restore, exact: true }).click();

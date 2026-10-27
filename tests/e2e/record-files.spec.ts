@@ -16,6 +16,7 @@ import {
   openConfigure,
   saveDrawer,
 } from "./configure";
+import { companyPath } from "./app-paths";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { openRecordDetails, recordItem } from "./record-rows";
 
@@ -111,7 +112,7 @@ test("uploads, shows, downloads and removes record files and refuses uploads ove
     label,
   );
 
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   await openRecordDetails(page, "Example organization");
   const drawer = page.getByRole("dialog", {
     name: "Organization",
@@ -193,7 +194,7 @@ test("uploads, shows, downloads and removes record files and refuses uploads ove
   );
   await expect(
     imagePreview.getByRole("link", { name: "Open in new tab", exact: true }),
-  ).toHaveAttribute("href", /^\/api\/v1\/files\/[^/]+\/content$/u);
+  ).toHaveAttribute("href", /^\/api\/w\/[^/]+\/v1\/files\/[^/]+\/content$/u);
   await expect
     .poll(() =>
       image.evaluate((element: HTMLImageElement) => element.naturalWidth),
@@ -247,7 +248,7 @@ test("uploads, shows, downloads and removes record files and refuses uploads ove
   if (await page.evaluate(() => navigator.pdfViewerEnabled !== false)) {
     const frame = pdfPreview.locator('iframe[title="Preview offer.pdf"]');
     await expect(frame).toBeVisible();
-    await expect(frame).toHaveAttribute("src", /^\/api\/v1\/files\/[^/]+\/content$/u);
+    await expect(frame).toHaveAttribute("src", /^\/api\/w\/[^/]+\/v1\/files\/[^/]+\/content$/u);
     await expect(pdfPreview.getByText("PDF preview is unavailable in this browser")).toHaveCount(0);
   } else {
     await expect(pdfPreview.getByRole("status")).toContainText(
@@ -292,7 +293,7 @@ test("uploads, shows, downloads and removes record files and refuses uploads ove
     ).toBeVisible();
     await expect(
       row.getByRole("link", { name: /^Open offer\.pdf \(/ }),
-    ).toHaveAttribute("href", `/api/v1/files/${offer.id}/content`);
+    ).toHaveAttribute("href", new RegExp(`/v1/files/${offer.id}/content$`, "u"));
     await row.getByRole("link", { name: /^Open notes\.txt \(/ }).click();
     const notesPreview = page.getByRole("dialog", {
       name: "notes.txt",
@@ -371,7 +372,7 @@ test("uploads, shows, downloads and removes record files and refuses uploads ove
   ).toEqual([0, 4]);
   await page.keyboard.type("plan final");
   const renamed = page.waitForResponse(
-    (response) => response.request().method() === "PATCH" && response.url().includes("/api/v1/files/"),
+    (response) => response.request().method() === "PATCH" && response.url().includes("/v1/files/"),
   );
   await page.keyboard.press("Enter");
   await expect(named("plan final.md")).toBeVisible();
@@ -440,13 +441,13 @@ test("uploads, shows, downloads and removes record files and refuses uploads ove
     diagnostics.expect({
       kind: "console",
       text: /^Failed to load resource: the server responded with a status of 409/,
-      source: (url) => url.pathname === "/api/v1/files/uploads",
+      source: (url) => /^\/api(?:\/w\/[^/]+)?\/v1\/files\/uploads$/u.test(url.pathname),
       page,
     });
     await openRecordDetails(page, "Example organization");
     const quotaRefusal = page.waitForResponse(
       (response) =>
-        new URL(response.url()).pathname === "/api/v1/files/uploads" &&
+        /^\/api(?:\/w\/[^/]+)?\/v1\/files\/uploads$/u.test(new URL(response.url()).pathname) &&
         response.status() === 409,
     );
     await editor.locator('input[type="file"]').setInputFiles([
@@ -548,7 +549,7 @@ test("previews Excel, CSV, Word and text files in the record drawer with bounded
       buffer: Buffer.from("Not a valid Office archive"),
     },
   ];
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   await openRecordDetails(page, "Example organization");
   const drawer = page.getByRole("dialog", {
     name: "Organization",

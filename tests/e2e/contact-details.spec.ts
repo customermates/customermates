@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 
 import { presetId } from "../../features/records/crm-preset";
+import { appPath, companyPath, workspaceSlugOf } from "./app-paths";
 import { copyGenericWorkspace } from "../helpers/copy-generic-workspace";
 import { applyConfigurableRecordsMigration, createLegacyMigrationDatabase } from "../helpers/legacy-migration-database";
 import { legacyRecordFixture } from "../helpers/legacy-record-fixture";
@@ -43,7 +44,7 @@ test("keeps an email address, a phone number and a social profile in contact det
       'INSERT INTO "ConnectedAccount" (id,"companyId","userId","unipileAccountId",provider,status,"hasMessaging","updatedAt") VALUES ($1,$2,$3,$4,\'linkedin\',\'ok\',true,NOW())',
       [randomUUID(), companyId, workspace.userId, randomUUID()],
     );
-    const lookupIds = serverActionIds("app/[locale]/(protected)/inbox/actions.ts", "resolveProviderProfileAction");
+    const lookupIds = serverActionIds("app/[locale]/(protected)/w/[workspace]/inbox/actions.ts", "resolveProviderProfileAction");
     await page.route("**/*", async (route) => {
       if (!invokesServerAction(route.request(), lookupIds)) return route.fallback();
       unavailableLookups += 1;
@@ -58,7 +59,7 @@ test("keeps an email address, a phone number and a social profile in contact det
     });
   }
   const contact = presetId(companyId, "contact");
-  await page.goto(`/en/records/${contact}`);
+  await page.goto(companyPath(companyId, `/records/${contact}`));
   await page.locator("#records-add").click();
   const drawer = page.getByRole("dialog", { name: "Contact", exact: true });
   await drawer.getByRole("textbox", { name: "First name", exact: false }).fill("Ada");
@@ -149,7 +150,7 @@ test.describe("on a phone", () => {
       );
     }
 
-    await page.goto(`/en/records/${presetId(companyId, "contact")}`);
+    await page.goto(companyPath(companyId, `/records/${presetId(companyId, "contact")}`));
     await page.locator("#records-add").click();
     const drawer = page.getByRole("dialog", { name: "Contact", exact: true });
     const add = drawer.getByRole("combobox", { name: "Add phone, email or profile", exact: true });
@@ -178,6 +179,7 @@ const upgraded = test.extend({
       companyId: legacy.companyId,
       userId: legacy.userId,
       authUserId: randomUUID(),
+      slug: "",
     };
     try {
       const phone = await legacy.insert("CustomColumn", {
@@ -220,6 +222,7 @@ const upgraded = test.extend({
       );
       await applyConfigurableRecordsMigration(upgrade.client);
       await copyGenericWorkspace(upgrade.client, database, legacy.companyId);
+      workspace.slug = await workspaceSlugOf(database, legacy.companyId);
       await use(workspace);
     } finally {
       try {
@@ -280,7 +283,7 @@ upgraded("shows the values of former phone and email fields in contact details",
   expect(labels).toContain("Contact details");
   expect(labels).not.toContain("Phone");
   expect(labels).not.toContain("Email");
-  await page.goto(`/en/records/${contact}`);
+  await page.goto(appPath(workspace.slug, `/records/${contact}`));
   await expect(page.locator("header")).toContainText("Contacts");
   await openRecordDetails(page, "Synthetic Person");
   const drawer = page.getByRole("dialog", { name: "Contact", exact: true });

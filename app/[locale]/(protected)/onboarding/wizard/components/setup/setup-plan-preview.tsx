@@ -2,22 +2,11 @@
 
 import type { WorkspaceSetupFailure } from "@/ee/workspace-setup/workspace-setup.schema";
 
-import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import type { PlanStep, PlanStepState } from "./setup-plan-progress";
+import type { PlanStep } from "./setup-plan-progress";
+import type { SetupTimelineRow } from "./setup-timeline";
 
-import {
-  BookOpen,
-  Check,
-  Circle,
-  Kanban,
-  LayoutDashboard,
-  List,
-  Loader2,
-  Mail,
-  RotateCcw,
-  Sparkles,
-} from "lucide-react";
+import { BookOpen, Kanban, LayoutDashboard, List, Loader2, Mail, RotateCcw, Sparkles } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -25,15 +14,14 @@ import { useTranslations } from "next-intl";
 import { useBottomBarClearance } from "@/components/forms/unsaved-changes-bar";
 import { Alert } from "@/components/shared/alert";
 import { IconContainer } from "@/components/shared/icon-container";
-import { WizardProgress } from "@/components/shared/wizard-progress";
 import { Button } from "@/components/ui/button";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { cn } from "@/core/utils/cn";
-import { supportMailHref } from "@/app/[locale]/(protected)/settings/(workspace)/components/subscription/support-mail-href";
+import { setupWidgetSketch } from "@/features/workspace-setup/setup-plan.schema";
+import { supportMailHref } from "@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/subscription/support-mail-href";
 
 import { planProgress } from "./setup-plan-progress";
-import { planBoards, planLists } from "./setup-plan-summary";
+import { planBoards, planCalendarSources, planLists } from "./setup-plan-summary";
 import {
   DashboardSketch,
   KnowledgePageList,
@@ -41,6 +29,7 @@ import {
   PreviewListChip,
   PreviewPanel,
 } from "./setup-preview-parts";
+import { SetupTimeline } from "./setup-timeline";
 
 export function useSetupFailureMessage() {
   const t = useTranslations();
@@ -102,8 +91,6 @@ export function SetupActionBar({ hint, children }: { hint: string; children: Rea
   );
 }
 
-const PLAN_STEP_ICONS: Record<PlanStepState, LucideIcon> = { done: Check, active: Loader2, waiting: Circle };
-
 function usePlanClock() {
   const [seenAt] = useState(() => Date.now());
   const [now, setNow] = useState(seenAt);
@@ -121,17 +108,32 @@ export const SetupPlanPending = observer(function SetupPlanPending() {
   const setup = store.setup;
   if (!setup) return null;
   const progress = planProgress(setup, now, seenAt);
-  const labels: Record<PlanStep, string> = {
-    answers: t("WorkspaceSetup.plan.progress.steps.answers"),
-    model: t("WorkspaceSetup.plan.progress.steps.model"),
-    knowledge: t("WorkspaceSetup.plan.progress.steps.knowledge"),
-    views: t("WorkspaceSetup.plan.progress.steps.views"),
+  const labels: Record<PlanStep, { running: string; done: string }> = {
+    answers: {
+      running: t("WorkspaceSetup.plan.progress.steps.answers"),
+      done: t("WorkspaceSetup.plan.progress.done.answers"),
+    },
+    model: {
+      running: t("WorkspaceSetup.plan.progress.steps.model"),
+      done: t("WorkspaceSetup.plan.progress.done.model"),
+    },
+    knowledge: {
+      running: t("WorkspaceSetup.plan.progress.steps.knowledge"),
+      done: t("WorkspaceSetup.plan.progress.done.knowledge"),
+    },
+    views: {
+      running: t("WorkspaceSetup.plan.progress.steps.views"),
+      done: t("WorkspaceSetup.plan.progress.done.views"),
+    },
   };
-  const states: Record<PlanStepState, string> = {
-    done: t("WorkspaceSetup.build.states.done"),
-    active: t("WorkspaceSetup.build.states.active"),
-    waiting: t("WorkspaceSetup.build.states.waiting"),
-  };
+  const rows: SetupTimelineRow[] = progress.steps
+    .filter((step) => step.state !== "waiting")
+    .map((step) =>
+      step.state === "active"
+        ? { key: step.key, status: "running", label: labels[step.key].running }
+        : { key: step.key, status: "done", label: labels[step.key].done },
+    );
+  const active = progress.steps.findLast((step) => step.state === "active");
   const remaining = progress.overdue
     ? t("WorkspaceSetup.plan.progress.overdue")
     : progress.remainingMs > 60_000
@@ -150,66 +152,15 @@ export const SetupPlanPending = observer(function SetupPlanPending() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <WizardProgress
-          current={progress.percent}
-          label={t("WorkspaceSetup.plan.progress.label")}
-          total={100}
-          valueText={remaining}
+      <div className="flex flex-col gap-1">
+        <SetupTimeline
+          rows={rows}
+          status="running"
+          summary={active ? labels[active.key].running : t("WorkspaceSetup.plan.planningTitle")}
         />
 
-        <div className="flex justify-between gap-3 text-xs text-muted-foreground">
-          <span aria-live="polite" role="status">
-            {remaining}
-          </span>
-
-          <span aria-hidden className="tabular-nums">
-            {progress.percent} %
-          </span>
-        </div>
+        <p className="pl-5.5 text-xs text-muted-foreground">{remaining}</p>
       </div>
-
-      <ol aria-label={t("WorkspaceSetup.plan.progress.stepsLabel")} className="flex flex-col gap-3">
-        {progress.steps.map((step) => {
-          const Icon = PLAN_STEP_ICONS[step.state];
-          return (
-            <li
-              key={step.key}
-              aria-current={step.state === "active" ? "step" : undefined}
-              className="flex items-center gap-3"
-            >
-              <span
-                aria-hidden
-                className={cn(
-                  "flex size-6 shrink-0 items-center justify-center rounded-full",
-                  step.state === "done" && "bg-primary text-primary-foreground",
-                  step.state === "active" && "bg-primary/10 text-primary",
-                  step.state === "waiting" && "border border-border text-muted-foreground",
-                )}
-              >
-                <Icon
-                  className={cn(
-                    "size-3.5",
-                    step.state === "active" && "animate-spin motion-reduce:animate-none",
-                    step.state === "waiting" && "size-2",
-                  )}
-                />
-              </span>
-
-              <span
-                className={cn(
-                  "min-w-0 flex-1 text-sm",
-                  step.state === "waiting" ? "text-muted-foreground" : "text-foreground",
-                )}
-              >
-                {labels[step.key]}
-              </span>
-
-              <span className="sr-only">{states[step.state]}</span>
-            </li>
-          );
-        })}
-      </ol>
     </section>
   );
 });
@@ -272,6 +223,7 @@ export const SetupPlanPreview = observer(function SetupPlanPreview() {
   const boards = planBoards(plan);
   const listName = (key: string) => lists.find((candidate) => candidate.key === key)?.label ?? key;
   const withFields = lists.filter((list) => list.fields.length > 0);
+  const calendarSources = planCalendarSources(plan, lists);
   const sampleTotal = lists.reduce((total, list) => total + list.sampleCount, 0);
   const spreadsheet = store.setup?.spreadsheet;
 
@@ -323,13 +275,19 @@ export const SetupPlanPreview = observer(function SetupPlanPreview() {
               tiles={plan.dashboard.widgets.map((widget) => ({
                 key: widget.key,
                 title: widget.title,
-                display: widget.display,
-                size: widget.size,
+                display: setupWidgetSketch(widget),
+                size: "size" in widget ? widget.size : null,
               }))}
             />
           ) : (
             <p className="text-xs text-muted-foreground">{t("WorkspaceSetup.plan.noDashboard")}</p>
           )}
+
+          {calendarSources.length ? (
+            <p className="text-xs text-muted-foreground">
+              {t("WorkspaceSetup.plan.calendarSources", { sources: calendarSources.join(" · ") })}
+            </p>
+          ) : null}
         </PreviewPanel>
 
         <PreviewPanel icon={BookOpen} title={t("WorkspaceSetup.plan.knowledgeBase")}>

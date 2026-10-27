@@ -142,7 +142,7 @@ describe("exception membership compares the head against the review base", () =>
 
   it("accepts a member whose path moved in a git rename, but not a changed site at the moved path", () => {
     const from = "app/[locale]/(protected)/profile/components/profile-settings-form.tsx";
-    const to = "app/[locale]/(protected)/settings/(account)/components/profile-settings-form.tsx";
+    const to = "app/[locale]/(protected)/w/[workspace]/settings/(account)/components/profile-settings-form.tsx";
     expect(membershipAdditions([`${to} :: site`], [`${from} :: site`])).toEqual([]);
     expect(membershipAdditions([`${to} :: other site`], [`${from} :: site`])).toEqual([`${to} :: other site`]);
   });

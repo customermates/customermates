@@ -9,6 +9,7 @@ export type WorkspaceMembershipRow = {
   role: { name: string; isSystemRole: boolean } | null;
   company: {
     name: string | null;
+    slug: string;
     createdAt: Date;
     subscription: { status: SubscriptionStatus; plan: SubscriptionPlan; trialEndDate: Date | null } | null;
     _count: { users: number };

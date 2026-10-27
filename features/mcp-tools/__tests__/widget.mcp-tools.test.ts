@@ -532,7 +532,7 @@ describe("manage_widgets read and delete", () => {
           kind: WidgetKind.chart,
           version: 1,
           viewId: null,
-          layout: { x: 0, y: 0, w: 4, h: 8 },
+          layout: { x: 0, y: 0, w: 4, h: 6 },
         },
         {
           id: RECORD_ID,
@@ -540,7 +540,7 @@ describe("manage_widgets read and delete", () => {
           kind: WidgetKind.activityTimeline,
           version: 1,
           viewId: null,
-          layout: { x: 4, y: 0, w: 6, h: 8 },
+          layout: { x: 4, y: 0, w: 6, h: 6 },
         },
       ],
       total: 2,

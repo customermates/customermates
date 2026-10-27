@@ -3,6 +3,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { expect, test, collectPageErrors } from "./fixtures";
 import { linkedRecordNames, linkedRecordOpeners, recordRowName, recordRows, runNamedRowAction } from "./record-rows";
+import { pagePath } from "./app-paths";
 
 test("returns to a valid relationship, path and embedded page after deleting its last row", async ({
   page,
@@ -90,7 +91,7 @@ test("returns to a valid relationship, path and embedded page after deleting its
       ],
     );
   }
-  await page.goto(`/en/records/${deal.typeId}/${deal.recordId}`);
+  await page.goto(pagePath(page, `/records/${deal.typeId}/${deal.recordId}`));
   const main = page.getByRole("main");
   const direct = main.locator(`[data-entity-field="relationship:${id("deal.organizations")}:outgoing"]`);
   const projected = main.locator(`[data-entity-field="path:${pathId}"]`);

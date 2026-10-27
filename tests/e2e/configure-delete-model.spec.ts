@@ -17,6 +17,7 @@ import {
   saveDrawer,
   selectConfigureList,
 } from "./configure";
+import { companyPath } from "./app-paths";
 import { expect, test } from "./fixtures";
 import { readModel } from "./api";
 import { presetId } from "../../features/records/crm-preset";
@@ -202,7 +203,7 @@ test("deletes the starter Tasks list like any other list and restores it with it
 }) => {
   test.setTimeout(240000);
   const typeId = presetId(companyId, "task");
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   await addRecord(page, "Name", "Call the customer back");
   await expect(page.getByText("Call the customer back", { exact: true }).first()).toBeVisible();
 
@@ -215,6 +216,6 @@ test("deletes the starter Tasks list like any other list and restores it with it
 
   await restoreFromTrash(page, "Tasks");
   expect((await readModel(database, companyId)).types.find((type) => type.id === typeId)?.archived).toBe(false);
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   await expect(page.getByText("Call the customer back", { exact: true }).first()).toBeVisible();
 });

@@ -8,6 +8,7 @@ import { openRecordDetails, recordItem } from "./record-rows";
 import { presetId } from "../../features/records/crm-preset";
 import { restoreFromTrash } from "./trash";
 import { clickHydrated } from "./workspace-switching";
+import { pagePath } from "./app-paths";
 
 async function fixture(page: Page, database: Client, companyId: string) {
   const typeId = presetId(companyId, "organization");
@@ -52,7 +53,7 @@ test("opens the record from its name and renames it in place, on cards and in th
   const errors = collectPageErrors(page);
   const { typeId, nameId, stageId, recordId } = await fixture(page, database, companyId);
   const persisted = async () => (await database.query('SELECT "textValue" FROM "RecordValue" WHERE "companyId"=$1 AND "fieldId"=$2 AND "recordId"=$3', [companyId, nameId, recordId])).rows[0].textValue;
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(pagePath(page, `/records/${typeId}`));
   const item = page.locator(`[data-row-id="${recordId}"], [data-item-id="${recordId}"]`).first();
   const title = (name: string) => page.getByRole("dialog").getByRole("heading", { name, exact: true });
   if (isMobile) {
@@ -86,7 +87,7 @@ test("opens the record from its name and renames it in place, on cards and in th
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(item).toContainText("Title name");
   if (!isMobile) {
-    await page.goto(`/en/records/${typeId}?viewMode=card&groupBy=${stageId}`);
+    await page.goto(pagePath(page, `/records/${typeId}?viewMode=card&groupBy=${stageId}`));
     const card = page.locator(`[data-item-id="${recordId}"]`);
     await rename(page, card);
     const cardInput = card.locator("[data-in-place-editor] input");
@@ -119,7 +120,7 @@ test("changes the display-name mapping and link color in General and carries the
   await openConfigureRow(page, "Fields", "Alias");
   await expect(configureDrawer(page)).toContainText("Used as the record name for Organizations.");
   await page.keyboard.press("Escape");
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(pagePath(page, `/records/${typeId}`));
   if (isMobile) {
     const phone = page.locator(`[data-phone-rows] [data-row-id="${recordId}"]`);
     await expect(phone.getByText("Display alias", { exact: true })).toBeVisible();
@@ -140,7 +141,7 @@ test("changes the display-name mapping and link color in General and carries the
     expectedRevision: model.revision, idempotencyKey: randomUUID(),
     mutation: { action: "create", typeId: dealId, fields: [{ fieldId: presetId(companyId, "deal.name"), value: { kind: "text", value: "Linked deal" } }], links: [{ relationId: presetId(companyId, "deal.organizations"), direction: "outgoing", record: { typeId, recordId } }] },
   });
-  await page.goto(`/en/records/${dealId}`);
+  await page.goto(pagePath(page, `/records/${dealId}`));
   await openRecordDetails(page, "Linked deal");
   await expect(page.getByRole("dialog").getByText("Display alias", { exact: true }).first()).toBeVisible();
   await page.keyboard.press("Escape");
@@ -158,7 +159,7 @@ test("changes the display-name mapping and link color in General and carries the
   await restoreFromTrash(page, "Alias");
   model = await readModel(database, companyId);
   expect(model.types.find((type) => type.id === typeId)?.primaryFieldId).toBe(aliasId);
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(pagePath(page, `/records/${typeId}`));
   await expect(recordItem(page, "Display alias")).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("display-name-restored.png"), animations: "disabled" });
   expect(errors).toEqual([]);
@@ -168,7 +169,7 @@ test("allows hiding and keyboard reordering the name column and persists both th
   test.skip(isMobile, "Column visibility and ordering are verified on the desktop table");
   test.setTimeout(180000);
   const { typeId, nameId } = await fixture(page, database, companyId);
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(pagePath(page, `/records/${typeId}`));
   await page.locator("#records-display-options").click();
   const checkbox = page.getByRole("checkbox", { name: "Name", exact: true });
   const drag = page.getByRole("button", { name: "Drag to reorder: Name", exact: true });
@@ -212,10 +213,10 @@ test("shows the record name first and as the card and phone heading in saved lay
   const notesId = presetId(companyId, "organization.notes");
   await database.query('INSERT INTO "P13n" (id,"companyId","userId","p13nId","columnOrder","hiddenColumns","updatedAt") VALUES ($1,$2,$3,$4,$5,$6,NOW())', [randomUUID(), companyId, workspace.userId, `records:${typeId}`, [aliasId, notesId], []]);
   await page.setViewportSize({ width: 1280, height: 900 });
-  await page.goto(`/en/records/${typeId}?viewMode=table`);
+  await page.goto(pagePath(page, `/records/${typeId}?viewMode=table`));
   const headers = await page.getByRole("columnheader").allTextContents();
   expect(headers.findIndex((label) => label.includes("Name"))).toBeLessThan(headers.findIndex((label) => label.includes("Alias")));
-  await page.goto(`/en/records/${typeId}?viewMode=card&groupBy=${stageId}`);
+  await page.goto(pagePath(page, `/records/${typeId}?viewMode=card&groupBy=${stageId}`));
   const card = page.locator(`[data-item-id="${recordId}"]`);
   await expect(card.getByRole("button", { name: "Edit Name", exact: true })).toHaveCount(1);
   await expect(card.locator(`[data-chip-column="${nameId}"]`)).toHaveCount(0);
@@ -229,7 +230,7 @@ test("shows the record name first and as the card and phone heading in saved lay
   await page.reload();
   await expect(card.getByRole("button", { name: "Edit Name", exact: true })).toHaveCount(0);
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto(`/en/records/${typeId}?viewMode=table`);
+  await page.goto(pagePath(page, `/records/${typeId}?viewMode=table`));
   const phone = page.locator(`[data-phone-rows] [data-row-id="${recordId}"]`);
   await expect(phone).toBeVisible();
   await expect(phone.getByRole("button", { name: "Edit Name", exact: true })).toHaveCount(0);

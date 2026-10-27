@@ -334,7 +334,7 @@ function nonStandardChipFindings(sources: SourceFile[]) {
 }
 
 const NON_STANDARD_CHIP_ALLOWLIST: Allowlist = {
-  "app/[locale]/(protected)/inbox/components/thread-settings.tsx":
+  "app/[locale]/(protected)/w/[workspace]/inbox/components/thread-settings.tsx":
     "the thread settings control is a toolbar button styled as a chip; its owner decides between chip and Button",
 };
 
@@ -358,14 +358,14 @@ describe("F14a: chips use the standard size and set a variant only for a color",
   });
 });
 
-const INLINE_FIELD_SURFACE = "app/[locale]/(protected)/records/[typeId]/components/record-inline-field.tsx";
+const INLINE_FIELD_SURFACE = "app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-inline-field.tsx";
 const VALUE_SURFACES = [
   "components/data-view/",
   "components/chip/",
-  "app/[locale]/(protected)/records/[typeId]/components/record-cell.tsx",
+  "app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-cell.tsx",
   "components/records/record-value.tsx",
   INLINE_FIELD_SURFACE,
-  "app/[locale]/(protected)/records/[typeId]/components/records-page-view.tsx",
+  "app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/records-page-view.tsx",
 ];
 const HINT_ICONS = new Set(["Pencil", "PencilLine", "SquarePen", "Lock", "LockKeyhole"]);
 const HINT_SLOT = /["'`][^"'`]*\bsize-6\b[^"'`]*\bopacity-0\b[^"'`]*["'`]/;

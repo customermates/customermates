@@ -50,7 +50,7 @@ const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository"
 const { PrismaBillingUsageRepo } = await import("@/features/billing-usage/prisma-billing-usage.repository");
 const { PrismaCompanyRepo } = await import("@/features/company/prisma-company.repository");
 const { RegisterUserInteractor } = await import("@/features/user/register/register-user.interactor");
-const { agencyPlan } = await import("@/features/workspace-setup/__tests__/setup-plan-fixtures");
+const { agencyDashboardPlan, agencyPlan } = await import("@/features/workspace-setup/__tests__/setup-plan-fixtures");
 const { planPartFor } = await import("./setup-wire-fixtures");
 const { WORKSPACE_SETUP_BUDGETS } = await import("../workspace-setup-spend");
 const { SETUP_BUILD_PHASE_ATTEMPTS } = await import("../workspace-setup-attempts");
@@ -111,6 +111,8 @@ function sampleValue(column: PromptColumn, index: number): string | null {
       return null;
     case "url":
       return `https://example.test/${index + 1}`;
+    case "address":
+      return `Hauptstraße ${index + 1}, 10115 Berlin`;
     default:
       return `Sample ${index + 1}`;
   }
@@ -336,7 +338,7 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
       ["dashboard", "completed", 1],
     ]);
     expect(view.results.pages.map((page) => page.title)).toEqual(["About the agency", "Operating Guide"]);
-    expect(view.knowledgeBase).toMatchObject({ crawlStatus: null, pagesPlanned: 7, pagesWritten: 2 });
+    expect(view.knowledgeBase).toMatchObject({ crawlStatus: null, pagesPlanned: 4, pagesWritten: 2 });
     const [about, guide] = await runWithoutTenant(() =>
       Promise.all(view.results.pages.map((page) => prisma.wikiPage.findUniqueOrThrow({ where: { id: page.id } }))),
     );
@@ -419,6 +421,26 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
         }),
       ),
     ).toBe(0);
+
+    const planner = await runWithoutTenant(() =>
+      prisma.p13n.findMany({ where: { companyId: ws.companyId, p13nId: "combined-calendar" } }),
+    );
+    expect(planner.map((entry) => entry.userId)).toEqual([ws.owner.id]);
+    expect((planner[0].settings as { sources: unknown[] }).sources).toMatchObject([
+      {
+        typeId: reference("$list.project"),
+        calendar: {
+          dateFieldId: reference("$field.project.startDate"),
+          endDateFieldId: reference("$field.project.dueDate"),
+        },
+        color: "info",
+      },
+      {
+        typeId: reference("$list.deal"),
+        calendar: { dateFieldId: reference("$field.deal.closeDate") },
+        color: "success",
+      },
+    ]);
 
     const service = di.getWorkspaceSetupBuildService();
     await ws.run(() =>
@@ -811,6 +833,76 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(retried[0]?.prompt).toContain("records: expected array");
   });
 
+  it("drafts the sample records of a list again when the model answered without records", async () => {
+    const ws = await workspace();
+    const { setupId, planRevision } = await planned(ws);
+    const replies = state.generate.getMockImplementation();
+    const emptyOnce = new Set<string>();
+    state.generate.mockImplementation((args: { label: string; prompt: string; model: { modelId: string } }) => {
+      const list = args.prompt.split("\n").find((line) => line.startsWith("List: ")) ?? "";
+      if (args.label === "Workspace setup sample records" && !emptyOnce.has(list)) {
+        emptyOnce.add(list);
+        return Promise.resolve({ output: { records: [] }, charge: { ...CHARGE, model: args.model.modelId } });
+      }
+      return replies?.(args) as never;
+    });
+    await ws.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision }));
+    await build(ws, setupId);
+
+    const setup = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
+    expect(setup?.results.records.map((entry) => [entry.kind, entry.count])).toEqual(
+      Array(emptyOnce.size).fill(["sample", 3]),
+    );
+    const retried = state.generate.mock.calls
+      .map(([args]) => args as { label: string; prompt: string })
+      .filter((args) => args.label === "Workspace setup sample records" && args.prompt.includes("no records"));
+    expect(retried).toHaveLength(emptyOnce.size);
+  });
+
+  it("fails the records phase instead of finishing without records when no answer holds any", async () => {
+    const ws = await workspace();
+    const { setupId, planRevision } = await planned(ws);
+    const replies = state.generate.getMockImplementation();
+    state.generate.mockImplementation((args: { label: string; prompt: string; model: { modelId: string } }) =>
+      args.label === "Workspace setup sample records"
+        ? Promise.resolve({ output: { records: [] }, charge: { ...CHARGE, model: args.model.modelId } })
+        : (replies?.(args) as never),
+    );
+    await ws.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision }));
+    await build(ws, setupId);
+
+    const view = await status(ws);
+    expect(view.phases.find((phase) => phase.key === "records")).toMatchObject({
+      status: "failed",
+      error: "generation",
+    });
+    expect(view.status).toBe("failed");
+  });
+
+  it("fails the records phase when the import skips every drafted record", async () => {
+    state.plan = { ...agencyPlan, sampleData: { lists: [{ list: "organization", count: 3, kinds: [] }] } };
+    const ws = await workspace();
+    const { setupId, planRevision } = await planned(ws);
+    const replies = state.generate.getMockImplementation();
+    state.generate.mockImplementation(async (args: { label: string }) => {
+      const reply = await (replies?.(args) as Promise<{ output: { records?: Array<Record<string, string | null>> } }>);
+      if (args.label !== "Workspace setup sample records") return reply;
+      const records = (reply.output.records ?? []).map((row) =>
+        Object.fromEntries(Object.keys(row).map((column) => [column, column === "c1" ? "" : "Industry"])),
+      );
+      return { ...reply, output: { records } };
+    });
+    await ws.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision }));
+    await build(ws, setupId);
+
+    expect((await status(ws)).phases.find((phase) => phase.key === "records")).toMatchObject({
+      status: "failed",
+      error: "generation",
+    });
+    const setup = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
+    expect(setup?.created.sampleRecords).toEqual([]);
+  });
+
   it("waits for the website import and records the pages it wrote", async () => {
     const ws = await workspace();
     const { setupId, planRevision } = await planned(ws);
@@ -903,7 +995,7 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(stored.locale).toBe("en");
   });
 
-  it("plans the website import's pages from the confirmed plan, the chosen pages, tone and competitors", async () => {
+  it("plans the website import's pages from the confirmed plan and the pages a workspace without customers needs", async () => {
     const ws = await workspace();
     const { setupId } = await planned(ws);
     const crawl = await runWithoutTenant(() =>
@@ -936,10 +1028,8 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
       di.getAdjustWorkspaceSetupInteractor().invoke({
         setupId,
         answers: {
-          purpose: { format: "multipleChoice", values: ["clients"], custom: [] },
-          knowledgePages: { format: "multipleChoice", values: ["overview"], custom: [] },
-          addressForm: { format: "singleChoice", value: "informal" },
-          competitors: { format: "orderedList", items: [{ label: "Studio North" }] },
+          workWith: { format: "singleChoice", value: "ownWork" },
+          purpose: { format: "multipleChoice", values: ["projects"], custom: [] },
         },
         followUpAnswers: [],
       }),
@@ -955,13 +1045,13 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     );
     expect(confirmed.ok).toBe(true);
     state.generate.mockImplementationOnce((args: { model: { modelId: string }; prompt: string }) => {
-      expect(args.prompt).toContain('"key":"competitorA"');
+      expect(args.prompt).not.toContain('"key":"competitorA"');
       return Promise.resolve({
         output: { topics: [{ key: "overview", title: "x", role: "company_overview", sources: ["s1"] }] },
         charge: { ...CHARGE, model: args.model.modelId },
       });
     });
-    expect(await ws.run(() => synthesis.plan(crawl.id))).toBe(4);
+    expect(await ws.run(() => synthesis.plan(crawl.id))).toBe(5);
     const stored = await runWithoutTenant(() =>
       prisma.wikiWebsiteCrawl.findUniqueOrThrow({ where: { id: crawl.id }, select: { topics: true } }),
     );
@@ -971,9 +1061,10 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
         setupKey: "overview",
         outline: ["What we do", "How we work"],
       }),
-      expect.objectContaining({ title: "Voice and tone", role: "voice_and_tone", addressForm: "informal" }),
-      expect.objectContaining({ title: "Compared with Studio North", role: "competitor", competitor: "Studio North" }),
-      expect.objectContaining({ title: "Operating Guide", role: "operating_guide", addressForm: "informal" }),
+      expect.objectContaining({ title: "Voice and tone", role: "voice_and_tone" }),
+      expect.objectContaining({ title: "Frequently asked questions", role: "faq" }),
+      expect.objectContaining({ title: "Processes", role: "procedure" }),
+      expect.objectContaining({ title: "Operating Guide", role: "operating_guide" }),
     ]);
   });
 
@@ -1162,7 +1253,6 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
         setupId,
         answers: { companyName: { format: "shortText", value: "Typed by owner" } },
         followUpAnswers: [],
-        confirmedScreen: 0,
       }),
     );
     expect(saved.ok).toBe(true);
@@ -1185,7 +1275,7 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     const setup = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
     expect(setup).toMatchObject({
       websiteUrl: "https://studio-example.com/",
-      interview: { prefill: "idle", confirmedScreens: 1 },
+      interview: { prefill: "idle" },
     });
     expect(setup?.crawlId).toEqual(expect.any(String));
     expect(Object.keys(setup?.answers ?? {})).toEqual(["companyName"]);
@@ -1257,13 +1347,10 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     ).toEqual({ status: "failed", failureReason: "cancelled" });
   });
 
-  it.each([
-    ["sample services", ["service", "deal"], [5_000, 14_000, 9_000]],
-    ["saved prices of the offerings", ["deal"], [5_000, 14_000, 8_500]],
-  ])("gives sample deals a value from their line items and %s", async (_case, lists, values) => {
+  it("gives sample deals a value from their line items of sample services", async () => {
     state.plan = {
       ...agencyPlan,
-      sampleData: { lists: lists.map((list) => ({ list, count: 3, kinds: [] })) },
+      sampleData: { lists: ["service", "deal"].map((list) => ({ list, count: 3, kinds: [] })) },
     };
     const ws = await workspace();
     const { setupId, planRevision } = await planned(ws);
@@ -1271,8 +1358,7 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
       di.getWorkspaceSetupRepo().mutate(setupId, (current) => ({
         answers: {
           ...current.answers,
-          dealSize: { source: "user", confidence: 1, value: { format: "range", min: 5_000, max: 20_000 } },
-          offerings: {
+          mainSteps: {
             source: "user",
             confidence: 1,
             value: { format: "orderedList", items: [{ label: "Relaunch" }] },
@@ -1306,7 +1392,9 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
         return [Number(row?.decimalValue ?? 0), row?.currency ?? null];
       });
     };
-    expect(await valueOf()).toEqual(values.map((value) => [value, "EUR"]));
+    const values = await valueOf();
+    expect(values).toHaveLength(3);
+    expect(values.every(([value, currency]) => Number(value) > 0 && currency === "EUR")).toBe(true);
     const lineItems = () =>
       runWithoutTenant(() =>
         prisma.crmRecord.count({
@@ -1339,6 +1427,29 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     );
     expect(await ws.run(() => service.runPhase(setupId, "records", false, RUN_ID))).toBe("settled");
     expect(await lineItems()).toBe(3);
+  });
+
+  it("writes the planned address of every sample record", async () => {
+    state.plan = {
+      ...agencyDashboardPlan,
+      sampleData: { lists: [{ list: "organization", count: 3, kinds: [] }] },
+    };
+    const ws = await workspace();
+    const { setupId, planRevision } = await planned(ws);
+    await ws.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision }));
+    const service = di.getWorkspaceSetupBuildService();
+    expect(await ws.run(() => service.runPhase(setupId, "dataModel", false, RUN_ID))).toBe("settled");
+    expect(await ws.run(() => service.runPhase(setupId, "records", false, RUN_ID))).toBe("settled");
+    expect((await status(ws)).phases.find((phase) => phase.key === "records")?.status).toBe("completed");
+    const setup = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
+    expect(setup?.results.records).toEqual([expect.objectContaining({ kind: "sample", count: 3, skippedRows: 0 })]);
+    const reference = await references(ws, setupId);
+    const addresses = await runWithoutTenant(() =>
+      prisma.recordValue.count({
+        where: { companyId: ws.companyId, fieldId: reference("$field.organization.address") },
+      }),
+    );
+    expect(addresses).toBe(3);
   });
 
   it("imports every spreadsheet row with its whole name, email and phone channels and the organization it names", async () => {

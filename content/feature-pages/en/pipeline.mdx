@@ -1,6 +1,6 @@
 ---
-title: "Sales Pipeline Software: Kanban Board for Deals"
-description: "Sales pipeline software with a drag-and-drop deal board, stage probabilities and a weighted pipeline. Setup, multiple pipelines, limits and costs."
+title: "Sales Pipeline Software: Deal Board with Stage Values"
+description: "Sales pipeline software for small relationship-led teams: opportunities by stage with probability, value and weighted value, with customer context close by."
 featureName: Sales Pipeline
 
 relatedHrefs:
@@ -10,159 +10,145 @@ relatedHrefs:
   - /blog/sales-pipeline
 
 hero:
-  title: Sales pipeline software that shows every deal by stage, value and probability
-  description: Drag deals across a board of your own stages. Each column shows how many deals sit there, what they are worth and what they are worth weighted by the stage's win probability. Pipeline, board and dashboards are on every plan, from Starter.
+  title: Sales pipeline software for small relationship-led teams
+  description: See every opportunity by stage, with stage probability, value and weighted value, and open the customer behind it in one click. You configure the stages yourself. Weighted value is your value times your probability, not a forecast, and saved views stay personal.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
-  buttonRightText: Watch live demo
-  buttonRightHref: https://demo.customermates.com
+  buttonRightText: Explore the workspace
+  buttonRightHref: https://demo.customermates.com/en/w/sales-pipeline/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
-  action: Put your open deals on a board
-  description: Rename the stages, set their probabilities and import your deals from an Excel workbook. Plans start at [[commercial.price.starter.monthly]] per user per month, billed monthly.
+  action: Put your open opportunities on a board
+  description: Configure your stages and probabilities, import your opportunities from an Excel workbook and check within [[commercial.trial.days]] days whether your team keeps the board current. Plans start at [[commercial.price.starter.monthly]] per user per month, billed monthly.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
-  buttonRightText: Watch live demo
-  buttonRightHref: https://demo.customermates.com
+  buttonRightText: Explore the workspace
+  buttonRightHref: https://demo.customermates.com/en/w/sales-pipeline/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-Sales pipeline software puts your open deals on a board, one column per stage, so you can see what is in play, what it is worth and which deal has gone quiet. In Customermates the deals list turns into that board with one switch. Every column header shows the number of deals, their total value and their weighted value, and you move a deal by dragging its card.
-
-Customermates is an open-source, AI-native CRM for small client-facing teams: consultancies, agencies, other service businesses and founders who sell themselves. Customermates does not predict revenue or flag idle deals on its own. If your high-volume outbound team needs that, the comparison further down names tools built for it.
+Sales pipeline software puts your open opportunities on a board, one column per stage, so you see what is in play, what it is worth and which deal needs the next step. Customermates is CRM software for small sales teams whose deals depend on conversations: consultancies, agencies, service businesses and founders who sell themselves. It is open source, AI-native and made in Germany.
 
 <ArticleSummary title="At a glance">
-  <SummaryItem label="What you get">A deal board grouped by stage, stage win probabilities, total and weighted pipeline values, personal saved views and dashboard charts.</SummaryItem>
-  <SummaryItem label="Plans">Everything on this page except Mate, routines and the unified inbox is on Starter at [[commercial.price.starter.monthly]] per user per month, and on the self-hosted edition.</SummaryItem>
-  <SummaryItem label="AI">In Customermates Cloud, Mate reviews and updates the pipeline using hosted AI credits. Your own AI client does the same through MCP on any plan.</SummaryItem>
-  <SummaryItem label="Not included">No predictive forecasting, no stage-duration reports or conversion over time, no automatic stale-deal highlighting and no mobile app.</SummaryItem>
+  <SummaryItem label="Every plan">Opportunity board grouped by stage, stage probabilities, value and weighted value per column, personal saved views, dashboard widgets, Excel import and export, REST, webhooks and MCP. Self-hosted included.</SummaryItem>
+  <SummaryItem label="Cloud only">Mate, the hosted assistant, and routines within your plan's AI credits. The unified inbox from Pro.</SummaryItem>
+  <SummaryItem label="Not included">No predictive forecasting, no pipeline velocity or stage conversion analytics, no idle-deal highlighting, no shared or team views, no field-level permissions.</SummaryItem>
 </ArticleSummary>
 
-## What the pipeline board does
+## See it in an example workspace
 
-**Stages are a field you own.** The stage of a deal is a single choice field called Stage. A new workspace starts with seven options and win probabilities already set:
+The [sales pipeline workspace](https://demo.customermates.com/en/w/sales-pipeline/dashboard) is an example with sample data, not a customer account. It has five lists: Accounts, Contacts, Opportunities, Products and Tasks. Opportunities move through New, Qualified, Discovery, Proposal sent, Negotiation, Won and Lost, and three sales reps own them.
 
-| Stage | Probability |
-|---|---|
-| Prospecting | 10% |
-| Qualification | 20% |
-| Demo | 40% |
-| Proposal | 60% |
-| Negotiation | 80% |
-| Won | 100% |
-| Lost | 0% |
+The board shows each stage with its probability. Every column header sums the value and the weighted value of its opportunities. An opportunity's value comes from its line items: products from the Products list, quantity times unit price. Open a card and you are on the opportunity with its account, its contacts, its line items, its tasks and the next step recorded on it. Quotes sit on the opportunity as PDF files in a File field.
 
-Rename them, reorder them, add your own or delete the ones you never use. A consultancy might run Enquiry, Discovery call, Proposal sent, Verbal yes, Won and Lost.
+The dashboard shows the expected closes of the month in a **Month overview** widget, a calendar that sums the value per day, so you see which weeks carry the most value, and places the accounts on a map by their address. A calendar view of the opportunities shows the expected close dates by month, and the Calendar page puts the site visits from the task list next to them.
 
-**The board.** Open **Deals**, choose **Appearance** and pick **Board**, grouped by Stage. Drag a card to another column and the stage changes; drop it on **No value** and the stage is cleared. Each card shows the fields you make visible in **Appearance**, for example value, assigned users, organization and an Expected close date.
+Your own workspace does not start with these lists or stages. A new workspace starts without lists. On Customermates Cloud, the AI workspace setup builds lists, stages, a dashboard and Knowledge Base pages from your description. It runs once during onboarding, is capped by setup credits, and you can skip it with **Start with an empty workspace**. Otherwise, people with Configure rights create the opportunities list and its stage field in **Configure**. When self-hosting, that is the only way.
 
-**Column headers do the arithmetic.** Each header shows the deal count and the sums you choose for the grouping, such as **Value** and **Weighted value**. A deal's weighted value is its value times the probability of its stage. Three open deals make the idea concrete:
+## How the board works
 
-| Deal | Stage | Value | Weighted |
+**Stages are a field you own.** A stage is a single choice option, and each option carries a win probability from 0 to 100 percent. Rename, reorder, add or remove stages in **Configure**; a preview shows the effect on calculations and widgets before you save. Renaming a stage keeps it on every record.
+
+**The board.** In **Appearance**, choose **Board** grouped by stage. Drag a card to another column and its stage changes. Cards show the fields you choose, such as value, account, assigned users or a next-step date.
+
+**Column headers do the arithmetic.** Each header shows the count and the sums you pick, such as value and weighted value. Weighted value is the opportunity's value times its stage probability. Three example opportunities:
+
+| Opportunity | Stage (probability) | Value | Weighted |
 |---|---|---|---|
-| Website relaunch | Prospecting | 5,000 | 500 |
-| Brand workshop | Proposal | 8,000 | 4,800 |
-| Annual retainer | Negotiation | 12,000 | 9,600 |
-| **Pipeline** | | **25,000** | **14,900** |
+| Website relaunch | Qualified (20%) | 5,000 | 1,000 |
+| Brand workshop | Proposal sent (60%) | 8,000 | 4,800 |
+| Annual retainer | Negotiation (80%) | 12,000 | 9,600 |
+| **Open pipeline** | | **25,000** | **15,400** |
 
-For the same two totals on the Dashboard, add a chart widget that sums **Value** or **Weighted value**, grouped by stage.
+That total weights your own numbers. It does not predict revenue or close dates. The probabilities above are examples, not defaults.
 
-**Deal value comes from line items.** You do not type a deal's value. It is the sum of the deal's line items, each a service times its quantity, so a deal with two workshop days at 1,500 and ten coaching hours at 150 is worth 4,500.
+**Value.** An opportunity carries a currency value. When you sell from a catalog of services or products, line items can add up to the value instead: quantity times unit price per line.
 
-**The same list as a table.** Switch back to **Table** and keep the grouping: stages become collapsible row groups with their own counts and sums. Tables sort by **Value** and **Weighted value** as well as by any custom field.
+**Table view.** Switch to **Table** and keep the grouping: stages become row groups with their own counts and sums, and you can sort by value or weighted value.
 
-## Which plan you need
-
-The board, stages, probabilities, saved views, dashboard charts, XLSX import and export, REST, webhooks and MCP are on every plan, including Starter and the self-hosted edition. Pro and higher add the [unified inbox](/features/unified-inbox), which puts email, LinkedIn and WhatsApp conversations on the contacts linked to each deal. Mate and routines need Customermates Cloud and use hosted AI credits; each Cloud plan includes monthly hosted AI credits per active user, see [pricing](/pricing).
-
-## Set up your pipeline
+## From board to next step
 
 <Steps>
-  <Step title="Rename the stages">In **Configure**, open Deals and the **Stage** field, and rename, add or reorder its options.</Step>
-  <Step title="Check the probabilities">In the same **Stage** field, set **Probability %** from 0 to 100 on each option and save. A preview shows the effect, and every deal's weighted value is recalculated.</Step>
-  <Step title="Add your services">Create what you sell under **Services**, each with a price. Deal line items, and so deal values, are built from these.</Step>
-  <Step title="Add two custom fields to deals">A Date field "Expected close" and a single choice field "Lost reason" with Price, Timing, Chose a competitor and No decision.</Step>
-  <Step title="Import your open deals">Use **Add from file** with an Excel workbook, organizations first, then contacts, then deals, so the deal rows can link to records that already exist. CSV files are not accepted, so save them as XLSX first.</Step>
-  <Step title="Save your pipeline view">With the board grouped by Stage and a filter on Stage that leaves out Won and Lost, press **New view** and name it "Open pipeline". The view keeps filters, grouping, layout and visible fields.</Step>
+  <Step title="See opportunities by stage">Open the board view of your opportunities and scan the column totals.</Step>
+  <Step title="Inspect one deal">Open a card to see the account, contacts, tasks and notes linked to it.</Step>
+  <Step title="Record the next action">Fill a date field such as **Next step** and add a task. Customermates has no built-in reminders, so a saved view filtered to passed dates does that job.</Step>
+  <Step title="Adapt fields and stages">Add the fields you sort by, such as **Expected close** (date) or **Lost reason** (single choice), and adjust probabilities when your experience changes.</Step>
+  <Step title="Let AI help where permitted">Ask Mate in the cloud, or your own AI client through MCP, to update a stage or list deals without a next step.</Step>
 </Steps>
 
-The [records guide](/docs/app-records) covers boards, views and import in more detail.
+## Customer context next to the deal
 
-## Running more than one pipeline
+An opportunity links to its account and contacts, so the people and the history are one click away. On Customermates Cloud, Pro and higher add the [unified inbox](/features/unified-inbox) for Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram and Telegram. A participant is matched to a contact by the identity in its Contact details field. A conversation is linked to an opportunity or account only when you or an agent do it explicitly; nothing is filed to a deal automatically.
 
-Customermates has no separate pipeline object, so a second pipeline is a second single choice field on deals. A team that sells new projects and renews retainers adds a field "Renewal stage" with Upcoming, In discussion, Renewal sent and Renewed, then saves a board view grouped by it and filtered to renewal deals.
-
-Two limits apply. **Weighted value** is calculated from the Stage field, so the second board shows counts and total values but no weighted figures. And a board shows at most 50 columns, which no sensible pipeline reaches.
-
-If you would rather keep one stage list, add a single choice field "Pipeline" with New business and Renewal, and save one view per value of that filter.
+Inbox limits by plan: Starter and self-hosted have no connected messaging accounts. Pro covers your own accounts, with [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user included, plus threads shared individually. Sharing a whole account with the team needs Business, Max or Enterprise.
 
 ## Keeping the pipeline current
 
-A board is only useful while it is true. Three ways to keep it that way:
+**A stale-deals view.** Filter opportunities on **Updated at** older than 14 days and stage not Won or Lost, and save it. Any edit counts as an update, not only a stage change.
 
-**A stale-deals view.** Filter deals on **Updated at** with **Older than…** 14 days and Stage not Won or Lost. The filter stays relative, so the saved view always shows the deals nobody has touched in two weeks. Any edit counts as an update, not only a stage change.
-
-**A weekly routine (Customermates Cloud).** Routines run a saved instruction for Mate on a schedule or when a record changes, using the owner's hosted AI credits. Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user, Pro [[commercial.entitlement.pro.includedRoutinesPerUser]]. Set one to **Every week** on Monday morning:
+**A weekly routine (cloud only).** A [routine](/docs/app-routines) runs Mate on a schedule or when a record changes, owned by one user and seeing what that user sees, within the owner's AI credits:
 
 ```text
-Find deals in Proposal or Negotiation that were not updated in the last 14 days. For each one, create a task "Check in: [deal name]", link it to the deal and assign it to the deal's assigned users. Do not send any messages.
+Find opportunities in Proposal sent or Negotiation that were not updated in the last 14 days. For each one, create a task "Check in: [name]", link it to the opportunity and assign it to its owner. Do not send any messages.
 ```
 
-The routine runs as its owner and sees only the deals that person can see. Creating tasks needs no approval; deletions would, so an unattended run refuses them. More patterns are on the [workflow automation](/features/workflow-automation) page.
+Mate creates and updates records and sends messages as soon as it is asked, so say in the instruction what it must not do. Deletions, imports and access changes stop for approval, and an unattended routine declines them. Mate is not available when self-hosting.
 
-**Your own AI client through MCP.** Claude, ChatGPT and other MCP clients can move deals between stages and update fields with the [[derived.mcp.tools.total]] tools described in the [MCP documentation](/docs/mcp), on every plan and when self-hosting. A stage change from any source fires a `record.updated` webhook for the Deals list with the changed fields, which an n8n workflow you run separately can pick up.
+**Your own AI client through MCP.** On every plan, self-hosted included, Claude, ChatGPT or another [MCP](/docs/mcp) client can read opportunities and update stages and fields your role allows, billed by your AI provider. A stage change from any source fires a `record.updated` webhook that a separate n8n workflow can pick up.
+
+## Working as a team
+
+Everyone whose role reads all opportunities sees the same deals; with **Assigned** read access, a person sees only their own. Three limits matter for teams:
+
+- Saved views and dashboards are personal. There are no shared or team views, so each colleague saves their own board.
+- Permissions apply to whole lists. There are no field-level permissions, so a person who can read opportunities sees every field on them.
+- Whole-account inbox sharing starts on Business. On Pro, colleagues share single threads.
 
 ## Limits
 
 <AcquisitionCallout title="What the pipeline does not do" variant="boundary">
-  The weighted pipeline is your value times your probabilities. There is no model that predicts revenue or close dates, and no report of time in stage, stage conversion over time or sales velocity. Cards are not highlighted when a deal goes idle; use the stale-deals view instead. Saved views and dashboards are personal and cannot be shared, so each teammate saves their own; a dashboard chart shared as a template can be copied. There is no mobile app.
+  Weighted value is your value times your probabilities. There is no predictive forecast, no report of time in stage, stage conversion or pipeline velocity, and no automatic highlighting of idle deals. No shared or team views, no field-level permissions and no native mobile app.
 </AcquisitionCallout>
 
-For metrics like win rate per person, Mate in Customermates Cloud can calculate them from your records with a read-only analysis tool, or you export the deals as XLSX. Chart options are on the [reporting](/features/reporting) page.
+For a metric such as win rate per person, Mate in the cloud can calculate it from your records, or you export the list as an Excel workbook. Chart options are on the [reporting](/features/reporting) page.
 
-## How Customermates compares with other pipeline tools
+## Running more than one pipeline
 
-Customermates publishes this page. Vendor details were checked on 8 October 2026 on the vendors' own pages, linked at the end.
+There is no separate pipeline object. A second pipeline is a second single choice field, for example **Renewal stage**, with its own board view. Weighted value comes from the stage field with probabilities, so a second board shows counts and totals but no weighted figures.
 
-| Tool | Fits best when | Pipeline details from the vendor |
-|---|---|---|
-| Pipedrive | You want a sales-focused CRM with several pipelines and idle deals flagged on the board | Multiple pipelines; a rotting feature that shows deals idle beyond a set time in red; Forecast view on the Growth plan |
-| HubSpot | You start free and expect to grow into marketing and service tools | Sales pipeline with editable stages in the free tools; custom pipelines start at Starter (15) and Professional (100) on seat-based plans, shared across all objects |
-| Pipeline CRM | You are a small or mid-size B2B team that wants a pipeline-first tool | Start plan with 1 pipeline and up to 250 active deals per account; Develop 2, Grow 5, Enterprise 20 pipelines |
-| Customermates | Deals depend on client conversations and you want AI to update the board | Stage board with weighted values on every plan; additional pipelines as extra stage fields; conversations from Pro |
+## Which kind of tool fits
+
+| Your situation | Look at |
+|---|---|
+| A high-volume outbound team that needs forecasting and idle-deal alerts | A sales-focused CRM built for that, such as Pipedrive |
+| A small team whose deals move through email, LinkedIn and WhatsApp conversations | Customermates |
+| One person with a handful of deals | A spreadsheet may still do |
 
 ## What it costs
 
-| Team | Plan | Per month |
-|---|---|---|
-| 3 people, board and dashboards only | Starter | [[commercial.price.starter.monthly.seats.3]] |
-| 5 people who also sell by email and LinkedIn | Pro | [[commercial.price.pro.monthly.seats.5]] |
-
-Over a year, the five-person Pro team pays [[commercial.price.pro.monthly.seats.5.months.12]]. Billing is monthly. Self-hosting the open-source core has no licence fee; you pay for your own server.
+Billing is monthly per user. Starter costs [[commercial.price.starter.monthly]] and covers the board, stages, weighted value and dashboards. Pro costs [[commercial.price.pro.monthly]] and adds the inbox. Business costs [[commercial.price.business.monthly]] and adds whole-account inbox sharing. Self-hosting the open-source core has no licence fee; you pay for your own server. See [pricing](/pricing).
 
 ## Frequently asked questions
 
 <Faq>
-<FaqItem question="What is the best sales pipeline software for a small team?">
-The one your team keeps up to date. For outbound volume, look at a tool with several pipelines and idle-deal alerts, such as Pipedrive. For a team whose deals move through email and LinkedIn conversations, the deal and the conversation should sit in one place, which is the case Customermates is built for.
-</FaqItem>
-
-<FaqItem question="Is there a CRM called Pipeline?">
-Yes. Pipeline CRM, renamed from PipelineDeals in 2020, is sales pipeline software for small and mid-size B2B teams. Its Start plan is $25 per user per month billed annually or $29 billed monthly, with one pipeline (prices checked on 8 October 2026 on the [Pipeline CRM pricing page](https://pipelinecrm.com/pricing/)).
-</FaqItem>
-
-<FaqItem question="Can I have several pipelines in Customermates?">
-Yes, as separate single choice fields on deals, each with its own saved board view. Only the Stage field feeds the weighted value.
+<FaqItem question="Does a new workspace come with pipeline stages?">
+No. A new workspace starts without lists. On Customermates Cloud the AI workspace setup builds an opportunities list with stages from your description during onboarding. Otherwise you create the list and its stage field in Configure.
 </FaqItem>
 
 <FaqItem question="Does Customermates forecast revenue?">
-No, not in the predictive sense. The weighted pipeline multiplies each deal's value by the probability you set for its stage. That is arithmetic on your own numbers, not a prediction.
+No. Weighted value multiplies each opportunity's value by the probability you set for its stage. That is arithmetic on your own numbers, not a prediction, and there are no velocity or conversion analytics.
 </FaqItem>
 
-<FaqItem question="Can my whole team see the same board?">
-Everyone whose role can read all deals sees the same deals and can build the same board; with **Assigned** read access, a person sees only the deals assigned to them. Saved views are personal, so each colleague saves their own board view.
+<FaqItem question="Can my whole team work from the same board?">
+Everyone with read access to all opportunities sees the same deals. Saved views are personal, so each colleague saves their own board view. There are no field-level permissions.
+</FaqItem>
+
+<FaqItem question="Can I have several pipelines?">
+Yes, as separate single choice fields, each with its own board view.
+</FaqItem>
+
+<FaqItem question="Are emails logged to the deal automatically?">
+No. On Pro and higher in the cloud, conversations are matched to contacts by their contact details. Linking a conversation to an opportunity is an explicit step by you or an agent.
 </FaqItem>
 </Faq>
-
-Competitor details checked on 8 October 2026 against [Pipedrive on multiple pipelines](https://support.pipedrive.com/en/article/how-can-i-have-multiple-pipelines), [Pipedrive's rotting feature](https://support.pipedrive.com/en/article/the-rotting-feature), [Pipedrive's plan overview](https://support.pipedrive.com/en/article/new-pipedrive-plans), [HubSpot pipeline management](https://www.hubspot.com/products/crm/pipeline-management), [HubSpot's pipeline limits](https://knowledge.hubspot.com/object-settings/set-up-and-customize-pipelines), [Pipeline CRM](https://pipelinecrm.com/) and [Pipeline CRM pricing](https://pipelinecrm.com/pricing/).

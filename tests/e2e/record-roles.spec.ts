@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { addFromConfigure, openConfigure, saveGeneral } from "./configure";
+import { companyPath, companyUrlPattern } from "./app-paths";
 import { test, expect, collectPageErrors } from "./fixtures";
 
 test("configures a role for a new type, preserves granular rights after rename and deletes the unused role", async ({
@@ -14,10 +15,10 @@ test("configures a role for a new type, preserves granular rights after rename a
   const creation = page.getByRole("dialog");
   await creation.getByRole("textbox", { name: "Name", exact: false }).first().fill("Projects");
   await creation.getByRole("button", { name: "Save", exact: true }).first().click();
-  await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
+  await expect(page).toHaveURL(companyUrlPattern(companyId, "/records/[a-f0-9-]+$"));
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
   expect(typeId).toBeTruthy();
-  await page.goto("/en/settings/roles");
+  await page.goto(companyPath(companyId, "/settings/roles"));
   const role = page.getByRole("dialog", { name: "Role", exact: true });
   await page.getByRole("button", { name: "Admin", exact: true }).click();
   await expect(role.getByText("This is a system role and cannot be edited or deleted.", { exact: true })).toBeVisible();
@@ -93,7 +94,7 @@ test("configures a role for a new type, preserves granular rights after rename a
   });
   expect(stale.status()).toBe(409);
   expect((await grants()).rows).toEqual([{ typeId, actions: ["create", "readOwn"] }]);
-  await page.goto("/en/settings/roles");
+  await page.goto(companyPath(companyId, "/settings/roles"));
   await page.getByRole("button", { name: "Project coordinators", exact: true }).click();
   await expect(role).toBeVisible();
   await projectGrant.scrollIntoViewIfNeeded();

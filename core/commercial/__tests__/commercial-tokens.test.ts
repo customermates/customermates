@@ -71,11 +71,17 @@ describe("commercial content tokens", () => {
       "Invalid",
     );
     expect(() => resolveCommercialTokens("[[commercial.price.pro.monthly", "en")).toThrow("Malformed");
-    expect(() => contentLocaleFromPath("content/pricing/fr/pricing.mdx")).toThrow("Cannot resolve");
+    expect(() => contentLocaleFromPath("content/pricing/es/pricing.mdx")).toThrow("Cannot resolve");
   });
 
   it("derives the content locale from localized source paths", () => {
     expect(contentLocaleFromPath("content/for-pages/en/example.mdx")).toBe("en");
     expect(contentLocaleFromPath("content/for-pages/de/example.mdx")).toBe("de");
+    expect(contentLocaleFromPath("content/pricing/fr/pricing.mdx")).toBe("fr");
+  });
+
+  it("resolves French marketing tokens with French formatting", () => {
+    expect(resolveCommercialTokens("[[commercial.price.starter.monthly]]", "fr")).toMatch(/^12\s?€$/u);
+    expect(resolveCommercialTokens("[[commercial.entitlement.max.includedRoutinesPerUser]]", "fr")).toBe("illimité");
   });
 });

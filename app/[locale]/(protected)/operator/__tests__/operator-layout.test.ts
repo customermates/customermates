@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import { renderToStaticMarkup } from "react-dom/server";
 import { jsx } from "react/jsx-runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -12,6 +14,9 @@ const state = vi.hoisted(() => ({
 vi.mock("next/navigation", () => ({ notFound: state.notFound }));
 vi.mock("@/core/di", () => ({
   getGetOperatorConsoleVisibilityInteractor: () => ({ invoke: state.visibility }),
+}));
+vi.mock("../../w/[workspace]/protected-frame", () => ({
+  ProtectedFrame: ({ children }: { children: ReactNode }) => jsx("section", { "data-frame": "protected", children }),
 }));
 import OperatorLayout from "../layout";
 
@@ -31,13 +36,12 @@ describe("OperatorLayout access boundary", () => {
     expect(state.notFound).toHaveBeenCalledOnce();
   });
 
-  it("renders operator content without a chrome of its own after the persisted access check passes", async () => {
+  it("renders operator content in the shared protected frame after the persisted access check passes", async () => {
     const element = await OperatorLayout({ children: jsx("main", { children: "operator content" }) });
     const html = renderToStaticMarkup(element);
 
     expect(state.visibility).toHaveBeenCalledOnce();
     expect(state.notFound).not.toHaveBeenCalled();
-    expect(html).toContain("operator content");
-    expect(html).not.toContain("header");
+    expect(html).toBe('<section data-frame="protected"><main>operator content</main></section>');
   });
 });

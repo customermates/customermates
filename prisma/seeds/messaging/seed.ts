@@ -1,10 +1,7 @@
-import { presetId } from "@/features/records/crm-preset";
-import { identityKeys } from "@/features/records/record-identity";
 import type { MessagingProvider, Prisma, PrismaClient } from "@/generated/prisma";
 
 import type { EmailSettings } from "@/ee/messaging/email-settings";
 
-import { SYNTHETIC_COMPANY_USERS } from "@/core/config/synthetic-seed-user";
 import {
   DEFAULT_LINK_HEX,
   EmailFontFamily,
@@ -16,26 +13,9 @@ import { identityLookupValue } from "@/ee/messaging/identity-lookup";
 import { composeEmailBodies } from "@/ee/messaging/outbound/email-signature";
 import { renderEmailMarkdown } from "@/ee/messaging/outbound/render-signature";
 
-import { SYNTHETIC_AVATAR_URLS } from "../avatars";
-import { fixtureId } from "../helpers";
-import { northwindDataset } from "../northwind-data";
-import { NORTHWIND_COMPANY_NAME, NORTHWIND_MEMBER_TITLES, NORTHWIND_RECORD_ID_PREFIXES } from "../northwind-model";
+import { workspaceFixtureId } from "../helpers";
 import { SYNTHETIC_SEED_TIMELINE } from "../timeline";
-import {
-  accountActivityFixtures,
-  calendarFixture,
-  people,
-  threads,
-  type PersonKey,
-  type ThreadFixture,
-} from "./fixtures";
-
-export type SeedContext = {
-  companyId: string;
-  contactIds: readonly string[];
-  seedUserEmail: string;
-  userId: string;
-};
+import type { MessagingFixtureProvider, ThreadFixture, WorkspaceMessagingFixtures } from "./fixtures";
 
 type DemoAttendee = {
   attendeeId: string;
@@ -54,6 +34,7 @@ const MINUTE = 60_000;
 export function messageGapMinutes(fixture: Pick<ThreadFixture, "latestMinutesAgo">): number {
   return fixture.latestMinutesAgo < 2 * 24 * 60 ? 7 * 60 : 26 * 60;
 }
+
 const EMAIL_FOLDER_IDS = {
   google: { inbox: "demo-google-inbox", sent: "demo-google-sent" },
   outlook: { inbox: "demo-outlook-inbox", sent: "demo-outlook-sent" },
@@ -65,14 +46,42 @@ function isEmailFixtureProvider(provider: MessagingProvider): provider is EmailF
   return provider === "google" || provider === "outlook";
 }
 
+const ACCOUNT_LABELS: Record<MessagingFixtureProvider, string> = {
+  google: "Gmail",
+  outlook: "Outlook",
+  linkedin: "LinkedIn",
+  whatsapp: "WhatsApp",
+  instagram: "Instagram",
+  telegram: "Telegram",
+};
+
+const ACCOUNT_ORDER: readonly MessagingFixtureProvider[] = [
+  "google",
+  "linkedin",
+  "whatsapp",
+  "instagram",
+  "telegram",
+  "outlook",
+];
+
 const MARKDOWN_LINE_BREAK = "\\\n";
 
-function workspaceSignature(seedUserEmail: string): string {
+/** The fixture account id of a provider: one fixed slot per provider inside the workspace's id namespace. */
+export function messagingAccountId(tag: string, provider: MessagingFixtureProvider): string {
+  return workspaceFixtureId("16000000", tag, ACCOUNT_ORDER.indexOf(provider) + 1);
+}
+
+/** Provider account ids are unique across workspaces; the team workspace keeps the historical names. */
+export function messagingUnipileAccountId(tag: string, provider: MessagingFixtureProvider): string {
+  return tag === "0000" ? `demo-fixture-${provider}-account` : `demo-fixture-${tag}-${provider}-account`;
+}
+
+function workspaceSignature(fixtures: WorkspaceMessagingFixtures): string {
   return [
-    `**${SYNTHETIC_COMPANY_USERS.maxBergmann.name}**`,
-    `${NORTHWIND_MEMBER_TITLES.maxBergmann}, ${NORTHWIND_COMPANY_NAME}`,
-    `[${seedUserEmail}](mailto:${seedUserEmail})`,
-    "<https://northwind-labs.example>",
+    `**${fixtures.self.name}**`,
+    `${fixtures.self.title}, ${fixtures.self.companyName}`,
+    `[${fixtures.seedUserEmail}](mailto:${fixtures.seedUserEmail})`,
+    `<${fixtures.self.website}>`,
   ].join(MARKDOWN_LINE_BREAK);
 }
 
@@ -87,11 +96,7 @@ function workspaceEmailSettings(): EmailSettings {
       linkHex: DEFAULT_LINK_HEX,
       linkStyle: EmailLinkStyle.underlined,
     },
-    signature: {
-      ...base.signature,
-      enabled: true,
-      template: SignatureTemplate.plain,
-    },
+    signature: { ...base.signature, enabled: true, template: SignatureTemplate.plain },
   };
 }
 
@@ -106,144 +111,106 @@ function correspondentEmailSettings(): EmailSettings {
       linkHex: "#2f6fd0",
       linkStyle: EmailLinkStyle.plain,
     },
-    signature: {
-      ...base.signature,
-      enabled: true,
-      template: SignatureTemplate.plain,
-    },
+    signature: { ...base.signature, enabled: true, template: SignatureTemplate.plain },
   };
-}
-
-function correspondentSignature(personKey: PersonKey): string | null {
-  const person = people[personKey];
-  if (!person.email) return null;
-
-  const role = person.occupation ?? person.headline;
-  return [`**${person.displayName}**`, ...(role ? [role] : []), `[${person.email}](mailto:${person.email})`].join(
-    MARKDOWN_LINE_BREAK,
-  );
-}
-
-function emailBodies(text: string, sender: ThreadFixture["messages"][number]["sender"], seedUserEmail: string) {
-  return sender === "self"
-    ? composeEmailBodies(text, workspaceSignature(seedUserEmail), workspaceEmailSettings(), "markdown")
-    : composeEmailBodies(text, correspondentSignature(sender), correspondentEmailSettings(), "markdown");
-}
-
-function draftBodies(text: string) {
-  const rendered = renderEmailMarkdown(text, workspaceEmailSettings().appearance);
-
-  return { plainText: text, html: rendered.html };
-}
-
-function providerFor(account: ThreadFixture["account"]): ThreadFixture["account"] {
-  return account;
-}
-
-function personAttendee(personKey: PersonKey, provider: ThreadFixture["account"]): DemoAttendee {
-  const person = people[personKey];
-  const identifier =
-    provider === "google" || provider === "outlook"
-      ? person.email
-      : provider === "linkedin"
-        ? person.linkedin
-        : provider === "whatsapp"
-          ? person.phone
-          : provider === "instagram"
-            ? person.instagram
-            : person.telegram;
-  const profileUrl =
-    provider === "linkedin"
-      ? person.profileUrl
-      : provider === "instagram"
-        ? person.instagramProfileUrl
-        : provider === "telegram"
-          ? person.telegramProfileUrl
-          : undefined;
-
-  if (!identifier) throw new Error(`Missing ${provider} demo identifier for ${personKey}`);
-
-  return {
-    attendeeId: `demo-${provider}-${personKey}`,
-    displayName: person.displayName,
-    identifier,
-    isSelf: false,
-    headline: person.headline,
-    occupation: person.occupation,
-    pictureUrl: person.avatarPath ?? "",
-    profileUrl,
-  };
-}
-
-function selfAttendee(provider: ThreadFixture["account"], seedUserEmail: string): DemoAttendee {
-  const identities: Record<ThreadFixture["account"], { identifier: string; profileUrl?: string }> = {
-    google: { identifier: seedUserEmail },
-    instagram: {
-      identifier: "max.bergmann",
-      profileUrl: "https://instagram.example/max-bergmann",
-    },
-    linkedin: {
-      identifier: "max-bergmann.linkedin.example",
-      profileUrl: "https://linkedin.example/in/max-bergmann",
-    },
-    outlook: { identifier: seedUserEmail },
-    telegram: {
-      identifier: "max_bergmann",
-      profileUrl: "https://telegram.example/max-bergmann",
-    },
-    whatsapp: { identifier: "+12025550199" },
-  };
-  const identity = identities[provider];
-
-  return {
-    attendeeId: `demo-${provider}-self`,
-    displayName: SYNTHETIC_COMPANY_USERS.maxBergmann.name,
-    identifier: identity.identifier,
-    isSelf: true,
-    occupation: "Account Manager at Customermates",
-    pictureUrl: SYNTHETIC_AVATAR_URLS.maxBergmann,
-    profileUrl: identity.profileUrl,
-  };
-}
-
-function emailFolderIds(provider: MessagingProvider, senderIsSelf: boolean): string[] {
-  if (!isEmailFixtureProvider(provider)) return [];
-  const folders = EMAIL_FOLDER_IDS[provider];
-  return [senderIsSelf ? folders.sent : folders.inbox];
 }
 
 function inputJson(value: unknown): Prisma.InputJsonValue {
-  return value as Prisma.InputJsonValue;
+  return JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue;
 }
 
-export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: SeedContext): Promise<void> {
-  const accountIds = {
-    google: fixtureId("16000000", 1),
-    linkedin: fixtureId("16000000", 2),
-    whatsapp: fixtureId("16000000", 3),
-    instagram: fixtureId("16000000", 4),
-    telegram: fixtureId("16000000", 5),
-    outlook: fixtureId("16000000", 6),
-  } as const;
-  const seededAccountIds: Record<keyof typeof accountIds, string> = {
-    ...accountIds,
+/**
+ * Seeds the conversations of one demo workspace: its connected accounts, a calendar, LinkedIn activity, and every
+ * thread with participants, messages and explicit record links. Fixture rows live in the workspace's id namespace;
+ * rows the UI may have recreated are reconciled by their natural keys, so a repeated seed changes nothing.
+ */
+export async function seedWorkspaceMessaging(
+  prisma: PrismaClient,
+  fixtures: WorkspaceMessagingFixtures,
+): Promise<void> {
+  const { companyId, tag } = fixtures;
+  const id = (group: string, index: number) => workspaceFixtureId(group, tag, index);
+  const person = (key: string) => {
+    const found = fixtures.people[key];
+    if (!found) throw new Error(`Missing demo messaging person ${key}`);
+    return found;
   };
-  const desiredAccountIds: string[] = [];
+
+  const personAttendee = (key: string, provider: MessagingFixtureProvider): DemoAttendee => {
+    const entry = person(key);
+    const identifier = isEmailFixtureProvider(provider)
+      ? entry.email
+      : provider === "linkedin"
+        ? entry.linkedin
+        : provider === "whatsapp"
+          ? entry.phone
+          : provider === "instagram"
+            ? entry.instagram
+            : entry.telegram;
+    const profileUrl =
+      provider === "linkedin"
+        ? entry.profileUrl
+        : provider === "instagram"
+          ? entry.instagramProfileUrl
+          : provider === "telegram"
+            ? entry.telegramProfileUrl
+            : undefined;
+    if (!identifier) throw new Error(`Missing ${provider} demo identifier for ${key}`);
+    return {
+      attendeeId: `demo-${provider}-${key}`,
+      displayName: entry.displayName,
+      identifier,
+      isSelf: false,
+      headline: entry.headline,
+      occupation: entry.occupation,
+      pictureUrl: entry.avatarPath ?? "",
+      profileUrl,
+    };
+  };
+
+  const selfIdentities: Record<MessagingFixtureProvider, { identifier: string; profileUrl?: string }> = {
+    google: { identifier: fixtures.seedUserEmail },
+    outlook: { identifier: fixtures.seedUserEmail },
+    instagram: { identifier: "max.bergmann", profileUrl: "https://instagram.example/max-bergmann" },
+    linkedin: { identifier: "max-bergmann.linkedin.example", profileUrl: "https://linkedin.example/in/max-bergmann" },
+    telegram: { identifier: "max_bergmann", profileUrl: "https://telegram.example/max-bergmann" },
+    whatsapp: { identifier: "+12025550199" },
+  };
+  const selfAttendee = (provider: MessagingFixtureProvider): DemoAttendee => ({
+    attendeeId: `demo-${provider}-self`,
+    displayName: fixtures.self.name,
+    identifier: selfIdentities[provider].identifier,
+    isSelf: true,
+    occupation: `${fixtures.self.title} at ${fixtures.self.companyName}`,
+    pictureUrl: fixtures.self.avatarPath,
+    profileUrl: selfIdentities[provider].profileUrl,
+  });
+
+  const correspondentSignature = (key: string): string | null => {
+    const entry = person(key);
+    if (!entry.email) return null;
+    const role = entry.occupation ?? entry.headline;
+    return [`**${entry.displayName}**`, ...(role ? [role] : []), `[${entry.email}](mailto:${entry.email})`].join(
+      MARKDOWN_LINE_BREAK,
+    );
+  };
+  const emailBodies = (text: string, sender: string) =>
+    sender === "self"
+      ? composeEmailBodies(text, workspaceSignature(fixtures), workspaceEmailSettings(), "markdown")
+      : composeEmailBodies(text, correspondentSignature(sender), correspondentEmailSettings(), "markdown");
+  const draftBodies = (text: string) => ({
+    plainText: text,
+    html: renderEmailMarkdown(text, workspaceEmailSettings().appearance).html,
+  });
+
+  for (const thread of fixtures.threads) {
+    if (!fixtures.accounts.includes(thread.account))
+      throw new Error(`A ${thread.account} conversation needs a ${thread.account} account`);
+  }
+
+  const unipileAccountIds = fixtures.accounts.map((provider) => messagingUnipileAccountId(tag, provider));
   const persistedAnchor = await prisma.connectedAccount.findFirst({
-    where: {
-      companyId: context.companyId,
-      unipileAccountId: {
-        in: [
-          "demo-fixture-google-account",
-          "demo-fixture-linkedin-account",
-          "demo-fixture-whatsapp-account",
-          "demo-fixture-instagram-account",
-          "demo-fixture-telegram-account",
-          "demo-fixture-outlook-account",
-        ],
-      },
-      lastSyncedAt: { not: null },
-    },
+    where: { companyId, unipileAccountId: { in: unipileAccountIds }, lastSyncedAt: { not: null } },
     orderBy: { id: "asc" },
     select: { lastSyncedAt: true },
   });
@@ -251,423 +218,190 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
   const anchor = persistedAnchor?.lastSyncedAt
     ? new Date(persistedAnchor.lastSyncedAt.getTime() + 5 * MINUTE)
     : new Date(Math.floor(Date.now() / anchorWindow) * anchorWindow);
-  const googleThreads = threads.filter((thread) => thread.account === "google");
-  const googleInboundCount = googleThreads.reduce(
-    (count, thread) => count + thread.messages.filter((message) => message.sender !== "self").length,
-    0,
-  );
-  const googleSentCount = googleThreads.reduce(
-    (count, thread) => count + thread.messages.filter((message) => message.sender === "self").length,
-    0,
-  );
-  const outlookThreads = threads.filter((thread) => thread.account === "outlook");
-  const outlookInboundCount = outlookThreads.reduce(
-    (count, thread) => count + thread.messages.filter((message) => message.sender !== "self").length,
-    0,
-  );
-  const outlookSentCount = outlookThreads.reduce(
-    (count, thread) => count + thread.messages.filter((message) => message.sender === "self").length,
-    0,
-  );
 
-  const accounts = [
-    {
-      id: accountIds.google,
-      unipileAccountId: "demo-fixture-google-account",
-      provider: "google" as const,
-      emailAddress: context.seedUserEmail,
-      displayName: `${SYNTHETIC_COMPANY_USERS.maxBergmann.name} · Gmail`,
-      hasCalendar: true,
-      folders: [
-        {
-          id: "demo-google-inbox",
-          name: "Inbox",
-          role: "INBOX",
-          totalCount: googleInboundCount,
-          unreadCount: googleThreads.filter((thread) => thread.state === "unread").length,
-        },
-        {
-          id: "demo-google-sent",
-          name: "Sent",
-          role: "SENT",
-          totalCount: googleSentCount,
-          unreadCount: 0,
-        },
-      ],
-      selectedFolderIds: ["demo-google-inbox", "demo-google-sent"],
-      sentFolderIds: ["demo-google-sent"],
-      linkedinProducts: [] as string[],
-    },
-    {
-      id: accountIds.linkedin,
-      unipileAccountId: "demo-fixture-linkedin-account",
-      provider: "linkedin" as const,
-      emailAddress: null,
-      displayName: `${SYNTHETIC_COMPANY_USERS.maxBergmann.name} · LinkedIn`,
-      hasCalendar: false,
-      folders: [],
-      selectedFolderIds: [] as string[],
-      sentFolderIds: [] as string[],
-      linkedinProducts: ["classic"],
-    },
-    {
-      id: accountIds.whatsapp,
-      unipileAccountId: "demo-fixture-whatsapp-account",
-      provider: "whatsapp" as const,
-      emailAddress: null,
-      displayName: `${SYNTHETIC_COMPANY_USERS.maxBergmann.name} · WhatsApp`,
-      hasCalendar: false,
-      folders: [],
-      selectedFolderIds: [] as string[],
-      sentFolderIds: [] as string[],
-      linkedinProducts: [] as string[],
-    },
-    {
-      id: accountIds.instagram,
-      unipileAccountId: "demo-fixture-instagram-account",
-      provider: "instagram" as const,
-      emailAddress: null,
-      displayName: `${SYNTHETIC_COMPANY_USERS.maxBergmann.name} · Instagram`,
-      hasCalendar: false,
-      folders: [],
-      selectedFolderIds: [] as string[],
-      sentFolderIds: [] as string[],
-      linkedinProducts: [] as string[],
-    },
-    {
-      id: accountIds.telegram,
-      unipileAccountId: "demo-fixture-telegram-account",
-      provider: "telegram" as const,
-      emailAddress: null,
-      displayName: `${SYNTHETIC_COMPANY_USERS.maxBergmann.name} · Telegram`,
-      hasCalendar: false,
-      folders: [],
-      selectedFolderIds: [] as string[],
-      sentFolderIds: [] as string[],
-      linkedinProducts: [] as string[],
-    },
-    {
-      id: accountIds.outlook,
-      unipileAccountId: "demo-fixture-outlook-account",
-      provider: "outlook" as const,
-      emailAddress: context.seedUserEmail,
-      displayName: `${SYNTHETIC_COMPANY_USERS.maxBergmann.name} · Outlook`,
-      hasCalendar: true,
-      folders: [
-        {
-          id: EMAIL_FOLDER_IDS.outlook.inbox,
-          name: "Inbox",
-          role: "INBOX",
-          totalCount: outlookInboundCount,
-          unreadCount: outlookThreads.filter((thread) => thread.state === "unread").length,
-        },
-        {
-          id: EMAIL_FOLDER_IDS.outlook.sent,
-          name: "Sent",
-          role: "SENT",
-          totalCount: outlookSentCount,
-          unreadCount: 0,
-        },
-      ],
-      selectedFolderIds: [EMAIL_FOLDER_IDS.outlook.inbox, EMAIL_FOLDER_IDS.outlook.sent],
-      sentFolderIds: [EMAIL_FOLDER_IDS.outlook.sent],
-      linkedinProducts: [] as string[],
-    },
-  ];
+  const folderCounts = (provider: EmailFixtureProvider) => {
+    const threads = fixtures.threads.filter((thread) => thread.account === provider);
+    const inbound = threads.reduce(
+      (count, thread) => count + thread.messages.filter((m) => m.sender !== "self").length,
+      0,
+    );
+    const sent = threads.reduce(
+      (count, thread) => count + thread.messages.filter((m) => m.sender === "self").length,
+      0,
+    );
+    return [
+      {
+        id: EMAIL_FOLDER_IDS[provider].inbox,
+        name: "Inbox",
+        role: "INBOX",
+        totalCount: inbound,
+        unreadCount: threads.filter((thread) => thread.state === "unread").length,
+      },
+      { id: EMAIL_FOLDER_IDS[provider].sent, name: "Sent", role: "SENT", totalCount: sent, unreadCount: 0 },
+    ];
+  };
 
-  for (const [index, account] of accounts.entries()) {
-    const accountTimeline = SYNTHETIC_SEED_TIMELINE.connectedAccount(index);
+  const seededAccountIds = new Map<MessagingFixtureProvider, string>();
+  for (const provider of ACCOUNT_ORDER.filter((candidate) => fixtures.accounts.includes(candidate))) {
+    const email = isEmailFixtureProvider(provider);
+    const accountTimeline = SYNTHETIC_SEED_TIMELINE.connectedAccount(ACCOUNT_ORDER.indexOf(provider));
     const data = {
-      companyId: context.companyId,
-      userId: context.userId,
-      provider: account.provider,
+      companyId,
+      userId: fixtures.userId,
+      provider,
       status: "ok" as const,
       hasMessaging: true,
-      hasCalendar: account.hasCalendar,
-      emailAddress: account.emailAddress,
-      displayName: account.displayName,
-      sentFolderIds: account.sentFolderIds,
-      folders: inputJson(account.folders),
-      selectedFolderIds: account.selectedFolderIds,
-      foldersSyncedAt: isEmailFixtureProvider(account.provider) ? new Date(anchor.getTime() - 5 * MINUTE) : null,
-      ...(isEmailFixtureProvider(account.provider)
-        ? {
-            signature: workspaceSignature(context.seedUserEmail),
-            signatureFields: inputJson(workspaceEmailSettings()),
-          }
+      hasCalendar: email,
+      emailAddress: email ? fixtures.seedUserEmail : null,
+      displayName: `${fixtures.self.name} · ${ACCOUNT_LABELS[provider]}`,
+      sentFolderIds: email ? [EMAIL_FOLDER_IDS[provider].sent] : [],
+      folders: inputJson(email ? folderCounts(provider) : []),
+      selectedFolderIds: email ? [EMAIL_FOLDER_IDS[provider].inbox, EMAIL_FOLDER_IDS[provider].sent] : [],
+      foldersSyncedAt: email ? new Date(anchor.getTime() - 5 * MINUTE) : null,
+      ...(email
+        ? { signature: workspaceSignature(fixtures), signatureFields: inputJson(workspaceEmailSettings()) }
         : {}),
-      linkedinProducts: account.linkedinProducts,
+      linkedinProducts: provider === "linkedin" ? ["classic"] : [],
       shared: false,
       syncing: false,
-      ownerAvatarUrl: SYNTHETIC_AVATAR_URLS.maxBergmann,
+      ownerAvatarUrl: fixtures.self.avatarPath,
       lastSyncedAt: new Date(anchor.getTime() - 5 * MINUTE),
     };
-
-    const seededAccount = await prisma.connectedAccount.upsert({
-      where: { unipileAccountId: account.unipileAccountId },
-      update: {
-        ...data,
-        ...accountTimeline,
-      },
-      create: {
-        ...data,
-        id: account.id,
-        unipileAccountId: account.unipileAccountId,
-        ...accountTimeline,
-      },
+    const unipileAccountId = messagingUnipileAccountId(tag, provider);
+    const account = await prisma.connectedAccount.upsert({
+      where: { unipileAccountId },
+      update: { ...data, ...accountTimeline },
+      create: { ...data, id: messagingAccountId(tag, provider), unipileAccountId, ...accountTimeline },
     });
-    seededAccountIds[account.provider] = seededAccount.id;
-    desiredAccountIds.push(seededAccount.id);
+    seededAccountIds.set(provider, account.id);
   }
+  const accountOf = (provider: MessagingFixtureProvider) => {
+    const accountId = seededAccountIds.get(provider);
+    if (!accountId) throw new Error(`Missing demo ${provider} account`);
+    return accountId;
+  };
 
-  await prisma.accountActivity.deleteMany({
-    where: { companyId: context.companyId, id: { startsWith: "26000000-" } },
-  });
-  await prisma.calendarEvent.deleteMany({
-    where: { companyId: context.companyId, id: { startsWith: "25000000-" } },
-  });
+  await prisma.accountActivity.deleteMany({ where: { companyId, id: { startsWith: `26000000-${tag}-` } } });
+  await prisma.calendarEvent.deleteMany({ where: { companyId, id: { startsWith: `25000000-${tag}-` } } });
   await prisma.calendar.deleteMany({
-    where: {
-      companyId: context.companyId,
-      events: { none: {} },
-      id: { startsWith: "24000000-" },
-    },
+    where: { companyId, events: { none: {} }, id: { startsWith: `24000000-${tag}-` } },
   });
 
-  const calendarData = {
-    companyId: context.companyId,
-    connectedAccountId: seededAccountIds.google,
-    name: calendarFixture.name,
-    description: null,
-    color: null,
-    timezone: calendarFixture.timezone,
-  };
-  const seededCalendar = await prisma.calendar.upsert({
-    where: {
-      connectedAccountId_unipileCalendarId: {
-        connectedAccountId: seededAccountIds.google,
-        unipileCalendarId: calendarFixture.unipileCalendarId,
-      },
-    },
-    update: calendarData,
-    create: {
-      ...calendarData,
-      id: fixtureId("24000000", 1),
-      unipileCalendarId: calendarFixture.unipileCalendarId,
-    },
-  });
-
-  const organizer = {
-    email: context.seedUserEmail.toLowerCase(),
-    displayName: SYNTHETIC_COMPANY_USERS.maxBergmann.name,
-    responseStatus: "yes",
-    isOrganizer: true,
-  };
-  for (const [index, fixture] of calendarFixture.events.entries()) {
-    const attendees = fixture.attendees.map(({ person, responseStatus }) => ({
-      email: people[person].email?.toLowerCase() ?? "",
-      displayName: people[person].displayName,
-      responseStatus,
-      isOrganizer: false,
-    }));
-    if (attendees.some(({ email }) => !email)) throw new Error("Missing demo calendar attendee email");
-
-    const startsAt = new Date(anchor.getTime() - fixture.startsMinutesAgo * MINUTE);
-    const eventData = {
-      companyId: context.companyId,
-      connectedAccountId: seededAccountIds.google,
-      calendarId: seededCalendar.id,
-      title: fixture.title,
+  const calendarAccount = seededAccountIds.get("google") ?? seededAccountIds.get("outlook");
+  if (fixtures.calendar && calendarAccount) {
+    const unipileCalendarId = "demo-fixture-google-calendar";
+    const calendarData = {
+      companyId,
+      connectedAccountId: calendarAccount,
+      name: fixtures.calendar.name,
       description: null,
-      location: null,
-      conferenceUrl: null,
-      startsAt,
-      endsAt: new Date(startsAt.getTime() + fixture.durationMinutes * MINUTE),
-      allDay: false,
-      timezone: calendarFixture.timezone,
-      recurrenceRule: null,
-      status: "confirmed" as const,
-      visibility: null,
-      attendees: inputJson(attendees),
-      organizer: inputJson(organizer),
-      attendeeEmails: [...new Set([...attendees.map(({ email }) => email), organizer.email])],
+      color: null,
+      timezone: fixtures.calendar.timezone,
     };
-    await prisma.calendarEvent.upsert({
-      where: {
-        connectedAccountId_unipileEventId: {
-          connectedAccountId: seededAccountIds.google,
-          unipileEventId: fixture.unipileEventId,
-        },
-      },
-      update: eventData,
-      create: {
-        ...eventData,
-        id: fixtureId("25000000", index + 1),
-        unipileEventId: fixture.unipileEventId,
-      },
+    const calendar = await prisma.calendar.upsert({
+      where: { connectedAccountId_unipileCalendarId: { connectedAccountId: calendarAccount, unipileCalendarId } },
+      update: calendarData,
+      create: { ...calendarData, id: id("24000000", 1), unipileCalendarId },
     });
+    const organizer = {
+      email: fixtures.seedUserEmail.toLowerCase(),
+      displayName: fixtures.self.name,
+      responseStatus: "yes",
+      isOrganizer: true,
+    };
+    for (const [index, event] of fixtures.calendar.events.entries()) {
+      const attendees = event.attendees.map(({ person: key, responseStatus }) => ({
+        email: person(key).email?.toLowerCase() ?? "",
+        displayName: person(key).displayName,
+        responseStatus,
+        isOrganizer: false,
+      }));
+      if (attendees.some(({ email }) => !email)) throw new Error("Missing demo calendar attendee email");
+      const startsAt = new Date(anchor.getTime() - event.startsMinutesAgo * MINUTE);
+      const unipileEventId = `demo-fixture-calendar-event-${index + 1}`;
+      const eventData = {
+        companyId,
+        connectedAccountId: calendarAccount,
+        calendarId: calendar.id,
+        title: event.title,
+        description: null,
+        location: null,
+        conferenceUrl: null,
+        startsAt,
+        endsAt: new Date(startsAt.getTime() + event.durationMinutes * MINUTE),
+        allDay: false,
+        timezone: fixtures.calendar.timezone,
+        recurrenceRule: null,
+        status: "confirmed" as const,
+        visibility: null,
+        attendees: inputJson(attendees),
+        organizer: inputJson(organizer),
+        attendeeEmails: [...new Set([...attendees.map(({ email }) => email), organizer.email])],
+      };
+      await prisma.calendarEvent.upsert({
+        where: { connectedAccountId_unipileEventId: { connectedAccountId: calendarAccount, unipileEventId } },
+        update: eventData,
+        create: { ...eventData, id: id("25000000", index + 1), unipileEventId },
+      });
+    }
   }
 
-  for (const [index, fixture] of accountActivityFixtures.entries()) {
-    const activityPerson = people[fixture.person];
+  const linkedinAccount = seededAccountIds.get("linkedin");
+  for (const [index, activity] of (linkedinAccount ? fixtures.linkedinActivities : []).entries()) {
+    const entry = person(activity.person);
+    const identifier = `demo-linkedin-${activity.person}`;
     const activityData = {
-      companyId: context.companyId,
-      connectedAccountId: seededAccountIds.linkedin,
+      companyId,
+      connectedAccountId: accountOf("linkedin"),
       payload: inputJson({
-        fullName: activityPerson.displayName,
-        headline: activityPerson.headline,
-        profileUrl: activityPerson.profileUrl,
-        pictureUrl: activityPerson.avatarPath ?? null,
+        fullName: entry.displayName,
+        headline: entry.headline,
+        profileUrl: entry.profileUrl,
+        pictureUrl: entry.avatarPath ?? null,
       }),
-      occurredAt: new Date(anchor.getTime() - fixture.occurredMinutesAgo * MINUTE),
+      occurredAt: new Date(anchor.getTime() - activity.occurredMinutesAgo * MINUTE),
     };
     await prisma.accountActivity.upsert({
       where: {
         connectedAccountId_kind_identifier: {
-          connectedAccountId: seededAccountIds.linkedin,
-          kind: fixture.kind,
-          identifier: fixture.identifier,
+          connectedAccountId: accountOf("linkedin"),
+          kind: "linkedin_connection_accepted",
+          identifier,
         },
       },
       update: activityData,
-      create: {
-        ...activityData,
-        id: fixtureId("26000000", index + 1),
-        identifier: fixture.identifier,
-        kind: fixture.kind,
-      },
+      create: { ...activityData, id: id("26000000", index + 1), identifier, kind: "linkedin_connection_accepted" },
     });
   }
 
-  // Positional fixture IDs can point at different natural keys after fixtures are
-  // inserted or reordered. Rebuild only rows in the reserved synthetic namespaces
-  // before reconciling natural-key rows that may have been recreated by the UI.
-  await prisma.messagingMessage.deleteMany({
-    where: { companyId: context.companyId, id: { startsWith: "19000000-" } },
-  });
-  await prisma.messagingThreadParticipant.deleteMany({
-    where: { companyId: context.companyId, id: { startsWith: "18000000-" } },
-  });
+  // Positional fixture ids can point at different natural keys after fixtures are inserted or reordered. Rebuild
+  // only rows in the reserved namespaces before reconciling natural-key rows the UI may have recreated.
+  await prisma.messagingMessage.deleteMany({ where: { companyId, id: { startsWith: `19000000-${tag}-` } } });
+  await prisma.messagingThreadParticipant.deleteMany({ where: { companyId, id: { startsWith: `18000000-${tag}-` } } });
   await prisma.messagingThread.deleteMany({
-    where: {
-      companyId: context.companyId,
-      id: { startsWith: "17000000-" },
-      messages: { none: {} },
-      participants: { none: {} },
-    },
+    where: { companyId, id: { startsWith: `17000000-${tag}-` }, messages: { none: {} }, participants: { none: {} } },
   });
-  await prisma.recordIdentity.deleteMany({
-    where: { companyId: context.companyId, id: { startsWith: "1a000000-" } },
-  });
-
-  const channelPeople: Array<{
-    key: PersonKey;
-    provider: "instagram" | "linkedin" | "telegram" | "whatsapp";
-  }> = [
-    { key: "leon", provider: "linkedin" },
-    { key: "rashid", provider: "linkedin" },
-    { key: "sophie", provider: "whatsapp" },
-    { key: "jonas", provider: "whatsapp" },
-    { key: "yasmin", provider: "instagram" },
-    { key: "jonas", provider: "telegram" },
-  ];
-
-  for (const [index, channel] of channelPeople.entries()) {
-    const attendee = personAttendee(channel.key, channel.provider);
-    const person = people[channel.key];
-    if (person.contactIndex === null) throw new Error(`Missing linked demo contact index for ${channel.key}`);
-
-    const data = {
-      companyId: context.companyId,
-      provider: channel.provider,
-      channelClass: channel.provider === "whatsapp" ? "phone" : channel.provider,
-      value: attendee.identifier,
-      messagingId: channel.provider === "whatsapp" ? null : attendee.attendeeId,
-      displayName: attendee.displayName,
-      profileUrl: attendee.profileUrl ?? null,
-    };
-
-    const recordId = context.contactIds[person.contactIndex];
-    if (!recordId) throw new Error(`Missing demo contact for ${channel.key}`);
-
-    const id = fixtureId("1a000000", index + 1);
-    const existingIdentifiers = await prisma.recordIdentity.findMany({
-      where: {
-        companyId: context.companyId,
-        OR: [
-          { channelClass: data.channelClass, value: data.value },
-          ...(data.messagingId ? [{ provider: data.provider, messagingId: data.messagingId }] : []),
-        ],
-      },
-      select: { id: true },
-    });
-    if (existingIdentifiers.length > 1)
-      throw new Error(`Conflicting demo contact identifiers for ${channel.key} (${channel.provider})`);
-
-    const existingIdentifier = existingIdentifiers[0];
-    if (existingIdentifier) {
-      await prisma.recordIdentity.update({
-        where: {
-          companyId_id: {
-            companyId: context.companyId,
-            id: existingIdentifier.id,
-          },
-        },
-        data,
-      });
-      await prisma.recordIdentityKey.deleteMany({
-        where: {
-          companyId: context.companyId,
-          identityId: existingIdentifier.id,
-        },
-      });
-    } else await prisma.recordIdentity.create({ data: { ...data, id } });
-
-    const identityId = existingIdentifier?.id ?? id;
-    await prisma.recordIdentityLink.createMany({
-      data: [
-        {
-          companyId: context.companyId,
-          identityId,
-          typeId: presetId(context.companyId, "contact"),
-          recordId,
-        },
-      ],
-      skipDuplicates: true,
-    });
-
-    await prisma.recordIdentityKey.createMany({
-      data: identityKeys(data).map((value) => ({
-        companyId: context.companyId,
-        identityId,
-        channelClass: data.channelClass,
-        value,
-      })),
-    });
-  }
 
   let participantIndex = 0;
   let messageIndex = 0;
-
-  for (const [threadIndex, fixture] of threads.entries()) {
-    const provider = providerFor(fixture.account);
-    const connectedAccountId = seededAccountIds[fixture.account];
-    const threadId = fixtureId("17000000", threadIndex + 1);
-    const self = selfAttendee(provider, context.seedUserEmail);
-    const counterparts = fixture.participants.map((key) => personAttendee(key, provider));
-    const attendees = [self, ...counterparts];
+  const seededThreadIds: string[] = [];
+  for (const [threadIndex, fixture] of fixtures.threads.entries()) {
+    const provider = fixture.account;
+    const connectedAccountId = accountOf(provider);
+    const threadId = id("17000000", threadIndex + 1);
+    const self = selfAttendee(provider);
+    const attendees = [self, ...fixture.participants.map((key) => personAttendee(key, provider))];
     const latestAt = new Date(anchor.getTime() - fixture.latestMinutesAgo * MINUTE);
     const lastMessage = fixture.messages.at(-1);
-
     if (!lastMessage) throw new Error("Every demo thread must contain a message");
-
+    const unipileThreadId = `demo-fixture-thread-${threadIndex + 1}`;
     const threadData = {
-      companyId: context.companyId,
+      companyId,
       connectedAccountId,
       state: fixture.state,
       type: fixture.type,
       name: fixture.name,
-      unipileThreadId: `demo-fixture-thread-${threadIndex + 1}`,
+      unipileThreadId,
       unipileThreadAltId: null,
       provider,
       subject: fixture.subject,
@@ -677,29 +411,19 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
       sharedToCrm: true,
       createdAt: new Date(latestAt.getTime() - (fixture.messages.length - 1) * messageGapMinutes(fixture) * MINUTE),
     };
-    const occupiedThreadId = await prisma.messagingThread.findUnique({
-      where: { id: threadId },
-      select: { id: true },
-    });
-    const seededThread = await prisma.messagingThread.upsert({
-      where: {
-        connectedAccountId_unipileThreadId: {
-          connectedAccountId,
-          unipileThreadId: `demo-fixture-thread-${threadIndex + 1}`,
-        },
-      },
+    const occupied = await prisma.messagingThread.findUnique({ where: { id: threadId }, select: { id: true } });
+    const thread = await prisma.messagingThread.upsert({
+      where: { connectedAccountId_unipileThreadId: { connectedAccountId, unipileThreadId } },
       update: threadData,
-      create: {
-        ...(occupiedThreadId ? {} : { id: threadId }),
-        ...threadData,
-      },
+      create: { ...(occupied ? {} : { id: threadId }), ...threadData },
     });
+    seededThreadIds.push(thread.id);
+
     for (const attendee of attendees) {
       participantIndex += 1;
-      const participantId = fixtureId("18000000", participantIndex);
       const participantData = {
-        companyId: context.companyId,
-        messagingThreadId: seededThread.id,
+        companyId,
+        messagingThreadId: thread.id,
         provider,
         providerUserId: attendee.attendeeId,
         identifier: attendee.identifier,
@@ -711,51 +435,38 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
         occupation: attendee.occupation ?? null,
         isSelf: attendee.isSelf,
       };
-      const existingParticipants = await prisma.messagingThreadParticipant.findMany({
+      const existing = await prisma.messagingThreadParticipant.findMany({
         where: {
-          companyId: context.companyId,
-          messagingThreadId: seededThread.id,
+          companyId,
+          messagingThreadId: thread.id,
           OR: [{ providerUserId: attendee.attendeeId }, { identifier: attendee.identifier }],
         },
         select: { id: true },
       });
-      if (existingParticipants.length > 1) {
+      if (existing.length > 1) {
         throw new Error(
-          `Conflicting demo participants for ${attendee.displayName} in ${fixture.name ?? fixture.subject ?? fixture.account}`,
+          `Conflicting demo participants for ${attendee.displayName} in ${fixture.name ?? fixture.subject ?? provider}`,
         );
       }
-
-      const existingParticipant = existingParticipants[0];
-      if (existingParticipant) {
-        await prisma.messagingThreadParticipant.update({
-          where: { id: existingParticipant.id },
-          data: participantData,
-        });
-      } else {
+      if (existing[0])
+        await prisma.messagingThreadParticipant.update({ where: { id: existing[0].id }, data: participantData });
+      else {
         await prisma.messagingThreadParticipant.upsert({
           where: {
-            messagingThreadId_providerUserId: {
-              messagingThreadId: seededThread.id,
-              providerUserId: attendee.attendeeId,
-            },
+            messagingThreadId_providerUserId: { messagingThreadId: thread.id, providerUserId: attendee.attendeeId },
           },
           update: participantData,
-          create: {
-            id: participantId,
-            ...participantData,
-          },
+          create: { id: id("18000000", participantIndex), ...participantData },
         });
       }
     }
 
     const sentMessageCount = fixture.messages.filter((entry) => entry.draft !== true).length;
     let sentSoFar = 0;
-
     for (const message of fixture.messages) {
       messageIndex += 1;
-      const messageId = fixtureId("19000000", messageIndex);
       const sender = message.sender === "self" ? self : personAttendee(message.sender, provider);
-      const recipientAttendees = attendees.filter((attendee) => attendee.attendeeId !== sender.attendeeId);
+      const recipients = attendees.filter((attendee) => attendee.attendeeId !== sender.attendeeId);
       const sentPosition = message.draft === true ? sentMessageCount - 1 : sentSoFar;
       if (message.draft !== true) sentSoFar += 1;
       const sentAt = new Date(
@@ -767,24 +478,24 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
           : personAttendee(message.reaction.sender, provider)
         : null;
       const unipileMessageId = `demo-fixture-message-${messageIndex}`;
-      const composedBodies = isEmailFixtureProvider(provider)
+      const bodies = isEmailFixtureProvider(provider)
         ? message.html
           ? { plainText: message.text, html: message.html }
           : message.draft === true
             ? draftBodies(message.text)
-            : emailBodies(message.text, message.sender, context.seedUserEmail)
+            : emailBodies(message.text, message.sender)
         : null;
       const data = {
-        companyId: context.companyId,
+        companyId,
         connectedAccountId,
-        messagingThreadId: seededThread.id,
+        messagingThreadId: thread.id,
         provider,
-        providerMessageId: isEmailFixtureProvider(provider) ? `demo-provider-message-${messageIndex}` : null,
+        providerMessageId: isEmailFixtureProvider(provider) ? `demo-provider-message-${tag}-${messageIndex}` : null,
         direction: message.sender === "self" ? ("outbound" as const) : ("inbound" as const),
         origin: "external" as const,
         sender: inputJson(sender),
         senderIdentifier: sender.identifier,
-        recipients: inputJson({ to: recipientAttendees, cc: [], bcc: [] }),
+        recipients: inputJson({ to: recipients, cc: [], bcc: [] }),
         reactions: inputJson(
           message.reaction && reactionSender
             ? [
@@ -798,10 +509,12 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
             : [],
         ),
         subject: fixture.subject,
-        bodyText: composedBodies ? composedBodies.plainText : message.text,
-        bodyHtml: composedBodies ? composedBodies.html : null,
+        bodyText: bodies ? bodies.plainText : message.text,
+        bodyHtml: bodies ? bodies.html : null,
         attachmentsMeta: inputJson([]),
-        folderIds: emailFolderIds(provider, message.sender === "self"),
+        folderIds: isEmailFixtureProvider(provider)
+          ? [message.sender === "self" ? EMAIL_FOLDER_IDS[provider].sent : EMAIL_FOLDER_IDS[provider].inbox]
+          : [],
         isEvent: false,
         isDeleted: false,
         isHidden: false,
@@ -811,72 +524,31 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
         unipileMessageId,
         createdAt: sentAt,
       };
-
       await prisma.messagingMessage.upsert({
-        where: {
-          connectedAccountId_unipileMessageId: {
-            connectedAccountId,
-            unipileMessageId,
-          },
-        },
+        where: { connectedAccountId_unipileMessageId: { connectedAccountId, unipileMessageId } },
         update: data,
-        create: {
-          ...data,
-          id: messageId,
-        },
+        create: { ...data, id: id("19000000", messageIndex) },
       });
     }
-    if (fixture.links?.length) {
+
+    await prisma.messagingThreadRecordLink.deleteMany({ where: { companyId, threadId: thread.id } });
+    if (fixture.links.length) {
       await prisma.messagingThreadRecordLink.createMany({
-        data: fixture.links.map((link) => ({
-          companyId: context.companyId,
-          threadId: seededThread.id,
-          ...threadRecord(context.companyId, context.contactIds, fixture, link),
-        })),
+        data: fixture.links.map((link) => ({ companyId, threadId: thread.id, ...link })),
         skipDuplicates: true,
       });
     }
   }
-  await prisma.connectedAccount.deleteMany({
+
+  await prisma.messagingThread.deleteMany({
     where: {
-      companyId: context.companyId,
-      id: { startsWith: "16000000-", notIn: desiredAccountIds },
+      companyId,
+      connectedAccountId: { in: [...seededAccountIds.values()] },
+      unipileThreadId: { startsWith: "demo-fixture-thread-" },
+      id: { notIn: seededThreadIds },
     },
   });
-}
-
-/** The CRM record a demo conversation is about: the participant's deal or ticket, or the candidate's application. */
-function threadRecord(
-  companyId: string,
-  contactIds: readonly string[],
-  fixture: ThreadFixture,
-  link: "deal" | "ticket" | "candidate",
-): { typeId: string; recordId: string } {
-  const data = northwindDataset();
-  const person = people[fixture.participants[0]];
-  if (link === "candidate") {
-    const candidate = data.candidates.find(({ email }) => email === person.email);
-    if (!candidate) throw new Error(`Missing demo candidate for ${person.displayName}`);
-    return { typeId: presetId(companyId, "candidate"), recordId: candidate.id };
-  }
-  const contact = person.contactIndex === null ? undefined : data.contacts[person.contactIndex];
-  if (!contact || contactIds[contact.index] !== contact.id)
-    throw new Error(`Missing demo contact for the ${link} of ${person.displayName}`);
-  if (link === "deal") {
-    const deals = data.deals.filter(({ organizationIndex }) => organizationIndex === contact.organizationIndex);
-    const deal = deals.filter(({ status }) => status === "open").at(-1) ?? deals.at(-1);
-    if (!deal) throw new Error(`Missing demo deal for ${person.displayName}`);
-    return { typeId: presetId(companyId, "deal"), recordId: deal.id };
-  }
-  const subscriptions = new Set(
-    data.subscriptions
-      .filter(({ organizationIndex }) => organizationIndex === contact.organizationIndex)
-      .map(({ index }) => index),
-  );
-  const ticket =
-    data.tickets.filter(({ subscriptionIndex }) => subscriptions.has(subscriptionIndex)).at(-1) ??
-    data.tickets.filter(({ resolvedMs }) => resolvedMs === null).at(-1);
-  if (!ticket || !ticket.id.startsWith(NORTHWIND_RECORD_ID_PREFIXES.ticket))
-    throw new Error(`Missing demo ticket for ${person.displayName}`);
-  return { typeId: presetId(companyId, "ticket"), recordId: ticket.id };
+  await prisma.connectedAccount.deleteMany({
+    where: { companyId, id: { startsWith: `16000000-${tag}-`, notIn: [...seededAccountIds.values()] } },
+  });
 }

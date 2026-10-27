@@ -6,6 +6,7 @@ import { randomUUID } from "node:crypto";
 import { addCalendarDays, startOfCalendarWeek } from "../../features/record-calendar/calendar-date";
 import { presetId } from "../../features/records/crm-preset";
 import { postOk, readModel } from "./api";
+import { companyPath } from "./app-paths";
 import { collectPageErrors, expect, test } from "./fixtures";
 
 test.use({ timezoneId: "UTC" });
@@ -125,7 +126,7 @@ test("calendar drags resize a range from either edge and move a timed entry in 1
   const visit = await planner.create("Drag timed visit", visitField, `${today}T09:00:00Z`, `${today}T10:00:00Z`);
   const projectEntry = `${planner.sources[0].id}:${project}`;
   const visitEntry = `${planner.sources[1].id}:${visit}`;
-  await page.goto("/en/calendar");
+  await page.goto(companyPath(companyId, "/calendar"));
   const calendar = page.locator("[data-planner-page]");
   await expect(calendar).toBeVisible();
 
@@ -200,7 +201,7 @@ test("double-clicking an hour creates a record with that time in the date-time p
   const planner = await plannerWith(page, database, companyId, workspace.userId, [
     { label: "Visit window", valueType: "dateTimeRange" },
   ]);
-  await page.goto("/en/calendar");
+  await page.goto(companyPath(companyId, "/calendar"));
   const calendar = page.locator("[data-planner-page]");
   await expect(calendar).toBeVisible();
   await page.getByRole("tab", { name: "Week", exact: true }).click();

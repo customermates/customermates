@@ -7,7 +7,7 @@ import { widgetLayoutGeometry } from "@/features/widget/widget-grid";
 
 describe("widgetLayoutGeometry", () => {
   it("preserves chart defaults and persisted dimensions", () => {
-    expect(widgetLayoutGeometry(WidgetKind.chart, 12)).toEqual({ w: 4, h: 8, minH: 2 });
+    expect(widgetLayoutGeometry(WidgetKind.chart, 12)).toEqual({ w: 4, h: 6, minH: 2 });
     expect(widgetLayoutGeometry(WidgetKind.chart, 8, { w: 7, h: 4 })).toEqual({
       w: 7,
       h: 4,
@@ -36,27 +36,27 @@ describe("widgetLayoutGeometry", () => {
   it("gives activity timelines a wider large-screen default but lets them shrink like charts", () => {
     expect(widgetLayoutGeometry(WidgetKind.activityTimeline, 12)).toEqual({
       w: 6,
-      h: 8,
+      h: 6,
       minW: 2,
-      minH: 6,
+      minH: 5,
     });
   });
 
   it("fits activity minimums to narrow breakpoint columns", () => {
     expect(widgetLayoutGeometry(WidgetKind.activityTimeline, 2)).toEqual({
       w: 2,
-      h: 8,
+      h: 6,
       minW: 2,
-      minH: 6,
+      minH: 5,
     });
   });
 
   it("clamps undersized persisted activity layouts", () => {
     expect(widgetLayoutGeometry(WidgetKind.activityTimeline, 8, { w: 1, h: 1 })).toEqual({
       w: 2,
-      h: 6,
+      h: 5,
       minW: 2,
-      minH: 6,
+      minH: 5,
     });
   });
 
@@ -72,9 +72,9 @@ describe("widgetLayoutGeometry", () => {
     });
     expect(widgetLayoutGeometry(WidgetKind.activityTimeline, cols, { w: 20, h: 2 })).toEqual({
       w: cols,
-      h: 6,
+      h: 5,
       minW: minimumWidth,
-      minH: 6,
+      minH: 5,
     });
   });
 });

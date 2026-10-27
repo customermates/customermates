@@ -10,7 +10,7 @@ import type { SetupPlanInput, SetupPlanOutcome, SetupPlanPart, SetupPlanPartStat
 import type { PlanKnowledgeWire, PlanModelWire, PlanViewsWire } from "../workspace-setup-wire";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
-import { agencyPlan } from "@/features/workspace-setup/__tests__/setup-plan-fixtures";
+import { agencyDashboardPlan, agencyPlan } from "@/features/workspace-setup/__tests__/setup-plan-fixtures";
 import {
   SETUP_COMPANY_ID,
   emptyWorkspaceModel,
@@ -54,7 +54,7 @@ function harness() {
   );
   const answer = (overrides: Partial<Record<string, unknown>> = {}) =>
     models.generate.mockImplementation((call: Call) =>
-      Promise.resolve({ ok: true, value: overrides[call.label] ?? planPartFor(call.label, agencyPlan) }),
+      Promise.resolve({ ok: true, value: overrides[call.label] ?? planPartFor(call.label, agencyDashboardPlan) }),
     );
   const calls = () => models.generate.mock.calls.map(([call]) => call as Call);
   const plan = (planInput: SetupPlanInput = input) =>
@@ -94,7 +94,7 @@ describe("workspace setup planner", () => {
   it("plans the record model and the Knowledge Base outlines, then views against the planned model", async () => {
     const { answer, calls, plan } = harness();
     answer();
-    expect(await plan()).toEqual({ ok: true, plan: SetupPlanSchema.parse(agencyPlan) });
+    expect(await plan()).toEqual({ ok: true, plan: SetupPlanSchema.parse(agencyDashboardPlan) });
     expect(calls().map(({ label, purpose }) => [label, purpose])).toEqual([
       [PLAN_PART_LABELS.model, "setupPlanning"],
       [PLAN_PART_LABELS.knowledge, "setupDrafting"],
@@ -112,7 +112,7 @@ describe("workspace setup planner", () => {
 
   it("plans Knowledge Base pages from the answers alone without a website, but no FAQ page", async () => {
     const { answer, calls, plan } = harness();
-    const knowledge = planPartFor(PLAN_PART_LABELS.knowledge, agencyPlan) as PlanKnowledgeWire;
+    const knowledge = planPartFor(PLAN_PART_LABELS.knowledge, agencyDashboardPlan) as PlanKnowledgeWire;
     answer({
       [PLAN_PART_LABELS.knowledge]: {
         pages: [...knowledge.pages, { key: "faq", kind: "faq", title: "Questions", sections: ["Prices"] }],
@@ -146,19 +146,19 @@ describe("workspace setup planner", () => {
       planner.attempt("model", input, emptySetupPlanPart(4), { model: null, knowledge: null }),
     );
     expect(first).toMatchObject({ revision: 4, attempts: 1, value: null, failure: null });
-    models.generate.mockResolvedValueOnce({ ok: true, value: planToWireParts(agencyPlan).model });
+    models.generate.mockResolvedValueOnce({ ok: true, value: planToWireParts(agencyDashboardPlan).model });
     const second = await runWithTenant(owner, () =>
       planner.attempt("model", input, first, { model: null, knowledge: null }),
     );
     expect(second).toMatchObject({ attempts: 2, failure: null, repair: [] });
-    expect(second.value).toEqual(planToWireParts(agencyPlan).model);
+    expect(second.value).toEqual(planToWireParts(agencyDashboardPlan).model);
     expect(calls()[1].prompt).toContain(SETUP_REPAIR_INSTRUCTION);
     expect(calls()[1].prompt).toContain("lists: expected array, received string");
   });
 
   it("repairs a part once with its own issues and its previous answer", async () => {
     const { models, calls, plan } = harness();
-    const broken = planToWireParts(agencyPlan).views;
+    const broken = planToWireParts(agencyDashboardPlan).views;
     broken.listDefaults[0].list = "nowhere";
     let first = true;
     models.generate.mockImplementation((call: Call) => {
@@ -166,7 +166,7 @@ describe("workspace setup planner", () => {
         first = false;
         return Promise.resolve({ ok: true, value: broken });
       }
-      return Promise.resolve({ ok: true, value: planPartFor(call.label, agencyPlan) });
+      return Promise.resolve({ ok: true, value: planPartFor(call.label, agencyDashboardPlan) });
     });
     expect(await plan()).toMatchObject({ ok: true });
     const repair = calls().filter(({ label }) => label === PLAN_PART_LABELS.views)[1].prompt;
@@ -176,7 +176,7 @@ describe("workspace setup planner", () => {
 
   it("repairs a model without the required roles", async () => {
     const { models, calls, plan } = harness();
-    const unmarked = planToWireParts(agencyPlan).model;
+    const unmarked = planToWireParts(agencyDashboardPlan).model;
     unmarked.lists = unmarked.lists.map((list) => ({ ...list, role: null }));
     let first = true;
     models.generate.mockImplementation((call: Call) => {
@@ -184,7 +184,7 @@ describe("workspace setup planner", () => {
         first = false;
         return Promise.resolve({ ok: true, value: unmarked });
       }
-      return Promise.resolve({ ok: true, value: planPartFor(call.label, agencyPlan) });
+      return Promise.resolve({ ok: true, value: planPartFor(call.label, agencyDashboardPlan) });
     });
     expect(await plan()).toMatchObject({ ok: true });
     const repair = calls().filter(({ label }) => label === PLAN_PART_LABELS.model)[1].prompt;
@@ -194,7 +194,7 @@ describe("workspace setup planner", () => {
 
   it("drops a calculation that does not compile instead of spending a repair on it", async () => {
     const { answer, calls, plan } = harness();
-    const model = planToWireParts(agencyPlan).model;
+    const model = planToWireParts(agencyDashboardPlan).model;
     model.calculations[0].expression = JSON.stringify({ op: "daysBetween", from: "project.kickoff", to: "deal.x" });
     answer({ [PLAN_PART_LABELS.model]: model });
     const result = await plan();
@@ -207,7 +207,7 @@ describe("workspace setup planner", () => {
 
   it("trims a model over the plan limits instead of spending a repair on it", async () => {
     const { answer, calls, plan } = harness();
-    const model = planToWireParts(agencyPlan).model;
+    const model = planToWireParts(agencyDashboardPlan).model;
     const extra = ["campaign", "content", "event", "channel", "invoice", "ticket"];
     model.lists.push(
       ...extra.map((key) => ({
@@ -244,7 +244,7 @@ describe("workspace setup planner", () => {
     answer({ [PLAN_PART_LABELS.model]: model });
     const result = await plan();
     expect(result.ok && result.plan.recordModel.lists.map((list) => list.key)).toEqual([
-      ...agencyPlan.recordModel.lists.map((list) => list.key),
+      ...agencyDashboardPlan.recordModel.lists.map((list) => list.key),
       "campaign",
       "content",
       "event",
@@ -258,7 +258,7 @@ describe("workspace setup planner", () => {
 
   it("drops view columns that name no field of the planned model", async () => {
     const { answer, calls, plan } = harness();
-    const views = planToWireParts(agencyPlan).views;
+    const views = planToWireParts(agencyDashboardPlan).views;
     views.listDefaults[1].columns.push("project.clientContacts");
     answer({ [PLAN_PART_LABELS.views]: views });
     const result = await plan();
@@ -268,6 +268,21 @@ describe("workspace setup planner", () => {
       "project.budget",
     ]);
     expect(calls()).toHaveLength(3);
+  });
+
+  it("asks once for the seeded dashboard shape and keeps a dashboard that still misses it", async () => {
+    const { answer, calls, plan } = harness();
+    const views = planToWireParts(agencyPlan).views;
+    answer({ [PLAN_PART_LABELS.views]: views });
+    const result = await plan();
+    expect(result.ok && result.plan.dashboard.widgets.map((widget) => widget.key)).toEqual(
+      agencyPlan.dashboard.widgets.map((widget) => widget.key),
+    );
+    expect(calls()).toHaveLength(4);
+    const repair = calls()[3].prompt;
+    expect(repair).toContain(SETUP_REPAIR_INSTRUCTION);
+    expect(repair).toContain('"path":"widgets","message":"calendar_missing"');
+    expect(repair).toContain('"message":"four_numbers"');
   });
 
   it("gives up as an invalid plan when the repaired part is still rejected", async () => {
@@ -285,7 +300,7 @@ describe("workspace setup planner", () => {
       Promise.resolve(
         call.label === PLAN_PART_LABELS.model
           ? { ok: false, failure: "spendCap" }
-          : { ok: true, value: planPartFor(call.label, agencyPlan) },
+          : { ok: true, value: planPartFor(call.label, agencyDashboardPlan) },
       ),
     );
     expect(await plan()).toEqual({ ok: false, failure: "spendCap" });

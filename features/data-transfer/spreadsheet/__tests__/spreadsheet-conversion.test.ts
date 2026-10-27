@@ -46,6 +46,7 @@ function model(): RecordModel {
       options: [option("b2b", "B2B"), option("saas", "SaaS"), option("eu", "EU")],
     }),
     field("organization.website", "Website", "url"),
+    field("organization.address", "Address", "address"),
   );
   return preset;
 }
@@ -178,6 +179,22 @@ describe("convertSpreadsheet", () => {
       state: "value",
       value: { kind: "dateTime", value: "2026-01-02T09:30:00+01:00" },
     });
+  });
+
+  it("imports an address column as an unverified address", async () => {
+    const table = await tableOf(csv("Firma;Adresse\nAlpha GmbH;Hauptstr. 1, 10115 Berlin\nBeta AG;\n"));
+    const mapping = organizationMapping([
+      ["Firma", "organization.name"],
+      ["Adresse", "organization.address"],
+    ]);
+    const result = convertSpreadsheet(table, mapping, model(), { idempotencyKey: "address-1", related: new Map() });
+    expect(result.errors).toEqual([]);
+    expect(result.convertedRows).toBe(2);
+    expect(values(result.documents[0], 0)[id("organization.address")]).toMatchObject({
+      state: "value",
+      value: { kind: "address", value: { formatted: "Hauptstr. 1, 10115 Berlin", location: null } },
+    });
+    expect(values(result.documents[0], 1)[id("organization.address")]).toEqual({ state: "missing" });
   });
 
   it("maps duplicate headers independently and fills defaults for unmapped fields", async () => {

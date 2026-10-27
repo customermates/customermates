@@ -15,6 +15,7 @@ import {
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useRouter } from "@/i18n/navigation";
 import { stripLocalePrefix } from "@/i18n/locale-registry";
+import { stripWorkspacePrefix } from "@/core/navigation/workspace-paths";
 
 const PENDING_GO_TOAST_ID = "keyboard-shortcut-pending-go";
 const PENDING_GO_HINT_DELAY_MS = 300;
@@ -45,7 +46,8 @@ export function GlobalKeyboardShortcuts() {
     let hintTimer: ReturnType<typeof setTimeout> | undefined;
     let pendingGo = false;
 
-    const routeReady = () => rootStore.recordWorkspaceStore.routeReady(stripLocalePrefix(pathname));
+    const routeReady = () =>
+      rootStore.recordWorkspaceStore.routeReady(stripLocalePrefix(stripWorkspacePrefix(pathname)));
 
     function endGo() {
       clearTimeout(goTimer);

@@ -3,6 +3,7 @@ import type { Page } from "@playwright/test";
 import { randomUUID } from "node:crypto";
 
 import { presetId } from "../../features/records/crm-preset";
+import { companyUrlPattern, pagePath } from "./app-paths";
 import { collectPageErrors, expect, test } from "./fixtures";
 import {
   expectTriggerVisuallyHidden,
@@ -17,7 +18,7 @@ import { openSidebar, sidebarItem } from "./sidebar";
 
 async function createRecord(page: Page, companyId: string) {
   const name = `Menu pattern ${randomUUID().slice(0, 8)}`;
-  await page.goto(`/en/records/${presetId(companyId, "organization")}`);
+  await page.goto(pagePath(page, `/records/${presetId(companyId, "organization")}`));
   await page.locator("#records-add").click();
   const drawer = page.getByRole("dialog");
   await drawer.getByRole("textbox", { name: "Name", exact: false }).fill(name);
@@ -60,7 +61,7 @@ test.describe("item menus on a fine pointer", () => {
     );
     await expect(opened.getByRole("menuitem", { name: "Open in new tab", exact: true })).toHaveAttribute(
       "href",
-      /^\/en\/records\/[^/]+\/[^/]+$/,
+      companyUrlPattern(companyId, "/records/[^/]+/[^/]+$"),
     );
     await opened.getByRole("menuitem", { name: "Open details", exact: true }).click();
     await expect(page.getByRole("dialog").getByRole("textbox", { name: "Name", exact: false })).toHaveValue(name);
@@ -69,7 +70,7 @@ test.describe("item menus on a fine pointer", () => {
 
   test("right-click on a sidebar item opens the same items as its options trigger", async ({ page }) => {
     const errors = collectPageErrors(page);
-    await page.goto("/en/dashboard");
+    await page.goto(pagePath(page, "/dashboard"));
     await page.waitForLoadState("networkidle");
     await openSidebar(page);
     const item = sidebarItem(page, "Contacts");
@@ -102,7 +103,7 @@ test.describe("item menus on touch", () => {
       'INSERT INTO "DataView" (id, "companyId", "userId", "surfaceKey", name, position, "updatedAt") VALUES ($1, $2, $3, $4, $5, 0, NOW())',
       [randomUUID(), companyId, workspace.userId, `records:${presetId(companyId, "organization")}`, "Key accounts"],
     );
-    await page.goto("/en/dashboard");
+    await page.goto(pagePath(page, "/dashboard"));
     const media = await page.evaluate(
       (queries) => Object.fromEntries(queries.map((query) => [query, window.matchMedia(query).matches])),
       [FINE_HOVER, "(pointer: coarse)", "(hover: none)", "(any-pointer: coarse)"],
@@ -125,7 +126,7 @@ test.describe("item menus on touch", () => {
     expect(chipLabels[0]).toBe("Open in new tab");
     expect(chipLabels).toContain("Copy link");
 
-    await page.goto("/en/dashboard");
+    await page.goto(pagePath(page, "/dashboard"));
     await page.waitForLoadState("networkidle");
     await openSidebar(page);
     const item = sidebarItem(page, "Contacts");

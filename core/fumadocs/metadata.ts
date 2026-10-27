@@ -7,7 +7,13 @@ import { ROUTE_SOURCE_MAP } from "./route-source-map";
 import { env } from "@/env";
 import { buildAlternateLanguages } from "@/core/seo/alternates";
 import { brandedTitle } from "@/core/seo/branded-title";
-import { CONTENT_LOCALES, DEFAULT_LOCALE, buildLocalePath, isContentLocale } from "@/i18n/locale-registry";
+import {
+  DEFAULT_LOCALE,
+  buildLocalePath,
+  isContentLocale,
+  isMarketingPathPublished,
+  marketingLocalesForPath,
+} from "@/i18n/locale-registry";
 import { isContentPathname, isNoindexPublicRoute } from "@/i18n/routing";
 
 type GenerateMetadataParams = {
@@ -32,7 +38,12 @@ export function generateMetadataFromMeta({
   const path = mappedPath.map((part) => (part.startsWith(":") ? (params[part.slice(1)] ?? part) : part));
   const noindex = isNoindexPublicRoute(route);
   const metadataLocale = noindex && !isContentPathname(route) && !isContentLocale(locale) ? DEFAULT_LOCALE : locale;
-  const page = source.getPage(path, metadataLocale);
+  const routePath = buildRoutePath(route, params);
+  const publicPath = canonicalPath ?? routePath;
+  const page =
+    isContentLocale(metadataLocale) || isMarketingPathPublished(metadataLocale, publicPath)
+      ? source.getPage(path, metadataLocale)
+      : undefined;
   const isSlugRoute = mappedPath.some((part) => part.startsWith(":"));
 
   if (!page) {
@@ -48,9 +59,9 @@ export function generateMetadataFromMeta({
 
   if (!baseTitle) throw new Error(`The content page backing ${route} in locale ${locale} has no title`);
 
-  const routePath = buildRoutePath(route, params);
-  const publicPath = canonicalPath ?? routePath;
-  const translatedLocales = CONTENT_LOCALES.filter((loc) => source.getPage(path, loc) !== undefined);
+  const translatedLocales = marketingLocalesForPath(publicPath).filter(
+    (loc) => source.getPage(path, loc) !== undefined,
+  );
   const alternates = buildAlternateLanguages(publicPath, translatedLocales, env.BASE_URL);
 
   const canonical = `${env.BASE_URL}${buildLocalePath(locale, publicPath)}`;

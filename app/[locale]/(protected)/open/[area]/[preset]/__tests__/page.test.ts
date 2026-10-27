@@ -10,6 +10,10 @@ vi.mock("next/navigation", () => ({
     throw new Error(`NEXT_REDIRECT ${to}`);
   },
 }));
+vi.mock("next/headers", () => ({ headers: () => Promise.resolve(new Headers()) }));
+vi.mock("@/features/auth/next/resolve-account-state", () => ({
+  resolveRequestAccountState: () => Promise.resolve({ user: { company: { slug: "northwind" } } }),
+}));
 vi.mock("next-intl/server", () => ({ getLocale: () => Promise.resolve("de") }));
 vi.mock("@/features/auth/next/require", () => ({ requireAccess: () => Promise.resolve() }));
 vi.mock("@/core/di", () => ({ getGetRecordNavigationInteractor: () => navigation }));
@@ -34,7 +38,7 @@ describe("opening a starter list by its preset", () => {
   });
 
   it("opens the workspace's list of that preset", async () => {
-    await expect(open("records", "deal")).rejects.toThrow(`NEXT_REDIRECT /de/records/${DEAL_TYPE_ID}`);
+    await expect(open("records", "deal")).rejects.toThrow(`NEXT_REDIRECT /de/w/northwind/records/${DEAL_TYPE_ID}`);
   });
 
   it.each([

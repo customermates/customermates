@@ -43,12 +43,8 @@ export type SetupModelLabels = {
   lineItem: string;
   lineItems: string;
   quantity: string;
-  pricingMode: string;
-  savedPrice: string;
   effectivePrice: string;
   amount: string;
-  livePrice: string;
-  savedPriceMode: string;
 };
 
 type SetupModelContext = {
@@ -59,8 +55,6 @@ type SetupModelContext = {
 };
 
 const PROBABILITY = "probability";
-const SAVED_PRICE = "saved";
-const LIVE_PRICE = "live";
 
 const CATEGORY_COLORS: readonly ChipColor[] = ["info", "success", "warning", "secondary", "destructive", "default"];
 
@@ -445,13 +439,6 @@ export function compileSetupRecordModel(
   }
 
   if (lineItems && priceRef) {
-    const savedPrice: Expression = {
-      kind: "related",
-      relationId: lineItemOffering,
-      direction: "outgoing",
-      expression: { kind: "field", fieldId: priceRef },
-      reducer: "one",
-    };
     const lineDefinitions: FieldDefinition[] = [
       {
         id: setupNameReference(SETUP_LINE_ITEM_LIST),
@@ -474,37 +461,6 @@ export function compileSetupRecordModel(
         position: 1,
       },
       {
-        id: lineField("pricingMode"),
-        typeId: lineItemList,
-        label: labels.pricingMode,
-        valueType: "select",
-        behavior: { kind: "input", defaultValue: { kind: "select", value: LIVE_PRICE } },
-        required: true,
-        options: [
-          { id: LIVE_PRICE, label: labels.livePrice, color: null, attributes: [] },
-          { id: SAVED_PRICE, label: labels.savedPriceMode, color: null, attributes: [] },
-        ],
-        position: 2,
-      },
-      {
-        id: lineField("savedPrice"),
-        typeId: lineItemList,
-        label: labels.savedPrice,
-        valueType: "currency",
-        behavior: {
-          kind: "snapshot",
-          capture: "whenChanged",
-          allowManualOverride: true,
-          triggerFieldId: lineField("pricingMode"),
-          triggerValue: { kind: "select", value: SAVED_PRICE },
-          expression: savedPrice,
-        },
-        required: false,
-        format: { currency },
-        options: [],
-        position: 3,
-      },
-      {
         id: lineField("effectivePrice"),
         typeId: lineItemList,
         label: labels.effectivePrice,
@@ -512,26 +468,17 @@ export function compileSetupRecordModel(
         behavior: {
           kind: "formula",
           expression: {
-            kind: "operation",
-            operator: "if",
-            arguments: [
-              {
-                kind: "operation",
-                operator: "equal",
-                arguments: [
-                  { kind: "field", fieldId: lineField("pricingMode") },
-                  { kind: "literal", value: { kind: "select", value: SAVED_PRICE } },
-                ],
-              },
-              { kind: "field", fieldId: lineField("savedPrice") },
-              savedPrice,
-            ],
+            kind: "related",
+            relationId: lineItemOffering,
+            direction: "outgoing",
+            expression: { kind: "field", fieldId: priceRef },
+            reducer: "one",
           },
         },
         required: false,
         format: { currency },
         options: [],
-        position: 4,
+        position: 2,
       },
       {
         id: lineField("amount"),
@@ -552,7 +499,7 @@ export function compileSetupRecordModel(
         required: false,
         format: { currency },
         options: [],
-        position: 5,
+        position: 3,
       },
     ];
     for (const definition of lineDefinitions) definitions.set(definition.id, definition);

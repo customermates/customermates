@@ -6,6 +6,10 @@ const interactors = vi.hoisted(() => ({ manage: vi.fn() }));
 
 vi.mock("@/env", () => ({ env: { BASE_URL: "http://localhost:4105" } }));
 vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn() }));
+vi.mock("@/features/mcp-tools/mcp-workspace-slug", async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  mcpWorkspaceSlug: () => Promise.resolve("acme"),
+}));
 vi.mock("@/core/validation/zod-error-map-server", () => ({
   getZodParseContext: vi.fn().mockResolvedValue(undefined),
 }));
@@ -113,7 +117,7 @@ describe("saved-view MCP HTTP transport", () => {
     expect(interactors.manage).toHaveBeenCalledExactlyOnceWith(input);
     expect(called.data?.result?.structuredContent).toEqual({
       ...output,
-      link: `http://localhost:4105${output.link}`,
+      link: `http://localhost:4105/w/acme${output.link}`,
     });
     expect(called.data?.result?.isError).not.toBe(true);
   });

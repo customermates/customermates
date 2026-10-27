@@ -1,16 +1,11 @@
 import type { SetupAnswer, SetupAnswerValue, SetupAnswers } from "@/features/workspace-setup/setup-answers.schema";
-import type { SetupQuestion, SetupQuestionPart, SetupScreen } from "@/features/workspace-setup/setup-interview";
+import type { SetupQuestionPart } from "@/features/workspace-setup/setup-interview";
 import type { WorkspaceSetupStatusView, WorkspaceSetupView } from "@/ee/workspace-setup/workspace-setup-status";
 import type { SetupFollowUpQuestion } from "@/ee/workspace-setup/workspace-setup.schema";
 
-import {
-  SETUP_PARTS,
-  SETUP_QUESTIONS,
-  SETUP_SCREENS,
-  setupOptionVisible,
-  setupPartVisible,
-} from "@/features/workspace-setup/setup-interview";
+import { SETUP_PARTS, setupOptionVisible, setupPartVisible } from "@/features/workspace-setup/setup-interview";
 import { mergeWebsitePrefill } from "@/features/workspace-setup/setup-prefill";
+import { localeDefaultCurrency } from "@/i18n/locale-registry";
 
 export type SetupStage =
   | "unavailable"
@@ -50,25 +45,6 @@ export function partVisible(part: SetupQuestionPart, answers: SetupAnswers): boo
   return setupPartVisible(part.id, answers);
 }
 
-export function screenQuestions(screen: SetupScreen): SetupQuestion[] {
-  return SETUP_QUESTIONS.filter((question) => question.screen === screen);
-}
-
-export function visibleScreenParts(screen: SetupScreen, answers: SetupAnswers): SetupQuestionPart[] {
-  return screenQuestions(screen)
-    .flatMap((question) => question.parts)
-    .filter((part) => partVisible(part, answers));
-}
-
-export function visibleScreenIndexes(answers: SetupAnswers): number[] {
-  return SETUP_SCREENS.flatMap((screen, index) => (visibleScreenParts(screen, answers).length > 0 ? [index] : []));
-}
-
-export function adjacentScreenIndex(from: number, answers: SetupAnswers, step: 1 | -1): number | null {
-  const indexes = visibleScreenIndexes(answers);
-  return (step === 1 ? indexes.find((index) => index > from) : indexes.findLast((index) => index < from)) ?? null;
-}
-
 function defaultAnswerValue(
   part: SetupQuestionPart,
   locale: string,
@@ -88,7 +64,10 @@ function defaultAnswerValue(
     case "shortText":
       return { format: "shortText", value: "" };
     case "singleChoice":
-      return part.optionSource === "locales" ? { format: "singleChoice", value: locale } : null;
+      if (part.optionSource === "locales") return { format: "singleChoice", value: locale };
+      return part.optionSource === "currencies"
+        ? { format: "singleChoice", value: localeDefaultCurrency(locale) }
+        : null;
     case "rankedPick":
     case "range":
       return null;
@@ -147,53 +126,28 @@ export function answerComplete(
   return !answerIsEmpty(value);
 }
 
-export function missingScreenParts(screen: SetupScreen, answers: SetupAnswers, locale: string): string[] {
-  return visibleScreenParts(screen, answers)
-    .filter((part) => !answerComplete(part, displayedAnswerValue(part, answers, locale), { requireChoice: true }))
-    .map((part) => part.id);
+export function missingParts(answers: SetupAnswers, locale: string): string[] {
+  return SETUP_PARTS.filter(
+    (part) =>
+      partVisible(part, answers) &&
+      !answerComplete(part, displayedAnswerValue(part, answers, locale), { requireChoice: true }),
+  ).map((part) => part.id);
 }
 
-export function screenAnswersPayload(
-  screen: SetupScreen,
+export function answersPayload(
   answers: SetupAnswers,
   locale: string,
 ): Partial<Record<string, SetupAnswerValue | null>> {
   const payload: Partial<Record<string, SetupAnswerValue | null>> = {};
-  for (const part of SETUP_PARTS) if (answers[part.id] && !partVisible(part, answers)) payload[part.id] = null;
-  for (const part of screenQuestions(screen).flatMap((question) => question.parts)) {
-    if (!partVisible(part, answers)) {
+  for (const part of SETUP_PARTS) {
+    const value = partVisible(part, answers) ? displayedAnswerValue(part, answers, locale) : null;
+    if (!value || (part.optional && answerIsEmpty(value))) {
       if (answers[part.id]) payload[part.id] = null;
       continue;
     }
-    const value = displayedAnswerValue(part, answers, locale);
-    if (part.optional && answerIsEmpty(value)) {
-      if (answers[part.id]) payload[part.id] = null;
-      continue;
-    }
-    if (value) payload[part.id] = sanitizeAnswerValue(value);
+    payload[part.id] = sanitizeAnswerValue(value);
   }
   return payload;
-}
-
-export function interviewAnswersPayload(
-  answers: SetupAnswers,
-  locale: string,
-): Partial<Record<string, SetupAnswerValue | null>> {
-  return Object.fromEntries(
-    SETUP_SCREENS.flatMap((screen) => Object.entries(screenAnswersPayload(screen, answers, locale))),
-  );
-}
-
-export function resumeScreenIndex(answers: SetupAnswers, confirmedScreens = 0): number {
-  const visible = visibleScreenIndexes(answers);
-  const unconfirmed = visible.find((index) =>
-    visibleScreenParts(SETUP_SCREENS[index], answers).some(
-      (part) => !part.optional && answers[part.id]?.source !== "user",
-    ),
-  );
-  const last = visible.at(-1) ?? 0;
-  const target = Math.min(unconfirmed ?? last, confirmedScreens, last);
-  return visible.find((index) => index >= target) ?? last;
 }
 
 export function mergeServerAnswers(

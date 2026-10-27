@@ -12,6 +12,7 @@ import {
 import { expect, test, collectPageErrors } from "./fixtures";
 import { openItemMenu } from "./item-actions";
 import { openRecordDetails, recordItem, runNamedRowAction, editFormattedText } from "./record-rows";
+import { appUrlPattern, pageSlug } from "./app-paths";
 
 async function choose(page: Page, label: string | RegExp, option: string) {
   await page
@@ -32,7 +33,7 @@ async function createList(page: Page, name: string) {
   await dialog.getByRole("textbox", { name: "Name", exact: false }).first().fill(name);
   await dialog.getByRole("button", { name: "Save", exact: true }).first().click();
   await expect(dialog).not.toBeVisible();
-  await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
+  await expect(page).toHaveURL(appUrlPattern(pageSlug(page), "/records/[a-f0-9-]+$"));
   const typeId = new URL(page.url()).pathname.split("/").at(-1)!;
   await followConfigureLink(page);
   return typeId;
@@ -87,7 +88,7 @@ async function list(page: Page, typeId: string) {
   const link = page.locator(`[id="nav-records:${typeId}"]`);
   if (!(await link.isVisible())) await page.locator("#sidebar-trigger").click();
   await link.click();
-  await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}$`));
+  await expect(page).toHaveURL(appUrlPattern(pageSlug(page), `/records/${typeId}$`));
 }
 
 test("configures and persists every field type, multiple values and calendar controls through the UI", async ({

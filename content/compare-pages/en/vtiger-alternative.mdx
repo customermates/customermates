@@ -15,7 +15,7 @@ hero:
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
-  buttonRightHref: https://demo.customermates.com
+  buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 comparison:
@@ -96,7 +96,7 @@ cta:
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
-  buttonRightHref: https://demo.customermates.com
+  buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
@@ -188,13 +188,13 @@ Most Vtiger sales data has a direct home. In Configure, you can rename organizat
 |---|---|
 | Organizations | Organizations, or renamed "Accounts" |
 | Contacts | Contacts |
-| Leads | Contacts, with the default "Sales Pipeline" single choice field set to New |
+| Leads | Contacts, with a single choice field you add, such as "Sales Pipeline", set to New |
 | Deals | Deals, or renamed "Opportunities" |
 | Products and services | Services, or renamed "Products", added to deals as line items with quantities |
 | Tasks | Tasks, plus a custom date field for due dates |
 | Cases, quotes, invoices, projects, campaigns | No equivalent; keep Vtiger or a dedicated tool for them |
 
-A new Customermates workspace starts with the stages Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100% and Lost 0%. Rename them to match your Vtiger stages and adjust the probabilities on the Stage field in Configure for Deals.
+Stages are not preset in Customermates: add a Stage single choice field to your deals list in Configure (in the cloud, AI setup can create it), with one option per Vtiger stage, and set a **Probability %** on each option.
 
 <Steps>
   <Step title="Export from Vtiger">In each module's list view, choose Export and export all data. Vtiger exports CSV files, not Excel.</Step>

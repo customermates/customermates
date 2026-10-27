@@ -3,6 +3,7 @@ import type { Locator, Request } from "@playwright/test";
 import { z } from "zod";
 
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
+import { appPath } from "./app-paths";
 import { mintApiKey } from "./api-key";
 import { localE2eEnvironment } from "./local-environment";
 import { test, expect } from "./fixtures";
@@ -48,7 +49,7 @@ test("edits fenced code blocks in a Knowledge Base page and keeps them as fenced
     expect(created.ok()).toBe(true);
     const [wikiPage] = z.array(Page.pick({ id: true })).parse(await created.json());
 
-    await page.goto(`/en/wiki?page=${wikiPage.id}`);
+    await page.goto(appPath(workspace.slug, `/wiki?page=${wikiPage.id}`));
     const document = page.locator(".tiptap");
     const fencedBlock = document.locator("pre code").first();
     await expect(fencedBlock).toHaveText("yarn install");
@@ -85,7 +86,7 @@ test("edits fenced code blocks in a Knowledge Base page and keeps them as fenced
     const pending = new Set<Request>();
     page.on("request", (request) => {
       const headers = request.headers();
-      if (headers["rsc"] !== "1" || headers["next-router-prefetch"] || new URL(request.url()).pathname !== "/en/wiki")
+      if (headers["rsc"] !== "1" || headers["next-router-prefetch"] || new URL(request.url()).pathname !== appPath(workspace.slug, "/wiki"))
         return;
       refreshes.push(request);
       pending.add(request);
@@ -132,7 +133,7 @@ test("keeps wiki top-bar actions available while guarding drafts and saving thro
     });
     expect(created.ok()).toBe(true);
     const [wikiPage] = z.array(Page.pick({ id: true })).parse(await created.json());
-    await page.goto(`/en/wiki?page=${wikiPage.id}`);
+    await page.goto(appPath(workspace.slug, `/wiki?page=${wikiPage.id}`));
     const title = page.getByRole("textbox", { name: englishMessages.Wiki.pageTitle, exact: true });
     const newPage = page.getByRole("button", { name: englishMessages.Wiki.newPage, exact: true });
     const actions = page.getByRole("button", { name: englishMessages.Wiki.pageActions, exact: true });

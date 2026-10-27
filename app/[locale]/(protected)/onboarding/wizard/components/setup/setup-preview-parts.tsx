@@ -8,7 +8,13 @@ import type { PlanStage } from "./setup-plan-summary";
 import { FileText } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { ChartTypeIllustration } from "@/app/[locale]/(protected)/dashboard/components/widget-display-type-picker";
+import { ChartTypeIllustration } from "@/app/[locale]/(protected)/w/[workspace]/dashboard/components/widget-display-type-picker";
+import {
+  ActivityTimelineIllustration,
+  CalendarMonthIllustration,
+  CalendarUpcomingIllustration,
+  MapIllustration,
+} from "@/app/[locale]/(protected)/w/[workspace]/dashboard/components/widget-starter-picker";
 import { AppChip } from "@/components/chip/app-chip";
 import { RecordTypeGlyph } from "@/components/records/record-type-glyph";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,6 +27,13 @@ const CHART_SPAN = "col-span-2";
 const WIDE_SPAN = "col-span-2 @2xl/sketch:col-span-4";
 
 const DISPLAY_TYPES = new Set<string>(Object.values(DisplayType));
+
+const KIND_ILLUSTRATIONS: Record<string, ({ className }: { className?: string }) => ReactNode> = {
+  calendarUpcoming: CalendarUpcomingIllustration,
+  calendarMonth: CalendarMonthIllustration,
+  map: MapIllustration,
+  activity: ActivityTimelineIllustration,
+};
 
 export function PreviewPanel({
   title,
@@ -166,6 +179,7 @@ export function DashboardSketch({ tiles }: { tiles: DashboardTile[] }) {
     <div className="@container/sketch">
       <div className="grid grid-cols-2 gap-2 @2xl/sketch:grid-cols-4">
         {sketchTiles(tiles).map(({ tile, display, span }) => {
+          const KindIllustration = KIND_ILLUSTRATIONS[tile.display];
           return (
             <div
               key={tile.key}
@@ -176,7 +190,11 @@ export function DashboardSketch({ tiles }: { tiles: DashboardTile[] }) {
             >
               <span className="text-xs font-medium [overflow-wrap:anywhere]">{tile.title}</span>
 
-              <ChartTypeIllustration className="mt-auto h-10 w-full" type={display} />
+              {KindIllustration ? (
+                <KindIllustration className="mt-auto h-14 w-full" />
+              ) : (
+                <ChartTypeIllustration className="mt-auto h-10 w-full" type={display} />
+              )}
             </div>
           );
         })}

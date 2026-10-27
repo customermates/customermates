@@ -1,13 +1,13 @@
 ---
 title: "Preise: das agentische Open-Source-CRM"
 titleAccent: einfach, ehrlich, europäisch.
-description: "Preise für das agentische Open-Source-CRM: CRM-Kernfunktionen und MCP-Zugriff ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, einheitlicher Posteingang ab Pro."
+description: "Monatliche Preise pro Nutzer für das Open-Source-CRM: Kern-CRM, REST, Webhooks und MCP ab [[commercial.price.starter.monthly]], der Posteingang in der Cloud ab Pro."
 
 pricing:
   ariaLabelSlider: Anzahl der Nutzer
   customPrice: Individuell
   users: Nutzer
-  footnote: "Ein verbundenes Konto ist ein verknüpftes Postfach oder ein LinkedIn-, WhatsApp-, Instagram- oder Telegram-Profil, das einem einzelnen Nutzer gehört. Die Limits für verbundene Konten hängen vom Tarif ab, siehe unten."
+  footnote: "Ein verbundenes Konto ist ein verknüpftes Postfach oder ein LinkedIn-, WhatsApp-, Instagram- oder Telegram-Profil, das einem einzelnen Nutzer gehört. Starter enthält keine verbundenen Konten. Mit Pro teilen Sie einzelne Threads, ganze Konten teilen Sie ab Business mit dem Team. Die Preise gelten pro Nutzer und werden monatlich in Euro abgerechnet."
   totalSuffixSingular: "/Monat gesamt für {count} Nutzer"
   totalSuffixPlural: "/Monat gesamt für {count} Nutzer"
   pricingCards:
@@ -24,6 +24,8 @@ pricing:
       - REST-API, Webhooks & Schnittstellen für Ihr eigenes n8n
       - "[[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer: Mate arbeitet nach Zeitplan oder wenn sich ein Datensatz ändert"
       - "Mate-Nutzung: 1x pro aktivem Nutzer, das Basiskontingent (nutzbar, wenn Mate aktiviert ist)"
+      - Kein Posteingang und keine verbundenen Nachrichtenkonten
+      - "Self-Hosting: Funktionsumfang von Starter ohne Mate, Routinen und KI-Einrichtung"
   - plan: pro
     title: Pro
     description: CRM + einheitlicher Posteingang. Inklusive kostenloser Testphase von [[commercial.trial.days]] Tagen.
@@ -34,8 +36,9 @@ pricing:
     buttonVariant: bordered
     features:
       - Alles aus Starter
-      - "Einheitlicher Posteingang: E-Mail, LinkedIn, WhatsApp, Instagram, Telegram"
+      - "Einheitlicher Posteingang für Ihre eigenen Konten: E-Mail, LinkedIn, WhatsApp, Instagram, Telegram"
       - "[[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer inklusive"
+      - Einzelne Threads mit dem Team teilen
       - "[[commercial.entitlement.pro.includedRoutinesPerUser]] Routinen pro Nutzer: Mate arbeitet nach Zeitplan oder wenn sich ein Datensatz ändert"
       - Kalenderzugriff (nur lesend) & LinkedIn Sales Navigator
       - "Mate-Nutzung: 3x Starter pro aktivem Nutzer (nutzbar, wenn Mate aktiviert ist)"
@@ -54,8 +57,7 @@ pricing:
       - Alles aus Pro
       - "[[commercial.entitlement.business.includedAccountsPerUser]] verbundene Konten pro Nutzer inklusive"
       - "Routinen pro Nutzer: [[commercial.entitlement.business.includedRoutinesPerUser]] (Fair Use)"
-      - "Geteilte Konten: ganze verbundene Konten für das Team sichtbar"
-      - Ein teamweiter Verlauf über alle Kanäle
+      - "Ganze Konten teilen: ein verbundenes Konto für das Team freigeben"
       - Priorisierter Support
       - "Mate-Nutzung: 10x Starter pro aktivem Nutzer, die meiste Nutzung pro Euro (nutzbar, wenn Mate aktiviert ist)"
   - plan: max
@@ -125,8 +127,14 @@ comparison:
         catalogFact: messaging
       - label: Verbundene Konten pro Nutzer
         catalogFact: includedAccountsPerUser
-      - label: Geteilte Konten
+      - label: Ganze Konten teilen
         catalogFact: sharedAccounts
+      - label: Einzelne Threads teilen
+        starter: false
+        pro: true
+        business: true
+        max: true
+        enterprise: true
       - label: Kalenderzugriff (nur lesend)
         starter: false
         pro: true
@@ -237,16 +245,16 @@ faq:
     content: Wir wachsen organisch und investieren direkt in das Produkt und den Support. So bleibt unser CRM dauerhaft zukunftssicher.
   - id: pricing-faq-3
     title: Warum ein spezialisiertes CRM?
-    content: Große CRM-Suiten bündeln Marketing, Service und Vertrieb und berechnen dafür Module, die viele kleine Teams nie nutzen. Customermates konzentriert sich auf Kontakte, Deals, den einheitlichen Posteingang und KI-Zugriff per MCP. Sie zahlen nur dafür und erweitern den Rest bei Bedarf über REST-API, Webhooks oder Ihre eigene n8n-Instanz.
+    content: Große CRM-Suiten bündeln Marketing, Service und Vertrieb und berechnen dafür Module, die viele kleine Teams nie nutzen. Customermates konzentriert sich auf Kundendatensätze, die Sie selbst konfigurieren, den einheitlichen Posteingang und KI-Zugriff per MCP. Sie zahlen nur dafür und erweitern den Rest bei Bedarf über REST-API, Webhooks oder Ihre eigene n8n-Instanz.
   - id: pricing-faq-4
-    title: Wie verbessert Ihr CRM die Produktivität?
-    content: Wir setzen auf eine selbsterklärende Benutzeroberfläche mit wenigen Klicks für häufige Aufgaben, damit Ihr Team ohne intensive Schulung starten kann. So sparen Sie Zeit und konzentrieren sich auf Ihre Kunden statt auf das System.
+    title: Wie richte ich einen neuen Arbeitsbereich ein?
+    content: "Ein neuer Arbeitsbereich startet ohne Listen. In der Customermates Cloud baut die KI-Einrichtung einmalig beim Onboarding aus Ihrer Beschreibung Listen, Phasen, ein Dashboard und Wissensdatenbank-Seiten, begrenzt durch ein Credit-Limit; Sie können sie überspringen und leer beginnen. Sonst legen Personen mit Konfigurationsrechten Listen und Felder unter Konfigurieren an und importieren Datensätze aus einer Excel-Arbeitsmappe."
   - id: pricing-faq-5
-    title: Warum ist Ihr CRM eine starke Wahl?
-    content: "Wir bieten die CRM-Kernfunktionen, die die meisten Teams wirklich brauchen, kombiniert mit MCP-Zugriff für externe KI-Clients, offenen APIs und Schnittstellen für eine separate n8n-Instanz. So erhalten Sie ein agentisches Open-Source-CRM mit flexiblen Erweiterungen und klaren Produktgrenzen."
+    title: Was ist in keinem Tarif enthalten?
+    content: "Customermates enthält keine Sequenzen oder Massenversand, keine Angebote oder Rechnungen, keine Telefonie oder SMS, keine Webformulare, keine nativen Mobile-Apps und keine gemeinsamen Team-Ansichten (gespeicherte Ansichten sind persönlich). Der Posteingang arbeitet über unterstützte Anbieter-Integrationen, nicht über die offizielle WhatsApp Business API oder LinkedIn CRM Sync. SSO und White-Label sind nicht gebaut und nur als vertraglich vereinbarte Enterprise-Arbeit möglich."
   - id: pricing-faq-6
     title: Was zählt als verbundenes Konto?
-    content: "Ein verbundenes Konto ist ein verknüpftes Postfach oder ein LinkedIn-, WhatsApp-, Instagram- oder Telegram-Profil, das einem einzelnen Nutzer gehört. Pro enthält [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer, Business enthält [[commercial.entitlement.business.includedAccountsPerUser]] pro Nutzer, Max enthält [[commercial.entitlement.max.includedAccountsPerUser]] pro Nutzer, und Enterprise ist im Rahmen von Fair Use [[commercial.entitlement.enterprise.includedAccountsPerUser]]. Wenn Sie mehr als [[commercial.entitlement.max.includedAccountsPerUser]] Konten pro Nutzer brauchen, ist Enterprise der passende Tarif."
+    content: "Ein verbundenes Konto ist ein verknüpftes Postfach oder ein LinkedIn-, WhatsApp-, Instagram- oder Telegram-Profil, das einem einzelnen Nutzer gehört. Pro enthält [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer, Business enthält [[commercial.entitlement.business.includedAccountsPerUser]] pro Nutzer, Max enthält [[commercial.entitlement.max.includedAccountsPerUser]] pro Nutzer, und Enterprise ist im Rahmen von Fair Use [[commercial.entitlement.enterprise.includedAccountsPerUser]]. Wenn Sie mehr als [[commercial.entitlement.max.includedAccountsPerUser]] Konten pro Nutzer brauchen, ist Enterprise der passende Tarif. Starter und selbst gehostete Instanzen haben keine verbundenen Konten. Mit Pro arbeitet jede Person in ihren eigenen Konten und kann einzelne Threads teilen; ein ganzes verbundenes Konto mit dem Team teilen Sie ab Business, Max oder Enterprise."
   - id: pricing-faq-7
     title: Wie funktioniert die monatliche Abrechnung?
     content: "Sie zahlen pro aktivem Nutzer. Wenn Sie Nutzer hinzufügen oder entfernen, wird die Änderung anteilig mit der nächsten Rechnung verrechnet. Tarif-Upgrades gelten sofort mit anteiliger Berechnung für den Rest des Abrechnungszeitraums, Downgrades gelten sofort und der nicht genutzte Anteil wird gutgeschrieben."
@@ -256,13 +264,16 @@ faq:
   - id: pricing-faq-9
     title: Kann ein Login mehrere Workspaces nutzen?
     content: "Ja. Ein Login kann zu mehreren vollständig getrennten Workspaces gehören, etwa einem für den Vertrieb und einem für die Buchhaltung, und zwischen ihnen wechseln. Jeder Workspace hat einen eigenen Tarif, ein eigenes Abonnement und eigene Rechnungen, und Nutzerplätze zählen je Workspace: Wer in zwei Workspaces aktiv ist, ist in beiden ein bezahlter Nutzerplatz. Der erste Workspace, den Sie erstellen, enthält die kostenlose Testphase von [[commercial.trial.days]] Tagen; jeder weitere Workspace startet mit der Wahl eines Tarifs. Eine Self-Hosted-Instanz betreibt beliebig viele Workspaces ohne Abrechnung."
+  - id: pricing-faq-10
+    title: Was erhalte ich beim Self-Hosting?
+    content: "Eine selbst gehostete Instanz hat immer den Funktionsumfang von Starter: Kern-CRM, MCP, REST-API, Webhooks und die n8n-Schnittstellen, ohne Abrechnung. Einheitlicher Posteingang, Mate, Routinen und KI-Einrichtung laufen nur in der Customermates Cloud. MCP mit Ihrem eigenen KI-Client funktioniert auch selbst gehostet; der Client nutzt dabei Ihren eigenen KI-Anbieter."
 
 cta:
   action: Bereit loszulegen?
-  description: Starten Sie noch heute mit Customermates und wechseln Sie zu einem agentischen Open-Source-CRM für flexible Workflows und externe KI-Clients per MCP.
+  description: Sehen Sie sich einen Beispiel-Arbeitsbereich für kleine Unternehmen mit Beispieldaten an oder starten Sie Ihre eigene Testphase in der Customermates Cloud mit Pro-Funktionen.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
-  buttonRightText: Live-Demo ansehen
-  buttonRightHref: https://demo.customermates.com
+  buttonRightText: Workspace ansehen
+  buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 ---

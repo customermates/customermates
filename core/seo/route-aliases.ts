@@ -1,4 +1,5 @@
 import { APP_LOCALES, CONTENT_LOCALES, DEFAULT_LOCALE, buildLocalePath } from "../../i18n/locale-registry";
+import { workspaceEntryHref } from "../navigation/workspace-paths";
 
 const RETIRED_ROUTE_ALIASES = {
   "/blog/ai-native-crm": "/blog/ai-crm",
@@ -188,7 +189,10 @@ export const RETIRED_RECORD_LIST_PRESETS = {
 
 export function retiredAppRouteRedirects(): PermanentRedirect[] {
   const aliases: [string, string][] = [
-    ...Object.entries(RETIRED_APP_ROUTE_ALIASES),
+    ...Object.entries(RETIRED_APP_ROUTE_ALIASES).map(([retired, survivor]): [string, string] => [
+      retired,
+      workspaceEntryHref(survivor),
+    ]),
     ...Object.entries(RETIRED_RECORD_LIST_PRESETS).flatMap(([retired, preset]): [string, string][] => [
       [retired, `/open/records/${preset}`],
       [`${retired}/:recordId`, `/open/records/${preset}/:recordId`],

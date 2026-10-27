@@ -17,9 +17,11 @@ function entry(overrides: Partial<PlannerEntry> = {}): PlannerEntry {
   };
 }
 
+const recordUrl = (typeId: string, recordId: string) => `https://example.test/w/acme/records/${typeId}/${recordId}`;
+
 describe("iCalendar interoperability", () => {
   it("exports inclusive CRM date ranges as exclusive date-only DTEND with stable UIDs and escaped text", () => {
-    const value = plannerICalendar([entry()], "https://example.test", new Date("2026-03-27T08:15:30.000Z"));
+    const value = plannerICalendar([entry()], recordUrl, new Date("2026-03-27T08:15:30.000Z"));
     expect(value).toContain("UID:source:record@customermates\r\n");
     expect(value).toContain("DTSTAMP:20260327T081530Z\r\n");
     expect(value).toContain("DTSTART;VALUE=DATE:20260328\r\nDTEND;VALUE=DATE:20260331\r\n");
@@ -42,7 +44,7 @@ describe("iCalendar interoperability", () => {
           },
         }),
       ],
-      "https://example.test",
+      recordUrl,
       new Date("2026-03-27T08:15:30.000Z"),
     );
     expect(value).toContain("DTSTART:20260329T070000Z\r\nDTEND:20260329T093000Z\r\n");

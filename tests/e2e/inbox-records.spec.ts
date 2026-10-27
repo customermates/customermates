@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
 import { expect, test, collectPageErrors } from "./fixtures";
 import { e2eAppMode } from "./workspace-switching";
+import { companyPath } from "./app-paths";
 
 test.skip(e2eAppMode() === "self-hosted", "The Inbox, where conversation records are linked, is available on Customermates Cloud only");
 
@@ -41,7 +42,7 @@ test("creates, unlinks and relinks a generic person from the inbox", async ({
       JSON.stringify({ to: [], cc: [], bcc: [] }),
     ],
   );
-  await page.goto(`/en/inbox?threadId=${threadId}`);
+  await page.goto(companyPath(companyId, `/inbox?threadId=${threadId}`));
   const settingsControl = page
     .getByRole("button", { name: "Thread settings", exact: true })
     .and(page.locator('[data-slot="badge"]'));
@@ -118,7 +119,7 @@ test("creates, unlinks and relinks a generic person from the inbox", async ({
     [randomUUID(), companyId, threadId, "suggested-channel@example.test"],
   );
   await page.waitForLoadState("networkidle");
-  await page.goto(`/en/records/${stored.rows[0].typeId}/${stored.rows[0].recordId}`);
+  await page.goto(companyPath(companyId, `/records/${stored.rows[0].typeId}/${stored.rows[0].recordId}`));
   const channelInput = page.getByRole("combobox", { name: "Add phone, email or profile", exact: true });
   await channelInput.click();
   await channelInput.fill("Suggested Channel");

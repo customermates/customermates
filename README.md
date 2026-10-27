@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://customermates.com">Website</a> |
-  <a href="https://demo.customermates.com">Demo</a> |
+  <a href="https://demo.customermates.com/en/w/small-business/dashboard">Demo</a> |
   <a href="https://customermates.com/docs">Documentation</a> |
   <a href="https://github.com/customermates/customermates">GitHub</a> |
   <a href="https://youtu.be/A7juUe3Iaco">Walkthrough</a>

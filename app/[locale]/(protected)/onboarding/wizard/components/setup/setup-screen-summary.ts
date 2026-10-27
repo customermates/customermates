@@ -1,11 +1,11 @@
 import type { SetupAnswerValue, SetupAnswers } from "@/features/workspace-setup/setup-answers.schema";
-import type { SetupScreen } from "@/features/workspace-setup/setup-interview";
+import type { SetupQuestionPart } from "@/features/workspace-setup/setup-interview";
 import type { SetupQuestionDescriptor } from "./setup-question-descriptor";
 
 import { getCurrencyLabel } from "@/constants/currencies";
 
 import { partDescriptor } from "./setup-question-descriptor";
-import { visibleScreenParts } from "./setup-interview-state";
+import { displayedAnswerValue } from "./setup-interview-state";
 
 type Translate = (key: string) => string;
 
@@ -49,16 +49,23 @@ function answerSummary(
   }
 }
 
-export function screenSummary(
-  screen: SetupScreen,
+export function partsSummary(
+  parts: SetupQuestionPart[],
   answers: SetupAnswers,
   locale: string,
   currency: string | null,
   t: Translate,
 ): string {
-  return visibleScreenParts(screen, answers)
+  return parts
     .flatMap(
-      (part) => answerSummary(partDescriptor(part, t, answers), answers[part.id]?.value, locale, t, currency) ?? [],
+      (part) =>
+        answerSummary(
+          partDescriptor(part, t, answers),
+          displayedAnswerValue(part, answers, locale),
+          locale,
+          t,
+          currency,
+        ) ?? [],
     )
     .join(" · ");
 }

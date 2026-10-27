@@ -12,6 +12,18 @@ import {
   PRODUCT_DEMO_PATHS,
   buildProductDemoUrl,
 } from "@/components/marketing/product-demo";
+import {
+  DEMO_DEFAULT_RECORD_TYPE_IDS,
+  DEMO_RECORD_TYPE_IDS,
+  demoWorkspacePath,
+} from "@/components/marketing/product-demo-src";
+import {
+  PROFESSIONAL_SERVICES_SOLUTION_ID,
+  DEMO_DEFAULT_SOLUTION_ID,
+  SOLUTION_CATALOG,
+  SOLUTION_DATA_LOCALES,
+  findSolution,
+} from "@/core/solutions/solution-catalog";
 import { presetId } from "@/features/records/crm-preset";
 import { SEED_IDS } from "@/prisma/seeds/context";
 import { REPO_ROOT, walkFiles } from "./walk";
@@ -68,14 +80,53 @@ describe("seeded public product demo", () => {
       "/settings/webhooks",
     ]);
     expect(buildProductDemoUrl("en", "/inbox")).toBe(
-      "https://demo.customermates.com/en/inbox?threadId=latest&agentChat=closed",
+      "https://demo.customermates.com/en/w/small-business/inbox?threadId=latest&agentChat=closed",
     );
     expect(buildProductDemoUrl("de", DEMO_RECORD_LIST_PATHS.deals)).toBe(
-      `https://demo.customermates.com/de/records/${presetId(SEED_IDS.company, "deal")}?agentChat=closed`,
+      `https://demo.customermates.com/de/w/kleine-unternehmen/records/${presetId(findSolution("smb").companyIds.de, "deal")}?agentChat=closed`,
     );
-    expect(() => buildProductDemoUrl("en", "/deals")).toThrow("Unsupported product demo path: /deals");
-    expect(() => buildProductDemoUrl("en", `/records/${presetId(SEED_IDS.company, "service")}`)).toThrow(
-      "Unsupported product demo path",
+    expect(
+      buildProductDemoUrl(
+        "fr",
+        "/dashboard",
+        "agencies",
+      ),
+    ).toBe(
+      "https://demo.customermates.com/fr/w/agencies/dashboard?agentChat=closed",
+    );
+    expect(
+      buildProductDemoUrl(
+        "de",
+        "/dashboard",
+        "agencies",
+      ),
+    ).toBe(
+      "https://demo.customermates.com/de/w/agenturen/dashboard?agentChat=closed",
+    );
+    expect(() => buildProductDemoUrl("en", "/deals")).toThrow(
+      "Unsupported product demo path: /deals",
+    );
+    expect(() =>
+      buildProductDemoUrl(
+        "en",
+        `/records/${presetId(SEED_IDS.company, "service")}`,
+      ),
+    ).toThrow("Unsupported product demo path");
+  });
+
+  it("opens every default demo list in the workspace of the page's data locale", () => {
+    const solution = findSolution(DEMO_DEFAULT_SOLUTION_ID);
+    const keys = { contacts: "contact", deals: "deal", organizations: "organization", tasks: "task" } as const;
+    for (const dataLocale of SOLUTION_DATA_LOCALES)
+      for (const list of Object.keys(DEMO_RECORD_TYPE_IDS) as Array<keyof typeof keys>)
+        expect(DEMO_DEFAULT_RECORD_TYPE_IDS[dataLocale][list], `${dataLocale} ${list}`).toBe(
+          presetId(solution.companyIds[dataLocale], keys[list]),
+        );
+    expect(demoWorkspacePath("fr", DEMO_RECORD_LIST_PATHS.tasks)).toBe(
+      `/fr/w/small-business/records/${DEMO_RECORD_TYPE_IDS.tasks}`,
+    );
+    expect(demoWorkspacePath("de", `/configure?focus=list:${DEMO_RECORD_TYPE_IDS.deals}`)).toBe(
+      `/de/w/kleine-unternehmen/configure?focus=list:${DEMO_DEFAULT_RECORD_TYPE_IDS.de.deals}`,
     );
   });
 
@@ -124,9 +175,28 @@ describe("seeded public product demo", () => {
     ] as const) {
       expect(FEATURE_PRODUCT_DEMOS[slug].hostedBoundary, slug).toBe(true);
     }
-    expect(INDUSTRY_PRODUCT_DEMOS).toStrictEqual({
-      "professional-services": { path: DEMO_RECORD_LIST_PATHS.deals },
+    for (const solution of SOLUTION_CATALOG) {
+      const slug = solution.landingPath.split("/").at(-1)!;
+      const demo = solution.landingPath.startsWith("/for/")
+        ? INDUSTRY_PRODUCT_DEMOS[slug]
+        : FEATURE_PRODUCT_DEMOS[slug as keyof typeof FEATURE_PRODUCT_DEMOS];
+      expect(demo, solution.landingPath).toMatchObject({
+        path: solution.previewRoute,
+        solutionId: solution.id,
+      });
+    }
+    expect(INDUSTRY_PRODUCT_DEMOS["professional-services"]).toStrictEqual({
+      path: findSolution(PROFESSIONAL_SERVICES_SOLUTION_ID).previewRoute,
+      solutionId: PROFESSIONAL_SERVICES_SOLUTION_ID,
     });
+    expect(Object.keys(INDUSTRY_PRODUCT_DEMOS).sort()).toStrictEqual(
+      [
+        "professional-services",
+        ...SOLUTION_CATALOG.filter((solution) =>
+          solution.landingPath.startsWith("/for/"),
+        ).map((solution) => solution.landingPath.slice("/for/".length)),
+      ].sort(),
+    );
 
     const featureRoute = read("app/[locale]/(static)/features/[slug]/page.tsx");
     const industryRoute = read("app/[locale]/(static)/for/[industry]/page.tsx");
@@ -211,9 +281,11 @@ describe("seeded public product demo", () => {
     expect(frame).toContain("BROWSER_FRAME_REVEAL_DELAY_MS = 500");
     expect(frame).not.toContain("BrowserFrame.live");
     expect(frame).toContain("IntersectionObserver");
-    expect(frame).toContain('loadAhead?: boolean');
+    expect(frame).toContain("loadAhead?: boolean");
     expect(frame).toContain('const LOAD_AHEAD_MARGIN = "400px 0px"');
-    expect(frame).toContain("loadAhead ? { rootMargin: LOAD_AHEAD_MARGIN } : undefined");
+    expect(frame).toContain(
+      "loadAhead ? { rootMargin: LOAD_AHEAD_MARGIN } : undefined",
+    );
     expect(frame).toContain("prefetchDNS(origin)");
     expect(frame).toContain("preconnect(origin)");
     expect(frame).toContain('loading={loadAhead ? "eager" : "lazy"}');

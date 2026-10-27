@@ -4,7 +4,9 @@ import type { CSSProperties } from "react";
 
 import { AiClientLogo } from "@/components/ai-connection/ai-client-logo";
 import { cn } from "@/core/utils/cn";
-import type { ContentLocale } from "@/i18n/locale-registry";
+import type { MarketingLocale } from "@/i18n/locale-registry";
+
+import { contentLocaleOrDefault } from "@/i18n/locale-registry";
 
 import {
   VISUAL_AGENT_PROVIDER_FIXTURES,
@@ -28,7 +30,7 @@ const STATUS_CLASSES: Record<VisualStatusFixtureId, string> = {
   "deal-won": "bg-success/20 text-[color-mix(in_oklab,var(--success)_50%,var(--foreground))]",
 };
 
-const STATUS_LABELS: Record<ContentLocale, Record<VisualStatusFixtureId, string>> = {
+const STATUS_LABELS: Record<MarketingLocale, Record<VisualStatusFixtureId, string>> = {
   de: {
     "deal-abandoned": "Aufgegeben",
     "deal-lost": "Verloren",
@@ -40,6 +42,12 @@ const STATUS_LABELS: Record<ContentLocale, Record<VisualStatusFixtureId, string>
     "deal-lost": "Lost",
     "deal-open": "Open",
     "deal-won": "Won",
+  },
+  fr: {
+    "deal-abandoned": "Abandonnée",
+    "deal-lost": "Perdue",
+    "deal-open": "Ouverte",
+    "deal-won": "Gagnée",
   },
 };
 
@@ -217,7 +225,7 @@ export function PersonIdentity({
   );
 }
 
-export function nativeStatusLabel(status: VisualStatusFixtureId, locale: ContentLocale = "en"): string {
+export function nativeStatusLabel(status: VisualStatusFixtureId, locale: MarketingLocale = "en"): string {
   return STATUS_LABELS[locale][status];
 }
 
@@ -227,7 +235,7 @@ export function NativeStatusBadge({
   status,
 }: {
   className?: string;
-  locale?: ContentLocale;
+  locale?: MarketingLocale;
   status: VisualStatusFixtureId;
 }) {
   const fixture = VISUAL_STATUS_FIXTURES[status];
@@ -252,7 +260,7 @@ export function NativeRecordIdentity({
   record,
   statusLabel,
 }: {
-  locale?: ContentLocale;
+  locale?: MarketingLocale;
   record: VisualRecordFixtureId;
   statusLabel?: string;
 }) {
@@ -260,7 +268,7 @@ export function NativeRecordIdentity({
 
   return (
     <span className="flex min-w-0 flex-col items-start gap-2" data-native-record={record}>
-      <span className="text-xs leading-snug font-medium">{fixture.localizedName[locale]}</span>
+      <span className="text-xs leading-snug font-medium">{fixture.localizedName[contentLocaleOrDefault(locale)]}</span>
 
       <span className="flex flex-wrap items-center gap-2">
         {statusLabel ? <span className="text-[10px] text-muted-foreground">{statusLabel}</span> : null}

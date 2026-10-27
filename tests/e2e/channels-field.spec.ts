@@ -14,6 +14,7 @@ import {
 import { expect, test, collectPageErrors } from "./fixtures";
 import { openRecordDetails } from "./record-rows";
 import type { Client } from "pg";
+import { pagePath } from "./app-paths";
 
 async function readModel(database: Client, companyId: string) {
   const result = await database.query(
@@ -104,7 +105,7 @@ test("edits contact details inline on a record, pins it and copies on click", as
   const errors = collectPageErrors(page);
   const id = (key: string) => presetId(companyId, key);
   const channelsId = id("capability.identity");
-  await page.goto(`/en/records/${id("contact")}`);
+  await page.goto(pagePath(page, `/records/${id("contact")}`));
   await page.locator("#records-add").click();
   const drawer = page.getByRole("dialog", { name: "Contact", exact: true });
   await drawer.getByRole("textbox", { name: "First name", exact: false }).fill("Inline");
@@ -160,7 +161,7 @@ test("edits contact details inline on a record, pins it and copies on click", as
   await expect
     .poll(async () => recordChannelsField(await readModel(database, companyId), id("contact"))?.format?.onClick)
     .toBe("copy");
-  await page.goto(`/en/records/${id("contact")}`);
+  await page.goto(pagePath(page, `/records/${id("contact")}`));
   await openRecordDetails(page, "Inline Channels");
   await expect(drawer.locator(`[data-entity-field="${channelsId}"] [data-contact-action="copy"]`)).toHaveCount(1);
   expect(errors).toEqual([]);

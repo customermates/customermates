@@ -30,30 +30,30 @@ vi.mock("@/app/components/topbar-actions-context", () => ({ useSetTopBarActions:
 vi.mock("@/app/components/agent-chat/suggested-questions", () => ({ AgentStarterActions: () => null }));
 vi.mock("@/hooks/use-touch-input", () => ({ useTouchInput: () => false }));
 vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
-vi.mock("@/app/[locale]/(protected)/dashboard/components/chart-widget-card", () => ({
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/dashboard/components/chart-widget-card", () => ({
   ChartWidgetCard: ({ widget }: { widget: WidgetDto }) =>
     createElement("div", { "data-chart": widget.id }, widget.name),
 }));
-vi.mock("@/app/[locale]/(protected)/dashboard/components/activity-widget-card", () => ({
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/dashboard/components/activity-widget-card", () => ({
   ActivityWidgetCard: ({ widget }: { widget: WidgetDto }) =>
     createElement("div", { "data-activity": widget.id }, widget.name),
 }));
-vi.mock("@/app/[locale]/(protected)/dashboard/components/record-widget-card", () => ({
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/dashboard/components/record-widget-card", () => ({
   RecordWidgetCard: (widget: WidgetDto) => createElement("div", { "data-record-chart": widget.id }, widget.name),
 }));
-vi.mock("@/app/[locale]/(protected)/dashboard/components/record-activity-widget-card", () => ({
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/dashboard/components/record-activity-widget-card", () => ({
   RecordActivityWidgetCard: ({ widget }: { widget: WidgetDto }) =>
     createElement("div", { "data-record-activity": widget.id }, widget.name),
 }));
-vi.mock("@/app/[locale]/(protected)/dashboard/components/widget-data-drawer", () => ({
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/dashboard/components/widget-data-drawer", () => ({
   WidgetDataDrawer: ({ selection }: { selection: { widget: { id: string }; opener: HTMLElement | null } }) => { harness.dataSelection = selection; return null; },
 }));
-vi.mock("@/app/[locale]/(protected)/dashboard/components/widget-modal", () => ({ WidgetModal: () => null }));
-vi.mock("@/app/[locale]/(protected)/dashboard/components/record-calendar-widget-card", () => ({
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/dashboard/components/widget-modal", () => ({ WidgetModal: () => null }));
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/dashboard/components/record-calendar-widget-card", () => ({
   RecordCalendarWidgetCard: () => null,
 }));
-vi.mock("@/app/[locale]/(protected)/dashboard/components/record-map-widget-card", () => ({ RecordMapWidgetCard: () => null }));
-vi.mock("@/app/[locale]/(protected)/dashboard/actions", () => ({ readCalendarWidgetWindowAction: vi.fn() }));
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/dashboard/components/record-map-widget-card", () => ({ RecordMapWidgetCard: () => null }));
+vi.mock("@/app/[locale]/(protected)/w/[workspace]/dashboard/actions", () => ({ readCalendarWidgetWindowAction: vi.fn() }));
 vi.mock("@/core/stores/root-store.provider", () => {
   const widget = { id: "widget-1", name: "Total Deal Value", kind: "chart", measure: { source: { typeId: "deal" } } };
   const widgetModalStore = {
@@ -77,7 +77,7 @@ vi.mock("@/core/stores/root-store.provider", () => {
   return { useRootStore: () => ({ widgetModalStore, widgetsStore, recordWorkspaceStore: { navigation: null } }) };
 });
 
-import { DashboardPageView } from "@/app/[locale]/(protected)/dashboard/components/dashboard-page-view";
+import { DashboardPageView } from "@/app/[locale]/(protected)/w/[workspace]/dashboard/components/dashboard-page-view";
 
 let container: HTMLDivElement;
 let reactRoot: Root;

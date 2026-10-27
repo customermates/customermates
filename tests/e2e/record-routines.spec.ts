@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 
 import { formattingTagFor } from "../../i18n/locale-registry";
 import { nextCronOccurrence, parseCronExpression } from "../../ee/routines/routine-schedule";
+import { companyPath, companyUrlPattern } from "./app-paths";
 import { setPaletteText, expectPaletteText } from "./filter-palette";
 import { addFromConfigure, openConfigure } from "./configure";
 import { test, expect, collectPageErrors } from "./fixtures";
@@ -22,14 +23,14 @@ test("persists a routine for a customer-created type and matches only its config
   const creation = page.getByRole("dialog");
   await creation.getByRole("textbox", { name: "Name", exact: false }).first().fill("Projects");
   await creation.getByRole("button", { name: "Save", exact: true }).first().click();
-  await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
+  await expect(page).toHaveURL(companyUrlPattern(companyId, "/records/[a-f0-9-]+$"));
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
   const field = await database.query(
     `SELECT f.id, f.definition->>'label' AS label FROM "RecordFieldDefinition" f JOIN "RecordTypeDefinition" t ON t."companyId"=f."companyId" AND t.id=f."typeId" AND t.definition->>'primaryFieldId'=f.id WHERE f."companyId"=$1 AND f."typeId"=$2`,
     [companyId, typeId],
   );
   expect(field.rows).toHaveLength(1);
-  await page.goto("/en/routines");
+  await page.goto(companyPath(companyId, "/routines"));
   await page.locator("#routines-add").click();
   const routine = page.getByRole("dialog", { name: "Routine", exact: true });
   await routine.locator("#name").fill("Project follow-up");
@@ -67,7 +68,7 @@ test("persists a routine for a customer-created type and matches only its config
     .screenshot({ path: testInfo.outputPath("custom-type-routine.png"), animations: "disabled" });
   await page.keyboard.press("Escape");
   await expect(routine).not.toBeVisible();
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   await page.locator("#records-add").click();
   const record = page.getByRole("dialog");
   await record.getByRole("textbox", { name: field.rows[0].label, exact: false }).fill("Draft project");
@@ -122,7 +123,7 @@ test("lists a scheduled routine in words with its next run on the schedule's own
       nextRunAt,
     ],
   );
-  await page.goto("/en/routines");
+  await page.goto(companyPath(companyId, "/routines"));
   const nextRun = new Intl.DateTimeFormat(formattingTagFor("en"), {
     year: "2-digit",
     month: "2-digit",

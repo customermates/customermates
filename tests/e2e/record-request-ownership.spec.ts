@@ -3,6 +3,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { addFromConfigure, openConfigure, saveDrawer } from "./configure";
 import { expect, test, collectPageErrors } from "./fixtures";
 import { recordItem, openRecordDetails } from "./record-rows";
+import { pagePath } from "./app-paths";
 
 async function delayNextAction(page: Page) {
   let accepted!: () => void;
@@ -64,7 +65,7 @@ test("keeps the current record draft when a previous real save response arrives 
 }, testInfo) => {
   const typeId = presetId(companyId, "service");
   const errors = collectPageErrors(page);
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(pagePath(page, `/records/${typeId}`));
   await page.locator("#records-add").click();
   const editor = page.getByRole("dialog");
   await editor.getByRole("textbox", { name: "Name", exact: false }).fill("Accepted earlier record");
@@ -161,7 +162,7 @@ test("keeps a newly opened record draft when an accepted deletion response arriv
 }, testInfo) => {
   const typeId = presetId(companyId, "service");
   const errors = collectPageErrors(page);
-  await page.goto(`/en/records/${typeId}`);
+  await page.goto(pagePath(page, `/records/${typeId}`));
   await page.locator("#records-add").click();
   const editor = page.getByRole("dialog");
   await editor.getByRole("textbox", { name: "Name", exact: false }).fill("Earlier deletion target");

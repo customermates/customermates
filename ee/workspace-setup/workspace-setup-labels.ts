@@ -13,11 +13,7 @@ export async function setupModelLabels(locale: AppLocale): Promise<SetupModelLab
     lineItem: t("RecordModel.lineItem"),
     lineItems: t("RecordModel.lineItems"),
     quantity: t("RecordModel.lineFields.quantity"),
-    pricingMode: t("RecordModel.lineFields.pricingMode"),
-    savedPrice: t("RecordModel.lineFields.savedPrice"),
     effectivePrice: t("RecordModel.lineFields.effectivePrice"),
     amount: t("RecordModel.lineFields.amount"),
-    livePrice: t("RecordModel.priceModes.live"),
-    savedPriceMode: t("RecordModel.priceModes.saved"),
   };
 }

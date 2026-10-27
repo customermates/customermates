@@ -151,4 +151,78 @@ describe("sample record tables", () => {
       [null, "Alpha GmbH"],
     ]);
   });
+
+  it("spreads the calendar dates over the current month and keeps the span to an end date", async () => {
+    const { model, resolver, list } = await agency();
+    const [[project]] = sampleListSpecs([{ list: "project", typeId: list("project"), count: 4, kinds: [] }], model);
+    const column = (ref: string) =>
+      project.columns.find((entry) => entry.fieldId === resolver.field(ref))?.column ?? "";
+    const [start, due, name] = [column("project.startDate"), column("project.dueDate"), project.titleColumns[0]];
+    const rows = ["A", "B", "C", "D"].map((title, index) => ({
+      [name]: title,
+      [start]: `2027-0${index + 2}-10`,
+      [due]: `2027-0${index + 2}-17`,
+    }));
+    rows[3][start] = "";
+    const projects = generatedSampleList(project, rows, new Map(), "EUR", {
+      starts: new Set([resolver.field("project.startDate") ?? ""]),
+      upcoming: new Set(),
+      ends: new Map([[resolver.field("project.startDate") ?? "", resolver.field("project.dueDate") ?? ""]]),
+      today: new Date("2026-10-26T12:00:00Z"),
+    });
+    const cells = (header: string) =>
+      projects.table.rows.map((row) => row.cells[projects.table.headers.indexOf(header)]);
+    expect(cells(start)).toEqual(["2026-10-04", "2026-10-12", "2026-10-20", null]);
+    expect(cells(due)).toEqual(["2026-10-11", "2026-10-19", "2026-10-27", "2027-05-17"]);
+  });
+
+  it("keeps a spread end date in the month and moves its start date back by the span", async () => {
+    const { model, resolver, list } = await agency();
+    const [[project]] = sampleListSpecs([{ list: "project", typeId: list("project"), count: 1, kinds: [] }], model);
+    const field = (ref: string) => resolver.field(ref) ?? "";
+    const column = (ref: string) => project.columns.find((entry) => entry.fieldId === field(ref))?.column ?? "";
+    const [start, due] = [column("project.startDate"), column("project.dueDate")];
+    const projects = generatedSampleList(
+      project,
+      [{ [project.titleColumns[0]]: "A", [start]: "2027-01-01", [due]: "2027-02-15" }],
+      new Map(),
+      "EUR",
+      {
+        starts: new Set([field("project.dueDate"), field("project.startDate")]),
+        upcoming: new Set(),
+        ends: new Map([[field("project.startDate"), field("project.dueDate")]]),
+        today: new Date("2026-10-26T12:00:00Z"),
+      },
+    );
+    const cells = projects.table.rows[0].cells;
+    expect(cells[projects.table.headers.indexOf(due)]).toBe("2026-10-16");
+    expect(cells[projects.table.headers.indexOf(start)]).toBe("2026-09-01");
+  });
+
+  it("puts upcoming dates mostly into the next two weeks, also when the month is nearly over", async () => {
+    const { model, resolver, list } = await agency();
+    const [[deal]] = sampleListSpecs([{ list: "deal", typeId: list("deal"), count: 6, kinds: [] }], model);
+    const closeDate = resolver.field("deal.closeDate") ?? "";
+    const column = deal.columns.find((entry) => entry.fieldId === closeDate)?.column ?? "";
+    const deals = generatedSampleList(
+      deal,
+      ["A", "B", "C", "D", "E", "F"].map((title) => ({ [deal.titleColumns[0]]: title, [column]: "2026-03-01" })),
+      new Map(),
+      "EUR",
+      {
+        starts: new Set([closeDate]),
+        upcoming: new Set([closeDate]),
+        ends: new Map(),
+        today: new Date("2026-10-29T08:00:00Z"),
+      },
+    );
+    expect(deals.table.rows.map((row) => row.cells[deals.table.headers.indexOf(column)])).toEqual([
+      "2026-10-27",
+      "2026-10-30",
+      "2026-11-02",
+      "2026-11-04",
+      "2026-11-07",
+      "2026-11-10",
+    ]);
+  });
 });

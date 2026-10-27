@@ -1,0 +1,796 @@
+{
+  "entries": [
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 147946,
+        "height": 1800,
+        "src": "/captures/solutions/light/smb-en.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 35484,
+        "height": 600,
+        "src": "/captures/solutions/light/smb-en-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "smb",
+      "theme": "light"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 144766,
+        "height": 1800,
+        "src": "/captures/solutions/dark/smb-en.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 34862,
+        "height": 600,
+        "src": "/captures/solutions/dark/smb-en-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "smb",
+      "theme": "dark"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 154862,
+        "height": 1800,
+        "src": "/captures/solutions/light/smb-de.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 38654,
+        "height": 600,
+        "src": "/captures/solutions/light/smb-de-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "smb",
+      "theme": "light"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 151932,
+        "height": 1800,
+        "src": "/captures/solutions/dark/smb-de.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 37890,
+        "height": 600,
+        "src": "/captures/solutions/dark/smb-de-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "smb",
+      "theme": "dark"
+    },
+    {
+      "locale": "fr",
+      "main": {
+        "bytes": 159164,
+        "height": 1800,
+        "src": "/captures/solutions/light/smb-fr.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 38794,
+        "height": 600,
+        "src": "/captures/solutions/light/smb-fr-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "smb",
+      "theme": "light"
+    },
+    {
+      "locale": "fr",
+      "main": {
+        "bytes": 155828,
+        "height": 1800,
+        "src": "/captures/solutions/dark/smb-fr.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 37982,
+        "height": 600,
+        "src": "/captures/solutions/dark/smb-fr-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "smb",
+      "theme": "dark"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 141878,
+        "height": 1800,
+        "src": "/captures/solutions/light/consultants-en.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 27516,
+        "height": 600,
+        "src": "/captures/solutions/light/consultants-en-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "consultants",
+      "theme": "light"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 139474,
+        "height": 1800,
+        "src": "/captures/solutions/dark/consultants-en.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 27414,
+        "height": 600,
+        "src": "/captures/solutions/dark/consultants-en-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "consultants",
+      "theme": "dark"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 157564,
+        "height": 1800,
+        "src": "/captures/solutions/light/consultants-de.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 29826,
+        "height": 600,
+        "src": "/captures/solutions/light/consultants-de-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "consultants",
+      "theme": "light"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 154454,
+        "height": 1800,
+        "src": "/captures/solutions/dark/consultants-de.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 29564,
+        "height": 600,
+        "src": "/captures/solutions/dark/consultants-de-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "consultants",
+      "theme": "dark"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 142058,
+        "height": 1800,
+        "src": "/captures/solutions/light/agencies-en.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 34110,
+        "height": 600,
+        "src": "/captures/solutions/light/agencies-en-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "agencies",
+      "theme": "light"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 139348,
+        "height": 1800,
+        "src": "/captures/solutions/dark/agencies-en.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 33516,
+        "height": 600,
+        "src": "/captures/solutions/dark/agencies-en-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "agencies",
+      "theme": "dark"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 153356,
+        "height": 1800,
+        "src": "/captures/solutions/light/agencies-de.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 37390,
+        "height": 600,
+        "src": "/captures/solutions/light/agencies-de-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "agencies",
+      "theme": "light"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 150808,
+        "height": 1800,
+        "src": "/captures/solutions/dark/agencies-de.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 36830,
+        "height": 600,
+        "src": "/captures/solutions/dark/agencies-de-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "agencies",
+      "theme": "dark"
+    },
+    {
+      "locale": "fr",
+      "main": {
+        "bytes": 152522,
+        "height": 1800,
+        "src": "/captures/solutions/light/agencies-fr.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 34772,
+        "height": 600,
+        "src": "/captures/solutions/light/agencies-fr-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "agencies",
+      "theme": "light"
+    },
+    {
+      "locale": "fr",
+      "main": {
+        "bytes": 149750,
+        "height": 1800,
+        "src": "/captures/solutions/dark/agencies-fr.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 34452,
+        "height": 600,
+        "src": "/captures/solutions/dark/agencies-fr-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "agencies",
+      "theme": "dark"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 132602,
+        "height": 1800,
+        "src": "/captures/solutions/light/freelancers-en.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 25294,
+        "height": 600,
+        "src": "/captures/solutions/light/freelancers-en-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "freelancers",
+      "theme": "light"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 130862,
+        "height": 1800,
+        "src": "/captures/solutions/dark/freelancers-en.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 25186,
+        "height": 600,
+        "src": "/captures/solutions/dark/freelancers-en-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "freelancers",
+      "theme": "dark"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 145008,
+        "height": 1800,
+        "src": "/captures/solutions/light/freelancers-de.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 27032,
+        "height": 600,
+        "src": "/captures/solutions/light/freelancers-de-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "freelancers",
+      "theme": "light"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 143232,
+        "height": 1800,
+        "src": "/captures/solutions/dark/freelancers-de.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 26958,
+        "height": 600,
+        "src": "/captures/solutions/dark/freelancers-de-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "freelancers",
+      "theme": "dark"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 144556,
+        "height": 1800,
+        "src": "/captures/solutions/light/startups-en.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 34526,
+        "height": 600,
+        "src": "/captures/solutions/light/startups-en-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "startups",
+      "theme": "light"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 143968,
+        "height": 1800,
+        "src": "/captures/solutions/dark/startups-en.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 34446,
+        "height": 600,
+        "src": "/captures/solutions/dark/startups-en-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "startups",
+      "theme": "dark"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 157984,
+        "height": 1800,
+        "src": "/captures/solutions/light/startups-de.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 37542,
+        "height": 600,
+        "src": "/captures/solutions/light/startups-de-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "startups",
+      "theme": "light"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 157074,
+        "height": 1800,
+        "src": "/captures/solutions/dark/startups-de.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 37552,
+        "height": 600,
+        "src": "/captures/solutions/dark/startups-de-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "startups",
+      "theme": "dark"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 154680,
+        "height": 1800,
+        "src": "/captures/solutions/light/client-management-en.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 38374,
+        "height": 600,
+        "src": "/captures/solutions/light/client-management-en-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "client-management",
+      "theme": "light"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 152874,
+        "height": 1800,
+        "src": "/captures/solutions/dark/client-management-en.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 38352,
+        "height": 600,
+        "src": "/captures/solutions/dark/client-management-en-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "client-management",
+      "theme": "dark"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 164638,
+        "height": 1800,
+        "src": "/captures/solutions/light/client-management-de.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 39994,
+        "height": 600,
+        "src": "/captures/solutions/light/client-management-de-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "client-management",
+      "theme": "light"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 162400,
+        "height": 1800,
+        "src": "/captures/solutions/dark/client-management-de.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 39524,
+        "height": 600,
+        "src": "/captures/solutions/dark/client-management-de-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "client-management",
+      "theme": "dark"
+    },
+    {
+      "locale": "fr",
+      "main": {
+        "bytes": 164158,
+        "height": 1800,
+        "src": "/captures/solutions/light/client-management-fr.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 40322,
+        "height": 600,
+        "src": "/captures/solutions/light/client-management-fr-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "client-management",
+      "theme": "light"
+    },
+    {
+      "locale": "fr",
+      "main": {
+        "bytes": 161780,
+        "height": 1800,
+        "src": "/captures/solutions/dark/client-management-fr.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 40090,
+        "height": 600,
+        "src": "/captures/solutions/dark/client-management-fr-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "client-management",
+      "theme": "dark"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 141540,
+        "height": 1800,
+        "src": "/captures/solutions/light/sales-pipeline-en.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 48666,
+        "height": 600,
+        "src": "/captures/solutions/light/sales-pipeline-en-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "sales-pipeline",
+      "theme": "light"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 137610,
+        "height": 1800,
+        "src": "/captures/solutions/dark/sales-pipeline-en.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 47878,
+        "height": 600,
+        "src": "/captures/solutions/dark/sales-pipeline-en-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "sales-pipeline",
+      "theme": "dark"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 157690,
+        "height": 1800,
+        "src": "/captures/solutions/light/sales-pipeline-de.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 53566,
+        "height": 600,
+        "src": "/captures/solutions/light/sales-pipeline-de-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "sales-pipeline",
+      "theme": "light"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 153580,
+        "height": 1800,
+        "src": "/captures/solutions/dark/sales-pipeline-de.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 52712,
+        "height": 600,
+        "src": "/captures/solutions/dark/sales-pipeline-de-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "sales-pipeline",
+      "theme": "dark"
+    },
+    {
+      "locale": "fr",
+      "main": {
+        "bytes": 152262,
+        "height": 1800,
+        "src": "/captures/solutions/light/sales-pipeline-fr.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 51254,
+        "height": 600,
+        "src": "/captures/solutions/light/sales-pipeline-fr-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "sales-pipeline",
+      "theme": "light"
+    },
+    {
+      "locale": "fr",
+      "main": {
+        "bytes": 147610,
+        "height": 1800,
+        "src": "/captures/solutions/dark/sales-pipeline-fr.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 50858,
+        "height": 600,
+        "src": "/captures/solutions/dark/sales-pipeline-fr-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "sales-pipeline",
+      "theme": "dark"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 134160,
+        "height": 1800,
+        "src": "/captures/solutions/light/linkedin-crm-en.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 50870,
+        "height": 600,
+        "src": "/captures/solutions/light/linkedin-crm-en-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "linkedin-crm",
+      "theme": "light"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 132324,
+        "height": 1800,
+        "src": "/captures/solutions/dark/linkedin-crm-en.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 51012,
+        "height": 600,
+        "src": "/captures/solutions/dark/linkedin-crm-en-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "linkedin-crm",
+      "theme": "dark"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 148860,
+        "height": 1800,
+        "src": "/captures/solutions/light/linkedin-crm-de.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 57454,
+        "height": 600,
+        "src": "/captures/solutions/light/linkedin-crm-de-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "linkedin-crm",
+      "theme": "light"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 146878,
+        "height": 1800,
+        "src": "/captures/solutions/dark/linkedin-crm-de.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 57966,
+        "height": 600,
+        "src": "/captures/solutions/dark/linkedin-crm-de-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "linkedin-crm",
+      "theme": "dark"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 130646,
+        "height": 1800,
+        "src": "/captures/solutions/light/whatsapp-crm-en.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 41204,
+        "height": 600,
+        "src": "/captures/solutions/light/whatsapp-crm-en-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "whatsapp-crm",
+      "theme": "light"
+    },
+    {
+      "locale": "en",
+      "main": {
+        "bytes": 129086,
+        "height": 1800,
+        "src": "/captures/solutions/dark/whatsapp-crm-en.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 41204,
+        "height": 600,
+        "src": "/captures/solutions/dark/whatsapp-crm-en-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "whatsapp-crm",
+      "theme": "dark"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 142402,
+        "height": 1800,
+        "src": "/captures/solutions/light/whatsapp-crm-de.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 43684,
+        "height": 600,
+        "src": "/captures/solutions/light/whatsapp-crm-de-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "whatsapp-crm",
+      "theme": "light"
+    },
+    {
+      "locale": "de",
+      "main": {
+        "bytes": 140624,
+        "height": 1800,
+        "src": "/captures/solutions/dark/whatsapp-crm-de.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 43644,
+        "height": 600,
+        "src": "/captures/solutions/dark/whatsapp-crm-de-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "whatsapp-crm",
+      "theme": "dark"
+    }
+  ]
+}

@@ -4,7 +4,13 @@ import type { RecordCalendarWidgetDto } from "./record-calendar-widget.schema";
 import type { RecordMapWidgetDto } from "./record-map-widget.schema";
 import { CALENDAR_WIDGET_LAYOUTS } from "./record-calendar-widget.schema";
 import { GenericRecordWidgetDtoSchema, type RecordWidgetDto } from "./record-widget.schema";
-export { ChartColor, DisplayType, WidgetDisplayOptionsSchema, WidgetLayoutSchema } from "./widget-display.schema";
+export {
+  ChartColor,
+  DisplayType,
+  WidgetDisplayOptionsSchema,
+  WidgetLayoutSchema,
+  widgetUsesGroupColors,
+} from "./widget-display.schema";
 export type { WidgetDisplayOptions } from "./widget-display.schema";
 
 import { WidgetKind } from "@/generated/prisma";

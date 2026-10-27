@@ -28,12 +28,12 @@ import { actionData } from "@/core/utils/action-data";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { recordDisplayName } from "@/features/records/record-display-name";
 import { recordListHref } from "@/features/records/record-list-href";
-import { getRecordPresentationAction } from "@/app/[locale]/(protected)/records/actions";
-import { RecordExplorationStore } from "@/app/[locale]/(protected)/records/[typeId]/components/record-exploration.store";
+import { getRecordPresentationAction } from "@/app/[locale]/(protected)/w/[workspace]/records/actions";
+import { RecordExplorationStore } from "@/app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-exploration.store";
 import {
   useRecordCardRenderer,
   useRecordTableColumns,
-} from "@/app/[locale]/(protected)/records/[typeId]/components/record-table-columns";
+} from "@/app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-table-columns";
 
 const ScopedRecordsTable = observer(function ScopedRecordsTable({
   store,

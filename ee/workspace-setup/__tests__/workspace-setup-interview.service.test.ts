@@ -102,9 +102,9 @@ describe("workspace setup interview", () => {
       value: {
         answers: [
           { ...blank, part: "companyName", confidence: 0.99, text: "Studio Example" },
-          { ...blank, part: "purpose", confidence: 0.9, choices: ["clients"], custom: [] },
-          { ...blank, part: "customerKind", confidence: 0.9, choice: "businesses" },
-          { ...blank, part: "industries", confidence: 0.4, choices: [], custom: [] },
+          { ...blank, part: "purpose", confidence: 0.9, choices: ["projects"], custom: [] },
+          { ...blank, part: "workWith", confidence: 0.9, choice: "clients" },
+          { ...blank, part: "pricing", confidence: 0.4, choice: "timeBased" },
         ],
       },
     });
@@ -113,12 +113,12 @@ describe("workspace setup interview", () => {
     expect(models.generate.mock.calls[0][0].prompt).toContain("<<<UNTRUSTED_RECORD_TEXT>>>\n# Studio");
     expect(setup().interview.prefill).toBe("completed");
     expect(setup().answers.companyName?.value).toEqual({ format: "shortText", value: "Mine" });
-    expect(setup().answers.customerKind).toMatchObject({ source: "website", confidence: 0.9 });
+    expect(setup().answers.workWith).toMatchObject({ source: "website", confidence: 0.9 });
     expect(await run(() => service.prefill("setup-1", false))).toBe("done");
     expect(models.generate).toHaveBeenCalledTimes(1);
   });
 
-  it("returns to the interview with at most three follow-up questions", async () => {
+  it("returns to the interview with at most one follow-up question", async () => {
     const { service, models, run, setup } = harness({ status: "planning" });
     models.generate.mockResolvedValue({
       ok: true,
@@ -132,7 +132,6 @@ describe("workspace setup interview", () => {
               { id: "yearly", label: "Yearly" },
             ],
             allowCustom: false,
-            winChance: false,
             maxItems: null,
             maxPicks: null,
             suggestions: [],
@@ -164,9 +163,9 @@ describe("workspace setup interview", () => {
         ok: true,
         value: {
           answers: [
-            { ...blank, part: "industries", confidence: 0.8, choices: ["Fashion brands"] },
+            { ...blank, part: "purpose", confidence: 0.8, choices: ["projects"], custom: ["Fashion shoots"] },
             { ...blank, part: "companyName", confidence: 0.95, text: "Studio Example" },
-            { ...blank, part: "purpose", confidence: 0.9, choices: ["clients"], custom: [] },
+            { ...blank, part: "workWith", confidence: 0.9, choice: "clients" },
           ],
         },
       });
@@ -176,10 +175,10 @@ describe("workspace setup interview", () => {
     expect(first).toContain('"prefill":"suggested"');
     expect(second).toContain("answers: expected array, received string.");
     expect(setup().interview.prefill).toBe("completed");
-    expect(setup().answers.industries?.value).toEqual({
+    expect(setup().answers.purpose?.value).toEqual({
       format: "multipleChoice",
-      values: [],
-      custom: ["Fashion brands"],
+      values: ["projects"],
+      custom: ["Fashion shoots"],
     });
   });
 
@@ -310,7 +309,7 @@ describe("workspace setup interview", () => {
       }));
       return Promise.resolve({
         ok: true,
-        value: { answers: [{ ...blank, part: "customerKind", confidence: 0.9, choice: "businesses" }] },
+        value: { answers: [{ ...blank, part: "workWith", confidence: 0.9, choice: "customers" }] },
       });
     });
 
@@ -318,7 +317,7 @@ describe("workspace setup interview", () => {
 
     expect(setup().crawlId).toBe("crawl-2");
     expect(setup().interview.prefill).toBe("idle");
-    expect(setup().answers.customerKind).toBeUndefined();
+    expect(setup().answers.workWith).toBeUndefined();
   });
 
   it("counts a plan as stalled once nobody picked up its queue or its claim went quiet", () => {
@@ -349,7 +348,7 @@ describe("workspace setup interview", () => {
     expect(setupPrefillStalled(setup(), new Date())).toBe(true);
     models.generate.mockResolvedValue({
       ok: true,
-      value: { answers: [{ ...blank, part: "customerKind", confidence: 0.9, choice: "businesses" }] },
+      value: { answers: [{ ...blank, part: "workWith", confidence: 0.9, choice: "customers" }] },
     });
 
     expect(await run(() => service.prefill("setup-1", false))).toBe("done");

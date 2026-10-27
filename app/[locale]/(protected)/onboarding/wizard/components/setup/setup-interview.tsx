@@ -4,37 +4,37 @@ import type { SetupQuestion } from "@/features/workspace-setup/setup-interview";
 
 import { Globe, Loader2, X } from "lucide-react";
 import { observer } from "mobx-react-lite";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { focusFirstInvalidField } from "@/components/forms/focus-first-invalid-field";
 import { ConfirmDialog } from "@/components/modal/confirm-dialog";
 import { Alert } from "@/components/shared/alert";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { WizardProgress } from "@/components/shared/wizard-progress";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { cn } from "@/core/utils/cn";
-import { SETUP_SCREEN_DEFINITIONS, SETUP_SCREENS } from "@/features/workspace-setup/setup-interview";
+import { SETUP_BASICS_QUESTION, SETUP_QUESTIONS } from "@/features/workspace-setup/setup-interview";
 
-import { answerFromWebsite, displayedAnswerValue, partVisible, screenQuestions } from "./setup-interview-state";
+import { answerFromWebsite, displayedAnswerValue, partVisible } from "./setup-interview-state";
 import { SetupActionBar } from "./setup-plan-preview";
 import { partDescriptor } from "./setup-question-descriptor";
 import { SetupQuestionField } from "./setup-question-field";
-import { screenSummary } from "./setup-screen-summary";
+import { partsSummary } from "./setup-screen-summary";
 import { SetupSpreadsheetUpload } from "./setup-spreadsheet-upload";
-
-type ScreenState = "done" | "current" | "upcoming";
+import { SetupStartEmpty } from "./setup-start";
+import { SetupTimeline, type SetupTimelineRow } from "./setup-timeline";
 
 const SetupQuestionBlock = observer(function SetupQuestionBlock({ question }: { question: SetupQuestion }) {
   const t = useTranslations();
   const { workspaceSetupStore: store } = useRootStore();
   const parts = question.parts.filter((part) => partVisible(part, store.answers));
   if (!parts.length) return null;
+  const suggestion = store.stepSuggestion;
   const fields = parts.map((part) => {
     const answer = store.answers[part.id]?.value;
+    const steps =
+      part.id === "mainSteps" && suggestion ? (t.raw(`WorkspaceSetup.suggestedSteps.${suggestion}`) as string[]) : null;
     return (
       <Fragment key={part.id}>
         <SetupQuestionField
@@ -43,7 +43,11 @@ const SetupQuestionBlock = observer(function SetupQuestionBlock({ question }: { 
           disabled={store.isBusy}
           fromWebsite={answerFromWebsite(store.answers, part.id)}
           invalid={store.answerMissing(part.id)}
-          value={displayedAnswerValue(part, store.answers, store.locale)}
+          value={
+            steps
+              ? { format: "orderedList", items: steps.map((label) => ({ label })) }
+              : displayedAnswerValue(part, store.answers, store.locale)
+          }
           onChange={(value) => store.setAnswer(part.id, value)}
         />
 
@@ -72,29 +76,64 @@ const SetupWebsiteContext = observer(function SetupWebsiteContext() {
   if (website && !editing) {
     const host = new URL(website).host;
     const progress = store.websiteReading;
-    const status = progress
-      ? t(`WorkspaceSetup.website.${progress.stage}`, { website: host, read: progress.read, total: progress.total })
-      : t("WorkspaceSetup.website.suggestedHint");
-    return (
-      <Alert
-        color="primary"
-        icon={progress ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : <Globe />}
-        role="note"
-        title={host}
-      >
-        <div className="flex flex-col gap-2">
-          <div className="flex items-start justify-between gap-3">
-            <span aria-live="polite" className="text-sm text-primary/90">
-              {status}
-            </span>
+    const prefill = store.setup?.interview.prefill;
+    const failed = prefill === "failed";
+    const stage = progress?.stage ?? null;
+    const { sourcesFound, sourcesRead } = store.setup?.knowledgeBase ?? { sourcesFound: 0, sourcesRead: 0 };
+    const rows: SetupTimelineRow[] = [
+      stage === "finding"
+        ? { key: "finding", status: "running", label: t("WorkspaceSetup.website.finding", { website: host }) }
+        : {
+            key: "finding",
+            status: "done",
+            label: t("WorkspaceSetup.website.found", { website: host, count: sourcesFound }),
+          },
+    ];
+    if (progress && stage === "reading") {
+      rows.push({
+        key: "reading",
+        status: "running",
+        label: t("WorkspaceSetup.website.reading", { website: host, read: progress.read, total: progress.total }),
+      });
+    } else if (stage !== "finding") {
+      rows.push({
+        key: "reading",
+        status: "done",
+        label: t("WorkspaceSetup.website.readPages", { count: sourcesRead }),
+      });
+    }
+    if (stage === "suggesting") {
+      rows.push({
+        key: "suggesting",
+        status: "running",
+        label: t("WorkspaceSetup.website.suggesting", { website: host }),
+      });
+    } else if (stage === null && !failed && prefill !== "skipped") {
+      rows.push({
+        key: "suggesting",
+        status: "done",
+        label: t("WorkspaceSetup.website.suggested"),
+      });
+    }
+    const running = rows.find((row) => row.status === "running");
+    const summary = running
+      ? String(running.label)
+      : failed
+        ? t("WorkspaceSetup.interview.prefillFailed")
+        : prefill === "skipped"
+          ? String(rows[rows.length - 1].label)
+          : t("WorkspaceSetup.website.suggestedHint");
 
-            {editable ? (
+    return (
+      <div className="flex flex-col gap-1">
+        <SetupTimeline
+          action={
+            editable ? (
               <Button
-                className="-my-1"
                 disabled={store.isBusy}
-                size="sm"
+                size="xs"
                 type="button"
-                variant="secondary"
+                variant="ghost"
                 onClick={() => {
                   setDraft(host);
                   setEditing(true);
@@ -102,21 +141,18 @@ const SetupWebsiteContext = observer(function SetupWebsiteContext() {
               >
                 {t("WorkspaceSetup.website.change")}
               </Button>
-            ) : null}
-          </div>
+            ) : null
+          }
+          rows={rows}
+          status={running ? "running" : failed ? "error" : "done"}
+          summary={summary}
+        />
 
-          {progress ? (
-            <div className="flex flex-col gap-1.5">
-              <WizardProgress current={progress.progress} label={host} total={100} valueText={status} />
-
-              <span className="text-xs text-primary/90">{t("WorkspaceSetup.website.eta")}</span>
-            </div>
-          ) : null}
-        </div>
-      </Alert>
+        {progress ? <p className="pl-5.5 text-xs text-muted-foreground">{t("WorkspaceSetup.website.eta")}</p> : null}
+      </div>
     );
   }
-  if (!editable) return null;
+  if (!editable || !editing) return null;
 
   const submit = () => {
     const value = draft.trim();
@@ -153,25 +189,23 @@ const SetupWebsiteContext = observer(function SetupWebsiteContext() {
               event.preventDefault();
               submit();
             }
-            if (event.key === "Escape" && editing) {
+            if (event.key === "Escape") {
               event.preventDefault();
               cancel();
             }
           }}
         />
 
-        {editing ? (
-          <Button
-            aria-label={t("Common.actions.close")}
-            disabled={store.isBusy}
-            size="icon"
-            type="button"
-            variant="ghost"
-            onClick={cancel}
-          >
-            <X aria-hidden />
-          </Button>
-        ) : null}
+        <Button
+          aria-label={t("Common.actions.close")}
+          disabled={store.isBusy}
+          size="icon"
+          type="button"
+          variant="ghost"
+          onClick={cancel}
+        >
+          <X aria-hidden />
+        </Button>
 
         <Button disabled={store.isBusy || !draft.trim()} type="button" variant="secondary" onClick={submit}>
           {reading ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : null}
@@ -183,27 +217,37 @@ const SetupWebsiteContext = observer(function SetupWebsiteContext() {
   );
 });
 
+const SetupBasics = observer(function SetupBasics({ question }: { question: SetupQuestion }) {
+  const t = useTranslations();
+  const { workspaceSetupStore: store } = useRootStore();
+  const [open, setOpen] = useState(false);
+  const missing = question.parts.some((part) => store.answerMissing(part.id));
+  if (open || missing) return <SetupQuestionBlock question={question} />;
+  const summary = partsSummary(question.parts, store.answers, store.locale, store.currency, t);
+
+  return (
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
+      <span>{summary}</span>
+
+      <Button
+        className="-my-1 h-auto px-1 py-0.5"
+        disabled={store.isBusy}
+        size="sm"
+        type="button"
+        variant="link"
+        onClick={() => setOpen(true)}
+      >
+        {t("WorkspaceSetup.website.change")}
+      </Button>
+    </div>
+  );
+});
+
 export const SetupInterview = observer(function SetupInterview() {
   const t = useTranslations();
-  const { workspaceSetupStore: store, onboardingWizardStore: wizard } = useRootStore();
-  const [confirmingEmpty, setConfirmingEmpty] = useState(false);
+  const { workspaceSetupStore: store } = useRootStore();
   const section = useRef<HTMLElement>(null);
-  const triggers = useRef(new Map<number, HTMLButtonElement>());
-  const previous = useRef(store.screenIndex);
-  const titles = SETUP_SCREEN_DEFINITIONS.map((screen) => t(screen.titleKey));
-  const visibleScreens = store.visibleScreens;
-  const position = Math.max(0, visibleScreens.indexOf(store.screenIndex));
-  const setup = store.setup;
-  const prefillFailed = setup?.interview.prefill === "failed" && Boolean(setup.websiteUrl);
   const saving = store.pending === "save";
-
-  useEffect(() => {
-    if (previous.current !== store.screenIndex) triggers.current.get(store.screenIndex)?.focus();
-    previous.current = store.screenIndex;
-  }, [store.screenIndex]);
-
-  const stateOf = (index: number): ScreenState =>
-    index === store.screenIndex ? "current" : index <= store.furthestScreen ? "done" : "upcoming";
 
   return (
     <section ref={section} aria-busy={store.isBusy} className="flex flex-col gap-6">
@@ -211,108 +255,58 @@ export const SetupInterview = observer(function SetupInterview() {
 
       {store.adjusting ? <Alert color="primary" description={t("WorkspaceSetup.interview.adjusting")} /> : null}
 
-      {prefillFailed && store.screenIndex === 0 ? (
-        <Alert color="warning" description={t("WorkspaceSetup.interview.prefillFailed")} />
+      {store.prefillRunning && !store.adjusting ? (
+        <Alert
+          color="primary"
+          description={t("WorkspaceSetup.interview.prefillPending")}
+          icon={<Globe />}
+          role="status"
+        />
       ) : null}
 
-      <Accordion
-        aria-label={t("WorkspaceSetup.interview.stepsLabel")}
-        className="rounded-xl border border-border"
-        type="single"
-        value={String(store.screenIndex)}
-        onValueChange={(value) => {
-          if (value) store.goToScreen(Number(value));
-        }}
-      >
-        {visibleScreens.map((index, order) => {
-          const state = stateOf(index);
-          const summary =
-            state === "done" ? screenSummary(SETUP_SCREENS[index], store.answers, store.locale, store.currency, t) : "";
-          return (
-            <AccordionItem
-              key={index}
-              className="px-4"
-              disabled={state === "upcoming" || store.isBusy}
-              value={String(index)}
-            >
-              <AccordionTrigger
-                ref={(node) => {
-                  if (node) triggers.current.set(index, node);
-                  else triggers.current.delete(index);
-                }}
-                aria-label={`${t("WorkspaceSetup.interview.stepProgress", { current: order + 1, total: visibleScreens.length })}: ${titles[index]}`}
-                className="min-w-0 items-center hover:no-underline disabled:opacity-100 [&[data-disabled]>svg]:hidden [&[data-state=open]>svg]:hidden"
-              >
-                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <span className={cn("text-sm font-medium", state === "upcoming" && "text-muted-foreground")}>
-                    {titles[index]}
-                  </span>
+      <div aria-label={t("WorkspaceSetup.interview.stepsLabel")} className="flex flex-col gap-6" role="group">
+        {SETUP_QUESTIONS.map((question) =>
+          question.id === SETUP_BASICS_QUESTION ? (
+            <SetupBasics key={question.id} question={question} />
+          ) : (
+            <SetupQuestionBlock key={question.id} question={question} />
+          ),
+        )}
+      </div>
 
-                  {summary ? (
-                    <span className="truncate text-xs font-normal text-muted-foreground">{summary}</span>
-                  ) : null}
-                </span>
-              </AccordionTrigger>
+      <SetupActionBar hint={t("WorkspaceSetup.interview.planHint")}>
+        {store.adjusting ? (
+          <Button disabled={store.isBusy} type="button" variant="secondary" onClick={store.discardAdjustment}>
+            {t("Common.actions.back")}
+          </Button>
+        ) : null}
 
-              <AccordionContent className="flex flex-col gap-6">
-                {screenQuestions(SETUP_SCREENS[index]).map((question) => (
-                  <SetupQuestionBlock key={question.id} question={question} />
-                ))}
-
-                <SetupActionBar
-                  hint={t("WorkspaceSetup.interview.stepProgress", {
-                    current: order + 1,
-                    total: visibleScreens.length,
-                  })}
-                >
-                  {position > 0 || store.adjusting ? (
-                    <Button disabled={store.isBusy} type="button" variant="secondary" onClick={store.previousScreen}>
-                      {t("Common.actions.back")}
-                    </Button>
-                  ) : null}
-
-                  <Button
-                    disabled={store.isBusy}
-                    type="button"
-                    onClick={() => {
-                      if (store.showMissingAnswers(t("Common.errors.mustNotBeBlank")))
-                        focusFirstInvalidField(section.current);
-                      else runUserAction(store.confirmScreen);
-                    }}
-                  >
-                    {saving ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : null}
-
-                    {t("OnboardingWizard.next")}
-                  </Button>
-                </SetupActionBar>
-              </AccordionContent>
-            </AccordionItem>
-          );
-        })}
-      </Accordion>
-
-      {store.adjusting ? null : (
         <Button
-          className="self-center text-muted-foreground"
-          disabled={store.isBusy || wizard.isSubmitting}
-          size="sm"
+          disabled={store.isBusy}
           type="button"
-          variant="ghost"
-          onClick={() => setConfirmingEmpty(true)}
+          onClick={() => {
+            if (store.showMissingAnswers(t("Common.errors.mustNotBeBlank"))) focusFirstInvalidField(section.current);
+            else runUserAction(store.confirmScreen);
+          }}
         >
-          {t("WorkspaceSetup.empty.action")}
+          {saving ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : null}
+
+          {t("WorkspaceSetup.interview.showPlan")}
         </Button>
-      )}
+      </SetupActionBar>
+
+      {store.adjusting ? null : <SetupStartEmpty />}
 
       <ConfirmDialog
-        anchorScope="setup-empty-confirm"
-        confirmLabel={t("WorkspaceSetup.empty.confirm")}
+        anchorScope="setup-answer-yourself"
+        cancelLabel={t("WorkspaceSetup.interview.answerYourself.cancel")}
+        confirmLabel={t("WorkspaceSetup.interview.answerYourself.confirm")}
         confirmVariant="default"
-        description={t("WorkspaceSetup.empty.description")}
-        open={confirmingEmpty}
-        title={t("WorkspaceSetup.empty.title")}
-        onCancel={() => setConfirmingEmpty(false)}
-        onConfirm={wizard.startEmpty}
+        description={t("WorkspaceSetup.interview.answerYourself.description")}
+        open={store.heldAnswer !== null}
+        title={t("WorkspaceSetup.interview.answerYourself.title")}
+        onCancel={store.waitForPrefill}
+        onConfirm={store.answerDuringPrefill}
       />
     </section>
   );

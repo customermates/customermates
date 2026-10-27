@@ -3,6 +3,7 @@ import type { Page } from "@playwright/test";
 
 import { SHORTCUT_SEQUENCE_TIMEOUT_MS } from "@/components/keyboard/shortcut-registry";
 
+import { appPath, appUrlPattern } from "./app-paths";
 import { collectPageErrors, expect, test } from "./fixtures";
 
 async function openApp(page: Page, path: string) {
@@ -46,7 +47,7 @@ test("global shortcuts, G navigation, the shortcuts dialog and the single-key pr
   test.skip(testInfo.project.name === "mobile", "Desktop keyboard journey");
   const errors = collectPageErrors(page);
   await page.clock.install();
-  await openApp(page, "/en/dashboard");
+  await openApp(page, appPath(workspace.slug, "/dashboard"));
   const mod = await modifierKey(page);
 
   await expect(page.locator("#nav-search [data-shortcut=search]")).toHaveText(`${mod.label}K`);
@@ -66,13 +67,13 @@ test("global shortcuts, G navigation, the shortcuts dialog and the single-key pr
   await expect(addPicker(page)).toBeVisible();
   await page.keyboard.press("g");
   await page.keyboard.press("s");
-  await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/dashboard$"));
   await page.keyboard.press("Escape");
   await expect(addPicker(page)).toBeHidden();
 
   await page.keyboard.press("g");
   await page.keyboard.press("1");
-  await expect(page).toHaveURL(/\/records\/[^/]+$/);
+  await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/records/[^/]+$"));
   const firstList = page.url();
   await page.waitForLoadState("networkidle");
   await expect(page.locator("#records-filter")).toBeVisible();
@@ -127,7 +128,7 @@ test("global shortcuts, G navigation, the shortcuts dialog and the single-key pr
 
   await page.keyboard.press("g");
   await page.keyboard.press("d");
-  await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/dashboard$"));
 
   const navigations: string[] = [];
   page.on("framenavigated", (frame) => {
@@ -141,13 +142,13 @@ test("global shortcuts, G navigation, the shortcuts dialog and the single-key pr
   await page.keyboard.press("?");
   await expect(shortcutsDialog(page)).toBeVisible();
   expect(navigations).toEqual([]);
-  await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/dashboard$"));
   await page.keyboard.press("Escape");
   await expect(shortcutsDialog(page)).toHaveCount(0);
 
   await page.keyboard.press("g");
   await page.keyboard.press("s");
-  await expect(page).toHaveURL(/\/settings\/profile$/);
+  await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/settings/profile$"));
   await page.waitForLoadState("networkidle");
 
   await page.keyboard.press("?");
@@ -177,7 +178,7 @@ test("global shortcuts, G navigation, the shortcuts dialog and the single-key pr
   await page.keyboard.press("?");
   await expect(addPicker(page)).toHaveCount(0);
   await expect(shortcutsDialog(page)).toHaveCount(0);
-  await expect(page).toHaveURL(/\/settings\/profile$/);
+  await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/settings/profile$"));
   await page.keyboard.press(`${mod.key}+k`);
   await expect(page.locator("#global-search-input")).toBeVisible();
   await page.keyboard.press("Escape");
@@ -201,9 +202,9 @@ test("global shortcuts, G navigation, the shortcuts dialog and the single-key pr
   expect(errors).toEqual([]);
 });
 
-test("Cmd/Ctrl+\\ toggles the sidebar and the sidebar trigger tooltip names it", async ({ page }, testInfo) => {
+test("Cmd/Ctrl+\\ toggles the sidebar and the sidebar trigger tooltip names it", async ({ page, slug }, testInfo) => {
   test.skip(testInfo.project.name === "mobile", "Desktop keyboard journey");
-  await openApp(page, "/en/dashboard");
+  await openApp(page, appPath(slug, "/dashboard"));
   const mod = await modifierKey(page);
   const sidebar = page.locator('[data-slot="sidebar"][data-state]').first();
   await expect(sidebar).toHaveAttribute("data-state", "expanded");
@@ -215,10 +216,10 @@ test("Cmd/Ctrl+\\ toggles the sidebar and the sidebar trigger tooltip names it",
   await expect(sidebar).toHaveAttribute("data-state", "expanded");
 });
 
-test("touch layouts show no key hints and keys do not break the page", async ({ page }, testInfo) => {
+test("touch layouts show no key hints and keys do not break the page", async ({ page, slug }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile", "Touch journey");
   const errors = collectPageErrors(page);
-  await openApp(page, "/en/dashboard");
+  await openApp(page, appPath(slug, "/dashboard"));
   await page.locator("#sidebar-trigger").click();
   await expect(page.locator("#nav-add")).toBeVisible();
   await expect(page.locator("#nav-search [data-shortcut=search]")).toBeHidden();

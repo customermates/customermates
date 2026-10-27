@@ -1,3 +1,5 @@
+import type { RecordWidgetInput } from "@/features/widget/record-widget.schema";
+
 import { PermissionService } from "@/core/base/permission.service";
 
 import { randomUUID } from "node:crypto";
@@ -159,7 +161,7 @@ describeDatabase("workspace setup plan against the record engine", () => {
       });
       if (!dashboard.ok) throw new Error(JSON.stringify(dashboard.issues));
       for (const widget of dashboard.data) {
-        const saved = await run(() => widgets.invoke(widget));
+        const saved = await run(() => widgets.invoke(widget as RecordWidgetInput));
         expect(saved, JSON.stringify(saved)).toMatchObject({ ok: true, data: { name: widget.name, status: "ready" } });
       }
     },

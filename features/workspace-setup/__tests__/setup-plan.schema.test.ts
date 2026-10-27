@@ -1,9 +1,31 @@
-import type { SetupPlanInput } from "../setup-plan.schema";
+import type { SetupChartWidget, SetupPlanInput } from "../setup-plan.schema";
 
 import { describe, expect, it } from "vitest";
 
-import { SETUP_PLAN_LIMITS, SetupPlanSchema } from "../setup-plan.schema";
-import { agencyPlan, fieldServicePlan, saasPlan } from "./setup-plan-fixtures";
+import { SETUP_PLAN_LIMITS, SetupPlanSchema, setupWidgetKind, setupWidgetSketch } from "../setup-plan.schema";
+import { agencyDashboardPlan, agencyPlan, fieldServicePlan, saasPlan } from "./setup-plan-fixtures";
+
+const calendar = {
+  kind: "calendar" as const,
+  key: "dueSoon",
+  title: "Due soon",
+  list: "task",
+  layout: "upcoming" as const,
+  dateField: "task.dueDate",
+  amountField: null,
+  filters: [],
+};
+const map = {
+  kind: "map" as const,
+  key: "clients",
+  title: "Clients",
+  list: "organization",
+  addressField: "organization.industry",
+  colorField: null,
+  sizeField: null,
+  detailField: null,
+  filters: [],
+};
 
 function variant(change: (plan: SetupPlanInput) => void): SetupPlanInput {
   const plan = structuredClone(agencyPlan);
@@ -28,8 +50,27 @@ function deep(depth: number): unknown {
 }
 
 describe("workspace setup plan schema", () => {
-  it.each([agencyPlan, saasPlan, fieldServicePlan])("accepts a representative plan", (plan) => {
+  it.each([agencyPlan, saasPlan, fieldServicePlan, agencyDashboardPlan])("accepts a representative plan", (plan) => {
     expect(SetupPlanSchema.safeParse(plan).error?.issues).toBeUndefined();
+  });
+
+  it("reads widgets of plans stored before the other widget kinds as charts", () => {
+    const parsed = SetupPlanSchema.parse(agencyPlan);
+    expect(parsed.dashboard.widgets.map(setupWidgetKind)).toEqual(
+      Array(agencyPlan.dashboard.widgets.length).fill("chart"),
+    );
+    expect(SetupPlanSchema.parse(agencyDashboardPlan).dashboard.widgets.map(setupWidgetSketch)).toEqual([
+      "number",
+      "number",
+      "number",
+      "number",
+      "doughnutChart",
+      "calendarMonth",
+      "calendarUpcoming",
+      "map",
+      "activity",
+      "funnelChart",
+    ]);
   });
 
   it.each([
@@ -213,13 +254,13 @@ describe("workspace setup plan schema", () => {
     [
       "a count with a value field",
       variant((plan) => {
-        plan.dashboard.widgets[2].valueField = "deal.value";
+        (plan.dashboard.widgets[2] as SetupChartWidget).valueField = "deal.value";
       }),
     ],
     [
       "a starter display type the picker does not offer",
       variant((plan) => {
-        plan.dashboard.widgets[0].display = "radarChartWithLabels" as never;
+        (plan.dashboard.widgets[0] as SetupChartWidget).display = "radarChartWithLabels" as never;
       }),
     ],
     [
@@ -232,6 +273,36 @@ describe("workspace setup plan schema", () => {
       "an extra property",
       variant((plan) => {
         Object.assign(plan.recordModel.lists[0], { archived: true });
+      }),
+    ],
+    [
+      "a calendar with a property it does not take",
+      variant((plan) => {
+        plan.dashboard.widgets.push({ ...calendar, display: "number" } as never);
+      }),
+    ],
+    [
+      "a calendar layout the widget does not offer",
+      variant((plan) => {
+        plan.dashboard.widgets.push({ ...calendar, layout: "week" as never });
+      }),
+    ],
+    [
+      "a calendar on an unknown list",
+      variant((plan) => {
+        plan.dashboard.widgets.push({ ...calendar, list: "nowhere" });
+      }),
+    ],
+    [
+      "a map without its address field",
+      variant((plan) => {
+        plan.dashboard.widgets.push({ ...map, addressField: undefined as never });
+      }),
+    ],
+    [
+      "an unknown widget kind",
+      variant((plan) => {
+        plan.dashboard.widgets.push({ ...calendar, kind: "timeline" as never });
       }),
     ],
   ])("rejects %s", (_name, plan) => {

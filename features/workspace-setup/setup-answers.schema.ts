@@ -17,16 +17,7 @@ export const SetupAnswerValueSchema = z.discriminatedUnion("format", [
   z
     .object({
       format: z.literal("orderedList"),
-      items: z
-        .array(
-          z
-            .object({
-              label: CustomTextSchema,
-              winChance: z.number().int().min(0).max(100).optional(),
-            })
-            .strict(),
-        )
-        .max(20),
+      items: z.array(z.object({ label: CustomTextSchema })).max(20),
     })
     .strict(),
   z.object({ format: z.literal("rankedPick"), values: z.array(ChoiceIdSchema).min(1).max(3) }).strict(),
@@ -73,11 +64,8 @@ export const SetupAnswersSchema = z
         if (!part.options.length && value.values.length) issue("This question only takes your own entries.");
         if (!part.allowCustom && value.custom.length) issue("This question takes no own entries.");
       }
-      if (value.format === "orderedList" && part.format === "orderedList") {
-        if (value.items.length > part.maxItems) issue("Too many entries.");
-        if (!part.winChance && value.items.some((item) => item.winChance !== undefined))
-          issue("This list has no win chance.");
-      }
+      if (value.format === "orderedList" && part.format === "orderedList" && value.items.length > part.maxItems)
+        issue("Too many entries.");
       if (value.format === "rankedPick" && part.format === "rankedPick") {
         if (value.values.length > part.maxPicks) issue("Too many picks.");
         if (new Set(value.values).size !== value.values.length) issue("Each option can be picked once.");
@@ -94,3 +82,12 @@ export const SetupAnswersSchema = z
     }
   });
 export type SetupAnswers = z.infer<typeof SetupAnswersSchema>;
+
+export function storedSetupAnswers(value: unknown): SetupAnswers {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  return Object.fromEntries(
+    Object.entries(value).filter(([id, answer]) => SetupAnswersSchema.safeParse({ [id]: answer }).success),
+  ) as SetupAnswers;
+}
+
+export const StoredSetupAnswersSchema = z.unknown().transform(storedSetupAnswers);
