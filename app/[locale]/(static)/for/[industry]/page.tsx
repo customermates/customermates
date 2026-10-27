@@ -14,7 +14,8 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { forPagesSource } from "@/core/fumadocs/source";
 import { getMDXComponents } from "@/core/fumadocs/mdx-components";
-import { breadcrumbListSchema } from "@/core/seo/schemas";
+import { breadcrumbListSchema, webPageSchema } from "@/core/seo/schemas";
+import { resolvePageLastModified } from "@/core/seo/sitemap";
 import { findSolutionByLandingPath } from "@/core/solutions/solution-catalog";
 import { marketingLocaleOrDefault } from "@/i18n/locale-registry";
 import { enableMarketingLocale } from "@/i18n/static-locale";
@@ -65,11 +66,20 @@ export default async function ForIndustryPage({ params }: Props) {
   return (
     <div className="relative flex flex-col items-center justify-center" data-marketing-flow="continuous">
       <JsonLd
-        schema={breadcrumbListSchema([
-          { name: t("home"), path: `/${locale}` },
-          { name: t("industries"), path: `/${locale}/for` },
-          { name: page.data.industryName, path: `/${locale}/for/${industry}` },
-        ])}
+        schema={[
+          breadcrumbListSchema([
+            { name: t("home"), path: `/${locale}` },
+            { name: t("industries"), path: `/${locale}/for` },
+            { name: page.data.industryName, path: `/${locale}/for/${industry}` },
+          ]),
+          webPageSchema({
+            name: page.data.title,
+            description: page.data.description ?? "",
+            locale,
+            path: `/${locale}/for/${industry}`,
+            dateModified: resolvePageLastModified(page.data),
+          }),
+        ]}
       />
 
       <PageHero

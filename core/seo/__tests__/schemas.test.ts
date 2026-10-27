@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { aggregateOfferSchema, articleSchema, organizationSchema } from "../schemas";
+import { aggregateOfferSchema, articleSchema, organizationSchema, webPageSchema } from "../schemas";
 
 import { CONTENT_LOCALES, DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
@@ -69,5 +69,37 @@ describe("article images", () => {
     expect(schema.image).toHaveLength(1);
     expect(schema.image[0]).toContain("/og/image.png?");
     expect(schema.image[0]).not.toContain("/images/light/en/agentic-crm.png");
+  });
+});
+
+describe("webPageSchema", () => {
+  const params = {
+    name: "Monday vs Salesforce",
+    description: "A comparison.",
+    locale: "de",
+    path: "/de/compare/monday-vs-salesforce",
+  };
+
+  it("identifies the page by its canonical URL and language", () => {
+    const schema = webPageSchema(params);
+    expect(schema["@id"]).toMatch(/\/de\/compare\/monday-vs-salesforce$/);
+    expect(schema.url).toBe(schema["@id"]);
+    expect(schema.inLanguage).toBe("de");
+  });
+
+  it("dates the page only when its modification date is known", () => {
+    expect(webPageSchema(params)).not.toHaveProperty("dateModified");
+    expect(
+      webPageSchema({
+        ...params,
+        dateModified: new Date("2026-10-27T07:01:50Z"),
+      }).dateModified,
+    ).toBe("2026-10-27T07:01:50.000Z");
+  });
+
+  it("names Customermates as the publisher and the software the page is about", () => {
+    const schema = webPageSchema(params);
+    expect(schema.publisher.name).toBe("Customermates");
+    expect(schema.about["@type"]).toBe("SoftwareApplication");
   });
 });
