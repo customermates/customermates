@@ -171,7 +171,7 @@ Start here: [customermates.com/docs](https://customermates.com/docs)
 
 ## 📄 License
 
-Customermates uses an open-core licensing model.
+Customermates uses an open-core licensing model, described in [`LICENSING.md`](./LICENSING.md).
 
 The Community Edition (all first-party code outside `ee/`) is licensed under [AGPL-3.0-only](./LICENSE).
 

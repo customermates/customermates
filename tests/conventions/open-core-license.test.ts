@@ -12,20 +12,22 @@ function source(path: string): string {
 describe("open-core licence boundary", () => {
   it("licenses the core and event log under AGPL-3.0-only", () => {
     const rootLicense = source("LICENSE");
+    const licensing = source("LICENSING.md");
 
-    expect(rootLicense).toContain("Files outside `ee/` are licensed");
-    expect(rootLicense).toContain("AGPL-3.0-only");
+    expect(rootLicense.trimStart()).toMatch(/^GNU AFFERO GENERAL PUBLIC LICENSE\s+Version 3, 19 November 2007/);
+    expect(licensing).toContain("Files outside `ee/` are licensed");
+    expect(licensing).toContain("AGPL-3.0-only");
     expect(existsSync(join(REPO_ROOT, "features/event/prisma-event-log.repository.ts"))).toBe(true);
     expect(existsSync(join(REPO_ROOT, "ee/event"))).toBe(false);
   });
 
   it("permits the mixed Community image without licensing Enterprise Features", () => {
-    const rootLicense = source("LICENSE");
+    const licensing = source("LICENSING.md");
     const commercialLicense = source("ee/LICENSE.md");
     const enterpriseReadme = source("ee/README.md");
 
-    expect(rootLicense).toContain("Additional permission for Community Builds under section 7 of AGPLv3");
-    expect(rootLicense).toContain("section 5(c) of AGPLv3 does not require the unmodified Commercial Software");
+    expect(licensing).toContain("Additional permission for Community Builds under section 7 of AGPLv3");
+    expect(licensing).toContain("section 5(c) of AGPLv3 does not require the unmodified Commercial Software");
     expect(commercialLicense).toContain("Any person or organisation may copy, install, and run");
     expect(commercialLicense).toContain("APP_MODE=self-hosted");
     expect(commercialLicense).toContain(
@@ -50,6 +52,7 @@ describe("open-core licence boundary", () => {
     const compose = source("docker-compose.yml");
 
     expect(dockerfile).toContain("COPY --from=builder /app/LICENSE ./LICENSE");
+    expect(dockerfile).toContain("COPY --from=builder /app/LICENSING.md ./LICENSING.md");
     expect(dockerfile).toContain("COPY --from=builder /app/ee/LICENSE.md ./ee/LICENSE.md");
     expect(compose).toMatch(/APP_MODE:\s*self-hosted/);
   });
