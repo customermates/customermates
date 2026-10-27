@@ -62,9 +62,9 @@ function HeroAction({ href, label, variant }: { href: string; label: string; var
       variant={variant === "secondary" ? "ghost" : variant}
     >
       {isExternalHref(href) ? (
-        <a href={href} rel="noopener noreferrer" target="_blank">
+        <AppLink external appearance="unstyled" href={href}>
           {content}
-        </a>
+        </AppLink>
       ) : (
         <AppLink appearance="unstyled" href={href} prefetch={contentLinkPrefetch(href)}>
           {content}

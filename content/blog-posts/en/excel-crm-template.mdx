@@ -43,7 +43,7 @@ Customermates publishes this guide and is the CRM in the import example. The wor
 
 1. **One header row, one row per record.** No merged cells, no blank rows, no subtotals inside the data.
 2. **Make each sheet an Excel table.** Select the range, press Ctrl+T and name it under Table Design › Table Name: `Companies`, `Contacts`, `Deals`, `Activities`. The formulas below use those names, and tables grow with new rows.
-3. **Give every fixed list a dropdown.** Use Data › Data Validation, Allow: List, with a table on the Lists sheet as the source. Microsoft's [drop-down guide](https://support.microsoft.com/en-us/office/create-a-drop-down-list-7693307a-59ef-400a-b769-c5402dce407b) notes that dropdowns based on a table update by themselves when you add or remove items.
+3. **Give every fixed list a dropdown.** Use Data › Data Validation, Allow: List, with a table on the Lists sheet as the source. Microsoft's [drop-down guide](https://support.microsoft.com/en-us/excel/get-started/create-a-drop-down-list) notes that dropdowns based on a table update by themselves when you add or remove items.
 4. **Link by name, not by number.** A contact's company is the company's exact name, and a deal's contact is the person's full name. Numeric IDs are handier in formulas, but names are what you read, and CRM imports, Customermates included, match links by name.
 
 ## The template, sheet by sheet
@@ -109,7 +109,7 @@ F  Probability   =XLOOKUP([@Stage],Stages[Stage],Stages[Probability],0)
 G  Weighted      =[@Value]*[@Probability]
 ```
 
-XLOOKUP needs Excel for Microsoft 365, 2021 or 2024. Microsoft's [XLOOKUP reference](https://support.microsoft.com/en-us/office/xlookup-function-b7fd680e-6d10-43e6-84f9-88eae8bf5929) says it is not available in Excel 2016 and 2019, where `=INDEX(Stages[Probability],MATCH([@Stage],Stages[Stage],0))` does the same.
+XLOOKUP needs Excel for Microsoft 365, 2021 or 2024. Microsoft's [XLOOKUP reference](https://support.microsoft.com/en-us/excel/functions/xlookup-function) says it is not available in Excel 2016 and 2019, where `=INDEX(Stages[Probability],MATCH([@Stage],Stages[Stage],0))` does the same.
 
 To color past next-step dates red, select the data rows of column K and add a rule under Home › Conditional Formatting › New Rule › "Use a formula to determine which cells to format": `=AND($K2<>"",TODAY()>$K2)`. The color shows only to whoever opens the file. The workbook itself notifies nobody.
 
@@ -148,7 +148,7 @@ Plenty of calls with a flat pipeline points to a qualification problem. A rising
 | If this describes you | Use | Watch for |
 | --- | --- | --- |
 | One person, a few hundred contacts, most conversations by email | This Excel template on your own machine | Keep one copy and back it up weekly |
-| Two or three people on Microsoft 365 who edit the same file | The workbook in OneDrive or SharePoint with [co-authoring](https://support.microsoft.com/en-us/office/collaborate-on-excel-workbooks-at-the-same-time-with-co-authoring-7152aa8b-b791-414c-a3bb-3024e46fb104) | Needs a Microsoft 365 subscription and .xlsx, .xlsm or .xlsb |
+| Two or three people on Microsoft 365 who edit the same file | The workbook in OneDrive or SharePoint with [co-authoring](https://support.microsoft.com/en-us/excel/get-started/collaborate-on-excel-workbooks-at-the-same-time-with-co-authoring) | Needs a Microsoft 365 subscription and .xlsx, .xlsm or .xlsb |
 | A team that lives in Google Workspace | The same layout in Google Sheets, see the [Google Sheets CRM guide](/blog/google-sheets-crm) | Re-check each formula after rebuilding it |
 | Several people share deals, follow-ups slip, deals move in LinkedIn or WhatsApp chats | A CRM | Plan the import below before you pick one |
 
@@ -237,7 +237,7 @@ The layout on this page is free and needs nothing beyond Excel. If you download 
 </FaqItem>
 
 <FaqItem question="How many contacts can an Excel CRM handle?">
-A worksheet holds 1,048,576 rows according to Microsoft's [Excel specifications](https://support.microsoft.com/en-us/office/excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3), and a Google Sheets file up to 20 million cells according to [Google's file limits](https://support.google.com/drive/answer/37603). The practical limit is people, not rows: the checklist above applies long before the file fills up. Customermates currently reads up to 5,000 rows per import file, so split larger sheets.
+A worksheet holds 1,048,576 rows according to Microsoft's [Excel specifications](https://support.microsoft.com/en-us/excel/excel-specifications-and-limits), and a Google Sheets file up to 20 million cells according to [Google's file limits](https://support.google.com/drive/answer/37603). The practical limit is people, not rows: the checklist above applies long before the file fills up. Customermates currently reads up to 5,000 rows per import file, so split larger sheets.
 </FaqItem>
 
 <FaqItem question="Can a CRM stay in sync with my Excel file?">
@@ -249,4 +249,4 @@ One row per salesperson per week: calls, meetings, open pipeline, revenue won an
 </FaqItem>
 </Faq>
 
-Excel and Google Sheets details checked on 8 October 2026 against Microsoft's [Excel specifications and limits](https://support.microsoft.com/en-us/office/excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3), [Excel with earlier versions](https://support.microsoft.com/en-us/office/use-excel-with-earlier-versions-of-excel-2fd9ffcb-6fce-485b-85af-fecfd651a5ac), [co-authoring](https://support.microsoft.com/en-us/office/collaborate-on-excel-workbooks-at-the-same-time-with-co-authoring-7152aa8b-b791-414c-a3bb-3024e46fb104), [drop-down lists](https://support.microsoft.com/en-us/office/create-a-drop-down-list-7693307a-59ef-400a-b769-c5402dce407b), [XLOOKUP](https://support.microsoft.com/en-us/office/xlookup-function-b7fd680e-6d10-43e6-84f9-88eae8bf5929) and [Dynamics 365 Sales](https://www.microsoft.com/en-us/dynamics-365/products/sales) pages, and Google's [Drive file limits](https://support.google.com/drive/answer/37603).
+Excel and Google Sheets details checked on 8 October 2026 against Microsoft's [Excel specifications and limits](https://support.microsoft.com/en-us/excel/excel-specifications-and-limits), [Excel with earlier versions](https://support.microsoft.com/en-us/excel/use-excel-with-earlier-versions-of-excel), [co-authoring](https://support.microsoft.com/en-us/excel/get-started/collaborate-on-excel-workbooks-at-the-same-time-with-co-authoring), [drop-down lists](https://support.microsoft.com/en-us/excel/get-started/create-a-drop-down-list), [XLOOKUP](https://support.microsoft.com/en-us/excel/functions/xlookup-function) and [Dynamics 365 Sales](https://www.microsoft.com/en-us/dynamics-365/products/sales) pages, and Google's [Drive file limits](https://support.google.com/drive/answer/37603).

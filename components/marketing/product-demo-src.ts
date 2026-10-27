@@ -9,6 +9,10 @@ import { appLocaleOrDefault } from "@/i18n/locale-registry";
 
 export const PUBLIC_DEMO_ORIGIN = "https://demo.customermates.com";
 
+export function externalLinkRel(href: string): string {
+  return href.startsWith(`${PUBLIC_DEMO_ORIGIN}/`) ? "nofollow noopener noreferrer" : "noopener noreferrer";
+}
+
 export const DEMO_RECORD_TYPE_IDS = {
   deals: "3ba14418-0840-8ae7-8c7e-52a2a79a481d",
   contacts: "be3cd172-da59-82bd-8ad7-23ef34431a27",
