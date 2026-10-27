@@ -20,6 +20,7 @@ const spies = vi.hoisted(() => ({
   createRelationRequest: vi.fn(),
   acceptRelationRequest: vi.fn(),
   cancelRelationRequest: vi.fn(),
+  publishSocialPost: vi.fn(),
 }));
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
@@ -36,6 +37,7 @@ vi.mock("@/core/di", () => ({
   getCreateRelationRequestInteractor: () => ({ invoke: spies.createRelationRequest }),
   getAcceptRelationRequestInteractor: () => ({ invoke: spies.acceptRelationRequest }),
   getCancelRelationRequestInteractor: () => ({ invoke: spies.cancelRelationRequest }),
+  getPublishSocialPostInteractor: () => ({ invoke: spies.publishSocialPost }),
 }));
 
 import {
@@ -43,6 +45,7 @@ import {
   getSocialPostEngagementTool,
   getSocialProfileTool,
   manageSocialRelationsTool,
+  publishSocialPostTool,
 } from "../social-posts.mcp-tools";
 import {
   UNTRUSTED_RECORD_TEXT_CLOSE,
@@ -406,6 +409,61 @@ describe("manage_social_relations routing", () => {
       }),
     ).toThrow(/invitationId/);
     expect(spies.acceptRelationRequest).not.toHaveBeenCalled();
+  });
+});
+
+describe("publish_social_post routing", () => {
+  const published = {
+    id: "post_1",
+    share_url: "https://www.linkedin.com/feed/update/1",
+    created_at: "2026-10-27T08:00:00.000Z",
+    comment_id: "comment_1",
+    comment_error: null,
+    repeated: false,
+  };
+  const runPublish = (args: Record<string, unknown>) =>
+    publishSocialPostTool.execute(publishSocialPostTool.inputSchema.parse(args));
+
+  it("is an open-world write that never claims to be read-only or idempotent", () => {
+    expect(publishSocialPostTool.annotations).toEqual({
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false,
+      openWorldHint: true,
+    });
+    expect(publishSocialPostTool.description).toContain("SIDE EFFECT");
+  });
+
+  it("passes the approved post to the interactor and returns the post and comment ids", async () => {
+    spies.publishSocialPost.mockResolvedValue({ ok: true as const, data: published });
+
+    const result = await runPublish({
+      connectedAccountId: ACCOUNT_ID,
+      text: "Hello",
+      fileIds: ["00000000-0000-4000-8000-000000000002"],
+      visibility: "relations_only",
+      firstComment: "Link in the comments",
+      idempotencyKey: "00000000-0000-4000-8000-000000000003",
+    });
+
+    expect(spies.publishSocialPost).toHaveBeenCalledWith({
+      connectedAccountId: ACCOUNT_ID,
+      text: "Hello",
+      fileIds: ["00000000-0000-4000-8000-000000000002"],
+      visibility: "relations_only",
+      firstComment: "Link in the comments",
+      idempotencyKey: "00000000-0000-4000-8000-000000000003",
+    });
+    const structured = (result as { structuredContent: Record<string, unknown> }).structuredContent;
+    expect(structured).toMatchObject({ id: "post_1", comment_id: "comment_1", repeated: false });
+    expect(publishSocialPostTool.outputSchema.safeParse(structured).success).toBe(true);
+  });
+
+  it("refuses a post without text or files before execution", async () => {
+    const result = await runPublish({ connectedAccountId: ACCOUNT_ID, text: " " });
+
+    expect(mcpToolResultText(result)).toMatch(/text/);
+    expect(spies.publishSocialPost).not.toHaveBeenCalled();
   });
 });
 

@@ -542,6 +542,12 @@ Kontaktanfragen: Einladungen listen (standardmäßig erhaltene, oder Ihre eigene
 
 Pflicht: `action`, `connectedAccountId`. Optional: `identifier`, `message`, `invitationId`, `direction`, `cursor`, `offset`, `limit`.
 
+#### `publish_social_post`
+
+Veröffentlicht einen echten Post über ein verbundenes LinkedIn- oder Instagram-Konto, optional mit Dateien aus dem Dateifeld eines Datensatzes (mehrere Bilder ergeben ein Karussell, sonst ein Video oder ein Dokument, zusammen höchstens 25 MB) und einem ersten Kommentar direkt danach. `visibility=relations_only` beschränkt einen LinkedIn-Post auf die Kontakte des Kontos. Liefert die `id` des Posts (als `postId` für `get_social_posts` nutzbar), `share_url`, `created_at` und `comment_id`; scheitert der erste Kommentar, bleibt der Post veröffentlicht und `comment_error` nennt den Grund. Mit einem `idempotencyKey` liefert derselbe Aufruf erneut das erste Ergebnis mit `repeated: true`.
+
+Pflicht: `connectedAccountId`, `text`. Optional: `fileIds`, `visibility`, `firstComment`, `idempotencyKey`.
+
 #### `linkedin_search_sales_leads`
 
 Findet Personen über LinkedIn Sales Navigator: entweder aus einer eingefügten Such-URL oder als strukturierte Suche mit Filtern (Keywords, Standort, Branche, Unternehmen, Jobtitel, Seniorität und mehr). `linkedin_search_sales_leads.items[].current_positions[].company_id` mit `get_social_profile` und `profileType=company` auflösen. Braucht ein Sales-Navigator-Abo.

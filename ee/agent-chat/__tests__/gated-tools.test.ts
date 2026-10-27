@@ -444,7 +444,7 @@ describe("gated-tools", () => {
       views: 3,
       wiki: 1,
       messaging: 12,
-      social: 8,
+      social: 9,
       docs: 2,
       widgets: 1,
       routines: 1,

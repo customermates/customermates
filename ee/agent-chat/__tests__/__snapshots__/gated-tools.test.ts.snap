@@ -68,6 +68,7 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
   "manage_team",
   "manage_trash",
   "mutate_crm_record",
+  "publish_social_post",
   "request_support",
 ]
 `;

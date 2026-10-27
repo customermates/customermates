@@ -350,6 +350,7 @@ import { StartChatInteractor } from "@/ee/messaging/outbound/start-chat.interact
 import { AcceptRelationRequestInteractor } from "@/ee/messaging/posts/accept-relation-request.interactor";
 import { CancelRelationRequestInteractor } from "@/ee/messaging/posts/cancel-relation-request.interactor";
 import { CreateRelationRequestInteractor } from "@/ee/messaging/posts/create-relation-request.interactor";
+import { PublishSocialPostInteractor } from "@/ee/messaging/posts/publish-social-post.interactor";
 import { GetSocialPostInteractor } from "@/ee/messaging/posts/get-social-post.interactor";
 import { GetSocialProfileInteractor } from "@/ee/messaging/posts/get-social-profile.interactor";
 import { ListRelationRequestsInteractor } from "@/ee/messaging/posts/list-relation-requests.interactor";
@@ -1943,6 +1944,15 @@ export const getListRelationRequestsInteractor = () =>
 
 export const getCreateRelationRequestInteractor = () =>
   new CreateRelationRequestInteractor(getConnectedAccountRepo(), getMessagingService(), getEntitlementService());
+export const getPublishSocialPostInteractor = () =>
+  new PublishSocialPostInteractor(
+    getConnectedAccountRepo(),
+    getMessagingService(),
+    getEntitlementService(),
+    getRecordRepo(),
+    getRecordFileAccessService(),
+    getFileStorageDriver,
+  );
 
 export const getAcceptRelationRequestInteractor = () =>
   new AcceptRelationRequestInteractor(getConnectedAccountRepo(), getMessagingService(), getEntitlementService());

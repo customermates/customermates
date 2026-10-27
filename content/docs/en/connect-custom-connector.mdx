@@ -119,7 +119,7 @@ Customermates never stops a tool call to ask for confirmation; your client does,
 
 - Reads (`get_*`, `list_*`, `search_*`) carry the read-only flag, so they are safe to allow.
 - Tools that can delete carry the destructive flag and say `IRREVERSIBLE`.
-- Tools that only create, change or send carry neither flag; merged tools with a delete action, such as `manage_webhooks`, carry the destructive flag, and so does `manage_team`, whose `remove_member` revokes a member's access. Among the unflagged tools are `send_email`, `send_chat_message`, `request_support` and `manage_social_relations`, which reach real people, and `move_email_thread`, which moves mail in the real mailbox.
+- Tools that only create, change or send carry neither flag; merged tools with a delete action, such as `manage_webhooks`, carry the destructive flag, and so does `manage_team`, whose `remove_member` revokes a member's access. Among the unflagged tools are `send_email`, `send_chat_message`, `request_support`, `manage_social_relations` and `publish_social_post`, which reach real people, and `move_email_thread`, which moves mail in the real mailbox.
 
 Leave every tool that is not read-only on *Ask*. The full list is in the [MCP tool catalog](/docs/mcp#tool-catalog).
 

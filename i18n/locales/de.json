@@ -140,6 +140,7 @@
         "socialCancelTarget": "Kontaktanfrage mit {target} zurückziehen oder ablehnen",
         "socialInvite": "Eine Kontaktanfrage über das verbundene Konto senden",
         "socialInviteTarget": "Kontaktanfrage an {target} senden",
+        "socialPublish": "Einen Post über das verbundene Konto veröffentlichen",
         "teamInvite": "Einladungs-E-Mails an die ausgewählten Personen senden",
         "teamInviteTarget": "{count} Einladung(en) per E-Mail senden an: {target}",
         "teamRemove": "Ausgewähltes Teammitglied aus diesem Workspace entfernen",

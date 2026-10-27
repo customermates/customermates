@@ -113,6 +113,7 @@ const AGENT_CONSEQUENCE_ACTIONS = [
   "social.invite",
   "social.accept",
   "social.cancel",
+  "social.publish",
   "salesList.save",
   "external.manage",
 ] as const;
@@ -495,6 +496,12 @@ function describeAgentToolAction(
       preview: action === "invite" ? safeText(details.message, 240) : undefined,
     });
   }
+  if (toolName === "publish_social_post") {
+    return descriptor("generic", undefined, "sensitive", [], {
+      action: "social.publish",
+      preview: safeText(details.text, 240),
+    });
+  }
   if (toolName === "linkedin_manage_sales_lists") {
     return descriptor("generic", undefined, multiplexedRisk(toolName, details), [], {
       action: actionValue(details) === "save" ? "salesList.save" : "external.manage",
@@ -704,6 +711,8 @@ function agentConsequenceDetail(activity: AgentActivityDescriptor, t: AgentTrans
             target: consequence.target,
           })
         : t("AgentChat.activity.consequence.socialCancel");
+    case "social.publish":
+      return compact([t("AgentChat.activity.consequence.socialPublish"), preview]);
     case "salesList.save":
       return consequence.target && consequence.state
         ? t("AgentChat.activity.consequence.salesListSaveTarget", {
