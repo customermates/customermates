@@ -115,7 +115,7 @@ export function zipFixture(entries: Record<string, string | Uint8Array>): Uint8A
 }
 
 function xmlText(value: string): string {
-  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
 export type DocxBlock = { heading?: 1 | 2 | 3; text: string } | { table: string[][] };
