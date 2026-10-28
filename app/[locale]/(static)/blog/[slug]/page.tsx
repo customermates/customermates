@@ -59,7 +59,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
   const { backToBlog, date, by, tags } = blogPost;
   const lastModified = resolvePageLastModified(page.data);
   const updated = lastModified && lastModified.getTime() > new Date(date).getTime() ? lastModified : undefined;
-  const dateFormat = { year: "numeric", month: "long", day: "numeric" } as const;
+  const dateFormat = { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" } as const;
   const components = getMDXComponents({
     h1: ({ children, id }) => (
       <span aria-hidden="true" className="sr-only" id={id}>
