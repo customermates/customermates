@@ -25,7 +25,7 @@ export function HomepageProductProof({ proof }: { proof: HomepageProductProofCon
 
                 <span className="inline-flex items-center gap-1.5">
                   <Clock3 aria-hidden className="size-3.5" />
-                  00:57
+                  01:10
                 </span>
               </p>
 
