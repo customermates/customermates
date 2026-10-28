@@ -54,10 +54,12 @@ export type AccountActivityFixture = { person: string; occurredMinutesAgo: numbe
 export type WorkspaceMessagingFixtures = {
   companyId: string;
   userId: string;
-  seedUserEmail: string;
+  /** The workspace's time zone: conversations, meetings and activities land in its office hours. */
+  timeZone: string;
   /** Namespace of the fixture ids; the team workspace keeps the historical `0000` ids and account names. */
   tag: string;
-  self: { name: string; title: string; companyName: string; website: string; avatarPath: string };
+  /** The member who owns the accounts, writing from the persona company's own domain. */
+  self: { name: string; email: string; title: string; companyName: string; website: string; avatarPath: string };
   accounts: readonly MessagingFixtureProvider[];
   people: Readonly<Record<string, PersonFixture>>;
   threads: readonly ThreadFixture[];
