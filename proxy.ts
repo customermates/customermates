@@ -63,12 +63,6 @@ function isUnprefixedContentPath(req: NextRequest): boolean {
   return !isUnsupportedLocalePrefix(pathname) && isContentPage(req);
 }
 
-function defaultLocaleContentRedirect(req: NextRequest, base: string | URL) {
-  const target = new URL(buildLocalePath(DEFAULT_LOCALE, req.nextUrl.pathname), base);
-  target.search = req.nextUrl.search;
-  return NextResponse.redirect(target, 308);
-}
-
 function negotiateLocale(req: NextRequest, base: string | URL, domain: "app" | "auto" = "auto") {
   const useContentLocale = domain === "auto" && isContentPage(req);
 
@@ -82,6 +76,14 @@ function negotiateLocale(req: NextRequest, base: string | URL, domain: "app" | "
   const negotiateOverLocalesThatCanServeIt = useContentLocale ? intlContentMiddleware : intlAppMiddleware;
   const response = negotiateOverLocalesThatCanServeIt(req);
   if (response.headers.has("location")) response.headers.set("vary", "accept-language, cookie");
+  return response;
+}
+
+function unprefixedContentRedirect(req: NextRequest, base: string | URL) {
+  const negotiated = negotiateLocale(req, base).headers.get("location");
+  const locale = negotiated ? routingLocaleFromPathname(new URL(negotiated, base).pathname) : null;
+  const response = localeRedirect(locale ?? DEFAULT_LOCALE, req.nextUrl.pathname, base, req.nextUrl.search);
+  response.headers.set("vary", "accept-language, cookie");
   return response;
 }
 
@@ -219,7 +221,9 @@ export default async function proxy(incoming: NextRequest) {
 
   if (req.method === "OPTIONS") return new NextResponse(null, { status: 204, headers: { allow: PAGE_METHODS } });
 
-  if (isUnprefixedContentPath(req)) return defaultLocaleContentRedirect(req, base);
+  // Like `/`, a locale-less content URL follows the reader's language, so a German reader of an unprefixed
+  // backlink lands on the German page; a request without a language (a crawler) still gets the default locale.
+  if (isUnprefixedContentPath(req)) return unprefixedContentRedirect(req, base);
 
   let session: ProxySession;
   let isAuthenticated = false;
