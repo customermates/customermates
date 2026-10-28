@@ -25,6 +25,12 @@ Customermates is a CRM for modern teams that want a clear system for contacts, o
 
 You can use the managed cloud version or run Customermates yourself in your own infrastructure with Docker Compose.
 
+## Product film
+
+The 70 second film, with sound.
+
+https://github.com/user-attachments/assets/fd11451e-14e4-4ed1-8439-0a0f70b1f47f
+
 ## 🚀 Getting Started
 
 There are two ways to start using Customermates:
