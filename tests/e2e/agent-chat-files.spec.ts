@@ -24,7 +24,7 @@ test("gives Mate files by button, drop and paste, sends them with the message an
   const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "organization");
   const fieldId = randomUUID();
-  await page.goto("/en/dashboard");
+  await page.goto(companyPath(companyId, "/dashboard"));
   const model = await postOk(page, "/api/v1/model/read", {});
   await postOk(page, "/api/v1/model/apply", {
     expectedRevision: model.revision,
@@ -47,7 +47,7 @@ test("gives Mate files by button, drop and paste, sends them with the message an
     ],
   });
 
-  await page.goto("/en/dashboard?agentChat=open");
+  await page.goto(companyPath(companyId, "/dashboard?agentChat=open"));
   const panel = page.getByTestId("agent-panel");
   await expect(panel.getByRole("button", { name: "Attach files", exact: true })).toBeVisible();
   await panel
