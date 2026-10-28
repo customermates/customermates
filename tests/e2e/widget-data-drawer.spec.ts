@@ -37,7 +37,7 @@ test("a single-number widget drawer shows the count once and pages 25 records", 
   expect(errors).toEqual([]);
 });
 
-test("a widget drawer keeps its table appearance after a reload", async ({ page, database, errors }) => {
+test("a widget drawer keeps its table appearance after a reload", async ({ page, database, errors, isMobile }) => {
   test.setTimeout(180000);
   const snapshot = await database.query(
     'SELECT row_to_json(p) AS row FROM "P13n" p WHERE "companyId"=$1 AND "p13nId"=$2 AND "userId"=$3',
@@ -60,12 +60,15 @@ test("a widget drawer keeps its table appearance after a reload", async ({ page,
     let drawer = await openKpiDrawer(page, database, "Open pipeline");
     const headers = drawer.getByRole("columnheader");
     const visibleBefore = await headers.count();
+    if (isMobile) await expect(drawer.locator("[data-phone-rows]")).toBeVisible();
+    else expect(visibleBefore).toBeGreaterThan(0);
+    const visibleAfter = isMobile ? 0 : visibleBefore - 1;
     await drawer.locator("#widget-data-display-options").click();
     const toggle = page.getByRole("checkbox", { checked: true, disabled: false }).last();
     const toggleId = await toggle.getAttribute("id");
     await toggle.uncheck();
     await page.keyboard.press("Escape");
-    await expect(headers).toHaveCount(visibleBefore - 1);
+    await expect(headers).toHaveCount(visibleAfter);
     const hiddenBefore = (before.rows[0]?.hiddenColumns as string[] | undefined)?.length ?? 0;
     await expect.poll(async () => (await savedHidden())?.length ?? 0).toBeGreaterThan(hiddenBefore);
     const listState = await database.query(
@@ -77,7 +80,8 @@ test("a widget drawer keeps its table appearance after a reload", async ({ page,
 
     await page.reload();
     drawer = await openKpiDrawer(page, database, "Open pipeline");
-    await expect(drawer.getByRole("columnheader")).toHaveCount(visibleBefore - 1);
+    if (isMobile) await expect(drawer.locator("[data-phone-rows]")).toBeVisible();
+    await expect(drawer.getByRole("columnheader")).toHaveCount(visibleAfter);
     await drawer.locator("#widget-data-display-options").click();
     await expect(page.locator(`[id="${toggleId}"]`)).not.toBeChecked();
     await page.keyboard.press("Escape");

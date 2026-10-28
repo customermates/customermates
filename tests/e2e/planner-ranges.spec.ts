@@ -117,7 +117,8 @@ test("calendar ranges span weeks and months, keep midnight exclusive, reveal ful
   if (isMobile) {
     await expect(calendar.locator('[data-calendar-mode="agenda"]')).toBeVisible();
     await entry.click();
-    await expect(page.getByRole("dialog", { name: "Organization", exact: true })).toContainText(title);
+    const record = page.getByRole("dialog", { name: "Organization", exact: true });
+    await expect(record.getByRole("textbox", { name: "Name", exact: true })).toHaveValue(title);
   } else {
     await expectHydrated(entry);
     await entry.hover();

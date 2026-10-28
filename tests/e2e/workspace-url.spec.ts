@@ -130,6 +130,8 @@ seededTest.describe("one login in two tabs on two seeded workspaces", () => {
 
         await tabA.reload();
         await expectCurrentWorkspace(tabA, northwind);
+        await tabB.keyboard.press("Escape");
+        await expect(tabB.locator('[data-sidebar="sidebar"][data-mobile="true"]')).toHaveCount(0);
         await addOrganization(tabB, fromConsultantsTab);
         expect(await organizationsNamed(database, fromConsultantsTab)).toEqual([
           expect.objectContaining({ companyId: GERMAN_CONSULTANTS_COMPANY_ID }),
