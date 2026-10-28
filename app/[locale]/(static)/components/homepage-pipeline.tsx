@@ -6,7 +6,6 @@ import { BarChart3, Columns3, MousePointer2 } from "lucide-react";
 import { MarketingSection } from "@/components/marketing/marketing-section";
 
 import { HomepageCaptureImage } from "./homepage-capture-image";
-import { STAGE_AREAS } from "./homepage-stage-areas";
 import { ProductPanel, ProductWindow } from "@/components/marketing/product-window";
 import { HomepageStageLink } from "./homepage-stage-link";
 
@@ -47,32 +46,28 @@ export function HomepagePipeline({ liveLabel, locale, story }: Props) {
         </ul>
       </div>
 
-      <div className="mt-12 grid gap-5 lg:grid-cols-2">
-        {story.captures.map((capture) => (
-          <figure key={capture.capture} className="m-0">
-            <ProductPanel className="aspect-[4/5] sm:aspect-[4/3]">
-              <ProductWindow className="absolute top-6 left-6 w-[110%] sm:top-10 sm:left-10 sm:w-[150%]">
-                <HomepageStageLink area={STAGE_AREAS[capture.capture]} label={liveLabel}>
-                  <HomepageCaptureImage
-                    alt={capture.alt}
-                    locale={locale}
-                    mobileName={`${capture.capture}-mobile`}
-                    name={capture.capture}
-                    sizes="(min-width: 1024px) 60vw, 92vw"
-                  />
-                </HomepageStageLink>
-              </ProductWindow>
-            </ProductPanel>
+      <figure className="m-0 mt-12">
+        <ProductPanel className="p-5 sm:p-10 lg:p-12">
+          <ProductWindow>
+            <HomepageStageLink area="pipeline" label={liveLabel}>
+              <HomepageCaptureImage
+                alt={story.capture.alt}
+                locale={locale}
+                mobileName="homepage-pipeline-mobile"
+                name="homepage-pipeline-board"
+                sizes="(min-width: 1280px) 76rem, 92vw"
+              />
+            </HomepageStageLink>
+          </ProductWindow>
+        </ProductPanel>
 
-            <figcaption className="mt-4 text-sm">
-              {/* eslint-disable react/jsx-newline */}
-              <span className="font-medium">{capture.title}</span>{" "}
-              <span className="text-muted-foreground">{capture.caption}</span>
-              {/* eslint-enable react/jsx-newline */}
-            </figcaption>
-          </figure>
-        ))}
-      </div>
+        <figcaption className="mt-4 text-sm">
+          {/* eslint-disable react/jsx-newline */}
+          <span className="font-medium">{story.capture.title}</span>{" "}
+          <span className="text-muted-foreground">{story.capture.caption}</span>
+          {/* eslint-enable react/jsx-newline */}
+        </figcaption>
+      </figure>
     </MarketingSection>
   );
 }

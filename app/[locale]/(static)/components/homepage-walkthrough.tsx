@@ -6,7 +6,7 @@ import { Check } from "lucide-react";
 import { MarketingSection } from "@/components/marketing/marketing-section";
 
 import { HomepageCaptureImage } from "./homepage-capture-image";
-import { PhoneFrame, ProductPanel, ProductWindow } from "@/components/marketing/product-window";
+import { ProductPanel, ProductWindow } from "@/components/marketing/product-window";
 import { HomepageStageLink } from "./homepage-stage-link";
 
 type Props = {
@@ -16,7 +16,7 @@ type Props = {
 };
 
 export function HomepageWalkthrough({ liveLabel, locale, walkthrough }: Props) {
-  const { badge, bullets, desktopAlt, phoneAlt, title, titleAccent } = walkthrough;
+  const { alt, badge, bullets, title, titleAccent } = walkthrough;
 
   return (
     <MarketingSection id="walkthrough" tone="canvas">
@@ -48,28 +48,18 @@ export function HomepageWalkthrough({ liveLabel, locale, walkthrough }: Props) {
         </div>
 
         <div className="col-span-12 lg:col-start-6 lg:col-end-13">
-          <ProductPanel className="h-[30rem] sm:h-[34rem] lg:h-[38rem]">
-            <ProductWindow className="absolute top-10 left-10 w-[72%] max-sm:hidden lg:top-14 lg:left-14">
+          <ProductPanel className="p-5 sm:p-10 lg:p-12">
+            <ProductWindow>
               <HomepageStageLink area="inbox" label={liveLabel}>
                 <HomepageCaptureImage
-                  alt={desktopAlt}
+                  alt={alt}
                   locale={locale}
+                  mobileName="homepage-inbox-mobile"
                   name="homepage-thread-linkedin"
-                  sizes="(min-width: 1024px) 44vw, 70vw"
+                  sizes="(min-width: 1024px) 50vw, 92vw"
                 />
               </HomepageStageLink>
             </ProductWindow>
-
-            <PhoneFrame className="absolute top-8 left-1/2 w-[15rem] -translate-x-1/2 sm:top-auto sm:right-8 sm:-bottom-28 sm:left-auto sm:w-[13rem] sm:translate-x-0 lg:right-10 lg:w-[13.5rem]">
-              <HomepageStageLink area="inbox" label={liveLabel}>
-                <HomepageCaptureImage
-                  alt={phoneAlt}
-                  locale={locale}
-                  name="homepage-inbox-mobile"
-                  sizes="(min-width: 640px) 15rem, 16rem"
-                />
-              </HomepageStageLink>
-            </PhoneFrame>
           </ProductPanel>
         </div>
       </div>

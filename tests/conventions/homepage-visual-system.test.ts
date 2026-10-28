@@ -52,7 +52,7 @@ function stageCaptures(mdx: string) {
 }
 
 function altTexts(mdx: string) {
-  return [...mdx.matchAll(/^\s+(?:alt|desktopAlt|phoneAlt): (.*)$/gmu)].map(([, alt]) => alt);
+  return [...mdx.matchAll(/^\s+alt: (.*)$/gmu)].map(([, alt]) => alt);
 }
 
 const page = readFileSync(join(HOMEPAGE_ROOT, "page.tsx"), "utf8");
@@ -264,8 +264,8 @@ describe("homepage visual-system adoption", () => {
     expect(stageCaptures(germanHomepage)).toEqual(expected);
     expect(englishHomepage).not.toMatch(/^\s*disclosure:/mu);
     expect(germanHomepage).not.toMatch(/^\s*disclosure:/mu);
-    expect(altTexts(englishHomepage)).toHaveLength(11);
-    expect(altTexts(germanHomepage)).toHaveLength(11);
+    expect(altTexts(englishHomepage)).toHaveLength(9);
+    expect(altTexts(germanHomepage)).toHaveLength(9);
     for (const alt of altTexts(englishHomepage)) expect(alt).toMatch(/, using demo data$/u);
     for (const alt of altTexts(germanHomepage)) expect(alt).toMatch(/, mit Beispieldaten$/u);
     expect(englishHomepage).not.toContain("—");

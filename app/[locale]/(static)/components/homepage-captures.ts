@@ -28,12 +28,20 @@ export const HOMEPAGE_CAPTURES = {
     en: { height: 1800, width: 2880 },
   },
   "homepage-thread-linkedin": {
-    de: { height: 1800, width: 2048 },
-    en: { height: 1800, width: 2048 },
+    de: { height: 2500, width: 1950 },
+    en: { height: 2500, width: 1950 },
   },
   "homepage-draft": {
-    de: { height: 802, width: 1586 },
-    en: { height: 802, width: 1586 },
+    de: { height: 1252, width: 1588 },
+    en: { height: 1208, width: 1588 },
+  },
+  "homepage-pipeline-board": {
+    de: { height: 860, width: 2456 },
+    en: { height: 944, width: 2456 },
+  },
+  "homepage-routines-table": {
+    de: { height: 298, width: 2068 },
+    en: { height: 298, width: 1986 },
   },
   "homepage-inbox-mobile": {
     de: { height: 1688, width: 780 },
