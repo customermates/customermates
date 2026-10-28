@@ -1,7 +1,7 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 import { ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
-import * as Sentry from "@sentry/nextjs";
+import * as ErrorReporter from "@/core/observability/server";
 import { z } from "zod";
 
 import { getGetWikiCatalogInteractor, getGetWikiPageInteractor } from "@/core/di";
@@ -18,8 +18,11 @@ async function wikiResourceBoundary<T>(read: () => Promise<T | null>): Promise<T
   try {
     result = await read();
   } catch (error) {
-    if (!appErrorDetailsInCauseChain(error))
-      Sentry.captureException(redactUnexpectedError(error, "The Knowledge Base MCP resource could not be read."));
+    if (!appErrorDetailsInCauseChain(error)) {
+      ErrorReporter.captureException(
+        redactUnexpectedError(error, "The Knowledge Base MCP resource could not be read."),
+      );
+    }
     throw new Error(RESOURCE_UNAVAILABLE);
   }
   if (result === null) throw new Error(RESOURCE_UNAVAILABLE);

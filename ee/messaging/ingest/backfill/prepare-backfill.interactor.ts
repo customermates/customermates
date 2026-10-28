@@ -3,7 +3,7 @@ import type { ConnectedAccount } from "@/generated/prisma";
 import type { BackfillConnectedAccountRepo } from "./backfill.repo";
 
 import { z } from "zod";
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { ConnectedAccountStatus, MessagingProvider } from "@/generated/prisma";
 
@@ -91,7 +91,7 @@ export class PrepareBackfillInteractor {
     } catch (err) {
       if (isUnipileRateLimit(err)) return null;
       if (err instanceof z.ZodError) {
-        Sentry.captureException(err, { tags: { unipileAccountId } });
+        ErrorReporter.captureException(err, { tags: { unipileAccountId } });
 
         return null;
       }
@@ -99,7 +99,7 @@ export class PrepareBackfillInteractor {
     }
 
     if (snapshot.initial_sync?.status === "failed") {
-      Sentry.captureMessage(`backfill v2: account ${unipileAccountId} initial sync failed`, {
+      ErrorReporter.captureMessage(`backfill v2: account ${unipileAccountId} initial sync failed`, {
         level: "warning",
         tags: { unipileAccountId },
       });

@@ -3,18 +3,17 @@ import type { AbstractIntlMessages } from "next-intl";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { APP_LOCALES } from "@/i18n/locale-registry";
 import { REPO_ROOT } from "@/tests/conventions/walk";
 
-const mockEnv = vi.hoisted(() => ({ NEXT_PUBLIC_SENTRY_DSN: undefined as string | undefined }));
-
-vi.mock("@/env", () => ({ env: mockEnv }));
 vi.mock("next-intl/server", () => ({ getRequestConfig: <T>(config: T) => config }));
 
 import { messagesForErrorReporting } from "../error-reporting-messages";
 import requestConfig from "../request";
+
+afterEach(() => vi.unstubAllEnvs());
 
 type Catalog = {
   ErrorCard: Record<string, string>;
@@ -73,13 +72,13 @@ describe("error wording without error reporting", () => {
       requestLocale: Promise<string>;
     }) => Promise<{ messages: Catalog }>;
 
-    mockEnv.NEXT_PUBLIC_SENTRY_DSN = undefined;
+    vi.stubEnv("NEXT_PUBLIC_ERROR_REPORTING_PROVIDER", "off");
     const unreported = await load({ requestLocale: Promise.resolve("de") });
     expect(unreported.messages.ErrorCard.unexpectedError).toBe(
       catalog("de").WithoutErrorReporting.ErrorCard.unexpectedError,
     );
 
-    mockEnv.NEXT_PUBLIC_SENTRY_DSN = "https://key@sentry.example/1";
+    vi.stubEnv("NEXT_PUBLIC_ERROR_REPORTING_PROVIDER", "vercel");
     const reported = await load({ requestLocale: Promise.resolve("de") });
     expect(reported.messages.ErrorCard.unexpectedError).toBe(catalog("de").ErrorCard.unexpectedError);
   });

@@ -6,7 +6,7 @@ import { MOCK_ENV_MODULE, MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-tes
 
 const sentry = vi.hoisted(() => ({ captureException: vi.fn(), setUser: vi.fn(), setTag: vi.fn() }));
 
-vi.mock("@sentry/nextjs", () => sentry);
+vi.mock("@/core/observability/server", () => sentry);
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/core/decorators/transaction-runner", () => ({

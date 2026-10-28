@@ -20,7 +20,7 @@ export type GlobalErrorCopy = {
 export const GLOBAL_ERROR_COPY = {
   de: {
     backLabel: "Zurück zur Startseite",
-    body: "Keine Sorge, wir wurden automatisch über dieses Problem benachrichtigt und kümmern uns bereits darum. Wenn du sofortige Hilfe benötigst, kannst du dich gerne an unser Support-Team wenden.",
+    body: "Bitte versuche es erneut. Wenn das Problem bleibt, wende dich an den Support.",
     retryLabel: "Erneut versuchen",
     subtitle: "Ups! Etwas ist schiefgelaufen",
     title: "Das ist jetzt peinlich",
@@ -29,7 +29,7 @@ export const GLOBAL_ERROR_COPY = {
   },
   en: {
     backLabel: "Back to home",
-    body: "Don't worry, we've been automatically notified about this issue and are already looking into it. If you need immediate assistance, feel free to reach out to our support team.",
+    body: "Please try again. If the problem continues, contact support.",
     retryLabel: "Try again",
     subtitle: "Oops! Something went wrong",
     title: "Well, that's awkward",
@@ -38,7 +38,7 @@ export const GLOBAL_ERROR_COPY = {
   },
   es: {
     backLabel: "Volver al inicio",
-    body: "Tranquilo, se nos ha avisado automáticamente de este problema y ya lo estamos revisando. Si necesitas ayuda inmediata, no dudes en contactar con nuestro equipo de soporte.",
+    body: "Vuelve a intentarlo. Si el problema continúa, contacta con soporte.",
     retryLabel: "Inténtalo de nuevo",
     subtitle: "¡Vaya! Algo ha fallado",
     title: "Qué incómodo",
@@ -47,7 +47,7 @@ export const GLOBAL_ERROR_COPY = {
   },
   fr: {
     backLabel: "Retour à l’accueil",
-    body: "Rassurez-vous, nous avons été automatiquement informés de ce problème et nous nous en occupons déjà. Si vous avez besoin d’aide immédiatement, n’hésitez pas à contacter notre assistance.",
+    body: "Veuillez réessayer. Si le problème persiste, contactez l’assistance.",
     retryLabel: "Réessayer",
     subtitle: "Oups\u00a0! Une erreur est survenue",
     title: "Voilà qui est gênant",
@@ -56,7 +56,7 @@ export const GLOBAL_ERROR_COPY = {
   },
   it: {
     backLabel: "Torna alla home",
-    body: "Non preoccuparti, siamo stati avvisati automaticamente di questo problema e ce ne stiamo già occupando. Se ti serve aiuto subito, contatta pure il nostro team di assistenza.",
+    body: "Riprova. Se il problema persiste, contatta l’assistenza.",
     retryLabel: "Riprova",
     subtitle: "Ops! Si è verificato un errore",
     title: "Che imbarazzo",

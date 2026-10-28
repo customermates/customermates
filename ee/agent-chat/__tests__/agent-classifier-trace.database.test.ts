@@ -36,7 +36,7 @@ vi.mock("@/core/di", () => ({
 vi.mock("@/core/validation/zod-error-map-server", () => ({
   getZodParseContext: vi.fn().mockResolvedValue(undefined),
 }));
-vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn(), setTag: vi.fn(), setUser: vi.fn() }));
+vi.mock("@/core/observability/server", () => ({ captureException: vi.fn(), setTag: vi.fn(), setUser: vi.fn() }));
 vi.mock("next/headers", () => ({
   headers: () => Promise.resolve(new Headers({ origin: "http://localhost:4000" })),
 }));

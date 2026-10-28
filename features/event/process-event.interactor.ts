@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { EventLog } from "@/generated/prisma";
-import * as Sentry from "@sentry/nextjs";
+import * as ErrorReporter from "@/core/observability/server";
 import type { EventOutboxRepo } from "./event-outbox.repo";
 import { EVENT_ADMISSION_ABANDONED, EVENT_ADMISSION_MAX_ATTEMPTS } from "./event-outbox.repo";
 import type { EventAdmission } from "./event-admission";
@@ -45,7 +45,7 @@ export class ProcessEventInteractor {
       const event = attempt.event;
       const abandon = event.attempts + 1 >= EVENT_ADMISSION_MAX_ATTEMPTS;
       if (error !== ADMISSION_RACED) {
-        Sentry.captureException(error, {
+        ErrorReporter.captureException(error, {
           level: abandon ? "error" : "warning",
           tags: {
             companyId: event.companyId,

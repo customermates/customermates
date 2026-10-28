@@ -7,7 +7,7 @@ import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
 vi.mock("@/env", () => ({ env: { APP_MODE: "cloud", DATABASE_URL: process.env.DATABASE_URL, NODE_ENV: "test" } }));
 const sentry = vi.hoisted(() => ({ captureException: vi.fn() }));
-vi.mock("@sentry/nextjs", () => sentry);
+vi.mock("@/core/observability/server", () => sentry);
 
 const { prisma } = await import("@/prisma/db");
 const { DomainEvent } = await import("../domain-events");

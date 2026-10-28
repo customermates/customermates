@@ -1,7 +1,7 @@
 import type { ExternalToast } from "sonner";
 
 import { isClientTransportError } from "./client-transport-error";
-import { captureError } from "./sentry-client";
+import { captureError } from "./client-reporter";
 import { hasWorkspaceChanged, notifyIfWorkspaceChanged } from "./workspace-changed-notice";
 
 export { notifyWorkspaceChanged, registerWorkspaceChangedHandler } from "./workspace-changed-notice";

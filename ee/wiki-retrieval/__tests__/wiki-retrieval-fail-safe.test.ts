@@ -7,7 +7,7 @@ import { describe, expect, it, vi } from "vitest";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { createMockUser } from "@/tests/helpers/mock-user";
 
-vi.mock("@sentry/node", () => ({ captureException: vi.fn() }));
+vi.mock("@/core/observability/server", () => ({ captureException: vi.fn() }));
 vi.mock("@/ee/agent-chat/agent-availability", () => ({ isAgentChatAvailable: () => true }));
 
 import { WikiEmbeddingService } from "../wiki-embedding.service";

@@ -8466,7 +8466,15 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       if (!created.ok || created.data.status !== "completed") throw new Error(JSON.stringify(created));
       return recordInvariant(created.data.refs.find((ref) => ref.typeId === f.id("contact")));
     };
-    const typed = await contact("Typed", [{ provider: "phone", value: "0621 123456" }]);
+    expect(
+      await f.mutation({
+        action: "create",
+        typeId: f.id("contact"),
+        fields: [],
+        identities: [{ provider: "phone", value: "0621 123456" }],
+      }),
+    ).toMatchObject({ ok: false });
+    const typed = await contact("Typed", [{ provider: "phone", value: "+49 621 123456" }]);
     const [stored] = recordInvariant((await f.readRecord(typed)).identities);
     expect(stored).toMatchObject({
       provider: "phone",

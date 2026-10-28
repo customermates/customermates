@@ -1291,6 +1291,7 @@
       "webhookBodyTemplateInvalid": "The body template must produce a valid JSON object.",
       "webhookDeliveryInProgress": "This delivery is still being sent. Resend it once it has succeeded or failed.",
       "webhookDeliveryNotFound": "Webhook delivery ID not found or not accessible.",
+      "webhookDestinationNotAllowed": "This destination is not allowed. Use a public address.",
       "webhookDisabled": "This webhook is turned off or no longer subscribes to this event. Turn it on or subscribe to the event, then resend.",
       "webhookEndpointInvalid": "Enter an HTTP or HTTPS webhook URL with a valid host and no username or password.",
       "webhookEventsRequired": "Select at least one event.",
@@ -2477,7 +2478,7 @@
     }
   },
   "ErrorCard": {
-    "contactSupport": "Don't worry, we've been automatically notified about this issue and are already looking into it. If you need immediate assistance, feel free to reach out to our support team.",
+    "contactSupport": "Please try again. If the problem continues, contact support.",
     "ctaLabel": "Back to home",
     "demoModeError": "Saving, deleting and changing data is not available in demo mode. <link>Start for free now</link> to access all features.",
     "invalidInviteLink": "The invitation link you used is not valid or may have been altered. Please reach out to your administrator to request a new, valid invitation link so you can proceed with your registration.",
@@ -2488,24 +2489,24 @@
     "subtitle": "Oops! Something went wrong",
     "title": "Well, that's awkward",
     "transportInterrupted": "The connection was interrupted. The change may already have been applied, so check the current state before trying again.",
-    "unexpectedError": "An unexpected error occurred. Don't worry though, we've been notified and are on it!"
+    "unexpectedError": "An unexpected error occurred. Please try again."
   },
   "ErrorTestPage": {
     "clientSideErrors": {
-      "description": "Uncaught throws in browser code. The Next.js error overlay catches them in dev; in production they hit Sentry via the browser SDK's global handler and the UnexpectedErrorToaster.",
+      "description": "Uncaught browser errors are captured with their stack and route. Operator email alerts are optional.",
       "title": "Client-Side",
       "triggerClientError": "Throw uncaught client error"
     },
     "serverSideError": {
-      "description": "Server action throw → caught by instrumentation.ts's onRequestError → reported to Sentry.",
+      "description": "Server errors are captured with their original stack, route and authenticated workspace context.",
       "title": "Server Action",
       "triggerServerError": "Throw server action error"
     },
     "subtitle": "Breaking things on purpose, for science!",
     "title": "Error Testing",
     "workflowError": {
-      "description": "Dispatches a background workflow that throws in a step. The workflow's catch → reportFailure → Sentry. In dev it logs to the server console instead of Sentry.",
-      "dispatched": "Workflow dispatched. Its failure is reported to Sentry (or the server console in dev).",
+      "description": "Dispatches a background workflow that throws in a step. Its failure is captured in production and logged in development.",
+      "dispatched": "Workflow dispatched. Its failure is captured by error reporting or the development server log.",
       "title": "Workflow (Background Job)",
       "triggerWorkflowError": "Dispatch failing workflow"
     }
@@ -2550,6 +2551,7 @@
     "helpAndFeedback": "Help",
     "imprint": "Imprint",
     "legal": "Support & legal",
+    "listedOnPlatform": "As seen on {platform}",
     "privacy": "Privacy",
     "privacyChoices": "Privacy choices",
     "product": "Product",

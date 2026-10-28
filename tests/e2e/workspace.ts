@@ -110,7 +110,7 @@ export async function addBrowserWorkspace(database: Client, workspace: BrowserWo
   await inTransaction(database, () =>
     insertWorkspace(database, { companyId, name, authUserId: workspace.authUserId, userId }, async (roleId) => {
       const inserted = await database.query(
-        'INSERT INTO "User" (id,"companyId","roleId",email,"firstName","lastName",country,"avatarUrl",theme,"displayLanguage","formattingLocale",status,"agreeToTerms","onboardingWizardCompletedAt","agentCreditActivatedAt","updatedAt") SELECT $1,$2,$3,email,"firstName","lastName",country,"avatarUrl",theme,"displayLanguage","formattingLocale",\'active\',true,NOW(),NOW(),NOW() FROM "User" WHERE id=$4 AND "companyId"=$5',
+        'INSERT INTO "User" (id,"companyId","roleId",email,"firstName","lastName","avatarUrl",theme,"displayLanguage","formattingLocale",status,"agreeToTerms","onboardingWizardCompletedAt","agentCreditActivatedAt","updatedAt") SELECT $1,$2,$3,email,"firstName","lastName","avatarUrl",theme,"displayLanguage","formattingLocale",\'active\',true,NOW(),NOW(),NOW() FROM "User" WHERE id=$4 AND "companyId"=$5',
         [userId, companyId, roleId, workspace.userId, workspace.companyId],
       );
       if (inserted.rowCount !== 1) throw new Error("The browser login to add a workspace to is missing");

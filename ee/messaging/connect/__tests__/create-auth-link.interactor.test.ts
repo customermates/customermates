@@ -21,7 +21,7 @@ vi.mock("@/env", () => ({
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
-vi.mock("@sentry/node", () => ({ captureException: vi.fn() }));
+vi.mock("@/core/observability/server", () => ({ captureException: vi.fn() }));
 vi.mock("next/headers", () => ({
   headers: () => new Headers({ origin: request.origin }),
 }));
@@ -30,7 +30,7 @@ vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
 }));
 
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { CreateAuthLinkInteractor } from "../create-auth-link.interactor";
 import { UnipileRequestError } from "../../unipile-request-error";
@@ -92,7 +92,7 @@ describe("CreateAuthLinkInteractor", () => {
 
     expect(result.ok).toBe(false);
     expect(result.error.issues[0].message).toBe("unipileAccountRestricted");
-    expect(Sentry.captureException).toHaveBeenCalledWith(refusal, expect.anything());
+    expect(ErrorReporter.captureException).toHaveBeenCalledWith(refusal, expect.anything());
   });
 
   it("lets a pro plan under its included cap proceed", async () => {

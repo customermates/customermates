@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { z } from "zod";
-import * as Sentry from "@sentry/nextjs";
+import * as ErrorReporter from "@/core/observability/server";
 import { headers } from "next/headers";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -192,7 +192,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     try {
       await this.chatFiles.bind(conversationId, fileIds);
     } catch (error) {
-      Sentry.captureException(error, { tags: { kind: "agent-chat-file-binding" } });
+      ErrorReporter.captureException(error, { tags: { kind: "agent-chat-file-binding" } });
     }
   }
 
@@ -237,7 +237,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       const discovery = await this.recordTypes.invoke({ includeEmbedded: false, page: 1, pageSize: 25 });
       return discovery.ok ? renderAgentSchemaDigest(discovery.data) : null;
     } catch (error) {
-      Sentry.captureException(error);
+      ErrorReporter.captureException(error);
       return null;
     }
   }
@@ -661,7 +661,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         });
         if (conversationIsNew) await this.repo.deleteUnusedAgentConversation(conversationId);
       } catch (cleanupError) {
-        Sentry.captureException(cleanupError, {
+        ErrorReporter.captureException(cleanupError, {
           tags: { kind: "agent-admission-cleanup-failure" },
         });
       }

@@ -13,7 +13,7 @@ vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: vi.fn((
 vi.mock("../../utils/toast-zod-error-tree", () => ({ toastZodErrorTree: vi.fn(() => true) }));
 
 const captureException = vi.fn();
-vi.mock("@sentry/nextjs", () => ({
+vi.mock("@/core/observability/browser", () => ({
   captureException: (...args: unknown[]) => captureException(...args),
   init: vi.fn(),
 }));
@@ -125,7 +125,7 @@ describe("persistViewState rejection handling", () => {
   });
 });
 
-describe("Sentry reporting for handled application errors", () => {
+describe("reporting for handled application errors", () => {
   const setHostname = (hostname: string) => {
     Object.defineProperty(window, "location", {
       configurable: true,
@@ -135,14 +135,14 @@ describe("Sentry reporting for handled application errors", () => {
 
   beforeEach(() => {
     captureException.mockClear();
-    vi.stubEnv("NEXT_PUBLIC_SENTRY_DSN", "https://public@example.invalid/1");
+    vi.stubEnv("NEXT_PUBLIC_ERROR_REPORTING_PROVIDER", "vercel");
   });
 
   afterEach(() => {
     vi.unstubAllEnvs();
   });
 
-  it("reports a genuine failure to Sentry, because catching it hides it from the global handler", async () => {
+  it("reports an unexpected failure, because catching it hides it from the global handler", async () => {
     const { reportApplicationError } = await import("@/core/errors/report-application-error");
     setHostname("app.customermates.com");
 

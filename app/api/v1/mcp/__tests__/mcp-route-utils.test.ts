@@ -11,6 +11,8 @@ import {
   EmailVerificationRequiredError,
 } from "@/core/auth/email-verification-required-error";
 import { WorkspacePlanRequiredError } from "@/core/auth/workspace-plan-required-error";
+import { MCP_SERVER_INFO } from "@/features/mcp-tools/server-metadata";
+import { buildMcpServerCard } from "@/features/mcp-tools/server-card";
 
 const sentry = vi.hoisted(() => ({ captureException: vi.fn() }));
 const apiKeys = vi.hoisted(() => ({
@@ -25,7 +27,7 @@ const apiKeys = vi.hoisted(() => ({
   authorize: vi.fn(() => Promise.resolve({ ok: true, data: true })),
 }));
 
-vi.mock("@sentry/nextjs", () => sentry);
+vi.mock("@/core/observability/server", () => sentry);
 vi.mock("@/env", () => ({ env: { BASE_URL: "http://localhost:4105" } }));
 vi.mock("@/core/di", () => ({
   getUpsertCustomColumnInteractor: vi.fn(),
@@ -127,10 +129,12 @@ describe("public MCP execution boundary", () => {
     const sessionId = initialized.response.headers.get("mcp-session-id") ?? undefined;
 
     expect(initialized.response.status).toBe(200);
+    expect(initialized.data?.result).toMatchObject({ serverInfo: MCP_SERVER_INFO });
     if (sessionId) await rpc(handler, requestBody("notifications/initialized"), sessionId);
 
     const listed = await rpc(handler, requestBody("tools/list", 2), sessionId);
     const tools = (listed.data?.result as { tools?: Array<Record<string, unknown>> } | undefined)?.tools ?? [];
+    expect(tools).toEqual(buildMcpServerCard([expectedFailureTool, unexpectedFailureTool, mutateRecordV2Tool]).tools);
     const expectedDefinition = tools.find((tool) => tool.name === "expected_failure");
     expect(expectedDefinition?.outputSchema).toMatchObject({
       type: "object",

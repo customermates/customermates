@@ -3,7 +3,7 @@ import type { EventService } from "@/features/event/event.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { Resource } from "@/generated/prisma";
 
@@ -49,7 +49,7 @@ export class DeleteConnectedAccountInteractor extends AuthenticatedInteractor<
     });
 
     await this.messagingService.deleteAccount({ accountId: existing.unipileAccountId }).catch((error: unknown) => {
-      Sentry.captureException(error, { tags: { kind: "unipile-account-removal-deferred" } });
+      ErrorReporter.captureException(error, { tags: { kind: "unipile-account-removal-deferred" } });
     });
 
     return { ok: true as const, data: { id: existing.id, disconnected: true as const } };

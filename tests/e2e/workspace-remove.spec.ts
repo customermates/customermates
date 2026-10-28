@@ -21,7 +21,7 @@ import {
   memberItem,
   membershipIn,
   organizationList,
-  recordSentryRequests,
+  recordErrorReports,
   recordToasts,
   recordUnreadCountPolls,
 } from "./workspace-membership";
@@ -271,7 +271,7 @@ test("a member removed while a page is open meets the workspace-unavailable dial
     expectNotFoundDocuments(removed.page);
     const refused = await expectRefusedPageAction(removed.page, organizationList(workspace.companyId));
     const unreadPolls = recordUnreadCountPolls(removed.page);
-    const sentryRequests = recordSentryRequests(removed.page);
+    const sentryRequests = recordErrorReports(removed.page);
     const recordedToasts = await recordToasts(removed.page);
     try {
       await removed.page.goto(organizationList(workspace.companyId));

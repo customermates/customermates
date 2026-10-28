@@ -35,7 +35,7 @@ import {
 import { createClient, createConfig } from "@unipile/sdk/dist/client";
 
 import { z } from "zod";
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
@@ -397,7 +397,7 @@ export class MessagingService {
         : mapped;
     }
 
-    Sentry.captureException(source, { tags: { kind: "unipile-send-response-unreadable" } });
+    ErrorReporter.captureException(source, { tags: { kind: "unipile-send-response-unreadable" } });
     return { ok: false, error: CustomErrorCode.unipileSendUnconfirmed };
   }
 
@@ -406,7 +406,7 @@ export class MessagingService {
 
     const type = source.errorType ?? "";
     if (source.status === 429 && type.startsWith("provider/")) {
-      Sentry.captureMessage("Unipile provider rate limit reached; the dashboard limit may be too high", {
+      ErrorReporter.captureMessage("Unipile provider rate limit reached; the dashboard limit may be too high", {
         level: "warning",
         tags: unipileDiagnostics(source),
       });
@@ -416,9 +416,9 @@ export class MessagingService {
       unipileErrorCode(source) === CustomErrorCode.unipileUnknown ||
       (source.status >= 500 && !UNIPILE_TRANSIENT_5XX_TYPES.has(type))
     )
-      Sentry.captureException(source, { tags: unipileDiagnostics(source) });
+      ErrorReporter.captureException(source, { tags: unipileDiagnostics(source) });
     else if (unipileErrorCode(source) === CustomErrorCode.unipileProviderRejected) {
-      Sentry.captureMessage("Unipile provider rejected a request", {
+      ErrorReporter.captureMessage("Unipile provider rejected a request", {
         level: "warning",
         tags: unipileDiagnostics(source),
       });

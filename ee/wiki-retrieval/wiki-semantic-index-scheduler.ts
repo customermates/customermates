@@ -3,7 +3,7 @@ import type { WikiSemanticIndexScheduler } from "@/features/wiki/wiki-semantic-i
 import type { WikiEmbeddingService } from "./wiki-embedding.service";
 import type { WikiSemanticIndexRepo } from "@/ee/wiki-retrieval/wiki-semantic-index.repo";
 
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { UserAccessor } from "@/core/base/user-accessor";
 
@@ -29,7 +29,7 @@ export class WikiSemanticIndexDispatcher extends UserAccessor implements WikiSem
         userId: this.userId,
       });
     } catch (error) {
-      Sentry.captureException(error);
+      ErrorReporter.captureException(error);
     }
   }
 }

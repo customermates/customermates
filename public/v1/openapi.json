@@ -841,7 +841,7 @@
                             "telegram",
                             "phone"
                           ],
-                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send an international number with + or 00 and its country calling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                         },
                         "value": {
                           "type": "string",
@@ -906,7 +906,7 @@
                               "telegram",
                               "phone"
                             ],
-                            "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                            "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send an international number with + or 00 and its country calling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                           },
                           "value": {
                             "type": "string",
@@ -3826,7 +3826,7 @@
                                                     "telegram",
                                                     "phone"
                                                   ],
-                                                  "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                                  "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send an international number with + or 00 and its country calling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                                 },
                                                 "value": {
                                                   "type": "string",
@@ -3897,7 +3897,7 @@
                                                     "telegram",
                                                     "phone"
                                                   ],
-                                                  "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                                  "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send an international number with + or 00 and its country calling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                                 },
                                                 "value": {
                                                   "type": "string",
@@ -11297,7 +11297,7 @@
                                     "telegram",
                                     "phone"
                                   ],
-                                  "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                  "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send an international number with + or 00 and its country calling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                 },
                                 "value": {
                                   "type": "string",
@@ -12482,7 +12482,7 @@
                                       "telegram",
                                       "phone"
                                     ],
-                                    "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                    "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send an international number with + or 00 and its country calling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                   },
                                   "value": {
                                     "type": "string",
@@ -19150,7 +19150,7 @@
                                                                 "telegram",
                                                                 "phone"
                                                               ],
-                                                              "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                                              "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send an international number with + or 00 and its country calling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                                             },
                                                             "value": {
                                                               "type": "string",
@@ -19221,7 +19221,7 @@
                                                                 "telegram",
                                                                 "phone"
                                                               ],
-                                                              "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                                              "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send an international number with + or 00 and its country calling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                                             },
                                                             "value": {
                                                               "type": "string",
@@ -32989,7 +32989,7 @@
                                                                 "telegram",
                                                                 "phone"
                                                               ],
-                                                              "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                                              "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send an international number with + or 00 and its country calling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                                             },
                                                             "value": {
                                                               "type": "string",
@@ -33060,7 +33060,7 @@
                                                                 "telegram",
                                                                 "phone"
                                                               ],
-                                                              "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                                              "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send an international number with + or 00 and its country calling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                                             },
                                                             "value": {
                                                               "type": "string",
@@ -48144,7 +48144,7 @@
                               "telegram",
                               "phone"
                             ],
-                            "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                            "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send an international number with + or 00 and its country calling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                           },
                           "value": {
                             "type": "string",
@@ -50803,7 +50803,7 @@
                                     "telegram",
                                     "phone"
                                   ],
-                                  "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                  "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send an international number with + or 00 and its country calling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                 },
                                 "value": {
                                   "type": "string",
@@ -51897,7 +51897,7 @@
                                     "telegram",
                                     "phone"
                                   ],
-                                  "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                  "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send an international number with + or 00 and its country calling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                 },
                                 "value": {
                                   "type": "string",
@@ -52218,7 +52218,7 @@
                                     "telegram",
                                     "phone"
                                   ],
-                                  "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                  "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send an international number with + or 00 and its country calling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                 },
                                 "value": {
                                   "type": "string",
@@ -82783,7 +82783,7 @@
                                                                       "telegram",
                                                                       "phone"
                                                                     ],
-                                                                    "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                                                    "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send an international number with + or 00 and its country calling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                                                   },
                                                                   "value": {
                                                                     "type": "string",
@@ -82854,7 +82854,7 @@
                                                                       "telegram",
                                                                       "phone"
                                                                     ],
-                                                                    "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                                                    "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send an international number with + or 00 and its country calling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                                                   },
                                                                   "value": {
                                                                     "type": "string",
@@ -94779,7 +94779,7 @@
                                       "telegram",
                                       "phone"
                                     ],
-                                    "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                    "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send an international number with + or 00 and its country calling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                   },
                                   "value": {
                                     "type": "string",
@@ -127782,7 +127782,7 @@
                                             "telegram",
                                             "phone"
                                           ],
-                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send an international number with + or 00 and its country calling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",
@@ -127853,7 +127853,7 @@
                                             "telegram",
                                             "phone"
                                           ],
-                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send an international number with + or 00 and its country calling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",
@@ -129235,7 +129235,7 @@
                                             "telegram",
                                             "phone"
                                           ],
-                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send an international number with + or 00 and its country calling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",
@@ -129306,7 +129306,7 @@
                                             "telegram",
                                             "phone"
                                           ],
-                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send an international number with + or 00 and its country calling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",
@@ -130688,7 +130688,7 @@
                                             "telegram",
                                             "phone"
                                           ],
-                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send an international number with + or 00 and its country calling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",
@@ -130759,7 +130759,7 @@
                                             "telegram",
                                             "phone"
                                           ],
-                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send an international number with + or 00 and its country calling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",
@@ -132141,7 +132141,7 @@
                                             "telegram",
                                             "phone"
                                           ],
-                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send an international number with + or 00 and its country calling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",
@@ -132212,7 +132212,7 @@
                                             "telegram",
                                             "phone"
                                           ],
-                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send an international number with + or 00 and its country calling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",
@@ -133594,7 +133594,7 @@
                                             "telegram",
                                             "phone"
                                           ],
-                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send an international number with + or 00 and its country calling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",
@@ -133665,7 +133665,7 @@
                                             "telegram",
                                             "phone"
                                           ],
-                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send an international number with + or 00 and its country calling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",
@@ -138304,6 +138304,7 @@
                         "webhookHeadersTooLarge",
                         "webhookBodyTemplateInvalid",
                         "webhookHeadersRequireHttps",
+                        "webhookDestinationNotAllowed",
                         "webhookEndpointInvalid",
                         "webhookUrlTooLong",
                         "messageContentRequired",

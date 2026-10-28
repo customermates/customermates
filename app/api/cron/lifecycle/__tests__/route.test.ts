@@ -10,7 +10,7 @@ const mockEnv = vi.hoisted(() => ({
 }));
 
 vi.mock("@/env", () => ({ env: mockEnv }));
-vi.mock("@sentry/nextjs", () => sentry);
+vi.mock("@/core/observability/server", () => sentry);
 
 vi.mock("@/core/di", () => ({
   getSendWelcomeAndDemoInteractor: () => ({ invoke: invokes[0] }),

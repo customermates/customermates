@@ -59,7 +59,10 @@ async function companySpendMicrocents(prisma: PrismaClient, companyId: string) {
   });
   return events.reduce(
     (sum, event) =>
-      sum + Number(event.state === "reserved" || event.state === "retained" ? event.reservedMicrocents : event.costMicrocents),
+      sum +
+      Number(
+        event.state === "reserved" || event.state === "retained" ? event.reservedMicrocents : event.costMicrocents,
+      ),
     0,
   );
 }
@@ -103,10 +106,11 @@ async function runCase(args: {
   if (turn.error) verdict = { pass: false, reason: turn.error };
   else if (!turn.observation.terminalCode || !accepted.includes(turn.observation.terminalCode))
     verdict = { pass: false, reason: `turn ended ${turn.observation.terminalCode ?? "without a terminal code"}` };
-  else
+  else {
     verdict = await args.testCase
       .check(turn.observation, { prisma: args.prisma, fixture: args.fixture })
       .catch((error: unknown) => ({ pass: false, reason: `check threw: ${String(error)}` }));
+  }
   const settled = await waitForSettlement(args.prisma, args.fixture.companyId);
   const cost = (await companySpendMicrocents(args.prisma, args.fixture.companyId)) - before;
   return {
@@ -130,7 +134,13 @@ export async function runAgentE2e(flags: AgentE2eFlags, launchEnvironment: Envir
   const prisma = await createClient(environment.databaseUrl);
   let server: ChildProcess | null = null;
   try {
-    if (flags.build) await runBuild({ ...launchEnvironment, NEXT_PUBLIC_SENTRY_DSN: "" });
+    if (flags.build) {
+      await runBuild({
+        ...launchEnvironment,
+        NEXT_PUBLIC_ERROR_REPORTING_PROVIDER: "off",
+        ERROR_REPORTING_NOTIFICATION_EMAIL: "",
+      });
+    }
     await rm(environment.workflowDataDir, { recursive: true, force: true });
     await mkdir(environment.workflowDataDir, { recursive: true });
     const monthlyCap = (await hostedSpendCommitmentMicrocents(prisma, new Date())) + BigInt(capMicrocents);
@@ -161,7 +171,9 @@ export async function runAgentE2e(flags: AgentE2eFlags, launchEnvironment: Envir
       }
       const row = await runCase({ appUrl: environment.appUrl, prisma, fixture, testCase });
       rows.push(row);
-      console.log(`${row.pass ? "pass" : "FAIL"} ${row.id}: ${row.reason} (US$${microcentsToUsd(row.costMicrocents).toFixed(4)})`);
+      console.log(
+        `${row.pass ? "pass" : "FAIL"} ${row.id}: ${row.reason} (US$${microcentsToUsd(row.costMicrocents).toFixed(4)})`,
+      );
     }
     const total = await companySpendMicrocents(prisma, fixture.companyId);
     console.log("");

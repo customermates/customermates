@@ -1,7 +1,7 @@
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { SearchCatalogIndexScheduler } from "@/features/command-palette/search-catalog-index-scheduler";
 
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { UserAccessor } from "@/core/base/user-accessor";
 
@@ -25,7 +25,7 @@ export class SearchCatalogIndexDispatcher extends UserAccessor implements Search
       await this.backgroundTaskService.dispatch("index-search-catalog", { userId: this.userId });
     } catch (error) {
       lastDispatch.delete(key);
-      Sentry.captureException(error, {
+      ErrorReporter.captureException(error, {
         tags: { kind: "search-catalog-index-dispatch", companyId: this.companyId },
         user: { id: this.userId },
       });

@@ -17,7 +17,7 @@ export async function triggerWorkflowErrorAction() {
 
   await runWithTenant(user, () =>
     getBackgroundTaskService().dispatch("trigger-test-error", {
-      message: "Test workflow error from background job - should trigger reportFailure + Sentry",
+      message: "Test workflow error from background job - should trigger reportFailure + operator notification",
     }),
   );
 }

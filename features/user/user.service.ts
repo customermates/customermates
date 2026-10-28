@@ -5,7 +5,7 @@ import type { AuthService } from "@/features/auth/auth.service";
 import type { ActiveWorkspaceService } from "@/features/workspace/active-workspace.service";
 import type { WorkspacePlanService } from "@/ee/subscription/workspace-plan.service";
 
-import * as Sentry from "@sentry/nextjs";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { Status } from "@/generated/prisma";
 import { env } from "@/env";
@@ -75,7 +75,7 @@ export class UserService {
     try {
       await this.repo.touchLastActiveUnscoped(user, staleBefore);
     } catch (error) {
-      Sentry.captureException(error, { tags: { kind: "last-active" } });
+      ErrorReporter.captureException(error, { tags: { kind: "last-active" } });
     }
   }
 

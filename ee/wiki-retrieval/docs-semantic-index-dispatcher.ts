@@ -1,6 +1,6 @@
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { DocsSectionRepo } from "@/features/mcp-tools/docs-section.repo";
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 import { isWikiSemanticSearchAvailable } from "./wiki-embedding.service";
 import { WIKI_EMBEDDING_VERSION } from "./wiki-embedding-model";
 const DOCS_INDEX_SCHEDULE_INTERVAL_MS = 60_000;
@@ -23,7 +23,7 @@ export class DocsSemanticIndexDispatcher {
       }
       await this.backgroundTaskService.dispatch("index-docs-chunks", {});
     } catch (error) {
-      Sentry.captureException(error);
+      ErrorReporter.captureException(error);
     }
   }
 }

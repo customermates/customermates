@@ -4,7 +4,7 @@ import type { DraftSendClaim, DraftSendRecord, DraftSendStart } from "../draft-s
 import type { DraftBindingConflict } from "../draft-thread";
 import type { CompleteReplyDraftSendArgs, DraftSendRepo } from "./draft-send.repo";
 
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -51,7 +51,7 @@ export class DraftSendGate {
     try {
       record = await this.repo.reconcileDraftSend({ draftMessageId });
     } catch (err) {
-      Sentry.captureException(err, { tags: { kind: "draft-send-reconcile-failure" } });
+      ErrorReporter.captureException(err, { tags: { kind: "draft-send-reconcile-failure" } });
     }
     if (record?.state !== "sent" || record.draftRevision.getTime() !== claim.draftRevision.getTime()) return null;
     return record;
@@ -83,7 +83,7 @@ export class DraftSendGate {
     try {
       await this.repo.settleDraftSend(args);
     } catch (err) {
-      Sentry.captureException(err, { tags: { kind: "draft-send-settle-failure" } });
+      ErrorReporter.captureException(err, { tags: { kind: "draft-send-settle-failure" } });
     }
   }
 
@@ -91,7 +91,7 @@ export class DraftSendGate {
     try {
       await this.repo.releaseDraftSend({ claim });
     } catch (err) {
-      Sentry.captureException(err, { tags: { kind: "draft-send-release-failure" } });
+      ErrorReporter.captureException(err, { tags: { kind: "draft-send-release-failure" } });
     }
   }
 
@@ -112,7 +112,7 @@ export class DraftSendGate {
         sentThreadId: message.messagingThreadId,
       });
     } catch (err) {
-      Sentry.captureException(err, { tags: { kind: "draft-send-record-failure" } });
+      ErrorReporter.captureException(err, { tags: { kind: "draft-send-record-failure" } });
     }
   }
 
@@ -125,7 +125,7 @@ export class DraftSendGate {
     try {
       await this.repo.completeDraftSendRemovingDraft(args);
     } catch (err) {
-      Sentry.captureException(err, { tags: { kind: "draft-send-completion-failure" } });
+      ErrorReporter.captureException(err, { tags: { kind: "draft-send-completion-failure" } });
       await this.settle({
         claim: args.claim,
         state: "sent",
@@ -139,7 +139,7 @@ export class DraftSendGate {
     try {
       return await this.repo.completeReplyDraftSend(args);
     } catch (err) {
-      Sentry.captureException(err, { tags: { kind: "draft-send-completion-failure" } });
+      ErrorReporter.captureException(err, { tags: { kind: "draft-send-completion-failure" } });
       await this.settle({
         claim: args.claim,
         state: "sent",

@@ -11,7 +11,7 @@ import type { MessagingService, StartChatSpecifics } from "../messaging.service"
 import type { DraftSendClaim } from "../draft-send";
 import type { DraftSendGate } from "./draft-send-gate";
 
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 
@@ -280,7 +280,7 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
         });
         if (claim) await this.draftSends.record(claim, persisted);
       } catch (err) {
-        Sentry.captureException(err);
+        ErrorReporter.captureException(err);
       }
     }
 

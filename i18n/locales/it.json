@@ -1291,6 +1291,7 @@
       "webhookBodyTemplateInvalid": "Il modello del corpo deve produrre un oggetto JSON valido.",
       "webhookDeliveryInProgress": "Questa consegna è ancora in fase di invio. Inviala di nuovo quando è riuscita o non è riuscita.",
       "webhookDeliveryNotFound": "ID consegna del webhook non trovato o non accessibile.",
+      "webhookDestinationNotAllowed": "Questa destinazione non è consentita. Usa un indirizzo pubblico.",
       "webhookDisabled": "Questo webhook è disattivato o non è più iscritto a questo evento. Attivalo o iscrivilo all'evento, poi invia di nuovo.",
       "webhookEndpointInvalid": "Inserisci un URL webhook HTTP o HTTPS con un host valido, senza nome utente o password.",
       "webhookEventsRequired": "Seleziona almeno un evento.",
@@ -2477,7 +2478,7 @@
     }
   },
   "ErrorCard": {
-    "contactSupport": "Non preoccuparti, siamo stati avvisati automaticamente di questo problema e ce ne stiamo già occupando. Se ti serve aiuto subito, contatta pure il nostro team di assistenza.",
+    "contactSupport": "Riprova. Se il problema persiste, contatta l’assistenza.",
     "ctaLabel": "Torna alla home",
     "demoModeError": "Il salvataggio, l'eliminazione e la modifica dei dati non sono disponibili in modalità demo. <link>Inizia gratuitamente</link> per accedere a tutte le funzionalità.",
     "invalidInviteLink": "Il link di invito che hai usato non è valido o potrebbe essere stato alterato. Contatta il tuo amministratore per richiedere un nuovo link valido e proseguire con la registrazione.",
@@ -2488,24 +2489,24 @@
     "subtitle": "Ops! Si è verificato un errore",
     "title": "Che imbarazzo",
     "transportInterrupted": "La connessione è stata interrotta. La modifica potrebbe essere già stata applicata. Controlla lo stato attuale prima di riprovare.",
-    "unexpectedError": "Si è verificato un errore imprevisto. Nessun problema, siamo stati avvisati e ce ne stiamo occupando."
+    "unexpectedError": "Si è verificato un errore imprevisto. Riprova."
   },
   "ErrorTestPage": {
     "clientSideErrors": {
-      "description": "Eccezioni non gestite nel codice del browser. L'overlay di errore di Next.js le intercetta in sviluppo; in produzione arrivano a Sentry tramite il gestore globale dell'SDK del browser e l'UnexpectedErrorToaster.",
+      "description": "Gli errori del browser vengono acquisiti con stack e percorso. Gli avvisi e-mail all’operatore sono facoltativi.",
       "title": "Lato client",
       "triggerClientError": "Genera un errore client non gestito"
     },
     "serverSideError": {
-      "description": "Eccezione in una server action, intercettata da onRequestError di instrumentation.ts e poi segnalata a Sentry.",
+      "description": "Gli errori del server vengono registrati con stack originale, percorso e contesto dello spazio di lavoro autenticato.",
       "title": "Server action",
       "triggerServerError": "Genera un errore di server action"
     },
     "subtitle": "Rompiamo le cose apposta, per la scienza!",
     "title": "Test degli errori",
     "workflowError": {
-      "description": "Avvia un workflow in background che fallisce in uno step. Il catch del workflow chiama reportFailure, che segnala a Sentry. In sviluppo l'errore viene scritto nella console del server invece che su Sentry.",
-      "dispatched": "Workflow avviato. Il suo errore viene segnalato a Sentry (o nella console del server in sviluppo).",
+      "description": "Avvia un workflow in background che genera un errore in un passaggio. L’errore viene acquisito in produzione e registrato in sviluppo.",
+      "dispatched": "Workflow avviato. L’errore viene acquisito dal sistema di segnalazione o nel log del server di sviluppo.",
       "title": "Workflow (processo in background)",
       "triggerWorkflowError": "Avvia un workflow che fallisce"
     }
@@ -2550,6 +2551,7 @@
     "helpAndFeedback": "Aiuto",
     "imprint": "Note legali",
     "legal": "Assistenza e informazioni legali",
+    "listedOnPlatform": "Visto su {platform}",
     "privacy": "Privacy",
     "privacyChoices": "Scelte sulla privacy",
     "product": "Prodotto",

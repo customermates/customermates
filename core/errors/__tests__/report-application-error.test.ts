@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const harness = vi.hoisted(() => ({ captureError: vi.fn() }));
 
-vi.mock("../sentry-client", () => ({ captureError: harness.captureError }));
+vi.mock("../client-reporter", () => ({ captureError: harness.captureError }));
 
 const DIGEST = "CUSTOMERMATES_WORKSPACE_CHANGED";
 const ISSUE = { code: "custom", path: [], message: "", customCode: "workspaceChanged" };

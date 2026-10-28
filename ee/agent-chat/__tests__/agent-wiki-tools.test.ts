@@ -71,7 +71,7 @@ vi.mock("@/features/mcp-tools/tool-registry", async () => {
 vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve({ raw: (key: string) => key }),
 }));
-vi.mock("@sentry/nextjs", () => ({
+vi.mock("@/core/observability/server", () => ({
   captureException: vi.fn(),
   setTag: vi.fn(),
   setUser: vi.fn(),

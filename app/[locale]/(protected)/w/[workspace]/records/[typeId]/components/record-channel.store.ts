@@ -46,9 +46,6 @@ export class RecordChannelStore {
     });
   }
 
-  private get region() {
-    return this.editor.rootStore.userStore.user?.country ?? null;
-  }
   private get channelKeys() {
     return new Set(
       this.editor.form.identities.flatMap((row) => [
@@ -67,8 +64,8 @@ export class RecordChannelStore {
   }
   get addAsNewOptions() {
     const candidates = new Set(this.mergedCandidates.map(({ candidate }) => key(candidate.provider, candidate.value)));
-    return inferChannelProviders(this.query, this.region).filter((provider) => {
-      const value = normalizeChannelValue(provider, this.query, this.region);
+    return inferChannelProviders(this.query).filter((provider) => {
+      const value = normalizeChannelValue(provider, this.query);
       return value && !this.channelKeys.has(key(provider, value)) && !candidates.has(key(provider, value));
     });
   }
@@ -102,7 +99,7 @@ export class RecordChannelStore {
     return Promise.resolve();
   };
   private handleProvider(query: string) {
-    const providers = inferChannelProviders(query, this.region);
+    const providers = inferChannelProviders(query);
     return providers.length === 1 && isHandleProvider(providers[0]) ? providers[0] : null;
   }
   private current(generation: number, query: string) {
@@ -185,7 +182,7 @@ export class RecordChannelStore {
     if (this.editor.isDisabled || this.isAdding) return;
     const query = this.query.trim(),
       generation = this.generation;
-    const value = normalizeChannelValue(provider, query, this.region);
+    const value = normalizeChannelValue(provider, query);
     if (!value) return;
     let identity: RecordIdentityInput = { provider, value };
     if (isHandleProvider(provider) && this.editor.rootStore.userStore.can("inboxMessages", "create")) {

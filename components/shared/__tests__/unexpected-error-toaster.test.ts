@@ -9,7 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const captureException = vi.hoisted(() => vi.fn());
 const warning = vi.hoisted(() => vi.fn());
 
-vi.mock("@sentry/nextjs", () => ({ captureException }));
+vi.mock("@/core/observability/browser", () => ({ captureException }));
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), warning } }));
 vi.mock("next-intl", () => ({
   useTranslations: () =>

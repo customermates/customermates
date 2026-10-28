@@ -64,7 +64,7 @@ export async function addMembership(
   }
   const userId = randomUUID();
   const inserted = await database.query(
-    'INSERT INTO "User" (id,"companyId","roleId",email,"firstName","lastName",country,"avatarUrl",theme,"displayLanguage","formattingLocale",status,"agreeToTerms","onboardingWizardCompletedAt","agentCreditActivatedAt","updatedAt") SELECT $1,$2,$3,email,"firstName","lastName",country,"avatarUrl",theme,"displayLanguage","formattingLocale",\'active\',true,NOW(),NOW(),NOW() FROM "User" WHERE id=$4 AND "companyId"=$5',
+    'INSERT INTO "User" (id,"companyId","roleId",email,"firstName","lastName","avatarUrl",theme,"displayLanguage","formattingLocale",status,"agreeToTerms","onboardingWizardCompletedAt","agentCreditActivatedAt","updatedAt") SELECT $1,$2,$3,email,"firstName","lastName","avatarUrl",theme,"displayLanguage","formattingLocale",\'active\',true,NOW(),NOW(),NOW() FROM "User" WHERE id=$4 AND "companyId"=$5',
     [userId, companyId, roleId, login.userId, login.companyId],
   );
   if (inserted.rowCount !== 1) throw new Error("The login to add a membership for is missing");
@@ -178,10 +178,10 @@ export function recordUnreadCountPolls(page: Page) {
   return sentAt;
 }
 
-export function recordSentryRequests(page: Page) {
+export function recordErrorReports(page: Page) {
   const requests: string[] = [];
   page.on("request", (request) => {
-    if (new URL(request.url()).pathname.startsWith("/monitoring")) requests.push(request.url());
+    if (new URL(request.url()).pathname === "/api/observability/errors") requests.push(request.url());
   });
   return requests;
 }

@@ -2,23 +2,20 @@ import type { TenantUser } from "@/features/user/user.schema";
 
 import { AsyncLocalStorage } from "node:async_hooks";
 
-import * as Sentry from "@sentry/nextjs";
+import { currentErrorContext, runWithErrorContext } from "@/core/observability/error-context";
 
 type TenantContext = { user?: TenantUser; bypass?: boolean };
 
 export const tenantStorage = new AsyncLocalStorage<TenantContext>();
 
 export function runWithTenant<T>(user: TenantUser, fn: () => T | Promise<T>): Promise<T> {
-  return tenantStorage.run({ user, bypass: false }, () => {
-    Sentry.setUser?.({ id: user.id });
-    Sentry.setTag?.("companyId", user.companyId);
-
-    return Promise.resolve(fn());
-  });
+  return tenantStorage.run({ user, bypass: false }, () =>
+    runWithErrorContext({ user: { id: user.id }, tags: { companyId: user.companyId } }, fn),
+  );
 }
 
 export function runWithoutTenant<T>(fn: () => T | Promise<T>): Promise<T> {
-  return tenantStorage.run({ bypass: true }, () => Promise.resolve(fn()));
+  return tenantStorage.run({ bypass: true }, () => runWithErrorContext(currentErrorContext(), fn));
 }
 
 export function getTenantUser(): TenantUser {

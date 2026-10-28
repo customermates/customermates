@@ -6,7 +6,8 @@ import { latin } from "./fonts";
 import { useEffect, useState } from "react";
 
 import { ErrorPageView } from "@/components/shared/error-page-view";
-import { captureError } from "@/core/errors/sentry-client";
+import { captureError } from "@/core/errors/client-reporter";
+import { errorReportingEnabled } from "@/core/errors/reporting-provider";
 import { defaultGlobalErrorFallback, globalErrorFallback } from "@/i18n/global-error-copy";
 
 type Props = {
@@ -31,7 +32,7 @@ export default function GlobalError({ error, reset }: Props) {
         <ErrorPageView
           backHref="/"
           backLabel={copy.backLabel}
-          body={process.env.NEXT_PUBLIC_SENTRY_DSN ? copy.body : copy.unreportedBody}
+          body={errorReportingEnabled() ? copy.body : copy.unreportedBody}
           retryLabel={copy.retryLabel}
           subtitle={copy.subtitle}
           title={copy.title}

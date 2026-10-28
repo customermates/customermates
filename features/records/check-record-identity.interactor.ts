@@ -54,7 +54,7 @@ export class CheckRecordIdentityInteractor extends AuthenticatedInteractor<
           if (!record) return failNotFound(CustomErrorCode.recordNotFound);
           if (!(await policy.canRead(record))) return failAuthorization(CustomErrorCode.permissionDenied);
         }
-        const normalized = normalizedIdentity(input.identity, policy.actor.country);
+        const normalized = normalizedIdentity(input.identity);
         const lookup = normalized ?? input.identity;
         const known = await this.records.getIdentityChannelsCompanyWide(
           identityKeys(lookup).map((value) => ({ channelClass: channelClass(lookup.provider), value })),

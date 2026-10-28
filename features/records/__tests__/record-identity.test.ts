@@ -22,7 +22,7 @@ describe("record identity channels", () => {
     expect(normalizedIdentity({ provider, value })?.value).toBe(expected);
   });
 
-  it("normalises typed phone numbers in the acting user's country and keeps one identity per number", () => {
+  it("normalises typed phone numbers with an explicit region and keeps one identity per number", () => {
     expect(normalizedIdentity({ provider: "phone", value: "0621 123456" }, "de")?.value).toBe("+49621123456");
     expect(normalizedIdentity({ provider: "phone", value: "0621 123456" })).toBeNull();
     expect(normalizedIdentity({ provider: "phone", value: "+49 621 123456 ext. 7" }, "de")).toBeNull();

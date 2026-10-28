@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const captureException = vi.hoisted(() => vi.fn());
 
-vi.mock("@sentry/nextjs", () => ({
+vi.mock("@/core/observability/browser", () => ({
   captureException,
 }));
 
@@ -13,7 +13,7 @@ let unregister = () => {};
 
 beforeEach(() => {
   captureException.mockClear();
-  vi.stubEnv("NEXT_PUBLIC_SENTRY_DSN", "https://public@example.invalid/1");
+  vi.stubEnv("NEXT_PUBLIC_ERROR_REPORTING_PROVIDER", "vercel");
 });
 
 afterEach(() => {

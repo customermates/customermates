@@ -80,8 +80,8 @@ The published self-hosted image sets no error reporting address and turns off Ne
 ## How are webhook secrets and destinations secured? [#how-are-webhook-secrets-and-destinations-secured]
 
 - Webhook secrets and custom header values are stored in Postgres without hashing, because they must be retrievable to sign and send outgoing requests. The REST API and MCP never return them, the Activity log redacts them, and an opened webhook shows them only to the **Admin** role and to roles with **Edit** on **API & Webhooks**; a role with only **Read access** **All** sees `********` in their place. To keep them elsewhere, self-host with your own secret manager.
-- A webhook URL may use plain `http://` for any host as long as the webhook has no custom headers. A webhook with custom headers must use `https://`, except for `localhost`, `127.0.0.1` and `::1`; this is checked when the webhook is saved and again before each delivery.
-- Webhook URLs are not limited to public addresses: the server sends requests to any host it can reach, including internal services on its network. On self-host, restrict the app container's outbound network if internal services must stay unreachable, and give **Create** and **Edit** on **API & Webhooks** only to trusted roles.
+- Use an HTTPS endpoint. Custom headers require HTTPS, except for HTTP on `localhost`, `127.0.0.1` or `::1` when private destinations are allowed. This is checked when you save and again before every delivery.
+- Cloud and demo allow only public webhook destinations. Literal private addresses and local hostnames are refused on save; every delivery checks all DNS answers and pins the connection to those validated addresses. Redirects are never followed. Self-hosted installations allow private destinations by default; `WEBHOOK_BLOCK_PRIVATE_DESTINATIONS=true` applies the Cloud rule. Give **Create** and **Edit** on **API & Webhooks** only to trusted roles.
 
 You manage webhooks in [Webhooks](app:settings/webhooks); see [Webhooks](/docs/webhooks).
 

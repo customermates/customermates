@@ -10,7 +10,7 @@ import { Action, Resource } from "@/generated/prisma";
 
 const harness = vi.hoisted(() => ({ rootStore: null as unknown }));
 
-vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn() }));
+vi.mock("@/core/observability/server", () => ({ captureException: vi.fn() }));
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, string | number>) =>
     values ? `${key}:${Object.values(values).join(",")}` : key,

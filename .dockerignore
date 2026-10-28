@@ -5,6 +5,8 @@
 .idea
 node_modules
 .next
+.runs
+.error-source-maps
 out
 coverage
 dist

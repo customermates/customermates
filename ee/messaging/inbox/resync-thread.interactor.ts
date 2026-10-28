@@ -5,7 +5,7 @@ import type { UnusableProviderItemRepo } from "../ingest/unusable-provider-item.
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { Resource, MessagingThreadType } from "@/generated/prisma";
 
@@ -68,7 +68,7 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
       const rateLimited = isUnipileRateLimit(err);
 
       if (!rateLimited) {
-        Sentry.captureException(err, {
+        ErrorReporter.captureException(err, {
           tags: {
             unipileAccountId: thread.unipileAccountId,
             companyId: thread.companyId,
@@ -109,7 +109,7 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
         },
       });
     } catch (err) {
-      Sentry.captureException(err, {
+      ErrorReporter.captureException(err, {
         tags: {
           unipileAccountId: thread.unipileAccountId,
           companyId: thread.companyId,
@@ -239,7 +239,7 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
 
       return true;
     } catch (err) {
-      Sentry.captureException(err, {
+      ErrorReporter.captureException(err, {
         tags: {
           unipileAccountId: thread.unipileAccountId,
           companyId: thread.companyId,

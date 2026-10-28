@@ -10,7 +10,7 @@ const harness = vi.hoisted(() => ({
 }));
 
 vi.mock("sonner", () => ({ toast: { error: harness.toastError, success: vi.fn() } }));
-vi.mock("@/core/errors/sentry-client", () => ({ captureError: harness.captureError }));
+vi.mock("@/core/errors/client-reporter", () => ({ captureError: harness.captureError }));
 vi.mock("../../channels/actions", () => ({
   disconnectConnectedAccountAction: vi.fn(),
   refreshConnectedAccountsAction: harness.refreshConnectedAccountsAction,

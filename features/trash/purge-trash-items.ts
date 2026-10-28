@@ -1,4 +1,4 @@
-import * as Sentry from "@sentry/nextjs";
+import * as ErrorReporter from "@/core/observability/server";
 
 import type { TrashItem, TrashRepo } from "./trash.repo";
 import type { TrashKindHandler } from "./trash-kind-handler";
@@ -39,7 +39,7 @@ export async function purgeTrashItems(
       else {
         failedItemIds.push(item.id);
         if (!result.ok) {
-          Sentry.captureException(result.error, {
+          ErrorReporter.captureException(result.error, {
             tags: { kind: "trash-purge", companyId: scope.companyId, itemKind: item.kind },
             extra: { itemId: item.id, system: scope.actorId === null },
           });

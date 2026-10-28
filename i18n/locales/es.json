@@ -1291,6 +1291,7 @@
       "webhookBodyTemplateInvalid": "La plantilla del cuerpo debe producir un objeto JSON válido.",
       "webhookDeliveryInProgress": "Esta entrega aún se está enviando. Reenvíala cuando se haya completado o haya fallado.",
       "webhookDeliveryNotFound": "ID de entrega de webhook no encontrado o no accesible.",
+      "webhookDestinationNotAllowed": "Este destino no está permitido. Usa una dirección pública.",
       "webhookDisabled": "Este webhook está desactivado o ya no está suscrito a este evento. Actívalo o suscríbelo al evento y vuelve a enviarla.",
       "webhookEndpointInvalid": "Introduce una URL de webhook HTTP o HTTPS con un host válido, sin nombre de usuario ni contraseña.",
       "webhookEventsRequired": "Selecciona al menos un evento.",
@@ -2477,7 +2478,7 @@
     }
   },
   "ErrorCard": {
-    "contactSupport": "Tranquilo, se nos ha avisado automáticamente de este problema y ya lo estamos revisando. Si necesitas ayuda inmediata, no dudes en contactar con nuestro equipo de soporte.",
+    "contactSupport": "Vuelve a intentarlo. Si el problema continúa, contacta con soporte.",
     "ctaLabel": "Volver al inicio",
     "demoModeError": "En el modo demo no se puede guardar, eliminar ni modificar datos. <link>Empieza gratis ahora</link> para acceder a todas las funciones.",
     "invalidInviteLink": "El enlace de invitación que has usado no es válido o puede haber sido alterado. Contacta con tu administrador para solicitar un enlace nuevo y válido y continuar con tu registro.",
@@ -2488,24 +2489,24 @@
     "subtitle": "¡Vaya! Algo ha fallado",
     "title": "Qué incómodo",
     "transportInterrupted": "La conexión se ha interrumpido. Es posible que el cambio ya se haya aplicado. Comprueba el estado actual antes de volver a intentarlo.",
-    "unexpectedError": "Se ha producido un error inesperado. No te preocupes, se nos ha avisado y estamos en ello."
+    "unexpectedError": "Se ha producido un error inesperado. Vuelve a intentarlo."
   },
   "ErrorTestPage": {
     "clientSideErrors": {
-      "description": "Excepciones no capturadas en el código del navegador. La superposición de error de Next.js las captura en desarrollo; en producción llegan a Sentry a través del gestor global del SDK del navegador y del UnexpectedErrorToaster.",
+      "description": "Los errores del navegador se capturan con su pila y ruta. Las alertas por correo al operador son opcionales.",
       "title": "Lado del cliente",
       "triggerClientError": "Lanzar un error de cliente no capturado"
     },
     "serverSideError": {
-      "description": "Excepción en una server action, capturada por onRequestError de instrumentation.ts y notificada a Sentry.",
+      "description": "Los errores del servidor se registran con su pila original, ruta y contexto del espacio de trabajo autenticado.",
       "title": "Server action",
       "triggerServerError": "Lanzar un error de server action"
     },
     "subtitle": "¡Rompemos cosas a propósito, por la ciencia!",
     "title": "Prueba de errores",
     "workflowError": {
-      "description": "Lanza un workflow en segundo plano que falla en un paso. El catch del workflow llama a reportFailure, que lo notifica a Sentry. En desarrollo el error se escribe en la consola del servidor en lugar de en Sentry.",
-      "dispatched": "Workflow lanzado. Su fallo se notifica a Sentry (o a la consola del servidor en desarrollo).",
+      "description": "Inicia un flujo en segundo plano que lanza un error en un paso. El fallo se captura en producción y se registra en desarrollo.",
+      "dispatched": "Flujo iniciado. El fallo se captura mediante el registro de errores o el registro del servidor de desarrollo.",
       "title": "Workflow (tarea en segundo plano)",
       "triggerWorkflowError": "Lanzar un workflow que falla"
     }
@@ -2550,6 +2551,7 @@
     "helpAndFeedback": "Ayuda",
     "imprint": "Aviso legal",
     "legal": "Ayuda y legal",
+    "listedOnPlatform": "Visto en {platform}",
     "privacy": "Privacidad",
     "privacyChoices": "Opciones de privacidad",
     "product": "Producto",

@@ -8,7 +8,7 @@ import type { PageResult } from "./paginate";
 
 import { z } from "zod";
 
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { ConnectedAccountStatus, MessagingProvider } from "@/generated/prisma";
 
@@ -125,7 +125,7 @@ export class BackfillChatsInteractor {
         lastMessageIsSender: lastMessageText ? (chat.last_message?.is_sender ?? null) : undefined,
       });
     } catch (err) {
-      Sentry.captureException(err, {
+      ErrorReporter.captureException(err, {
         tags: {
           unipileAccountId: account.unipileAccountId,
           companyId: account.companyId,
@@ -169,7 +169,7 @@ export class BackfillChatsInteractor {
 
       if (isUnipileTimeout(err)) return;
 
-      Sentry.captureException(err, {
+      ErrorReporter.captureException(err, {
         tags: {
           unipileAccountId: account.unipileAccountId,
           companyId: account.companyId,
@@ -259,7 +259,7 @@ export class BackfillChatsInteractor {
       });
       await synchronizeInboundAvatar(this.avatars, account.companyId, ingested);
     } catch (err) {
-      Sentry.captureException(err, {
+      ErrorReporter.captureException(err, {
         tags: {
           unipileAccountId: account.unipileAccountId,
           companyId: account.companyId,
@@ -327,7 +327,7 @@ export class BackfillChatsInteractor {
 
       if (isUnipileTimeout(err)) return participants;
 
-      Sentry.captureException(err, {
+      ErrorReporter.captureException(err, {
         tags: {
           unipileAccountId: account.unipileAccountId,
           companyId: account.companyId,

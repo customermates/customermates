@@ -13,7 +13,6 @@ export type AddressLookupCaller = {
   companyId: string;
   userId: string;
   locale: string;
-  country: string | null;
 };
 
 type Searched =
@@ -28,14 +27,6 @@ export type AddressLookupOutcome =
 
 function cacheQuery(query: string): string {
   return query.replace(/\s+/gu, " ").trim().toLowerCase();
-}
-
-function preferCountry(matches: AddressLookupMatch[], country: string | null): AddressLookupMatch[] {
-  if (!country) return matches;
-  return [
-    ...matches.filter((match) => match.address.countryCode === country),
-    ...matches.filter((match) => match.address.countryCode !== country),
-  ];
 }
 
 export class AddressLookupService {
@@ -86,8 +77,7 @@ export class AddressLookupService {
     const countryCode = input.countryCode ?? null;
     const searched = await this.search(caller, input.query, countryCode, input.limit);
     if (searched.status !== "ok") return searched;
-    const matches = countryCode ? searched.matches : preferCountry(searched.matches, caller.country);
-    return { status: "ok", attribution: searched.attribution, candidates: this.sign(caller, matches) };
+    return { status: "ok", attribution: searched.attribution, candidates: this.sign(caller, searched.matches) };
   }
 
   async verify(caller: AddressLookupCaller, input: VerifyAddressInput): Promise<AddressLookupOutcome> {

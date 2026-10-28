@@ -2,7 +2,7 @@ import type { GetWikiKnowledgeGapsRepo } from "./get-wiki-knowledge-gaps.repo";
 import type { PruneWikiKnowledgeGapsRepo } from "./prune-wiki-knowledge-gaps.repo";
 import type { WikiKnowledgeGapRecorder } from "./wiki-knowledge-gap-recorder";
 
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { Prisma } from "@/generated/prisma";
 
@@ -26,7 +26,7 @@ export class PrismaWikiKnowledgeGapRepo
         SET "count" = "WikiKnowledgeGap"."count" + 1, "lastSeenAt" = CURRENT_TIMESTAMP
       `);
     } catch (error) {
-      Sentry.captureException(error);
+      ErrorReporter.captureException(error);
     }
   }
 

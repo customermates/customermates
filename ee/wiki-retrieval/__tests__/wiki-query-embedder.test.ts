@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { createMockUser } from "@/tests/helpers/mock-user";
 
-vi.mock("@sentry/node", () => ({ captureException: vi.fn() }));
+vi.mock("@/core/observability/server", () => ({ captureException: vi.fn() }));
 
 import { QueryEmbeddingWait } from "@/core/retrieval/query-embedding-wait";
 

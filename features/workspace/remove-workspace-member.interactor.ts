@@ -8,7 +8,7 @@ import type { WorkspaceDepartureService } from "./workspace-departure.service";
 import type { WorkspaceMembershipRepo } from "./workspace-membership.repo";
 
 import { createElement } from "react";
-import * as Sentry from "@sentry/nextjs";
+import * as ErrorReporter from "@/core/observability/server";
 import { z } from "zod";
 import { Resource, Status } from "@/generated/prisma";
 
@@ -132,7 +132,7 @@ export class RemoveWorkspaceMemberInteractor extends AuthenticatedInteractor<
         }),
       });
     } catch (error) {
-      Sentry.captureException(error, { tags: { kind: "workspace-removal-email" } });
+      ErrorReporter.captureException(error, { tags: { kind: "workspace-removal-email" } });
     }
   }
 }

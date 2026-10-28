@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 
 import { NextResponse } from "next/server";
 
-import * as Sentry from "@sentry/nextjs";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { env } from "@/env";
 import { getIngestUnipileWebhookInteractor } from "@/core/di";
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
   try {
     body = JSON.parse(raw);
   } catch {
-    Sentry.captureException(new Error("Unipile v2 webhook: invalid JSON body"));
+    ErrorReporter.captureException(new Error("Unipile v2 webhook: invalid JSON body"));
 
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }

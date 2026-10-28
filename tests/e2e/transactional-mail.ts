@@ -9,6 +9,7 @@ export type SentEmail = {
   subject: string;
   html: string;
   text: string | null;
+  attempts: number;
 };
 
 export function sentEmailsTo(address: string): SentEmail[] {
