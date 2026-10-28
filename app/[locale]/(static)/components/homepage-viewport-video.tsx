@@ -10,7 +10,6 @@ type Props = {
   src: string;
 };
 
-// Starts as soon as the film is meaningfully in view, the same amount that reveals the other homepage sections.
 const AUTOPLAY_VISIBILITY_THRESHOLD = HOMEPAGE_MOTION_VISIBILITY_AMOUNT;
 
 export function HomepageViewportVideo({ ariaLabel, className, src }: Props) {

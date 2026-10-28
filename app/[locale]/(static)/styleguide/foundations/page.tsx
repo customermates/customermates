@@ -160,10 +160,7 @@ const SURFACE_RULES = [
     "The lit glass tile: a tinted highlight from the top left, a rim and a soft shadow. It carries the hero marks and, tinted with primary, the selected stage tab. Navigation selection stays a neutral pill.",
   ],
   ["Never", "Glass over content that switches between light and dark sections, or on resting content panels."],
-  [
-    "Section edges",
-    "In continuous pages a canvas section fades in and out of the page colour over 7rem.",
-  ],
+  ["Section edges", "In continuous pages a canvas section fades in and out of the page colour over 7rem."],
 ] as const;
 
 const FRAMING_RULES = [

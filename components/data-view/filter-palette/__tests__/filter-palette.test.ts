@@ -203,8 +203,8 @@ function readThemeTokens() {
   const css = readFileSync(join(process.cwd(), "styles/globals.css"), "utf8");
 
   return {
-    light: declarationsAfter(css, "\n:root,\n.light,"),
-    dark: declarationsAfter(css, "\n.dark,\n"),
+    light: declarationsAfter(css, "\n:root,\n.light {"),
+    dark: declarationsAfter(css, "\n.dark {\n"),
   };
 }
 

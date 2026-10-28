@@ -475,8 +475,7 @@ export function SectionPatterns() {
               <h3 className="text-display-sm mt-5">One panel ends every page</h3>
 
               <p className="text-lede mx-auto mt-5 max-w-2xl">
-                It sits on the canvas rung, so it reads as the end of the page in both themes without a second
-                palette.
+                It sits on the canvas rung, so it reads as the end of the page in both themes without a second palette.
               </p>
 
               <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
