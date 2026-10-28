@@ -82,8 +82,6 @@ const nextConfig: NextConfig = {
 
   images: {
     formats: ["image/avif", "image/webp"],
-    // Capture URLs carry a content version in their query string.
-    localPatterns: [{ pathname: "/**" }],
   },
 
   experimental: {

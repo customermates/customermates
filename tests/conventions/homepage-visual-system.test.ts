@@ -12,7 +12,7 @@ import {
   HOMEPAGE_CAPTURE_EVIDENCE,
   HOMEPAGE_CAPTURE_PROVENANCE,
 } from "@/app/[locale]/(static)/components/homepage-capture-provenance";
-import { HOMEPAGE_CAPTURES, type HomepageCaptureName, homepageCaptureSrc } from "@/app/[locale]/(static)/components/homepage-captures";
+import { HOMEPAGE_CAPTURES, type HomepageCaptureName } from "@/app/[locale]/(static)/components/homepage-captures";
 
 const HOMEPAGE_ROOT = join(REPO_ROOT, "app", "[locale]", "(static)");
 const COMPONENT_ROOT = join(HOMEPAGE_ROOT, "components");
@@ -133,8 +133,6 @@ describe("homepage visual-system adoption", () => {
             evidence.sha256[locale][theme],
           );
           expect(pngDimensions(file), `${theme}/${name}-${locale}`).toEqual(HOMEPAGE_CAPTURES[name][locale]);
-          const src = new URL(homepageCaptureSrc(name, locale, theme), "https://example.test");
-          expect(src.searchParams.get("v"), `${theme}/${name}-${locale}`).toBe(evidence.sha256[locale][theme].slice(0, 12));
         }
       }
     }

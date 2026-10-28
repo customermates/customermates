@@ -9,8 +9,6 @@ import { isLoopbackBaseUrl } from "./lib/capture-solutions-options";
 import { DEMO_DEFAULT_RECORD_TYPE_IDS } from "@/components/marketing/product-demo-src";
 import { findSolution } from "@/core/solutions/solution-catalog";
 import { CONTENT_LOCALES, type ContentLocale } from "@/i18n/locale-registry";
-import type { HomepageCaptureName } from "@/app/[locale]/(static)/components/homepage-captures";
-import captureVersions from "@/app/[locale]/(static)/components/homepage-capture-versions.json";
 
 // Homepage product stills from the seeded local demo instance (APP_MODE=demo, prisma db seed), in both themes and
 // every content locale. Section stills are clipped to the bounding box of real UI elements (a panel, whole message
@@ -35,7 +33,7 @@ const PHONE: CaptureViewport = { deviceScaleFactor: 2, height: 844, width: 390 }
 
 type Shot = {
   clip?: (page: Page) => Promise<Locator[]>;
-  name: HomepageCaptureName;
+  name: string;
   prepare?: (page: Page, locale: ContentLocale) => Promise<void>;
   route: (locale: ContentLocale) => string;
   viewport: CaptureViewport;
@@ -302,7 +300,6 @@ async function main(): Promise<void> {
   const only = argValue("--only")?.split(",") ?? [];
   const browser = await chromium.launch();
   const results: Record<string, { height: number; sha256: string; width: number }> = {};
-  const versions: Record<string, Partial<Record<ContentLocale, Partial<Record<Theme, string>>>>> = structuredClone(captureVersions);
 
   try {
     for (const shot of SHOTS.filter((item) => only.length === 0 || only.includes(item.name)))
@@ -331,8 +328,6 @@ async function main(): Promise<void> {
               const width = png.readUInt32BE(16);
               const height = png.readUInt32BE(20);
               results[key] = { height, sha256: sha256(png), width };
-              const version = (versions[shot.name] ??= {});
-              (version[locale] ??= {})[theme] = results[key].sha256.slice(0, 12);
               console.error(`captured ${key} ${width}x${height}`);
             } finally {
               await context.close();
@@ -342,10 +337,6 @@ async function main(): Promise<void> {
   } finally {
     await browser.close();
   }
-  writeFileSync(
-    join(process.cwd(), "app", "[locale]", "(static)", "components", "homepage-capture-versions.json"),
-    `${JSON.stringify(versions, null, 2)}\n`,
-  );
   console.log(JSON.stringify(results, null, 2));
 }
 

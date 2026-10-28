@@ -1,5 +1,3 @@
-import { versionedAssetSrc } from "@/core/utils/versioned-asset-src";
-
 import {
   SOLUTION_CATALOG,
   type SolutionCatalogEntry,
@@ -33,8 +31,8 @@ export type SolutionCaptureAsset = {
 
 export type SolutionCaptureEntry = {
   locale: SolutionPublicLocale;
-  main: SolutionCaptureAsset & { version: string };
-  nav: SolutionCaptureAsset & { version: string };
+  main: SolutionCaptureAsset;
+  nav: SolutionCaptureAsset;
   placeholder: boolean;
   solution: SolutionId;
   theme: SolutionCaptureTheme;
@@ -141,12 +139,7 @@ export function solutionCapturePair(
 ): SolutionCapturePair | null {
   const light = findSolutionCapture(manifest, solution, locale, "light");
   const dark = findSolutionCapture(manifest, solution, locale, "dark");
-  const rendered = (entry: SolutionCaptureEntry): SolutionCaptureEntry => ({
-    ...entry,
-    main: { ...entry.main, src: versionedAssetSrc(entry.main.src, entry.main.version) },
-    nav: { ...entry.nav, src: versionedAssetSrc(entry.nav.src, entry.nav.version) },
-  });
-  return light && dark ? { dark: rendered(dark), light: rendered(light) } : null;
+  return light && dark ? { dark, light } : null;
 }
 
 export type SolutionCaptureFileFacts = {
@@ -170,7 +163,7 @@ export type SolutionCaptureCheckResult = {
 
 function checkAsset(
   label: string,
-  asset: SolutionCaptureEntry["main"],
+  asset: SolutionCaptureAsset,
   expectedSha256: string | undefined,
   readFile: SolutionCaptureCheckOptions["readFile"],
   problems: string[],
@@ -184,8 +177,6 @@ function checkAsset(
     problems.push(`${label}: ${asset.src} is ${facts.bytes} bytes, manifest says ${asset.bytes}`);
   if (expectedSha256 !== undefined && facts.sha256 !== expectedSha256)
     problems.push(`${label}: ${asset.src} sha256 differs from its provenance`);
-  if (expectedSha256 !== undefined && asset.version !== expectedSha256.slice(0, 12))
-    problems.push(`${label}: ${asset.src} version differs from its provenance`);
   if (asset.width <= 0 || asset.height <= 0) problems.push(`${label}: ${asset.src} has no usable size`);
   return facts.bytes;
 }

@@ -1,4 +1,4 @@
-import { assert, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { SOLUTION_CAPTURE_BUDGET_BYTES } from "@/core/solutions/solution-captures";
 import { SOLUTION_CATALOG, findSolution } from "@/core/solutions/solution-catalog";
@@ -70,9 +70,7 @@ describe("solution product stage", () => {
 
   it("returns a poster only when both themes were captured", () => {
     const captures = captured();
-    const src = solutionStagePoster(captures, "consultants", "calendar", "en")?.dark.src;
-    assert(src);
-    expect(new URL(src, "https://example.test").pathname).toBe(
+    expect(solutionStagePoster(captures, "consultants", "calendar", "en")?.dark.src).toBe(
       solutionStageCaptureSrc("consultants", "calendar", "en", "dark"),
     );
     const lightOnly = {
@@ -80,23 +78,6 @@ describe("solution product stage", () => {
       entries: captures.entries.filter((entry) => entry.key !== "consultants:calendar:en:dark"),
     };
     expect(solutionStagePoster(lightOnly, "consultants", "calendar", "en")).toBeNull();
-  });
-
-  it("changes the rendered poster URL when a recapture changes its checksum", () => {
-    const captures = captured();
-    const first = solutionStagePoster(captures, "consultants", "inbox", "en")?.light.src;
-    assert(first);
-    const recaptured = {
-      ...captures,
-      entries: captures.entries.map((entry) => ({ ...entry, sha256: "new-capture" })),
-    };
-    const next = solutionStagePoster(recaptured, "consultants", "inbox", "en")?.light.src;
-    assert(next);
-    expect(next).not.toBe(first);
-    expect(new URL(next, "https://example.test").pathname).toBe(
-      solutionStageCaptureSrc("consultants", "inbox", "en", "light"),
-    );
-    expect(new URL(next, "https://example.test").searchParams.get("v")).toBe("new-capture");
   });
 
   it("accepts missing captures as fallbacks unless every capture is required", () => {

@@ -1,5 +1,3 @@
-import { versionedAssetSrc } from "@/core/utils/versioned-asset-src";
-
 import {
   SOLUTION_CAPTURE_BUDGET_BYTES,
   SOLUTION_CAPTURE_THEMES,
@@ -129,12 +127,7 @@ export function solutionStagePoster(
   const light = find("light");
   const dark = find("dark");
   if (!light || !dark) return null;
-  const asset = ({ bytes, height, sha256, src, width }: SolutionStageCaptureEntry) => ({
-    bytes,
-    height,
-    src: versionedAssetSrc(src, sha256.slice(0, 12)),
-    width,
-  });
+  const asset = ({ bytes, height, src, width }: SolutionStageCaptureEntry) => ({ bytes, height, src, width });
   return { dark: asset(dark), light: asset(light) };
 }
 

@@ -1,4 +1,4 @@
-import { assert, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import {
   type SolutionCaptureEntry,
@@ -24,8 +24,8 @@ function capturedManifest(): { manifest: SolutionCaptureManifest; provenance: So
   const plan = solutionCapturePlan(catalog);
   const entries: SolutionCaptureEntry[] = plan.map((item) => ({
     locale: item.locale,
-    main: { bytes: 10, height: 1800, src: item.mainSrc, version: "m", width: 2880 },
-    nav: { bytes: 5, height: 600, src: item.navSrc, version: "n", width: 960 },
+    main: { bytes: 10, height: 1800, src: item.mainSrc, width: 2880 },
+    nav: { bytes: 5, height: 600, src: item.navSrc, width: 960 },
     placeholder: false,
     solution: item.solution.id,
     theme: item.theme,
@@ -86,17 +86,6 @@ describe("solution capture check", () => {
     });
     expect(result.problems).toEqual([]);
     expect(result.totalBytes).toBe(15 * manifest.entries.length);
-  });
-
-  it("rejects a stale cache version even when the captured file is unchanged", () => {
-    const { manifest, provenance } = capturedManifest();
-    const [first, ...rest] = manifest.entries;
-    const result = checkSolutionCaptureManifest(
-      { entries: [{ ...first, main: { ...first.main, version: "stale" } }, ...rest] },
-      provenance,
-      { allowPlaceholders: false, catalog, readFile: facts },
-    );
-    expect(result.problems).toEqual([expect.stringContaining("version differs from its provenance")]);
   });
 
   it("fails on a missing view, a missing file, a hash drift and the budget", () => {
@@ -174,22 +163,5 @@ describe("solution capture check", () => {
     expect(pair?.light.theme).toBe("light");
     expect(pair?.dark.theme).toBe("dark");
     expect(solutionCapturePair(manifest, "agencies", "en")).toBeNull();
-  });
-
-  it("changes a rendered image URL after a recapture without changing its file path", () => {
-    const { manifest } = capturedManifest();
-    const first = solutionCapturePair(manifest, "smb", "en")?.light.main.src;
-    assert(first);
-    const recaptured = {
-      entries: manifest.entries.map((entry) => ({
-        ...entry,
-        main: { ...entry.main, version: "new-capture" },
-      })),
-    };
-    const next = solutionCapturePair(recaptured, "smb", "en")?.light.main.src;
-    assert(next);
-    expect(next).not.toBe(first);
-    expect(new URL(next, "https://example.test").pathname).toBe(manifest.entries[0].main.src);
-    expect(new URL(next, "https://example.test").searchParams.get("v")).toBe("new-capture");
   });
 });
