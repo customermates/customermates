@@ -204,6 +204,7 @@ test("the admin sees every list and can change the configuration", async ({ page
   for (const list of LISTS)
     await expect(page.locator("[data-sidebar-item]").getByText(list, { exact: true })).toBeVisible();
   await expect(page.locator("[data-sidebar-item]").getByText("Configure", { exact: true })).toBeVisible();
+  await page.waitForLoadState("networkidle");
   await page.goto(appPath(DEMO_SLUG, "/configure"));
   await expect(page.getByRole("button", { name: "Add to Deals", exact: true })).toBeVisible();
   expect(errors).toEqual([]);

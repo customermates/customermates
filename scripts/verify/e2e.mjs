@@ -78,11 +78,14 @@ function specFiles() {
     .sort();
 }
 
+const scheduledDurations = durations();
+const scheduledSpecs = specFiles();
+
 /** The files of one shard, or null for Playwright's own --shard when the caller filters specs or no timings exist. */
 function shardFiles(target, shard) {
-  const known = durations()[target] ?? durations()["cloud-chromium"];
+  const known = scheduledDurations[target] ?? scheduledDurations["cloud-chromium"];
   if (playwrightArgs.length > 0 || !known) return null;
-  return assignShards(specFiles(), shardsPerTarget, known)[shard - 1].map((file) => `tests/e2e/${file}`);
+  return assignShards(scheduledSpecs, shardsPerTarget, known)[shard - 1].map((file) => `tests/e2e/${file}`);
 }
 
 function log(message) {

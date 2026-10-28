@@ -89,7 +89,10 @@ test("the command palette switches to another workspace", async ({ page, databas
   await page.locator("#nav-search").click();
   const dialog = page.getByRole("dialog");
   await page.locator("#global-search-input input").fill("Switch workspace");
-  await dialog.getByRole("option").filter({ hasText: "Switch workspace…" }).click();
+  await expect(dialog.locator("[cmdk-group-heading]").first()).toHaveText("Best match");
+  const switchAction = dialog.getByRole("option").filter({ hasText: "Switch workspace…" });
+  await expect(switchAction).toHaveAttribute("aria-selected", "true");
+  await switchAction.click();
   const workspaces = dialog.getByRole("option");
   await expect(workspaces).toHaveText([/Bergmann Steuern/]);
   await workspaces.first().click();

@@ -226,7 +226,11 @@ test("after an admin changes the slug the old URL is not found and the new one o
   await page.goto(appPath(workspace.slug, "/settings/general"));
   const slug = page.locator("#settings-general-slug");
   await expect(slug).toHaveValue(workspace.slug);
-  await slug.fill(renamed);
+  const unsavedChanges = page.locator("[data-slot='unsaved-changes-bar']");
+  await expect(async () => {
+    await slug.fill(renamed);
+    await expect(unsavedChanges).toBeVisible({ timeout: 2_000 });
+  }).toPass();
   await page.locator("#settings-general-save").click();
   await expect(page).toHaveURL(appUrlPattern(renamed, "/settings/general$"));
   await expect(page.locator("#settings-general-slug")).toHaveValue(renamed);
