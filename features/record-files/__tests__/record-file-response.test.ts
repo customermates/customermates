@@ -46,12 +46,21 @@ describe("record file names", () => {
 });
 
 describe("record file responses", () => {
-  it("shows only PDFs and raster images inline and never markup", () => {
-    for (const type of ["application/pdf", "image/png", "image/jpeg", "image/gif", "image/webp"])
+  it("shows PDFs, raster images and browser video inline and never markup", () => {
+    for (const type of [
+      "application/pdf",
+      "image/png",
+      "image/jpeg",
+      "image/gif",
+      "image/webp",
+      "video/mp4",
+      "video/webm",
+    ])
       expect(recordFileServedInline(type, false)).toBe(true);
     for (const type of ["image/svg+xml", "text/html", "application/xhtml+xml", "text/xml", "text/plain"])
       expect(recordFileServedInline(type, false)).toBe(false);
     expect(recordFileServedInline("application/pdf", true)).toBe(false);
+    expect(recordFileServedInline("video/mp4", true)).toBe(false);
   });
 
   it("names the file for every browser without letting the name break the header", () => {

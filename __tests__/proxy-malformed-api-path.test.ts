@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
+import { unstable_doesMiddlewareMatch } from "next/experimental/testing/server";
 
 vi.mock("next-intl/middleware", () => ({ default: () => vi.fn() }));
 vi.mock("@/i18n/routing", () => ({
@@ -16,7 +17,15 @@ vi.mock("@/core/auth/better-auth", () => ({ auth: { api: { getSession: vi.fn() }
 import proxy, { config } from "@/proxy";
 import { MALFORMED_REQUEST_PATH_MESSAGE } from "@/core/api/request-path-error";
 
-const matcher = new RegExp(`^${config.matcher[0].source}$`);
+const matcher = {
+  test(url: string, headers: Record<string, string> = {}) {
+    return unstable_doesMiddlewareMatch({
+      config: config as Parameters<typeof unstable_doesMiddlewareMatch>[0]["config"],
+      url,
+      headers,
+    });
+  },
+};
 
 describe("API paths whose percent-encoding cannot be decoded", () => {
   it.each([
@@ -48,5 +57,24 @@ describe("API paths whose percent-encoding cannot be decoded", () => {
   it("still keeps static files outside the API out of the proxy", () => {
     expect(matcher.test("/logo.png")).toBe(false);
     expect(matcher.test("/_next/static/chunk.js")).toBe(false);
+  });
+
+  it.each([
+    "/api/v1/files/40000000-0000-4000-8000-000000000001/content",
+    "/api/w/alpha/v1/files/40000000-0000-4000-8000-000000000001/content",
+  ])("streams credential-scoped content at %s while retaining session workspace forwarding", (path) => {
+    expect(matcher.test(path)).toBe(true);
+    expect(matcher.test(path, { cookie: "app.session_token=session", "x-cm-workspace": "forged" })).toBe(true);
+    expect(matcher.test(path, { "x-api-key": "key" })).toBe(false);
+    expect(matcher.test(path, { authorization: "Bearer token" })).toBe(false);
+    expect(matcher.test(path, { authorization: "bearer token" })).toBe(false);
+    expect(matcher.test(path, { authorization: "Basic token" })).toBe(true);
+    expect(matcher.test(path + "?token=signed")).toBe(false);
+    expect(matcher.test(path + "?token=")).toBe(true);
+  });
+
+  it("keeps other API routes behind the proxy even with file credentials", () => {
+    expect(matcher.test("/api/v1/files/uploads?token=signed", { "x-api-key": "key" })).toBe(true);
+    expect(matcher.test("/api/w/alpha/v1/files/uploads", { "x-api-key": "key" })).toBe(true);
   });
 });

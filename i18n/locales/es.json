@@ -1207,6 +1207,7 @@
       "recordFileTooLarge": "Un archivo puede ocupar como máximo {limit}.",
       "recordFileUnavailable": "Un archivo de este valor no está disponible o pertenece a otro registro. Vuelve a subirlo.",
       "recordFileUploadIncomplete": "La subida no contenía exactamente los {size} bytes anunciados. Vuelve a subir el archivo.",
+      "recordFileUploadTargetRequired": "Envía este archivo a la URL de subida que recibiste al iniciar la subida.",
       "recordIdempotencyConflict": "Esta clave de solicitud se usó para otro cambio. Inicia una nueva solicitud.",
       "recordIdUnavailable": "Este ID ya perteneció a un registro anterior. Importa el registro con un ID nuevo.",
       "recordMarkedTextChanged": "El texto con formato marcado solo se puede importar sin cambios desde el registro guardado; envía el texto con formato nuevo o modificado como valor richText con documentJson.",

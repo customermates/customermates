@@ -78,6 +78,10 @@ export function resolvePositiveInteger(name: string, value: string | undefined, 
   return Number(normalized);
 }
 
+export function resolveFileMaxUploadBytes(value: string | undefined): number {
+  return resolvePositiveInteger("FILE_MAX_UPLOAD_BYTES", value, 1024 * 1024 * 1024);
+}
+
 export function resolveOptionalHttpUrl(name: string, value: string | undefined): string | undefined {
   const normalized = value?.trim();
   if (!normalized) return undefined;

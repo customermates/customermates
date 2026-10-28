@@ -48,60 +48,63 @@ function getResult(body: string, headers: Record<string, string>, size: number) 
 }
 
 describe("vercel blob file storage driver", () => {
-  it("presigns a private PUT scoped to the key, the declared size and the content type", async () => {
-    const blob = client();
-    blob.issueSignedToken.mockImplementation((options) =>
-      Promise.resolve({
-        delegationToken: delegationToken({
-          storeId: "store_abc123",
-          pathname: options.pathname,
-          operations: options.operations,
-          validUntil: options.validUntil,
-          maximumSizeInBytes: options.maximumSizeInBytes,
-          allowedContentTypes: options.allowedContentTypes,
+  it.each([4096, 830238702])(
+    "presigns a private %i-byte PUT scoped to the key, size and content type",
+    async (size) => {
+      const blob = client();
+      blob.issueSignedToken.mockImplementation((options) =>
+        Promise.resolve({
+          delegationToken: delegationToken({
+            storeId: "store_abc123",
+            pathname: options.pathname,
+            operations: options.operations,
+            validUntil: options.validUntil,
+            maximumSizeInBytes: options.maximumSizeInBytes,
+            allowedContentTypes: options.allowedContentTypes,
+          }),
+          clientSigningToken: "client-signing-token",
+          validUntil: options.validUntil ?? 0,
         }),
-        clientSigningToken: "client-signing-token",
-        validUntil: options.validUntil ?? 0,
-      }),
-    );
-    const driver = new VercelBlobFileStorageDriver(blob);
-    const target = await driver.createUpload({
-      fileId: "file",
-      key: "company/file/abc",
-      size: 4096,
-      mimeType: "application/pdf",
-      expiresInSeconds: 900,
-    });
+      );
+      const driver = new VercelBlobFileStorageDriver(blob);
+      const target = await driver.createUpload({
+        fileId: "file",
+        key: "company/file/abc",
+        size,
+        mimeType: "application/pdf",
+        expiresInSeconds: 900,
+      });
 
-    const [tokenOptions] = blob.issueSignedToken.mock.calls[0];
-    expect(tokenOptions).toMatchObject({
-      pathname: "company/file/abc",
-      operations: ["put"],
-      maximumSizeInBytes: 4096,
-      allowedContentTypes: ["application/pdf"],
-    });
-    expect((tokenOptions.validUntil ?? 0) - Date.now()).toBeGreaterThan(890_000);
-    expect(blob.presignUrl.mock.calls[0][1]).toMatchObject({
-      operation: "put",
-      pathname: "company/file/abc",
-      access: "private",
-      allowOverwrite: false,
-    });
-    const url = new URL(target.url);
-    expect(url.searchParams.get("pathname")).toBe("company/file/abc");
-    expect(url.searchParams.get("vercel-blob-delegation")).toBeTruthy();
-    expect(url.searchParams.get("vercel-blob-signature")).toBeTruthy();
-    expect(url.searchParams.get("vercel-blob-allow-overwrite")).toBe("false");
-    expect(target).toMatchObject({
-      method: "PUT",
-      headers: {
-        "x-vercel-blob-access": "private",
-        "x-vercel-blob-store-id": "abc123",
-        "x-content-type": "application/pdf",
-      },
-    });
-    expect(target.expiresAt).toBe(new Date(tokenOptions.validUntil ?? 0).toISOString());
-  });
+      const [tokenOptions] = blob.issueSignedToken.mock.calls[0];
+      expect(tokenOptions).toMatchObject({
+        pathname: "company/file/abc",
+        operations: ["put"],
+        maximumSizeInBytes: size,
+        allowedContentTypes: ["application/pdf"],
+      });
+      expect((tokenOptions.validUntil ?? 0) - Date.now()).toBeGreaterThan(890_000);
+      expect(blob.presignUrl.mock.calls[0][1]).toMatchObject({
+        operation: "put",
+        pathname: "company/file/abc",
+        access: "private",
+        allowOverwrite: false,
+      });
+      const url = new URL(target.url);
+      expect(url.searchParams.get("pathname")).toBe("company/file/abc");
+      expect(url.searchParams.get("vercel-blob-delegation")).toBeTruthy();
+      expect(url.searchParams.get("vercel-blob-signature")).toBeTruthy();
+      expect(url.searchParams.get("vercel-blob-allow-overwrite")).toBe("false");
+      expect(target).toMatchObject({
+        method: "PUT",
+        headers: {
+          "x-vercel-blob-access": "private",
+          "x-vercel-blob-store-id": "abc123",
+          "x-content-type": "application/pdf",
+        },
+      });
+      expect(target.expiresAt).toBe(new Date(tokenOptions.validUntil ?? 0).toISOString());
+    },
+  );
 
   it("reports a missing blob as null and passes other failures on", async () => {
     const blob = client({

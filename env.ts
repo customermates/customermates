@@ -4,10 +4,10 @@ import {
   resolveAuthAllowedHosts,
   resolveBaseUrl,
   resolveFileStorageDriver,
+  resolveFileMaxUploadBytes,
   resolveOptionalBigInt,
   resolveOptionalHttpUrl,
   resolvePostalCodeDataUrl,
-  resolvePositiveInteger,
   resolveStrictBoolean,
 } from "@/core/config/environment";
 
@@ -75,7 +75,7 @@ export const env = {
   UNIPILE_HOSTED_AUTH_DOMAIN: process.env.UNIPILE_HOSTED_AUTH_DOMAIN,
 
   FILE_STORAGE_DRIVER: resolveFileStorageDriver(process.env.FILE_STORAGE_DRIVER),
-  FILE_MAX_UPLOAD_BYTES: resolvePositiveInteger("FILE_MAX_UPLOAD_BYTES", process.env.FILE_MAX_UPLOAD_BYTES, 26214400),
+  FILE_MAX_UPLOAD_BYTES: resolveFileMaxUploadBytes(process.env.FILE_MAX_UPLOAD_BYTES),
   S3_ENDPOINT: process.env.S3_ENDPOINT,
   S3_REGION: process.env.S3_REGION,
   S3_BUCKET: process.env.S3_BUCKET,

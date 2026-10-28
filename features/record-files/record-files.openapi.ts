@@ -85,7 +85,7 @@ const previewFileOperation: ZodOpenApiOperationObject = {
 const uploadContentOperation: ZodOpenApiOperationObject = {
   operationId: "uploadFileContent",
   summary: "Send the bytes of a pending file",
-  description: `${FILE_CONTRACT} The upload URL that \`/v1/files/uploads\` returns for workspaces that keep files in their database points here and carries a token, so no other credentials are needed. Send exactly the announced number of bytes; a shorter or longer body is refused with recordFileUploadIncomplete. Only the uploader can send the bytes, and only while the file is pending.\n\nRequires: the upload token or the uploader's API key`,
+  description: `${FILE_CONTRACT} The upload URL that \`/v1/files/uploads\` returns for workspaces that keep files in their database points here and carries a token, so no other credentials are needed. Files stored in S3 or Vercel Blob that exceed 25 MiB must use the returned presigned upload URL; sending them here is refused with recordFileUploadTargetRequired before reading the body. Send exactly the announced number of bytes; a shorter or longer body is refused with recordFileUploadIncomplete. Only the uploader can send the bytes, and only while the file is pending.\n\nRequires: the upload token or the uploader's API key`,
   tags: ["files"],
   security: FILE_SECURITY,
   requestParams: { path: FileIdPathSchema, query: z.object({ token: FileTokenSchema }) },
@@ -105,7 +105,7 @@ const uploadContentOperation: ZodOpenApiOperationObject = {
 const downloadContentOperation: ZodOpenApiOperationObject = {
   operationId: "downloadFileContent",
   summary: "Download a file",
-  description: `${FILE_CONTRACT} Streams the file with its stored media type. PDFs and PNG, JPEG, GIF and WebP images open in the browser unless download is 1; every other type downloads. Supports a single byte range. Access is checked on every request, also for a signed downloadUrl.\n\nRequires: read access to the record and the file field, or a valid download token`,
+  description: `${FILE_CONTRACT} Streams the file with its stored media type. PDFs, PNG, JPEG, GIF and WebP images, and MP4 and WebM videos use inline disposition unless download is 1; every other type downloads. Video codec support depends on the browser. Supports a single byte range. Access is checked on every request, also for a signed downloadUrl.\n\nRequires: read access to the record and the file field, or a valid download token`,
   tags: ["files"],
   security: FILE_SECURITY,
   requestParams: {

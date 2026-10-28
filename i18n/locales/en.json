@@ -1207,6 +1207,7 @@
       "recordFileTooLarge": "A file can be at most {limit}.",
       "recordFileUnavailable": "A file in this value is unavailable or belongs to another record. Upload it again.",
       "recordFileUploadIncomplete": "The upload did not contain exactly the announced {size} bytes. Upload the file again.",
+      "recordFileUploadTargetRequired": "Send this file to the upload URL returned when you started the upload.",
       "recordIdempotencyConflict": "This request key was used for another change. Start a new request.",
       "recordIdUnavailable": "This record ID belongs to an earlier record. Import the record with a new ID.",
       "recordMarkedTextChanged": "Marked Formatted text can only be imported unchanged from the stored record; send new or changed Formatted text as a richText value with documentJson.",

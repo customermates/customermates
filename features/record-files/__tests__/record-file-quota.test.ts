@@ -6,7 +6,7 @@ import {
   fileStorageLimitBytes,
 } from "../record-file-quota";
 import { RecordFileQuotaService } from "../record-file-quota.service";
-import { recordFileMaxUploadBytes } from "../record-file-limits";
+import { resolveFileMaxUploadBytes } from "@/core/config/environment";
 import { fileSizeLabel } from "@/core/utils/format-bytes";
 import { decodeRecordFileContent } from "../record-file-content";
 
@@ -69,10 +69,14 @@ describe("file storage quota", () => {
     });
   });
 
-  it("caps cloud uploads at 25 MB and keeps the self-hosted setting", () => {
-    expect(recordFileMaxUploadBytes("cloud", 100 * 1024 * 1024)).toBe(25 * 1024 * 1024);
-    expect(recordFileMaxUploadBytes("cloud", 1024)).toBe(1024);
-    expect(recordFileMaxUploadBytes("self-hosted", 100 * 1024 * 1024)).toBe(100 * 1024 * 1024);
+  it("defaults uploads to 1 GB and honors the operator's explicit byte limit", () => {
+    expect(resolveFileMaxUploadBytes(undefined)).toBe(GIB);
+    expect(resolveFileMaxUploadBytes("")).toBe(GIB);
+    expect(resolveFileMaxUploadBytes("104857600")).toBe(100 * 1024 * 1024);
+    expect(resolveFileMaxUploadBytes("2147483648")).toBe(2 * GIB);
+    expect(resolveFileMaxUploadBytes("1024")).toBe(1024);
+    for (const invalid of ["0", "-1", "1.5", "unlimited", "9007199254740992"])
+      expect(() => resolveFileMaxUploadBytes(invalid)).toThrow("FILE_MAX_UPLOAD_BYTES");
   });
 });
 
