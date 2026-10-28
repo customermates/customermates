@@ -74,7 +74,10 @@ export default async function CompetitorComparePage({ params }: Props) {
         ]}
       />
 
-      <PageHero {...page.data.hero} meta={<PageUpdatedAt date={resolvePageLastModified(page.data)} locale={locale} />} />
+      <PageHero
+        {...page.data.hero}
+        meta={<PageUpdatedAt date={resolvePageLastModified(page.data)} locale={locale} />}
+      />
 
       <ComparisonTable
         competitor2Name={page.data.comparison.competitor2Name}

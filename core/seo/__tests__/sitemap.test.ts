@@ -116,23 +116,29 @@ describe("sitemap page dates", () => {
     const gitDate = new Date("2026-08-30T10:00:00.000Z");
 
     for (const date of ["2026-03-01", new Date("2026-03-01")]) {
-      expect(
-        resolvePageLastModified({ blogPost: { date, updated: "2026-03-02" }, lastModified: gitDate }),
-      ).toBe(gitDate);
+      expect(resolvePageLastModified({ blogPost: { date, updated: "2026-03-02" }, lastModified: gitDate })).toBe(
+        gitDate,
+      );
     }
   });
 
   it("keeps explicit editorial dates when Git history cannot prove a newer change", () => {
     for (const lastModified of [undefined, new Date("not-a-date"), new Date("2026-03-01")]) {
       expect(
-        resolvePageLastModified({ blogPost: { date: "2026-03-01", updated: "2026-10-08" }, lastModified })?.toISOString(),
+        resolvePageLastModified({
+          blogPost: { date: "2026-03-01", updated: "2026-10-08" },
+          lastModified,
+        })?.toISOString(),
       ).toBe("2026-10-08T00:00:00.000Z");
     }
   });
 
   it("never puts a blog modification before publication", () => {
     expect(
-      resolvePageLastModified({ blogPost: { date: "2026-05-02" }, lastModified: new Date("2026-03-20") })?.toISOString(),
+      resolvePageLastModified({
+        blogPost: { date: "2026-05-02" },
+        lastModified: new Date("2026-03-20"),
+      })?.toISOString(),
     ).toBe("2026-05-02T00:00:00.000Z");
   });
 
