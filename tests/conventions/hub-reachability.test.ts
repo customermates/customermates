@@ -833,7 +833,7 @@ describe("hub pagination and rendered reachability", () => {
   );
 
   it.skipIf(!E2E_BASE_URL)(
-    "permanently sends unprefixed content paths to the default locale and negotiates only the root",
+    "negotiates unprefixed content paths like the root, by the reader's language",
     async () => {
       for (const path of [
         "/docs",
@@ -841,12 +841,30 @@ describe("hub pagination and rendered reachability", () => {
         "/blog?page=2",
         "/pricing",
       ]) {
-        const response = await e2eResponse(path, {
-          headers: { "accept-language": "de-DE,de;q=0.9" },
-        });
-        expect(await semanticRedirectPath(response, path), path).toBe(
-          buildLocalePath(DEFAULT_LOCALE, path),
-        );
+        for (const [acceptLanguage, locale] of [
+          ["de-DE,de;q=0.9", "de"],
+          [undefined, DEFAULT_LOCALE],
+        ] as const) {
+          const response = await e2eResponse(path, {
+            headers: acceptLanguage
+              ? { "accept-language": acceptLanguage }
+              : {},
+          });
+          expect(
+            response.status,
+            `${path} ${acceptLanguage ?? ""} transport`,
+          ).toBe(307);
+          expect(response.headers.get("vary"), `${path} vary`).toBe(
+            "accept-language, cookie",
+          );
+          expect(
+            sameOriginPath(
+              response.headers.get("location") ?? "",
+              E2E_BASE_URL as string,
+            ),
+            `${path} ${acceptLanguage ?? ""}`,
+          ).toBe(buildLocalePath(locale, path));
+        }
       }
 
       const root = await e2eResponse("/", {
