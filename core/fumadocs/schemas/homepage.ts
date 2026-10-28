@@ -1,7 +1,7 @@
 import { frontmatterSchema } from "fumadocs-mdx/config";
 import { z } from "zod";
 
-import { ctaSchema, faqSchema, featuresSchema } from "./common";
+import { ctaSchema, faqSchema } from "./common";
 import { pricingDataSchema } from "./pricing";
 
 const automationExplanationSchema = z.string();
@@ -100,8 +100,7 @@ const walkthroughBulletSchema = z.object({
 const walkthroughSchema = z.object({
   badge: z.string(),
   bullets: z.array(walkthroughBulletSchema),
-  desktopAlt: z.string(),
-  phoneAlt: z.string(),
+  alt: z.string(),
   title: z.string(),
   titleAccent: z.string(),
 });
@@ -115,16 +114,11 @@ const homepageFlowSchema = z.object({
 export type HomepageFlow = z.infer<typeof homepageFlowSchema>;
 
 const homepageStorySchema = z.object({
-  captures: z
-    .array(
-      z.object({
-        alt: z.string(),
-        capture: z.enum(["homepage-pipeline", "homepage-dashboard"]),
-        caption: z.string(),
-        title: z.string(),
-      }),
-    )
-    .length(2),
+  capture: z.object({
+    alt: z.string(),
+    caption: z.string(),
+    title: z.string(),
+  }),
   description: z.string(),
   eyebrow: z.string(),
   points: z.array(z.string()).length(3),
@@ -167,7 +161,6 @@ export const homepageSchema = frontmatterSchema.extend({
   cta: ctaSchema,
   description: z.string(),
   faq: faqSchema,
-  features: featuresSchema,
   flow: homepageFlowSchema,
   hero: heroSchema,
   howItWorks: howItWorksSchema.optional(),

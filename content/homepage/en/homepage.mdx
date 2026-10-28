@@ -87,8 +87,7 @@ walkthrough:
   badge: Unified inbox
   title: Every channel,
   titleAccent: one customer story.
-  desktopAlt: LinkedIn conversation with Ethan Clarke in the Customermates inbox, using demo data
-  phoneAlt: WhatsApp conversation with Sophie Turner in the inbox on a phone, using demo data
+  alt: The Customermates inbox with email, LinkedIn, WhatsApp, Instagram and Telegram conversations beside one open thread, using demo data
   bullets:
     - title: Supported channels, one inbox
       description: Email through Gmail, Outlook or IMAP, LinkedIn including supported Sales Navigator and Recruiter chats, WhatsApp, Instagram and Telegram. On Customermates Cloud from Pro; Starter and self-hosted instances have no connected accounts.
@@ -105,15 +104,10 @@ pipelineStory:
     - Table and Kanban views
     - Deal value and weighted value by stage probability
     - Dashboards built from your own data
-  captures:
-    - capture: homepage-pipeline
-      title: Pipeline.
-      caption: Stage, deal value, company, owner and close date on every card.
-      alt: Deals board with the stages New, Qualified, Conversation and Proposal sent, using demo data
-    - capture: homepage-dashboard
-      title: Dashboard.
-      caption: Widgets for deal value, pipeline, recent changes, messages and events.
-      alt: Dashboard widgets for open and weighted pipeline, won value and open tasks, using demo data
+  capture:
+    title: Pipeline.
+    caption: Stage, deal value, company, owner and close date on every card.
+    alt: Deals board with the stages New, Qualified, Conversation and Proposal sent, using demo data
 
 routines:
   eyebrow: Routines
@@ -214,28 +208,6 @@ benefits:
       description: Read and write CRM records through the API for migrations and external workflows.
 
 automationExplanation: "Customermates provides REST, [[derived.webhooks.events.total]] webhook event types, MCP, and a published community node for external automation you operate. n8n, Zapier, Make, and other services remain separate products with their own plans, limits, credentials, data handling, and costs."
-
-features:
-  badge: Features
-  title: Features you actually need
-  subtitle: Core CRM features in a clear interface, with open interfaces for separately operated integrations.
-  features:
-    - icon: Users
-      title: Contacts and Organizations
-      description: Manage customers, leads, and business partners in one place.
-      image: homepage-service-contacts-organizations.png
-    - icon: Briefcase
-      title: Deals
-      description: Track sales from first contact to closing with configurable deal stages.
-      image: homepage-service-deals.png
-    - icon: Star
-      title: Services
-      description: Manage all services and link them with deals.
-      image: homepage-service-services.png
-    - icon: Zap
-      title: n8n Community Node
-      description: Connect an n8n instance you operate separately through REST, webhooks, or the published community node.
-      image: homepage-service-n8n.png
 
 pricingTitle:
   title: Transparent pricing for modern teams
