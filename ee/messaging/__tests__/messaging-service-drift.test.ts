@@ -604,3 +604,103 @@ describe("Unipile failure diagnostics reach Sentry", () => {
     expect(Sentry.captureException).not.toHaveBeenCalled();
   });
 });
+
+describe("createPost and addPostComment", () => {
+  const sent = () => {
+    const [url, init] = vi.mocked(fetch).mock.calls[0] as [string, RequestInit];
+    return {
+      url: new URL(url),
+      init,
+      body: new TextDecoder().decode(init.body as ArrayBuffer),
+    };
+  };
+
+  it("publishes text as JSON with the LinkedIn visibility and parses the created post", async () => {
+    stubFetch(
+      {
+        object: "Post",
+        id: "post_1",
+        share_url: "https://www.linkedin.com/feed/update/1",
+        created_at: "2026-10-27",
+      },
+      201,
+    );
+
+    const result = await new MessagingService().createPost({
+      accountId: "acc_1",
+      text: "Hello",
+      canRead: "anyone",
+    });
+
+    expect(result.ok && result.data.id).toBe("post_1");
+    const { url, init, body } = sent();
+    expect(url.pathname).toBe("/v2/acc_1/posts");
+    expect(init.method).toBe("POST");
+    expect(JSON.parse(body)).toEqual({ text: "Hello", can_read: "anyone" });
+  });
+
+  it("uploads attachments as multipart files instead of base64 JSON", async () => {
+    stubFetch({ object: "Post", id: "post_1" }, 201);
+
+    await new MessagingService().createPost({
+      accountId: "acc_1",
+      text: "Carousel",
+      attachments: [
+        {
+          filename: "slide-1.png",
+          content_type: "image/png",
+          content: Buffer.from("png").toString("base64"),
+        },
+      ],
+    });
+
+    const { init, body } = sent();
+    expect(new Headers(init.headers).get("content-type")).toMatch(/^multipart\/form-data; boundary=/);
+    expect(body).toContain('name="attachments[0]"; filename="slide-1.png"');
+    expect(body).toContain("Content-Type: image/png");
+    expect(body).not.toContain(Buffer.from("png").toString("base64"));
+  });
+
+  it("reports an accepted publish it cannot read as unconfirmed rather than failed", async () => {
+    stubFetch({ object: "Post" }, 201);
+
+    const result = await new MessagingService().createPost({
+      accountId: "acc_1",
+      text: "Hello",
+    });
+
+    expect(result).toEqual({
+      ok: false,
+      error: CustomErrorCode.unipileSendUnconfirmed,
+    });
+  });
+
+  it("keeps a publish rate limit retryable", async () => {
+    stubFetch({ type: "api/rate_limited" }, 429);
+
+    const result = await new MessagingService().createPost({
+      accountId: "acc_1",
+      text: "Hello",
+    });
+
+    expect(result).toMatchObject({
+      ok: false,
+      error: CustomErrorCode.unipileRateLimit,
+    });
+  });
+
+  it("comments on the created post and returns the comment id", async () => {
+    stubFetch({ object: "Comment", id: "comment_1" }, 201);
+
+    const result = await new MessagingService().addPostComment({
+      accountId: "acc_1",
+      postId: "post_1",
+      text: "Link",
+    });
+
+    expect(result).toEqual({ ok: true, data: { id: "comment_1" } });
+    const { url, body } = sent();
+    expect(url.pathname).toBe("/v2/acc_1/posts/post_1/comments");
+    expect(JSON.parse(body)).toEqual({ text: "Link" });
+  });
+});

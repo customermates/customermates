@@ -140,6 +140,7 @@
         "socialCancelTarget": "Retirar o rechazar la solicitud de conexión relacionada con {target}",
         "socialInvite": "Enviar una solicitud de conexión desde la cuenta conectada",
         "socialInviteTarget": "Enviar una solicitud de conexión a {target}",
+        "socialPublish": "Publicar una publicación desde la cuenta conectada",
         "teamInvite": "Enviar correos de invitación a las personas seleccionadas",
         "teamInviteTarget": "Enviar {count} correo(s) de invitación a: {target}",
         "teamRemove": "Quitar al miembro del equipo seleccionado de este espacio de trabajo",

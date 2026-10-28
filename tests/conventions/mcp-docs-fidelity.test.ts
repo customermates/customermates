@@ -101,6 +101,7 @@ describe("MCP tool description quality", () => {
     "send_email",
     "send_chat_message",
     "manage_social_relations",
+    "publish_social_post",
     "manage_team",
     "request_support",
   ]);

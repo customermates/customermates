@@ -20,6 +20,10 @@ import { ListSocialPostCommentsSchema } from "@/ee/messaging/posts/list-social-p
 import { ListSocialCommentReactionsSchema } from "@/ee/messaging/posts/list-social-comment-reactions.interactor";
 import { ListRelationRequestsSchema } from "@/ee/messaging/posts/list-relation-requests.interactor";
 import {
+  PublishSocialPostResultSchema,
+  PublishSocialPostSchema,
+} from "@/ee/messaging/posts/publish-social-post.interactor";
+import {
   getListSocialPostsInteractor,
   getGetSocialPostInteractor,
   getListSocialPostCommentsInteractor,
@@ -30,6 +34,7 @@ import {
   getCreateRelationRequestInteractor,
   getAcceptRelationRequestInteractor,
   getCancelRelationRequestInteractor,
+  getPublishSocialPostInteractor,
 } from "@/core/di";
 
 const ConnectedSocialAccountDescription =
@@ -149,6 +154,25 @@ const ManageSocialRelationsToolSchema = z
       });
     }
   });
+
+const PublishSocialPostToolSchema = z.object({
+  connectedAccountId: PublishSocialPostSchema.shape.connectedAccountId.describe(ConnectedSocialAccountDescription),
+  text: PublishSocialPostSchema.shape.text.describe(
+    "The exact post text your user approved (LinkedIn at most 3000 characters, Instagram captions 2200). May be empty only when fileIds is set",
+  ),
+  fileIds: PublishSocialPostSchema.shape.fileIds.describe(
+    "Optional files to attach, in order: file ids from a file value or a record's files list you can read (manage_record_files read). Several images form a carousel; otherwise one video or one document. Together at most 25 MB. Instagram posts need at least one image or video",
+  ),
+  visibility: PublishSocialPostSchema.shape.visibility.describe(
+    "LinkedIn only: anyone (provider default) or relations_only (your connections)",
+  ),
+  firstComment: PublishSocialPostSchema.shape.firstComment.describe(
+    "Optional comment the account posts on its own post right after publishing (at most 1250 characters)",
+  ),
+  idempotencyKey: PublishSocialPostSchema.shape.idempotencyKey.describe(
+    "Optional UUID. Repeating the identical call with the same key returns the first result with repeated true instead of publishing again; a different payload with a used key is refused",
+  ),
+});
 
 const InviteRelationSchema = z.object({
   connectedAccountId: z.uuid(),
@@ -488,6 +512,29 @@ export const manageSocialRelationsTool = {
         invitationId: parsed.data.invitationId,
       }),
       (data) => toonResult({ invitationId: parsed.data.invitationId, status: data.object ?? "canceled" }),
+    );
+  },
+};
+
+export const publishSocialPostTool = {
+  name: "publish_social_post",
+  title: "Publish social post",
+  description:
+    "Use this when publishing a post from a connected LinkedIn or Instagram account. SIDE EFFECT: publishes a real post that this tool cannot take back. " +
+    "Show your user the account, the exact text, the files and any first comment, and get their go-ahead before calling. " +
+    "connectedAccountId comes from get_workspace_context.connectedAccounts[] (provider linkedin or instagram, status ok, yours or shared). " +
+    "fileIds attach files from a record's file field you can read: several images become a carousel, otherwise attach one video or one document. " +
+    "visibility relations_only limits a LinkedIn post to the account's connections. firstComment is posted on the new post right after it is published; when that fails the post stays published and comment_error names the reason, so never publish it again. " +
+    "Returns id (usable as get_social_posts postId), share_url, created_at, comment_id and repeated. Pass an idempotencyKey to make a retry safe: the same call with the same key returns the first result. " +
+    "A failed publish with an unknown outcome may still have gone out: check get_social_posts with authorIdentifier 'me' before trying again.",
+  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+  inputSchema: PublishSocialPostToolSchema,
+  outputSchema: PublishSocialPostResultSchema,
+  execute: (params: z.infer<typeof PublishSocialPostToolSchema>) => {
+    const parsed = PublishSocialPostSchema.safeParse(params);
+    if (!parsed.success) return mcpValidationFailure(parsed.error);
+    return runInteractor(getPublishSocialPostInteractor().invoke(parsed.data), (data) =>
+      toonResult(formatDatesInResponse(data)),
     );
   },
 };

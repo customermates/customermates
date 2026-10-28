@@ -1012,6 +1012,53 @@ export class MessagingService {
     }
   }
 
+  async createPost(input: {
+    accountId: string;
+    text: string;
+    attachments?: MessageFile[];
+    canRead?: "anyone" | "relations_only";
+  }): Promise<MessagingSendResult<SocialPost>> {
+    try {
+      const raw = await requestData(
+        this.sdk.posts.createPost({
+          path: { account_id: input.accountId },
+          body: {
+            text: input.text,
+            ...(input.attachments ? { attachments: input.attachments } : {}),
+            ...(input.canRead ? { can_read: input.canRead } : {}),
+          },
+          headers: { [UNIPILE_TIMEOUT_HEADER]: String(OUTBOUND_SEND_TIMEOUT_MS) },
+          ...multipartOptions(input.attachments),
+        }),
+      );
+
+      return { ok: true, data: SocialPostSchema.parse(raw) };
+    } catch (err) {
+      return this.mapSendError(err);
+    }
+  }
+
+  async addPostComment(input: {
+    accountId: string;
+    postId: string;
+    text: string;
+  }): Promise<MessagingSendResult<{ id: string }>> {
+    try {
+      const raw = await requestData(
+        this.sdk.posts.addPostComment({
+          path: { account_id: input.accountId, post_id: input.postId },
+          body: { text: input.text },
+          headers: { [UNIPILE_TIMEOUT_HEADER]: String(OUTBOUND_SEND_TIMEOUT_MS) },
+        }),
+      );
+      const data = z.looseObject({ id: z.string().min(1) }).parse(raw);
+
+      return { ok: true, data: { id: data.id } };
+    } catch (err) {
+      return this.mapSendError(err);
+    }
+  }
+
   async listPostComments(input: {
     accountId: string;
     postId: string;

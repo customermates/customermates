@@ -337,6 +337,10 @@ describe("agent experience contract", () => {
         targetLabel: "Margaret Hamilton",
         listLabel: "Priority Leads",
       }),
+      describeInternalTool("publish_social_post", {
+        connectedAccountId: "provider-account-123",
+        text: "We shipped it.",
+      }),
     ];
     const expected = {
       en: [
@@ -344,30 +348,35 @@ describe("agent experience contract", () => {
         "Accept the connection request from Grace Hopper",
         "Withdraw or decline the connection request involving Linus Torvalds",
         "Add Margaret Hamilton to Sales Navigator list Priority Leads",
+        "Publish a post from the connected account · Preview: We shipped it.",
       ],
       de: [
         "Kontaktanfrage an Ada Lovelace senden · Vorschau: Let's connect.",
         "Kontaktanfrage von Grace Hopper annehmen",
         "Kontaktanfrage mit Linus Torvalds zurückziehen oder ablehnen",
         "Margaret Hamilton zur Sales-Navigator-Liste Priority Leads hinzufügen",
+        "Einen Post über das verbundene Konto veröffentlichen · Vorschau: We shipped it.",
       ],
       es: [
         "Enviar una solicitud de conexión a Ada Lovelace · Vista previa: Let's connect.",
         "Aceptar la solicitud de conexión de Grace Hopper",
         "Retirar o rechazar la solicitud de conexión relacionada con Linus Torvalds",
         "Añadir Margaret Hamilton a la lista Priority Leads de Sales Navigator",
+        "Publicar una publicación desde la cuenta conectada · Vista previa: We shipped it.",
       ],
       fr: [
         "Envoyer une demande de connexion à Ada Lovelace · Aperçu: Let's connect.",
         "Accepter la demande de connexion de Grace Hopper",
         "Retirer ou refuser la demande de connexion concernant Linus Torvalds",
         "Ajouter Margaret Hamilton à la liste Sales Navigator Priority Leads",
+        "Publier un post depuis le compte connecté · Aperçu: We shipped it.",
       ],
       it: [
         "Inviare una richiesta di collegamento a Ada Lovelace · Anteprima: Let's connect.",
         "Accettare la richiesta di collegamento di Grace Hopper",
         "Ritirare o rifiutare la richiesta di collegamento relativa a Linus Torvalds",
         "Aggiungere Margaret Hamilton all'elenco Sales Navigator Priority Leads",
+        "Pubblicare un post dall'account collegato · Anteprima: We shipped it.",
       ],
     } as const;
 

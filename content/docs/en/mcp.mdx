@@ -542,6 +542,12 @@ Connection requests: list invitations (received by default, or your own sent/out
 
 Required: `action`, `connectedAccountId`. Optional: `identifier`, `message`, `invitationId`, `direction`, `cursor`, `offset`, `limit`.
 
+#### `publish_social_post`
+
+Publishes a real post from a connected LinkedIn or Instagram account, optionally with files from a record's file field (several images form a carousel, otherwise one video or document, together at most 25 MB) and a first comment posted right after. `visibility=relations_only` limits a LinkedIn post to the account's connections. Returns the post `id` (usable as `get_social_posts` `postId`), `share_url`, `created_at` and `comment_id`; when the first comment fails, the post stays published and `comment_error` names the reason. With an `idempotencyKey`, repeating the identical call returns the first result with `repeated: true`.
+
+Required: `connectedAccountId`, `text`. Optional: `fileIds`, `visibility`, `firstComment`, `idempotencyKey`.
+
 #### `linkedin_search_sales_leads`
 
 Finds people via LinkedIn Sales Navigator: either from a pasted search URL or as a structured search with filters (keywords, location, industry, company, job title, seniority and more). Resolve `linkedin_search_sales_leads.items[].current_positions[].company_id` with `get_social_profile` and `profileType=company`. Requires a Sales Navigator subscription.

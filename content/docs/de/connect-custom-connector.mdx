@@ -119,7 +119,7 @@ Customermates hält einen Tool-Aufruf nie an, um nachzufragen; das tut Ihr Clien
 
 - Lesende Tools (`get_*`, `list_*`, `search_*`) tragen das Read-only-Flag und lassen sich ohne Risiko erlauben.
 - Tools, die löschen können, tragen das destruktive Flag und nennen `IRREVERSIBLE`.
-- Tools, die nur anlegen, ändern oder versenden, tragen keines der beiden Flags; zusammengeführte Tools mit einer Delete-Action, etwa `manage_webhooks`, tragen das destruktive Flag, ebenso `manage_team`, dessen `remove_member` einem Mitglied den Zugriff entzieht. Zu den Tools ohne Flag gehören `send_email`, `send_chat_message`, `request_support` und `manage_social_relations`, die echte Menschen erreichen, sowie `move_email_thread`, das E-Mails im echten Postfach verschiebt.
+- Tools, die nur anlegen, ändern oder versenden, tragen keines der beiden Flags; zusammengeführte Tools mit einer Delete-Action, etwa `manage_webhooks`, tragen das destruktive Flag, ebenso `manage_team`, dessen `remove_member` einem Mitglied den Zugriff entzieht. Zu den Tools ohne Flag gehören `send_email`, `send_chat_message`, `request_support`, `manage_social_relations` und `publish_social_post`, die echte Menschen erreichen, sowie `move_email_thread`, das E-Mails im echten Postfach verschiebt.
 
 Lassen Sie jedes Tool, das nicht read-only ist, auf *Ask*. Die vollständige Liste steht im [MCP-Tool-Katalog](/docs/mcp#tool-catalog).
 
