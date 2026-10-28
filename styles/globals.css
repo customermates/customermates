@@ -1155,13 +1155,14 @@ path:focus {
   animation-play-state: running, running;
 }
 
-.hero-mark-card img {
+.hero-mark-image {
   width: 48%;
   height: 48%;
-  object-fit: contain;
+  background: var(--mark-image) center / contain no-repeat;
 }
 
 [data-hero-mark="claude"] {
+  --mark-image: url("/icons/hero/claude.svg");
   --x: max(-36rem, -42vw);
   --y: 10rem;
   --s: 4.5rem;
@@ -1178,6 +1179,7 @@ path:focus {
 }
 
 [data-hero-mark="gmail"] {
+  --mark-image: url("/icons/hero/gmail.svg");
   --x: max(-22rem, -26vw);
   --y: 5.5rem;
   --s: 3rem;
@@ -1193,6 +1195,7 @@ path:focus {
 }
 
 [data-hero-mark="linkedin"] {
+  --mark-image: url("/icons/hero/linkedin.svg");
   --x: min(22rem, 26vw);
   --y: 5.5rem;
   --s: 3rem;
@@ -1209,6 +1212,7 @@ path:focus {
 }
 
 [data-hero-mark="openai"] {
+  --mark-image: url("/icons/hero/openai.svg");
   --x: min(36rem, 42vw);
   --y: 10rem;
   --s: 4.5rem;
@@ -1224,6 +1228,7 @@ path:focus {
 }
 
 [data-hero-mark="telegram"] {
+  --mark-image: url("/icons/hero/telegram.svg");
   --x: max(-30rem, -36vw);
   --y: 33rem;
   --s: 3.75rem;
@@ -1240,6 +1245,7 @@ path:focus {
 }
 
 [data-hero-mark="n8n"] {
+  --mark-image: url("/icons/integrations/n8n.svg");
   --x: min(30rem, 36vw);
   --y: 33rem;
   --s: 3.75rem;
