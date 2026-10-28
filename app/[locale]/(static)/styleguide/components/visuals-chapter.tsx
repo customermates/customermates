@@ -126,7 +126,7 @@ const PRODUCT_STILL_ROWS = [
   ],
   [
     "Crop",
-    "crop to the task surface before shrinking anything; cut only along real UI boundaries (a panel, whole message rows, whole board columns, a table column edge), never through text, a card, a badge or an avatar, with an even margin and no scrollbars or partial controls at the edges",
+    "crop to the task surface before shrinking anything; cut only along real UI boundaries (a panel, whole message rows, whole board columns, a table column edge; on a phone a table narrows to its last whole column and a board crops to its first column), never through text, a card, a badge or an avatar, with an even margin and no scrollbars or partial controls at the edges",
   ],
   [
     "Size",
@@ -134,7 +134,7 @@ const PRODUCT_STILL_ROWS = [
   ],
   [
     "Accent",
-    "the product's own primary on the one agent state; no drawn rings or overlays, the capture stays an unedited still",
+    "one 2 px ring in the product's own primary around the one agent state (the saved reply draft), set in the app before the capture; nothing is painted onto the image afterwards",
   ],
   [
     "Demo data",
