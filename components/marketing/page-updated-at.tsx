@@ -6,11 +6,11 @@ export async function PageUpdatedAt({ date, locale }: { date: Date | undefined; 
   if (!date) return null;
 
   const displayLocale = marketingLocaleOrDefault(locale);
-  const t = await getTranslations({ locale: displayLocale, namespace: "Common" });
+  const t = await getTranslations({ locale: displayLocale });
 
   return (
     <time dateTime={date.toISOString()}>
-      {t("updatedOn", {
+      {t("Common.updatedOn", {
         date: date.toLocaleDateString(formattingTagFor(displayLocale), {
           year: "numeric",
           month: "long",
