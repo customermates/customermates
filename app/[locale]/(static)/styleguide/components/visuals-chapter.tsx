@@ -115,6 +115,33 @@ const PROFILE_HERO_ROWS = [
   ],
 ];
 
+const PRODUCT_STILL_ROWS = [
+  [
+    "Source",
+    "a capture of the seeded local product (APP_MODE=demo, prisma db seed) with scripts/capture-homepage.ts, in both themes and every content locale, rendered in the workspace time zone",
+  ],
+  [
+    "Subject",
+    "one task per section: the open thread, the reply draft, the board, the routines table; the hero stage keeps whole app screens",
+  ],
+  [
+    "Crop",
+    "crop to the task surface before shrinking anything; cut only along real UI boundaries (a panel, whole message rows, whole board columns, a table column edge), never through text, a card, a badge or an avatar, with an even margin and no scrollbars or partial controls at the edges",
+  ],
+  [
+    "Size",
+    "the still fills at least 55 percent of its column, stays readable at 390 px through its phone variant and is captured at 2x or more of its largest rendered size",
+  ],
+  [
+    "Accent",
+    "the product's own primary on the one agent state; no drawn rings or overlays, the capture stays an unedited still",
+  ],
+  [
+    "Demo data",
+    "reads true in the capture itself: persona domain senders, office-hour times, no hover, focus, tooltip, toast or demo-mode banner, Mate panel closed unless it is the subject",
+  ],
+];
+
 const PROFILE_SAFE_ZONES = [
   {
     canvas: "LinkedIn personal banner",
@@ -486,6 +513,24 @@ export function VisualsChapter({ locale }: { locale: VisualLocale }) {
               </figcaption>
             </figure>
           ))}
+        </div>
+      </MarketingSection>
+
+      <MarketingSection
+        description="Product stills on public pages are product proof too. Each section shows one task, cropped along the interface so it reads at any width."
+        id="product-stills"
+        title="Product stills show one task"
+      >
+        <div className="mt-12 overflow-hidden rounded-card border border-border bg-card">
+          <ul className="divide-y divide-border">
+            {PRODUCT_STILL_ROWS.map(([label, description]) => (
+              <li key={label} className="grid gap-2 px-5 py-4 md:grid-cols-[10rem_1fr] md:items-baseline">
+                <code className="font-mono text-sm text-primary">{label}</code>
+
+                <span className="text-sm text-muted-foreground">{description}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       </MarketingSection>
 

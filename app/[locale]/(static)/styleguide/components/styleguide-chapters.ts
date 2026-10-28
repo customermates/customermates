@@ -82,6 +82,7 @@ export const STYLEGUIDE_CHAPTERS = [
       { id: "goldens", label: "Semantic goldens" },
       { id: "responsive-benchmark", label: "Responsive benchmark" },
       { id: "profile-heroes", label: "Profile heroes" },
+      { id: "product-stills", label: "Product stills" },
       { id: "failures", label: "Failure examples" },
     ],
     title: "Visuals",
