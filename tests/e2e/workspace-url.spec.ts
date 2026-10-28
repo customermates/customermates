@@ -235,6 +235,7 @@ test("after an admin changes the slug the old URL is not found and the new one o
   ]);
   expect(stored.rows[0]?.slug).toBe(renamed);
 
+  await page.waitForLoadState("networkidle");
   const old = await page.goto(appPath(workspace.slug, "/dashboard"));
   expect(old?.status()).toBe(404);
   await expect(page.getByRole("heading", { name: NOT_FOUND, exact: true })).toBeVisible();
@@ -258,6 +259,7 @@ test("the generic dashboard entry opens the workspace used last", async ({ page,
 
   await page.goto(appPath(workspace.slug, "/settings/profile"));
   await expect.poll(async () => (await activeWorkspaceOf(database, workspace)).lastUsed).toBe(workspace.companyId);
+  await page.waitForLoadState("networkidle");
   await page.goto("/en/dashboard");
   await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/dashboard$"));
   await expectCurrentWorkspace(page, "Browser workspace");

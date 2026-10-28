@@ -15,11 +15,12 @@ import { openRecordDetails, recordItem, runNamedRowAction, editFormattedText } f
 import { appUrlPattern, pageSlug } from "./app-paths";
 
 async function choose(page: Page, label: string | RegExp, option: string) {
-  await page
+  const control = page
     .getByRole("dialog")
-    .getByRole("combobox", typeof label === "string" ? { name: label, exact: true } : { name: label })
-    .click();
+    .getByRole("combobox", typeof label === "string" ? { name: label, exact: true } : { name: label });
+  await control.click();
   await page.getByRole("option", { name: option, exact: true }).filter({ visible: true }).click();
+  await expect(control).toContainText(option);
 }
 
 async function apply(page: Page) {

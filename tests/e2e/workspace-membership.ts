@@ -111,7 +111,8 @@ export function memberItem(page: Page, name: string) {
 }
 
 export async function readInvitationLink(page: Page) {
-  await page.goto(pagePath(page, "/settings/members"));
+  const path = pagePath(page, "/settings/members");
+  if (new URL(page.url()).pathname !== path) await page.goto(path);
   await clickHydrated(page.locator("#settings-members-add"));
   const dialog = page.getByRole("dialog");
   const link = dialog.locator("#invite-modal-link");

@@ -290,7 +290,7 @@ test("picks a verified address from the suggestions while typing", async ({ page
     const row = page.getByRole("row").filter({ hasText: "Ada Lovelace" });
     const space = row.locator("[data-inline-edit-space]").filter({ hasText: MANNHEIM });
     await space.hover();
-    await space.getByRole("button", { name: "Edit Address", exact: true }).click();
+    await space.getByRole("button", { name: "Edit Address", exact: true }).press("Enter");
     const editor = page.getByRole("dialog", { name: "Address", exact: true });
     const inlineAddress = await openAddress(page, editor);
     await expect(inlineAddress.locator('[data-address-status="verified"]')).toBeVisible();

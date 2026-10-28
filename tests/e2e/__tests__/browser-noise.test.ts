@@ -5,6 +5,17 @@ import { chunkLoadErrorChunk, isAbortedLoadReport, isAppConsoleError, isBenignPa
 const message = (type: string, text: string) => ({ type: () => type, text: () => text }) as Parameters<typeof isAppConsoleError>[0];
 
 describe("browser engine noise filters", () => {
+  it("matches Firefox's font-abort report only to a cancelled local Next font request", () => {
+    const font = "http://127.0.0.1:4464/_next/static/media/a865edea076e0166.woff2";
+    const diagnostic = { kind: "console", source: "", text: `[JavaScript Error: "downloadable font: download failed (font-family: "mono"): status=2152398850 source: ${font}"]` };
+    expect(isAbortedLoadReport(diagnostic, new Set([font]))).toBe(true);
+    expect(isAbortedLoadReport(diagnostic)).toBe(false);
+    expect(isAbortedLoadReport(diagnostic, new Set([`${font}?other`]))).toBe(false);
+    expect(isAbortedLoadReport({ ...diagnostic, text: diagnostic.text.replace("2152398850", "404") }, new Set([font]))).toBe(false);
+    const external = font.replace("http://127.0.0.1:4464", "https://external.test");
+    expect(isAbortedLoadReport({ ...diagnostic, text: diagnostic.text.replace(font, external) }, new Set([external]))).toBe(false);
+  });
+
   it("recognizes Webpack chunk reports without hiding unrelated files or external hosts", () => {
     const path = "/_next/static/chunks/6370.eb93cf4084b8f84d.js";
     expect(chunkLoadErrorChunk(`Loading chunk 6370 failed.\n(error: http://127.0.0.1:4464${path})`)).toBe(path);

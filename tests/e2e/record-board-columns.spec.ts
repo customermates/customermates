@@ -16,7 +16,6 @@ test("board columns add a record with the column value, open the option, and col
   const id = (key: string) => presetId(companyId, key);
   const typeId = id("deal");
   const column = (option: string) => page.locator(`[data-group-key="value:${id(`deal.stage.${option}`)}"]`);
-  await page.goto(companyPath(companyId, `/records/${typeId}`));
   const model = await (await page.request.post("/api/v1/model/read", { data: {} })).json();
   const created = await page.request.post("/api/v1/records/mutate", {
     data: {
@@ -34,7 +33,7 @@ test("board columns add a record with the column value, open the option, and col
   });
   expect(created.status(), await created.text()).toBe(200);
 
-  await page.reload();
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
   await page.getByRole("button", { name: "Appearance", exact: true }).click();
   await page.locator("#records-layout-board").click();
   await page.getByRole("combobox", { name: "Group By", exact: true }).click();

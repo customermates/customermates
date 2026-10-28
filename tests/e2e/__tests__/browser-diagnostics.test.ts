@@ -116,6 +116,23 @@ const NOT_FOUND = "Failed to load resource: the server responded with a status o
 const BASE = "http://127.0.0.1:4464";
 
 describe("browser diagnostics", () => {
+  it("withdraws a font abort only after the page that requested it has navigated away", () => {
+    const browser = fakeBrowser();
+    const diagnostics = new BrowserDiagnostics().watch(browser.context);
+    const font = `${BASE}/_next/static/media/font.woff2`;
+    const report = `[JavaScript Error: "downloadable font: download failed (font-family: "mono"): status=2152398850 source: ${font}"]`;
+    browser.navigation(`${BASE}/en/records`);
+    browser.abortedLoad(font, "NS_BINDING_ABORTED", "font");
+    browser.console(report);
+    browser.loaded();
+    expect(diagnostics.unexpected.map(({ text }) => text)).toEqual([report]);
+    browser.abortedLoad(font, "NS_BINDING_ABORTED", "font");
+    browser.console(report);
+    browser.navigation(`${BASE}/en/configure`);
+    browser.loaded();
+    expect(diagnostics.unexpected.map(({ text }) => text)).toEqual([report]);
+  });
+
   it("recovers Firefox's logged Error details and withdraws only an exactly matched cancelled chunk", async () => {
     const browser = fakeBrowser();
     const diagnostics = new BrowserDiagnostics().watch(browser.context);
