@@ -39,6 +39,10 @@ type Shot = {
   viewport: CaptureViewport;
   // space added around the clip elements; 0 when they carry their own padding
   gutter?: number;
+  // the clip never reaches past this element, so a gutter stops at the edge of the surface it belongs to
+  within?: (page: Page) => Locator;
+  // right edge of the last whole table column on a phone; the viewport narrows to it so no next column peeks in
+  fitWidth?: (page: Page) => Promise<number>;
 };
 
 const route = (path: string) => (locale: ContentLocale) => `/${locale}/w/${SOLUTION.workspaceSlugs[locale]}/${path}`;
@@ -56,6 +60,35 @@ async function settle(page: Page): Promise<void> {
   await page.waitForLoadState("networkidle");
   await page.waitForTimeout(1200);
   await closeAgentPanel(page);
+}
+
+// the header and cards of the first whole board columns
+async function boardColumns(page: Page, count: number): Promise<Locator[]> {
+  const columns = page.locator("main [data-group-key]");
+  const nodes: Locator[] = [];
+  for (let index = 0; index < Math.min(await columns.count(), count); index++) {
+    const column = columns.nth(index);
+    nodes.push(column.locator("[data-item-actions]").first());
+    const cards = column.locator('[aria-roledescription="draggable"]');
+    for (let card = 0; card < (await cards.count()); card++) nodes.push(cards.nth(card));
+  }
+  return nodes;
+}
+
+// the right edge of the Owner column, the second table column
+async function ownerColumnEdge(page: Page): Promise<number> {
+  const box = (await page.locator("main table thead th").nth(1).boundingBox())!;
+  return Math.round(box.x + box.width);
+}
+
+// the one accent of the still: the saved reply draft carries a ring in the app's own primary token
+async function markDraft(page: Page): Promise<void> {
+  await page.locator("main [data-email-header]").last().evaluate((header) => {
+    let card: HTMLElement | null = header as HTMLElement;
+    while (card && getComputedStyle(card).borderTopLeftRadius === "0px") card = card.parentElement;
+    if (!card) throw new Error("the reply draft has no card");
+    card.style.boxShadow = "0 0 0 2px var(--primary)";
+  });
 }
 
 async function openThread(page: Page, position: number): Promise<void> {
@@ -163,13 +196,17 @@ const SHOTS: Shot[] = [
     viewport: DESKTOP,
   },
   {
+    // a phone board sizes its columns to the screen so the next one always peeks in; the still is the first whole column
+    clip: async (page) => boardColumns(page, 1),
+    within: (page) => page.locator("main [data-group-key]").first().locator("xpath=.."),
+    gutter: 6,
     name: "homepage-pipeline-mobile",
     prepare: openPipelineView,
     route: records("deals"),
     viewport: PHONE,
   },
   { name: "homepage-routines", route: route("routines"), viewport: DESKTOP },
-  { name: "homepage-routines-mobile", route: route("routines"), viewport: PHONE },
+  { fitWidth: ownerColumnEdge, name: "homepage-routines-mobile", route: route("routines"), viewport: PHONE },
   { name: "homepage-configure", prepare: (page, locale) => zoomToDealGraph(locale)(page), route: route("configure"), viewport: DESKTOP },
   { name: "homepage-configure-mobile", prepare: (page, locale) => zoomToDealGraph(locale)(page), route: route("configure"), viewport: PHONE },
   {
@@ -197,23 +234,15 @@ const SHOTS: Shot[] = [
     prepare: async (page) => {
       await openThread(page, THREAD.draft);
       await scrollThreadTo(page, "bottom");
+      await markDraft(page);
     },
     route: route("inbox"),
     viewport: DESKTOP,
   },
   {
     // the pipeline section: the first four whole board columns, from their headers to their last card
-    clip: async (page) => {
-      const columns = page.locator("main [data-group-key]");
-      const nodes: Locator[] = [];
-      for (let index = 0; index < Math.min(await columns.count(), 4); index++) {
-        const column = columns.nth(index);
-        nodes.push(column.locator("[data-item-actions]").first());
-        const cards = column.locator('[aria-roledescription="draggable"]');
-        for (let card = 0; card < (await cards.count()); card++) nodes.push(cards.nth(card));
-      }
-      return nodes;
-    },
+    clip: async (page) => boardColumns(page, 4),
+    within: (page) => page.locator("main [data-group-key]").first().locator("xpath=.."),
     gutter: 6,
     name: "homepage-pipeline-board",
     prepare: openPipelineView,
@@ -246,11 +275,12 @@ async function assertSettled(page: Page): Promise<void> {
   );
 }
 
-async function unionBox(page: Page, nodes: Locator[], gutter = GUTTER) {
+async function unionBox(page: Page, nodes: Locator[], gutter = GUTTER, within?: Locator) {
   const boxes = await Promise.all(nodes.map((node) => node.boundingBox()));
   if (boxes.some((box) => !box)) throw new Error(`${page.url()}: a clip element is not visible`);
-  const left = Math.min(...boxes.map((box) => box!.x)) - gutter;
-  const top = Math.min(...boxes.map((box) => box!.y)) - gutter;
+  const surface = within ? await within.boundingBox() : null;
+  const left = Math.max(surface?.x ?? 0, Math.min(...boxes.map((box) => box!.x)) - gutter);
+  const top = Math.max(surface?.y ?? 0, Math.min(...boxes.map((box) => box!.y)) - gutter);
   const right = Math.max(...boxes.map((box) => box!.x + box!.width)) + gutter;
   const bottom = Math.max(...boxes.map((box) => box!.y + box!.height)) + gutter;
   const viewport = page.viewportSize()!;
@@ -285,7 +315,12 @@ async function main(): Promise<void> {
               await page.mouse.move(0, 0);
               await page.waitForTimeout(500);
               await assertSettled(page);
-              const clip = shot.clip ? await unionBox(page, await shot.clip(page), shot.gutter) : undefined;
+              if (shot.fitWidth) {
+                await page.setViewportSize({ height: shot.viewport.height, width: await shot.fitWidth(page) });
+                await page.waitForTimeout(600);
+                await assertSettled(page);
+              }
+              const clip = shot.clip ? await unionBox(page, await shot.clip(page), shot.gutter, shot.within?.(page)) : undefined;
               const png = await page.screenshot({ animations: "disabled", caret: "hide", clip, type: "png" });
               const file = join(process.cwd(), "public", "captures", theme, `${shot.name}-${locale}.png`);
               mkdirSync(dirname(file), { recursive: true });
