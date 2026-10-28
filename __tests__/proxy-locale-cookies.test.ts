@@ -118,13 +118,13 @@ describe("proxy locale preference cookies", () => {
     expect(subsequent.location).toMatch(/^http:\/\/localhost:4000\/de\/?$/);
   });
 
-  it("sends a locale-less content page to its default-locale URL permanently, whatever the preference", async () => {
+  it("sends a locale-less content page to the remembered content locale", async () => {
     const remembered = await call("/pricing", {
-      acceptLanguage: "de-DE,de;q=0.9",
+      acceptLanguage: "en-US,en;q=0.9",
       cookie: `${CONTENT_LOCALE_COOKIE_NAME}=de`,
     });
-    expect(remembered.status).toBe(308);
-    expect(remembered.location).toBe("http://localhost:4000/en/pricing");
+    expect(remembered.status).toBe(307);
+    expect(remembered.location).toBe("http://localhost:4000/de/pricing");
     expect(remembered.setCookies).toEqual([]);
   });
 

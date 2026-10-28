@@ -229,16 +229,15 @@ describe("proxy locale routing", () => {
     }
   });
 
-  it("emits a permanent redirect only for an unprefixed content path", async () => {
+  it("never answers a locale redirect permanently", async () => {
     for (const path of PATHS) {
       const { status } = await call(path);
-      const expectedPermanent = path === "/pricing";
-      expect(status === 308, `${path} permanence`).toBe(expectedPermanent);
+      expect(status, `${path} permanence`).not.toBe(308);
       expect(status, `${path} returned a 301`).not.toBe(301);
     }
   });
 
-  it("permanently sends an unprefixed content path to its default-locale version, whatever the reader prefers", async () => {
+  it("sends an unprefixed content path to the reader's content locale, and a reader without one to English", async () => {
     for (const path of [
       "/docs",
       "/docs/webhooks",
@@ -247,18 +246,24 @@ describe("proxy locale routing", () => {
       "/pricing",
       "/features/all",
     ]) {
-      for (const acceptLanguage of [undefined, "de-DE,de;q=0.9", "nl-NL,nl;q=0.9"]) {
+      for (const [acceptLanguage, locale] of [
+        [undefined, "en"],
+        ["de-DE,de;q=0.9", "de"],
+        ["nl-NL,nl;q=0.9", "nl"],
+      ] as const) {
         const { status, location, response } = await call(path, acceptLanguage);
-        expect(status, `${path} ${acceptLanguage ?? ""}`).toBe(308);
-        expect(location, `${path} ${acceptLanguage ?? ""}`).toBe(`http://localhost:4000/en${path}`);
-        expect(response.headers.get("vary"), "a permanent target must not vary by request").toBeNull();
+        expect(status, `${path} ${acceptLanguage ?? ""}`).toBe(307);
+        expect(location, `${path} ${acceptLanguage ?? ""}`).toBe(`http://localhost:4000/${locale}${path}`);
+        expect(response.headers.get("vary"), "a negotiated target must vary by request").toBe(
+          "accept-language, cookie",
+        );
       }
     }
   });
 
-  it("keeps the query string on the permanent redirect", async () => {
+  it("keeps the query string on the locale redirect", async () => {
     const { status, location } = await call("/blog?page=2&utm_source=proof");
-    expect(status).toBe(308);
+    expect(status).toBe(307);
     expect(location).toBe("http://localhost:4000/en/blog?page=2&utm_source=proof");
   });
 
