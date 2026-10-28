@@ -9,7 +9,7 @@ import { HomepageViewportVideo } from "./homepage-viewport-video";
 
 export function HomepageProductProof({ proof }: { proof: HomepageProductProofContent }) {
   return (
-    <MarketingSection className="py-16 sm:py-20 lg:py-24" id="walkthrough-video" tone="inverse">
+    <MarketingSection className="py-16 sm:py-20 lg:py-24" id="walkthrough-video">
       <div className="marketing-grid gap-y-6">
         <div className="col-span-12 lg:col-start-2 lg:col-end-12">
           <div className="marketing-grid items-end gap-y-5">

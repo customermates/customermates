@@ -4,7 +4,7 @@ import { cn } from "@/core/utils/cn";
 
 import { MarketingContainer } from "./marketing-container";
 
-type MarketingSectionTone = "page" | "canvas" | "inverse";
+type MarketingSectionTone = "page" | "canvas";
 
 type Props = {
   children?: ReactNode;

@@ -320,7 +320,7 @@ describe("homepage visual-system adoption", () => {
     }
     expect(englishHomepage).toContain('buttonRightHref: "#product-demo"');
     expect(germanHomepage).toContain('buttonRightHref: "#product-demo"');
-    expect(proof).toContain('tone="inverse"');
+    expect(proof).not.toMatch(/tone=/u);
     expect(proof.match(/<HomepageViewportVideo\b/gu)).toHaveLength(1);
     expect(proof).not.toMatch(/<iframe\b/u);
     expect(viewportVideo.match(/<video\b/gu)).toHaveLength(1);
@@ -397,9 +397,9 @@ describe("homepage visual-system adoption", () => {
     expect(strip).not.toMatch(/codex/iu);
   });
 
-  it("uses the shared 80rem marketing shell and exactly one inverse story band", () => {
+  it("uses the shared 80rem marketing shell and no inverted band", () => {
     expect(componentSource).not.toMatch(/max-w-\[(?:1100|1200|1240|1400|1440)px\]/u);
-    expect(componentSource.match(/tone="inverse"/gu)).toHaveLength(1);
+    expect(componentSource).not.toMatch(/inverse/u);
     expect(componentSource).toMatch(/MarketingContainer|MarketingSection/u);
   });
 });

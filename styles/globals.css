@@ -32,12 +32,7 @@
 @custom-variant fine-hover (@media (hover: hover) and (pointer: fine));
 @custom-variant touch-input (@media not all and (hover: hover) and (pointer: fine));
 
-/* The noindex guide can invert one local specimen without changing the public page theme. */
-@custom-variant dark (
-  &:is(.dark *):not(:is([data-marketing-tone="inverse"], [data-marketing-tone="inverse"] *)),
-  &:is(:root:not(.dark) [data-marketing-tone="inverse"], :root:not(.dark) [data-marketing-tone="inverse"] *),
-  &:is(.light [data-marketing-tone="inverse"], .light [data-marketing-tone="inverse"] *)
-);
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-scrim: var(--scrim);
@@ -413,8 +408,7 @@
    lightens in dark. The distinction is resting elevation versus state, not light versus
    dark. --accent and --selected are washes; --secondary is not. */
 :root,
-.light,
-.dark [data-marketing-tone="inverse"] {
+.light {
   --radius: 0.5rem;
   --marketing-gutter: 1.25rem;
   --marketing-gutter-lg: 2rem;
@@ -578,9 +572,7 @@
   --sidebar-ring: #5e4ae3;
 }
 
-.dark,
-:root:not(.dark) [data-marketing-tone="inverse"],
-.light [data-marketing-tone="inverse"] {
+.dark {
   --background: #0d0d10;
   --foreground: #fafafa;
   --card: #151518;
@@ -731,15 +723,6 @@
   --sidebar-accent-foreground: #fafafa;
   --sidebar-border: var(--border);
   --sidebar-ring: #7c6df2;
-}
-
-.dark [data-marketing-tone="inverse"] {
-  color-scheme: light;
-}
-
-:root:not(.dark) [data-marketing-tone="inverse"],
-.light [data-marketing-tone="inverse"] {
-  color-scheme: dark;
 }
 
 @layer base {
@@ -1456,14 +1439,14 @@ path:focus {
 }
 
 [data-marketing-flow="continuous"]
-  :not([data-marketing-tone="canvas"], [data-marketing-tone="inverse"])
+  :not([data-marketing-tone="canvas"])
   + [data-marketing-tone="canvas"] {
   --section-fade-top: var(--background);
 }
 
 [data-marketing-flow="continuous"]
   [data-marketing-tone="canvas"]:has(
-    + :not([data-marketing-tone="canvas"], [data-marketing-tone="inverse"])
+    + :not([data-marketing-tone="canvas"])
   ) {
   --section-fade-bottom: var(--background);
 }
