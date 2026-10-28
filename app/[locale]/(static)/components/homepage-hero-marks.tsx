@@ -1,41 +1,35 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect } from "react";
+
+import { cn } from "@/core/utils/cn";
 
 import { useHomepageMotion } from "./homepage-motion";
 
 type Mark = {
   key: string;
-  src: string;
   className?: string;
 };
 
 const MARKS: Mark[] = [
   {
     key: "claude",
-    src: "/icons/hero/claude.svg",
   },
   {
     key: "gmail",
-    src: "/icons/hero/gmail.svg",
   },
   {
     key: "linkedin",
-    src: "/icons/hero/linkedin.svg",
   },
   {
     key: "openai",
-    src: "/icons/hero/openai.svg",
     className: "dark:invert",
   },
   {
     key: "telegram",
-    src: "/icons/hero/telegram.svg",
   },
   {
     key: "n8n",
-    src: "/icons/integrations/n8n.svg",
   },
 ];
 
@@ -93,7 +87,7 @@ export function HomepageHeroMarks() {
       {MARKS.map((mark) => (
         <span key={mark.key} className="hero-mark" data-hero-mark={mark.key}>
           <span className="hero-mark-card mark-glow">
-            <Image alt="" className={mark.className} draggable={false} height={64} src={mark.src} width={64} />
+            <span className={cn("hero-mark-image", mark.className)} />
           </span>
         </span>
       ))}
