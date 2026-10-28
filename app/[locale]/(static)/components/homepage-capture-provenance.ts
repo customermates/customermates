@@ -8,7 +8,7 @@ export const HOMEPAGE_CAPTURE_PROVENANCE = {
   claim: "Real Customermates interface with synthetic demo data. Not a customer workspace and not a measured result.",
   environment:
     "Isolated local instance, APP_MODE=demo, fresh PostgreSQL migrated and seeded with prisma db seed, small-business demo workspace (kleine-unternehmen for German)",
-  productRef: "26145b8cd",
+  productRef: "550c91ad6",
   renderer:
     "Chromium via Playwright (scripts/capture-homepage.ts) in the page locale and the workspace time zone, device scale factor 2 or 2.5, theme set through next-themes",
 } as const;
@@ -74,15 +74,15 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     clipped: false,
     route: "/[locale]/w/[workspace]/dashboard",
     scenario:
-      "Main dashboard with open pipeline, value won in 12 months, average won deal, overdue tasks, pipeline by stage and won value by source",
+      "Main dashboard with open pipeline, value won in 12 months, average won deal, overdue tasks, pipeline by stage, upcoming next steps without an overdue section and won value by month",
     sha256: {
       de: {
-        dark: "e0ff0998545aa4bcf9c08c6f03e8269f7dc837ec7dfc186ba36327a861edf8e5",
-        light: "348bf4f1b36730379d85d79fe4b42d436fb75d6850c72cc56dd8c78c0a288bf0",
+        dark: "e5fdeca5143a70ea6a2b6c6b03324f93b0cbc1da8e336f45106f719cd7fdc718",
+        light: "81b370384b548bc03b23f00477baad811626e5c05697aa7453d5b2eaa508c1f7",
       },
       en: {
-        dark: "57beb8798d39dbaf6b2cf54d3e24139348d10a91583677d9f3c5083987f3f1f2",
-        light: "ac4f32126fee2fbe7a0b1dfafd8572832e8b576a693ae511b87a41dff436cf3a",
+        dark: "bb8fcd2ccdd59ed8fc971a68e232c6cb4edd467a503d69a70a2fa2e7a2f15ba6",
+        light: "9312b87577ea5428437a7123be3e4259ff2c7ef12ee09158806854e7ca70560e",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -141,15 +141,15 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     clipped: true,
     route: "/[locale]/w/[workspace]/inbox",
     scenario:
-      "The last two whole message rows of the email thread with James Finch (Jakob Fink in German): his reply and the saved reply draft with Send draft, with the date separator above",
+      "The last two whole message rows of the email thread with James Finch (Jakob Fink in German): his reply and the saved reply draft with Send draft, ringed in the app's primary, with the date separator above",
     sha256: {
       de: {
-        dark: "c6f082863ffdea1d5c1348af692837ee38235a296573b56bc7722e55797f0045",
-        light: "5baa4e77d17fd3dcfd62d4b53febd99db02caf85777532bfc6983024dddc4cae",
+        dark: "e6c0f0b2b913aa7a2dbb328b184cb09cc0e41ad0266f4b63c6cf24ff0b52b314",
+        light: "dedfc57698670554b8b461fcea45e2e3ea202504632c6e333bb366b6c5f56067",
       },
       en: {
-        dark: "22454c5d92c14fb645c9a0a92972ca0b11aaa5fdd3b48cb879370671e3952dd4",
-        light: "4c3ceb04e58ea3d3f0c9ffd2a8c91093321c5dc07e13c4d80466d9022211e046",
+        dark: "35ab80caf79515742bd634d24609a7d39de1311415b5b68a5d9b9de9d267e657",
+        light: "a721e383f7b89a9e3f407a44390f2072336e8f80e9712aadf18103aa2c4d5961",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -160,12 +160,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "The first four whole columns of the deals Pipeline board, from the column headers to the last card",
     sha256: {
       de: {
-        dark: "2a8f8332754fdb00420d2d3cfd6747486cf73ea630b9b7d110e8430f1027a8c8",
-        light: "215bbea7f964c964399f50d2594fe9c89d19836da0de68cdb686c9ca323f6313",
+        dark: "64e537be966f0446bf2fc532e0868bf6bccd64c30784101ebc057b024017fcef",
+        light: "1fe8f8f8eb2e587660ecea9ca8fb6361b52ade1720521b7268bc39065061658b",
       },
       en: {
-        dark: "900c612853847c0cd7ac2f4ec70452e843d21535f35b743d055befdfa0a87049",
-        light: "1a248598f0904959c73bffda5e2df20e15b0ff8c153b5fe457e832b2993c56ba",
+        dark: "b2b52aa7dc6d8731e099200cd7336a62973c7d4a6b4a65038e432ea638a0e7a6",
+        light: "2579bcb79620ea918f685f426302d1429f6a7922cb51762622ed624ed306208b",
       },
     },
     viewport: { height: 900, width: 1600 },
@@ -220,17 +220,18 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     viewport: { height: 844, width: 390 },
   },
   "homepage-pipeline-mobile": {
-    clipped: false,
+    clipped: true,
     route: "/[locale]/w/[workspace]/records/[deals]",
-    scenario: "Deals board on a phone-width viewport",
+    scenario:
+      "The first whole column of the deals Pipeline board on a phone-width viewport, from its header to its last card",
     sha256: {
       de: {
-        dark: "09de040e91b8911219a6a220be38046c936bba2c471b218d4fee9269556036da",
-        light: "c6675dc81ba02689a9d588a9f2f707d7735902b2097da9a3771a48016b092438",
+        dark: "417904dbd3aeb09c8b7c6f0a9335fb9b4f5ee25a7d09de7486de53e2458a4a8b",
+        light: "e550ae55f5f1f620db9c9c326a83c79f5a928a12d0b613f46e7ec0332546b372",
       },
       en: {
-        dark: "4edcab851ccfd0dbba80dcf966212ca560497572b45918b19d38fc76bf0cb428",
-        light: "aed5a9fdce3a2fdac855005d0a5b5781fa9567a3671c2f45858729d43f9f10c7",
+        dark: "dd07d57573fdb00d4bec11ac8373fe1aa063abac8869df8f72daddb36d436ddb",
+        light: "a52bce383d3bc7da1145e80c9cec0ae122af597f7a08be003b2812e3a6275759",
       },
     },
     viewport: { height: 844, width: 390 },
@@ -254,15 +255,16 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
   "homepage-routines-mobile": {
     clipped: false,
     route: "/[locale]/w/[workspace]/routines",
-    scenario: "Routines list of the small-business workspace on a phone-width viewport",
+    scenario:
+      "Routines list of the small-business workspace on a phone, the viewport narrowed to the right edge of the Owner column",
     sha256: {
       de: {
-        dark: "e041074c7baf84135b97a24214c6f9c41762cd7ef5c145b2b8e3ed9280e4d85e",
-        light: "d1f21219c1de522250a3dd35b75bb8326cb739293c82723c27cc15403d033f1f",
+        dark: "206173a8f9cf2596f02bc7b8ebbd029303d8f63c4a57510a5b5ea3601016a273",
+        light: "f3929475408fd9900c1f379d73a88e82466586e0d554beefd1b9ef305e5b2053",
       },
       en: {
-        dark: "155966eb440bd05c5eb7d0667811120355c9caf66916c9244b78aee82df1d3a6",
-        light: "47f89bedba30a746387ec2e60183ca82aea49f0686e8f533a8fb8399c6707b5b",
+        dark: "e5415d6f14110d1223bf29138bcf3fa2e222f316d41c251a782c50f3e8ebb13d",
+        light: "8f51ec88819f37353aa0c3676213ea024c29055c3991f1c9f93a4856f3c29fcf",
       },
     },
     viewport: { height: 844, width: 390 },

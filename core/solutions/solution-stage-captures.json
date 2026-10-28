@@ -38,11 +38,11 @@
       "width": 1600
     },
     {
-      "bytes": 57244,
+      "bytes": 55072,
       "height": 1000,
       "key": "smb:pipeline:fr:light",
       "route": "/fr/w/small-business/records/3ba14418-0840-8ae7-8c7e-52a2a79a481d?view=1f100000-0000-4000-8000-000000000001",
-      "sha256": "55e74e05ade37ba3752fc59d92a71ff4b1e1d1d5b39c1935105b98d760ac37b4",
+      "sha256": "984bbc47da536c2697eaada21e69ce54a7fc76a8c07dfe3be8093c6cc90f51ee",
       "src": "/captures/solutions/stage/light/smb-pipeline-fr.webp",
       "width": 1600
     },
@@ -56,56 +56,56 @@
       "width": 1600
     },
     {
-      "bytes": 65980,
+      "bytes": 65982,
       "height": 1000,
       "key": "smb:inbox:en:light",
       "route": "/en/w/small-business/inbox?threadId=latest",
-      "sha256": "6130a702e0ee296015e3ca7a7bed675efdee89a2aaac33d919a957f1e9819215",
+      "sha256": "0df785957f000cba21bf60e97f99cc31977bfb95124a26ac779d5832da653e29",
       "src": "/captures/solutions/stage/light/smb-inbox-en.webp",
       "width": 1600
     },
     {
-      "bytes": 64180,
+      "bytes": 64152,
       "height": 1000,
       "key": "smb:inbox:en:dark",
       "route": "/en/w/small-business/inbox?threadId=latest",
-      "sha256": "c9f3f874521edbb460c9f82291be820c0edc7d6715d9d3873b3e3fee6adfb084",
+      "sha256": "16d52570053695a14282501bc6842183b33b323a3e920c07bb7736d1cd644f53",
       "src": "/captures/solutions/stage/dark/smb-inbox-en.webp",
       "width": 1600
     },
     {
-      "bytes": 69450,
+      "bytes": 69190,
       "height": 1000,
       "key": "smb:inbox:de:light",
       "route": "/de/w/kleine-unternehmen/inbox?threadId=latest",
-      "sha256": "3acde2974c7493f8c4e360942c8a6afbeb336e8d6b7f9f214171eb04d177f5dd",
+      "sha256": "b0ced51b3237587f7bac0521408b913e2efe9e0c1941509283c9d9e5a23894d4",
       "src": "/captures/solutions/stage/light/smb-inbox-de.webp",
       "width": 1600
     },
     {
-      "bytes": 67704,
+      "bytes": 67836,
       "height": 1000,
       "key": "smb:inbox:de:dark",
       "route": "/de/w/kleine-unternehmen/inbox?threadId=latest",
-      "sha256": "03881fe68937c53d3e1407ed3fef357ec536624eebdcfe7c696b4124154e6711",
+      "sha256": "9babaf739a088b1a42eefd68b6caa94a8bbcf32c7d52aa2c3918c7687b47da28",
       "src": "/captures/solutions/stage/dark/smb-inbox-de.webp",
       "width": 1600
     },
     {
-      "bytes": 68958,
+      "bytes": 68908,
       "height": 1000,
       "key": "smb:inbox:fr:light",
       "route": "/fr/w/small-business/inbox?threadId=latest",
-      "sha256": "e8a2b017e52197a0a43ec153d6dc8fc3891b7e89015420ab44df05f0ded50368",
+      "sha256": "4ab589377697023815b748d405186d4d44ccdac8b61c5bd278ab5664e1386f0e",
       "src": "/captures/solutions/stage/light/smb-inbox-fr.webp",
       "width": 1600
     },
     {
-      "bytes": 66868,
+      "bytes": 66830,
       "height": 1000,
       "key": "smb:inbox:fr:dark",
       "route": "/fr/w/small-business/inbox?threadId=latest",
-      "sha256": "805f6882b9212ef105fabb107c6c3d30b5a6d588661a76146b84196bae6ecf9a",
+      "sha256": "1e9199ada240a74189e523520830ca96c477771de54bf89f73c979fa12275c05",
       "src": "/captures/solutions/stage/dark/smb-inbox-fr.webp",
       "width": 1600
     },
@@ -200,38 +200,38 @@
       "width": 1600
     },
     {
-      "bytes": 67872,
+      "bytes": 67580,
       "height": 1000,
       "key": "consultants:inbox:en:light",
       "route": "/en/w/consultants/inbox?threadId=latest",
-      "sha256": "ab33a001538ca2ca6c71bc77e4c79c6a9d0a514364ff2b3cea9ca31cc7edc032",
+      "sha256": "ed76ee963e8a1e65b2427f7ebe000eab00c03dc33302def74a38deed8b9dde47",
       "src": "/captures/solutions/stage/light/consultants-inbox-en.webp",
       "width": 1600
     },
     {
-      "bytes": 66378,
+      "bytes": 66508,
       "height": 1000,
       "key": "consultants:inbox:en:dark",
       "route": "/en/w/consultants/inbox?threadId=latest",
-      "sha256": "38b0f01c9e2becca464ce317beb0317e3e47051ebef3444be7994f705eb4fcaa",
+      "sha256": "a4e1d3432895e807e18f8497a77af4c6d6d96ada01eb107fb1ca1fe52ac21ec9",
       "src": "/captures/solutions/stage/dark/consultants-inbox-en.webp",
       "width": 1600
     },
     {
-      "bytes": 71314,
+      "bytes": 74004,
       "height": 1000,
       "key": "consultants:inbox:de:light",
       "route": "/de/w/beratung/inbox?threadId=latest",
-      "sha256": "ac123ec425b0f01b7d3621ab50af025d18244ebe6689e26e0a00c213df48658b",
+      "sha256": "a07d68d91278026456abf6fdb93709b0073d13fc8ef4e08a0e698fa7f36c78d6",
       "src": "/captures/solutions/stage/light/consultants-inbox-de.webp",
       "width": 1600
     },
     {
-      "bytes": 72672,
+      "bytes": 72670,
       "height": 1000,
       "key": "consultants:inbox:de:dark",
       "route": "/de/w/beratung/inbox?threadId=latest",
-      "sha256": "83e7018f5dc18809890c7574d1cb1fa499486e0d1813eb0e0811da7be2b140bb",
+      "sha256": "a0cd2fdd9a0b3617df6242009280cee7e34b249d49f8ffc7c544712b0e78533e",
       "src": "/captures/solutions/stage/dark/consultants-inbox-de.webp",
       "width": 1600
     },
@@ -263,11 +263,11 @@
       "width": 1600
     },
     {
-      "bytes": 26796,
+      "bytes": 54606,
       "height": 1000,
       "key": "consultants:calendar:de:dark",
       "route": "/de/w/beratung/calendar",
-      "sha256": "896793988d3f898ffd5ab05081d6daf1a01af77c5eb128cd958e370b12f1ea87",
+      "sha256": "b1116301587ee91caf5507d891a886d71310dec7867da7f44fd4a34503186881",
       "src": "/captures/solutions/stage/dark/consultants-calendar-de.webp",
       "width": 1600
     },
@@ -299,11 +299,11 @@
       "width": 1600
     },
     {
-      "bytes": 57676,
+      "bytes": 55490,
       "height": 1000,
       "key": "agencies:pitchBoard:de:dark",
       "route": "/de/w/agenturen/records/9d4fde54-a01d-8ab5-8004-6d8f8b1eaf2b?view=1f100000-5210-4000-8000-000000000001",
-      "sha256": "9d00184ca1a2f9ebf0e9b8bd3824cc1b37759d13a216db8c30c9c8fb654e11db",
+      "sha256": "437fedd14273bfb7326bc2761dadec7d17745bfe83a0badff7aeaed730aa73f0",
       "src": "/captures/solutions/stage/dark/agencies-pitchBoard-de.webp",
       "width": 1600
     },
@@ -317,65 +317,65 @@
       "width": 1600
     },
     {
-      "bytes": 57474,
+      "bytes": 55014,
       "height": 1000,
       "key": "agencies:pitchBoard:fr:dark",
       "route": "/fr/w/agencies/records/7c9cb8af-257b-87ea-8a8e-6c5dec71d826?view=1f100000-5200-4000-8000-000000000001",
-      "sha256": "8112b1e71c9217208d5c52d02d62e446213bfe2acc086427617833047a645142",
+      "sha256": "8283a021fa74cfcca86f69f2c689eda5d5dccfa0ccaee304dd78340ffbb5ce38",
       "src": "/captures/solutions/stage/dark/agencies-pitchBoard-fr.webp",
       "width": 1600
     },
     {
-      "bytes": 62974,
+      "bytes": 63980,
       "height": 1000,
       "key": "agencies:inbox:en:light",
       "route": "/en/w/agencies/inbox?threadId=latest",
-      "sha256": "7a2e4080c5f62d2bf3917484567a542d15339c46e9337af1779fece700f5abe0",
+      "sha256": "45c26520993c3153e1cf56861b9f080bb5fe204da00c3b54b094fc56b0089970",
       "src": "/captures/solutions/stage/light/agencies-inbox-en.webp",
       "width": 1600
     },
     {
-      "bytes": 61894,
+      "bytes": 62260,
       "height": 1000,
       "key": "agencies:inbox:en:dark",
       "route": "/en/w/agencies/inbox?threadId=latest",
-      "sha256": "296ac0b1780fb66f96c3849a371175b43c44f4d581d505d37d3db17473a1b39f",
+      "sha256": "460d3fbbdfb00686a241746a4579435c0665321743b67fa4367b88c5b6bf8dc9",
       "src": "/captures/solutions/stage/dark/agencies-inbox-en.webp",
       "width": 1600
     },
     {
-      "bytes": 70798,
+      "bytes": 70872,
       "height": 1000,
       "key": "agencies:inbox:de:light",
       "route": "/de/w/agenturen/inbox?threadId=latest",
-      "sha256": "12674f5a1aa1caae9593a21cfe79e3a07f99c78613167730f0c9cd444484f922",
+      "sha256": "5bd8a9be7354670ee5d64880c2702d3df0e35fbe66fe274b980764e31d3d92e8",
       "src": "/captures/solutions/stage/light/agencies-inbox-de.webp",
       "width": 1600
     },
     {
-      "bytes": 69590,
+      "bytes": 69540,
       "height": 1000,
       "key": "agencies:inbox:de:dark",
       "route": "/de/w/agenturen/inbox?threadId=latest",
-      "sha256": "ef9ee0ac26bae619081db27009d4799f57b2480091f56032cbc052f960f87cee",
+      "sha256": "7e4209c45850af0310f8476dd79078289d948a37b9b7da1156c593cd267f0976",
       "src": "/captures/solutions/stage/dark/agencies-inbox-de.webp",
       "width": 1600
     },
     {
-      "bytes": 65928,
+      "bytes": 65902,
       "height": 1000,
       "key": "agencies:inbox:fr:light",
       "route": "/fr/w/agencies/inbox?threadId=latest",
-      "sha256": "fd3e2385ece1731b62a3763bf1526db52b3e11eef47ea595589f2243f332ad85",
+      "sha256": "c0add5d618570862bfb444af2be03ebc5d049d5c485ad65a69629cfd6691b9a3",
       "src": "/captures/solutions/stage/light/agencies-inbox-fr.webp",
       "width": 1600
     },
     {
-      "bytes": 66004,
+      "bytes": 66002,
       "height": 1000,
       "key": "agencies:inbox:fr:dark",
       "route": "/fr/w/agencies/inbox?threadId=latest",
-      "sha256": "c8b2d37eb7e4f7fefdd5850f7c48c07bab5a9f5f53cb1cbc506277af7a746a93",
+      "sha256": "b37c7e0d2439978cda161d30b6d260a1f9801114796a2d5bb254fb131eaedf96",
       "src": "/captures/solutions/stage/dark/agencies-inbox-fr.webp",
       "width": 1600
     },
@@ -470,29 +470,29 @@
       "width": 1600
     },
     {
-      "bytes": 57596,
+      "bytes": 55190,
       "height": 1000,
       "key": "freelancers:inbox:en:light",
       "route": "/en/w/freelancers/inbox?threadId=latest",
-      "sha256": "56d2445dca2337c12617cc16a27888fbdb18d474666e78d43c90535454a499e4",
+      "sha256": "dc0d55d277c99bb96c7c669f3046bda2d604c548316ba5f6bb377240e7d0bcd9",
       "src": "/captures/solutions/stage/light/freelancers-inbox-en.webp",
       "width": 1600
     },
     {
-      "bytes": 57370,
+      "bytes": 54922,
       "height": 1000,
       "key": "freelancers:inbox:en:dark",
       "route": "/en/w/freelancers/inbox?threadId=latest",
-      "sha256": "439d1b8dfae2e047ae50b633b1f50ee48edb96b13ee69bee083c6b4a8ea24e46",
+      "sha256": "395bd2369bf1e2b7847d261708dd60830fa80dfa4ded6e27c7c1a7c9f2963374",
       "src": "/captures/solutions/stage/dark/freelancers-inbox-en.webp",
       "width": 1600
     },
     {
-      "bytes": 56400,
+      "bytes": 56302,
       "height": 1000,
       "key": "freelancers:inbox:de:light",
       "route": "/de/w/selbststaendige/inbox?threadId=latest",
-      "sha256": "992a7b1981804f1c216be816d3f027e86d5e05b94cbf9d57fc4c5285ba4d570a",
+      "sha256": "9e3aa4471c08add3cc5fe65fe57199a71051393e4aaf305ea9a6a1dbc310be84",
       "src": "/captures/solutions/stage/light/freelancers-inbox-de.webp",
       "width": 1600
     },
@@ -578,20 +578,20 @@
       "width": 1600
     },
     {
-      "bytes": 57076,
+      "bytes": 57088,
       "height": 1000,
       "key": "startups:inbox:en:light",
       "route": "/en/w/founder-sales/inbox?threadId=latest",
-      "sha256": "8f9cd6879bbaa7d4346384fdb59421762435952e7cdd3c8096abc25f99580a27",
+      "sha256": "113f905c19e6f65354addb5ff0a36a7b4f65321192004c2b81289dd3aedbe953",
       "src": "/captures/solutions/stage/light/startups-inbox-en.webp",
       "width": 1600
     },
     {
-      "bytes": 55970,
+      "bytes": 55972,
       "height": 1000,
       "key": "startups:inbox:en:dark",
       "route": "/en/w/founder-sales/inbox?threadId=latest",
-      "sha256": "cae42a172581da2b11a698d51274d4314776a8a1cc06943138ea17ec981d8720",
+      "sha256": "49a50af677114f0a3de78ea76c70e53c5d6ce68502d04bd4a120b624c2d85b3c",
       "src": "/captures/solutions/stage/dark/startups-inbox-en.webp",
       "width": 1600
     },
@@ -704,56 +704,56 @@
       "width": 1600
     },
     {
-      "bytes": 61488,
+      "bytes": 59808,
       "height": 1000,
       "key": "client-management:inbox:en:light",
       "route": "/en/w/client-management/inbox?threadId=latest",
-      "sha256": "06f1444335b5af99a6cee28a245a313adc418d6a0f3e1ed9bd15952aedcca828",
+      "sha256": "6e6bba6514b6b293d1643236622934d2d6c8ef6813701f8675a113005f62a229",
       "src": "/captures/solutions/stage/light/client-management-inbox-en.webp",
       "width": 1600
     },
     {
-      "bytes": 60052,
+      "bytes": 58966,
       "height": 1000,
       "key": "client-management:inbox:en:dark",
       "route": "/en/w/client-management/inbox?threadId=latest",
-      "sha256": "00314fa25fd592cc32fa7dce1a5e146b2aaca69e19d5c19f177a7579bed97fd7",
+      "sha256": "2dcb38b5a88c8c3edeaf70586b83366568c7e260e85d2c7884326829aff80b8c",
       "src": "/captures/solutions/stage/dark/client-management-inbox-en.webp",
       "width": 1600
     },
     {
-      "bytes": 69950,
+      "bytes": 69780,
       "height": 1000,
       "key": "client-management:inbox:de:light",
       "route": "/de/w/kundenverwaltung/inbox?threadId=latest",
-      "sha256": "afa5979be798f87f58a1d4f8560581a8f2c02d4fb191cbace1d925c22ce8f61d",
+      "sha256": "8dcd9f417b96e120b4a4d594af9f875613bcf072adfc3eeb55ae02477af7f28b",
       "src": "/captures/solutions/stage/light/client-management-inbox-de.webp",
       "width": 1600
     },
     {
-      "bytes": 68064,
+      "bytes": 68058,
       "height": 1000,
       "key": "client-management:inbox:de:dark",
       "route": "/de/w/kundenverwaltung/inbox?threadId=latest",
-      "sha256": "cb05cdd8cc146b9f8dc25166b7455871ebbe35ae368e9f1a142d598402c4b3b4",
+      "sha256": "53ab97af8cd1b233798c8cf622400ad9fc9fc2774f557e7e658024f976076d09",
       "src": "/captures/solutions/stage/dark/client-management-inbox-de.webp",
       "width": 1600
     },
     {
-      "bytes": 64150,
+      "bytes": 62780,
       "height": 1000,
       "key": "client-management:inbox:fr:light",
       "route": "/fr/w/client-management/inbox?threadId=latest",
-      "sha256": "3e85ad20a90807f4757553257ac9e57284cad1482e929fa52cfda0a2f9fde06a",
+      "sha256": "3682f304c49c57b6eeef9f5a045b5e1f1b6a7897ab03d1eda3c42a98ce0e5fd6",
       "src": "/captures/solutions/stage/light/client-management-inbox-fr.webp",
       "width": 1600
     },
     {
-      "bytes": 62724,
+      "bytes": 61364,
       "height": 1000,
       "key": "client-management:inbox:fr:dark",
       "route": "/fr/w/client-management/inbox?threadId=latest",
-      "sha256": "ed9aadfd55a439eb401274d4c8bab465f925f467422eceaf81db94e9707d7f06",
+      "sha256": "b7f7cad232bed6893fb6e5dc57e7936836cbba054d2b61aad5ff96cd5a56a6f6",
       "src": "/captures/solutions/stage/dark/client-management-inbox-fr.webp",
       "width": 1600
     },
@@ -866,56 +866,56 @@
       "width": 1600
     },
     {
-      "bytes": 57584,
+      "bytes": 56948,
       "height": 1000,
       "key": "sales-pipeline:inbox:en:light",
       "route": "/en/w/sales-pipeline/inbox?threadId=latest",
-      "sha256": "5957658375b3c0eba229bf46d504a24e5a4aa2dc9212410f08aad4f2369ad3a3",
+      "sha256": "75085f958d63056057c8b96fe31ad7d0a388d5b33c5d6fbcae3546a155a7b3a8",
       "src": "/captures/solutions/stage/light/sales-pipeline-inbox-en.webp",
       "width": 1600
     },
     {
-      "bytes": 55848,
+      "bytes": 56004,
       "height": 1000,
       "key": "sales-pipeline:inbox:en:dark",
       "route": "/en/w/sales-pipeline/inbox?threadId=latest",
-      "sha256": "f202820c0f6e54e40e64d31da0b7f7e0a25d581ca59be2ee56c03cb72ca42270",
+      "sha256": "f185914496e23c2e706bd53425b6221650edf0f3768ce615467782743a473372",
       "src": "/captures/solutions/stage/dark/sales-pipeline-inbox-en.webp",
       "width": 1600
     },
     {
-      "bytes": 62100,
+      "bytes": 60014,
       "height": 1000,
       "key": "sales-pipeline:inbox:de:light",
       "route": "/de/w/vertriebspipeline/inbox?threadId=latest",
-      "sha256": "6cac96c3a688bee38ea6fb543e2033c1a016dbda0a3f1f32e71ceb091b0b4da3",
+      "sha256": "9c0e3f56d7e8f69de7c01a51f7c3a8e4df9647fc2f545212550d3ecbb14a3853",
       "src": "/captures/solutions/stage/light/sales-pipeline-inbox-de.webp",
       "width": 1600
     },
     {
-      "bytes": 61106,
+      "bytes": 61122,
       "height": 1000,
       "key": "sales-pipeline:inbox:de:dark",
       "route": "/de/w/vertriebspipeline/inbox?threadId=latest",
-      "sha256": "d9078853fa96df2cd8033a41e83207a5d9167c007c89f1b55db51ee364062368",
+      "sha256": "0acdb0c66fb9e90054447802edf98fab520ebc8aa440f33ae6ec063a94ff1b0f",
       "src": "/captures/solutions/stage/dark/sales-pipeline-inbox-de.webp",
       "width": 1600
     },
     {
-      "bytes": 59358,
+      "bytes": 60626,
       "height": 1000,
       "key": "sales-pipeline:inbox:fr:light",
       "route": "/fr/w/sales-pipeline/inbox?threadId=latest",
-      "sha256": "bac7d5dd9c8d1964f30e3d01e3c7be1bb90c5b9d83b1eaaf7a0c029183dd336b",
+      "sha256": "eea5ea08b38563e3b02adefdd8c6e36d0e9c703a31ce6ee1db443b810b22998f",
       "src": "/captures/solutions/stage/light/sales-pipeline-inbox-fr.webp",
       "width": 1600
     },
     {
-      "bytes": 58582,
+      "bytes": 58566,
       "height": 1000,
       "key": "sales-pipeline:inbox:fr:dark",
       "route": "/fr/w/sales-pipeline/inbox?threadId=latest",
-      "sha256": "fcaaa04d61038646aba7d065852dd5f2479632d7d3c3c70b008fed2a83ea4901",
+      "sha256": "23d9f47ae421b5cd80437756408dd9e67793d3b4c3f83ab2c16d1d59a12747e8",
       "src": "/captures/solutions/stage/dark/sales-pipeline-inbox-fr.webp",
       "width": 1600
     },
@@ -974,38 +974,38 @@
       "width": 1600
     },
     {
-      "bytes": 70166,
+      "bytes": 69994,
       "height": 1000,
       "key": "linkedin-crm:inbox:en:light",
       "route": "/en/w/linkedin-sales/inbox?threadId=17000000-5700-4000-8000-000000000001",
-      "sha256": "2195d455c9090bf143ae49e98d55ac0f495ad4f3809a84e443d29730d039913d",
+      "sha256": "cabb0ac039426300ec6537f880612e32363e9d44fb287fb867c486142e63e8d6",
       "src": "/captures/solutions/stage/light/linkedin-crm-inbox-en.webp",
       "width": 1600
     },
     {
-      "bytes": 69022,
+      "bytes": 68990,
       "height": 1000,
       "key": "linkedin-crm:inbox:en:dark",
       "route": "/en/w/linkedin-sales/inbox?threadId=17000000-5700-4000-8000-000000000001",
-      "sha256": "40158b921c7b0cd105ff1bfa22b0859645230b7557b75c7b773d4eea8b129f70",
+      "sha256": "f617c5691954f3a5bad6359991cc80f7364518d6971ef72ddcc45a2c1e4ef7c0",
       "src": "/captures/solutions/stage/dark/linkedin-crm-inbox-en.webp",
       "width": 1600
     },
     {
-      "bytes": 78876,
+      "bytes": 78886,
       "height": 1000,
       "key": "linkedin-crm:inbox:de:light",
       "route": "/de/w/linkedin-vertrieb/inbox?threadId=17000000-5710-4000-8000-000000000001",
-      "sha256": "df6b6180dc97dfffa0dd947f678ad11e06049fab7034ba95dcfaae5366d520b3",
+      "sha256": "a162c50e71772cfdeb60361eccfb5dea047e19201bd6de336d0c89ba95d7adb8",
       "src": "/captures/solutions/stage/light/linkedin-crm-inbox-de.webp",
       "width": 1600
     },
     {
-      "bytes": 77428,
+      "bytes": 77440,
       "height": 1000,
       "key": "linkedin-crm:inbox:de:dark",
       "route": "/de/w/linkedin-vertrieb/inbox?threadId=17000000-5710-4000-8000-000000000001",
-      "sha256": "7aa8eb5f3131c50d738b0e2fddf467089cce8c674f7cc0959ef1745861d0a4f8",
+      "sha256": "3eb1e34ffb8999492b8185e4eac1675ad2ce4257d1a87e7983d872305ad20f6f",
       "src": "/captures/solutions/stage/dark/linkedin-crm-inbox-de.webp",
       "width": 1600
     },
@@ -1028,11 +1028,11 @@
       "width": 1600
     },
     {
-      "bytes": 57530,
+      "bytes": 55292,
       "height": 1000,
       "key": "linkedin-crm:pipeline:de:light",
       "route": "/de/w/linkedin-vertrieb/records/db81fdaa-c3a7-861d-8f1d-413ff8739424?view=1f100000-5710-4000-8000-000000000003",
-      "sha256": "91766349349871ce47ccee758bab053f9e7dccbf940a6c0cc37be7ba55f80b06",
+      "sha256": "b460b50ac4d9e0cf741eb6d5dcef085766d08e4921d0746bea9b5b5d92099f3d",
       "src": "/captures/solutions/stage/light/linkedin-crm-pipeline-de.webp",
       "width": 1600
     },
@@ -1082,20 +1082,20 @@
       "width": 1600
     },
     {
-      "bytes": 56908,
+      "bytes": 56872,
       "height": 1000,
       "key": "whatsapp-crm:inbox:en:light",
       "route": "/en/w/whatsapp/inbox?threadId=17000000-5800-4000-8000-000000000001",
-      "sha256": "b3960e78bae5a4f971a87304bc42cb0704bdfdd3be6e98ff374cdf8ea5585708",
+      "sha256": "7d131e630174d869d48c8a3bb05a3e144eeabea1df1a3c1ca9e3fb25d9ffd5c9",
       "src": "/captures/solutions/stage/light/whatsapp-crm-inbox-en.webp",
       "width": 1600
     },
     {
-      "bytes": 56500,
+      "bytes": 56450,
       "height": 1000,
       "key": "whatsapp-crm:inbox:en:dark",
       "route": "/en/w/whatsapp/inbox?threadId=17000000-5800-4000-8000-000000000001",
-      "sha256": "ddab3ccd0adbd69e82094cf56aeb42ea6b2859fa17b79cae9e4de3ca6ccbb492",
+      "sha256": "cd5d3554011b62c37fcfe97348712a3742f8c39e0fa972edaf72591ddf93c6b1",
       "src": "/captures/solutions/stage/dark/whatsapp-crm-inbox-en.webp",
       "width": 1600
     },
@@ -1104,16 +1104,16 @@
       "height": 1000,
       "key": "whatsapp-crm:inbox:de:light",
       "route": "/de/w/whatsapp-kundenkontakt/inbox?threadId=17000000-5810-4000-8000-000000000001",
-      "sha256": "474eec6fc500e18753b095000a7b60a912169da88e6fba61c9fda251bbf4b192",
+      "sha256": "119a01352d0d925858a3c874f265a355a132c09eb007fb9adabf435fb1d00d74",
       "src": "/captures/solutions/stage/light/whatsapp-crm-inbox-de.webp",
       "width": 1600
     },
     {
-      "bytes": 58838,
+      "bytes": 58842,
       "height": 1000,
       "key": "whatsapp-crm:inbox:de:dark",
       "route": "/de/w/whatsapp-kundenkontakt/inbox?threadId=17000000-5810-4000-8000-000000000001",
-      "sha256": "14ed7e3b5a4260fa44aa78a35595d5b56bad845c4779123af4d1869512e5e0a5",
+      "sha256": "32dd043b3fd1b3556675c50d34c17a5ed47ee0811e506bc84f00f8cd76442a32",
       "src": "/captures/solutions/stage/dark/whatsapp-crm-inbox-de.webp",
       "width": 1600
     },
@@ -1355,5 +1355,5 @@
       }
     }
   },
-  "sourceRevision": "26145b8cd-dirty"
+  "sourceRevision": "6841ef443-dirty"
 }
