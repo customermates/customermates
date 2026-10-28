@@ -70,10 +70,11 @@ export function buildSolutionMessaging(
   return {
     companyId: workspace.companyId,
     userId: workspace.memberId,
-    seedUserEmail: SYNTHETIC_COMPANY_USERS.maxBergmann.email,
     tag: workspace.tag,
+    timeZone: content.timeZone,
     self: {
       name: SYNTHETIC_COMPANY_USERS.maxBergmann.name,
+      email: `${SYNTHETIC_COMPANY_USERS.maxBergmann.email.split("@")[0]}@${new URL(messaging.website).hostname}`,
       title: messaging.selfTitle,
       companyName: content.companyName,
       website: messaging.website,

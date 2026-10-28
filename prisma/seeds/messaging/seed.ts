@@ -13,6 +13,9 @@ import { identityLookupValue } from "@/ee/messaging/identity-lookup";
 import { composeEmailBodies } from "@/ee/messaging/outbound/email-signature";
 import { renderEmailMarkdown } from "@/ee/messaging/outbound/render-signature";
 
+import { addCalendarDays, calendarWeekdayIndex } from "@/features/record-calendar/calendar-date";
+import { zonedDate, zonedInstant } from "@/features/record-calendar/zoned-time";
+
 import { workspaceFixtureId } from "../helpers";
 import { SYNTHETIC_SEED_TIMELINE } from "../timeline";
 import type { MessagingFixtureProvider, ThreadFixture, WorkspaceMessagingFixtures } from "./fixtures";
@@ -33,6 +36,43 @@ const MINUTE = 60_000;
 /** Minutes between the messages of a conversation: recent ones span a day or two, older ones about a week. */
 export function messageGapMinutes(fixture: Pick<ThreadFixture, "latestMinutesAgo">): number {
   return fixture.latestMinutesAgo < 2 * 24 * 60 ? 7 * 60 : 26 * 60;
+}
+
+const OFFICE_HOURS = { start: 8, end: 18, clock: 14 } as const;
+
+function wallTime(hour: number) {
+  return { hour, minute: 0, second: 0, millisecond: 0 };
+}
+
+/** The latest 14:00 in the workspace's time zone at or before `now`: the clock the authored offsets were written against. */
+export function officeClock(now: Date, timeZone: string): Date {
+  const today = zonedDate(now, timeZone);
+  const clock = zonedInstant(today, wallTime(OFFICE_HOURS.clock), timeZone);
+  return clock <= now ? clock : zonedInstant(addCalendarDays(today, -1), wallTime(OFFICE_HOURS.clock), timeZone);
+}
+
+/** `minutes` of office time (weekdays, 08:00 to 18:00 local) before `at`, so a conversation never steps into a night or weekend. */
+export function officeMinutesBefore(at: Date, minutes: number, timeZone: string): Date {
+  let cursor = at.getTime();
+  let left = minutes * MINUTE;
+  for (;;) {
+    const day = zonedDate(new Date(cursor), timeZone);
+    const weekday = calendarWeekdayIndex(day);
+    if (weekday > 4) {
+      cursor = zonedInstant(addCalendarDays(day, 4 - weekday), wallTime(OFFICE_HOURS.end), timeZone).getTime();
+      continue;
+    }
+    const start = zonedInstant(day, wallTime(OFFICE_HOURS.start), timeZone).getTime();
+    const end = zonedInstant(day, wallTime(OFFICE_HOURS.end), timeZone).getTime();
+    if (cursor <= start) {
+      cursor = zonedInstant(addCalendarDays(day, -1), wallTime(OFFICE_HOURS.end), timeZone).getTime();
+      continue;
+    }
+    cursor = Math.min(cursor, end);
+    if (cursor - left >= start) return new Date(cursor - left);
+    left -= cursor - start;
+    cursor = start;
+  }
 }
 
 const EMAIL_FOLDER_IDS = {
@@ -80,7 +120,7 @@ function workspaceSignature(fixtures: WorkspaceMessagingFixtures): string {
   return [
     `**${fixtures.self.name}**`,
     `${fixtures.self.title}, ${fixtures.self.companyName}`,
-    `[${fixtures.seedUserEmail}](mailto:${fixtures.seedUserEmail})`,
+    `[${fixtures.self.email}](mailto:${fixtures.self.email})`,
     `<${fixtures.self.website}>`,
   ].join(MARKDOWN_LINE_BREAK);
 }
@@ -169,8 +209,8 @@ export async function seedWorkspaceMessaging(
   };
 
   const selfIdentities: Record<MessagingFixtureProvider, { identifier: string; profileUrl?: string }> = {
-    google: { identifier: fixtures.seedUserEmail },
-    outlook: { identifier: fixtures.seedUserEmail },
+    google: { identifier: fixtures.self.email },
+    outlook: { identifier: fixtures.self.email },
     instagram: { identifier: "max.bergmann", profileUrl: "https://instagram.example/max-bergmann" },
     linkedin: { identifier: "max-bergmann.linkedin.example", profileUrl: "https://linkedin.example/in/max-bergmann" },
     telegram: { identifier: "max_bergmann", profileUrl: "https://telegram.example/max-bergmann" },
@@ -218,6 +258,8 @@ export async function seedWorkspaceMessaging(
   const anchor = persistedAnchor?.lastSyncedAt
     ? new Date(persistedAnchor.lastSyncedAt.getTime() + 5 * MINUTE)
     : new Date(Math.floor(Date.now() / anchorWindow) * anchorWindow);
+  // Conversations, meetings and activities follow the office clock, not the hour the seed happened to run at.
+  const clock = officeClock(anchor, fixtures.timeZone);
 
   const folderCounts = (provider: EmailFixtureProvider) => {
     const threads = fixtures.threads.filter((thread) => thread.account === provider);
@@ -252,7 +294,7 @@ export async function seedWorkspaceMessaging(
       status: "ok" as const,
       hasMessaging: true,
       hasCalendar: email,
-      emailAddress: email ? fixtures.seedUserEmail : null,
+      emailAddress: email ? fixtures.self.email : null,
       displayName: `${fixtures.self.name} · ${ACCOUNT_LABELS[provider]}`,
       sentFolderIds: email ? [EMAIL_FOLDER_IDS[provider].sent] : [],
       folders: inputJson(email ? folderCounts(provider) : []),
@@ -304,7 +346,7 @@ export async function seedWorkspaceMessaging(
       create: { ...calendarData, id: id("24000000", 1), unipileCalendarId },
     });
     const organizer = {
-      email: fixtures.seedUserEmail.toLowerCase(),
+      email: fixtures.self.email.toLowerCase(),
       displayName: fixtures.self.name,
       responseStatus: "yes",
       isOrganizer: true,
@@ -317,7 +359,7 @@ export async function seedWorkspaceMessaging(
         isOrganizer: false,
       }));
       if (attendees.some(({ email }) => !email)) throw new Error("Missing demo calendar attendee email");
-      const startsAt = new Date(anchor.getTime() - event.startsMinutesAgo * MINUTE);
+      const startsAt = new Date(clock.getTime() - event.startsMinutesAgo * MINUTE);
       const unipileEventId = `demo-fixture-calendar-event-${index + 1}`;
       const eventData = {
         companyId,
@@ -359,7 +401,7 @@ export async function seedWorkspaceMessaging(
         profileUrl: entry.profileUrl,
         pictureUrl: entry.avatarPath ?? null,
       }),
-      occurredAt: new Date(anchor.getTime() - activity.occurredMinutesAgo * MINUTE),
+      occurredAt: new Date(clock.getTime() - activity.occurredMinutesAgo * MINUTE),
     };
     await prisma.accountActivity.upsert({
       where: {
@@ -391,7 +433,11 @@ export async function seedWorkspaceMessaging(
     const threadId = id("17000000", threadIndex + 1);
     const self = selfAttendee(provider);
     const attendees = [self, ...fixture.participants.map((key) => personAttendee(key, provider))];
-    const latestAt = new Date(anchor.getTime() - fixture.latestMinutesAgo * MINUTE);
+    const latestAt = officeMinutesBefore(
+      new Date(clock.getTime() - fixture.latestMinutesAgo * MINUTE),
+      0,
+      fixtures.timeZone,
+    );
     const lastMessage = fixture.messages.at(-1);
     if (!lastMessage) throw new Error("Every demo thread must contain a message");
     const unipileThreadId = `demo-fixture-thread-${threadIndex + 1}`;
@@ -409,7 +455,11 @@ export async function seedWorkspaceMessaging(
       lastMessagePreview: lastMessage.text,
       lastMessageIsSender: lastMessage.sender === "self",
       sharedToCrm: true,
-      createdAt: new Date(latestAt.getTime() - (fixture.messages.length - 1) * messageGapMinutes(fixture) * MINUTE),
+      createdAt: officeMinutesBefore(
+        latestAt,
+        (fixture.messages.length - 1) * messageGapMinutes(fixture),
+        fixtures.timeZone,
+      ),
     };
     const occupied = await prisma.messagingThread.findUnique({ where: { id: threadId }, select: { id: true } });
     const thread = await prisma.messagingThread.upsert({
@@ -469,8 +519,10 @@ export async function seedWorkspaceMessaging(
       const recipients = attendees.filter((attendee) => attendee.attendeeId !== sender.attendeeId);
       const sentPosition = message.draft === true ? sentMessageCount - 1 : sentSoFar;
       if (message.draft !== true) sentSoFar += 1;
-      const sentAt = new Date(
-        latestAt.getTime() - (sentMessageCount - 1 - sentPosition) * messageGapMinutes(fixture) * MINUTE,
+      const sentAt = officeMinutesBefore(
+        latestAt,
+        (sentMessageCount - 1 - sentPosition) * messageGapMinutes(fixture),
+        fixtures.timeZone,
       );
       const reactionSender = message.reaction
         ? message.reaction.sender === "self"
