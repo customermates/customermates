@@ -1,0 +1,162 @@
+{
+  "homepage-configure": {
+    "de": {
+      "dark": "eaf86b517554",
+      "light": "76ca9a7cdd2b"
+    },
+    "en": {
+      "dark": "e67ef57e032f",
+      "light": "ddd5a946fe78"
+    }
+  },
+  "homepage-configure-mobile": {
+    "de": {
+      "dark": "d6ddf7f9d74e",
+      "light": "531533918633"
+    },
+    "en": {
+      "dark": "e3a8e941e158",
+      "light": "45d2ad2a4a4e"
+    }
+  },
+  "homepage-dashboard": {
+    "de": {
+      "dark": "e5fdeca5143a",
+      "light": "81b370384b54"
+    },
+    "en": {
+      "dark": "bb8fcd2ccdd5",
+      "light": "9312b87577ea"
+    }
+  },
+  "homepage-dashboard-mobile": {
+    "de": {
+      "dark": "f16a2ca51f8e",
+      "light": "41004c5a97b2"
+    },
+    "en": {
+      "dark": "c8c4e96ec2f3",
+      "light": "a70f41f87178"
+    }
+  },
+  "homepage-draft": {
+    "de": {
+      "dark": "e6c0f0b2b913",
+      "light": "dedfc5769867"
+    },
+    "en": {
+      "dark": "35ab80caf795",
+      "light": "a721e383f7b8"
+    }
+  },
+  "homepage-inbox": {
+    "de": {
+      "dark": "0d31ecbe152f",
+      "light": "46acbe75a984"
+    },
+    "en": {
+      "dark": "ea8274f46d4c",
+      "light": "b82525a61b3c"
+    }
+  },
+  "homepage-inbox-mobile": {
+    "de": {
+      "dark": "5b406442a900",
+      "light": "848bdd03477c"
+    },
+    "en": {
+      "dark": "737f893776f9",
+      "light": "9a6ad72264f9"
+    }
+  },
+  "homepage-pipeline": {
+    "de": {
+      "dark": "12e6815191ab",
+      "light": "c85927a335e9"
+    },
+    "en": {
+      "dark": "3c3782ef658d",
+      "light": "7567f62c7331"
+    }
+  },
+  "homepage-pipeline-board": {
+    "de": {
+      "dark": "64e537be966f",
+      "light": "1fe8f8f8eb2e"
+    },
+    "en": {
+      "dark": "b2b52aa7dc6d",
+      "light": "2579bcb79620"
+    }
+  },
+  "homepage-pipeline-mobile": {
+    "de": {
+      "dark": "417904dbd3ae",
+      "light": "e550ae55f5f1"
+    },
+    "en": {
+      "dark": "dd07d57573fd",
+      "light": "a52bce383d3b"
+    }
+  },
+  "homepage-record": {
+    "de": {
+      "dark": "c92ea5d6b72c",
+      "light": "9c4030b3cef2"
+    },
+    "en": {
+      "dark": "7c1f15804011",
+      "light": "8c8aaa0bd7b2"
+    }
+  },
+  "homepage-record-mobile": {
+    "de": {
+      "dark": "ea5189471f61",
+      "light": "d0976194cc5c"
+    },
+    "en": {
+      "dark": "97bc6b3794d7",
+      "light": "c8a3405b7a9b"
+    }
+  },
+  "homepage-routines": {
+    "de": {
+      "dark": "5a3e431d3421",
+      "light": "327a6f351298"
+    },
+    "en": {
+      "dark": "42eceb0169cb",
+      "light": "576d2b87395d"
+    }
+  },
+  "homepage-routines-mobile": {
+    "de": {
+      "dark": "206173a8f9cf",
+      "light": "f3929475408f"
+    },
+    "en": {
+      "dark": "e5415d6f1411",
+      "light": "8f51ec88819f"
+    }
+  },
+  "homepage-routines-table": {
+    "de": {
+      "dark": "68deea12e285",
+      "light": "97f9337a4302"
+    },
+    "en": {
+      "dark": "d7fe51ced4b3",
+      "light": "1444e6649500"
+    }
+  },
+  "homepage-thread-linkedin": {
+    "de": {
+      "dark": "ebc976a206dd",
+      "light": "c971f3e51482"
+    },
+    "en": {
+      "dark": "c93fa82a3b27",
+      "light": "7f1cceffa9c4"
+    }
+  }
+}

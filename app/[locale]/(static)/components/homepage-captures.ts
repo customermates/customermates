@@ -1,5 +1,8 @@
 import type { ContentLocale } from "@/i18n/locale-registry";
 
+import { versionedAssetSrc } from "@/core/utils/versioned-asset-src";
+import versions from "./homepage-capture-versions.json";
+
 type CaptureSize = { height: number; width: number };
 
 export const HOMEPAGE_CAPTURES = {
@@ -73,5 +76,5 @@ export type HomepageCaptureName = keyof typeof HOMEPAGE_CAPTURES;
 export type HomepageCaptureTheme = "dark" | "light";
 
 export function homepageCaptureSrc(name: HomepageCaptureName, locale: ContentLocale, theme: HomepageCaptureTheme) {
-  return `/captures/${theme}/${name}-${locale}.png`;
+  return versionedAssetSrc(`/captures/${theme}/${name}-${locale}.png`, versions[name][locale][theme]);
 }

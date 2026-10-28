@@ -17,7 +17,6 @@ import {
   SOLUTION_NAV_CAPTURE_CLIP,
   SOLUTION_NAV_CAPTURE_VIEWPORT,
   SOLUTION_NAV_IMAGE_SIZE,
-  type SolutionCaptureAsset,
   type SolutionCaptureEntry,
   type SolutionCaptureFileFacts,
   type SolutionCaptureManifest,
@@ -71,9 +70,10 @@ async function assetFor(src: string) {
   const buffer = readFileSync(publicFile(src));
   const metadata = await sharp(buffer).metadata();
   if (!metadata.width || !metadata.height) throw new Error(`${src} has no readable size`);
+  const digest = sha256(buffer);
   return {
-    asset: { bytes: buffer.byteLength, height: metadata.height, src, width: metadata.width },
-    sha256: sha256(buffer),
+    asset: { bytes: buffer.byteLength, height: metadata.height, src, version: digest.slice(0, 12), width: metadata.width },
+    sha256: digest,
   };
 }
 
@@ -114,12 +114,13 @@ function resetDatabase(): void {
   execFileSync("npx", ["prisma", "db", "seed"], { cwd: ROOT, stdio: "inherit" });
 }
 
-type CapturedImage = { asset: SolutionCaptureAsset; sha256: string };
+type CapturedImage = { asset: SolutionCaptureEntry["main"]; sha256: string };
 
 function writeWebp(src: string, buffer: Buffer, width: number, height: number): CapturedImage {
   mkdirSync(dirname(publicFile(src)), { recursive: true });
   writeFileSync(publicFile(src), new Uint8Array(buffer));
-  return { asset: { bytes: buffer.byteLength, height, src, width }, sha256: sha256(buffer) };
+  const digest = sha256(buffer);
+  return { asset: { bytes: buffer.byteLength, height, src, version: digest.slice(0, 12), width }, sha256: digest };
 }
 
 async function captureMain(browser: Browser, baseUrl: string, item: SolutionCapturePlanItem): Promise<CapturedImage> {
