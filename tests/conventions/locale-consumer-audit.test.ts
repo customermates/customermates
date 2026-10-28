@@ -81,9 +81,6 @@ const ALLOWED_VISIBLE_COPY_SITES = new Map<string, VisibleCopyException>([
   ]),
   ...reviewedVisibleCopy("Reciprocal directory labels are externally defined and locale-invariant.", [
     'app/components/footer-content.tsx :: jsx-text :: "Viesearch - The Human-curated Search Engine"',
-    'app/components/footer-content.tsx :: jsx-text :: "https://www.promotebusinessdirectory.com/"',
-    'app/components/footer-content.tsx :: jsx-text :: "https://www.usawebsitesdirectory.com/computers_and_internet/"',
-    'app/components/footer-content.tsx :: jsx-text :: "https://www.bestsitesindex.com/submit.php"',
   ]),
   ...reviewedVisibleCopy("The company identity and address are legal contact data, not localized prose.", [
     'components/emails/base/email-layout.tsx :: jsx-text :: "Benjamin Wagner · An den Kasernen 25 · 68167 Mannheim,"',

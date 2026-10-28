@@ -102,6 +102,40 @@ export function articleSchema(params: {
   };
 }
 
+export function webPageSchema(params: {
+  dateModified?: Date;
+  description: string;
+  locale: string;
+  name: string;
+  path: string;
+}) {
+  const url = `${env.BASE_URL}${params.path}`;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": url,
+    url,
+    name: params.name,
+    description: params.description,
+    inLanguage: params.locale,
+    ...(params.dateModified ? { dateModified: params.dateModified.toISOString() } : {}),
+    isPartOf: { "@type": "WebSite", name: ORGANIZATION_NAME, url: env.BASE_URL },
+    about: {
+      "@type": "SoftwareApplication",
+      name: ORGANIZATION_NAME,
+      url: `${env.BASE_URL}/${params.locale}`,
+      applicationCategory: "BusinessApplication",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: ORGANIZATION_NAME,
+      url: env.BASE_URL,
+      logo: { "@type": "ImageObject", url: ORGANIZATION_LOGO },
+    },
+  };
+}
+
 export function breadcrumbListSchema(crumbs: { name: string; path: string }[]) {
   return {
     "@context": "https://schema.org",

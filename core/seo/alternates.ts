@@ -1,6 +1,6 @@
 import type { MarketingLocale } from "@/i18n/locale-registry";
 
-import { DEFAULT_LOCALE, buildLocalePath } from "@/i18n/locale-registry";
+import { DEFAULT_LOCALE, buildLocalePath, isPartialMarketingLocale } from "@/i18n/locale-registry";
 
 const RECIPROCAL_ALTERNATE_MINIMUM = 2;
 
@@ -9,7 +9,7 @@ export function buildAlternateLanguages(
   availableLocales: readonly MarketingLocale[],
   baseUrl: string,
 ): Record<string, string> | undefined {
-  const distinctLocales = [...new Set(availableLocales)];
+  const distinctLocales = [...new Set(availableLocales)].filter((locale) => !isPartialMarketingLocale(locale));
 
   if (distinctLocales.length < RECIPROCAL_ALTERNATE_MINIMUM) return undefined;
 

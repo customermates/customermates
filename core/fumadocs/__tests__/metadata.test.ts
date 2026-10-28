@@ -51,7 +51,6 @@ describe("generateMetadataFromMeta", () => {
         languages: {
           de: `${BASE_URL}/de/pricing`,
           en: `${BASE_URL}/en/pricing`,
-          fr: `${BASE_URL}/fr/pricing`,
           "x-default": `${BASE_URL}/en/pricing`,
         },
       },
@@ -206,13 +205,12 @@ describe("generateMetadataFromMeta", () => {
     ).toThrow(/NEXT_HTTP_ERROR_FALLBACK;404/);
   });
 
-  it("gives a published partial-locale page a self canonical and reciprocal alternates", () => {
+  it("gives a published partial-locale page a self canonical and points it only at the indexable locales", () => {
     const metadata = generateMetadataFromMeta({ locale: "fr", route: "/pricing" });
     expect(metadata.alternates?.canonical).toBe(`${BASE_URL}/fr/pricing`);
     expect(metadata.alternates?.languages).toEqual({
       de: `${BASE_URL}/de/pricing`,
       en: `${BASE_URL}/en/pricing`,
-      fr: `${BASE_URL}/fr/pricing`,
       "x-default": `${BASE_URL}/en/pricing`,
     });
   });

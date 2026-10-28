@@ -46,7 +46,8 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
 
 function DocsLink({ href, ...props }: ComponentProps<"a">) {
   const Link = markdownBaseComponents.a as (props: ComponentProps<"a">) => ReactNode;
-  return <Link href={href?.startsWith(APP_LINK_SCHEME) ? publicAppLinkHref(href) : href} {...props} />;
+  if (!href?.startsWith(APP_LINK_SCHEME)) return <Link href={href} {...props} />;
+  return <Link href={publicAppLinkHref(href)} rel="nofollow" {...props} />;
 }
 
 export function getDocsMDXComponents(components?: MDXComponents): MDXComponents {
