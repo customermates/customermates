@@ -204,7 +204,7 @@ export type WidgetSpec =
       filters?: readonly WidgetFilterSpec[];
     }
   | {
-      /** Upcoming lists the records of the next `days` with an overdue section; month is a heat grid of the month. */
+      /** Upcoming lists the records of the next `days`; month is a heat grid of the month. */
       kind: "calendar";
       title: string;
       list: string;
@@ -212,7 +212,6 @@ export type WidgetSpec =
       date: string;
       days?: number;
       amount?: string;
-      overdue?: boolean;
       filters?: readonly WidgetFilterSpec[];
     }
   | {

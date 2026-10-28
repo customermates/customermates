@@ -257,7 +257,7 @@ export function buildSolutionWidgets(workspace: SolutionWorkspace, content: Solu
             layout: widget.layout,
             timeZone: content.timeZone,
             days: widget.days ?? 14,
-            showOverdue: widget.overdue ?? widget.layout === "upcoming",
+            showOverdue: false,
             amountFieldId: widget.amount ? fieldKey(companyId, widget.list, widget.amount) : null,
             aggregation: widget.layout === "month" && widget.amount ? "sum" : "count",
           },

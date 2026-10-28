@@ -2323,7 +2323,6 @@ export default defineSolution<Strings>({
             date: "reviewDate",
             days: 30,
             amount: "annualValue",
-            overdue: true,
             filters: live,
           },
           {

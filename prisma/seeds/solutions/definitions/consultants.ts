@@ -2010,7 +2010,6 @@ export default defineSolution<Strings>({
             date: "nextStepDate",
             days: 14,
             amount: "totalValue",
-            overdue: true,
             filters: [{ field: "stage", in: open }],
           },
           {
