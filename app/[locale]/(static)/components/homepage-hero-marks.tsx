@@ -7,7 +7,6 @@ import { useHomepageMotion } from "./homepage-motion";
 
 type Mark = {
   key: string;
-  alt: string;
   src: string;
   className?: string;
 };
@@ -15,33 +14,27 @@ type Mark = {
 const MARKS: Mark[] = [
   {
     key: "claude",
-    alt: "Claude",
     src: "/icons/hero/claude.svg",
   },
   {
     key: "gmail",
-    alt: "Gmail",
     src: "/icons/hero/gmail.svg",
   },
   {
     key: "linkedin",
-    alt: "LinkedIn",
     src: "/icons/hero/linkedin.svg",
   },
   {
     key: "openai",
-    alt: "OpenAI",
     src: "/icons/hero/openai.svg",
     className: "dark:invert",
   },
   {
     key: "telegram",
-    alt: "Telegram",
     src: "/icons/hero/telegram.svg",
   },
   {
     key: "n8n",
-    alt: "n8n",
     src: "/icons/integrations/n8n.svg",
   },
 ];
@@ -100,7 +93,7 @@ export function HomepageHeroMarks() {
       {MARKS.map((mark) => (
         <span key={mark.key} className="hero-mark" data-hero-mark={mark.key}>
           <span className="hero-mark-card mark-glow">
-            <Image alt={mark.alt} className={mark.className} draggable={false} height={64} src={mark.src} width={64} />
+            <Image alt="" className={mark.className} draggable={false} height={64} src={mark.src} width={64} />
           </span>
         </span>
       ))}
