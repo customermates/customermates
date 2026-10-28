@@ -37,8 +37,8 @@ else
     npx --no-install tsx prisma/seed.ts
   fi
 fi
-# fumadocs' lastModified() plugin derives the <lastmod> of every content page except blog posts,
-# which keep their frontmatter date, from Git history, and
+# fumadocs' lastModified() plugin derives content dates from Git history. Blog posts use
+# the latest of that proven change and their declared publication/update dates, and
 # core/fumadocs/git-last-modified.ts omits every date the available history cannot prove.
 # Vercel checks out only the last 10 commits and leaves no usable remote, so a bare
 # `git fetch --unshallow` exits 0 and the clone stays shallow. Fetch the checked-out commit's

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { PageHero } from "@/components/marketing/page-hero";
+import { PageUpdatedAt } from "@/components/marketing/page-updated-at";
 import { Footer } from "@/app/components/footer";
 import { ComparisonTable } from "@/components/marketing/comparison-table";
 import { LandingArticle } from "@/components/marketing/landing-article";
@@ -73,7 +74,7 @@ export default async function CompetitorComparePage({ params }: Props) {
         ]}
       />
 
-      <PageHero {...page.data.hero} />
+      <PageHero {...page.data.hero} meta={<PageUpdatedAt date={resolvePageLastModified(page.data)} locale={locale} />} />
 
       <ComparisonTable
         competitor2Name={page.data.comparison.competitor2Name}

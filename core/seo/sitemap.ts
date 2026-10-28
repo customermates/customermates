@@ -13,12 +13,22 @@ export type LocalizedRoute = {
 
 type SitemapPageData = { blogPost?: { date?: Date | string; updated?: Date | string }; lastModified?: Date };
 
+function validDate(value: Date | string | undefined): Date | undefined {
+  if (!value) return undefined;
+  const date = value instanceof Date ? value : new Date(value);
+
+  return Number.isNaN(date.getTime()) ? undefined : date;
+}
+
 export function resolvePageLastModified(data: object): Date | undefined {
   const { blogPost, lastModified } = data as SitemapPageData;
-  const blogDate = blogPost?.updated ?? blogPost?.date;
-  const date = blogPost ? (blogDate ? new Date(blogDate) : undefined) : lastModified;
 
-  return date instanceof Date && !isNaN(date.getTime()) ? date : undefined;
+  if (!blogPost) return validDate(lastModified);
+
+  const published = validDate(blogPost.date);
+  if (!published) return undefined;
+
+  return latestDate([published, validDate(blogPost.updated), validDate(lastModified)]);
 }
 
 export function latestDate(dates: readonly (Date | undefined)[]): Date | undefined {
