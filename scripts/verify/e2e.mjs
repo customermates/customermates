@@ -117,7 +117,7 @@ async function runOffloaded() {
       `export CRM_VERIFY_ENV_TEMPLATE_B64=${readFileSync(resolve(REPO_ROOT, ".env.cloud.template")).toString("base64")}`,
       'stamp="$(sha256sum yarn.lock | cut -c1-16)"',
       'if [ ! -f node_modules/.verify-lock ] || [ "$(cat node_modules/.verify-lock)" != "$stamp" ]; then DATABASE_URL=postgresql://localhost/unused yarn install --frozen-lockfile --prefer-offline >/dev/null && echo "$stamp" > node_modules/.verify-lock; fi',
-      `node scripts/verify/e2e.mjs --remote --targets ${offloaded.join(",")} --run-id ${remoteRunId} --retries ${options.retries} --workers ${options.workers}${options.shards ? ` --shards ${options.shards}` : ""}${options.rebuild ? " --rebuild" : ""} ${playwrightArgs.length ? `-- ${playwrightArgs.map((arg) => `'${arg.replace(/'/g, "'\\''")}'`).join(" ")}` : ""}`,
+      `node scripts/verify/e2e.mjs --remote --targets ${offloaded.join(",")} --run-id ${remoteRunId} --retries ${options.retries} --workers ${options.workers}${options.parallel ? ` --parallel ${parallel}` : ""}${options.shards ? ` --shards ${options.shards}` : ""}${options.rebuild ? " --rebuild" : ""} ${playwrightArgs.length ? `-- ${playwrightArgs.map((arg) => `'${arg.replace(/'/g, "'\\''")}'`).join(" ")}` : ""}`,
     ].join("\n"),
   ];
   const result = await run("workspace", args, { log: resolve(directory, "offload.log"), echo: true, prefix: "  [ws-test] " });

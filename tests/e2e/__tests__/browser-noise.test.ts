@@ -1,10 +1,28 @@
 import { describe, expect, it } from "vitest";
 
-import { chunkLoadErrorChunk, isAbortedLoadReport, isAppConsoleError, isBenignPageError, webkitCancelledChunk } from "../browser-noise";
+import { chunkLoadErrorChunk, isAbortedLoadReport, isAppConsoleError, isBenignPageError, cancelledChunk } from "../browser-noise";
 
 const message = (type: string, text: string) => ({ type: () => type, text: () => text }) as Parameters<typeof isAppConsoleError>[0];
 
 describe("browser engine noise filters", () => {
+  it("recognizes Webpack chunk reports without hiding unrelated files or external hosts", () => {
+    const path = "/_next/static/chunks/6370.eb93cf4084b8f84d.js";
+    expect(chunkLoadErrorChunk(`Loading chunk 6370 failed.\n(error: http://127.0.0.1:4464${path})`)).toBe(path);
+    expect(chunkLoadErrorChunk(`ChunkLoadError: Loading chunk 6370 failed.\n(error: http://127.0.0.1:4464${path})`)).toBe(path);
+    expect(chunkLoadErrorChunk(`Loading chunk 6370 failed.\n(error: https://external.test${path})`)).toBeUndefined();
+    expect(chunkLoadErrorChunk("Error")).toBeUndefined();
+    expect(chunkLoadErrorChunk("Loading chunk 6370 failed.\n(error: http://[invalid)")).toBeUndefined();
+    expect(chunkLoadErrorChunk("Loading chunk 6370 failed.\n(error: http://127.0.0.1:4464/api/v1/records/query)")).toBeUndefined();
+    expect(cancelledChunk({
+      url: () => `http://127.0.0.1:4464${path}`,
+      failure: () => ({ errorText: "NS_BINDING_ABORTED" }),
+    })).toBe(path);
+    expect(cancelledChunk({
+      url: () => `http://127.0.0.1:4464${path}`,
+      failure: () => ({ errorText: "net::ERR_CONNECTION_REFUSED" }),
+    })).toBeUndefined();
+  });
+
   it("matches an RSC cancellation only to its exact loopback URL and framework origin", () => {
     const base = "http://127.0.0.1:4464";
     const diagnostic = {
@@ -51,14 +69,14 @@ describe("browser engine noise filters", () => {
   it("names only chunks whose load WebKit cancelled, and the chunk a ChunkLoadError failed on", () => {
     const request = (url: string, errorText: string | null) =>
       ({ url: () => url, failure: () => (errorText === null ? null : { errorText }) }) as Parameters<
-        typeof webkitCancelledChunk
+        typeof cancelledChunk
       >[0];
-    expect(webkitCancelledChunk(request("http://127.0.0.1:4464/_next/static/chunks/0o5-v3u6exb5z.js", "Load request cancelled"))).toBe(
+    expect(cancelledChunk(request("http://127.0.0.1:4464/_next/static/chunks/0o5-v3u6exb5z.js", "Load request cancelled"))).toBe(
       "/_next/static/chunks/0o5-v3u6exb5z.js",
     );
-    expect(webkitCancelledChunk(request("http://127.0.0.1:4464/_next/static/chunks/0o5-v3u6exb5z.js", "Could not connect to the server."))).toBeUndefined();
-    expect(webkitCancelledChunk(request("http://127.0.0.1:4464/_next/static/chunks/0o5-v3u6exb5z.js", null))).toBeUndefined();
-    expect(webkitCancelledChunk(request("http://127.0.0.1:4464/en/records?_rsc=abc", "Load request cancelled"))).toBeUndefined();
+    expect(cancelledChunk(request("http://127.0.0.1:4464/_next/static/chunks/0o5-v3u6exb5z.js", "Could not connect to the server."))).toBeUndefined();
+    expect(cancelledChunk(request("http://127.0.0.1:4464/_next/static/chunks/0o5-v3u6exb5z.js", null))).toBeUndefined();
+    expect(cancelledChunk(request("http://127.0.0.1:4464/en/records?_rsc=abc", "Load request cancelled"))).toBeUndefined();
     expect(
       chunkLoadErrorChunk("ChunkLoadError: Failed to load chunk /_next/static/chunks/0o5-v3u6exb5z.js from module 700662"),
     ).toBe("/_next/static/chunks/0o5-v3u6exb5z.js");

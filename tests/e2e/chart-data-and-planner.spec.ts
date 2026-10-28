@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 
-import { e2eAppMode } from "./workspace-switching";
+import { e2eAppMode, expectHydrated } from "./workspace-switching";
 import germanMessages from "../../i18n/locales/de.json" with { type: "json" };
 import { appPath } from "./app-paths";
 import { DEMO_COMPANY_ID, DEMO_MEMBERS, DEMO_SLUG, demoId, expect, test } from "./demo-seed";
@@ -48,7 +48,9 @@ test("chart bars open their records and carry the same selection to the overview
   const href = await drawer.getByRole("link", { name: "Open list", exact: true }).getAttribute("href");
   expect(href).toContain("filters=");
   expect(href).toContain("viewMode=table");
-  await drawer.getByRole("link", { name: "Open list", exact: true }).click();
+  const open = drawer.getByRole("link", { name: "Open list", exact: true });
+  await expectHydrated(open);
+  await open.click();
   await expect(page).toHaveURL(new RegExp(`/records/${demoId("deal")}`));
   await expect(page.locator('[data-slot="calendar-root"]')).toHaveCount(0);
   await page.getByRole("button", { name: "Filters", exact: true }).click();

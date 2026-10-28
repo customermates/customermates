@@ -5,11 +5,12 @@ const WEBKIT_CANCELLED_PAGE_FETCH =
   /^(?:Fetch API cannot load https?:)?\/{1,2}(?:127\.0\.0\.1|localhost):\d+\/(?:de|en|es|fr|it)(?:\/[^\s?]*)?(?:\?\S*)? due to access control checks\.$/;
 
 const WEBKIT_CANCELLED_LOAD = "Load request cancelled";
-const CHUNK_PATH = /^\/_next\/static\/chunks\/[\w-]+\.js$/;
+const CHUNK_PATH = /^\/_next\/static\/chunks\/[\w.-]+\.js$/;
 const CHUNK_LOAD_ERROR = /^ChunkLoadError: Failed to load chunk (\/_next\/static\/chunks\/[\w-]+\.js) from module \d+$/;
+const WEBPACK_CHUNK_LOAD_ERROR = /^(?:ChunkLoadError: )?Loading chunk \d+ failed\.\n\((?:error|missing|timeout): (https?:\/\/[^\s]+)\)$/;
 
-export function webkitCancelledChunk(request: Pick<Request, "url" | "failure">): string | undefined {
-  if (request.failure()?.errorText !== WEBKIT_CANCELLED_LOAD) return undefined;
+export function cancelledChunk(request: Pick<Request, "url" | "failure">): string | undefined {
+  if (![WEBKIT_CANCELLED_LOAD, "NS_BINDING_ABORTED"].includes(request.failure()?.errorText ?? "")) return undefined;
   const { pathname } = new URL(request.url());
   return CHUNK_PATH.test(pathname) ? pathname : undefined;
 }
@@ -53,7 +54,16 @@ function loopbackPageUrl(input: string) {
 }
 
 export function chunkLoadErrorChunk(message: string): string | undefined {
-  return CHUNK_LOAD_ERROR.exec(message)?.[1];
+  const turbopack = CHUNK_LOAD_ERROR.exec(message)?.[1];
+  if (turbopack) return turbopack;
+  const target = WEBPACK_CHUNK_LOAD_ERROR.exec(message)?.[1];
+  if (!target) return undefined;
+  try {
+    const url = new URL(target);
+    return LOOPBACK_HOSTS.has(url.hostname) && CHUNK_PATH.test(url.pathname) ? url.pathname : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 export function isAppConsoleError(message: Pick<ConsoleMessage, "type" | "text">): boolean {

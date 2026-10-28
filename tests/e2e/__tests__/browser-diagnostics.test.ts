@@ -55,10 +55,10 @@ function fakeBrowser() {
       }),
     pageError: (message: string) =>
       contextEvents.emit("weberror", { error: () => new Error(message), page: () => page }),
-    cancelledChunk: (url: string) =>
+    cancelledChunk: (url: string, errorText = "Load request cancelled") =>
       contextEvents.emit("requestfailed", {
         url: () => url,
-        failure: () => ({ errorText: "Load request cancelled" }),
+        failure: () => ({ errorText }),
         resourceType: () => "script",
         frame: () => ({ page: () => page }),
       }),
@@ -115,6 +115,22 @@ const NOT_FOUND = "Failed to load resource: the server responded with a status o
 const BASE = "http://127.0.0.1:4464";
 
 describe("browser diagnostics", () => {
+  it("withdraws only the Webpack chunk Firefox cancelled, preserving a real failed chunk", () => {
+    const browser = fakeBrowser();
+    const diagnostics = new BrowserDiagnostics().watch(browser.context);
+    const cancelled = "/_next/static/chunks/6370.aabbcc.js";
+    const failed = "/_next/static/chunks/6371.ddeeff.js";
+    const report = (path: string) => `Loading chunk 6370 failed.\n(error: ${BASE}${path})`;
+    browser.navigation(`${BASE}/en/dashboard`);
+    browser.requested(`${BASE}${cancelled}`);
+    browser.requested(`${BASE}${failed}`);
+    browser.cancelledChunk(`${BASE}${cancelled}`, "NS_BINDING_ABORTED");
+    browser.console(report(cancelled), `${BASE}/_next/static/chunks/runtime.js`);
+    browser.console(report(failed), `${BASE}/_next/static/chunks/runtime.js`);
+    browser.loaded();
+    expect(diagnostics.unexpected.map(({ text }) => text)).toEqual([report(failed)]);
+  });
+
   it("reports each load of the app answered with an HTTP error once, from the response, on every browser", () => {
     const browser = fakeBrowser();
     const diagnostics = new BrowserDiagnostics().watch(browser.context);

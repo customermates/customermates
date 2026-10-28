@@ -6,7 +6,7 @@ import {
   isAbortedPageLoad,
   isAppConsoleError,
   isBenignPageError,
-  webkitCancelledChunk,
+  cancelledChunk,
 } from "./browser-noise";
 
 /** `document` marks a failed load of a document a frame navigated to, as opposed to a fetch, script or image. */
@@ -380,7 +380,7 @@ export class BrowserDiagnostics {
   }
 
   private noteCancelledChunk(request: Request) {
-    const chunk = webkitCancelledChunk(request);
+    const chunk = cancelledChunk(request);
     const page = chunk ? requestPage(request) : null;
     if (!chunk || !page) return;
     this.cancelledChunks.set(page, (this.cancelledChunks.get(page) ?? new Set()).add(chunk));
