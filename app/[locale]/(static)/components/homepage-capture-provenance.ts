@@ -174,15 +174,15 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     clipped: true,
     route: "/[locale]/w/[workspace]/routines",
     scenario:
-      "The routines table of the small-business workspace (kleine-unternehmen in German) up to the Next run column",
+      "The routines table of the small-business workspace (kleine-unternehmen in German) up to the Status column",
     sha256: {
       de: {
-        dark: "24aa4c2d1b040f9bdad6c72bb6549e77ce742f504da203e0c80bb8268cac27ca",
-        light: "1e81bdaf9a34b4a2af354851c9514ace29cf18ddda0df3339f25cb9ab22a4803",
+        dark: "68deea12e2856f86511e61fe1a02e2d0a9f49cdfd67be2ab3173e5c6f4be2576",
+        light: "97f9337a4302adde5354a13be4cd86acdf18ac7291311695d25250681d9a2430",
       },
       en: {
-        dark: "fc6d468b219de1cc7d6e763f14282ff64e91b0562fb1c279b55ea853f6735bbc",
-        light: "2ac17dd67abca7f2be4563c3a62fdc9a1477365db5a3de6fb7db14b7d21a41a3",
+        dark: "d7fe51ced4b393a7737fa04c7fc1bc423adcc2b46d5926fca5ba3af32f238a73",
+        light: "1444e6649500fa0bf2195eb3bd637fa0bd1249b91f8f5d2235a3ea5c41ec3541",
       },
     },
     viewport: { height: 900, width: 1440 },

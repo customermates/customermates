@@ -222,11 +222,11 @@ const SHOTS: Shot[] = [
   },
   {
     // the routines section: the list header and the whole routines table
-    // header cells and rows up to the Created at column (seed creation times are not story times), cut on that column's edge
+    // header cells and rows up to the Last run column, cut on that column's edge, so the table reads at the section width
     clip: async (page) => {
       const headers = page.locator("main table thead th");
       const labels = await headers.allInnerTexts();
-      const end = labels.findIndex((label) => /created|erstellt/iu.test(label));
+      const end = labels.findIndex((label) => /last run|letzter lauf/iu.test(label));
       const keep = end > 0 ? end : labels.length;
       return Array.from({ length: keep }, (_, index) => page.locator(`main table tr > :nth-child(${index + 1})`)).flatMap((cells) => [cells.first(), cells.last()]);
     },

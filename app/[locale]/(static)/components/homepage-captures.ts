@@ -40,8 +40,8 @@ export const HOMEPAGE_CAPTURES = {
     en: { height: 944, width: 2456 },
   },
   "homepage-routines-table": {
-    de: { height: 298, width: 2068 },
-    en: { height: 298, width: 1986 },
+    de: { height: 298, width: 1450 },
+    en: { height: 298, width: 1386 },
   },
   "homepage-inbox-mobile": {
     de: { height: 1688, width: 780 },
