@@ -4,7 +4,7 @@ import { dirname, join } from "node:path";
 
 import { chromium, type Browser } from "@playwright/test";
 
-import { newCaptureContext, openReadyPage, sha256, withRetries } from "./lib/capture-page";
+import { newCaptureContext, openReadyPage, sha256, withRetries, workspaceTimeZone } from "./lib/capture-page";
 import { parseCaptureSolutionStageArgs, type CaptureSolutionStageOptions } from "./lib/capture-solution-stage-options";
 import { solutionTargetPath, solutionNavRouteForPlanItem } from "./lib/solution-nav-routes";
 
@@ -156,7 +156,11 @@ async function captureItem(
   item: SolutionStagePlanItem,
   cap: number,
 ): Promise<SolutionStageCaptureEntry> {
-  const context = await newCaptureContext(browser, item, SOLUTION_STAGE_CAPTURE_VIEWPORT);
+  const context = await newCaptureContext(
+    browser,
+    { ...item, timeZone: workspaceTimeZone(item.solution.id, item.locale) },
+    SOLUTION_STAGE_CAPTURE_VIEWPORT,
+  );
   try {
     const page = await openReadyPage(context, baseUrl, item.key, item.route);
     const png = await page.screenshot({ animations: "disabled", caret: "hide", type: "png" });

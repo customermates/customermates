@@ -4,7 +4,9 @@ import type { Browser, BrowserContext, Page } from "@playwright/test";
 
 import { captureNavigationUrl } from "./capture-solutions-options";
 
+import { solutionDataLocaleForUiLocale, type SolutionId } from "@/core/solutions/solution-catalog";
 import { formattingTagFor, isLocaleCode } from "@/i18n/locale-registry";
+import { SOLUTION_DEFINITIONS } from "@/prisma/seeds/solutions/definitions";
 
 const READY_TIMEOUT_MS = 60_000;
 const STABLE_SAMPLES = 3;
@@ -15,7 +17,12 @@ const HIDE_DEV_OVERLAY_CSS = "nextjs-portal { display: none !important; }";
 
 export type CaptureViewport = { deviceScaleFactor: number; height: number; width: number };
 
-export type CaptureLook = { locale: string; theme: "dark" | "light" };
+export type CaptureLook = { locale: string; theme: "dark" | "light"; timeZone?: string };
+
+// The seeded story keeps office hours in the workspace time zone, so every capture renders in its workspace's zone.
+export function workspaceTimeZone(solution: SolutionId, uiLocale: string): string {
+  return SOLUTION_DEFINITIONS[solution].story[solutionDataLocaleForUiLocale(uiLocale)].timeZone;
+}
 
 export function sha256(buffer: Buffer): string {
   return createHash("sha256").update(new Uint8Array(buffer)).digest("hex");
@@ -51,7 +58,7 @@ export async function newCaptureContext(
     colorScheme: look.theme,
     deviceScaleFactor: viewport.deviceScaleFactor,
     locale: isLocaleCode(look.locale) ? formattingTagFor(look.locale) : undefined,
-    timezoneId: "Europe/Berlin",
+    timezoneId: look.timeZone ?? "Europe/Berlin",
     viewport: { height: viewport.height, width: viewport.width },
   });
   await context.addInitScript((theme) => window.localStorage.setItem("theme", theme), look.theme);

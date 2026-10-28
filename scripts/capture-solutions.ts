@@ -6,7 +6,7 @@ import sharp from "sharp";
 import { chromium, type Browser } from "@playwright/test";
 
 import { assertLocalDatabaseEnvironment } from "./local-database-safety";
-import { newCaptureContext, openReadyPage, sha256, withRetries } from "./lib/capture-page";
+import { newCaptureContext, openReadyPage, sha256, withRetries, workspaceTimeZone } from "./lib/capture-page";
 import { parseCaptureSolutionsArgs, type CaptureSolutionsOptions } from "./lib/capture-solutions-options";
 import { solutionNavPreview, solutionNavRouteForPlanItem } from "./lib/solution-nav-routes";
 
@@ -123,7 +123,11 @@ function writeWebp(src: string, buffer: Buffer, width: number, height: number): 
 }
 
 async function captureMain(browser: Browser, baseUrl: string, item: SolutionCapturePlanItem): Promise<CapturedImage> {
-  const context = await newCaptureContext(browser, item, SOLUTION_CAPTURE_VIEWPORT);
+  const context = await newCaptureContext(
+    browser,
+    { ...item, timeZone: workspaceTimeZone(item.solution.id, item.locale) },
+    SOLUTION_CAPTURE_VIEWPORT,
+  );
   try {
     const page = await openReadyPage(context, baseUrl, item.key, item.route);
     const png = await page.screenshot({ animations: "disabled", caret: "hide", type: "png" });
@@ -140,7 +144,11 @@ async function captureNav(
   item: SolutionCapturePlanItem,
   route: string,
 ): Promise<CapturedImage> {
-  const context = await newCaptureContext(browser, item, SOLUTION_NAV_CAPTURE_VIEWPORT);
+  const context = await newCaptureContext(
+    browser,
+    { ...item, timeZone: workspaceTimeZone(item.solution.id, item.locale) },
+    SOLUTION_NAV_CAPTURE_VIEWPORT,
+  );
   await context.addCookies([{ name: SIDEBAR_WIDTH_COOKIE_NAME, url: baseUrl, value: String(SIDEBAR_MIN_WIDTH) }]);
   try {
     const page = await openReadyPage(context, baseUrl, item.key, route, SOLUTION_NAV_CAPTURE_CLIP);
