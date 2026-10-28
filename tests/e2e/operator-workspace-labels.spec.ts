@@ -151,9 +151,11 @@ test("operator labels stay consistent through lists, modals, filters, exports, a
     await test.step("narrow workspace columns preserve the identifying suffix in every operator list", async () => {
       for (const section of ["workspaces", "users", "audit"]) {
         await page.goto(`/en/operator/${section}`);
+        await expect(page.getByText(firstLabel, { exact: true }).first()).toBeVisible();
         const resize = page.getByRole("button", { name: /^Resize Workspace column\./ });
         await expectHydrated(resize);
         await resize.focus();
+        await expect(resize).toBeFocused();
         await resize.press("Home");
         await expect.poll(() => resize.evaluate((element) => element.closest("th")?.style.width)).toBe("80px");
         await expect

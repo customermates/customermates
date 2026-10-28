@@ -13,6 +13,12 @@ describe("browser engine noise filters", () => {
     expect(chunkLoadErrorChunk("Error")).toBeUndefined();
     expect(chunkLoadErrorChunk("Loading chunk 6370 failed.\n(error: http://[invalid)")).toBeUndefined();
     expect(chunkLoadErrorChunk("Loading chunk 6370 failed.\n(error: http://127.0.0.1:4464/api/v1/records/query)")).toBeUndefined();
+    const nested = "/_next/static/chunks/app/[locale]/(protected)/w/[workspace]/layout-aabbcc.js";
+    expect(chunkLoadErrorChunk(`Loading chunk 9492 failed.\n(error: http://127.0.0.1:4464${nested})`)).toBe(nested);
+    expect(cancelledChunk({
+      url: () => `http://127.0.0.1:4464${nested.replaceAll("[", "%5B").replaceAll("]", "%5D")}`,
+      failure: () => ({ errorText: "NS_BINDING_ABORTED" }),
+    })).toBe(nested);
     expect(cancelledChunk({
       url: () => `http://127.0.0.1:4464${path}`,
       failure: () => ({ errorText: "NS_BINDING_ABORTED" }),

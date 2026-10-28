@@ -386,6 +386,7 @@ test("enters addresses by hand when no address service is configured", async ({ 
   });
   await expect(address.locator("[data-address-status]")).toHaveCount(0);
   await expect(address.getByRole("button", { name: "Check address", exact: true })).toHaveCount(0);
+  await expect(address.locator('[data-address-issue="countryMissing"]')).toBeVisible();
   await applyAddress(page);
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer).not.toBeVisible();

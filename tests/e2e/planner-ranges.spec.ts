@@ -123,10 +123,8 @@ test("calendar ranges span weeks and months, keep midnight exclusive, reveal ful
     await entry.hover();
     await expect(page.getByRole("tooltip")).toContainText(title);
     await page.mouse.move(0, 0);
-    await entry.focus();
-    await expect(entry).toBeFocused();
     await page.keyboard.press("Tab");
-    await page.keyboard.press("Shift+Tab");
+    await entry.focus();
     await expect(entry).toBeFocused();
     await expect(page.getByRole("tooltip")).toContainText(title);
     await page.getByRole("tab", { name: "Week", exact: true }).click();

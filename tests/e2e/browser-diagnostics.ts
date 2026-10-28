@@ -2,6 +2,7 @@ import type { BrowserContext, ConsoleMessage, Page, Request, Response, TestInfo 
 
 import {
   chunkLoadErrorChunk,
+  chunkPathname,
   isAbortedLoadReport,
   isAbortedPageLoad,
   isAppConsoleError,
@@ -173,6 +174,7 @@ export class BrowserDiagnostics {
   private readonly settledRequests = new WeakMap<Request, { failed: boolean }>();
   private readonly answeredErrors = new Map<string, Request[]>();
   private readonly consoleErrors = new Map<string, BrowserDiagnostic[]>();
+  private readonly pendingConsole = new Set<Promise<void>>();
 
   watch(context: BrowserContext) {
     if (byContext.get(context) === this) return this;
@@ -190,7 +192,14 @@ export class BrowserDiagnostics {
         source: message.location().url,
         page: message.page(),
       };
-      if (isHttpErrorReport(diagnostic)) this.noteHttpErrorReport(diagnostic);
+      if (diagnostic.text === "Error" && message.args()[0]) {
+        const pending = message.args()[0]
+          .evaluate((value) => value instanceof Error ? String(value) : null)
+          .catch(() => null)
+          .then((detail) => this.record({ ...diagnostic, text: detail ?? diagnostic.text }));
+        this.pendingConsole.add(pending);
+        void pending.finally(() => this.pendingConsole.delete(pending));
+      } else if (isHttpErrorReport(diagnostic)) this.noteHttpErrorReport(diagnostic);
       else this.record(diagnostic);
     });
     context.on("request", (request: Request) => this.noteRequest(request));
@@ -228,6 +237,7 @@ export class BrowserDiagnostics {
   }
 
   async verify(testInfo: TestInfo) {
+    await Promise.all(this.pendingConsole);
     for (const request of [...this.pendingErrors.keys()]) this.confirmHttpError(request);
     const expected = this.rules.flatMap(({ events }) => events);
     if (this.unexpected.length > 0 || expected.length > 0)
@@ -279,8 +289,8 @@ export class BrowserDiagnostics {
       return;
     }
     this.requestGenerations.set(request, this.generations.get(page) ?? 0);
-    const { pathname } = new URL(request.url());
-    if (pathname.startsWith("/_next/static/chunks/")) this.navigations.get(page)?.requested.add(pathname);
+    const chunk = chunkPathname(request.url());
+    if (chunk) this.navigations.get(page)?.requested.add(chunk);
   }
 
   /**

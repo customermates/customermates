@@ -46,12 +46,13 @@ function fakeBrowser() {
     state,
     context,
     page,
-    console: (text: string, source = "") =>
+    console: (text: string, source = "", error?: Error) =>
       contextEvents.emit("console", {
         type: () => "error",
         text: () => text,
         location: () => ({ url: source }),
         page: () => page,
+        args: () => error ? [{ evaluate: async (read: (error: Error) => unknown) => read(error) }] : [],
       }),
     pageError: (message: string) =>
       contextEvents.emit("weberror", { error: () => new Error(message), page: () => page }),
@@ -115,6 +116,31 @@ const NOT_FOUND = "Failed to load resource: the server responded with a status o
 const BASE = "http://127.0.0.1:4464";
 
 describe("browser diagnostics", () => {
+  it("recovers Firefox's logged Error details and withdraws only an exactly matched cancelled chunk", async () => {
+    const browser = fakeBrowser();
+    const diagnostics = new BrowserDiagnostics().watch(browser.context);
+    const path = "/_next/static/chunks/app/[locale]/(protected)/w/[workspace]/layout-aabbcc.js";
+    const report = Object.assign(new Error(`Loading chunk 9492 failed.\n(error: ${BASE}${path})`), { name: "ChunkLoadError" });
+    browser.navigation(`${BASE}/en/calendar`);
+    browser.requested(`${BASE}${path.replaceAll("[", "%5B").replaceAll("]", "%5D")}`);
+    browser.cancelledChunk(`${BASE}${path}`, "NS_BINDING_ABORTED");
+    browser.console("Error", `${BASE}/_next/static/chunks/runtime.js`, report);
+    browser.console("Error", `${BASE}/_next/static/chunks/runtime.js`, new Error("Real rendering failure"));
+    browser.console("Error", `${BASE}/_next/static/chunks/runtime.js`);
+    browser.loaded();
+    await expect(diagnostics.verify(fakeTestInfo("passed"))).rejects.toThrow("Real rendering failure");
+    expect(diagnostics.unexpected.map(({ text }) => text)).toEqual(["Error", "Error: Real rendering failure"]);
+  });
+
+  it("retains a Firefox Error when its remote object is unavailable after navigation", async () => {
+    const browser = fakeBrowser();
+    const diagnostics = new BrowserDiagnostics().watch(browser.context);
+    const unreadable = new Proxy(new Error("Unavailable"), { get() { throw new Error("Execution context was destroyed"); } });
+    browser.console("Error", `${BASE}/_next/static/chunks/runtime.js`, unreadable);
+    await expect(diagnostics.verify(fakeTestInfo("passed"))).rejects.toThrow("console: Error");
+    expect(diagnostics.unexpected.map(({ text }) => text)).toEqual(["Error"]);
+  });
+
   it("withdraws only the Webpack chunk Firefox cancelled, preserving a real failed chunk", () => {
     const browser = fakeBrowser();
     const diagnostics = new BrowserDiagnostics().watch(browser.context);
