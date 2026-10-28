@@ -246,7 +246,7 @@ describe("data view rail", () => {
 
   it("declares the active tab's label colour once per theme", () => {
     const css = readFileSync(resolve(process.cwd(), "styles/globals.css"), "utf8");
-    const themes = css.split(/^\.dark,$/mu);
+    const themes = css.split(/^\.dark \{$/mu);
     const declared = themes.map((block) => block.match(/--primary-soft-foreground:\s*(#[0-9a-f]{6});/u)?.[1]);
 
     expect(themes).toHaveLength(2);

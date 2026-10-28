@@ -11,10 +11,17 @@ import {
 } from "@/ee/messaging/email-settings";
 import { SIGNATURE_DELIMITER } from "@/ee/messaging/outbound/email-signature";
 import { renderEmailMarkdown } from "@/ee/messaging/outbound/render-signature";
+import { zonedParts } from "@/features/record-calendar/zoned-time";
 
 import { fixtureId, workspaceFixtureId } from "../seeds/helpers";
 import type { MessagingFixtureProvider, WorkspaceMessagingFixtures } from "../seeds/messaging/fixtures";
-import { messagingAccountId, messagingUnipileAccountId, seedWorkspaceMessaging } from "../seeds/messaging/seed";
+import {
+  messagingAccountId,
+  messagingUnipileAccountId,
+  officeClock,
+  officeMinutesBefore,
+  seedWorkspaceMessaging,
+} from "../seeds/messaging/seed";
 import { solutionWorkspacePlan } from "../seeds/solutions/seed-solutions";
 import { buildSolutionRecordData } from "../seeds/solutions/solution-data";
 import { buildSolutionMessaging } from "../seeds/solutions/solution-messaging";
@@ -214,7 +221,7 @@ describe.each(["demo", "cloud"] as const)("workspace messaging fixtures in APP_M
       expect(account).toMatchObject({
         companyId: fixtures.companyId,
         displayName: expect.stringMatching(new RegExp(`^${fixtures.self.name} · `)),
-        emailAddress: email ? fixtures.seedUserEmail : null,
+        emailAddress: email ? fixtures.self.email : null,
         hasCalendar: email,
         hasMessaging: true,
         id: fixtureId("16000000", ACCOUNT_ORDER.indexOf(provider) + 1),
@@ -238,7 +245,7 @@ describe.each(["demo", "cloud"] as const)("workspace messaging fixtures in APP_M
         expect(account?.folders).toEqual([]);
         continue;
       }
-      expect(String(account?.signature)).toContain(fixtures.seedUserEmail);
+      expect(String(account?.signature)).toContain(fixtures.self.email);
       expect(String(account?.signature)).toContain(fixtures.self.companyName);
       const settings = EmailSettingsSchema.safeParse(account?.signatureFields);
       expect(settings.success).toBe(true);
@@ -270,6 +277,7 @@ describe.each(["demo", "cloud"] as const)("workspace messaging fixtures in APP_M
     expectCanonicalUpdates(records.connectedAccounts, ["id", "unipileAccountId"]);
 
     const anchor = new Date((accounts[0]?.lastSyncedAt as Date).getTime() + 5 * MINUTE);
+    const clock = officeClock(anchor, fixtures.timeZone);
     const calendar = fixtures.calendar;
     if (!calendar) throw new Error("The team workspace needs a calendar");
     const google = accounts.find(({ provider }) => provider === "google");
@@ -298,7 +306,7 @@ describe.each(["demo", "cloud"] as const)("workspace messaging fixtures in APP_M
         allDay: false,
         attendeeEmails: [
           ...fixture.attendees.map(({ person }) => fixtures.people[person]?.email?.toLowerCase()),
-          fixtures.seedUserEmail.toLowerCase(),
+          fixtures.self.email.toLowerCase(),
         ],
         calendarId: calendars[0]?.id,
         companyId: fixtures.companyId,
@@ -309,7 +317,7 @@ describe.each(["demo", "cloud"] as const)("workspace messaging fixtures in APP_M
         title: fixture.title,
         unipileEventId,
       });
-      expect(event?.startsAt).toEqual(new Date(anchor.getTime() - fixture.startsMinutesAgo * MINUTE));
+      expect(event?.startsAt).toEqual(new Date(clock.getTime() - fixture.startsMinutesAgo * MINUTE));
       expect((event?.endsAt as Date).getTime() - (event?.startsAt as Date).getTime()).toBe(
         fixture.durationMinutes * MINUTE,
       );
@@ -321,7 +329,7 @@ describe.each(["demo", "cloud"] as const)("workspace messaging fixtures in APP_M
       expect(event?.organizer).toEqual(
         expect.objectContaining({
           displayName: fixtures.self.name,
-          email: fixtures.seedUserEmail.toLowerCase(),
+          email: fixtures.self.email.toLowerCase(),
           isOrganizer: true,
         }),
       );
@@ -345,7 +353,7 @@ describe.each(["demo", "cloud"] as const)("workspace messaging fixtures in APP_M
         payload: expect.objectContaining({ fullName: fixtures.people[fixture.person]?.displayName }),
       });
       expect(accountActivities[index]?.occurredAt).toEqual(
-        new Date(anchor.getTime() - fixture.occurredMinutesAgo * MINUTE),
+        new Date(clock.getTime() - fixture.occurredMinutesAgo * MINUTE),
       );
       expect(records.accountActivities[index]?.where).toEqual({
         connectedAccountId_kind_identifier: {
@@ -512,7 +520,18 @@ describe.each(["demo", "cloud"] as const)("workspace messaging fixtures in APP_M
       expect(ordered).toHaveLength(fixture.messages.length);
       const latest = ordered.at(-1);
       expect(latest?.sentAt).toEqual(thread.lastMessageAt);
-      expect(thread.lastMessageAt).toEqual(new Date(anchor.getTime() - fixture.latestMinutesAgo * MINUTE));
+      expect(thread.lastMessageAt).toEqual(
+        officeMinutesBefore(new Date(clock.getTime() - fixture.latestMinutesAgo * MINUTE), 0, fixtures.timeZone),
+      );
+      for (const message of ordered) {
+        const { hour, minute } = zonedParts(message.sentAt as Date, fixtures.timeZone);
+        const weekday = new Intl.DateTimeFormat("en", { weekday: "short", timeZone: fixtures.timeZone }).format(
+          message.sentAt as Date,
+        );
+        expect(["Sat", "Sun"], "sent on a weekday").not.toContain(weekday);
+        expect(hour * 60 + minute, "sent in office hours").toBeGreaterThanOrEqual(8 * 60);
+        expect(hour * 60 + minute, "sent in office hours").toBeLessThanOrEqual(18 * 60);
+      }
       expect(String(latest?.bodyText).split(SIGNATURE_DELIMITER)[0]).toBe(thread.lastMessagePreview);
       expect(latest?.direction === "outbound").toBe(thread.lastMessageIsSender);
       const emailThread = isEmailProvider(fixture.account);

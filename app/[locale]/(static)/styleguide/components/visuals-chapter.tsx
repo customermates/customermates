@@ -87,6 +87,83 @@ const DETAIL_BUDGET = [
   },
 ] as const;
 
+const PROFILE_HERO_ROWS = [
+  [
+    "Source",
+    "a product-proof capture of the public demo at demo.customermates.com in the dark theme, Mate panel closed, no hover or focus state",
+  ],
+  [
+    "Devices",
+    "one laptop and one phone sharing one 3D angle; laptop with notch, metal base, screen glare and ground shadow; phone with side buttons",
+  ],
+  [
+    "Type",
+    "the headline is the hero, sized for the real display width (LinkedIn about 800 px on desktop, 390 px on mobile) and never below the effective text floor",
+  ],
+  [
+    "Copy",
+    "no eyebrow logo when the profile photo already shows it; the second message is the approved tagline Built for agents. Designed for people.",
+  ],
+  [
+    "Colour",
+    "tokens only: dark background, muted foreground for the second headline line, primary for the single accent on the one agent state",
+  ],
+  ["Grain", "3 to 4 percent grain over dark gradients so platform recompression cannot band them"],
+  [
+    "Demo data",
+    "no overdue or zero KPIs, sender addresses on the persona's company domain, office-hour timestamps, no sticky overlay over text; seed defects are fixed in the seed",
+  ],
+];
+
+const PRODUCT_STILL_ROWS = [
+  [
+    "Source",
+    "a capture of the seeded local product (APP_MODE=demo, prisma db seed) with scripts/capture-homepage.ts, in both themes and every content locale, rendered in the workspace time zone",
+  ],
+  [
+    "Subject",
+    "one task per section: the open thread, the reply draft, the board, the routines table; the hero stage keeps whole app screens",
+  ],
+  [
+    "Crop",
+    "crop to the task surface before shrinking anything; cut only along real UI boundaries (a panel, whole message rows, whole board columns, a table column edge; on a phone a table narrows to its last whole column and a board crops to its first column), never through text, a card, a badge or an avatar, with an even margin and no scrollbars or partial controls at the edges",
+  ],
+  [
+    "Size",
+    "the still fills at least 55 percent of its column, stays readable at 390 px through its phone variant and is captured at 2x or more of its largest rendered size",
+  ],
+  [
+    "Accent",
+    "one 2 px ring in the product's own primary around the one agent state (the saved reply draft), set in the app before the capture; nothing is painted onto the image afterwards",
+  ],
+  [
+    "Demo data",
+    "reads true in the capture itself: persona domain senders, office-hour times, no hover, focus, tooltip, toast or demo-mode banner, Mate panel closed unless it is the subject",
+  ],
+];
+
+const PROFILE_SAFE_ZONES = [
+  {
+    canvas: "LinkedIn personal banner",
+    size: "1584 x 396",
+    aspect: "aspect-[1584/396]",
+    text: { left: "42.9%", top: "15%", width: "52%", height: "70%" },
+    photos: [
+      { label: "Mobile photo", left: "4.1%", top: "20.5%", width: "34.6%" },
+      { label: "Desktop photo", left: "3%", top: "51.5%", width: "20.2%" },
+    ],
+    rule: "Measured on a live profile: the photo covers x 65 to 613 on mobile and x 48 to 368, y 204 to 396 on desktop, so text starts at x 680.",
+  },
+  {
+    canvas: "X header",
+    size: "1500 x 500",
+    aspect: "aspect-[3/1]",
+    text: { left: "20%", top: "16%", width: "66.7%", height: "64%" },
+    photos: [],
+    rule: "Text stays inside x 300 to 1300 and y 80 to 400, clear of the avatar and the mobile crop.",
+  },
+] as const;
+
 const FAILURES = [
   ["Fake application", "A complete invented window, navigation or sidebar is neither illustration nor proof."],
   ["Paragraph in art", "Source prose is retained for traceability but never becomes layout copy."],
@@ -390,6 +467,70 @@ export function VisualsChapter({ locale }: { locale: VisualLocale }) {
             The golden command renders the one registered benchmark across themes and placements. A custom --input brief
             receives its pathway golden as a reference and remains free to author its own composition.
           </p>
+        </div>
+      </MarketingSection>
+
+      <MarketingSection
+        description="Profile banners and headers are product proof. One fixed recipe keeps every channel and every future pipeline visual on the same look."
+        id="profile-heroes"
+        title="Profile heroes follow one recipe"
+      >
+        <div className="mt-12 overflow-hidden rounded-card border border-border bg-card">
+          <ul className="divide-y divide-border">
+            {PROFILE_HERO_ROWS.map(([label, description]) => (
+              <li key={label} className="grid gap-2 px-5 py-4 md:grid-cols-[10rem_1fr] md:items-baseline">
+                <code className="font-mono text-sm text-primary">{label}</code>
+
+                <span className="text-sm text-muted-foreground">{description}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="mt-8 grid gap-6 lg:grid-cols-2">
+          {PROFILE_SAFE_ZONES.map((zone) => (
+            <figure key={zone.canvas} className="m-0 min-w-0">
+              <VisualArtboard aria-label={`${zone.canvas} safe zones`} className={zone.aspect}>
+                <div className="absolute rounded-lg border border-primary bg-primary/10" style={zone.text} />
+
+                {zone.photos.map((photo) => (
+                  <div
+                    key={photo.label}
+                    className="absolute aspect-square rounded-full border border-dashed border-border-strong bg-foreground/[0.04]"
+                    style={{ left: photo.left, top: photo.top, width: photo.width }}
+                  />
+                ))}
+              </VisualArtboard>
+
+              <figcaption className="mt-3">
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="text-sm font-medium">{zone.canvas}</span>
+
+                  <code className="font-mono text-sm text-primary">{zone.size}</code>
+                </div>
+
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{zone.rule}</p>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </MarketingSection>
+
+      <MarketingSection
+        description="Product stills on public pages are product proof too. Each section shows one task, cropped along the interface so it reads at any width."
+        id="product-stills"
+        title="Product stills show one task"
+      >
+        <div className="mt-12 overflow-hidden rounded-card border border-border bg-card">
+          <ul className="divide-y divide-border">
+            {PRODUCT_STILL_ROWS.map(([label, description]) => (
+              <li key={label} className="grid gap-2 px-5 py-4 md:grid-cols-[10rem_1fr] md:items-baseline">
+                <code className="font-mono text-sm text-primary">{label}</code>
+
+                <span className="text-sm text-muted-foreground">{description}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       </MarketingSection>
 

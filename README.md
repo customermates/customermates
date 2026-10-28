@@ -13,17 +13,23 @@
   <a href="https://demo.customermates.com/en/w/small-business/dashboard">Demo</a> |
   <a href="https://customermates.com/docs">Documentation</a> |
   <a href="https://github.com/customermates/customermates">GitHub</a> |
-  <a href="https://youtu.be/A7juUe3Iaco">Walkthrough</a>
+  <a href="#product-film">Film</a>
 </p>
 
 
 <p align="center">
-  <img src=".github/media/customermates-promo.gif" alt="Customermates: 57 second walkthrough" width="1200">
+  <a href="#product-film"><img src=".github/media/customermates-film-hook.webp" alt="Customermates: your next hires won't be people. They'll be agents." width="1200"></a>
 </p>
 
 Customermates is a CRM for modern teams that want a clear system for contacts, organizations, deals, services, and tasks without the usual enterprise-heavy setup. It combines practical CRM workflows with API access, webhooks, n8n automation, MCP-based tooling, and AI-agent workflows.
 
 You can use the managed cloud version or run Customermates yourself in your own infrastructure with Docker Compose.
+
+## Product film
+
+The 70 second film, with sound.
+
+https://github.com/user-attachments/assets/fd11451e-14e4-4ed1-8439-0a0f70b1f47f
 
 ## 🚀 Getting Started
 

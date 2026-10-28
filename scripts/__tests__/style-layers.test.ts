@@ -26,12 +26,12 @@ beforeAll(async () => {
 }, 60_000);
 
 describe("route stylesheet behavior", () => {
-  it("preserves inverse-aware typography after loading Fumadocs", () => {
+  it("keeps dark typography on the dark variant after loading Fumadocs", () => {
     const selectors: string[] = [];
     postcss.parse(compiled.public).walkRules((rule) => {
       if (rule.selector.includes("dark\\:prose-invert")) selectors.push(rule.toString());
     });
-    expect(selectors.join("\n")).toContain("data-marketing-tone");
+    expect(selectors.join("\n")).toContain(":is(.dark *)");
   });
 
   it("keeps branded dark documentation colors authoritative", () => {

@@ -95,6 +95,8 @@ export default async function HomePage({ params }: StaticLocaleProps) {
 
       <HomepageFacts benefitsSection={benefits} />
 
+      <HomepageProductProof proof={productProof} />
+
       <HomepageStory flow={flow} />
 
       <HomepageStatsRow />
@@ -117,8 +119,6 @@ export default async function HomePage({ params }: StaticLocaleProps) {
       <HomepagePipeline liveLabel={liveLabel} locale={contentLocale} story={pipelineStory} />
 
       <HomepageRoutines liveLabel={liveLabel} locale={contentLocale} routines={routines} />
-
-      <HomepageProductProof proof={productProof} />
 
       <HomepageBenefits benefitsSection={benefits} />
 

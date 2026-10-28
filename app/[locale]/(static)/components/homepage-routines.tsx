@@ -43,15 +43,15 @@ export function HomepageRoutines({ liveLabel, locale, routines }: Props) {
         </div>
 
         <div className="col-span-12 lg:col-start-6 lg:col-end-13">
-          <ProductPanel className="h-[30rem] sm:h-[32rem] lg:h-[36rem]">
-            <ProductWindow className="absolute top-6 left-6 w-[110%] sm:top-10 sm:left-10 sm:w-[140%] lg:top-14 lg:left-14">
+          <ProductPanel className="p-5 sm:p-10 lg:p-12">
+            <ProductWindow>
               <HomepageStageLink area="routines" label={liveLabel}>
                 <HomepageCaptureImage
                   alt={routines.alt}
                   locale={locale}
                   mobileName="homepage-routines-mobile"
-                  name="homepage-routines"
-                  sizes="(min-width: 1024px) 70vw, 92vw"
+                  name="homepage-routines-table"
+                  sizes="(min-width: 1024px) 50vw, 92vw"
                 />
               </HomepageStageLink>
             </ProductWindow>

@@ -35,7 +35,6 @@ export const STYLEGUIDE_CHAPTERS = [
     label: "Foundations",
     sections: [
       { id: "surfaces", label: "Surfaces" },
-      { id: "contrast", label: "Contrast and inversion" },
       { id: "edges-washes", label: "Edges and washes" },
       { id: "signals", label: "Accent and signal" },
       { id: "typography", label: "Typography" },
@@ -72,7 +71,7 @@ export const STYLEGUIDE_CHAPTERS = [
   },
   {
     description:
-      "The authenticity families, validated brief contract, semantic pathways and calibrated golden benchmarks.",
+      "The authenticity families, validated brief contract, semantic pathways, calibrated golden benchmarks and the profile hero recipe.",
     href: "/styleguide/visuals",
     id: "visuals",
     label: "Visuals",
@@ -82,6 +81,8 @@ export const STYLEGUIDE_CHAPTERS = [
       { id: "connection-geometry", label: "Connection geometry" },
       { id: "goldens", label: "Semantic goldens" },
       { id: "responsive-benchmark", label: "Responsive benchmark" },
+      { id: "profile-heroes", label: "Profile heroes" },
+      { id: "product-stills", label: "Product stills" },
       { id: "failures", label: "Failure examples" },
     ],
     title: "Visuals",

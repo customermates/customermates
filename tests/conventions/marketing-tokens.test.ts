@@ -116,7 +116,7 @@ describe("marketing navigation breakpoint", () => {
 });
 
 describe("style-guide CSS isolation", () => {
-  it("keeps current public radii, the approved dark ladder and scoped inverse color schemes", () => {
+  it("keeps current public radii and the approved dark ladder", () => {
     const css = readFileSync(GLOBALS_CSS, "utf8");
 
     expect(css).toContain("--radius-sm: calc(var(--radius) - 4px);");
@@ -126,19 +126,14 @@ describe("style-guide CSS isolation", () => {
     expect(css).toMatch(
       /\.marketing-container-wide\s*\{\s*max-width:\s*96rem;/u,
     );
-    expect(css).toMatch(/\.dark,[\s\S]*?--background:\s*#0d0d10;/u);
-    expect(css).toMatch(/\.dark,[\s\S]*?--card:\s*#151518;/u);
+    expect(css).toMatch(/\.dark \{[\s\S]*?--background:\s*#0d0d10;/u);
+    expect(css).toMatch(/\.dark \{[\s\S]*?--card:\s*#151518;/u);
     expect(css).toMatch(
-      /\.dark,[\s\S]*?--border:\s*rgb\(255 255 255 \/ 7\.5%\);/u,
+      /\.dark \{[\s\S]*?--border:\s*rgb\(255 255 255 \/ 7\.5%\);/u,
     );
-    expect(css).toMatch(/\.dark,[\s\S]*?--sidebar:\s*#08080b;/u);
+    expect(css).toMatch(/\.dark \{[\s\S]*?--sidebar:\s*#08080b;/u);
     expect(css).not.toMatch(/(?:^|\n):root\s*\{[^}]*color-scheme:/u);
-    expect(css).toMatch(
-      /\.dark \[data-marketing-tone="inverse"\]\s*\{\s*color-scheme:\s*light;/u,
-    );
-    expect(css).toMatch(
-      /:root:not\(\.dark\) \[data-marketing-tone="inverse"\],[\s\S]*?color-scheme:\s*dark;/u,
-    );
+    expect(css).not.toMatch(/inverse/u);
   });
 
   it("declares the approved neutral hero role and continuous-flow divider ownership", () => {

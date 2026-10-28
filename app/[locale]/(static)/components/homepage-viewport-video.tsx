@@ -2,13 +2,15 @@
 
 import { useEffect, useRef } from "react";
 
+import { HOMEPAGE_MOTION_VISIBILITY_AMOUNT } from "./homepage-motion";
+
 type Props = {
   ariaLabel: string;
   className?: string;
   src: string;
 };
 
-const AUTOPLAY_VISIBILITY_THRESHOLD = 0.55;
+const AUTOPLAY_VISIBILITY_THRESHOLD = HOMEPAGE_MOTION_VISIBILITY_AMOUNT;
 
 export function HomepageViewportVideo({ ariaLabel, className, src }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -102,7 +104,7 @@ export function HomepageViewportVideo({ ariaLabel, className, src }: Props) {
       playsInline
       aria-label={ariaLabel}
       className={className}
-      data-autoplay-when-visible="55-percent"
+      data-autoplay-when-visible="35-percent"
       preload="metadata"
       src={src}
       onEnded={() => {

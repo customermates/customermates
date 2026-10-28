@@ -92,8 +92,8 @@ function themeTokens(selector: string) {
 }
 
 const THEMES: Record<Theme, Map<string, string>> = {
-  light: themeTokens('.dark [data-marketing-tone="inverse"]'),
-  dark: themeTokens('.light [data-marketing-tone="inverse"]'),
+  light: themeTokens(".light"),
+  dark: themeTokens(".dark"),
 };
 
 function resolve(value: string, theme: Theme): string {

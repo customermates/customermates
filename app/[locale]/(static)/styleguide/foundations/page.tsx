@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 
 import { ResponsiveContract } from "../components/responsive-contract";
 import { StyleguideChapter } from "../components/styleguide-chapter";
@@ -47,15 +46,6 @@ const ACCENTS = [
   { name: "--warning", role: "an attention state" },
   { name: "--destructive", role: "a destructive state" },
 ];
-
-const CONTRAST_RULES = [
-  "Page mode establishes continuity.",
-  "Inverse marks one high-salience pivot.",
-  "The band stays full bleed.",
-  "Inverse sections are never nested or adjacent.",
-  "Cards restart the local surface ladder.",
-  "Semantic tokens and local media inherit the opposite palette.",
-] as const;
 
 const TYPE_ROLES = [
   {
@@ -170,10 +160,7 @@ const SURFACE_RULES = [
     "The lit glass tile: a tinted highlight from the top left, a rim and a soft shadow. It carries the hero marks and, tinted with primary, the selected stage tab. Navigation selection stays a neutral pill.",
   ],
   ["Never", "Glass over content that switches between light and dark sections, or on resting content panels."],
-  [
-    "Section edges",
-    "In continuous pages a canvas section fades in and out of the page colour over 7rem; the inverse band keeps hard edges.",
-  ],
+  ["Section edges", "In continuous pages a canvas section fades in and out of the page colour over 7rem."],
 ] as const;
 
 const FRAMING_RULES = [
@@ -256,60 +243,6 @@ export default async function FoundationsPage({ params }: StaticLocaleProps) {
 
               <div className="rounded-card border border-border bg-card p-6">
                 <p className="text-meta">Raised. Nothing nests deeper than this.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </MarketingSection>
-
-      <MarketingSection
-        description="The page theme carries the story. One full-width inverse band may mark its most important pivot without turning the page into alternating stripes."
-        id="contrast"
-        title="One deliberate pivot"
-        tone="inverse"
-      >
-        <div className="marketing-grid mt-14 items-center gap-y-10 lg:mt-16">
-          <div className="col-span-12 lg:col-span-5">
-            <ul className="space-y-3">
-              {CONTRAST_RULES.map((rule) => (
-                <li key={rule} className="flex items-start gap-3 text-sm leading-relaxed text-muted-foreground">
-                  <span aria-hidden="true" className="mt-2 size-1.5 shrink-0 rounded-full bg-primary" />
-
-                  <span>{rule}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="col-span-12 lg:col-start-8 lg:col-end-13">
-            <div className="rounded-card border border-border bg-card p-7">
-              <Image
-                alt="Customermates"
-                className="h-auto w-[190px] dark:hidden"
-                height={23}
-                src="/images/light/customermates.svg"
-                width={229}
-              />
-
-              <Image
-                alt=""
-                aria-hidden="true"
-                className="hidden h-auto w-[190px] dark:block"
-                height={23}
-                src="/images/dark/customermates.svg"
-                width={229}
-              />
-
-              <div className="mt-10 border-t border-border pt-6">
-                <p className="font-medium">Raised starts again inside the inverse palette.</p>
-
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  The logo, copy, borders, controls and artwork all resolve against this local theme.
-                </p>
-
-                <Button className="mt-6 bg-foreground text-background hover:bg-foreground/90" size="lg">
-                  One focal action
-                </Button>
               </div>
             </div>
           </div>

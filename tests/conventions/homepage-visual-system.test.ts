@@ -52,7 +52,7 @@ function stageCaptures(mdx: string) {
 }
 
 function altTexts(mdx: string) {
-  return [...mdx.matchAll(/^\s+(?:alt|desktopAlt|phoneAlt): (.*)$/gmu)].map(([, alt]) => alt);
+  return [...mdx.matchAll(/^\s+alt: (.*)$/gmu)].map(([, alt]) => alt);
 }
 
 const page = readFileSync(join(HOMEPAGE_ROOT, "page.tsx"), "utf8");
@@ -81,13 +81,13 @@ describe("homepage visual-system adoption", () => {
     const order = [
       "<HomepageHero",
       "<HomepageFacts",
+      "<HomepageProductProof",
       "<HomepageStory",
       "<HomepageStatsRow",
       "<HomepageWalkthrough",
       "<HomepageHowItWorks",
       "<HomepagePipeline",
       "<HomepageRoutines",
-      "<HomepageProductProof",
       "<HomepageBenefits",
       "<HomepagePricing",
       "<HomepageFaq",
@@ -264,8 +264,8 @@ describe("homepage visual-system adoption", () => {
     expect(stageCaptures(germanHomepage)).toEqual(expected);
     expect(englishHomepage).not.toMatch(/^\s*disclosure:/mu);
     expect(germanHomepage).not.toMatch(/^\s*disclosure:/mu);
-    expect(altTexts(englishHomepage)).toHaveLength(11);
-    expect(altTexts(germanHomepage)).toHaveLength(11);
+    expect(altTexts(englishHomepage)).toHaveLength(9);
+    expect(altTexts(germanHomepage)).toHaveLength(9);
     for (const alt of altTexts(englishHomepage)) expect(alt).toMatch(/, using demo data$/u);
     for (const alt of altTexts(germanHomepage)) expect(alt).toMatch(/, mit Beispieldaten$/u);
     expect(englishHomepage).not.toContain("—");
@@ -282,7 +282,8 @@ describe("homepage visual-system adoption", () => {
     const viewportVideo = readComponent("homepage-viewport-video.tsx");
 
     expect(viewportVideo).toContain("IntersectionObserver");
-    expect(viewportVideo).toContain("AUTOPLAY_VISIBILITY_THRESHOLD = 0.55");
+    expect(viewportVideo).toContain("AUTOPLAY_VISIBILITY_THRESHOLD = HOMEPAGE_MOTION_VISIBILITY_AMOUNT");
+    expect(motionSource).toContain("HOMEPAGE_MOTION_VISIBILITY_AMOUNT = 0.35");
     expect(viewportVideo).toContain("prefers-reduced-motion: reduce");
     expect(viewportVideo).toContain('document.visibilityState === "visible"');
     expect(viewportVideo).toContain("userPausedRef");
@@ -320,7 +321,7 @@ describe("homepage visual-system adoption", () => {
     }
     expect(englishHomepage).toContain('buttonRightHref: "#product-demo"');
     expect(germanHomepage).toContain('buttonRightHref: "#product-demo"');
-    expect(proof).toContain('tone="inverse"');
+    expect(proof).not.toMatch(/tone=/u);
     expect(proof.match(/<HomepageViewportVideo\b/gu)).toHaveLength(1);
     expect(proof).not.toMatch(/<iframe\b/u);
     expect(viewportVideo.match(/<video\b/gu)).toHaveLength(1);
@@ -397,9 +398,9 @@ describe("homepage visual-system adoption", () => {
     expect(strip).not.toMatch(/codex/iu);
   });
 
-  it("uses the shared 80rem marketing shell and exactly one inverse story band", () => {
+  it("uses the shared 80rem marketing shell and no inverted band", () => {
     expect(componentSource).not.toMatch(/max-w-\[(?:1100|1200|1240|1400|1440)px\]/u);
-    expect(componentSource.match(/tone="inverse"/gu)).toHaveLength(1);
+    expect(componentSource).not.toMatch(/inverse/u);
     expect(componentSource).toMatch(/MarketingContainer|MarketingSection/u);
   });
 });
