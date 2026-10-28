@@ -282,7 +282,8 @@ describe("homepage visual-system adoption", () => {
     const viewportVideo = readComponent("homepage-viewport-video.tsx");
 
     expect(viewportVideo).toContain("IntersectionObserver");
-    expect(viewportVideo).toContain("AUTOPLAY_VISIBILITY_THRESHOLD = 0.55");
+    expect(viewportVideo).toContain("AUTOPLAY_VISIBILITY_THRESHOLD = HOMEPAGE_MOTION_VISIBILITY_AMOUNT");
+    expect(motionSource).toContain("HOMEPAGE_MOTION_VISIBILITY_AMOUNT = 0.35");
     expect(viewportVideo).toContain("prefers-reduced-motion: reduce");
     expect(viewportVideo).toContain('document.visibilityState === "visible"');
     expect(viewportVideo).toContain("userPausedRef");
