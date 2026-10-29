@@ -17,14 +17,14 @@ blogPost:
   backToBlog: Back to Blog
   by: by Benjamin Wagner
   date: 2026-01-03
-  updated: 2026-10-08
+  updated: 2026-10-29
   tags:
     - CRM
     - ERP
     - Integration
 ---
 
-# Connecting a CRM to an ERP without creating two sources of truth
+# CRM ERP Integration: Connect the Systems Without Duplicate Records
 
 A CRM ERP integration passes a small set of identifiers and statuses between the system where you sell and the system where you deliver and bill. The CRM owns people, relationships, deals and conversations. The ERP owns the customer account used for billing, items, orders, stock and payments. The integration fires on defined business events, such as "deal won", and writes each system's reference number back into the other.
 
@@ -40,7 +40,7 @@ Customermates, an AI-native CRM, publishes this guide. Customermates is a CRM on
   <SummaryItem label="Customermates">REST API and webhooks on every Cloud plan and when self-hosted. ERP references live in custom Text fields.</SummaryItem>
 </ArticleSummary>
 
-## Which system owns which data
+## Which system owns each field in the integration architecture?
 
 Write this table for your own systems before you compare tools. Ownership is decided per field, not per object: the organization can live in both systems while its billing address belongs to the ERP and its account notes belong to the CRM.
 
@@ -48,12 +48,12 @@ Write this table for your own systems before you compare tools. Ownership is dec
 | --- | --- | --- |
 | Contacts, relationship history, conversations | CRM | The ERP keeps a contact person only if its documents need one |
 | Deal, stage, next step | CRM | Nothing, or a reference on the order |
-| Customer account for billing (legal name, VAT ID, billing address, payment terms) | ERP | ERP customer number, read-only in the CRM |
+| Customer account for billing (legal name, VAT ID, billing address, payment terms) | ERP | ERP customer number; the integration treats it as ERP-owned |
 | Items and prices | ERP | Item number on the CRM's product or service record |
 | Orders, delivery, stock | ERP | Order number and one customer-facing status |
 | Billing documents and payments | ERP | Document number and a coarse payment status, if account managers need it |
 
-If two systems both write the same field, you have a conflict waiting to happen. Pick one owner, make the field read-only on the other side, and route corrections to the owner.
+If two systems both write the same field, you have a conflict waiting to happen. Pick one owner and route corrections there. Enforce that rule in your integration; a CRM may not offer a field-level permission that makes just this field read-only.
 
 ## Four ways to connect a CRM and an ERP
 
@@ -131,7 +131,7 @@ An integration that only handles the happy path will create duplicates within we
 
 This is the setup in Customermates for the first flow above. It uses the [REST API](/features/api) and [webhooks](/docs/webhooks), which work on every Customermates Cloud plan and in a self-hosted installation. The receiver in the middle is yours: an n8n workflow or a small service.
 
-**Fields.** In **Configure**, add custom fields of type Text: "ERP customer no." on organizations, "ERP order no." on deals, and "ERP item no." on services. A deal's line items each hold a service and a quantity, so the line items and their services' item numbers become the order lines. If account managers need delivery or payment state, add a Single choice field such as "ERP status" on deals and let only the integration write it.
+**Fields.** In **Configure**, add custom fields of type Text: "ERP customer no." on organizations, "ERP order no." on deals, and "ERP item no." on services. A deal's line items each hold a service and a quantity, so the line items and their services' item numbers become the order lines. If account managers need delivery or payment state, add a Single choice field such as "ERP status" on deals and make ERP ownership an explicit rule in your adapter. Customermates has list and role permissions, not field-level permissions that reserve this field for the integration.
 
 **Trigger.** This assumes your deals list has a Stage Single choice field with a "Won" option (stages are not preset). Under **Settings → Webhooks**, subscribe a URL to `record.updated` for the Deals list, optionally with Stage under **Changed fields**, and set a secret. Each delivery is signed with HMAC-SHA256 in the `X-Webhook-Signature` header, and for update events `data.record.fields` lists each changed field with its `before` and `after` value. Your receiver acts only when the stage changed to "Won".
 
@@ -152,6 +152,21 @@ In Customermates Cloud, Mate can work with these fields too, for example "list w
 <AcquisitionCallout title="What Customermates does not do here" variant="boundary">
   Customermates has no ERP functions: no quotes, invoices, orders, payments, stock or purchasing. It has no native ERP connector and no built-in n8n; n8n runs separately. Records import and export one list at a time, as XLSX or JSON files, with no scheduled sync. If you want CRM and ERP in one database, look at a suite that includes both instead.
 </AcquisitionCallout>
+
+## What did the small integration example actually prove?
+
+Download the [CRM and ERP field-ownership map](/templates/crm-erp-field-ownership.csv) and the [bounded example result](/templates/crm-erp-example-result.json). The example uses the fictional customer `C-001` and ERP reference `ERP-C-001`. Keep your own mapping beside the adapter:
+
+| Value | Authority | Check after writing |
+| --- | --- | --- |
+| Customer display name | CRM | Read the current CRM record before sending |
+| CRM record ID | CRM | Store the unchanged ID in the mapping |
+| ERP customer ID | ERP | Write it back only after the receiver confirms the saved customer |
+| Billing and tax policy | ERP | Do not overwrite it from a CRM note |
+
+Checked on 29 October 2026 against a disposable local Customermates workspace and a loopback mock ERP. A small, manually invoked adapter read the real CRM REST endpoint, sent one customer to the mock, and wrote the returned ERP ID into a custom Text field using the current record version. We deliberately dropped the first response after the mock had saved the customer. Retrying the same event produced **two attempts, one ERP write**. A read from each side then matched the CRM record ID, customer name and ERP ID.
+
+This proves the ID map, retry rule and CRM read/write/readback in that example. It does not prove a production ERP connector, automatic webhook delivery, invoice creation or a deployed reconciliation job. Before using your own ERP, repeat those checks against its sandbox, verify authentication and signatures, and test its actual validation and rate limits. The [integration options](/features/integrations) explain where an adapter or separately run n8n fits.
 
 ## What drives cost and effort
 

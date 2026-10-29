@@ -17,14 +17,14 @@ blogPost:
   backToBlog: Zurück zum Blog
   by: von Benjamin Wagner
   date: 2026-01-03
-  updated: 2026-10-08
+  updated: 2026-10-29
   tags:
     - CRM
     - ERP
     - Integration
 ---
 
-# CRM und ERP verbinden, ohne zwei Wahrheiten zu schaffen
+# CRM-ERP-Integration: Systeme verbinden und Dubletten vermeiden
 
 Bei einer CRM-ERP-Integration tauschen das System, in dem Sie verkaufen, und das System, in dem Sie liefern und abrechnen, eine kleine Menge an Nummern und Status aus. Das CRM führt Personen, Beziehungen, Deals und Gespräche. Das ERP führt das Kundenkonto für die Abrechnung, Artikel, Aufträge, Bestände und Zahlungen. Die Integration reagiert auf festgelegte Geschäftsereignisse wie „Deal gewonnen“ und schreibt die Nummer des einen Systems in das andere zurück.
 
@@ -48,12 +48,12 @@ Füllen Sie diese Tabelle für Ihre eigenen Systeme aus, bevor Sie Werkzeuge ver
 | --- | --- | --- |
 | Kontakte, Beziehungshistorie, Gespräche | CRM | Das ERP speichert einen Ansprechpartner nur, wenn seine Belege ihn brauchen |
 | Deal, Phase, nächster Schritt | CRM | Nichts oder eine Referenz am Auftrag |
-| Kundenkonto für die Abrechnung (Firmierung, USt-IdNr., Rechnungsanschrift, Zahlungsbedingungen) | ERP | ERP-Kundennummer, im CRM nur lesend |
+| Kundenkonto für die Abrechnung (Firmierung, USt-IdNr., Rechnungsanschrift, Zahlungsbedingungen) | ERP | ERP-Kundennummer; die Integration behandelt sie als ERP-geführt |
 | Artikel und Preise | ERP | Artikelnummer an der Leistung im CRM |
 | Aufträge, Lieferung, Bestand | ERP | Auftragsnummer und ein Status für den Kundenkontakt |
 | Belege und Zahlungen | ERP | Belegnummer und ein grober Zahlungsstatus, falls der Vertrieb ihn braucht |
 
-Schreiben beide Systeme dasselbe Feld, ist der Konflikt nur eine Frage der Zeit. Legen Sie einen Eigentümer fest, machen Sie das Feld auf der anderen Seite schreibgeschützt und leiten Sie Korrekturen an das führende System.
+Schreiben beide Systeme dasselbe Feld, ist der Konflikt nur eine Frage der Zeit. Legen Sie ein führendes System fest und leiten Sie Korrekturen dorthin. Setzen Sie diese Regel in der Integration durch; nicht jedes CRM bietet ein feldbezogenes Recht, das allein dieses Feld schreibgeschützt macht.
 
 ## Vier Wege, CRM und ERP zu verbinden
 
@@ -131,7 +131,7 @@ Eine Integration, die nur den Normalfall abdeckt, erzeugt innerhalb weniger Woch
 
 So sieht der erste Datenfluss in Customermates aus. Er nutzt die [REST-API](/features/api) und die [Webhooks](/docs/webhooks), die in jedem Cloud-Tarif von Customermates und beim Self-Hosting funktionieren. Den Empfänger in der Mitte betreiben Sie selbst, als n8n-Workflow oder kleinen Dienst.
 
-**Felder.** Legen Sie in **Konfigurieren** eigene Felder vom Typ Text an: „ERP-Kundennummer“ an Organisationen, „ERP-Auftragsnummer“ an Deals und „ERP-Artikelnummer“ an Leistungen. Jede Position eines Deals enthält eine Leistung und eine Menge, Positionen und Artikelnummern ergeben also die Auftragspositionen. Braucht der Vertrieb den Liefer- oder Zahlungsstand, ergänzen Sie ein Feld vom Typ Einzelauswahl wie „ERP-Status“ an Deals, das nur die Integration beschreibt.
+**Felder.** Legen Sie in **Konfigurieren** eigene Felder vom Typ Text an: „ERP-Kundennummer“ an Organisationen, „ERP-Auftragsnummer“ an Deals und „ERP-Artikelnummer“ an Leistungen. Jede Position eines Deals enthält eine Leistung und eine Menge, Positionen und Artikelnummern ergeben also die Auftragspositionen. Braucht der Vertrieb den Liefer- oder Zahlungsstand, ergänzen Sie ein Feld vom Typ Einzelauswahl wie „ERP-Status“ an Deals, und legen Sie im Adapter fest, dass das ERP diesen Wert führt. Customermates bietet Listen- und Rollenrechte, aber keine Feldrechte, die dieses Feld allein der Integration vorbehalten.
 
 **Auslöser.** Vorausgesetzt ist ein Einzelauswahl-Feld Phase an Ihrer Liste Deals mit der Option „Gewonnen“ (Phasen sind nicht voreingestellt). Unter **Einstellungen → Webhooks** abonnieren Sie eine URL für `record.updated` für die Liste Deals, bei Bedarf mit Phase unter **Geänderte Felder**, und setzen ein Secret. Jede Zustellung ist mit HMAC-SHA256 im Header `X-Webhook-Signature` signiert, und bei Update-Ereignissen listet `data.record.fields` jedes geänderte Feld mit seinem Wert in `before` und `after`. Ihr Empfänger handelt nur, wenn die Phase auf „Gewonnen“ gewechselt ist.
 
@@ -152,6 +152,21 @@ In Customermates Cloud kann auch Mate mit diesen Feldern arbeiten, etwa mit „Z
 <AcquisitionCallout title="Was Customermates hier nicht übernimmt" variant="boundary">
   Customermates hat keine ERP-Funktionen: keine Angebote, keine Rechnungen, keine Aufträge, Zahlungen, Bestände oder Einkauf. Es gibt keinen fertigen ERP-Connector und kein eingebautes n8n; n8n läuft separat. Import und Export von Datensätzen laufen je Liste über XLSX- oder JSON-Dateien, ohne geplante Synchronisation. Wenn Sie CRM und ERP in einer Datenbank wollen, ist eine Suite mit beidem die bessere Wahl.
 </AcquisitionCallout>
+
+## Was hat das kleine Integrationsbeispiel tatsächlich nachgewiesen?
+
+Laden Sie die [CSV-Vorlage zur Datenhoheit zwischen CRM und ERP](/templates/crm-erp-field-ownership.csv) und das [Ergebnis des abgegrenzten Beispiels](/templates/crm-erp-example-result.json) herunter. Das Beispiel verwendet den fiktiven Kunden `C-001` und die ERP-Referenz `ERP-C-001`. Die eigene Zuordnung gehört neben den Adapter:
+
+| Wert | Führendes System | Prüfung nach dem Schreiben |
+| --- | --- | --- |
+| Anzeigename des Kunden | CRM | Aktuellen CRM-Datensatz vor dem Übertragen lesen |
+| CRM-Datensatz-ID | CRM | ID unverändert in der Zuordnung speichern |
+| ERP-Kundennummer | ERP | Erst nach Bestätigung des gespeicherten Kunden zurückschreiben |
+| Abrechnungs- und Steuerregeln | ERP | Nicht durch eine CRM-Notiz überschreiben |
+
+Geprüft am 29. Oktober 2026 in einem entbehrlichen lokalen Customermates-Workspace mit einem ERP-Testempfänger auf Loopback. Ein manuell gestarteter kleiner Adapter las den echten CRM-REST-Endpunkt, übergab einen Kunden an den Testempfänger und schrieb dessen ERP-ID mit der aktuellen Datensatzversion in ein eigenes Textfeld. Wir brachen die erste Antwort absichtlich ab, nachdem der Testempfänger den Kunden gespeichert hatte. Die Wiederholung desselben Ereignisses ergab **zwei Versuche und genau einen ERP-Schreibvorgang**. Danach stimmten CRM-Datensatz-ID, Kundenname und ERP-ID beim Rücklesen beider Seiten überein.
+
+Das belegt die ID-Zuordnung, die Wiederholungsregel und Lesen, Schreiben und Rücklesen im CRM für dieses Beispiel. Es belegt weder einen produktiven ERP-Konnektor noch die automatische Webhook-Zustellung, Rechnungserstellung oder einen eingerichteten Abgleichsjob. Wiederholen Sie die Prüfungen vor dem Einsatz mit der Sandbox Ihres ERP, einschließlich Anmeldung, Signaturen, Validierung und tatsächlicher Ratenlimits. Die [Integrationswege](/features/integrations) zeigen, wo ein Adapter oder separat betriebenes n8n hinzukommt.
 
 ## Was Kosten und Aufwand bestimmt
 

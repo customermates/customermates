@@ -1,0 +1,5 @@
+field,authority,identifier,check
+customer_name,CRM,C-001,read current CRM record
+crm_record_id,CRM,discovered recordId,store unchanged in adapter mapping
+erp_customer_id,ERP,ERP-C-001,write back after receiver readback
+billing_tax_policy,ERP,fictional ERP-owned value,never overwrite from CRM
