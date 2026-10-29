@@ -16,6 +16,12 @@
   <a href="#product-film">Film</a>
 </p>
 
+<p align="center">
+  <a href="https://www.opensourcealternatives.to">
+    <img src="https://www.opensourcealternatives.to/badge-osa.svg" alt="As seen on Open Source Alternatives" width="270" height="20" />
+  </a>
+</p>
+
 
 <p align="center">
   <a href="#product-film"><img src=".github/media/customermates-film-hook.webp" alt="Customermates: your next hires won't be people. They'll be agents." width="1200"></a>
