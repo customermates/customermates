@@ -37,7 +37,7 @@ export async function sendErrorNotification(
 
   if (process.env.RESEND_BASE_URL) {
     const target = new URL(process.env.RESEND_BASE_URL);
-    if (process.env.VERCEL || !["127.0.0.1", "localhost", "[::1]"].includes(target.hostname)) throw permanentFailure();
+    if (process.env.VERCEL || !isLoopbackTarget(target)) throw permanentFailure();
   }
   const stack = report.frames
     .map((frame) => `${frame.function ?? "<anonymous>"} (${frame.file}:${frame.line ?? "?"}:${frame.column ?? "?"})`)
@@ -110,10 +110,58 @@ export async function verifyPreviewErrorDelivery(emailId: string): Promise<void>
 }
 verifyPreviewErrorDelivery.maxRetries = 5;
 
+export type ErrorNotificationChannels = { email: boolean; webhook: boolean };
+
+function isLoopbackTarget(target: URL): boolean {
+  return ["127.0.0.1", "localhost", "[::1]"].includes(target.hostname);
+}
+
+export async function deliverErrorWebhook(report: ErrorReport): Promise<void> {
+  "use step";
+  const url = process.env.ERROR_REPORTING_WEBHOOK_URL;
+  const secret = process.env.ERROR_REPORTING_WEBHOOK_SECRET;
+  if (!url || !secret || !report.fingerprint) throw permanentFailure();
+  const target = new URL(url);
+  if (target.protocol !== "https:" && !(isLoopbackTarget(target) && !process.env.VERCEL)) throw permanentFailure();
+  const body = JSON.stringify({
+    kind: "application-error",
+    fingerprint: report.fingerprint,
+    day: new Date(report.timestamp * 1000).toISOString().slice(0, 10),
+    environment: process.env.VERCEL_ENV ?? "local",
+    report,
+  });
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(body));
+  const response = await fetch(target, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-customermates-signature": `sha256=${Array.from(new Uint8Array(signature), (byte) => byte.toString(16).padStart(2, "0")).join("")}`,
+    },
+    body,
+    redirect: "error",
+    signal: AbortSignal.timeout(10_000),
+  }).catch(() => null);
+  if (!response) throw retryableDeliveryFailure();
+  if (response.status >= 400 && response.status < 500 && response.status !== 408 && response.status !== 429)
+    throw permanentFailure();
+  if (!response.ok) throw retryableDeliveryFailure();
+}
+deliverErrorWebhook.maxRetries = 5;
+
 export async function notifyApplicationError(
   report: ErrorReport,
-): Promise<{ emailId: string; delivery?: "delivered" } | { duplicate: true }> {
+  channels: ErrorNotificationChannels = { email: true, webhook: false },
+): Promise<{ emailId: string; delivery?: "delivered" } | { duplicate: true } | null> {
   "use workflow";
+  if (channels.webhook) await deliverErrorWebhook(report);
+  if (!channels.email) return null;
   const result = await sendErrorNotification(report);
   if ("duplicate" in result) return result;
   if (result.verifyDelivery) {

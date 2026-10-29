@@ -165,6 +165,8 @@ export default async function configure(phase: string, context: { defaultConfig:
     if (!/^[a-zA-Z0-9_-]{1,128}$/.test(buildId)) throw new Error("Invalid error reporting build ID");
     if (process.env.ERROR_REPORTING_NOTIFICATION_EMAIL && (!env.RESEND_API_KEY || !env.RESEND_OPERATOR_EMAIL))
       throw new Error("Vercel error reporting requires notification email configuration");
+    if (Boolean(process.env.ERROR_REPORTING_WEBHOOK_URL) !== Boolean(process.env.ERROR_REPORTING_WEBHOOK_SECRET))
+      throw new Error("Error reporting webhooks require both ERROR_REPORTING_WEBHOOK_URL and its signing secret");
     const release = process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.ERROR_REPORTING_RELEASE ?? "";
     if (release && !/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(release))
       throw new Error("Invalid error reporting release commit");

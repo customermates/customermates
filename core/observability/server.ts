@@ -1,9 +1,8 @@
 import { after } from "next/server";
 
-import { isExpectedError } from "@/core/errors/app-errors";
-import { isDeploymentSkewError } from "@/core/errors/deployment-skew";
 import { errorDigest } from "@/core/errors/error-digest";
 import { errorReportingEnabled } from "@/core/errors/reporting-provider";
+import { isReportableError } from "@/core/errors/reportable-error";
 import { logRuntimeEvent } from "@/core/utils/audit-log";
 
 import { currentErrorContext } from "./error-context";
@@ -20,7 +19,7 @@ const queue = createErrorQueue(async (report) => {
 });
 
 export function captureException(error: unknown, context: CaptureContext = {}): void {
-  if (!errorReportingEnabled() || isExpectedError(error) || isDeploymentSkewError(error)) return;
+  if (!errorReportingEnabled() || !isReportableError(error)) return;
   if (error && typeof error === "object") {
     if (reported.has(error)) return;
     reported.add(error);

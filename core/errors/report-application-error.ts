@@ -1,7 +1,5 @@
 import type { ExternalToast } from "sonner";
 
-import { isClientTransportError } from "./client-transport-error";
-import { isDeploymentSkewError } from "./deployment-skew";
 import { captureError } from "./client-reporter";
 import { hasWorkspaceChanged, notifyIfWorkspaceChanged } from "./workspace-changed-notice";
 
@@ -27,7 +25,7 @@ export function registerApplicationErrorHandler(handler: ApplicationErrorHandler
 export function reportApplicationError(error: unknown, options?: ExternalToast): void {
   if (notifyIfWorkspaceChanged(error) || hasWorkspaceChanged()) return;
 
-  if (!isDemoEnvironment() && !isClientTransportError(error) && !isDeploymentSkewError(error)) captureError(error);
+  if (!isDemoEnvironment()) captureError(error);
 
   activeHandler?.(error, ...(options ? [options] : []));
 }
