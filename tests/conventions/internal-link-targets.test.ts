@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { extname, join, relative, sep } from "node:path";
 
 import { describe, expect, it, vi } from "vitest";
@@ -88,7 +88,8 @@ vi.mock("@/core/fumadocs/source", async () => {
 const CONTENT_ROOT = join(REPO_ROOT, "content");
 const CODE_BACKED_ROUTE_FILES = {
   "/styleguide": "app/[locale]/(static)/styleguide/page.tsx",
-  "/styleguide/foundations": "app/[locale]/(static)/styleguide/foundations/page.tsx",
+  "/styleguide/foundations":
+    "app/[locale]/(static)/styleguide/foundations/page.tsx",
   "/styleguide/patterns": "app/[locale]/(static)/styleguide/patterns/page.tsx",
   "/styleguide/visuals": "app/[locale]/(static)/styleguide/visuals/page.tsx",
   "/auth/pending": "app/[locale]/(public)/auth/pending/page.tsx",
@@ -98,7 +99,8 @@ const CODE_BACKED_ROUTE_FILES = {
   "/invitation/:token": "app/[locale]/(public)/invitation/[token]/route.ts",
   "/blog/page/:page": "app/[locale]/(static)/blog/page/[page]/page.tsx",
   "/compare/page/:page": "app/[locale]/(static)/compare/page/[page]/page.tsx",
-  "/features/all/page/:page": "app/[locale]/(static)/features/all/page/[page]/page.tsx",
+  "/features/all/page/:page":
+    "app/[locale]/(static)/features/all/page/[page]/page.tsx",
   "/for/page/:page": "app/[locale]/(static)/for/page/[page]/page.tsx",
 } as const;
 const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/u;
@@ -321,6 +323,13 @@ function targetResolves(
   sourceLocale: MarketingLocale,
   targetsByLocale: Map<MarketingLocale, Set<string>>,
 ) {
+  const publicPath = join(
+    REPO_ROOT,
+    "public",
+    new URL(target, "https://internal.invalid").pathname,
+  );
+  if (existsSync(publicPath) && statSync(publicPath).isFile()) return true;
+
   const normalized = normalizeTarget(target);
   if (!normalized) return true;
   if (normalized.locale && !isMarketingLocale(normalized.locale)) return false;
@@ -350,7 +359,10 @@ function contentLinks(): ContentLink[] {
   return found;
 }
 
-function collectionSlugs(collection: string, locale: MarketingLocale): string[] {
+function collectionSlugs(
+  collection: string,
+  locale: MarketingLocale,
+): string[] {
   const directory = join(CONTENT_ROOT, collection, locale);
   if (!existsSync(directory)) return [];
 
@@ -374,6 +386,27 @@ describe("internal link targets", () => {
         `${file} does not back its declared public route`,
       ).toBe(true);
     }
+  });
+
+  it("resolves public download files without accepting missing files, directories or localized copies", () => {
+    const targets = new Map<MarketingLocale, Set<string>>();
+    expect(
+      targetResolves("/templates/crm-template-en.xlsx", "en", targets),
+    ).toBe(true);
+    expect(
+      targetResolves(
+        "/templates/crm-template-de.xlsx?download=1",
+        "de",
+        targets,
+      ),
+    ).toBe(true);
+    expect(targetResolves("/templates/missing.xlsx", "en", targets)).toBe(
+      false,
+    );
+    expect(targetResolves("/templates", "en", targets)).toBe(false);
+    expect(
+      targetResolves("/en/templates/crm-template-en.xlsx", "en", targets),
+    ).toBe(false);
   });
 
   it("resolves every literal internal link in MDX, including frontmatter CTAs", () => {
