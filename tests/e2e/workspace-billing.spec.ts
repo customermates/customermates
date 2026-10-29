@@ -84,6 +84,9 @@ async function expectBilling(page: Page, slug: string, plan: string, status: str
   const expectedUrl = appUrlPattern(slug, "/settings/billing$");
   if (!expectedUrl.test(page.url())) await page.goto(appPath(slug, "/settings/billing"));
   await expect(page).toHaveURL(expectedUrl);
+  const sidebar = page.locator('[data-sidebar="sidebar"][data-mobile="true"]');
+  if (await sidebar.isVisible()) await page.keyboard.press("Escape");
+  await expect(sidebar).toHaveCount(0);
   const planField = page.getByRole("textbox", { name: englishMessages.Subscription.plan, exact: true });
   await expect(planField).toContainText(plan);
   await expect(planField).toContainText(status);
