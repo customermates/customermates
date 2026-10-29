@@ -8,6 +8,7 @@ import {
   getGetOperatorUsersInteractor,
   getGetOperatorWorkspacesInteractor,
   getGetOperatorWorkspaceTagsInteractor,
+  getUploadAdConversionsInteractor,
 } from "@/core/di";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 
@@ -25,6 +26,10 @@ export async function getOperatorAuditAction(params?: GetQueryParams) {
 
 export async function getAdConversionExportAction() {
   return unwrapValidated(getGetAdConversionExportInteractor().invoke());
+}
+
+export async function uploadAdConversionsAction() {
+  return unwrapValidated(getUploadAdConversionsInteractor().invoke());
 }
 
 export async function getOperatorWorkspaceTagsAction() {

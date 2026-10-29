@@ -26,6 +26,7 @@ const RAW_WRITE = /\b(INSERT\s+INTO|UPDATE|DELETE\s+FROM)\s+"(\w+)"/gi;
 const OWNERS: Record<string, string> = {
   AccountActivity: "ee/messaging/persistence/prisma-connected-account.repository.ts",
   AdAttribution: "features/user/prisma-user.repository.ts",
+  AdConversionUpload: "ee/operator/prisma-ad-conversion-upload.repository.ts",
   AgentApproval: "ee/agent-chat/prisma-agent-chat.repository.ts",
   AgentConversation: "ee/agent-chat/prisma-agent-chat.repository.ts",
   AgentCreditAdjustment: "ee/operator/prisma-operator.repository.ts",

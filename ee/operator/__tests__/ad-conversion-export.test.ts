@@ -3,10 +3,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AD_ATTRIBUTION_NOTICE_VERSION } from "@/constants/legal-documents";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 import { googleAdsConversionCsv, isGoogleAdsCsvRow, isGoogleAdsRowWithoutCsvColumn } from "../ad-conversion-csv";
-import {
-  GetAdConversionExportInteractor,
-  type AdConversionExportRow,
-} from "../get/get-ad-conversion-export.interactor";
+import type { AdConversionExportRow } from "../get/get-ad-conversion-export.repo";
+
+import { GetAdConversionExportInteractor } from "../get/get-ad-conversion-export.interactor";
 
 vi.mock("@/env", () => ({ env: { BETTER_AUTH_SECRET: "test-secret" } }));
 vi.mock("@/core/decorators/operator-interactor.decorator", () => ({ OperatorInteractor: () => undefined }));
@@ -21,6 +20,7 @@ function row(overrides: Partial<AdConversionExportRow> = {}): AdConversionExport
     identifierKind: "gclid",
     identifierValue: "Case-Sensitive_GCLID",
     clickedAt: new Date("2026-09-01T10:00:00.000Z"),
+    consentedAt: new Date("2026-09-01T10:05:00.000Z"),
     consentNoticeVersion: AD_ATTRIBUTION_NOTICE_VERSION,
     conversionType: "signup",
     conversionAt: new Date("2026-09-01T11:00:00.000Z"),

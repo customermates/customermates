@@ -1,5 +1,7 @@
 "use client";
 
+import type { AdConversionUploadDto } from "@/ee/operator/ad-conversion-upload.schema";
+
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Download, Megaphone } from "lucide-react";
@@ -10,15 +12,53 @@ import { AppCardHeader } from "@/components/card/app-card-header";
 import { Button } from "@/components/ui/button";
 import { IconContainer } from "@/components/shared/icon-container";
 import { runUserAction } from "@/core/errors/report-application-error";
-import { getAdConversionExportAction } from "../../actions";
+import { getAdConversionExportAction, uploadAdConversionsAction } from "../../actions";
 import { operatorCsvHref } from "../operator-csv-href";
 
 type ExportState = { googleAdsCsv: string; rowCount: number; withoutColumnCount: number };
+
+function uploadedRows(upload: AdConversionUploadDto, outcome: "accepted" | "rejected" | "ambiguous") {
+  return upload.batches.filter((batch) => batch.result === outcome).reduce((sum, batch) => sum + batch.rowCount, 0);
+}
 
 export function AdConversionExportCard() {
   const t = useTranslations();
   const [isLoading, setIsLoading] = useState(false);
   const [exported, setExported] = useState<ExportState | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [upload, setUpload] = useState<AdConversionUploadDto | null>(null);
+
+  const send = async () => {
+    setIsUploading(true);
+    try {
+      setUpload(await uploadAdConversionsAction());
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const uploadMessages = (result: AdConversionUploadDto) => {
+    if (result.status === "disabled") return [t("OperatorOverview.adConversions.uploadDisabled")];
+    if (result.status === "incomplete")
+      return [t("OperatorOverview.adConversions.uploadIncomplete", { names: result.missing.join(", ") })];
+    if (result.status === "nothingToSend")
+      return [t("OperatorOverview.adConversions.uploadNothing", { count: result.alreadyReportedCount })];
+    if (result.status === "authorizationFailed") return [t("OperatorOverview.adConversions.uploadAuthorizationFailed")];
+
+    const accepted = uploadedRows(result, "accepted");
+    const rejected = uploadedRows(result, "rejected");
+    const ambiguous = uploadedRows(result, "ambiguous");
+    return [
+      accepted > 0 && result.mode === "validate"
+        ? t("OperatorOverview.adConversions.uploadValidated", { count: accepted })
+        : null,
+      accepted > 0 && result.mode === "ingest"
+        ? t("OperatorOverview.adConversions.uploadAccepted", { count: accepted })
+        : null,
+      rejected > 0 ? t("OperatorOverview.adConversions.uploadRejected", { count: rejected }) : null,
+      ambiguous > 0 ? t("OperatorOverview.adConversions.uploadAmbiguous", { count: ambiguous }) : null,
+    ].filter((message): message is string => message !== null);
+  };
 
   const generate = async () => {
     setIsLoading(true);
@@ -71,6 +111,20 @@ export function AdConversionExportCard() {
               ) : null}
             </>
           ) : null}
+        </div>
+
+        <div aria-busy={isUploading} aria-live="polite" className="flex flex-col items-start gap-2">
+          <Button disabled={isUploading} variant="secondary" onClick={() => runUserAction(send)}>
+            {t("OperatorOverview.adConversions.upload")}
+          </Button>
+
+          {upload
+            ? uploadMessages(upload).map((message) => (
+                <span key={message} className="text-xs text-muted-foreground">
+                  {message}
+                </span>
+              ))
+            : null}
         </div>
       </AppCardBody>
     </AppCard>
