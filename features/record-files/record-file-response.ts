@@ -4,6 +4,8 @@ export const INLINE_RECORD_FILE_TYPES = new Set([
   "image/jpeg",
   "image/gif",
   "image/webp",
+  "video/mp4",
+  "video/webm",
 ]);
 
 export type RecordFileByteRange = { start: number; end: number };

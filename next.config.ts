@@ -90,7 +90,8 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: "25mb",
     },
-    proxyClientMaxBodySize: Math.max(10 * 1024 * 1024, env.FILE_MAX_UPLOAD_BYTES + 1024 * 1024),
+    // Credential-scoped file content requests bypass body cloning; ordinary request buffering stays bounded.
+    proxyClientMaxBodySize: 26 * 1024 * 1024,
     optimizePackageImports: [
       "lucide-react",
       "recharts",
@@ -110,6 +111,12 @@ const nextConfig: NextConfig = {
   // entries send the URLs of the pre-record-model app to their current pages.
   redirects() {
     return Promise.resolve([...permanentAliasRedirects(), ...retiredAppRouteRedirects()]);
+  },
+
+  rewrites() {
+    return Promise.resolve([
+      { source: "/api/w/:workspace/v1/files/:id/content", destination: "/api/v1/files/:id/content" },
+    ]);
   },
 
   headers() {

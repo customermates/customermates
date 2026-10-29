@@ -47,6 +47,7 @@ export enum CustomErrorCode {
   recordFileNotFound = "recordFileNotFound",
   recordFileTooLarge = "recordFileTooLarge",
   recordFileUploadIncomplete = "recordFileUploadIncomplete",
+  recordFileUploadTargetRequired = "recordFileUploadTargetRequired",
   storageQuotaExceeded = "storageQuotaExceeded",
   trashItemNotFound = "trashItemNotFound",
   trashChanged = "trashChanged",

@@ -155,6 +155,18 @@ describe("file routes", () => {
     expect(expired.status).toBe(401);
   });
 
+  it("never falls back to a session when the first of duplicate file tokens is empty", async () => {
+    interactors.readByGrant.mockResolvedValueOnce(failure(CustomErrorCode.recordFileLinkInvalid));
+    interactors.uploadByGrant.mockResolvedValueOnce(failure(CustomErrorCode.recordFileLinkInvalid));
+    const url = `http://localhost:4105/api/v1/files/${FILE_ID}/content?token=&token=invalid`;
+    await download(new NextRequest(url), params);
+    await upload(new NextRequest(url, { method: "PUT", body: "x" }), params);
+    expect(interactors.readByGrant).toHaveBeenCalledWith(expect.objectContaining({ fileId: FILE_ID, token: "" }));
+    expect(interactors.uploadByGrant).toHaveBeenCalledWith(expect.objectContaining({ fileId: FILE_ID, token: "" }));
+    expect(interactors.readContent).not.toHaveBeenCalled();
+    expect(interactors.uploadContent).not.toHaveBeenCalled();
+  });
+
   it("hands the raw request body to the upload and answers with the stored size", async () => {
     interactors.uploadByGrant.mockImplementationOnce(async ({ body }: { body: ReadableStream<Uint8Array> }) => ({
       ok: true,

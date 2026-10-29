@@ -1207,6 +1207,7 @@
       "recordFileTooLarge": "Un fichier peut faire au maximum {limit}.",
       "recordFileUnavailable": "Un fichier de cette valeur n'est pas disponible ou appartient à un autre enregistrement. Téléversez-le à nouveau.",
       "recordFileUploadIncomplete": "Le téléversement ne contenait pas exactement les {size} octets annoncés. Téléversez à nouveau le fichier.",
+      "recordFileUploadTargetRequired": "Envoyez ce fichier à l’URL de téléversement reçue au début du téléversement.",
       "recordIdempotencyConflict": "Cette clé de requête a été utilisée pour une autre modification. Crée une nouvelle requête.",
       "recordIdUnavailable": "Cet identifiant appartenait déjà à un enregistrement précédent. Importe l’enregistrement avec un nouvel identifiant.",
       "recordMarkedTextChanged": "Le texte formaté marqué ne peut être importé que sans modification depuis l'enregistrement stocké ; envoyez le texte formaté nouveau ou modifié comme valeur richText avec documentJson.",

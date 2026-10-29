@@ -213,11 +213,13 @@ Die App schreibt ihre Logs in die Container-Ausgabe. Hintergrund-Jobs wie Webhoo
 
 ## Wo werden Dateien beim Self-Hosting gespeichert? [#file-storage]
 
-Dateifelder speichern ihre Dateien standardmäßig in der PostgreSQL-Datenbank, sodass das Backup mit `pg_dump` sie enthält. Eine Datei darf höchstens `FILE_MAX_UPLOAD_BYTES` Bytes groß sein, ohne Angabe 26214400 (25 MB); darüber hinaus hat ein selbst gehosteter Workspace kein Speicherlimit außer Ihrem Speicherplatz. Für viele oder große Dateien legen Sie sie in einem S3-kompatiblen Bucket ab, etwa bei AWS S3, MinIO, Cloudflare R2 oder im Object Storage von Hetzner oder OVH:
+Dateifelder speichern ihre Dateien standardmäßig in der PostgreSQL-Datenbank, sodass das Backup mit `pg_dump` sie enthält. Eine Datei darf höchstens `FILE_MAX_UPLOAD_BYTES` Bytes groß sein, ohne Angabe 1073741824 (1 GB); darüber hinaus hat ein selbst gehosteter Workspace kein Speicherlimit außer Ihrem Speicherplatz. Für viele oder große Dateien legen Sie sie in einem S3-kompatiblen Bucket ab, etwa bei AWS S3, MinIO, Cloudflare R2 oder im Object Storage von Hetzner oder OVH:
 
 - `FILE_STORAGE_DRIVER=s3` sowie `S3_BUCKET`, `S3_ACCESS_KEY_ID` und `S3_SECRET_ACCESS_KEY` eines privaten Buckets.
 - `S3_ENDPOINT` für jeden Anbieter außer AWS, zum Beispiel `https://fsn1.your-objectstorage.com`, und `S3_REGION`, wenn der Anbieter eine verlangt (ohne Angabe `us-east-1`).
 - `S3_FORCE_PATH_STYLE=true` für MinIO und andere Server, die den Bucket im Pfad statt im Hostnamen adressieren.
+
+API-Clients müssen S3-Dateien über 25 MiB an die Upload-URL senden, die `/v1/files/uploads` zurückgibt. Die Content-Route der App nimmt kleinere S3-Dateien an und überträgt Datenbank-Uploads bis zum konfigurierten Dateilimit als Stream.
 
 Browser senden neue Dateien direkt an den Bucket, deshalb müssen seine CORS-Regeln `PUT` mit den Headern `Content-Type` und `If-None-Match` von Ihrer `BASE_URL` erlauben. Ein Upload-Link schreibt eine Datei nur einmal: Der Bucket lehnt einen zweiten Upload darüber ab, sodass sich eine Datei nach dem Speichern nicht ersetzen lässt. AWS S3, MinIO und Cloudflare R2 unterstützen das; ein Speicher, der `If-None-Match` ignoriert, nimmt einen zweiten Upload an, bis der Link nach 15 Minuten abläuft. Downloads laufen immer über die App, die zuerst den Zugriff prüft. Eine Datei bleibt dort, wo sie hochgeladen wurde: Nach einem Wechsel zu `s3` bleiben frühere Dateien in der Datenbank und lassen sich weiter öffnen, und die S3-Variablen müssen gesetzt bleiben, solange der Bucket Dateien enthält. Sichern Sie den Bucket zusammen mit der Datenbank. Der tägliche Aufruf von `/api/cron/lifecycle` löscht Dateien, die vor 30 Tagen aus Datensätzen entfernt wurden, und Uploads, die nie gespeichert wurden, siehe [Welche geplanten Aufgaben muss ich ausführen?](#scheduled-jobs).
 

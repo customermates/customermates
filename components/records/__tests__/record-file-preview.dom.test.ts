@@ -6,6 +6,7 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const downloaded = vi.hoisted(() => [] as unknown[]);
+const paused = vi.hoisted(() => vi.fn<() => void>());
 
 vi.mock("mobx-react-lite", () => ({ observer: <T>(component: T) => component }));
 vi.mock("next-intl", () => ({
@@ -147,15 +148,76 @@ beforeEach(() => {
   renamer.names.clear();
   renamer.calls.length = 0;
   Object.defineProperty(navigator, "pdfViewerEnabled", { configurable: true, value: true });
+  paused.mockClear();
+  vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(paused);
 });
 
 afterEach(() => {
   for (const root of roots) act(() => root.unmount());
   roots.clear();
   document.body.innerHTML = "";
+  vi.restoreAllMocks();
 });
 
 describe("record file preview", () => {
+  it("previews MP4 with native controls, keeps media keys in the player and pauses when closed", () => {
+    const view = render();
+    const file: PreviewFile = {
+      id: "video",
+      name: "Demo.mp4",
+      mimeType: "video/mp4",
+      size: 50000000,
+    };
+    view.open({ files: [...FILES, file], index: FILES.length });
+    const video = view.host.querySelector<HTMLVideoElement>("video[data-record-file-video]");
+    expect(video?.getAttribute("src")).toBe("/api/v1/files/video/content");
+    expect(video?.controls).toBe(true);
+    expect(video?.playsInline).toBe(true);
+    expect(video?.preload).toBe("metadata");
+    expect(video?.autoplay).toBe(false);
+    expect(view.host.querySelector('a[data-action="open-file"]')?.getAttribute("href")).toBe(
+      "/api/v1/files/video/content",
+    );
+    view.key("ArrowRight", video);
+    expect(view.shown()).toBe("video");
+    act(() => view.host.querySelector<HTMLButtonElement>("[data-close]")?.click());
+    expect(paused).toHaveBeenCalled();
+  });
+
+  it("offers the original download when the browser cannot decode a video", () => {
+    const view = render();
+    const file: PreviewFile = {
+      id: "video",
+      name: "Demo.mp4",
+      mimeType: "video/mp4",
+    };
+    view.open({ files: [file], index: 0 });
+    const video = view.host.querySelector("video");
+    act(() => {
+      video?.dispatchEvent(new Event("error", { bubbles: false }));
+    });
+    expect(view.host.querySelector("video")).toBeNull();
+    expect(view.host.textContent).toContain("RecordModel.filePreviewReason.unreadable");
+    act(() => view.host.querySelector<HTMLButtonElement>('[data-action="download-file"]')?.click());
+    expect(downloaded).toEqual([file]);
+  });
+
+  it("replaces the player when stepping to another file and leaves unknown video formats downloadable", () => {
+    const view = render();
+    const files: PreviewFile[] = [
+      { id: "mp4", name: "Demo.mp4", mimeType: "video/mp4" },
+      { id: "webm", name: "Demo.webm", mimeType: "video/webm" },
+      { id: "mov", name: "Original.mov", mimeType: "video/quicktime" },
+    ];
+    view.open({ files, index: 0 });
+    act(() => view.button("RecordModel.fileNext")?.click());
+    expect(view.host.querySelector("video")?.getAttribute("src")).toBe("/api/v1/files/webm/content");
+    expect(paused).toHaveBeenCalled();
+    act(() => view.button("RecordModel.fileNext")?.click());
+    expect(view.host.querySelector("video")).toBeNull();
+    expect(view.host.textContent).toContain("RecordModel.filePreviewReason.unsupported");
+  });
+
   it("steps through the field's files with the buttons and the arrow keys, wrapping at both ends", () => {
     const view = render();
     view.open({ files: FILES, index: 1, group: "Documents", uploaderName: () => "Max Bergmann" });

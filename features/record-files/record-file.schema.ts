@@ -3,7 +3,6 @@ import { z } from "zod";
 import { RecordFileExtractionStatus } from "@/generated/prisma";
 
 export const RECORD_FILE_UPLOAD_SECONDS = 15 * 60;
-export const RECORD_FILE_CLOUD_MAX_BYTES = 25 * 1024 * 1024;
 
 export const CreateRecordFileUploadSchema = z
   .object({

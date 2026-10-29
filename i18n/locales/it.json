@@ -1207,6 +1207,7 @@
       "recordFileTooLarge": "Un file può essere al massimo di {limit}.",
       "recordFileUnavailable": "Un file di questo valore non è disponibile o appartiene a un altro record. Caricalo di nuovo.",
       "recordFileUploadIncomplete": "Il caricamento non conteneva esattamente i {size} byte annunciati. Carica di nuovo il file.",
+      "recordFileUploadTargetRequired": "Invia questo file all’URL di caricamento ricevuto all’avvio del caricamento.",
       "recordIdempotencyConflict": "Questa chiave di richiesta è stata usata per un’altra modifica. Crea una nuova richiesta.",
       "recordIdUnavailable": "Questo ID apparteneva già a un record precedente. Importa il record con un nuovo ID.",
       "recordMarkedTextChanged": "Il testo formattato contrassegnato può essere importato solo invariato dal record salvato; invia il testo formattato nuovo o modificato come valore richText con documentJson.",

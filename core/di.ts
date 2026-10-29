@@ -174,7 +174,6 @@ import { RecordFileQuotaService } from "@/features/record-files/record-file-quot
 import { RecordFileUploadService } from "@/features/record-files/record-file-upload.service";
 import { RecordFileAccessService } from "@/features/record-files/record-file-access.service";
 import { RecordFileGrantTenant } from "@/features/record-files/record-file-grant-tenant";
-import { recordFileMaxUploadBytes } from "@/features/record-files/record-file-limits";
 import { frameAncestorsPolicy } from "@/core/config/environment";
 import { CreateRecordFileUploadInteractor } from "@/features/record-files/create-record-file-upload.interactor";
 import { UploadRecordFileContentInteractor } from "@/features/record-files/upload-record-file-content.interactor";
@@ -621,7 +620,7 @@ const getRecordFileRepo = (companyId?: string) => new PrismaRecordFileRepo(compa
 const getRecordFileAttachmentService = () =>
   new RecordFileAttachmentService(
     getRecordFileRepo(),
-    { drivers: getFileStorageDriver, maxBytes: recordFileMaxUploadBytes(env.APP_MODE, env.FILE_MAX_UPLOAD_BYTES) },
+    { drivers: getFileStorageDriver, maxBytes: env.FILE_MAX_UPLOAD_BYTES },
     getBackgroundTaskService(),
   );
 const getFileContentRepo = (companyId?: string) => new PrismaFileContentRepo(companyId);
@@ -651,7 +650,7 @@ const getRecordFileUploadService = () =>
     getRecordFileRepo(),
     getRecordFileQuotaService(),
     {
-      maxBytes: recordFileMaxUploadBytes(env.APP_MODE, env.FILE_MAX_UPLOAD_BYTES),
+      maxBytes: env.FILE_MAX_UPLOAD_BYTES,
       driver: env.FILE_STORAGE_DRIVER,
     },
   );
@@ -713,7 +712,7 @@ export const getCompleteAgentChatFileUploadInteractor = () =>
     getRecordFileRepo(),
     getFileStorageDriver,
     getRecordFileIndexService,
-    recordFileMaxUploadBytes(env.APP_MODE, env.FILE_MAX_UPLOAD_BYTES),
+    env.FILE_MAX_UPLOAD_BYTES,
   );
 export const getReadRecordFileInteractor = () =>
   new ReadRecordFileInteractor(getGetRecordFileInteractor(), getRecordFileSearchRepo());

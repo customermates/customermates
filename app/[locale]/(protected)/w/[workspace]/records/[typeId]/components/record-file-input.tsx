@@ -212,13 +212,17 @@ function UploadRow({ entry, onRemove }: { entry: RecordFileUpload; onRemove: () 
             {entry.failure}
           </p>
         ) : (
-          <WizardProgress
-            current={Math.round(entry.progress * 100)}
-            label={progress}
-            min={0}
-            total={100}
-            valueText={progress}
-          />
+          <>
+            <p className="text-xs text-muted-foreground tabular-nums">{progress}</p>
+
+            <WizardProgress
+              current={Math.round(entry.progress * 100)}
+              label={progress}
+              min={0}
+              total={100}
+              valueText={progress}
+            />
+          </>
         )}
       </div>
 

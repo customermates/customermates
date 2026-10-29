@@ -11,6 +11,8 @@ import { fail, failNotFound } from "@/core/validation/interactor-failure-server"
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { UploadRecordFileContentSchema } from "./record-file.schema";
 
+const OBJECT_STORAGE_CONTENT_MAX_BYTES = 25 * 1024 * 1024;
+
 @TenantInteractor()
 export class UploadRecordFileContentInteractor extends AuthenticatedInteractor<
   UploadRecordFileContent,
@@ -30,6 +32,10 @@ export class UploadRecordFileContentInteractor extends AuthenticatedInteractor<
     if (!file || file.status !== "pending" || file.uploadedById !== this.userId) {
       await stream.cancel().catch(() => undefined);
       return failNotFound(CustomErrorCode.recordFileNotFound, ["fileId"]);
+    }
+    if (file.storageDriver !== "database" && file.size > OBJECT_STORAGE_CONTENT_MAX_BYTES) {
+      await stream.cancel().catch(() => undefined);
+      return fail(CustomErrorCode.recordFileUploadTargetRequired, []);
     }
     const driver = this.drivers(file.storageDriver);
     const written = await driver.writeStream(file.storageKey, stream, file.size);

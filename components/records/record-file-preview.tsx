@@ -21,6 +21,7 @@ import { recordFilePreviewFormat } from "@/features/record-files/record-file-pre
 
 import { downloadRecordFile, recordFileContentUrl } from "./record-file-links";
 import { RecordFileDocumentPreview } from "./record-file-document-preview";
+import { RecordFileVideoPreview } from "./record-file-video-preview";
 import { RecordFileNameInput } from "./record-file-name-input";
 import { type RecordFileRename } from "./record-file-rename";
 import { useRecordFileMeta } from "./record-file-meta";
@@ -42,7 +43,7 @@ function stepsWithin(target: EventTarget) {
     target instanceof HTMLElement &&
     Boolean(
       target.closest(
-        'input, textarea, select, [contenteditable="true"], [role="tablist"], [data-slot="table-container"]',
+        'input, textarea, select, video, [contenteditable="true"], [role="tablist"], [data-slot="table-container"]',
       ),
     )
   );
@@ -188,6 +189,8 @@ const RecordFilePreview = observer(function RecordFilePreview({
         <div className="flex min-h-0 flex-1 flex-col overflow-auto border-t bg-muted/30 px-6 py-4">
           {recordFilePreviewFormat(file.mimeType, file.name) ? (
             <RecordFileDocumentPreview key={file.id} file={file} />
+          ) : kind === "video" && inline ? (
+            <RecordFileVideoPreview key={file.id} active={open} file={file} />
           ) : kind === "pdf" && inline && showPdf ? (
             <iframe
               key={file.id}

@@ -1109,7 +1109,7 @@ describe("marketing visual boundaries", () => {
     const sources = files.map((file) => readFileSync(file, "utf8"));
 
     expect(
-      files.filter((file) => /(?:film|motion|storyboard|video)/iu.test(file)),
+      files.filter((file) => /(?:film|motion|storyboard|video)/iu.test(file.slice(directory.length))),
     ).toEqual([]);
     expect(sources.flatMap(staticVisualSourceViolations)).toEqual([]);
   });

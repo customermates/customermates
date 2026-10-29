@@ -113,7 +113,7 @@ function failure(outcome: InteractorOutcome<unknown>) {
   return { code: params.error, kind: params.kind, message: issue.message, path: issue.path };
 }
 
-async function workspace() {
+async function workspace({ maxBytes = 64 * 1024 } = {}) {
   const seed = await runWithoutTenant(async () => {
     const company = await prisma.company.create({ data: {} });
     companies.push(company.id);
@@ -165,7 +165,7 @@ async function workspace() {
     },
     "cloud",
   );
-  const uploads = new RecordFileUploadService(repo, policy, files, quota, { maxBytes: 64 * 1024, driver: "database" });
+  const uploads = new RecordFileUploadService(repo, policy, files, quota, { maxBytes, driver: "database" });
   const links = new RecordFileLinks("vitest-secret", "http://127.0.0.1:4000");
   const grants = new RecordFileGrantTenant(links, {
     getActiveUserByIdOrThrow: (userId: string) => {
@@ -465,6 +465,89 @@ describeDatabase("record files", () => {
     expect(failure(await w.as(w.admin, () => w.interactors.preview.invoke({ fileId: started.fileId })))).toMatchObject({
       code: "recordFileNotFound",
     });
+  });
+
+  it.each(["s3", "vercel-blob"])(
+    "requires the direct upload target for large %s files before reading their body",
+    async (storageDriver) => {
+      const w = await workspace({ maxBytes: 1024 * 1024 * 1024 });
+      const started = data(
+        await w.as(w.admin, () =>
+          w.interactors.create.invoke({
+            typeId: w.typeId,
+            fieldId: w.multiple,
+            name: "film.mp4",
+            size: 25 * 1024 * 1024 + 1,
+            mimeType: "video/mp4",
+          }),
+        ),
+      );
+      await runWithoutTenant(() =>
+        prisma.recordFile.update({
+          where: { id: started.fileId },
+          data: { storageDriver },
+        }),
+      );
+      const drivers = vi.fn(() => {
+        throw new Error("Large object-store uploads must use their direct upload URL");
+      });
+      const put = new UploadRecordFileContentInteractor(new PrismaRecordFileRepo(), drivers);
+      const cancel = vi.fn();
+      const pull = vi.fn();
+      const body = new ReadableStream<Uint8Array>({ pull, cancel }, { highWaterMark: 0 });
+      const refused = await w.as(w.admin, () => put.invoke({ fileId: started.fileId, body }));
+      expect(failure(refused)).toMatchObject({
+        code: "recordFileUploadTargetRequired",
+      });
+      expect(drivers).not.toHaveBeenCalled();
+      expect(pull).not.toHaveBeenCalled();
+      expect(cancel).toHaveBeenCalledOnce();
+      expect(await w.row(started.fileId)).toMatchObject({
+        status: "pending",
+        sha256: null,
+      });
+      expect(await w.parts(started.fileId)).toBe(0);
+    },
+  );
+
+  it.each(["s3", "vercel-blob"])("keeps small %s uploads compatible with the content route", async (storageDriver) => {
+    const w = await workspace();
+    const bytes = new Uint8Array([1, 2, 3]);
+    const started = data(
+      await w.as(w.admin, () =>
+        w.interactors.create.invoke({
+          typeId: w.typeId,
+          fieldId: w.multiple,
+          name: "a.txt",
+          size: bytes.length,
+          mimeType: "text/plain",
+        }),
+      ),
+    );
+    await runWithoutTenant(() =>
+      prisma.recordFile.update({
+        where: { id: started.fileId },
+        data: { storageDriver },
+      }),
+    );
+    const written = data(
+      await w.as(w.admin, () =>
+        w.interactors.put.invoke({
+          fileId: started.fileId,
+          body: streamOf(bytes),
+        }),
+      ),
+    );
+    expect(written).toMatchObject({
+      fileId: started.fileId,
+      size: bytes.length,
+    });
+    expect(written.sha256).toBe(createHash("sha256").update(bytes).digest("hex"));
+    expect(await w.row(started.fileId)).toMatchObject({
+      status: "pending",
+      sha256: written.sha256,
+    });
+    expect(await w.parts(started.fileId)).toBe(1);
   });
 
   it("refuses incomplete uploads, keeps pending files to their uploader and hides files from other workspaces", async () => {

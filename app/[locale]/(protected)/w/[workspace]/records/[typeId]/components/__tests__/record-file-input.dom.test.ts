@@ -290,6 +290,7 @@ describe("RecordFileInput", () => {
     const progress = view.row("notes.txt")?.querySelector('[role="progressbar"]');
     expect(progress?.getAttribute("aria-valuenow")).toBe("50");
     expect(progress?.getAttribute("aria-valuetext")).toBe('RecordModel.fileUploading {"progress":0.5}');
+    expect(view.row("notes.txt")?.textContent).toContain('RecordModel.fileUploading {"progress":0.5}');
 
     uploads.transfers[1].finish({ ok: true });
     await flush();

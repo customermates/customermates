@@ -19,13 +19,12 @@ import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { readCappedStream } from "@/core/storage/read-capped-stream";
 import { fileSizeLabel } from "@/core/utils/format-bytes";
-import { RECORD_FILE_CLOUD_MAX_BYTES } from "@/features/record-files/record-file.schema";
 import { recordRequestHash } from "@/features/records/record-request-hash";
 import { accountNeedsReconnect } from "../account-health";
 import { isSocialProvider } from "../provider";
 import { retryAfterPhrase } from "../retry-after.server";
 
-export const SOCIAL_POST_ATTACHMENTS_MAX_BYTES = RECORD_FILE_CLOUD_MAX_BYTES;
+export const SOCIAL_POST_ATTACHMENTS_MAX_BYTES = 25 * 1024 * 1024;
 
 export const PublishSocialPostSchema = z
   .object({

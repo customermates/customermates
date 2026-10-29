@@ -5,6 +5,7 @@ import { randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { presetId } from "../../features/records/crm-preset";
+import { WORKSPACE_HEADER } from "../../core/navigation/workspace-paths";
 import {
   docxFixture,
   pdfFixture,
@@ -16,7 +17,8 @@ import {
   openConfigure,
   saveDrawer,
 } from "./configure";
-import { companyPath } from "./app-paths";
+import { appApiPath, companyPath, companySlug } from "./app-paths";
+import { mintApiKey } from "./api-key";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { openRecordDetails, recordItem } from "./record-rows";
 
@@ -27,6 +29,67 @@ const OFFER = Buffer.from(
   ]),
 );
 const IMAGE = readFileSync("public/captures/light/homepage-dashboard-en.png");
+const VIDEO = readFileSync("tests/fixtures/record-video.mp4");
+
+function largeVideo() {
+  // A valid MP4 free-space atom makes the real upload exceed the former 25 MB cap.
+  const bytes = Buffer.alloc(26 * 1024 * 1024);
+  bytes.set(VIDEO);
+  bytes.writeUInt32BE(bytes.byteLength - VIDEO.byteLength, VIDEO.byteLength);
+  bytes.write("free", VIDEO.byteLength + 4);
+  return bytes;
+}
+
+async function checkStreamingUpload(
+  database: Client,
+  companyId: string,
+  target: { fileId: string; url: URL; headers: Record<string, string>; parts: number },
+) {
+  // Storage must receive the first part while the rest of the request is still withheld.
+  let releaseUpload!: () => void;
+  const firstPartStored = new Promise<void>((resolve) => { releaseUpload = resolve; });
+  const part = new Uint8Array(1024 * 1024);
+  let sent = 0;
+  const abort = new AbortController();
+  const request: RequestInit & { duplex: "half" } = {
+    method: "PUT",
+    headers: target.headers,
+    signal: abort.signal,
+    duplex: "half",
+    body: new ReadableStream<Uint8Array>({
+      async pull(controller) {
+        if (sent > 0) await firstPartStored;
+        if (sent === target.parts * part.byteLength) return controller.close();
+        controller.enqueue(part);
+        sent += part.byteLength;
+      },
+    }),
+  };
+  const uploading = fetch(target.url, request);
+  void uploading.catch(() => undefined);
+  try {
+    await expect.poll(async () => {
+      const result = await database.query<{ count: number }>(
+        'SELECT COUNT(*)::int AS count FROM "RecordFileContent" c JOIN "RecordFile" f ON f."storageKey" = c."fileKey" WHERE f.id = $1 AND f."companyId" = $2',
+        [target.fileId, companyId],
+      );
+      return result.rows[0].count;
+    }).toBeGreaterThan(0);
+    releaseUpload();
+    const uploaded = await uploading;
+    expect(uploaded.status).toBe(200);
+    expect(await uploaded.json()).toMatchObject({ fileId: target.fileId, size: target.parts * part.byteLength });
+    const parts = await database.query<{ count: number; largest: number }>(
+      'SELECT COUNT(*)::int AS count, MAX(octet_length(c.data)) AS largest FROM "RecordFileContent" c JOIN "RecordFile" f ON f."storageKey" = c."fileKey" WHERE f.id = $1 AND f."companyId" = $2',
+      [target.fileId, companyId],
+    );
+    expect(parts.rows[0]).toEqual({ count: target.parts, largest: part.byteLength });
+  } finally {
+    releaseUpload();
+    abort.abort();
+    await uploading.catch(() => undefined);
+  }
+}
 
 async function storedFiles(
   database: Client,
@@ -471,6 +534,233 @@ test("uploads, shows, downloads and removes record files and refuses uploads ove
   }
   expect(await storedFiles(database, companyId, fieldId)).toHaveLength(4);
   expect(errors).toEqual([]);
+});
+
+test("uploads a video over 25 MB, previews and seeks it privately, and falls back for unreadable MP4 files", async ({
+  page,
+  database,
+  companyId,
+  playwright,
+  workspace,
+}, testInfo) => {
+  test.setTimeout(300000);
+  const typeId = presetId(companyId, "organization");
+  const label = `Video files ${randomUUID().slice(0, 6)}`;
+  const fieldId = await createFileField(
+    page,
+    database,
+    companyId,
+    typeId,
+    label,
+  );
+  const bytes = largeVideo();
+  await page.goto(companyPath(companyId, `/records/${typeId}`));
+  await openRecordDetails(page, "Example organization");
+  const drawer = page.getByRole("dialog", {
+    name: "Organization",
+    exact: true,
+  });
+  const editor = drawer.getByRole("group", { name: label, exact: true });
+  await editor.locator('input[type="file"]').setInputFiles([
+    { name: "demo.mp4", mimeType: "video/mp4", buffer: bytes },
+    {
+      name: "broken.mp4",
+      mimeType: "video/mp4",
+      buffer: Buffer.from("unreadable video"),
+    },
+  ]);
+  await expect(editor.locator("[data-record-file]")).toHaveCount(2);
+  await expect(editor.locator("[data-record-file-upload]")).toHaveCount(0);
+  await saveRecord(page, drawer);
+  const stored = await storedFiles(database, companyId, fieldId);
+  const { key } = await mintApiKey(database, workspace, "File streaming");
+  for (const mode of ["grant", "api-key", "workspace-api-key"] as const) {
+    const parts = mode === "grant" ? 64 : 32;
+    const streaming = await page.request.post("/api/v1/files/uploads", {
+      data: { typeId, fieldId, name: `${mode}.bin`, mimeType: "application/octet-stream", size: parts * 1024 * 1024 },
+    });
+    expect(streaming.status()).toBe(200);
+    const target = await streaming.json() as {
+      fileId: string;
+      upload: { url: string; method: string; headers: Record<string, string> };
+    };
+    const url = new URL(target.upload.url);
+    expect(url.pathname).toBe(`/api/v1/files/${target.fileId}/content`);
+    const invalidUpload = new URL(url);
+    invalidUpload.searchParams.set("token", "invalid");
+    expect((await page.request.put(invalidUpload.href, {
+      data: "refused",
+      headers: { [WORKSPACE_HEADER]: "forged" },
+    })).status()).toBe(401);
+    invalidUpload.search = "token=&token=invalid";
+    expect((await page.request.put(invalidUpload.href, {
+      data: "refused",
+      headers: { [WORKSPACE_HEADER]: "forged" },
+    })).status()).toBe(400);
+    const headers: Record<string, string> = { ...target.upload.headers, [WORKSPACE_HEADER]: "forged" };
+    if (mode !== "grant") {
+      url.searchParams.delete("token");
+      headers["x-api-key"] = key;
+      if (mode === "workspace-api-key") url.pathname = appApiPath(companySlug(companyId), url.pathname);
+    }
+    await checkStreamingUpload(database, companyId, { fileId: target.fileId, url, headers, parts });
+  }
+  for (const storageDriver of ["s3", "vercel-blob"]) {
+    const reserved = await page.request.post("/api/v1/files/uploads", {
+      data: { typeId, fieldId, name: `${storageDriver}.mp4`, mimeType: "video/mp4", size: 26 * 1024 * 1024 },
+    });
+    expect(reserved.status()).toBe(200);
+    const target = await reserved.json() as { fileId: string };
+    await database.query('UPDATE "RecordFile" SET "storageDriver" = $1 WHERE id = $2 AND "companyId" = $3', [
+      storageDriver, target.fileId, companyId,
+    ]);
+    const refused = await page.request.put(`/api/v1/files/${target.fileId}/content`, {
+      data: "refused",
+      headers: { "x-api-key": key, [WORKSPACE_HEADER]: "forged" },
+    });
+    expect(refused.status()).toBe(400);
+    expect(await refused.text()).toContain("recordFileUploadTargetRequired");
+  }
+  const master = await page.request.post("/api/v1/files/uploads", {
+    data: { typeId, fieldId, name: "master.mp4", mimeType: "video/mp4", size: 830238702 },
+  });
+  expect(master.status()).toBe(200);
+  const tooLarge = await page.request.post("/api/v1/files/uploads", {
+    data: { typeId, fieldId, name: "over-limit.mp4", mimeType: "video/mp4", size: 1024 * 1024 * 1024 + 1 },
+  });
+  expect(tooLarge.status()).toBe(400);
+  expect(await tooLarge.text()).toContain("A file can be at most 1 GB.");
+  const file = stored.find((item) => item.name === "demo.mp4");
+  if (!file) throw new Error("The large video was not saved");
+  expect([file.status, Number(file.size)]).toEqual(["ready", bytes.byteLength]);
+  const path = `/api/v1/files/${file.id}/content`;
+  const range = await page.request.get(path, {
+    headers: { range: "bytes=0-63" },
+  });
+  expect(range.status()).toBe(206);
+  expect(range.headers()).toMatchObject({
+    "content-type": "video/mp4",
+    "content-length": "64",
+    "content-range": `bytes 0-63/${bytes.byteLength}`,
+    "accept-ranges": "bytes",
+    "cache-control": "private, no-store",
+  });
+  expect(range.headers()["content-disposition"]).toMatch(/^inline;/u);
+  expect(await range.body()).toEqual(bytes.subarray(0, 64));
+  const tail = await page.request.get(path, {
+    headers: { range: "bytes=-32" },
+  });
+  expect(tail.status()).toBe(206);
+  expect(await tail.body()).toEqual(bytes.subarray(-32));
+  const outside = await page.request.get(path, {
+    headers: { range: `bytes=${bytes.byteLength}-` },
+  });
+  expect(outside.status()).toBe(416);
+  expect(outside.headers()["content-range"]).toBe(
+    `bytes */${bytes.byteLength}`,
+  );
+  const details = await page.request.get(`/api/v1/files/${file.id}`);
+  expect(details.status()).toBe(200);
+  const { downloadUrl } = (await details.json()) as { downloadUrl: string };
+  const anonymous = await playwright.request.newContext();
+  try {
+    expect((await anonymous.get(new URL(path, page.url()).href)).status()).toBe(401);
+    const granted = await anonymous.get(downloadUrl, {
+      headers: { range: "bytes=0-63" },
+    });
+    expect(granted.status()).toBe(206);
+    expect(await granted.body()).toEqual(bytes.subarray(0, 64));
+  } finally {
+    await anonymous.dispose();
+  }
+  await openRecordDetails(page, "Example organization");
+  await editor.getByRole("button", { name: /^demo\.mp4/ }).click();
+  const preview = page.getByRole("dialog", { name: "demo.mp4", exact: true });
+  const video = preview.locator("video[data-record-file-video]");
+  await expect(video).toBeVisible();
+  await expect(video).toHaveAttribute("preload", "metadata");
+  await expect(video).toHaveAttribute("playsinline", "");
+  await expect
+    .poll(() =>
+      video.evaluate((element: HTMLVideoElement) => element.readyState),
+    )
+    .toBeGreaterThan(0);
+  expect(
+    await video.evaluate((element: HTMLVideoElement) => ({
+      controls: element.controls,
+      paused: element.paused,
+      autoplay: element.autoplay,
+      width: element.videoWidth,
+      duration: element.duration,
+    })),
+  ).toEqual({
+    controls: true,
+    paused: true,
+    autoplay: false,
+    width: 160,
+    duration: 12,
+  });
+  await video.evaluate(async (element: HTMLVideoElement) => {
+    element.muted = true;
+    await element.play();
+  });
+  await expect
+    .poll(() =>
+      video.evaluate((element: HTMLVideoElement) => element.currentTime),
+    )
+    .toBeGreaterThan(0.25);
+  await video.focus();
+  await video.press("ArrowRight");
+  await expect(preview).toBeVisible();
+  await video.evaluate((element: HTMLVideoElement) => {
+    element.pause();
+    element.currentTime = 8;
+  });
+  await expect
+    .poll(() => video.evaluate((element: HTMLVideoElement) => element.seeking))
+    .toBe(false);
+  await expect
+    .poll(() =>
+      video.evaluate((element: HTMLVideoElement) => element.currentTime),
+    )
+    .toBeGreaterThanOrEqual(8);
+  const screenshot = testInfo.outputPath("video-preview.png");
+  await preview.screenshot({ path: screenshot });
+  await testInfo.attach("video-preview", {
+    path: screenshot,
+    contentType: "image/png",
+  });
+  const [download] = await Promise.all([
+    page.waitForEvent("download"),
+    preview.getByRole("button", { name: "Download file", exact: true }).click(),
+  ]);
+  expect(download.suggestedFilename()).toBe("demo.mp4");
+  expect(await readFile(await download.path())).toEqual(bytes);
+  const player = await video.elementHandle();
+  await video.evaluate(async (element: HTMLVideoElement) => {
+    await element.play();
+  });
+  await preview.getByRole("button", { name: "Close", exact: true }).click();
+  await expect(preview).not.toBeVisible();
+  expect(
+    await player?.evaluate((element: HTMLVideoElement) => element.paused),
+  ).toBe(true);
+  await editor.getByRole("button", { name: /^broken\.mp4/ }).click();
+  const broken = page.getByRole("dialog", { name: "broken.mp4", exact: true });
+  await expect(broken.getByRole("status")).toContainText("Preview unavailable");
+  await expect(broken.getByRole("status")).toContainText(
+    "Download it to open it in its original app.",
+  );
+  const [original] = await Promise.all([
+    page.waitForEvent("download"),
+    broken
+      .getByRole("button", { name: "Download file", exact: true })
+      .last()
+      .click(),
+  ]);
+  expect(await readFile(await original.path())).toEqual(
+    Buffer.from("unreadable video"),
+  );
 });
 
 test("previews Excel, CSV, Word and text files in the record drawer with bounded content and a download fallback", async ({

@@ -1207,6 +1207,7 @@
       "recordFileTooLarge": "Eine Datei darf höchstens {limit} groß sein.",
       "recordFileUnavailable": "Eine Datei in diesem Wert ist nicht verfügbar oder gehört zu einem anderen Datensatz. Lade sie erneut hoch.",
       "recordFileUploadIncomplete": "Der Upload enthielt nicht genau die angekündigten {size} Bytes. Lade die Datei erneut hoch.",
+      "recordFileUploadTargetRequired": "Sende diese Datei an die Upload-URL, die du beim Start des Uploads erhalten hast.",
       "recordIdempotencyConflict": "Dieser Anfrageschlüssel wurde für eine andere Änderung verwendet. Starte eine neue Anfrage.",
       "recordIdUnavailable": "Diese Datensatz-ID gehörte bereits zu einem früheren Datensatz. Importiere den Datensatz mit einer neuen ID.",
       "recordMarkedTextChanged": "Markierter formatierter Text lässt sich nur unverändert aus dem gespeicherten Datensatz importieren; senden Sie neuen oder geänderten formatierten Text als richText-Wert mit documentJson.",

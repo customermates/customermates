@@ -67,7 +67,9 @@ test("gives Mate files by button, drop and paste, sends them with the message an
   await page.locator("#agent-composer").evaluate((editor) => {
     const transfer = new DataTransfer();
     transfer.items.add(new File([new Uint8Array([137, 80, 78, 71])], "Screenshot.png", { type: "image/png" }));
-    editor.dispatchEvent(new ClipboardEvent("paste", { clipboardData: transfer, bubbles: true, cancelable: true }));
+    const paste = new ClipboardEvent("paste", { bubbles: true, cancelable: true });
+    Object.defineProperty(paste, "clipboardData", { value: transfer });
+    editor.dispatchEvent(paste);
   });
 
   const chips = panel.locator("[data-agent-file-context]");
