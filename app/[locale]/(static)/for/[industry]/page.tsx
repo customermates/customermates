@@ -7,6 +7,7 @@ import { Footer } from "@/app/components/footer";
 import { AcquisitionStoryVisual } from "@/components/marketing/acquisition-story-visual";
 import { LandingArticle } from "@/components/marketing/landing-article";
 import { PageHero } from "@/components/marketing/page-hero";
+import { PageUpdatedAt } from "@/components/marketing/page-updated-at";
 import { PageEnding } from "@/components/marketing/page-ending";
 import { productDemoForIndustry } from "@/components/marketing/product-demo-config";
 import { ProductDemoSection } from "@/components/marketing/product-demo-section";
@@ -84,6 +85,7 @@ export default async function ForIndustryPage({ params }: Props) {
 
       <PageHero
         {...page.data.hero}
+        meta={<PageUpdatedAt date={resolvePageLastModified(page.data)} locale={locale} />}
         stage={solution ? <SolutionProductStage locale={locale} solutionId={solution.id} /> : undefined}
         visual={solution ? undefined : visual}
       />

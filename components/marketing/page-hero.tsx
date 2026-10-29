@@ -16,6 +16,7 @@ import { contentLinkPrefetch } from "@/i18n/content-links";
 type HeroBaseProps = {
   badge?: string;
   description: string;
+  meta?: ReactNode;
   showOpenSourceBadge?: boolean;
   stage?: ReactNode;
   title: string;
@@ -79,7 +80,7 @@ function hasHeroActions(props: Props): props is HeroBaseProps & HeroActions {
 }
 
 export function PageHero(props: Props) {
-  const { badge, title, titleAccent, description, showOpenSourceBadge = true, stage, visual } = props;
+  const { badge, title, titleAccent, description, meta, showOpenSourceBadge = true, stage, visual } = props;
   const actions = hasHeroActions(props) ? props : null;
 
   return (
@@ -116,6 +117,8 @@ export function PageHero(props: Props) {
             </div>
 
             <p className={cn("text-lede mt-7", !visual && "mx-auto")}>{description}</p>
+
+            {meta ? <div className="mt-5 text-sm text-muted-foreground">{meta}</div> : null}
 
             {actions ? (
               <>

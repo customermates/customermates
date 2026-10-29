@@ -155,6 +155,7 @@ test("keeps an Activities rail filter temporary with the modified dot on the vie
     await page.locator('[data-palette-value="messages"]').click();
     await page.locator("#filter-palette-back").click();
     await page.keyboard.press("Escape");
+    await expect(history.getByRole("button", { name: "Filters", exact: true })).toBeFocused();
     await expect(history.locator("#global-data-views-all")).toHaveAttribute("data-view-modified", "");
   };
   const viewsMenu = async () => {
@@ -166,6 +167,7 @@ test("keeps an Activities rail filter temporary with the modified dot on the vie
   await filterMessages();
   await viewsMenu();
   await page.locator("#global-data-views-reset").click();
+  await expect(menu).toBeFocused();
   await expect(unsavedWithoutView).toHaveCount(0);
   expect(await storedFilters()).toBeNull();
 

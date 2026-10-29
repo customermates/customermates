@@ -1,0 +1,119 @@
+---
+title: "AI Knowledge Base for Customer-Facing Teams"
+description: "Keep company guidance, procedures and customer context in one workspace. Give people and AI clients the same sources, with clear permissions and limits."
+featureName: Knowledge Base
+
+relatedHrefs:
+  - /docs/mcp
+  - /features/api
+  - /features/cloud-crm
+  - /features/self-hosted
+
+hero:
+  title: An AI knowledge base for your customer work
+  description: Keep the company facts, operating guide and procedures beside your customer records. People, Mate and connected MCP clients can consult the same maintained source before preparing the next step.
+  buttonLeftText: Start for free
+  buttonLeftHref: /auth/signup
+  buttonRightText: Explore the Knowledge Base guide
+  buttonRightHref: /docs/mcp#shared-workspace-wiki
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
+
+cta:
+  action: Give your customer work a maintained source
+  description: Start with one operating guide, one procedure and the facts your team actually needs. Review the sources before asking an agent to act.
+  buttonLeftText: Start for free
+  buttonLeftHref: /auth/signup
+  buttonRightText: Read the Knowledge Base guide
+  buttonRightHref: /docs/mcp#shared-workspace-wiki
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
+---
+
+An AI knowledge base gives people and agents a maintained source for company facts and procedures. In Customermates, those pages live in the customer workspace, so a person, Mate or an external MCP client can consult the guidance alongside the customer record before preparing work.
+
+This fits a small team that handles customer conversations and next steps across several tools. It is not a public help centre, a learning platform or a replacement for an enterprise search system.
+
+<ArticleSummary title="What you can use it for">
+  <SummaryItem label="Company guidance">Separate the operating guide, procedures and reference facts, with a named owner and a review date.</SummaryItem>
+  <SummaryItem label="Customer context">Read the approved source and the current customer record before creating an internal next step.</SummaryItem>
+  <SummaryItem label="Access">Knowledge Base access follows workspace role permissions. There are no per-page access controls.</SummaryItem>
+  <SummaryItem label="Limits">Retrieved text still needs checking. A relevant-looking result does not prove that it answers the question.</SummaryItem>
+</ArticleSummary>
+
+## What belongs in an AI knowledge base for customer work?
+
+Start with facts that change what your team does: what you offer, who can approve a commitment, how to hand over a customer, and where to check an exception. Give each page an owner, a source and a review date. Keep a customer's current stage, owner and agreed next step in the customer record rather than copying them into a permanent policy page.
+
+| Page | The question it answers | Example content |
+|---|---|---|
+| Operating guide | What should a person or agent read before working here? | The source order, responsibilities and boundaries for customer work |
+| Procedure | When this situation occurs, what should happen? | A customer handover checklist and its saved-state check |
+| Reference | Which facts may this answer rely on? | The approved scope, terms and definitions, with their source dates |
+| Open questions | What is still unknown? | A question and its responsible person, without an invented answer |
+
+The [Knowledge Base documentation](/docs/mcp#shared-workspace-wiki) describes the page types and editing. The broader [agentic CRM guide](/blog/agentic-crm) explains how knowledge, customer context and actions fit together.
+
+## How do people, Mate and MCP clients use the same source?
+
+A person opens the workspace's Knowledge Base. Mate can consult company knowledge as part of supported work in Customermates Cloud. An external client connects through [MCP and the API](/features/api), reads the workspace context, searches the Knowledge Base and fetches the relevant page or section.
+
+The source should help finish a concrete task. For a handover, read the customer record and the handover procedure, prepare one internal task, assign its owner, link it to the customer and read it back. Creating a task does not send a customer message or establish a new commercial commitment.
+
+<Steps>
+  <Step title="Read the source">Start with the operating guide and the procedure that matches the situation. Follow relevant reference links.</Step>
+  <Step title="Check the current customer">Read the customer's actual record and agreed scope. A generic procedure does not supply missing customer facts.</Step>
+  <Step title="Prepare the bounded next step">Create an internal checklist or draft supported by those sources. Show where each factual statement came from.</Step>
+  <Step title="Read the saved result">Check the task, assigned owner and customer relationship. A successful request alone does not prove the intended state was saved.</Step>
+</Steps>
+
+The [integration overview](/features/integrations) separates external clients, REST, webhooks and other connection options. No local Markdown synchronisation or shared-drive connector is implied by storing company knowledge here.
+
+## What did our four-page example actually demonstrate?
+
+Checked on 29 October 2026 in an isolated local workspace with fictional data: we created four bilingual pages, fetched their contents through the actual MCP endpoint, searched in English and German, and prepared a manually written answer with source references. We then created an internal task, replayed the same idempotent request and read back the task's owner and customer link.
+
+A separate reader with API access but no Knowledge Base read permission could not fetch the guide. This checks the workspace permission boundary; it does not establish per-page permissions or a retrieval-accuracy benchmark. No external message, paid AI call or third-party account connection was part of the example.
+
+You can download the [four-page Knowledge Base starter pack](/templates/knowledge-base-starter-en.zip). It contains original Markdown examples and instructions for reviewing and copying them into pages. It does not add a dedicated Markdown import/export feature. Replace the fictional content and confirm your own rules before use.
+
+## What happens when the source does not answer the question?
+
+Do not turn a search result into a promise. In our example, a question about backup retention returned a fuzzy match after spelling correction: the handover procedure said to read a saved task "back". That result contained no retention policy. After checking all four source pages, the appropriate draft was: "The sources do not state a retention period. Ask the responsible person before promising one."
+
+This is why an AI knowledge base does not eliminate incorrect answers. Read the returned section, check its scope and date, and distinguish a supported fact from a related word. Record an unanswered question instead of inventing a response time, legal term or product capability.
+
+## Which permissions and hosting limits matter?
+
+Knowledge Base read and management rights belong to workspace roles. There is no separate access list for each page, and no field-level permission system. Store only material appropriate for the people and connected users who can read that Knowledge Base.
+
+External MCP clients act with the connected user's permissions. The server's confirmation instructions guide the client; they do not create a server-enforced approval gate for an otherwise authorised tool call. Mate has its own approval policy in Customermates Cloud.
+
+Hosted Mate depends on the eligible cloud plan, available usage and global controls. External clients use their own model provider, but semantic search can still count toward Mate usage. Self-hosting provides the Starter core and MCP for external clients, with keyword/full-text retrieval; it does not include hosted Mate or self-hosted semantic AI search. See [self-hosting](/features/self-hosted) and the [Mate documentation](/docs/app-assistant).
+
+Text-bearing attached files can provide additional searchable material where supported. Scanned documents and images are not read through OCR. This is not a promise to index every shared drive, file type or external system.
+
+## When is another knowledge tool a better fit?
+
+Local Markdown can be enough for one person's coding instructions or a small repository. A public help centre is a better fit for a customer-facing documentation portal. A dedicated knowledge or enterprise-search platform may be needed for broad drive synchronisation, large-scale document ingestion or more granular document access.
+
+Customermates fits when the maintained guidance should sit beside customer records, conversations and the next piece of work. Start with a small, useful source set and keep its owner and review routine clear.
+
+<Faq>
+<FaqItem question="Can external agents read the same company knowledge as Mate?">
+Yes, supported MCP clients can search and fetch the workspace Knowledge Base with the connected user's permissions. The client's model and subscription remain separate from hosted Mate.
+</FaqItem>
+<FaqItem question="Does an AI knowledge base prevent hallucinations?">
+No. Search can return a related or spelling-corrected result that does not answer the question. Check the actual source and leave unsupported facts unanswered.
+</FaqItem>
+<FaqItem question="Is semantic AI search included when I self-host?">
+No. Self-hosting provides the Starter core with keyword/full-text retrieval and external MCP clients, without hosted Mate or self-hosted semantic AI search.
+</FaqItem>
+<FaqItem question="Can I restrict one Knowledge Base page to a smaller group?">
+There are no per-page access controls. Use the workspace role permissions and keep the entire readable Knowledge Base appropriate for that audience.
+</FaqItem>
+<FaqItem question="Can the Knowledge Base read scanned PDFs or photographs?">
+It does not provide OCR. Text-bearing files may be searchable where supported; scans and images are stored and previewed without reading their pictured text.
+</FaqItem>
+<FaqItem question="Is the starter pack a native Markdown import?">
+No. It is a download of four fictional examples to review and copy into workspace pages. It does not create an account or connection.
+</FaqItem>
+</Faq>

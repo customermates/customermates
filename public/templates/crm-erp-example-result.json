@@ -1,0 +1,16 @@
+{
+  "fictionalOnly": true,
+  "flow": "Manual adapter reads CRM REST, posts to a loopback mock ERP, retries one lost response, then reads both sides. Not a tested production connector or automatic webhook delivery.",
+  "manualIllustrativeAdapter": true,
+  "actualCrmRestReadWriteReadback": true,
+  "mockErpLoopbackOnly": true,
+  "actualWebhookDeliveryTested": false,
+  "realErpConnectorTested": false,
+  "firstResponseLost": true,
+  "attempts": 2,
+  "erpWrites": 1,
+  "duplicateSuppressed": true,
+  "sourceAndRecordIdMapped": true,
+  "reconciledErpId": "ERP-C-001",
+  "fieldAuthorityIsIntegrationPolicyNotFieldLevelPermissions": true
+}

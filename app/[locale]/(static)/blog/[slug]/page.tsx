@@ -23,6 +23,7 @@ import { articleSchema, breadcrumbListSchema } from "@/core/seo/schemas";
 import { contentLocaleOrDefault, formattingTagFor } from "@/i18n/locale-registry";
 import { enableStaticLocale } from "@/i18n/static-locale";
 import { localizedSlugParams } from "@/core/fumadocs/static-params";
+import { resolvePageLastModified } from "@/core/seo/sitemap";
 
 export function generateStaticParams({ params }: { params: { locale: string } }) {
   return localizedSlugParams(blogPostsSource, params.locale, "slug");
@@ -55,8 +56,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
 
   const MDX = page.data.body;
   const { hero, blogPost } = page.data;
-  const { backToBlog, date, by, tags, updated } = blogPost;
-  const dateFormat = { year: "numeric", month: "long", day: "numeric" } as const;
+  const { backToBlog, date, by, tags } = blogPost;
+  const lastModified = resolvePageLastModified(page.data);
+  const updated = lastModified && lastModified.getTime() > new Date(date).getTime() ? lastModified : undefined;
+  const dateFormat = { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" } as const;
   const components = getMDXComponents({
     h1: ({ children, id }) => (
       <span aria-hidden="true" className="sr-only" id={id}>

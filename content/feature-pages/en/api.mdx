@@ -34,7 +34,7 @@ Customermates is an open-source, AI-native CRM built in Germany for small client
 
 <ArticleSummary title="At a glance">
   <SummaryItem label="Surfaces">REST under `/api/v1`, an OpenAPI 3.1 spec, [[derived.webhooks.events.total]] webhook events and [[derived.mcp.tools.total]] MCP tools.</SummaryItem>
-  <SummaryItem label="Plans">REST, webhooks and MCP on Starter, Pro, Business and Enterprise, and when you self-host. Inbox endpoints need a connected account, which starts at Pro in Customermates Cloud.</SummaryItem>
+  <SummaryItem label="Plans">REST, webhooks and MCP on every Cloud plan and when you self-host. Inbox endpoints need a connected account, which starts at Pro in Customermates Cloud.</SummaryItem>
   <SummaryItem label="Auth">One API key per client, sent as `x-api-key`. A key has exactly its owner's role permissions.</SummaryItem>
   <SummaryItem label="Limits">Bulk writes take up to 100 records per request. No OR across filter rules, no per-key scopes.</SummaryItem>
 </ArticleSummary>
@@ -99,7 +99,7 @@ Creating keys needs **Read access** **All** and **Create** on the **API & Webhoo
 
 ## MCP: the API for AI clients
 
-The MCP endpoint at `/api/v1/mcp` gives an external AI client [[derived.mcp.tools.total]] tools over the same records, inbox and webhooks. Claude and ChatGPT connect through OAuth as a custom connector; Claude Code, Codex, Cursor and Gemini use an API key. The client, its model and its subscription stay yours, and MCP calls use no Customermates hosted AI credits. The [MCP guide](/docs/mcp) lists every tool.
+The MCP endpoint at `/api/v1/mcp` gives an external AI client [[derived.mcp.tools.total]] tools over the same records, inbox and webhooks. Claude and ChatGPT connect through OAuth as a custom connector; Claude Code, Codex, Cursor and Gemini use an API key. The client, its model and its subscription stay yours. Semantic search can still count toward Mate usage in Customermates Cloud. The [MCP guide](/docs/mcp) lists every tool.
 
 Mate, the assistant inside Customermates Cloud, is a separate feature. It runs on hosted AI credits and needs no API key. Self-hosted installations have MCP but no Mate.
 

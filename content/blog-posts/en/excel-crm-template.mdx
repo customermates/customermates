@@ -17,7 +17,7 @@ blogPost:
   backToBlog: Back to Blog
   by: by Benjamin Wagner
   date: 2025-12-25
-  updated: 2026-10-08
+  updated: 2026-10-29
   tags:
     - Excel
     - CRM Template
@@ -27,7 +27,7 @@ blogPost:
 
 # Excel CRM Template: A Free Six-Sheet Layout You Can Import Later
 
-An Excel CRM template is a workbook with one sheet for each kind of record (companies, contacts, deals, activities) and one sheet that counts and sums them. The layout below is free to copy: type the headers into a blank workbook, add the dropdowns and paste the formulas. It holds up for one to three people who keep a single copy of the file, and each sheet is arranged so it can later go into a CRM as an import, without retyping a row.
+An Excel CRM template supports customer relationship management with one sheet for each kind of record (companies, contacts, deals, activities) and one sheet that counts and sums them. The layout below is free to copy: type the headers into a blank workbook, add the dropdowns and paste the formulas. It holds up for one to three people who keep a single copy of the file, and each sheet is arranged so it can later go into a CRM as an import, without retyping a row.
 
 Customermates publishes this guide and is the CRM in the import example. The workbook itself needs nothing but a current version of Excel.
 
@@ -39,12 +39,35 @@ Customermates publishes this guide and is the CRM in the import example. The wor
   <SummaryItem label="How to move">One sheet per import: services and companies first, then contacts, then deals.</SummaryItem>
 </ArticleSummary>
 
+## Where can I download the checked CRM workbook?
+
+Download the [free Excel CRM workbook in English](/templates/crm-template-en.xlsx), or the [German CRM workbook](/templates/crm-template-de.xlsx). It is an original, compact example with six working sheets plus a Readme: Companies, Contacts, Deals, Activities, Dashboard and Lists. It is separate from the fuller column-by-column layout below; do not paste the formulas below into the download without checking their column references.
+
+The example keeps **one customer and two jobs** together with stable source IDs. Both `JOB-001` and `JOB-002` point to `C-001`, even if you rename the customer. Its dates are date cells, its states use dropdowns and its customer lookup uses the source ID. The dashboard contains 9,000 EUR in example opportunities and 4,050 EUR weighted value: 7,200 × 50% plus 1,800 × 25%. The two open next steps remain separate activities.
+
+Checked on 29 October 2026: we wrote and reopened both XLSX files with ExcelJS, checked sheet names, date cells, lookup references and stored formula results, and checked that they contain no macros or external workbook connections. We did not perform a visual session in Microsoft Excel or LibreOffice. Open your copy in your spreadsheet application, recalculate it and confirm the two example totals before replacing the fictional rows. Do not add several currencies into one total without an explicit conversion policy.
+
+### What survived the local CRM import check?
+
+We parsed the English example into schema-aware JSON and imported it through the actual Customermates MCP endpoint in a synthetic local workspace. This was a JSON/API test, **not a test of the browser's native XLSX wizard**. A separate example list kept a manual amount and probability; it did not silently replace the default deal-value calculation.
+
+| Source value | Saved-state check |
+| --- | --- |
+| `C-001`, `JOB-001`, `JOB-002` | Retained in Text source-ID fields and a source-to-record-ID map |
+| One customer, two jobs | Both saved relationships pointed to the same customer record |
+| `Example owner` | Resolved to the actual synthetic member ID; do this for your own members |
+| Proposal / Qualified | Mapped to the actual choice-option IDs |
+| 7,200 / 1,800 EUR and 20 November / 4 December 2026 | Amount, currency and date matched after readback and export |
+| 50% / 25% | Decimal probabilities matched after export |
+
+Replaying the identical import with its idempotency key returned the same result without adding two more jobs. For a real move, read your current list, field and option IDs first, then follow the [JSON import contract](/docs/app-records#bulk-import-over-the-api). Keep a mapping from workbook source IDs to CRM record IDs, read the saved records back, and archive the original workbook. This is not an attachment migration, an undo feature or ongoing synchronization.
+
 ## Four layout rules before the first row
 
 1. **One header row, one row per record.** No merged cells, no blank rows, no subtotals inside the data.
 2. **Make each sheet an Excel table.** Select the range, press Ctrl+T and name it under Table Design › Table Name: `Companies`, `Contacts`, `Deals`, `Activities`. The formulas below use those names, and tables grow with new rows.
 3. **Give every fixed list a dropdown.** Use Data › Data Validation, Allow: List, with a table on the Lists sheet as the source. Microsoft's [drop-down guide](https://support.microsoft.com/en-us/excel/get-started/create-a-drop-down-list) notes that dropdowns based on a table update by themselves when you add or remove items.
-4. **Link by name, not by number.** A contact's company is the company's exact name, and a deal's contact is the person's full name. Numeric IDs are handier in formulas, but names are what you read, and CRM imports, Customermates included, match links by name.
+4. **Keep a stable source ID as well as readable names.** The layout below uses exact names for the native XLSX link mapping. The compact download also keeps source IDs for lookups and a later JSON/API mapping. Names help people choose a record; preserve the source-to-record-ID map when names change.
 
 ## The template, sheet by sheet
 
@@ -193,8 +216,8 @@ Customermates imports Excel workbooks (.xlsx), one list at a time. CSV files are
 | Open next steps from Activities | Tasks |
 
 <Steps>
-  <Step title="Create the custom fields first">In **Configure**, open the list and choose **Add**, then **Field**. For each dropdown column, create a Single choice field whose option labels match your Lists sheet exactly; the import flags any cell that is not an option. The deal Stage field already exists with the stages above. If you changed them, rename the options and set **Probability %** on each one in Configure for Deals.</Step>
-  <Step title="Decide how deal values come in">A deal's value in Customermates is the sum of its line items, each a service price times quantity. Import your price list into **Services** first (Name and Price are required), then add line items with their quantities on each deal. If every deal has its own price, a Money custom field keeps the number, but it does not feed the deal value or the weighted pipeline.</Step>
+  <Step title="Create the custom fields first">In **Configure**, open the list and choose **Add**, then **Field**. For each dropdown column, create a Single choice field whose option labels match your Lists sheet exactly; the import flags any cell that is not an option. Inspect the stage field and probabilities in your workspace; AI setup and existing workspaces can use different lists and options. Create or adjust the needed options in Configure rather than assuming they match this example.</Step>
+  <Step title="Decide how deal values come in">A deal's value in Customermates is the sum of its line items, each a service price times quantity. Import your price list into **Services** first (Name and Price are required), then add line items with their quantities on each deal. If every deal has its own price, a Money input field can keep the number. It does not automatically replace the existing line-item calculation; a schema manager must preview and deliberately change the value and weighting configuration if that is the intended model.</Step>
   <Step title="Import in dependency order">Services, then companies into Organizations, then contacts, then deals. Links are matched by name, ignoring case, so a company must exist before a contact can point to it, and a name that matches no record or several is flagged. A comma separates names within a cell, so a firm called "Hale, Brook and Partners" needs a rename before the import or a link set by hand afterwards.</Step>
   <Step title="Run the wizard">On each list, open **More actions**, choose **Add from file** and pick the file. The wizard asks which sheet to import, so the workbook can keep its other sheets; save it as .xlsx. A file can currently hold up to 10 MB and 5,000 rows. Match each column to a field; email addresses, phone numbers and LinkedIn profiles go into the contact's Contact details field.</Step>
   <Step title="Fix or skip problem rows">The check lists every problem by row before anything is added. Fix the cells in Excel and check again, or import the rest and skip those rows. An import has no undo, so run ten rows first.</Step>
@@ -223,7 +246,7 @@ A routine acts with its owner's access, and Mate sends messages when told to, so
 
 Billing is monthly, and the hosted trial runs [[commercial.trial.days]] days. Each hosted plan includes monthly hosted AI credits per active user; see [pricing](/pricing).
 
-Customermates is the wrong step if you want to keep calculating across rows: it has no formula fields, so custom calculations stay in Excel through the export. It is also wrong if your team needs a phone dialer or email campaigns, or a native app on the phone: Customermates has no mobile app, no telephony and no campaign tool. Look for a CRM that ships those.
+Customermates has [calculated fields](/docs/concepts#how-do-i-build-a-calculated-field), including values from the same record and totals over linked records. It is the wrong step if you need a general spreadsheet with arbitrary cell formulas and workbook layouts; keep that analysis in Excel through the export. It is also wrong if your team needs a phone dialer or email campaigns, or a native app on the phone: Customermates has no mobile app, no telephony and no campaign tool. Look for a CRM that ships those.
 
 ## FAQ
 
@@ -233,7 +256,7 @@ Yes, for a small team. The six-sheet layout above covers companies, contacts, de
 </FaqItem>
 
 <FaqItem question="Is there a free Excel CRM template?">
-The layout on this page is free and needs nothing beyond Excel. If you download a template elsewhere, check three things before you enter data: one record per row, contacts separate from companies, and no merged cells. A template that fails them is hard to import into a CRM later.
+The layout in this article and the downloadable XLSX example above are free and need nothing except a compatible spreadsheet application. If you download a template elsewhere, check three things before you enter data: one record per row, contacts separate from companies, and no merged cells. A template that fails them is hard to import into a CRM later.
 </FaqItem>
 
 <FaqItem question="How many contacts can an Excel CRM handle?">
