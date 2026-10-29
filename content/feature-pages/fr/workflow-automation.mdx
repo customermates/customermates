@@ -56,8 +56,8 @@ Notre règle empirique : si une étape doit se comporter à l’identique à ch
 
 Les routines n’existent que dans Customermates Cloud. Une routine se compose d’un nom, d’une consigne de 5 000 caractères au plus et d’un déclencheur. Quand le déclencheur se produit, Mate démarre une nouvelle conversation avec cette consigne et travaille seul, en tant que propriétaire de la routine : il voit ce que voit le propriétaire et dépense ses crédits. Les changements faits par une routine ne déclenchent jamais d’autres routines, elles ne peuvent donc pas boucler. Le [guide des routines](/docs/app-routines) couvre chaque option.
 
-- **Selon un planning :** toutes les 15 ou 30 minutes, toutes les heures, chaque jour, chaque semaine ou chaque mois. Mate peut aussi définir un planning cron personnalisé, par exemple en semaine à 09:00.
-- **Quand quelque chose change :** n’importe quel événement d’enregistrement sur n’importe quelle liste, des contacts, organisations, affaires, services et tâches à vos propres listes, plus les événements de la boîte de réception à l’exception des e-mails et conversations supprimés et des suppressions définitives. **Champs modifiés** restreint un déclencheur de mise à jour à des champs comme l’**Étape** de l’affaire, et **Filtres d’enregistrement** à des enregistrements comme les affaires qui vous sont assignées.
+- **Selon un planning :** toutes les 15 ou 30 minutes, toutes les heures, chaque jour, chaque semaine ou chaque mois. Mate peut aussi définir un planning cron personnalisé, par exemple en semaine à 09:00.
+- **Quand quelque chose change :** n’importe quel événement d’enregistrement sur n’importe quelle liste, des contacts, organisations, affaires, services et tâches à vos propres listes, plus les événements de la boîte de réception à l’exception des e-mails et conversations supprimés et des suppressions définitives. **Champs modifiés** restreint un déclencheur de mise à jour à des champs comme l’**Étape** de l’affaire, et **Filtres d’enregistrement** à des enregistrements comme les affaires qui vous sont assignées.
 
 | Limite | Valeur actuelle |
 |---|---|
@@ -127,9 +127,9 @@ Le nœud communautaire [customermates/n8n-nodes-crm](https://github.com/customer
 
 ## Ce qui se met à jour tout seul, et ce qui demande encore une personne
 
-- **Sans IA :** chaque modification arrive dans l’historique d’activité de l’enregistrement et atteint chaque webhook abonné à cet événement, et les valeurs pondérées du pipeline suivent vos poids d’étape. Avec Pro et au-delà, dès que vous liez une adresse e-mail ou un identifiant à un contact, chaque conversation avec elle apparaît dans la chronologie de ce contact.
-- **Avec l’IA, à votre demande :** collez des notes d’appel dans Mate et demandez-lui de mettre à jour l’affaire, d’ajouter les notes et de créer des tâches de suivi. Votre propre client IA peut faire de même via MCP avec toutes les formules, auto-hébergement compris, facturé par votre fournisseur d’IA.
-- **Avec l’IA, sans surveillance :** les routines, comme ci-dessus.
+- **Sans IA :** chaque modification arrive dans l’historique d’activité de l’enregistrement et atteint chaque webhook abonné à cet événement, et les valeurs pondérées du pipeline suivent vos poids d’étape. Avec Pro et au-delà, dès que vous liez une adresse e-mail ou un identifiant à un contact, chaque conversation avec elle apparaît dans la chronologie de ce contact.
+- **Avec l’IA, à votre demande :** collez des notes d’appel dans Mate et demandez-lui de mettre à jour l’affaire, d’ajouter les notes et de créer des tâches de suivi. Votre propre client IA peut faire de même via MCP avec toutes les formules, auto-hébergement compris, facturé par votre fournisseur d’IA.
+- **Avec l’IA, sans surveillance :** les routines, comme ci-dessus.
 
 Notre conseil : laissez une routine proposer un changement d’étape dans une note et laissez la personne assignée à l’affaire l’effectuer. Les étapes pilotent le pipeline pondéré, et un mauvais changement fait par une exécution sans surveillance passe facilement inaperçu.
 
