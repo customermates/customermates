@@ -16,6 +16,7 @@ import { REPO_ROOT } from "./walk";
 const APPROVED_PAIRS = [
   ["feature-pages", "cloud-crm"],
   ["feature-pages", "linkedin-integration"],
+  ["feature-pages", "open-source-crm"],
   ["feature-pages", "self-hosted"],
   ["feature-pages", "unified-inbox"],
   ["for-pages", "agencies"],
@@ -24,7 +25,7 @@ const APPROVED_PAIRS = [
   ["blog-posts", "open-source-crm"],
 ] as const;
 
-const PRODUCT_DEMO_PROOF_SLUGS = new Set(["cloud-crm", "linkedin-integration"]);
+const PRODUCT_DEMO_PROOF_SLUGS = new Set(["cloud-crm", "linkedin-integration", "open-source-crm"]);
 
 type Frontmatter = {
   acquisition?: unknown;
@@ -76,7 +77,7 @@ function readPage(path: string): { body: string; data: Frontmatter } {
 }
 
 describe("approved acquisition page contract", () => {
-  it("binds all eight approved bilingual page pairs to rendered page inputs", () => {
+  it("binds all nine approved bilingual page pairs to rendered page inputs", () => {
     const problems: string[] = [];
     let count = 0;
 
@@ -154,7 +155,8 @@ describe("approved acquisition page contract", () => {
             `${path}: related links must be owned by the route ending`,
           );
 
-        const productDemoProof = PRODUCT_DEMO_PROOF_SLUGS.has(slug);
+        const productDemoProof =
+          collection === "feature-pages" && PRODUCT_DEMO_PROOF_SLUGS.has(slug);
         if (productDemoProof && contract.visual.kind !== "none")
           problems.push(
             `${path}: early product-demo proof must not add a hero illustration`,
@@ -191,7 +193,7 @@ describe("approved acquisition page contract", () => {
       }
     }
 
-    expect(count).toBe(16);
+    expect(count).toBe(18);
     expect(problems).toEqual([]);
   });
 

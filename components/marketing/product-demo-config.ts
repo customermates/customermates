@@ -24,6 +24,7 @@ const FEATURE_DEMO_SURFACES = {
   "knowledge-base": { path: DEMO_RECORD_LIST_PATHS.tasks },
   "lead-management": { path: DEMO_RECORD_LIST_PATHS.contacts },
   "linkedin-integration": { hostedBoundary: true, path: "/inbox" },
+  "open-source-crm": { hostedBoundary: true, path: "/dashboard" },
   "outlook-integration": { hostedBoundary: true, path: "/inbox" },
   pipeline: { path: DEMO_RECORD_LIST_PATHS.deals },
   reporting: { path: "/dashboard" },

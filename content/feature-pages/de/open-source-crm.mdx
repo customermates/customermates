@@ -1,0 +1,208 @@
+---
+title: "Open Source CRM: Cloud testen oder Self-Hosted betreiben"
+description: "Customermates ist ein Open Source CRM mit AGPL-Kern. Testen Sie die Cloud [[commercial.trial.days]] Tage ohne Kreditkarte oder betreiben Sie es Self-Hosted mit Docker."
+featureName: Open Source CRM
+
+acquisition:
+  locale: de
+  slug: open-source-crm
+  clusterId: open-source-self-hosted
+  role: support
+  primaryIntent: Open Source CRM nutzen, in der Cloud oder Self-Hosted
+  metadata:
+    title: "Open Source CRM: Cloud testen oder Self-Hosted betreiben"
+    description: "Customermates ist ein Open Source CRM mit AGPL-Kern. Testen Sie die Cloud [[commercial.trial.days]] Tage ohne Kreditkarte oder betreiben Sie es Self-Hosted mit Docker."
+  proof:
+    factReferences:
+      - product:agpl-community-core
+      - product:docker-postgresql-deployment
+      - product:self-hosted-starter-entitlements
+      - product:core-crm-records
+      - product:custom-fields-and-views
+      - product:mcp-tools
+      - product:rest-and-webhooks
+      - product:cloud-plan-catalog
+      - product:hosted-mate-capability
+      - product:managed-cloud-region-and-security
+    excludedClaims:
+      - claim:no-self-hosted-inbox
+      - claim:no-hosted-ai-self-hosted
+      - claim:no-invoicing
+  cta:
+    action: Prüfen Sie das Open Source CRM mit Ihrem eigenen Ablauf
+    description: Starten Sie die [[commercial.trial.days]]-tägige Pro-Testphase in der Cloud, lassen Sie die KI-Einrichtung Ihren Workspace entwerfen und testen Sie ihn mit echten Kontakten und Deals. Der Self-Hosted-Weg mit Docker bleibt daneben offen.
+    buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+    buttonLeftHref: /auth/signup
+    buttonRightText: Self-Hosting mit Docker
+    buttonRightHref: /features/self-hosted
+    hint: "Keine Kreditkarte erforderlich. Self-Hosting umfasst den Funktionsumfang von Starter, ohne gehosteten Posteingang und ohne Mate."
+  relatedHrefs:
+    - /features/self-hosted
+    - /docs/self-hosting
+    - /blog/open-source-crm
+    - /features/cloud-crm
+  visual:
+    id: acquisition.feature-open-source-crm.de
+    locale: de
+    referenceSystemVersion: customermates-marketing-visuals@8
+    source:
+      headline: "Open Source CRM: in der Cloud starten oder Self-Hosted betreiben"
+      body: "Customermates ist ein Open Source CRM aus Deutschland mit AGPL-Kern und öffentlichem Quellcode. Testen Sie die Managed Cloud mit Pro-Funktionen kostenlos und ohne Kreditkarte, oder betreiben Sie den Kern selbst mit Docker Compose und PostgreSQL."
+      checksum: fnv1a-5a44dadf
+    kind: none
+    reason: "Die frühe Dashboard-Demo ist der direkte Produktbeleg; ein zusätzliches Hero-Bild ist nicht nötig."
+    selection: explicit
+  structuredData:
+    types:
+      - BreadcrumbList
+      - FAQPage
+    faqFromRenderedContent: true
+
+hero:
+  title: "Open Source CRM: in der Cloud starten oder Self-Hosted betreiben"
+  description: "Customermates ist ein Open Source CRM aus Deutschland mit AGPL-Kern und öffentlichem Quellcode. Testen Sie die Managed Cloud mit Pro-Funktionen kostenlos und ohne Kreditkarte, oder betreiben Sie den Kern selbst mit Docker Compose und PostgreSQL."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup
+  buttonRightText: Self-Hosting mit Docker
+  buttonRightHref: /features/self-hosted
+  hint: "Keine Kreditkarte erforderlich • Cloud danach ab [[commercial.price.starter.monthly]] pro Nutzer und Monat • Self-Hosted ohne Abrechnung"
+
+cta:
+  action: Prüfen Sie das Open Source CRM mit Ihrem eigenen Ablauf
+  description: Starten Sie die [[commercial.trial.days]]-tägige Pro-Testphase in der Cloud, lassen Sie die KI-Einrichtung Ihren Workspace entwerfen und testen Sie ihn mit echten Kontakten und Deals. Der Self-Hosted-Weg mit Docker bleibt daneben offen.
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup
+  buttonRightText: Self-Hosting mit Docker
+  buttonRightHref: /features/self-hosted
+  hint: "Keine Kreditkarte erforderlich. Self-Hosting umfasst den Funktionsumfang von Starter, ohne gehosteten Posteingang und ohne Mate."
+---
+
+**Customermates ist ein Open Source CRM** für kleine Teams: Kontakte, Organisationen, Deals und Aufgaben in Listen, die Sie selbst konfigurieren, mit REST, Webhooks und MCP für KI-Agenten. Der Kern steht unter AGPL-3.0 und liegt öffentlich auf GitHub. Sie starten in der Managed Cloud mit einer kostenlosen Pro-Testphase ohne Kreditkarte oder betreiben den Kern Self-Hosted mit Docker Compose und PostgreSQL.
+
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Open Source">
+    Selbst entwickelter Code außerhalb von `ee/` steht unter AGPL-3.0-only. Der
+    Quellcode liegt im öffentlichen Repository.
+  </SummaryItem>
+  <SummaryItem label="Schnellster Start">
+    Managed Cloud mit [[commercial.trial.days]] Tagen Pro-Funktionen, ohne
+    Kreditkarte. Die KI-Einrichtung entwirft Listen, Pipeline, Dashboard und
+    Wissensdatenbank.
+  </SummaryItem>
+  <SummaryItem label="Self-Hosted">
+    Zwei Container mit Docker Compose: die Anwendung und PostgreSQL 16, im
+    Funktionsumfang von Starter und ohne Abrechnung.
+  </SummaryItem>
+  <SummaryItem label="Grenze">
+    Posteingang, verbundene Kalender, Mate und die KI-Einrichtung gibt es nur in
+    der Cloud. Rechnungen, Angebote und Telefonie fehlen in beiden Varianten.
+  </SummaryItem>
+</ArticleSummary>
+
+<ProofRail label="Fakten zum Open Source CRM">
+  <ProofItem label="Lizenz">AGPL-3.0-Kern</ProofItem>
+  <ProofItem label="Cloud-Test">[[commercial.trial.days]] Tage Pro, ohne Kreditkarte</ProofItem>
+  <ProofItem label="Self-Hosted">Docker Compose und PostgreSQL 16</ProofItem>
+  <ProofItem label="Schnittstellen">REST, Webhooks und MCP</ProofItem>
+  <ProofItem label="KI-Clients">Claude, ChatGPT oder andere MCP-Clients</ProofItem>
+</ProofRail>
+
+## Was ist an Customermates Open Source?
+
+Der von Customermates selbst entwickelte Code außerhalb von `ee/` steht ausschließlich unter AGPL-3.0. Für den Code in `ee/` gilt die Customermates Commercial License; ausgenommen sind die in Abschnitt 6 von `ee/LICENSE.md` beschriebenen Bestandteile, die an den Browser ausgeliefert werden (Bilder, Schriften, CSS und clientseitiges JavaScript). Sie stehen ebenfalls unter AGPL-3.0.
+
+Die kommerzielle Lizenz erlaubt, das offizielle Image im Self-Hosted-Modus als Community Build zu betreiben, auch produktiv, solange die Cloud-Funktionen ausgeschaltet bleiben. Die genauen Bedingungen stehen in [`LICENSE`](https://github.com/customermates/customermates/blob/main/LICENSE) und [`ee/LICENSE.md`](https://github.com/customermates/customermates/blob/main/ee/LICENSE.md). Lesen Sie beide Dateien, bevor Sie den Code ändern oder weitergeben (Lizenzangaben geprüft am 29. Oktober 2026).
+
+Was das CRM selbst kann, ist in beiden Varianten gleich aufgebaut: Listen für Personen, Organisationen, Deals oder Aufgaben, eigene Felder, Tabellen-, Kanban- und Kalenderansichten, Dashboards, Rollen und ein Aktivitätsprotokoll. Externe KI-Clients wie Claude oder ChatGPT arbeiten über den [MCP-Server](/docs/mcp) mit den Rechten des Nutzers, als der sie verbunden sind.
+
+## Cloud oder Self-Hosted: Welcher Weg passt zu Ihnen?
+
+| Frage                                  | Managed Cloud                                                             | Self-Hosted                                                      |
+| -------------------------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Wer betreibt Anwendung und Datenbank?  | Customermates                                                             | Ihr Team, mit Docker Compose und PostgreSQL 16                   |
+| Wie starte ich?                        | Konto anlegen, [[commercial.trial.days]] Tage Pro testen, ohne Kreditkarte | Zwei Dateien laden und `docker compose up -d` ausführen          |
+| Was kostet es?                         | Ab [[commercial.price.starter.monthly]] pro Nutzer und Monat              | Keine Abrechnung; Sie tragen Infrastruktur und Betriebsaufwand   |
+| Funktionsumfang                        | Je nach Tarif                                                             | Wie Starter                                                      |
+| Posteingang und verbundene Kalender    | In berechtigten Tarifen ab Pro                                            | Nicht enthalten                                                  |
+| KI                                     | Mate, der eingebaute Assistent, und externe MCP-Clients                   | Externe MCP-Clients mit Ihrem eigenen KI-Anbieter                |
+| Einrichtung                            | KI-Einrichtung entwirft den Workspace                                     | Neuer Workspace startet ohne Listen                              |
+| Updates und Backups                    | Customermates                                                             | Ihr Team                                                         |
+
+Die Cloud passt, wenn Sie heute mit echten Kunden arbeiten wollen und keine Server betreiben möchten. Die primäre Produktionsdatenbank ist in AWS Frankfurt konfiguriert; das ist eine gewählte Einstellung, keine Zertifizierung und keine Residenzgarantie. Details zu Region, Anbietern und Schutzmaßnahmen stehen auf der Seite [Cloud CRM](/features/cloud-crm).
+
+Self-Hosting passt, wenn Ihr Team Docker und PostgreSQL betreiben kann und der Funktionsumfang von Starter reicht. Was genau läuft und was fehlt, beschreibt die Seite [Self-Hosted CRM](/features/self-hosted).
+
+<AcquisitionCallout title="Ein Wechsel ist möglich, aber kein Knopfdruck" variant="boundary">
+  Datensätze wandern als XLSX-Arbeitsmappen zwischen Cloud und Self-Hosting,
+  jeweils eine Liste. Eine vollständige Kontoübertragung oder der Transfer von
+  Anhängen per Import gibt es nicht. Ein gekaufter Cloud-Tarif schaltet in
+  einer Self-Hosted-Installation nichts frei.
+</AcquisitionCallout>
+
+## So testen Sie Customermates in der Cloud
+
+<Steps>
+  <Step title="Konto anlegen">
+    [Registrieren Sie sich](/auth/signup) und legen Sie Ihren ersten Workspace
+    an. Er erhält [[commercial.trial.days]] Tage mit Pro-Funktionen, ohne
+    Kreditkarte.
+  </Step>
+  <Step title="Workspace beschreiben">
+    Beantworten Sie einige Fragen zu Kunden, Vertrieb und Zahlen oder lassen Sie
+    Ihre Website lesen. Die KI-Einrichtung zeigt einen Plan mit Listen,
+    Pipeline-Phasen, Feldern, Dashboard und Seiten der Wissensdatenbank, den Sie
+    bestätigen oder anpassen.
+  </Step>
+  <Step title="Eigene Daten einspielen">
+    Importieren Sie eine Excel-Arbeitsmappe (XLSX) oder starten Sie mit
+    Beispieldaten, um Ansichten und Pipeline zu prüfen.
+  </Step>
+  <Step title="Eigene KI verbinden">
+    Verbinden Sie bei Bedarf Claude, ChatGPT oder einen anderen MCP-Client.
+    Mate arbeitet im Workspace mit den Rechten des Nutzers, und sensible
+    Aktionen brauchen Ihre Freigabe.
+  </Step>
+  <Step title="Tarif wählen">
+    Passt Customermates, wählen Sie einen Tarif. Ohne Checkout wird nichts
+    abgerechnet; nach der Testphase pausiert der Workspace, bis ein Tarif
+    gewählt ist.
+  </Step>
+</Steps>
+
+Die Tarife und was sie enthalten, stehen auf der Seite [Preise](/pricing).
+
+## So betreiben Sie Customermates Self-Hosted
+
+Die [Self-Hosting-Anleitung](/docs/self-hosting) beschreibt den Weg Schritt für Schritt: `docker-compose.yml` und `.env` mit `curl` aus dem Repository holen, Passwort, Secret, `BASE_URL` und den E-Mail-Versand eintragen, `docker compose up -d` ausführen. Das Image ist für `linux/amd64` und `linux/arm64` gebaut und wendet ausstehende Datenbank-Migrationen bei jedem Start an.
+
+Eine Self-Hosted-Instanz fasst beliebig viele Workspaces, zählt keine Nutzerplätze und rechnet nichts ab. Dafür verantworten Sie Updates, Backups, getestete Wiederherstellung, TLS und Monitoring selbst. Self-Hosting macht ein CRM nicht automatisch DSGVO-konform: Konfiguration, verbundene Anbieter, Verträge und Betrieb bleiben Ihre Aufgabe.
+
+## Wofür Customermates nicht gedacht ist
+
+Customermates ist ein fokussiertes CRM, keine Business-Suite. Es gibt keine Angebote und Rechnungen, keine Sequenzen oder Massenmailings, keine Telefonie oder SMS, keine nativen Mobil-Apps und keine Compliance-Zertifizierung. SSO und White-Label sind nicht gebaut. Wenn Sie ein ERP, Buchhaltung oder Marketing-Automation im selben System brauchen, passt eine größere Suite besser.
+
+Wenn Sie mehrere Open-Source-CRMs nebeneinander abwägen, hilft unser [Vergleich von Open-Source-CRMs](/blog/open-source-crm) mit Kriterien zu Lizenz, Deployment und Betriebsaufwand. Direkte Gegenüberstellungen gibt es zu [SuiteCRM](/compare/suitecrm-alternative), [EspoCRM](/compare/espocrm-alternative) und [Twenty](/compare/twenty-alternative).
+
+## Häufig gestellte Fragen
+
+<Faq>
+<FaqItem question="Ist Customermates ein kostenloses Open Source CRM?">
+Self-Hosted rechnet Customermates nichts ab; Sie zahlen nur Ihre eigene Infrastruktur, Anbieter und Betriebszeit. Die Managed Cloud kostet ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, monatlich abgerechnet, und beginnt mit einer kostenlosen Testphase von [[commercial.trial.days]] Tagen.
+</FaqItem>
+
+<FaqItem question="Brauche ich für die Testphase eine Kreditkarte?">
+Nein. Die Testphase startet mit dem ersten Cloud-Workspace und enthält Pro-Funktionen. Die Abrechnung beginnt erst mit dem Checkout.
+</FaqItem>
+
+<FaqItem question="Was ist der Unterschied zwischen Open Source CRM und Self-Hosted CRM?">
+Open Source beschreibt die Lizenz: Sie dürfen den Code prüfen, ändern und weitergeben. Self-Hosted beschreibt den Betrieb: Anwendung und Datenbank laufen auf Ihrer Infrastruktur. Bei Customermates können Sie den Open-Source-Kern in der Managed Cloud nutzen oder selbst hosten.
+</FaqItem>
+
+<FaqItem question="Kann ich KI mit dem Self-Hosted CRM nutzen?">
+Ja, über [MCP](/docs/mcp) mit einem externen KI-Client und einem Anbieter, den Sie selbst wählen und bezahlen. Mate, die gehosteten KI-Credits und die KI-Einrichtung gibt es nur in der Cloud.
+</FaqItem>
+
+<FaqItem question="Kann ich später von der Cloud auf Self-Hosted wechseln?">
+Ja, Datensätze wandern als XLSX-Arbeitsmappen, jeweils eine Liste. Für Anhänge oder größere Bestände planen Sie eine Migration über die REST-API. Eine Übertragung des gesamten Kontos gibt es nicht.
+</FaqItem>
+</Faq>
