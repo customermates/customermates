@@ -345,4 +345,5 @@ export const OPERATOR_AUDIT_ACTION = {
   workspaceDelete: "operator.workspace.delete",
   subscriptionTermsUpdate: "operator.subscription_terms.update",
   workspaceTagsUpdate: "operator.workspace_tags.update",
+  adConversionUpload: "operator.ad_conversions.upload",
 } as const;

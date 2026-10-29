@@ -2,7 +2,7 @@
 CREATE TYPE "AdConversionUploadMode" AS ENUM ('validate', 'ingest');
 
 -- CreateEnum
-CREATE TYPE "AdConversionUploadStatus" AS ENUM ('sending', 'accepted', 'rejected', 'ambiguous');
+CREATE TYPE "AdConversionUploadStatus" AS ENUM ('sending', 'submitted', 'rejected', 'ambiguous');
 
 -- CreateTable
 CREATE TABLE "AdConversionUpload" (

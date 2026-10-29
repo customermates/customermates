@@ -1994,7 +1994,7 @@ enum AdConversionUploadMode {
 
 enum AdConversionUploadStatus {
   sending
-  accepted
+  submitted
   rejected
   ambiguous
 }

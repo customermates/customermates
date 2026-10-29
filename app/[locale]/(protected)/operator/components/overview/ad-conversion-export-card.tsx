@@ -12,12 +12,15 @@ import { AppCardHeader } from "@/components/card/app-card-header";
 import { Button } from "@/components/ui/button";
 import { IconContainer } from "@/components/shared/icon-container";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { getAdConversionExportAction, uploadAdConversionsAction } from "../../actions";
 import { operatorCsvHref } from "../operator-csv-href";
 
 type ExportState = { googleAdsCsv: string; rowCount: number; withoutColumnCount: number };
 
-function uploadedRows(upload: AdConversionUploadDto, outcome: "accepted" | "rejected" | "ambiguous") {
+type UploadMessage = { text: string; warning: boolean };
+
+function uploadedRows(upload: AdConversionUploadDto, outcome: AdConversionUploadDto["batches"][number]["result"]) {
   return upload.batches.filter((batch) => batch.result === outcome).reduce((sum, batch) => sum + batch.rowCount, 0);
 }
 
@@ -31,33 +34,42 @@ export function AdConversionExportCard() {
   const send = async () => {
     setIsUploading(true);
     try {
-      setUpload(await uploadAdConversionsAction());
+      const result = await uploadAdConversionsAction();
+      if (!result.ok) {
+        toastZodErrorTree(result.error);
+        return;
+      }
+      setUpload(result.data);
     } finally {
       setIsUploading(false);
     }
   };
 
-  const uploadMessages = (result: AdConversionUploadDto) => {
-    if (result.status === "disabled") return [t("OperatorOverview.adConversions.uploadDisabled")];
+  const uploadMessages = (result: AdConversionUploadDto): UploadMessage[] => {
+    const info = (text: string) => ({ text, warning: false });
+    const warning = (text: string) => ({ text, warning: true });
+    if (result.status === "disabled") return [info(t("OperatorOverview.adConversions.uploadDisabled"))];
     if (result.status === "incomplete")
-      return [t("OperatorOverview.adConversions.uploadIncomplete", { names: result.missing.join(", ") })];
+      return [warning(t("OperatorOverview.adConversions.uploadIncomplete", { names: result.missing.join(", ") }))];
     if (result.status === "nothingToSend")
-      return [t("OperatorOverview.adConversions.uploadNothing", { count: result.alreadyReportedCount })];
-    if (result.status === "authorizationFailed") return [t("OperatorOverview.adConversions.uploadAuthorizationFailed")];
+      return [info(t("OperatorOverview.adConversions.uploadNothing", { count: result.alreadyReportedCount }))];
+    if (result.status === "authorizationFailed")
+      return [warning(t("OperatorOverview.adConversions.uploadAuthorizationFailed"))];
+    if (result.status === "unavailable") return [warning(t("OperatorOverview.adConversions.uploadUnavailable"))];
 
-    const accepted = uploadedRows(result, "accepted");
+    const submitted = uploadedRows(result, "submitted");
     const rejected = uploadedRows(result, "rejected");
     const ambiguous = uploadedRows(result, "ambiguous");
     return [
-      accepted > 0 && result.mode === "validate"
-        ? t("OperatorOverview.adConversions.uploadValidated", { count: accepted })
+      submitted > 0 && result.mode === "validate"
+        ? info(t("OperatorOverview.adConversions.uploadValidated", { count: submitted }))
         : null,
-      accepted > 0 && result.mode === "ingest"
-        ? t("OperatorOverview.adConversions.uploadAccepted", { count: accepted })
+      submitted > 0 && result.mode === "ingest"
+        ? info(t("OperatorOverview.adConversions.uploadSubmitted", { count: submitted }))
         : null,
-      rejected > 0 ? t("OperatorOverview.adConversions.uploadRejected", { count: rejected }) : null,
-      ambiguous > 0 ? t("OperatorOverview.adConversions.uploadAmbiguous", { count: ambiguous }) : null,
-    ].filter((message): message is string => message !== null);
+      rejected > 0 ? warning(t("OperatorOverview.adConversions.uploadRejected", { count: rejected })) : null,
+      ambiguous > 0 ? warning(t("OperatorOverview.adConversions.uploadAmbiguous", { count: ambiguous })) : null,
+    ].filter((message): message is UploadMessage => message !== null);
   };
 
   const generate = async () => {
@@ -120,8 +132,11 @@ export function AdConversionExportCard() {
 
           {upload
             ? uploadMessages(upload).map((message) => (
-                <span key={message} className="text-xs text-muted-foreground">
-                  {message}
+                <span
+                  key={message.text}
+                  className={message.warning ? "text-xs text-warning" : "text-xs text-muted-foreground"}
+                >
+                  {message.text}
                 </span>
               ))
             : null}

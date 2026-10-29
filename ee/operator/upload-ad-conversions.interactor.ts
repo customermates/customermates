@@ -1,3 +1,4 @@
+import type { AdConversionUploadAuditRepo } from "./ad-conversion-upload-audit.repo";
 import type { AdConversionUploadDto } from "./ad-conversion-upload.schema";
 import type { DataManagerTransport } from "./data-manager/data-manager-transport";
 import type { GetAdConversionExportRepo } from "./get/get-ad-conversion-export.repo";
@@ -37,6 +38,7 @@ export class UploadAdConversionsInteractor {
     private readonly candidates: GetAdConversionExportRepo,
     private readonly ledger: AdConversionUploadRepo,
     private readonly transport: DataManagerTransport,
+    private readonly audit: AdConversionUploadAuditRepo,
   ) {}
 
   @ValidateOutput(AdConversionUploadDtoSchema)
@@ -60,14 +62,17 @@ export class UploadAdConversionsInteractor {
     const counts = { mode, eligibleCount: eligible.length, alreadyReportedCount: eligible.length - pending.length };
     if (pending.length === 0) return { ok: true, data: result("nothingToSend", counts) };
 
-    const accessToken = await this.transport.accessToken(settings.credentials);
-    if (!accessToken) return { ok: true, data: result("authorizationFailed", counts) };
+    const token = await this.transport.accessToken(settings.credentials);
+    if (!token.ok) {
+      await this.audit.recordAdConversionUploadUnscoped({ ...counts, status: token.reason, batches: [] });
+      return { ok: true, data: result(token.reason, counts) };
+    }
 
     const batches: AdConversionUploadDto["batches"] = [];
+    const audited: Array<AdConversionUploadDto["batches"][number] & { batchId: string }> = [];
     for (const request of buildDataManagerIngestRequests(pending, settings)) {
       const batchId = randomUUID();
-      const companyIds = [...new Set(request.rows.map((row) => row.companyId))];
-      await this.ledger.startBatchUnscoped({
+      const claimed = await this.ledger.claimBatchUnscoped({
         batchId,
         provider: PROVIDER,
         destination: DATA_MANAGER_DESTINATION,
@@ -79,19 +84,33 @@ export class UploadAdConversionsInteractor {
           orderId: row.orderId,
         })),
       });
+      const claimedKeys = new Set(claimed.map((row) => `${row.companyId}:${row.conversionType}`));
+      const rows = request.rows.filter((row) => claimedKeys.has(`${row.companyId}:${row.conversionType}`));
+      if (rows.length === 0) continue;
 
-      const outcome = await this.transport.ingest(request.body, accessToken);
+      const [claimedRequest] =
+        rows.length === request.rows.length ? [request] : buildDataManagerIngestRequests(rows, settings);
+      const companyIds = [...new Set(rows.map((row) => row.companyId))];
+      const outcome = await this.transport.ingest(claimedRequest.body, token.accessToken);
       await this.ledger.settleBatchUnscoped(batchId, companyIds, {
         status: outcome.result,
         httpStatus: outcome.httpStatus,
         errorStatus: outcome.result === "rejected" ? outcome.errorStatus : null,
-        requestId: outcome.result === "accepted" ? outcome.requestId : null,
+        requestId: outcome.result === "submitted" ? outcome.requestId : null,
         settledAt: new Date(),
       });
-      batches.push({ rowCount: request.rows.length, result: outcome.result });
-      if (outcome.result !== "accepted") break;
+      batches.push({ rowCount: rows.length, result: outcome.result });
+      audited.push({ batchId, rowCount: rows.length, result: outcome.result });
+      if (outcome.result !== "submitted") break;
     }
 
+    if (batches.length === 0) {
+      const settled = { ...counts, alreadyReportedCount: counts.eligibleCount };
+      await this.audit.recordAdConversionUploadUnscoped({ ...settled, status: "nothingToSend", batches: [] });
+      return { ok: true, data: result("nothingToSend", settled) };
+    }
+
+    await this.audit.recordAdConversionUploadUnscoped({ ...counts, status: "sent", batches: audited });
     return { ok: true, data: result("sent", { ...counts, batches }) };
   }
 }

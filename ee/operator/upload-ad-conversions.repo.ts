@@ -23,7 +23,7 @@ export abstract class AdConversionUploadRepo {
   abstract listBlockingUploadsUnscoped(
     provider: string,
   ): Promise<Array<{ companyId: string; conversionType: ConversionEventType }>>;
-  abstract startBatchUnscoped(batch: AdConversionUploadBatch): Promise<void>;
+  abstract claimBatchUnscoped(batch: AdConversionUploadBatch): Promise<AdConversionUploadRow[]>;
   abstract settleBatchUnscoped(
     batchId: string,
     companyIds: string[],

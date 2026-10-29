@@ -3242,6 +3242,7 @@
     "navigation": "Registro di audit",
     "values": {
       "action": {
+        "adConversionUpload": "Caricamento delle conversioni pubblicitarie su Google Ads",
         "auditRead": "Audit operatore letto",
         "candidateRead": "Candidato operatore letto",
         "companyRead": "Spazio di lavoro letto",
@@ -3296,13 +3297,14 @@
       "label": "Conversioni pubblicitarie",
       "rowCount": "{count} conversioni comunicabili",
       "upload": "Invia a Google Ads",
-      "uploadAccepted": "Google ha accettato {count} conversioni.",
       "uploadAmbiguous": "La risposta di Google per {count} conversioni non era chiara. Non verranno inviate di nuovo automaticamente; controlla prima il caricamento in Google Ads.",
       "uploadAuthorizationFailed": "Google non ha accettato le credenziali di caricamento. Non è stato inviato nulla.",
       "uploadDisabled": "Il caricamento su Google Ads è disattivato su questa istanza. Non è stato inviato nulla.",
       "uploadIncomplete": "Al caricamento su Google Ads manca la configurazione: {names}. Non è stato inviato nulla.",
       "uploadNothing": "Nessuna conversione è in attesa di invio. Già inviate: {count}",
       "uploadRejected": "Google ha rifiutato {count} conversioni. Possono essere inviate di nuovo una volta corretta la causa.",
+      "uploadSubmitted": "Google ha ricevuto {count} conversioni da elaborare. Controlla l'importazione più tardi in Google Ads.",
+      "uploadUnavailable": "Non è stato possibile raggiungere Google per il caricamento. Non è stato inviato nulla; riprova più tardi.",
       "uploadValidated": "Solo verifica: Google ha controllato {count} conversioni e non ne ha importata nessuna.",
       "withoutColumnCount": "Conversioni Google escluse da questo file: {count}. Il loro clic portava un identificatore gbraid o wbraid, per cui il modello di caricamento di Google non ha una colonna."
     },

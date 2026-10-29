@@ -2254,11 +2254,16 @@ export const getAdConversionExportRepo = () => new PrismaAdConversionExportRepo(
 export const getGetAdConversionExportInteractor = () =>
   new GetAdConversionExportInteractor(getAdConversionExportRepo());
 
+export const getAdConversionUploadRepo = () => new PrismaAdConversionUploadRepo();
+
+export const getDataManagerTransport = () => new GoogleDataManagerTransport();
+
 export const getUploadAdConversionsInteractor = () =>
   new UploadAdConversionsInteractor(
     getAdConversionExportRepo(),
-    new PrismaAdConversionUploadRepo(),
-    new GoogleDataManagerTransport(),
+    getAdConversionUploadRepo(),
+    getDataManagerTransport(),
+    getOperatorRepo(),
   );
 
 export const getOperatorBillingUsageRepo = () => new PrismaOperatorBillingUsageRepo();

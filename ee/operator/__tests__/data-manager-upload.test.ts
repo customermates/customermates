@@ -8,11 +8,14 @@ vi.mock("@/env", () => ({
   },
 }));
 vi.mock("@/core/decorators/operator-interactor.decorator", () => ({ OperatorInteractor: () => undefined }));
+const sentry = vi.hoisted(() => ({ captureException: vi.fn(), captureMessage: vi.fn() }));
+vi.mock("@sentry/nextjs", () => sentry);
 
 import type { AdConversionExportRow } from "../get/get-ad-conversion-export.repo";
 import type { DataManagerUploadSettings } from "../data-manager/data-manager-config";
-import type { DataManagerIngestOutcome } from "../data-manager/data-manager-transport";
-import type { AdConversionUploadRepo } from "../upload-ad-conversions.repo";
+import type { DataManagerAccessTokenOutcome, DataManagerIngestOutcome } from "../data-manager/data-manager-transport";
+import type { AdConversionUploadAuditRepo } from "../ad-conversion-upload-audit.repo";
+import type { AdConversionUploadBatch, AdConversionUploadRepo } from "../upload-ad-conversions.repo";
 
 import { AD_ATTRIBUTION_NOTICE_VERSION } from "@/constants/legal-documents";
 import { unwrapValidated } from "@/core/validation/validation.utils";
@@ -70,19 +73,28 @@ function row(overrides: Partial<AdConversionExportRow> = {}): AdConversionExport
 function ledger(blocking: Array<{ companyId: string; conversionType: "signup" | "paid" }> = []) {
   return {
     listBlockingUploadsUnscoped: vi.fn().mockResolvedValue(blocking),
-    startBatchUnscoped: vi.fn().mockResolvedValue(undefined),
+    claimBatchUnscoped: vi.fn((batch: AdConversionUploadBatch) => Promise.resolve(batch.rows)),
     settleBatchUnscoped: vi.fn().mockResolvedValue(undefined),
   } satisfies Record<keyof AdConversionUploadRepo, unknown>;
 }
 
-function transport(outcomes: DataManagerIngestOutcome[] = [], token: string | null = "access-token") {
+function auditLog() {
+  return {
+    recordAdConversionUploadUnscoped: vi.fn().mockResolvedValue(undefined),
+  } satisfies Record<keyof AdConversionUploadAuditRepo, unknown>;
+}
+
+function transport(
+  outcomes: DataManagerIngestOutcome[] = [],
+  token: DataManagerAccessTokenOutcome = { ok: true, accessToken: "access-token" },
+) {
   const queue = [...outcomes];
   return {
     accessToken: vi.fn().mockResolvedValue(token),
     ingest: vi
       .fn()
       .mockImplementation(() =>
-        Promise.resolve(queue.shift() ?? { result: "accepted", httpStatus: 200, requestId: "request-1" }),
+        Promise.resolve(queue.shift() ?? { result: "submitted", httpStatus: 200, requestId: "request-1" }),
       ),
   };
 }
@@ -91,11 +103,13 @@ function uploader(
   rows: AdConversionExportRow[],
   ledgerRepo = ledger(),
   transportDouble = transport(),
+  audit = auditLog(),
 ): UploadAdConversionsInteractor {
   return new UploadAdConversionsInteractor(
     { listAdConversionCandidatesUnscoped: () => Promise.resolve(rows) },
     ledgerRepo,
     transportDouble,
+    audit,
   );
 }
 
@@ -104,6 +118,8 @@ function jsonResponse(status: number, body: unknown): Response {
 }
 
 beforeEach(() => {
+  sentry.captureException.mockClear();
+  sentry.captureMessage.mockClear();
   vi.useFakeTimers();
   vi.setSystemTime(NOW);
   testEnv.value = { ...READY_ENV };
@@ -262,9 +278,9 @@ describe("Google Data Manager transport", () => {
     const client = new GoogleDataManagerTransport(fetchImpl);
     const [request] = buildDataManagerIngestRequests(reportableAdConversions([row()], SECRET, NOW), SETTINGS);
 
-    await expect(client.accessToken(SETTINGS.credentials)).resolves.toBe("access-token");
+    await expect(client.accessToken(SETTINGS.credentials)).resolves.toEqual({ ok: true, accessToken: "access-token" });
     await expect(client.ingest(request.body, "access-token")).resolves.toEqual({
-      result: "accepted",
+      result: "submitted",
       httpStatus: 200,
       requestId: "request-42",
     });
@@ -286,11 +302,25 @@ describe("Google Data Manager transport", () => {
     expect(JSON.parse(ingestInit.body as string)).toEqual(request.body);
   });
 
-  it("returns no token when Google refuses the credentials or cannot be reached", async () => {
+  it("tells refused credentials apart from an unreachable or failing token endpoint", async () => {
     const refused = new GoogleDataManagerTransport(vi.fn().mockResolvedValue(jsonResponse(400, { error: "x" })));
     const unreachable = new GoogleDataManagerTransport(vi.fn().mockRejectedValue(new TypeError("fetch failed")));
-    await expect(refused.accessToken(SETTINGS.credentials)).resolves.toBeNull();
-    await expect(unreachable.accessToken(SETTINGS.credentials)).resolves.toBeNull();
+    const timedOut = new GoogleDataManagerTransport(
+      vi.fn().mockRejectedValue(new DOMException("timeout", "TimeoutError")),
+    );
+    const failing = new GoogleDataManagerTransport(vi.fn().mockResolvedValue(jsonResponse(503, {})));
+    await expect(refused.accessToken(SETTINGS.credentials)).resolves.toEqual({
+      ok: false,
+      reason: "authorizationFailed",
+    });
+    await expect(unreachable.accessToken(SETTINGS.credentials)).resolves.toEqual({ ok: false, reason: "unavailable" });
+    await expect(timedOut.accessToken(SETTINGS.credentials)).resolves.toEqual({ ok: false, reason: "unavailable" });
+    await expect(failing.accessToken(SETTINGS.credentials)).resolves.toEqual({ ok: false, reason: "unavailable" });
+    expect(sentry.captureException).toHaveBeenCalledTimes(2);
+    expect(sentry.captureMessage).toHaveBeenCalledTimes(1);
+    expect(JSON.stringify([sentry.captureException.mock.calls, sentry.captureMessage.mock.calls])).not.toMatch(
+      /client-secret|refresh-token/u,
+    );
   });
 
   it.each([
@@ -325,17 +355,20 @@ describe("upload ad conversions interactor", () => {
     const ledgerRepo = ledger();
     const transportDouble = transport();
     const candidates = vi.fn();
+    const audit = auditLog();
     const interactor = new UploadAdConversionsInteractor(
       { listAdConversionCandidatesUnscoped: candidates },
       ledgerRepo,
       transportDouble,
+      audit,
     );
 
     await expect(unwrapValidated(interactor.invoke())).resolves.toMatchObject({ status: "disabled", batches: [] });
     expect(candidates).not.toHaveBeenCalled();
     expect(transportDouble.accessToken).not.toHaveBeenCalled();
     expect(transportDouble.ingest).not.toHaveBeenCalled();
-    expect(ledgerRepo.startBatchUnscoped).not.toHaveBeenCalled();
+    expect(ledgerRepo.claimBatchUnscoped).not.toHaveBeenCalled();
+    expect(audit.recordAdConversionUploadUnscoped).not.toHaveBeenCalled();
   });
 
   it("refuses without credentials and lists what is missing", async () => {
@@ -355,8 +388,9 @@ describe("upload ad conversions interactor", () => {
   it("sends validate-only by default and records the batch before and after sending", async () => {
     const ledgerRepo = ledger();
     const transportDouble = transport();
+    const audit = auditLog();
 
-    const outcome = await unwrapValidated(uploader([row()], ledgerRepo, transportDouble).invoke());
+    const outcome = await unwrapValidated(uploader([row()], ledgerRepo, transportDouble, audit).invoke());
 
     expect(outcome).toEqual({
       status: "sent",
@@ -364,10 +398,10 @@ describe("upload ad conversions interactor", () => {
       missing: [],
       eligibleCount: 1,
       alreadyReportedCount: 0,
-      batches: [{ rowCount: 1, result: "accepted" }],
+      batches: [{ rowCount: 1, result: "submitted" }],
     });
     expect(transportDouble.ingest.mock.calls[0][0]).toMatchObject({ validateOnly: true });
-    expect(ledgerRepo.startBatchUnscoped).toHaveBeenCalledWith({
+    expect(ledgerRepo.claimBatchUnscoped).toHaveBeenCalledWith({
       batchId: expect.any(String),
       provider: "google_ads",
       destination: "google_ads:data_manager",
@@ -375,19 +409,70 @@ describe("upload ad conversions interactor", () => {
       attemptedAt: NOW,
       rows: [{ companyId: "company-1", conversionType: "signup", orderId: expect.stringMatching(/^[0-9a-f]{32}$/) }],
     });
-    const [batchId] = ledgerRepo.startBatchUnscoped.mock.calls[0].map((batch) => batch.batchId);
+    const [batchId] = ledgerRepo.claimBatchUnscoped.mock.calls[0].map((batch) => batch.batchId);
     expect(ledgerRepo.settleBatchUnscoped).toHaveBeenCalledWith(batchId, ["company-1"], {
-      status: "accepted",
+      status: "submitted",
       httpStatus: 200,
       errorStatus: null,
       requestId: "request-1",
       settledAt: NOW,
     });
-    expect(ledgerRepo.startBatchUnscoped.mock.invocationCallOrder[0]).toBeLessThan(
+    expect(ledgerRepo.claimBatchUnscoped.mock.invocationCallOrder[0]).toBeLessThan(
       transportDouble.ingest.mock.invocationCallOrder[0],
     );
     expect(transportDouble.ingest.mock.invocationCallOrder[0]).toBeLessThan(
       ledgerRepo.settleBatchUnscoped.mock.invocationCallOrder[0],
+    );
+    expect(audit.recordAdConversionUploadUnscoped).toHaveBeenCalledTimes(1);
+    expect(audit.recordAdConversionUploadUnscoped).toHaveBeenCalledWith({
+      mode: "validate",
+      status: "sent",
+      eligibleCount: 1,
+      alreadyReportedCount: 0,
+      batches: [{ batchId, rowCount: 1, result: "submitted" }],
+    });
+    expect(JSON.stringify(audit.recordAdConversionUploadUnscoped.mock.calls)).not.toMatch(
+      /Case-Sensitive_GCLID|[0-9a-f]{32}/u,
+    );
+  });
+
+  it("sends only the rows it claimed when another run took the rest first", async () => {
+    testEnv.value = { ...READY_ENV, GOOGLE_ADS_CONVERSION_UPLOAD_INGEST: true };
+    const ledgerRepo = ledger();
+    ledgerRepo.claimBatchUnscoped.mockImplementation((batch: AdConversionUploadBatch) =>
+      Promise.resolve(batch.rows.filter((entry) => entry.conversionType === "paid")),
+    );
+    const transportDouble = transport();
+
+    const outcome = await unwrapValidated(
+      uploader(
+        [row(), row({ conversionType: "paid", conversionAt: new Date("2026-10-25T08:00:00.000Z") })],
+        ledgerRepo,
+        transportDouble,
+      ).invoke(),
+    );
+
+    expect(outcome.batches).toEqual([{ rowCount: 1, result: "submitted" }]);
+    const body = transportDouble.ingest.mock.calls[0][0];
+    expect(body.events.map((entry: { destinationReferences: string[] }) => entry.destinationReferences)).toEqual([
+      ["paid"],
+    ]);
+    expect(ledgerRepo.settleBatchUnscoped.mock.calls[0][1]).toEqual(["company-1"]);
+  });
+
+  it("reports nothing to send when another run claimed every row first", async () => {
+    const ledgerRepo = ledger();
+    ledgerRepo.claimBatchUnscoped.mockResolvedValue([]);
+    const transportDouble = transport();
+    const audit = auditLog();
+
+    const outcome = await unwrapValidated(uploader([row()], ledgerRepo, transportDouble, audit).invoke());
+
+    expect(outcome).toMatchObject({ status: "nothingToSend", eligibleCount: 1, alreadyReportedCount: 1 });
+    expect(transportDouble.ingest).not.toHaveBeenCalled();
+    expect(ledgerRepo.settleBatchUnscoped).not.toHaveBeenCalled();
+    expect(audit.recordAdConversionUploadUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({ status: "nothingToSend", batches: [] }),
     );
   });
 
@@ -422,15 +507,27 @@ describe("upload ad conversions interactor", () => {
     expect(transportDouble.accessToken).not.toHaveBeenCalled();
   });
 
-  it("writes no ledger row when Google refuses the credentials", async () => {
-    const ledgerRepo = ledger();
-    const transportDouble = transport([], null);
-    await expect(unwrapValidated(uploader([row()], ledgerRepo, transportDouble).invoke())).resolves.toMatchObject({
-      status: "authorizationFailed",
-    });
-    expect(transportDouble.ingest).not.toHaveBeenCalled();
-    expect(ledgerRepo.startBatchUnscoped).not.toHaveBeenCalled();
-  });
+  it.each(["authorizationFailed", "unavailable"] as const)(
+    "writes no ledger row but one audit event when the token exchange ends %s",
+    async (reason) => {
+      const ledgerRepo = ledger();
+      const transportDouble = transport([], { ok: false, reason });
+      const audit = auditLog();
+      await expect(
+        unwrapValidated(uploader([row()], ledgerRepo, transportDouble, audit).invoke()),
+      ).resolves.toMatchObject({ status: reason });
+      expect(transportDouble.ingest).not.toHaveBeenCalled();
+      expect(ledgerRepo.claimBatchUnscoped).not.toHaveBeenCalled();
+      expect(audit.recordAdConversionUploadUnscoped).toHaveBeenCalledTimes(1);
+      expect(audit.recordAdConversionUploadUnscoped).toHaveBeenCalledWith({
+        mode: "validate",
+        status: reason,
+        eligibleCount: 1,
+        alreadyReportedCount: 0,
+        batches: [],
+      });
+    },
+  );
 
   it("stops after an ambiguous answer and records it so the batch is never resent blindly", async () => {
     testEnv.value = { ...READY_ENV, GOOGLE_ADS_CONVERSION_UPLOAD_INGEST: true };
