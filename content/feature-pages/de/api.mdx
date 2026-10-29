@@ -34,7 +34,7 @@ Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit v
 
 <ArticleSummary title="Auf einen Blick">
   <SummaryItem label="Schnittstellen">REST unter `/api/v1`, OpenAPI-3.1-Spezifikation, [[derived.webhooks.events.total]] Webhook-Events und [[derived.mcp.tools.total]] MCP-Tools.</SummaryItem>
-  <SummaryItem label="Tarife">REST, Webhooks und MCP in Starter, Pro, Business und Enterprise sowie beim Self-Hosting. Inbox-Endpunkte brauchen ein verbundenes Konto, das in Customermates Cloud ab Pro verfügbar ist.</SummaryItem>
+  <SummaryItem label="Tarife">REST, Webhooks und MCP in jedem Cloud-Tarif sowie beim Self-Hosting. Inbox-Endpunkte brauchen ein verbundenes Konto, das in Customermates Cloud ab Pro verfügbar ist.</SummaryItem>
   <SummaryItem label="Authentifizierung">Ein API-Key pro Client im Header `x-api-key`. Ein Key hat genau die Rechte der Rolle seines Besitzers.</SummaryItem>
   <SummaryItem label="Grenzen">Bulk-Schreibvorgänge nehmen bis zu 100 Datensätze pro Anfrage. Kein ODER zwischen Filterregeln, keine Scopes pro Key.</SummaryItem>
 </ArticleSummary>
@@ -99,7 +99,7 @@ Zum Anlegen von Keys braucht eine Rolle in der Zeile **API & Webhooks** **Lesen*
 
 ## MCP: die Schnittstelle für KI-Clients
 
-Der MCP-Endpunkt unter `/api/v1/mcp` gibt einem externen KI-Client [[derived.mcp.tools.total]] Tools für dieselben Datensätze, die Inbox und die Webhooks. Claude und ChatGPT verbinden sich per OAuth als benutzerdefinierter Konnektor, Claude Code, Codex, Cursor und Gemini nutzen einen API-Key. Client, Modell und Abonnement wählen Sie selbst, und MCP-Aufrufe verbrauchen keine gehosteten KI-Credits von Customermates. Alle Tools stehen im [MCP-Leitfaden](/docs/mcp).
+Der MCP-Endpunkt unter `/api/v1/mcp` gibt einem externen KI-Client [[derived.mcp.tools.total]] Tools für dieselben Datensätze, die Inbox und die Webhooks. Claude und ChatGPT verbinden sich per OAuth als benutzerdefinierter Konnektor, Claude Code, Codex, Cursor und Gemini nutzen einen API-Key. Client, Modell und Abonnement wählen Sie selbst. Semantische Suche kann in Customermates Cloud trotzdem das Mate-Kontingent beanspruchen. Alle Tools stehen im [MCP-Leitfaden](/docs/mcp).
 
 Mate, der Assistent in Customermates Cloud, ist eine eigene Funktion. Er nutzt gehostete KI-Credits und braucht keinen API-Key. Selbst gehostete Installationen haben MCP, aber kein Mate.
 
