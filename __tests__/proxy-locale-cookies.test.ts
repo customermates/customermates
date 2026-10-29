@@ -18,7 +18,10 @@ vi.mock("@/core/auth/better-auth", () => ({
 
 import proxy from "@/proxy";
 import { APP_LOCALE_COOKIE_NAME, CONTENT_LOCALE_COOKIE_NAME } from "@/i18n/locale-preference";
+import { APP_LOCALES, isContentLocale } from "@/i18n/locale-registry";
 import { appRouting, contentRouting } from "@/i18n/routing";
+
+const APP_ONLY_LOCALE = APP_LOCALES.find((locale) => !isContentLocale(locale));
 
 function request(pathname: string, options: { acceptLanguage?: string; cookie?: string } = {}): NextRequest {
   const headers = new Headers();
@@ -135,9 +138,10 @@ describe("proxy locale preference cookies", () => {
     });
     expect(staleApp.location).toBe("http://localhost:4000/fr/dashboard");
 
+    expect(APP_ONLY_LOCALE).toBeDefined();
     const appOnlyContent = await call("/", {
       acceptLanguage: "de-DE,de;q=0.9",
-      cookie: `${CONTENT_LOCALE_COOKIE_NAME}=fr`,
+      cookie: `${CONTENT_LOCALE_COOKIE_NAME}=${APP_ONLY_LOCALE}`,
     });
     expect(appOnlyContent.location).toMatch(/^http:\/\/localhost:4000\/de\/?$/);
   });
