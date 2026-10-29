@@ -77,7 +77,7 @@ function readPage(path: string): { body: string; data: Frontmatter } {
 }
 
 describe("approved acquisition page contract", () => {
-  it("binds all nine approved bilingual page pairs to rendered page inputs", () => {
+  it("binds all nine approved pages in every content locale to rendered page inputs", () => {
     const problems: string[] = [];
     let count = 0;
 
