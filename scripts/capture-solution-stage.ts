@@ -15,7 +15,7 @@ import {
   type SolutionCaptureProvenance,
   checkSolutionCaptureManifest,
 } from "@/core/solutions/solution-captures";
-import { SOLUTION_CATALOG, SOLUTION_DATA_LOCALES } from "@/core/solutions/solution-catalog";
+import { SOLUTION_CATALOG, SOLUTION_DATA_LOCALES, solutionDataLocales } from "@/core/solutions/solution-catalog";
 import {
   SOLUTION_STAGE_CAPTURE_VIEWPORT,
   SOLUTION_STAGE_IMAGE_SIZE,
@@ -116,7 +116,7 @@ function selectedPlan(routes: SolutionStageRoutes, only: readonly string[]): Sol
 
 function mainCaptureFiles(only: readonly string[]): string[] {
   return SOLUTION_CATALOG.filter((solution) => only.length === 0 || only.includes(solution.id)).flatMap((solution) =>
-    solution.publicLocales.flatMap((locale) =>
+    solutionDataLocales(solution).flatMap((locale) =>
       ["light", "dark"].flatMap((theme) => [
         `public/captures/solutions/${theme}/${solution.id}-${locale}.webp`,
         `public/captures/solutions/${theme}/${solution.id}-${locale}-nav.webp`,

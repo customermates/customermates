@@ -1,0 +1,197 @@
+---
+title: "Base de données CRM : ce que c’est et comment la bâtir"
+description: "Une base de données CRM relie personnes, entreprises, affaires et tâches. Comment les grands CRM la modélisent, comment bâtir la vôtre et la garder propre."
+
+relatedHrefs:
+  - /features/contact-management
+  - /blog/client-database-software
+  - /blog/excel-crm-template
+  - /docs/app-records
+
+hero:
+  title: "Base de données CRM : ce que c’est et comment en bâtir une qui reste propre"
+  description: "Une base de données CRM est un ensemble d’enregistrements liés sur les personnes avec qui vous travaillez, les entreprises auxquelles elles appartiennent et les affaires et tâches qui vous relient. Voici comment les grands CRM la structurent, comment concevoir et importer la vôtre, et quelles règles la gardent exacte."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Retour au blog
+  by: par Benjamin Wagner
+  date: 2026-01-12
+  updated: 2026-10-08
+  tags:
+    - Base de données CRM
+    - Données clients
+    - Gestion des données
+    - RGPD
+---
+
+# Base de données CRM : ce que c’est et comment en bâtir une qui reste propre
+
+Une base de données CRM est le stockage structuré derrière un CRM : un enregistrement par personne, un par entreprise, un par affaire, et les liens entre eux, plus l’historique de ce qui s’est passé. Ce sont les liens qui la distinguent d’une liste de contacts. Ouvrez une entreprise et vous voyez ses personnes, ses affaires ouvertes et la dernière conversation ; ouvrez une affaire et vous voyez qui est concerné et ce qui a été proposé.
+
+Vous construisez rarement cette base de zéro. Vous choisissez un CRM, vous décidez des types d’enregistrement et des champs dont vous avez besoin, vous nettoyez vos données existantes et vous les importez dans le bon ordre. Ce guide couvre ce travail de conception, montre comment quatre CRM modélisent leurs données et se termine par un exemple chiffré. Customermates publie ce guide ; les informations sur les autres éditeurs viennent de leur propre documentation, liée en fin d’article.
+
+<ArticleSummary title="En bref">
+  <SummaryItem label="Ce que c’est">Des enregistrements liés pour les personnes, les entreprises, les affaires et les tâches, avec des champs typés et un historique d’activité. Un tableur contient des lignes ; une base de données CRM contient des relations.</SummaryItem>
+  <SummaryItem label="Comment la bâtir">Fixez d’abord les types d’enregistrement, puis les champs sur lesquels vous filtrez, puis une clé unique par personne. Nettoyez avant d’importer, et importez les entreprises avant les personnes.</SummaryItem>
+  <SummaryItem label="Ce qui la casse">Les doublons, les champs en texte libre qui devraient être des choix, et l’absence de responsable du nettoyage.</SummaryItem>
+  <SummaryItem label="Customermates">Démarre sans listes : vous créez celles dont vous avez besoin (contacts, organisations, affaires ou les vôtres), avec des champs typés et des relations, à partir de [[commercial.price.starter.monthly]] par utilisateur et par mois dans le cloud, ou auto-hébergé sous AGPL.</SummaryItem>
+</ArticleSummary>
+
+La base de données n’est qu’une partie du choix : testez comment les utilisateurs retrouvent et mettent à jour ces enregistrements avec la liste de contrôle navigateur et mobile du [guide de l’application CRM](/blog/crm-app).
+
+## Ce que contient une base de données CRM
+
+Voyez-la comme une poignée de tables qui se renvoient l’une à l’autre. La plupart des CRM fournissent le même socle et diffèrent par ce qu’ils ajoutent autour.
+
+| Type d’enregistrement | Ce qu’est un enregistrement | Typiquement lié à | Champs utiles |
+|---|---|---|---|
+| Personne (contact) | Un humain à qui vous parlez | Son entreprise, ses affaires, des tâches, des messages | Prénom et nom, e-mail, téléphone, fonction, comment vous vous êtes rencontrés |
+| Entreprise (organisation, compte) | Une société ou une institution | Ses personnes et ses affaires | Nom, segment, site web, adresse de facturation |
+| Affaire (opportunité) | Une part d’activité potentielle ou en cours | Les personnes et entreprises concernées, les produits ou services vendus | Étape, valeur, début prévu, source |
+| Produit ou service | Quelque chose que vous vendez à un prix | Les affaires qui l’incluent | Nom, prix |
+| Tâche ou activité | Quelque chose que quelqu’un doit faire ou a fait | Tout ce qui précède | Responsable, notes |
+
+Deux questions de conception décident si la base tiendra dans le temps. Une personne peut-elle appartenir à plusieurs entreprises (un consultant qui siège à deux conseils, un freelance qui travaille pour trois agences) ? Et une affaire peut-elle concerner plusieurs personnes ? Si votre CRM impose une entreprise par personne ou un contact par affaire, vous finirez par écrire des contournements dans les notes.
+
+L’autre moitié d’une base de données CRM est l’historique. Chaque modification d’un enregistrement et chaque e-mail ou message lié forment une chronologie. C’est elle qui permet à un collègue de reprendre un client sans réunion de passation, et c’est la partie qu’un tableur ne peut pas vous donner.
+
+## Exemples de bases de données CRM : comment quatre CRM structurent leurs données
+
+Les types d’enregistrement disent pour quoi un CRM a été conçu. Ce tableau compare uniquement le modèle de données, pas le prix ni la qualité.
+
+| CRM | Types d’enregistrement standard | Vos propres types d’enregistrement |
+|---|---|---|
+| [HubSpot](https://knowledge.hubspot.com/records/understand-objects) | Contacts et entreprises comme socle, plus affaires, leads, tickets, produits, projets, tâches et plus | Objets personnalisés, qui demandent un abonnement Enterprise |
+| [Salesforce](https://trailhead.salesforce.com/content/learn/modules/data_modeling/objects_intro) | Objets standard comme Account, Contact, Lead et Opportunity | Objets personnalisés « to store information that’s specific to your company or industry » (pour stocker des informations propres à votre entreprise ou à votre secteur) |
+| [Pipedrive](https://support.pipedrive.com/en/article/how-is-pipedrive-data-organized) | Leads, affaires, personnes, organisations, activités, produits, projets et e-mails | L’article lié ne nomme aucun type d’objet personnalisé ; Projects est un module complémentaire sur Growth et en dessous, et standard sur Premium et Ultimate |
+| Customermates | Contacts, organisations, affaires, services et tâches, tous librement renommables | Vos propres listes avec champs typés, relations et champs calculés |
+
+La tendance : HubSpot et Salesforce vous laissent ajouter vos propres types d’objets et les configurer, chez HubSpot avec un abonnement Enterprise. Les éléments de données de Pipedrive restent proches du processus de vente. Customermates démarre sans listes : vous créez celles dont vous avez besoin et vous nommez chacune, de sorte qu’une liste de contacts peut s’appeler Clients et une liste d’affaires Projets dans tout l’espace de travail, et vous pouvez les renommer plus tard.
+
+## Base de données CRM, tableur ou base de données simple ?
+
+Les trois peuvent contenir des données clients. La question est de savoir qui les maintient et quelle part de la logique vous voulez construire vous-même.
+
+| Choisir | Quand | Ce à quoi vous renoncez |
+|---|---|---|
+| Un tableur | Une seule personne, une liste courte, pas d’historique partagé nécessaire | Les liens entre personnes et entreprises, une chronologie par client, la modification sûre par plusieurs personnes |
+| Une base de données simple ou un outil no-code (Airtable, Notion, Access, PostgreSQL) | Vos enregistrements ne sont pas des personnes et des affaires, ou vous avez besoin d’un modèle qu’aucun CRM n’offre | Vous construisez vous-même les formulaires, les relations, les permissions et l’historique |
+| Un CRM | Plusieurs personnes travaillent avec les mêmes clients et vous suivez des affaires, des relances ou des conversations | Une part de liberté dans le modèle de données ; la plupart des CRM cloud facturent par utilisateur |
+
+Si un tableur est votre point de départ, le [guide du modèle CRM Excel](/blog/excel-crm-template) montre jusqu’où il va et comment l’organiser pour que l’import ultérieur soit facile. Pour choisir entre les types d’outils de fichier client, voyez les [logiciels de base de données clients](/blog/client-database-software).
+
+## Comment bâtir une base de données CRM
+
+Ces étapes valent pour n’importe quel CRM. L’ordre compte plus que l’outil.
+
+<Steps>
+  <Step title="Noter les types d’enregistrement dont vous avez besoin">Commencez par les personnes, les entreprises et les affaires. N’ajoutez un type distinct que s’il a son propre cycle de vie. Un catalogue de produits en a un ; un lieu de réunion, non.</Step>
+  <Step title="Lister les champs sur lesquels vous filtrerez ou ferez des rapports">Si personne ne filtrera jamais sur un champ, sa place est dans les notes. Pour chaque champ, choisissez un type : date, devise, e-mail, téléphone, lien, ou un choix unique dans une liste fixe. Un champ « Segment » en texte libre finit avec « Récurrent », « récurrent » et « Réc. » en un mois.</Step>
+  <Step title="Définir vos étapes d’affaire et ce qui fait avancer une affaire">Cinq à sept étapes avec chacune une règle de sortie écrite, par exemple « Proposition : une proposition écrite a été envoyée ». Des étapes sans règle de sortie deviennent des opinions.</Step>
+  <Step title="Choisir une clé unique par personne">En général l’adresse e-mail. C’est ce qui permet de repérer les doublons avant l’import et au CRM de rattacher un e-mail entrant à la bonne personne.</Step>
+  <Step title="Nettoyer les données sources">Une personne par ligne, un seul type de valeur par colonne, noms complets séparés en prénom et nom, doublons supprimés par e-mail, et suppression des personnes que vous n’avez plus de raison de garder.</Step>
+  <Step title="Importer d’abord les entreprises, puis les personnes, puis les affaires">Chaque import suivant peut alors se lier à des enregistrements déjà présents, retrouvés par leur nom. Testez avec 50 lignes avant le fichier complet.</Step>
+  <Step title="Enregistrer les vues dont les équipes se servent">« Mes affaires ouvertes », « Clients sans entreprise », « Sans mise à jour depuis 90 jours ». Une base que personne ne consulte se dégrade en silence.</Step>
+  <Step title="Nommer un responsable de la qualité des données">Une personne qui mène le contrôle mensuel ci-dessous. Sans responsable, le nettoyage est l’affaire de tous et donc de personne.</Step>
+</Steps>
+
+## Quand les données ne rentrent ni dans les contacts, ni dans les entreprises, ni dans les affaires
+
+C’est le problème de conception le plus courant, et il y a quatre réponses honnêtes.
+
+1. **Cela décrit un enregistrement existant.** Une date de fin de contrat, un segment de client, une URL LinkedIn. Ajoutez un champ personnalisé typé à ce type d’enregistrement.
+2. **C’est quelque chose que vous vendez.** Mettez-le dans le catalogue de produits ou de services et liez-le aux affaires, afin que la valeur de l’affaire découle de son contenu.
+3. **C’est du texte que vous lisez mais ne filtrez jamais.** Notes de réunion, contexte, préférences. Utilisez le champ de notes.
+4. **Cela a son propre cycle de vie et ses propres relations.** Biens immobiliers, véhicules, candidats, événements. C’est un objet personnalisé. HubSpot les propose sur Enterprise, Salesforce sur sa plateforme, et les bases no-code comme Airtable sont construites autour d’eux. Dans Customermates, vous l’ajoutez comme votre propre liste dans Configurer, avec ses propres champs et relations.
+
+## Exemple chiffré : une base de données CRM pour un cabinet de conseil de quatre personnes
+
+Voici la même conception dans Customermates, mise en place comme le produit fonctionne aujourd’hui. Customermates est un CRM open source et IA natif conçu en Allemagne pour les petites équipes en contact direct avec leurs clients, comme les consultants, les agences et les fondateurs.
+
+**Listes.** Dans Configurer, ouvrez Contacts et changez **Nom** et **Nom au pluriel** sous **Général** en Client et Clients, puis renommez Affaires en Projets de la même façon. N’importe quel nom convient. Organisations, Services et Tâches gardent leur nom.
+
+**Champs.** Chaque champ a un type : Texte, Texte enrichi, Nombre, Montant, Oui ou non, Date, Date et heure, Période, Période avec heures, Choix unique, Choix multiple, Adresse web, Membre, Adresse, Fichier ou Téléphone, e-mail et réseaux sociaux.
+
+| Liste | Champ | Type |
+|---|---|---|
+| Organisations | Segment (Récurrent, Projet, Ancien) | Choix unique |
+| Organisations | Client depuis | Date |
+| Clients | Fonction | Texte |
+| Clients | Profil LinkedIn | Adresse web |
+| Projets | Période de mission | Période |
+| Projets | Source (Recommandation, Entrant, Événement) | Choix unique |
+
+**Relations.** Un client peut être lié à plusieurs organisations, et un projet à plusieurs clients, organisations et utilisateurs assignés. La valeur d’un projet est la somme de ses lignes, chacune étant le prix d’un service multiplié par sa quantité : « Atelier stratégique » à un prix et « Suivi mensuel » multiplié par six s’additionnent tout seuls.
+
+**Étapes.** Les étapes ne sont pas prédéfinies : vous ajoutez un champ Étape (par exemple Prospection, Qualification, Démo, Proposition, Négociation, Gagnée, Perdue) et vous définissez des probabilités de gain par étape dans Configurer. Le pipeline pondéré est l’arithmétique simple de ces pourcentages, pas une prévision.
+
+**Clé unique.** Les adresses e-mail vont dans le champ Coordonnées du client, qui rattache les messages entrants à l’enregistrement. Une même adresse peut appartenir à plusieurs enregistrements : supprimez donc les doublons avant d’importer. La recherche globale (Cmd/Ctrl+K) retrouve un client par son nom ou par n’importe quelle adresse e-mail ou numéro de téléphone de ses coordonnées.
+
+**Import.** Utilisez Plus d’actions › Ajouter depuis un fichier avec un classeur .xlsx, une liste à la fois, dans l’ordre organisations, clients, projets. Les colonnes de lien sont rapprochées par nom d’enregistrement. Les fichiers CSV ne sont pas acceptés : enregistrez-les d’abord en .xlsx. La [documentation des enregistrements](/docs/app-records) donne toutes les règles d’import.
+
+**Vues.** Enregistrez « Sans mise à jour depuis 90 jours » en filtrant Mis à jour le avec Plus ancien que… 90 jours, et « Clients sans organisation ». Les vues enregistrées sont personnelles : chaque collègue règle les mêmes filtres et enregistre sa propre vue.
+
+**Coût.** Quatre personnes sur Starter paient [[commercial.price.starter.monthly.seats.4]] par mois. Sur Pro, qui ajoute la [boîte de réception unifiée](/features/unified-inbox) pour que le compte d’e-mail, LinkedIn ou WhatsApp connecté de chaque utilisateur affiche ses conversations à côté du client, c’est [[commercial.price.pro.monthly.seats.4]] par mois. La facturation est mensuelle, et l’essai dure [[commercial.trial.days]] jours. L’auto-hébergement du cœur open source n’a pas de frais de licence, mais ni boîte de réception ni Mate.
+
+**Une routine pour la qualité des données (Customermates Cloud).** Mate, l’assistant de Customermates Cloud, utilise des crédits IA hébergés. Une routine exécute des instructions enregistrées selon un calendrier ou sur un événement d’enregistrement, au nom de la personne qui en est propriétaire ; Pro comprend [[commercial.entitlement.pro.includedRoutinesPerUser]] routines par utilisateur. Une routine hebdomadaire pourrait porter cette instruction :
+
+> Chaque lundi, listez les clients créés ces 7 derniers jours qui n’ont aucune organisation liée ou aucune adresse e-mail, et listez les organisations sans valeur de Segment. Donnez les listes dans le résumé de l’exécution. Ne modifiez aucun enregistrement et n’envoyez aucun message.
+
+La dernière phrase compte. Mate peut envoyer des messages quand une instruction le demande : une routine destinée uniquement à faire un rapport doit donc le préciser. Si vous préférez votre propre client IA, Claude, ChatGPT et d’autres clients MCP peuvent interroger les mêmes enregistrements via [[derived.mcp.tools.total]] [outils MCP](/docs/mcp), sur Cloud et en auto-hébergement.
+
+## Garder une base de données CRM propre
+
+Les données de contact vieillissent quand les gens changent d’emploi et que les entreprises fusionnent. Une courte routine avec un responsable désigné vaut mieux qu’un projet de nettoyage annuel.
+
+| Fréquence | Contrôle | Dans Customermates |
+|---|---|---|
+| Chaque semaine | Nouvelles personnes sans entreprise, nouvelles affaires sans étape | Vues enregistrées, ou la routine ci-dessus |
+| Chaque mois | Enregistrements non mis à jour depuis 90 jours : encore pertinents ? | Filtrer Mis à jour le, Plus ancien que… 90 jours |
+| Chaque mois | Valeurs en texte libre qui devraient être des choix | Ajouter un champ Choix unique, puis le renseigner sur jusqu’à 100 enregistrements sélectionnés d’un coup avec Modifier |
+| Chaque trimestre | Personnes que vous n’avez plus de raison de garder | Les supprimer de la liste ou de la page de l’enregistrement, puis de la Corbeille |
+| Avant tout gros changement | Une copie de ce que vous avez | Exporter chaque liste en Excel ou JSON ; il n’existe pas d’export unique de tout le compte |
+
+Un classeur exporté peut être modifié puis réimporté comme **Fiches existantes**, ce qui les met à jour au lieu de créer des doublons. Les corrections en masse deviennent ainsi praticables sans API.
+
+## Données personnelles dans une base de données CRM
+
+Dans l’UE, une base de données CRM de personnes constitue des données personnelles au sens du [RGPD](https://eur-lex.europa.eu/eli/reg/2016/679/oj). Trois principes de l’article 5 se traduisent directement en conception de base de données : ne garder que des données « limitées à ce qui est nécessaire » (moins de champs), les garder exactes (la routine de nettoyage) et limiter la durée de leur conservation (la suppression trimestrielle). L’article 17 donne aux personnes le droit d’obtenir l’effacement de leurs données : vous devez donc pouvoir retrouver et supprimer complètement une personne. L’article 28 exige un contrat avec tout prestataire qui stocke les données pour vous.
+
+Pour Customermates Cloud, l'[accord de traitement des données](/dpa) est public, la base de données de l’application est configurée dans la région AWS de Francfort, et les [sous-traitants](/subprocessors), fournisseurs américains compris, sont listés. Customermates ne détient aucune certification de conformité. Si vous avez besoin des données sur votre propre serveur, [auto-hébergez le cœur open source](/features/self-hosted).
+
+## Quand Customermates n’est pas la bonne base de données
+
+- **Vous avez besoin de permissions au niveau du champ.** Les permissions s’appliquent par liste et par action, pas par champ.
+- **Vous avez besoin d’un export de tout en un clic.** L’export se fait une liste à la fois, en Excel ou JSON.
+- **Vous envoyez des newsletters depuis votre liste de clients.** Il n’y a pas d’envoi d’e-mails en masse ; utilisez un outil d’e-mail marketing.
+
+## Questions fréquentes
+
+<Faq>
+<FaqItem question="Qu’est-ce qu’une base de données CRM ?">
+C’est le stockage derrière un CRM : des enregistrements pour les personnes, les entreprises, les affaires et les tâches, liés entre eux, avec des champs typés et un historique des modifications et des conversations. Les liens et l’historique en font plus qu’une liste de contacts.
+</FaqItem>
+
+<FaqItem question="Quelle est la différence entre une base de données et un CRM ?">
+Une base de données stocke les tables que vous concevez et vous laisse les formulaires, les relations, les permissions et l’historique. Un CRM est une base de données dont la logique client est déjà construite : des personnes liées à des entreprises et à des affaires, des étapes de pipeline, des responsables et une chronologie par enregistrement. Vous échangez une part de liberté dans le modèle de données contre le fait de ne pas avoir à le construire.
+</FaqItem>
+
+<FaqItem question="Excel est-il une base de données CRM ?">
+Non. Excel peut contenir une liste de clients, et pour une personne avec une courte liste, cela suffit. Il n’a pas de liens entre personnes et entreprises, pas d’historique par client et aucun moyen sûr pour que plusieurs personnes modifient en même temps. Un tableur propre avec un seul type de valeur par colonne reste un bon point de départ pour un import.
+</FaqItem>
+
+<FaqItem question="Quels sont les quatre types de CRM ?">
+La répartition habituelle est opérationnel (faire tourner le travail de vente, de service et de marketing), analytique (reporting sur les données clients), collaboratif (partager les informations clients entre équipes) et stratégique (organiser l’entreprise autour de relations clients à long terme). Les quatre utilisent la même base de données CRM ; ils diffèrent par ce que vous en faites.
+</FaqItem>
+
+<FaqItem question="Comment stocker des données qui ne rentrent ni dans les contacts, ni dans les entreprises, ni dans les affaires ?">
+Si cela décrit un enregistrement existant, ajoutez un champ personnalisé typé. Si c’est quelque chose que vous vendez, utilisez le catalogue de produits ou de services. Si cela ne sert qu’à lire, utilisez les notes. Si cela a son propre cycle de vie et ses propres relations, il vous faut des objets personnalisés, que HubSpot propose sur Enterprise et Salesforce sur sa plateforme ; dans Customermates, vous ajoutez votre propre liste pour cela.
+</FaqItem>
+
+<FaqItem question="Combien coûte une base de données CRM ?">
+Un tableur ou un CRM open source auto-hébergé n’a pas de frais de licence, mais vous payez en temps de mise en place et de maintenance. Les CRM cloud facturent surtout par utilisateur et par mois. Dans Customermates Cloud, c’est [[commercial.price.starter.monthly]] par utilisateur sur Starter et [[commercial.price.pro.monthly]] sur Pro avec la boîte de réception unifiée ; voir les [tarifs](/pricing).
+</FaqItem>
+</Faq>
+
+Informations sur les éditeurs vérifiées le 8 octobre 2026 sur [la documentation des objets de HubSpot](https://knowledge.hubspot.com/records/understand-objects), [Salesforce Trailhead sur les objets standard et personnalisés](https://trailhead.salesforce.com/content/learn/modules/data_modeling/objects_intro) et [l’article de Pipedrive sur l’organisation des données](https://support.pipedrive.com/en/article/how-is-pipedrive-data-organized).

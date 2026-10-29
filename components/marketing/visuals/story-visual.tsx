@@ -4,7 +4,7 @@ import { Send } from "lucide-react";
 import { cn } from "@/core/utils/cn";
 import type { ContentLocale } from "@/i18n/locale-registry";
 
-import { contentLocaleOrDefault } from "@/i18n/locale-registry";
+import { assetLocaleFor, contentLocaleOrDefault } from "@/i18n/locale-registry";
 
 import {
   VISUAL_PERSON_FIXTURES,
@@ -467,7 +467,7 @@ function QuietRecordCard({
   }
 
   const { record, status } = recordFixtures(subject);
-  const recordName = VISUAL_RECORD_FIXTURES[record].localizedName[locale];
+  const recordName = VISUAL_RECORD_FIXTURES[record].localizedName[assetLocaleFor(locale)];
 
   return (
     <div
@@ -527,7 +527,7 @@ function SignalArtifact({
   record?: VisualRecordFixtureId;
   status?: VisualStatusFixtureId;
 }) {
-  const recordName = record ? VISUAL_RECORD_FIXTURES[record].localizedName[locale] : undefined;
+  const recordName = record ? VISUAL_RECORD_FIXTURES[record].localizedName[assetLocaleFor(locale)] : undefined;
 
   return (
     <div

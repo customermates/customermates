@@ -170,6 +170,74 @@ const COPY = {
       "/settings/webhooks": "Customermates-Webhook-Einstellungen mit synthetischen Beispieldaten",
     },
   },
+  fr: {
+    eyebrow: "Découvrir le produit",
+    fallback: "La démo intégrée met plus de temps que prévu à charger. Ouvrez-la dans un nouvel onglet pour continuer.",
+    guideLabel: "Essayez ces trois choses",
+    guidedTasks: {
+      "/dashboard": [
+        "Parcourez la vue d'ensemble préremplie",
+        "Ouvrez un enregistrement du CRM",
+        "Voyez comment l'espace de travail est organisé",
+      ],
+      [DEMO_RECORD_LIST_PATHS.contacts]: [
+        "Parcourez la liste des contacts",
+        "Ouvrez un contact d'exemple",
+        "Consultez son contexte CRM lié",
+      ],
+      [DEMO_RECORD_LIST_PATHS.deals]: [
+        "Passez en revue les étapes du pipeline",
+        "Ouvrez une affaire d'exemple",
+        "Comparez la valeur totale et la valeur pondérée",
+      ],
+      "/inbox": [
+        "Ouvrez une conversation d'exemple",
+        "Consultez le contexte des participants",
+        "Comparez les canaux connectés",
+      ],
+      [DEMO_RECORD_LIST_PATHS.organizations]: [
+        "Parcourez la liste des organisations",
+        "Ouvrez une organisation d'exemple",
+        "Consultez ses enregistrements liés",
+      ],
+      [DEMO_RECORD_LIST_PATHS.tasks]: [
+        "Passez d'une vue des tâches à l'autre",
+        "Ouvrez une tâche d'exemple",
+        "Consultez son responsable et ses enregistrements liés",
+      ],
+      "/settings/api-keys": [
+        "Passez en revue la gestion des clés API",
+        "Voyez comment une clé est créée",
+        "Consultez le statut et les accès d'une clé",
+      ],
+      "/settings/channels": [
+        "Passez en revue les fournisseurs disponibles",
+        "Ouvrez un compte connecté",
+        "Consultez son partage et sa synchronisation",
+      ],
+      "/settings/webhooks": [
+        "Passez en revue les points de terminaison configurés",
+        "Ouvrez la création d'un webhook",
+        "Examinez les événements disponibles",
+      ],
+    },
+    standardDisclosure:
+      "Démo publique et préremplie du produit, avec des données d'exemple synthétiques en anglais ; aucun compte ni aucune donnée client n'est affiché. Si Mate est activé dans cet environnement de démo, sa fenêtre reste d'abord fermée pour laisser le CRM bien visible.",
+    hostedDisclosure:
+      "Démo publique et préremplie de la version hébergée de Customermates, avec des données d'exemple synthétiques en anglais ; aucun compte ni aucune donnée client n'est affiché. Si Mate est activé dans cet environnement de démo, sa fenêtre reste d'abord fermée. La démo montre l'interface du cloud géré, pas une installation auto-hébergée.",
+    titles: {
+      "/dashboard": "Tableau de bord Customermates avec des données d'exemple synthétiques",
+      [DEMO_RECORD_LIST_PATHS.contacts]: "Liste de contacts Customermates avec des données d'exemple synthétiques",
+      [DEMO_RECORD_LIST_PATHS.deals]: "Pipeline d'affaires Customermates avec des données d'exemple synthétiques",
+      "/inbox": "Boîte de réception unifiée Customermates avec des données d'exemple synthétiques",
+      [DEMO_RECORD_LIST_PATHS.organizations]:
+        "Liste d'organisations Customermates avec des données d'exemple synthétiques",
+      [DEMO_RECORD_LIST_PATHS.tasks]: "Espace des tâches Customermates avec des données d'exemple synthétiques",
+      "/settings/api-keys": "Paramètres des clés API Customermates avec des données d'exemple synthétiques",
+      "/settings/channels": "Paramètres des comptes connectés Customermates avec des données d'exemple",
+      "/settings/webhooks": "Paramètres des webhooks Customermates avec des données d'exemple synthétiques",
+    },
+  },
 } as const satisfies Record<ContentLocale, DemoCopy>;
 
 function isProductDemoPath(path: string): path is ProductDemoPath {

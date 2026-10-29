@@ -1,0 +1,57 @@
+---
+title: "Recherche globale (Cmd/Ctrl+K)"
+description: "Recherchez dans toutes les listes lisibles avec Cmd/Ctrl+K : ce que la recherche trouve, où s’ouvre un résultat et où chercher les messages à la place."
+---
+
+La recherche globale s’ouvre par-dessus la page où vous vous trouvez, depuis n’importe où dans l’application : appuyez sur Cmd/Ctrl+K, appuyez sur / quand aucun champ n’a le focus, ou cliquez sur **Rechercher** dans la barre latérale.
+
+## Que trouve la recherche globale, et avec quels champs de contact correspond-elle ? [#what-does-global-search-find]
+
+La recherche parcourt les enregistrements de toutes les listes que vous pouvez lire, y compris les listes créées par votre espace de travail, et regroupe les résultats par liste. Elle fait correspondre les titres des enregistrements et les valeurs des champs recherchables, trouve les contacts par n’importe quelle adresse e-mail ou n’importe quel numéro de téléphone de leurs **Coordonnées**, et trouve les enregistrements par les noms et le texte de leurs [fichiers joints](#does-search-look-inside-files). Les valeurs que vous n’avez pas le droit de voir ne sont pas recherchées. Si votre rôle lit une liste uniquement avec **Assignés**, vous n’obtenez que les enregistrements qui vous sont assignés. **Charger plus** récupère d’autres résultats.
+
+Avant que vous ne tapiez, **Ouverts récemment** affiche vos derniers choix dans la recherche, conservés dans ce navigateur uniquement ; **Effacer** le vide. Dessous, **Suggestions** propose ce qui convient à la page où vous êtes, par exemple ajouter un enregistrement à la liste que vous avez ouverte. Les flèches parcourent les résultats et Entrée en ouvre un. Sélectionner un enregistrement l’ouvre dans le panneau de détails.
+
+## La recherche regarde-t-elle à l’intérieur des fichiers joints ? [#does-search-look-inside-files]
+
+Oui. Peu après qu’un fichier est joint à un enregistrement, son texte est extrait : la couche de texte d’un PDF, les documents Word (.docx), chaque feuille d’un classeur Excel (.xlsx), ainsi que les fichiers CSV, texte brut, Markdown, JSON et HTML. La recherche trouve ensuite l’enregistrement quand tous vos mots apparaissent dans le même passage de l’un de ses fichiers, y compris les formes fléchies en anglais, allemand, espagnol, français et italien, et le dernier mot peut être le début d’un mot plus long. Le nom du fichier est lui aussi recherché. Les PDF numérisés et les images ne sont pas recherchés par leur contenu, car il n’y a pas de reconnaissance de texte (OCR), et seuls les 500 000 premiers caractères d’un fichier sont indexés, dans les 1 000 premières pages au plus d’un PDF. Les fichiers Word et Excel qui occupent plus de 128 Mo une fois décompressés ne sont pas lus.
+
+Le contenu d’un fichier n’est recherché que là où vous pouvez lire l’enregistrement et le champ qui le contient. Un fichier retiré de son enregistrement, un enregistrement dans la [Corbeille](/docs/app-trash) et un champ supprimé ne sont plus trouvés. La zone de recherche d’une liste trouve les enregistrements par le texte de leurs fichiers de la même manière, et les clients IA connectés via [MCP](/docs/mcp#file-contents) peuvent rechercher et lire le texte des fichiers que vous pouvez lire.
+
+## Comment accéder directement à une liste, une vue, une page ou un paramètre ? [#how-do-i-jump-to-a-page-or-setting]
+
+Tapez son nom ou le début de ses mots ; les mots de remplissage comme « ouvrir », « aller à » ou « configurer » sont ignorés, et une petite faute de frappe dans un seul mot assez long est tolérée. La recherche trouve aussi chaque liste et ses vues enregistrées, les pages de l’application, chaque paramètre de [Profil et préférences](app:settings/profile) et des autres pages de paramètres, ainsi que des actions comme changer de thème ou inviter des membres, y compris avec des mots courants comme « mode sombre » ou « équipe ». La cible la plus probable apparaît en haut sous **Meilleur résultat**, et Entrée l’ouvre. Une liste affiche ses vues enregistrées en retrait dessous : Entrée ouvre la liste, la flèche vers le bas choisit une vue. Un paramètre ouvre sa page avec le paramètre en surbrillance. Les actions affichent leur raccourci clavier à droite.
+
+Pour restreindre la recherche, commencez par une lettre et un espace : **l** listes, **v** vues, **s** paramètres, **d** documentation et **r** enregistrements, par exemple « v affaires ouvertes ».
+
+## Comment modifier l’enregistrement que j’ai ouvert ? [#how-do-i-change-the-open-record]
+
+Avec un enregistrement ouvert dans le panneau ou sur sa page, la recherche propose des actions le concernant : **Modifier** un champ à choix, oui/non ou membre, **Attribuer à**, **Ajouter à** une liste liée, et **Supprimer**. En choisir une ouvre ses options dans la zone de recherche ; Échap revient d’une étape en arrière. Une modification est enregistrée aussitôt, et Supprimer demande confirmation comme d’habitude. Ces actions n’apparaissent que si vous pouvez modifier l’enregistrement et qu’il n’a aucune modification non enregistrée.
+
+Les messages ne sont pas recherchés ici ; la [Boîte de réception](app:inbox) a sa propre recherche. Pour une liste d’enregistrements filtrée ou triée, utilisez plutôt une liste, par exemple votre liste de contacts avec **Filtres** dans sa barre d’outils. Pour ajouter un enregistrement, voir [Enregistrements du CRM](/docs/app-records#how-do-i-add-a-record).
+
+## Comment la recherche fait-elle correspondre par le sens, et qu’est-il envoyé ? [#how-does-search-match-by-meaning]
+
+La recherche fait aussi correspondre par le sens et entre les langues : « Sprache » trouve **Langue d’affichage**, « mode nuit » trouve le thème sombre, et les mots que vous emploieriez pour une liste ou une vue la trouvent même quand son nom est différent. Jusqu’à trois sections correspondantes de cette documentation apparaissent sous **Documentation**, jusqu’à huit quand vous commencez par **d** ; chacune ouvre l’endroit de l’application qu’elle décrit, ou sinon la page de documentation. Les enregistrements ne sont mis en correspondance que par leurs mots : un identifiant d’enregistrement trouve cet enregistrement, une expression entre guillemets doubles, comme "Acme Corp", ne correspond que telle qu’elle est écrite, et quand rien ne correspond, des enregistrements dont le titre s’écrit de façon proche apparaissent.
+
+La recherche par le sens ne s’applique que lorsque rien ne correspond par le nom : quand aucune page, aucun paramètre, aucune action, aucune liste ni aucune vue n’est un **Meilleur résultat** net et qu’aucun enregistrement ne correspond à vos mots. Alors seulement, un modèle d’embedding exploité par Google via le Vercel AI Gateway reçoit votre texte de recherche, en utilisant une petite quantité de vos crédits IA. Il reçoit aussi les noms des pages, paramètres, actions, listes, vues et champs de votre espace de travail, renvoyés seulement quand ils changent, jamais le contenu des enregistrements. Si le service est lent ou indisponible, la recherche affiche aussitôt les correspondances par le nom. Sans IA, par exemple sur une installation auto-hébergée, la recherche ne correspond que par le nom.
+
+## Comment ouvrir une liste filtrée en la décrivant ? [#how-do-i-describe-what-to-open]
+
+Quand aucun résultat n’est une correspondance nette, la première ligne affiche **Aller à « … »** avec vos mots. Appuyez sur Entrée et un petit modèle d’IA transforme la demande en une destination : une liste avec des filtres, l’une de ses vues, une page, un paramètre ou une action. Par exemple, dans un espace de travail doté d’une liste d’affaires, « affaires gagnées qui se concluent ce mois-ci » ouvre cette liste en n’affichant que les affaires gagnées qui se concluent ce mois-ci. Les filtres ne sont pas enregistrés : la vue apparaît comme modifiée, et **Enregistrer** ou **Réinitialiser** dans **Filtres** les conserve ou les abandonne. Si la demande ne correspond à rien, elle est envoyée à [Mate](/docs/app-assistant) à la place.
+
+Le modèle reçoit vos mots et les noms de vos listes, vues, champs et choix, jamais le contenu des enregistrements, et il utilise une petite quantité de vos crédits IA. Il ne vous déconnecte jamais et ne modifie, n’attribue ni ne supprime jamais d’enregistrement ; ces actions restent dans les résultats de la recherche.
+
+## Pour les agents [#which-stable-ids-does-it-have]
+
+Mate peut désigner **Rechercher** dans la barre latérale mais ne peut ni ouvrir la zone de recherche ni y taper. Pour des recherches filtrées, triées ou agrégées, utilisez les outils de requête d’enregistrements plutôt que la recherche globale.
+
+## Questions fréquentes [#frequently-asked-questions]
+
+<Faq>
+<FaqItem question="Quel est le raccourci clavier ?">
+Cmd+K sur Mac, Ctrl+K sous Windows et Linux, depuis n’importe où dans l’application, ou / quand aucun champ de texte n’a le focus. Tapez une question et appuyez sur Tab pour la confier à [Mate](/docs/app-assistant) à la place ; **Demander à Mate** est aussi la dernière ligne des résultats. **Rechercher** dans la barre latérale affiche la touche correspondant à votre ordinateur et ouvre la même recherche. Tous les raccourcis sont listés dans [Quels raccourcis clavier existe-t-il ?](/docs/app-dashboard#keyboard-shortcuts).
+</FaqItem>
+<FaqItem question="Où s’ouvrent les résultats ?">
+Dans le panneau de détails de l’enregistrement, par-dessus la page où vous étiez. De là, vous pouvez ouvrir la page complète de l’enregistrement, décrite dans [Enregistrements du CRM](/docs/app-records#what-is-the-shared-layout-of-a-record-type).
+</FaqItem>
+</Faq>

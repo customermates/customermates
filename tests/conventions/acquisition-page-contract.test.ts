@@ -191,7 +191,8 @@ describe("approved acquisition page contract", () => {
       }
     }
 
-    expect(count).toBe(16);
+    expect(APPROVED_PAIRS).toHaveLength(8);
+    expect(count).toBe(APPROVED_PAIRS.length * CONTENT_LOCALES.length);
     expect(problems).toEqual([]);
   });
 
@@ -459,39 +460,27 @@ describe("approved acquisition page contract", () => {
         const { data } = readPage(contentFile(collection, locale, slug));
         return acquisitionPageSchema.parse(data.acquisition);
       });
-      const [en, de] = pages;
-      for (const key of ["clusterId", "role"] as const) {
-        if (en[key] !== de[key])
-          problems.push(
-            `${collection}/${basename(slug)}: ${key} differs by locale`,
-          );
-      }
-      if (JSON.stringify(en.proof) !== JSON.stringify(de.proof)) {
-        problems.push(
-          `${collection}/${basename(slug)}: proof boundary differs by locale`,
-        );
-      }
-      if (
-        JSON.stringify(en.structuredData) !== JSON.stringify(de.structuredData)
-      ) {
-        problems.push(
-          `${collection}/${basename(slug)}: structured data differs by locale`,
-        );
-      }
-      if (JSON.stringify(en.relatedHrefs) !== JSON.stringify(de.relatedHrefs)) {
-        problems.push(
-          `${collection}/${basename(slug)}: related graph differs by locale`,
-        );
-      }
-      if (
-        ctaDestination(en.cta.buttonLeftHref) !==
-          ctaDestination(de.cta.buttonLeftHref) ||
-        ctaDestination(en.cta.buttonRightHref) !==
-          ctaDestination(de.cta.buttonRightHref)
-      ) {
-        problems.push(
-          `${collection}/${basename(slug)}: CTA destinations differ by locale`,
-        );
+      const [en, ...translations] = pages;
+      for (const [index, translation] of translations.entries()) {
+        const page = `${collection}/${CONTENT_LOCALES[index + 1]}/${basename(slug)}`;
+        for (const key of ["clusterId", "role"] as const) {
+          if (en[key] !== translation[key]) problems.push(`${page}: ${key} differs by locale`);
+        }
+        if (JSON.stringify(en.proof) !== JSON.stringify(translation.proof)) {
+          problems.push(`${page}: proof boundary differs by locale`);
+        }
+        if (JSON.stringify(en.structuredData) !== JSON.stringify(translation.structuredData)) {
+          problems.push(`${page}: structured data differs by locale`);
+        }
+        if (JSON.stringify(en.relatedHrefs) !== JSON.stringify(translation.relatedHrefs)) {
+          problems.push(`${page}: related graph differs by locale`);
+        }
+        if (
+          ctaDestination(en.cta.buttonLeftHref) !== ctaDestination(translation.cta.buttonLeftHref) ||
+          ctaDestination(en.cta.buttonRightHref) !== ctaDestination(translation.cta.buttonRightHref)
+        ) {
+          problems.push(`${page}: CTA destinations differ by locale`);
+        }
       }
     }
 

@@ -30,20 +30,6 @@
       "route": "/de/w/kleine-unternehmen/dashboard"
     },
     {
-      "key": "smb:fr:light",
-      "mainSha256": "09e36e678c3c6a80444d60e9cee87728d287d3a97cb1652a04d78bd512776010",
-      "navRoute": "/fr/w/small-business/dashboard",
-      "navSha256": "fa076a406dc922a1d4811ba9e8e863abf5a3a76660a760ab59d9fce00066c496",
-      "route": "/fr/w/small-business/dashboard"
-    },
-    {
-      "key": "smb:fr:dark",
-      "mainSha256": "9221d79cb5646a1ef12262745a5481173f33e74ec588691b8cda6ae1033a85d8",
-      "navRoute": "/fr/w/small-business/dashboard",
-      "navSha256": "24cd1874b049b79f7d2412042bef402494c84a78dc6e17adb9e0de335e19e80c",
-      "route": "/fr/w/small-business/dashboard"
-    },
-    {
       "key": "consultants:en:light",
       "mainSha256": "c66a5f113fdf66bf3bd9855aa1283eee8afc444fde6435570ee6ddc80370f53e",
       "navRoute": "/en/w/consultants/records/7c0f67eb-0740-8230-8c6d-c63d21920ddd?view=1f100000-5100-4000-8000-000000000002",
@@ -98,20 +84,6 @@
       "navRoute": "/de/w/agenturen/records/9d4fde54-a01d-8ab5-8004-6d8f8b1eaf2b?view=1f100000-5210-4000-8000-000000000001",
       "navSha256": "f1284d2dea1d09aca784ce97c1f67507a6770d2faa33dc10113a67c552e85bc4",
       "route": "/de/w/agenturen/dashboard"
-    },
-    {
-      "key": "agencies:fr:light",
-      "mainSha256": "942b5b23335c907cdaaa31b73ae3740a348819d047d76fb166979f58d407f6a1",
-      "navRoute": "/fr/w/agencies/records/7c9cb8af-257b-87ea-8a8e-6c5dec71d826?view=1f100000-5200-4000-8000-000000000001",
-      "navSha256": "2778b51fad4842f0c82682b4335c712fe12f9a8cd3aefa52535676295e0c877f",
-      "route": "/fr/w/agencies/dashboard"
-    },
-    {
-      "key": "agencies:fr:dark",
-      "mainSha256": "fcb3f9fef8038e4a0ec2155d925ddf91fbe75af1cf79939e51586053c77c37f5",
-      "navRoute": "/fr/w/agencies/records/7c9cb8af-257b-87ea-8a8e-6c5dec71d826?view=1f100000-5200-4000-8000-000000000001",
-      "navSha256": "9c8e867fae5911cf760c278ab2fef53d37845d0ac3e9deefd36a3d30945ad36b",
-      "route": "/fr/w/agencies/dashboard"
     },
     {
       "key": "freelancers:en:light",
@@ -198,20 +170,6 @@
       "route": "/de/w/kundenverwaltung/dashboard"
     },
     {
-      "key": "client-management:fr:light",
-      "mainSha256": "30b13d57f17d5e8dfdc33e547c18e16be083dc06bc8ed9d9f497bd132e1ca85d",
-      "navRoute": "/fr/w/client-management/records/26318eee-a3d2-82bf-842f-f21a9897ed56?view=1f100000-5500-4000-8000-000000000002",
-      "navSha256": "840ca8ad5c660055ad8e216fc005c477dce53079650f7e5629b4789fccb24352",
-      "route": "/fr/w/client-management/dashboard"
-    },
-    {
-      "key": "client-management:fr:dark",
-      "mainSha256": "df539c0d1ef52ebfdfbd99c401123b3469ba8799beffbf6f5c2117b5ce22a1bd",
-      "navRoute": "/fr/w/client-management/records/26318eee-a3d2-82bf-842f-f21a9897ed56?view=1f100000-5500-4000-8000-000000000002",
-      "navSha256": "0a5584fea42b83e3466d874d2f0383a62fbd1a92d9bcb606f63e883597083361",
-      "route": "/fr/w/client-management/dashboard"
-    },
-    {
       "key": "sales-pipeline:en:light",
       "mainSha256": "11689039028dfa264ec3d9f32ff4f5cfa5fb9c3f1ec55f547637c2b94202dcb1",
       "navRoute": "/en/w/sales-pipeline/records/9b774d19-a0a5-8e18-8549-908fabb6754b?view=1f100000-5600-4000-8000-000000000001",
@@ -238,20 +196,6 @@
       "navRoute": "/de/w/vertriebspipeline/records/f2cddf3a-2b98-8e74-89fb-3e9425f8c342?view=1f100000-5610-4000-8000-000000000001",
       "navSha256": "1f1b8afa231c3ec78ba4fbb96eec832ca011b4a5f7c1b9bdfc539f7255cde6a6",
       "route": "/de/w/vertriebspipeline/dashboard"
-    },
-    {
-      "key": "sales-pipeline:fr:light",
-      "mainSha256": "36a9751921311222d8c8f3e52e5b9a4c173974f57f1fb50f7c069bbe72fbddd1",
-      "navRoute": "/fr/w/sales-pipeline/records/9b774d19-a0a5-8e18-8549-908fabb6754b?view=1f100000-5600-4000-8000-000000000001",
-      "navSha256": "b1771a5d81287be6aa9b648e3d0e8fdcc94a340bcff269f497edc31c18587006",
-      "route": "/fr/w/sales-pipeline/dashboard"
-    },
-    {
-      "key": "sales-pipeline:fr:dark",
-      "mainSha256": "94d99367abb93683ce84dd56ffce1c000cb3c8bc65df856b18c785b7babd8c83",
-      "navRoute": "/fr/w/sales-pipeline/records/9b774d19-a0a5-8e18-8549-908fabb6754b?view=1f100000-5600-4000-8000-000000000001",
-      "navSha256": "a2095c05754a2fb3a979cbb3f5cc89720f11029dfeb0626419d2f2b546bbba9f",
-      "route": "/fr/w/sales-pipeline/dashboard"
     },
     {
       "key": "linkedin-crm:en:light",

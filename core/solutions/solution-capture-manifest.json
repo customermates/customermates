@@ -73,42 +73,6 @@
       "theme": "dark"
     },
     {
-      "locale": "fr",
-      "main": {
-        "bytes": 156088,
-        "height": 1800,
-        "src": "/captures/solutions/light/smb-fr.webp",
-        "width": 2880
-      },
-      "nav": {
-        "bytes": 37878,
-        "height": 600,
-        "src": "/captures/solutions/light/smb-fr-nav.webp",
-        "width": 960
-      },
-      "placeholder": false,
-      "solution": "smb",
-      "theme": "light"
-    },
-    {
-      "locale": "fr",
-      "main": {
-        "bytes": 153152,
-        "height": 1800,
-        "src": "/captures/solutions/dark/smb-fr.webp",
-        "width": 2880
-      },
-      "nav": {
-        "bytes": 37360,
-        "height": 600,
-        "src": "/captures/solutions/dark/smb-fr-nav.webp",
-        "width": 960
-      },
-      "placeholder": false,
-      "solution": "smb",
-      "theme": "dark"
-    },
-    {
       "locale": "en",
       "main": {
         "bytes": 141672,
@@ -246,42 +210,6 @@
         "bytes": 36806,
         "height": 600,
         "src": "/captures/solutions/dark/agencies-de-nav.webp",
-        "width": 960
-      },
-      "placeholder": false,
-      "solution": "agencies",
-      "theme": "dark"
-    },
-    {
-      "locale": "fr",
-      "main": {
-        "bytes": 151140,
-        "height": 1800,
-        "src": "/captures/solutions/light/agencies-fr.webp",
-        "width": 2880
-      },
-      "nav": {
-        "bytes": 34704,
-        "height": 600,
-        "src": "/captures/solutions/light/agencies-fr-nav.webp",
-        "width": 960
-      },
-      "placeholder": false,
-      "solution": "agencies",
-      "theme": "light"
-    },
-    {
-      "locale": "fr",
-      "main": {
-        "bytes": 148448,
-        "height": 1800,
-        "src": "/captures/solutions/dark/agencies-fr.webp",
-        "width": 2880
-      },
-      "nav": {
-        "bytes": 34374,
-        "height": 600,
-        "src": "/captures/solutions/dark/agencies-fr-nav.webp",
         "width": 960
       },
       "placeholder": false,
@@ -505,42 +433,6 @@
       "theme": "dark"
     },
     {
-      "locale": "fr",
-      "main": {
-        "bytes": 164584,
-        "height": 1800,
-        "src": "/captures/solutions/light/client-management-fr.webp",
-        "width": 2880
-      },
-      "nav": {
-        "bytes": 40542,
-        "height": 600,
-        "src": "/captures/solutions/light/client-management-fr-nav.webp",
-        "width": 960
-      },
-      "placeholder": false,
-      "solution": "client-management",
-      "theme": "light"
-    },
-    {
-      "locale": "fr",
-      "main": {
-        "bytes": 162564,
-        "height": 1800,
-        "src": "/captures/solutions/dark/client-management-fr.webp",
-        "width": 2880
-      },
-      "nav": {
-        "bytes": 40262,
-        "height": 600,
-        "src": "/captures/solutions/dark/client-management-fr-nav.webp",
-        "width": 960
-      },
-      "placeholder": false,
-      "solution": "client-management",
-      "theme": "dark"
-    },
-    {
       "locale": "en",
       "main": {
         "bytes": 139672,
@@ -606,42 +498,6 @@
         "bytes": 52548,
         "height": 600,
         "src": "/captures/solutions/dark/sales-pipeline-de-nav.webp",
-        "width": 960
-      },
-      "placeholder": false,
-      "solution": "sales-pipeline",
-      "theme": "dark"
-    },
-    {
-      "locale": "fr",
-      "main": {
-        "bytes": 149088,
-        "height": 1800,
-        "src": "/captures/solutions/light/sales-pipeline-fr.webp",
-        "width": 2880
-      },
-      "nav": {
-        "bytes": 51058,
-        "height": 600,
-        "src": "/captures/solutions/light/sales-pipeline-fr-nav.webp",
-        "width": 960
-      },
-      "placeholder": false,
-      "solution": "sales-pipeline",
-      "theme": "light"
-    },
-    {
-      "locale": "fr",
-      "main": {
-        "bytes": 145672,
-        "height": 1800,
-        "src": "/captures/solutions/dark/sales-pipeline-fr.webp",
-        "width": 2880
-      },
-      "nav": {
-        "bytes": 50322,
-        "height": 600,
-        "src": "/captures/solutions/dark/sales-pipeline-fr-nav.webp",
         "width": 960
       },
       "placeholder": false,

@@ -1,0 +1,47 @@
+---
+title: "Corbeille : annuler une suppression, restaurer un élément"
+description: "Enregistrements, listes, champs, vues, widgets, routines et pages supprimés restent 30 jours dans la corbeille : restauration ou suppression définitive."
+---
+
+Supprimer dans Customermates place l’élément dans la [Corbeille](app:trash) au lieu de le retirer aussitôt. Juste après une suppression, un message avec **Annuler** s’affiche quelques secondes ; **Annuler** ramène l’élément immédiatement. Une grosse suppression s’exécute en arrière-plan : le message affiche **Déplacement dans la corbeille…** et propose **Annuler** une fois terminée. Ensuite, l’élément attend dans la corbeille pendant 30 jours puis est supprimé définitivement de lui-même.
+
+## Qu’est-ce qui va dans la corbeille ? [#what-goes-to-trash]
+
+- Les enregistrements de toutes les listes, par exemple un contact ou une affaire. Les lignes d’une sous-liste et les liens de l’enregistrement partent avec lui et reviennent avec lui.
+- Les listes, champs, relations et champs Coordonnées supprimés dans [Configurer](app:configure).
+- Les vues enregistrées, les vues du tableau de bord et les widgets du tableau de bord.
+- Les routines et les pages de la [Base de connaissances](app:wiki).
+
+Les membres, invitations, rôles, clés API, webhooks et comptes connectés ne vont pas dans la corbeille : les supprimer modifie l’accès, donc l’effet est immédiat.
+
+Tant qu’un élément est dans la corbeille, il a disparu partout ailleurs : listes, recherche, totaux et calculs, widgets, filtres, exports, Mate, l’API et MCP ne le voient plus, et les routines et webhooks ne se déclenchent pas pour lui.
+
+## Qui voit quoi dans la corbeille ? [#who-sees-what]
+
+Tout le monde trouve **Corbeille** dans la barre latérale. Vous voyez les éléments que vous pouviez voir et supprimer : les enregistrements et la configuration que vous avez le droit de supprimer, les pages de la base de connaissances si votre rôle peut les supprimer, les routines si vous avez le rôle **Administrateur**, et vos propres vues enregistrées et widgets, qui restent personnels dans la corbeille aussi. Chaque ligne indique l’élément, son type, qui l’a supprimé, quand, et combien de jours restent avant sa suppression définitive. Dans [Filtres](app:trash?focus=filter), recherchez des éléments et restreignez-les par type ou par liste.
+
+## Comment restaurer un élément supprimé ? [#how-do-i-restore]
+
+Ouvrez la [Corbeille](app:trash), survolez la ligne et cliquez sur **Restaurer**, ou sélectionnez plusieurs lignes et cliquez sur **Restaurer** dans la barre de sélection. Restaurer demande le même accès que supprimer. Un enregistrement restauré revient avec ses valeurs, ses liens et ses lignes de sous-liste. Un lien vers un enregistrement supprimé définitivement entre-temps ne peut pas revenir ; le message après la restauration indique combien de liens ont été abandonnés. Une grosse restauration s’exécute en arrière-plan : l’enregistrement affiche **Restauration…** jusqu’à la fin. Un enregistrement dont la liste est elle-même dans la corbeille ne peut être restauré qu’après sa liste, et une routine reste dans la corbeille tant que son propriétaire a déjà toutes les routines incluses dans sa formule.
+
+Si une autre modification de l’espace de travail détient le verrou d’écriture, la restauration renvoie une réponse « occupé » après environ cinq secondes, sans modifier l’élément de la corbeille. Réessayez une fois cette modification terminée.
+
+Supprimer un champ dans [Configurer](app:configure) retire les filtres, colonnes, tris et regroupements des vues enregistrées qui l’utilisent. L’aperçu de la suppression et son résultat nomment les vues et les widgets concernés. Restaurer le champ ne recrée pas ces réglages. Si vous restaurez une vue enregistrée après la suppression de son champ, `droppedViewReferences` indique ce qui a été retiré ; le message de la corbeille affiche les nombres. Recréez les réglages après avoir restauré le champ.
+
+Un champ calculé restauré retrouve ses valeurs à partir des valeurs et des liens actuels de chaque enregistrement, y compris les changements faits pendant son séjour dans la corbeille ; un champ qui enregistre sa valeur à un moment donné, comme à la création de l’enregistrement, conserve les valeurs qu’il avait enregistrées auparavant. Un champ calculé reste dans la corbeille tant qu’un champ, une relation ou une liste qu’il lit s’y trouve encore, tout comme un élément qui ne correspond plus à la configuration ou aux données actuelles, par exemple un champ obligatoire que les enregistrements créés entre-temps laissent vide. Sélectionnez un champ calculé avec ce qu’il lit et restaurez-les en une seule étape, dans n’importe quel ordre. Quand la restauration recalcule de nombreux enregistrements, elle s’exécute en arrière-plan, et les enregistrements, vues ou autres éléments sélectionnés avec elle restent dans la corbeille jusqu’à la fin ; restaurez-les à nouveau ensuite.
+
+Ouvrir un enregistrement supprimé depuis la corbeille l’affiche en lecture seule avec la bannière **Dans la corbeille** et un bouton **Restaurer** ; ses **Activités** peuvent y être lues aussi, mais pas modifiées. Via REST, `POST /api/v1/trash/query` liste les éléments de la corbeille et `POST /api/v1/trash/read` renvoie la même vue en lecture seule d’un enregistrement supprimé ; via MCP, `read_trash` les liste et, avec `action: "read"` ainsi que le `typeId` et le `recordId` de l’enregistrement, en ouvre un de la même façon.
+
+## Que se passe-t-il quand j’ouvre un lien vers une liste ou une vue supprimée ? [#links-to-deleted-items]
+
+Un lien vers une liste qui est dans la corbeille, par exemple un favori d’une liste Projets supprimée, affiche le nom de la liste avec **Dans la corbeille**, la date de suppression et le nombre de jours restants. Si vous pouvez voir la liste dans la [Corbeille](app:trash), **Restaurer** y apparaît et ramène la liste, et la page l’affiche alors. Sans cet accès, et pour une liste qui n’existe pas ou a été supprimée définitivement, le lien affiche l’écran de page introuvable. Un lien vers une vue enregistrée qui n’existe plus ou n’est pas la vôtre ouvre à la place la vue par défaut de la liste et retire la vue de l’adresse.
+
+## Comment supprimer quelque chose définitivement ? [#how-do-i-delete-permanently]
+
+Dans la [Corbeille](app:trash), survolez la ligne et cliquez sur **Supprimer définitivement**, ou sélectionnez plusieurs lignes et cliquez sur **Supprimer définitivement** dans la barre de sélection. La confirmation liste exactement ce qui disparaît, comme le nombre d’enregistrements par liste et de liens. La suppression définitive est irréversible. Elle efface aussi les valeurs de champ de l’enregistrement de son historique ; l’historique ne conserve que l’auteur de la modification et sa date.
+
+Les membres avec le rôle **Administrateur** peuvent retirer d’un coup tout ce qu’ils voient dans la corbeille avec **Vider la corbeille** dans le menu **Plus d’actions** de la [Corbeille](app:trash), affiché seulement tant que la corbeille contient des éléments. Pour confirmer, saisissez **vider la corbeille**.
+
+## Combien de temps les éléments restent-ils dans la corbeille ? [#how-long]
+
+30 jours à partir de la suppression. Chaque ligne indique combien de jours restent ; le dernier jour, l’élément est supprimé définitivement sans autre avis, avec le même effet sur son historique qu’une suppression définitive faite par vous. Une instance auto-hébergée ne le fait que lorsque sa [tâche planifiée](/docs/self-hosting#scheduled-jobs) quotidienne s’exécute.

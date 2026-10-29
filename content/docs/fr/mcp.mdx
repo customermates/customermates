@@ -1,0 +1,811 @@
+---
+title: "Référence du serveur MCP du CRM : point d’accès et outils"
+heading: "Connecter des clients IA à votre CRM avec MCP"
+description: "Customermates expose un point d’accès MCP natif sur /api/v1/mcp : Claude, ChatGPT, Cursor et d’autres clients d’agents lisent et écrivent dans votre CRM."
+---
+
+Customermates expose un seul point d’accès MCP à l’adresse `<BASE_URL>/api/v1/mcp`, où `<BASE_URL>` est l’adresse à laquelle vous ouvrez Customermates, et chaque espace de travail a aussi sa propre URL, `<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>`, avec les mêmes outils verrouillés sur cet espace de travail. Un client connecté découvre automatiquement les outils du CRM. Deux façons de se connecter :
+
+- **Connecteur personnalisé (OAuth) :** pour Claude (web, ordinateur, mobile) et ChatGPT. Collez l’URL, connectez-vous, approuvez ; aucune clé à gérer. Voir [Connexion avec un connecteur personnalisé](/docs/connect-custom-connector).
+- **Clé API :** pour les clients en ligne de commande et les éditeurs (Claude Code, Codex, Cursor, Gemini CLI) et le HTTP brut. Envoyez la clé de 64 caractères dans l’en-tête `x-api-key` ou dans un fichier de configuration.
+
+Configuration pas à pas par client : [Claude Desktop](/docs/connect-custom-connector#claude), [ChatGPT](/docs/connect-custom-connector#chatgpt), [Claude Code](/docs/connect-cli#claude-code), [Codex](/docs/connect-cli#codex), [Cursor](/docs/connect-cli#cursor), [Gemini](/docs/connect-cli#gemini-cli). Cette page est la référence du protocole.
+
+## Quand utiliser MCP [#when-to-use-mcp]
+
+Utilisez MCP quand une IA doit lire et écrire elle-même dans le CRM, découvrir ce qu’elle peut faire au lieu de suivre des appels d’API écrits à la main, et fonctionner de la même façon avec Claude, ChatGPT, Cursor, Codex et d’autres clients. Utilisez [OpenAPI](/docs/openapi) quand un ingénieur ou une intégration sait déjà de quel point d’accès il a besoin : OpenAPI est la référence HTTP canonique, MCP l’interface native pour les agents par-dessus.
+
+## Quelle est l’URL du point d’accès du serveur MCP ? [#the-endpoint]
+
+```
+POST <BASE_URL>/api/v1/mcp
+Content-Type: application/json
+Accept: application/json, text/event-stream
+x-api-key: <your-64-character-key>
+```
+
+Le point d’accès parle le Model Context Protocol (variante HTTP en flux continu). `tools/list` renvoie chaque outil avec son schéma JSON ; `tools/call` appelle un outil par son nom. Chaque requête doit envoyer `Accept: application/json, text/event-stream`, sinon le point d’accès renvoie `406 Not Acceptable`. Les guides par client s’en chargent ; les appelants HTTP bruts comme curl ou des scripts ajoutent eux-mêmes l’en-tête.
+
+Une clé API compte 64 lettres (a-z, A-Z) et porte les autorisations de l’utilisateur qui l’a créée ; il n’y a pas de périmètre propre à chaque clé. Les clients à connecteur personnalisé (Claude, ChatGPT) utilisent OAuth à la place et obtiennent et renouvellent un jeton porteur pour vous, voir [Connexion avec un connecteur personnalisé](/docs/connect-custom-connector). Les deux agissent dans un seul espace de travail : une clé dans l’espace de travail où elle a été créée, une connexion OAuth dans l’espace de travail de son URL ou celui choisi sur l’écran de consentement ([quel espace de travail une connexion utilise](/docs/app-workspaces#which-workspace-do-api-keys-and-connections-use)).
+
+L’URL d’un espace de travail n’accepte que les identifiants de cet espace de travail. Un jeton OAuth d’un autre espace de travail reçoit un HTTP `401` avec `error="invalid_token"` dans l’en-tête `WWW-Authenticate`, dont le `resource_metadata` pointe vers `/.well-known/oauth-protected-resource/api/v1/mcp/w/<WORKSPACE_ID>`, afin que le client s’autorise de nouveau pour cet espace de travail. La requête de jeton peut nommer l’URL dans `resource` ; un `resource` d’un autre espace de travail que celui approuvé reçoit `400` avec `error: invalid_target`. Une clé API d’un autre espace de travail reçoit `403` avec `error: workspace_mismatch`. Toutes les autres vérifications restent les mêmes que sur `<BASE_URL>/api/v1/mcp`.
+
+Une requête sans identifiants valides reçoit un HTTP `401` avec un en-tête `WWW-Authenticate` qui oriente les clients OAuth vers `/.well-known/oauth-protected-resource`, afin que le client se reconnecte : pas d’en-tête `x-api-key` ni de jeton porteur, une clé erronée, tronquée, expirée ou supprimée, ou un jeton manquant, expiré ou révoqué. Se connecter via MCP exige aussi l'**Accès en lecture** **Tous** sur la ligne **API et webhooks** du rôle de l’utilisateur, la même autorisation que la page des clés API ; le rôle intégré **Administrateur** l’a. Une clé ou un jeton OAuth valide d’un utilisateur dont le rôle ne l’a pas reçoit un HTTP `403` avec `error: insufficient_permissions` avant l’exécution de tout outil, et l’écran de consentement OAuth refuse un tel utilisateur. Une clé ou un jeton d’un espace de travail Cloud qui attend encore sa première formule reçoit `403` avec `error: plan_required`. L’assistant intégré à l’application n’en a pas besoin.
+
+Le point d’accès et les clés API sont disponibles dans toutes les formules et sur les instances auto-hébergées. Seuls les outils de messagerie, d’agenda et de réseaux sociaux exigent une formule avec messagerie (Pro ou supérieure, cloud uniquement) ; voir [Messagerie](/docs/mcp#messaging).
+
+## Connecter un client [#connect-a-client]
+
+Pour connecter un client avec une clé API, commencez par [Clés API](app:settings/api-keys). Les clients OAuth peuvent utiliser les guides ci-dessous sans créer de clé.
+
+<Steps>
+<Step title="Créer une clé API">
+Ouvrez [Clés API](app:settings/api-keys) dans les Paramètres et cliquez sur [Ajouter](app:settings/api-keys?focus=generate). Choisissez **Connexions rapides** pour une configuration guidée de Claude, ChatGPT et Codex, Cursor ou Gemini, ou **Clé API standard** (**Nom**, **Expire dans** facultatif) pour votre propre intégration. La clé n’est affichée qu’une fois : copiez-la avant de fermer la boîte de dialogue. Créer une clé exige **Créer** sur la ligne **API et webhooks** de votre rôle, et la page exige l'**Accès en lecture** **Tous** sur cette ligne ; le rôle intégré **Administrateur** a les deux. Voir [Clés API](/docs/api-keys).
+</Step>
+<Step title="Pointer le client vers le point d’accès">
+Donnez au client `POST <BASE_URL>/api/v1/mcp` avec l’en-tête `x-api-key`, ou connectez-le via OAuth quand le client le prend en charge. Les guides du tableau ci-dessous donnent la configuration exacte.
+</Step>
+<Step title="Vérifier que les outils sont arrivés">
+Demandez au client de lister ses outils ; `get_workspace_context` doit en faire partie. C’est le premier appel naturel : il renvoie en une fois votre utilisateur, votre entreprise, vos rôles, vos comptes connectés et la base de connaissances ; les libellés des types d’enregistrements viennent de `discover_record_types`.
+</Step>
+</Steps>
+
+
+| Client | Méthode | Guide |
+| --- | --- | --- |
+| Claude web et mobile | Connecteur personnalisé (OAuth) | [Connexion avec un connecteur personnalisé](/docs/connect-custom-connector) |
+| Claude Desktop | Connecteur (OAuth) ou clé de configuration | [Connecter Claude Desktop](/docs/connect-custom-connector#claude) |
+| ChatGPT | Connecteur (OAuth) ou en-tête de clé | [Connecter ChatGPT](/docs/connect-custom-connector#chatgpt) |
+| Claude Code | Clé API | [Connecter Claude Code](/docs/connect-cli#claude-code) |
+| Codex | Clé API | [Connecter Codex](/docs/connect-cli#codex) |
+| Cursor | Clé API | [Connecter Cursor](/docs/connect-cli#cursor) |
+| Gemini CLI | Clé API | [Connecter Gemini](/docs/connect-cli#gemini-cli) |
+| Tout client MCP | En-tête de clé | Utilisez le point d’accès et l’en-tête de [Quelle est l’URL du point d’accès du serveur MCP ?](#the-endpoint) |
+
+## Instructions du serveur, prompts et jeux d’outils [#server-instructions-prompts-and-toolsets]
+
+Quand un client se connecte, le serveur envoie des consignes de travail : lire d’abord le schéma, trouver les identifiants avant d’écrire, modifier les enregistrements et les relations via `mutate_crm_record`, et obtenir la confirmation de l’utilisateur, en nommant les enregistrements ou les destinataires exacts, avant de supprimer ou d’envoyer. Ces consignes ne constituent pas une confirmation imposée par le serveur, et la transmission au modèle dépend du client. Vérifiez comment votre client traite les instructions et les approbations avant d’accorder un accès en écriture, en suppression ou en messagerie. Les clients qui prennent en charge les prompts MCP peuvent exécuter le prompt intégré `get-started`, qui résume l’espace de travail pour un démarrage personnalisé ; il est proposé quand les jeux d’outils `workspace` et `records` sont tous deux actifs, comme c’est le cas quand l’URL ne sélectionne aucun `toolsets`.
+
+L’ensemble complet des outils est la valeur par défaut. Ajoutez `?toolsets=` à l’URL du point d’accès pour le restreindre, par exemple `/api/v1/mcp?toolsets=records,messaging` ; voir [Restreindre avec ?toolsets=](/docs/mcp#narrowing-with-toolsets).
+
+## Base de connaissances partagée [#shared-workspace-wiki]
+
+Gardez les processus du CRM, le ton de l’entreprise, la connaissance des produits et les réponses du support dans la [base de connaissances](app:wiki). Les mêmes pages, soumises au contrôle des autorisations, servent les personnes dans le CRM, Mate, les routines cloud et les clients MCP connectés. Les pages manuelles fonctionnent dans les espaces de travail cloud et auto-hébergés.
+
+### Écrire et relier des pages [#write-and-link-pages]
+
+Choisissez **Nouvelle page**, saisissez un titre et écrivez dans l’éditeur visuel, qui utilise la même mise en forme qu’un champ de texte enrichi sur un enregistrement du CRM. Les modifications ne sont pas enregistrées automatiquement : **Enregistrer** les conserve, **Réinitialiser** abandonne les modifications non enregistrées. La liste des pages permet de passer d’un document à l’autre et de chercher dans les titres et le contenu ; le Guide opérationnel reste épinglé en premier, et les personnes qui peuvent modifier les pages de la base de connaissances font glisser les autres pour fixer un ordre commun à tout l’espace de travail. Une base de connaissances vide propose **Nouvelle page** et, quand Mate hébergé est disponible, **Créer à partir de mon site web**. Donnez à chaque page un titre clair et précis pour que les personnes et les agents puissent la trouver.
+
+Pour relier une autre page, utilisez la commande de lien de l’éditeur ou **Copier le lien de la page** dans **Actions de la page**. Ce sont des liens Markdown ordinaires, et renommer une page conserve son adresse ; aucun index séparé ni métadonnée de liaison n’est nécessaire.
+
+Les autorisations suivent la ligne **Base de connaissances** de votre rôle : l’accès en lecture permet de consulter les pages, **Créer**, **Modifier** et **Supprimer** permettent de créer, de modifier et de réordonner, ou de supprimer des pages, et chacun inclut l’accès en lecture. Si quelqu’un d’autre modifie une page avant que vous n’enregistriez, votre enregistrement périmé est refusé et vos modifications restent visibles pour que vous puissiez les concilier. **Supprimer la page** déplace une page dans la [Corbeille](/docs/app-trash), où elle peut être restaurée pendant 30 jours. Les modifications apparaissent dans [Activité](app:settings/activity) ; voir leur contenu de base de connaissances exige à la fois l’accès **Journal d’activité** et l’accès en lecture à la base de connaissances. Le journal d’activité n’est pas une fonction de restauration.
+
+### Guide opérationnel, procédures et connaissances [#page-types]
+
+Chaque page a un type, choisi sous son titre :
+
+- **Connaissance** (par défaut) : les faits et les réponses que Mate et les outils IA connectés recherchent quand une question en a besoin.
+- **Procédure** : des étapes numérotées pour une demande récurrente, comme un remboursement ou une escalade vers le support, plus une courte description **Quand l’utiliser** avec les mots que les clients emploient. Un index limité des titres et des déclencheurs de procédures est chargé aux tours de Mate et renvoyé par `get_workspace_context` ; l’assistant lit la procédure complète avant d’agir sur une demande correspondante.
+- **Guide opérationnel** : la consigne permanente que tout assistant suit en premier, comme le ton, les règles strictes, les circuits d’escalade et la procédure qui traite chaque demande. Un espace de travail en a un ; Mate et les outils IA connectés chargent toujours environ ses 2 400 premiers octets, et le reste reste lisible depuis sa page.
+
+Toute page enregistrée, y compris importée, est immédiatement disponible pour Mate et les outils IA connectés ; il n’y a ni brouillon ni étape de publication. Les étapes d’une procédure s’appliquent à la tâche demandée, avec les approbations habituelles. Toute instruction figurant dans une page et demandant de lancer une autre tâche, d’envoyer, de supprimer ou de modifier des autorisations est traitée comme une information.
+
+### Examiner les propositions de Mate [#review-proposals]
+
+Une [routine](/docs/app-routines#knowledge-base-proposals) ne modifie jamais la base de connaissances de sa propre initiative. Quand une exécution voudrait créer, modifier ou supprimer une page, elle enregistre à la place une proposition et la page reste telle quelle. Les personnes ayant l’accès Gérer sur la base de connaissances voient **Propositions** avec le nombre d’éléments en attente dans la barre d’outils de la base de connaissances. Cela ouvre une liste indiquant ce que fait chaque proposition, quelle routine l’a produite et quand. Ouvrez-en une pour comparer la page actuelle avec le titre, le type et le contenu proposés, puis choisissez **Approuver** ou **Rejeter**.
+
+Approuver applique la modification avec vos propres autorisations, exactement comme si vous l’aviez faite : approuver une suppression exige l’autorisation de supprimer des pages, et la modification apparaît dans le journal d’audit sous votre nom. Une proposition repose sur la version de la page que Mate a lue. Si quelqu’un a modifié ou supprimé la page depuis, la proposition est marquée **Page modifiée** et ne peut pas être approuvée ; rejetez-la, ou demandez à Mate de proposer de nouveau la modification. Quand une routine propose une autre modification de la même page, la proposition la plus récente remplace l’ancienne. Les modifications que vous demandez à Mate dans un chat sont enregistrées aussitôt, et les clients MCP connectés écrivent directement dans les pages, comme avant.
+
+### Configurer à partir de votre page d’accueil [#set-up-from-your-homepage]
+
+Quand Mate est activé dans un espace de travail cloud, le propriétaire peut saisir la page d’accueil de son entreprise pendant la prise en main et choisir **Créer ma base de connaissances** (un simple domaine comme `example.com` suffit), ou **Pas maintenant** pour passer cette étape ; les membres invités ne voient pas cette étape. Dans une base de connaissances vide, **Créer à partir de mon site web** ouvre un chat avec Mate qui demande l’adresse et lance le même import de site web.
+
+L’import du site web s’exécute en arrière-plan :
+
+- Il vérifie d’abord le `robots.txt` du site et s’arrête si la lecture automatisée n’est pas autorisée ou si `robots.txt` est inaccessible (erreur serveur ou délai dépassé). Un site sans `robots.txt` est lu normalement.
+- Il trouve jusqu’à 40 pages à partir de la page d’accueil, des plans de site et de `llms.txt`, en privilégiant les pages d’aide et de FAQ, puis les pages produit, entreprise et clients, les conditions, le remboursement, le SLA et la confidentialité, et les tarifs. Il s’identifie comme Customermates, fait des pauses entre les requêtes et respecte le délai d’exploration du site. Les pages illisibles sont ignorées ; si aucune page n’est lisible, il signale le site web comme indisponible et ne lance aucune rédaction par IA.
+- La progression (étape et pages lues) s’affiche directement dans le chat de prise en main, suivie de la conversation de rédaction en lecture seule de Mate, et survit à un rechargement.
+- Dans la base de connaissances, les pages existantes restent lisibles et modifiables et **Nouvelle page** reste disponible pendant l’import du site web ; une bannière en haut de chaque page indique que Mate crée encore des pages en arrière-plan, et les nouvelles pages apparaissent dès qu’elles sont prêtes. Une base de connaissances vide affiche la progression de l’import jusqu’à ce que la première page existe.
+
+Chaque import utilise une seule langue : la langue dominante des pages existantes ou, pour une base de connaissances vide, la langue de votre navigateur (vous pouvez en choisir une autre prise en charge pendant la prise en main). Les pages d’aide, de FAQ, de tarifs et de règles dans cette langue sont importées mot pour mot, en conservant les titres et les paires question-réponse et en se terminant par leur adresse source et leur date de lecture. Mate lit intégralement toutes les autres sources, puis les traduit ou les résume en pages thématiques distinctes, sans nombre de pages fixe ni versions linguistiques en double. La configuration initiale crée aussi un Guide opérationnel et des procédures pour les demandes récurrentes que le site web permet de couvrir, comme les remboursements ou les résiliations. Chaque page rédigée liste ses sources et ses questions ouvertes, par exemple qui approuve les exceptions. La lecture du site web et la détection de sa langue n’appellent aucun fournisseur d’IA ; la rédaction de Mate et l’indexation de la base de connaissances utilisent vos crédits IA hébergés habituels.
+
+Les centres d’aide situés sur un autre site web, comme un help desk hébergé, sont listés mais pas lus. Pour en ajouter un, donnez son adresse à Mate dans un chat ; Mate l’importe dans la langue de la base de connaissances sans remplacer le Guide opérationnel ni les procédures. Il n’y a pas de bouton d’actualisation du site web. Les adresses sources et les dates de récupération sont conservées pour la provenance et la reprise d’import ; le texte source est conservé pendant la fenêtre de nouvelle tentative de 24 heures et pendant l’exécution de son tour de rédaction, et un import ultérieur le supprime une fois les deux terminés.
+
+Les pages protégées par une connexion ou construites par des scripts de navigateur peuvent ne pas être lisibles. Relisez les pages importées et rédigées avant de vous y fier ; ce sont des pages ordinaires et modifiables. Mate et les routines peuvent aussi chercher séparément sur le web. Le point d’accès MCP public propose la recherche et la modification de la base de connaissances, pas l’importeur de site web.
+
+### Lire la base de connaissances depuis un client IA [#read-the-wiki-from-an-ai-client]
+
+Les clients connectés lisent les mêmes pages à jour via ce point d’accès. Commencez par `get_workspace_context` : sur sa première page, `wiki.guide` contient le Guide opérationnel (environ ses 2 400 premiers octets plus un `nextOffset` pour le reste), `wiki.procedures` liste les procédures avec leur `whenToUse`, et `wiki.items` contient dix titres de pages de connaissances avec des URL stables et de courts extraits. Passez `wiki.nextPage` comme `wikiPage` pour continuer. La ressource `customermates://wiki/catalog?page=1` renvoie le même contenu ; les clients qui prennent en charge les ressources MCP découvrent le catalogue et les modèles de pages avec `resources/list` et `resources/templates/list`.
+
+Trouvez du contenu avec l’outil en lecture seule `search`, puis appelez `fetch` avec l’identifiant `wiki:<uuid>` renvoyé ou son URL exacte :
+
+- Le Markdown arrive par blocs limités avec une URL source canonique. Répétez `fetch` avec `nextOffset` comme `offset` jusqu’à ce qu’il soit nul. Un décalage appartient à l’outil qui l’a renvoyé : poursuivez une lecture de `fetch` avec `fetch` et une lecture de `manage_wiki_pages` avec `manage_wiki_pages`. Si `updatedAt` change entre deux blocs, recommencez à l’offset 0.
+- Chaque résultat de la base de connaissances renvoyé par `search` porte un `snippet` surligné, le chemin de titres de la `section` correspondante et un `offset` ; passez cet `offset` à `fetch` pour ouvrir la page à l’endroit de la réponse, et utilisez l’offset 0 ou l'`outline` renvoyé pour le contexte précédent. Les liens entre pages sont absolus et peuvent être renvoyés tels quels dans `fetch`.
+- La recherche fait correspondre les mots de la requête en texte intégral, y compris les formes fléchies en anglais, allemand, espagnol, français et italien. Avec des crédits IA, elle fait aussi correspondre par le sens : une question formulée autrement ou dans une autre langue trouve donc quand même la page. Un embedding de requête n’est facturé que lorsqu’une recherche l’utilise, à la personne dont la recherche l’a lancé, même si la recherche identique simultanée d’un collègue le consomme. L’indexation de la base de connaissances est payée sur l’allocation commune de l’espace de travail, sauf la reconstruction unique des pages indexées avant le format de recherche actuel, que Customermates prend en charge jusqu’à 100 crédits par espace de travail ; l’indexation de la documentation publique est payée par Customermates, et les clients externes paient séparément leur propre fournisseur de modèle. Sans crédits, et sur les instances auto-hébergées, la recherche se fait en texte intégral uniquement.
+- Dans les deux modes, une page contenant un code ou un identifiant recherché, comme `E-4012` ou `OPS-1182`, arrive en premier quelle que soit la ponctuation ou la casse. Un mot mal orthographié qui ne correspond à aucune page est corrigé à partir des propres mots de votre base de connaissances ; les résultats viennent de la requête corrigée, que `search` renvoie dans `didYouMean`.
+- `manage_wiki_pages` avec `action: "search"` renvoie les mêmes champs plus `retrieval` (`semantic` ou `keyword`), avec des offsets pour son propre `get` ; `action: "get"` se poursuit de la même façon. Ses actions `create` et `update` exigent **Créer** ou **Modifier** sur la base de connaissances. Les lectures exigent l’accès en lecture à la base de connaissances, et chaque modification est consignée dans le journal d’activité. `action: "move"` place une page avant ou après une autre page (`targetId`, `placement`), et `delete` la déplace dans la Corbeille. L’API REST offre les mêmes opérations sous `/api/v1/wiki/` : `list`, `search`, `read`, `create`, `update`, `move` et `delete`.
+
+Les instructions du serveur demandent aux agents connectés d’appeler d’abord `get_workspace_context`, de suivre le Guide opérationnel, de lire une procédure dont le `whenToUse` correspond avant d’agir, de chercher et de lire les pages pertinentes avant d’utiliser les faits de l’entreprise, les processus, le ton, les consignes produit ou support, de suivre les liens utiles et de citer les URL exactes renvoyées ; `search` et `fetch` marquent les pages de procédure et de guide avec leur `kind`. Les clients décident s’ils transmettent les ressources et les instructions du serveur à leur modèle : aucun serveur ne peut donc imposer ces lectures. Si votre client les ignore, ajoutez la même consigne de recherche à ses instructions permanentes, et gardez le contenu lui-même dans le CRM pour que chaque client lise la copie à jour.
+
+Quand la liste d’outils change, actualisez ou republiez le connecteur ChatGPT : dans un espace de travail Enterprise ou Edu, un administrateur choisit **Actualiser** sur le connecteur existant et en examine les actions ; les espaces de travail Business le recréent et le republient. D’ici là, ChatGPT conserve les outils et les instructions qu’il a approuvés plus tôt, comme une liste sans `manage_wiki_pages`. Les appels à `search` et à `fetch` utilisent toujours le comportement actuel du serveur.
+
+## Rechercher et lire les fichiers joints [#file-contents]
+
+Le texte des fichiers joints aux enregistrements est indexé comme les pages de la base de connaissances : `search` et `fetch` le trouvent et le lisent :
+
+- Peu après qu’un fichier est joint, son texte est extrait : la couche de texte des PDF, avec une section par page, les documents Word (.docx) avec leurs titres, chaque feuille d’un classeur Excel (.xlsx) sous forme de lignes séparées par des tabulations, et les fichiers CSV, texte brut, Markdown, JSON et HTML. Les PDF numérisés sans couche de texte et les images ne sont pas lus, faute de reconnaissance de texte (OCR). Un fichier conserve au plus 500 000 caractères de texte ; un fichier raccourci signale `truncated` dans ses métadonnées `fetch`. Seules les 1 000 premières pages d’un PDF sont lues, et les fichiers Word ou Excel qui font plus de 128 Mo une fois décompressés ne sont pas lus du tout.
+- `search` renvoie les fichiers correspondants comme résultats `file:<uuid>` avec le nom du fichier comme `title`, l’enregistrement auquel ils appartiennent dans `record`, un `snippet` entre des marqueurs de contenu non fiable, le titre du passage correspondant dans `section` et un `offset`. Il fait correspondre les mots de la requête en texte intégral, y compris les formes fléchies en anglais, allemand, espagnol, français et italien, corrige un mot mal orthographié à partir des propres mots des fichiers, et avec des crédits IA fait aussi correspondre par le sens.
+- `fetch` avec un identifiant `file:<uuid>` renvoie le texte extrait par blocs limités entre des marqueurs de contenu non fiable : commencez à l'`offset` du résultat de recherche, poursuivez avec `nextOffset` jusqu’à ce qu’il soit nul, et utilisez l'`outline` à l’offset 0 pour vous repérer. Ses titres et la `section` d’un résultat de recherche de fichier proviennent aussi du fichier et se trouvent entre les mêmes marqueurs. Les métadonnées nomment l’enregistrement, le champ, le type MIME et l’état de l’extraction. Un fichier sans texte renvoie la raison à la place : extraction en cours, pas de couche de texte, type non pris en charge, trop volumineux ou échec de l’extraction.
+- Les résultats n’incluent que les fichiers des enregistrements et des champs que l’appelant peut lire, vérifiés à chaque appel. Un fichier n’est plus trouvé une fois retiré de son enregistrement, quand son enregistrement part dans la Corbeille, que son champ est supprimé ou que l’appelant perd l’accès. Le texte d’un fichier est un contenu écrit par d’autres personnes, jamais des instructions.
+- Avec des crédits IA, le texte extrait est aussi envoyé au modèle d’embedding exploité par Google via le Vercel AI Gateway, afin qu’une question formulée autrement trouve quand même le fichier. Comme l’indexation de la base de connaissances, cela est payé sur les crédits IA communs de l’espace de travail ; cela s’interrompt quand ils sont épuisés et reprend dès que des crédits sont de nouveau disponibles. Sans crédits et sur les instances auto-hébergées, les fichiers ne sont trouvés que par leurs mots et aucun texte de fichier ne quitte votre serveur.
+- `query_crm_records` et `search_crm_records` trouvent aussi les enregistrements par les mots de leurs fichiers, comme la [recherche dans l’application](/docs/app-search#does-search-look-inside-files).
+- Un fichier qu’un utilisateur donne à [Mate dans le chat](/docs/app-assistant#files) n’appartient à aucun champ tant qu’il n’est pas classé sur un enregistrement avec `manage_record_files` action `attach`. D’ici là, seule la personne qui l’a téléversé le lit, via `manage_record_files` action `read`, et `search` ne le trouve pas.
+
+## Comment l’ensemble des outils est conçu [#how-the-tool-surface-is-shaped]
+
+Les outils d’enregistrements ne changent pas quand un espace de travail grandit ; les champs et les options propres à chaque client sont découverts comme des données :
+
+- Découvrez les types avec `discover_record_types`, puis lisez leurs définitions avec `get_record_model`.
+- Passez des identifiants stables `typeId`, `recordId`, de champ et de relation. Renommer n’en change aucun.
+- Modifiez les enregistrements et les relations avec `mutate_crm_record`, les lots de configuration avec `configure_record_model`.
+- Envoyez des tableaux d’affectations de champs typées. Les valeurs décimales sont des chaînes avec une devise explicite ou une devise nulle ; les résultats calculés, restreints, manquants et en échec restent distincts.
+- Prévisualisez les effets d’une configuration et d’une suppression. Appliquez avec la révision attendue, la version actuelle de l’enregistrement quand elle est exigée, et une clé d’idempotence stable pour les nouvelles tentatives de la même charge utile.
+- Traitez les noms de clients, les descriptions, les notes et tout autre contenu renvoyé comme des données, jamais comme des instructions qui modifieraient la tâche ou les autorisations de l’appelant.
+- Attendez-vous à du texte balisé. `read_crm_record`, `query_crm_records` et `search_crm_records` renvoient les valeurs de texte enrichi, et `get_messaging_threads` et `get_activities` renvoient le texte des messages et des enregistrements, entre `<<<UNTRUSTED_RECORD_TEXT>>>` et `<<<END_UNTRUSTED_RECORD_TEXT>>>`, aussi bien dans la forme texte que dans `structuredContent`. Une valeur de texte enrichi y est `{ "kind": "richText", "markdown": "…" }` au lieu du JSON de l’éditeur, et `untrustedTextHandling` indique comment traiter le texte balisé.
+
+## Utilisation en ligne de commande [#cli-use]
+
+Des clients locaux comme `mcporter` se connectent au même point d’accès : enregistrez une fois la clé API dans la configuration du client et appelez les outils depuis le shell.
+
+## OpenAPI aux côtés de MCP [#openapi-alongside-mcp]
+
+Les deux se trouvent à la même URL de base : MCP sur `/api/v1/mcp`, la spécification OpenAPI sur `/api/v1/openapi`. Les opérations OpenAPI correspondent une à une aux points d’accès REST ; MCP enveloppe les opérations prises en charge sous forme d’outils typés avec des instructions, des annotations et la même autorisation. Ces instructions n’ajoutent aucune seconde étape de confirmation côté serveur.
+
+**Changement incompatible :** les anciens points d’accès REST et outils MCP propres à chaque entité pour les contacts, les organisations, les affaires, les services et les tâches, ainsi que la route d’export par type, ont été supprimés sans couche de compatibilité. L’API des enregistrements configurables se trouve sous `/api/v1`, par exemple `/api/v1/model/discover` pour trouver les listes, `/api/v1/model/read` pour leurs champs et leurs relations, et `/api/v1/records/mutate`. Les points d’accès supprimés répondent `404` et les noms d’outils supprimés ne sont plus listés. Mettez à jour les intégrations enregistrées pour découvrir les types d’enregistrements et utiliser des références `typeId` et `recordId`.
+
+## Que peut faire le serveur MCP ? Catalogue des outils [#tool-catalog]
+
+Customermates expose jusqu’à [[derived.mcp.tools.total]] outils MCP, tous activés par défaut. Ils couvrent les enregistrements configurables, la gestion du modèle d’enregistrements, l’espace de travail, les vues enregistrées, la base de connaissances, la messagerie, les publications sociales, la documentation et la recherche approfondie, les widgets, les routines, les webhooks, l’administration et le support. `lookup_address` n’est listé que lorsque le serveur a un service de recherche d’adresses configuré (voir [Adresses vérifiées](/docs/mcp#verified-addresses)) : Customermates Cloud en liste donc un de moins. Lisez le groupe concerné ci-dessous avant d’appeler un outil.
+
+### Indicateurs de sécurité [#safety-flags]
+
+**Lecture seule** signifie que l’outil n’écrit pas. **Peut supprimer des données** marque un outil qui comprend des opérations destructrices ; toutes ses actions ne suppriment pas (un aperçu de configuration, par exemple, n’écrit rien). Les outils qui envoient des messages, des invitations ou des demandes d’assistance, déplacent des e-mails ou modifient des données de fournisseur ont de vrais effets même sans l’indicateur destructeur. Réglez l’approbation côté client pour l’opération réelle : le serveur applique l’autorisation et la validation, mais un appel MCP externe n’ouvre pas la boîte de dialogue d’approbation de l’assistant hébergé.
+
+{/* mcp-catalog:flags */}
+**Lecture seule:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `lookup_address`, `check_address`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `read_trash`, `export_crm_records`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
+
+**Peut supprimer des données:** `mutate_crm_record`, `manage_trash`, `import_crm_records`, `manage_data_views`, `manage_calendar`, `manage_wiki_pages`, `discard_message_draft`, `manage_connected_accounts`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_team`, `manage_roles`
+{/* /mcp-catalog */}
+
+Le schéma JSON complet de chaque outil est disponible en direct via `POST /api/v1/mcp` avec `method: "tools/list"`.
+
+### Enregistrements [#records]
+
+Les outils d’enregistrements servent toutes les listes de l’espace de travail, quel qu’en soit le créateur. Découvrez le type, lisez son schéma actuel, puis interrogez ou modifiez ses enregistrements. Ne récupérez que les schémas dont la tâche a besoin ; le catalogue ne grossit pas avec les champs des clients.
+
+Chaque référence d’enregistrement porte à la fois `typeId` et `recordId`. `query_crm_records` parcourt un type page par page, `search_crm_records` trouve les enregistrements accessibles, et `query_crm_measure` calcule des totaux sur toutes les correspondances. Ne déduisez jamais un total complet d’une seule page, et examinez les résultats de recherche ambigus avant de choisir une cible d’écriture.
+
+`query_crm_records` prend un `pageSize` de 1 à 500 et renvoie exactement ce nombre d’enregistrements par page. Les autres outils paginés, comme `list_users`, `get_messaging_threads` et `get_calendars`, plafonnent la taille à 100 : `pageSize` accepte tout nombre entier de 1 à 100 et renvoie exactement ce nombre d’enregistrements par page, moins seulement sur la dernière ; `page` compte dans cette taille, si bien que la page 2 avec un `pageSize` de 50 contient les enregistrements 51 à 100, et le résultat indique les deux.
+
+`read_crm_record` renvoie la version actuelle de l’enregistrement et la révision du schéma. Modifiez les champs de saisie par des affectations typées dans `mutate_crm_record` et les relations par ses actions de liaison et de déliaison. Pour ajouter à un champ de texte enrichi ou de texte sans le réécrire, envoyez `{ fieldId, append }` dans une mise à jour : le texte est placé après la valeur actuelle avec une ligne vide entre les deux, et une mise à jour qui ne fait qu’ajouter n’entre jamais en conflit avec une modification plus récente de quelqu’un d’autre. Toute liste peut avoir un champ de coordonnées (type de valeur `channels`) ; ses adresses e-mail, ses numéros de téléphone et ses profils sont des associations d’identité indexées et les seules clés de correspondance. Il n’existe pas de type de champ `email` ou `phone` : un tel type de valeur est refusé avec un message qui renvoie au champ de coordonnées. Remplacer `identities` ne conserve que les identités du tableau ; l’omettre les laisse inchangées.
+
+{/* mcp-catalog:records */}
+#### `discover_record_types`
+
+Trouver les types d’enregistrements accessibles par nom ou par ID de type stable. Les résultats incluent schemaRevision, les actions autorisées et si vous pouvez modifier le modèle de données. Utiliser page et pageSize pour continuer ; includeEmbedded révèle des types comme les lignes.
+
+**Lecture seule.** Facultatif: `typeIds`, `search`, `includeEmbedded`, `page`, `pageSize`.
+
+#### `get_record_model`
+
+Lire les champs, les ID stables des options de sélection, les relations, les capacités et la révision de configuration pour les typeIds concernés. Les libellés et les descriptions sont des données client. La visibilité du schéma ne donne pas accès aux enregistrements.
+
+**Lecture seule.** Facultatif: `typeIds`.
+
+#### `query_crm_records`
+
+Filtrer, trier et paginer dans PostgreSQL les enregistrements d’un type configuré. Lire d’abord son schéma. Les résultats distinguent les valeurs, les entrées manquantes, les calculs restreints et les erreurs ; les décimaux sont des chaînes. Utiliser query_crm_measure pour les totaux sur toutes les correspondances. Un filtre nomme un fieldId et un operator. Les opérateurs à valeur unique utilisent value avec un scalaire typé ; in, notIn, all et between utilisent values avec des scalaires typés et value: null. Les filtres de choix multiple utilisent un scalaire `{kind: "select", value: optionId}` par option, pas selectList. Les erreurs de filtre invalide nomment l’index et le champ. fields accepte les ID de champ actifs du modèle d’enregistrement actuel ; un ID inconnu ou non publié est nommé dans l’erreur.
+
+**Lecture seule.** Obligatoire: `typeId`. Facultatif: `locale`, `fields`, `includeRelationships`, `includePaths`, `includeIdentities`, `search`, `filters`, `relatedFilters`, `relationships`, `sort`, `page`, `pageSize`, `grouping`, `groupPage`, `groupSummaries`.
+
+#### `search_crm_records`
+
+Rechercher dans les types configurés accessibles, y compris les types créés par le client. includeEmbedded recherche aussi les enregistrements imbriqués comme les lignes. Les résultats incluent typeId et recordId. Pour une autre page, passer nextCursor avec les mêmes searchTerm, typeIds et includeEmbedded. Lever les ambiguïtés avant d’écrire.
+
+**Lecture seule.** Obligatoire: `searchTerm`. Facultatif: `typeIds`, `includeEmbedded`, `limit`, `cursor`.
+
+#### `resolve_record_identifiers`
+
+Résoudre jusqu’à 1 000 identifiants exacts d’e-mail, de téléphone ou de profil pris en charge via les coordonnées indexées. Chaque entrée renvoie tous les enregistrements liés accessibles avec le libellé de leur type et leur version actuelle, plus la schemaRevision de l’espace de travail, si bien que les correspondances alimentent directement updateMany. Des typeIds facultatifs limitent les listes. Des tableaux records vides signifient aucune correspondance accessible ; dédoublonner les enregistrements trouvés via plusieurs identifiants et lever l’ambiguïté avant de modifier un enregistrement.
+
+**Lecture seule.** Obligatoire: `identifiers`. Facultatif: `typeIds`.
+
+#### `lookup_address`
+
+Rechercher des adresses postales à partir d’un texte libre, comme une rue avec numéro et une ville, via le service d’adresses du serveur. Chaque candidat porte un candidateToken : écrire `{kind: "address", candidateToken}` avec mutate_crm_record dans les 24 heures enregistre cette adresse comme vérifiée, alors que les éléments d’adresse écrits directement restent non vérifiés. available false signifie que la recherche d’adresses est désactivée sur ce serveur. Les noms de lieux arrivent entre des marqueurs de contenu non fiable.
+
+**Lecture seule.** Obligatoire: `query`. Facultatif: `countryCode`, `limit`.
+
+#### `check_address`
+
+Vérifier hors ligne les éléments d’une adresse avant de les écrire : renvoie les éléments tels qu’une écriture les enregistre (le code postal au format du pays, un nom de région sous forme de code de région du pays), les erreurs qui feraient refuser l’écriture, les avertissements qui l’accompagneraient, ainsi que les villes et les régions que l’annuaire des codes postaux liste pour ce code postal, avec son centre. Rien ne quitte le serveur ; status loading signifie que les codes postaux du pays sont encore en cours de chargement.
+
+**Lecture seule.** Facultatif: `street`, `line2`, `postalCode`, `city`, `region`, `countryCode`.
+
+#### `read_crm_record`
+
+Lire un enregistrement par typeId et recordId, avec les valeurs typées, le texte enrichi, les résumés de relations et les versions actuelles de l’enregistrement et de la configuration. Les identités apparaissent sur les listes dotées d’un champ de coordonnées ; un identifiant peut correspondre à plusieurs enregistrements accessibles.
+
+**Lecture seule.** Obligatoire: `typeId`, `recordId`. Facultatif: `includeRelationships`, `includePaths`.
+
+#### `mutate_crm_record`
+
+Créer, mettre à jour, supprimer, lier ou délier par une seule opération validée. Fournir expectedRevision et une idempotencyKey ; les mises à jour et les suppressions exigent aussi la version actuelle de l’enregistrement. Utiliser des tableaux typés d’affectation de champs ; `{ fieldId, append }` ajoute du Markdown après une ligne vide à un champ Texte enrichi ou Texte, et une mise à jour qui ne fait qu’ajouter n’entre jamais en conflit avec une version plus récente de l’enregistrement. Les entrées omises restent inchangées ; null efface une entrée facultative. Les champs calculés sont en lecture seule. Prévisualiser d’abord une suppression et passer expectedImpactHash. Les résultats en attente portent un ID d’opération. Delete déplace les enregistrements, leurs lignes de sous-liste et les enregistrements en cascade vers la Corbeille pendant 30 jours et renvoie un trashBatchId pour les restaurer ; permanent: true les supprime définitivement sur-le-champ. Le remplacement complet d’un texte enrichi exige `{kind: "richText", documentJson: "<ProseMirror document JSON string>"}` ; le Markdown est renvoyé à la lecture mais n’est pas une entrée de remplacement complet. En cas de conflit de version, relire et réessayer avec l’expectedVersion actuel ; l’erreur MCP inclut les versions actuelles lisibles.
+
+**Peut supprimer des données.** Obligatoire: `expectedRevision`, `idempotencyKey`, `mutation`.
+
+#### `preview_crm_deletion`
+
+Inspecter les effets autorisés d’une suppression, y compris les enregistrements en cascade, les liens et les calculs dépendants. Un décompte restreint vaut null, jamais zéro. Passer l’impactHash renvoyé comme expectedImpactHash en appliquant la suppression approuvée.
+
+**Lecture seule.** Obligatoire: `expectedRevision`. Facultatif: `ref`, `targets`, `expectedVersion`.
+
+#### `query_crm_measure`
+
+Compter ou agréger une fois par enregistrement source à un grain explicite. Préciser une requête source, une agrégation, un valueFieldId facultatif et un regroupement facultatif par relation ou par champ. Une attribution complète à plusieurs groupes peut faire dépasser le total distinct global par les totaux regroupés. Utiliser les lignes comme source pour les quantités et les contributions par élément du catalogue. Des montants égaux sur des enregistrements différents comptent tous les deux.
+
+**Lecture seule.** Obligatoire: `source`, `aggregation`, `valueFieldId`, `groupBy`. Facultatif: `groupLimit`.
+
+#### `read_crm_operation`
+
+Lire une opération durable par operationId jusqu’à ce qu’elle se termine, échoue ou soit annulée. Interroger avec un délai croissant. Pendant la préparation, les données complètes précédentes restent lisibles et les écritures CRM de l’espace de travail sont suspendues. Une réponse en attente ne signifie pas que la publication a réussi. Le statut en attente et en préparation inclut retryAfterMs ; attendre au moins ce délai avant d’interroger à nouveau.
+
+**Lecture seule.** Obligatoire: `operationId`.
+
+#### `cancel_crm_operation`
+
+Annuler une opération avant sa publication et conserver l’état complet précédent du CRM. Les opérations terminées ne peuvent pas être annulées. L’annulation est autorisée côté backend et ne revient pas sur des données déjà publiées.
+
+Obligatoire: `operationId`.
+
+#### `resume_crm_operation`
+
+Reprendre une opération en attente dont vous êtes propriétaire une fois expiré le bail de son worker. Le worker réutilise la progression préparée et revérifie les préconditions de publication ; répéter une reprise ne duplique pas les modifications d’enregistrements.
+
+Obligatoire: `operationId`.
+
+#### `read_trash`
+
+Lister les éléments supprimés de la Corbeille, du plus récent au plus ancien, avec la personne qui les a supprimés, la date et le nombre de jours restants avant leur suppression définitive. Filtrer par type, liste et nom. Seuls les éléments que vous pouviez voir et supprimer sont listés ; les administrateurs voient tout sauf les vues enregistrées et les widgets des autres membres, qui restent personnels. Avec action read et le typeId et le recordId d’un enregistrement, ouvrir un enregistrement supprimé en lecture seule tel que l’aperçu de la Corbeille le montre : ses valeurs et ses enregistrements liés tels qu’ils étaient lors de la suppression, les champs de sa liste et son élément de Corbeille.
+
+**Lecture seule.** Facultatif: `kinds`, `itemIds`, `typeIds`, `search`, `sortDescriptor`, `page`, `pageSize`, `action`, `typeId`, `recordId`.
+
+#### `manage_trash`
+
+Restaurer des éléments de la Corbeille (ou tous les éléments d’une même suppression par son batchId), prévisualiser exactement ce que supprime une suppression définitive, supprimer des éléments définitivement, ou vider la Corbeille en tant qu’administrateur. Supprimer définitivement des éléments exige le droit de suppression sur chacun d’eux. La suppression définitive est irréversible et efface de l’historique les valeurs des enregistrements supprimés. La suppression d’un champ retire des vues enregistrées les filtres, colonnes, tris et regroupements devenus invalides ; son aperçu et son résultat listent les vues et les widgets concernés. Restaurer le champ ne recrée pas ces paramètres. Une restauration ultérieure d’un champ ou d’une vue signale les paramètres de vue retirés dans droppedViewReferences.
+
+**Peut supprimer des données.** Obligatoire: `action`. Facultatif: `itemIds`, `batchId`, `all`, `expectedImpactHash`.
+
+#### `export_crm_records`
+
+Exporter une liste sous forme du document JSON de l’action Exporter en JSON de la page de la liste : chaque enregistrement lisible correspondant à la recherche, aux filtres et au tri, avec les lignes de sous-liste, les attributions, les coordonnées et les liens, jusqu’à 5 000 enregistrements, ou page par page avec page et pageSize. Le texte enrichi arrive entre des marqueurs de contenu non fiable. L’export Excel reste un téléchargement REST.
+
+**Lecture seule.** Obligatoire: `typeId`. Facultatif: `search`, `filters`, `relatedFilters`, `relationships`, `sort`, `page`, `pageSize`.
+
+#### `import_crm_records`
+
+Créer ou mettre à jour jusqu’à 100 enregistrements et 500 liaisons ou suppressions de liaison d’une liste en un seul appel atomique (mode create ou update), vérifié par rapport à la révision actuelle du schéma. Les lignes sont partielles : les champs omis restent vides à la création et inchangés à la mise à jour, et le mode update applique des valeurs différentes enregistrement par enregistrement. Une ligne invalide fait rejeter tout le document. Exige un accès en création ou en modification sur la liste.
+
+**Peut supprimer des données.** Obligatoire: `document`, `mode`, `idempotencyKey`.
+
+#### `manage_record_files`
+
+Téléverser, joindre, renommer et lire des fichiers de champs Fichier. upload prend un contenu base64 jusqu’à 3 Mo et, avec recordId, écrit aussitôt le fichier dans le champ de cet enregistrement, en l’ajoutant ou en remplaçant les fichiers qui s’y trouvent ; create_upload renvoie une URL PUT et des en-têtes pour exactement size octets, valables 15 minutes, après quoi vous écrivez le fileId dans le champ avec attach ou mutate_crm_record. attach écrit un fichier en attente que vous avez téléversé, comme un fichier que l’utilisateur a donné à Mate dans un chat, dans le champ Fichier d’un enregistrement sous forme de mise à jour d’enregistrement (ajout ou remplacement, expectedVersion) ; à partir de là, les règles d’accès de l’enregistrement s’appliquent au fichier. read renvoie les détails du fichier, un lien de téléchargement valable 15 minutes et, une fois extrait, son texte par blocs avec offset et nextOffset. rename donne un nouveau nom à un fichier ; un nom sans extension conserve l’extension actuelle, les dossiers sont refusés, et pour un fichier sur un enregistrement il s’agit d’une mise à jour d’enregistrement qui exige l’accès en modification au champ. Les téléversements comptent dans le stockage de l’espace de travail. search trouve les fichiers que vous pouvez lire par les mots de leur texte et renvoie chacun avec son enregistrement, un extrait et l’offset à partir duquel lire. Pour retirer un fichier, écrire la liste du champ sans son id avec mutate_crm_record.
+
+Obligatoire: `action`. Facultatif: `typeId`, `fieldId`, `name`, `mimeType`, `content`, `size`, `recordId`, `mode`, `expectedVersion`, `fileId`, `offset`, `query`, `limit`.
+{/* /mcp-catalog */}
+
+### Mise à jour par lot via les identifiants de canal [#batch-identifier-update]
+
+Deux appels mettent à jour des enregistrements que vous ne connaissez que par des adresses e-mail ou des identifiants de profil, sans lecture d’enregistrement entre les deux.
+
+1. Appelez `resolve_record_identifiers` (REST : `POST /api/v1/records/identities/resolve`) avec jusqu’à 1 000 identifiants :
+
+   ```json
+   {
+     "identifiers": [
+       { "provider": "mail", "value": "ada@example.com" },
+       { "provider": "linkedin", "value": "ada-lovelace" },
+       { "provider": "mail", "value": "team@example.com" }
+     ]
+   }
+   ```
+
+   La réponse conserve l’ordre de saisie et renvoie, pour chaque identifiant, tous les enregistrements liés accessibles, chacun avec sa `version` actuelle, plus le `schemaRevision` de l’espace de travail :
+
+   ```json
+   {
+     "schemaRevision": 12,
+     "matches": [
+       {
+         "provider": "mail",
+         "value": "ada@example.com",
+         "records": [
+           {
+             "ref": { "typeId": "<contact typeId>", "recordId": "<ada recordId>" },
+             "identityId": "<identityId>",
+             "typeLabel": "Contact",
+             "typePluralLabel": "Contacts",
+             "title": "Ada Lovelace",
+             "avatarUrl": null,
+             "canEdit": true,
+             "version": 4
+           }
+         ]
+       },
+       { "provider": "linkedin", "value": "ada-lovelace", "records": [{ "ref": { "typeId": "<contact typeId>", "recordId": "<ada recordId>" }, "version": 4, "...": "..." }] },
+       { "provider": "mail", "value": "team@example.com", "records": [{ "...": "record A" }, { "...": "record B" }] }
+     ]
+   }
+   ```
+
+2. Construisez les cibles. Un enregistrement lié via plusieurs identifiants, comme Ada ci-dessus, apparaît sous chacun d’eux : gardez une seule cible par `typeId` et `recordId`. Un identifiant avec plusieurs enregistrements, comme `team@example.com`, est ambigu : décidez avec l’utilisateur ou à partir du type, sans jamais en choisir un arbitrairement. Un tableau `records` vide signifie qu’aucune correspondance n’est accessible ; les enregistrements que vous ne pouvez pas lire ne sont jamais révélés.
+3. Appelez `mutate_crm_record` (REST : `POST /api/v1/records/mutate`) une fois par lot de 100 cibles au maximum, avec `schemaRevision` comme `expectedRevision` :
+
+   ```json
+   {
+     "expectedRevision": 12,
+     "idempotencyKey": "segment-update-2026-10-06",
+     "mutation": {
+       "action": "updateMany",
+       "targets": [{ "ref": { "typeId": "<contact typeId>", "recordId": "<ada recordId>" }, "expectedVersion": 4 }],
+       "fields": [{ "fieldId": "<field id>", "value": { "kind": "text", "value": "Webinar 2026" } }]
+     }
+   }
+   ```
+
+La modification s’applique atomiquement à chaque cible ; un gros recalcul peut renvoyer `status: "pending"` avec un operationId à lire via `read_crm_operation`. Si une cible ou le schéma a changé après la recherche, tout le lot est rejeté avec un `conflict` et rien n’est écrit : résolvez de nouveau et réessayez avec une nouvelle clé d’idempotence. Réessayer la requête identique avec la même clé renvoie le résultat d’origine sans écrire deux fois.
+
+### Adresses [#addresses]
+
+Un champ d’adresse stocke une adresse postale. Écrivez les éléments donnés par l’utilisateur sous la forme `{"kind": "address", "value": {"street": "Hauptstraße 5", "postalCode": "68259", "city": "Mannheim", "countryCode": "de"}}`. Le serveur vérifie chaque adresse par rapport au format d’adresse de son pays avant de l’enregistrer, de la même façon dans l’application, via REST et MCP, à l’import et pour Mate :
+
+- **Refusés** avec `validation` : un code pays qui n’est pas un code ISO 3166-1 alpha-2 (`recordAddressCountryInvalid`), un code postal qui ne correspond pas au format du pays (`recordAddressPostalCodeInvalid` ; le message montre un exemple comme 68259), et une région donnée sous forme d’un code que le pays n’a pas, comme `XX` aux États-Unis (`recordAddressRegionInvalid`). Le chemin du problème se termine par l’élément concerné, par exemple `mutation.fields.0.value.postalCode`.
+- **Enregistrés avec un avertissement :** le résultat porte `warnings`, chacun avec `code`, `fieldId`, `recordIds`, `part`, un `message` en anglais et, quand cela aide, `expected`. Les codes sont `countryMissing` (un code postal ou une région sans pays : aucun des deux n’a été vérifié), `partMissing` (une adresse avec une rue à laquelle il manque un élément exigé par le format postal de son pays, comme le code postal en Allemagne), `regionUnknown`, `postalCodeRegionMismatch` et `cityMismatch` (la ville n’appartient pas au code postal ; `expected` liste les villes qui lui appartiennent). Informez l’utilisateur d’un avertissement au lieu de modifier ses données de votre propre chef.
+- **Normalisés :** le code postal est stocké au format du pays (`sw1a1aa` devient `SW1A 1AA`, `D-68259` devient `68259`), un nom de région ou un code ISO comme code de région du pays (`California` devient `CA`), et `location` contient le centre du code postal avec `precision: "postcode"` quand l’annuaire des codes postaux le connaît. La rue et la ville conservent la casse avec laquelle elles ont été saisies. Une adresse qu’une écriture laisse inchangée n’est pas revérifiée.
+
+Pour vérifier des éléments avant de les écrire, ou pour compléter une ville ou une région manquante à partir du code postal, appelez `check_address` (REST : `POST /api/v1/addresses/check`) avec les éléments. Il renvoie l'`address` normalisée, les `issues` avec leur `severity`, et `postalCode.places`, les villes et les régions du code postal, les plus probables en premier. Ne complétez un élément à partir de `places` que lorsque `postalCode.match` vaut `exact` et qu’un seul lieu convient ; sinon, laissez l’utilisateur choisir. Rien ne quitte le serveur : les formats des pays sont livrés avec Customermates, et les codes postaux proviennent d’un annuaire GeoNames dans la propre base de données du serveur, qui charge un pays la première fois que quelqu’un saisit l’un de ses codes postaux (`postalCode.status` vaut `loading` jusque-là). Affichez `attribution` avec les lieux que vous présentez.
+
+### Adresses vérifiées [#verified-addresses]
+
+Un serveur auto-hébergé peut ajouter une recherche d’adresses via son propre service Photon (`ADDRESS_LOOKUP_URL`, voir [Auto-hébergement](/docs/self-hosting#address-lookup)) ; Customermates Cloud n’en a pas. Ce n’est qu’avec un service configuré que le serveur liste `lookup_address` ; stockez une adresse vérifiée ainsi :
+
+1. Appelez `lookup_address` (REST : `POST /api/v1/addresses/lookup`) avec l’adresse comme `query`, par exemple `{"query": "Hauptstraße 5, Mannheim", "countryCode": "de"}`. Chaque candidat contient les éléments formatés, l’emplacement du bâtiment et un `candidateToken`.
+2. Écrivez le jeton à la place d’une valeur dans `mutate_crm_record` : `{"fieldId": "<address field id>", "value": {"kind": "address", "candidateToken": "<candidateToken>"}}`. Le serveur stocke le candidat comme vérifié, avec le fournisseur et l’heure de la recherche.
+
+Un jeton fonctionne pendant 24 heures et uniquement dans l’espace de travail qui a fait la recherche ; sinon l’écriture est refusée avec `recordAddressCandidateInvalid`, et une nouvelle recherche règle le problème. Quand plusieurs candidats conviennent, demandez à l’utilisateur ; quand aucun ne convient, écrivez les éléments. Sans service, les clients MCP ne voient pas `lookup_address` et les points d’accès REST répondent `available: false` : écrivez les éléments, qui sont vérifiés comme décrit plus haut. Affichez `attribution` (© OpenStreetMap contributors) avec les candidats que vous présentez. Chaque personne peut rechercher 30 adresses en 10 secondes (`rate_limit` avec `addressLookupRateLimited`) ; un service qui ne répond pas renvoie `unavailable` avec `addressLookupUnavailable`. Pour faire correspondre au service des éléments saisis par une personne, `POST /api/v1/addresses/verify` renvoie l’adresse correspondante avec un jeton, ou `match: null`.
+
+### Espace de travail [#workspace]
+
+{/* mcp-catalog:workspace */}
+#### `get_workspace_context`
+
+Lire en un seul appel l’utilisateur courant, l’entreprise (l’espace de travail, avec son nom), le catalogue des rôles avec leurs autorisations, les comptes de messagerie connectés accessibles, ainsi que le guide opérationnel de la Base de connaissances, son index de procédures avec leurs déclencheurs « quand l’utiliser » et une liste de pages de connaissances filtrée selon les autorisations (passer `wikiPage` pour en obtenir davantage ; omise sans accès en lecture à la Base de connaissances). C’est le premier appel naturel d’une session ; la connexion est liée à un seul espace de travail. Découvrir séparément les libellés des types d’enregistrements avec discover_record_types et récupérer la configuration utile avec get_record_model.
+
+**Lecture seule.** Facultatif: `wikiPage`.
+
+#### `list_users`
+
+Membres de l’équipe avec id, name, email, roleId et status. Quand le rôle de l’appelant a l’accès en lecture Assignés sur Utilisateurs et rôles, seul l’appelant est renvoyé.
+
+**Lecture seule.** Facultatif: `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
+{/* /mcp-catalog */}
+
+### Vues enregistrées [#saved-views]
+
+{/* mcp-catalog:views */}
+#### `manage_data_views`
+
+Découvrir, inspecter, créer, mettre à jour, sélectionner, réinitialiser et supprimer des vues enregistrées personnelles. Découvrir d’abord la surfaceKey ; les surfaces génériques d’enregistrements utilisent des ID de type stables. Les mises à jour ne modifient que les paramètres fournis ; un regroupement peut porter jusqu’à 8 synthèses (somme, moyenne, min ou max d’un champ nombre ou montant). Les listes d’enregistrements avec un champ de date proposent aussi la disposition calendrier : viewMode calendar avec la date, la date de fin facultative et les champs de couleur, et le mode mois, semaine ou agenda. La réinitialisation supprime vos personnalisations : la liste affiche tous les champs dans leur ordre configuré sous forme de tableau non regroupé, sans modifier les enregistrements. La suppression d’une vue exige son nom et son ID actuels exacts ; une discordance renvoie une erreur précise, alors qu’un ID inconnu renvoie introuvable. La suppression la déplace vers la Corbeille (une vue de tableau de bord emporte ses widgets), jamais ses enregistrements. Les listes de configurations et de vues sont paginées et consultables.
+
+**Peut supprimer des données.** Obligatoire: `action`. Facultatif: `surfaceKey`, `viewKey`, `section`, `page`, `pageSize`, `query`, `name`, `fields`, `state`.
+
+#### `manage_record_detail_layout`
+
+Lire, enregistrer ou réinitialiser votre disposition personnelle du détail d’un enregistrement avec des ID de type et de champ stables. La lecture renvoie les choix de champs accessibles, les épingles, les champs masqués, l’ordre des champs et la révision de configuration. L’enregistrement exige la disposition complète, expectedRevision et une idempotencyKey. La réinitialisation supprime votre disposition : chaque champ s’affiche dans son ordre configuré et aucun n’est épinglé. Elle ne modifie ni les enregistrements ni les préférences des autres utilisateurs.
+
+Obligatoire: `typeId`, `action`. Facultatif: `expectedRevision`, `idempotencyKey`, `layout`.
+
+#### `manage_calendar`
+
+Lire et modifier votre calendrier personnel : options liste les listes avec des champs de date et vos calendriers connectés, read renvoie la configuration et indique si la valeur par défaut s’applique encore (le premier champ de date simple de chaque liste, sinon sa première période, jusqu’à 12 listes), update prend une config avec seulement les clés à modifier et vérifie chaque liste, champ, filtre et calendrier, et reset revient à la valeur par défaut. subscriptions liste les URL d’abonnement à votre calendrier et revoke en désactive une définitivement par id. Les enregistrements, les évènements de calendrier et les calendriers des autres utilisateurs ne changent jamais.
+
+**Peut supprimer des données.** Obligatoire: `action`. Facultatif: `config`, `id`.
+{/* /mcp-catalog */}
+
+### Base de connaissances [#workspace-wiki]
+
+{/* mcp-catalog:wiki */}
+#### `manage_wiki_pages`
+
+Lister, rechercher, lire, créer, mettre à jour, réordonner (déplacer avant ou après une autre page) ou supprimer (déplacer vers la Corbeille) des pages de la Base de connaissances, chacune étant une page de connaissances, une procédure avec un déclencheur « quand l’utiliser », ou l’unique guide opérationnel. Les mises à jour et les suppressions exigent la dernière valeur updatedAt ; create peut exiger atomiquement une Base de connaissances vide.
+
+**Peut supprimer des données.** Obligatoire: `action`. Facultatif: `id`, `query`, `offset`, `anchor`, `page`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `targetId`, `placement`, `title`, `markdown`, `kind`, `whenToUse`.
+{/* /mcp-catalog */}
+
+### Messagerie [#messaging]
+
+Les outils reposant sur la messagerie exigent une formule avec messagerie : Pro ou supérieure, cloud uniquement ; Starter et les instances auto-hébergées les refusent. Sans elle, `get_activities` renvoie quand même les modifications du journal d’activité lorsque le rôle de l’appelant a l'**Accès en lecture** **Tous** sur la ligne **Journal d’activité** ; ses sources de messages, de comptes connectés et d’agenda exigent l'**Accès en lecture** sur la ligne **Messages de la boîte de réception** plus une formule avec messagerie.
+
+`connect_messaging_account` exige aussi **Créer** sur **Messages de la boîte de réception** et un emplacement de compte libre : Pro autorise [[commercial.entitlement.pro.includedAccountsPerUser]] compte connecté par utilisateur, Business [[commercial.entitlement.business.includedAccountsPerUser]], Max [[commercial.entitlement.max.includedAccountsPerUser]] et Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]].
+
+{/* mcp-catalog:messaging */}
+#### `get_messaging_threads`
+
+Sans threadId, filtre et pagine les fils de la boîte de réception accessibles ; avec threadId, lit un fil et une page de messages. Les références d’enregistrements des participants portent typeId, recordId, title, avatarUrl et canEdit après les contrôles d’accès actuels aux enregistrements. Les nouvelles valeurs du filtre participantContactId sont typeId:recordId ; les anciens filtres par UUID de contact restent décodables. Les autorisations sur les messages et sur les comptes s’appliquent indépendamment.
+
+**Lecture seule.** Facultatif: `threadId`, `page`, `pageSize`, `searchTerm`, `filters`, `sortDescriptor`.
+
+#### `get_activities`
+
+Chronologie d’activité pour des références d’enregistrements accessibles (`typeId` et `recordId`) ou des types, y compris les enregistrements directement liés lorsqu’une relation les montre. Combiner des filtres typés d’inclusion, d’exclusion et de présence pour les enregistrements, les types de sources, les fournisseurs, les comptes et les conversations ; filtrer aussi par période. Les autorisations de l’espace de travail, des enregistrements et de la boîte de réception s’appliquent à chaque enregistrement et à chaque source. Le résultat contient `items`, `availableSources` et un `nextCursor` à position opaque ; passer ce curseur tel quel pour charger les entrées plus anciennes. La limite par défaut est 25, le maximum 100. Les anciennes portées d’entité, les numéros de page et les filtres propres à une entité sont rejetés.
+
+**Lecture seule.** Facultatif: `scope`, `kinds`, `providers`, `threadIds`, `after`, `before`, `filters`, `cursor`, `limit`.
+
+#### `get_calendars`
+
+Trois modes : list: "calendars" (par défaut) liste les calendriers des comptes connectés accessibles ; list: "events" liste les évènements de calendrier classés par heure de début, filtrables par calendarId ou par plage de dates startsAt ; avec eventId, renvoie le détail d’un évènement, organisateur et participants compris. Les ids correspondent à l’entityId des évènements de webhook de calendrier.
+
+**Lecture seule.** Facultatif: `list`, `eventId`, `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
+
+#### `send_chat_message`
+
+Livre immédiatement. Avec threadId, répond dans un chat existant ou envoie le brouillon d’une conversation qui n’existe que sous forme de brouillon ; avec connectedAccountId plus attendeeIdentifiers, en démarre un nouveau (chatName facultatif nomme un groupe). Pour envoyer un brouillon enregistré, passer à la fois draftMessageId et draftRevision ; chaque révision de brouillon n’est envoyée qu’une fois au plus, et répéter l’appel renvoie le premier résultat avec `repeated: true`. Les nouveaux chats LinkedIn utilisent Classic par défaut ; définir linkedinProduct sur sales_navigator ou recruiter pour envoyer un InMail (exige inmailSubject), ou inmail:true pour envoyer un InMail à quelqu’un hors de votre réseau avec Classic.
+
+Obligatoire: `text`. Facultatif: `threadId`, `draftMessageId`, `draftRevision`, `connectedAccountId`, `attendeeIdentifiers`, `chatName`, `linkedinProduct`, `inmail`, `inmailSubject`, `inmailSignature`.
+
+#### `send_email`
+
+Livre immédiatement. Envoyer ou répondre depuis un compte e-mail connecté ; l’envoi d’un brouillon enregistré exige à la fois draftMessageId et draftRevision, et threadId peut être la conversation du brouillon lui-même. Chaque révision de brouillon n’est envoyée qu’une fois au plus : répéter l’appel renvoie le premier résultat avec `repeated: true`, et un brouillon modifié ou dont l’envoi précédent n’a pas pu être confirmé est refusé sans envoi. La signature activée du compte est ajoutée automatiquement : n’écrivez donc jamais de formule de politesse dans le corps.
+
+Obligatoire: `to`, `subject`, `body`. Facultatif: `threadId`, `connectedAccountId`, `cc`, `bcc`, `bodyFormat`, `attachments`, `draftMessageId`, `draftRevision`.
+
+#### `save_message_draft`
+
+Préparer un message pour relecture : le brouillon apparaît dans la boîte de réception et l’utilisateur l’envoie. Avec `threadId`, il rédige une réponse ou met à jour l’unique brouillon de cette conversation ; avec `connectedAccountId` plus `recipients`, chaque appel prépare une nouvelle conversation qui n’existe que sous forme de brouillon. Renvoie l’id du message, le jeton de révision opaque et l’id du fil. La signature est ajoutée à l’envoi du brouillon : n’écrivez donc jamais de formule de politesse dans le corps.
+
+Obligatoire: `body`. Facultatif: `threadId`, `connectedAccountId`, `recipients`, `subject`, `cc`, `bcc`.
+
+#### `discard_message_draft`
+
+Supprimer la révision exacte du brouillon enregistré à l’aide de l’ID de son message et de son jeton de révision opaque.
+
+**Peut supprimer des données.** Obligatoire: `messageId`, `draftRevision`.
+
+#### `update_messaging_thread`
+
+Définir l’état du fil : unread, open, closed ou spam.
+
+Obligatoire: `threadId`, `state`.
+
+#### `move_email_thread`
+
+Déplacer une conversation e-mail vers un autre dossier de la boîte aux lettres chez le fournisseur.
+
+Obligatoire: `threadId`, `folderId`. Facultatif: `messageId`.
+
+#### `manage_conversation_records`
+
+Lire, lier ou délier des enregistrements pour une conversation accessible de la boîte de réception. Ces liens n’affectent que ce fil, jamais les autres conversations ni les coordonnées de l’expéditeur sur les enregistrements. Lier et délier exigent expectedRevision, idempotencyKey, la gestion de la boîte de réception et l’autorisation de mettre à jour l’enregistrement.
+
+Obligatoire: `action`, `threadId`. Facultatif: `ref`, `expectedRevision`, `idempotencyKey`.
+
+#### `connect_messaging_account`
+
+Générer un lien que l’utilisateur ouvre dans un navigateur pour connecter un canal : Gmail (google), Outlook, e-mail IMAP, WhatsApp, LinkedIn Classic, Sales Navigator ou Recruiter, Instagram ou Telegram. Vous renvoyez le lien ; l’utilisateur termine l’authentification là-bas. Le lien est réservé à l’utilisateur qui le demande et expire au bout de 30 minutes. Exige Créer sur Messages de la boîte de réception, une offre avec messagerie et un emplacement de compte connecté libre dans cette offre.
+
+Obligatoire: `channel`.
+
+#### `manage_connected_accounts`
+
+Lister vos comptes connectés avec leurs dossiers et leurs paramètres d’e-mail, et modifier un compte dont vous êtes propriétaire : choisir les dossiers e-mail synchronisés, définir la signature et l’apparence des e-mails, le partager avec l’espace de travail ou le rendre privé, le resynchroniser ou le déconnecter. La déconnexion est irréversible. Exige Modifier sur Messages de la boîte de réception, et Supprimer pour déconnecter.
+
+**Peut supprimer des données.** Obligatoire: `action`. Facultatif: `id`, `selectedFolderIds`, `signature`, `settings`, `shared`.
+{/* /mcp-catalog */}
+
+### Publications sociales [#social-posts]
+
+Comme la messagerie, ces outils exigent une formule avec messagerie (Pro ou supérieure, cloud uniquement) et un compte LinkedIn ou Instagram connecté. Les outils `linkedin_*` exigent aussi l’abonnement Sales Navigator de ce compte LinkedIn.
+
+{/* mcp-catalog:social */}
+#### `get_social_posts`
+
+Publications sur LinkedIn ou Instagram, lues via un compte connecté. Utiliser `authorIdentifier=me` pour le propriétaire du compte. Pour une autre personne, utiliser `get_social_profile.id`, `get_social_posts.items[].author.id` (mode liste), `get_social_posts.author.id` (mode publication unique), `get_social_post_engagement.items[].author.id` (commentaires), `get_social_post_engagement.items[].sender.id` (réactions) ou `manage_social_relations.items[].user.id`. Résoudre d’abord `get_messaging_threads.items[].participants[].identifier` (mode liste) ou `get_messaging_threads.thread.participants[].identifier` (mode détail) via `get_social_profile` ; ne pas passer directement l’identifiant d’un participant de fil. Passer `get_social_posts.items[].id` comme `postId` pour récupérer une publication. En cas de continuation, répéter le même compte, le même auteur et la même limite avec next_cursor.
+
+**Lecture seule.** Obligatoire: `connectedAccountId`. Facultatif: `postId`, `authorIdentifier`, `cursor`, `offset`, `limit`.
+
+#### `get_social_post_engagement`
+
+Engagement sur une publication : kind=comments (par défaut) liste les commentaires, kind=reactions liste les personnes qui ont réagi ; avec commentId, renvoie les réactions à ce commentaire.
+
+**Lecture seule.** Obligatoire: `connectedAccountId`, `postId`. Facultatif: `kind`, `commentId`, `sortBy`, `cursor`, `offset`, `limit`.
+
+#### `get_social_profile`
+
+Un profil de personne ou d’entreprise. Pour une personne, utiliser `profileType=person` avec `me`, `get_messaging_threads.items[].participants[].identifier`, `get_messaging_threads.thread.participants[].identifier`, `get_social_posts.items[].author.id`, `get_social_posts.author.id`, `get_social_post_engagement.items[].author.id`, `get_social_post_engagement.items[].sender.id`, `manage_social_relations.items[].user.id`, un slug de profil public LinkedIn Classic ou un nom d’utilisateur Instagram. Pour une entreprise LinkedIn, utiliser `profileType=company` avec `linkedin_search_sales_companies.items[].id`, `linkedin_search_sales_leads.items[].current_positions[].company_id`, `linkedin_manage_sales_lists.items[].current_positions[].company_id` ou `get_social_profile.current_positions[].company_id`. Réutiliser `get_social_profile.id` avec le même `profileType`.
+
+**Lecture seule.** Obligatoire: `connectedAccountId`, `identifier`. Facultatif: `profileType`.
+
+#### `manage_social_relations`
+
+Demandes de connexion : lister les invitations (reçues par défaut, ou vos propres invitations envoyées/sortantes via direction), inviter avec `get_social_profile.id` (envoie une vraie demande), accepter ou annuler par invitationId.
+
+Obligatoire: `action`, `connectedAccountId`. Facultatif: `identifier`, `message`, `invitationId`, `direction`, `cursor`, `offset`, `limit`.
+
+#### `publish_social_post`
+
+Publie une vraie publication depuis un compte LinkedIn ou Instagram connecté, éventuellement avec des fichiers d’un champ Fichier d’un enregistrement (plusieurs images forment un carrousel, sinon une seule vidéo ou un seul document, 25 Mo au plus au total) et un premier commentaire publié juste après. `visibility=relations_only` limite une publication LinkedIn aux relations du compte. Renvoie l’`id` de la publication (utilisable comme `postId` de `get_social_posts`), `share_url`, `created_at` et `comment_id` ; quand le premier commentaire échoue, la publication reste en ligne et `comment_error` en indique la raison. Avec une `idempotencyKey`, répéter l’appel identique renvoie le premier résultat avec `repeated: true`.
+
+Obligatoire: `connectedAccountId`, `text`. Facultatif: `fileIds`, `visibility`, `firstComment`, `idempotencyKey`.
+
+#### `linkedin_search_sales_leads`
+
+Trouve des personnes via LinkedIn Sales Navigator : soit à partir d’une URL de recherche collée, soit par une recherche structurée avec des filtres (mots-clés, lieu, secteur, entreprise, intitulé de poste, ancienneté et plus). Résoudre `linkedin_search_sales_leads.items[].current_positions[].company_id` avec `get_social_profile` et `profileType=company`. Exige un abonnement Sales Navigator.
+
+**Lecture seule.** Obligatoire: `connectedAccountId`. Facultatif: `url`, `filters`, `offset`, `limit`.
+
+#### `linkedin_search_sales_companies`
+
+Trouve des entreprises via LinkedIn Sales Navigator : soit à partir d’une URL de recherche d’entreprises collée, soit par une recherche structurée avec des filtres (mots-clés, lieu, secteur, effectif, chiffre d’affaires annuel et plus). Passer `linkedin_search_sales_companies.items[].id` à `get_social_profile` avec `profileType=company`. Exige un abonnement Sales Navigator.
+
+**Lecture seule.** Obligatoire: `connectedAccountId`. Facultatif: `url`, `filters`, `offset`, `limit`.
+
+#### `linkedin_get_sales_search_parameters`
+
+Résout les ids derrière les entrées de recherche de LinkedIn Sales Navigator par type (lieux, secteurs, intitulés de poste, fonctions, entreprises, écoles, groupes et plus), ainsi que vos listes de leads/comptes et vos recherches enregistrées/récentes ; le mot-clé est facultatif, si bien qu’un type seul énumère toute la famille.
+
+**Lecture seule.** Obligatoire: `connectedAccountId`, `type`. Facultatif: `keywords`, `offset`, `limit`.
+
+#### `linkedin_manage_sales_lists`
+
+Listes de leads et de comptes de LinkedIn Sales Navigator : les lister, parcourir les membres de l’une d’elles, ou enregistrer un lead avec `linkedin_search_sales_leads.items[].id` ou `get_social_profile.id`, ou une entreprise avec `linkedin_search_sales_companies.items[].id` ou un chemin `items[].current_positions[].company_id` documenté plus haut. Les nouvelles listes se créent dans Sales Navigator lui-même.
+
+Obligatoire: `action`, `connectedAccountId`. Facultatif: `kind`, `listId`, `providerId`, `offset`, `limit`.
+{/* /mcp-catalog */}
+
+### Flux type de lecture sociale [#typical-social-read-flow]
+
+Choisissez dans `get_workspace_context.connectedAccounts` une entrée LinkedIn ou Instagram dont le `status` est `ok` et utilisez son `id` comme `connectedAccountId`. Quand la personne provient d’une conversation de la boîte de réception, résolvez d’abord `get_messaging_threads.items[].participants[].identifier` (mode liste) ou `get_messaging_threads.thread.participants[].identifier` (mode détail) :
+
+```json
+{
+  "connectedAccountId": "00000000-0000-4000-8000-000000000001",
+  "identifier": "<get_messaging_threads.items[].participants[].identifier>",
+  "profileType": "person"
+}
+```
+
+Appelez `get_social_profile` avec cette requête, puis passez `get_social_profile.id` à `get_social_posts.authorIdentifier` pour la première page :
+
+```json
+{
+  "connectedAccountId": "00000000-0000-4000-8000-000000000001",
+  "authorIdentifier": "<get_social_profile.id>",
+  "limit": 10
+}
+```
+
+Si next_cursor n’est pas nul, répétez les mêmes `connectedAccountId`, `authorIdentifier` et `limit`, réglez `cursor` sur cette valeur et omettez `offset` :
+
+```json
+{
+  "connectedAccountId": "00000000-0000-4000-8000-000000000001",
+  "authorIdentifier": "<same get_social_profile.id>",
+  "cursor": "<next_cursor>",
+  "limit": 10
+}
+```
+
+Pour une entreprise, appelez `get_social_profile` avec `profileType=company` et un `identifier` issu de `linkedin_search_sales_companies.items[].id`, `linkedin_search_sales_leads.items[].current_positions[].company_id`, `linkedin_manage_sales_lists.items[].current_positions[].company_id` ou `get_social_profile.current_positions[].company_id`.
+
+### Documentation et recherche approfondie [#documentation-and-deep-research]
+
+{/* mcp-catalog:docs */}
+#### `search_docs`
+
+Rechercher dans la documentation ; par défaut dans les guides du produit (source=docs) ; passer source=api ou all pour inclure la référence de l’API REST. Fait correspondre les mots de la requête en texte intégral et, lorsque vous avez des crédits IA, aussi par le sens. Renvoie jusqu’à 5 pages, chacune avec slug, source, title, url, sa section la plus pertinente et son ancre, et un extrait, plus le total. Les liens vers l’application sont des URL complètes de cette instance (son `BASE_URL` configuré) et ouvrent l’espace de travail du lecteur.
+
+**Lecture seule.** Obligatoire: `query`. Facultatif: `locale`, `source`.
+
+#### `get_docs_page`
+
+Une page de documentation en Markdown avec son URL canonique. Les liens vers l’application sont des URL complètes de cette instance (son `BASE_URL` configuré) et ouvrent l’espace de travail du lecteur. Passer un `anchor` non vide renvoyé par la recherche, avec la question d’origine comme `query`, pour lire la section choisie en environ 1 400 caractères. Avec `query` seul, recherche la section la plus pertinente (plus une seconde section si elle tient). Omettre les deux pour la page entière. Liste les slugs valides en cas d’échec.
+
+**Lecture seule.** Obligatoire: `slug`. Facultatif: `anchor`, `query`, `locale`, `source`.
+
+#### `search`
+
+Recherche en lecture seule dans le contenu de la Base de connaissances, le texte des fichiers joints aux enregistrements lisibles, les enregistrements du CRM accessibles et la documentation du produit. Les résultats de la Base de connaissances et des fichiers correspondent aux mots de la requête en texte intégral et, lorsque vous avez des crédits IA, aussi par le sens et entre les langues ; les pages contenant un code ou un identifiant recherché viennent en premier. Les résultats de la Base de connaissances renvoient un id stable `wiki:<uuid>` et ceux des fichiers un id `file:<uuid>` avec l’enregistrement auquel ils appartiennent, chacun avec un `snippet` surligné, la `section` trouvée et son `offset` pour `fetch` ; les ids d’enregistrements utilisent `record:<typeId>:<recordId>`. Quand un mot mal orthographié ne correspond à aucune page de la Base de connaissances ni à aucun fichier, il est corrigé à partir de leurs propres mots et `didYouMean` renvoie la requête corrigée dont proviennent les résultats. Compatible avec company knowledge et deep research de ChatGPT ; les agents interactifs devraient préférer search_crm_records ou search_docs pour les enregistrements et la documentation. Passer chaque id de résultat tel quel à fetch. Les liens vers l’application sont des URL complètes de cette instance (son `BASE_URL` configuré) et ouvrent l’espace de travail du lecteur.
+
+**Lecture seule.** Obligatoire: `query`.
+
+#### `fetch`
+
+Lire un résultat de `search` à partir de son id inchangé : `wiki:<uuid>` ou l’URL exacte renvoyée de la Base de connaissances, `file:<uuid>`, `record:<typeId>:<recordId>` ou `doc:<locale>:<slug>`. Le Markdown de la Base de connaissances et le texte des fichiers arrivent par blocs bornés : passer l’`offset` d’un résultat de recherche pour ouvrir à la section trouvée, et continuer avec `nextOffset` jusqu’à ce qu’il soit null. À l’offset 0, une page ou un fichier plus long qu’un bloc renvoie aussi un `outline` de ses titres H1 à H3 avec leurs offsets. Les liens internes de la Base de connaissances sont absolus et directement suivables. Le texte des fichiers arrive entre des marqueurs de contenu non fiable et exige l’accès en lecture à l’enregistrement et au champ qui contiennent le fichier. L’accès en lecture à la Base de connaissances est requis pour son contenu, et les lectures d’enregistrements revérifient les autorisations actuelles. Les liens vers l’application sont des URL complètes de cette instance (son `BASE_URL` configuré) et ouvrent l’espace de travail du lecteur.
+
+**Lecture seule.** Obligatoire: `id`. Facultatif: `offset`.
+{/* /mcp-catalog */}
+
+### Modèle d’enregistrements [#record-model]
+
+Créez ou modifiez des listes, des champs, des relations et des calculs via un seul lot de configuration. **Modèle de données** **Modifier** est distinct de **Modifier** sur une liste. Les nouvelles listes sont par défaut réservées aux administrateurs ; les gestionnaires de schéma délégués peuvent appliquer un accès prédéfini, qui peut inclure leur propre rôle, uniquement à la création d’une liste, sans obtenir de droits d’administration des rôles.
+
+Lisez le modèle concerné, prévisualisez le lot, examinez les dépendances et les effets sur les autorisations, puis appliquez le même lot avec sa révision attendue et sa clé d’idempotence. Les références `$client` permettent aux nouvelles définitions de se référencer entre elles dans le lot. Les programmes de formule sont des nœuds typés ordonnés avant leurs dépendants plus un nœud racine ; ils ne peuvent exécuter ni JavaScript ni SQL. Le backend rejette les cycles, les types non valides, les combinaisons de devises non sûres et les dépendances incompatibles. Le `format.onClick` d’un champ (`open`, la valeur par défaut, ou `copy`) définit ce que fait un clic sur une valeur et n’est accepté que sur les champs url, adresse et coordonnées (`channels`) ; sur tout autre type, le lot est rejeté.
+
+Un résultat en attente renvoie un identifiant d’opération. Lisez sa progression jusqu’à la fin ; le dernier état complet reste lisible pendant que les écritures du CRM sont suspendues, et un travail en échec ou annulé ne publie aucune valeur partielle. Après une révision périmée, lisez la configuration actuelle et prévisualisez de nouveau.
+
+{/* mcp-catalog:record-model */}
+#### `configure_record_model`
+
+Prévisualiser ou appliquer un lot de configuration typé contenant des types, des champs, des relations, des calculs et des préréglages d’accès. Conserver les mêmes expectedRevision, idempotencyKey et opérations entre l’aperçu et l’application. Les références temporaires $client relient atomiquement les nouvelles définitions. Les calculs utilisent un programme de nœuds borné, jamais du code exécutable. La gestion du schéma est distincte de l’accès aux enregistrements ; les attributions de rôles et les synthèses publiées exigent leur propre autorité. Utiliser delete pour déplacer une liste, un champ ou une relation vers la Corbeille ; l’élément peut être restauré ou supprimé définitivement avec manage_trash. Pour la suppression d’un champ, preview.deletion.cleaned et deletionCleaned dans le résultat de l’application nomment les vues, les dispositions et les widgets modifiés automatiquement ; references liste les ID nouvellement résolus, pas les consommateurs. Le statut d’une opération en attente donne retryAfterMs comme délai minimal avant d’interroger à nouveau.
+
+**Peut supprimer des données.** Obligatoire: `action`, `change`.
+{/* /mcp-catalog */}
+
+### Widgets [#widgets]
+
+Une mesure de graphique choisit son type source, ses filtres, son agrégation, son champ de valeur et son regroupement, par exemple la somme du champ Valeur sur les Affaires regroupées par Étape. La valeur pondérée n’est qu’un champ configuré de plus, pas un mode de widget.
+
+La source fixe la granularité de l’agrégation. Le reporting des affaires compte chaque affaire correspondante une seule fois dans le total global ; une affaire liée à deux organisations compte entièrement dans les deux groupes d’organisations, de sorte que leur somme peut dépasser le total distinct. Les contributions et les quantités par article du catalogue utilisent les lignes comme source. Des montants égaux sur des enregistrements différents comptent tous deux. Les entrées restreintes restent restreintes dans les résultats de widget, et les devises mélangées ne sont jamais additionnées en silence.
+
+{/* mcp-catalog:widgets */}
+#### `manage_widgets`
+
+Lister ou lire des widgets ; créer, mettre à jour ou supprimer des configurations de graphique, d’activité, de calendrier et de carte. Les graphiques utilisent measure et displayOptions ; les chronologies utilisent activityQuery et showFilters ; les widgets de calendrier utilisent calendarQuery (enregistrements à venir avec une section en retard, ou une grille de chaleur mensuelle de comptes ou de sommes quotidiens) et les widgets de carte utilisent mapQuery (enregistrements placés à l’emplacement stocké dans un champ d’adresse, colorés et dimensionnés par des champs), les deux avec showFilters. Toutes les écritures exigent expectedRevision et idempotencyKey, plus expectedVersion pour les mises à jour. Un measure, activityQuery, calendarQuery, mapQuery ou displayOptions fourni remplace cette valeur en entier. Les portées de chronologie et les filtres typés utilisent des références stables d’enregistrement et de type, avec des filtres d’inclusion, d’exclusion, de compte et de conversation. get lit un widget de calendrier pour une autre fenêtre de 42 jours au plus. Les modèles partagés appliquent l’accès aux données de chaque lecteur. Les écritures acceptent un layout facultatif `{x, y, w, h}` sur la grille de 12 colonnes, enregistré dans le même appel ; sans lui, un nouveau widget prend la première place libre et un widget mis à jour reste en place, et les positions qui se chevauchent sont refusées. list renvoie la disposition actuelle de chaque widget. viewId place un widget sur une vue de tableau de bord (une vue enregistrée de la surface dashboard de manage_data_views) ; sans lui, un nouveau widget va sur la vue de tableau de bord courante de l’appelant. Delete déplace la configuration du widget vers la Corbeille, jamais ses enregistrements sources.
+
+**Peut supprimer des données.** Obligatoire: `action`. Facultatif: `kind`, `id`, `ids`, `name`, `expectedRevision`, `expectedVersion`, `idempotencyKey`, `measure`, `displayOptions`, `isTemplate`, `activityQuery`, `calendarQuery`, `mapQuery`, `showFilters`, `layout`, `window`, `viewId`.
+{/* /mcp-catalog */}
+
+### Routines [#routines]
+
+{/* mcp-catalog:routines */}
+#### `manage_routines`
+
+Un seul outil avec un commutateur `action` : list, runs, create, update, pause, run_now, delete. Une routine est un ensemble de consignes enregistrées que l’assistant exécute selon un planning cron ou quand un évènement du CRM se déclenche. Omettre `enabled` à la création produit une routine ACTIVE : passer donc `enabled: false` pour en rédiger une ; l’assistant hébergé doit indiquer `enabled` explicitement et rédige un brouillon sauf si l’utilisateur a demandé l’activation. Un changement de `triggerKind` doit arriver avec le planning ou les évènements de ce type. pause désactive la routine et fait passer ses exécutions en file à skipped, ce que la réactivation n’annule pas ; seul un administrateur système actif peut mettre en pause ou supprimer une routine. run_now ne s’applique qu’aux routines planifiées, et seulement à une routine activée dont l’appelant est propriétaire. Il refuse le travail IA en pause, les propriétaires inactifs et les crédits épuisés avant la mise en file. Une pause de la plateforme Customermates renvoie `platformPaused` ; les administrateurs de l’espace de travail ne peuvent pas la lever. Une routine mise en pause par un administrateur de l’espace de travail utilise `adminPaused` ; les exécutions de test manuelles utilisent toujours `triggerKind: schedule`. Les exécutions sont paginées par `cursor` et portent le statut, le résumé, le déclencheur et la raison de blocage du bloc `error`. delete déplace la routine vers la Corbeille, où elle cesse de s’exécuter jusqu’à ce que manage_trash la restaure. list renvoie par défaut des résumés compacts : nom, propriétaire, déclencheur et état activé. Passer includePrompts: true pour obtenir les configurations complètes avec les consignes, ou owner: "mine" pour les routines dont vous êtes propriétaire.
+
+**Peut supprimer des données.** Obligatoire: `action`. Facultatif: `id`, `cursor`, `page`, `pageSize`, `searchTerm`, `owner`, `includePrompts`, `name`, `prompt`, `enabled`, `triggerKind`, `cronExpression`, `timezone`, `triggerEvents`, `recordTrigger`, `recordSources`, `expectedSchemaRevision`, `debounceSeconds`.
+{/* /mcp-catalog */}
+
+### Webhooks [#webhooks]
+
+{/* mcp-catalog:webhooks */}
+#### `manage_webhooks`
+
+Un seul outil avec un commutateur `action` : list, get, create, update, delete, plus le journal des livraisons (action list_deliveries, limité à l’url actuelle d’un webhook quand vous passez son `id`) et la nouvelle livraison (action resend_delivery). Les lectures exigent l’accès en lecture Tous sur API et webhooks ; create et resend_delivery exigent Créer, update exige Modifier et delete exige Supprimer sur API et webhooks.
+
+**Peut supprimer des données.** Obligatoire: `action`. Facultatif: `recordTrigger`, `recordSources`, `recordOwnerUserId`, `expectedSchemaRevision`, `id`, `url`, `description`, `events`, `secret`, `headers`, `bodyTemplate`, `enabled`, `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
+{/* /mcp-catalog */}
+
+### Administration et équipe [#admin-and-team]
+
+{/* mcp-catalog:admin */}
+#### `update_my_profile`
+
+Modifie votre propre nom, avatar, thème, langue d’affichage et format régional.
+
+Facultatif: `firstName`, `lastName`, `avatarUrl`, `theme`, `displayLanguage`, `formattingLocale`.
+
+#### `manage_team`
+
+Inviter des membres par e-mail (action invite, jusqu’à 20, envoie de vrais e-mails d’invitation), renvoyer le lien d’invitation (invite_link), modifier le rôle et le statut d’un membre (update_member) ou retirer un membre de l’espace de travail (remove_member). Pour update_member et remove_member, identifier le membre par userId ou email ; si vous fournissez les deux, ils doivent correspondre. remove_member met fin à l’accès du membre, révoque ses clés API et ses connexions MCP pour cet espace de travail, déconnecte les canaux qu’il y a connectés et refuse une demande en attente ; il envoie au membre retiré un vrai e-mail (aucun pour une demande refusée), et ses enregistrements restent. invite et invite_link exigent Créer sur Utilisateurs et rôles ; update_member et remove_member exigent Modifier, comme REST.
+
+**Peut supprimer des données.** Obligatoire: `action`. Facultatif: `emails`, `userId`, `email`, `roleId`, `status`.
+
+#### `manage_roles`
+
+Lire, créer ou modifier des rôles avec des autorisations système et l’accès à n’importe quel type d’enregistrement configuré. Les autorisations système (ressource plus actions) et les droits sur les enregistrements (typeId plus actions) partagent les actions create, update, delete, readAll et readOwn ; chaque entrée listée remplace ses actions, celles qui sont omises gardent les leurs et une liste vide retire l’accès. Lire d’abord le contexte de l’éditeur, conserver les droits sans rapport et fournir une révision et une clé de nouvelle tentative lors d’un enregistrement ou d’une suppression. La suppression est bloquée pour les rôles attribués et les rôles utilisés par des préréglages d’accès.
+
+**Peut supprimer des données.** Obligatoire: `action`. Facultatif: `roleId`, `typeIds`, `role`, `deletion`.
+{/* /mcp-catalog */}
+
+Aucun outil ne lit l’abonnement, la formule, les licences ou la facturation, ni ne modifie la formule, et aucun ne crée ou ne supprime de clés API ; `get_workspace_context` ne renvoie pas non plus de données de formule ou d’essai. Les rôles se gèrent avec `manage_roles` ou sous [Rôles](app:settings/roles). Les licences facturées suivent le nombre de membres **Actifs** : un changement de statut ou un retrait fait avec `manage_team` modifie donc le nombre de licences exactement comme dans l’application ([comment les licences sont comptées](/docs/app-company#how-are-seats-counted-and-billed)). Gérez l’abonnement sous [Facturation](app:settings/billing) (cloud uniquement) et les clés sous [Clés API](app:settings/api-keys).
+
+### Support [#support]
+
+{/* mcp-catalog:support */}
+#### `request_support`
+
+Envoyer une demande de support à l’équipe Customermates (objet plus description). L’équipe répond par e-mail. Renvoie seulement que la demande a été acceptée pour envoi.
+
+Obligatoire: `subject`, `body`.
+{/* /mcp-catalog */}
+
+### Restreindre avec ?toolsets= [#narrowing-with-toolsets]
+
+Tous les outils sont activés par défaut. Pour n’exposer qu’une partie de l’ensemble, ajoutez `?toolsets=` avec des clés de groupe séparées par des virgules à l’URL du point d’accès :
+
+```
+<BASE_URL>/api/v1/mcp?toolsets=records,messaging
+```
+
+Clés : records, workspace, views, wiki, messaging, social, docs, record-model, widgets, routines, webhooks, admin, support. L’absence de paramètre signifie tout ; une clé inconnue renvoie un HTTP `400` avec `error: invalid_toolsets`, les clés inconnues et les clés valides. `records` contient aussi les outils d’opération (`read_crm_operation`, `cancel_crm_operation`, `resume_crm_operation`) et les outils de la Corbeille ; `record-model` ne contient que `configure_record_model`. `search` et `fetch` sont toujours activés afin que les connecteurs de recherche approfondie continuent de fonctionner sur n’importe quel ensemble restreint.
+
+`widgets`, `routines` et `webhooks` incluent aussi `discover_record_types` et `get_record_model`, dont leurs outils ont besoin pour les identifiants de types et de champs et la révision actuelle du schéma ; `record-model` inclut les deux plus `read_crm_operation` pour les applications encore en attente. Les clés API et la facturation restent volontairement dans l’application web ; aucun outil ne les lit ni ne les modifie.
+
+### Quand un appel est refusé [#when-a-call-is-refused]
+
+Un refus est une donnée, pas un plantage. Le résultat porte `isError: true`, un message lisible dans `content`, et une enveloppe lisible par machine dans `_meta.failure` avec un `kind` et les `issues` fautives, chacune nommant le `path` du champ concerné :
+
+```json
+{
+  "isError": true,
+  "content": [{ "type": "text", "text": "Webhook ID not found or not accessible." }],
+  "_meta": {
+    "failure": {
+      "kind": "not_found",
+      "issues": [{ "code": "custom", "path": [], "message": "Webhook ID not found or not accessible.", "customCode": "webhookNotFound" }]
+    }
+  }
+}
+```
+
+Seul le texte d’un refus `validation` commence par `Validation error:` ; les autres types portent le message sans cette étiquette. Un refus lié à un champ peut terminer son texte par `→ at <path>`.
+
+`kind` vaut `validation`, `authentication`, `authorization`, `not_found`, `conflict`, `rate_limit` ou `unavailable`. Raisonnez sur lui plutôt que sur le texte du message :
+
+- **validation** : les arguments étaient erronés. Lisez `issues[].path`, corrigez ce champ et rappelez ; comparez la requête avec `get_record_model` pour le type et avec le schéma d’outil en direct.
+- **authorization** : le rôle de l’appelant ne le permet pas. Réessayer n’aide jamais ; dites ce qui a été refusé et quelle autorisation il faut. Les rôles sont définis par l’espace de travail : lisez donc `get_workspace_context.roles` plutôt que de supposer un ensemble fixe. Une clé ou une connexion dont le propriétaire a été passé **Inactif** aboutit aussi ici, avec « Your user account is inactive. Contact a workspace administrator. », tout comme une clé d’un espace de travail Cloud qui attend encore sa première formule, avec `customCode` `workspacePlanRequired` via REST.
+- **not_found** : l’identifiant n’existe pas ou appartient à un autre espace de travail ; chaque appel est limité au locataire, un identifiant étranger se lit donc comme absent, pas comme interdit. Un destinataire, un profil ou une conversation que le fournisseur de messagerie ne trouve pas ou ne peut pas afficher renvoie aussi `not_found`, avec `customCode` `unipileResourceNotFound` ; vos propres identifiants d’enregistrement sont alors corrects.
+- **conflict** : l’état a changé ou une ressource est déjà réservée. Pour `recordSchemaChanged` ou `recordVersionChanged`, lisez l’état actuel et prévisualisez de nouveau. `recordIdempotencyConflict` signifie qu’une clé de nouvelle tentative a été réutilisée avec une charge utile différente. `channelAlreadyLinked` signifie qu’une clé d’identité appartient à un autre enregistrement.
+- **rate_limit** et **unavailable** : transitoire ou lié à la capacité. Patientez, et signalez `unavailable` comme un problème de fournisseur, pas comme une erreur de l’utilisateur. Un canal de messagerie à la limite de son fournisseur renvoie `rate_limit` avec `customCode` `unipileRateLimit`, et le message indique quand réessayer ([limites de débit de la messagerie](/docs/messaging-rate-limits)). Une panne ou un délai dépassé du fournisseur renvoie `unavailable` ; après un délai dépassé, l’action a peut-être quand même abouti : vérifiez avant de réessayer. Une erreur serveur inattendue pendant l’exécution de l’outil renvoie aussi `unavailable`, avec le texte `Error: The operation could not be completed because of an unexpected server error.`
+- **authentication** : l’utilisateur connecté n’a pas pu être identifié pour cet appel, et il indique « Sign in to use this action. ». Une clé erronée, tronquée, expirée ou supprimée, ou une requête sans clé et sans jeton OAuth valide, reçoit un HTTP `401` avant l’exécution de tout outil ; l’utilisateur doit créer une nouvelle clé ou se reconnecter.
+
+Un seul type de résultat `isError: true` ne porte pas de `_meta.failure` :
+
+- **Rejeté avant l’exécution de l’outil.** Les arguments qui ne correspondent pas au schéma d’entrée de l’outil (champ inconnu compris) et un nom d’outil que le serveur n’annonce pas reviennent sous forme de texte seul, commençant par `MCP error -32602:` (pour un schéma non respecté, `Input validation error: Invalid arguments for tool <name>:` suivi des champs fautifs). Traitez-le comme `validation` : comparez avec le schéma de `tools/list`, corrigez et rappelez.
+
+Tout refus décidé par l’outil lui-même, y compris les refus d’autorisation, de formule, d’introuvable et de conflit, et toute erreur inattendue pendant l’exécution d’un outil portent `_meta.failure`.
+
+Les formules refusent de la même façon. Les outils de messagerie, d’agenda et de réseaux sociaux exigent une formule avec messagerie (Pro ou supérieure, cloud uniquement), les outils Sales Navigator exigent cet abonnement LinkedIn, et la connexion d’un compte s’arrête à la limite de comptes par utilisateur de la formule. Un refus de formule arrive sous le type `validation` avec un `path` vide et sans `customCode` ; modifier les arguments n’y changera rien, transmettez donc son message (formule Pro nécessaire, aucun abonnement ni essai actif, ou cloud uniquement) à l’utilisateur. Les routines sont aussi limitées par utilisateur : la création via `manage_routines` est refusée avec le type `conflict` et `customCode` `routineLimitReached` dès que l’appelant possède autant de routines que sa formule en inclut ([[commercial.entitlement.starter.includedRoutinesPerUser]] avec Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] avec Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] avec Business et Enterprise). Sans messagerie dans la formule, les widgets d’activité et leurs champs filtrables dans `manage_widgets` omettent les messages et les évènements d’agenda au lieu de refuser. L’autorisation et la formule sont indépendantes : un appelant peut avoir l’autorisation **Messages de la boîte de réception** et être quand même refusé à cause de la formule, et inversement.
+
+### Métadonnées des outils et contraintes côté serveur [#tool-metadata-and-server-side-constraints]
+
+- **Les règles du backend s’appliquent à tous les appelants.** Les opérations partagées appliquent le périmètre du locataire, l’accès actuel aux enregistrements, les autorisations de schéma, les révisions attendues et l’intégrité transactionnelle. Les annotations MCP guident le client ; elles n’accordent aucune autorisation.
+- **Prévisualisez les effets destructeurs.** Une suppression déplace l’enregistrement et ses enregistrements en cascade dans la Corbeille, d’où `manage_trash` peut les restaurer pendant 30 jours ; `permanent: true`, `delete_permanently` et `empty` ne peuvent pas être annulés. Confirmez l’aperçu concret avec l’utilisateur, puis passez son hash d’impact ; une dépendance ou une version modifiée exige un nouvel aperçu.
+- **Réessayez la même requête.** Après une réponse perdue, conservez la clé d’idempotence et la charge utile. Une modification différente exige une nouvelle clé. Utilisez l’état de l’opération pour le travail échelonné au lieu d’émettre une autre création.
+- **Préparez les messages sous forme de brouillons.** `save_message_draft` garde le message dans la boîte de réception pour relecture. `send_email` et `send_chat_message` envoient immédiatement : les clients externes doivent donc gérer la confirmation avant de les appeler. Le succès signifie que le fournisseur a accepté le message, pas qu’il est arrivé. Un échec indique si réessayer peut aider, et son résultat structuré ne porte `retryable: true` que dans ce cas : après un délai dépassé ou une erreur du fournisseur pendant l’envoi, vérifiez la conversation avant d’envoyer de nouveau.
+- **Utilisez les schémas en direct.** `tools/list` décrit les formes d’arguments prises en charge. Les schémas des clients fournissent les identifiants stables et les opérations autorisées ; les libellés et les descriptions ne peuvent pas contourner la politique.
+
+## Questions fréquentes [#frequently-asked-questions]
+
+<Faq>
+<FaqItem question="Comment m’authentifier auprès du point d’accès MCP ?">
+Envoyez votre clé API de 64 caractères dans l’en-tête `x-api-key`, ou connectez-vous via OAuth quand le client le prend en charge. Créez les clés sous [Clés API](app:settings/api-keys) avec [Ajouter](app:settings/api-keys?focus=generate). Chaque clé porte vos propres autorisations : un client ne peut donc jamais faire plus que vous. Les clés et les jetons OAuth exigent l'**Accès en lecture** **Tous** sur **API et webhooks** ; sans cela, MCP et l’API REST répondent `403`, y compris pour un jeton renouvelé.
+</FaqItem>
+<FaqItem question="Quels clients IA peuvent se connecter ?">
+Claude sur le web, le mobile et l’ordinateur, ChatGPT, Claude Code, Codex, Cursor et le Gemini CLI ont des parcours de connexion documentés sous [Connecter un client](#connect-a-client). Un autre client peut fonctionner s’il prend en charge MCP en HTTP en flux continu et l’authentification requise ; vérifiez sa compatibilité et sa gestion des instructions avant de l’utiliser.
+</FaqItem>
+<FaqItem question="De quelle formule ai-je besoin pour MCP ?">
+D’aucune en particulier. Le point d’accès MCP et les clés API fonctionnent dans toutes les formules, pendant l’essai et sur les instances auto-hébergées. La formule change ce que certains outils permettent : les outils de messagerie, d’agenda et de réseaux sociaux exigent une formule avec messagerie (Pro ou supérieure, cloud) et refusent avec un message de formule sur Starter ou en auto-hébergement ; la connexion d’un compte de messagerie s’arrête à la limite de comptes par utilisateur de la formule ; `manage_routines` refuse une nouvelle routine à la limite de routines de la formule ; et les widgets d’activité omettent les messages et les évènements d’agenda sans messagerie. Voir [quand un appel est refusé](/docs/mcp#when-a-call-is-refused). Quand un essai se termine ou qu’un paiement échoue, l’application web se met d’abord en pause, tandis que les clés API et les connexions MCP continuent de fonctionner jusqu’à ce que les membres soient passés **Inactifs** ; voir [ce qui se passe à la fin de l’essai](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails). Un espace de travail Cloud qui attend encore sa première formule refuse ses clés et ses connexions avec `403` et `error: plan_required` jusqu’à ce qu’un administrateur en choisisse une.
+</FaqItem>
+<FaqItem question="Puis-je réduire le nombre d’outils que voit un client ?">
+Oui. Ajoutez `?toolsets=` avec une liste de clés de groupe séparées par des virgules (`records`, `workspace`, `views`, `wiki`, `messaging`, `social`, `docs`, `record-model`, `widgets`, `routines`, `webhooks`, `admin`, `support`) à l’URL du point d’accès et seuls ces outils sont annoncés. Les outils de connecteur `search` et `fetch` restent activés.
+</FaqItem>
+<FaqItem question="Comment reconnaître les outils dangereux ?">
+
+Lisez l’action et son aperçu. Le catalogue marque les outils qui peuvent supprimer des données, tandis que les outils d’envoi comme `send_email` et `send_chat_message` peuvent avoir des effets externes sans cet indicateur. La confirmation côté client et l’autorisation du backend sont distinctes. Les aperçus de configuration et les outils en lecture seule ne modifient pas les enregistrements.
+
+</FaqItem>
+<FaqItem question="Les outils renvoient-ils des résultats lisibles par machine ?">
+Oui. Chaque outil déclare un schéma de sortie, visible en direct via `tools/list`, et renvoie un `structuredContent` correspondant à côté de la forme texte compacte : un client peut ainsi enchaîner les résultats sans analyser du texte. Le texte enrichi et le contenu des messages y arrivent aussi balisés ; voir [Comment l’ensemble des outils est conçu](/docs/mcp#how-the-tool-surface-is-shaped).
+</FaqItem>
+<FaqItem question="Dois-je utiliser MCP ou l’API REST ?">
+Les deux coexistent : MCP pour les clients IA qui découvrent et appellent seuls les outils, l’API REST documentée par OpenAPI pour votre propre code et vos intégrations. Elles partagent les mêmes autorisations et les mêmes données.
+</FaqItem>
+</Faq>
+
+## Suite [#next]
+
+- [Connecteur personnalisé](/docs/connect-custom-connector) : configuration de bout en bout sur une page.
+- [Syntaxe des filtres](/docs/filter-syntax) : chaque opérateur, avec des exemples.
+- [Webhooks](/docs/webhooks) : l’autre moitié de la boucle agentique.

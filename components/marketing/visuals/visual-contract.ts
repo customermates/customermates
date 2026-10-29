@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { CONTENT_LOCALES, isMarketingLocale, type ContentLocale, type MarketingLocale } from "@/i18n/locale-registry";
+import { ASSET_LOCALES, type AssetLocale, isMarketingLocale, type MarketingLocale } from "@/i18n/locale-registry";
 
 import {
   VISUAL_AGENT_PROVIDER_FIXTURES,
@@ -20,7 +20,7 @@ export const VISUAL_REFERENCE_SYSTEM_VERSION = "customermates-marketing-visuals@
 export const VISUAL_KINDS = ["brand-illustration", "product-proof", "none"] as const;
 export const VISUAL_PATHWAYS = ["converge", "handoff", "focus"] as const;
 export const VISUAL_PLACEMENTS = ["wide", "split", "narrow"] as const;
-export const VISUAL_LOCALES = CONTENT_LOCALES;
+export const VISUAL_LOCALES = ASSET_LOCALES;
 
 export const SUPPORTED_VISUAL_FACTS = [
   "product:agpl-community-core",
@@ -38,7 +38,7 @@ export const SUPPORTED_VISUAL_FACTS = [
 export type VisualKind = (typeof VISUAL_KINDS)[number];
 export type VisualPathway = (typeof VISUAL_PATHWAYS)[number];
 export type VisualPlacement = (typeof VISUAL_PLACEMENTS)[number];
-export type VisualLocale = ContentLocale;
+export type VisualLocale = AssetLocale;
 
 export type VisualBriefLocale = MarketingLocale;
 

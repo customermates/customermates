@@ -1,0 +1,109 @@
+---
+title: "Clés API pour les clients MCP et REST"
+description: "Créer une clé API dans les paramètres, la permission de rôle requise, l’en-tête x-api-key, l’expiration des clés, et comment supprimer ou renouveler une clé."
+---
+
+Les clés API authentifient les clients Model Context Protocol (MCP) et REST auprès de votre CRM Customermates. Créez une clé par client, stockez-la dans une variable d’environnement et supprimez-la quand l’appareil ou le collègue qui la détenait disparaît.
+
+## Comment créer une clé API ? [#how-do-i-create-an-api-key]
+
+Ouvrez [Clés API](app:settings/api-keys) dans les paramètres et cliquez sur [Ajouter](app:settings/api-keys?focus=generate). La boîte de dialogue **Ajouter une clé API** propose deux voies :
+
+- **Clé API standard** : saisissez un **Nom** qui indique où la clé est utilisée, par exemple `Claude Desktop, personal laptop` (255 caractères au maximum), choisissez éventuellement une date sous **Expire dans**, puis cliquez sur **Enregistrer**. La clé n’est affichée qu’une seule fois sous **Clé API créée** ; copiez-la avant de fermer la boîte de dialogue.
+- **Connexions rapides** : choisissez **Claude**, **ChatGPT & Codex**, **Cursor** ou **Gemini**, puis la configuration qui correspond à votre usage. Pour une configuration locale (**Claude Code ou Desktop**, puis **Claude Code** ou **Claude Desktop** ; **Codex CLI ou IDE** ; Cursor ou Gemini), cliquez sur **Créer une clé API** : la boîte de dialogue crée la clé et affiche l’extrait de configuration de ce client avec la clé déjà renseignée. **Compte Claude** et **Application ChatGPT** se connectent par OAuth à la place et ne créent aucune clé. Cliquez sur **Terminé** quand vous avez fini.
+
+Une clé créée par **Connexions rapides** porte le nom de son client (`Claude Code`, `Claude Desktop`, `Codex`, `Cursor` ou `Gemini`) et expire 365 jours après sa création ; vous ne pouvez y choisir ni autre nom ni autre date. La boîte de dialogue affiche l’expiration sous l’extrait de configuration. L’étape IA de l’assistant d’accueil crée ses clés de la même manière. Le nom et l’expiration d’une clé ne peuvent plus être modifiés après sa création.
+
+Les clés appartiennent à l’utilisateur qui les a créées et héritent de ses autorisations. Chaque clé appartient aussi à l’espace de travail dans lequel elle a été créée et n’y agit que là, y compris les clés créées avant qu’une connexion puisse appartenir à plusieurs espaces de travail ; voir [Espaces de travail](/docs/app-workspaces#which-workspace-do-api-keys-and-connections-use).
+
+## Qui peut créer et voir les clés API ? [#who-can-create-and-see-api-keys]
+
+La page des clés API suit la ligne **API et webhooks** de votre rôle, que définit un membre disposant de **Modifier** sur **Utilisateurs et rôles** sous [Rôles](app:settings/roles) :
+
+- **Accès en lecture** **Tous** affiche les clés API dans les paramètres et liste vos propres clés. Avec **Aucun**, l’entrée est masquée et la page ne peut pas être ouverte.
+- **Créer** ajoute le bouton **Ajouter**, et **Supprimer** permet de supprimer des clés. Sans eux, vous voyez les clés que vous avez déjà mais ne pouvez en créer ni en supprimer.
+
+Un nouveau rôle démarre sans case cochée et avec **Accès en lecture** **Aucun** : par défaut, seuls les membres ayant le rôle intégré **Administrateur** peuvent donc créer des clés API. La même ligne ouvre aussi les [Webhooks](app:settings/webhooks) et leurs livraisons : l’accorder pour les clés API permet donc aussi au membre de voir tous les webhooks de l’espace de travail et, avec **Créer**, **Modifier** ou **Supprimer**, de les modifier.
+
+Chacun ne voit que ses propres clés, et seulement celles de l’espace de travail courant ; changez d’espace de travail pour voir ou supprimer une clé d’un autre. Personne, pas même le rôle **Administrateur**, ne peut lister ni supprimer les clés d’un autre membre. Aucun outil d’assistant ni MCP ne crée, ne liste ni ne supprime de clés API ; elles ne se gèrent que sur la page des clés API, et l’assistant hébergé peut tout au plus l’ouvrir pour vous.
+
+Le connecteur personnalisé pour Claude et ChatGPT se connecte par OAuth et n’a pas besoin de clé API. Comme toute connexion MCP, il exige **Accès en lecture** **Tous** sur **API et webhooks** ([point d’accès MCP](/docs/mcp#the-endpoint)). Voir [Se connecter avec un connecteur personnalisé](/docs/connect-custom-connector).
+
+## De quelle permission chaque action sur les clés API a-t-elle besoin ? [#which-permission-does-each-api-key-action-need]
+
+Chaque manière de gérer les clés vérifie la ligne **API et webhooks** de votre rôle : créer une clé exige **Créer**, en modifier une **Modifier**, en supprimer une **Supprimer**, et lire ou lister vos clés **Accès en lecture** **Tous**. Un membre dont le **Statut** est **Inactif** ne peut pas gérer de clés. Les clés ne se gèrent que sur la page des clés API ; les points d’accès sous-jacents `/api/auth/api-key/` répondent `404` aux requêtes directes, si bien que chaque clé appartient à l’espace de travail dans lequel elle a été créée. Ces contrôles ne couvrent que la gestion des clés ; ce qu’un appel effectué avec une clé peut faire dépend du rôle de son propriétaire, voir [Quelles permissions a une clé](#what-permissions-does-a-key-have).
+
+## Comment utiliser une clé, et dans quel en-tête la placer ? [#how-do-i-use-a-key]
+
+Envoyez-la dans l’en-tête `x-api-key` à chaque requête, ici vers le point d’accès MCP `<BASE_URL>/api/v1/mcp`, où `<BASE_URL>` est l’adresse à laquelle vous ouvrez Customermates :
+
+```bash
+curl -H "x-api-key: $CUSTOMERMATES_API_KEY" \
+     -H "Content-Type: application/json" \
+     -H "Accept: application/json, text/event-stream" \
+     <BASE_URL>/api/v1/mcp \
+     -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+```
+
+L’en-tête `Accept: application/json, text/event-stream` est exigé par le transport HTTP en flux (streamable HTTP) de MCP ; sans lui, le point d’accès renvoie `406 Not Acceptable`. Pour les clients MCP, la clé va dans la configuration du client, voir [Clients en ligne de commande et éditeurs](/docs/connect-cli) et [ChatGPT avec une clé API](/docs/connect-custom-connector#chatgpt).
+
+L’API REST accepte le même en-tête. Cet appel liste les types d’enregistrements auxquels vous avez accès :
+
+```bash
+curl -H "x-api-key: $CUSTOMERMATES_API_KEY" \
+     -H "Content-Type: application/json" \
+     <BASE_URL>/api/v1/model/discover \
+     -d '{}'
+```
+
+Chaque opération REST, avec sa requête et sa réponse, figure dans la [référence de l’API](/docs/openapi).
+
+## Que renvoie un appel REST en échec ? [#what-does-a-failed-rest-call-return]
+
+Chaque point d’accès REST répond à un appel refusé par le même corps JSON : un objet `error` contenant le `kind` et les `issues` que MCP renvoie dans `_meta.failure` (voir [quand un appel est refusé](/docs/mcp#when-a-call-is-refused)).
+
+```json
+{
+  "error": {
+    "kind": "not_found",
+    "issues": [{ "code": "custom", "path": [], "message": "Webhook ID not found or not accessible.", "customCode": "webhookNotFound" }]
+  }
+}
+```
+
+Le statut HTTP suit `error.kind` : `validation` 400, `authentication` 401, `authorization` 403, `not_found` 404, `conflict` 409, `unavailable` 422 et `rate_limit` 429. Chaque issue nomme le `path` du champ concerné et, lorsqu’il y en a un, un `customCode` stable. `error.retryable` vaut `true` quand un fournisseur de messagerie a refusé un appel qui peut réussir plus tard sans modification ; un `429` sans cette valeur peut aussi être relancé, voir [la section suivante](#what-should-a-client-do-on-429). Raisonnez sur `kind` et `customCode` plutôt que sur `message`, qui est un texte destiné aux personnes. Une erreur serveur inattendue répond 500 sans ce corps.
+
+## Que doit faire un client quand un appel renvoie 429 ? [#what-should-a-client-do-on-429]
+
+`rate_limit` (HTTP `429`) signifie que l’appel n’a pas pu s’exécuter maintenant et peut réussir plus tard sans modification. Un canal de messagerie qui atteint la limite de son fournisseur répond avec le `customCode` `unipileRateLimit` et indique quand réessayer ([limites de débit de la messagerie](/docs/messaging-rate-limits)). Quand Customermates lui-même est surchargé, par exemple lorsqu’une transaction de base de données ou le pool de connexions expire, ou qu’une écriture attend plus de quelques secondes derrière une autre modification de l’espace de travail comme un gros import, l’appel répond `429` sans `customCode` et avec le message `The service is busy. Retry the request shortly.`. Les outils MCP renvoient le même type `rate_limit` dans `_meta.failure`, et l’application indique que l’espace de travail est occupé pour que vous puissiez réessayer.
+
+Un `429` REST s’accompagne d’un en-tête `Retry-After` indiquant le nombre de secondes à attendre : respectez-le d’abord et ne réessayez pas plus tôt. Sans lui, réessayez après une pause qui s’allonge à chaque tentative, par exemple 1, 2, 4 et 8 secondes plus un peu de gigue aléatoire, et abandonnez après quelques tentatives. Ne réessayez pas en boucle serrée et n’envoyez pas plus d’appels en parallèle, ce qui maintient le service occupé. Renvoyez une écriture avec la même `idempotencyKey`, pour qu’une modification déjà passée ne soit pas appliquée deux fois.
+
+## Combien de temps une clé dure-t-elle, et les clés expirent-elles ? [#do-keys-expire]
+
+Une **Clé API standard** n’expire que si vous choisissez une date sous **Expire dans** ; la valeur par défaut, **N’expire jamais**, la garde valide jusqu’à sa suppression. Une date doit se situer entre 1 et 365 jours dans le futur. Une clé de **Connexions rapides** (une clé de connexion rapide), y compris celles de l’assistant d’accueil, est valide 365 jours : elle expire toujours 365 jours après sa création. L’expiration ne peut pas être prolongée : avant qu’elle n’arrive, créez une nouvelle clé et mettez à jour le client. Chaque carte de clé affiche **Créé le**, **Expire le** (**Jamais** si aucune date) et **Dernière utilisation**.
+
+## Comment révoquer, supprimer ou renouveler une clé ? [#how-do-i-revoke-delete-or-rotate-a-key]
+
+Sur [Clés API](app:settings/api-keys), cliquez sur la carte de la clé et choisissez **Supprimer** ; après votre confirmation, la clé cesse immédiatement de fonctionner. La suppression exige **Supprimer** sur **API et webhooks**. Il n’existe pas d’action distincte de renouvellement ou de révocation : pour renouveler, créez une nouvelle clé, mettez à jour tous les clients qui utilisaient l’ancienne, puis supprimez l’ancienne clé.
+
+Renouvelez la clé quand un appareil qui la détenait est perdu ou compromis, quand un collègue ayant accès s’en va ou quand vous soupçonnez une fuite. Une clé par client vous permet de supprimer un client sans casser les autres ; le journal d’activité nomme toujours l’utilisateur, pas la clé. Gardez les clés dans une variable d’environnement ou un gestionnaire de mots de passe, jamais dans un fichier de configuration que vous versionnez.
+
+Seul le propriétaire peut supprimer une clé. Pour arrêter les clés d’un membre qui s’en va, ouvrez [Membres](app:settings/members), ouvrez le membre, réglez **Statut** sur **Inactif** et cliquez sur **Enregistrer**. Cela exige **Modifier** et l’accès en lecture **Tous** sur **Utilisateurs et rôles** ; vous ne pouvez pas vous désactiver vous-même ni désactiver le dernier **Administrateur** actif. Tout appel avec les clés de ce membre qui lit ou modifie des données de l’espace de travail est alors refusé. Retirer **Accès en lecture** **Tous** sur **API et webhooks** à son rôle arrête aussi ses clés, pour MCP comme pour REST ; voir [Quelles permissions a une clé](#what-permissions-does-a-key-have). **Retirer de l’espace de travail** sur [Membres](app:settings/members) révoque aussi d’un coup les clés et les connexions MCP du membre pour cet espace de travail ([Comment approuver, modifier, désactiver ou retirer un membre ?](/docs/app-company#how-do-i-approve-deactivate-or-edit-a-member)), et un membre qui quitte lui-même un espace de travail perd aussitôt ses clés pour celui-ci ([quitter un espace de travail](/docs/app-workspaces#how-do-i-leave-a-workspace)).
+
+## Quel est le format d’une clé, et quelle longueur peut avoir son nom ? [#what-is-the-key-format]
+
+Le **Nom** d’une clé compte de 1 à 255 caractères. Les clés font 64 caractères de lettres ASCII (`a-z A-Z`), sont générées par le plugin de clés API better-auth et stockées sous forme hachée. La clé complète n’est affichée qu’à la création et ne peut plus être affichée ensuite.
+
+## Quelles permissions a une clé, et puis-je restreindre son périmètre à la lecture seule ? [#what-permissions-does-a-key-have]
+
+Tout ce que son propriétaire peut faire dans l’espace de travail de la clé, et rien de plus. Il n’existe pas de périmètre de permissions par clé : une clé ne peut donc pas être limitée à la lecture seule. Chaque appel est vérifié par rapport au rôle actuel du propriétaire : une modification de ce rôle, par exemple le passage du membre du rôle **Administrateur** à un rôle personnalisé avec moins de droits, s’applique à ses clés dès l’appel suivant. Si le **Statut** du propriétaire est **Inactif**, tout appel avec ses clés qui lit ou modifie des données de l’espace de travail est refusé.
+
+Une clé, comme un jeton OAuth MCP, ne fonctionne aussi que tant que le rôle de son propriétaire a **Accès en lecture** **Tous** sur **API et webhooks**, vérifié à chaque appel, y compris pour les jetons actualisés plus tard. Sans cela, MCP répond `403` avec `error: insufficient_permissions`, et REST répond `403` avec `kind` `authorization` et `customCode` `insufficientPermissions`. L’usage connecté de l’application web n’est pas concerné.
+
+Sur Customermates Cloud, un espace de travail qui attend encore sa première offre, comme un espace de travail supplémentaire créé sans essai, refuse ses clés et ses jetons OAuth : MCP répond `403` avec `error: plan_required`, et REST répond `403` avec `kind` `authorization` et `customCode` `workspacePlanRequired`. Créer une clé exige aussi une offre utilisable. Une fois qu’un administrateur a choisi une offre, les clés existantes refonctionnent. Un espace de travail dont l’essai est terminé ou dont l’abonnement payant a pris fin garde ses clés et connexions existantes en état de marche jusqu’à ce que ses membres soient réglés sur **Inactif**, voir [Que se passe-t-il à la fin de l’essai ?](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails).
+
+## Suite [#next]
+
+- [Démarrage rapide](/docs/quickstart) : première exécution de bout en bout.
+- [Présentation de MCP](/docs/mcp) : ce qu’une clé débloque.

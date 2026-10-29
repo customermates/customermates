@@ -1,0 +1,119 @@
+---
+title: "Base de connaissances IA pour équipes en contact client"
+description: "Réunissez consignes, procédures et contexte client au même endroit. Donnez aux personnes et aux clients IA les mêmes sources, avec droits et limites clairs."
+featureName: Base de connaissances
+
+relatedHrefs:
+  - /docs/mcp
+  - /features/api
+  - /features/cloud-crm
+  - /features/self-hosted
+
+hero:
+  title: Une base de connaissances IA pour votre travail client
+  description: Gardez les faits de l’entreprise, le guide d’exploitation et les procédures à côté de vos fiches clients. Les personnes, Mate et les clients MCP connectés peuvent consulter la même source entretenue avant de préparer la prochaine étape.
+  buttonLeftText: Commencer l’essai gratuit
+  buttonLeftHref: /auth/signup
+  buttonRightText: Explorer le guide de la base de connaissances
+  buttonRightHref: /docs/mcp#shared-workspace-wiki
+  hint: "✓ Sans carte bancaire ✓ Les [[commercial.trial.days]] premiers jours offerts"
+
+cta:
+  action: Donnez à votre travail client une source entretenue
+  description: Commencez par un guide d’exploitation, une procédure et les faits dont votre équipe a vraiment besoin. Relisez les sources avant de demander à un agent d’agir.
+  buttonLeftText: Commencer l’essai gratuit
+  buttonLeftHref: /auth/signup
+  buttonRightText: Lire le guide de la base de connaissances
+  buttonRightHref: /docs/mcp#shared-workspace-wiki
+  hint: "✓ Sans carte bancaire ✓ Les [[commercial.trial.days]] premiers jours offerts"
+---
+
+Une base de connaissances IA donne aux personnes et aux agents une source entretenue pour les faits et les procédures de l’entreprise. Dans Customermates, ces pages vivent dans l’espace de travail client : une personne, Mate ou un client MCP externe peut donc consulter les consignes à côté de la fiche client avant de préparer le travail.
+
+Cela convient à une petite équipe qui gère conversations clients et prochaines étapes à travers plusieurs outils. Ce n’est ni un centre d’aide public, ni une plateforme de formation, ni un remplaçant d’un système de recherche d’entreprise.
+
+<ArticleSummary title="Ce à quoi elle peut servir">
+  <SummaryItem label="Consignes de l’entreprise">Séparez le guide d’exploitation, les procédures et les faits de référence, avec un responsable nommé et une date de revue.</SummaryItem>
+  <SummaryItem label="Contexte client">Lisez la source approuvée et la fiche client actuelle avant de créer une prochaine étape interne.</SummaryItem>
+  <SummaryItem label="Accès">L’accès à la base de connaissances suit les autorisations des rôles de l’espace de travail. Il n’y a pas de contrôle d’accès page par page.</SummaryItem>
+  <SummaryItem label="Limites">Le texte retrouvé doit encore être vérifié. Un résultat qui a l’air pertinent ne prouve pas qu’il répond à la question.</SummaryItem>
+</ArticleSummary>
+
+## Que doit contenir une base de connaissances IA pour le travail client ?
+
+Commencez par les faits qui changent ce que fait votre équipe : ce que vous proposez, qui peut valider un engagement, comment transmettre un client et où vérifier une exception. Donnez à chaque page un responsable, une source et une date de revue. Gardez l’étape actuelle d’un client, son responsable et la prochaine étape convenue dans la fiche client plutôt que de les copier dans une page de politique permanente.
+
+| Page | La question à laquelle elle répond | Exemple de contenu |
+|---|---|---|
+| Guide d’exploitation | Que doit lire une personne ou un agent avant de travailler ici ? | L’ordre des sources, les responsabilités et les limites du travail client |
+| Procédure | Quand cette situation se présente, que doit-il se passer ? | Une liste de contrôle de transmission d’un client et sa vérification de l’état enregistré |
+| Référence | Sur quels faits cette réponse peut-elle s’appuyer ? | Le périmètre, les conditions et les définitions approuvés, avec la date de leurs sources |
+| Questions ouvertes | Qu’est-ce qui reste inconnu ? | Une question et sa personne responsable, sans réponse inventée |
+
+La [documentation de la base de connaissances](/docs/mcp#shared-workspace-wiki) décrit les types de pages et l’édition. Le [guide du CRM agentique](/blog/agentic-crm) plus large explique comment s’articulent connaissances, contexte client et actions.
+
+## Comment les personnes, Mate et les clients MCP utilisent-ils la même source ?
+
+Une personne ouvre la base de connaissances de l’espace de travail. Mate peut consulter les connaissances de l’entreprise dans le cadre du travail pris en charge dans Customermates Cloud. Un client externe se connecte via [MCP et l’API](/features/api), lit le contexte de l’espace de travail, recherche dans la base de connaissances et récupère la page ou la section concernée.
+
+La source doit aider à terminer une tâche concrète. Pour une transmission, lisez la fiche client et la procédure de transmission, préparez une tâche interne, assignez son responsable, liez-la au client et relisez-la. Créer une tâche n’envoie aucun message au client et n’établit aucun nouvel engagement commercial.
+
+<Steps>
+  <Step title="Lisez la source">Commencez par le guide d’exploitation et la procédure qui correspond à la situation. Suivez les liens de référence pertinents.</Step>
+  <Step title="Vérifiez le client actuel">Lisez la fiche réelle du client et le périmètre convenu. Une procédure générique ne fournit pas les faits client manquants.</Step>
+  <Step title="Préparez la prochaine étape limitée">Créez une liste de contrôle interne ou un brouillon appuyé sur ces sources. Montrez d’où vient chaque affirmation factuelle.</Step>
+  <Step title="Relisez le résultat enregistré">Vérifiez la tâche, le responsable assigné et la relation avec le client. Une requête réussie ne prouve pas à elle seule que l’état voulu a été enregistré.</Step>
+</Steps>
+
+La [présentation des intégrations](/features/integrations) distingue les clients externes, REST, les webhooks et les autres options de connexion. Stocker les connaissances de l’entreprise ici n’implique aucune synchronisation de Markdown local ni aucun connecteur de lecteur partagé.
+
+## Qu’a réellement démontré notre exemple de quatre pages ?
+
+Vérifié le 29 octobre 2026 dans un espace de travail local isolé avec des données fictives : nous avons créé quatre pages bilingues, récupéré leur contenu via le vrai point de terminaison MCP, recherché en anglais et en allemand, et préparé une réponse rédigée à la main avec des références aux sources. Nous avons ensuite créé une tâche interne, rejoué la même requête idempotente et relu le responsable de la tâche et son lien avec le client.
+
+Un lecteur distinct avec un accès à l’API mais sans autorisation de lecture de la base de connaissances n’a pas pu récupérer le guide. Cela vérifie la limite des autorisations de l’espace de travail ; cela n’établit ni des autorisations par page ni un test de référence de la précision de la recherche. Aucun message externe, aucun appel IA payant et aucune connexion à un compte tiers ne faisait partie de l’exemple.
+
+Vous pouvez télécharger le [kit de démarrage de quatre pages de la base de connaissances](/templates/knowledge-base-starter-en.zip). Il contient des exemples originaux en Markdown et des instructions pour les relire et les copier dans des pages. Il n’ajoute pas de fonction dédiée d’import ou d’export Markdown. Remplacez le contenu fictif et confirmez vos propres règles avant de l’utiliser.
+
+## Que se passe-t-il quand la source ne répond pas à la question ?
+
+Ne transformez pas un résultat de recherche en promesse. Dans notre exemple, une question sur la durée de conservation des sauvegardes a renvoyé une correspondance approximative après correction orthographique : la procédure de transmission demandait de relire une tâche enregistrée (« read back » dans le texte anglais). Ce résultat ne contenait aucune politique de conservation. Après vérification des quatre pages sources, le brouillon approprié était : « Les sources n’indiquent aucune durée de conservation. Demandez à la personne responsable avant d’en promettre une. »
+
+C’est pourquoi une base de connaissances IA n’élimine pas les réponses erronées. Lisez la section renvoyée, vérifiez sa portée et sa date, et distinguez un fait étayé d’un mot voisin. Consignez une question sans réponse plutôt que d’inventer un délai de réponse, une clause juridique ou une capacité du produit.
+
+## Quelles autorisations et quelles limites d’hébergement comptent ?
+
+Les droits de lecture et de gestion de la base de connaissances relèvent des rôles de l’espace de travail. Il n’y a pas de liste d’accès distincte pour chaque page, ni de système d’autorisations au niveau du champ. Ne stockez que ce qui convient aux personnes et aux utilisateurs connectés qui peuvent lire cette base de connaissances.
+
+Les clients MCP externes agissent avec les autorisations de l’utilisateur connecté. Les instructions de confirmation du serveur guident le client ; elles ne créent pas de barrière d’approbation imposée par le serveur pour un appel d’outil par ailleurs autorisé. Mate a sa propre politique d’approbation dans Customermates Cloud.
+
+Mate hébergé dépend de la formule cloud éligible, de l’usage disponible et des contrôles globaux. Les clients externes utilisent leur propre fournisseur de modèle, mais la recherche sémantique peut tout de même compter dans l’usage de Mate. L’auto-hébergement fournit le noyau Starter et MCP pour les clients externes, avec une recherche par mots-clés et en texte intégral ; il n’inclut ni Mate hébergé ni recherche sémantique IA auto-hébergée. Voir [l’auto-hébergement](/features/self-hosted) et la [documentation de Mate](/docs/app-assistant).
+
+Les fichiers joints contenant du texte peuvent fournir du matériel de recherche supplémentaire lorsque c’est pris en charge. Les documents numérisés et les images ne sont pas lus par OCR. Ce n’est pas une promesse d’indexer chaque lecteur partagé, type de fichier ou système externe.
+
+## Quand un autre outil de connaissances convient-il mieux ?
+
+Du Markdown local peut suffire pour les instructions de code d’une personne ou un petit dépôt. Un centre d’aide public convient mieux à un portail de documentation tourné vers les clients. Une plateforme de connaissances dédiée ou de recherche d’entreprise peut être nécessaire pour une synchronisation étendue de lecteurs, une ingestion de documents à grande échelle ou un accès aux documents plus fin.
+
+Customermates convient quand les consignes entretenues doivent se trouver à côté des fiches clients, des conversations et du prochain travail. Commencez avec un petit ensemble de sources utile et gardez clairs son responsable et sa routine de revue.
+
+<Faq>
+<FaqItem question="Des agents externes peuvent-ils lire les mêmes connaissances d’entreprise que Mate ?">
+Oui, les clients MCP pris en charge peuvent rechercher et récupérer la base de connaissances de l’espace de travail avec les autorisations de l’utilisateur connecté. Le modèle et l’abonnement du client restent distincts de Mate hébergé.
+</FaqItem>
+<FaqItem question="Une base de connaissances IA évite-t-elle les hallucinations ?">
+Non. La recherche peut renvoyer un résultat voisin ou corrigé orthographiquement qui ne répond pas à la question. Vérifiez la source réelle et laissez sans réponse les faits non étayés.
+</FaqItem>
+<FaqItem question="La recherche sémantique IA est-elle incluse en auto-hébergement ?">
+Non. L’auto-hébergement fournit le noyau Starter avec une recherche par mots-clés et en texte intégral et des clients MCP externes, sans Mate hébergé ni recherche sémantique IA auto-hébergée.
+</FaqItem>
+<FaqItem question="Puis-je restreindre une page de la base de connaissances à un groupe plus restreint ?">
+Il n’y a pas de contrôle d’accès par page. Utilisez les autorisations des rôles de l’espace de travail et gardez l’ensemble de la base de connaissances lisible adapté à ce public.
+</FaqItem>
+<FaqItem question="La base de connaissances peut-elle lire des PDF numérisés ou des photographies ?">
+Elle ne propose pas d’OCR. Les fichiers contenant du texte peuvent être consultables lorsque c’est pris en charge ; les numérisations et les images sont stockées et prévisualisées sans lire le texte qu’elles représentent.
+</FaqItem>
+<FaqItem question="Le kit de démarrage est-il un import Markdown natif ?">
+Non. C’est un téléchargement de quatre exemples fictifs à relire et à copier dans des pages de l’espace de travail. Il ne crée ni compte ni connexion.
+</FaqItem>
+</Faq>

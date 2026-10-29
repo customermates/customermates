@@ -14,7 +14,7 @@ import {
   solutionStageRoute,
 } from "@/core/solutions/solution-stage";
 import { env } from "@/env";
-import { appLocaleOrDefault, contentLocaleOrDefault } from "@/i18n/locale-registry";
+import { appLocaleOrDefault, assetLocaleFor, contentLocaleOrDefault } from "@/i18n/locale-registry";
 
 import { HOMEPAGE_CAPTURES, homepageCaptureSrc } from "./homepage-captures";
 import { homepageDemoBaseUrl } from "./homepage-demo-url";
@@ -84,14 +84,15 @@ export async function SolutionProductStage({ locale, solutionId }: Props) {
   const t = await getTranslations("SolutionStage");
   const solution = findSolution(solutionId);
   const contentLocale = contentLocaleOrDefault(locale);
+  const assetLocale = assetLocaleFor(contentLocale);
   const captures = solutionStageCaptures as SolutionStageCaptures;
   const mainPair = solutionCapturePair(solutionCaptureManifest as SolutionCaptureManifest, solutionId, locale);
-  const homepageSize = HOMEPAGE_CAPTURES["homepage-dashboard"][contentLocale];
+  const homepageSize = HOMEPAGE_CAPTURES["homepage-dashboard"][assetLocale];
   const fallbackPoster: SolutionStageTab["poster"] = mainPair
     ? { dark: mainPair.dark.main, light: mainPair.light.main }
     : {
-        dark: { ...homepageSize, src: homepageCaptureSrc("homepage-dashboard", contentLocale, "dark") },
-        light: { ...homepageSize, src: homepageCaptureSrc("homepage-dashboard", contentLocale, "light") },
+        dark: { ...homepageSize, src: homepageCaptureSrc("homepage-dashboard", assetLocale, "dark") },
+        light: { ...homepageSize, src: homepageCaptureSrc("homepage-dashboard", assetLocale, "light") },
       };
 
   const tabs = solution.stage.flatMap((tab): SolutionStageTab[] => {

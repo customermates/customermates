@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 
 import { REPO_ROOT } from "./walk";
 
-import { CONTENT_LOCALES } from "@/i18n/locale-registry";
+import { ASSET_LOCALES } from "@/i18n/locale-registry";
 
 import {
   HOMEPAGE_CAPTURE_EVIDENCE,
@@ -117,7 +117,7 @@ describe("homepage visual-system adoption", () => {
     for (const theme of ["dark", "light"] as const) {
       const shipped = readdirSync(join(CAPTURE_ROOT, theme)).sort();
       expect(shipped, theme).toEqual(
-        captureNames.flatMap((name) => CONTENT_LOCALES.map((locale) => `${name}-${locale}.png`)).sort(),
+        captureNames.flatMap((name) => ASSET_LOCALES.map((locale) => `${name}-${locale}.png`)).sort(),
       );
 
       for (const name of captureNames) {
@@ -126,7 +126,7 @@ describe("homepage visual-system adoption", () => {
         expect(evidence.route, name).toMatch(/^\/\[locale\]\//u);
         expect(evidence.scenario.length, name).toBeGreaterThan(20);
 
-        for (const locale of CONTENT_LOCALES) {
+        for (const locale of ASSET_LOCALES) {
           const file = readFileSync(join(CAPTURE_ROOT, theme, `${name}-${locale}.png`));
 
           expect(createHash("sha256").update(new Uint8Array(file)).digest("hex"), `${theme}/${name}-${locale}`).toBe(

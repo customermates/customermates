@@ -10,9 +10,9 @@ import {
   type SolutionCatalogEntry,
   type SolutionDataLocale,
   type SolutionId,
-  type SolutionPublicLocale,
   type SolutionStageTabId,
   solutionDataLocaleForUiLocale,
+  solutionDataLocales,
 } from "./solution-catalog";
 
 export const SOLUTION_STAGE_CAPTURE_VIEWPORT = { deviceScaleFactor: 2, height: 900, width: 1440 } as const;
@@ -43,7 +43,7 @@ export type SolutionStageCaptures = {
 
 export type SolutionStagePlanItem = {
   key: string;
-  locale: SolutionPublicLocale;
+  locale: SolutionDataLocale;
   route: string;
   solution: SolutionCatalogEntry;
   src: string;
@@ -99,7 +99,7 @@ export function solutionStagePlan(
     solution.stage
       .filter((tab) => tab.id !== SOLUTION_STAGE_MAIN_CAPTURE_TAB)
       .flatMap((tab) =>
-        solution.publicLocales.flatMap((locale) =>
+        solutionDataLocales(solution).flatMap((locale) =>
           SOLUTION_CAPTURE_THEMES.map(
             (theme): SolutionStagePlanItem => ({
               key: solutionStageCaptureKey(solution.id, tab.id, locale, theme),
@@ -123,7 +123,9 @@ export function solutionStagePoster(
   locale: string,
 ): SolutionStagePoster | null {
   const find = (theme: SolutionCaptureTheme) =>
-    captures.entries.find((entry) => entry.key === solutionStageCaptureKey(solution, tab, locale, theme));
+    captures.entries.find(
+      (entry) => entry.key === solutionStageCaptureKey(solution, tab, solutionDataLocaleForUiLocale(locale), theme),
+    );
   const light = find("light");
   const dark = find("dark");
   if (!light || !dark) return null;

@@ -2,8 +2,9 @@ import {
   SOLUTION_CATALOG,
   type SolutionCatalogEntry,
   type SolutionId,
-  type SolutionPublicLocale,
+  type SolutionDataLocale,
   solutionDataLocaleForUiLocale,
+  solutionDataLocales,
 } from "./solution-catalog";
 
 export const SOLUTION_CAPTURE_THEMES = ["light", "dark"] as const;
@@ -30,7 +31,7 @@ export type SolutionCaptureAsset = {
 };
 
 export type SolutionCaptureEntry = {
-  locale: SolutionPublicLocale;
+  locale: SolutionDataLocale;
   main: SolutionCaptureAsset;
   nav: SolutionCaptureAsset;
   placeholder: boolean;
@@ -72,7 +73,7 @@ export type SolutionCaptureProvenance = {
 
 export type SolutionCapturePlanItem = {
   key: string;
-  locale: SolutionPublicLocale;
+  locale: SolutionDataLocale;
   mainSrc: string;
   navSrc: string;
   route: string;
@@ -102,7 +103,7 @@ export function solutionCaptureSrc(
 
 export function solutionCapturePlan(catalog: readonly SolutionCatalogEntry[] = SOLUTION_CATALOG) {
   return catalog.flatMap((solution) =>
-    solution.publicLocales.flatMap((locale) =>
+    solutionDataLocales(solution).flatMap((locale) =>
       SOLUTION_CAPTURE_THEMES.map(
         (theme): SolutionCapturePlanItem => ({
           key: solutionCaptureKey(solution.id, locale, theme),
@@ -112,7 +113,7 @@ export function solutionCapturePlan(catalog: readonly SolutionCatalogEntry[] = S
           route: solutionCaptureRoute(solution, locale),
           solution,
           theme,
-          workspaceSlug: solution.workspaces[solutionDataLocaleForUiLocale(locale)].slug,
+          workspaceSlug: solution.workspaces[locale].slug,
         }),
       ),
     ),
@@ -125,8 +126,9 @@ export function findSolutionCapture(
   locale: string,
   theme: SolutionCaptureTheme,
 ): SolutionCaptureEntry | undefined {
+  const dataLocale = solutionDataLocaleForUiLocale(locale);
   return manifest.entries.find(
-    (entry) => entry.solution === solution && entry.locale === locale && entry.theme === theme,
+    (entry) => entry.solution === solution && entry.locale === dataLocale && entry.theme === theme,
   );
 }
 

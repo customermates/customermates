@@ -9,6 +9,7 @@ type LocaleCapabilities = {
   textSearchConfig: TextSearchConfig;
   iso6393: string;
   defaultCurrency: string;
+  assetLocale: "en" | "de";
 };
 
 export type TextSearchConfig = "english" | "german" | "french" | "italian" | "spanish";
@@ -25,6 +26,7 @@ export const LOCALE_REGISTRY = {
     textSearchConfig: "english",
     iso6393: "eng",
     defaultCurrency: "USD",
+    assetLocale: "en",
   },
   de: {
     offeredAsDisplayLanguage: true,
@@ -37,26 +39,20 @@ export const LOCALE_REGISTRY = {
     textSearchConfig: "german",
     iso6393: "deu",
     defaultCurrency: "EUR",
+    assetLocale: "de",
   },
   fr: {
     offeredAsDisplayLanguage: true,
     offeredAsFormattingLocale: true,
-    hasPublishedContent: false,
-    marketingPaths: [
-      "/",
-      "/pricing",
-      "/for",
-      "/for/smb",
-      "/for/agencies",
-      "/features/contact-management",
-      "/features/pipeline",
-    ],
+    hasPublishedContent: true,
+    marketingPaths: "all",
     formattingTag: "fr-FR",
     flagCode: "fr",
     validationTag: "fr",
     textSearchConfig: "french",
     iso6393: "fra",
     defaultCurrency: "EUR",
+    assetLocale: "en",
   },
   it: {
     offeredAsDisplayLanguage: true,
@@ -69,6 +65,7 @@ export const LOCALE_REGISTRY = {
     textSearchConfig: "italian",
     iso6393: "ita",
     defaultCurrency: "EUR",
+    assetLocale: "en",
   },
   es: {
     offeredAsDisplayLanguage: true,
@@ -81,6 +78,7 @@ export const LOCALE_REGISTRY = {
     textSearchConfig: "spanish",
     iso6393: "spa",
     defaultCurrency: "EUR",
+    assetLocale: "en",
   },
 } as const satisfies Record<string, LocaleCapabilities>;
 
@@ -100,13 +98,17 @@ export type PartialMarketingLocale = {
     : never;
 }[LocaleCode];
 
-export type MarketingLocale = ContentLocale | PartialMarketingLocale;
+export type MarketingLocale = {
+  [Code in LocaleCode]: Code extends ContentLocale ? Code : Code extends PartialMarketingLocale ? Code : never;
+}[LocaleCode];
 
 export type FormattingLocale = {
   [Code in LocaleCode]: (typeof LOCALE_REGISTRY)[Code]["offeredAsFormattingLocale"] extends true ? Code : never;
 }[LocaleCode];
 
 export type RoutingLocale = AppLocale | ContentLocale;
+
+export type AssetLocale = (typeof LOCALE_REGISTRY)[LocaleCode]["assetLocale"];
 
 export const DEFAULT_LOCALE: AppLocale & ContentLocale & FormattingLocale = "en";
 
@@ -180,6 +182,8 @@ export const FORMATTING_LOCALES: readonly FormattingLocale[] = REGISTERED_LOCALE
 
 export const ROUTING_LOCALES: readonly RoutingLocale[] = REGISTERED_LOCALES.filter(isRoutingLocale);
 
+export const ASSET_LOCALES: readonly AssetLocale[] = [...new Set(REGISTERED_LOCALES.map(assetLocaleFor))];
+
 export function localeDefaultCurrency(value: unknown): string {
   return LOCALE_REGISTRY[isLocaleCode(value) ? value : DEFAULT_LOCALE].defaultCurrency;
 }
@@ -202,6 +206,10 @@ export function formattingTagFor(locale: LocaleCode): string {
 
 export function validationTagFor(locale: AppLocale): string {
   return LOCALE_REGISTRY[locale].validationTag;
+}
+
+export function assetLocaleFor(locale: LocaleCode): AssetLocale {
+  return LOCALE_REGISTRY[locale].assetLocale;
 }
 
 export function flagCodeFor(locale: LocaleCode): string {

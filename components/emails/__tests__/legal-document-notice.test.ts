@@ -27,6 +27,15 @@ const COPY = {
     signoff: "Best regards,\nBen",
     title: "Legal documents updated",
   },
+  fr: {
+    body: "Un administrateur habilité doit examiner cette version.",
+    deadlineLabel: "Date limite d’opposition et d’acceptation",
+    documentName: "Conditions générales",
+    documentVersion: "7 août 2026",
+    greeting: "Bonjour Ben,",
+    signoff: "Cordialement,\nBen",
+    title: "Documents juridiques mis à jour",
+  },
 } satisfies Record<ContentLocale, Record<string, string>>;
 
 describe.each([

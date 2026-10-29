@@ -1,0 +1,90 @@
+---
+title: "Intégration CRM n8n : REST, webhooks et MCP"
+description: "Connectez n8n à Customermates via REST, [[derived.webhooks.events.total]] webhooks, MCP ou le nœud communautaire. Les limites du produit et des workflows restent explicites."
+
+architecture:
+  title: Un parcours d’automatisation bien délimité
+  description: Customermates valide les accès au CRM et émet les événements pris en charge. Votre instance n8n, distincte, gère l’exécution des workflows, les identifiants, les planifications, les nouvelles tentatives et chaque service externe qu’elle appelle.
+  crmTitle: Customermates CRM
+  crmDescription: Les enregistrements structurés, les droits de l’espace de travail et les écritures validées restent à l’intérieur du périmètre du CRM.
+  interfaceTitle: Interfaces ouvertes
+  workflowDescription: Workflow exploité par le client
+  boundary: n8n, ses identifiants, ses journaux d’exécution et les services connectés restent distincts de Customermates.
+
+hero:
+  title: Connectez n8n à votre CRM.
+  titleAccent: Gardez des limites d’exploitation claires.
+  subtitle: "Utilisez REST, [[derived.webhooks.events.total]] types d’événements webhook, MCP ou le nœud communautaire publié depuis une instance n8n que vous exploitez. Customermates fournit les interfaces du CRM ; n8n et chaque service externe restent distincts."
+  buttonLeftText: Démarrer l’essai Pro
+  buttonLeftHref: /auth/signup
+  buttonRightText: Lire le guide de configuration
+  buttonRightHref: /docs/n8n
+  startFree: "Sans carte bancaire • [[commercial.trial.days]] jours d’essai • n8n reste distinct"
+
+benefits:
+  benefits:
+  - icon: TrendingUp
+    title: Choisir l’interface de connexion
+    description: Utilisez le nœud communautaire publié, l’API REST, les webhooks ou MCP depuis une instance n8n que vous exploitez ou à laquelle vous êtes abonné. Customermates n’intègre pas n8n.
+  - icon: Zap
+    title: Connecter des agents externes
+    description: Connectez un client IA pris en charge via MCP ou appelez depuis votre propre workflow un service de votre choix. Customermates n’inclut ni modèle, ni scoring de prospects, ni service d’enrichissement.
+  - icon: ShieldCheck
+    title: Des workflows exploités par le client
+    description: Connectez des services depuis une instance n8n que vous exploitez. La disponibilité des connecteurs, les limites, les formules et les coûts relèvent de n8n et de chaque service.
+  - icon: Sparkles
+    title: Concevoir le workflow dans n8n
+    description: Construisez le workflow dans les limites de votre formule n8n, de son environnement d’exécution, de ses nœuds et des services connectés.
+  - icon: MousePointerClick
+    title: Choisir où s’exécute l’automatisation
+    description: "La base de données du CRM géré s’exécute dans la région AWS de Francfort. Votre déploiement n8n et chaque service connecté traitent les données que votre workflow envoie : examinez chaque service séparément."
+  - icon: SlidersHorizontal
+    title: Exploiter l’automatisation
+    description: Un workflow que vous exploitez peut gérer des étapes externes configurées ; son environnement d’exécution, sa planification, ses nouvelles tentatives, sa fiabilité et ses résultats restent sous votre responsabilité.
+
+features:
+  badge: Exemples de compositions
+  title: Ce qu’un workflow n8n exploité par le client peut composer
+  subtitle: Ce sont des modèles de workflow, pas des fonctionnalités Customermates incluses. Chacun demande le service concerné, les identifiants, la correspondance des champs, la supervision et la gestion des erreurs dans votre environnement n8n.
+  features:
+  - icon: Users
+    title: Passage de relais par e-mail
+    description: Recevez les événements du CRM et transmettez les données choisies au service d’e-mail ou de données que vous configurez dans votre propre workflow.
+  - icon: Briefcase
+    title: Enrichissement externe
+    description: Appelez depuis votre propre workflow un service de votre choix et réécrivez les champs sélectionnés via REST. Customermates n’inclut ni enrichissement ni scoring de prospects.
+  - icon: Star
+    title: Transmission pour le reporting
+    description: Envoyez les données CRM sélectionnées vers un tableur, une base de données ou un service de BI que vous configurez et que vous avez le droit d’utiliser.
+  - icon: Zap
+    title: Transmission pour la facturation
+    description: Envoyez les données des affaires vers des outils de facturation depuis votre propre workflow. Customermates n’a pas de workflow de devis ni de facturation.
+
+faq:
+  title: Questions fréquentes sur l’automatisation avec une instance n8n distincte
+  faqs:
+  - id: faq-1
+    title: Ai-je besoin de connaissances en programmation pour n8n ?
+    content: "Les flux simples peuvent s’assembler visuellement, mais un workflow CRM fiable demande tout de même quelqu’un qui prenne en charge l’authentification, la correspondance des champs, les droits, les nouvelles tentatives, les erreurs et les limites des services. Les transformations complexes peuvent nécessiter du code."
+  - id: faq-2
+    title: Quels outils puis-je connecter avec n8n ?
+    content: "Utilisez les nœuds du catalogue d’intégrations actuel de n8n, des nœuds vérifiés ou communautaires que vous avez examinés, et des requêtes HTTP vers des API que vous êtes autorisé à appeler. La disponibilité et le comportement peuvent changer : vérifiez la documentation actuelle de n8n et du service concerné."
+  - id: faq-3
+    title: La connexion de n8n coûte-t-elle un supplément ?
+    content: "Les webhooks, l’API REST et MCP sont disponibles comme interfaces Customermates dans toutes les formules. n8n est un produit distinct que vous auto-hébergez ou auquel vous vous abonnez, et les formules externes, les limites, les coûts des services et l’usage restent à votre charge."
+  - id: faq-4
+    title: Comment démarrer avec les workflows n8n ?
+    content: "Installez le nœud communautaire Customermates publié dans une instance n8n que vous exploitez, ou appelez directement l’API REST et les webhooks. Vous concevez, déployez et maintenez le workflow."
+  - id: faq-5
+    title: Mes données sont-elles partagées pendant les workflows n8n ?
+    content: "Les workflows s’exécutent là où vous déployez n8n ou où vous y êtes abonné, et les outils connectés reçoivent les données que votre workflow envoie. La base de données du CRM géré s’exécute dans la région AWS de Francfort ; examinez chaque service séparément."
+
+cta:
+  action: Testez un workflow n8n bien délimité
+  description: Commencez par un événement CRM réversible et une écriture validée via REST, webhooks, MCP ou le nœud communautaire publié. Gardez les identifiants et la maîtrise de l’exécution dans votre environnement n8n.
+  buttonLeftText: Démarrer l’essai Pro
+  buttonLeftHref: /auth/signup
+  buttonRightText: Lire le guide de configuration
+  buttonRightHref: /docs/n8n
+  hint: "Sans carte bancaire • [[commercial.trial.days]] jours d’essai • n8n reste distinct"
+---

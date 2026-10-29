@@ -12,8 +12,8 @@ describe("localizedSlugParams", () => {
     expect(localizedSlugParams(source, "de", "industry")).toEqual([{ industry: "smb" }, { industry: "consultants" }]);
   });
 
-  it("prerenders a partial marketing locale only inside its scope", () => {
-    expect(localizedSlugParams(source, "fr", "industry")).toEqual([{ industry: "smb" }]);
+  it("prerenders every page of French, now a full content locale", () => {
+    expect(localizedSlugParams(source, "fr", "industry")).toEqual([{ industry: "smb" }, { industry: "consultants" }]);
   });
 
   it("prerenders nothing for a locale without marketing pages", () => {

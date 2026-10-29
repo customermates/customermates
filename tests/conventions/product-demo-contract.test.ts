@@ -60,6 +60,18 @@ const INLINE_PAGE_DEMOS: readonly PageDemo[] = [
     precedingCopy: "## Wo Customermates einzuordnen ist",
     hostedBoundary: true,
   },
+  {
+    file: "content/blog-posts/fr/open-source-crm.mdx",
+    path: "/dashboard",
+    precedingCopy: "## Où se situe Customermates",
+    hostedBoundary: true,
+  },
+  {
+    file: "content/blog-posts/fr/free-crm.mdx",
+    path: "/dashboard",
+    precedingCopy: "## Où se place Customermates",
+    hostedBoundary: true,
+  },
 ];
 
 function read(relativePath: string): string {

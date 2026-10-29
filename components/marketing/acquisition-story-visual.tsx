@@ -4,7 +4,7 @@ import { Boxes, BriefcaseBusiness, CircleDollarSign, Code2, ContactRound, Databa
 
 import { VISUAL_PLACEMENTS, type BrandIllustrationBrief } from "@/components/marketing/visuals/visual-contract";
 import { cn } from "@/core/utils/cn";
-import { contentLocaleOrDefault, formattingTagFor, type MarketingLocale } from "@/i18n/locale-registry";
+import { assetLocaleFor, contentLocaleOrDefault, formattingTagFor, type MarketingLocale } from "@/i18n/locale-registry";
 
 import {
   VISUAL_AGENT_PROVIDER_FIXTURES,
@@ -534,7 +534,7 @@ function InboxScene({ brief, placement }: Pick<Props, "brief"> & { placement: Pl
 
           {placement === "wide" ? (
             <p className="mt-3 line-clamp-2 text-xs leading-snug font-medium">
-              {conversation.localizedSubject[contentLocaleOrDefault(brief.locale)]}
+              {conversation.localizedSubject[assetLocaleFor(contentLocaleOrDefault(brief.locale))]}
             </p>
           ) : null}
         </div>
