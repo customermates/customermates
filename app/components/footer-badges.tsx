@@ -90,7 +90,7 @@ const LISTING_BADGES: ListingBadge[] = [
     name: "open-source-alternatives",
     platform: "Open Source Alternatives",
     href: "https://www.opensourcealternatives.to",
-    src: "https://www.opensourcealternatives.to/badge-osa.svg",
+    src: "/images/brand/open-source-alternatives-badge.svg",
     width: 270,
     height: 20,
   },
@@ -123,11 +123,14 @@ type BadgeLinkProps = {
   ariaHidden?: boolean;
 };
 
+const BADGE_LINK_CLASS =
+  "shrink-0 opacity-70 grayscale transition-[opacity,filter] duration-200 hover:opacity-100 hover:grayscale-0";
+
 function BadgeLink({ badge, label, ariaHidden }: BadgeLinkProps) {
   return (
     <a
       aria-hidden={ariaHidden || undefined}
-      className="shrink-0 opacity-70 grayscale transition-[opacity,filter] duration-200 hover:opacity-100 hover:grayscale-0"
+      className={BADGE_LINK_CLASS}
       href={badge.href}
       rel="noopener noreferrer"
       tabIndex={ariaHidden ? -1 : undefined}
@@ -190,7 +193,7 @@ export function FooterBadges() {
 
       <div className="flex flex-wrap items-center justify-center gap-6 border-t border-border py-4">
         {LISTING_BADGES.map((badge) => (
-          <a key={badge.name} href={badge.href} rel="noopener noreferrer" target="_blank">
+          <a key={badge.name} className={BADGE_LINK_CLASS} href={badge.href} rel="noopener noreferrer" target="_blank">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               alt={t("Footer.featuredOnPlatform", { platform: badge.platform })}

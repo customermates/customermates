@@ -18,7 +18,7 @@
 
 <p align="center">
   <a href="https://www.opensourcealternatives.to">
-    <img src="https://www.opensourcealternatives.to/badge-osa.svg" alt="As seen on Open Source Alternatives" width="270" height="20" />
+    <img src="public/images/brand/open-source-alternatives-badge.svg" alt="As seen on Open Source Alternatives" width="270" height="20" />
   </a>
 </p>
 
