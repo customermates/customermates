@@ -17,7 +17,7 @@ blogPost:
   backToBlog: Zurück zum Blog
   by: von Benjamin Wagner
   date: 2025-12-25
-  updated: 2026-10-08
+  updated: 2026-10-29
   tags:
     - Excel
     - CRM Vorlage
@@ -39,12 +39,35 @@ Customermates gibt diesen Ratgeber heraus; den Umzug ins CRM zeige ich deshalb a
   <SummaryItem label="Umzug">Ein Blatt pro Import: erst Services und Firmen, dann Kontakte, dann Deals.</SummaryItem>
 </ArticleSummary>
 
+## Wo gibt es die geprüfte CRM Excel Vorlage zum Download?
+
+Laden Sie die [kostenlose CRM-Arbeitsmappe auf Deutsch](/templates/crm-template-de.xlsx) oder die [englische CRM-Arbeitsmappe](/templates/crm-template-en.xlsx) herunter. Das eigene kompakte Beispiel enthält sechs Arbeitsblätter und eine Anleitung: Unternehmen, Kontakte, Auftraege, Aktivitaeten, Uebersicht und Werte. Es ist eine eigene Fassung neben dem ausführlicheren Spaltenaufbau unten. Übernehmen Sie dessen Formeln nur nach Prüfung der jeweiligen Spaltenbezüge in die Download-Datei.
+
+Das Beispiel hält **einen Kunden und zwei Aufträge** über stabile Quell-IDs zusammen. `JOB-001` und `JOB-002` verweisen beide auf `C-001`, auch nach einer Umbenennung des Kunden. Termine sind Datumszellen, Statuswerte haben Dropdowns, und der Kundenname wird über die Quell-ID nachgeschlagen. Die Übersicht zeigt 9.000 EUR offene Beispielchancen und 4.050 EUR gewichteten Wert: 7.200 × 50 % plus 1.800 × 25 %. Die beiden offenen nächsten Schritte bleiben eigene Aktivitäten.
+
+Geprüft am 29. Oktober 2026: Beide XLSX-Dateien wurden mit ExcelJS geschrieben und erneut gelesen. Blattnamen, Datumszellen, Nachschlagebezüge und gespeicherte Formelergebnisse wurden geprüft, ebenso das Fehlen von Makros und externen Arbeitsmappenverbindungen. Eine Sichtprüfung in Microsoft Excel oder LibreOffice fand nicht statt. Öffnen Sie Ihre Kopie im eigenen Tabellenprogramm, berechnen Sie neu und prüfen Sie die beiden Beispielsummen, bevor Sie die fiktiven Zeilen ersetzen. Addieren Sie verschiedene Währungen erst mit einer ausdrücklich festgelegten Umrechnung.
+
+### Was blieb beim lokalen CRM-Import erhalten?
+
+Wir haben das englische Beispiel in schemaabhängiges JSON überführt und über den tatsächlichen Customermates-MCP-Endpunkt in einen synthetischen lokalen Workspace importiert. Das war ein JSON-/API-Test, **kein Test des nativen XLSX-Assistenten im Browser**. Eine eigene Beispielliste hielt manuelle Beträge und Wahrscheinlichkeiten; die vorhandene Berechnung von Deal-Werten wurde damit nicht stillschweigend ersetzt.
+
+| Quellwert | Prüfung des gespeicherten Zustands |
+| --- | --- |
+| `C-001`, `JOB-001`, `JOB-002` | In Textfeldern für Quell-IDs und einer Zuordnung zu Datensatz-IDs erhalten |
+| Ein Kunde, zwei Aufträge | Beide gespeicherten Beziehungen zeigten auf denselben Kunden |
+| `Example owner` | Einer tatsächlichen synthetischen Mitglieds-ID zugeordnet; eigene Teammitglieder entsprechend auflösen |
+| Proposal / Qualified | Den tatsächlichen Auswahloptions-IDs zugeordnet |
+| 7.200 / 1.800 EUR und 20. November / 4. Dezember 2026 | Betrag, Währung und Datum stimmten beim Rücklesen und Export überein |
+| 50 % / 25 % | Dezimale Wahrscheinlichkeiten stimmten nach dem Export überein |
+
+Die identische Wiederholung mit demselben Idempotenzschlüssel lieferte dasselbe Ergebnis und legte keine zwei weiteren Aufträge an. Lesen Sie beim echten Umzug zuerst die aktuellen Listen-, Feld- und Options-IDs; der [Vertrag für JSON-Importe](/docs/app-records#bulk-import-over-the-api) beschreibt das Format. Behalten Sie die Zuordnung von Quell- zu CRM-Datensatz-IDs, lesen Sie die gespeicherten Werte zurück und archivieren Sie die ursprüngliche Mappe. Das ist keine Anhangsmigration, keine Rückgängig-Funktion und keine laufende Synchronisation.
+
 ## Vier Aufbauregeln vor der ersten Zeile
 
 1. **Eine Kopfzeile, eine Zeile pro Datensatz.** Keine verbundenen Zellen, keine Leerzeilen, keine Zwischensummen im Datenbereich.
 2. **Jedes Blatt als Excel-Tabelle formatieren.** Bereich markieren, Strg+T drücken und unter Tabellenentwurf › Tabellenname benennen: `Firmen`, `Kontakte`, `Deals`, `Aktivitäten`. Die Formeln unten nutzen diese Namen, und Tabellen wachsen mit neuen Zeilen mit.
 3. **Jede feste Werteliste als Dropdown.** Über Daten › Datenüberprüfung, Zulassen: Liste, mit einer Tabelle auf dem Blatt Listen als Quelle. Laut Microsofts [Anleitung zu Dropdownlisten](https://support.microsoft.com/de-de/excel/get-started/create-a-drop-down-list) passen sich Dropdowns, die auf einer Tabelle beruhen, von selbst an, wenn Sie Einträge ergänzen oder löschen.
-4. **Über Namen verknüpfen, nicht über Nummern.** Die Firma eines Kontakts ist der exakte Firmenname, der Kontakt eines Deals der volle Name der Person. Nummern sind in Formeln bequemer, aber Namen lesen Sie, und CRM-Importe, auch der von Customermates, ordnen Verknüpfungen über den Namen zu.
+4. **Stabile Quell-ID und lesbare Namen behalten.** Der Aufbau unten nutzt exakte Namen für die Verknüpfungszuordnung im nativen XLSX-Import. Die kompakte Download-Datei hält zusätzlich Quell-IDs für Nachschlageformeln und eine spätere JSON-/API-Zuordnung. Namen helfen bei der Auswahl; die Zuordnung von Quell- zu Datensatz-ID bleibt bei Umbenennungen erhalten.
 
 ## Die Vorlage, Blatt für Blatt
 
@@ -203,8 +226,8 @@ Customermates importiert Excel-Arbeitsmappen (.xlsx), eine Liste nach der andere
 | Offene nächste Schritte aus Aktivitäten | Aufgaben |
 
 <Steps>
-  <Step title="Zuerst die eigenen Felder anlegen">Öffnen Sie in **Konfigurieren** die Liste und wählen Sie **Hinzufügen**, dann **Feld**. Legen Sie für jede Dropdown-Spalte ein Feld vom Typ **Einzelauswahl** an, dessen Optionen genau so heißen wie im Blatt Listen; der Import markiert jede Zelle, die keine Option ist. Das Feld Phase mit den Phasen von oben gibt es bereits. Haben Sie die Phasen geändert, benennen Sie die Optionen um und tragen die Prozentwerte in Konfigurieren für Deals als **Wahrscheinlichkeit %** ein.</Step>
-  <Step title="Klären, wie die Deal-Werte hineinkommen">In Customermates ist der Wert eines Deals die Summe seiner Positionen, jeweils Service-Preis mal Menge. Importieren Sie zuerst Ihre Preisliste als **Services** (Name und Preis sind Pflicht) und legen Sie danach an jedem Deal die Positionen mit ihren Mengen an. Hat jeder Deal einen eigenen Preis, hält ein eigenes Feld vom Typ Geldbetrag die Zahl fest, fließt dann aber nicht in den Deal-Wert und die gewichtete Pipeline ein.</Step>
+  <Step title="Zuerst die eigenen Felder anlegen">Öffnen Sie in **Konfigurieren** die Liste und wählen Sie **Hinzufügen**, dann **Feld**. Legen Sie für jede Dropdown-Spalte ein Feld vom Typ **Einzelauswahl** an, dessen Optionen genau so heißen wie im Blatt Listen; der Import markiert jede Zelle, die keine Option ist. Prüfen Sie das Phasenfeld und seine Wahrscheinlichkeiten in Ihrem Workspace: KI-Einrichtung und bestehende Workspaces können andere Listen und Optionen verwenden. Legen Sie die benötigten Optionen in Konfigurieren an oder passen Sie sie bewusst an, statt diese Beispielphasen vorauszusetzen.</Step>
+  <Step title="Klären, wie die Deal-Werte hineinkommen">In Customermates ist der Wert eines Deals die Summe seiner Positionen, jeweils Service-Preis mal Menge. Importieren Sie zuerst Ihre Preisliste als **Services** (Name und Preis sind Pflicht) und legen Sie danach an jedem Deal die Positionen mit ihren Mengen an. Hat jeder Deal einen eigenen Preis, kann ein Eingabefeld vom Typ Geldbetrag die Zahl halten. Es ersetzt die bestehende Positionsberechnung nicht automatisch. Soll es die Grundlage des Deal-Werts sein, muss eine Person mit Konfigurationsrechten die Wert- und Gewichtungsberechnung nach einer Vorschau bewusst anpassen.</Step>
   <Step title="In der richtigen Reihenfolge importieren">Erst Services, dann die Firmen als Organisationen, dann Kontakte, dann Deals. Verknüpfungen ordnet der Import über den Namen zu, ohne Groß- und Kleinschreibung zu beachten. Die Firma muss also existieren, bevor ein Kontakt auf sie zeigen kann, und ein Name, der keinen oder mehrere Datensätze trifft, wird markiert. Ein Komma trennt mehrere Namen in einer Zelle, eine Kanzlei namens „Hahn, Brück & Partner" braucht deshalb vor dem Import einen anderen Namen oder hinterher eine Verknüpfung von Hand.</Step>
   <Step title="Den Assistenten durchlaufen">Öffnen Sie in jeder Liste **Weitere Aktionen**, wählen Sie **Aus Datei hinzufügen** und die Datei. Der Assistent fragt, welches Blatt importiert werden soll, die übrigen Blätter können also in der Mappe bleiben; speichern Sie sie als .xlsx. Eine Datei darf derzeit bis zu 10 MB groß sein und 5.000 Zeilen haben. Ordnen Sie jede Spalte einem Feld zu; E-Mail-Adressen, Telefonnummern und LinkedIn-Profile kommen in das Feld Kontaktdaten des Kontakts.</Step>
   <Step title="Problemzeilen korrigieren oder überspringen">Die Prüfung listet jedes Problem mit Zeilennummer auf, bevor etwas angelegt wird. Korrigieren Sie die Zellen in Excel und prüfen Sie erneut, oder importieren Sie den Rest und überspringen diese Zeilen. Rückgängig machen lässt sich ein Import nicht, testen Sie also zuerst mit zehn Zeilen.</Step>
@@ -233,7 +256,7 @@ Eine Routine handelt mit den Rechten der Person, der sie gehört, und Mate versc
 
 Abgerechnet wird monatlich, die gehostete Testphase dauert [[commercial.trial.days]] Tage. Jeder gehostete Plan enthält monatliche gehostete KI-Credits pro aktiver Person, Einzelheiten auf der [Preisseite](/pricing).
 
-Der falsche Schritt ist Customermates, wenn Sie weiter über Zeilen hinweg rechnen wollen: Formelfelder gibt es nicht, eigene Kalkulationen bleiben über den Export in Excel. Ebenso, wenn Ihr Team eine Telefonanlage, E-Mail-Kampagnen oder eine App fürs Smartphone braucht: Customermates hat keine native mobile App, keine Telefonie und kein Kampagnen-Tool. Suchen Sie dann ein CRM, das genau das mitbringt.
+Customermates hat [berechnete Felder](/docs/concepts#how-do-i-build-a-calculated-field), mit Werten aus demselben Datensatz und Summen verknüpfter Datensätze. Brauchen Sie eine allgemeine Tabellenkalkulation mit beliebigen Zellformeln und Arbeitsmappenaufbau, bleibt diese Auswertung über den Export in Excel. Ebenso, wenn Ihr Team eine Telefonanlage, E-Mail-Kampagnen oder eine App fürs Smartphone braucht: Customermates hat keine native mobile App, keine Telefonie und kein Kampagnen-Tool. Suchen Sie dann ein CRM, das genau das mitbringt.
 
 ## Häufig gestellte Fragen
 
@@ -243,7 +266,7 @@ Ja, für ein kleines Team. Der Aufbau mit sechs Blättern oben deckt Firmen, Kon
 </FaqItem>
 
 <FaqItem question="Gibt es eine kostenlose CRM Excel Vorlage?">
-Der Aufbau in diesem Beitrag ist kostenlos und braucht nichts außer Excel. Wenn Sie anderswo eine Vorlage herunterladen, prüfen Sie vor der ersten Eingabe drei Dinge: eine Zeile pro Datensatz, Kontakte getrennt von Firmen und keine verbundenen Zellen. Eine Vorlage, die daran scheitert, lässt sich später nur mühsam in ein CRM importieren.
+Der Aufbau in diesem Beitrag und die XLSX-Beispieldatei oben sind kostenlos und brauchen nur ein kompatibles Tabellenprogramm. Wenn Sie anderswo eine Vorlage herunterladen, prüfen Sie vor der ersten Eingabe drei Dinge: eine Zeile pro Datensatz, Kontakte getrennt von Firmen und keine verbundenen Zellen. Eine Vorlage, die daran scheitert, lässt sich später nur mühsam in ein CRM importieren.
 </FaqItem>
 
 <FaqItem question="Ab wann lohnt sich der Umstieg von Excel auf ein CRM?">
