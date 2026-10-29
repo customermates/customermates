@@ -21,6 +21,7 @@ const FEATURE_DEMO_SURFACES = {
   "contact-management": { path: DEMO_RECORD_LIST_PATHS.contacts },
   "follow-up": { path: DEMO_RECORD_LIST_PATHS.tasks },
   integrations: { hostedBoundary: true, path: "/settings/channels" },
+  "knowledge-base": { path: DEMO_RECORD_LIST_PATHS.tasks },
   "lead-management": { path: DEMO_RECORD_LIST_PATHS.contacts },
   "linkedin-integration": { hostedBoundary: true, path: "/inbox" },
   "outlook-integration": { hostedBoundary: true, path: "/inbox" },
