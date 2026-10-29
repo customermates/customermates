@@ -1,17 +1,10 @@
 name: Page shipping E2E
 
 on:
-  pull_request:
-    branches: [main]
-  push:
-    branches: [main]
+  workflow_call:
 
 permissions:
   contents: read
-
-concurrency:
-  group: page-shipping-${{ github.event.pull_request.number || github.sha }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   rendered-hubs:
@@ -20,7 +13,7 @@ jobs:
     timeout-minutes: 15
     env:
       APP_MODE: self-hosted
-      BASE_URL: http://localhost:40196
+      BASE_URL: http://127.0.0.1:4499
       BETTER_AUTH_SECRET: synthetic-page-shipping-e2e-secret
       DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/customermates_page_shipping_e2e
     steps:
@@ -29,27 +22,28 @@ jobs:
         with:
           node-version: 24
       - uses: ./.github/actions/setup
-      - name: Restore the Next.js build cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      - name: Download the self-hosted build shared with the browser suite
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          path: .next/cache
-          key: next-cache-hubs-${{ hashFiles('yarn.lock') }}-${{ github.sha }}
-          restore-keys: next-cache-hubs-${{ hashFiles('yarn.lock') }}-
-      - name: Build the production application
-        run: yarn build
+          name: build-self-hosted
+      - name: Unpack the production build and write its synthetic environment
+        run: |
+          tar --zstd -xf build.tar.zst
+          rm build.tar.zst
+          node --input-type=module -e "import { writeEnvFile } from './scripts/verify/lib/app-copy.mjs'; writeEnvFile(process.cwd(), 'self-hosted', { databaseUrl: process.env.DATABASE_URL, secret: process.env.BETTER_AUTH_SECRET });"
       - name: Crawl rendered landing hubs and every sitemap URL
         shell: bash
         run: |
           set -euo pipefail
 
           server_log="$RUNNER_TEMP/page-shipping-server.log"
-          yarn next start -p 40196 >"$server_log" 2>&1 &
+          yarn next start -H 127.0.0.1 -p 4499 >"$server_log" 2>&1 &
           server_pid=$!
           trap 'kill "$server_pid" 2>/dev/null || true; wait "$server_pid" 2>/dev/null || true' EXIT
 
           ready=0
           for _attempt in {1..60}; do
-            if curl --silent --show-error --fail http://localhost:40196/en/blog >/dev/null; then
+            if curl --silent --show-error --fail http://127.0.0.1:4499/en/blog >/dev/null; then
               ready=1
               break
             fi
@@ -65,7 +59,7 @@ jobs:
             exit 1
           fi
 
-          if ! HUB_E2E_BASE_URL=http://localhost:40196 yarn vitest run tests/conventions/hub-reachability.test.ts tests/conventions/sitemap-reachability.test.ts; then
+          if ! HUB_E2E_BASE_URL=http://127.0.0.1:4499 yarn vitest run tests/conventions/hub-reachability.test.ts tests/conventions/sitemap-reachability.test.ts; then
             cat "$server_log"
             exit 1
           fi

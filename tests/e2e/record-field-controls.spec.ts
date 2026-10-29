@@ -661,6 +661,10 @@ test("captures snapshots on request and on stage changes while preserving manual
 });
 
 async function editFieldDefinitionUi(page: Page, typeId: string, label: string) {
+  // A saved row can start loading the mono font. Finish it before the helper's document navigation cancels it.
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+  });
   await openConfigure(page, typeId);
   await openConfigureRow(page, "Fields", label);
   await expect(page.getByRole("dialog", { name: "Edit field", exact: true })).toBeVisible();

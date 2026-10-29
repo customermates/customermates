@@ -241,6 +241,7 @@
     "solution-templates:generate": "tsx scripts/generate-solution-templates.ts && eslint --fix -c .eslintrc.json core/solutions/solution-templates.json",
     "start": "next start -p 4000",
     "test": "vitest run",
+    "test:ci-plan": "node --test .github/scripts/ci-plan.test.mjs",
     "test:e2e": "playwright test",
     "test:e2e:baseline": "node scripts/verify/e2e-baseline.mjs",
     "test:e2e:matrix": "node scripts/verify/e2e.mjs",
