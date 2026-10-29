@@ -3295,6 +3295,15 @@
       "googleAds": "Google Ads CSV",
       "label": "Advertising conversions",
       "rowCount": "{count} reportable conversions",
+      "upload": "Send to Google Ads",
+      "uploadAccepted": "Google accepted {count} conversions.",
+      "uploadAmbiguous": "Google's answer for {count} conversions was unclear. They will not be sent again automatically; check the upload in Google Ads first.",
+      "uploadAuthorizationFailed": "Google did not accept the upload credentials. Nothing was sent.",
+      "uploadDisabled": "The Google Ads upload is turned off on this instance. Nothing was sent.",
+      "uploadIncomplete": "The Google Ads upload is missing configuration: {names}. Nothing was sent.",
+      "uploadNothing": "No conversion is waiting to be sent. Already sent: {count}",
+      "uploadRejected": "Google rejected {count} conversions. They can be sent again once the cause is fixed.",
+      "uploadValidated": "Validation only: Google checked {count} conversions and imported none.",
       "withoutColumnCount": "Google conversions left out of this file: {count}. Their click carried a gbraid or wbraid identifier, which Google's upload template has no column for."
     },
     "growth": {

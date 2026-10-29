@@ -3295,6 +3295,15 @@
       "googleAds": "CSV Google Ads",
       "label": "Conversions publicitaires",
       "rowCount": "{count} conversions déclarables",
+      "upload": "Envoyer à Google Ads",
+      "uploadAccepted": "Google a accepté {count} conversions.",
+      "uploadAmbiguous": "La réponse de Google pour {count} conversions n'était pas claire. Elles ne seront pas renvoyées automatiquement ; vérifiez d'abord l'envoi dans Google Ads.",
+      "uploadAuthorizationFailed": "Google n'a pas accepté les identifiants d'envoi. Rien n'a été envoyé.",
+      "uploadDisabled": "L'envoi vers Google Ads est désactivé sur cette instance. Rien n'a été envoyé.",
+      "uploadIncomplete": "Il manque de la configuration pour l'envoi vers Google Ads : {names}. Rien n'a été envoyé.",
+      "uploadNothing": "Aucune conversion n'attend d'être envoyée. Déjà envoyées : {count}",
+      "uploadRejected": "Google a refusé {count} conversions. Elles pourront être renvoyées une fois la cause corrigée.",
+      "uploadValidated": "Validation seule : Google a vérifié {count} conversions et n'en a importé aucune.",
       "withoutColumnCount": "Conversions Google absentes de ce fichier : {count}. Leur clic portait un identifiant gbraid ou wbraid, pour lequel le modèle d'import de Google n'a pas de colonne."
     },
     "growth": {

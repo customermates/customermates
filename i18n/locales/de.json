@@ -3295,6 +3295,15 @@
       "googleAds": "Google-Ads-CSV",
       "label": "Werbe-Conversions",
       "rowCount": "{count} meldbare Conversions",
+      "upload": "An Google Ads senden",
+      "uploadAccepted": "Google hat {count} Conversions angenommen.",
+      "uploadAmbiguous": "Die Antwort von Google zu {count} Conversions war unklar. Sie werden nicht automatisch erneut gesendet; prüfe zuerst den Upload in Google Ads.",
+      "uploadAuthorizationFailed": "Google hat die Zugangsdaten für den Upload nicht angenommen. Es wurde nichts gesendet.",
+      "uploadDisabled": "Der Google-Ads-Upload ist auf dieser Instanz ausgeschaltet. Es wurde nichts gesendet.",
+      "uploadIncomplete": "Für den Google-Ads-Upload fehlt Konfiguration: {names}. Es wurde nichts gesendet.",
+      "uploadNothing": "Keine Conversion wartet auf das Senden. Bereits gesendet: {count}",
+      "uploadRejected": "Google hat {count} Conversions abgelehnt. Sie können erneut gesendet werden, sobald die Ursache behoben ist.",
+      "uploadValidated": "Nur Prüfung: Google hat {count} Conversions geprüft und keine importiert.",
       "withoutColumnCount": "Nicht in dieser Datei enthaltene Google-Conversions: {count}. Ihr Klick trug eine gbraid- oder wbraid-Kennung, für die Googles Upload-Vorlage keine Spalte hat."
     },
     "growth": {

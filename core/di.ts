@@ -486,6 +486,9 @@ import { GetOperatorWorkspaceTagsInteractor } from "@/ee/operator/get/get-operat
 import { GetOperatorWorkspacesInteractor } from "@/ee/operator/get/get-operator-workspaces.interactor";
 import { OperatorAccessService } from "@/ee/operator/operator-access.service";
 import { PrismaAdConversionExportRepo } from "@/ee/operator/prisma-ad-conversion-export.repository";
+import { PrismaAdConversionUploadRepo } from "@/ee/operator/prisma-ad-conversion-upload.repository";
+import { UploadAdConversionsInteractor } from "@/ee/operator/upload-ad-conversions.interactor";
+import { GoogleDataManagerTransport } from "@/ee/operator/data-manager/google-data-manager-transport";
 import { PrismaOperatorAccessRepo } from "@/ee/operator/prisma-operator-access.repository";
 import { PrismaOperatorAuditRepo } from "@/ee/operator/prisma-operator-audit.repository";
 import { PrismaOperatorBillingUsageRepo } from "@/ee/operator/prisma-operator-billing-usage.repository";
@@ -2250,6 +2253,13 @@ export const getAdConversionExportRepo = () => new PrismaAdConversionExportRepo(
 
 export const getGetAdConversionExportInteractor = () =>
   new GetAdConversionExportInteractor(getAdConversionExportRepo());
+
+export const getUploadAdConversionsInteractor = () =>
+  new UploadAdConversionsInteractor(
+    getAdConversionExportRepo(),
+    new PrismaAdConversionUploadRepo(),
+    new GoogleDataManagerTransport(),
+  );
 
 export const getOperatorBillingUsageRepo = () => new PrismaOperatorBillingUsageRepo();
 
