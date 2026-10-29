@@ -76,6 +76,26 @@ const BADGES: Badge[] = [
   },
 ];
 
+type ListingBadge = {
+  name: string;
+  platform: string;
+  href: string;
+  src: string;
+  width: number;
+  height: number;
+};
+
+const LISTING_BADGES: ListingBadge[] = [
+  {
+    name: "open-source-alternatives",
+    platform: "Open Source Alternatives",
+    href: "https://www.opensourcealternatives.to",
+    src: "https://www.opensourcealternatives.to/badge-osa.svg",
+    width: 270,
+    height: 20,
+  },
+];
+
 const MARQUEE_GAP_REM = 2.5;
 const MARQUEE_COPIES = 4;
 
@@ -166,6 +186,21 @@ export function FooterBadges() {
             )}
           </div>
         </div>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-center gap-6 border-t border-border py-4">
+        {LISTING_BADGES.map((badge) => (
+          <a key={badge.name} href={badge.href} rel="noopener noreferrer" target="_blank">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              alt={t("Footer.featuredOnPlatform", { platform: badge.platform })}
+              height={badge.height}
+              loading="lazy"
+              src={badge.src}
+              width={badge.width}
+            />
+          </a>
+        ))}
       </div>
     </>
   );
