@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 const state = vi.hoisted(() => ({ start: vi.fn() }));
 vi.mock("workflow/api", () => ({ start: state.start }));
 vi.mock("next/server", () => ({ after: vi.fn() }));
+vi.mock("../error-notification-claim", () => ({ claimErrorNotification: vi.fn(() => "fingerprint-fixture") }));
 
 afterEach(() => {
   vi.unstubAllEnvs();

@@ -458,6 +458,29 @@ describe("website Knowledge Base synthesis", () => {
     expect(counts).toEqual([1, 1]);
   });
 
+  it("repairs a rejected structured answer without reporting the recovered failure", async () => {
+    const { service, crawl } = harness("extend");
+    const failure = "Website import model call to model failed: AI_NoObjectGeneratedError.";
+    const rejection = "The answer did not match the required structure: topics: Required.";
+    model.generate
+      .mockResolvedValueOnce({ output: null, charge: CHARGE, failure, rejection })
+      .mockResolvedValueOnce(plan([{ title: "Scheduling", role: "offering", sources: ["s2"] }]));
+    await service.plan("crawl-1");
+    expect(crawl().topics?.map(({ title }) => title)).toEqual(["Scheduling"]);
+    expect(model.generate.mock.calls[1][0].prompt).toContain(rejection);
+    expect(service.drainWarnings()).toEqual([]);
+  });
+
+  it("reports a structured answer that stays rejected once, with the reason", async () => {
+    const { service } = harness("extend");
+    const failure = "Website import model call to model failed: AI_NoObjectGeneratedError.";
+    const rejection = "The answer did not match the required structure: topics: Required.";
+    model.generate.mockResolvedValue({ output: null, charge: CHARGE, failure, rejection });
+    await service.plan("crawl-1");
+    expect(model.generate).toHaveBeenCalledTimes(2);
+    expect(service.drainWarnings()).toEqual([`${failure} ${rejection}`]);
+  });
+
   it("records a visible persistence failure and settles a failed import when nothing was saved", async () => {
     const { run, createPages, crawl } = harness("extend");
     model.generate

@@ -20,7 +20,7 @@ import { mapParticipantRecord, normalizeChatMessage } from "../chat-normalize";
 import { buildEmailMessage } from "../unipile.mappers";
 import { UnipileMessageSchema, UnipileEmailSchema } from "../unipile.schema";
 import { isEmailProvider } from "../provider";
-import { isUnipileRateLimit, getRetryAfterSeconds } from "../messaging.service";
+import { isUnipileRateLimit, isUnipileTransientError, getRetryAfterSeconds } from "../messaging.service";
 import { retryAfterPhrase } from "../retry-after.server";
 import type { ResyncThread, ResyncThreadRepo } from "./resync-thread.repo";
 import { synchronizeInboundAvatar, type ProviderAvatars } from "../ingest/inbound-avatar";
@@ -69,6 +69,7 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
 
       if (!rateLimited) {
         ErrorReporter.captureException(err, {
+          level: isUnipileTransientError(err) ? "warning" : "error",
           tags: {
             unipileAccountId: thread.unipileAccountId,
             companyId: thread.companyId,

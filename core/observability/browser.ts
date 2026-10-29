@@ -2,6 +2,8 @@ import { isExpectedError } from "@/core/errors/app-errors";
 import { errorDigest } from "@/core/errors/error-digest";
 import { errorReportingEnabled } from "@/core/errors/reporting-provider";
 import { isWorkspaceChangedError } from "@/core/errors/workspace-changed";
+import { isClientTransportError } from "@/core/errors/client-transport-error";
+import { isDeploymentSkewError } from "@/core/errors/deployment-skew";
 
 import { errorReport } from "./error-report";
 import { createErrorQueue } from "./error-queue";
@@ -23,8 +25,18 @@ export async function publishBrowserError(report: ErrorReport): Promise<void> {
   if (!response.ok) throw new Error("Error report was not accepted");
 }
 
+const NEXT_CONTROL_FLOW_DIGEST = /^(NEXT_HTTP_ERROR_FALLBACK;|NEXT_REDIRECT|NEXT_NOT_FOUND)/;
+
+function isBrowserNoise(error: unknown): boolean {
+  if (isClientTransportError(error) || isDeploymentSkewError(error)) return true;
+  if (NEXT_CONTROL_FLOW_DIGEST.test(errorDigest(error) ?? "")) return true;
+  const stack = error instanceof Error ? error.stack : undefined;
+  return typeof stack === "string" && stack.includes("ext:core/");
+}
+
 export function captureException(error: unknown, context: CaptureContext = {}): void {
-  if (!errorReportingEnabled() || isExpectedError(error) || isWorkspaceChangedError(error)) return;
+  if (!errorReportingEnabled() || isExpectedError(error) || isWorkspaceChangedError(error) || isBrowserNoise(error))
+    return;
   const message = typeof error === "string" ? error : error instanceof Error ? error.message : undefined;
   if (
     message === "ResizeObserver loop limit exceeded" ||

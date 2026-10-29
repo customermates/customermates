@@ -19,7 +19,8 @@ import { z } from "zod";
 import * as ErrorReporter from "@/core/observability/server";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { MessagingService } from "../messaging.service";
+import { MessagingService, isUnipileTransientError } from "../messaging.service";
+import { UnipileRequestError } from "../unipile-request-error";
 import { ProcessAccountReconnectWebhookInteractor } from "../webhooks/account/process-account-reconnect-webhook.interactor";
 import { PrepareBackfillInteractor, ACCOUNT_WIDE_SOURCE } from "../ingest/backfill/prepare-backfill.interactor";
 
@@ -202,6 +203,31 @@ describe("social profile identifier routing", () => {
         tags: expect.objectContaining({ unipileDetail: "with_sections has an invalid value." }),
       }),
     );
+  });
+});
+
+describe("provider outages", () => {
+  it("records a transient IMAP outage as a warning, not an application error", async () => {
+    stubFetch(
+      { object: "Error", status: 503, type: "provider/service_unavailable", title: "IMAP connection unavailable" },
+      503,
+    );
+
+    const result = await new MessagingService().moveEmail({ accountId: "acc_1", emailId: "e_1", folderId: "f_1" });
+
+    expect(result).toMatchObject({ ok: false, error: CustomErrorCode.unipileProviderError });
+    expect(ErrorReporter.captureException).toHaveBeenCalledExactlyOnceWith(
+      expect.any(Error),
+      expect.objectContaining({ level: "warning" }),
+    );
+  });
+
+  it("classifies timeouts and 5xx outages as transient, but not 501 or client errors", () => {
+    expect(isUnipileTransientError(new UnipileRequestError(0, null, "{}"))).toBe(true);
+    expect(isUnipileTransientError(new UnipileRequestError(502, null, "Bad Gateway"))).toBe(true);
+    expect(isUnipileTransientError(new UnipileRequestError(500, "provider/internal_error", "{}"))).toBe(true);
+    expect(isUnipileTransientError(new UnipileRequestError(501, "api/not_implemented", "{}"))).toBe(false);
+    expect(isUnipileTransientError(new UnipileRequestError(401, "api/invalid_credentials", "{}"))).toBe(false);
   });
 });
 

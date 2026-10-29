@@ -12,6 +12,7 @@ const ProcessEventSchema = z.object({ companyId: z.uuid(), eventId: z.uuid() }).
 type ProcessEventInput = z.infer<typeof ProcessEventSchema>;
 type ProcessEventResult = { status: "delivered" | "deferred" | "abandoned" | "not_found" };
 
+export const EVENT_ADMISSION_TIMEOUT_MS = 30_000;
 const ADMISSION_RACED = new Error("Another worker settled the event during its admission");
 
 @SystemInteractor
@@ -38,7 +39,11 @@ export class ProcessEventInteractor {
           if (!(await this.outbox.markDeliveredUnscoped(event, now))) throw ADMISSION_RACED;
           return { status: "delivered" } as const;
         },
-        { companyId: input.companyId, timeout: 30000 },
+        {
+          companyId: input.companyId,
+          timeout: EVENT_ADMISSION_TIMEOUT_MS,
+          companyLockWait: EVENT_ADMISSION_TIMEOUT_MS,
+        },
       );
     } catch (error) {
       if (!attempt.event) throw error;

@@ -24,7 +24,9 @@ function isAutomatedDeliveredSink(to: string): boolean {
   return /^delivered(?:\+[a-zA-Z0-9_-]+)?@resend\.dev$/.test(to);
 }
 
-export async function sendErrorNotification(report: ErrorReport): Promise<{ emailId: string; verifyDelivery?: true }> {
+export async function sendErrorNotification(
+  report: ErrorReport,
+): Promise<{ emailId: string; verifyDelivery?: true } | { duplicate: true }> {
   "use step";
   const to = process.env.ERROR_REPORTING_NOTIFICATION_EMAIL;
   const from = process.env.RESEND_OPERATOR_EMAIL;
@@ -40,9 +42,12 @@ export async function sendErrorNotification(report: ErrorReport): Promise<{ emai
   const stack = report.frames
     .map((frame) => `${frame.function ?? "<anonymous>"} (${frame.file}:${frame.line ?? "?"}:${frame.column ?? "?"})`)
     .join("\n");
+  const day = new Date(report.timestamp * 1000).toISOString().slice(0, 10);
   const hash = await crypto.subtle.digest(
     "SHA-256",
-    new TextEncoder().encode(JSON.stringify([report.buildId, report.id])),
+    new TextEncoder().encode(
+      JSON.stringify(report.fingerprint ? [day, report.fingerprint] : [report.buildId, report.id]),
+    ),
   );
   const idempotencyKey = `application-error/${Array.from(new Uint8Array(hash), (byte) => byte.toString(16).padStart(2, "0")).join("")}`;
   const { error, data } = await new Resend(key).emails.send(
@@ -65,6 +70,7 @@ export async function sendErrorNotification(report: ErrorReport): Promise<{ emai
         stack,
         ...(report.causes?.map((cause) => `Caused by ${cause.name}: ${cause.message}`) ?? []),
         "Search Vercel Runtime Logs for the event ID. Use the deployment commit, path and operation context to investigate.",
+        "Only the first occurrence of an error each UTC day is emailed, within a daily email limit; every occurrence is in Vercel Runtime Logs.",
       ]
         .filter(Boolean)
         .join("\n\n"),
@@ -73,6 +79,7 @@ export async function sendErrorNotification(report: ErrorReport): Promise<{ emai
       idempotencyKey,
     },
   );
+  if (error?.statusCode === 409 && report.fingerprint) return { duplicate: true };
   if (error) {
     if (
       error.statusCode &&
@@ -105,9 +112,10 @@ verifyPreviewErrorDelivery.maxRetries = 5;
 
 export async function notifyApplicationError(
   report: ErrorReport,
-): Promise<{ emailId: string; delivery?: "delivered" }> {
+): Promise<{ emailId: string; delivery?: "delivered" } | { duplicate: true }> {
   "use workflow";
   const result = await sendErrorNotification(report);
+  if ("duplicate" in result) return result;
   if (result.verifyDelivery) {
     await verifyPreviewErrorDelivery(result.emailId);
     return { emailId: result.emailId, delivery: "delivered" };

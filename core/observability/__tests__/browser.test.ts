@@ -31,4 +31,30 @@ describe("native browser reporting", () => {
     expect(report.message).toBe("ResizeObserver callback failed");
     expect(report.frames).toEqual([{ file: "https://app.test/script.js", column: 0 }]);
   });
+
+  it("does not report transport drops, deployment skew, Next.js control flow or crawler runtimes", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("NEXT_PUBLIC_ERROR_REPORTING_PROVIDER", "vercel");
+    vi.stubEnv("NEXT_PUBLIC_ERROR_REPORTING_BUILD_ID", "browser-fixture");
+    const fetch = vi.fn().mockResolvedValue(new Response(null, { status: 202 }));
+    vi.stubGlobal("fetch", fetch);
+    const reporter = await import("../browser");
+    reporter.captureException(new TypeError("network error"));
+    reporter.captureException(new Error("An unexpected response was received from the server."));
+    reporter.captureException(
+      Object.assign(new Error('Server Action "40b4" was not found on the server.'), {
+        name: "UnrecognizedActionError",
+      }),
+    );
+    reporter.captureException(Object.assign(new Error("render"), { digest: "NEXT_HTTP_ERROR_FALLBACK;404" }));
+    const deno = new TypeError("Cannot read properties of undefined (reading 'getReader')");
+    deno.stack = `${deno.message}\n    at eventLoopTick (ext:core/01_core.js:178:7)`;
+    reporter.captureException(deno);
+    expect(await reporter.flush()).toBe(true);
+    expect(fetch).not.toHaveBeenCalled();
+
+    reporter.captureException(Object.assign(new Error("render"), { digest: "1234567" }));
+    expect(await reporter.flush()).toBe(true);
+    expect(fetch).toHaveBeenCalledOnce();
+  });
 });

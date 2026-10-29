@@ -132,6 +132,8 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
   it.each([
     [429, "api/too_many_requests"],
     [500, "api/internal_error"],
+    [502, null],
+    [503, "provider/service_unavailable"],
   ])("retries a known webhook provider failure (%i %s) without reporting it", async (status, errorType) => {
     const providerError = new UnipileRequestError(status, errorType, '{"detail":"retry later"}');
     const handler = { invoke: vi.fn().mockRejectedValue(providerError) };
@@ -153,6 +155,8 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
   it.each([
     [429, "api/too_many_requests"],
     [500, "api/internal_error"],
+    [502, null],
+    [503, "provider/service_unavailable"],
   ])("reports an exhausted known provider failure once (%i %s)", async (status, errorType) => {
     const providerError = new UnipileRequestError(status, errorType, '{"detail":"retry later"}');
     const handler = { invoke: vi.fn().mockRejectedValue(providerError) };
@@ -220,7 +224,7 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
   });
 
   it("still reports an unrelated Unipile rejection", async () => {
-    const serverError = new UnipileRequestError(500, "api/unknown", '{"detail":"boom"}');
+    const serverError = new UnipileRequestError(400, "api/unknown", '{"detail":"boom"}');
     const handler = { invoke: vi.fn().mockRejectedValue(serverError) };
     const { interactor } = build(row({ type: "email.folder.update", account_id: "acc_1", payload: {} }), {
       "email.folder.update": handler,

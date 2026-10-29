@@ -53,6 +53,22 @@ describe("application error notification", () => {
     expect(state.send.mock.calls[0][0].text).not.toContain("source-map");
   });
 
+  it("uses one idempotency key per error and day, and treats a duplicate as already sent", async () => {
+    const { notifyApplicationError, sendErrorNotification } = await import("../notify-application-error");
+    await sendErrorNotification({ ...report, fingerprint: "f".repeat(32) });
+    await sendErrorNotification({ ...report, id: "other-event", timestamp: 2000, fingerprint: "f".repeat(32) });
+    await sendErrorNotification({ ...report, timestamp: 1000 + 86_400, fingerprint: "f".repeat(32) });
+    const keys = state.send.mock.calls.map((call) => call[1].idempotencyKey);
+    expect(keys[0]).toBe(keys[1]);
+    expect(keys[2]).not.toBe(keys[0]);
+
+    state.send.mockResolvedValue({ error: { statusCode: 409 }, data: null });
+    await expect(notifyApplicationError({ ...report, fingerprint: "f".repeat(32) })).resolves.toEqual({
+      duplicate: true,
+    });
+    await expect(sendErrorNotification(report)).rejects.toThrow();
+  });
+
   it("retries provider-returned failures, which the SDK does not throw", async () => {
     const { sendErrorNotification } = await import("../notify-application-error");
     state.send.mockResolvedValue({ error: { statusCode: 503 }, data: null });

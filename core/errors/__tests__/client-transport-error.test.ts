@@ -23,13 +23,17 @@ afterEach(() => {
 });
 
 describe("isClientTransportError", () => {
-  it.each(["Failed to fetch", "Load failed", "NetworkError when attempting to fetch resource."])(
+  it.each(["Failed to fetch", "Load failed", "NetworkError when attempting to fetch resource.", "network error"])(
     "recognizes the browser transport TypeError %s",
     (message) => {
       expect(isClientTransportError(new TypeError(message))).toBe(true);
       expect(isClientTransportError({ name: "TypeError", message })).toBe(true);
     },
   );
+
+  it("recognizes a non-Flight Server Action response", () => {
+    expect(isClientTransportError(new Error("An unexpected response was received from the server."))).toBe(true);
+  });
 
   it("does not classify HTTP, application, or same-message non-TypeErrors as transport interruptions", () => {
     expect(isClientTransportError(new Error("Failed to fetch"))).toBe(false);

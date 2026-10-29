@@ -9,7 +9,12 @@ import type { UnipileWebhookEnvelope } from "../unipile.schema";
 
 import { UnipileWebhookEnvelopeSchema } from "../unipile.schema";
 import { DeferredWebhookError, UnmappableWebhookPayloadError } from "@/core/errors/app-errors";
-import { isUnipileDisconnectedAccount, isUnipileProviderUnprocessable, isUnipileTimeout } from "../messaging.service";
+import {
+  isUnipileDisconnectedAccount,
+  isUnipileProviderUnprocessable,
+  isUnipileTimeout,
+  isUnipileTransientError,
+} from "../messaging.service";
 import { UnipileRequestError } from "../unipile-request-error";
 
 export type UnipileWebhookHandlerMap = Partial<
@@ -20,10 +25,7 @@ const Schema = z.object({ id: z.uuid() });
 type ProcessUnipileWebhookPayload = z.infer<typeof Schema>;
 
 function isRetryableUnipileWebhookError(err: unknown): boolean {
-  return (
-    err instanceof UnipileRequestError &&
-    (err.status === 429 || (err.status === 500 && err.errorType === "api/internal_error"))
-  );
+  return err instanceof UnipileRequestError && (err.status === 429 || isUnipileTransientError(err));
 }
 
 @SystemInteractor

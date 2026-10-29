@@ -7,6 +7,7 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 
 vi.mock("@/core/observability/server", () => ({ captureException: vi.fn() }));
 
+import * as ErrorReporter from "@/core/observability/server";
 import { QueryEmbeddingWait } from "@/core/retrieval/query-embedding-wait";
 
 import { WikiSemanticQueryEmbedder } from "../wiki-query-embedder";
@@ -133,5 +134,38 @@ describe("Wiki query embedding cache", () => {
       version: expect.any(String),
     });
     expect(embedTexts).toHaveBeenCalledTimes(2);
+  });
+
+  it.each([
+    [
+      "a gateway timeout",
+      Object.assign(new Error("Gateway request failed"), {
+        name: "GatewayResponseError",
+        cause: Object.assign(new Error("aborted"), { name: "TimeoutError" }),
+      }),
+      "warning",
+    ],
+    [
+      "a provider at capacity",
+      Object.assign(new Error("at capacity"), { name: "GatewayRateLimitError", statusCode: 429 }),
+      "warning",
+    ],
+    [
+      "a rejected gateway key",
+      Object.assign(new Error("bad key"), { name: "GatewayAuthenticationError", statusCode: 401 }),
+      undefined,
+    ],
+  ])("falls back to lexical search on %s and reports it at the matching level", async (_label, error, level) => {
+    vi.mocked(ErrorReporter.captureException).mockClear();
+    const { service, embedTexts } = embeddings();
+    embedTexts.mockRejectedValueOnce(error);
+    const user = createMockUser({ id: crypto.randomUUID(), companyId: crypto.randomUUID() });
+
+    const vector = await runWithTenant(user, () =>
+      new WikiSemanticQueryEmbedder(service).embedQuery(`pricing ${crypto.randomUUID()}`),
+    );
+
+    expect(vector).toBeNull();
+    expect(ErrorReporter.captureException).toHaveBeenCalledExactlyOnceWith(error, level ? { level } : {});
   });
 });

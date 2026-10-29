@@ -74,4 +74,18 @@ describe("runInTransaction", () => {
 
     await expect(runInTransaction(() => Promise.resolve(result))).resolves.toBe(result);
   });
+
+  it("takes the company advisory lock unless the caller opts out", async () => {
+    const lockCalls = () =>
+      db.tx.$executeRaw.mock.calls.filter(([sql]) =>
+        String((sql as string[]).join("?")).includes("pg_advisory_xact_lock"),
+      );
+
+    await runInTransaction(() => Promise.resolve("locked"), { companyId: "company-1" });
+    expect(lockCalls()).toHaveLength(1);
+
+    db.tx.$executeRaw.mockClear();
+    await runInTransaction(() => Promise.resolve("unlocked"), { companyId: "company-1", lockCompany: false });
+    expect(lockCalls()).toHaveLength(0);
+  });
 });

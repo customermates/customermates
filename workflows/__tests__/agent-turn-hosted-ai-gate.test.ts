@@ -39,6 +39,7 @@ const state = vi.hoisted(() => ({
   reconcile: vi.fn(),
   close: vi.fn(),
   reportFailure: vi.fn(),
+  reportWarning: vi.fn(),
   toolLoadFailure: false,
   providerOptions: null as unknown,
   maxRetries: undefined as number | undefined,
@@ -425,7 +426,7 @@ vi.mock("@/i18n/locale-registry", async (importOriginal) => ({
 }));
 vi.mock("../capture-failure", () => ({
   reportFailure: state.reportFailure,
-  reportWarning: () => Promise.resolve(),
+  reportWarning: state.reportWarning,
   toWorkflowFailure: (error: unknown) => error,
 }));
 
@@ -521,6 +522,7 @@ beforeEach(() => {
   state.reconcile.mockReset().mockResolvedValue({ reconciled: true });
   state.close.mockReset().mockResolvedValue(undefined);
   state.reportFailure.mockReset().mockResolvedValue(undefined);
+  state.reportWarning.mockReset().mockResolvedValue(undefined);
   state.markProviderStarted.mockReset().mockResolvedValue(true);
   state.finalize.mockReset().mockImplementation((args) => {
     const policyBreach = args.usageSettlement?.policyBreach === true;
@@ -1427,9 +1429,11 @@ describe("agent-turn credit-bounded continuation", () => {
 
     expect(segment).toBe(2);
     expect(seenMessages[1]).not.toContainEqual(expect.objectContaining({ role: "system" }));
-    expect(state.reportFailure).toHaveBeenCalledTimes(1);
-    expect(state.reportFailure.mock.calls[0][1].message).toContain('finishReason "error"');
-    expect(state.reportFailure.mock.calls[0][1].message).toContain("Vertex said no");
+    expect(state.reportFailure).not.toHaveBeenCalled();
+    const retried = state.reportWarning.mock.calls.filter((call) => String(call[1]).includes("resolved a round"));
+    expect(retried).toHaveLength(1);
+    expect(retried[0][1]).toContain('finishReason "error"');
+    expect(retried[0][1]).toContain("Vertex said no");
     expect(state.finalize).toHaveBeenCalledWith(
       expect.objectContaining({ terminalCode: "completed", stopReason: null }),
     );
@@ -1446,12 +1450,11 @@ describe("agent-turn credit-bounded continuation", () => {
 
     await runAgentTurn(payload);
 
-    expect(state.reportFailure).toHaveBeenCalledTimes(3);
-    expect(state.reportFailure.mock.calls.map((call) => /attempt (\d) of 3/.exec(call[1].message)?.[1])).toEqual([
-      "1",
-      "2",
-      "3",
-    ]);
+    expect(
+      state.reportWarning.mock.calls.flatMap((call) => /resolved a round.*attempt (\d) of 3/.exec(call[1])?.[1] ?? []),
+    ).toEqual(["1", "2"]);
+    expect(state.reportFailure).toHaveBeenCalledTimes(1);
+    expect(/attempt (\d) of 3/.exec(state.reportFailure.mock.calls[0][1].message)?.[1]).toBe("3");
     expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ stopReason: "provider_error" }));
   });
 
@@ -2018,6 +2021,12 @@ describe("agent-turn context degradation", () => {
     expect(state.providerCalls).toBe(0);
     expect(state.finalize).toHaveBeenCalledWith(
       expect.objectContaining({ terminalCode: "partial", stopReason: "context_limit" }),
+    );
+    expect(state.reportFailure).not.toHaveBeenCalled();
+    expect(state.reportWarning).toHaveBeenCalledWith(
+      "agent-turn",
+      expect.stringContaining("could not be compacted"),
+      payload.tenant,
     );
   });
 });
@@ -2789,7 +2798,10 @@ describe("agent-turn provider charge evidence", () => {
       await runAgentTurn({ ...payload, surface });
 
       expect(state.providerCalls).toBe(3);
-      expect(state.reportFailure).toHaveBeenCalledTimes(3);
+      expect(
+        state.reportWarning.mock.calls.filter((call) => String(call[1]).includes("resolved a round")),
+      ).toHaveLength(2);
+      expect(state.reportFailure).toHaveBeenCalledTimes(1);
       expect(state.recordRound).toHaveBeenCalledTimes(3);
       expect(state.recordRound.mock.calls.map(([round]) => round.costMicrocents)).toEqual([0, 0, 0]);
       expect(state.finalize).toHaveBeenCalledWith(

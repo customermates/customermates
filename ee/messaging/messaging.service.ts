@@ -185,6 +185,10 @@ export function getRetryAfterSeconds(err: unknown): number | null {
   return err instanceof UnipileRequestError ? err.retryAfterSeconds : null;
 }
 
+export function isUnipileTransientError(err: unknown): err is UnipileRequestError {
+  return err instanceof UnipileRequestError && (err.status === 0 || (err.status >= 500 && err.status !== 501));
+}
+
 export function isUnipileTimeout(err: unknown): err is UnipileRequestError {
   return err instanceof UnipileRequestError && err.status === 0;
 }
@@ -390,7 +394,7 @@ export class MessagingService {
 
   private mapSendError(source: unknown): { ok: false; error: CustomErrorCode; retryAfterSeconds?: number } {
     if (!(source instanceof z.ZodError)) {
-      const mapped = this.mapError(source);
+      const mapped = this.mapError(source, true);
       return mapped.error === CustomErrorCode.unipileServiceUnavailable ||
         mapped.error === CustomErrorCode.unipileProviderError
         ? { ok: false, error: CustomErrorCode.unipileSendOutcomeUnknown }
@@ -401,7 +405,10 @@ export class MessagingService {
     return { ok: false, error: CustomErrorCode.unipileSendUnconfirmed };
   }
 
-  private mapError(source: unknown): { ok: false; error: CustomErrorCode; retryAfterSeconds?: number } {
+  private mapError(
+    source: unknown,
+    sending = false,
+  ): { ok: false; error: CustomErrorCode; retryAfterSeconds?: number } {
     if (!(source instanceof UnipileRequestError)) throw source;
 
     const type = source.errorType ?? "";
@@ -413,11 +420,15 @@ export class MessagingService {
     } else if (
       UNIPILE_BAD_IMPL_TYPES.has(type) ||
       UNIPILE_PERMANENT_TYPES.has(type) ||
-      unipileErrorCode(source) === CustomErrorCode.unipileUnknown ||
-      (source.status >= 500 && !UNIPILE_TRANSIENT_5XX_TYPES.has(type))
+      unipileErrorCode(source) === CustomErrorCode.unipileUnknown
     )
       ErrorReporter.captureException(source, { tags: unipileDiagnostics(source) });
-    else if (unipileErrorCode(source) === CustomErrorCode.unipileProviderRejected) {
+    else if (source.status >= 500 && !UNIPILE_TRANSIENT_5XX_TYPES.has(type)) {
+      ErrorReporter.captureException(source, {
+        ...(sending || !isUnipileTransientError(source) ? {} : { level: "warning" as const }),
+        tags: unipileDiagnostics(source),
+      });
+    } else if (unipileErrorCode(source) === CustomErrorCode.unipileProviderRejected) {
       ErrorReporter.captureMessage("Unipile provider rejected a request", {
         level: "warning",
         tags: unipileDiagnostics(source),

@@ -19,6 +19,7 @@ export type ErrorReport = {
   tags?: Record<string, string>;
   causes?: { name: string; message: string; frames: ErrorReport["frames"] }[];
   frames: { file: string; function?: string; line?: number; column?: number }[];
+  fingerprint?: string;
 };
 
 const identifier = /^[a-zA-Z0-9_-]{1,128}$/;
