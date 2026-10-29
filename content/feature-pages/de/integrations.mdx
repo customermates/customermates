@@ -4,9 +4,9 @@ description: "Customermates per REST-API, signierten Webhooks, MCP für KI-Clien
 featureName: CRM-Integrationen
 
 relatedHrefs:
+  - /features/knowledge-base
   - /features/api
   - /features/workflow-automation
-  - /features/cloud-crm
   - /blog/crm-erp-integration
 
 hero:
@@ -79,7 +79,7 @@ Ein API-Key erbt die Rechte des Nutzers, der ihn angelegt hat. Eine Einschränku
 
 MCP (Model Context Protocol) ist ein [offener Standard, um KI-Anwendungen mit externen Systemen zu verbinden](https://modelcontextprotocol.io/docs/getting-started/intro). Customermates betreibt einen MCP-Endpunkt unter `/api/v1/mcp` mit [[derived.mcp.tools.total]] Tools. Claude und ChatGPT verbinden sich als benutzerdefinierter Connector mit OAuth-Anmeldung, wie in der [Anleitung für Claude und ChatGPT](/docs/connect-custom-connector) beschrieben. Claude Code, Codex, Cursor und Gemini CLI verbinden sich per API-Key.
 
-Client und Modell gehören Ihnen. Ihr KI-Anbieter rechnet seine Nutzung selbst ab, und MCP-Aufrufe verbrauchen keine gehosteten KI-Credits von Customermates. Messaging-, Kalender- und Social-Tools setzen einen Cloud-Tarif mit Posteingang voraus. Die [MCP-Referenz](/docs/mcp) listet alle Tools.
+Client und Modell gehören Ihnen. Ihr KI-Anbieter rechnet seine Modellnutzung selbst ab. Semantische Suchen über MCP können in der Cloud trotzdem zur Mate-Nutzung zählen; gewöhnliche CRM-Datensatzaufrufe führen das Modell Ihres Clients nicht auf dem Customermates-Server aus. Messaging-, Kalender- und Social-Tools setzen einen Cloud-Tarif mit Posteingang voraus. Die [MCP-Referenz](/docs/mcp) listet alle Tools.
 
 In Customermates Cloud gibt es zusätzlich Mate, den gehosteten Assistenten, der gehostete KI-Credits verbraucht. Mate kann Webhooks für Sie anlegen und ändern, und seine [Routinen](/docs/app-routines) führen eine gespeicherte Anweisung aus, wenn sich ein Datensatz ändert. Das deckt Arbeit ab, die Lesen und Abwägen verlangt. Feste Regeln gehören in Webhooks und n8n.
 
@@ -122,6 +122,8 @@ Braucht Ihr Team Hunderte fertige, vom Anbieter gepflegte Konnektoren, die jeman
 
 ## Häufige Fragen
 
+Halten Sie Betriebsleitfaden und belegte Firmeninformationen beim Kundendatensatz in der [KI-Wissensdatenbank](/features/knowledge-base).
+
 <Faq>
 <FaqItem question="Was bedeutet CRM-Integration?">
 Die Verbindung eines CRM mit anderer Software, sodass Daten oder Auslöser automatisch fließen. Ein neuer Deal legt zum Beispiel ein Projekt im Projekttool an, oder eine Formular-Anfrage wird zum Kontakt. Das läuft über eine API, Webhooks, ein Automatisierungstool oder einen fertigen Konnektor des Anbieters. Customermates bietet die ersten drei Wege und zusätzlich MCP für KI-Clients.
@@ -145,6 +147,9 @@ Ja. Jedes Tool, das einen HTTP-POST empfangen und HTTP-Anfragen mit eigenem Head
 
 <FaqItem question="Lässt sich das CRM mit SAP oder einem anderen ERP verbinden?">
 Ja, über dieselben Wege: Webhooks melden Änderungen an das ERP, die REST-API nimmt Daten von dort entgegen, meist mit n8n oder einer anderen Middleware dazwischen. Einen fertigen SAP-Konnektor liefert Customermates nicht.
+</FaqItem>
+<FaqItem question="Gibt es eine fertige CRM-Integration für CommuniGator?">
+Customermates liefert keinen nativen CommuniGator-Konnektor. Verfügbar sind REST-API und ausgehende Webhooks; ein eigener Adapter muss zusätzlich die unterstützte Schnittstelle des anderen Tools nutzen. Klären und testen Sie die benötigten Objekte, bevor Sie die Anbindung zusagen. Diese Seite behauptet keinen getesteten CommuniGator-Aufbau.
 </FaqItem>
 </Faq>
 

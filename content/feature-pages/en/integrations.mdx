@@ -4,9 +4,9 @@ description: "Connect Customermates to other tools with REST, signed webhooks, M
 featureName: CRM Integrations
 
 relatedHrefs:
+  - /features/knowledge-base
   - /features/api
   - /features/workflow-automation
-  - /features/cloud-crm
   - /blog/crm-erp-integration
 
 hero:
@@ -79,7 +79,7 @@ An API key inherits the permissions of the user who created it. There is no per-
 
 MCP (Model Context Protocol) is an [open standard for connecting AI applications to external systems](https://modelcontextprotocol.io/docs/getting-started/intro). Customermates runs one MCP endpoint at `/api/v1/mcp` with [[derived.mcp.tools.total]] tools. Claude and ChatGPT connect as a custom connector with OAuth sign-in, as described in [connecting Claude and ChatGPT](/docs/connect-custom-connector). Claude Code, Codex, Cursor and Gemini CLI connect with an API key.
 
-The client and its model are yours. Your AI provider bills its own usage, and MCP calls use no Customermates hosted AI credits. Messaging, calendar and social tools need a Cloud plan with the inbox. The [MCP reference](/docs/mcp) lists every tool.
+The client and its model are yours. Your AI provider bills its own model usage. Cloud semantic searches through MCP can still count toward Mate usage; ordinary CRM record calls do not use your client's model on the Customermates server. Messaging, calendar and social tools need a Cloud plan with the inbox. The [MCP reference](/docs/mcp) lists every tool.
 
 Inside Customermates Cloud there is also Mate, the hosted assistant, which uses hosted AI credits. Mate can create and edit webhooks for you, and its [routines](/docs/app-routines) can run a saved instruction when a record changes. That covers work that needs reading and judgment; fixed rules belong in webhooks and n8n.
 
@@ -122,6 +122,8 @@ If your team needs hundreds of prebuilt, vendor-maintained connectors that a non
 
 ## Frequently asked questions
 
+Keep the operating guide and source facts beside the customer record in the [AI Knowledge Base](/features/knowledge-base).
+
 <Faq>
 <FaqItem question="What are CRM integrations?">
 Connections that move data or triggers between a CRM and other software, for example a new deal creating a project in a project tool or a form submission creating a contact. They run through an API, webhooks, an automation tool or a vendor-built connector. Customermates offers the first three plus MCP for AI clients.
@@ -145,6 +147,9 @@ Yes. Any tool that can receive an HTTP POST and send HTTP requests with a custom
 
 <FaqItem question="What is the difference between an API and a CRM?">
 The CRM is the system that stores your contacts, deals and conversations. An API is the doorway other software uses to read and change that data. In Customermates the REST API and the MCP endpoint are two such doorways, one for programs and one for AI clients.
+</FaqItem>
+<FaqItem question="Is there a ready-made CommuniGator CRM integration?">
+Customermates does not ship a native CommuniGator connector. Its REST API and outgoing webhooks are the available integration routes; a separately built adapter must also use the other tool's supported interface. Confirm that interface and test the required objects before committing to the connection. This page does not claim a tested CommuniGator setup.
 </FaqItem>
 </Faq>
 

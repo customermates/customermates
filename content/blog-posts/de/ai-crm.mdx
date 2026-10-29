@@ -11,7 +11,7 @@ blogPost:
   backToBlog: Zurück zum Blog
   by: von Benjamin Wagner
   date: 2026-05-02
-  updated: 2026-10-08
+  updated: 2026-10-29
   tags:
     - KI-CRM
     - KI im CRM
@@ -83,7 +83,7 @@ Stellen Sie diese Fragen in der Demo, oder schlagen Sie sie in der Dokumentation
 | 4. Arbeitet sie ohne Sie? | Zeitpläne und Datensatzereignisse, mit Obergrenzen für Läufe und Kosten | Routinen führen eine gespeicherte Anweisung nach Zeitplan oder bei einer Änderung aus, begrenzt pro Lauf und pro Stunde |
 | 5. Kann Ihr eigener KI-Client andocken? | Ein MCP-Server oder eine vollständige API, mit den Rechten des jeweiligen Nutzers | Ein MCP-Server mit [[derived.mcp.tools.total]] Werkzeugen, in jedem Tarif und selbst gehostet |
 | 6. Wer bezahlt das Modell? | Eine Einheit, die Sie vorab prüfen können: Credits, ein Add-on oder Ihr eigener KI-Anbieter | Mate nutzt monatliche gehostete KI-Credits pro aktivem Nutzer, siehe [Preise](/pricing). Mit einem MCP-Client läuft das Modell bei Ihrem eigenen KI-Anbieter |
-| 7. Wohin gehen die Daten, und kommen Sie wieder heraus? | Benannte Modellanbieter und Unterauftragsverarbeiter, ein AVV, ein dokumentierter Export | Primäre Datenbank in der AWS-Region Frankfurt konfiguriert; die Liste der [Unterauftragsverarbeiter](/subprocessors) nennt Google Cloud Vertex AI und Microsoft Azure als Anbieter der Modelle hinter Mate. Export als XLSX oder JSON, eine Liste nach der anderen |
+| 7. Wohin gehen die Daten, und kommen Sie wieder heraus? | Benannte Modellanbieter und Unterauftragsverarbeiter, ein AVV, ein dokumentierter Export | Primäre Datenbank in der AWS-Region Frankfurt konfiguriert; die Liste der [Unterauftragsverarbeiter](/subprocessors) nennt Google Cloud Vertex AI, Exa und TypeSafe AI für die jeweiligen Modell-, Websuch- und Ranking-Aufgaben. Export als XLSX oder JSON, eine Liste nach der anderen |
 | 8. Bewertet sie Deals? | Wenn Sie Scores brauchen: Fragen Sie, aus welchen Daten das Modell lernt | Nein. Gewichtete Pipeline-Werte ergeben sich aus den Phasenwahrscheinlichkeiten, die Sie festlegen |
 
 MCP, das [Model Context Protocol](https://modelcontextprotocol.io/docs/getting-started/intro), ist ein Open-Source-Standard, mit dem KI-Anwendungen wie Claude oder ChatGPT auf externe Systeme zugreifen. Mit einem MCP-Server arbeitet der KI-Client, für den Sie schon bezahlen, direkt im CRM.
@@ -174,7 +174,13 @@ Eine Routine läuft als ihre Eigentümerin oder ihr Eigentümer, mit deren Kanä
 
 Wollen Sie KI vor allem für prädiktives Scoring in einem großen Vertriebsteam, passt Customermates nicht: Sehen Sie sich Zoho CRM mit Zia oder Salesforce an, deren eigene Seiten solche Vorhersagefunktionen beschreiben.
 
+## Welche Datenstrategie brauchen KI-Kollegen?
+
+KI im CRM unterstützt das Kundenmanagement. Ob das hilft, entscheidet zuerst die Qualität der Quelldaten. Behandeln Sie KI wie Kollegen mit festgelegten Zugriffsrechten: den Kunden eindeutig bestimmen, Quelle und Datum jeder Aussage behalten, eine Person für den nächsten Schritt benennen und prüfpflichtige Aktionen festlegen. Eine flüssige Antwort ersetzt weder eine fehlende Einwilligung noch einen alten Preis oder eine unbekannte Vertragsklausel. Lassen Sie solche Lücken sichtbar, statt daraus sichere Kundenaussagen zu machen.
+
 ## Häufig gestellte Fragen
+
+Halten Sie Betriebsleitfaden und belegte Firmeninformationen beim Kundendatensatz in der [KI-Wissensdatenbank](/features/knowledge-base).
 
 <Faq>
 <FaqItem question="Was ist ein KI-CRM?">
@@ -198,7 +204,7 @@ ChatGPT oder Claude können den Code für eine einfache Kontaktdatenbank erzeuge
 </FaqItem>
 
 <FaqItem question="Ist KI im CRM mit der DSGVO vereinbar?">
-Das hängt davon ab, wo das Modell läuft und wer die Daten verarbeitet. Lassen Sie sich von jedem Anbieter die Liste der Unterauftragsverarbeiter und einen Auftragsverarbeitungsvertrag (AVV) geben. In Customermates Cloud ist die primäre Datenbank in der AWS-Region Frankfurt konfiguriert. Die Liste der Unterauftragsverarbeiter nennt Google Cloud Vertex AI und Microsoft Azure als Anbieter der Modelle hinter Mate, und die Datenschutzerklärung weist darauf hin, dass bei der Nutzung von Mate eine Verarbeitung in den USA möglich ist. Mit einem eigenen KI-Client über MCP gehen die Daten, die der Client liest, an den KI-Anbieter Ihrer Wahl. Wer den Open-Source-Kern selbst betreibt, behält die CRM-Daten auf eigenen Servern.
+Das hängt davon ab, wo das Modell läuft und wer die Daten verarbeitet. Lassen Sie sich von jedem Anbieter die Liste der Unterauftragsverarbeiter und einen Auftragsverarbeitungsvertrag (AVV) geben. In Customermates Cloud ist die primäre Datenbank in der AWS-Region Frankfurt konfiguriert. Die Liste der Unterauftragsverarbeiter nennt Google Cloud Vertex AI, Exa und TypeSafe AI für Modellaufrufe, Websuche und Ranking. Der primäre Chat-Pfad von Mate ist auf die EU festgelegt; Embeddings und weitere Verarbeitung können dennoch in den USA stattfinden. Microsoft Azure bedient keinen Mate-Aufruf. Mit einem eigenen KI-Client über MCP gehen die Daten, die der Client liest, an den KI-Anbieter Ihrer Wahl. Wer den Open-Source-Kern selbst betreibt, behält die CRM-Daten auf eigenen Servern.
 </FaqItem>
 </Faq>
 

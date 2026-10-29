@@ -11,7 +11,7 @@ blogPost:
   backToBlog: Back to Blog
   by: by Benjamin Wagner
   date: 2026-05-02
-  updated: 2026-10-08
+  updated: 2026-10-29
   tags:
     - AI CRM
     - AI-Native CRM
@@ -79,7 +79,7 @@ Ask these in a demo or look them up in the documentation. The third column shows
 | 4. Can it run without you? | Schedules and record events, with caps on runs and spending | Routines run a saved instruction on a schedule or when a record changes, capped per run and per hour |
 | 5. Can your own AI client connect? | An MCP server or a complete API, under the user's permissions | An MCP server with [[derived.mcp.tools.total]] tools, on every plan and self-hosted |
 | 6. Who pays for the model? | A unit you can check in advance: credits, an add-on or your own AI provider | Mate uses monthly hosted AI credits per active user, see [pricing](/pricing). With an MCP client, the model runs at your own AI provider |
-| 7. Where does the data go, and can you take it out? | Named model providers and subprocessors, a data processing agreement, a documented export | Primary database configured in the AWS Frankfurt region; the [subprocessors](/subprocessors) page names Google Cloud Vertex AI and Microsoft Azure as the providers behind Mate's models. Export as XLSX or JSON, one list at a time |
+| 7. Where does the data go, and can you take it out? | Named model providers and subprocessors, a data processing agreement, a documented export | Primary database configured in the AWS Frankfurt region; the [subprocessors](/subprocessors) page names Google Cloud Vertex AI, Exa and TypeSafe AI for the relevant model, web-search and ranking paths. Export as XLSX or JSON, one list at a time |
 | 8. Does it score deals? | If you need scores, ask which data the model learns from | No. Weighted pipeline values come from the stage probabilities you set |
 
 MCP, the [Model Context Protocol](https://modelcontextprotocol.io/docs/getting-started/intro), is an open-source standard for connecting AI applications such as Claude or ChatGPT to external systems. With an MCP server, the AI client you already pay for works in the CRM directly.
@@ -170,7 +170,13 @@ A routine runs as its owner, with the owner's channels and permissions. An unatt
 
 If predictive scoring for a large sales team is why you want AI, Customermates is not the fit: look at Zoho CRM with Zia or at Salesforce, whose own pages describe predictive features.
 
+## What data strategy do AI teammates need?
+
+An AI CRM applies artificial intelligence to customer relationship management, but a useful customer data strategy starts with the source records. Treat AI as teammates with defined access: identify the customer, keep the source and date of each assertion, name the person responsible for the next step, and decide which actions need review. A fluent answer cannot replace a missing consent, an old price or an unknown contract term. Keep those unknowns visible instead of turning them into confident customer facts.
+
 ## Frequently asked questions
+
+Keep the operating guide and source facts beside the customer record in the [AI Knowledge Base](/features/knowledge-base).
 
 <Faq>
 <FaqItem question="What is an AI CRM?">
@@ -194,7 +200,7 @@ Not the record itself. An AI model needs a place that stores who the client is, 
 </FaqItem>
 
 <FaqItem question="Is AI in a CRM safe for customer data under GDPR?">
-That depends on where the model runs and who processes the data, so ask every vendor for its subprocessor list and a data processing agreement. In Customermates Cloud, the primary database is configured in the AWS Frankfurt region. The subprocessors page names Google Cloud Vertex AI and Microsoft Azure as the providers behind Mate's models, and the privacy policy explains that using Mate can involve processing in the United States. With your own AI client through MCP, the data the client reads goes to the AI provider you chose. Self-hosting the open-source core keeps the CRM data on your own servers.
+That depends on where the model runs and who processes the data, so ask every vendor for its subprocessor list and a data processing agreement. In Customermates Cloud, the primary database is configured in the AWS Frankfurt region. The subprocessors page names Google Cloud Vertex AI, Exa and TypeSafe AI for model, web-search and ranking work. Mate's primary chat route is pinned to the EU, but embeddings and other processing can involve the United States. Microsoft Azure serves no Mate request. With your own AI client through MCP, the data the client reads goes to the AI provider you chose. Self-hosting the open-source core keeps the CRM data on your own servers.
 </FaqItem>
 </Faq>
 

@@ -1,0 +1,119 @@
+---
+title: "KI-Wissensdatenbank für Ihre Kundenarbeit"
+description: "Bündeln Sie Firmenwissen, Verfahren und Kundenkontext im Workspace. Menschen und KI-Clients nutzen dieselben Quellen, mit klaren Rechten und Grenzen."
+featureName: Wissensdatenbank
+
+relatedHrefs:
+  - /docs/app-wiki
+  - /features/api
+  - /features/integrations
+  - /features/self-hosted
+
+hero:
+  title: Eine KI-Wissensdatenbank für Ihre Kundenarbeit
+  description: Halten Sie Firmenwissen, Betriebsleitfaden und Verfahren bei Ihren Kundendatensätzen. Menschen, Mate und verbundene MCP-Clients können vor dem nächsten Arbeitsschritt dieselbe gepflegte Quelle lesen.
+  buttonLeftText: Kostenlos starten
+  buttonLeftHref: /auth/signup
+  buttonRightText: Anleitung zur Wissensdatenbank
+  buttonRightHref: /docs/app-wiki
+  hint: "✓ Keine Kreditkarte erforderlich ✓ Die ersten [[commercial.trial.days]] Tage kostenlos"
+
+cta:
+  action: Geben Sie Ihrer Kundenarbeit eine verlässliche Grundlage
+  description: Beginnen Sie mit einem Betriebsleitfaden, einem Verfahren und den tatsächlich benötigten Fakten. Prüfen Sie die Quellen, bevor ein Agent daraus Arbeitsschritte ableitet.
+  buttonLeftText: Kostenlos starten
+  buttonLeftHref: /auth/signup
+  buttonRightText: Wissensdatenbank kennenlernen
+  buttonRightHref: /docs/app-wiki
+  hint: "✓ Keine Kreditkarte erforderlich ✓ Die ersten [[commercial.trial.days]] Tage kostenlos"
+---
+
+Eine KI-Wissensdatenbank stellt Menschen und Agenten gepflegte Firmeninformationen und Verfahren bereit. In Customermates liegen diese Seiten im Kunden-Workspace. Ihr Team, Mate und externe MCP-Clients können die passende Anleitung zusammen mit dem aktuellen Kundendatensatz lesen, bevor sie den nächsten Schritt vorbereiten.
+
+Das passt zu kleinen Teams, die Kundenanfragen, Gespräche und Aufgaben über mehrere Werkzeuge hinweg bearbeiten. Die Wissensdatenbank ist kein öffentliches Hilfeportal, keine Lernplattform und keine umfassende Unternehmenssuche.
+
+<ArticleSummary title="Wofür Sie die Wissensdatenbank nutzen können">
+  <SummaryItem label="Firmenwissen">Trennen Sie Betriebsleitfaden, Verfahren und Referenzwissen. Benennen Sie Verantwortliche und ein Prüfdatum.</SummaryItem>
+  <SummaryItem label="Kundenkontext">Lesen Sie freigegebene Quellen und den aktuellen Kundendatensatz, bevor Sie eine interne Aufgabe vorbereiten.</SummaryItem>
+  <SummaryItem label="Zugriff">Die Rollenrechte gelten für die Wissensdatenbank. Einzelne Seiten haben keine eigenen Zugriffslisten.</SummaryItem>
+  <SummaryItem label="Grenze">Ein ähnlich klingender Suchtreffer beantwortet die Frage noch nicht. Prüfen Sie den tatsächlichen Quelltext.</SummaryItem>
+</ArticleSummary>
+
+## Was gehört in eine KI-Wissensdatenbank für die Kundenarbeit?
+
+Nehmen Sie zuerst Informationen auf, die das Vorgehen Ihres Teams bestimmen: Ihren Leistungsumfang, Zuständigkeiten, den Ablauf einer Kundenübergabe und den Umgang mit Ausnahmen. Jede Seite braucht eine verantwortliche Person, eine nachvollziehbare Quelle und ein Prüfdatum. Den aktuellen Status eines Kunden und den vereinbarten nächsten Schritt pflegen Sie dagegen im Kundendatensatz.
+
+| Seite | Leitfrage | Sinnvoller Inhalt |
+|---|---|---|
+| Betriebsleitfaden | Was müssen Menschen und Agenten vor der Arbeit hier wissen? | Quellenreihenfolge, Zuständigkeiten und Grenzen |
+| Verfahren | Was ist in dieser Situation zu tun? | Eine Übergabe-Checkliste mit anschließendem Abgleich |
+| Referenz | Auf welche Fakten darf sich eine Antwort stützen? | Freigegebener Leistungsumfang, Begriffe und Bedingungen mit Quellenstand |
+| Offene Fragen | Was wissen wir noch nicht? | Die unbeantwortete Frage und die zuständige Person |
+
+Die [Dokumentation zur Wissensdatenbank](/docs/app-wiki) erklärt Seitentypen und Bearbeitung. Der [Leitfaden zum agentischen CRM](/blog/agentic-crm) ordnet Wissen, Kundenkontext und Arbeitsschritte ein.
+
+## Wie nutzen Menschen, Mate und MCP-Clients dieselben Quellen?
+
+Menschen öffnen die Wissensdatenbank im Workspace. Mate kann Firmenwissen für unterstützte Aufgaben in Customermates Cloud heranziehen. Ein externer Client verbindet sich über [MCP und die API](/features/api), liest den Workspace-Kontext, sucht nach dem passenden Thema und ruft die relevante Seite oder den Abschnitt ab.
+
+Entscheidend ist eine konkrete Aufgabe. Lesen Sie bei einer Kundenübergabe erst den Kundendatensatz und das Übergabeverfahren. Bereiten Sie dann eine interne Aufgabe vor, weisen Sie eine Person zu, verknüpfen Sie den Kunden und lesen Sie das Ergebnis zurück. Diese Aufgabe versendet noch keine Kundennachricht und begründet keine neue vertragliche Zusage.
+
+<Steps>
+  <Step title="Quelle lesen">Beginnen Sie mit dem Betriebsleitfaden und dem passenden Verfahren. Folgen Sie den relevanten Referenzlinks.</Step>
+  <Step title="Kundenkontext prüfen">Lesen Sie den tatsächlichen Kundendatensatz und den vereinbarten Umfang. Ein allgemeines Verfahren ersetzt keine fehlenden Kundenangaben.</Step>
+  <Step title="Nächsten Schritt vorbereiten">Erstellen Sie eine interne Checkliste oder einen belegten Entwurf. Geben Sie an, welche Seite die jeweilige Aussage trägt.</Step>
+  <Step title="Gespeicherten Zustand abgleichen">Prüfen Sie Aufgabe, Verantwortliche und Kundenbeziehung. Eine erfolgreiche Anfrage allein belegt noch nicht das gewünschte Ergebnis.</Step>
+</Steps>
+
+Die [Integrationsübersicht](/features/integrations) unterscheidet externe Clients, REST, Webhooks und weitere Verbindungen. Aus der Wissensdatenbank folgt keine laufende Synchronisation lokaler Markdown-Dateien oder gemeinsamer Laufwerke.
+
+## Was hat unser Beispiel mit vier Seiten tatsächlich gezeigt?
+
+Geprüft am 29. Oktober 2026 in einem isolierten lokalen Workspace mit fiktiven Daten: Wir legten vier zweisprachige Seiten an, lasen sie über den tatsächlichen MCP-Endpunkt und suchten auf Deutsch und Englisch. Auf dieser Grundlage formulierten wir einen Entwurf mit Quellenverweisen. Anschließend legten wir eine interne Aufgabe an, wiederholten dieselbe idempotente Anfrage und prüften die gespeicherte Zuständigkeit und Kundenverknüpfung.
+
+Ein zweiter Leser mit API-Zugriff, aber ohne Leserecht für die Wissensdatenbank, konnte den Leitfaden nicht abrufen. Dieser Nachweis betrifft das Workspace-Recht. Er belegt weder seitenweise Zugriffsrechte noch eine bestimmte Antwortgenauigkeit. Der Versuch versendete keine externe Nachricht, nutzte keinen kostenpflichtigen KI-Aufruf und verband kein fremdes Konto.
+
+Das [Startpaket mit vier Wissensseiten](/templates/knowledge-base-starter-de.zip) enthält eigene Markdown-Beispiele und eine Anleitung zum Prüfen und Übernehmen der Texte. Es ist keine eigene Markdown-Import-/Exportfunktion. Ersetzen Sie die fiktiven Inhalte und bestätigen Sie Ihre tatsächlichen Regeln vor der Verwendung.
+
+## Was tun Sie, wenn die Quelle keine Antwort enthält?
+
+Machen Sie aus einem Suchtreffer keine Zusage. In unserem Beispiel lieferte die Frage nach der Aufbewahrungsdauer von Backups einen unscharfen Treffer nach einer Schreibkorrektur: Das englische Übergabeverfahren enthielt das Wort „back“ beim Zurücklesen einer Aufgabe. Eine Aufbewahrungsregel stand dort nicht. Auch die übrigen drei Seiten enthielten keine solche Frist. Der passende Entwurf hält deshalb fest: „Die Quellen nennen keine Aufbewahrungsdauer. Fragen Sie die zuständige Person, bevor Sie eine Frist zusagen.“
+
+Eine KI-Wissensdatenbank verhindert nicht jede falsche Antwort. Lesen Sie den gefundenen Abschnitt, prüfen Sie Geltungsbereich und Stand und unterscheiden Sie zwischen einem belegten Fakt und einem verwandten Wort. Halten Sie offene Fragen fest, statt Antwortfristen, Vertragsbedingungen oder Produktfunktionen zu erfinden.
+
+## Welche Rechte und Unterschiede beim Hosting gelten?
+
+Lesen und Verwalten der Wissensdatenbank sind Rollenrechte im Workspace. Es gibt keine eigenen Zugriffslisten je Seite und keine Berechtigungen je Feld. Speichern Sie dort nur Inhalte, die für alle Personen und verbundenen Nutzer mit diesem Leserecht geeignet sind.
+
+Externe MCP-Clients handeln mit den Rechten des verbundenen Nutzers. Die Bestätigungsregeln des Servers sind Hinweise an den Client. Sie bilden keine serverseitige Freigabesperre für einen ansonsten erlaubten Tool-Aufruf. Mate besitzt in Customermates Cloud eine eigene Freigaberichtlinie.
+
+Gehostetes Mate setzt den passenden Cloud-Tarif, verfügbares Kontingent und die globalen Freigaben voraus. Ein externer Client nutzt seinen eigenen Modellanbieter; semantische Suche kann trotzdem das Mate-Kontingent beanspruchen. Beim Self-Hosting stehen der Starter-Kern und MCP für externe Clients mit Stichwort-/Volltextsuche bereit. Gehostetes Mate und selbst gehostete semantische KI-Suche sind nicht enthalten. Details finden Sie unter [Self-Hosting](/features/self-hosted) und in der [Mate-Dokumentation](/docs/app-assistant).
+
+Dateien mit einer vorhandenen Textebene können zusätzlich durchsuchbar sein, soweit unterstützt. Für Scans und Bilder gibt es keine Texterkennung per OCR. Eine Suche über alle Laufwerke, Dateiformate und Fremdsysteme wird damit nicht zugesagt.
+
+## Wann passt ein anderes Wissenswerkzeug besser?
+
+Für persönliche Programmieranweisungen oder ein kleines Repository können lokale Markdown-Dateien reichen. Für eine öffentliche Kundendokumentation passt ein Hilfeportal. Umfangreiche Laufwerkssynchronisation, große Dokumentimporte oder feinere Dokumentrechte können eine spezialisierte Wissens- oder Suchplattform erfordern.
+
+Customermates passt, wenn gepflegte Anleitungen unmittelbar bei Kundendatensätzen, Gesprächen und der nächsten Aufgabe gebraucht werden. Beginnen Sie mit wenigen nützlichen Quellen und einem klaren Verfahren für deren Pflege.
+
+<Faq>
+<FaqItem question="Können externe Agenten dieselben Wissensseiten wie Mate lesen?">
+Unterstützte MCP-Clients können die Wissensdatenbank mit den Rechten des verbundenen Nutzers durchsuchen und Seiten abrufen. Modell und Abonnement des Clients bleiben von gehostetem Mate getrennt.
+</FaqItem>
+<FaqItem question="Verhindert eine KI-Wissensdatenbank erfundene Antworten?">
+Nein. Die Suche kann verwandte oder schreibkorrigierte Treffer liefern, die die Frage nicht beantworten. Prüfen Sie den Quelltext und lassen Sie unbelegte Angaben offen.
+</FaqItem>
+<FaqItem question="Ist semantische KI-Suche beim Self-Hosting enthalten?">
+Nein. Self-Hosting umfasst den Starter-Kern mit Stichwort-/Volltextsuche und externen MCP-Clients, ohne gehostetes Mate und ohne selbst gehostete semantische KI-Suche.
+</FaqItem>
+<FaqItem question="Kann ich eine einzelne Wissensseite nur einer kleineren Gruppe zeigen?">
+Es gibt keine Berechtigungen je Seite. Nutzen Sie die Rollenrechte und halten Sie die gesamte lesbare Wissensdatenbank für diese Zielgruppe geeignet.
+</FaqItem>
+<FaqItem question="Kann die Wissensdatenbank gescannte PDFs oder Fotos lesen?">
+Sie bietet keine OCR. Dateien mit Textebene können soweit unterstützt durchsucht werden. Scans und Bilder werden gespeichert und angezeigt, ohne ihren abgebildeten Text zu lesen.
+</FaqItem>
+<FaqItem question="Ist das Startpaket ein nativer Markdown-Import?">
+Nein. Es enthält vier fiktive Vorlagen zum Prüfen und Übernehmen in Wissensseiten. Es legt kein Konto und keine Verbindung an.
+</FaqItem>
+</Faq>
